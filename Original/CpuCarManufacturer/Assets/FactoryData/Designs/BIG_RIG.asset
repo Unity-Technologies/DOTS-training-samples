@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a7ea7d1b1d0649d1a7521de4f7509ac, type: 3}
+  m_Name: BIG_RIG
+  m_EditorClassIdentifier: 
+  designPrefab: {fileID: 1977275444102724, guid: 43564bb8787a44b50b44b456b46c202f,
+    type: 2}
+  designName: BigRig
+  chassisColour: {r: 0, g: 0, b: 0, a: 0}
+  chassisType: {fileID: 114369089746489476, guid: 43564bb8787a44b50b44b456b46c202f,
+    type: 2}

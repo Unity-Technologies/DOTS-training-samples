@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a7ea7d1b1d0649d1a7521de4f7509ac, type: 3}
+  m_Name: SALOON
+  m_EditorClassIdentifier: 
+  designPrefab: {fileID: 1891651232740238, guid: b783282b50c004f2a98d946cdf60fb66,
+    type: 2}
+  designName: Saloon
+  chassisColour: {r: 0.24586153, g: 0.64237136, b: 0.8018868, a: 1}
+  chassisType: {fileID: 114342177479131618, guid: b783282b50c004f2a98d946cdf60fb66,
+    type: 2}
