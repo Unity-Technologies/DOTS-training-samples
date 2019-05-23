@@ -1,0 +1,50 @@
+body{
+	background-color:#FFFFFF;
+}
+
+img{
+	outline: 2px;
+	outline-style: solid;
+	outline-color: #5555FF;
+}
+
+h2{
+	text-decoration: underline;
+}
+
+span.note{
+	display: inline-block;
+	min-height: 32px;
+	max-width: 500px;
+	outline: 1px;
+	outline-style: solid;
+	vertical-align: middle;
+	color:#000000;
+	background-color: #FFFEE0;
+	text-decoration: none;
+	vertical-align: middle;
+	padding: 6px;
+}
+
+table{
+	background-color: #000000;
+	outline: none;
+	padding: 2px;
+}
+tr{
+	background-color: #FFFFFF;
+	outline: none;
+}
+td{
+	outline: 1px;
+	outline-style: solid;
+	outline-color: black;
+	padding: 8px;
+}
+td.heading{
+	outline: 1px;
+	background-color: #DDDDDD;
+	outline-style: solid;
+	outline-color: black;
+	padding: 8px;
+}

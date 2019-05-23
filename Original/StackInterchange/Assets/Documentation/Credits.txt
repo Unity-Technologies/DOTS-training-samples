@@ -1,0 +1,4 @@
+Developed by Flying Squirrel Games
+
+Plugins:
+ - Simple Waypoint System

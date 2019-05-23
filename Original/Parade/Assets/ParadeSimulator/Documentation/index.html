@@ -1,0 +1,252 @@
+<html>
+
+<head>
+<title>Parade Demo - Documenation</title>
+<link rel="stylesheet" type="text/css" href="style/docs.css">
+</head>
+
+<body>
+
+<h1>Parade Demo Documentation</h1>
+
+<h2>Table of Contents</h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#customTest">Creating a Custom Parade Test Configuration</a></li>
+<li><a href="#runTest">Running a Test</a></li>
+<li><a href="#includedTests">Pre-Defined Test Configurations</a></li>
+<li><a href="#controls">Test Controls</a></li>
+<li><a href="#results">Viewing Results</a></li>
+</ul>
+<br/>
+
+<hr>
+
+<a name="overview"/>
+<h2>Overview</h2>
+<p>Overview goes here</p>
+
+<p>There are a few built-in configurations that provide a reasonable "Fast" to "Slow" performance result. They are included in the Assets/Resources/ConfigurationPresets folder of the project. These built-in test configurations are also available when you run a build.</p>
+
+<img src="img/includedTestConfigs.jpg">
+<br/>
+<br/>
+
+<a name="customTest"/>
+<h2>Creating a Custom Parade Test Configuration</h2>
+
+<p>In addition to the built-in presets, it is possible to create your own to test specific aspects of performance.</p>
+
+<br/>
+<span class="note"><u>Note</u>: For best results, it is recommended that any configurations that are to be compared share the same Number of Blocks (e.g. 25) and Speed (e.g. 5). For example, the included "Fast 25" and "Slow 25" both run for 25 blocks at a speed of 5. This ensure it is reasonable to compare the relative performance of these two test configurations.</span>
+<br/>
+<br/>
+
+<p>To create a new Parade Test Configuration, in the Project Explorer view in the Assets/Resources/ConfigurationPresets folder, right-click and select Create -> Parade Configuration.</p>
+
+<img src="img/newParadeConfig.jpg">
+<br/>
+<br/>
+
+<p>Adjust the field values as desired. Each value has a tool tip indicating its function. Reasonable default have been selected for "acceptable" performance (per the sample test hardware <a href="#results">noted below</a>).</p>
+
+<img src="img/customConfigEditor.jpg">
+<br/>
+<br/>
+
+
+
+<br/>
+<span class="note"><u>Note</u>: The "Number of Test Blocks" field is special in that leaving it assigned to a value of zero will create an "infinite test". These tests can be used for arbitrary benchmarking or profiling, and can only be completed by aborting the test.</span>
+<br/>
+<br/>
+
+
+
+<a name="runTest"/>
+<h2>Running a Test</h2>
+
+<p>To run a test, simply run the MainMenu.unity scene from in the editor or start a built executable. From the main menu, select the desired test configuration by name, and press 'Run Test'.</p>
+
+<br/>
+<span class="note"><u>Note</u>: If a custom configuration is not placed in the Assets/Resources/ConfigurationPresets folder, it will not be loaded when the demo runs. Furthermore, the order in which the test configurations is loaded is based on the ScriptableObject name in the ConfigurationPresets folder. For example, a test object with the name "_myTest" will be loaded before one named "AveragePerformance".</span>
+<br/>
+<br/>
+
+
+<img src="img/selectTest.jpg">
+<br/>
+<br/>
+
+<p>When a test is running, a basic UI is drawn to show the running test and progress. This UI can also be disabled in the test configuration.</p>
+
+<img src="img/testUI.jpg">
+<br/>
+<br/>
+
+<p>When a test is complete, you will be returned to the main menu where you will see basic results. Most important here is the test time and average frame rate.</p>
+
+<img src="img/testResult.jpg">
+<br/>
+<br/>
+
+<br/>
+<span class="note"><u>Note</u>: Frame rate can be limited by V-Sync, so when running tests in a build it is recomendded that "Very Low" quality settings are selected. This will allow "fast" tests to run at max performance and show better contrast with "slow" tests.</span>
+<br/>
+<br/>
+
+<p>By default, test results are written to file under the Application.PersistentDataPath in a sub folder named "ParadeTestResults". For example, on Windows 7 using the existing Build Settings, the file will be located in:</p>
+
+<pre>
+C:\Users\[USERNAME]\AppData\LocalLow\UTECH_Contract\Parade_Simulator_Demo\ParadeTestResults\
+</pre>
+
+<p>This file will be formatted as a CSV so that it can be easily imported into Microsoft Excel or similar for editing and general analysis activities.</p>
+
+<a name="includedTests"/>
+<h2>Pre-Defined Test Configurations</h2>
+
+<p>There are several test configurations included in the demo Assets/Resources/ConfigurationPresets folder. They are described below.</p>
+
+<table>
+
+<tr>
+<td class="heading"><b>Test Configuration</b></td>
+<td><b>Description</b></td>
+<td><b>Expected Test Results</b></td>
+<td><b>Expected Frame Rate</b></td>
+<td><b>Thumbnail</b></td>
+</tr>
+
+<tr>
+<td class="heading">_Acceptable_25</td>
+<td>Middle of the road performance for 25 blocks.</td>
+<td>Test will run pretty smoothly. Approximately 50% of the dense crowd will have balloons. The crowd will mostly pay attention to the parade, but can be distracted by other things. Buildings will be 1-2 storeys, and have "fancy" decorations.</td>
+<td><b>~40-50 FPS</b></td>
+<td><img src="img/thumbnails/acceptable.jpg"></td>
+</tr>
+
+<tr>
+<td class="heading">_Fast_25</td>
+<td>Fast performance for 25 test blocks.</td>
+<td>Test will run very smoothly. The very sparse crowd has a small chance of having a balloon. The crowd has a very high attention span for the parade. The buildings will all be 1 storey, and have no fancy decorations.</td>
+<td><b>60 FPS*</b></td>
+<td><img src="img/thumbnails/fast.jpg"></td>
+</tr>
+
+<tr>
+<td class="heading">_Max_25</td>
+<td>Maximum practical performance for 25 blocks.</td>
+<td>Test will only contain the camera and it's "parade float" (screen black). There will be no road, crowd, or buildings generated, resulting in a baseline "best possible" performance as everything is turned off.</td>
+<td><b>60 FPS*</b></td>
+<td><img src="img/thumbnails/max.jpg"></td>
+</tr>
+
+<tr>
+<td class="heading">_Slow_25</td>
+<td>Slow performance for 25 blocks.</td>
+<td>Test will run noticeably slowly. The high density crowd will all have balloons. Everyone has a very short attention span, and will be constantly looking for things to be distracted by. Buildings will be 1-10 storeys and have "fancy" decorations.</td>
+<td><b>~10 FPS</b></td>
+<td><img src="img/thumbnails/slow.jpg"></td>
+</tr>
+
+<tr>
+<td class="heading">AllSingingAllDancing</td>
+<td>"System Crashing" performance, infinite test.</td>
+<td>Test will run noticeably slowly. The high density crowd will all have balloons and be constantly changing behaviours and looking to be distracted. Their heads will flip back and forth chaotically. Buildings will all be 10 storeys and have "fancy" decoration.</td>
+<td><b>~5 FPS**</b></td>
+<td><img src="img/thumbnails/allsinging.jpg"></td>
+</tr>
+
+<tr>
+<td class="heading">InfiniteBlocksTest</td>
+<td>An infinite variant of the "Average 25" test.</td>
+<td>Everything will be the same as the "Average 25" test, but the test will run forever until aborted.</td>
+<td><b>~40-50 FPS</b></td>
+<td><img src="img/thumbnails/infiniteblocks.jpg"></td>
+</tr>
+
+<tr>
+<td class="heading">MyCustomConfig</td>
+<td>Fast (default) performance for 5 blocks.</td>
+<td>Test will run very smoothly, and end very quickly. Really only a sample to show what the instructions in this document yield.</td>
+<td><b>~60 FPS</b></td>
+<td><img src="img/thumbnails/mycustom.jpg"></td>
+</tr>
+
+</table>
+
+<p>*When run in editor and V-Sync is on, frame rate was limited to 60fps</p>
+<p>**This test can never be "completed", so this rate is an estimate based on first 10 or so seconds of play. This test may eventually crash the Editor.</p>
+
+<a name="controls"/>
+<h2>Test Controls</h2>
+<p>There are a few "Debug Keys" that can be used during a demo test run. They are contained in the DEBUG_KEYS region of the CityStreamManager.Update() function.</p>
+<ul>
+<li><b>Backspace:&nbsp;</b>Runs a quick sanity check to ensure the test scene contains no Animation, Animator, Collider or RigidBody components</li>
+<li><b>Escape:&nbsp;</b>Abort current test</li>
+<li><b>M:&nbsp;</b>Toggle Mouse Look on and off</li>
+<li><b>Space:&nbsp;</b>Start a test run*</li>
+<li><b>[:&nbsp;</b>Decrease movement speed*</li>
+<li><b>]:&nbsp;</b>Increase movement speed*</li>
+</ul>
+<p>*Applies to infinite test runs only.</p>
+
+
+<p>On the main menu, there is a "Clear All Results" button. This button simply deletes the existing test results file and creates a fresh copy. There is also a "Save Result" button which is disabled by default. If you turn off Autosave, this button will have to manually pressed to save individual results.</p>
+
+<a name="results"/>
+<h2>Viewing Results</h2>
+<p>Assuming you saved your test results, you can open them in a text editor or other program. Below is a (edited/formatted) sample set of data showing the built-in "Fast" and "Slow" test results run both in the Unity Editor and in a build.</p>
+
+<h3>Test Hardware</h3>
+<table>
+<tr>
+<td class="heading">Operating System</td><td>Windows 7 Professional 64-bit</td>
+</tr>
+<tr>
+<td class="heading">Unity Version</td><td>v2018.1.0f2</td>
+</tr>
+<tr>
+<td class="heading">CPU</td><td>Intel Core i7-4790K @ 4.00GHz</td>
+</tr>
+<tr>
+<td class="heading">RAM</td><td>8 GB </td>
+</tr>
+<tr>
+<td class="heading">GPU</td><td>NVIDIA GeForce GTX 970 4GB</td>
+</tr>
+</table>
+
+<p>A complete raw system information capture is available in the Documentation folder, called 'DxDiag_Raw.txt'</p>
+
+<p>The results below demonstrate how the "Fast 25" test is very high performance, while the CPU load associated with the "Slow 25" test is very low performance. Note that the in-Editor version of "Fast 25" was capped at ~60fps because the Editor quality settings used included V-Sync. The Build results for "Fast 25" show how fast the test can run without V-Sync. This can serve as a basis for comparing to "Slow 25" test results in a Build running updated code using ECS.</p>
+
+<img src="img/formattedTestResults.jpg">
+<br/>
+<br/>
+
+<p>In addition to raw data, the tests can also be visually inspected for performance issues. Most notably, frame stutter or "slide show" effects can be seen when running "Slow 25".</p>
+
+<h3>Good Performance:</h3>
+<img src="img/gif/smooth.gif">
+<br/>
+<h3>Poor Performance:</h3>
+<img src="img/gif/chunky.gif">
+<br/>
+
+<p>In the "Poor Performance" example above, not that the generated blocks (around horizon) do not come in consistently. As performance slows, the rate at which new blocks load in should be consistent (as rate of movement is the same throughout), but it is not. Sometimes, depending on the current load, the new block "pops in" late.</p>
+
+<h3>Customizing Test Output</h3>
+<p>The results are printed in the FileWriter class. By default, the output is simple and only references the test configuration name and the associated performance result. To customize this output to include other test configuraion data, edit the WriteParadeTestResultToFile() function and baseFileHeadings variable inside the FileWriter script.</p>
+
+<br/>
+<span class="note"><u>Note</u>: In order for the csv format to remain valid, you must ensure that the columns defined in the baseFileHeadings string match the printed output in the WriteParadeTestResultToFile() function.</span>
+<br/>
+<br/>
+
+
+
+</body>
+
+</html>

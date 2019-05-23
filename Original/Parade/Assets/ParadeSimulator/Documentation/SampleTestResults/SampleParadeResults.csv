@@ -1,0 +1,5 @@
+Date, Test Name, Environment, Test Duration, Frame Count, Average Frame Rate
+5/25/2018 12:16,Fast 25,Editor,40.01495,2413,60.30246
+5/25/2018 12:20,Slow 25,Editor,20.05317,202,10.07322
+5/25/2018 12:21,Fast 25,Production Build,39.99984,122719,3067.987
+5/25/2018 12:23,Slow 25,Production Build,20.03821,213,10.62969
