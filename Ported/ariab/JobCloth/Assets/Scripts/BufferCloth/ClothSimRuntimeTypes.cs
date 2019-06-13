@@ -2,8 +2,6 @@
 using System.Runtime.InteropServices;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
-using UnityEngine.Serialization;
 
 [Serializable]
 [InternalBufferCapacity(1024)]
@@ -66,4 +64,11 @@ public struct ClothTimestepData : IComponentData
 {
     public float FixedTimestep;
     public int   IterationCount;
+}
+
+
+[Serializable]
+public struct ClothWorldToLocal : IComponentData
+{
+    public float4x4 Value;
 }

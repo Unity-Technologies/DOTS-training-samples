@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Rendering;
 using UnityEngine;
 
-//[UpdateAfter(typeof(MeshRendererConversion))]
 public unsafe class InitializeClothSystem : GameObjectConversionSystem
 {
     protected override void OnUpdate()
     {
-        Entities.ForEach((MeshFilter meshFilter, VertexClothGarment garment) =>
+        Entities.ForEach((Transform transform, MeshFilter meshFilter, VertexClothGarment garment) =>
         {
             var mesh = meshFilter.mesh;
             var vertexCount = mesh.vertexCount;
@@ -27,7 +23,8 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
                 typeof(ClothPinWeight),
                 typeof(ClothTotalTime),
                 typeof(ClothTimestepData),
-                typeof(ClothSourceMeshData));
+                typeof(ClothSourceMeshData),
+                typeof(ClothWorldToLocal));
             var entity = DstEntityManager.CreateEntity(archetype);
             
             // Add reference to source mesh data and set it as read/write
@@ -41,6 +38,7 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
             DstEntityManager.SetComponentData(entity, srcMeshData);
             DstEntityManager.SetComponentData(entity, new ClothTotalTime { TotalTime = 0.0f });
             DstEntityManager.SetComponentData(entity, new ClothTimestepData {FixedTimestep = 1.0f / 60.0f, IterationCount = 0});
+            DstEntityManager.SetComponentData(entity, new ClothWorldToLocal { Value = transform.worldToLocalMatrix });
 
             // Copy initial vert data to buffer
             var projectedPositionBuffer = DstEntityManager.GetBuffer<ClothProjectedPosition>(entity);
