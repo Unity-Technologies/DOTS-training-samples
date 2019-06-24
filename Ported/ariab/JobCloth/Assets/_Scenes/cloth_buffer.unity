@@ -176,6 +176,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &47491722
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -282,6 +285,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &125942273
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -388,6 +394,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &263483948
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -543,6 +552,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &387661010
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -649,6 +661,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &522408516
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -755,6 +770,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &552223457
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -805,6 +823,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ConversionMode: 0
+--- !u!1 &588035224
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 588035226}
+  - component: {fileID: 588035225}
+  m_Layer: 0
+  m_Name: collider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!135 &588035225
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 588035224}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &588035226
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 588035224}
+  m_LocalRotation: {x: -0, y: -0, z: -0.2164396, w: 0.97629607}
+  m_LocalPosition: {x: -6.557, y: -0.18899998, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 638534450}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &638534449
 GameObject:
   m_ObjectHideFlags: 0
@@ -825,7 +887,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &638534450
 Transform:
   m_ObjectHideFlags: 0
@@ -837,7 +899,8 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0.2164396, w: 0.97629607}
   m_LocalPosition: {x: -0.66, y: 4.58, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 588035226}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 25}
@@ -911,6 +974,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!1 &755759486
 GameObject:
   m_ObjectHideFlags: 0
@@ -997,7 +1063,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 755759486}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.8919961, y: 0, z: -0.27739143}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 12.93656, y: 12.936548, z: 12.936548}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1059,6 +1125,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &814202181
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1257,6 +1326,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &900945991
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1363,6 +1435,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &1273018509
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1469,6 +1544,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &1627938887
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1666,6 +1744,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &1899097239
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1772,6 +1853,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &1975343339
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1878,6 +1962,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &1997090136
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1984,6 +2071,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &2068772831
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2090,6 +2180,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders:
+  - x: -5.4
+    y: -0.7
+    z: 0
+    w: 0.25
+  m_CapsuleColliders: []
+  m_PlaneColliders:
+  - x: 0
+    y: 1
+    z: 0
+    w: -0.7
 --- !u!23 &2079718469
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2196,6 +2297,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &2099192564
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2302,6 +2406,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7831c1fb1ab144a6978c9e8c65c5d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SphereColliders: []
+  m_CapsuleColliders: []
+  m_PlaneColliders: []
 --- !u!23 &2129487593
 MeshRenderer:
   m_ObjectHideFlags: 0

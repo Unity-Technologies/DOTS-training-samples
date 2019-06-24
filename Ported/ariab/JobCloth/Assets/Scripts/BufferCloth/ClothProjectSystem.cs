@@ -1,4 +1,5 @@
 ﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -29,7 +30,7 @@ public class ClothProjectSystem : JobComponentSystem
                 var gravity = math.mul(worldToLocal.Value, new float4(0.0f, -9.8f, 0.0f, 0.0f)).xyz * fixedStepSq;
                 velocity += gravity;
 
-                var newProjected = currentPosition + velocity * pinWeights[vertexIndex].InvPinWeight;
+                var newProjected = currentPosition + velocity * pinWeights[vertexIndex].InvPinWeight * 0.99f;
                 projectedPositions[vertexIndex] = new ClothProjectedPosition {Value = newProjected};
             }
         }

@@ -1,11 +1,11 @@
 ﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
-[UpdateAfter(typeof(ClothConstraintSolverSystem))]
 public class ClothCopyProjectedToPreviousSystem : JobComponentSystem
 {
     [BurstCompile]
@@ -13,7 +13,10 @@ public class ClothCopyProjectedToPreviousSystem : JobComponentSystem
     // i.e. "projected" would be next frame's "current", 
     unsafe struct ClothAdvanceBuffersJob : IJobForEach_BBB<ClothProjectedPosition, ClothCurrentPosition, ClothPreviousPosition>
     {
-        public void Execute(DynamicBuffer<ClothProjectedPosition> projected, DynamicBuffer<ClothCurrentPosition> current, DynamicBuffer<ClothPreviousPosition> previous)
+        public void Execute(
+            DynamicBuffer<ClothProjectedPosition> projected, 
+            DynamicBuffer<ClothCurrentPosition> current, 
+            DynamicBuffer<ClothPreviousPosition> previous)
         {
             var copySize = sizeof(float3) * previous.Length;
             

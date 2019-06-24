@@ -2,9 +2,11 @@
 using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
+//[UpdateInGroup(typeof(InitializationSystemGroup))]
 public unsafe class InitializeClothSystem : GameObjectConversionSystem
 {
     protected override void OnUpdate()
@@ -24,6 +26,10 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
                 typeof(ClothTotalTime),
                 typeof(ClothTimestepData),
                 typeof(ClothSourceMeshData),
+                typeof(ClothSphereCollider),
+                typeof(ClothCapsuleCollider),
+                typeof(ClothPlaneCollider),
+                typeof(ClothCollisionContact),
                 typeof(ClothWorldToLocal));
             var entity = DstEntityManager.CreateEntity(archetype);
             
@@ -132,6 +138,35 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
                     pinWeightBuffer.Add(new ClothPinWeight {InvPinWeight = 0.0f});
                 else
                     pinWeightBuffer.Add(new ClothPinWeight {InvPinWeight = 1.0f});
+            }
+            
+            // Sphere Colliders
+            var sphereColliders = DstEntityManager.GetBuffer<ClothSphereCollider>(entity);
+            sphereColliders.Reserve(garment.m_SphereColliders.Length);
+            for (int i = 0; i < garment.m_SphereColliders.Length; ++i)
+            {
+                var sphere = garment.m_SphereColliders[i];
+                sphereColliders.Add(new ClothSphereCollider{LocalCenter = sphere.xyz, Radius = sphere.w});
+            }
+            
+            // todo Capsule Colliders
+            //var capsuleColliders = DstEntityManager.GetBuffer<ClothCapsuleCollider>(entity);
+            //capsuleColliders.Reserve(garment.m_CapsuleColliders.Length);
+            //for (int i = 0; i < garment.m_CapsuleColliders.Length; ++i)
+            //{
+            //    var capsule = garment.m_CapsuleColliders[i];
+            //    var vertA = capsule.center + ((capsule.height - capsule.radius) * capsule.direction);
+            //    
+            //    capsuleColliders.Add(new ClothCapsuleCollider{LocalCenter = capsule., Radius = collider.radius});
+            //}
+            
+            // Plane Colliders
+            var planeColliders = DstEntityManager.GetBuffer<ClothPlaneCollider>(entity);
+            planeColliders.Reserve(garment.m_PlaneColliders.Length);
+            for (int i = 0; i < garment.m_PlaneColliders.Length; ++i)
+            {
+                var plane = garment.m_PlaneColliders[i];
+                planeColliders.Add(new ClothPlaneCollider{LocalNormal = plane.xyz, LocalOffset = plane.w});
             }
         });
     }

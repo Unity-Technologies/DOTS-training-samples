@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine.Serialization;
 
 [Serializable]
 [InternalBufferCapacity(1024)]
@@ -31,6 +32,41 @@ public struct ClothDistanceConstraint : IBufferElementData
     public int VertexA;
     public int VertexB;
     public float RestLengthSqr;
+}
+
+[Serializable]
+[InternalBufferCapacity(8)]
+public struct ClothSphereCollider : IBufferElementData
+{
+    public float3 LocalCenter;
+    public float  Radius;
+}
+
+[Serializable]
+[InternalBufferCapacity(8)]
+public struct ClothCapsuleCollider : IBufferElementData
+{
+    public float3 LocalVertexA;
+    public float  RadiusA;
+    public float3 LocalVertexB;
+    public float  RadiusB;
+
+}
+
+[Serializable]
+[InternalBufferCapacity(8)]
+public struct ClothPlaneCollider : IBufferElementData
+{
+    public float3 LocalNormal;
+    public float LocalOffset;
+}
+
+[Serializable]
+[InternalBufferCapacity(64)]
+public struct ClothCollisionContact : IBufferElementData
+{
+    public float4 ContactPlane;
+    public int VertexIndex;
 }
 
 [Serializable]
