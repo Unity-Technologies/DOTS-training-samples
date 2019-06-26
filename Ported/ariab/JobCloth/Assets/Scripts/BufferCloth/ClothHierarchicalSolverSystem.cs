@@ -11,10 +11,11 @@ using UnityEngine;
 
 public class ClothHierarchicalSolverSystem : JobComponentSystem
 {
+    private EntityQuery m_LevelNoParentQuery;
     private EntityQuery m_LevelQuery;
     private List<ClothHierarchyDepth> m_AllHierarchyDepths;
     
-    //[BurstCompile]
+    [BurstCompile]
     unsafe struct PropagateOneHierarchyLevelJob : IJobForEachWithEntity_EBC<ClothHierarchicalParentIndexAndWeights, ClothHierarchyParentEntity>
     {
         [ReadOnly]
@@ -25,8 +26,6 @@ public class ClothHierarchicalSolverSystem : JobComponentSystem
             [ReadOnly]DynamicBuffer<ClothHierarchicalParentIndexAndWeights> parentInfoBuffer, 
             [ReadOnly]ref ClothHierarchyParentEntity parentEntity)
         {
-            Debug.Log("Current: " + e.Index);
-            Debug.Log("Parent: " + parentEntity.Parent);
             var currentLevelPositions = projectedPositionBuffer[e];
             var parentPositions = projectedPositionBuffer[parentEntity.Parent];
 
@@ -38,7 +37,7 @@ public class ClothHierarchicalSolverSystem : JobComponentSystem
                 
                 // Calculate the weighted average position of all of the new positions;
                 var weightedDelta = float3.zero;
-                for (int indexOfParentIndex = 0; indexOfParentIndex < 8; ++indexOfParentIndex)
+                for (int indexOfParentIndex = 0; indexOfParentIndex < parentIndicesAndWeights.ParentCount; ++indexOfParentIndex)
                 {
                     var parentIndex = parentIndicesAndWeights.ParentIndex[indexOfParentIndex];
                     var parentPosition = parentPositions[parentIndex].Value;
@@ -91,27 +90,41 @@ public class ClothHierarchicalSolverSystem : JobComponentSystem
             ComponentType.ReadOnly<ClothHierarchyParentEntity>(),
             ComponentType.ReadOnly<ClothDistanceConstraint>(),
             ComponentType.ReadOnly<ClothPinWeight>(),
-            
-            ComponentType.ReadWrite<ClothProjectedPosition>());
+            ComponentType.ReadWrite<ClothProjectedPosition>()
+            );
+        
+        m_LevelNoParentQuery = GetEntityQuery(new EntityQueryDesc
+            {
+                All = new []{
+                    ComponentType.ReadOnly<ClothHierarchyDepth>(),
+                    ComponentType.ReadOnly<ClothDistanceConstraint>(),
+                    ComponentType.ReadOnly<ClothPinWeight>(),
+                    ComponentType.ReadWrite<ClothProjectedPosition>()
+                },
+                None = new []
+                {
+                    ComponentType.ReadOnly<ClothHierarchyParentEntity>(),
+                    ComponentType.ReadOnly<ClothHierarchicalParentIndexAndWeights>()
+                }
+            }
+        );
         
         m_AllHierarchyDepths = new List<ClothHierarchyDepth>(10);
     }
     
-    protected unsafe override JobHandle OnUpdate(JobHandle inputDeps)
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        return inputDeps;
-        
         var positionBufferFromEntity = GetBufferFromEntity<ClothProjectedPosition>();
-        var constraintBufferFromEntity = GetBufferFromEntity<ClothDistanceConstraint>();
-        var pinWeightBufferFromEntity = GetBufferFromEntity<ClothPinWeight>();
 
+        m_AllHierarchyDepths.Clear();
         EntityManager.GetAllUniqueSharedComponentData(m_AllHierarchyDepths);
         //m_AllHierarchyDepths.Sort();
 
-        var maxHierarchyLevel = m_AllHierarchyDepths.Count - 1;
-        m_LevelQuery.SetFilter(m_AllHierarchyDepths[maxHierarchyLevel]);
+        // First solve all levels with no parents
+        var solveFirstLevelHandle = new DistanceConstraintSolver().Schedule(m_LevelNoParentQuery, inputDeps);
 
-        var solveFirstLevelHandle = new DistanceConstraintSolver().Schedule(m_LevelQuery, inputDeps);
+        // Then solve the rest hierarchically
+        var maxHierarchyLevel = m_AllHierarchyDepths.Count - 1;
         var waitOnPreviousLevelHandle = solveFirstLevelHandle;
         for (int levelIndex = maxHierarchyLevel - 1; levelIndex >= 0; levelIndex--)
         {
@@ -119,7 +132,7 @@ public class ClothHierarchicalSolverSystem : JobComponentSystem
 
             var propagateResultsDownHierarchyHandle = new PropagateOneHierarchyLevelJob
             {
-                projectedPositionBuffer = GetBufferFromEntity<ClothProjectedPosition>(true)
+                projectedPositionBuffer = positionBufferFromEntity
             }.Schedule(m_LevelQuery, waitOnPreviousLevelHandle);
             
             waitOnPreviousLevelHandle = new DistanceConstraintSolver().Schedule(m_LevelQuery, propagateResultsDownHierarchyHandle);

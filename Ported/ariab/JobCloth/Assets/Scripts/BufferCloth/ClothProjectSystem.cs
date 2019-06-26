@@ -8,17 +8,17 @@ using Unity.Mathematics;
 public class ClothProjectSystem : JobComponentSystem
 {
     [BurstCompile]
-    struct ProjectClothPositionsJob : IJobForEach_BBBBCC<ClothProjectedPosition, ClothCurrentPosition, ClothPreviousPosition, ClothPinWeight, ClothTimestepData, ClothWorldToLocal>
+    struct ProjectClothPositionsJob : IJobForEach_BBBB<ClothProjectedPosition, ClothCurrentPosition, ClothPreviousPosition, ClothPinWeight>//, ClothTimestepData, ClothWorldToLocal>
     {
         public void Execute(
             DynamicBuffer<ClothProjectedPosition> projectedPositions, 
             DynamicBuffer<ClothCurrentPosition> currentPositions, 
             DynamicBuffer<ClothPreviousPosition> previousPositions, 
-            DynamicBuffer<ClothPinWeight> pinWeights, 
-            ref ClothTimestepData timestepData,
-            ref ClothWorldToLocal worldToLocal)
+            DynamicBuffer<ClothPinWeight> pinWeights)
+            //ref ClothTimestepData timestepData,
+            //ref ClothWorldToLocal worldToLocal)
         {
-            var fixedStepSq = timestepData.FixedTimestep * timestepData.FixedTimestep;
+            var fixedStepSq = 0.0167f * 0.0167f;//timestepData.FixedTimestep * timestepData.FixedTimestep;
             
             var vertexCount = projectedPositions.Length;
             for (int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
@@ -26,7 +26,7 @@ public class ClothProjectSystem : JobComponentSystem
                 var currentPosition = currentPositions[vertexIndex].Value;
                 
                 var velocity = currentPosition - previousPositions[vertexIndex].Value;
-                var gravity = math.mul(worldToLocal.Value, new float4(0.0f, -9.8f, 0.0f, 0.0f)).xyz * fixedStepSq;
+                var gravity = math.mul(float4x4.identity, new float4(0.0f, -9.8f, 0.0f, 0.0f)).xyz * fixedStepSq;
                 velocity += gravity;
 
                 var newProjected = currentPosition + velocity * pinWeights[vertexIndex].InvPinWeight * 0.99f;

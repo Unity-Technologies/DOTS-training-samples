@@ -20,11 +20,12 @@ public class ClothSolverSystemGroup : ComponentSystemGroup
 
     protected override void OnUpdate()
     {
-        for (int i = 0; i < 8; ++i)
+        m_HierarchicalSolverSystem.Update();
+
+        for (int i = 0; i < 16; ++i)
         {
             m_ConstraintSolverSystem.Update();
             m_ContactSolverSystem.Update();
-            m_HierarchicalSolverSystem.Update();
         }
     }
 }

@@ -11,34 +11,12 @@ using UnityEngine.Assertions;
 //[UpdateInGroup(typeof(InitializationSystemGroup))]
 public unsafe class InitializeClothSystem : GameObjectConversionSystem
 {
-    private EntityArchetype m_NonHierarchicalGarmentArchetype;
-    
     enum HierarchicalClassification
     {
         Coarse = 0,
         Fine = 1
     }
 
-    protected override void OnCreateManager()
-    {
-        m_NonHierarchicalGarmentArchetype = EntityManager.CreateArchetype( 
-            typeof(ClothProjectedPosition), 
-            typeof(ClothCurrentPosition), 
-            typeof(ClothPreviousPosition), 
-            typeof(ClothDistanceConstraint), 
-            typeof(ClothPositionOrigin), 
-            typeof(ClothPinWeight),
-            typeof(ClothTotalTime),
-            typeof(ClothTimestepData),
-            typeof(ClothSourceMeshData),
-            typeof(ClothSphereCollider),
-            typeof(ClothCapsuleCollider),
-            typeof(ClothPlaneCollider),
-            typeof(ClothCollisionContact),
-            typeof(ClothWorldToLocal)
-            );
-    }
-    
     private List<List<int>> CreateNeighborListFromMesh(Mesh mesh)
     {
         // Init barlist
@@ -90,7 +68,7 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
         NativeHashMap<int, int> globalToLocalIndices, 
         List<List<int>> neighborList)
     {
-        var hierarchicalLevelArchetype = EntityManager.CreateArchetype(
+        var hierarchicalLevelArchetype = DstEntityManager.CreateArchetype(
             typeof(ClothProjectedPosition), 
             typeof(ClothCurrentPosition), 
             typeof(ClothPreviousPosition), 
@@ -101,7 +79,6 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
             typeof(ClothHierarchyParentEntity)
         );
         var levelEntity = DstEntityManager.CreateEntity(hierarchicalLevelArchetype);
-        Debug.Log("CreateEntity Called");
         var vertexCount = localToGlobalIndices.Length;
         
         // Grab position information from the original mesh
@@ -136,7 +113,8 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
 
         for (int i = 0; i < vertexCount; ++i)
         {
-            if (thisLevelNormals[i].y > .9f && thisLevelPositions[i].y > .3f)
+            //if (thisLevelNormals[i].y > .9f && thisLevelPositions[i].y > .3f)
+            if (math.abs(thisLevelPositions[i].x) > 2.25f)
                 pinWeightBuffer.Add(new ClothPinWeight {InvPinWeight = 0.0f});
             else
                 pinWeightBuffer.Add(new ClothPinWeight {InvPinWeight = 1.0f});
@@ -193,7 +171,6 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
         
         // Set our hierarchy depth
         DstEntityManager.SetSharedComponentData(levelEntity, new ClothHierarchyDepth{Level = levelIndex});
-
         return levelEntity;
     }
 
@@ -317,6 +294,21 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
                     }
                 }
             }
+            
+            // Ensure at least one constraint exists at this hierarchy level or else we can early out
+            var atLeastOneConstraintExists = false;
+            for (int i = 0; i < localCoarseNeighborList.Count; ++i)
+            {
+                var list = localCoarseNeighborList[i];
+                if (list.Count > 0)
+                {
+                    atLeastOneConstraintExists = true;
+                    break;
+                }
+            }
+
+            if (!atLeastOneConstraintExists)
+                break;
 
             // Find all of the "coarse" vertices for our current level and make mappings for global <-> local indices
             var coarseVertexCount = previousLevelVertexCount - fineIndexCountThisLevel;
@@ -353,26 +345,32 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
                 }
             }   
             
+            // Plus, anything that's still marked coarse should consider itself its own parent
+            for (int childLocalIndex = 0; childLocalIndex < previousLevelVertexCount; ++childLocalIndex)
+            {
+                if (localVertexClassifications[childLocalIndex] == HierarchicalClassification.Coarse)
+                {
+                    var globalIndex = previousLocalToGlobalIndex[childLocalIndex];
+                    parentGlobalIndexLists[childLocalIndex].Add(globalIndex);
+                }
+            }
+            
             // Now that we have all of the parent information for our previous level, we can set their indices and weights
             {
                 var parentIndicesAndWeightsBuffer = DstEntityManager.GetBuffer<ClothHierarchicalParentIndexAndWeights>(previousLevel);
                 for (int previousLevelVertexLocalIndex = 0; previousLevelVertexLocalIndex < parentGlobalIndexLists.Count; ++previousLevelVertexLocalIndex)
                 {
                     var myParentsList = parentGlobalIndexLists[previousLevelVertexLocalIndex];
-
-                    if (myParentsList.Count > 8)
-                    {
-                        Assert.IsTrue(false);
-                    }
+                    Assert.IsFalse(myParentsList.Count > 16);
                     
-                    var parentLocalIndexandWeights = parentIndicesAndWeightsBuffer[previousLevelVertexLocalIndex];
-
                     // initialize all parents and weights to -1 and 0.0f
-                    for (int i = 0; i < 8; ++i)
+                    var parentLocalIndexandWeights = parentIndicesAndWeightsBuffer[previousLevelVertexLocalIndex];
+                    for (int i = 0; i < 16; ++i)
                     {
                         parentLocalIndexandWeights.ParentIndex[i] = -1;
                         parentLocalIndexandWeights.WeightValue[i] = 0.0f;
                     }
+                    parentLocalIndexandWeights.ParentCount = myParentsList.Count;
                     
                     // Store indices and calculate max distance of all parents
                     var myPosition = sourceMesh.vertices[previousLocalToGlobalIndex[previousLevelVertexLocalIndex]];
@@ -386,13 +384,26 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
                         maxParentDistance = math.max(maxParentDistance, math.distance(myPosition, parentPosition));
                     }
 
-                    // Calculate and store weights
+                    // Calculate weights
+                    var totalWeights = 0.0f;
                     for (int parentGlobalIndexIndex = 0; parentGlobalIndexIndex < myParentsList.Count; ++parentGlobalIndexIndex)
                     {
                         var parentPosition = sourceMesh.vertices[myParentsList[parentGlobalIndexIndex]];
-                        var weight = 1.0f / (math.distance(myPosition, parentPosition) / maxParentDistance); // todo: epsilon to prevent divide by zero?
+                        var weight = 1.0f / 
+                                     (math.distance(myPosition, parentPosition) / (maxParentDistance + 0.001f) + 0.001f); // todo: epsilon to prevent divide by zero?
                         parentLocalIndexandWeights.WeightValue[parentGlobalIndexIndex] = weight;
+                        totalWeights += weight;
                     }
+                    
+                    // Normalize weights
+                    for (int parentGlobalIndexIndex = 0; parentGlobalIndexIndex < myParentsList.Count; ++parentGlobalIndexIndex)
+                    {
+                        float originalWeight = parentLocalIndexandWeights.WeightValue[parentGlobalIndexIndex];
+                        parentLocalIndexandWeights.WeightValue[parentGlobalIndexIndex] = originalWeight / totalWeights;
+                    }
+                    
+                    // Set value back to the buffer
+                    parentIndicesAndWeightsBuffer[previousLevelVertexLocalIndex] = parentLocalIndexandWeights;
                 }
             }
             
@@ -413,6 +424,10 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
                 localFineNeighborList[i].Clear();
             }
         }
+        
+        // Delete the parent info from the top level (don't have parents)
+        DstEntityManager.RemoveComponent<ClothHierarchyParentEntity>(previousLevel);
+        DstEntityManager.RemoveComponent<ClothHierarchicalParentIndexAndWeights>(previousLevel);
 
         return level0Entity;
     }
@@ -429,7 +444,7 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
         // Setup constraint hierarchy
         const int kNumHiearchyLevels = 3;
         var level0Entity = CreateHierarchy(kNumHiearchyLevels, mesh);
-        
+
         // Set sourcemeshdata on the l=0 entity so we can write back positions later
         var srcMeshData = new ClothSourceMeshData
         {
@@ -561,7 +576,8 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
         var normals = mesh.normals;
         for (int i = 0; i < vertexCount; ++i)
         {
-            if (normals[i].y > .9f && vertices[i].y > .3f)
+            //if (normals[i].y > .9f && vertices[i].y > .3f)
+            if (math.abs(vertices[i].x) > 2.25f)
                 pinWeightBuffer.Add(new ClothPinWeight {InvPinWeight = 0.0f});
             else
                 pinWeightBuffer.Add(new ClothPinWeight {InvPinWeight = 1.0f});

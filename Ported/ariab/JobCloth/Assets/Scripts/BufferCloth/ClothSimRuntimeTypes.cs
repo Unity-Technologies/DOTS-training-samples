@@ -125,8 +125,9 @@ public struct ClothIndexInMesh : IComponentData
 [InternalBufferCapacity(4)]
 public unsafe struct ClothHierarchicalParentIndexAndWeights : IBufferElementData
 {
-    public fixed int   ParentIndex[8];
-    public fixed float WeightValue[8];
+    public fixed int   ParentIndex[16];
+    public fixed float WeightValue[16];
+    public int ParentCount;
 }
 
 public struct ClothHierarchyParentEntity : IComponentData
