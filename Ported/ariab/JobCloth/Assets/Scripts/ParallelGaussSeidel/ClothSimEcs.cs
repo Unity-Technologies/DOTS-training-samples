@@ -32,7 +32,7 @@ public struct ProjectedPosition : IComponentData
 }
 
 // Cannot be a tag since we must maintain chunk ordering of vertices
-// 0 if unpinned 1 if pinned
+// 0 if unpinned 1 if pinned1
 public struct PinWeight : IComponentData
 {
     public byte Value;

@@ -1,0 +1,20 @@
+apiRules:
+  - exclude:
+      # inherited Object methods
+      uidRegex: ^System\.Object\..*$
+      type: Method
+  - exclude:
+      # mentioning types from System.* namespace
+      uidRegex: ^System\..*$
+      type: Type
+  - exclude:
+      hasAttribute:
+        uid: System.ObsoleteAttribute
+      type: Member
+  - exclude:
+      hasAttribute:
+        uid: System.ObsoleteAttribute
+      type: Type
+  - exclude:
+      uidRegex: Tests$
+      type: Namespace

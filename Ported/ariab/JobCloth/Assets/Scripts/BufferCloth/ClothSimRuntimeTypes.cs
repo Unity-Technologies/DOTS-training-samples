@@ -108,3 +108,28 @@ public struct ClothWorldToLocal : IComponentData
 {
     public float4x4 Value;
 }
+
+// Hierarchical only components
+
+public struct ClothHierarchyDepth : ISharedComponentData
+{
+    public int Level;
+}
+
+public struct ClothIndexInMesh : IComponentData
+{
+    public int OriginalIndex;
+}
+
+[Serializable]
+[InternalBufferCapacity(4)]
+public unsafe struct ClothHierarchicalParentIndexAndWeights : IBufferElementData
+{
+    public fixed int   ParentIndex[8];
+    public fixed float WeightValue[8];
+}
+
+public struct ClothHierarchyParentEntity : IComponentData
+{
+    public Entity Parent;
+}
