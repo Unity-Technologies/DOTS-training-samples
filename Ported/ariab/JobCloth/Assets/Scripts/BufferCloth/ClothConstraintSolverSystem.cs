@@ -9,6 +9,7 @@ using Unity.Mathematics;
 public class ClothConstraintSolverSystem : JobComponentSystem
 {
     [BurstCompile]
+    [ExcludeComponent(typeof(ClothHierarchyDepth))]
     struct DistanceConstraintSolver : IJobForEach_BBB<ClothProjectedPosition, ClothDistanceConstraint, ClothPinWeight>
     {
         public void Execute(

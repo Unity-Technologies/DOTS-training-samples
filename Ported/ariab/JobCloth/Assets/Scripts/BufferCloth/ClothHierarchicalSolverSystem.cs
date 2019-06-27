@@ -35,19 +35,22 @@ public class ClothHierarchicalSolverSystem : JobComponentSystem
                 var currentPosition = currentLevelPositions[currentLevelPositionIndex].Value;
                 var parentIndicesAndWeights = parentInfoBuffer[currentLevelPositionIndex];
                 
-                // Calculate the weighted average position of all of the new positions;
                 var weightedDelta = float3.zero;
+                
+                if(parentIndicesAndWeights.ParentCount != 1)
+                    continue;
+
+                // Calculate the weighted average position delta of all of the parent vertices
                 for (int indexOfParentIndex = 0; indexOfParentIndex < parentIndicesAndWeights.ParentCount; ++indexOfParentIndex)
                 {
                     var parentIndex = parentIndicesAndWeights.ParentIndex[indexOfParentIndex];
                     var parentPosition = parentPositions[parentIndex].Value;
-
+                
                     var delta = currentPosition - parentPosition;
                     
                     var positionWeight = parentIndicesAndWeights.WeightValue[indexOfParentIndex];
                     weightedDelta += delta * positionWeight;
                 }
-
                 currentLevelPositions[currentLevelPositionIndex] = new ClothProjectedPosition {Value = currentPosition + weightedDelta};
             }
         }
@@ -134,7 +137,7 @@ public class ClothHierarchicalSolverSystem : JobComponentSystem
             {
                 projectedPositionBuffer = positionBufferFromEntity
             }.Schedule(m_LevelQuery, waitOnPreviousLevelHandle);
-            
+
             waitOnPreviousLevelHandle = new DistanceConstraintSolver().Schedule(m_LevelQuery, propagateResultsDownHierarchyHandle);
         }
 

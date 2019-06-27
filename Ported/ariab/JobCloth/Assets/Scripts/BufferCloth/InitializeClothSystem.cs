@@ -17,20 +17,20 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
         Fine = 1
     }
 
-    private List<List<int>> CreateNeighborListFromMesh(Mesh mesh)
+    private List<List<int>> CreateNeighborListAndConstraintsFromMesh(Mesh mesh, out HashSet<int2> constraints)
     {
         // Init barlist
         var neighborList = new List<List<int>>(mesh.vertexCount);
         for (int i = 0; i < mesh.vertexCount; ++i)
             neighborList.Add(new List<int>(4));
         
-        var barLookup = new HashSet<Vector2Int>();
+        var barLookup = new HashSet<int2>();
         var triangles = mesh.triangles;
         for (int i = 0; i < triangles.Length; i += 3)
         {
             for (int j = 0; j < 3; j++)
             {
-                Vector2Int pair = new Vector2Int
+                var pair = new int2
                 {
                     x = triangles[i + j],
                     y = triangles[i + (j + 1) % 3]
@@ -51,22 +51,25 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
                 }
             }
         }
+        constraints = barLookup;
 
         return neighborList;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="originalMesh"></param>
-    /// <param name="localToGlobalIndices">Length is the # of vertices in this specific level. Value is the index from the original mesh.</param>
-    /// <param name="neighborList">Outer count is the # of vertices in this level, inner count is number of neighbors on this level.</param>
+    private int2 CreateConstraintPairFromTwoGlobalIndices(int a, int b)
+    {
+        var constraint = a < b
+            ? new int2(a, b)
+            : new int2(b, a);
+        return constraint;
+    }
+    
     private Entity CreateLevelEntityWithCurrentData(
         int levelIndex, 
         Mesh originalMesh,
         NativeArray<int> localToGlobalIndices, 
         NativeHashMap<int, int> globalToLocalIndices, 
-        List<List<int>> neighborList)
+        HashSet<int2> constraints)
     {
         var hierarchicalLevelArchetype = DstEntityManager.CreateArchetype(
             typeof(ClothProjectedPosition), 
@@ -113,59 +116,33 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
 
         for (int i = 0; i < vertexCount; ++i)
         {
-            //if (thisLevelNormals[i].y > .9f && thisLevelPositions[i].y > .3f)
             if (math.abs(thisLevelPositions[i].x) > 2.25f)
                 pinWeightBuffer.Add(new ClothPinWeight {InvPinWeight = 0.0f});
             else
                 pinWeightBuffer.Add(new ClothPinWeight {InvPinWeight = 1.0f});
         }
-        
-        // Reduce neighbor list to set of unique constraints
-        var barLookup = new HashSet<Vector2Int>();
-        for (int currentGlobalIndex = 0; currentGlobalIndex < neighborList.Count; currentGlobalIndex++)
-        {
-            var currentNeighborList = neighborList[currentGlobalIndex];
-            for (int indexOfGlobalNeighborIndex = 0; indexOfGlobalNeighborIndex < currentNeighborList.Count; indexOfGlobalNeighborIndex++)
-            {
-                // Indices here are indices inside the current level (not indices in the original mesh)
-                Vector2Int pair = new Vector2Int
-                {
-                    x = globalToLocalIndices[currentGlobalIndex],
-                    y = globalToLocalIndices[currentNeighborList[indexOfGlobalNeighborIndex]]
-                };
-                
-                // ensures uniqueness
-                if (pair.x > pair.y)
-                {
-                    var newY = pair.x;
-                    pair.x = pair.y;
-                    pair.y = newY;
-                }
-        
-                if (barLookup.Contains(pair) == false)
-                {
-                    barLookup.Add(pair);
-                }
-            }
-        }
-        
+
         // Add constraints to the entity
-        var barList = new List<Vector2Int>(barLookup);
-        var constraintCount = barList.Count;
+        var constraintsAsList = new List<int2>(constraints);
+        var constraintCount = constraintsAsList.Count;
         
         var constraintsBuffer = DstEntityManager.GetBuffer<ClothDistanceConstraint>(levelEntity);
         constraintsBuffer.Reserve(constraintCount);
 
         for (int i = 0; i < constraintCount; ++i)
         {
-            var p1 = thisLevelPositions[barList[i].x];
-            var p2 = thisLevelPositions[barList[i].y];
+            var xLocalIndex = globalToLocalIndices[constraintsAsList[i].x];
+            var yLocalIndex = globalToLocalIndices[constraintsAsList[i].y];
+            
+            // Constraints are stored as global indices
+            var p1 = thisLevelPositions[xLocalIndex];
+            var p2 = thisLevelPositions[yLocalIndex];
             
             constraintsBuffer.Add(new ClothDistanceConstraint
             {
                 RestLengthSqr = math.lengthsq(p2 - p1),
-                VertexA = barList[i].x,
-                VertexB = barList[i].y
+                VertexA = xLocalIndex,
+                VertexB = yLocalIndex
             });
         }
         
@@ -188,7 +165,7 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
         }
 
         // This list holds all constraints in terms of Global indices, but each iteration removes neighbors that have become children 
-        var globalNeighborList = CreateNeighborListFromMesh(sourceMesh);
+        var globalNeighborList = CreateNeighborListAndConstraintsFromMesh(sourceMesh, out var constraints);
         
         // Keep track of local neighbor counts separately.
         // We want to preserve the global neighbor list for reference, but need to keep track of how connections change as we build the hierarchy
@@ -207,7 +184,7 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
         }
 
         // Do L = 0 ("finest" level w/ all mesh vertices)
-        var level0Entity = CreateLevelEntityWithCurrentData(0, sourceMesh, localToGlobalIndex, globalToLocalIndex, globalNeighborList);
+        var level0Entity = CreateLevelEntityWithCurrentData(0, sourceMesh, localToGlobalIndex, globalToLocalIndex, constraints);
         var previousLevel = level0Entity;
         
         // Then iterate! Each iteration starts with the set of coarse vertices from the previous results and tries to further subdivide
@@ -343,7 +320,105 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
                         parentGlobalIndexIndex--;
                     }
                 }
-            }   
+            }
+            
+            // Restrict distance constraints
+            // NOTE: MUST be done before we reduce # of parents since this has logic for removing constraints based on parent lists
+            
+            // (Comments here are copy-pasted from the original paper)
+            // First all level l − 1 constraints are copied to level l.
+            // Each fine particle pi is collapsed into one of its coarse neighbors pj.
+            // The constraint connecting pi and pj is removed.
+            // For all neighbors pk of particle pi, if pk is also a neighbor of pj the constraint between pk and pi is removed.
+            // Otherwise, it is replaced by a constraint connecting pk and pj.
+            for (int localIndex = 0; localIndex < localVertexClassifications.Length; localIndex++)
+            {
+                var myGlobalIndex = previousLocalToGlobalIndex[localIndex];
+
+                if (localVertexClassifications[localIndex] == HierarchicalClassification.Fine)
+                {
+                    var parents = parentGlobalIndexLists[localIndex];
+                    
+                    // Find the average position of all of our coarse neighbors (parents)
+                    var averagePosition = Vector3.zero;
+                    for (int i = 0; i < parents.Count; ++i)
+                    {
+                        averagePosition += sourceMesh.vertices[myGlobalIndex];
+                    }
+                    averagePosition /= parents.Count;
+
+                    // Choose the neighbor closest to the average position as the neighbor to collapse into
+                    var closestNeighborGlobalIndex = -1;
+                    var closestDistance = Single.MaxValue;
+                    for (int i = 0; i < parents.Count; ++i)
+                    {
+                        var parentPosition = sourceMesh.vertices[parents[i]];
+                        var dist = math.distance(averagePosition, parentPosition);
+
+                        if (dist < closestDistance)
+                        {
+                            closestDistance = dist;
+                            closestNeighborGlobalIndex = parents[i];
+                        }
+                    }
+
+                    // Remove constraint between the collapsed vertices
+                    var constraint = CreateConstraintPairFromTwoGlobalIndices(closestNeighborGlobalIndex, myGlobalIndex);
+                    Assert.IsTrue(constraints.Remove(constraint));
+                    
+                    // For every other neighbor...
+                    for (int i = 0; i < parents.Count; ++i)
+                    {
+                        // Skip the one we already removed
+                        if (parents[i] == closestNeighborGlobalIndex)
+                            continue;
+
+                        var parentLocalIndex = globalToLocalIndex[parents[i]];
+                        
+                        // if our closest neighbor isn't already a neighbor of our neighbor, we should introduce them
+                        if (!parentGlobalIndexLists[parentLocalIndex].Contains(closestNeighborGlobalIndex))
+                        {
+                            constraints.Add(CreateConstraintPairFromTwoGlobalIndices(parents[i], closestNeighborGlobalIndex));
+                        }
+                        
+                        // Remove the constraints between us (the "fine" vertex) and all our neighbors
+                        var constraintToRemove = CreateConstraintPairFromTwoGlobalIndices(myGlobalIndex, parents[i]);
+                        Assert.IsTrue(constraints.Remove(constraintToRemove));
+                    }
+                }
+            }
+
+            const int kMaxParentVertexCount = 4;
+            // Lets also restrict the number of parents to the closest kMaxParentVertexCount
+            // This is arbitrary, but will be more efficient
+            for (int previousLevelVertexLocalIndex = 0;
+                previousLevelVertexLocalIndex < parentGlobalIndexLists.Count;
+                ++previousLevelVertexLocalIndex)
+            {
+                var currentVertexParentListCount = parentGlobalIndexLists[previousLevelVertexLocalIndex].Count;
+                if (currentVertexParentListCount <= 4)
+                    continue;
+                
+                // Sort parents by distance
+                float3 myPosition = sourceMesh.vertices[previousLocalToGlobalIndex[previousLevelVertexLocalIndex]];
+                var allParentDistances = new NativeHashMap<int, float>(currentVertexParentListCount, Allocator.Temp); // key is global index, value is distance
+                for (int i = 0; i < currentVertexParentListCount; ++i)
+                {
+                    var parentGlobalIndex = parentGlobalIndexLists[previousLevelVertexLocalIndex][i];
+                        
+                    float3 parentPosition = sourceMesh.vertices[parentGlobalIndex];
+                    allParentDistances.TryAdd(parentGlobalIndex, math.distance(myPosition, parentPosition));
+                }
+                
+                parentGlobalIndexLists[previousLevelVertexLocalIndex].Sort(Comparer<int>.Create((x, y) =>
+                    {
+                        return allParentDistances[x] > allParentDistances[y] ? 1 : allParentDistances[x] < allParentDistances[y] ? -1 : 0;
+                    })
+                );
+                
+                // Remove the back end of the parent list (leaving max of kMaxParentVertexCount)
+                parentGlobalIndexLists[previousLevelVertexLocalIndex].RemoveRange(kMaxParentVertexCount, currentVertexParentListCount - kMaxParentVertexCount);
+            }            
             
             // Plus, anything that's still marked coarse should consider itself its own parent
             for (int childLocalIndex = 0; childLocalIndex < previousLevelVertexCount; ++childLocalIndex)
@@ -361,11 +436,11 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
                 for (int previousLevelVertexLocalIndex = 0; previousLevelVertexLocalIndex < parentGlobalIndexLists.Count; ++previousLevelVertexLocalIndex)
                 {
                     var myParentsList = parentGlobalIndexLists[previousLevelVertexLocalIndex];
-                    Assert.IsFalse(myParentsList.Count > 16);
+                    Assert.IsFalse(myParentsList.Count > kMaxParentVertexCount);
                     
                     // initialize all parents and weights to -1 and 0.0f
                     var parentLocalIndexandWeights = parentIndicesAndWeightsBuffer[previousLevelVertexLocalIndex];
-                    for (int i = 0; i < 16; ++i)
+                    for (int i = 0; i < kMaxParentVertexCount; ++i)
                     {
                         parentLocalIndexandWeights.ParentIndex[i] = -1;
                         parentLocalIndexandWeights.WeightValue[i] = 0.0f;
@@ -373,14 +448,14 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
                     parentLocalIndexandWeights.ParentCount = myParentsList.Count;
                     
                     // Store indices and calculate max distance of all parents
-                    var myPosition = sourceMesh.vertices[previousLocalToGlobalIndex[previousLevelVertexLocalIndex]];
+                    float3 myPosition = sourceMesh.vertices[previousLocalToGlobalIndex[previousLevelVertexLocalIndex]];
                     var maxParentDistance = 0.0f;
                     for (int parentGlobalIndexIndex = 0; parentGlobalIndexIndex < myParentsList.Count; ++parentGlobalIndexIndex)
                     {
                         var parentGlobalIndex = myParentsList[parentGlobalIndexIndex];
                         parentLocalIndexandWeights.ParentIndex[parentGlobalIndexIndex] = globalToLocalIndex[parentGlobalIndex];
                         
-                        var parentPosition = sourceMesh.vertices[myParentsList[parentGlobalIndexIndex]];
+                        var parentPosition = sourceMesh.vertices[parentGlobalIndex];
                         maxParentDistance = math.max(maxParentDistance, math.distance(myPosition, parentPosition));
                     }
 
@@ -388,31 +463,37 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
                     var totalWeights = 0.0f;
                     for (int parentGlobalIndexIndex = 0; parentGlobalIndexIndex < myParentsList.Count; ++parentGlobalIndexIndex)
                     {
-                        var parentPosition = sourceMesh.vertices[myParentsList[parentGlobalIndexIndex]];
-                        var weight = 1.0f / 
-                                     (math.distance(myPosition, parentPosition) / (maxParentDistance + 0.001f) + 0.001f); // todo: epsilon to prevent divide by zero?
+                        float3 parentPosition = sourceMesh.vertices[myParentsList[parentGlobalIndexIndex]];
+                        var delta = myPosition - parentPosition;
+                        var distance = math.length(delta);
+                        var distRelToMax = distance / maxParentDistance;
+
+                        var weight = 1.0f / math.max(distRelToMax, 0.001f);
                         parentLocalIndexandWeights.WeightValue[parentGlobalIndexIndex] = weight;
                         totalWeights += weight;
                     }
                     
                     // Normalize weights
-                    for (int parentGlobalIndexIndex = 0; parentGlobalIndexIndex < myParentsList.Count; ++parentGlobalIndexIndex)
+                    for (int i = 0; i < myParentsList.Count; ++i)
                     {
-                        float originalWeight = parentLocalIndexandWeights.WeightValue[parentGlobalIndexIndex];
-                        parentLocalIndexandWeights.WeightValue[parentGlobalIndexIndex] = originalWeight / totalWeights;
+                        float originalWeight = parentLocalIndexandWeights.WeightValue[i];
+                        parentLocalIndexandWeights.WeightValue[i] = originalWeight / totalWeights;
                     }
+                    
+                    if(myParentsList.Count == 1)
+                        parentLocalIndexandWeights.WeightValue[0] = 1.0f;
                     
                     // Set value back to the buffer
                     parentIndicesAndWeightsBuffer[previousLevelVertexLocalIndex] = parentLocalIndexandWeights;
                 }
             }
-            
+
             // Don't need parent information anymore, can scrap it!
             previousLocalToGlobalIndex.Dispose();
             previousGlobalToLocalIndex.Dispose();
 
             // Create the entity for this hierarchy level
-            var currentLevelEntity = CreateLevelEntityWithCurrentData(currentHierarchyLevel, sourceMesh, localToGlobalIndex, globalToLocalIndex, localCoarseNeighborList);
+            var currentLevelEntity = CreateLevelEntityWithCurrentData(currentHierarchyLevel, sourceMesh, localToGlobalIndex, globalToLocalIndex, constraints);
             
             // Set this level as the previous' parent
             DstEntityManager.SetComponentData(previousLevel, new ClothHierarchyParentEntity{Parent = currentLevelEntity});
@@ -439,13 +520,12 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
         // Add reference to source mesh data and set it as read/write
         mesh.MarkDynamic();
 
-        var meshHandle = GCHandle.Alloc(mesh, GCHandleType.Pinned);
-        
         // Setup constraint hierarchy
         const int kNumHiearchyLevels = 3;
         var level0Entity = CreateHierarchy(kNumHiearchyLevels, mesh);
 
         // Set sourcemeshdata on the l=0 entity so we can write back positions later
+        var meshHandle = GCHandle.Alloc(mesh, GCHandleType.Pinned);
         var srcMeshData = new ClothSourceMeshData
         {
             SrcMeshHandle = meshHandle
