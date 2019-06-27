@@ -336,10 +336,12 @@ public class ClothPredictiveContactGenerationSystem : JobComponentSystem
             float feps = 0.0025f + contactRadius;
             float3 eps = new float3(feps,feps,feps);
 
+            float3 bbAverage = new float3();
+            Aabb meshBounds = new Aabb { Min = new float3(float.MaxValue), Max = new float3(float.MinValue) };
+
             for ( int i =0; i<triangles.Length; ++i )
             {
-  
-                // there will be two triangles in the quad to test
+                // Calculate a bounding box over the extruded movement of the triangle
                 var v0 = triangles[i].v0;
                 var v1 = triangles[i].v1;
                 var v2 = triangles[i].v2;
@@ -357,7 +359,82 @@ public class ClothPredictiveContactGenerationSystem : JobComponentSystem
                 var vMax = math.max(math.max(math.max(vc0, vc1), vc2), math.max(math.max(vp0, vp1), vp2));
 
                 boundingBoxes[i] = new Aabb { Min = vMin - eps, Max = vMax + eps, };
+
+                bbAverage += (vMax-vMin);
+                meshBounds.Include(boundingBoxes[i]);
+
             }
+
+            // TODO - does it make sense to pre-group the triangle based on the mesh into regions ?
+            // And then just update the grid box bounds in the first pass
+
+            // Would maybe have to sort and those bounds again, if we wanted to go hierarchical
+            // other issue would occur in twisted scenes
+
+            // calculate a grid size
+            meshBounds.Expand(feps);
+            float3 meshDims = (meshBounds.Max - meshBounds.Min);
+            bbAverage = meshDims / bbAverage;
+            int3 gridSize = (int3)math.ceil(bbAverage)*6;
+
+            float3 gridBoxDims = (meshDims) / gridSize;
+            float3 ooGridBoxDims = new float3(1.0f, 1.0f, 1.0f) / gridBoxDims;
+
+            NativeArray<int> gridCounters = new NativeArray<int>(gridSize.x * gridSize.y * gridSize.z, Allocator.Temp);
+            NativeArray<int> gridBase = new NativeArray<int>(gridSize.x * gridSize.y * gridSize.z, Allocator.Temp);
+            NativeArray<int> triangleIndex = new NativeArray<int>(triangles.Length, Allocator.Temp);
+            NativeArray<int> gridIndices = new NativeArray<int>(triangles.Length, Allocator.Temp);
+
+            // Classify the triangles into the grid
+            for (int i = 0; i < triangles.Length; ++i)
+            {
+                int3 pos = (int3)math.floor((boundingBoxes[i].Min - meshBounds.Min) * ooGridBoxDims);
+                int index = pos.x + pos.y * gridSize.x + pos.z * gridSize.x * gridSize.y;
+
+                triangleIndex[i] = index;
+                gridCounters[index] += 1;
+            }
+
+            int baseValue = 0;
+            for (int i = 0; i < gridBase.Length; ++i)
+            {
+                gridBase[i] = baseValue;
+                baseValue += gridCounters[i];
+            }
+
+            // Push the triangle bounds into the bins
+            for (int i = 0; i < triangles.Length; ++i)
+            {
+                int index = triangleIndex[i];
+                gridIndices[gridBase[index]] = i;
+                gridBase[index] += 1;
+            }
+
+            // Generate a bounding box from each bin
+            baseValue = 0;
+            for (int i = 0; i < gridBase.Length; ++i)
+            {
+                gridBase[i] = baseValue;
+                baseValue += gridCounters[i];
+            }
+
+
+            NativeArray<Aabb> gridBounds = new NativeArray<Aabb>(gridSize.x * gridSize.y * gridSize.z, Allocator.Temp);
+
+            for ( int i = 0; i< gridBounds.Length; ++i )
+            {
+                Aabb blockBounds = new Aabb { Min = new float3(float.MaxValue), Max = new float3(float.MinValue) };
+
+                for ( int j=0; j<gridCounters[i]; ++j)
+                {
+                    int index = gridIndices[gridBase[i] + j];
+
+                    blockBounds.Include(boundingBoxes[index]);
+                }
+
+                gridBounds[i] = blockBounds;
+            }
+
 
 
             // Many more vertices than spheres, vertices are outer loop
@@ -377,132 +454,143 @@ public class ClothPredictiveContactGenerationSystem : JobComponentSystem
                 // we should be able to add some simple aabb tree over the triangles
                 // but for the moment, just iterate over the entire array
                 // for each polygon in the mesh, try a point triangle collision
-                for ( int x = 0; x<triangles.Length; ++x) 
+                // for ( int x = 0; x<triangles.Length; ++x) 
+                for (int hi = 0; hi < gridBounds.Length; ++hi)
                 {
-                    // quick check, is there any overlap
-                    if (!rayBounds.Overlaps(boundingBoxes[x]))
+                    if (!rayBounds.Overlaps(gridBounds[hi]))
                     {
                         continue;
                     }
 
-                    int v0, v1, v2;
-
-                    // there will be two triangles in the quad to test
-                    v0 = triangles[x].v0;
-                    v1 = triangles[x].v1;
-                    v2 = triangles[x].v2;
-
-                    // no self intersection
-                    if (( v0 == vertexIndex ) || (v1 == vertexIndex) || (v2 == vertexIndex))
+                    for (int hj = 0; hj < gridCounters[hi]; ++hj)
                     {
-                        continue;
-                    }
+                        int x = gridIndices[gridBase[hi] + hj];
 
-                    // test swept movement against initial state
-                    float s;
-                    float t;
-
-                    // Calculate the closest point on the triangle to the current particle position
-                    var vc0 = currentPositions[v0].Value;
-                    var vc1 = currentPositions[v1].Value;
-                    var vc2 = currentPositions[v2].Value;
-                    float3 tric0 = ClosestPointOnTriangle(vc0, vc1, vc2, currentPosition0, out s, out t);
-                    float u = 1.0f - s - t;
- 
-                    // Find out where that point will be at the end of the frame
-                    var vp0 = projectedPositions[v0].Value;
-                    var vp1 = projectedPositions[v1].Value;
-                    var vp2 = projectedPositions[v2].Value;
-                    float3 trip0 = u* vp0 + s * vp1 + t * vp2;
-
-                    // And get the ray for the triagle
-                    float3 triRay = trip0 - tric0;
-                    float3 diff = (tric0 - currentPosition0);
-
-                    float3 pdiff = math.normalize(diff);
-                    // project movement of the particle and the triangle onto the separating line
-                    float dp0 = math.dot(ray0, pdiff);
-                    float dpTri = math.dot(triRay, pdiff);
-
-                    // If the two are approaching within the contact radius
-                    // then we generate a speculative contact
-                    float distance = (math.length(diff) - (dp0 - dpTri));
-
-                    if (distance < 2.0f*(contactRadius) )
-                    {
-                        float3 cross = math.cross(vc1 - vc0, vc2 - vc0);
-                        float3 normal = math.normalize(cross);
-                        
-                        // If the particle started on the backface of the triangle
-                        // then we need to flip the values
-                        float facing = 1.0f;
-                        if (math.dot(currentPosition0 - vc0, normal) < 0.0f)
+                        // quick check, is there any overlap
+                        if (!rayBounds.Overlaps(boundingBoxes[x]))
                         {
-                            normal = -normal;
-                            facing = -facing;
+                            continue;
                         }
 
-                        float push = contactRadius;                  
-                        float planeDistance = math.dot(normal, vc0);
+                        int v0, v1, v2;
+
+                        // there will be two triangles in the quad to test
+                        v0 = triangles[x].v0;
+                        v1 = triangles[x].v1;
+                        v2 = triangles[x].v2;
+
+                        // no self intersection
+                        if ((v0 == vertexIndex) || (v1 == vertexIndex) || (v2 == vertexIndex))
+                        {
+                            continue;
+                        }
+
+                        // test swept movement against initial state
+                        float s;
+                        float t;
+
+                        // Calculate the closest point on the triangle to the current particle position
+                        var vc0 = currentPositions[v0].Value;
+                        var vc1 = currentPositions[v1].Value;
+                        var vc2 = currentPositions[v2].Value;
+                        float3 tric0 = ClosestPointOnTriangle(vc0, vc1, vc2, currentPosition0, out s, out t);
+                        float u = 1.0f - s - t;
+
+                        // Find out where that point will be at the end of the frame
+                        var vp0 = projectedPositions[v0].Value;
+                        var vp1 = projectedPositions[v1].Value;
+                        var vp2 = projectedPositions[v2].Value;
+                        float3 trip0 = u * vp0 + s * vp1 + t * vp2;
+
+                        // And get the ray for the triagle
+                        float3 triRay = trip0 - tric0;
+                        float3 diff = (tric0 - currentPosition0);
+
+                        float3 pdiff = math.normalize(diff);
+                        // project movement of the particle and the triangle onto the separating line
+                        float dp0 = math.dot(ray0, pdiff);
+                        float dpTri = math.dot(triRay, pdiff);
+
+                        // If the two are approaching within the contact radius
+                        // then we generate a speculative contact
+                        float distance = (math.length(diff) - (dp0 - dpTri));
+
+                        if (distance < 2.0f * (contactRadius))
+                        {
+                            float3 cross = math.cross(vc1 - vc0, vc2 - vc0);
+                            float3 normal = math.normalize(cross);
+
+                            // If the particle started on the backface of the triangle
+                            // then we need to flip the values
+                            float facing = 1.0f;
+                            if (math.dot(currentPosition0 - vc0, normal) < 0.0f)
+                            {
+                                normal = -normal;
+                                facing = -facing;
+                            }
+
+                            float push = contactRadius;
+                            float planeDistance = math.dot(normal, vc0);
 #if APPLY_CONSTRAINTS
-                        // Add constraint for the particle
-                        outGeneratedContacts.Add(new ClothCollisionContact
-                        {
-                            ContactPlane = new float4 { xyz = normal, w = planeDistance + (push) },
-                            VertexIndex = vertexIndex
-                        });
+                                // Add constraint for the particle
+                                outGeneratedContacts.Add(new ClothCollisionContact
+                                {
+                                    ContactPlane = new float4 { xyz = normal, w = planeDistance + (push) },
+                                    VertexIndex = vertexIndex
+                                });
 
-                        // push the triangle away from the point
-                        AddTriangleConstraint(ref outGeneratedContacts, -normal, -planeDistance + push, v0, vc0, u, facing * (vc2 - vc1));
-                        AddTriangleConstraint(ref outGeneratedContacts, -normal, -planeDistance + push, v1, vc1, s, facing * (vc0 - vc2));
-                        AddTriangleConstraint(ref outGeneratedContacts, -normal, -planeDistance + push, v2, vc2, t, facing * (vc1 - vc0));
+                                // push the triangle away from the point
+                                AddTriangleConstraint(ref outGeneratedContacts, -normal, -planeDistance + push, v0, vc0, u, facing * (vc2 - vc1));
+                                AddTriangleConstraint(ref outGeneratedContacts, -normal, -planeDistance + push, v1, vc1, s, facing * (vc0 - vc2));
+                                AddTriangleConstraint(ref outGeneratedContacts, -normal, -planeDistance + push, v2, vc2, t, facing * (vc1 - vc0));
 #else
-                        // relative velocity in the frame
+                            // relative velocity in the frame
 
-                        float value = 0.05f;
-                        float kStiffness = 6.0f;
+                            float value = 0.05f;
+                            float kStiffness = 6.0f;
 
 
-                        float rvel = (dp0 - dpTri);
+                            float rvel = (dp0 - dpTri);
 
-                        rvel = math.max(rvel, 0.0f);
+                            rvel = math.max(rvel, 0.0f);
 
-                        // Actual collision
-                        if (distance<0.0f)
-                        {
-                            value = rvel * 0.5f;
-                        }
-                        else
-                        {
-                            // surface contact
-                            value = -math.min(-rvel, distance * kStiffness);
-                        }
+                            // Actual collision
+                            if (distance < 0.0f)
+                            {
+                                value = rvel * 0.5f;
+                            }
+                            else
+                            {
+                                // surface contact
+                                value = -math.min(-rvel, distance * kStiffness);
+                            }
 
-                        // The count applies 4 impulses, effectively dividing this value by 4
-                        // so boost it back again
-                        value *= 4.0f;
-                                               
-                        
-                        InternalImpulse imp = new InternalImpulse { Normal = normal, Value = value, VertexIndex = vertexIndex, Count = 1 };
+                            // The count applies 4 impulses, effectively dividing this value by 4
+                            // so boost it back again
+                            value *= 4.0f;
 
-                        impulses.Add(imp);
-                        impulseCounts[vertexIndex] += 1;
 
-                        imp.Value = -value*u;
-                        imp.VertexIndex = v0;
-                        impulses.Add(imp);
-                        impulseCounts[v0] += 1;
+                            InternalImpulse imp = new InternalImpulse { Normal = normal, Value = value, VertexIndex = vertexIndex, Count = 1 };
 
-                        imp.Value = -value * s;
-                        imp.VertexIndex = v1;
-                        impulses.Add(imp);
-                        impulseCounts[v1] += 1;
+                            impulses.Add(imp);
+                            impulseCounts[vertexIndex] += 1;
 
-                        imp.Value = -value * t;
-                        imp.VertexIndex = v2;
-                        impulses.Add(imp);
-                        impulseCounts[v2] += 1;
+                            imp.Value = -value * u;
+                            imp.VertexIndex = v0;
+                            impulses.Add(imp);
+                            impulseCounts[v0] += 1;
+
+                            imp.Value = -value * s;
+                            imp.VertexIndex = v1;
+                            impulses.Add(imp);
+                            impulseCounts[v1] += 1;
+
+                            imp.Value = -value * t;
+                            imp.VertexIndex = v2;
+                            impulses.Add(imp);
+                            impulseCounts[v2] += 1;
 #endif
+                        }
                     }
                 }
             }
