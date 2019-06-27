@@ -8,6 +8,7 @@ using Unity.Mathematics;
 public class ClothProjectSystem : JobComponentSystem
 {
     [BurstCompile]
+    [ExcludeComponent(typeof(ClothHierarchyParentEntity))]
     struct ProjectClothPositionsJob : IJobForEach_BBBB<ClothProjectedPosition, ClothCurrentPosition, ClothPreviousPosition, ClothPinWeight>
     {
         public void Execute(
