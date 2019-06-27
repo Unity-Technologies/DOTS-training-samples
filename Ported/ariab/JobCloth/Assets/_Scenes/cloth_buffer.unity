@@ -94,8 +94,8 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaDirect: 0.5
     m_PVRFilteringAtrousPositionSigmaIndirect: 2
     m_PVRFilteringAtrousPositionSigmaAO: 1
-    m_ShowResolutionOverlay: 1
     m_ExportTrainingData: 0
+    m_TrainingDataDestination: TrainingData
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -180,6 +180,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &47491722
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -205,6 +206,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -290,6 +292,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &125942273
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -315,6 +318,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -400,6 +404,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &263483948
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -425,6 +430,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -500,6 +506,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &268206991
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -533,6 +540,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -667,6 +675,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &387661010
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -692,6 +701,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -767,6 +777,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &439657431
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -800,6 +811,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -875,6 +887,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &459653713
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -908,6 +921,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -993,6 +1007,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &522408516
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1018,6 +1033,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -1103,6 +1119,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &552223457
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1128,6 +1145,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -1172,7 +1190,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!33 &593231491
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1206,6 +1224,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -1234,6 +1253,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!114 &593231494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1311,6 +1331,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &698480913
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1344,6 +1365,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -1427,6 +1449,7 @@ MonoBehaviour:
     z: 0
     w: -0.7
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &741624497
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1460,6 +1483,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -1535,6 +1559,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &748589163
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1568,6 +1593,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -1651,6 +1677,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -1735,6 +1762,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &771275985
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1768,6 +1796,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -1853,6 +1882,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &814202181
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1878,6 +1908,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -1953,6 +1984,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &860203438
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1986,6 +2018,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -2163,6 +2196,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &900945991
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2188,6 +2222,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -2263,6 +2298,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &982500116
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2296,6 +2332,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -2371,6 +2408,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &1229569634
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2404,6 +2442,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -2489,6 +2528,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &1273018509
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2514,6 +2554,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -2636,6 +2677,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &1404905522
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2669,6 +2711,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -2744,6 +2787,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &1562135803
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2777,6 +2821,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -2852,6 +2897,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &1594956798
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2885,6 +2931,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -2970,6 +3017,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &1627938887
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2995,6 +3043,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -3070,6 +3119,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &1665157208
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3103,6 +3153,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -3219,6 +3270,165 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 44.533, y: -138.56401, z: -12.532001}
+--- !u!1 &1873732269
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1873732274}
+  - component: {fileID: 1873732273}
+  - component: {fileID: 1873732272}
+  - component: {fileID: 1873732271}
+  - component: {fileID: 1873732270}
+  m_Layer: 0
+  m_Name: Sphere
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1873732270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1873732269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b275e5f92732148048d7b77e264ac30e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShapeType: 2
+  m_PrimitiveCenter:
+    x: 0
+    y: 0
+    z: 0
+  m_PrimitiveSize:
+    x: 1
+    y: 1
+    z: 1
+  m_PrimitiveOrientation:
+    Value:
+      x: -0
+      y: 0
+      z: 0
+    RotationOrder: 4
+  m_Capsule:
+    Height: 1
+    Radius: 0.5
+    Axis: 2
+  m_Cylinder:
+    Height: 1
+    Radius: 0.5
+    Axis: 2
+  m_SphereRadius: 0.5
+  m_ConvexRadius: 0.05
+  m_CustomMesh: {fileID: 0}
+  m_Material:
+    m_SupportsTemplate: 1
+    m_Template: {fileID: 0}
+    m_IsTrigger:
+      m_Override: 0
+      m_Value: 0
+    m_Friction:
+      m_Override: 0
+      m_Value:
+        Value: 0.5
+        CombineMode: 0
+    m_Restitution:
+      m_Override: 0
+      m_Value:
+        Value: 0
+        CombineMode: 2
+    m_BelongsTo:
+      m_Override: 0
+      m_Value: 0101010101010101010101010101010101010101010101010101010101010101
+    m_CollidesWith:
+      m_Override: 0
+      m_Value: 0101010101010101010101010101010101010101010101010101010101010101
+    m_RaisesCollisionEvents:
+      m_Override: 0
+      m_Value: 0
+    m_CustomFlags:
+      m_Override: 0
+      m_Value: 0000000000000000
+--- !u!114 &1873732271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1873732269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea7d7495833204790ba1d3a8755397f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConversionMode: 0
+--- !u!23 &1873732272
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1873732269}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!33 &1873732273
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1873732269}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1873732274
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1873732269}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.19, y: -0.87, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1899097235
 GameObject:
   m_ObjectHideFlags: 0
@@ -3279,6 +3489,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &1899097239
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3304,6 +3515,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -3379,6 +3591,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &1962461700
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3412,6 +3625,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -3497,6 +3711,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &1975343339
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3522,6 +3737,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -3607,6 +3823,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &1997090136
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3632,6 +3849,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -3707,6 +3925,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &2005168155
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3740,6 +3959,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -3825,6 +4045,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &2068772831
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3850,6 +4071,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -3925,6 +4147,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 1
+  m_CollideWithSelf: 0
 --- !u!33 &2072159689
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3958,6 +4181,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -4051,6 +4275,7 @@ MonoBehaviour:
     z: 0
     w: -0.7
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &2079718469
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4076,6 +4301,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -4120,7 +4346,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!33 &2085511967
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -4154,6 +4380,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -4182,6 +4409,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!114 &2085511970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4269,6 +4497,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &2099192564
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4294,6 +4523,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -4379,6 +4609,7 @@ MonoBehaviour:
   m_CapsuleColliders: []
   m_PlaneColliders: []
   isHierarchical: 0
+  m_CollideWithSelf: 0
 --- !u!23 &2129487593
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4404,6 +4635,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0

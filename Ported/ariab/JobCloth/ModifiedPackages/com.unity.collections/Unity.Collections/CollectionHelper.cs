@@ -88,11 +88,7 @@ namespace Unity.Collections
         [BurstDiscard]
         public static void CheckIsUnmanaged<T>()
         {
-#if UNITY_2019_3_OR_NEWER
-            if (!UnsafeUtility.IsValidNativeContainerElementType<T>())
-#else
             if (!UnsafeUtilityEx.IsUnmanaged<T>())
-#endif
                 throw new ArgumentException($"{typeof(T)} used in native collection is not blittable, not primitive, or contains a type tagged as NativeContainer");
         }
 
