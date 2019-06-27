@@ -552,7 +552,9 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
             typeof(ClothCapsuleCollider),
             typeof(ClothPlaneCollider),
             typeof(ClothCollisionContact),
-            typeof(ClothWorldToLocal));
+            typeof(ClothTriangle),
+            typeof(ClothWorldToLocal),
+            typeof(ClothConstraintSetup));
         var entity = DstEntityManager.CreateEntity(archetype);
         
         // Add reference to source mesh data and set it as read/write
@@ -567,6 +569,7 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
         DstEntityManager.SetComponentData(entity, new ClothTotalTime { TotalTime = 0.0f });
         DstEntityManager.SetComponentData(entity, new ClothTimestepData {FixedTimestep = 1.0f / 60.0f, IterationCount = 0});
         DstEntityManager.SetComponentData(entity, new ClothWorldToLocal { Value = transform.worldToLocalMatrix });
+        DstEntityManager.SetComponentData(entity, new ClothConstraintSetup { SelfIntersection = garment.m_CollideWithSelf });
 
         // Copy initial vert data to buffer
         var projectedPositionBuffer = DstEntityManager.GetBuffer<ClothProjectedPosition>(entity);
@@ -580,6 +583,10 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
         
         var originPositionBuffer = DstEntityManager.GetBuffer<ClothPositionOrigin>(entity);
         originPositionBuffer.Reserve(vertexCount);
+
+        var triangleBuffer = DstEntityManager.GetBuffer<ClothTriangle>(entity);
+        triangleBuffer.Reserve(vertexCount);
+
 
         fixed (Vector3* positions = mesh.vertices)
         {
@@ -606,6 +613,9 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
         var triangles = mesh.triangles;
         for (int i = 0; i < triangles.Length; i += 3)
         {
+            triangleBuffer.Add(new ClothTriangle { v0 = triangles[i], v1 = triangles[i + 1], v2 = triangles[i + 2] });
+
+
             for (int j = 0; j < 3; j++)
             {
                 Vector2Int pair = new Vector2Int

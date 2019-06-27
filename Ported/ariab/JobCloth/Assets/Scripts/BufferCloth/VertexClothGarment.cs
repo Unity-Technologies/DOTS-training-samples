@@ -21,6 +21,7 @@ public class VertexClothGarment : MonoBehaviour, IConvertGameObjectToEntity
     public float4[] m_PlaneColliders;
 
     public bool isHierarchical;
+    public bool m_CollideWithSelf;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
