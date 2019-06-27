@@ -9,6 +9,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
+[DisableAutoCreation]
 public class ClothHierarchicalSolverSystem : JobComponentSystem
 {
     private EntityQuery m_LevelNoParentQuery;
@@ -22,35 +23,39 @@ public class ClothHierarchicalSolverSystem : JobComponentSystem
         [NativeDisableContainerSafetyRestriction]
         public BufferFromEntity<ClothProjectedPosition> projectedPositionBuffer;
         
+        [ReadOnly]
+        [NativeDisableContainerSafetyRestriction]
+        public BufferFromEntity<ClothCurrentPosition> currentPositionBuffer;
+        
         public void Execute(Entity e, int index,
             [ReadOnly]DynamicBuffer<ClothHierarchicalParentIndexAndWeights> parentInfoBuffer, 
             [ReadOnly]ref ClothHierarchyParentEntity parentEntity)
         {
             var currentLevelPositions = projectedPositionBuffer[e];
             var parentPositions = projectedPositionBuffer[parentEntity.Parent];
+            var parentLastPositions = currentPositionBuffer[parentEntity.Parent];
 
             // Foreach projected position in the current level...
             for (int currentLevelPositionIndex = 0; currentLevelPositionIndex < currentLevelPositions.Length; ++currentLevelPositionIndex)
             {
-                var currentPosition = currentLevelPositions[currentLevelPositionIndex].Value;
                 var parentIndicesAndWeights = parentInfoBuffer[currentLevelPositionIndex];
-                
-                var weightedDelta = float3.zero;
-                
-                if(parentIndicesAndWeights.ParentCount != 1)
-                    continue;
 
                 // Calculate the weighted average position delta of all of the parent vertices
+                var weightedDelta = float3.zero;
                 for (int indexOfParentIndex = 0; indexOfParentIndex < parentIndicesAndWeights.ParentCount; ++indexOfParentIndex)
                 {
                     var parentIndex = parentIndicesAndWeights.ParentIndex[indexOfParentIndex];
+
+                    var parentLastPosition = parentLastPositions[parentIndex].Value;
                     var parentPosition = parentPositions[parentIndex].Value;
                 
-                    var delta = currentPosition - parentPosition;
+                    var delta = parentPosition - parentLastPosition;
                     
                     var positionWeight = parentIndicesAndWeights.WeightValue[indexOfParentIndex];
                     weightedDelta += delta * positionWeight;
                 }
+                var currentPosition = currentLevelPositions[currentLevelPositionIndex].Value;
+                
                 currentLevelPositions[currentLevelPositionIndex] = new ClothProjectedPosition {Value = currentPosition + weightedDelta};
             }
         }
@@ -118,6 +123,7 @@ public class ClothHierarchicalSolverSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var positionBufferFromEntity = GetBufferFromEntity<ClothProjectedPosition>();
+        var oldPositionBufferFromEntity = GetBufferFromEntity<ClothCurrentPosition>(true);
 
         m_AllHierarchyDepths.Clear();
         EntityManager.GetAllUniqueSharedComponentData(m_AllHierarchyDepths);
@@ -135,7 +141,8 @@ public class ClothHierarchicalSolverSystem : JobComponentSystem
 
             var propagateResultsDownHierarchyHandle = new PropagateOneHierarchyLevelJob
             {
-                projectedPositionBuffer = positionBufferFromEntity
+                projectedPositionBuffer = positionBufferFromEntity,
+                currentPositionBuffer = oldPositionBufferFromEntity
             }.Schedule(m_LevelQuery, waitOnPreviousLevelHandle);
 
             waitOnPreviousLevelHandle = new DistanceConstraintSolver().Schedule(m_LevelQuery, propagateResultsDownHierarchyHandle);

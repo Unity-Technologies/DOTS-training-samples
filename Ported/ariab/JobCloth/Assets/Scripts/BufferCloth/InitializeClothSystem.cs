@@ -116,7 +116,7 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
 
         for (int i = 0; i < vertexCount; ++i)
         {
-            if (math.abs(thisLevelPositions[i].x) > 2.25f)
+            if (math.abs(thisLevelPositions[i].x) > 2.4f)
                 pinWeightBuffer.Add(new ClothPinWeight {InvPinWeight = 0.0f});
             else
                 pinWeightBuffer.Add(new ClothPinWeight {InvPinWeight = 1.0f});

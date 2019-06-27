@@ -116,11 +116,6 @@ public struct ClothHierarchyDepth : ISharedComponentData
     public int Level;
 }
 
-public struct ClothIndexInMesh : IComponentData
-{
-    public int OriginalIndex;
-}
-
 [Serializable]
 [InternalBufferCapacity(4)]
 public unsafe struct ClothHierarchicalParentIndexAndWeights : IBufferElementData
