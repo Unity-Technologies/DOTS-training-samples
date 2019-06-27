@@ -84,6 +84,15 @@ public struct ClothPinWeight : IBufferElementData
 }
 
 [Serializable]
+[InternalBufferCapacity(64)]
+public struct ClothTriangle : IBufferElementData
+{
+    public int v0;
+    public int v1;
+    public int v2;
+}
+
+[Serializable]
 public struct ClothSourceMeshData : IComponentData
 {
     public GCHandle SrcMeshHandle;
@@ -107,6 +116,12 @@ public struct ClothTimestepData : IComponentData
 public struct ClothWorldToLocal : IComponentData
 {
     public float4x4 Value;
+}
+
+[Serializable]
+public struct ClothConstraintSetup : IComponentData
+{
+    public bool SelfIntersection;
 }
 
 // Hierarchical only components
