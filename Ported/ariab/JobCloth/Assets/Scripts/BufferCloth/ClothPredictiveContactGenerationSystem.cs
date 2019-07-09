@@ -52,8 +52,8 @@ public class ClothPredictiveContactGenerationSystem : JobComponentSystem
         public float contactRadius;
 
         public void Execute(
-            DynamicBuffer<ClothProjectedPosition> projectedPositions, 
-            DynamicBuffer<ClothCurrentPosition> currentPositions, 
+            DynamicBuffer<ClothProjectedPosition> projectedPositions,
+            DynamicBuffer<ClothCurrentPosition> currentPositions,
             DynamicBuffer<ClothCollisionContact> outGeneratedContacts,
             ref ClothWorldToLocal worldToLocal)
         {
@@ -181,6 +181,7 @@ public class ClothPredictiveContactGenerationSystem : JobComponentSystem
         }
     }
 
+
     [BurstCompile]
     struct ClothIntersectionContactJob : IJobForEach_BBBBC<ClothProjectedPosition, ClothCurrentPosition, ClothTriangle, ClothCollisionContact, ClothConstraintSetup>
     {
@@ -307,6 +308,124 @@ public class ClothPredictiveContactGenerationSystem : JobComponentSystem
             });
         }
 
+        unsafe struct OverlapProcessor : BoundingVolumeHierarchy.IAabbOverlapLeafProcessor
+        {
+            const int k_MaxKeys = 512;
+            fixed uint m_Keys[k_MaxKeys];  // actually ColliderKeys, but C# doesn't allow fixed arrays of structs
+            int m_NumKeys;
+
+            public void AabbLeaf<T>(OverlapAabbInput input, int leafData, ref T collector)
+    where T : struct, IOverlapCollector
+            {
+                ColliderKey nk = new ColliderKey();
+                nk.PushSubKey(32, (uint)leafData);
+
+                m_Keys[m_NumKeys++] = nk.Value;
+
+                if (m_NumKeys > k_MaxKeys - 8)
+                {
+                    Flush(ref collector);
+                }
+            }
+
+            public void Flush<T>(ref T collector) where T : struct, IOverlapCollector
+            {
+                fixed (uint* keys = m_Keys)
+                {
+                    collector.AddColliderKeys((ColliderKey*)keys, m_NumKeys);
+                }
+                m_NumKeys = 0;
+
+            }
+
+
+
+        }
+
+        private struct KeyOverlapsCollector : IOverlapCollector
+        {
+            public NativeList<ColliderKey> CollideKeys;
+
+
+
+            public unsafe void AddRigidBodyIndices(int* indices, int count)
+            {
+                throw new System.NotSupportedException();
+          
+            }
+
+            public unsafe void AddColliderKeys(ColliderKey* keys, int count)
+            {
+                if ( count > 0)
+                CollideKeys.AddRange(keys, count);
+            }
+
+            public void PushCompositeCollider(ColliderKeyPath compositeKey)
+            {
+                throw new System.NotSupportedException();
+            }
+
+            public void PopCompositeCollider(uint numCompositeKeyBits)
+            {
+                throw new System.NotSupportedException();
+            }
+        }
+
+
+        BoundingVolumeHierarchy GenerateBVHFromTriangles(ref DynamicBuffer<ClothTriangle> triangles, ref DynamicBuffer<ClothCurrentPosition> positions, ref DynamicBuffer<ClothProjectedPosition> projectedPositions)
+        {
+            float epsDistance = 0.025f;
+
+            int primitiveCount = triangles.Length;
+
+            // Build bounding volume hierarchy
+            var nodes = new NativeArray<BoundingVolumeHierarchy.Node>(primitiveCount * 2 + 1, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            int numNodes = 0;
+
+            // Prepare data for BVH
+            var points = new NativeArray<BoundingVolumeHierarchy.PointAndIndex>(primitiveCount, Allocator.Temp);
+            var aabbs = new NativeArray<Unity.Physics.Aabb>(primitiveCount, Allocator.Temp);
+
+            for (int i = 0; i < primitiveCount; i++)
+            {
+                int v0 = triangles[i].v0;
+                int v1 = triangles[i].v1;
+                int v2 = triangles[i].v2;
+
+                // test swept movement against initial state
+                var vc0 = positions[v0].Value;
+                var vc1 = positions[v1].Value;
+                var vc2 = positions[v2].Value;
+
+                var vp0 = projectedPositions[v0].Value;
+                var vp1 = projectedPositions[v1].Value;
+                var vp2 = projectedPositions[v2].Value;
+
+                var vMin = math.min(math.min(math.min(vc0, vc1), vc2), math.min(math.min(vp0, vp1), vp2));
+                var vMax = math.max(math.max(math.max(vc0, vc1), vc2), math.max(math.max(vp0, vp1), vp2));
+
+                aabbs[i] = new Aabb { Min = vMin, Max = vMax, };
+                aabbs[i].Expand(epsDistance);
+
+                points[i] = new BoundingVolumeHierarchy.PointAndIndex
+                {
+                    Position = aabbs[i].Center,
+                    Index = i
+                };
+            }
+
+            var bvh = new BoundingVolumeHierarchy(nodes);
+
+            bvh.Build(points, aabbs, out numNodes, useSah: false);
+
+
+            points.Dispose();
+            aabbs.Dispose();
+
+            return bvh;
+        }
+
+
         // Cloth intersection. To prevent self intersection, where cloth can return to a natural shape
         // ie should not be used on cloth falling onto a surface where constraints become badly formed, but can help with pinned cloth
 
@@ -325,120 +444,19 @@ public class ClothPredictiveContactGenerationSystem : JobComponentSystem
                 return;
             }
 
-            // Generate bounding boxes for each triangle in the mesh
-            NativeArray<Aabb> boundingBoxes = new NativeArray<Aabb>(triangles.Length, Allocator.Temp);
-
+            BoundingVolumeHierarchy bvh = GenerateBVHFromTriangles(ref triangles, ref currentPositions, ref projectedPositions);
+ 
 #if !APPLY_CONSTRAINTS
             NativeList<InternalImpulse> impulses = new NativeList<InternalImpulse>(projectedPositions.Length,Allocator.Temp);
             NativeArray<int> impulseCounts = new NativeArray<int>(projectedPositions.Length, Allocator.Temp);
 #endif
-
+           
             float feps = 0.0025f + contactRadius;
             float3 eps = new float3(feps,feps,feps);
-
-            float3 bbAverage = new float3();
-            Aabb meshBounds = new Aabb { Min = new float3(float.MaxValue), Max = new float3(float.MinValue) };
-
-            for ( int i =0; i<triangles.Length; ++i )
-            {
-                // Calculate a bounding box over the extruded movement of the triangle
-                var v0 = triangles[i].v0;
-                var v1 = triangles[i].v1;
-                var v2 = triangles[i].v2;
-
-                // test swept movement against initial state
-                var vc0 = currentPositions[v0].Value;
-                var vc1 = currentPositions[v1].Value;
-                var vc2 = currentPositions[v2].Value;
-
-                var vp0 = projectedPositions[v0].Value;
-                var vp1 = projectedPositions[v1].Value;
-                var vp2 = projectedPositions[v2].Value;
-
-                var vMin = math.min(math.min(math.min(vc0, vc1), vc2), math.min(math.min(vp0, vp1), vp2));
-                var vMax = math.max(math.max(math.max(vc0, vc1), vc2), math.max(math.max(vp0, vp1), vp2));
-
-                boundingBoxes[i] = new Aabb { Min = vMin - eps, Max = vMax + eps, };
-
-                bbAverage += (vMax-vMin);
-                meshBounds.Include(boundingBoxes[i]);
-
-            }
-
-            // TODO - does it make sense to pre-group the triangle based on the mesh into regions ?
-            // And then just update the grid box bounds in the first pass
-
-            // Would maybe have to sort and those bounds again, if we wanted to go hierarchical
-            // other issue would occur in twisted scenes
-
-            // calculate a grid size
-            meshBounds.Expand(feps);
-            float3 meshDims = (meshBounds.Max - meshBounds.Min);
-            bbAverage = meshDims / bbAverage;
-            int3 gridSize = (int3)math.ceil(bbAverage)*6;
-
-            float3 gridBoxDims = (meshDims) / gridSize;
-            float3 ooGridBoxDims = new float3(1.0f, 1.0f, 1.0f) / gridBoxDims;
-
-            NativeArray<int> gridCounters = new NativeArray<int>(gridSize.x * gridSize.y * gridSize.z, Allocator.Temp);
-            NativeArray<int> gridBase = new NativeArray<int>(gridSize.x * gridSize.y * gridSize.z, Allocator.Temp);
-            NativeArray<int> triangleIndex = new NativeArray<int>(triangles.Length, Allocator.Temp);
-            NativeArray<int> gridIndices = new NativeArray<int>(triangles.Length, Allocator.Temp);
-
-            // Classify the triangles into the grid
-            for (int i = 0; i < triangles.Length; ++i)
-            {
-                int3 pos = (int3)math.floor((boundingBoxes[i].Min - meshBounds.Min) * ooGridBoxDims);
-                int index = pos.x + pos.y * gridSize.x + pos.z * gridSize.x * gridSize.y;
-
-                triangleIndex[i] = index;
-                gridCounters[index] += 1;
-            }
-
-            int baseValue = 0;
-            for (int i = 0; i < gridBase.Length; ++i)
-            {
-                gridBase[i] = baseValue;
-                baseValue += gridCounters[i];
-            }
-
-            // Push the triangle bounds into the bins
-            for (int i = 0; i < triangles.Length; ++i)
-            {
-                int index = triangleIndex[i];
-                gridIndices[gridBase[index]] = i;
-                gridBase[index] += 1;
-            }
-
-            // Generate a bounding box from each bin
-            baseValue = 0;
-            for (int i = 0; i < gridBase.Length; ++i)
-            {
-                gridBase[i] = baseValue;
-                baseValue += gridCounters[i];
-            }
-
-
-            NativeArray<Aabb> gridBounds = new NativeArray<Aabb>(gridSize.x * gridSize.y * gridSize.z, Allocator.Temp);
-
-            for ( int i = 0; i< gridBounds.Length; ++i )
-            {
-                Aabb blockBounds = new Aabb { Min = new float3(float.MaxValue), Max = new float3(float.MinValue) };
-
-                for ( int j=0; j<gridCounters[i]; ++j)
-                {
-                    int index = gridIndices[gridBase[i] + j];
-
-                    blockBounds.Include(boundingBoxes[index]);
-                }
-
-                gridBounds[i] = blockBounds;
-            }
-
-
+      
 
             // Many more vertices than spheres, vertices are outer loop
-            for (int vertexIndex = 0; vertexIndex < projectedPositions.Length; vertexIndex+=1 )
+            for (int vertexIndex = 0; vertexIndex < projectedPositions.Length; vertexIndex+=1)
             {
                 var currentPosition0 = currentPositions[vertexIndex].Value;
                 var projectedPosition0 = projectedPositions[vertexIndex].Value;
@@ -450,28 +468,26 @@ public class ClothPredictiveContactGenerationSystem : JobComponentSystem
                     Max = math.max(currentPosition0, projectedPosition0)+eps,
                 };
 
-                // brute force
-                // we should be able to add some simple aabb tree over the triangles
-                // but for the moment, just iterate over the entire array
-                // for each polygon in the mesh, try a point triangle collision
-                // for ( int x = 0; x<triangles.Length; ++x) 
-                for (int hi = 0; hi < gridBounds.Length; ++hi)
+
+                NativeList < ColliderKey > collectorKeys = new NativeList<ColliderKey>(Allocator.Temp);
+                OverlapAabbInput overlapInput = new OverlapAabbInput { Aabb = rayBounds, Filter = CollisionFilter.Default };
+                KeyOverlapsCollector collector = new KeyOverlapsCollector()
                 {
-                    if (!rayBounds.Overlaps(gridBounds[hi]))
-                    {
-                        continue;
-                    }
+                    CollideKeys = collectorKeys,
+                };
+                OverlapProcessor processor = new OverlapProcessor();
+                
 
-                    for (int hj = 0; hj < gridCounters[hi]; ++hj)
-                    {
-                        int x = gridIndices[gridBase[hi] + hj];
+                bvh.AabbOverlap(overlapInput, ref processor, ref collector);
+                processor.Flush(ref collector);
 
-                        // quick check, is there any overlap
-                        if (!rayBounds.Overlaps(boundingBoxes[x]))
-                        {
-                            continue;
-                        }
 
+                // For each element that this collider overlapped
+                for (int hi = 0; hi < collector.CollideKeys.Length; ++hi)
+                {
+                    { 
+                        int x = (int)collector.CollideKeys[hi].Value;
+  
                         int v0, v1, v2;
 
                         // there will be two triangles in the quad to test
@@ -609,9 +625,7 @@ public class ClothPredictiveContactGenerationSystem : JobComponentSystem
             }
             impulses.Dispose();
 #endif
-
-            boundingBoxes.Dispose();
-   
+ 
         }
     };
 
@@ -636,8 +650,6 @@ public class ClothPredictiveContactGenerationSystem : JobComponentSystem
             contactRadius = 0.05f,
         };
 
- 
-        // TODO, this job can be done in parallel with the predictive contact job if contacts are two separate arrays which are merged later
         var clothjob = new ClothIntersectionContactJob()
         {
             physicsWorld = world,
@@ -646,9 +658,11 @@ public class ClothPredictiveContactGenerationSystem : JobComponentSystem
             contactRadius = 0.00625f,       // For self-interection, a small contact radius works best to avoid unstable lumpy cloth    
         };
 
-        JobHandle ccHandle = contactjob.Schedule(this, inputDependencies);
+     
 
-        JobHandle rcHandle = clothjob.Schedule(this, ccHandle);
+        JobHandle jh = contactjob.Schedule(this, inputDependencies);
+
+        JobHandle rcHandle = clothjob.Schedule(this, jh);
 
         return rcHandle;
     }
