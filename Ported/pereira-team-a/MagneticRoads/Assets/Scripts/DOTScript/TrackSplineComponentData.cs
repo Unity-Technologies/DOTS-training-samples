@@ -1,10 +1,10 @@
-﻿using Unity.Jobs;
+﻿using System;
 using Unity.Mathematics;
-using Unity.Transforms;
-using UnityEngine;
 using Unity.Collections;
+using Unity.Entities;
 
-public struct TrackSplineDOTS
+[Serializable]
+public struct TrackSplineComponentData : IComponentData
 {
     public float3 startPoint;
     public float3 endPoint;
@@ -16,5 +16,5 @@ public struct TrackSplineDOTS
     public int3 startTangent;
     public int3 endTangent;
 
-    public NativeArray<TrackSplineDOTS> neighbors;
+    //public NativeArray<TrackSplineComponentData> neighbors;
 }

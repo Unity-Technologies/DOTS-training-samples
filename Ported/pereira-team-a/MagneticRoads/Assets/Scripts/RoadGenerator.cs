@@ -377,28 +377,28 @@ public class RoadGenerator : MonoBehaviour
 
         // spawn cars
 
-        batch = 0;
-        for (int i = 0; i < 4000; i++)
-        {
-            Car car = new Car();
-            car.maxSpeed = carSpeed;
-            car.roadSpline = trackSplines[Random.Range(0, trackSplines.Count)];
-            car.splineTimer = 1f;
-            car.splineDirection = -1 + Random.Range(0, 2) * 2;
-            car.splineSide = -1 + Random.Range(0, 2) * 2;
-
-            car.roadSpline.GetQueue(car.splineDirection, car.splineSide).Add(car);
-
-            cars.Add(car);
-            carMatrices[batch].Add(Matrix4x4.identity);
-            carColors[batch].Add(Random.ColorHSV());
-            if (carMatrices[batch].Count == instancesPerBatch)
-            {
-                carMatrices.Add(new List<Matrix4x4>());
-                carColors.Add(new List<Vector4>());
-                batch++;
-            }
-        }
+//        batch = 0;
+//        for (int i = 0; i < 4000; i++)
+//        {
+//            Car car = new Car();
+//            car.maxSpeed = carSpeed;
+//            car.roadSpline = trackSplines[Random.Range(0, trackSplines.Count)];
+//            car.splineTimer = 1f;
+//            car.splineDirection = -1 + Random.Range(0, 2) * 2;
+//            car.splineSide = -1 + Random.Range(0, 2) * 2;
+//
+//            car.roadSpline.GetQueue(car.splineDirection, car.splineSide).Add(car);
+//
+//            cars.Add(car);
+//            carMatrices[batch].Add(Matrix4x4.identity);
+//            carColors[batch].Add(Random.ColorHSV());
+//            if (carMatrices[batch].Count == instancesPerBatch)
+//            {
+//                carMatrices.Add(new List<Matrix4x4>());
+//                carColors.Add(new List<Vector4>());
+//                batch++;
+//            }
+//        }
     }
 
     private void Update()
