@@ -99,7 +99,7 @@ public class CarMovementSystemJobs : JobComponentSystem
             //float dist = math.distance(trackSpline.endPoint, trackSpline.startPoint);
             //var moveDisplacement = (DeltaTime * movSpeedComponent.speed)/dist;
             //var t = Mathf.Clamp01(interpolatorT.t+ moveDisplacement);
-            //Position.Value = trackSpline.startPoint * (1f - t) * (1f - t) * (1f - t) + 3f * trackSpline.anchor1 * (1f - t) * (1f - t) * t + 3f * trackSpline.anchor2 * (1f - t) * t * t + trackSpline.endPoint * t * t * t;            
+            //Position.TargetPosition = trackSpline.startPoint * (1f - t) * (1f - t) * (1f - t) + 3f * trackSpline.anchor1 * (1f - t) * (1f - t) * t + 3f * trackSpline.anchor2 * (1f - t) * t * t + trackSpline.endPoint * t * t * t;            
             interpolatorT.t = t;
         }
     }

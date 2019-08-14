@@ -17,7 +17,7 @@ public class CarMovementSystem : ComponentSystem
         //Entities.ForEach((ref CarComponent carSpeed, ref Unity.Transforms.Translation Position,ref Unity.Transforms.Rotation rotation) =>
         //{
         //    var deltaTime = Time.deltaTime;
-        //    Position.Value = Position.Value + (math.forward(rotation.Value) * carSpeed.speed * deltaTime);
+        //    Position.TargetPosition = Position.TargetPosition + (math.forward(rotation.TargetPosition) * carSpeed.speed * deltaTime);
         //});
     }
 }

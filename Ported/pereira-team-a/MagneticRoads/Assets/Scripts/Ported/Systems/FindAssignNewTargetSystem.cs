@@ -14,22 +14,22 @@ public class FindAssignNewTargetSystem : JobComponentSystem
     {
         m_Query = GetEntityQuery(new EntityQueryDesc
         {
-            All = new []{ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<TargetPosition>()},
+            All = new []{ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<SplineData>()},
             None = new []{ComponentType.ReadOnly<FindTarget>() }
         });
         
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
-    
-    struct AssignFindTargetJob : IJobForEachWithEntity<Translation, TargetPosition>
+
+    struct AssignFindTargetJob : IJobForEachWithEntity<Translation, SplineData>
     {
         public EntityCommandBuffer.Concurrent commandBuffer;
 
-        public void Execute(Entity entity, int index, [ReadOnly] ref Translation translation, [ReadOnly] ref TargetPosition target)
+        public void Execute(Entity entity, int index, [ReadOnly] ref Translation translation, [ReadOnly] ref SplineData target)
         {
             //check if reaches the target
             // add find new target component
-            bool hasReachedTarget = math.distancesq(translation.Value, target.Value) < 0.1f;
+            bool hasReachedTarget = math.distancesq(translation.Value, target.TargetPosition) < 0.1f;
             if (hasReachedTarget)
             {
                 commandBuffer.AddComponent<FindTarget>(index, entity);

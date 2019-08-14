@@ -284,7 +284,7 @@ public class Car
                         queue.Remove(this);
                     }
 
-                    // add "leftover" spline timer Value to our new spline timer
+                    // add "leftover" spline timer TargetPosition to our new spline timer
                     // (avoids a stutter when changing between splines)
                     splineTimer = (splineTimer - 1f) * roadSpline.measuredLength / intersectionSpline.measuredLength;
                     roadSpline = newSpline;

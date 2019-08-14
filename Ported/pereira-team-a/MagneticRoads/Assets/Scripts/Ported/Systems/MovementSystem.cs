@@ -14,18 +14,18 @@ public class MovementSystem : JobComponentSystem
     {
         query = GetEntityQuery(new EntityQueryDesc
         {
-            All = new []{ComponentType.ReadWrite<Translation>(), ComponentType.ReadOnly<TargetPosition>()},
+            All = new []{ComponentType.ReadWrite<Translation>(), ComponentType.ReadOnly<SplineData>()},
             None = new []{ComponentType.ReadOnly<FindTarget>() }
         });
     }
 
     [BurstCompile]
-    struct MoveJob : IJobForEach<Translation, TargetPosition>
+    struct MoveJob : IJobForEach<Translation, SplineData>
     {
         public float deltaTime;
-        public void Execute(ref Translation translation, ref TargetPosition movement)
+        public void Execute(ref Translation translation, ref SplineData movement)
         {
-            translation.Value += math.normalize(movement.Value - translation.Value) * deltaTime * 2f;
+            translation.Value += math.normalize(movement.TargetPosition - translation.Value) * deltaTime * 2f;
         }
     }
 
