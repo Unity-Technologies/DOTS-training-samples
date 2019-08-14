@@ -1,28 +1,39 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(MovementSystem))]
 public class FindAssignNewTargetSystem : JobComponentSystem
 {
-    private EntityQuery query;
+    private EntityQuery m_Query;
+    private EndSimulationEntityCommandBufferSystem m_EntityCommandBufferSystem;
     protected override void OnCreate()
     {
-        query = GetEntityQuery(new EntityQueryDesc()
+        m_Query = GetEntityQuery(new EntityQueryDesc
         {
-            All = new []{ComponentType.ReadWrite<Translation>(), ComponentType.ReadOnly<TargetPosition>()},
+            All = new []{ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<TargetPosition>()},
             None = new []{ComponentType.ReadOnly<FindTarget>() }
         });
-    }
-
-    struct MoveJob : IJobForEach<Translation, TargetPosition>
-    {
         
-        public void Execute(ref Translation translation, ref TargetPosition movement)
+        m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+    
+    struct AssignFindTargetJob : IJobForEachWithEntity<Translation, TargetPosition>
+    {
+        public EntityCommandBuffer.Concurrent commandBuffer;
+
+        public void Execute(Entity entity, int index, [ReadOnly] ref Translation translation, [ReadOnly] ref TargetPosition target)
         {
-            //TODO: run this after moveSystem
             //check if reaches the target
             // add find new target component
-            
+            bool hasReachedTarget = math.distancesq(translation.Value, target.Value) < 0.1f;
+            if (hasReachedTarget)
+            {
+                commandBuffer.AddComponent<FindTarget>(index, entity);
+            }
         }
     }
 
@@ -30,10 +41,14 @@ public class FindAssignNewTargetSystem : JobComponentSystem
     {
         //1. get the direction
         //2. move to the Position
-        var job = new MoveJob
+        var job = new AssignFindTargetJob
         {
-        
+            commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent()
         };
-        return job.Schedule(query, inputDeps);
+        
+        var jobHandle = job.Schedule(m_Query, inputDeps);
+        m_EntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
+
+        return jobHandle;
     }
 }

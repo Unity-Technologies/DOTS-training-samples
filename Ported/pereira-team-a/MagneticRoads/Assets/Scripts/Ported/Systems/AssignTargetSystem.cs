@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -7,14 +8,13 @@ using UnityEngine;
 
 public class AssignTargetSystem : JobComponentSystem
 {
-    EndSimulationEntityCommandBufferSystem EntityCommandBufferSystem;
-
+    EndSimulationEntityCommandBufferSystem m_EntityCommandBufferSystem;
 
     protected override void OnCreate()
     {
-        EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
-
+    
     struct AssignDestinationJob : IJobForEachWithEntity<FindTarget, TargetIntersectionIndex>
     {
         [ReadOnly] public DynamicBuffer<IntersectionPoint> intersectionBuffer;
@@ -50,12 +50,12 @@ public class AssignTargetSystem : JobComponentSystem
         {
             intersectionBuffer = buffer,
             deltaTime = Time.deltaTime,
-            CommandBuffer = EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent()
+            CommandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent()
         };
 
         var jobHandle = job.Schedule(this, handle);
 
-        EntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
+        m_EntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
         
         return jobHandle;
     }

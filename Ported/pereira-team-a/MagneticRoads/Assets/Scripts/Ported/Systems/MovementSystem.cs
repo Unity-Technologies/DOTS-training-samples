@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -11,13 +12,14 @@ public class MovementSystem : JobComponentSystem
     private EntityQuery query;
     protected override void OnCreate()
     {
-        query = GetEntityQuery(new EntityQueryDesc()
+        query = GetEntityQuery(new EntityQueryDesc
         {
             All = new []{ComponentType.ReadWrite<Translation>(), ComponentType.ReadOnly<TargetPosition>()},
             None = new []{ComponentType.ReadOnly<FindTarget>() }
         });
     }
 
+    [BurstCompile]
     struct MoveJob : IJobForEach<Translation, TargetPosition>
     {
         public float deltaTime;
