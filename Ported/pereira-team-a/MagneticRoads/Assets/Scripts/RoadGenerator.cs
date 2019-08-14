@@ -207,7 +207,7 @@ public class RoadGenerator : MonoBehaviour
             if (GetVoxel(pos2) == false)
             {
                 // when placing a new voxel, it must have fewer than three
-                // diagonal-or-cardinal neighbors.
+                // diagonal-or-cardinal Neighbors.
                 // (this blocks nonplanar intersections from forming)
                 if (CountNeighbors(pos2, true) < 3)
                 {
@@ -219,7 +219,7 @@ public class RoadGenerator : MonoBehaviour
             int neighborCount = CountNeighbors(pos);
             if (neighborCount >= 3)
             {
-                // no more than three cardinal neighbors for any voxel (no 4-way intersections allowed)
+                // no more than three cardinal Neighbors for any voxel (no 4-way intersections allowed)
                 // (really, this is to avoid nonplanar intersections)
                 Intersection intersection = new Intersection(pos, (Vector3) pos * voxelSize, Vector3Int.zero);
                 intersection.id = intersections.Count;
@@ -278,7 +278,7 @@ public class RoadGenerator : MonoBehaviour
             }
 
             // find this intersection's normal - it's the one axis
-            // along which we have no neighbors
+            // along which we have no Neighbors
             for (int j = 0; j < 3; j++)
             {
                 if (axesWithNeighbors[j] == 0)
@@ -287,7 +287,7 @@ public class RoadGenerator : MonoBehaviour
                     {
                         intersection.normal = new Vector3Int();
                         intersection.normal[j] = -1 + Random.Range(0, 2) * 2;
-                        //Debug.DrawRay(intersection.position,(Vector3)intersection.normal * .5f,Color.red,1000f);
+                        //Debug.DrawRay(intersection.Position,(Vector3)intersection.normal * .5f,Color.red,1000f);
                     }
                     else
                     {
@@ -303,11 +303,11 @@ public class RoadGenerator : MonoBehaviour
 
             // NOTE - if you investigate the above logic, you might be confused about how
             // dead-ends are given normals, since we're assuming that all intersections
-            // have two axes with neighbors and only one axis without. dead-ends only have
+            // have two axes with Neighbors and only one axis without. dead-ends only have
             // one neighbor-axis...and somehow they still get a normal without a special case.
             //
             // the "gotcha" is that the visible dead-ends in the demo have three
-            // neighbors during the voxel phase, with two of their neighbor chains leading
+            // Neighbors during the voxel phase, with two of their neighbor chains leading
             // to nothing. these "hanging chains" are not included as splines, so the
             // dead-ends that we see are actually "T" shapes with the top two segments hidden.
 

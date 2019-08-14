@@ -13,24 +13,24 @@ public class MovementSystem : JobComponentSystem
     {
         query = GetEntityQuery(new EntityQueryDesc()
         {
-            All = new []{ComponentType.ReadWrite<Translation>(), ComponentType.ReadOnly<MovementComponent>()},
-            None = new []{ComponentType.ReadOnly<FindTargetComponent>() }
+            All = new []{ComponentType.ReadWrite<Translation>(), ComponentType.ReadOnly<TargetPosition>()},
+            None = new []{ComponentType.ReadOnly<FindTarget>() }
         });
     }
 
-    struct MoveJob : IJobForEach<Translation, MovementComponent>
+    struct MoveJob : IJobForEach<Translation, TargetPosition>
     {
         public float deltaTime;
-        public void Execute(ref Translation translation, ref MovementComponent movement)
+        public void Execute(ref Translation translation, ref TargetPosition movement)
         {
-            translation.Value += math.normalize(movement.targetPosition - translation.Value) * deltaTime * 2f;
+            translation.Value += math.normalize(movement.Value - translation.Value) * deltaTime * 2f;
         }
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         //1. get the direction
-        //2. move to the position
+        //2. move to the Position
         var job = new MoveJob
         {
             deltaTime = Time.deltaTime

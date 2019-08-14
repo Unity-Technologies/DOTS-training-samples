@@ -16,5 +16,5 @@ public struct TrackSplineComponentData : IComponentData
     public int3 startTangent;
     public int3 endTangent;
 
-    //public NativeArray<TrackSplineComponentData> neighbors;
+    //public NativeArray<TrackSplineComponentData> Neighbors;
 }

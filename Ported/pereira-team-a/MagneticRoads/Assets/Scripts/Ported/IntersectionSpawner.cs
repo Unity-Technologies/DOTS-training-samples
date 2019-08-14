@@ -12,20 +12,20 @@ public class IntersectionSpawner : MonoBehaviour
     unsafe void Start()
     {
         var entityManager = World.Active.EntityManager;
-        var entity = entityManager.CreateEntity(typeof(IntersectionBuffer));
+        var entity = entityManager.CreateEntity(typeof(IntersectionPoint));
         var prefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(CarPrefab, World.Active);
 
-        DynamicBuffer<IntersectionBuffer> buffer = entityManager.GetBuffer<IntersectionBuffer>(entity);
+        DynamicBuffer<IntersectionPoint> buffer = entityManager.GetBuffer<IntersectionPoint>(entity);
         
         for (int i = 0; i < IntersectionPoints.Length; i++)
         {
-            var intersectionBuffer = new IntersectionBuffer();
-            intersectionBuffer.position = IntersectionPoints[i].position;
+            var intersectionBuffer = new IntersectionPoint();
+            intersectionBuffer.Position = IntersectionPoints[i].position;
             //placeholder
             var nextIndex = i + 1 == IntersectionPoints.Length ? 0 : i + 1;
-            intersectionBuffer.neighbors[0] = nextIndex;
-            intersectionBuffer.neighbors[1] = nextIndex;
-            intersectionBuffer.neighbors[2] = nextIndex;
+            intersectionBuffer.Neighbors[0] = nextIndex;
+            intersectionBuffer.Neighbors[1] = nextIndex;
+            intersectionBuffer.Neighbors[2] = nextIndex;
             
             buffer.Add(intersectionBuffer);
         }
@@ -33,9 +33,9 @@ public class IntersectionSpawner : MonoBehaviour
         for (int i = 0; i < IntersectionPoints.Length; i++)
         {
             var car = entityManager.Instantiate(prefab);
-            entityManager.AddComponent(car, typeof(FindTargetComponent));
-            entityManager.AddComponent(car, typeof(MovementComponent));
-            entityManager.AddComponentData(car, new CurrentIntersectionIndexComponent{id = i});
+            entityManager.AddComponent(car, typeof(FindTarget));
+            entityManager.AddComponent(car, typeof(TargetPosition));
+            entityManager.AddComponentData(car, new TargetIntersectionIndex{Value = i});
             entityManager.SetComponentData(car, new Translation{Value = IntersectionPoints[i].position});
         }
     }

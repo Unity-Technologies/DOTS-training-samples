@@ -14,10 +14,10 @@ public class CarMovementSystem : ComponentSystem
         //    startPoint = trackSpline.startPoint;
         //});
 
-        //Entities.ForEach((ref CarComponent carSpeed, ref Unity.Transforms.Translation position,ref Unity.Transforms.Rotation rotation) =>
+        //Entities.ForEach((ref CarComponent carSpeed, ref Unity.Transforms.Translation Position,ref Unity.Transforms.Rotation rotation) =>
         //{
         //    var deltaTime = Time.deltaTime;
-        //    position.Value = position.Value + (math.forward(rotation.Value) * carSpeed.speed * deltaTime);
+        //    Position.Value = Position.Value + (math.forward(rotation.Value) * carSpeed.speed * deltaTime);
         //});
     }
 }

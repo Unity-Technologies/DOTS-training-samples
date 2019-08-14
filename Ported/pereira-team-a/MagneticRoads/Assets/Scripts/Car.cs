@@ -112,7 +112,7 @@ public class Car
 
         float t = Mathf.Clamp01(splineTimer);
 
-        // figure out our position in "unextruded" road space
+        // figure out our Position in "unextruded" road space
         // (top of bottom of road, on the left or right side)
         if (isInsideIntersection == false)
         {
@@ -130,7 +130,7 @@ public class Car
                 RoadGenerator.trackThickness * .5f * intersectionSide);
         }
 
-        // find our position and orientation
+        // find our Position and orientation
         Vector3 forward, up;
         Vector3 splinePoint = currentSpline.Extrude(extrudePoint, t, out forward, out up);
 
@@ -284,7 +284,7 @@ public class Car
                         queue.Remove(this);
                     }
 
-                    // add "leftover" spline timer value to our new spline timer
+                    // add "leftover" spline timer Value to our new spline timer
                     // (avoids a stutter when changing between splines)
                     splineTimer = (splineTimer - 1f) * roadSpline.measuredLength / intersectionSpline.measuredLength;
                     roadSpline = newSpline;

@@ -18,7 +18,7 @@ public class TrackSplineSpawner : MonoBehaviour
     //    for (int i = 0; i < maxSplines; i++)
     //    {
     //        TrackSplineDOTS newSpline = new TrackSplineDOTS();
-    //        //newSpline.position = new float3(10 * (i + 1), 0, 0);
+    //        //newSpline.Position = new float3(10 * (i + 1), 0, 0);
     //        mySplines[i] = newSpline;
     //    }
     //}
