@@ -10,4 +10,6 @@ public unsafe struct IntersectionPoint : IBufferElementData
     public int SplineId0;  // ID of Spline in Dynamic Buffer
     public int SplineId1;  // ID of Spline in Dynamic Buffer
     public int SplineId2;  // ID of Spline in Dynamic Buffer
+
+    public int LastIntersection; // Used to assign intersections
 }

@@ -33,8 +33,9 @@ public class AssignTargetSystem : JobComponentSystem
             //7.Update targetIndex
 
             var intersection = intersectionBuffer[targetIndex.Value];
-            //var targetNeighborId = (int)(noise.cnoise(new float2(deltaTime, targetIndex.Value * 17)) * intersection.SplineIdCount);
-            var targetNeighborId = (int) (((math.sin(deltaTime) + 1) * 0.5f) * (intersection.SplineIdCount));
+            intersection.LastIntersection += 1;
+            var targetNeighborId = intersection.LastIntersection % intersection.SplineIdCount;
+            intersectionBuffer[targetIndex.Value] = intersection;
             
             var targetSplineId = intersection.SplineId0; // 0
             if(targetNeighborId == 1)
@@ -43,7 +44,6 @@ public class AssignTargetSystem : JobComponentSystem
                 targetSplineId = intersection.SplineId2; // 2
 
             var spline = splineBuffer[targetSplineId];
-
             var splineData = new SplineData
             {
                 StartPosition = intersection.Position,
