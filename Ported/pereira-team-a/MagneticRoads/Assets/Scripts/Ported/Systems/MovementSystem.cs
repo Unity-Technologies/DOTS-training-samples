@@ -41,8 +41,8 @@ public class MovementSystem : JobComponentSystem
             float2 extrudePoint = new float2(1, 1);
             float splineDirection = 1;
 
-            //extrudePoint = new Vector2(-RoadGenerator.trackRadius * .5f * splineDirection * interpolatorT.splineSide,
-            //    RoadGenerator.trackThickness * .5f * interpolatorT.splineSide);
+            extrudePoint = new Vector2(-RoadGenerator.trackRadius * .5f * splineDirection * interpolatorT.splineSide,
+                RoadGenerator.trackThickness * .5f * interpolatorT.splineSide);
 
             InfoForMoveAndRotation data = Extrude(extrudePoint, trackSpline, t);
 
@@ -51,18 +51,17 @@ public class MovementSystem : JobComponentSystem
 
             if (SqrMag(moveDir) > 0.0001f && SqrMag(data.up) > 0.0001f)
             {
-                //rotation.Value = Quaternion.LookRotation(moveDir * splineDirection, data.up);
                 rotation.Value = quaternion.LookRotation(moveDir * splineDirection, data.up);
             }
 
-            //if (Vector3.Dot(trackSpline.spline.StartNormal, data.up) > 0f)
-            //{
-            //    interpolatorT.splineSide = 1;
-            //}
-            //else
-            //{
-            //    interpolatorT.splineSide = -1;
-            //}
+            if (Vector3.Dot(trackSpline.Spline.StartNormal, data.up) > 0f)
+            {
+                interpolatorT.splineSide = 1;
+            }
+            else
+            {
+                interpolatorT.splineSide = -1;
+            }
 
             interpolatorT.t = t;
 
