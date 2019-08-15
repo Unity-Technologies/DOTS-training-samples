@@ -36,7 +36,6 @@ public class AssignTargetSystem : JobComponentSystem
             //var targetNeighborId = (int)(noise.cnoise(new float2(deltaTime, targetIndex.Value * 17)) * intersection.SplineIdCount);
             var targetNeighborId = (int) (((math.sin(deltaTime) + 1) * 0.5f) * (intersection.SplineIdCount));
             
-            Debug.Log(targetNeighborId);
             var targetSplineId = intersection.SplineId0; // 0
             if(targetNeighborId == 1)
                 targetSplineId = intersection.SplineId1; // 1
