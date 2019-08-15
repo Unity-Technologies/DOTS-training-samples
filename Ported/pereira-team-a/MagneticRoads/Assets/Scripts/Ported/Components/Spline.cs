@@ -18,9 +18,4 @@ public struct Spline : IBufferElementData
     
     // ID of intersection where the spline ends
     public int EndIntersectionId; // id to find an element in the intersection data
-    
-    // Is this a temporary spline, used for intersections
-    public bool IsIntersection;
-    // If this a temporary spline, what is the next spline it will connect to
-    public int TargetSplineId;
 }

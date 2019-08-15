@@ -24,14 +24,15 @@ public class AssignTargetSystem : JobComponentSystem
             ref SplineData currentSplineData)
         {
             // If we were moving along an intersection, continue to the target spline
-            if (currentSplineData.Spline.IsIntersection)
+            if (currentSplineData.IsIntersection)
             {
-                var spline = splineBuffer[currentSplineData.Spline.TargetSplineId];
+                var spline = splineBuffer[currentSplineData.TargetSplineId];
                 var newSplineData = new SplineData
                 {
-                    //StartPosition = splineData.TargetPosition,
-                    //TargetPosition = intersectionBuffer[spline.EndIntersectionId].Position,
-                    Spline = spline
+                    Spline = spline,
+                    // TODO : Move to component
+                    IsIntersection = false,
+                    TargetSplineId = -1
                 };
                 CommandBuffer.SetComponent(index, entity, newSplineData);
             }
@@ -57,10 +58,7 @@ public class AssignTargetSystem : JobComponentSystem
                 
                 var newSpline = new Spline()
                 {
-                    TargetSplineId = targetSplineId,
-                    IsIntersection = true,
-                    
-                    EndIntersectionId = currentSplineData.Spline.EndIntersectionId,  // For this temporary spline, the end intersection is this same one
+                    EndIntersectionId = -1,
                     
                     StartPosition = currentSplineData.Spline.EndPosition,
                     EndPosition = targetSpline.StartPosition,
@@ -80,7 +78,9 @@ public class AssignTargetSystem : JobComponentSystem
                 };
                 var newSplineData = new SplineData
                 {
-                    Spline = newSpline
+                    Spline = newSpline,
+                    TargetSplineId = targetSplineId,
+                    IsIntersection = true,
                 };
                 
                 CommandBuffer.SetComponent(index, entity, newSplineData);

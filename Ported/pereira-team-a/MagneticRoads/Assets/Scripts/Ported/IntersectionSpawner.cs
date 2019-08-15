@@ -65,7 +65,6 @@ public class IntersectionSpawner : MonoBehaviour
             spline.StartTangent = new float3(splineData.startTangent.x, splineData.startTangent.y, splineData.startTangent.z);
             spline.EndTangent = new float3(splineData.endTangent.x, splineData.endTangent.y, splineData.endTangent.z);
             
-            spline.IsIntersection = false;
             spline.EndIntersectionId = splineData.endIntersectionId;
             
             splineBuffer.Add(spline);
@@ -81,11 +80,8 @@ public class IntersectionSpawner : MonoBehaviour
             entityManager.AddComponentData(car, 
                 new SplineData()
                 {
-                    Spline = new Spline
-                    {
-                        IsIntersection = true,
-                        TargetSplineId = intersectionData.splineData1
-                    }
+                    IsIntersection = true,
+                    TargetSplineId = intersectionData.splineData1
                 });
         }
     }
