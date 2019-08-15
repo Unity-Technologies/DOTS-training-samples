@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 512dc8578a5e9d949861387ed53c99e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  voxelCount: 60
+  voxelCount: 10
   voxelSize: 1.25
   trisPerMesh: 4000
   roadMaterial: {fileID: 2100000, guid: c2261b4990b26324bac9164b7f53de5e, type: 2}

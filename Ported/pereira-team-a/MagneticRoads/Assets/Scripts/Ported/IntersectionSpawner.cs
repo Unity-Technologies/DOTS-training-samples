@@ -4,11 +4,12 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class IntersectionSpawner : MonoBehaviour
 {
     public Transform[] IntersectionPoints;
-    public GameObject CarPrefab;
+    public GameObject[] CarPrefabs;
 
     public GeneratedIntersectionDataObject intersectionDataObject;
     
@@ -16,7 +17,11 @@ public class IntersectionSpawner : MonoBehaviour
     {
         var entityManager = World.Active.EntityManager;
         var entity = entityManager.CreateEntity(typeof(IntersectionPoint), typeof(Spline));
-        var prefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(CarPrefab, World.Active);
+        var prefabs = new List<Entity>();
+        foreach (var CarPrefab in CarPrefabs)
+        {
+            prefabs.Add(GameObjectConversionUtility.ConvertGameObjectHierarchy(CarPrefab, World.Active));
+        }
 
         DynamicBuffer<IntersectionPoint> intersectionBuffer = entityManager.GetBuffer<IntersectionPoint>(entity);
 
@@ -30,7 +35,7 @@ public class IntersectionSpawner : MonoBehaviour
             intersection.Neighbors[1] = intersectionData.splineData2;
             intersection.Neighbors[2] = intersectionData.splineData3;
 
-            // Repeat the same neighbor, just to cover for the case of having fewer neighbor
+            // Repeat the same neighbor at the end of the array, to cover for the case of having less than 3 neighbors
             if (intersectionData.splineCount < 3)
                 intersection.Neighbors[2] = intersection.Neighbors[1];
             if(intersectionData.splineCount < 2)
@@ -38,19 +43,7 @@ public class IntersectionSpawner : MonoBehaviour
             
             intersectionBuffer.Add(intersection);
         }
-        /*
-        for (int i = 0; i < IntersectionPoints.Length; i++)
-        {
-            var intersection= new IntersectionPoint();
-            intersection.Position = IntersectionPoints[i].position;
-            //placeholder
-            intersection.Neighbors[0] = i;
-            intersection.Neighbors[1] = i;
-            intersection.Neighbors[2] = i;
-            
-            intersectionBuffer.Add(intersection);
-        }
-        */
+        
         DynamicBuffer<Spline> splineBuffer = entityManager.GetBuffer<Spline>(entity);
 
         for (int i = 0; i < intersectionDataObject.splines.Count; i++)
@@ -69,8 +62,31 @@ public class IntersectionSpawner : MonoBehaviour
             splineBuffer.Add(spline);
         }
         
+        for (int i = 0; i < intersectionDataObject.intersections.Count; i++)
+        {
+            var intersectionData = intersectionDataObject.intersections[i];
+            
+            var car = entityManager.Instantiate(prefabs[i%prefabs.Count]);
+            entityManager.AddComponent(car, typeof(FindTarget));
+            entityManager.AddComponent(car, typeof(SplineData));
+            entityManager.AddComponentData(car, new TargetIntersectionIndex{Value = intersectionData.id});
+            entityManager.SetComponentData(car, new Translation{Value = intersectionData.position});
+        }
+        
         /*
-         for (int i = 0; i < 4; i++)
+        for (int i = 0; i < IntersectionPoints.Length; i++)
+        {
+            var intersection= new IntersectionPoint();
+            intersection.Position = IntersectionPoints[i].position;
+            //placeholder
+            intersection.Neighbors[0] = i;
+            intersection.Neighbors[1] = i;
+            intersection.Neighbors[2] = i;
+            
+            intersectionBuffer.Add(intersection);
+        }
+        
+        for (int i = 0; i < 4; i++)
         {
             var nextIndex = i + 1 == 4 ? 0 : i + 1;
             
@@ -85,20 +101,8 @@ public class IntersectionSpawner : MonoBehaviour
             
             splineBuffer.Add(spline);
         }
-        */
         
-        for (int i = 0; i < intersectionDataObject.intersections.Count; i++)
-        {
-            var intersectionData = intersectionDataObject.intersections[i];
-            
-            var car = entityManager.Instantiate(prefab);
-            entityManager.AddComponent(car, typeof(FindTarget));
-            entityManager.AddComponent(car, typeof(SplineData));
-            entityManager.AddComponentData(car, new TargetIntersectionIndex{Value = intersectionData.id});
-            entityManager.SetComponentData(car, new Translation{Value = intersectionData.position});
-        }
-        
-        /*for (int i = 0; i < IntersectionPoints.Length; i++)
+        for (int i = 0; i < IntersectionPoints.Length; i++)
         {
             var car = entityManager.Instantiate(prefab);
             entityManager.AddComponent(car, typeof(FindTarget));

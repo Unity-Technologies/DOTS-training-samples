@@ -562,8 +562,11 @@ MonoBehaviour:
   - {fileID: 1162289630}
   - {fileID: 2061314033}
   - {fileID: 61384812}
-  CarPrefab: {fileID: 3824914743984198570, guid: 02b3be41a092642559065c70a7baa2ab,
-    type: 3}
+  CarPrefabs:
+  - {fileID: 7197969264204868958, guid: 744e1ef1dc52742dda4cd818222fcd08, type: 3}
+  - {fileID: 3241807119389555622, guid: f3fd412db3f334fbbb71c04d61f4ce7e, type: 3}
+  - {fileID: 3176292951851568704, guid: ad59a013108b2451098b1a396ce83a9c, type: 3}
+  - {fileID: 3824914743984198570, guid: 02b3be41a092642559065c70a7baa2ab, type: 3}
   intersectionDataObject: {fileID: 11400000, guid: 1c15fb63fae5249fc9ef57d035867028,
     type: 2}
 --- !u!4 &1676469456
