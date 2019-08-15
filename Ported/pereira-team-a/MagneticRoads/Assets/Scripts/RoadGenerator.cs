@@ -6,6 +6,7 @@ public class RoadGenerator : MonoBehaviour
 {
     public int voxelCount = 60;
     public float voxelSize = 1f;
+    public int tickerSteps = 50000;
     public int trisPerMesh = 4000;
     public Material roadMaterial;
     public Mesh intersectionMesh;
@@ -147,10 +148,10 @@ public class RoadGenerator : MonoBehaviour
         // cardinal directions:
         dirs = new Vector3Int[]
         {
-            /*new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 1, 0), new Vector3Int(0, -1, 0),
-            new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1)*/
+            new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 1, 0), new Vector3Int(0, -1, 0),
+            new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1)
             
-            new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(-1, 0, 0)
+            //new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(-1, 0, 0)
         };
 
         // cardinal directions + diagonals in 3D:
@@ -201,7 +202,7 @@ public class RoadGenerator : MonoBehaviour
 
         // plan roads broadly: first, as a grid of true/false voxels
         int ticker = 0;
-        while (activeVoxels.Count > 0 && ticker < 50000)
+        while (activeVoxels.Count > 0 && ticker < tickerSteps)
         {
             ticker++;
             int index = Random.Range(0, activeVoxels.Count);
@@ -485,11 +486,11 @@ public class RoadGenerator : MonoBehaviour
 
     private void Update()
     {
-        for (int i = 0; i < cars.Count; i++)
+        /*for (int i = 0; i < cars.Count; i++)
         {
             cars[i].Update();
             carMatrices[i / instancesPerBatch][i % instancesPerBatch] = cars[i].matrix;
-        }
+        }*/
 
         for (int i = 0; i < roadMeshes.Count; i++)
         {

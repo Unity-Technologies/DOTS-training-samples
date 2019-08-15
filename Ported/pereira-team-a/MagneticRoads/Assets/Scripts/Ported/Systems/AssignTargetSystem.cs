@@ -32,9 +32,17 @@ public class AssignTargetSystem : JobComponentSystem
             //6.Remove the FindTarget
             //7.Update targetIndex
 
-           var intersection = intersectionBuffer[targetIndex.Value];
-            var targetNeighborId = (int)(noise.cnoise(new float2(deltaTime, targetIndex.Value * 17)) * 3);
-            var targetSplineId = intersection.Neighbors[targetNeighborId];
+            var intersection = intersectionBuffer[targetIndex.Value];
+            //var targetNeighborId = (int)(noise.cnoise(new float2(deltaTime, targetIndex.Value * 17)) * intersection.SplineIdCount);
+            var targetNeighborId = (int) (((math.sin(deltaTime) + 1) * 0.5f) * (intersection.SplineIdCount));
+            
+            Debug.Log(targetNeighborId);
+            var targetSplineId = intersection.SplineId0; // 0
+            if(targetNeighborId == 1)
+                targetSplineId = intersection.SplineId1; // 1
+            if(targetNeighborId == 2)
+                targetSplineId = intersection.SplineId2; // 2
+
             var spline = splineBuffer[targetSplineId];
 
             var splineData = new SplineData
@@ -59,7 +67,7 @@ public class AssignTargetSystem : JobComponentSystem
         {
             intersectionBuffer = intersectionBuffer,
             splineBuffer = splineBuffer,
-            deltaTime = Time.deltaTime,
+            deltaTime = Time.time,
             CommandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent()
         };
 

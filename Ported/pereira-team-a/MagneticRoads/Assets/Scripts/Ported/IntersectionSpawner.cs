@@ -31,15 +31,20 @@ public class IntersectionSpawner : MonoBehaviour
             var intersection = new IntersectionPoint();
             intersection.Position = intersectionData.position;
             
-            intersection.Neighbors[0] = intersectionData.splineData1;
-            intersection.Neighbors[1] = intersectionData.splineData2;
-            intersection.Neighbors[2] = intersectionData.splineData3;
+            intersection.SplineId0= intersectionData.splineData1;
+            intersection.SplineId1 = intersectionData.splineData2;
+            intersection.SplineId2 = intersectionData.splineData3;
+            intersection.SplineIdCount = intersectionData.splineCount;
 
             // Repeat the same neighbor at the end of the array, to cover for the case of having less than 3 neighbors
-            if (intersectionData.splineCount < 3)
-                intersection.Neighbors[2] = intersection.Neighbors[1];
-            if(intersectionData.splineCount < 2)
-                intersection.Neighbors[1] = intersection.Neighbors[0];
+            if(intersectionData.splineCount == 1)
+            {
+                intersection.SplineId1 = -1;
+                intersection.SplineId2 = -1;
+            }
+            if(intersectionData.splineCount == 2){
+                intersection.SplineId2 = -1;
+            }
             
             intersectionBuffer.Add(intersection);
         }
@@ -68,9 +73,11 @@ public class IntersectionSpawner : MonoBehaviour
             
             var car = entityManager.Instantiate(prefabs[i%prefabs.Count]);
             entityManager.AddComponent(car, typeof(FindTarget));
-            entityManager.AddComponent(car, typeof(SplineData));
+            
             entityManager.AddComponentData(car, new TargetIntersectionIndex{Value = intersectionData.id});
             entityManager.SetComponentData(car, new Translation{Value = intersectionData.position});
+            
+            entityManager.AddComponent(car, typeof(SplineData));
         }
         
         /*

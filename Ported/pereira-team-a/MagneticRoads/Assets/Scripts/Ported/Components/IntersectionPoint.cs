@@ -3,6 +3,11 @@ using Unity.Mathematics;
 
 public unsafe struct IntersectionPoint : IBufferElementData
 {
-    public float3 Position;
-    public fixed int Neighbors[3];
+    public float3 Position; // Position of intersection point in 3d-space
+    //public fixed int Neighbors[3];  // ID of Spline in Dynamic Buffer
+
+    public int SplineIdCount;  // Number of neighbors
+    public int SplineId0;  // ID of Spline in Dynamic Buffer
+    public int SplineId1;  // ID of Spline in Dynamic Buffer
+    public int SplineId2;  // ID of Spline in Dynamic Buffer
 }

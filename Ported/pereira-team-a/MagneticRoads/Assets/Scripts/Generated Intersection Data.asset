@@ -12,5 +12,887 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: Generated Intersection Data
   m_EditorClassIdentifier: Assembly-CSharp::GeneratedIntersectionDataObject
-  intersections: []
-  splines: []
+  intersections:
+  - id: 0
+    position: {x: 5, y: 6.25, z: 6.25}
+    normal: {x: 0, y: -1, z: 0}
+    splineCount: 2
+    splineData1: 0
+    splineData2: 2
+    splineData3: 0
+  - id: 1
+    position: {x: 3.75, y: 6.25, z: 6.25}
+    normal: {x: 0, y: -1, z: 0}
+    splineCount: 2
+    splineData1: 3
+    splineData2: 4
+    splineData3: 0
+  - id: 2
+    position: {x: 2.5, y: 6.25, z: 6.25}
+    normal: {x: 0, y: -1, z: 0}
+    splineCount: 1
+    splineData1: 5
+    splineData2: 0
+    splineData3: 0
+  - id: 3
+    position: {x: 6.25, y: 6.25, z: 6.25}
+    normal: {x: 0, y: -1, z: 0}
+    splineCount: 2
+    splineData1: 1
+    splineData2: 6
+    splineData3: 0
+  - id: 4
+    position: {x: 7.5, y: 6.25, z: 6.25}
+    normal: {x: 0, y: -1, z: 0}
+    splineCount: 2
+    splineData1: 7
+    splineData2: 8
+    splineData3: 0
+  - id: 5
+    position: {x: 8.75, y: 6.25, z: 6.25}
+    normal: {x: 0, y: 1, z: 0}
+    splineCount: 1
+    splineData1: 9
+    splineData2: 0
+    splineData3: 0
+  splines:
+  - id: 0
+    startIntersectionId: 0
+    endIntersectionId: 3
+    startPoint: {x: 5.25, y: 6.25, z: 6.25}
+    anchor1: {x: 5.625, y: 6.25, z: 6.25}
+    anchor2: {x: 5.625, y: 6.25, z: 6.25}
+    endPoint: {x: 6, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: 1, y: 0, z: 0}
+    endTangent: {x: -1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 1
+    startIntersectionId: 3
+    endIntersectionId: 0
+    startPoint: {x: 6, y: 6.25, z: 6.25}
+    anchor1: {x: 5.625, y: 6.25, z: 6.25}
+    anchor2: {x: 5.625, y: 6.25, z: 6.25}
+    endPoint: {x: 5.25, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 2
+    startIntersectionId: 0
+    endIntersectionId: 1
+    startPoint: {x: 4.75, y: 6.25, z: 6.25}
+    anchor1: {x: 4.375, y: 6.25, z: 6.25}
+    anchor2: {x: 4.375, y: 6.25, z: 6.25}
+    endPoint: {x: 4, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 3
+    startIntersectionId: 1
+    endIntersectionId: 0
+    startPoint: {x: 4, y: 6.25, z: 6.25}
+    anchor1: {x: 4.375, y: 6.25, z: 6.25}
+    anchor2: {x: 4.375, y: 6.25, z: 6.25}
+    endPoint: {x: 4.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: 1, y: 0, z: 0}
+    endTangent: {x: -1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 4
+    startIntersectionId: 1
+    endIntersectionId: 2
+    startPoint: {x: 3.5, y: 6.25, z: 6.25}
+    anchor1: {x: 3.125, y: 6.25, z: 6.25}
+    anchor2: {x: 3.125, y: 6.25, z: 6.25}
+    endPoint: {x: 2.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 5
+    startIntersectionId: 2
+    endIntersectionId: 1
+    startPoint: {x: 2.75, y: 6.25, z: 6.25}
+    anchor1: {x: 3.125, y: 6.25, z: 6.25}
+    anchor2: {x: 3.125, y: 6.25, z: 6.25}
+    endPoint: {x: 3.5, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: 1, y: 0, z: 0}
+    endTangent: {x: -1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 6
+    startIntersectionId: 3
+    endIntersectionId: 4
+    startPoint: {x: 6.5, y: 6.25, z: 6.25}
+    anchor1: {x: 6.875, y: 6.25, z: 6.25}
+    anchor2: {x: 6.875, y: 6.25, z: 6.25}
+    endPoint: {x: 7.25, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: 1, y: 0, z: 0}
+    endTangent: {x: -1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 7
+    startIntersectionId: 4
+    endIntersectionId: 3
+    startPoint: {x: 7.25, y: 6.25, z: 6.25}
+    anchor1: {x: 6.875, y: 6.25, z: 6.25}
+    anchor2: {x: 6.875, y: 6.25, z: 6.25}
+    endPoint: {x: 6.5, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 8
+    startIntersectionId: 4
+    endIntersectionId: 5
+    startPoint: {x: 7.75, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 8.5, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: 1, y: 0, z: 0}
+    endTangent: {x: -1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
+  - id: 9
+    startIntersectionId: 5
+    endIntersectionId: 4
+    startPoint: {x: 8.5, y: 6.25, z: 6.25}
+    anchor1: {x: 8.125, y: 6.25, z: 6.25}
+    anchor2: {x: 8.125, y: 6.25, z: 6.25}
+    endPoint: {x: 7.75, y: 6.25, z: 6.25}
+    measuredLength: 0.75
+    startNormal: {x: 0, y: 0, z: 0}
+    endNormal: {x: 0, y: 0, z: 0}
+    startTangent: {x: -1, y: 0, z: 0}
+    endTangent: {x: 1, y: 0, z: 0}
+    carQueueSize: 0.16666667
+    maxCarCount: 6
