@@ -1024,10 +1024,10 @@ MonoBehaviour:
   - {fileID: 2061314033}
   - {fileID: 61384812}
   CarPrefabs:
-  - {fileID: 7197969264204868958, guid: 744e1ef1dc52742dda4cd818222fcd08, type: 3}
-  - {fileID: 3241807119389555622, guid: f3fd412db3f334fbbb71c04d61f4ce7e, type: 3}
-  - {fileID: 3176292951851568704, guid: ad59a013108b2451098b1a396ce83a9c, type: 3}
-  - {fileID: 3824914743984198570, guid: 02b3be41a092642559065c70a7baa2ab, type: 3}
+  - {fileID: 4936237753915626366, guid: 9b7513dddb7fc453ba2628ea4d403c3e, type: 3}
+  - {fileID: 2352112535121781517, guid: 2fdcb7ecda704426387cfc8489dff8ce, type: 3}
+  - {fileID: 3871351607681488563, guid: 446fb08119c03470985c2c5cecad72fc, type: 3}
+  - {fileID: 5425555129356269661, guid: df41653d6dcd24076af5ac16493a7222, type: 3}
   intersectionDataObject: {fileID: 11400000, guid: 1c15fb63fae5249fc9ef57d035867028,
     type: 2}
 --- !u!4 &1676469456

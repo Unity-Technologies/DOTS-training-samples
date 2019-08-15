@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Car 2
+  m_Name: Red
   m_Shader: {fileID: 4800000, guid: 5df4076640b1a6c4da508b07248588d4, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -73,5 +73,5 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.10588233, g: 0.11658403, b: 0.80784315, a: 1}
+    - _Color: {r: 0.8088235, g: 0.10705018, b: 0.10705018, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
