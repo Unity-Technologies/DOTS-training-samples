@@ -8,4 +8,5 @@ public struct SplineComponent : IComponentData
     public bool IsInsideIntersection;
     public float t;
     public float splineSide;
+    public int splineId;
 }

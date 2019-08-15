@@ -311,7 +311,7 @@ public class RoadGenerator : MonoBehaviour
 
 							intersectionDataObject.splines.Add(splineDataForwardDirection); // Add the spline to the DB of splines
 
-							// Reverse the forward direction spline
+							// Reverse the reverse direction spline
                             GeneratedSplineData splineDataReverseDirection = new GeneratedSplineData();
 							splineDataReverseDirection.id = intersectionDataObject.splines.Count;
 							

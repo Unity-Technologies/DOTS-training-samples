@@ -30,6 +30,7 @@ public class IntersectionSpawner : MonoBehaviour
             var intersectionData = intersectionDataObject.intersections[i];
             var intersection = new IntersectionBufferElementData();
             intersection.Position = intersectionData.position;
+            intersection.Normal = intersectionData.normal;
             
             intersection.SplineId0= intersectionData.splineData1;
             intersection.SplineId1 = intersectionData.splineData2;
@@ -56,6 +57,8 @@ public class IntersectionSpawner : MonoBehaviour
             var splineData = intersectionDataObject.splines[i];
             
             var spline = new SplineBufferElementData();
+            
+            spline.SplineId = i;
             spline.StartPosition = splineData.startPoint;
             spline.EndPosition = splineData.endPoint;
             spline.Anchor1 = splineData.anchor1;
@@ -66,6 +69,10 @@ public class IntersectionSpawner : MonoBehaviour
             spline.EndTangent = new float3(splineData.endTangent.x, splineData.endTangent.y, splineData.endTangent.z);
             
             spline.EndIntersectionId = splineData.endIntersectionId;
+            if (i % 2 == 0)
+                spline.OppositeDirectionSplineId = i + 1;
+            else
+                spline.OppositeDirectionSplineId = i - 1;
             
             splineBuffer.Add(spline);
         }
