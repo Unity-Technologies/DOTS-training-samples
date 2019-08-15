@@ -13,17 +13,17 @@ public class ExitIntersectionSystem : JobComponentSystem
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
-    struct ExitIntersectionJob : IJobForEachWithEntity<FindTarget, TargetSplineData>
+    struct ExitIntersectionJob : IJobForEachWithEntity<ReachedEndOfSpline, ExitIntersectionData>
     {
         [ReadOnly] public DynamicBuffer<Spline> SplineBuffer;
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
-        public void Execute(Entity entity, int index, [ReadOnly] ref FindTarget findTarget, [ReadOnly] ref TargetSplineData targetSplineData)
+        public void Execute(Entity entity, int index, [ReadOnly] ref ReachedEndOfSpline reachedEndOfSpline, [ReadOnly] ref ExitIntersectionData exitIntersectionData)
         {
-            var spline = SplineBuffer[targetSplineData.TargetSplineId];
+            var spline = SplineBuffer[exitIntersectionData.TargetSplineId];
             CommandBuffer.SetComponent(index, entity, new SplineData { Spline = spline });
-            CommandBuffer.RemoveComponent<TargetSplineData>(index, entity);
-            CommandBuffer.RemoveComponent<FindTarget>(index, entity);
+            CommandBuffer.RemoveComponent<ExitIntersectionData>(index, entity);
+            CommandBuffer.RemoveComponent<ReachedEndOfSpline>(index, entity);
         }
     }
 

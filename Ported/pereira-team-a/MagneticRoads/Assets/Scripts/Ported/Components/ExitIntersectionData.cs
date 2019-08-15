@@ -2,7 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct TargetSplineData : IComponentData
+public struct ExitIntersectionData : IComponentData
 {
     // Is this a temporary spline, used for intersections
     public bool IsIntersection;

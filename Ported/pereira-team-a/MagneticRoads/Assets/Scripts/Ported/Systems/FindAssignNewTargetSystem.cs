@@ -15,7 +15,7 @@ public class FindAssignNewTargetSystem : JobComponentSystem
         m_Query = GetEntityQuery(new EntityQueryDesc
         {
             All = new []{ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<SplineData>()},
-            None = new []{ComponentType.ReadOnly<FindTarget>() }
+            None = new []{ComponentType.ReadOnly<ReachedEndOfSpline>() }
         });
         
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
@@ -32,7 +32,7 @@ public class FindAssignNewTargetSystem : JobComponentSystem
             bool hasReachedTarget = math.distancesq(translation.Value, targetSplineData.Spline.EndPosition) < 0.1f;
             if (hasReachedTarget)
             {
-                commandBuffer.AddComponent<FindTarget>(index, entity);
+                commandBuffer.AddComponent<ReachedEndOfSpline>(index, entity);
             }
         }
     }

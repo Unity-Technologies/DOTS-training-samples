@@ -4,7 +4,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class AssignTargetSystem : JobComponentSystem
+public class AssignIntersectionSpline : JobComponentSystem
 {
     private EntityQuery m_Query;
     EndSimulationEntityCommandBufferSystem m_EntityCommandBufferSystem;
@@ -13,20 +13,20 @@ public class AssignTargetSystem : JobComponentSystem
     {
         m_Query = GetEntityQuery(new EntityQueryDesc
         {
-            All = new []{ComponentType.ReadOnly<FindTarget>(), ComponentType.ReadOnly<SplineData>()},
-            None = new []{ComponentType.ReadOnly<TargetSplineData>() }
+            All = new []{ComponentType.ReadOnly<ReachedEndOfSpline>(), ComponentType.ReadOnly<SplineData>()},
+            None = new []{ComponentType.ReadOnly<ExitIntersectionData>() }
         });
         
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
-    struct AssignDestinationJob : IJobForEachWithEntity<FindTarget, SplineData>
+    struct AssignDestinationJob : IJobForEachWithEntity<ReachedEndOfSpline, SplineData>
     {
         [ReadOnly] public DynamicBuffer<IntersectionPoint> IntersectionBuffer;
         [ReadOnly] public DynamicBuffer<Spline> SplineBuffer;
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
-        public unsafe void Execute(Entity entity, int index, [ReadOnly] ref FindTarget findTarget,
+        public unsafe void Execute(Entity entity, int index, [ReadOnly] ref ReachedEndOfSpline reachedEndOfSpline,
             [ReadOnly] ref SplineData currentSplineData)
         {
             // Get the intersection object, to which we have arrived
@@ -69,8 +69,8 @@ public class AssignTargetSystem : JobComponentSystem
             };
             
             CommandBuffer.SetComponent(index, entity, new SplineData{Spline = newSpline});
-            CommandBuffer.AddComponent(index, entity, new TargetSplineData {TargetSplineId = targetSplineId, IsIntersection = true});
-            CommandBuffer.RemoveComponent<FindTarget>(index, entity);
+            CommandBuffer.AddComponent(index, entity, new ExitIntersectionData {TargetSplineId = targetSplineId, IsIntersection = true});
+            CommandBuffer.RemoveComponent<ReachedEndOfSpline>(index, entity);
         }
     }
 

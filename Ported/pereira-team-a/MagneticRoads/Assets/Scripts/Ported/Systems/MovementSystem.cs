@@ -15,7 +15,7 @@ public class MovementSystem : JobComponentSystem
         query = GetEntityQuery(new EntityQueryDesc
         {
             All = new []{ComponentType.ReadWrite<Translation>(), ComponentType.ReadWrite<Rotation>(), ComponentType.ReadOnly<SplineData>()},
-            None = new []{ComponentType.ReadOnly<FindTarget>() }
+            None = new []{ComponentType.ReadOnly<ReachedEndOfSpline>() }
         });
     }
 

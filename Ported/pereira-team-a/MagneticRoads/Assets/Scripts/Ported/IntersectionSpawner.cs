@@ -75,10 +75,10 @@ public class IntersectionSpawner : MonoBehaviour
             var intersectionData = intersectionDataObject.intersections[i];
 
             var car = entityManager.Instantiate(prefabs[i%prefabs.Count]);
-            entityManager.AddComponent(car, typeof(FindTarget));
+            entityManager.AddComponent(car, typeof(ReachedEndOfSpline));
             entityManager.SetComponentData(car, new Translation{Value = intersectionData.position});
             entityManager.AddComponentData(car, 
-                new TargetSplineData()
+                new ExitIntersectionData()
                 {
                     IsIntersection = true,
                     TargetSplineId = intersectionData.splineData1
