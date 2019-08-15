@@ -28,10 +28,14 @@ public class MovementSystem : JobComponentSystem
         public float deltaTime;
         public void Execute(ref Translation translation, ref Rotation rotation, ref SplineComponent trackSplineComponent, ref InterpolatorTComponent interpolatorT)
         {
-            //translation.Value += math.normalize(trackSpline.Spline.EndPosition - translation.Value) * deltaTime * 2f;
-            //return;
-            float velocity = trackSplineComponent.IsInsideIntersection ? 0.2f : 2.0f;
-            float dist = math.distance(trackSplineComponent.SplineBufferElementData.EndPosition, trackSplineComponent.SplineBufferElementData.StartPosition);
+            
+            float velocity = trackSplineComponent.IsInsideIntersection ? 0.7f : 1.0f;
+            
+            translation.Value += math.normalize(trackSplineComponent.Spline.EndPosition - translation.Value) * deltaTime * velocity;
+            return;
+            
+            
+            float dist = math.distance(trackSplineComponent.Spline.EndPosition, trackSplineComponent.Spline.StartPosition);
             var moveDisplacement = (deltaTime * velocity) / dist;
             var t = Mathf.Clamp01(interpolatorT.t + moveDisplacement);
 
@@ -44,14 +48,14 @@ public class MovementSystem : JobComponentSystem
             InfoForMoveAndRotation data = Extrude(extrudePoint, trackSplineComponent, t);
 
             translation.Value = data.splinePoint + math.normalizesafe(data.up) * 0.06f;
-            float3 moveDir = trackSplineComponent.SplineBufferElementData.EndPosition - trackSplineComponent.SplineBufferElementData.StartPosition;
+            float3 moveDir = trackSplineComponent.Spline.EndPosition - trackSplineComponent.Spline.StartPosition;
 
             if (SqrMag(moveDir) > 0.0001f && SqrMag(data.up) > 0.0001f)
             {
                 rotation.Value = quaternion.LookRotation(moveDir * splineDirection, data.up);
             }
 
-            if (Vector3.Dot(trackSplineComponent.SplineBufferElementData.StartNormal, data.up) > 0f)
+            if (Vector3.Dot(trackSplineComponent.Spline.StartNormal, data.up) > 0f)
             {
                 interpolatorT.splineSide = 1;
             }
@@ -98,7 +102,7 @@ public class MovementSystem : JobComponentSystem
         //else if (twistMode == 1)
         //{
         //method 2 - rotate startNormal toward endNormal
-        fromTo = Quaternion.FromToRotation(info.SplineBufferElementData.StartNormal, info.SplineBufferElementData.EndNormal);
+        fromTo = Quaternion.FromToRotation(info.Spline.StartNormal, info.Spline.EndNormal);
         //}
         //else if (twistMode == 2)
         //{
@@ -113,7 +117,7 @@ public class MovementSystem : JobComponentSystem
         // for example: if startNormal and endNormal are equal, the road
         // can twist 0 or 360 degrees, but NOT 180.
         float smoothT = Mathf.SmoothStep(0f, 1f, t * 1.02f - .01f);
-        float3 up = math.mul(math.slerp(quaternion.identity, fromTo, smoothT), info.SplineBufferElementData.StartNormal);
+        float3 up = math.mul(math.slerp(quaternion.identity, fromTo, smoothT), info.Spline.StartNormal);
         //float3 up = Quaternion.Slerp(Quaternion.identity, fromTo, smoothT) * info.spline.StartNormal;
         float3 right = math.cross(tangent, up);
         float3 result = sample1 + right * point.x + up * point.y;
@@ -128,7 +132,7 @@ public class MovementSystem : JobComponentSystem
     public static float3 Evaluate(float t, SplineComponent splineComponent)
     {
         t = Mathf.Clamp01(t);
-        return splineComponent.SplineBufferElementData.StartPosition * (1f - t) * (1f - t) * (1f - t) + 3f * splineComponent.SplineBufferElementData.Anchor1 * (1f - t) * (1f - t) * t + 3f * splineComponent.SplineBufferElementData.Anchor2 * (1f - t) * t * t + splineComponent.SplineBufferElementData.EndPosition * t * t * t;
+        return splineComponent.Spline.StartPosition * (1f - t) * (1f - t) * (1f - t) + 3f * splineComponent.Spline.Anchor1 * (1f - t) * (1f - t) * t + 3f * splineComponent.Spline.Anchor2 * (1f - t) * t * t + splineComponent.Spline.EndPosition * t * t * t;
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)

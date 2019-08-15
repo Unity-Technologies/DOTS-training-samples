@@ -4,6 +4,6 @@ using Unity.Mathematics;
 
 public struct SplineComponent : IComponentData
 {
-    public SplineBufferElementData SplineBufferElementData;
+    public SplineBufferElementData Spline;
     public bool IsInsideIntersection;
 }

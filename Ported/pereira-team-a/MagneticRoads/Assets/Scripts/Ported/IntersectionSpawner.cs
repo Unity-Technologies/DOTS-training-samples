@@ -8,12 +8,12 @@ using Random = UnityEngine.Random;
 
 public class IntersectionSpawner : MonoBehaviour
 {
-    public Transform[] IntersectionPoints;
     public GameObject[] CarPrefabs;
-
     public GeneratedIntersectionDataObject intersectionDataObject;
     
-    unsafe void Start()
+    public int maxNumCars = 50000;
+
+    void Start()
     {
         var entityManager = World.Active.EntityManager;
         var entity = entityManager.CreateEntity(typeof(IntersectionBufferElementData), typeof(SplineBufferElementData));
@@ -70,7 +70,8 @@ public class IntersectionSpawner : MonoBehaviour
             splineBuffer.Add(spline);
         }
 
-        for (int i = 0; i < intersectionDataObject.intersections.Count; i++)
+        int numCars = Mathf.Min(maxNumCars, intersectionDataObject.intersections.Count);
+        for (int i = 0; i < numCars; i++)
         {
             var intersectionData = intersectionDataObject.intersections[i];
 
