@@ -4,7 +4,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class AssignIntersectionSpline : JobComponentSystem
+public class EnterIntersectionSystem : JobComponentSystem
 {
     private EntityQuery m_Query;
     EndSimulationEntityCommandBufferSystem m_EntityCommandBufferSystem;
@@ -68,7 +68,7 @@ public class AssignIntersectionSpline : JobComponentSystem
                 EndNormal = targetSpline.EndNormal
             };
             
-            CommandBuffer.SetComponent(index, entity, new SplineData{Spline = newSpline});
+            CommandBuffer.SetComponent(index, entity, new SplineData{Spline = newSpline, IsInsideIntersection = true});
             CommandBuffer.AddComponent(index, entity, new ExitIntersectionData {TargetSplineId = targetSplineId});
             CommandBuffer.RemoveComponent<ReachedEndOfSpline>(index, entity);
             CommandBuffer.AddComponent<InterpolatorTComponent>(index, entity);

@@ -24,7 +24,7 @@ public class GeneratedDataDrawer : MonoBehaviour
             Gizmos.DrawLine(splines[i].startPoint, splines[i].endPoint);
         }
         
-        Gizmos.color = new Color(.2f, .2f, 1f);
+        /*Gizmos.color = new Color(.2f, .2f, 1f);
         for (int i = 0; i < intersections.Count; i++)
         {
             if (intersections[i].normal != Vector3Int.zero)
@@ -33,6 +33,6 @@ public class GeneratedDataDrawer : MonoBehaviour
                     Quaternion.LookRotation(intersections[i].normal),
                     new Vector3(intersectionSize, intersectionSize, 0f));
             }
-        }
+        }*/
     }
 }

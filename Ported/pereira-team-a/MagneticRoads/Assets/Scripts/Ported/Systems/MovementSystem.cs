@@ -33,9 +33,9 @@ public class MovementSystem : JobComponentSystem
         {
             //translation.Value += math.normalize(trackSpline.Spline.EndPosition - translation.Value) * deltaTime * 2f;
             //return;
-
+            float velocity = trackSpline.IsInsideIntersection ? 0.3f : 2.0f;
             float dist = math.distance(trackSpline.Spline.EndPosition, trackSpline.Spline.StartPosition);
-            var moveDisplacement = (deltaTime * 2f) / dist;
+            var moveDisplacement = (deltaTime * velocity) / dist;
             var t = Mathf.Clamp01(interpolatorT.t + moveDisplacement);
 
             float2 extrudePoint = new float2(1, 1);

@@ -5,4 +5,5 @@ using Unity.Mathematics;
 public struct SplineData : IComponentData
 {
     public Spline Spline;
+    public bool IsInsideIntersection;
 }

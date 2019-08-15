@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateAfter(typeof(MovementSystem))]
-public class FindAssignNewTargetSystem : JobComponentSystem
+public class TagIfReachedEndOfSpline : JobComponentSystem
 {
     private EntityQuery m_Query;
     private EndSimulationEntityCommandBufferSystem m_EntityCommandBufferSystem;
