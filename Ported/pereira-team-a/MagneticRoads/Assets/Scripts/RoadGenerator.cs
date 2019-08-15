@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities;
+using UnityEditor;
 using UnityEngine;
 
 public class RoadGenerator : MonoBehaviour
@@ -45,7 +47,7 @@ public class RoadGenerator : MonoBehaviour
 
     MaterialPropertyBlock carMatProps;
     List<List<Vector4>> carColors;
-    
+
     public GeneratedIntersectionDataObject intersectionDataObject;
 
     long HashIntersectionPair(Intersection a, Intersection b)
@@ -152,7 +154,7 @@ public class RoadGenerator : MonoBehaviour
         {
             new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 1, 0), new Vector3Int(0, -1, 0),
             new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1)
-            
+
             //new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(-1, 0, 0)
         };
 
@@ -254,13 +256,15 @@ public class RoadGenerator : MonoBehaviour
         intersectionDataObject.intersections = new List<GeneratedIntersectionData>();
         intersectionDataObject.splines = new List<GeneratedSplineData>();
 
-        for (int i=0;i<intersections.Count;i++) {
+        for (int i = 0; i < intersections.Count; i++)
+        {
             GeneratedIntersectionData intersectionData = new GeneratedIntersectionData();
-            intersectionData.id = intersectionDataObject.intersections.Count; // Should be equal to i && to intersection.id
+            intersectionData.id =
+                intersectionDataObject.intersections.Count; // Should be equal to i && to intersection.id
             intersectionDataObject.intersections.Add(intersectionData);
         }
 
-        
+
         for (int i = 0; i < intersections.Count; i++)
         {
             Intersection intersection = intersections[i];
@@ -290,68 +294,71 @@ public class RoadGenerator : MonoBehaviour
                             intersection.neighborSplines.Add(spline);
                             neighbor.neighbors.Add(intersection);
                             neighbor.neighborSplines.Add(spline);
-                            
+
                             // RICARDO
-							// Create the forward direction spline
+                            // Create the forward direction spline
                             GeneratedSplineData splineDataForwardDirection = new GeneratedSplineData();
-							splineDataForwardDirection.id = intersectionDataObject.splines.Count;
-							
-							splineDataForwardDirection.startIntersectionId = intersection.id;
-							splineDataForwardDirection.endIntersectionId = neighbor.id;
-							splineDataForwardDirection.startPoint = spline.startPoint;
-							splineDataForwardDirection.endPoint = spline.endPoint;
-							splineDataForwardDirection.anchor1 = spline.anchor1;
-							splineDataForwardDirection.anchor2 = spline.anchor2;
-							splineDataForwardDirection.startNormal = spline.startNormal;
-							splineDataForwardDirection.endNormal = spline.endNormal;
-							splineDataForwardDirection.startTangent = spline.startTangent;
-							splineDataForwardDirection.endTangent = spline.endTangent;
-							splineDataForwardDirection.measuredLength = spline.measuredLength;
-							splineDataForwardDirection.carQueueSize = spline.carQueueSize;
-							splineDataForwardDirection.maxCarCount = spline.maxCarCount;
+                            splineDataForwardDirection.id = intersectionDataObject.splines.Count;
 
-							intersectionDataObject.splines.Add(splineDataForwardDirection); // Add the spline to the DB of splines
+                            splineDataForwardDirection.startIntersectionId = intersection.id;
+                            splineDataForwardDirection.endIntersectionId = neighbor.id;
+                            splineDataForwardDirection.startPoint = spline.startPoint;
+                            splineDataForwardDirection.endPoint = spline.endPoint;
+                            splineDataForwardDirection.anchor1 = spline.anchor1;
+                            splineDataForwardDirection.anchor2 = spline.anchor2;
+                            splineDataForwardDirection.startNormal = spline.startNormal;
+                            splineDataForwardDirection.endNormal = spline.endNormal;
+                            splineDataForwardDirection.startTangent = spline.startTangent;
+                            splineDataForwardDirection.endTangent = spline.endTangent;
+                            splineDataForwardDirection.measuredLength = spline.measuredLength;
+                            splineDataForwardDirection.carQueueSize = spline.carQueueSize;
+                            splineDataForwardDirection.maxCarCount = spline.maxCarCount;
 
-							// Reverse the forward direction spline
+                            intersectionDataObject.splines.Add(
+                                splineDataForwardDirection); // Add the spline to the DB of splines
+
+                            // Reverse the forward direction spline
                             GeneratedSplineData splineDataReverseDirection = new GeneratedSplineData();
-							splineDataReverseDirection.id = intersectionDataObject.splines.Count;
-							
-							splineDataReverseDirection.startIntersectionId = neighbor.id;
-							splineDataReverseDirection.endIntersectionId = intersection.id;
-							splineDataReverseDirection.startPoint = spline.endPoint;
-							splineDataReverseDirection.endPoint = spline.startPoint;
-							splineDataReverseDirection.anchor1 = spline.anchor2;
-							splineDataReverseDirection.anchor2 = spline.anchor1;
-							splineDataReverseDirection.startNormal = spline.endNormal;
-							splineDataReverseDirection.endNormal = spline.startNormal;
-							splineDataReverseDirection.startTangent = spline.endTangent;
-							splineDataReverseDirection.endTangent = spline.startTangent;
-							splineDataReverseDirection.measuredLength = spline.measuredLength;
-							splineDataReverseDirection.carQueueSize = spline.carQueueSize;
-							splineDataReverseDirection.maxCarCount = spline.maxCarCount;
-							
-							intersectionDataObject.splines.Add(splineDataReverseDirection);
-								
-							// Reference the spline from the intersection data
-							GeneratedIntersectionData startIntersectionData = intersectionDataObject.intersections[intersection.id];
-							if(startIntersectionData.splineCount == 0) 
-								startIntersectionData.splineData1 = splineDataForwardDirection.id;
-							if(startIntersectionData.splineCount == 1) 
-								startIntersectionData.splineData2 = splineDataForwardDirection.id;
-							if(startIntersectionData.splineCount == 2) 
-								startIntersectionData.splineData3 = splineDataForwardDirection.id;
-							startIntersectionData.splineCount++;
-							intersectionDataObject.intersections[intersection.id] = startIntersectionData;
-								
-                            GeneratedIntersectionData endIntersectionData = intersectionDataObject.intersections[neighbor.id];
-							if(endIntersectionData.splineCount == 0)
-								endIntersectionData.splineData1 = splineDataReverseDirection.id;
-							if(endIntersectionData.splineCount == 1)
-								endIntersectionData.splineData2 = splineDataReverseDirection.id;
-							if(endIntersectionData.splineCount == 2)
-								endIntersectionData.splineData3 = splineDataReverseDirection.id;
-							endIntersectionData.splineCount++;
-							intersectionDataObject.intersections[neighbor.id] = endIntersectionData;
+                            splineDataReverseDirection.id = intersectionDataObject.splines.Count;
+
+                            splineDataReverseDirection.startIntersectionId = neighbor.id;
+                            splineDataReverseDirection.endIntersectionId = intersection.id;
+                            splineDataReverseDirection.startPoint = spline.endPoint;
+                            splineDataReverseDirection.endPoint = spline.startPoint;
+                            splineDataReverseDirection.anchor1 = spline.anchor2;
+                            splineDataReverseDirection.anchor2 = spline.anchor1;
+                            splineDataReverseDirection.startNormal = spline.endNormal;
+                            splineDataReverseDirection.endNormal = spline.startNormal;
+                            splineDataReverseDirection.startTangent = spline.endTangent;
+                            splineDataReverseDirection.endTangent = spline.startTangent;
+                            splineDataReverseDirection.measuredLength = spline.measuredLength;
+                            splineDataReverseDirection.carQueueSize = spline.carQueueSize;
+                            splineDataReverseDirection.maxCarCount = spline.maxCarCount;
+
+                            intersectionDataObject.splines.Add(splineDataReverseDirection);
+
+                            // Reference the spline from the intersection data
+                            GeneratedIntersectionData startIntersectionData =
+                                intersectionDataObject.intersections[intersection.id];
+                            if (startIntersectionData.splineCount == 0)
+                                startIntersectionData.splineData1 = splineDataForwardDirection.id;
+                            if (startIntersectionData.splineCount == 1)
+                                startIntersectionData.splineData2 = splineDataForwardDirection.id;
+                            if (startIntersectionData.splineCount == 2)
+                                startIntersectionData.splineData3 = splineDataForwardDirection.id;
+                            startIntersectionData.splineCount++;
+                            intersectionDataObject.intersections[intersection.id] = startIntersectionData;
+
+                            GeneratedIntersectionData endIntersectionData =
+                                intersectionDataObject.intersections[neighbor.id];
+                            if (endIntersectionData.splineCount == 0)
+                                endIntersectionData.splineData1 = splineDataReverseDirection.id;
+                            if (endIntersectionData.splineCount == 1)
+                                endIntersectionData.splineData2 = splineDataReverseDirection.id;
+                            if (endIntersectionData.splineCount == 2)
+                                endIntersectionData.splineData3 = splineDataReverseDirection.id;
+                            endIntersectionData.splineCount++;
+                            intersectionDataObject.intersections[neighbor.id] = endIntersectionData;
                         }
                     }
                 }
@@ -395,7 +402,7 @@ public class RoadGenerator : MonoBehaviour
             intersectionData.normal = intersection.normal;
             intersectionData.position = intersection.position;
             intersectionDataObject.intersections[intersectionData.id] = intersectionData;
-            
+
             if (i % 20 == 0)
             {
                 yield return null;
@@ -451,6 +458,8 @@ public class RoadGenerator : MonoBehaviour
                     mesh.RecalculateBounds();
                     roadMeshes.Add(mesh);
                     triCount += triangles.Count / 3;
+
+//                    RoadMesh = mesh;
                 }
 
                 vertices.Clear();
@@ -504,7 +513,67 @@ public class RoadGenerator : MonoBehaviour
                 batch++;
             }
         }
+
+        //Save Meshes
+
+        if (SaveMeshes)
+        {
+            var roads = new GameObject("Roads", typeof(ConvertToEntity));
+            roads.GetComponent<ConvertToEntity>().ConversionMode = ConvertToEntity.Mode.ConvertAndDestroy;
+
+            var meshFilter = roads.AddComponent<MeshFilter>();
+            var meshRenderer = roads.AddComponent<MeshRenderer>();
+
+            var combinedRoadInstances = new List<CombineInstance>();
+
+            for (int i = 0; i < roadMeshes.Count; i++)
+            {
+                var ci = new CombineInstance { mesh = roadMeshes[i], transform = Matrix4x4.identity};
+                combinedRoadInstances.Add(ci);
+            }
+            
+            var roadMesh = new Mesh();
+            roadMesh.CombineMeshes(combinedRoadInstances.ToArray());
+            
+            meshFilter.mesh = roadMesh;
+            meshRenderer.material = roadMaterial;
+            
+            AssetDatabase.CreateAsset(roadMesh, "Assets/GeneratedRoads/RoadMeshes/RoadMesh.asset");
+            
+            var combinedIntersectionsInstances = new List<CombineInstance>();
+
+            foreach (var intersectionMatrix in intersectionMatrices)
+            {
+                for (int i = 0; i < intersectionMatrix.Count; i++)
+                {
+                    var ci = new CombineInstance { mesh = intersectionMesh, transform = intersectionMatrix[i]};
+                    combinedIntersectionsInstances.Add(ci);
+                }
+                break;
+            }
+            
+            var intersectionsMesh = new Mesh();
+            intersectionsMesh.CombineMeshes(combinedIntersectionsInstances.ToArray());
+
+            var intersectionChild = new GameObject("Intersections");
+            var iFilter = intersectionChild.AddComponent<MeshFilter>();
+            var iMesh = intersectionChild.AddComponent<MeshRenderer>();
+
+            iFilter.mesh = intersectionsMesh;
+            iMesh.material = roadMaterial;
+            
+            intersectionChild.transform.SetParent(roads.transform);
+            
+            AssetDatabase.CreateAsset(intersectionsMesh, "Assets/GeneratedRoads/RoadMeshes/IntersectionMeshes.asset");
+            
+            PrefabUtility.SaveAsPrefabAssetAndConnect(roads, "Assets/GeneratedRoads/Roads.prefab",
+                InteractionMode.AutomatedAction);
+            
+            Debug.Log("Saved the mesh!");
+        }
     }
+
+    public bool SaveMeshes;
 
     private void Update()
     {
