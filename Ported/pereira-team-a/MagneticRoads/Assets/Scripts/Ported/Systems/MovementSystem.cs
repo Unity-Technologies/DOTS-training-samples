@@ -14,53 +14,69 @@ public class MovementSystem : JobComponentSystem
     {
         query = GetEntityQuery(new EntityQueryDesc
         {
-            All = new []{ComponentType.ReadWrite<Translation>(), ComponentType.ReadWrite<Rotation>(), ComponentType.ReadOnly<SplineData>()},
+            All = new []{ComponentType.ReadWrite<Translation>(), ComponentType.ReadWrite<Rotation>(), ComponentType.ReadOnly<SplineData>(), ComponentType.ReadOnly<InterpolatorTComponent>() },
             None = new []{ComponentType.ReadOnly<ReachedEndOfSpline>() }
         });
     }
 
-    struct InfoForMoveAndRotation
+    public struct InfoForMoveAndRotation
     {
         public float3 splinePoint;
-        public Quaternion rotation;
+        public float3 up;
     }
 
-    [BurstCompile]
-    struct MoveJob : IJobForEach<Translation, Rotation, SplineData>
+    //[BurstCompile]
+    struct MoveJob : IJobForEach<Translation, Rotation, SplineData, InterpolatorTComponent>
     {
         public float deltaTime;
-        public void Execute(ref Translation translation,ref Rotation rotation, ref SplineData trackSpline)
+        public void Execute(ref Translation translation, ref Rotation rotation, ref SplineData trackSpline, ref InterpolatorTComponent interpolatorT)
         {
-            translation.Value += math.normalize(trackSpline.Spline.EndPosition - translation.Value) * deltaTime * 2f;
+            //translation.Value += math.normalize(trackSpline.Spline.EndPosition - translation.Value) * deltaTime * 2f;
+            //return;
 
-            //float dist = math.distance(trackSpline.TargetPosition, trackSpline.StartPosition);
-            //float trail = math.distance(trackSpline.TargetPosition, translation.Value);
+            float dist = math.distance(trackSpline.Spline.EndPosition, trackSpline.Spline.StartPosition);
+            var moveDisplacement = (deltaTime * 2f) / dist;
+            var t = Mathf.Clamp01(interpolatorT.t + moveDisplacement);
 
-            //var moveDisplacement = (deltaTime * 2f) / dist;
-            //var t = Mathf.Clamp01(trail / dist + moveDisplacement);
-            //float3 up;
-            //float3 point = float3.zero;
-            //float3 splinePoint = Extrude(point, trackSpline, t, out up);
+            float2 extrudePoint = new float2(1, 1);
+            float splineDirection = 1;
 
-            //up *= splineSide;
+            //extrudePoint = new Vector2(-RoadGenerator.trackRadius * .5f * splineDirection * interpolatorT.splineSide,
+            //    RoadGenerator.trackThickness * .5f * interpolatorT.splineSide);
 
-            //translation.Value = splinePoint + math.normalize(up) * .06f;
+            InfoForMoveAndRotation data = Extrude(extrudePoint, trackSpline, t);
 
-            //float3 moveDir = trackSpline.TargetPosition - trackSpline.StartPosition;
-            //float splineDirection = 1;
-            //lastPosition = position;
-            //if (moveDir.sqrMagnitude > 0.0001f && up.sqrMagnitude > 0.0001f)
+            translation.Value = data.splinePoint + math.normalizesafe(data.up) * 0.06f;
+            float3 moveDir = trackSpline.Spline.EndPosition - trackSpline.Spline.StartPosition;
+
+            if (SqrMag(moveDir) > 0.0001f && SqrMag(data.up) > 0.0001f)
+            {
+                //rotation.Value = Quaternion.LookRotation(moveDir * splineDirection, data.up);
+                rotation.Value = quaternion.LookRotation(moveDir * splineDirection, data.up);
+            }
+
+            //if (Vector3.Dot(trackSpline.spline.StartNormal, data.up) > 0f)
             //{
-            //    rotation.Value = quaternion.LookRotation(moveDir * splineDirection, up);
+            //    interpolatorT.splineSide = 1;
             //}
+            //else
+            //{
+            //    interpolatorT.splineSide = -1;
+            //}
+
+            interpolatorT.t = t;
+
         }
     }
+    public static float SqrMag(float3 vector)
+    {
+        return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z;
+    }
 
-    public static float3 Extrude(float3 point,SplineData info, float t, out float3 up)// Vector2 point, float t, out Vector3 tangent, out Vector3 up)
+    public static InfoForMoveAndRotation Extrude(float2 point, SplineData info, float t)
     {
         float3 sample1 = Evaluate(t, info);
         float3 sample2;
-
         float flipper = 1f;
         if (t + .01f < 1f)
         {
@@ -71,41 +87,46 @@ public class MovementSystem : JobComponentSystem
             sample2 = Evaluate(t - .01f, info);
             flipper = -1f;
         }
-
+        var twistMode = 1;
         var tangent = math.normalize(sample2 - sample1) * flipper;
         tangent = math.normalize(tangent);
 
         // each spline uses one out of three possible twisting methods:
-        quaternion fromTo = quaternion.identity;// Quaternion.identity;
+        quaternion fromTo = quaternion.identity;
         //if (twistMode == 0)
         //{
         //    // method 1 - rotate startNormal around our current tangent
-        //    float angle = Vector3.SignedAngle(startNormal, endNormal, tangent);
+        //    float angle = Vector3.SignedAngle(info.spline.StartNormal, info.spline.EndNormal, tangent);
         //    fromTo = Quaternion.AngleAxis(angle, tangent);
         //}
         //else if (twistMode == 1)
         //{
-            // method 2 - rotate startNormal toward endNormal
-            fromTo = Quaternion.FromToRotation(info.Spline.StartNormal,info.Spline.EndNormal);
+        //method 2 - rotate startNormal toward endNormal
+        fromTo = Quaternion.FromToRotation(info.Spline.StartNormal, info.Spline.EndNormal);
         //}
         //else if (twistMode == 2)
         //{
         //    // method 3 - rotate startNormal by "startOrientation-to-endOrientation" rotation
-        //    Quaternion startRotation = Quaternion.LookRotation(startTangent, startNormal);
-        //    Quaternion endRotation = Quaternion.LookRotation(endTangent * -1, endNormal);
+        //    Quaternion startRotation = Quaternion.LookRotation(info.spline.StartTargent, info.spline.StartNormal);
+        //    Quaternion endRotation = Quaternion.LookRotation(info.spline.EndTangent * -1, info.spline.EndNormal);
         //    fromTo = endRotation * Quaternion.Inverse(startRotation);
         //}
+
         // other twisting methods can be added, but they need to
         // respect the relationship between startNormal and endNormal.
         // for example: if startNormal and endNormal are equal, the road
         // can twist 0 or 360 degrees, but NOT 180.
-
         float smoothT = Mathf.SmoothStep(0f, 1f, t * 1.02f - .01f);
-        up = math.mul(math.slerp(quaternion.identity, fromTo, smoothT),info.Spline.StartNormal);
-        //up = Quaternion.Slerp(quaternion.identity, fromTo, smoothT) * info.spline.StartNormal;
+        float3 up = math.mul(math.slerp(quaternion.identity, fromTo, smoothT), info.Spline.StartNormal);
+        //float3 up = Quaternion.Slerp(Quaternion.identity, fromTo, smoothT) * info.spline.StartNormal;
         float3 right = math.cross(tangent, up);
+        float3 result = sample1 + right * point.x + up * point.y;
 
-        return sample1 + right * point.x + up * point.y;
+        InfoForMoveAndRotation infoR = new InfoForMoveAndRotation();
+        infoR.splinePoint = result;
+        infoR.up = up;
+
+        return infoR;
     }
 
     public static float3 Evaluate(float t, SplineData splineData)

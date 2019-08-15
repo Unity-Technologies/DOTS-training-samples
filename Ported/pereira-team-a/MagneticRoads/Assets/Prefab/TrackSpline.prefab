@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6738874684488647960}
   - component: {fileID: 6899365415333656466}
   m_Layer: 0
-  m_Name: Cube (1)
+  m_Name: TrackSpline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 940866653393649899}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.4457302, y: -1.4283872, z: 2.3535328}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
