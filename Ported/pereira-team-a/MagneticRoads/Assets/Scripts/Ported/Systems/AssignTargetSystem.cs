@@ -13,7 +13,7 @@ public class AssignTargetSystem : JobComponentSystem
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
-    struct AssignDestinationJob : IJobForEachWithEntity<FindTarget, TargetIntersectionIndex>
+    struct AssignDestinationJob : IJobForEachWithEntity<FindTarget, SplineData>
     {
         [ReadOnly] public DynamicBuffer<IntersectionPoint> intersectionBuffer;
         [ReadOnly] public DynamicBuffer<Spline> splineBuffer;
@@ -21,39 +21,72 @@ public class AssignTargetSystem : JobComponentSystem
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
         public unsafe void Execute(Entity entity, int index, [ReadOnly] ref FindTarget findTarget,
-            ref TargetIntersectionIndex targetIndex)
+            ref SplineData currentSplineData)
         {
-            //1.Get the TargetPosition from the targetIndex
-
-            //2.Read the data from the DynamicBuffer with the TargetPosition
-            //3.GetNeighbors
-            //4.Select a random neighbor using noise
-            //5.Set SplineData
-            //6.Remove the FindTarget
-            //7.Update targetIndex
-
-            var intersection = intersectionBuffer[targetIndex.Value];
-            intersection.LastIntersection += 1;
-            var targetNeighborId = intersection.LastIntersection % intersection.SplineIdCount;
-            intersectionBuffer[targetIndex.Value] = intersection;
-            
-            var targetSplineId = intersection.SplineId0; // 0
-            if(targetNeighborId == 1)
-                targetSplineId = intersection.SplineId1; // 1
-            if(targetNeighborId == 2)
-                targetSplineId = intersection.SplineId2; // 2
-
-            var spline = splineBuffer[targetSplineId];
-            var splineData = new SplineData
+            // If we were moving along an intersection, continue to the target spline
+            if (currentSplineData.Spline.IsIntersection)
             {
-                StartPosition = intersection.Position,
-                TargetPosition = intersectionBuffer[spline.EndIntersectionId].Position,
-                spline = spline
-            };
+                var spline = splineBuffer[currentSplineData.Spline.TargetSplineId];
+                var newSplineData = new SplineData
+                {
+                    //StartPosition = splineData.TargetPosition,
+                    //TargetPosition = intersectionBuffer[spline.EndIntersectionId].Position,
+                    Spline = spline
+                };
+                CommandBuffer.SetComponent(index, entity, newSplineData);
+            }
+            else
+            {
+                // Get the intersection object, to which we have arrived
+                var currentIntersection = intersectionBuffer[currentSplineData.Spline.EndIntersectionId];
+                
+                // Select the next spline to travel
+                currentIntersection.LastIntersection += 1;
+                intersectionBuffer[currentSplineData.Spline.EndIntersectionId] = currentIntersection;
+            
+                var targetSplineIndex = currentIntersection.LastIntersection % currentIntersection.SplineIdCount;
+                var targetSplineId = 0;
+                if (targetSplineIndex == 0)
+                    targetSplineId = currentIntersection.SplineId0; // 0
+                else if (targetSplineIndex == 1)
+                    targetSplineId = currentIntersection.SplineId1; // 1
+                else if (targetSplineIndex == 2)
+                    targetSplineId = currentIntersection.SplineId2; // 2
 
-            CommandBuffer.SetComponent(index, entity, splineData);
+                var targetSpline = splineBuffer[targetSplineId];
+                
+                var newSpline = new Spline()
+                {
+                    TargetSplineId = targetSplineId,
+                    IsIntersection = true,
+                    
+                    EndIntersectionId = currentSplineData.Spline.EndIntersectionId,  // For this temporary spline, the end intersection is this same one
+                    
+                    StartPosition = currentSplineData.Spline.EndPosition,
+                    EndPosition = targetSpline.StartPosition,
+                    
+                    //intersectionSpline.anchor1 = (intersection.position + intersectionSpline.startPoint) * .5f;
+                    Anchor1 = (currentIntersection.Position + currentSplineData.Spline.EndPosition) * .5f,
+                    // intersectionSpline.anchor2 = (intersection.position + intersectionSpline.endPoint) * .5f;
+                    Anchor2 = (currentIntersection.Position + targetSpline.StartPosition) * .5f,
+                    // intersectionSpline.startTangent = Vector3Int.RoundToInt((intersection.position - intersectionSpline.startPoint).normalized);
+                    StartTangent = math.round(math.normalize(currentIntersection.Position - currentSplineData.Spline.EndPosition)),
+                    // intersectionSpline.endTangent = Vector3Int.RoundToInt((intersection.position - intersectionSpline.endPoint).normalized);
+                    EndTangent = math.round(math.normalize(currentIntersection.Position - targetSpline.StartPosition)),
+                    // intersectionSpline.startNormal = intersection.normal;
+                    StartNormal = currentSplineData.Spline.EndNormal,
+                    // intersectionSpline.endNormal = intersection.normal;
+                    EndNormal = targetSpline.EndNormal
+                };
+                var newSplineData = new SplineData
+                {
+                    Spline = newSpline
+                };
+                
+                CommandBuffer.SetComponent(index, entity, newSplineData);
+            }
+            
             CommandBuffer.RemoveComponent<FindTarget>(index, entity);
-            targetIndex.Value = spline.EndIntersectionId;
         }
     }
 

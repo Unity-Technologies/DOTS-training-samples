@@ -25,11 +25,11 @@ public class FindAssignNewTargetSystem : JobComponentSystem
     {
         public EntityCommandBuffer.Concurrent commandBuffer;
 
-        public void Execute(Entity entity, int index, [ReadOnly] ref Translation translation, [ReadOnly] ref SplineData target)
+        public void Execute(Entity entity, int index, [ReadOnly] ref Translation translation, [ReadOnly] ref SplineData targetSplineData)
         {
             //check if reaches the target
             // add find new target component
-            bool hasReachedTarget = math.distancesq(translation.Value, target.TargetPosition) < 0.1f;
+            bool hasReachedTarget = math.distancesq(translation.Value, targetSplineData.Spline.EndPosition) < 0.1f;
             if (hasReachedTarget)
             {
                 commandBuffer.AddComponent<FindTarget>(index, entity);

@@ -56,66 +56,37 @@ public class IntersectionSpawner : MonoBehaviour
             var splineData = intersectionDataObject.splines[i];
             
             var spline = new Spline();
-            spline.EndIntersectionId = splineData.endIntersectionId;
+            spline.StartPosition = splineData.startPoint;
+            spline.EndPosition = splineData.endPoint;
             spline.Anchor1 = splineData.anchor1;
             spline.Anchor2 = splineData.anchor2;
             spline.StartNormal = new float3(splineData.startNormal.x, splineData.startNormal.y, splineData.startNormal.z);
             spline.EndNormal = new float3(splineData.endNormal.x, splineData.endNormal.y, splineData.endNormal.z);
-            spline.StartTargent = new float3(splineData.startTangent.x, splineData.startTangent.y, splineData.startTangent.z);
+            spline.StartTangent = new float3(splineData.startTangent.x, splineData.startTangent.y, splineData.startTangent.z);
             spline.EndTangent = new float3(splineData.endTangent.x, splineData.endTangent.y, splineData.endTangent.z);
+            
+            spline.IsIntersection = false;
+            spline.EndIntersectionId = splineData.endIntersectionId;
             
             splineBuffer.Add(spline);
         }
-        
+
         for (int i = 0; i < intersectionDataObject.intersections.Count; i++)
         {
             var intersectionData = intersectionDataObject.intersections[i];
-            
+
             var car = entityManager.Instantiate(prefabs[i%prefabs.Count]);
             entityManager.AddComponent(car, typeof(FindTarget));
-            
-            entityManager.AddComponentData(car, new TargetIntersectionIndex{Value = intersectionData.id});
             entityManager.SetComponentData(car, new Translation{Value = intersectionData.position});
-            
-            entityManager.AddComponent(car, typeof(SplineData));
+            entityManager.AddComponentData(car, 
+                new SplineData()
+                {
+                    Spline = new Spline
+                    {
+                        IsIntersection = true,
+                        TargetSplineId = intersectionData.splineData1
+                    }
+                });
         }
-        
-        /*
-        for (int i = 0; i < IntersectionPoints.Length; i++)
-        {
-            var intersection= new IntersectionPoint();
-            intersection.Position = IntersectionPoints[i].position;
-            //placeholder
-            intersection.Neighbors[0] = i;
-            intersection.Neighbors[1] = i;
-            intersection.Neighbors[2] = i;
-            
-            intersectionBuffer.Add(intersection);
-        }
-        
-        for (int i = 0; i < 4; i++)
-        {
-            var nextIndex = i + 1 == 4 ? 0 : i + 1;
-            
-            var spline = new Spline();
-            spline.EndIntersectionId = nextIndex;
-            spline.Anchor1 = float3.zero;
-            spline.Anchor2 = float3.zero;
-            spline.StartNormal = float3.zero;
-            spline.EndNormal = float3.zero;
-            spline.StartTargent = float3.zero;
-            spline.EndTangent = float3.zero;
-            
-            splineBuffer.Add(spline);
-        }
-        
-        for (int i = 0; i < IntersectionPoints.Length; i++)
-        {
-            var car = entityManager.Instantiate(prefab);
-            entityManager.AddComponent(car, typeof(FindTarget));
-            entityManager.AddComponent(car, typeof(SplineData));
-            entityManager.AddComponentData(car, new TargetIntersectionIndex{Value = i});
-            entityManager.SetComponentData(car, new Translation{Value = IntersectionPoints[i].position});
-        }*/
     }
 }

@@ -11,6 +11,8 @@ public class RoadGenerator : MonoBehaviour
     public Material roadMaterial;
     public Mesh intersectionMesh;
     public Mesh intersectionPreviewMesh;
+
+    public int numCars;
     public Mesh carMesh;
     public Material carMaterial;
     public float carSpeed = 2f;
@@ -461,7 +463,7 @@ public class RoadGenerator : MonoBehaviour
         // spawn cars
 
         batch = 0;
-        for (int i = 0; i < 4000; i++)
+        for (int i = 0; i < numCars; i++)
         {
             Car car = new Car();
             car.maxSpeed = carSpeed;
@@ -486,16 +488,16 @@ public class RoadGenerator : MonoBehaviour
 
     private void Update()
     {
-        /*for (int i = 0; i < cars.Count; i++)
+        for (int i = 0; i < cars.Count; i++)
         {
             cars[i].Update();
             carMatrices[i / instancesPerBatch][i % instancesPerBatch] = cars[i].matrix;
-        }*/
+        }
 
-        for (int i = 0; i < roadMeshes.Count; i++)
+        /*for (int i = 0; i < roadMeshes.Count; i++)
         {
             Graphics.DrawMesh(roadMeshes[i], Matrix4x4.identity, roadMaterial, 0);
-        }
+        }*/
 
         for (int i = 0; i < intersectionMatrices.Count; i++)
         {
@@ -533,7 +535,7 @@ public class RoadGenerator : MonoBehaviour
             }
         }
 
-        if (roadMeshes != null && roadMeshes.Count == 0)
+        //if (roadMeshes != null && roadMeshes.Count == 0)
         {
             // visualize splines before road meshes have spawned
             if (intersections != null)

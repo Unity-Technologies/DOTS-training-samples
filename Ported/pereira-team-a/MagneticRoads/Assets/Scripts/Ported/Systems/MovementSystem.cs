@@ -31,7 +31,7 @@ public class MovementSystem : JobComponentSystem
         public float deltaTime;
         public void Execute(ref Translation translation,ref Rotation rotation, ref SplineData trackSpline)
         {
-            translation.Value += math.normalize(trackSpline.TargetPosition - translation.Value) * deltaTime * 2f;
+            translation.Value += math.normalize(trackSpline.Spline.EndPosition - translation.Value) * deltaTime * 2f;
 
             //float dist = math.distance(trackSpline.TargetPosition, trackSpline.StartPosition);
             //float trail = math.distance(trackSpline.TargetPosition, translation.Value);
@@ -86,7 +86,7 @@ public class MovementSystem : JobComponentSystem
         //else if (twistMode == 1)
         //{
             // method 2 - rotate startNormal toward endNormal
-            fromTo = Quaternion.FromToRotation(info.spline.StartNormal,info.spline.EndNormal);
+            fromTo = Quaternion.FromToRotation(info.Spline.StartNormal,info.Spline.EndNormal);
         //}
         //else if (twistMode == 2)
         //{
@@ -101,17 +101,17 @@ public class MovementSystem : JobComponentSystem
         // can twist 0 or 360 degrees, but NOT 180.
 
         float smoothT = Mathf.SmoothStep(0f, 1f, t * 1.02f - .01f);
-        up = math.mul(math.slerp(quaternion.identity, fromTo, smoothT),info.spline.StartNormal);
+        up = math.mul(math.slerp(quaternion.identity, fromTo, smoothT),info.Spline.StartNormal);
         //up = Quaternion.Slerp(quaternion.identity, fromTo, smoothT) * info.spline.StartNormal;
         float3 right = math.cross(tangent, up);
 
         return sample1 + right * point.x + up * point.y;
     }
 
-    public static float3 Evaluate(float t, SplineData spline)
+    public static float3 Evaluate(float t, SplineData splineData)
     {
         t = Mathf.Clamp01(t);
-        return spline.StartPosition * (1f - t) * (1f - t) * (1f - t) + 3f * spline.spline.Anchor1 * (1f - t) * (1f - t) * t + 3f * spline.spline.Anchor2 * (1f - t) * t * t + spline.TargetPosition * t * t * t;
+        return splineData.Spline.StartPosition * (1f - t) * (1f - t) * (1f - t) + 3f * splineData.Spline.Anchor1 * (1f - t) * (1f - t) * t + 3f * splineData.Spline.Anchor2 * (1f - t) * t * t + splineData.Spline.EndPosition * t * t * t;
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
