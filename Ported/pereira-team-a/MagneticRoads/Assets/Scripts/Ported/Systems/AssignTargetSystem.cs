@@ -12,7 +12,7 @@ public class AssignTargetSystem : JobComponentSystem
     {
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
-    
+
     struct AssignDestinationJob : IJobForEachWithEntity<FindTarget, TargetIntersectionIndex>
     {
         [ReadOnly] public DynamicBuffer<IntersectionPoint> intersectionBuffer;
@@ -23,16 +23,17 @@ public class AssignTargetSystem : JobComponentSystem
         public unsafe void Execute(Entity entity, int index, [ReadOnly] ref FindTarget findTarget,
             ref TargetIntersectionIndex targetIndex)
         {
-            //1. Get the TargetPosition from the targetIndex
-            //2. Read the data from the DynamicBuffer with the TargetPosition
-            //3. GetNeighbors
-            //4. Select a random neighbor using noise
-            //5. Set SplineData
-            //6. Remove the FindTarget
-            //7. Update targetIndex
+            //1.Get the TargetPosition from the targetIndex
 
-            var intersection = intersectionBuffer[targetIndex.Value];
-            var targetNeighborId = (int) (noise.cnoise(new float2(deltaTime, targetIndex.Value * 17)) * 3);
+            //2.Read the data from the DynamicBuffer with the TargetPosition
+            //3.GetNeighbors
+            //4.Select a random neighbor using noise
+            //5.Set SplineData
+            //6.Remove the FindTarget
+            //7.Update targetIndex
+
+           var intersection = intersectionBuffer[targetIndex.Value];
+            var targetNeighborId = (int)(noise.cnoise(new float2(deltaTime, targetIndex.Value * 17)) * 3);
             var targetSplineId = intersection.Neighbors[targetNeighborId];
             var spline = splineBuffer[targetSplineId];
 
@@ -42,7 +43,7 @@ public class AssignTargetSystem : JobComponentSystem
                 TargetPosition = intersectionBuffer[spline.EndIntersectionId].Position,
                 spline = spline
             };
-            
+
             CommandBuffer.SetComponent(index, entity, splineData);
             CommandBuffer.RemoveComponent<FindTarget>(index, entity);
             targetIndex.Value = spline.EndIntersectionId;
@@ -53,7 +54,7 @@ public class AssignTargetSystem : JobComponentSystem
     {
         var intersectionBuffer = EntityManager.GetBuffer<IntersectionPoint>(GetSingletonEntity<IntersectionPoint>());
         var splineBuffer = EntityManager.GetBuffer<Spline>(GetSingletonEntity<Spline>());
-            
+
         var job = new AssignDestinationJob
         {
             intersectionBuffer = intersectionBuffer,
@@ -64,7 +65,7 @@ public class AssignTargetSystem : JobComponentSystem
 
         var jobHandle = job.Schedule(this, handle);
         m_EntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
-        
+
         return jobHandle;
     }
 }
