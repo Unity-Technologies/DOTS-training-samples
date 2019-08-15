@@ -40,6 +40,7 @@ public class GeneratedDataDrawer : MonoBehaviour
                 Gizmos.DrawWireMesh(intersectionPreviewMesh, 0, intersections[i].position,
                     Quaternion.LookRotation(intersections[i].normal),
                     new Vector3(intersectionSize, intersectionSize, 0f));
+                Gizmos.DrawRay(intersections[i].position, intersections[i].normal);
             }
         }
     }

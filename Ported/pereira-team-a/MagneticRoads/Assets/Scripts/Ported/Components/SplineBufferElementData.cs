@@ -18,4 +18,10 @@ public struct SplineBufferElementData : IBufferElementData
     
     // ID of intersection where the spline ends
     public int EndIntersectionId; // id to find an element in the intersection data
+    
+    // ID of Spline in opposite direction
+    public int OppositeDirectionSplineId;
+    
+    // This spline's ID
+    public int SplineId;
 }

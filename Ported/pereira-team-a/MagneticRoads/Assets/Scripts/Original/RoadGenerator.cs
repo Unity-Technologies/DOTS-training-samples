@@ -321,6 +321,25 @@ public class RoadGenerator : MonoBehaviour
                                 splineDataForwardDirection); // Add the spline to the DB of splines
 
                             // Reverse the forward direction spline
+							splineDataForwardDirection.id = intersectionDataObject.splines.Count;
+							
+							splineDataForwardDirection.startIntersectionId = intersection.id;
+							splineDataForwardDirection.endIntersectionId = neighbor.id;
+							splineDataForwardDirection.startPoint = spline.startPoint;
+							splineDataForwardDirection.endPoint = spline.endPoint;
+							splineDataForwardDirection.anchor1 = spline.anchor1;
+							splineDataForwardDirection.anchor2 = spline.anchor2;
+							splineDataForwardDirection.startNormal = spline.startNormal;
+							splineDataForwardDirection.endNormal = spline.endNormal;
+							splineDataForwardDirection.startTangent = spline.startTangent;
+							splineDataForwardDirection.endTangent = spline.endTangent;
+							splineDataForwardDirection.measuredLength = spline.measuredLength;
+							splineDataForwardDirection.carQueueSize = spline.carQueueSize;
+							splineDataForwardDirection.maxCarCount = spline.maxCarCount;
+
+							intersectionDataObject.splines.Add(splineDataForwardDirection); // Add the spline to the DB of splines
+
+							// Reverse the reverse direction spline
                             GeneratedSplineData splineDataReverseDirection = new GeneratedSplineData();
                             splineDataReverseDirection.id = intersectionDataObject.splines.Count;
 
