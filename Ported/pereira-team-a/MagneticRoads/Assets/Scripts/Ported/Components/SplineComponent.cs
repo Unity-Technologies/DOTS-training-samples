@@ -2,8 +2,8 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct SplineData : IComponentData
+public struct SplineComponent : IComponentData
 {
-    public Spline Spline;
+    public SplineBufferElementData SplineBufferElementData;
     public bool IsInsideIntersection;
 }

@@ -13,24 +13,24 @@ public class EnterRoadSystem : JobComponentSystem
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
-    struct ExitIntersectionJob : IJobForEachWithEntity<ReachedEndOfSpline, ExitIntersectionData>
+    struct ExitIntersectionJob : IJobForEachWithEntity<ReachedEndOfSplineComponent, ExitIntersectionComponent>
     {
-        [ReadOnly] public DynamicBuffer<Spline> SplineBuffer;
+        [ReadOnly] public DynamicBuffer<SplineBufferElementData> SplineBuffer;
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
-        public void Execute(Entity entity, int index, [ReadOnly] ref ReachedEndOfSpline reachedEndOfSpline, [ReadOnly] ref ExitIntersectionData exitIntersectionData)
+        public void Execute(Entity entity, int index, [ReadOnly] ref ReachedEndOfSplineComponent reachedEndOfSplineComponent, [ReadOnly] ref ExitIntersectionComponent exitIntersectionComponent)
         {
-            var spline = SplineBuffer[exitIntersectionData.TargetSplineId];
-            CommandBuffer.SetComponent(index, entity, new SplineData { Spline = spline, IsInsideIntersection = false });
-            CommandBuffer.RemoveComponent<ExitIntersectionData>(index, entity);
-            CommandBuffer.RemoveComponent<ReachedEndOfSpline>(index, entity);
+            var spline = SplineBuffer[exitIntersectionComponent.TargetSplineId];
+            CommandBuffer.SetComponent(index, entity, new SplineComponent { SplineBufferElementData = spline, IsInsideIntersection = false });
+            CommandBuffer.RemoveComponent<ExitIntersectionComponent>(index, entity);
+            CommandBuffer.RemoveComponent<ReachedEndOfSplineComponent>(index, entity);
             CommandBuffer.AddComponent<InterpolatorTComponent>(index, entity);
         }
     }
 
     protected override JobHandle OnUpdate(JobHandle handle)
     {
-        var splineBuffer = EntityManager.GetBuffer<Spline>(GetSingletonEntity<Spline>());
+        var splineBuffer = EntityManager.GetBuffer<SplineBufferElementData>(GetSingletonEntity<SplineBufferElementData>());
 
         var job = new ExitIntersectionJob
         {

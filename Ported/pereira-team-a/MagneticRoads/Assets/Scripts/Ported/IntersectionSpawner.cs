@@ -16,19 +16,19 @@ public class IntersectionSpawner : MonoBehaviour
     unsafe void Start()
     {
         var entityManager = World.Active.EntityManager;
-        var entity = entityManager.CreateEntity(typeof(IntersectionPoint), typeof(Spline));
+        var entity = entityManager.CreateEntity(typeof(IntersectionBufferElementData), typeof(SplineBufferElementData));
         var prefabs = new List<Entity>();
         foreach (var CarPrefab in CarPrefabs)
         {
             prefabs.Add(GameObjectConversionUtility.ConvertGameObjectHierarchy(CarPrefab, World.Active));
         }
 
-        DynamicBuffer<IntersectionPoint> intersectionBuffer = entityManager.GetBuffer<IntersectionPoint>(entity);
+        DynamicBuffer<IntersectionBufferElementData> intersectionBuffer = entityManager.GetBuffer<IntersectionBufferElementData>(entity);
 
         for (int i = 0; i < intersectionDataObject.intersections.Count; i++)
         {
             var intersectionData = intersectionDataObject.intersections[i];
-            var intersection = new IntersectionPoint();
+            var intersection = new IntersectionBufferElementData();
             intersection.Position = intersectionData.position;
             
             intersection.SplineId0= intersectionData.splineData1;
@@ -49,13 +49,13 @@ public class IntersectionSpawner : MonoBehaviour
             intersectionBuffer.Add(intersection);
         }
         
-        DynamicBuffer<Spline> splineBuffer = entityManager.GetBuffer<Spline>(entity);
+        DynamicBuffer<SplineBufferElementData> splineBuffer = entityManager.GetBuffer<SplineBufferElementData>(entity);
 
         for (int i = 0; i < intersectionDataObject.splines.Count; i++)
         {
             var splineData = intersectionDataObject.splines[i];
             
-            var spline = new Spline();
+            var spline = new SplineBufferElementData();
             spline.StartPosition = splineData.startPoint;
             spline.EndPosition = splineData.endPoint;
             spline.Anchor1 = splineData.anchor1;
@@ -75,14 +75,14 @@ public class IntersectionSpawner : MonoBehaviour
             var intersectionData = intersectionDataObject.intersections[i];
 
             var car = entityManager.Instantiate(prefabs[i%prefabs.Count]);
-            entityManager.AddComponent(car, typeof(ReachedEndOfSpline));
+            entityManager.AddComponent(car, typeof(ReachedEndOfSplineComponent));
             entityManager.SetComponentData(car, new Translation{Value = intersectionData.position});
             entityManager.AddComponentData(car, 
-                new ExitIntersectionData()
+                new ExitIntersectionComponent()
                 {
                     TargetSplineId = intersectionData.splineData1
                 });
-            entityManager.AddComponent(car, typeof(SplineData));
+            entityManager.AddComponent(car, typeof(SplineComponent));
         }
     }
 }

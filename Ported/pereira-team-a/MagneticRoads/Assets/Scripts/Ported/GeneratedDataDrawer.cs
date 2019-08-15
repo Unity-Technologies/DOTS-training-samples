@@ -22,9 +22,17 @@ public class GeneratedDataDrawer : MonoBehaviour
         {
             Gizmos.color = Color.blue;
             Gizmos.DrawLine(splines[i].startPoint, splines[i].endPoint);
+            Gizmos.DrawSphere(splines[i].startPoint, 0.02f);
+            Gizmos.DrawSphere(splines[i].endPoint, 0.02f);
         }
         
-        /*Gizmos.color = new Color(.2f, .2f, 1f);
+        for (int i = 0; i < intersections.Count; i++)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(intersections[i].position, 0.02f);
+        }
+        
+        Gizmos.color = new Color(.2f, .2f, 1f);
         for (int i = 0; i < intersections.Count; i++)
         {
             if (intersections[i].normal != Vector3Int.zero)
@@ -33,6 +41,6 @@ public class GeneratedDataDrawer : MonoBehaviour
                     Quaternion.LookRotation(intersections[i].normal),
                     new Vector3(intersectionSize, intersectionSize, 0f));
             }
-        }*/
+        }
     }
 }
