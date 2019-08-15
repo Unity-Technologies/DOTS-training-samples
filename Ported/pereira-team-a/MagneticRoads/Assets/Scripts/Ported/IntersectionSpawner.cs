@@ -78,11 +78,12 @@ public class IntersectionSpawner : MonoBehaviour
             entityManager.AddComponent(car, typeof(FindTarget));
             entityManager.SetComponentData(car, new Translation{Value = intersectionData.position});
             entityManager.AddComponentData(car, 
-                new SplineData()
+                new TargetSplineData()
                 {
                     IsIntersection = true,
                     TargetSplineId = intersectionData.splineData1
                 });
+            entityManager.AddComponent(car, typeof(SplineData));
         }
     }
 }
