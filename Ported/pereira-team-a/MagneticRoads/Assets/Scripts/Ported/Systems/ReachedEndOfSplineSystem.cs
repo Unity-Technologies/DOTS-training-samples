@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateAfter(typeof(MovementSystem))]
-public class FindAssignNewTargetSystem : JobComponentSystem
+public class ReachedEndOfSplineSystem : JobComponentSystem
 {
     private EntityQuery m_Query;
     private EndSimulationEntityCommandBufferSystem m_EntityCommandBufferSystem;
@@ -14,26 +14,25 @@ public class FindAssignNewTargetSystem : JobComponentSystem
     {
         m_Query = GetEntityQuery(new EntityQueryDesc
         {
-            All = new []{ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<SplineData>()},
-            None = new []{ComponentType.ReadOnly<ReachedEndOfSpline>() }
+            All = new []{ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<SplineComponent>()},
+            None = new []{ComponentType.ReadOnly<ReachedEndOfSplineComponent>() }
         });
         
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
-    struct AssignFindTargetJob : IJobForEachWithEntity<Translation, SplineData>
+    struct AssignFindTargetJob : IJobForEachWithEntity<Translation, SplineComponent>
     {
         public EntityCommandBuffer.Concurrent commandBuffer;
 
-        public void Execute(Entity entity, int index, [ReadOnly] ref Translation translation, [ReadOnly] ref SplineData targetSplineData)
+        public void Execute(Entity entity, int index, [ReadOnly] ref Translation translation, [ReadOnly] ref SplineComponent targetSplineComponent)
         {
             //check if reaches the target
             // add find new target component
-            bool hasReachedTarget = math.distancesq(translation.Value, targetSplineData.Spline.EndPosition) < 0.1f;
+            bool hasReachedTarget = math.distancesq(translation.Value, targetSplineComponent.Spline.EndPosition) < 0.011f;
             if (hasReachedTarget)
             {
-                commandBuffer.AddComponent<ReachedEndOfSpline>(index, entity);
-                commandBuffer.RemoveComponent<InterpolatorTComponent>(index, entity);
+                commandBuffer.AddComponent<ReachedEndOfSplineComponent>(index, entity);
             }
         }
     }

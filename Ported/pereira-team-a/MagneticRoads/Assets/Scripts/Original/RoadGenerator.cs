@@ -156,6 +156,9 @@ public class RoadGenerator : MonoBehaviour
             new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1)
 
             //new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(-1, 0, 0)
+            //new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 1, 0), new Vector3Int(0, -1, 0), new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1)
+            
+            new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1)
         };
 
         // cardinal directions + diagonals in 3D:
@@ -409,25 +412,25 @@ public class RoadGenerator : MonoBehaviour
             }
         }
 
-        //for (int i = 0; i < intersectionDataObject.splines.Count; i++)
-        //{
-        //    for (int j = 0; j < intersectionDataObject.intersections.Count; j++)
-        //    {
-        //        if (intersectionDataObject.splines[i].startIntersectionId == intersectionDataObject.intersections[j].id)
-        //        {
-        //            GeneratedSplineData data = intersectionDataObject.splines[i];
-        //            data.startNormal = new Vector3Int((int)intersectionDataObject.intersections[j].normal.x, (int)intersectionDataObject.intersections[j].normal.y, (int)intersectionDataObject.intersections[j].normal.z);
-        //            intersectionDataObject.splines[i] = data;
-        //        }
+        for (int i = 0; i < intersectionDataObject.splines.Count; i++)
+        {
+            for (int j = 0; j < intersectionDataObject.intersections.Count; j++)
+            {
+                if (intersectionDataObject.splines[i].startIntersectionId == intersectionDataObject.intersections[j].id)
+                {
+                    GeneratedSplineData data = intersectionDataObject.splines[i];
+                    data.startNormal = new Vector3Int((int)intersectionDataObject.intersections[j].normal.x, (int)intersectionDataObject.intersections[j].normal.y, (int)intersectionDataObject.intersections[j].normal.z);
+                    intersectionDataObject.splines[i] = data;
+                }
 
-        //        if (intersectionDataObject.splines[i].endIntersectionId == intersectionDataObject.intersections[j].id)
-        //        {
-        //            GeneratedSplineData data = intersectionDataObject.splines[i];
-        //            data.endNormal = new Vector3Int((int)intersectionDataObject.intersections[j].normal.x, (int)intersectionDataObject.intersections[j].normal.y, (int)intersectionDataObject.intersections[j].normal.z);
-        //            intersectionDataObject.splines[i] = data;
-        //        }
-        //    }
-        //}
+                if (intersectionDataObject.splines[i].endIntersectionId == intersectionDataObject.intersections[j].id)
+                {
+                    GeneratedSplineData data = intersectionDataObject.splines[i];
+                    data.endNormal = new Vector3Int((int)intersectionDataObject.intersections[j].normal.x, (int)intersectionDataObject.intersections[j].normal.y, (int)intersectionDataObject.intersections[j].normal.z);
+                    intersectionDataObject.splines[i] = data;
+                }
+            }
+        }
 
         Debug.Log(trackSplines.Count + " road splines");
 

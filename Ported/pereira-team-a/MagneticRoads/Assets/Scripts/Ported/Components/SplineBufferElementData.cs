@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct Spline : IBufferElementData
+public struct SplineBufferElementData : IBufferElementData
 {
     // Position
     public float3 StartPosition;

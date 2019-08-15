@@ -22,6 +22,14 @@ public class GeneratedDataDrawer : MonoBehaviour
         {
             Gizmos.color = Color.blue;
             Gizmos.DrawLine(splines[i].startPoint, splines[i].endPoint);
+            Gizmos.DrawSphere(splines[i].startPoint, 0.02f);
+            Gizmos.DrawSphere(splines[i].endPoint, 0.02f);
+        }
+        
+        for (int i = 0; i < intersections.Count; i++)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(intersections[i].position, 0.02f);
         }
         
         Gizmos.color = new Color(.2f, .2f, 1f);

@@ -4,7 +4,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class AssignIntersectionSpline : JobComponentSystem
+public class EnterIntersectionSystem : JobComponentSystem
 {
     private EntityQuery m_Query;
     EndSimulationEntityCommandBufferSystem m_EntityCommandBufferSystem;
@@ -13,28 +13,28 @@ public class AssignIntersectionSpline : JobComponentSystem
     {
         m_Query = GetEntityQuery(new EntityQueryDesc
         {
-            All = new []{ComponentType.ReadOnly<ReachedEndOfSpline>(), ComponentType.ReadOnly<SplineData>()},
-            None = new []{ComponentType.ReadOnly<ExitIntersectionData>() }
+            All = new []{ComponentType.ReadOnly<ReachedEndOfSplineComponent>(), ComponentType.ReadOnly<SplineComponent>()},
+            None = new []{ComponentType.ReadOnly<ExitIntersectionComponent>() }
         });
         
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
-    struct AssignDestinationJob : IJobForEachWithEntity<ReachedEndOfSpline, SplineData>
+    struct AssignDestinationJob : IJobForEachWithEntity<ReachedEndOfSplineComponent, SplineComponent>
     {
-        [ReadOnly] public DynamicBuffer<IntersectionPoint> IntersectionBuffer;
-        [ReadOnly] public DynamicBuffer<Spline> SplineBuffer;
+        [ReadOnly] public DynamicBuffer<IntersectionBufferElementData> IntersectionBuffer;
+        [ReadOnly] public DynamicBuffer<SplineBufferElementData> SplineBuffer;
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
-        public unsafe void Execute(Entity entity, int index, [ReadOnly] ref ReachedEndOfSpline reachedEndOfSpline,
-            [ReadOnly] ref SplineData currentSplineData)
+        public unsafe void Execute(Entity entity, int index, [ReadOnly] ref ReachedEndOfSplineComponent reachedEndOfSplineComponent,
+            [ReadOnly] ref SplineComponent currentSplineComponent)
         {
             // Get the intersection object, to which we have arrived
-            var currentIntersection = IntersectionBuffer[currentSplineData.Spline.EndIntersectionId];
+            var currentIntersection = IntersectionBuffer[currentSplineComponent.Spline.EndIntersectionId];
             
             // Select the next spline to travel
             currentIntersection.LastIntersection += 1;
-            IntersectionBuffer[currentSplineData.Spline.EndIntersectionId] = currentIntersection;
+            IntersectionBuffer[currentSplineComponent.Spline.EndIntersectionId] = currentIntersection;
         
             var targetSplineIndex = currentIntersection.LastIntersection % currentIntersection.SplineIdCount;
             var targetSplineId = 0;
@@ -47,38 +47,37 @@ public class AssignIntersectionSpline : JobComponentSystem
 
             var targetSpline = SplineBuffer[targetSplineId];
             
-            var newSpline = new Spline()
+            var newSpline = new SplineBufferElementData()
             {
                 EndIntersectionId = -1,
                 
-                StartPosition = currentSplineData.Spline.EndPosition,
+                StartPosition = currentSplineComponent.Spline.EndPosition,
                 EndPosition = targetSpline.StartPosition,
                 
                 //intersectionSpline.anchor1 = (intersection.position + intersectionSpline.startPoint) * .5f;
-                Anchor1 = (currentIntersection.Position + currentSplineData.Spline.EndPosition) * .5f,
+                Anchor1 = currentSplineComponent.Spline.EndPosition,//(currentIntersection.Position + currentSplineData.Spline.EndPosition) * .5f,
                 // intersectionSpline.anchor2 = (intersection.position + intersectionSpline.endPoint) * .5f;
-                Anchor2 = (currentIntersection.Position + targetSpline.StartPosition) * .5f,
+                Anchor2 = targetSpline.StartPosition,//(currentIntersection.Position + targetSpline.StartPosition) * .5f,
                 // intersectionSpline.startTangent = Vector3Int.RoundToInt((intersection.position - intersectionSpline.startPoint).normalized);
-                StartTangent = math.round(math.normalize(currentIntersection.Position - currentSplineData.Spline.EndPosition)),
+                StartTangent = math.round(math.normalize(currentIntersection.Position - currentSplineComponent.Spline.EndPosition)),
                 // intersectionSpline.endTangent = Vector3Int.RoundToInt((intersection.position - intersectionSpline.endPoint).normalized);
                 EndTangent = math.round(math.normalize(currentIntersection.Position - targetSpline.StartPosition)),
                 // intersectionSpline.startNormal = intersection.normal;
-                StartNormal = currentSplineData.Spline.EndNormal,
+                StartNormal = currentSplineComponent.Spline.EndNormal,
                 // intersectionSpline.endNormal = intersection.normal;
                 EndNormal = targetSpline.EndNormal
             };
-            
-            CommandBuffer.SetComponent(index, entity, new SplineData{Spline = newSpline});
-            CommandBuffer.AddComponent(index, entity, new ExitIntersectionData {TargetSplineId = targetSplineId, IsIntersection = true});
-            CommandBuffer.RemoveComponent<ReachedEndOfSpline>(index, entity);
-            CommandBuffer.AddComponent<InterpolatorTComponent>(index, entity);
+
+            CommandBuffer.SetComponent(index, entity, new SplineComponent { Spline = newSpline, IsInsideIntersection = true, t = 0 });
+            CommandBuffer.AddComponent(index, entity, new ExitIntersectionComponent {TargetSplineId = targetSplineId});
+            CommandBuffer.RemoveComponent<ReachedEndOfSplineComponent>(index, entity);
         }
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var intersectionBuffer = EntityManager.GetBuffer<IntersectionPoint>(GetSingletonEntity<IntersectionPoint>());
-        var splineBuffer = EntityManager.GetBuffer<Spline>(GetSingletonEntity<Spline>());
+        var intersectionBuffer = EntityManager.GetBuffer<IntersectionBufferElementData>(GetSingletonEntity<IntersectionBufferElementData>());
+        var splineBuffer = EntityManager.GetBuffer<SplineBufferElementData>(GetSingletonEntity<SplineBufferElementData>());
 
         var job = new AssignDestinationJob
         {
