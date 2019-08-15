@@ -202,9 +202,11 @@ public class RoadGenerator:MonoBehaviour {
 		// (neighboring intersections are connected by a chain of voxels,
 		// which we'll replace with splines)
 
+		
 		for (int i=0;i<intersections.Count;i++) {
 			Intersection intersection = intersections[i];
 			Vector3Int axesWithNeighbors = Vector3Int.zero;
+			
 			for (int j=0;j<dirs.Length;j++) {
 				if (GetVoxel(intersection.index+dirs[j],false)) {
 					axesWithNeighbors.x += Mathf.Abs(dirs[j].x);
@@ -213,10 +215,12 @@ public class RoadGenerator:MonoBehaviour {
 
 					Vector3Int connectDir;
 					Intersection neighbor = FindFirstIntersection(intersection.index,dirs[j],out connectDir);
+					
 					if (neighbor!=null && neighbor!=intersection) {
 						// make sure we haven't already added the reverse-version of this spline
 						long hash = HashIntersectionPair(intersection,neighbor);
-						if (intersectionPairs.Contains(hash)==false) {
+						if (intersectionPairs.Contains(hash)==false)
+						{
 							intersectionPairs.Add(hash);
 
 							TrackSpline spline = new TrackSpline(intersection,dirs[j],neighbor,connectDir);
@@ -267,13 +271,11 @@ public class RoadGenerator:MonoBehaviour {
 
 
 		// generate road meshes
-
 		List<Vector3> vertices = new List<Vector3>();
 		List<Vector2> uvs = new List<Vector2>();
 		List<int> triangles = new List<int>();
 
 		int triCount = 0;
-
 		for (int i=0;i<trackSplines.Count;i++) {
 			trackSplines[i].GenerateMesh(vertices,uvs,triangles);	
 

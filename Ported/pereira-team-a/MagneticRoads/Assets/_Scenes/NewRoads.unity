@@ -564,6 +564,8 @@ MonoBehaviour:
   - {fileID: 61384812}
   CarPrefab: {fileID: 3824914743984198570, guid: 02b3be41a092642559065c70a7baa2ab,
     type: 3}
+  intersectionDataObject: {fileID: 11400000, guid: 1c15fb63fae5249fc9ef57d035867028,
+    type: 2}
 --- !u!4 &1676469456
 Transform:
   m_ObjectHideFlags: 0

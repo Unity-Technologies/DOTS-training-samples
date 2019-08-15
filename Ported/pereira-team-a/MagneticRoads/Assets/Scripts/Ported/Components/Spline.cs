@@ -8,4 +8,6 @@ public struct Spline : IBufferElementData
     public float3 Anchor2;
     public float3 StartNormal;
     public float3 EndNormal;
+    public float3 StartTargent;
+    public float3 EndTangent;
 }

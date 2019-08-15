@@ -10,6 +10,8 @@ public class IntersectionSpawner : MonoBehaviour
     public Transform[] IntersectionPoints;
     public GameObject CarPrefab;
 
+    public GeneratedIntersectionDataObject intersectionDataObject;
+    
     unsafe void Start()
     {
         var entityManager = World.Active.EntityManager;
@@ -42,6 +44,9 @@ public class IntersectionSpawner : MonoBehaviour
             spline.Anchor2 = float3.zero;
             spline.StartNormal = float3.zero;
             spline.EndNormal = float3.zero;
+            spline.StartTargent = float3.zero;
+            spline.EndTangent = float3.zero;
+            
             splineBuffer.Add(spline);
         }
         
