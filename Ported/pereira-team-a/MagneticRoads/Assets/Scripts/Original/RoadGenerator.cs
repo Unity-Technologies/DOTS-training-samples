@@ -152,13 +152,11 @@ public class RoadGenerator : MonoBehaviour
         // cardinal directions:
         dirs = new Vector3Int[]
         {
-            new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 1, 0), new Vector3Int(0, -1, 0),
+            new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), 
+            new Vector3Int(0, 1, 0), new Vector3Int(0, -1, 0),
             new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1)
-
             //new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(-1, 0, 0)
             //new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 1, 0), new Vector3Int(0, -1, 0), new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1)
-            
-            new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1)
         };
 
         // cardinal directions + diagonals in 3D:
