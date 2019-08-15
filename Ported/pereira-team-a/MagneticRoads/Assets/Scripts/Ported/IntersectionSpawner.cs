@@ -10,6 +10,8 @@ public class IntersectionSpawner : MonoBehaviour
     public Transform[] IntersectionPoints;
     public GameObject CarPrefab;
 
+    public GeneratedIntersectionDataObject intersectionDataObject;
+    
     unsafe void Start()
     {
         var entityManager = World.Active.EntityManager;

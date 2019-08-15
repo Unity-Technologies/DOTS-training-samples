@@ -3,18 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "IntersectionData", menuName = "Scriptable Objects/IntersectionDataObject", order = 1)]
-public class IntersectionDataObject : ScriptableObject
+[CreateAssetMenu(fileName = "Generated Intersection Data", menuName = "Scriptable Objects/Generated Intersection Data Object", order = 1)]
+public class GeneratedIntersectionDataObject : ScriptableObject
 {
     [SerializeField]
-    public List<IntersectionData> intersections = new List<IntersectionData>();
+    public List<GeneratedIntersectionData> intersections = new List<GeneratedIntersectionData>();
     
     [SerializeField]
-    public List<SplineData> splines = new List<SplineData>();
+    public List<GeneratedSplineData> splines = new List<GeneratedSplineData>();
 }
 
 [Serializable]
-public struct IntersectionData
+public struct GeneratedIntersectionData
 {
     public int id;
     public Vector3 position;
@@ -28,7 +28,7 @@ public struct IntersectionData
 };
 
 [Serializable]
-public struct SplineData
+public struct GeneratedSplineData
 {
     public int id;
     public int startIntersectionId;

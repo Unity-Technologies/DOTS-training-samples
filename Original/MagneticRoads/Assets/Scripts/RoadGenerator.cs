@@ -42,9 +42,6 @@ public class RoadGenerator:MonoBehaviour {
 	MaterialPropertyBlock carMatProps;
 	List<List<Vector4>> carColors;
 
-	// RICARDO
-	public IntersectionDataObject intersectionDataObject;
-
 	long HashIntersectionPair(Intersection a, Intersection b) {
 		// pack two intersections' IDs into one int64
 		int id1 = a.id;
@@ -205,15 +202,6 @@ public class RoadGenerator:MonoBehaviour {
 		// (neighboring intersections are connected by a chain of voxels,
 		// which we'll replace with splines)
 
-		// RICARDO: Create all intersection objects
-		intersectionDataObject.intersections = new List<IntersectionData>();
-		intersectionDataObject.splines = new List<SplineData>();
-
-		for (int i=0;i<intersections.Count;i++) {
-			IntersectionData intersectionData = new IntersectionData();
-			intersectionData.id = intersectionDataObject.intersections.Count; // Should be equal to i && to intersection.id
-			intersectionDataObject.intersections.Add(intersectionData);
-		}
 		
 		for (int i=0;i<intersections.Count;i++) {
 			Intersection intersection = intersections[i];
@@ -242,68 +230,6 @@ public class RoadGenerator:MonoBehaviour {
 							intersection.neighborSplines.Add(spline);
 							neighbor.neighbors.Add(intersection);
 							neighbor.neighborSplines.Add(spline);
-							
-							// RICARDO
-							// Create the forward direction spline
-							SplineData splineDataForwardDirection = new SplineData();
-							splineDataForwardDirection.id = intersectionDataObject.splines.Count;
-							
-							splineDataForwardDirection.startIntersectionId = intersection.id;
-							splineDataForwardDirection.endIntersectionId = neighbor.id;
-							splineDataForwardDirection.startPoint = spline.startPoint;
-							splineDataForwardDirection.endPoint = spline.endPoint;
-							splineDataForwardDirection.anchor1 = spline.anchor1;
-							splineDataForwardDirection.anchor2 = spline.anchor2;
-							splineDataForwardDirection.startNormal = spline.startNormal;
-							splineDataForwardDirection.endNormal = spline.endNormal;
-							splineDataForwardDirection.startTangent = spline.startTangent;
-							splineDataForwardDirection.endTangent = spline.endTangent;
-							splineDataForwardDirection.measuredLength = spline.measuredLength;
-							splineDataForwardDirection.carQueueSize = spline.carQueueSize;
-							splineDataForwardDirection.maxCarCount = spline.maxCarCount;
-
-							intersectionDataObject.splines.Add(splineDataForwardDirection); // Add the spline to the DB of splines
-
-							// Reverse the forward direction spline
-							SplineData splineDataReverseDirection = new SplineData();
-							splineDataReverseDirection.id = intersectionDataObject.splines.Count;
-							
-							splineDataReverseDirection.startIntersectionId = neighbor.id;
-							splineDataReverseDirection.endIntersectionId = intersection.id;
-							splineDataReverseDirection.startPoint = spline.endPoint;
-							splineDataReverseDirection.endPoint = spline.startPoint;
-							splineDataReverseDirection.anchor1 = spline.anchor2;
-							splineDataReverseDirection.anchor2 = spline.anchor1;
-							splineDataReverseDirection.startNormal = spline.endNormal;
-							splineDataReverseDirection.endNormal = spline.startNormal;
-							splineDataReverseDirection.startTangent = spline.endTangent;
-							splineDataReverseDirection.endTangent = spline.startTangent;
-							splineDataReverseDirection.measuredLength = spline.measuredLength;
-							splineDataReverseDirection.carQueueSize = spline.carQueueSize;
-							splineDataReverseDirection.maxCarCount = spline.maxCarCount;
-							
-							intersectionDataObject.splines.Add(splineDataReverseDirection);
-								
-							// Reference the spline from the intersection data
-							IntersectionData startIntersectionData = intersectionDataObject.intersections[intersection.id];
-							if(startIntersectionData.splineCount == 0) 
-								startIntersectionData.splineData1 = splineDataForwardDirection.id;
-							if(startIntersectionData.splineCount == 1) 
-								startIntersectionData.splineData2 = splineDataForwardDirection.id;
-							if(startIntersectionData.splineCount == 2) 
-								startIntersectionData.splineData3 = splineDataForwardDirection.id;
-							startIntersectionData.splineCount++;
-							intersectionDataObject.intersections[intersection.id] = startIntersectionData;
-								
-							IntersectionData endIntersectionData = intersectionDataObject.intersections[neighbor.id];
-							if(endIntersectionData.splineCount == 0)
-								endIntersectionData.splineData1 = splineDataReverseDirection.id;
-							if(endIntersectionData.splineCount == 1)
-								endIntersectionData.splineData2 = splineDataReverseDirection.id;
-							if(endIntersectionData.splineCount == 2)
-								endIntersectionData.splineData3 = splineDataReverseDirection.id;
-							endIntersectionData.splineCount++;
-							intersectionDataObject.intersections[neighbor.id] = endIntersectionData;
 						}
 					}
 				}
@@ -336,11 +262,6 @@ public class RoadGenerator:MonoBehaviour {
 			// to nothing. these "hanging chains" are not included as splines, so the
 			// dead-ends that we see are actually "T" shapes with the top two segments hidden.
 
-			IntersectionData intersectionData = intersectionDataObject.intersections[intersection.id];
-			intersectionData.normal = intersection.normal;
-			intersectionData.position = intersection.position;
-			intersectionDataObject.intersections[intersectionData.id] = intersectionData;
-			
 			if (i%20==0) {
 				yield return null;
 			}

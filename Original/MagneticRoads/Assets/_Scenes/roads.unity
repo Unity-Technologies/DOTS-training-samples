@@ -159,8 +159,6 @@ MonoBehaviour:
   carMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   carMaterial: {fileID: 2100000, guid: 4c39503763071fe41842a84ac737905d, type: 2}
   carSpeed: 2
-  intersectionDataObject: {fileID: 11400000, guid: 9cd3f65666be44e1f8012dd0ff90d32f,
-    type: 2}
 --- !u!4 &1012794954
 Transform:
   m_ObjectHideFlags: 0
