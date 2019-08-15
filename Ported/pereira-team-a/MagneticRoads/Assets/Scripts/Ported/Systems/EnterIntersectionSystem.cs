@@ -67,11 +67,10 @@ public class EnterIntersectionSystem : JobComponentSystem
                 // intersectionSpline.endNormal = intersection.normal;
                 EndNormal = targetSpline.EndNormal
             };
-            
-            CommandBuffer.SetComponent(index, entity, new SplineComponent{Spline = newSpline, IsInsideIntersection = true});
+
+            CommandBuffer.SetComponent(index, entity, new SplineComponent { Spline = newSpline, IsInsideIntersection = true, t = 0 });
             CommandBuffer.AddComponent(index, entity, new ExitIntersectionComponent {TargetSplineId = targetSplineId});
             CommandBuffer.RemoveComponent<ReachedEndOfSplineComponent>(index, entity);
-            CommandBuffer.AddComponent<InterpolatorTComponent>(index, entity);
         }
     }
 

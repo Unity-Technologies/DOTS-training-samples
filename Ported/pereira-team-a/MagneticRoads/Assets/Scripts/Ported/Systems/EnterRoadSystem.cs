@@ -21,10 +21,9 @@ public class EnterRoadSystem : JobComponentSystem
         public void Execute(Entity entity, int index, [ReadOnly] ref ReachedEndOfSplineComponent reachedEndOfSplineComponent, [ReadOnly] ref ExitIntersectionComponent exitIntersectionComponent)
         {
             var spline = SplineBuffer[exitIntersectionComponent.TargetSplineId];
-            CommandBuffer.SetComponent(index, entity, new SplineComponent { Spline = spline, IsInsideIntersection = false });
+            CommandBuffer.SetComponent(index, entity, new SplineComponent { Spline = spline, IsInsideIntersection = false, t=0 });
             CommandBuffer.RemoveComponent<ExitIntersectionComponent>(index, entity);
             CommandBuffer.RemoveComponent<ReachedEndOfSplineComponent>(index, entity);
-            CommandBuffer.AddComponent<InterpolatorTComponent>(index, entity);
         }
     }
 

@@ -29,11 +29,10 @@ public class ReachedEndOfSplineSystem : JobComponentSystem
         {
             //check if reaches the target
             // add find new target component
-            bool hasReachedTarget = math.distancesq(translation.Value, targetSplineComponent.Spline.EndPosition) < 0.001f;
+            bool hasReachedTarget = math.distancesq(translation.Value, targetSplineComponent.Spline.EndPosition) < 0.011f;
             if (hasReachedTarget)
             {
                 commandBuffer.AddComponent<ReachedEndOfSplineComponent>(index, entity);
-                commandBuffer.RemoveComponent<InterpolatorTComponent>(index, entity);
             }
         }
     }
