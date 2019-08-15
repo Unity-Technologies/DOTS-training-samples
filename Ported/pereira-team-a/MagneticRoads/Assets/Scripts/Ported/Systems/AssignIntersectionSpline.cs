@@ -71,6 +71,7 @@ public class AssignIntersectionSpline : JobComponentSystem
             CommandBuffer.SetComponent(index, entity, new SplineData{Spline = newSpline});
             CommandBuffer.AddComponent(index, entity, new ExitIntersectionData {TargetSplineId = targetSplineId});
             CommandBuffer.RemoveComponent<ReachedEndOfSpline>(index, entity);
+            CommandBuffer.AddComponent<InterpolatorTComponent>(index, entity);
         }
     }
 

@@ -7,4 +7,5 @@ using Unity.Entities;
 public struct InterpolatorTComponent : IComponentData
 {
     public float t;
+    public float splineSide;
 }

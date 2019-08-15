@@ -33,6 +33,7 @@ public class FindAssignNewTargetSystem : JobComponentSystem
             if (hasReachedTarget)
             {
                 commandBuffer.AddComponent<ReachedEndOfSpline>(index, entity);
+                commandBuffer.RemoveComponent<InterpolatorTComponent>(index, entity);
             }
         }
     }

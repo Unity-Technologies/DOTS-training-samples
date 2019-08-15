@@ -24,6 +24,7 @@ public class ExitIntersectionSystem : JobComponentSystem
             CommandBuffer.SetComponent(index, entity, new SplineData { Spline = spline });
             CommandBuffer.RemoveComponent<ExitIntersectionData>(index, entity);
             CommandBuffer.RemoveComponent<ReachedEndOfSpline>(index, entity);
+            CommandBuffer.AddComponent<InterpolatorTComponent>(index, entity);
         }
     }
 
