@@ -2154,7 +2154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   intersectionPreviewMesh: {fileID: 10210, guid: 0000000000000000e000000000000000,
     type: 0}
-  drawLines: 1
+  drawLines: 0
   generatedData: {fileID: 11400000, guid: 1c15fb63fae5249fc9ef57d035867028, type: 2}
 --- !u!114 &1885479761
 MonoBehaviour:
@@ -2189,7 +2189,7 @@ MonoBehaviour:
   - {fileID: 5425555129356269661, guid: df41653d6dcd24076af5ac16493a7222, type: 3}
   roadOffset: 0.1
   carsText: {fileID: 1416107987}
-  SaveMeshes: 0
+  SaveMeshes: 1
 --- !u!4 &1885479762
 Transform:
   m_ObjectHideFlags: 0
