@@ -14,8 +14,8 @@ public class MovementSystem : JobComponentSystem
     {
         query = GetEntityQuery(new EntityQueryDesc
         {
-            All = new []{ ComponentType.ReadWrite<Translation>(), ComponentType.ReadWrite<Rotation>(),ComponentType.ReadOnly<SplineComponent>() },
-            //All = new[] { ComponentType.ReadWrite<LocalToWorld>(),ComponentType.ReadWrite<Translation>(), ComponentType.ReadWrite<Rotation>(), ComponentType.ReadOnly<SplineComponent>() },
+            //All = new []{ ComponentType.ReadWrite<Translation>(), ComponentType.ReadWrite<Rotation>(),ComponentType.ReadOnly<SplineComponent>() },
+            All = new[] { ComponentType.ReadWrite<LocalToWorld>(),ComponentType.ReadWrite<Translation>(), ComponentType.ReadWrite<Rotation>(), ComponentType.ReadOnly<SplineComponent>() },
             None = new []{ComponentType.ReadOnly<ReachedEndOfSplineComponent>() }
         });
     }
@@ -24,12 +24,12 @@ public class MovementSystem : JobComponentSystem
     // TODO: Write the LocalToWorld matrix here
 
     [BurstCompile]
-    //struct MoveJob : IJobForEach<LocalToWorld,Translation, Rotation, SplineComponent>
-    struct MoveJob : IJobForEach<Translation,Rotation, SplineComponent>
+    struct MoveJob : IJobForEach<LocalToWorld,Translation, Rotation, SplineComponent>
+    //struct MoveJob : IJobForEach<Translation,Rotation, SplineComponent>
     {
         public float deltaTime;
-        //public void Execute(ref LocalToWorld localToWorld, ref Translation translation, ref Rotation  rotation,ref SplineComponent trackSplineComponent)
-        public void Execute(ref Translation translation, ref Rotation  rotation,ref SplineComponent trackSplineComponent)
+        public void Execute(ref LocalToWorld localToWorld, ref Translation translation, ref Rotation  rotation,ref SplineComponent trackSplineComponent)
+        //public void Execute(ref Translation translation, ref Rotation  rotation,ref SplineComponent trackSplineComponent)
         {
             float3 newPos = translation.Value;
             quaternion newRot = rotation.Value; //Caculated via? quaternion.LookRotationSafe(math.normalize(localToWorld.Forward), math.normalize(localToWorld.Up));
@@ -47,19 +47,17 @@ public class MovementSystem : JobComponentSystem
                 newPos = translation.Value+math.normalize(trackSplineComponent.Spline.EndPosition - translation.Value) * deltaTime * velocity;
                 newRot = math.slerp(rotation.Value, quaternion.LookRotationSafe(trackSplineComponent.Spline.EndPosition - translation.Value, trackSplineComponent.Spline.StartNormal), trackSplineComponent.t);
                 ////TODO: WAY TO ADD BOTH POS AND ROT
-                //localToWorld = new LocalToWorld
-                //{
-                //    Value = float4x4.TRS(
-                //        translation.Value + math.normalize(trackSplineComponent.Spline.EndPosition - localToWorld.Position) * deltaTime * velocity,
-                //        //rotation,
-                //        //quaternion.identity,
-                //        newRot1,
-                //        new float3(1.0f, 1.0f, 1.0f))
-                //};
+                localToWorld = new LocalToWorld
+                {
+                    Value = float4x4.TRS(
+                        newPos,
+                        newRot,
+                        new float3(1.0f, 1.0f, 1.0f))
+                };
                 trackSplineComponent.t += deltaTime * velocity;
 
-                translation.Value = newPos;
-                rotation.Value = newRot;
+                //translation.Value = newPos;
+                //rotation.Value = newRot;
 
                 return;
             }
@@ -78,18 +76,16 @@ public class MovementSystem : JobComponentSystem
             //Position;
             newPos = pos + math.normalize(up) * 0.015f;
 
-            translation.Value = newPos;
-            rotation.Value = newRot;
+            //translation.Value = newPos;
+            //rotation.Value = newRot;
             ////TODO: WAY TO ADD BOTH POS AND ROT
-            //localToWorld = new LocalToWorld
-            //{
-            //    Value = float4x4.TRS(
-            //            pos + math.normalize(up) * 0.015f,
-            //            newRot,
-            //            //quaternion.LookRotationSafe(nextHeading, math.up()),
-            //            //quaternion.LookRotationSafe(trackSplineComponent.Spline.EndPosition - localToWorld.Position, up),
-            //            new float3(1.0f, 1.0f, 1.0f))
-            //};
+            localToWorld = new LocalToWorld
+            {
+                Value = float4x4.TRS(
+                        newPos,
+                        newRot,
+                        new float3(1.0f, 1.0f, 1.0f))
+            };
 
             trackSplineComponent.t = t;
 
