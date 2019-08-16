@@ -36,6 +36,9 @@ public class EnterRoadSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle handle)
     {
+        if (!RoadGenerator.ready)
+            return handle;
+        
         var splineBuffer = EntityManager.GetBuffer<SplineBufferElementData>(GetSingletonEntity<SplineBufferElementData>());
 
         var job = new ExitIntersectionJob
