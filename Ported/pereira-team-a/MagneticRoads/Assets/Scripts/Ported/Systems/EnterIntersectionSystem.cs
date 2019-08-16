@@ -33,9 +33,10 @@ public class EnterIntersectionSystem : JobComponentSystem
             var currentIntersection = IntersectionBuffer[currentSplineComponent.Spline.EndIntersectionId];
             
             // Select the next spline to travel
+            // TODO: Replace this with a noise/random solution
             currentIntersection.LastIntersection += 1;
             IntersectionBuffer[currentSplineComponent.Spline.EndIntersectionId] = currentIntersection;
-        
+            
             var targetSplineIndex = currentIntersection.LastIntersection % currentIntersection.SplineIdCount;
             var targetSplineId = 0;
             if (targetSplineIndex == 0)
@@ -45,6 +46,7 @@ public class EnterIntersectionSystem : JobComponentSystem
             else if (targetSplineIndex == 2)
                 targetSplineId = currentIntersection.SplineId2; // 2
 
+            // Get the target spline
             var targetSpline = SplineBuffer[targetSplineId];
             
             var newSpline = new SplineBufferElementData()
