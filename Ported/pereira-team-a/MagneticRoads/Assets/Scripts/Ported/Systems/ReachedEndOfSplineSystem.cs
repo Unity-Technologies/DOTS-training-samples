@@ -39,6 +39,9 @@ public class ReachedEndOfSplineSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        if (!RoadGenerator.ready || !RoadGenerator.useECS)
+            return inputDeps;
+        
         //1. get the direction
         //2. move to the Position
         var job = new AssignFindTargetJob

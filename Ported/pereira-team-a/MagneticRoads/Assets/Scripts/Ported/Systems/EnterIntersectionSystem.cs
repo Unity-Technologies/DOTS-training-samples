@@ -94,6 +94,9 @@ public class EnterIntersectionSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        if (!RoadGenerator.ready || !RoadGenerator.useECS)
+            return inputDeps;
+        
         var intersectionBuffer = EntityManager.GetBuffer<IntersectionBufferElementData>(GetSingletonEntity<IntersectionBufferElementData>());
         var splineBuffer = EntityManager.GetBuffer<SplineBufferElementData>(GetSingletonEntity<SplineBufferElementData>());
 
