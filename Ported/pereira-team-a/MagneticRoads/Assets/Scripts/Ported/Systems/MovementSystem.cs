@@ -15,6 +15,7 @@ public class MovementSystem : JobComponentSystem
         query = GetEntityQuery(new EntityQueryDesc
         {
             All = new []{ ComponentType.ReadWrite<Translation>(), ComponentType.ReadWrite<Rotation>(),ComponentType.ReadOnly<SplineComponent>() },
+            //All = new[] { ComponentType.ReadWrite<LocalToWorld>(),ComponentType.ReadWrite<Translation>(), ComponentType.ReadWrite<Rotation>(), ComponentType.ReadOnly<SplineComponent>() },
             None = new []{ComponentType.ReadOnly<ReachedEndOfSplineComponent>() }
         });
     }
@@ -23,13 +24,15 @@ public class MovementSystem : JobComponentSystem
     // TODO: Write the LocalToWorld matrix here
 
     [BurstCompile]
+    //struct MoveJob : IJobForEach<LocalToWorld,Translation, Rotation, SplineComponent>
     struct MoveJob : IJobForEach<Translation,Rotation, SplineComponent>
     {
         public float deltaTime;
+        //public void Execute(ref LocalToWorld localToWorld, ref Translation translation, ref Rotation  rotation,ref SplineComponent trackSplineComponent)
         public void Execute(ref Translation translation, ref Rotation  rotation,ref SplineComponent trackSplineComponent)
         {
             float3 newPos = translation.Value;
-            quaternion newRot = rotation.Value;//quaternion.LookRotationSafe(math.normalize(localToWorld.Forward), math.normalize(localToWorld.Up));
+            quaternion newRot = rotation.Value; //Caculated via? quaternion.LookRotationSafe(math.normalize(localToWorld.Forward), math.normalize(localToWorld.Up));
             //velocity based on if we are in an intersection or not
             float velocity = trackSplineComponent.IsInsideIntersection ? 0.7f : 1.0f;
 
@@ -65,9 +68,6 @@ public class MovementSystem : JobComponentSystem
             float3 pos = EvaluateCurve(trackSplineComponent.t, trackSplineComponent);
 
             //Calculating up vector
-
-            
-
             quaternion fromTo = Quaternion.FromToRotation(trackSplineComponent.Spline.StartNormal, trackSplineComponent.Spline.EndNormal);
             float smoothT = math.smoothstep(0f, 1f, t * 1.02f - .01f);
             float3 up = math.mul(math.slerp(quaternion.identity, fromTo, smoothT), trackSplineComponent.Spline.StartNormal);
