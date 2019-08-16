@@ -42,8 +42,7 @@ public class RoadGenerator : MonoBehaviour
     public const float carSpacing = .13f;
 
     const int instancesPerBatch = 1023;
-
-
+    
     // intersection pair:  two 32-bit IDs, packed together
     HashSet<long> intersectionPairs;
 
@@ -56,7 +55,8 @@ public class RoadGenerator : MonoBehaviour
     public GeneratedIntersectionDataObject intersectionDataObject;
     public GameObject[] CarPrefabs;
     public int maxNumCars = 50000;
-    static public bool ready; 
+    static public bool ready;
+    static public bool useECS;
     
     long HashIntersectionPair(Intersection a, Intersection b)
     {
@@ -192,6 +192,7 @@ public class RoadGenerator : MonoBehaviour
         SpawnEntities();
 
         ready = true;
+        useECS = true;
     }
 
     IEnumerator SpawnRoads()
@@ -529,8 +530,9 @@ public class RoadGenerator : MonoBehaviour
 
 
         // spawn cars
-        /*
+        
         batch = 0;
+        int numCars = Mathf.Min(maxNumCars, intersectionDataObject.intersections.Count);
         for (int i = 0; i < numCars; i++)
         {
             Car car = new Car();
@@ -552,7 +554,7 @@ public class RoadGenerator : MonoBehaviour
                 batch++;
             }
         }
-        */
+        
         //Save Meshes
 
         if (SaveMeshes)
@@ -637,82 +639,36 @@ public class RoadGenerator : MonoBehaviour
 
     public bool SaveMeshes;
 
-    private void UpdateNope()
+    private void Update()
     {
-//        for (int i = 0; i < cars.Count; i++)
-//        {
-//            cars[i].Update();
-//            carMatrices[i / instancesPerBatch][i % instancesPerBatch] = cars[i].matrix;
-//        }
-
-//        for (int i = 0; i < roadMeshes.Count; i++)
-//        {
-//            Graphics.DrawMesh(roadMeshes[i], Matrix4x4.identity, roadMaterial, 0);
-//        }
-
-//        for (int i = 0; i < intersectionMatrices.Count; i++)
-//        {
-//            Graphics.DrawMeshInstanced(intersectionMesh, 0, roadMaterial, intersectionMatrices[i]);
-//        }
-
-//        for (int i = 0; i < carMatrices.Count; i++)
-//        {
-//            if (carMatrices[i].Count > 0)
-//            {
-//                carMatProps.SetVectorArray("_Color", carColors[i]);
-//                Graphics.DrawMeshInstanced(carMesh, 0, carMaterial, carMatrices[i], carMatProps);
-//            }
-//        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (trackVoxels != null && intersectionPairs.Count == 0)
+        if (useECS)
+            return;
+        
+        for (int i = 0; i < cars.Count; i++)
         {
-            // visualize voxel generation during generation
-            for (int x = 0; x < voxelCount; x++)
-            {
-                for (int y = 0; y < voxelCount; y++)
-                {
-                    for (int z = 0; z < voxelCount; z++)
-                    {
-                        if (trackVoxels[x, y, z])
-                        {
-                            Gizmos.DrawWireCube(new Vector3(x, y, z) * voxelSize,
-                                new Vector3(.9f, .9f, .9f) * voxelSize);
-                        }
-                    }
-                }
-            }
+            cars[i].Update();
+            carMatrices[i / instancesPerBatch][i % instancesPerBatch] = cars[i].matrix;
         }
 
-        //if (roadMeshes != null && roadMeshes.Count == 0)
+        for (int i = 0; i < roadMeshes.Count; i++)
         {
-            // visualize splines before road meshes have spawned
-            if (intersections != null)
-            {
-                Gizmos.color = new Color(.2f, .2f, 1f);
-                for (int i = 0; i < intersections.Count; i++)
-                {
-                    if (intersections[i].normal != Vector3Int.zero)
-                    {
-                        Gizmos.DrawWireMesh(intersectionPreviewMesh, 0, intersections[i].position,
-                            Quaternion.LookRotation(intersections[i].normal),
-                            new Vector3(intersectionSize, intersectionSize, 0f));
-                    }
-                }
-            }
+            Graphics.DrawMesh(roadMeshes[i], Matrix4x4.identity, roadMaterial, 0);
+        }
 
-            if (trackSplines != null)
+        for (int i = 0; i < intersectionMatrices.Count; i++)
+        {
+            Graphics.DrawMeshInstanced(intersectionMesh, 0, roadMaterial, intersectionMatrices[i]);
+        }
+
+        for (int i = 0; i < carMatrices.Count; i++)
+        {
+            if (carMatrices[i].Count > 0)
             {
-                for (int i = 0; i < trackSplines.Count; i++)
-                {
-                    trackSplines[i].DrawGizmos();
-                }
+                carMatProps.SetVectorArray("_Color", carColors[i]);
+                Graphics.DrawMeshInstanced(carMesh, 0, carMaterial, carMatrices[i], carMatProps);
             }
         }
     }
-    
     void SpawnEntities()
     {
         var entityManager = World.Active.EntityManager;
@@ -792,5 +748,58 @@ public class RoadGenerator : MonoBehaviour
                 });
             entityManager.AddComponent(car, typeof(SplineComponent));
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (trackVoxels != null && intersectionPairs.Count == 0)
+        {
+            // visualize voxel generation during generation
+            for (int x = 0; x < voxelCount; x++)
+            {
+                for (int y = 0; y < voxelCount; y++)
+                {
+                    for (int z = 0; z < voxelCount; z++)
+                    {
+                        if (trackVoxels[x, y, z])
+                        {
+                            Gizmos.DrawWireCube(new Vector3(x, y, z) * voxelSize,
+                                new Vector3(.9f, .9f, .9f) * voxelSize);
+                        }
+                    }
+                }
+            }
+        }
+
+        //if (roadMeshes != null && roadMeshes.Count == 0)
+        {
+            // visualize splines before road meshes have spawned
+            if (intersections != null)
+            {
+                Gizmos.color = new Color(.2f, .2f, 1f);
+                for (int i = 0; i < intersections.Count; i++)
+                {
+                    if (intersections[i].normal != Vector3Int.zero)
+                    {
+                        Gizmos.DrawWireMesh(intersectionPreviewMesh, 0, intersections[i].position,
+                            Quaternion.LookRotation(intersections[i].normal),
+                            new Vector3(intersectionSize, intersectionSize, 0f));
+                    }
+                }
+            }
+
+            if (trackSplines != null)
+            {
+                for (int i = 0; i < trackSplines.Count; i++)
+                {
+                    trackSplines[i].DrawGizmos();
+                }
+            }
+        }
+    }
+
+    public void OnECSToogleChanged(bool value)
+    {
+        useECS = value;
     }
 }

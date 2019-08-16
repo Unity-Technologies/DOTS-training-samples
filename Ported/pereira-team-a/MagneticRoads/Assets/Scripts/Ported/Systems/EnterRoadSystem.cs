@@ -36,7 +36,7 @@ public class EnterRoadSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle handle)
     {
-        if (!RoadGenerator.ready)
+        if (!RoadGenerator.ready || !RoadGenerator.useECS)
             return handle;
         
         var splineBuffer = EntityManager.GetBuffer<SplineBufferElementData>(GetSingletonEntity<SplineBufferElementData>());

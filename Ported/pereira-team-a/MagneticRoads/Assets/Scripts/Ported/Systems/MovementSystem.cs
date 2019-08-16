@@ -142,6 +142,9 @@ public class MovementSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        if (!RoadGenerator.ready || !RoadGenerator.useECS)
+            return inputDeps;
+        
         var job = new MoveJob
         {
             deltaTime = Time.deltaTime
