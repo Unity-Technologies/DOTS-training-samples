@@ -14,6 +14,7 @@ public class IntersectionSpawner : MonoBehaviour
     public GeneratedIntersectionDataObject intersectionDataObject;
     
     public int maxNumCars = 50000;
+    public int maxNumSpawnedCars = 50;
 
     void Start()
     {
@@ -84,15 +85,18 @@ public class IntersectionSpawner : MonoBehaviour
         {
             var intersectionData = intersectionDataObject.intersections[i];
 
-            var car = entityManager.Instantiate(prefabs[i%prefabs.Count]);
-            entityManager.AddComponent(car, typeof(ReachedEndOfSplineComponent));
-            entityManager.SetComponentData(car, new Translation{Value = intersectionData.position});
-            entityManager.AddComponentData(car, 
-                new ExitIntersectionComponent()
-                {
-                    TargetSplineId = intersectionData.splineData1
-                });
-            entityManager.AddComponent(car, typeof(SplineComponent));
+            for (int j = 0; j < maxNumSpawnedCars; j++)
+            {
+                var car = entityManager.Instantiate(prefabs[i % prefabs.Count]);
+                entityManager.AddComponent(car, typeof(ReachedEndOfSplineComponent));
+                entityManager.SetComponentData(car, new Translation { Value = intersectionData.position +Random.Range(1,2)*intersectionData.position });
+                entityManager.AddComponentData(car,
+                    new ExitIntersectionComponent()
+                    {
+                        TargetSplineId = intersectionData.splineData1
+                    });
+                entityManager.AddComponent(car, typeof(SplineComponent));
+            }
         }
     }
 }
