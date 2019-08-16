@@ -20,11 +20,11 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
+  m_AmbientSkyColor: {r: 0.49982202, g: 0.60274404, b: 0.9056604, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 5.62
-  m_AmbientMode: 0
+  m_AmbientMode: 3
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 2100000, guid: 64fdb97527e083b40a04e006f5e772ad, type: 2}
   m_HaloStrength: 0.5
@@ -387,10 +387,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -939,8 +939,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 593210621}
-  m_LocalRotation: {x: 0.012902449, y: -0.689632, z: -0.012099952, w: -0.723944}
-  m_LocalPosition: {x: -17.72662, y: 10.451275, z: 9.57853}
+  m_LocalRotation: {x: 0.1296225, y: -0.5535278, z: -0.087769456, w: -0.81798625}
+  m_LocalPosition: {x: 8.664696, y: 25.732735, z: 24.311077}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -958,10 +958,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d887499a5a3a8ce48bc404e726089bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  center: {x: 50, y: 50, z: 50}
+  center: {x: 40, y: 40, z: 40}
   distance: 10
   tilt: -15
-  spinSpeed: 10
+  spinSpeed: 5
 --- !u!1 &902203946
 GameObject:
   m_ObjectHideFlags: 0
@@ -2168,7 +2168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 512dc8578a5e9d949861387ed53c99e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  voxelCount: 20
+  voxelCount: 60
   voxelSize: 1.25
   tickerSteps: 50000
   trisPerMesh: 4000
@@ -2176,7 +2176,7 @@ MonoBehaviour:
   intersectionMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   intersectionPreviewMesh: {fileID: 10210, guid: 0000000000000000e000000000000000,
     type: 0}
-  numCars: 20000
+  numCars: 5000
   carMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   carMaterial: {fileID: 2100000, guid: 4c39503763071fe41842a84ac737905d, type: 2}
   carSpeed: 2
