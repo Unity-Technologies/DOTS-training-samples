@@ -54,7 +54,8 @@ public class RoadGenerator : MonoBehaviour
 
     public GeneratedIntersectionDataObject intersectionDataObject;
     public GameObject[] CarPrefabs;
-    public int maxNumCars = 50000;
+    public float roadOffset = 0.1f;
+    
     static public bool ready;
     static public bool useECS;
 
@@ -193,7 +194,7 @@ public class RoadGenerator : MonoBehaviour
 
         SpawnEntities();
 
-        carsText.text = "Cars: " + maxNumCars; 
+        carsText.text = "Cars: " + numCars; 
         
         ready = true;
         useECS = true;
@@ -314,32 +315,12 @@ public class RoadGenerator : MonoBehaviour
                             intersection.neighborSplines.Add(spline);
                             neighbor.neighbors.Add(intersection);
                             neighbor.neighborSplines.Add(spline);
-
+                            
                             // RICARDO
                             // Create the forward direction spline
                             GeneratedSplineData splineDataForwardDirection = new GeneratedSplineData();
                             splineDataForwardDirection.id = intersectionDataObject.splines.Count;
-
-                            splineDataForwardDirection.startIntersectionId = intersection.id;
-                            splineDataForwardDirection.endIntersectionId = neighbor.id;
-                            splineDataForwardDirection.startPoint = spline.startPoint;
-                            splineDataForwardDirection.endPoint = spline.endPoint;
-                            splineDataForwardDirection.anchor1 = spline.anchor1;
-                            splineDataForwardDirection.anchor2 = spline.anchor2;
-                            splineDataForwardDirection.startNormal = spline.startNormal;
-                            splineDataForwardDirection.endNormal = spline.endNormal;
-                            splineDataForwardDirection.startTangent = spline.startTangent;
-                            splineDataForwardDirection.endTangent = spline.endTangent;
-                            splineDataForwardDirection.measuredLength = spline.measuredLength;
-                            splineDataForwardDirection.carQueueSize = spline.carQueueSize;
-                            splineDataForwardDirection.maxCarCount = spline.maxCarCount;
-
-                            intersectionDataObject.splines.Add(
-                                splineDataForwardDirection); // Add the spline to the DB of splines
-
-                            // Reverse the forward direction spline
-                            splineDataForwardDirection.id = intersectionDataObject.splines.Count;
-
+                            
                             splineDataForwardDirection.startIntersectionId = intersection.id;
                             splineDataForwardDirection.endIntersectionId = neighbor.id;
                             splineDataForwardDirection.startPoint = spline.startPoint;
@@ -360,7 +341,7 @@ public class RoadGenerator : MonoBehaviour
                             // Reverse the reverse direction spline
                             GeneratedSplineData splineDataReverseDirection = new GeneratedSplineData();
                             splineDataReverseDirection.id = intersectionDataObject.splines.Count;
-
+                            
                             splineDataReverseDirection.startIntersectionId = neighbor.id;
                             splineDataReverseDirection.endIntersectionId = intersection.id;
                             splineDataReverseDirection.startPoint = spline.endPoint;
@@ -474,8 +455,29 @@ public class RoadGenerator : MonoBehaviour
         }
 
         Debug.Log(trackSplines.Count + " road splines");
+        
+        // Offset splines
+        bool negate = false;
+        for (int i = 0; i < intersectionDataObject.splines.Count; i++)
+        {    
+            var spline = intersectionDataObject.splines[i];
+            var startIntersection = intersectionDataObject.intersections[spline.startIntersectionId];
+            var endIntersection = intersectionDataObject.intersections[spline.endIntersectionId];
+            Vector3 offsetStart = CalculateOffsetVectorForIntersectionAndSpline(
+                startIntersection.position, startIntersection.normal, spline.startPoint, negate);
+            Vector3 offsetEnd = CalculateOffsetVectorForIntersectionAndSpline(
+                endIntersection.position, endIntersection.normal, spline.endPoint, negate);
+            
+            spline.startPoint += offsetStart;
+            spline.anchor1 += offsetStart;
+            spline.anchor2 += offsetEnd;
+            spline.endPoint += offsetEnd;
 
+            intersectionDataObject.splines[i] = spline;
 
+            negate = !negate;
+        }
+        
         // generate road meshes
 
         List<Vector3> vertices = new List<Vector3>();
@@ -536,7 +538,7 @@ public class RoadGenerator : MonoBehaviour
         // spawn cars
         
         batch = 0;
-        for (int i = 0; i < maxNumCars; i++)
+        for (int i = 0; i < numCars; i++)
         {
             Car car = new Car();
             car.maxSpeed = carSpeed;
@@ -631,7 +633,25 @@ public class RoadGenerator : MonoBehaviour
             Debug.Log("Saved all the Prefabs Meshes");
         }
     }
-    
+
+    private Vector3 CalculateOffsetVectorForIntersectionAndSpline(
+        Vector3 intersectionPosition, Vector3 intersectionNormal, Vector3 splinePointPosition, bool negate)
+    {
+        // Position of the start intersection
+        Vector3 startIntersectionPosition = intersectionPosition;
+        // Normal of the end intersection
+        Vector3 startIntersectionNormal = intersectionNormal;
+        // Position of the start spline
+        Vector3 startPositionForwardSpline = splinePointPosition;
+        // Tangent vector
+        Vector3 startPositionRightVectorForwardSpline = startPositionForwardSpline - startIntersectionPosition;
+        // Binormal vector
+        Vector3 startPositionBinormalForwardSpline = Vector3.Cross(startIntersectionNormal,
+            startPositionRightVectorForwardSpline).normalized;
+        Vector3 forwardSplineStartPositionOffset = startPositionBinormalForwardSpline * (negate ? -roadOffset : roadOffset);
+        return forwardSplineStartPositionOffset;
+    }
+
     public static List<List<T>> SplitList<T>(List<T> me, int size = 20)
     {
         var list = new List<List<T>>();
@@ -736,7 +756,7 @@ public class RoadGenerator : MonoBehaviour
             splineBuffer.Add(spline);
         }
 
-        for (int i = 0; i < maxNumCars; i++)
+        for (int i = 0; i < numCars; i++)
         {
             var intersectionData = intersectionDataObject.intersections[Random.Range(0,intersectionDataObject.intersections.Count)];
             var carPrefab = entityManager.Instantiate(prefabs[i % prefabs.Count]);
@@ -778,7 +798,7 @@ public class RoadGenerator : MonoBehaviour
             }
         }
 
-        //if (roadMeshes != null && roadMeshes.Count == 0)
+        if (roadMeshes != null && roadMeshes.Count == 0)
         {
             // visualize splines before road meshes have spawned
             if (intersections != null)

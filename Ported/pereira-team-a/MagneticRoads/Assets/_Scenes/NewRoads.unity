@@ -939,8 +939,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 593210621}
-  m_LocalRotation: {x: -0.0016109168, y: -0.41921073, z: 0.0008308756, w: -0.90788716}
-  m_LocalPosition: {x: 17.175522, y: 63.769222, z: 27.115667}
+  m_LocalRotation: {x: 0.012902449, y: -0.689632, z: -0.012099952, w: -0.723944}
+  m_LocalPosition: {x: -17.72662, y: 10.451275, z: 9.57853}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -2154,7 +2154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   intersectionPreviewMesh: {fileID: 10210, guid: 0000000000000000e000000000000000,
     type: 0}
-  drawLines: 0
+  drawLines: 1
   generatedData: {fileID: 11400000, guid: 1c15fb63fae5249fc9ef57d035867028, type: 2}
 --- !u!114 &1885479761
 MonoBehaviour:
@@ -2168,7 +2168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 512dc8578a5e9d949861387ed53c99e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  voxelCount: 100
+  voxelCount: 20
   voxelSize: 1.25
   tickerSteps: 50000
   trisPerMesh: 4000
@@ -2176,7 +2176,7 @@ MonoBehaviour:
   intersectionMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   intersectionPreviewMesh: {fileID: 10210, guid: 0000000000000000e000000000000000,
     type: 0}
-  numCars: 5
+  numCars: 20000
   carMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   carMaterial: {fileID: 2100000, guid: 4c39503763071fe41842a84ac737905d, type: 2}
   carSpeed: 2
@@ -2187,7 +2187,7 @@ MonoBehaviour:
   - {fileID: 2352112535121781517, guid: 2fdcb7ecda704426387cfc8489dff8ce, type: 3}
   - {fileID: 3871351607681488563, guid: 446fb08119c03470985c2c5cecad72fc, type: 3}
   - {fileID: 5425555129356269661, guid: df41653d6dcd24076af5ac16493a7222, type: 3}
-  maxNumCars: 5000
+  roadOffset: 0.1
   carsText: {fileID: 1416107987}
   SaveMeshes: 0
 --- !u!4 &1885479762

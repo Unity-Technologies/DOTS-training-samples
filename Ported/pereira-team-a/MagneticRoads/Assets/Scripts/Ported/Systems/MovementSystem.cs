@@ -37,15 +37,20 @@ public class MovementSystem : JobComponentSystem
 
             newPos = translation.Value + math.normalize(trackSplineComponent.Spline.EndPosition - translation.Value) * deltaTime * velocity;
             newRot = math.slerp(rotation.Value, quaternion.LookRotationSafe(trackSplineComponent.Spline.EndPosition - translation.Value, trackSplineComponent.Spline.StartNormal), trackSplineComponent.t);
+            
+            translation.Value = newPos;
+            rotation.Value = newRot;
+            
             ////TODO: WAY TO ADD BOTH POS AND ROT
-            localToWorld = new LocalToWorld
+            /*localToWorld = new LocalToWorld
             {
                 Value = float4x4.TRS(
                     newPos,
                     newRot,
                     new float3(1.0f, 1.0f, 1.0f))
             };
-            trackSplineComponent.t += deltaTime * velocity;
+            trackSplineComponent.t += deltaTime * velocity;*/
+            
             return;
 
             //float3 newPos = translation.Value;
