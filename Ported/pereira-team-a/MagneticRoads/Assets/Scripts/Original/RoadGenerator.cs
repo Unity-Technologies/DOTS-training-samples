@@ -1,8 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
 using Unity.Entities;
 using UnityEditor;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class RoadGenerator : MonoBehaviour
 {
@@ -152,7 +155,7 @@ public class RoadGenerator : MonoBehaviour
         // cardinal directions:
         dirs = new Vector3Int[]
         {
-            new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), 
+            new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0),
             new Vector3Int(0, 1, 0), new Vector3Int(0, -1, 0),
             new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1)
             //new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(-1, 0, 0)
@@ -319,25 +322,26 @@ public class RoadGenerator : MonoBehaviour
                                 splineDataForwardDirection); // Add the spline to the DB of splines
 
                             // Reverse the forward direction spline
-							splineDataForwardDirection.id = intersectionDataObject.splines.Count;
-							
-							splineDataForwardDirection.startIntersectionId = intersection.id;
-							splineDataForwardDirection.endIntersectionId = neighbor.id;
-							splineDataForwardDirection.startPoint = spline.startPoint;
-							splineDataForwardDirection.endPoint = spline.endPoint;
-							splineDataForwardDirection.anchor1 = spline.anchor1;
-							splineDataForwardDirection.anchor2 = spline.anchor2;
-							splineDataForwardDirection.startNormal = spline.startNormal;
-							splineDataForwardDirection.endNormal = spline.endNormal;
-							splineDataForwardDirection.startTangent = spline.startTangent;
-							splineDataForwardDirection.endTangent = spline.endTangent;
-							splineDataForwardDirection.measuredLength = spline.measuredLength;
-							splineDataForwardDirection.carQueueSize = spline.carQueueSize;
-							splineDataForwardDirection.maxCarCount = spline.maxCarCount;
+                            splineDataForwardDirection.id = intersectionDataObject.splines.Count;
 
-							intersectionDataObject.splines.Add(splineDataForwardDirection); // Add the spline to the DB of splines
+                            splineDataForwardDirection.startIntersectionId = intersection.id;
+                            splineDataForwardDirection.endIntersectionId = neighbor.id;
+                            splineDataForwardDirection.startPoint = spline.startPoint;
+                            splineDataForwardDirection.endPoint = spline.endPoint;
+                            splineDataForwardDirection.anchor1 = spline.anchor1;
+                            splineDataForwardDirection.anchor2 = spline.anchor2;
+                            splineDataForwardDirection.startNormal = spline.startNormal;
+                            splineDataForwardDirection.endNormal = spline.endNormal;
+                            splineDataForwardDirection.startTangent = spline.startTangent;
+                            splineDataForwardDirection.endTangent = spline.endTangent;
+                            splineDataForwardDirection.measuredLength = spline.measuredLength;
+                            splineDataForwardDirection.carQueueSize = spline.carQueueSize;
+                            splineDataForwardDirection.maxCarCount = spline.maxCarCount;
 
-							// Reverse the reverse direction spline
+                            intersectionDataObject.splines.Add(
+                                splineDataForwardDirection); // Add the spline to the DB of splines
+
+                            // Reverse the reverse direction spline
                             GeneratedSplineData splineDataReverseDirection = new GeneratedSplineData();
                             splineDataReverseDirection.id = intersectionDataObject.splines.Count;
 
@@ -436,14 +440,18 @@ public class RoadGenerator : MonoBehaviour
                 if (intersectionDataObject.splines[i].startIntersectionId == intersectionDataObject.intersections[j].id)
                 {
                     GeneratedSplineData data = intersectionDataObject.splines[i];
-                    data.startNormal = new Vector3Int((int)intersectionDataObject.intersections[j].normal.x, (int)intersectionDataObject.intersections[j].normal.y, (int)intersectionDataObject.intersections[j].normal.z);
+                    data.startNormal = new Vector3Int((int) intersectionDataObject.intersections[j].normal.x,
+                        (int) intersectionDataObject.intersections[j].normal.y,
+                        (int) intersectionDataObject.intersections[j].normal.z);
                     intersectionDataObject.splines[i] = data;
                 }
 
                 if (intersectionDataObject.splines[i].endIntersectionId == intersectionDataObject.intersections[j].id)
                 {
                     GeneratedSplineData data = intersectionDataObject.splines[i];
-                    data.endNormal = new Vector3Int((int)intersectionDataObject.intersections[j].normal.x, (int)intersectionDataObject.intersections[j].normal.y, (int)intersectionDataObject.intersections[j].normal.z);
+                    data.endNormal = new Vector3Int((int) intersectionDataObject.intersections[j].normal.x,
+                        (int) intersectionDataObject.intersections[j].normal.y,
+                        (int) intersectionDataObject.intersections[j].normal.z);
                     intersectionDataObject.splines[i] = data;
                 }
             }
@@ -538,89 +546,112 @@ public class RoadGenerator : MonoBehaviour
 
         if (SaveMeshes)
         {
-            var roads = new GameObject("Roads", typeof(ConvertToEntity));
-            roads.GetComponent<ConvertToEntity>().ConversionMode = ConvertToEntity.Mode.ConvertAndDestroy;
+            //Create all the road objects
 
-            var meshFilter = roads.AddComponent<MeshFilter>();
-            var meshRenderer = roads.AddComponent<MeshRenderer>();
+            Debug.Log("ROAD MESHES: " + roadMeshes.Count);
 
-            var combinedRoadInstances = new List<CombineInstance>();
 
-            for (int i = 0; i < roadMeshes.Count; i++)
+            var roadList = SplitList(roadMeshes, 10);
+            int index = 0;
+                
+            foreach (List<Mesh> meshes in roadList)
             {
-                var ci = new CombineInstance { mesh = roadMeshes[i], transform = Matrix4x4.identity};
-                combinedRoadInstances.Add(ci);
+                var roads = new GameObject("Roads_" + index, typeof(ConvertToEntity));
+                roads.GetComponent<ConvertToEntity>().ConversionMode = ConvertToEntity.Mode.ConvertAndDestroy;
+                var meshFilter = roads.AddComponent<MeshFilter>();
+                var meshRenderer = roads.AddComponent<MeshRenderer>();
+
+                var combinedRoadInstances = new List<CombineInstance>();
+                
+                for (int j = 0; j < meshes.Count; j++)
+                {
+                    var ci = new CombineInstance {mesh = meshes[j], transform = Matrix4x4.identity};
+                    combinedRoadInstances.Add(ci);
+                }
+                
+                var roadMesh = new Mesh();
+                roadMesh.CombineMeshes(combinedRoadInstances.ToArray());
+
+                meshFilter.mesh = roadMesh;
+                meshRenderer.material = roadMaterial;
+
+                AssetDatabase.CreateAsset(roadMesh, "Assets/GeneratedRoads/RoadMeshes/RoadMesh_" + index + ".asset");
+
+                PrefabUtility.SaveAsPrefabAssetAndConnect(roads, "Assets/GeneratedRoads/Roads_" + index + ".prefab",
+                    InteractionMode.AutomatedAction);
+
+                index++;
             }
             
-            var roadMesh = new Mesh();
-            roadMesh.CombineMeshes(combinedRoadInstances.ToArray());
-            
-            meshFilter.mesh = roadMesh;
-            meshRenderer.material = roadMaterial;
-            
-            AssetDatabase.CreateAsset(roadMesh, "Assets/GeneratedRoads/RoadMeshes/RoadMesh.asset");
-            
+
+            //Create the intersection objects
+
+            var intersectionObject = new GameObject("Intersections", typeof(ConvertToEntity));
+            intersectionObject.GetComponent<ConvertToEntity>().ConversionMode = ConvertToEntity.Mode.ConvertAndDestroy;
+            var intersectionMeshFilter = intersectionObject.AddComponent<MeshFilter>();
+            var intersectionMeshRenderer = intersectionObject.AddComponent<MeshRenderer>();
+
             var combinedIntersectionsInstances = new List<CombineInstance>();
 
             foreach (var intersectionMatrix in intersectionMatrices)
             {
                 for (int i = 0; i < intersectionMatrix.Count; i++)
                 {
-                    var ci = new CombineInstance { mesh = intersectionMesh, transform = intersectionMatrix[i]};
+                    var ci = new CombineInstance {mesh = intersectionMesh, transform = intersectionMatrix[i]};
                     combinedIntersectionsInstances.Add(ci);
                 }
-                break;
             }
-            
+
             var intersectionsMesh = new Mesh();
             intersectionsMesh.CombineMeshes(combinedIntersectionsInstances.ToArray());
 
-            var intersectionChild = new GameObject("Intersections");
-            var iFilter = intersectionChild.AddComponent<MeshFilter>();
-            var iMesh = intersectionChild.AddComponent<MeshRenderer>();
+            intersectionMeshFilter.mesh = intersectionsMesh;
+            intersectionMeshRenderer.material = roadMaterial;
 
-            iFilter.mesh = intersectionsMesh;
-            iMesh.material = roadMaterial;
-            
-            intersectionChild.transform.SetParent(roads.transform);
-            
             AssetDatabase.CreateAsset(intersectionsMesh, "Assets/GeneratedRoads/RoadMeshes/IntersectionMeshes.asset");
-            
-            PrefabUtility.SaveAsPrefabAssetAndConnect(roads, "Assets/GeneratedRoads/Roads.prefab",
+            PrefabUtility.SaveAsPrefabAssetAndConnect(intersectionObject, "Assets/GeneratedRoads/Intersections.prefab",
                 InteractionMode.AutomatedAction);
-            
-            Debug.Log("Saved the mesh!");
+
+            Debug.Log("Saved all the Prefabs Meshes");
         }
     }
+    
+    public static List<List<T>> SplitList<T>(List<T> me, int size = 20)
+    {
+        var list = new List<List<T>>();
+        for (int i = 0; i < me.Count; i += size)
+            list.Add(me.GetRange(i, Math.Min(size, me.Count - i)));
+        return list;
+    }  
 
     public bool SaveMeshes;
 
     private void Update()
     {
-        for (int i = 0; i < cars.Count; i++)
-        {
-            cars[i].Update();
-            carMatrices[i / instancesPerBatch][i % instancesPerBatch] = cars[i].matrix;
-        }
+//        for (int i = 0; i < cars.Count; i++)
+//        {
+//            cars[i].Update();
+//            carMatrices[i / instancesPerBatch][i % instancesPerBatch] = cars[i].matrix;
+//        }
 
-        /*for (int i = 0; i < roadMeshes.Count; i++)
-        {
-            Graphics.DrawMesh(roadMeshes[i], Matrix4x4.identity, roadMaterial, 0);
-        }*/
+//        for (int i = 0; i < roadMeshes.Count; i++)
+//        {
+//            Graphics.DrawMesh(roadMeshes[i], Matrix4x4.identity, roadMaterial, 0);
+//        }
 
-        for (int i = 0; i < intersectionMatrices.Count; i++)
-        {
-            Graphics.DrawMeshInstanced(intersectionMesh, 0, roadMaterial, intersectionMatrices[i]);
-        }
+//        for (int i = 0; i < intersectionMatrices.Count; i++)
+//        {
+//            Graphics.DrawMeshInstanced(intersectionMesh, 0, roadMaterial, intersectionMatrices[i]);
+//        }
 
-        for (int i = 0; i < carMatrices.Count; i++)
-        {
-            if (carMatrices[i].Count > 0)
-            {
-                carMatProps.SetVectorArray("_Color", carColors[i]);
-                Graphics.DrawMeshInstanced(carMesh, 0, carMaterial, carMatrices[i], carMatProps);
-            }
-        }
+//        for (int i = 0; i < carMatrices.Count; i++)
+//        {
+//            if (carMatrices[i].Count > 0)
+//            {
+//                carMatProps.SetVectorArray("_Color", carColors[i]);
+//                Graphics.DrawMeshInstanced(carMesh, 0, carMaterial, carMatrices[i], carMatProps);
+//            }
+//        }
     }
 
     private void OnDrawGizmos()
