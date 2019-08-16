@@ -546,11 +546,11 @@ RectTransform:
   m_Father: {fileID: 87466327}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -325, y: 450}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 160, y: 20}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 1}
 --- !u!114 &142221613
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -938,8 +938,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 593210621}
-  m_LocalRotation: {x: -0.11596461, y: -0.8835622, z: 0.33591774, w: -0.3050073}
-  m_LocalPosition: {x: 7.03487, y: 23.545692, z: 22.705828}
+  m_LocalRotation: {x: -0.0016109168, y: -0.41921073, z: 0.0008308756, w: -0.90788716}
+  m_LocalPosition: {x: 17.175522, y: 63.769222, z: 27.115667}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -952,7 +952,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 593210621}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d887499a5a3a8ce48bc404e726089bcf, type: 3}
   m_Name: 
@@ -1626,6 +1626,7 @@ MonoBehaviour:
   intersectionDataObject: {fileID: 11400000, guid: 1c15fb63fae5249fc9ef57d035867028,
     type: 2}
   maxNumCars: 50000
+  maxNumSpawnedCars: 50
 --- !u!4 &1676469456
 Transform:
   m_ObjectHideFlags: 0
