@@ -652,7 +652,7 @@ public class RoadGenerator : MonoBehaviour
             cars[i].Update();
             carMatrices[i / instancesPerBatch][i % instancesPerBatch] = cars[i].matrix;
         }
-
+/*
         for (int i = 0; i < roadMeshes.Count; i++)
         {
             Graphics.DrawMesh(roadMeshes[i], Matrix4x4.identity, roadMaterial, 0);
@@ -661,7 +661,7 @@ public class RoadGenerator : MonoBehaviour
         for (int i = 0; i < intersectionMatrices.Count; i++)
         {
             Graphics.DrawMeshInstanced(intersectionMesh, 0, roadMaterial, intersectionMatrices[i]);
-        }
+        }*/
 
         for (int i = 0; i < carMatrices.Count; i++)
         {
@@ -739,16 +739,21 @@ public class RoadGenerator : MonoBehaviour
         for (int i = 0; i < maxNumCars; i++)
         {
             var intersectionData = intersectionDataObject.intersections[Random.Range(0,intersectionDataObject.intersections.Count)];
-            var car = entityManager.Instantiate(prefabs[i % prefabs.Count]);
+            var carPrefab = entityManager.Instantiate(prefabs[i % prefabs.Count]);
+
+            var startPoint = intersectionDataObject.splines[intersectionData.splineData1].startPoint;
+            var endPoint = intersectionDataObject.splines[intersectionData.splineData1].startPoint;
+            float randomPosition = Random.value;
+            var randomPoint = startPoint + (endPoint - startPoint).normalized * randomPosition; 
             
-            entityManager.AddComponent(car, typeof(ReachedEndOfSplineComponent));
-            entityManager.SetComponentData(car, new Translation { Value = intersectionData.position + Random.Range(1,2)*intersectionData.position });
-            entityManager.AddComponentData(car,
+            entityManager.AddComponent(carPrefab, typeof(ReachedEndOfSplineComponent));
+            entityManager.SetComponentData(carPrefab, new Translation { Value = randomPoint });
+            entityManager.AddComponentData(carPrefab,
                 new ExitIntersectionComponent()
                 {
                     TargetSplineId = intersectionData.splineData1
                 });
-            entityManager.AddComponent(car, typeof(SplineComponent));
+            entityManager.AddComponent(carPrefab, typeof(SplineComponent));
         }
     }
 

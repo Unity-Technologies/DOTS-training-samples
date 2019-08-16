@@ -2187,7 +2187,7 @@ MonoBehaviour:
   - {fileID: 2352112535121781517, guid: 2fdcb7ecda704426387cfc8489dff8ce, type: 3}
   - {fileID: 3871351607681488563, guid: 446fb08119c03470985c2c5cecad72fc, type: 3}
   - {fileID: 5425555129356269661, guid: df41653d6dcd24076af5ac16493a7222, type: 3}
-  maxNumCars: 50000
+  maxNumCars: 5000
   carsText: {fileID: 1416107987}
   SaveMeshes: 0
 --- !u!4 &1885479762

@@ -33,7 +33,7 @@ public class ReachedEndOfSplineSystem : JobComponentSystem
     [BurstCompile]
     struct AssignFindTargetJob : IJobForEachWithEntity<Translation, SplineComponent>
     {
-        public NativeQueue<Entity>.Concurrent queue;
+        public NativeQueue<Entity>.ParallelWriter queue;
 
         public void Execute(Entity entity, int index, [ReadOnly] ref Translation translation, [ReadOnly] ref SplineComponent targetSplineComponent)
         {
@@ -72,7 +72,7 @@ public class ReachedEndOfSplineSystem : JobComponentSystem
         //2. move to the Position
         var job = new AssignFindTargetJob()
         {
-            queue = queue.ToConcurrent()
+            queue = queue.AsParallelWriter()
         };
         var jobHandle = job.Schedule(m_Query, inputDeps);
 
