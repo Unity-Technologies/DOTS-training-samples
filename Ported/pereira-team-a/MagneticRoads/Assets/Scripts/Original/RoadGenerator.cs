@@ -57,6 +57,8 @@ public class RoadGenerator : MonoBehaviour
     public int maxNumCars = 50000;
     static public bool ready;
     static public bool useECS;
+
+    public UnityEngine.UI.Text carsText;
     
     long HashIntersectionPair(Intersection a, Intersection b)
     {
@@ -191,6 +193,8 @@ public class RoadGenerator : MonoBehaviour
 
         SpawnEntities();
 
+        carsText.text = "Cars: " + maxNumCars; 
+        
         ready = true;
         useECS = true;
     }
@@ -532,8 +536,7 @@ public class RoadGenerator : MonoBehaviour
         // spawn cars
         
         batch = 0;
-        int numCars = Mathf.Min(maxNumCars, intersectionDataObject.intersections.Count);
-        for (int i = 0; i < numCars; i++)
+        for (int i = 0; i < maxNumCars; i++)
         {
             Car car = new Car();
             car.maxSpeed = carSpeed;
@@ -733,15 +736,14 @@ public class RoadGenerator : MonoBehaviour
             splineBuffer.Add(spline);
         }
 
-        int numCars = Mathf.Min(maxNumCars, intersectionDataObject.intersections.Count);
-        for (int i = 0; i < numCars; i++)
+        for (int i = 0; i < maxNumCars; i++)
         {
-            var intersectionData = intersectionDataObject.intersections[i];
-
-            var car = entityManager.Instantiate(prefabs[i%prefabs.Count]);
+            var intersectionData = intersectionDataObject.intersections[Random.Range(0,intersectionDataObject.intersections.Count)];
+            var car = entityManager.Instantiate(prefabs[i % prefabs.Count]);
+            
             entityManager.AddComponent(car, typeof(ReachedEndOfSplineComponent));
-            entityManager.SetComponentData(car, new Translation{Value = intersectionData.position});
-            entityManager.AddComponentData(car, 
+            entityManager.SetComponentData(car, new Translation { Value = intersectionData.position + Random.Range(1,2)*intersectionData.position });
+            entityManager.AddComponentData(car,
                 new ExitIntersectionComponent()
                 {
                     TargetSplineId = intersectionData.splineData1

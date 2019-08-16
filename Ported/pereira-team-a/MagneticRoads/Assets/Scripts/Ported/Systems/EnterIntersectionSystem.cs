@@ -37,16 +37,12 @@ public class EnterIntersectionSystem : JobComponentSystem
             currentIntersection.LastIntersection += 1;
             IntersectionBuffer[currentSplineComponent.Spline.EndIntersectionId] = currentIntersection;
             
-            var targetSplineIndex = currentIntersection.LastIntersection % currentIntersection.SplineIdCount;
-            var targetSplineId = 0;
-            if (targetSplineIndex == 0)
-                targetSplineId = currentIntersection.SplineId0; // 0
-            else if (targetSplineIndex == 1)
-                targetSplineId = currentIntersection.SplineId1; // 1
-            else if (targetSplineIndex == 2)
-                targetSplineId = currentIntersection.SplineId2; // 2
-
-            // Get the target spline
+            int[] targetSplineIDs = {
+                currentIntersection.SplineId0,
+                currentIntersection.SplineId1,
+                currentIntersection.SplineId2
+            };
+            var targetSplineId = targetSplineIDs[currentIntersection.LastIntersection % currentIntersection.SplineIdCount];
             var targetSpline = SplineBuffer[targetSplineId];
             
             var newSpline = new SplineBufferElementData()
