@@ -6,6 +6,8 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+// TODO: Move to subscene or conversion step.
+
 public class IntersectionSpawner : MonoBehaviour
 {
     public GameObject[] CarPrefabs;

@@ -28,6 +28,8 @@ public class MovementSystem : JobComponentSystem
         public float deltaTime;
         public void Execute(ref Translation translation, ref Rotation rotation, ref SplineComponent trackSplineComponent)
         {
+            // TODO: Smoothly move along a spline with rotation
+            // TODO: Write the LocalToWorld matrix here
             
             float velocity = trackSplineComponent.IsInsideIntersection ? 0.5f : 1.0f;
 
