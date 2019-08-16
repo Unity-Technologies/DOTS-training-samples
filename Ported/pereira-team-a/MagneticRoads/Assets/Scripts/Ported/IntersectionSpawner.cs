@@ -92,7 +92,7 @@ public class IntersectionSpawner : MonoBehaviour
             float randomPosition = Random.value;
             var randomPoint = startPoint + (endPoint - startPoint).normalized * randomPosition; 
             
-            entityManager.AddComponent(carEntity, typeof(ReachedEndOfSplineComponent));
+            //entityManager.AddComponent(carEntity, typeof(ReachedEndOfSplineComponent));
             entityManager.SetComponentData(carEntity, new Translation { Value = randomPoint });
             entityManager.AddComponentData(carEntity, new SplineComponent
                 {
@@ -112,7 +112,8 @@ public class IntersectionSpawner : MonoBehaviour
                         SplineId = spline.id
                     }, 
                     IsInsideIntersection = false,
-                    t = 0
+                    t = 0,
+                    TargetSplineId = intersectionDataObject.splines[intersectionData.splineData1].endIntersectionId
                 });
             
             /*entityManager.AddComponentData(carPrefab,

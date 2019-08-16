@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 2096447332}
-  m_IndirectSpecularColor: {r: 0.35737324, g: 0.29496107, b: 0.27626002, a: 1}
+  m_IndirectSpecularColor: {r: 0.35699558, g: 0.29635966, b: 0.27900687, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -130,7 +130,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1012794954}
   - component: {fileID: 1012794953}
-  - component: {fileID: 1012794955}
   m_Layer: 0
   m_Name: Road Generator
   m_TagString: Untagged
@@ -150,7 +149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 512dc8578a5e9d949861387ed53c99e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  voxelCount: 7
+  voxelCount: 50
   voxelSize: 1.25
   tickerSteps: 50000
   trisPerMesh: 4000
@@ -158,7 +157,7 @@ MonoBehaviour:
   intersectionMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   intersectionPreviewMesh: {fileID: 10210, guid: 0000000000000000e000000000000000,
     type: 0}
-  numCars: 5
+  numCars: 5000
   carMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   carMaterial: {fileID: 2100000, guid: 4c39503763071fe41842a84ac737905d, type: 2}
   carSpeed: 2
@@ -180,22 +179,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1012794955
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1012794952}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94b94e7d7f27d4e9885e4aeaf1eb7d5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  intersectionPreviewMesh: {fileID: 10210, guid: 0000000000000000e000000000000000,
-    type: 0}
-  drawLines: 0
-  generatedData: {fileID: 11400000, guid: 1c15fb63fae5249fc9ef57d035867028, type: 2}
 --- !u!1 &1593998289
 GameObject:
   m_ObjectHideFlags: 0

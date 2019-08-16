@@ -4,8 +4,9 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class EnterRoadSystem : JobComponentSystem
+/*public class EnterRoadSystem : JobComponentSystem
 {
+
     EndSimulationEntityCommandBufferSystem m_EntityCommandBufferSystem;
 
     protected override void OnCreate()
@@ -13,7 +14,7 @@ public class EnterRoadSystem : JobComponentSystem
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
-    struct ExitIntersectionJob : IJobForEachWithEntity<ReachedEndOfSplineComponent, ExitIntersectionComponent>
+    struct ExitIntersectionJob : IJobForEachWithEntity<>
     {
         [ReadOnly] public DynamicBuffer<SplineBufferElementData> SplineBuffer;
         public EntityCommandBuffer.Concurrent CommandBuffer;
@@ -27,6 +28,7 @@ public class EnterRoadSystem : JobComponentSystem
                 Spline = spline, 
                 IsInsideIntersection = false,
                 t = 0,
+                reachEndOfSpline = false
             };
             CommandBuffer.SetComponent(index, entity, splineComponent);
             CommandBuffer.RemoveComponent<ExitIntersectionComponent>(index, entity);
@@ -52,4 +54,6 @@ public class EnterRoadSystem : JobComponentSystem
 
         return jobHandle;
     }
+    
 }
+*/

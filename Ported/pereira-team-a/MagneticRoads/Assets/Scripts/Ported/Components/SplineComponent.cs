@@ -10,4 +10,7 @@ public struct SplineComponent : IComponentData
     public float t;
     public float splineSide;
     public int splineId;
+    
+    public int TargetSplineId;
+    public bool reachEndOfSpline;
 }

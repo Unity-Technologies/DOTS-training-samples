@@ -1,5 +1,5 @@
 ﻿using Unity.Entities;
 
-public struct ReachedEndOfSplineComponent : IComponentData
+public struct ReachedEndOfSplineComponent2 : IComponentData
 {
 }

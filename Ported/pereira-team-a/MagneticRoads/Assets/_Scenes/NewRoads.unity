@@ -362,8 +362,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 593210621}
-  m_LocalRotation: {x: 0.1296225, y: -0.5535278, z: -0.087769456, w: -0.81798625}
-  m_LocalPosition: {x: 8.664696, y: 25.732735, z: 24.311077}
+  m_LocalRotation: {x: -0.08925173, y: 0.6280254, z: 0.07241621, w: 0.76965845}
+  m_LocalPosition: {x: -26.806198, y: 14.5082655, z: 10.95108}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -592,7 +592,7 @@ MonoBehaviour:
   - {fileID: 5425555129356269661, guid: df41653d6dcd24076af5ac16493a7222, type: 3}
   intersectionDataObject: {fileID: 11400000, guid: 1c15fb63fae5249fc9ef57d035867028,
     type: 2}
-  numCars: 5
+  numCars: 5000
   carsText: {fileID: 1416107987}
 --- !u!4 &1676469456
 Transform:
@@ -622,5 +622,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   intersectionPreviewMesh: {fileID: 10210, guid: 0000000000000000e000000000000000,
     type: 0}
-  drawLines: 1
+  drawLines: 0
   generatedData: {fileID: 11400000, guid: 1c15fb63fae5249fc9ef57d035867028, type: 2}

@@ -4,11 +4,13 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class EnterIntersectionSystem : JobComponentSystem
+/*public class EnterIntersectionSystem : JobComponentSystem
 {
     private EntityQuery m_Query;
     EndSimulationEntityCommandBufferSystem m_EntityCommandBufferSystem;
-
+    
+    public NativeQueue<Entity> queueOfJobsExitingTheIntersection;
+    
     protected override void OnCreate()
     {
         m_Query = GetEntityQuery(new EntityQueryDesc
@@ -69,25 +71,32 @@ public class EnterIntersectionSystem : JobComponentSystem
                 EndNormal = IntersectionBuffer[targetSpline.EndIntersectionId].Normal
             };
             
-            if (targetSpline.OppositeDirectionSplineId == currentSplineComponent.Spline.SplineId)
+            //if (targetSpline.OppositeDirectionSplineId == currentSplineComponent.Spline.SplineId)
             {
-                newSpline.Anchor2 = newSpline.Anchor1;
-                /*
+                newSpline.Anchor1 = newSpline.StartPosition;
+                newSpline.Anchor2 = newSpline.EndPosition;
+                
                 // u-turn - make our intersection spline more rounded than usual
-                Vector3 perp = Vector3.Cross(intersectionSpline.startTangent, intersectionSpline.startNormal);
-                intersectionSpline.anchor1 +=
-                    (Vector3) intersectionSpline.startTangent * RoadGenerator.intersectionSize * .5f;
-                intersectionSpline.anchor2 +=
-                    (Vector3) intersectionSpline.startTangent * RoadGenerator.intersectionSize * .5f;
+                // Vector3 perp = Vector3.Cross(intersectionSpline.startTangent, intersectionSpline.startNormal);
+                // intersectionSpline.anchor1 += (Vector3) intersectionSpline.startTangent * RoadGenerator.intersectionSize * .5f;
+                // intersectionSpline.anchor2 += (Vector3) intersectionSpline.startTangent * RoadGenerator.intersectionSize * .5f;
 
-                intersectionSpline.anchor1 -= perp * RoadGenerator.trackRadius * .5f * intersectionSide;
-                intersectionSpline.anchor2 += perp * RoadGenerator.trackRadius * .5f * intersectionSide;*/
+                // intersectionSpline.anchor1 -= perp * RoadGenerator.trackRadius * .5f * intersectionSide;
+                // intersectionSpline.anchor2 += perp * RoadGenerator.trackRadius * .5f * intersectionSide;
             }
             
 
-            CommandBuffer.SetComponent(index, entity, new SplineComponent { Spline = newSpline, IsInsideIntersection = true, t = 0 });
-            CommandBuffer.AddComponent(index, entity, new ExitIntersectionComponent {TargetSplineId = targetSplineId});
-            CommandBuffer.RemoveComponent<ReachedEndOfSplineComponent>(index, entity);
+            CommandBuffer.SetComponent(index, entity, new SplineComponent
+            {
+                Spline = newSpline,
+                IsInsideIntersection = true,
+                t = 0,
+                TargetSplineId = targetSplineId,
+                reachEndOfSpline = false
+            });
+
+            //CommandBuffer.AddComponent(index, entity, new ExitIntersectionComponent {TargetSplineId = targetSplineId});
+            //CommandBuffer.RemoveComponent<ReachedEndOfSplineComponent>(index, entity);
         }
     }
 
@@ -112,3 +121,4 @@ public class EnterIntersectionSystem : JobComponentSystem
         return jobHandle;
     }
 }
+*/

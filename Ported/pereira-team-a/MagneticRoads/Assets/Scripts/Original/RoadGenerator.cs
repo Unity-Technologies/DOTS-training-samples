@@ -668,7 +668,7 @@ public class RoadGenerator : MonoBehaviour
             carMatrices[i / instancesPerBatch][i % instancesPerBatch] = cars[i].matrix;
         }
 
-        for (int i = 0; i < roadMeshes.Count; i++)
+        /*for (int i = 0; i < roadMeshes.Count; i++)
         {
             Graphics.DrawMesh(roadMeshes[i], Matrix4x4.identity, roadMaterial, 0);
         }
@@ -676,7 +676,7 @@ public class RoadGenerator : MonoBehaviour
         for (int i = 0; i < intersectionMatrices.Count; i++)
         {
             Graphics.DrawMeshInstanced(intersectionMesh, 0, roadMaterial, intersectionMatrices[i]);
-        }
+        }*/
 
         for (int i = 0; i < carMatrices.Count; i++)
         {
@@ -687,90 +687,7 @@ public class RoadGenerator : MonoBehaviour
             }
         }
     }
-    void SpawnEntities()
-    {
-        var entityManager = World.Active.EntityManager;
-        var entity = entityManager.CreateEntity(typeof(IntersectionBufferElementData), typeof(SplineBufferElementData));
-        var prefabs = new List<Entity>();
-        foreach (var CarPrefab in CarPrefabs)
-        {
-            prefabs.Add(GameObjectConversionUtility.ConvertGameObjectHierarchy(CarPrefab, World.Active));
-        }
-
-        DynamicBuffer<IntersectionBufferElementData> intersectionBuffer = entityManager.GetBuffer<IntersectionBufferElementData>(entity);
-
-        for (int i = 0; i < intersectionDataObject.intersections.Count; i++)
-        {
-            var intersectionData = intersectionDataObject.intersections[i];
-            var intersection = new IntersectionBufferElementData();
-            intersection.Position = intersectionData.position;
-            intersection.Normal = intersectionData.normal;
-            
-            intersection.SplineId0= intersectionData.splineData1;
-            intersection.SplineId1 = intersectionData.splineData2;
-            intersection.SplineId2 = intersectionData.splineData3;
-            intersection.SplineIdCount = intersectionData.splineCount;
-
-            // Repeat the same neighbor at the end of the array, to cover for the case of having less than 3 neighbors
-            if(intersectionData.splineCount == 1)
-            {
-                intersection.SplineId1 = -1;
-                intersection.SplineId2 = -1;
-            }
-            if(intersectionData.splineCount == 2){
-                intersection.SplineId2 = -1;
-            }
-            
-            intersectionBuffer.Add(intersection);
-        }
-        
-        DynamicBuffer<SplineBufferElementData> splineBuffer = entityManager.GetBuffer<SplineBufferElementData>(entity);
-
-        for (int i = 0; i < intersectionDataObject.splines.Count; i++)
-        {
-            var splineData = intersectionDataObject.splines[i];
-            
-            var spline = new SplineBufferElementData();
-            
-            spline.SplineId = i;
-            spline.StartPosition = splineData.startPoint;
-            spline.EndPosition = splineData.endPoint;
-            spline.Anchor1 = splineData.anchor1;
-            spline.Anchor2 = splineData.anchor2;
-            spline.StartNormal = new float3(splineData.startNormal.x, splineData.startNormal.y, splineData.startNormal.z);
-            spline.EndNormal = new float3(splineData.endNormal.x, splineData.endNormal.y, splineData.endNormal.z);
-            spline.StartTangent = new float3(splineData.startTangent.x, splineData.startTangent.y, splineData.startTangent.z);
-            spline.EndTangent = new float3(splineData.endTangent.x, splineData.endTangent.y, splineData.endTangent.z);
-            
-            spline.EndIntersectionId = splineData.endIntersectionId;
-            if (i % 2 == 0)
-                spline.OppositeDirectionSplineId = i + 1;
-            else
-                spline.OppositeDirectionSplineId = i - 1;
-            
-            splineBuffer.Add(spline);
-        }
-
-        for (int i = 0; i < numCars; i++)
-        {
-            var intersectionData = intersectionDataObject.intersections[Random.Range(0,intersectionDataObject.intersections.Count)];
-            var carPrefab = entityManager.Instantiate(prefabs[i % prefabs.Count]);
-
-            var startPoint = intersectionDataObject.splines[intersectionData.splineData1].startPoint;
-            var endPoint = intersectionDataObject.splines[intersectionData.splineData1].startPoint;
-            float randomPosition = Random.value;
-            var randomPoint = startPoint + (endPoint - startPoint).normalized * randomPosition; 
-            
-            entityManager.AddComponent(carPrefab, typeof(ReachedEndOfSplineComponent));
-            entityManager.SetComponentData(carPrefab, new Translation { Value = randomPoint });
-            entityManager.AddComponentData(carPrefab,
-                new ExitIntersectionComponent()
-                {
-                    TargetSplineId = intersectionData.splineData1
-                });
-            entityManager.AddComponent(carPrefab, typeof(SplineComponent));
-        }
-    }
+    
 
     private void OnDrawGizmos()
     {
