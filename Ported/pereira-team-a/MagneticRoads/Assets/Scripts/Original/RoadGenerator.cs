@@ -43,6 +43,8 @@ public class RoadGenerator : MonoBehaviour
 
     const int instancesPerBatch = 1023;
     
+    public const float offsetLane = .10f;
+    
     // intersection pair:  two 32-bit IDs, packed together
     HashSet<long> intersectionPairs;
 
@@ -54,13 +56,10 @@ public class RoadGenerator : MonoBehaviour
 
     public GeneratedIntersectionDataObject intersectionDataObject;
     public GameObject[] CarPrefabs;
-    public float roadOffset = 0.1f;
-    
+
     static public bool ready;
     static public bool useECS;
 
-    public UnityEngine.UI.Text carsText;
-    
     long HashIntersectionPair(Intersection a, Intersection b)
     {
         // pack two intersections' IDs into one int64
@@ -161,6 +160,7 @@ public class RoadGenerator : MonoBehaviour
     IEnumerator Start()
     {
         ready = false;
+        useECS = false;
         
         // cardinal directions:
         dirs = new Vector3Int[]
@@ -191,13 +191,6 @@ public class RoadGenerator : MonoBehaviour
         }
 
         yield return StartCoroutine(SpawnRoads());
-
-        SpawnEntities();
-
-        carsText.text = "Cars: " + numCars; 
-        
-        ready = true;
-        useECS = true;
     }
 
     IEnumerator SpawnRoads()
@@ -650,7 +643,7 @@ public class RoadGenerator : MonoBehaviour
         // Binormal vector
         Vector3 startPositionBinormalForwardSpline = Vector3.Cross(startIntersectionNormal,
             startPositionRightVectorForwardSpline).normalized;
-        Vector3 forwardSplineStartPositionOffset = startPositionBinormalForwardSpline * (negate ? -roadOffset : roadOffset);
+        Vector3 forwardSplineStartPositionOffset = startPositionBinormalForwardSpline * (negate ? offsetLane : -offsetLane);
         return forwardSplineStartPositionOffset;
     }
 
@@ -674,7 +667,7 @@ public class RoadGenerator : MonoBehaviour
             cars[i].Update();
             carMatrices[i / instancesPerBatch][i % instancesPerBatch] = cars[i].matrix;
         }
-/*
+
         for (int i = 0; i < roadMeshes.Count; i++)
         {
             Graphics.DrawMesh(roadMeshes[i], Matrix4x4.identity, roadMaterial, 0);
@@ -683,7 +676,7 @@ public class RoadGenerator : MonoBehaviour
         for (int i = 0; i < intersectionMatrices.Count; i++)
         {
             Graphics.DrawMeshInstanced(intersectionMesh, 0, roadMaterial, intersectionMatrices[i]);
-        }*/
+        }
 
         for (int i = 0; i < carMatrices.Count; i++)
         {

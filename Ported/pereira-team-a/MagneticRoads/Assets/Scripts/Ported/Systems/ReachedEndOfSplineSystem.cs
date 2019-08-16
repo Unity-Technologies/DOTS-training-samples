@@ -37,13 +37,11 @@ public class ReachedEndOfSplineSystem : JobComponentSystem
 
         public void Execute(Entity entity, int index, [ReadOnly] ref Translation translation, [ReadOnly] ref SplineComponent targetSplineComponent)
         {
-            //check if reaches the target
-            // add find new target component
+            //check if reaches the target and add find new target component (via a queue)
             bool hasReachedTarget = math.distancesq(translation.Value, targetSplineComponent.Spline.EndPosition) < 0.001f;
             if (hasReachedTarget)
             {
                 queue.Enqueue(entity);
-                //commandBuffer.AddComponent<ReachedEndOfSplineComponent>(index, entity);
             }
         }
     }

@@ -29,7 +29,7 @@ public class MovementSystem : JobComponentSystem
         public void Execute(ref LocalToWorld localToWorld, ref Translation translation, ref Rotation rotation, ref SplineComponent trackSplineComponent)
         {
             //velocity based on if we are in an intersection or not
-            float velocity = trackSplineComponent.IsInsideIntersection ? 0.7f : 1.0f;
+            float velocity = trackSplineComponent.IsInsideIntersection ? 0.3f : 1.0f;
 
             //here we calculate the t
             float dist = math.distance(trackSplineComponent.Spline.EndPosition, trackSplineComponent.Spline.StartPosition);

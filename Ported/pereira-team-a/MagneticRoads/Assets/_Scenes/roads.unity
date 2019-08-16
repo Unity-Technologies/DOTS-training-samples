@@ -150,9 +150,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 512dc8578a5e9d949861387ed53c99e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  voxelCount: 100
+  voxelCount: 7
   voxelSize: 1.25
-  tickerSteps: 500000
+  tickerSteps: 50000
   trisPerMesh: 4000
   roadMaterial: {fileID: 2100000, guid: c2261b4990b26324bac9164b7f53de5e, type: 2}
   intersectionMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
@@ -164,7 +164,8 @@ MonoBehaviour:
   carSpeed: 2
   intersectionDataObject: {fileID: 11400000, guid: 1c15fb63fae5249fc9ef57d035867028,
     type: 2}
-  SaveMeshes: 1
+  CarPrefabs: []
+  SaveMeshes: 0
 --- !u!4 &1012794954
 Transform:
   m_ObjectHideFlags: 0

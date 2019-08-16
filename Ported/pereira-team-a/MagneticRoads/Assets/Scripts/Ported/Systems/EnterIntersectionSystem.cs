@@ -44,21 +44,23 @@ public class EnterIntersectionSystem : JobComponentSystem
             };
             var targetSplineId = targetSplineIDs[currentIntersection.LastIntersection % currentIntersection.SplineIdCount];
             var targetSpline = SplineBuffer[targetSplineId];
-            
+
             var newSpline = new SplineBufferElementData()
             {
                 EndIntersectionId = -1,
                 SplineId = 1,
-                
+
                 StartPosition = currentSplineComponent.Spline.EndPosition,
                 EndPosition = targetSpline.StartPosition,
-                
+
                 //intersectionSpline.anchor1 = (intersection.position + intersectionSpline.startPoint) * .5f;
                 Anchor1 = (currentIntersection.Position + targetSpline.StartPosition) * .5f,
                 // intersectionSpline.anchor2 = (intersection.position + intersectionSpline.endPoint) * .5f;
                 Anchor2 = (currentIntersection.Position + targetSpline.EndPosition) * .5f,
                 // intersectionSpline.startTangent = Vector3Int.RoundToInt((intersection.position - intersectionSpline.startPoint).normalized);
-                StartTangent = math.round(math.normalize(currentIntersection.Position - currentSplineComponent.Spline.EndPosition)),
+                StartTangent =
+                    math.round(math.normalize(currentIntersection.Position -
+                                              currentSplineComponent.Spline.EndPosition)),
                 // intersectionSpline.endTangent = Vector3Int.RoundToInt((intersection.position - intersectionSpline.endPoint).normalized);
                 EndTangent = math.round(math.normalize(currentIntersection.Position - targetSpline.StartPosition)),
                 // intersectionSpline.startNormal = intersection.normal;
@@ -66,9 +68,11 @@ public class EnterIntersectionSystem : JobComponentSystem
                 // intersectionSpline.endNormal = intersection.normal;
                 EndNormal = IntersectionBuffer[targetSpline.EndIntersectionId].Normal
             };
-            /*
+            
             if (targetSpline.OppositeDirectionSplineId == currentSplineComponent.Spline.SplineId)
             {
+                newSpline.Anchor2 = newSpline.Anchor1;
+                /*
                 // u-turn - make our intersection spline more rounded than usual
                 Vector3 perp = Vector3.Cross(intersectionSpline.startTangent, intersectionSpline.startNormal);
                 intersectionSpline.anchor1 +=
@@ -77,9 +81,8 @@ public class EnterIntersectionSystem : JobComponentSystem
                     (Vector3) intersectionSpline.startTangent * RoadGenerator.intersectionSize * .5f;
 
                 intersectionSpline.anchor1 -= perp * RoadGenerator.trackRadius * .5f * intersectionSide;
-                intersectionSpline.anchor2 += perp * RoadGenerator.trackRadius * .5f * intersectionSide;
+                intersectionSpline.anchor2 += perp * RoadGenerator.trackRadius * .5f * intersectionSide;*/
             }
-            */
             
 
             CommandBuffer.SetComponent(index, entity, new SplineComponent { Spline = newSpline, IsInsideIntersection = true, t = 0 });
