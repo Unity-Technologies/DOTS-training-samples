@@ -562,7 +562,7 @@ public class RoadGenerator : MonoBehaviour
         
         //Save Meshes
 
-        if (SaveMeshes)
+         if (SaveMeshes)
         {
             //Create all the road objects
 
@@ -570,37 +570,37 @@ public class RoadGenerator : MonoBehaviour
 
 
             var roadList = SplitList(roadMeshes, 10);
-            int index = 0;
-                
-            foreach (List<Mesh> meshes in roadList)
+
+            for (var i = 0; i < roadList.Count; i++)
             {
-                var roads = new GameObject("Roads_" + index, typeof(ConvertToEntity));
+                List<Mesh> meshes = roadList[i];
+                var roads = new GameObject("Roads_" + i, typeof(ConvertToEntity));
                 roads.GetComponent<ConvertToEntity>().ConversionMode = ConvertToEntity.Mode.ConvertAndDestroy;
                 var meshFilter = roads.AddComponent<MeshFilter>();
                 var meshRenderer = roads.AddComponent<MeshRenderer>();
 
                 var combinedRoadInstances = new List<CombineInstance>();
-                
+
                 for (int j = 0; j < meshes.Count; j++)
                 {
                     var ci = new CombineInstance {mesh = meshes[j], transform = Matrix4x4.identity};
                     combinedRoadInstances.Add(ci);
                 }
-                
+
                 var roadMesh = new Mesh();
                 roadMesh.CombineMeshes(combinedRoadInstances.ToArray());
 
                 meshFilter.mesh = roadMesh;
                 meshRenderer.material = roadMaterial;
 
-                AssetDatabase.CreateAsset(roadMesh, "Assets/GeneratedRoads/RoadMeshes/RoadMesh_" + index + ".asset");
+                AssetDatabase.CreateAsset(roadMesh, "Assets/GeneratedRoads/RoadMeshes/RoadMesh_" + i + ".asset");
 
-                PrefabUtility.SaveAsPrefabAssetAndConnect(roads, "Assets/GeneratedRoads/Roads_" + index + ".prefab",
+                PrefabUtility.SaveAsPrefabAssetAndConnect(roads, "Assets/GeneratedRoads/Roads_" + i + ".prefab",
                     InteractionMode.AutomatedAction);
 
-                index++;
+                Instantiate(roads);
             }
-            
+
 
             //Create the intersection objects
 
@@ -629,6 +629,8 @@ public class RoadGenerator : MonoBehaviour
             AssetDatabase.CreateAsset(intersectionsMesh, "Assets/GeneratedRoads/RoadMeshes/IntersectionMeshes.asset");
             PrefabUtility.SaveAsPrefabAssetAndConnect(intersectionObject, "Assets/GeneratedRoads/Intersections.prefab",
                 InteractionMode.AutomatedAction);
+            
+            Instantiate(intersectionObject);
 
             Debug.Log("Saved all the Prefabs Meshes");
         }
