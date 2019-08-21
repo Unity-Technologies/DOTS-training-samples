@@ -2,15 +2,14 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-//[WriteGroup(typeof(Unity.Transforms.LocalToWorld))]
+[WriteGroup(typeof(Unity.Transforms.LocalToWorld))]
 public struct SplineComponent : IComponentData
 {
     public SplineBufferElementData Spline;
     public bool IsInsideIntersection;
     public float t;
-    public float splineSide;
-    public int splineId;
-    
     public int TargetSplineId;
+
+    public int splineId;
     public bool reachEndOfSpline;
 }

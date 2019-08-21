@@ -103,11 +103,9 @@ public class MovementSystem : JobComponentSystem
                         reachEndOfSpline = false
                     };
 
-                    splineComponent.splineId = splineComponent.TargetSplineId;
                     splineComponent.Spline = spline;
                     splineComponent.IsInsideIntersection = false;
                     splineComponent.t = 0;
-                    splineComponent.reachEndOfSpline = false;
 
                     //CommandBuffer.SetComponent(index, entity, newSplineComponent);
                 }
@@ -173,13 +171,11 @@ public class MovementSystem : JobComponentSystem
                         intersectionSpline.anchor1 -= perp * RoadGenerator.trackRadius * .5f * intersectionSide;
                         intersectionSpline.anchor2 += perp * RoadGenerator.trackRadius * .5f * intersectionSide;*/
                     }
-                    
-                    splineComponent.splineId = targetSplineId;
+
                     splineComponent.Spline = newSpline;
                     splineComponent.IsInsideIntersection = true;
                     splineComponent.t = 0;
-                    splineComponent.reachEndOfSpline = false;
-                    
+
                     /*CommandBuffer.SetComponent(index, entity, new SplineComponent
                     {
                         Spline = newSpline,

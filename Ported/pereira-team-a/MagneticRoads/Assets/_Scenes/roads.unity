@@ -164,7 +164,7 @@ MonoBehaviour:
   intersectionDataObject: {fileID: 11400000, guid: 1c15fb63fae5249fc9ef57d035867028,
     type: 2}
   CarPrefabs: []
-  SaveMeshes: 0
+  SaveMeshes: 1
 --- !u!4 &1012794954
 Transform:
   m_ObjectHideFlags: 0
