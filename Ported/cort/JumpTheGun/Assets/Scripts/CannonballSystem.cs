@@ -98,11 +98,11 @@ namespace JumpTheGun
         private PlayerPositionCacheSystem _playerPosCache;
         protected override void OnCreate()
         {
-            _cannonballQuery = GetEntityQuery(new ComponentType[] {
+            _cannonballQuery = GetEntityQuery(
                 ComponentType.ReadWrite<Translation>(),
                 ComponentType.ReadWrite<ArcState>(),
-                ComponentType.ReadWrite<Scale>(),
-            });
+                ComponentType.ReadWrite<Scale>()
+            );
             _terrain = World.GetOrCreateSystem<TerrainSystem>();
             _barrier = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
             _playerPosCache = World.GetOrCreateSystem<PlayerPositionCacheSystem>();

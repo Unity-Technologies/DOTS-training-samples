@@ -18,16 +18,12 @@ namespace JumpTheGun
         private TimerText _timerText;
         protected override void OnCreate()
         {
-            _playerQuery = GetEntityQuery(new ComponentType[]
-            {
+            _playerQuery = GetEntityQuery(
                 ComponentType.ReadWrite<Translation>(),
                 ComponentType.ReadWrite<ArcState>(),
-                ComponentType.Exclude<Scale>(),
-            });
-            _newGameQuery = GetEntityQuery(new ComponentType[]
-            {
-                ComponentType.ReadWrite<NewGameTag>(),
-            });
+                ComponentType.Exclude<Scale>()
+            );
+            _newGameQuery = GetEntityQuery(ComponentType.ReadWrite<NewGameTag>());
             _tankFireSystem = World.GetOrCreateSystem<TankFireSystem>();
         }
 

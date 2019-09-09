@@ -106,12 +106,11 @@ namespace JumpTheGun
         private TankAimSystem _tankAimSystem;
         protected override void OnCreate()
         {
-            _playerQuery = GetEntityQuery(new ComponentType[]
-            {
+            _playerQuery = GetEntityQuery(
                 ComponentType.ReadWrite<Translation>(),
                 ComponentType.ReadWrite<ArcState>(),
-                ComponentType.Exclude<Scale>(),
-            });
+                ComponentType.Exclude<Scale>()
+            );
             _terrain = World.GetOrCreateSystem<TerrainSystem>();
             _tankAimSystem = World.GetOrCreateSystem<TankAimSystem>();
         }
