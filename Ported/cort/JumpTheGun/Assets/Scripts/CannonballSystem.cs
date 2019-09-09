@@ -77,21 +77,19 @@ namespace JumpTheGun
                     Entity boxEntity = BlockEntities[boxIndex];
                     int* blockHitsPtr = (int*)BlockHitCounts.GetUnsafePtr() + boxIndex;
                     int newCount = Interlocked.Increment(ref *blockHitsPtr);
-                    if (newCount == 1)
-                    {
-                        CommandBuffer.AddComponent(entityIndex, boxEntity, new UpdateBlockTransformTag());
-                    }
                     // TODO(@cort): There is a (relatively benign) race condition here. There's no guarantee that the last job
                     //              to update the hit counts array will also write the last command that updates the BlockHeight component.
                     //              This means that if >1 cannonball hits a block in a single frame, some of the hits may not damage the block.
                     //              One solution would be commands that allow mutating component values rather than setting them to a value
                     //              known at record time. https://github.com/Unity-Technologies/dots/issues/632
+                    // TODO(@cort): Replace with a DynamicBuffer that accumulates hit events and processes them later. Requires ECB.AppendToBuffer().
                     float currentBoxHeight = BlockHeights[boxIndex];
                     CommandBuffer.SetComponent(entityIndex, boxEntity,
                         new BlockHeight
                         {
                             Value = math.max(BLOCK_HEIGHT_MIN, currentBoxHeight - newCount * BoxHeightDamage)
                         });
+                    CommandBuffer.AddComponent(entityIndex, boxEntity, new UpdateBlockTransformTag());
                     // destroy the cannonball
                     CommandBuffer.DestroyEntity(entityIndex, entity);
                 }
