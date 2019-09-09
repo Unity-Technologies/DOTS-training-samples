@@ -26,7 +26,7 @@ namespace JumpTheGun
         }
 
         private PlayerPositionCacheSystem _playerPosCache;
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             _playerPosCache = World.GetOrCreateSystem<PlayerPositionCacheSystem>();
         }

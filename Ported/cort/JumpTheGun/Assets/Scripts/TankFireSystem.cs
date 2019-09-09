@@ -209,7 +209,7 @@ namespace JumpTheGun
         private TerrainSystem _terrain;
         private PlayerPositionCacheSystem _playerPosCache;
         private BeginSimulationEntityCommandBufferSystem _barrier;
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             _terrain = World.GetOrCreateSystem<TerrainSystem>();
             _playerPosCache = World.GetOrCreateSystem<PlayerPositionCacheSystem>();

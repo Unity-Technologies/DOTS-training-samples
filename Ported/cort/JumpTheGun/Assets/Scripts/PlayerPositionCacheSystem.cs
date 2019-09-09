@@ -12,7 +12,7 @@ namespace JumpTheGun
         public float3 PlayerPosition { get; private set; }
 
         private EntityQuery _playerQuery;
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             _playerQuery = GetEntityQuery(new ComponentType[]
             {

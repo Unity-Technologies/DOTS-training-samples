@@ -104,7 +104,7 @@ namespace JumpTheGun
         private Options _options;
         private TerrainSystem _terrain;
         private TankAimSystem _tankAimSystem;
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             _playerQuery = GetEntityQuery(new ComponentType[]
             {

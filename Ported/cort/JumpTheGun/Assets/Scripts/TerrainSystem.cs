@@ -279,7 +279,7 @@ namespace JumpTheGun
             }
         }
 
-        protected override void OnDestroyManager()
+        protected override void OnDestroy()
         {
             _threadRngs.Dispose();
             if (CachedBlockHeights.IsCreated)
@@ -305,7 +305,7 @@ namespace JumpTheGun
         private CannonballSystem _cannonballSystem;
         private TankFireSystem _tankFireSystem;
         private PlayerPositionCacheSystem _playerPosCache;
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             _cannonballSystem = World.GetOrCreateSystem<CannonballSystem>();
             _tankFireSystem = World.GetOrCreateSystem<TankFireSystem>();

@@ -33,7 +33,7 @@ namespace JumpTheGun
         }
 
         private BeginSimulationEntityCommandBufferSystem _barrier;
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             _barrier = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
         }

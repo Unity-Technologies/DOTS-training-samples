@@ -16,7 +16,7 @@ namespace JumpTheGun
         private Options _options;
         private TankFireSystem _tankFireSystem;
         private TimerText _timerText;
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             _playerQuery = GetEntityQuery(new ComponentType[]
             {
