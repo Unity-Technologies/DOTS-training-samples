@@ -242,7 +242,6 @@ namespace JumpTheGun
                         Entity player = EntityManager.CreateEntity(playerArchetype);
                         EntityManager.SetSharedComponentData(player, _options.playerLook.Value);
                         float3 playerStartPos = new float3(x, blockHeight, z);
-                        _playerPosCache.SetInitialPosition(playerStartPos);
                         EntityManager.SetComponentData(player, new Translation {Value = playerStartPos});
                         EntityManager.SetComponentData(player, new ArcState
                         {
@@ -304,12 +303,10 @@ namespace JumpTheGun
         private Options _options;
         private CannonballSystem _cannonballSystem;
         private TankFireSystem _tankFireSystem;
-        private PlayerPositionCacheSystem _playerPosCache;
         protected override void OnCreate()
         {
             _cannonballSystem = World.GetOrCreateSystem<CannonballSystem>();
             _tankFireSystem = World.GetOrCreateSystem<TankFireSystem>();
-            _playerPosCache = World.GetOrCreateSystem<PlayerPositionCacheSystem>();
             uint seederSeed = math.max(1, (uint)System.DateTime.Now.Ticks);
             Random rngSeeder = new Random(seederSeed);
             _threadRngs = new NativeArray<Random>(JobsUtility.MaxJobThreadCount, Allocator.Persistent);

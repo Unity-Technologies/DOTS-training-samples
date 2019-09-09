@@ -12,12 +12,12 @@ public class FollowPlayer : MonoBehaviour
     public float zoom = 1.0f;
     public float zoomMin = 0.8f, zoomMax = 1.3f;
     private const float ZOOM_SPEED = 0.2f;
-    private JumpTheGun.PlayerPositionCacheSystem _playerPosCache;
+    private PlayerBounceSystem _playerBounceSystem;
     
     // Start is called before the first frame update
     void Start()
     {
-        _playerPosCache = World.Active.GetOrCreateSystem<PlayerPositionCacheSystem>();
+        _playerBounceSystem = World.Active.GetOrCreateSystem<PlayerBounceSystem>();
     }
 
     // Update is called once per frame
@@ -29,7 +29,7 @@ public class FollowPlayer : MonoBehaviour
             zoom -= ZOOM_SPEED * Time.unscaledDeltaTime;
         }
         zoom = math.clamp(zoom, zoomMin, zoomMax);
-        Vector3 playerPosOnGround = _playerPosCache.PlayerPosition;
+        Vector3 playerPosOnGround = _playerBounceSystem.PlayerPosition;
         playerPosOnGround.y = 0;
         transform.position = playerPosOnGround + zoom * offsetFromPlayer;
     }

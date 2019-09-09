@@ -28,6 +28,9 @@ namespace JumpTheGun
             [ReadOnly]
             public NativeArray<byte> IsBlockOccupied;
 
+            [NativeDisableParallelForRestriction] // needs "random" write access (always to element 0)
+            public NativeArray<float3> PlayerPositionCache;
+
             public void Execute(ref Translation position, ref ArcState arc)
             {
                 float t = ElapsedTime - arc.StartTime;
@@ -97,6 +100,9 @@ namespace JumpTheGun
                         math.lerp(arc.StartPos.z, arc.EndPos.z, s)
                     );
                 }
+
+                // Cache player position for main thread access
+                PlayerPositionCache[0] = position.Value;
             }
         }
 
@@ -104,6 +110,8 @@ namespace JumpTheGun
         private Options _options;
         private TerrainSystem _terrain;
         private TankAimSystem _tankAimSystem;
+        private NativeArray<float3> _playerPositionArray;
+        public float3 PlayerPosition => _playerPositionArray[0];
         protected override void OnCreate()
         {
             _playerQuery = GetEntityQuery(
@@ -111,8 +119,14 @@ namespace JumpTheGun
                 ComponentType.ReadWrite<ArcState>(),
                 ComponentType.Exclude<Scale>()
             );
+            _playerPositionArray = new NativeArray<float3>(1, Allocator.Persistent);
             _terrain = World.GetOrCreateSystem<TerrainSystem>();
             _tankAimSystem = World.GetOrCreateSystem<TankAimSystem>();
+        }
+
+        protected override void OnDestroy()
+        {
+            _playerPositionArray.Dispose();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -138,6 +152,7 @@ namespace JumpTheGun
                 TerrainSize = new int2(_options.terrainSizeX, _options.terrainSizeZ),
                 BlockHeights = _terrain.CachedBlockHeights,
                 IsBlockOccupied = _terrain.CachedIsBlockOccupied,
+                PlayerPositionCache = _playerPositionArray,
 
             }.Schedule(_playerQuery, inputDeps);
         }

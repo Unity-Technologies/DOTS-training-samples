@@ -20,7 +20,13 @@ namespace JumpTheGun
         //[BurstCompile] // TODO(@cort) Can't AddComponent in Burst yet
         struct UpdateCannonballJob : IJobForEachWithEntity<Translation, ArcState>
         {
-            public float3 PlayerCenterPosition;
+            public Entity PlayerEntity;
+
+            // This job reads Player Translation and writes Cannonball Translations. The safety system doesn't like that.
+            // Be quiet, safety system.
+            [NativeDisableContainerSafetyRestriction]
+            [ReadOnly] public ComponentDataFromEntity<Translation> PositionFromEntity;
+
             public float ElapsedTime;
             public int2 TerrainSize;
             public bool EnableInvincibility;
@@ -43,7 +49,8 @@ namespace JumpTheGun
                     const float COLLISION_DISTANCE_SQ =
                         (PLAYER_RADIUS + TankFireSystem.CANNONBALL_RADIUS) *
                         (PLAYER_RADIUS + TankFireSystem.CANNONBALL_RADIUS);
-                    if (math.lengthsq(cannonballPos.Value - PlayerCenterPosition) < COLLISION_DISTANCE_SQ)
+                    float3 playerCenterPosition = PositionFromEntity[PlayerEntity].Value + new float3(0,PLAYER_RADIUS,0);
+                    if (math.lengthsq(cannonballPos.Value - playerCenterPosition) < COLLISION_DISTANCE_SQ)
                     {
                         if (!EnableInvincibility)
                         {
@@ -92,12 +99,17 @@ namespace JumpTheGun
         }
 
         private EntityQuery _cannonballQuery;
+        private EntityQuery _playerQuery;
         private Options _options;
         private TerrainSystem _terrain;
         private BeginSimulationEntityCommandBufferSystem _barrier;
-        private PlayerPositionCacheSystem _playerPosCache;
         protected override void OnCreate()
         {
+            _playerQuery = GetEntityQuery(
+                ComponentType.ReadWrite<Translation>(),
+                ComponentType.ReadWrite<ArcState>(),
+                ComponentType.Exclude<Scale>()
+            );
             _cannonballQuery = GetEntityQuery(
                 ComponentType.ReadWrite<Translation>(),
                 ComponentType.ReadWrite<ArcState>(),
@@ -105,8 +117,6 @@ namespace JumpTheGun
             );
             _terrain = World.GetOrCreateSystem<TerrainSystem>();
             _barrier = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
-            _playerPosCache = World.GetOrCreateSystem<PlayerPositionCacheSystem>();
-
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -120,7 +130,8 @@ namespace JumpTheGun
             var blockHitCounts = new NativeArray<int>(_options.terrainSizeX * _options.terrainSizeZ, Allocator.TempJob);
             JobHandle outputJob = new UpdateCannonballJob
             {
-                PlayerCenterPosition = _playerPosCache.PlayerPosition + new float3(0,PLAYER_RADIUS,0),
+                PlayerEntity = _playerQuery.GetSingletonEntity(),
+                PositionFromEntity = GetComponentDataFromEntity<Translation>(true),
                 ElapsedTime = Time.time,
                 TerrainSize = new int2(_options.terrainSizeX, _options.terrainSizeZ),
                 EnableInvincibility = _options.invincibility,

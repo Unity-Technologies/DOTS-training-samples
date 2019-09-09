@@ -87,7 +87,8 @@ namespace JumpTheGun
 
         struct FireCannonballJob : IJobForEachWithEntity<LocalToWorld, TankFireCountdown, Rotation>
         {
-            public float3 PlayerPosition;
+            public Entity PlayerEntity;
+            [ReadOnly] public ComponentDataFromEntity<Translation> PositionFromEntity;
             [ReadOnly]
             public NativeArray<float> BlockHeights;
             [ReadOnly]
@@ -108,8 +109,9 @@ namespace JumpTheGun
                 if (countdown.SecondsUntilFire <= 0)
                 {
                     countdown.SecondsUntilFire = math.fmod(countdown.SecondsUntilFire, FirePeriod) + FirePeriod;
+                    float3 playerPosition = PositionFromEntity[PlayerEntity].Value;
                     // start and end positions
-                    int2 playerBoxCoords = TerrainSystem.PositionToBlockCoords(PlayerPosition.x, PlayerPosition.z, TerrainSize);
+                    int2 playerBoxCoords = TerrainSystem.PositionToBlockCoords(playerPosition.x, playerPosition.z, TerrainSize);
                     int playerBoxIndex = TerrainSystem.BlockCoordsToIndex(playerBoxCoords, TerrainSize);
                     float playerBoxHeight = BlockHeights[playerBoxIndex];
                     float3 startPos = math.mul(localToWorld.Value, new float4(0,0,0,1)).xyz;
@@ -207,13 +209,17 @@ namespace JumpTheGun
         
         private Options _options;
         private TerrainSystem _terrain;
-        private PlayerPositionCacheSystem _playerPosCache;
+        private EntityQuery _playerQuery;
         private BeginSimulationEntityCommandBufferSystem _barrier;
         protected override void OnCreate()
         {
             _terrain = World.GetOrCreateSystem<TerrainSystem>();
-            _playerPosCache = World.GetOrCreateSystem<PlayerPositionCacheSystem>();
             _barrier = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
+            _playerQuery = GetEntityQuery(
+                ComponentType.ReadWrite<Translation>(),
+                ComponentType.ReadWrite<ArcState>(),
+                ComponentType.Exclude<Scale>()
+            );
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -226,7 +232,8 @@ namespace JumpTheGun
             inputDeps = JobHandle.CombineDependencies(inputDeps, _terrain.UpdateCacheJob);
             JobHandle outputJob = new FireCannonballJob
             {
-                PlayerPosition = _playerPosCache.PlayerPosition,
+                PlayerEntity = _playerQuery.GetSingletonEntity(),
+                PositionFromEntity = GetComponentDataFromEntity<Translation>(true),
                 BlockHeights = _terrain.CachedBlockHeights,
                 BlockBoundingBoxes = _terrain.CachedBlockBoundingBoxes,
                 TerrainSize = _terrain.TerrainSize,
