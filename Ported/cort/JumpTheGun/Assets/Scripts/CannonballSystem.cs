@@ -17,7 +17,7 @@ namespace JumpTheGun
         private const float PLAYER_RADIUS = 0.3f;
         private const float BLOCK_HEIGHT_MIN = 0.5f;
 
-        //[BurstCompile] // TODO(@cort) Can't AddComponent in Burst yet
+        //[BurstCompile] // TODO(@cort) Can't record ECBs from Burst jobs yet
         struct UpdateCannonballJob : IJobForEachWithEntity<Translation, ArcState>
         {
             public Entity PlayerEntity;

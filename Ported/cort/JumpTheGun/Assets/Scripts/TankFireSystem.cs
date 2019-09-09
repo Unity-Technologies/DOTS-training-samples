@@ -85,6 +85,7 @@ namespace JumpTheGun
             return false;
         }
 
+        // [BurstCompile] // can't Burst yet, uses ECBs
         struct FireCannonballJob : IJobForEachWithEntity<LocalToWorld, TankFireCountdown, Rotation>
         {
             public Entity PlayerEntity;

@@ -13,7 +13,7 @@ namespace JumpTheGun
     [UpdateBefore(typeof(TransformSystemGroup))]
     public class BlockTransformSystem : JobComponentSystem
     {
-        //[BurstCompile] // Can't currently add/remove components in Burst jobs
+        //[BurstCompile] // Can't currently record ECBs in Burst jobs
         struct BlockTransformJob : IJobForEachWithEntity<BlockPositionXZ, BlockHeight, UpdateBlockTransformTag, LocalToWorld>
         {
             public EntityCommandBuffer.Concurrent CommandBuffer;
