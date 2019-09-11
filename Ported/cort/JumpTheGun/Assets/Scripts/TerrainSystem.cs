@@ -55,7 +55,7 @@ namespace JumpTheGun
         }
         
         // Jobs to generate terrain & cache data from scratch
-        //[BurstCompile] // TODO(@cort): Burst doesn't support ECB recording yet
+        [BurstCompile]
         struct GenerateTerrainJob : IJobParallelFor
         {
             public EntityCommandBuffer.Concurrent CommandBuffer;

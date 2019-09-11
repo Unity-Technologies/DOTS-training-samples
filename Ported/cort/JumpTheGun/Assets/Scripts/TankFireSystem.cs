@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -85,7 +86,7 @@ namespace JumpTheGun
             return false;
         }
 
-        // [BurstCompile] // can't Burst yet, uses ECBs
+        [BurstCompile]
         struct FireCannonballJob : IJobForEachWithEntity<LocalToWorld, TankFireCountdown, Rotation>
         {
             public Entity PlayerEntity;
