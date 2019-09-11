@@ -33,6 +33,8 @@ namespace JumpTheGun {
         public float SecondsUntilFire;
     };
 
+    // If an entity has this tag, a new game is started.
+    struct NewGameTag : IComponentData {} 
     // Marks blocks whose LocalToWorld matrix need to be updated after
     // their height changes.`
     struct UpdateBlockTransformTag : IComponentData {}
