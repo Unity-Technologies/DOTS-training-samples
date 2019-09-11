@@ -240,7 +240,7 @@ namespace JumpTheGun
                 BlockBoundingBoxes = _terrain.CachedBlockBoundingBoxes,
                 TerrainSize = _terrain.TerrainSize,
                 FirePeriod = _options.tankLaunchPeriod,
-                DeltaTime = Time.deltaTime,
+                DeltaTime = World.Time.DeltaTime,
                 ElapsedTime = Time.time,
                 CommandBuffer = _barrier.CreateCommandBuffer().ToConcurrent(),
                 CannonballPrefab = _cannonballPrefabEntity,
