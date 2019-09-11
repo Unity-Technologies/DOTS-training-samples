@@ -1,10 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using JumpTheGun;
+﻿using JumpTheGun;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 public class FollowPlayer : MonoBehaviour
 {
@@ -17,7 +14,7 @@ public class FollowPlayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _playerBounceSystem = World.Active.GetOrCreateSystem<PlayerBounceSystem>();
+        _playerBounceSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<PlayerBounceSystem>();
     }
 
     // Update is called once per frame
