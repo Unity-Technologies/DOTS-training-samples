@@ -19,9 +19,7 @@ namespace JumpTheGun
         protected override void OnCreate()
         {
             _playerQuery = GetEntityQuery(
-                ComponentType.ReadWrite<Translation>(),
-                ComponentType.ReadWrite<ArcState>(),
-                ComponentType.Exclude<Scale>()
+                ComponentType.ReadWrite<PlayerArcState>()
             );
             _newGameQuery = GetEntityQuery(ComponentType.ReadWrite<NewGameTag>());
             _tankFireSystem = World.GetOrCreateSystem<TankFireSystem>();

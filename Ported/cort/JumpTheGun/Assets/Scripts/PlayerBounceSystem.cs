@@ -18,7 +18,7 @@ namespace JumpTheGun
         private const float BOUNCE_BASE_DURATION = 0.7f;
 
         [BurstCompile]
-        struct UpdateBounceJob : IJobForEach<Translation, ArcState>
+        struct UpdateBounceJob : IJobForEach<Translation, PlayerArcState>
         {
             public float ElapsedTime;
             public int2 MouseBoxCoords;
@@ -31,10 +31,10 @@ namespace JumpTheGun
             [NativeDisableParallelForRestriction] // needs "random" write access (always to element 0)
             public NativeArray<float3> PlayerPositionCache;
 
-            public void Execute(ref Translation position, ref ArcState arc)
+            public void Execute(ref Translation position, ref PlayerArcState arc)
             {
-                float t = ElapsedTime - arc.StartTime;
-                if (t > arc.Duration)
+                float t = ElapsedTime - arc.Value.StartTime;
+                if (t > arc.Value.Duration)
                 {
                     // Compute the next arc info
                     int2 playerCoords = TerrainSystem.PositionToBlockCoords(position.Value.x, position.Value.z, TerrainSize);
@@ -81,23 +81,23 @@ namespace JumpTheGun
                     parabolaHeight += BOUNCE_HEIGHT;
 
                     Parabola.Create(playerBlockHeight, parabolaHeight, destBlockHeight,
-                        out arc.Parabola.x, out arc.Parabola.y, out arc.Parabola.z);
-                    arc.StartPos =
+                        out arc.Value.Parabola.x, out arc.Value.Parabola.y, out arc.Value.Parabola.z);
+                    arc.Value.StartPos =
                         TerrainSystem.BlockCoordsToPosition(playerCoords, playerBlockHeight, TerrainSize);
-                    arc.EndPos =
+                    arc.Value.EndPos =
                         TerrainSystem.BlockCoordsToPosition(destCoords, destBlockHeight, TerrainSize);
-                    arc.StartTime = ElapsedTime;
+                    arc.Value.StartTime = ElapsedTime;
                     float distance = math.distance(playerCoords, destCoords);
-                    arc.Duration = math.max(1, distance) * BOUNCE_BASE_DURATION;
+                    arc.Value.Duration = math.max(1, distance) * BOUNCE_BASE_DURATION;
                 }
                 else
                 {
                     // Get the current height along the parabola
-                    float s = t / arc.Duration;
+                    float s = t / arc.Value.Duration;
                     position.Value = new float3(
-                        math.lerp(arc.StartPos.x, arc.EndPos.x, s),
-                        Parabola.Solve(arc.Parabola.x, arc.Parabola.y, arc.Parabola.z, s),
-                        math.lerp(arc.StartPos.z, arc.EndPos.z, s)
+                        math.lerp(arc.Value.StartPos.x, arc.Value.EndPos.x, s),
+                        Parabola.Solve(arc.Value.Parabola.x, arc.Value.Parabola.y, arc.Value.Parabola.z, s),
+                        math.lerp(arc.Value.StartPos.z, arc.Value.EndPos.z, s)
                     );
                 }
 
@@ -109,19 +109,15 @@ namespace JumpTheGun
         private EntityQuery _playerQuery;
         private Options _options;
         private TerrainSystem _terrain;
-        private TankAimSystem _tankAimSystem;
         private NativeArray<float3> _playerPositionArray;
         public float3 PlayerPosition => _playerPositionArray[0];
         protected override void OnCreate()
         {
             _playerQuery = GetEntityQuery(
-                ComponentType.ReadWrite<Translation>(),
-                ComponentType.ReadWrite<ArcState>(),
-                ComponentType.Exclude<Scale>()
+                ComponentType.ReadWrite<PlayerArcState>()
             );
             _playerPositionArray = new NativeArray<float3>(1, Allocator.Persistent);
             _terrain = World.GetOrCreateSystem<TerrainSystem>();
-            _tankAimSystem = World.GetOrCreateSystem<TankAimSystem>();
         }
 
         protected override void OnDestroy()
@@ -154,7 +150,7 @@ namespace JumpTheGun
                 IsBlockOccupied = _terrain.CachedIsBlockOccupied,
                 PlayerPositionCache = _playerPositionArray,
 
-            }.Schedule(_playerQuery, inputDeps);
+            }.Schedule(this, inputDeps);
         }
     }
 }

@@ -19,7 +19,7 @@ namespace JumpTheGun
         private const float BLOCK_HEIGHT_MIN = 0.5f;
 
         [BurstCompile]
-        struct UpdateCannonballJob : IJobForEachWithEntity<Translation, ArcState>
+        struct UpdateCannonballJob : IJobForEachWithEntity<Translation, CannonballArcState>
         {
             public Entity PlayerEntity;
 
@@ -41,10 +41,10 @@ namespace JumpTheGun
             public float BoxHeightDamage;
             public EntityCommandBuffer.Concurrent CommandBuffer;
 
-            public unsafe void Execute(Entity entity, int entityIndex, ref Translation cannonballPos, ref ArcState arc)
+            public unsafe void Execute(Entity entity, int entityIndex, ref Translation cannonballPos, ref CannonballArcState arc)
             {
-                float t = ElapsedTime - arc.StartTime;
-                if (t >= 0 && t < arc.Duration)
+                float t = ElapsedTime - arc.Value.StartTime;
+                if (t >= 0 && t < arc.Value.Duration)
                 {
                     // Test for collisions with the player
                     const float COLLISION_DISTANCE_SQ =
@@ -62,14 +62,14 @@ namespace JumpTheGun
                     }
                     
                     // Get the current height along the parabola & update cannonball pos
-                    float s = t / arc.Duration;
+                    float s = t / arc.Value.Duration;
                     cannonballPos.Value = new float3(
-                        math.lerp(arc.StartPos.x, arc.EndPos.x, s),
-                        Parabola.Solve(arc.Parabola.x, arc.Parabola.y, arc.Parabola.z, s),
-                        math.lerp(arc.StartPos.z, arc.EndPos.z, s)
+                        math.lerp(arc.Value.StartPos.x, arc.Value.EndPos.x, s),
+                        Parabola.Solve(arc.Value.Parabola.x, arc.Value.Parabola.y, arc.Value.Parabola.z, s),
+                        math.lerp(arc.Value.StartPos.z, arc.Value.EndPos.z, s)
                     );
                 }
-                else if (t >= arc.Duration)
+                else if (t >= arc.Value.Duration)
                 {
                     // Cannonball has reached the end of its path; damage the block it hit
                     // TODO(@cort): If the destination block has been damaged/lowered since the shot was fired, the shot will "land" in the air above the block. Original game does this too.
@@ -97,7 +97,6 @@ namespace JumpTheGun
             }
         }
 
-        private EntityQuery _cannonballQuery;
         private EntityQuery _playerQuery;
         private Options _options;
         private TerrainSystem _terrain;
@@ -105,14 +104,7 @@ namespace JumpTheGun
         protected override void OnCreate()
         {
             _playerQuery = GetEntityQuery(
-                ComponentType.ReadWrite<Translation>(),
-                ComponentType.ReadWrite<ArcState>(),
-                ComponentType.Exclude<Scale>()
-            );
-            _cannonballQuery = GetEntityQuery(
-                ComponentType.ReadWrite<Translation>(),
-                ComponentType.ReadWrite<ArcState>(),
-                ComponentType.ReadWrite<Scale>()
+                ComponentType.ReadWrite<PlayerArcState>()
             );
             _terrain = World.GetOrCreateSystem<TerrainSystem>();
             _barrier = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
@@ -139,7 +131,7 @@ namespace JumpTheGun
                 BlockHitCounts = blockHitCounts,
                 BoxHeightDamage = _options.boxHeightDamage,
                 CommandBuffer = _barrier.CreateCommandBuffer().ToConcurrent(),
-            }.Schedule(_cannonballQuery, inputDeps);
+            }.Schedule(this, inputDeps);
             _barrier.AddJobHandleForProducer(outputJob);
             return outputJob;
         }

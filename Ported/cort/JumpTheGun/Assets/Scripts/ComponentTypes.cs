@@ -19,13 +19,20 @@ namespace JumpTheGun {
         public int Value;
     }
 
-    struct ArcState : IComponentData
+    struct ArcState
     {
         public float3 Parabola; // a, b, c parameters
         public float StartTime;
         public float Duration;
         public float3 StartPos;
         public float3 EndPos;
+    }
+    struct PlayerArcState : IComponentData
+    {
+        public ArcState Value;
+    }
+    struct CannonballArcState : IComponentData {
+        public ArcState Value;
     }
 
     struct TankFireCountdown : IComponentData

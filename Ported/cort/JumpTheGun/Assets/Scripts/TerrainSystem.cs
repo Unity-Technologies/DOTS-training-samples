@@ -206,7 +206,7 @@ namespace JumpTheGun
                 int tankCount = math.min(_options.tankCount, (_options.terrainSizeX * _options.terrainSizeZ - playerCount));
                 int spawnCount = tankCount + playerCount;
                 EntityArchetype playerArchetype =
-                    EntityManager.CreateArchetype(typeof(Translation), typeof(ArcState), typeof(LocalToWorld), typeof(RenderMesh));
+                    EntityManager.CreateArchetype(typeof(Translation), typeof(PlayerArcState), typeof(LocalToWorld), typeof(RenderMesh));
                 EntityArchetype tankBaseArchetype =
                     EntityManager.CreateArchetype(typeof(Translation), typeof(Rotation), typeof(LocalToWorld), typeof(RenderMesh),
                         typeof(TankBaseTag));
@@ -243,9 +243,12 @@ namespace JumpTheGun
                         EntityManager.SetSharedComponentData(player, _options.playerLook.Value);
                         float3 playerStartPos = new float3(x, blockHeight, z);
                         EntityManager.SetComponentData(player, new Translation {Value = playerStartPos});
-                        EntityManager.SetComponentData(player, new ArcState
+                        EntityManager.SetComponentData(player, new PlayerArcState
                         {
-                            StartTime = float.MinValue, // force a new bounce on the first frame
+                            Value = new ArcState
+                            {
+                                StartTime = float.MinValue, // force a new bounce on the first frame
+                            }
                         });
                     }
                     else

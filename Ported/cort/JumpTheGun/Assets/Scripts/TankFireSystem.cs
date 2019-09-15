@@ -173,13 +173,16 @@ namespace JumpTheGun
 
                     Entity ballEntity = CommandBuffer.Instantiate(index, CannonballPrefab);
                     CommandBuffer.SetComponent(index, ballEntity, new Translation {Value = startPos});
-                    CommandBuffer.SetComponent(index, ballEntity, new ArcState
+                    CommandBuffer.SetComponent(index, ballEntity, new CannonballArcState
                     {
-                        Parabola = new float3(paraA, paraB, paraC),
-                        StartTime = ElapsedTime,
-                        Duration = duration,
-                        StartPos = startPos,
-                        EndPos = endPos,
+                        Value = new ArcState
+                        {
+                            Parabola = new float3(paraA, paraB, paraC),
+                            StartTime = ElapsedTime,
+                            Duration = duration,
+                            StartPos = startPos,
+                            EndPos = endPos,
+                        },
                     });
 
                     // set cannon rotation
@@ -198,7 +201,7 @@ namespace JumpTheGun
         public void CreateCannonballPrefab()
         {
             EntityArchetype cannonballPrefabArchetype = EntityManager.CreateArchetype(
-                typeof(Translation), typeof(Scale), typeof(LocalToWorld), typeof(ArcState), typeof(RenderMesh), typeof(Prefab));
+                typeof(Translation), typeof(Scale), typeof(LocalToWorld), typeof(CannonballArcState), typeof(RenderMesh), typeof(Prefab));
             _cannonballPrefabEntity = EntityManager.CreateEntity(cannonballPrefabArchetype);
             EntityManager.SetComponentData(_cannonballPrefabEntity,
                 new Scale {Value = CANNONBALL_RADIUS});
@@ -218,9 +221,7 @@ namespace JumpTheGun
             _terrain = World.GetOrCreateSystem<TerrainSystem>();
             _barrier = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
             _playerQuery = GetEntityQuery(
-                ComponentType.ReadWrite<Translation>(),
-                ComponentType.ReadWrite<ArcState>(),
-                ComponentType.Exclude<Scale>()
+                ComponentType.ReadWrite<PlayerArcState>()
             );
         }
 

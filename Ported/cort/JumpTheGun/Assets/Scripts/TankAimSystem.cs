@@ -1,11 +1,9 @@
-﻿using System;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine.Assertions;
 
 namespace JumpTheGun
 {
@@ -30,9 +28,7 @@ namespace JumpTheGun
         protected override void OnCreate()
         {
             _playerQuery = GetEntityQuery(
-                ComponentType.ReadWrite<Translation>(),
-                ComponentType.ReadWrite<ArcState>(),
-                ComponentType.Exclude<Scale>()
+                ComponentType.ReadWrite<PlayerArcState>()
             );
         }
 
