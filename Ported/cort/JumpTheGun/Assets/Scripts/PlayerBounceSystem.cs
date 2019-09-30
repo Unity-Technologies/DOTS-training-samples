@@ -106,16 +106,12 @@ namespace JumpTheGun
             }
         }
 
-        private EntityQuery _playerQuery;
         private Options _options;
         private TerrainSystem _terrain;
         private NativeArray<float3> _playerPositionArray;
         public float3 PlayerPosition => _playerPositionArray[0];
         protected override void OnCreate()
         {
-            _playerQuery = GetEntityQuery(
-                ComponentType.ReadWrite<PlayerArcState>()
-            );
             _playerPositionArray = new NativeArray<float3>(1, Allocator.Persistent);
             _terrain = World.GetOrCreateSystem<TerrainSystem>();
         }
