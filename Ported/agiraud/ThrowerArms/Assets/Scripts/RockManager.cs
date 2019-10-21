@@ -57,7 +57,7 @@ public class RockManager : MonoBehaviour {
 		for (int i = 0; i < rockCount; i++) {
 			Rock rock = new Rock();
 			rock.position = basePos + Vector3.right*spacing*i;
-			rock.state = Rock.State.Conveyor;
+			rock.rockState = RockState.Conveyor;
 			rock.targetSize = Random.Range(minRockSize,maxRockSize);
 			rock.size = 0f;
 			matrices[i] = Matrix4x4.TRS(rock.position,Quaternion.identity,Vector3.one*rock.size);
@@ -73,13 +73,13 @@ public class RockManager : MonoBehaviour {
 			// cheesy and fps-dependent
 			rock.size += (rock.targetSize - rock.size) * 3f * Time.deltaTime;
 
-			if (rock.state==Rock.State.Conveyor) {
+			if (rock.rockState==RockState.Conveyor) {
 				rock.position.x += conveyorSpeed * Time.deltaTime;
 				if (rock.position.x>maxConveyorX) {
 					rock.position.x -= ArmManager.armRowWidth+conveyorMargin*2f;
 					rock.size = 0f;
 				}
-			} else if (rock.state==Rock.State.Thrown) {
+			} else if (rock.rockState==RockState.Thrown) {
 				rock.position += rock.velocity * Time.deltaTime;
 				rock.velocity += Vector3.up * -gravityStrength * Time.deltaTime;
 
@@ -92,7 +92,7 @@ public class RockManager : MonoBehaviour {
 				}
 
 				if (rock.position.y<-5f) {
-					rock.state = Rock.State.Conveyor;
+					rock.rockState = RockState.Conveyor;
 					conveyorRocks.Add(rock);
 					rock.position = new Vector3(Random.Range(minConveyorX,maxConveyorX),0f,1.5f);
 					rock.size = 0f;

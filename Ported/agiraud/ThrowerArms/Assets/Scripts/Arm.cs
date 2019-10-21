@@ -181,7 +181,7 @@ public class Arm : MonoBehaviour {
 						// we've arrived at the rock - pick it up
 						heldRock = intendedRock;
 						RockManager.RemoveFromConveyor(heldRock);
-						heldRock.state = Rock.State.Held;
+						heldRock.rockState = RockState.Held;
 						// remember the rock's position in "hand space"
 						// (so we can position the rock while holding it)
 						heldRockOffset = handMatrix.inverse.MultiplyPoint3x4(heldRock.position);
@@ -259,7 +259,7 @@ public class Arm : MonoBehaviour {
 				if (throwTimer > .15f && heldRock != null) {
 					// release the rock
 					heldRock.reserved = false;
-					heldRock.state = Rock.State.Thrown;
+					heldRock.rockState = RockState.Thrown;
 					heldRock.velocity = aimVector;
 					heldRock = null;
 				}
