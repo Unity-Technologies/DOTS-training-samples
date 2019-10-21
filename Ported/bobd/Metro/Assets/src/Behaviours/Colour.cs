@@ -12,9 +12,13 @@ public class Colour {
 	public static void RecolourChildren(Transform _target, Color _newColour)
 	{
 		Renderer[] renderers = _target.GetComponentsInChildren<Renderer>();
+        MaterialPropertyBlock mpb = new MaterialPropertyBlock();
+        mpb.SetColor("_Color", _newColour);
+
 		for (int i = 0; i < renderers.Length; i++)
 		{
-			renderers[i].material.color = _newColour;
+            renderers[i].SetPropertyBlock(mpb);
+			//renderers[i].material.color = _newColour;
 		}
 	}
 }

@@ -72,8 +72,9 @@ public class Commuter : MonoBehaviour
         acceleration = ACCELERATION_STRENGTH * Random.Range(0.8f, 2f);
 
         // random Colour
-        body.GetComponent<Renderer>().material.color =
-            new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
+        MaterialPropertyBlock mpb = new MaterialPropertyBlock();
+        mpb.SetColor("_Color", new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f)));
+        body.GetComponent<Renderer>().SetPropertyBlock(mpb);
     }
 
     public void Init(Platform _platform_START, Platform _platform_DESTINATION)

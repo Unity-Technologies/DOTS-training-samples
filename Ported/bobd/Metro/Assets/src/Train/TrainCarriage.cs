@@ -58,7 +58,9 @@ public class TrainCarriage : MonoBehaviour
         {
             foreach (Renderer _R in _GO.GetComponentsInChildren<Renderer>())
             {
-                _R.material.color = _lineColour;
+                MaterialPropertyBlock mpb = new MaterialPropertyBlock();
+                mpb.SetColor("_Color", _lineColour);
+                _R.SetPropertyBlock(mpb);
             }
         }
     }
