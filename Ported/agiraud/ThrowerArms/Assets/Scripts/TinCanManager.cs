@@ -13,7 +13,7 @@ public class TinCanManager : MonoBehaviour {
 
 	Matrix4x4[] matrices;
 
-	const int canCount = 100;
+	const int canCount = 1000;
 
 	static TinCanManager instance;
 
