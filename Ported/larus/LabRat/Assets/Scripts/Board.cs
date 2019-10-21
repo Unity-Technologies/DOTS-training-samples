@@ -219,7 +219,7 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 			cellSize = boardDesc.cellSize
 		});
 
-		var cellBuf = dstManager.AddBuffer<CellComponent>(entity);
+		var boardSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<BoardSystem>();
 		for (int i = 0; i < cells.Length; ++i)
 		{
 			var cell = cells[i];
@@ -235,9 +235,12 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 					y = 0;
 					x = cells[i-1].coord.x + 1;
 				}
-				cellBuf.Add(new CellComponent {index = CoordToIndex(new Vector2Int(x, y)), data = cellData});
+				var index = CoordToIndex(new Vector2Int(x, y));
+				boardSystem.CellMap.Add(index, new CellComponent {index = index, data = cellData});
 				continue;
 			}
+
+			// Mark walls planted on the cell
 			if (cell.HasWall(Direction.North))
 				cellData = cellData | CellData.WallNorth;
 			if (cell.HasWall(Direction.South))
@@ -246,16 +249,52 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 				cellData = cellData | CellData.WallWest;
 			if (cell.HasWall(Direction.West))
 				cellData = cellData | CellData.WallEast;
+
+			// Mark walls planted on the cell neighbors in each direction
+			Cell neighborCell;
+			var neighborCoord = cell.coord + Vector2Int.up;
+			if (neighborCoord.y < boardDesc.size.y)
+			{
+				neighborCell = CellAtCoord(neighborCoord);
+				if (neighborCell.HasWall(Direction.South))
+					cellData = cellData | CellData.WallNorth;
+			}
+
+			neighborCoord = cell.coord + Vector2Int.down;
+			if (neighborCoord.y >= 0)
+			{
+				neighborCell = CellAtCoord(neighborCoord);
+				if (neighborCell.HasWall(Direction.North))
+					cellData = cellData | CellData.WallSouth;
+			}
+
+			neighborCoord = cell.coord + Vector2Int.left;
+			neighborCell = CellAtCoord(neighborCoord);
+			if (neighborCoord.x >= 0)
+			{
+				if (neighborCell.HasWall(Direction.East))
+					cellData = cellData | CellData.WallEast;
+			}
+
+			neighborCoord = cell.coord + Vector2Int.right;
+			if (neighborCoord.x < boardDesc.size.x)
+			{
+				neighborCell = CellAtCoord(neighborCoord);
+				if (neighborCell.HasWall(Direction.West))
+					cellData = cellData | CellData.WallWest;
+			}
+
 			if (cell.Homebase != null)
 			{
-				cellData = cellData & CellData.HomeBase;
-				// TODO: Set cell index => homebase player ID lookup
+				cellData = cellData | CellData.HomeBase;
+				boardSystem.HomeBase.Add(i, cell.Homebase.playerData.playerIndex);
 			}
 
 			if (cellData != 0)
 			{
 				//Debug.Log("Set data for " + CoordToIndex(cell.coord)  + " coord=" + cell.coord.x + "," + cell.coord.y + " data=" + cellData);
-				cellBuf.Add(new CellComponent {index = CoordToIndex(cell.coord), data = cellData});
+				var index = CoordToIndex(cell.coord);
+				boardSystem.CellMap.Add(index, new CellComponent {index = index, data = cellData});
 			}
 		}
 	}

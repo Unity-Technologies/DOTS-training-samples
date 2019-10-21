@@ -21,7 +21,8 @@ public class WalkSystem : ComponentSystem
 	{
 		var gameConfig = m_ConfigQuery.GetSingleton<GameConfigComponent>();
 		var board = m_BoardQuery.GetSingleton<BoardDataComponent>();
-		var cellData = EntityManager.GetBuffer<CellComponent>(m_BoardQuery.GetSingletonEntity());
+		var cellMap = World.GetExistingSystem<BoardSystem>().CellMap;
+		var homebaseMap = World.GetExistingSystem<BoardSystem>().HomeBase;
 
 		//var job =
 		//Entities.ForEach((Entity entity, in ref WalkComponent walker, ref Translation position, ref Rotation rotation) =>
@@ -29,7 +30,7 @@ public class WalkSystem : ComponentSystem
 		{
 			//float3 fwd = new float3(0, 0, 1);
 			//float3 fwd = new float3(0, 0, walker.Speed);
-			//fwd += math.mul(rotation.Value, fwd);
+			//fwd = math.mul(rotation.Value, fwd);
 			float3 fwd = ForwardVectorFromRotation(rotation.Value);
 
 			//if (!board || state == State.Dead)
@@ -101,7 +102,7 @@ public class WalkSystem : ComponentSystem
 					var localPt = new float2(position.Value.x, position.Value.z);
 					localPt += board.cellSize * 0.5f; // offset by half cellsize
 					var cellCoord = new float2(Mathf.FloorToInt(localPt.x / board.cellSize.x), Mathf.FloorToInt(localPt.y / board.cellSize.y));
-					var cellIndex = cellCoord.y * board.size.x + cellCoord.x;
+					var cellIndex = (int)(cellCoord.y * board.size.x + cellCoord.x);
 
 					if (cellIndex >= board.size.x * board.size.y)
 					{
@@ -112,15 +113,7 @@ public class WalkSystem : ComponentSystem
 
 					//Debug.Log("On idx=" + cellIndex + " coord=" + cellCoord.x + "," + cellCoord.y + " pos=" + position.Value.x + "," + position.Value.y);
 					CellComponent cell = new CellComponent{index = -1};
-					for (int i = 0; i < cellData.Length; ++i)
-					{
-						if (cellData[i].index == cellIndex)
-						{
-							cell = cellData[i];
-							//Debug.Log("Found cell with stuff on it " + cell.data);
-							break;
-						}
-					}
+					cellMap.TryGetValue(cellIndex, out cell);
 
 					var newDirection = myDirection;
 					// Nothing on this cell, no change to direction
@@ -134,32 +127,22 @@ public class WalkSystem : ComponentSystem
 						return;
 					}
 
-					/*if ((cell.data & CellData.WallNorth) == CellData.WallNorth)
-						newDirection = Direction.North;
-					else if ((cell.data & CellData.WallSouth) == CellData.WallSouth)
-						newDirection = Direction.South;
-					else if ((cell.data & CellData.WallEast) == CellData.WallEast)
-						newDirection = Direction.East;
-					else if ((cell.data & CellData.WallWest) == CellData.WallWest)
-						newDirection = Direction.West;*/
+					if ((cell.data & CellData.HomeBase) == CellData.HomeBase)
+					{
+						var playerId = homebaseMap[cellIndex];
+						PostUpdateCommands.DestroyEntity(entity);
+						PlayerCursor.GetPlayerData(playerId).mouseCount++;
+						// TODO: Handle cat properly
+						continue;
+					}
+
 					var y = Mathf.Floor(cell.index / (board.size.x * board.size.y));
 					var x = cell.index % (board.size.x * board.size.y);
 					var neighborCellCoord = new Vector2(x, y) + Cell.WallDirections[(int) myDirection];
 					var neighborCellIndex = (int)(neighborCellCoord.y * board.size.x + neighborCellCoord.x);
 					CellComponent neighborCell = new CellComponent{index = -1};
-					for (int i = 0; i < cellData.Length; ++i)
-					{
-						if (cellData[i].index == neighborCellIndex)
-						{
-							neighborCell = cellData[i];
-							break;
-						}
-					}
+					cellMap.TryGetValue(neighborCellIndex, out neighborCell);
 					newDirection = ShouldRedirect(cell, neighborCell, myDirection, gameConfig.DiminishesArrows);
-
-					// null == falling
-					//if (cell == null)
-					    //return;
 
 					//newDirection = cell.ShouldRedirect(myDirection, gameConfig.DiminishesArrows);
 
@@ -318,15 +301,27 @@ public class WalkSystem : ComponentSystem
 			myDirection = arrowDirection;
 		}*/
 
-		if (HasWallOrNeighborWall(cell, neighborCell, myDirection)) {
+		if (HasWall(cell, myDirection))
+		{
+			myDirection = Cell.DirectionWhenHitWall(myDirection);
+			if (HasWall(cell, myDirection))
+			{
+				myDirection = Cell.OppositeDirection(myDirection);
+				if (HasWall(cell, myDirection))
+					myDirection = Cell.DirectionWhenHitWall(myDirection, 3);
+			}
+		}
+
+		/*if (HasWallOrNeighborWall(cell, neighborCell, myDirection)) {
 			myDirection = Cell.DirectionWhenHitWall(myDirection);
 			if (HasWallOrNeighborWall(cell, neighborCell, myDirection)) {
 				myDirection = Cell.OppositeDirection(myDirection);
 				if (HasWallOrNeighborWall(cell, neighborCell, myDirection)) {
 					myDirection = Cell.OppositeDirection(myDirection);
+					myDirection = Cell.DirectionWhenHitWall(myDirection);
 				}
 			}
-		}
+		}*/
 		return myDirection;
 	}
 
