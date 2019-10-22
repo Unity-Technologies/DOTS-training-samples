@@ -118,17 +118,6 @@ public class Pathfinding
         ValidateMultipleConnection(path5To0, new []{Path.Method.Walk, Path.Method.Train}, new []{4, 0});
     }
 
-    [Test]
-    public void OneStationOnePlatformAndTwoStationsTwoPlatforms()
-    {
-        SetupPlatform(pl0, null, pl2, new List<Platform>());
-        SetupPlatform(pl1, pl0, pl5, new List<Platform>());
-        SetupPlatform(pl2, pl3, pl4, new List<Platform>());
-        SetupPlatform(pl3, pl2, pl1, new List<Platform>());
-        SetupPlatform(pl4, pl5, pl0, new List<Platform>());
-        SetupPlatform(pl5, pl4, pl3, new List<Platform>());
-    }
-
     static void ValidateSingleConnection(Path.Connection[] connections, Path.Method expectedMethod, int expectedDestinationId)
     {
         Assert.That(connections.Length, Is.EqualTo(1));
