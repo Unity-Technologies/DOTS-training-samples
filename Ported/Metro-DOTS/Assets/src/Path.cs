@@ -112,13 +112,16 @@ public static class Path
         var _PREV_PLATFORM = pB.temporary_accessedViaPlatform;
         //Debug.Log(commuters.Count +  ", start: " + pA.GetFullName() + "Dest: " + pB.GetFullName() + ",  b prev: ");
         var _TASK_LIST = new List<CommuterTask>();
-        var _walkTask = new CommuterTask(CommuterState.WALK)
-        {
-            startPlatform = _PREV_PLATFORM,
-            endPlatform = _CURRENT_PLATFORM
-        };
+
         while (_CURRENT_PLATFORM != pA)
         {
+
+            var _walkTask = new CommuterTask(CommuterState.WALK)
+            {
+                startPlatform = _PREV_PLATFORM,
+                endPlatform = _CURRENT_PLATFORM
+            };
+
             // if this is _B (the destination, and we arrived by rail, it's safe to get off)
             if (_CURRENT_PLATFORM == pB && _CURRENT_PLATFORM.temporary_connectionType == CommuterState.GET_OFF_TRAIN)
             {
