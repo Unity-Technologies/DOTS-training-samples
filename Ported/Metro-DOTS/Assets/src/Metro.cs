@@ -168,14 +168,14 @@ public class Metro : MonoBehaviour
                 }
             }
         }
-
+/*
         foreach (Platform _P in allPlatforms)
         {
             foreach (Platform _ADJ in _P.adjacentPlatforms)
             {
                 Debug.Log(_P.GetFullName() + " -- " + _ADJ.GetFullName());
             }
-        }
+        }*/
     }
 
     private bool Positions_Are_Adjacent(Vector3 _A, Vector3 _B)
