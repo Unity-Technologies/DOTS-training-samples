@@ -109,8 +109,11 @@ public class Metro : MonoBehaviour
         Update_Commuters();
     }
 
+    public static int platformCounter;
+
     public void SetupMetroLines()
     {
+        platformCounter = 0;
         totalLines = LineNames.Length;
         metroLines = new MetroLine[totalLines];
         for (int i = 0; i < totalLines; i++)

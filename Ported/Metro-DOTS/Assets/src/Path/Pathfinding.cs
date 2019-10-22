@@ -46,8 +46,14 @@ public static class Pathfinding
                 if (platform1 != platform2)
                 {
                     var shortestRoute = ShortestRoute(platform1, platform2, platformsList);
+                    if (shortestRoute == null)
+                        continue;
                     var connections = CommuterTasksToConnections(shortestRoute).ToArray();
                     var pathId = new PathId { fromPlatformId = platform1.platformIndex, toPlatformId = platform2.platformIndex };
+                    if (pathLookup.ContainsKey(pathId))
+                    {
+                        Debug.LogFormat("Path exists: From {0} To {1}", pathId.fromPlatformId, pathId.toPlatformId);
+                    }
                     pathLookup.Add(pathId, connections);
                 }
             }

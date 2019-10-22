@@ -144,7 +144,7 @@ public class MetroLine
         for (int i = 0; i < platforms.Count; i++)
         {
             Platform _P = platforms[i];
-            _P.platformIndex = i;
+            _P.platformIndex = Metro.platformCounter++;
             _P.nextPlatform = platforms[(i + 1) % platforms.Count];
         }
 
