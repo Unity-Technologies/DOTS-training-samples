@@ -10,40 +10,40 @@ public class SpawnSystem : ComponentSystem
     protected override void OnUpdate()
     {
         var gameConfig = GetEntityQuery(typeof(GameConfigComponent)).GetSingleton<GameConfigComponent>();
-        //var time = Time.ElapsedTime;
+        var time = Time.time;
         Entities.ForEach((Entity entity, ref SpawnerComponent spawner, ref Translation position, ref Rotation rotation) =>
         {
-            /*if (spawner.Timer - (float)time <= 0)
+            if (spawner.AlternatePrefab != Entity.Null && spawner.Timer - time >= 0)
             {
                 if (spawner.InAlternate)
                 {
-                    Debug.Log("Spawning cat");
+                    //Debug.Log("Spawning alternate");
                     // TODO: Spawn Cat
-                    spawner.Timer = (float) time + Random.Range(1.0f, 3.0f);
+                    spawner.Timer = time + Random.Range(1.0f, 3.0f);
                     spawner.InAlternate = false;
                 }
                 else
                 {
-                    spawner.Timer = (float) time + Random.Range(4.0f, 15.0f);
+                    spawner.Timer = time + Random.Range(4.0f, 15.0f);
                     spawner.InAlternate = true;
                 }
-            }*/
+            }
 
-
-            if (spawner.InAlternate || spawner.TotalSpawned >= spawner.Max)
+            if (spawner.TotalSpawned >= spawner.Max || spawner.InAlternate)
                 return;
 
             spawner.Counter += Time.deltaTime;
             //bool didSpawn = false;
-            while (spawner.Counter > spawner.Frequency) {
+            while (spawner.Counter > spawner.Frequency || spawner.TotalSpawned == 0) {
                 spawner.Counter -= spawner.Frequency;
                 spawner.TotalSpawned++;
 
-                var mouseSpeed = gameConfig.Speed.RandomValue();
+                // TODO: Figure out why mice are slow here (avoid 4x multiplier)
+                var speed = gameConfig.Speed.RandomValue() * 4;
 
-                //Debug.Log("Spawning mouse");
+                //Debug.Log("Spawning " + spawner.Prefab + " counter=" + spawner.Counter + " totalSpawned=" + spawner.TotalSpawned + " max=" + spawner.Max);
                 var rat = PostUpdateCommands.Instantiate(spawner.Prefab);
-                PostUpdateCommands.SetComponent(rat, new WalkComponent{Speed = mouseSpeed});
+                PostUpdateCommands.SetComponent(rat, new WalkComponent{Speed = speed});
                 PostUpdateCommands.SetComponent(rat, new Translation{Value = position.Value});
                 PostUpdateCommands.SetComponent(rat, new Rotation{Value = rotation.Value});
                 //didSpawn = true;

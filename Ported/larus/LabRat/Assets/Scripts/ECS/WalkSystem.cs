@@ -22,7 +22,8 @@ public class WalkSystem : ComponentSystem
 		var gameConfig = m_ConfigQuery.GetSingleton<GameConfigComponent>();
 		var board = m_BoardQuery.GetSingleton<BoardDataComponent>();
 		var cellMap = World.GetExistingSystem<BoardSystem>().CellMap;
-		var homebaseMap = World.GetExistingSystem<BoardSystem>().HomeBase;
+		var homebaseMap = World.GetExistingSystem<BoardSystem>().HomeBaseMap;
+		var catMap = World.GetExistingSystem<BoardSystem>().CatMap;
 
 		//var job =
 		//Entities.ForEach((Entity entity, in ref WalkComponent walker, ref Translation position, ref Rotation rotation) =>
@@ -77,7 +78,8 @@ public class WalkSystem : ComponentSystem
 					// TODO: seems this always resets position to ~0,0,0
 					// Round position values for checking the board. This is so that
 					// we collide with arrows and walls at the right time.
-					/*switch (myDirection)
+					position.Value = newPos;
+					switch (myDirection)
 					{
 						case Direction.North:
 							newPos.z = Mathf.Floor(newPos.z);
@@ -93,13 +95,12 @@ public class WalkSystem : ComponentSystem
 							break;
 						default:
 							throw new System.ArgumentOutOfRangeException(myDirection.ToString());
-					}*/
-					position.Value = newPos;
+					}
 
 					//var vect = new Vector3 {x = position.Value.x, y = position.Value.y, z = position.Value.z};
 					//var cell = m_Board.CellAtWorldPosition(vect);
 
-					var localPt = new float2(position.Value.x, position.Value.z);
+					var localPt = new float2(newPos.x, newPos.z);
 					localPt += board.cellSize * 0.5f; // offset by half cellsize
 					var cellCoord = new float2(Mathf.FloorToInt(localPt.x / board.cellSize.x), Mathf.FloorToInt(localPt.y / board.cellSize.y));
 					var cellIndex = (int)(cellCoord.y * board.size.x + cellCoord.x);
@@ -112,37 +113,22 @@ public class WalkSystem : ComponentSystem
 					}
 
 					//Debug.Log("On idx=" + cellIndex + " coord=" + cellCoord.x + "," + cellCoord.y + " pos=" + position.Value.x + "," + position.Value.y);
-					CellComponent cell = new CellComponent{index = -1};
-					cellMap.TryGetValue(cellIndex, out cell);
+					CellComponent cell = new CellComponent();
 
 					var newDirection = myDirection;
 					// Nothing on this cell, no change to direction
-					if (cell.index != -1)
+					if (!cellMap.TryGetValue(cellIndex, out cell))
 					{
 						newDirection = myDirection;
+						return;
 					}
-					else if ((cell.data & CellData.Hole) == CellData.Hole)
+					if ((cell.data & CellData.Hole) == CellData.Hole)
 					{
 						Debug.Log("Fell into hole");
 						return;
 					}
 
-					if ((cell.data & CellData.HomeBase) == CellData.HomeBase)
-					{
-						var playerId = homebaseMap[cellIndex];
-						PostUpdateCommands.DestroyEntity(entity);
-						PlayerCursor.GetPlayerData(playerId).mouseCount++;
-						// TODO: Handle cat properly
-						continue;
-					}
-
-					var y = Mathf.Floor(cell.index / (board.size.x * board.size.y));
-					var x = cell.index % (board.size.x * board.size.y);
-					var neighborCellCoord = new Vector2(x, y) + Cell.WallDirections[(int) myDirection];
-					var neighborCellIndex = (int)(neighborCellCoord.y * board.size.x + neighborCellCoord.x);
-					CellComponent neighborCell = new CellComponent{index = -1};
-					cellMap.TryGetValue(neighborCellIndex, out neighborCell);
-					newDirection = ShouldRedirect(cell, neighborCell, myDirection, gameConfig.DiminishesArrows);
+					newDirection = ShouldRedirect(cell, myDirection, gameConfig.DiminishesArrows);
 
 					//newDirection = cell.ShouldRedirect(myDirection, gameConfig.DiminishesArrows);
 
@@ -285,7 +271,7 @@ public class WalkSystem : ComponentSystem
 		return CellData.WallNorth;
 	}
 
-	public Direction ShouldRedirect(CellComponent cell, CellComponent neighborCell, Direction myDirection, bool diminishesArrows) {
+	public Direction ShouldRedirect(CellComponent cell, Direction myDirection, bool diminishesArrows) {
 		/*if (blockState == BlockState.Confuse) {
 			const int numDirections = 4;
 			var nextIndex = ((int)myDirection + 1 + Random.Range(0, numDirections - 1)) % numDirections;
@@ -323,20 +309,6 @@ public class WalkSystem : ComponentSystem
 			}
 		}*/
 		return myDirection;
-	}
-
-	public bool HasWallOrNeighborWall(CellComponent cell, CellComponent neighborCell, Direction dir) {
-		if (HasWall(cell, dir)) {
-			//Debug.Log("cell " + cell.index + " has wall to the " + dir);
-			return true;
-		}
-		var oppositeDirection = Cell.OppositeDirection(dir);
-		if (neighborCell.index != -1 && HasWall(neighborCell, oppositeDirection)) {
-			//Debug.Log("cell " + neighborCell.index + " has wall to the " + oppositeDirection + " (opposite)");
-			return true;
-		}
-
-		return false;
 	}
 
 	bool HasWall(CellComponent cell, Direction wall)

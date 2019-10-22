@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4947532303769016}
   - component: {fileID: 114447104120187236}
+  - component: {fileID: 5097059356850110860}
   - component: {fileID: 896713048471136116}
   m_Layer: 0
   m_Name: Cat
@@ -53,6 +54,18 @@ MonoBehaviour:
   Forward: {x: 0, y: 0, z: 0}
   RotationSpeed: 7
   DiminishesArrows: 1
+--- !u!114 &5097059356850110860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1377909340170110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e4fa4f66be840c4967f266933e85a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &896713048471136116
 MonoBehaviour:
   m_ObjectHideFlags: 0
