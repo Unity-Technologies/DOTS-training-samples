@@ -30,7 +30,8 @@ public class RockManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
         dstManager.AddComponentData(entityPrefab, rockTag);
         dstManager.AddComponent<ResetPosition>(entityPrefab);
 
-        //dstManager.AddComponentData(entityPrefab, new FlyingTag());
+        // TODO: only add this component when rock is thrown
+        // dstManager.AddComponentData(entityPrefab, new FlyingTag());
 
         var spawnerData = new SpawnerData
         {
