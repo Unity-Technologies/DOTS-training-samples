@@ -7,15 +7,6 @@ namespace HighwayRacers.Authoring
     [RequiresEntityConversion]
     public class CarAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
-        [Tooltip("Distance from center of car to the front.")]
-        public float distanceToFront = 1;
-        [Tooltip("Distance from center of car to the back.")]
-        public float distanceToBack = 1;
-
-        public Color defaultColor = Color.gray;
-        public Color maxSpeedColor = Color.green;
-        public Color minSpeedColor = Color.red;
-
         static int NextCarId = 1;
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -33,22 +24,6 @@ namespace HighwayRacers.Authoring
             dstManager.AddComponentData(entity,new CarState()); // TODO: system should add this
             dstManager.AddComponentData(entity,new CarColor()); // TODO: system should add this
             dstManager.AddComponentData(entity,new ProximityData());
-
-            // TODO: This is a bad idea.  Wasteful to duplicate.
-            // Store once globally, maybe in Game.instance?
-            var sharedData = new CarSharedData
-            {
-                distanceToFront = distanceToFront,
-                distanceToBack =  distanceToBack,
-                defaultColor = defaultColor,
-                maxSpeedColor = maxSpeedColor,
-                minSpeedColor = minSpeedColor
-            };
-            dstManager.AddComponentData(entity,sharedData);
-
-            // TODO: put these somewhere reasonable
-            Game.instance.distanceToBack = distanceToBack;
-            Game.instance.distanceToFront = distanceToFront;
         }
     }
 }
