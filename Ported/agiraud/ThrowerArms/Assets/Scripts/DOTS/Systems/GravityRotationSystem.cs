@@ -8,6 +8,8 @@ using UnityEngine;
 // Gravity rotation (for falling tin can)
 
 // ReSharper disable once InconsistentNaming
+[UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
+[UpdateAfter(typeof(GravitySystem))]
 public class GravityRotationSystem : JobComponentSystem
 {
     private EntityQuery m_TinCanGroup;
