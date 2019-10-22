@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum RockState
+{
+    Conveyor,
+    Held,
+    Thrown
+}
+
 public class Rock {
 	public Vector3 position;
 	public RockState rockState;
