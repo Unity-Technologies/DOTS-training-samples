@@ -10,7 +10,10 @@ public class TinCanManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, 
     public GameObject TinCanPrefab;
     public int TinCanCount = 1000;
     public static float TinCanGravityStrength = 20;
-    
+    public static Vector3 SpawnBoxMin = new Vector3(-10, 3f, 15f);
+    public static Vector3 SpawnBoxMax = new Vector3(-100, 8f, 15f);
+    public static Vector3 MoverInitialVelocity = new Vector3(1f, 0f, 0f);
+
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(TinCanPrefab);

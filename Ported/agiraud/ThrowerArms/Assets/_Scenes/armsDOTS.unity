@@ -155,7 +155,6 @@ MonoBehaviour:
   RockPrefab: {fileID: 5337933531573668606, guid: f7e1b7266cb8c5946b0a47e78ba3e812,
     type: 3}
   RockCount: 1000
-  RockGravityStrength: 25
 --- !u!4 &57991235
 Transform:
   m_ObjectHideFlags: 0

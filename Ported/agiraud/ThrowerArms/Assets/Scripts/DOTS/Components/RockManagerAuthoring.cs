@@ -9,6 +9,9 @@ public class RockManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
     public GameObject RockPrefab;
     public int RockCount = 1000;
     public static float RockGravityStrength = 25;
+    public static Vector3 SpawnBoxMin = new Vector3(-20, 0f, 0f);
+    public static Vector3 SpawnBoxMax = new Vector3(-150, 0f, 0f);
+    public static Vector3 MoverInitialVelocity = new Vector3(-1f, 0f, 0f);
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {

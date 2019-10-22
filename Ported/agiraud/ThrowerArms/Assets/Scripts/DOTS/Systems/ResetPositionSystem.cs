@@ -20,7 +20,7 @@ public class ResetPositionSystem : JobComponentSystem
 {
     EntityQuery m_GroupTinCan;
     EntityQuery m_GroupRock;
-    AfterResetPositionCommandBufferSystem m_EntityCommandBufferSystem;
+    EntityCommandBufferSystem m_EntityCommandBufferSystem;
 
     //[BurstCompile]
     struct RandomResetPositionJob : IJobForEachWithEntity<Translation, Mover>
@@ -35,7 +35,6 @@ public class ResetPositionSystem : JobComponentSystem
             position.Value = rd.NextFloat3(MinPosition, MaxPosition);
             cb.RemoveComponent<ResetPosition>(index, entity);
             cb.RemoveComponent<FlyingTag>(index, entity);
-
             mover.velocity = InitialVelocity;
         }
     }
@@ -51,24 +50,27 @@ public class ResetPositionSystem : JobComponentSystem
                                      ComponentType.ReadWrite<Mover>(),
                                      ComponentType.ReadWrite<Translation>());
 
-        m_EntityCommandBufferSystem = World.GetOrCreateSystem<AfterResetPositionCommandBufferSystem>();
+        m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
+
+    float waitTime = 1f;
+    float currentwait = 0f;
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var job1 = new RandomResetPositionJob()
         {
-            MinPosition = new float3(-20, 0f, 0f),
-            MaxPosition = new float3(-150, 0f, 0f),
-            InitialVelocity = new float3(-1, 0, 0),
+            MinPosition = RockManagerAuthoring.SpawnBoxMin,
+            MaxPosition = RockManagerAuthoring.SpawnBoxMax,
+            InitialVelocity = RockManagerAuthoring.MoverInitialVelocity,
             rd = new Random((uint)Environment.TickCount),
             cb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent()
         };
         var job2 = new RandomResetPositionJob()
         {
-            MinPosition = new float3(-10, 3f, 15f),
-            MaxPosition = new float3(-100, 8f, 15f),
-            InitialVelocity = new float3(1, 0, 0),
+            MinPosition = TinCanManagerAuthoring.SpawnBoxMin,
+            MaxPosition = TinCanManagerAuthoring.SpawnBoxMax,
+            InitialVelocity = TinCanManagerAuthoring.MoverInitialVelocity,
             rd = new Random((uint)Environment.TickCount),
             cb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent()
         };

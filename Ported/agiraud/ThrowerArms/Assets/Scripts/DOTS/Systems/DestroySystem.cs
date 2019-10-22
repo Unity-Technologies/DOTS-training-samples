@@ -35,8 +35,8 @@ public class DestroySystem : JobComponentSystem
         var job = new DestroySystemJob();
 
         // TODO: extract and update based on the number of arms, etc
-        job.boundsMin = new Vector3(-100, -5, -100);
-        job.boundsMax = new Vector3( 10, 50,  100);
+        job.boundsMin = ConstantManager.DestroyBoxMin;
+        job.boundsMax = ConstantManager.DestroyBoxMax;
         job.cmd = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
         var jobHandle = job.Schedule(m_group, inputDeps);
