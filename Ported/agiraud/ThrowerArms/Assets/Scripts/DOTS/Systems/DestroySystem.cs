@@ -6,12 +6,14 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
+[UpdateAfter(typeof(MoverSystem))]
 public class DestroySystem : JobComponentSystem
 {
     EntityQuery m_group;
     EntityCommandBufferSystem m_EntityCommandBufferSystem;
 
-    [BurstCompile]
+    //[BurstCompile]
     struct DestroySystemJob : IJobForEachWithEntity<Translation>
     {
         public float3 boundsMin;
@@ -23,7 +25,7 @@ public class DestroySystem : JobComponentSystem
             if (translation.Value.x < boundsMin.x || translation.Value.y < boundsMin.y || translation.Value.z < boundsMin.z ||
                 translation.Value.x > boundsMax.x || translation.Value.y > boundsMax.y || translation.Value.z > boundsMax.z)
             {
-                cmd.DestroyEntity(index, entity);
+                cmd.AddComponent<ResetPosition>(index, entity);
             }
         }
     }
@@ -34,7 +36,7 @@ public class DestroySystem : JobComponentSystem
 
         // TODO: extract and update based on the number of arms, etc
         job.boundsMin = new Vector3(-100, -5, -100);
-        job.boundsMax = new Vector3( 100, 50,  100);
+        job.boundsMax = new Vector3( 10, 50,  100);
         job.cmd = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
         var jobHandle = job.Schedule(m_group, inputDeps);

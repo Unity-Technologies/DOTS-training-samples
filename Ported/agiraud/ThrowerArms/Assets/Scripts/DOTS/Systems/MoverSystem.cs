@@ -5,6 +5,8 @@ using Unity.Jobs;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
+[UpdateAfter(typeof(ResetPositionSystem))]
 public class MoverSystem : JobComponentSystem
 {
     [BurstCompile]

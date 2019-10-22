@@ -23,6 +23,8 @@ public class TinCanManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, 
         // Here we should add some components to our entity prefab
         var tintag = new TinCanTag();
         dstManager.AddComponentData(entityPrefab, tintag);
+
+        dstManager.AddComponent<ResetPosition>(entityPrefab);
         
         var spawnerData = new SpawnerData
         {

@@ -25,12 +25,7 @@ public class RockManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
         // Here we should add some components to our entity prefab
         var rockTag = new RockTag();
         dstManager.AddComponentData(entityPrefab, rockTag);
-
-        var mover = new Mover
-        {
-            velocity = 0
-        };
-        dstManager.AddComponentData(entityPrefab, mover);
+        dstManager.AddComponent<ResetPosition>(entityPrefab);
 
         var gravityStength = new GravityStrength
         {

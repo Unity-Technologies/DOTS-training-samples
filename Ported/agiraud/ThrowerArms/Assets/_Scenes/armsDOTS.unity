@@ -155,6 +155,7 @@ MonoBehaviour:
   RockPrefab: {fileID: 5337933531573668606, guid: f7e1b7266cb8c5946b0a47e78ba3e812,
     type: 3}
   RockCount: 1000
+  RockGravityStrength: 25
 --- !u!4 &57991235
 Transform:
   m_ObjectHideFlags: 0
@@ -289,7 +290,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1200948655}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: -65, y: 1, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
