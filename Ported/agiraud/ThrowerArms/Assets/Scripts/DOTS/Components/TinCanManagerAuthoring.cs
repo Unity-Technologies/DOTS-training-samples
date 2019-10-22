@@ -2,12 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Transforms;
 using UnityEngine;
 
 public class TinCanManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
 {
     public GameObject TinCanPrefab;
     public int TinCanCount = 1000;
+    public static float TinCanGravityStrength = 20;
     
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
@@ -25,7 +27,9 @@ public class TinCanManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, 
         dstManager.AddComponentData(entityPrefab, tintag);
 
         dstManager.AddComponent<ResetPosition>(entityPrefab);
-        
+        // Start with scale 0 and grow the can
+        dstManager.AddComponentData(entityPrefab, new Scale { Value = 0.0f });
+
         var spawnerData = new SpawnerData
         {
             // The referenced prefab will be converted due to DeclareReferencedPrefabs.

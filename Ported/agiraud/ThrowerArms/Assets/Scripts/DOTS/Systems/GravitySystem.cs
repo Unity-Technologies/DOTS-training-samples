@@ -1,46 +1,44 @@
 using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.Windows.WebCam;
 
 // Gravity system (no rotation)
 
 // ReSharper disable once InconsistentNaming
 public class GravitySystem : JobComponentSystem
 {
-    private EntityQuery m_Group;
+    private EntityQuery m_RockGroup;
+    private EntityQuery m_TinCanGroup;
 
     // Position, Velocity, read only GravityStrength, FlyingTag
     protected override void OnCreate()
     {
-        m_Group = GetEntityQuery(typeof(Translation), typeof(Mover), ComponentType.ReadOnly<GravityStrength>(),
-            ComponentType.ReadOnly<FlyingTag>());
+        m_RockGroup = GetEntityQuery(typeof(Translation), typeof(Mover),
+            ComponentType.ReadOnly<FlyingTag>(), ComponentType.ReadOnly<RockTag>());
+        m_TinCanGroup = GetEntityQuery(typeof(Translation), typeof(Mover),
+            ComponentType.ReadOnly<FlyingTag>(), ComponentType.ReadOnly<TinCanTag>());
     }
 
     [BurstCompile]
     struct GravityJob : IJobChunk
     {
         public float Time;
+        public float GravityStrength;
         public ArchetypeChunkComponentType<Translation> Translation;
         public ArchetypeChunkComponentType<Mover> Mover;
-        [ReadOnly] public ArchetypeChunkComponentType<GravityStrength> GravityStrength;
-        [ReadOnly] public ArchetypeChunkComponentType<FlyingTag> FlyingTag;
 
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
             var chunkTranslations = chunk.GetNativeArray(Translation);
             var chunkVelocities = chunk.GetNativeArray(Mover);
-            var chunkGravityStrengths = chunk.GetNativeArray(GravityStrength);
             for (var i = 0; i < chunkTranslations.Length; i++)
             {
                 var pos = chunkTranslations[i].Value;
                 var velocity = chunkVelocities[i].velocity;
                 pos += velocity * Time;
-                velocity.y -= chunkGravityStrengths[i].Value * Time;
+                velocity.y -= GravityStrength * Time;
 
                 chunkTranslations[i] = new Translation
                 {
@@ -59,18 +57,25 @@ public class GravitySystem : JobComponentSystem
     {
         var translation = GetArchetypeChunkComponentType<Translation>();
         var mover = GetArchetypeChunkComponentType<Mover>();
-        var gravityStrength = GetArchetypeChunkComponentType<GravityStrength>();
-        var flyingTag = GetArchetypeChunkComponentType<FlyingTag>(true);
 
-        var job = new GravityJob
+        var rockJob = new GravityJob
         {
             Time = Time.deltaTime,
             Translation = translation,
             Mover = mover,
-            GravityStrength = gravityStrength,
-            FlyingTag = flyingTag
+            GravityStrength = RockManagerAuthoring.RockGravityStrength
         };
 
-        return job.Schedule(m_Group, inputDeps);
+        var jobHandle = rockJob.Schedule(m_RockGroup, inputDeps);
+
+        var tinCanJob = new GravityJob
+        {
+            Time = Time.deltaTime,
+            Translation = translation,
+            Mover = mover,
+            GravityStrength = TinCanManagerAuthoring.TinCanGravityStrength
+        };
+
+        return tinCanJob.Schedule(m_TinCanGroup, jobHandle);
     }
 }
