@@ -1,4 +1,5 @@
-﻿using Unity.Mathematics;
+﻿#if false
+using Unity.Mathematics;
 using Unity.Collections;
 
 namespace HighwayRacers
@@ -50,3 +51,4 @@ namespace HighwayRacers
         public HighwaySpacePartition SpacePartition;
     }
 }
+#endif

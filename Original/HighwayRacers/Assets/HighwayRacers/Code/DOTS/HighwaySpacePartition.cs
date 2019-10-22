@@ -4,7 +4,6 @@ using Unity.Collections;
 
 namespace HighwayRacers
 {
-
     public struct HighwaySpacePartition
     {
         struct BucketEntry
@@ -68,14 +67,16 @@ namespace HighwayRacers
         int GetBucketIndex(float pos) { return (int)math.floor(pos / BucketLength); }
 
         // Won't return a distance longer than HalfTrackLength
-        float GetDistance(float fromPos, float toPos)
+        float GetSignedDistanceBetweenCars(float fromPos, float toPos, float carSize)
         {
             float d = toPos - fromPos;
-            return math.select(
+            d = math.select(
                 d,
                 math.select(toPos, toPos - (2 * HalfTrackLength), toPos > HalfTrackLength)
                     - math.select(fromPos, fromPos - (2 * HalfTrackLength), fromPos > HalfTrackLength),
                 math.abs(d) >= HalfTrackLength);
+            d = math.sign(d) * math.max(0, math.abs(d) - carSize);
+            return d;
         }
 
         // Distances are in average lane space
@@ -96,10 +97,12 @@ namespace HighwayRacers
 
         // Distances are in average lane space
         public QueryResult GetNearestCars(
-            float pos, float lane, float maxDistanceFront, float maxDistanceRear)
+            float pos, float lane, float maxDistance, float carSize)
         {
             int myBucket = GetBucketIndex(pos);
             float distanceInBucket = pos - (myBucket * BucketLength);
+            float maxDistanceFront = maxDistance + carSize;
+            float maxDistanceRear = maxDistance + carSize;
             int numFwdBuckets = GetBucketIndex(pos + maxDistanceFront) - myBucket;
             int numRearBuckets = myBucket - GetBucketIndex(pos - maxDistanceRear);
 
@@ -117,7 +120,7 @@ namespace HighwayRacers
                 while (bucket.MoveNext())
                 {
                     var e = bucket.Current;
-                    float d = GetDistance(pos, e.Pos.x);
+                    float d = GetSignedDistanceBetweenCars(pos, e.Pos.x, carSize);
                     if (!GatherFrontDistances(e, ref result, myLane, d) && b == 0)
                         GatherRearDistances(e, ref result, myLane, d);
                 }
@@ -134,7 +137,7 @@ namespace HighwayRacers
                 while (bucket.MoveNext())
                 {
                     var e = bucket.Current;
-                    float d = GetDistance(pos, e.Pos.x);
+                    float d = GetSignedDistanceBetweenCars(pos, e.Pos.x, carSize);
                     GatherRearDistances(e, ref result, myLane, d);
                 }
                 // Early out if done

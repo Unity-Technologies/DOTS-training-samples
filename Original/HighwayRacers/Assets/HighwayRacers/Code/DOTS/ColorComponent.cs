@@ -1,7 +1,10 @@
 ﻿using Unity.Entities;
 using UnityEngine;
 
-struct ColorComponent : IComponentData
+namespace HighwayRacers
 {
-    public Color Value;
+    struct CarColor : IComponentData
+    {
+        public Color Value;
+    }
 }

@@ -2,12 +2,16 @@
 using Unity.Entities;
 using UnityEngine;
 
-[Serializable]
-public struct CarSharedData : IComponentData
+namespace HighwayRacers
 {
-    public float distanceToFront;
-    public float distanceToBack;
-    public Color defaultColor;
-    public Color maxSpeedColor;
-    public Color minSpeedColor;
+    // TODO this should only be stored once somewhere
+    [Serializable]
+    public struct CarSharedData : IComponentData
+    {
+        public float distanceToFront;
+        public float distanceToBack;
+        public Color defaultColor;
+        public Color maxSpeedColor;
+        public Color minSpeedColor;
+    }
 }

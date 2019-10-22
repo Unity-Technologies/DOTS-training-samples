@@ -1,7 +1,10 @@
 ﻿using HighwayRacers;
 using Unity.Entities;
 
-public struct ProximityData : IComponentData
+namespace HighwayRacers
 {
-    public HighwaySpacePartition.QueryResult data;
+    public struct ProximityData : IComponentData
+    {
+        public HighwaySpacePartition.QueryResult data;
+    }
 }

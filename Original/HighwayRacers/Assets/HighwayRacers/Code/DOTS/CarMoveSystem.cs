@@ -1,32 +1,35 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 
-public class CarMoveSystem : JobComponentSystem
+namespace HighwayRacers
 {
-
-    struct MoveSystemJob : IJobForEach<CarState,CarStateOnTrack>
+    public class CarMoveSystem : JobComponentSystem
     {
-        public float deltaTime;
-        public void Execute([ReadOnly] ref CarState state, ref CarStateOnTrack trackState)
+        struct MoveSystemJob : IJobForEach<CarState>
         {
-            //forward position
-            trackState.PositionOnTrackSegmentLane0 += state.FwdSpeed * deltaTime;
-            trackState.Lane += state.LeftSpeed * deltaTime;
-            
-            //lateral position
-            var roundLane = Mathf.Round(trackState.Lane);
-            if (Mathf.Abs (roundLane - trackState.Lane) < .0001f) 
+            public float deltaTime;
+            public void Execute(ref CarState state)
             {
-                trackState.Lane = roundLane;
+                //forward position
+                state.PositionOnTrack += state.FwdSpeed * deltaTime; // TODO: handle wraparond
+                state.Lane += state.LeftSpeed * deltaTime;
+
+                //lateral position
+                var roundLane = math.round(state.Lane);
+                if (math.abs(roundLane - state.Lane) < .0001f)
+                {
+                    state.Lane = roundLane;
+                }
             }
         }
-    }
 
-    protected override JobHandle OnUpdate(JobHandle inputDeps)
-    {
-        var job = new MoveSystemJob {deltaTime = Time.deltaTime};
-        return job.Schedule(this, inputDeps);
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {
+            var job = new MoveSystemJob {deltaTime = Time.deltaTime};
+            return job.Schedule(this, inputDeps);
+        }
     }
 }

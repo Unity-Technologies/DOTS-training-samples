@@ -4,33 +4,37 @@ using HighwayRacers;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
-[UpdateBefore(typeof(CarMoveSystem))]
-[UpdateAfter(typeof(CarStateSystem))]
-public class AccelerationSystem : JobComponentSystem
+
+namespace HighwayRacers
 {
-    struct AccelerationSystemJob : IJobForEach<CarState>
+    [UpdateBefore(typeof(CarMoveSystem))]
+    [UpdateAfter(typeof(CarStateSystem))]
+    public class AccelerationSystem : JobComponentSystem
     {
-        public float deltaTime;
-
-        public void Execute(ref CarState state)
+        struct AccelerationSystemJob : IJobForEach<CarState>
         {
-            // increase to speed
-            if (state.TargetFwdSpeed > state.FwdSpeed) 
+            public float deltaTime;
+
+            public void Execute(ref CarState state)
             {
-                state.FwdSpeed = Mathf.Min(state.TargetFwdSpeed, state.FwdSpeed + Game.instance.acceleration * deltaTime);
-            } else {
-                state.FwdSpeed = Mathf.Max(state.TargetFwdSpeed, state.FwdSpeed - Game.instance.brakeDeceleration * deltaTime);
+                // increase to speed
+                if (state.TargetFwdSpeed > state.FwdSpeed)
+                {
+                    state.FwdSpeed = Mathf.Min(state.TargetFwdSpeed, state.FwdSpeed + Game.instance.acceleration * deltaTime);
+                } else {
+                    state.FwdSpeed = Mathf.Max(state.TargetFwdSpeed, state.FwdSpeed - Game.instance.brakeDeceleration * deltaTime);
+                }
+
             }
-
         }
-    }
 
-    protected override JobHandle OnUpdate(JobHandle inputDeps)
-    {
-        if (Time.deltaTime <= 0)
-            return new JobHandle();
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {
+            if (Time.deltaTime <= 0)
+                return new JobHandle();
 
-        var job = new AccelerationSystemJob {deltaTime = Time.deltaTime};
-        return job.Schedule(this, inputDeps);
+            var job = new AccelerationSystemJob {deltaTime = Time.deltaTime};
+            return job.Schedule(this, inputDeps);
+        }
     }
 }

@@ -43,6 +43,11 @@ namespace HighwayRacers
 		[Tooltip("Max bound for eagerness; If eagerness > (car in front's speed) / (this car's speed), then this car will attempt to overtake the car in front.")]
 		public float overtakeEagernessMax = 1.5f;
 
+        [Tooltip("Distance from center of car to the front.")]
+        public float distanceToFront = 1;
+        [Tooltip("Distance from center of car to the back.")]
+        public float distanceToBack = 1;
+
 		[Header("UI")]
 		public float carSelectRadius = 7;
 

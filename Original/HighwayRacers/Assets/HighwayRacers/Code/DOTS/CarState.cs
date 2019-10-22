@@ -1,18 +1,24 @@
 ﻿using Unity.Entities;
 
-struct CarState : IComponentData
+namespace HighwayRacers
 {
-    public float TargetFwdSpeed; //desired FwdSpeed
-    public float FwdSpeed; // velocityPosition
-    public float LeftSpeed; // velocityLane
+    struct CarState : IComponentData
+    {
+        public float TargetFwdSpeed; //desired FwdSpeed
+        public float FwdSpeed; // velocityPosition
+        public float LeftSpeed; // velocityLane
 
-    public int SpacePartitionIndex;
+        public float PositionOnTrack;
+        public float Lane;
+        public float TargetLane;
+        public float TimeOvertakeCarSet;
 
-    public enum State {
-        NORMAL,
-        MERGE_RIGHT,
-        MERGE_LEFT,
-        OVERTAKING,
+        public enum State {
+            NORMAL,
+            MERGE_RIGHT,
+            MERGE_LEFT,
+            OVERTAKING,
+        }
+        public State CurrentState;
     }
-    public State CurrentState;
 }
