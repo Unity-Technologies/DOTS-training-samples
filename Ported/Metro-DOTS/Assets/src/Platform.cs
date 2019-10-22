@@ -112,7 +112,9 @@ public class Platform : MonoBehaviour
 
     public string GetFullName()
     {
-        return parentMetroLine.lineName + "_" + platformIndex;
+        if (parentMetroLine != null)
+            return parentMetroLine.lineName + "_" + platformIndex;
+        return "";
     }
 
     private void OnDrawGizmos()
