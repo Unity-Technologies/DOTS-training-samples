@@ -8,6 +8,7 @@ public class RockManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
 {
     public GameObject RockPrefab;
     public int RockCount = 1000;
+    public float RockGravityStrength = 25;
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
@@ -27,6 +28,20 @@ public class RockManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
             Value = RockState.Conveyor
         };
         dstManager.AddComponentData(entityPrefab, state);
+
+        var mover = new Mover
+        {
+            velocity = 0
+        };
+        dstManager.AddComponentData(entityPrefab, mover);
+
+        var gravityStength = new GravityStrength
+        {
+            Value = RockGravityStrength
+        };
+        dstManager.AddSharedComponentData(entityPrefab, gravityStength);
+
+        dstManager.AddComponentData(entityPrefab, new FlyingTag());
 
         var spawnerData = new SpawnerData
         {
