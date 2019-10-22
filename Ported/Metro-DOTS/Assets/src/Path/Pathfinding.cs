@@ -150,6 +150,8 @@ public static class Pathfinding
                 _TASK_LIST.Add(_walkTask);
 
 
+                if (_PREV_PLATFORM == null)
+                    return null;
                 if (_PREV_PLATFORM.temporary_connectionType == CommuterState.GET_OFF_TRAIN)
                 {
                     _TASK_LIST.Add(new CommuterTask(CommuterState.GET_OFF_TRAIN) {endPlatform = _PREV_PLATFORM});
@@ -161,6 +163,8 @@ public static class Pathfinding
             }
             else // add a train link
             {
+                if (_PREV_PLATFORM == null)
+                    return null;
                 if (_PREV_PLATFORM.temporary_connectionType == CommuterState.WALK)
                 {
                     _TASK_LIST.Add(new CommuterTask(CommuterState.GET_ON_TRAIN));
