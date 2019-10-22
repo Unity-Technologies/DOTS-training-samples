@@ -23,16 +23,20 @@ public class ResetPositionSystem : JobComponentSystem
     AfterResetPositionCommandBufferSystem m_EntityCommandBufferSystem;
 
     //[BurstCompile]
-    struct RandomResetPositionJob : IJobForEachWithEntity<Translation>
+    struct RandomResetPositionJob : IJobForEachWithEntity<Translation, Mover>
     {
         public float3 MinPosition;
         public float3 MaxPosition;
+        public float3 InitialVelocity;
         public Random rd;
         public EntityCommandBuffer.Concurrent cb;
-        public void Execute(Entity entity, int index, ref Translation position)
+        public void Execute(Entity entity, int index, ref Translation position, ref Mover mover)
         {
             position.Value = rd.NextFloat3(MinPosition, MaxPosition);
             cb.RemoveComponent<ResetPosition>(index, entity);
+            cb.RemoveComponent<FlyingTag>(index, entity);
+
+            mover.velocity = InitialVelocity;
         }
     }
 
@@ -40,9 +44,11 @@ public class ResetPositionSystem : JobComponentSystem
     {
         m_GroupTinCan = GetEntityQuery(ComponentType.ReadOnly<TinCanTag>(), 
                                                             ComponentType.ReadOnly<ResetPosition>(),
+                                                            ComponentType.ReadWrite<Mover>(),
                                                             ComponentType.ReadWrite<Translation>());
         m_GroupRock = GetEntityQuery(ComponentType.ReadOnly<RockTag>(), 
-                                     ComponentType.ReadOnly<ResetPosition>(), 
+                                     ComponentType.ReadOnly<ResetPosition>(),
+                                     ComponentType.ReadWrite<Mover>(),
                                      ComponentType.ReadWrite<Translation>());
 
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<AfterResetPositionCommandBufferSystem>();
@@ -54,6 +60,7 @@ public class ResetPositionSystem : JobComponentSystem
         {
             MinPosition = new float3(-20, 0f, 0f),
             MaxPosition = new float3(-150, 0f, 0f),
+            InitialVelocity = new float3(-1, 0, 0),
             rd = new Random((uint)Environment.TickCount),
             cb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent()
         };
@@ -61,6 +68,7 @@ public class ResetPositionSystem : JobComponentSystem
         {
             MinPosition = new float3(-10, 3f, 15f),
             MaxPosition = new float3(-100, 8f, 15f),
+            InitialVelocity = new float3(1, 0, 0),
             rd = new Random((uint)Environment.TickCount),
             cb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent()
         };
