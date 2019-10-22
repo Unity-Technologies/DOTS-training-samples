@@ -2,6 +2,7 @@
 
 struct CarState : IComponentData
 {
+    public float TargetFwdSpeed; //desired FwdSpeed
     public float FwdSpeed; // velocityPosition
     public float LeftSpeed; // velocityLane
 

@@ -3,7 +3,7 @@ using Unity.Entities;
 using UnityEngine;
 
 [Serializable]
-public struct CarSharedData : ISharedComponentData
+public struct CarSharedData : IComponentData
 {
     public float distanceToFront;
     public float distanceToBack;

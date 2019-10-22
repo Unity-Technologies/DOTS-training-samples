@@ -281,7 +281,6 @@ namespace HighwayRacers
 
 				}
 
-
 				if (!isMerging && // not currently merging
 					tryMergeRight // overtook target car (or overtake car doesn't exist)
 					) { 
@@ -292,10 +291,7 @@ namespace HighwayRacers
 						state = State.MERGE_RIGHT;
 						targetLane = Mathf.Round(lane - 1);
 					}
-
 				}
-
-
 			}
 
 

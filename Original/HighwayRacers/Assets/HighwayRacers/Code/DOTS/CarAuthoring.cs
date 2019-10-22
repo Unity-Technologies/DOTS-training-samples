@@ -5,8 +5,6 @@ using UnityEngine;
 [RequiresEntityConversion]
 public class CarAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
-    static int s_ID;
-    
     [Tooltip("Distance from center of car to the front.")]
     public float distanceToFront = 1;
     [Tooltip("Distance from center of car to the back.")]
@@ -31,7 +29,6 @@ public class CarAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity,new CarState());
         dstManager.AddComponentData(entity,new ColorComponent());
         dstManager.AddComponentData(entity,new CarStateOnTrack());
-        dstManager.AddComponentData(entity,new CarID{ Value = s_ID++});
         var sharedData = new CarSharedData
         {
             distanceToFront = distanceToFront,
@@ -40,7 +37,7 @@ public class CarAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             maxSpeedColor = maxSpeedColor,
             minSpeedColor = minSpeedColor
         };
-        
-        dstManager.AddSharedComponentData(entity,sharedData);
+        dstManager.AddComponentData(entity,new ProximityData());
+        dstManager.AddComponentData(entity,sharedData);
     }
 }
