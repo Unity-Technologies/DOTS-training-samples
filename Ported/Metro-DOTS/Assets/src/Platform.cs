@@ -120,4 +120,9 @@ public class Platform : MonoBehaviour
         Handles.color = Color.black;
         Handles.Label(transform.position, ""+GetFullName());
     }
+
+    public override string ToString()
+    {
+        return "PlatformIndex: " + platformIndex;
+    }
 }
