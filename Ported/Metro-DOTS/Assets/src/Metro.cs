@@ -109,7 +109,7 @@ public class Metro : MonoBehaviour
         Update_Commuters();
     }
 
-    void SetupMetroLines()
+    public void SetupMetroLines()
     {
         totalLines = LineNames.Length;
         metroLines = new MetroLine[totalLines];
@@ -191,7 +191,7 @@ public class Metro : MonoBehaviour
         }
     }
 
-    void SetupTrains()
+    public void SetupTrains()
     {
         // Add trains
         for (int i = 0; i < totalLines; i++)
