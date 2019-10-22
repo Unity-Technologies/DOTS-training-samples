@@ -7,7 +7,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
-[UpdateAfter(typeof(MoverSystem))]
+[UpdateAfter(typeof(GravitySystem))]
 public class DestroySystem : JobComponentSystem
 {
     EntityQuery m_group;

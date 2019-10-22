@@ -6,6 +6,8 @@ using UnityEngine;
 
 // Gravity system (no rotation)
 
+[UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
+[UpdateAfter(typeof(MoverSystem))]
 // ReSharper disable once InconsistentNaming
 public class GravitySystem : JobComponentSystem
 {
