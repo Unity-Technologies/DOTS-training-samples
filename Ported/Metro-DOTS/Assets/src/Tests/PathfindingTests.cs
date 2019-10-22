@@ -3,7 +3,7 @@ using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 
-public class Pathfinding
+public class PathfindingTests
 {
     List<GameObject> m_Objs;
     Platform pl0, pl1, pl2, pl3, pl4, pl5;
@@ -48,46 +48,46 @@ public class Pathfinding
         SetupPlatform(pl2, pl3, pl0, new List<Platform>());
         SetupPlatform(pl3, pl2, pl1, new List<Platform>());
 
-        Path.GeneratePathFindingData(new []
+        Pathfinding.GeneratePathFindingData(new []
         {
            pl0, pl1, pl2, pl3
         });
 
-        var path0To1 = Path.GetConnections(0,1);
-        ValidateSingleConnection(path0To1, Path.Method.Walk, 1);
+        var path0To1 = Pathfinding.GetConnections(0,1);
+        ValidateSingleConnection(path0To1, Pathfinding.Method.Walk, 1);
 
-        var path0To2 = Path.GetConnections(0, 2);
-        ValidateSingleConnection(path0To2, Path.Method.Train, 2);
+        var path0To2 = Pathfinding.GetConnections(0, 2);
+        ValidateSingleConnection(path0To2, Pathfinding.Method.Train, 2);
 
-        var path0To3 = Path.GetConnections(0,3);
-        ValidateMultipleConnection(path0To3, new []{Path.Method.Walk, Path.Method.Train}, new []{1, 3});
+        var path0To3 = Pathfinding.GetConnections(0,3);
+        ValidateMultipleConnection(path0To3, new []{Pathfinding.Method.Walk, Pathfinding.Method.Train}, new []{1, 3});
 
-        var path1To0 = Path.GetConnections(1, 0);
-        ValidateSingleConnection(path1To0, Path.Method.Walk, 0);
+        var path1To0 = Pathfinding.GetConnections(1, 0);
+        ValidateSingleConnection(path1To0, Pathfinding.Method.Walk, 0);
 
-        var path1To2 = Path.GetConnections(1,2);
-        ValidateMultipleConnection(path1To2, new []{Path.Method.Walk, Path.Method.Train}, new []{0,2});
+        var path1To2 = Pathfinding.GetConnections(1,2);
+        ValidateMultipleConnection(path1To2, new []{Pathfinding.Method.Walk, Pathfinding.Method.Train}, new []{0,2});
 
-        var path1To3 = Path.GetConnections(1, 3);
-        ValidateSingleConnection(path1To3, Path.Method.Train, 3);
+        var path1To3 = Pathfinding.GetConnections(1, 3);
+        ValidateSingleConnection(path1To3, Pathfinding.Method.Train, 3);
 
-        var path2To0 = Path.GetConnections(2, 0);
-        ValidateSingleConnection(path2To0, Path.Method.Train, 0);
+        var path2To0 = Pathfinding.GetConnections(2, 0);
+        ValidateSingleConnection(path2To0, Pathfinding.Method.Train, 0);
 
-        var path2To1 = Path.GetConnections(2,1);
-        ValidateMultipleConnection(path2To1, new []{Path.Method.Walk, Path.Method.Train}, new []{3,1});
+        var path2To1 = Pathfinding.GetConnections(2,1);
+        ValidateMultipleConnection(path2To1, new []{Pathfinding.Method.Walk, Pathfinding.Method.Train}, new []{3,1});
 
-        var path2To3 = Path.GetConnections(2, 3);
-        ValidateSingleConnection(path2To3, Path.Method.Walk, 3);
+        var path2To3 = Pathfinding.GetConnections(2, 3);
+        ValidateSingleConnection(path2To3, Pathfinding.Method.Walk, 3);
 
-        var path3To0 = Path.GetConnections(3, 0);
-        ValidateMultipleConnection(path3To0, new []{Path.Method.Walk, Path.Method.Train}, new []{2,0});
+        var path3To0 = Pathfinding.GetConnections(3, 0);
+        ValidateMultipleConnection(path3To0, new []{Pathfinding.Method.Walk, Pathfinding.Method.Train}, new []{2,0});
 
-        var path3To1 = Path.GetConnections(3, 1);
-        ValidateSingleConnection(path3To1, Path.Method.Train, 1);
+        var path3To1 = Pathfinding.GetConnections(3, 1);
+        ValidateSingleConnection(path3To1, Pathfinding.Method.Train, 1);
 
-        var path3To2 = Path.GetConnections(3, 2);
-        ValidateSingleConnection(path3To2, Path.Method.Walk, 2);
+        var path3To2 = Pathfinding.GetConnections(3, 2);
+        ValidateSingleConnection(path3To2, Pathfinding.Method.Walk, 2);
     }
 
     [Test]
@@ -100,32 +100,32 @@ public class Pathfinding
         SetupPlatform(pl4, pl5, pl0, new List<Platform>());
         SetupPlatform(pl5, pl4, pl3, new List<Platform>());
 
-        Path.GeneratePathFindingData(new []
+        Pathfinding.GeneratePathFindingData(new []
         {
             pl0, pl1, pl2, pl3, pl4, pl5
         });
 
         //0 to 3
-        var path0To3 = Path.GetConnections(0, 3);
-        ValidateMultipleConnection(path0To3, new []{Path.Method.Train, Path.Method.Walk}, new []{2, 3});
+        var path0To3 = Pathfinding.GetConnections(0, 3);
+        ValidateMultipleConnection(path0To3, new []{Pathfinding.Method.Train, Pathfinding.Method.Walk}, new []{2, 3});
 
         //0 to 2
-        var path0To2 = Path.GetConnections(0, 2);
-        ValidateSingleConnection(path0To2, Path.Method.Train, 2);
+        var path0To2 = Pathfinding.GetConnections(0, 2);
+        ValidateSingleConnection(path0To2, Pathfinding.Method.Train, 2);
 
         //5 to 0
-        var path5To0 = Path.GetConnections(5, 0);
-        ValidateMultipleConnection(path5To0, new []{Path.Method.Walk, Path.Method.Train}, new []{4, 0});
+        var path5To0 = Pathfinding.GetConnections(5, 0);
+        ValidateMultipleConnection(path5To0, new []{Pathfinding.Method.Walk, Pathfinding.Method.Train}, new []{4, 0});
     }
 
-    static void ValidateSingleConnection(Path.Connection[] connections, Path.Method expectedMethod, int expectedDestinationId)
+    static void ValidateSingleConnection(Pathfinding.Connection[] connections, Pathfinding.Method expectedMethod, int expectedDestinationId)
     {
         Assert.That(connections.Length, Is.EqualTo(1));
         Assert.That(connections.First().method, Is.EqualTo(expectedMethod));
         Assert.That(connections.First().destinationPlatformId, Is.EqualTo(expectedDestinationId));
     }
 
-    static void ValidateMultipleConnection(Path.Connection[] connections, Path.Method[] methods, int[] expectedDestinationIds)
+    static void ValidateMultipleConnection(Pathfinding.Connection[] connections, Pathfinding.Method[] methods, int[] expectedDestinationIds)
     {
         for (var i = 0; i< connections.Length; i++)
         {

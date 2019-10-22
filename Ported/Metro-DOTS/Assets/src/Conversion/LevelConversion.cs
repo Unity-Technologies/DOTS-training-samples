@@ -23,7 +23,7 @@ public class LevelConversion : GameObjectConversionSystem
         Debug.Log("GeneratePathfindingData");
 
         metroComponent.SetupMetroLines();
-        Path.GeneratePathFindingData(Path.GetAllPlatformsInScene());
+        Pathfinding.GeneratePathFindingData(Pathfinding.GetAllPlatformsInScene());
     }
 
     void GenerateTrainTracksBezierData(Entity entity, Metro metroComponent)

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public static class Path
+public static class Pathfinding
 {
     public enum Method
     {
