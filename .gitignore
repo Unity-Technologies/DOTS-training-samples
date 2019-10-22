@@ -42,3 +42,6 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+Ported/Metro-DOTS/Assets/EntityCache
+Ported/Metro-DOTS/Assets/StreamingAssets/EntityCache
+Ported/Metro-DOTS/Assets/EntityCache.meta
