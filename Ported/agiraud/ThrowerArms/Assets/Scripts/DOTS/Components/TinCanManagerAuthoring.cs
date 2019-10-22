@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Transforms;
 using UnityEngine;
 
 public class TinCanManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
@@ -24,7 +25,10 @@ public class TinCanManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, 
         // Here we should add some components to our entity prefab
         var tintag = new TinCanTag();
         dstManager.AddComponentData(entityPrefab, tintag);
-        
+
+        // Start with scale 0 and grow the can
+        dstManager.AddComponentData(entityPrefab, new Scale { Value = 0.0f });
+
         var spawnerData = new SpawnerData
         {
             // The referenced prefab will be converted due to DeclareReferencedPrefabs.
