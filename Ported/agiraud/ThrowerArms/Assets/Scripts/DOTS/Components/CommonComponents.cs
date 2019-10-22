@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-public struct GravityStrength : ISharedComponentData
+public struct GravityStrength : IComponentData
 {
     public float Value;
 }

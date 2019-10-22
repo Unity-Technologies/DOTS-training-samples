@@ -39,7 +39,7 @@ public class RockManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
         {
             Value = RockGravityStrength
         };
-        dstManager.AddSharedComponentData(entityPrefab, gravityStength);
+        dstManager.AddComponentData(entityPrefab, gravityStength);
 
         dstManager.AddComponentData(entityPrefab, new FlyingTag());
 

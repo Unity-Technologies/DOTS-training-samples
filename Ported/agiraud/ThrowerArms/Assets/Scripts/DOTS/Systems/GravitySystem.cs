@@ -27,19 +27,29 @@ public class GravitySystem : JobComponentSystem
         public float Time;
         public ArchetypeChunkComponentType<Translation> Translation;
         public ArchetypeChunkComponentType<Mover> Mover;
-        [ReadOnly] public ArchetypeChunkSharedComponentType<GravityStrength> GravityStrength;
+        [ReadOnly] public ArchetypeChunkComponentType<GravityStrength> GravityStrength;
         [ReadOnly] public ArchetypeChunkComponentType<FlyingTag> FlyingTag;
 
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
             var chunkTranslations = chunk.GetNativeArray(Translation);
+            var chunkVelocities = chunk.GetNativeArray(Mover);
+            var chunkGravityStrengths = chunk.GetNativeArray(GravityStrength);
             for (var i = 0; i < chunkTranslations.Length; i++)
             {
-                var pos = chunkTranslations[i].Value - 1;
+                var pos = chunkTranslations[i].Value;
+                var velocity = chunkVelocities[i].velocity;
+                pos += velocity * Time;
+                velocity.y -= chunkGravityStrengths[i].Value * Time;
 
                 chunkTranslations[i] = new Translation
                 {
                     Value = pos
+                };
+
+                chunkVelocities[i] = new Mover
+                {
+                    velocity = velocity
                 };
             }
         }
@@ -49,7 +59,7 @@ public class GravitySystem : JobComponentSystem
     {
         var translation = GetArchetypeChunkComponentType<Translation>();
         var mover = GetArchetypeChunkComponentType<Mover>();
-        var gravityStrength = GetArchetypeChunkSharedComponentType<GravityStrength>();
+        var gravityStrength = GetArchetypeChunkComponentType<GravityStrength>();
         var flyingTag = GetArchetypeChunkComponentType<FlyingTag>(true);
 
         var job = new GravityJob
