@@ -6,6 +6,9 @@ public class LevelConversion : GameObjectConversionSystem
 {
     protected override void OnUpdate()
     {
+        // EntityManager -> In CONVERSION world: will not be saved, stored or serialized
+        // DstEntityManager -> In destination world: what will be serialized into the subscene
+
         Entities.ForEach<Metro>(Convert);
     }
 
