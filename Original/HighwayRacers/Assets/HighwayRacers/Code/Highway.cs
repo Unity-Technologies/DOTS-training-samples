@@ -25,7 +25,6 @@ namespace HighwayRacers
 
         public static Highway instance { get; private set; }
 
-
         private HighwayPiece[] pieces = new HighwayPiece[8];
 
 		/// <summary>
@@ -100,9 +99,9 @@ namespace HighwayRacers
                 x += piece.startX;
                 z += piece.startZ;
                 rotation += piece.startRotation;
-                break;                
+                break;
             }
-            
+
         }
 
         /// <summary>
@@ -175,7 +174,7 @@ namespace HighwayRacers
 
         public void CreateHighway(float lane0Length)
         {
-			
+
             if (lane0Length < MIN_HIGHWAY_LANE0_LENGTH)
             {
                 Debug.LogError("Highway length must be longer than " + MIN_HIGHWAY_LANE0_LENGTH);
@@ -407,7 +406,7 @@ namespace HighwayRacers
                 // add car wherever
                 return AddCarUnsafe(Random.Range(0, length(lane)), lane);
             }
-            
+
             foreach (Car car in cars)
             {
                 Car frontCar = GetCarInFront(car);
@@ -460,7 +459,7 @@ namespace HighwayRacers
 			}
 
 		}
-        
+
         public void ClearCars()
         {
             foreach (Car car in cars)
@@ -486,7 +485,7 @@ namespace HighwayRacers
 
 		}
 
-        
+
         private LinkedList<Car> cars = new LinkedList<Car>();
 
         private void Awake()
@@ -506,7 +505,7 @@ namespace HighwayRacers
 
         private void Update()
         {
-			
+
 
         }
 
