@@ -5,18 +5,6 @@ using Unity.Jobs;
 using Unity.Transforms;
 using UnityEngine;
 
-//public class MoverSystem : ComponentSystem
-//{
-//    protected override void OnUpdate()
-//    {
-//        Entities.WithAll<Mover>().WithAll<Translation>().ForEach((Entity e, ref Mover mover, ref Translation translation) =>
-//        {
-//            translation.Value += mover.velocity * Time.deltaTime;
-//        });
-//    }
-//}
-
-
 public class MoverSystem : JobComponentSystem
 {
     [BurstCompile]
