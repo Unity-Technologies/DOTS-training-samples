@@ -4,54 +4,68 @@ using Unity.Collections;
 
 namespace HighwayRacers
 {
+
     public struct HighwaySpacePartition
     {
-        struct Bucket
+        struct BucketEntry
         {
-            public struct Entry
-            {
-                public int CarID;
-                public float2 Pos; // (avgDistanceFromOrigin, lane)
-                public float Speed;
-            }
-            public NativeArray<Entry> Entries;
-            public int NumUsed;
+            public int CarID;
+            public float2 Pos; // (avgDistanceFromOrigin, lane)
+            public float Speed;
         }
+        NativeMultiHashMap<int, BucketEntry> HashMap;
 
-        NativeArray<Bucket> Buckets;
+        int NumBuckets;
         float BucketLength;
         float HalfTrackLength;
 
-        int NextBucket(int index) { return (index + 1) % Buckets.Length; }
-        int PrevBucket(int index) { return (index + Buckets.Length - 1) % Buckets.Length; }
+        int NextBucket(int index) { return (index + 1) % NumBuckets; }
+        int PrevBucket(int index) { return (index + NumBuckets - 1) % NumBuckets; }
 
-        public void Create(float trackLength, float desiredBucketLength, float carLength)
+        public void Create(
+            float trackLength, float desiredBucketLength, int capacity, Allocator allocator)
         {
             Dispose();
 
-            // Buckets must be big enough to hold a full set of cars
             HalfTrackLength = trackLength / 2;
-            int numBuckets = math.max(1, (int)math.round(trackLength / desiredBucketLength));
-            BucketLength = trackLength / numBuckets;
-            int bucketSize = (int)math.ceil(BucketLength / carLength) * HighwayConstants.NUM_LANES;
+            NumBuckets = math.max(1, (int)math.round(trackLength / desiredBucketLength));
+            BucketLength = trackLength / NumBuckets;
 
-            Buckets = new NativeArray<Bucket>(numBuckets, Allocator.Persistent);
-            for (int i = 0; i < numBuckets; ++i)
-                Buckets[i] = new Bucket
-                    { Entries = new NativeArray<Bucket.Entry>(bucketSize, Allocator.Persistent) };
+            HashMap = new NativeMultiHashMap<int, BucketEntry>(capacity, allocator);
         }
 
         public void Dispose()
         {
-            for (int i = 0; i < Buckets.Length; ++i)
-                Buckets[i].Entries.Dispose();
-            Buckets.Dispose();
+            if (HashMap.IsCreated)
+                HashMap.Dispose();
         }
 
-        int GetBucketIndex(float pos)
+        public struct ParallelWriter
         {
-            return (int)math.floor(pos / BucketLength);
+            public ParallelWriter(HighwaySpacePartition sp)
+            {
+                writer = sp.HashMap.AsParallelWriter();
+                BucketLength = sp.BucketLength;
+            }
+
+            NativeMultiHashMap<int, BucketEntry>.ParallelWriter writer;
+            float BucketLength;
+            int GetBucketIndex(float pos) { return (int)math.floor(pos / BucketLength); }
+
+            // Pos units are average lane distance from origin
+            public void AddCar(
+                int carId, float pos, float lane, float speed)
+            {
+                writer.Add(GetBucketIndex(pos), new BucketEntry
+                    { CarID = carId, Pos = new float2(pos, lane), Speed = speed });
+            }
         }
+
+        // Use this to add cars
+        public ParallelWriter AsParallelWriter() { return new ParallelWriter(this); }
+
+        // Pos units are average lane distance from origin
+        int GetBucketIndex(float pos) { return (int)math.floor(pos / BucketLength); }
 
         // Won't return a distance longer than HalfTrackLength
         float GetDistance(float fromPos, float toPos)
@@ -62,55 +76,6 @@ namespace HighwayRacers
                 math.select(toPos, toPos - (2 * HalfTrackLength), toPos > HalfTrackLength)
                     - math.select(fromPos, fromPos - (2 * HalfTrackLength), fromPos > HalfTrackLength),
                 math.abs(d) >= HalfTrackLength);
-        }
-
-        // olsPos and newPos units are average lane distance from origin
-        public void MoveCar(
-            int carId, float oldPos, float newPos, float newLane, float newSpeed)
-        {
-            int oldIndex = GetBucketIndex(oldPos);
-            int newIndex = GetBucketIndex(newPos);
-            Bucket bucket;
-
-            // Remove from old bucket
-            if (oldIndex != newIndex)
-            {
-                bucket = Buckets[oldIndex];
-                for (int i = 0; i < bucket.NumUsed; ++i)
-                {
-                    var e = bucket.Entries[i];
-                    if (e.CarID == carId)
-                    {
-                        e.CarID = 0;
-                        bucket.Entries[i] = e;
-                        if (i == bucket.NumUsed - 1)
-                        {
-                            --bucket.NumUsed;
-                            Buckets[oldIndex] = bucket;
-                        }
-                        break;
-                    }
-                }
-            }
-
-            // Add to new bucket
-            bucket = Buckets[newIndex];
-            bool found = false;
-            var pos = new Vector2(newPos, newLane);
-            for (int i = 0; i < bucket.NumUsed && !found; ++i)
-            {
-                var e = bucket.Entries[i];
-                if (e.CarID == carId)
-                {
-                    bucket.Entries[i] = new Bucket.Entry { CarID = carId, Pos = pos, Speed = newSpeed };
-                    found = true;
-                }
-            }
-            if (!found)
-            {
-                bucket.Entries[bucket.NumUsed++] = new Bucket.Entry { CarID = carId, Pos = pos, Speed = newSpeed };
-                Buckets[newIndex] = bucket;
-            }
         }
 
         // Distances are in average lane space
@@ -148,16 +113,13 @@ namespace HighwayRacers
             int bucketIndex = myBucket;
             for (int b = 0; b <= numFwdBuckets; ++b)
             {
-                var bucket = Buckets[bucketIndex];
-                for (int i = 0; i < bucket.NumUsed; ++i)
+                var bucket = HashMap.GetValuesForKey(bucketIndex);
+                while (bucket.MoveNext())
                 {
-                    var e = bucket.Entries[i];
-                    if (e.CarID != 0)
-                    {
-                        float d = GetDistance(pos, e.Pos.x);
-                        if (!GatherFrontDistances(e, ref result, myLane, d) && b == 0)
-                            GatherRearDistances(e, ref result, myLane, d);
-                    }
+                    var e = bucket.Current;
+                    float d = GetDistance(pos, e.Pos.x);
+                    if (!GatherFrontDistances(e, ref result, myLane, d) && b == 0)
+                        GatherRearDistances(e, ref result, myLane, d);
                 }
                 // Early out if done
                 if (IsComplete(ref result))
@@ -168,15 +130,12 @@ namespace HighwayRacers
             bucketIndex = PrevBucket(myBucket);
             for (int b = 0; b < numRearBuckets; ++b)
             {
-                var bucket = Buckets[bucketIndex];
-                for (int i = 0; i < bucket.NumUsed; ++i)
+                var bucket = HashMap.GetValuesForKey(bucketIndex);
+                while (bucket.MoveNext())
                 {
-                    var e = bucket.Entries[i];
-                    if (e.CarID != 0)
-                    {
-                        float d = GetDistance(pos, e.Pos.x);
-                        GatherRearDistances(e, ref result, myLane, d);
-                    }
+                    var e = bucket.Current;
+                    float d = GetDistance(pos, e.Pos.x);
+                    GatherRearDistances(e, ref result, myLane, d);
                 }
                 // Early out if done
                 if (IsComplete(ref result))
@@ -199,7 +158,7 @@ namespace HighwayRacers
         }
 
         // Returns true if this entry is handled
-        bool GatherFrontDistances(Bucket.Entry e, ref QueryResult result, float myLane, float d)
+        bool GatherFrontDistances(BucketEntry e, ref QueryResult result, float myLane, float d)
         {
             // Only consider objects in front
             if (d < 0)
@@ -230,7 +189,7 @@ namespace HighwayRacers
         }
 
         // Returns true if this entry is handled
-        bool GatherRearDistances(Bucket.Entry e, ref QueryResult result, float myLane, float d)
+        bool GatherRearDistances(BucketEntry e, ref QueryResult result, float myLane, float d)
         {
             // Only consider objects in rear
             if (d >= 0)
