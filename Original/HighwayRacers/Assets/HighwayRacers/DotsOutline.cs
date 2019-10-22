@@ -1,53 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
 
-
-struct CarID
-{
-    public int Value;
-}
-
-// Car pos: use LocalToWorld
-struct CarColor
-{
-    public Color Value;
-}
-
-struct CarStateOnTrack : IComponentData
-{
-    public int TrackSegment;
-    public float PositionOnTrackSegmentLane0;
-    public float Lane;
-}
-
-struct CarState : IComponentData
-{
-    public float FwdSpeed; // velocityPosition
-    public float LeftSpeed; // velocityLane
-
-    public int SpacePartitionIndex;
-
-	public enum State {
-		NORMAL,
-		MERGE_RIGHT,
-		MERGE_LEFT,
-		OVERTAKING,
-	}
-    public State CurrentState;
-}
-
-struct CarSettings : IComponentData
-{
-	public float DefaultSpeed;
-	public float OvertakePercent;
-	public float LeftMergeDistance;
-	public float MergeSpace;
-	public float OvertakeEagerness;
-}
 
 struct HighwaySettings
 {
