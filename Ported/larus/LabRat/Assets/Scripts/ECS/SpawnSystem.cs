@@ -39,7 +39,9 @@ public class SpawnSystem : ComponentSystem
                 spawner.TotalSpawned++;
 
                 // TODO: Figure out why mice are slow here (avoid 4x multiplier)
-                var speed = gameConfig.Speed.RandomValue() * 4;
+                var speed = gameConfig.EatenSpeed.RandomValue();
+                if (spawner.PrimaryType == SpawnerType.Eater)
+                    speed = gameConfig.EaterSpeed.RandomValue();
 
                 //Debug.Log("Spawning " + spawner.Prefab + " counter=" + spawner.Counter + " totalSpawned=" + spawner.TotalSpawned + " max=" + spawner.Max);
                 var rat = PostUpdateCommands.Instantiate(spawner.Prefab);

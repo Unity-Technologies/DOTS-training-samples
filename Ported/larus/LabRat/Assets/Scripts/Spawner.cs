@@ -54,9 +54,13 @@ public class Spawner : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefere
 
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
 	{
-		dstManager.SetName(entity, "Spawner");
+		dstManager.SetName(entity, Prefab.name);
+		var spawnerType = SpawnerType.Eaten;
+		if (Prefab.name.Contains("Cat"))
+			spawnerType = SpawnerType.Eater;
 		dstManager.AddComponentData(entity, new SpawnerComponent
 		{
+			PrimaryType = spawnerType,
 			Prefab = conversionSystem.GetPrimaryEntity(Prefab),
 			AlternatePrefab = conversionSystem.GetPrimaryEntity(AlternatePrefab),
 			Counter = Counter,
