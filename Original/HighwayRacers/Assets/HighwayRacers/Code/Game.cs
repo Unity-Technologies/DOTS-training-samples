@@ -46,6 +46,9 @@ namespace HighwayRacers
 		[Header("UI")]
 		public float carSelectRadius = 7;
 
+		[Header("Space Partition")]
+		public float bucketDistance = 10;
+
         #endregion
 
 		public enum ViewState
@@ -76,7 +79,7 @@ namespace HighwayRacers
 			Car car = Highway.instance.GetCarAtScreenPosition(Input.mousePosition, carSelectRadius);
 			if (car != null) {
 				CarView(car);
-			} 
+			}
 		}
 
         private void Awake()
@@ -104,7 +107,7 @@ namespace HighwayRacers
 
 			switch (viewState) {
 			case ViewState.TOP_DOWN:
-				
+
 				break;
 			case ViewState.CAR:
 				break;
@@ -122,7 +125,7 @@ namespace HighwayRacers
             {
                 instance = null;
             }
-            
+
         }
 
     }
