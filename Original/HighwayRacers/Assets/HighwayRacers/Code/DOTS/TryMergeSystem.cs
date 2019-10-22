@@ -21,9 +21,9 @@ public class TryMergeSystem : JobComponentSystem
 	    bool WantsToMergeLeft(ref CarStateOnTrack trackState, ref ProximityData proximityData, ref CarSettings settings)
 	    {
 		    return trackState.Lane + 1 < numLanes // left lane exists
-		           && proximityData.NearestFrontMyLane < settings.LeftMergeDistance // close enough to car in front
+		           && proximityData.data.NearestFrontMyLane.Distance < settings.LeftMergeDistance // close enough to car in front
 		           && settings.OvertakeEagerness >
-		           proximityData.NearestFrontMyLaneSpeed / settings.DefaultSpeed; // car in front is slow enough
+		           proximityData.data.NearestFrontMyLane.Speed / settings.DefaultSpeed; // car in front is slow enough
 	    }
 
 	    bool CanMergeLeft(float lane)
@@ -40,8 +40,8 @@ public class TryMergeSystem : JobComponentSystem
 		    if (tryMergeRight) {
 			    // don't merge if just going to merge back
 			    // condition for merging to left lane
-			    if (proximityData.NearestFrontRight < settings.LeftMergeDistance// close enough to car in front
-			        && settings.OvertakeEagerness > proximityData.NearestFrontRightSpeed / settings.DefaultSpeed // car in front is slow enough
+			    if (proximityData.data.NearestFrontRight.Distance < settings.LeftMergeDistance// close enough to car in front
+			        && settings.OvertakeEagerness > proximityData.data.NearestFrontRight.Speed / settings.DefaultSpeed // car in front is slow enough
 			    )
 			    {
 				    tryMergeRight = false;

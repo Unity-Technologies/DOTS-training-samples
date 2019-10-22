@@ -16,7 +16,7 @@ public class CrashPreventionSystem : JobComponentSystem
 
         public void Execute([ReadOnly] ref ProximityData proximityData, ref CarState state)
         {
-            var maxDistanceDiff = Mathf.Max(0, proximityData.NearestFrontMyLane - k_MinDistBetweenCars);
+            var maxDistanceDiff = Mathf.Max(0, proximityData.data.NearestFrontMyLane.Distance - k_MinDistBetweenCars);
             state.FwdSpeed = Mathf.Min(state.FwdSpeed, maxDistanceDiff / deltaTime);
         }
     }

@@ -16,14 +16,14 @@ public class CarStateSystem : JobComponentSystem
         public void Execute(ref CarState state,[ReadOnly] ref CarStateOnTrack trackState, [ReadOnly]ref CarSettings settings, [ReadOnly] ref ProximityData proximityData)
         {
             var targetSpeed = settings.DefaultSpeed;
-            var distToCarInFront = proximityData.NearestFrontMyLane;
+            var distToCarInFront = proximityData.data.NearestFrontMyLane.Distance;
             switch (state.CurrentState) {
                 case CarState.State.NORMAL:
                     state.LeftSpeed = 0;
 
                     // if won't merge, match car in front's speed
                     if (distToCarInFront < settings.LeftMergeDistance) {
-                        targetSpeed = Mathf.Min(targetSpeed, proximityData.NearestFrontMyLaneSpeed);
+                        targetSpeed = Mathf.Min(targetSpeed, proximityData.data.NearestFrontMyLane.Speed);
                     }
 
                     break;
