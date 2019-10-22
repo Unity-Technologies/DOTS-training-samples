@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Unity.Entities;
+﻿using Unity.Entities;
 using UnityEngine;
 
 public class LevelConversion : GameObjectConversionSystem
@@ -15,21 +14,15 @@ public class LevelConversion : GameObjectConversionSystem
     void Convert(Entity entity, Metro metroComponent)
     {
         Debug.Log("Start Metro Conversion");
-        //SetupMetroComponent(metroComponent);
-        //GeneratePathfindingData(entity, metroComponent);
+        GeneratePathfindingData(entity, metroComponent);
         GenerateTrainTracksBezierData(entity, metroComponent);
-    }
-
-    void SetupMetroComponent(Metro metroComponent)
-    {
-        metroComponent.SetupMetroLines();
-        //metroComponent.SetupTrains();
-        //metroComponent.SetupCommuters();;
     }
 
     void GeneratePathfindingData(Entity entity, Metro metroComponent)
     {
         Debug.Log("GeneratePathfindingData");
+
+        metroComponent.SetupMetroLines();
         Path.GeneratePathFindingData(Path.GetAllPlatformsInScene());
     }
 
