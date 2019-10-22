@@ -21,11 +21,8 @@ public class TinCanManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, 
             throw new Exception($"Something went wrong while creating an Entity for the rig prefab: {TinCanPrefab.name}");
 
         // Here we should add some components to our entity prefab
-        var state = new TinCanStatus
-        {
-            Value = TinCanState.Reset
-        };
-        dstManager.AddComponentData(entityPrefab, state);
+        var tintag = new TinCanTag();
+        dstManager.AddComponentData(entityPrefab, tintag);
         
         var spawnerData = new SpawnerData
         {

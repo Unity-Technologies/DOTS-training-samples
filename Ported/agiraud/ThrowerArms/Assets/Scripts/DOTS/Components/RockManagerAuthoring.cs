@@ -23,11 +23,8 @@ public class RockManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
                 $"Something went wrong while creating an Entity for the rig prefab: {RockPrefab.name}");
 
         // Here we should add some components to our entity prefab
-        var state = new RockStatus
-        {
-            Value = RockState.Conveyor
-        };
-        dstManager.AddComponentData(entityPrefab, state);
+        var rockTag = new RockTag();
+        dstManager.AddComponentData(entityPrefab, rockTag);
 
         var mover = new Mover
         {
