@@ -8,6 +8,7 @@ public class TinCanManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, 
 {
     public GameObject TinCanPrefab;
     public int TinCanCount = 1000;
+    public static float TinCanGravityStrength = 20;
     
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
