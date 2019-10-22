@@ -4,29 +4,35 @@ using UnityEngine;
 
 public static class Path
 {
-    enum Method
+    public enum Method
     {
         Walk,
         Train
     }
 
-    struct Connection
+    public struct Connection
     {
         public int destinationPlatformId;
         public Method method;
     }
 
-    struct pathId
+    struct PathId
     {
         public int fromPlatformId;
         public int toPlatformId;
     }
 
-    static Dictionary<pathId, Connection[]> pathLookup = new Dictionary<pathId, Connection[]>();
+    static Dictionary<PathId, Connection[]> pathLookup = new Dictionary<PathId, Connection[]>();
 
     public static IEnumerable<Platform> GetAllPlatformsInScene()
     {
         return Object.FindObjectsOfType<Platform>();
+    }
+
+    public static Connection[] GetConnections(int fromPlatformId, int toPlatformId)
+    {
+        var id = new PathId { fromPlatformId = fromPlatformId, toPlatformId = toPlatformId };
+        return pathLookup[id];
     }
 
     public static void GeneratePathFindingData(IEnumerable<Platform> platforms)
@@ -41,7 +47,7 @@ public static class Path
                 {
                     var shortestRoute = ShortestRoute(platform1, platform2, platformsList);
                     var connections = CommuterTasksToConnections(shortestRoute).ToArray();
-                    var pathId = new pathId { fromPlatformId = platform1.platformIndex, toPlatformId = platform2.platformIndex };
+                    var pathId = new PathId { fromPlatformId = platform1.platformIndex, toPlatformId = platform2.platformIndex };
                     pathLookup.Add(pathId, connections);
                 }
             }
