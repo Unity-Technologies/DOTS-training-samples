@@ -128,7 +128,7 @@ public class WalkSystem : ComponentSystem
 						return;
 					}
 
-					newDirection = ShouldRedirect(cell, myDirection, gameConfig.DiminishesArrows);
+					newDirection = ShouldRedirect(cell, cellIndex, myDirection, gameConfig.DiminishesArrows);
 
 					//newDirection = cell.ShouldRedirect(myDirection, gameConfig.DiminishesArrows);
 
@@ -271,21 +271,25 @@ public class WalkSystem : ComponentSystem
 		return CellData.WallNorth;
 	}
 
-	public Direction ShouldRedirect(CellComponent cell, Direction myDirection, bool diminishesArrows) {
+	public Direction ShouldRedirect(CellComponent cell, int cellIndex, Direction myDirection, bool diminishesArrows) {
 		/*if (blockState == BlockState.Confuse) {
 			const int numDirections = 4;
 			var nextIndex = ((int)myDirection + 1 + Random.Range(0, numDirections - 1)) % numDirections;
 			myDirection = (Direction)nextIndex;
 		}*/
 
-		/*Direction arrowDirection;
-		bool hasArrow = GetArrowDirection(out arrowDirection);
-		if (hasArrow && myDirection != arrowDirection) {
-			if (arrowDirection == OppositeDirection(myDirection) && diminishesArrows)
-				DiminishArrow();
-
-			myDirection = arrowDirection;
-		}*/
+		if ((cell.data & CellData.Arrow) == CellData.Arrow)
+		{
+			var arrowMap = World.GetExistingSystem<BoardSystem>().ArrowMap;
+			// Assert the cell index exists in the map, since the bit should not have been set otherwise
+			var direction = arrowMap[cellIndex].Direction;
+			if (myDirection != direction)
+			{
+				//if (arrowDirection == OppositeDirection(myDirection) && diminishesArrows)
+				//	DiminishArrow();
+				myDirection = direction;
+			}
+		}
 
 		if (HasWall(cell, myDirection))
 		{
