@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class Colour {
@@ -11,6 +12,8 @@ public class Colour {
 
 	public static void RecolourChildren(Transform _target, Color _newColour)
 	{
+		if (!EditorApplication.isPlaying)
+			return;
 		Renderer[] renderers = _target.GetComponentsInChildren<Renderer>();
 		for (int i = 0; i < renderers.Length; i++)
 		{
