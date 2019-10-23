@@ -25,21 +25,24 @@ public class CollisionSystem : JobComponentSystem
                 return;
 
             float canDistance;
-            NearestPosition(rocks, translation.Value, out canDistance);
+            float3 rockPos;
+            NearestPosition(rocks, translation.Value, out canDistance, out rockPos);
 
             // TODO: expose radius
             if (canDistance < 1.0)
             {
                 physics.flying = true;
 
-                // TODO: impact + angular velocity
-                physics.velocity.z = 5;
+                physics.velocity += math.normalize(translation.Value - rockPos) * 10;
+                physics.angularVelocity += math.normalize(physics.velocity) * 2;
             }
         }
 
-        void NearestPosition(NativeArray<float3> rocks, float3 position, out float nearestDistance)
+        void NearestPosition(NativeArray<float3> rocks, float3 position, out float nearestDistance, out float3 nearestPos)
         {
             nearestDistance = math.lengthsq(position - rocks[0]);
+            nearestPos = rocks[0];
+
             for (int i = 1; i < rocks.Length; i++)
             {
                 var targetPosition = rocks[i];
@@ -47,6 +50,7 @@ public class CollisionSystem : JobComponentSystem
                 var nearest = distance < nearestDistance;
 
                 nearestDistance = math.select(nearestDistance, distance, nearest);
+                nearestPos = math.select(nearestPos, targetPosition, nearest);
             }
             nearestDistance = math.sqrt(nearestDistance);
         }
