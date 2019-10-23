@@ -178,6 +178,7 @@ namespace HighwayRacers
         Random m_Random;
         void AddCarEntities(int count, EntityManager em)
         {
+            float lane = 0;
             m_Random.InitState();
             for (int i = 0; i < count; i++)
             {
@@ -193,14 +194,15 @@ namespace HighwayRacers
                     OvertakeEagerness = m_Random.NextFloat(Game.instance.overtakeEagernessMin, Game.instance.overtakeEagernessMax),
                 };
                 em.AddComponentData(entity,data);
+
                 em.AddComponentData(entity,new CarState
                 {
                     TargetFwdSpeed = data.DefaultSpeed,
                     FwdSpeed = data.DefaultSpeed,
                     LeftSpeed = 0,
 
-                    PositionOnTrack = 0,
-                    Lane = 0,
+                    PositionOnTrack = 0, //m_Random.NextFloat(0, LaneLength(lane)),
+                    Lane = lane,
                     TargetLane = 0,
                     CurrentState = CarState.State.NORMAL
 
@@ -210,6 +212,10 @@ namespace HighwayRacers
                 em.AddComponentData(entity,new Translation());
                 em.AddComponentData(entity,new Rotation());
                 em.AddComponentData(entity, new LocalToWorld());
+
+                lane += 1;
+                if (lane == Highway.NUM_LANES)
+                    lane = 0;
             }
 
         }
