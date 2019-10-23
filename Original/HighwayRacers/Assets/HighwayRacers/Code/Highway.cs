@@ -193,7 +193,7 @@ namespace HighwayRacers
                 return;
             }
 
-			int tempNumCars = numCars;
+			int tempNumCars = NumCars;
 			if (lane0Length < this.lane0Length) {
 				ClearCars();
 			}
@@ -454,12 +454,11 @@ namespace HighwayRacers
 			Destroy (car.gameObject);
 		}
 
-		public int numCars {
-			get { return cars.Count; }
-		}
+		public int NumCars { get; private set; }
 
-		public void SetNumCars(int numCars) {
-
+		public void SetNumCars(int numCars)
+        {
+/*
 			while (cars.Count > numCars) {
 				RemoveCar(cars.First.Value);
 			}
@@ -468,7 +467,9 @@ namespace HighwayRacers
 				if (car == null)
 					break;
 			}
+*/
             DotsHighway.SetNumCars(numCars);
+            NumCars = numCars;
         }
 
         public void ClearCars()
@@ -479,6 +480,7 @@ namespace HighwayRacers
             }
             cars.Clear();
             DotsHighway.SetNumCars(0);
+            NumCars = 0;
         }
 
 		public Car GetCarAtScreenPosition(Vector3 screenPosition, float radius){

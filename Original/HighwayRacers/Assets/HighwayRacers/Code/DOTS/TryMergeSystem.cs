@@ -120,7 +120,7 @@ namespace HighwayRacers
                 overtakeMaxDuration = Game.instance.overtakeMaxDuration
             };
             var deps = job.Schedule(this, inputDeps);
-            Highway.instance.DotsHighway.RegisterReaderJob(deps);
+            DotsHighway.RegisterReaderJob(deps);
             return deps;
         }
     }

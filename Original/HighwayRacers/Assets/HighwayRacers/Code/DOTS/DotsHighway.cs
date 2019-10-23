@@ -65,15 +65,14 @@ namespace HighwayRacers
 
         public void Dispose()
         {
-
-//            ReaderJob.Complete();
+            sReaderJob.Complete();
             if (Sections.IsCreated) Sections.Dispose();
         }
 
-//        JobHandle ReaderJob;
-        public void RegisterReaderJob(JobHandle h)
+        static JobHandle sReaderJob;
+        public static void RegisterReaderJob(JobHandle h)
         {
-  //          ReaderJob = h;
+            sReaderJob = h;
         }
 
         public float NumLanes { get { return Highway.NUM_LANES; } }
