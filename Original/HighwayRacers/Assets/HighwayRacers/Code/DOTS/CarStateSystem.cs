@@ -28,7 +28,8 @@ namespace HighwayRacers
                         state.LeftSpeed = 0;
 
                         // if won't merge, match car in front's speed
-                        if (distToCarInFront < settings.LeftMergeDistance) {
+                        if (proximityData.data.NearestFrontMyLane.CarId != 0 && distToCarInFront < settings.LeftMergeDistance)
+                        {
                             targetSpeed = Mathf.Min(targetSpeed, proximityData.data.NearestFrontMyLane.Speed);
                         }
 
