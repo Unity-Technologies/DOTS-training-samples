@@ -22,7 +22,7 @@ namespace HighwayRacers.Authoring
             dstManager.AddComponentData(entity,data);
             dstManager.AddComponentData(entity,new CarID { Value = NextCarId++ });
             dstManager.AddComponentData(entity,new CarState()); // TODO: system should add this
-            dstManager.AddComponentData(entity,new CarColor()); // TODO: system should add this
+            dstManager.AddComponentData(entity,new ColorComponent()); // TODO: system should add this
             dstManager.AddComponentData(entity,new ProximityData());
         }
     }

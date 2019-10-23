@@ -9,7 +9,7 @@ namespace HighwayRacers
     [UpdateAfter(typeof(CarMoveSystem))]
     public class ColorSystem : JobComponentSystem
     {
-        struct ColorSystemJob : IJobForEach<CarState, CarSettings, CarColor>
+        struct ColorSystemJob : IJobForEach<CarState, CarSettings, ColorComponent>
         {
             public Color defaultColor;
             public Color maxSpeedColor;
@@ -17,7 +17,7 @@ namespace HighwayRacers
             public void Execute(
                 [ReadOnly] ref CarState state,
                 [ReadOnly] ref CarSettings settings,
-                ref CarColor color)
+                ref ColorComponent color)
             {
                 var colr = Color.black;
                 if (state.FwdSpeed > settings.DefaultSpeed)
@@ -32,7 +32,7 @@ namespace HighwayRacers
                 {
                     colr = defaultColor;
                 }
-                
+
                 color.Value = new float4(colr.r,colr.g,colr.b,colr.a);
             }
         }

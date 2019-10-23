@@ -57,7 +57,7 @@ namespace HighwayRacers
                 Highway.instance.length(0),
                 Game.instance.bucketDistance,
                 Game.instance.maxNumCars,
-                Allocator.TempJob);
+                Allocator.Persistent);
 
             var buildJob = new BuildSpacePartitionJob { SpacePartition = SpacePartition.AsParallelWriter() };
             var buildDeps = buildJob.Schedule(this, inputDeps);

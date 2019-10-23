@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace HighwayRacers
 {
-    struct CarColor : IComponentData
+    struct ColorComponent : IComponentData
     {
         public float4 Value;
     }

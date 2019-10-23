@@ -1,5 +1,7 @@
 ﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 namespace HighwayRacers
 {
@@ -150,6 +152,66 @@ namespace HighwayRacers
                 }
             }
             return 0;
+        }
+
+        // TODO: Hack - temporary methods to create/destroy cars
+        public void SetNumCars(int numCars)
+        {
+            var em = World.Active?.EntityManager;
+            if (em == null)
+                return;
+            var query = em.CreateEntityQuery(typeof(CarState));
+            var numExistingCars = query.CalculateEntityCount();
+            int delta = numCars - numExistingCars;
+            if (delta > 0)
+                AddCarEntities(delta, em);
+            else if (delta < 0)
+            {
+                var entities = query.ToEntityArray(Allocator.TempJob);
+                for (int i = 0; i < delta; ++i)
+                    em.DestroyEntity(entities[i]);
+                entities.Dispose();
+            }
+        }
+
+        static int NextCarId = 1;
+        Random m_Random;
+        void AddCarEntities(int count, EntityManager em)
+        {
+            m_Random.InitState();
+            for (int i = 0; i < count; i++)
+            {
+                var entity = World.Active.EntityManager.CreateEntity();
+
+                em.AddComponentData(entity,new CarID { Value = NextCarId++ });
+                var data = new CarSettings()
+                {
+                    DefaultSpeed = m_Random.NextFloat(Game.instance.defaultSpeedMin, Game.instance.defaultSpeedMax),
+                    OvertakePercent = m_Random.NextFloat(Game.instance.overtakePercentMin, Game.instance.overtakePercentMax),
+                    LeftMergeDistance = m_Random.NextFloat(Game.instance.leftMergeDistanceMin, Game.instance.leftMergeDistanceMax),
+                    MergeSpace = m_Random.NextFloat(Game.instance.mergeSpaceMin, Game.instance.mergeSpaceMax),
+                    OvertakeEagerness = m_Random.NextFloat(Game.instance.overtakeEagernessMin, Game.instance.overtakeEagernessMax),
+                };
+                em.AddComponentData(entity,data);
+                em.AddComponentData(entity,new CarState
+                {
+                    TargetFwdSpeed = data.DefaultSpeed,
+                    FwdSpeed = data.DefaultSpeed,
+                    LeftSpeed = 0,
+
+                    PositionOnTrack = 0,
+                    Lane = 0,
+                    TargetLane = 0,
+                    CurrentState = CarState.State.NORMAL
+
+                });
+                em.AddComponentData(entity,new ColorComponent());
+                em.AddComponentData(entity,new ProximityData());
+                em.AddComponentData(entity,new Translation());
+                em.AddComponentData(entity,new Rotation());
+                em.AddComponentData(entity, new LocalToWorld());
+            }
+
         }
 
     }
