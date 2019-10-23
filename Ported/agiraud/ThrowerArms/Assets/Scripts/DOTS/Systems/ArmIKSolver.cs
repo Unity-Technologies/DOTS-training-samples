@@ -27,8 +27,17 @@ public class ArmIKSolver : JobComponentSystem
                 chainPositions[i] = boneJoints[i].JointPos;
             }
 
-            ConstantManager.IKSolve(chainPositions, armBoneLength,chainPositions[0] /*TODO*/, armTarget.Value,
+            ConstantManager.IKSolve(ref chainPositions, armBoneLength,chainPositions[0] /*TODO*/, armTarget.Value,
                 upAxis.Value*armBendStrength);
+            
+            for (int i = 0; i < 3; i++)
+            {
+                boneJoints[i] = new BoneJoint
+                {
+                    JointPos = chainPositions[i]
+                };
+            }
+            
             chainPositions.Dispose();
         }
     }

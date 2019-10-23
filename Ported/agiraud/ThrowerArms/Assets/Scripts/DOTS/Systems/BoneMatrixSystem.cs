@@ -32,8 +32,12 @@ public class BoneMatrixSystem : JobComponentSystem
             var trs = float4x4.TRS(chain[boneData.ChainIndex].JointPos + delta * .5f,
                 quaternion.LookRotation(delta, Up[boneData.Parent].Value),
                 new float3(boneData.Thickness, boneData.Thickness, math.length(delta)));
-            //Test value: var trs = float4x4.identity;
-            transform.Value = trs;
+            //var trs = float4x4.identity;
+            
+//            var trs = float4x4.TRS(chain[boneData.ChainIndex].JointPos,
+//                quaternion.identity, 
+//                new float3(boneData.Thickness, boneData.Thickness, 1));
+            transform = new LocalToWorld {Value = trs};
         }
     }
 

@@ -1,5 +1,7 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 public struct ArmSpawnerData : IComponentData
 {
@@ -12,6 +14,8 @@ public struct BoneJoint : IBufferElementData
     public float3 JointPos;
 }
 
+[Serializable]
+[WriteGroup(typeof(LocalToWorld))]
 public struct BoneData : IComponentData
 {
     public Entity Parent;

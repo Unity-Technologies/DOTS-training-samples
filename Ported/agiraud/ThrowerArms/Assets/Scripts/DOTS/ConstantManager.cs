@@ -64,7 +64,7 @@ public class ConstantManager : ScriptableObject
         return output;
     }
 
-    public static void IKSolve(NativeArray<float3> chain, float boneLength, float3 anchor, float3 target, float3 bendHint) {
+    public static void IKSolve(ref NativeArray<float3> chain, float boneLength, float3 anchor, float3 target, float3 bendHint) {
         chain[chain.Length - 1] = target;
         for (int i=chain.Length-2;i>=0;i--) {
             chain[i] += bendHint;
