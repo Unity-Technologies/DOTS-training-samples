@@ -92,7 +92,9 @@ public class ArmSpawnerSystem : ComponentSystem
                         JointPos = float3.zero
                     };
                 }
-
+                EntityManager.AddComponent<UpAxis>(armEntity);
+                EntityManager.SetComponentData(armEntity, new UpAxis{ Value = math.up() });
+                
                 CreateArm(spawnerData.BoneEntityPrefab, armEntity);
             }
             EntityManager.DestroyEntity(e);

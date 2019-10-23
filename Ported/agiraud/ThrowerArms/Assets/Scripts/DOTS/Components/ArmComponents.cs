@@ -18,3 +18,8 @@ public struct BoneData : IComponentData
     public int ChainIndex;
     public float Thickness;
 }
+
+public struct UpAxis : IComponentData
+{
+    public float3 Value;
+}

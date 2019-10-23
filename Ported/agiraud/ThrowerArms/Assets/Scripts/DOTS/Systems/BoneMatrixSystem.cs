@@ -22,6 +22,7 @@ public class BoneMatrixSystem : JobComponentSystem
     struct BoneMatrixSystemJob : IJobForEachWithEntity<BoneData, LocalToWorld>
     {
         [ReadOnly] public BufferFromEntity<BoneJoint> BoneChain;
+        [ReadOnly] public ComponentDataFromEntity<UpAxis> Up;
         
         public void Execute(Entity entity, int jobIndex, [ReadOnly] ref BoneData boneData, ref LocalToWorld transform)
         {
@@ -29,7 +30,7 @@ public class BoneMatrixSystem : JobComponentSystem
             var delta = chain[boneData.ChainIndex + 1].JointPos - chain[boneData.ChainIndex].JointPos;
 
 //            var trs = float4x4.TRS(chain[boneData.ChainIndex].JointPos + delta * .5f,
-//                quaternion.LookRotation(delta, math.up()),
+//                quaternion.LookRotation(delta, Up[boneData.Parent]),
 //                new float3(boneData.Thickness, boneData.Thickness, math.length(delta)));
             var trs = float4x4.identity;
             transform.Value = trs;
@@ -41,6 +42,7 @@ public class BoneMatrixSystem : JobComponentSystem
         var job = new BoneMatrixSystemJob
         {
             BoneChain = GetBufferFromEntity<BoneJoint>(true),
+            Up = GetComponentDataFromEntity<UpAxis>(true)
         };
         return job.Schedule(this, inputDeps);
     }
