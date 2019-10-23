@@ -27,17 +27,17 @@ namespace HighwayRacers
 		{
 			Highway.instance.CreateHighway(highwaySizeSlider.value);
 			Highway.instance.SetNumCars(Mathf.RoundToInt(numCarsSlider.value));
-			numCarsSlider.value = Highway.instance.numCars;
+			numCarsSlider.value = Highway.instance.NumCars;
 		}
 
 		public void UpdateSliderValues(){
-			
+
 			numCarsSlider.minValue = 0;
 			numCarsSlider.maxValue = Game.instance.maxNumCars;
 			highwaySizeSlider.minValue = Mathf.Ceil(Highway.MIN_HIGHWAY_LANE0_LENGTH);
 			highwaySizeSlider.maxValue = Game.instance.highwayMaxSize;
 
-			numCarsSlider.value = Highway.instance.numCars;
+			numCarsSlider.value = Highway.instance.NumCars;
 			highwaySizeSlider.value = Highway.instance.lane0Length;
 
 		}
@@ -50,7 +50,7 @@ namespace HighwayRacers
 				return;
 			}
 			instance = this;
-			
+
 			numCarsSlider.onValueChanged.AddListener(NumCarsSliderValueChanged);
 			highwaySizeSlider.onValueChanged.AddListener(HighwaySizeSliderValueChanged);
 
@@ -68,10 +68,10 @@ namespace HighwayRacers
 		private void HighwaySizeSliderValueChanged(float value) {
 			highwaySizeText.text = "Highway Size: " + Mathf.RoundToInt(value);
 		}
-		
+
 		// Update is called once per frame
 		void Update () {
-			
+
 		}
 
 		void OnDestroy() {
