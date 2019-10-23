@@ -5,6 +5,8 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
+[UpdateAfter(typeof(SpawnerSystem))]
 public class BoneMatrixSystem : JobComponentSystem
 {
 //    void UpdateMatrices(Vector3[] chain, int index, float thickness,Vector3 up) {

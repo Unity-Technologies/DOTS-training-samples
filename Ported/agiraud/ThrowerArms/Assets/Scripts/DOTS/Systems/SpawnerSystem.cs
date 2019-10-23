@@ -16,6 +16,7 @@ public struct SpawnerData : IComponentData
 }
 
 [UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
+[UpdateAfter(typeof(ArmSpawnerSystem))]
 public class SpawnerSystem : ComponentSystem
 {
     protected override void OnUpdate()

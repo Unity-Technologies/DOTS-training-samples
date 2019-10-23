@@ -7,25 +7,23 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
-[UpdateAfter(typeof(GravitySystem))]
+[UpdateAfter(typeof(ThrowSystem))]
 public class DestroySystem : JobComponentSystem
 {
     EntityQuery m_group;
-    EntityCommandBufferSystem m_EntityCommandBufferSystem;
 
-    //[BurstCompile]
-    struct DestroySystemJob : IJobForEachWithEntity<Translation>
+    [BurstCompile]
+    struct DestroySystemJob : IJobForEachWithEntity<Translation, ResetPosition>
     {
         public float3 boundsMin;
         public float3 boundsMax;
-        public EntityCommandBuffer.Concurrent cmd;
 
-        public void Execute(Entity entity, int index, [ReadOnly] ref Translation translation)
+        public void Execute(Entity entity, int index, [ReadOnly] ref Translation translation, ref ResetPosition resetPos)
         {
             if (translation.Value.x < boundsMin.x || translation.Value.y < boundsMin.y || translation.Value.z < boundsMin.z ||
                 translation.Value.x > boundsMax.x || translation.Value.y > boundsMax.y || translation.Value.z > boundsMax.z)
             {
-                cmd.AddComponent<ResetPosition>(index, entity);
+                resetPos.needReset = true;
             }
         }
     }
@@ -37,17 +35,13 @@ public class DestroySystem : JobComponentSystem
         // TODO: extract and update based on the number of arms, etc
         job.boundsMin = ConstantManager.DestroyBoxMin;
         job.boundsMax = ConstantManager.DestroyBoxMax;
-        job.cmd = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
         var jobHandle = job.Schedule(m_group, inputDeps);
-        m_EntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
-
         return jobHandle;
     }
 
     protected override void OnCreate()
     {
-        m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-        m_group = GetEntityQuery(ComponentType.ReadOnly<Mover>(), ComponentType.ReadOnly<Translation>());
+        m_group = GetEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadWrite<ResetPosition>());
     }
 }

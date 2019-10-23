@@ -6,9 +6,3 @@ public struct IsReserved : IComponentData
 {
     public bool Value;
 }
-
-public struct AngularVelocity : IComponentData
-{
-    public float3 Value;
-}
-

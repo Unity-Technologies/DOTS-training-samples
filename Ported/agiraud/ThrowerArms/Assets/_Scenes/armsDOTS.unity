@@ -155,6 +155,7 @@ MonoBehaviour:
   RockPrefab: {fileID: 5337933531573668606, guid: f7e1b7266cb8c5946b0a47e78ba3e812,
     type: 3}
   RockCount: 1000
+  velocity: {x: -1, y: 0, z: 0}
 --- !u!4 &57991235
 Transform:
   m_ObjectHideFlags: 0
@@ -358,6 +359,7 @@ MonoBehaviour:
   TinCanPrefab: {fileID: 1582832213403089428, guid: c77c14fb35714a94394dfdc694a50235,
     type: 3}
   TinCanCount: 1000
+  velocity: {x: 1, y: 0, z: 0}
 --- !u!4 &1573591557
 Transform:
   m_ObjectHideFlags: 0

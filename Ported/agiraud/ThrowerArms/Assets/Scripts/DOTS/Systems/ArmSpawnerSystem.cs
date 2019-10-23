@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
+[UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
 public class ArmSpawnerSystem : ComponentSystem
 {
     private int m_BoneCount = 17;

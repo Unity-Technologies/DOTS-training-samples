@@ -7,5 +7,5 @@ using UnityEngine;
 [Serializable]
 public struct ResetPosition : IComponentData
 {
-
+    public bool needReset;
 }

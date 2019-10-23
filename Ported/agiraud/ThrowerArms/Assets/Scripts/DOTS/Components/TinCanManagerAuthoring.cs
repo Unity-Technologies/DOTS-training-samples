@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ public class TinCanManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, 
 {
     public GameObject TinCanPrefab;
     public int TinCanCount = 1000;
+    public Vector3 velocity;
+
     public static float TinCanGravityStrength = 20;
     public static Vector3 SpawnBoxMin = new Vector3(-10, 4f, 15f);
     public static Vector3 SpawnBoxMax = new Vector3(-100, 16f, 15f);
@@ -28,14 +31,13 @@ public class TinCanManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, 
         // Here we should add some components to our entity prefab
         var tintag = new TinCanTag();
         dstManager.AddComponentData(entityPrefab, tintag);
-
-        dstManager.AddComponent<ResetPosition>(entityPrefab);
+        dstManager.AddComponentData(entityPrefab, new ResetPosition { needReset = true });
         // Start with scale 0 and grow the can
         dstManager.AddComponentData(entityPrefab, new Scale { Value = 0.0f });
+        dstManager.AddComponentData(entityPrefab, new Physics { velocity = velocity, angularVelocity = float3.zero, flying = false, GravityStrength = TinCanGravityStrength });
         // TODO Add tag and Angular Velocity components only when hit
         // TODO: angular velocity should be init to : can.angularVelocity = Random.onUnitSphere * rockVelocity.magnitude * 40f;
         // dstManager.AddComponentData(entityPrefab, new FlyingTag());
-        dstManager.AddComponentData(entityPrefab, new AngularVelocity());
 
         var spawnerData = new SpawnerData
         {

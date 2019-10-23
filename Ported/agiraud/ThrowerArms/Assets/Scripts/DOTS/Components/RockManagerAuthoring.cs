@@ -2,12 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class RockManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
 {
     public GameObject RockPrefab;
     public int RockCount = 1000;
+    public Vector3 velocity;
+
     public static float RockGravityStrength = 25;
     public static Vector3 SpawnBoxMin = new Vector3(10, 0f, 0f);
     public static Vector3 SpawnBoxMax = new Vector3(-100, 0f, 0f);
@@ -28,7 +31,8 @@ public class RockManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
         // Here we should add some components to our entity prefab
         var rockTag = new RockTag();
         dstManager.AddComponentData(entityPrefab, rockTag);
-        dstManager.AddComponent<ResetPosition>(entityPrefab);
+        dstManager.AddComponentData(entityPrefab, new ResetPosition { needReset = true });
+        dstManager.AddComponentData(entityPrefab, new Physics { velocity = velocity, angularVelocity = float3.zero, flying = false, GravityStrength = RockGravityStrength});
 
         // TODO: only add this component when rock is thrown
         // dstManager.AddComponentData(entityPrefab, new FlyingTag());
