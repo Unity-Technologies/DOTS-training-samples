@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using HighwayRacers;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace HighwayRacers
@@ -13,27 +14,28 @@ namespace HighwayRacers
     {
         struct AccelerationSystemJob : IJobForEach<CarState>
         {
-            public float deltaTime;
+            public float accelRate;
+            public float decelRate;
 
             public void Execute(ref CarState state)
             {
-                // increase to speed
                 if (state.TargetFwdSpeed > state.FwdSpeed)
-                {
-                    state.FwdSpeed = Mathf.Min(state.TargetFwdSpeed, state.FwdSpeed + Game.instance.acceleration * deltaTime);
-                } else {
-                    state.FwdSpeed = Mathf.Max(state.TargetFwdSpeed, state.FwdSpeed - Game.instance.brakeDeceleration * deltaTime);
-                }
-
+                    state.FwdSpeed = math.min(state.TargetFwdSpeed, state.FwdSpeed + accelRate);
+                else
+                    state.FwdSpeed = math.max(state.TargetFwdSpeed, state.FwdSpeed - decelRate);
             }
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             if (Time.deltaTime <= 0)
-                return new JobHandle();
+                return inputDeps;
 
-            var job = new AccelerationSystemJob {deltaTime = Time.deltaTime};
+            var job = new AccelerationSystemJob
+            {
+                accelRate = Game.instance.acceleration * Time.deltaTime,
+                decelRate = Game.instance.brakeDeceleration * Time.deltaTime
+            };
             return job.Schedule(this, inputDeps);
         }
     }

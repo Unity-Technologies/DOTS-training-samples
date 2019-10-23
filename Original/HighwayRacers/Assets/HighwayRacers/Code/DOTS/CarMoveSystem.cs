@@ -16,15 +16,14 @@ namespace HighwayRacers
             {
                 //forward position
                 var pos = state.PositionOnTrack + state.FwdSpeed * deltaTime;
-                state.PositionOnTrack = DotsHighway.WrapDistance(pos, state.Lane);
-                state.Lane += state.LeftSpeed * deltaTime;
-
                 //lateral position
-                var roundLane = math.round(state.Lane);
-                if (math.abs(roundLane - state.Lane) < .0001f)
-                {
-                    state.Lane = roundLane;
-                }
+                var lane = state.Lane + state.LeftSpeed * deltaTime;
+                var roundLane = math.round(lane);
+                lane = math.select(lane, roundLane, math.abs(roundLane - lane) < .0001f);
+
+                pos = DotsHighway.GetEquivalentDistance(pos, state.Lane, lane);
+                state.PositionOnTrack = pos;
+                state.Lane = lane;
             }
         }
 

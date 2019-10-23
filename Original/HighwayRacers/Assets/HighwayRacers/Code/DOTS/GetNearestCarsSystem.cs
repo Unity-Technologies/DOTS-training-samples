@@ -28,6 +28,7 @@ namespace HighwayRacers
         struct GetNearestCarsJob : IJobForEach<ProximityData, CarState, CarSettings>
         {
             [ReadOnly] public HighwaySpacePartition SpacePartition;
+            [ReadOnly] public DotsHighway DotsHighway;
             public float CarSize;
 
             public void Execute(
@@ -36,8 +37,11 @@ namespace HighwayRacers
                 [ReadOnly] ref CarSettings settings)
             {
                 float maxDistance = math.max(settings.MergeSpace, settings.LeftMergeDistance);
+                // Use the middle of the track to minimize error
+                var pos = DotsHighway.GetEquivalentDistance(
+                    state.PositionOnTrack, state.Lane, DotsHighway.NumLanes * 0.5f);
                 proximity.data = SpacePartition.GetNearestCars(
-                    state.PositionOnTrack, state.Lane, maxDistance, CarSize);
+                    pos, state.Lane, maxDistance, CarSize);
             }
         }
 
@@ -73,6 +77,7 @@ namespace HighwayRacers
             var queryJob = new GetNearestCarsJob
             {
                 SpacePartition = SpacePartition,
+                DotsHighway = Highway.instance.DotsHighway,
                 CarSize = Game.instance.distanceToBack + Game.instance.distanceToFront
             };
             return queryJob.Schedule(this, buildDeps);

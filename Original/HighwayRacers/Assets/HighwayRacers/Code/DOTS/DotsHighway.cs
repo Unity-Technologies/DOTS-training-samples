@@ -146,6 +146,8 @@ namespace HighwayRacers
         {
             // keep distance in [0, length)
 			distance = WrapDistance(distance, lane);
+            if (lane == otherLane)
+                return distance;
 
             float pieceStartDistance = 0;
             float pieceEndDistance = 0;
@@ -210,7 +212,7 @@ namespace HighwayRacers
                     DefaultSpeed = m_Random.NextFloat(Game.instance.defaultSpeedMin, Game.instance.defaultSpeedMax),
                     OvertakePercent = m_Random.NextFloat(Game.instance.overtakePercentMin, Game.instance.overtakePercentMax),
                     LeftMergeDistance = m_Random.NextFloat(Game.instance.leftMergeDistanceMin, Game.instance.leftMergeDistanceMax),
-                    MergeSpace = 2, //m_Random.NextFloat(Game.instance.mergeSpaceMin, Game.instance.mergeSpaceMax),
+                    MergeSpace = m_Random.NextFloat(Game.instance.mergeSpaceMin, Game.instance.mergeSpaceMax),
                     OvertakeEagerness = m_Random.NextFloat(Game.instance.overtakeEagernessMin, Game.instance.overtakeEagernessMax),
                 };
                 em.AddComponentData(entity,data);

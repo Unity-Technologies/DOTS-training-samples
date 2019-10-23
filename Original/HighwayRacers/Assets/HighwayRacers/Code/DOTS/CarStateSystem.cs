@@ -4,6 +4,7 @@ using HighwayRacers;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace HighwayRacers
@@ -28,11 +29,11 @@ namespace HighwayRacers
                         state.LeftSpeed = 0;
 
                         // if won't merge, match car in front's speed
-                        if (proximityData.data.NearestFrontMyLane.CarId != 0 && distToCarInFront < settings.LeftMergeDistance)
+                        if (distToCarInFront < settings.LeftMergeDistance)
                         {
-                            targetSpeed = Mathf.Min(targetSpeed, proximityData.data.NearestFrontMyLane.Speed);
+                            targetSpeed = math.min(
+                                targetSpeed, proximityData.data.NearestFrontMyLane.Speed);
                         }
-
                         break;
 
                     case CarState.State.MERGE_LEFT:
@@ -50,7 +51,7 @@ namespace HighwayRacers
                         break;
 
                     case CarState.State.OVERTAKING:
-                        targetSpeed = settings.OvertakeEagerness *settings.DefaultSpeed;
+                        targetSpeed = settings.OvertakePercent * settings.DefaultSpeed;
                         state.LeftSpeed = 0;
 
                         break;

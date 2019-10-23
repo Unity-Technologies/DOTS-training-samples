@@ -110,6 +110,11 @@ namespace HighwayRacers
             maxDistanceFront = numFwdBuckets * (BucketLength + 1) - distanceInBucket;
             maxDistanceRear = numRearBuckets * BucketLength + distanceInBucket;
             var result = new QueryResult();
+            result.NearestFrontMyLane.Distance
+                = result.NearestFrontLeft.Distance
+                = result.NearestFrontRight.Distance
+                = result.NearestRearLeft.Distance
+                = result.NearestRearRight.Distance = float.MaxValue;
 
             var myLane = math.round(lane);
 
@@ -168,23 +173,25 @@ namespace HighwayRacers
                 return false;
 
             // My lane
-            if (math.abs(e.Pos.y - myLane) < kSameLaneDistance)
+            var laneDelta = myLane - e.Pos.y;
+            if (math.abs(laneDelta) < kSameLaneDistance)
             {
-                if (result.NearestFrontMyLane.CarId == 0 || result.NearestFrontMyLane.Distance > d)
+                if (result.NearestFrontMyLane.Distance > d)
                     result.NearestFrontMyLane = new QueryResult.Item { CarId = e.CarID, Distance = d, Speed = e.Speed };
                 return true;
             }
             // Right lane
-            if (myLane - e.Pos.y < kNeighbourLaneDistance)
+            if (laneDelta > kSameLaneDistance && laneDelta < kNeighbourLaneDistance)
             {
-                if (result.NearestFrontRight.CarId == 0 || result.NearestFrontRight.Distance > d)
+                if (result.NearestFrontRight.Distance > d)
                     result.NearestFrontRight = new QueryResult.Item { CarId = e.CarID, Distance = d, Speed = e.Speed };
                 return true;
             }
             // Left lane
-            if (e.Pos.y - myLane < kNeighbourLaneDistance)
+            laneDelta = e.Pos.y - myLane;
+            if (laneDelta > kSameLaneDistance && laneDelta < kNeighbourLaneDistance)
             {
-                if (result.NearestFrontLeft.CarId == 0 || result.NearestFrontLeft.Distance > d)
+                if (result.NearestFrontLeft.Distance > d)
                     result.NearestFrontLeft = new QueryResult.Item { CarId = e.CarID, Distance = d, Speed = e.Speed };
                 return true;
             }
@@ -199,19 +206,18 @@ namespace HighwayRacers
                 return false;
 
             // Right lane
-            var lane = myLane - e.Pos.y;
-            
-            if (lane > kSameLaneDistance && lane < kNeighbourLaneDistance)
+            var laneDelta = myLane - e.Pos.y;
+            if (laneDelta > kSameLaneDistance && laneDelta < kNeighbourLaneDistance)
             {
-                if (result.NearestRearRight.CarId == 0 || result.NearestRearRight.Distance > -d)
+                if (result.NearestRearRight.Distance > -d)
                     result.NearestRearRight = new QueryResult.Item { CarId = e.CarID, Distance = -d, Speed = e.Speed };
                 return true;
             }
             // Left lane
-            lane = e.Pos.y - myLane;
-            if (lane > kSameLaneDistance && lane < kNeighbourLaneDistance)
+            laneDelta = e.Pos.y - myLane;
+            if (laneDelta > kSameLaneDistance && laneDelta < kNeighbourLaneDistance)
             {
-                if (result.NearestRearLeft.CarId == 0 || result.NearestRearLeft.Distance > -d)
+                if (result.NearestRearLeft.Distance > -d)
                     result.NearestRearLeft = new QueryResult.Item { CarId = e.CarID, Distance = -d, Speed = e.Speed };
                 return true;
             }
