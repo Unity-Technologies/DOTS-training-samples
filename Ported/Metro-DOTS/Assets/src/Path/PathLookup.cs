@@ -23,25 +23,30 @@ public struct Path
     public Connection[] connections;
 }
 
-public struct PathLookup
+public struct PathLookupBlob
 {
     public BlobArray<Path> paths;
 }
 
+public struct PathLookup : IComponentData
+{
+    public BlobAssetReference<PathLookupBlob> value;
+}
+
 public static class PathLookupHelper
 {
-    public static BlobAssetReference<PathLookup> CreatePathLookup(IEnumerable<Platform> platforms)
+    public static BlobAssetReference<PathLookupBlob> CreatePathLookup(IEnumerable<Platform> platforms)
     {
         using (var blobBuilder = new BlobBuilder(Allocator.Temp))
         {
-            ref var builderRoot = ref blobBuilder.ConstructRoot<PathLookup>();
+            ref var builderRoot = ref blobBuilder.ConstructRoot<PathLookupBlob>();
             var allPaths = Pathfinding.GetAllPaths(platforms).ToList();
             var pathsBuilder = blobBuilder.Allocate(ref builderRoot.paths, allPaths.Count);
 
             for (var i = 0; i < allPaths.Count; i++)
                 pathsBuilder[i] = allPaths[i];
 
-            return blobBuilder.CreateBlobAssetReference<PathLookup>(Allocator.Persistent);
+            return blobBuilder.CreateBlobAssetReference<PathLookupBlob>(Allocator.Persistent);
         }
     }
 }
