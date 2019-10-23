@@ -30,6 +30,11 @@ namespace HighwayRacers
         private HighwayPiece[] pieces = new HighwayPiece[8];
 
 		/// <summary>
+		/// Use this to access geometry from jobs
+		/// </summary>
+        public DotsHighway DotsHighway = new DotsHighway();
+
+		/// <summary>
 		/// Length of the innermost lane.
 		/// </summary>
         public float lane0Length { get; private set; }
@@ -176,7 +181,6 @@ namespace HighwayRacers
 
         public void CreateHighway(float lane0Length)
         {
-
             if (lane0Length < MIN_HIGHWAY_LANE0_LENGTH)
             {
                 Debug.LogError("Highway length must be longer than " + MIN_HIGHWAY_LANE0_LENGTH);
@@ -226,9 +230,8 @@ namespace HighwayRacers
             }
 
             this.lane0Length = lane0Length;
-
+            DotsHighway.Create(pieces);
 			SetNumCars(tempNumCars);
-
         }
 
         /// <summary>
@@ -562,14 +565,13 @@ namespace HighwayRacers
 
         private void Update()
         {
-
-
         }
 
         private void OnDestroy()
         {
             if (instance == this)
             {
+                DotsHighway.Dispose();
                 instance = null;
             }
             ClearCars();

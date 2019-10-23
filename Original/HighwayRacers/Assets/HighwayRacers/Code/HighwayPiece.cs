@@ -49,7 +49,8 @@ namespace HighwayRacers
         {
             return 0;
         }
-        
+
+        public virtual float curveRadiusLane0 { get { return 0; } }
     }
 
 }

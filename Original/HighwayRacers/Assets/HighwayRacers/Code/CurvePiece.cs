@@ -13,6 +13,7 @@ namespace HighwayRacers
             return Highway.curvePieceLength(lane);
         }
 
+        public override float curveRadiusLane0 { get { return Highway.CURVE_LANE0_RADIUS; } }
     }
 
 }
