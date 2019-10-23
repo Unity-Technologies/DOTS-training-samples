@@ -1,4 +1,5 @@
 ﻿using ECSExamples;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -46,7 +47,7 @@ public class ArrowSystem : ComponentSystem
         //    Player ID
 
         // Human always player 0
-        //const int humanPlayerIndex = 0;
+        const int humanPlayerIndex = 0;
         //var canChangeArrow = cell.CanChangeArrow(humanPlayerIndex);
 
         // INPUT HANDLING PART:
@@ -74,7 +75,8 @@ public class ArrowSystem : ComponentSystem
             {
                 Coordinates = cellCoord,
                 Direction = cellDirection,
-                PlayerId = 0
+                PlayerId = humanPlayerIndex,
+                PlacementTick = Time.frameCount
             };
 
             // TODO: Add entities for arrows then have a system which draws all existing arrow components
@@ -82,10 +84,36 @@ public class ArrowSystem : ComponentSystem
             EntityManager.AddComponentData(entity, arrowData);*/
 
             // Or use hash map and draw everything in it somewhere
-            arrowMap.Add(cellIndex, arrowData);
-            Debug.Log("Placed arrow on cell="+cellCoord + " with dir=" + cellDirection);
+            var keys = arrowMap.GetKeyArray(Allocator.TempJob);
+            int arrowCount = 0;
+            int oldestIndex = -1;
+            int oldestTick = -1;
+            for (int i = 0; i < keys.Length; ++i)
+            {
+                if (arrowMap[keys[i]].PlayerId == humanPlayerIndex)
+                {
+                    arrowCount++;
+                    if (arrowMap[keys[i]].PlacementTick > oldestTick)
+                    {
+                        oldestIndex = keys[i];
+                        oldestTick = arrowMap[keys[i]].PlacementTick;
+                    }
+                }
+            }
+            keys.Dispose();
+            if (arrowCount >= 3)
+            {
+                arrowMap.Remove(oldestIndex);
+                cell = cellMap[oldestIndex];
+                cell.data &= ~CellData.Arrow;
+                cellMap[oldestIndex] = cell;
+            }
 
-            // TODO: Remove oldest arrow if you have 3 in total now
+            if (arrowMap.ContainsKey(cellIndex))
+                arrowMap[cellIndex] = arrowData;
+            else
+                arrowMap.Add(cellIndex, arrowData);
+            Debug.Log("Placed arrow on cell="+cellCoord + " with dir=" + cellDirection);
         }
 
         /*if (cell)
