@@ -4,7 +4,7 @@ using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 
-public enum Method
+public enum Method : byte
 {
     Walk,
     Train
