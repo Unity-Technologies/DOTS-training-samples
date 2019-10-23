@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Entities;
 using UnityEngine;
 
 namespace HighwayRacers
@@ -458,7 +460,62 @@ namespace HighwayRacers
 					return;
 			}
 
-		}
+            var query = World.Active.EntityManager.CreateEntityQuery(typeof(CarState));
+            AddOrRemoveCarEntities(numCars - query.CalculateEntityCount());
+        }
+
+        void AddOrRemoveCarEntities(int calculateEntityCount)
+        {
+            if (calculateEntityCount > 0)
+            {
+                AddCarEntity(calculateEntityCount);
+            }
+            else if (calculateEntityCount < 0)
+            {
+                var query = World.Active.EntityManager.CreateEntityQuery(typeof(CarState));
+                var entities = query.ToEntityArray(Allocator.Temp);
+                for (int i = 0; i < -calculateEntityCount; i++)
+                {
+                    World.Active.EntityManager.DestroyEntity(entities[i]);
+                }
+            }
+        }
+
+        static int NextCarId = 1;
+        void AddCarEntity(int count)
+        {
+            var em = World.Active.EntityManager;
+            for (int i = 0; i < count; i++)
+            {
+                var entity = World.Active.EntityManager.CreateEntity();
+
+                em.AddComponentData(entity,new CarID { Value = NextCarId++ });
+                var data = new CarSettings()
+                {
+                    DefaultSpeed = Random.Range(Game.instance.defaultSpeedMin, Game.instance.defaultSpeedMax),
+                    OvertakePercent = Random.Range(Game.instance.overtakePercentMin, Game.instance.overtakePercentMax),
+                    LeftMergeDistance = Random.Range(Game.instance.leftMergeDistanceMin, Game.instance.leftMergeDistanceMax),
+                    MergeSpace = Random.Range(Game.instance.mergeSpaceMin, Game.instance.mergeSpaceMax),
+                    OvertakeEagerness = Random.Range(Game.instance.overtakeEagernessMin, Game.instance.overtakeEagernessMax),
+                };
+                em.AddComponentData(entity,data);
+                em.AddComponentData(entity,new CarState
+                {
+                    TargetFwdSpeed = data.DefaultSpeed,
+                    FwdSpeed = data.DefaultSpeed,
+                    LeftSpeed = 0,
+
+                    PositionOnTrack = 0,
+                    Lane = 0,
+                    TargetLane = 0,
+                    CurrentState = CarState.State.NORMAL
+
+                });
+                em.AddComponentData(entity,new CarColor());
+                em.AddComponentData(entity,new ProximityData());
+            }
+
+        }
 
         public void ClearCars()
         {
