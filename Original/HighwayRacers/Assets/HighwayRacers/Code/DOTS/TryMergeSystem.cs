@@ -13,10 +13,10 @@ namespace HighwayRacers
         {
             [ReadOnly] public DotsHighway DotsHighway;
 	        public float currentTime;
-
+	        public float overtakeMaxDuration;
 	        bool IsMerging(CarState.State state)
 	        {
-		        return state != CarState.State.MERGE_LEFT && state != CarState.State.MERGE_RIGHT;
+		        return state == CarState.State.MERGE_LEFT || state == CarState.State.MERGE_RIGHT;
 	        }
 
 	        bool CanMergeLeft(
@@ -55,13 +55,30 @@ namespace HighwayRacers
                 [ReadOnly] ref ProximityData proximityData,
                 [ReadOnly] ref CarSettings settings)
 	        {
-		        return state.Lane > 0
-                    && state.CurrentState != CarState.State.MERGE_LEFT
-			        && proximityData.data.NearestFrontRight.Distance
-                        < settings.LeftMergeDistance // close enough to car in front
-                    && settings.OvertakeEagerness
-                        > proximityData.data.NearestFrontRight.Speed
-                            / settings.DefaultSpeed; // car in front is slow enough
+		        if (state.OvertakeCarID != 0)
+		        {
+			        if (proximityData.data.NearestFrontRight.CarId == state.OvertakeCarID)
+				        return false;
+		        }		        
+		        
+		        if (state.Lane - 1 < 0) { // right lane must exist
+			        return false;
+		        }
+		        
+		        if (state.CurrentState == CarState.State.MERGE_LEFT || state.CurrentState == CarState.State.MERGE_RIGHT)
+			        return false;
+
+		        if (proximityData.data.NearestFrontRight.CarId != 0)
+		        {
+			        if ((proximityData.data.NearestFrontRight.Distance
+			            < settings.LeftMergeDistance)
+				        && (settings.OvertakeEagerness
+			            > proximityData.data.NearestFrontRight.Speed
+			            / settings.DefaultSpeed))
+				        return false;
+		        }
+
+		        return true;
 	        }
 
             public void Execute(
@@ -69,6 +86,9 @@ namespace HighwayRacers
                 [ReadOnly] ref ProximityData proximityData,
                 [ReadOnly] ref CarSettings settings)
             {
+	            if (state.OvertakeCarID != 0 && currentTime - state.TimeOvertakeCarSet >= overtakeMaxDuration) {
+		            state.OvertakeCarID = 0;
+	            }
                 // detect merging
 			    if (!IsMerging(state.CurrentState))
 			    {
@@ -78,6 +98,7 @@ namespace HighwayRacers
 				    {
 					    state.CurrentState = CarState.State.MERGE_LEFT;
 					    state.TargetLane = Mathf.Round(state.Lane + 1);
+					    state.OvertakeCarID = proximityData.data.NearestFrontMyLane.CarId;
 					    state.TimeOvertakeCarSet = currentTime;
 				    }
 				    else if (WantsToMergeRight(ref state, ref proximityData,ref settings)
@@ -95,7 +116,8 @@ namespace HighwayRacers
             var job = new TryMergeSystemJob
             {
                 DotsHighway = Highway.instance.DotsHighway,
-                currentTime =  Time.time
+                currentTime =  Time.time,
+                overtakeMaxDuration = Game.instance.overtakeMaxDuration
             };
             var deps = job.Schedule(this, inputDeps);
             DotsHighway.RegisterReaderJob(deps);
