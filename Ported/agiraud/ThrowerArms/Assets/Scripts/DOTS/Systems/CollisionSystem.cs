@@ -36,11 +36,11 @@ public class CollisionSystem : JobComponentSystem
             if (canDistance < 1.0)
             {
                 physics.flying = true;
-
-                physics.velocity += math.normalize(translation.Value - rockPos) * 10;
+                float3 impactVec = math.normalize(translation.Value - rockPos);
+                physics.velocity += impactVec * 10;
                 physics.angularVelocity += math.normalize(physics.velocity) * 2;
 
-                resultCollisionRock.TryAdd(rockEntity, translation.Value);
+                resultCollisionRock.TryAdd(rockEntity, impactVec);
             }
         }
 
@@ -119,11 +119,11 @@ public class CollisionSystem : JobComponentSystem
             jobHandle.Complete();
 
             NativeArray<Entity> rockentites = rocksThatHit.GetKeyArray(Allocator.Temp);
-            foreach (Entity rock in rockentites)
+            for (int i = 0; i < rockentites.Length; i++)
             {
-                Physics p = EntityManager.GetComponentData<Physics>(rock);
-                p.velocity = float3.zero;
-                EntityManager.SetComponentData(rock, p);
+                Physics p = EntityManager.GetComponentData<Physics>(rockentites[i]);
+                p.velocity = rocksThatHit[rockentites[i]] * -1 * 5f;
+                EntityManager.SetComponentData(rockentites[i], p);
             }
 
             rockentites.Dispose();
