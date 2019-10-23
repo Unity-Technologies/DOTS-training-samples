@@ -12,7 +12,7 @@ namespace HighwayRacers
     {
         struct SetTransformJob : IJobForEach<CarState, Translation, Rotation>
         {
-            public DotsHighway DotsHighway;
+            [ReadOnly] public DotsHighway DotsHighway;
 
             public void Execute(
                 [ReadOnly] ref CarState state,
