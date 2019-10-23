@@ -6,10 +6,9 @@ public struct PlatformId : IComponentData
     public uint value;
 }
 
-public struct CurrentPath : IComponentData
+public struct CurrentPathIndex : IComponentData
 {
     public int index;
-    public PathLookup path;
 }
 
 public struct Direction : IComponentData
