@@ -8,10 +8,9 @@ namespace HighwayRacers
         public float FwdSpeed; // velocityPosition
         public float LeftSpeed; // velocityLane
 
-        public float PositionOnTrack;
+        public float PositionOnTrack; // current lane space
         public float Lane;
         public float TargetLane;
-        public float TimeOvertakeCarSet;
 
         public enum State {
             NORMAL,
@@ -20,6 +19,5 @@ namespace HighwayRacers
             OVERTAKING,
         }
         public State CurrentState;
-        public int OvertakeCarID;
     }
 }
