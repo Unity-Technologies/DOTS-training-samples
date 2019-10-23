@@ -36,7 +36,7 @@ namespace HighwayRacers
                 DotsHighway = Highway.instance.DotsHighway
             };
             var deps = job.Schedule(this, inputDeps);
-            Highway.instance.DotsHighway.RegisterReaderJob(deps);
+            DotsHighway.RegisterReaderJob(deps);
             return deps;
         }
     }

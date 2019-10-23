@@ -458,8 +458,9 @@ namespace HighwayRacers
 			get { return cars.Count; }
 		}
 
-		public void SetNumCars(int numCars) {
-
+		public void SetNumCars(int numCars)
+        {
+/*
 			while (cars.Count > numCars) {
 				RemoveCar(cars.First.Value);
 			}
@@ -468,6 +469,7 @@ namespace HighwayRacers
 				if (car == null)
 					break;
 			}
+*/
             DotsHighway.SetNumCars(numCars);
         }
 
