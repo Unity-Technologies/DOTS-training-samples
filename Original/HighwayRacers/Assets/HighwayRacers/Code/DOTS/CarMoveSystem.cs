@@ -10,11 +10,13 @@ namespace HighwayRacers
     {
         struct MoveSystemJob : IJobForEach<CarState>
         {
+            public DotsHighway DotsHighway;
             public float deltaTime;
             public void Execute(ref CarState state)
             {
                 //forward position
-                state.PositionOnTrack += state.FwdSpeed * deltaTime; // TODO: handle wraparond
+                var pos = state.PositionOnTrack + state.FwdSpeed * deltaTime; // TODO: handle wraparond
+                state.PositionOnTrack = DotsHighway.WrapDistance(pos, state.Lane);
                 state.Lane += state.LeftSpeed * deltaTime;
 
                 //lateral position
@@ -28,7 +30,12 @@ namespace HighwayRacers
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var job = new MoveSystemJob {deltaTime = Time.deltaTime};
+            var job = new MoveSystemJob
+            {
+                deltaTime = Time.deltaTime,
+                DotsHighway = Highway.instance.DotsHighway
+
+            };
             return job.Schedule(this, inputDeps);
         }
     }
