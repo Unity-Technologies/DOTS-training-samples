@@ -18,20 +18,22 @@ public class ResetPositionSystem : JobComponentSystem
     EntityQuery m_GroupRock;
 
     [BurstCompile]
-    struct RandomResetPositionJob : IJobForEachWithEntity<Translation, Physics, ResetPosition>
+    struct RandomResetPositionJob : IJobForEachWithEntity<Translation, Physics, ResetPosition, Scale>
     {
         public float3 MinPosition;
         public float3 MaxPosition;
         public float3 InitialVelocity;
+        public float InitialScale;
         public Random rd;
         public EntityCommandBuffer.Concurrent cb;
-        public void Execute(Entity entity, int index, ref Translation position, ref Physics physics, ref ResetPosition resetPos)
+        public void Execute(Entity entity, int index, ref Translation position, ref Physics physics, ref ResetPosition resetPos, ref Scale scale)
         {
             if (!resetPos.needReset) return;
             position.Value = rd.NextFloat3(MinPosition, MaxPosition);
             physics.velocity = InitialVelocity;
             physics.angularVelocity = float3.zero;
             physics.flying = false;
+            scale.Value = InitialScale;
             resetPos.needReset = false;
         }
     }
@@ -41,11 +43,13 @@ public class ResetPositionSystem : JobComponentSystem
         m_GroupTinCan = GetEntityQuery(ComponentType.ReadOnly<TinCanTag>(), 
                                                             ComponentType.ReadWrite<ResetPosition>(),
                                                             ComponentType.ReadWrite<Physics>(),
-                                                            ComponentType.ReadWrite<Translation>());
+                                                            ComponentType.ReadWrite<Translation>(),
+                                                            ComponentType.ReadWrite<Scale>());
         m_GroupRock = GetEntityQuery(ComponentType.ReadOnly<RockTag>(), 
                                      ComponentType.ReadWrite<ResetPosition>(),
                                      ComponentType.ReadWrite<Physics>(),
-                                     ComponentType.ReadWrite<Translation>());
+                                     ComponentType.ReadWrite<Translation>(),
+                                     ComponentType.ReadWrite<Scale>());
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -55,6 +59,7 @@ public class ResetPositionSystem : JobComponentSystem
             MinPosition = RockManagerAuthoring.SpawnBoxMin,
             MaxPosition = RockManagerAuthoring.SpawnBoxMax,
             InitialVelocity = RockManagerAuthoring.MoverInitialVelocity,
+            InitialScale = 1f,
             rd = new Random((uint)Environment.TickCount),
         };
         var job2 = new RandomResetPositionJob()
@@ -62,6 +67,7 @@ public class ResetPositionSystem : JobComponentSystem
             MinPosition = TinCanManagerAuthoring.SpawnBoxMin,
             MaxPosition = TinCanManagerAuthoring.SpawnBoxMax,
             InitialVelocity = TinCanManagerAuthoring.MoverInitialVelocity,
+            InitialScale = 0f,
             rd = new Random((uint)Environment.TickCount),
         };
 

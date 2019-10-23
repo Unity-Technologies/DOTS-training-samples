@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 public class RockManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
@@ -31,6 +32,7 @@ public class RockManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
         // Here we should add some components to our entity prefab
         var rockTag = new RockTag();
         dstManager.AddComponentData(entityPrefab, rockTag);
+        dstManager.AddComponentData(entityPrefab, new Scale { Value = 1.0f });
         dstManager.AddComponentData(entityPrefab, new ResetPosition { needReset = true });
         dstManager.AddComponentData(entityPrefab, new Physics { velocity = velocity, angularVelocity = float3.zero, flying = false, GravityStrength = RockGravityStrength});
 
