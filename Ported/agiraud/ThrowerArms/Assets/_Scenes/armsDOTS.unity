@@ -191,6 +191,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 401121670}
+  - component: {fileID: 401121672}
+  - component: {fileID: 401121671}
   m_Layer: 0
   m_Name: Arm Manager
   m_TagString: Untagged
@@ -212,6 +214,34 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &401121671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 401121669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea7d7495833204790ba1d3a8755397f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConversionMode: 0
+--- !u!114 &401121672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 401121669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3e28c07e5067834aba32542add048b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BonePrefab: {fileID: 7142086846275179956, guid: 68e38728911c49440a075afbb6c109e3,
+    type: 3}
+  ArmCount: 500
 --- !u!1 &1200948655
 GameObject:
   m_ObjectHideFlags: 0

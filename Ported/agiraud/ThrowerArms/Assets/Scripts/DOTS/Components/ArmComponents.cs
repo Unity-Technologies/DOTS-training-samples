@@ -1,18 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using Unity.Entities;
+using Unity.Mathematics;
 
-public class ArmComponents : MonoBehaviour
+public struct ArmSpawnerData : IComponentData
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public int Count;
+    public Entity BoneEntityPrefab;
+}
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+public struct BoneJoint : IBufferElementData
+{
+    public float3 JointPos;
+}
+
+public struct BoneData : IComponentData
+{
+    public Entity Parent;
+    public int ChainIndex;
+    public float Thickness;
 }
