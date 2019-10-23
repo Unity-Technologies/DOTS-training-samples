@@ -44,10 +44,14 @@ namespace HighwayRacers
                 [ReadOnly] ref ProximityData proximityData,
                 [ReadOnly] ref CarSettings settings)
 	        {
-		        return trackState.Lane + 1 < DotsHighway.NumLanes // left lane exists
-		               && proximityData.data.NearestFrontMyLane.Distance < settings.LeftMergeDistance // close enough to car in front
-		               && settings.OvertakeEagerness >
-		               proximityData.data.NearestFrontMyLane.Speed / settings.DefaultSpeed; // car in front is slow enough
+                if (proximityData.data.NearestFrontMyLane.CarId == 0)
+                    return false;
+		        return trackState.Lane < DotsHighway.NumLanes - 1 // left lane exists
+                    && proximityData.data.NearestFrontMyLane.Distance
+                        < settings.LeftMergeDistance // close enough to car in front
+                    && settings.OvertakeEagerness
+                        > proximityData.data.NearestFrontMyLane.Speed
+                            / settings.DefaultSpeed; // car in front is slow enough
 	        }
 
 	        bool WantsToMergeRight(
@@ -55,29 +59,24 @@ namespace HighwayRacers
                 [ReadOnly] ref ProximityData proximityData,
                 [ReadOnly] ref CarSettings settings)
 	        {
-		        if (state.OvertakeCarID != 0)
-		        {
-			        if (proximityData.data.NearestFrontRight.CarId == state.OvertakeCarID)
-				        return false;
-		        }		        
-		        
-		        if (state.Lane - 1 < 0) { // right lane must exist
-			        return false;
-		        }
-		        
-		        if (state.CurrentState == CarState.State.MERGE_LEFT || state.CurrentState == CarState.State.MERGE_RIGHT)
+		        if (state.Lane == 0 || IsMerging(state.CurrentState))
 			        return false;
 
-		        if (proximityData.data.NearestFrontRight.CarId != 0)
-		        {
-			        if ((proximityData.data.NearestFrontRight.Distance
-			            < settings.LeftMergeDistance)
-				        && (settings.OvertakeEagerness
-			            > proximityData.data.NearestFrontRight.Speed
-			            / settings.DefaultSpeed))
-				        return false;
-		        }
+                // Is there space for me in the right lane?
+                if (!(proximityData.data.NearestFrontRight.CarId == 0
+                        || proximityData.data.NearestFrontRight.Distance >= settings.MergeSpace)
+                    && (proximityData.data.NearestRearRight.CarId == 0
+                        || proximityData.data.NearestRearRight.Distance >= settings.MergeSpace))
+                {
+                    return false; // nope - stay where we are
+                }
 
+                // If we were in the right lane, would we want to merge left?
+                if ((proximityData.data.NearestFrontRight.Distance < settings.LeftMergeDistance)
+                    && (settings.OvertakeEagerness > proximityData.data.NearestFrontRight.Speed / settings.DefaultSpeed))
+                {
+				    return false; // yes we would, stay where we are
+		        }
 		        return true;
 	        }
 
@@ -86,9 +85,6 @@ namespace HighwayRacers
                 [ReadOnly] ref ProximityData proximityData,
                 [ReadOnly] ref CarSettings settings)
             {
-	            if (state.OvertakeCarID != 0 && currentTime - state.TimeOvertakeCarSet >= overtakeMaxDuration) {
-		            state.OvertakeCarID = 0;
-	            }
                 // detect merging
 			    if (!IsMerging(state.CurrentState))
 			    {
@@ -98,11 +94,8 @@ namespace HighwayRacers
 				    {
 					    state.CurrentState = CarState.State.MERGE_LEFT;
 					    state.TargetLane = Mathf.Round(state.Lane + 1);
-					    state.OvertakeCarID = proximityData.data.NearestFrontMyLane.CarId;
-					    state.TimeOvertakeCarSet = currentTime;
 				    }
-				    else if (WantsToMergeRight(ref state, ref proximityData,ref settings)
-                        && CanMergeRight(state.Lane, settings.MergeSpace, ref proximityData))
+				    else if (WantsToMergeRight(ref state, ref proximityData,ref settings))
 				    {
 					    state.CurrentState = CarState.State.MERGE_RIGHT;
 					    state.TargetLane = Mathf.Round(state.Lane - 1);

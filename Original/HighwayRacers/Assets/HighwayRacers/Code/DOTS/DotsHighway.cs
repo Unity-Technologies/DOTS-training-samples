@@ -188,7 +188,7 @@ namespace HighwayRacers
             else if (delta < 0)
             {
                 var entities = query.ToEntityArray(Allocator.TempJob);
-                for (int i = 0; i < delta; ++i)
+                for (int i = 0; i < -delta; ++i)
                     em.DestroyEntity(entities[i]);
                 entities.Dispose();
             }
@@ -210,7 +210,7 @@ namespace HighwayRacers
                     DefaultSpeed = m_Random.NextFloat(Game.instance.defaultSpeedMin, Game.instance.defaultSpeedMax),
                     OvertakePercent = m_Random.NextFloat(Game.instance.overtakePercentMin, Game.instance.overtakePercentMax),
                     LeftMergeDistance = m_Random.NextFloat(Game.instance.leftMergeDistanceMin, Game.instance.leftMergeDistanceMax),
-                    MergeSpace = m_Random.NextFloat(Game.instance.mergeSpaceMin, Game.instance.mergeSpaceMax),
+                    MergeSpace = 2, //m_Random.NextFloat(Game.instance.mergeSpaceMin, Game.instance.mergeSpaceMax),
                     OvertakeEagerness = m_Random.NextFloat(Game.instance.overtakeEagernessMin, Game.instance.overtakeEagernessMax),
                 };
                 em.AddComponentData(entity,data);
@@ -221,7 +221,7 @@ namespace HighwayRacers
                     FwdSpeed = data.DefaultSpeed,
                     LeftSpeed = 0,
 
-                    PositionOnTrack = m_Random.NextFloat(0, Lane0Length),
+                    PositionOnTrack = m_Random.NextFloat(0, LaneLength(lane)),
                     Lane = lane,
                     TargetLane = 0,
                     CurrentState = CarState.State.NORMAL

@@ -14,10 +14,14 @@ namespace HighwayRacers
         struct BuildSpacePartitionJob : IJobForEach<CarID, CarState>
         {
             public HighwaySpacePartition.ParallelWriter SpacePartition;
+            [ReadOnly] public DotsHighway DotsHighway;
 
             public void Execute([ReadOnly] ref CarID id, [ReadOnly] ref CarState state)
             {
-                SpacePartition.AddCar(id.Value, state.PositionOnTrack, state.Lane, state.FwdSpeed);
+                // Use the middle of the track to minimize error
+                var pos = DotsHighway.GetEquivalentDistance(
+                    state.PositionOnTrack, state.Lane, DotsHighway.NumLanes * 0.5f);
+                SpacePartition.AddCar(id.Value, pos, state.Lane, state.FwdSpeed);
             }
         }
 
@@ -59,7 +63,11 @@ namespace HighwayRacers
                 Game.instance.maxNumCars,
                 Allocator.Persistent);
 
-            var buildJob = new BuildSpacePartitionJob { SpacePartition = SpacePartition.AsParallelWriter() };
+            var buildJob = new BuildSpacePartitionJob
+            {
+                SpacePartition = SpacePartition.AsParallelWriter(),
+                DotsHighway = Highway.instance.DotsHighway
+            };
             var buildDeps = buildJob.Schedule(this, inputDeps);
 
             var queryJob = new GetNearestCarsJob
@@ -67,9 +75,7 @@ namespace HighwayRacers
                 SpacePartition = SpacePartition,
                 CarSize = Game.instance.distanceToBack + Game.instance.distanceToFront
             };
-            var queryDeps = queryJob.Schedule(this, buildDeps);
-
-            return queryDeps;
+            return queryJob.Schedule(this, buildDeps);
         }
     }
 }
