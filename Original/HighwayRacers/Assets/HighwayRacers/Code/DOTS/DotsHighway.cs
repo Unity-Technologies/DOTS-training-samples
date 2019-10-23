@@ -188,7 +188,7 @@ namespace HighwayRacers
             else if (delta < 0)
             {
                 var entities = query.ToEntityArray(Allocator.TempJob);
-                for (int i = 0; i < delta; ++i)
+                for (int i = 0; i < -delta; ++i)
                     em.DestroyEntity(entities[i]);
                 entities.Dispose();
             }
