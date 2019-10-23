@@ -199,14 +199,17 @@ namespace HighwayRacers
                 return false;
 
             // Right lane
-            if (myLane - e.Pos.y < kNeighbourLaneDistance)
+            var lane = myLane - e.Pos.y;
+            
+            if (lane > kSameLaneDistance && lane < kNeighbourLaneDistance)
             {
                 if (result.NearestRearRight.CarId == 0 || result.NearestRearRight.Distance > -d)
                     result.NearestRearRight = new QueryResult.Item { CarId = e.CarID, Distance = -d, Speed = e.Speed };
                 return true;
             }
             // Left lane
-            if (e.Pos.y - myLane < kNeighbourLaneDistance)
+            lane = e.Pos.y - myLane;
+            if (lane > kSameLaneDistance && lane < kNeighbourLaneDistance)
             {
                 if (result.NearestRearLeft.CarId == 0 || result.NearestRearLeft.Distance > -d)
                     result.NearestRearLeft = new QueryResult.Item { CarId = e.CarID, Distance = -d, Speed = e.Speed };
