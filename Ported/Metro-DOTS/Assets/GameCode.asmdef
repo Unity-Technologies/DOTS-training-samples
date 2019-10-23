@@ -7,7 +7,6 @@
         "Unity.Burst",
         "Unity.Mathematics",
         "Unity.Rendering.Hybrid",
-        "Unity.Transforms.Hybrid",
         "Unity.Entities.Hybrid",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
