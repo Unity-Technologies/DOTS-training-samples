@@ -13,7 +13,7 @@ public class Metro : MonoBehaviour
     public const int BEZIER_MEASUREMENT_SUBDIVISIONS = 2;
     public const float PLATFORM_ARRIVAL_THRESHOLD = 0.975f;
     public const float RAIL_SPACING = 0.5f;
-    public static Metro INSTANCE;
+    //public static Metro INSTANCE;
     static GameObject m_Root;
 
 
@@ -64,30 +64,15 @@ public class Metro : MonoBehaviour
         get { return m_Root; }
     }
 
-    public static string GetLine_NAME_FromIndex(int _index)
-    {
-        string result = "";
-        INSTANCE = FindObjectOfType<Metro>();
-        if (INSTANCE != null)
-        {
-            if (INSTANCE.LineNames.Length - 1 >= _index)
-            {
-                result = INSTANCE.LineNames[_index];
-            }
-        }
 
-        return result;
-    }
-
-    public static Color GetLine_COLOUR_FromIndex(int _index)
+    public static Color GetLine_COLOUR_FromIndex(Metro metro, int _index)
     {
         Color result = Color.black;
-        INSTANCE = FindObjectOfType<Metro>();
-        if (INSTANCE != null)
+        if (metro != null)
         {
-            if (INSTANCE.LineColours.Length - 1 >= _index)
+            if (metro.LineColours.Length - 1 >= _index)
             {
-                result = INSTANCE.LineColours[_index];
+                result = metro.LineColours[_index];
             }
         }
 
@@ -96,7 +81,7 @@ public class Metro : MonoBehaviour
 
     private void Awake()
     {
-        INSTANCE = this;
+        //INSTANCE = this;
         commuters = new List<Commuter>();
     }
 
@@ -132,7 +117,7 @@ public class Metro : MonoBehaviour
             // Only continue if we have something to work with
             if (_relevantMarkers.Count > 1)
             {
-                MetroLine _newLine = new MetroLine(i, maxTrains[i]);
+                MetroLine _newLine = new MetroLine(this, i, maxTrains[i]);
                 _newLine.Create_RailPath(_relevantMarkers);
                 metroLines[i] = _newLine;
             }
@@ -264,10 +249,10 @@ public class Metro : MonoBehaviour
     public void AddCommuter(Platform _start, Platform _end)
     {
         GameObject commuter_OBJ =
-            (GameObject) Instantiate(Metro.INSTANCE.prefab_commuter,
+            (GameObject) Instantiate(prefab_commuter,
                 _start.transform.position + new Vector3(0f, 0f, 0f), transform.rotation);
         Commuter _C = commuter_OBJ.GetComponent<Commuter>();
-        _C.Init(_start, _end);
+        _C.Init(this, _start, _end);
         commuters.Add(_C);
     }
 
@@ -474,7 +459,7 @@ public class Metro : MonoBehaviour
                             BezierPoint _NEXT_POINT = _path.points[(pointIndex + 1) % _path.points.Count];
                             // Link them up
                             Handles.DrawBezier(_CURRENT_POINT.location, _NEXT_POINT.location, _CURRENT_POINT.handle_out,
-                                _NEXT_POINT.handle_in, GetLine_COLOUR_FromIndex(i), null, 3f);
+                                _NEXT_POINT.handle_in, GetLine_COLOUR_FromIndex(this, i), null, 3f);
                         }
                     }
                 }

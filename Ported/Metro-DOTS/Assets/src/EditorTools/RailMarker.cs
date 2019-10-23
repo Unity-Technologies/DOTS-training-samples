@@ -26,7 +26,7 @@ public class RailMarker : MonoBehaviour
 	}
 	public void OnDrawGizmos()
 	{
-		Gizmos.color = GUI.color = (railMarkerType != RailMarkerType.PLATFORM_START) ?  Metro.GetLine_COLOUR_FromIndex(metroLineID) : Color.white;
+		Gizmos.color = GUI.color = (railMarkerType != RailMarkerType.PLATFORM_START) ?  Metro.GetLine_COLOUR_FromIndex(FindObjectOfType<Metro>(), metroLineID) : Color.white;
 		
 		// Draw marker X
 		float xSize = 0.5f;

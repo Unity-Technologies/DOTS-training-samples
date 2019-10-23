@@ -38,12 +38,14 @@ public class Train
     public Platform nextPlatform;
     public Train trainAheadOfMe;
     public bool trainReadyToDepart = false;
+    Metro metro;
 
-    public Train(int _trainIndex, int _parentLineIndex, float _startPosition, int _totalCarriages)
+    public Train(Metro metro, int _trainIndex, int _parentLineIndex, float _startPosition, int _totalCarriages)
     {
+        this.metro = metro;
         trainIndex = _trainIndex;
         parentLineIndex = _parentLineIndex;
-        parentLine = Metro.INSTANCE.metroLines[parentLineIndex];
+        parentLine = metro.metroLines[parentLineIndex];
         currentPosition = _startPosition;
         state = TrainState.EN_ROUTE;
         totalCarriages = _totalCarriages;
@@ -52,8 +54,8 @@ public class Train
         passengers_to_DISEMBARK = new List<Commuter>();
         passengers_to_EMBARK = new List<Commuter>();
         speed = 0f;
-        accelerationStrength = Metro.INSTANCE.Train_accelerationStrength * parentLine.speedRatio;
-        railFriction = Metro.INSTANCE.Train_railFriction;
+        accelerationStrength = metro.Train_accelerationStrength * parentLine.speedRatio;
+        railFriction = metro.Train_railFriction;
         ChangeState(TrainState.DEPARTING);
     }
 
@@ -62,7 +64,7 @@ public class Train
         carriages = new List<TrainCarriage>();
         for (int i = 0; i < totalCarriages; i++)
         {
-            GameObject _tempCarriage_OBJ = (GameObject) Metro.Instantiate(Metro.INSTANCE.prefab_trainCarriage, Metro.GetRoot.transform);
+            GameObject _tempCarriage_OBJ = (GameObject) Metro.Instantiate(metro.prefab_trainCarriage, Metro.GetRoot.transform);
             TrainCarriage _TC = _tempCarriage_OBJ.GetComponent<TrainCarriage>();
             carriages.Add(_TC);
             _TC.SetColour(parentLine.lineColour);
@@ -90,7 +92,7 @@ public class Train
             case TrainState.DOORS_OPEN:
                 // slight delay, then open the required door
                 speed = 0f;
-                stateDelay = Metro.INSTANCE.Train_delay_doors_OPEN;
+                stateDelay = metro.Train_delay_doors_OPEN;
                 break;
             case TrainState.UNLOADING:
                 Prepare_DISEMBARK();
@@ -102,14 +104,14 @@ public class Train
                 passengers_to_DISEMBARK.Clear();
                 passengers_to_EMBARK.Clear();
                 // once totalPassengers == (totalPassengers + (waitingToBoard - availableSpaces)) - shut the doors
-                stateDelay = Metro.INSTANCE.Train_delay_doors_CLOSE;
+                stateDelay = metro.Train_delay_doors_CLOSE;
                 // sort out vars for next stop (nextPlatform, door side, passengers wanting to get off etc)
                 break;
             case TrainState.DEPARTING:
                 // Determine next platform / station we'll be stopping at
                 Update_NextPlatform();
                 // slight delay
-                stateDelay = Metro.INSTANCE.Train_delay_departure;
+                stateDelay = metro.Train_delay_departure;
                 // get list of passengers who wish to depart at the next stop
                 break;
             case TrainState.EMERGENCY_STOP:

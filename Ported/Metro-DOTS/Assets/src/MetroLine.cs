@@ -24,9 +24,11 @@ public class MetroLine
     public float train_friction = 0.95f;
     public float speedRatio;
     public float carriageLength_onRail;
+    Metro metro;
    
-    public MetroLine(int metroLineIndex, int _maxTrains)
+    public MetroLine(Metro metro, int metroLineIndex, int _maxTrains)
     {
+        this.metro = metro;
         metroLine_index = metroLineIndex;
         maxTrains = _maxTrains;
         trains = new List<Train>();
@@ -36,16 +38,15 @@ public class MetroLine
 
     void Update_ValuesFromMetro()
     {
-        Metro m = Metro.INSTANCE;
-        lineName = m.LineNames[metroLine_index];
-        lineColour = m.LineColours[metroLine_index];
-        carriagesPerTrain = m.carriagesPerTrain[metroLine_index];
+        lineName = metro.LineNames[metroLine_index];
+        lineColour = metro.LineColours[metroLine_index];
+        carriagesPerTrain = metro.carriagesPerTrain[metroLine_index];
         if (carriagesPerTrain <= 0)
         {
             carriagesPerTrain = 1;
         }
 
-        maxTrainSpeed = m.maxTrainSpeed[metroLine_index];
+        maxTrainSpeed = metro.maxTrainSpeed[metroLine_index];
     }
 
     public void Create_RailPath(List<RailMarker> _outboundPoints)
@@ -152,13 +153,12 @@ public class MetroLine
         
         // Now, let's lay the rail meshes
         float _DIST = 0f;
-        Metro _M = Metro.INSTANCE;
         while (_DIST < bezierPath.GetPathDistance())
         {
             float _DIST_AS_RAIL_FACTOR = Get_distanceAsRailProportion(_DIST);
             Vector3 _RAIL_POS = Get_PositionOnRail(_DIST_AS_RAIL_FACTOR);
             Vector3 _RAIL_ROT = Get_RotationOnRail(_DIST_AS_RAIL_FACTOR);
-            GameObject _RAIL = (GameObject) Metro.Instantiate(_M.prefab_rail);
+            GameObject _RAIL = (GameObject) Metro.Instantiate(metro.prefab_rail, Metro.GetRoot.transform);
 //            _RAIL.GetComponent<Renderer>().material.color = lineColour;
             _RAIL.transform.position = _RAIL_POS;
             _RAIL.transform.LookAt(_RAIL_POS - _RAIL_ROT);
@@ -171,7 +171,7 @@ public class MetroLine
     {
         BezierPoint _PT_START = bezierPath.points[_index_platform_START];
         BezierPoint _PT_END = bezierPath.points[_index_platform_END];
-        GameObject platform_OBJ = Metro.Instantiate(Metro.INSTANCE.prefab_platform, _PT_END.location, Quaternion.identity, Metro.GetRoot.transform);
+        GameObject platform_OBJ = Metro.Instantiate(metro.prefab_platform, _PT_END.location, Quaternion.identity, Metro.GetRoot.transform);
         Platform platform = platform_OBJ.GetComponent<Platform>();
         platform.SetupPlatform(this, _PT_START, _PT_END);
         platform_OBJ.transform.LookAt(bezierPath.GetPoint_PerpendicularOffset(_PT_END, -3f));
@@ -181,7 +181,7 @@ public class MetroLine
 
     public void AddTrain(int _trainIndex, float _position)
     {
-        trains.Add(new Train(_trainIndex, metroLine_index, _position, carriagesPerTrain));
+        trains.Add(new Train(metro, _trainIndex, metroLine_index, _position, carriagesPerTrain));
     }
 
     public void UpdateTrains()

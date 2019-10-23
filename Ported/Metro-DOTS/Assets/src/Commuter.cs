@@ -57,7 +57,7 @@ public class Commuter : MonoBehaviour
     public TrainCarriage_door currentTrainDoor;
     public CommuterNavPoint currentSeat;
     private Transform t;
-
+    Metro metro;
 
     private void Awake()
     {
@@ -76,8 +76,9 @@ public class Commuter : MonoBehaviour
             new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
     }
 
-    public void Init(Platform _platform_START, Platform _platform_DESTINATION)
+    public void Init(Metro metro, Platform _platform_START, Platform _platform_DESTINATION)
     {
+        this.metro = metro;
         currentPlatform = _platform_START;
         FinalDestination = _platform_DESTINATION;
 
@@ -118,7 +119,7 @@ public class Commuter : MonoBehaviour
 
     void SetupRoute()
     {
-        route_TaskList = Metro.INSTANCE.ShortestRoute(currentPlatform, FinalDestination);
+        route_TaskList = metro.ShortestRoute(currentPlatform, FinalDestination);
         CommuterTask[] _TEMP = route_TaskList.ToArray();
         for (int i = 0; i < route_TaskList.Count; i++)
         {
@@ -284,7 +285,7 @@ public class Commuter : MonoBehaviour
                     nextPlatform = currentTask.endPlatform;
                     break;
                 case CommuterState.GET_OFF_TRAIN:
-                    t.SetParent(Metro.INSTANCE.transform);
+                    t.SetParent(metro.transform);
                     currentTask.destinationIndex = 0;
                     currentTask.destinations = new Vector3[]
                     {
@@ -296,9 +297,9 @@ public class Commuter : MonoBehaviour
         }
         else
         {
-            if (Metro.INSTANCE != null)
+            if (metro != null)
             {
-                Metro.INSTANCE.Remove_Commuter(this);
+                metro.Remove_Commuter(this);
             }
         }
     }
