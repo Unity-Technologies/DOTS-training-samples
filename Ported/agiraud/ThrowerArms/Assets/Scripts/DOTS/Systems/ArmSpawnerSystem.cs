@@ -36,6 +36,13 @@ public class ArmSpawnerSystem : ComponentSystem
 //    public float baseThrowSpeed;
 //    public float targetXRange;
 
+    private EntityArchetype m_ArmArchetype;
+    protected override void OnCreate()
+    {
+        m_ArmArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<BoneJoint>(),
+            ComponentType.ReadWrite<UpAxis>(), ComponentType.ReadWrite<ArmTarget>());
+    }
+
     private void CreateArm(Entity bonePrefab, Entity parent)
     {
         int b = 0;
@@ -82,8 +89,8 @@ public class ArmSpawnerSystem : ComponentSystem
         {
             for (var i = 0; i < spawnerData.Count; i++)
             {
-                var armEntity = EntityManager.CreateEntity();
-                var jointBuf = EntityManager.AddBuffer<BoneJoint>(armEntity);
+                var armEntity = EntityManager.CreateEntity(m_ArmArchetype);
+                var jointBuf = EntityManager.GetBuffer<BoneJoint>(armEntity);
                 jointBuf.ResizeUninitialized(m_JointCount);
                 for (var j = 0; j < m_JointCount; j++)
                 {
@@ -98,9 +105,14 @@ public class ArmSpawnerSystem : ComponentSystem
                     JointPos = new float3(i * 0.2f, 0, 0)
                 };
 
-                EntityManager.AddComponent<UpAxis>(armEntity);
                 EntityManager.SetComponentData(armEntity, new UpAxis{ Value = math.up() });
-                
+
+                var hardcodedSeed = 10;
+                float3 idleHandTarget = jointBuf[0].JointPos + new float3(math.sin(hardcodedSeed)*.35f,
+                                            1f+math.cos(hardcodedSeed*1.618f)*.5f,1.5f);
+
+                EntityManager.SetComponentData(armEntity, new ArmTarget{ Value = idleHandTarget });
+
                 CreateArm(spawnerData.BoneEntityPrefab, armEntity);
             }
             EntityManager.DestroyEntity(e);

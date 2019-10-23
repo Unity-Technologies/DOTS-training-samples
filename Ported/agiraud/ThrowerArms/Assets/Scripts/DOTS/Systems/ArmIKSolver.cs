@@ -9,6 +9,7 @@ using UnityEngine;
 public class IKSolverGroupSystem : ComponentSystemGroup { }
 
 [UpdateInGroup(typeof(IKSolverGroupSystem))]
+[UpdateAfter(typeof(HandUpSystem))]
 public class ArmIKSolver : JobComponentSystem
 {
     private const float armBoneLength = 1;
