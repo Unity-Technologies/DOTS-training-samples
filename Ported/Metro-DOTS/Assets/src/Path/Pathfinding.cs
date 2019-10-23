@@ -2,20 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+
 public static class Pathfinding
 {
-    public enum Method
-    {
-        Walk,
-        Train
-    }
-
-    public struct Connection
-    {
-        public int destinationPlatformId;
-        public Method method;
-    }
-
     struct PathId
     {
         public int fromPlatformId;
@@ -38,6 +27,14 @@ public static class Pathfinding
     public static void GeneratePathFindingData(IEnumerable<Platform> platforms)
     {
         pathLookup.Clear();
+        foreach (var path in GetAllPaths(platforms))
+        {
+            pathLookup.Add(new PathId{fromPlatformId = path.fromPlatformId, toPlatformId = path.toPlatformId}, path.connections);
+        }
+    }
+
+    public static IEnumerable<Path> GetAllPaths(IEnumerable<Platform> platforms)
+    {
         var platformsList = platforms.ToList();
         foreach (var platform1 in platformsList)
         {
@@ -49,12 +46,7 @@ public static class Pathfinding
                     if (shortestRoute == null)
                         continue;
                     var connections = CommuterTasksToConnections(shortestRoute).ToArray();
-                    var pathId = new PathId { fromPlatformId = platform1.platformIndex, toPlatformId = platform2.platformIndex };
-                    if (pathLookup.ContainsKey(pathId))
-                    {
-                        Debug.LogFormat("Path exists: From {0} To {1}", pathId.fromPlatformId, pathId.toPlatformId);
-                    }
-                    pathLookup.Add(pathId, connections);
+                    yield return new Path { fromPlatformId = platform1.platformIndex, toPlatformId = platform2.platformIndex, connections = connections};
                 }
             }
         }
