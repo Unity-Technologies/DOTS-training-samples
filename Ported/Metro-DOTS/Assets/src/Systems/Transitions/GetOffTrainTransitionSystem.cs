@@ -4,96 +4,91 @@ using Unity.Entities;
 using Unity.Jobs;
 
 [UpdateInGroup(typeof(TransitionSystemGroup))]
-class QueueTransitionSystem : JobComponentSystem
+class GetOffTrainTransitionSystem : JobComponentSystem
 {
     EntityCommandBufferSystem m_CommandBufferSystem;
-    EntityQuery m_LoadingStationsQuery;
-    EntityQuery m_QueueingQuery;
+    EntityQuery m_LoadingQuery;
+    EntityQuery m_GettingOffQuery;
 
     protected override void OnCreate()
     {
         m_CommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-        m_LoadingStationsQuery = GetEntityQuery(
+        m_LoadingQuery = GetEntityQuery(
             new EntityQueryDesc
             {
                 All = new[]
                 {
                     ComponentType.ReadOnly<LOADING>(),
-                    ComponentType.ReadOnly<PlatformId>()
+                    ComponentType.ReadOnly<TrainId>()
                 }
             });
 
-        m_QueueingQuery = GetEntityQuery(
+        m_GettingOffQuery = GetEntityQuery(
             new EntityQueryDesc
             {
                 All = new[]
                 {
-                    ComponentType.ReadOnly<QUEUE>(),
-                    ComponentType.ReadOnly<PlatformId>()
+                    ComponentType.ReadOnly<GET_OFF_TRAIN>(),
+                    ComponentType.ReadOnly<TrainId>()
                 }
             });
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var loadingStationIDsCount = m_LoadingStationsQuery.CalculateEntityCount();
-        var loadingStationIDs = new NativeArray<uint>(loadingStationIDsCount, Allocator.TempJob);
+        var loadingEntitiesCount = m_LoadingQuery.CalculateEntityCount();
+        var loadingIDs = new NativeArray<uint>(loadingEntitiesCount, Allocator.TempJob);
 
         // Step 1. Get all the indices of entities that are tagged with LOADING
-        var copyJob = new CopyLoadingStationIDs
+        var copyJob = new CopyLoadingIDs
         {
-            outputBuffer = loadingStationIDs
+            outputBuffer = loadingIDs
         };
 
-        var copyJobHandle = copyJob.Schedule(m_LoadingStationsQuery, inputDeps);
+        var copyJobHandle = copyJob.Schedule(m_LoadingQuery, inputDeps);
 
         // Step 2. Compare every entity tagged with QUEUE on their PlatformId with all the
         // stored entities that are LOADING.
-        var job = new ApplyQueueTransition
+        var job = new ApplyGetOffTrainTransition
         {
-            inputBuffer = loadingStationIDs,
+            inputBuffer = loadingIDs,
             commandBuffer = m_CommandBufferSystem.CreateCommandBuffer().ToConcurrent()
         };
 
-        var handle = job.Schedule(m_QueueingQuery, copyJobHandle);
+        var handle = job.Schedule(m_GettingOffQuery, copyJobHandle);
         m_CommandBufferSystem.AddJobHandleForProducer(handle);
         return handle;
     }
 
-
     [BurstCompile]
-    struct CopyLoadingStationIDs : IJobForEachWithEntity<PlatformId>
+    struct CopyLoadingIDs : IJobForEachWithEntity<TrainId>
     {
         [WriteOnly]
         public NativeArray<uint> outputBuffer;
 
-        public void Execute(Entity entity, int jobIndex, ref PlatformId platformID)
+        public void Execute(Entity entity, int jobIndex, ref TrainId trainId)
         {
-            outputBuffer[jobIndex] = platformID.value;
+            outputBuffer[jobIndex] = trainId.value;
         }
     }
 
-    struct ApplyQueueTransition : IJobForEachWithEntity<PlatformId>
+    struct ApplyGetOffTrainTransition : IJobForEachWithEntity<TrainId>
     {
         [DeallocateOnJobCompletion]
         public NativeArray<uint> inputBuffer;
         public EntityCommandBuffer.Concurrent commandBuffer;
 
-        public void Execute(Entity entity, int jobIndex, [ReadOnly] ref PlatformId platformID)
+        public void Execute(Entity entity, int jobIndex, [ReadOnly] ref TrainId trainId)
         {
             var found = false;
             for (int i = 0; i < inputBuffer.Length; ++i)
-                found = found || inputBuffer[i] == platformID.value;
+                found = found || inputBuffer[i] == trainId.value;
 
             if (!found)
                 return;
 
-            var ableToGetOn = true; // TODO: Implement
-            if (!ableToGetOn)
-                return;
-
-            commandBuffer.RemoveComponent<QUEUE>(jobIndex, entity);
-            commandBuffer.AddComponent<GET_ON_TRAIN>(jobIndex, entity);
+            commandBuffer.RemoveComponent<GET_OFF_TRAIN>(jobIndex, entity);
+            commandBuffer.AddComponent<WALK>(jobIndex, entity);
         }
     }
 }

@@ -1,6 +1,11 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
+public struct TrainId : IComponentData
+{
+    public uint value;
+}
+
 public struct PlatformId : IComponentData
 {
     public uint value;
