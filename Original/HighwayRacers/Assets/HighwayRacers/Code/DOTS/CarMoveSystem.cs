@@ -10,7 +10,7 @@ namespace HighwayRacers
     {
         struct MoveSystemJob : IJobForEach<CarState>
         {
-            public DotsHighway DotsHighway;
+            [ReadOnly] public DotsHighway DotsHighway;
             public float deltaTime;
             public void Execute(ref CarState state)
             {

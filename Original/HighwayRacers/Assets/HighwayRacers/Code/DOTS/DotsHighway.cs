@@ -32,7 +32,8 @@ namespace HighwayRacers
                 float radius = CurveRadius + lane * Highway.LANE_SPACING;
                 rotY = localDistance / radius;
                 return new float3(
-                    Highway.MID_RADIUS - math.cos(rotY) * radius, 0, math.sin(rotY));
+                    Highway.MID_RADIUS - math.cos(rotY) * radius,
+                    0, math.sin(rotY) * radius);
             }
         }
         NativeArray<Section> Sections;
@@ -68,7 +69,14 @@ namespace HighwayRacers
 
         public float LaneLength(float lane)
         {
-            return math.lerp(Lane0Length, LastLaneLength, lane / (Highway.NUM_LANES - 1));
+#if true // GML todo: why?
+            float len = 0;
+            for (int i = 0; i < Sections.Length; ++i)
+                len += Sections[i].LaneLength(lane);
+            return len;
+#else
+            eturn math.lerp(Lane0Length, LastLaneLength, lane / (Highway.NUM_LANES - 1));
+#endif
         }
 
         /// <summary>
@@ -108,7 +116,7 @@ namespace HighwayRacers
 
                     // transform
                     var q = quaternion.AxisAngle(
-                        new float3(0, 1, 0), rotY + section.StartRotation);
+                        new float3(0, 1, 0), section.StartRotation);
                     outPos = math.mul(q, localPos) + section.Pos;
                     outRotation = quaternion.AxisAngle(
                         new float3(0, 1, 0), rotY + section.StartRotation);
@@ -201,7 +209,7 @@ namespace HighwayRacers
                     FwdSpeed = data.DefaultSpeed,
                     LeftSpeed = 0,
 
-                    PositionOnTrack = 0, //m_Random.NextFloat(0, LaneLength(lane)),
+                    PositionOnTrack = m_Random.NextFloat(0, Lane0Length),
                     Lane = lane,
                     TargetLane = 0,
                     CurrentState = CarState.State.NORMAL
