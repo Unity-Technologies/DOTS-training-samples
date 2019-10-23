@@ -12,31 +12,10 @@ namespace HighwayRacers
         struct TryMergeSystemJob : IJobForEach<CarState, ProximityData, CarSettings>
         {
             [ReadOnly] public DotsHighway DotsHighway;
-	        public float currentTime;
 	        public float overtakeMaxDuration;
 	        bool IsMerging(CarState.State state)
 	        {
 		        return state == CarState.State.MERGE_LEFT || state == CarState.State.MERGE_RIGHT;
-	        }
-
-	        bool CanMergeLeft(
-                float lane, float mergeSpace,
-                [ReadOnly] ref ProximityData proximityData)
-	        {
-                return (proximityData.data.NearestFrontLeft.CarId == 0
-                        || proximityData.data.NearestFrontLeft.Distance >= mergeSpace)
-                    && (proximityData.data.NearestRearLeft.CarId == 0
-                        || proximityData.data.NearestRearLeft.Distance >= mergeSpace);
-	        }
-
-	        bool CanMergeRight(
-                float lane, float mergeSpace,
-                [ReadOnly] ref ProximityData proximityData)
-	        {
-                return (proximityData.data.NearestFrontRight.CarId == 0
-                        || proximityData.data.NearestFrontRight.Distance >= mergeSpace)
-                    && (proximityData.data.NearestRearRight.CarId == 0
-                        || proximityData.data.NearestRearRight.Distance >= mergeSpace);
 	        }
 
 	        bool WantsToMergeLeft(
@@ -44,14 +23,29 @@ namespace HighwayRacers
                 [ReadOnly] ref ProximityData proximityData,
                 [ReadOnly] ref CarSettings settings)
 	        {
+                // Is there a lane to the left?
+		        if (trackState.Lane >= DotsHighway.NumLanes - 1)
+                    return false;
+
+                // Is somebody in front?
                 if (proximityData.data.NearestFrontMyLane.CarId == 0)
                     return false;
-		        return trackState.Lane < DotsHighway.NumLanes - 1 // left lane exists
-                    && proximityData.data.NearestFrontMyLane.Distance
-                        < settings.LeftMergeDistance // close enough to car in front
-                    && settings.OvertakeEagerness
-                        > proximityData.data.NearestFrontMyLane.Speed
-                            / settings.DefaultSpeed; // car in front is slow enough
+
+                // Is he annoying?
+                if (proximityData.data.NearestFrontMyLane.Distance
+                        > settings.LeftMergeDistance // close enough to car in front
+                    || settings.OvertakeEagerness
+                        < proximityData.data.NearestFrontMyLane.Speed
+                            / settings.DefaultSpeed) // car in front is slow enough
+                {
+                    return false;
+                }
+
+                // Is there room for me to merge left?
+                return (proximityData.data.NearestFrontLeft.CarId == 0
+                        || proximityData.data.NearestFrontLeft.Distance >= settings.MergeSpace)
+                    && (proximityData.data.NearestRearLeft.CarId == 0
+                        || proximityData.data.NearestRearLeft.Distance >= settings.MergeSpace);
 	        }
 
 	        bool WantsToMergeRight(
@@ -89,8 +83,7 @@ namespace HighwayRacers
 			    if (!IsMerging(state.CurrentState))
 			    {
 				    // detect merging to left lane
-				    if (WantsToMergeLeft(ref state, ref proximityData, ref settings)
-                        && CanMergeLeft(state.Lane, settings.MergeSpace, ref proximityData))
+				    if (WantsToMergeLeft(ref state, ref proximityData, ref settings))
 				    {
 					    state.CurrentState = CarState.State.MERGE_LEFT;
 					    state.TargetLane = Mathf.Round(state.Lane + 1);
@@ -109,8 +102,6 @@ namespace HighwayRacers
             var job = new TryMergeSystemJob
             {
                 DotsHighway = Highway.instance.DotsHighway,
-                currentTime =  Time.time,
-                overtakeMaxDuration = Game.instance.overtakeMaxDuration
             };
             var deps = job.Schedule(this, inputDeps);
             DotsHighway.RegisterReaderJob(deps);
