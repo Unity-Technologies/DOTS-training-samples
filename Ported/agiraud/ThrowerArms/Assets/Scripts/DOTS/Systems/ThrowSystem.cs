@@ -14,10 +14,9 @@ public class ThrowSystem : JobComponentSystem
 {
     EntityQuery m_group;
 
-    //[BurstCompile]
+    [BurstCompile]
     struct ThrowSystemJob : IJobForEachWithEntity<Physics, Translation>
     {
-        public EntityCommandBuffer.Concurrent cmd;
         public float deltaTime;
         public Random rd;
         public float probability;
