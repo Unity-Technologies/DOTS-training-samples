@@ -81,14 +81,14 @@ namespace HighwayRacers
         }
 
         /// <summary>
-        /// Gets position of a car based on its lane and distance from the start in that lane.
+        /// Gets world position of a car based on its lane and distance from the start in that lane.
         /// </summary>
         /// <param name="distance"></param>
         /// <param name="lane"></param>
         /// <param name="x"></param>
         /// <param name="z"></param>
         /// <param name="rotation">y rotation of the car, in radians.</param>
-        public void GetPosition(
+        public void GetWorldPosition(
             float distance, float lane, out float3 outPos, out quaternion outRotation)
         {
             // keep distance in [0, length)
