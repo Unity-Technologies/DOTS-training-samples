@@ -24,7 +24,7 @@ public class ThrowSystem : JobComponentSystem
         public void Execute(Entity entity, int index, ref Physics physics, [ReadOnly] ref Translation translation)
         {
             if (physics.flying) return;
-            if (rd.NextFloat() < probability)
+            if (rd.NextFloat(0,100) < probability)
             {
                 // impulse
                 physics.velocity.y = rd.NextFloat(5, 30);
@@ -39,7 +39,7 @@ public class ThrowSystem : JobComponentSystem
         var job = new ThrowSystemJob();
         job.deltaTime = Time.deltaTime;
         job.rd = new Random((uint)Environment.TickCount);
-        job.probability = 0.1f;
+        job.probability = 1f;
 
         var jobHandle = job.Schedule(m_group, inputDeps);
 

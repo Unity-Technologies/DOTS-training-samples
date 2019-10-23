@@ -18,6 +18,9 @@ public class CollisionSystem : JobComponentSystem
     {
         [ReadOnly]
         public NativeArray<float3> rocks;
+        [ReadOnly]
+        public NativeArray<Entity> rocksEntities;
+        public NativeHashMap<Entity, float3>.ParallelWriter resultCollisionRock;
 
         public void Execute(Entity entity, int index, ref Physics physics, [ReadOnly] ref Translation translation)
         {
@@ -26,7 +29,8 @@ public class CollisionSystem : JobComponentSystem
 
             float canDistance;
             float3 rockPos;
-            NearestPosition(rocks, translation.Value, out canDistance, out rockPos);
+            Entity rockEntity;
+            NearestPosition(ref rocks, ref rocksEntities, ref translation.Value, out canDistance, out rockPos, out rockEntity);
 
             // TODO: expose radius
             if (canDistance < 1.0)
@@ -35,13 +39,16 @@ public class CollisionSystem : JobComponentSystem
 
                 physics.velocity += math.normalize(translation.Value - rockPos) * 10;
                 physics.angularVelocity += math.normalize(physics.velocity) * 2;
+
+                resultCollisionRock.TryAdd(rockEntity, translation.Value);
             }
         }
 
-        void NearestPosition(NativeArray<float3> rocks, float3 position, out float nearestDistance, out float3 nearestPos)
+        void NearestPosition(ref NativeArray<float3> rocks, ref NativeArray<Entity> entities, ref float3 position, out float nearestDistance, out float3 nearestPos, out Entity resultEntity)
         {
             nearestDistance = math.lengthsq(position - rocks[0]);
             nearestPos = rocks[0];
+            resultEntity = entities[0];
 
             for (int i = 1; i < rocks.Length; i++)
             {
@@ -51,6 +58,8 @@ public class CollisionSystem : JobComponentSystem
 
                 nearestDistance = math.select(nearestDistance, distance, nearest);
                 nearestPos = math.select(nearestPos, targetPosition, nearest);
+                if (nearest)
+                    resultEntity = entities[i];
             }
             nearestDistance = math.sqrt(nearestDistance);
         }
@@ -61,7 +70,7 @@ public class CollisionSystem : JobComponentSystem
     {
         public float3 boundsMin;
         public float3 boundsMax;
-        public NativeHashMap<int, float3>.ParallelWriter hashMap;
+        public NativeHashMap<Entity, float3>.ParallelWriter hashMap;
 
         public void Execute(Entity entity, int index, [ReadOnly] ref Translation translation, [ReadOnly] ref Physics physics)
         {
@@ -70,7 +79,7 @@ public class CollisionSystem : JobComponentSystem
             inRange = inRange && (translation.Value.z < boundsMax.z);
 
             if (inRange)
-                hashMap.TryAdd(index, translation.Value);
+                hashMap.TryAdd(entity, translation.Value);
         }
     }
 
@@ -80,7 +89,7 @@ public class CollisionSystem : JobComponentSystem
         if (rockCount == 0)
             return inputDeps;
 
-        var rocks = new NativeHashMap<int, float3>(rockCount, Allocator.TempJob);
+        var rocks = new NativeHashMap<Entity, float3>(rockCount, Allocator.TempJob);
 
         var copyJob = new CopyRocks
         {
@@ -95,19 +104,36 @@ public class CollisionSystem : JobComponentSystem
         jobHandle.Complete();
 
         var rocksNativeArray = rocks.GetValueArray(Allocator.TempJob);
+        var rocksEntityNativeArray = rocks.GetKeyArray(Allocator.TempJob);
         if (rocksNativeArray.Length > 0)
         {
+            var rocksThatHit = new NativeHashMap<Entity, float3>(rockCount, Allocator.TempJob);
             var job = new CollisionSystemJob()
             {
-                rocks = rocksNativeArray
+                rocks = rocksNativeArray,
+                rocksEntities = rocksEntityNativeArray,
+                resultCollisionRock = rocksThatHit.AsParallelWriter(),
             };
 
             jobHandle = job.Schedule(m_group, jobHandle);
             jobHandle.Complete();
+
+            NativeArray<Entity> rockentites = rocksThatHit.GetKeyArray(Allocator.Temp);
+            foreach (Entity rock in rockentites)
+            {
+                Physics p = EntityManager.GetComponentData<Physics>(rock);
+                p.velocity = float3.zero;
+                EntityManager.SetComponentData(rock, p);
+            }
+
+            rockentites.Dispose();
+            rocksThatHit.Dispose();
         }
 
         rocks.Dispose();
         rocksNativeArray.Dispose();
+        rocksEntityNativeArray.Dispose();
+
 
         return jobHandle;
     }
@@ -118,7 +144,7 @@ public class CollisionSystem : JobComponentSystem
 
         m_RocksQuery = GetEntityQuery(new EntityQueryDesc
         {
-            All = new[] { ComponentType.ReadOnly<RockTag>(), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Physics>() },
+            All = new[] { ComponentType.ReadOnly<RockTag>(), ComponentType.ReadOnly<Translation>(), ComponentType.ReadWrite<Physics>() },
         });
     }
 }
