@@ -25,7 +25,6 @@ class WalkTransitionSystem : JobComponentSystem
         return handle;
     }
 
-    [BurstCompile]
     [RequireComponentTag(typeof(WALK))]
     struct ApplyWalkTransition : IJobForEachWithEntity<PlatformId, CurrentPathIndex, PathLookup>
     {
