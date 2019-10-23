@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -13,6 +14,8 @@ namespace HighwayRacers
     public class CrashPreventionSystem : JobComponentSystem
     {
         const float k_MinDistBetweenCars = Highway.MIN_DIST_BETWEEN_CARS;
+
+        [BurstCompile]
         struct CrashPreventionSystemJob : IJobForEach<ProximityData, CarSettings, CarState>
         {
             public float deltaTime;

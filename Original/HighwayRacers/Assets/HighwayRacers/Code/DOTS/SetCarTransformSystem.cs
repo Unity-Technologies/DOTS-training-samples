@@ -4,12 +4,14 @@ using Unity.Jobs;
 using Unity.Transforms;
 using Unity.Mathematics;
 using UnityEngine;
+using Unity.Burst;
 
 namespace HighwayRacers
 {
     [UpdateAfter(typeof(ColorSystem))]
     public class SetCarTransformSystem : JobComponentSystem
     {
+        [BurstCompile]
         struct SetTransformJob : IJobForEach<CarState, Translation, Rotation>
         {
             [ReadOnly] public DotsHighway DotsHighway;

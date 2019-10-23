@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using HighwayRacers;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -12,6 +13,7 @@ namespace HighwayRacers
     [UpdateAfter(typeof(CarStateSystem))]
     public class AccelerationSystem : JobComponentSystem
     {
+        [BurstCompile]
         struct AccelerationSystemJob : IJobForEach<CarState>
         {
             public float accelRate;

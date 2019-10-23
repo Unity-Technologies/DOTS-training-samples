@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -9,6 +10,7 @@ namespace HighwayRacers
     [UpdateAfter(typeof(CarMoveSystem))]
     public class ColorSystem : JobComponentSystem
     {
+        [BurstCompile]
         struct ColorSystemJob : IJobForEach<CarState, CarSettings, ColorComponent>
         {
             public Color defaultColor;

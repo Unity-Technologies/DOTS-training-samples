@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -8,6 +9,7 @@ namespace HighwayRacers
 {
     public class CarMoveSystem : JobComponentSystem
     {
+        [BurstCompile]
         struct MoveSystemJob : IJobForEach<CarState>
         {
             [ReadOnly] public DotsHighway DotsHighway;

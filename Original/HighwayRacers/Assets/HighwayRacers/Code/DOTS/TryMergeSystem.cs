@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -9,6 +10,7 @@ namespace HighwayRacers
 {
     public class TryMergeSystem : JobComponentSystem
     {
+        [BurstCompile]
         struct TryMergeSystemJob : IJobForEach<CarState, ProximityData, CarSettings>
         {
             [ReadOnly] public DotsHighway DotsHighway;

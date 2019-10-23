@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using HighwayRacers;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -12,6 +13,7 @@ namespace HighwayRacers
     [UpdateBefore(typeof(TryMergeSystem))]
     public class CarStateSystem : JobComponentSystem
     {
+        [BurstCompile]
         struct CarStateSystemJob : IJobForEach<CarState, CarSettings, ProximityData>
         {
             public float switchLaneSpeed;

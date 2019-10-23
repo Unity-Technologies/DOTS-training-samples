@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -11,6 +12,7 @@ namespace HighwayRacers
     [UpdateBefore(typeof(CarStateSystem))]
     public class GetNearestCarsSystem : JobComponentSystem
     {
+        [BurstCompile]
         struct BuildSpacePartitionJob : IJobForEach<CarID, CarState>
         {
             public HighwaySpacePartition.ParallelWriter SpacePartition;
@@ -25,6 +27,7 @@ namespace HighwayRacers
             }
         }
 
+        [BurstCompile]
         struct GetNearestCarsJob : IJobForEach<ProximityData, CarState, CarSettings>
         {
             [ReadOnly] public HighwaySpacePartition SpacePartition;
