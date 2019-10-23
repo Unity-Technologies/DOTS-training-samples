@@ -23,7 +23,7 @@ namespace HighwayRacers
 
         struct GetNearestCarsJob : IJobForEach<ProximityData, CarState, CarSettings>
         {
-            public HighwaySpacePartition SpacePartition;
+            [ReadOnly] public HighwaySpacePartition SpacePartition;
             public float CarSize;
 
             public void Execute(
