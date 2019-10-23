@@ -6,13 +6,12 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
-[UpdateAfter(typeof(GrowSystem))]
+[UpdateBefore(typeof(PhysicsSystem))]
 public class GrowSystem : JobComponentSystem
 {
     [BurstCompile]
     struct GrowSystemJob : IJobForEachWithEntity<Scale>
     {
-        public EntityCommandBuffer.Concurrent cmd;
         public float deltaTime;
 
         public void Execute(Entity entity, int index, ref Scale scale)
