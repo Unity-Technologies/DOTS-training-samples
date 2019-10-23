@@ -16,8 +16,10 @@ namespace HighwayRacers
 
             public float LaneLength(float lane)
             {
-                return Lane0Length + math.select(
-                    0, lane * Highway.LANE_SPACING / CurveRadius, CurveRadius > 0);
+                return math.select(
+                    Lane0Length,
+                    (CurveRadius + lane * Highway.LANE_SPACING) * math.PI * 0.5f,
+                    CurveRadius > 0);
             }
 
             public float3 GetLocalPosition(float localDistance, float lane, out float rotY)
