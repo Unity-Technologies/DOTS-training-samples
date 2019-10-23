@@ -12,7 +12,7 @@ using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
 [UpdateAfter(typeof(SpawnerSystem))]
-public class ResetPositionSystem : JobComponentSystem
+public class ResetSystem : JobComponentSystem
 {
     EntityQuery m_GroupTinCan;
     EntityQuery m_GroupRock;
