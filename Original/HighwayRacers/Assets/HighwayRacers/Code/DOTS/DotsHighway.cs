@@ -201,7 +201,7 @@ namespace HighwayRacers
                     FwdSpeed = data.DefaultSpeed,
                     LeftSpeed = 0,
 
-                    PositionOnTrack = m_Random.NextFloat(0, LaneLength(lane)),
+                    PositionOnTrack = 0, //m_Random.NextFloat(0, LaneLength(lane)),
                     Lane = lane,
                     TargetLane = 0,
                     CurrentState = CarState.State.NORMAL
