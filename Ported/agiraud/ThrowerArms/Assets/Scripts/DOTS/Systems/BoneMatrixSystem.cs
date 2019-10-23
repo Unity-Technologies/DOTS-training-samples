@@ -29,10 +29,10 @@ public class BoneMatrixSystem : JobComponentSystem
             var chain = BoneChain[boneData.Parent];
             var delta = chain[boneData.ChainIndex + 1].JointPos - chain[boneData.ChainIndex].JointPos;
 
-//            var trs = float4x4.TRS(chain[boneData.ChainIndex].JointPos + delta * .5f,
-//                quaternion.LookRotation(delta, Up[boneData.Parent]),
-//                new float3(boneData.Thickness, boneData.Thickness, math.length(delta)));
-            var trs = float4x4.identity;
+            var trs = float4x4.TRS(chain[boneData.ChainIndex].JointPos + delta * .5f,
+                quaternion.LookRotation(delta, Up[boneData.Parent].Value),
+                new float3(boneData.Thickness, boneData.Thickness, math.length(delta)));
+            //Test value: var trs = float4x4.identity;
             transform.Value = trs;
         }
     }

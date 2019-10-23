@@ -92,6 +92,12 @@ public class ArmSpawnerSystem : ComponentSystem
                         JointPos = float3.zero
                     };
                 }
+                // Set anchor value
+                jointBuf[0] = new BoneJoint
+                {
+                    JointPos = new float3(i * 0.2f, 0, 0)
+                };
+
                 EntityManager.AddComponent<UpAxis>(armEntity);
                 EntityManager.SetComponentData(armEntity, new UpAxis{ Value = math.up() });
                 

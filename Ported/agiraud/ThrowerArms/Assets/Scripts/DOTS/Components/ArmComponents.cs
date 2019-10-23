@@ -23,3 +23,8 @@ public struct UpAxis : IComponentData
 {
     public float3 Value;
 }
+
+public struct ArmTarget : IComponentData
+{
+    public float3 Value;
+}
