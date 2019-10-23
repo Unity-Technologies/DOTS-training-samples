@@ -1,6 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace HighwayRacers
@@ -18,18 +19,21 @@ namespace HighwayRacers
                 [ReadOnly] ref CarSettings settings,
                 ref CarColor color)
             {
+                var colr = Color.black;
                 if (state.FwdSpeed > settings.DefaultSpeed)
                 {
-                    color.Value = Color.Lerp (defaultColor, maxSpeedColor, (state.FwdSpeed - settings.DefaultSpeed) / (settings.DefaultSpeed * settings.OvertakePercent - settings.DefaultSpeed));
+                    colr = Color.Lerp (defaultColor, maxSpeedColor, (state.FwdSpeed - settings.DefaultSpeed) / (settings.DefaultSpeed * settings.OvertakePercent - settings.DefaultSpeed));Color.Lerp (defaultColor, maxSpeedColor, (state.FwdSpeed - settings.DefaultSpeed) / (settings.DefaultSpeed * settings.OvertakePercent - settings.DefaultSpeed));
                 }
                 else if (state.FwdSpeed < settings.DefaultSpeed)
                 {
-                    color.Value = Color.Lerp (minSpeedColor, defaultColor, state.FwdSpeed / settings.DefaultSpeed);
+                    colr = Color.Lerp (minSpeedColor, defaultColor, state.FwdSpeed / settings.DefaultSpeed);
                 }
                 else
                 {
-                    color.Value = defaultColor;
+                    colr = defaultColor;
                 }
+                
+                color.Value = new float4(colr.r,colr.g,colr.b,colr.a);
             }
         }
 

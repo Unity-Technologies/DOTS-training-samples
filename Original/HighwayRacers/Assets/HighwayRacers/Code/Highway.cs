@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Rendering;
+using Unity.Transforms;
 using UnityEngine;
 
 namespace HighwayRacers
@@ -25,6 +27,10 @@ namespace HighwayRacers
         public GameObject straightPiecePrefab;
         public GameObject curvePiecePrefab;
 
+
+        public Mesh EntityCarMesh;
+        public Material EntityCarMaterial;
+        
         public static Highway instance { get; private set; }
 
         private HighwayPiece[] pieces = new HighwayPiece[8];
@@ -473,11 +479,12 @@ namespace HighwayRacers
             else if (calculateEntityCount < 0)
             {
                 var query = World.Active.EntityManager.CreateEntityQuery(typeof(CarState));
-                var entities = query.ToEntityArray(Allocator.Temp);
+                var entities = query.ToEntityArray(Allocator.TempJob);
                 for (int i = 0; i < -calculateEntityCount; i++)
                 {
                     World.Active.EntityManager.DestroyEntity(entities[i]);
                 }
+                entities.Dispose();
             }
         }
 
@@ -513,6 +520,9 @@ namespace HighwayRacers
                 });
                 em.AddComponentData(entity,new CarColor());
                 em.AddComponentData(entity,new ProximityData());
+                em.AddComponentData(entity,new Translation());
+                em.AddComponentData(entity,new Rotation());
+                em.AddComponentData(entity, new LocalToWorld());
             }
 
         }

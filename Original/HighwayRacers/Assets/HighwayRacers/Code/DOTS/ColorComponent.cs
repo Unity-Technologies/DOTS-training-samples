@@ -1,10 +1,11 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace HighwayRacers
 {
     struct CarColor : IComponentData
     {
-        public Color Value;
+        public float4 Value;
     }
 }

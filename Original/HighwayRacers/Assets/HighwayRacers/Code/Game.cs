@@ -67,6 +67,8 @@ namespace HighwayRacers
 			CAR
 		}
 		public ViewState viewState { get; private set; }
+		public Mesh entityMesh;
+		public Material entityMaterial;
 
 		public void TopDownView(){
 			viewState = ViewState.TOP_DOWN;
