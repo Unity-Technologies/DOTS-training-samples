@@ -26,6 +26,8 @@ public struct Speed : IComponentData
     public float value;
 }
 
+public struct PlatformTag : IComponentData { }
+
 // TRAIN STATES
 public struct EN_ROUTE : IComponentData { }
 public struct ARRIVING : IComponentData { }

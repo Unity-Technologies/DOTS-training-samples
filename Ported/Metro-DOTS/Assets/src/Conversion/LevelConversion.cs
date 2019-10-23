@@ -19,18 +19,12 @@ public class LevelConversion : GameObjectConversionSystem
 
         metroComponent.SetupMetroLines();
 
-        GeneratePathfindingData(entity, metroComponent);
         GenerateTrainTracksBezierData(entity, metroComponent);
 
-        SetupPlatforms(metroComponent);
+        SetupPlatforms(entity, metroComponent);
+        SetupCommuters(entity, metroComponent);
 
         Object.DestroyImmediate(Metro.GetRoot);
-    }
-
-    static void GeneratePathfindingData(Entity entity, Metro metroComponent)
-    {
-        Debug.Log("GeneratePathfindingData");
-        var lookup = PathLookupHelper.CreatePathLookup(Pathfinding.GetAllPlatformsInScene());
     }
 
     void GenerateTrainTracksBezierData(Entity entity, Metro metroComponent)
@@ -38,10 +32,18 @@ public class LevelConversion : GameObjectConversionSystem
         Debug.Log("GenerateTrainTracksBezierData");
     }
 
-    void SetupPlatforms(Metro metro)
+    void SetupCommuters(Entity entity, Metro metro)
+    {
+        Debug.Log("SetupCommuters");
+
+        var lookup = PathLookupHelper.CreatePathLookup(Pathfinding.GetAllPlatformsInScene());
+        DstEntityManager.AddComponentData(entity, new SpawnCommuters{ numberOfCommuters = metro.maxCommuters, prefab = GetPrimaryEntity(metro.prefab_commuter)});
+        DstEntityManager.AddComponentData(entity, new PathLookup { value = lookup });
+    }
+
+    void SetupPlatforms(Entity entity, Metro metro)
     {
         Debug.Log("SetupPlatforms");
-        var singleton = CreateAdditionalEntity(metro.transform);
 
         var platforms = Pathfinding.GetAllPlatformsInScene().OrderBy(i => i.platformIndex).ToList();
         using (var blobBuilder = new BlobBuilder(Allocator.Temp))
@@ -58,8 +60,8 @@ public class LevelConversion : GameObjectConversionSystem
             }
 
             var blob = blobBuilder.CreateBlobAssetReference<PlatformsTrBlob>(Allocator.Persistent);
-            DstEntityManager.AddComponentData(singleton, new PlatformTransforms{ value = blob });
-            DstEntityManager.AddComponentData(singleton, new SpawnPlatforms{ platformPrefab = GetPrimaryEntity(metro.prefab_platform)});
+            DstEntityManager.AddComponentData(entity, new PlatformTransforms{ value = blob });
+            DstEntityManager.AddComponentData(entity, new SpawnPlatforms{ platformPrefab = GetPrimaryEntity(metro.prefab_platform)});
         }
     }
 }
