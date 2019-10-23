@@ -31,9 +31,9 @@ namespace HighwayRacers
                 [ReadOnly] ref CarState state,
                 [ReadOnly] ref CarSettings settings)
             {
-                float maxDistance = math.max(settings.MergeSpace, settings.LeftMergeDistance) + CarSize;
+                float maxDistance = math.max(settings.MergeSpace, settings.LeftMergeDistance);
                 proximity.data = SpacePartition.GetNearestCars(
-                    state.PositionOnTrack, state.Lane, maxDistance, maxDistance);
+                    state.PositionOnTrack, state.Lane, maxDistance, CarSize);
             }
         }
 
