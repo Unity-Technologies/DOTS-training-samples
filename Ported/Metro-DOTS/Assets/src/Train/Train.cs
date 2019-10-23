@@ -62,7 +62,7 @@ public class Train
         carriages = new List<TrainCarriage>();
         for (int i = 0; i < totalCarriages; i++)
         {
-            GameObject _tempCarriage_OBJ = (GameObject) Metro.Instantiate(Metro.INSTANCE.prefab_trainCarriage);
+            GameObject _tempCarriage_OBJ = (GameObject) Metro.Instantiate(Metro.INSTANCE.prefab_trainCarriage, Metro.GetRoot.transform);
             TrainCarriage _TC = _tempCarriage_OBJ.GetComponent<TrainCarriage>();
             carriages.Add(_TC);
             _TC.SetColour(parentLine.lineColour);

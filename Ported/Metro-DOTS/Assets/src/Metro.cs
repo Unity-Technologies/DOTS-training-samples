@@ -14,6 +14,7 @@ public class Metro : MonoBehaviour
     public const float PLATFORM_ARRIVAL_THRESHOLD = 0.975f;
     public const float RAIL_SPACING = 0.5f;
     public static Metro INSTANCE;
+    static GameObject m_Root;
 
 
     // PUBLICS
@@ -57,6 +58,11 @@ public class Metro : MonoBehaviour
 
     [HideInInspector] public List<Commuter> commuters;
     [HideInInspector] private Platform[] allPlatforms;
+
+    public static GameObject GetRoot
+    {
+        get { return m_Root; }
+    }
 
     public static string GetLine_NAME_FromIndex(int _index)
     {
@@ -113,6 +119,7 @@ public class Metro : MonoBehaviour
 
     public void SetupMetroLines()
     {
+        m_Root = new GameObject();
         platformCounter = 0;
         totalLines = LineNames.Length;
         metroLines = new MetroLine[totalLines];
@@ -139,7 +146,7 @@ public class Metro : MonoBehaviour
         // now destroy all RailMarkers
         foreach (RailMarker _RM in FindObjectsOfType<RailMarker>())
         {
-            Destroy(_RM);
+            DestroyImmediate(_RM);
         }
 
 

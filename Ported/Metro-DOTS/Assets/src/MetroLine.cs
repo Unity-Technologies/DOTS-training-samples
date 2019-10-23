@@ -171,8 +171,7 @@ public class MetroLine
     {
         BezierPoint _PT_START = bezierPath.points[_index_platform_START];
         BezierPoint _PT_END = bezierPath.points[_index_platform_END];
-        GameObject platform_OBJ =
-            (GameObject) Metro.Instantiate(Metro.INSTANCE.prefab_platform, _PT_END.location, Quaternion.identity);
+        GameObject platform_OBJ = Metro.Instantiate(Metro.INSTANCE.prefab_platform, _PT_END.location, Quaternion.identity, Metro.GetRoot.transform);
         Platform platform = platform_OBJ.GetComponent<Platform>();
         platform.SetupPlatform(this, _PT_START, _PT_END);
         platform_OBJ.transform.LookAt(bezierPath.GetPoint_PerpendicularOffset(_PT_END, -3f));
