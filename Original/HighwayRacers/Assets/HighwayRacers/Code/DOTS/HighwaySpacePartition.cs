@@ -164,7 +164,7 @@ namespace HighwayRacers
         bool GatherFrontDistances(BucketEntry e, ref QueryResult result, float myLane, float d)
         {
             // Only consider objects in front
-            if (d < 0)
+            if (d <= 0)
                 return false;
 
             // My lane
