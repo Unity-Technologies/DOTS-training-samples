@@ -50,6 +50,7 @@ namespace HighwayRacers
                         break;
 
                     case CarState.State.OVERTAKING:
+                        targetSpeed = settings.OvertakeEagerness *settings.DefaultSpeed;
                         state.LeftSpeed = 0;
 
                         break;

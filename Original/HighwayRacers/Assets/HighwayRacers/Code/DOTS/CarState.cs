@@ -20,5 +20,6 @@ namespace HighwayRacers
             OVERTAKING,
         }
         public State CurrentState;
+        public int OvertakeCarID;
     }
 }

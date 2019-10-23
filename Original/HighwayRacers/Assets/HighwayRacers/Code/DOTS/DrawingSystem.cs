@@ -15,7 +15,7 @@ public class DrawingSystem : ComponentSystem
 
     protected override void OnCreate()
     {
-        m_Query = GetEntityQuery(typeof(LocalToWorld), typeof(ColorComponent));
+        m_Query = GetEntityQuery(ComponentType.ReadOnly<LocalToWorld>(), ComponentType.ReadOnly<ColorComponent>());
     }
 
     protected override void OnUpdate()
