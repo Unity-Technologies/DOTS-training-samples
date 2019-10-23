@@ -8,6 +8,7 @@ class QueueTransitionSystem : JobComponentSystem
 {
     EntityCommandBufferSystem m_CommandBufferSystem;
     EntityQuery m_LoadingStationsQuery;
+    EntityQuery m_QueueingQuery;
 
     protected override void OnCreate()
     {
@@ -18,6 +19,16 @@ class QueueTransitionSystem : JobComponentSystem
                 All = new[]
                 {
                     ComponentType.ReadOnly<LOADING>(),
+                    ComponentType.ReadOnly<PlatformId>()
+                }
+            });
+
+        m_QueueingQuery = GetEntityQuery(
+            new EntityQueryDesc
+            {
+                All = new[]
+                {
+                    ComponentType.ReadOnly<QUEUE>(),
                     ComponentType.ReadOnly<PlatformId>()
                 }
             });
@@ -44,7 +55,7 @@ class QueueTransitionSystem : JobComponentSystem
             commandBuffer = m_CommandBufferSystem.CreateCommandBuffer().ToConcurrent()
         };
 
-        var handle = job.Schedule(this, copyJobHandle);
+        var handle = job.Schedule(m_QueueingQuery, copyJobHandle);
         m_CommandBufferSystem.AddJobHandleForProducer(handle);
         return handle;
     }
@@ -62,14 +73,13 @@ class QueueTransitionSystem : JobComponentSystem
         }
     }
 
-    [RequireComponentTag(typeof(QUEUE))]
     struct ApplyQueueTransition : IJobForEachWithEntity<PlatformId>
     {
         [DeallocateOnJobCompletion]
         public NativeArray<uint> inputBuffer;
         public EntityCommandBuffer.Concurrent commandBuffer;
 
-        public void Execute(Entity entity, int jobIndex, ref PlatformId platformID)
+        public void Execute(Entity entity, int jobIndex, [ReadOnly] ref PlatformId platformID)
         {
             var found = false;
             for (int i = 0; i < inputBuffer.Length; ++i)
