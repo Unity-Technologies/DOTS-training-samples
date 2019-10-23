@@ -1,5 +1,6 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
@@ -59,13 +60,23 @@ namespace HighwayRacers
             }
             LastLaneLength = 0;
             for (int s = 0; s < Sections.Length; ++s)
-                LastLaneLength += Sections[s].LaneLength(Highway.NUM_LANES - 1);
+                LastLaneLength += Sections[s].LaneLength(NumLanes - 1);
         }
 
         public void Dispose()
         {
+
+//            ReaderJob.Complete();
             if (Sections.IsCreated) Sections.Dispose();
         }
+
+//        JobHandle ReaderJob;
+        public void RegisterReaderJob(JobHandle h)
+        {
+  //          ReaderJob = h;
+        }
+
+        public float NumLanes { get { return Highway.NUM_LANES; } }
 
         public float Lane0Length { get; private set; }
 
@@ -77,7 +88,7 @@ namespace HighwayRacers
                 len += Sections[i].LaneLength(lane);
             return len;
 #else
-            eturn math.lerp(Lane0Length, LastLaneLength, lane / (Highway.NUM_LANES - 1));
+            return math.lerp(Lane0Length, LastLaneLength, lane / (NumLanes - 1));
 #endif
         }
 
@@ -224,7 +235,7 @@ namespace HighwayRacers
                 em.AddComponentData(entity, new LocalToWorld());
 
                 lane += 1;
-                if (lane == Highway.NUM_LANES)
+                if (lane == NumLanes)
                     lane = 0;
             }
 

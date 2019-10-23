@@ -15,7 +15,7 @@ namespace HighwayRacers
             public void Execute(ref CarState state)
             {
                 //forward position
-                var pos = state.PositionOnTrack + state.FwdSpeed * deltaTime; // TODO: handle wraparond
+                var pos = state.PositionOnTrack + state.FwdSpeed * deltaTime;
                 state.PositionOnTrack = DotsHighway.WrapDistance(pos, state.Lane);
                 state.Lane += state.LeftSpeed * deltaTime;
 
@@ -34,9 +34,10 @@ namespace HighwayRacers
             {
                 deltaTime = Time.deltaTime,
                 DotsHighway = Highway.instance.DotsHighway
-
             };
-            return job.Schedule(this, inputDeps);
+            var deps = job.Schedule(this, inputDeps);
+            Highway.instance.DotsHighway.RegisterReaderJob(deps);
+            return deps;
         }
     }
 }
