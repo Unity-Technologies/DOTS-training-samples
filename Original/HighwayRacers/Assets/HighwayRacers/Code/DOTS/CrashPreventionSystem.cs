@@ -19,6 +19,9 @@ namespace HighwayRacers
             public void Execute(
                 [ReadOnly] ref ProximityData proximityData, ref CarState state)
             {
+                if (proximityData.data.NearestFrontMyLane.CarId == 0)
+                    return;
+                
                 var maxDistanceDiff = Mathf.Max(0, proximityData.data.NearestFrontMyLane.Distance - k_MinDistBetweenCars);
                 state.FwdSpeed = Mathf.Min(state.FwdSpeed, maxDistanceDiff / deltaTime);
             }
