@@ -44,7 +44,7 @@ public class SpawnTrainsSystem : JobComponentSystem
         {
             var train = cmdBuffer.Instantiate(index, c0.prefab);
             cmdBuffer.SetComponent(index, train, new Translation{ Value = new float3(0, 0, 0)});
-            cmdBuffer.RemoveComponent(index, entity, typeof(SpawnCommuters));
+            cmdBuffer.RemoveComponent(index, entity, typeof(SpawnTrains));
         }
     }
 }
