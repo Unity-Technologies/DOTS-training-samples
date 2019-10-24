@@ -15,6 +15,7 @@ public struct ArmBookingItem
     public Entity can;
 }
 [UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
+[UpdateAfter(typeof(CollisionSystem))]
 public class ArmBookingSystem : JobComponentSystem
 {
     [BurstCompile]
@@ -60,7 +61,7 @@ public class ArmBookingSystem : JobComponentSystem
             {
                 if (!reserved[i].reserved)
                 {
-                    float dist = math.lengthsq(translationValue - targets[i].Value);
+                    float dist = math.length(translationValue - targets[i].Value);
                     if (dist < maxDistance && dist < nearestDistance)
                     {
                         nearestDistance = dist;
