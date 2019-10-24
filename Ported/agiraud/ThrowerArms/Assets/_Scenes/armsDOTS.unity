@@ -462,7 +462,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8221f5f4b0fef574291e3af7c238b3a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TinCanPrefab: {fileID: 1582832213403089428, guid: c77c14fb35714a94394dfdc694a50235,
+  TinCanPrefab: {fileID: 1691085970417218, guid: 9b9f11fc255b92149ac9f8bad25ebb66,
     type: 3}
   TinCanCount: 1000
   velocity: {x: 1, y: 0, z: 0}
