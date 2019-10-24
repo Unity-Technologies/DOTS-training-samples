@@ -32,12 +32,16 @@ public struct HandAxis : IComponentData
 
 public struct ArmTarget : IComponentData
 {
-    public float3 Value;
-    public float LastRockSize;
+    public float3 Value; // Hand target
+    // (x, y, z) pos and w size
+    public float4 LastRockPosSize;
     public bool IsHolding;
 
     public Entity TargetRock;
     public Entity TargetCan;
+
+    public float3 AimVector;
+    public float3 WindupHandTarget;
 }
 
 public struct Timers : IComponentData
