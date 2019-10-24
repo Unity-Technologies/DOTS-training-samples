@@ -24,6 +24,7 @@ public class FingerIKSolver : JobComponentSystem
     [BurstCompile]
     struct ArmIKSolverJob : IJobForEachWithEntity_EBCC<BoneJoint, ArmTarget, HandAxis>
     {
+        [ReadOnly] public float time;
         public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints,
             [ReadOnly] ref ArmTarget armTarget, [ReadOnly] ref HandAxis handAxis)
         {
@@ -48,8 +49,8 @@ public class FingerIKSolver : JobComponentSystem
 
                 var fingerTarget = fingerPos + handAxis.Forward * (.5f-.1f*fingerGrabT);
 
-                // TODO: add spooky fingers
-                // fingerTarget += handUp * Mathf.Sin((time + i*.2f)*3f) * .2f*(1f-fingerGrabT);
+                // Spooky fingers
+                fingerTarget += handAxis.Up * Mathf.Sin((time + j*.2f)*3f) * .2f*(1f-fingerGrabT);
 
                 // apply finger-spreading during throw animation
                 float openPalm = 0f; // TODO throwCurve.Evaluate(throwTimer);
@@ -74,6 +75,10 @@ public class FingerIKSolver : JobComponentSystem
     }
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        return new ArmIKSolverJob().Schedule(this, inputDeps);
+        ArmIKSolverJob job = new ArmIKSolverJob
+        {
+            time = Time.time
+        };
+        return job.Schedule(this, inputDeps);
     }
 }
