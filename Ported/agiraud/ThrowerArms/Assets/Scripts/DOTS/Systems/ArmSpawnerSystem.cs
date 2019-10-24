@@ -40,7 +40,7 @@ public class ArmSpawnerSystem : ComponentSystem
     protected override void OnCreate()
     {
         m_ArmArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<BoneJoint>(),
-            ComponentType.ReadWrite<UpAxis>(), ComponentType.ReadWrite<ArmTarget>());
+            ComponentType.ReadWrite<HandAxis>(), ComponentType.ReadWrite<ArmTarget>());
     }
 
     private void CreateArm(Entity bonePrefab, Entity parent)
@@ -105,7 +105,7 @@ public class ArmSpawnerSystem : ComponentSystem
                     JointPos = new float3(i * 2.0f, 0, 0)
                 };
 
-                EntityManager.SetComponentData(armEntity, new UpAxis{ Value = math.up() });
+                EntityManager.SetComponentData(armEntity, new HandAxis{ Up = math.up() });
 
                 var hardcodedSeed = 10;
                 float3 idleHandTarget = jointBuf[0].JointPos + new float3(math.sin(hardcodedSeed)*.35f,

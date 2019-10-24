@@ -17,10 +17,10 @@ public class FingerIKSolver : JobComponentSystem
     private const float fingerSpacing = 0.08f;
 
     [BurstCompile]
-    struct ArmIKSolverJob : IJobForEachWithEntity_EBCC<BoneJoint, ArmTarget, UpAxis>
+    struct ArmIKSolverJob : IJobForEachWithEntity_EBCC<BoneJoint, ArmTarget, HandAxis>
     {
         public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints,
-            [ReadOnly] ref ArmTarget armTarget, [ReadOnly] ref UpAxis upAxis)
+            [ReadOnly] ref ArmTarget armTarget, [ReadOnly] ref HandAxis handAxis)
         {
 
             for (var j = 0; j < 4; j++)
@@ -28,21 +28,19 @@ public class FingerIKSolver : JobComponentSystem
                 NativeArray<float3> chainPositions = new NativeArray<float3>(4, Allocator.Temp);
                 for (var i = 0; i < 4; i++)
                 {
-                    chainPositions[i] = boneJoints[i + j * 4 + 3].JointPos;
+                    chainPositions[i] = boneJoints[i + j * 4 + 2].JointPos;
                 }
-
-                var handForward = math.normalize(boneJoints[1].JointPos - boneJoints[0].JointPos);
-                var handRight = math.cross(upAxis.Value, handForward);
+                
                 // find knuckle position for this finger
-                var fingerPos = boneJoints[2].JointPos + handRight * (fingerXOffset + j * fingerSpacing);
+                var fingerPos = boneJoints[2].JointPos + handAxis.Right * (fingerXOffset + j * fingerSpacing);
 
                 // find resting position for this fingertip
                 var fingerTarget = fingerPos; // + handFwd * (.5f-.1f*fingerGrabT);
 
-                fingerTarget += upAxis.Value * .3f + handForward * .1f + handRight * (j - 1.5f) * .1f;
+                fingerTarget += handAxis.Up * .3f + handAxis.Forward * .1f + handAxis.Right * (j - 1.5f) * .1f;
                 
                 ConstantManager.IKSolve(ref chainPositions, fingerBoneLength,fingerPos, fingerTarget,
-                    upAxis.Value*fingerBendStrength);
+                    handAxis.Up*fingerBendStrength);
             
                 for (int i = 0; i < 4; i++)
                 {

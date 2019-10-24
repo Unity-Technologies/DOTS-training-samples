@@ -16,10 +16,10 @@ public class ArmIKSolver : JobComponentSystem
     private const float armBendStrength = 0.1f;
 
     [BurstCompile]
-    struct ArmIKSolverJob : IJobForEachWithEntity_EBCC<BoneJoint, ArmTarget, UpAxis>
+    struct ArmIKSolverJob : IJobForEachWithEntity_EBCC<BoneJoint, ArmTarget, HandAxis>
     {
         public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints,
-            [ReadOnly] ref ArmTarget armTarget, [ReadOnly] ref UpAxis upAxis)
+            [ReadOnly] ref ArmTarget armTarget, [ReadOnly] ref HandAxis handAxis)
         {
             NativeArray<float3> chainPositions = new NativeArray<float3>(3, Allocator.Temp);
             for (int i = 0; i < 3; i++)
@@ -28,7 +28,7 @@ public class ArmIKSolver : JobComponentSystem
             }
 
             ConstantManager.IKSolve(ref chainPositions, armBoneLength,chainPositions[0] /*TODO*/, armTarget.Value,
-                upAxis.Value*armBendStrength);
+                handAxis.Up*armBendStrength);
             
             for (int i = 0; i < 3; i++)
             {

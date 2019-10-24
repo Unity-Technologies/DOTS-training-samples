@@ -23,9 +23,11 @@ public struct BoneData : IComponentData
     public float Thickness;
 }
 
-public struct UpAxis : IComponentData
+public struct HandAxis : IComponentData
 {
-    public float3 Value;
+    public float3 Up;
+    public float3 Forward;
+    public float3 Right;
 }
 
 public struct ArmTarget : IComponentData
