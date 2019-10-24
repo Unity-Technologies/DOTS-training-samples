@@ -42,7 +42,7 @@ public class LevelConversion : GameObjectConversionSystem
                 var trainLineRef = BuildBezierPath(metroLine);
                 var numberOfCarriages = metroLine.carriagesPerTrain;
 
-                var trainLine = new TrainLine { line = trainLineRef };
+                var trainLine = new BezierCurve { line = trainLineRef };
                 var spacing =  trainIndex * (1f / metroLine.maxTrains);
                 var spawnTrain = new SpawnTrain(prefab, trainLine, numberOfCarriages, globalTrainIdx, metroLine.carriageLength_onRail, spacing);
 

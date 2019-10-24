@@ -7,13 +7,13 @@ using Unity.Transforms;
 public struct SpawnTrain : IComponentData
 {
     public Entity prefab;
-    public TrainLine line;
+    public BezierCurve line;
     public uint numberOfCarriagePerTrain;
     public uint index;
     public float carriageOffset;
     public float initialT;
 
-    public SpawnTrain(Entity m_prefab, TrainLine m_Line, int m_numberOfCarriagePerTrain, int m_index, float m_carriageOffset, float m_initialT)
+    public SpawnTrain(Entity m_prefab, BezierCurve m_Line, int m_numberOfCarriagePerTrain, int m_index, float m_carriageOffset, float m_initialT)
     {
         prefab = m_prefab;
         line = m_Line;
@@ -57,8 +57,9 @@ public class SpawnTrainsSystem : JobComponentSystem
 
                 cmdBuffer.SetComponent(index, carriage, new Translation { Value = pos });
                 cmdBuffer.SetComponent(index, carriage, new Rotation { Value = lookAt });
+                cmdBuffer.AddComponent(index, carriage, new Speed{ value = 1.0f});
                 cmdBuffer.AddComponent(index, carriage, new TrainId{ value = c0.index });
-                cmdBuffer.AddComponent(index, carriage, new TrainLine{ line = c0.line.line });
+                cmdBuffer.AddComponent(index, carriage, new BezierCurve{ line = c0.line.line });
                 cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = t});
                 carriageOffset += c0.carriageOffset;
             }
