@@ -4,13 +4,11 @@ using UnityEngine;
 
 namespace HighwayRacers
 {
-
     public class CurvePiece : HighwayPiece
     {
-
         public override float length(float lane)
         {
-            return Highway.curvePieceLength(lane);
+            return (curveRadiusLane0 + lane * Highway.LANE_SPACING) * Mathf.PI / 2;
         }
 
         public override float curveRadiusLane0 { get { return Highway.CURVE_LANE0_RADIUS; } }

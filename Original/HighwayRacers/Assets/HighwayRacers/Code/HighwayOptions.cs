@@ -38,7 +38,7 @@ namespace HighwayRacers
 			highwaySizeSlider.maxValue = Game.instance.highwayMaxSize;
 
 			numCarsSlider.value = Highway.instance.NumCars;
-			highwaySizeSlider.value = Highway.instance.lane0Length;
+			highwaySizeSlider.value = Highway.instance.DotsHighway.Lane0Length;
 
 		}
 

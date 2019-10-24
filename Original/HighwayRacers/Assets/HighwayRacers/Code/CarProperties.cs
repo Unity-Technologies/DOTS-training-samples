@@ -24,14 +24,15 @@ namespace HighwayRacers {
 			gameObject.SetActive(true);
 			selectedCar = car;
 
-			preventUpdatingCar = true;
+//TODO			preventUpdatingCar = true;
 			SetSliderProperties();
-			preventUpdatingCar = false;
+//TODO			preventUpdatingCar = false;
 		}
 
 		public Car selectedCar { get; private set; }
 
 		private void SetSliderProperties() {
+#if false // TODO
 			if (selectedCar == null)
 				return;
 			defaultSpeed.value = selectedCar.defaultSpeed;
@@ -45,8 +46,11 @@ namespace HighwayRacers {
 			mergeSpace.SetText("Merge Space: " + combinedMergeSpace.ToString("0.0") + " m");
 			overtakeEagerness.value = selectedCar.overtakeEagerness;
 			overtakeEagerness.SetText("Overtake Eagerness: " + selectedCar.overtakeEagerness.ToString("0.0"));
-
+#endif
 		}
+
+#if false // TODO
+		bool preventUpdatingCar = false;
 
 		public void SliderUpdated(float value){
 			if (selectedCar == null)
@@ -62,7 +66,7 @@ namespace HighwayRacers {
 
 			SetSliderProperties();
 		}
-
+#endif
 		public void BackButtonPressed(){
 
 			Game.instance.TopDownView();
@@ -75,13 +79,13 @@ namespace HighwayRacers {
 				return;
 			}
 			instance = this;
-
+#if false // TODO
 			defaultSpeed.slider.onValueChanged.AddListener(SliderUpdated);
 			overtakePercent.slider.onValueChanged.AddListener(SliderUpdated);
 			leftMergeDistance.slider.onValueChanged.AddListener(SliderUpdated);
 			mergeSpace.slider.onValueChanged.AddListener(SliderUpdated);
 			overtakeEagerness.slider.onValueChanged.AddListener(SliderUpdated);
-
+#endif
 		}
 
 		// Use this for initialization
@@ -98,21 +102,14 @@ namespace HighwayRacers {
 			Hide();
 
 		}
-		
+
 		// Update is called once per frame
-		void Update () {
-			
-		}
+		void Update () {}
 
 		void OnDestroy() {
 			if (instance == this) {
 				instance = null;
 			}
 		}
-
-		bool preventUpdatingCar = false;
-
-
 	}
-
 }

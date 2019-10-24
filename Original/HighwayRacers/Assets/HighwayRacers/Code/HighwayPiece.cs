@@ -7,15 +7,6 @@ namespace HighwayRacers
 
     public class HighwayPiece : MonoBehaviour
     {
-
-        public float startX
-        {
-            get { return transform.localPosition.x; }
-        }
-        public float startZ
-        {
-            get { return transform.localPosition.z; }
-        }
         public void SetStartPosition(Vector3 position)
         {
             transform.localPosition = position;

@@ -7,7 +7,6 @@ namespace HighwayRacers
 
     public class StraightPiece : HighwayPiece
     {
-
         public float baseLength = 6;
         public float baseScaleY = 6;
 
@@ -18,6 +17,7 @@ namespace HighwayRacers
         {
             return _length;
         }
+
         public void SetLength(float value)
         {
             if (_length == value) return;
@@ -30,7 +30,6 @@ namespace HighwayRacers
         protected void Awake()
         {
             meshRenderer = GetComponentInChildren<MeshRenderer>();
-
             UpdateTiling();
         }
 
@@ -41,7 +40,6 @@ namespace HighwayRacers
 
         private MeshRenderer meshRenderer;
         private float _length = -1;
-
     }
 
 }
