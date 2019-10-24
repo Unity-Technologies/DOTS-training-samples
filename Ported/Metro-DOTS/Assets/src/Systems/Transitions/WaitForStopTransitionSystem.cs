@@ -102,7 +102,7 @@ class WaitForStopTransitionSystem : JobComponentSystem
             {
                 if (inputBuffer[i].trainID == trainID.value)
                 {
-                    if (inputBuffer[i].platformID == pathLookup.value.Value.paths[pathIndex.index].toPlatformId)
+                    if (inputBuffer[i].platformID == pathLookup.value.Value.paths[pathIndex.connectionIdx].toPlatformId)
                     {
                         commandBuffer.RemoveComponent<WAIT_FOR_STOP>(jobIndex, entity);
                         commandBuffer.AddComponent<GET_OFF_TRAIN>(jobIndex, entity);
