@@ -13,29 +13,28 @@ namespace HighwayRacers
     public class GetNearestCarsSystem : JobComponentSystem
     {
         [BurstCompile]
-        struct BuildSpacePartitionJob : IJobForEach<CarID, CarState>
+        struct BuildSpacePartitionJob : IJobForEach<CarState>
         {
             public HighwaySpacePartition.ParallelWriter SpacePartition;
             [ReadOnly] public DotsHighway DotsHighway;
 
-            public void Execute([ReadOnly] ref CarID id, [ReadOnly] ref CarState state)
+            public void Execute([ReadOnly] ref CarState state)
             {
                 // Use the middle of the track to minimize error
                 var pos = DotsHighway.GetEquivalentDistance(
                     state.PositionOnTrack, state.Lane, DotsHighway.NumLanes * 0.5f);
-                SpacePartition.AddCar(id.Value, pos, state.Lane, state.FwdSpeed);
+                SpacePartition.AddCar(pos, state.Lane, state.FwdSpeed);
             }
         }
 
         [BurstCompile]
-        struct GetNearestCarsJob : IJobForEach<CarID, CarState, ProximityData, CarSettings>
+        struct GetNearestCarsJob : IJobForEach<CarState, ProximityData, CarSettings>
         {
             [ReadOnly] public HighwaySpacePartition SpacePartition;
             [ReadOnly] public DotsHighway DotsHighway;
             public float CarSize;
 
             public void Execute(
-                [ReadOnly] ref CarID id,
                 [ReadOnly] ref CarState state,
                 ref ProximityData proximity,
                 [ReadOnly] ref CarSettings settings)
@@ -45,7 +44,7 @@ namespace HighwayRacers
                 var pos = DotsHighway.GetEquivalentDistance(
                     state.PositionOnTrack, state.Lane, DotsHighway.NumLanes * 0.5f);
                 proximity.data = SpacePartition.GetNearestCars(
-                    id.Value, pos, state.Lane, maxDistance, CarSize);
+                    pos, state.Lane, maxDistance, CarSize);
             }
         }
 

@@ -10,7 +10,7 @@ using UnityEngine;
 namespace HighwayRacers
 {
     [UpdateBefore(typeof(CarMoveSystem))]
-    [UpdateAfter(typeof(CarStateSystem))]
+    [UpdateAfter(typeof(TryMergeSystem))]
     public class AccelerationSystem : JobComponentSystem
     {
         [BurstCompile]
@@ -21,10 +21,10 @@ namespace HighwayRacers
 
             public void Execute(ref CarState state)
             {
-                if (state.TargetFwdSpeed > state.FwdSpeed)
-                    state.FwdSpeed = math.min(state.TargetFwdSpeed, state.FwdSpeed + accelRate);
-                else
-                    state.FwdSpeed = math.max(state.TargetFwdSpeed, state.FwdSpeed - decelRate);
+                state.FwdSpeed = math.select(
+                    math.max(state.TargetFwdSpeed, state.FwdSpeed - decelRate),
+                    math.min(state.TargetFwdSpeed, state.FwdSpeed + accelRate),
+                    state.TargetFwdSpeed > state.FwdSpeed);
             }
         }
 

@@ -116,7 +116,6 @@ namespace HighwayRacers
             NumCars = 0;
         }
 
-        static int NextCarId = 1;
         void AddCarEntities(int count, EntityManager em)
         {
             float lane = 0;
@@ -124,7 +123,6 @@ namespace HighwayRacers
             {
                 var entity = World.Active.EntityManager.CreateEntity();
 
-                em.AddComponentData(entity,new CarID { Value = NextCarId++ });
                 var data = new CarSettings()
                 {
                     DefaultSpeed = UnityEngine.Random.Range(Game.instance.defaultSpeedMin, Game.instance.defaultSpeedMax),

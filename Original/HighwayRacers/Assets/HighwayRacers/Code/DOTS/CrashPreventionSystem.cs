@@ -25,7 +25,7 @@ namespace HighwayRacers
                 [ReadOnly] ref CarSettings settings,
                 ref CarState state)
             {
-                if (proximity.data.NearestFrontMyLane.CarId == 0)
+                if (!proximity.data.HasFront)
                     return;
 
                 var maxDistanceDiff = math.max(

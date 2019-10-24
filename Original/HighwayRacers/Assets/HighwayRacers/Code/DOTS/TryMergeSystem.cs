@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace HighwayRacers
 {
+    [UpdateAfter(typeof(CarStateSystem))]
     public class TryMergeSystem : JobComponentSystem
     {
         [BurstCompile]
@@ -31,7 +32,7 @@ namespace HighwayRacers
                     return false;
 
                 // Is somebody in front?
-                if (proximity.data.NearestFrontMyLane.CarId == 0)
+                if (!proximity.data.HasFront)
                     return false;
 
                 // Is he annoying?
