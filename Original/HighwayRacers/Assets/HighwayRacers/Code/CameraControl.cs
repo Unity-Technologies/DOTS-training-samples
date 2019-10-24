@@ -12,7 +12,7 @@ namespace HighwayRacers {
 		public float moveSpeed = 20;
 		public float transitionDuration = 3;
 
-        public Vector3 CarCameraOffset = new Vector3(0, 1, -3);
+        public Vector3 CarCameraOffset = new Vector3(0, 1.5f, -1);
 
 		Vector3 topDownPosition = new Vector3();
 		Quaternion topDownRotation = new Quaternion();
