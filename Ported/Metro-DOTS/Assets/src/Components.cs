@@ -68,6 +68,7 @@ public struct BezierPt
 public struct Curve
 {
     public BlobArray<BezierPt> points;
+    public float distance;
 }
 
 public struct PlatformTag : IComponentData { }
