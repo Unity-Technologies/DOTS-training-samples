@@ -24,12 +24,13 @@ public class ArmBookingSystem : JobComponentSystem
         [ReadOnly] public NativeArray<Translation> rockPos;
         [ReadOnly] public NativeArray<Translation> canPos;
         public NativeHashMap<Entity, ArmBookingItem>.ParallelWriter chosenOnes;
+        [ReadOnly]public float reachDistance;
         public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints, ref ArmTarget armTarget)
         {
             if (armTarget.TargetRock  != Entity.Null) 
                 return;
 
-            int nearestRockIdx = FindNearest(boneJoints[0].JointPos,ref rockPos);
+            int nearestRockIdx = FindNearest(boneJoints[0].JointPos,ref rockPos, reachDistance);
             if (nearestRockIdx == -1) 
                 return;
 
@@ -47,14 +48,14 @@ public class ArmBookingSystem : JobComponentSystem
             });
         }
 
-        int FindNearest(float3 translationValue, ref NativeArray<Translation> targets)
+        int FindNearest(float3 translationValue, ref NativeArray<Translation> targets, float maxDistance = float.MaxValue)
         {
             float nearestDistance = float.MaxValue;
             int resultIdx = -1;
             for (int i = 1; i < targets.Length; i++)
             {
                 float dist = math.lengthsq(translationValue - targets[i].Value);
-                if (dist < nearestDistance)
+                if (dist < maxDistance && dist < nearestDistance)
                 {
                     nearestDistance = dist;
                     resultIdx = i;
@@ -94,6 +95,7 @@ public class ArmBookingSystem : JobComponentSystem
         job.rockEntities = rockEntities;
         job.canPos = canPos;
         job.rockPos = rockPos;
+        job.reachDistance = 1.8f;
         job.chosenOnes = chosenOnes.AsParallelWriter();
         JobHandle selectionJh = job.Schedule(m_ArmGroup, inputDependencies);
         selectionJh.Complete();
