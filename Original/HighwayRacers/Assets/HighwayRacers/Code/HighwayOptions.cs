@@ -39,7 +39,6 @@ namespace HighwayRacers
 
 			numCarsSlider.value = Highway.instance.NumCars;
 			highwaySizeSlider.value = Highway.instance.DotsHighway.Lane0Length;
-
 		}
 
 		// Use this for initialization

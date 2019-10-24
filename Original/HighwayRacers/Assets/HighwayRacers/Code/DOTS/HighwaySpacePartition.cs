@@ -72,9 +72,10 @@ namespace HighwayRacers
         float GetSignedDistanceBetweenCars(float fromPos, float toPos)
         {
             float halfTrackLen = TrackLength * 0.5f;
-            fromPos = math.select(fromPos, fromPos - TrackLength, fromPos >= halfTrackLen);
-            toPos = math.select(toPos, toPos - TrackLength, toPos >= halfTrackLen);
-            return toPos - fromPos;
+            var fromPosB = math.select(fromPos, fromPos - TrackLength, fromPos >= halfTrackLen);
+            var toPosB = math.select(toPos, toPos - TrackLength, toPos >= halfTrackLen);
+            float d = toPos - fromPos;
+            return math.select(d, toPosB - fromPosB, math.abs(d) >= halfTrackLen);
         }
 
         // Distances are in average lane space

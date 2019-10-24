@@ -25,13 +25,13 @@ namespace HighwayRacers
                 [ReadOnly] ref ProximityData proximityData)
             {
                 var targetSpeed = settings.DefaultSpeed;
-                var distToCarInFront = proximityData.data.NearestFrontMyLane.Distance;
                 switch (state.CurrentState) {
                     case CarState.State.NORMAL:
                         state.LeftSpeed = 0;
 
-                        // if won't merge, match car in front's speed
-                        if (distToCarInFront < settings.LeftMergeDistance)
+                        // Don't hit the guy in front
+                        if (proximityData.data.HasFront
+                            && proximityData.data.NearestFrontMyLane.Distance < settings.LeftMergeDistance)
                         {
                             targetSpeed = math.min(
                                 targetSpeed, proximityData.data.NearestFrontMyLane.Speed);
@@ -49,17 +49,14 @@ namespace HighwayRacers
                                 state.CurrentState = CarState.State.OVERTAKING;
                             }
                         }
-
                         break;
 
                     case CarState.State.OVERTAKING:
                         targetSpeed = settings.OvertakePercent * settings.DefaultSpeed;
                         state.LeftSpeed = 0;
-
                         break;
 
                     case CarState.State.MERGE_RIGHT:
-
                         state.LeftSpeed = -switchLaneSpeed;
                         // detect ending merge
                         if (state.Lane + state.LeftSpeed * deltaTime <= state.TargetLane) {
@@ -69,10 +66,8 @@ namespace HighwayRacers
                                 state.CurrentState = CarState.State.NORMAL;
                             }
                         }
-
                         break;
                 }
-
                 state.TargetFwdSpeed = targetSpeed;
             }
         }

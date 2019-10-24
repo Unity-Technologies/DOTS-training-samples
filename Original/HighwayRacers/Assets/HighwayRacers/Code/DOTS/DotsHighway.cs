@@ -43,6 +43,7 @@ namespace HighwayRacers
         public void Create(HighwayPiece[] pieces)
         {
             Dispose();
+            Lane0Length = 0;
             Sections = new NativeArray<Section>(pieces.Length, Allocator.Persistent);
             for (int i = 0; i < pieces.Length; ++i)
             {
@@ -79,14 +80,7 @@ namespace HighwayRacers
 
         public float LaneLength(float lane)
         {
-#if true // GML todo: why?
-            float len = 0;
-            for (int i = 0; i < Sections.Length; ++i)
-                len += Sections[i].LaneLength(lane);
-            return len;
-#else
             return math.lerp(Lane0Length, LastLaneLength, lane / (NumLanes - 1));
-#endif
         }
 
         /// <summary>

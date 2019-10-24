@@ -13,11 +13,11 @@ namespace HighwayRacers
 	/// </summary>
     public class Highway : MonoBehaviour
     {
-        public const int NUM_LANES = 8;
+        public const int NUM_LANES = 4;
         public const float LANE_SPACING = 1.9f;
         public const float MID_RADIUS = 31.46f;
         public const float CURVE_LANE0_RADIUS = MID_RADIUS - LANE_SPACING * (NUM_LANES - 1) / 2f;
-        public const float MIN_HIGHWAY_LANE0_LENGTH = CURVE_LANE0_RADIUS * 4;
+        public const float MIN_HIGHWAY_LANE0_LENGTH = CURVE_LANE0_RADIUS * 2 * Mathf.PI;
         public const float MIN_DIST_BETWEEN_CARS = .7f;
 
         [Header("Prefabs")]
@@ -48,7 +48,7 @@ namespace HighwayRacers
 			if (lane0Length < DotsHighway.Lane0Length)
 				ClearCars();
 
-            float straightPieceLength = (lane0Length - CURVE_LANE0_RADIUS * 4) / 4;
+            float straightPieceLength = (lane0Length - MIN_HIGHWAY_LANE0_LENGTH) / 4;
 
             Vector3 pos = Vector3.zero;
             float rot = 0;
@@ -195,7 +195,6 @@ namespace HighwayRacers
 
         private void Start()
         {
-			CreateHighway(250);
         }
 
         private void Update()
