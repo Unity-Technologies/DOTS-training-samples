@@ -13,7 +13,7 @@ namespace HighwayRacers
 	/// </summary>
     public class Highway : MonoBehaviour
     {
-        public const int NUM_LANES = 4;
+        public const int NUM_LANES = 8;
         public const float LANE_SPACING = 1.9f;
         public const float MID_RADIUS = 31.46f;
         public const float CURVE_LANE0_RADIUS = MID_RADIUS - LANE_SPACING * (NUM_LANES - 1) / 2f;
