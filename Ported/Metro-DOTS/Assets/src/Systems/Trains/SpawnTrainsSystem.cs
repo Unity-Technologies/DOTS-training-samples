@@ -57,7 +57,7 @@ public class SpawnTrainsSystem : JobComponentSystem
 
                 cmdBuffer.SetComponent(index, carriage, new Translation { Value = pos });
                 cmdBuffer.SetComponent(index, carriage, new Rotation { Value = lookAt });
-                cmdBuffer.AddComponent(index, carriage, new Speed{ value = 1.0f});
+                cmdBuffer.AddComponent(index, carriage, new Speed{ value = 0.02f});
                 cmdBuffer.AddComponent(index, carriage, new TrainId{ value = c0.index });
                 cmdBuffer.AddComponent(index, carriage, new BezierCurve{ line = c0.line.line });
                 cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = t});
