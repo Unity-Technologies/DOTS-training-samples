@@ -10,11 +10,11 @@ using UnityEngine;
 public class GrowSystem : JobComponentSystem
 {
     [BurstCompile]
-    struct GrowSystemJob : IJobForEachWithEntity<Scale>
+    struct GrowSystemJob : IJobForEach<Scale>
     {
         public float deltaTime;
 
-        public void Execute(Entity entity, int index, ref Scale scale)
+        public void Execute(ref Scale scale)
         {
             scale.Value += (1f - scale.Value) * 2.0f * deltaTime;
         }

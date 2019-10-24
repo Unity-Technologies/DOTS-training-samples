@@ -23,11 +23,10 @@ public class SpawnerSystem : ComponentSystem
     {
         Entities.ForEach((Entity e, ref SpawnerData spawnerData) =>
         {
-            for (var i = 0; i < spawnerData.Count; i++)
-            {
-                EntityManager.Instantiate(spawnerData.EntityPrefab);
-            }
+            NativeArray <Entity> entities = new NativeArray<Entity>(spawnerData.Count, Allocator.Temp);
+            EntityManager.Instantiate(spawnerData.EntityPrefab, entities);
             EntityManager.DestroyEntity(e);
+            entities.Dispose();
         });
     }
 }
