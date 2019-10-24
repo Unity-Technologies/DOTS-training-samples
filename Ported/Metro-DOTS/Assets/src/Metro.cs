@@ -128,12 +128,14 @@ public class Metro : MonoBehaviour
             }
         }
 
-        // now destroy all RailMarkers
-        foreach (RailMarker _RM in FindObjectsOfType<RailMarker>())
+        if (Application.isPlaying)
         {
-            DestroyImmediate(_RM);
+            // now destroy all RailMarkers
+            foreach (RailMarker _RM in FindObjectsOfType<RailMarker>())
+            {
+                DestroyImmediate(_RM);
+            }
         }
-
 
         allPlatforms = FindObjectsOfType<Platform>();
         for (int i = 0; i < allPlatforms.Length; i++)

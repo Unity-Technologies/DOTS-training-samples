@@ -9,18 +9,6 @@ public struct SpawnTrains : IComponentData
     public Entity prefab;
 }
 
-[UpdateInGroup(typeof(GameObjectDeclareReferencedObjectsGroup))]
-class MetroTrainReferenceDeclaration : GameObjectConversionSystem
-{
-    protected override void OnUpdate()
-    {
-        Entities.ForEach((Metro metro) =>
-        {
-            DeclareReferencedPrefab(metro.prefab_trainCarriage);
-        });
-    }
-}
-
 public class SpawnTrainsSystem : JobComponentSystem
 {
     EntityCommandBufferSystem m_Barrier;
@@ -32,12 +20,12 @@ public class SpawnTrainsSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var job = new SpawnPlatformsJob{ cmdBuffer = m_Barrier.CreateCommandBuffer().ToConcurrent()}.Schedule(this, inputDeps);
+        var job = new SpawnTrainsJob{ cmdBuffer = m_Barrier.CreateCommandBuffer().ToConcurrent()}.Schedule(this, inputDeps);
         m_Barrier.AddJobHandleForProducer(job);
         return job;
     }
 
-    struct SpawnPlatformsJob : IJobForEachWithEntity<SpawnTrains>
+    struct SpawnTrainsJob : IJobForEachWithEntity<SpawnTrains>
     {
         [WriteOnly] public EntityCommandBuffer.Concurrent cmdBuffer;
         public void Execute(Entity entity, int index, ref SpawnTrains c0)

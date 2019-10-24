@@ -20,18 +20,6 @@ public struct SpawnPlatforms : IComponentData
     public Entity platformPrefab;
 }
 
-[UpdateInGroup(typeof(GameObjectDeclareReferencedObjectsGroup))]
-class MetroPlatformReferenceDeclaration : GameObjectConversionSystem
-{
-    protected override void OnUpdate()
-    {
-        Entities.ForEach((Metro metro) =>
-        {
-            DeclareReferencedPrefab(metro.prefab_platform);
-        });
-    }
-}
-
 public class SpawnPlatformsSystem : JobComponentSystem
 {
     EntityCommandBufferSystem m_Barrier;
