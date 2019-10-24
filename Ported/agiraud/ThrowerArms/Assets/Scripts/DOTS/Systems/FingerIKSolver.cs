@@ -27,7 +27,7 @@ public class FingerIKSolver : JobComponentSystem
         [ReadOnly] public float time;
         
         public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints,
-            [ReadOnly] ref ArmTarget armTarget, [ReadOnly] ref HandAxis handAxis, ref Timers timer)
+            [ReadOnly] ref ArmTarget armTarget, [ReadOnly] ref HandAxis handAxis, [ReadOnly] ref Timers timer)
         {
             for (var j = 0; j < fingerCount; j++)
             {
@@ -41,9 +41,7 @@ public class FingerIKSolver : JobComponentSystem
                 var fingerPos = boneJoints[armOffset].JointPos + handAxis.Right * (fingerXOffset + j * fingerSpacing);
 
                 // find resting position for this fingertip (fingerTarget)
-                var grabT = timer.Reach;
-                grabT = 3f * grabT * grabT - 2f * grabT * grabT * grabT; // TODO duplicated compute
-                var fingerGrabT = grabT;
+                var fingerGrabT = timer.GrabT;
                 if (armTarget.IsHolding)
                     fingerGrabT = 1; // -> Gripping position
 

@@ -101,11 +101,11 @@ public class UpdateTargetSystem : JobComponentSystem
 			timer.Reach = math.clamp(timer.Reach, 0.0f, 1.0f);
 
 			// smoothed reach timer
-			float grabT = timer.Reach;
-			grabT = 3f * grabT * grabT - 2f * grabT * grabT * grabT;
+			timer.GrabT = timer.Reach;
+			timer.GrabT = 3f * timer.GrabT * timer.GrabT - 2f * timer.GrabT * timer.GrabT * timer.GrabT;
 
 			// reaching overrides our idle hand position
-			target.Value = math.lerp(idleHandTarget,grabHandTarget,grabT);
+			target.Value = math.lerp(idleHandTarget,grabHandTarget,timer.GrabT);
 
 			if (target.TargetCan != Entity.Null) 
 			{

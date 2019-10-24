@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using System.ComponentModel;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -15,12 +16,13 @@ public class ThumbIKSolver : JobComponentSystem
     private const float thumbXOffset = -0.05f;
 
     [BurstCompile]
-    struct ThumbIKSolverJob : IJobForEachWithEntity_EBCC<BoneJoint, ArmTarget, HandAxis>
+    struct ThumbIKSolverJob : IJobForEachWithEntity_EBCCC<BoneJoint, ArmTarget, HandAxis, Timers>
     {
         public float Time;
         
         public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints,
-            [ReadOnly] ref ArmTarget armTarget, [ReadOnly] ref HandAxis handAxis)
+            [Unity.Collections.ReadOnly] ref ArmTarget armTarget, [Unity.Collections.ReadOnly] ref HandAxis handAxis,
+            [Unity.Collections.ReadOnly] ref Timers timer)
         {
             // Arm + 4 fingers.
             var bufferOffset = 3 + 4 * 4 - 1;
@@ -31,16 +33,10 @@ public class ThumbIKSolver : JobComponentSystem
                 chainPositions[i] = boneJoints[i + bufferOffset].JointPos;
             }
 
-            float fingerGrabT = 1.0f;
-//            if (heldRock!=null) {
-//                // move our held rock to match our new hand position
-//                heldRock.position = handMatrix.MultiplyPoint3x4(heldRockOffset);
-//                lastIntendedRockPos = heldRock.position;
-//
-//                // if we're holding a rock, we're always gripping
-//                fingerGrabT = 1f;
-//            }
-            
+            var fingerGrabT = 1; //timer.GrabT;
+            if (armTarget.IsHolding)
+                fingerGrabT = 1; // -> Gripping position
+
             var thumbPos = boneJoints[2].JointPos + handAxis.Right * thumbXOffset;
             var thumbTarget = thumbPos - handAxis.Right * .15f + handAxis.Forward * (.2f+.1f*fingerGrabT) - handAxis.Up*.1f;
             thumbTarget += handAxis.Right * math.sin(Time*3f + .5f) * .1f*(1f-fingerGrabT);
