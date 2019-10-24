@@ -22,7 +22,8 @@ class AssignDirectionSystem : JobComponentSystem
                 },
                 None = new []
                 {
-                    ComponentType.ReadOnly<Direction>()
+                    ComponentType.ReadOnly<Direction>(),
+                    ComponentType.ReadOnly<DistanceToTarget>()
                 }
             });
     }
@@ -39,7 +40,9 @@ class AssignDirectionSystem : JobComponentSystem
         public void Execute(Entity entity, int jobIndex,
             [ReadOnly] ref Translation translation, [ReadOnly] ref TargetPosition target)
         {
-            commandBuffer.AddComponent(jobIndex, entity, new Direction { value = math.normalize(target.value - translation.Value) });
+            var movementVector = target.value - translation.Value;
+            commandBuffer.AddComponent(jobIndex, entity, new Direction { value = math.normalize(movementVector) });
+            commandBuffer.AddComponent(jobIndex, entity, new DistanceToTarget { value = math.length(movementVector)});
         }
     }
 }

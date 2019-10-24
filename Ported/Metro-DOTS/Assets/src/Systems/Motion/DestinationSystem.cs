@@ -1,6 +1,6 @@
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Transforms;
 
 class DestinationSystem: JobComponentSystem
@@ -22,18 +22,18 @@ class DestinationSystem: JobComponentSystem
         return handle;
     }
 
-    struct TestDestinationJob : IJobForEachWithEntity<TargetPosition, Translation, Speed>
+    struct TestDestinationJob : IJobForEachWithEntity<TargetPosition, Translation, Speed, DistanceToTarget>
     {
         public EntityCommandBuffer.Concurrent commandBuffer;
         public void Execute(Entity entity, int jobIndex,
-            ref TargetPosition target, ref Translation translation, ref Speed speed)
+            [ReadOnly] ref TargetPosition target, ref Translation translation, ref Speed speed, [ReadOnly] ref DistanceToTarget distance)
         {
-            var distance = math.length(target.value - translation.Value);
-            if (distance < 0.1f)
+            if (distance.value < 0.1f)
             {
                 speed.value = 0.0f;
                 translation.Value = target.value;
                 commandBuffer.RemoveComponent<TargetPosition>(jobIndex, entity);
+                commandBuffer.RemoveComponent<DistanceToTarget>(jobIndex, entity);
             }
         }
     }

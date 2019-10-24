@@ -32,6 +32,11 @@ public struct TargetPosition : IComponentData
     public float3 value;
 }
 
+public struct DistanceToTarget : IComponentData
+{
+    public float value;
+}
+
 public struct TrainLine : IComponentData
 {
     public BlobAssetReference<Curve> line;
