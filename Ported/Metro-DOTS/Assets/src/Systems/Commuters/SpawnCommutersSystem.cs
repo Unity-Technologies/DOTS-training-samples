@@ -44,14 +44,13 @@ public class SpawnCommuterSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var trs = m_PlatformPosQuery.ToEntityArray(Allocator.TempJob);
-        var tr = EntityManager.GetComponentData<PlatformTransforms>(trs.First());
+        PlatformTransforms tr;
+        using (var trs = m_PlatformPosQuery.ToEntityArray(Allocator.TempJob))
+            tr = EntityManager.GetComponentData<PlatformTransforms>(trs.First());
 
-        var pathLookupEntities = m_PathLookupQuery.ToEntityArray(Allocator.TempJob);
-        var pathLookup = EntityManager.GetComponentData<PathLookup>(pathLookupEntities.First());
-
-        trs.Dispose();
-        pathLookupEntities.Dispose();
+        PathLookup pathLookup;
+        using (var pathLookupEntities = m_PathLookupQuery.ToEntityArray(Allocator.TempJob))
+            pathLookup = EntityManager.GetComponentData<PathLookup>(pathLookupEntities.First());
 
         var job = new SpawnCommutersJob { cmdBuffer = m_Barrier.CreateCommandBuffer().ToConcurrent(), trs = tr, lookup = pathLookup}.Schedule(this, inputDeps);
         m_Barrier.AddJobHandleForProducer(job);
