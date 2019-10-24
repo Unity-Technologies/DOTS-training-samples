@@ -27,6 +27,11 @@ public struct Speed : IComponentData
     public float value;
 }
 
+public struct TargetPosition : IComponentData
+{
+    public float3 value;
+}
+
 public struct PlatformTag : IComponentData { }
 
 // TRAIN STATES
