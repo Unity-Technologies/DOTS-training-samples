@@ -77,7 +77,8 @@ public class SpawnCommuterSystem : JobComponentSystem
                 var platformPos = trs.value.Value.translations[platformId];
                 cmdBuffer.SetComponent(index, platform, new Translation { Value = platformPos});
                 cmdBuffer.AddComponent(index, platform, new PlatformId { value = (uint)platformId });
-                cmdBuffer.AddComponent(index, platform, path);
+                cmdBuffer.AddComponent(index, platform, new CurrentPathIndex{ index = 0 });
+                cmdBuffer.AddComponent(index, platform, lookup);
             }
             cmdBuffer.RemoveComponent(index, entity, typeof(SpawnCommuters));
         }
