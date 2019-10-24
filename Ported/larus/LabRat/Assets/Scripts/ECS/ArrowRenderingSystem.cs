@@ -17,21 +17,7 @@ public class ArrowRenderingSystem : ComponentSystem
         var overlayEntities = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToEntityArray(Allocator.TempJob);
         Entities.ForEach((Entity entity, ref ArrowComponent arrow, ref Translation position) =>
         {
-            float z;
-            Material mat;
-            Color color;
-            Vector3 localScale;
-            RenderMesh mesh;
-
-            /*var childEntities = EntityManager.GetBuffer<Child>(entity);
-            var overlayEntity = childEntities[0].Value;
-            var sharedMesh = EntityManager.GetSharedComponentData<RenderMesh>(overlayEntity);
-            sharedMesh.material = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Arrow.mat");
-            sharedMesh.material.color = new Color(1f, 1f, 1f, 0.5f);;
-            PostUpdateCommands.SetSharedComponent(overlayEntity, sharedMesh);*/
-
             PostUpdateCommands.SetComponent(overlayEntities[0], new Translation { Value = position.Value + new float3(0,0.53f,0)});
-            //var rotation = quaternion.AxisAngle(new float3(1,0,0), math.PI/2);;
             var rotation = quaternion.RotateX(math.PI / 2);
             switch (arrow.Direction) {
                 case Direction.South:
@@ -46,10 +32,6 @@ public class ArrowRenderingSystem : ComponentSystem
             }
             PostUpdateCommands.SetComponent(overlayEntities[0], new Rotation{Value = rotation});
 
-            //var sharedMesh = EntityManager.GetSharedComponentData<RenderMesh>(overlayEntities[0]);
-            //sharedMesh.material = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Arrow.mat");
-            //sharedMesh.material.color = new Color(1f, 1f, 1f, 0.5f);;
-            //PostUpdateCommands.SetSharedComponent(overlayEntities[0], sharedMesh);
 
             /*if (blockState == BlockState.Confuse) {
                 z = 0f;

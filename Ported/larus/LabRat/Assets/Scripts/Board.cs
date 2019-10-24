@@ -219,7 +219,7 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 			cellSize = boardDesc.cellSize
 		});
 
-		var boardSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<BoardSystem>();
+		var boardSystem = dstManager.World.GetOrCreateSystem<BoardSystem>();
 		for (int i = 0; i < cells.Length; ++i)
 		{
 			var cell = cells[i];

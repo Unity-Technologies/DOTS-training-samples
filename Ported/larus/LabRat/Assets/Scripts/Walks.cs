@@ -197,7 +197,6 @@ public class Walks : MonoBehaviour, /*ISpawnable,*/ IConvertGameObjectToEntity {
 
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
 	{
-		// TODO: Initial state for walker
 		dstManager.AddComponent<WalkComponent>(entity);
 		//lastRedirectCoord = new Vector2Int(-1, -1);
 	}
