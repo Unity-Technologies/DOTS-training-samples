@@ -172,7 +172,7 @@ namespace HighwayRacers
                     var state = em.GetComponentData<CarState>(entities[i]);
                     DotsHighway.GetWorldPosition(
                         state.PositionOnTrack, state.Lane, out float3 pos, out quaternion rot);
-                    Vector3 carScreenPos = Camera.main.WorldToScreenPoint(new Vector3(pos.x, pos.y, pos.z));
+                    Vector3 carScreenPos = Camera.main.WorldToScreenPoint(pos);
                     carScreenPos.z = 0;
 				    if (Vector3.Distance (screenPosition, carScreenPos) <= radius)
                     {

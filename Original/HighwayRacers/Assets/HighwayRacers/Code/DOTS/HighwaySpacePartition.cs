@@ -173,7 +173,6 @@ namespace HighwayRacers
                 && result.NearestRearRight.CarId != 0;
         }
 
-        // Returns true if this entry is handled
         void GatherFrontDistances(BucketEntry e, ref QueryResult result, float myLane, float d)
         {
             // My lane
@@ -203,7 +202,6 @@ namespace HighwayRacers
             }
         }
 
-        // Returns true if this entry is handled
         void GatherRearDistances(BucketEntry e, ref QueryResult result, float myLane, float d)
         {
             // Right lane
