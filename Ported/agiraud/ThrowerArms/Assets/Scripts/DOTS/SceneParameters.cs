@@ -25,4 +25,21 @@ public class SceneParameters : MonoBehaviour
 
     public Vector3 DestroyBoxMin = new Vector3(-100, -5, -100);
     public Vector3 DestroyBoxMax = new Vector3(10, 50, 100);
+
+    void DrawBoxGizmo(Vector3 min, Vector3 max)
+    {
+        Gizmos.DrawWireCube(min + (max - min) * 0.5f, max - min);
+    }
+
+    public void OnDrawGizmos()
+    {
+        Gizmos.color = Color.magenta;
+        DrawBoxGizmo(DestroyBoxMin, DestroyBoxMax);
+
+        Gizmos.color = Color.yellow;
+        DrawBoxGizmo(TinCanSpawnBoxMin, TinCanSpawnBoxMax);
+
+        Gizmos.color = Color.cyan;
+        DrawBoxGizmo(RockSpawnBoxMin, RockSpawnBoxMax);
+    }
 }

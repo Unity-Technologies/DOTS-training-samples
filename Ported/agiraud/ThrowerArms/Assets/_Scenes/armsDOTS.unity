@@ -212,13 +212,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9c2d2963271dc64ca8e5e31aef8122a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RockSpawnBoxMin: {x: -100, y: 0, z: 0}
-  RockSpawnBoxMax: {x: 100, y: 0, z: 0}
-  RockInitialVelocity: {x: -1, y: 0, z: 0}
-  TinCanSpawnBoxMin: {x: -50, y: 4, z: 15}
-  TinCanSpawnBoxMax: {x: 50, y: 16, z: 15}
-  TinCanInitialVelocity: {x: 1, y: 0, z: 0}
-  DestroyBoxMin: {x: -120, y: -5, z: -100}
+  RockSpawnBoxMin: {x: -100, y: -1, z: -1}
+  RockSpawnBoxMax: {x: 100, y: 1, z: 1}
+  RockInitialVelocity: {x: -2, y: 0, z: 0}
+  TinCanSpawnBoxMin: {x: -75, y: 5, z: 15}
+  TinCanSpawnBoxMax: {x: 75, y: 20, z: 16}
+  TinCanInitialVelocity: {x: 3, y: 0, z: 0}
+  DestroyBoxMin: {x: -120, y: -5, z: -10}
   DestroyBoxMax: {x: 120, y: 50, z: 100}
 --- !u!4 &60066848
 Transform:
