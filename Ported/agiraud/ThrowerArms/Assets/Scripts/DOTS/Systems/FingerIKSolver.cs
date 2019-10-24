@@ -25,6 +25,7 @@ public class FingerIKSolver : JobComponentSystem
     struct ArmIKSolverJob : IJobForEachWithEntity_EBCC<BoneJoint, ArmTarget, HandAxis>
     {
         [ReadOnly] public float time;
+        
         public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints,
             [ReadOnly] ref ArmTarget armTarget, [ReadOnly] ref HandAxis handAxis)
         {
@@ -50,7 +51,7 @@ public class FingerIKSolver : JobComponentSystem
                 var fingerTarget = fingerPos + handAxis.Forward * (.5f-.1f*fingerGrabT);
 
                 // Spooky fingers
-                fingerTarget += handAxis.Up * Mathf.Sin((time + j*.2f)*3f) * .2f*(1f-fingerGrabT);
+                fingerTarget += handAxis.Up * math.sin((time + j*.2f)*3f) * .2f*(1f-fingerGrabT);
 
                 // apply finger-spreading during throw animation
                 float openPalm = 0f; // TODO throwCurve.Evaluate(throwTimer);

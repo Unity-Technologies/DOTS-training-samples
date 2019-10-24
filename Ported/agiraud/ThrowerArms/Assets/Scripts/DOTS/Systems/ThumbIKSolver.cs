@@ -43,7 +43,7 @@ public class ThumbIKSolver : JobComponentSystem
             
             var thumbPos = boneJoints[2].JointPos + handAxis.Right * thumbXOffset;
             var thumbTarget = thumbPos - handAxis.Right * .15f + handAxis.Forward * (.2f+.1f*fingerGrabT) - handAxis.Up*.1f;
-            thumbTarget += handAxis.Right * Mathf.Sin(Time*3f + .5f) * .1f*(1f-fingerGrabT);
+            thumbTarget += handAxis.Right * math.sin(Time*3f + .5f) * .1f*(1f-fingerGrabT);
             
             // thumb bends away from the palm, instead of "upward" like the fingers
             Vector3 thumbBendHint = -handAxis.Right - handAxis.Forward * .5f;

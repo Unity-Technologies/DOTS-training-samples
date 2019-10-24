@@ -9,15 +9,6 @@ using Unity.Transforms;
 [UpdateAfter(typeof(SpawnerSystem))]
 public class BoneMatrixSystem : JobComponentSystem
 {
-//    void UpdateMatrices(Vector3[] chain, int index, float thickness,Vector3 up) {
-//        // find the rendering matrices for an IK chain
-//        // (each pair of neighboring points is connected by a beam)
-//        for (int i=0;i<chain.Length-1;i++) {
-//            Vector3 delta = chain[i + 1] - chain[i];
-//            matrices[index + i] = Matrix4x4.TRS(chain[i] + delta * .5f,Quaternion.LookRotation(delta,up),new Vector3(thickness,thickness,delta.magnitude));
-//        }
-//    }
-    
     [BurstCompile]
     struct BoneMatrixSystemJob : IJobForEachWithEntity<BoneData, LocalToWorld>
     {
@@ -32,12 +23,8 @@ public class BoneMatrixSystem : JobComponentSystem
             var trs = float4x4.TRS(chain[boneData.ChainIndex].JointPos + delta * .5f,
                 quaternion.LookRotation(delta, Up[boneData.Parent].Up),
                 new float3(boneData.Thickness, boneData.Thickness, math.length(delta)));
-            //var trs = float4x4.identity;
-            
-//            var trs = float4x4.TRS(chain[boneData.ChainIndex].JointPos,
-//                quaternion.identity, 
-//                new float3(boneData.Thickness, boneData.Thickness, 1));
-            transform = new LocalToWorld {Value = trs};
+
+            transform = new LocalToWorld { Value = trs };
         }
     }
 

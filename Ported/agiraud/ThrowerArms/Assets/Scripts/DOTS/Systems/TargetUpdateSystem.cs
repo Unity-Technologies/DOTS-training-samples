@@ -143,7 +143,7 @@ public class UpdateTargetSystem : JobComponentSystem
 					// (somewhere forward and upward from the windup position)
 					var throwHandTarget = target.WindupHandTarget + target.AimVector * 2.5f;
 
-					target.Value = math.lerp(restingPos,throwHandTarget, timer.Throw / throwDuration/*throwCurve.Evaluate(throwTimer)*/);
+					target.Value = math.lerp(restingPos,throwHandTarget, timer.Throw / throwDuration /*throwCurve.Evaluate(throwTimer)*/);
 
 					if (timer.Throw > .15f && target.IsHolding)
 					{
