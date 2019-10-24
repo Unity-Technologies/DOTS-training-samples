@@ -38,6 +38,7 @@ public class ResetSystem : JobComponentSystem
             rotation.Value = quaternion.identity;
             resetPos.needReset = false;
             reserved.reserved = false;
+            reserved.Time = 0f;
         }
     }
 
