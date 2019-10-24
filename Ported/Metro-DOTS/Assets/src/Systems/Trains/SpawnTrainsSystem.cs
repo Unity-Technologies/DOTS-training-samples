@@ -9,6 +9,16 @@ public struct SpawnTrain : IComponentData
     public TrainLine line;
     public uint numberOfCarriagePerTrain;
     public uint index;
+    public float carriageOffset;
+
+    public SpawnTrain(Entity m_prefab, TrainLine m_Line, int m_numberOfCarriagePerTrain, int m_index, float m_carriageOffset)
+    {
+        prefab = m_prefab;
+        line = m_Line;
+        numberOfCarriagePerTrain = (uint)m_numberOfCarriagePerTrain;
+        index = (uint)m_index;
+        carriageOffset = m_carriageOffset;
+    }
 }
 
 public class SpawnTrainsSystem : JobComponentSystem
@@ -33,14 +43,16 @@ public class SpawnTrainsSystem : JobComponentSystem
 
         public void Execute(Entity entity, int index, ref SpawnTrain c0)
         {
+            var offset = 0f;
             for (var i = 0; i < c0.numberOfCarriagePerTrain; i++)
             {
                 var carriage = cmdBuffer.Instantiate(index, c0.prefab);
-                var pos = c0.line.line.Value.points[i].location;
+                var pos = BezierUtils.GetPosition(c0.line.line, offset);
                 cmdBuffer.SetComponent(index, carriage, new Translation { Value = pos });
                 cmdBuffer.AddComponent(index, carriage, new TrainId{ value = c0.index });
                 cmdBuffer.AddComponent(index, carriage, new TrainLine{ line = c0.line.line });
-                cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = 0});
+                cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = offset});
+                offset += c0.carriageOffset;
             }
 
             cmdBuffer.RemoveComponent(index, entity, typeof(SpawnTrain));

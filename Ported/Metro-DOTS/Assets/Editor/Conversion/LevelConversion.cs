@@ -37,10 +37,10 @@ public class LevelConversion : GameObjectConversionSystem
             var metroLine = metro.metroLines[i];
             var trainSpawnerEntity = CreateAdditionalEntity(metro.transform);
             var trainLineRef = BuildBezierPath(metroLine);
-            var numberOfCarriages = (uint)metroLine.carriagesPerTrain;
+            var numberOfCarriages = metroLine.carriagesPerTrain;
 
             var trainLine = new TrainLine { line = trainLineRef };
-            var spawnTrain = new SpawnTrain { line = trainLine, numberOfCarriagePerTrain = numberOfCarriages, prefab = prefab, index = (uint)i};
+            var spawnTrain = new SpawnTrain(prefab, trainLine, numberOfCarriages, i, metroLine.carriageLength_onRail);
 
             DstEntityManager.AddComponentData(trainSpawnerEntity, spawnTrain);
         }
@@ -56,9 +56,11 @@ public class LevelConversion : GameObjectConversionSystem
             for (var pt = 0; pt < metroLine.bezierPath.points.Count; pt++)
             {
                 var bezierPt = metroLine.bezierPath.points[pt];
-                lineBuilder[pt] = new BezierPt(bezierPt.index, bezierPt.location, bezierPt.handle_in, bezierPt.handle_out);
+                lineBuilder[pt] = new BezierPt(bezierPt.index, bezierPt.location, bezierPt.handle_in, bezierPt.handle_out, bezierPt.distanceAlongPath);
             }
-            return builder.CreateBlobAssetReference<Curve>(Allocator.Persistent);
+            var assetRef = builder.CreateBlobAssetReference<Curve>(Allocator.Persistent);
+            assetRef.Value.distance = metroLine.bezierPath.GetPathDistance();
+            return assetRef;
         }
     }
 
