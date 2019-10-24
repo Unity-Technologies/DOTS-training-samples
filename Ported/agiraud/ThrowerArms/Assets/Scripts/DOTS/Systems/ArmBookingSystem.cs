@@ -135,12 +135,12 @@ public class ArmBookingSystem : JobComponentSystem
                 EntityManager.SetComponentData(bookingInfos[i].can, r);
 
                 //For debug - to be removed
-                Translation pos = EntityManager.GetComponentData<Translation>(bookingInfos[i].can);
-                EntityManager.SetComponentData(bookingInfos[i].rock, new ForceThrow() { target = pos.Value });
-                ArmTarget target = EntityManager.GetComponentData<ArmTarget>(bookingInfos[i].arm);
-                target.TargetCan = Entity.Null;
-                target.TargetRock = Entity.Null;
-                EntityManager.SetComponentData(bookingInfos[i].arm, target);
+                //Translation pos = EntityManager.GetComponentData<Translation>(bookingInfos[i].can);
+                //EntityManager.SetComponentData(bookingInfos[i].rock, new ForceThrow() { target = pos.Value });
+                //ArmTarget target = EntityManager.GetComponentData<ArmTarget>(bookingInfos[i].arm);
+                //target.TargetCan = Entity.Null;
+                //target.TargetRock = Entity.Null;
+                //EntityManager.SetComponentData(bookingInfos[i].arm, target);
             }
         }
 
