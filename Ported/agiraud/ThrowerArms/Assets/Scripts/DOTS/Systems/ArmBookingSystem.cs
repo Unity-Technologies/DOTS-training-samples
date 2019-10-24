@@ -14,7 +14,7 @@ public struct ArmBookingItem
     public Entity rock;
     public Entity can;
 }
-
+[UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
 public class ArmBookingSystem : JobComponentSystem
 {
     [BurstCompile]
@@ -24,6 +24,8 @@ public class ArmBookingSystem : JobComponentSystem
         [ReadOnly] public NativeArray<Entity> canEntities;
         [ReadOnly] public NativeArray<Translation> rockPos;
         [ReadOnly] public NativeArray<Translation> canPos;
+        [ReadOnly] public NativeArray<Reserved> canReserved;
+        [ReadOnly] public NativeArray<Reserved> rockReserved;
         public NativeHashMap<Entity, ArmBookingItem>.ParallelWriter chosenOnes;
         [ReadOnly]public float reachRockMaxDistance;
         [ReadOnly]public float throwRockMaxDistance;
@@ -32,11 +34,11 @@ public class ArmBookingSystem : JobComponentSystem
             if (armTarget.TargetRock != Entity.Null) 
                 return;
 
-            int nearestRockIdx = FindNearest(boneJoints[0].JointPos,ref rockPos, reachRockMaxDistance);
+            int nearestRockIdx = FindNearest(boneJoints[0].JointPos,ref rockPos, ref rockReserved, reachRockMaxDistance);
             if (nearestRockIdx == -1) 
                 return;
 
-            int nearestCanIdx = FindNearest(boneJoints[0].JointPos, ref canPos, throwRockMaxDistance);
+            int nearestCanIdx = FindNearest(boneJoints[0].JointPos, ref canPos, ref canReserved, throwRockMaxDistance);
             if (nearestCanIdx == -1) 
                 return;
 
@@ -50,17 +52,20 @@ public class ArmBookingSystem : JobComponentSystem
             });
         }
 
-        int FindNearest(float3 translationValue, ref NativeArray<Translation> targets, float maxDistance = float.MaxValue)
+        int FindNearest(float3 translationValue, ref NativeArray<Translation> targets, ref NativeArray<Reserved> reserved, float maxDistance = float.MaxValue)
         {
             float nearestDistance = float.MaxValue;
             int resultIdx = -1;
             for (int i = 1; i < targets.Length; i++)
             {
-                float dist = math.lengthsq(translationValue - targets[i].Value);
-                if (dist < maxDistance && dist < nearestDistance)
+                if (!reserved[i].reserved)
                 {
-                    nearestDistance = dist;
-                    resultIdx = i;
+                    float dist = math.lengthsq(translationValue - targets[i].Value);
+                    if (dist < maxDistance && dist < nearestDistance)
+                    {
+                        nearestDistance = dist;
+                        resultIdx = i;
+                    }
                 }
             }
             return resultIdx;
@@ -75,10 +80,7 @@ public class ArmBookingSystem : JobComponentSystem
     {
         m_ArmGroup = GetEntityQuery( ComponentType.ReadWrite<BoneJoint>(), ComponentType.ReadWrite<ArmTarget>());
         m_RockGroup = GetEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadWrite<RockTag>(), ComponentType.ReadOnly<Reserved>());
-        Reserved r = new Reserved() { reserved = false };
-        m_RockGroup.SetFilter(r);
         m_CanGroup = GetEntityQuery( ComponentType.ReadOnly<Translation>(), ComponentType.ReadWrite<TinCanTag>(), ComponentType.ReadOnly<Reserved>());
-        m_CanGroup.SetFilter(r);
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
@@ -92,6 +94,8 @@ public class ArmBookingSystem : JobComponentSystem
         var rockPos = m_RockGroup.ToComponentDataArray<Translation>(Allocator.TempJob);
         var canEntities = m_CanGroup.ToEntityArray(Allocator.TempJob);
         var rockEntities = m_RockGroup.ToEntityArray(Allocator.TempJob);
+        var canReseved = m_CanGroup.ToComponentDataArray<Reserved>(Allocator.TempJob);
+        var rockReseved = m_RockGroup.ToComponentDataArray<Reserved>(Allocator.TempJob);
         var chosenOnes = new NativeHashMap<Entity, ArmBookingItem>(rockCount, Allocator.TempJob);
 
         //Booking
@@ -103,6 +107,8 @@ public class ArmBookingSystem : JobComponentSystem
         //job.reachDistance = 1.8f;
         job.reachRockMaxDistance = 5f;
         job.throwRockMaxDistance = 1000f;
+        job.canReserved = canReseved;
+        job.rockReserved = rockReseved;
         job.chosenOnes = chosenOnes.AsParallelWriter();
         JobHandle selectionJh = job.Schedule(m_ArmGroup, inputDependencies);
         selectionJh.Complete();
@@ -111,6 +117,7 @@ public class ArmBookingSystem : JobComponentSystem
         var bookingInfos = chosenOnes.GetValueArray(Allocator.Temp);
         List<Entity> alreadyUsedCan = new List<Entity>(bookingInfos.Length);
         List<Entity> alreadyUsedRock = new List<Entity>(bookingInfos.Length);
+        Reserved r = new Reserved { reserved = true };
         for (int i = 0; i < bookingInfos.Length; i++)
         {
             if (alreadyUsedCan.Contains(bookingInfos[i].can) || alreadyUsedRock.Contains(bookingInfos[i].rock))
@@ -124,8 +131,8 @@ public class ArmBookingSystem : JobComponentSystem
             {
                 alreadyUsedCan.Add(bookingInfos[i].can);
                 alreadyUsedRock.Add(bookingInfos[i].rock);
-                EntityManager.SetSharedComponentData(bookingInfos[i].rock, new Reserved { reserved = true });
-                EntityManager.SetSharedComponentData(bookingInfos[i].can, new Reserved { reserved = true });
+                EntityManager.SetComponentData(bookingInfos[i].rock, r);
+                EntityManager.SetComponentData(bookingInfos[i].can, r);
 
                 //For debug - to be removed
                 Translation pos = EntityManager.GetComponentData<Translation>(bookingInfos[i].can);
@@ -142,7 +149,9 @@ public class ArmBookingSystem : JobComponentSystem
         rockPos.Dispose();
         canEntities.Dispose();
         rockEntities.Dispose();
-        chosenOnes.Dispose();
+        chosenOnes.Dispose(); 
+        canReseved.Dispose(); 
+        rockReseved.Dispose();
 
         return inputDependencies;
     }

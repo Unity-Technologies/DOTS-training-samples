@@ -20,14 +20,14 @@ public class ResetSystem : JobComponentSystem
     EntityQuery m_ReservedResetGroup;
 
     [BurstCompile]
-    struct RandomResetPositionJob : IJobForEachWithEntity<Translation, Physics, ResetPosition, Scale, Rotation>
+    struct RandomResetPositionJob : IJobForEachWithEntity<Translation, Physics, ResetPosition, Scale, Rotation, Reserved>
     {
         public float3 MinPosition;
         public float3 MaxPosition;
         public float3 InitialVelocity;
         public float InitialScale;
         public Random rd;
-        public void Execute(Entity entity, int index, ref Translation position, ref Physics physics, ref ResetPosition resetPos, ref Scale scale, ref Rotation rotation)
+        public void Execute(Entity entity, int index, ref Translation position, ref Physics physics, ref ResetPosition resetPos, ref Scale scale, ref Rotation rotation, ref Reserved reserved)
         {
             if (!resetPos.needReset) return;
             position.Value = rd.NextFloat3(MinPosition, MaxPosition);
@@ -37,6 +37,7 @@ public class ResetSystem : JobComponentSystem
             scale.Value = InitialScale;
             rotation.Value = quaternion.identity;
             resetPos.needReset = false;
+            reserved.reserved = false;
         }
     }
 
@@ -47,13 +48,13 @@ public class ResetSystem : JobComponentSystem
                                                             ComponentType.ReadWrite<Physics>(),
                                                             ComponentType.ReadWrite<Translation>(),
                                                             ComponentType.ReadWrite<Rotation>(),
-                                                            ComponentType.ReadWrite<Scale>());
+                                                            ComponentType.ReadWrite<Scale>(), ComponentType.ReadWrite<Reserved>());
         m_GroupRock = GetEntityQuery(ComponentType.ReadOnly<RockTag>(), 
                                      ComponentType.ReadWrite<ResetPosition>(),
                                      ComponentType.ReadWrite<Physics>(),
                                      ComponentType.ReadWrite<Translation>(),
                                      ComponentType.ReadWrite<Rotation>(),
-                                     ComponentType.ReadWrite<Scale>());
+                                     ComponentType.ReadWrite<Scale>(), ComponentType.ReadWrite<Reserved>());
 
         m_ReservedResetGroup = GetEntityQuery(ComponentType.ReadWrite<Reserved>(), ComponentType.ReadOnly<ResetPosition>());
     }
@@ -77,13 +78,6 @@ public class ResetSystem : JobComponentSystem
             rd = new Random((uint)Environment.TickCount),
         };
 
-        Reserved r = new Reserved() { reserved = false };
-        NativeArray<Entity> removeReserved = m_ReservedResetGroup.ToEntityArray(Allocator.TempJob);
-        foreach (Entity entity in removeReserved)
-        {
-            EntityManager.SetSharedComponentData(entity, r);
-        }
-        removeReserved.Dispose();
         var jh1 = job1.Schedule(m_GroupRock, inputDeps);
         var jh2 = job2.Schedule(m_GroupTinCan, jh1);
         return jh2;

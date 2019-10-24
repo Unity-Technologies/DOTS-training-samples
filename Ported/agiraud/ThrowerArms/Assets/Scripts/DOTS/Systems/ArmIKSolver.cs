@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(ThrowerArmsGroupSystem))]
 public class IKSolverGroupSystem : ComponentSystemGroup { }
 
 [UpdateInGroup(typeof(IKSolverGroupSystem))]

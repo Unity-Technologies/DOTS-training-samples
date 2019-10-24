@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-public struct Reserved : ISharedComponentData
+public struct Reserved : IComponentData
 {
     public bool reserved;
 }

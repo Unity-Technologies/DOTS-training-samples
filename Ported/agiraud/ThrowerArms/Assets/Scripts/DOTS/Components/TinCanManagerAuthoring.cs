@@ -32,7 +32,7 @@ public class TinCanManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, 
         // Start with scale 0 and grow the can
         dstManager.AddComponentData(entityPrefab, new Scale { Value = 0.0f });
         dstManager.AddComponentData(entityPrefab, new Physics { velocity = velocity, angularVelocity = float3.zero, flying = false, GravityStrength = TinCanGravityStrength });
-        dstManager.AddSharedComponentData(entityPrefab, new Reserved());
+        dstManager.AddComponentData(entityPrefab, new Reserved());
 
         var spawnerData = new SpawnerData
         {
