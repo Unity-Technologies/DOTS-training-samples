@@ -62,6 +62,7 @@ public class ResetSystem : JobComponentSystem
             MinPosition = SceneParameters.Instance.RockSpawnBoxMin,
             MaxPosition = SceneParameters.Instance.RockSpawnBoxMax,
             InitialVelocity = SceneParameters.Instance.RockInitialVelocity,
+            InitialScale = 0.0f,
             rd = new Random((uint)Environment.TickCount),
         };
         var job2 = new RandomResetPositionJob()
@@ -69,6 +70,7 @@ public class ResetSystem : JobComponentSystem
             MinPosition = SceneParameters.Instance.TinCanSpawnBoxMin,
             MaxPosition = SceneParameters.Instance.TinCanSpawnBoxMax,
             InitialVelocity = SceneParameters.Instance.TinCanInitialVelocity,
+            InitialScale = 0.0f,
             rd = new Random((uint)Environment.TickCount),
         };
 
