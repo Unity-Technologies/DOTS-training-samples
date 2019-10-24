@@ -12,7 +12,8 @@ namespace HighwayRacers
             public float Lane0Length;
             public float StartRotation;
             public float CurveRadius; // 0 means straight
-
+            public int NUM_LANES;
+            
             public float LaneLength(float lane)
             {
                 return math.select(
@@ -27,7 +28,7 @@ namespace HighwayRacers
                 {
                     rotY = 0;
                     return new float3(
-                        Highway.LANE_SPACING * ((Highway.NUM_LANES - 1) / 2f - lane),
+                        Highway.LANE_SPACING * ((NUM_LANES - 1) / 2f - lane),
                         0, localDistance);
                 }
                 float radius = CurveRadius + lane * Highway.LANE_SPACING;
@@ -40,8 +41,10 @@ namespace HighwayRacers
         NativeArray<Section> Sections;
         float LastLaneLength;
 
+        int numLanes;
         public void Create(HighwayPiece[] pieces)
         {
+            numLanes = Highway.instance.NUM_LANES;
             Dispose();
             Lane0Length = 0;
             Sections = new NativeArray<Section>(pieces.Length, Allocator.Persistent);
@@ -50,6 +53,7 @@ namespace HighwayRacers
                 var len = pieces[i].length(0);
                 Sections[i] = new Section
                 {
+                    NUM_LANES = Highway.instance.NUM_LANES,
                     Pos = pieces[i].transform.localPosition,
                     Lane0Length = len,
                     StartRotation = pieces[i].startRotation,
@@ -74,7 +78,7 @@ namespace HighwayRacers
             sReaderJob = h;
         }
 
-        public float NumLanes { get { return Highway.NUM_LANES; } }
+        public float NumLanes { get { return numLanes; } }
 
         public float Lane0Length { get; private set; }
 

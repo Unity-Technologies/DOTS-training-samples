@@ -13,11 +13,11 @@ namespace HighwayRacers
     [UpdateAfter(typeof(AccelerationSystem))]
     public class CrashPreventionSystem : JobComponentSystem
     {
-        const float k_MinDistBetweenCars = Highway.MIN_DIST_BETWEEN_CARS;
 
         [BurstCompile]
         struct CrashPreventionSystemJob : IJobForEach<ProximityData, CarSettings, CarState>
         {
+            public float minDistBetweenCars;
             public float deltaTime;
 
             public void Execute(
@@ -29,7 +29,7 @@ namespace HighwayRacers
                     return;
 
                 var maxDistanceDiff = math.max(
-                    0, proximity.data.NearestFrontMyLane.Distance - k_MinDistBetweenCars);
+                    0, proximity.data.NearestFrontMyLane.Distance - minDistBetweenCars);
                 state.FwdSpeed = math.min(state.FwdSpeed, maxDistanceDiff / deltaTime);
             }
         }
@@ -39,7 +39,7 @@ namespace HighwayRacers
             if (Time.deltaTime <= 0)
                 return inputDeps;
 
-            var job = new CrashPreventionSystemJob {deltaTime = Time.deltaTime};
+            var job = new CrashPreventionSystemJob {minDistBetweenCars = Highway.MIN_DIST_BETWEEN_CARS,deltaTime = Time.deltaTime};
             return job.Schedule(this, inputDeps);
         }
     }

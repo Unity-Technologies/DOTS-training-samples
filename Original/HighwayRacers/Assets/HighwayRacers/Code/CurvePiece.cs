@@ -11,7 +11,7 @@ namespace HighwayRacers
             return (curveRadiusLane0 + lane * Highway.LANE_SPACING) * Mathf.PI / 2;
         }
 
-        public override float curveRadiusLane0 { get { return Highway.CURVE_LANE0_RADIUS; } }
+        public override float curveRadiusLane0 { get { return Highway.instance.CURVE_LANE0_RADIUS; } }
     }
 
 }

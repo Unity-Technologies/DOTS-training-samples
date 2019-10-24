@@ -13,11 +13,10 @@ namespace HighwayRacers
 	/// </summary>
     public class Highway : MonoBehaviour
     {
-        public const int NUM_LANES = 4;
         public const float LANE_SPACING = 1.9f;
         public const float MID_RADIUS = 31.46f;
-        public const float CURVE_LANE0_RADIUS = MID_RADIUS - LANE_SPACING * (NUM_LANES - 1) / 2f;
-        public const float MIN_HIGHWAY_LANE0_LENGTH = CURVE_LANE0_RADIUS * 2 * Mathf.PI;
+        public float CURVE_LANE0_RADIUS;
+        public float MIN_HIGHWAY_LANE0_LENGTH;
         public const float MIN_DIST_BETWEEN_CARS = .7f;
 
         [Header("Prefabs")]
@@ -27,6 +26,8 @@ namespace HighwayRacers
         public Mesh EntityCarMesh;
         public Material EntityCarMaterial;
 
+        public int NUM_LANES = 8;
+        
         public static Highway instance { get; private set; }
 
         private HighwayPiece[] pieces = new HighwayPiece[8];
@@ -38,6 +39,8 @@ namespace HighwayRacers
 
         public void CreateHighway(float lane0Length)
         {
+            CURVE_LANE0_RADIUS = MID_RADIUS - LANE_SPACING * (NUM_LANES - 1) / 2f;
+            MIN_HIGHWAY_LANE0_LENGTH = CURVE_LANE0_RADIUS * 4;
             if (lane0Length < MIN_HIGHWAY_LANE0_LENGTH)
             {
                 Debug.LogError("Highway length must be longer than " + MIN_HIGHWAY_LANE0_LENGTH);
