@@ -16,7 +16,7 @@ public class GrowSystem : JobComponentSystem
 
         public void Execute(ref Scale scale)
         {
-            scale.Value += (1f - scale.Value) * 2.0f * deltaTime;
+            scale.Value += (1f - scale.Value) * 0.4f * deltaTime;
         }
     }
 

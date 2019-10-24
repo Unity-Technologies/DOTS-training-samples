@@ -12,7 +12,7 @@ public class RockManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
     public int RockCount = 1000;
     public Vector3 velocity;
 
-    public static float RockGravityStrength = 25;
+    public static float RockGravityStrength = 5;
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
@@ -27,15 +27,12 @@ public class RockManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
                 $"Something went wrong while creating an Entity for the rig prefab: {RockPrefab.name}");
 
         // Here we should add some components to our entity prefab
-        var rockTag = new RockTag();
-        dstManager.AddComponentData(entityPrefab, rockTag);
+        dstManager.AddComponentData(entityPrefab, new RockTag());
         dstManager.AddComponentData(entityPrefab, new Scale { Value = 1.0f });
         dstManager.AddComponentData(entityPrefab, new ResetPosition { needReset = true });
         dstManager.AddComponentData(entityPrefab, new Physics { velocity = velocity, angularVelocity = float3.zero, flying = false, GravityStrength = RockGravityStrength});
         dstManager.AddComponentData(entityPrefab, new ForceThrow());
         dstManager.AddComponentData(entityPrefab, new Reserved());
-        // TODO: only add this component when rock is thrown
-        // dstManager.AddComponentData(entityPrefab, new FlyingTag());
 
         var spawnerData = new SpawnerData
         {

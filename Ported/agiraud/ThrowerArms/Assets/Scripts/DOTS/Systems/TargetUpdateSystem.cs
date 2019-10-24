@@ -167,15 +167,23 @@ public class UpdateTargetSystem : JobComponentSystem
 	    {
 		    if (target.TargetRock != Entity.Null)
 		    {
-			    target.Value = Positions[target.TargetRock].Value;
+			    var rockPos = Positions[target.TargetRock].Value;
+			    if (math.lengthsq(target.Value - rockPos) > 2)
+			    {
+				    target.TargetRock = Entity.Null;
+			    }
+			    else
+			    {
+				    target.Value = Positions[target.TargetRock].Value;
+			    }
 		    }
-//		    else
-//		    {
-//			    float time = Time + timer.TimeOffset;
-//			    target.Value = joints[0].JointPos +
-//			                         new float3(math.sin(time) * .35f, 1f + math.cos(time * 1.618f) * .5f, 1.5f);
-//			    
-//		    }
+		    if (target.TargetRock == Entity.Null)
+		    {
+			    float time = Time + timer.TimeOffset;
+			    target.Value = joints[0].JointPos +
+			                         new float3(math.sin(time) * .35f, 1f + math.cos(time * 1.618f) * .5f, 1.5f);
+			    
+		    }
 	    }
     }
     

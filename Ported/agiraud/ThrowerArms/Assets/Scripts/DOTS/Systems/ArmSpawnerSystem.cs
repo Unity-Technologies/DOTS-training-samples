@@ -71,8 +71,9 @@ public class ArmSpawnerSystem : ComponentSystem
     {
         Entities.ForEach((Entity e, ref ArmSpawnerData spawnerData) =>
         {
-            float armSpacing = math.abs(SceneParameters.Instance.RockSpawnBoxMin.x - SceneParameters.Instance.RockSpawnBoxMax.x) / spawnerData.Count;
-
+            //float armSpacing = math.abs(SceneParameters.Instance.RockSpawnBoxMin.x - SceneParameters.Instance.RockSpawnBoxMax.x) / spawnerData.Count;
+            float armSpacing = 0.2f;
+            
             for (var i = 0; i < spawnerData.Count; i++)
             {
                 var armEntity = EntityManager.CreateEntity(m_ArmArchetype);
@@ -88,7 +89,7 @@ public class ArmSpawnerSystem : ComponentSystem
                 // Set anchor value
                 jointBuf[0] = new BoneJoint
                 {
-                    JointPos = new float3(SceneParameters.Instance.RockSpawnBoxMin.x + i * armSpacing, 0, -0.8f)
+                    JointPos = new float3(SceneParameters.Instance.RockSpawnBoxMin.x * 0.5f + i * armSpacing, 0, -0.8f)
                 };
 
                 EntityManager.SetComponentData(armEntity, new HandAxis{ Up = math.up() });
