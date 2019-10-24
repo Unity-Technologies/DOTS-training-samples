@@ -63,10 +63,16 @@ public class SpawnCommuterSystem : JobComponentSystem
                 var path = lookup.value.Value.paths[randomLookup];
                 var platformId = path.fromPlatformId;
                 var platformPos = trs.value.Value.translations[platformId];
+
+                var destID = path.toPlatformId;
+                var destPos = trs.value.Value.translations[destID];
+
                 cmdBuffer.SetComponent(index, commuter, new Translation { Value = platformPos});
                 cmdBuffer.AddComponent(index, commuter, new PlatformId { value = (uint)platformId });
                 cmdBuffer.AddComponent(index, commuter, new CurrentPathIndex{ pathLookupIdx = randomLookup, connectionIdx = 0 });
                 cmdBuffer.AddComponent(index, commuter, lookup);
+                cmdBuffer.AddComponent(index, commuter, new TargetPosition { value = destPos});
+                cmdBuffer.AddComponent(index, commuter, new Speed { value = 6.66f});
             }
             cmdBuffer.RemoveComponent(index, entity, typeof(SpawnCommuters));
         }

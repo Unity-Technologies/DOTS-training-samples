@@ -8,7 +8,7 @@ public class PathfindingTests
     List<GameObject> m_Objs;
     Platform pl0, pl1, pl2, pl3, pl4, pl5;
 
-        [SetUp]
+    [SetUp]
     public void Setup()
     {
         m_Objs = new List<GameObject>();
