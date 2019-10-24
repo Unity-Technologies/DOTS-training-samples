@@ -25,7 +25,6 @@ public class ResetSystem : JobComponentSystem
         public float3 InitialVelocity;
         public float InitialScale;
         public Random rd;
-        public EntityCommandBuffer.Concurrent cb;
         public void Execute(Entity entity, int index, ref Translation position, ref Physics physics, ref ResetPosition resetPos, ref Scale scale, ref Rotation rotation)
         {
             if (!resetPos.needReset) return;
