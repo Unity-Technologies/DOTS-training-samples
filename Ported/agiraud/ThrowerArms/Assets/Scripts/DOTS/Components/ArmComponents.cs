@@ -51,4 +51,5 @@ public struct Timers : IComponentData
     public float Reach;
     public float Windup;
     public float Throw;
+    public float GrabT;
 }
