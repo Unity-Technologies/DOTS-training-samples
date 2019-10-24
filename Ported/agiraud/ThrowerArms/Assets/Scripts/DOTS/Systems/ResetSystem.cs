@@ -59,16 +59,16 @@ public class ResetSystem : JobComponentSystem
     {
         var job1 = new RandomResetPositionJob()
         {
-            MinPosition = RockManagerAuthoring.SpawnBoxMin,
-            MaxPosition = RockManagerAuthoring.SpawnBoxMax,
-            InitialVelocity = RockManagerAuthoring.MoverInitialVelocity,
+            MinPosition = SceneParameters.Instance.RockSpawnBoxMin,
+            MaxPosition = SceneParameters.Instance.RockSpawnBoxMax,
+            InitialVelocity = SceneParameters.Instance.RockInitialVelocity,
             rd = new Random((uint)Environment.TickCount),
         };
         var job2 = new RandomResetPositionJob()
         {
-            MinPosition = TinCanManagerAuthoring.SpawnBoxMin,
-            MaxPosition = TinCanManagerAuthoring.SpawnBoxMax,
-            InitialVelocity = TinCanManagerAuthoring.MoverInitialVelocity,
+            MinPosition = SceneParameters.Instance.TinCanSpawnBoxMin,
+            MaxPosition = SceneParameters.Instance.TinCanSpawnBoxMax,
+            InitialVelocity = SceneParameters.Instance.TinCanInitialVelocity,
             rd = new Random((uint)Environment.TickCount),
         };
 

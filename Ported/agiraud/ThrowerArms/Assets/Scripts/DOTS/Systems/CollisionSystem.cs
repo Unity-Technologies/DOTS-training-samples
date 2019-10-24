@@ -96,8 +96,8 @@ public class CollisionSystem : JobComponentSystem
             hashMap = rocks.AsParallelWriter(),
 
             // TODO: remove hardcoded values
-            boundsMin = TinCanManagerAuthoring.SpawnBoxMin - new Vector3(1, 1, 1),
-            boundsMax = TinCanManagerAuthoring.SpawnBoxMax + new Vector3(1, 1, 1)
+            boundsMin = SceneParameters.Instance.TinCanSpawnBoxMin - new Vector3(1, 1, 1),
+            boundsMax = SceneParameters.Instance.TinCanSpawnBoxMax + new Vector3(1, 1, 1)
         };
 
         var jobHandle = copyJob.Schedule(m_RocksQuery, inputDeps);
