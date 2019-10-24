@@ -138,7 +138,7 @@ public class ThrowSystem : JobComponentSystem
         job.rd = new Random((uint)Environment.TickCount);
         job.probability = 1f;
         job.gravityStrenth = RockManagerAuthoring.RockGravityStrength;
-        job.CanVelocity = TinCanManagerAuthoring.MoverInitialVelocity;
+        job.CanVelocity = SceneParameters.Instance.TinCanInitialVelocity;
         job.targets = targetHashMap.GetValueArray(Allocator.TempJob);
 
         var jobHandle = job.Schedule(m_group, inputDeps);
