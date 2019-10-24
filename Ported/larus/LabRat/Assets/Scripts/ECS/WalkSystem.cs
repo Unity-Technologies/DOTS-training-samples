@@ -97,7 +97,7 @@ public class WalkSystem : JobComponentSystem
 
 				if (cellIndex >= board.size.x * board.size.y)
 				{
-					ecb.DestroyEntity(nativeThreadIndex, entity);
+					ecb.DestroyEntity(entityInQueryIndex, entity);
 					//PostUpdateCommands.DestroyEntity(entity);
 					return;
 				}
@@ -115,7 +115,7 @@ public class WalkSystem : JobComponentSystem
 
 				if ((cell.data & CellData.Hole) == CellData.Hole)
 				{
-					ecb.DestroyEntity(nativeThreadIndex, entity);
+					ecb.DestroyEntity(entityInQueryIndex, entity);
 					return;
 				}
 
