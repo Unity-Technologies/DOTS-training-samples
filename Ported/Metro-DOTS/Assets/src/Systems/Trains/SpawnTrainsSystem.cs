@@ -40,8 +40,7 @@ public class SpawnTrainsSystem : JobComponentSystem
                 cmdBuffer.SetComponent(index, carriage, new Translation { Value = pos });
                 cmdBuffer.AddComponent(index, carriage, new TrainId{ value = c0.index });
                 cmdBuffer.AddComponent(index, carriage, new TrainLine{ line = c0.line.line });
-                if (i != 0)
-                    cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = i});
+                cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = 0});
             }
 
             cmdBuffer.RemoveComponent(index, entity, typeof(SpawnTrain));
