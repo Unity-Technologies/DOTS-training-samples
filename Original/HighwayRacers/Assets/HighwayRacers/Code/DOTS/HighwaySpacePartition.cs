@@ -24,13 +24,16 @@ namespace HighwayRacers
         public void Create(
             float trackLength, float desiredBucketLength, int capacity, Allocator allocator)
         {
-            Dispose();
-
+            if (HashMap.IsCreated && HashMap.Capacity == capacity)
+                HashMap.Clear();
+            else
+            {
+                Dispose();
+                HashMap = new NativeMultiHashMap<int, BucketEntry>(capacity, allocator);
+            }
             TrackLength = trackLength;
             NumBuckets = math.max(1, (int)math.round(trackLength / desiredBucketLength));
             BucketLength = trackLength / NumBuckets;
-
-            HashMap = new NativeMultiHashMap<int, BucketEntry>(capacity, allocator);
         }
 
         public void Dispose()

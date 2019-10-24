@@ -69,7 +69,7 @@ namespace HighwayRacers
                 Highway.instance.DotsHighway.LaneLength(Highway.instance.DotsHighway.NumLanes * 0.5f),
                 Game.instance.bucketDistance,
                 Highway.instance.NumCars,
-                Allocator.TempJob);
+                Allocator.Persistent);
 
             var buildJob = new BuildSpacePartitionJob
             {
