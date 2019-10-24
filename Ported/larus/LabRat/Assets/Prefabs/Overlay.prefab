@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 1146418161372136563}
   - component: {fileID: 7968666261673779585}
   - component: {fileID: 881981209737357268}
-  - component: {fileID: 3556200033115359068}
   - component: {fileID: -4765403687137097075}
+  - component: {fileID: -8887436158399523597}
   m_Layer: 2
   m_Name: Overlay
   m_TagString: Untagged
@@ -96,19 +96,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &3556200033115359068
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3514957189145203707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea7d7495833204790ba1d3a8755397f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ConversionMode: 0
 --- !u!114 &-4765403687137097075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,3 +108,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85f4e5ad2fddc40cea8667335cd8b424, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-8887436158399523597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3514957189145203707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e739feae1d9c47c6a78209700d4fac47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConversionMode: 0
+  ConversionTarget: -1
+  canDestroy: 0

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using ECSExamples;
 using Unity.Entities;
+using Unity.NetCode;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateInGroup(typeof(ServerSimulationSystemGroup))]
 public class SpawnSystem : ComponentSystem
 {
     protected override void OnUpdate()

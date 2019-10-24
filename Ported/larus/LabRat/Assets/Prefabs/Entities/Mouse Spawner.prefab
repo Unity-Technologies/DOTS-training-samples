@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4867576012999258}
   - component: {fileID: 114249192375568382}
-  - component: {fileID: -7494392374448351050}
+  - component: {fileID: 3333756696733483205}
   m_Layer: 0
   m_Name: Mouse Spawner
   m_TagString: Untagged
@@ -51,7 +51,7 @@ MonoBehaviour:
     type: 3}
   targetParent: {fileID: 0}
   board: {fileID: 0}
---- !u!114 &-7494392374448351050
+--- !u!114 &3333756696733483205
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -60,7 +60,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1298946766065678}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea7d7495833204790ba1d3a8755397f8, type: 3}
+  m_Script: {fileID: 11500000, guid: e739feae1d9c47c6a78209700d4fac47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ConversionMode: 0
+  ConversionTarget: 2
+  canDestroy: 0

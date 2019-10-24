@@ -1,11 +1,14 @@
-﻿using ECSExamples;
+﻿using System;
+using ECSExamples;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.NetCode;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateInGroup(typeof(ServerSimulationSystemGroup))]
 public class WalkSystem : JobComponentSystem
 {
 	private EntityQuery m_BoardQuery;
@@ -155,7 +158,7 @@ public class WalkSystem : JobComponentSystem
 			newPos.x = newPos.x + (fwd.x - newPos.x) * t;
 			newPos.y = newPos.y + (fwd.y - newPos.y) * t;
 			newPos.z = newPos.z + (fwd.z - newPos.z) * t;*/
-		}).WithReadOnly(cellMap).WithReadOnly(arrowMap).Schedule(inputDep);
+		}).WithReadOnly(cellMap).WithReadOnly(arrowMap).WithoutBurst().Schedule(inputDep);
 		return job;
 	}
 
@@ -299,3 +302,29 @@ public class WalkSystem : JobComponentSystem
 		return CellData.WallNorth;
 	}
 }
+
+/*[UpdateInGroup(typeof(ClientSimulationSystemGroup))]
+public class ClientWalkSystem : ComponentSystem
+{
+	private EndSimulationEntityCommandBufferSystem m_Buffer;
+	protected override void OnCreate()
+	{
+		m_Buffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+	}
+
+	//protected override JobHandle OnUpdate(JobHandle inputDeps)
+	protected override void OnUpdate()
+	{
+		var ecb = m_Buffer.CreateCommandBuffer();
+		//var job = Entities.ForEach((Entity entity, int entityInQueryIndex, ref WalkComponent walker,
+		Entities.ForEach((Entity entity, ref WalkComponent walker,
+			ref Translation position, ref Rotation rotation) =>
+		{
+			var linkedEntityBuffer = EntityManager.GetBuffer<LinkedEntityGroup>(entity);
+			ecb.AddComponent(linkedEntityBuffer[1].Value, new Translation {Value = position.Value + new float3(0,0.73f,0)});
+			ecb.AddComponent(linkedEntityBuffer[1].Value, new Rotation {Value = rotation.Value});
+		});
+		//}).Schedule(inputDeps);
+		//return job;
+	}
+}*/
