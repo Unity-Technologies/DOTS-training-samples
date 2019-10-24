@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 public class ArrowSystem : ComponentSystem
@@ -26,12 +27,12 @@ public class ArrowSystem : ComponentSystem
             return;
 
         var worldPos = ray.GetPoint(enter);
+        if (worldPos.x < 0 || Mathf.FloorToInt(worldPos.x) >= board.size.x-1 || worldPos.z < 0 || Mathf.FloorToInt(worldPos.z) >= board.size.y-1)
+            return;
         var localPt = new float2(worldPos.x, worldPos.z);
         localPt += board.cellSize * 0.5f; // offset by half cellsize
         var cellCoord = new float2(Mathf.FloorToInt(localPt.x / board.cellSize.x), Mathf.FloorToInt(localPt.y / board.cellSize.y));
         var cellIndex = (int)(cellCoord.y * board.size.x + cellCoord.x);
-        if (cellIndex < 0 || cellIndex >= board.size.x * board.size.y)
-            return;
 
         Direction cellDirection;
         var localPos = new float2(worldPos.x - cellCoord.x, worldPos.z - cellCoord.y);
@@ -44,7 +45,33 @@ public class ArrowSystem : ComponentSystem
         // Input data:
         //    ArrowDirection
         //    CellIndex
-        //    Player ID
+        //    (Player ID) - server could figure that out from input sender
+
+        // Show arrow placement overlay (before it's placed permanently)
+        var cellEntities = EntityManager.CreateEntityQuery(typeof(CellRenderingComponentTag)).ToEntityArray(Allocator.TempJob);
+        for (int i = 0; i < cellEntities.Length; ++i)
+        {
+            var position = EntityManager.GetComponentData<Translation>(cellEntities[i]);
+            localPt = new float2(position.Value.x, position.Value.z) + board.cellSize * 0.5f;
+            var rendCellCoord = new float2(Mathf.FloorToInt(localPt.x / board.cellSize.x), Mathf.FloorToInt(localPt.y / board.cellSize.y));
+            var rendCellIndex = (int)(rendCellCoord.y * board.size.x + rendCellCoord.x);
+            if (rendCellIndex == cellIndex)
+                EntityManager.AddComponentData(cellEntities[i], new ArrowComponent
+                {
+                    Coordinates = cellCoord,
+                    Direction = cellDirection,
+                    PlayerId = 0,
+                    PlacementTick = Time.time
+                });
+        }
+        /*var entity = EntityManager.CreateEntity();
+        EntityManager.AddComponentData(entity, new ArrowComponent
+        {
+            Coordinates = cellCoord,
+            Direction = cellDirection,
+            PlayerId = 0,
+            PlacementTick = Time.frameCount
+        });*/
 
         // Human always player 0
         const int humanPlayerIndex = 0;
@@ -76,18 +103,18 @@ public class ArrowSystem : ComponentSystem
                 Coordinates = cellCoord,
                 Direction = cellDirection,
                 PlayerId = humanPlayerIndex,
-                PlacementTick = Time.frameCount
+                PlacementTick = Time.time
             };
 
-            // TODO: Add entities for arrows then have a system which draws all existing arrow components
-            /*var entity = EntityManager.CreateEntity();
-            EntityManager.AddComponentData(entity, arrowData);*/
+            // Add entity for visual representation of arrow
+            //entity = EntityManager.CreateEntity();
+            //EntityManager.AddComponentData(entity, arrowData);
 
             // Or use hash map and draw everything in it somewhere
             var keys = arrowMap.GetKeyArray(Allocator.TempJob);
             int arrowCount = 0;
             int oldestIndex = -1;
-            int oldestTick = -1;
+            float oldestTick = -1;
             for (int i = 0; i < keys.Length; ++i)
             {
                 if (arrowMap[keys[i]].PlayerId == humanPlayerIndex)

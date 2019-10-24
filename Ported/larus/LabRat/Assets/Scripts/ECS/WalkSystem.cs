@@ -1,47 +1,49 @@
 ﻿using ECSExamples;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-public class WalkSystem : ComponentSystem
+public class WalkSystem : JobComponentSystem
 {
 	private EntityQuery m_BoardQuery;
 	private EntityQuery m_ConfigQuery;
+	private EndSimulationEntityCommandBufferSystem m_Buffer;
+	private BoardSystem m_Board;
 
 	protected override void OnCreate()
 	{
 		m_BoardQuery = GetEntityQuery(typeof(BoardDataComponent));
 		m_ConfigQuery = GetEntityQuery(typeof(GameConfigComponent));
+		m_Buffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+		m_Board = World.GetExistingSystem<BoardSystem>();
 	}
 
-	//protected override JobHandle OnUpdate(JobHandle inputDep)
-	protected override void OnUpdate()
+	protected override JobHandle OnUpdate(JobHandle inputDep)
 	{
 		var gameConfig = m_ConfigQuery.GetSingleton<GameConfigComponent>();
 		var board = m_BoardQuery.GetSingleton<BoardDataComponent>();
-		var cellMap = World.GetExistingSystem<BoardSystem>().CellMap;
-
-		//var ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-		//var ecb = ecbSystem.CreateCommandBuffer().ToConcurrent();
-		//var job = Entities.ForEach((Entity entity, ref WalkComponent walker, ref Translation position, ref Rotation rotation, int nativeThreadIndex) =>
-		Entities.ForEach((Entity entity, ref WalkComponent walker, ref Translation position, ref Rotation rotation) =>
+		var cellMap = m_Board.CellMap;
+		var arrowMap = m_Board.ArrowMap;
+		var ecb = m_Buffer.CreateCommandBuffer().ToConcurrent();
+		var deltaTime = Time.deltaTime;
+		var job = Entities.ForEach((Entity entity, int nativeThreadIndex, ref WalkComponent walker, ref Translation position, ref Rotation rotation) =>
+		//Entities.ForEach((Entity entity, ref WalkComponent walker, ref Translation position, ref Rotation rotation) =>
 		{
-			//float3 fwd = new float3(0, 0, walker.Speed);
-			//fwd = math.mul(rotation.Value, fwd);
 			float3 fwd = ForwardVectorFromRotation(rotation.Value);
 
 			//if (!board || state == State.Dead)
-				//return;
+			//return;
 
 			// cap movement if the FPS is low to one cell
-			float remainingDistance = walker.Speed * Time.deltaTime;
+			float remainingDistance = walker.Speed * deltaTime;
 
 			// return to whole numbers
 			var newPos = position.Value;
 			{
-				float speed = Time.deltaTime * 10f;
+				float speed = deltaTime * 10f;
 				if (Mathf.Abs(fwd.x) > 0)
 					newPos.z = Mathf.Lerp(newPos.z, Mathf.Round(newPos.z), speed);
 				else if (Mathf.Abs(fwd.z) > 0)
@@ -55,7 +57,7 @@ public class WalkSystem : ComponentSystem
 			{
 				float slice = Mathf.Min(board.cellSize.x * 0.3f, remainingDistance);
 				remainingDistance -= slice;
-				if (slice <= 0f || Mathf.Approximately(0f, slice))
+				if (slice <= 0f || slice < math.FLT_MIN_NORMAL*8f)
 				{
 					//Debug.Log("No change");
 					break;
@@ -73,23 +75,16 @@ public class WalkSystem : ComponentSystem
 				// Round position values for checking the board. This is so that
 				// we collide with arrows and walls at the right time.
 				position.Value = newPos;
-				switch (myDirection)
-				{
-					case Direction.North:
-						newPos.z = Mathf.Floor(newPos.z);
-						break;
-					case Direction.South:
-						newPos.z = Mathf.Ceil(newPos.z);
-						break;
-					case Direction.East:
-						newPos.x = Mathf.Floor(newPos.x);
-						break;
-					case Direction.West:
-						newPos.x = Mathf.Ceil(newPos.x);
-						break;
-					default:
-						throw new System.ArgumentOutOfRangeException(myDirection.ToString());
-				}
+				if (myDirection == Direction.North)
+					newPos.z = Mathf.Floor(newPos.z);
+				else if (myDirection == Direction.South)
+					newPos.z = Mathf.Ceil(newPos.z);
+				else if (myDirection == Direction.East)
+					newPos.x = Mathf.Floor(newPos.x);
+				else if (myDirection == Direction.West)
+					newPos.x = Mathf.Ceil(newPos.x);
+				else
+					throw new System.ArgumentOutOfRangeException();
 
 				//var vect = new Vector3 {x = position.Value.x, y = position.Value.y, z = position.Value.z};
 				//var cell = m_Board.CellAtWorldPosition(vect);
@@ -102,9 +97,8 @@ public class WalkSystem : ComponentSystem
 
 				if (cellIndex >= board.size.x * board.size.y)
 				{
-					Debug.Log("Fell off the board");
-					//ecb.DestroyEntity(nativeThreadIndex, entity);
-					PostUpdateCommands.DestroyEntity(entity);
+					ecb.DestroyEntity(nativeThreadIndex, entity);
+					//PostUpdateCommands.DestroyEntity(entity);
 					return;
 				}
 
@@ -121,11 +115,14 @@ public class WalkSystem : ComponentSystem
 
 				if ((cell.data & CellData.Hole) == CellData.Hole)
 				{
-					Debug.Log("Fell into hole");
+					ecb.DestroyEntity(nativeThreadIndex, entity);
 					return;
 				}
 
-				newDirection = ShouldRedirect(cell, cellIndex, myDirection, gameConfig.DiminishesArrows);
+				ArrowComponent arrow;
+				arrowMap.TryGetValue(cellIndex, out arrow);
+				newDirection = ShouldRedirect(cell, cellIndex, myDirection, arrow.Direction,
+					gameConfig.DiminishesArrows);
 
 				//newDirection = cell.ShouldRedirect(myDirection, gameConfig.DiminishesArrows);
 
@@ -158,9 +155,8 @@ public class WalkSystem : ComponentSystem
 			newPos.x = newPos.x + (fwd.x - newPos.x) * t;
 			newPos.y = newPos.y + (fwd.y - newPos.y) * t;
 			newPos.z = newPos.z + (fwd.z - newPos.z) * t;*/
-		});
-		//}).Schedule(inputDep);
-		//return job;
+		}).WithReadOnly(cellMap).WithReadOnly(arrowMap).Schedule(inputDep);
+		return job;
 	}
 
 	int PositionToIndex(BoardDataComponent board, Translation position)
@@ -171,7 +167,7 @@ public class WalkSystem : ComponentSystem
 		return (int)(cellCoord.y * board.size.x + cellCoord.x);
 	}
 
-	public quaternion RotationForDirection(Direction dir) {
+	static quaternion RotationForDirection(Direction dir) {
 		switch (dir) {
 			case Direction.North:
 				return quaternion.identity;
@@ -182,7 +178,7 @@ public class WalkSystem : ComponentSystem
 			case Direction.West:
 				return quaternion.RotateY(3*math.PI/2);
 			default:
-				throw new System.ArgumentOutOfRangeException(dir.ToString());
+				throw new System.ArgumentOutOfRangeException();
 		}
 	}
 
@@ -201,7 +197,7 @@ public class WalkSystem : ComponentSystem
 		}
 	}
 
-	Vector3 ForwardVectorFromRotation(quaternion rotation)
+	static Vector3 ForwardVectorFromRotation(quaternion rotation)
 	{
 		var dot = math.dot(rotation, quaternion.RotateY(math.PI));
 		if (math.abs(dot) > 0.9f)
@@ -215,7 +211,7 @@ public class WalkSystem : ComponentSystem
 		return Vector3.forward;
 	}
 
-	Direction DirectionFromRotation(quaternion rotation)
+	static Direction DirectionFromRotation(quaternion rotation)
 	{
 		var dot = math.dot(rotation, quaternion.RotateY(math.PI));
 		if (math.abs(dot) > 0.9f)
@@ -243,7 +239,7 @@ public class WalkSystem : ComponentSystem
 		return CellData.WallNorth;
 	}
 
-	public Direction ShouldRedirect(CellComponent cell, int cellIndex, Direction myDirection, bool diminishesArrows) {
+	static Direction ShouldRedirect(CellComponent cell, int cellIndex, Direction myDirection, Direction arrowDirection, bool diminishesArrows) {
 		/*if (blockState == BlockState.Confuse) {
 			const int numDirections = 4;
 			var nextIndex = ((int)myDirection + 1 + Random.Range(0, numDirections - 1)) % numDirections;
@@ -252,14 +248,11 @@ public class WalkSystem : ComponentSystem
 
 		if ((cell.data & CellData.Arrow) == CellData.Arrow)
 		{
-			var arrowMap = World.GetExistingSystem<BoardSystem>().ArrowMap;
-			// Assert the cell index exists in the map, since the bit should not have been set otherwise
-			var direction = arrowMap[cellIndex].Direction;
-			if (myDirection != direction)
+			if (myDirection != arrowDirection)
 			{
 				//if (arrowDirection == OppositeDirection(myDirection) && diminishesArrows)
 				//	DiminishArrow();
-				myDirection = direction;
+				myDirection = arrowDirection;
 			}
 		}
 
@@ -273,21 +266,10 @@ public class WalkSystem : ComponentSystem
 					myDirection = Cell.DirectionWhenHitWall(myDirection, 3);
 			}
 		}
-
-		/*if (HasWallOrNeighborWall(cell, neighborCell, myDirection)) {
-			myDirection = Cell.DirectionWhenHitWall(myDirection);
-			if (HasWallOrNeighborWall(cell, neighborCell, myDirection)) {
-				myDirection = Cell.OppositeDirection(myDirection);
-				if (HasWallOrNeighborWall(cell, neighborCell, myDirection)) {
-					myDirection = Cell.OppositeDirection(myDirection);
-					myDirection = Cell.DirectionWhenHitWall(myDirection);
-				}
-			}
-		}*/
 		return myDirection;
 	}
 
-	bool HasWall(CellComponent cell, Direction wall)
+	static bool HasWall(CellComponent cell, Direction wall)
 	{
 		var cellDataWall = DirectionToCellData(wall);
 		if ((cell.data & cellDataWall) == cellDataWall)
@@ -306,7 +288,7 @@ public class WalkSystem : ComponentSystem
 		return Direction.North;
 	}
 
-	CellData DirectionToCellData(Direction dir)
+	static CellData DirectionToCellData(Direction dir)
 	{
 		if (dir == Direction.South)
 			return CellData.WallSouth;
