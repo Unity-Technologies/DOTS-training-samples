@@ -6,6 +6,11 @@ public struct TrainId : IComponentData
     public int value;
 }
 
+public struct CarriageId : IComponentData
+{
+    public int value;
+}
+
 public struct PlatformId : IComponentData
 {
     public int value;

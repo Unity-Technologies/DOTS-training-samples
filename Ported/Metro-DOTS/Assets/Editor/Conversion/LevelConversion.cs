@@ -31,7 +31,6 @@ public class LevelConversion : GameObjectConversionSystem
         Debug.Log("SetupTrains");
 
         var prefab = GetPrimaryEntity(metro.prefab_trainCarriage);
-
         var globalTrainIdx = 0;
         for (var i = 0; i < metro.metroLines.Length; i++)
         {
@@ -40,6 +39,7 @@ public class LevelConversion : GameObjectConversionSystem
             {
                 var trainSpawnerEntity = CreateAdditionalEntity(metro.transform);
                 var trainLineRef = BuildBezierPath(metroLine);
+
                 var numberOfCarriages = metroLine.carriagesPerTrain;
 
                 var trainLine = new BezierCurve { line = trainLineRef };

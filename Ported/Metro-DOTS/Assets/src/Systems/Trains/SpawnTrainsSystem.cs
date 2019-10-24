@@ -9,7 +9,7 @@ public struct SpawnTrain : IComponentData
     public Entity prefab;
     public BezierCurve line;
     public int numberOfCarriagePerTrain;
-    public int index;
+    public int trainId;
     public float carriageOffset;
     public float initialT;
 
@@ -18,7 +18,7 @@ public struct SpawnTrain : IComponentData
         prefab = m_prefab;
         line = m_Line;
         numberOfCarriagePerTrain = m_numberOfCarriagePerTrain;
-        index = m_index;
+        trainId = m_index;
         carriageOffset = m_carriageOffset;
         initialT = m_initialT;
     }
@@ -59,7 +59,8 @@ public class SpawnTrainsSystem : JobComponentSystem
                 cmdBuffer.SetComponent(index, carriage, new Translation { Value = pos });
                 cmdBuffer.SetComponent(index, carriage, new Rotation { Value = lookAt });
                 cmdBuffer.AddComponent(index, carriage, new Speed{ value = 0.02f});
-                cmdBuffer.AddComponent(index, carriage, new TrainId{ value = c0.index });
+                cmdBuffer.AddComponent(index, carriage, new TrainId{ value = c0.trainId });
+                cmdBuffer.AddComponent(index, carriage, new CarriageId{ value = i });
                 cmdBuffer.AddComponent(index, carriage, new BezierCurve{ line = c0.line.line });
                 cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = c0.initialT, renderOffset = carriageOffset});
                 carriageOffset += c0.carriageOffset;
