@@ -11,14 +11,16 @@ public struct SpawnTrain : IComponentData
     public uint numberOfCarriagePerTrain;
     public uint index;
     public float carriageOffset;
+    public float initialT;
 
-    public SpawnTrain(Entity m_prefab, TrainLine m_Line, int m_numberOfCarriagePerTrain, int m_index, float m_carriageOffset)
+    public SpawnTrain(Entity m_prefab, TrainLine m_Line, int m_numberOfCarriagePerTrain, int m_index, float m_carriageOffset, float m_initialT)
     {
         prefab = m_prefab;
         line = m_Line;
         numberOfCarriagePerTrain = (uint)m_numberOfCarriagePerTrain;
         index = (uint)m_index;
         carriageOffset = m_carriageOffset;
+        initialT = m_initialT;
     }
 }
 
@@ -44,20 +46,21 @@ public class SpawnTrainsSystem : JobComponentSystem
 
         public void Execute(Entity entity, int index, ref SpawnTrain c0)
         {
-            var offset = 0f;
+            var carriageOffset = 0f;
             for (var i = 0; i < c0.numberOfCarriagePerTrain; i++)
             {
                 var carriage = cmdBuffer.Instantiate(index, c0.prefab);
-                var pos = BezierUtils.GetPositionAtT(c0.line.line, offset);
-                var rot = BezierUtils.GetNormalAtT(c0.line.line, offset);
+                var t = c0.initialT + carriageOffset;
+                var pos = BezierUtils.GetPositionAtT(c0.line.line, t);
+                var rot = BezierUtils.GetNormalAtT(c0.line.line, t);
                 var lookAt = quaternion.LookRotation( rot, new float3(0, 1, 0));
 
                 cmdBuffer.SetComponent(index, carriage, new Translation { Value = pos });
                 cmdBuffer.SetComponent(index, carriage, new Rotation { Value = lookAt });
                 cmdBuffer.AddComponent(index, carriage, new TrainId{ value = c0.index });
                 cmdBuffer.AddComponent(index, carriage, new TrainLine{ line = c0.line.line });
-                cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = offset});
-                offset += c0.carriageOffset;
+                cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = t});
+                carriageOffset += c0.carriageOffset;
             }
 
             cmdBuffer.RemoveComponent(index, entity, typeof(SpawnTrain));

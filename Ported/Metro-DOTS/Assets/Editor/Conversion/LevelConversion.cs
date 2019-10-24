@@ -32,17 +32,23 @@ public class LevelConversion : GameObjectConversionSystem
 
         var prefab = GetPrimaryEntity(metro.prefab_trainCarriage);
 
+        var globalTrainIdx = 0;
         for (var i = 0; i < metro.metroLines.Length; i++)
         {
             var metroLine = metro.metroLines[i];
-            var trainSpawnerEntity = CreateAdditionalEntity(metro.transform);
-            var trainLineRef = BuildBezierPath(metroLine);
-            var numberOfCarriages = metroLine.carriagesPerTrain;
+            for (var trainIndex = 0; trainIndex < metroLine.maxTrains; trainIndex++)
+            {
+                var trainSpawnerEntity = CreateAdditionalEntity(metro.transform);
+                var trainLineRef = BuildBezierPath(metroLine);
+                var numberOfCarriages = metroLine.carriagesPerTrain;
 
-            var trainLine = new TrainLine { line = trainLineRef };
-            var spawnTrain = new SpawnTrain(prefab, trainLine, numberOfCarriages, i, metroLine.carriageLength_onRail);
+                var trainLine = new TrainLine { line = trainLineRef };
+                var spacing =  trainIndex * (1f / metroLine.maxTrains);
+                var spawnTrain = new SpawnTrain(prefab, trainLine, numberOfCarriages, globalTrainIdx, metroLine.carriageLength_onRail, spacing);
 
-            DstEntityManager.AddComponentData(trainSpawnerEntity, spawnTrain);
+                DstEntityManager.AddComponentData(trainSpawnerEntity, spawnTrain);
+                globalTrainIdx++;
+            }
         }
     }
 
