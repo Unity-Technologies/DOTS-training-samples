@@ -97,7 +97,7 @@ namespace HighwayRacers
 
         // Distances are in average lane space
         public QueryResult GetNearestCars(
-            float pos, float lane, float maxDistance, float carSize)
+            int carId, float pos, float lane, float maxDistance, float carSize)
         {
             int myBucket = GetBucketIndex(pos);
             float distanceInBucket = pos - (myBucket * BucketLength);
@@ -125,6 +125,8 @@ namespace HighwayRacers
                 while (bucket.MoveNext())
                 {
                     var e = bucket.Current;
+                    if (e.CarID == carId)
+                        continue; // ignore myself
                     float d = GetSignedDistanceBetweenCars(pos, e.Pos.x, carSize);
                     if (!GatherFrontDistances(e, ref result, myLane, d) && b == 0)
                         GatherRearDistances(e, ref result, myLane, d);

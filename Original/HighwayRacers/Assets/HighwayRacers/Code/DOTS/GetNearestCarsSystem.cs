@@ -28,15 +28,16 @@ namespace HighwayRacers
         }
 
         [BurstCompile]
-        struct GetNearestCarsJob : IJobForEach<ProximityData, CarState, CarSettings>
+        struct GetNearestCarsJob : IJobForEach<CarID, CarState, ProximityData, CarSettings>
         {
             [ReadOnly] public HighwaySpacePartition SpacePartition;
             [ReadOnly] public DotsHighway DotsHighway;
             public float CarSize;
 
             public void Execute(
-                ref ProximityData proximity,
+                [ReadOnly] ref CarID id,
                 [ReadOnly] ref CarState state,
+                ref ProximityData proximity,
                 [ReadOnly] ref CarSettings settings)
             {
                 float maxDistance = math.max(settings.MergeSpace, settings.LeftMergeDistance);
@@ -44,7 +45,7 @@ namespace HighwayRacers
                 var pos = DotsHighway.GetEquivalentDistance(
                     state.PositionOnTrack, state.Lane, DotsHighway.NumLanes * 0.5f);
                 proximity.data = SpacePartition.GetNearestCars(
-                    pos, state.Lane, maxDistance, CarSize);
+                    id.Value, pos, state.Lane, maxDistance, CarSize);
             }
         }
 
@@ -65,10 +66,10 @@ namespace HighwayRacers
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             SpacePartition.Create(
-                Highway.instance.length(0),
+                Highway.instance.DotsHighway.LaneLength(Highway.instance.DotsHighway.NumLanes * 0.5f),
                 Game.instance.bucketDistance,
-                Game.instance.maxNumCars,
-                Allocator.Persistent);
+                Highway.instance.NumCars,
+                Allocator.TempJob);
 
             var buildJob = new BuildSpacePartitionJob
             {
