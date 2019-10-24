@@ -33,4 +33,18 @@ public struct HandAxis : IComponentData
 public struct ArmTarget : IComponentData
 {
     public float3 Value;
+    public float LastRockSize;
+    public bool IsHolding;
+
+    public Entity TargetRock;
+    public Entity TargetCan;
+}
+
+public struct Timers : IComponentData
+{
+    public float TimeOffset;
+    
+    public float Reach;
+    public float Windup;
+    public float Throw;
 }
