@@ -10,7 +10,8 @@ using UnityEngine;
 [UpdateAfter(typeof(ArmIKSolver))]
 public class FingerIKSolver : JobComponentSystem
 {
-    private const float fingerBoneLength = 0.5f;
+    private static readonly float[] fingerBoneLength = {0.2f, 0.22f, 0.2f, 0.16f};
+
     private const float fingerBendStrength = 0.2f;
     
     private const float fingerXOffset = -0.12f;
@@ -37,7 +38,7 @@ public class FingerIKSolver : JobComponentSystem
                 // find knuckle position for this finger
                 var fingerPos = boneJoints[armOffset].JointPos + handAxis.Right * (fingerXOffset + j * fingerSpacing);
 
-                // find resting position for this fingertip
+                // find resting position for this fingertip (fingerTarget)
                 var reachTimer = 0f; // TODO add timer stuff
                 // FYI if we're holding a rock, we're always gripping
                 // fingerGrabT = 1 -> Gripping position
@@ -54,7 +55,7 @@ public class FingerIKSolver : JobComponentSystem
                 float openPalm = 0f; // TODO throwCurve.Evaluate(throwTimer);
                 fingerTarget += (handAxis.Up * .3f + handAxis.Forward * .1f + handAxis.Right * (j - 1.5f) * .1f) * openPalm ;
 
-                ConstantManager.IKSolve(ref chainPositions, fingerBoneLength,fingerPos, fingerTarget,
+                ConstantManager.IKSolve(ref chainPositions, fingerBoneLength[j],fingerPos, fingerTarget,
                     handAxis.Up*fingerBendStrength);
             
                 for (int i = 0; i < fingerJointCount; i++)
