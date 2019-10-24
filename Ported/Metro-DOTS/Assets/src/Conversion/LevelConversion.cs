@@ -23,6 +23,7 @@ public class LevelConversion : GameObjectConversionSystem
 
         SetupPlatforms(entity, metroComponent);
         SetupCommuters(entity, metroComponent);
+        SetupTrains(entity, metroComponent);
 
         Object.DestroyImmediate(Metro.GetRoot);
     }
@@ -30,6 +31,13 @@ public class LevelConversion : GameObjectConversionSystem
     void GenerateTrainTracksBezierData(Entity entity, Metro metroComponent)
     {
         Debug.Log("GenerateTrainTracksBezierData");
+    }
+
+    void SetupTrains(Entity entity, Metro metro)
+    {
+        Debug.Log("SetupTrains");
+
+        DstEntityManager.AddComponentData(entity, new SpawnTrains{  prefab = GetPrimaryEntity(metro.prefab_trainCarriage)});
     }
 
     void SetupCommuters(Entity entity, Metro metro)
