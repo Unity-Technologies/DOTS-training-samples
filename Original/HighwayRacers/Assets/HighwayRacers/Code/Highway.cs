@@ -93,14 +93,71 @@ namespace HighwayRacers
 
 		public void SetNumCars(int numCars)
         {
-            DotsHighway.SetNumCars(numCars);
+            var em = World.Active?.EntityManager;
+            if (em == null)
+                return;
+            var query = em.CreateEntityQuery(typeof(CarState));
+            var numExistingCars = query.CalculateEntityCount();
+            int delta = numCars - numExistingCars;
+            if (delta > 0)
+                AddCarEntities(delta, em);
+            else if (delta < 0)
+            {
+                var entities = query.ToEntityArray(Allocator.TempJob);
+                for (int i = 0; i < -delta; ++i)
+                    em.DestroyEntity(entities[i]);
+                entities.Dispose();
+            }
             NumCars = numCars;
         }
 
         public void ClearCars()
         {
-            DotsHighway.SetNumCars(0);
+            SetNumCars(0);
             NumCars = 0;
+        }
+
+        static int NextCarId = 1;
+        void AddCarEntities(int count, EntityManager em)
+        {
+            float lane = 0;
+            for (int i = 0; i < count; i++)
+            {
+                var entity = World.Active.EntityManager.CreateEntity();
+
+                em.AddComponentData(entity,new CarID { Value = NextCarId++ });
+                var data = new CarSettings()
+                {
+                    DefaultSpeed = Random.Range(Game.instance.defaultSpeedMin, Game.instance.defaultSpeedMax),
+                    OvertakePercent = Random.Range(Game.instance.overtakePercentMin, Game.instance.overtakePercentMax),
+                    LeftMergeDistance = Random.Range(Game.instance.leftMergeDistanceMin, Game.instance.leftMergeDistanceMax),
+                    MergeSpace = Random.Range(Game.instance.mergeSpaceMin, Game.instance.mergeSpaceMax),
+                    OvertakeEagerness = Random.Range(Game.instance.overtakeEagernessMin, Game.instance.overtakeEagernessMax),
+                };
+                em.AddComponentData(entity,data);
+
+                em.AddComponentData(entity,new CarState
+                {
+                    TargetFwdSpeed = data.DefaultSpeed,
+                    FwdSpeed = data.DefaultSpeed,
+                    LeftSpeed = 0,
+
+                    PositionOnTrack = Random.Range(0, DotsHighway.LaneLength(lane)),
+                    Lane = lane,
+                    TargetLane = 0,
+                    CurrentState = CarState.State.NORMAL
+
+                });
+                em.AddComponentData(entity,new ColorComponent());
+                em.AddComponentData(entity,new ProximityData());
+                em.AddComponentData(entity,new Translation());
+                em.AddComponentData(entity,new Rotation());
+                em.AddComponentData(entity, new LocalToWorld());
+
+                lane += 1;
+                if (lane == NUM_LANES)
+                    lane = 0;
+            }
         }
 
 		public Car GetCarAtScreenPosition(Vector3 screenPosition, float radius)
@@ -117,8 +174,23 @@ namespace HighwayRacers
 			}
 */
 			return null;
-
 		}
+
+		public Entity GetCarEntityAtScreenPosition(Vector3 screenPosition, float radius)
+        {
+            var em = World.Active?.EntityManager;
+            if (em != null)
+            {
+                var query = em.CreateEntityQuery(typeof(CarState));
+                var entities = query.ToEntityArray(Allocator.TempJob);
+                for (int i = 0; i < entities.Length; ++i)
+                {
+                    // TODO: get car screen pos and compare
+                }
+                entities.Dispose();
+            }
+            return Entity.Null;
+        }
 
         private void Awake()
         {
