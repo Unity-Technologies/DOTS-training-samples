@@ -32,7 +32,7 @@ public class FingerIKSolver : JobComponentSystem
                 NativeArray<float3> chainPositions = new NativeArray<float3>(fingerJointCount, Allocator.Temp);
                 for (var i = 0; i < fingerJointCount; i++)
                 {
-                    chainPositions[i] = boneJoints[i + j * fingerCount + armOffset].JointPos;
+                    chainPositions[i] = boneJoints[i + j * fingerJointCount + armOffset].JointPos;
                 }
                 
                 // find knuckle position for this finger
@@ -60,7 +60,7 @@ public class FingerIKSolver : JobComponentSystem
             
                 for (int i = 0; i < fingerJointCount; i++)
                 {
-                    boneJoints[i + j * fingerCount + armOffset] = new BoneJoint
+                    boneJoints[i + j * fingerJointCount + armOffset] = new BoneJoint
                     {
                         JointPos = chainPositions[i]
                     };
