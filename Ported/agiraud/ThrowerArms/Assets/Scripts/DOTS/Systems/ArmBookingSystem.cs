@@ -5,6 +5,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using static Unity.Mathematics.math;
 
 public struct ArmBookingItem
@@ -24,17 +25,18 @@ public class ArmBookingSystem : JobComponentSystem
         [ReadOnly] public NativeArray<Translation> rockPos;
         [ReadOnly] public NativeArray<Translation> canPos;
         public NativeHashMap<Entity, ArmBookingItem>.ParallelWriter chosenOnes;
-        [ReadOnly]public float reachDistance;
+        [ReadOnly]public float reachRockMaxDistance;
+        [ReadOnly]public float throwRockMaxDistance;
         public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints, ref ArmTarget armTarget)
         {
-            if (armTarget.TargetRock  != Entity.Null) 
+            if (armTarget.TargetRock != Entity.Null) 
                 return;
 
-            int nearestRockIdx = FindNearest(boneJoints[0].JointPos,ref rockPos, reachDistance);
+            int nearestRockIdx = FindNearest(boneJoints[0].JointPos,ref rockPos, reachRockMaxDistance);
             if (nearestRockIdx == -1) 
                 return;
 
-            int nearestCanIdx = FindNearest(boneJoints[0].JointPos, ref canPos);
+            int nearestCanIdx = FindNearest(boneJoints[0].JointPos, ref canPos, throwRockMaxDistance);
             if (nearestCanIdx == -1) 
                 return;
 
@@ -72,8 +74,11 @@ public class ArmBookingSystem : JobComponentSystem
     protected override void OnCreate()
     {
         m_ArmGroup = GetEntityQuery( ComponentType.ReadWrite<BoneJoint>(), ComponentType.ReadWrite<ArmTarget>());
-        m_RockGroup = GetEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadWrite<RockTag>());
-        m_CanGroup = GetEntityQuery( ComponentType.ReadOnly<Translation>(), ComponentType.ReadWrite<TinCanTag>());
+        m_RockGroup = GetEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadWrite<RockTag>(), ComponentType.ReadOnly<Reserved>());
+        Reserved r = new Reserved() { reserved = false };
+        m_RockGroup.SetFilter(r);
+        m_CanGroup = GetEntityQuery( ComponentType.ReadOnly<Translation>(), ComponentType.ReadWrite<TinCanTag>(), ComponentType.ReadOnly<Reserved>());
+        m_CanGroup.SetFilter(r);
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
@@ -95,7 +100,9 @@ public class ArmBookingSystem : JobComponentSystem
         job.rockEntities = rockEntities;
         job.canPos = canPos;
         job.rockPos = rockPos;
-        job.reachDistance = 1.8f;
+        //job.reachDistance = 1.8f;
+        job.reachRockMaxDistance = 5f;
+        job.throwRockMaxDistance = 1000f;
         job.chosenOnes = chosenOnes.AsParallelWriter();
         JobHandle selectionJh = job.Schedule(m_ArmGroup, inputDependencies);
         selectionJh.Complete();
@@ -117,13 +124,16 @@ public class ArmBookingSystem : JobComponentSystem
             {
                 alreadyUsedCan.Add(bookingInfos[i].can);
                 alreadyUsedRock.Add(bookingInfos[i].rock);
+                EntityManager.SetSharedComponentData(bookingInfos[i].rock, new Reserved { reserved = true });
+                EntityManager.SetSharedComponentData(bookingInfos[i].can, new Reserved { reserved = true });
+
+                //For debug - to be removed
                 Translation pos = EntityManager.GetComponentData<Translation>(bookingInfos[i].can);
                 EntityManager.SetComponentData(bookingInfos[i].rock, new ForceThrow() { target = pos.Value });
-                //For debug - to be removed
-                //ArmTarget target = EntityManager.GetComponentData<ArmTarget>(bookingInfos[i].arm);
-                //target.TargetCan = Entity.Null;
-                //target.TargetRock = Entity.Null;
-                //EntityManager.SetComponentData(bookingInfos[i].arm, target);
+                ArmTarget target = EntityManager.GetComponentData<ArmTarget>(bookingInfos[i].arm);
+                target.TargetCan = Entity.Null;
+                target.TargetRock = Entity.Null;
+                EntityManager.SetComponentData(bookingInfos[i].arm, target);
             }
         }
 

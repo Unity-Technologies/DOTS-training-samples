@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -16,6 +17,7 @@ public class ResetSystem : JobComponentSystem
 {
     EntityQuery m_GroupTinCan;
     EntityQuery m_GroupRock;
+    EntityQuery m_ReservedResetGroup;
 
     [BurstCompile]
     struct RandomResetPositionJob : IJobForEachWithEntity<Translation, Physics, ResetPosition, Scale, Rotation>
@@ -52,6 +54,8 @@ public class ResetSystem : JobComponentSystem
                                      ComponentType.ReadWrite<Translation>(),
                                      ComponentType.ReadWrite<Rotation>(),
                                      ComponentType.ReadWrite<Scale>());
+
+        m_ReservedResetGroup = GetEntityQuery(ComponentType.ReadWrite<Reserved>(), ComponentType.ReadOnly<ResetPosition>());
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -73,6 +77,13 @@ public class ResetSystem : JobComponentSystem
             rd = new Random((uint)Environment.TickCount),
         };
 
+        Reserved r = new Reserved() { reserved = false };
+        NativeArray<Entity> removeReserved = m_ReservedResetGroup.ToEntityArray(Allocator.TempJob);
+        foreach (Entity entity in removeReserved)
+        {
+            EntityManager.SetSharedComponentData(entity, r);
+        }
+        removeReserved.Dispose();
         var jh1 = job1.Schedule(m_GroupRock, inputDeps);
         var jh2 = job2.Schedule(m_GroupTinCan, jh1);
         return jh2;

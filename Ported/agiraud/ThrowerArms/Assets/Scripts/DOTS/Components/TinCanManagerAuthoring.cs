@@ -32,9 +32,7 @@ public class TinCanManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, 
         // Start with scale 0 and grow the can
         dstManager.AddComponentData(entityPrefab, new Scale { Value = 0.0f });
         dstManager.AddComponentData(entityPrefab, new Physics { velocity = velocity, angularVelocity = float3.zero, flying = false, GravityStrength = TinCanGravityStrength });
-        // TODO Add tag and Angular Velocity components only when hit
-        // TODO: angular velocity should be init to : can.angularVelocity = Random.onUnitSphere * rockVelocity.magnitude * 40f;
-        // dstManager.AddComponentData(entityPrefab, new FlyingTag());
+        dstManager.AddSharedComponentData(entityPrefab, new Reserved());
 
         var spawnerData = new SpawnerData
         {
