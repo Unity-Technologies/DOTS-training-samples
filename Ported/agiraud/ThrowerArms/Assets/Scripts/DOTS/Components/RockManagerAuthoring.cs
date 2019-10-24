@@ -32,7 +32,7 @@ public class RockManagerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IC
         dstManager.AddComponentData(entityPrefab, new Scale { Value = 1.0f });
         dstManager.AddComponentData(entityPrefab, new ResetPosition { needReset = true });
         dstManager.AddComponentData(entityPrefab, new Physics { velocity = velocity, angularVelocity = float3.zero, flying = false, GravityStrength = RockGravityStrength});
-
+        dstManager.AddComponentData(entityPrefab, new ForceThrow());
         // TODO: only add this component when rock is thrown
         // dstManager.AddComponentData(entityPrefab, new FlyingTag());
 

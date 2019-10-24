@@ -5,65 +5,34 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEditor;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
+
 
 [UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
 [UpdateBefore(typeof(PhysicsSystem))]
 public class ThrowSystem : JobComponentSystem
 {
     EntityQuery m_group;
-    EntityQuery m_CansQuery;
 
     [BurstCompile]
-    struct GenerateTargetCanArrayJob : IJobForEachWithEntity<Translation>
+    struct FindTargetAndThrowSystemJob : IJobForEachWithEntity<Physics, Translation, ForceThrow>
     {
-        public NativeHashMap<Entity, float3>.ParallelWriter targets;
-
-        public void Execute(Entity entity, int index, ref Translation position)
-        {
-            targets.TryAdd(entity, position.Value);
-        }
-    }
-
-    [BurstCompile]
-    struct FindTargetAndThrowSystemJob : IJobForEachWithEntity<Physics, Translation>
-    {
-        [ReadOnly] public float deltaTime;
-        public Random rd;
-        [ReadOnly] public float probability;
         [ReadOnly] public float gravityStrenth;
         [ReadOnly] public float3 CanVelocity;
-        [ReadOnly]public NativeArray<float3> targets;
 
-        public void Execute(Entity entity, int index, ref Physics physics, [ReadOnly] ref Translation translation)
+        public void Execute(Entity entity, int index, ref Physics physics, [ReadOnly] ref Translation translation, ref ForceThrow forcethrow)
         {
             if (physics.flying) return;
-            if (rd.NextFloat(0, 100) < probability)
-            {
-                float3 nearestTarget = FindNearestTarget(ref translation.Value, ref targets);
-                physics.velocity = AimAtCan(ref nearestTarget, CanVelocity, ref translation.Value, 20f);
-                physics.flying = true;
-            }
+            if (math.abs(forcethrow.target.x) < 0.01f && math.abs(forcethrow.target.y) < 0.01f && math.abs(forcethrow.target.z) < 0.01f) return;
+
+            physics.velocity = AimAtCan(ref forcethrow.target, CanVelocity, ref translation.Value, 20f);
+            physics.flying = true;
+            forcethrow.target = float3.zero;
         }
 
-        float3 FindNearestTarget(ref float3 translationValue, ref NativeArray<float3> targets)
-        {
-            float nearestDistance = math.lengthsq(translationValue - targets[0]);
-            float3 nearestTarget = targets[0];
-            for (int i = 1; i < targets.Length; i++)
-            {
-                float dist = math.lengthsq(translationValue - targets[i]);
-                if (dist < nearestDistance)
-                {
-                    nearestDistance = dist;
-                    nearestTarget = targets[i];
-                }
-            }
-            return nearestTarget;
-        }
-
-        public float3 AimAtCan(ref float3 canPosition, float3 canVelocity, ref float3 startPos, float baseThrowSpeed)
+        float3 AimAtCan(ref float3 canPosition, float3 canVelocity, ref float3 startPos, float baseThrowSpeed)
         {
 
             // predictive aiming based on this article by Kain Shin:
@@ -124,38 +93,17 @@ public class ThrowSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var rockCount = m_CansQuery.CalculateEntityCount();
-        if (rockCount == 0)
-            return inputDeps;
-
-        var jobArray = new GenerateTargetCanArrayJob();
-        var targetHashMap = new NativeHashMap<Entity, float3>(rockCount, Allocator.TempJob);
-        jobArray.targets = targetHashMap.AsParallelWriter();
-        jobArray.Schedule(m_CansQuery, inputDeps).Complete();
-
         var job = new FindTargetAndThrowSystemJob();
-        job.deltaTime = Time.deltaTime;
-        job.rd = new Random((uint)Environment.TickCount);
-        job.probability = 1f;
         job.gravityStrenth = RockManagerAuthoring.RockGravityStrength;
         job.CanVelocity = SceneParameters.Instance.TinCanInitialVelocity;
-        job.targets = targetHashMap.GetValueArray(Allocator.TempJob);
 
         var jobHandle = job.Schedule(m_group, inputDeps);
-        jobHandle.Complete();
-
-        targetHashMap.Dispose();
-        job.targets.Dispose();
-
-        return inputDeps;
+        return jobHandle;
     }
 
     protected override void OnCreate()
     {
-        m_CansQuery = GetEntityQuery(new EntityQueryDesc
-        {
-            All = new[] { ComponentType.ReadOnly<TinCanTag>(), ComponentType.ReadOnly<Translation>(), ComponentType.ReadWrite<Physics>() },
-        });
-        m_group = GetEntityQuery(ComponentType.ReadWrite<Physics>(), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<RockTag>());
+        m_group = GetEntityQuery(ComponentType.ReadWrite<Physics>(), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<RockTag>(), ComponentType.ReadWrite<ForceThrow>());
     }
 }
+
