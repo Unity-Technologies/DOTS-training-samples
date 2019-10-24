@@ -32,12 +32,17 @@ class WalkTransitionSystem : JobComponentSystem
 
         public void Execute(Entity entity, int jobIndex,
             [ReadOnly] ref PlatformId platformId,
-            [ReadOnly] ref CurrentPathIndex pathIndex,
+            ref CurrentPathIndex pathIndex,
             [ReadOnly] ref PathLookup pathLookup)
         {
             var path = pathLookup.value.Value.paths[pathIndex.pathLookupIdx];
             if (platformId.value == path.connections[pathIndex.connectionIdx].destinationPlatformId)
             {
+                ++pathIndex.connectionIdx;
+                if (pathIndex.connectionIdx >= path.connections.Length) 
+                {
+                    //TODO Depawn commuter
+                }
                 commandBuffer.RemoveComponent<WALK>(jobIndex, entity);
                 commandBuffer.AddComponent<QUEUE>(jobIndex, entity);
             }

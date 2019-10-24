@@ -2,6 +2,8 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
+using Unity.Transforms;
 
 [UpdateInGroup(typeof(TransitionSystemGroup))]
 class QueueTransitionSystem : JobComponentSystem
@@ -19,9 +21,11 @@ class QueueTransitionSystem : JobComponentSystem
                 All = new[]
                 {
                     ComponentType.ReadOnly<LOADING>(),
-                    ComponentType.ReadOnly<PlatformId>()
+                    ComponentType.ReadOnly<PlatformId>(),
+                    ComponentType.ReadOnly<TrainId>(),
+                    ComponentType.ReadOnly<Translation>()
                 }
-            });
+            });;
 
         m_QueueingQuery = GetEntityQuery(
             new EntityQueryDesc
@@ -29,20 +33,35 @@ class QueueTransitionSystem : JobComponentSystem
                 All = new[]
                 {
                     ComponentType.ReadOnly<QUEUE>(),
-                    ComponentType.ReadOnly<PlatformId>()
+                    ComponentType.ReadOnly<PlatformId>(),
+                    ComponentType.ReadWrite<TrainId>(),
+                    ComponentType.ReadWrite<TargetPosition>()
                 }
             });
     }
 
+    struct TrainToPlatformPosition
+    {
+        public int trainID;
+        public int platformID;
+        public float3 trainPosition;
+
+        public TrainToPlatformPosition(int trainID, int platformID, float3 trainPosition)
+        {
+            this.trainID = trainID;
+            this.platformID = platformID;
+            this.trainPosition = trainPosition;
+        }
+    }
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var loadingStationIDsCount = m_LoadingStationsQuery.CalculateEntityCount();
-        var loadingStationIDs = new NativeArray<uint>(loadingStationIDsCount, Allocator.TempJob);
+        var loadingTrains = new NativeArray<TrainToPlatformPosition>(loadingStationIDsCount, Allocator.TempJob);
 
         // Step 1. Get all the indices of entities that are tagged with LOADING
         var copyJob = new CopyLoadingStationIDs
         {
-            outputBuffer = loadingStationIDs
+            outputBuffer = loadingTrains
         };
 
         var copyJobHandle = copyJob.Schedule(m_LoadingStationsQuery, inputDeps);
@@ -51,7 +70,7 @@ class QueueTransitionSystem : JobComponentSystem
         // stored entities that are LOADING.
         var job = new ApplyQueueTransition
         {
-            inputBuffer = loadingStationIDs,
+            inputBuffer = loadingTrains,
             commandBuffer = m_CommandBufferSystem.CreateCommandBuffer().ToConcurrent()
         };
 
@@ -62,36 +81,41 @@ class QueueTransitionSystem : JobComponentSystem
 
 
     [BurstCompile]
-    struct CopyLoadingStationIDs : IJobForEachWithEntity<PlatformId>
+    struct CopyLoadingStationIDs : IJobForEachWithEntity<PlatformId, TrainId, TargetPosition>
     {
         [WriteOnly]
-        public NativeArray<uint> outputBuffer;
-
-        public void Execute(Entity entity, int jobIndex, ref PlatformId platformID)
+        public NativeArray<TrainToPlatformPosition> outputBuffer;
+        public void Execute(Entity entity, int jobIndex, ref PlatformId platformID, ref TrainId trainId, ref TargetPosition trainPosition)
         {
-            outputBuffer[jobIndex] = platformID.value;
+            outputBuffer[jobIndex] = new TrainToPlatformPosition(trainId.value, platformID.value, trainPosition.value);
         }
     }
 
-    struct ApplyQueueTransition : IJobForEachWithEntity<PlatformId>
+    struct ApplyQueueTransition : IJobForEachWithEntity<PlatformId, TrainId, TargetPosition>
     {
         [DeallocateOnJobCompletion]
-        public NativeArray<uint> inputBuffer;
+        public NativeArray<TrainToPlatformPosition> inputBuffer;
         public EntityCommandBuffer.Concurrent commandBuffer;
 
-        public void Execute(Entity entity, int jobIndex, [ReadOnly] ref PlatformId platformID)
+        public void Execute(Entity entity, int jobIndex, [ReadOnly] ref PlatformId platformID, ref TrainId trainId, ref TargetPosition seatPosition)
         {
-            var found = false;
+            int trainIndex = -1;
             for (int i = 0; i < inputBuffer.Length; ++i)
-                found = found || inputBuffer[i] == platformID.value;
-
-            if (!found)
+            {
+                if(inputBuffer[i].platformID == platformID.value)
+                {
+                    trainIndex = i;
+                }
+            }
+            if (trainIndex < 0)
                 return;
 
             var ableToGetOn = true; // TODO: Implement
             if (!ableToGetOn)
                 return;
 
+            trainId.value = inputBuffer[trainIndex].trainID;
+            seatPosition.value = inputBuffer[trainIndex].trainPosition; // Currently assign TargetPosition to train position
             commandBuffer.RemoveComponent<QUEUE>(jobIndex, entity);
             commandBuffer.AddComponent<GET_ON_TRAIN>(jobIndex, entity);
         }

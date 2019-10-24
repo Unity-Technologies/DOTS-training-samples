@@ -49,7 +49,7 @@ public class SpawnPlatformsSystem : JobComponentSystem
                 var rot = c1.value.Value.rotations[i];
                 cmdBuffer.SetComponent(index, platform, new Translation{ Value = translation });
                 cmdBuffer.SetComponent(index, platform, new Rotation{ Value = rot });
-                cmdBuffer.AddComponent(index, platform, new PlatformId{ value = (uint)i });
+                cmdBuffer.AddComponent(index, platform, new PlatformId{ value = (int)i });
                 cmdBuffer.AddComponent(index, platform, new PlatformTag());
             }
             cmdBuffer.RemoveComponent(index, entity, typeof(SpawnPlatforms));

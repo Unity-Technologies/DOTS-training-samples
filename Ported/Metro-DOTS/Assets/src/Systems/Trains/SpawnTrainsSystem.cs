@@ -8,8 +8,8 @@ public struct SpawnTrain : IComponentData
 {
     public Entity prefab;
     public BezierCurve line;
-    public uint numberOfCarriagePerTrain;
-    public uint index;
+    public int numberOfCarriagePerTrain;
+    public int index;
     public float carriageOffset;
     public float initialT;
 
@@ -17,8 +17,8 @@ public struct SpawnTrain : IComponentData
     {
         prefab = m_prefab;
         line = m_Line;
-        numberOfCarriagePerTrain = (uint)m_numberOfCarriagePerTrain;
-        index = (uint)m_index;
+        numberOfCarriagePerTrain = m_numberOfCarriagePerTrain;
+        index = m_index;
         carriageOffset = m_carriageOffset;
         initialT = m_initialT;
     }

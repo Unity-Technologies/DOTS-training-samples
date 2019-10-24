@@ -7,18 +7,18 @@ using Unity.Jobs;
 class GetOnTrainTransitionSystem : JobComponentSystem
 {
     EntityCommandBufferSystem m_CommandBufferSystem;
-    EntityQuery m_ClosingDoorsQuery;
+    EntityQuery m_loadingQuery;
     EntityQuery m_GettingOnQuery;
 
     protected override void OnCreate()
     {
         m_CommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-        m_ClosingDoorsQuery = GetEntityQuery(
+        m_loadingQuery = GetEntityQuery(
             new EntityQueryDesc
             {
                 All = new[]
                 {
-                    ComponentType.ReadOnly<DOORS_CLOSE>(),
+                    ComponentType.ReadOnly<LOADING>(),
                     ComponentType.ReadOnly<TrainId>()
                 }
             });
@@ -29,29 +29,30 @@ class GetOnTrainTransitionSystem : JobComponentSystem
                 All = new[]
                 {
                     ComponentType.ReadOnly<GET_ON_TRAIN>(),
-                    ComponentType.ReadOnly<TrainId>()
+                    ComponentType.ReadOnly<TrainId>(),
+                    ComponentType.ReadOnly<DistanceToTarget>()
                 }
             });
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var closingDoorsEntitiesCount = m_ClosingDoorsQuery.CalculateEntityCount();
-        var closingDoorsIDs = new NativeArray<uint>(closingDoorsEntitiesCount, Allocator.TempJob);
+        var loadingEntitiesCount = m_loadingQuery.CalculateEntityCount();
+        var loadingTrainIDs = new NativeArray<int>(loadingEntitiesCount, Allocator.TempJob);
 
         // Step 1. Get all the indices of entities that are tagged with LOADING
         var copyJob = new CopyClosingDoorsIDs
         {
-            outputBuffer = closingDoorsIDs
+            outputBuffer = loadingTrainIDs
         };
 
-        var copyJobHandle = copyJob.Schedule(m_ClosingDoorsQuery, inputDeps);
+        var copyJobHandle = copyJob.Schedule(m_loadingQuery, inputDeps);
 
         // Step 2. Compare every entity tagged with QUEUE on their PlatformId with all the
         // stored entities that are LOADING.
         var job = new ApplyGetOnTrainTransition
         {
-            inputBuffer = closingDoorsIDs,
+            inputBuffer = loadingTrainIDs,
             commandBuffer = m_CommandBufferSystem.CreateCommandBuffer().ToConcurrent()
         };
 
@@ -64,7 +65,7 @@ class GetOnTrainTransitionSystem : JobComponentSystem
     struct CopyClosingDoorsIDs : IJobForEachWithEntity<TrainId>
     {
         [WriteOnly]
-        public NativeArray<uint> outputBuffer;
+        public NativeArray<int> outputBuffer;
 
         public void Execute(Entity entity, int jobIndex, ref TrainId trainId)
         {
@@ -72,14 +73,17 @@ class GetOnTrainTransitionSystem : JobComponentSystem
         }
     }
 
-    struct ApplyGetOnTrainTransition : IJobForEachWithEntity<TrainId>
+    struct ApplyGetOnTrainTransition : IJobForEachWithEntity<TrainId, DistanceToTarget>
     {
         [DeallocateOnJobCompletion]
-        public NativeArray<uint> inputBuffer;
+        public NativeArray<int> inputBuffer;
         public EntityCommandBuffer.Concurrent commandBuffer;
 
-        public void Execute(Entity entity, int jobIndex, [ReadOnly] ref TrainId trainId)
+        public void Execute(Entity entity, int jobIndex, [ReadOnly] ref TrainId trainId, ref DistanceToTarget distanceToSeat)
         {
+            if (distanceToSeat.value > 1)
+                return;
+
             var found = false;
             for (int i = 0; i < inputBuffer.Length; ++i)
                 found = found || inputBuffer[i] == trainId.value;
