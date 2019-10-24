@@ -33,14 +33,13 @@ public class SpawnCommuterSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var trs = m_PlatformPosQuery.ToEntityArray(Allocator.TempJob);
-        var tr = EntityManager.GetComponentData<PlatformTransforms>(trs.First());
+        PlatformTransforms tr;
+        using (var trs = m_PlatformPosQuery.ToEntityArray(Allocator.TempJob))
+            tr = EntityManager.GetComponentData<PlatformTransforms>(trs.First());
 
-        var pathLookupEntities = m_PathLookupQuery.ToEntityArray(Allocator.TempJob);
-        var pathLookup = EntityManager.GetComponentData<PathLookup>(pathLookupEntities.First());
-
-        trs.Dispose();
-        pathLookupEntities.Dispose();
+        PathLookup pathLookup;
+        using (var pathLookupEntities = m_PathLookupQuery.ToEntityArray(Allocator.TempJob))
+            pathLookup = EntityManager.GetComponentData<PathLookup>(pathLookupEntities.First());
 
         var job = new SpawnCommutersJob { cmdBuffer = m_Barrier.CreateCommandBuffer().ToConcurrent(), trs = tr, lookup = pathLookup}.Schedule(this, inputDeps);
         m_Barrier.AddJobHandleForProducer(job);
@@ -66,7 +65,7 @@ public class SpawnCommuterSystem : JobComponentSystem
                 var platformPos = trs.value.Value.translations[platformId];
                 cmdBuffer.SetComponent(index, commuter, new Translation { Value = platformPos});
                 cmdBuffer.AddComponent(index, commuter, new PlatformId { value = (uint)platformId });
-                cmdBuffer.AddComponent(index, commuter, new CurrentPathIndex{ index = 0 });
+                cmdBuffer.AddComponent(index, commuter, new CurrentPathIndex{ pathLookupIdx = randomLookup, connectionIdx = 0 });
                 cmdBuffer.AddComponent(index, commuter, lookup);
             }
             cmdBuffer.RemoveComponent(index, entity, typeof(SpawnCommuters));

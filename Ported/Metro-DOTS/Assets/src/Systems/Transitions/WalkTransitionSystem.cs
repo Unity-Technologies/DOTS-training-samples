@@ -35,7 +35,8 @@ class WalkTransitionSystem : JobComponentSystem
             [ReadOnly] ref CurrentPathIndex pathIndex,
             [ReadOnly] ref PathLookup pathLookup)
         {
-            if (platformId.value == pathLookup.value.Value.paths[pathIndex.index].toPlatformId)
+            var path = pathLookup.value.Value.paths[pathIndex.pathLookupIdx];
+            if (platformId.value == path.connections[pathIndex.connectionIdx].destinationPlatformId)
             {
                 commandBuffer.RemoveComponent<WALK>(jobIndex, entity);
                 commandBuffer.AddComponent<QUEUE>(jobIndex, entity);

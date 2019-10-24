@@ -13,7 +13,8 @@ public struct PlatformId : IComponentData
 
 public struct CurrentPathIndex : IComponentData
 {
-    public int index;
+    public int pathLookupIdx;
+    public int connectionIdx;
 }
 
 public struct Direction : IComponentData
