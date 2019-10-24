@@ -32,17 +32,23 @@ public class LevelConversion : GameObjectConversionSystem
 
         var prefab = GetPrimaryEntity(metro.prefab_trainCarriage);
 
+        var globalTrainIdx = 0;
         for (var i = 0; i < metro.metroLines.Length; i++)
         {
             var metroLine = metro.metroLines[i];
-            var trainSpawnerEntity = CreateAdditionalEntity(metro.transform);
-            var trainLineRef = BuildBezierPath(metroLine);
-            var numberOfCarriages = (uint)metroLine.carriagesPerTrain;
+            for (var trainIndex = 0; trainIndex < metroLine.maxTrains; trainIndex++)
+            {
+                var trainSpawnerEntity = CreateAdditionalEntity(metro.transform);
+                var trainLineRef = BuildBezierPath(metroLine);
+                var numberOfCarriages = metroLine.carriagesPerTrain;
 
-            var trainLine = new TrainLine { line = trainLineRef };
-            var spawnTrain = new SpawnTrain { line = trainLine, numberOfCarriagePerTrain = numberOfCarriages, prefab = prefab, index = (uint)i};
+                var trainLine = new BezierCurve { line = trainLineRef };
+                var spacing =  trainIndex * (1f / metroLine.maxTrains);
+                var spawnTrain = new SpawnTrain(prefab, trainLine, numberOfCarriages, globalTrainIdx, metroLine.carriageLength_onRail, spacing);
 
-            DstEntityManager.AddComponentData(trainSpawnerEntity, spawnTrain);
+                DstEntityManager.AddComponentData(trainSpawnerEntity, spawnTrain);
+                globalTrainIdx++;
+            }
         }
     }
 
@@ -56,9 +62,11 @@ public class LevelConversion : GameObjectConversionSystem
             for (var pt = 0; pt < metroLine.bezierPath.points.Count; pt++)
             {
                 var bezierPt = metroLine.bezierPath.points[pt];
-                lineBuilder[pt] = new BezierPt(bezierPt.index, bezierPt.location, bezierPt.handle_in, bezierPt.handle_out);
+                lineBuilder[pt] = new BezierPt(bezierPt.index, bezierPt.location, bezierPt.handle_in, bezierPt.handle_out, bezierPt.distanceAlongPath);
             }
-            return builder.CreateBlobAssetReference<Curve>(Allocator.Persistent);
+            var assetRef = builder.CreateBlobAssetReference<Curve>(Allocator.Persistent);
+            assetRef.Value.distance = metroLine.bezierPath.GetPathDistance();
+            return assetRef;
         }
     }
 

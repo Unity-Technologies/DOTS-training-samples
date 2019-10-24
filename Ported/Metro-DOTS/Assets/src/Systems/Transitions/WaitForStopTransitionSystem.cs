@@ -65,10 +65,10 @@ class WaitForStopTransitionSystem : JobComponentSystem
 
     struct TrainToPlatform
     {
-        public uint trainID;
-        public uint platformID;
+        public int trainID;
+        public int platformID;
 
-        public TrainToPlatform(uint trainID, uint platformID)
+        public TrainToPlatform(int trainID, int platformID)
         {
             this.trainID = trainID;
             this.platformID = platformID;
@@ -104,6 +104,11 @@ class WaitForStopTransitionSystem : JobComponentSystem
                 {
                     if (inputBuffer[i].platformID == pathLookup.value.Value.paths[pathIndex.connectionIdx].toPlatformId)
                     {
+                        ++pathIndex.connectionIdx;
+                        if (pathIndex.connectionIdx >= pathLookup.value.Value.paths.Length)
+                        {
+                            //TODO Depawn commuter
+                        }
                         commandBuffer.RemoveComponent<WAIT_FOR_STOP>(jobIndex, entity);
                         commandBuffer.AddComponent<GET_OFF_TRAIN>(jobIndex, entity);
                     }

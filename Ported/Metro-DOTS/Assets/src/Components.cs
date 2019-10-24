@@ -3,12 +3,12 @@ using Unity.Mathematics;
 
 public struct TrainId : IComponentData
 {
-    public uint value;
+    public int value;
 }
 
 public struct PlatformId : IComponentData
 {
-    public uint value;
+    public int value;
 }
 
 public struct CurrentPathIndex : IComponentData
@@ -37,7 +37,7 @@ public struct DistanceToTarget : IComponentData
     public float value;
 }
 
-public struct TrainLine : IComponentData
+public struct BezierCurve : IComponentData
 {
     public BlobAssetReference<Curve> line;
 }
@@ -55,13 +55,13 @@ public struct BezierPt
     public float3 location, handle_in, handle_out;
     public float distanceAlongPath;
 
-    public BezierPt(int idx, float3 _location, float3 _handle_in, float3 _handle_out)
+    public BezierPt(int idx, float3 _location, float3 _handle_in, float3 _handle_out, float distance)
     {
         index = idx;
         location = _location;
         handle_in = _handle_in;
         handle_out = _handle_out;
-        distanceAlongPath = 0;
+        distanceAlongPath = distance;
     }
 }
 
