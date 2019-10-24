@@ -88,7 +88,7 @@ public class ArmSpawnerSystem : ComponentSystem
                 // Set anchor value
                 jointBuf[0] = new BoneJoint
                 {
-                    JointPos = new float3(SceneParameters.Instance.RockSpawnBoxMin.x + i * armSpacing, 0, -2.0f)
+                    JointPos = new float3(SceneParameters.Instance.RockSpawnBoxMin.x + i * armSpacing, 0, -0.8f)
                 };
 
                 EntityManager.SetComponentData(armEntity, new HandAxis{ Up = math.up() });

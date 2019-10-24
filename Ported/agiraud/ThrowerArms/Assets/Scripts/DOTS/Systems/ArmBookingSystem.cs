@@ -104,8 +104,7 @@ public class ArmBookingSystem : JobComponentSystem
         job.rockEntities = rockEntities;
         job.canPos = canPos;
         job.rockPos = rockPos;
-        //job.reachDistance = 1.8f;
-        job.reachRockMaxDistance = 5f;
+        job.reachRockMaxDistance = 1.8f;
         job.throwRockMaxDistance = 1000f;
         job.canReserved = canReseved;
         job.rockReserved = rockReseved;
