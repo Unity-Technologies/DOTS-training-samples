@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Rendering;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -128,11 +128,11 @@ namespace HighwayRacers
                 em.AddComponentData(entity,new CarID { Value = NextCarId++ });
                 var data = new CarSettings()
                 {
-                    DefaultSpeed = Random.Range(Game.instance.defaultSpeedMin, Game.instance.defaultSpeedMax),
-                    OvertakePercent = Random.Range(Game.instance.overtakePercentMin, Game.instance.overtakePercentMax),
-                    LeftMergeDistance = Random.Range(Game.instance.leftMergeDistanceMin, Game.instance.leftMergeDistanceMax),
-                    MergeSpace = Random.Range(Game.instance.mergeSpaceMin, Game.instance.mergeSpaceMax),
-                    OvertakeEagerness = Random.Range(Game.instance.overtakeEagernessMin, Game.instance.overtakeEagernessMax),
+                    DefaultSpeed = UnityEngine.Random.Range(Game.instance.defaultSpeedMin, Game.instance.defaultSpeedMax),
+                    OvertakePercent = UnityEngine.Random.Range(Game.instance.overtakePercentMin, Game.instance.overtakePercentMax),
+                    LeftMergeDistance = UnityEngine.Random.Range(Game.instance.leftMergeDistanceMin, Game.instance.leftMergeDistanceMax),
+                    MergeSpace = UnityEngine.Random.Range(Game.instance.mergeSpaceMin, Game.instance.mergeSpaceMax),
+                    OvertakeEagerness = UnityEngine.Random.Range(Game.instance.overtakeEagernessMin, Game.instance.overtakeEagernessMax),
                 };
                 em.AddComponentData(entity,data);
 
@@ -142,7 +142,7 @@ namespace HighwayRacers
                     FwdSpeed = data.DefaultSpeed,
                     LeftSpeed = 0,
 
-                    PositionOnTrack = Random.Range(0, DotsHighway.LaneLength(lane)),
+                    PositionOnTrack = UnityEngine.Random.Range(0, DotsHighway.LaneLength(lane)),
                     Lane = lane,
                     TargetLane = 0,
                     CurrentState = CarState.State.NORMAL
@@ -160,24 +160,9 @@ namespace HighwayRacers
             }
         }
 
-		public Car GetCarAtScreenPosition(Vector3 screenPosition, float radius)
+		public Entity GetCarAtScreenPosition(Vector3 screenPosition, float radius)
         {
-/*
-			foreach (Car car in cars) {
-				Vector3 carScreenPos = Camera.main.WorldToScreenPoint(car.transform.position);
-				carScreenPos.z = screenPosition.z;
-
-				if (Vector3.Distance (screenPosition, carScreenPos) <= radius) {
-					return car;
-				}
-
-			}
-*/
-			return null;
-		}
-
-		public Entity GetCarEntityAtScreenPosition(Vector3 screenPosition, float radius)
-        {
+            var result = Entity.Null;
             var em = World.Active?.EntityManager;
             if (em != null)
             {
@@ -185,11 +170,20 @@ namespace HighwayRacers
                 var entities = query.ToEntityArray(Allocator.TempJob);
                 for (int i = 0; i < entities.Length; ++i)
                 {
-                    // TODO: get car screen pos and compare
+                    var state = em.GetComponentData<CarState>(entities[i]);
+                    DotsHighway.GetWorldPosition(
+                        state.PositionOnTrack, state.Lane, out float3 pos, out quaternion rot);
+                    Vector3 carScreenPos = Camera.main.WorldToScreenPoint(new Vector3(pos.x, pos.y, pos.z));
+                    carScreenPos.z = 0;
+				    if (Vector3.Distance (screenPosition, carScreenPos) <= radius)
+                    {
+					    result = entities[i];
+                        break;
+                    }
                 }
                 entities.Dispose();
             }
-            return Entity.Null;
+            return result;
         }
 
         private void Awake()

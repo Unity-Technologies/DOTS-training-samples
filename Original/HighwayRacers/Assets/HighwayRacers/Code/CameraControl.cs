@@ -2,20 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace HighwayRacers {
 
 	public class CameraControl : MonoBehaviour {
-		
+
 		public Rect bounds;
 		public float moveSpeed = 20;
 		public float transitionDuration = 3;
+
+        public Vector3 CarCameraOffset = new Vector3(0, 1, -3);
 
 		Vector3 topDownPosition = new Vector3();
 		Quaternion topDownRotation = new Quaternion();
 		Vector3 carPosition = new Vector3();
 		Quaternion carRotation = new Quaternion();
-		Car carRef = null;
+		Entity carRef = Entity.Null;
 
 		public static CameraControl instance { get; private set; }
 
@@ -28,23 +31,22 @@ namespace HighwayRacers {
 		public State state { get; private set; }
 		private float time = 0;
 
-		public void ToCarView(Car car){
+		public void ToCarView(Entity car)
+        {
 			carRef = car;
 			state = State.TO_CAR;
 			time = 0;
 			topDownPosition = transform.position;
 			topDownRotation = transform.rotation;
-			carPosition = carRef.cameraPos.position;
-			carRotation = carRef.cameraPos.rotation;
 		}
 
-		public void ToTopDownView() {
+		public void ToTopDownView()
+        {
 			if (state != State.CAR)
 				return;
 			state = State.TO_TOP_DOWN;
 			time = 0;
-			carRef.Show();
-			carRef = null;
+			carRef = Entity.Null;
 		}
 
 		void Awake() {
@@ -62,14 +64,15 @@ namespace HighwayRacers {
 			topDownRotation = transform.rotation;
 
 		}
-		
-		// Update is called once per frame
-		void Update () {
 
+		// Update is called once per frame
+		void LateUpdate ()
+        {
 			float dt = Time.unscaledDeltaTime;
 			time += dt;
 
-			switch (state) {
+			switch (state)
+            {
 
 			case State.TOP_DOWN:
 
@@ -101,25 +104,31 @@ namespace HighwayRacers {
 
 			case State.TO_CAR:
 			case State.CAR:
+            {
+                var em = World.Active?.EntityManager;
+                if (em == null || carRef == Entity.Null)
+                    break;
+                var carState = em.GetComponentData<CarState>(carRef);
+                Highway.instance.DotsHighway.GetWorldPosition(
+                    carState.PositionOnTrack, carState.Lane, out float3 pos, out quaternion rot);
+                pos += math.mul(rot, CarCameraOffset);
+				carPosition = pos;
+				carRotation = rot;
 
-				carPosition = carRef.cameraPos.position;
-				carRotation = carRef.cameraPos.rotation;
-
-				if (time >= transitionDuration || state == State.CAR) {
-					if (state == State.TO_CAR) {
+				if (time >= transitionDuration || state == State.CAR)
+                {
+					if (state == State.TO_CAR)
 						state = State.CAR;
-						carRef.Hide();
-					}
 					transform.position = carPosition;
 					transform.rotation = carRotation;
-				} else {
-
+				}
+                else
+                {
 					transform.position = Vector3.Lerp(topDownPosition, carPosition, time / transitionDuration);
 					transform.rotation = Quaternion.Slerp(topDownRotation, carRotation, time / transitionDuration);
-
 				}
-
 				break;
+            }
 
 			case State.TO_TOP_DOWN:
 
@@ -128,7 +137,7 @@ namespace HighwayRacers {
 
 				if (time >= transitionDuration || state == State.CAR) {
 					state = State.TOP_DOWN;
-				} 
+				}
 				break;
 
 			}

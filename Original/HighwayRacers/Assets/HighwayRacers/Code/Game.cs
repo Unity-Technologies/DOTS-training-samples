@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities;
 using UnityEngine;
 
 namespace HighwayRacers
@@ -77,18 +78,21 @@ namespace HighwayRacers
 			CameraControl.instance.ToTopDownView();
 		}
 
-		public void CarView(Car car){
+		public void CarView(Entity car)
+        {
 			viewState = ViewState.CAR;
 			HighwayOptions.instance.Hide();
 			CarProperties.instance.Show(car);
 			CameraControl.instance.ToCarView(car);
 		}
 
-		public void SelectCarAtMousePosition(){
+		public void SelectCarAtMousePosition()
+        {
 			if (CameraControl.instance.state != CameraControl.State.TOP_DOWN)
 				return; // can only select in top down mode
-			Car car = Highway.instance.GetCarAtScreenPosition(Input.mousePosition, carSelectRadius);
-			if (car != null) {
+
+			var car = Highway.instance.GetCarAtScreenPosition(Input.mousePosition, carSelectRadius);
+			if (car != Entity.Null) {
 				CarView(car);
 			}
 		}

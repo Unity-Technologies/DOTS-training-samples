@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities;
 using UnityEngine;
 
 namespace HighwayRacers {
@@ -17,10 +18,11 @@ namespace HighwayRacers {
 
 		public void Hide(){
 			gameObject.SetActive(false);
-			selectedCar = null;
+			selectedCar = Entity.Null;
 		}
 
-		public void Show(Car car) {
+		public void Show(Entity car)
+        {
 			gameObject.SetActive(true);
 			selectedCar = car;
 
@@ -29,7 +31,7 @@ namespace HighwayRacers {
 //TODO			preventUpdatingCar = false;
 		}
 
-		public Car selectedCar { get; private set; }
+		public Entity selectedCar { get; private set; }
 
 		private void SetSliderProperties() {
 #if false // TODO
