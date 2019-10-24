@@ -13,7 +13,7 @@ class MoveAlongBezierCurveSystem : JobComponentSystem
         return new MoveJob {dt = Time.deltaTime}.Schedule(this, inputDeps);
     }
 
-    [BurstCompile(FloatMode = FloatMode.Fast, FloatPrecision = FloatPrecision.High)]
+    [BurstCompile(FloatMode = FloatMode.Fast)]
     struct MoveJob : IJobForEach<BezierCurve, Speed, Rotation, Translation, BezierTOffset>
     {
         public float dt;
