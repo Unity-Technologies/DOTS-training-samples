@@ -1,46 +1,30 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Entities;
 using Unity.Mathematics;
+using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(ThrowerArmsGroupSystem))]
 public class ArmSpawnerSystem : ComponentSystem
 {
     private int m_BoneCount = 17;
     private int m_JointCount = 23;
-
-    public float m_ArmBoneLength = 1.0f;
     public float m_ArmBoneThickness = 0.15f;
-    public float m_ArmBendStrength;
-    public float m_MaxReachLength;
-    public float m_ReachDuration;
-    public float m_MaxHandSpeed;
-    
-    //[Range(0f,1f)]
-    //public float grabTimerSmooth;
-
-//    public float[] fingerBoneLengths;
-//    public float[] fingerThicknesses;
-    public float m_FingerBoneLength;
     public float m_FingerThickness = 0.06f;
-    public float m_FingerXOffset;
-    public float m_FingerSpacing;
-    public float m_FingerBendStrength;
-
-    public float m_ThumbBoneLength;
     public float m_ThumbThickness = 0.06f;
-    public float m_ThumbBendStrength;
-    public float m_ThumbXOffset;
 
-//    public float windupDuration;
-//    public float throwDuration;
-//    public AnimationCurve throwCurve;
-//    public float baseThrowSpeed;
-//    public float targetXRange;
+    private Random m_RandomGenerator;
 
     private EntityArchetype m_ArmArchetype;
     protected override void OnCreate()
     {
-        m_ArmArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<BoneJoint>(),
-            ComponentType.ReadWrite<HandAxis>(), ComponentType.ReadWrite<ArmTarget>());
+        m_ArmArchetype = EntityManager.CreateArchetype(
+            ComponentType.ReadWrite<BoneJoint>(),
+            ComponentType.ReadWrite<HandAxis>(), 
+            ComponentType.ReadWrite<ArmTarget>(),
+            ComponentType.ReadWrite<Timers>()
+            );
+
+        m_RandomGenerator = new Random((uint)Environment.TickCount);
     }
 
     private void CreateArm(Entity bonePrefab, Entity parent)
@@ -115,6 +99,15 @@ public class ArmSpawnerSystem : ComponentSystem
 
                 EntityManager.SetComponentData(armEntity, new ArmTarget{ Value = idleHandTarget });
 
+                var timers = new Timers
+                {
+                    TimeOffset = m_RandomGenerator.NextFloat(0.0f, 100.0f),
+                    Reach = 0.0f,
+                    Throw = 0.0f,
+                    Windup = 0.0f
+                };
+                EntityManager.SetComponentData(armEntity, timers);
+                
                 CreateArm(spawnerData.BoneEntityPrefab, armEntity);
             }
             EntityManager.DestroyEntity(e);
