@@ -1,4 +1,5 @@
 ﻿
+using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -20,7 +21,7 @@ public class UpdateTargetSystem : JobComponentSystem
 
 	protected override void OnCreate()
 	{
-		randomGenerator = new Unity.Mathematics.Random();
+		randomGenerator = new Unity.Mathematics.Random((uint)Environment.TickCount);
 	}
 
 	struct UpdateTargetJob : IJobForEach_BCC<BoneJoint, Timers, ArmTarget>
