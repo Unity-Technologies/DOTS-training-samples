@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -37,7 +38,29 @@ public class LevelConversion : GameObjectConversionSystem
     {
         Debug.Log("SetupTrains");
 
-        DstEntityManager.AddComponentData(entity, new SpawnTrains{  prefab = GetPrimaryEntity(metro.prefab_trainCarriage)});
+        var prefab = GetPrimaryEntity(metro.prefab_trainCarriage);
+
+        for (var i = 0; i < metro.metroLines.Length; i++)
+        {
+            var metroLine = metro.metroLines[i];
+            var trainSpawnerEntity = CreateAdditionalEntity(metro.transform);
+            using (var builder = new BlobBuilder(Allocator.Temp))
+            {
+                ref var curveRoot = ref builder.ConstructRoot<Curve>();
+                var lineBuilder = builder.Allocate(ref curveRoot.points, metroLine.bezierPath.points.Count);
+
+                for (var pt = 0; pt < metroLine.bezierPath.points.Count; pt++)
+                {
+                    var bezierPt = metroLine.bezierPath.points[pt];
+                    lineBuilder[pt] = new BezierPt(bezierPt.index, bezierPt.location, bezierPt.handle_in, bezierPt.handle_out);
+                }
+                var trainLineRef = builder.CreateBlobAssetReference<Curve>(Allocator.Persistent);
+                var numberOfCarriages = (uint)metroLine.carriagesPerTrain;
+                var trainLine = new TrainLine { line = trainLineRef };
+                var spawnTrain = new SpawnTrain { line = trainLine, numberOfCarriagePerTrain = numberOfCarriages, prefab = prefab, index = (uint)i};
+                DstEntityManager.AddComponentData(trainSpawnerEntity, spawnTrain);
+            }
+        }
     }
 
     void SetupCommuters(Entity entity, Metro metro)

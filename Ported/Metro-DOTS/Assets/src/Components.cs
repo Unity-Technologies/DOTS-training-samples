@@ -32,6 +32,34 @@ public struct TargetPosition : IComponentData
     public float3 value;
 }
 
+public struct TrainLine : IComponentData
+{
+    public BlobAssetReference<Curve> line;
+}
+
+public struct BezierPt
+{
+    const float k_BezierHandleReach = 0.1f;
+
+    public int index;
+    public float3 location, handle_in, handle_out;
+    public float distanceAlongPath;
+
+    public BezierPt(int idx, float3 _location, float3 _handle_in, float3 _handle_out)
+    {
+        index = idx;
+        location = _location;
+        handle_in = _handle_in;
+        handle_out = _handle_out;
+        distanceAlongPath = 0;
+    }
+}
+
+public struct Curve
+{
+    public BlobArray<BezierPt> points;
+}
+
 public struct PlatformTag : IComponentData { }
 
 // TRAIN STATES
