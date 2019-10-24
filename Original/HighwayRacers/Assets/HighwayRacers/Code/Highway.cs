@@ -21,7 +21,6 @@ namespace HighwayRacers
         public const float MIN_DIST_BETWEEN_CARS = .7f;
 
         [Header("Prefabs")]
-        public GameObject carPrefab;
         public GameObject straightPiecePrefab;
         public GameObject curvePiecePrefab;
 
