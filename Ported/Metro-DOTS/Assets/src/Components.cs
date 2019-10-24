@@ -37,6 +37,11 @@ public struct TrainLine : IComponentData
     public BlobAssetReference<Curve> line;
 }
 
+public struct BezierTOffset : IComponentData
+{
+    public float offset;
+}
+
 public struct BezierPt
 {
     const float k_BezierHandleReach = 0.1f;

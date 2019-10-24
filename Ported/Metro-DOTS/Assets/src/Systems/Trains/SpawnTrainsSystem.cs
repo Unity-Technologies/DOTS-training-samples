@@ -38,8 +38,10 @@ public class SpawnTrainsSystem : JobComponentSystem
                 var carriage = cmdBuffer.Instantiate(index, c0.prefab);
                 var pos = c0.line.line.Value.points[i].location;
                 cmdBuffer.SetComponent(index, carriage, new Translation { Value = pos });
-                cmdBuffer.SetComponent(index, carriage, new TrainId{ value = c0.index });
-                cmdBuffer.SetComponent(index, carriage, new TrainLine{ line = c0.line.line });
+                cmdBuffer.AddComponent(index, carriage, new TrainId{ value = c0.index });
+                cmdBuffer.AddComponent(index, carriage, new TrainLine{ line = c0.line.line });
+                if (i != 0)
+                    cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = i});
             }
 
             cmdBuffer.RemoveComponent(index, entity, typeof(SpawnTrain));
