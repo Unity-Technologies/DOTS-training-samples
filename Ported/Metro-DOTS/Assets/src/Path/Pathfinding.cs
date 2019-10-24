@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 public static class Pathfinding
@@ -44,11 +45,29 @@ public static class Pathfinding
                     var shortestRoute = ShortestRoute(platform1, platform2, platformsList);
                     if (shortestRoute == null)
                         continue;
+
                     var connections = CommuterTasksToConnections(shortestRoute).ToArray();
+
+//                    DebugConnection(platform1, platform2, connections);
+
                     yield return new Path { fromPlatformId = platform1.platformIndex, toPlatformId = platform2.platformIndex, connections = connections};
                 }
             }
         }
+    }
+
+    static void DebugConnection(Platform platform1, Platform platform2, Connection[] connections)
+    {
+        var sb = new StringBuilder($"Going from {platform1.platformIndex} to {platform2.platformIndex}: ");
+
+        sb.Append("Start at ").Append(platform1.platformIndex);
+
+        foreach (Connection connection in connections)
+        {
+            sb.Append($" ({connection.method} to)").Append(" -> ").Append(connection.destinationPlatformId);
+        }
+
+        Debug.Log(sb.ToString());
     }
 
     static IEnumerable<Connection> CommuterTasksToConnections(IEnumerable<CommuterTask> tasks)
