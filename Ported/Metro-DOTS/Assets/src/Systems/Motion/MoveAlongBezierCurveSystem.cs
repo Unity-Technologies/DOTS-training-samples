@@ -21,10 +21,9 @@ class MoveAlongBezierCurveSystem : JobComponentSystem
         public void Execute([ReadOnly] ref BezierCurve curve,  [ReadOnly] ref Speed speed, ref Rotation rot, ref Translation pos, ref BezierTOffset t)
         {
             t.offset += speed.value * dt;
-            if (t.offset >= 1)
-                t.offset = 0;
-            pos.Value = BezierUtils.GetPositionAtT(curve.line, t.offset);
-            var rotation = BezierUtils.GetNormalAtT(curve.line, t.offset);
+            var renderT = math.fmod(t.offset + t.renderOffset, 1.0f);
+            pos.Value = BezierUtils.GetPositionAtT(curve.line, renderT);
+            var rotation = BezierUtils.GetNormalAtT(curve.line, renderT);
             rot.Value = quaternion.LookRotation( rotation, new float3(0, 1, 0));
         }
     }

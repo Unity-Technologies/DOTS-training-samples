@@ -47,6 +47,7 @@ public class SpawnTrainsSystem : JobComponentSystem
         public void Execute(Entity entity, int index, ref SpawnTrain c0)
         {
             var carriageOffset = 0f;
+
             for (var i = 0; i < c0.numberOfCarriagePerTrain; i++)
             {
                 var carriage = cmdBuffer.Instantiate(index, c0.prefab);
@@ -60,7 +61,7 @@ public class SpawnTrainsSystem : JobComponentSystem
                 cmdBuffer.AddComponent(index, carriage, new Speed{ value = 0.02f});
                 cmdBuffer.AddComponent(index, carriage, new TrainId{ value = c0.index });
                 cmdBuffer.AddComponent(index, carriage, new BezierCurve{ line = c0.line.line });
-                cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = t});
+                cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = c0.initialT, renderOffset = carriageOffset});
                 carriageOffset += c0.carriageOffset;
             }
 

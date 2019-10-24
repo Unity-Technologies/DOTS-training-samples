@@ -45,6 +45,7 @@ public struct BezierCurve : IComponentData
 public struct BezierTOffset : IComponentData
 {
     public float offset;
+    public float renderOffset;
 }
 
 public struct BezierPt
