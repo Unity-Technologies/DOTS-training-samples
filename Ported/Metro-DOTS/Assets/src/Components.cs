@@ -69,11 +69,22 @@ public struct BezierPt
         handle_out = _handle_out;
         distanceAlongPath = distance;
     }
+
+    public BezierPt(BezierPoint pt)
+    {
+        index = pt.index;
+        location = pt.location;
+        handle_in = pt.handle_in;
+        handle_out = pt.handle_out;
+        distanceAlongPath = pt.distanceAlongPath;
+    }
 }
 
 public struct Curve
 {
     public BlobArray<BezierPt> points;
+    public BlobArray<BezierPt> tStartStops;
+    public BlobArray<BezierPt> tEndStops;
     public float distance;
 }
 

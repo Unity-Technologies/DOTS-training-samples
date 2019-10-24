@@ -62,8 +62,18 @@ public class LevelConversion : GameObjectConversionSystem
             for (var pt = 0; pt < metroLine.bezierPath.points.Count; pt++)
             {
                 var bezierPt = metroLine.bezierPath.points[pt];
-                lineBuilder[pt] = new BezierPt(bezierPt.index, bezierPt.location, bezierPt.handle_in, bezierPt.handle_out, bezierPt.distanceAlongPath);
+                lineBuilder[pt] = new BezierPt(bezierPt);
             }
+
+            var startBuilder = builder.Allocate(ref curveRoot.tStartStops, metroLine.platforms.Count);
+            var endBuilder = builder.Allocate(ref curveRoot.tEndStops, metroLine.platforms.Count);
+            for (var pt = 0; pt < metroLine.platforms.Count; pt++)
+            {
+                var platform = metroLine.platforms[pt];
+                startBuilder[pt] = new BezierPt(platform.point_platform_START);
+                endBuilder[pt] = new BezierPt(platform.point_platform_END);
+            }
+
             var assetRef = builder.CreateBlobAssetReference<Curve>(Allocator.Persistent);
             assetRef.Value.distance = metroLine.bezierPath.GetPathDistance();
             return assetRef;
