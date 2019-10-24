@@ -16,7 +16,7 @@ public struct Connection
     public Method method;
 }
 
-public struct Path
+public struct Path : IComponentData
 {
     public int fromPlatformId;
     public int toPlatformId;

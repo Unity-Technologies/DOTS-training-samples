@@ -72,10 +72,12 @@ public class SpawnCommuterSystem : JobComponentSystem
             {
                 var platform = cmdBuffer.Instantiate(index, c0.prefab);
                 var randomLookup = random.NextInt(0, length-1);
-                var platformId = lookup.value.Value.paths[randomLookup].fromPlatformId;
+                var path = lookup.value.Value.paths[randomLookup];
+                var platformId = path.fromPlatformId;
                 var platformPos = trs.value.Value.translations[platformId];
                 cmdBuffer.SetComponent(index, platform, new Translation { Value = platformPos});
                 cmdBuffer.AddComponent(index, platform, new PlatformId { value = (uint)platformId });
+                cmdBuffer.AddComponent(index, platform, path);
             }
             cmdBuffer.RemoveComponent(index, entity, typeof(SpawnCommuters));
         }
