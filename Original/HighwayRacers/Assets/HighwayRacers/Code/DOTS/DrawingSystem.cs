@@ -2,6 +2,7 @@
 using HighwayRacers;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -39,9 +40,8 @@ public class DrawingSystem : ComponentSystem
 
         for (int batch = 0; batch < numBatches; batch++)
         {
-
-            matrices = positions.GetSubArray(batch * 1023, 1023).Reinterpret<Matrix4x4>().ToArray();
-            colorProperties = colors.GetSubArray(batch * 1023, 1023).Reinterpret<Vector4>().ToArray();
+            NativeArray<Matrix4x4>.Copy(positions.Reinterpret<Matrix4x4>().GetSubArray(batch * 1023, 1023),matrices,1023);
+            NativeArray<Vector4>.Copy(colors.Reinterpret<Vector4>().GetSubArray(batch * 1023, 1023),colorProperties,1023);
             properties.SetVectorArray("_Color",colorProperties);
             Graphics.DrawMeshInstanced(mesh,0,mat,matrices,1023,properties);
         }
@@ -49,9 +49,8 @@ public class DrawingSystem : ComponentSystem
         var rest = numCars % 1023;
         if (rest > 0 )
         {
-            matrices = positions.GetSubArray(numBatches * 1023, rest).Reinterpret<Matrix4x4>().ToArray();
-            colorProperties = colors.GetSubArray(numBatches * 1023, rest).Reinterpret<Vector4>().ToArray();
-
+            NativeArray<Matrix4x4>.Copy(positions.Reinterpret<Matrix4x4>().GetSubArray(numBatches * 1023, rest),matrices,rest);
+            NativeArray<Vector4>.Copy(colors.Reinterpret<Vector4>().GetSubArray(numBatches * 1023, rest),colorProperties,rest);
             properties.SetVectorArray("_Color", colorProperties);
             Graphics.DrawMeshInstanced(mesh, 0, mat, matrices, rest, properties);
         }
