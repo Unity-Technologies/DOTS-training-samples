@@ -22,12 +22,12 @@ public class FingerIKSolver : JobComponentSystem
     private const int armOffset = 2;
 
     [BurstCompile]
-    struct ArmIKSolverJob : IJobForEachWithEntity_EBCC<BoneJoint, ArmTarget, HandAxis>
+    struct ArmIKSolverJob : IJobForEachWithEntity_EBCCC<BoneJoint, ArmTarget, HandAxis, Timers>
     {
         [ReadOnly] public float time;
         
         public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints,
-            [ReadOnly] ref ArmTarget armTarget, [ReadOnly] ref HandAxis handAxis)
+            [ReadOnly] ref ArmTarget armTarget, [ReadOnly] ref HandAxis handAxis, ref Timers timer)
         {
             for (var j = 0; j < fingerCount; j++)
             {
@@ -41,12 +41,11 @@ public class FingerIKSolver : JobComponentSystem
                 var fingerPos = boneJoints[armOffset].JointPos + handAxis.Right * (fingerXOffset + j * fingerSpacing);
 
                 // find resting position for this fingertip (fingerTarget)
-                var reachTimer = 0f; // TODO add timer stuff
-                // FYI if we're holding a rock, we're always gripping
-                // fingerGrabT = 1 -> Gripping position
-                var grabT = reachTimer;
-                grabT = 3f * grabT * grabT - 2f * grabT * grabT * grabT;
+                var grabT = timer.Reach;
+                grabT = 3f * grabT * grabT - 2f * grabT * grabT * grabT; // TODO duplicated compute
                 var fingerGrabT = grabT;
+                if (armTarget.IsHolding)
+                    fingerGrabT = 1; // -> Gripping position
 
                 var fingerTarget = fingerPos + handAxis.Forward * (.5f-.1f*fingerGrabT);
 
@@ -54,7 +53,7 @@ public class FingerIKSolver : JobComponentSystem
                 fingerTarget += handAxis.Up * math.sin((time + j*.2f)*3f) * .2f*(1f-fingerGrabT);
 
                 // apply finger-spreading during throw animation
-                float openPalm = 0f; // TODO throwCurve.Evaluate(throwTimer);
+                float openPalm = timer.Throw;
                 fingerTarget += (handAxis.Up * .3f + handAxis.Forward * .1f + handAxis.Right * (j - 1.5f) * .1f) * openPalm ;
 
                 ConstantManager.IKSolve(ref chainPositions, fingerBoneLength[j],fingerPos, fingerTarget,
