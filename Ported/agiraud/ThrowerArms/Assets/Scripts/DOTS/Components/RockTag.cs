@@ -7,8 +7,9 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [Serializable]
-public struct RockTag : IComponentData 
+public struct RockTag : IComponentData
 {
+    public Entity ArmHolding;
 }
 
 public struct ForceThrow : IComponentData

@@ -79,6 +79,22 @@ public class ResetSystem : JobComponentSystem
             rd = new Random((uint)Environment.TickCount),
         };
 
+        var rocktag = m_GroupRock.ToComponentDataArray<RockTag>(Allocator.TempJob);
+        var rocktagEntities = m_GroupRock.ToEntityArray(Allocator.TempJob);
+        for (int i = 0; i < rocktag.Length; i++)
+        {
+            Entity armHold = rocktag[i].ArmHolding;
+            if (armHold != Entity.Null)
+            {
+                var armTarget = EntityManager.GetComponentData<ArmTarget>(armHold);
+                armTarget.TargetRock = Entity.Null;
+                armTarget.TargetCan = Entity.Null;
+                EntityManager.SetComponentData(armHold, armTarget);
+            }
+            EntityManager.SetComponentData(rocktagEntities[i], new RockTag());
+        }
+        rocktag.Dispose();
+        rocktagEntities.Dispose();
         var jh1 = job1.Schedule(m_GroupRock, inputDeps);
         var jh2 = job2.Schedule(m_GroupTinCan, jh1);
         return jh2;

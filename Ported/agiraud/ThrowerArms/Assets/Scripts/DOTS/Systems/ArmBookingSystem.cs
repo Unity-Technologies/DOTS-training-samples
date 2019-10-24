@@ -133,6 +133,7 @@ public class ArmBookingSystem : JobComponentSystem
                 alreadyUsedRock.Add(bookingInfos[i].rock);
                 EntityManager.SetComponentData(bookingInfos[i].rock, r);
                 EntityManager.SetComponentData(bookingInfos[i].can, r);
+                EntityManager.SetComponentData(bookingInfos[i].rock, new RockTag() { ArmHolding = bookingInfos[i].arm });
 
                 //For debug - to be removed
                 Translation pos = EntityManager.GetComponentData<Translation>(bookingInfos[i].can);
