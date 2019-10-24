@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.Transforms;
 
 public struct SpawnTrain : IComponentData
@@ -47,8 +48,12 @@ public class SpawnTrainsSystem : JobComponentSystem
             for (var i = 0; i < c0.numberOfCarriagePerTrain; i++)
             {
                 var carriage = cmdBuffer.Instantiate(index, c0.prefab);
-                var pos = BezierUtils.GetPosition(c0.line.line, offset);
+                var pos = BezierUtils.GetPositionAtT(c0.line.line, offset);
+                var rot = BezierUtils.GetNormalAtT(c0.line.line, offset);
+                var lookAt = quaternion.LookRotation( rot, new float3(0, 1, 0));
+
                 cmdBuffer.SetComponent(index, carriage, new Translation { Value = pos });
+                cmdBuffer.SetComponent(index, carriage, new Rotation { Value = lookAt });
                 cmdBuffer.AddComponent(index, carriage, new TrainId{ value = c0.index });
                 cmdBuffer.AddComponent(index, carriage, new TrainLine{ line = c0.line.line });
                 cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = offset});

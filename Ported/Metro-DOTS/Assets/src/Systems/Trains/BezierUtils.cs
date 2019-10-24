@@ -3,9 +3,9 @@ using Unity.Mathematics;
 
 public struct BezierUtils
 {
-    public static float3 GetPosition(BlobAssetReference<Curve> curve, float progress)
+    public static float3 GetPositionAtT(BlobAssetReference<Curve> curve, float t)
     {
-        var progressDistance = curve.Value.distance * progress;
+        var progressDistance = curve.Value.distance * t;
         var pointIndex_region_start = GetRegionIndex(curve, progressDistance);
         var pointIndex_region_end = (pointIndex_region_start + 1) % curve.Value.points.Length;
 
@@ -15,11 +15,38 @@ public struct BezierUtils
         // lerp between the points to arrive at PROGRESS
         var pathProgress_start = point_region_start.distanceAlongPath /  curve.Value.distance;
         var pathProgress_end = (pointIndex_region_end != 0) ?  point_region_end.distanceAlongPath /  curve.Value.distance : 1f;
-        var regionProgress = (progress - pathProgress_start) / (pathProgress_end - pathProgress_start);
+        var regionProgress = (t - pathProgress_start) / (pathProgress_end - pathProgress_start);
 
         // do your bezier lerps
         // Round 1 --> Origins to handles, handle to handle
         return BezierLerp(point_region_start, point_region_end, regionProgress);
+    }
+
+    public static float Get_AccurateDistanceBetweenPoints(BlobAssetReference<Curve> curve, int current, int prev)
+    {
+        var currentPoint = curve.Value.points[current];
+        var prevPoint = curve.Value.points[prev];
+        const float measurementIncrement = 1f / Metro.BEZIER_MEASUREMENT_SUBDIVISIONS;
+        var regionDistance = 0f;
+
+        for (var i = 0; i < Metro.BEZIER_MEASUREMENT_SUBDIVISIONS- 1; i++)
+        {
+            var _CURRENT_SUBDIV = i * measurementIncrement;
+            var _NEXT_SOBDIV = (i + 1) * measurementIncrement;
+            var bezierLerpCurrent = BezierLerp(prevPoint, currentPoint, _CURRENT_SUBDIV);
+            var bezierLerpNext = BezierLerp(prevPoint, currentPoint, _NEXT_SOBDIV);
+            regionDistance += math.distance(bezierLerpCurrent, bezierLerpNext);
+        }
+
+        return regionDistance;
+    }
+
+    public static float3 GetNormalAtT(BlobAssetReference<Curve> curve, float t)
+    {
+        var current = GetPositionAtT(curve, t);
+        var ahead = GetPositionAtT(curve, (t + 0.0001f) % 1f);
+        var rot = (ahead - current) / math.distance(ahead, current);
+        return rot;
     }
 
     static float3 BezierLerp(BezierPt _pointA, BezierPt _pointB, float _progress)
@@ -65,27 +92,8 @@ public struct BezierUtils
         return result;
     }
 
-    public static void MeasurePoint(BlobAssetReference<Curve> curve, ref float distance, int currentPoint, int prevPoint) {
+    static void MeasurePoint(BlobAssetReference<Curve> curve, ref float distance, int currentPoint, int prevPoint) {
         distance += Get_AccurateDistanceBetweenPoints(curve, currentPoint, prevPoint);
         curve.Value.points[currentPoint].distanceAlongPath = distance;
-    }
-
-    public static float Get_AccurateDistanceBetweenPoints(BlobAssetReference<Curve> curve, int current, int prev)
-    {
-        var currentPoint = curve.Value.points[current];
-        var prevPoint = curve.Value.points[prev];
-        const float measurementIncrement = 1f / Metro.BEZIER_MEASUREMENT_SUBDIVISIONS;
-        var regionDistance = 0f;
-
-        for (var i = 0; i < Metro.BEZIER_MEASUREMENT_SUBDIVISIONS- 1; i++)
-        {
-            var _CURRENT_SUBDIV = i * measurementIncrement;
-            var _NEXT_SOBDIV = (i + 1) * measurementIncrement;
-            var bezierLerpCurrent = BezierLerp(prevPoint, currentPoint, _CURRENT_SUBDIV);
-            var bezierLerpNext = BezierLerp(prevPoint, currentPoint, _NEXT_SOBDIV);
-            regionDistance += math.distance(bezierLerpCurrent, bezierLerpNext);
-        }
-
-        return regionDistance;
     }
 }
