@@ -1,12 +1,14 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Transforms;
 
-public struct SpawnTrains : IComponentData
+public struct SpawnTrain : IComponentData
 {
     public Entity prefab;
+    public TrainLine line;
+    public uint numberOfCarriagePerTrain;
+    public uint index;
 }
 
 public class SpawnTrainsSystem : JobComponentSystem
@@ -25,14 +27,23 @@ public class SpawnTrainsSystem : JobComponentSystem
         return job;
     }
 
-    struct SpawnTrainsJob : IJobForEachWithEntity<SpawnTrains>
+    struct SpawnTrainsJob :  IJobForEachWithEntity<SpawnTrain>
     {
         [WriteOnly] public EntityCommandBuffer.Concurrent cmdBuffer;
-        public void Execute(Entity entity, int index, ref SpawnTrains c0)
+
+        public void Execute(Entity entity, int index, ref SpawnTrain c0)
         {
-            var train = cmdBuffer.Instantiate(index, c0.prefab);
-            cmdBuffer.SetComponent(index, train, new Translation{ Value = new float3(0, 0, 0)});
-            cmdBuffer.RemoveComponent(index, entity, typeof(SpawnTrains));
+            for (var i = 0; i < c0.numberOfCarriagePerTrain; i++)
+            {
+                var carriage = cmdBuffer.Instantiate(index, c0.prefab);
+                var pos = c0.line.line.Value.points[i].location;
+                cmdBuffer.SetComponent(index, carriage, new Translation { Value = pos });
+                cmdBuffer.AddComponent(index, carriage, new TrainId{ value = c0.index });
+                cmdBuffer.AddComponent(index, carriage, new TrainLine{ line = c0.line.line });
+                cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = 0});
+            }
+
+            cmdBuffer.RemoveComponent(index, entity, typeof(SpawnTrain));
         }
     }
 }

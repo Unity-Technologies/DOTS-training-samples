@@ -19,25 +19,47 @@ public class LevelConversion : GameObjectConversionSystem
 
         metroComponent.SetupMetroLines();
 
-        GenerateTrainTracksBezierData(entity, metroComponent);
-
         SetupPlatforms(entity, metroComponent);
         SetupCommuters(entity, metroComponent);
-        SetupTrains(entity, metroComponent);
+        SetupTrains(metroComponent);
 
         Object.DestroyImmediate(Metro.GetRoot);
     }
 
-    void GenerateTrainTracksBezierData(Entity entity, Metro metroComponent)
-    {
-        Debug.Log("GenerateTrainTracksBezierData");
-    }
-
-    void SetupTrains(Entity entity, Metro metro)
+    void SetupTrains(Metro metro)
     {
         Debug.Log("SetupTrains");
 
-        DstEntityManager.AddComponentData(entity, new SpawnTrains{  prefab = GetPrimaryEntity(metro.prefab_trainCarriage)});
+        var prefab = GetPrimaryEntity(metro.prefab_trainCarriage);
+
+        for (var i = 0; i < metro.metroLines.Length; i++)
+        {
+            var metroLine = metro.metroLines[i];
+            var trainSpawnerEntity = CreateAdditionalEntity(metro.transform);
+            var trainLineRef = BuildBezierPath(metroLine);
+            var numberOfCarriages = (uint)metroLine.carriagesPerTrain;
+
+            var trainLine = new TrainLine { line = trainLineRef };
+            var spawnTrain = new SpawnTrain { line = trainLine, numberOfCarriagePerTrain = numberOfCarriages, prefab = prefab, index = (uint)i};
+
+            DstEntityManager.AddComponentData(trainSpawnerEntity, spawnTrain);
+        }
+    }
+
+    BlobAssetReference<Curve> BuildBezierPath(MetroLine metroLine)
+    {
+        using (var builder = new BlobBuilder(Allocator.Temp))
+        {
+            ref var curveRoot = ref builder.ConstructRoot<Curve>();
+            var lineBuilder = builder.Allocate(ref curveRoot.points, metroLine.bezierPath.points.Count);
+
+            for (var pt = 0; pt < metroLine.bezierPath.points.Count; pt++)
+            {
+                var bezierPt = metroLine.bezierPath.points[pt];
+                lineBuilder[pt] = new BezierPt(bezierPt.index, bezierPt.location, bezierPt.handle_in, bezierPt.handle_out);
+            }
+            return builder.CreateBlobAssetReference<Curve>(Allocator.Persistent);
+        }
     }
 
     void SetupCommuters(Entity entity, Metro metro)
