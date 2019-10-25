@@ -1,10 +1,11 @@
 ﻿
 using System;
-using Unity.Collections;
+using System.ComponentModel;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -24,13 +25,15 @@ public class UpdateTargetSystem : JobComponentSystem
 		randomGenerator = new Unity.Mathematics.Random((uint)Environment.TickCount);
 	}
 
-	struct UpdateTargetJob : IJobForEach_BCC<BoneJoint, Timers, ArmTarget>
+	struct UpdateTargetJob : IJobForEach_BC<BoneJoint, ArmTarget>
     {
         public float Time;
         public float DeltaTime;
 
         public Unity.Mathematics.Random RandomGenerator;
-        [ReadOnly] public ComponentDataFromEntity<Translation> Positions;
+        [Unity.Collections.ReadOnly] public ComponentDataFromEntity<Translation> Positions;
+        
+        
         
 //        public void Execute([ReadOnly] DynamicBuffer<BoneJoint> joints, ref Timers timer, ref ArmTarget target)
 //        {
@@ -163,27 +166,48 @@ public class UpdateTargetSystem : JobComponentSystem
 //			}
 //        }
 
-	    public void Execute([ReadOnly] DynamicBuffer<BoneJoint> joints, ref Timers timer, ref ArmTarget target)
+	    private float PingPong(float t, float l)
 	    {
-		    if (target.TargetRock != Entity.Null)
-		    {
-			    var rockPos = Positions[target.TargetRock].Value;
-			    if (math.lengthsq(target.Value - rockPos) > 2)
-			    {
-				    target.TargetRock = Entity.Null;
-			    }
-			    else
-			    {
-				    target.Value = Positions[target.TargetRock].Value;
-			    }
-		    }
-		    if (target.TargetRock == Entity.Null)
-		    {
-			    float time = Time + timer.TimeOffset;
-			    target.Value = joints[0].JointPos +
-			                         new float3(math.sin(time) * .35f, 1f + math.cos(time * 1.618f) * .5f, 1.5f);
-			    
-		    }
+		    var L = 2.0f * l;
+		    var T = t % L;
+
+		    if (t <= l)
+			    return T;
+		    else
+			    return L - T;
+	    }
+
+	    public void Execute([Unity.Collections.ReadOnly] DynamicBuffer<BoneJoint> joints, ref ArmTarget target)
+	    {
+		    var t = PingPong(Time, target.Duration);
+		    var theta = target.Angle * t / target.Duration;
+		    var s = 0.0f;
+		    var c = 0.0f;
+		    math.sincos(theta, out s, out c);
+		    
+		    var pos = joints[0].JointPos + target.Radius* new float3(0, s, c);
+		    target.Value = pos;
+		    
+//		    if (target.TargetRock != Entity.Null)
+//		    {
+//			    var rockPos = Positions[target.TargetRock].Value;
+//			    timer.Throw += DeltaTime;
+//			    if (math.lengthsq(target.Value - rockPos) > maxReachLength 
+//			        || timer.Throw > throwDuration)
+//			    {
+//				    target.TargetRock = Entity.Null;
+//			    }
+//			    else
+//			    {
+//				    target.Value = rockPos;
+//			    }
+//		    }
+//		    if (target.TargetRock == Entity.Null)
+//		    {
+//			    float time = Time + timer.TimeOffset;
+//			    target.Value = joints[0].JointPos +
+//			                         new float3(math.sin(time) * .35f, 1f + math.cos(time * 1.618f) * .5f, 1.5f);
+//		    }
 	    }
     }
     

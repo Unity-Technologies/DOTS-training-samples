@@ -42,6 +42,11 @@ public struct ArmTarget : IComponentData
 
     public float3 AimVector;
     public float3 WindupHandTarget;
+    
+    // Tasty dirty hack for IK target
+    public float Angle;
+    public float Duration;
+    public float Radius;
 }
 
 public struct Timers : IComponentData

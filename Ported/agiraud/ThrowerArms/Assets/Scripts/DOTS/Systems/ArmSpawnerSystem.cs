@@ -98,7 +98,15 @@ public class ArmSpawnerSystem : ComponentSystem
                 float3 idleHandTarget = jointBuf[0].JointPos + new float3(math.sin(hardcodedSeed)*.35f,
                                             1f+math.cos(hardcodedSeed*1.618f)*.5f,1.5f);
 
-                EntityManager.SetComponentData(armEntity, new ArmTarget{ Value = idleHandTarget });
+                var target = new ArmTarget
+                {
+                    Value = idleHandTarget,
+                    
+                    Radius = m_RandomGenerator.NextFloat(1.0f, 3.0f),
+                    Angle = math.radians(m_RandomGenerator.NextFloat(20f, 80f)),
+                    Duration = m_RandomGenerator.NextFloat(1.0f, 5.0f)
+                };
+                EntityManager.SetComponentData(armEntity, target);
 
                 var timers = new Timers
                 {

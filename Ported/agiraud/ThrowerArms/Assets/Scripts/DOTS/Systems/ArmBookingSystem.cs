@@ -30,7 +30,7 @@ public class ArmBookingSystem : JobComponentSystem
         public NativeHashMap<Entity, ArmBookingItem>.ParallelWriter chosenOnes;
         [ReadOnly]public float reachRockMaxDistance;
         [ReadOnly]public float throwRockMaxDistance;
-        public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints, ref ArmTarget armTarget)
+        public void Execute(Entity entity, int index, [ReadOnly] DynamicBuffer<BoneJoint> boneJoints, ref ArmTarget armTarget)
         {
             if (armTarget.TargetRock != Entity.Null) 
                 return;
@@ -100,24 +100,27 @@ public class ArmBookingSystem : JobComponentSystem
         var chosenOnes = new NativeHashMap<Entity, ArmBookingItem>(rockCount, Allocator.TempJob);
 
         //Booking
-        var job = new ArmBookingSystemJob();
-        job.canEntities = canEntities;
-        job.rockEntities = rockEntities;
-        job.canPos = canPos;
-        job.rockPos = rockPos;
-        job.reachRockMaxDistance = 1.8f;
-        job.throwRockMaxDistance = 1000f;
-        job.canReserved = canReseved;
-        job.rockReserved = rockReseved;
-        job.chosenOnes = chosenOnes.AsParallelWriter();
+        var job = new ArmBookingSystemJob
+        {
+            canEntities = canEntities,
+            rockEntities = rockEntities,
+            canPos = canPos,
+            rockPos = rockPos,
+            reachRockMaxDistance = 1.8f,
+            throwRockMaxDistance = 1000f,
+            canReserved = canReseved,
+            rockReserved = rockReseved,
+            chosenOnes = chosenOnes.AsParallelWriter()
+        };
+
         JobHandle selectionJh = job.Schedule(m_ArmGroup, inputDependencies);
         selectionJh.Complete();
 
         //Checking for duplicate
         var bookingInfos = chosenOnes.GetValueArray(Allocator.Temp);
-        List<Entity> alreadyUsedCan = new List<Entity>(bookingInfos.Length);
-        List<Entity> alreadyUsedRock = new List<Entity>(bookingInfos.Length);
-        Reserved r = new Reserved { reserved = true };
+        var alreadyUsedCan = new List<Entity>(bookingInfos.Length);
+        var alreadyUsedRock = new List<Entity>(bookingInfos.Length);
+        var r = new Reserved { reserved = true };
         for (int i = 0; i < bookingInfos.Length; i++)
         {
             if (alreadyUsedCan.Contains(bookingInfos[i].can) || alreadyUsedRock.Contains(bookingInfos[i].rock))
