@@ -5,6 +5,14 @@ using System.Runtime.CompilerServices;
 
 namespace HighwayRacers
 {
+    // This is by far the most expensive system here.
+    // Probably because of the cache misses in the hash tables.
+    //
+    // If I had to redo this, I would toss the hash tables, and implement
+    // as an ordered array per lane.  Round the car positions to the size of
+    // a single car, and insert in the right slot.
+    // Quickly find my slot and look at the neighbours.
+    //
     public struct HighwaySpacePartition
     {
         struct BucketEntry
