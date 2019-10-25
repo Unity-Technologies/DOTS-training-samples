@@ -23,7 +23,8 @@ class QueueTransitionSystem : JobComponentSystem
                     ComponentType.ReadOnly<LOADING>(),
                     ComponentType.ReadOnly<PlatformId>(),
                     ComponentType.ReadOnly<TrainId>(),
-                    ComponentType.ReadOnly<Translation>()
+                    ComponentType.ReadOnly<BezierCurve>(),
+                    ComponentType.ReadOnly<BezierTOffset>()
                 }
             });;
 
@@ -81,13 +82,14 @@ class QueueTransitionSystem : JobComponentSystem
 
 
     [BurstCompile]
-    struct CopyLoadingStationIDs : IJobForEachWithEntity<PlatformId, TrainId, TargetPosition>
+    struct CopyLoadingStationIDs : IJobForEachWithEntity<PlatformId, TrainId, BezierCurve, BezierTOffset>
     {
         [WriteOnly]
         public NativeArray<TrainToPlatformPosition> outputBuffer;
-        public void Execute(Entity entity, int jobIndex, ref PlatformId platformID, ref TrainId trainId, ref TargetPosition trainPosition)
+        public void Execute(Entity entity, int jobIndex, ref PlatformId platformID, ref TrainId trainId, [ReadOnly] ref BezierCurve curve, [ReadOnly] ref BezierTOffset t)
         {
-            outputBuffer[jobIndex] = new TrainToPlatformPosition(trainId.value, platformID.value, trainPosition.value);
+            var position = BezierUtils.GetPositionAtT(curve.line, t.offset);
+            outputBuffer[jobIndex] = new TrainToPlatformPosition(trainId.value, platformID.value, position);
         }
     }
 

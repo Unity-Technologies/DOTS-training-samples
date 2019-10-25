@@ -6,6 +6,11 @@ public struct TrainId : IComponentData
     public int value;
 }
 
+public struct CarriageId : IComponentData
+{
+    public int value;
+}
+
 public struct PlatformId : IComponentData
 {
     public int value;
@@ -37,6 +42,14 @@ public struct DistanceToTarget : IComponentData
     public float value;
 }
 
+public struct TimerComponent : IComponentData
+{
+    public float value;
+}public struct TimeInterval : IComponentData
+{
+    public float value;
+}
+
 public struct BezierCurve : IComponentData
 {
     public BlobAssetReference<Curve> line;
@@ -48,6 +61,13 @@ public struct BezierTOffset : IComponentData
     public float renderOffset;
 }
 
+public struct StationData : IBufferElementData
+{
+    public float start;
+    public float end;
+    public int platformId;
+}
+
 public struct BezierPt
 {
     const float k_BezierHandleReach = 0.1f;
@@ -56,13 +76,13 @@ public struct BezierPt
     public float3 location, handle_in, handle_out;
     public float distanceAlongPath;
 
-    public BezierPt(int idx, float3 _location, float3 _handle_in, float3 _handle_out, float distance)
+    public BezierPt(BezierPoint pt)
     {
-        index = idx;
-        location = _location;
-        handle_in = _handle_in;
-        handle_out = _handle_out;
-        distanceAlongPath = distance;
+        index = pt.index;
+        location = pt.location;
+        handle_in = pt.handle_in;
+        handle_out = pt.handle_out;
+        distanceAlongPath = pt.distanceAlongPath;
     }
 }
 

@@ -9,18 +9,20 @@ public struct SpawnTrain : IComponentData
     public Entity prefab;
     public BezierCurve line;
     public int numberOfCarriagePerTrain;
-    public int index;
+    public int trainId;
     public float carriageOffset;
     public float initialT;
+    public int initialPlatformId;
 
-    public SpawnTrain(Entity m_prefab, BezierCurve m_Line, int m_numberOfCarriagePerTrain, int m_index, float m_carriageOffset, float m_initialT)
+    public SpawnTrain(Entity m_prefab, BezierCurve m_Line, int m_numberOfCarriagePerTrain, int m_index, float m_carriageOffset, float m_initialT, int currentPlatform)
     {
         prefab = m_prefab;
         line = m_Line;
         numberOfCarriagePerTrain = m_numberOfCarriagePerTrain;
-        index = m_index;
+        trainId = m_index;
         carriageOffset = m_carriageOffset;
         initialT = m_initialT;
+        initialPlatformId = currentPlatform;
     }
 }
 
@@ -40,11 +42,11 @@ public class SpawnTrainsSystem : JobComponentSystem
         return job;
     }
 
-    struct SpawnTrainsJob :  IJobForEachWithEntity<SpawnTrain>
+    struct SpawnTrainsJob :  IJobForEachWithEntity_EBC<StationData, SpawnTrain>
     {
         [WriteOnly] public EntityCommandBuffer.Concurrent cmdBuffer;
 
-        public void Execute(Entity entity, int index, ref SpawnTrain c0)
+        public void Execute(Entity entity, int index, [ReadOnly] DynamicBuffer<StationData> stations, ref SpawnTrain c0)
         {
             var carriageOffset = 0f;
 
@@ -59,13 +61,19 @@ public class SpawnTrainsSystem : JobComponentSystem
                 cmdBuffer.SetComponent(index, carriage, new Translation { Value = pos });
                 cmdBuffer.SetComponent(index, carriage, new Rotation { Value = lookAt });
                 cmdBuffer.AddComponent(index, carriage, new Speed{ value = 0.02f});
-                cmdBuffer.AddComponent(index, carriage, new TrainId{ value = c0.index });
+                cmdBuffer.AddComponent(index, carriage, new TrainId{ value = c0.trainId });
+                cmdBuffer.AddComponent(index, carriage, new CarriageId{ value = i });
                 cmdBuffer.AddComponent(index, carriage, new BezierCurve{ line = c0.line.line });
+                cmdBuffer.AddComponent(index, carriage, new PlatformId{ value = c0.initialPlatformId});
                 cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = c0.initialT, renderOffset = carriageOffset});
+                cmdBuffer.AddComponent(index, carriage, new EN_ROUTE());
+                cmdBuffer.AddComponent(index, carriage, new TimerComponent());
+                cmdBuffer.AddComponent(index, carriage, new TimeInterval{value = 2});
+                cmdBuffer.AddBuffer<StationData>(index, carriage).CopyFrom(stations);
                 carriageOffset += c0.carriageOffset;
             }
-
             cmdBuffer.RemoveComponent(index, entity, typeof(SpawnTrain));
+            cmdBuffer.RemoveComponent(index, entity, typeof(StationData));
         }
     }
 }
