@@ -34,9 +34,9 @@ public class LevelConversion : GameObjectConversionSystem
 
         var prefab = GetPrimaryEntity(metro.prefab_trainCarriage);
         var globalTrainIdx = 0;
-        for (var i = 0; i < metro.metroLines.Length; i++)
+        foreach (var metroLine in metro.metroLines)
         {
-            var metroLine = metro.metroLines[i];
+            var stationData = BuildStationsData(metroLine);
             for (var trainIndex = 0; trainIndex < metroLine.maxTrains; trainIndex++)
             {
                 var trainSpawnerEntity = CreateAdditionalEntity(metro.transform);
@@ -46,17 +46,8 @@ public class LevelConversion : GameObjectConversionSystem
 
                 var trainLine = new BezierCurve { line = trainLineRef };
                 var spacing =  trainIndex * (1f / metroLine.maxTrains);
-
                 globalTrainIdx++;
 
-                var stationData = new StationData[metroLine.platforms.Count];
-                for (var pl = 0; pl < metroLine.platforms.Count; pl++)
-                {
-                    var platform = metroLine.platforms[pl];
-                    var startT = platform.point_platform_START.distanceAlongPath / metroLine.bezierPath.GetPathDistance();
-                    var endT = platform.point_platform_END.distanceAlongPath / metroLine.bezierPath.GetPathDistance();
-                    stationData[pl] = new StationData { start = startT, end = endT, platformId = platform.platformIndex };
-                }
                 var currentPlatform = GetCurrentPlatformId(stationData, spacing);
                 var spawnTrain = new SpawnTrain(prefab, trainLine, numberOfCarriages, globalTrainIdx, metroLine.carriageLength_onRail, spacing, currentPlatform);
 
@@ -67,13 +58,27 @@ public class LevelConversion : GameObjectConversionSystem
         }
     }
 
+    static StationData[] BuildStationsData(MetroLine metroLine)
+    {
+        var stationData = new StationData[metroLine.platforms.Count];
+        for (var pl = 0; pl < metroLine.platforms.Count; pl++)
+        {
+            var platform = metroLine.platforms[pl];
+            var startT = platform.point_platform_START.distanceAlongPath / metroLine.bezierPath.GetPathDistance();
+            var endT = platform.point_platform_END.distanceAlongPath / metroLine.bezierPath.GetPathDistance();
+            stationData[pl] = new StationData { start = startT, end = endT, platformId = platform.platformIndex };
+        }
+
+        return stationData;
+    }
+
     public int GetCurrentPlatformId(StationData[] stations, float t)
     {
         if (t < stations[0].start)
             return stations[0].platformId;
 
-        var previousStation = stations[stations.Length - 1];
-        for (var i = 0; i < stations.Length; i++)
+        var previousStation = stations[0];
+        for (var i = 1; i < stations.Length; i++)
         {
             var station = stations[i];
             if (t > previousStation.end && t < station.end)
