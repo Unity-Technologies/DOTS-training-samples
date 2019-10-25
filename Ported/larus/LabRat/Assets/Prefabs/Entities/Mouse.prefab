@@ -390,9 +390,9 @@ MonoBehaviour:
     manualFieldList: 0
     entityIndex: 1
   - name: Unity.Transforms.LocalToWorld
-    interpolatedClient: 0
-    predictedClient: 0
-    server: 0
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
     sendDataTo: 0
     fields: []
     manualFieldList: 0
@@ -418,22 +418,16 @@ MonoBehaviour:
     predictedClient: 1
     server: 1
     sendDataTo: 0
-    fields:
-    - name: Value
-      quantization: 1000
-      interpolate: 1
-    manualFieldList: 0
+    fields: []
+    manualFieldList: 1
     entityIndex: 1
   - name: Unity.Transforms.Translation
     interpolatedClient: 1
     predictedClient: 1
     server: 1
     sendDataTo: 0
-    fields:
-    - name: Value
-      quantization: 100
-      interpolate: 1
-    manualFieldList: 0
+    fields: []
+    manualFieldList: 1
     entityIndex: 1
   - name: Unity.Transforms.LocalToParent
     interpolatedClient: 1
@@ -444,9 +438,9 @@ MonoBehaviour:
     manualFieldList: 0
     entityIndex: 2
   - name: Unity.Transforms.LocalToWorld
-    interpolatedClient: 0
-    predictedClient: 0
-    server: 0
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
     sendDataTo: 0
     fields: []
     manualFieldList: 0
@@ -508,9 +502,9 @@ MonoBehaviour:
     manualFieldList: 0
     entityIndex: 3
   - name: Unity.Transforms.LocalToWorld
-    interpolatedClient: 0
-    predictedClient: 0
-    server: 0
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
     sendDataTo: 0
     fields: []
     manualFieldList: 0
@@ -580,9 +574,9 @@ MonoBehaviour:
     manualFieldList: 0
     entityIndex: 4
   - name: Unity.Transforms.LocalToWorld
-    interpolatedClient: 0
-    predictedClient: 0
-    server: 0
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
     sendDataTo: 0
     fields: []
     manualFieldList: 0

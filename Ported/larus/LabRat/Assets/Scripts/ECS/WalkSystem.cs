@@ -303,7 +303,7 @@ public class WalkSystem : JobComponentSystem
 	}
 }
 
-/*[UpdateInGroup(typeof(ClientSimulationSystemGroup))]
+[UpdateInGroup(typeof(ClientSimulationSystemGroup))]
 public class ClientWalkSystem : ComponentSystem
 {
 	private EndSimulationEntityCommandBufferSystem m_Buffer;
@@ -327,4 +327,4 @@ public class ClientWalkSystem : ComponentSystem
 		//}).Schedule(inputDeps);
 		//return job;
 	}
-}*/
+}

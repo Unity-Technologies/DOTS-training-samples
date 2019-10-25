@@ -5,19 +5,17 @@ using Unity.Jobs;
 using Unity.Networking.Transport.Utilities;
 using Unity.NetCode;
 using Unity.Entities;
-using Unity.Transforms;
 
 [UpdateInGroup(typeof(GhostUpdateSystemGroup))]
-public class MouseGhostUpdateSystem : JobComponentSystem
+public class PlayerGhostUpdateSystem : JobComponentSystem
 {
     [BurstCompile]
     struct UpdateInterpolatedJob : IJobChunk
     {
         [ReadOnly] public NativeHashMap<int, GhostEntity> GhostMap;
-        [ReadOnly] public ArchetypeChunkBufferType<MouseSnapshotData> ghostSnapshotDataType;
+        [ReadOnly] public ArchetypeChunkBufferType<PlayerSnapshotData> ghostSnapshotDataType;
         [ReadOnly] public ArchetypeChunkEntityType ghostEntityType;
-        public ArchetypeChunkComponentType<Rotation> ghostRotationType;
-        public ArchetypeChunkComponentType<Translation> ghostTranslationType;
+        public ArchetypeChunkComponentType<PlayerComponent> ghostPlayerComponentType;
 
         public uint targetTick;
         public float targetTickFraction;
@@ -29,20 +27,16 @@ public class MouseGhostUpdateSystem : JobComponentSystem
             };
             var ghostEntityArray = chunk.GetNativeArray(ghostEntityType);
             var ghostSnapshotDataArray = chunk.GetBufferAccessor(ghostSnapshotDataType);
-            var ghostRotationArray = chunk.GetNativeArray(ghostRotationType);
-            var ghostTranslationArray = chunk.GetNativeArray(ghostTranslationType);
+            var ghostPlayerComponentArray = chunk.GetNativeArray(ghostPlayerComponentType);
             for (int entityIndex = 0; entityIndex < ghostEntityArray.Length; ++entityIndex)
             {
                 var snapshot = ghostSnapshotDataArray[entityIndex];
-                MouseSnapshotData snapshotData;
+                PlayerSnapshotData snapshotData;
                 snapshot.GetDataAtTick(targetTick, targetTickFraction, out snapshotData);
 
-                var ghostRotation = ghostRotationArray[entityIndex];
-                var ghostTranslation = ghostTranslationArray[entityIndex];
-                ghostRotation.Value = snapshotData.GetRotationValue(deserializerState);
-                ghostTranslation.Value = snapshotData.GetTranslationValue(deserializerState);
-                ghostRotationArray[entityIndex] = ghostRotation;
-                ghostTranslationArray[entityIndex] = ghostTranslation;
+                var ghostPlayerComponent = ghostPlayerComponentArray[entityIndex];
+                ghostPlayerComponent.PlayerId = snapshotData.GetPlayerComponentPlayerId(deserializerState);
+                ghostPlayerComponentArray[entityIndex] = ghostPlayerComponent;
             }
         }
     }
@@ -55,11 +49,10 @@ public class MouseGhostUpdateSystem : JobComponentSystem
         public int ThreadIndex;
 #pragma warning restore 649
         [NativeDisableParallelForRestriction] public NativeArray<uint> minPredictedTick;
-        [ReadOnly] public ArchetypeChunkBufferType<MouseSnapshotData> ghostSnapshotDataType;
+        [ReadOnly] public ArchetypeChunkBufferType<PlayerSnapshotData> ghostSnapshotDataType;
         [ReadOnly] public ArchetypeChunkEntityType ghostEntityType;
         public ArchetypeChunkComponentType<PredictedGhostComponent> predictedGhostComponentType;
-        public ArchetypeChunkComponentType<Rotation> ghostRotationType;
-        public ArchetypeChunkComponentType<Translation> ghostTranslationType;
+        public ArchetypeChunkComponentType<PlayerComponent> ghostPlayerComponentType;
         public uint targetTick;
         public uint lastPredictedTick;
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
@@ -71,12 +64,11 @@ public class MouseGhostUpdateSystem : JobComponentSystem
             var ghostEntityArray = chunk.GetNativeArray(ghostEntityType);
             var ghostSnapshotDataArray = chunk.GetBufferAccessor(ghostSnapshotDataType);
             var predictedGhostComponentArray = chunk.GetNativeArray(predictedGhostComponentType);
-            var ghostRotationArray = chunk.GetNativeArray(ghostRotationType);
-            var ghostTranslationArray = chunk.GetNativeArray(ghostTranslationType);
+            var ghostPlayerComponentArray = chunk.GetNativeArray(ghostPlayerComponentType);
             for (int entityIndex = 0; entityIndex < ghostEntityArray.Length; ++entityIndex)
             {
                 var snapshot = ghostSnapshotDataArray[entityIndex];
-                MouseSnapshotData snapshotData;
+                PlayerSnapshotData snapshotData;
                 snapshot.GetDataAtTick(targetTick, out snapshotData);
 
                 var predictedData = predictedGhostComponentArray[entityIndex];
@@ -91,12 +83,9 @@ public class MouseGhostUpdateSystem : JobComponentSystem
                 if (lastPredictedTickInst != snapshotData.Tick)
                     continue;
 
-                var ghostRotation = ghostRotationArray[entityIndex];
-                var ghostTranslation = ghostTranslationArray[entityIndex];
-                ghostRotation.Value = snapshotData.GetRotationValue(deserializerState);
-                ghostTranslation.Value = snapshotData.GetTranslationValue(deserializerState);
-                ghostRotationArray[entityIndex] = ghostRotation;
-                ghostTranslationArray[entityIndex] = ghostTranslation;
+                var ghostPlayerComponent = ghostPlayerComponentArray[entityIndex];
+                ghostPlayerComponent.PlayerId = snapshotData.GetPlayerComponentPlayerId(deserializerState);
+                ghostPlayerComponentArray[entityIndex] = ghostPlayerComponent;
             }
         }
     }
@@ -116,24 +105,22 @@ public class MouseGhostUpdateSystem : JobComponentSystem
         m_interpolatedQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new []{
-                ComponentType.ReadWrite<MouseSnapshotData>(),
+                ComponentType.ReadWrite<PlayerSnapshotData>(),
                 ComponentType.ReadOnly<GhostComponent>(),
-                ComponentType.ReadWrite<Rotation>(),
-                ComponentType.ReadWrite<Translation>(),
+                ComponentType.ReadWrite<PlayerComponent>(),
             },
             None = new []{ComponentType.ReadWrite<PredictedGhostComponent>()}
         });
         m_predictedQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new []{
-                ComponentType.ReadOnly<MouseSnapshotData>(),
+                ComponentType.ReadOnly<PlayerSnapshotData>(),
                 ComponentType.ReadOnly<GhostComponent>(),
                 ComponentType.ReadOnly<PredictedGhostComponent>(),
-                ComponentType.ReadWrite<Rotation>(),
-                ComponentType.ReadWrite<Translation>(),
+                ComponentType.ReadWrite<PlayerComponent>(),
             }
         });
-        RequireForUpdate(GetEntityQuery(ComponentType.ReadWrite<MouseSnapshotData>(),
+        RequireForUpdate(GetEntityQuery(ComponentType.ReadWrite<PlayerSnapshotData>(),
             ComponentType.ReadOnly<GhostComponent>()));
     }
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -144,11 +131,10 @@ public class MouseGhostUpdateSystem : JobComponentSystem
             {
                 GhostMap = m_ghostEntityMap,
                 minPredictedTick = m_GhostPredictionSystemGroup.OldestPredictedTick,
-                ghostSnapshotDataType = GetArchetypeChunkBufferType<MouseSnapshotData>(true),
+                ghostSnapshotDataType = GetArchetypeChunkBufferType<PlayerSnapshotData>(true),
                 ghostEntityType = GetArchetypeChunkEntityType(),
                 predictedGhostComponentType = GetArchetypeChunkComponentType<PredictedGhostComponent>(),
-                ghostRotationType = GetArchetypeChunkComponentType<Rotation>(),
-                ghostTranslationType = GetArchetypeChunkComponentType<Translation>(),
+                ghostPlayerComponentType = GetArchetypeChunkComponentType<PlayerComponent>(),
 
                 targetTick = m_ClientSimulationSystemGroup.ServerTick,
                 lastPredictedTick = m_LastPredictedTick
@@ -164,10 +150,9 @@ public class MouseGhostUpdateSystem : JobComponentSystem
             var updateInterpolatedJob = new UpdateInterpolatedJob
             {
                 GhostMap = m_ghostEntityMap,
-                ghostSnapshotDataType = GetArchetypeChunkBufferType<MouseSnapshotData>(true),
+                ghostSnapshotDataType = GetArchetypeChunkBufferType<PlayerSnapshotData>(true),
                 ghostEntityType = GetArchetypeChunkEntityType(),
-                ghostRotationType = GetArchetypeChunkComponentType<Rotation>(),
-                ghostTranslationType = GetArchetypeChunkComponentType<Translation>(),
+                ghostPlayerComponentType = GetArchetypeChunkComponentType<PlayerComponent>(),
                 targetTick = m_ClientSimulationSystemGroup.InterpolationTick,
                 targetTickFraction = m_ClientSimulationSystemGroup.InterpolationTickFraction
             };
@@ -176,6 +161,6 @@ public class MouseGhostUpdateSystem : JobComponentSystem
         return inputDeps;
     }
 }
-public partial class MouseGhostSpawnSystem : DefaultGhostSpawnSystem<MouseSnapshotData>
+public partial class PlayerGhostSpawnSystem : DefaultGhostSpawnSystem<PlayerSnapshotData>
 {
 }

@@ -2,15 +2,19 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.NetCode;
-using Unity.Transforms;
 using Unity.Rendering;
+using Unity.Transforms;
 
-public struct MouseGhostSerializer : IGhostSerializer<MouseSnapshotData>
+public struct OverlayGhostSerializer : IGhostSerializer<OverlaySnapshotData>
 {
-    private ComponentType componentTypeEatenComponentTag;
+    private ComponentType componentTypeOverlayComponentTag;
+    private ComponentType componentTypePerInstanceCullingTag;
+    private ComponentType componentTypeRenderBounds;
+    private ComponentType componentTypeRenderMesh;
+    private ComponentType componentTypeLocalToWorld;
+    private ComponentType componentTypeNonUniformScale;
     private ComponentType componentTypeRotation;
     private ComponentType componentTypeTranslation;
-    private ComponentType componentTypeWalkComponent;
     // FIXME: These disable safety since all serializers have an instance of the same type - causing aliasing. Should be fixed in a cleaner way
     [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<Rotation> ghostRotationType;
     [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<Translation> ghostTranslationType;
@@ -23,13 +27,17 @@ public struct MouseGhostSerializer : IGhostSerializer<MouseSnapshotData>
 
     public bool WantsPredictionDelta => true;
 
-    public int SnapshotSize => UnsafeUtility.SizeOf<MouseSnapshotData>();
+    public int SnapshotSize => UnsafeUtility.SizeOf<OverlaySnapshotData>();
     public void BeginSerialize(ComponentSystemBase system)
     {
-        componentTypeEatenComponentTag = ComponentType.ReadWrite<EatenComponentTag>();
+        componentTypeOverlayComponentTag = ComponentType.ReadWrite<OverlayComponentTag>();
+        componentTypePerInstanceCullingTag = ComponentType.ReadWrite<PerInstanceCullingTag>();
+        componentTypeRenderBounds = ComponentType.ReadWrite<RenderBounds>();
+        componentTypeRenderMesh = ComponentType.ReadWrite<RenderMesh>();
+        componentTypeLocalToWorld = ComponentType.ReadWrite<LocalToWorld>();
+        componentTypeNonUniformScale = ComponentType.ReadWrite<NonUniformScale>();
         componentTypeRotation = ComponentType.ReadWrite<Rotation>();
         componentTypeTranslation = ComponentType.ReadWrite<Translation>();
-        componentTypeWalkComponent = ComponentType.ReadWrite<WalkComponent>();
         ghostRotationType = system.GetArchetypeChunkComponentType<Rotation>(true);
         ghostTranslationType = system.GetArchetypeChunkComponentType<Translation>(true);
     }
@@ -40,19 +48,27 @@ public struct MouseGhostSerializer : IGhostSerializer<MouseSnapshotData>
         int matches = 0;
         for (int i = 0; i < components.Length; ++i)
         {
-            if (components[i] == componentTypeEatenComponentTag)
+            if (components[i] == componentTypeOverlayComponentTag)
+                ++matches;
+            if (components[i] == componentTypePerInstanceCullingTag)
+                ++matches;
+            if (components[i] == componentTypeRenderBounds)
+                ++matches;
+            if (components[i] == componentTypeRenderMesh)
+                ++matches;
+            if (components[i] == componentTypeLocalToWorld)
+                ++matches;
+            if (components[i] == componentTypeNonUniformScale)
                 ++matches;
             if (components[i] == componentTypeRotation)
                 ++matches;
             if (components[i] == componentTypeTranslation)
                 ++matches;
-            if (components[i] == componentTypeWalkComponent)
-                ++matches;
         }
-        return (matches == 4);
+        return (matches == 8);
     }
 
-    public void CopyToSnapshot(ArchetypeChunk chunk, int ent, uint tick, ref MouseSnapshotData snapshot, GhostSerializerState serializerState)
+    public void CopyToSnapshot(ArchetypeChunk chunk, int ent, uint tick, ref OverlaySnapshotData snapshot, GhostSerializerState serializerState)
     {
         snapshot.tick = tick;
         var chunkDataRotation = chunk.GetNativeArray(ghostRotationType);

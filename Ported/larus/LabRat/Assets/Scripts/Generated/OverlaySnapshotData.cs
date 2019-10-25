@@ -2,7 +2,7 @@ using Unity.Networking.Transport;
 using Unity.NetCode;
 using Unity.Mathematics;
 
-public struct MouseSnapshotData : ISnapshotData<MouseSnapshotData>
+public struct OverlaySnapshotData : ISnapshotData<OverlaySnapshotData>
 {
     public uint tick;
     private int RotationValueX;
@@ -53,7 +53,7 @@ public struct MouseSnapshotData : ISnapshotData<MouseSnapshotData>
         TranslationValueZ = (int)(val.z * 100);
     }
 
-    public void PredictDelta(uint tick, ref MouseSnapshotData baseline1, ref MouseSnapshotData baseline2)
+    public void PredictDelta(uint tick, ref OverlaySnapshotData baseline1, ref OverlaySnapshotData baseline2)
     {
         var predictor = new GhostDeltaPredictor(tick, this.tick, baseline1.tick, baseline2.tick);
         RotationValueX = predictor.PredictInt(RotationValueX, baseline1.RotationValueX, baseline2.RotationValueX);
@@ -65,7 +65,7 @@ public struct MouseSnapshotData : ISnapshotData<MouseSnapshotData>
         TranslationValueZ = predictor.PredictInt(TranslationValueZ, baseline1.TranslationValueZ, baseline2.TranslationValueZ);
     }
 
-    public void Serialize(int networkId, ref MouseSnapshotData baseline, DataStreamWriter writer, NetworkCompressionModel compressionModel)
+    public void Serialize(int networkId, ref OverlaySnapshotData baseline, DataStreamWriter writer, NetworkCompressionModel compressionModel)
     {
         changeMask0 = (RotationValueX != baseline.RotationValueX ||
                                           RotationValueY != baseline.RotationValueY ||
@@ -90,7 +90,7 @@ public struct MouseSnapshotData : ISnapshotData<MouseSnapshotData>
         }
     }
 
-    public void Deserialize(uint tick, ref MouseSnapshotData baseline, DataStreamReader reader, ref DataStreamReader.Context ctx,
+    public void Deserialize(uint tick, ref OverlaySnapshotData baseline, DataStreamReader reader, ref DataStreamReader.Context ctx,
         NetworkCompressionModel compressionModel)
     {
         this.tick = tick;
@@ -122,7 +122,7 @@ public struct MouseSnapshotData : ISnapshotData<MouseSnapshotData>
             TranslationValueZ = baseline.TranslationValueZ;
         }
     }
-    public void Interpolate(ref MouseSnapshotData target, float factor)
+    public void Interpolate(ref OverlaySnapshotData target, float factor)
     {
         SetRotationValue(math.slerp(GetRotationValue(), target.GetRotationValue(), factor));
         SetTranslationValue(math.lerp(GetTranslationValue(), target.GetTranslationValue(), factor));
