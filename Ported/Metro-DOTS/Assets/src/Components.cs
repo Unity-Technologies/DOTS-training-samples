@@ -42,6 +42,14 @@ public struct DistanceToTarget : IComponentData
     public float value;
 }
 
+public struct Timer : IComponentData
+{
+    public float value;
+}public struct TimeInterval : IComponentData
+{
+    public float value;
+}
+
 public struct BezierCurve : IComponentData
 {
     public BlobAssetReference<Curve> line;
