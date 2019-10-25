@@ -2,7 +2,6 @@ using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Transforms;
 
 public struct SpawnCommuters : IComponentData
@@ -48,31 +47,29 @@ public class SpawnCommuterSystem : JobComponentSystem
 
     struct SpawnCommutersJob : IJobForEachWithEntity<SpawnCommuters>
     {
+        static System.Random RNG = new System.Random();
+
         [ReadOnly] public PlatformTransforms trs;
         [WriteOnly] public EntityCommandBuffer.Concurrent cmdBuffer;
         [ReadOnly] public PathLookup lookup;
 
         public void Execute(Entity entity, int index, [ReadOnly] ref SpawnCommuters c0)
         {
-            var random = new Random(123);
-            var length = lookup.value.Value.paths.Length;
+            var length = lookup.value.Value.startIndices.Length;
             for (var i = 0; i < c0.numberOfCommuters; i++)
             {
                 var commuter = cmdBuffer.Instantiate(index, c0.prefab);
-                var randomLookup = random.NextInt(0, length-1);
-                var path = lookup.value.Value.paths[randomLookup];
+                var randomLookup = RNG.Next(0, length-1);
+
+                var path = lookup.value.Value.GetPath(randomLookup);
                 var platformId = path.fromPlatformId;
                 var platformPos = trs.value.Value.translations[platformId];
-
-                var destID = path.toPlatformId;
-                var destPos = trs.value.Value.translations[destID];
 
                 cmdBuffer.SetComponent(index, commuter, new Translation { Value = platformPos});
                 cmdBuffer.AddComponent(index, commuter, new PlatformId { value = platformId });
                 cmdBuffer.AddComponent(index, commuter, new CurrentPathIndex{ pathLookupIdx = randomLookup, connectionIdx = 0 });
                 cmdBuffer.AddComponent(index, commuter, lookup);
-                cmdBuffer.AddComponent(index, commuter, new TargetPosition { value = destPos});
-                cmdBuffer.AddComponent(index, commuter, new Speed { value = 6.66f});
+                cmdBuffer.AddComponent(index, commuter, new Speed { value = 66.66f});
             }
             cmdBuffer.RemoveComponent(index, entity, typeof(SpawnCommuters));
         }

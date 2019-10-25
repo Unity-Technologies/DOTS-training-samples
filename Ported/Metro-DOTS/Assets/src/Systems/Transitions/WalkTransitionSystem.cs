@@ -35,7 +35,7 @@ class WalkTransitionSystem : JobComponentSystem
             ref CurrentPathIndex pathIndex,
             [ReadOnly] ref PathLookup pathLookup)
         {
-            var path = pathLookup.value.Value.paths[pathIndex.pathLookupIdx];
+            var path = pathLookup.value.Value.GetPath(pathIndex.pathLookupIdx);
             if (platformId.value == path.connections[pathIndex.connectionIdx].destinationPlatformId)
             {
                 ++pathIndex.connectionIdx;

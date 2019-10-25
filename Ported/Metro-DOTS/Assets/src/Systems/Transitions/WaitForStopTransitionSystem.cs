@@ -102,10 +102,11 @@ class WaitForStopTransitionSystem : JobComponentSystem
             {
                 if (inputBuffer[i].trainID == trainID.value)
                 {
-                    if (inputBuffer[i].platformID == pathLookup.value.Value.paths[pathIndex.connectionIdx].toPlatformId)
+                    var path = pathLookup.value.Value.GetPath(pathIndex.pathLookupIdx);
+                    if (inputBuffer[i].platformID == path.toPlatformId)
                     {
                         ++pathIndex.connectionIdx;
-                        if (pathIndex.connectionIdx >= pathLookup.value.Value.paths.Length)
+                        if (pathIndex.connectionIdx >= pathLookup.value.Value.startIndices.Length)
                         {
                             //TODO Depawn commuter
                         }

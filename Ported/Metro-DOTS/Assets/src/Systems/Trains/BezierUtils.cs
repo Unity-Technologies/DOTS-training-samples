@@ -49,17 +49,17 @@ public struct BezierUtils
         return rot;
     }
 
-    static float3 BezierLerp(BezierPt _pointA, BezierPt _pointB, float _progress)
+    static float3 BezierLerp(BezierPt _pointA, BezierPt _pointB, float t)
     {
-        // Round 1 --> Origins to handles, handle to handle
-        var l1_a_aOUT = math.lerp(_pointA.location, _pointA.handle_out, _progress);
-        var l2_bIN_b = math.lerp(_pointB.handle_in, _pointB.location, _progress);
-        var l3_aOUT_bIN = math.lerp(_pointA.handle_out, _pointB.handle_in, _progress);
-        // Round 2
-        var l1_to_l3 = math.lerp(l1_a_aOUT, l3_aOUT_bIN, _progress);
-        var l3_to_l2 = math.lerp(l3_aOUT_bIN, l2_bIN_b, _progress);
-        // Final Round
-        return math.lerp(l1_to_l3, l3_to_l2, _progress);
+        // src: https://en.wikipedia.org/wiki/B%C3%A9zier_curve
+        // ¯\_(ツ)_/¯
+        // B(t) = math.pow((1-t), 3) * P0 + 3 * math.pow((1-t), 2) * t * P1 + 3 * (1-t) * math.pow(t, 2) * P2 + math.pow(t, 3) * P3
+
+        var inverseT = 1.0f - t;
+        return inverseT * inverseT * inverseT * _pointA.location +
+            3 * inverseT * inverseT * t * _pointA.handle_out +
+            3 * inverseT * t * t * _pointB.handle_in +
+            t * t * t * _pointB.location;
     }
 
     static int GetRegionIndex(BlobAssetReference<Curve> curve, float _progress)
