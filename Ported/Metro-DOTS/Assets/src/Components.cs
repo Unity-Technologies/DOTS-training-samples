@@ -53,6 +53,13 @@ public struct BezierTOffset : IComponentData
     public float renderOffset;
 }
 
+public struct StationData : IBufferElementData
+{
+    public float start;
+    public float end;
+    public int platformId;
+}
+
 public struct BezierPt
 {
     const float k_BezierHandleReach = 0.1f;
@@ -60,15 +67,6 @@ public struct BezierPt
     public int index;
     public float3 location, handle_in, handle_out;
     public float distanceAlongPath;
-
-    public BezierPt(int idx, float3 _location, float3 _handle_in, float3 _handle_out, float distance)
-    {
-        index = idx;
-        location = _location;
-        handle_in = _handle_in;
-        handle_out = _handle_out;
-        distanceAlongPath = distance;
-    }
 
     public BezierPt(BezierPoint pt)
     {
@@ -83,8 +81,6 @@ public struct BezierPt
 public struct Curve
 {
     public BlobArray<BezierPt> points;
-    public BlobArray<BezierPt> tStartStops;
-    public BlobArray<BezierPt> tEndStops;
     public float distance;
 }
 

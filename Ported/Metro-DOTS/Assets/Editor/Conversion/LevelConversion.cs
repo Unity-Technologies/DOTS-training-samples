@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class LevelConversion : GameObjectConversionSystem
@@ -44,12 +46,44 @@ public class LevelConversion : GameObjectConversionSystem
 
                 var trainLine = new BezierCurve { line = trainLineRef };
                 var spacing =  trainIndex * (1f / metroLine.maxTrains);
-                var spawnTrain = new SpawnTrain(prefab, trainLine, numberOfCarriages, globalTrainIdx, metroLine.carriageLength_onRail, spacing);
+
+                globalTrainIdx++;
+
+                var stationData = new StationData[metroLine.platforms.Count];
+                for (var pl = 0; pl < metroLine.platforms.Count; pl++)
+                {
+                    var platform = metroLine.platforms[pl];
+                    var startT = platform.point_platform_START.distanceAlongPath / metroLine.bezierPath.GetPathDistance();
+                    var endT = platform.point_platform_END.distanceAlongPath / metroLine.bezierPath.GetPathDistance();
+                    stationData[pl] = new StationData { start = startT, end = endT, platformId = platform.platformIndex };
+                }
+                var currentPlatform = GetCurrentPlatformId(stationData, spacing);
+                var spawnTrain = new SpawnTrain(prefab, trainLine, numberOfCarriages, globalTrainIdx, metroLine.carriageLength_onRail, spacing, currentPlatform);
 
                 DstEntityManager.AddComponentData(trainSpawnerEntity, spawnTrain);
-                globalTrainIdx++;
+                var buffer = DstEntityManager.AddBuffer<StationData>(trainSpawnerEntity);
+                buffer.CopyFrom(stationData);
             }
         }
+    }
+
+    public int GetCurrentPlatformId(StationData[] stations, float t)
+    {
+        if (t < stations[0].start)
+            return stations[0].platformId;
+
+        var previousStation = stations[stations.Length - 1];
+        for (var i = 0; i < stations.Length; i++)
+        {
+            var station = stations[i];
+            if (t > previousStation.end && t < station.end)
+            {
+                return station.platformId;
+            }
+            previousStation = station;
+        }
+
+        return stations[stations.Length - 1].platformId;
     }
 
     BlobAssetReference<Curve> BuildBezierPath(MetroLine metroLine)
@@ -63,15 +97,6 @@ public class LevelConversion : GameObjectConversionSystem
             {
                 var bezierPt = metroLine.bezierPath.points[pt];
                 lineBuilder[pt] = new BezierPt(bezierPt);
-            }
-
-            var startBuilder = builder.Allocate(ref curveRoot.tStartStops, metroLine.platforms.Count);
-            var endBuilder = builder.Allocate(ref curveRoot.tEndStops, metroLine.platforms.Count);
-            for (var pt = 0; pt < metroLine.platforms.Count; pt++)
-            {
-                var platform = metroLine.platforms[pt];
-                startBuilder[pt] = new BezierPt(platform.point_platform_START);
-                endBuilder[pt] = new BezierPt(platform.point_platform_END);
             }
 
             var assetRef = builder.CreateBlobAssetReference<Curve>(Allocator.Persistent);
