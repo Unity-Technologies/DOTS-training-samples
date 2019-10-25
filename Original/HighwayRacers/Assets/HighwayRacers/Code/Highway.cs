@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -13,6 +14,9 @@ namespace HighwayRacers
 	/// </summary>
     public class Highway : MonoBehaviour
     {
+
+        public static bool USE_HYBRID_RENDERER = true;
+        
         public const float LANE_SPACING = 1.9f;
         public const float MID_RADIUS = 31.46f;
         public float CURVE_LANE0_RADIUS;
@@ -153,6 +157,11 @@ namespace HighwayRacers
                 em.AddComponentData(entity,new Translation());
                 em.AddComponentData(entity,new Rotation());
                 em.AddComponentData(entity, new LocalToWorld());
+
+                if (USE_HYBRID_RENDERER)
+                {
+                    em.AddSharedComponentData(entity,new RenderMesh{mesh = Game.instance.entityMesh,material = Game.instance.entityMaterial});
+                }
 
                 lane += 1;
                 if (lane == NUM_LANES)
