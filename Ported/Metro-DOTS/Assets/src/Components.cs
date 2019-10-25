@@ -42,7 +42,7 @@ public struct DistanceToTarget : IComponentData
     public float value;
 }
 
-public struct Timer : IComponentData
+public struct TimerComponent : IComponentData
 {
     public float value;
 }public struct TimeInterval : IComponentData

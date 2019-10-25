@@ -18,7 +18,7 @@ class DoorsOpenTransitionSystem : JobComponentSystem
                 All = new[]
                 {
                     ComponentType.ReadOnly<DOORS_OPEN>(),
-                    ComponentType.ReadWrite<Timer>(),
+                    ComponentType.ReadWrite<TimerComponent>(),
                     ComponentType.ReadOnly<TimeInterval>()
                 }
             });
@@ -32,11 +32,11 @@ class DoorsOpenTransitionSystem : JobComponentSystem
         return handle;
     }
 
-    struct ApplyDoorOpenTransition : IJobForEachWithEntity<Timer, TimeInterval>
+    struct ApplyDoorOpenTransition : IJobForEachWithEntity<TimerComponent, TimeInterval>
     {
         public EntityCommandBuffer.Concurrent commandBuffer;
 
-        public void Execute(Entity entity, int jobIndex, ref Timer timer, [ReadOnly] ref TimeInterval timeInterval)
+        public void Execute(Entity entity, int jobIndex, ref TimerComponent timer, [ReadOnly] ref TimeInterval timeInterval)
         {
             if (timer.value >= timeInterval.value )
             {

@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Jobs;
 
 [UpdateInGroup(typeof(TransitionSystemGroup))]
-class DoorsOpenTransitionSystem : JobComponentSystem
+class DoorsCloseTransitionSystem : JobComponentSystem
 {
     EntityCommandBufferSystem m_CommandBufferSystem;
     EntityQuery m_ClosingDoorQuery;
@@ -18,7 +18,7 @@ class DoorsOpenTransitionSystem : JobComponentSystem
                 All = new[]
                 {
                     ComponentType.ReadOnly<DOORS_CLOSE>(),
-                    ComponentType.ReadWrite<Timer>(),
+                    ComponentType.ReadWrite<TimerComponent>(),
                     ComponentType.ReadOnly<TimeInterval>()
                 }
             });
@@ -27,16 +27,16 @@ class DoorsOpenTransitionSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var job = new ApplyDoorCloseTransition();
-        var handle = job.Schedule(m_OpeningDoorQuery, inputDeps);
+        var handle = job.Schedule(m_ClosingDoorQuery, inputDeps);
         m_CommandBufferSystem.AddJobHandleForProducer(handle);
         return handle;
     }
 
-    struct ApplyDoorCloseTransition : IJobForEachWithEntity<Timer, TimeInterval>
+    struct ApplyDoorCloseTransition : IJobForEachWithEntity<TimerComponent, TimeInterval>
     {
         public EntityCommandBuffer.Concurrent commandBuffer;
 
-        public void Execute(Entity entity, int jobIndex, ref Timer timer, [ReadOnly] ref TimeInterval timeInterval)
+        public void Execute(Entity entity, int jobIndex, ref TimerComponent timer, [ReadOnly] ref TimeInterval timeInterval)
         {
             if (timer.value >= timeInterval.value)
             {

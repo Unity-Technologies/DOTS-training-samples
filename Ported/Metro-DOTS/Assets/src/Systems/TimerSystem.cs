@@ -2,9 +2,10 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using UnityEngine;
 
 [UpdateInGroup(typeof(TransitionSystemGroup))]
-class DoorsOpenTransitionSystem : JobComponentSystem
+class TimerSystem : JobComponentSystem
 {
     EntityQuery m_TimerQuery;
 
@@ -15,7 +16,7 @@ class DoorsOpenTransitionSystem : JobComponentSystem
             {
                 All = new[]
                 {
-                    ComponentType.ReadWrite<Timer>()
+                    ComponentType.ReadWrite<TimerComponent>()
                 },
                 Any = new[]
                 {
@@ -30,10 +31,11 @@ class DoorsOpenTransitionSystem : JobComponentSystem
         return new TimerJob{dt = Time.deltaTime}.Schedule(m_TimerQuery, inputDeps);
     }
 
-    struct TimerJob : IJobForEachWithEntity<Timer>
+    [BurstCompile(FloatMode = FloatMode.Fast)]
+    struct TimerJob : IJobForEach<TimerComponent>
     {
         public float dt;
-        public void Execute(ref Timer timer)
+        public void Execute(ref TimerComponent timer)
         {
             timer.value += dt;
         }
