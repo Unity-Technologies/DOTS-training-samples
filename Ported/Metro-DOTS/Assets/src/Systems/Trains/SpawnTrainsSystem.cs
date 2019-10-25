@@ -67,6 +67,8 @@ public class SpawnTrainsSystem : JobComponentSystem
                 cmdBuffer.AddComponent(index, carriage, new PlatformId{ value = c0.initialPlatformId});
                 cmdBuffer.AddComponent(index, carriage, new BezierTOffset{ offset = c0.initialT, renderOffset = carriageOffset});
                 cmdBuffer.AddComponent(index, carriage, new EN_ROUTE());
+                cmdBuffer.AddComponent(index, carriage, new TimerComponent());
+                cmdBuffer.AddComponent(index, carriage, new TimeInterval{value = 2});
                 cmdBuffer.AddBuffer<StationData>(index, carriage).CopyFrom(stations);
                 carriageOffset += c0.carriageOffset;
             }

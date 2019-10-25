@@ -26,7 +26,7 @@ class DoorsOpenTransitionSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var job = new ApplyDoorOpenTransition();
+        var job = new ApplyDoorOpenTransition { commandBuffer = m_CommandBufferSystem.CreateCommandBuffer().ToConcurrent()};
         var handle = job.Schedule(m_OpeningDoorQuery, inputDeps);
         m_CommandBufferSystem.AddJobHandleForProducer(handle);
         return handle;

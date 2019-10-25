@@ -38,14 +38,14 @@ class ArrivingTransitionSystem : JobComponentSystem
                 if (id.value == stations[i].platformId)
                 {
                     if (i != stations.Length - 1)
-                        nextStation = stations[i];
+                        nextStation = stations[i+1];
                 }
             }
 
             if (t.offset > nextStation.start)
             {
                 speed.value = 0;
-                commandBuffer.AddComponent(index, entity, new ARRIVING());
+                commandBuffer.AddComponent(index, entity, new DOORS_OPEN());
                 commandBuffer.RemoveComponent(index, entity, typeof(EN_ROUTE));
             }
         }
