@@ -39,6 +39,8 @@ namespace HighwayRacers
 			numCarsSlider.maxValue = Game.instance.maxNumCars;
 			highwaySizeSlider.minValue = Mathf.Ceil(Highway.instance.MIN_HIGHWAY_LANE0_LENGTH);
 			highwaySizeSlider.maxValue = Game.instance.highwayMaxSize;
+            lanesSlider.minValue = 1;
+            lanesSlider.maxValue = 16;
 
 			numCarsSlider.value = Highway.instance.NumCars;
 			highwaySizeSlider.value = Highway.instance.DotsHighway.Lane0Length;

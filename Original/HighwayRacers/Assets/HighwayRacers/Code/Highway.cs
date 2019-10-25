@@ -14,9 +14,8 @@ namespace HighwayRacers
 	/// </summary>
     public class Highway : MonoBehaviour
     {
+        public static bool USE_HYBRID_RENDERER = false;
 
-        public static bool USE_HYBRID_RENDERER = true;
-        
         public const float LANE_SPACING = 1.9f;
         public const float MID_RADIUS = 31.46f;
         public float CURVE_LANE0_RADIUS;
@@ -31,7 +30,7 @@ namespace HighwayRacers
         public Material EntityCarMaterial;
 
         public int NUM_LANES = 8;
-        
+
         public static Highway instance { get; private set; }
 
         private HighwayPiece[] pieces = new HighwayPiece[8];
@@ -91,7 +90,7 @@ namespace HighwayRacers
                     rot = Mathf.PI / 2 * (i / 2 + 1);
                 }
             }
-            DotsHighway.Create(pieces);
+            DotsHighway.Create(pieces, NUM_LANES);
 			SetNumCars(tempNumCars);
         }
 

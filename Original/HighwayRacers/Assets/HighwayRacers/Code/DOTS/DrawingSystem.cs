@@ -63,5 +63,6 @@ public class DrawingSystem : ComponentSystem
 
             positions.Dispose();
             colors.Dispose();
-        }    }
+        }
+    }
 }

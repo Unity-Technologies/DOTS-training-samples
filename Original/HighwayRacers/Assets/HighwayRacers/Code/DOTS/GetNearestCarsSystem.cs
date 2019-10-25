@@ -9,7 +9,8 @@ using UnityEngine;
 
 namespace HighwayRacers
 {
-    [UpdateBefore(typeof(CarStateSystem))]
+    [UpdateInGroup(typeof(LateSimulationSystemGroup))]
+    [UpdateAfter(typeof(DrawingSystem))]
     public class GetNearestCarsSystem : JobComponentSystem
     {
         [BurstCompile]
@@ -83,7 +84,9 @@ namespace HighwayRacers
                 DotsHighway = Highway.instance.DotsHighway,
                 CarSize = Game.instance.distanceToBack + Game.instance.distanceToFront
             };
-            return queryJob.Schedule(this, buildDeps);
+            var deps = queryJob.Schedule(this, buildDeps);
+            DotsHighway.RegisterReaderJob(deps);
+            return deps;
         }
     }
 }
