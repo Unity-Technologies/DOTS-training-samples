@@ -159,7 +159,8 @@ namespace HighwayRacers
 
                 if (USE_HYBRID_RENDERER)
                 {
-                    em.AddSharedComponentData(entity,new RenderMesh{mesh = Game.instance.entityMesh,material = Game.instance.entityMaterial});
+                    em.AddSharedComponentData(entity, new RenderMesh
+                        { mesh = Game.instance.entityMesh,material = Game.instance.entityMaterial });
                 }
 
                 lane += 1;

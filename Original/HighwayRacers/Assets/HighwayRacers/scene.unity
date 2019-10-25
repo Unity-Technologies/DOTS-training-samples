@@ -3583,8 +3583,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8beda08cb9fd694abdd732dfd42955c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxNumCars: 32000
-  highwayMaxSize: 28000
+  maxNumCars: 80000
+  highwayMaxSize: 70000
   acceleration: 15
   brakeDeceleration: 20
   switchLanesSpeed: 3
