@@ -29,7 +29,7 @@ namespace HighwayRacers
         public Mesh EntityCarMesh;
         public Material EntityCarMaterial;
 
-        public int NUM_LANES = 8;
+        public int NumLanes = 8;
 
         public static Highway instance { get; private set; }
 
@@ -42,8 +42,8 @@ namespace HighwayRacers
 
         public void CreateHighway(float lane0Length)
         {
-            CURVE_LANE0_RADIUS = MID_RADIUS - LANE_SPACING * (NUM_LANES - 1) / 2f;
-            MIN_HIGHWAY_LANE0_LENGTH = CURVE_LANE0_RADIUS * 4;
+            CURVE_LANE0_RADIUS = MID_RADIUS - LANE_SPACING * (NumLanes - 1) / 2f;
+            MIN_HIGHWAY_LANE0_LENGTH = CURVE_LANE0_RADIUS * 2 * Mathf.PI;
             if (lane0Length < MIN_HIGHWAY_LANE0_LENGTH)
             {
                 Debug.LogError("Highway length must be longer than " + MIN_HIGHWAY_LANE0_LENGTH);
@@ -90,7 +90,7 @@ namespace HighwayRacers
                     rot = Mathf.PI / 2 * (i / 2 + 1);
                 }
             }
-            DotsHighway.Create(pieces, NUM_LANES);
+            DotsHighway.Create(pieces, NumLanes);
 			SetNumCars(tempNumCars);
         }
 
@@ -164,7 +164,7 @@ namespace HighwayRacers
                 }
 
                 lane += 1;
-                if (lane == NUM_LANES)
+                if (lane == NumLanes)
                     lane = 0;
             }
         }

@@ -29,7 +29,7 @@ namespace HighwayRacers
 		{
 			Highway.instance.CreateHighway(highwaySizeSlider.value);
 			Highway.instance.SetNumCars(Mathf.RoundToInt(numCarsSlider.value));
-			Highway.instance.NUM_LANES = (Mathf.RoundToInt(lanesSlider.value));
+			Highway.instance.NumLanes = (Mathf.RoundToInt(lanesSlider.value));
 			numCarsSlider.value = Highway.instance.NumCars;
 		}
 
