@@ -9,7 +9,7 @@ using UnityEngine;
 [UpdateInGroup(typeof(IKSolverGroupSystem))]
 public class HandUpSystem : JobComponentSystem
 {
-    [BurstCompile]
+    [BurstCompile(FloatMode = FloatMode.Fast)]
     struct HandUpJob : IJobForEachWithEntity_EBC<BoneJoint, HandAxis>
     {
         public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints, ref HandAxis handAxis)

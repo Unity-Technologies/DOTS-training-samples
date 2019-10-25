@@ -12,7 +12,7 @@ public class DestroySystem : JobComponentSystem
 {
     EntityQuery m_group;
 
-    [BurstCompile]
+    [BurstCompile(FloatMode = FloatMode.Fast)]
     struct DestroySystemJob : IJobForEachWithEntity<Translation, ResetPosition>
     {
         public float3 boundsMin;

@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -7,6 +8,7 @@ using UnityEngine;
 [UpdateInGroup(typeof(IKSolverGroupSystem))]
 public class UpdateTargetSystem : JobComponentSystem
 {
+	[BurstCompile(FloatMode = FloatMode.Fast)]
 	struct UpdateTargetJob : IJobForEach_BC<BoneJoint, ArmTarget>
     {
         public float Time;

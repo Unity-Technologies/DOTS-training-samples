@@ -21,7 +21,7 @@ public class FingerIKSolver : JobComponentSystem
     private const int fingerJointCount = 4;
     private const int armOffset = 2;
 
-    [BurstCompile]
+    [BurstCompile(FloatMode = FloatMode.Fast)]
     struct ArmIKSolverJob : IJobForEachWithEntity_EBCC<BoneJoint, ArmTarget, HandAxis>
     {
         [ReadOnly] public float time;

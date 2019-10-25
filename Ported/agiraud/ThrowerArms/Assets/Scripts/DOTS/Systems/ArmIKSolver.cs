@@ -16,7 +16,7 @@ public class ArmIKSolver : JobComponentSystem
     private const float armBoneLength = 1;
     private const float armBendStrength = 0.1f;
 
-    [BurstCompile]
+    [BurstCompile(FloatMode = FloatMode.Fast)]
     struct ArmIKSolverJob : IJobForEachWithEntity_EBCC<BoneJoint, ArmTarget, HandAxis>
     {
         public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints,

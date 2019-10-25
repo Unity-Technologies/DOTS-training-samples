@@ -9,7 +9,7 @@ using Unity.Transforms;
 [UpdateAfter(typeof(SpawnerSystem))]
 public class BoneMatrixSystem : JobComponentSystem
 {
-    [BurstCompile]
+    [BurstCompile(FloatMode = FloatMode.Fast)]
     struct BoneMatrixSystemJob : IJobForEachWithEntity<BoneData, LocalToWorld>
     {
         [ReadOnly] public BufferFromEntity<BoneJoint> BoneChain;

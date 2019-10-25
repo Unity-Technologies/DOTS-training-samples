@@ -9,7 +9,7 @@ using UnityEngine;
 [UpdateBefore(typeof(PhysicsSystem))]
 public class GrowSystem : JobComponentSystem
 {
-    [BurstCompile]
+    [BurstCompile(FloatMode = FloatMode.Fast)]
     struct GrowSystemJob : IJobForEach<Scale>
     {
         public float deltaTime;

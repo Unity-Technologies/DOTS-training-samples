@@ -20,7 +20,7 @@ public class PhysicsSystem : JobComponentSystem
         }
     }
 
-    [BurstCompile]
+    [BurstCompile(FloatMode = FloatMode.Fast)]
     struct AddGravitySystemJob : IJobForEach<Physics>
     {
         public float dt;

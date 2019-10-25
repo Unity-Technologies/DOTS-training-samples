@@ -15,7 +15,7 @@ public class ThumbIKSolver : JobComponentSystem
     private const float thumbBendStrength = 0.1f;
     private const float thumbXOffset = -0.05f;
 
-    [BurstCompile]
+    [BurstCompile(FloatMode = FloatMode.Fast)]
     struct ThumbIKSolverJob : IJobForEachWithEntity_EBCC<BoneJoint, ArmTarget, HandAxis>
     {
         public float Time;

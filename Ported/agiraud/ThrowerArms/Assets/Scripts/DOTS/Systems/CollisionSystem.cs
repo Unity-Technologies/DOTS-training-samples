@@ -13,7 +13,7 @@ public class CollisionSystem : JobComponentSystem
     EntityQuery m_group;
     private EntityQuery m_RocksQuery;
 
-    [BurstCompile]
+    [BurstCompile(FloatMode = FloatMode.Fast)]
     struct CollisionSystemJob : IJobForEachWithEntity<Physics, Translation>
     {
         [ReadOnly]

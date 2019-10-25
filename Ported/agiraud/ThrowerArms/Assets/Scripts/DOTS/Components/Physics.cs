@@ -7,7 +7,7 @@ using Unity.Mathematics;
 public struct Physics : IComponentData
 {
     public float3 velocity;
-    public float3 angularVelocity;
     public float GravityStrength;
+    public float3 angularVelocity;
     public bool flying;
 }
