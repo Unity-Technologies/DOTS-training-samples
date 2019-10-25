@@ -22,12 +22,12 @@ public class FingerIKSolver : JobComponentSystem
     private const int armOffset = 2;
 
     [BurstCompile]
-    struct ArmIKSolverJob : IJobForEachWithEntity_EBCCC<BoneJoint, ArmTarget, HandAxis, Timers>
+    struct ArmIKSolverJob : IJobForEachWithEntity_EBCC<BoneJoint, ArmTarget, HandAxis>
     {
         [ReadOnly] public float time;
         
         public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints,
-            [ReadOnly] ref ArmTarget armTarget, [ReadOnly] ref HandAxis handAxis, [ReadOnly] ref Timers timer)
+            [ReadOnly] ref ArmTarget armTarget, [ReadOnly] ref HandAxis handAxis)
         {
             for (var j = 0; j < fingerCount; j++)
             {
@@ -41,7 +41,7 @@ public class FingerIKSolver : JobComponentSystem
                 var fingerPos = boneJoints[armOffset].JointPos + handAxis.Right * (fingerXOffset + j * fingerSpacing);
 
                 // find resting position for this fingertip (fingerTarget)
-                var fingerGrabT = timer.GrabT;
+                var fingerGrabT = math.sin(time);
                 if (armTarget.IsHolding)
                     fingerGrabT = 1; // -> Gripping position
 
@@ -51,7 +51,7 @@ public class FingerIKSolver : JobComponentSystem
                 fingerTarget += handAxis.Up * math.sin((time + j*.2f)*3f) * .2f*(1f-fingerGrabT);
 
                 // apply finger-spreading during throw animation
-                float openPalm = timer.Throw;
+                float openPalm = math.cos(time);
                 fingerTarget += (handAxis.Up * .3f + handAxis.Forward * .1f + handAxis.Right * (j - 1.5f) * .1f) * openPalm ;
 
                 ConstantManager.IKSolve(ref chainPositions, fingerBoneLength[j],fingerPos, fingerTarget,

@@ -20,9 +20,8 @@ public class ArmSpawnerSystem : ComponentSystem
         m_ArmArchetype = EntityManager.CreateArchetype(
             ComponentType.ReadWrite<BoneJoint>(),
             ComponentType.ReadWrite<HandAxis>(), 
-            ComponentType.ReadWrite<ArmTarget>(),
-            ComponentType.ReadWrite<Timers>()
-            );
+            ComponentType.ReadWrite<ArmTarget>()
+        );
 
         m_RandomGenerator = new Random((uint)Environment.TickCount);
     }
@@ -108,15 +107,6 @@ public class ArmSpawnerSystem : ComponentSystem
                 };
                 EntityManager.SetComponentData(armEntity, target);
 
-                var timers = new Timers
-                {
-                    TimeOffset = m_RandomGenerator.NextFloat(0.0f, 100.0f),
-                    Reach = 0.0f,
-                    Throw = 0.0f,
-                    Windup = 0.0f
-                };
-                EntityManager.SetComponentData(armEntity, timers);
-                
                 CreateArm(spawnerData.BoneEntityPrefab, armEntity);
             }
             EntityManager.DestroyEntity(e);
