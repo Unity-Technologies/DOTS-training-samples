@@ -13,12 +13,12 @@ public class DestroySystem : JobComponentSystem
     EntityQuery m_group;
 
     [BurstCompile(FloatMode = FloatMode.Fast)]
-    struct DestroySystemJob : IJobForEachWithEntity<Translation, ResetPosition>
+    struct DestroySystemJob : IJobForEach<Translation, ResetPosition>
     {
         public float3 boundsMin;
         public float3 boundsMax;
 
-        public void Execute(Entity entity, int index, [ReadOnly] ref Translation translation, ref ResetPosition resetPos)
+        public void Execute([ReadOnly] ref Translation translation, ref ResetPosition resetPos)
         {
             if (translation.Value.x < boundsMin.x || translation.Value.y < boundsMin.y || translation.Value.z < boundsMin.z ||
                 translation.Value.x > boundsMax.x || translation.Value.y > boundsMax.y || translation.Value.z > boundsMax.z)

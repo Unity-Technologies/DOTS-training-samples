@@ -20,14 +20,14 @@ public class ResetSystem : JobComponentSystem
     EntityQuery m_ReservedResetGroup;
 
     [BurstCompile]
-    struct RandomResetPositionJob : IJobForEachWithEntity<Translation, Physics, ResetPosition, Scale, Rotation, Reserved>
+    struct RandomResetPositionJob : IJobForEach<Translation, Physics, ResetPosition, Scale, Rotation, Reserved>
     {
         public float3 MinPosition;
         public float3 MaxPosition;
         public float3 InitialVelocity;
         public float InitialScale;
         public Random rd;
-        public void Execute(Entity entity, int index, ref Translation position, ref Physics physics, ref ResetPosition resetPos, ref Scale scale, ref Rotation rotation, ref Reserved reserved)
+        public void Execute(ref Translation position, ref Physics physics, ref ResetPosition resetPos, ref Scale scale, ref Rotation rotation, ref Reserved reserved)
         {
             if (!resetPos.needReset) return;
             position.Value = rd.NextFloat3(MinPosition, MaxPosition);

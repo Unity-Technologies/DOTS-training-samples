@@ -10,18 +10,18 @@ using Unity.Transforms;
 public class BoneMatrixSystem : JobComponentSystem
 {
     [BurstCompile(FloatMode = FloatMode.Fast)]
-    struct BoneMatrixSystemJob : IJobForEachWithEntity<BoneData, LocalToWorld>
+    struct BoneMatrixSystemJob : IJobForEach<BoneData, LocalToWorld>
     {
         [ReadOnly] public BufferFromEntity<BoneJoint> BoneChain;
-        [ReadOnly] public ComponentDataFromEntity<HandAxis> Up;
+        [ReadOnly] public ComponentDataFromEntity<HandAxis> Hand;
         
-        public void Execute(Entity entity, int jobIndex, [ReadOnly] ref BoneData boneData, ref LocalToWorld transform)
+        public void Execute([ReadOnly] ref BoneData boneData, ref LocalToWorld transform)
         {
             var chain = BoneChain[boneData.Parent];
             var delta = chain[boneData.ChainIndex + 1].JointPos - chain[boneData.ChainIndex].JointPos;
 
             var trs = float4x4.TRS(chain[boneData.ChainIndex].JointPos + delta * .5f,
-                quaternion.LookRotation(delta, Up[boneData.Parent].Up),
+                quaternion.LookRotation(delta, Hand[boneData.Parent].Up),
                 new float3(boneData.Thickness, boneData.Thickness, math.length(delta)));
 
             transform = new LocalToWorld { Value = trs };
@@ -33,7 +33,7 @@ public class BoneMatrixSystem : JobComponentSystem
         var job = new BoneMatrixSystemJob
         {
             BoneChain = GetBufferFromEntity<BoneJoint>(true),
-            Up = GetComponentDataFromEntity<HandAxis>(true)
+            Hand = GetComponentDataFromEntity<HandAxis>(true)
         };
         return job.Schedule(this, inputDeps);
     }

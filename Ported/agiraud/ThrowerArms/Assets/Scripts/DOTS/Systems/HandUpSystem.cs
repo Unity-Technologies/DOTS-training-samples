@@ -10,9 +10,9 @@ using UnityEngine;
 public class HandUpSystem : JobComponentSystem
 {
     [BurstCompile(FloatMode = FloatMode.Fast)]
-    struct HandUpJob : IJobForEachWithEntity_EBC<BoneJoint, HandAxis>
+    struct HandUpJob : IJobForEach_BC<BoneJoint, HandAxis>
     {
-        public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints, ref HandAxis handAxis)
+        public void Execute(DynamicBuffer<BoneJoint> boneJoints, ref HandAxis handAxis)
         {
             var handForward = new float3(0, 0, 1);
             if (math.abs(math.length(boneJoints[2].JointPos - boneJoints[1].JointPos)) > 0.000001f )

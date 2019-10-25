@@ -22,11 +22,11 @@ public class FingerIKSolver : JobComponentSystem
     private const int armOffset = 2;
 
     [BurstCompile(FloatMode = FloatMode.Fast)]
-    struct ArmIKSolverJob : IJobForEachWithEntity_EBCC<BoneJoint, ArmTarget, HandAxis>
+    struct ArmIKSolverJob : IJobForEach_BCC<BoneJoint, ArmTarget, HandAxis>
     {
         [ReadOnly] public float time;
         
-        public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints,
+        public void Execute(DynamicBuffer<BoneJoint> boneJoints,
             [ReadOnly] ref ArmTarget armTarget, [ReadOnly] ref HandAxis handAxis)
         {
             for (var j = 0; j < fingerCount; j++)

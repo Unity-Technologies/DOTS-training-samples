@@ -17,12 +17,12 @@ public class ThrowSystem : JobComponentSystem
     EntityQuery m_group;
 
     [BurstCompile]
-    struct FindTargetAndThrowSystemJob : IJobForEachWithEntity<Physics, Translation, ForceThrow>
+    struct FindTargetAndThrowSystemJob : IJobForEach<Physics, Translation, ForceThrow>
     {
         [ReadOnly] public float gravityStrenth;
         [ReadOnly] public float3 CanVelocity;
 
-        public void Execute(Entity entity, int index, ref Physics physics, [ReadOnly] ref Translation translation, ref ForceThrow forcethrow)
+        public void Execute(ref Physics physics, [ReadOnly] ref Translation translation, ref ForceThrow forcethrow)
         {
             if (physics.flying) return;
             if (math.abs(forcethrow.target.x) < 0.01f && math.abs(forcethrow.target.y) < 0.01f && math.abs(forcethrow.target.z) < 0.01f) return;

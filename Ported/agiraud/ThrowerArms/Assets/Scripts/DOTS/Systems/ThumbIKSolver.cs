@@ -16,11 +16,11 @@ public class ThumbIKSolver : JobComponentSystem
     private const float thumbXOffset = -0.05f;
 
     [BurstCompile(FloatMode = FloatMode.Fast)]
-    struct ThumbIKSolverJob : IJobForEachWithEntity_EBCC<BoneJoint, ArmTarget, HandAxis>
+    struct ThumbIKSolverJob : IJobForEach_BCC<BoneJoint, ArmTarget, HandAxis>
     {
         public float Time;
         
-        public void Execute(Entity entity, int index, DynamicBuffer<BoneJoint> boneJoints,
+        public void Execute(DynamicBuffer<BoneJoint> boneJoints,
             [Unity.Collections.ReadOnly] ref ArmTarget armTarget, [Unity.Collections.ReadOnly] ref HandAxis handAxis)
         {
             // Arm + 4 fingers.
