@@ -29,21 +29,20 @@ class ArrivingTransitionSystem : JobComponentSystem
     {
         public EntityCommandBuffer.Concurrent commandBuffer;
 
-        public void Execute(Entity entity, int index, [ReadOnly] DynamicBuffer<StationData> b0, [ReadOnly] ref PlatformId c1, [ReadOnly] ref BezierTOffset c2, ref Speed speed)
+        public void Execute(Entity entity, int index,
+            [ReadOnly] DynamicBuffer<StationData> stations, [ReadOnly] ref PlatformId id, [ReadOnly] ref BezierTOffset t, ref Speed speed)
         {
-            var nextStation = b0[0];
-            for (int i = 0; i < b0.Length; i++)
+            var nextStation = stations[0];
+            for (var i = 0; i < stations.Length; i++)
             {
-                if (c1.value == b0[i].platformId)
+                if (id.value == stations[i].platformId)
                 {
-                    if (i == b0.Length - 1)
-                        nextStation = b0[0];
-                    else
-                        nextStation = b0[i];
+                    if (i != stations.Length - 1)
+                        nextStation = stations[i];
                 }
             }
 
-            if (c2.offset > nextStation.start)
+            if (t.offset > nextStation.start)
             {
                 speed.value = 0;
                 commandBuffer.AddComponent(index, entity, new ARRIVING());
