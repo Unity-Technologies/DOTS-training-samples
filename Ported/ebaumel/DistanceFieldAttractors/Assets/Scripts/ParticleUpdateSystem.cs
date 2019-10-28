@@ -22,6 +22,7 @@ public class ParticleUpdateSystem : JobComponentSystem
         {
             All = new[] { ComponentType.ReadWrite<Velocity>(), ComponentType.ReadWrite<Color>(), ComponentType.ReadWrite<LocalToWorld>(), ComponentType.ReadOnly<EmitterProperties>() },
         });
+        RequireForUpdate(m_Particles);
 
         m_DistanceFields = GetEntityQuery(ComponentType.ReadOnly(typeof(DistanceField)));
         m_RandomNumberGenerator = new Unity.Mathematics.Random(747);
@@ -122,7 +123,7 @@ public class ParticleUpdateSystem : JobComponentSystem
             m_Particles.SetFilter(settings);
             if (!m_ParticleDistancesFromIsosurface.IsCreated)
             {
-                m_ParticleDistancesFromIsosurface = new NativeArray<float>(m_Particles.CalculateLength(), Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+                m_ParticleDistancesFromIsosurface = new NativeArray<float>(m_Particles.CalculateEntityCount(), Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
                 m_PropertyColorsAsFloat4s = new PropertyColorsAsFloat4s(settings.surfaceColor, settings.interiorColor, settings.exteriorColor);
             }
 
