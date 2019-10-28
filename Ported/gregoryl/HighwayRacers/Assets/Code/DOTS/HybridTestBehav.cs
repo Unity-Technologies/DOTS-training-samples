@@ -15,18 +15,22 @@ public class HybridTestBehav : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        UnityEditor.Selection.selectionChanged += (() => this.DebugCurrentSelection());
+        UnityEditor.Selection.selectionChanged += (() => this.UpdateEntityInfo());
     }
 
     [ContextMenu("Debug Current Item")]
-    public void DebugCurrentSelection()
+    public void CheckCurrentSelection()
     {
         var ob = UnityEditor.Selection.activeObject;
         var esp = (ob as Unity.Entities.Editor.EntitySelectionProxy);
         if (esp)
         {
-            this.DebugThis = esp.Entity;
-            this.UpdateEntityInfo();
+            var ent = esp.Entity;
+            if (ent != this.DebugThis)
+            {
+                this.DebugThis = esp.Entity;
+                this.UpdateEntityInfo();
+            }
         }
     }
 
@@ -38,6 +42,7 @@ public class HybridTestBehav : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        this.CheckCurrentSelection();
 
         Debug.DrawLine(Vector3.zero, Vector3.one);
 

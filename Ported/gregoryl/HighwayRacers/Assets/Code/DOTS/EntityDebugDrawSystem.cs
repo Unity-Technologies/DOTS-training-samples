@@ -18,6 +18,7 @@ namespace HighwayRacers
     {
         private List<Vector3> Lines = new List<Vector3>();
         private EntityQuery QueryToDraw = null;
+        public Entity SingleDrawEntity = Entity.Null;
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
@@ -50,7 +51,7 @@ namespace HighwayRacers
         {
             public void Execute([ReadOnly] ref LocalToWorld ob)
             {
-                Debug.DrawLine(ob.Position, ob.Position + ((ob.Forward + ob.Up) * 10.0f));
+                //Debug.DrawLine(ob.Position, ob.Position + ((ob.Forward + ob.Up) * 10.0f));
             }
         }
     }
