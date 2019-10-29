@@ -283,9 +283,9 @@ namespace HighwayRacers
             UpdateColor(ref this.CarData);
         }
 
-        public static void UpdateCarState_TODO(ref CarStateStruct car)
+        public static void UpdateCarState_FromJob(ref CarStateStruct car)
         {
-
+            //UpdateCarData(ref car);
         }
 
         private static void UpdateCarData(ref CarStateStruct car)

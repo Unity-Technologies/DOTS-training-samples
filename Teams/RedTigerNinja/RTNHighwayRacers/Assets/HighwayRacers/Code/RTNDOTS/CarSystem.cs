@@ -55,7 +55,7 @@ namespace HighwayRacers {
                 var c0 = OtherCarQuery[nextState.NextState.ThisCarEntity];
 
                 CarStateStruct temp = c0;
-                Car.UpdateCarState_TODO(ref temp);
+                Car.UpdateCarState_FromJob(ref temp);
                 nextState.NextState = temp;
 
 
