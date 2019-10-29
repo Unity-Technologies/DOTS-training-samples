@@ -14,11 +14,12 @@ public struct LabRatGhostDeserializerCollection : IGhostDeserializerCollection
             "OverlayGhostSerializer",
             "MouseGhostSerializer",
             "PlayerGhostSerializer",
+            "OverlayColorGhostSerializer",
         };
         return arr;
     }
 
-    public int Length => 3;
+    public int Length => 4;
 #endif
     public void Initialize(World world)
     {
@@ -34,6 +35,10 @@ public struct LabRatGhostDeserializerCollection : IGhostDeserializerCollection
         m_PlayerSnapshotDataNewGhostIds = curPlayerGhostSpawnSystem.NewGhostIds;
         m_PlayerSnapshotDataNewGhosts = curPlayerGhostSpawnSystem.NewGhosts;
         curPlayerGhostSpawnSystem.GhostType = 2;
+        var curOverlayColorGhostSpawnSystem = world.GetOrCreateSystem<OverlayColorGhostSpawnSystem>();
+        m_OverlayColorSnapshotDataNewGhostIds = curOverlayColorGhostSpawnSystem.NewGhostIds;
+        m_OverlayColorSnapshotDataNewGhosts = curOverlayColorGhostSpawnSystem.NewGhosts;
+        curOverlayColorGhostSpawnSystem.GhostType = 3;
     }
 
     public void BeginDeserialize(JobComponentSystem system)
@@ -41,6 +46,7 @@ public struct LabRatGhostDeserializerCollection : IGhostDeserializerCollection
         m_OverlaySnapshotDataFromEntity = system.GetBufferFromEntity<OverlaySnapshotData>();
         m_MouseSnapshotDataFromEntity = system.GetBufferFromEntity<MouseSnapshotData>();
         m_PlayerSnapshotDataFromEntity = system.GetBufferFromEntity<PlayerSnapshotData>();
+        m_OverlayColorSnapshotDataFromEntity = system.GetBufferFromEntity<OverlayColorSnapshotData>();
     }
     public bool Deserialize(int serializer, Entity entity, uint snapshot, uint baseline, uint baseline2, uint baseline3,
         DataStreamReader reader,
@@ -56,6 +62,9 @@ public struct LabRatGhostDeserializerCollection : IGhostDeserializerCollection
                 baseline3, reader, ref ctx, compressionModel);
             case 2:
                 return GhostReceiveSystem<LabRatGhostDeserializerCollection>.InvokeDeserialize(m_PlayerSnapshotDataFromEntity, entity, snapshot, baseline, baseline2,
+                baseline3, reader, ref ctx, compressionModel);
+            case 3:
+                return GhostReceiveSystem<LabRatGhostDeserializerCollection>.InvokeDeserialize(m_OverlayColorSnapshotDataFromEntity, entity, snapshot, baseline, baseline2,
                 baseline3, reader, ref ctx, compressionModel);
             default:
                 throw new ArgumentException("Invalid serializer type");
@@ -78,6 +87,10 @@ public struct LabRatGhostDeserializerCollection : IGhostDeserializerCollection
                 m_PlayerSnapshotDataNewGhostIds.Add(ghostId);
                 m_PlayerSnapshotDataNewGhosts.Add(GhostReceiveSystem<LabRatGhostDeserializerCollection>.InvokeSpawn<PlayerSnapshotData>(snapshot, reader, ref ctx, compressionModel));
                 break;
+            case 3:
+                m_OverlayColorSnapshotDataNewGhostIds.Add(ghostId);
+                m_OverlayColorSnapshotDataNewGhosts.Add(GhostReceiveSystem<LabRatGhostDeserializerCollection>.InvokeSpawn<OverlayColorSnapshotData>(snapshot, reader, ref ctx, compressionModel));
+                break;
             default:
                 throw new ArgumentException("Invalid serializer type");
         }
@@ -92,6 +105,9 @@ public struct LabRatGhostDeserializerCollection : IGhostDeserializerCollection
     private BufferFromEntity<PlayerSnapshotData> m_PlayerSnapshotDataFromEntity;
     private NativeList<int> m_PlayerSnapshotDataNewGhostIds;
     private NativeList<PlayerSnapshotData> m_PlayerSnapshotDataNewGhosts;
+    private BufferFromEntity<OverlayColorSnapshotData> m_OverlayColorSnapshotDataFromEntity;
+    private NativeList<int> m_OverlayColorSnapshotDataNewGhostIds;
+    private NativeList<OverlayColorSnapshotData> m_OverlayColorSnapshotDataNewGhosts;
 }
 public struct EnableLabRatGhostReceiveSystemComponent : IComponentData
 {}

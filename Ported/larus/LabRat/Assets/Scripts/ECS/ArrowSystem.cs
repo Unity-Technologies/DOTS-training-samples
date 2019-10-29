@@ -5,6 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.NetCode;
 using Unity.Networking.Transport;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -62,6 +63,15 @@ public class ArrowSystem : ComponentSystem
         // Human always player 0
         const int humanPlayerIndex = 0;
         //var canChangeArrow = cell.CanChangeArrow(humanPlayerIndex);
+
+        var overlayEntities = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToEntityArray(Allocator.TempJob);
+        var overlayPositions = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.TempJob);
+        var overlayRotations = GetEntityQuery(typeof(OverlayComponentTag), typeof(Rotation)).ToComponentDataArray<Rotation>(Allocator.TempJob);
+        var overlayPlacementTick = GetEntityQuery(typeof(OverlayComponentTag), typeof(OverlayPlacementTickComponent))
+            .ToComponentDataArray<OverlayPlacementTickComponent>(Allocator.TempJob);
+
+        var overlayColorEntities = GetEntityQuery(typeof(OverlayColorComponentTag), typeof(Translation)).ToEntityArray(Allocator.TempJob);
+        //var overlayColorPositions = GetEntityQuery(typeof(OverlayColorComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.TempJob);
 
         // SAMPLE INPUT BUFFER
         Entities.ForEach((DynamicBuffer<PlayerInput> inputBuffer) =>
@@ -126,8 +136,52 @@ public class ArrowSystem : ComponentSystem
                 else
                     arrowMap.Add(cellIndex, arrowData);
                 Debug.Log("Placed arrow on cell="+input.CellCoordinates + " with dir=" + input.Direction);
+
+                const int maxArrows = 3;
+                // TODO: player ID should be set via connection
+                var startIndex = humanPlayerIndex * maxArrows;
+                oldestTick = float.MaxValue;
+                oldestIndex = -1;
+                for (int i = startIndex; i < maxArrows; ++i)
+                {
+                    if (overlayPositions[i].Value.y >= 9.9f)
+                    {
+                        var sharedMesh = EntityManager.GetSharedComponentData<RenderMesh>(overlayColorEntities[i]);
+                        //Debug.Log("Setting overlay " + overlayColorEntities[i] + " to " + sharedMesh.material.color);
+                        oldestIndex = i;
+                        break;
+                    }
+                    if (oldestTick > overlayPlacementTick[i].Tick)
+                    {
+                        oldestIndex = startIndex + i;
+                        oldestTick = overlayPlacementTick[i].Tick;
+                    }
+                }
+
+                PostUpdateCommands.SetComponent(overlayEntities[oldestIndex], new OverlayPlacementTickComponent { Tick = Time.time});
+                PostUpdateCommands.SetComponent(overlayEntities[oldestIndex], new Translation { Value = new float3(input.CellCoordinates.x,0.7f,input.CellCoordinates.y)});
+                var rotation = quaternion.RotateX(math.PI / 2);
+                switch (input.Direction) {
+                    case Direction.South:
+                        rotation = math.mul(rotation, quaternion.RotateZ(math.PI));
+                        break;
+                    case Direction.East:
+                        rotation = math.mul(rotation, quaternion.RotateZ(3*math.PI/2));
+                        break;
+                    case Direction.West:
+                        rotation = math.mul(rotation, quaternion.RotateZ(math.PI/2));
+                        break;
+                }
+                PostUpdateCommands.SetComponent(overlayEntities[oldestIndex], new Rotation { Value = rotation});
+                PostUpdateCommands.SetComponent(overlayColorEntities[oldestIndex], new Translation { Value = new float3(input.CellCoordinates.x,0.6f,input.CellCoordinates.y)});
             }
         });
+        overlayPlacementTick.Dispose();
+        overlayColorEntities.Dispose();
+        //overlayColorPositions.Dispose();
+        overlayRotations.Dispose();
+        overlayPositions.Dispose();
+        overlayEntities.Dispose();
 
         // Wall building stuff
         //if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
