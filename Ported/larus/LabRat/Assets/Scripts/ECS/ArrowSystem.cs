@@ -71,6 +71,7 @@ public class ArrowSystem : ComponentSystem
             .ToComponentDataArray<OverlayPlacementTickComponent>(Allocator.Persistent);
 
         var overlayColorEntities = GetEntityQuery(typeof(OverlayColorComponent), typeof(Translation)).ToEntityArray(Allocator.Persistent);
+        var keys = arrowMap.GetKeyArray(Allocator.TempJob);
         //var overlayColorPositions = GetEntityQuery(typeof(OverlayColorComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.TempJob);
 
         // SAMPLE INPUT BUFFER
@@ -84,6 +85,7 @@ public class ArrowSystem : ComponentSystem
             {
                 var cellIndex = input.CellCoordinates.y * board.size.y + input.CellCoordinates.x;
 
+                // Update the cell data and arrow map with this arrow placement, used by game logic
                 CellComponent cell = new CellComponent();
                 if (cellMap.ContainsKey(cellIndex))
                 {
@@ -105,23 +107,28 @@ public class ArrowSystem : ComponentSystem
                     PlacementTick = Time.time
                 };
 
-                var keys = arrowMap.GetKeyArray(Allocator.TempJob);
                 int arrowCount = 0;
                 int oldestIndex = -1;
-                float oldestTick = -1;
+                float oldestTick = float.MaxValue;
                 for (int i = 0; i < keys.Length; ++i)
                 {
                     if (arrowMap[keys[i]].PlayerId == player.PlayerId)
                     {
+                        // Bail if it's an identical placement as has been done before
+                        if (arrowMap[keys[i]].PlayerId == player.PlayerId
+                            && arrowMap[keys[i]].Coordinates.x == input.CellCoordinates.x
+                            && arrowMap[keys[i]].Coordinates.y == input.CellCoordinates.y
+                            && arrowMap[keys[i]].Direction == input.Direction)
+                            return;
+
                         arrowCount++;
-                        if (arrowMap[keys[i]].PlacementTick > oldestTick)
+                        if (arrowMap[keys[i]].PlacementTick < oldestTick)
                         {
                             oldestIndex = keys[i];
                             oldestTick = arrowMap[keys[i]].PlacementTick;
                         }
                     }
                 }
-                keys.Dispose();
                 if (arrowCount >= 3)
                 {
                     arrowMap.Remove(oldestIndex);
@@ -136,11 +143,11 @@ public class ArrowSystem : ComponentSystem
                     arrowMap.Add(cellIndex, arrowData);
                 Debug.Log("Placed arrow on cell="+input.CellCoordinates + " with dir=" + input.Direction);
 
-                const int maxArrows = 3;
-                var startIndex = player.PlayerId * maxArrows;
+                // Update the overlays (arrow+color) which shows the player visually where the arrow is placed
+                var startIndex = player.PlayerId * PlayerConstants.MaxArrows;
                 oldestTick = float.MaxValue;
                 oldestIndex = -1;
-                for (int i = startIndex; i < (startIndex+maxArrows); ++i)
+                for (int i = startIndex; i < (startIndex+PlayerConstants.MaxArrows); ++i)
                 {
                     if (overlayPositions[i].Value.y >= 9.9f)
                     {
@@ -150,7 +157,7 @@ public class ArrowSystem : ComponentSystem
                     }
                     if (oldestTick > overlayPlacementTick[i].Tick)
                     {
-                        oldestIndex = startIndex + i;
+                        oldestIndex = i;
                         oldestTick = overlayPlacementTick[i].Tick;
                     }
                 }
@@ -174,6 +181,7 @@ public class ArrowSystem : ComponentSystem
                 PostUpdateCommands.SetComponent(overlayColorEntities[oldestIndex], new Translation { Value = new float3(input.CellCoordinates.x,0.6f,input.CellCoordinates.y)});
             }
         });
+        keys.Dispose();
         overlayPlacementTick.Dispose();
         overlayColorEntities.Dispose();
         //overlayColorPositions.Dispose();
