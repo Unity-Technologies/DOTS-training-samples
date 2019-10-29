@@ -42,3 +42,5 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+Ported/joe-jia-ryan/Assets/Scripts/Old
+Old.meta
