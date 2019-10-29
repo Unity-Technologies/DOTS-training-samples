@@ -8,6 +8,7 @@ using Unity.Transforms;
 public struct OverlayGhostSerializer : IGhostSerializer<OverlaySnapshotData>
 {
     private ComponentType componentTypeOverlayComponentTag;
+    private ComponentType componentTypeOverlayPlacementTickComponent;
     private ComponentType componentTypePerInstanceCullingTag;
     private ComponentType componentTypeRenderBounds;
     private ComponentType componentTypeRenderMesh;
@@ -31,6 +32,7 @@ public struct OverlayGhostSerializer : IGhostSerializer<OverlaySnapshotData>
     public void BeginSerialize(ComponentSystemBase system)
     {
         componentTypeOverlayComponentTag = ComponentType.ReadWrite<OverlayComponentTag>();
+        componentTypeOverlayPlacementTickComponent = ComponentType.ReadWrite<OverlayPlacementTickComponent>();
         componentTypePerInstanceCullingTag = ComponentType.ReadWrite<PerInstanceCullingTag>();
         componentTypeRenderBounds = ComponentType.ReadWrite<RenderBounds>();
         componentTypeRenderMesh = ComponentType.ReadWrite<RenderMesh>();
@@ -50,6 +52,8 @@ public struct OverlayGhostSerializer : IGhostSerializer<OverlaySnapshotData>
         {
             if (components[i] == componentTypeOverlayComponentTag)
                 ++matches;
+            if (components[i] == componentTypeOverlayPlacementTickComponent)
+                ++matches;
             if (components[i] == componentTypePerInstanceCullingTag)
                 ++matches;
             if (components[i] == componentTypeRenderBounds)
@@ -65,7 +69,7 @@ public struct OverlayGhostSerializer : IGhostSerializer<OverlaySnapshotData>
             if (components[i] == componentTypeTranslation)
                 ++matches;
         }
-        return (matches == 8);
+        return (matches == 9);
     }
 
     public void CopyToSnapshot(ArchetypeChunk chunk, int ent, uint tick, ref OverlaySnapshotData snapshot, GhostSerializerState serializerState)

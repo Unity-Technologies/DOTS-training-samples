@@ -5,6 +5,7 @@ using Unity.Mathematics;
 public struct OverlayColorSnapshotData : ISnapshotData<OverlayColorSnapshotData>
 {
     public uint tick;
+    private uint OverlayColorComponentColor;
     private int RotationValueX;
     private int RotationValueY;
     private int RotationValueZ;
@@ -15,6 +16,22 @@ public struct OverlayColorSnapshotData : ISnapshotData<OverlayColorSnapshotData>
     uint changeMask0;
 
     public uint Tick => tick;
+    public byte GetOverlayColorComponentColor(GhostDeserializerState deserializerState)
+    {
+        return (byte)OverlayColorComponentColor;
+    }
+    public byte GetOverlayColorComponentColor()
+    {
+        return (byte)OverlayColorComponentColor;
+    }
+    public void SetOverlayColorComponentColor(byte val, GhostSerializerState serializerState)
+    {
+        OverlayColorComponentColor = (uint)val;
+    }
+    public void SetOverlayColorComponentColor(byte val)
+    {
+        OverlayColorComponentColor = (uint)val;
+    }
     public quaternion GetRotationValue(GhostDeserializerState deserializerState)
     {
         return GetRotationValue();
@@ -56,6 +73,7 @@ public struct OverlayColorSnapshotData : ISnapshotData<OverlayColorSnapshotData>
     public void PredictDelta(uint tick, ref OverlayColorSnapshotData baseline1, ref OverlayColorSnapshotData baseline2)
     {
         var predictor = new GhostDeltaPredictor(tick, this.tick, baseline1.tick, baseline2.tick);
+        OverlayColorComponentColor = (uint)predictor.PredictInt((int)OverlayColorComponentColor, (int)baseline1.OverlayColorComponentColor, (int)baseline2.OverlayColorComponentColor);
         RotationValueX = predictor.PredictInt(RotationValueX, baseline1.RotationValueX, baseline2.RotationValueX);
         RotationValueY = predictor.PredictInt(RotationValueY, baseline1.RotationValueY, baseline2.RotationValueY);
         RotationValueZ = predictor.PredictInt(RotationValueZ, baseline1.RotationValueZ, baseline2.RotationValueZ);
@@ -67,22 +85,25 @@ public struct OverlayColorSnapshotData : ISnapshotData<OverlayColorSnapshotData>
 
     public void Serialize(int networkId, ref OverlayColorSnapshotData baseline, DataStreamWriter writer, NetworkCompressionModel compressionModel)
     {
-        changeMask0 = (RotationValueX != baseline.RotationValueX ||
-                                          RotationValueY != baseline.RotationValueY ||
-                                          RotationValueZ != baseline.RotationValueZ ||
-                                          RotationValueW != baseline.RotationValueW) ? 1u : 0;
+        changeMask0 = (OverlayColorComponentColor != baseline.OverlayColorComponentColor) ? 1u : 0;
+        changeMask0 |= (RotationValueX != baseline.RotationValueX ||
+                                           RotationValueY != baseline.RotationValueY ||
+                                           RotationValueZ != baseline.RotationValueZ ||
+                                           RotationValueW != baseline.RotationValueW) ? (1u<<1) : 0;
         changeMask0 |= (TranslationValueX != baseline.TranslationValueX ||
                                            TranslationValueY != baseline.TranslationValueY ||
-                                           TranslationValueZ != baseline.TranslationValueZ) ? (1u<<1) : 0;
+                                           TranslationValueZ != baseline.TranslationValueZ) ? (1u<<2) : 0;
         writer.WritePackedUIntDelta(changeMask0, baseline.changeMask0, compressionModel);
         if ((changeMask0 & (1 << 0)) != 0)
+            writer.WritePackedUIntDelta(OverlayColorComponentColor, baseline.OverlayColorComponentColor, compressionModel);
+        if ((changeMask0 & (1 << 1)) != 0)
         {
             writer.WritePackedIntDelta(RotationValueX, baseline.RotationValueX, compressionModel);
             writer.WritePackedIntDelta(RotationValueY, baseline.RotationValueY, compressionModel);
             writer.WritePackedIntDelta(RotationValueZ, baseline.RotationValueZ, compressionModel);
             writer.WritePackedIntDelta(RotationValueW, baseline.RotationValueW, compressionModel);
         }
-        if ((changeMask0 & (1 << 1)) != 0)
+        if ((changeMask0 & (1 << 2)) != 0)
         {
             writer.WritePackedIntDelta(TranslationValueX, baseline.TranslationValueX, compressionModel);
             writer.WritePackedIntDelta(TranslationValueY, baseline.TranslationValueY, compressionModel);
@@ -96,6 +117,10 @@ public struct OverlayColorSnapshotData : ISnapshotData<OverlayColorSnapshotData>
         this.tick = tick;
         changeMask0 = reader.ReadPackedUIntDelta(ref ctx, baseline.changeMask0, compressionModel);
         if ((changeMask0 & (1 << 0)) != 0)
+            OverlayColorComponentColor = reader.ReadPackedUIntDelta(ref ctx, baseline.OverlayColorComponentColor, compressionModel);
+        else
+            OverlayColorComponentColor = baseline.OverlayColorComponentColor;
+        if ((changeMask0 & (1 << 1)) != 0)
         {
             RotationValueX = reader.ReadPackedIntDelta(ref ctx, baseline.RotationValueX, compressionModel);
             RotationValueY = reader.ReadPackedIntDelta(ref ctx, baseline.RotationValueY, compressionModel);
@@ -109,7 +134,7 @@ public struct OverlayColorSnapshotData : ISnapshotData<OverlayColorSnapshotData>
             RotationValueZ = baseline.RotationValueZ;
             RotationValueW = baseline.RotationValueW;
         }
-        if ((changeMask0 & (1 << 1)) != 0)
+        if ((changeMask0 & (1 << 2)) != 0)
         {
             TranslationValueX = reader.ReadPackedIntDelta(ref ctx, baseline.TranslationValueX, compressionModel);
             TranslationValueY = reader.ReadPackedIntDelta(ref ctx, baseline.TranslationValueY, compressionModel);

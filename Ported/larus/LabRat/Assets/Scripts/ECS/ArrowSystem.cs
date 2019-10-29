@@ -61,20 +61,20 @@ public class ArrowSystem : ComponentSystem
         //playerCursor.SetScreenPosition(screenPos);
 
         // Human always player 0
-        const int humanPlayerIndex = 0;
+        //const int humanPlayerIndex = 0;
         //var canChangeArrow = cell.CanChangeArrow(humanPlayerIndex);
 
-        var overlayEntities = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToEntityArray(Allocator.TempJob);
-        var overlayPositions = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.TempJob);
-        var overlayRotations = GetEntityQuery(typeof(OverlayComponentTag), typeof(Rotation)).ToComponentDataArray<Rotation>(Allocator.TempJob);
+        var overlayEntities = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToEntityArray(Allocator.Persistent);
+        var overlayPositions = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.Persistent);
+        var overlayRotations = GetEntityQuery(typeof(OverlayComponentTag), typeof(Rotation)).ToComponentDataArray<Rotation>(Allocator.Persistent);
         var overlayPlacementTick = GetEntityQuery(typeof(OverlayComponentTag), typeof(OverlayPlacementTickComponent))
-            .ToComponentDataArray<OverlayPlacementTickComponent>(Allocator.TempJob);
+            .ToComponentDataArray<OverlayPlacementTickComponent>(Allocator.Persistent);
 
-        var overlayColorEntities = GetEntityQuery(typeof(OverlayColorComponentTag), typeof(Translation)).ToEntityArray(Allocator.TempJob);
+        var overlayColorEntities = GetEntityQuery(typeof(OverlayColorComponent), typeof(Translation)).ToEntityArray(Allocator.Persistent);
         //var overlayColorPositions = GetEntityQuery(typeof(OverlayColorComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.TempJob);
 
         // SAMPLE INPUT BUFFER
-        Entities.ForEach((DynamicBuffer<PlayerInput> inputBuffer) =>
+        Entities.ForEach((DynamicBuffer<PlayerInput> inputBuffer, ref PlayerComponent player) =>
         {
             var simulationSystemGroup = World.GetExistingSystem<ServerSimulationSystemGroup>();
             var inputTick = simulationSystemGroup.ServerTick;
@@ -101,8 +101,7 @@ public class ArrowSystem : ComponentSystem
                 {
                     Coordinates = input.CellCoordinates,
                     Direction = input.Direction,
-                    // TODO: Fixup player index to reflect client which this input belongs to
-                    PlayerId = humanPlayerIndex,
+                    PlayerId = player.PlayerId,
                     PlacementTick = Time.time
                 };
 
@@ -112,7 +111,7 @@ public class ArrowSystem : ComponentSystem
                 float oldestTick = -1;
                 for (int i = 0; i < keys.Length; ++i)
                 {
-                    if (arrowMap[keys[i]].PlayerId == humanPlayerIndex)
+                    if (arrowMap[keys[i]].PlayerId == player.PlayerId)
                     {
                         arrowCount++;
                         if (arrowMap[keys[i]].PlacementTick > oldestTick)
@@ -138,16 +137,14 @@ public class ArrowSystem : ComponentSystem
                 Debug.Log("Placed arrow on cell="+input.CellCoordinates + " with dir=" + input.Direction);
 
                 const int maxArrows = 3;
-                // TODO: player ID should be set via connection
-                var startIndex = humanPlayerIndex * maxArrows;
+                var startIndex = player.PlayerId * maxArrows;
                 oldestTick = float.MaxValue;
                 oldestIndex = -1;
-                for (int i = startIndex; i < maxArrows; ++i)
+                for (int i = startIndex; i < (startIndex+maxArrows); ++i)
                 {
                     if (overlayPositions[i].Value.y >= 9.9f)
                     {
-                        var sharedMesh = EntityManager.GetSharedComponentData<RenderMesh>(overlayColorEntities[i]);
-                        //Debug.Log("Setting overlay " + overlayColorEntities[i] + " to " + sharedMesh.material.color);
+                        Debug.Log("Setting overlay " + overlayColorEntities[i] + " to player " + player.PlayerId);
                         oldestIndex = i;
                         break;
                     }
@@ -158,6 +155,7 @@ public class ArrowSystem : ComponentSystem
                     }
                 }
 
+                Debug.Log("Player " + player.PlayerId + " now owns index=" + oldestIndex + " coord=" + input.CellCoordinates);
                 PostUpdateCommands.SetComponent(overlayEntities[oldestIndex], new OverlayPlacementTickComponent { Tick = Time.time});
                 PostUpdateCommands.SetComponent(overlayEntities[oldestIndex], new Translation { Value = new float3(input.CellCoordinates.x,0.7f,input.CellCoordinates.y)});
                 var rotation = quaternion.RotateX(math.PI / 2);
@@ -229,6 +227,10 @@ public class ClientArrowSystem : ComponentSystem
     protected override void OnUpdate()
     {
         var board = GetSingleton<BoardDataComponent>();
+
+
+        // TODO: If this exists, generate dummy input
+        //HasSingleton<ThinClientComponent>()
 
         // Input gathering
         var screenPos = Input.mousePosition;

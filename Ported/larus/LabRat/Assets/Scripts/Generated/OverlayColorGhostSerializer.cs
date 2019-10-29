@@ -7,7 +7,7 @@ using Unity.Transforms;
 
 public struct OverlayColorGhostSerializer : IGhostSerializer<OverlayColorSnapshotData>
 {
-    private ComponentType componentTypeOverlayColorComponentTag;
+    private ComponentType componentTypeOverlayColorComponent;
     private ComponentType componentTypePerInstanceCullingTag;
     private ComponentType componentTypeRenderBounds;
     private ComponentType componentTypeRenderMesh;
@@ -16,6 +16,7 @@ public struct OverlayColorGhostSerializer : IGhostSerializer<OverlayColorSnapsho
     private ComponentType componentTypeRotation;
     private ComponentType componentTypeTranslation;
     // FIXME: These disable safety since all serializers have an instance of the same type - causing aliasing. Should be fixed in a cleaner way
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<OverlayColorComponent> ghostOverlayColorComponentType;
     [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<Rotation> ghostRotationType;
     [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<Translation> ghostTranslationType;
 
@@ -30,7 +31,7 @@ public struct OverlayColorGhostSerializer : IGhostSerializer<OverlayColorSnapsho
     public int SnapshotSize => UnsafeUtility.SizeOf<OverlayColorSnapshotData>();
     public void BeginSerialize(ComponentSystemBase system)
     {
-        componentTypeOverlayColorComponentTag = ComponentType.ReadWrite<OverlayColorComponentTag>();
+        componentTypeOverlayColorComponent = ComponentType.ReadWrite<OverlayColorComponent>();
         componentTypePerInstanceCullingTag = ComponentType.ReadWrite<PerInstanceCullingTag>();
         componentTypeRenderBounds = ComponentType.ReadWrite<RenderBounds>();
         componentTypeRenderMesh = ComponentType.ReadWrite<RenderMesh>();
@@ -38,6 +39,7 @@ public struct OverlayColorGhostSerializer : IGhostSerializer<OverlayColorSnapsho
         componentTypeNonUniformScale = ComponentType.ReadWrite<NonUniformScale>();
         componentTypeRotation = ComponentType.ReadWrite<Rotation>();
         componentTypeTranslation = ComponentType.ReadWrite<Translation>();
+        ghostOverlayColorComponentType = system.GetArchetypeChunkComponentType<OverlayColorComponent>(true);
         ghostRotationType = system.GetArchetypeChunkComponentType<Rotation>(true);
         ghostTranslationType = system.GetArchetypeChunkComponentType<Translation>(true);
     }
@@ -48,7 +50,7 @@ public struct OverlayColorGhostSerializer : IGhostSerializer<OverlayColorSnapsho
         int matches = 0;
         for (int i = 0; i < components.Length; ++i)
         {
-            if (components[i] == componentTypeOverlayColorComponentTag)
+            if (components[i] == componentTypeOverlayColorComponent)
                 ++matches;
             if (components[i] == componentTypePerInstanceCullingTag)
                 ++matches;
@@ -71,8 +73,10 @@ public struct OverlayColorGhostSerializer : IGhostSerializer<OverlayColorSnapsho
     public void CopyToSnapshot(ArchetypeChunk chunk, int ent, uint tick, ref OverlayColorSnapshotData snapshot, GhostSerializerState serializerState)
     {
         snapshot.tick = tick;
+        var chunkDataOverlayColorComponent = chunk.GetNativeArray(ghostOverlayColorComponentType);
         var chunkDataRotation = chunk.GetNativeArray(ghostRotationType);
         var chunkDataTranslation = chunk.GetNativeArray(ghostTranslationType);
+        snapshot.SetOverlayColorComponentColor(chunkDataOverlayColorComponent[ent].Color, serializerState);
         snapshot.SetRotationValue(chunkDataRotation[ent].Value, serializerState);
         snapshot.SetTranslationValue(chunkDataTranslation[ent].Value, serializerState);
     }

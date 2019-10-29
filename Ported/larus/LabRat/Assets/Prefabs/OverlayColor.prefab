@@ -108,6 +108,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12e0afc7a5d304426874bf260bc0c37b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Color: 255
 --- !u!114 &-1311265448164311924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,13 +129,16 @@ MonoBehaviour:
   Importance: 1
   PredictingPlayerNetworkId: 
   Components:
-  - name: OverlayColorComponentTag
+  - name: OverlayColorComponent
     interpolatedClient: 1
     predictedClient: 1
     server: 1
     sendDataTo: 0
-    fields: []
-    manualFieldList: 0
+    fields:
+    - name: Color
+      quantization: 1
+      interpolate: 0
+    manualFieldList: 1
     entityIndex: 0
   - name: Unity.Rendering.PerInstanceCullingTag
     interpolatedClient: 1

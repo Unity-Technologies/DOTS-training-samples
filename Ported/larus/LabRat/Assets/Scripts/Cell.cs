@@ -386,7 +386,9 @@ public class Cell : MonoBehaviour, IConvertGameObjectToEntity {
 
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
 	{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 		dstManager.SetName(entity, "Cell[" + coord.x + "," + coord.y + "]");
+#endif
 		dstManager.AddComponent<CellRenderingComponentTag>(entity);
 
 		var index = (coord.y + coord.x) % 2 == 0 ? 1 : 0;

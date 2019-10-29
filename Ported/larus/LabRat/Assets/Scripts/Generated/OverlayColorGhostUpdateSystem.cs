@@ -16,6 +16,7 @@ public class OverlayColorGhostUpdateSystem : JobComponentSystem
         [ReadOnly] public NativeHashMap<int, GhostEntity> GhostMap;
         [ReadOnly] public ArchetypeChunkBufferType<OverlayColorSnapshotData> ghostSnapshotDataType;
         [ReadOnly] public ArchetypeChunkEntityType ghostEntityType;
+        public ArchetypeChunkComponentType<OverlayColorComponent> ghostOverlayColorComponentType;
         public ArchetypeChunkComponentType<Rotation> ghostRotationType;
         public ArchetypeChunkComponentType<Translation> ghostTranslationType;
 
@@ -29,6 +30,7 @@ public class OverlayColorGhostUpdateSystem : JobComponentSystem
             };
             var ghostEntityArray = chunk.GetNativeArray(ghostEntityType);
             var ghostSnapshotDataArray = chunk.GetBufferAccessor(ghostSnapshotDataType);
+            var ghostOverlayColorComponentArray = chunk.GetNativeArray(ghostOverlayColorComponentType);
             var ghostRotationArray = chunk.GetNativeArray(ghostRotationType);
             var ghostTranslationArray = chunk.GetNativeArray(ghostTranslationType);
             for (int entityIndex = 0; entityIndex < ghostEntityArray.Length; ++entityIndex)
@@ -37,10 +39,13 @@ public class OverlayColorGhostUpdateSystem : JobComponentSystem
                 OverlayColorSnapshotData snapshotData;
                 snapshot.GetDataAtTick(targetTick, targetTickFraction, out snapshotData);
 
+                var ghostOverlayColorComponent = ghostOverlayColorComponentArray[entityIndex];
                 var ghostRotation = ghostRotationArray[entityIndex];
                 var ghostTranslation = ghostTranslationArray[entityIndex];
+                ghostOverlayColorComponent.Color = snapshotData.GetOverlayColorComponentColor(deserializerState);
                 ghostRotation.Value = snapshotData.GetRotationValue(deserializerState);
                 ghostTranslation.Value = snapshotData.GetTranslationValue(deserializerState);
+                ghostOverlayColorComponentArray[entityIndex] = ghostOverlayColorComponent;
                 ghostRotationArray[entityIndex] = ghostRotation;
                 ghostTranslationArray[entityIndex] = ghostTranslation;
             }
@@ -58,6 +63,7 @@ public class OverlayColorGhostUpdateSystem : JobComponentSystem
         [ReadOnly] public ArchetypeChunkBufferType<OverlayColorSnapshotData> ghostSnapshotDataType;
         [ReadOnly] public ArchetypeChunkEntityType ghostEntityType;
         public ArchetypeChunkComponentType<PredictedGhostComponent> predictedGhostComponentType;
+        public ArchetypeChunkComponentType<OverlayColorComponent> ghostOverlayColorComponentType;
         public ArchetypeChunkComponentType<Rotation> ghostRotationType;
         public ArchetypeChunkComponentType<Translation> ghostTranslationType;
         public uint targetTick;
@@ -71,6 +77,7 @@ public class OverlayColorGhostUpdateSystem : JobComponentSystem
             var ghostEntityArray = chunk.GetNativeArray(ghostEntityType);
             var ghostSnapshotDataArray = chunk.GetBufferAccessor(ghostSnapshotDataType);
             var predictedGhostComponentArray = chunk.GetNativeArray(predictedGhostComponentType);
+            var ghostOverlayColorComponentArray = chunk.GetNativeArray(ghostOverlayColorComponentType);
             var ghostRotationArray = chunk.GetNativeArray(ghostRotationType);
             var ghostTranslationArray = chunk.GetNativeArray(ghostTranslationType);
             for (int entityIndex = 0; entityIndex < ghostEntityArray.Length; ++entityIndex)
@@ -91,10 +98,13 @@ public class OverlayColorGhostUpdateSystem : JobComponentSystem
                 if (lastPredictedTickInst != snapshotData.Tick)
                     continue;
 
+                var ghostOverlayColorComponent = ghostOverlayColorComponentArray[entityIndex];
                 var ghostRotation = ghostRotationArray[entityIndex];
                 var ghostTranslation = ghostTranslationArray[entityIndex];
+                ghostOverlayColorComponent.Color = snapshotData.GetOverlayColorComponentColor(deserializerState);
                 ghostRotation.Value = snapshotData.GetRotationValue(deserializerState);
                 ghostTranslation.Value = snapshotData.GetTranslationValue(deserializerState);
+                ghostOverlayColorComponentArray[entityIndex] = ghostOverlayColorComponent;
                 ghostRotationArray[entityIndex] = ghostRotation;
                 ghostTranslationArray[entityIndex] = ghostTranslation;
             }
@@ -118,6 +128,7 @@ public class OverlayColorGhostUpdateSystem : JobComponentSystem
             All = new []{
                 ComponentType.ReadWrite<OverlayColorSnapshotData>(),
                 ComponentType.ReadOnly<GhostComponent>(),
+                ComponentType.ReadWrite<OverlayColorComponent>(),
                 ComponentType.ReadWrite<Rotation>(),
                 ComponentType.ReadWrite<Translation>(),
             },
@@ -129,6 +140,7 @@ public class OverlayColorGhostUpdateSystem : JobComponentSystem
                 ComponentType.ReadOnly<OverlayColorSnapshotData>(),
                 ComponentType.ReadOnly<GhostComponent>(),
                 ComponentType.ReadOnly<PredictedGhostComponent>(),
+                ComponentType.ReadWrite<OverlayColorComponent>(),
                 ComponentType.ReadWrite<Rotation>(),
                 ComponentType.ReadWrite<Translation>(),
             }
@@ -147,6 +159,7 @@ public class OverlayColorGhostUpdateSystem : JobComponentSystem
                 ghostSnapshotDataType = GetArchetypeChunkBufferType<OverlayColorSnapshotData>(true),
                 ghostEntityType = GetArchetypeChunkEntityType(),
                 predictedGhostComponentType = GetArchetypeChunkComponentType<PredictedGhostComponent>(),
+                ghostOverlayColorComponentType = GetArchetypeChunkComponentType<OverlayColorComponent>(),
                 ghostRotationType = GetArchetypeChunkComponentType<Rotation>(),
                 ghostTranslationType = GetArchetypeChunkComponentType<Translation>(),
 
@@ -166,6 +179,7 @@ public class OverlayColorGhostUpdateSystem : JobComponentSystem
                 GhostMap = m_ghostEntityMap,
                 ghostSnapshotDataType = GetArchetypeChunkBufferType<OverlayColorSnapshotData>(true),
                 ghostEntityType = GetArchetypeChunkEntityType(),
+                ghostOverlayColorComponentType = GetArchetypeChunkComponentType<OverlayColorComponent>(),
                 ghostRotationType = GetArchetypeChunkComponentType<Rotation>(),
                 ghostTranslationType = GetArchetypeChunkComponentType<Translation>(),
                 targetTick = m_ClientSimulationSystemGroup.InterpolationTick,

@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.NetCode;
 using Unity.Networking.Transport;
 using Unity.Burst;
+using UnityEngine;
 
 // Control system updating in the default world
 [UpdateInWorld(UpdateInWorld.TargetWorld.Default)]
@@ -31,6 +32,7 @@ public class Game : ComponentSystem
                 // Client worlds automatically connect to localhost
                 NetworkEndPoint ep = NetworkEndPoint.LoopbackIpv4;
                 ep.Port = 7979;
+                Debug.Log("Connecting to 127.0.0.1:7979");
                 network.Connect(ep);
             }
             #if UNITY_EDITOR
@@ -39,6 +41,7 @@ public class Game : ComponentSystem
                 // Server world automatically listen for connections from any host
                 NetworkEndPoint ep = NetworkEndPoint.AnyIpv4;
                 ep.Port = 7979;
+                Debug.Log("Listening on 7979");
                 network.Listen(ep);
             }
             #endif
@@ -62,6 +65,7 @@ public class SpawnPlayerSystem : ComponentSystem
             PostUpdateCommands.AddBuffer<PlayerInput>(player);
 
             PostUpdateCommands.SetComponent(entity, new CommandTargetComponent{targetEntity = player});
+            Debug.Log("Server got new connection NetId=" + id.Value + " spawned player entity " + player);
         });
     }
 }
@@ -73,6 +77,7 @@ public class ClientGoInGameSystem : ComponentSystem
     {
         Entities.WithNone<NetworkStreamInGame>().ForEach((Entity ent, ref NetworkIdComponent id) =>
         {
+            Debug.Log("Client connected with NetId=" + id.Value);
             PostUpdateCommands.AddComponent<NetworkStreamInGame>(ent);
         });
     }

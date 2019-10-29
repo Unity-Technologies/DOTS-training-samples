@@ -25,7 +25,9 @@ namespace ECSExamples
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
             dstManager.SetName(entity, "GameConfig");
+#endif
             dstManager.AddComponentData(entity, new GameConfigComponent
             {
                 DiminishesArrows = DiminishesArrows,

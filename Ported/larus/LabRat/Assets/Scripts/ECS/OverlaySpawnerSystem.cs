@@ -1,52 +1,36 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Entities;
 using Unity.NetCode;
 using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Rendering;
-using UnityEditorInternal.VersionControl;
+
+static class PlayerConstants
+{
+    public const int MaxArrows = 3;
+    public const int MaxPlayers = 4;
+}
 
 [UpdateInGroup(typeof(ServerSimulationSystemGroup))]
 public class OverlaySpawnerSystem : ComponentSystem
 {
-    public Material[] PlayerMats;
-    public Color[] Colors;
-    /*public Material Player1;
-    public Material Player2;
-    public Material Player3;
-    public Material Player4;*/
-
     public struct InitializedOverlaySpawner : IComponentData
     {}
 
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<GhostPrefabCollectionComponent>();
-        Colors = new[] {Color.black, Color.blue, Color.red, Color.green};
-        /*var shader = Shader.Find("Standard");
-        Player1 = new Material(shader);
-        Player1.color = Color.black;
-        Player2 = new Material(shader);
-        Player2.color = Color.blue;
-        Player3 = new Material(shader);
-        Player3.color = Color.red;
-        Player4 = new Material(shader);
-        Player4.color = Color.green;*/
     }
 
     protected override void OnUpdate()
     {
         Entities.WithNone<InitializedOverlaySpawner>().ForEach((Entity entity, ref GhostPrefabCollectionComponent collection) =>
         {
-            const int maxArrows = 3;
-            const int maxPlayers = 4;
 
             var serverPrefabs = EntityManager.GetBuffer<GhostPrefabBuffer>(collection.serverPrefabs);
             var prefab = serverPrefabs[LabRatGhostSerializerCollection.FindGhostType<OverlaySnapshotData>()].Value;
             var colorPrefab = serverPrefabs[LabRatGhostSerializerCollection.FindGhostType<OverlayColorSnapshotData>()].Value;
-            for (int i = 0; i < maxPlayers * maxArrows; ++i)
+            for (int i = 0; i < PlayerConstants.MaxPlayers * PlayerConstants.MaxArrows; ++i)
             {
                 // De las arrowas
                 var instance = EntityManager.Instantiate(prefab);
@@ -54,39 +38,63 @@ public class OverlaySpawnerSystem : ComponentSystem
 
                 // Cell stamp color
                 instance = EntityManager.Instantiate(colorPrefab);
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+                EntityManager.SetName(instance, "OverlayColor");
+#endif
                 EntityManager.SetComponentData(instance, new Translation{Value = new float3(0,10,0)});
-                var sharedMesh = EntityManager.GetSharedComponentData<RenderMesh>(instance);
-                if (PlayerMats == null || (PlayerMats.Length >= i && PlayerMats[i] == null))
-                {
-                    if (PlayerMats == null)
-                        PlayerMats = new Material[maxPlayers * maxArrows];
-
-                    var mat = new Material(sharedMesh.material);
-                    var colorIndex = (int) math.floor(i / maxArrows);
-                    mat.color = Colors[colorIndex];
-                    PlayerMats[i] = mat;
-                    Debug.Log("Set index " + i + " entity " + instance + " as color " + mat.color + " colorIndex=" + colorIndex);
-                }
-                /*if (Player1 == null)
-                {
-                    Player1 = new Material(sharedMesh.material);
-                    Player1.color = Color.black;
-                    Player2 = new Material(sharedMesh.material);
-                    Player2.color = Color.blue;
-                    Player3 = new Material(sharedMesh.material);
-                    Player3.color = Color.red;
-                    Player4 = new Material(sharedMesh.material);
-                    Player4.color = Color.green;
-                }*/
-                // Doesn't work
-                //sharedMesh.material = Player1;
-                //sharedMesh.material = new Material(PlayerMats[i]);
-                // Works
-                sharedMesh.material.color = Color.black;
-                //Debug.Log("Setting color " + sharedMesh.material.color + " on " + instance);
-                EntityManager.SetSharedComponentData(instance, sharedMesh);
+                var colorIndex = (byte) math.floor(i / PlayerConstants.MaxArrows);
+                EntityManager.SetComponentData(instance, new OverlayColorComponent{Color = colorIndex});
+                Debug.Log("Set index " + i + " entity " + instance + " as color " + colorIndex);
             }
             EntityManager.AddComponent<InitializedOverlaySpawner>(entity);
+        });
+    }
+}
+
+
+[UpdateInGroup(typeof(ClientSimulationSystemGroup))]
+public class ApplyOverlayColors : ComponentSystem
+{
+    public Material[] PlayerMats;
+    private Color[] m_Colors = new[] {Color.black, Color.blue, Color.red, Color.green};
+
+    public struct InitializedColorTag : IComponentData
+    {}
+
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<PlayerComponent>();
+    }
+
+    protected override void OnUpdate()
+    {
+        var playerComponent = GetSingleton<PlayerComponent>();
+        Entities.WithNone<InitializedColorTag>().ForEach((Entity entity, ref OverlayColorComponent colorComponent) =>
+        {
+            var sharedMesh = EntityManager.GetSharedComponentData<RenderMesh>(entity);
+            var colorIndex = colorComponent.Color;
+            // Color has not yet been replicated
+            if (colorIndex == byte.MaxValue)
+                return;
+            if (PlayerMats == null || (PlayerMats.Length >= PlayerConstants.MaxPlayers && PlayerMats[colorIndex] == null))
+            {
+                if (PlayerMats == null)
+                    PlayerMats = new Material[PlayerConstants.MaxPlayers];
+
+                if (PlayerMats[colorIndex] == null)
+                {
+                    var mat = new Material(sharedMesh.material);
+                    mat.color = m_Colors[colorIndex];
+                    PlayerMats[colorIndex] = mat;
+                }
+                //Debug.Log("Client set index " + colorIndex + " entity " + entity + " as color " + PlayerMats[colorIndex].color);
+            }
+
+            Debug.Log("Client set index " + colorIndex + " entity " + entity + " as color " + PlayerMats[colorIndex].color);
+            sharedMesh.material = PlayerMats[colorIndex];
+            EntityManager.SetSharedComponentData(entity, sharedMesh);
+
+            EntityManager.AddComponent<InitializedColorTag>(entity);
         });
     }
 }

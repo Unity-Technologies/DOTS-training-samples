@@ -212,7 +212,9 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
 	{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 		dstManager.SetName(entity, "Board");
+#endif
 		dstManager.AddComponentData(entity, new BoardDataComponent
 		{
 			size = new int2(boardDesc.size.x, boardDesc.size.y),
