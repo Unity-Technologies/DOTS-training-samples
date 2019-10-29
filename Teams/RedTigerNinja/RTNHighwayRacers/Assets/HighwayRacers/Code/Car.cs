@@ -283,6 +283,10 @@ namespace HighwayRacers
             this.UpdateCarData(ref this.CarData);
         }
 
+        public static void UpdateCarState_TODO(ref CarStateStruct car)
+        {
+
+        }
 
         private void UpdateCarData(ref CarStateStruct car)
         {
