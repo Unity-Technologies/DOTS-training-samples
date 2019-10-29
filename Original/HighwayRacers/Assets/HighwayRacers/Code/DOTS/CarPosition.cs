@@ -4,16 +4,21 @@ using Unity.Entities;
 using Unity.Jobs;
 
 [Serializable]
-public struct CarPosition : IComponentData
+public struct CarLane : IComponentData
 {
-    public float Distance;
-    public float Lane;
+    public float Lane; // [0..4) //?
 }
 
 [Serializable]
-public unsafe struct CarPositionStaticProperties : IComponentData
+public struct CarPosition : IComponentData
 {
-    public fixed float MergeSpace[4];
+    public float Position; // Normalized [0..1)
+}
+
+[Serializable]
+public unsafe struct CarMergeSpace : IComponentData
+{
+    public fixed float MergeSpace[4]; // Normalized per-lane
 }
 
 public class CarPositionSystem : JobComponentSystem
