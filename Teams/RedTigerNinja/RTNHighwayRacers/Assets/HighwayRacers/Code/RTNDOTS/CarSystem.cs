@@ -65,7 +65,11 @@ namespace HighwayRacers {
 
                 CarStateStruct temp = c0;
                 temp.DEBUG_JobTester++;
+
+                // Do the actual update logic:
                 Car.UpdateCarState_FromJob(ref temp);
+
+                // write it into the next state:
                 nextState.NextState = temp;
             }
         }

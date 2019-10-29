@@ -331,7 +331,7 @@ namespace HighwayRacers
         /// <summary>
         /// Searches cars in the given lane to find the closest car in front of the given distance.  Returns null if there are no other cars in the lane.
         /// </summary>
-        public Car GetCarInFront(float distance, float lane)
+        public CarStateStruct GetCarInFront(float distance, float lane)
         {
             Car ret = null;
             float diff = 0;
@@ -345,7 +345,11 @@ namespace HighwayRacers
                     diff = d;
                 }
             }
-            return ret;
+            if (ret == null)
+            {
+                return CarStateStruct.NullCar;
+            }
+            return ret.CarData;
         }
 
 		/// <summary>
@@ -403,9 +407,9 @@ namespace HighwayRacers
             
             foreach (Car car in cars)
             {
-                Car frontCar = GetCarInFront(car.CarData.distance, car.CarData.lane);
+                var frontCar = GetCarInFront(car.CarData.distance, car.CarData.lane);
                 float backDistance = GetEquivalentDistance(car.CarData.distanceFront, car.CarData.lane, lane);
-                float frontDistance = GetEquivalentDistance(frontCar.CarData.distanceBack, frontCar.CarData.lane, lane);
+                float frontDistance = GetEquivalentDistance(frontCar.distanceBack, frontCar.lane, lane);
                 float space = DistanceTo(backDistance, lane, frontDistance);
                 if (space > car.Shared.distanceToFront + car.Shared.distanceToBack + MIN_DIST_BETWEEN_CARS * 2)
                 {

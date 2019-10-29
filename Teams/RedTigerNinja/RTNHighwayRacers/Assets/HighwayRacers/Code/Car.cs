@@ -21,7 +21,6 @@ namespace HighwayRacers
 
         public int DEBUG_JobTester;
         public Entity ThisCarEntity;
-        public bool ThisCarIsNull;
 
 
         /// <summary>
@@ -47,13 +46,14 @@ namespace HighwayRacers
         public Entity overtakeCarEntity;
         public float timeOvertakeCarSet;
 
-        public bool IsNotNull { get { return !this.ThisCarIsNull; } }
+        public bool IsNotNull { get { return !this.IsNull; } }
+        public bool IsNull { get { return (this.ThisCarEntity == Entity.Null); } }
 
         public static CarStateStruct NullCar {
             get
             {
                 CarStateStruct ans = new CarStateStruct();
-                ans.ThisCarIsNull = true;
+                ans.ThisCarEntity = Entity.Null;
                 return ans;
             }
         }
@@ -295,8 +295,8 @@ namespace HighwayRacers
 				return;
 
 			float targetSpeed = car.defaultSpeed;
-			Car carInFront = Highway.instance.GetCarInFront(car.distance, car.lane);
-			float distToCarInFront = carInFront == null ? float.MaxValue : Highway.instance.DistanceTo(car.distanceFront, car.lane, carInFront.CarData.distanceBack, carInFront.CarData.lane);
+			CarStateStruct carInFront = Highway.instance.GetCarInFront(car.distance, car.lane);
+			float distToCarInFront = (carInFront.IsNull) ? float.MaxValue : Highway.instance.DistanceTo(car.distanceFront, car.lane, carInFront.distanceBack, carInFront.lane);
 
 			switch (car.state) {
 			case MergeState.NORMAL:
@@ -306,7 +306,7 @@ namespace HighwayRacers
 
 				// if won't merge, match car in front's speed
 				if (distToCarInFront < car.leftMergeDistance) {
-					targetSpeed = Mathf.Min(targetSpeed, carInFront.CarData.velocityPosition);
+					targetSpeed = Mathf.Min(targetSpeed, carInFront.velocityPosition);
 				}
 
 				break;
@@ -362,14 +362,14 @@ namespace HighwayRacers
 				// detect merging to left lane
 				if (car.lane + 1 < Highway.NUM_LANES // left lane exists
 					&& distToCarInFront < car.leftMergeDistance // close enough to car in front
-					&& car.overtakeEagerness > carInFront.CarData.velocityPosition / car.defaultSpeed // car in front is slow enough		
+					&& car.overtakeEagerness > carInFront.velocityPosition / car.defaultSpeed // car in front is slow enough		
 				) {
 
 					if (Highway.instance.CanMergeToLane(car, car.lane + 1)) { // if space is available
                                                                                // start merge to left
                         car.state = MergeState.MERGE_LEFT;
                         car.targetLane = Mathf.Round(car.lane + 1);
-                        car.overtakeCarEntity = carInFront.CarData.ThisCarEntity;
+                        car.overtakeCarEntity = carInFront.ThisCarEntity;
                         car.timeOvertakeCarSet = Time.time;
 					}
 				}
@@ -393,11 +393,11 @@ namespace HighwayRacers
 
 				if (tryMergeRight) {
 					// don't merge if just going to merge back
-					Car rightCarInFront = Highway.instance.GetCarInFront(Highway.instance.GetEquivalentDistance(car.distanceFront, car.lane, car.lane - 1), car.lane - 1);
-					float distToRightCarInFront = rightCarInFront == null ? float.MaxValue : Highway.instance.DistanceTo(Highway.instance.GetEquivalentDistance(car.distanceFront, car.lane, car.lane - 1), car.lane - 1, rightCarInFront.CarData.distanceBack, rightCarInFront.CarData.lane);
+					CarStateStruct rightCarInFront = Highway.instance.GetCarInFront(Highway.instance.GetEquivalentDistance(car.distanceFront, car.lane, car.lane - 1), car.lane - 1);
+					float distToRightCarInFront = rightCarInFront.IsNull ? float.MaxValue : Highway.instance.DistanceTo(Highway.instance.GetEquivalentDistance(car.distanceFront, car.lane, car.lane - 1), car.lane - 1, rightCarInFront.distanceBack, rightCarInFront.lane);
 					// condition for merging to left lane
 					if (distToRightCarInFront < car.leftMergeDistance// close enough to car in front
-					    && car.overtakeEagerness > rightCarInFront.CarData.velocityPosition / car.defaultSpeed // car in front is slow enough
+					    && car.overtakeEagerness > rightCarInFront.velocityPosition / car.defaultSpeed // car in front is slow enough
 					){
 						tryMergeRight = false;
 					}
@@ -430,7 +430,7 @@ namespace HighwayRacers
 			}
 
 			// crash prevention failsafe
-			if (carInFront != null && dt > 0) {
+			if (carInFront.IsNotNull && dt > 0) {
 				float maxDistanceDiff = Mathf.Max(0, distToCarInFront - Highway.MIN_DIST_BETWEEN_CARS);
                 car.velocityPosition = Mathf.Min(car.velocityPosition, maxDistanceDiff / dt);
 			}
