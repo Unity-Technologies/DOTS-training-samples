@@ -93,7 +93,7 @@ namespace HighwayRacers
 		void Start() {
 
 			Highway.instance.CreateHighway(250);
-			Highway.instance.SetNumCars(3);
+			Highway.instance.SetNumCars(30);
 			HighwayOptions.instance.UpdateSliderValues();
 
 			TopDownView();

@@ -120,60 +120,8 @@ namespace HighwayRacers
 
         public CarStateStruct CarData;
 
-        /*
-        public float defaultSpeed { get; set; }
-		public float overtakePercent { get; set; }
-		public float leftMergeDistance { get; set; }
-		public float mergeSpace { get; set; }
-
-		public float overtakeEagerness { get; set; }
-
-
-
-
-        #region Moved up state
-
-
-        public float velocityPosition { get; set; }
-
-        public float velocityLane { get; set; }
-
-        public State state { get; private set; }
-
-
-        /// <summary>
-        /// Distance in current lane.  Can change when switching lanes.
-        /// </summary>
-        public float distance { get; set; }
-
-
-        /// <summary>
-        /// Ranges from [0, 4]
-        /// </summary>
-        public float lane { get; set; }
-
-
-        private float targetLane = 0;
-
-        private bool hidden = false;
-
-        /// <summary>
-        /// Car to pass before considering merging right
-        /// </summary>
-        private Car overtakeCar = null;
-        private float timeOvertakeCarSet = 0;
-
-        #endregion
-        */
-
-
-
         public Color color
         {
-            get
-            {
-                return topRenderer.material.color;
-            }
             set
             {
 				topRenderer.material.color = value;
@@ -221,15 +169,15 @@ namespace HighwayRacers
         /// Changes lanes, also setting distance to the appropriate value.
         /// </summary>
         /// <param name="newLane"></param>
-        public void ChangeLane(float newLane)
+        public static void ChangeLane(ref CarStateStruct data, float newLane)
         {
 			float roundLane = Mathf.Round(newLane);
 			if (Mathf.Abs (roundLane - newLane) < .0001f) {
 				newLane = roundLane;
 			}
 
-            CarData.distance = Highway.instance.GetEquivalentDistance(CarData.distance, CarData.lane, newLane);
-            CarData.lane = newLane;
+            data.distance = Highway.instance.GetEquivalentDistance(data.distance, data.lane, newLane);
+            data.lane = newLane;
         }
 
 
@@ -401,7 +349,7 @@ namespace HighwayRacers
 
             // update position
             car.distance += car.velocityPosition * dt;
-			ChangeLane(car.lane + car.velocityLane * dt);
+			ChangeLane(ref car, car.lane + car.velocityLane * dt);
             UpdatePosition(ref car);
 
 			UpdateColor(ref car);
