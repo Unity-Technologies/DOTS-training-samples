@@ -347,27 +347,20 @@ namespace HighwayRacers
             }
             return ret;
         }
-        /// <summary>
-        /// Searches cars in the given lane to find the closest car in front of the given car.
-        /// </summary>
-        public Car GetCarInFront(Car car)
-        {
-            return GetCarInFront(car.CarData.distanceFront, car.CarData.lane);
-        }
 
 		/// <summary>
 		/// Returns if the car can merge into the given lane.  Takes car's mergeSpace into consideration.
 		/// </summary>
 		/// <param name="car">Car merging.</param>
 		/// <param name="mergeLane">The lane the car will merge to.</param>
-		public bool CanMergeToLane(Car car, float mergeLane)
+		public bool CanMergeToLane(CarStateStruct car, float mergeLane)
 		{
-			float distanceBack = GetEquivalentDistance(car.CarData.distanceBack - car.CarData.mergeSpace, car.CarData.lane, mergeLane);
-			float distanceFront = GetEquivalentDistance(car.CarData.distanceFront + car.CarData.mergeSpace, car.CarData.lane, mergeLane);
+			float distanceBack = GetEquivalentDistance(car.distanceBack - car.mergeSpace, car.lane, mergeLane);
+			float distanceFront = GetEquivalentDistance(car.distanceFront + car.mergeSpace, car.lane, mergeLane);
 
 			foreach (Car otherCar in cars)
 			{
-				if (car == otherCar)
+				if (car.ThisCarEntity == otherCar.CarData.ThisCarEntity)
 					continue;
 				if (AreasOverlap (mergeLane, distanceBack, distanceFront, otherCar.CarData.lane, otherCar.CarData.distanceBack, otherCar.CarData.distanceFront))
 					return false;
@@ -410,7 +403,7 @@ namespace HighwayRacers
             
             foreach (Car car in cars)
             {
-                Car frontCar = GetCarInFront(car);
+                Car frontCar = GetCarInFront(car.CarData.distance, car.CarData.lane);
                 float backDistance = GetEquivalentDistance(car.CarData.distanceFront, car.CarData.lane, lane);
                 float frontDistance = GetEquivalentDistance(frontCar.CarData.distanceBack, frontCar.CarData.lane, lane);
                 float space = DistanceTo(backDistance, lane, frontDistance);
@@ -433,6 +426,7 @@ namespace HighwayRacers
 			car.SetRandomPropeties();
             car.CarData.distance = distance;
             car.CarData.lane = lane;
+            car.CarData.ThisCarEntity = Unity.Entities.World.Active.EntityManager.CreateEntity();
 			car.CarData.velocityPosition = car.CarData.defaultSpeed;
             cars.AddLast(car);
             car.UpdatePosition(ref car.CarData);
