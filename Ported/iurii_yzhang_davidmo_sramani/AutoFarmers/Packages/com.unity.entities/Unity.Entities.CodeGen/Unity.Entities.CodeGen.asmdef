@@ -1,0 +1,22 @@
+{
+    "name": "Unity.Entities.CodeGen",
+    "references": [
+        "Unity.Entities",
+        "Unity.Burst",
+        "Unity.Collections",
+		"Unity.Properties"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Mono.Cecil.dll",
+        "Mono.Cecil.Rocks.dll",
+        "Mono.Cecil.Pdb.dll"
+    ],
+    "autoReferenced": false,
+    "versionDefines": []
+}

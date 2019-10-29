@@ -1,0 +1,31 @@
+.live-link-connections-dropdown {
+    padding: 6px;
+}
+
+#devices {
+    padding-top: 6px;
+}
+
+.live-link-connections-dropdown__item {
+    flex-direction: row;
+    padding-bottom: 3px;
+}
+
+.live-link-connections-dropdown__item Image {
+     width: 16px;
+     height: 16px;
+     flex: 0 0 auto;
+}
+
+.live-link-connections-dropdown__item Label {
+     margin-left: 4px;
+}
+
+.live-link-connections-dropdown__footer {
+    padding: 6px;
+    border-width: 1px 0 0 0;
+}
+
+.live-link-connections-dropdown__footer Button {
+    margin: 0 0 3px 0;
+}

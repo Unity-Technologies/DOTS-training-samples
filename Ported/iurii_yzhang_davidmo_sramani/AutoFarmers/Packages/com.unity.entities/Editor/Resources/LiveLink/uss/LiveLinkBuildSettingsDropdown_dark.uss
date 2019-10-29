@@ -1,0 +1,15 @@
+.live-link-build-settings-dropdown__item__device-windows { background-image: resource("d_BuildSettings.Metro.png"); }
+.live-link-build-settings-dropdown__item__device-xboxOne { background-image: resource("d_BuildSettings.XboxOne.png"); }
+.live-link-build-settings-dropdown__item__device-standalone { background-image: resource("d_BuildSettings.Standalone.png"); }
+.live-link-build-settings-dropdown__item__device-iOS { background-image: resource("d_BuildSettings.iPhone.png"); }
+.live-link-build-settings-dropdown__item__device-android { background-image: resource("d_BuildSettings.Android.png"); }
+.live-link-build-settings-dropdown__item__device-webGL { background-image: resource("d_BuildSettings.WebGL.png"); }
+.live-link-build-settings-dropdown__item__device-ps4 { background-image: resource("d_BuildSettings.PS4.png"); }
+.live-link-build-settings-dropdown__item__device-tvOS { background-image: resource("d_BuildSettings.tvOS.png"); }
+.live-link-build-settings-dropdown__item__device-switch { background-image: resource("d_BuildSettings.Switch.png"); }
+.live-link-build-settings-dropdown__item__device-lumin { background-image: resource("d_BuildSettings.Lumin.png"); }
+.live-link-build-settings-dropdown__item__device-stadia { background-image: resource("d_BuildSettings.Stadia.png"); }
+
+.live-link-build-settings-dropdown .live-link-build-settings-dropdown__item Toggle:checked .unity-toggle__checkmark {
+    background-image: resource("d_FilterSelectedOnly.png");
+ }

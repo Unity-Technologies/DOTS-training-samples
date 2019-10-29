@@ -1,0 +1,141 @@
+%YAML 1.1
+---
+# ECS Debugging file
+Archetypes:
+  Archetype:
+    name: "  - Entity  - TestComponentData2  - EcsTestData  - EcsTestData2"
+    TypesCount: 4
+    ChunkCount: 1
+    ChunkCapacity: 496
+    properties: []
+  Archetype:
+    name: "  - Entity  - TestComponentData1  - EcsTestData  - EcsTestData2  - EcsIntElement [B]"
+    TypesCount: 5
+    ChunkCount: 1
+    ChunkCapacity: 200
+    properties: []
+  Archetype:
+    name: "  - Entity  - TestComponentData1  - TestComponentData2  - EcsTestData  - EcsIntElement [B]"
+    TypesCount: 5
+    ChunkCount: 1
+    ChunkCapacity: 190
+    properties: []
+  Archetype:
+    name: "  - Entity  - EcsComplexEntityRefElement [B]"
+    TypesCount: 2
+    ChunkCount: 1
+    ChunkCapacity: 223
+    properties: []
+ChunksData:
+  Archetype:
+    name: "  - Entity  - TestComponentData2  - EcsTestData  - EcsTestData2"
+    ChunkData:
+      Header:
+        metaChunkEntity: {index: 0, version: 0}
+        Capacity: 496
+        Count: 1
+      ComponentDataCollection:
+        ComponentData:
+          info: {Type: Entity, SizeInChunk: 8}
+          Entities:
+            Entity(2:1): {Index: "2", Version: "1"}
+        ComponentData:
+          info: {Type: TestComponentData2, SizeInChunk: 12}
+          Entities:
+            Entity(2:1): {referencedEntity: "Entity(1:1)", value: "20"}
+        ComponentData:
+          info: {Type: EcsTestData, SizeInChunk: 4}
+          Entities:
+            Entity(2:1): {value: "2"}
+        ComponentData:
+          info: {Type: EcsTestData2, SizeInChunk: 8}
+          Entities:
+            Entity(2:1): {value0: "-2", value1: "-2"}
+  Archetype:
+    name: "  - Entity  - TestComponentData1  - EcsTestData  - EcsTestData2  - EcsIntElement [B]"
+    ChunkData:
+      Header:
+        metaChunkEntity: {index: 0, version: 0}
+        Capacity: 200
+        Count: 1
+      ComponentDataCollection:
+        ComponentData:
+          info: {Type: Entity, SizeInChunk: 8}
+          Entities:
+            Entity(1:1): {Index: "1", Version: "1"}
+        ComponentData:
+          info: {Type: TestComponentData1, SizeInChunk: 12}
+          Entities:
+            Entity(1:1): {referencedEntity: "Entity(2:1)", value: "10"}
+        ComponentData:
+          info: {Type: EcsTestData, SizeInChunk: 4}
+          Entities:
+            Entity(1:1): {value: "1"}
+        ComponentData:
+          info: {Type: EcsTestData2, SizeInChunk: 8}
+          Entities:
+            Entity(1:1): {value0: "-1", value1: "-1"}
+        ComponentData:
+          info: {Type: EcsIntElement, SizeInChunk: 48}
+          Entities:
+            Entity(1:1):
+              0000: {Value: "1"}
+              0001: {Value: "2"}
+              0002: {Value: "3"}
+  Archetype:
+    name: "  - Entity  - TestComponentData1  - TestComponentData2  - EcsTestData  - EcsIntElement [B]"
+    ChunkData:
+      Header:
+        metaChunkEntity: {index: 0, version: 0}
+        Capacity: 190
+        Count: 1
+      ComponentDataCollection:
+        ComponentData:
+          info: {Type: Entity, SizeInChunk: 8}
+          Entities:
+            Entity(3:1): {Index: "3", Version: "1"}
+        ComponentData:
+          info: {Type: TestComponentData1, SizeInChunk: 12}
+          Entities:
+            Entity(3:1): {referencedEntity: "Entity.Null", value: "30"}
+        ComponentData:
+          info: {Type: TestComponentData2, SizeInChunk: 12}
+          Entities:
+            Entity(3:1): {referencedEntity: "Entity.Null", value: "40"}
+        ComponentData:
+          info: {Type: EcsTestData, SizeInChunk: 4}
+          Entities:
+            Entity(3:1): {value: "3"}
+        ComponentData:
+          info: {Type: EcsIntElement, SizeInChunk: 48}
+          Entities:
+            Entity(3:1):
+              0000: {Value: "1"}
+              0001: {Value: "2"}
+              0002: {Value: "3"}
+              0003: {Value: "4"}
+              0004: {Value: "5"}
+              0005: {Value: "6"}
+              0006: {Value: "7"}
+              0007: {Value: "8"}
+              0008: {Value: "9"}
+              0009: {Value: "10"}
+  Archetype:
+    name: "  - Entity  - EcsComplexEntityRefElement [B]"
+    ChunkData:
+      Header:
+        metaChunkEntity: {index: 0, version: 0}
+        Capacity: 223
+        Count: 1
+      ComponentDataCollection:
+        ComponentData:
+          info: {Type: Entity, SizeInChunk: 8}
+          Entities:
+            Entity(4:1): {Index: "4", Version: "1"}
+        ComponentData:
+          info: {Type: EcsComplexEntityRefElement, SizeInChunk: 64}
+          Entities:
+            Entity(4:1):
+              0000: {Dummy: "1", Entity: "Entity(1:1)"}
+              0001: {Dummy: "2", Entity: "Entity(2:1)"}
+              0002: {Dummy: "3", Entity: "Entity(3:1)"}

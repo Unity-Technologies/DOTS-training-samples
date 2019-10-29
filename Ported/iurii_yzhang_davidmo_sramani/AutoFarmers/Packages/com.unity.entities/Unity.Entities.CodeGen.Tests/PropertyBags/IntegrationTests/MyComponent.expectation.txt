@@ -1,0 +1,71 @@
+using Some.Namespace;
+using System.Collections.Generic;
+
+namespace Unity.Properties.CodeGeneratedPropertyBagRegistry
+{
+	public class Some_Namespace_MyComponentPropertyBag : PropertyBag<Some.Namespace.MyComponent>
+	{
+		public static readonly Property<Some.Namespace.MyComponent, int> MyInt = new Property<Some.Namespace.MyComponent, int>("MyInt", Some_Namespace_MyComponentPropertyBag.MyIntGetter, Some_Namespace_MyComponentPropertyBag.MyIntSetter);
+
+		public static readonly ListProperty<Some.Namespace.MyComponent, string> MyList = new ListProperty<Some.Namespace.MyComponent, string>("MyList", Some_Namespace_MyComponentPropertyBag.MyListGetter, Some_Namespace_MyComponentPropertyBag.MyListSetter);
+
+		public static readonly ArrayProperty<Some.Namespace.MyComponent, SomeClass> MyArray = new ArrayProperty<Some.Namespace.MyComponent, SomeClass>("MyArray", Some_Namespace_MyComponentPropertyBag.MyArrayGetter, Some_Namespace_MyComponentPropertyBag.MyArraySetter);
+
+		public static int MyIntGetter(ref Some.Namespace.MyComponent container)
+		{
+			return container.MyInt;
+		}
+
+		public static void MyIntSetter(ref Some.Namespace.MyComponent container, int val)
+		{
+			container.MyInt = val;
+		}
+
+		public static IList<string> MyListGetter(ref Some.Namespace.MyComponent container)
+		{
+			return container.MyList;
+		}
+
+		public static void MyListSetter(ref Some.Namespace.MyComponent container, IList<string> val)
+		{
+			container.MyList = (List<string>)val;
+		}
+
+		public static SomeClass[] MyArrayGetter(ref Some.Namespace.MyComponent container)
+		{
+			return container.MyArray;
+		}
+
+		public static void MyArraySetter(ref Some.Namespace.MyComponent container, SomeClass[] val)
+		{
+			container.MyArray = val;
+		}
+
+		public override void Accept<TVisitor>(ref Some.Namespace.MyComponent container, ref TVisitor visitor, ref ChangeTracker changeTracker)
+		{
+			visitor.VisitProperty<Property<Some.Namespace.MyComponent, int>, Some.Namespace.MyComponent, int>(MyInt, ref container, ref changeTracker);
+			visitor.VisitCollectionProperty<ListProperty<Some.Namespace.MyComponent, string>, Some.Namespace.MyComponent, IList<string>>(MyList, ref container, ref changeTracker);
+			visitor.VisitCollectionProperty<ArrayProperty<Some.Namespace.MyComponent, SomeClass>, Some.Namespace.MyComponent, SomeClass[]>(MyArray, ref container, ref changeTracker);
+		}
+
+		public override bool FindProperty<TAction>(string name, ref Some.Namespace.MyComponent container, ref ChangeTracker changeTracker, ref TAction action)
+		{
+			if (string.Equals(name, "MyInt"))
+			{
+				action.VisitProperty<Property<Some.Namespace.MyComponent, int>, int>(MyInt, ref container, ref changeTracker);
+				return true;
+			}
+			if (string.Equals(name, "MyList"))
+			{
+				action.VisitCollectionProperty<ListProperty<Some.Namespace.MyComponent, string>, IList<string>>(MyList, ref container, ref changeTracker);
+				return true;
+			}
+			if (string.Equals(name, "MyArray"))
+			{
+				action.VisitCollectionProperty<ArrayProperty<Some.Namespace.MyComponent, SomeClass>, SomeClass[]>(MyArray, ref container, ref changeTracker);
+				return true;
+			}
+			return false;
+		}
+	}
+}

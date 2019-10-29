@@ -1,0 +1,19 @@
+{
+    "name": "Unity.Build.Tests",
+    "references": [
+        "Unity.Build",
+        "Unity.Platforms",
+        "Unity.Properties",
+        "Unity.Properties.Reflection",
+        "Unity.Serialization",
+        "Unity.Serialization.Properties"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

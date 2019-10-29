@@ -1,0 +1,38 @@
+.live-link-build-settings-dropdown {
+    padding: 6px;
+}
+
+.live-link-build-settings-dropdown .live-link-build-settings-dropdown__title {
+    margin-bottom: 6px;
+}
+
+.live-link-build-settings-dropdown .live-link-build-settings-dropdown__item {
+    flex-direction: row;
+    padding-bottom: 3px;
+}
+
+.live-link-build-settings-dropdown .live-link-build-settings-dropdown__empty-message {
+    margin-top: 2px;
+    margin-left: 2px;
+}
+
+.live-link-build-settings-dropdown .live-link-build-settings-dropdown__item Label {
+    margin-left: 4px;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.live-link-build-settings-dropdown .live-link-build-settings-dropdown__item Image {
+     width: 16px;
+     height: 16px;
+     margin-left: 3px;
+     flex: 0 0 auto;
+ }
+
+.live-link-build-settings-dropdown .live-link-build-settings-dropdown__item Toggle {
+    margin: 0;
+}
+
+.live-link-build-settings-dropdown .live-link-build-settings-dropdown__item Toggle .unity-toggle__checkmark {
+     background-image: none;
+ }

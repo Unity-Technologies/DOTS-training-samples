@@ -1,0 +1,24 @@
+{
+    "name": "Unity.Build",
+    "references": [
+        "Unity.Platforms",
+        "Unity.Properties",
+        "Unity.Properties.Editor",
+        "Unity.Properties.Reflection",
+        "Unity.ScriptableBuildPipeline.Editor",
+        "Unity.Searcher.Editor",
+        "Unity.Serialization",
+        "Unity.Serialization.Properties"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

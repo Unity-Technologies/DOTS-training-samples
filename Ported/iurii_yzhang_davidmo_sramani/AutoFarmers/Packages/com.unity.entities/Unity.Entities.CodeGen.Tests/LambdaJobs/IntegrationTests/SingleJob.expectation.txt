@@ -1,0 +1,118 @@
+using NUnit.Framework;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Entities.CodeGen.Tests.LambdaJobs.Infrastructure;
+using Unity.Entities.CodeGeneratedJobForEach;
+using Unity.Jobs;
+using Unity.Jobs.LowLevel.Unsafe;
+
+namespace Unity.Entities.CodeGen.Tests
+{
+	[TestFixture]
+	public class SingleJob : LambdaJobIntegrationTest
+	{
+		private class System : JobComponentSystem
+		{
+			[BurstCompile]
+			private struct AJobForRunning : IJob
+			{
+				public NativeArray<float> myCapturedFloats;
+
+				private static InternalCompilerInterface.JobRunWithoutJobSystemDelegate s_RunWithoutJobSystemDelegateFieldNoBurst;
+
+				private static InternalCompilerInterface.JobRunWithoutJobSystemDelegate s_RunWithoutJobSystemDelegateFieldBurst;
+
+				public void OriginalLambdaBody()
+				{
+					ref NativeArray<float> reference = ref myCapturedFloats;
+					reference[0] += 1f;
+				}
+
+				public void ReadFromDisplayClass(<>c__DisplayClass0_0 displayClass)
+				{
+					myCapturedFloats = displayClass.myCapturedFloats;
+				}
+
+				public void WriteToDisplayClass(<>c__DisplayClass0_0 displayClass)
+				{
+					displayClass.myCapturedFloats = myCapturedFloats;
+				}
+
+				public void Execute()
+				{
+					OriginalLambdaBody();
+				}
+
+				public void ScheduleTimeInitialize(System componentSystem, <>c__DisplayClass0_0 displayClass)
+				{
+					ReadFromDisplayClass(displayClass);
+				}
+
+				[BurstCompile]
+				public unsafe static void RunWithoutJobSystem(void* jobData)
+				{
+					((AJobForRunning*)jobData)->Execute();
+				}
+			}
+
+			[BurstCompile]
+			private struct AJobForScheduling : IJob
+			{
+				public NativeArray<float> myCapturedFloats;
+
+				public void OriginalLambdaBody()
+				{
+					for (int i = 0; i != myCapturedFloats.Length; i++)
+					{
+						ref NativeArray<float> reference = ref myCapturedFloats;
+						int index = i;
+						reference[index] *= 2f;
+					}
+				}
+
+				public void ReadFromDisplayClass(<>c__DisplayClass0_0 displayClass)
+				{
+					myCapturedFloats = displayClass.myCapturedFloats;
+				}
+
+				public void Execute()
+				{
+					OriginalLambdaBody();
+				}
+
+				public void ScheduleTimeInitialize(System componentSystem, <>c__DisplayClass0_0 displayClass)
+				{
+					ReadFromDisplayClass(displayClass);
+				}
+			}
+
+			protected unsafe override JobHandle OnUpdate(JobHandle inputDeps)
+			{
+				NativeArray<float> myCapturedFloats = default(NativeArray<float>);
+				LambdaSingleJobDescription job = base.Job;
+				AJobForRunning jobData = default(AJobForRunning);
+				<>c__DisplayClass0_0 displayClass;
+				jobData.ScheduleTimeInitialize(this, displayClass);
+				InternalCompilerInterface.RunIJob(ref jobData, JobsUtility.JobCompilerEnabled ? AJobForRunning.s_RunWithoutJobSystemDelegateFieldBurst : AJobForRunning.s_RunWithoutJobSystemDelegateFieldNoBurst);
+				jobData.WriteToDisplayClass(displayClass);
+				LambdaSingleJobDescription job2 = base.Job;
+				AJobForScheduling jobData2 = default(AJobForScheduling);
+				jobData2.ScheduleTimeInitialize(this, displayClass);
+				return IJobExtensions.Schedule(jobData2, inputDeps);
+			}
+
+			protected internal unsafe override void OnCreateForCompiler()
+			{
+				base.OnCreateForCompiler();
+				AJobForRunning.s_RunWithoutJobSystemDelegateFieldNoBurst = AJobForRunning.RunWithoutJobSystem;
+				AJobForRunning.s_RunWithoutJobSystemDelegateFieldBurst = InternalCompilerInterface.BurstCompile(AJobForRunning.s_RunWithoutJobSystemDelegateFieldNoBurst);
+			}
+		}
+
+		[Test]
+		public void SingleJobTest()
+		{
+			RunTest(typeof(System));
+		}
+	}
+}

@@ -1,0 +1,27 @@
+{
+    "name": "Unity.Entities.CodeGen.Tests",
+    "references": [
+        "Unity.Collections",
+        "Unity.Entities",
+        "Unity.Entities.CodeGen",
+        "Unity.Entities.CodeGen.Tests.TestTypes",
+        "Unity.Burst"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Mono.Cecil.dll",
+        "Mono.Cecil.Rocks.dll",
+        "Mono.Cecil.Pdb.dll",
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "versionDefines": []
+}
