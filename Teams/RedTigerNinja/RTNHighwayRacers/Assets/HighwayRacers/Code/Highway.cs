@@ -422,12 +422,16 @@ namespace HighwayRacers
         /// </summary>
         public Car AddCarUnsafe(float distance, float lane)
         {
+            var em = Unity.Entities.World.Active.EntityManager;
+
             Car car = Instantiate(carPrefab, transform).GetComponent<Car>();
 			car.SetRandomPropeties();
             car.CarData.distance = distance;
             car.CarData.lane = lane;
-            car.CarData.ThisCarEntity = Unity.Entities.World.Active.EntityManager.CreateEntity();
+            car.CarData.ThisCarEntity = em.CreateEntity();
 			car.CarData.velocityPosition = car.CarData.defaultSpeed;
+            em.AddComponentData(car.CarData.ThisCarEntity, car.CarData);
+            em.AddComponentData(car.CarData.ThisCarEntity, new CarSystem.CarNextState(car.CarData));
             cars.AddLast(car);
             car.UpdatePosition(ref car.CarData);
             return car;

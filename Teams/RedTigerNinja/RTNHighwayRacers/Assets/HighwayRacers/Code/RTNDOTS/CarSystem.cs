@@ -9,16 +9,19 @@ namespace HighwayRacers {
 
     public class CarSystem : JobComponentSystem
     {
-        public void SpawnEntity(Car car)
-        {
-        }
-
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
+            var query = this.GetEntityQuery(ComponentType.ReadOnly<CarStateStruct>());
+            var ar = query.ToComponentDataArray<CarStateStruct>(Allocator.TempJob);
+
             // calculate next state:
             inputDeps = (new CarUpdateNextJob
-                (this.GetComponentDataFromEntity<CarStateStruct>(true)))
+                (this.GetComponentDataFromEntity<CarStateStruct>(true), ar))
                 .Schedule(this, inputDeps);
+
+
+            inputDeps.Complete();
+            ar.Dispose();
 
             // update current from next state:
             inputDeps = (new CarUpdateStateFromNextJob()).Schedule(this, inputDeps);
@@ -29,6 +32,9 @@ namespace HighwayRacers {
         public struct CarNextState : IComponentData
         {
             public CarStateStruct NextState;
+
+            //public CarNextState() { }
+            public CarNextState(CarStateStruct initial) { this.NextState = initial; }
         }
 
         public struct CarUpdateStateFromNextJob : IJobForEach<CarStateStruct, CarNextState>
@@ -43,11 +49,14 @@ namespace HighwayRacers {
         public struct CarUpdateNextJob : IJobForEach<CarNextState>
         {
             public readonly ComponentDataFromEntity<CarStateStruct> OtherCarQuery;
+            public NativeArray<CarStateStruct> OtherCarArray;
 
             //public CarUpdateJob() { }
-            public CarUpdateNextJob(ComponentDataFromEntity<CarStateStruct> query)
+            public CarUpdateNextJob(ComponentDataFromEntity<CarStateStruct> query,
+            NativeArray<CarStateStruct> _carArray)
             {
                 this.OtherCarQuery = query;
+                this.OtherCarArray = _carArray;
             }
 
             public void Execute(ref CarNextState nextState)
@@ -55,14 +64,9 @@ namespace HighwayRacers {
                 var c0 = OtherCarQuery[nextState.NextState.ThisCarEntity];
 
                 CarStateStruct temp = c0;
+                temp.DEBUG_JobTester++;
                 Car.UpdateCarState_FromJob(ref temp);
                 nextState.NextState = temp;
-
-
-                //var otherCar = Unity.Entities.World.Active.EntityManager.GetComponentData<CarStateStruct>(c0.overtakeCarEntity);
-
-                //c0.DEBUG_JobTester += otherCar.DEBUG_JobTester;
-                c0.DEBUG_JobTester++;
             }
         }
     }
