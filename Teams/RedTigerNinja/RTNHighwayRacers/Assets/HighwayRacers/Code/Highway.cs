@@ -318,7 +318,7 @@ namespace HighwayRacers
         public LinkedList<Car> GetCarsInLane(float lane)
         {
             LinkedList<Car> ret = new LinkedList<Car>();
-            foreach (Car car in cars)
+            foreach (Car car in allCarsList)
             {
                 if (car.CarData.IsInLane(lane))
                 {
@@ -362,7 +362,7 @@ namespace HighwayRacers
 			float distanceBack = GetEquivalentDistance(car.distanceBack - car.mergeSpace, car.lane, mergeLane);
 			float distanceFront = GetEquivalentDistance(car.distanceFront + car.mergeSpace, car.lane, mergeLane);
 
-			foreach (Car otherCar in cars)
+			foreach (Car otherCar in allCarsList)
 			{
 				if (car.ThisCarEntity == otherCar.CarData.ThisCarEntity)
 					continue;
@@ -436,26 +436,26 @@ namespace HighwayRacers
 			car.CarData.velocityPosition = car.CarData.defaultSpeed;
             em.AddComponentData(car.CarData.ThisCarEntity, car.CarData);
             em.AddComponentData(car.CarData.ThisCarEntity, new CarSystem.CarNextState(car.CarData));
-            cars.AddLast(car);
+            allCarsList.AddLast(car);
             car.UpdatePosition(ref car.CarData);
             return car;
         }
 
 		public void RemoveCar(Car car) {
-			cars.Remove(car);
+			allCarsList.Remove(car);
 			Destroy (car.gameObject);
 		}
 
 		public int numCars {
-			get { return cars.Count; }
+			get { return allCarsList.Count; }
 		}
 
 		public void SetNumCars(int numCars) {
 
-			while (cars.Count > numCars) {
-				RemoveCar(cars.First.Value);
+			while (allCarsList.Count > numCars) {
+				RemoveCar(allCarsList.First.Value);
 			}
-			while (cars.Count < numCars) {
+			while (allCarsList.Count < numCars) {
 				Car car = AddCar();
 				if (car == null)
 					return;
@@ -465,16 +465,16 @@ namespace HighwayRacers
         
         public void ClearCars()
         {
-            foreach (Car car in cars)
+            foreach (Car car in allCarsList)
             {
                 Destroy(car.gameObject);
             }
-            cars.Clear();
+            allCarsList.Clear();
         }
 
 		public Car GetCarAtScreenPosition(Vector3 screenPosition, float radius){
 
-			foreach (Car car in cars) {
+			foreach (Car car in allCarsList) {
 				Vector3 carScreenPos = Camera.main.WorldToScreenPoint(car.transform.position);
 				carScreenPos.z = screenPosition.z;
 
@@ -489,7 +489,7 @@ namespace HighwayRacers
 		}
 
         
-        private LinkedList<Car> cars = new LinkedList<Car>();
+        private LinkedList<Car> allCarsList = new LinkedList<Car>();
 
         private void Awake()
         {
