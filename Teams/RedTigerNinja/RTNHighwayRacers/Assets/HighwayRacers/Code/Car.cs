@@ -43,6 +43,43 @@ namespace HighwayRacers
         public MeshRenderer baseRenderer;
 		public Transform cameraPos;
 
+        #region Moved up state
+
+
+        public float velocityPosition { get; set; }
+
+        public float velocityLane { get; set; }
+
+        public State state { get; private set; }
+
+
+        /// <summary>
+        /// Distance in current lane.  Can change when switching lanes.
+        /// </summary>
+        public float distance { get; set; }
+
+
+        /// <summary>
+        /// Ranges from [0, 4]
+        /// </summary>
+        public float lane { get; set; }
+
+
+        private float targetLane = 0;
+
+        private bool hidden = false;
+
+        /// <summary>
+        /// Car to pass before considering merging right
+        /// </summary>
+        private Car overtakeCar = null;
+        private float timeOvertakeCarSet = 0;
+
+
+
+
+        #endregion
+
         public Color color
         {
             get
@@ -83,25 +120,15 @@ namespace HighwayRacers
 
 		}
 
-        public float velocityPosition { get; set; }
-
-        public float velocityLane { get; set; }
-
 		public enum State {
 			NORMAL,
 			MERGE_RIGHT,
 			MERGE_LEFT,
 			OVERTAKING,
 		}
-		public State state { get; private set; }
 		public bool isMerging {
 			get { return state == State.MERGE_LEFT || state == State.MERGE_RIGHT; }
 		}
-
-        /// <summary>
-        /// Distance in current lane.  Can change when switching lanes.
-        /// </summary>
-        public float distance { get; set; }
 
         /// <summary>
         /// Distance of the back of the car in the current lane.
@@ -124,11 +151,6 @@ namespace HighwayRacers
                 return (distance + distanceToFront) + Mathf.Floor((distance + distanceToFront) / Highway.instance.length(lane)) * Highway.instance.length(lane);
             }
         }
-
-        /// <summary>
-        /// Ranges from [0, 4]
-        /// </summary>
-        public float lane { get; set; }
 
         /// <summary>
         /// Changes lanes, also setting distance to the appropriate value.
@@ -331,17 +353,6 @@ namespace HighwayRacers
 			}
 
 		}
-
-		private float targetLane = 0;
-
-		private bool hidden = false;
-
-		/// <summary>
-		/// Car to pass before considering merging right
-		/// </summary>
-		private Car overtakeCar = null;
-		private float timeOvertakeCarSet = 0;
-
 
     }
 
