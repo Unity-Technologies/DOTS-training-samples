@@ -7,41 +7,129 @@ namespace HighwayRacers
 
     public class Car : MonoBehaviour
     {
-		#region Constant for all cars:
+        #region Constant for all cars:
 
-        [Tooltip("Distance from center of car to the front.")]
-        public float distanceToFront = 1;
-        [Tooltip("Distance from center of car to the back.")]
-        public float distanceToBack = 1;
+        public class CarShared
+        {
 
-		public Color defaultColor = Color.gray;
-		public Color maxSpeedColor = Color.green;
-		public Color minSpeedColor = Color.red;
+            [Tooltip("Distance from center of car to the front.")]
+            public float distanceToFront = 1;
+            [Tooltip("Distance from center of car to the back.")]
+            public float distanceToBack = 1;
+
+            public Color defaultColor = Color.gray;
+            public Color maxSpeedColor = Color.green;
+            public Color minSpeedColor = Color.red;
+        }
+
+        private static CarShared GlobalShared = new CarShared();
+        public CarShared Shared { get { return GlobalShared; } }
 
 
 
 
-		#endregion
+            #endregion
 
-		public float defaultSpeed { get; set; }
+
+            [Header("Children")]
+        public MeshRenderer topRenderer;
+        public MeshRenderer baseRenderer;
+        public Transform cameraPos;
+
+        public struct CarStateStruct
+        {
+            public float defaultSpeed;
+            public float overtakePercent;
+            public float leftMergeDistance;
+            public float mergeSpace;
+
+            public float overtakeEagerness;
+
+            public float velocityPosition;
+
+            public float velocityLane;
+
+            public State state;
+
+
+            /// <summary>
+            /// Distance in current lane.  Can change when switching lanes.
+            /// </summary>
+            public float distance;
+
+
+            /// <summary>
+            /// Ranges from [0, 4]
+            /// </summary>
+            public float lane;
+
+
+            public float targetLane;
+
+            public bool hidden;
+
+            /// <summary>
+            /// Car to pass before considering merging right
+            /// </summary>
+            public Car overtakeCar;
+            public float timeOvertakeCarSet;
+
+
+            public float maxSpeed
+            {
+                get
+                {
+                    return defaultSpeed * overtakePercent;
+                }
+            }
+
+
+            /// <summary>
+            /// Distance of the back of the car in the current lane.
+            /// </summary>
+            public float distanceBack
+            {
+                get
+                {
+                    return (distance - GlobalShared.distanceToBack) + Mathf.Floor((distance - GlobalShared.distanceToBack) / Highway.instance.length(lane)) * Highway.instance.length(lane);
+                }
+            }
+
+            /// <summary>
+            /// Distance of the front of the car in the current lane.
+            /// </summary>
+            public float distanceFront
+            {
+                get
+                {
+                    return (distance + GlobalShared.distanceToFront) + Mathf.Floor((distance + GlobalShared.distanceToFront) / Highway.instance.length(lane)) * Highway.instance.length(lane);
+                }
+            }
+
+            public bool isMerging
+            {
+                get { return state == State.MERGE_LEFT || state == State.MERGE_RIGHT; }
+            }
+
+
+            public bool IsInLane(float lane)
+            {
+                return Highway.LanesOverlap(lane, this.lane);
+            }
+        }
+
+        public CarStateStruct CarData;
+
+        /*
+        public float defaultSpeed { get; set; }
 		public float overtakePercent { get; set; }
 		public float leftMergeDistance { get; set; }
 		public float mergeSpace { get; set; }
 
 		public float overtakeEagerness { get; set; }
 
-		public float maxSpeed {
-			get {
-				return defaultSpeed * overtakePercent;
-			}
-		}
 
 
-
-        [Header("Children")]
-		public MeshRenderer topRenderer;
-        public MeshRenderer baseRenderer;
-		public Transform cameraPos;
 
         #region Moved up state
 
@@ -75,10 +163,10 @@ namespace HighwayRacers
         private Car overtakeCar = null;
         private float timeOvertakeCarSet = 0;
 
-
-
-
         #endregion
+        */
+
+
 
         public Color color
         {
@@ -94,30 +182,31 @@ namespace HighwayRacers
         }
 
 		public void Show() {
-			if (!hidden)
+			if (!CarData.hidden)
 				return;
 			topRenderer.enabled = true;
 			baseRenderer.enabled = true;
-			hidden = false;
+            CarData.hidden = false;
 		}
 
 		public void Hide() {
-			if (hidden)
+			if (CarData.hidden)
 				return;
 			topRenderer.enabled = false;
 			baseRenderer.enabled = false;
-			hidden = true;
+            CarData.hidden = true;
 
 		}
 
 		public void SetRandomPropeties()
 		{
-			defaultSpeed = Random.Range(Game.instance.defaultSpeedMin, Game.instance.defaultSpeedMax);	
-			overtakePercent = Random.Range(Game.instance.overtakePercentMin, Game.instance.overtakePercentMax);
-			leftMergeDistance = Random.Range(Game.instance.leftMergeDistanceMin, Game.instance.leftMergeDistanceMax);
-			mergeSpace = Random.Range(Game.instance.mergeSpaceMin, Game.instance.mergeSpaceMax);
-			overtakeEagerness = Random.Range(Game.instance.overtakeEagernessMin, Game.instance.overtakeEagernessMax);
-
+            var data = CarData;
+            data.defaultSpeed = Random.Range(Game.instance.defaultSpeedMin, Game.instance.defaultSpeedMax);
+            data.overtakePercent = Random.Range(Game.instance.overtakePercentMin, Game.instance.overtakePercentMax);
+            data.leftMergeDistance = Random.Range(Game.instance.leftMergeDistanceMin, Game.instance.leftMergeDistanceMax);
+            data.mergeSpace = Random.Range(Game.instance.mergeSpaceMin, Game.instance.mergeSpaceMax);
+            data.overtakeEagerness = Random.Range(Game.instance.overtakeEagernessMin, Game.instance.overtakeEagernessMax);
+            CarData = data;
 		}
 
 		public enum State {
@@ -126,31 +215,7 @@ namespace HighwayRacers
 			MERGE_LEFT,
 			OVERTAKING,
 		}
-		public bool isMerging {
-			get { return state == State.MERGE_LEFT || state == State.MERGE_RIGHT; }
-		}
 
-        /// <summary>
-        /// Distance of the back of the car in the current lane.
-        /// </summary>
-        public float distanceBack
-        {
-            get
-            {
-                return (distance - distanceToBack) + Mathf.Floor((distance - distanceToBack) / Highway.instance.length(lane)) * Highway.instance.length(lane);
-            }
-        }
-
-        /// <summary>
-        /// Distance of the front of the car in the current lane.
-        /// </summary>
-        public float distanceFront
-        {
-            get
-            {
-                return (distance + distanceToFront) + Mathf.Floor((distance + distanceToFront) / Highway.instance.length(lane)) * Highway.instance.length(lane);
-            }
-        }
 
         /// <summary>
         /// Changes lanes, also setting distance to the appropriate value.
@@ -163,19 +228,15 @@ namespace HighwayRacers
 				newLane = roundLane;
 			}
 
-            distance = Highway.instance.GetEquivalentDistance(distance, lane, newLane);
-            lane = newLane;
-        }
-        
-        public bool IsInLane(float lane)
-        {
-            return Highway.LanesOverlap(lane, this.lane);
+            CarData.distance = Highway.instance.GetEquivalentDistance(CarData.distance, CarData.lane, newLane);
+            CarData.lane = newLane;
         }
 
-        public void UpdatePosition()
+
+        public void UpdatePosition(ref CarStateStruct car)
         {
             float x, z, rotation;
-            Highway.instance.GetPosition(distance, lane, out x, out z, out rotation);
+            Highway.instance.GetPosition(car.distance, car.lane, out x, out z, out rotation);
 
             transform.localPosition = new Vector3(x, transform.position.y, z);
             transform.localRotation = Quaternion.Euler(0, rotation * Mathf.Rad2Deg, 0);
@@ -186,41 +247,45 @@ namespace HighwayRacers
 
         }
 
-
         private void Update()
+        {
+            this.UpdateCarData(ref this.CarData);
+        }
+
+        private void UpdateCarData(ref CarStateStruct car)
         {
 			float dt = Time.deltaTime;
 			if (dt == 0) // possible when the game is paused
 				return;
 
-			float targetSpeed = defaultSpeed;
+			float targetSpeed = car.defaultSpeed;
 			Car carInFront = Highway.instance.GetCarInFront(this);
-			float distToCarInFront = carInFront == null ? float.MaxValue : Highway.instance.DistanceTo(distanceFront, lane, carInFront.distanceBack, carInFront.lane);
+			float distToCarInFront = carInFront == null ? float.MaxValue : Highway.instance.DistanceTo(car.distanceFront, car.lane, carInFront.CarData.distanceBack, carInFront.CarData.lane);
 
-			switch (state) {
+			switch (car.state) {
 			case State.NORMAL:
 
-				targetSpeed = defaultSpeed;
-				velocityLane = 0;
+				targetSpeed = car.defaultSpeed;
+                    car.velocityLane = 0;
 
 				// if won't merge, match car in front's speed
-				if (distToCarInFront < leftMergeDistance) {
-					targetSpeed = Mathf.Min(targetSpeed, carInFront.velocityPosition);
+				if (distToCarInFront < car.leftMergeDistance) {
+					targetSpeed = Mathf.Min(targetSpeed, carInFront.CarData.velocityPosition);
 				}
 
 				break;
 
 			case State.MERGE_LEFT:
 
-				targetSpeed = defaultSpeed;
+				targetSpeed = car.defaultSpeed;
 
-				velocityLane = Game.instance.switchLanesSpeed;
+                    car.velocityLane = Game.instance.switchLanesSpeed;
 				// detect ending merge
-				if (lane + velocityLane * dt >= targetLane) {
-					// set veloicty to not overshoot lane
-					velocityLane = (targetLane - lane) / dt;
-					if (lane >= targetLane) { // end when frame started in the target lane
-						state = State.OVERTAKING;
+				if (car.lane + car.velocityLane * dt >= car.targetLane) {
+                        // set veloicty to not overshoot lane
+                        car.velocityLane = (car.targetLane - car.lane) / dt;
+					if (car.lane >= car.targetLane) { // end when frame started in the target lane
+                            car.state = State.OVERTAKING;
 					}
 				}
 
@@ -228,22 +293,22 @@ namespace HighwayRacers
 
 			case State.OVERTAKING:
 
-				targetSpeed = maxSpeed;
-				velocityLane = 0;
+				targetSpeed = car.maxSpeed;
+                    car.velocityLane = 0;
 
 				break;
 
 			case State.MERGE_RIGHT:
 
-				targetSpeed = defaultSpeed;
+				targetSpeed = car.defaultSpeed;
 
-				velocityLane = -Game.instance.switchLanesSpeed;
+                    car.velocityLane = -Game.instance.switchLanesSpeed;
 				// detect ending merge
-				if (lane + velocityLane * dt <= targetLane) {
-					// set veloicty to not overshoot lane
-					velocityLane = (targetLane - lane) / dt;
-					if (lane <= targetLane) { // end when frame started in the target lane
-						state = State.NORMAL;
+				if (car.lane + car.velocityLane * dt <= car.targetLane) {
+                        // set veloicty to not overshoot lane
+                        car.velocityLane = (car.targetLane - car.lane) / dt;
+					if (car.lane <= car.targetLane) { // end when frame started in the target lane
+                            car.state = State.NORMAL;
 					}
 				}
 
@@ -251,52 +316,52 @@ namespace HighwayRacers
 			}
 
 			// detect overtaking car taking too long
-			if (overtakeCar != null && Time.time - timeOvertakeCarSet >= Game.instance.overtakeMaxDuration) {
-				overtakeCar = null;
+			if (car.overtakeCar != null && Time.time - car.timeOvertakeCarSet >= Game.instance.overtakeMaxDuration) {
+                car.overtakeCar = null;
 			}
 
 			// detect merging
-			if (!isMerging) {
+			if (!car.isMerging) {
 
 				// detect merging to left lane
-				if (lane + 1 < Highway.NUM_LANES // left lane exists
-					&& distToCarInFront < leftMergeDistance // close enough to car in front
-					&& overtakeEagerness > carInFront.velocityPosition / defaultSpeed // car in front is slow enough		
+				if (car.lane + 1 < Highway.NUM_LANES // left lane exists
+					&& distToCarInFront < car.leftMergeDistance // close enough to car in front
+					&& car.overtakeEagerness > carInFront.CarData.velocityPosition / car.defaultSpeed // car in front is slow enough		
 				) {
 
-					if (Highway.instance.CanMergeToLane(this, lane + 1)) { // if space is available
-						// start merge to left
-						state = State.MERGE_LEFT;
-						targetLane = Mathf.Round(lane + 1);
-						overtakeCar = carInFront;
-						timeOvertakeCarSet = Time.time;
+					if (Highway.instance.CanMergeToLane(this, car.lane + 1)) { // if space is available
+                                                                               // start merge to left
+                        car.state = State.MERGE_LEFT;
+                        car.targetLane = Mathf.Round(car.lane + 1);
+                        car.overtakeCar = carInFront;
+                        car.timeOvertakeCarSet = Time.time;
 					}
 				}
 
 				// detect merging to right lane
 				bool tryMergeRight = false;
-				if (overtakeCar == null) {
-					// if overtake car got destroyed
-					overtakeCar = null;
+				if (car.overtakeCar == null) {
+                    // if overtake car got destroyed
+                    car.overtakeCar = null;
 					tryMergeRight = true;
 				} else {
 					// if passed overtake car
-					if (Highway.instance.DistanceTo(distance, lane, overtakeCar.distance, overtakeCar.lane) > Highway.instance.length(lane) / 2) {
+					if (Highway.instance.DistanceTo(car.distance, car.lane, car.overtakeCar.CarData.distance, car.overtakeCar.CarData.lane) > Highway.instance.length(car.lane) / 2) {
 						tryMergeRight = true;
 					}
 				}
 
-				if (lane - 1 < 0) { // right lane must exist
+				if (car.lane - 1 < 0) { // right lane must exist
 					tryMergeRight = false;
 				}
 
 				if (tryMergeRight) {
 					// don't merge if just going to merge back
-					Car rightCarInFront = Highway.instance.GetCarInFront(Highway.instance.GetEquivalentDistance(distanceFront, lane, lane - 1), lane - 1);
-					float distToRightCarInFront = rightCarInFront == null ? float.MaxValue : Highway.instance.DistanceTo(Highway.instance.GetEquivalentDistance(distanceFront, lane, lane - 1), lane - 1, rightCarInFront.distanceBack, rightCarInFront.lane);
+					Car rightCarInFront = Highway.instance.GetCarInFront(Highway.instance.GetEquivalentDistance(car.distanceFront, car.lane, car.lane - 1), car.lane - 1);
+					float distToRightCarInFront = rightCarInFront == null ? float.MaxValue : Highway.instance.DistanceTo(Highway.instance.GetEquivalentDistance(car.distanceFront, car.lane, car.lane - 1), car.lane - 1, rightCarInFront.CarData.distanceBack, rightCarInFront.CarData.lane);
 					// condition for merging to left lane
-					if (distToRightCarInFront < leftMergeDistance// close enough to car in front
-					    && overtakeEagerness > rightCarInFront.velocityPosition / defaultSpeed // car in front is slow enough
+					if (distToRightCarInFront < car.leftMergeDistance// close enough to car in front
+					    && car.overtakeEagerness > rightCarInFront.CarData.velocityPosition / car.defaultSpeed // car in front is slow enough
 					){
 						tryMergeRight = false;
 					}
@@ -304,15 +369,15 @@ namespace HighwayRacers
 				}
 
 
-				if (!isMerging && // not currently merging
+				if (!car.isMerging && // not currently merging
 					tryMergeRight // overtook target car (or overtake car doesn't exist)
 					) { 
 
-					if (Highway.instance.CanMergeToLane(this, lane - 1)) { // if space is available
-						// start merge to right
-						overtakeCar = null;
-						state = State.MERGE_RIGHT;
-						targetLane = Mathf.Round(lane - 1);
+					if (Highway.instance.CanMergeToLane(this, car.lane - 1)) { // if space is available
+                                                                               // start merge to right
+                        car.overtakeCar = null;
+                        car.state = State.MERGE_RIGHT;
+                        car.targetLane = Mathf.Round(car.lane - 1);
 					}
 
 				}
@@ -322,34 +387,34 @@ namespace HighwayRacers
 
 
 			// increase to speed
-			if (targetSpeed > velocityPosition) {
-				velocityPosition = Mathf.Min(targetSpeed, velocityPosition + Game.instance.acceleration * dt);
+			if (targetSpeed > car.velocityPosition) {
+                car.velocityPosition = Mathf.Min(targetSpeed, car.velocityPosition + Game.instance.acceleration * dt);
 			} else {
-				velocityPosition = Mathf.Max(targetSpeed, velocityPosition - Game.instance.brakeDeceleration * dt);
+                car.velocityPosition = Mathf.Max(targetSpeed, car.velocityPosition - Game.instance.brakeDeceleration * dt);
 			}
 
 			// crash prevention failsafe
 			if (carInFront != null && dt > 0) {
 				float maxDistanceDiff = Mathf.Max(0, distToCarInFront - Highway.MIN_DIST_BETWEEN_CARS);
-				velocityPosition = Mathf.Min(velocityPosition, maxDistanceDiff / dt);
+                car.velocityPosition = Mathf.Min(car.velocityPosition, maxDistanceDiff / dt);
 			}
 
-			// update position
-			distance += velocityPosition * dt;
-			ChangeLane(lane + velocityLane * dt);
-            UpdatePosition();
+            // update position
+            car.distance += car.velocityPosition * dt;
+			ChangeLane(car.lane + car.velocityLane * dt);
+            UpdatePosition(ref car);
 
-			UpdateColor();
+			UpdateColor(ref car);
         }
 
-		private void UpdateColor() {
+		private void UpdateColor(ref CarStateStruct car) {
 
-			if (velocityPosition > defaultSpeed) {
-				color = Color.Lerp (defaultColor, maxSpeedColor, (velocityPosition - defaultSpeed) / (maxSpeed - defaultSpeed));
-			} else if (velocityPosition < defaultSpeed) {
-				color = Color.Lerp (minSpeedColor, defaultColor, velocityPosition / defaultSpeed);
+			if (car.velocityPosition > car.defaultSpeed) {
+				color = Color.Lerp (GlobalShared.defaultColor, GlobalShared.maxSpeedColor, (car.velocityPosition - car.defaultSpeed) / (car.maxSpeed - car.defaultSpeed));
+			} else if (car.velocityPosition < car.defaultSpeed) {
+				color = Color.Lerp (GlobalShared.minSpeedColor, GlobalShared.defaultColor, car.velocityPosition / car.defaultSpeed);
 			} else {
-				color = defaultColor;
+				color = GlobalShared.defaultColor;
 			}
 
 		}

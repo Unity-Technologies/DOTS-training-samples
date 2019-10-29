@@ -320,7 +320,7 @@ namespace HighwayRacers
             LinkedList<Car> ret = new LinkedList<Car>();
             foreach (Car car in cars)
             {
-                if (car.IsInLane(lane))
+                if (car.CarData.IsInLane(lane))
                 {
                     ret.AddLast(car);
                 }
@@ -338,7 +338,7 @@ namespace HighwayRacers
             LinkedList<Car> cars = GetCarsInLane(lane);
             foreach (Car car in cars)
             {
-                float d = DistanceTo(distance, lane, car.distanceBack, car.lane);
+                float d = DistanceTo(distance, lane, car.CarData.distanceBack, car.CarData.lane);
                 if (ret == null || d < diff)
                 {
                     ret = car;
@@ -352,7 +352,7 @@ namespace HighwayRacers
         /// </summary>
         public Car GetCarInFront(Car car)
         {
-            return GetCarInFront(car.distanceFront, car.lane);
+            return GetCarInFront(car.CarData.distanceFront, car.CarData.lane);
         }
 
 		/// <summary>
@@ -362,14 +362,14 @@ namespace HighwayRacers
 		/// <param name="mergeLane">The lane the car will merge to.</param>
 		public bool CanMergeToLane(Car car, float mergeLane)
 		{
-			float distanceBack = GetEquivalentDistance(car.distanceBack - car.mergeSpace, car.lane, mergeLane);
-			float distanceFront = GetEquivalentDistance(car.distanceFront + car.mergeSpace, car.lane, mergeLane);
+			float distanceBack = GetEquivalentDistance(car.CarData.distanceBack - car.CarData.mergeSpace, car.CarData.lane, mergeLane);
+			float distanceFront = GetEquivalentDistance(car.CarData.distanceFront + car.CarData.mergeSpace, car.CarData.lane, mergeLane);
 
 			foreach (Car otherCar in cars)
 			{
 				if (car == otherCar)
 					continue;
-				if (AreasOverlap (mergeLane, distanceBack, distanceFront, otherCar.lane, otherCar.distanceBack, otherCar.distanceFront))
+				if (AreasOverlap (mergeLane, distanceBack, distanceFront, otherCar.CarData.lane, otherCar.CarData.distanceBack, otherCar.CarData.distanceFront))
 					return false;
 			}
 			return true;
@@ -411,13 +411,13 @@ namespace HighwayRacers
             foreach (Car car in cars)
             {
                 Car frontCar = GetCarInFront(car);
-                float backDistance = GetEquivalentDistance(car.distanceFront, car.lane, lane);
-                float frontDistance = GetEquivalentDistance(frontCar.distanceBack, frontCar.lane, lane);
+                float backDistance = GetEquivalentDistance(car.CarData.distanceFront, car.CarData.lane, lane);
+                float frontDistance = GetEquivalentDistance(frontCar.CarData.distanceBack, frontCar.CarData.lane, lane);
                 float space = DistanceTo(backDistance, lane, frontDistance);
-                if (space > car.distanceToFront + car.distanceToBack + MIN_DIST_BETWEEN_CARS * 2)
+                if (space > car.Shared.distanceToFront + car.Shared.distanceToBack + MIN_DIST_BETWEEN_CARS * 2)
                 {
                     // enough space to add car
-                    float distance = backDistance + (space - (car.distanceToFront + car.distanceToBack)) / 2 + car.distanceToBack;
+                    float distance = backDistance + (space - (car.Shared.distanceToFront + car.Shared.distanceToBack)) / 2 + car.Shared.distanceToBack;
                     return AddCarUnsafe(distance, lane);
                 }
             }
@@ -431,11 +431,11 @@ namespace HighwayRacers
         {
             Car car = Instantiate(carPrefab, transform).GetComponent<Car>();
 			car.SetRandomPropeties();
-            car.distance = distance;
-            car.lane = lane;
-			car.velocityPosition = car.defaultSpeed;
+            car.CarData.distance = distance;
+            car.CarData.lane = lane;
+			car.CarData.velocityPosition = car.CarData.defaultSpeed;
             cars.AddLast(car);
-            car.UpdatePosition();
+            car.UpdatePosition(ref car.CarData);
             return car;
         }
 

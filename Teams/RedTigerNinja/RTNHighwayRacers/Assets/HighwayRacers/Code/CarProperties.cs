@@ -34,17 +34,17 @@ namespace HighwayRacers {
 		private void SetSliderProperties() {
 			if (selectedCar == null)
 				return;
-			defaultSpeed.value = selectedCar.defaultSpeed;
-			defaultSpeed.SetText("Default Speed: " + selectedCar.defaultSpeed.ToString("0.0") + " m/s");
-			overtakePercent.value = selectedCar.overtakePercent;
-			overtakePercent.SetText("Overtake Speed: " + Mathf.RoundToInt(selectedCar.overtakePercent * 100) + "%");
-			leftMergeDistance.value = selectedCar.leftMergeDistance;
-			leftMergeDistance.SetText("Distance to car in front before overtaking: " + selectedCar.leftMergeDistance.ToString("0.0") + " m");
-			mergeSpace.value = selectedCar.mergeSpace;
-			float combinedMergeSpace = selectedCar.mergeSpace * 2 + selectedCar.distanceToFront + selectedCar.distanceToBack;
+			defaultSpeed.value = selectedCar.CarData.defaultSpeed;
+			defaultSpeed.SetText("Default Speed: " + selectedCar.CarData.defaultSpeed.ToString("0.0") + " m/s");
+			overtakePercent.value = selectedCar.CarData.overtakePercent;
+			overtakePercent.SetText("Overtake Speed: " + Mathf.RoundToInt(selectedCar.CarData.overtakePercent * 100) + "%");
+			leftMergeDistance.value = selectedCar.CarData.leftMergeDistance;
+			leftMergeDistance.SetText("Distance to car in front before overtaking: " + selectedCar.CarData.leftMergeDistance.ToString("0.0") + " m");
+			mergeSpace.value = selectedCar.CarData.mergeSpace;
+			float combinedMergeSpace = selectedCar.CarData.mergeSpace * 2 + selectedCar.Shared.distanceToFront + selectedCar.Shared.distanceToBack;
 			mergeSpace.SetText("Merge Space: " + combinedMergeSpace.ToString("0.0") + " m");
-			overtakeEagerness.value = selectedCar.overtakeEagerness;
-			overtakeEagerness.SetText("Overtake Eagerness: " + selectedCar.overtakeEagerness.ToString("0.0"));
+			overtakeEagerness.value = selectedCar.CarData.overtakeEagerness;
+			overtakeEagerness.SetText("Overtake Eagerness: " + selectedCar.CarData.overtakeEagerness.ToString("0.0"));
 
 		}
 
@@ -54,11 +54,11 @@ namespace HighwayRacers {
 			if (preventUpdatingCar)
 				return;
 
-			selectedCar.defaultSpeed = defaultSpeed.value;
-			selectedCar.overtakePercent = overtakePercent.value;
-			selectedCar.leftMergeDistance = leftMergeDistance.value;
-			selectedCar.mergeSpace = mergeSpace.value;
-			selectedCar.overtakeEagerness = overtakeEagerness.value;
+			selectedCar.CarData.defaultSpeed = defaultSpeed.value;
+			selectedCar.CarData.overtakePercent = overtakePercent.value;
+			selectedCar.CarData.leftMergeDistance = leftMergeDistance.value;
+			selectedCar.CarData.mergeSpace = mergeSpace.value;
+			selectedCar.CarData.overtakeEagerness = overtakeEagerness.value;
 
 			SetSliderProperties();
 		}
