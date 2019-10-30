@@ -94,11 +94,11 @@ namespace HighwayRacers {
                 var endi = si;
                 sortexIndex[si] = endi;
 
-                var mydist = cars[si].distance;
+                var mydist = cars[si].Location.distance;
                 for (var ji=si-1; (ji>=0); ji--)
                 {
                     var curIndex = sortexIndex[ji];
-                    var curDist = cars[curIndex].distance;
+                    var curDist = cars[curIndex].Location.distance;
                     if (mydist >= curDist)
                     {
                         break;
@@ -158,7 +158,7 @@ namespace HighwayRacers {
 
             public void Execute([ReadOnly] ref CarStateStruct c0, ref Rotation c1, ref Translation c2)
             {
-                var pose = Car.GetCarPose(ref c0, ref HighwayState);
+                var pose = Car.GetCarPose(ref c0.Location, ref HighwayState);
                 c1.Value = pose.rotation;
                 c2.Value = pose.position;
             }

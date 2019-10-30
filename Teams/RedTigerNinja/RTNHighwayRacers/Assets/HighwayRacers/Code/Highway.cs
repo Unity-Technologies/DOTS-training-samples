@@ -323,7 +323,7 @@ namespace HighwayRacers
             LinkedList<Car> ret = new LinkedList<Car>();
             foreach (Car car in allCarsList)
             {
-                if (car.CarData.IsInLane(lane))
+                if (car.CarData.Location.IsInLane(lane))
                 {
                     ret.AddLast(car);
                 }
@@ -334,25 +334,26 @@ namespace HighwayRacers
         /// <summary>
         /// Searches cars in the given lane to find the closest car in front of the given distance.  Returns null if there are no other cars in the lane.
         /// </summary>
-        public CarStateStruct GetCarInFront(float distance, float lane)
+        public CarLocation GetCarInFront(float distance, float lane)
         {
-            Car ret = null;
+            CarLocation ret = CarLocation.NullLocation;
             float diff = 0;
             LinkedList<Car> cars = GetCarsInLane(lane);
-            foreach (Car car in cars)
+            foreach (Car carFull in cars)
             {
-                float d = DistanceTo(distance, lane, car.CarData.distanceBack, car.CarData.lane);
-                if (ret == null || d < diff)
+                var car = carFull.CarData.Location;
+                float d = DistanceTo(distance, lane, car.distanceBack, car.lane);
+                if ((ret.IsNull) || d < diff)
                 {
                     ret = car;
                     diff = d;
                 }
             }
-            if (ret == null)
+            if (ret.IsNull)
             {
-                return CarStateStruct.NullCar;
+                return CarLocation.NullLocation;
             }
-            return ret.CarData;
+            return ret;
         }
 
 		/// <summary>
@@ -360,16 +361,17 @@ namespace HighwayRacers
 		/// </summary>
 		/// <param name="car">Car merging.</param>
 		/// <param name="mergeLane">The lane the car will merge to.</param>
-		public bool CanMergeToLane(CarStateStruct car, float mergeLane)
+		public bool CanMergeToLane(CarLocation car, CarSettingsStruct carSettings, float mergeLane)
 		{
-			float distanceBack = GetEquivalentDistance(car.distanceBack - car.Settings.mergeSpace, car.lane, mergeLane);
-			float distanceFront = GetEquivalentDistance(car.distanceFront + car.Settings.mergeSpace, car.lane, mergeLane);
+			float distanceBack = GetEquivalentDistance(car.distanceBack - carSettings.mergeSpace, car.lane, mergeLane);
+			float distanceFront = GetEquivalentDistance(car.distanceFront + carSettings.mergeSpace, car.lane, mergeLane);
 
-			foreach (Car otherCar in allCarsList)
+			foreach (Car otherCarFull in allCarsList)
 			{
-				if (car.ThisCarEntity == otherCar.CarData.ThisCarEntity)
+                var otherCar = otherCarFull.CarData.Location;
+				if (car.ThisCarEntity == otherCar.ThisCarEntity)
 					continue;
-				if (AreasOverlap (mergeLane, distanceBack, distanceFront, otherCar.CarData.lane, otherCar.CarData.distanceBack, otherCar.CarData.distanceFront))
+				if (AreasOverlap (mergeLane, distanceBack, distanceFront, otherCar.lane, otherCar.distanceBack, otherCar.distanceFront))
 					return false;
 			}
 			return true;
@@ -422,10 +424,11 @@ namespace HighwayRacers
                 return AddCarUnsafe(Random.Range(0, length(lane)), lane);
             }
             
-            foreach (Car car in cars)
+            foreach (Car carFull in cars)
             {
-                var frontCar = GetCarInFront(car.CarData.distance, car.CarData.lane);
-                float backDistance = GetEquivalentDistance(car.CarData.distanceFront, car.CarData.lane, lane);
+                var car = carFull.CarData.Location;
+                var frontCar = GetCarInFront(car.distance, car.lane);
+                float backDistance = GetEquivalentDistance(car.distanceFront, car.lane, lane);
                 float frontDistance = GetEquivalentDistance(frontCar.distanceBack, frontCar.lane, lane);
                 float space = DistanceTo(backDistance, lane, frontDistance);
                 if (space > CarShared.distanceToFront + CarShared.distanceToBack + MIN_DIST_BETWEEN_CARS * 2)
@@ -452,15 +455,16 @@ namespace HighwayRacers
 
             Car car = Instantiate(carPrefab, transform).GetComponent<Car>();
 			car.SetRandomPropeties();
-            car.CarData.distance = distance;
-            car.CarData.lane = lane;
+            car.CarData.Location.distance = distance;
+            car.CarData.Location.lane = lane;
             car.CarData.ThisCarEntity = em.Instantiate(CaptureNewEntity.CreatedEntity);// em.CreateEntity();
-			car.CarData.velocityPosition = car.CarData.Settings.defaultSpeed;
+            car.CarData.Location.ThisCarEntity = car.CarData.ThisCarEntity;
+			car.CarData.Location.velocityPosition = car.CarData.Settings.defaultSpeed;
             em.AddComponentData(car.CarData.ThisCarEntity, car.CarData);
             em.AddComponentData(car.CarData.ThisCarEntity, new CarSystem.CarNextState(car.CarData));
             allCarsList.Add(car);
             //this.UpdateCarList();
-            car.UpdatePosition(ref car.CarData, ref Highway.instance.HighwayState);
+            car.UpdatePosition(ref car.CarData.Location, ref Highway.instance.HighwayState);
             return car;
         }
 
@@ -488,16 +492,16 @@ namespace HighwayRacers
 
             static Unity.Profiling.ProfilerMarker CarMarker = new Unity.Profiling.ProfilerMarker("GetCarInFront");
 
-            public CarStateStruct GetCarInFront(ref CarStateStruct startCar, float distance, float lane)
+            public CarLocation GetCarInFront(ref CarLocation startCar, float distance, float lane)
             {
                 CarMarker.Auto();
 
-                CarStateStruct ret = CarStateStruct.NullCar;
+                CarLocation ret = CarLocation.NullLocation;
                 float diff = 0;
-                var nextIndex = startCar.SortedIndexNext;
+                //var nextIndex = startCar.SortedIndexNext;
                 for (var ri =0; ri< AllCars.Length; ri++)
                 {
-                    var car = AllCars[ri];
+                    var car = AllCars[ri].Location;
                     /*
                     var curIndex = nextIndex;
                     var car = AllCars[curIndex];
@@ -525,7 +529,7 @@ namespace HighwayRacers
 
                 if (ret.ThisCarEntity == CarStateStruct.NullCar.ThisCarEntity)
                 {
-                    return CarStateStruct.NullCar;
+                    return CarLocation.NullLocation;
                 }
                 return ret;
             }
@@ -536,15 +540,15 @@ namespace HighwayRacers
             /// </summary>
             /// <param name="car">Car merging.</param>
             /// <param name="mergeLane">The lane the car will merge to.</param>
-            public bool CanMergeToLane(CarStateStruct car, float mergeLane)
+            public bool CanMergeToLane(CarLocation car, CarSettingsStruct carSettings, float mergeLane)
             {
-                float distanceBack = GetEquivalentDistance(car.distanceBack - car.Settings.mergeSpace, car.lane, mergeLane);
-                float distanceFront = GetEquivalentDistance(car.distanceFront + car.Settings.mergeSpace, car.lane, mergeLane);
+                float distanceBack = GetEquivalentDistance(car.distanceBack - carSettings.mergeSpace, car.lane, mergeLane);
+                float distanceFront = GetEquivalentDistance(car.distanceFront + carSettings.mergeSpace, car.lane, mergeLane);
 
                 //foreach (Car otherCar in allCarsList)
                 for (var ci=0; ci<AllCars.Length; ci++)
                 {
-                    var otherCar = this.AllCars[ci];
+                    var otherCar = this.AllCars[ci].Location;
                     if (car.ThisCarEntity == otherCar.ThisCarEntity)
                         continue;
                     if (AreasOverlap(mergeLane, distanceBack, distanceFront, otherCar.lane, otherCar.distanceBack, otherCar.distanceFront))
