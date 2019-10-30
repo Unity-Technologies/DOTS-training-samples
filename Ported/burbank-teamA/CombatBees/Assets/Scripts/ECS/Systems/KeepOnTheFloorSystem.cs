@@ -8,12 +8,13 @@ public class KeepOnTheFloorSystem : JobComponentSystem
 {
    protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var gameBounds = GetSingleton<GameBounds>().Value;
+        var gameBounds = GetSingleton<GameBounds>();
 
-        return Entities
-            .ForEach((ref Velocity velocity) =>
+        return Entities.WithAll<ResourceTag>()
+            .ForEach((ref Translation t, ref Velocity velocity) =>
             {
-                velocity.Value.y = 0;
+                if(t.Value.y<-gameBounds.Value.y*gameBounds.threshold)
+                    velocity.Value = new float3();
             })
             .Schedule(inputDeps);
     }

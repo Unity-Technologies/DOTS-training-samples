@@ -20,7 +20,7 @@ public class SpawnSystem : JobComponentSystem
 
         var commandBuffer = bufferSystem.CreateCommandBuffer().ToConcurrent();
 
-        Random r = new Random((uint)UnityEngine.Random.Range(0, 100));
+        Random r = new Random((uint)UnityEngine.Random.Range(1, 100));
 
 
         var jobHandle = Entities.ForEach((Entity e, ref Spawner spawner, ref Translation t) => 
@@ -28,17 +28,20 @@ public class SpawnSystem : JobComponentSystem
                    for (int i = 0; i < spawner.Amount; i++)
                    {
 
-                       float3 randV = r.NextFloat3();
-
                        var instance = commandBuffer.Instantiate(0, spawner.Prefab);
-                       commandBuffer.AddComponent(0, instance, new Translation() { Value = t.Value});
-                       commandBuffer.SetComponent(0, instance, new Velocity() { Value = randV });
+                       commandBuffer.AddComponent(0, instance, new Translation() { Value = t.Value });
+
+                       if (spawner.Speed > 0) {
+                           float3 randV = r.NextFloat3() * spawner.Speed;
+                           commandBuffer.SetComponent(0, instance, new Velocity() { Value = randV });
+                        }
                    }
 
                    commandBuffer.DestroyEntity(0, e);
 
                })
             .Schedule(inputDeps);
+               
 
         bufferSystem.AddJobHandleForProducer(jobHandle);
 
