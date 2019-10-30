@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace GameAI
@@ -13,6 +14,6 @@ namespace GameAI
     public struct PlantComponent : IComponentData
     {
         PlantType type;
-        Vector2Int position;
+        int2 position;
     };
 }

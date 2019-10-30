@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace GameAI
@@ -6,6 +7,6 @@ namespace GameAI
     public struct RockComponent : IComponentData
     {
         public float Size;
-        public Vector2Int Position;
+        public int2 Position;
     };
 }

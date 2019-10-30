@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657892, g: 0.4964127, b: 0.5748172, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -305,6 +305,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2057389765}
+  - component: {fileID: 2057389766}
   m_Layer: 0
   m_Name: World
   m_TagString: Untagged
@@ -326,3 +327,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2057389766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2057389764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67582d10553844dedad71b16a2097eac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  drone: {fileID: 4031335411541631937, guid: 51bfe9f7e4e0040c48f33cd76398f5f9, type: 3}
+  farmer: {fileID: 3906487109842593513, guid: 154aed47f92dc4ff5a82f316900caf8d, type: 3}
+  ground: {fileID: 3685260229654091683, guid: 4397d4a57daca46a0ae757c529bf7d62, type: 3}
+  plant: {fileID: 646466672676688876, guid: 41c12d44bccae4948ac5d7e27277334a, type: 3}
+  rock: {fileID: 3226369095738028422, guid: 2809a65a8af6243aaaeea8e3940a32f8, type: 3}
+  store: {fileID: 6036490920964357572, guid: 1193f21919c424146a3148c633ca2402, type: 3}

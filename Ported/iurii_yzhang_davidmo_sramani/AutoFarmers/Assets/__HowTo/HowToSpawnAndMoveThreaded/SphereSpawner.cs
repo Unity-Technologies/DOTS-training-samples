@@ -73,6 +73,8 @@ public class SphereSpawner : JobComponentSystem
         var handle = sp.Schedule(1024, 128, inputDeps);
         ecbSystem.AddJobHandleForProducer(handle);
  
+        Debug.Log("SphereSpawner");
+        
         return handle;
     }
 }

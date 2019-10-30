@@ -1,5 +1,5 @@
 {
-    "name": "Rendering",
+    "name": "Scripts",
     "references": [
         "Unity.Burst",
         "Unity.Collections",
@@ -8,8 +8,7 @@
         "Unity.Mathematics",
         "Unity.Transforms",
         "Unity.Scenes.Hybrid",
-        "Unity.Rendering.Hybrid",
-	"TilePathfinding"
+        "Unity.Rendering.Hybrid"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -2,155 +2,82 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Random = Unity.Mathematics.Random;
 
 namespace GameAI
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class WorldCreatorSystem : ComponentSystem
     {
-        [BurstCompile]
-        struct SpawnFarmer : IJobParallelFor
-        {
-            public EntityCommandBuffer.Concurrent ec;
-            public Entity Prefab;
-            public Vector2Int Position;
+        public const int worldSizeN = 100;
+        public const int worldSizeM = 100;
         
-            public void Execute(int index)
-            {
-                var e = ec.Instantiate(index, Prefab);
-                ec.SetComponent(index, e, new FarmerComponent() { Position = Position });
-            }
-        }
+        private Entity m_executeOnceEntity;
+        struct ExecuteOnceTag : IComponentData {}
 
-        [BurstCompile]
-        struct SpawnRock : IJobParallelFor
-        {
-            public EntityCommandBuffer.Concurrent ec;
-            public Entity prefab;
-            public Vector2Int position;
-            public Unity.Mathematics.Random random;
+        Random rnd = new Random(23);
+        
+        private EntityArchetype m_tile;
+        private EntityArchetype m_plant;
+        private EntityArchetype m_store;
 
-            public void Execute(int index)
-            {
-                var e = ec.Instantiate(index, prefab);
-                var p = random.NextFloat();
-                ec.SetComponent(index, e, new RockComponent() { Position = position, Size = p });
-            }
-        }
-        
-        [BurstCompile]
-        struct SpawnShop : IJobParallelFor
-        {
-            public EntityCommandBuffer.Concurrent ec;
-            public Entity prefab;
-            public Vector2Int position;
-        
-            public void Execute(int index)
-            {
-                var e = ec.Instantiate(index, prefab);
-                ec.SetComponent(index, e, new ShopComponent() { Position = position });
-            }
-        }
-        
-        private Entity m_farmerEntity;
-        private Entity m_rockEntity;
-        private Entity m_shopEntity;
-        
         protected override void OnCreate()
         {
-            {
-                var farmerPrefabArchetype =
-                    EntityManager.CreateArchetype(typeof(Translation), typeof(LocalToWorld), typeof(FarmerComponent));
+            m_executeOnceEntity = EntityManager.CreateEntity();
+            EntityManager.AddComponent<ExecuteOnceTag>(m_executeOnceEntity);
 
-                m_farmerEntity = EntityManager.CreateEntity(farmerPrefabArchetype);
-                EntityManager.SetSharedComponentData(m_farmerEntity, new RenderMesh {
-                                                                                        mesh = PrefabUtility
-                                                                                               .LoadPrefabContents("cubeprefab")
-                                                                                               .GetComponent<MeshFilter
-                                                                                               >()
-                                                                                               .mesh,
-                                                                                        material = PrefabUtility
-                                                                                                   .LoadPrefabContents("cubeprefab")
-                                                                                                   .GetComponent<
-                                                                                                       Renderer>()
-                                                                                                   .sharedMaterial,
-                                                                                        castShadows =
-                                                                                            ShadowCastingMode.On,
-                                                                                        receiveShadows = true
-                                                                                    });
-            }
-            {
-                var rockPrefabArchetype =
-                    EntityManager.CreateArchetype(typeof(Translation), typeof(LocalToWorld), typeof(RockComponent));
+            var query = GetEntityQuery(ComponentType.ReadOnly<ExecuteOnceTag>());
+            RequireForUpdate(query);
 
-                m_rockEntity = EntityManager.CreateEntity(rockPrefabArchetype);
-                EntityManager.SetSharedComponentData(m_rockEntity, new RenderMesh {
-                                                                                      mesh = PrefabUtility
-                                                                                             .LoadPrefabContents("sphereprefab")
-                                                                                             .GetComponent<MeshFilter>()
-                                                                                             .mesh,
-                                                                                      material = PrefabUtility
-                                                                                                 .LoadPrefabContents("sphereprefab")
-                                                                                                 .GetComponent<Renderer
-                                                                                                 >()
-                                                                                                 .sharedMaterial,
-                                                                                      castShadows =
-                                                                                          ShadowCastingMode.On,
-                                                                                      receiveShadows = true
-                                                                                  });
-            }
-            {
-                var shopPrefabArchetype =
-                    EntityManager.CreateArchetype(typeof(Translation), typeof(LocalToWorld), typeof(ShopComponent));
-
-                m_shopEntity = EntityManager.CreateEntity(shopPrefabArchetype);
-                EntityManager.SetSharedComponentData(m_shopEntity, new RenderMesh {
-                                                                                      mesh = PrefabUtility
-                                                                                             .LoadPrefabContents("cylinderprefab")
-                                                                                             .GetComponent<MeshFilter>()
-                                                                                             .mesh,
-                                                                                      material = PrefabUtility
-                                                                                                 .LoadPrefabContents("cylinderprefab")
-                                                                                                 .GetComponent<Renderer
-                                                                                                 >()
-                                                                                                 .sharedMaterial,
-                                                                                      castShadows =
-                                                                                          ShadowCastingMode.On,
-                                                                                      receiveShadows = true
-                                                                                  });
-            }
+            m_tile = EntityManager.CreateArchetype(typeof(TilePositionRequest));
+            m_plant = EntityManager.CreateArchetype(typeof(PlantPositionRequest));
+            m_store = EntityManager.CreateArchetype(typeof(StonePositionRequest));
         }
 
         protected override void OnUpdate()
         {
-            var ecb = new EntityCommandBuffer(Allocator.TempJob);
-            var farmers = new SpawnFarmer {
-                                                ec = ecb.ToConcurrent(),
-                                                Prefab = m_farmerEntity,
-                                                Position = Vector2Int.zero
-                                            };
-            var rocks = new SpawnRock {
-                                      ec = ecb.ToConcurrent(),
-                                      prefab = m_farmerEntity,
-                                      position = Vector2Int.zero,
-                                      random = new Unity.Mathematics.Random(0xBAD5EED)
-                                  };
-            var shops = new SpawnShop {
-                                      ec = ecb.ToConcurrent(),
-                                      prefab = m_shopEntity,
-                                      position = Vector2Int.zero
-                                  };
+            EntityManager.DestroyEntity(m_executeOnceEntity);
+            m_executeOnceEntity = Entity.Null;
+            
+            // create TilePositionRequest's
+            for (int x = 0; x < worldSizeN; ++x)
+            {
+                for (int y = 0; y < worldSizeM; ++y)
+                {
+                    var e = EntityManager.CreateEntity(m_tile);
+                    EntityManager.SetComponentData(e, new TilePositionRequest {position = new int2(x, y)});
+                }
+            }
 
-            farmers.Schedule(1, 1);
-            rocks.Schedule(2000, 64);
-            shops.Schedule(1000, 64).Complete();
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            for (int i = 0; i < worldSizeN*2; ++i)
+            {
+                int x = rnd.NextInt(worldSizeN);
+                int y = rnd.NextInt(worldSizeM);
+                
+                var e = EntityManager.CreateEntity(m_plant);
+                EntityManager.SetComponentData(e, new PlantPositionRequest {position = new int2(x, y)});
+            }
+            
+            for (int i = 0; i < worldSizeN*3; ++i)
+            {
+                int x = rnd.NextInt(worldSizeN);
+                int y = rnd.NextInt(worldSizeM);
+                int sx = rnd.NextInt(1, 5);
+                int sy = rnd.NextInt(1, 5);
+
+                // TODO: check for other objects
+                
+                var e = EntityManager.CreateEntity(m_store);
+                EntityManager.SetComponentData(e, new StonePositionRequest {position = new int2(x, y), size = new int2(sx, sy)});
+            }
+            
+            Debug.Log("WorldCreatorSystem");
         }
     }
 }
