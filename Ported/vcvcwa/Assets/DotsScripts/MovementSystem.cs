@@ -19,7 +19,7 @@ public class MovementSystem : JobComponentSystem
                 if (Vector2.Distance(goalPosition.position, position.position) > distanceMininal)
                 {
                     position.position= Vector2.Lerp(position.position, goalPosition.position, dt * speed);
-                    translation.Value = new float3(position.position.x, 1.5f, position.position.y);
+                    translation.Value = new float3(position.position.x, 0.0f, position.position.y);
                 }
             })
             .Schedule(inputDependencies);

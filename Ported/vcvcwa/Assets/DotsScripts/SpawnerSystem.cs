@@ -3,6 +3,8 @@ using Unity.Jobs;
 using UnityEngine;
 
 using Unity.Collections;
+using Unity.Mathematics;
+using Unity.Transforms;
 
 // JobComponentSystems can run on worker threads.
 // However, creating and removing Entities can only be done on the main thread to prevent race conditions.
@@ -20,47 +22,58 @@ public class SpawnerSystem : JobComponentSystem
     // will use the BeginSimulationEntityCommandBufferSystem to play back its commands. This introduces a one-frame lag
     // between recording the commands and instantiating the entities, but in practice this is usually not noticeable.
     BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
+    
+    private EntityQuery query;
 
     protected override void OnCreate()
     {
         // Cache the BeginInitializationEntityCommandBufferSystem in a field, so we don't have to create it every frame
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+
+        EntityQueryDesc queryDescription = new EntityQueryDesc();
+        queryDescription.All = new[] {ComponentType.ReadOnly<GridTile>()};
+        query = GetEntityQuery(queryDescription);
     }
 
-    struct SpawnJob : IJobForEachWithEntity<ResourcesComponent, FarmerDataComponent>
-    {
+    struct SpawnJob : IJobForEachWithEntity_EBCCC<GridTile, ResourcesComponent, FarmerDataComponent, GridComponent>
+    { 
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
-        public void Execute(Entity entity, int index,
-            ref ResourcesComponent resourcesComponent, [ReadOnly] ref FarmerDataComponent farmerDataComponent)
+        public void Execute(Entity entity, int index, DynamicBuffer<GridTile> gridTileBuffer,
+            ref ResourcesComponent resourcesComponent, [ReadOnly] ref FarmerDataComponent farmerDataComponent,
+            [ReadOnly] ref GridComponent gridComponent)
         {
             var entityIndex = 0;
+            var gridIndex = 0;
+
             while (resourcesComponent.MoneyForFarmers >= 10)
             {
-                var instance = CommandBuffer.Instantiate(entityIndex, farmerDataComponent.farmerEntity);
-
-                // Place the instantiated in a grid with some noise
-                /*var position = math.transform(location.Value,
-                    new float3(x * 1.3F, noise.cnoise(new float2(x, y) * 0.21F) * 2, y * 1.3F));
-                commandBuffer.SetComponent(index, instance, new Translation {Value = position});*/
-                resourcesComponent.MoneyForFarmers -= 10;
-                entityIndex++;
-            }
-            
-            /*for (var x = 0; x < spawnerFromEntity.CountX; x++)
-            {
-                for (var y = 0; y < spawnerFromEntity.CountY; y++)
+                for (int i = gridIndex; i < gridComponent.Size * gridComponent.Size; i++)
                 {
-                    var instance = CommandBuffer.Instantiate(index, spawnerFromEntity.Prefab);
-
-                    // Place the instantiated in a grid with some noise
-                    var position = math.transform(location.Value,
-                        new float3(x * 1.3F, noise.cnoise(new float2(x, y) * 0.21F) * 2, y * 1.3F));
-                    CommandBuffer.SetComponent(index, instance, new Translation {Value = position});
+                    if (gridTileBuffer[i].IsShop())
+                    {
+                        var instance = CommandBuffer.Instantiate(entityIndex, farmerDataComponent.farmerEntity);
+                        var x = i % gridComponent.Size;
+                        var y = i / gridComponent.Size;
+                        
+                        // Place the instantiated in a grid with some noise
+                        var position = new float3(x,0,y);
+                        CommandBuffer.SetComponent(index, instance, new Translation {Value = position});
+                        CommandBuffer.SetComponent(index, instance, new PositionComponent() {position = new Vector2(x,y)});
+                        CommandBuffer.SetComponent(index, instance, new GoalPositionComponent() {position = new Vector2(20,20)});
+                        resourcesComponent.MoneyForFarmers -= 10;
+                        entityIndex++;
+                        gridIndex = i;
+                        CommandBuffer.DestroyEntity(index, entity);
+                        break;
+                    }
                 }
-            }*/
 
-            CommandBuffer.DestroyEntity(index, entity);
+                if (gridIndex == (gridComponent.Size * gridComponent.Size) - 1)
+                {
+                    gridIndex = 0;
+                }
+            }
         }
     }
 

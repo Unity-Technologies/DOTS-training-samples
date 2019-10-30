@@ -38,7 +38,7 @@ public class SpawnGridAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDe
             var tz = (((float)y)) - cz;
 
             var segmentEntity = conversionSystem.CreateAdditionalEntity(gameObject);
-            var pos = new float3(tx, -1f, tz);
+            var pos = new float3(tx, -1.5f, tz);
 
             var localToWorld = new LocalToWorld
             {
