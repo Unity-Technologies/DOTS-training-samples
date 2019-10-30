@@ -412,10 +412,10 @@ namespace HighwayRacers
                 float backDistance = GetEquivalentDistance(car.CarData.distanceFront, car.CarData.lane, lane);
                 float frontDistance = GetEquivalentDistance(frontCar.distanceBack, frontCar.lane, lane);
                 float space = DistanceTo(backDistance, lane, frontDistance);
-                if (space > car.Shared.distanceToFront + car.Shared.distanceToBack + MIN_DIST_BETWEEN_CARS * 2)
+                if (space > CarShared.distanceToFront + CarShared.distanceToBack + MIN_DIST_BETWEEN_CARS * 2)
                 {
                     // enough space to add car
-                    float distance = backDistance + (space - (car.Shared.distanceToFront + car.Shared.distanceToBack)) / 2 + car.Shared.distanceToBack;
+                    float distance = backDistance + (space - (CarShared.distanceToFront + CarShared.distanceToBack)) / 2 + CarShared.distanceToBack;
                     return AddCarUnsafe(distance, lane);
                 }
             }
@@ -606,7 +606,7 @@ namespace HighwayRacers
                 float pieceStartDistanceOtherLane = 0;
                 float pieceEndDistanceOtherLane = 0;
 
-                for (int i = 0; i < 8; i++)
+                for (int i = 0; i < 4;  i++)//this.AllPieces.Length; i++)
                 {
                     var piece = this.AllPieces[i];
                     pieceStartDistance = pieceEndDistance;
@@ -658,8 +658,12 @@ namespace HighwayRacers
                 this.allCarsNativeArray[i] = this.allCarsList[i].CarData;
             }
             this.HighwayState.AllCars = this.allCarsNativeArray;
-            if (!this.allPiecesNativeArray.IsCreated)
+            if ((!this.allPiecesNativeArray.IsCreated) || (this.allCarsNativeArray.Length != this.pieces.Length))
             {
+                if (this.allPiecesNativeArray.IsCreated)
+                {
+                    this.allPiecesNativeArray.Dispose();
+                }
                 var ar = this.pieces.Select(k => k.AsHighwayState).ToArray();
                 this.allPiecesNativeArray = new Unity.Collections.NativeArray<HighwayPiece.HighwayPieceState>(ar, Unity.Collections.Allocator.Persistent);
             }

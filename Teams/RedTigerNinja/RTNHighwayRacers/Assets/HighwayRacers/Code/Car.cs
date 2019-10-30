@@ -68,27 +68,30 @@ namespace HighwayRacers
             }
         }
 
+        public void UpdateInner(ref Highway.HighwayStateStruct highway)
+        {
+            distanceFront = inner_distanceFront(ref highway);
+            distanceBack = inner_distanceBack(ref highway);
+        }
+
+        public float distanceBack, distanceFront;
 
         /// <summary>
         /// Distance of the back of the car in the current lane.
         /// </summary>
-        public float distanceBack
+        public float inner_distanceBack(ref Highway.HighwayStateStruct highway)
         {
-            get
-            {
-                return (distance - GlobalShared.distanceToBack) + Mathf.Floor((distance - GlobalShared.distanceToBack) / MyHighwayState.length(lane)) * MyHighwayState.length(lane);
-            }
+                return (distance - CarShared.distanceToBack) + Mathf.Floor((distance - CarShared.distanceToBack) / highway.length(lane)) * highway.length(lane);
+
         }
 
         /// <summary>
         /// Distance of the front of the car in the current lane.
         /// </summary>
-        public float distanceFront
+        public float inner_distanceFront(ref Highway.HighwayStateStruct highway)
         {
-            get
-            {
-                return (distance + GlobalShared.distanceToFront) + Mathf.Floor((distance + GlobalShared.distanceToFront) / MyHighwayState.length(lane)) * MyHighwayState.length(lane);
-            }
+                return (distance + CarShared.distanceToFront) + Mathf.Floor((distance + CarShared.distanceToFront) / highway.length(lane)) * highway.length(lane);
+
         }
 
         public bool isMerging
@@ -102,7 +105,7 @@ namespace HighwayRacers
             return Highway.LanesOverlap(lane, this.lane);
         }
 
-        public Car.CarShared GlobalShared
+        public CarShared GlobalShared
         {
             get { return Car.GlobalShared; }
         }
@@ -115,25 +118,27 @@ namespace HighwayRacers
         MERGE_RIGHT,
         MERGE_LEFT,
         OVERTAKING,
+    
     }
 
+
+    public class CarShared
+    {
+
+        [Tooltip("Distance from center of car to the front.")]
+        public const float distanceToFront = 1;
+        [Tooltip("Distance from center of car to the back.")]
+        public const float distanceToBack = 1;
+
+        public static Color defaultColor = Color.gray;
+        public static Color maxSpeedColor = Color.green;
+        public static Color minSpeedColor = Color.red;
+    }
 
     public class Car : MonoBehaviour
     {
         #region Constant for all cars:
 
-        public class CarShared
-        {
-
-            [Tooltip("Distance from center of car to the front.")]
-            public float distanceToFront = 1;
-            [Tooltip("Distance from center of car to the back.")]
-            public float distanceToBack = 1;
-
-            public Color defaultColor = Color.gray;
-            public Color maxSpeedColor = Color.green;
-            public Color minSpeedColor = Color.red;
-        }
 
         public static CarShared GlobalShared = new CarShared();
         public CarShared Shared { get { return GlobalShared; } }
@@ -246,14 +251,14 @@ namespace HighwayRacers
         /// Changes lanes, also setting distance to the appropriate value.
         /// </summary>
         /// <param name="newLane"></param>
-        public static void ChangeLane(ref CarStateStruct car, float newLane)
+        public static void ChangeLane(ref CarStateStruct car, ref Highway.HighwayStateStruct highway, float newLane)
         {
 			float roundLane = Mathf.Round(newLane);
 			if (Mathf.Abs (roundLane - newLane) < .0001f) {
 				newLane = roundLane;
 			}
 
-            car.distance = Highway.instance.GetEquivalentDistance(car.distance, car.lane, newLane);
+            car.distance = highway.GetEquivalentDistance(car.distance, car.lane, newLane);
             car.lane = newLane;
         }
 
@@ -278,7 +283,7 @@ namespace HighwayRacers
             return CarStateStruct.NullCar;
         }
 
-        public const bool IsTotalHackData = true;
+        public const bool IsTotalHackData = false;
 
         private void Update()
         {
@@ -325,11 +330,14 @@ namespace HighwayRacers
 
         private static void UpdateCarData(ref CarStateStruct car, ref Highway.HighwayStateStruct highway, CarUpdateInfo updateInfo)
         {
+
             float dt = updateInfo.TimeDelta;
 			if (dt == 0) // possible when the game is paused
 				return;
 
-			float targetSpeed = car.defaultSpeed;
+            car.UpdateInner(ref highway);
+
+            float targetSpeed = car.defaultSpeed;
 			CarStateStruct carInFront = highway.GetCarInFront(car.distance, car.lane);
 			float distToCarInFront = (carInFront.IsNull) ? float.MaxValue : highway.DistanceTo(car.distanceFront, car.lane, carInFront.distanceBack, carInFront.lane);
 
@@ -472,18 +480,18 @@ namespace HighwayRacers
 
             // update position
             car.distance += car.velocityPosition * dt;
-			ChangeLane(ref car, car.lane + car.velocityLane * dt);
+			ChangeLane(ref car, ref highway, car.lane + car.velocityLane * dt);
 
         }
 
 		private void UpdateColor(ref CarStateStruct car) {
 
 			if (car.velocityPosition > car.defaultSpeed) {
-				color = Color.Lerp (GlobalShared.defaultColor, GlobalShared.maxSpeedColor, (car.velocityPosition - car.defaultSpeed) / (car.maxSpeed - car.defaultSpeed));
+				color = Color.Lerp (CarShared.defaultColor, CarShared.maxSpeedColor, (car.velocityPosition - car.defaultSpeed) / (car.maxSpeed - car.defaultSpeed));
 			} else if (car.velocityPosition < car.defaultSpeed) {
-				color = Color.Lerp (GlobalShared.minSpeedColor, GlobalShared.defaultColor, car.velocityPosition / car.defaultSpeed);
+				color = Color.Lerp (CarShared.minSpeedColor, CarShared.defaultColor, car.velocityPosition / car.defaultSpeed);
 			} else {
-				color = GlobalShared.defaultColor;
+				color = CarShared.defaultColor;
 			}
 
 		}

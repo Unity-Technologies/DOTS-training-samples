@@ -41,7 +41,7 @@ namespace HighwayRacers {
 			leftMergeDistance.value = selectedCar.CarData.leftMergeDistance;
 			leftMergeDistance.SetText("Distance to car in front before overtaking: " + selectedCar.CarData.leftMergeDistance.ToString("0.0") + " m");
 			mergeSpace.value = selectedCar.CarData.mergeSpace;
-			float combinedMergeSpace = selectedCar.CarData.mergeSpace * 2 + selectedCar.Shared.distanceToFront + selectedCar.Shared.distanceToBack;
+			float combinedMergeSpace = selectedCar.CarData.mergeSpace * 2 + CarShared.distanceToFront + CarShared.distanceToBack;
 			mergeSpace.SetText("Merge Space: " + combinedMergeSpace.ToString("0.0") + " m");
 			overtakeEagerness.value = selectedCar.CarData.overtakeEagerness;
 			overtakeEagerness.SetText("Overtake Eagerness: " + selectedCar.CarData.overtakeEagerness.ToString("0.0"));
