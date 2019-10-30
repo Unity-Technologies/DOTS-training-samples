@@ -1,6 +1,5 @@
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Transforms;
 
 public class VelocitySystem : JobComponentSystem
