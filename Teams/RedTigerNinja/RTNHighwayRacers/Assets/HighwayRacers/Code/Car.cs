@@ -284,12 +284,22 @@ namespace HighwayRacers
         }
 
         public const bool IsTotalHackData = false;
+        public const bool IsUseEntitySim = true;
 
         private void Update()
         {
             Highway.instance.EnsureUpdated();
 
-            UpdateCarData(ref this.CarData, ref Highway.instance.HighwayState, CarUpdateInfo.Now());
+            if (IsUseEntitySim)
+            {
+                var em = World.Active.EntityManager;
+                this.CarData = em.GetComponentData<CarStateStruct>(this.CarData.ThisCarEntity);
+            }
+            else
+            {
+                UpdateCarData(ref this.CarData, ref Highway.instance.HighwayState, CarUpdateInfo.Now());
+            }
+
             UpdatePosition(ref this.CarData);
             UpdateColor(ref this.CarData);
 
