@@ -598,6 +598,9 @@ namespace HighwayRacers
             /// </summary>
             public float GetEquivalentDistance(float distance, float lane, float otherLane)
             {
+                // TODO: TOTAL HACK:
+                return WrapDistance(distance, lane);
+
                 // keep distance in [0, length)
                 distance = WrapDistance(distance, lane);
 
@@ -606,7 +609,7 @@ namespace HighwayRacers
                 float pieceStartDistanceOtherLane = 0;
                 float pieceEndDistanceOtherLane = 0;
 
-                for (int i = 0; i < 4;  i++)//this.AllPieces.Length; i++)
+                for (int i = 0; i < this.AllPieces.Length; i++)
                 {
                     var piece = this.AllPieces[i];
                     pieceStartDistance = pieceEndDistance;
@@ -658,6 +661,7 @@ namespace HighwayRacers
                 this.allCarsNativeArray[i] = this.allCarsList[i].CarData;
             }
             this.HighwayState.AllCars = this.allCarsNativeArray;
+
             if ((!this.allPiecesNativeArray.IsCreated) || (this.allCarsNativeArray.Length != this.pieces.Length))
             {
                 if (this.allPiecesNativeArray.IsCreated)
@@ -667,7 +671,12 @@ namespace HighwayRacers
                 var ar = this.pieces.Select(k => k.AsHighwayState).ToArray();
                 this.allPiecesNativeArray = new Unity.Collections.NativeArray<HighwayPiece.HighwayPieceState>(ar, Unity.Collections.Allocator.Persistent);
             }
+            for (var pi=0; pi<this.pieces.Length; pi++)
+            {
+                this.allPiecesNativeArray[pi] = this.pieces[pi].AsHighwayState;
+            }
             this.HighwayState.AllPieces = this.allPiecesNativeArray;
+
             this.HighwayState.lane0Length = this.lane0Length;
 
         }
