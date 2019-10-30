@@ -380,6 +380,17 @@ namespace HighwayRacers
 		public Car AddCar(){
 
 			Car car = null;
+
+            var tryCount = 0;
+            while (car == null)
+            {
+                car = this.AddCar(Random.Range(0, 3));
+
+                tryCount++;
+                if (tryCount > 100) break;
+            }
+
+            /*
 			List<int> lanes = new List<int> (new int[]{ 0, 1, 2, 3 });
 			while (lanes.Count > 0) {
 				int index = Random.Range(0, lanes.Count);
@@ -389,8 +400,9 @@ namespace HighwayRacers
 				if (car != null)
 					return car;
 			}
+            */
 
-			return null;
+			return car;
 
 		}
 
@@ -419,6 +431,11 @@ namespace HighwayRacers
                     return AddCarUnsafe(distance, lane);
                 }
             }
+
+            // leweyg hackery:
+            //Debug.Log("Adding random car...");
+            return AddCarUnsafe(Random.Range(0.0f, Highway.MIN_HIGHWAY_LANE0_LENGTH), lane);
+
             return null;
         }
 
