@@ -49,10 +49,7 @@ public class SphereSpawner : ComponentSystem
 
         var query = GetEntityQuery(ComponentType.ReadOnly<SphereSpawnerTag>());
         RequireForUpdate(query);
-    }
-
-    protected override void OnUpdate()
-    {   
+        
         var spherePrefabArchetype = EntityManager.CreateArchetype(typeof(Translation), typeof(LocalToWorld), typeof(MoveSpeed), typeof(RenderMesh));
 
         m_spherePrefabEntity = EntityManager.CreateEntity(spherePrefabArchetype);
@@ -63,7 +60,10 @@ public class SphereSpawner : ComponentSystem
             castShadows = ShadowCastingMode.On,
             receiveShadows = true
         });
-        
+    }
+
+    protected override void OnUpdate()
+    {   
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         var sp = new Spawn
         {

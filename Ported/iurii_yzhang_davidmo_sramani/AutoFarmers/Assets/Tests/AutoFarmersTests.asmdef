@@ -1,0 +1,36 @@
+{
+    "name": "AutoFarmersTests",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Unity.Entities.Hybrid",
+        "Unity.Mathematics",
+        "Unity.Transforms",
+        "Unity.Scenes.Hybrid",
+        "Unity.Rendering.Hybrid",
+        "Unity.Entities",
+        "Unity.Entities.Tests",
+        "Unity.Entities.PerformanceTests",
+        "Unity.PerformanceTesting",
+        "Rendering",
+        "GameAI",
+        "TilePathfinding"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
