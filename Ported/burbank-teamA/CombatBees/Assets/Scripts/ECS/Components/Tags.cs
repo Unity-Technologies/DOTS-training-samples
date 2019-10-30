@@ -3,6 +3,9 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct Tag_Bee : IComponentData { }
-public struct Tag_Resource : IComponentData { }
-public struct Tag_Particle : IComponentData { }
+[GenerateAuthoringComponent]
+public struct BeeTag : IComponentData { }
+[GenerateAuthoringComponent]
+public struct ResourceTag : IComponentData { }
+[GenerateAuthoringComponent]
+public struct ParticleTag : IComponentData { }
