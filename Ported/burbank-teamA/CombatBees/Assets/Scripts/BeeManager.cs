@@ -50,6 +50,7 @@ public class BeeManager : MonoBehaviour {
 		instance._SpawnBee(pos,team);
 	}
 	void _SpawnBee(Vector3 pos, int team) {
+		
 		Bee bee;
 		if (pooledBees.Count == 0) {
 			bee = new Bee();
