@@ -79,6 +79,13 @@ public class ClientGoInGameSystem : ComponentSystem
         {
             Debug.Log("Client connected with NetId=" + id.Value);
             PostUpdateCommands.AddComponent<NetworkStreamInGame>(ent);
+
+            // Create dummy player for sending inputs to server, normal client will get it replicated
+            if (HasSingleton<ThinClientComponent>())
+            {
+                var dummy = PostUpdateCommands.CreateEntity();
+                PostUpdateCommands.AddComponent(dummy, new PlayerComponent{PlayerId = id.Value});
+            }
         });
     }
 }

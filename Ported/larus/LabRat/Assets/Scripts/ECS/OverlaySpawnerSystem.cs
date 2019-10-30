@@ -63,12 +63,12 @@ public class ApplyOverlayColors : ComponentSystem
 
     protected override void OnCreate()
     {
-        RequireSingletonForUpdate<PlayerComponent>();
+        RequireSingletonForUpdate<LocalPlayerComponent>();
     }
 
     protected override void OnUpdate()
     {
-        var playerComponent = GetSingleton<PlayerComponent>();
+        var playerComponent = GetSingleton<LocalPlayerComponent>();
         Entities.WithNone<InitializedColorTag>().ForEach((Entity entity, ref OverlayColorComponent colorComponent) =>
         {
             var sharedMesh = EntityManager.GetSharedComponentData<RenderMesh>(entity);

@@ -8,6 +8,7 @@ using Unity.Networking.Transport;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 public struct PlayerInput : ICommandData<PlayerInput>
 {
@@ -71,7 +72,7 @@ public class ArrowSystem : ComponentSystem
             .ToComponentDataArray<OverlayPlacementTickComponent>(Allocator.Persistent);
 
         var overlayColorEntities = GetEntityQuery(typeof(OverlayColorComponent), typeof(Translation)).ToEntityArray(Allocator.Persistent);
-        var keys = arrowMap.GetKeyArray(Allocator.TempJob);
+        var keys = arrowMap.GetKeyArray(Allocator.Persistent);
         //var overlayColorPositions = GetEntityQuery(typeof(OverlayColorComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.TempJob);
 
         // SAMPLE INPUT BUFFER
@@ -134,7 +135,10 @@ public class ArrowSystem : ComponentSystem
                     arrowMap.Remove(oldestIndex);
                     cell = cellMap[oldestIndex];
                     cell.data &= ~CellData.Arrow;
-                    cellMap[oldestIndex] = cell;
+                    if (cell.data == 0)
+                        cellMap.Remove(oldestIndex);
+                    else
+                        cellMap[oldestIndex] = cell;
                 }
 
                 if (arrowMap.ContainsKey(cellIndex))
@@ -236,41 +240,103 @@ public class ClientArrowSystem : ComponentSystem
     {
         var board = GetSingleton<BoardDataComponent>();
 
-
-        // TODO: If this exists, generate dummy input
-        //HasSingleton<ThinClientComponent>()
-
-        // Input gathering
-        var screenPos = Input.mousePosition;
-        float2 cellCoord;
-        int cellIndex;
-        float3 worldPos;
-        Helpers.ScreenPositionToCell(screenPos, board.cellSize, board.size, out worldPos, out cellCoord, out cellIndex);
-
-        Direction cellDirection;
-        var localPos = new float2(worldPos.x - cellCoord.x, worldPos.z - cellCoord.y);
-        if (Mathf.Abs(localPos.y) > Mathf.Abs(localPos.x))
-            cellDirection = localPos.y > 0 ? Direction.North : Direction.South;
-        else
-            cellDirection = localPos.x > 0 ? Direction.East : Direction.West;
-
-        // Show arrow placement overlay (before it's placed permanently)
-        var cellEntities = EntityManager.CreateEntityQuery(typeof(CellRenderingComponentTag)).ToEntityArray(Allocator.TempJob);
-        for (int i = 0; i < cellEntities.Length; ++i)
+        float2 cellCoord = float2.zero;
+        Direction cellDirection = Direction.North;
+        bool cellClicked = false;
+        if (HasSingleton<ThinClientComponent>() && HasSingleton<LocalPlayerComponent>())
         {
-            var position = EntityManager.GetComponentData<Translation>(cellEntities[i]);
-            var localPt = new float2(position.Value.x, position.Value.z) + board.cellSize * 0.5f;
-            var rendCellCoord = new float2(Mathf.FloorToInt(localPt.x / board.cellSize.x), Mathf.FloorToInt(localPt.y / board.cellSize.y));
-            var rendCellIndex = (int)(rendCellCoord.y * board.size.x + rendCellCoord.x);
-            if (rendCellIndex == cellIndex)
-                EntityManager.AddComponentData(cellEntities[i], new ArrowComponent
+            // Original AI brain:
+            //- Start
+            //    - Find cell with any mouse walking on it (20% chance) or pick random cell and mark as target
+            //    - Wait 1 - 2 seconds
+            //    - If cell has no arrow on it place arrow on it which points to nearest home base
+            //    - Wait 0.2 - 0.5 seconds
+            //    - In each update the player cursor moves towards the target cell position
+            var random = new Random();
+            random.InitState((uint)(Time.time*10000));
+            float3 nextPosition = float3.zero;
+            var micePos = EntityManager.CreateEntityQuery(typeof(EatenComponentTag), typeof(Translation))
+                .ToComponentDataArray<Translation>(Allocator.TempJob);
+            if (micePos.Length > 0 && random.NextFloat(0, 1) > 0.2f)
+            {
+                int findSlot = -1;
+                while (findSlot < 0)
                 {
-                    Coordinates = cellCoord,
-                    Direction = cellDirection,
-                    PlacementTick = Time.time
-                });
+                    // TODO: Find cell without another players arrow, but client doesn't have that data, only server
+                    findSlot = random.NextInt(0, micePos.Length - 1);
+                }
+                nextPosition = micePos[findSlot].Value;
+            }
+            else
+            {
+                var nextX = random.NextInt(0, board.size.x);
+                var nextY = random.NextInt(0, board.size.y);
+                nextPosition = new float3(nextX, 0.55f, nextY);
+            }
+            micePos.Dispose();
+            var localPt = new float2(nextPosition.x, nextPosition.z);
+            localPt += board.cellSize * 0.5f;
+            cellCoord = new float2(Mathf.FloorToInt(localPt.x / board.cellSize.x), Mathf.FloorToInt(localPt.y / board.cellSize.y));
+
+            var homebaseMap = World.GetExistingSystem<BoardSystem>().HomeBaseMap;
+            var playerComponent = GetSingleton<LocalPlayerComponent>();
+            var keys = homebaseMap.GetKeyArray(Allocator.TempJob);
+            int homebaseCellIndex = 0;
+            for (int i = 0; i < keys.Length; ++i)
+            {
+                var playerId = homebaseMap[keys[i]];
+                if (playerComponent.PlayerId == playerId)
+                    homebaseCellIndex = keys[i];
+            }
+            keys.Dispose();
+            var totalCells = board.size.x * board.size.y;
+            var homebaseY = math.floor(homebaseCellIndex / totalCells);
+            var homebaseX = homebaseCellIndex % totalCells;
+
+            var toHomebase = new float3(homebaseX, 0, homebaseY) - nextPosition;
+            toHomebase = math.normalize(toHomebase);
+            if (Mathf.Abs(toHomebase.x) > Mathf.Abs(toHomebase.z))
+                cellDirection = toHomebase.x > 0 ? Direction.East : Direction.West;
+            else
+                cellDirection = toHomebase.z > 0 ? Direction.North : Direction.South;
+
+            var shouldClick = random.NextFloat(0, 1);
+            if (shouldClick > 0.95f)
+                cellClicked = true;
         }
-        cellEntities.Dispose();
+        else
+        {
+            // Input gathering
+            cellClicked = Input.GetMouseButtonDown(0);
+            var screenPos = Input.mousePosition;
+            int cellIndex;
+            float3 worldPos;
+            Helpers.ScreenPositionToCell(screenPos, board.cellSize, board.size, out worldPos, out cellCoord, out cellIndex);
+
+            var localPos = new float2(worldPos.x - cellCoord.x, worldPos.z - cellCoord.y);
+            if (Mathf.Abs(localPos.y) > Mathf.Abs(localPos.x))
+                cellDirection = localPos.y > 0 ? Direction.North : Direction.South;
+            else
+                cellDirection = localPos.x > 0 ? Direction.East : Direction.West;
+
+            // Show arrow placement overlay (before it's placed permanently)
+            var cellEntities = EntityManager.CreateEntityQuery(typeof(CellRenderingComponentTag)).ToEntityArray(Allocator.TempJob);
+            for (int i = 0; i < cellEntities.Length; ++i)
+            {
+                var position = EntityManager.GetComponentData<Translation>(cellEntities[i]);
+                var localPt = new float2(position.Value.x, position.Value.z) + board.cellSize * 0.5f;
+                var rendCellCoord = new float2(Mathf.FloorToInt(localPt.x / board.cellSize.x), Mathf.FloorToInt(localPt.y / board.cellSize.y));
+                var rendCellIndex = (int)(rendCellCoord.y * board.size.x + rendCellCoord.x);
+                if (rendCellIndex == cellIndex)
+                    EntityManager.AddComponentData(cellEntities[i], new ArrowComponent
+                    {
+                        Coordinates = cellCoord,
+                        Direction = cellDirection,
+                        PlacementTick = Time.time
+                    });
+            }
+            cellEntities.Dispose();
+        }
 
         // Set up the command target if it's not been set up yet (player was recently spawned)
         var localInput = GetSingleton<CommandTargetComponent>().targetEntity;
@@ -279,30 +345,27 @@ public class ClientArrowSystem : ComponentSystem
             var localPlayerId = GetSingleton<NetworkIdComponent>().Value;
             Entities.WithNone<PlayerInput>().ForEach((Entity ent, ref PlayerComponent player) =>
             {
+                Debug.Log(World.Name + " Processing player component on " + ent + " local=" + localPlayerId + " comp=" + player.PlayerId);
                 if (player.PlayerId == localPlayerId)
                 {
+                    Debug.Log("Setting up local player for ID " + localPlayerId);
                     PostUpdateCommands.AddBuffer<PlayerInput>(ent);
                     PostUpdateCommands.SetComponent(GetSingletonEntity<CommandTargetComponent>(), new CommandTargetComponent {targetEntity = ent});
+                    // Atm this is the same as the PlayerComponent on the entity with the PlayerInput
+                    PostUpdateCommands.AddComponent(ent, new LocalPlayerComponent{PlayerId = localPlayerId});
                 }
             });
             return;
         }
 
-        // TODO: Also do dummy input generation for non-presenting client
         // Send input to server
         var input = default(PlayerInput);
         input.Direction = cellDirection;
         input.CellCoordinates = (int2)cellCoord;
-        input.Clicked = Input.GetMouseButtonDown(0);
+        input.Clicked = cellClicked;
         input.tick = World.GetExistingSystem<ClientSimulationSystemGroup>().ServerTick;
         var inputBuffer = EntityManager.GetBuffer<PlayerInput>(localInput);
         inputBuffer.AddCommandData(input);
-
-        // Input data:
-        //    ArrowDirection
-        //    CellIndex
-        //    Clicked (if mouse should be stamped)
-        //    (Player ID) - server could figure that out from input sender
     }
 }
 

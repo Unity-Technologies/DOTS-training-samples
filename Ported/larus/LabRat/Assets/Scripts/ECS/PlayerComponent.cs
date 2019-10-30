@@ -7,5 +7,11 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct PlayerComponent : IComponentData
 {
-    [GhostDefaultField] public int  PlayerId;
+    [GhostDefaultField]
+    public int  PlayerId;
+}
+
+public struct LocalPlayerComponent : IComponentData
+{
+    public int  PlayerId;
 }
