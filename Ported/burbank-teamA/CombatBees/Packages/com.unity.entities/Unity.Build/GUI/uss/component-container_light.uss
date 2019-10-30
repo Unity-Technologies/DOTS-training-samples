@@ -1,0 +1,19 @@
+.component-container__component
+{
+    background-color: #DFDFDF;
+}
+
+.component-container__remove-component-button
+{
+    background-image: resource("Icons/winbtn_win_close@2x.png");
+}
+
+.component-container__inherited-component .unity-label
+{
+    color: #666666;
+}
+
+.component-container__overridden-component .component-container__component
+{
+    border-left-color: #0cb4cc;
+}

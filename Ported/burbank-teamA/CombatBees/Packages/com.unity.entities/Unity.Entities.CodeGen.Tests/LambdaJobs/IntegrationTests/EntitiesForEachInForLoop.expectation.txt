@@ -1,0 +1,142 @@
+using NUnit.Framework;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities.CodeGen.Tests.LambdaJobs.Infrastructure;
+using Unity.Entities.CodeGeneratedJobForEach;
+using Unity.Jobs;
+
+namespace Unity.Entities.CodeGen.Tests
+{
+	[TestFixture]
+	public class EntitiesForEachInForLoop : LambdaJobIntegrationTest
+	{
+		private class System : JobComponentSystem
+		{
+			private struct System_OnUpdate_LambdaJob0 : IJobChunk
+			{
+				private struct LambdaParameterValueProviders
+				{
+					public struct Runtimes
+					{
+						public LambdaParameterValueProvider_IComponentData<Translation>.Runtime runtime0;
+
+						public LambdaParameterValueProvider_ManagedComponentData<ManagedComponent>.Runtime runtime1;
+					}
+
+					private LambdaParameterValueProvider_IComponentData<Translation> forParameter0;
+
+					[ReadOnly]
+					private LambdaParameterValueProvider_ManagedComponentData<ManagedComponent> forParameter1;
+
+					public void ScheduleTimeInitialize(System componentSystem)
+					{
+						forParameter0.ScheduleTimeInitialize(componentSystem, isReadOnly: false);
+						forParameter1.ScheduleTimeInitialize(componentSystem, isReadOnly: true);
+					}
+
+					public Runtimes PrepareToExecuteOnEntitiesInMethod(ref ArchetypeChunk p0, int p1, int p2)
+					{
+						Runtimes result = default(Runtimes);
+						result.runtime0 = forParameter0.PrepareToExecuteOnEntitiesIn(ref p0);
+						result.runtime1 = forParameter1.PrepareToExecuteOnEntitiesIn(ref p0);
+						return result;
+					}
+				}
+
+				public int captureMe;
+
+				private LambdaParameterValueProviders _lambdaParameterValueProviders;
+
+				[NativeDisableUnsafePtrRestriction]
+				private unsafe LambdaParameterValueProviders.Runtimes* _runtimes;
+
+				private static InternalCompilerInterface.JobChunkRunWithoutJobSystemDelegate s_RunWithoutJobSystemDelegateFieldNoBurst;
+
+				public void OriginalLambdaBody(ref Translation translation, in ManagedComponent m)
+				{
+					translation.Value += captureMe;
+				}
+
+				public void ReadFromDisplayClass(ref <>c__DisplayClass0_0 displayClass)
+				{
+					captureMe = displayClass.captureMe;
+				}
+
+				public void WriteToDisplayClass(ref <>c__DisplayClass0_0 displayClass)
+				{
+					displayClass.captureMe = captureMe;
+				}
+
+				public unsafe void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
+				{
+					LambdaParameterValueProviders.Runtimes runtimes = _lambdaParameterValueProviders.PrepareToExecuteOnEntitiesInMethod(ref chunk, chunkIndex, firstEntityIndex);
+					_runtimes = &runtimes;
+					IterateEntities(ref chunk, ref *_runtimes);
+				}
+
+				public void IterateEntities(ref ArchetypeChunk chunk, ref LambdaParameterValueProviders.Runtimes runtimes)
+				{
+					int count = chunk.Count;
+					for (int i = 0; i != count; i++)
+					{
+						ref Translation translation = ref runtimes.runtime0.For(i);
+						ManagedComponent m = runtimes.runtime1.For(i);
+						this.OriginalLambdaBody(ref translation, ref m);
+					}
+				}
+
+				public void ScheduleTimeInitialize(System componentSystem, ref <>c__DisplayClass0_0 displayClass)
+				{
+					_lambdaParameterValueProviders.ScheduleTimeInitialize(componentSystem);
+					ReadFromDisplayClass(ref displayClass);
+				}
+
+				public unsafe static void RunWithoutJobSystem(ArchetypeChunkIterator* archetypeChunkIterator, void* jobData)
+				{
+					(ref UnsafeUtilityEx.AsRef<System_OnUpdate_LambdaJob0>(jobData)).RunWithoutJobs(ref *archetypeChunkIterator);
+				}
+			}
+
+			private EntityQuery <>System_OnUpdate_LambdaJob0_entityQuery;
+
+			protected unsafe override JobHandle OnUpdate(JobHandle inputDeps)
+			{
+				<>c__DisplayClass0_0 displayClass = default(<>c__DisplayClass0_0);
+				displayClass.captureMe = 3;
+				for (int i = 0; i != 3; i++)
+				{
+					ForEachLambdaJobDescription entity = base.Entities;
+					System_OnUpdate_LambdaJob0 jobData = default(System_OnUpdate_LambdaJob0);
+					jobData.ScheduleTimeInitialize(this, ref displayClass);
+					InternalCompilerInterface.RunJobChunk(ref jobData, <>System_OnUpdate_LambdaJob0_entityQuery, System_OnUpdate_LambdaJob0.s_RunWithoutJobSystemDelegateFieldNoBurst);
+					jobData.WriteToDisplayClass(ref displayClass);
+				}
+				return default(JobHandle);
+			}
+
+			public static EntityQuery <>GetEntityQuery_ForSystem_OnUpdate_LambdaJob0_From(ComponentSystemBase componentSystem)
+			{
+				EntityQueryDesc[] array = new EntityQueryDesc[1];
+				(array[0] = new EntityQueryDesc()).All = new ComponentType[2]
+				{
+					ComponentType.ReadWrite<Translation>(),
+					ComponentType.ReadOnly<ManagedComponent>()
+				};
+				return componentSystem.GetEntityQuery(array);
+			}
+
+			protected internal unsafe override void OnCreateForCompiler()
+			{
+				base.OnCreateForCompiler();
+				<>System_OnUpdate_LambdaJob0_entityQuery = <>GetEntityQuery_ForSystem_OnUpdate_LambdaJob0_From(this);
+				System_OnUpdate_LambdaJob0.s_RunWithoutJobSystemDelegateFieldNoBurst = System_OnUpdate_LambdaJob0.RunWithoutJobSystem;
+			}
+		}
+
+		[Test]
+		public void EntitiesForEachInForLoopTest()
+		{
+			RunTest(typeof(System));
+		}
+	}
+}

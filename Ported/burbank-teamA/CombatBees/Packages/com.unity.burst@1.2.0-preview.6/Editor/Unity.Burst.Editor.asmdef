@@ -1,0 +1,6 @@
+{
+    "name": "Unity.Burst.Editor",
+    "references": [ "Unity.Burst" ],
+    "includePlatforms": [ "Editor" ],
+    "allowUnsafeCode": true
+}

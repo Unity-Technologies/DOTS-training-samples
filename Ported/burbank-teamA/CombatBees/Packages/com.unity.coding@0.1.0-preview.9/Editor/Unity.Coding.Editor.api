@@ -1,0 +1,36 @@
+// This file is generated. Do not modify by hand.
+namespace Unity.Coding.Editor
+{
+    public static class CodingMenuItems
+    {
+    }
+}
+
+namespace Unity.Coding.Editor.ApiScraping
+{
+    public static class ApiScraping
+    {
+        public static bool ValidateAllFilesScraped(System.Collections.Generic.List<string> failedFileList);
+    }
+
+    public interface IApiScraperProcess
+    {
+        public abstract void Start([System.Runtime.CompilerServices.TupleElementNames(Mono.Cecil.CustomAttributeArgument[])] System.Collections.Generic.IEnumerable<System.ValueTuple<string, string>> scrapeList, System.Collections.Generic.IEnumerable<string> referenceDirectories, Unity.Coding.Editor.ApiScraping.ScrapeMode scrapeMode);
+    }
+
+    public enum ScrapeMode
+    {
+        public const Unity.Coding.Editor.ApiScraping.ScrapeMode Asynchronous = 0;
+        public const Unity.Coding.Editor.ApiScraping.ScrapeMode EnsureSuccess = 1;
+        public int value__;
+        public const Unity.Coding.Editor.ApiScraping.ScrapeMode VerifyNoWrite = 2;
+    }
+
+    public class ScraperEntry
+    {
+        public string AssemblyFullPath;
+        public string OutputPath;
+        public System.Collections.Generic.IEnumerable<string> ReferenceDirectories;
+        public ScraperEntry(string assemlyFullPath, string outputPath, params string[] referenceDirectories) {}
+    }
+}

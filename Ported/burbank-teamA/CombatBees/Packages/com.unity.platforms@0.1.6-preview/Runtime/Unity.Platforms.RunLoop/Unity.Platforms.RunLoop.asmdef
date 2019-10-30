@@ -1,0 +1,11 @@
+{
+    "name": "Unity.Platforms.RunLoop",
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": ["UNITY_DOTSPLAYER"],
+    "versionDefines": []
+}

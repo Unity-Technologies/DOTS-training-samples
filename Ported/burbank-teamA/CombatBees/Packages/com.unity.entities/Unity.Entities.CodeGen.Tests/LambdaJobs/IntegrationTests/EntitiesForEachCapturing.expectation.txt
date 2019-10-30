@@ -1,0 +1,167 @@
+using NUnit.Framework;
+using System;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities.CodeGen.Tests.LambdaJobs.Infrastructure;
+using Unity.Entities.CodeGeneratedJobForEach;
+using Unity.Jobs;
+
+namespace Unity.Entities.CodeGen.Tests
+{
+	[TestFixture]
+	public class EntitiesForEachCapturing : LambdaJobIntegrationTest
+	{
+		private class System : JobComponentSystem
+		{
+			[BurstCompile(FloatMode = FloatMode.Deterministic, FloatPrecision = FloatPrecision.High, CompileSynchronously = true)]
+			private struct System_OnUpdate_LambdaJob0 : IJobChunk
+			{
+				private struct LambdaParameterValueProviders
+				{
+					public struct Runtimes
+					{
+						public LambdaParameterValueProvider_EntityInQueryIndex.Runtime runtime0;
+
+						public LambdaParameterValueProvider_Entity.Runtime runtime1;
+
+						public LambdaParameterValueProvider_DynamicBuffer<MyBufferInt>.Runtime runtime2;
+
+						public LambdaParameterValueProvider_IComponentData<Translation>.Runtime runtime3;
+
+						public LambdaParameterValueProvider_IComponentData<Acceleration>.Runtime runtime4;
+					}
+
+					[ReadOnly]
+					private LambdaParameterValueProvider_EntityInQueryIndex forParameter0;
+
+					[ReadOnly]
+					private LambdaParameterValueProvider_Entity forParameter1;
+
+					private LambdaParameterValueProvider_DynamicBuffer<MyBufferInt> forParameter2;
+
+					private LambdaParameterValueProvider_IComponentData<Translation> forParameter3;
+
+					[ReadOnly]
+					private LambdaParameterValueProvider_IComponentData<Acceleration> forParameter4;
+
+					public void ScheduleTimeInitialize(System componentSystem)
+					{
+						forParameter0.ScheduleTimeInitialize(componentSystem, isReadOnly: true);
+						forParameter1.ScheduleTimeInitialize(componentSystem, isReadOnly: true);
+						forParameter2.ScheduleTimeInitialize(componentSystem, isReadOnly: false);
+						forParameter3.ScheduleTimeInitialize(componentSystem, isReadOnly: false);
+						forParameter4.ScheduleTimeInitialize(componentSystem, isReadOnly: true);
+					}
+
+					public Runtimes PrepareToExecuteOnEntitiesInMethod(ref ArchetypeChunk p0, int p1, int p2)
+					{
+						Runtimes result = default(Runtimes);
+						result.runtime0 = forParameter0.PrepareToExecuteOnEntitiesIn(ref p0, p1, p2);
+						result.runtime1 = forParameter1.PrepareToExecuteOnEntitiesIn(ref p0);
+						result.runtime2 = forParameter2.PrepareToExecuteOnEntitiesIn(ref p0);
+						result.runtime3 = forParameter3.PrepareToExecuteOnEntitiesIn(ref p0);
+						result.runtime4 = forParameter4.PrepareToExecuteOnEntitiesIn(ref p0);
+						return result;
+					}
+				}
+
+				[DeallocateOnJobCompletion]
+				[NativeDisableContainerSafetyRestriction]
+				[ReadOnly]
+				public NativeArray<float> myCapturedFloats;
+
+				[NativeDisableUnsafePtrRestriction]
+				public unsafe byte* myRawPtr;
+
+				private LambdaParameterValueProviders _lambdaParameterValueProviders;
+
+				[NativeDisableUnsafePtrRestriction]
+				private unsafe LambdaParameterValueProviders.Runtimes* _runtimes;
+
+				public unsafe void OriginalLambdaBody(int entityInQueryIndex, Entity myEntity, DynamicBuffer<MyBufferInt> myBufferInts, ref Translation translation, in Acceleration acceleration)
+				{
+					translation.Value += myCapturedFloats[2] + acceleration.Value + (float)entityInQueryIndex + (float)myEntity.Version + (float)myBufferInts[2].Value;
+					Console.Write(myRawPtr->ToString());
+				}
+
+				public unsafe void ReadFromDisplayClass(ref <>c__DisplayClass0_0 displayClass)
+				{
+					myCapturedFloats = displayClass.myCapturedFloats;
+					myRawPtr = displayClass.myRawPtr;
+				}
+
+				public unsafe void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
+				{
+					LambdaParameterValueProviders.Runtimes runtimes = _lambdaParameterValueProviders.PrepareToExecuteOnEntitiesInMethod(ref chunk, chunkIndex, firstEntityIndex);
+					_runtimes = &runtimes;
+					IterateEntities(ref chunk, ref *_runtimes);
+				}
+
+				public void IterateEntities(ref ArchetypeChunk chunk, ref LambdaParameterValueProviders.Runtimes runtimes)
+				{
+					int count = chunk.Count;
+					for (int i = 0; i != count; i++)
+					{
+						this.OriginalLambdaBody(runtimes.runtime0.For(i), runtimes.runtime1.For(i), runtimes.runtime2.For(i), ref runtimes.runtime3.For(i), ref runtimes.runtime4.For(i));
+					}
+				}
+
+				public void ScheduleTimeInitialize(System componentSystem, ref <>c__DisplayClass0_0 displayClass)
+				{
+					_lambdaParameterValueProviders.ScheduleTimeInitialize(componentSystem);
+					ReadFromDisplayClass(ref displayClass);
+				}
+			}
+
+			private EntityQuery <>System_OnUpdate_LambdaJob0_entityQuery;
+
+			protected unsafe override JobHandle OnUpdate(JobHandle inputDeps)
+			{
+				<>c__DisplayClass0_0 displayClass = default(<>c__DisplayClass0_0);
+				displayClass.myCapturedFloats = default(NativeArray<float>);
+				displayClass.myRawPtr = (byte*)(void*)IntPtr.Zero;
+				ForEachLambdaJobDescription entity = base.Entities;
+				System_OnUpdate_LambdaJob0 jobData = default(System_OnUpdate_LambdaJob0);
+				jobData.ScheduleTimeInitialize(this, ref displayClass);
+				return JobChunkExtensions.Schedule(jobData, <>System_OnUpdate_LambdaJob0_entityQuery, inputDeps);
+			}
+
+			public static EntityQuery <>GetEntityQuery_ForSystem_OnUpdate_LambdaJob0_From(ComponentSystemBase componentSystem)
+			{
+				EntityQueryDesc[] array = new EntityQueryDesc[1];
+				EntityQueryDesc entityQueryDesc = array[0] = new EntityQueryDesc();
+				entityQueryDesc.All = new ComponentType[4]
+				{
+					ComponentType.ReadOnly<Velocity>(),
+					ComponentType.ReadWrite<MyBufferInt>(),
+					ComponentType.ReadWrite<Translation>(),
+					ComponentType.ReadOnly<Acceleration>()
+				};
+				entityQueryDesc.None = new ComponentType[1]
+				{
+					ComponentType.ReadWrite<Boid>()
+				};
+				entityQueryDesc.Options = EntityQueryOptions.IncludeDisabled;
+				EntityQuery entityQuery = componentSystem.GetEntityQuery(array);
+				entityQuery.SetChangedVersionFilter(new ComponentType[1]
+				{
+					ComponentType.ReadWrite<Translation>()
+				});
+				return entityQuery;
+			}
+
+			protected internal override void OnCreateForCompiler()
+			{
+				base.OnCreateForCompiler();
+				<>System_OnUpdate_LambdaJob0_entityQuery = <>GetEntityQuery_ForSystem_OnUpdate_LambdaJob0_From(this);
+			}
+		}
+
+		[Test]
+		public void EntitiesForEachCapturingTest()
+		{
+			RunTest(typeof(System));
+		}
+	}
+}

@@ -1,0 +1,105 @@
+using NUnit.Framework;
+using Unity.Burst;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities.CodeGen.Tests.LambdaJobs.Infrastructure;
+using Unity.Entities.CodeGeneratedJobForEach;
+using Unity.Jobs;
+
+namespace Unity.Entities.CodeGen.Tests
+{
+	[TestFixture]
+	public class JobChunk : LambdaJobIntegrationTest
+	{
+		private class System : JobComponentSystem
+		{
+			[BurstCompile]
+			private struct System_OnUpdate_LambdaJob0 : IJobChunk
+			{
+				private struct ElementProviders
+				{
+					public struct Runtimes
+					{
+					}
+
+					public void ScheduleTimeInitialize(JobComponentSystem jobComponentSystem)
+					{
+					}
+
+					public Runtimes PrepareToExecuteOnEntitiesInMethod(ref ArchetypeChunk P_0, int P_1, int P_2)
+					{
+						return default(Runtimes);
+					}
+				}
+
+				private ElementProviders _elementProviders;
+
+				[NativeDisableUnsafePtrRestriction]
+				private unsafe ElementProviders.Runtimes* _runtimes;
+
+				public void OriginalLambdaBody(ArchetypeChunk chunk, int chunkIndex, int entityIndex)
+				{
+					chunk.Entities.ForEach(delegate(ref Translation t)
+					{
+						t.Value = 12f;
+					});
+				}
+
+				public void <OnUpdate>b__0_1(ref Translation t)
+				{
+					t.Value = 12f;
+				}
+
+				public unsafe void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
+				{
+					ElementProviders.Runtimes runtimes = _elementProviders.PrepareToExecuteOnEntitiesInMethod(ref chunk, chunkIndex, firstEntityIndex);
+					_runtimes = &runtimes;
+					OriginalLambdaBody(chunk, chunkIndex, firstEntityIndex);
+				}
+
+				public unsafe void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
+				{
+					ElementProviders.Runtimes runtimes = _elementProviders.PrepareToExecuteOnEntitiesInMethod(ref chunk, chunkIndex, firstEntityIndex);
+					_runtimes = &runtimes;
+					OriginalLambdaBody(chunk, chunkIndex, firstEntityIndex);
+				}
+
+				public void ScheduleTimeInitialize(JobComponentSystem jobComponentSystem)
+				{
+					_elementProviders.ScheduleTimeInitialize(jobComponentSystem);
+				}
+			}
+
+			private EntityQuery <>System_OnUpdate_LambdaJob0_entityQuery;
+
+			protected override JobHandle OnUpdate(JobHandle inputDeps)
+			{
+				LambdaJobChunkDescription chunk = base.Chunks;
+				System_OnUpdate_LambdaJob0 jobData = default(System_OnUpdate_LambdaJob0);
+				jobData.ScheduleTimeInitialize(this);
+				return JobChunkExtensions.Schedule(jobData, <>System_OnUpdate_LambdaJob0_entityQuery, inputDeps);
+			}
+
+			protected override void OnCreate()
+			{
+				<>System_OnUpdate_LambdaJob0_entityQuery = <>GetEntityQuery_ForSystem_OnUpdate_LambdaJob0_From(this);
+			}
+
+			public static EntityQuery <>GetEntityQuery_ForSystem_OnUpdate_LambdaJob0_From(ComponentSystemBase componentSystem)
+			{
+				EntityQueryDesc[] array = new EntityQueryDesc[1];
+				(array[0] = new EntityQueryDesc()).Any = new ComponentType[2]
+				{
+					ComponentType.ReadWrite<Velocity>(),
+					ComponentType.ReadWrite<Translation>()
+				};
+				return componentSystem.GetEntityQuery(array);
+			}
+		}
+
+		[Test]
+		public void JobChunkTest()
+		{
+			RunTest<System>();
+		}
+	}
+}

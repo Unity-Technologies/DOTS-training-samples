@@ -1,0 +1,32 @@
+# to use, add this to your hgrc:
+#
+# [ui]
+# style = path/to/this/file.hgstyle
+
+# see http://hgbook.red-bean.com/read/customizing-the-output-of-mercurial.html
+
+changeset = '{rev} {node|short} {branches} @{author|user} ({date|age}, {phase}){bookmarks} {tags}\n    {desc|firstline|strip}\n'
+changeset_quiet = '{rev} {node|short} {branches} @{author|user} ({date|age}, {phase}){bookmarks} {tags} {desc|firstline|strip}\n'
+changeset_verbose = '{rev} {node|short} {branches} @{author|user} ({date|age}, {phase}){bookmarks} {tags}\n\t{desc|strip|tabindent}\n\n{file_mods}{file_adds}{file_dels}\n'
+
+start_tags = '['
+tag = '{tag},'
+last_tag = '{tag}]'
+start_parents = ':'
+parent = '{rev},'
+last_parent = '{rev}'
+start_bookmarks = '['
+bookmark = '{bookmark},'
+last_bookmark = '{bookmark}]'
+
+start_file_adds = ''
+file_add = ' A {file_add}\n'
+end_file_adds = ''
+
+start_file_dels = ''
+file_del = ' R {file_del}\n'
+end_file_dels = ''
+
+start_file_mods = ''
+file_mod = ' M {file_mod}\n'
+end_file_mods = ''

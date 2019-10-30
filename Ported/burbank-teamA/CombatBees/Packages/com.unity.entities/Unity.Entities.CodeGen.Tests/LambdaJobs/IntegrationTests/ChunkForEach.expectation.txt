@@ -1,0 +1,203 @@
+using NUnit.Framework;
+using System;
+using Unity.Burst;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities.CodeGen.Tests.LambdaJobs.Infrastructure;
+using Unity.Entities.CodeGeneratedJobForEach;
+using Unity.Entities.UniversalDelegates;
+using Unity.Jobs;
+
+namespace Unity.Entities.CodeGen.Tests
+{
+	[TestFixture]
+	public class ChunkForEach : LambdaJobIntegrationTest
+	{
+		private class System : JobComponentSystem
+		{
+			[BurstCompile]
+			private struct System_OnUpdate_LambdaJob0 : IJobChunk
+			{
+				private struct ElementProviders
+				{
+					public struct Runtimes
+					{
+						public ElementProvider_IComponentData<Translation>.Runtime runtime0;
+
+						public ElementProvider_IComponentData<Velocity>.Runtime runtime1;
+					}
+
+					private ElementProvider_IComponentData<Translation> element0;
+
+					private ElementProvider_IComponentData<Velocity> element1;
+
+					public void ScheduleTimeInitialize(JobComponentSystem jobComponentSystem)
+					{
+						element0.ScheduleTimeInitialize(jobComponentSystem, isReadOnly: false);
+						element1.ScheduleTimeInitialize(jobComponentSystem, isReadOnly: false);
+					}
+
+					public Runtimes PrepareToExecuteOnEntitiesInMethod(ref ArchetypeChunk P_0, int P_1, int P_2)
+					{
+						Runtimes result = default(Runtimes);
+						result.runtime0 = element0.PrepareToExecuteOnEntitiesIn(ref P_0);
+						result.runtime1 = element1.PrepareToExecuteOnEntitiesIn(ref P_0);
+						return result;
+					}
+				}
+
+				public struct InlineEntitiesForEachInvocation1
+				{
+					public <>c__DisplayClass0_0 CS$<>8__locals1;
+
+					public int capture_from_chunklambda;
+
+					public void ReadFromDisplayClass(ref <>c__DisplayClass0_1 displayClass)
+					{
+						CS$<>8__locals1 = displayClass.CS$<>8__locals1;
+						capture_from_chunklambda = displayClass.capture_from_chunklambda;
+					}
+
+					public void OriginalLambdaBody(ref Translation t)
+					{
+						t.Value = CS$<>8__locals1.capture_from_system + capture_from_chunklambda;
+					}
+
+					public void IterateEntities(ref ArchetypeChunk chunk, ref ElementProviders.Runtimes runtimes)
+					{
+						int count = chunk.Count;
+						for (int i = 0; i != count; i++)
+						{
+							OriginalLambdaBody(ref runtimes.runtime0.For(i));
+						}
+					}
+				}
+
+				public struct InlineEntitiesForEachInvocation2
+				{
+					public int capture_from_system;
+
+					public void ReadFromDisplayClass(ref <>c__DisplayClass0_0 displayClass)
+					{
+						capture_from_system = displayClass.capture_from_system;
+					}
+
+					public void OriginalLambdaBody(in Translation t, ref Velocity v)
+					{
+						v.Value *= capture_from_system;
+					}
+
+					public void IterateEntities(ref ArchetypeChunk chunk, ref ElementProviders.Runtimes runtimes)
+					{
+						int count = chunk.Count;
+						for (int i = 0; i != count; i++)
+						{
+							this.OriginalLambdaBody(ref runtimes.runtime0.For(i), ref runtimes.runtime1.For(i));
+						}
+					}
+				}
+
+				private ElementProviders _elementProviders;
+
+				[NativeDisableUnsafePtrRestriction]
+				private unsafe ElementProviders.Runtimes* _runtimes;
+
+				public IR<Translation, Velocity> <>9__2;
+
+				public void ReadFromDisplayClass(ref <>c__DisplayClass0_0 displayClass)
+				{
+					<>9__2 = displayClass.<>9__2;
+				}
+
+				public unsafe void OriginalLambdaBody(ArchetypeChunk chunk, int chunkIndex, int entityIndex)
+				{
+					//IL_0017: Expected O, but got Ref
+					//IL_0068: Incompatible stack heights: 2 vs 1
+					<>c__DisplayClass0_1 displayClass = default(<>c__DisplayClass0_1);
+					displayClass.CS$<>8__locals1 = (<>c__DisplayClass0_0)(&this);
+					displayClass.capture_from_chunklambda = 8;
+					InlineEntitiesForEachInvocation1 inlineEntitiesForEachInvocation = default(InlineEntitiesForEachInvocation1);
+					inlineEntitiesForEachInvocation.ReadFromDisplayClass(ref displayClass);
+					inlineEntitiesForEachInvocation.IterateEntities(ref chunk, ref *_runtimes);
+					if (<>9__2 == null)
+					{
+						IR<Translation, Velocity> iR = <>9__2 = null;
+					}
+					InlineEntitiesForEachInvocation2 inlineEntitiesForEachInvocation2 = default(InlineEntitiesForEachInvocation2);
+					inlineEntitiesForEachInvocation2.ReadFromDisplayClass(ref *(<>c__DisplayClass0_0*)(&displayClass));
+					inlineEntitiesForEachInvocation2.IterateEntities(ref chunk, ref *_runtimes);
+				}
+
+				public unsafe void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
+				{
+					ElementProviders.Runtimes runtimes = _elementProviders.PrepareToExecuteOnEntitiesInMethod(ref chunk, chunkIndex, firstEntityIndex);
+					_runtimes = &runtimes;
+					OriginalLambdaBody(chunk, chunkIndex, firstEntityIndex);
+				}
+
+				public void ScheduleTimeInitialize(JobComponentSystem jobComponentSystem, ref <>c__DisplayClass0_0 displayClass)
+				{
+					_elementProviders.ScheduleTimeInitialize(jobComponentSystem);
+					ReadFromDisplayClass(ref displayClass);
+				}
+			}
+
+			private EntityQuery <>System_OnUpdate_LambdaJob0_entityQuery;
+
+			protected override JobHandle OnUpdate(JobHandle inputDeps)
+			{
+				<>c__DisplayClass0_0 displayClass = default(<>c__DisplayClass0_0);
+				displayClass.capture_from_system = 123;
+				LambdaJobChunkDescription chunk = base.Chunks;
+				System_OnUpdate_LambdaJob0 jobData = default(System_OnUpdate_LambdaJob0);
+				jobData.ScheduleTimeInitialize(this, ref displayClass);
+				return JobChunkExtensions.Schedule(jobData, <>System_OnUpdate_LambdaJob0_entityQuery, inputDeps);
+			}
+
+			protected unsafe override JobHandle OnUpdate_Unmodified(JobHandle inputDeps)
+			{
+				//IL_000a: Expected native int or pointer, but got O
+				<>c__DisplayClass0_1 CS$<>8__locals0;
+				((<>c__DisplayClass0_0*)(long)(IntPtr)(void*)CS$<>8__locals0)->capture_from_system = 123;
+				return LambdaJobChunkDescriptionConstructionMethods.ForEach(base.Chunks.WithAny<Velocity, Translation>(), delegate(ArchetypeChunk chunk, int chunkIndex, int entityIndex)
+				{
+					//IL_000d: Expected O, but got Ref
+					//IL_0008: Expected native int or pointer, but got O
+					//IL_0010: Expected native int or pointer, but got O
+					//IL_004c: Expected O, but got Ref
+					((<>c__DisplayClass0_1*)(long)(IntPtr)(void*)CS$<>8__locals0)->CS$<>8__locals1 = (<>c__DisplayClass0_0)(long)(IntPtr)(void*)CS$<>8__locals0;
+					((<>c__DisplayClass0_1*)(long)(IntPtr)(void*)CS$<>8__locals0)->capture_from_chunklambda = 8;
+					chunk.Entities.ForEach(delegate(ref Translation t)
+					{
+						t.Value = ((<>c__DisplayClass0_1*)CS$<>8__locals0)->CS$<>8__locals1.capture_from_system + ((<>c__DisplayClass0_1*)CS$<>8__locals0)->capture_from_chunklambda;
+					});
+					chunk.Entities.ForEach(delegate(in Translation t, ref Velocity v)
+					{
+						v.Value *= ((<>c__DisplayClass0_0*)(<>c__DisplayClass0_0)(long)(IntPtr)(void*)CS$<>8__locals0)->capture_from_system;
+					});
+				}).Schedule(inputDeps);
+			}
+
+			protected override void OnCreate()
+			{
+				<>System_OnUpdate_LambdaJob0_entityQuery = <>GetEntityQuery_ForSystem_OnUpdate_LambdaJob0_From(this);
+			}
+
+			public static EntityQuery <>GetEntityQuery_ForSystem_OnUpdate_LambdaJob0_From(ComponentSystemBase componentSystem)
+			{
+				EntityQueryDesc[] array = new EntityQueryDesc[1];
+				(array[0] = new EntityQueryDesc()).Any = new ComponentType[2]
+				{
+					ComponentType.ReadWrite<Velocity>(),
+					ComponentType.ReadWrite<Translation>()
+				};
+				return componentSystem.GetEntityQuery(array);
+			}
+		}
+
+		[Test]
+		public void ChunkForEachTest()
+		{
+			RunTest<System>();
+		}
+	}
+}

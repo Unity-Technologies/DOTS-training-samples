@@ -1,0 +1,21 @@
+{
+    "name": "Unity.Properties.PerformanceTests",
+    "references": [
+        "Unity.Properties",
+        "Unity.PerformanceTesting",
+        "Unity.Properties.Tests"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": []
+}

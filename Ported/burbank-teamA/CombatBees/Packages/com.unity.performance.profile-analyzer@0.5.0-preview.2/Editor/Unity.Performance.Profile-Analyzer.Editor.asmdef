@@ -1,0 +1,10 @@
+﻿{
+    "name": "Unity.Performance.Profile-Analyzer.Editor",
+    "references": [],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

@@ -1,0 +1,16 @@
+{
+  "displayName": "Mono Cecil",
+  "name": "nuget.mono-cecil",
+  "version": "0.1.6-preview",
+  "unity": "2019.1",
+  "description": "The mono cecil library from https://www.nuget.org/packages/Mono.Cecil/",
+  "keywords": ["mono cecil"],
+  "category": "Libraries",
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.cds.internal.unity3d.com/upm-packages/core/nuget.mono-cecil.git",
+    "revision": "d9e57e10c26ba36a62a828729ad08eb73d0386b6"
+  }, 
+  "dependencies": {
+  }
+}

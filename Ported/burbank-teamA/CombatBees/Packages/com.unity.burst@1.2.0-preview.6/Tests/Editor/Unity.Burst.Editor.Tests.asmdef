@@ -1,0 +1,21 @@
+{
+    "name": "Unity.Burst.Editor.Tests",
+    "references": [
+        "Unity.Burst",
+        "Unity.Mathematics",
+        "Unity.Burst.Tests.UnitTests"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}

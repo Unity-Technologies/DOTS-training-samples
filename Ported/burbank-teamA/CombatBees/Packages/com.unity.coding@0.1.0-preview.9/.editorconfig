@@ -1,0 +1,7 @@
+[*]
+formatter = generic
+# require manual formatting so that bugs during dev of formatter do not auto-ruin formatter code
+disable_auto_format = true
+
+[*.cs]
+formatters = uncrustify, generic

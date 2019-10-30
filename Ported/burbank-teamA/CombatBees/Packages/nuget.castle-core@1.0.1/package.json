@@ -1,0 +1,16 @@
+{
+  "displayName": "Castle Core",
+  "name": "nuget.castle-core",
+  "version": "1.0.1",
+  "unity": "2018.3",
+  "description": "Castle core libray from the Castle Project. https://www.nuget.org/packages/Castle.Core/",
+  "keywords": ["castle core"],
+  "category": "Libraries",
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.cds.internal.unity3d.com/upm-packages/core/nuget.castle-core.git",
+    "revision": "8eef2a400486197d78bd11beb3c9522b6bb08dfb"
+  }, 
+  "dependencies": {
+  }
+}

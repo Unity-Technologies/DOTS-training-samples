@@ -1,0 +1,8 @@
+default = {
+     /**
+     * Define custom behaviors the mode supports and acted on.
+     */
+    execute_handlers = {
+        gui_playbar = "DOTS/GUI/LiveLinkToolbar"
+    }
+}

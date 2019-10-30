@@ -1,0 +1,219 @@
+#windowMainVisualContainer {
+    flex: 1;
+    flex-direction: row;
+    background-color: #272727;
+}
+
+#windowMainVisualContainer * {
+    -unity-font: resource("FlatSkin/Font/Roboto-Regular");
+}
+
+#windowResizer {
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    bottom: 0;
+    right: 0;
+    padding-left: 10px;
+    padding-top: 14px;
+    cursor: resize-up-left;
+}
+
+#windowResizerIcon {
+    flex: 1;
+    background-image:resource("WindowBottomResize");
+    cursor: resize-up-left;
+}
+
+#searcherVisualContainer {
+    flex: 1;
+}
+
+#windowTitleLabel {
+    font-size: 14px;
+    color: #FFFFFF;
+    margin-top: 5px;
+    margin-left: 6px;
+}
+
+#windowSearchBoxVisualContainer {
+    height: 21px;
+    background-color: #454545;
+    margin-right: 3px;
+    margin-left: 5px;
+    margin-top: 0;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    border-color: #323232;
+    border-width: 1px;
+}
+
+#searchIcon {
+    width: 32px;
+    height: 16px;
+    background-image:resource("FlatSkin/SearchSmallDownOff");
+    top: 2px;
+    left: 4px;
+    margin-right: 2px;
+}
+
+#searchIcon.Active {
+    background-image:resource("FlatSkin/SearchSmallDownOn");
+}
+
+#autoCompleteLabel {
+    position: absolute;
+    background-image: none;
+    top: 1px;
+    left: 36px;
+    font-size: 12px;
+    color: #828282;
+    -unity-text-align: middle-left;
+}
+
+#searchBox {
+    background-image: none;
+    position: absolute;
+    left: 30px;
+    right: 0;
+    bottom: 0;
+    font-size: 12px;
+    color: #FFFFFF;
+    border-color: rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 0);
+}
+
+#searchBox .unity-base-field__input {
+    top: 2px;
+    font-size: 12px;
+    -unity-text-align: middle-left;
+    color: #FFFFFF;
+    background-image: none;
+    border-color: rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 0);
+}
+
+#windowSelectionVisualContainer {
+    flex-direction: row;
+    flex: 1;
+}
+
+.unity-list-view.focusableScrollView {
+    flex: 1;
+}
+
+.unity-list-view {
+    background-color: #383838;
+    --unity-item-height: 18;
+}
+
+.unity-list-view > * {
+    left: 15px;
+}
+
+.unity-list-view > * #labelsContainer {
+    flex-direction: row;
+    flex: 1;
+    left: 8px;
+    top: -2px;
+}
+
+.unity-list-view > * #labelsContainer > .unity-label {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+    color: #C4C4C4;
+    font-size: 12px;
+}
+
+.unity-list-view > * > .unity-label {
+    flex: 1;
+}
+
+#smartSearchItem > #itemMainVisualContainer > #labelsContainer > .unity-label.Highlighted {
+    color: #FFCD62;
+}
+
+.unity-list-view > * > #smartSearchItem:hover * {
+    background-color: #424242;
+}
+
+.unity-list-view > * > #smartSearchItem.unity-list-view__item--selected * {
+    background-color: #2B5D87;
+}
+
+#smartSearchItem.unity-list-view__item--selected > #itemMainVisualContainer > #labelsContainer > .unity-label {
+    color : #FFFFFF;
+}
+
+#smartSearchItem.unity-list-view__item--selected > #itemMainVisualContainer > #labelsContainer > .unity-label.Highlighted {
+    color: #FFCD00;
+}
+
+.unity-list-view > * #itemChildExpander {
+    width: 18px;
+    height: 18px;
+}
+
+.unity-list-view > * #itemChildExpander > #expanderIcon {
+    width: 13px;
+    height: 13px;
+    top: 1px;
+    left: 10px;
+}
+
+#smartSearchItem > * > #itemChildExpander > #expanderIcon.Collapsed {
+    background-image: resource("Builtin Skins/DarkSkin/Images/IN foldout.png");
+}
+
+#smartSearchItem > * > #itemChildExpander > #expanderIcon.Expanded {
+    background-image: resource("Builtin Skins/DarkSkin/Images/IN foldout on.png");
+}
+
+#smartSearchItem.unity-list-view__item--selected > * > #itemChildExpander > #expanderIcon.Collapsed {
+    background-image: resource("Builtin Skins/DarkSkin/Images/IN foldout act.png");
+}
+
+#smartSearchItem.unity-list-view__item--selected > * > #itemChildExpander > #expanderIcon.Expanded {
+    background-image: resource("Builtin Skins/DarkSkin/Images/IN foldout act on.png");
+}
+
+.unity-list-view > * #itemMainVisualContainer {
+    flex-direction: row;
+    flex: 1;
+}
+
+.unity-list-view > *.unity-list-view__item--selected #textLabel {
+    color: #FFFFFF;
+}
+
+.unity-list-view > * #itemMainVisualContainer {
+    padding-top: 3px;
+    align-items: center;
+}
+
+.unity-list-view > *.Category #textLabel {
+    font-size: 12px;
+    color: #676767;
+}
+
+#windowDetailsVisualContainer {
+    flex: 1;
+    background-color: #383838;
+    border-left-width: 2px;
+    border-color: #272727;
+    padding-left: 6px;
+    padding-right: 4px;
+    padding-top: 4px;
+}
+
+#windowDetailsVisualContainer.hidden {
+    display:none;
+}
+
+#windowDetailsVisualContainer > .unity-label {
+    font-size: 11px;
+    color: #C4C4C4;
+    white-space: normal;
+}

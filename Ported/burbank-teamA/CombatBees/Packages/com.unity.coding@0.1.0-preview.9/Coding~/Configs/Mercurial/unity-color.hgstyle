@@ -1,0 +1,34 @@
+# to use, add this to your hgrc:
+#
+# [ui]
+# style = path/to/this/file.hgstyle
+#
+
+# see http://hgbook.red-bean.com/read/customizing-the-output-of-mercurial.html
+# see http://softwarelivre.org/terceiro/blog/a-visual-cheat-sheet-for-ansi-color-codes
+
+changeset = '\033[0;33m{rev} {node|short} {branches} \033[1;30m@{author|user} ({date|age}, {phase})\033[1;36m{bookmarks} \033[1;37m{tags}\033[0m\n    {desc|firstline|strip}\033[0m\n'
+changeset_quiet = '\033[0;33m{rev} {node|short} {branches} \033[1;30m@{author|user} ({date|age}, {phase})\033[1;36m{bookmarks} \033[1;37m{tags}\033[0m {desc|firstline|strip}\033[0m\n'
+changeset_verbose = '\033[0;33m{rev} {node|short} {branches} \033[1;30m@{author|user} ({date|age}, {phase})\033[1;36m{bookmarks} \033[1;37m{tags}\033[0m\n\t{desc|strip|tabindent}\n\n{file_mods}{file_adds}{file_dels}\033[0m\n'
+
+start_tags = '['
+tag = '{tag},'
+last_tag = '{tag}]'
+start_parents = ':'
+parent = '{rev},'
+last_parent = '{rev}'
+start_bookmarks = '['
+bookmark = '{bookmark},'
+last_bookmark = '{bookmark}]'
+
+start_file_adds = ''
+file_add = ' \033[0;32mA {file_add}\033[0m\n'
+end_file_adds = ''
+
+start_file_dels = ''
+file_del = ' \033[0;31mR {file_del}\033[0m\n'
+end_file_dels = ''
+
+start_file_mods = ''
+file_mod = ' \033[0;36mM {file_mod}\033[0m\n'
+end_file_mods = ''

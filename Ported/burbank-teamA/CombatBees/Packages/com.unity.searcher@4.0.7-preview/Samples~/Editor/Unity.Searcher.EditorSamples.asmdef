@@ -1,0 +1,12 @@
+{
+    "name": "Unity.Searcher.EditorSamples",
+    "references": [
+        "Unity.Searcher.Editor",
+        "Unity.Searcher.ScriptsSamples"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

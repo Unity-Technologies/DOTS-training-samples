@@ -1,0 +1,56 @@
+// This file is generated. Do not modify by hand.
+namespace Unity.Coding.Format
+{
+    public class FormatContext
+    {
+        public Unity.Coding.Utils.NPath BaseDir { get; set; }
+        public Unity.Coding.Utils.ILogger Logger { get; set; }
+        public Unity.Coding.Format.FormatOptions Options { get; set; }
+        public Unity.Coding.Utils.NPath ThisPackageRoot { get; set; }
+        public Unity.Coding.Format.FormatTriggerKind TriggerKind { get; set; }
+        public FormatContext() {}
+        public void LogError(string message);
+    }
+
+    public class FormatItem
+    {
+        public Unity.Coding.Format.FormatContext Context;
+        public EditorConfig.Core.FileConfiguration EditorConfig;
+        public System.Collections.Generic.IEnumerable<Unity.Coding.Format.FormatterType> Formatters;
+        public string IgnoreHeaderPattern;
+        public Unity.Coding.Utils.NPath Path;
+        public System.Nullable<int> TabWidth;
+        public System.Nullable<bool> TrimTrailingNewlines;
+        public FormatItem() {}
+        public virtual string ToString();
+        public static Unity.Coding.Format.FormatItem TryCreate(Unity.Coding.Utils.NPath pathToFormat, Unity.Coding.Format.FormatContext formatContext);
+    }
+
+    [System.Flags] public enum FormatOptions
+    {
+        public const Unity.Coding.Format.FormatOptions DryRun = 1;
+        public int value__;
+    }
+
+    public static class Formatter
+    {
+        public static bool HasEditorConfigInDirectoryTree(System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> paths);
+        public static bool Process(Unity.Coding.Format.FormatItem formatItem);
+        public static void Process(Unity.Coding.Utils.NPath pathToFormat, Unity.Coding.Format.FormatContext formatContext);
+        public static System.Collections.Generic.IDictionary<string, long> Process(System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> pathsToFormat, Unity.Coding.Format.FormatContext formatContext, System.Func<Unity.Coding.Format.FormatItem, bool> cancellableBeforeFormatCallback = default(System.Func<Unity.Coding.Format.FormatItem, bool>));
+    }
+
+    public enum FormatterType
+    {
+        public const Unity.Coding.Format.FormatterType Generic = 0;
+        public const Unity.Coding.Format.FormatterType Uncrustify = 1;
+        public int value__;
+    }
+
+    public enum FormatTriggerKind
+    {
+        public const Unity.Coding.Format.FormatTriggerKind Automatic = 1;
+        public const Unity.Coding.Format.FormatTriggerKind UserInitiated = 0;
+        public int value__;
+    }
+}

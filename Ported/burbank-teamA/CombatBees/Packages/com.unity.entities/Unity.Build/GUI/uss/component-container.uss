@@ -1,0 +1,49 @@
+.component-container
+{
+    padding-bottom: 2px;
+}
+
+.component-container__component
+{
+    margin-left: 0;
+    padding: 5px 5px 5px 21px;
+    border-radius: 5px;
+}
+
+.component-container__component-header
+{
+    height: 18px;
+    font-size: 12px;
+    -unity-font-style:bold;
+}
+
+.component-container__component-fields
+{
+    padding-left: 16px;
+    margin-left: 0;
+}
+
+.component-container__component-header .unity-toggle__checkmark
+{
+    align-self: center;
+}
+
+.component-container__inherited-component .unity-label
+{
+}
+
+.component-container__overridden-component .component-container__component
+{
+    border-left-color: #0cb4cc;
+    border-left-width: 2px;
+    padding-left: 18px;
+}
+
+.component-container__remove-component-button
+{
+    align-self: flex-end;
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    border-width: 0;
+}

@@ -1,0 +1,328 @@
+// This file is generated. Do not modify by hand.
+namespace Unity.Coding.Editor
+{
+    [JetBrains.Annotations.PublicAPI] public static class ProcessUtility
+    {
+        public static int ExecuteCommandLine(string exePath, System.Collections.Generic.IEnumerable<object> processArgs, string workingDirectory, System.Action<string, Unity.Coding.Editor.ProcessUtility.StdStream> onLine, System.Collections.Generic.IEnumerable<string> stdinLines = default(System.Collections.Generic.IEnumerable<string>));
+        public static int ExecuteCommandLine(string exePath, System.Collections.Generic.IEnumerable<object> processArgs, string workingDirectory, System.Collections.Generic.ICollection<string> stdout, System.Collections.Generic.ICollection<string> stderr, System.Collections.Generic.IEnumerable<string> stdin = default(System.Collections.Generic.IEnumerable<string>));
+        public enum StdStream
+        {
+            public const Unity.Coding.Editor.ProcessUtility.StdStream Stderr = 1;
+            public const Unity.Coding.Editor.ProcessUtility.StdStream Stdout = 0;
+            public int value__;
+        }
+    }
+}
+
+namespace Unity.Coding.Utils
+{
+    [System.Runtime.CompilerServices.Extension] public static class ByteArrayExtensions
+    {
+        [System.Runtime.CompilerServices.Extension] public static string ToHexString([JetBrains.Annotations.NotNull] byte[] this);
+    }
+
+    [System.Runtime.CompilerServices.Extension] public static class ComparableExtensions
+    {
+        [System.Runtime.CompilerServices.Extension] public static T Clamp<T>([JetBrains.Annotations.NotNull] T this, T min, T max) where T : System.IComparable<T>;
+    }
+
+    public class DefaultLogger : Unity.Coding.Utils.ILogger
+    {
+        public static Unity.Coding.Utils.ILogger Instance { get; }
+        public DefaultLogger() {}
+    }
+
+    public class DelegateDisposable : System.IDisposable
+    {
+        public DelegateDisposable([JetBrains.Annotations.NotNull] System.Action disposeAction) {}
+        public virtual void Dispose();
+    }
+
+    public class DelegateLogger : Unity.Coding.Utils.ILogger
+    {
+        public System.Action<string> DebugHandler { get; set; }
+        public System.Action<string> ErrorHandler { get; set; }
+        public System.Action<string> InfoHandler { get; set; }
+        public DelegateLogger() {}
+        public DelegateLogger(Unity.Coding.Utils.ILogger target) {}
+    }
+
+    public enum DeleteMode
+    {
+        public const Unity.Coding.Utils.DeleteMode Normal = 0;
+        public const Unity.Coding.Utils.DeleteMode Soft = 1;
+        public int value__;
+    }
+
+    public static class Dictionary
+    {
+        [JetBrains.Annotations.NotNull] public static System.Collections.Generic.Dictionary<TKey, TValue> Create<TKey, TValue>([System.Runtime.CompilerServices.TupleElementNames(Mono.Cecil.CustomAttributeArgument[])] params System.ValueTuple<TKey, TValue>[] items);
+    }
+
+    [System.Runtime.CompilerServices.Extension] public static class DictionaryExtensions
+    {
+        [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IDictionary<TKey, TValue> AddRangeOverride<TKey, TValue>([JetBrains.Annotations.NotNull] System.Collections.Generic.IDictionary<TKey, TValue> this, [JetBrains.Annotations.NotNull] System.Collections.Generic.IDictionary<TKey, TValue> other);
+        [System.Runtime.CompilerServices.Extension] public static TValue GetOrAdd<TKey, TValue>([JetBrains.Annotations.NotNull] System.Collections.Generic.IDictionary<TKey, TValue> this, TKey key, [JetBrains.Annotations.NotNull] System.Func<TKey, TValue> createFunc);
+        [System.Runtime.CompilerServices.Extension] public static TValue GetValueOr<TKey, TValue>([JetBrains.Annotations.NotNull] System.Collections.Generic.IDictionary<TKey, TValue> this, TKey key, TValue defaultValue = default(TValue));
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IReadOnlyDictionary<TKey, TValue> OrEmpty<TKey, TValue>([JetBrains.Annotations.CanBeNull] System.Collections.Generic.IReadOnlyDictionary<TKey, TValue> this);
+    }
+
+    public static class DiffUtils
+    {
+        public static bool IsDiff(string candidate);
+    }
+
+    [System.Runtime.CompilerServices.Extension] public static class EnumerableExtensions
+    {
+        [System.Runtime.CompilerServices.Extension] public static bool IsNullOrEmpty<T>([JetBrains.Annotations.CanBeNull] System.Collections.Generic.IEnumerable<T> this);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IEnumerable<T> OrEmpty<T>([JetBrains.Annotations.CanBeNull] System.Collections.Generic.IEnumerable<T> this);
+        [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IEnumerable<T> SelectMany<T>([JetBrains.Annotations.NotNull] System.Collections.Generic.IEnumerable<System.Collections.Generic.IEnumerable<T>> this);
+        [System.Runtime.CompilerServices.Extension] public static T SingleOr<T>([JetBrains.Annotations.NotNull] System.Collections.Generic.IEnumerable<T> this, System.Func<T> defaultValueGenerator);
+        [System.Runtime.CompilerServices.Extension] public static T SingleOr<T>([JetBrains.Annotations.NotNull] System.Collections.Generic.IEnumerable<T> this, T defaultValue);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.Dictionary<TKey, TValue> ToDictionary<TKey, TValue>([JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.TupleElementNames(Mono.Cecil.CustomAttributeArgument[])] System.Collections.Generic.IEnumerable<System.ValueTuple<TKey, TValue>> this);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.HashSet<T> ToHashSet<T>([JetBrains.Annotations.NotNull] System.Collections.Generic.IEnumerable<T> this);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.HashSet<T> ToHashSet<T>([JetBrains.Annotations.NotNull] System.Collections.Generic.IEnumerable<T> this, System.Collections.Generic.IEqualityComparer<T> comparer);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.ICollection<T> UnDefer<T>([JetBrains.Annotations.NotNull] System.Collections.Generic.IEnumerable<T> this);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IEnumerable<T> WhereNotNull<T>([JetBrains.Annotations.NotNull] System.Collections.Generic.IEnumerable<T> this) where T : class;
+    }
+
+    [JetBrains.Annotations.PublicAPI] public static class EnumUtility
+    {
+        public static System.Collections.Generic.IReadOnlyList<string> GetLowercaseNames<T>() where T : System.IComparable, System.IConvertible, System.IFormattable, System.ValueType, new();
+        public static System.Collections.Generic.IReadOnlyList<string> GetNames<T>() where T : System.IComparable, System.IConvertible, System.IFormattable, System.ValueType, new();
+        public static System.Collections.Generic.IReadOnlyList<T> GetValues<T>() where T : System.IComparable, System.IConvertible, System.IFormattable, System.ValueType, new();
+        public static T TryParse<T>(string enumName, T defaultValue = default(T)) where T : System.IComparable, System.IConvertible, System.IFormattable, System.ValueType, new();
+        public static T TryParseNoCase<T>(string enumName, T defaultValue = default(T)) where T : System.IComparable, System.IConvertible, System.IFormattable, System.ValueType, new();
+        public static System.Nullable<T> TryParseNoCaseOr<T>(string enumName) where T : System.IComparable, System.IConvertible, System.IFormattable, System.ValueType, new();
+        public static System.Nullable<T> TryParseOr<T>(string enumName) where T : System.IComparable, System.IConvertible, System.IFormattable, System.ValueType, new();
+    }
+
+    [System.Runtime.CompilerServices.Extension] public static class Extensions
+    {
+        [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> Copy(System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> self, string dest);
+        [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> Copy(System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> self, Unity.Coding.Utils.NPath dest);
+        [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> Delete(System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> self);
+        [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IEnumerable<string> InQuotes(System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> self, Unity.Coding.Utils.SlashMode forward = 0);
+        [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> Move(System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> self, string dest);
+        [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> Move(System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> self, Unity.Coding.Utils.NPath dest);
+        [System.Runtime.CompilerServices.Extension] public static Unity.Coding.Utils.NPath ToNPath(string path);
+    }
+
+    public static class FastEditorConfigParser
+    {
+        public static string ParseForSingleValue(Unity.Coding.Utils.NPath path, string key);
+    }
+
+    public interface ILogger
+    {
+        public abstract void Debug(string message);
+        public abstract void Error(string message);
+        public abstract void Info(string message);
+    }
+
+    [System.Runtime.CompilerServices.Extension] public static class LegacyExtensions
+    {
+        [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IEnumerable<System.Text.RegularExpressions.Match> FixLegacy([JetBrains.Annotations.NotNull] System.Text.RegularExpressions.MatchCollection this);
+    }
+
+    [System.Runtime.CompilerServices.Extension] public static class ListExtensions
+    {
+        [System.Runtime.CompilerServices.Extension] public static void DropBack<T>([JetBrains.Annotations.NotNull] System.Collections.Generic.IList<T> this);
+        [System.Runtime.CompilerServices.Extension] public static T PopBack<T>([JetBrains.Annotations.NotNull] System.Collections.Generic.IList<T> this);
+        [System.Runtime.CompilerServices.Extension] public static void SetRange<T>([JetBrains.Annotations.NotNull] System.Collections.Generic.List<T> this, System.Collections.Generic.IEnumerable<T> collection);
+    }
+
+    public static class NativeUnix
+    {
+        public static int GetFileMode([JetBrains.Annotations.NotNull] string filePath, out Unity.Coding.Utils.NativeUnix.UnixFilePermissions permission);
+        public static int SetFileMode([JetBrains.Annotations.NotNull] string pathname, Unity.Coding.Utils.NativeUnix.UnixFilePermissions mode);
+        [System.Flags] public enum UnixFilePermissions
+        {
+            public const Unity.Coding.Utils.NativeUnix.UnixFilePermissions All = 511;
+            public const Unity.Coding.Utils.NativeUnix.UnixFilePermissions None = 0;
+            public const Unity.Coding.Utils.NativeUnix.UnixFilePermissions S_IRGRP = 32;
+            public const Unity.Coding.Utils.NativeUnix.UnixFilePermissions S_IROTH = 4;
+            public const Unity.Coding.Utils.NativeUnix.UnixFilePermissions S_IRUSR = 256;
+            public const Unity.Coding.Utils.NativeUnix.UnixFilePermissions S_IWGRP = 16;
+            public const Unity.Coding.Utils.NativeUnix.UnixFilePermissions S_IWOTH = 2;
+            public const Unity.Coding.Utils.NativeUnix.UnixFilePermissions S_IWUSR = 128;
+            public const Unity.Coding.Utils.NativeUnix.UnixFilePermissions S_IXGRP = 8;
+            public const Unity.Coding.Utils.NativeUnix.UnixFilePermissions S_IXOTH = 1;
+            public const Unity.Coding.Utils.NativeUnix.UnixFilePermissions S_IXUSR = 64;
+            public int value__;
+        }
+    }
+
+    public class NPath : System.IComparable, System.IEquatable<Unity.Coding.Utils.NPath>
+    {
+        public static Unity.Coding.Utils.NPath CurrentDirectory { get; }
+        public int Depth { get; }
+        public System.Collections.Generic.IEnumerable<string> Elements { get; }
+        public string ExtensionWithDot { get; }
+        public string ExtensionWithoutDot { get; }
+        public string FileName { get; }
+        public string FileNameWithoutExtension { get; }
+        public static Unity.Coding.Utils.NPath HomeDirectory { get; }
+        public bool IsRelative { get; }
+        public bool IsRoot { get; }
+        public Unity.Coding.Utils.NPath Parent { get; }
+        public System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> RecursiveParents { get; }
+        public static Unity.Coding.Utils.NPath SystemTemp { get; }
+        public NPath(string path) {}
+        public Unity.Coding.Utils.NPath ChangeExtension(string extension);
+        public Unity.Coding.Utils.NPath Combine(params string[] append);
+        public Unity.Coding.Utils.NPath Combine(params Unity.Coding.Utils.NPath[] append);
+        public virtual int CompareTo(object obj);
+        public System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> Contents(bool recurse = False);
+        public System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> Contents(string filter, bool recurse = False);
+        public Unity.Coding.Utils.NPath Copy(string dest);
+        public Unity.Coding.Utils.NPath Copy(Unity.Coding.Utils.NPath dest);
+        public Unity.Coding.Utils.NPath Copy(string dest, System.Func<Unity.Coding.Utils.NPath, bool> fileFilter);
+        public Unity.Coding.Utils.NPath Copy(Unity.Coding.Utils.NPath dest, System.Func<Unity.Coding.Utils.NPath, bool> fileFilter);
+        public System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> CopyFiles(Unity.Coding.Utils.NPath destination, bool recurse, System.Func<Unity.Coding.Utils.NPath, bool> fileFilter = default(System.Func<Unity.Coding.Utils.NPath, bool>));
+        public Unity.Coding.Utils.NPath CreateDirectory();
+        public Unity.Coding.Utils.NPath CreateDirectory(string directory);
+        public Unity.Coding.Utils.NPath CreateDirectory(Unity.Coding.Utils.NPath directory);
+        public Unity.Coding.Utils.NPath CreateFile();
+        public Unity.Coding.Utils.NPath CreateFile(string file);
+        public Unity.Coding.Utils.NPath CreateFile(Unity.Coding.Utils.NPath file);
+        public static Unity.Coding.Utils.NPath CreateTempDirectory(string myprefix);
+        public void Delete(Unity.Coding.Utils.DeleteMode deleteMode = 0);
+        public Unity.Coding.Utils.NPath DeleteContents();
+        public void DeleteIfExists(Unity.Coding.Utils.DeleteMode deleteMode = 0);
+        public System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> Directories(bool recurse = False);
+        public System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> Directories(string filter, bool recurse = False);
+        public bool DirectoryExists(string append = );
+        public bool DirectoryExists(Unity.Coding.Utils.NPath append);
+        public Unity.Coding.Utils.NPath DirectoryMustExist();
+        public Unity.Coding.Utils.NPath EnsureDirectoryExists(string append = );
+        public Unity.Coding.Utils.NPath EnsureDirectoryExists(Unity.Coding.Utils.NPath append);
+        public Unity.Coding.Utils.NPath EnsureParentDirectoryExists();
+        public virtual bool Equals(object obj);
+        public virtual bool Equals(Unity.Coding.Utils.NPath p);
+        public bool Exists(string append = );
+        public bool Exists(Unity.Coding.Utils.NPath append);
+        public bool FileExists(string append = );
+        public bool FileExists(Unity.Coding.Utils.NPath append);
+        public Unity.Coding.Utils.NPath FileMustExist();
+        public System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> Files(bool recurse = False);
+        public System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> Files(string filter, bool recurse = False);
+        public virtual int GetHashCode();
+        public bool HasExtension(params string[] extensions);
+        public string InQuotes();
+        public string InQuotes(Unity.Coding.Utils.SlashMode slashMode);
+        public bool IsChildOf(string potentialBasePath);
+        public bool IsChildOf(Unity.Coding.Utils.NPath potentialBasePath);
+        public Unity.Coding.Utils.NPath MakeAbsolute();
+        public Unity.Coding.Utils.NPath Move(string dest);
+        public Unity.Coding.Utils.NPath Move(Unity.Coding.Utils.NPath dest);
+        public System.Collections.Generic.IEnumerable<Unity.Coding.Utils.NPath> MoveFiles(Unity.Coding.Utils.NPath destination, bool recurse, System.Func<Unity.Coding.Utils.NPath, bool> fileFilter = default(System.Func<Unity.Coding.Utils.NPath, bool>));
+        public static bool operator ==(Unity.Coding.Utils.NPath a, Unity.Coding.Utils.NPath b);
+        public static string op_Implicit(Unity.Coding.Utils.NPath path);
+        public static bool operator !=(Unity.Coding.Utils.NPath a, Unity.Coding.Utils.NPath b);
+        public Unity.Coding.Utils.NPath ParentContaining(string needle, bool returnAppended = False);
+        public Unity.Coding.Utils.NPath ParentContaining(Unity.Coding.Utils.NPath needle, bool returnAppended = False);
+        public string[] ReadAllLines();
+        public string ReadAllText();
+        public Unity.Coding.Utils.NPath RelativeTo(Unity.Coding.Utils.NPath path);
+        public void ThrowIfRelative();
+        public void ThrowIfRoot();
+        public virtual string ToString();
+        public string ToString(Unity.Coding.Utils.SlashMode slashMode);
+        public Unity.Coding.Utils.NPath WriteAllLines(params string[] contents);
+        public Unity.Coding.Utils.NPath WriteAllText(string contents);
+    }
+
+    [System.Runtime.CompilerServices.Extension] public static class ObjectExtensions
+    {
+        [System.Runtime.CompilerServices.Extension] public static T As<T>(object this) where T : class;
+        [System.Runtime.CompilerServices.Extension] public static bool Is<T>(object this) where T : class;
+        [System.Runtime.CompilerServices.Extension] public static bool IsNot<T>(object this) where T : class;
+        [System.Runtime.CompilerServices.Extension] public static T To<T>(object this) where T : class;
+        [System.Runtime.CompilerServices.Extension] public static T ToBase<T>(T this);
+    }
+
+    public class ReadOnlyDictionary
+    {
+        public ReadOnlyDictionary() {}
+        public static System.Collections.Generic.IReadOnlyDictionary<TKey, TValue> Empty<TKey, TValue>();
+    }
+
+    [System.Runtime.CompilerServices.Extension] public static class RefTypeExtensions
+    {
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] [System.Runtime.CompilerServices.IteratorStateMachine(typeof(Unity.Coding.Utils.RefTypeExtensions.<WrapInEnumerable>d__0<>))] public static System.Collections.Generic.IEnumerable<T> WrapInEnumerable<T>(T this);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IEnumerable<T> WrapInEnumerableOrEmpty<T>([JetBrains.Annotations.CanBeNull] T this) where T : class;
+    }
+
+    public static class SafeFile
+    {
+        public const string BakExtension = .bak~;
+        public const string TmpExtension = .tmp~;
+        public static void AtomicWrite(string path, System.Action<string> write);
+        public static void ForceDeleteFile(string path);
+        public static void SetReadOnly(string path, bool set = True);
+    }
+
+    public enum SlashMode
+    {
+        public const Unity.Coding.Utils.SlashMode Backward = 2;
+        public const Unity.Coding.Utils.SlashMode Forward = 1;
+        public const Unity.Coding.Utils.SlashMode Native = 0;
+        public int value__;
+    }
+
+    public static class StaticUtility
+    {
+        public static T[] Array<T>(params T[] items);
+    }
+
+    public static class Stdin
+    {
+        [System.Runtime.CompilerServices.IteratorStateMachine(typeof(Unity.Coding.Utils.Stdin.<SelectLines>d__0))] public static System.Collections.Generic.IEnumerable<string> SelectLines();
+    }
+
+    [System.Runtime.CompilerServices.Extension] public static class StringCollectionExtensions
+    {
+        [System.Runtime.CompilerServices.Extension] public static void AddRange([JetBrains.Annotations.NotNull] System.Collections.Specialized.StringCollection this, System.Collections.Generic.IEnumerable<string> collection);
+    }
+
+    [System.Runtime.CompilerServices.Extension] public static class StringExtensions
+    {
+        [System.Runtime.CompilerServices.Extension] public static bool Any([JetBrains.Annotations.NotNull] string this);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static string ExpandTabs([JetBrains.Annotations.NotNull] string this, int tabWidth, System.Text.StringBuilder buffer = default(System.Text.StringBuilder));
+        [System.Runtime.CompilerServices.Extension] public static bool IsEmpty([JetBrains.Annotations.NotNull] string this);
+        [JetBrains.Annotations.ContractAnnotation(@"null=>true", true)] [JetBrains.Annotations.Pure] [System.Runtime.CompilerServices.Extension] public static bool IsNullOrEmpty([JetBrains.Annotations.CanBeNull] string this);
+        [JetBrains.Annotations.ContractAnnotation(@"null=>true", true)] [JetBrains.Annotations.Pure] [System.Runtime.CompilerServices.Extension] public static bool IsNullOrWhiteSpace([JetBrains.Annotations.CanBeNull] string this);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static string Left([JetBrains.Annotations.NotNull] string this, int maxChars);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static string Mid([JetBrains.Annotations.NotNull] string this, int offset, int maxChars = -1);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static string Right([JetBrains.Annotations.NotNull] string this, int maxChars);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static string StringJoin([JetBrains.Annotations.NotNull] System.Collections.IEnumerable this, char separator);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static string StringJoin([JetBrains.Annotations.NotNull] System.Collections.IEnumerable this, [JetBrains.Annotations.NotNull] string separator);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static string StringJoin<T, TSelected>([JetBrains.Annotations.NotNull] System.Collections.Generic.IEnumerable<T> this, [JetBrains.Annotations.NotNull] System.Func<T, TSelected> selector, char separator);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static string StringJoin<T, TSelected>([JetBrains.Annotations.NotNull] System.Collections.Generic.IEnumerable<T> this, [JetBrains.Annotations.NotNull] System.Func<T, TSelected> selector, [JetBrains.Annotations.NotNull] string separator);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IEnumerable<string> ToLower([JetBrains.Annotations.NotNull] System.Collections.Generic.IEnumerable<string> this);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static System.Collections.Generic.IEnumerable<string> ToUpper([JetBrains.Annotations.NotNull] System.Collections.Generic.IEnumerable<string> this);
+        [JetBrains.Annotations.NotNull] [System.Runtime.CompilerServices.Extension] public static string Truncate([JetBrains.Annotations.NotNull] string this, int maxChars, string trailer = ...);
+    }
+
+    public class StringLogger : Unity.Coding.Utils.ILogger
+    {
+        public System.Collections.Generic.IReadOnlyCollection<string> Debugs { get; }
+        public string DebugsAsString { get; }
+        public System.Collections.Generic.IReadOnlyCollection<string> Errors { get; }
+        public string ErrorsAsString { get; }
+        public System.Collections.Generic.IReadOnlyCollection<string> Infos { get; }
+        public string InfosAsString { get; }
+        public StringLogger() {}
+    }
+
+    public static class StringUtility
+    {
+        [JetBrains.Annotations.NotNull] public static string DetectEolType([JetBrains.Annotations.NotNull] string text, int stopAfterWindow = 50);
+    }
+
+    [System.Runtime.CompilerServices.Extension] public static class TypeExtensions
+    {
+        [System.Runtime.CompilerServices.Extension] public static object GetDefaultValue([JetBrains.Annotations.NotNull] System.Type this);
+    }
+}

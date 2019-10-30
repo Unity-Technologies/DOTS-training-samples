@@ -1,0 +1,34 @@
+using Unity.Entities.CodeGen.Tests.PropertyBags.Types;
+
+namespace Unity.Properties.CodeGeneratedPropertyBagRegistry
+{
+	public class Unity_Entities_CodeGen_Tests_PropertyBags_Types_ValueTypeSharedComponentDataPropertyBag : PropertyBag<ValueTypeSharedComponentData>
+	{
+		public static readonly Property<ValueTypeSharedComponentData, int> IntField = new Property<ValueTypeSharedComponentData, int>("IntField", Unity_Entities_CodeGen_Tests_PropertyBags_Types_ValueTypeSharedComponentDataPropertyBag.IntFieldGetter, Unity_Entities_CodeGen_Tests_PropertyBags_Types_ValueTypeSharedComponentDataPropertyBag.IntFieldSetter);
+
+		public static int IntFieldGetter(ref ValueTypeSharedComponentData container)
+		{
+			return container.IntField;
+		}
+
+		public static void IntFieldSetter(ref ValueTypeSharedComponentData container, int val)
+		{
+			container.IntField = val;
+		}
+
+		public override void Accept<TVisitor>(ref ValueTypeSharedComponentData container, ref TVisitor visitor, ref ChangeTracker changeTracker)
+		{
+			visitor.VisitProperty<Property<ValueTypeSharedComponentData, int>, ValueTypeSharedComponentData, int>(IntField, ref container, ref changeTracker);
+		}
+
+		public override bool FindProperty<TAction>(string name, ref ValueTypeSharedComponentData container, ref ChangeTracker changeTracker, ref TAction action)
+		{
+			if (string.Equals(name, "IntField"))
+			{
+				action.VisitProperty<Property<ValueTypeSharedComponentData, int>, int>(IntField, ref container, ref changeTracker);
+				return true;
+			}
+			return false;
+		}
+	}
+}

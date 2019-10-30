@@ -1,0 +1,22 @@
+{
+    "name": "Unity.Jobs.Tests",
+    "references": [
+        "Unity.Jobs",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.ZeroJobs"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}

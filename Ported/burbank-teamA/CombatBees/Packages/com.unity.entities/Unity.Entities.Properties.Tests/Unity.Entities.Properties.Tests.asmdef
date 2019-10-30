@@ -1,0 +1,25 @@
+{
+    "name": "Unity.Entities.Properties.Tests",
+    "references": [
+        "Unity.Entities",
+        "Unity.Mathematics",
+        "Unity.Properties",
+        "Unity.Jobs",
+        "Unity.Entities.Properties",
+        "Unity.Properties.Reflection",
+        "Unity.Entities.Tests"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}

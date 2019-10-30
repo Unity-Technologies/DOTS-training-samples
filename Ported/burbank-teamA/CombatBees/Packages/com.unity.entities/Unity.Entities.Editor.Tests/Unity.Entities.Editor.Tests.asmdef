@@ -1,0 +1,19 @@
+{
+    "name": "Unity.Entities.Editor.Tests",
+    "references": [
+        "Unity.Build",
+        "Unity.Build.Common",
+        "Unity.Collections",
+        "Unity.Entities",
+        "Unity.Entities.Editor",
+        "Unity.Entities.Tests"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true
+}

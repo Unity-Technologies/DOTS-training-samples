@@ -1,0 +1,41 @@
+﻿.unity-properties-null
+{
+  flex-direction: row;
+  margin-left: 3px;
+  margin-right: 3px;
+  margin-top: 1px;
+  margin-bottom: 1px;
+  font-size: 11px;
+  
+}
+
+.unity-properties-null--label
+{
+  min-width: 135px;
+  flex-basis: auto;
+  flex-grow: 0;
+  flex-shrink: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 1px;
+  padding-top: 2px;
+  padding-right: 2px;
+  padding-bottom: 3px;
+}
+
+.unity-properties-null--button
+{
+  flex-basis :0;
+  flex-shrink: 0;
+  flex-grow: 1;
+  margin-top: 0;
+  margin-right: 0;
+  margin-bottom: 0;
+  max-width: 135px;
+  font-size: 11px;
+}
+
+.unity-properties-null--value
+{
+  
+}

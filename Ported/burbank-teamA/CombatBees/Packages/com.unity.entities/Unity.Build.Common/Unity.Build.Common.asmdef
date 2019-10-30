@@ -1,0 +1,15 @@
+{
+    "name": "Unity.Build.Common",
+    "references": [
+        "Unity.Build",
+        "Unity.Platforms",
+        "Unity.Properties",
+        "Unity.Properties.Editor"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

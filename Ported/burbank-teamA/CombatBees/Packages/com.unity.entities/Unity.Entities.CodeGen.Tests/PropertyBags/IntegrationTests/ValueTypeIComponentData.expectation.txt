@@ -1,0 +1,34 @@
+using Unity.Entities.CodeGen.Tests.PropertyBags.Types;
+
+namespace Unity.Properties.CodeGeneratedPropertyBagRegistry
+{
+	public class Unity_Entities_CodeGen_Tests_PropertyBags_Types_ValueTypeIComponentDataPropertyBag : PropertyBag<ValueTypeIComponentData>
+	{
+		public static readonly Property<ValueTypeIComponentData, int> IntField = new Property<ValueTypeIComponentData, int>("IntField", Unity_Entities_CodeGen_Tests_PropertyBags_Types_ValueTypeIComponentDataPropertyBag.IntFieldGetter, Unity_Entities_CodeGen_Tests_PropertyBags_Types_ValueTypeIComponentDataPropertyBag.IntFieldSetter);
+
+		public static int IntFieldGetter(ref ValueTypeIComponentData container)
+		{
+			return container.IntField;
+		}
+
+		public static void IntFieldSetter(ref ValueTypeIComponentData container, int val)
+		{
+			container.IntField = val;
+		}
+
+		public override void Accept<TVisitor>(ref ValueTypeIComponentData container, ref TVisitor visitor, ref ChangeTracker changeTracker)
+		{
+			visitor.VisitProperty<Property<ValueTypeIComponentData, int>, ValueTypeIComponentData, int>(IntField, ref container, ref changeTracker);
+		}
+
+		public override bool FindProperty<TAction>(string name, ref ValueTypeIComponentData container, ref ChangeTracker changeTracker, ref TAction action)
+		{
+			if (string.Equals(name, "IntField"))
+			{
+				action.VisitProperty<Property<ValueTypeIComponentData, int>, int>(IntField, ref container, ref changeTracker);
+				return true;
+			}
+			return false;
+		}
+	}
+}

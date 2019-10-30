@@ -1,0 +1,13 @@
+{
+    "name": "Unity.Platforms.EditorTests",
+    "references": [
+        "Unity.Platforms"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}

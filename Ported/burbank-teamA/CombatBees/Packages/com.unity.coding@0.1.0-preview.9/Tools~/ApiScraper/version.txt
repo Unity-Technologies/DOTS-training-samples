@@ -1,0 +1,4 @@
+Repository: git@github.cds.internal.unity3d.com:unity/api-scraper.git
+Branch: * (HEAD detached at c2cdd6a)
+  master
+Commit: c2cdd6a39a3f20d3f2be3d2b710c0a3737f0ebef

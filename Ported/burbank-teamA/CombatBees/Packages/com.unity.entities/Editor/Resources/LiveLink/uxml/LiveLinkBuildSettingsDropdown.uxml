@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="UnityEngine.UIElements"
+      xmlns:controls="Unity.Entities.Editor">
+
+    <VisualElement class="live-link-build-settings-dropdown">
+        <Label class="live-link-build-settings-dropdown__title" text="Live Link build settings" />
+        <controls:RadioButtonGroup />
+    </VisualElement>
+</UXML>

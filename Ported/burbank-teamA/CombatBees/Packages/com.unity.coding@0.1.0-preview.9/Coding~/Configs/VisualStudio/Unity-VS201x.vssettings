@@ -1,0 +1,171 @@
+<UserSettings>
+    <ApplicationIdentity version="10.0"/>
+    <ToolsOptions>
+        <ToolsOptionsCategory name="TextEditor" RegisteredName="TextEditor">
+
+            <ToolsOptionsSubCategory name="CSharp" RegisteredName="CSharp" PackageName="Text Management Package">
+
+                <!-- unity's old standard was InsertTabs=true for c#. with the new standard of false, .editorconfig will automatically make sure the settings
+                     are right but we also want to force vstudio back to false for all non-unity projects. that way it's the same as the factory defaults and
+                     general community convention, for when working in a project without a .editorconfig. -->
+                <PropertyValue name="IndentSize">4</PropertyValue>
+                <PropertyValue name="InsertTabs">false</PropertyValue>
+                <PropertyValue name="TabSize">4</PropertyValue>
+            </ToolsOptionsSubCategory>
+
+            <ToolsOptionsSubCategory name="CSharp-Specific" RegisteredName="CSharp-Specific" PackageName="Visual C# Language Service Package">
+
+                <!-- C#/Advanced -->
+
+                <PropertyValue name="RemoveUnusedUsings">1</PropertyValue>
+                <PropertyValue name="SortUsings">1</PropertyValue>
+                <PropertyValue name="SortUsings_PlaceSystemFirst">1</PropertyValue>
+                <PropertyValue name="Squiggles">1</PropertyValue>
+                <PropertyValue name="Squiggles_SemanticAnalysis">1</PropertyValue>
+                <PropertyValue name="WarnWhenMembersCauseCompilerGeneratedReferences">1</PropertyValue>
+
+                <!-- C#/Formatting/General -->
+
+                <!-- VS easily breaks carefully aligned columns, so disable a couple things -->
+                <PropertyValue name="Formatting_TriggerOnBlockCompletion">0</PropertyValue>     <!-- closing a brace can affect offscreen code -->
+                <PropertyValue name="Formatting_TriggerOnPaste">0</PropertyValue>               <!-- format on a large paste can affect newly offscreen code -->
+                <PropertyValue name="ImplementInterface_InsertRegionTags">0</PropertyValue>     <!-- regions not allowed in our standard, so never insert -->
+
+                <!-- C#/Formatting/Indentation -->
+
+                <PropertyValue name="Indent_BlockContents">1</PropertyValue>
+                <PropertyValue name="Indent_Braces">0</PropertyValue>
+                <PropertyValue name="Indent_CaseContents">1</PropertyValue>
+                <PropertyValue name="Indent_CaseLabels">1</PropertyValue>
+                <PropertyValue name="Indent_FlushLabelsLeft">0</PropertyValue>
+                <PropertyValue name="Indent_UnindentLabels">1</PropertyValue>
+
+                <!-- C#/Formatting/New Lines -->
+
+                <PropertyValue name="NewLines_AnonymousTypeInitializer_EachMember">0</PropertyValue>
+                <PropertyValue name="NewLines_Braces_AnonymousMethod">1</PropertyValue>
+                <PropertyValue name="NewLines_Braces_AnonymousTypeInitializer">1</PropertyValue>
+                <PropertyValue name="NewLines_Braces_ArrayInitializer">0</PropertyValue>
+                <PropertyValue name="NewLines_Braces_CollectionInitializer">0</PropertyValue>
+                <PropertyValue name="NewLines_Braces_ControlFlow">1</PropertyValue>
+                <PropertyValue name="NewLines_Braces_LambdaExpressionBody">1</PropertyValue>
+                <PropertyValue name="NewLines_Braces_Method">1</PropertyValue>
+                <PropertyValue name="NewLines_Braces_ObjectInitializer">1</PropertyValue>
+                <PropertyValue name="NewLines_Braces_Type">1</PropertyValue>
+                <PropertyValue name="NewLines_Keywords_Catch">1</PropertyValue>
+                <PropertyValue name="NewLines_Keywords_Else">1</PropertyValue>
+                <PropertyValue name="NewLines_Keywords_Finally">1</PropertyValue>
+                <PropertyValue name="NewLines_ObjectInitializer_EachMember">0</PropertyValue>
+                <PropertyValue name="NewLines_QueryExpression_EachClause">1</PropertyValue>
+
+                <!-- C#/Formatting/Spacing -->
+
+                <PropertyValue name="Space_AfterBasesColon">1</PropertyValue>
+                <PropertyValue name="Space_AfterCast">0</PropertyValue>
+                <PropertyValue name="Space_AfterComma">1</PropertyValue>
+                <PropertyValue name="Space_AfterDot">0</PropertyValue>
+                <PropertyValue name="Space_AfterLambdaArrow">1</PropertyValue>
+                <PropertyValue name="Space_AfterMethodCallName">0</PropertyValue>
+                <PropertyValue name="Space_AfterMethodDeclarationName">0</PropertyValue>
+                <PropertyValue name="Space_AfterSemicolonsInForStatement">1</PropertyValue>
+                <PropertyValue name="Space_AroundBinaryOperator">1</PropertyValue>
+                <PropertyValue name="Space_BeforeBasesColon">1</PropertyValue>
+                <PropertyValue name="Space_BeforeComma">0</PropertyValue>
+                <PropertyValue name="Space_BeforeDot">0</PropertyValue>
+                <PropertyValue name="Space_BeforeLambdaArrow">1</PropertyValue>
+                <PropertyValue name="Space_BeforeOpenSquare">0</PropertyValue>
+                <PropertyValue name="Space_BeforeSemicolonsInForStatement">0</PropertyValue>
+                <PropertyValue name="Space_BetweenEmptyMethodCallParentheses">0</PropertyValue>
+                <PropertyValue name="Space_BetweenEmptyMethodDeclarationParentheses">0</PropertyValue>
+                <PropertyValue name="Space_BetweenEmptySquares">0</PropertyValue>
+                <PropertyValue name="Space_InControlFlowConstruct">1</PropertyValue>
+                <PropertyValue name="Space_Normalize">0</PropertyValue>
+                <PropertyValue name="Space_WithinCastParentheses">0</PropertyValue>
+                <PropertyValue name="Space_WithinExpressionParentheses">0</PropertyValue>
+                <PropertyValue name="Space_WithinMethodCallParentheses">0</PropertyValue>
+                <PropertyValue name="Space_WithinMethodDeclarationParentheses">0</PropertyValue>
+                <PropertyValue name="Space_WithinOtherParentheses">0</PropertyValue>
+                <PropertyValue name="Space_WithinSquares">0</PropertyValue>
+
+                <!-- C#/Formatting/Wrapping -->
+
+                <PropertyValue name="Wrapping_IgnoreSpacesAroundBinaryOperators">0</PropertyValue>
+                <PropertyValue name="Wrapping_IgnoreSpacesAroundVariableDeclaration">1</PropertyValue>
+                <PropertyValue name="Wrapping_KeepStatementsOnSingleLine">0</PropertyValue>
+                <PropertyValue name="Wrapping_PreserveSingleLine">1</PropertyValue>
+            </ToolsOptionsSubCategory>
+
+            <ToolsOptionsSubCategory PackageName="Text Management Package" RegisteredName="C/C++" name="C/C++">
+
+                <!-- note that we aren't setting tabs/spaces explicitly. tabs are more common in the c++ world, so best to leave it as a default, and rely on
+                     .editorconfig to configure VS to edit unity c++ files correctly. -->
+                <PropertyValue name="IndentSize">4</PropertyValue>
+                <PropertyValue name="TabSize">4</PropertyValue>
+            </ToolsOptionsSubCategory>
+
+            <ToolsOptionsSubCategory PackageName="Visual C++ Language Manager Package" RegisteredName="C/C++ Specific" name="C/C++ Specific">
+
+                <!-- VS easily breaks carefully aligned columns, so disable a couple things -->
+                <PropertyValue name="AutoFormatOnClosingBrace">false</PropertyValue>    <!-- closing a brace can affect offscreen code -->
+                <PropertyValue name="AutoFormatOnPaste">false</PropertyValue>           <!-- format on a large paste can affect newly offscreen code -->
+
+                <PropertyValue name="AddSemicolonForClassTypes">true</PropertyValue>
+                <PropertyValue name="AlignParameters">false</PropertyValue>
+                <PropertyValue name="EnumerateCommentTasks">true</PropertyValue>
+                <PropertyValue name="GroupBrackets">true</PropertyValue>
+                <PropertyValue name="IndentAccessSpecifiers">false</PropertyValue>
+                <PropertyValue name="IndentBlockContents">true</PropertyValue>
+                <PropertyValue name="IndentBraces">false</PropertyValue>
+                <PropertyValue name="IndentCaseBraces">false</PropertyValue>
+                <PropertyValue name="IndentCaseContents">true</PropertyValue>
+                <PropertyValue name="IndentCaseLabels">true</PropertyValue>
+                <PropertyValue name="IndentGotoLabels">1</PropertyValue>
+                <PropertyValue name="IndentNamespaceContents">true</PropertyValue>
+                <PropertyValue name="NewlineControlBlockBrace">2</PropertyValue>
+                <PropertyValue name="NewlineEmptyFunctionCloseBrace">false</PropertyValue>
+                <PropertyValue name="NewlineEmptyTypeCloseBrace">true</PropertyValue>
+                <PropertyValue name="NewlineFunctionBrace">2</PropertyValue>
+                <PropertyValue name="NewlineInitListBrace">0</PropertyValue>
+                <PropertyValue name="NewlineKeywordCatch">true</PropertyValue>
+                <PropertyValue name="NewlineKeywordElse">true</PropertyValue>
+                <PropertyValue name="NewlineKeywordWhile">true</PropertyValue>
+                <PropertyValue name="NewlineLambdaBrace">2</PropertyValue>
+                <PropertyValue name="NewlineNamespaceBrace">2</PropertyValue>
+                <PropertyValue name="NewlineTypeBrace">2</PropertyValue>
+                <PropertyValue name="PreserveBlock">1</PropertyValue>
+                <PropertyValue name="PreserveParameterIndentation">false</PropertyValue>
+                <PropertyValue name="RemoveSpaceBeforeSemicolon">true</PropertyValue>
+                <PropertyValue name="SpaceAfterCastParenthesis">false</PropertyValue>
+                <PropertyValue name="SpaceAfterComma">true</PropertyValue>
+                <PropertyValue name="SpaceAfterSemicolon">true</PropertyValue>
+                <PropertyValue name="SpaceAroundAssignmentOperator">2</PropertyValue>
+                <PropertyValue name="SpaceAroundBinaryOperator">2</PropertyValue>
+                <PropertyValue name="SpaceAroundConditionalOperator">2</PropertyValue>
+                <PropertyValue name="SpaceBeforeBracket">false</PropertyValue>
+                <PropertyValue name="SpaceBeforeComma">false</PropertyValue>
+                <PropertyValue name="SpaceBeforeConstructorColon">true</PropertyValue>
+                <PropertyValue name="SpaceBeforeControlBlockParenthesis">true</PropertyValue>
+                <PropertyValue name="SpaceBeforeEmptyBracket">false</PropertyValue>
+                <PropertyValue name="SpaceBeforeFunctionParenthesis">false</PropertyValue>
+                <PropertyValue name="SpaceBeforeInheritanceColon">true</PropertyValue>
+                <PropertyValue name="SpaceBeforeInitListBrace">false</PropertyValue>
+                <PropertyValue name="SpaceBeforeLambdaParenthesis">false</PropertyValue>
+                <PropertyValue name="SpaceBetweenEmptyBraces">false</PropertyValue>
+                <PropertyValue name="SpaceBetweenEmptyBrackets">false</PropertyValue>
+                <PropertyValue name="SpaceBetweenEmptyFunctionParentheses">false</PropertyValue>
+                <PropertyValue name="SpaceBetweenEmptyLambdaBrackets">false</PropertyValue>
+                <PropertyValue name="SpaceWithinBrackets">false</PropertyValue>
+                <PropertyValue name="SpaceWithinCastParentheses">false</PropertyValue>
+                <PropertyValue name="SpaceWithinControlBlockParentheses">false</PropertyValue>
+                <PropertyValue name="SpaceWithinExpressionParentheses">false</PropertyValue>
+                <PropertyValue name="SpaceWithinFunctionParentheses">false</PropertyValue>
+                <PropertyValue name="SpaceWithinInitListBraces">false</PropertyValue>
+                <PropertyValue name="SpaceWithinLambdaBrackets">false</PropertyValue>
+                <PropertyValue name="TrimSpaceAroundScope">true</PropertyValue>
+                <PropertyValue name="TrimSpaceUnaryOperator">true</PropertyValue>
+                <PropertyValue name="UseForwardSlashForIncludeAutoComplete">true</PropertyValue>
+            </ToolsOptionsSubCategory>
+
+        </ToolsOptionsCategory>
+    </ToolsOptions>
+</UserSettings>

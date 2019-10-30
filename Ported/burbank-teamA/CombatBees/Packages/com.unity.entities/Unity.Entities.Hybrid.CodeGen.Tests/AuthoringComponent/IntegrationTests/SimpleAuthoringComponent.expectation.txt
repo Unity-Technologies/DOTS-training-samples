@@ -1,0 +1,20 @@
+using UnityEngine;
+
+namespace Unity.Entities.Hybrid.CodeGen.Tests
+{
+	[DisallowMultipleComponent]
+	internal class SimpleComponentAuthoring : MonoBehaviour, IConvertGameObjectToEntity
+	{
+		public float FloatValue;
+
+		public int IntValue;
+
+		public sealed override void Convert(Entity entity, EntityManager destinationManager, GameObjectConversionSystem conversionSystem)
+		{
+			SimpleComponent componentData = default(SimpleComponent);
+			componentData.FloatValue = FloatValue;
+			componentData.IntValue = IntValue;
+			destinationManager.AddComponentData(entity, componentData);
+		}
+	}
+}

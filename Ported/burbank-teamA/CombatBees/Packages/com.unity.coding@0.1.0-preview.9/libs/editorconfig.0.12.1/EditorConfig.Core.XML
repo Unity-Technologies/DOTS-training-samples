@@ -1,0 +1,207 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>EditorConfig.Core</name>
+    </assembly>
+    <members>
+        <member name="T:EditorConfig.Core.Charset">
+            <summary>
+            set to latin1, utf-8, utf-8-bom, utf-16be or utf-16le to control the character set. Use of utf-8-bom is discouraged.
+            </summary>
+        </member>
+        <member name="F:EditorConfig.Core.Charset.UTF8BOM">
+            <summary>
+            Usage of UFT8BOM is discouraged
+            </summary>
+        </member>
+        <member name="T:EditorConfig.Core.IniSection">
+            <summary>
+            Represents an ini section within the editorconfig file
+            </summary>
+        </member>
+        <member name="T:EditorConfig.Core.EditorConfigFile">
+            <summary>
+            Represents the raw config file as INI
+            </summary>
+        </member>
+        <member name="T:EditorConfig.Core.EndOfLine">
+            <summary>
+            set to lf, cr, or crlf to control how line breaks are represented.
+            </summary>
+        </member>
+        <member name="P:EditorConfig.Core.FileConfiguration.IndentStyle">
+            <summary>
+            set to tab or space to use hard tabs or soft tabs respectively.
+            </summary>
+        </member>
+        <member name="P:EditorConfig.Core.FileConfiguration.IndentSize">
+            <summary>
+            a whole number defining the number of columns used for each indentation level and the width of soft tabs (when supported). 
+            When set to tab, the value of tab_width (if specified) will be used.
+            </summary>
+        </member>
+        <member name="P:EditorConfig.Core.FileConfiguration.TabWidth">
+            <summary>
+            a whole number defining the number of columns used to represent a tab character. 
+            This defaults to the value of indent_size and doesn't usually need to be specified.
+            </summary>
+        </member>
+        <member name="P:EditorConfig.Core.FileConfiguration.EndOfLine">
+            <summary>
+            set to lf, cr, or crlf to control how line breaks are represented.
+            </summary>
+        </member>
+        <member name="P:EditorConfig.Core.FileConfiguration.Charset">
+            <summary>
+            set to latin1, utf-8, utf-8-bom, utf-16be or utf-16le to control the character set. Use of utf-8-bom is discouraged.
+            </summary>
+        </member>
+        <member name="P:EditorConfig.Core.FileConfiguration.TrimTrailingWhitespace">
+            <summary>
+            set to true to remove any whitespace characters preceding newline characters and false to ensure it doesn't.
+            </summary>
+        </member>
+        <member name="P:EditorConfig.Core.FileConfiguration.InsertFinalNewline">
+            <summary>
+            set to true ensure file ends with a newline when saving and false to ensure it doesn't.
+            </summary>
+        </member>
+        <member name="P:EditorConfig.Core.FileConfiguration.MaxLineLength">
+            <summary>
+            Forces hard line wrapping after the amount of characters specified
+            </summary>
+        </member>
+        <member name="P:EditorConfig.Core.FileConfiguration.FileName">
+            <summary>
+            The filename we asked the configuration for
+            </summary>
+        </member>
+        <member name="P:EditorConfig.Core.FileConfiguration.Version">
+            <summary>
+            A reference to the version number of the parser
+            </summary>
+        </member>
+        <member name="M:EditorConfig.Core.FileConfiguration.#ctor(System.Version,System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Holds the editor configuration for a file, please use <see cref="M:EditorConfig.Core.EditorConfigParser.Parse(System.String[])"/> to get an instance
+            </summary>
+        </member>
+        <member name="T:EditorConfig.Core.EditorConfigParser">
+            <summary>
+            The EditorConfigParser locates all relevant editorconfig files and makes sure they are merged correctly.
+            </summary>
+        </member>
+        <member name="F:EditorConfig.Core.EditorConfigParser.VersionString">
+            <summary>
+            The current (and latest parser supported) version as string
+            </summary>
+        </member>
+        <member name="F:EditorConfig.Core.EditorConfigParser.Version">
+            <summary>
+            The current editorconfig version
+            </summary>
+        </member>
+        <member name="P:EditorConfig.Core.EditorConfigParser.ConfigFileName">
+            <summary>
+            The configured name of the files holding editorconfig values, defaults to ".editorconfig"
+            </summary>
+        </member>
+        <member name="P:EditorConfig.Core.EditorConfigParser.ParseVersion">
+            <summary>
+            The editor config parser version in use, defaults to latest <see cref="F:EditorConfig.Core.EditorConfigParser.Version"/>
+            </summary>
+        </member>
+        <member name="M:EditorConfig.Core.EditorConfigParser.#ctor(System.String,System.Version)">
+            <summary>
+            The EditorConfigParser locates all relevant editorconfig files and makes sure they are merged correctly.
+            </summary>
+            <param name="configFileName">The name of the file(s) holding the editorconfiguration values</param>
+            <param name="developmentVersion">Only used in testing, development to pass an older version to the parsing routine</param>
+        </member>
+        <member name="M:EditorConfig.Core.EditorConfigParser.Parse(System.String[])">
+            <summary>
+            Gets the FileConfiguration for each of the passed fileName by resolving their relevant editorconfig files.
+            </summary>
+        </member>
+        <member name="T:EditorConfig.Core.IndentSize">
+            <summary>
+            a whole number defining the number of columns used for each indentation level and the width of soft tabs (when supported). 
+            When set to tab, the value of tab_width (if specified) will be used.
+            </summary>
+        </member>
+        <member name="T:EditorConfig.Core.IndentStyle">
+            <summary>
+            set to tab or space to use hard tabs or soft tabs respectively.
+            </summary>
+        </member>
+        <member name="T:EditorConfig.Core.EditorConfigMinimatcherOptions">
+            <summary>Contains options that control how Minimatch matches strings.</summary>
+        </member>
+        <member name="P:EditorConfig.Core.EditorConfigMinimatcherOptions.NoComment">
+            <summary>Suppresses the behavior of treating # at the start of a pattern as a comment.</summary>
+        </member>
+        <member name="P:EditorConfig.Core.EditorConfigMinimatcherOptions.NoNegate">
+            <summary>Suppresses the behavior of treating a leading ! character as negation.</summary>
+        </member>
+        <member name="P:EditorConfig.Core.EditorConfigMinimatcherOptions.NoBrace">
+            <summary>Do not expand {a,b} and {1.3} brace sets.</summary>
+        </member>
+        <member name="P:EditorConfig.Core.EditorConfigMinimatcherOptions.NoGlobStar">
+            <summary>Disable ** matching against multiple folder names.</summary>
+        </member>
+        <member name="P:EditorConfig.Core.EditorConfigMinimatcherOptions.NoCase">
+            <summary>Ignores case differences when matching.</summary>
+        </member>
+        <member name="P:EditorConfig.Core.EditorConfigMinimatcherOptions.NoExt">
+            <summary>Disable "extglob" style patterns like <c>+(a|b)</c>.</summary>
+        </member>
+        <member name="P:EditorConfig.Core.EditorConfigMinimatcherOptions.Dot">
+            <summary>Allow patterns to match filenames starting with a period, even if the pattern does not explicitly have a period in that spot.
+            Note that by default, <c>a/**/b</c>  will not match <c>a/.d/b</c>, unless dot is set.</summary>
+        </member>
+        <member name="P:EditorConfig.Core.EditorConfigMinimatcherOptions.NoNull">
+            <summary>When a match is not found by Match(), return a list containing the pattern itself. If not set, an empty list is returned if there are no matches.</summary>
+        </member>
+        <member name="P:EditorConfig.Core.EditorConfigMinimatcherOptions.FlipNegate">
+            <summary>Returns from negate expressions the same as if they were not negated. (ie, true on a hit, false on a miss).</summary>
+        </member>
+        <member name="P:EditorConfig.Core.EditorConfigMinimatcherOptions.MatchBase">
+            <summary>If set, then patterns without slashes will be matched against the basename of the path if it contains slashes. For example, <c>a?b</c> would match the path <c>/xyz/123/acb</c>, but not <c>/xyz/acb/123</c>.</summary>
+        </member>
+        <member name="P:EditorConfig.Core.EditorConfigMinimatcherOptions.AllowWindowsPaths">
+            <summary>If true, backslahes in patterns and paths will be treated as forward slashes.  This disables escape characters.</summary>
+        </member>
+        <member name="P:EditorConfig.Core.EditorConfigMinimatcherOptions.IgnoreCase">
+            <summary>Ignores case differences when matching.  This is the same as NoCase.</summary>
+        </member>
+        <member name="T:EditorConfig.Core.EditorConfigMinimatcher">
+            <summary>Parses a single glob pattern and tests strings against it.</summary>
+        </member>
+        <member name="M:EditorConfig.Core.EditorConfigMinimatcher.CreateFilter(System.String,EditorConfig.Core.EditorConfigMinimatcherOptions)">
+            <summary>Creates a filter function that tests input against a pattern.</summary>
+        </member>
+        <member name="M:EditorConfig.Core.EditorConfigMinimatcher.Check(System.String,System.String,EditorConfig.Core.EditorConfigMinimatcherOptions)">
+            <summary>Tests a single input against a pattern.</summary>
+            <remarks>This function reparses this input on each invocation.  For performance, avoid this function and reuse a Minimatcher instance instead.</remarks>
+        </member>
+        <member name="M:EditorConfig.Core.EditorConfigMinimatcher.Filter(System.Collections.Generic.IEnumerable{System.String},System.String,EditorConfig.Core.EditorConfigMinimatcherOptions)">
+            <summary>Filters a list of inputs against a single pattern.</summary>
+            <remarks>This function reparses this input on each invocation.  For performance, avoid this function and reuse a Minimatcher instance instead.</remarks>
+        </member>
+        <member name="M:EditorConfig.Core.EditorConfigMinimatcher.CreateRegex(System.String,EditorConfig.Core.EditorConfigMinimatcherOptions)">
+            <summary>Compiles a pattern into a single regular expression.</summary>
+        </member>
+        <member name="M:EditorConfig.Core.EditorConfigMinimatcher.#ctor(System.String,EditorConfig.Core.EditorConfigMinimatcherOptions)">
+            <summary>Creates a new Minimatcher instance, parsing the pattern into a regex.</summary>
+        </member>
+        <member name="M:EditorConfig.Core.EditorConfigMinimatcher.IsMatch(System.String)">
+            <summary>Checks whether a given string matches this pattern.</summary>
+        </member>
+        <member name="M:EditorConfig.Core.EditorConfigMinimatcher.Filter(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>Filters a list of inputs against this pattern.</summary>
+        </member>
+        <member name="M:EditorConfig.Core.EditorConfigMinimatcher.BraceExpand(System.String,EditorConfig.Core.EditorConfigMinimatcherOptions)">
+            <summary>Expands all brace ranges in a pattern, returning a sequence containing every possible combination.</summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,71 @@
+.build-settings
+{
+    padding-bottom: 2px;
+}
+
+.build-settings__asset-header
+{
+    padding-bottom: 5px;
+}
+
+.build-settings__asset-header-label
+{
+    height: 24px;
+    font-size: 16px;
+    -unity-font-style:bold;
+    border-bottom-width: 2px;
+}
+
+.build-settings__asset-dependencies
+{
+    margin-left: 0;
+    padding: 5px 5px 5px 21px;
+    border-radius: 5px;
+}
+
+.build-settings__build-action
+{
+    width: 130px;
+    margin-right: 0;
+    border-radius: 3px 0 0 3px;
+}
+
+.build-settings__build-dropdown
+{
+    margin-left: 0;
+    border-radius: 0 3px 3px 0;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 0;
+    margin-bottom: 1px;
+    margin-top: 2px;
+}
+
+.build-settings__build-dropdown > .unity-base-field__input
+{
+    min-width: 20px;
+    border-radius: 0 3px 3px 0;
+    border-color: transparent;
+}
+
+.build-settings__header
+{
+    height: 18px;
+    font-size: 12px;
+    -unity-font-style:bold;
+}
+
+.build-settings__header .unity-toggle__checkmark
+{
+    align-self: center;
+}
+
+.build-settings__add-component-button
+{
+    align-self: flex-end;
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    border-width: 0;
+}

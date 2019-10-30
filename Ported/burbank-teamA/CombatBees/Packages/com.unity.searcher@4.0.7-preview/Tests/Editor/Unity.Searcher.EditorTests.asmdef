@@ -1,0 +1,14 @@
+{
+    "name": "Unity.Searcher.EditorTests",
+    "references": [
+        "Unity.Searcher.Editor",
+        "Unity.Searcher.EditorSamples"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}

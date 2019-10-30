@@ -1,0 +1,22 @@
+<UXML xmlns:ui="UnityEngine.UIElements" xmlns:lv="UnityEditor.EditorCommon.UIElements.ListView">
+  <ui:VisualElement name="windowMainVisualContainer">
+    <Style path="Searcher"/>
+    <ui:VisualElement name="searcherVisualContainer">
+      <ui:VisualElement name="windowTitleContainer">
+        <ui:Label name="windowTitleLabel" focusable="false"/>
+      </ui:VisualElement>
+      <ui:VisualElement name="windowSearchBoxVisualContainer">
+        <ui:VisualElement name="searchIcon"/>
+        <ui:Label name="autoCompleteLabel"/>
+        <ui:TextField name="searchBox"/>
+      </ui:VisualElement>
+      <ui:VisualElement name="windowSelectionVisualContainer">
+        <ui:ListView class="focusableScrollView" item-height="25" name="windowResultsScrollView"/>
+      </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="windowDetailsVisualContainer"/>
+    <ui:VisualElement name="windowResizer" focusable="false">
+      <ui:VisualElement name="windowResizerIcon" focusable="false"/>
+    </ui:VisualElement>
+  </ui:VisualElement>
+</UXML>

@@ -1,0 +1,16 @@
+{
+  "name": "com.unity.platforms",
+  "displayName": "DOTS Platforms",
+  "version": "0.1.6-preview",
+  "unity": "2019.3",
+  "unityRelease": "0b3",
+  "description": "This package provides base support for build targets in DOTS.",
+  "keywords": [
+    "platforms"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Unity-Technologies/dots-platforms.git",
+    "revision": "acca5778eb616da7c5321c5c676d8a04013d8910"
+  }
+}

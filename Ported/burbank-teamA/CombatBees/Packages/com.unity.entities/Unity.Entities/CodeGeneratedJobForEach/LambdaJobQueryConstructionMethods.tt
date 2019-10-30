@@ -1,0 +1,51 @@
+﻿<#/*THIS IS A T4 FILE - see t4_text_templating.md for what it is and how to run codegen*/#>
+<#@ assembly name="System.Collections" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ output extension=".gen.cs" #>
+using System;
+using Unity.Entities.CodeGeneratedJobForEach;
+using static Unity.Entities.LambdaJobDescriptionConstructionMethods;
+
+namespace Unity.Entities
+{
+    public static class LambdaJobQueryConstructionMethods
+    {
+<#
+var types = new[] { "ForEachLambdaJobDescription", "LambdaJobChunkDescription" };
+foreach(var type in types)
+{#>
+        //Start of query creating functions for <#=type#>.  Unfortunately there's no C# way to use generics to make these work for multiple jobdescription types, so we're lowteching it with t4 here.
+        [AllowMultipleInvocationsAttribute]
+        public static <#=type#> WithNone<T>(this <#=type#> description) => description;
+        [AllowMultipleInvocationsAttribute]
+        public static <#=type#> WithNone<T1,T2>(this <#=type#> description) => description;
+        [AllowMultipleInvocationsAttribute]
+        public static <#=type#> WithNone<T1,T2,T3>(this <#=type#> description) => description;
+        [AllowMultipleInvocationsAttribute]
+        public static <#=type#> WithAny<T>(this <#=type#> description) => description;
+        [AllowMultipleInvocationsAttribute]
+        public static <#=type#> WithAny<T1,T2>(this <#=type#> description) => description;
+        [AllowMultipleInvocationsAttribute]
+        public static <#=type#> WithAny<T1,T2,T3>(this <#=type#> description) => description;
+        [AllowMultipleInvocationsAttribute]
+        public static <#=type#> WithAll<T>(this <#=type#> description) => description;
+        [AllowMultipleInvocationsAttribute]
+        public static <#=type#> WithAll<T1,T2>(this <#=type#> description)  => description;
+        [AllowMultipleInvocationsAttribute]
+        public static <#=type#> WithAll<T1,T2,T3>(this <#=type#> description) => description;
+        [AllowMultipleInvocationsAttribute]
+        public static <#=type#> WithChangeFilter<T>(this <#=type#> description) => description;
+        [AllowMultipleInvocationsAttribute]
+        public static <#=type#> WithChangeFilter<T1,T2>(this <#=type#> description) => description;
+        
+        public static <#=type#> WithEntityQueryOptions(this <#=type#> description, EntityQueryOptions options) => description;
+        public static <#=type#> WithSharedComponentFilter<T>(this <#=type#> description, [AllowDynamicValue] T sharedComponent) where T : struct, ISharedComponentData => description;        
+<#
+   }
+   #>
+   }    
+}

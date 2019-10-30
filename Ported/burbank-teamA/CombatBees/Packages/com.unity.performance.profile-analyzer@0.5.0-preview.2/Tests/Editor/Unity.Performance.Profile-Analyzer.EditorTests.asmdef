@@ -1,0 +1,19 @@
+{
+    "name": "Unity.Performance.Profile-Analyzer.EditorTests",
+    "references": [
+        "Unity.Performance.Profile-Analyzer.Editor"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}

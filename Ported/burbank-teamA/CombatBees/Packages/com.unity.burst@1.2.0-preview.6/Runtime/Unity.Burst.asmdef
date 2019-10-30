@@ -1,0 +1,7 @@
+{
+    "name": "Unity.Burst",
+    "references": [ ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+	"allowUnsafeCode": true
+}
