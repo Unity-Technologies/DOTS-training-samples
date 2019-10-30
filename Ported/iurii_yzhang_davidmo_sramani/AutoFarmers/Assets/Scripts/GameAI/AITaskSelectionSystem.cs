@@ -20,7 +20,7 @@ namespace GameAI
             var rnd = Time.time;
 
             var groundSelectorHandle = Entities
-                .WithAll<AITaskTagNone, GroundAiTag>()
+                .WithAll<AITaskTagNone, FarmerAITag>()
 //            .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e) =>
                 {
@@ -47,7 +47,7 @@ namespace GameAI
 
             var ecb2 = ecbSystem.CreateCommandBuffer().ToConcurrent();
             var airSelectorHandle = Entities
-                .WithNone<GroundAiTag>()
+                .WithNone<FarmerAITag>()
                 .WithAll<AITaskTagNone>()
 //            .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e) =>
