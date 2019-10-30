@@ -21,10 +21,9 @@ public class RockSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var dt = Time.deltaTime;
-
         var Cmd = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
      
-        return Entities.ForEach((Entity entity, int nativeThreadIndex, ref RockSmashSpeed s, ref RockComponent rock, ref HealthComponent health) =>
+        Entities.ForEach((Entity entity, int nativeThreadIndex, ref RockSmashSpeed s, ref RockComponent rock, ref HealthComponent health) =>
         {
             health.Value -= s.Value * dt;
 
@@ -34,5 +33,7 @@ public class RockSystem : JobComponentSystem
                 Cmd.DestroyEntity(nativeThreadIndex, entity);
             }
         }).Schedule(inputDeps);
+        
+        return inputDeps;
     }
 }
