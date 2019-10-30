@@ -7,7 +7,6 @@ using Unity.Transforms;
 using UnityEngine;
 using GameAI;
 
-[UpdateInGroup(typeof(PresentationSystemGroup))]
 public class RockSystem : JobComponentSystem
 {
     BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;

@@ -10,7 +10,6 @@ using Random = Unity.Mathematics.Random;
 
 namespace GameAI
 {
-    [UpdateInGroup(typeof(PresentationSystemGroup))]
     public class AiTaskSelectSys : JobComponentSystem
     {
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
