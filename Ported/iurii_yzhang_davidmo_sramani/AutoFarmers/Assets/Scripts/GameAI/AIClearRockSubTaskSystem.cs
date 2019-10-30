@@ -3,7 +3,7 @@ using Unity.Jobs;
 
 namespace GameAI
 {
-    public class AITillGroundSubTaskSystem : JobComponentSystem
+    public class AIClearRockSubTaskSystem : JobComponentSystem
     {
         BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
 
@@ -17,35 +17,35 @@ namespace GameAI
             var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             
             var job = Entities
-                .WithAll<AITaskTagTill>()
-                .WithNone<AISubTaskTagFindUntilledTile>()
-                .WithNone<AISubTaskTagTillGroundTile>()
+                .WithAll<AITaskTagClearRock>()
+                .WithNone<AISubTaskTagFindRock>()
+                .WithNone<AISubTaskTagClearRock>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
-                    ecb.AddComponent<AISubTaskTagFindUntilledTile>(entityInQueryIndex, entity);
+                    ecb.AddComponent<AISubTaskTagFindRock>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
 
             var job2 = Entities
                 .WithAll<AITaskTagTill>()
                 .WithAll<AISubTaskTagComplete>()
-                .WithAll<AISubTaskTagFindUntilledTile>()
+                .WithAll<AISubTaskTagFindRock>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
                     ecb.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<AISubTaskTagFindUntilledTile>(entityInQueryIndex, entity);
-                    ecb.AddComponent<AISubTaskTagTillGroundTile>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<AISubTaskTagFindRock>(entityInQueryIndex, entity);
+                    ecb.AddComponent<AISubTaskTagClearRock>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
 
             var job3 = Entities
                 .WithAll<AITaskTagTill>()
                 .WithAll<AISubTaskTagComplete>()
-                .WithAll<AISubTaskTagTillGroundTile>()
+                .WithAll<AISubTaskTagClearRock>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
                     ecb.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<AISubTaskTagTillGroundTile>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<AITaskTagTill>(entityInQueryIndex, entity);
-                    ecb.AddComponent<AITaskTagNone>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<AISubTaskTagClearRock>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<AITaskTagClearRock>(entityInQueryIndex, entity);
+                    ecb.AddComponent<AITaskTagClearRock>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
             
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
