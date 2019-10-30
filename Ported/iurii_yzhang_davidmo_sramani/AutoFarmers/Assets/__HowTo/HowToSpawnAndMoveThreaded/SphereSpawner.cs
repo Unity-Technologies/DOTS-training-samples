@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -11,9 +9,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
-public class SphereSpawner : ComponentSystem
+public class SphereSpawner : JobComponentSystem
 {
-    struct SphereSpawnerTag : IComponentData {}
+    struct ExecuteOnceTag : IComponentData {}
     
     [BurstCompile]
     struct Spawn : IJobParallelFor
@@ -36,47 +34,45 @@ public class SphereSpawner : ComponentSystem
     
     protected override void OnCreate()
     {
-        // This will crash Unity
-        //spherePrefabEntity =
-        //    GameObjectConversionUtility.ConvertGameObjectHierarchy(SphereSpawnerUnity.instance.prefabObject,
-        //        World);
-
         if (SphereSpawnerUnity.instance != null)
         {
             m_initEntity = EntityManager.CreateEntity();
-            EntityManager.AddComponent<SphereSpawnerTag>(m_initEntity);
+            EntityManager.AddComponent<ExecuteOnceTag>(m_initEntity);
+            
+            var spherePrefabArchetype = EntityManager.CreateArchetype(typeof(Translation), typeof(LocalToWorld), typeof(MoveSpeed), typeof(RenderMesh));
+
+            m_spherePrefabEntity = EntityManager.CreateEntity(spherePrefabArchetype);
+            EntityManager.SetSharedComponentData(m_spherePrefabEntity, new RenderMesh
+            {
+                mesh = SphereSpawnerUnity.instance.prefabObject.GetComponent<MeshFilter>().sharedMesh,
+                material = SphereSpawnerUnity.instance.prefabObject.GetComponent<Renderer>().sharedMaterial,
+                castShadows = ShadowCastingMode.On,
+                receiveShadows = true
+            });
         }
 
-        var query = GetEntityQuery(ComponentType.ReadOnly<SphereSpawnerTag>());
+        var query = GetEntityQuery(ComponentType.ReadOnly<ExecuteOnceTag>());
         RequireForUpdate(query);
-        
-        var spherePrefabArchetype = EntityManager.CreateArchetype(typeof(Translation), typeof(LocalToWorld), typeof(MoveSpeed), typeof(RenderMesh));
-
-        m_spherePrefabEntity = EntityManager.CreateEntity(spherePrefabArchetype);
-        EntityManager.SetSharedComponentData(m_spherePrefabEntity, new RenderMesh
-        {
-            mesh = SphereSpawnerUnity.instance.prefabObject.GetComponent<MeshFilter>().sharedMesh,
-            material = SphereSpawnerUnity.instance.prefabObject.GetComponent<Renderer>().sharedMaterial,
-            castShadows = ShadowCastingMode.On,
-            receiveShadows = true
-        });
     }
+    
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
+    {
+        EntityManager.DestroyEntity(m_initEntity);
+        m_initEntity = Entity.Null;
 
-    protected override void OnUpdate()
-    {   
-        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var ecbSystem = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
+        var ecb = ecbSystem.CreateCommandBuffer();
+        
         var sp = new Spawn
         {
             ec = ecb.ToConcurrent(),
             prefab = m_spherePrefabEntity,
-            random = new Unity.Mathematics.Random(0xBAD5EED)
+            random = new Unity.Mathematics.Random(123)
         };
-        
-        sp.Schedule(1024, 64).Complete();
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
-        
-        EntityManager.DestroyEntity(m_initEntity);
-        m_initEntity = Entity.Null;
+
+        var handle = sp.Schedule(1024, 128, inputDeps);
+        ecbSystem.AddJobHandleForProducer(handle);
+ 
+        return handle;
     }
 }
