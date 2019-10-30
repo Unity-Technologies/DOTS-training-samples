@@ -14,7 +14,10 @@ namespace GameAI
         {
             Entities.WithReadOnly(typeof(TargetTag))
                     .ForEach((ref AnimationCompleteTag _, ref TargetTag target, ref Translation position) => {
+                                 
                              });
+
+            return inputDeps;
         }
     }
 }
