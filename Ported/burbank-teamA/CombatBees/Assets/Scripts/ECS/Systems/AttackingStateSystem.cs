@@ -35,7 +35,7 @@ public class AttackingStateSystem : JobComponentSystem
               
                 var translation = translationContainer[entity];
                 var targetTranslation = translationContainer[targetEntity.Value];
-                targetVelocity.velocity = attackVelocity;
+                targetVelocity.Value = attackVelocity;
 
                 var distance = math.distance(translation.Value, targetTranslation.Value);
 

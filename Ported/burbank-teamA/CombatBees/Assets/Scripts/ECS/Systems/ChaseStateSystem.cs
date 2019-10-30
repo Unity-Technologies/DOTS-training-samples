@@ -21,7 +21,7 @@ public class ChaseStateSystem : JobComponentSystem
             {
                 var translation = translationContainer[entity];
                 var targetTranslation = translationContainer[targetEntity.Value];
-                targetVelocity.velocity = chaseVelocity;
+                targetVelocity.Value = chaseVelocity;
 
                 var distance = math.distance(translation.Value, targetTranslation.Value);
 
