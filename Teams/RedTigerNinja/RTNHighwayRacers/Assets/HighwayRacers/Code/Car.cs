@@ -344,7 +344,7 @@ namespace HighwayRacers
             car.UpdateInner(ref highway);
 
             float targetSpeed = car.defaultSpeed;
-			CarStateStruct carInFront = highway.GetCarInFront(car.distance, car.lane);
+			CarStateStruct carInFront = highway.GetCarInFront(ref car, car.distance, car.lane);
 			float distToCarInFront = (carInFront.IsNull) ? float.MaxValue : highway.DistanceTo(car.distanceFront, car.lane, carInFront.distanceBack, carInFront.lane);
 
 			switch (car.state) {
@@ -442,7 +442,7 @@ namespace HighwayRacers
 
 				if (tryMergeRight) {
 					// don't merge if just going to merge back
-					CarStateStruct rightCarInFront = highway.GetCarInFront(highway.GetEquivalentDistance(car.distanceFront, car.lane, car.lane - 1), car.lane - 1);
+					CarStateStruct rightCarInFront = highway.GetCarInFront(ref car, highway.GetEquivalentDistance(car.distanceFront, car.lane, car.lane - 1), car.lane - 1);
 					float distToRightCarInFront = rightCarInFront.IsNull ? float.MaxValue : highway.DistanceTo(highway.GetEquivalentDistance(car.distanceFront, car.lane, car.lane - 1), car.lane - 1, rightCarInFront.distanceBack, rightCarInFront.lane);
 					// condition for merging to left lane
 					if (distToRightCarInFront < car.leftMergeDistance// close enough to car in front

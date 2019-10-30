@@ -27,8 +27,13 @@ namespace HighwayRacers {
             highway.AllPieces = hpcAr;
 
             // sort the cars:
-            NativeHashMap<Entity, SortingData> sorted = this.GetSortedCarMap(carAr);
-            inputDeps = (new CarSortJob() { SortedMap = sorted }).Schedule(this, inputDeps);
+            NativeHashMap<Entity, SortingData> sorted = new NativeHashMap<Entity, SortingData>();
+            var isSorting = false;
+            if (isSorting)
+            {
+                sorted = this.GetSortedCarMap(carAr);
+                inputDeps = (new CarSortJob() { SortedMap = sorted }).Schedule(this, inputDeps);
+            }
 
             // calculate next state:
             inputDeps = (new CarUpdateNextJob(
@@ -44,10 +49,18 @@ namespace HighwayRacers {
             inputDeps = (new CarUpdatePoseJob() { HighwayState = highway }).Schedule(this, inputDeps);
 
             inputDeps.Complete();
-
             hpcAr.Dispose();
             carAr.Dispose();
-            sorted.Dispose();
+
+            //inputDeps = (new DisposeJob<NativeArray<HighwayPiece.HighwayPieceState>>(hpcAr)).Schedule(inputDeps);
+            //inputDeps = (new DisposeJob<NativeArray<CarStateStruct>>(carAr)).Schedule(inputDeps);
+            //inputDeps.Complete();
+
+            if (sorted.IsCreated)
+            {
+                sorted.Dispose();
+                //inputDeps = (new DisposeJob<NativeHashMap<Entity,SortingData>>(sorted)).Schedule(inputDeps);
+            }
 
             return inputDeps;
         }
@@ -56,6 +69,21 @@ namespace HighwayRacers {
         {
             public int SelfIndex;
             public int NextIndex;
+        }
+
+        public struct DisposeJob<T> : IJob where T : struct, System.IDisposable
+        {
+            [DeallocateOnJobCompletion] public T DisposeMe;
+
+            public DisposeJob(T _ar) 
+            {
+                this.DisposeMe = _ar;
+            }
+
+            public void Execute()
+            {
+                // the deallocate does the job!
+            }
         }
 
         public NativeHashMap<Entity, SortingData> GetSortedCarMap(NativeArray<CarStateStruct> cars)

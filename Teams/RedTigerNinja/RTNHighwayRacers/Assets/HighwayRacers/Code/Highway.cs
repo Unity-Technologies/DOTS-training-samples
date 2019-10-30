@@ -488,19 +488,33 @@ namespace HighwayRacers
 
             static Unity.Profiling.ProfilerMarker CarMarker = new Unity.Profiling.ProfilerMarker("GetCarInFront");
 
-            public CarStateStruct GetCarInFront(float distance, float lane)
+            public CarStateStruct GetCarInFront(ref CarStateStruct startCar, float distance, float lane)
             {
                 CarMarker.Auto();
 
                 CarStateStruct ret = CarStateStruct.NullCar;
                 float diff = 0;
+                var nextIndex = startCar.SortedIndexNext;
                 for (var ri =0; ri< AllCars.Length; ri++)
                 {
                     var car = AllCars[ri];
+                    /*
+                    var curIndex = nextIndex;
+                    var car = AllCars[curIndex];
+                    nextIndex = car.SortedIndexNext;
+                    */
+
                     if (!LanesOverlap(lane, car.lane))
                     {
                         continue;
                     }
+                    /*
+                    if ((car.distance - distance) > (Highway.MIN_HIGHWAY_LANE0_LENGTH * 0.5f))
+                    {
+                        //break;
+                    }
+                    */
+
                     float d = DistanceTo(distance, lane, car.distanceBack, car.lane);
                     if (ret.IsNull || d < diff)
                     {
