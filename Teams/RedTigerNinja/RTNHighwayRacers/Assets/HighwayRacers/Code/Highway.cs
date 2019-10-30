@@ -77,7 +77,7 @@ namespace HighwayRacers
 
             for (int i = 0; i < highway.AllPieces.Length; i++)
             {
-                HighwayPiece.HighwayPieceState piece = highway.AllPieces[i%4]; // TODO: TOTAL HACK wth the %4
+                HighwayPiece.HighwayPieceState piece = highway.AllPieces[i]; // TODO: TOTAL HACK wth the %4
                 pieceStartDistance = pieceEndDistance;
                 pieceEndDistance += piece.length(lane);
                 if (distance >= pieceEndDistance)
@@ -617,9 +617,6 @@ namespace HighwayRacers
             /// </summary>
             public float GetEquivalentDistance(float distance, float lane, float otherLane)
             {
-                // TODO: TOTAL HACK:
-                return WrapDistance(distance, lane);
-
                 // keep distance in [0, length)
                 distance = WrapDistance(distance, lane);
 
