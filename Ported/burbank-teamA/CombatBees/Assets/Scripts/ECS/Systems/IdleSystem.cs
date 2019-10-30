@@ -1,4 +1,4 @@
-﻿using Unity.Burst;
+﻿/*using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -10,10 +10,14 @@ public class IdleSystem : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
-        
-        var job = new IdleSystemJob();
-        
-       
-        return job.Schedule(this, inputDependencies);
+        /*public Spawner spawn;
+        public TargetVelocity targetVelocity;#1#
+        return Entities
+            .ForEach((ref TargetEntity targetEntity, ref Velocity velocity, ref State state,
+                in Position position, in Aggressiveness aggressiveness) =>
+            {
+                
+            })
+            .Schedule(inputDependencies);
     }
-}
+}*/
