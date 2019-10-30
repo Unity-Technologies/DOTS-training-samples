@@ -7,6 +7,32 @@ namespace HighwayRacers
 
     public class HighwayPiece : MonoBehaviour
     {
+        public struct HighwayPieceState : Unity.Entities.IComponentData
+        {
+            public Vector4 LaneLengths;
+
+            public float length(float li)
+            {
+                int ndx = (int)li;
+                if ((ndx < 0)) ndx = 0;
+                if (ndx > 3) ndx = 3;
+                return this.LaneLengths[ndx];
+            }
+        }
+
+        public virtual HighwayPieceState AsHighwayState
+        {
+            get 
+            {
+                HighwayPieceState ans = new HighwayPieceState();
+                for (var li=0; li<Highway.NUM_LANES; li++)
+                {
+                    ans.LaneLengths[li] = this.length((float)li);
+                }
+                return ans;
+            }
+        }
+
 
         public float startX
         {

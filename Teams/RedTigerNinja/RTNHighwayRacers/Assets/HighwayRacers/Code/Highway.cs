@@ -454,6 +454,111 @@ namespace HighwayRacers
         public struct HighwayStateStruct
         {
             public Unity.Collections.NativeArray<CarStateStruct> AllCars;
+            public Unity.Collections.NativeArray<HighwayPiece.HighwayPieceState> AllPieces;
+            public float lane0Length;
+
+            public CarStateStruct GetCarInFront(float distance, float lane)
+            {
+                CarStateStruct ret = CarStateStruct.NullCar;
+                float diff = 0;
+                for (var ri =0; ri<this.AllCars.Length; ri++)
+                {
+                    var car = this.AllCars[ri];
+                    float d = DistanceTo(distance, lane, car.distanceBack, car.lane);
+                    if (ret.IsNull || d < diff)
+                    {
+                        ret = car;
+                        diff = d;
+                    }
+                }
+                if (ret.ThisCarEntity == CarStateStruct.NullCar.ThisCarEntity)
+                {
+                    return CarStateStruct.NullCar;
+                }
+                return ret;
+            }
+
+            public float length(float lane)
+            {
+                return straightPieceLength * 4 + curvePieceLength(lane) * 4;
+            }
+            public float straightPieceLength
+            {
+                get
+                {
+                    return (lane0Length - CURVE_LANE0_RADIUS * 4) / 4;
+                }
+            }
+
+
+            /// <summary>
+            /// Wraps distance to be in [0, l), where l is the length of the given lane.
+            /// </summary>
+            public float WrapDistance(float distance, float lane)
+            {
+                float l = length(lane);
+                return distance - Mathf.Floor(distance / l) * l;
+            }
+
+            /// <summary>
+            /// Gets the positive distance, wrapped in [0, length), from distance1 to distance2 in the given lane.
+            /// </summary>
+            public float DistanceTo(float distance1, float lane, float distance2)
+            {
+                return WrapDistance(distance2 - distance1, lane);
+            }
+            /// <summary>
+            /// Gets the positive distance, wrapped in [0, length), from distance1 (in lane1) to distance2 (in lane2) in lane 1.
+            /// </summary>
+            public float DistanceTo(float distance1, float lane1, float distance2, float lane2)
+            {
+                return WrapDistance(GetEquivalentDistance(distance2, lane2, lane1) - distance1, lane1);
+            }
+
+
+            /// <summary>
+            /// Gets distance in another lane that appears to be the same distance in the given lane.
+            /// </summary>
+            public float GetEquivalentDistance(float distance, float lane, float otherLane)
+            {
+                // keep distance in [0, length)
+                distance = WrapDistance(distance, lane);
+
+                float pieceStartDistance = 0;
+                float pieceEndDistance = 0;
+                float pieceStartDistanceOtherLane = 0;
+                float pieceEndDistanceOtherLane = 0;
+
+                for (int i = 0; i < 8; i++)
+                {
+                    var piece = this.AllPieces[i];
+                    pieceStartDistance = pieceEndDistance;
+                    pieceStartDistanceOtherLane = pieceEndDistanceOtherLane;
+                    pieceEndDistance += piece.length(lane);
+                    pieceEndDistanceOtherLane += piece.length(otherLane);
+                    if (distance >= pieceEndDistance)
+                        continue;
+
+                    // inside piece i
+
+                    if (i % 2 == 0)
+                    {
+                        // straight piece
+                        return pieceStartDistanceOtherLane + distance - pieceStartDistance;
+                    }
+                    else
+                    {
+                        // curved piece
+                        float radius = curvePieceRadius(lane);
+                        float radiusOtherLane = curvePieceRadius(otherLane);
+                        return pieceStartDistanceOtherLane + (distance - pieceStartDistance) * radiusOtherLane / radius;
+                    }
+                }
+
+                return 0;
+            }
+
+
 
             public static void UpdateFromHighway(ref HighwayStateStruct into, Highway hw)
             {
@@ -471,11 +576,19 @@ namespace HighwayRacers
                 }
                 this.allCarsNativeArray = new Unity.Collections.NativeArray<CarStateStruct>(this.allCarsList.Count, Unity.Collections.Allocator.Persistent);
             }
-            for (var i=0; i<this.allCarsList.Count; i++)
+            for (var i = 0; i < this.allCarsList.Count; i++)
             {
                 this.allCarsNativeArray[i] = this.allCarsList[i].CarData;
             }
             this.HighwayState.AllCars = this.allCarsNativeArray;
+            if (!this.allPiecesNativeArray.IsCreated)
+            {
+                var ar = this.pieces.Select(k => k.AsHighwayState).ToArray();
+                this.allPiecesNativeArray = new Unity.Collections.NativeArray<HighwayPiece.HighwayPieceState>(ar, Unity.Collections.Allocator.Persistent);
+            }
+            this.HighwayState.AllPieces = this.allPiecesNativeArray;
+            this.HighwayState.lane0Length = this.lane0Length;
+
         }
 
         public int numCars {
@@ -502,7 +615,12 @@ namespace HighwayRacers
                 Destroy(car.gameObject);
             }
             allCarsList.Clear();
-            this.UpdateCarList();
+
+            if (this.allCarsNativeArray.IsCreated)
+            {
+                this.allCarsNativeArray.Dispose();
+            }
+
         }
 
 		public Car GetCarAtScreenPosition(Vector3 screenPosition, float radius){
@@ -524,13 +642,11 @@ namespace HighwayRacers
         
         private List<Car> allCarsList = new List<Car>();
         private Unity.Collections.NativeArray<CarStateStruct> allCarsNativeArray;
+        private Unity.Collections.NativeArray<HighwayPiece.HighwayPieceState> allPiecesNativeArray;
 
         private void OnDisable()
         {
-            if (this.allCarsNativeArray.IsCreated)
-            {
-                this.allCarsNativeArray.Dispose();
-            }
+            this.ClearCars();
         }
 
         private void Awake()

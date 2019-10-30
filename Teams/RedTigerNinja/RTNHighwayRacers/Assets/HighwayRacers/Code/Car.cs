@@ -290,7 +290,7 @@ namespace HighwayRacers
 
         public static void UpdateCarState_FromJob(ref CarStateStruct car, ref Highway.HighwayStateStruct highway)
         {
-            //UpdateCarData(ref car);
+            //UpdateCarData(ref car, ref highway);
         }
 
         private static void UpdateCarData(ref CarStateStruct car, ref Highway.HighwayStateStruct highway)
