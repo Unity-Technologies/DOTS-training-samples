@@ -23,7 +23,7 @@ public class RockSystem : JobComponentSystem
         var dt = Time.deltaTime;
         var Cmd = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
      
-        Entities.ForEach((Entity entity, int nativeThreadIndex, ref RockSmashSpeed s, ref RockComponent rock, ref HealthComponent health) =>
+        var job = Entities.ForEach((Entity entity, int nativeThreadIndex, ref RockSmashSpeed s, ref RockComponent rock, ref HealthComponent health) =>
         {
             health.Value -= s.Value * dt;
 
@@ -33,7 +33,8 @@ public class RockSystem : JobComponentSystem
                 Cmd.DestroyEntity(nativeThreadIndex, entity);
             }
         }).Schedule(inputDeps);
-        
+
+        m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
         return inputDeps;
     }
 }

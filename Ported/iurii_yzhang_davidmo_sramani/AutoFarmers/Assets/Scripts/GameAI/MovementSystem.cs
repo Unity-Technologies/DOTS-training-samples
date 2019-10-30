@@ -21,7 +21,7 @@ namespace GameAI
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-            Entities
+            var job = Entities
                 //.WithReadOnly(typeof(HasTarget))
                 .ForEach((Entity entity, int entityInQueryIndex, ref AnimationCompleteTag _, ref HasTarget target, ref Translation worldPosition) =>
                 {
@@ -30,11 +30,12 @@ namespace GameAI
                         tilePosition.y == target.TargetPosition.y) {
                         ecb.RemoveComponent<HasTarget>(entityInQueryIndex, entity);
                     } else {
-                        var direction =  math.normalize(target.TargetPosition - tilePosition);
-                        worldPosition.Value += new float3(direction.x,0,direction.y);
+                        var direction = math.normalize(target.TargetPosition - tilePosition);
+                        worldPosition.Value += new float3(direction.x, 0, direction.y);
                     }
                 }).Schedule(inputDeps);
 
+            m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
             return inputDeps;
         }
     }
