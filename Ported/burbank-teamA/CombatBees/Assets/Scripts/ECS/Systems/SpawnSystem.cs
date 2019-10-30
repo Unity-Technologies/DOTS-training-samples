@@ -23,9 +23,8 @@ public class SpawnSystem : JobComponentSystem
                {
                    for (int i = 0; i < spawner.Amount; i++)
                    {
-                       UnityEngine.Debug.Log("1");
                        var instance = commandBuffer.Instantiate(0, spawner.Prefab);
-                       commandBuffer.AddComponent(0, instance, new Translation() { Value = spawner.Position });
+                       commandBuffer.AddComponent(0, instance, new Translation() { Value = spawner.Position});
                    }
 
                    commandBuffer.DestroyEntity(0, e);
