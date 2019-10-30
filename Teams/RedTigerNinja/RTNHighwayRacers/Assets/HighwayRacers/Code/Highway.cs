@@ -464,6 +464,10 @@ namespace HighwayRacers
                 for (var ri =0; ri<this.AllCars.Length; ri++)
                 {
                     var car = this.AllCars[ri];
+                    if (!LanesOverlap(lane, car.lane))
+                    {
+                        continue;
+                    }
                     float d = DistanceTo(distance, lane, car.distanceBack, car.lane);
                     if (ret.IsNull || d < diff)
                     {
@@ -477,6 +481,79 @@ namespace HighwayRacers
                 }
                 return ret;
             }
+
+
+            /// <summary>
+            /// Returns if the car can merge into the given lane.  Takes car's mergeSpace into consideration.
+            /// </summary>
+            /// <param name="car">Car merging.</param>
+            /// <param name="mergeLane">The lane the car will merge to.</param>
+            public bool CanMergeToLane(CarStateStruct car, float mergeLane)
+            {
+                float distanceBack = GetEquivalentDistance(car.distanceBack - car.mergeSpace, car.lane, mergeLane);
+                float distanceFront = GetEquivalentDistance(car.distanceFront + car.mergeSpace, car.lane, mergeLane);
+
+                //foreach (Car otherCar in allCarsList)
+                for (var ci=0; ci<AllCars.Length; ci++)
+                {
+                    var otherCar = this.AllCars[ci];
+                    if (car.ThisCarEntity == otherCar.ThisCarEntity)
+                        continue;
+                    if (AreasOverlap(mergeLane, distanceBack, distanceFront, otherCar.lane, otherCar.distanceBack, otherCar.distanceFront))
+                        return false;
+                }
+                return true;
+
+            }
+
+
+            /// <summary>
+            /// Returns if the given distances overlap, regardless of lane.
+            /// If front distance is less than back distance, it's assumed that back is just behind the end of the track and front is just ahead of the beginning.
+            /// </summary>
+            public bool DistancesOverlap(float d1Lane, float d1Back, float d1Front, float d2Lane, float d2Back, float d2Front)
+            {
+                d1Back %= length(d1Lane);
+                d1Front %= length(d1Lane);
+                d2Back = GetEquivalentDistance(d2Back, d2Lane, d1Lane);
+                d2Front = GetEquivalentDistance(d2Front, d2Lane, d1Lane);
+
+                bool backContained = false;
+                if (d1Back < d1Front)
+                {
+                    backContained = d1Back <= d2Back && d2Back <= d1Front;
+                }
+                else
+                {
+                    backContained = d1Back <= d2Back || d2Back <= d1Front;
+                }
+                if (backContained) return true;
+
+                bool frontContained = false;
+                if (d1Back < d1Front)
+                {
+                    frontContained = d1Back <= d2Front && d2Front <= d1Front;
+                }
+                else
+                {
+                    frontContained = d1Back <= d2Front || d2Front <= d1Front;
+                }
+                if (frontContained) return true;
+
+                return false;
+            }
+
+            /// <summary>
+            /// Gets if the two given areas overlap.  Areas are defined by a lane, a back distance, and a front distance.
+            /// A float lane is considered to contain both floor(lane) and ceil(lane).
+            /// </summary>
+            public bool AreasOverlap(float lane1, float distance1Back, float distance1Front, float lane2, float distance2Back, float distance2Front)
+            {
+                if (!LanesOverlap(lane1, lane2)) return false;
+
+                return DistancesOverlap(lane1, distance1Back, distance1Front, lane2, distance2Back, distance2Front);
+            }
+
 
             public float length(float lane)
             {

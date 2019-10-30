@@ -11,6 +11,8 @@ namespace HighwayRacers {
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
+            if (Car.IsTotalHackData) return inputDeps;
+
             var query = this.GetEntityQuery(ComponentType.ReadOnly<CarStateStruct>());
             var ar = query.ToComponentDataArray<CarStateStruct>(Allocator.TempJob);
 
@@ -18,7 +20,8 @@ namespace HighwayRacers {
             inputDeps = (new CarUpdateNextJob(
                 this.GetComponentDataFromEntity<CarStateStruct>(true), 
                 ar, 
-                Highway.instance.HighwayState
+                Highway.instance.HighwayState,
+                Car.CarUpdateInfo.Now()
                 )).Schedule(this, inputDeps);
 
 
@@ -53,15 +56,18 @@ namespace HighwayRacers {
             public readonly ComponentDataFromEntity<CarStateStruct> OtherCarQuery;
             public NativeArray<CarStateStruct> OtherCarArray;
             public Highway.HighwayStateStruct HighwayInst;
+            public Car.CarUpdateInfo UpdateInfo;
 
             //public CarUpdateJob() { }
             public CarUpdateNextJob(ComponentDataFromEntity<CarStateStruct> query,
             NativeArray<CarStateStruct> _carArray,
-                Highway.HighwayStateStruct _highwayInst)
+                Highway.HighwayStateStruct _highwayInst,
+                Car.CarUpdateInfo _updateInfo)
             {
                 this.OtherCarQuery = query;
                 this.OtherCarArray = _carArray;
                 this.HighwayInst = _highwayInst;
+                this.UpdateInfo = _updateInfo;
             }
 
             public void Execute(ref CarNextState nextState)
@@ -72,7 +78,7 @@ namespace HighwayRacers {
                 temp.DEBUG_JobTester++;
 
                 // Do the actual update logic:
-                Car.UpdateCarState_FromJob(ref temp, ref this.HighwayInst);
+                Car.UpdateCarState_FromJob(ref temp, ref this.HighwayInst, this.UpdateInfo);
 
                 // write it into the next state:
                 nextState.NextState = temp;

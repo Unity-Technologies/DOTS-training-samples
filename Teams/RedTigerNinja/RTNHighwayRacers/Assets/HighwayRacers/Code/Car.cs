@@ -46,6 +46,8 @@ namespace HighwayRacers
         public Entity overtakeCarEntity;
         public float timeOvertakeCarSet;
 
+        public Highway MyHighwayState { get { return Highway.instance; } }
+
         public bool IsNotNull { get { return !this.IsNull; } }
         public bool IsNull { get { return (this.ThisCarEntity == Entity.Null); } }
 
@@ -74,7 +76,7 @@ namespace HighwayRacers
         {
             get
             {
-                return (distance - GlobalShared.distanceToBack) + Mathf.Floor((distance - GlobalShared.distanceToBack) / Highway.instance.length(lane)) * Highway.instance.length(lane);
+                return (distance - GlobalShared.distanceToBack) + Mathf.Floor((distance - GlobalShared.distanceToBack) / MyHighwayState.length(lane)) * MyHighwayState.length(lane);
             }
         }
 
@@ -85,7 +87,7 @@ namespace HighwayRacers
         {
             get
             {
-                return (distance + GlobalShared.distanceToFront) + Mathf.Floor((distance + GlobalShared.distanceToFront) / Highway.instance.length(lane)) * Highway.instance.length(lane);
+                return (distance + GlobalShared.distanceToFront) + Mathf.Floor((distance + GlobalShared.distanceToFront) / MyHighwayState.length(lane)) * MyHighwayState.length(lane);
             }
         }
 
@@ -276,32 +278,60 @@ namespace HighwayRacers
             return CarStateStruct.NullCar;
         }
 
+        public const bool IsTotalHackData = true;
+
         private void Update()
         {
             Highway.instance.EnsureUpdated();
 
-            UpdateCarData(ref this.CarData, ref Highway.instance.HighwayState);
+            UpdateCarData(ref this.CarData, ref Highway.instance.HighwayState, CarUpdateInfo.Now());
             UpdatePosition(ref this.CarData);
             UpdateColor(ref this.CarData);
 
-            var em = World.Active.EntityManager;
-            em.SetComponentData(this.CarData.ThisCarEntity, this.CarData);
+            if (IsTotalHackData)
+            {
+                var em = World.Active.EntityManager;
+                em.SetComponentData(this.CarData.ThisCarEntity, this.CarData);
+            }
         }
 
-        public static void UpdateCarState_FromJob(ref CarStateStruct car, ref Highway.HighwayStateStruct highway)
+
+        public struct CarUpdateInfo
         {
-            //UpdateCarData(ref car, ref highway);
+            public float TimeDelta;
+            public float TimeTotal;
+            public float overtakeMaxDuration;
+            public float switchLanesSpeed;
+            public float acceleration, brakeDeceleration;
+
+            public static CarUpdateInfo Now()
+            {
+                CarUpdateInfo ci = new CarUpdateInfo();
+                ci.TimeDelta = UnityEngine.Time.deltaTime;
+                ci.TimeTotal = UnityEngine.Time.time;
+                ci.overtakeMaxDuration = Game.instance.overtakeMaxDuration;
+                ci.switchLanesSpeed = Game.instance.switchLanesSpeed;
+                ci.acceleration = Game.instance.acceleration;
+                ci.brakeDeceleration = Game.instance.brakeDeceleration;
+                return ci;
+            }
         }
 
-        private static void UpdateCarData(ref CarStateStruct car, ref Highway.HighwayStateStruct highway)
+
+        public static void UpdateCarState_FromJob(ref CarStateStruct car, ref Highway.HighwayStateStruct highway, CarUpdateInfo dt)
         {
-			float dt = Time.deltaTime;
+            UpdateCarData(ref car, ref highway, dt);
+        }
+
+        private static void UpdateCarData(ref CarStateStruct car, ref Highway.HighwayStateStruct highway, CarUpdateInfo updateInfo)
+        {
+            float dt = updateInfo.TimeDelta;
 			if (dt == 0) // possible when the game is paused
 				return;
 
 			float targetSpeed = car.defaultSpeed;
-			CarStateStruct carInFront = Highway.instance.GetCarInFront(car.distance, car.lane);
-			float distToCarInFront = (carInFront.IsNull) ? float.MaxValue : Highway.instance.DistanceTo(car.distanceFront, car.lane, carInFront.distanceBack, carInFront.lane);
+			CarStateStruct carInFront = highway.GetCarInFront(car.distance, car.lane);
+			float distToCarInFront = (carInFront.IsNull) ? float.MaxValue : highway.DistanceTo(car.distanceFront, car.lane, carInFront.distanceBack, carInFront.lane);
 
 			switch (car.state) {
 			case MergeState.NORMAL:
@@ -320,7 +350,7 @@ namespace HighwayRacers
 
 				targetSpeed = car.defaultSpeed;
 
-                    car.velocityLane = Game.instance.switchLanesSpeed;
+                    car.velocityLane = updateInfo.switchLanesSpeed;
 				// detect ending merge
 				if (car.lane + car.velocityLane * dt >= car.targetLane) {
                         // set veloicty to not overshoot lane
@@ -343,7 +373,7 @@ namespace HighwayRacers
 
 				targetSpeed = car.defaultSpeed;
 
-                    car.velocityLane = -Game.instance.switchLanesSpeed;
+                    car.velocityLane = -updateInfo.switchLanesSpeed;
 				// detect ending merge
 				if (car.lane + car.velocityLane * dt <= car.targetLane) {
                         // set veloicty to not overshoot lane
@@ -357,7 +387,7 @@ namespace HighwayRacers
 			}
 
 			// detect overtaking car taking too long
-			if ((car.overtakeCarEntity != Entity.Null) && Time.time - car.timeOvertakeCarSet >= Game.instance.overtakeMaxDuration) {
+			if ((car.overtakeCarEntity != Entity.Null) && updateInfo.TimeTotal - car.timeOvertakeCarSet >= updateInfo.overtakeMaxDuration) {
                 car.overtakeCarEntity = Entity.Null;
 			}
 
@@ -370,12 +400,12 @@ namespace HighwayRacers
 					&& car.overtakeEagerness > carInFront.velocityPosition / car.defaultSpeed // car in front is slow enough		
 				) {
 
-					if (Highway.instance.CanMergeToLane(car, car.lane + 1)) { // if space is available
+					if (highway.CanMergeToLane(car, car.lane + 1)) { // if space is available
                                                                                // start merge to left
                         car.state = MergeState.MERGE_LEFT;
                         car.targetLane = Mathf.Round(car.lane + 1);
                         car.overtakeCarEntity = carInFront.ThisCarEntity;
-                        car.timeOvertakeCarSet = Time.time;
+                        car.timeOvertakeCarSet = updateInfo.TimeTotal;
 					}
 				}
 
@@ -387,7 +417,7 @@ namespace HighwayRacers
 					tryMergeRight = true;
 				} else {
 					// if passed overtake car
-					if (Highway.instance.DistanceTo(car.distance, car.lane, GetOtherCar( car.overtakeCarEntity ).distance, GetOtherCar(car.overtakeCarEntity).lane) > Highway.instance.length(car.lane) / 2) {
+					if (highway.DistanceTo(car.distance, car.lane, GetOtherCar( car.overtakeCarEntity ).distance, GetOtherCar(car.overtakeCarEntity).lane) > highway.length(car.lane) / 2) {
 						tryMergeRight = true;
 					}
 				}
@@ -398,8 +428,8 @@ namespace HighwayRacers
 
 				if (tryMergeRight) {
 					// don't merge if just going to merge back
-					CarStateStruct rightCarInFront = Highway.instance.GetCarInFront(Highway.instance.GetEquivalentDistance(car.distanceFront, car.lane, car.lane - 1), car.lane - 1);
-					float distToRightCarInFront = rightCarInFront.IsNull ? float.MaxValue : Highway.instance.DistanceTo(Highway.instance.GetEquivalentDistance(car.distanceFront, car.lane, car.lane - 1), car.lane - 1, rightCarInFront.distanceBack, rightCarInFront.lane);
+					CarStateStruct rightCarInFront = highway.GetCarInFront(highway.GetEquivalentDistance(car.distanceFront, car.lane, car.lane - 1), car.lane - 1);
+					float distToRightCarInFront = rightCarInFront.IsNull ? float.MaxValue : highway.DistanceTo(highway.GetEquivalentDistance(car.distanceFront, car.lane, car.lane - 1), car.lane - 1, rightCarInFront.distanceBack, rightCarInFront.lane);
 					// condition for merging to left lane
 					if (distToRightCarInFront < car.leftMergeDistance// close enough to car in front
 					    && car.overtakeEagerness > rightCarInFront.velocityPosition / car.defaultSpeed // car in front is slow enough
@@ -414,7 +444,7 @@ namespace HighwayRacers
 					tryMergeRight // overtook target car (or overtake car doesn't exist)
 					) { 
 
-					if (Highway.instance.CanMergeToLane(car, car.lane - 1)) { // if space is available
+					if (highway.CanMergeToLane(car, car.lane - 1)) { // if space is available
                                                                                // start merge to right
                         car.overtakeCarEntity = Entity.Null;
                         car.state = MergeState.MERGE_RIGHT;
@@ -429,9 +459,9 @@ namespace HighwayRacers
 
 			// increase to speed
 			if (targetSpeed > car.velocityPosition) {
-                car.velocityPosition = Mathf.Min(targetSpeed, car.velocityPosition + Game.instance.acceleration * dt);
+                car.velocityPosition = Mathf.Min(targetSpeed, car.velocityPosition + updateInfo.acceleration * dt);
 			} else {
-                car.velocityPosition = Mathf.Max(targetSpeed, car.velocityPosition - Game.instance.brakeDeceleration * dt);
+                car.velocityPosition = Mathf.Max(targetSpeed, car.velocityPosition - updateInfo.brakeDeceleration * dt);
 			}
 
 			// crash prevention failsafe
