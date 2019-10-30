@@ -1,0 +1,37 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Unity.Entities.Hybrid.CodeGen.Tests
+{
+	[DisallowMultipleComponent]
+	internal class ComponentAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
+	{
+		public GameObject PrefabA;
+
+		public GameObject PrefabB;
+
+		public float FloatValue;
+
+		public int IntValue;
+
+		public GameObject PrefabC;
+
+		public sealed override void Convert(Entity entity, EntityManager destinationManager, GameObjectConversionSystem conversionSystem)
+		{
+			Component componentData = default(Component);
+			componentData.PrefabA = conversionSystem.GetPrimaryEntity(PrefabA);
+			componentData.PrefabB = conversionSystem.GetPrimaryEntity(PrefabB);
+			componentData.FloatValue = FloatValue;
+			componentData.IntValue = IntValue;
+			componentData.PrefabC = conversionSystem.GetPrimaryEntity(PrefabC);
+			destinationManager.AddComponentData(entity, componentData);
+		}
+
+		public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
+		{
+			referencedPrefabs.Add(PrefabA);
+			referencedPrefabs.Add(PrefabB);
+			referencedPrefabs.Add(PrefabC);
+		}
+	}
+}

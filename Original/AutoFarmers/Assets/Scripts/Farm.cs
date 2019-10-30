@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 public class Farm : MonoBehaviour {
 	public Vector2Int mapSize;
@@ -98,16 +99,21 @@ public class Farm : MonoBehaviour {
 	}
 
 	public static void TillGround(int x, int y) {
+		Profiler.BeginSample("Till");
 		groundStates[x,y] = GroundState.Tilled;
 		int index = y * instance.mapSize.x + x;
 		tilledProperties[index / instancesPerBatch][index % instancesPerBatch] = Random.Range(.8f,1f);
+		Profiler.EndSample();
 	}
 
-	public static void RegisterSeed(int seed) {
+	public static void RegisterSeed(int seed) 
+	{
+		Profiler.BeginSample("Register Seed");
 		plantSeeds.Add(seed);
 		plantMatrices.Add(seed,new List<List<Matrix4x4>>(Mathf.CeilToInt(instance.mapSize.x * instance.mapSize.y / (float)instancesPerBatch)));
 		plantMatrices[seed].Add(new List<Matrix4x4>(instancesPerBatch));
 		plants.Add(seed,new List<Plant>(instance.mapSize.x*instance.mapSize.y));
+		Profiler.EndSample();
 	}
 
 	public static void SpawnPlant(int x, int y, int seed) {
@@ -127,11 +133,15 @@ public class Farm : MonoBehaviour {
 		matrices[matrices.Count - 1].Add(plant.matrix);
 	}
 	public static void HarvestPlant(int x, int y) {
+		Profiler.BeginSample("Harvest");
 		tilePlants[x,y].harvested=true;
 		tilePlants[x,y] = null;
 		groundStates[x,y] = GroundState.Tilled;
+		Profiler.EndSample();
 	}
 	public static void SellPlant(Plant plant, int storeX, int storeY) {
+		Profiler.BeginSample("Sell Plant");
+		
 		plant.x = storeX;
 		plant.y = storeY;
 		soldPlants.Add(plant);
@@ -152,6 +162,7 @@ public class Farm : MonoBehaviour {
 			}
 			moneyForDrones -= 50;
 		}
+		Profiler.EndSample();
 	}
 	public static void DeletePlant(Plant plant) {
 		pooledPlants.Add(plant);

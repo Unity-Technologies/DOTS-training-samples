@@ -1,0 +1,26 @@
+{
+    "name": "Unity.Entities.Hybrid.CodeGen",
+    "references": [
+        "Unity.Entities",
+        "Unity.Entities.Hybrid",
+        "Unity.Entities.CodeGen",
+        "Unity.Burst",
+        "Unity.Collections"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Mono.Cecil.dll",
+        "Mono.Cecil.Rocks.dll",
+        "Mono.Cecil.Pdb.dll"
+    ],
+    "defineConstraints": [
+        "!NET_DOTS"
+    ],
+    "autoReferenced": false,
+    "versionDefines": []
+}

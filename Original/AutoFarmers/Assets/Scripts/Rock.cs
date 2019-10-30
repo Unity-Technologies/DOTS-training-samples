@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 public class Rock {
 	public RectInt rect;
@@ -29,6 +30,7 @@ public class Rock {
 
 	// returns true when we get destroyed
 	public void TakeDamage(int damage) {
+		Profiler.BeginSample("Damage Rock");
 		health -= damage;
 		float t = (float)health / startHealth;
 		matrix.m11 = depth*t + Random.Range(0f,.1f);
@@ -37,5 +39,6 @@ public class Rock {
 		if (health<=0) {
 			Farm.DeleteRock(this);
 		}
+		Profiler.EndSample();
 	}
 }

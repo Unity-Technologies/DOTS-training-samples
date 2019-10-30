@@ -1,0 +1,16 @@
+{
+    "name": "Unity.Entities.CodeGen.Tests.TestTypes",
+    "references": [
+        "Unity.Entities"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+    ],
+    "autoReferenced": false,
+    "versionDefines": []
+}

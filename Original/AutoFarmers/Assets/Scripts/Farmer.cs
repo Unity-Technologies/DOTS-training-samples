@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 [System.Serializable]
 public class Farmer {
@@ -53,6 +54,7 @@ public class Farmer {
 	}
 
 	public void PickNewIntention() {
+		Profiler.BeginSample("Farmer Pick Intention");
 		path.Clear();
 
 		
@@ -67,6 +69,7 @@ public class Farmer {
 		} else if (rand==3) {
 			intention = Intention.SellPlants;
 		}
+		Profiler.EndSample();
 	}
 
 	void SmashRocksAI() {
@@ -88,8 +91,10 @@ public class Farmer {
 		}
 	}
 
-	void TillGroundAI() {
-		if (foundTillingZone == false) {
+	void TillGroundAI() 
+	{
+		if (foundTillingZone == false) 
+		{
 			int width = Random.Range(1,8);
 			int height = Random.Range(1,8);
 			int minX = tileX + Random.Range(-10,10 - width);
@@ -124,22 +129,29 @@ public class Farmer {
 					intention = Intention.None;
 				}
 			}
-		} else {
+		} 
+		else 
+		{
 			Debug.DrawLine(new Vector3(tillingZone.min.x,.1f,tillingZone.min.y),new Vector3(tillingZone.max.x + 1f,.1f,tillingZone.min.y),Color.green);
 			Debug.DrawLine(new Vector3(tillingZone.max.x+1f,.1f,tillingZone.min.y),new Vector3(tillingZone.max.x + 1f,.1f,tillingZone.max.y+1f),Color.green);
 			Debug.DrawLine(new Vector3(tillingZone.max.x+1f,.1f,tillingZone.max.y+1f),new Vector3(tillingZone.min.x,.1f,tillingZone.max.y+1f),Color.green);
 			Debug.DrawLine(new Vector3(tillingZone.min.x,.1f,tillingZone.max.y+1f),new Vector3(tillingZone.min.x,.1f,tillingZone.min.y),Color.green);
-			if (IsTillableInZone(tileX,tileY)) {
+			if (IsTillableInZone(tileX,tileY)) 
+			{
 				path.Clear();
 				Farm.TillGround(tileX,tileY);
-			} else {
-				if (path.count == 0) {
+			} else 
+			{
+				if (path.count == 0) 
+				{
 					int tileHash = Pathing.SearchForOne(tileX,tileY,25,Pathing.IsNavigableDefault,Pathing.IsTillable,tillingZone);
-					if (tileHash != -1) {
+					if (tileHash != -1) 
+					{
 						int tileX, tileY;
 						Pathing.Unhash(tileHash,out tileX,out tileY);
 						Pathing.AssignLatestPath(path,tileX,tileY);
-					} else {
+					} else 
+					{
 						intention = Intention.None;
 					}
 				}
@@ -208,6 +220,7 @@ public class Farmer {
 	}
 
 	void FollowPath() {
+		Profiler.BeginSample("Farmer Follow Path");
 		if (path.count > 0) {
 			for (int i = 0; i < path.xPositions.Count - 1; i++) {
 				Debug.DrawLine(new Vector3(path.xPositions[i] + .5f,.5f,path.yPositions[i] + .5f),new Vector3(path.xPositions[i + 1] + .5f,.5f,path.yPositions[i + 1] + .5f),Color.red);
@@ -229,9 +242,12 @@ public class Farmer {
 				}
 			}
 		}
+		Profiler.EndSample();
 	}
 
 	public void Tick(float moveSmooth) {
+		
+		Profiler.BeginSample("FarmerTick");
 		attackingARock = false;
 		if (intention == Intention.None) {
 			PickNewIntention();
@@ -260,5 +276,6 @@ public class Farmer {
 		// update our x and z position in our matrix:
 		matrix.m03 = smoothPosition.x+xOffset;
 		matrix.m23 = smoothPosition.y+zOffset;
+		Profiler.EndSample();
 	}
 }

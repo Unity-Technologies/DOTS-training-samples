@@ -1,0 +1,7 @@
+.live-link-connections-dropdown__status--connected { background-image: resource("LiveLink/Icons/d_Connected"); }
+.live-link-connections-dropdown__status--error { background-image: resource("LiveLink/Icons/d_ConnectionError"); }
+.live-link-connections-dropdown__status--soft-disconnected { background-image: resource("LiveLink/Icons/d_Disconnected"); }
+
+.live-link-connections-dropdown__footer {
+    border-color: #5D5D5D;
+}

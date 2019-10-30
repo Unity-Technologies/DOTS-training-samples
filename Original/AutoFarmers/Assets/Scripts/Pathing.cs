@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 public static class Pathing {
 
@@ -87,6 +88,8 @@ public static class Pathing {
 	}
 
 	public static List<int> Search(int startX,int startY,int range,IsNavigableDelegate IsNavigable,CheckMatchDelegate CheckMatch,RectInt requiredZone, int maxResultCount=0) {
+		
+		Profiler.BeginSample("Pathing Search");
 		mapWidth = Farm.instance.mapSize.x;
 		mapHeight = Farm.instance.mapSize.y;
 
@@ -142,6 +145,7 @@ public static class Pathing {
 								if (CheckMatch(x2,y2)) {
 									outputTiles.Add(hash);
 									if (maxResultCount != 0 && outputTiles.Count >= maxResultCount) {
+										Profiler.EndSample();
 										return outputTiles;
 									}
 								}
@@ -152,6 +156,7 @@ public static class Pathing {
 			}
 		}
 
+		Profiler.EndSample();
 		return outputTiles;
 	}
 

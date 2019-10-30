@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="UnityEngine.UIElements">
+
+    <VisualElement class="live-link-connections-dropdown__footer">
+        <Button name="live-link-connections-dropdown__footer__build" text="Build Live Link Player" />
+        <Button name="live-link-connections-dropdown__footer__reset" text="Reset Linked Devices" />
+        <Button name="live-link-connections-dropdown__footer__clear" text="Clear Live Link Player Cache" />
+    </VisualElement>
+</UXML>

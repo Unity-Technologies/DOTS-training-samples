@@ -1,0 +1,110 @@
+<#/*THIS IS A T4 FILE - see t4_text_templating.md for what it is and how to run codegen*/#>
+<#@ assembly name="System.Collections" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ output extension=".gen.cs" #>
+using Unity.Entities.UniversalDelegates;
+using Unity.Entities.CodeGeneratedJobForEach;
+using Unity.Entities;
+
+namespace Unity.Entities.UniversalDelegates
+{
+<#
+
+int maxParamCount = 8;
+
+string SeparateByComma(IEnumerable<string> elements)
+{
+    return SeparateBy(", ", elements);
+}
+
+string SeparateBy(string separator, IEnumerable<string> elements)
+{
+    var sb = new StringBuilder();
+    bool first = true;
+    foreach(var e in elements)
+    {
+        if (!first)
+            sb.Append(separator);
+        sb.Append(e);
+        first = false;
+    }
+    return sb.ToString();
+}
+
+List<string> AllModeCombinationsFor(int amount)
+{
+    if (amount == 0)
+        return new List<string>() { "" };
+        
+    var oneFewerResult = AllModeCombinationsFor(amount - 1);
+    
+    return oneFewerResult.SelectMany(oldResult => 
+        {
+            if (oldResult == "")
+            {
+                return new List<string>() { "R","I","V"};
+            }
+            var result = new List<string>()
+            {
+                oldResult+"I"
+            };
+            char lastChar = oldResult[oldResult.Length-1];
+            if (lastChar == 'R' || lastChar == 'V')
+                result.Add(oldResult+"R");
+            
+            if (lastChar == 'V')
+                result.Add(oldResult+"V");
+            return result;
+        }).ToList();
+}
+
+string NTypeParameters(int amount)
+{
+    return SeparateByComma(Enumerable.Range(0, amount).Select(i=>$"T{i}"));
+}
+
+for (int paramCount=1; paramCount<=maxParamCount; paramCount++)
+{
+    var combinations = AllModeCombinationsFor(paramCount);
+    foreach(var combination in combinations)
+    {
+        Write($"    public delegate void {combination}<{NTypeParameters(paramCount)}>(");
+        
+        bool first = true;
+        int count = 0;
+        foreach(var c in combination)
+        {
+            if (first == false)
+                Write(", ");
+            first = false;
+            if (c == 'R')
+                Write($"ref ");
+            if (c == 'I')
+                Write($"in ");
+            Write($"T{count} t{count}");
+            count++;
+        }
+        WriteLine(");");
+    }
+}
+#>
+}
+        
+public static partial class LambdaForEachDescriptionConstructionMethods
+{
+<#
+for (int paramCount=1; paramCount<=maxParamCount; paramCount++)
+{
+    var combinations = AllModeCombinationsFor(paramCount);
+    foreach(var combination in combinations)
+    {
+        var ts = NTypeParameters(paramCount);
+        WriteLine($"    public static TDescription ForEach<TDescription,{ts}>(this TDescription description, [AllowDynamicValue] {combination}<{ts}> codeToRun) where TDescription : struct, ISupportForEachWithUniversalDelegate => ThrowCodeGenException<TDescription>();");
+    }
+}
+#>
+}

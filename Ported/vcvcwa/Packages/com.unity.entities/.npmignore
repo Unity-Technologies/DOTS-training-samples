@@ -1,0 +1,6 @@
+.npmignore
+Unity.Entities.CodeGen.Tests/.tools/ilspycmd.exe
+*.CodeGen.Tests/**/IntegrationTests
+*.CodeGen.Tests/**/IntegrationTests.meta
+
+**/Unity.Entities.Determinism*

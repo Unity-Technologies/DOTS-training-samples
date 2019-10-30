@@ -1,0 +1,27 @@
+{
+    "name": "Unity.Entities",
+    "references": [
+        "Unity.Collections",
+        "Unity.Burst",
+        "Unity.Mathematics",
+        "Unity.Mathematics.Extensions",
+        "Unity.Entities.StaticTypeRegistry",
+        "Unity.Properties",
+        "Unity.Properties.Reflection"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.package-validation-suite",
+            "expression": "0.4.0-preview.6",
+            "define": "UNITY_SKIP_UPDATES_WITH_VALIDATION_SUITE"
+        }
+    ]
+}
