@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Unity.Collections;
+using Unity.Entities;
 
 namespace HighwayRacers
 {
@@ -465,6 +467,12 @@ namespace HighwayRacers
 		public void RemoveCar(Car car) {
 			allCarsList.Remove(car);
             //this.UpdateCarList();
+            if (car.CarData.ThisCarEntity != Entity.Null)
+            {
+                var ent = car.CarData.ThisCarEntity;
+                car.CarData.ThisCarEntity = Entity.Null;
+                Unity.Entities.World.Active.EntityManager.DestroyEntity(ent);
+            }
             Destroy (car.gameObject);
 		}
 
@@ -472,17 +480,20 @@ namespace HighwayRacers
 
         public struct HighwayStateStruct
         {
-            public Unity.Collections.NativeArray<CarStateStruct> AllCars;
-            public Unity.Collections.NativeArray<HighwayPiece.HighwayPieceState> AllPieces;
+            [ReadOnly] public Unity.Collections.NativeArray<CarStateStruct> AllCars;
+            [ReadOnly] public Unity.Collections.NativeArray<HighwayPiece.HighwayPieceState> AllPieces;
             public float lane0Length;
+
+            //public HighwayStateStruct() { }
 
             public CarStateStruct GetCarInFront(float distance, float lane)
             {
                 CarStateStruct ret = CarStateStruct.NullCar;
                 float diff = 0;
-                for (var ri =0; ri<this.AllCars.Length; ri++)
+                NativeArray<CarStateStruct> ac = this.AllCars;
+                for (var ri =0; ri<ac.Length; ri++)
                 {
-                    var car = this.AllCars[ri];
+                    var car = ac[ri];
                     if (!LanesOverlap(lane, car.lane))
                     {
                         continue;
@@ -662,13 +673,42 @@ namespace HighwayRacers
             }
         }
 
+        public void UnitAnimate(float duration, System.Action<float> unitTime, System.Action onDone)
+        {
+            this.StartCoroutine(this.__innerUnitAnimate(duration, unitTime, onDone));
+        }
+
+        private IEnumerator __innerUnitAnimate(float duration, System.Action<float> onUnitTime, System.Action onDone)
+        {
+            var startTime = Time.time;
+            onUnitTime(0.0f);
+            yield return null;
+            for (var curTime = Time.time; (curTime < (startTime + duration)); curTime = Time.time)
+            {
+                var unitTime = (curTime - startTime) / duration;
+                onUnitTime(unitTime);
+                yield return null;
+            }
+            onUnitTime(1.0f);
+            if (onDone != null)
+            {
+                onDone();
+            }
+
+        }
+
         public void UpdateCarList()
         {
+            /*
             if ((!this.allCarsNativeArray.IsCreated) || (this.allCarsNativeArray.Length != this.allCarsList.Count))
             {
                 if (this.allCarsNativeArray.IsCreated)
                 {
-                    this.allCarsNativeArray.Dispose();
+                    //Debug.Log("Cars realloc...");
+                    var toDel = this.allCarsNativeArray;
+                    this.UnitAnimate(0.5f, (dt) => { }, () => { toDel.Dispose(); });
+
+                    //this.allCarsNativeArray.Dispose();
                 }
                 this.allCarsNativeArray = new Unity.Collections.NativeArray<CarStateStruct>(this.allCarsList.Count, Unity.Collections.Allocator.Persistent);
             }
@@ -677,6 +717,7 @@ namespace HighwayRacers
                 this.allCarsNativeArray[i] = this.allCarsList[i].CarData;
             }
             this.HighwayState.AllCars = this.allCarsNativeArray;
+            */
 
             this.UpdateHighwayPiecesState();
 
@@ -686,12 +727,15 @@ namespace HighwayRacers
 
         public void UpdateHighwayPiecesState()
         {
-
+            /*
             if ((!this.allPiecesNativeArray.IsCreated) || (this.allCarsNativeArray.Length != this.pieces.Length))
             {
                 if (this.allPiecesNativeArray.IsCreated)
                 {
-                    this.allPiecesNativeArray.Dispose();
+                    //Debug.Log("Pieces realloc...");
+                    //this.allPiecesNativeArray.Dispose();
+                    var toDel = this.allPiecesNativeArray;
+                    this.UnitAnimate(0.5f, (dt) => { }, () => { toDel.Dispose(); });
                 }
                 var ar = this.pieces.Select(k => k.AsHighwayState).ToArray();
                 this.allPiecesNativeArray = new Unity.Collections.NativeArray<HighwayPiece.HighwayPieceState>(ar, Unity.Collections.Allocator.Persistent);
@@ -701,6 +745,7 @@ namespace HighwayRacers
                 this.allPiecesNativeArray[pi] = this.pieces[pi].AsHighwayState;
             }
             this.HighwayState.AllPieces = this.allPiecesNativeArray;
+            */
 
         }
 

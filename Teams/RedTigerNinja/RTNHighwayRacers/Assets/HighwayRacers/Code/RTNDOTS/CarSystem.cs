@@ -16,27 +16,33 @@ namespace HighwayRacers {
 
             Highway.instance.EnsureUpdated();
 
-            var query = this.GetEntityQuery(ComponentType.ReadOnly<CarStateStruct>());
-            var ar = query.ToComponentDataArray<CarStateStruct>(Allocator.TempJob);
+            var carQuery = this.GetEntityQuery(ComponentType.ReadOnly<CarStateStruct>());
+            var carAr = carQuery.ToComponentDataArray<CarStateStruct>(Allocator.TempJob);
+
+            var hpcQuery = this.GetEntityQuery(ComponentType.ReadOnly<HighwayPiece.HighwayPieceState>());
+            var hpcAr = hpcQuery.ToComponentDataArray<HighwayPiece.HighwayPieceState>(Allocator.TempJob);
+
+            var highway = Highway.instance.HighwayState;
+            highway.AllCars = carAr;
+            highway.AllPieces = hpcAr;
 
             // calculate next state:
             inputDeps = (new CarUpdateNextJob(
-                this.GetComponentDataFromEntity<CarStateStruct>(true),
-                ar,
-                Highway.instance.HighwayState,
+                //this.GetComponentDataFromEntity<CarStateStruct>(true),
+                highway,
                 Car.CarUpdateInfo.Now()
                 )).Schedule(this, inputDeps);
-
-
-            inputDeps.Complete();
-            ar.Dispose();
-
+                
             // update current from next state:
             inputDeps = (new CarUpdateStateFromNextJob()).Schedule(this, inputDeps);
 
             // update the car position:
-            inputDeps = (new CarUpdatePoseJob() { HighwayState = Highway.instance.HighwayState }).Schedule(this, inputDeps);
+            inputDeps = (new CarUpdatePoseJob() { HighwayState = highway }).Schedule(this, inputDeps);
 
+            inputDeps.Complete();
+
+            hpcAr.Dispose();
+            carAr.Dispose();
 
             return inputDeps;
         }
@@ -51,6 +57,7 @@ namespace HighwayRacers {
 
         public struct CarUpdateStateFromNextJob : IJobForEach<CarStateStruct, CarNextState>
         {
+
             public void Execute(ref CarStateStruct c0, [ReadOnly] ref CarNextState c1)
             {
                 c0 = c1.NextState;
@@ -70,29 +77,27 @@ namespace HighwayRacers {
         }
 
 
-        [BurstCompile]
-        public struct CarUpdateNextJob : IJobForEach<CarNextState>
+        public struct CarUpdateNextJob : IJobForEach<CarNextState,CarStateStruct>
         {
-            public readonly ComponentDataFromEntity<CarStateStruct> OtherCarQuery;
-            public NativeArray<CarStateStruct> OtherCarArray;
+            //public ComponentDataFromEntity<CarStateStruct> OtherCarQuery;
             public Highway.HighwayStateStruct HighwayInst;
             public Car.CarUpdateInfo UpdateInfo;
 
             //public CarUpdateJob() { }
-            public CarUpdateNextJob(ComponentDataFromEntity<CarStateStruct> query,
-            NativeArray<CarStateStruct> _carArray,
+            public CarUpdateNextJob(
+                //ComponentDataFromEntity<CarStateStruct> query,
                 Highway.HighwayStateStruct _highwayInst,
                 Car.CarUpdateInfo _updateInfo)
             {
-                this.OtherCarQuery = query;
-                this.OtherCarArray = _carArray;
+                //this.OtherCarQuery = query;
                 this.HighwayInst = _highwayInst;
                 this.UpdateInfo = _updateInfo;
             }
 
-            public void Execute(ref CarNextState nextState)
+            public void Execute(ref CarNextState nextState, [ReadOnly] ref CarStateStruct curState)
             {
-                var c0 = OtherCarQuery[nextState.NextState.ThisCarEntity];
+
+                var c0 = curState;// OtherCarQuery[nextState.NextState.ThisCarEntity];
 
                 CarStateStruct temp = c0;
                 temp.DEBUG_JobTester++;

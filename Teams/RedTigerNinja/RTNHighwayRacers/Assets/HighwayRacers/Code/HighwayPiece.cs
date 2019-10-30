@@ -7,6 +7,15 @@ namespace HighwayRacers
 
     public class HighwayPiece : MonoBehaviour
     {
+        private Unity.Entities.Entity PieceEntity;
+
+        private void Start()
+        {
+            var em = Unity.Entities.World.Active.EntityManager;
+            PieceEntity = em.CreateEntity();
+            em.AddComponentData(this.PieceEntity, this.AsHighwayState);
+        }
+
         public struct HighwayPieceState : Unity.Entities.IComponentData
         {
             public Vector4 LaneLengths;
