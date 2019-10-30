@@ -4,7 +4,7 @@ using Unity.Jobs;
 using Unity.Transforms;
 using Unity.Mathematics;
 
-public class DieSystem : JobComponentSystem
+public class DieParticlesSystem : JobComponentSystem
 {
     BeginInitializationEntityCommandBufferSystem bufferSystem;
 
