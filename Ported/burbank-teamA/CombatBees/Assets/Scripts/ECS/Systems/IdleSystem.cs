@@ -23,13 +23,14 @@ public class IdleSystem : JobComponentSystem
     {
         /*var enemy = enemyGroup.ToEntityArray(Allocator.TempJob);*/
         var resources = resourceGroup.ToEntityArray(Allocator.TempJob);
-        Debug.Log(resources);
+        var aggr = GetSingleton<Aggressiveness>();
+
         return Entities.WithoutBurst().WithDeallocateOnJobCompletion(resources)/*.WithDeallocateOnJobCompletion(enemy)*/
-            .ForEach((Velocity velocity, ref State state, ref TargetEntity targetEntity, in Aggressiveness aggressiveness, in Translation translation, in Team team) =>
+            .ForEach((Velocity velocity, ref State state, ref TargetEntity targetEntity, in Translation translation, in Team team) =>
             {
                 if (state.Value == State.StateType.Idle)
                 {
-                    if (((aggressiveness.Value)/100f)*2f  > noise.cnoise(translation.Value)) //cnoise generates between -1 and 1 so we are making our aggressiveness value readable.
+                    if (((aggr.Value)/100f)*2f  > noise.cnoise(translation.Value)) //cnoise generates between -1 and 1 so we are making our aggressiveness value readable.
                     {
                         state.Value = State.StateType.Chasing;
                         /*if(team.Value =! resources[0].Team) need to work on this */
