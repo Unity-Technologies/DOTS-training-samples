@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using Random = Unity.Mathematics.Random;
 
+// ReSharper disable once CheckNamespace
 namespace GameAI
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
@@ -45,7 +46,7 @@ namespace GameAI
             EntityManager.DestroyEntity(m_executeOnceEntity);
             m_executeOnceEntity = Entity.Null;
             
-            // create TilePositionRequest's
+            // create TilePositionRequests
             for (int x = 0; x < worldSizeN; ++x)
             {
                 for (int y = 0; y < worldSizeM; ++y)
