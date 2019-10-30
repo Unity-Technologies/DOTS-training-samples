@@ -15,7 +15,7 @@ public struct HighwayProperties : ISharedComponentData
 
 [DisallowMultipleComponent]
 [RequiresEntityConversion]
-public class HighwayPropertiesAuthoring : MonoBehaviour, IConvertGameObjectToEntity
+public class HighwayPropertiesAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
 {
     public const int NUM_LANES = 4;
     public const float LANE_SPACING = 1.9f;
@@ -48,14 +48,13 @@ public class HighwayPropertiesAuthoring : MonoBehaviour, IConvertGameObjectToEnt
             curvePrefab = conversionSystem.GetPrimaryEntity(curveSection)
         };
 
-        dstManager.AddComponentData(entity, data);
+        dstManager.AddSharedComponentData(entity, data);
     }
 }
 
 [CustomEditor(typeof(HighwayPropertiesAuthoring))]
 public class HighwayPropertiesEditor : Editor
 {
-
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -70,7 +69,7 @@ public class HighwayPropertiesEditor : Editor
             GameObject pCurve = hpa.curveSection;
 
             hpa.highWayLen = EditorGUILayout.Slider("Highway Length", initialLen, HighwayPropertiesAuthoring.MID_RADIUS * 4, HighwayPropertiesAuthoring.MAX_HIGHWAY_LENGTH);
-            hpa.carsCount = EditorGUILayout.IntSlider("Number of Cars", initialCount, 0, (int)Math.Floor(hpa.highWayLen));
+            hpa.carsCount = EditorGUILayout.IntSlider("Number of Cars", initialCount, 0, (int)Math.Floor(hpa.highWayLen * 2));
             hpa.straightSection = (GameObject)EditorGUILayout.ObjectField("Straight Section Prefab", pStraight, typeof(GameObject), false);
             hpa.curveSection = (GameObject)EditorGUILayout.ObjectField("Curve Section Prefab", pCurve, typeof(GameObject), false);
         }
