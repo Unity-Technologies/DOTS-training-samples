@@ -21,24 +21,29 @@ public class IdleSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
-        /*var enemy = enemyGroup.ToEntityArray(Allocator.TempJob);*/
+        var enemy = enemyGroup.ToEntityArray(Allocator.TempJob);
         var resources = resourceGroup.ToEntityArray(Allocator.TempJob);
         var aggr = GetSingleton<Aggressiveness>();
 
-        return Entities.WithoutBurst().WithDeallocateOnJobCompletion(resources)/*.WithDeallocateOnJobCompletion(enemy)*/
+        return Entities.WithoutBurst().WithDeallocateOnJobCompletion(resources).WithDeallocateOnJobCompletion(enemy)
             .ForEach((Velocity velocity, ref State state, ref TargetEntity targetEntity, in Translation translation, in Team team) =>
             {
                 if (state.Value == State.StateType.Idle)
                 {
-                    if (((aggr.Value)/100f)*2f  > noise.cnoise(translation.Value)) //cnoise generates between -1 and 1 so we are making our aggressiveness value readable.
+                    Debug.Log((noise.cnoise(velocity.Value) + 1) * 50.0f);
+
+                    if (aggr.Value  > (noise.cnoise(velocity.Value)+1)*50.0f) //cnoise generates between -1 and 1 so we are making our aggressiveness value readable.
                     {
+
+
                         state.Value = State.StateType.Chasing;
                         /*if(team.Value =! resources[0].Team) need to work on this */
-                        targetEntity.Value = resources[0];
+                        targetEntity.Value = enemy[0];
                     }
                     else
                     {
                         state.Value = State.StateType.Collecting;
+                        targetEntity.Value = resources[0];
                     }
                 }
             })
