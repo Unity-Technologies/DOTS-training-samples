@@ -30,8 +30,6 @@ public class IdleSystem : JobComponentSystem
             {
                 if (state.Value == State.StateType.Idle)
                 {
-                    Debug.Log((noise.cnoise(velocity.Value) + 1) * 50.0f);
-
                     if (aggr.Value  > (noise.cnoise(velocity.Value)+1)*50.0f) //cnoise generates between -1 and 1 so we are making our aggressiveness value readable.
                     {
 
