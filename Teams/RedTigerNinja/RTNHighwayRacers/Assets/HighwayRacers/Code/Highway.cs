@@ -362,8 +362,8 @@ namespace HighwayRacers
 		/// <param name="mergeLane">The lane the car will merge to.</param>
 		public bool CanMergeToLane(CarStateStruct car, float mergeLane)
 		{
-			float distanceBack = GetEquivalentDistance(car.distanceBack - car.mergeSpace, car.lane, mergeLane);
-			float distanceFront = GetEquivalentDistance(car.distanceFront + car.mergeSpace, car.lane, mergeLane);
+			float distanceBack = GetEquivalentDistance(car.distanceBack - car.Settings.mergeSpace, car.lane, mergeLane);
+			float distanceFront = GetEquivalentDistance(car.distanceFront + car.Settings.mergeSpace, car.lane, mergeLane);
 
 			foreach (Car otherCar in allCarsList)
 			{
@@ -455,7 +455,7 @@ namespace HighwayRacers
             car.CarData.distance = distance;
             car.CarData.lane = lane;
             car.CarData.ThisCarEntity = em.Instantiate(CaptureNewEntity.CreatedEntity);// em.CreateEntity();
-			car.CarData.velocityPosition = car.CarData.defaultSpeed;
+			car.CarData.velocityPosition = car.CarData.Settings.defaultSpeed;
             em.AddComponentData(car.CarData.ThisCarEntity, car.CarData);
             em.AddComponentData(car.CarData.ThisCarEntity, new CarSystem.CarNextState(car.CarData));
             allCarsList.Add(car);
@@ -538,8 +538,8 @@ namespace HighwayRacers
             /// <param name="mergeLane">The lane the car will merge to.</param>
             public bool CanMergeToLane(CarStateStruct car, float mergeLane)
             {
-                float distanceBack = GetEquivalentDistance(car.distanceBack - car.mergeSpace, car.lane, mergeLane);
-                float distanceFront = GetEquivalentDistance(car.distanceFront + car.mergeSpace, car.lane, mergeLane);
+                float distanceBack = GetEquivalentDistance(car.distanceBack - car.Settings.mergeSpace, car.lane, mergeLane);
+                float distanceFront = GetEquivalentDistance(car.distanceFront + car.Settings.mergeSpace, car.lane, mergeLane);
 
                 //foreach (Car otherCar in allCarsList)
                 for (var ci=0; ci<AllCars.Length; ci++)

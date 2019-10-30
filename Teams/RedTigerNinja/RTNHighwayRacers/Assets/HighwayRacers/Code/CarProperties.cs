@@ -34,17 +34,17 @@ namespace HighwayRacers {
 		private void SetSliderProperties() {
 			if (selectedCar == null)
 				return;
-			defaultSpeed.value = selectedCar.CarData.defaultSpeed;
-			defaultSpeed.SetText("Default Speed: " + selectedCar.CarData.defaultSpeed.ToString("0.0") + " m/s");
-			overtakePercent.value = selectedCar.CarData.overtakePercent;
-			overtakePercent.SetText("Overtake Speed: " + Mathf.RoundToInt(selectedCar.CarData.overtakePercent * 100) + "%");
-			leftMergeDistance.value = selectedCar.CarData.leftMergeDistance;
-			leftMergeDistance.SetText("Distance to car in front before overtaking: " + selectedCar.CarData.leftMergeDistance.ToString("0.0") + " m");
-			mergeSpace.value = selectedCar.CarData.mergeSpace;
-			float combinedMergeSpace = selectedCar.CarData.mergeSpace * 2 + CarShared.distanceToFront + CarShared.distanceToBack;
+			defaultSpeed.value = selectedCar.CarData.Settings.defaultSpeed;
+			defaultSpeed.SetText("Default Speed: " + selectedCar.CarData.Settings.defaultSpeed.ToString("0.0") + " m/s");
+			overtakePercent.value = selectedCar.CarData.Settings.overtakePercent;
+			overtakePercent.SetText("Overtake Speed: " + Mathf.RoundToInt(selectedCar.CarData.Settings.overtakePercent * 100) + "%");
+			leftMergeDistance.value = selectedCar.CarData.Settings.leftMergeDistance;
+			leftMergeDistance.SetText("Distance to car in front before overtaking: " + selectedCar.CarData.Settings.leftMergeDistance.ToString("0.0") + " m");
+			mergeSpace.value = selectedCar.CarData.Settings.mergeSpace;
+			float combinedMergeSpace = selectedCar.CarData.Settings.mergeSpace * 2 + CarShared.distanceToFront + CarShared.distanceToBack;
 			mergeSpace.SetText("Merge Space: " + combinedMergeSpace.ToString("0.0") + " m");
-			overtakeEagerness.value = selectedCar.CarData.overtakeEagerness;
-			overtakeEagerness.SetText("Overtake Eagerness: " + selectedCar.CarData.overtakeEagerness.ToString("0.0"));
+			overtakeEagerness.value = selectedCar.CarData.Settings.overtakeEagerness;
+			overtakeEagerness.SetText("Overtake Eagerness: " + selectedCar.CarData.Settings.overtakeEagerness.ToString("0.0"));
 
 		}
 
@@ -54,11 +54,11 @@ namespace HighwayRacers {
 			if (preventUpdatingCar)
 				return;
 
-			selectedCar.CarData.defaultSpeed = defaultSpeed.value;
-			selectedCar.CarData.overtakePercent = overtakePercent.value;
-			selectedCar.CarData.leftMergeDistance = leftMergeDistance.value;
-			selectedCar.CarData.mergeSpace = mergeSpace.value;
-			selectedCar.CarData.overtakeEagerness = overtakeEagerness.value;
+			selectedCar.CarData.Settings.defaultSpeed = defaultSpeed.value;
+			selectedCar.CarData.Settings.overtakePercent = overtakePercent.value;
+			selectedCar.CarData.Settings.leftMergeDistance = leftMergeDistance.value;
+			selectedCar.CarData.Settings.mergeSpace = mergeSpace.value;
+			selectedCar.CarData.Settings.overtakeEagerness = overtakeEagerness.value;
 
 			SetSliderProperties();
 		}
