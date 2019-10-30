@@ -79,20 +79,10 @@ namespace HighwayRacers
         }
     }
 
-    public struct CarStateStruct : Unity.Entities.IComponentData
+    public struct CarMindState : IComponentData
     {
-        public CarSettingsStruct Settings;
-        public CarLocation Location;
 
         public MergeState state;
-
-        public int DEBUG_JobTester;
-        public Entity ThisCarEntity;
-        public int SortedIndexSelf;
-        public int SortedIndexNext;
-
-
-
 
         public float targetLane;
 
@@ -104,6 +94,27 @@ namespace HighwayRacers
         //public CarStateStruct overtakeCar;
         public Entity overtakeCarEntity;
         public float timeOvertakeCarSet;
+
+
+        public bool isMerging
+        {
+            get { return state == MergeState.MERGE_LEFT || state == MergeState.MERGE_RIGHT; }
+        }
+
+
+    }
+
+    public struct CarStateStruct : Unity.Entities.IComponentData
+    {
+        public CarSettingsStruct Settings;
+        public CarLocation Location;
+        public CarMindState Mind;
+
+        public int DEBUG_JobTester;
+        public Entity ThisCarEntity;
+        public int SortedIndexSelf;
+        public int SortedIndexNext;
+
 
         public Highway MyHighwayState { get { return Highway.instance; } }
 
@@ -125,11 +136,6 @@ namespace HighwayRacers
             {
                 return Settings.defaultSpeed * Settings.overtakePercent;
             }
-        }
-
-        public bool isMerging
-        {
-            get { return state == MergeState.MERGE_LEFT || state == MergeState.MERGE_RIGHT; }
         }
 
 
@@ -234,15 +240,15 @@ namespace HighwayRacers
         public Color color { get; set; }
 
         public void Show() {
-			if (!CarData.hidden)
+			if (!CarData.Mind.hidden)
 				return;
-            CarData.hidden = false;
+            CarData.Mind.hidden = false;
 		}
 
 		public void Hide() {
-			if (CarData.hidden)
+			if (CarData.Mind.hidden)
 				return;
-            CarData.hidden = true;
+            CarData.Mind.hidden = true;
 
 		}
 
@@ -362,13 +368,13 @@ namespace HighwayRacers
         {
             var loc = car.Location;
             var cds = car.Settings;
-            var mnd = car;
+            var mnd = car.Mind;
             UpdateCarData(ref loc, cds, ref mnd, ref highway, dt);
-            car = mnd;
             car.Location = loc;
+            car.Mind = mnd;
         }
 
-        private static void UpdateCarData(ref CarLocation car, CarSettingsStruct settings, ref CarStateStruct carMind, ref Highway.HighwayStateStruct highway, CarUpdateInfo updateInfo)
+        private static void UpdateCarData(ref CarLocation car, CarSettingsStruct settings, ref CarMindState carMind, ref Highway.HighwayStateStruct highway, CarUpdateInfo updateInfo)
         {
             float dt = updateInfo.TimeDelta;
 			if (dt == 0) // possible when the game is paused
@@ -411,7 +417,7 @@ namespace HighwayRacers
 
 			case MergeState.OVERTAKING:
 
-				targetSpeed = carMind.maxSpeed;
+				targetSpeed = settings.maxSpeed;
                     car.velocityLane = 0;
 
 				break;
