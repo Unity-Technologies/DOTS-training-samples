@@ -12,6 +12,11 @@ PrefabInstance:
       propertyPath: Value
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: -3177314511885129324, guid: 124233946e5cf4c30ade2ca6ecd706b6,
+        type: 3}
+      propertyPath: Value.x
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 3709095924513462553, guid: 124233946e5cf4c30ade2ca6ecd706b6,
         type: 3}
       propertyPath: m_Name

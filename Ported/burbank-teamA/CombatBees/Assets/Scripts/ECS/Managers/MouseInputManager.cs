@@ -30,12 +30,26 @@ public class MouseInputManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
 
-            Transform mouseRay = GameObject.FindObjectOfType<MouseRaycaster>().marker;
+            Transform mouseRay = FindObjectOfType<MouseRaycaster>().marker;
 
+            Debug.Log("Clicked in" + mouseRay.position);
+
+            //TODO: change that in the future
             EntityManager entityManager = World.Active.EntityManager;
             Entity entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(spawningResources, World.Active);
+
+            if(mouseRay.position.x < -40)
+            {
+                entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(spawningTeamBees[0], World.Active);
+            }
+
+            if(mouseRay.position.x > 40)
+            {
+                entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(spawningTeamBees[1], World.Active);
+            }
+
             var instance = entityManager.Instantiate(entity);
-            entityManager.SetComponentData(instance, new Translation() { Value = mouseRay.position});
+            entityManager.SetComponentData(instance, new Translation() { Value = mouseRay.position });
         }
     }
     void LateUpdate () {

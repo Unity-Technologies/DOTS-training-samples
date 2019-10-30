@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 700540708355616525}
   - component: {fileID: 700540708355616523}
   m_Layer: 0
-  m_Name: Spawner
+  m_Name: Spawner_Res
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -44,12 +44,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b758a18eb0a44b6c92cf7bd1d797ca1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Prefab: {fileID: 3709095924513462553, guid: 124233946e5cf4c30ade2ca6ecd706b6, type: 3}
+  Prefab: {fileID: 3485405997291230649, guid: 9a16b3e608d2f4ed4ad9a8b196d4cdc1, type: 3}
   Position:
     x: 0
     y: 0
     z: 0
-  Amount: 20
+  Amount: 1
 --- !u!114 &700540708355616523
 MonoBehaviour:
   m_ObjectHideFlags: 0
