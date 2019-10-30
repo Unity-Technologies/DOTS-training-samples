@@ -7,5 +7,5 @@ using Unity.Mathematics;
 
 public struct Aggressiveness : IComponentData
 {
-    public float aggressiveness;
+    public float Value;
 }
