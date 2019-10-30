@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 3806043835369376881}
   - component: {fileID: 3806043835369377167}
   - component: {fileID: 3806043835369376880}
+  - component: {fileID: 5914432975672431025}
+  - component: {fileID: 2272572516942564951}
   m_Layer: 0
   m_Name: DotsFarm
   m_TagString: Untagged
@@ -59,3 +61,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapFile: {fileID: 4900000, guid: 5a2f2c053dfe1974c9f01f56828ca4ed, type: 3}
   size: 4
+--- !u!114 &5914432975672431025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3806043835369377164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0858c07fd063e224e8fc8c75720222bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  farmerPrefab: {fileID: 7981896153945875330, guid: b0ba5e0a3c988f641ab18d4dc0799ae3,
+    type: 3}
+--- !u!114 &2272572516942564951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3806043835369377164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba20b1fd19f49954e9d0552c677a5d11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MoneyForFarmers: 10
+  MoneyForDrones: 0
