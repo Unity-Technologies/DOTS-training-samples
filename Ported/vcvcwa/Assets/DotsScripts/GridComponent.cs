@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 
 // ReSharper disable once InconsistentNaming
 public struct GridComponent : IComponentData
@@ -33,4 +34,64 @@ public struct GridTile : IBufferElementData
     {
         return new GridTile {Value = e};
     }
+
+    public bool IsRock()
+    {
+        return Value < 0 || ((Value >= 4) && (Value % 2 == 0));
+    }
+
+    public bool IsPlant()
+    {
+        return (Value >= 3) && (Value % 2 == 1);
+    }
+
+    public bool IsTilled()
+    {
+        return Value == 1;
+    }
+
+    public bool IsShop()
+    {
+        return Value == 2;
+    }
+
+    public bool IsNothing()
+    {
+        return Value == 0;
+    }
+
+    public int2 GetRockOffset()
+    {
+        var offset = new int2();
+        if (Value < 0)
+        {
+            offset.x = Value ^ 0x38;   // 00111000
+            offset.y = Value ^ 0x7;     // 00000111
+        }
+
+        return offset;
+    }
+
+    public int GetRockHealth()
+    {
+        return (Value - 4) / 2;
+    }
+
+    public void SetRockHealth(int health)
+    {
+        Value = 4 + health * 2;
+    }
+
+    public int GetPlantHealth()
+    {
+        return (Value - 3) / 2;
+    }
+
+    public void SetPlantHealth(int health)
+    {
+        Value = 3 + health * 2;
+    }
+    
+    
+    
 }
