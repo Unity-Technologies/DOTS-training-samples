@@ -6,6 +6,6 @@ namespace GameAI
 {
 	public struct HealthComponent : IComponentData
 	{
-		int health;
+		public float Value;
 	};
 }
