@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace GameAI
 {
-    public struct TargetTag : IComponentData
+    public struct HasTarget : IComponentData
     {
-        public Translation TargetPosition;
+        public int2 TargetPosition;
     }
-    
+
     public struct FarmerComponent : IComponentData
     {
         public int2 Position;
