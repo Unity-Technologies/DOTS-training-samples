@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GameAI
 {
-    public struct TargetTag : IComponentData
+    public struct HasTarget : IComponentData
     {
         public int2 TargetPosition;
     }
