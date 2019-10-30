@@ -12,7 +12,7 @@ namespace PerfTests
 {
     [TestFixture]
     [Category("Performance")]
-    public sealed class EntityQueryPerformanceTests : EntityPerformanceTestFixture
+    public sealed class ECSPerfTestExample : EntityPerformanceTestFixture
     {
         [Test, Performance]
         public void DemoPerfTest([Values(1, 10, 100)] int n, [Values(100, 1000)] int entityCount)
