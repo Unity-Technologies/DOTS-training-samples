@@ -5,7 +5,7 @@ using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
 
-public struct Team : IComponentData
+public struct Aggressiveness : IComponentData
 {
-    public int Value;
+    public float aggressiveness;
 }
