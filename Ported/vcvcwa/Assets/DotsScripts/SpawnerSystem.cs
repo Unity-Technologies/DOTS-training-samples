@@ -32,7 +32,7 @@ public class SpawnerSystem : JobComponentSystem
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
         public void Execute(Entity entity, int index,
-            [ReadOnly] ref ResourcesComponent resourcesComponent, [ReadOnly] ref FarmerDataComponent farmerDataComponent)
+            ref ResourcesComponent resourcesComponent, [ReadOnly] ref FarmerDataComponent farmerDataComponent)
         {
             var entityIndex = 0;
             while (resourcesComponent.MoneyForFarmers >= 10)
