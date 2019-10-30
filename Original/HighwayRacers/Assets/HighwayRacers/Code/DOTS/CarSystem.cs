@@ -1,6 +1,5 @@
 ﻿#define ENABLE_TEST
 
-using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -10,120 +9,20 @@ using Unity.Mathematics;
 [AlwaysUpdateSystem]
 public class CarSystem : JobComponentSystem
 {
-    private struct CarEntityAndState
-    {
-        public int EntityIndex;
-        public CarBasicState State;
-    }
-
-    // Sort cars into a list of each lane. Cars might be in two lanes if it's changing lanes.
-    // TODO: for now all the work needs to be done in one thread because car instances write to the lists concurrently
-    // which is not supported. Could preallocate the array to its maximum (= total entity count which we know beforehand)
-    // and do atomic increment on the write position.
-    [BurstCompile]
-    private struct LaneSortJob : IJob
-    {
-        [DeallocateOnJobCompletion][ReadOnly] public NativeArray<Entity> Entities;
-        [DeallocateOnJobCompletion][ReadOnly] public NativeArray<CarBasicState> CarStates;
-
-        public NativeList<CarEntityAndState> Lane0;
-        public NativeList<CarEntityAndState> Lane1;
-        public NativeList<CarEntityAndState> Lane2;
-        public NativeList<CarEntityAndState> Lane3;
-
-        private static ref NativeList<CarEntityAndState> GetLaneList(ref LaneSortJob job, int index)
-        {
-            if (index == 0)
-                return ref job.Lane0;
-            else if (index == 1)
-                return ref job.Lane1;
-            else if (index == 2)
-                return ref job.Lane2;
-            else
-                return ref job.Lane3;
-        }
-
-        public void Execute()
-        {
-            UnityEngine.Debug.Assert(Entities.Length == CarStates.Length);
-            for (int i = 0; i < Entities.Length; ++i)
-            {
-                var carState = CarStates[i];
-                int lane1 = (int)math.floor(carState.Lane);
-                int lane2 = (int)math.ceil(carState.Lane);
-                GetLaneList(ref this, lane1).Add(new CarEntityAndState() { EntityIndex = i, State = carState });
-                if (lane2 != lane1)
-                    GetLaneList(ref this, lane2).Add(new CarEntityAndState() { EntityIndex = i, State = carState });
-            }
-        }
-    }
-
-    [BurstCompile]
-    private struct PositionSortJob : IJobParallelFor
-    {
-        [NativeDisableParallelForRestriction]
-        public NativeArray<CarEntityAndState> Lane0;
-
-        [NativeDisableParallelForRestriction]
-        public NativeArray<CarEntityAndState> Lane1;
-
-        [NativeDisableParallelForRestriction]
-        public NativeArray<CarEntityAndState> Lane2;
-
-        [NativeDisableParallelForRestriction]
-        public NativeArray<CarEntityAndState> Lane3;
-
-        private static ref NativeArray<CarEntityAndState> GetLaneArray(ref PositionSortJob job, int index)
-        {
-            if (index == 0)
-                return ref job.Lane0;
-            else if (index == 1)
-                return ref job.Lane1;
-            else if (index == 2)
-                return ref job.Lane2;
-            else
-                return ref job.Lane3;
-        }
-
-        private struct PositionSort : IComparer<CarEntityAndState>
-        {
-            public int Compare(CarEntityAndState x, CarEntityAndState y)
-                => x.State.Position.CompareTo(y.State.Position);
-        }
-
-        public void Execute(int index)
-        {
-            GetLaneArray(ref this, index).Sort(new PositionSort());
-        }
-    }
-
     [BurstCompile]
     private struct BuildSortIndicesMapping : IJob
     {
-        [ReadOnly] public NativeArray<CarEntityAndState> Lane0;
-        [ReadOnly] public NativeArray<CarEntityAndState> Lane1;
-        [ReadOnly] public NativeArray<CarEntityAndState> Lane2;
-        [ReadOnly] public NativeArray<CarEntityAndState> Lane3;
+        public int CarCount;
+        [ReadOnly] public NativeArray<CarEntityAndState> Lanes;
+        [ReadOnly] public NativeArray<int> LaneCounts;
 
         public NativeArray<int2> SortIndices;
-
-        private static ref NativeArray<CarEntityAndState> GetLaneArray(ref BuildSortIndicesMapping job, int index)
-        {
-            if (index == 0)
-                return ref job.Lane0;
-            else if (index == 1)
-                return ref job.Lane1;
-            else if (index == 2)
-                return ref job.Lane2;
-            else
-                return ref job.Lane3;
-        }
 
         public void Execute()
         {
             for (int lane = 0; lane < 4; ++lane)
             {
-                ref var laneArray = ref GetLaneArray(ref this, lane);
+                var laneArray = Lanes.Slice(lane * CarCount, LaneCounts[lane]);
                 for (int j = 0; j < laneArray.Length; ++j)
                 {
                     var carIndex = laneArray[j].EntityIndex;
@@ -197,39 +96,30 @@ public class CarSystem : JobComponentSystem
         }
 #endif
 
-        var carEntitiesLane0 = new NativeList<CarEntityAndState>(Allocator.TempJob);
-        var carEntitiesLane1 = new NativeList<CarEntityAndState>(Allocator.TempJob);
-        var carEntitiesLane2 = new NativeList<CarEntityAndState>(Allocator.TempJob);
-        var carEntitiesLane3 = new NativeList<CarEntityAndState>(Allocator.TempJob);
-
+        var carEntitiesInLane = new NativeArray<CarEntityAndState>(carCount * 4, Allocator.TempJob);
+        var laneCounts = new NativeArray<int>(4, Allocator.TempJob, NativeArrayOptions.ClearMemory);
         // Index into the sorted arrays (two at most for floor(lane) and ceil(lane)).
         var carSortIndices = new NativeArray<int2>(carCount, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
         inputDeps = new LaneSortJob()
         {
-            Entities = CarEntityQuery.ToEntityArray(Allocator.TempJob, out var entityJob),
-            CarStates = CarEntityQuery.ToComponentDataArray<CarBasicState>(Allocator.TempJob, out var carStateJob),
-
-            Lane0 = carEntitiesLane0,
-            Lane1 = carEntitiesLane1,
-            Lane2 = carEntitiesLane2,
-            Lane3 = carEntitiesLane3,
-        }.Schedule(JobHandle.CombineDependencies(inputDeps, entityJob, carStateJob));
+            CarCount = carCount,
+            Lanes = carEntitiesInLane,
+            LaneCounts = laneCounts,
+        }.Schedule(this, inputDeps);
 
         inputDeps = new PositionSortJob()
         {
-            Lane0 = carEntitiesLane0.AsDeferredJobArray(),
-            Lane1 = carEntitiesLane1.AsDeferredJobArray(),
-            Lane2 = carEntitiesLane2.AsDeferredJobArray(),
-            Lane3 = carEntitiesLane3.AsDeferredJobArray(),
+            CarCount = carCount,
+            LaneCounts = laneCounts,
+            Lanes = carEntitiesInLane,
         }.Schedule(4, 1, inputDeps);
 
         inputDeps = new BuildSortIndicesMapping()
         {
-            Lane0 = carEntitiesLane0.AsDeferredJobArray(),
-            Lane1 = carEntitiesLane1.AsDeferredJobArray(),
-            Lane2 = carEntitiesLane2.AsDeferredJobArray(),
-            Lane3 = carEntitiesLane3.AsDeferredJobArray(),
+            CarCount = carCount,
+            LaneCounts = laneCounts,
+            Lanes = carEntitiesInLane,
 
             SortIndices = carSortIndices,
         }.Schedule(inputDeps);
@@ -239,10 +129,9 @@ public class CarSystem : JobComponentSystem
 
         // TODO: dispose the arrays on completing jobs.
         inputDeps.Complete();
-        carEntitiesLane0.Dispose();
-        carEntitiesLane1.Dispose();
-        carEntitiesLane2.Dispose();
-        carEntitiesLane3.Dispose();
+
+        carEntitiesInLane.Dispose();
+        laneCounts.Dispose();
         carSortIndices.Dispose();
 
         return inputDeps;
