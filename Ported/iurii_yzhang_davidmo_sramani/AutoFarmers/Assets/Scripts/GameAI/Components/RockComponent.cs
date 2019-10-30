@@ -7,6 +7,5 @@ namespace GameAI
     public struct RockComponent : IComponentData
     {
         public float Size;
-        public int2 Position;
     };
 }

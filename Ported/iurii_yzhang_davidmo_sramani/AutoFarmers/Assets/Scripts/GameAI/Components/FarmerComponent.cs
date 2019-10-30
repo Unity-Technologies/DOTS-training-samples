@@ -12,6 +12,5 @@ namespace GameAI
 
     public struct FarmerComponent : IComponentData
     {
-        public int2 Position;
     };
 }

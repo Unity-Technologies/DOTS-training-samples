@@ -14,6 +14,5 @@ namespace GameAI
     public struct PlantComponent : IComponentData
     {
         public PlantType Type;
-        public int2 Position;
     };
 }

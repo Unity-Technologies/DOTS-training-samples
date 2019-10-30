@@ -6,6 +6,5 @@ namespace GameAI
 {
     public struct ShopComponent : IComponentData
     {
-        public int2 Position;
     };
 }
