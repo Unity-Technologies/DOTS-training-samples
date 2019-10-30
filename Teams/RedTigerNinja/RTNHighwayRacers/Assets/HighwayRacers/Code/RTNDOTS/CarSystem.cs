@@ -26,6 +26,10 @@ namespace HighwayRacers {
             highway.AllCars = carAr;
             highway.AllPieces = hpcAr;
 
+            // sort the cars:
+            NativeHashMap<Entity, SortingData> sorted = this.GetSortedCarMap(carAr);
+            inputDeps = (new CarSortJob() { SortedMap = sorted }).Schedule(this, inputDeps);
+
             // calculate next state:
             inputDeps = (new CarUpdateNextJob(
                 //this.GetComponentDataFromEntity<CarStateStruct>(true),
@@ -43,8 +47,64 @@ namespace HighwayRacers {
 
             hpcAr.Dispose();
             carAr.Dispose();
+            sorted.Dispose();
 
             return inputDeps;
+        }
+
+        public struct SortingData
+        {
+            public int SelfIndex;
+            public int NextIndex;
+        }
+
+        public NativeHashMap<Entity, SortingData> GetSortedCarMap(NativeArray<CarStateStruct> cars)
+        {
+            NativeArray<int> sortexIndex = new NativeArray<int>(cars.Length, Allocator.Temp);
+            for (var si=0; si<cars.Length; si++)
+            {
+                var endi = si;
+                sortexIndex[si] = endi;
+
+                var mydist = cars[si].distance;
+                for (var ji=si-1; (ji>=0); ji--)
+                {
+                    var curIndex = sortexIndex[ji];
+                    var curDist = cars[curIndex].distance;
+                    if (mydist >= curDist)
+                    {
+                        break;
+                    }
+
+                    var t = sortexIndex[ji];
+                    sortexIndex[ji] = sortexIndex[ji + 1];
+                    sortexIndex[ji + 1] = t;
+                }
+            }
+
+            NativeHashMap<Entity, SortingData> ans = new NativeHashMap<Entity, SortingData>(cars.Length, Allocator.TempJob);
+            for (var si = 0; si < cars.Length; si++)
+            {
+                var sd = new SortingData();
+                sd.SelfIndex = sortexIndex[si];
+                sd.NextIndex = sortexIndex[(si + 1)%sortexIndex.Length];
+                ans[cars[si].ThisCarEntity] = sd;
+            }
+
+            sortexIndex.Dispose();
+            return ans;
+        }
+
+        public struct CarSortJob : IJobForEach<CarStateStruct>
+        {
+            [ReadOnly] public NativeHashMap<Entity, SortingData> SortedMap;
+
+            public void Execute(ref CarStateStruct c0)
+            {
+                var data = SortedMap[c0.ThisCarEntity];
+                c0.SortedIndexSelf = data.SelfIndex;
+                c0.SortedIndexNext = data.NextIndex;
+            }
         }
 
         public struct CarNextState : IComponentData

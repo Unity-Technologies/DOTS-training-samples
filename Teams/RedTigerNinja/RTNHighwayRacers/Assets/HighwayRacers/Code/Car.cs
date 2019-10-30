@@ -21,6 +21,8 @@ namespace HighwayRacers
 
         public int DEBUG_JobTester;
         public Entity ThisCarEntity;
+        public int SortedIndexSelf;
+        public int SortedIndexNext;
 
 
         /// <summary>
