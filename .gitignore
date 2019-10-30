@@ -42,3 +42,6 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+/Ported/burbank-teamA/CombatBees/Assets/Scripts/ECS/Components/Target.cs.meta
+/Ported/burbank-teamA/CombatBees/Assets/Scripts/ECS/Components/TargetVelocity.cs.meta
+/Ported/burbank-teamA/CombatBees/Assets/Scripts/ECS/Systems.meta

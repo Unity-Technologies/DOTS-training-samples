@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
-public struct Target : IComponentData
+public struct TargetEntity : IComponentData
 {
-    public float3 targetEntity;
+    public Entity Value;
 }
