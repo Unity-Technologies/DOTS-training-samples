@@ -9,7 +9,7 @@ public class MouseRaycaster : MonoBehaviour {
 	public static Vector3 worldMousePosition;
 
 	new Camera camera;
-	Transform marker;
+	public Transform marker;
 
 	void Start () {
 		marker = GameObject.CreatePrimitive(PrimitiveType.Sphere).transform;

@@ -30,12 +30,12 @@ public class MouseInputManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
 
-            Ray mouseRay = camera.ScreenPointToRay(Input.mousePosition);
+            Transform mouseRay = GameObject.FindObjectOfType<MouseRaycaster>().marker;
 
             EntityManager entityManager = World.Active.EntityManager;
             Entity entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(spawningResources, World.Active);
             var instance = entityManager.Instantiate(entity);
-            entityManager.SetComponentData(instance, new Translation() { Value = mouseRay.origin+mouseRay.direction });
+            entityManager.SetComponentData(instance, new Translation() { Value = mouseRay.position});
         }
     }
     void LateUpdate () {
