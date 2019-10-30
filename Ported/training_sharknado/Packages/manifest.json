@@ -5,6 +5,7 @@
     "com.unity.ext.nunit": "1.0.0",
     "com.unity.ide.rider": "1.1.0",
     "com.unity.ide.vscode": "1.1.2",
+    "com.unity.rendering.hybrid": "0.1.1-preview",
     "com.unity.test-framework": "1.1.2",
     "com.unity.textmeshpro": "2.0.1",
     "com.unity.timeline": "1.2.2",
