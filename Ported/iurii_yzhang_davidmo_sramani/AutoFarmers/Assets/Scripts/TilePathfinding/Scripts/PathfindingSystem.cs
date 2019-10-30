@@ -49,7 +49,7 @@ namespace AutoFarmersTests
                 }
 
                 farmer.Position = new int2(x2, y2);
-            });
+            }).Schedule(inputDeps);
 
             return inputDeps;
         }
