@@ -262,14 +262,23 @@ namespace HighwayRacers
             car.lane = newLane;
         }
 
-
-        public void UpdatePosition(ref CarStateStruct car)
+        public static Pose GetCarPose(ref CarStateStruct car, ref Highway.HighwayStateStruct highway)
         {
             float x, z, rotation;
-            Highway.instance.GetPosition(car.distance, car.lane, out x, out z, out rotation);
+            Highway.GetPosition(ref highway, car.distance, car.lane, out x, out z, out rotation);
 
-            transform.localPosition = new Vector3(x, transform.position.y, z);
-            transform.localRotation = Quaternion.Euler(0, rotation * Mathf.Rad2Deg, 0);
+            Pose ans = new Pose();
+            float defaultY = 0.0f;
+            ans.position = new Vector3(x, defaultY, z);
+            ans.rotation = Quaternion.Euler(0, rotation * Mathf.Rad2Deg, 0);
+            return ans;
+        }
+
+        public void UpdatePosition(ref CarStateStruct car, ref Highway.HighwayStateStruct highway)
+        {
+            var p = GetCarPose(ref car, ref highway);
+            transform.localPosition = p.position;
+            transform.localRotation = p.rotation;
         }
 
         private void Awake()
@@ -300,7 +309,7 @@ namespace HighwayRacers
                 UpdateCarData(ref this.CarData, ref Highway.instance.HighwayState, CarUpdateInfo.Now());
             }
 
-            UpdatePosition(ref this.CarData);
+            UpdatePosition(ref this.CarData, ref Highway.instance.HighwayState);
             UpdateColor(ref this.CarData);
 
             if (IsTotalHackData)

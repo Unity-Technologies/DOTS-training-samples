@@ -61,10 +61,10 @@ namespace HighwayRacers
         /// <param name="x"></param>
         /// <param name="z"></param>
         /// <param name="rotation">y rotation of the car, in radians.</param>
-        public void GetPosition(float distance, float lane, out float x, out float z, out float rotation)
+        public static void GetPosition(ref Highway.HighwayStateStruct highway, float distance, float lane, out float x, out float z, out float rotation)
         {
             // keep distance in [0, length)
-            distance -= Mathf.Floor(distance / length(lane)) * length(lane);
+            distance -= Mathf.Floor(distance / highway.length(lane)) * highway.length(lane);
 
             Vector3 pos = Vector3.zero;
             Quaternion rot = Quaternion.identity;
@@ -75,9 +75,9 @@ namespace HighwayRacers
             z = 0;
             rotation = 0;
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < highway.AllPieces.Length; i++)
             {
-                HighwayPiece piece = pieces[i];
+                HighwayPiece.HighwayPieceState piece = highway.AllPieces[i%4]; // TODO: TOTAL HACK wth the %4
                 pieceStartDistance = pieceEndDistance;
                 pieceEndDistance += piece.length(lane);
                 if (distance >= pieceEndDistance)
@@ -411,6 +411,8 @@ namespace HighwayRacers
         /// </summary>
         public Car AddCar(float lane)
         {
+            Highway.instance.EnsureUpdated();
+
             LinkedList<Car> cars = GetCarsInLane(lane);
             if (cars.Count == 0)
             {
@@ -450,19 +452,19 @@ namespace HighwayRacers
 			car.SetRandomPropeties();
             car.CarData.distance = distance;
             car.CarData.lane = lane;
-            car.CarData.ThisCarEntity = em.CreateEntity();
+            car.CarData.ThisCarEntity = em.Instantiate(CaptureNewEntity.CreatedEntity);// em.CreateEntity();
 			car.CarData.velocityPosition = car.CarData.defaultSpeed;
             em.AddComponentData(car.CarData.ThisCarEntity, car.CarData);
             em.AddComponentData(car.CarData.ThisCarEntity, new CarSystem.CarNextState(car.CarData));
             allCarsList.Add(car);
-            this.UpdateCarList();
-            car.UpdatePosition(ref car.CarData);
+            //this.UpdateCarList();
+            car.UpdatePosition(ref car.CarData, ref Highway.instance.HighwayState);
             return car;
         }
 
 		public void RemoveCar(Car car) {
 			allCarsList.Remove(car);
-            this.UpdateCarList();
+            //this.UpdateCarList();
             Destroy (car.gameObject);
 		}
 
@@ -679,6 +681,15 @@ namespace HighwayRacers
             }
             this.HighwayState.AllCars = this.allCarsNativeArray;
 
+            this.UpdateHighwayPiecesState();
+
+            this.HighwayState.lane0Length = this.lane0Length;
+
+        }
+
+        public void UpdateHighwayPiecesState()
+        {
+
             if ((!this.allPiecesNativeArray.IsCreated) || (this.allCarsNativeArray.Length != this.pieces.Length))
             {
                 if (this.allPiecesNativeArray.IsCreated)
@@ -688,13 +699,11 @@ namespace HighwayRacers
                 var ar = this.pieces.Select(k => k.AsHighwayState).ToArray();
                 this.allPiecesNativeArray = new Unity.Collections.NativeArray<HighwayPiece.HighwayPieceState>(ar, Unity.Collections.Allocator.Persistent);
             }
-            for (var pi=0; pi<this.pieces.Length; pi++)
+            for (var pi = 0; pi < this.pieces.Length; pi++)
             {
                 this.allPiecesNativeArray[pi] = this.pieces[pi].AsHighwayState;
             }
             this.HighwayState.AllPieces = this.allPiecesNativeArray;
-
-            this.HighwayState.lane0Length = this.lane0Length;
 
         }
 

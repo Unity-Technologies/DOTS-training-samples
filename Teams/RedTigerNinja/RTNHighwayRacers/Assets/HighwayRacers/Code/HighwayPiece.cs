@@ -10,6 +10,7 @@ namespace HighwayRacers
         public struct HighwayPieceState : Unity.Entities.IComponentData
         {
             public Vector4 LaneLengths;
+            public float startRotation, startX, startZ;
 
             public float length(float li)
             {
@@ -25,6 +26,9 @@ namespace HighwayRacers
             get 
             {
                 HighwayPieceState ans = new HighwayPieceState();
+                ans.startRotation = this.startRotation;
+                ans.startX = this.startX;
+                ans.startZ = this.startZ;
                 for (var li=0; li<Highway.NUM_LANES; li++)
                 {
                     ans.LaneLengths[li] = this.length((float)li);

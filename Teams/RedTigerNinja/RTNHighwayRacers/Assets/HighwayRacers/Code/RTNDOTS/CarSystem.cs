@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 namespace HighwayRacers {
@@ -13,13 +14,15 @@ namespace HighwayRacers {
         {
             if (Car.IsTotalHackData) return inputDeps;
 
+            Highway.instance.EnsureUpdated();
+
             var query = this.GetEntityQuery(ComponentType.ReadOnly<CarStateStruct>());
             var ar = query.ToComponentDataArray<CarStateStruct>(Allocator.TempJob);
 
             // calculate next state:
             inputDeps = (new CarUpdateNextJob(
-                this.GetComponentDataFromEntity<CarStateStruct>(true), 
-                ar, 
+                this.GetComponentDataFromEntity<CarStateStruct>(true),
+                ar,
                 Highway.instance.HighwayState,
                 Car.CarUpdateInfo.Now()
                 )).Schedule(this, inputDeps);
@@ -30,6 +33,10 @@ namespace HighwayRacers {
 
             // update current from next state:
             inputDeps = (new CarUpdateStateFromNextJob()).Schedule(this, inputDeps);
+
+            // update the car position:
+            inputDeps = (new CarUpdatePoseJob() { HighwayState = Highway.instance.HighwayState }).Schedule(this, inputDeps);
+
 
             return inputDeps;
         }
@@ -49,6 +56,19 @@ namespace HighwayRacers {
                 c0 = c1.NextState;
             }
         }
+
+        public struct CarUpdatePoseJob : IJobForEach<CarStateStruct, Unity.Transforms.Rotation, Unity.Transforms.Translation>
+        {
+            public Highway.HighwayStateStruct HighwayState;
+
+            public void Execute([ReadOnly] ref CarStateStruct c0, ref Rotation c1, ref Translation c2)
+            {
+                var pose = Car.GetCarPose(ref c0, ref HighwayState);
+                c1.Value = pose.rotation;
+                c2.Value = pose.position;
+            }
+        }
+
 
         [BurstCompile]
         public struct CarUpdateNextJob : IJobForEach<CarNextState>
