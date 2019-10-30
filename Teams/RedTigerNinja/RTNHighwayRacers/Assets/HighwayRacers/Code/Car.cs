@@ -150,8 +150,6 @@ namespace HighwayRacers
 
 
             [Header("Children")]
-        public MeshRenderer topRenderer;
-        public MeshRenderer baseRenderer;
         public Transform cameraPos;
 
         public CarStateStruct CarData;
@@ -204,32 +202,17 @@ namespace HighwayRacers
 
 
 
-        public Color color
-        {
-            get
-            {
-                return topRenderer.material.color;
-            }
-            set
-            {
-				topRenderer.material.color = value;
-                baseRenderer.material.color = value;
-            }
-        }
+        public Color color { get; set; }
 
-		public void Show() {
+        public void Show() {
 			if (!CarData.hidden)
 				return;
-			topRenderer.enabled = true;
-			baseRenderer.enabled = true;
             CarData.hidden = false;
 		}
 
 		public void Hide() {
 			if (CarData.hidden)
 				return;
-			topRenderer.enabled = false;
-			baseRenderer.enabled = false;
             CarData.hidden = true;
 
 		}
@@ -298,6 +281,8 @@ namespace HighwayRacers
         private void Update()
         {
             Highway.instance.EnsureUpdated();
+
+            return;
 
             if (IsUseEntitySim)
             {
