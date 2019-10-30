@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace HighwayRacers
 {
@@ -436,24 +437,55 @@ namespace HighwayRacers
 			car.CarData.velocityPosition = car.CarData.defaultSpeed;
             em.AddComponentData(car.CarData.ThisCarEntity, car.CarData);
             em.AddComponentData(car.CarData.ThisCarEntity, new CarSystem.CarNextState(car.CarData));
-            allCarsList.AddLast(car);
+            allCarsList.Add(car);
+            this.UpdateCarList();
             car.UpdatePosition(ref car.CarData);
             return car;
         }
 
 		public void RemoveCar(Car car) {
 			allCarsList.Remove(car);
-			Destroy (car.gameObject);
+            this.UpdateCarList();
+            Destroy (car.gameObject);
 		}
 
-		public int numCars {
+        public HighwayStateStruct HighwayState = new HighwayStateStruct();
+
+        public struct HighwayStateStruct
+        {
+            public Unity.Collections.NativeArray<CarStateStruct> AllCars;
+
+            public static void UpdateFromHighway(ref HighwayStateStruct into, Highway hw)
+            {
+                into.AllCars = hw.allCarsNativeArray;
+            }
+        }
+
+        public void UpdateCarList()
+        {
+            if ((!this.allCarsNativeArray.IsCreated) || (this.allCarsNativeArray.Length != this.allCarsList.Count))
+            {
+                if (this.allCarsNativeArray.IsCreated)
+                {
+                    this.allCarsNativeArray.Dispose();
+                }
+                this.allCarsNativeArray = new Unity.Collections.NativeArray<CarStateStruct>(this.allCarsList.Count, Unity.Collections.Allocator.Persistent);
+            }
+            for (var i=0; i<this.allCarsList.Count; i++)
+            {
+                this.allCarsNativeArray[i] = this.allCarsList[i].CarData;
+            }
+            this.HighwayState.AllCars = this.allCarsNativeArray;
+        }
+
+        public int numCars {
 			get { return allCarsList.Count; }
 		}
 
 		public void SetNumCars(int numCars) {
 
 			while (allCarsList.Count > numCars) {
-				RemoveCar(allCarsList.First.Value);
+				RemoveCar(allCarsList[0]);
 			}
 			while (allCarsList.Count < numCars) {
 				Car car = AddCar();
@@ -470,6 +502,7 @@ namespace HighwayRacers
                 Destroy(car.gameObject);
             }
             allCarsList.Clear();
+            this.UpdateCarList();
         }
 
 		public Car GetCarAtScreenPosition(Vector3 screenPosition, float radius){
@@ -489,7 +522,16 @@ namespace HighwayRacers
 		}
 
         
-        private LinkedList<Car> allCarsList = new LinkedList<Car>();
+        private List<Car> allCarsList = new List<Car>();
+        private Unity.Collections.NativeArray<CarStateStruct> allCarsNativeArray;
+
+        private void OnDisable()
+        {
+            if (this.allCarsNativeArray.IsCreated)
+            {
+                this.allCarsNativeArray.Dispose();
+            }
+        }
 
         private void Awake()
         {
@@ -506,9 +548,23 @@ namespace HighwayRacers
 			CreateHighway(250);
         }
 
+
+        private int mLastUpdatedFrame = -2;
+        public void EnsureUpdated()
+        {
+            var curFrame = Time.frameCount;
+            if ((this.mLastUpdatedFrame == curFrame))
+            {
+                return;
+            }
+            this.mLastUpdatedFrame = curFrame;
+
+            this.UpdateCarList();
+        }
+
         private void Update()
         {
-			
+            this.EnsureUpdated();
 
         }
 

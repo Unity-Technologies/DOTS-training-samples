@@ -15,9 +15,11 @@ namespace HighwayRacers {
             var ar = query.ToComponentDataArray<CarStateStruct>(Allocator.TempJob);
 
             // calculate next state:
-            inputDeps = (new CarUpdateNextJob
-                (this.GetComponentDataFromEntity<CarStateStruct>(true), ar))
-                .Schedule(this, inputDeps);
+            inputDeps = (new CarUpdateNextJob(
+                this.GetComponentDataFromEntity<CarStateStruct>(true), 
+                ar, 
+                Highway.instance.HighwayState
+                )).Schedule(this, inputDeps);
 
 
             inputDeps.Complete();
@@ -50,13 +52,16 @@ namespace HighwayRacers {
         {
             public readonly ComponentDataFromEntity<CarStateStruct> OtherCarQuery;
             public NativeArray<CarStateStruct> OtherCarArray;
+            public Highway.HighwayStateStruct HighwayInst;
 
             //public CarUpdateJob() { }
             public CarUpdateNextJob(ComponentDataFromEntity<CarStateStruct> query,
-            NativeArray<CarStateStruct> _carArray)
+            NativeArray<CarStateStruct> _carArray,
+                Highway.HighwayStateStruct _highwayInst)
             {
                 this.OtherCarQuery = query;
                 this.OtherCarArray = _carArray;
+                this.HighwayInst = _highwayInst;
             }
 
             public void Execute(ref CarNextState nextState)
@@ -67,7 +72,7 @@ namespace HighwayRacers {
                 temp.DEBUG_JobTester++;
 
                 // Do the actual update logic:
-                Car.UpdateCarState_FromJob(ref temp);
+                Car.UpdateCarState_FromJob(ref temp, ref this.HighwayInst);
 
                 // write it into the next state:
                 nextState.NextState = temp;

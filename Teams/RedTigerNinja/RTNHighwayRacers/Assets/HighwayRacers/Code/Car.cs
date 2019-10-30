@@ -278,17 +278,22 @@ namespace HighwayRacers
 
         private void Update()
         {
-            UpdateCarData(ref this.CarData);
+            Highway.instance.EnsureUpdated();
+
+            UpdateCarData(ref this.CarData, ref Highway.instance.HighwayState);
             UpdatePosition(ref this.CarData);
             UpdateColor(ref this.CarData);
+
+            var em = World.Active.EntityManager;
+            em.SetComponentData(this.CarData.ThisCarEntity, this.CarData);
         }
 
-        public static void UpdateCarState_FromJob(ref CarStateStruct car)
+        public static void UpdateCarState_FromJob(ref CarStateStruct car, ref Highway.HighwayStateStruct highway)
         {
             //UpdateCarData(ref car);
         }
 
-        private static void UpdateCarData(ref CarStateStruct car)
+        private static void UpdateCarData(ref CarStateStruct car, ref Highway.HighwayStateStruct highway)
         {
 			float dt = Time.deltaTime;
 			if (dt == 0) // possible when the game is paused
