@@ -462,6 +462,9 @@ namespace HighwayRacers
 			car.CarData.Location.velocityPosition = car.CarData.Settings.defaultSpeed;
             em.AddComponentData(car.CarData.ThisCarEntity, car.CarData);
             em.AddComponentData(car.CarData.ThisCarEntity, new CarSystem.CarNextState(car.CarData));
+            em.AddComponentData(car.CarData.ThisCarEntity, car.CarData.Location);
+            em.AddComponentData(car.CarData.ThisCarEntity, car.CarData.Settings);
+            em.AddComponentData(car.CarData.ThisCarEntity, car.CarData.Mind);
             allCarsList.Add(car);
             //this.UpdateCarList();
             car.UpdatePosition(ref car.CarData.Location, ref Highway.instance.HighwayState);
@@ -484,7 +487,7 @@ namespace HighwayRacers
 
         public struct HighwayStateStruct
         {
-            [ReadOnly] public Unity.Collections.NativeArray<CarStateStruct> AllCars;
+            [ReadOnly] public Unity.Collections.NativeArray<CarLocation> AllCars;
             [ReadOnly] public Unity.Collections.NativeArray<HighwayPiece.HighwayPieceState> AllPieces;
             public float lane0Length;
 
@@ -501,7 +504,7 @@ namespace HighwayRacers
                 //var nextIndex = startCar.SortedIndexNext;
                 for (var ri =0; ri< AllCars.Length; ri++)
                 {
-                    var car = AllCars[ri].Location;
+                    var car = AllCars[ri];
                     /*
                     var curIndex = nextIndex;
                     var car = AllCars[curIndex];
@@ -527,10 +530,6 @@ namespace HighwayRacers
                     }
                 }
 
-                if (ret.ThisCarEntity == CarStateStruct.NullCar.ThisCarEntity)
-                {
-                    return CarLocation.NullLocation;
-                }
                 return ret;
             }
 
@@ -548,7 +547,7 @@ namespace HighwayRacers
                 //foreach (Car otherCar in allCarsList)
                 for (var ci=0; ci<AllCars.Length; ci++)
                 {
-                    var otherCar = this.AllCars[ci].Location;
+                    var otherCar = this.AllCars[ci];
                     if (car.ThisCarEntity == otherCar.ThisCarEntity)
                         continue;
                     if (AreasOverlap(mergeLane, distanceBack, distanceFront, otherCar.lane, otherCar.distanceBack, otherCar.distanceFront))
@@ -687,12 +686,6 @@ namespace HighwayRacers
                 return 0;
             }
 
-
-
-            public static void UpdateFromHighway(ref HighwayStateStruct into, Highway hw)
-            {
-                into.AllCars = hw.allCarsNativeArray;
-            }
         }
 
         public void UnitAnimate(float duration, System.Action<float> unitTime, System.Action onDone)

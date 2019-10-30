@@ -16,8 +16,8 @@ namespace HighwayRacers {
 
             Highway.instance.EnsureUpdated();
 
-            var carQuery = this.GetEntityQuery(ComponentType.ReadOnly<CarStateStruct>());
-            var carAr = carQuery.ToComponentDataArray<CarStateStruct>(Allocator.TempJob);
+            var carQuery = this.GetEntityQuery(ComponentType.ReadOnly<CarLocation>());
+            var carAr = carQuery.ToComponentDataArray<CarLocation>(Allocator.TempJob);
 
             var hpcQuery = this.GetEntityQuery(ComponentType.ReadOnly<HighwayPiece.HighwayPieceState>());
             var hpcAr = hpcQuery.ToComponentDataArray<HighwayPiece.HighwayPieceState>(Allocator.TempJob);
@@ -27,13 +27,6 @@ namespace HighwayRacers {
             highway.AllPieces = hpcAr;
 
             // sort the cars:
-            NativeHashMap<Entity, SortingData> sorted = new NativeHashMap<Entity, SortingData>();
-            var isSorting = false;
-            if (isSorting)
-            {
-                sorted = this.GetSortedCarMap(carAr);
-                inputDeps = (new CarSortJob() { SortedMap = sorted }).Schedule(this, inputDeps);
-            }
 
             // calculate next state:
             inputDeps = (new CarUpdateNextJob(
@@ -56,11 +49,6 @@ namespace HighwayRacers {
             //inputDeps = (new DisposeJob<NativeArray<CarStateStruct>>(carAr)).Schedule(inputDeps);
             //inputDeps.Complete();
 
-            if (sorted.IsCreated)
-            {
-                sorted.Dispose();
-                //inputDeps = (new DisposeJob<NativeHashMap<Entity,SortingData>>(sorted)).Schedule(inputDeps);
-            }
 
             return inputDeps;
         }
@@ -143,12 +131,14 @@ namespace HighwayRacers {
             public CarNextState(CarStateStruct initial) { this.NextState = initial; }
         }
 
-        public struct CarUpdateStateFromNextJob : IJobForEach<CarStateStruct, CarNextState>
+        public struct CarUpdateStateFromNextJob : IJobForEach<CarLocation, CarMindState, CarStateStruct, CarNextState>
         {
 
-            public void Execute(ref CarStateStruct c0, [ReadOnly] ref CarNextState c1)
+            public void Execute(ref CarLocation carLoc, ref CarMindState carMind, ref CarStateStruct c0, [ReadOnly] ref CarNextState c1)
             {
                 c0 = c1.NextState;
+                carLoc = c1.NextState.Location;
+                carMind = c1.NextState.Mind;
             }
         }
 
