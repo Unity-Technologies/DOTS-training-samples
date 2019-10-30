@@ -4,7 +4,7 @@ using Unity.Jobs;
 using Unity.Transforms;
 using Unity.Mathematics;
 
-public class SpawnSystem : JobComponentSystem
+public class DieSystem : JobComponentSystem
 {
     BeginInitializationEntityCommandBufferSystem bufferSystem;
 
@@ -21,21 +21,15 @@ public class SpawnSystem : JobComponentSystem
         var commandBuffer = bufferSystem.CreateCommandBuffer().ToConcurrent();
 
         Random r = new Random((uint)UnityEngine.Random.Range(1, 100));
+        float dt = Time.deltaTime;
 
-
-        var jobHandle = Entities.ForEach((Entity e, ref Spawner spawner, ref Translation t) => 
+        var jobHandle = Entities.ForEach((Entity e, ref DieTime dieTime) =>
                {
-                   for (int i = 0; i < spawner.Amount; i++)
+                   dieTime.Value -= dt;
+                   if (dieTime.Value < 0)
                    {
-
-                       var instance = commandBuffer.Instantiate(0, spawner.Prefab);
-                       commandBuffer.AddComponent(0, instance, new Translation() { Value = t.Value });
-                        commandBuffer.SetComponent(0, instance, new Velocity() { Value = r.NextFloat3() * spawner.Speed });
-                        
+                       commandBuffer.DestroyEntity(0, e);
                    }
-
-                   commandBuffer.DestroyEntity(0, e);
-
                })
             .Schedule(inputDeps);
                

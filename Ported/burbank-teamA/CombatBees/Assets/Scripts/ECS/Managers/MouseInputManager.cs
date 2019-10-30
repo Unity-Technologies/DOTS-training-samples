@@ -7,7 +7,8 @@ public class MouseInputManager : MonoBehaviour
    
     public GameObject[] spawningTeamBees;
     public GameObject spawningResources;
-    
+    public GameObject sprinkleParticles;
+
     Transform marker;
 
 
@@ -27,13 +28,21 @@ public class MouseInputManager : MonoBehaviour
                 entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(spawningTeamBees[0], World.Active);
             }
 
-            if(mouseRay.position.x > 40)
+            if (mouseRay.position.x > 40)
             {
                 entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(spawningTeamBees[1], World.Active);
+
             }
 
             var instance = entityManager.Instantiate(entity);
             entityManager.SetComponentData(instance, new Translation() { Value = mouseRay.position });
+
+            if (Mathf.Abs(mouseRay.position.x) > 40)
+            {
+                entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(sprinkleParticles, World.Active);
+                instance = entityManager.Instantiate(entity);
+                entityManager.SetComponentData(instance, new Translation() { Value = mouseRay.position });
+            }
         }
     }
 
