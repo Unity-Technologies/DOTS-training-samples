@@ -18,13 +18,13 @@ public class GridComponent_Authoring : MonoBehaviour, IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         var data = new GridComponent() {Size = size};
-        unsafe
+        
+        var buffer = dstManager.AddBuffer<GridTile>(entity);
+        for (int i = 0; i < values.Count; ++i)
         {
-            for (int i = 0; i < values.Count; ++i)
-            {
-                data.tiles[i] = values[i];
-            }
+            buffer.Add(values[i]);
         }
+        
 
         dstManager.AddComponentData(entity, data);
     }
