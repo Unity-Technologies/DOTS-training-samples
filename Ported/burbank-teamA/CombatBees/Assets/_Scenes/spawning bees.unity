@@ -132,6 +132,8 @@ GameObject:
   - component: {fileID: 79337596}
   - component: {fileID: 79337595}
   - component: {fileID: 79337594}
+  - component: {fileID: 79337598}
+  - component: {fileID: 79337597}
   m_Layer: 0
   m_Name: Field Container
   m_TagString: Untagged
@@ -200,6 +202,55 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &79337597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 79337593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea7d7495833204790ba1d3a8755397f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConversionMode: 0
+--- !u!114 &79337598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 79337593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e5d5bf6aa8f240ef807cf46ccb82cff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 50
+    y: 10
+    z: 15
+  threshold: 0.99
+--- !u!1 &79355133 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 700540708355616524, guid: 1f3003ecbe35946cb875a42393103da7,
+    type: 3}
+  m_PrefabInstance: {fileID: 912315202}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &79355134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 79355133}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 564228c3120b74a46afd1bcd9a649c7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: 0
 --- !u!1001 &306121237
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -526,6 +577,8 @@ MonoBehaviour:
   - {fileID: 5160360502799487182, guid: e86348b0a7b154f8d8a3d3e57aaf11ce, type: 3}
   spawningResources: {fileID: 700540708355616524, guid: 1f3003ecbe35946cb875a42393103da7,
     type: 3}
+  sprinkleParticles: {fileID: 8341666011525945381, guid: a24944e7b9f8c461db3df2dfdbd2fcf3,
+    type: 3}
 --- !u!4 &977061995
 Transform:
   m_ObjectHideFlags: 0
@@ -769,7 +822,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 5.669922, y: -5.5300293}
+  m_AnchoredPosition: {x: 5.669922, y: -5.529785}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1739450070
