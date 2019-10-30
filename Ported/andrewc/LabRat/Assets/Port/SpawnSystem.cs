@@ -14,28 +14,50 @@ using Unity.Transforms;
 [AlwaysUpdateSystem]
 public class SpawnSystem : JobComponentSystem
 {
-    float m_TimeSinceSpawn;
-    const float k_TimeBetweenSpawns = 1.0f;
-    int m_NumSpawned;
+    // float m_TimeSinceSpawn;
+    // const float k_TimeBetweenSpawns = 1.0f;
+    // int m_NumSpawned;
 
     EntityQuery m_SpawnerQuery;
     BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
 
     struct SpawnJob : IJobForEachWithEntity<Spawner_FromEntity>
     {
-        public bool IsMouse;
         public EntityCommandBuffer.Concurrent CommandBuffer;
-
+        public float DeltaTime;
         public void Execute(Entity e, int index, ref Spawner_FromEntity spawner)
         {
-            var entity = CommandBuffer.Instantiate(index, IsMouse ? spawner.PrefabMouse : spawner.PrefabCat);
-            CommandBuffer.SetComponent(index, entity, new Translation {Value = new float3(0.0f, 0.0f, 0.0f)});
-            CommandBuffer.AddComponent(index, entity, new Direction {Value = eDirection.East});
-            CommandBuffer.AddComponent(index, entity, new Speed {Value = 1.5f});
-            if (IsMouse)
-                CommandBuffer.AddComponent(index, entity, new MouseTag());
-            else
+            spawner.CatCounter += DeltaTime;
+            spawner.RatCounter += DeltaTime;
+            if (spawner.CatCounter > spawner.CatFrequency && spawner.CatSpawned < spawner.CatMaxSpawn)
+            {
+                Entity cat = spawner.CatPrefab;
+                // spwan cat
+                var entity = CommandBuffer.Instantiate(index, cat);
+                CommandBuffer.SetComponent(index, entity, new Translation { Value = spawner.SpawnPos });
+                CommandBuffer.AddComponent(index, entity, new Direction { Value = eDirection.East });
+                CommandBuffer.AddComponent(index, entity, new Speed { Value = 1.5f });
                 CommandBuffer.AddComponent(index, entity, new CatTag());
+                // update spawner comp
+                spawner.CatSpawned++;
+                spawner.CatCounter -= spawner.CatFrequency;
+            }
+
+            if (spawner.RatCounter > spawner.RatFrequency && spawner.RatSpawned < spawner.RatMaxSpawn)
+            {
+                Entity rat = spawner.RatPrefab;
+                // spwan rat
+                var entity = CommandBuffer.Instantiate(index, rat);
+                CommandBuffer.SetComponent(index, entity, new Translation { Value = spawner.SpawnPos });
+                CommandBuffer.AddComponent(index, entity, new Direction { Value = eDirection.East });
+                CommandBuffer.AddComponent(index, entity, new Speed { Value = 1.5f });
+                CommandBuffer.AddComponent(index, entity, new MouseTag());
+                // update spawner comp
+                spawner.RatSpawned++;
+                spawner.RatCounter -= spawner.RatFrequency;
+            }
+
+            //CommandBuffer.AddComponent(index, entity, new CatTag());
         }
     }
 
@@ -47,15 +69,15 @@ public class SpawnSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle deps)
     {
-        m_TimeSinceSpawn += Time.deltaTime;
-        if (m_TimeSinceSpawn < k_TimeBetweenSpawns)
-            return deps;
+        //m_TimeSinceSpawn += Time.deltaTime;
+        //if (m_TimeSinceSpawn < k_TimeBetweenSpawns)
+        //    return deps;
 
-        bool isMouse = (m_NumSpawned & 1) != 0;
-        m_TimeSinceSpawn = 0.0f;
-        ++m_NumSpawned;
+        // bool isMouse = (m_NumSpawned & 1) != 0;
+        // m_TimeSinceSpawn = 0.0f;
+        // ++m_NumSpawned;
 
-        var handle = new SpawnJob {IsMouse = isMouse, CommandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent()};
+        var handle = new SpawnJob { DeltaTime = Time.deltaTime, CommandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent()};
         var ret = handle.Schedule(m_SpawnerQuery, deps);
         m_EntityCommandBufferSystem.AddJobHandleForProducer(ret);
         return ret;

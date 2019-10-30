@@ -75,6 +75,19 @@ public struct Falling : IComponentData
 
 public struct Spawner_FromEntity : IComponentData
 {
-    public Entity PrefabCat;
-    public Entity PrefabMouse;
+    public Entity RatPrefab;
+    public float RatFrequency;
+    public float RatMaxSpawn;
+
+    public Entity CatPrefab;
+    public float CatFrequency;
+    public int CatMaxSpawn;
+
+    public float3 SpawnPos;
+
+    // Runtime Data
+    public int RatSpawned;
+    public int CatSpawned;
+    public float RatCounter;
+    public float CatCounter;
 }
