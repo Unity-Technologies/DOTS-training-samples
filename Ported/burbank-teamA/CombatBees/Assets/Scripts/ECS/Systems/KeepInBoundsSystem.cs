@@ -9,20 +9,20 @@ public class KeepInBoundsSystem : JobComponentSystem
     {
         var gameBounds = GetSingleton<GameBounds>();
 
-        return Entities.WithNone<ResourceTag>()
+        return Entities.WithAll<BeeTag>()
             .ForEach((ref Translation t, ref Velocity velocity) =>
             {
-                if (math.abs(t.Value.x) > gameBounds.Value.x-gameBounds.threshold)
+                if (math.abs(t.Value.x) > gameBounds.Value.x*gameBounds.threshold)
                 {
                     velocity.Value.x *= -1;
                 }
 
-                if (math.abs(t.Value.y) > gameBounds.Value.y - gameBounds.threshold)
+                if (math.abs(t.Value.y) > gameBounds.Value.y * gameBounds.threshold)
                 {
                     velocity.Value.y *= -1;
                 }
 
-                if (math.abs(t.Value.z) > gameBounds.Value.z - gameBounds.threshold)
+                if (math.abs(t.Value.z) > gameBounds.Value.z * gameBounds.threshold)
                 {
                     velocity.Value.z *= -1;
                 }
