@@ -115,8 +115,8 @@ public class RenderingUnity : MonoBehaviour
         if (em.HasComponent<RenderingAnimationDroneFlyComponent>(e))
             em.SetComponentData(e, new RenderingAnimationDroneFlyComponent {offset = Random.Range(-Mathf.PI, Mathf.PI)});
         
-        //TODO: make it disabled (how?)
-        
+        em.AddComponent<Prefab>(e);
+
         return e;
     }
     
