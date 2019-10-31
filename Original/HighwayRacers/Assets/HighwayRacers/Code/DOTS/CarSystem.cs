@@ -66,10 +66,11 @@ public partial class CarSystem : JobComponentSystem
         inputDeps = new CarUpdateJob()
         {
             Dt = deltaTime,
-            HighwayLen = highway.highwayLength,
 
+            HighwayLen = highway.highwayLength,
             Acceleration = spawnProperties.acceleration,
             BrakeDeceleration = spawnProperties.brakeDeceleration,
+            LaneSwitchSpeed = spawnProperties.laneSwitchSpeed,
 
             QueryStructure = queryStructure,
         }.Schedule(this, inputDeps);
