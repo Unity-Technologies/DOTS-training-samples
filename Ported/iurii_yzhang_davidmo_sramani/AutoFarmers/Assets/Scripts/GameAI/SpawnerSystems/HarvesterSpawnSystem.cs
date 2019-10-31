@@ -40,7 +40,7 @@ namespace GameAI
             var farmerRenderMesh = new RenderMesh
             {
                 mesh = farmerMeshRenderer.GetComponent<MeshFilter>().sharedMesh,
-                material = farmerMeshRenderer.material,
+                material = farmerMeshRenderer.sharedMaterial,
                 castShadows = farmerMeshRenderer.shadowCastingMode,
                 // TODO: Set back once performance is proven.
                 receiveShadows = false
@@ -64,7 +64,7 @@ namespace GameAI
             var droneRenderMesh = new RenderMesh
             {
                 mesh = farmerMeshRenderer.GetComponent<MeshFilter>().sharedMesh,
-                material = farmerMeshRenderer.material,
+                material = farmerMeshRenderer.sharedMaterial,
                 castShadows = farmerMeshRenderer.shadowCastingMode,
                 // TODO: Set back once performance is proven.
                 receiveShadows = false
@@ -83,21 +83,20 @@ namespace GameAI
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
             var ecbSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
-            var ecb = ecbSystem.CreateCommandBuffer().ToConcurrent();
+            var ecb1 = ecbSystem.CreateCommandBuffer().ToConcurrent();
 
             var defaultFarmer = defaultFarmerEntity;
             var defaultDrone = defaultDroneEntity;
             
             // Spawn farmers
             var createFarmerJobHandles = Entities
-                .WithAll<SpawnPointComponent>()
                 .WithAll<SpawnFarmerTagComponent>()
     //            .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e, in SpawnPointComponent spawnPointData) =>
                 {
-                    var farmerEntity = ecb.Instantiate(nativeThreadIndex, defaultFarmer);
+                    var farmerEntity = ecb1.Instantiate(nativeThreadIndex, defaultFarmer);
                     // TODO: Define what needs to be set on per entity basis, translate, scale? 
-                    ecb.SetComponent<Translation>(
+                    ecb1.SetComponent<Translation>(
                         nativeThreadIndex, 
                         farmerEntity, 
                         new Translation{ Value = spawnPointData.SpawnPoint});
@@ -106,14 +105,13 @@ namespace GameAI
             // Spawn drones
             var ecb2 = ecbSystem.CreateCommandBuffer().ToConcurrent();
             var createDroneJobHandles = Entities
-                .WithAll<SpawnPointComponent>()
                 .WithAll<SpawnDroneTagComponent>()
     //            .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e, in SpawnPointComponent spawnPointData) =>
                     {
                         // TODO:
-                        var droneEntity = ecb.Instantiate(nativeThreadIndex, defaultDrone);
-                        ecb.SetComponent<Translation>(
+                        var droneEntity = ecb2.Instantiate(nativeThreadIndex, defaultDrone);
+                        ecb2.SetComponent<Translation>(
                             nativeThreadIndex, 
                             defaultDrone, 
                             new Translation{ Value = spawnPointData.SpawnPoint });

@@ -23,7 +23,7 @@ namespace GameAI
 //            .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e) =>
                 {
-                    var seed = nativeThreadIndex * (int) rnd * 7;
+                    var seed = nativeThreadIndex + (int)rnd * 7;
                     var randomNum = new Random((uint) seed);
 
                     ecb1.RemoveComponent(nativeThreadIndex, e, typeof(AITagTaskNone));
@@ -51,8 +51,8 @@ namespace GameAI
 //            .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e) =>
                 {
-                    ecb1.RemoveComponent(nativeThreadIndex, e, typeof(AITagTaskNone));
-                    ecb1.AddComponent(nativeThreadIndex, e, new AITagTaskCollect());
+                    ecb2.RemoveComponent(nativeThreadIndex, e, typeof(AITagTaskNone));
+                    ecb2.AddComponent(nativeThreadIndex, e, new AITagTaskCollect());
                 }).Schedule(inputDependencies);
 
             ecbSystem.AddJobHandleForProducer(groundSelectorHandle);
