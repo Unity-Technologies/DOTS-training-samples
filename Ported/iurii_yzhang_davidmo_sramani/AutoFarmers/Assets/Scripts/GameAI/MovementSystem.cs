@@ -24,7 +24,7 @@ namespace GameAI
             var job = Entities
                 //.WithReadOnly(typeof(HasTarget))
                 .WithAll<AnimationCompleteTag>()
-                .ForEach((Entity entity, int entityInQueryIndex, ref HasTarget target, ref TilePositionable tilePositionable) =>
+                .ForEach((Entity entity, int entityInQueryIndex, ref TilePositionable tilePositionable, in HasTarget target) =>
                 {
                     tilePositionable.Position = target.TargetPosition;
                     ecb.RemoveComponent<HasTarget>(entityInQueryIndex, entity);
