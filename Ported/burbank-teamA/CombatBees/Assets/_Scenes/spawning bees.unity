@@ -231,6 +231,7 @@ MonoBehaviour:
     x: 50
     y: 10
     z: 15
+  PlayAreaPercentage: 0.8
 --- !u!1001 &499560916
 PrefabInstance:
   m_ObjectHideFlags: 0
