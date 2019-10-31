@@ -23,26 +23,21 @@ public class CollectStateSystem : JobComponentSystem
         var handle = Entities.WithReadOnly(translationContainer).ForEach(
             (Entity entity, ref TargetVelocity targetVelocity, ref State state, in TargetEntity targetEntity) =>
             {
-                if (state.Value == State.StateType.Collecting)
-                {
-                    targetVelocity.Value = collectVelocity;
+                if (state.Value != State.StateType.Collecting) return;
+                
+                targetVelocity.Value = collectVelocity;
 
-                    var translation = translationContainer[entity];
-                    var targetTranslation = translationContainer[targetEntity.Value];
-                    var distance = math.distance(translation.Value, targetTranslation.Value);
+                var myTranslation = translationContainer[entity];
+                var targetTranslation = translationContainer[targetEntity.Value];
+                var distance = math.distance(myTranslation.Value, targetTranslation.Value);
+                if (distance > collectDistance) return;
 
-                    if (distance <= collectDistance)
-                    {
-                        commonBuffer.AddComponent(0, targetEntity.Value, new Parent
-                        {
-                            Value = entity
-                        });
-                        
-                        commonBuffer.AddComponent<LocalToParent>(0, targetEntity.Value);
-
-                        state.Value = State.StateType.Dropping;
-                    }
-                }
+                commonBuffer.SetComponent(0, targetEntity.Value, new Translation());
+                commonBuffer.AddComponent(0, targetEntity.Value, new Parent {Value = entity});
+                commonBuffer.AddComponent<LocalToParent>(0, targetEntity.Value);
+                
+                state.Value = State.StateType.Dropping;
+                
             }).Schedule(inputDependencies);
         
         buffer.AddJobHandleForProducer(handle);
