@@ -62,8 +62,11 @@ public class SpawnerSystem : JobComponentSystem
                         CommandBuffer.SetComponent(entityIndex, instance, new MoveComponent() { fly = false});
                         CommandBuffer.SetComponent(entityIndex, instance, new DotsIntentionComponent { intention = DotsIntention.Rock});
                         CommandBuffer.SetComponent(entityIndex, instance, new Translation {Value = position});
-                        CommandBuffer.SetComponent(entityIndex, instance, new PositionComponent() {position = new Vector2(x,y)});
-                        CommandBuffer.SetComponent(entityIndex, instance, new GoalPositionComponent() {position = new Vector2(-1,-1)});
+                        CommandBuffer.SetComponent(entityIndex, instance, new ActorMovementComponent()
+                        {
+                            targetPosition = new Vector2(-1,-1),
+                            position = new Vector2(x,y)
+                        });   
                         resourcesComponent.MoneyForFarmers -= 10;
                         
                         gridIndex = i;
@@ -95,8 +98,11 @@ public class SpawnerSystem : JobComponentSystem
                             CommandBuffer.SetComponent(entityIndex, instance, new MoveComponent() { fly = true});
                             CommandBuffer.SetComponent(entityIndex, instance, new DotsIntentionComponent { intention = DotsIntention.Harvest});
                             CommandBuffer.SetComponent(entityIndex, instance, new Translation {Value = position});
-                            CommandBuffer.SetComponent(entityIndex, instance, new PositionComponent() {position = new Vector2(x,y)});
-                            CommandBuffer.SetComponent(entityIndex, instance, new GoalPositionComponent() {position = new Vector2(-1,-1)});
+                            CommandBuffer.SetComponent(entityIndex, instance, new ActorMovementComponent()
+                            {
+                                targetPosition = new Vector2(-1,-1),
+                                position = new Vector2(x,y)
+                            });
                             
                             gridIndex = i;
                             entityIndex++;

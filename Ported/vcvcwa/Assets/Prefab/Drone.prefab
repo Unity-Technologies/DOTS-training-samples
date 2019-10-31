@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 7981896153945875391}
   - component: {fileID: 7981896153945875388}
   - component: {fileID: 7981896153945875389}
-  - component: {fileID: 3019950614266739659}
   - component: {fileID: -4894674136633988986}
   - component: {fileID: 586281013174162406}
   - component: {fileID: 2076191691003960124}
@@ -97,18 +96,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ConversionMode: 0
---- !u!114 &3019950614266739659
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7981896153945875330}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ca61afd39b8840cfb5c696ca71c0966, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &-4894674136633988986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,7 +108,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0556796f33364dada80912f0c87d0bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  goalPosition: {x: 0, y: 0}
+  speed: 1
+  goalPosition:
+    x: 0
+    y: 0
 --- !u!114 &586281013174162406
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Entities;
 using UnityEngine;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -6,6 +7,7 @@ using Unity.Transforms;
 
 public class MovementSystem : JobComponentSystem
 {
+    [BurstCompile]
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         float distanceMinimal = 0.1f;
@@ -13,17 +15,17 @@ public class MovementSystem : JobComponentSystem
         float dt = Time.deltaTime;
         
         var job1Handle = Entities
-            .ForEach((ref Translation translation, ref Rotation rotation, ref PositionComponent position,
-                in GoalPositionComponent goalPosition, in MoveComponent moveComponent, in DotsIntentionComponent dotsIntentionComponent) =>
+            .ForEach((ref Translation translation, ref Rotation rotation,
+                ref ActorMovementComponent actor, in MoveComponent moveComponent, in DotsIntentionComponent dotsIntentionComponent) =>
             {
-                if (goalPosition.position.x < 0 || goalPosition.position.y < 0)
+                if (actor.position.x < 0 || actor.position.y < 0)
                 {
                     return;
                 }
                 float targetY = 1.0f;
                 if (moveComponent.fly)
                 {
-                    if (Vector2.Distance(goalPosition.position, position.position) > distanceMinimal)
+                    if (Vector2.Distance(actor.position, actor.position) > distanceMinimal)
                     {
                         if (dotsIntentionComponent.intention == DotsIntention.Harvest)
                         {
@@ -36,10 +38,10 @@ public class MovementSystem : JobComponentSystem
                 {
                     targetY = 0.0f;
                 }
-                if (Vector2.Distance(goalPosition.position, position.position) > distanceMinimal)
+                if (Vector2.Distance(actor.position, actor.position) > distanceMinimal)
                 {
-                    position.position= Vector2.Lerp(position.position, goalPosition.position, dt * speed);
-                    translation.Value = new float3(position.position.x, targetY, position.position.y);
+                    actor.position= Vector2.Lerp(actor.position, actor.position, dt * speed);
+                    translation.Value = new float3(actor.position.x, targetY, actor.position.y);
                 }
             })
             .Schedule(inputDependencies);
