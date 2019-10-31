@@ -9,7 +9,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.Rendering;
-using Random = System.Random;
+using Random = Unity.Mathematics.Random;
 
 
 namespace Pathfinding
@@ -33,27 +33,26 @@ namespace Pathfinding
                 .WithAll<AITagTaskNone>()
                 .WithoutBurst()
                 .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable positionable) =>
-                {
-                    var dirX = new int4(1, -1, 0, 0);
-                    var dirY = new int4(0, 0, 1, -1);
+//                    var dirX = new int4(1, -1, 0, 0);
+//                    var dirY = new int4(0, 0, 1, -1);
+//
+//                    Random r = new Random((uint)entityInQueryIndex);
+//                    uint rInt = r.NextUInt(4);
+//
+//                    int x2 = positionable.Position[0] + dirX[rInt];
+//                    int y2 = positionable.Position[1] + dirY[rInt];
+//
+//                    if (x2 < 0 || x2 >= worldSize.x)
+//                    {
+//                        x2 = positionable.Position[0] + dirX[(rInt + 1) % 3];
+//                    }
+//
+//                    if (y2 < 0 || y2 >= worldSize.y)
+//                    {
+//                        y2 = positionable.Position[1] + dirX[(rInt + 1) % 3];
+//                    }
 
-                    Random r = new Random();
-                    int rInt = r.Next(0, 4);
-
-                    int x2 = positionable.Position[0] + dirX[rInt];
-                    int y2 = positionable.Position[1] + dirY[rInt];
-
-                    if (x2 < 0 || x2 >= worldSize.x)
-                    {
-                        x2 = positionable.Position[0] + dirX[(rInt + 1) % 3];
-                    }
-
-                    if (y2 < 0 || y2 >= worldSize.y)
-                    {
-                        y2 = positionable.Position[1] + dirX[(rInt + 1) % 3];
-                    }
-
-                    positionable.Position = new int2(x2, y2);
+                    positionable.Position = new int2(0,0);
                 }).Schedule(inputDeps);
 */
 
@@ -95,7 +94,7 @@ namespace Pathfinding
                 .WithAll<AISubTaskTagTillGroundTile>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithoutBurst()
-                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile) =>
+                .ForEach((Entity entity, int nativeThreadIndex) =>
                 {
                     ecb4.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
                 }).Schedule(inputDeps);
@@ -220,9 +219,6 @@ namespace Pathfinding
                 JobHandle.CombineDependencies(job10, job2, job3),
                 JobHandle.CombineDependencies(job4, job5, job6),
                 JobHandle.CombineDependencies(job7, job8, job9));
-                 
-            
-            Debug.Log("Path Finding");
 
             return handle;
         }
