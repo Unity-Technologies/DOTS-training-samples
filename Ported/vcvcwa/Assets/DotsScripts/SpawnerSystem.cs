@@ -12,6 +12,7 @@ using Unity.Transforms;
 
 // ReSharper disable once InconsistentNaming
 //[UpdateInGroup(typeof(SimulationSystemGroup))]
+
 public class SpawnerSystem : JobComponentSystem
 {
     // BeginInitializationEntityCommandBufferSystem is used to create a command buffer which will then be played back
@@ -58,15 +59,16 @@ public class SpawnerSystem : JobComponentSystem
                         
                         // Place the instantiated in a grid with some noise
                         var position = new float3(x,0,y);
-                        CommandBuffer.SetComponent(index, instance, new MoveComponent() { fly = false});
-                        CommandBuffer.SetComponent(index, instance, new DotsIntentionComponent { intention = DotsIntention.Rock});
-                        CommandBuffer.SetComponent(index, instance, new Translation {Value = position});
-                        CommandBuffer.SetComponent(index, instance, new PositionComponent() {position = new Vector2(x,y)});
-                        CommandBuffer.SetComponent(index, instance, new GoalPositionComponent() {position = new Vector2(-1,-1)});
+                        CommandBuffer.SetComponent(entityIndex, instance, new MoveComponent() { fly = false});
+                        CommandBuffer.SetComponent(entityIndex, instance, new DotsIntentionComponent { intention = DotsIntention.Rock});
+                        CommandBuffer.SetComponent(entityIndex, instance, new Translation {Value = position});
+                        CommandBuffer.SetComponent(entityIndex, instance, new PositionComponent() {position = new Vector2(x,y)});
+                        CommandBuffer.SetComponent(entityIndex, instance, new GoalPositionComponent() {position = new Vector2(-1,-1)});
                         resourcesComponent.MoneyForFarmers -= 10;
-                        entityIndex++;
+                        
                         gridIndex = i;
-                        CommandBuffer.DestroyEntity(index, entity);
+                        CommandBuffer.DestroyEntity(entityIndex, entity);
+                        entityIndex++;
                         break;
                     }
                 }
@@ -91,15 +93,15 @@ public class SpawnerSystem : JobComponentSystem
                             
                             // Place the instantiated in a grid with some noise
                             var position = new float3(x,0.5f,y);
-                            CommandBuffer.SetComponent(index, instance, new MoveComponent() { fly = true});
-                            CommandBuffer.SetComponent(index, instance, new DotsIntentionComponent { intention = DotsIntention.Harvest});
-                            CommandBuffer.SetComponent(index, instance, new Translation {Value = position});
-                            CommandBuffer.SetComponent(index, instance, new PositionComponent() {position = new Vector2(x,y)});
-                            CommandBuffer.SetComponent(index, instance, new GoalPositionComponent() {position = new Vector2(-1,-1)});
+                            CommandBuffer.SetComponent(entityIndex, instance, new MoveComponent() { fly = true});
+                            CommandBuffer.SetComponent(entityIndex, instance, new DotsIntentionComponent { intention = DotsIntention.Harvest});
+                            CommandBuffer.SetComponent(entityIndex, instance, new Translation {Value = position});
+                            CommandBuffer.SetComponent(entityIndex, instance, new PositionComponent() {position = new Vector2(x,y)});
+                            CommandBuffer.SetComponent(entityIndex, instance, new GoalPositionComponent() {position = new Vector2(-1,-1)});
                             
-                            entityIndex++;
                             gridIndex = i;
-                            CommandBuffer.DestroyEntity(index, entity);
+                            CommandBuffer.DestroyEntity(entityIndex, entity);
+                            entityIndex++;
                         }
                         resourcesComponent.MoneyForDrones -= 50;    
                         break;
@@ -110,7 +112,7 @@ public class SpawnerSystem : JobComponentSystem
                 {
                     gridIndex = 0;
                 }
-            }  
+            } 
         }
     }
 
