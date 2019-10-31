@@ -331,6 +331,9 @@ unsafe struct EntityDataAccess : IDisposable
 
     public void SetComponentDataRaw(Entity entity, int typeIndex, void* data, int size)
     {
+        if (!Exists(entity))
+            return;
+
         EntityComponentStore->AssertEntityHasComponent(entity, typeIndex);
         SetComponentDataRawEntityHasComponent(entity, typeIndex, data, size);
     }

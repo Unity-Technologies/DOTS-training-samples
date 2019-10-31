@@ -34,7 +34,7 @@ public class IdleSystem : JobComponentSystem
         return Entities.WithoutBurst().WithDeallocateOnJobCompletion(resources)
                 .WithDeallocateOnJobCompletion(enemyT1)
                 .WithDeallocateOnJobCompletion(enemyT2)
-            .ForEach((ref Velocity velocity, ref State state, ref TargetEntity targetEntity,in Team team) =>
+            .ForEach((ref State state, ref TargetEntity targetEntity, in Velocity velocity, in Team team) =>
             {
 
                 if (state.Value == State.StateType.Idle)
@@ -49,14 +49,22 @@ public class IdleSystem : JobComponentSystem
                             state.Value = State.StateType.Chasing;
                             if (team.Value == 1)
                             {
-                                if (enemyT2.Length == 0) return;
+                                if (enemyT2.Length == 0)
+                                {
+                                    state.Value = State.StateType.Idle;
+                                    return;
+                                }
 
                                 int rand = (int)((noise.cnoise(velocity.Value) + 1) * (enemyT2.Length-1) / 2);
                                 targetEntity.Value = enemyT2[rand];
                             }
                             else
                             {
-                                if (enemyT1.Length == 0) return;
+                                if (enemyT1.Length == 0)
+                                {
+                                    state.Value = State.StateType.Idle;
+                                    return;
+                                }
 
                                 int rand = (int)((noise.cnoise(velocity.Value) + 1) * (enemyT1.Length-1) / 2);
                                 targetEntity.Value = enemyT1[rand];
@@ -64,8 +72,14 @@ public class IdleSystem : JobComponentSystem
                         }
                         else
                         {
-                            if (resources.Length == 0) return;
+
                             state.Value = State.StateType.Collecting;
+
+                            if (resources.Length == 0) {
+                                state.Value = State.StateType.Idle; 
+                                return; 
+                                }
+
                             int rand = (int)((noise.cnoise(velocity.Value) + 1) * (resources.Length-1) / 2);
                             targetEntity.Value = resources[rand];
                         }

@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public class DieStateSystem : JobComponentSystem
 {
     EndSimulationEntityCommandBufferSystem buffer;
@@ -22,7 +23,8 @@ public class DieStateSystem : JobComponentSystem
         var commonBuffer = buffer.CreateCommandBuffer().ToConcurrent();
         var bloodPrefab = GetSingleton<BloodParticlesPrefab>().Value;
 
-        var handle = Entities.WithoutBurst().ForEach((Entity entity, in Translation translation, in State state) =>
+        var handle = Entities.WithBurst()
+            .ForEach((Entity entity, in Translation translation, in State state) =>
         {
             if (state.Value == State.StateType.Dead)
             {
