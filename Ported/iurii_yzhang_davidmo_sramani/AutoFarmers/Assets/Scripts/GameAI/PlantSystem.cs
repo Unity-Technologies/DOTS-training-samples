@@ -48,7 +48,7 @@ public class PlantSystem : JobComponentSystem
 			{
 				health.Value = -1;
 				ecb2.RemoveComponent<TagFullyGrownPlant>(entityInQueryIndex, e);
-			}).Schedule(inputDeps);
+			}).Schedule(job);
 		
 		m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
 		m_EntityCommandBufferSystem.AddJobHandleForProducer(job2);

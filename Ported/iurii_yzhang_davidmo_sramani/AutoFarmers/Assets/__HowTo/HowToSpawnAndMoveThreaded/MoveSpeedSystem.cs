@@ -18,4 +18,4 @@ public class MoveSpeedSystem : JobComponentSystem
             translation.Value += move.Value * dt;
         }).Schedule(inputDeps);
     }   
-}
+} 

@@ -5,14 +5,21 @@ using Unity.Mathematics;
 
 namespace GameAI
 {
-    public struct AISubTaskTagComplete : IComponentData {}
+    public struct AISubTaskTagComplete : IComponentData
+    {
+        public int2 targetPos;
+    }
 
     public struct AISubTaskTagFindUntilledTile : IComponentData {}
     public struct AISubTaskTagTillGroundTile : IComponentData {}
     public struct AISubTaskTagPlantSeed : IComponentData {}
 
     public struct AISubTaskTagFindRock : IComponentData {}
-    public struct AISubTaskTagClearRock : IComponentData {}
+
+    public struct AISubTaskTagClearRock : IComponentData
+    {
+        public Entity rockEntity;
+    }
     
     public struct AISubTaskTagFindPlant : IComponentData {}
     public struct AISubTaskTagFindShop : IComponentData {}

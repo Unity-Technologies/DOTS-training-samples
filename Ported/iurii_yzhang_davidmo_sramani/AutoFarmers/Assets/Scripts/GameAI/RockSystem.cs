@@ -1,11 +1,6 @@
-﻿using Unity.Burst;
-using Unity.Collections;
+﻿using GameAI;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Transforms;
-using UnityEngine;
-using GameAI;
 
 public class RockSystem : JobComponentSystem
 {
@@ -22,18 +17,28 @@ public class RockSystem : JobComponentSystem
         var dt = Time.deltaTime;
         var Cmd = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
      
-        var job = Entities.ForEach((Entity entity, int nativeThreadIndex, ref RockSmashSpeed s, ref RockComponent rock, ref HealthComponent health) =>
+        var health = GetComponentDataFromEntity<HealthComponent>(true);
+        var rockSmashSpeed = 0.5f;
+        var job = Entities
+            .WithNone<AISubTaskTagComplete>()
+            .WithReadOnly(health)
+            .WithReadOnly(rockSmashSpeed)
+            .ForEach((Entity entity, int entityInQueryIndex, in AISubTaskTagClearRock rock) =>
         {
-            health.Value -= s.Value * dt;
-
-            if (health.Value < 0.0)
-            {
-                // remove entity
-                Cmd.DestroyEntity(nativeThreadIndex, entity);
+            if (!health.Exists(rock.rockEntity)) {
+                Cmd.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
+            } else {
+                var newHealth = health[rock.rockEntity].Value - rockSmashSpeed * dt;
+                if (newHealth < 0.0) {
+                    Cmd.DestroyEntity(entityInQueryIndex, rock.rockEntity);
+                    Cmd.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
+                } else {
+                    Cmd.SetComponent(entityInQueryIndex, rock.rockEntity, new HealthComponent() { Value = newHealth});
+                }
             }
         }).Schedule(inputDeps);
 
         m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
-        return inputDeps;
+        return JobHandle.CombineDependencies(inputDeps, job);
     }
 }

@@ -131,7 +131,7 @@ namespace GameAI
                     break;
                 }
             }
-            
+              
             for (;;)
             {
                 var p = new int2(rnd.NextInt(WorldSize.x), rnd.NextInt(WorldSize.y));

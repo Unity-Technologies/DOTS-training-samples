@@ -78,14 +78,14 @@ public class RenderingUnity : MonoBehaviour
     public Entity CreateStone(EntityManager em)
     {
         var atype = em.CreateArchetype(typeof(Translation),
-            typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh));
+            typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh), typeof(HealthComponent), typeof(RockComponent));
         return Create(em, rock, atype);
     }
 
     public Entity CreatePlant(EntityManager em)
     {
         var atype = em.CreateArchetype(typeof(Translation),
-            typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh));
+            typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh), typeof(HealthComponent), typeof(TagPlant));
         return Create(em, plant, atype);
     }
     

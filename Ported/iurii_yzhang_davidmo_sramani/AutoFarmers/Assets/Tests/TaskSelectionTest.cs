@@ -24,7 +24,6 @@ namespace Tests
             Assert.IsFalse(World.EntityManager.HasComponent<AITagTaskNone>(e));
             Assert.IsTrue(World.EntityManager.HasComponent<AITagTaskClearRock>(e) ||
                           World.EntityManager.HasComponent<AITagTaskTill>(e) ||
-                          World.EntityManager.HasComponent<AITagTaskPlant>(e) || 
                           World.EntityManager.HasComponent<AITagTaskDeliver>(e));
         }
         
@@ -44,7 +43,6 @@ namespace Tests
             Assert.IsFalse(World.EntityManager.HasComponent<AITagTaskNone>(e));
             Assert.IsFalse(World.EntityManager.HasComponent<AITagTaskClearRock>(e));
             Assert.IsFalse(World.EntityManager.HasComponent<AITagTaskTill>(e));
-            Assert.IsFalse(World.EntityManager.HasComponent<AITagTaskPlant>(e));
 
             // Drones can only have the deliver task
             Assert.IsTrue(World.EntityManager.HasComponent<AITagTaskDeliver>(e));

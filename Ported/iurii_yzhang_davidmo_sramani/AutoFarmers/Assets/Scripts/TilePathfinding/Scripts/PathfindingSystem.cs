@@ -104,11 +104,10 @@ namespace Pathfinding
                 {
                     bool reached = false;
                     int2 target = DistanceField.PathTo(tile.Position, worldSize, distanceFieldStoneRead, out reached);
-
-                    //int value = DistanceField.GetDistanceFieldValue(tile.Position, worldSize, distanceFieldStoneRead);
-                    //Debug.Log($"Path2 : {tile.Position} -> {target} = {reached}. dist field val = {value}");
+//                    int value = DistanceField.GetDistanceFieldValue(tile.Position, worldSize, distanceFieldStoneRead);
+//                    Debug.Log($"Path2 : {tile.Position} -> {target} = {reached}. dist field val = {value}");
                     if (reached) {
-                        ecb5.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
+                        ecb5.AddComponent(entityInQueryIndex, entity, new AISubTaskTagComplete() {targetPos = target});
                     } else {
                         ecb5.AddComponent(entityInQueryIndex, entity, new HasTarget(target));
                     }

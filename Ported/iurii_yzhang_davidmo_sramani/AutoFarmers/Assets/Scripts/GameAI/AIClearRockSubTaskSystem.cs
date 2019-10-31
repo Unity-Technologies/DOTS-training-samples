@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Jobs;
+using UnityEngine;
 
 namespace GameAI
 {
@@ -27,15 +28,22 @@ namespace GameAI
                     ecb1.AddComponent<AISubTaskTagFindRock>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
 
+            var hashMap = World.GetOrCreateSystem<WorldCreatorSystem>().hashMap;
             var job2 = Entities
                 .WithAll<AITagTaskClearRock>()
-                .WithAll<AISubTaskTagComplete>()
                 .WithAll<AISubTaskTagFindRock>()
-                .ForEach((Entity entity, int entityInQueryIndex) =>
+                .WithReadOnly(hashMap)
+                .WithoutBurst()
+                .ForEach((Entity entity, int entityInQueryIndex, in TilePositionable position, in AISubTaskTagComplete target) =>
                 {
                     ecb2.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
                     ecb2.RemoveComponent<AISubTaskTagFindRock>(entityInQueryIndex, entity);
-                    ecb2.AddComponent<AISubTaskTagClearRock>(entityInQueryIndex, entity);
+
+                    Entity rockEntity;
+                    var has = hashMap.TryGetValue(target.targetPos, out rockEntity);
+                    Debug.Log($"hashMap has entity {rockEntity} at {position.Position}");
+                    
+                    ecb2.AddComponent(entityInQueryIndex, entity, new AISubTaskTagClearRock() { rockEntity = rockEntity });
                 }).Schedule(inputDeps);
 
             var job3 = Entities

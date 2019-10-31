@@ -29,7 +29,7 @@ namespace GameAI
                     randomNum.InitState((uint)seed);
 
                     ecb1.RemoveComponent<AITagTaskNone>(nativeThreadIndex, e);
-                    switch (randomNum.NextInt(0,4))
+                    switch (randomNum.NextInt(0,3))
                     {
                         default:
                             ecb1.AddComponent<AITagTaskClearRock>(nativeThreadIndex, e);
@@ -38,9 +38,6 @@ namespace GameAI
                             ecb1.AddComponent<AITagTaskTill>(nativeThreadIndex, e);
                             break;
                         case 2:
-                            ecb1.AddComponent<AITagTaskPlant>(nativeThreadIndex, e);
-                            break;
-                        case 3:
                             ecb1.AddComponent<AITagTaskDeliver>(nativeThreadIndex, e);
                             break;
                     }
