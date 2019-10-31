@@ -57,7 +57,9 @@ public class ParticleSys : JobComponentSystem
 
             // Rotation
             float2 normalVec = normalize(float2(delta.x, delta.z));
-            rot.Value = Quaternion.Euler(-90.0f, 0.0f, acos(normalVec.x) * 57.2958f); // asin(normalVec.x / normalVec.y)
+            float pook = acos(normalVec.x) * 57.2958f;
+            if (normalVec.y >= 0.0f) pook = 360.0f -(acos(normalVec.x) * 57.2958f);
+            rot.Value = Quaternion.Euler(-90.0f, 0.0f, pook); // asin(normalVec.x / normalVec.y)
             
             // Increment to position
             pos.Value += float3(
