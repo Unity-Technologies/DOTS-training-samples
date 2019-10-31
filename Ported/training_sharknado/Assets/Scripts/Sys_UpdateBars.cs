@@ -160,27 +160,27 @@ public class Sys_UpdateBars : JobComponentSystem
             float pushY = (dy / dist * extraDist) * .5f;
             float pushZ = (dz / dist * extraDist) * .5f;
 
-            //if (point1.anchor == false && point2.anchor == false)
-            //{
-            pos1.x += pushX;
-            pos1.y += pushY;
-            pos1.z += pushZ;
-            pos2.x -= pushX;
-            pos2.y -= pushY;
-            pos2.z -= pushZ;
-            //}
-            /*else if (point1.anchor)
+            if (point1.neighbors != -1 && point2.neighbors != -1)
             {
-                point2.x -= pushX * 2f;
-                point2.y -= pushY * 2f;
-                point2.z -= pushZ * 2f;
+                pos1.x += pushX;
+                pos1.y += pushY;
+                pos1.z += pushZ;
+                pos2.x -= pushX;
+                pos2.y -= pushY;
+                pos2.z -= pushZ;
             }
-            else if (point2.anchor)
+            else if (point1.neighbors == -1)
             {
-                point1.x += pushX * 2f;
-                point1.y += pushY * 2f;
-                point1.z += pushZ * 2f;
-            }*/
+                pos2.x -= pushX * 2;
+                pos2.y -= pushY * 2;
+                pos2.z -= pushZ * 2;
+            }
+            else if (point2.neighbors == -1)
+            {
+                pos1.x += pushX * 2;
+                pos1.y += pushY * 2;
+                pos1.z += pushZ * 2;
+            }
             point1.pos = pos1;
             point2.pos = pos2;
         }
