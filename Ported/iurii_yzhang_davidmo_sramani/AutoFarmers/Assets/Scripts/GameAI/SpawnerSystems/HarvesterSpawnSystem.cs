@@ -25,9 +25,6 @@ namespace GameAI
         /// </summary>
         protected override void OnCreate()
         {
-            // var farmerSpawner1 = EntityManager.CreateEntity(typeof(SpawnPointComponent), typeof(SpawnFarmerTagComponent));
-            // EntityManager.SetComponentData(farmerSpawner1, new SpawnPointComponent {MapSpawnPosition = new int2(3, 4)});
-
             var defaultFarmerArchetype = EntityManager.CreateArchetype(
                 // TODO: Add additional components movement components for map
                 typeof(NonUniformScale),
@@ -75,7 +72,6 @@ namespace GameAI
             EntityManager.SetSharedComponentData<RenderMesh>(defaultDroneEntity, droneRenderMesh);
             EntityManager.SetComponentData(defaultFarmerEntity,
                 new NonUniformScale {Value = droneMeshRenderer.transform.localScale});
-
         }
 
         /// <summary>
@@ -92,7 +88,7 @@ namespace GameAI
             var defaultDrone = defaultDroneEntity;
             
             // Spawn farmers
-            var createFarmerJobHandles = Entities
+            var createFarmerJobHandle = Entities
                 .WithAll<SpawnFarmerTagComponent>()
     //            .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e, in SpawnPointComponent spawnPointData) =>
@@ -107,7 +103,7 @@ namespace GameAI
 
             // Spawn drones
             var ecb2 = ecbSystem.CreateCommandBuffer().ToConcurrent();
-            var createDroneJobHandles = Entities
+            var createDroneJobHandle = Entities
                 .WithAll<SpawnDroneTagComponent>()
     //            .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e, in SpawnPointComponent spawnPointData) =>
@@ -118,12 +114,13 @@ namespace GameAI
                             nativeThreadIndex, 
                             defaultDrone, 
                             new Translation{ Value = spawnPointData.SpawnPoint });
-                    }).Schedule(inputDependencies /*TODO: should use default?*/);
+                    }).Schedule(inputDependencies);
 
-            ecbSystem.AddJobHandleForProducer(createFarmerJobHandles);
-            ecbSystem.AddJobHandleForProducer(createDroneJobHandles)
+            ecbSystem.AddJobHandleForProducer(createFarmerJobHandle);
+            ecbSystem.AddJobHandleForProducer(createDroneJobHandle);
+
             // Aggregates the job handles with the previous jobs
-            return JobHandle.CombineDependencies(inputDependencies, createFarmerJobHandles, createDroneJobHandles);
+            return JobHandle.CombineDependencies(inputDependencies, createFarmerJobHandle, createDroneJobHandle);
         }
     }
 }
