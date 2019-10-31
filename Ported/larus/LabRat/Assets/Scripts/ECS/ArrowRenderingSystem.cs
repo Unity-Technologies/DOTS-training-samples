@@ -1,10 +1,19 @@
 ﻿using ECSExamples;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.NetCode;
+using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
+[UpdateInGroup(typeof(ClientSimulationSystemGroup))]
 public class ArrowRenderingSystem : ComponentSystem
 {
+    private Material[] m_HomebaseMats;
+
+    public struct InitializedHomebase : IComponentData
+    {}
+
     protected override void OnUpdate()
     {
         //var overlayEntities = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToEntityArray(Allocator.TempJob);
@@ -91,5 +100,48 @@ public class ArrowRenderingSystem : ComponentSystem
         overlayRotations.Dispose();
         overlayPositions.Dispose();
         overlayEntities.Dispose();*/
+
+        Entities.WithNone<InitializedHomebase>().ForEach((Entity entity, ref HomebaseComponent home) =>
+        {
+            if ((int)home.Color.x == 0 && (int)home.Color.y == 0 && (int)home.Color.z == 0 && (int)home.Color.w == 0)
+                return;
+            var linkedEntityBuffer = EntityManager.GetBuffer<LinkedEntityGroup>(entity);
+            /*PostUpdateCommands.SetComponent(linkedEntityBuffer[2].Value, new MaterialColor{Value = home.Color});
+            PostUpdateCommands.SetComponent(linkedEntityBuffer[3].Value, new MaterialColor{Value = home.Color});*/
+
+            var colorIndex = home.PlayerId - 1;
+            var sharedMesh = EntityManager.GetSharedComponentData<RenderMesh>(linkedEntityBuffer[2].Value);
+            /*if (m_HomebaseMats == null || (m_HomebaseMats.Length >= PlayerConstants.MaxPlayers && m_HomebaseMats[colorIndex] == null))
+            {
+                if (m_HomebaseMats == null)
+                    m_HomebaseMats = new Material[PlayerConstants.MaxPlayers];
+
+                if (m_HomebaseMats[colorIndex] == null)
+                {
+                    var mat = new Material(sharedMesh.material);
+                    mat.color = new Color(home.Color.x, home.Color.y, home.Color.z, home.Color.w);
+                    m_HomebaseMats[colorIndex] = mat;
+                }
+                //Debug.Log("Client set index " + colorIndex + " entity " + entity + " as color " + PlayerMats[colorIndex].color);
+            }*/
+            var colors = World.GetExistingSystem<ApplyOverlayColors>();
+
+            /*var mat = new Material(sharedMesh.material);
+            mat.color = new Color(home.Color.x, home.Color.y, home.Color.z, home.Color.w);
+            sharedMesh.material = mat;*/
+            //sharedMesh.material = m_HomebaseMats[colorIndex];
+            sharedMesh.material = colors.PlayerMats[colorIndex];
+            PostUpdateCommands.SetSharedComponent(linkedEntityBuffer[2].Value, sharedMesh);
+
+            sharedMesh = EntityManager.GetSharedComponentData<RenderMesh>(linkedEntityBuffer[3].Value);
+            /*mat = new Material(sharedMesh.material);
+            mat.color = new Color(home.Color.x, home.Color.y, home.Color.z, home.Color.w);
+            sharedMesh.material = mat;*/
+            //sharedMesh.material = m_HomebaseMats[colorIndex];
+            sharedMesh.material = colors.PlayerMats[colorIndex];
+            PostUpdateCommands.SetSharedComponent(linkedEntityBuffer[3].Value, sharedMesh);
+
+            PostUpdateCommands.AddComponent<InitializedHomebase>(entity);
+        });
     }
 }

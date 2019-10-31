@@ -286,11 +286,11 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 					cellData = cellData | CellData.WallWest;
 			}
 
-			if (cell.Homebase != null)
+			/*if (cell.Homebase != null)
 			{
 				cellData = cellData | CellData.HomeBase;
-				boardSystem.HomeBaseMap.Add(i, cell.Homebase.playerData.playerIndex);
-			}
+				boardSystem.HomeBaseMap.Add(i, -1);
+			}*/
 
 			if (cellData != 0)
 			{

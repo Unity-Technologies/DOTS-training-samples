@@ -1,4 +1,5 @@
-﻿using ECSExamples;
+﻿using System.Runtime.CompilerServices;
+using ECSExamples;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -91,6 +92,10 @@ public class ArrowSystem : ComponentSystem
                 if (cellMap.ContainsKey(cellIndex))
                 {
                     cell = cellMap[cellIndex];
+                    // Deny placing arrow on top of bases or holes (thin clients do this)
+                    if ((cell.data & CellData.HomeBase) == CellData.HomeBase ||
+                        (cell.data & CellData.Hole) == CellData.Hole)
+                        return;
                     cell.data |= CellData.Arrow;
                     cellMap[cellIndex] = cell;
                 }
@@ -245,60 +250,23 @@ public class ClientArrowSystem : ComponentSystem
         bool cellClicked = false;
         if (HasSingleton<ThinClientComponent>() && HasSingleton<LocalPlayerComponent>())
         {
-            // Original AI brain:
-            //- Start
-            //    - Find cell with any mouse walking on it (20% chance) or pick random cell and mark as target
-            //    - Wait 1 - 2 seconds
-            //    - If cell has no arrow on it place arrow on it which points to nearest home base
-            //    - Wait 0.2 - 0.5 seconds
-            //    - In each update the player cursor moves towards the target cell position
             var random = new Random();
             random.InitState((uint)(Time.time*10000));
-            float3 nextPosition = float3.zero;
-            var micePos = EntityManager.CreateEntityQuery(typeof(EatenComponentTag), typeof(Translation))
-                .ToComponentDataArray<Translation>(Allocator.TempJob);
-            if (micePos.Length > 0 && random.NextFloat(0, 1) > 0.2f)
-            {
-                int findSlot = -1;
-                while (findSlot < 0)
-                {
-                    // TODO: Find cell without another players arrow, but client doesn't have that data, only server
-                    findSlot = random.NextInt(0, micePos.Length - 1);
-                }
-                nextPosition = micePos[findSlot].Value;
-            }
-            else
-            {
-                var nextX = random.NextInt(0, board.size.x);
-                var nextY = random.NextInt(0, board.size.y);
-                nextPosition = new float3(nextX, 0.55f, nextY);
-            }
-            micePos.Dispose();
+
+            var nextX = random.NextInt(0, board.size.x);
+            var nextY = random.NextInt(0, board.size.y);
+            var nextPosition = new float3(nextX, 0.55f, nextY);
             var localPt = new float2(nextPosition.x, nextPosition.z);
             localPt += board.cellSize * 0.5f;
             cellCoord = new float2(Mathf.FloorToInt(localPt.x / board.cellSize.x), Mathf.FloorToInt(localPt.y / board.cellSize.y));
 
-            var homebaseMap = World.GetExistingSystem<BoardSystem>().HomeBaseMap;
-            var playerComponent = GetSingleton<LocalPlayerComponent>();
-            var keys = homebaseMap.GetKeyArray(Allocator.TempJob);
-            int homebaseCellIndex = 0;
-            for (int i = 0; i < keys.Length; ++i)
-            {
-                var playerId = homebaseMap[keys[i]];
-                if (playerComponent.PlayerId == playerId)
-                    homebaseCellIndex = keys[i];
-            }
-            keys.Dispose();
-            var totalCells = board.size.x * board.size.y;
-            var homebaseY = math.floor(homebaseCellIndex / totalCells);
-            var homebaseX = homebaseCellIndex % totalCells;
-
-            var toHomebase = new float3(homebaseX, 0, homebaseY) - nextPosition;
-            toHomebase = math.normalize(toHomebase);
-            if (Mathf.Abs(toHomebase.x) > Mathf.Abs(toHomebase.z))
-                cellDirection = toHomebase.x > 0 ? Direction.East : Direction.West;
-            else
-                cellDirection = toHomebase.z > 0 ? Direction.North : Direction.South;
+            var directionValue = random.NextInt(0, 100);
+            if (directionValue < 25)
+                cellDirection = Direction.East;
+            else if (directionValue < 50)
+                cellDirection = Direction.West;
+            else if (directionValue < 75)
+                cellDirection = Direction.South;
 
             var shouldClick = random.NextFloat(0, 1);
             if (shouldClick > 0.95f)
@@ -345,10 +313,8 @@ public class ClientArrowSystem : ComponentSystem
             var localPlayerId = GetSingleton<NetworkIdComponent>().Value;
             Entities.WithNone<PlayerInput>().ForEach((Entity ent, ref PlayerComponent player) =>
             {
-                Debug.Log(World.Name + " Processing player component on " + ent + " local=" + localPlayerId + " comp=" + player.PlayerId);
                 if (player.PlayerId == localPlayerId)
                 {
-                    Debug.Log("Setting up local player for ID " + localPlayerId);
                     PostUpdateCommands.AddBuffer<PlayerInput>(ent);
                     PostUpdateCommands.SetComponent(GetSingletonEntity<CommandTargetComponent>(), new CommandTargetComponent {targetEntity = ent});
                     // Atm this is the same as the PlayerComponent on the entity with the PlayerInput

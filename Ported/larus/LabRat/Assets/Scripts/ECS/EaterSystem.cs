@@ -2,6 +2,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.NetCode;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ public struct LastPositionComponent : IComponentData
     public int Index;
 }
 
+[UpdateInGroup(typeof(ServerSimulationSystemGroup))]
 public class EaterSystem : ComponentSystem
 {
     private BoardSystem m_Board;

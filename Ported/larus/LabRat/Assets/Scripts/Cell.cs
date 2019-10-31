@@ -136,11 +136,14 @@ public class Cell : MonoBehaviour, IConvertGameObjectToEntity {
     public void SetHomebase(int playerIndex) {
         if (playerIndex == -1 && Homebase) {
             Destroy(Homebase);
-        } else if (playerIndex >= 0 && !Homebase) {
-            Homebase = Instantiate<GameObject>(HomebasePrefab).GetComponent<Homebase>();
+        } else if (playerIndex >= 0 && !Homebase)
+        {
+	        var go = Instantiate<GameObject>(HomebasePrefab);
+	        go.name = "Homebase";
+            Homebase = go.GetComponent<Homebase>();
             Assert.IsNotNull(Homebase);
             Homebase.transform.SetParent(transform, false);
-            Homebase.transform.localPosition = Vector3.zero;
+            //Homebase.transform.localPosition = Vector3.zero;
             Homebase.SetPlayerIndex(playerIndex);
         }
     }

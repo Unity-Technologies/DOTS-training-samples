@@ -1,9 +1,11 @@
 ﻿using ECSExamples;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.NetCode;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateInGroup(typeof(ServerSimulationSystemGroup))]
 public class EatenSystem : ComponentSystem
 {
     private BoardSystem m_Board;

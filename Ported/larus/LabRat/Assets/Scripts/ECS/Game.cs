@@ -1,8 +1,12 @@
 ﻿using System;
+using ECSExamples;
 using Unity.Entities;
 using Unity.NetCode;
 using Unity.Networking.Transport;
 using Unity.Burst;
+using Unity.Collections;
+using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 // Control system updating in the default world
@@ -56,6 +60,7 @@ public class SpawnPlayerSystem : ComponentSystem
     {
         Entities.WithNone<NetworkStreamInGame>().ForEach((Entity entity, ref NetworkIdComponent id) =>
         {
+            // Set up a player entity
             PostUpdateCommands.AddComponent<NetworkStreamInGame>(entity);
             var prefabs = GetSingleton<GhostPrefabCollectionComponent>();
             var serverPrefabs = EntityManager.GetBuffer<GhostPrefabBuffer>(prefabs.serverPrefabs);
@@ -63,8 +68,47 @@ public class SpawnPlayerSystem : ComponentSystem
             var player = EntityManager.Instantiate(prefab);
             PostUpdateCommands.AddComponent(player, new PlayerComponent{PlayerId = id.Value});
             PostUpdateCommands.AddBuffer<PlayerInput>(player);
-
             PostUpdateCommands.SetComponent(entity, new CommandTargetComponent{targetEntity = player});
+
+            // Set up the players home base
+            var boardSystem = World.GetExistingSystem<BoardSystem>();
+            var board = GetSingleton<BoardDataComponent>();
+
+            boardSystem.SpawnHomebase(id.Value);
+
+            /*var homebaseMap = World.GetExistingSystem<BoardSystem>().HomeBaseMap;
+            var homebaseKeys = homebaseMap.GetKeyArray(Allocator.TempJob);
+            var board = GetSingleton<BoardDataComponent>();
+            if (homebaseKeys.Length > 4)
+            {
+                Debug.LogError("Too many players");
+                return;
+            }
+            for (int i = 0; i < homebaseKeys.Length; ++i)
+            {
+                var cellIndex = homebaseKeys[i];
+                if (homebaseMap[cellIndex] == -1)
+                {
+                    Debug.Log("Setting player " + id.Value + " homebase at " + cellIndex);
+                    homebaseMap[cellIndex] = id.Value;
+                    var homebaseComponents = EntityManager.CreateEntityQuery(typeof(HomebaseComponent), typeof(Translation))
+                        .ToComponentDataArray<HomebaseComponent>(Allocator.TempJob);
+                    var homebasePositions = EntityManager.CreateEntityQuery(typeof(HomebaseComponent), typeof(Translation))
+                        .ToComponentDataArray<Translation>(Allocator.TempJob);
+                    for (int j = 0; j < homebasePositions.Length; ++j)
+                    {
+                        var index = homebasePositions[j].Value.z * board.size.y + homebasePositions[j].Value.x;
+                        if (index == cellIndex)
+                            homebaseComponents[j] = new HomebaseComponent
+                                {Color = new float4(Color.blue.a, Color.blue.b, Color.blue.g, Color.blue.r)};
+                    }
+                    homebaseComponents.Dispose();
+                    homebasePositions.Dispose();
+
+                }
+            }
+            homebaseKeys.Dispose();*/
+
             Debug.Log("Server got new connection NetId=" + id.Value + " spawned player entity " + player);
         });
     }
