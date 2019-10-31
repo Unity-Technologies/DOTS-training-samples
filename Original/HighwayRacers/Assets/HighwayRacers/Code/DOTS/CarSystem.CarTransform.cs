@@ -1,4 +1,4 @@
-﻿using Unity.Burst;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
@@ -11,8 +11,8 @@ partial class CarSystem
     private struct CarTransformJob : IJobForEachWithEntity<CarBasicState, LocalToWorld>
     {
         public float HighwayLen;
-        [DeallocateOnJobCompletion][ReadOnly] public NativeArray<HighwayPieceProperties> pieces;
-        [DeallocateOnJobCompletion][ReadOnly] public NativeArray<LocalToWorld> xforms;
+        [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<HighwayPieceProperties> pieces;
+        [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalToWorld> xforms;
 
         public void Execute(Entity entity, int index, [ReadOnly] ref CarBasicState carBasicState, ref LocalToWorld localToWorld)
         {
