@@ -12,17 +12,26 @@ public class Sys_UpdateBars : JobComponentSystem
 {
     public Random random;
     [ BurstCompile ]
-    struct UpdateBarsJob : IJobForEach< BarPoint1, BarPoint2 >
+    struct UpdateBarsJob : IJobForEach< BarPoint1, BarPoint2, BarLength >
     {
         public Random random;
         public float time;
+        public float3 tornadoPos;
+        public float damping;
+        public float friction;
+        public float invDamping;
+        public float tornadoMaxForceDist;
+        public float tornadoHeight;
+        public float tornadoUpForce;
+        public float tornadoInwardForce;
+        public float tornadoForce;
 
         public static float TornadoSway(float y, float t)
         {
             return math.sin( y / 5f + t / 4f ) * 3f;
         }
 
-        public void Execute( ref BarPoint1 point1, ref BarPoint2 point2 )
+        public void Execute( ref BarPoint1 point1, ref BarPoint2 point2, ref BarLength length)
         {
             var time = this.time;
 
@@ -37,13 +46,9 @@ public class Sys_UpdateBars : JobComponentSystem
                 var tornadoInwardForce = 9f;
                 var tornadoForce = 0.022f;
 
-                float3 tornadoPos;
-                tornadoPos.x = math.cos( time / 6f ) * 30f;
-                tornadoPos.y = 0;
-                tornadoPos.z = math.sin( time / 6f * 1.618f ) * 60f;
             // }
 
-            var tornadoFader = time / 10f;
+            var tornadoFader = math.saturate(time / 10f);
 
             float3 pos1 = point1.pos;
             float3 pos2 = point2.pos;
@@ -63,33 +68,36 @@ public class Sys_UpdateBars : JobComponentSystem
             float3 startPos = pos1;
 
             // TODO(wyatt): fix this ugly code
-            oldPos1.y += 0.01f;
-
-            if ( tornadoDist < tornadoMaxForceDist )
+            if (point1.neighbors != -1)
             {
-                float force = 1f - tornadoDist / tornadoMaxForceDist;
-                float yFader = math.saturate( 1f - pos1.y / tornadoHeight );
-                force *= tornadoFader * tornadoForce * random.NextFloat( -.3f, 1.3f );
-                //pos1.x -= -tdz + tdx * tornadoInwardForce * yfader;
-                //pos1.y -= tornadoUpForce * force;
-                //pos1.z -= tdx + tdz * tornadoInwardForce * yfader;
-                float forceY = tornadoUpForce;
-                oldPos1.y -= forceY * force;
-                float forceX = -tdz + tdx * tornadoInwardForce * yFader;
-                float forceZ = tdx + tdz * tornadoInwardForce * yFader;
-                oldPos1.x -= forceX * force;
-                oldPos1.z -= forceZ * force;
-            }
+                oldPos1.y += 0.01f;
 
-            pos1 += (pos1 - oldPos1) * invDamping;
+                if (tornadoDist < tornadoMaxForceDist)
+                {
+                    float force = 1f - tornadoDist / tornadoMaxForceDist;
+                    float yFader = math.saturate(1f - pos1.y / tornadoHeight);
+                    force *= tornadoFader * tornadoForce * random.NextFloat(-.3f, 1.3f);
+                    //pos1.x -= -tdz + tdx * tornadoInwardForce * yfader;
+                    //pos1.y -= tornadoUpForce * force;
+                    //pos1.z -= tdx + tdz * tornadoInwardForce * yfader;
+                    float forceY = tornadoUpForce;
+                    oldPos1.y -= forceY * force;
+                    float forceX = -tdz + tdx * tornadoInwardForce * yFader;
+                    float forceZ = tdx + tdz * tornadoInwardForce * yFader;
+                    oldPos1.x -= forceX * force;
+                    oldPos1.z -= forceZ * force;
+                }
 
-            oldPos1 = startPos;
-            if (pos1.y < 0f)
-            {
-                pos1.y = 0f;
-                oldPos1.y = -oldPos1.y;
-                oldPos1.x += (pos1.x - oldPos1.x) * friction;
-                oldPos1.z += (pos1.z - oldPos1.z) * friction;
+                pos1 += (pos1 - oldPos1) * invDamping;
+
+                oldPos1 = startPos;
+                if (pos1.y < 0f)
+                {
+                    pos1.y = 0f;
+                    oldPos1.y = -oldPos1.y;
+                    oldPos1.x += (pos1.x - oldPos1.x) * friction;
+                    oldPos1.z += (pos1.z - oldPos1.z) * friction;
+                }
             }
 
             tdx = tornadoPos.x + TornadoSway( pos2.y, time ) - pos2.x;
@@ -99,40 +107,82 @@ public class Sys_UpdateBars : JobComponentSystem
             tdx /= tornadoDist;
             tdz /= tornadoDist;
 
-            oldPos2.y += 0.01f;
-            startPos = pos2;
-
-            if (tornadoDist < tornadoMaxForceDist)
+            if (point2.neighbors != -1)
             {
-                float force = 1f - tornadoDist / tornadoMaxForceDist;
-                float yFader = math.saturate(1f - pos2.y / tornadoHeight);
-                force *= tornadoFader * tornadoForce * random.NextFloat(-.3f, 1.3f);
-                //pos1.x -= -tdz + tdx * tornadoInwardForce * yfader;
-                //pos1.y -= tornadoUpForce * force;
-                //pos1.z -= tdx + tdz * tornadoInwardForce * yfader;
-                float forceY = tornadoUpForce;
-                oldPos2.y -= forceY * force;
-                float forceX = -tdz + tdx * tornadoInwardForce * yFader;
-                float forceZ = tdx + tdz * tornadoInwardForce * yFader;
-                oldPos2.x -= forceX * force;
-                oldPos2.z -= forceZ * force;
-            }
+                oldPos2.y += 0.01f;
+                startPos = pos2;
 
-            pos2 += (pos2 - oldPos2) * invDamping;
+                if (tornadoDist < tornadoMaxForceDist)
+                {
+                    float force = 1f - tornadoDist / tornadoMaxForceDist;
+                    float yFader = math.saturate(1f - pos2.y / tornadoHeight);
+                    force *= tornadoFader * tornadoForce * random.NextFloat(-.3f, 1.3f);
+                    //pos1.x -= -tdz + tdx * tornadoInwardForce * yfader;
+                    //pos1.y -= tornadoUpForce * force;
+                    //pos1.z -= tdx + tdz * tornadoInwardForce * yfader;
+                    float forceY = tornadoUpForce;
+                    oldPos2.y -= forceY * force;
+                    float forceX = -tdz + tdx * tornadoInwardForce * yFader;
+                    float forceZ = tdx + tdz * tornadoInwardForce * yFader;
+                    oldPos2.x -= forceX * force;
+                    oldPos2.z -= forceZ * force;
+                }
 
-            oldPos2 = startPos;
-            if (pos2.y < 0f)
-            {
-                pos2.y = 0f;
-                oldPos2.y = -oldPos2.y;
-                oldPos2.x += (pos2.x - oldPos2.x) * friction;
-                oldPos2.z += (pos2.z - oldPos2.z) * friction;
+                pos2 += (pos2 - oldPos2) * invDamping;
+
+                oldPos2 = startPos;
+                if (pos2.y < 0f)
+                {
+                    pos2.y = 0f;
+                    oldPos2.y = -oldPos2.y;
+                    oldPos2.x += (pos2.x - oldPos2.x) * friction;
+                    oldPos2.z += (pos2.z - oldPos2.z) * friction;
+                }
             }
 
             point1.pos = pos1;
             point2.pos = pos2;
             point1.oldPos = oldPos1;
             point2.oldPos = oldPos2;
+
+            // Keep bar points together
+             pos1 = point1.pos;
+             pos2 = point2.pos;
+
+            float dx = pos2.x - pos1.x;
+            float dy = pos2.y - pos1.y;
+            float dz = pos2.z - pos1.z;
+
+            float dist = Mathf.Sqrt(dx * dx + dy * dy + dz * dz);
+            float extraDist = dist - length.value;
+
+            float pushX = (dx / dist * extraDist) * .5f;
+            float pushY = (dy / dist * extraDist) * .5f;
+            float pushZ = (dz / dist * extraDist) * .5f;
+
+            //if (point1.anchor == false && point2.anchor == false)
+            //{
+            pos1.x += pushX;
+            pos1.y += pushY;
+            pos1.z += pushZ;
+            pos2.x -= pushX;
+            pos2.y -= pushY;
+            pos2.z -= pushZ;
+            //}
+            /*else if (point1.anchor)
+            {
+                point2.x -= pushX * 2f;
+                point2.y -= pushY * 2f;
+                point2.z -= pushZ * 2f;
+            }
+            else if (point2.anchor)
+            {
+                point1.x += pushX * 2f;
+                point1.y += pushY * 2f;
+                point1.z += pushZ * 2f;
+            }*/
+            point1.pos = pos1;
+            point2.pos = pos2;
         }
     }
 
@@ -143,11 +193,22 @@ public class Sys_UpdateBars : JobComponentSystem
     }
     protected override JobHandle OnUpdate( JobHandle inputDeps )
     {
+        var tornadoData = GetSingleton<TornadoSpawner>();
         var job = new UpdateBarsJob()
         {
+
+            tornadoPos = GetSingleton<TornadoPosition>().position,
             random = this.random,
             time = Time.time,
-        };
+            damping = tornadoData.damping,
+            friction = tornadoData.friction,
+            invDamping = 1 - tornadoData.damping,
+            tornadoMaxForceDist = tornadoData.maxForceDist,
+            tornadoHeight = tornadoData.height,
+            tornadoUpForce = tornadoData.force,
+            tornadoInwardForce = tornadoData.inwardForce,
+            tornadoForce = tornadoData.force
+};
 
         return job.Schedule( this, inputDeps );
         // return inputDeps;
