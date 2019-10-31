@@ -1,4 +1,6 @@
-﻿using Unity.Burst;
+﻿using System.Collections.Generic;
+using Pathfinding;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -50,6 +52,8 @@ namespace GameAI
             var once = m_executeOnce.GetSingletonEntity();
             Assert.IsTrue(once != Entity.Null);
             EntityManager.DestroyEntity(once);
+
+            var hashPos = new HashSet<int2>();
             
             // create TilePositionRequest's
             for (int x = 0; x < WorldSize.x; ++x)
@@ -63,16 +67,7 @@ namespace GameAI
 
             int maxSize = math.max(WorldSize.x, WorldSize.y);
             
-            for (int i = 0; i < maxSize*2; ++i)
-            {
-                int x = rnd.NextInt(WorldSize.x);
-                int y = rnd.NextInt(WorldSize.y);
-                
-                var e = EntityManager.CreateEntity(m_plant);
-                EntityManager.SetComponentData(e, new PlantPositionRequest {position = new int2(x, y)});
-            }
-            
-            for (int i = 0; i < maxSize*3; ++i)
+            for (int i = 0; i < maxSize*5; ++i)
             {
                 int x = rnd.NextInt(WorldSize.x - 1);
                 int y = rnd.NextInt(WorldSize.y - 1);
@@ -87,13 +82,33 @@ namespace GameAI
 
                 sx = end_x - x;
                 sy = end_y - y;
-                
-                // TODO: check for other objects
+
+                for (int _x = x; _x <= end_x; _x++)
+                    for (int _y = y; _y <= end_y; _y++)
+                        if (hashPos.Contains(new int2(_x, _y)))
+                            goto WhoSaidGotoSuck;
                 
                 var e = EntityManager.CreateEntity(m_store);
                 EntityManager.SetComponentData(e, new StonePositionRequest {position = new int2(x, y), size = new int2(sx, sy)});
+                
+                for (int _x = x; _x <= end_x; _x++)
+                    for (int _y = y; _y <= end_y; _y++)
+                        hashPos.Add(new int2(_x, _y));
+
+                WhoSaidGotoSuck: ;
             }
-            
+
+            for (int i = 0; i < maxSize*3; ++i)
+            {
+                var p = new int2(rnd.NextInt(WorldSize.x), rnd.NextInt(WorldSize.y));
+                if (hashPos.Contains(p) == false)
+                {
+                    hashPos.Add(p);
+                    var e = EntityManager.CreateEntity(m_plant);
+                    EntityManager.SetComponentData(e, new PlantPositionRequest {position = p});
+                }
+            }
+
             Profiler.EndSample();
         }
 
