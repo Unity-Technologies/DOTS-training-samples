@@ -21,7 +21,7 @@ namespace ECSExamples
 
         void Update()
         {
-            var timeLeft = m_gameManager.NumSecodsLeftInGame;
+            var timeLeft = m_gameManager.NumSecondsLeftInGame;
             var t = TimeSpan.FromSeconds(timeLeft);
             var answer = string.Format("{1:D2}:{2:D2}",
                 t.Hours, t.Minutes, t.Seconds, t.Milliseconds);

@@ -2,6 +2,7 @@
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Entities;
+using UnityEngine.SceneManagement;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class GameManagementSystem : ComponentSystem
@@ -11,11 +12,17 @@ public class GameManagementSystem : ComponentSystem
     static readonly double k_ReadyDisplayTimeInSeconds = 2f;
     static readonly double k_SetDisplayTimeInSeconds = 1f;
     static readonly double k_GoDisplayTimeInSeconds = 1f;
+    static readonly double k_GameOverWaitTimeInSeconds = 4f;
 
     float m_numSecondsLeftInGame = k_NumSecondsPerGame;
-    public float NumSecodsLeftInGame
+    public float NumSecondsLeftInGame
     {
         get { return m_numSecondsLeftInGame; }
+    }
+
+    public int NumPlayers
+    {
+        get => 4;
     }
 
     public Color GetPlayerColor(int playerIndex)
@@ -34,7 +41,8 @@ public class GameManagementSystem : ComponentSystem
         DisplayReadyText,
         DisplaySetText,
         DisplayGoText,
-        GamePlayInProgress
+        GamePlayInProgress,
+        GameOver
     }
 
     GameState m_gameState = GameState.DisplayReadyText;
@@ -49,11 +57,11 @@ public class GameManagementSystem : ComponentSystem
         get => m_introText;
     }
 
-    double m_introStartTimestamp;
+    double m_lastTimestamp;
 
     protected override void OnCreate()
     {
-        m_introStartTimestamp = Time.ElapsedTime;
+        m_lastTimestamp = Time.ElapsedTime;
     }
 
     protected override void OnDestroy()
@@ -62,10 +70,10 @@ public class GameManagementSystem : ComponentSystem
 
     void HandleTextChange(double timeToWait, string text, GameState nextState)
     {
-        var timeSinceReady = Time.ElapsedTime - m_introStartTimestamp;
+        var timeSinceReady = Time.ElapsedTime - m_lastTimestamp;
         if (timeSinceReady > timeToWait)
         {
-            m_introStartTimestamp = Time.ElapsedTime;
+            m_lastTimestamp = Time.ElapsedTime;
             m_introText = text;
             m_gameState = nextState;
         }
@@ -86,16 +94,35 @@ public class GameManagementSystem : ComponentSystem
         HandleTextChange(k_GoDisplayTimeInSeconds, "", GameState.GamePlayInProgress);
     }
 
-    public void ResetGame()
+    void ResetGame()
     {
-        m_introStartTimestamp = Time.ElapsedTime;
+        m_lastTimestamp = Time.ElapsedTime;
+        m_gameState = GameState.DisplayReadyText;
         m_introText = "Ready";
+
+        m_numSecondsLeftInGame = k_NumSecondsPerGame;
     }
 
     void HandleGamePlay()
     {
         if (m_numSecondsLeftInGame > 0)
+        {
             m_numSecondsLeftInGame -= Time.DeltaTime;
+        }
+        else
+        {
+            m_lastTimestamp = Time.ElapsedTime;
+            m_gameState = GameState.GameOver;
+        }
+    }
+
+    void HandleGameOver()
+    {
+        var timeSinceGameOver = Time.ElapsedTime - m_lastTimestamp;
+        if (timeSinceGameOver > k_GameOverWaitTimeInSeconds)
+        {
+            ResetGame();
+        }
     }
 
     protected override void OnUpdate()
@@ -120,6 +147,11 @@ public class GameManagementSystem : ComponentSystem
             case GameState.GamePlayInProgress:
                 {
                     HandleGamePlay();
+                    break;
+                }
+            case GameState.GameOver:
+                {
+                    HandleGameOver();
                     break;
                 }
         }
