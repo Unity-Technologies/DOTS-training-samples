@@ -1559,7 +1559,7 @@ MonoBehaviour:
     width: 450
     height: 520
   moveSpeed: 60
-  transitionDuration: 1.5
+  transitionDuration: 0.61
   ReferenceCameraOffset: {fileID: 1670684230}
 --- !u!1 &998591029
 GameObject:
