@@ -62,10 +62,9 @@ namespace Pathfinding
                 .WithAll<AISubTaskTagFindUntilledTile>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                .WithoutBurst()
+                //.WithoutBurst()
                 .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable pos) =>
                 {
-                    Debug.Log("Find Untilled Tile target...");
                     // Distance Field will provide the target position
                     // Add HasTarget.TargetPosition
                     int2 targetpos = new int2(10, 10);
@@ -77,7 +76,7 @@ namespace Pathfinding
             var job3 = Entities
                 .WithAll<AISubTaskTagFindUntilledTile>()
                 .WithNone<AISubTaskTagComplete>()
-                .WithoutBurst()
+                //.WithoutBurst()
                 .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
                 {
                     bool2 tt = (t.TargetPosition == tile.Position);
@@ -93,7 +92,7 @@ namespace Pathfinding
             var job4 = Entities
                 .WithAll<AISubTaskTagTillGroundTile>()
                 .WithNone<AISubTaskTagComplete>()
-                .WithoutBurst()
+                //.WithoutBurst()
                 .ForEach((Entity entity, int nativeThreadIndex) =>
                 {
                     ecb4.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
@@ -105,14 +104,12 @@ namespace Pathfinding
                 .WithAll<AISubTaskTagFindRock>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                .WithoutBurst()
+                //.WithoutBurst()
                 .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile) =>
                 {
-                    Debug.Log("Find rock...");
                     // Distance Field will provide the target position
                     // Add HasTarget.TargetPosition
-                    int2 targetpos = new int2(10, 10);
-                    Debug.Log("Finding Rock");
+                    int2 targetpos = new int2(0, 0);
                     ecb5.AddComponent(nativeThreadIndex, entity, new HasTarget(targetpos));
                 }).Schedule(inputDeps);
 
@@ -121,7 +118,7 @@ namespace Pathfinding
             var job6 = Entities
                 .WithAll<AISubTaskTagTillGroundTile>()
                 .WithNone<AISubTaskTagComplete>()
-                .WithoutBurst()
+                //.WithoutBurst()
                 .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
                 {
                     bool2 tt = (t.TargetPosition == tile.Position);
@@ -137,7 +134,7 @@ namespace Pathfinding
             var job7 = Entities
                 .WithAll<AISubTaskTagPlantSeed>()
                 .WithNone<AISubTaskTagComplete>()
-                .WithoutBurst()
+                //.WithoutBurst()
                 .ForEach((Entity entity, int nativeThreadIndex) =>
                 {
                     // Add tag: subTaskComplete
@@ -150,7 +147,7 @@ namespace Pathfinding
                 .WithAll<AISubTaskTagFindPlant>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                .WithoutBurst()
+                //.WithoutBurst()
                 .ForEach((Entity entity, int nativeThreadIndex) =>
                 {
                     // Distance Field will provide the target position
@@ -165,7 +162,7 @@ namespace Pathfinding
                 .WithAll<AISubTaskTagFindShop>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                .WithoutBurst()
+                //.WithoutBurst()
                 .ForEach((Entity entity, int nativeThreadIndex) =>
                 {
                     // Distance Field will provide the target position
@@ -179,7 +176,7 @@ namespace Pathfinding
             var job10 = Entities
                 .WithAll<AISubTaskTagFindShop>()
                 .WithNone<AISubTaskTagComplete>()
-                .WithoutBurst()
+                //.WithoutBurst()
                 .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
                 {
                     bool2 tt = (t.TargetPosition == tile.Position);
@@ -200,27 +197,11 @@ namespace Pathfinding
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job8);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job9);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job10);
-            /*
-            NativeArray<JobHandle> x = new NativeArray<JobHandle>(10, Allocator.TempJob);
-            var jarray = new JobHandle[] {job1, job2, job3, job4, job5, job6, job7, job8, job9, job10};
-            x.CopyFrom(jarray);
-            
-            var handle = JobHandle.CombineDependencies(x);
-            
-            var handle =
-                JobHandle.CombineDependencies(
-                    JobHandle.CombineDependencies(
-                        JobHandle.CombineDependencies(job1, job2, job3),
-                        JobHandle.CombineDependencies(job4, job5, job6),
-                        JobHandle.CombineDependencies(job7, job8, job9)), job10);
-            */
 
-            var handle = JobHandle.CombineDependencies(
-                JobHandle.CombineDependencies(job10, job2, job3),
-                JobHandle.CombineDependencies(job4, job5, job6),
-                JobHandle.CombineDependencies(job7, job8, job9));
-
-            return handle;
+            return JobHandle.CombineDependencies(
+                    JobHandle.CombineDependencies(job10, job2, job3),
+                    JobHandle.CombineDependencies(job4, job5, job6),
+                    JobHandle.CombineDependencies(job7, job8, job9));
         }
     }
 }
