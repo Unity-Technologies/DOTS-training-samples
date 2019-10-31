@@ -146,9 +146,10 @@ namespace Pathfinding
             distField1 = new NativeArray<int>(worldSize.x * worldSize.y, Allocator.Persistent);
             distField2 = new NativeArray<int>(worldSize.x * worldSize.y, Allocator.Persistent);
         }
-        
-        ~DistanceField()
+
+        public void Dispose()
         {
+            job.Complete();
             distField1.Dispose();
             distField2.Dispose();
         }

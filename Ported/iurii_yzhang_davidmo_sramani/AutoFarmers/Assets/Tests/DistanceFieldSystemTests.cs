@@ -45,6 +45,8 @@ namespace Tests
             {
                 Assert.AreEqual(int.MaxValue, val);
             }
+            
+            distanceField.Dispose();
         }
         
         [Test]
@@ -76,7 +78,7 @@ namespace Tests
                 Debug.Log(str);
             }
             
-            // TODO: check
+            distanceField.Dispose();
         }
 
 
@@ -118,6 +120,8 @@ namespace Tests
                     Assert.IsTrue(newVal < prevVal, $"new {newVal} shoud be < prev {prevVal}");
                 }
             }
+            
+            df.Dispose();
         }
 
         [Test]
@@ -149,6 +153,8 @@ namespace Tests
             Assert.AreEqual(new int2(1, 0), currentPosition);
             
             Debug.Log($"pos = {currentPosition} reached {reached}");
+            
+            df.Dispose();
         }
 
         public DistanceField DistanceFieldComplex(DistanceField.FieldType type, string map)
@@ -263,6 +269,8 @@ namespace Tests
             //Assert.IsTrue(IsArrayEqual(a, b));
             Assert.IsFalse(IsArrayEqual(a, c));
             Assert.IsFalse(IsArrayEqual(c, d));
+            
+            distanceField.Dispose();
         }
 
         private bool IsArrayEqual(int[] a, int[] b)
