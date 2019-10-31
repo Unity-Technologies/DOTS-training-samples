@@ -45,7 +45,8 @@ public class IdleSystem : JobComponentSystem
                     //min = 
                 }
                 */
-                //if (state.Value == State.StateType.Idle)
+
+                if (state.Value == State.StateType.Idle)
                 {
 
                     float rnd = (noise.cnoise(velocity.Value)+1.0f)/2.0f ;
