@@ -150,7 +150,7 @@ public struct Board : IDisposable
             {
                 case eDirection.North:
                     m_Tiles[index] = m_Tiles[index].SetWall(eDirection.North, true);
-                   // if( y+1 < k_Height)
+                    if( y+1 < k_Height)
                     {
                         index = (y + 1) * k_Width + x;
                         m_Tiles[index] = m_Tiles[index].SetWall(eDirection.South, true);
@@ -158,7 +158,7 @@ public struct Board : IDisposable
                     break;
                 case eDirection.South:
                     m_Tiles[index] = m_Tiles[index].SetWall(eDirection.South, true);
-                    //if (y - 1 >= 0)
+                    if (y - 1 >= 0)
                     {
                         index = (y - 1) * k_Width + x;
                         m_Tiles[index] = m_Tiles[index].SetWall(eDirection.North, true);
