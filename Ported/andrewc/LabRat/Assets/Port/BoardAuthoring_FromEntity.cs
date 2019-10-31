@@ -25,7 +25,6 @@ public class BoardAuthoring_FromEntity : MonoBehaviour, IDeclareReferencedPrefab
     {
         // Board Generation
         Debug.Log("generating board");
-        Vector2 CellSize = new Vector2(1,1);
 
         // Grab entity prefabs
         Entity WallEntity = conversionSystem.GetPrimaryEntity(WallPrefab);
@@ -33,6 +32,7 @@ public class BoardAuthoring_FromEntity : MonoBehaviour, IDeclareReferencedPrefab
         Entity HomebaseEntity = conversionSystem.GetPrimaryEntity(HomebasePrefab);
 
         BoardSystem boardSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<BoardSystem>();
+        Vector2 CellSize = boardSystem.Board.CellSize;
 
         for (int i = 0; i < Board.k_Width; i++)
         {

@@ -105,7 +105,7 @@ public struct Board : IDisposable
 
     public static int2 ConvertWorldToTileCoordinates(float3 position)
     {
-        return new int2((int)(position.x + 0.5f), (int)(position.z + 0.5f));
+        return new int2((int)math.round(position.x), (int)math.round(position.z));
     }
 
     public static Vector3 GetTileCenterAtCoord(Vector2Int index)
@@ -132,12 +132,37 @@ public struct Board : IDisposable
                 else if (y == k_Height - 1)
                     m_Tiles[index] = m_Tiles[index].SetWall(eDirection.North, true);
 
-                if (x == 5 && y == 5)
-                    m_Tiles[index] = m_Tiles[index].SetTileType(eTileType.Hole);
-                if (x == 6 && y == 6)
-                    m_Tiles[index] = m_Tiles[index].SetTileType(eTileType.HomeBase);
+                //if (x == 5 && y == 5)
+                //    m_Tiles[index] = m_Tiles[index].SetTileType(eTileType.Hole);
+                //if (x == 6 && y == 6)
+                //    m_Tiles[index] = m_Tiles[index].SetTileType(eTileType.HomeBase);
             }
         }
+
+        int numWalls = (int)(k_Width * k_Height * 0.2f);
+        for (int c = 0; c < numWalls; ++c)
+        {
+            int x = UnityEngine.Random.Range(0, k_Width);
+            int y = UnityEngine.Random.Range(0, k_Height);
+            int dir = UnityEngine.Random.Range(0, 4);
+            int index = y * k_Width + x;
+            m_Tiles[index] = m_Tiles[index].SetWall((eDirection)dir, true);
+
+            //if (cell.HasWallOrNeighborWall(direction) || cell.WallOrNeighborWallCount > 3)
+            //    c--;
+           
+        }
+
+        // setup home bases
+        float offset = 1f / 3f;
+        int idx = (int)(k_Width * offset + k_Height * offset * k_Width);
+        m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        idx = (int)(k_Width * 2f * offset + k_Height * 2f * offset * k_Width);
+        m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        //idx = (int)(k_Width * offset + k_Height * 2f * offset * k_Width);
+        //m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        //idx = (int)(k_Width * 2f * offset + k_Height * offset * k_Width);
+        //m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
     }
 
     public void Dispose()
