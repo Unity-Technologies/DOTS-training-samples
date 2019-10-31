@@ -17,11 +17,6 @@ public class RenderingUnity : MonoBehaviour
 {
     public const float scale = 2.1f;
 
-    public static int2 World2TilePosition(float3 pos)
-    {
-        return new int2((int) (pos.x * scale), (int) (pos.y * scale)) + WorldSizeHalf;
-    }
-    
     public static float3 Tile2WorldPosition(int2 pos, int2 worldSizeHalf)
     {
         pos -= worldSizeHalf; 

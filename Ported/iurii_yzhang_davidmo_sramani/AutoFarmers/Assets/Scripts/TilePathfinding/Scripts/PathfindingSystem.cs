@@ -26,6 +26,8 @@ namespace AutoFarmersTests
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
+            var worldSize = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSize;
+            
             Entities
                 .WithAll<FarmerComponent>()
                 .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable positionable) =>
@@ -39,13 +41,12 @@ namespace AutoFarmersTests
                 int x2 = positionable.Position[0] + dirX[rInt];
                 int y2 = positionable.Position[1] + dirY[rInt];
 
-                //RenderingUnity.WorldSize
-                if (x2 >= 0 || x2 >= RenderingUnity.WorldSize[0])
+                if (x2 >= 0 || x2 >= worldSize.x)
                 {
                     x2 = positionable.Position[0] + dirX[(rInt + 1) % 3];
                 }
 
-                if (y2 <= 0 || y2 >= RenderingUnity.WorldSize[1])
+                if (y2 <= 0 || y2 >= worldSize.y)
                 {
                     y2 = positionable.Position[1] + dirX[(rInt + 1) % 3];
                 }
