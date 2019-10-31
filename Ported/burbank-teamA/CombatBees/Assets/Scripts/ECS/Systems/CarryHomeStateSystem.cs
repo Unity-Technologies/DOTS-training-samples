@@ -49,36 +49,18 @@ public class CarryHomeStateSystem : JobComponentSystem
                 var myTranslation = translations[entity]; 
                 var targetTranslation = translations[targetEntity.Value];
                 var distance = math.distance(myTranslation.Value, targetTranslation.Value);
-                if (distance <= dropDistance)
-                {
-                    state.Value = State.StateType.Idle;
-                    commonBuffer.RemoveComponent<LocalToParent>(0, collected.Value);
-                    commonBuffer.RemoveComponent<Parent>(0, collected.Value);
-                    commonBuffer.SetComponent(0, collected.Value, new Translation {Value = myTranslation.Value});
-                    collected.Value = Entity.Null;
-                }
+                if (distance > dropDistance) return;
                 
-                //var translationll = translation[entity];
-                /*targetVelocity.Value = collectVelocity;
-
-
-                if (distance <= collectDistance)
-                {
-                    commonBuffer.AddComponent(0, targetEntity.Value, new Parent
-                    {
-                        Value = entity
-                    });
-                    
-                    commonBuffer.AddComponent<LocalToParent>(0, targetEntity.Value);
-
-                    state.Value = State.StateType.Dropping;
-                }*/
-
+                commonBuffer.RemoveComponent<LocalToParent>(0, collected.Value);
+                commonBuffer.RemoveComponent<Parent>(0, collected.Value);
+                commonBuffer.SetComponent(0, collected.Value, new GravityMultiplier {Value = 1});
+                commonBuffer.SetComponent(0, collected.Value, new Translation {Value = myTranslation.Value});
+                
+                state.Value = State.StateType.Idle;
+                collected.Value = Entity.Null;
+                
             }).Schedule(inputDependencies);
-        
         buffer.AddJobHandleForProducer(handle);
         return handle;
     }
-    
-    
 }

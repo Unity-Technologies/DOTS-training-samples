@@ -33,6 +33,8 @@ public class CollectStateSystem : JobComponentSystem
                 if (distance > collectDistance) return;
 
                 commonBuffer.SetComponent(0, targetEntity.Value, new Translation());
+                commonBuffer.SetComponent(0, targetEntity.Value, new GravityMultiplier {Value = 0});
+                commonBuffer.SetComponent(0, targetEntity.Value, new Velocity());
                 commonBuffer.AddComponent(0, targetEntity.Value, new Parent {Value = entity});
                 commonBuffer.AddComponent<LocalToParent>(0, targetEntity.Value);
 
