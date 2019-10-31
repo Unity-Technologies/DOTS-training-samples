@@ -21,6 +21,8 @@ public class KeepOnTheFloorSystem : JobComponentSystem
     {
         var gameBounds = GetSingleton<GameBounds>().Value;
         var commandBuffer = bufferSystem.CreateCommandBuffer().ToConcurrent();
+        //var beePrefab = GetSingleton<BeeManager>().Value;
+
 
         return Entities.WithoutBurst().WithAny<ResourceTag, ParticleTag>()
             .ForEach((Entity e, ref Translation t, ref Velocity velocity, ref GravityMultiplier gm) =>
@@ -31,6 +33,11 @@ public class KeepOnTheFloorSystem : JobComponentSystem
 
                     if (math.abs(t.Value.x) > gameBounds.x*0.8)
                     {
+                        /*var spawnedBee = commandBuffer.Instantiate(0, beePrefab);
+                        commandBuffer.SetComponent(0, spawnedBee, new Translation
+                        {
+                            Value = t.Value
+                        });*/
 
                         commandBuffer.DestroyEntity(0, e);
                     }
