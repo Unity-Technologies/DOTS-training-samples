@@ -21,9 +21,9 @@ namespace Tests
             var pq = m_Manager.CreateEntityQuery(typeof(PlantPositionRequest));
             var pblock = m_Manager.CreateEntityQuery(typeof(StonePositionRequest));
 
-            var distanceField = new DistanceField(creator.WorldSize, pq, pblock);
+            var distanceField = new DistanceField(DistanceField.FieldType.Plant, creator.WorldSize, pq, pblock);
             
-            var handle2 = distanceField.SchedulePlantField();
+            var handle2 = distanceField.Schedule();
             
             handle2.Complete();
 
@@ -32,7 +32,7 @@ namespace Tests
                 var str = "";
                 for (int x = 0; x < creator.WorldSize.x; x++)
                 {
-                    var val = distanceField.PlantDistFieldRead[y * creator.WorldSize.x + x];
+                    var val = distanceField.DistFieldRead[y * creator.WorldSize.x + x];
                     var valStr = val == int.MaxValue ? "X" : val.ToString();
                         
                     str += valStr + " ";
@@ -41,7 +41,7 @@ namespace Tests
             }
             
 
-            foreach (var val in distanceField.PlantDistFieldRead)
+            foreach (var val in distanceField.DistFieldRead)
             {
                 Assert.AreEqual(int.MaxValue, val);
             }
@@ -58,9 +58,9 @@ namespace Tests
             
             var pq = m_Manager.CreateEntityQuery(typeof(PlantPositionRequest));
             var pblock = m_Manager.CreateEntityQuery(typeof(StonePositionRequest));
-            var distanceField = new DistanceField(creator.WorldSize, pq, pblock);
+            var distanceField = new DistanceField(DistanceField.FieldType.Plant, creator.WorldSize, pq, pblock);
             
-            var handle2 = distanceField.SchedulePlantField();
+            var handle2 = distanceField.Schedule();
             handle2.Complete();
 
             for (int y = creator.WorldSize.y - 1; y >= 0; y--)
@@ -68,7 +68,7 @@ namespace Tests
                 var str = "";
                 for (int x = 0; x < creator.WorldSize.x; x++)
                 {
-                    var val = distanceField.PlantDistFieldRead[y * creator.WorldSize.x + x];
+                    var val = distanceField.DistFieldRead[y * creator.WorldSize.x + x];
                     var valStr = val == int.MaxValue ? "X" : val.ToString();
                         
                     str += valStr + " ";
@@ -81,9 +81,9 @@ namespace Tests
 
 
         [Test]
-        public void DistanceFieldComplex1()
+        public void DistanceFieldComplex1([Values(DistanceField.FieldType.Plant, DistanceField.FieldType.Stone)] DistanceField.FieldType type)
         {
-            var df = DistanceFieldComplex(@"
+            var df = DistanceFieldComplex(type, @"
             XO..........................
             X.........................X.
             .........XXXXX..............
@@ -123,11 +123,11 @@ namespace Tests
         [Test]
         public void DistanceFieldComplex2x2()
         {
-            var df = DistanceFieldComplex(@"
+            var df = DistanceFieldComplex(DistanceField.FieldType.Plant, @"
             XO
             ..");
 
-            var data = df.PlantDistFieldRead;
+            var data = df.DistFieldRead;
             Assert.AreEqual(int.MaxValue, data[0]);
             Assert.AreEqual(0, data[1]);
             Assert.AreEqual(2, data[2]);
@@ -151,7 +151,7 @@ namespace Tests
             Debug.Log($"pos = {currentPosition} reached {reached}");
         }
 
-        public DistanceField DistanceFieldComplex(string map)
+        public DistanceField DistanceFieldComplex(DistanceField.FieldType type, string map)
         {
             map = map.Trim().Replace(" ", "");
             
@@ -190,9 +190,9 @@ namespace Tests
             
             var pq = m_Manager.CreateEntityQuery(typeof(PlantPositionRequest));
             var pblock = m_Manager.CreateEntityQuery(typeof(StonePositionRequest));
-            var distanceField = new DistanceField(creator.WorldSize, pq, pblock);
+            var distanceField = new DistanceField(type, creator.WorldSize, pq, pblock);
             
-            var handle2 = distanceField.SchedulePlantField();
+            var handle2 = distanceField.Schedule();
             handle2.Complete();
 
             for (int y = 0; y < creator.WorldSize.y; y++)
@@ -200,7 +200,7 @@ namespace Tests
                 var str = "";
                 for (int x = 0; x < creator.WorldSize.x; x++)
                 {
-                    var val = distanceField.PlantDistFieldRead[y * creator.WorldSize.x + x];
+                    var val = distanceField.DistFieldRead[y * creator.WorldSize.x + x];
                     var valStr = val == int.MaxValue ? "X" : val.ToString();
                         
                     str += valStr + " ";
@@ -234,25 +234,25 @@ namespace Tests
             var pq = m_Manager.CreateEntityQuery(typeof(PlantPositionRequest));
             var pblock = m_Manager.CreateEntityQuery(typeof(StonePositionRequest));
 
-            var distanceField = new DistanceField(creator.WorldSize, pq, pblock);
+            var distanceField = new DistanceField(DistanceField.FieldType.Plant, creator.WorldSize, pq, pblock);
             
-            distanceField.PlantDistFieldRead.CopyTo(a);
+            distanceField.DistFieldRead.CopyTo(a);
 
-            var handle1 = distanceField.SchedulePlantField();
+            var handle1 = distanceField.Schedule();
             
             m_Manager.SetComponentData(e2, new PlantPositionRequest {position = new int2(2,2)});
             
             handle1.Complete();
             Assert.IsTrue(handle1.IsCompleted);
 
-            distanceField.PlantDistFieldRead.CopyTo(c);
+            distanceField.DistFieldRead.CopyTo(c);
 
-            var handle2 = distanceField.SchedulePlantField();
+            var handle2 = distanceField.Schedule();
             Assert.IsFalse(handle2.IsCompleted);
             
             handle2.Complete();
 
-            distanceField.PlantDistFieldRead.CopyTo(d);
+            distanceField.DistFieldRead.CopyTo(d);
 
             // c has (1,2)
             // d has (1,2) + (2,2)
