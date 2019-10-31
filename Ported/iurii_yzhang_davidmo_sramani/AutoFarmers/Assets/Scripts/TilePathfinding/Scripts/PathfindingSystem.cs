@@ -9,7 +9,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.Rendering;
-using Random = System.Random;
+using Random = Unity.Mathematics.Random;
 
 
 namespace AutoFarmersTests
@@ -28,31 +28,30 @@ namespace AutoFarmersTests
         {
             var worldSize = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSize;
 
-            var ecb1 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             var job1 = Entities
                 .WithAll<TagFarmer>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable positionable) =>
+                .ForEach((Entity entity, int entityInQueryIndex, int nativeThreadIndex, ref TilePositionable positionable) =>
                 {
-                    var dirX = new int4(1, -1, 0, 0);
-                    var dirY = new int4(0, 0, 1, -1);
+//                    var dirX = new int4(1, -1, 0, 0);
+//                    var dirY = new int4(0, 0, 1, -1);
+//
+//                    Random r = new Random((uint)entityInQueryIndex);
+//                    uint rInt = r.NextUInt(4);
+//
+//                    int x2 = positionable.Position[0] + dirX[rInt];
+//                    int y2 = positionable.Position[1] + dirY[rInt];
+//
+//                    if (x2 < 0 || x2 >= worldSize.x)
+//                    {
+//                        x2 = positionable.Position[0] + dirX[(rInt + 1) % 3];
+//                    }
+//
+//                    if (y2 < 0 || y2 >= worldSize.y)
+//                    {
+//                        y2 = positionable.Position[1] + dirX[(rInt + 1) % 3];
+//                    }
 
-                    Random r = new Random();
-                    int rInt = r.Next(0, 4);
-
-                    int x2 = positionable.Position[0] + dirX[rInt];
-                    int y2 = positionable.Position[1] + dirY[rInt];
-
-                    if (x2 < 0 || x2 >= worldSize.x)
-                    {
-                        x2 = positionable.Position[0] + dirX[(rInt + 1) % 3];
-                    }
-
-                    if (y2 < 0 || y2 >= worldSize.y)
-                    {
-                        y2 = positionable.Position[1] + dirX[(rInt + 1) % 3];
-                    }
-
-                    positionable.Position = new int2(x2, y2);
+                    positionable.Position = new int2(0,0);
                 }).Schedule(inputDeps);
 
             // find Untilled Tile target
@@ -61,20 +60,20 @@ namespace AutoFarmersTests
                 .WithAll<AISubTaskTagFindUntilledTile>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable pos) =>
+                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable pos) =>
                 {
                     // Distance Field will provide the target position
                     // Add HasTarget.TargetPosition
                     int2 targetpos = new int2(10, 10);
                     ecb2.AddComponent(nativeThreadIndex, entity, new HasTarget(targetpos));
-                }).Schedule(inputDeps);
+                }).Schedule(job1);
 
             // reach the tilling target
             var ecb3 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             var job3 = Entities
                 .WithAll<AISubTaskTagFindUntilledTile>()
                 .WithNone<AISubTaskTagComplete>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile, ref HasTarget t) =>
+                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
                 {
                     bool2 tt = (t.TargetPosition == tile.Position);
                     if (tt[0] && tt[1])
@@ -82,14 +81,14 @@ namespace AutoFarmersTests
                         // Add tag: subTaskComplete
                         ecb3.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
                     }
-                }).Schedule(inputDeps);
+                }).Schedule(job1);
 
             // till current tile
             var ecb4 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             var job4 = Entities
                 .WithAll<AISubTaskTagTillGroundTile>()
                 .WithNone<AISubTaskTagComplete>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile) =>
+                .ForEach((Entity entity, int nativeThreadIndex) =>
                 {
                     ecb4.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
                 }).Schedule(inputDeps);
@@ -100,7 +99,7 @@ namespace AutoFarmersTests
                 .WithAll<AISubTaskTagFindRock>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile) =>
+                .ForEach((Entity entity, int nativeThreadIndex) =>
                 {
                     // Distance Field will provide the target position
                     // Add HasTarget.TargetPosition
@@ -113,7 +112,7 @@ namespace AutoFarmersTests
             var job6 = Entities
                 .WithAll<AISubTaskTagTillGroundTile>()
                 .WithNone<AISubTaskTagComplete>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile, ref HasTarget t) =>
+                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
                 {
                     bool2 tt = (t.TargetPosition == tile.Position);
                     if (tt[0] && tt[1])
@@ -121,14 +120,14 @@ namespace AutoFarmersTests
                         // Add tag: subTaskComplete
                         ecb6.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
                     }
-                }).Schedule(inputDeps);
+                }).Schedule(job1);
 
             // Seeding
             var ecb7 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             var job7 = Entities
                 .WithAll<AISubTaskTagPlantSeed>()
                 .WithNone<AISubTaskTagComplete>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile) =>
+                .ForEach((Entity entity, int nativeThreadIndex) =>
                 {
                     // Add tag: subTaskComplete
                     ecb7.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
@@ -140,7 +139,7 @@ namespace AutoFarmersTests
                 .WithAll<AISubTaskTagFindPlant>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile) =>
+                .ForEach((Entity entity, int nativeThreadIndex) =>
                 {
                     // Distance Field will provide the target position
                     // Add HasTarget.TargetPosition
@@ -154,7 +153,7 @@ namespace AutoFarmersTests
                 .WithAll<AISubTaskTagFindShop>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile) =>
+                .ForEach((Entity entity, int nativeThreadIndex) =>
                 {
                     // Distance Field will provide the target position
                     // Add HasTarget.TargetPosition
@@ -167,7 +166,7 @@ namespace AutoFarmersTests
             var job10 = Entities
                 .WithAll<AISubTaskTagFindShop>()
                 .WithNone<AISubTaskTagComplete>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile, ref HasTarget t) =>
+                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
                 {
                     bool2 tt = (t.TargetPosition == tile.Position);
                     if (tt[0] && tt[1])
@@ -175,7 +174,7 @@ namespace AutoFarmersTests
                         // Add tag: subTaskComplete
                         ecb10.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
                     }
-                }).Schedule(inputDeps);
+                }).Schedule(job1);
 
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job1);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job2);

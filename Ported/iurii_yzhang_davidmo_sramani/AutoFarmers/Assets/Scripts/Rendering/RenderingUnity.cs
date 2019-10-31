@@ -48,7 +48,8 @@ public class RenderingUnity : MonoBehaviour
             typeof(RenderMesh), 
             typeof(RenderingAnimationComponent),
             typeof(RenderingAnimationDroneFlyComponent),
-            typeof(AITagTaskNone));
+            typeof(AITagTaskNone),
+            typeof(TilePositionable));
         return Create(em, drone, atype);
     }
     
@@ -56,12 +57,13 @@ public class RenderingUnity : MonoBehaviour
     {
         var atype = em.CreateArchetype(
             typeof(Translation),
-            typeof(NonUniformScale), 
-            typeof(LocalToWorld), 
+            typeof(NonUniformScale),
+            typeof(LocalToWorld),
             typeof(RenderMesh),
             typeof(RenderingAnimationComponent),
             typeof(FarmerAITag),
-            typeof(AITagTaskNone));
+            typeof(AITagTaskNone),
+            typeof(TilePositionable));
         return Create(em, farmer, atype);
     }
     
