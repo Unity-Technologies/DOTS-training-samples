@@ -107,7 +107,7 @@ public class BoardAuthoring_FromEntity : MonoBehaviour, IDeclareReferencedPrefab
                                     break;
                                 }
                             dstManager.SetComponentData(tile, new Translation { Value = spawnTrans });
-                            dstManager.SetComponentData(homebase, new Translation { Value = spawnTrans + new Vector3(0, 1, 0) });
+                            dstManager.SetComponentData(homebase, new Translation { Value = spawnTrans + new Vector3(0, 0.5f, 0) });
                             break;
                         }
                     default:
