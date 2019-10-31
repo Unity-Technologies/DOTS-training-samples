@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 public class GameManagementSystem : ComponentSystem
 {
     static readonly float k_NumSecondsPerGame = 30f;
+    static readonly int k_NumPlayers = 4;
     static readonly Color[] k_PlayerColors = { Color.black, Color.red, Color.green, Color.blue };
     static readonly double k_ReadyDisplayTimeInSeconds = 2f;
     static readonly double k_SetDisplayTimeInSeconds = 1f;
@@ -22,7 +23,7 @@ public class GameManagementSystem : ComponentSystem
 
     public int NumPlayers
     {
-        get => 4;
+        get => k_NumPlayers;
     }
 
     public Color GetPlayerColor(int playerIndex)
@@ -34,6 +35,12 @@ public class GameManagementSystem : ComponentSystem
     public uint GetPlayerScore(int playerIndex)
     {
         return m_playerScore[playerIndex];
+    }
+
+    Vector3[] m_playerCursorScreenPos = new Vector3[k_NumPlayers];
+    public Vector3 GetPlayerCursorScreenPos(uint playerIndex)
+    {
+        return m_playerCursorScreenPos[playerIndex];
     }
 
     public enum GameState
@@ -114,6 +121,19 @@ public class GameManagementSystem : ComponentSystem
             m_lastTimestamp = Time.ElapsedTime;
             m_gameState = GameState.GameOver;
         }
+
+        UpdateCursors();
+    }
+
+    void UpdateCursors()
+    {
+        m_playerCursorScreenPos[0] = Input.mousePosition;
+
+        // TMP: 
+        //m_playerCursorScreenPos[1] = new Vector3(UnityEngine.Random.Range(0f, Screen.width), UnityEngine.Random.Range(0f, Screen.height), UnityEngine.Random.Range(0f, 1f));
+        //m_playerCursorScreenPos[2] = new Vector3(UnityEngine.Random.Range(0f, Screen.width), UnityEngine.Random.Range(0f, Screen.height), UnityEngine.Random.Range(0f, 1f));
+        //m_playerCursorScreenPos[3] = new Vector3(UnityEngine.Random.Range(0f, Screen.width), UnityEngine.Random.Range(0f, Screen.height), UnityEngine.Random.Range(0f, 1f));
+        // TMP
     }
 
     void HandleGameOver()
