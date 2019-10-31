@@ -10,6 +10,7 @@ using Random = Unity.Mathematics.Random;
 [ UpdateAfter( typeof( Sys_BarsGravity ) ) ]
 public class Sys_UpdateBars : JobComponentSystem
 {
+    public Random random;
     [ BurstCompile ]
     struct UpdateBarsJob : IJobForEach< Bar >
     {
@@ -130,11 +131,16 @@ public class Sys_UpdateBars : JobComponentSystem
         }
     }
 
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        random = new Random(1337u);
+    }
     protected override JobHandle OnUpdate( JobHandle inputDeps )
     {
         var job = new UpdateBarsJob()
         {
-            random = new Random( 1337u ),
+            random = this.random,
             time = Time.time,
         };
 

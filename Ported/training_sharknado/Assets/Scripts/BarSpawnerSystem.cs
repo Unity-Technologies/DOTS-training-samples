@@ -26,8 +26,9 @@ public class BarSpawnerSystem : JobComponentSystem
         
         public void Execute( Entity entity, int jobIndex, [ ReadOnly ] ref BarSpawner spawner )
         {
-            var points = new NativeArray< float3 >( 4000, Allocator.Temp );
-            var hasAnchors = new NativeArray< bool >( 4000, Allocator.Temp );
+            int numPoints = spawner.pointCountBuildings * 39 + spawner.pointCountDetails * 2;
+            var points = new NativeArray< float3 >(numPoints, Allocator.Temp );
+            var hasAnchors = new NativeArray< bool >(numPoints, Allocator.Temp );
 
             int pointIndex = 0;
             Random r = new Random(4);
@@ -36,7 +37,7 @@ public class BarSpawnerSystem : JobComponentSystem
             float spacing = 2f;
             float3 point;
 
-            for (int i = 0; i < 35; i++)
+            for (int i = 0; i < spawner.pointCountBuildings; i++)
             {
                 int height = r.NextInt(4, 12);
                 // height = 1;
@@ -89,7 +90,7 @@ public class BarSpawnerSystem : JobComponentSystem
             }
 
             // ground details
-            for (int i = 0; i < 300; i++)
+            for (int i = 0; i < spawner.pointCountDetails; i++)
             {
                 float3 pos = new float3( r.NextFloat( -55f, 55f ), 0f, r.NextFloat( -55f, 55f ) );
                 point.x = pos.x + r.NextFloat(-.2f, -.1f);
