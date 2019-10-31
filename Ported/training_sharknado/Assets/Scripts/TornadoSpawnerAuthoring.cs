@@ -44,5 +44,6 @@ public class TornadoSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		tornado.damping = Damping;
 
 		dstManager.AddComponentData<TornadoSpawner>(entity, tornado);
-	}
+        dstManager.AddComponentData<TornadoPosition>(entity, new TornadoPosition() { position = new float3() });
+    }
 }
