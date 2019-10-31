@@ -3,8 +3,7 @@ using Unity.Entities;
 
 // ReSharper disable once InconsistentNaming
 [GenerateAuthoringComponent]
-public struct FarmerIntentionComponent : IComponentData
+public struct DotsIntentionComponent : IComponentData
 {
-    public FarmerIntention intention;
-
+    public DotsIntention intention;
 }

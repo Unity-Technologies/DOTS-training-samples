@@ -2,7 +2,7 @@
 using Unity.Entities;
 
 // ReSharper disable once InconsistentNaming
-public enum FarmerIntention
+public enum DotsIntention
 {
     Rock,
     Till,

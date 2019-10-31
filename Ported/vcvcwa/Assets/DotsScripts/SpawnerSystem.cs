@@ -58,10 +58,10 @@ public class SpawnerSystem : JobComponentSystem
                         
                         // Place the instantiated in a grid with some noise
                         var position = new float3(x,0,y);
-                        CommandBuffer.SetComponent(index, instance, new FarmerIntentionComponent { intention = FarmerIntention.Rock});
+                        CommandBuffer.SetComponent(index, instance, new DotsIntentionComponent { intention = DotsIntention.Rock});
                         CommandBuffer.SetComponent(index, instance, new Translation {Value = position});
                         CommandBuffer.SetComponent(index, instance, new PositionComponent() {position = new Vector2(x,y)});
-                        CommandBuffer.SetComponent(index, instance, new GoalPositionComponent() {position = new Vector2(20,20)});
+                        CommandBuffer.SetComponent(index, instance, new GoalPositionComponent() {position = new Vector2(-1,-1)});
                         resourcesComponent.MoneyForFarmers -= 10;
                         entityIndex++;
                         gridIndex = i;
