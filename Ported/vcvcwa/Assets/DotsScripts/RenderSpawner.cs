@@ -12,6 +12,7 @@ public struct RenderSpawner : IComponentData
     public Entity plantPrefab;
     public Entity shopPrefab;
     public Entity landPrefab;
-
+    public Entity tilledPrefab;
+    
     public float TileSize;
 }

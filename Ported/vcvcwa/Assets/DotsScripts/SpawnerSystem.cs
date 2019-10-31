@@ -99,7 +99,6 @@ public class SpawnerSystem : JobComponentSystem
                             CommandBuffer.SetComponent(entityIndex, instance, new GoalPositionComponent() {position = new Vector2(-1,-1)});
                             
                             gridIndex = i;
-                            CommandBuffer.DestroyEntity(entityIndex, entity);
                             entityIndex++;
                         }
                         resourcesComponent.MoneyForDrones -= 50;    

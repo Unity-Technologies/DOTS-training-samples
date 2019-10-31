@@ -73,6 +73,21 @@ public class RenderSpawnerSystem : JobComponentSystem
                         CommandBuffer.SetComponent(chunkIndex, instance, new TileRenderer {tile = new int2(i,j)});
                         
                         // do the rest
+                        int gridIndex = i * GridSize + j;
+                        if (gridIndex < Grid.Length)
+                        {
+                            var gridElement = Grid[gridIndex];
+
+                            if (gridElement.IsShop())
+                            {
+                                var shopInstance = CommandBuffer.Instantiate(chunkIndex, spawner.shopPrefab);
+                                position.y += 1.0f;
+                                CommandBuffer.AddComponent<TileRenderer>(chunkIndex, shopInstance);
+                                CommandBuffer.SetComponent(chunkIndex, shopInstance, new Translation {Value = position});
+                                CommandBuffer.SetComponent(chunkIndex, shopInstance, new TileRenderer {tile = new int2(i, j)});
+                            }
+                        }
+                            
                     }
                 }
             }

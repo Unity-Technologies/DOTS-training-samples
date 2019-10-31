@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.5748172, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -347,8 +347,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 693937889}
-  m_LocalRotation: {x: 0.2164396, y: 0, z: 0, w: 0.97629607}
-  m_LocalPosition: {x: 0, y: 10, z: -30}
+  m_LocalRotation: {x: -0.09760103, y: -0.36923745, z: 0.039028734, w: -0.92337126}
+  m_LocalPosition: {x: 2.8177168, y: 7.2081013, z: 1.9252149}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -776,5 +776,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 720607855, guid: ea3edde80fd22864ba63408659bb521a, type: 3}
+      propertyPath: tilledPrefab
+      value: 
+      objectReference: {fileID: 604955846697132401, guid: 61c30a1fc947f724aac0e8f6ef3dbf40,
+        type: 3}
+    - target: {fileID: 720607855, guid: ea3edde80fd22864ba63408659bb521a, type: 3}
+      propertyPath: shopPrefab
+      value: 
+      objectReference: {fileID: 3883027576494077151, guid: 34a1b1c111a539d4994f008e009400c8,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ea3edde80fd22864ba63408659bb521a, type: 3}
