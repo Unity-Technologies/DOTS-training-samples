@@ -2,6 +2,8 @@
 
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Transforms;
+using Unity.Collections;
 
 #if ENABLE_TEST
 [AlwaysUpdateSystem]
@@ -77,6 +79,18 @@ public partial class CarSystem : JobComponentSystem
         }.Schedule(this, inputDeps);
 
         // 4. Compose the matrices for each mesh instance for correct rendering.
+        EntityQuery pieceQuery = GetEntityQuery(typeof(HighwayPieceProperties), typeof(LocalToWorld));
+        if (pieceQuery.CalculateEntityCount() == 8)
+        {
+            NativeArray<HighwayPieceProperties> pieceProps = pieceQuery.ToComponentDataArray<HighwayPieceProperties>(Allocator.TempJob);
+            NativeArray<LocalToWorld> pieceXforms = pieceQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob);
+            inputDeps = new CarTransformJob()
+            {
+                HighwayLen = highway.highwayLength,
+                pieces = pieceProps,
+                xforms = pieceXforms
+            }.Schedule(this, inputDeps);
+        }
 
         // TODO: dispose the arrays on completing jobs.
         inputDeps.Complete();
