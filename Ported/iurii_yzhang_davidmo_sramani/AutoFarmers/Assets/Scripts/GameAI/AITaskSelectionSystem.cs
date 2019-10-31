@@ -5,6 +5,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using static Unity.Mathematics.math;
 using Random = Unity.Mathematics.Random;
 
@@ -27,7 +28,7 @@ namespace GameAI
                     var randomNum = new Random((uint) seed);
 
                     ecb1.RemoveComponent<AITagTaskNone>(nativeThreadIndex, e);
-                    switch (randomNum.NextInt(4))
+                    switch (randomNum.NextInt(0,4))
                     {
                         default:
                             ecb1.AddComponent<AITagTaskClearRock>(nativeThreadIndex, e);

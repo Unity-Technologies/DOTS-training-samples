@@ -22,7 +22,6 @@ namespace GameAI
         {
             var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             var job = Entities
-                //.WithReadOnly(typeof(HasTarget))
                 .WithAll<AnimationCompleteTag>()
                 .ForEach((Entity entity, int entityInQueryIndex, ref TilePositionable tilePositionable, in HasTarget target) =>
                 {
