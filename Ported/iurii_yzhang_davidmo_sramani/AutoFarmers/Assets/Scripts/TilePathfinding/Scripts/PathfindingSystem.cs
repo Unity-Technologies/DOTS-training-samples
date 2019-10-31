@@ -17,16 +17,30 @@ namespace Pathfinding
     public class PathfindingSystem : JobComponentSystem
     {
         BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
+        private DistanceField m_distanceFieldPlant;
+        private DistanceField m_distanceFieldStone;
+        private int2 m_worldSize;
 
         protected override void OnCreate()
         {
             m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+            var plantQuery = EntityManager.CreateEntityQuery(typeof(PlantPositionRequest));
+            var stoneQuery = EntityManager.CreateEntityQuery(typeof(StonePositionRequest));
+            m_worldSize = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSize;
+            m_distanceFieldPlant = new DistanceField(DistanceField.FieldType.Plant, m_worldSize, plantQuery, stoneQuery);
+            m_distanceFieldStone = new DistanceField(DistanceField.FieldType.Stone, m_worldSize, plantQuery, stoneQuery);
+            m_distanceFieldPlant.Schedule();
+            m_distanceFieldStone.Schedule();
+        }
+
+        protected override void OnDestroy()
+        {
+            m_distanceFieldPlant.Dispose();
+            m_distanceFieldStone.Dispose();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var worldSize = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSize;
-
             var ecb1 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             /*var job1 = Entities
                 .WithAll<FarmerAITag>()
@@ -105,12 +119,15 @@ namespace Pathfinding
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
                 //.WithoutBurst()
-                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile) =>
+                .ForEach((Entity entity, int entityInQueryIndex, in TilePositionable tile) =>
                 {
-                    // Distance Field will provide the target position
-                    // Add HasTarget.TargetPosition
-                    int2 targetpos = new int2(0, 0);
-                    ecb5.AddComponent(nativeThreadIndex, entity, new HasTarget(targetpos));
+                    bool reached = false;
+                    int2 target = m_distanceFieldStone.PathToPlant(tile.Position, out reached);
+                    if (reached) {
+                        ecb5.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
+                    } else {
+                        ecb5.AddComponent(entityInQueryIndex, entity, new HasTarget(target));
+                    }
                 }).Schedule(inputDeps);
 
             // smash rock 
@@ -148,12 +165,15 @@ namespace Pathfinding
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
                 //.WithoutBurst()
-                .ForEach((Entity entity, int nativeThreadIndex) =>
+                .ForEach((Entity entity, int entityInqueryIndex, in TilePositionable position) =>
                 {
-                    // Distance Field will provide the target position
-                    // Add HasTarget.TargetPosition
-                    int2 targetpos = new int2(20, 20);
-                    ecb8.AddComponent(nativeThreadIndex, entity, new HasTarget(targetpos));
+                    bool reached = false;
+                    int2 target = m_distanceFieldPlant.PathToPlant(position.Position, out reached);
+                    if (reached) {
+                        ecb8.AddComponent<AISubTaskTagComplete>(entityInqueryIndex, entity);
+                    } else {
+                        ecb8.AddComponent(entityInqueryIndex, entity, new HasTarget(target));
+                    }
                 }).Schedule(inputDeps);
 
             // Find shop
