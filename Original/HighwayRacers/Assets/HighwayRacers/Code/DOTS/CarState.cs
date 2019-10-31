@@ -10,9 +10,11 @@ public enum VehicleState
 }
 
 [Serializable]
-public struct CarState : IComponentData
+public struct CarLogicState : IComponentData
 {
     public VehicleState state;
+    public float targetSpeed;
+    public float targetLane;
 }
 
 [Serializable]

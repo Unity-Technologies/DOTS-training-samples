@@ -5,13 +5,15 @@ using Unity.Transforms;
 using UnityEngine;
 
 [Serializable]
-public struct CarSpawnProperties : ISharedComponentData
+public struct CarSpawnProperties : IComponentData
 {
     public Entity carPrefab;
     public float defaultSpeedMin;
     public float defaultSpeedMax;
     public float overtakeSpeedMin;
     public float overtakeSpeedMax;
+    public float overtakeEagernessMin;
+    public float overtakeEagernessMax;
     public Color defaultColor;
     public Color slowSpeedColor;
     public Color highSpeedColor;
@@ -35,6 +37,8 @@ public class CarSpawnerComponent : MonoBehaviour, IDeclareReferencedPrefabs, ICo
     public float normalSpeedMax;
     public float topSpeedMin;
     public float topSpeedMax;
+    public float eagernessMin;
+    public float eagernessMax;
     public Color normalColor;
     public Color slowColor;
     public Color fastColor;
@@ -62,6 +66,8 @@ public class CarSpawnerComponent : MonoBehaviour, IDeclareReferencedPrefabs, ICo
             defaultSpeedMax = normalSpeedMax,
             overtakeSpeedMin = topSpeedMin,
             overtakeSpeedMax = topSpeedMax,
+            overtakeEagernessMin = eagernessMin,
+            overtakeEagernessMax = eagernessMax,
             defaultColor = normalColor,
             slowSpeedColor = slowColor,
             highSpeedColor = fastColor,
@@ -75,6 +81,6 @@ public class CarSpawnerComponent : MonoBehaviour, IDeclareReferencedPrefabs, ICo
             maxOvertakeTime = maxPassingTime
         };
 
-        dstManager.AddSharedComponentData(entity, data);
+        dstManager.AddComponentData(entity, data);
     }
 }

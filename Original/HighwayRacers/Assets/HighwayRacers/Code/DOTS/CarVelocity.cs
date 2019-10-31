@@ -2,9 +2,8 @@
 using Unity.Entities;
 
 [Serializable]
-public struct CarVelocity : IComponentData
+public struct CarCrossVelocity : IComponentData
 {
-    public float InLaneVel;         // Speed within the lane
     public float CrossLaneVel;      // Speed to move between lanes
 }
 

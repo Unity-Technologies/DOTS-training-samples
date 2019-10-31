@@ -8,9 +8,3 @@ public struct CarBasicState : IComponentData
     public float Position; // Position on the road.
     public float Speed;
 }
-
-[Serializable]
-public struct CarMergeSpace : IComponentData
-{
-    public float MergeSpace;
-}
