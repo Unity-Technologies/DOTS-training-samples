@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: 700540708355616524, guid: 1f3003ecbe35946cb875a42393103da7,
         type: 3}
       propertyPath: m_Name
-      value: SpawnerBlood
+      value: SpawnerBlood 1
       objectReference: {fileID: 0}
     - target: {fileID: 700540708355616522, guid: 1f3003ecbe35946cb875a42393103da7,
         type: 3}
@@ -71,7 +71,7 @@ PrefabInstance:
         type: 3}
       propertyPath: Prefab
       value: 
-      objectReference: {fileID: 3237523757178558403, guid: d248add4e83db4d19871ec8c8dad5a4a,
+      objectReference: {fileID: 5687945732337601600, guid: 4582d67aac84c48a986cbecdebcb26c9,
         type: 3}
     - target: {fileID: 700540708355616525, guid: 1f3003ecbe35946cb875a42393103da7,
         type: 3}
