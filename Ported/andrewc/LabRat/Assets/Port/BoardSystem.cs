@@ -181,23 +181,19 @@ public struct Board : IDisposable
                     }
                     break;
             }
-            //m_Tiles[index] = m_Tiles[index].SetWall((eDirection)dir, true);
-
-            //if (cell.HasWallOrNeighborWall(direction) || cell.WallOrNeighborWallCount > 3)
-            //    c--;
            
         }
 
         // setup home bases
         float offset = 1f / 3f;
-        int idx = (int)(k_Width * offset + k_Height * offset * k_Width);
+        int idx = (int)(k_Width * offset) + (int)(k_Height * offset) * k_Width;
         m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
-        idx = (int)(k_Width * 2f * offset + k_Height * 2f * offset * k_Width);
+        idx = (int)(k_Width * 2f * offset) + (int)(k_Height * offset * 2f) * k_Width;
         m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
-        //idx = (int)(k_Width * offset + k_Height * 2f * offset * k_Width);
-        //m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
-        //idx = (int)(k_Width * 2f * offset + k_Height * offset * k_Width);
-        //m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        idx = (int)(k_Width * offset) + (int)(k_Height * offset * 2f) * k_Width;
+        m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        idx = (int)(k_Width * 2f * offset) + (int)(k_Height * offset) * k_Width;
+        m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
     }
 
     public void Dispose()
