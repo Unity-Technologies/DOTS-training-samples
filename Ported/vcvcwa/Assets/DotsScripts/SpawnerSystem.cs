@@ -35,13 +35,13 @@ public class SpawnerSystem : JobComponentSystem
         query = GetEntityQuery(queryDescription);
     }
 
-    struct SpawnJob : IJobForEachWithEntity_EBCCC<GridTile, ResourcesComponent, FarmerDataComponent, GridComponent>
+    struct SpawnJob : IJobForEachWithEntity_EBCCCC<GridTile, ResourcesComponent, FarmerDataComponent, GridComponent, DroneDataComponent>
     { 
         public EntityCommandBuffer.Concurrent CommandBuffer;
 
         public void Execute(Entity entity, int index, DynamicBuffer<GridTile> gridTileBuffer,
             ref ResourcesComponent resourcesComponent, [ReadOnly] ref FarmerDataComponent farmerDataComponent,
-            [ReadOnly] ref GridComponent gridComponent)
+            [ReadOnly] ref GridComponent gridComponent, [ReadOnly] ref DroneDataComponent droneDataComponent)
         {
             var entityIndex = 0;
             var gridIndex = 0;
@@ -67,6 +67,41 @@ public class SpawnerSystem : JobComponentSystem
                         entityIndex++;
                         gridIndex = i;
                         CommandBuffer.DestroyEntity(index, entity);
+                        break;
+                    }
+                }
+
+                if (gridIndex == (gridComponent.Size * gridComponent.Size) - 1)
+                {
+                    gridIndex = 0;
+                }
+            }
+            
+            while (resourcesComponent.MoneyForDrones >= 50)
+            {
+                for (int i = gridIndex; i < gridComponent.Size * gridComponent.Size; i++)
+                {
+                    if (gridTileBuffer[i].IsShop())
+                    {
+                        for (var j = 0; j < 5; j++)
+                        {
+                            var instance = CommandBuffer.Instantiate(entityIndex, droneDataComponent.droneEntity);
+                            var x = i % gridComponent.Size;
+                            var y = i / gridComponent.Size;
+                            
+                            // Place the instantiated in a grid with some noise
+                            var position = new float3(x,0.5f,y);
+                            CommandBuffer.SetComponent(index, instance, new MoveComponent() { fly = true});
+                            CommandBuffer.SetComponent(index, instance, new DotsIntentionComponent { intention = DotsIntention.Harvest});
+                            CommandBuffer.SetComponent(index, instance, new Translation {Value = position});
+                            CommandBuffer.SetComponent(index, instance, new PositionComponent() {position = new Vector2(x,y)});
+                            CommandBuffer.SetComponent(index, instance, new GoalPositionComponent() {position = new Vector2(-1,-1)});
+                            
+                            entityIndex++;
+                            gridIndex = i;
+                            CommandBuffer.DestroyEntity(index, entity);
+                        }
+                        resourcesComponent.MoneyForDrones -= 50;    
                         break;
                     }
                 }
