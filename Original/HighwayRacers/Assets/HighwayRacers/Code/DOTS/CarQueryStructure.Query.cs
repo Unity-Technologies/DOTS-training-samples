@@ -4,10 +4,10 @@ using Unity.Mathematics;
 partial struct CarQueryStructure
 {
     // Returns false if there is no other car on the lane.
-    public bool GetCarInFront(int carEntityIndex, float carLane, float highwayLen, out CarBasicState frontCarBasicState)
+    public bool GetCarInFront(int carEntityIndex, in CarBasicState car, float highwayLen, out CarBasicState frontCarBasicState, out float distance)
     {
-        int lane1 = (int)math.floor(carLane);
-        int lane2 = (int)math.ceil(carLane);
+        int lane1 = (int)math.floor(car.Lane);
+        int lane2 = (int)math.ceil(car.Lane);
         UnityEngine.Debug.Assert(lane1 >= 0 && lane1 <= 3 && lane2 >= 0 && lane2 <= 3);
 
         int numCarsInLane1 = LaneCarCounts[lane1];
@@ -16,6 +16,7 @@ partial struct CarQueryStructure
         if (numCarsInLane1 == 1 && numCarsInLane2 == 1)
         {
             frontCarBasicState = default;
+            distance = float.MaxValue;
             return false;
         }
 
@@ -53,6 +54,7 @@ partial struct CarQueryStructure
             }
         }
 
+        distance = Utilities.WrapPositionToLane(Utilities.ConvertPositionToLane(frontCarBasicState.Position, frontCarBasicState.Lane, car.Lane, highwayLen) - car.Position, car.Lane, highwayLen);
         return true;
     }
 }

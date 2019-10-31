@@ -3,7 +3,9 @@
 using Unity.Entities;
 using Unity.Jobs;
 
+#if ENABLE_TEST
 [AlwaysUpdateSystem]
+#endif
 public partial class CarSystem : JobComponentSystem
 {
 #if ENABLE_TEST
@@ -31,9 +33,10 @@ public partial class CarSystem : JobComponentSystem
             highwayLength = 250.0f
         };
 #else
-        if (!HasSingleton<HighwayProperties>())
+        if (!HasSingleton<HighwayProperties>() || !HasSingleton<CarSpawnProperties>())
             return inputDeps;
         var highway = GetSingleton<HighwayProperties>();
+        var spawnProperties = GetSingleton<CarSpawnProperties>();
 #endif
 
         var numCars = highway.numCars;
@@ -64,6 +67,10 @@ public partial class CarSystem : JobComponentSystem
         {
             Dt = deltaTime,
             HighwayLen = highway.highwayLength,
+
+            Acceleration = spawnProperties.acceleration,
+            BrakeDeceleration = spawnProperties.brakeDeceleration,
+
             QueryStructure = queryStructure,
         }.Schedule(this, inputDeps);
 
