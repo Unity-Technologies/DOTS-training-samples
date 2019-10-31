@@ -27,6 +27,14 @@ public struct BarPoint2 : IComponentData
     public float3 oldPos;
     public int neighbors;
 }
+public struct BarAveragedPoints1 : IComponentData
+{
+    public float3 pos;
+}
+public struct BarAveragedPoints2 : IComponentData
+{
+    public float3 pos;
+}
 public struct BarLength : IComponentData
 {
     public float value;

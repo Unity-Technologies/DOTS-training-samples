@@ -245,19 +245,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6d661518a695f842a9064202bbbe5b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Height: 40
-  Force: 5
-  MaxForceDistance: 10
-  UpForce: 2
-  InwardForce: 5
-  Damping: 0.99
+  Height: 50
+  Force: 0.022
+  MaxForceDistance: 30
+  UpForce: 1.5
+  InwardForce: 9
+  Damping: 0.012
   Particle: {fileID: 1636927579664538949, guid: e40ce0568891c714f96affe56543631e,
     type: 3}
   NumberOfParticle: 100
   ParticleSpinRate: 37
   ParticleUpSpeed: 6
-  BreakResistance: 5
-  Friction: 0.1
+  BreakResistance: 0.55
+  Friction: 0.4
   Gravity: 5
 --- !u!114 &222307497
 MonoBehaviour:
@@ -455,7 +455,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: -0.025976613, y: 0.97298366, z: -0.18340357, w: -0.13780871}
-  m_LocalPosition: {x: 1.4206604, y: 36.37392, z: 47.029877}
+  m_LocalPosition: {x: 12.69, y: 52.24, z: 86.03}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

@@ -19,7 +19,7 @@ public class BarSpawnerSystem : JobComponentSystem
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
     }
 
-    // [ BurstCompile ]
+    //[ BurstCompile ]
     public struct SpawnJob : IJobForEachWithEntity< BarSpawner >
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
@@ -28,12 +28,17 @@ public class BarSpawnerSystem : JobComponentSystem
         {
             int numPoints = spawner.pointCountBuildings * 39 + spawner.pointCountDetails * 2;
             var points = new NativeArray< float3 >(numPoints, Allocator.Temp );
+            /////////////
+            var neighbors = new NativeArray<int>(numPoints, Allocator.Temp);
+            var pointKeepers = new NativeArray<Entity>(numPoints, Allocator.Temp);
+            var pointKBuffers = new NativeArray<ConnectionBuffer>(numPoints*20, Allocator.Temp);
+            /////////////
             var hasAnchors = new NativeArray< bool >(numPoints, Allocator.Temp );
 
             int pointIndex = 0;
             Random r = new Random(4);
             // HACK(wyatt): this is used to get bar rotation looking "correct"
-            var left = math.normalize( new float3( 1, 0, 1 ) );
+            //var left = math.normalize( new float3( 1, 0, 1 ) );
             float spacing = 2f;
             float3 point;
 
@@ -49,6 +54,7 @@ public class BarSpawnerSystem : JobComponentSystem
                 point.z = pos.z - spacing;
                 hasAnchors[pointIndex] = true;
                 points[pointIndex] = point;
+                pointKeepers[pointIndex] = CommandBuffer.CreateEntity(jobIndex);
                 pointIndex++;
 
                 point.x = pos.x - spacing;
@@ -56,6 +62,7 @@ public class BarSpawnerSystem : JobComponentSystem
                 point.z = pos.z - spacing;
                 hasAnchors[pointIndex] = true;
                 points[pointIndex] = point;
+                pointKeepers[pointIndex] = CommandBuffer.CreateEntity(jobIndex);
                 pointIndex++;
 
                 point.x = pos.x + 0f;
@@ -63,28 +70,33 @@ public class BarSpawnerSystem : JobComponentSystem
                 point.z = pos.z + spacing;
                 hasAnchors[pointIndex] = true;
                 points[pointIndex] = point;
+                pointKeepers[pointIndex] = CommandBuffer.CreateEntity(jobIndex);
                 pointIndex++;
 
                 for (int j = 1; j <= height; j++)
                 {
-                    float offset = ( j % 2 ) * .1f;
+                    //float offset = ( j % 2 ) * .1f;
                     
                     point.x = pos.x + spacing;
                     point.y = j * spacing;
                     point.z = pos.z - spacing;
                     points[pointIndex] = point;
+                    pointKeepers[pointIndex] = CommandBuffer.CreateEntity(jobIndex);
                     pointIndex++;
 
                     point.x = pos.x - spacing;
                     point.y = j * spacing;
                     point.z = pos.z - spacing;
                     points[ pointIndex ] = point;
+                    pointKeepers[pointIndex] = CommandBuffer.CreateEntity(jobIndex);
+                    CommandBuffer.AddBuffer<ConnectionBuffer>(jobIndex, pointKeepers[pointIndex]);
                     pointIndex++;
 
                     point.x = pos.x + 0f;
                     point.y = j * spacing;
                     point.z = pos.z + spacing;
                     points[ pointIndex ] = point;
+                    pointKeepers[pointIndex] = CommandBuffer.CreateEntity(jobIndex);
                     pointIndex++;
                 }
             }
@@ -97,12 +109,14 @@ public class BarSpawnerSystem : JobComponentSystem
                 point.y = pos.y + r.NextFloat(0f, 3f);
                 point.z = pos.z + r.NextFloat(.1f, .2f);
                 points[pointIndex] = point;
+                pointKeepers[pointIndex] = CommandBuffer.CreateEntity(jobIndex);
                 pointIndex++;
 
                 point.x = pos.x + r.NextFloat(.2f, .1f);
                 point.y = pos.y + r.NextFloat(0f, .2f);
                 point.z = pos.z + r.NextFloat(-.1f, -.2f);
                 points[pointIndex] = point;
+                pointKeepers[pointIndex] = CommandBuffer.CreateEntity(jobIndex);
                 pointIndex++;
 
                 if (r.NextFloat(1) < .1f)
@@ -128,12 +142,18 @@ public class BarSpawnerSystem : JobComponentSystem
                         barpoint2.pos = points[j];
                         barpoint1.neighbors = 0;
                         barpoint2.neighbors = 0;
+                        //////////////////
+                        neighbors[i]++;
+                        neighbors[j]++;
+                        barpoint1.neighbors = neighbors[i];
+                        barpoint2.neighbors = neighbors[j];
+                        //////////////////
                         if (hasAnchors[i]) barpoint1.neighbors = -1;
                         if (hasAnchors[j]) barpoint2.neighbors = -1;
 
                         float3 diff = barpoint2.pos - barpoint1.pos;
                         var forward = math.normalizesafe( diff );
-                        var rot = quaternion.LookRotationSafe( forward, math.cross( forward, left ) );
+                        //var rot = quaternion.LookRotationSafe( forward, math.cross( forward, left ) );
 
                         var instance = CommandBuffer.Instantiate( jobIndex, spawner.prefab);
                         CommandBuffer.RemoveComponent( jobIndex, instance, typeof( Scale ) );
@@ -142,13 +162,44 @@ public class BarSpawnerSystem : JobComponentSystem
                         // CommandBuffer.SetComponent( jobIndex, instance, new Translation { Value = ( points[i] + points[j] ) / 2 });
                         // CommandBuffer.SetComponent( jobIndex, instance, new Rotation { Value = rot } );
                         
-                        CommandBuffer.AddComponent( jobIndex, instance, barpoint1);
+                        CommandBuffer.AddComponent(jobIndex, instance, barpoint1);
                         CommandBuffer.AddComponent(jobIndex, instance, barpoint2);
+                        CommandBuffer.AddComponent(jobIndex, instance, new BarAveragedPoints1());
+                        CommandBuffer.AddComponent(jobIndex, instance, new BarAveragedPoints2());
                         CommandBuffer.AddComponent(jobIndex, instance, barlength);
+                        for (int k = 0; k < 20; k++)
+                        {
+                            if (pointKBuffers[i*20+k].entity == Entity.Null)
+                            {
+                                ConnectionBuffer cb = pointKBuffers[i * 20 + k];
+                                cb.entity = instance;
+                                cb.endpoint = 1;
+                                pointKBuffers[i * 20 + k] = cb;
+                                break;
+                            }
+                        }
+                        for (int k = 0; k < 20; k++)
+                        {
+                            if (pointKBuffers[j * 20 + k].entity == Entity.Null)
+                            {
+                                ConnectionBuffer cb = pointKBuffers[j * 20 + k];
+                                cb.entity = instance;
+                                cb.endpoint = 2;
+                                pointKBuffers[j * 20 + k] = cb;
+                                break;
+                            }
+                        }
                     }
                 }
             }
-
+            for (int i = 0; i < pointIndex; i++)
+            {
+                var buffer = CommandBuffer.AddBuffer<ConnectionBuffer>(jobIndex, pointKeepers[i]);
+                for (int k = 0; k < 20; k++)
+                {
+                    buffer.Add(pointKBuffers[i * 20 + k]);
+                }
+            }
             CommandBuffer.RemoveComponent( jobIndex, entity, typeof( BarSpawner ) );
         }
     }

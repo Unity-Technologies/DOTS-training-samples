@@ -25,6 +25,7 @@ public class Sys_UpdateBars : JobComponentSystem
         public float tornadoUpForce;
         public float tornadoInwardForce;
         public float tornadoForce;
+        public float breakResistance;
 
         public static float TornadoSway(float y, float t)
         {
@@ -37,14 +38,7 @@ public class Sys_UpdateBars : JobComponentSystem
 
             // TODO(wyatt): move these to a component
             // {
-                var damping = 0.012f;
-                var friction = 0.4f;
-                var invDamping = 1 - damping;
-                var tornadoMaxForceDist = 30f;
-                var tornadoHeight = 50f;
-                var tornadoUpForce = 1.4f;
-                var tornadoInwardForce = 9f;
-                var tornadoForce = 0.022f;
+              
 
             // }
 
@@ -181,6 +175,18 @@ public class Sys_UpdateBars : JobComponentSystem
                 pos1.y += pushY * 2;
                 pos1.z += pushZ * 2;
             }
+
+            if (Mathf.Abs(extraDist) > breakResistance)
+            {
+                if (point2.neighbors > 0)
+                {
+                    point2.neighbors = 0;
+                }
+                else if (point1.neighbors > 0)
+                {
+                    point1.neighbors = 0;
+                }
+            }
             point1.pos = pos1;
             point2.pos = pos2;
         }
@@ -207,7 +213,8 @@ public class Sys_UpdateBars : JobComponentSystem
             tornadoHeight = tornadoData.height,
             tornadoUpForce = tornadoData.force,
             tornadoInwardForce = tornadoData.inwardForce,
-            tornadoForce = tornadoData.force
+            tornadoForce = tornadoData.force,
+            breakResistance = tornadoData.breakResist
 };
 
         return job.Schedule( this, inputDeps );
