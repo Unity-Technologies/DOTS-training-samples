@@ -31,9 +31,8 @@ public class ParSpawnSystem : JobComponentSystem
 
                 // Place the instantiated in a grid with some noise
                 float3 position = float3(random.NextFloat(-50.0f, 50.0f), random.NextFloat(0.0f, 50.0f), random.NextFloat(-50.0f, 50.0f));
-                // points[i] = pos;
-                // matrices[i] = Matrix4x4.TRS(points[i],Quaternion.identity,Vector3.one*Random.Range(.2f,.7f));
-                // radiusMults[i] = Random.value;
+                
+                // Color?
                 // colors[i] = Color.white * Random.Range(.3f,.7f);
                 
                 // Set components
