@@ -14,22 +14,26 @@ using static Unity.Mathematics.math;
 public class IdleSystem : JobComponentSystem
 {
     private EntityQuery resourceGroup;
-    private EntityQuery enemyGroup;
+    private EntityQuery enemyT1Group, enemyT2Group;
     protected override void OnCreate()
     {
-        enemyGroup = GetEntityQuery(ComponentType.ReadOnly<BeeTag>(), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Team>()); //get the bees
-        
+        enemyT1Group = GetEntityQuery(ComponentType.ReadOnly<BeeTag>(), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Team1Tag>()); //get the bees
+        enemyT2Group = GetEntityQuery(ComponentType.ReadOnly<BeeTag>(), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Team2Tag>()); //get the bees
+
         resourceGroup = GetEntityQuery(ComponentType.ReadOnly<ResourceTag>(), ComponentType.Exclude<LocalToParent>(), ComponentType.ReadOnly<Translation>()); //Only query the food that is not picked up
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
-        var enemy = enemyGroup.ToEntityArray(Allocator.TempJob);
-        
-        
+        var enemyT1 = enemyT1Group.ToEntityArray(Allocator.TempJob);
+        var enemyT2 = enemyT2Group.ToEntityArray(Allocator.TempJob);
+
+
         var resources = resourceGroup.ToEntityArray(Allocator.TempJob);
         var aggr = GetSingleton<Aggressiveness>();
-        return Entities.WithoutBurst().WithDeallocateOnJobCompletion(resources).WithDeallocateOnJobCompletion(enemy)
+        return Entities.WithoutBurst().WithDeallocateOnJobCompletion(resources)
+                .WithDeallocateOnJobCompletion(enemyT1)
+                .WithDeallocateOnJobCompletion(enemyT2)
             .ForEach((Entity entity, Velocity velocity, ref State state, ref TargetEntity targetEntity, in Translation translation, in Team team) =>
             {
                 /*float min;
@@ -41,25 +45,36 @@ public class IdleSystem : JobComponentSystem
                     //min = 
                 }
                 */
-                if (state.Value == State.StateType.Idle)
+                //if (state.Value == State.StateType.Idle)
                 {
 
-                    float rnd = noise.cnoise(velocity.Value) ;
+                    float rnd = (noise.cnoise(velocity.Value)+1.0f)/2.0f ;
 
                     if (rnd > 0) {
 
-                        if (aggr.Value > (noise.cnoise(velocity.Value) + 1) * 100.0f) //cnoise generates between -1 and 1 so we are making our aggressiveness value readable.
+                        if (aggr.Value > rnd * 100.0f) //cnoise generates between -1 and 1 so we are making our aggressiveness value readable.
                         {
-
                             state.Value = State.StateType.Chasing;
-                            int rand = (int)((noise.cnoise(velocity.Value) + 1) * enemy.Length / 2);
-                            targetEntity.Value = enemy[rand];
+                            if (team.Value == 1)
+                            {
+                                if (enemyT2.Length == 0) return;
 
+                                int rand = (int)((noise.cnoise(velocity.Value) + 1) * (enemyT2.Length-1) / 2);
+                                targetEntity.Value = enemyT2[rand];
+                            }
+                            else
+                            {
+                                if (enemyT1.Length == 0) return;
+
+                                int rand = (int)((noise.cnoise(velocity.Value) + 1) * (enemyT1.Length-1) / 2);
+                                targetEntity.Value = enemyT1[rand];
+                            }
                         }
                         else
                         {
+                            if (resources.Length == 0) return;
                             state.Value = State.StateType.Collecting;
-                            int rand = (int)((noise.cnoise(velocity.Value) + 1) * resources.Length / 2);
+                            int rand = (int)((noise.cnoise(velocity.Value) + 1) * (resources.Length-1) / 2);
                             targetEntity.Value = resources[rand];
                         }
                     }

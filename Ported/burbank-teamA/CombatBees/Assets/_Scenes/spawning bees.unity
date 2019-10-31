@@ -301,7 +301,7 @@ PrefabInstance:
     - target: {fileID: 62392180845590427, guid: c788219e537334259952312a877c1d6e,
         type: 3}
       propertyPath: Amount
-      value: 1000
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 62392180845590427, guid: c788219e537334259952312a877c1d6e,
         type: 3}
@@ -657,7 +657,7 @@ PrefabInstance:
     - target: {fileID: 5160360502799487183, guid: e86348b0a7b154f8d8a3d3e57aaf11ce,
         type: 3}
       propertyPath: Amount
-      value: 1000
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5160360502799487183, guid: e86348b0a7b154f8d8a3d3e57aaf11ce,
         type: 3}
