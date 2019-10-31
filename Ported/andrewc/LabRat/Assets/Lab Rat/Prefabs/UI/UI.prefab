@@ -88,6 +88,7 @@ GameObject:
   - component: {fileID: 4095946181962660790}
   - component: {fileID: 18855842051557748}
   - component: {fileID: 5785838248789370027}
+  - component: {fileID: 8265183449445059406}
   m_Layer: 5
   m_Name: player 2 score
   m_TagString: Untagged
@@ -206,6 +207,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerIndex: 2
+--- !u!114 &8265183449445059406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1296642031267178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd2f142c1d27f43eaaf4c7bc8d88c612, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerIndex: 2
 --- !u!1 &1307833175573674
 GameObject:
   m_ObjectHideFlags: 0
@@ -221,6 +235,7 @@ GameObject:
   - component: {fileID: 670003678514340148}
   - component: {fileID: 8005788800851922360}
   - component: {fileID: 3232295737435592702}
+  - component: {fileID: 1024996250490500905}
   m_Layer: 5
   m_Name: player 0 score
   m_TagString: Untagged
@@ -339,6 +354,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerIndex: 0
+--- !u!114 &1024996250490500905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1307833175573674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd2f142c1d27f43eaaf4c7bc8d88c612, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerIndex: 0
 --- !u!1 &1329692887113484
 GameObject:
   m_ObjectHideFlags: 0
@@ -419,6 +447,7 @@ GameObject:
   - component: {fileID: 4610627853885945572}
   - component: {fileID: 7624075396807354187}
   - component: {fileID: 7852591168047228102}
+  - component: {fileID: 3258483353197361394}
   m_Layer: 5
   m_Name: player 3 score
   m_TagString: Untagged
@@ -525,6 +554,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerIndex: 3
 --- !u!114 &7852591168047228102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1338068109835688}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd2f142c1d27f43eaaf4c7bc8d88c612, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerIndex: 3
+--- !u!114 &3258483353197361394
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -777,6 +819,7 @@ GameObject:
   - component: {fileID: 9004115948517869028}
   - component: {fileID: 2298031061731798306}
   - component: {fileID: 1179598934423195574}
+  - component: {fileID: 2553455979252222719}
   m_Layer: 5
   m_Name: player 1 score
   m_TagString: Untagged
@@ -883,6 +926,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerIndex: 1
 --- !u!114 &1179598934423195574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713390885503974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd2f142c1d27f43eaaf4c7bc8d88c612, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerIndex: 1
+--- !u!114 &2553455979252222719
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

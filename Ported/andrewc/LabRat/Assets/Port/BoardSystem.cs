@@ -108,6 +108,11 @@ public struct Board : IDisposable
         return new int2((int)(position.x + 0.5f), (int)(position.z + 0.5f));
     }
 
+    public static Vector3 GetTileCenterAtCoord(Vector2Int index)
+    {
+        return new Vector3(index.x, 0f, index.y);
+    }
+
     public void Init()
     {
         m_Tiles = new NativeArray<Tile>(k_Width * k_Height, Allocator.Persistent);
