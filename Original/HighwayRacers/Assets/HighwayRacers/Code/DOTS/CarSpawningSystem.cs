@@ -32,7 +32,6 @@ public class CarSpawningSystem : ComponentSystem
             var entities = new NativeArray<Entity>(carSpawnCount, Allocator.Temp);
             var carActiveComponentTypes = new ComponentTypes(
                                 typeof(CarBasicState),
-                                typeof(CarCrossVelocity),
                                 typeof(CarLogicState)
                             );
             var carStaticComponentTypes = new ComponentTypes(
@@ -72,19 +71,15 @@ public class CarSpawningSystem : ComponentSystem
 
                 CarBasicState cbs;
                 CarLogicState cls;
-                CarCrossVelocity ccv;
 
                 cbs.Speed = crop.DefaultSpeed;
                 cbs.Lane = curLane - 1;
                 cbs.Position = curPosition;
 
                 cls.State = VehicleState.NORMAL;
-                cls.TargetLane = curLane - 1;
+                cls.TargetLane = cbs.Lane;
                 cls.TargetSpeed = crop.DefaultSpeed;
 
-                ccv.CrossLaneVel = 0;
-
-                EntityManager.SetComponentData(entities[i], ccv);
                 EntityManager.SetComponentData(entities[i], cls);
                 EntityManager.SetComponentData(entities[i], cbs);
 
