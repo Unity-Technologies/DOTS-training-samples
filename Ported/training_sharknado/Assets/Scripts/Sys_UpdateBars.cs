@@ -28,14 +28,14 @@ public class Sys_UpdateBars : JobComponentSystem
 
             // TODO(wyatt): move these to a component
             // {
-                var damping = .99f;
+                var damping = 0.012f;
             var friction = 0.4f;
                 var invDamping = 1 - damping;
-                var tornadoMaxForceDist = 20f;
+                var tornadoMaxForceDist = 30f;
                 var tornadoHeight = 50f;
-                var tornadoUpForce = 10f;
-                var tornadoInwardForce = 5f;
-                var tornadoForce = 1f;
+                var tornadoUpForce = 1.4f;
+                var tornadoInwardForce = 9f;
+                var tornadoForce = 0.022f;
 
                 float3 tornadoPos;
                 tornadoPos.x = math.cos( time / 6f ) * 30f;
@@ -61,7 +61,7 @@ public class Sys_UpdateBars : JobComponentSystem
             tdz /= tornadoDist;
 
             // TODO(wyatt): fix this ugly code
-            oldPos1.y += .01f;
+            oldPos1.y += 1f;
 
             if ( tornadoDist < tornadoMaxForceDist )
             {
@@ -96,7 +96,7 @@ public class Sys_UpdateBars : JobComponentSystem
             tdx /= tornadoDist;
             tdz /= tornadoDist;
 
-            oldPos2.y += .01f;
+            oldPos2.y += 1f;
 
             if (tornadoDist < tornadoMaxForceDist)
             {
