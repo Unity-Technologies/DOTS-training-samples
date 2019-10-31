@@ -21,7 +21,7 @@ public class CollectStateSystem : JobComponentSystem
         var commonBuffer = buffer.CreateCommandBuffer().ToConcurrent();
 
         var handle = Entities.WithReadOnly(translationContainer).ForEach(
-            (Entity entity, ref TargetVelocity targetVelocity, ref State state, in TargetEntity targetEntity) =>
+            (Entity entity, ref TargetVelocity targetVelocity, ref State state, ref CollectedEntity collected, in TargetEntity targetEntity) =>
             {
                 if (state.Value != State.StateType.Collecting) return;
                 
@@ -35,6 +35,8 @@ public class CollectStateSystem : JobComponentSystem
                 commonBuffer.SetComponent(0, targetEntity.Value, new Translation());
                 commonBuffer.AddComponent(0, targetEntity.Value, new Parent {Value = entity});
                 commonBuffer.AddComponent<LocalToParent>(0, targetEntity.Value);
+
+                collected.Value = targetEntity.Value;
                 
                 state.Value = State.StateType.Dropping;
                 

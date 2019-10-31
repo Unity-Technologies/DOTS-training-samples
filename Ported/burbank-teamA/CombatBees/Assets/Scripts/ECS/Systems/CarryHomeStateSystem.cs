@@ -4,7 +4,6 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[DisableAutoCreation]
 public class CarryHomeStateSystem : JobComponentSystem
 {
     EntityQuery hivesQuery;
@@ -23,24 +22,45 @@ public class CarryHomeStateSystem : JobComponentSystem
         var dropDistance = GetSingleton<DropDistance>().Value;
         var carryHomeVelocity = GetSingleton<CarryHomeVelocity>().Value;
         
-        var translation = GetComponentDataFromEntity<Translation>(true);
-        var team = GetComponentDataFromEntity<Team>(true);
+        var translations = GetComponentDataFromEntity<Translation>(true);
+        var teams = GetComponentDataFromEntity<Team>(true);
         
         var hives = hivesQuery.ToEntityArray(Allocator.TempJob);
 
-        var handle = Entities/*.WithReadOnly(translation).WithDeallocateOnJobCompletion(hives)*/.ForEach(
-            (Entity entity, ref TargetVelocity targetVelocity, ref State state, ref TargetEntity targetEntity) =>
+        var handle = Entities
+            .WithReadOnly(translations)
+            .WithReadOnly(teams)
+            .WithDeallocateOnJobCompletion(hives)
+            .ForEach(
+            (Entity entity, ref TargetVelocity targetVelocity, ref State state, ref TargetEntity targetEntity, ref CollectedEntity collected, in Team team) =>
             {
                 if (state.Value != State.StateType.Dropping) return;
 
                 targetVelocity.Value = carryHomeVelocity;
-
-
+                
+                for (var i = 0; i < hives.Length; i++)
+                {
+                    var hive = hives[i];
+                    var hiveTeam = teams[hive];
+                    if (hiveTeam.Value == team.Value)
+                        targetEntity.Value = hive;
+                }
+                
+                var myTranslation = translations[entity]; 
+                var targetTranslation = translations[targetEntity.Value];
+                var distance = math.distance(myTranslation.Value, targetTranslation.Value);
+                if (distance <= dropDistance)
+                {
+                    state.Value = State.StateType.Idle;
+                    commonBuffer.RemoveComponent<LocalToParent>(0, collected.Value);
+                    commonBuffer.RemoveComponent<Parent>(0, collected.Value);
+                    commonBuffer.SetComponent(0, collected.Value, new Translation {Value = myTranslation.Value});
+                    collected.Value = Entity.Null;
+                }
+                
                 //var translationll = translation[entity];
                 /*targetVelocity.Value = collectVelocity;
 
-                var targetTranslation = translationContainer[targetEntity.Value];
-                var distance = math.distance(translation.Value, targetTranslation.Value);
 
                 if (distance <= collectDistance)
                 {
@@ -59,4 +79,6 @@ public class CarryHomeStateSystem : JobComponentSystem
         buffer.AddJobHandleForProducer(handle);
         return handle;
     }
+    
+    
 }
