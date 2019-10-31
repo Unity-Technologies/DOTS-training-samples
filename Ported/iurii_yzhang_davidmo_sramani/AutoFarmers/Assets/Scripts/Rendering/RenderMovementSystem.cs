@@ -30,11 +30,11 @@ namespace GameAI
                 .WithNone<AnimationCompleteTag>()
                 // .WithoutBurst()
                 .ForEach(
-                (int nativeThreadIndex, Entity e, ref Translation translationComponent, ref RenderingAnimationComponent animationComponent, in MovementSpeedComponent speedComponent, in TilePositionable tilePositionableComponent, in HasTarget hasTargetComponent) =>
+                (int nativeThreadIndex, Entity e, ref Translation translationComponent, ref RenderingAnimationComponent animationComponent, in MovementSpeedComponent speedComponent, in HasTarget hasTargetComponent) =>
                 { 
 //                    var startPos = RenderingUnity.Tile2WorldPosition(tilePositionableComponent.Position, worldHalfSizeLoc);
                     var endPos = RenderingUnity.Tile2WorldPosition(hasTargetComponent.TargetPosition, worldHalfSizeLoc);
-                    animationComponent.targetPosision = RenderingUnity.Tile2WorldPosition(hasTargetComponent.TargetPosition, worldHalfSizeLoc).xz;
+                    animationComponent.targetPosition = RenderingUnity.Tile2WorldPosition(hasTargetComponent.TargetPosition, worldHalfSizeLoc).xz;
                     animationComponent.currentPosition += (normalizesafe(endPos.xz - animationComponent.currentPosition) * speedComponent.speedInMeters * deltaT);
                     translationComponent.Value.xz = animationComponent.currentPosition;
                     if (lengthsq(endPos.xz - animationComponent.currentPosition) < 0.5)

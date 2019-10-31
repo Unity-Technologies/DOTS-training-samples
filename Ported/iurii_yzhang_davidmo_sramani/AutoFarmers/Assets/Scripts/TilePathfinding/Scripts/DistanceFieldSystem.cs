@@ -253,9 +253,9 @@ namespace Pathfinding
             expecting = false;
         }
 
-        public int2 PathToPlant(int2 currentPosition, out bool reached)
+        public static int2 PathTo(int2 currentPosition, int2 worldSize, NativeArray<int> distFieldRead, out bool reached)
         {
-            var current = GetDistanceFieldValue(currentPosition);
+            var current = GetDistanceFieldValue(currentPosition, worldSize, distFieldRead);
 
             reached = current == 0;
             if (reached)
@@ -263,37 +263,76 @@ namespace Pathfinding
                 return currentPosition;
             }
             
-            foreach (var dp in new[]
+//            foreach (var dp in new[]
+//            {
+//                new int2(-1, 0), 
+//                new int2(1, 0),
+//                new int2(0, -1),
+//                new int2(0, 1)
+//            })
+//            {
+//                var newPos = dp + currentPosition;
+//                var nextVal = GetDistanceFieldValue(newPos, worldSize, distFieldRead);
+//                if (nextVal < current)
+//                {
+//                    reached = nextVal == 0;
+//                    return newPos;
+//                }
+//            }
+            
+            // burst...
             {
-                new int2(-1, 0), 
-                new int2(1, 0),
-                new int2(0, -1),
-                new int2(0, 1)
-            })
-            {
-                var newPos = dp + currentPosition;
-                var nextVal = GetDistanceFieldValue(newPos);
-                if (nextVal < current)
-                {
+                var newPos = new int2(-1, 0) + currentPosition;
+                var nextVal = GetDistanceFieldValue(newPos, worldSize, distFieldRead);
+                if (nextVal < current) {
                     reached = nextVal == 0;
                     return newPos;
                 }
             }
-
+            {
+                var newPos = new int2(1, 0) + currentPosition;
+                var nextVal = GetDistanceFieldValue(newPos, worldSize, distFieldRead);
+                if (nextVal < current) {
+                    reached = nextVal == 0;
+                    return newPos;
+                }
+            }
+            {
+                var newPos = new int2(0, 1) + currentPosition;
+                var nextVal = GetDistanceFieldValue(newPos, worldSize, distFieldRead);
+                if (nextVal < current) {
+                    reached = nextVal == 0;
+                    return newPos;
+                }
+            }
+            {
+                var newPos = new int2(0, -1) + currentPosition;
+                var nextVal = GetDistanceFieldValue(newPos, worldSize, distFieldRead);
+                if (nextVal < current) {
+                    reached = nextVal == 0;
+                    return newPos;
+                }
+            }
+            
             return currentPosition;
         }
 
-        public int GetDistanceFieldValue(int2 p)
+        public static int GetDistanceFieldValue(int2 p, int2 worldSize, NativeArray<int> distFieldRead)
         {
             if (p.x >= 0 && p.x < worldSize.x)
             {
                 if (p.y >= 0 && p.y < worldSize.y)
                 {
-                    return DistFieldRead[p.y * worldSize.x + p.x];
+                    return distFieldRead[p.y * worldSize.x + p.x];
                 }
             }
 
             return int.MaxValue;
         }
+
+        public int2 PathToPlant(int2 currentPosition, out bool reached) { return PathTo(currentPosition, worldSize, DistFieldRead, out reached); }
+
+        public int GetDistanceFieldValue(int2 p) { return GetDistanceFieldValue(p, worldSize, DistFieldRead); }
+        public void Complete() { job.Complete(); }
     }
 }

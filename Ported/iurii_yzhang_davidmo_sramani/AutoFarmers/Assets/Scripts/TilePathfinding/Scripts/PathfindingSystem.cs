@@ -41,7 +41,6 @@ namespace Pathfinding
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var ecb1 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             /*var job1 = Entities
                 .WithAll<FarmerAITag>()
                 .WithAll<AITagTaskNone>()
@@ -69,6 +68,8 @@ namespace Pathfinding
                     positionable.Position = new int2(0,0);
                 }).Schedule(inputDeps);
 */
+
+            var worldSize = m_worldSize;
 
             // find Untilled Tile target
             var ecb2 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
@@ -114,6 +115,8 @@ namespace Pathfinding
 
             // Find Rock
             var ecb5 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+            m_distanceFieldStone.Complete();
+            var distanceFieldStoneRead = m_distanceFieldStone.DistFieldRead;
             var job5 = Entities
                 .WithAll<AISubTaskTagFindRock>()
                 .WithNone<AISubTaskTagComplete>()
@@ -122,7 +125,7 @@ namespace Pathfinding
                 .ForEach((Entity entity, int entityInQueryIndex, in TilePositionable tile) =>
                 {
                     bool reached = false;
-                    int2 target = m_distanceFieldStone.PathToPlant(tile.Position, out reached);
+                    int2 target = DistanceField.PathTo(tile.Position, worldSize, distanceFieldStoneRead, out reached);
                     if (reached) {
                         ecb5.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
                     } else {
@@ -160,22 +163,26 @@ namespace Pathfinding
 
             // Find Plant
             var ecb8 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+            m_distanceFieldPlant.Complete();
+            var distanceFieldPlantRead = m_distanceFieldPlant.DistFieldRead;
+            
             var job8 = Entities
                 .WithAll<AISubTaskTagFindPlant>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
                 //.WithoutBurst()
-                .ForEach((Entity entity, int entityInqueryIndex, in TilePositionable position) =>
+                //.WithReadOnly(distanceFieldPlantRead)  
+                .ForEach((Entity entity, int entityInQueryIndex, in TilePositionable position) =>
                 {
                     bool reached = false;
-                    int2 target = m_distanceFieldPlant.PathToPlant(position.Position, out reached);
+                    int2 target = DistanceField.PathTo(position.Position, worldSize, distanceFieldPlantRead, out reached);
                     if (reached) {
-                        ecb8.AddComponent<AISubTaskTagComplete>(entityInqueryIndex, entity);
+                        ecb8.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
                     } else {
-                        ecb8.AddComponent(entityInqueryIndex, entity, new HasTarget(target));
+                        ecb8.AddComponent(entityInQueryIndex, entity, new HasTarget(target));
                     }
                 }).Schedule(inputDeps);
-
+            
             // Find shop
             var ecb9 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             var job9 = Entities
