@@ -8,7 +8,6 @@ namespace GameAI
     [Serializable]
     public struct SpawnPointComponent : IComponentData
     {
-        public float3 SpawnPoint;
         public int2 MapSpawnPosition;
     }
 }
