@@ -25,6 +25,9 @@ namespace GameAI
         /// </summary>
         protected override void OnCreate()
         {
+            // var farmerSpawner1 = EntityManager.CreateEntity(typeof(SpawnPointComponent), typeof(SpawnFarmerTagComponent));
+            // EntityManager.SetComponentData(farmerSpawner1, new SpawnPointComponent {MapSpawnPosition = new int2(3, 4)});
+
             var defaultFarmerArchetype = EntityManager.CreateArchetype(
                 // TODO: Add additional components movement components for map
                 typeof(NonUniformScale),
@@ -63,9 +66,9 @@ namespace GameAI
             defaultDroneEntity = EntityManager.CreateEntity(defaultDroneArchetype);
             var droneRenderMesh = new RenderMesh
             {
-                mesh = farmerMeshRenderer.GetComponent<MeshFilter>().sharedMesh,
-                material = farmerMeshRenderer.sharedMaterial,
-                castShadows = farmerMeshRenderer.shadowCastingMode,
+                mesh = droneMeshRenderer.GetComponent<MeshFilter>().sharedMesh,
+                material = droneMeshRenderer.sharedMaterial,
+                castShadows = droneMeshRenderer.shadowCastingMode,
                 // TODO: Set back once performance is proven.
                 receiveShadows = false
             };
@@ -118,6 +121,7 @@ namespace GameAI
                     }).Schedule(inputDependencies /*TODO: should use default?*/);
 
             ecbSystem.AddJobHandleForProducer(createFarmerJobHandles);
+            ecbSystem.AddJobHandleForProducer(createDroneJobHandles)
             // Aggregates the job handles with the previous jobs
             return JobHandle.CombineDependencies(inputDependencies, createFarmerJobHandles, createDroneJobHandles);
         }
