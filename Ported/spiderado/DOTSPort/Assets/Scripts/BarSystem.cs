@@ -39,7 +39,7 @@ public class BarSystem : JobComponentSystem
             .WithReadOnly(points)
             .ForEach((int entityInQueryIndex, Entity e, ref Bar bar, ref LocalToWorld localToWorld, ref Translation position) => {
 
-                Debug.Log(points);
+                var thing = points[bar.point1];
                 /*
                 BarPoint point1 = points[bar.point1];
                 BarPoint point2 = points[bar.point2];
