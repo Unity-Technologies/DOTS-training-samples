@@ -83,7 +83,7 @@ public class GameManagementSystem : ComponentSystem
 
     void HandleGoText()
     {
-        HandleTextChange(k_SetDisplayTimeInSeconds, "", GameState.GamePlayInProgress);
+        HandleTextChange(k_GoDisplayTimeInSeconds, "", GameState.GamePlayInProgress);
     }
 
     public void ResetGame()
