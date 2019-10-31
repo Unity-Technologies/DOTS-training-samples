@@ -121,11 +121,14 @@ namespace Pathfinding
                 .WithAll<AISubTaskTagFindRock>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                //.WithoutBurst()
+                .WithoutBurst()
                 .ForEach((Entity entity, int entityInQueryIndex, in TilePositionable tile) =>
                 {
                     bool reached = false;
                     int2 target = DistanceField.PathTo(tile.Position, worldSize, distanceFieldStoneRead, out reached);
+
+                    int value = DistanceField.GetDistanceFieldValue(tile.Position, worldSize, distanceFieldStoneRead);
+                    Debug.Log($"Path2 : {tile.Position} -> {target} = {reached}. dist field val = {value}");
                     if (reached) {
                         ecb5.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
                     } else {
@@ -229,6 +232,14 @@ namespace Pathfinding
                     JobHandle.CombineDependencies(job10, job2, job3),
                     JobHandle.CombineDependencies(job4, job5, job6),
                     JobHandle.CombineDependencies(job7, job8, job9));
+        }
+
+        public void PlantOrStoneChanged()
+        {
+            m_distanceFieldPlant.Complete();
+            m_distanceFieldStone.Complete();
+            m_distanceFieldPlant.Schedule();
+            m_distanceFieldStone.Schedule();
         }
     }
 }
