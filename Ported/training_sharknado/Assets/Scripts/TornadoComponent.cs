@@ -11,6 +11,8 @@ public struct TornadoSpawner : IComponentData
 	public float maxForceDist;
 	public float height;
 	public float upForce;
+	public float inwardForce;
+	public float damping;
 	public float spinRate;
 	public float expForce;
 	public float breakResist;
