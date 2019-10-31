@@ -5,8 +5,13 @@ using Unity.Entities;
 public enum DotsIntention
 {
     Rock,
+    RockFinished,
     Till,
+    TillFinished,
     Plant,
+    PlantFinished,
     Harvest,
+    HarvestFinished,
     Shop,
+    ShopFinished,
 }
