@@ -35,12 +35,12 @@ public class ParticleSystem : JobComponentSystem
         public float deltaTime;
 
         public TornadoSpawner tornado;
-        // public Translation tornadoPos;
+        public Translation tornadoTranslation;
         
         // The [ReadOnly] attribute tells the job scheduler that this job will not write to rotSpeedIJobForEach
         public void Execute(ref Translation pos, ref ParticleComponent particleComponent)
         {
-            float3 tornadoPos = float3.zero;
+            float3 tornadoPos = tornadoTranslation.Value;
 
             tornadoPos = new float3(tornadoPos.x + TornadoSway(pos.Value.y, time),
                 pos.Value.y,
@@ -63,7 +63,7 @@ public class ParticleSystem : JobComponentSystem
             // Resetting
             if (pos.Value.y > tornado.height)
             {
-                pos.Value = float3(pos.Value.x, 0.0f, pos.Value.z);
+                pos.Value.y -= tornado.height;//float3(pos.Value.x, 0.0f, pos.Value.z);
             }
         }
     }
@@ -81,7 +81,7 @@ public class ParticleSystem : JobComponentSystem
             deltaTime = Time.deltaTime,
             time = Time.time,
             tornado = tornado,
-            // tornadoPos = translation
+            tornadoTranslation = translation
         };
 
         return job.Schedule(this, inputDependencies);
