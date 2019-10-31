@@ -47,7 +47,7 @@ public class CarSpawningSystem : ComponentSystem
 
             // Create a whole bunch of cars equally spaced within the road as a starting point.
             float curPosition = 0;
-            int curLane = 0;
+            int curLane = 1;
             float positionStep = computePositionStep(hiway.highwayLength, carsPerLane, curLane);
             for (int i = 0; i < carSpawnCount; ++i)
             {
@@ -90,7 +90,7 @@ public class CarSpawningSystem : ComponentSystem
                 EntityManager.SetComponentData(entities[i], cbs);
 
                 // If we've filled up this lane, move to the next one.
-                if (((i + 1) % carsPerLane) == 0 && (curLane != 3))
+                if (((i + 1) % carsPerLane) == 0 && (curLane != 4))
                 {
                     curPosition = 0;
                     ++curLane;
