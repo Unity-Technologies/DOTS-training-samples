@@ -108,7 +108,7 @@ public struct Board : IDisposable
         return new int2((int)math.round(position.x), (int)math.round(position.z));
     }
 
-    public static Vector3 GetTileCenterAtCoord(Vector2Int index)
+    public static Vector3 GetTileCenterAtCoord(int2 index)
     {
         return new Vector3(index.x, 0f, index.y);
     }
@@ -219,6 +219,58 @@ public struct Board : IDisposable
         {
             m_Tiles[y * k_Width + x] = value;
         }
+    }
+
+    public bool TileAtWorldPosition(float3 worldPosition, out Tile tile)
+    {
+        tile = default(Tile);
+
+        int2 coord = ConvertWorldToTileCoordinates(worldPosition);
+        if (coord.x >= 0 && coord.x < Size.x && coord.y >= 0 && coord.y < Size.y)
+        {
+            tile = this[coord.x, coord.y];
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool RaycastCellDirection(Vector2 screenPos, out eDirection cellDirection, out Tile outTile, out int2 outCoord)
+    {
+        cellDirection = eDirection.North;
+        outTile = default(Tile);
+        outCoord = default(int2);
+
+        var ray = Camera.main.ScreenPointToRay(screenPos);
+
+        float enter;
+
+        var plane = new Plane(Vector3.up, new Vector3(0, CellSize.y * 0.5f, 0));
+
+        if (!plane.Raycast(ray, out enter))
+        {
+            return false;
+        }
+
+        var worldPos = ray.GetPoint(enter);
+        Tile tile;
+        if (!TileAtWorldPosition(worldPos, out tile))
+        {
+            return false;
+        }
+
+        outCoord = ConvertWorldToTileCoordinates(worldPos);
+        var centerOfTileInWorldCoord = Board.GetTileCenterAtCoord(outCoord);
+
+        var pt = centerOfTileInWorldCoord - worldPos;
+        if (Mathf.Abs(pt.z) > Mathf.Abs(pt.x))
+            cellDirection = pt.z > 0 ? eDirection.North : eDirection.South;
+        else
+            cellDirection = pt.x > 0 ? eDirection.East : eDirection.West;
+
+        outTile = tile;
+
+        return true;
     }
 
     private NativeArray<Tile> m_Tiles;

@@ -152,24 +152,43 @@ public class GameManagementSystem : ComponentSystem
             m_gameState = GameState.GameOver;
         }
 
-        UpdateCursors();
+        HandleUserInput();
+        UpdateOpponentCursors();
     }
 
-    void UpdateCursors()
+    void HandleUserInput()
     {
         m_playerCursorScreenPos[0] = Input.mousePosition;
 
+        if (Input.GetMouseButtonDown(0))
+        {
+            eDirection direction;
+            Tile tile;
+            int2 coord;
+            if (m_board.RaycastCellDirection(m_playerCursorScreenPos[0], out direction, out tile, out coord))
+            {
+                Debug.Log($"Setting arrow {direction} at {coord}");
+                tile.SetDirection(direction);
+                m_board[coord.x, coord.y] = tile;
+            }
+        }
+    }
+
+    void UpdateOpponentCursors()
+    {
         if ((int)(Time.ElapsedTime - m_lastTimestamp) > 3f) // Update every 3s
         {
+            // PLACEHOLDER AI
             m_lastTimestamp = Time.ElapsedTime;
             var size = m_board.Size;
             for (int i = 1; i < k_NumPlayers; ++i)
             {
                 var cellPos = Board.GetTileCenterAtCoord(
-                    new Vector2Int((int)UnityEngine.Random.Range(0, size.x),
+                    new int2((int)UnityEngine.Random.Range(0, size.x),
                                     (int)UnityEngine.Random.Range(0f, (float)size.y)));
                 m_playerCursorScreenPos[i] = Camera.main.WorldToScreenPoint(cellPos);
             }
+            // PLACEHOLDER AI
         }
     }
 
