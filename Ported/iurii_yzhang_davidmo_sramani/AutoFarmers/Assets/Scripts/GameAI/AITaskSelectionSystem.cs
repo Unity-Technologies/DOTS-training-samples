@@ -19,27 +19,27 @@ namespace GameAI
             var rnd = Time.time;
 
             var groundSelectorHandle = Entities
-                .WithAll<AITaskTagNone, FarmerAITag>()
+                .WithAll<AITagTaskNone, FarmerAITag>()
 //            .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e) =>
                 {
                     var seed = nativeThreadIndex * (int) rnd * 7;
                     var randomNum = new Random((uint) seed);
 
-                    ecb1.RemoveComponent(nativeThreadIndex, e, typeof(AITaskTagNone));
+                    ecb1.RemoveComponent(nativeThreadIndex, e, typeof(AITagTaskNone));
                     switch (randomNum.NextInt(4))
                     {
                         default:
-                            ecb1.AddComponent(nativeThreadIndex, e, new AITaskTagClearRock());
+                            ecb1.AddComponent(nativeThreadIndex, e, new AITagTaskClearRock());
                             break;
                         case 1:
-                            ecb1.AddComponent(nativeThreadIndex, e, new AITaskTagTill());
+                            ecb1.AddComponent(nativeThreadIndex, e, new AITagTaskTill());
                             break;
                         case 2:
-                            ecb1.AddComponent(nativeThreadIndex, e, new AITaskTagPlant());
+                            ecb1.AddComponent(nativeThreadIndex, e, new AITagTaskPlant());
                             break;
                         case 3:
-                            ecb1.AddComponent(nativeThreadIndex, e, new AITaskTagCollect());
+                            ecb1.AddComponent(nativeThreadIndex, e, new AITagTaskCollect());
                             break;
                     }
                 }).Schedule(inputDependencies);
@@ -47,18 +47,18 @@ namespace GameAI
             var ecb2 = ecbSystem.CreateCommandBuffer().ToConcurrent();
             var airSelectorHandle = Entities
                 .WithNone<FarmerAITag>()
-                .WithAll<AITaskTagNone>()
+                .WithAll<AITagTaskNone>()
 //            .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e) =>
                 {
-                    ecb1.RemoveComponent(nativeThreadIndex, e, typeof(AITaskTagNone));
-                    ecb1.AddComponent(nativeThreadIndex, e, new AITaskTagCollect());
+                    ecb1.RemoveComponent(nativeThreadIndex, e, typeof(AITagTaskNone));
+                    ecb1.AddComponent(nativeThreadIndex, e, new AITagTaskCollect());
                 }).Schedule(inputDependencies);
 
             ecbSystem.AddJobHandleForProducer(groundSelectorHandle);
             ecbSystem.AddJobHandleForProducer(airSelectorHandle);
 
-            return JobHandle.CombineDependencies(groundSelectorHandle, airSelectorHandle);
+            return JobHandle.CombineDependencies(groundSelectorHandle, airSelectorHandle, inputDependencies);
         }
     }
 }

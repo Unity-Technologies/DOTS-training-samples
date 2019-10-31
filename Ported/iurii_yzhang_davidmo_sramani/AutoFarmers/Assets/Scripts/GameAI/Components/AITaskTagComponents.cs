@@ -5,27 +5,27 @@ using Unity.Mathematics;
 
 namespace GameAI
 {
-    public struct AITaskTagNone : IComponentData
+    public struct AITagTaskNone : IComponentData
     {
     }
 
-    public struct AITaskTagClearRock : IComponentData
+    public struct AITagTaskClearRock : IComponentData
     {
     }
 
-    public struct AITaskTagTill : IComponentData
+    public struct AITagTaskTill : IComponentData
     {
     }
 
-    public struct AITaskTagPlant : IComponentData
+    public struct AITagTaskPlant : IComponentData
     {
     }
 
-    public struct AITaskTagCollect : IComponentData
+    public struct AITagTaskCollect : IComponentData
     {
     }
 
-    public struct AITaskTagDeliver : IComponentData
+    public struct AITagTaskDeliver : IComponentData
     {
     }
 }

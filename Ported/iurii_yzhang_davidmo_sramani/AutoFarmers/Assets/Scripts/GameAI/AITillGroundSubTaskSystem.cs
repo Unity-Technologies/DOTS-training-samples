@@ -17,7 +17,7 @@ namespace GameAI
             var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             
             var job = Entities
-                .WithAll<AITaskTagTill>()
+                .WithAll<AITagTaskTill>()
                 .WithNone<AISubTaskTagFindUntilledTile>()
                 .WithNone<AISubTaskTagTillGroundTile>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
@@ -26,7 +26,7 @@ namespace GameAI
                 }).Schedule(inputDeps);
 
             var job2 = Entities
-                .WithAll<AITaskTagTill>()
+                .WithAll<AITagTaskTill>()
                 .WithAll<AISubTaskTagComplete>()
                 .WithAll<AISubTaskTagFindUntilledTile>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
@@ -37,7 +37,7 @@ namespace GameAI
                 }).Schedule(inputDeps);
             
             var job3 = Entities
-                .WithAll<AITaskTagTill>()
+                .WithAll<AITagTaskTill>()
                 .WithAll<AISubTaskTagComplete>()
                 .WithAll<AISubTaskTagTillGroundTile>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
@@ -48,15 +48,15 @@ namespace GameAI
                 }).Schedule(inputDeps);
 
             var job4 = Entities
-                .WithAll<AITaskTagTill>()
+                .WithAll<AITagTaskTill>()
                 .WithAll<AISubTaskTagComplete>()
                 .WithAll<AISubTaskTagPlantSeed>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
                     ecb.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
                     ecb.RemoveComponent<AISubTaskTagPlantSeed>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<AITaskTagTill>(entityInQueryIndex, entity);
-                    ecb.AddComponent<AITaskTagNone>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<AITagTaskTill>(entityInQueryIndex, entity);
+                    ecb.AddComponent<AITagTaskNone>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
             
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job);

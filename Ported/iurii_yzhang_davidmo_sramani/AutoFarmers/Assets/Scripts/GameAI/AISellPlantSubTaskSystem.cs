@@ -17,7 +17,7 @@ namespace GameAI
             var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             
             var job = Entities
-                .WithAll<AITaskTagDeliver>()
+                .WithAll<AITagTaskDeliver>()
                 .WithNone<AISubTaskTagFindPlant>()
                 .WithNone<AISubTaskTagFindShop>()
                 .WithNone<AISubTaskSellPlant>()
@@ -27,7 +27,7 @@ namespace GameAI
                 }).Schedule(inputDeps);
 
             var job2 = Entities
-                .WithAll<AITaskTagDeliver>()
+                .WithAll<AITagTaskDeliver>()
                 .WithAll<AISubTaskTagComplete>()
                 .WithAll<AISubTaskTagFindPlant>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
@@ -38,7 +38,7 @@ namespace GameAI
                 }).Schedule(inputDeps);
             
             var job3 = Entities
-                .WithAll<AITaskTagDeliver>()
+                .WithAll<AITagTaskDeliver>()
                 .WithAll<AISubTaskTagComplete>()
                 .WithAll<AISubTaskTagFindShop>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
@@ -49,14 +49,14 @@ namespace GameAI
                 }).Schedule(inputDeps);
             
             var job4 = Entities
-                .WithAll<AITaskTagDeliver>()
+                .WithAll<AITagTaskDeliver>()
                 .WithAll<AISubTaskTagComplete>()
                 .WithAll<AISubTaskSellPlant>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
                     ecb.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
                     ecb.RemoveComponent<AISubTaskSellPlant>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<AITaskTagDeliver>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<AITagTaskDeliver>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
             
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
