@@ -8,7 +8,7 @@ namespace HighwayRacers {
 		
 		public Rect bounds;
 		public float moveSpeed = 20;
-		public float transitionDuration = 3;
+		public float transitionDuration = 1.2f;
 
         public Transform ReferenceCameraOffset;
 

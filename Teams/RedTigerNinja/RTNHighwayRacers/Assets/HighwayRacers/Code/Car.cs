@@ -36,7 +36,7 @@ namespace HighwayRacers
         public float lane;
 
         public float distanceBack, distanceFront;
-        public float lane0distance;
+        public float laneRefDistance;
 
         public Entity ThisCarEntity;
 
@@ -53,7 +53,7 @@ namespace HighwayRacers
         {
             distanceFront = inner_distanceFront(ref highway);
             distanceBack = inner_distanceBack(ref highway);
-            lane0distance = highway.GetEquivalentDistance(this.distance, this.lane, 1.0f);
+            laneRefDistance = highway.GetEquivalentReference(this.distance, this.lane);
         }
 
 

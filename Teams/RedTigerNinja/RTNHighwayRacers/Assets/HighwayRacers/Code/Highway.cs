@@ -20,6 +20,7 @@ namespace HighwayRacers
         public const float CURVE_LANE0_RADIUS = MID_RADIUS - LANE_SPACING * (NUM_LANES - 1) / 2f;
         public const float MIN_HIGHWAY_LANE0_LENGTH = CURVE_LANE0_RADIUS * 4;
         public const float MIN_DIST_BETWEEN_CARS = .7f;
+        public const float REFERENCE_LANE = 3.5f;
 
         [Header("Prefabs")]
         public GameObject carPrefab;
@@ -494,15 +495,49 @@ namespace HighwayRacers
 
             static Unity.Profiling.ProfilerMarker CarMarker = new Unity.Profiling.ProfilerMarker("GetCarInFront");
 
+            public int GetClosestCarToRefDistance(float goalRefDist)
+            {
+
+                var ar = this.AllCars;
+                var minIndex = 0;
+                var maxIndex = ar.Length - 1;
+
+                while (minIndex+2 < maxIndex)
+                {
+                    var midIndex = (minIndex + maxIndex) / 2;
+                    var midCarRefDist = ar[midIndex].laneRefDistance;
+                    if (goalRefDist > midCarRefDist)
+                    {
+                        minIndex = midIndex;
+                    }
+                    else
+                    {
+                        maxIndex = midIndex;
+                    }
+                }
+
+                return minIndex;
+            }
+
             public CarLocation GetCarInFront(ref CarLocation startCar, float distance, float lane)
             {
                 CarMarker.Auto();
 
+                var refDistance = this.GetEquivalentReference(distance, lane);
+
+                var startIndex = this.GetClosestCarToRefDistance(refDistance);
+
                 CarLocation ret = CarLocation.NullLocation;
                 float diff = 0;
-                for (var ri =0; ri< AllCars.Length; ri++)
+                for (var ri = startIndex; ri< AllCars.Length; ri++)
                 {
                     var car = AllCars[ri];
+
+                    var maxCarAheadInRef = 10.0f;
+                    if ((car.laneRefDistance - refDistance) > maxCarAheadInRef)
+                    {
+                        break;
+                    }
 
                     if (!LanesOverlap(lane, car.lane))
                     {
@@ -630,6 +665,10 @@ namespace HighwayRacers
                 return WrapDistance(GetEquivalentDistance(distance2, lane2, lane1) - distance1, lane1);
             }
 
+            public float GetEquivalentReference(float distance, float lane)
+            {
+                return GetEquivalentDistance(distance, lane, Highway.REFERENCE_LANE);
+            }
 
             /// <summary>
             /// Gets distance in another lane that appears to be the same distance in the given lane.
@@ -780,18 +819,33 @@ namespace HighwayRacers
 
 		public Car GetCarAtScreenPosition(Vector3 screenPosition, float radius){
 
+            var ray = Camera.main.ScreenPointToRay(screenPosition);
+            var bestAngle = 360.0f;
+            var bestCar = (Car)null;
+
 			foreach (Car car in allCarsList) {
-                var carWorldPos = car.DOTSLocation.Position;// World.Active.EntityManager.GetComponentData<Unity.Transforms.LocalToWorld>(car.CarData.Location.ThisCarEntity).Position;
+                var carWorldPosF3 = car.DOTSLocation.Position;// World.Active.EntityManager.GetComponentData<Unity.Transforms.LocalToWorld>(car.CarData.Location.ThisCarEntity).Position;
+                var carWorldVec = (Vector3)carWorldPosF3;
+
+                var angle = Vector3.AngleBetween(carWorldVec - ray.origin, ray.direction);
+                if (angle < bestAngle)
+                {
+                    bestCar = car;
+                    bestAngle = angle;
+                }
+
+                /*
 				Vector3 carScreenPos = Camera.main.WorldToScreenPoint(carWorldPos);
 				carScreenPos.z = screenPosition.z;
 
 				if (Vector3.Distance (screenPosition, carScreenPos) <= radius) {
 					return car;
 				}
+                */
 
-			}
+            }
 
-			return null;
+			return bestCar;
 
 		}
 

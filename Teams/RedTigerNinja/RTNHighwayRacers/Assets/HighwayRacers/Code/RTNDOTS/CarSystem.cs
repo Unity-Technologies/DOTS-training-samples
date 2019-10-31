@@ -18,15 +18,17 @@ namespace HighwayRacers {
 
             var carQuery = this.GetEntityQuery(ComponentType.ReadOnly<CarLocation>());
             var carAr = carQuery.ToComponentDataArray<CarLocation>(Allocator.TempJob);
+            var carSorted = new NativeArray<CarLocation>(carAr, Allocator.TempJob);
 
             var hpcQuery = this.GetEntityQuery(ComponentType.ReadOnly<HighwayPiece.HighwayPieceState>());
             var hpcAr = hpcQuery.ToComponentDataArray<HighwayPiece.HighwayPieceState>(Allocator.TempJob);
 
             var highway = Highway.instance.HighwayState;
-            highway.AllCars = carAr;
+            highway.AllCars = carSorted;
             highway.AllPieces = hpcAr;
 
             // sort the cars:
+            inputDeps = (new CarSortJob() { cars = carSorted }).Schedule(inputDeps);
 
             // calculate next state:
             inputDeps = (new CarUpdateNextJob(
@@ -44,6 +46,7 @@ namespace HighwayRacers {
             inputDeps.Complete();
             hpcAr.Dispose();
             carAr.Dispose();
+            carSorted.Dispose();
 
             //inputDeps = (new DisposeJob<NativeArray<HighwayPiece.HighwayPieceState>>(hpcAr)).Schedule(inputDeps);
             //inputDeps = (new DisposeJob<NativeArray<CarStateStruct>>(carAr)).Schedule(inputDeps);
@@ -53,10 +56,29 @@ namespace HighwayRacers {
             return inputDeps;
         }
 
+        public struct CarSorter : System.Collections.Generic.IComparer<CarLocation>
+        {
+            public int Compare(CarLocation a, CarLocation b)
+            {
+                return a.laneRefDistance.CompareTo(b.laneRefDistance);
+            }
+        }
+
+        public struct CarSortJob : IJob
+        {
+            public NativeArray<CarLocation> cars;
+
+            public void Execute()
+            {
+                cars.Sort(new CarSorter());
+            }
+        }
+
         public struct SortingData
         {
             public int SelfIndex;
             public int NextIndex;
+            public float laneRefDistance;
         }
 
         public struct DisposeJob<T> : IJob where T : struct, System.IDisposable
