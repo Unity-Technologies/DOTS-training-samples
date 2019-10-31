@@ -128,6 +128,8 @@ public class BarSpawnerSystem : JobComponentSystem
                         barpoint2.pos = points[j];
                         barpoint1.neighbors = 0;
                         barpoint2.neighbors = 0;
+                        if (hasAnchors[i]) barpoint1.neighbors = -1;
+                        if (hasAnchors[j]) barpoint2.neighbors = -1;
 
                         float3 diff = barpoint2.pos - barpoint1.pos;
                         var forward = math.normalizesafe( diff );
