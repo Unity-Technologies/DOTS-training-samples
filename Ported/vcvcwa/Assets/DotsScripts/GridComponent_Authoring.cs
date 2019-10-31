@@ -15,9 +15,7 @@ public class GridComponent_Authoring : MonoBehaviour, IConvertGameObjectToEntity
     private List<int> values;
     
     public int size;
-    // The MonoBehaviour data is converted to ComponentData on the entity.
-    // We are specifically transforming from a good editor representation of the data (Represented in degrees)
-    // To a good runtime representation (Represented in radians)
+    
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         var data = new GridComponent() {Size = size};

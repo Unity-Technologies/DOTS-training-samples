@@ -67,7 +67,6 @@ public class SpawnerSystem : JobComponentSystem
                         resourcesComponent.MoneyForFarmers -= 10;
                         
                         gridIndex = i;
-                        CommandBuffer.DestroyEntity(entityIndex, entity);
                         entityIndex++;
                         break;
                     }
