@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class TornadoSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {	
-	public float Height = 10.0f;
+	public float Height = 50.0f;
 	public float Force = 5.0f;
 	public float MaxForceDistance = 10f;
 	public float UpForce = 2f;
@@ -13,9 +13,9 @@ public class TornadoSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 	public float Damping = 0.99f;
 
 	public GameObject Particle;
-	public int NumberOfParticle = 100;
-	public float ParticleSpinRate = 1.0f;
-	public float ParticleUpSpeed = 2.0f;
+	public int NumberOfParticle = 4000;
+	public float ParticleSpinRate = 37.0f;
+	public float ParticleUpSpeed = 12.0f;
 	public float BreakResistance = 5.0f;	
 	
 	public float Friction = 0.1f;
@@ -44,5 +44,6 @@ public class TornadoSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		tornado.damping = Damping;
 
 		dstManager.AddComponentData<TornadoSpawner>(entity, tornado);
-	}
+        dstManager.AddComponentData<TornadoPosition>(entity, new TornadoPosition() { position = new float3() });
+    }
 }

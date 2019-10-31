@@ -115,30 +115,36 @@ public class BarSpawnerSystem : JobComponentSystem
             {
                 for (int j = i + 1; j < pointIndex; j++)
                 {
-                    Bar bar;
-                    bar.length = math.length( points[ i ] - points[ j ] );
+                    BarPoint1 barpoint1;
+                    BarPoint2 barpoint2;
+                    BarLength barlength;
+                    barlength.value = math.length( points[ i ] - points[ j ] );
 
-                    if ( bar.length < 5f && bar.length > .2f )
+                    if (barlength.value < 5f && barlength.value > .2f )
                     {
-                        bar.oldPos1 = points[i];
-                        bar.pos1 = points[i];
-                        bar.oldPos2 = points[j];
-                        bar.pos2 = points[j];
-                        bar.neighbors1 = 0;
-                        bar.neighbors2 = 0;
+                        barpoint1.oldPos = points[i];
+                        barpoint1.pos = points[i];
+                        barpoint2.oldPos = points[j];
+                        barpoint2.pos = points[j];
+                        barpoint1.neighbors = 0;
+                        barpoint2.neighbors = 0;
+                        if (hasAnchors[i]) barpoint1.neighbors = -1;
+                        if (hasAnchors[j]) barpoint2.neighbors = -1;
 
-                        float3 diff = bar.pos2 - bar.pos1;
+                        float3 diff = barpoint2.pos - barpoint1.pos;
                         var forward = math.normalizesafe( diff );
                         var rot = quaternion.LookRotationSafe( forward, math.cross( forward, left ) );
 
                         var instance = CommandBuffer.Instantiate( jobIndex, spawner.prefab);
                         CommandBuffer.RemoveComponent( jobIndex, instance, typeof( Scale ) );
                         CommandBuffer.AddComponent( jobIndex, instance, typeof( NonUniformScale ) );
-                        CommandBuffer.SetComponent( jobIndex, instance, new NonUniformScale { Value = new float3( .1f, .1f, bar.length ) } );
+                        CommandBuffer.SetComponent( jobIndex, instance, new NonUniformScale { Value = new float3( .1f, .1f, barlength.value ) } );
                         // CommandBuffer.SetComponent( jobIndex, instance, new Translation { Value = ( points[i] + points[j] ) / 2 });
                         // CommandBuffer.SetComponent( jobIndex, instance, new Rotation { Value = rot } );
                         
-                        CommandBuffer.AddComponent( jobIndex, instance, bar );
+                        CommandBuffer.AddComponent( jobIndex, instance, barpoint1);
+                        CommandBuffer.AddComponent(jobIndex, instance, barpoint2);
+                        CommandBuffer.AddComponent(jobIndex, instance, barlength);
                     }
                 }
             }

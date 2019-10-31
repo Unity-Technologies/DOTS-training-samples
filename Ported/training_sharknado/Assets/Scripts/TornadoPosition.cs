@@ -6,5 +6,5 @@ using Unity.Mathematics;
 
 public struct TornadoPosition : IComponentData
 {
-	float3 position;
+	public float3 position;
 }
