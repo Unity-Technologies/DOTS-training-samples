@@ -21,6 +21,8 @@ namespace Rendering
             {
                 if (m_instance == null)
                     m_instance = Resources.FindObjectsOfTypeAll<MeshRendererScriptableObject>().FirstOrDefault();
+                if (m_instance == null)
+                    m_instance = Resources.Load<MeshRendererScriptableObject>("Meshes");
                 Assert.IsNotNull(m_instance, "MeshRendererScriptableObject is not found");
                 return m_instance;
             }

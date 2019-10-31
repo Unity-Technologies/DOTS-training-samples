@@ -38,8 +38,8 @@ namespace PerfTests
                     WorldCreatorSystem.ResetExecuteOnceTag(m_Manager);
                     RenderingMapInit.ResetExecuteOnceTag(m_Manager);
                 })
-                .WarmupCount(100)
-                .MeasurementCount(500)
+                .WarmupCount(10)
+                .MeasurementCount(100)
                 .Run();
         }
 
@@ -85,26 +85,8 @@ namespace PerfTests
                     Assert.IsTrue(mapInit.ShouldRunSystem(), "mapInit.ShouldRunSystem()");
                     Assert.IsTrue(barrier.ShouldRunSystem(), "barrier.ShouldRunSystem()");
                 })
-                .WarmupCount(100)
-                .MeasurementCount(500)
-                .Run();
-        }
-
-        [Test, Performance]
-        public void DemoPerfTest([Values(1, 10, 100)] int n, [Values(100, 1000)] int entityCount)
-        {
-            var atype = m_Manager.CreateArchetype(typeof(Translation), typeof(LocalToWorld), typeof(RenderMesh));
-
-            Measure.Method(() =>
-                {
-                    for (int i = 0; i < n; ++i)
-                    {
-                        m_Manager.CreateEntity(atype);
-                    }
-                })
-                .Definition("DemoTest")
-                .WarmupCount(100)
-                .MeasurementCount(500)
+                .WarmupCount(10)
+                .MeasurementCount(100)
                 .Run();
         }
     }

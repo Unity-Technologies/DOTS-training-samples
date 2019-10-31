@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using GameAI;
 using NUnit.Framework;
+using Rendering;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Entities.Tests;
@@ -13,6 +14,14 @@ namespace Tests
 {
     public class ECSTestExample : ECSTestsFixture
     {
+        [Test]
+        public void MeshRendererScriptableObject()
+        {
+            var loadFromFile = Resources.Load<MeshRendererScriptableObject>("Meshes");
+            
+            Assert.IsNotNull(loadFromFile, "MeshRendererScriptableObject is not found with Resources.Load('Meshes')");
+        }
+        
         [Test]
         public void RenderingUnityCreateCorrectEntities()
         {
