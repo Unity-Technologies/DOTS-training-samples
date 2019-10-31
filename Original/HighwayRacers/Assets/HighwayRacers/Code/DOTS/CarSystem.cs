@@ -13,12 +13,7 @@ public partial class CarSystem : JobComponentSystem
     Random rnd = new Random();
 #endif
 
-    EntityQuery CarEntityQuery;
-
-    protected override void OnCreate()
-    {
-        CarEntityQuery = GetEntityQuery(ComponentType.ReadOnly<CarBasicState>());
-    }
+    private int m_LastNumCars = 0;
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
@@ -60,9 +55,15 @@ public partial class CarSystem : JobComponentSystem
         }
 #endif
 
-        var queryStructure = new CarQueryStructure(numCars);
-        inputDeps = queryStructure.Build(this, inputDeps, highway.highwayLength);
+        var queryStructure = new CarQueryStructure(numCars, highway.highwayLength);
+        if (m_LastNumCars != numCars)
+        {
+            if (m_LastNumCars != 0)
+                inputDeps = queryStructure.RebuildOvertakingCarEntityArrayIndex(this, inputDeps);
+            m_LastNumCars = numCars;
+        }
 
+        inputDeps = queryStructure.Build(this, inputDeps);
         inputDeps = new CarUpdateJob()
         {
             Dt = deltaTime,

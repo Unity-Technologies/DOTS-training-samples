@@ -23,7 +23,7 @@ partial class CarSystem
         public void Execute(Entity entity, int index, ref CarBasicState carBasicState, ref CarLogicState carLogicState,
             [ReadOnly] ref CarReadOnlyProperties carReadOnlyProperties)
         {
-            var hasCarInFront = QueryStructure.GetCarInFront(index, carBasicState, HighwayLen, out var carInFront, out var distToCarInFront);
+            var hasCarInFront = QueryStructure.GetCarInFront(index, carBasicState, HighwayLen, out var carInFront, out var carInFrontIndex, out var distToCarInFront);
             var targetSpeed = carReadOnlyProperties.DefaultSpeed;
             float crossLaneSpeed = 0.0f;
 
