@@ -8,12 +8,15 @@ using Unity.Transforms;
 class MoveAndRedirectSystem : JobComponentSystem
 {
     EntityQuery m_Query;
+    BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
 
     struct MoveJob : IJobChunk
     {
-        public ArchetypeChunkComponentType<Translation> TranslationType;
-        public ArchetypeChunkComponentType<Direction> DirectionType;
+        public EntityCommandBuffer.Concurrent CommandBuffer;
+        [ReadOnly] public ArchetypeChunkComponentType<Translation> TranslationType;
+        [ReadOnly] public ArchetypeChunkComponentType<Direction> DirectionType;
         [ReadOnly] public ArchetypeChunkComponentType<Speed> SpeedType;
+        [ReadOnly] public ArchetypeChunkEntityType EntityType;
         [ReadOnly] public float DeltaTime;
         [ReadOnly] public Board Board;
 
@@ -21,6 +24,7 @@ class MoveAndRedirectSystem : JobComponentSystem
         {
             var chunkTranslations = chunk.GetNativeArray(TranslationType);
             var chunkDirections = chunk.GetNativeArray(DirectionType);
+            var chunkEntities = chunk.GetNativeArray(EntityType);
             var chunkSpeeds = chunk.GetNativeArray(SpeedType);
 
             for (var i = 0; i < chunk.Count; i++)
@@ -28,6 +32,7 @@ class MoveAndRedirectSystem : JobComponentSystem
                 var translation = chunkTranslations[i].Value;
                 var direction = chunkDirections[i].Value;
                 var speed = chunkSpeeds[i].Value;
+                var entity = chunkEntities[i];
 
                 int dim = direction.IsVertical() ? 2 : 0;
                 int2 tileIndex = Board.ConvertWorldToTileCoordinates(translation);
@@ -58,21 +63,13 @@ class MoveAndRedirectSystem : JobComponentSystem
 
                     if (newDirection != direction)
                     {
-                        chunkTranslations[i] = new Translation
-                        {
-                            Value = tileCenter + (1.0f - timeToHitCenter) * speed * DeltaTime * newDirection.GetWorldDirection()
-                        };
-                        chunkDirections[i] = new Direction
-                        {
-                            Value = newDirection
-                        };
+                        CommandBuffer.SetComponent(chunkIndex, entity, new Translation {Value = tileCenter + (1.0f - timeToHitCenter) * speed * DeltaTime * newDirection.GetWorldDirection()});
+                        CommandBuffer.SetComponent(chunkIndex, entity, new Direction {Value = newDirection});
+                        return;
                     }
                 }
 
-                chunkTranslations[i] = new Translation
-                {
-                    Value = translation + DeltaTime * speed * direction.GetWorldDirection()
-                };
+                CommandBuffer.SetComponent(chunkIndex, entity, new Translation {Value = translation + DeltaTime * speed * direction.GetWorldDirection()});
             }
         }
     }
@@ -80,18 +77,24 @@ class MoveAndRedirectSystem : JobComponentSystem
     protected override void OnCreate()
     {
         m_Query = EntityManager.CreateEntityQuery(ComponentType.ReadWrite<Direction>(), ComponentType.ReadWrite<Translation>(), ComponentType.ReadWrite<Speed>());
+        m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
     }
 
     protected override JobHandle OnUpdate(JobHandle deps)
     {
         var job = new MoveJob()
         {
+            CommandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent(),
             TranslationType = GetArchetypeChunkComponentType<Translation>(false),
             DirectionType = GetArchetypeChunkComponentType<Direction>(false),
+            EntityType = GetArchetypeChunkEntityType(),
             SpeedType = GetArchetypeChunkComponentType<Speed>(false),
             DeltaTime = Time.deltaTime,
             Board = World.GetExistingSystem<BoardSystem>().Board
         };
-        return job.Schedule(m_Query, deps);
+        deps = job.Schedule(m_Query, deps);
+
+        m_EntityCommandBufferSystem.AddJobHandleForProducer(deps);
+        return deps;
     }
 }
