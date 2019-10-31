@@ -1,6 +1,5 @@
 ﻿using Unity.Burst;
 using Unity.Entities;
-using UnityEngine;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -11,7 +10,6 @@ public class MovementSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         float distanceMinimal = 0.1f;
-        float speed = 1.0f;
         float dt = Time.deltaTime;
         
         var job1Handle = Entities
@@ -25,7 +23,7 @@ public class MovementSystem : JobComponentSystem
                 float targetY = 1.0f;
                 if (moveComponent.fly)
                 {
-                    if (Vector2.Distance(actor.position, actor.position) > distanceMinimal)
+                    if (math.distance(actor.position, actor.targetPosition) > distanceMinimal)
                     {
                         if (dotsIntentionComponent.intention == DotsIntention.Harvest)
                         {
@@ -38,9 +36,9 @@ public class MovementSystem : JobComponentSystem
                 {
                     targetY = 0.0f;
                 }
-                if (Vector2.Distance(actor.position, actor.position) > distanceMinimal)
+                if (math.distance(actor.position, actor.targetPosition) > distanceMinimal)
                 {
-                    actor.position= Vector2.Lerp(actor.position, actor.position, dt * speed);
+                    actor.position = math.lerp(actor.position, actor.targetPosition, dt * actor.speed);
                     translation.Value = new float3(actor.position.x, targetY, actor.position.y);
                 }
             })
