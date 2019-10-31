@@ -13,6 +13,14 @@ public struct HighwayProperties : IComponentData
     public Entity curvePrefab;
 }
 
+[Serializable]
+public struct HighwayPieceProperties : IComponentData
+{
+    public float length;
+    public float startRotation;
+    public bool isStraight;
+}
+
 public class HighwayConstants
 {
     public const int NUM_LANES = 4;
@@ -22,6 +30,8 @@ public class HighwayConstants
     public const float MIN_HIGHWAY_LANE0_LENGTH = CURVE_LANE0_RADIUS * 4;
     public const float MIN_DIST_BETWEEN_CARS = .7f;
     public const float MAX_HIGHWAY_LENGTH = 1000 + LANE_SPACING * (NUM_LANES - 1) / 2f;
+    public const float STRAIGHT_BASE_LENGTH = 6.0f;
+    public const float STRAIGHT_BASE_SCALE = 6.0f;
 }
 
 [DisallowMultipleComponent]
@@ -75,7 +85,7 @@ public class HighwayPropertiesEditor : Editor
 
             EditorGUI.BeginChangeCheck();
 
-            hpa.highWayLen = EditorGUILayout.Slider("Highway Length", initialLen, HighwayConstants.MID_RADIUS * 4, HighwayConstants.MAX_HIGHWAY_LENGTH);
+            hpa.highWayLen = EditorGUILayout.Slider("Highway Length", initialLen, HighwayConstants.MID_RADIUS * 4.0f, HighwayConstants.MAX_HIGHWAY_LENGTH);
             hpa.carsCount = EditorGUILayout.IntSlider("Number of Cars", initialCount, 0, (int)Math.Floor(hpa.highWayLen * 2));
             hpa.straightSection = (GameObject)EditorGUILayout.ObjectField("Straight Section Prefab", pStraight, typeof(GameObject), false);
             hpa.curveSection = (GameObject)EditorGUILayout.ObjectField("Curve Section Prefab", pCurve, typeof(GameObject), false);
