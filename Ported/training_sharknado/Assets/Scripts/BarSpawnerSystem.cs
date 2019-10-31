@@ -19,7 +19,7 @@ public class BarSpawnerSystem : JobComponentSystem
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
     }
 
-    [ BurstCompile ]
+    // [ BurstCompile ]
     public struct SpawnJob : IJobForEachWithEntity< BarSpawner >
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
@@ -91,22 +91,23 @@ public class BarSpawnerSystem : JobComponentSystem
             // ground details
             for (int i = 0; i < 300; i++)
             {
-                point = new float3( r.NextFloat( -55f, 55f ), 0f, r.NextFloat( -55f, 55f ) );
-                point.x = point.x + r.NextFloat(-.2f, -.1f);
-                point.y = point.y + r.NextFloat(0f, 3f);
-                point.z = point.z + r.NextFloat(.1f, .2f);
+                float3 pos = new float3( r.NextFloat( -55f, 55f ), 0f, r.NextFloat( -55f, 55f ) );
+                point.x = pos.x + r.NextFloat(-.2f, -.1f);
+                point.y = pos.y + r.NextFloat(0f, 3f);
+                point.z = pos.z + r.NextFloat(.1f, .2f);
                 points[pointIndex] = point;
                 pointIndex++;
 
-                point.x = point.x + r.NextFloat(.2f, .1f);
-                point.y = point.y + r.NextFloat(0f, .2f);
-                point.z = point.z + r.NextFloat(-.1f, -.2f);
-                if (r.NextFloat(1) < .1f)
-                {
-                    hasAnchors[pointIndex] = true;
-                }
+                point.x = pos.x + r.NextFloat(.2f, .1f);
+                point.y = pos.y + r.NextFloat(0f, .2f);
+                point.z = pos.z + r.NextFloat(-.1f, -.2f);
                 points[pointIndex] = point;
                 pointIndex++;
+
+                if (r.NextFloat(1) < .1f)
+                {
+                    hasAnchors[ pointIndex - 1 ] = true;
+                }
             }
 
             for (int i = 0; i < pointIndex; i++)
@@ -131,11 +132,12 @@ public class BarSpawnerSystem : JobComponentSystem
 
                         var instance = CommandBuffer.Instantiate( jobIndex, spawner.prefab);
                         CommandBuffer.RemoveComponent( jobIndex, instance, typeof( Scale ) );
-                        CommandBuffer.AddComponent( jobIndex, instance, bar );
                         CommandBuffer.AddComponent( jobIndex, instance, typeof( NonUniformScale ) );
                         CommandBuffer.SetComponent( jobIndex, instance, new NonUniformScale { Value = new float3( .1f, .1f, bar.length ) } );
-                        CommandBuffer.SetComponent( jobIndex, instance, new Translation { Value = ( points[i] + points[j] ) / 2 });
-                        CommandBuffer.SetComponent( jobIndex, instance, new Rotation { Value = rot } );
+                        // CommandBuffer.SetComponent( jobIndex, instance, new Translation { Value = ( points[i] + points[j] ) / 2 });
+                        // CommandBuffer.SetComponent( jobIndex, instance, new Rotation { Value = rot } );
+                        
+                        CommandBuffer.AddComponent( jobIndex, instance, bar );
                     }
                 }
             }
