@@ -12,17 +12,26 @@ public class Sys_UpdateBars : JobComponentSystem
 {
     public Random random;
     [ BurstCompile ]
-    struct UpdateBarsJob : IJobForEach< BarPoint1, BarPoint2 >
+    struct UpdateBarsJob : IJobForEach< BarPoint1, BarPoint2, BarLength >
     {
         public Random random;
         public float time;
+        public float3 tornadoPos;
+        public float damping;
+        public float friction;
+        public float invDamping;
+        public float tornadoMaxForceDist;
+        public float tornadoHeight;
+        public float tornadoUpForce;
+        public float tornadoInwardForce;
+        public float tornadoForce;
 
         public static float TornadoSway(float y, float t)
         {
             return math.sin( y / 5f + t / 4f ) * 3f;
         }
 
-        public void Execute( ref BarPoint1 point1, ref BarPoint2 point2 )
+        public void Execute( ref BarPoint1 point1, ref BarPoint2 point2, ref BarLength length)
         {
             var time = this.time;
 
@@ -37,13 +46,9 @@ public class Sys_UpdateBars : JobComponentSystem
                 var tornadoInwardForce = 9f;
                 var tornadoForce = 0.022f;
 
-                float3 tornadoPos;
-                tornadoPos.x = math.cos( time / 6f ) * 30f;
-                tornadoPos.y = 0;
-                tornadoPos.z = math.sin( time / 6f * 1.618f ) * 60f;
             // }
 
-            var tornadoFader = time / 10f;
+            var tornadoFader = math.saturate(time / 10f);
 
             float3 pos1 = point1.pos;
             float3 pos2 = point2.pos;
@@ -133,6 +138,45 @@ public class Sys_UpdateBars : JobComponentSystem
             point2.pos = pos2;
             point1.oldPos = oldPos1;
             point2.oldPos = oldPos2;
+
+            // Keep bar points together
+             pos1 = point1.pos;
+             pos2 = point2.pos;
+
+            float dx = pos2.x - pos1.x;
+            float dy = pos2.y - pos1.y;
+            float dz = pos2.z - pos1.z;
+
+            float dist = Mathf.Sqrt(dx * dx + dy * dy + dz * dz);
+            float extraDist = dist - length.value;
+
+            float pushX = (dx / dist * extraDist) * .5f;
+            float pushY = (dy / dist * extraDist) * .5f;
+            float pushZ = (dz / dist * extraDist) * .5f;
+
+            //if (point1.anchor == false && point2.anchor == false)
+            //{
+            pos1.x += pushX;
+            pos1.y += pushY;
+            pos1.z += pushZ;
+            pos2.x -= pushX;
+            pos2.y -= pushY;
+            pos2.z -= pushZ;
+            //}
+            /*else if (point1.anchor)
+            {
+                point2.x -= pushX * 2f;
+                point2.y -= pushY * 2f;
+                point2.z -= pushZ * 2f;
+            }
+            else if (point2.anchor)
+            {
+                point1.x += pushX * 2f;
+                point1.y += pushY * 2f;
+                point1.z += pushZ * 2f;
+            }*/
+            point1.pos = pos1;
+            point2.pos = pos2;
         }
     }
 
@@ -143,11 +187,22 @@ public class Sys_UpdateBars : JobComponentSystem
     }
     protected override JobHandle OnUpdate( JobHandle inputDeps )
     {
+        var tornadoData = GetSingleton<TornadoSpawner>();
         var job = new UpdateBarsJob()
         {
+
+            tornadoPos = GetSingleton<TornadoPosition>().position,
             random = this.random,
             time = Time.time,
-        };
+            damping = tornadoData.damping,
+            friction = tornadoData.friction,
+            invDamping = 1 - tornadoData.damping,
+            tornadoMaxForceDist = tornadoData.maxForceDist,
+            tornadoHeight = tornadoData.height,
+            tornadoUpForce = tornadoData.force,
+            tornadoInwardForce = tornadoData.inwardForce,
+            tornadoForce = tornadoData.force
+};
 
         return job.Schedule( this, inputDeps );
         // return inputDeps;
