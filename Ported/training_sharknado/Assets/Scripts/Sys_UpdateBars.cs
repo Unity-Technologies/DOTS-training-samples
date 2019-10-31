@@ -12,7 +12,7 @@ public class Sys_UpdateBars : JobComponentSystem
 {
     public Random random;
     [ BurstCompile ]
-    struct UpdateBarsJob : IJobForEach< Bar >
+    struct UpdateBarsJob : IJobForEach< BarPoint1, BarPoint2 >
     {
         public Random random;
         public float time;
@@ -22,20 +22,20 @@ public class Sys_UpdateBars : JobComponentSystem
             return math.sin( y / 5f + t / 4f ) * 3f;
         }
 
-        public void Execute( ref Bar bar )
+        public void Execute( ref BarPoint1 point1, ref BarPoint2 point2 )
         {
             var time = this.time;
 
             // TODO(wyatt): move these to a component
             // {
-                var damping = .99f;
-            var friction = 0.4f;
+                var damping = 0.012f;
+                var friction = 0.4f;
                 var invDamping = 1 - damping;
-                var tornadoMaxForceDist = 20f;
+                var tornadoMaxForceDist = 30f;
                 var tornadoHeight = 50f;
-                var tornadoUpForce = 10f;
-                var tornadoInwardForce = 5f;
-                var tornadoForce = 1f;
+                var tornadoUpForce = 1.4f;
+                var tornadoInwardForce = 9f;
+                var tornadoForce = 0.022f;
 
                 float3 tornadoPos;
                 tornadoPos.x = math.cos( time / 6f ) * 30f;
@@ -45,10 +45,10 @@ public class Sys_UpdateBars : JobComponentSystem
 
             var tornadoFader = time / 10f;
 
-            float3 pos1 = bar.pos1;
-            float3 pos2 = bar.pos2;
-            float3 oldPos1 = bar.oldPos1;
-            float3 oldPos2 = bar.oldPos2;
+            float3 pos1 = point1.pos;
+            float3 pos2 = point2.pos;
+            float3 oldPos1 = point1.oldPos;
+            float3 oldPos2 = point2.oldPos;
 
             // TODO(wyatt): run a system to gather points within run of tornado
             //              then use that buffer for this system instead of iterating
@@ -61,7 +61,7 @@ public class Sys_UpdateBars : JobComponentSystem
             tdz /= tornadoDist;
 
             // TODO(wyatt): fix this ugly code
-            oldPos1.y += .01f;
+            oldPos1.y += 1f;
 
             if ( tornadoDist < tornadoMaxForceDist )
             {
@@ -96,7 +96,7 @@ public class Sys_UpdateBars : JobComponentSystem
             tdx /= tornadoDist;
             tdz /= tornadoDist;
 
-            oldPos2.y += .01f;
+            oldPos2.y += 1f;
 
             if (tornadoDist < tornadoMaxForceDist)
             {
@@ -124,10 +124,10 @@ public class Sys_UpdateBars : JobComponentSystem
                 oldPos2.z += (pos2.z - oldPos2.z) * friction;
             }
 
-            bar.pos1 = pos1;
-            bar.pos2 = pos2;
-            bar.oldPos1 = oldPos1;
-            bar.oldPos2 = oldPos2;
+            point1.pos = pos1;
+            point2.pos = pos2;
+            point1.oldPos = oldPos1;
+            point2.oldPos = oldPos2;
         }
     }
 

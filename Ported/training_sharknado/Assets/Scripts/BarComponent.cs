@@ -14,3 +14,20 @@ public struct Bar : IComponentData
     public int neighbors1;
     public int neighbors2;
 }
+
+public struct BarPoint1 : IComponentData
+{
+    public float3 pos;
+    public float3 oldPos;
+    public int neighbors;
+}
+public struct BarPoint2 : IComponentData
+{
+    public float3 pos;
+    public float3 oldPos;
+    public int neighbors;
+}
+public struct BarLength : IComponentData
+{
+    public float value;
+}
