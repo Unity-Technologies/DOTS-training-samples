@@ -21,15 +21,15 @@ public class PlantSystem : JobComponentSystem
 	protected override JobHandle OnUpdate(JobHandle inputDeps)
 	{
 		var dt = Time.deltaTime;
-		
+		var plantGrowSpeed = 1;
 		// if the plant is growing on the ground
 		var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 		var job = Entities
 			.WithAll<TagPlant>()
 			.WithNone<TagFullyGrownPlant>()
-			.ForEach((Entity e, int entityInQueryIndex, in PlantGrowSpeed s, ref HealthComponent health) =>
+			.ForEach((Entity e, int entityInQueryIndex, ref HealthComponent health) =>
 			{
-				health.Value += s.Value * dt;
+				health.Value += plantGrowSpeed * dt;
 				if (health.Value > 5.0)
 				{
 					ecb.AddComponent<TagFullyGrownPlant>(entityInQueryIndex, e);
@@ -44,10 +44,10 @@ public class PlantSystem : JobComponentSystem
 		var job2 = Entities
 			.WithAll<TagFullyGrownPlant>()
 			.WithAll<AITagTaskDeliver>()
-			.ForEach((Entity e, int entityInQueryIndex, in PlantGrowSpeed s, ref HealthComponent health) =>
+			.ForEach((Entity e, int entityInQueryIndex, ref HealthComponent health) =>
 			{
 				health.Value = -1;
-				ecb.RemoveComponent<TagFullyGrownPlant>(entityInQueryIndex, e);
+				ecb2.RemoveComponent<TagFullyGrownPlant>(entityInQueryIndex, e);
 			}).Schedule(inputDeps);
 		
 		m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
