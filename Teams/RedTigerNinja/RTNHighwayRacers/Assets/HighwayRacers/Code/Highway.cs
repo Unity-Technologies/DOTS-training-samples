@@ -472,7 +472,8 @@ namespace HighwayRacers
                     ComponentType.ReadWrite<Unity.Transforms.LocalToWorld>(),
                     ComponentType.ReadWrite<Unity.Transforms.Translation>(),
                     ComponentType.ReadWrite<Unity.Transforms.Rotation>(),
-                    ComponentType.ReadWrite<CarRenderData>()
+                    ComponentType.ReadWrite<CarRenderData>(),
+                    ComponentType.ReadWrite<CarsNearbyData>()
                 );
             }
             var ent = em.CreateEntity(this.CarArchtype);
