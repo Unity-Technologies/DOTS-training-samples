@@ -92,7 +92,8 @@ public class RenderingUnity : MonoBehaviour
     public Entity CreateStore(EntityManager em)
     {
         var atype = em.CreateArchetype(typeof(Translation),
-            typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh));
+            typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh),
+            typeof(SpawnPointComponent), typeof(TagShop));
         return Create(em, store, atype);
     }
 

@@ -21,6 +21,11 @@ public struct StonePositionRequest : IComponentData
     public int2 size;
 }
 
+public struct ShopPositionRequest : IComponentData
+{
+    public int2 position;
+}
+
 public struct PlantPositionRequest : IComponentData
 {
     public int2 position;
@@ -35,6 +40,7 @@ public class RenderingMapInit : JobComponentSystem
     public Entity groundEntityPrefab;
     public Entity stoneEntityPrefab;
     public Entity plantEntityPrefab;
+    public Entity shopEntityPrefab;
     public Entity farmerEntityPrefab;
     public Entity droneEntityPrefab;
 
@@ -53,10 +59,13 @@ public class RenderingMapInit : JobComponentSystem
         groundEntityPrefab = ru.CreateGround(EntityManager);
         stoneEntityPrefab = ru.CreateStone(EntityManager);
         plantEntityPrefab = ru.CreatePlant(EntityManager);
+
+        shopEntityPrefab = ru.CreateStore(EntityManager);
             
         Assert.IsTrue(groundEntityPrefab != Entity.Null);
         Assert.IsTrue(stoneEntityPrefab != Entity.Null);
         Assert.IsTrue(plantEntityPrefab != Entity.Null);
+        Assert.IsTrue(shopEntityPrefab != Entity.Null);
     }
 
     protected override void OnCreate()
@@ -84,17 +93,19 @@ public class RenderingMapInit : JobComponentSystem
         Assert.IsTrue(groundEntityPrefab != Entity.Null);
         Assert.IsTrue(stoneEntityPrefab != Entity.Null);
         Assert.IsTrue(plantEntityPrefab != Entity.Null);
+        Assert.IsTrue(shopEntityPrefab != Entity.Null);
 
         var ecbSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
         
         var ground = groundEntityPrefab;
         var stone = stoneEntityPrefab;
         var plant = plantEntityPrefab;
+        var shop = shopEntityPrefab;
 
         var worldSizeHalf = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSizeHalf;
         
         var ecb1 = ecbSystem.CreateCommandBuffer().ToConcurrent();
-        var handle1 = Entities.WithoutBurst().ForEach((int nativeThreadIndex, ref TilePositionRequest req) =>
+        var handle1 = Entities.ForEach((int nativeThreadIndex, ref TilePositionRequest req) =>
         {
             var wpos = RenderingUnity.Tile2WorldPosition(req.position, worldSizeHalf) - new float3(0, 0.5f, 0);
             var e = ecb1.Instantiate(nativeThreadIndex, ground);
@@ -106,7 +117,7 @@ public class RenderingMapInit : JobComponentSystem
         var halfSizeOffset = new float3(RenderingUnity.scale * 0.5f, 0, RenderingUnity.scale * 0.5f);
         
         var ecb2 = ecbSystem.CreateCommandBuffer().ToConcurrent();
-        var handle2 = Entities.WithoutBurst()
+        var handle2 = Entities
             .ForEach((int nativeThreadIndex, ref StonePositionRequest req) =>
         {
             var wpos = RenderingUnity.Tile2WorldPosition(req.position, worldSizeHalf); // min pos
@@ -120,11 +131,21 @@ public class RenderingMapInit : JobComponentSystem
         }).Schedule(inputDeps);
 
         var ecb3 = ecbSystem.CreateCommandBuffer().ToConcurrent();
-        var handle3 = Entities.WithoutBurst().ForEach((int nativeThreadIndex, ref PlantPositionRequest req) =>
+        var handle3 = Entities.ForEach((int nativeThreadIndex, ref PlantPositionRequest req) =>
         {
             var wpos = RenderingUnity.Tile2WorldPosition(req.position, worldSizeHalf);
             var e = ecb3.Instantiate(nativeThreadIndex, plant);
             ecb3.SetComponent(nativeThreadIndex, e, new Translation {Value = wpos});
+            
+        }).Schedule(inputDeps);
+
+        var ecb4 = ecbSystem.CreateCommandBuffer().ToConcurrent();
+        var handle4 = Entities.ForEach((int nativeThreadIndex, ref ShopPositionRequest req) =>
+        {
+            var wpos = RenderingUnity.Tile2WorldPosition(req.position, worldSizeHalf);
+            var e = ecb4.Instantiate(nativeThreadIndex, shop);
+            ecb4.SetComponent(nativeThreadIndex, e, new Translation {Value = wpos});
+            ecb4.SetComponent(nativeThreadIndex, e, new SpawnPointComponent {MapSpawnPosition = req.position});
             
         }).Schedule(inputDeps);
 
@@ -133,8 +154,9 @@ public class RenderingMapInit : JobComponentSystem
         ecbSystem.AddJobHandleForProducer(handle1);
         ecbSystem.AddJobHandleForProducer(handle2);
         ecbSystem.AddJobHandleForProducer(handle3);
+        ecbSystem.AddJobHandleForProducer(handle4);
 
-        return handle;
+        return JobHandle.CombineDependencies(handle, handle4);
     }
     
     public static void ResetExecuteOnceTag(EntityManager mManager)
