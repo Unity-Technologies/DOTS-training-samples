@@ -29,24 +29,15 @@ class MoveAndRedirectSystem : JobComponentSystem
                 var direction = chunkDirections[i].Value;
                 var speed = chunkSpeeds[i].Value;
 
-                float translationStart = direction.IsVertical() ? translation.z : translation.x;
-                float translationDelta = DeltaTime * speed;
-                if ((int)translationStart != (int)(translationStart + translationDelta))
-                {
-                    float3 pos = translation;
-                    float remainingDistance = 0.0f;
-                    if (direction.IsVertical())
-                    {
-                        pos.z = math.round(translationStart + translationDelta);
-                        remainingDistance = translationStart + translationDelta - pos.z;
-                    }
-                    else
-                    {
-                        pos.x = math.round(translationStart + translationDelta);
-                        remainingDistance = translationStart + translationDelta - pos.x;
-                    }
+                int dim = direction.IsVertical() ? 2 : 0;
+                int2 tileIndex = Board.ConvertWorldToTileCoordinates(translation);
+                float3 translationDelta = DeltaTime * speed * direction.GetWorldDirection();
+                float3 tileCenter = new float3((float)tileIndex.x, 0.0f, (float)tileIndex.y);
+                float3 translationEnd = translation + translationDelta;
+                float timeToHitCenter = (translation[dim] - tileCenter[dim]) / translationDelta[dim];
 
-                    int2 tileIndex = Board.ConvertWorldToTileCoordinates(pos);
+                if (math.trunc(translationEnd[dim]) != math.trunc(translation[dim]) || (translation[dim] < 0.0f) != (translationEnd[dim] < 0.0f))//timeToHitCenter > 0.0f && timeToHitCenter <= 1.0f)
+                {
                     var tile = Board[tileIndex.x, tileIndex.y];
 
                     eDirection newDirection = direction;
@@ -56,56 +47,32 @@ class MoveAndRedirectSystem : JobComponentSystem
                     }
                     else if (tile.HasWall(direction))
                     {
-                        UnityEngine.Debug.Log("Wall in current direction!");
                         newDirection = direction.RotateClockwise();
                         if (tile.HasWall(newDirection))
                         {
-                            UnityEngine.Debug.Log("Wall in new direction!");
                             newDirection = direction.RotateCounterClockwise();
                             if (tile.HasWall(newDirection))
-                            {
                                 newDirection = direction.Flip();
-                                UnityEngine.Debug.Log("Wall in new direction AGAIN!");
-                            }
                         }
                     }
 
-                    switch (newDirection)
+                    if (newDirection != direction)
                     {
-                        case eDirection.North:
-                            pos.z += remainingDistance;
-                            break;
-
-                        case eDirection.South:
-                            pos.z -= remainingDistance;
-                            break;
-
-                        case eDirection.West:
-                            pos.x -= remainingDistance;
-                            break;
-
-                        case eDirection.East:
-                            pos.x += remainingDistance;
-                            break;
+                        chunkTranslations[i] = new Translation
+                        {
+                            Value = tileCenter + (1.0f - timeToHitCenter) * speed * DeltaTime * newDirection.GetWorldDirection()
+                        };
+                        chunkDirections[i] = new Direction
+                        {
+                            Value = newDirection
+                        };
                     }
-                    pos.z += remainingDistance;
+                }
 
-                    chunkTranslations[i] = new Translation
-                    {
-                        Value = pos
-                    };
-                    chunkDirections[i] = new Direction
-                    {
-                        Value = newDirection
-                    };
-                }
-                else
+                chunkTranslations[i] = new Translation
                 {
-                    chunkTranslations[i] = new Translation
-                    {
-                        Value = translation + DeltaTime * speed * direction.GetWorldDirection()
-                    };
-                }
+                    Value = translation + DeltaTime * speed * direction.GetWorldDirection()
+                };
             }
         }
     }

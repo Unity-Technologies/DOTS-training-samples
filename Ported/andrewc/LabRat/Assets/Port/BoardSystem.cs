@@ -92,10 +92,23 @@ public struct Board : IDisposable
 {
     public const int k_Width = 13;
     public const int k_Height = 13;
+<<<<<<< HEAD
+=======
+
+    public Vector2 Size
+    {
+        get => new Vector2(k_Width, k_Height);
+    }
+
+    public Vector2 CellSize
+    {
+        get => new Vector2(1f, 1f);
+    }
+>>>>>>> c6c45ec5d40f140172a4ea94db834478fafbcf45
 
     public static int2 ConvertWorldToTileCoordinates(float3 position)
     {
-        return new int2((int)(position.x + 0.5f), (int)(position.z + 0.5f));
+        return new int2((int)math.round(position.x), (int)math.round(position.z));
     }
 
     public void Init()
