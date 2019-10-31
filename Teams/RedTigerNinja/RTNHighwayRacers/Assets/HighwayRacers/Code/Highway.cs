@@ -458,7 +458,13 @@ namespace HighwayRacers
 			car.SetRandomPropeties();
             car.CarData.Location.distance = distance;
             car.CarData.Location.lane = lane;
-            var ent = em.Instantiate(CaptureNewEntity.CreatedEntity);// em.CreateEntity();
+
+            //var ent = em.Instantiate(CaptureNewEntity.CreatedEntity);// em.CreateEntity();
+            var ent = em.CreateEntity();
+            em.AddComponentData(ent, new Unity.Transforms.LocalToWorld());
+            em.AddComponentData(ent, new Unity.Transforms.Translation());
+            em.AddComponentData(ent, new Unity.Transforms.Rotation());
+
             car.CarData.Location.ThisCarEntity = ent;
 			car.CarData.Location.velocityPosition = car.CarData.Settings.defaultSpeed;
             em.AddComponentData(ent, car.CarData.Location);
