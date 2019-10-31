@@ -41,7 +41,6 @@ namespace GameAI
                 .ForEach((Entity entity, int entityInQueryIndex, int nativeThreadIndex) => 
                 {
                     ecb.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
-                    //System.Threading.Interlocked.Increment(ref ((int*)score.GetUnsafePtr())[0]);
                     score[nativeThreadIndex] = score[nativeThreadIndex] + 1;
                 }).Schedule(inputDeps);
 

@@ -17,15 +17,16 @@ namespace GameAI
         {
             var ecbSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
             var ecb1 = ecbSystem.CreateCommandBuffer().ToConcurrent();
-            var rnd = Time.time;
+            var rnd = DateTime.Now.Ticks;
+            var randomNum = new Random();
 
             var groundSelectorHandle = Entities
                 .WithAll<AITagTaskNone, FarmerAITag>()
 //            .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e) =>
                 {
-                    var seed = nativeThreadIndex + (int)rnd * 7;
-                    var randomNum = new Random((uint) seed);
+                    var seed = nativeThreadIndex + e.Index + e.Version + rnd;
+                    randomNum.InitState((uint)seed);
 
                     ecb1.RemoveComponent<AITagTaskNone>(nativeThreadIndex, e);
                     switch (randomNum.NextInt(0,4))

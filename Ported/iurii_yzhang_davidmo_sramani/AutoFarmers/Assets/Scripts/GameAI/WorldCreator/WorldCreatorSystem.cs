@@ -33,7 +33,10 @@ namespace GameAI
         private EntityArchetype m_tile;
         private EntityArchetype m_plant;
         private EntityArchetype m_store;
-        private EntityArchetype m_score;    // sing
+        private EntityArchetype m_score;    // singleton
+        private EntityArchetype m_shop;
+
+        public NativeHashMap<int2, Entity> hashMap;
 
         protected override void OnCreate()
         {
@@ -44,8 +47,19 @@ namespace GameAI
 
             m_tile = EntityManager.CreateArchetype(typeof(TilePositionRequest));
             m_plant = EntityManager.CreateArchetype(typeof(PlantPositionRequest));
+
             m_store = EntityManager.CreateArchetype(typeof(StonePositionRequest));
             scoreArray = new NativeArray<int>(128, Allocator.Persistent);
+
+            m_stone = EntityManager.CreateArchetype(typeof(StonePositionRequest));
+            m_shop = EntityManager.CreateArchetype(typeof(ShopPositionRequest));
+            
+            hashMap = new NativeHashMap<int2, Entity>(1024, Allocator.Persistent);
+        }
+
+        protected override void OnDestroy()
+        {
+            hashMap.Dispose();
         }
 
         protected override void OnUpdate()
@@ -56,8 +70,6 @@ namespace GameAI
             Assert.IsTrue(once != Entity.Null);
             EntityManager.DestroyEntity(once);
 
-            var hashPos = new HashSet<int2>();
-            
             // create TilePositionRequest's
             for (int x = 0; x < WorldSize.x; ++x)
             {
@@ -88,15 +100,15 @@ namespace GameAI
 
                 for (int _x = x; _x <= end_x; _x++)
                     for (int _y = y; _y <= end_y; _y++)
-                        if (hashPos.Contains(new int2(_x, _y)))
+                        if (hashMap.ContainsKey(new int2(_x, _y)))
                             goto WhoSaidGotoSuck;
                 
-                var e = EntityManager.CreateEntity(m_store);
+                var e = EntityManager.CreateEntity(m_stone);
                 EntityManager.SetComponentData(e, new StonePositionRequest {position = new int2(x, y), size = new int2(sx, sy)});
                 
                 for (int _x = x; _x <= end_x; _x++)
                     for (int _y = y; _y <= end_y; _y++)
-                        hashPos.Add(new int2(_x, _y));
+                        hashMap.Add(new int2(_x, _y), e);
 
                 WhoSaidGotoSuck: ;
             }
@@ -104,9 +116,8 @@ namespace GameAI
             for (int i = 0; i < maxSize*3; ++i)
             {
                 var p = new int2(rnd.NextInt(WorldSize.x), rnd.NextInt(WorldSize.y));
-                if (hashPos.Contains(p) == false)
+                if (hashMap.ContainsKey(p) == false)
                 {
-                    hashPos.Add(p);
                     var e = EntityManager.CreateEntity(m_plant);
                     EntityManager.SetComponentData(e, new PlantPositionRequest {position = p});
                 }
@@ -115,10 +126,26 @@ namespace GameAI
             for (;;)
             {
                 var p = new int2(rnd.NextInt(WorldSize.x), rnd.NextInt(WorldSize.y));
-                if (hashPos.Contains(p) == false)
+                if (hashMap.ContainsKey(p) == false)
+                {
+                    var e = EntityManager.CreateEntity(m_shop);
+                    EntityManager.SetComponentData(e, new ShopPositionRequest {position = p});
+
+                    hashMap.Add(p, e);
+
+                    break;
+                }
+            }
+            
+            for (;;)
+            {
+                var p = new int2(rnd.NextInt(WorldSize.x), rnd.NextInt(WorldSize.y));
+                if (hashMap.ContainsKey(p) == false)
                 {
                     var initialFarmerSpawnerEntity = EntityManager.CreateEntity(typeof(SpawnPointComponent), typeof(SpawnFarmerTagComponent), typeof(InitialSpawnerTagComponent));
-                    EntityManager.SetComponentData<SpawnPointComponent>(initialFarmerSpawnerEntity, new SpawnPointComponent {MapSpawnPosition = p});
+                    EntityManager.SetComponentData(initialFarmerSpawnerEntity, new SpawnPointComponent {MapSpawnPosition = p});
+                    hashMap.Add(p, Entity.Null);
+
                     break;
                 }
             }
