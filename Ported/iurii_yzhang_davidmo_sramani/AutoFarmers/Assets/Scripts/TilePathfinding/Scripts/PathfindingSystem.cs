@@ -101,7 +101,7 @@ namespace AutoFarmersTests
                 .WithAll<AISubTaskTagFindRock>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile, ref HasTarget t) =>
+                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile) =>
             {
                 // Distance Field will provide the target position
                 // Add HasTarget.TargetPosition
