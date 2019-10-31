@@ -53,7 +53,7 @@ namespace Pathfinding
                 var pn = plants.Length;
 
                 for (var i = 0; i < n; i++)
-                    result[i] = -1;
+                    result[i] = int.MaxValue;
 
                 var useFirstQueue = true;
 
@@ -195,6 +195,49 @@ namespace Pathfinding
             }
 
             plantExpecting = false;
+        }
+
+        public int2 PathToPlant(int2 currentPosition, out bool reached)
+        {
+            var current = GetDistanceFieldValue(currentPosition);
+
+            reached = current == 0;
+            if (reached)
+            {
+                return currentPosition;
+            }
+            
+            foreach (var dp in new[]
+            {
+                new int2(-1, 0), 
+                new int2(1, 0),
+                new int2(0, -1),
+                new int2(0, 1)
+            })
+            {
+                var newPos = dp + currentPosition;
+                var nextVal = GetDistanceFieldValue(newPos);
+                if (nextVal < current)
+                {
+                    reached = nextVal == 0;
+                    return newPos;
+                }
+            }
+
+            return currentPosition;
+        }
+
+        public int GetDistanceFieldValue(int2 p)
+        {
+            if (p.x >= 0 && p.x < worldSize.x)
+            {
+                if (p.y >= 0 && p.y < worldSize.y)
+                {
+                    return PlantDistFieldRead[p.y * worldSize.x + p.x];
+                }
+            }
+
+            return int.MaxValue;
         }
     }
 }

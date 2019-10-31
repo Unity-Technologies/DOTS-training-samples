@@ -32,7 +32,10 @@ namespace Tests
                 var str = "";
                 for (int x = 0; x < creator.WorldSize.x; x++)
                 {
-                    str += distanceField.PlantDistFieldRead[y * creator.WorldSize.x + x] + " ";
+                    var val = distanceField.PlantDistFieldRead[y * creator.WorldSize.x + x];
+                    var valStr = val == int.MaxValue ? "X" : val.ToString();
+                        
+                    str += valStr + " ";
                 }
                 Debug.Log(str);
             }
@@ -65,7 +68,10 @@ namespace Tests
                 var str = "";
                 for (int x = 0; x < creator.WorldSize.x; x++)
                 {
-                    str += distanceField.PlantDistFieldRead[y * creator.WorldSize.x + x] + " ";
+                    var val = distanceField.PlantDistFieldRead[y * creator.WorldSize.x + x];
+                    var valStr = val == int.MaxValue ? "X" : val.ToString();
+                        
+                    str += valStr + " ";
                 }
                 Debug.Log(str);
             }
@@ -77,14 +83,41 @@ namespace Tests
         [Test]
         public void DistanceFieldComplex1()
         {
-            DistanceFieldComplex(@"
+            var df = DistanceFieldComplex(@"
             XO..........................
             X.........................X.
             .........XXXXX..............
-            ........X..O..X.....X.......
+            ........X.....X.....X.......
             .........X...X......X.O.....
             ..........XXX...............
-            ............................");
+            .x..........................");
+
+            foreach (var startPos in new [] {new int2(3, 1), 
+                new int2(15, 6),
+                new int2(12, 3), 
+            })
+            {
+                Debug.Log($"Starting from {startPos}");
+                
+                var reached = false;
+                var currentPosition = startPos;
+
+                for (;;)
+                {
+                    var prevVal = df.GetDistanceFieldValue(currentPosition);
+                    Debug.Log($"pos = {currentPosition} val = {prevVal} reached {reached}");
+                    currentPosition = df.PathToPlant(currentPosition, out reached);
+                    var newVal = df.GetDistanceFieldValue(currentPosition);
+
+                    if (reached)
+                        Assert.IsTrue(newVal == 0, $"Reached == true, but {newVal} != 0");
+
+                    if (newVal == prevVal)
+                        break;
+
+                    Assert.IsTrue(newVal < prevVal, $"new {newVal} shoud be < prev {prevVal}");
+                }
+            }
         }
 
         [Test]
@@ -99,6 +132,23 @@ namespace Tests
             Assert.AreEqual(0, data[1]);
             Assert.AreEqual(2, data[2]);
             Assert.AreEqual(1, data[3]);
+
+            var reached = false;
+            var currentPosition = new int2(0, 1);
+
+            Debug.Log($"pos = {currentPosition} reached {reached}");
+            
+            currentPosition = df.PathToPlant(currentPosition, out reached);
+            Assert.IsFalse(reached);
+            Assert.AreEqual(new int2(1, 1), currentPosition);
+            
+            Debug.Log($"pos = {currentPosition} reached {reached}");
+
+            currentPosition = df.PathToPlant(currentPosition, out reached);
+            Assert.IsTrue(reached);
+            Assert.AreEqual(new int2(1, 0), currentPosition);
+            
+            Debug.Log($"pos = {currentPosition} reached {reached}");
         }
 
         public DistanceField DistanceFieldComplex(string map)
@@ -116,8 +166,6 @@ namespace Tests
             int sizeX = lines[0].Length;
 
             Assert.AreEqual(0, lines.Count(s => s.Length != sizeX), "Fix your map pls"); 
-            
-            
             
             var creator = World.GetOrCreateSystem<WorldCreatorSystem>();
             creator.WorldSize = new int2(sizeX, sizeY);
@@ -152,7 +200,10 @@ namespace Tests
                 var str = "";
                 for (int x = 0; x < creator.WorldSize.x; x++)
                 {
-                    str += distanceField.PlantDistFieldRead[y * creator.WorldSize.x + x] + " ";
+                    var val = distanceField.PlantDistFieldRead[y * creator.WorldSize.x + x];
+                    var valStr = val == int.MaxValue ? "X" : val.ToString();
+                        
+                    str += valStr + " ";
                 }
                 Debug.Log(str);
             }
