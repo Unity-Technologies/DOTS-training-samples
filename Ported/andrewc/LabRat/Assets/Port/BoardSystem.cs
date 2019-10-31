@@ -2,6 +2,7 @@ using System;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Entities;
+using UnityEngine;
 
 public struct Tile
 {
@@ -89,8 +90,18 @@ public struct Tile
 
 public struct Board : IDisposable
 {
-    const int k_Width = 13;
-    const int k_Height = 13;
+    public const int k_Width = 13;
+    public const int k_Height = 13;
+
+    public Vector2 Size
+    {
+        get => new Vector2(k_Width, k_Height);
+    }
+
+    public Vector2 CellSize
+    {
+        get => new Vector2(1f, 1f);
+    }
 
     public static int2 ConvertWorldToTileCoordinates(float3 position)
     {
@@ -115,6 +126,11 @@ public struct Board : IDisposable
                     m_Tiles[index] = m_Tiles[index].SetWall(eDirection.South, true);
                 else if (y == k_Height - 1)
                     m_Tiles[index] = m_Tiles[index].SetWall(eDirection.North, true);
+
+                if (x == 5 && y == 5)
+                    m_Tiles[index] = m_Tiles[index].SetTileType(eTileType.Hole);
+                if (x == 6 && y == 6)
+                    m_Tiles[index] = m_Tiles[index].SetTileType(eTileType.HomeBase);
             }
         }
     }

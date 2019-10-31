@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7069280541334703517
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7069280541334703516}
+  - component: {fileID: 7069280541334703514}
+  - component: {fileID: 7069280541334703515}
+  m_Layer: 0
+  m_Name: Board
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7069280541334703516
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7069280541334703517}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7069280541334703514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7069280541334703517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea7d7495833204790ba1d3a8755397f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConversionMode: 0
+--- !u!114 &7069280541334703515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7069280541334703517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8bc7da08d1904f0790f3b3acb062c77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TilePrefab: {fileID: 1695157876856304, guid: c2ef2e9ce5dad494d916f59769e7d27f, type: 3}
+  WallPrefab: {fileID: 1948033712935058, guid: eea26364a72844748944744db673f3f1, type: 3}
+  HomebasePrefab: {fileID: 1633874070064508, guid: 9394fae3aa493460f81bfa9743f81448,
+    type: 3}
+  CellSize: {x: 1, y: 1}
+  yNoise: 0.2
