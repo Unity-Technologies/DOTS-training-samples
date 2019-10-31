@@ -20,8 +20,9 @@ namespace Tests
             
             var pq = m_Manager.CreateEntityQuery(typeof(PlantPositionRequest));
             var pblock = m_Manager.CreateEntityQuery(typeof(StonePositionRequest));
+            var shopQuery = m_Manager.CreateEntityQuery(typeof(ShopPositionRequest));
 
-            var distanceField = new DistanceField(DistanceField.FieldType.Plant, creator.WorldSize, pq, pblock);
+            var distanceField = new DistanceField(DistanceField.FieldType.Plant, creator.WorldSize, pq, pblock, shopQuery);
             
             var handle2 = distanceField.Schedule();
             
@@ -60,7 +61,8 @@ namespace Tests
             
             var pq = m_Manager.CreateEntityQuery(typeof(PlantPositionRequest));
             var pblock = m_Manager.CreateEntityQuery(typeof(StonePositionRequest));
-            var distanceField = new DistanceField(DistanceField.FieldType.Plant, creator.WorldSize, pq, pblock);
+            var shopQuery = m_Manager.CreateEntityQuery(typeof(ShopPositionRequest));
+            var distanceField = new DistanceField(DistanceField.FieldType.Plant, creator.WorldSize, pq, pblock, shopQuery);
             
             var handle2 = distanceField.Schedule();
             handle2.Complete();
@@ -196,7 +198,8 @@ namespace Tests
             
             var pq = m_Manager.CreateEntityQuery(typeof(PlantPositionRequest));
             var pblock = m_Manager.CreateEntityQuery(typeof(StonePositionRequest));
-            var distanceField = new DistanceField(type, creator.WorldSize, pq, pblock);
+            var shopQuery = m_Manager.CreateEntityQuery(typeof(ShopPositionRequest));
+            var distanceField = new DistanceField(type, creator.WorldSize, pq, pblock, shopQuery);
             
             var handle2 = distanceField.Schedule();
             handle2.Complete();
@@ -239,8 +242,9 @@ namespace Tests
 
             var pq = m_Manager.CreateEntityQuery(typeof(PlantPositionRequest));
             var pblock = m_Manager.CreateEntityQuery(typeof(StonePositionRequest));
+            var shopQuery = m_Manager.CreateEntityQuery(typeof(ShopPositionRequest));
 
-            var distanceField = new DistanceField(DistanceField.FieldType.Plant, creator.WorldSize, pq, pblock);
+            var distanceField = new DistanceField(DistanceField.FieldType.Plant, creator.WorldSize, pq, pblock, shopQuery);
             
             distanceField.DistFieldRead.CopyTo(a);
 

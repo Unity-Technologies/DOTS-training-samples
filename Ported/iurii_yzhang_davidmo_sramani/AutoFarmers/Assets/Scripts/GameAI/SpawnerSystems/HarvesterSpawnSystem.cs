@@ -21,20 +21,6 @@ namespace GameAI
         int2 worldHalfSize;
 
         /// <summary>
-        /// When this system is created, generate default Harvester Entities in which to spawn via the
-        /// base archetypes.
-        /// </summary>
-        protected override void OnCreate()
-        {
-            var initSys = World.GetOrCreateSystem<RenderingMapInit>();
-            
-            defaultFarmerEntity = initSys.farmerEntityPrefab;
-            defaultDroneEntity = initSys.droneEntityPrefab;
-            
-            worldHalfSize = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSizeHalf;
-        }
-
-        /// <summary>
         /// Spawns jobs for spawning new Entities that have the harvesting related components.
         /// </summary>
         /// <param name="inputDependencies">The previous aggregated input dependencies of previously run systems</param>
@@ -44,8 +30,16 @@ namespace GameAI
             var ecbSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
             var ecb1 = ecbSystem.CreateCommandBuffer().ToConcurrent();
 
+            var initSys = World.GetOrCreateSystem<RenderingMapInit>();
+            
+            defaultFarmerEntity = initSys.farmerEntityPrefab;
+            defaultDroneEntity = initSys.droneEntityPrefab;
+            
+            worldHalfSize = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSizeHalf;
+            
             var defaultFarmer = defaultFarmerEntity;
             var defaultDrone = defaultDroneEntity;
+
 
             var worldHalfSizeLoc = worldHalfSize;
             
