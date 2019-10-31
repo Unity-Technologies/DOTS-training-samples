@@ -12,6 +12,8 @@ public struct TornadoData : IComponentData
     public float upwardSpeed;
     public float radiusMultiplier;
     public float tornadoSway;
+    public float tornadoX;
+    public float tornadoZ;
 }
 
 [RequiresEntityConversion]

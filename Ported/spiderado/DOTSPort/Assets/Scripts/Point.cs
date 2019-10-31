@@ -2,11 +2,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-[Serializable]
-public struct Point : IComponentData {
-    public float3 pos;
-    // Used for ParticleManager originally - maybe move to child object?
-}
 
 [Serializable]
 public struct BarPoint : IComponentData {

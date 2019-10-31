@@ -25,6 +25,7 @@ public class BarSystem : JobComponentSystem
             var modPoint = new ModifiedPoint { point = modifiedPoint, pointEntity = bar.point1 };
             var modPoint2 = new ModifiedPoint { point = modifiedPoint2, pointEntity = bar.point2 };
             modifiedPointList[entityInQueryIndex] = modPoint;
+            
             Debug.Log(points);
         }).Schedule(inputDeps);
 
@@ -35,17 +36,26 @@ public class BarSystem : JobComponentSystem
             EntityManager.SetComponentData(modifiedPoint.pointEntity, modifiedPoint.point);
         }
 
+        modifiedPointList.Dispose();
+
         return barJob;
     }
 }
 
 public class PointSystem : JobComponentSystem {
-    private float tornadoMaxForceDist = 20.0f;
+    private float tornadoForceMaxDistVal = 20.0f;
+
+	public static float TornadoSway(float y, float time) {
+		return Mathf.Sin(y / 5f + time/4f) * 3f;
+	}
 
     protected override JobHandle OnUpdate(JobHandle inputDeps) {
-        float tornadoX = ParticleSystem.tornadoX;
-        float tornadoZ = ParticleSystem.tornadoZ;
+        TornadoData tornadoData = GetSingleton<TornadoData>();
+
+        float tornadoX = tornadoData.tornadoX;
+        float tornadoZ = tornadoData.tornadoZ;
         float curTime = Time.time;
+        float tornadoForceMaxDist = tornadoForceMaxDistVal;
 
         var pointJob = Entities.ForEach((Entity e, ref BarPoint point) => {
             if (!point.anchor) {
@@ -56,12 +66,12 @@ public class PointSystem : JobComponentSystem {
             point.oldPos.y += 0.01f;
 
             // Tornado force
-			float tdx = tornadoX+ParticleSystem.TornadoSway(point.pos.y, curTime) - point.pos.x;
+			float tdx = tornadoX+TornadoSway(point.pos.y, curTime) - point.pos.x;
             float tdz = tornadoZ - point.pos.z;
 			float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
 			tdx /= tornadoDist;
 			tdz /= tornadoDist;
-            if (tornadoDist < tornadoMaxForceDist) {
+            if (tornadoDist < tornadoForceMaxDist) {
             }
             //	float force = (1f - tornadoDist / tornadoMaxForceDist);
             //	float yFader= Mathf.Clamp01(1f - point.y / tornadoHeight);
