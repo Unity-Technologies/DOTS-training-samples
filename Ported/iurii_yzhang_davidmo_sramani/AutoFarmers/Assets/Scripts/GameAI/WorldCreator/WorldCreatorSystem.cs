@@ -56,12 +56,7 @@ namespace GameAI
             
             hashMap = new NativeHashMap<int2, Entity>(1024, Allocator.Persistent);
         }
-
-        protected override void OnDestroy()
-        {
-            hashMap.Dispose();
-        }
-
+        
         protected override void OnUpdate()
         {
             Profiler.BeginSample("World Creation");
@@ -168,6 +163,7 @@ namespace GameAI
         protected override void OnDestroy()
         {
             scoreArray.Dispose();
+            hashMap.Dispose();
             base.OnDestroy();
         }
     }
