@@ -12,9 +12,8 @@ using UnityEngine.Rendering;
 using Random = System.Random;
 
 
-namespace AutoFarmersTests
+namespace Pathfinding
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class PathfindingSystem : JobComponentSystem
     {
         BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
@@ -29,8 +28,10 @@ namespace AutoFarmersTests
             var worldSize = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSize;
 
             var ecb1 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-            var job1 = Entities
-                .WithAll<TagFarmer>()
+            /*var job1 = Entities
+                .WithAll<FarmerAITag>()
+                .WithAll<AITagTaskNone>()
+                .WithoutBurst()
                 .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable positionable) =>
                 {
                     var dirX = new int4(1, -1, 0, 0);
@@ -54,6 +55,7 @@ namespace AutoFarmersTests
 
                     positionable.Position = new int2(x2, y2);
                 }).Schedule(inputDeps);
+*/
 
             // find Untilled Tile target
             var ecb2 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
@@ -61,8 +63,10 @@ namespace AutoFarmersTests
                 .WithAll<AISubTaskTagFindUntilledTile>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable pos) =>
+                .WithoutBurst()
+                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable pos) =>
                 {
+                    Debug.Log("Find Untilled Tile target...");
                     // Distance Field will provide the target position
                     // Add HasTarget.TargetPosition
                     int2 targetpos = new int2(10, 10);
@@ -74,7 +78,8 @@ namespace AutoFarmersTests
             var job3 = Entities
                 .WithAll<AISubTaskTagFindUntilledTile>()
                 .WithNone<AISubTaskTagComplete>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile, ref HasTarget t) =>
+                .WithoutBurst()
+                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
                 {
                     bool2 tt = (t.TargetPosition == tile.Position);
                     if (tt[0] && tt[1])
@@ -89,7 +94,8 @@ namespace AutoFarmersTests
             var job4 = Entities
                 .WithAll<AISubTaskTagTillGroundTile>()
                 .WithNone<AISubTaskTagComplete>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile) =>
+                .WithoutBurst()
+                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile) =>
                 {
                     ecb4.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
                 }).Schedule(inputDeps);
@@ -100,11 +106,14 @@ namespace AutoFarmersTests
                 .WithAll<AISubTaskTagFindRock>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile) =>
+                .WithoutBurst()
+                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile) =>
                 {
+                    Debug.Log("Find rock...");
                     // Distance Field will provide the target position
                     // Add HasTarget.TargetPosition
                     int2 targetpos = new int2(10, 10);
+                    Debug.Log("Finding Rock");
                     ecb5.AddComponent(nativeThreadIndex, entity, new HasTarget(targetpos));
                 }).Schedule(inputDeps);
 
@@ -113,7 +122,8 @@ namespace AutoFarmersTests
             var job6 = Entities
                 .WithAll<AISubTaskTagTillGroundTile>()
                 .WithNone<AISubTaskTagComplete>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile, ref HasTarget t) =>
+                .WithoutBurst()
+                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
                 {
                     bool2 tt = (t.TargetPosition == tile.Position);
                     if (tt[0] && tt[1])
@@ -128,7 +138,8 @@ namespace AutoFarmersTests
             var job7 = Entities
                 .WithAll<AISubTaskTagPlantSeed>()
                 .WithNone<AISubTaskTagComplete>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile) =>
+                .WithoutBurst()
+                .ForEach((Entity entity, int nativeThreadIndex) =>
                 {
                     // Add tag: subTaskComplete
                     ecb7.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
@@ -140,7 +151,8 @@ namespace AutoFarmersTests
                 .WithAll<AISubTaskTagFindPlant>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile) =>
+                .WithoutBurst()
+                .ForEach((Entity entity, int nativeThreadIndex) =>
                 {
                     // Distance Field will provide the target position
                     // Add HasTarget.TargetPosition
@@ -154,7 +166,8 @@ namespace AutoFarmersTests
                 .WithAll<AISubTaskTagFindShop>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile) =>
+                .WithoutBurst()
+                .ForEach((Entity entity, int nativeThreadIndex) =>
                 {
                     // Distance Field will provide the target position
                     // Add HasTarget.TargetPosition
@@ -167,7 +180,8 @@ namespace AutoFarmersTests
             var job10 = Entities
                 .WithAll<AISubTaskTagFindShop>()
                 .WithNone<AISubTaskTagComplete>()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable tile, ref HasTarget t) =>
+                .WithoutBurst()
+                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
                 {
                     bool2 tt = (t.TargetPosition == tile.Position);
                     if (tt[0] && tt[1])
@@ -177,7 +191,7 @@ namespace AutoFarmersTests
                     }
                 }).Schedule(inputDeps);
 
-            m_EntityCommandBufferSystem.AddJobHandleForProducer(job1);
+            // m_EntityCommandBufferSystem.AddJobHandleForProducer(job1);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job2);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job3);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job4);
@@ -187,12 +201,28 @@ namespace AutoFarmersTests
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job8);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job9);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job10);
-
+            /*
             NativeArray<JobHandle> x = new NativeArray<JobHandle>(10, Allocator.TempJob);
             var jarray = new JobHandle[] {job1, job2, job3, job4, job5, job6, job7, job8, job9, job10};
             x.CopyFrom(jarray);
             
             var handle = JobHandle.CombineDependencies(x);
+            
+            var handle =
+                JobHandle.CombineDependencies(
+                    JobHandle.CombineDependencies(
+                        JobHandle.CombineDependencies(job1, job2, job3),
+                        JobHandle.CombineDependencies(job4, job5, job6),
+                        JobHandle.CombineDependencies(job7, job8, job9)), job10);
+            */
+
+            var handle = JobHandle.CombineDependencies(
+                JobHandle.CombineDependencies(job10, job2, job3),
+                JobHandle.CombineDependencies(job4, job5, job6),
+                JobHandle.CombineDependencies(job7, job8, job9));
+                 
+            
+            Debug.Log("Path Finding");
 
             return handle;
         }
