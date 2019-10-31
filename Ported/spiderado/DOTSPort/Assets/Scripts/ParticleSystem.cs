@@ -1,29 +1,24 @@
-﻿using System.Collections.Generic;
-using Unity.Burst;
-using Unity.Collections;
-using Unity.Entities;
-using Unity.Jobs;
+﻿using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
-using static Unity.Mathematics.math;
 
 public class ParticleSystem : ComponentSystem
 {
-    public float tornadoX;
-    public float tornadoZ;
+    public static float tornadoX;
+    public static float tornadoZ;
 
-	public static float TornadoSway(float y) {
-		return Mathf.Sin(y / 5f + Time.time/4f) * 3f;
+	public static float TornadoSway(float y, float time) {
+        return Mathf.Sin(y / 5f + time / 4f) * 3f;
 	}
 
     protected override void OnUpdate() {
 		tornadoX = Mathf.Cos(Time.time/6f) * 30f;
 		tornadoZ = Mathf.Sin(Time.time/6f * 1.618f) * 30f;
+        float curTime = Time.time;
 
         Entities.ForEach((Entity e, ParticleSharedData tornado, ref Point point, ref PartData partData) => {
 			float3 tornadoPos = new float3(
-                tornadoX + TornadoSway(point.pos.y),
+                tornadoX + TornadoSway(point.pos.y, curTime),
                 point.pos.y, 
                 tornadoZ);
 			float3 delta = (tornadoPos - point.pos);

@@ -17,6 +17,7 @@ public class TornadoParticlesAuthoring : MonoBehaviour, IConvertGameObjectToEnti
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         MaterialPropertyBlock matProps = new MaterialPropertyBlock();
+        // Used for instance rendering, not yet implemented
         //matProps.SetVectorArray("_Color",colors);
         ParticleSharedData sharedData = new ParticleSharedData {
             particleMesh = particleMesh,
@@ -29,7 +30,7 @@ public class TornadoParticlesAuthoring : MonoBehaviour, IConvertGameObjectToEnti
         for (int i = 0; i < quantity; i++) {
             Entity particleEntity = conversionSystem.DstEntityManager.CreateEntity();
 			float3 pos = new float3(UnityEngine.Random.Range(-50f,50f), UnityEngine.Random.Range(0f,50f),UnityEngine.Random.Range(-50f,50f));
-            Point pointData = new Point { pos=pos, oldPos=pos, anchor=false, neighborCount=0 };
+            Point pointData = new Point { pos=pos };
             PartData partData = new PartData {
                 radiusMult = UnityEngine.Random.value,
                 color =Color.white * UnityEngine.Random.Range(0.3f, 0.7f),

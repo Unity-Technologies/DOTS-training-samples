@@ -4,15 +4,21 @@ using Unity.Mathematics;
 using UnityEngine;
 
 [Serializable]
-public struct Bar : IComponentData
+public struct Bar : IComponentData, IEquatable<Bar>
 {
-    Point point1;
-    Point point2;
-    float length;
-    Matrix4x4 matrix;
-    float3 prevDelta;
-    float3 minBounds;
-    float3 maxBounds;
-    Color color;
-    float thickness;
+    public Entity point1;
+    public Entity point2;
+
+    public float length;
+    //public Matrix4x4 matrix;
+    public float3 prevDelta;
+    public float3 minBounds;
+    public float3 maxBounds;
+    //public Color color;
+    public float thickness;
+
+    public bool Equals(Bar other) {
+        return point1 == other.point1 
+            && point2 == other.point2;
+    }
 }
