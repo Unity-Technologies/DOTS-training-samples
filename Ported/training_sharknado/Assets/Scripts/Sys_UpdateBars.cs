@@ -60,8 +60,10 @@ public class Sys_UpdateBars : JobComponentSystem
             tdx /= tornadoDist;
             tdz /= tornadoDist;
 
+            float3 startPos = pos1;
+
             // TODO(wyatt): fix this ugly code
-            oldPos1.y += 1f;
+            oldPos1.y += 0.01f;
 
             if ( tornadoDist < tornadoMaxForceDist )
             {
@@ -81,6 +83,7 @@ public class Sys_UpdateBars : JobComponentSystem
 
             pos1 += (pos1 - oldPos1) * invDamping;
 
+            oldPos1 = startPos;
             if (pos1.y < 0f)
             {
                 pos1.y = 0f;
@@ -96,7 +99,8 @@ public class Sys_UpdateBars : JobComponentSystem
             tdx /= tornadoDist;
             tdz /= tornadoDist;
 
-            oldPos2.y += 1f;
+            oldPos2.y += 0.01f;
+            startPos = pos2;
 
             if (tornadoDist < tornadoMaxForceDist)
             {
@@ -116,6 +120,7 @@ public class Sys_UpdateBars : JobComponentSystem
 
             pos2 += (pos2 - oldPos2) * invDamping;
 
+            oldPos2 = startPos;
             if (pos2.y < 0f)
             {
                 pos2.y = 0f;
