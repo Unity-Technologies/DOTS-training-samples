@@ -9,6 +9,15 @@ public class CarWorldSystem : MonoBehaviour
     private World SavedWorld = null;
     private Unity.Entities.EntityManagerDiffer SavedDiffState;
     private bool HasSavedDiff = false;
+    public LiveLinkScene OtherScene = null;
+
+    [ContextMenu("Test Live Link")]
+    public void DoTestLiveLink()
+    {
+        OtherScene = new LiveLinkScene(World.Active, LiveLinkMode.LiveConvertGameView);
+        OtherScene.RequestCleanConversion();
+    }
+
 
     [ContextMenu("Do Diff Test")]
     public void DoDiffTest()

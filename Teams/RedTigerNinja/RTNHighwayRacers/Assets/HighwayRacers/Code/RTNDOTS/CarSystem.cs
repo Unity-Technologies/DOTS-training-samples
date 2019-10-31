@@ -14,6 +14,8 @@ namespace HighwayRacers {
         {
             if (Car.IsTotalHackData) return inputDeps;
 
+            if (Highway.instance == null) return inputDeps;
+
             Highway.instance.EnsureUpdated();
 
             var carQuery = this.GetEntityQuery(ComponentType.ReadOnly<CarLocation>());
