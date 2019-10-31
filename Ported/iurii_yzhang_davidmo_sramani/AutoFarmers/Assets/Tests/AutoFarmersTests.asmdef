@@ -14,9 +14,7 @@
         "Unity.Entities.Tests",
         "Unity.Entities.PerformanceTests",
         "Unity.PerformanceTesting",
-        "Rendering",
-        "GameAI",
-        "TilePathfinding"
+        "Scripts"
     ],
     "includePlatforms": [
         "Editor"

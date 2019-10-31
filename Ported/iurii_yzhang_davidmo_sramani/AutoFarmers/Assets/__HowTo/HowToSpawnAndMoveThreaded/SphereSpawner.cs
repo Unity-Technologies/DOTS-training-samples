@@ -6,13 +6,15 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Rendering;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class SphereSpawner : JobComponentSystem
 {
     struct ExecuteOnceTag : IComponentData {}
-    
+    private EntityQuery m_executeOnce;
+
     [BurstCompile]
     struct Spawn : IJobParallelFor
     {
@@ -30,14 +32,12 @@ public class SphereSpawner : JobComponentSystem
     }
 
     private Entity m_spherePrefabEntity;
-    private Entity m_initEntity;
     
     protected override void OnCreate()
     {
         if (SphereSpawnerUnity.instance != null)
         {
-            m_initEntity = EntityManager.CreateEntity();
-            EntityManager.AddComponent<ExecuteOnceTag>(m_initEntity);
+            ResetExecuteOnceTag(EntityManager);
             
             var spherePrefabArchetype = EntityManager.CreateArchetype(typeof(Translation), typeof(LocalToWorld), typeof(MoveSpeed), typeof(RenderMesh));
 
@@ -51,15 +51,16 @@ public class SphereSpawner : JobComponentSystem
             });
         }
 
-        var query = GetEntityQuery(ComponentType.ReadOnly<ExecuteOnceTag>());
-        RequireForUpdate(query);
+        m_executeOnce = GetEntityQuery(ComponentType.ReadOnly<ExecuteOnceTag>());
+        RequireForUpdate(m_executeOnce);
     }
     
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        EntityManager.DestroyEntity(m_initEntity);
-        m_initEntity = Entity.Null;
-
+        var once = m_executeOnce.GetSingletonEntity();
+        Assert.IsTrue(once != Entity.Null);
+        EntityManager.DestroyEntity(once);
+        
         var ecbSystem = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
         var ecb = ecbSystem.CreateCommandBuffer();
         
@@ -76,5 +77,15 @@ public class SphereSpawner : JobComponentSystem
         Debug.Log("SphereSpawner");
         
         return handle;
+    }
+    
+    public static void ResetExecuteOnceTag(EntityManager mManager)
+    {
+        var q = mManager.CreateEntityQuery(ComponentType.ReadOnly<ExecuteOnceTag>());
+        if (q.CalculateEntityCount() == 0)
+        {
+            var e = mManager.CreateEntity();
+            mManager.AddComponent<ExecuteOnceTag>(e);
+        }
     }
 }

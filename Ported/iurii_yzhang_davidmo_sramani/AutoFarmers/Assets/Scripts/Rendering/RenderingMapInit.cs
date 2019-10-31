@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using GameAI;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public struct TilePositionRequest : IComponentData
 {
@@ -26,58 +28,81 @@ public struct PlantPositionRequest : IComponentData
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 public class RenderingMapInit : JobComponentSystem
 {
-    private Entity m_executeOnceEntity;
     struct ExecuteOnceTag : IComponentData {}
-    
+    private EntityQuery m_executeOnce;
+
     public Entity groundEntityPrefab;
     public Entity stoneEntityPrefab;
     public Entity plantEntityPrefab;
+
+    public void CreatePrefabEntity()
+    {
+        var ru = RenderingUnity.instance;
+        
+        Assert.IsNotNull(ru);
+        
+        groundEntityPrefab = ru.CreateGround(EntityManager);
+        stoneEntityPrefab = ru.CreateStone(EntityManager);
+        plantEntityPrefab = ru.CreatePlant(EntityManager);
+            
+        Assert.IsTrue(groundEntityPrefab != Entity.Null);
+        Assert.IsTrue(stoneEntityPrefab != Entity.Null);
+        Assert.IsTrue(plantEntityPrefab != Entity.Null);
+    }
 
     protected override void OnCreate()
     {
         var ru = RenderingUnity.instance;
 
-        if (ru != null)
+        Enabled = ru != null;
+        
+        if (Enabled)
         {
-            groundEntityPrefab = ru.CreateGround(EntityManager);
-            stoneEntityPrefab = ru.CreateStone(EntityManager);
-            plantEntityPrefab = ru.CreatePlant(EntityManager);
-            
-            m_executeOnceEntity = EntityManager.CreateEntity();
-            EntityManager.AddComponent<ExecuteOnceTag>(m_executeOnceEntity);
-
-            var query = GetEntityQuery(ComponentType.ReadOnly<ExecuteOnceTag>());
-            RequireForUpdate(query);
+            ResetExecuteOnceTag(EntityManager);
+            CreatePrefabEntity();
         }
+        
+        m_executeOnce = GetEntityQuery(ComponentType.ReadOnly<ExecuteOnceTag>());
+        RequireForUpdate(m_executeOnce);
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        EntityManager.DestroyEntity(m_executeOnceEntity);
-        
+        var once = m_executeOnce.GetSingletonEntity();
+        Assert.IsTrue(once != Entity.Null);
+        EntityManager.DestroyEntity(once);
+
+        Assert.IsTrue(groundEntityPrefab != Entity.Null);
+        Assert.IsTrue(stoneEntityPrefab != Entity.Null);
+        Assert.IsTrue(plantEntityPrefab != Entity.Null);
+
         var ecbSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
         
         var ground = groundEntityPrefab;
         var stone = stoneEntityPrefab;
         var plant = plantEntityPrefab;
-        
-        var rendering = RenderingUnity.instance;
+
+        var worldSizeHalf = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSizeHalf;
         
         var ecb1 = ecbSystem.CreateCommandBuffer().ToConcurrent();
-        var handle1 = Entities.ForEach((int nativeThreadIndex, ref TilePositionRequest req) =>
+        var handle1 = Entities.WithoutBurst().ForEach((int nativeThreadIndex, ref TilePositionRequest req) =>
         {
-            var wpos = RenderingUnity.Tile2WorldPosition(req.position);
+            var wpos = RenderingUnity.Tile2WorldPosition(req.position, worldSizeHalf) - new float3(0, 0.5f, 0);
             var e = ecb1.Instantiate(nativeThreadIndex, ground);
-            ecb1.SetComponent(nativeThreadIndex, e, new Translation {Value = wpos}); //TODO: rewrites y pos. fix
-            
+            ecb1.SetComponent(nativeThreadIndex, e,
+                new LocalToWorld {Value = float4x4.TRS(wpos, quaternion.identity, new float3(0.2f,1,0.2f))});
+
         }).Schedule(inputDeps);
+
+        var halfSizeOffset = new float3(RenderingUnity.scale * 0.5f, 0, RenderingUnity.scale * 0.5f);
         
         var ecb2 = ecbSystem.CreateCommandBuffer().ToConcurrent();
-        var handle2 = Entities.ForEach((int nativeThreadIndex, ref StonePositionRequest req) =>
+        var handle2 = Entities.WithoutBurst()
+            .ForEach((int nativeThreadIndex, ref StonePositionRequest req) =>
         {
-            var wpos = RenderingUnity.Tile2WorldPosition(req.position); // min pos
+            var wpos = RenderingUnity.Tile2WorldPosition(req.position, worldSizeHalf); // min pos
             var wsize = RenderingUnity.Tile2WorldSize(req.size);
-            var wposCenter = wpos + wsize * 0.5f;
+            var wposCenter = wpos + wsize * 0.5f - halfSizeOffset;
             
             var e = ecb2.Instantiate(nativeThreadIndex, stone);
             ecb2.SetComponent(nativeThreadIndex, e, new Translation {Value = wposCenter});
@@ -86,9 +111,9 @@ public class RenderingMapInit : JobComponentSystem
         }).Schedule(inputDeps);
 
         var ecb3 = ecbSystem.CreateCommandBuffer().ToConcurrent();
-        var handle3 = Entities.ForEach((int nativeThreadIndex, ref PlantPositionRequest req) =>
+        var handle3 = Entities.WithoutBurst().ForEach((int nativeThreadIndex, ref PlantPositionRequest req) =>
         {
-            var wpos = RenderingUnity.Tile2WorldPosition(req.position);
+            var wpos = RenderingUnity.Tile2WorldPosition(req.position, worldSizeHalf);
             var e = ecb3.Instantiate(nativeThreadIndex, plant);
             ecb3.SetComponent(nativeThreadIndex, e, new Translation {Value = wpos});
             
@@ -100,7 +125,17 @@ public class RenderingMapInit : JobComponentSystem
         ecbSystem.AddJobHandleForProducer(handle2);
         ecbSystem.AddJobHandleForProducer(handle3);
 
-        Debug.Log("Map Init");
+//        Debug.Log("Map Init");
         return handle;
+    }
+    
+    public static void ResetExecuteOnceTag(EntityManager mManager)
+    {
+        var q = mManager.CreateEntityQuery(ComponentType.ReadOnly<ExecuteOnceTag>());
+        if (q.CalculateEntityCount() == 0)
+        {
+            var e = mManager.CreateEntity();
+            mManager.AddComponent<ExecuteOnceTag>(e);
+        }
     }
 }

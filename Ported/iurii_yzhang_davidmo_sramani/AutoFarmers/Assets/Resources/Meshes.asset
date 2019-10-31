@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2265417d65484752b937e278d582f6c6, type: 3}
+  m_Name: Meshes
+  m_EditorClassIdentifier: Scripts::MeshRendererScriptableObject
+  drone: {fileID: 4031335411541631937, guid: 51bfe9f7e4e0040c48f33cd76398f5f9, type: 3}
+  farmer: {fileID: 3906487109842593513, guid: 154aed47f92dc4ff5a82f316900caf8d, type: 3}
+  ground: {fileID: 3685260229654091683, guid: 4397d4a57daca46a0ae757c529bf7d62, type: 3}
+  plant: {fileID: 646466672676688876, guid: 41c12d44bccae4948ac5d7e27277334a, type: 3}
+  rock: {fileID: 3226369095738028422, guid: 2809a65a8af6243aaaeea8e3940a32f8, type: 3}
+  store: {fileID: 6036490920964357572, guid: 1193f21919c424146a3148c633ca2402, type: 3}
