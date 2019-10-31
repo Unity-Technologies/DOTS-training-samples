@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
@@ -8,22 +9,28 @@ using Unity.Mathematics;
 
 public class ActorInteractSystem : JobComponentSystem
 {
-    DynamicBuffer<GridTile> buffer;
-    EntityQuery query;
+    DynamicBuffer<GridTile> bufferReading;
+    DynamicBuffer<GridTile> bufferWriting;
+    EntityQuery queryReading;
+    EntityQuery queryWriting;
     NativeQueue<GridOperation> gridOperations;
 
     protected override void OnCreate()
     {
         EntityQueryDesc queryDescription = new EntityQueryDesc();
         queryDescription.All = new[] {ComponentType.ReadOnly<GridTile>()};
-        query = GetEntityQuery(queryDescription);
+        queryReading = GetEntityQuery(queryDescription);
+        
+        queryDescription.All = new[] {ComponentType.ReadWrite<GridTile>()};
+        queryWriting = GetEntityQuery(queryDescription);
+        
+        gridOperations = new NativeQueue<GridOperation>(Allocator.Persistent);
     }
-
     [BurstCompile]
-    struct GoalPositionJob : IJobForEach<ActorMovementComponent, DotsIntentionComponent>
+    struct InteractJob : IJobForEach<ActorMovementComponent, DotsIntentionComponent>
     {
         [ReadOnly] public DynamicBuffer<GridTile> internalBuffer;
-        [ReadOnly] public NativeQueue<GridOperation> internalGridOperations;
+        public NativeQueue<GridOperation>.ParallelWriter internalGridOperations;
 
         // The [ReadOnly] attribute tells the job scheduler that this job will not write to rotSpeedIJobForEach
         public void Execute([ReadOnly] ref ActorMovementComponent actor, ref DotsIntentionComponent intention)
@@ -61,21 +68,50 @@ public class ActorInteractSystem : JobComponentSystem
                 //TODO insert shop in command buffer
             }
         }
+        
     }
 
+    [BurstCompile]
+    struct ChangeTilesValueJob : IJob
+    {
+        public DynamicBuffer<GridTile> internalBuffer;
+         public NativeQueue<GridOperation> internalGridOperations;
+
+        public void Execute()
+        {
+            while (internalGridOperations.TryDequeue(out var v))
+            {
+                var grid =  internalBuffer[v.gridTile];
+                grid.Value = v.desiredGridValue;
+                internalBuffer[v.gridTile] = grid;
+            }
+        }
+
+    }
+    
 
 // OnUpdate runs on the main thread.
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
-        Entity farm = query.GetSingletonEntity();
-        buffer = EntityManager.GetBuffer<GridTile>(farm);
+        Entity farm = queryReading.GetSingletonEntity();
+        bufferReading = EntityManager.GetBuffer<GridTile>(farm);
+        bufferWriting = EntityManager.GetBuffer<GridTile>(farm);
         
-        var job = new GoalPositionJob
+        var job1 = new InteractJob
         {
-            internalBuffer = buffer,
+            internalBuffer = bufferReading,
+            internalGridOperations = gridOperations.AsParallelWriter()
+        };
+        var job1Handle = job1.Schedule(this, inputDependencies);
+
+        
+        var job2 = new ChangeTilesValueJob()
+        {
+            internalBuffer = bufferWriting,
             internalGridOperations = gridOperations
         };
 
-        return job.Schedule(this, inputDependencies);
+        return job2.Schedule(job1Handle);
+
     }
 }
