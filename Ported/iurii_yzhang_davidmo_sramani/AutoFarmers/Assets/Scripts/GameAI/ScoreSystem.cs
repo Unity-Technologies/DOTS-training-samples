@@ -16,6 +16,7 @@ namespace GameAI
 
         protected override void OnCreate()
         {
+            m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
             // World.GetOrCreateSystem<WorldCreatorSystem>().
             Score = 0;
         }
@@ -32,7 +33,7 @@ namespace GameAI
                 .ForEach((Entity entity, int entityInQueryIndex) => 
                 {
                     ecb.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
-                    Score++;
+                    //Score++;
                 }).Schedule(inputDeps);
 
             // smash rock + 1
@@ -43,7 +44,7 @@ namespace GameAI
                 .ForEach((Entity entity, int entityInQueryIndex) => 
                 {
                     ecb2.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
-                    Score++;
+                    //Score++;
                 }).Schedule(inputDeps);
 
             // spawn farmer -15
@@ -94,7 +95,6 @@ namespace GameAI
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job4);
 
             return JobHandle.CombineDependencies(JobHandle.CombineDependencies(job, job2), JobHandle.CombineDependencies(job3, job4));
-
         }
     }
 }
