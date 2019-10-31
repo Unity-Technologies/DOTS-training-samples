@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public struct FixedDistanceConstraint : IComponentData
+public struct DistanceConstraint : IComponentData
 {
     public float distance;
     public int pointId1;
