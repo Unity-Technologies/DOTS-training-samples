@@ -39,7 +39,7 @@ namespace GameAI
                             ecb1.AddComponent<AITagTaskPlant>(nativeThreadIndex, e);
                             break;
                         case 3:
-                            ecb1.AddComponent<AITagTaskCollect>(nativeThreadIndex, e);
+                            ecb1.AddComponent<AITagTaskDeliver>(nativeThreadIndex, e);
                             break;
                     }
                 }).Schedule(inputDependencies);
@@ -52,7 +52,7 @@ namespace GameAI
                 .ForEach((int nativeThreadIndex, Entity e) =>
                 {
                     ecb2.RemoveComponent<AITagTaskNone>(nativeThreadIndex, e);
-                    ecb2.AddComponent<AITagTaskCollect>(nativeThreadIndex, e);
+                    ecb2.AddComponent<AITagTaskDeliver>(nativeThreadIndex, e);
                 }).Schedule(inputDependencies);
 
             ecbSystem.AddJobHandleForProducer(groundSelectorHandle);

@@ -21,10 +21,6 @@ namespace GameAI
     {
     }
 
-    public struct AITagTaskCollect : IComponentData
-    {
-    }
-
     public struct AITagTaskDeliver : IComponentData
     {
     }
