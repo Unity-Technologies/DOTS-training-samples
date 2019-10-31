@@ -11,11 +11,14 @@ public struct Tile
         {
             return (eTileType)(m_PackedData & 0xff);
         }
-        set
-        {
-            m_PackedData &= 0xffffff00;
-            m_PackedData |= (uint)value;
-        }
+    }
+
+    public Tile SetTileType(eTileType tileType)
+    {
+        Tile ret = new Tile();
+        ret.m_PackedData = m_PackedData & 0xffffff00;
+        ret.m_PackedData |= (uint)tileType;
+        return ret;
     }
 
     public eColor Color
@@ -24,11 +27,14 @@ public struct Tile
         {
             return (eColor)((m_PackedData >> 8) & 0xff);
         }
-        set
-        {
-            m_PackedData &= 0xffff00ff;
-            m_PackedData |= ((uint)value << 8);
-        }
+    }
+
+    public Tile SetColor(eColor color)
+    {
+        Tile ret = new Tile();
+        ret.m_PackedData = m_PackedData & 0xffff00ff;
+        ret.m_PackedData |= ((uint)color) << 8;
+        return ret;
     }
 
     public eDirection Direction
@@ -37,11 +43,14 @@ public struct Tile
         {
             return (eDirection)((m_PackedData >> 16) & 0xff);
         }
-        set
-        {
-            m_PackedData &= 0xff00ffff;
-            m_PackedData |= ((uint)value << 16);
-        }
+    }
+
+    public Tile SetDirection(eDirection direction)
+    {
+        Tile ret = new Tile();
+        ret.m_PackedData = m_PackedData & 0xff00ffff;
+        ret.m_PackedData |= ((uint)direction) << 16;
+        return ret;
     }
 
     public byte RawWallBits
@@ -56,28 +65,26 @@ public struct Tile
         return (m_PackedData & shifted) != 0;
     }
 
-    public void SetWall(eDirection direction, bool wall)
+    public Tile SetWall(eDirection direction, bool wall)
     {
-        uint dirAsInt = (uint)direction;
+        int rawWallBits = (int)RawWallBits;
         if (wall)
-        {
-            int dirAsint = (int)direction + 24;
-            var shifted = ((uint)1) << ((byte)dirAsInt);
-            m_PackedData |= shifted;
-        }
+            rawWallBits |= 1 << ((int)direction);
         else
-        {
-            int dirAsint = (int)direction + 24;
-            var shifted = ((uint)1) << ((byte)dirAsInt);
-            m_PackedData &= ~shifted;
-        }
+            rawWallBits &= 1 << ((int)direction);
+
+        var ret = new Tile();
+        ret.m_PackedData = m_PackedData;
+        ret.m_PackedData &= 0x00ffffff;
+        ret.m_PackedData |= (uint)((int)(rawWallBits << 24));
+        return ret;
     }
 
     // first byte is eTileType
     // second byte is eColor
     // third byte is eDirection
     // fourth byte has packed bits for whether there's a wall in each direction
-    private uint m_PackedData;
+    public uint m_PackedData;
 }
 
 public struct Board : IDisposable
@@ -87,7 +94,7 @@ public struct Board : IDisposable
 
     public static int2 ConvertWorldToTileCoordinates(float3 position)
     {
-        return new int2((int)(position.x - 0.5f * (float)k_Width + 0.5f), (int)(position.z - 0.5f * (float)k_Height + 0.5f));
+        return new int2((int)(position.x + 0.5f), (int)(position.z + 0.5f));
     }
 
     public void Init()
@@ -98,23 +105,17 @@ public struct Board : IDisposable
             for (int x = 0; x < k_Width; ++x)
             {
                 int index = y * k_Width + x;
-                var tile = m_Tiles[index];
-
-                tile.TileType = eTileType.Blank;
-                m_Tiles[index] = tile;
 
                 if (x == 0)
-                    m_Tiles[index].SetWall(eDirection.West, true);
+                    m_Tiles[index] = m_Tiles[index].SetWall(eDirection.West, true);
                 else if (x == k_Width - 1)
-                    m_Tiles[index].SetWall(eDirection.East, true);
-            }
+                    m_Tiles[index] = m_Tiles[index].SetWall(eDirection.East, true);
 
-            int indexY = y * k_Width;
-            var tileY = m_Tiles[indexY];
-            if (y == 0)
-                m_Tiles[indexY].SetWall(eDirection.South, true);
-            else if (y == k_Height - 1)
-                m_Tiles[indexY].SetWall(eDirection.North, true);
+                if (y == 0)
+                    m_Tiles[index] = m_Tiles[index].SetWall(eDirection.South, true);
+                else if (y == k_Height - 1)
+                    m_Tiles[index] = m_Tiles[index].SetWall(eDirection.North, true);
+            }
         }
     }
 

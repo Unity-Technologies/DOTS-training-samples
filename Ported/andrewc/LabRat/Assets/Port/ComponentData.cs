@@ -15,7 +15,9 @@ public enum eDirection : byte
     North,
     South,
     East,
-    West
+    West,
+
+    Invalid = 0xff,
 }
 
 public static class DirectionExtensions
@@ -38,6 +40,71 @@ public static class DirectionExtensions
         }
 
         return new float3(0.0f, 1.0f, 0.0f);
+    }
+
+    public static eDirection Flip(this eDirection direction)
+    {
+        switch (direction)
+        {
+            case eDirection.North:
+                return eDirection.South;
+
+            case eDirection.South:
+                return eDirection.North;
+
+            case eDirection.West:
+                return eDirection.East;
+
+            case eDirection.East:
+                return eDirection.West;
+        }
+
+        return eDirection.Invalid;
+    }
+
+    public static eDirection RotateClockwise(this eDirection direction)
+    {
+        switch (direction)
+        {
+            case eDirection.North:
+                return eDirection.East;
+
+            case eDirection.South:
+                return eDirection.West;
+
+            case eDirection.West:
+                return eDirection.North;
+
+            case eDirection.East:
+                return eDirection.South;
+        }
+
+        return eDirection.Invalid;
+    }
+
+    public static eDirection RotateCounterClockwise(this eDirection direction)
+    {
+        switch (direction)
+        {
+            case eDirection.North:
+                return eDirection.West;
+
+            case eDirection.South:
+                return eDirection.East;
+
+            case eDirection.West:
+                return eDirection.South;
+
+            case eDirection.East:
+                return eDirection.North;
+        }
+
+        return eDirection.Invalid;
+    }
+
+    public static bool IsVertical(this eDirection direction)
+    {
+        return direction == eDirection.North || direction == eDirection.South;
     }
 }
 
