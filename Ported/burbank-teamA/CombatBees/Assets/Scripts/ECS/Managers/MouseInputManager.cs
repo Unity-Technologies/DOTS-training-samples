@@ -8,9 +8,19 @@ public class MouseInputManager : MonoBehaviour
     public GameObject[] spawningTeamBees;
     public GameObject spawningResources;
     public GameObject sprinkleParticles;
-
+    
     Transform marker;
 
+    Entity resources, team1, team2, sprikles;
+
+    private void Start()
+    {
+        resources = GameObjectConversionUtility.ConvertGameObjectHierarchy(spawningResources, World.Active);
+        team1 = GameObjectConversionUtility.ConvertGameObjectHierarchy(spawningTeamBees[0], World.Active);
+        team2 = GameObjectConversionUtility.ConvertGameObjectHierarchy(spawningTeamBees[1], World.Active);
+        sprikles = GameObjectConversionUtility.ConvertGameObjectHierarchy(sprinkleParticles, World.Active);
+
+    }
 
     private void Update()
     {
@@ -21,17 +31,15 @@ public class MouseInputManager : MonoBehaviour
             
             //TODO: change that in the future
             EntityManager entityManager = World.Active.EntityManager;
-            Entity entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(spawningResources, World.Active);
-
+            var entity = resources;
             if (mouseRay.position.x < -40)
             {
-                entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(spawningTeamBees[0], World.Active);
-            }
+                entity = team1;
+                }
 
             if (mouseRay.position.x > 40)
             {
-                entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(spawningTeamBees[1], World.Active);
-
+                entity = team2;
             }
 
             var instance = entityManager.Instantiate(entity);
@@ -39,7 +47,7 @@ public class MouseInputManager : MonoBehaviour
 
             if (Mathf.Abs(mouseRay.position.x) > 40)
             {
-                entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(sprinkleParticles, World.Active);
+                entity = sprikles;
                 instance = entityManager.Instantiate(entity);
                 entityManager.SetComponentData(instance, new Translation() { Value = mouseRay.position });
             }
