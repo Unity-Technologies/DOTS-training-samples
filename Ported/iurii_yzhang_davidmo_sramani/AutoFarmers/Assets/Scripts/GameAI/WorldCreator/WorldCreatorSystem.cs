@@ -23,6 +23,7 @@ namespace GameAI
         public int2 WorldSize = new int2(100, 100);
         public int2 WorldSizeHalf => WorldSize / 2;
 
+        public NativeArray<int> scoreArray;  // store in scoreArray[0]
         
         struct ExecuteOnceTag : IComponentData {}
         private EntityQuery m_executeOnce;
@@ -32,6 +33,7 @@ namespace GameAI
         private EntityArchetype m_tile;
         private EntityArchetype m_plant;
         private EntityArchetype m_store;
+        private EntityArchetype m_score;    // sing
 
         protected override void OnCreate()
         {
@@ -43,6 +45,7 @@ namespace GameAI
             m_tile = EntityManager.CreateArchetype(typeof(TilePositionRequest));
             m_plant = EntityManager.CreateArchetype(typeof(PlantPositionRequest));
             m_store = EntityManager.CreateArchetype(typeof(StonePositionRequest));
+            scoreArray = new NativeArray<int>(128, Allocator.Persistent);
         }
 
         protected override void OnUpdate()
@@ -133,6 +136,12 @@ namespace GameAI
                 var e = mManager.CreateEntity();
                 mManager.AddComponent<ExecuteOnceTag>(e);
             }
+        }
+
+        protected override void OnDestroy()
+        {
+            scoreArray.Dispose();
+            base.OnDestroy();
         }
     }
 }
