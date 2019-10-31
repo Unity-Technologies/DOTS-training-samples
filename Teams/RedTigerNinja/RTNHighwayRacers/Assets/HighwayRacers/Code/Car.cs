@@ -289,7 +289,14 @@ namespace HighwayRacers
 
         private void Update()
         {
+            return;
+
             Highway.instance.EnsureUpdated();
+
+            var em = World.Active.EntityManager;
+            var t = em.GetComponentData<Unity.Transforms.LocalToWorld>(this.CarData.Location.ThisCarEntity);
+            this.transform.position = t.Position;
+            this.transform.rotation = Quaternion.LookRotation(t.Forward, t.Up);
 
             return;
 

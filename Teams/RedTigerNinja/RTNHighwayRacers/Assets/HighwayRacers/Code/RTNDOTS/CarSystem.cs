@@ -85,7 +85,7 @@ namespace HighwayRacers {
 
         public struct CarUpdateStateFromNextJob : IJobForEach<CarLocation, CarMindState, CarNextState>
         {
-            public void Execute(ref CarLocation carLoc, ref CarMindState carMind, [ReadOnly] ref CarNextState c1)
+            public void Execute([WriteOnly] ref CarLocation carLoc,[WriteOnly] ref CarMindState carMind, [ReadOnly] ref CarNextState c1)
             {
                 carLoc = c1.NextState.Location;
                 carMind = c1.NextState.Mind;
@@ -96,7 +96,7 @@ namespace HighwayRacers {
         {
             public Highway.HighwayStateStruct HighwayState;
 
-            public void Execute([ReadOnly] ref CarLocation c0, ref Rotation c1, ref Translation c2)
+            public void Execute([ReadOnly] ref CarLocation c0,[WriteOnly] ref Rotation c1,[WriteOnly] ref Translation c2)
             {
                 var pose = Car.GetCarPose(ref c0, ref HighwayState);
                 c1.Value = pose.rotation;
@@ -122,7 +122,7 @@ namespace HighwayRacers {
                 this.UpdateInfo = _updateInfo;
             }
 
-            public void Execute(ref CarNextState nextState, [ReadOnly]ref CarLocation carLoc, [ReadOnly] ref CarMindState carMind, [ReadOnly] ref CarSettingsStruct carSettings)
+            public void Execute([WriteOnly] ref CarNextState nextState, [ReadOnly]ref CarLocation carLoc, [ReadOnly] ref CarMindState carMind, [ReadOnly] ref CarSettingsStruct carSettings)
             {
                 CarDataAll temp = new CarDataAll()
                 {
