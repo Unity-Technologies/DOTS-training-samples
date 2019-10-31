@@ -63,7 +63,8 @@ namespace GameAI
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job2);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job3);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job4);
-            return inputDeps;
+
+            return JobHandle.CombineDependencies(JobHandle.CombineDependencies(job, job2), JobHandle.CombineDependencies(job3, job4));
         }
     }
 }
