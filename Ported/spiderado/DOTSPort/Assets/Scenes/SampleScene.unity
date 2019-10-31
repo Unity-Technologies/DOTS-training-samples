@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657838, g: 0.49641234, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -213,6 +213,67 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &950785358
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 950785361}
+  - component: {fileID: 950785360}
+  - component: {fileID: 950785359}
+  m_Layer: 0
+  m_Name: TornadoSettings
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &950785359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950785358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea7d7495833204790ba1d3a8755397f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConversionMode: 0
+--- !u!114 &950785360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950785358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e93a9f4aa7de2468990e83b5697bd615, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spinRate: 50
+  upwardSpeed: 3
+  radiusMultiplier: 1
+  tornadoSway: 1
+--- !u!4 &950785361
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950785358}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -305,10 +366,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1269189482}
-  - component: {fileID: 1269189481}
   - component: {fileID: 1269189480}
+  - component: {fileID: 1269189481}
   m_Layer: 0
-  m_Name: ParticleSystemAuthoring
+  m_Name: TornadoSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -336,14 +397,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1269189479}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67a7bb2b3a236904c82cb227aacc076c, type: 3}
+  m_Script: {fileID: 11500000, guid: b92e86289aabd4225a82cd24859fe25f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  quantity: 10000
-  particleMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  particleMaterial: {fileID: 2100000, guid: a9c5dcb5f3314ae47aa7f5476271137c, type: 2}
-  spinRate: 37
-  upwardSpeed: 6
+  prefab: {fileID: 8529826020246684707, guid: 95da4ea2b5ab44e18be4b033c1255f91, type: 3}
+  count: 500
 --- !u!4 &1269189482
 Transform:
   m_ObjectHideFlags: 0
