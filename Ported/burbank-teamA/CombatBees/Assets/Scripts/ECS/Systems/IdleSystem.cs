@@ -43,20 +43,28 @@ public class IdleSystem : JobComponentSystem
                 */
                 if (state.Value == State.StateType.Idle)
                 {
-                    if (aggr.Value  > (noise.cnoise(velocity.Value)+1)*50.0f) //cnoise generates between -1 and 1 so we are making our aggressiveness value readable.
-                    {
 
-                        state.Value = State.StateType.Chasing;
-                        int rand = (int) ((noise.cnoise(velocity.Value) + 1) * enemy.Length / 2);
-                        targetEntity.Value = enemy[rand];
-                        
+                    float rnd = noise.cnoise(velocity.Value) ;
+
+                    if (rnd > 0) {
+
+                        if (aggr.Value > (noise.cnoise(velocity.Value) + 1) * 100.0f) //cnoise generates between -1 and 1 so we are making our aggressiveness value readable.
+                        {
+
+                            state.Value = State.StateType.Chasing;
+                            int rand = (int)((noise.cnoise(velocity.Value) + 1) * enemy.Length / 2);
+                            targetEntity.Value = enemy[rand];
+
+                        }
+                        else
+                        {
+                            state.Value = State.StateType.Collecting;
+                            int rand = (int)((noise.cnoise(velocity.Value) + 1) * resources.Length / 2);
+                            targetEntity.Value = resources[rand];
+                        }
                     }
-                    else
-                    {
-                        state.Value = State.StateType.Collecting;
-                        int rand = (int) ((noise.cnoise(velocity.Value) + 1) * resources.Length / 2);
-                        targetEntity.Value = resources[rand];
-                    }
+
+
                 }
             })
             .Schedule(inputDependencies);
