@@ -319,14 +319,15 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 636348743}
-  - component: {fileID: 636348742}
   - component: {fileID: 636348744}
+  - component: {fileID: 636348742}
   - component: {fileID: 636348745}
   - component: {fileID: 636348749}
   - component: {fileID: 636348748}
   - component: {fileID: 636348746}
   - component: {fileID: 636348747}
   - component: {fileID: 636348750}
+  - component: {fileID: 636348751}
   m_Layer: 0
   m_Name: Game Settings
   m_TagString: Untagged
@@ -452,6 +453,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value: 50
+--- !u!114 &636348751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 636348741}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3eab50b6540534a8b8503a294b3e17ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 8341666011525945381, guid: 1ca073bd4217942869755660bd6f7d86, type: 3}
 --- !u!1001 &784793255
 PrefabInstance:
   m_ObjectHideFlags: 0

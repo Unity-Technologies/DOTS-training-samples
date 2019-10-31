@@ -11,7 +11,8 @@ public class MoveTowardsSystem : JobComponentSystem
         return Entities.WithReadOnly(translationContainer).ForEach(
             (Entity entity, ref Velocity velocity, ref TargetVelocity targetVelocity, in TargetEntity targetEntity) =>
             {
-                if (targetEntity.Value == Entity.Null) return;
+                if (!translationContainer.Exists(targetEntity.Value)) return;
+
                 var translation = translationContainer[entity];
                 var targetTranslation = translationContainer[targetEntity.Value];
                 var directionTowards = math.normalize(targetTranslation.Value - translation.Value);

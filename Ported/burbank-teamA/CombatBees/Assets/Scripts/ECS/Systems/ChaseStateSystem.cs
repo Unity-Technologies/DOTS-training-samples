@@ -19,6 +19,8 @@ public class ChaseStateSystem : JobComponentSystem
         {
             if (state.Value == State.StateType.Chasing)
             {
+                if (!translationContainer.Exists(targetEntity.Value)) return;
+
                 var translation = translationContainer[entity];
                 var targetTranslation = translationContainer[targetEntity.Value];
                 targetVelocity.Value = chaseVelocity;

@@ -26,13 +26,14 @@ public class AttackingStateSystem : JobComponentSystem
        // var stateContainer = GetComponentDataFromEntity<State>(false);
         var commonBuffer = buffer.CreateCommandBuffer().ToConcurrent();
 
-        var handle = Entities.WithReadOnly(translationContainer).ForEach((Entity entity, ref TargetVelocity targetVelocity, in TargetEntity targetEntity, in State state) =>
+        var handle = Entities.WithReadOnly(translationContainer).ForEach((Entity entity, ref TargetEntity targetEntity, ref TargetVelocity targetVelocity, in State state) =>
         {
             
 
             if (state.Value == State.StateType.Attacking)
         {
-              
+                if (!translationContainer.Exists(targetEntity.Value)) return;
+
                 var translation = translationContainer[entity];
                 var targetTranslation = translationContainer[targetEntity.Value];
                 targetVelocity.Value = attackVelocity;
@@ -45,7 +46,7 @@ public class AttackingStateSystem : JobComponentSystem
                     {
                         Value = State.StateType.Dead
                     });
-
+                    targetEntity.Value = Entity.Null;
                 }
 
             }
