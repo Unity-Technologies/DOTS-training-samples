@@ -80,7 +80,7 @@ public struct Tile
     private uint m_PackedData;
 }
 
-struct Board : IDisposable
+public struct Board : IDisposable
 {
     const int k_Width = 13;
     const int k_Height = 13;
@@ -141,6 +141,11 @@ struct Board : IDisposable
 public class BoardSystem : ComponentSystem
 {
     Board m_Board;
+
+    public Board Board
+    {
+        get => m_Board;
+    }
 
     protected override void OnCreate()
     {
