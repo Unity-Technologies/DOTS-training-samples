@@ -22,6 +22,7 @@ namespace Pathfinding
         
         private EntityQuery plantQuery;
         private EntityQuery stoneQuery;
+        private EntityQuery shopQuery;
         
         private JobHandle job;
         private bool expecting = false;
@@ -134,12 +135,13 @@ namespace Pathfinding
             }
         }
 
-        public DistanceField(FieldType fieldType, int2 size, EntityQuery plantQuery, EntityQuery stoneQuery)
+        public DistanceField(FieldType fieldType, int2 size, EntityQuery plantQuery, EntityQuery stoneQuery, EntityQuery shopQuery)
         {
             this.fieldType = fieldType;
             
             worldSize = size;
 
+            this.shopQuery = shopQuery;
             this.plantQuery = plantQuery;
             this.stoneQuery = stoneQuery;
                 
@@ -205,7 +207,12 @@ namespace Pathfinding
                 }
                 else if (fieldType == FieldType.Shop)
                 {
-                    
+                    using (var allShops = shopQuery.ToComponentDataArray<ShopPositionRequest>(Allocator.TempJob))
+                    {
+                        var n = allShops.Length;
+                        for (int i = 0; i < n; i++)
+                            targets.Add(allShops[i].position);
+                    }
                 }
 
                 if (stonesAreObstacles)

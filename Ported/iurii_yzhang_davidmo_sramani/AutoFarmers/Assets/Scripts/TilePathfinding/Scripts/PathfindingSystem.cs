@@ -19,6 +19,7 @@ namespace Pathfinding
         BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
         private DistanceField m_distanceFieldPlant;
         private DistanceField m_distanceFieldStone;
+        private DistanceField m_distanceFieldShop;
         private int2 m_worldSize;
 
         protected override void OnCreate()
@@ -26,49 +27,26 @@ namespace Pathfinding
             m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
             var plantQuery = EntityManager.CreateEntityQuery(typeof(PlantPositionRequest));
             var stoneQuery = EntityManager.CreateEntityQuery(typeof(StonePositionRequest));
+            var shopQuery = EntityManager.CreateEntityQuery(typeof(ShopPositionRequest));
             m_worldSize = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSize;
-            m_distanceFieldPlant = new DistanceField(DistanceField.FieldType.Plant, m_worldSize, plantQuery, stoneQuery);
-            m_distanceFieldStone = new DistanceField(DistanceField.FieldType.Stone, m_worldSize, plantQuery, stoneQuery);
+            
+            m_distanceFieldShop = new DistanceField(DistanceField.FieldType.Shop, m_worldSize, plantQuery, stoneQuery, shopQuery);
+            m_distanceFieldPlant = new DistanceField(DistanceField.FieldType.Plant, m_worldSize, plantQuery, stoneQuery, shopQuery);
+            m_distanceFieldStone = new DistanceField(DistanceField.FieldType.Stone, m_worldSize, plantQuery, stoneQuery, shopQuery);
             m_distanceFieldPlant.Schedule();
             m_distanceFieldStone.Schedule();
+            m_distanceFieldShop.Schedule();
         }
 
         protected override void OnDestroy()
         {
             m_distanceFieldPlant.Dispose();
             m_distanceFieldStone.Dispose();
+            m_distanceFieldShop.Dispose();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            /*var job1 = Entities
-                .WithAll<FarmerAITag>()
-                .WithAll<AITagTaskNone>()
-                .WithoutBurst()
-                .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable positionable) =>
-//                    var dirX = new int4(1, -1, 0, 0);
-//                    var dirY = new int4(0, 0, 1, -1);
-//
-//                    Random r = new Random((uint)entityInQueryIndex);
-//                    uint rInt = r.NextUInt(4);
-//
-//                    int x2 = positionable.Position[0] + dirX[rInt];
-//                    int y2 = positionable.Position[1] + dirY[rInt];
-//
-//                    if (x2 < 0 || x2 >= worldSize.x)
-//                    {
-//                        x2 = positionable.Position[0] + dirX[(rInt + 1) % 3];
-//                    }
-//
-//                    if (y2 < 0 || y2 >= worldSize.y)
-//                    {
-//                        y2 = positionable.Position[1] + dirX[(rInt + 1) % 3];
-//                    }
-
-                    positionable.Position = new int2(0,0);
-                }).Schedule(inputDeps);
-*/
-
             var worldSize = m_worldSize;
 
             // find Untilled Tile target
@@ -187,18 +165,24 @@ namespace Pathfinding
                 }).Schedule(inputDeps);
             
             // Find shop
+            m_distanceFieldShop.Complete();
+            var distanceFieldShopRead = m_distanceFieldShop.DistFieldRead;
+            
             var ecb9 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             var job9 = Entities
                 .WithAll<AISubTaskTagFindShop>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
                 //.WithoutBurst()
-                .ForEach((Entity entity, int nativeThreadIndex) =>
+                .ForEach((Entity entity, int entityInQueryIndex, in TilePositionable position) =>
                 {
-                    // Distance Field will provide the target position
-                    // Add HasTarget.TargetPosition
-                    int2 targetpos = new int2(30, 30);
-                    ecb9.AddComponent(nativeThreadIndex, entity, new HasTarget(targetpos));
+                    bool reached = false;
+                    int2 target = DistanceField.PathTo(position.Position, worldSize, distanceFieldShopRead, out reached);
+                    if (reached) {
+                        ecb9.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
+                    } else {
+                        ecb9.AddComponent(entityInQueryIndex, entity, new HasTarget(target));
+                    }
                 }).Schedule(inputDeps);
 
             // Sell Plant
@@ -236,8 +220,11 @@ namespace Pathfinding
 
         public void PlantOrStoneChanged()
         {
+            m_distanceFieldShop.Complete();
             m_distanceFieldPlant.Complete();
             m_distanceFieldStone.Complete();
+            
+            m_distanceFieldShop.Schedule();
             m_distanceFieldPlant.Schedule();
             m_distanceFieldStone.Schedule();
         }
