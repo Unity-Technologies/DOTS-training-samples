@@ -109,7 +109,7 @@ public class RenderingMapInit : JobComponentSystem
             .ForEach((int nativeThreadIndex, ref StonePositionRequest req) =>
         {
             var wpos = RenderingUnity.Tile2WorldPosition(req.position, worldSizeHalf); // min pos
-            var wsize = RenderingUnity.Tile2WorldSize(req.size);
+            var wsize = RenderingUnity.Tile2WorldSize(req.size) - 0.1f;
             var wposCenter = wpos + wsize * 0.5f - halfSizeOffset;
             
             var e = ecb2.Instantiate(nativeThreadIndex, stone);
