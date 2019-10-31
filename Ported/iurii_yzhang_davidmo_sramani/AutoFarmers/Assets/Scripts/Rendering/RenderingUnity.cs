@@ -49,6 +49,7 @@ public class RenderingUnity : MonoBehaviour
             typeof(RenderingAnimationComponent),
             typeof(RenderingAnimationDroneFlyComponent),
             typeof(AITagTaskNone),
+            typeof(MovementSpeedComponent),
             typeof(TilePositionable));
         return Create(em, drone, atype);
     }
@@ -63,6 +64,7 @@ public class RenderingUnity : MonoBehaviour
             typeof(RenderingAnimationComponent),
             typeof(FarmerAITag),
             typeof(AITagTaskNone),
+            typeof(MovementSpeedComponent),
             typeof(TilePositionable));
         return Create(em, farmer, atype);
     }
@@ -112,6 +114,12 @@ public class RenderingUnity : MonoBehaviour
         if (em.HasComponent<NonUniformScale>(e))
             em.SetComponentData(e, new NonUniformScale {Value = meshRenderer.transform.localScale});
 
+        if (em.HasComponent<FarmerAITag>(e) && em.HasComponent<MovementSpeedComponent>(e))
+            em.SetComponentData(e, new MovementSpeedComponent { speedInMeters = 4f });
+        
+        if (em.HasComponent<RenderingAnimationDroneFlyComponent>(e) && em.HasComponent<MovementSpeedComponent>(e))
+            em.SetComponentData(e, new MovementSpeedComponent { speedInMeters = 6f });
+        
         if (em.HasComponent<RenderingAnimationDroneFlyComponent>(e))
             em.SetComponentData(e, new RenderingAnimationDroneFlyComponent {offset = Random.Range(-Mathf.PI, Mathf.PI)});
         
