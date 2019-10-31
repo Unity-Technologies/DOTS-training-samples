@@ -59,6 +59,7 @@ namespace HighwayRacers {
 			selectedCar.CarData.Settings.leftMergeDistance = leftMergeDistance.value;
 			selectedCar.CarData.Settings.mergeSpace = mergeSpace.value;
 			selectedCar.CarData.Settings.overtakeEagerness = overtakeEagerness.value;
+            selectedCar.CarData.UpdateComponent(selectedCar.CarData.Settings);
 
 			SetSliderProperties();
 		}

@@ -100,52 +100,26 @@ namespace HighwayRacers
         {
             get { return state == MergeState.MERGE_LEFT || state == MergeState.MERGE_RIGHT; }
         }
-
-
     }
 
-    public struct CarStateStruct : Unity.Entities.IComponentData
+    public struct CarDataAll
     {
-        public CarSettingsStruct Settings;
         public CarLocation Location;
         public CarMindState Mind;
+        public CarSettingsStruct Settings;
 
-        public int DEBUG_JobTester;
-        public Entity ThisCarEntity;
-        public int SortedIndexSelf;
-        public int SortedIndexNext;
-
-
-        public Highway MyHighwayState { get { return Highway.instance; } }
-
-        public bool IsNotNull { get { return !this.IsNull; } }
-        public bool IsNull { get { return (this.ThisCarEntity == Entity.Null); } }
-
-        public static CarStateStruct NullCar {
-            get
-            {
-                CarStateStruct ans = new CarStateStruct();
-                ans.ThisCarEntity = Entity.Null;
-                return ans;
-            }
+        public CarDataAll(CarLocation cl, CarMindState cm, CarSettingsStruct cs)
+        {
+            Location = cl;
+            Mind = cm;
+            Settings = cs;
         }
 
-        public float maxSpeed
+        public void UpdateComponent<T>(T val) where T:struct,IComponentData
         {
-            get
-            {
-                return Settings.defaultSpeed * Settings.overtakePercent;
-            }
-        }
-
-
-
-        public CarShared GlobalShared
-        {
-            get { return Car.GlobalShared; }
+            World.Active.EntityManager.SetComponentData(this.Location.ThisCarEntity, val);
         }
     }
-
 
     public enum MergeState
     {
@@ -187,7 +161,7 @@ namespace HighwayRacers
             [Header("Children")]
         public Transform cameraPos;
 
-        public CarStateStruct CarData;
+        public CarDataAll CarData;
 
         /*
         public float defaultSpeed { get; set; }
@@ -305,9 +279,9 @@ namespace HighwayRacers
         }
 
 
-        public static CarStateStruct GetOtherCar(Entity id)
+        public static CarLocation GetOtherCar(Entity id)
         {
-            return CarStateStruct.NullCar;
+            return CarLocation.NullLocation;
         }
 
         public const bool IsTotalHackData = false;
@@ -364,7 +338,7 @@ namespace HighwayRacers
         }
 
 
-        public static void UpdateCarState_FromJob(ref CarStateStruct car, ref Highway.HighwayStateStruct highway, CarUpdateInfo dt)
+        public static void UpdateCarState_FromJob(ref CarDataAll car, ref Highway.HighwayStateStruct highway, CarUpdateInfo dt)
         {
             var loc = car.Location;
             var cds = car.Settings;
@@ -470,7 +444,7 @@ namespace HighwayRacers
 					tryMergeRight = true;
 				} else {
 					// if passed overtake car
-					if (highway.DistanceTo(car.distance, car.lane, GetOtherCar( carMind.overtakeCarEntity ).Location.distance, GetOtherCar(carMind.overtakeCarEntity).Location.lane) > highway.length(car.lane) / 2) {
+					if (highway.DistanceTo(car.distance, car.lane, GetOtherCar( carMind.overtakeCarEntity ).distance, GetOtherCar(carMind.overtakeCarEntity).lane) > highway.length(car.lane) / 2) {
 						tryMergeRight = true;
 					}
 				}

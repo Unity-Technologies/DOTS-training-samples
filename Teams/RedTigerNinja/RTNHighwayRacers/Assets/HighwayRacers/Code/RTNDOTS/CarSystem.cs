@@ -74,88 +74,38 @@ namespace HighwayRacers {
             }
         }
 
-        public NativeHashMap<Entity, SortingData> GetSortedCarMap(NativeArray<CarStateStruct> cars)
-        {
-            NativeArray<int> sortexIndex = new NativeArray<int>(cars.Length, Allocator.Temp);
-            for (var si=0; si<cars.Length; si++)
-            {
-                var endi = si;
-                sortexIndex[si] = endi;
-
-                var mydist = cars[si].Location.distance;
-                for (var ji=si-1; (ji>=0); ji--)
-                {
-                    var curIndex = sortexIndex[ji];
-                    var curDist = cars[curIndex].Location.distance;
-                    if (mydist >= curDist)
-                    {
-                        break;
-                    }
-
-                    var t = sortexIndex[ji];
-                    sortexIndex[ji] = sortexIndex[ji + 1];
-                    sortexIndex[ji + 1] = t;
-                }
-            }
-
-            NativeHashMap<Entity, SortingData> ans = new NativeHashMap<Entity, SortingData>(cars.Length, Allocator.TempJob);
-            for (var si = 0; si < cars.Length; si++)
-            {
-                var sd = new SortingData();
-                sd.SelfIndex = sortexIndex[si];
-                sd.NextIndex = sortexIndex[(si + 1)%sortexIndex.Length];
-                ans[cars[si].ThisCarEntity] = sd;
-            }
-
-            sortexIndex.Dispose();
-            return ans;
-        }
-
-        public struct CarSortJob : IJobForEach<CarStateStruct>
-        {
-            [ReadOnly] public NativeHashMap<Entity, SortingData> SortedMap;
-
-            public void Execute(ref CarStateStruct c0)
-            {
-                var data = SortedMap[c0.ThisCarEntity];
-                c0.SortedIndexSelf = data.SelfIndex;
-                c0.SortedIndexNext = data.NextIndex;
-            }
-        }
 
         public struct CarNextState : IComponentData
         {
-            public CarStateStruct NextState;
+            public CarDataAll NextState;
 
             //public CarNextState() { }
-            public CarNextState(CarStateStruct initial) { this.NextState = initial; }
+            public CarNextState(CarDataAll initial) { this.NextState = initial; }
         }
 
-        public struct CarUpdateStateFromNextJob : IJobForEach<CarLocation, CarMindState, CarStateStruct, CarNextState>
+        public struct CarUpdateStateFromNextJob : IJobForEach<CarLocation, CarMindState, CarNextState>
         {
-
-            public void Execute(ref CarLocation carLoc, ref CarMindState carMind, ref CarStateStruct c0, [ReadOnly] ref CarNextState c1)
+            public void Execute(ref CarLocation carLoc, ref CarMindState carMind, [ReadOnly] ref CarNextState c1)
             {
-                c0 = c1.NextState;
                 carLoc = c1.NextState.Location;
                 carMind = c1.NextState.Mind;
             }
         }
 
-        public struct CarUpdatePoseJob : IJobForEach<CarStateStruct, Unity.Transforms.Rotation, Unity.Transforms.Translation>
+        public struct CarUpdatePoseJob : IJobForEach<CarLocation, Unity.Transforms.Rotation, Unity.Transforms.Translation>
         {
             public Highway.HighwayStateStruct HighwayState;
 
-            public void Execute([ReadOnly] ref CarStateStruct c0, ref Rotation c1, ref Translation c2)
+            public void Execute([ReadOnly] ref CarLocation c0, ref Rotation c1, ref Translation c2)
             {
-                var pose = Car.GetCarPose(ref c0.Location, ref HighwayState);
+                var pose = Car.GetCarPose(ref c0, ref HighwayState);
                 c1.Value = pose.rotation;
                 c2.Value = pose.position;
             }
         }
 
 
-        public struct CarUpdateNextJob : IJobForEach<CarNextState,CarStateStruct>
+        public struct CarUpdateNextJob : IJobForEach<CarNextState,CarLocation,CarMindState,CarSettingsStruct>
         {
             //public ComponentDataFromEntity<CarStateStruct> OtherCarQuery;
             public Highway.HighwayStateStruct HighwayInst;
@@ -172,13 +122,14 @@ namespace HighwayRacers {
                 this.UpdateInfo = _updateInfo;
             }
 
-            public void Execute(ref CarNextState nextState, [ReadOnly] ref CarStateStruct curState)
+            public void Execute(ref CarNextState nextState, [ReadOnly]ref CarLocation carLoc, [ReadOnly] ref CarMindState carMind, [ReadOnly] ref CarSettingsStruct carSettings)
             {
-
-                var c0 = curState;// OtherCarQuery[nextState.NextState.ThisCarEntity];
-
-                CarStateStruct temp = c0;
-                temp.DEBUG_JobTester++;
+                CarDataAll temp = new CarDataAll()
+                {
+                    Location = carLoc,
+                    Mind = carMind,
+                    Settings = carSettings,
+                };
 
                 // Do the actual update logic:
                 Car.UpdateCarState_FromJob(ref temp, ref this.HighwayInst, this.UpdateInfo);

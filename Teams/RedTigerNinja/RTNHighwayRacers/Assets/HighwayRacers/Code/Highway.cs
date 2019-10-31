@@ -457,14 +457,13 @@ namespace HighwayRacers
 			car.SetRandomPropeties();
             car.CarData.Location.distance = distance;
             car.CarData.Location.lane = lane;
-            car.CarData.ThisCarEntity = em.Instantiate(CaptureNewEntity.CreatedEntity);// em.CreateEntity();
-            car.CarData.Location.ThisCarEntity = car.CarData.ThisCarEntity;
+            var ent = em.Instantiate(CaptureNewEntity.CreatedEntity);// em.CreateEntity();
+            car.CarData.Location.ThisCarEntity = ent;
 			car.CarData.Location.velocityPosition = car.CarData.Settings.defaultSpeed;
-            em.AddComponentData(car.CarData.ThisCarEntity, car.CarData);
-            em.AddComponentData(car.CarData.ThisCarEntity, new CarSystem.CarNextState(car.CarData));
-            em.AddComponentData(car.CarData.ThisCarEntity, car.CarData.Location);
-            em.AddComponentData(car.CarData.ThisCarEntity, car.CarData.Settings);
-            em.AddComponentData(car.CarData.ThisCarEntity, car.CarData.Mind);
+            em.AddComponentData(ent, car.CarData.Location);
+            em.AddComponentData(ent, car.CarData.Settings);
+            em.AddComponentData(ent, car.CarData.Mind);
+            em.AddComponentData(ent, new CarSystem.CarNextState(car.CarData));
             allCarsList.Add(car);
             //this.UpdateCarList();
             car.UpdatePosition(ref car.CarData.Location, ref Highway.instance.HighwayState);
@@ -474,10 +473,10 @@ namespace HighwayRacers
 		public void RemoveCar(Car car) {
 			allCarsList.Remove(car);
             //this.UpdateCarList();
-            if (car.CarData.ThisCarEntity != Entity.Null)
+            if (car.CarData.Location.ThisCarEntity != Entity.Null)
             {
-                var ent = car.CarData.ThisCarEntity;
-                car.CarData.ThisCarEntity = Entity.Null;
+                var ent = car.CarData.Location.ThisCarEntity;
+                car.CarData.Location.ThisCarEntity = Entity.Null;
                 Unity.Entities.World.Active.EntityManager.DestroyEntity(ent);
             }
             Destroy (car.gameObject);
@@ -789,11 +788,6 @@ namespace HighwayRacers
             }
             allCarsList.Clear();
 
-            if (this.allCarsNativeArray.IsCreated)
-            {
-                this.allCarsNativeArray.Dispose();
-            }
-
         }
 
 		public Car GetCarAtScreenPosition(Vector3 screenPosition, float radius){
@@ -814,8 +808,6 @@ namespace HighwayRacers
 
         
         private List<Car> allCarsList = new List<Car>();
-        private Unity.Collections.NativeArray<CarStateStruct> allCarsNativeArray;
-        private Unity.Collections.NativeArray<HighwayPiece.HighwayPieceState> allPiecesNativeArray;
 
         private void OnDisable()
         {
