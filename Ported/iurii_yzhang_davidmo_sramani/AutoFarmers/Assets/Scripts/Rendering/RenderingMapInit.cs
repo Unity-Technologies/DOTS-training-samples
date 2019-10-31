@@ -34,6 +34,8 @@ public class RenderingMapInit : JobComponentSystem
     public Entity groundEntityPrefab;
     public Entity stoneEntityPrefab;
     public Entity plantEntityPrefab;
+    public Entity farmerEntityPrefab;
+    public Entity droneEntityPrefab;
 
     public void CreatePrefabEntity()
     {
@@ -41,6 +43,12 @@ public class RenderingMapInit : JobComponentSystem
         
         Assert.IsNotNull(ru);
         
+        farmerEntityPrefab = ru.CreateFarmer(EntityManager);
+        Assert.IsTrue(farmerEntityPrefab != Entity.Null);
+
+        droneEntityPrefab = ru.CreateDrone(EntityManager);
+        Assert.IsTrue(droneEntityPrefab != Entity.Null);
+
         groundEntityPrefab = ru.CreateGround(EntityManager);
         stoneEntityPrefab = ru.CreateStone(EntityManager);
         plantEntityPrefab = ru.CreatePlant(EntityManager);

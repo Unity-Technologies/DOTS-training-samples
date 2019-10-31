@@ -41,16 +41,27 @@ public class RenderingUnity : MonoBehaviour
 
     public Entity CreateDrone(EntityManager em)
     {
-        var atype = em.CreateArchetype(typeof(Translation),
-            typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh), typeof(RenderingAnimationComponent),
-            typeof(RenderingAnimationDroneFlyComponent));
+        var atype = em.CreateArchetype(
+            typeof(Translation),
+            typeof(NonUniformScale), 
+            typeof(LocalToWorld), 
+            typeof(RenderMesh), 
+            typeof(RenderingAnimationComponent),
+            typeof(RenderingAnimationDroneFlyComponent),
+            typeof(AITagTaskNone));
         return Create(em, drone, atype);
     }
     
     public Entity CreateFarmer(EntityManager em)
     {
-        var atype = em.CreateArchetype(typeof(Translation),
-            typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh), typeof(RenderingAnimationComponent));
+        var atype = em.CreateArchetype(
+            typeof(Translation),
+            typeof(NonUniformScale), 
+            typeof(LocalToWorld), 
+            typeof(RenderMesh),
+            typeof(RenderingAnimationComponent),
+            typeof(FarmerAITag),
+            typeof(AITagTaskNone));
         return Create(em, farmer, atype);
     }
     
