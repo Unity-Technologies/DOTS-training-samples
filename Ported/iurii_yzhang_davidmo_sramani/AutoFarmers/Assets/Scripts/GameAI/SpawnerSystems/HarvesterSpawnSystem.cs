@@ -16,8 +16,9 @@ namespace GameAI
     public class HarvesterSpawnSystem : JobComponentSystem
     {
         // TODO: Remove hack for default archetype of new farmers once RenderingUnity.cs has been updated
-        private Entity defaultFarmerEntity;
-        private Entity defaultDroneEntity;
+        Entity defaultFarmerEntity;
+        Entity defaultDroneEntity;
+        int2 worldHalfSize;
 
         /// <summary>
         /// When this system is created, generate default Harvester Entities in which to spawn via the
@@ -29,6 +30,8 @@ namespace GameAI
             
             defaultFarmerEntity = initSys.farmerEntityPrefab;
             defaultDroneEntity = initSys.droneEntityPrefab;
+            
+            worldHalfSize = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSizeHalf;
         }
 
         /// <summary>
@@ -43,34 +46,53 @@ namespace GameAI
 
             var defaultFarmer = defaultFarmerEntity;
             var defaultDrone = defaultDroneEntity;
+
+            var worldHalfSizeLoc = worldHalfSize;
             
             // Spawn farmers
             var createFarmerJobHandle = Entities
                 .WithAll<SpawnFarmerTagComponent>()
-    //            .WithoutBurst()
-                .ForEach((int nativeThreadIndex, Entity e, in SpawnPointComponent spawnPointData) =>
+                // .WithoutBurst()
+                .ForEach((int nativeThreadIndex, in SpawnPointComponent spawnPointData) =>
                 {
                     var farmerEntity = ecb1.Instantiate(nativeThreadIndex, defaultFarmer);
-                    // TODO: Define what needs to be set on per entity basis, translate, scale? 
-                    ecb1.SetComponent<Translation>(
+                    var startWorldPosition = RenderingUnity.Tile2WorldPosition(spawnPointData.MapSpawnPosition, worldHalfSizeLoc);
+                    ecb1.SetComponent<RenderingAnimationComponent>(
                         nativeThreadIndex, 
                         farmerEntity, 
-                        new Translation{ Value = spawnPointData.SpawnPoint});
+                        new RenderingAnimationComponent { currentPosition = startWorldPosition.xz });
+                    ecb1.SetComponent<Translation>(
+                        nativeThreadIndex,
+                        farmerEntity,
+                        new Translation { Value = startWorldPosition });
+                    ecb1.SetComponent<TilePositionable>(
+                        nativeThreadIndex, 
+                        farmerEntity, 
+                        new TilePositionable { Position = spawnPointData.MapSpawnPosition });
                 }).Schedule(inputDependencies);
 
             // Spawn drones
             var ecb2 = ecbSystem.CreateCommandBuffer().ToConcurrent();
             var createDroneJobHandle = Entities
                 .WithAll<SpawnDroneTagComponent>()
-    //            .WithoutBurst()
+                // .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e, in SpawnPointComponent spawnPointData) =>
                     {
                         // TODO:
                         var droneEntity = ecb2.Instantiate(nativeThreadIndex, defaultDrone);
+                        var startWorldPosition = RenderingUnity.Tile2WorldPosition(spawnPointData.MapSpawnPosition, worldHalfSizeLoc);
+                        ecb2.SetComponent<RenderingAnimationComponent>(
+                            nativeThreadIndex,
+                            droneEntity,
+                            new RenderingAnimationComponent { currentPosition = startWorldPosition.xz });
                         ecb2.SetComponent<Translation>(
                             nativeThreadIndex, 
-                            defaultDrone, 
-                            new Translation{ Value = spawnPointData.SpawnPoint });
+                            droneEntity,
+                            new Translation { Value = startWorldPosition });
+                        ecb2.SetComponent<TilePositionable>(
+                            nativeThreadIndex, 
+                            droneEntity, 
+                            new TilePositionable { Position = spawnPointData.MapSpawnPosition });
                     }).Schedule(inputDependencies);
 
             ecbSystem.AddJobHandleForProducer(createFarmerJobHandle);

@@ -73,7 +73,7 @@ public class RenderingMapInit : JobComponentSystem
 
         var initialFarmerSpawnerEntity = EntityManager.CreateEntity(typeof(SpawnPointComponent), typeof(SpawnFarmerTagComponent), typeof(InitialSpawnerTagComponent));
         // TODO decide start position.
-        EntityManager.SetComponentData<SpawnPointComponent>(initialFarmerSpawnerEntity, new SpawnPointComponent { MapSpawnPosition = new int2 (1, 1) });
+        EntityManager.SetComponentData<SpawnPointComponent>(initialFarmerSpawnerEntity, new SpawnPointComponent { MapSpawnPosition = new int2 (80, 80) });
         
         m_executeOnce = GetEntityQuery(ComponentType.ReadOnly<ExecuteOnceTag>());
         RequireForUpdate(m_executeOnce);
