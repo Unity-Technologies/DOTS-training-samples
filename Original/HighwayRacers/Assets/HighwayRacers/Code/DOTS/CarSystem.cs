@@ -5,7 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 
 [AlwaysUpdateSystem]
-public class CarSystem : JobComponentSystem
+public partial class CarSystem : JobComponentSystem
 {
 #if ENABLE_TEST
     bool firstTime = true;
@@ -42,10 +42,19 @@ public class CarSystem : JobComponentSystem
         }
 #endif
 
+        var deltaTime = UnityEngine.Time.deltaTime;
+        if (deltaTime == 0) // possible when the game is paused
+            return inputDeps;
+
         var queryStructure = new CarQueryStructure(carCount);
         inputDeps = queryStructure.Build(this, inputDeps, 250.0f);
 
-        // 3. Car logic {Entity, index, velocity, state }
+        inputDeps = new CarUpdateJob()
+        {
+            Dt = deltaTime,
+            QueryStructure = queryStructure,
+        }.Schedule(this, inputDeps);
+
         // 4. Compose the matrices for each mesh instance for correct rendering.
 
         // TODO: dispose the arrays on completing jobs.
