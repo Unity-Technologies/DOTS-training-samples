@@ -40,6 +40,7 @@ namespace HighwayRacers
             {
                 inst.PoseArray = new Matrix4x4[carData.Length];
                 inst.ColorArray = new Vector4[carData.Length];
+                inst.MatBlock = new MaterialPropertyBlock();
             }
             Matrix4x4[] carPoses = inst.PoseArray;
             for (var i=0; i<carData.Length; i++)

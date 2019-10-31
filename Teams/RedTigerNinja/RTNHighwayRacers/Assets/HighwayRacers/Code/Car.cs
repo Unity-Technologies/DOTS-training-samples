@@ -158,7 +158,7 @@ namespace HighwayRacers
         [Tooltip("Distance from center of car to the back.")]
         public const float distanceToBack = 1;
 
-        public static Color defaultColor = Color.gray;
+        public static Color defaultColor = Color.white;
         public static Color maxSpeedColor = Color.green;
         public static Color minSpeedColor = Color.red;
     }
