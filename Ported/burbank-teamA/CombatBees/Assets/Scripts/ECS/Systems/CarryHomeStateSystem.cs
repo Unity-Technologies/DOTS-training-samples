@@ -4,7 +4,6 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[DisableAutoCreation]
 public class CarryHomeStateSystem : JobComponentSystem
 {
     EntityQuery hivesQuery;
@@ -23,39 +22,44 @@ public class CarryHomeStateSystem : JobComponentSystem
         var dropDistance = GetSingleton<DropDistance>().Value;
         var carryHomeVelocity = GetSingleton<CarryHomeVelocity>().Value;
         
-        var translation = GetComponentDataFromEntity<Translation>(true);
-        var team = GetComponentDataFromEntity<Team>(true);
+        var translations = GetComponentDataFromEntity<Translation>(true);
+        var teams = GetComponentDataFromEntity<Team>(true);
         
         var hives = hivesQuery.ToEntityArray(Allocator.TempJob);
 
-        var handle = Entities/*.WithReadOnly(translation).WithDeallocateOnJobCompletion(hives)*/.ForEach(
-            (Entity entity, ref TargetVelocity targetVelocity, ref State state, ref TargetEntity targetEntity) =>
+        var handle = Entities
+            .WithReadOnly(translations)
+            .WithReadOnly(teams)
+            .WithDeallocateOnJobCompletion(hives)
+            .ForEach(
+            (Entity entity, ref TargetVelocity targetVelocity, ref State state, ref TargetEntity targetEntity, ref CollectedEntity collected, in Team team) =>
             {
                 if (state.Value != State.StateType.Dropping) return;
 
                 targetVelocity.Value = carryHomeVelocity;
-
-
-                //var translationll = translation[entity];
-                /*targetVelocity.Value = collectVelocity;
-
-                var targetTranslation = translationContainer[targetEntity.Value];
-                var distance = math.distance(translation.Value, targetTranslation.Value);
-
-                if (distance <= collectDistance)
+                
+                for (var i = 0; i < hives.Length; i++)
                 {
-                    commonBuffer.AddComponent(0, targetEntity.Value, new Parent
-                    {
-                        Value = entity
-                    });
-                    
-                    commonBuffer.AddComponent<LocalToParent>(0, targetEntity.Value);
-
-                    state.Value = State.StateType.Dropping;
-                }*/
-
+                    var hive = hives[i];
+                    var hiveTeam = teams[hive];
+                    if (hiveTeam.Value == team.Value)
+                        targetEntity.Value = hive;
+                }
+                
+                var myTranslation = translations[entity]; 
+                var targetTranslation = translations[targetEntity.Value];
+                var distance = math.distance(myTranslation.Value, targetTranslation.Value);
+                if (distance > dropDistance) return;
+                
+                commonBuffer.RemoveComponent<LocalToParent>(0, collected.Value);
+                commonBuffer.RemoveComponent<Parent>(0, collected.Value);
+                commonBuffer.SetComponent(0, collected.Value, new GravityMultiplier {Value = 1});
+                commonBuffer.SetComponent(0, collected.Value, new Translation {Value = myTranslation.Value});
+                
+                state.Value = State.StateType.Idle;
+                collected.Value = Entity.Null;
+                
             }).Schedule(inputDependencies);
-        
         buffer.AddJobHandleForProducer(handle);
         return handle;
     }

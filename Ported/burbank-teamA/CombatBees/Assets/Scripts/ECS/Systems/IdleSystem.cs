@@ -34,17 +34,8 @@ public class IdleSystem : JobComponentSystem
         return Entities.WithoutBurst().WithDeallocateOnJobCompletion(resources)
                 .WithDeallocateOnJobCompletion(enemyT1)
                 .WithDeallocateOnJobCompletion(enemyT2)
-            .ForEach((Entity entity, Velocity velocity, ref State state, ref TargetEntity targetEntity, in Translation translation, in Team team) =>
+            .ForEach((ref Velocity velocity, ref State state, ref TargetEntity targetEntity,in Team team) =>
             {
-                /*float min;
-                var trans = translationContainer[entity];
-                Debug.Log(trans.Value + "This is TRANS");
-                for (var i = 0; i < enemy.Length; i++)
-                {
-                    distance(translation.Value, trans.Value);
-                    //min = 
-                }
-                */
 
                 if (state.Value == State.StateType.Idle)
                 {

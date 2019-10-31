@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public class AttackingStateSystem : JobComponentSystem
 {
@@ -23,16 +24,17 @@ public class AttackingStateSystem : JobComponentSystem
         var attackVelocity = GetSingleton<AttackVelocity>().Value;
 
         var translationContainer = GetComponentDataFromEntity<Translation>(true);
-       // var stateContainer = GetComponentDataFromEntity<State>(false);
+        //var stateContainer = GetComponentDataFromEntity<State>(true);
         var commonBuffer = buffer.CreateCommandBuffer().ToConcurrent();
 
-        var handle = Entities.WithReadOnly(translationContainer).ForEach((Entity entity, ref TargetVelocity targetVelocity, in TargetEntity targetEntity, in State state) =>
+        var handle = Entities.WithBurst().WithReadOnly(translationContainer).ForEach((Entity entity, ref TargetEntity targetEntity, ref TargetVelocity targetVelocity, ref State state) =>
         {
             
 
             if (state.Value == State.StateType.Attacking)
         {
-              
+                if (!translationContainer.Exists(targetEntity.Value)) return;
+
                 var translation = translationContainer[entity];
                 var targetTranslation = translationContainer[targetEntity.Value];
                 targetVelocity.Value = attackVelocity;
@@ -41,11 +43,15 @@ public class AttackingStateSystem : JobComponentSystem
 
                 if (distance <= (attackDistance * 0.1f))
                 {
+
+                    state.Value = State.StateType.Idle;
+
                     commonBuffer.SetComponent(0, targetEntity.Value, new State
                     {
                         Value = State.StateType.Dead
                     });
 
+                    //targetEntity.Value = Entity.Null;
                 }
 
             }
