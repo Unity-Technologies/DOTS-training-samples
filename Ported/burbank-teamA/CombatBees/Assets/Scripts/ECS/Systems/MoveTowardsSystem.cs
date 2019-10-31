@@ -16,7 +16,7 @@ public class MoveTowardsSystem : JobComponentSystem
                 var translation = translationContainer[entity];
                 var targetTranslation = translationContainer[targetEntity.Value];
                 var directionTowards = math.normalize(targetTranslation.Value - translation.Value);
-                var desiredVelocity = directionTowards * targetVelocity.Value * math.max(0.25f,1+noise.cnoise(velocity.Value)); //TODO: discuss with the team
+                var desiredVelocity = directionTowards * targetVelocity.Value /* math.max(0.25f,1+noise.cnoise(velocity.Value))*/; //TODO: discuss with the team
                 velocity.Value = math.lerp(velocity.Value, desiredVelocity, 0.5f);
             })
             .Schedule(inputDependencies);
