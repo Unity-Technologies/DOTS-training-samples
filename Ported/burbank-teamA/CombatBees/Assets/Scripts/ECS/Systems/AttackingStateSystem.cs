@@ -32,7 +32,8 @@ public class AttackingStateSystem : JobComponentSystem
 
             if (state.Value == State.StateType.Attacking)
         {
-              
+                if (!translationContainer.Exists(targetEntity.Value)) return;
+
                 var translation = translationContainer[entity];
                 var targetTranslation = translationContainer[targetEntity.Value];
                 targetVelocity.Value = attackVelocity;
