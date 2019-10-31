@@ -23,6 +23,7 @@ namespace GameAI
         public int2 WorldSize = new int2(100, 100);
         public int2 WorldSizeHalf => WorldSize / 2;
 
+        public NativeArray<int> scoreArray;  // store in scoreArray[0]
         
         struct ExecuteOnceTag : IComponentData {}
         private EntityQuery m_executeOnce;
@@ -31,7 +32,8 @@ namespace GameAI
         
         private EntityArchetype m_tile;
         private EntityArchetype m_plant;
-        private EntityArchetype m_stone;
+        private EntityArchetype m_store;
+        private EntityArchetype m_score;    // singleton
         private EntityArchetype m_shop;
 
         public NativeHashMap<int2, Entity> hashMap;
@@ -45,17 +47,16 @@ namespace GameAI
 
             m_tile = EntityManager.CreateArchetype(typeof(TilePositionRequest));
             m_plant = EntityManager.CreateArchetype(typeof(PlantPositionRequest));
+
+            m_store = EntityManager.CreateArchetype(typeof(StonePositionRequest));
+            scoreArray = new NativeArray<int>(128, Allocator.Persistent);
+
             m_stone = EntityManager.CreateArchetype(typeof(StonePositionRequest));
             m_shop = EntityManager.CreateArchetype(typeof(ShopPositionRequest));
             
             hashMap = new NativeHashMap<int2, Entity>(1024, Allocator.Persistent);
         }
-
-        protected override void OnDestroy()
-        {
-            hashMap.Dispose();
-        }
-
+        
         protected override void OnUpdate()
         {
             Profiler.BeginSample("World Creation");
@@ -157,6 +158,13 @@ namespace GameAI
                 var e = mManager.CreateEntity();
                 mManager.AddComponent<ExecuteOnceTag>(e);
             }
+        }
+
+        protected override void OnDestroy()
+        {
+            scoreArray.Dispose();
+            hashMap.Dispose();
+            base.OnDestroy();
         }
     }
 }
