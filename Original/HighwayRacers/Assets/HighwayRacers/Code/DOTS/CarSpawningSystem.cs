@@ -35,8 +35,7 @@ public class CarSpawningSystem : ComponentSystem
                                 typeof(CarLogicState)
                             );
             var carStaticComponentTypes = new ComponentTypes(
-                                typeof(CarReadOnlyProperties),
-                                typeof(CarOvertakeStaticProperties)
+                                typeof(CarReadOnlyProperties)
                             );
             // Instantiate with the prefab and add all the components.
             for (int i = 0; i < carSpawnCount; ++i)
@@ -55,19 +54,14 @@ public class CarSpawningSystem : ComponentSystem
             for (int i = 0; i < carSpawnCount; ++i)
             {
                 CarReadOnlyProperties crop;
-                CarOvertakeStaticProperties cosp;
 
                 crop.DefaultSpeed = RandomInRange(ref random, spawner.defaultSpeedMin, spawner.defaultSpeedMax);
                 crop.MaxSpeed = RandomInRange(ref random, spawner.overtakeSpeedMin, spawner.overtakeSpeedMax);
-                crop.LaneCrossingSpeed = spawner.laneSwitchSpeed;
                 crop.MergeDistance = RandomInRange(ref random, spawner.mergeLeftDistanceMin, spawner.mergeLeftDistanceMax);
                 crop.MergeSpace = RandomInRange(ref random, spawner.mergeSpaceMin, spawner.mergeSpaceMax);
-
-                cosp.OvertakeMaxTime = spawner.maxOvertakeTime;
-                cosp.OvertakeEagerness = RandomInRange(ref random, spawner.overtakeEagernessMin, spawner.overtakeEagernessMax);
+                crop.OvertakeEagerness = RandomInRange(ref random, spawner.overtakeEagernessMin, spawner.overtakeEagernessMax);
 
                 EntityManager.SetComponentData(entities[i], crop);
-                EntityManager.SetComponentData(entities[i], cosp);
 
                 CarBasicState cbs;
                 CarLogicState cls;
@@ -78,7 +72,8 @@ public class CarSpawningSystem : ComponentSystem
 
                 cls.State = VehicleState.NORMAL;
                 cls.TargetLane = cbs.Lane;
-                cls.TargetSpeed = crop.DefaultSpeed;
+                cls.OvertakingCarIndex = -1;
+                cls.OvertakeRemainingTime = 0.0f;
 
                 EntityManager.SetComponentData(entities[i], cls);
                 EntityManager.SetComponentData(entities[i], cbs);

@@ -13,13 +13,7 @@ public enum VehicleState
 public struct CarLogicState : IComponentData
 {
     public VehicleState State;
-    public float TargetSpeed;
     public float TargetLane;
-}
-
-[Serializable]
-public struct CarOvertakeStaticProperties : IComponentData
-{
-    public float OvertakeEagerness;
-    public float OvertakeMaxTime;
+    public int OvertakingCarIndex;
+    public float OvertakeRemainingTime;
 }

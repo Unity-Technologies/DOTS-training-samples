@@ -70,10 +70,10 @@ public partial class CarSystem : JobComponentSystem
         {
             Dt = deltaTime,
 
-            HighwayLen = highway.highwayLength,
             Acceleration = spawnProperties.acceleration,
             BrakeDeceleration = spawnProperties.brakeDeceleration,
             LaneSwitchSpeed = spawnProperties.laneSwitchSpeed,
+            MaxOvertakeTime = spawnProperties.maxOvertakeTime,
 
             QueryStructure = queryStructure,
         }.Schedule(this, inputDeps);

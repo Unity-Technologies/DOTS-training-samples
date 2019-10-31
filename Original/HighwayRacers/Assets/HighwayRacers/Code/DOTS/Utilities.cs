@@ -2,6 +2,9 @@
 
 public static class Utilities
 {
+    public static bool IsMerging(this VehicleState state)
+        => state == VehicleState.MERGE_LEFT || state == VehicleState.MERGE_RIGHT;
+
     public static float StraightPieceLength(float lane0Length)
         => (lane0Length - HighwayRacers.Highway.CURVE_LANE0_RADIUS * 4) / 4;
 
@@ -76,5 +79,11 @@ public static class Utilities
         // 7 - curve
         UnityEngine.Debug.Assert(position <= curvePieceLen);
         return otherPos + position / curvePieceLen * otherCurvePieceLen;
+    }
+
+    // Returns the positive distance, wrapped in [0, length), from distance1 (in lane1) to distance2 (in lane2) in lane 1.
+    public static float DistanceTo(float position1, float lane1, float position2, float lane2, float lane0Length)
+    {
+        return WrapPositionToLane(ConvertPositionToLane(position2, lane2, lane1, lane0Length) - position1, lane1, lane0Length);
     }
 }

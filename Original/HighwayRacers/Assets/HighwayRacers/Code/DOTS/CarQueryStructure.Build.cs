@@ -79,7 +79,7 @@ partial struct CarQueryStructure
         [ReadOnly] public NativeArray<CarIndexAndState> LaneCars;
         [ReadOnly] public NativeArray<int> LaneCarCounts;
 
-        public NativeArray<int2> SortIndices;
+        public NativeArray<CarLaneIndices> LaneIndices;
 
         public void Execute()
         {
@@ -91,9 +91,14 @@ partial struct CarQueryStructure
                     var arrayIndex = laneArray[i].EntityArrayIndex;
                     var carLane = laneArray[i].State.Lane;
                     UnityEngine.Debug.Assert(math.abs(carLane - lane) < 1);
-                    var e = SortIndices[arrayIndex];
+                    var e = LaneIndices[arrayIndex];
+                    e.Lane = carLane;
+                    if (lane <= carLane)
+                        e.Lane1Index = i;
+                    if (lane >= carLane)
+                        e.Lane2Index = i;
                     // TODO: different lanes always writes to the different float2 component. Potentially jobifiable.
-                    SortIndices[arrayIndex] = math.int2(lane <= carLane ? i : e.x, lane >= carLane ? i : e.y);
+                    LaneIndices[arrayIndex] = e;
                 }
             }
         }
@@ -128,7 +133,7 @@ partial struct CarQueryStructure
             LaneCarCounts = LaneCarCounts,
             LaneCars = LaneCars,
 
-            SortIndices = OrderedCarLaneIndices,
+            LaneIndices = OrderedCarLaneIndices,
         }.Schedule(dependency);
     }
 }
