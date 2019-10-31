@@ -94,7 +94,7 @@ public struct Board : IDisposable
 
     public static int2 ConvertWorldToTileCoordinates(float3 position)
     {
-        return new int2((int)(position.x + 0.5f), (int)(position.z + 0.5f));
+        return new int2((int)math.round(position.x), (int)math.round(position.z));
     }
 
     public void Init()
