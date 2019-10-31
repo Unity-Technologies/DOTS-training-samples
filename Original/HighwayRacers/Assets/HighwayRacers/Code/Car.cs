@@ -164,7 +164,6 @@ namespace HighwayRacers
 
         }
 
-
         private void Update()
         {
 			float dt = Time.deltaTime;

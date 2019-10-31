@@ -8,12 +8,13 @@ partial class CarSystem
     private struct CarUpdateJob : IJobForEachWithEntity<CarBasicState>
     {
         public float Dt;
+        public float HighwayLen;
 
         [ReadOnly] public CarQueryStructure QueryStructure;
 
         public void Execute(Entity entity, int index, [ReadOnly] ref CarBasicState carBasicState)
         {
-            bool hasCarInFront = QueryStructure.GetCarInFront(index, carBasicState.Lane, 250.0f, out var carInFront);
+            bool hasCarInFront = QueryStructure.GetCarInFront(index, carBasicState.Lane, HighwayLen, out var carInFront);
         }
     }
 }
