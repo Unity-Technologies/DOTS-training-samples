@@ -1,10 +1,8 @@
-﻿using System.Reflection;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Jobs;
-using UnityEngine;
 using Unity.Burst;
 using Unity.Collections;
-using Unity.Transforms;
+using Unity.Mathematics;
 
 public class ActorGetGoalSystem : JobComponentSystem
 {
@@ -29,27 +27,7 @@ public class ActorGetGoalSystem : JobComponentSystem
             //If we have no goalPosition we need to find another one
             if (actor.targetPosition.x < 0.0f || actor.targetPosition.y < 0.0f)
             {
-                Vector2 closestIntention = Vector2.one * -1;
-                float currentDistance = -1.0f;
-
-                /*for (int i = 0; i < 512 * 512; i++) //hardcoded for now but need to change that!
-                {
-                    if (internalBuffer[i].Value == (int)intention.intention)
-                    {
-                        var distanceTemp = Vector2.Distance(pos.position, new Vector2(i % 512, i / 512.0f));
-                        
-                        //If currentDistance not set yet
-                        if (currentDistance <= -1.0f)
-                        {
-                            currentDistance = distanceTemp;
-                        }
-                        //If the new distance is closest than the old one
-                        if (currentDistance > distanceTemp)
-                        {
-                            currentDistance = distanceTemp;
-                        }
-                    }
-                }*/
+                float2 closestIntention = new float2(-1,-1);
 
                 int DeltaMax = 5;
                 int Delta = 0;
@@ -76,7 +54,7 @@ public class ActorGetGoalSystem : JobComponentSystem
                                                                                  && internalBuffer[i + (j * 512)].GetPlantHealth() >= 75))
 
                             {
-                                closestIntention = new Vector2(i, y);
+                                closestIntention = new float2(i, y);
                                 done = true;
                             }
                         }
@@ -92,7 +70,7 @@ public class ActorGetGoalSystem : JobComponentSystem
                     }
                 }
 
-                if (closestIntention == Vector2.one * -1)
+                if (closestIntention.x < 0 && closestIntention.y < 0)
                 {
                     intention.intention += 1;
                 }
@@ -120,82 +98,4 @@ public class ActorGetGoalSystem : JobComponentSystem
 
         return job.Schedule(this, inputDependencies);
     }
-
-    /* protected override JobHandle OnUpdate(JobHandle inputDependencies)
-     {
-        
-         float dt = Time.deltaTime;
-        
-         
-         var job1Handle = Entities
-             .ForEach((ref GoalPositionComponent goalposition, in PositionComponent position, in DotsIntentionComponent intention) =>
-             {
-                 //If we have no goalPosition we need to find another one
-                     if (goalposition.position == Vector2.one * -1)
-                 {
-                     var entityIndex = 0;
-                     var gridIndex = 0;
-                     
-                         for (int i = gridIndex; i < 512 * 512; i++) //hardcoded for now but need to change that!
-                     {
-                         if (buffer[i].Value == (int)intention.intention)
-                         {
-                             //check la distance, a la fin on prend le plus pres? si yen n'a pas on change d'intention!
-                             var x = i % 512;
-                             var y = i / 512;
-                         
-                             entityIndex++;
-                             gridIndex = i;
-                             goalposition.position = new Vector2(x, y);
-                             break;
-                         }
-                     }
-                 
-                 }
-             })
-             .Schedule(inputDependencies);
- 
-         // Return job's handle as the dependency for this system
-         return job1Handle;
-     }*/
-
-
-    /*struct SearchGoalPositionJob : IJobForEachWithEntity_EBCCC<GridTile, GridComponent, GoalPositionComponent, DotsIntentionComponent>
-   { 
-
-       public void Execute(Entity entity, int index, DynamicBuffer<GridTile> gridTileBuffer,
-           ref GoalPositionComponent goalPosition, ref DotsIntentionComponent intention, ref GridComponent gridComponent)
-       {
-           var entityIndex = 0;
-           var gridIndex = 0;
-
-           //If we have no goalPosition we need to find another one
-           if (goalPosition.position == new Vector2(-1.0f, -1.0f))
-           {
-               
-               
-           }
-          while (resourcesComponent.MoneyForFarmers >= 10)
-           {
-               for (int i = gridIndex; i < gridComponent.Size * gridComponent.Size; i++)
-               {
-                   if (gridTileBuffer[i].IsShop())
-                   {
-                       var x = i % gridComponent.Size;
-                       var y = i / gridComponent.Size;
-                       
-                       resourcesComponent.MoneyForFarmers -= 10;
-                       entityIndex++;
-                       gridIndex = i;
-                       break;
-                   }
-               }
-
-               if (gridIndex == (gridComponent.Size * gridComponent.Size) - 1)
-               {
-                   gridIndex = 0;
-               }
-           }
-       }
-   }*/
 }
