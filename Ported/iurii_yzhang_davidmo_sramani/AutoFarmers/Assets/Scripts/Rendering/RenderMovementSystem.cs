@@ -35,12 +35,13 @@ namespace GameAI
                     var endPos = RenderingUnity.Tile2WorldPosition(hasTargetComponent.TargetPosition, worldHalfSizeLoc);
                     animationComponent.targetPosition = RenderingUnity.Tile2WorldPosition(hasTargetComponent.TargetPosition, worldHalfSizeLoc).xz;
                     animationComponent.currentPosition += (normalizesafe(endPos.xz - animationComponent.currentPosition) * speedComponent.speedInMeters * deltaT);
-                    translationComponent.Value.xz = animationComponent.currentPosition;
                     if (lengthsq(endPos.xz - animationComponent.currentPosition) < 0.5)
                     {
                         // Add Animation Complete Tag
                         ecb.AddComponent<AnimationCompleteTag>(nativeThreadIndex, e);
+                        animationComponent.currentPosition = endPos.xz;
                     }
+                    translationComponent.Value.xz = animationComponent.currentPosition;
                 }).Schedule(inputDependencies);
             
             ecbSystem.AddJobHandleForProducer(movementSystemJobHandle);
