@@ -78,7 +78,6 @@ namespace GameAI
                 // .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e, in SpawnPointComponent spawnPointData) =>
                     {
-                        // TODO:
                         var droneEntity = ecb2.Instantiate(nativeThreadIndex, defaultDrone);
                         var startWorldPosition = RenderingUnity.Tile2WorldPosition(spawnPointData.MapSpawnPosition, worldHalfSizeLoc);
                         ecb2.SetComponent<RenderingAnimationComponent>(

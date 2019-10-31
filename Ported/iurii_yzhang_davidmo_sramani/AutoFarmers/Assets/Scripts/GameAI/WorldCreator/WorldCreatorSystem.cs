@@ -109,6 +109,19 @@ namespace GameAI
                 }
             }
 
+            for (;;)
+            {
+                var p = new int2(rnd.NextInt(WorldSize.x), rnd.NextInt(WorldSize.y));
+                if (hashPos.Contains(p) == false)
+                {
+                    var initialFarmerSpawnerEntity = EntityManager.CreateEntity(typeof(SpawnPointComponent), typeof(SpawnFarmerTagComponent), typeof(InitialSpawnerTagComponent));
+                    EntityManager.SetComponentData<SpawnPointComponent>(initialFarmerSpawnerEntity, new SpawnPointComponent {MapSpawnPosition = p});
+                    break;
+                }
+            }
+
+            World.GetOrCreateSystem<PathfindingSystem>().PlantOrStoneChanged();
+
             Profiler.EndSample();
         }
 
