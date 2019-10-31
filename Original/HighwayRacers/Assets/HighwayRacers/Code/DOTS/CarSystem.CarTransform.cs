@@ -11,10 +11,10 @@ partial class CarSystem
     private struct CarTransformJob : IJobForEachWithEntity<CarBasicState, LocalToWorld>
     {
         public float HighwayLen;
-        [DeallocateOnJobCompletion] public NativeArray<HighwayPieceProperties> pieces;
-        [DeallocateOnJobCompletion] public NativeArray<LocalToWorld> xforms;
+        [DeallocateOnJobCompletion][ReadOnly] public NativeArray<HighwayPieceProperties> pieces;
+        [DeallocateOnJobCompletion][ReadOnly] public NativeArray<LocalToWorld> xforms;
 
-        public void Execute(Entity entity, int index, ref CarBasicState carBasicState, ref LocalToWorld localToWorld)
+        public void Execute(Entity entity, int index, [ReadOnly] ref CarBasicState carBasicState, ref LocalToWorld localToWorld)
         {
             float localX, localZ, localRot;
             int hitPiece = HighwayMathUtils.RoadPosToRelativePos(ref pieces,
@@ -26,7 +26,9 @@ partial class CarSystem
 
             float3 localPos = new float3(localX, localToWorld.Position.y, localZ);
             float3 piecePos = xforms[hitPiece].Position;
-            localToWorld.Value = float4x4.Translate(localPos + piecePos);
+            localToWorld.Value = float4x4.TRS(localPos + piecePos,
+                                        quaternion.RotateY(localRot),
+                                        new float3(1, 1, 1));
         }
     }
 }
