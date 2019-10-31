@@ -40,6 +40,11 @@ public struct GridTile : IBufferElementData
         return Value < 0 || ((Value >= 4) && (Value % 2 == 0));
     }
 
+    public bool IsRockOrigin()
+    {
+        return ((Value >= 4) && (Value % 2 == 0));
+    }
+
     public bool IsPlant()
     {
         return (Value >= 3) && (Value % 2 == 1);
@@ -74,12 +79,12 @@ public struct GridTile : IBufferElementData
 
     public int GetRockHealth()
     {
-        return (Value - 4) / 2;
+        return (Value - 2) / 2;
     }
 
     public void SetRockHealth(int health)
     {
-        Value = 4 + health * 2;
+        Value = health == 0 ? 0 : (2 + health * 2);
     }
 
     public int GetPlantHealth()

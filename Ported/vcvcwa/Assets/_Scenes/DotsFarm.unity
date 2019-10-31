@@ -786,5 +786,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3883027576494077151, guid: 34a1b1c111a539d4994f008e009400c8,
         type: 3}
+    - target: {fileID: 720607855, guid: ea3edde80fd22864ba63408659bb521a, type: 3}
+      propertyPath: rockPrefab
+      value: 
+      objectReference: {fileID: 140047980342164398, guid: 434cad958adb0b24ebe633f1f026edb4,
+        type: 3}
+    - target: {fileID: 720607855, guid: ea3edde80fd22864ba63408659bb521a, type: 3}
+      propertyPath: TileSize
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ea3edde80fd22864ba63408659bb521a, type: 3}

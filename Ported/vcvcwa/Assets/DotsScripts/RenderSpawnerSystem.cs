@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -20,13 +21,13 @@ public class RenderSpawnerSystem : JobComponentSystem
     // between recording the commands and instantiating the entities, but in practice this is usually not noticeable.
     //
     BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
+    private EntityQuery spawnerQuery;
+
     
     private EntityQuery gridQuery;
     private DynamicBuffer<GridTile> grid;
     private int gridSize;
-
-    private EntityQuery spawnerQuery;
-
+    
     protected override void OnCreate()
     {
         // Cache the BeginInitializationEntityCommandBufferSystem in a field, so we don't have to create it every frame
@@ -78,13 +79,32 @@ public class RenderSpawnerSystem : JobComponentSystem
                         {
                             var gridElement = Grid[gridIndex];
 
+                            position.y += 1.0f;
+                            
                             if (gridElement.IsShop())
                             {
                                 var shopInstance = CommandBuffer.Instantiate(chunkIndex, spawner.shopPrefab);
-                                position.y += 1.0f;
                                 CommandBuffer.AddComponent<TileRenderer>(chunkIndex, shopInstance);
                                 CommandBuffer.SetComponent(chunkIndex, shopInstance, new Translation {Value = position});
                                 CommandBuffer.SetComponent(chunkIndex, shopInstance, new TileRenderer {tile = new int2(i, j)});
+                            }
+                            
+                            if (gridElement.IsRockOrigin())
+                            {
+                                var rockInstance = CommandBuffer.Instantiate(chunkIndex, spawner.rockPrefab);
+                                CommandBuffer.AddComponent<TileRenderer>(chunkIndex, rockInstance);
+                                CommandBuffer.AddComponent<NonUniformScale>(chunkIndex, rockInstance);
+                                CommandBuffer.AddComponent<ScaledRenderer>(chunkIndex, rockInstance);
+                                CommandBuffer.SetComponent(chunkIndex, rockInstance, new Translation {Value = position});
+                                CommandBuffer.SetComponent(chunkIndex, rockInstance, new TileRenderer {tile = new int2(i, j)});
+                                CommandBuffer.SetComponent(chunkIndex, rockInstance, new ScaledRenderer
+                                {
+                                    Max = 25,
+                                    XZScaleAtZero = 0.25f,
+                                    XZScaleAtMax = 4.75f,
+                                    YScaleAtZero = 1.0f,
+                                    YScaleAtMax = 1.0f,
+                                });
                             }
                         }
                             
@@ -101,6 +121,11 @@ public class RenderSpawnerSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
+        if (spawnerQuery.CalculateEntityCount() <= 0)
+        {
+            return inputDependencies;
+        }
+        
         // Bug - dynamic buffers get blown away by the entity debugger - Daniel
         //if (!grid.IsCreated)
         {
@@ -112,7 +137,6 @@ public class RenderSpawnerSystem : JobComponentSystem
 
             Assert.IsTrue(grid.IsCreated);
         }
-
 
         var job = new SpawnJob()
         {
