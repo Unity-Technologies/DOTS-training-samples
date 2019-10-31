@@ -74,13 +74,19 @@ public class ParticleSys : JobComponentSystem
             }
         }
     }
-
+    
+    public Vector3 tornadoCenter;
+    
     // OnUpdate runs on the main thread.
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         var entity = tornadoQuery.ToEntityArray(Allocator.TempJob);
         var tornado = World.Active.EntityManager.GetComponentData<TornadoSpawner>(entity[0]);
         var translation = World.Active.EntityManager.GetComponentData<TornadoPosition>(entity[0]);
+
+        // Set the tornado center from where so that we don't have to query twice per frame
+        tornadoCenter = translation.position;
+        
         entity.Dispose();
         
         var job = new RotationSpeedJob

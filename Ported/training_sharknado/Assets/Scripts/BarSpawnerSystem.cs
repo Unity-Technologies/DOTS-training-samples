@@ -157,8 +157,8 @@ public class BarSpawnerSystem : JobComponentSystem
 
                         var instance = CommandBuffer.Instantiate( jobIndex, spawner.prefab);
                         CommandBuffer.RemoveComponent( jobIndex, instance, typeof( Scale ) );
-                        CommandBuffer.AddComponent( jobIndex, instance, typeof( NonUniformScale ) );
-                        CommandBuffer.SetComponent( jobIndex, instance, new NonUniformScale { Value = new float3( .1f, .1f, barlength.value ) } );
+                        // CommandBuffer.AddComponent( jobIndex, instance, typeof( NonUniformScale ) );
+                        // CommandBuffer.SetComponent( jobIndex, instance, new NonUniformScale { Value = new float3( .3f, .3f, barlength.value ) } );
                         // CommandBuffer.SetComponent( jobIndex, instance, new Translation { Value = ( points[i] + points[j] ) / 2 });
                         // CommandBuffer.SetComponent( jobIndex, instance, new Rotation { Value = rot } );
                         
