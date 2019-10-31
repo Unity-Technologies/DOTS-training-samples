@@ -50,7 +50,7 @@ public struct HighwayMathUtils
             {
                 localX = HighwayConstants.LANE_SPACING * ((HighwayConstants.NUM_LANES - 1) / 2f - laneNum);
                 localZ = distInLane - pieceStartDistance;
-                rotation = pieces[i].startRotation;
+                rotation = 0;
             }
             else
             {
