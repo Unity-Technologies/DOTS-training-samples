@@ -30,8 +30,8 @@ public class SpawnSystem : JobComponentSystem
 
                        var instance = commandBuffer.Instantiate(0, spawner.Prefab);
                        commandBuffer.AddComponent(0, instance, new Translation() { Value = t.Value+ r.NextFloat3()*3.0f });
-                        commandBuffer.SetComponent(0, instance, new Velocity() { Value = r.NextFloat3() * spawner.Speed* r.NextFloat3() });
-                        
+                       commandBuffer.SetComponent(0, instance, new Velocity() { Value = r.NextFloat3() * spawner.Speed * r.NextFloat() });
+
                    }
 
                    commandBuffer.DestroyEntity(0, e);
