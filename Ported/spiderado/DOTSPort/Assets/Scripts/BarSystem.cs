@@ -1,42 +1,159 @@
-﻿using System.Collections.Generic;
-using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using static Unity.Mathematics.math;
 
 public struct ModifiedPoint {
     public BarPoint point;
     public Entity pointEntity;
+    public int isInitialized;
+}
+
+public struct NewPoint {
+    public BarPoint point;
+    public Bar bar;
+    public Entity barEntity;
+    public int isPoint1;
+    public int isInitialized;
 }
 
 public class BarSystem : JobComponentSystem
 {
-    protected override JobHandle OnUpdate(JobHandle inputDeps) {
-        var points = GetComponentDataFromEntity<BarPoint>(true);
-        var modifiedPointList = new NativeArray<ModifiedPoint>(3, Allocator.TempJob);
+    public static void CopyFromToPoint(BarPoint p1, BarPoint p2) {
+        p2.pos = p1.pos;
+        p2.oldPos = p1.oldPos;
+        p2.anchor = p1.anchor;
+        p2.neighborCount = p1.neighborCount;
+    }
 
-        var barJob = Entities.WithReadOnly(points).ForEach((int entityInQueryIndex, Entity e, ref Bar bar) => {
-            BarPoint modifiedPoint = new BarPoint { pos = new float3(1f, 1f, 1f) };
-            BarPoint modifiedPoint2 = new BarPoint { pos = new float3(2f, 2f, 2f) };
-            var modPoint = new ModifiedPoint { point = modifiedPoint, pointEntity = bar.point1 };
-            var modPoint2 = new ModifiedPoint { point = modifiedPoint2, pointEntity = bar.point2 };
-            modifiedPointList[entityInQueryIndex] = modPoint;
-            
-            Debug.Log(points);
+    protected override JobHandle OnUpdate(JobHandle inputDeps) {
+        int maxNumBars = 3;
+
+        var points = GetComponentDataFromEntity<BarPoint>(true);
+        var modifiedPointList = new NativeArray<ModifiedPoint>(maxNumBars, Allocator.TempJob);
+        var newPointList      = new NativeArray<NewPoint>(maxNumBars, Allocator.TempJob);
+        var breakResistance = 0.5f;
+
+        var barJob = Entities
+            .WithReadOnly(points)
+            .ForEach((int entityInQueryIndex, Entity e, ref Bar bar, ref LocalToWorld localToWorld, ref Translation position) => {
+
+                Debug.Log(points);
+                /*
+                BarPoint point1 = points[bar.point1];
+                BarPoint point2 = points[bar.point2];
+
+                float dx = point2.pos.x - point1.pos.x;
+                float dy = point2.pos.y - point1.pos.y;
+                float dz = point2.pos.z - point1.pos.z;
+
+                float dist = Mathf.Sqrt(dx * dx + dy * dy + dz * dz);
+                float extraDist = dist - bar.length;
+
+                float pushX = (dx / dist * extraDist) * .5f;
+                float pushY = (dy / dist * extraDist) * .5f;
+                float pushZ = (dz / dist * extraDist) * .5f;
+
+                if (point1.anchor == 0 && point2.anchor == 0) {
+                    point1.pos.x += pushX;
+                    point1.pos.y += pushY;
+                    point1.pos.z += pushZ;
+                    point2.pos.x -= pushX;
+                    point2.pos.y -= pushY;
+                    point2.pos.z -= pushZ;
+                } else if (point1.anchor == 1) {
+                    point2.pos.x -= pushX*2f;
+                    point2.pos.y -= pushY*2f;
+                    point2.pos.z -= pushZ*2f;
+                } else if (point2.anchor == 1) {
+                    point1.pos.x += pushX*2f;
+                    point1.pos.y += pushY*2f;
+                    point1.pos.z += pushZ*2f;
+                }
+
+                if (dx/dist * bar.oldPos.x + dy/dist*bar.oldPos.y + dz/dist*bar.oldPos.z <.99f) {
+                    // bar has rotated: expensive full-matrix computation
+                    localToWorld.Value = Matrix4x4.TRS(
+                        new Vector3(
+                            (point1.pos.x + point2.pos.x) * .5f,
+                            (point1.pos.y + point2.pos.y) * .5f,
+                            (point1.pos.z + point2.pos.z) * .5f),
+                        Quaternion.LookRotation(new Vector3(dx,dy,dz)),
+                        new Vector3(bar.thickness,bar.thickness,bar.length));
+                    bar.oldPos.x = dx / dist;
+                    bar.oldPos.y = dy / dist;
+                    bar.oldPos.z = dz / dist;
+                } else {
+                    // bar hasn't rotated: set Transform directly
+                    position.Value.x = (point1.pos.x + point2.pos.x) * .5f;
+                    position.Value.y = (point1.pos.y + point2.pos.y) * .5f;
+                    position.Value.z = (point1.pos.z + point2.pos.z) * .5f;
+                }
+
+                if (Mathf.Abs(extraDist) > breakResistance) {
+                    if (point2.neighborCount>1) {
+                        point2.neighborCount--;
+                        BarPoint newPoint = new BarPoint();
+                        CopyFromToPoint(point2, newPoint);
+                        newPoint.neighborCount = 1;
+                        newPointList[entityInQueryIndex] = new NewPoint {
+                            bar=bar,
+                            barEntity=e,
+                            isPoint1=0,
+                            point =newPoint,
+                            isInitialized = 1
+                        };
+                    } else if (point1.neighborCount>1) {
+                        point1.neighborCount--;
+                        BarPoint newPoint = new BarPoint();
+                        CopyFromToPoint(point1, newPoint);
+                        newPoint.neighborCount = 1;
+
+                        newPointList[entityInQueryIndex] = new NewPoint {
+                            bar=bar,
+                            barEntity=e,
+                            isPoint1=1,
+                            point=newPoint,
+                            isInitialized = 1
+                        };
+                    }
+                }
+
+                bar.minBounds.x = Mathf.Min(point1.pos.x,point2.pos.x);
+                bar.maxBounds.x = Mathf.Max(point1.pos.x,point2.pos.x);
+                bar.minBounds.y = Mathf.Min(point1.pos.y,point2.pos.y);
+                bar.maxBounds.y = Mathf.Max(point1.pos.y,point2.pos.y);
+                bar.minBounds.z = Mathf.Min(point1.pos.z,point2.pos.z);
+                bar.maxBounds.z = Mathf.Max(point1.pos.z,point2.pos.z);
+                */
         }).Schedule(inputDeps);
 
         barJob.Complete();
         // Job done!
+
         for (int i = 0; i < modifiedPointList.Length; i++) {
+            if (modifiedPointList[i].isInitialized == 0)
+                continue;
             var modifiedPoint = modifiedPointList[i];
             EntityManager.SetComponentData(modifiedPoint.pointEntity, modifiedPoint.point);
         }
 
+        for (int i = 0; i < newPointList.Length; i++) {
+            if (newPointList[i].isInitialized == 0)
+                continue;
+            Entity pointEntity = EntityManager.CreateEntity();
+            EntityManager.AddComponentData(pointEntity, newPointList[i].point);
+            Bar bar = newPointList[i].bar;
+            if (newPointList[i].isPoint1 == 1)
+                bar.point1 = pointEntity;
+            else
+                bar.point2 = pointEntity;
+            EntityManager.SetComponentData(newPointList[i].barEntity, bar);
+        }
+
         modifiedPointList.Dispose();
+        newPointList.Dispose();
 
         return barJob;
     }
@@ -58,19 +175,19 @@ public class PointSystem : JobComponentSystem {
         float tornadoForceMaxDist = tornadoForceMaxDistVal;
 
         var pointJob = Entities.ForEach((Entity e, ref BarPoint point) => {
-            if (!point.anchor) {
-				float startX = point.pos.x;
-				float startY = point.pos.y;
-				float startZ = point.pos.z;
+            if (point.anchor == 0) {
+                float startX = point.pos.x;
+                float startY = point.pos.y;
+                float startZ = point.pos.z;
             }
             point.oldPos.y += 0.01f;
 
             // Tornado force
-			float tdx = tornadoX+TornadoSway(point.pos.y, curTime) - point.pos.x;
+            float tdx = tornadoX+TornadoSway(point.pos.y, curTime) - point.pos.x;
             float tdz = tornadoZ - point.pos.z;
-			float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
-			tdx /= tornadoDist;
-			tdz /= tornadoDist;
+            float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
+            tdx /= tornadoDist;
+            tdz /= tornadoDist;
             if (tornadoDist < tornadoForceMaxDist) {
             }
             //	float force = (1f - tornadoDist / tornadoMaxForceDist);

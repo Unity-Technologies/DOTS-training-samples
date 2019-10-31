@@ -39,7 +39,7 @@ public class ParticleJobSystem : JobComponentSystem
             translation.Value += new float3(-delta.z * tornado.spinRate + delta.x * inForce, tornado.upwardSpeed, delta.x * tornado.spinRate + delta.z * inForce) * deltaTime;
             if (translation.Value.y > 50f)
             {
-                translation.Value = new Vector3(translation.Value.x, 0f, translation.Value.z);
+                translation.Value = new Vector3(translation.Value.x, translation.Value.y - 50f, translation.Value.z);
             }
             // Matrix4x4 matrix = partData.matrix;
             // matrix.m03 = translation.Value.x;

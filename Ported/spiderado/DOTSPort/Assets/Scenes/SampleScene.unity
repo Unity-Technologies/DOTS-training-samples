@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657838, g: 0.49641234, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -401,7 +401,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: 8529826020246684707, guid: 95da4ea2b5ab44e18be4b033c1255f91, type: 3}
-  count: 500
+  count: 2
 --- !u!4 &1269189482
 Transform:
   m_ObjectHideFlags: 0
@@ -446,6 +446,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 466d97968996df544ae860526ef34dda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  barPrefab: {fileID: 1064262672978824705, guid: 2558785e6e5e6c94791e58565ef83e70,
+    type: 3}
 --- !u!114 &1785140239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -471,5 +473,5 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

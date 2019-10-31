@@ -7,7 +7,7 @@ using Unity.Mathematics;
 public struct BarPoint : IComponentData {
     public float3 pos;
     public float3 oldPos;
-    public bool anchor;
+    public int anchor;
     public int neighborCount;
     public int index;
 }

@@ -16,6 +16,7 @@ public struct Bar : IComponentData, IEquatable<Bar>
     public float3 maxBounds;
     //public Color color;
     public float thickness;
+    public float3 oldPos;
 
     public bool Equals(Bar other) {
         return point1 == other.point1 
