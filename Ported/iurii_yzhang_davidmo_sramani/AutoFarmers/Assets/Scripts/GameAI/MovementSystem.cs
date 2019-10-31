@@ -23,16 +23,10 @@ namespace GameAI
             var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             var job = Entities
                 //.WithReadOnly(typeof(HasTarget))
-                .ForEach((Entity entity, int entityInQueryIndex, ref AnimationCompleteTag _, ref HasTarget target, ref Translation worldPosition) =>
+                .ForEach((Entity entity, int entityInQueryIndex, ref AnimationCompleteTag _, ref HasTarget target, ref TilePositionable tilePositionable) =>
                 {
-                    int2 tilePosition = RenderingUnity.World2TilePosition(worldPosition.Value);
-                    if (tilePosition.x == target.TargetPosition.x &&
-                        tilePosition.y == target.TargetPosition.y) {
-                        ecb.RemoveComponent<HasTarget>(entityInQueryIndex, entity);
-                    } else {
-                        var direction = math.normalize(target.TargetPosition - tilePosition);
-                        worldPosition.Value += new float3(direction.x, 0, direction.y);
-                    }
+                    tilePositionable.Position = target.TargetPosition;
+                    ecb.RemoveComponent<HasTarget>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
 
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
