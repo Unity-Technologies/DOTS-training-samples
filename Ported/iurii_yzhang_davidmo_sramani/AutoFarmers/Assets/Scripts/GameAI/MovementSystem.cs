@@ -30,7 +30,7 @@ namespace GameAI
                 }).Schedule(inputDeps);
 
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
-            return inputDeps;
+            return JobHandle.CombineDependencies(inputDeps, job);
         }
     }
 }

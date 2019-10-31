@@ -15,7 +15,10 @@ namespace GameAI
         
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+            var ecb1 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+            var ecb2 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+            var ecb3 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+            var ecb4 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             
             var job = Entities
                 .WithAll<AITagTaskDeliver>()
@@ -24,7 +27,7 @@ namespace GameAI
                 .WithNone<AISubTaskSellPlant>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
-                    ecb.AddComponent<AISubTaskTagFindPlant>(entityInQueryIndex, entity);
+                    ecb1.AddComponent<AISubTaskTagFindPlant>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
 
             var job2 = Entities
@@ -33,9 +36,9 @@ namespace GameAI
                 .WithAll<AISubTaskTagFindPlant>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
-                    ecb.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<AISubTaskTagFindPlant>(entityInQueryIndex, entity);
-                    ecb.AddComponent<AISubTaskTagFindShop>(entityInQueryIndex, entity);
+                    ecb2.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
+                    ecb2.RemoveComponent<AISubTaskTagFindPlant>(entityInQueryIndex, entity);
+                    ecb2.AddComponent<AISubTaskTagFindShop>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
             
             var job3 = Entities
@@ -44,9 +47,9 @@ namespace GameAI
                 .WithAll<AISubTaskTagFindShop>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
-                    ecb.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<AISubTaskTagFindShop>(entityInQueryIndex, entity);
-                    ecb.AddComponent<AISubTaskSellPlant>(entityInQueryIndex, entity);
+                    ecb3.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
+                    ecb3.RemoveComponent<AISubTaskTagFindShop>(entityInQueryIndex, entity);
+                    ecb3.AddComponent<AISubTaskSellPlant>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
             
             var job4 = Entities
@@ -55,9 +58,9 @@ namespace GameAI
                 .WithAll<AISubTaskSellPlant>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
-                    ecb.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<AISubTaskSellPlant>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<AITagTaskDeliver>(entityInQueryIndex, entity);
+                    ecb4.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
+                    ecb4.RemoveComponent<AISubTaskSellPlant>(entityInQueryIndex, entity);
+                    ecb4.RemoveComponent<AITagTaskDeliver>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
             
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job);

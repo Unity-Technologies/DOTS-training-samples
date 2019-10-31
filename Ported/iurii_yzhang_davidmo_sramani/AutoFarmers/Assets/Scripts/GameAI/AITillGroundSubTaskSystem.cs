@@ -14,15 +14,18 @@ namespace GameAI
         
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-            
+            var ecb1 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+            var ecb2 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+            var ecb3 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+            var ecb4 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+
             var job = Entities
                 .WithAll<AITagTaskTill>()
                 .WithNone<AISubTaskTagFindUntilledTile>()
                 .WithNone<AISubTaskTagTillGroundTile>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
-                    ecb.AddComponent<AISubTaskTagFindUntilledTile>(entityInQueryIndex, entity);
+                    ecb1.AddComponent<AISubTaskTagFindUntilledTile>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
 
             var job2 = Entities
@@ -31,9 +34,9 @@ namespace GameAI
                 .WithAll<AISubTaskTagFindUntilledTile>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
-                    ecb.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<AISubTaskTagFindUntilledTile>(entityInQueryIndex, entity);
-                    ecb.AddComponent<AISubTaskTagTillGroundTile>(entityInQueryIndex, entity);
+                    ecb2.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
+                    ecb2.RemoveComponent<AISubTaskTagFindUntilledTile>(entityInQueryIndex, entity);
+                    ecb2.AddComponent<AISubTaskTagTillGroundTile>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
             
             var job3 = Entities
@@ -42,9 +45,9 @@ namespace GameAI
                 .WithAll<AISubTaskTagTillGroundTile>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
-                    ecb.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<AISubTaskTagTillGroundTile>(entityInQueryIndex, entity);
-                    ecb.AddComponent<AISubTaskTagPlantSeed>(entityInQueryIndex, entity);
+                    ecb3.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
+                    ecb3.RemoveComponent<AISubTaskTagTillGroundTile>(entityInQueryIndex, entity);
+                    ecb3.AddComponent<AISubTaskTagPlantSeed>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
 
             var job4 = Entities
@@ -53,10 +56,10 @@ namespace GameAI
                 .WithAll<AISubTaskTagPlantSeed>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
-                    ecb.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<AISubTaskTagPlantSeed>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<AITagTaskTill>(entityInQueryIndex, entity);
-                    ecb.AddComponent<AITagTaskNone>(entityInQueryIndex, entity);
+                    ecb4.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
+                    ecb4.RemoveComponent<AISubTaskTagPlantSeed>(entityInQueryIndex, entity);
+                    ecb4.RemoveComponent<AITagTaskTill>(entityInQueryIndex, entity);
+                    ecb4.AddComponent<AITagTaskNone>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
             
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
