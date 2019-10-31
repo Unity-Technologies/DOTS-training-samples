@@ -145,10 +145,12 @@ public struct Spawner_FromEntity : IComponentData
     public Entity RatPrefab;
     public float RatFrequency;
     public float RatMaxSpawn;
+    public eDirection RatSpawnDirection;
 
     public Entity CatPrefab;
     public float CatFrequency;
     public int CatMaxSpawn;
+    public eDirection CatSpawnDirection;
 
     public float3 SpawnPos;
 

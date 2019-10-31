@@ -7,16 +7,26 @@ using Unity.Transforms;
 [RequiresEntityConversion]
 public class BoardAuthoring_FromEntity : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
 {
-    public GameObject TilePrefab;
+    public GameObject TilePrefabWhite;
+    public GameObject TilePrefabBlack;
     public GameObject WallPrefab;
-    public GameObject HomebasePrefab;
+    public GameObject HomebasePrefabR;
+    public GameObject HomebasePrefabG;
+    public GameObject HomebasePrefabB;
+    public GameObject HomebasePrefabY;
+
     public float yNoise;
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
-        referencedPrefabs.Add(TilePrefab);
+        referencedPrefabs.Add(TilePrefabWhite);
+        referencedPrefabs.Add(TilePrefabBlack);
         referencedPrefabs.Add(WallPrefab);
-        referencedPrefabs.Add(HomebasePrefab);
+        referencedPrefabs.Add(HomebasePrefabR);
+        referencedPrefabs.Add(HomebasePrefabG);
+        referencedPrefabs.Add(HomebasePrefabB);
+        referencedPrefabs.Add(HomebasePrefabY);
+
     }
 
     //private void 
@@ -28,8 +38,13 @@ public class BoardAuthoring_FromEntity : MonoBehaviour, IDeclareReferencedPrefab
 
         // Grab entity prefabs
         Entity WallEntity = conversionSystem.GetPrimaryEntity(WallPrefab);
-        Entity TileEntity = conversionSystem.GetPrimaryEntity(TilePrefab);
-        Entity HomebaseEntity = conversionSystem.GetPrimaryEntity(HomebasePrefab);
+        Entity TileEntityWhite = conversionSystem.GetPrimaryEntity(TilePrefabWhite);
+        Entity TileEntityBlack = conversionSystem.GetPrimaryEntity(TilePrefabBlack);
+
+        Entity HomebaseEntityR = conversionSystem.GetPrimaryEntity(HomebasePrefabR);
+        Entity HomebaseEntityG = conversionSystem.GetPrimaryEntity(HomebasePrefabG);
+        Entity HomebaseEntityB = conversionSystem.GetPrimaryEntity(HomebasePrefabB);
+        Entity HomebaseEntityY = conversionSystem.GetPrimaryEntity(HomebasePrefabY);
 
         BoardSystem boardSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<BoardSystem>();
         Vector2 CellSize = boardSystem.Board.CellSize;
@@ -45,7 +60,15 @@ public class BoardAuthoring_FromEntity : MonoBehaviour, IDeclareReferencedPrefab
                 {
                     case eTileType.Blank:
                         {
-                            Entity tile = dstManager.Instantiate(TileEntity);
+                            Entity tile;
+                            if ((i + j * Board.k_Width) % 2 ==0)
+                            {
+                                tile = dstManager.Instantiate(TileEntityWhite);
+                            }
+                            else
+                            {
+                                tile = dstManager.Instantiate(TileEntityBlack);
+                            }
                             dstManager.SetComponentData(tile, new Translation { Value = new Vector3(i * CellSize.x, Random.value * yNoise, j * CellSize.y) });
                             break;
                         }
@@ -54,10 +77,37 @@ public class BoardAuthoring_FromEntity : MonoBehaviour, IDeclareReferencedPrefab
                     case eTileType.HomeBase:
                         {
                             Vector3 spawnTrans = new Vector3(i * CellSize.x, Random.value * yNoise, j * CellSize.y);
-                            Entity tile = dstManager.Instantiate(TileEntity);
-                            Entity homebase = dstManager.Instantiate(HomebaseEntity);
+                            Entity tile;
+                            if ((i + j * Board.k_Width) % 2 ==0)
+                            {
+                                tile = dstManager.Instantiate(TileEntityWhite);
+                            }
+                            else
+                            {
+                                tile = dstManager.Instantiate(TileEntityBlack);
+                            }
+                            Entity homebase;
+                            eColor color = currTile.Color;
+                            switch(color)
+                            {
+                                case eColor.Red:
+                                    homebase = dstManager.Instantiate(HomebaseEntityR);
+                                    break;
+                                case eColor.Green:
+                                    homebase = dstManager.Instantiate(HomebaseEntityG);
+                                    break;
+                                case eColor.Blue:
+                                    homebase = dstManager.Instantiate(HomebaseEntityB);
+                                    break;
+                                case eColor.Black:
+                                    homebase = dstManager.Instantiate(HomebaseEntityY);
+                                    break;
+                                default:
+                                    homebase = dstManager.Instantiate(HomebaseEntityR);
+                                    break;
+                                }
                             dstManager.SetComponentData(tile, new Translation { Value = spawnTrans });
-                            dstManager.SetComponentData(homebase, new Translation { Value = spawnTrans + new Vector3(0, 1, 0) });
+                            dstManager.SetComponentData(homebase, new Translation { Value = spawnTrans + new Vector3(0, 0.5f, 0) });
                             break;
                         }
                     default:
@@ -93,6 +143,7 @@ public class BoardAuthoring_FromEntity : MonoBehaviour, IDeclareReferencedPrefab
                     Quaternion rot = Quaternion.Euler(0, 90, 0);
                     dstManager.SetComponentData(wall, new Translation { Value = new Vector3(i * CellSize.x, 0.7f, j * CellSize.y - 0.5f) });
                     dstManager.SetComponentData(wall, new Rotation { Value = rot });
+                    //dstManager.GetComponentData<RenderMesh>(wall);
                 }
             }
         }

@@ -8,10 +8,12 @@ public class SpawnerAuthoring_FromEntity : MonoBehaviour, IDeclareReferencedPref
     public GameObject RatPrefab;
     public float RatFrequency;
     public float RatMaxSpawn;
+    public eDirection RatSpawnDirection;
 
     public GameObject CatPrefab;
     public float CatFrequency;
     public int   CatMaxSpawn;
+    public eDirection CatSpawnDirection;
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
@@ -26,9 +28,11 @@ public class SpawnerAuthoring_FromEntity : MonoBehaviour, IDeclareReferencedPref
             RatPrefab = conversionSystem.GetPrimaryEntity(RatPrefab),
             RatFrequency = RatFrequency,
             RatMaxSpawn = RatMaxSpawn,
+            RatSpawnDirection = RatSpawnDirection,
             CatPrefab = conversionSystem.GetPrimaryEntity(CatPrefab),
             CatFrequency = CatFrequency,
             CatMaxSpawn = CatMaxSpawn,
+            CatSpawnDirection = CatSpawnDirection,
             SpawnPos = transform.position,
             //runtime data
             RatSpawned = 0,
