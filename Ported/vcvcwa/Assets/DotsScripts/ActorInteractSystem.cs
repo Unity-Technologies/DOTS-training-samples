@@ -68,7 +68,6 @@ public class ActorInteractSystem : JobComponentSystem
                 //TODO insert shop in command buffer
             }
         }
-        
     }
 
     [BurstCompile]
@@ -89,13 +88,18 @@ public class ActorInteractSystem : JobComponentSystem
 
     }
     
+    protected override void OnDestroy()
+    {
+        gridOperations.Dispose();
+    }
 
 // OnUpdate runs on the main thread.
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
-        Entity farm = queryReading.GetSingletonEntity();
-        bufferReading = EntityManager.GetBuffer<GridTile>(farm);
-        bufferWriting = EntityManager.GetBuffer<GridTile>(farm);
+        Entity farmRo = queryReading.GetSingletonEntity();
+        Entity farmRw = queryWriting.GetSingletonEntity();
+        bufferReading = EntityManager.GetBuffer<GridTile>(farmRo);
+        bufferWriting = EntityManager.GetBuffer<GridTile>(farmRw);
         
         var job1 = new InteractJob
         {
