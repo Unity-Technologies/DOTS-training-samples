@@ -401,7 +401,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: 8529826020246684707, guid: 95da4ea2b5ab44e18be4b033c1255f91, type: 3}
-  count: 500
+  grid:
+    x: 30
+    y: 10
+    z: 3
 --- !u!4 &1269189482
 Transform:
   m_ObjectHideFlags: 0
@@ -443,9 +446,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1785140237}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 466d97968996df544ae860526ef34dda, type: 3}
+  m_Script: {fileID: 11500000, guid: fc1cc69ef98a645f2bb3fecf1e9d62a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  prefab: {fileID: 4029131532240341238, guid: 93eb180aa229e4a1f92ae9bd7e94fe9c, type: 3}
+  buildingCount: 3
 --- !u!114 &1785140239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -471,5 +476,5 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

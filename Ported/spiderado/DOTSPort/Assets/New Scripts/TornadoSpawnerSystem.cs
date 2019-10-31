@@ -1,43 +1,57 @@
-﻿using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using static Unity.Mathematics.math;
-using UnityEngine;
 
-public class TornadoSpawnerSystem : ComponentSystem
+// ReSharper disable once InconsistentNaming
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+public class TornadoSpawnerSystem : JobComponentSystem
 {
-    protected override void OnUpdate()
+    BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
+
+    protected override void OnCreate()
     {
-        Entities.ForEach((Entity e, ref Spawner spawner, ref Translation translation) =>
+        // Cache the BeginInitializationEntityCommandBufferSystem in a field, so we don't have to create it every frame
+        m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+    }
+
+    struct TornadoSpawnJob : IJobForEachWithEntity<Spawner, LocalToWorld>
+    {
+        public EntityCommandBuffer.Concurrent CommandBuffer;
+
+        public void Execute(Entity entity, int index, [ReadOnly] ref Spawner spawnerFromEntity,
+            [ReadOnly] ref LocalToWorld location)
         {
-            var count = spawner.particleCount;
-
-            var entities = new NativeArray<Entity>(count, Allocator.Temp);
-            for (int i = 0; i < count; ++i)
+            for (var x = 0; x < spawnerFromEntity.gridX; x++)
             {
-                entities[i] = PostUpdateCommands.Instantiate(spawner.particlePrefab);
+                for (var y = 0; y < spawnerFromEntity.gridY; y++)
+                {
+                    var instance = CommandBuffer.Instantiate(index, spawnerFromEntity.particlePrefab);
+
+                    // Place the instantiated in a grid with some noise
+                    var position = new float3(x * 1.3F, noise.cnoise(new float2(x, y) * 0.21F) * 50, y * 1.3F);
+                    CommandBuffer.SetComponent(index, instance, new Translation {Value = position});
+                    CommandBuffer.AddComponent(index, instance, new TornadoFlagComponent { isVortex = true });
+                    
+                    
+                }                    
             }
 
-            for (int i = 0; i < count; i++)
-            {
-                float3 pos = new float3(UnityEngine.Random.Range(-50f,50f), UnityEngine.Random.Range(0f,50f),UnityEngine.Random.Range(-50f,50f));
-                PostUpdateCommands.SetComponent(entities[i], new Translation { Value = pos });
-                // PostUpdateCommands.AddComponent(entities[i], new Point { pos=pos, oldPos=pos, anchor=false, neighborCount=0 });
-                // PostUpdateCommands.AddComponent(entities[i], new PartData {
-                //     radiusMult = UnityEngine.Random.value,
-                //     color = UnityEngine.Color.white * UnityEngine.Random.Range(0.3f, 0.7f),
-                //     matrix = UnityEngine.Matrix4x4.TRS(pos, UnityEngine.Quaternion.identity, UnityEngine.Vector3.one * UnityEngine.Random.Range(0.2f, 0.7f))
-                // });
-                // PostUpdateCommands.AddComponent(entities[i], tornadoData);
-                
-            }
+            CommandBuffer.DestroyEntity(index, entity);
+        }
+    }
 
-            PostUpdateCommands.RemoveComponent<Spawner>(e);
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
+    {
+        // Schedule the job that will add Instantiate commands to the EntityCommandBuffer.
+        var job = new TornadoSpawnJob
+        {
+            CommandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent()
+        }.Schedule(this, inputDeps);
 
-            entities.Dispose();
-        });
+        m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
+
+        return job;
     }
 }
