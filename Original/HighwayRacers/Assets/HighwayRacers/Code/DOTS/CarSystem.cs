@@ -43,7 +43,7 @@ public class CarSystem : JobComponentSystem
 #endif
 
         var queryStructure = new CarQueryStructure(carCount);
-        inputDeps = queryStructure.Build(this, inputDeps);
+        inputDeps = queryStructure.Build(this, inputDeps, 250.0f);
 
         // 3. Car logic {Entity, index, velocity, state }
         // 4. Compose the matrices for each mesh instance for correct rendering.

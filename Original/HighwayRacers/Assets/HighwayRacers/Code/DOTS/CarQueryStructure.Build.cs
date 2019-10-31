@@ -43,6 +43,7 @@ partial struct CarQueryStructure
     [BurstCompile]
     private struct PositionSortJob : IJobParallelFor
     {
+        public float HighwayLen;
         public int CarCount;
         [ReadOnly] public NativeArray<int> LaneCarCounts;
 
@@ -51,13 +52,23 @@ partial struct CarQueryStructure
 
         private struct PositionSort : IComparer<CarEntityAndState>
         {
+            public int Lane;
+            public float HighwayLen;
             public int Compare(CarEntityAndState x, CarEntityAndState y)
-                => x.State.Position.CompareTo(y.State.Position);
+            {
+                float posX = Utilities.ConvertPositionToLane(x.State.Position, x.State.Lane, Lane, HighwayLen);
+                float posY = Utilities.ConvertPositionToLane(y.State.Position, y.State.Lane, Lane, HighwayLen);
+                return posX.CompareTo(posY);
+            }
         }
 
         public void Execute(int index)
         {
-            CarLanes.Slice(index * CarCount, LaneCarCounts[index]).Sort(new PositionSort());
+            CarLanes.Slice(index * CarCount, LaneCarCounts[index]).Sort(new PositionSort()
+            {
+                Lane = index,
+                HighwayLen = HighwayLen
+            });
         }
     }
 
@@ -75,20 +86,20 @@ partial struct CarQueryStructure
             for (int lane = 0; lane < 4; ++lane)
             {
                 var laneArray = CarLanes.Slice(lane * CarCount, LaneCarCounts[lane]);
-                for (int j = 0; j < laneArray.Length; ++j)
+                for (int i = 0; i < laneArray.Length; ++i)
                 {
-                    var carIndex = laneArray[j].EntityIndex;
-                    var carLane = laneArray[j].State.Lane;
+                    var carIndex = laneArray[i].EntityIndex;
+                    var carLane = laneArray[i].State.Lane;
                     UnityEngine.Debug.Assert(math.abs(carLane - lane) < 1);
                     var e = SortIndices[carIndex];
-                    e[math.abs(lane - carLane) <= 0.5f ? 0 : 1] = j;
-                    SortIndices[carIndex] = e;
+                    SortIndices[carIndex] = math.int2(lane <= carLane ? i : e.x, lane >= carLane ? i : e.y);
                 }
             }
         }
     }
 
-    public JobHandle Build(ComponentSystemBase componentSystem, JobHandle dependency)
+    public JobHandle Build(ComponentSystemBase componentSystem, JobHandle dependency,
+        float highwayLen) // TODO
     {
         dependency = new LaneSortJob()
         {
@@ -99,6 +110,7 @@ partial struct CarQueryStructure
 
         dependency = new PositionSortJob()
         {
+            HighwayLen = highwayLen,
             CarCount = CarCount,
             LaneCarCounts = LaneCarCounts,
             CarLanes = CarLanes,
