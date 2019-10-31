@@ -42,7 +42,7 @@ namespace GameAI
                 .WithNone<AISubTaskTagComplete>()
                 .ForEach((Entity entity, int entityInQueryIndex) => 
                 {
-                    ecb.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
+                    ecb2.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
                     Score++;
                 }).Schedule(inputDeps);
 
@@ -83,8 +83,8 @@ namespace GameAI
                     {
                         // get shop position
                         var pos = tile.Position;
-                        ecb3.AddComponent(entityInQueryIndex, e, new SpawnPointComponent{MapSpawnPosition = pos});
-                        ecb3.AddComponent<SpawnDroneTagComponent>(entityInQueryIndex, e);
+                        ecb4.AddComponent(entityInQueryIndex, e, new SpawnPointComponent{MapSpawnPosition = pos});
+                        ecb4.AddComponent<SpawnDroneTagComponent>(entityInQueryIndex, e);
                     }
                 }).Schedule(inputDeps);
 
