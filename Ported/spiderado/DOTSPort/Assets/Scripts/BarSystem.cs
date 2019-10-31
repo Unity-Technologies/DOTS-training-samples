@@ -25,8 +25,8 @@ public class BarSystem : JobComponentSystem
             var modPoint = new ModifiedPoint { point = modifiedPoint, pointEntity = bar.point1 };
             var modPoint2 = new ModifiedPoint { point = modifiedPoint2, pointEntity = bar.point2 };
             modifiedPointList[entityInQueryIndex] = modPoint;
-            
-            Debug.Log(points);
+            var savePoints = points;
+
         }).Schedule(inputDeps);
 
         barJob.Complete();
