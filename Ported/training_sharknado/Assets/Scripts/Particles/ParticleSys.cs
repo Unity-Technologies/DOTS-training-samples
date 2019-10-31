@@ -6,9 +6,10 @@ using Unity.Transforms;
 using UnityEngine;
 using static Unity.Mathematics.math;
 using float3 = Unity.Mathematics.float3;
+using quaternion = Unity.Mathematics.quaternion;
 
 [BurstCompile]
-public class ParticleSystem : JobComponentSystem
+public class ParticleSys : JobComponentSystem
 {
 
     public static float TornadoSway(float y, float currentTime)
@@ -29,18 +30,18 @@ public class ParticleSystem : JobComponentSystem
     
     // Use the [BurstCompile] attribute to compile a job with Burst. You may see significant speed ups, so try it!
     [BurstCompile]
-    struct RotationSpeedJob : IJobForEach<Translation, ParticleComponent>
+    struct RotationSpeedJob : IJobForEach<Translation, Rotation, ParticleComponent>
     {
         public float time;
         public float deltaTime;
 
         public TornadoSpawner tornado;
-        public Translation tornadoTranslation;
+        public float3 tornadoTranslation;
         
         // The [ReadOnly] attribute tells the job scheduler that this job will not write to rotSpeedIJobForEach
-        public void Execute(ref Translation pos, ref ParticleComponent particleComponent)
+        public void Execute(ref Translation pos, ref Rotation rot, ref ParticleComponent particleComponent)
         {
-            float3 tornadoPos = tornadoTranslation.Value;
+            float3 tornadoPos = tornadoTranslation;
 
             tornadoPos = new float3(tornadoPos.x + TornadoSway(pos.Value.y, time),
                 pos.Value.y,
@@ -54,16 +55,19 @@ public class ParticleSystem : JobComponentSystem
             float inForce =
                 dist - Mathf.Clamp01(tornadoPos.y / tornado.height) * 30.0f * particleComponent.RadiusMult + 2.0f;
 
+            // Rotation
+            rot.Value = Quaternion.identity;
+            
             // Increment to position
             pos.Value += float3(
                              -delta.z * tornado.particleSpinRate + delta.x * inForce,
                              tornado.particleUpSpeed,
                              delta.x * tornado.particleSpinRate + delta.z * inForce) * deltaTime;
 
-            // Resetting
+            // Resetting when becoming too high
             if (pos.Value.y > tornado.height)
             {
-                pos.Value.y -= tornado.height;//float3(pos.Value.x, 0.0f, pos.Value.z);
+                pos.Value.y -= tornado.height;
             }
         }
     }
@@ -73,7 +77,7 @@ public class ParticleSystem : JobComponentSystem
     {
         var entity = tornadoQuery.ToEntityArray(Allocator.TempJob);
         var tornado = World.Active.EntityManager.GetComponentData<TornadoSpawner>(entity[0]);
-        var translation = World.Active.EntityManager.GetComponentData<Translation>(entity[0]);
+        var translation = World.Active.EntityManager.GetComponentData<TornadoPosition>(entity[0]);
         entity.Dispose();
         
         var job = new RotationSpeedJob
@@ -81,7 +85,7 @@ public class ParticleSystem : JobComponentSystem
             deltaTime = Time.deltaTime,
             time = Time.time,
             tornado = tornado,
-            tornadoTranslation = translation
+            tornadoTranslation = translation.position
         };
 
         return job.Schedule(this, inputDependencies);

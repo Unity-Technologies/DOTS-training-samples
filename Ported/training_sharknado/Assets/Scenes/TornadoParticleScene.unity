@@ -245,16 +245,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6d661518a695f842a9064202bbbe5b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Height: 10
+  Height: 40
   Force: 5
+  MaxForceDistance: 10
+  UpForce: 2
+  InwardForce: 5
+  Damping: 0.99
   Particle: {fileID: 1636927579664538949, guid: e40ce0568891c714f96affe56543631e,
     type: 3}
   NumberOfParticle: 100
-  ParticleSpinRate: 1
-  ParticleUpSpeed: 2
+  ParticleSpinRate: 37
+  ParticleUpSpeed: 6
   BreakResistance: 5
-  MaxForceDistance: 10
-  UpForce: 2
   Friction: 0.1
   Gravity: 5
 --- !u!114 &222307497
@@ -452,8 +454,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: -0.08691527, y: 0.9010791, z: -0.36756235, w: -0.21307318}
-  m_LocalPosition: {x: 92.951004, y: 126.48198, z: 175.49597}
+  m_LocalRotation: {x: -0.025976613, y: 0.97298366, z: -0.18340357, w: -0.13780871}
+  m_LocalPosition: {x: 1.4206604, y: 36.37392, z: 47.029877}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -563,8 +565,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f391a5945ace423d8101c3515ccf969, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Prefab: {fileID: 1636927579664538949, guid: e40ce0568891c714f96affe56543631e, type: 3}
-  sharksToSpawn: 4000
+  Prefab: {fileID: 1636927579664538949, guid: 1aa8818d1ab4545688ea8950c7e0c744, type: 3}
+  sharksToSpawn: 900
 --- !u!114 &1752493916
 MonoBehaviour:
   m_ObjectHideFlags: 0
