@@ -465,6 +465,7 @@ namespace HighwayRacers
             em.AddComponentData(ent, car.CarData.Settings);
             em.AddComponentData(ent, car.CarData.Mind);
             em.AddComponentData(ent, new CarSystem.CarNextState(car.CarData));
+            em.AddComponentData(ent, CarRenderData.Default );
             allCarsList.Add(car);
             //this.UpdateCarList();
             car.UpdatePosition(ref car.CarData.Location, ref Highway.instance.HighwayState);

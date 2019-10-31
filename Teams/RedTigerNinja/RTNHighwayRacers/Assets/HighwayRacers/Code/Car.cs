@@ -21,6 +21,23 @@ namespace HighwayRacers
         }
     }
 
+    public struct CarRenderData : IComponentData
+    {
+        public Matrix4x4 Matrix;
+        public Vector4 Color;
+
+        public static CarRenderData Default
+        {
+            get {
+                return new CarRenderData()
+                {
+                    Matrix = Matrix4x4.identity,
+                    Color = Vector4.one * 0.5f,
+                };
+            }
+        }
+    }
+
     public struct CarLocation : IComponentData
     {
 
@@ -520,8 +537,8 @@ namespace HighwayRacers
 
         }
 
-		private void UpdateColor(ref CarLocation car, ref CarSettingsStruct carSettings) {
-
+		public static Color UpdateColor(ref CarLocation car, ref CarSettingsStruct carSettings) {
+            Color color;
 			if (car.velocityPosition > carSettings.defaultSpeed) {
 				color = Color.Lerp (CarShared.defaultColor, CarShared.maxSpeedColor, (car.velocityPosition - carSettings.defaultSpeed) / (carSettings.maxSpeed - carSettings.defaultSpeed));
 			} else if (car.velocityPosition < carSettings.defaultSpeed) {
@@ -529,7 +546,7 @@ namespace HighwayRacers
 			} else {
 				color = CarShared.defaultColor;
 			}
-
+            return color;
 		}
 
     }

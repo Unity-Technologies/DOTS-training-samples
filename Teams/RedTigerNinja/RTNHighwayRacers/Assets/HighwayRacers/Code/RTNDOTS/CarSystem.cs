@@ -114,15 +114,21 @@ namespace HighwayRacers {
             }
         }
 
-        public struct CarUpdatePoseJob : IJobForEach<CarLocation, Unity.Transforms.Rotation, Unity.Transforms.Translation>
+
+        public struct CarUpdatePoseJob : IJobForEach<CarLocation, CarSettingsStruct, Unity.Transforms.Rotation, Unity.Transforms.Translation, CarRenderData>
         {
             public Highway.HighwayStateStruct HighwayState;
 
-            public void Execute([ReadOnly] ref CarLocation c0,[WriteOnly] ref Rotation c1,[WriteOnly] ref Translation c2)
+            public void Execute([ReadOnly] ref CarLocation c0, [ReadOnly] ref CarSettingsStruct carSettings,[WriteOnly] ref Rotation c1,[WriteOnly] ref Translation c2, [WriteOnly] ref CarRenderData rd)
             {
                 var pose = Car.GetCarPose(ref c0, ref HighwayState);
                 c1.Value = pose.rotation;
                 c2.Value = pose.position;
+                rd = new CarRenderData()
+                {
+                    Matrix = Matrix4x4.TRS(pose.position, pose.rotation, Vector3.one),
+                    Color = Car.UpdateColor(ref c0, ref carSettings),
+                };
             }
         }
 
