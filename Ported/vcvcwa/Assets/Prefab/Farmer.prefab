@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 7981896153945875389}
   - component: {fileID: 3019950614266739659}
   - component: {fileID: -4894674136633988986}
-  - component: {fileID: -5741419966512084098}
-  - component: {fileID: -845777410709103831}
+  - component: {fileID: 1603839542158290106}
+  - component: {fileID: 6071083291275436409}
   m_Layer: 0
   m_Name: Farmer
   m_TagString: Untagged
@@ -122,7 +122,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   goalPosition: {x: 0, y: 0}
---- !u!114 &-5741419966512084098
+--- !u!114 &1603839542158290106
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -131,11 +131,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 7981896153945875330}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 930c244299fcbf1419242aad03d6c183, type: 3}
+  m_Script: {fileID: 11500000, guid: dbf70d81dbfbbd147a3ac40c5e02b17d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  intention: 0
---- !u!114 &-845777410709103831
+  dotsIntention: 0
+--- !u!114 &6071083291275436409
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7981896153945875330}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1f5775345aa1ab49b749523c4cf5bd5, type: 3}
+  m_Script: {fileID: 11500000, guid: 7f1a1b4ea8bb7f140aeb312aecc22d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   fly: 0
