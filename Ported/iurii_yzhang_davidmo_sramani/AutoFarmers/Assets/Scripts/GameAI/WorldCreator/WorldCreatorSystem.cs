@@ -146,7 +146,6 @@ namespace GameAI
             }
 
             World.GetOrCreateSystem<PathfindingSystem>().PlantOrStoneChanged();
-
             Profiler.EndSample();
         }
 

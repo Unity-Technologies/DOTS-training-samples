@@ -19,6 +19,7 @@ public struct StonePositionRequest : IComponentData
 {
     public int2 position;
     public int2 size;
+    public Entity entity;
 }
 
 public struct ShopPositionRequest : IComponentData
@@ -118,7 +119,7 @@ public class RenderingMapInit : JobComponentSystem
         
         var ecb2 = ecbSystem.CreateCommandBuffer().ToConcurrent();
         var handle2 = Entities
-            .ForEach((int nativeThreadIndex, ref StonePositionRequest req) =>
+            .ForEach((int nativeThreadIndex, Entity entity, ref StonePositionRequest req) =>
         {
             var wpos = RenderingUnity.Tile2WorldPosition(req.position, worldSizeHalf); // min pos
             var wsize = RenderingUnity.Tile2WorldSize(req.size) - 0.1f;
@@ -127,7 +128,7 @@ public class RenderingMapInit : JobComponentSystem
             var e = ecb2.Instantiate(nativeThreadIndex, stone);
             ecb2.SetComponent(nativeThreadIndex, e, new Translation {Value = wposCenter});
             ecb2.SetComponent(nativeThreadIndex, e, new NonUniformScale {Value = wsize});
-            
+            ecb2.SetComponent(nativeThreadIndex, entity, new StonePositionRequest() {position = req.position, entity = e, size = req.size});
         }).Schedule(inputDeps);
 
         var ecb3 = ecbSystem.CreateCommandBuffer().ToConcurrent();

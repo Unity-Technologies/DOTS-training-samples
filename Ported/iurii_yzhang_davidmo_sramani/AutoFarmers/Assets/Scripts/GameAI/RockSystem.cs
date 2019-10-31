@@ -1,6 +1,8 @@
 ﻿using GameAI;
+using Pathfinding;
 using Unity.Entities;
 using Unity.Jobs;
+using UnityEngine;
 
 public class RockSystem : JobComponentSystem
 {
@@ -18,25 +20,28 @@ public class RockSystem : JobComponentSystem
         var Cmd = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
      
         var health = GetComponentDataFromEntity<HealthComponent>(true);
+        //var request = GetComponentDataFromEntity<PlantPositionRequest>(true);
         var rockSmashSpeed = 0.5f;
         var job = Entities
             .WithNone<AISubTaskTagComplete>()
             .WithReadOnly(health)
             .WithReadOnly(rockSmashSpeed)
+//            .WithoutBurst()
             .ForEach((Entity entity, int entityInQueryIndex, in AISubTaskTagClearRock rock) =>
-        {
-            if (!health.Exists(rock.rockEntity)) {
-                Cmd.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
-            } else {
-                var newHealth = health[rock.rockEntity].Value - rockSmashSpeed * dt;
-                if (newHealth < 0.0) {
-                    Cmd.DestroyEntity(entityInQueryIndex, rock.rockEntity);
+            {
+                if (!health.Exists(rock.rockEntity)) {
                     Cmd.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
                 } else {
-                    Cmd.SetComponent(entityInQueryIndex, rock.rockEntity, new HealthComponent() { Value = newHealth});
+                    var newHealth = health[rock.rockEntity].Value - rockSmashSpeed * dt;
+                    if (newHealth < 0.0) {
+                        Cmd.DestroyEntity(entityInQueryIndex, rock.rockEntity);
+                        Cmd.DestroyEntity(entityInQueryIndex, rock.requestEntity);
+                        Cmd.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
+                    } else {
+                        Cmd.SetComponent(entityInQueryIndex, rock.rockEntity, new HealthComponent() {Value = newHealth});
+                    }
                 }
-            }
-        }).Schedule(inputDeps);
+            }).Schedule(inputDeps);
 
         m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
         return JobHandle.CombineDependencies(inputDeps, job);
