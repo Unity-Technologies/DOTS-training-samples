@@ -36,6 +36,7 @@ namespace HighwayRacers
         public float lane;
 
         public float distanceBack, distanceFront;
+        public float lane0distance;
 
         public Entity ThisCarEntity;
 
@@ -52,6 +53,7 @@ namespace HighwayRacers
         {
             distanceFront = inner_distanceFront(ref highway);
             distanceBack = inner_distanceBack(ref highway);
+            lane0distance = highway.GetEquivalentDistance(this.distance, this.lane, 1.0f);
         }
 
 
@@ -162,6 +164,14 @@ namespace HighwayRacers
         public Transform cameraPos;
 
         public CarDataAll CarData;
+
+        public Unity.Transforms.LocalToWorld DOTSLocation
+        {
+            get
+            {
+                return World.Active.EntityManager.GetComponentData<Unity.Transforms.LocalToWorld>(this.CarData.Location.ThisCarEntity);
+            }
+        }
 
         /*
         public float defaultSpeed { get; set; }

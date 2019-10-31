@@ -10,6 +10,8 @@ namespace HighwayRacers {
 		public float moveSpeed = 20;
 		public float transitionDuration = 3;
 
+        public Transform ReferenceCameraOffset;
+
 		Vector3 topDownPosition = new Vector3();
 		Quaternion topDownRotation = new Quaternion();
 		Vector3 carPosition = new Vector3();
@@ -101,8 +103,14 @@ namespace HighwayRacers {
 			case State.TO_CAR:
 			case State.CAR:
 
-				carPosition = carRef.cameraPos.position;
-				carRotation = carRef.cameraPos.rotation;
+                    var carPose = carRef.DOTSLocation;
+                    var carMtx = Matrix4x4.TRS(carPose.Position, Quaternion.LookRotation(carPose.Forward, carPose.Up), Vector3.one);
+
+                    carPosition = carMtx.MultiplyPoint(this.ReferenceCameraOffset.localPosition);
+                    carRotation = carMtx.rotation * this.ReferenceCameraOffset.localRotation;
+
+				//carPosition = carRef.cameraPos.position;
+				//carRotation = carRef.cameraPos.rotation;
 
 				if (time >= transitionDuration || state == State.CAR) {
 					if (state == State.TO_CAR) {

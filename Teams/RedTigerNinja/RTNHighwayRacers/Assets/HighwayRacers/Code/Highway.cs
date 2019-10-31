@@ -500,26 +500,14 @@ namespace HighwayRacers
 
                 CarLocation ret = CarLocation.NullLocation;
                 float diff = 0;
-                //var nextIndex = startCar.SortedIndexNext;
                 for (var ri =0; ri< AllCars.Length; ri++)
                 {
                     var car = AllCars[ri];
-                    /*
-                    var curIndex = nextIndex;
-                    var car = AllCars[curIndex];
-                    nextIndex = car.SortedIndexNext;
-                    */
 
                     if (!LanesOverlap(lane, car.lane))
                     {
                         continue;
                     }
-                    /*
-                    if ((car.distance - distance) > (Highway.MIN_HIGHWAY_LANE0_LENGTH * 0.5f))
-                    {
-                        //break;
-                    }
-                    */
 
                     float d = DistanceTo(distance, lane, car.distanceBack, car.lane);
                     if (ret.IsNull || d < diff)
@@ -793,7 +781,8 @@ namespace HighwayRacers
 		public Car GetCarAtScreenPosition(Vector3 screenPosition, float radius){
 
 			foreach (Car car in allCarsList) {
-				Vector3 carScreenPos = Camera.main.WorldToScreenPoint(car.transform.position);
+                var carWorldPos = car.DOTSLocation.Position;// World.Active.EntityManager.GetComponentData<Unity.Transforms.LocalToWorld>(car.CarData.Location.ThisCarEntity).Position;
+				Vector3 carScreenPos = Camera.main.WorldToScreenPoint(carWorldPos);
 				carScreenPos.z = screenPosition.z;
 
 				if (Vector3.Distance (screenPosition, carScreenPos) <= radius) {
