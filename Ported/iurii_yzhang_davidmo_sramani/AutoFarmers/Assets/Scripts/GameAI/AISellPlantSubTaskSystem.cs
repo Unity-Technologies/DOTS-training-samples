@@ -61,6 +61,7 @@ namespace GameAI
                     ecb4.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
                     ecb4.RemoveComponent<AISubTaskSellPlant>(entityInQueryIndex, entity);
                     ecb4.RemoveComponent<AITagTaskDeliver>(entityInQueryIndex, entity);
+                    ecb4.AddComponent<AITagTaskNone>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
             
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job);

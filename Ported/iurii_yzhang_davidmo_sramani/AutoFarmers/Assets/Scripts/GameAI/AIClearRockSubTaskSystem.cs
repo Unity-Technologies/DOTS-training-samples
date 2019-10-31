@@ -28,7 +28,7 @@ namespace GameAI
                 }).Schedule(inputDeps);
 
             var job2 = Entities
-                .WithAll<AITagTaskTill>()
+                .WithAll<AITagTaskClearRock>()
                 .WithAll<AISubTaskTagComplete>()
                 .WithAll<AISubTaskTagFindRock>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
@@ -39,7 +39,7 @@ namespace GameAI
                 }).Schedule(inputDeps);
 
             var job3 = Entities
-                .WithAll<AITagTaskTill>()
+                .WithAll<AITagTaskClearRock>()
                 .WithAll<AISubTaskTagComplete>()
                 .WithAll<AISubTaskTagClearRock>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
@@ -47,7 +47,7 @@ namespace GameAI
                     ecb3.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
                     ecb3.RemoveComponent<AISubTaskTagClearRock>(entityInQueryIndex, entity);
                     ecb3.RemoveComponent<AITagTaskClearRock>(entityInQueryIndex, entity);
-                    ecb3.AddComponent<AITagTaskClearRock>(entityInQueryIndex, entity);
+                    ecb3.AddComponent<AITagTaskNone>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
             
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job);

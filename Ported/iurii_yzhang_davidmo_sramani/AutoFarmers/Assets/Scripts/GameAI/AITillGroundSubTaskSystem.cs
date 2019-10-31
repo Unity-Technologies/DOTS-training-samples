@@ -23,6 +23,7 @@ namespace GameAI
                 .WithAll<AITagTaskTill>()
                 .WithNone<AISubTaskTagFindUntilledTile>()
                 .WithNone<AISubTaskTagTillGroundTile>()
+                .WithNone<AISubTaskTagPlantSeed>()
                 .ForEach((Entity entity, int entityInQueryIndex) =>
                 {
                     ecb1.AddComponent<AISubTaskTagFindUntilledTile>(entityInQueryIndex, entity);
