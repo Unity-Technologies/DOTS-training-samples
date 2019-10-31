@@ -19,7 +19,7 @@ public class BarSpawnerSystem : JobComponentSystem
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
     }
 
-    // [BurstCompile]
+    [ BurstCompile ]
     public struct SpawnJob : IJobForEachWithEntity< BarSpawner >
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
@@ -89,27 +89,25 @@ public class BarSpawnerSystem : JobComponentSystem
             }
 
             // ground details
-            // for (int i = 0; i < 300; i++)
-            // {
-            //     Vector3 pos = new Vector3(r.NextFloat(-55f, 55f), 0f, r.NextFloat(-55f, 55f));
-            //     point = points[pointIndex];
-            //     point.x = pos.x + r.NextFloat(-.2f, -.1f);
-            //     point.y = pos.y + r.NextFloat(0f, 3f);
-            //     point.z = pos.z + r.NextFloat(.1f, .2f);
-            //     points[pointIndex] = point;
-            //     pointIndex++;
+            for (int i = 0; i < 300; i++)
+            {
+                point = new float3( r.NextFloat( -55f, 55f ), 0f, r.NextFloat( -55f, 55f ) );
+                point.x = point.x + r.NextFloat(-.2f, -.1f);
+                point.y = point.y + r.NextFloat(0f, 3f);
+                point.z = point.z + r.NextFloat(.1f, .2f);
+                points[pointIndex] = point;
+                pointIndex++;
 
-            //     point = points[pointIndex];
-            //     point.x = pos.x + r.NextFloat(.2f, .1f);
-            //     point.y = pos.y + r.NextFloat(0f, .2f);
-            //     point.z = pos.z + r.NextFloat(-.1f, -.2f);
-            //     if (r.NextFloat(1) < .1f)
-            //     {
-            //         hasAnchors[pointIndex] = true;
-            //     }
-            //     points[pointIndex] = point;
-            //     pointIndex++;
-            // }
+                point.x = point.x + r.NextFloat(.2f, .1f);
+                point.y = point.y + r.NextFloat(0f, .2f);
+                point.z = point.z + r.NextFloat(-.1f, -.2f);
+                if (r.NextFloat(1) < .1f)
+                {
+                    hasAnchors[pointIndex] = true;
+                }
+                points[pointIndex] = point;
+                pointIndex++;
+            }
 
             for (int i = 0; i < pointIndex; i++)
             {
