@@ -62,10 +62,6 @@ public class ArrowSystem : ComponentSystem
         // Draws a cursor with the player color on top of the default one
         //playerCursor.SetScreenPosition(screenPos);
 
-        // Human always player 0
-        //const int humanPlayerIndex = 0;
-        //var canChangeArrow = cell.CanChangeArrow(humanPlayerIndex);
-
         var overlayEntities = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToEntityArray(Allocator.Persistent);
         var overlayPositions = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.Persistent);
         var overlayRotations = GetEntityQuery(typeof(OverlayComponentTag), typeof(Rotation)).ToComponentDataArray<Rotation>(Allocator.Persistent);
@@ -88,6 +84,7 @@ public class ArrowSystem : ComponentSystem
                 var cellIndex = input.CellCoordinates.y * board.size.y + input.CellCoordinates.x;
 
                 // Update the cell data and arrow map with this arrow placement, used by game logic
+                // TODO: Handle the case for replacing existing arrow
                 CellComponent cell = new CellComponent();
                 if (cellMap.ContainsKey(cellIndex))
                 {
@@ -153,7 +150,7 @@ public class ArrowSystem : ComponentSystem
                 Debug.Log("Placed arrow on cell="+input.CellCoordinates + " with dir=" + input.Direction);
 
                 // Update the overlays (arrow+color) which shows the player visually where the arrow is placed
-                var startIndex = player.PlayerId * PlayerConstants.MaxArrows;
+                var startIndex = (player.PlayerId-1) * PlayerConstants.MaxArrows;
                 oldestTick = float.MaxValue;
                 oldestIndex = -1;
                 for (int i = startIndex; i < (startIndex+PlayerConstants.MaxArrows); ++i)

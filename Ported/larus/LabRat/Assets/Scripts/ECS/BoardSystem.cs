@@ -29,7 +29,6 @@ public class BoardSystem : ComponentSystem
         m_HomebaseMap = new NativeHashMap<int, int>(4, Allocator.Persistent);
         m_CatMap = new NativeHashMap<int, int>(64, Allocator.Persistent);
         m_ArrowMap = new NativeHashMap<int, ArrowComponent>(64, Allocator.Persistent);
-        RequireSingletonForUpdate<GhostPrefabCollectionComponent>();
     }
 
     protected override void OnDestroy()
@@ -42,15 +41,6 @@ public class BoardSystem : ComponentSystem
 
     protected override void OnUpdate()
     {
-        /*Entities.WithNone<InitializedBoard>().ForEach((Entity entity, ref BoardDataComponent board) =>
-        {
-            float offset = 1f / 3f;
-            SpawnHomebase(board.size.x * offset, board.size.y * offset);
-            SpawnHomebase(board.size.x * 2f * offset, board.size.y * 2f * offset);
-            SpawnHomebase(board.size.x * offset, board.size.y * 2f * offset);
-            SpawnHomebase(board.size.x * 2f * offset, board.size.y * offset);
-            PostUpdateCommands.AddComponent<InitializedBoard>(entity);
-        });*/
     }
 
     public void SpawnHomebase(int playerId)
@@ -72,7 +62,7 @@ public class BoardSystem : ComponentSystem
                 break;
         }
         var x = math.floor(offsetX);
-        var y = math.floor(offsetX);
+        var y = math.floor(offsetY);
 
         // TODO: Use better place to define player to color mappings
         var color = PlayerCursor.PlayerColors[playerId-1];

@@ -42,7 +42,7 @@ public class OverlaySpawnerSystem : ComponentSystem
                 EntityManager.SetName(instance, "OverlayColor");
 #endif
                 EntityManager.SetComponentData(instance, new Translation{Value = new float3(0,10,0)});
-                var colorIndex = (byte) (math.floor(i / PlayerConstants.MaxArrows) - 1);
+                var colorIndex = (byte) (math.floor(i / PlayerConstants.MaxArrows));
                 EntityManager.SetComponentData(instance, new OverlayColorComponent{Color = colorIndex});
                 Debug.Log("Set index " + i + " entity " + instance + " as color " + colorIndex);
             }

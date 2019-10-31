@@ -1,6 +1,4 @@
-﻿using System;
-using ECSExamples;
-using Unity.Collections;
+﻿using ECSExamples;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;

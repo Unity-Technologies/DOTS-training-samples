@@ -157,15 +157,6 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 		return CellAtCoord(cellCoord);
 	}
 
-	/*public static Cell CellAtWorldPosition(BoardDataComponent boardData, Vector3 worldPosition) {
-		//var localPt3D = transform.InverseTransformPoint(worldPosition);
-		var localPt = new Vector2(localPt3D.x, localPt3D.z);
-
-		localPt += boardData.cellSize * 0.5f; // offset by half cellsize
-		var cellCoord = new Vector2Int(Mathf.FloorToInt(localPt.x / boardData.cellSize.x), Mathf.FloorToInt(localPt.y / boardData.cellSize.y));
-		return CellAtCoord(cellCoord);
-	}*/
-
 	public Cell RaycastCellDirection(Vector2 screenPos, out Direction cellDirection) {
 		cellDirection = Direction.North;
 
@@ -285,12 +276,6 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 				if (neighborCell != null && neighborCell.HasWall(Direction.West))
 					cellData = cellData | CellData.WallWest;
 			}
-
-			/*if (cell.Homebase != null)
-			{
-				cellData = cellData | CellData.HomeBase;
-				boardSystem.HomeBaseMap.Add(i, -1);
-			}*/
 
 			if (cellData != 0)
 			{
