@@ -17,19 +17,24 @@ namespace Tests
         [Test]
         public void MoveEntity()
         {
+            BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+
+            int2 position = new int2(0,0);
+            int2 targetPosition = new int2(1, 1);
             var e = World.EntityManager.CreateEntity(typeof(AnimationCompleteTag), typeof(HasTarget), typeof(TilePositionable));
-            World.EntityManager.SetComponentData(e, new HasTarget() { TargetPosition = new int2(1,1)});
-            World.EntityManager.SetComponentData(e, new TilePositionable() { Position = new int2(0,0)});
+            World.EntityManager.SetComponentData(e, new HasTarget() { TargetPosition = targetPosition});
+            World.EntityManager.SetComponentData(e, new TilePositionable() { Position = position});
 
             var movementSystem = World.GetOrCreateSystem<MovementSystem>();
             Assert.IsTrue(movementSystem.Enabled && movementSystem.ShouldRunSystem());
             movementSystem.Update();
-            
-            Assert.IsFalse(World.EntityManager.HasComponent<HasTarget>(e));
+            m_EntityCommandBufferSystem.Update();
+            m_Manager.CompleteAllJobs();
+
+            Assert.IsFalse(World.EntityManager.HasComponent(e, typeof(HasTarget)));
 
             TilePositionable value = World.EntityManager.GetComponentData<TilePositionable>(e);
-            HasTarget target = World.EntityManager.GetComponentData<HasTarget>(e);
-            Assert.IsTrue(value.Position.x == target.TargetPosition.x && value.Position.y == target.TargetPosition.y );
+            Assert.IsTrue(value.Position.x == targetPosition.x && value.Position.y == targetPosition.y );
         }
     }
 }
