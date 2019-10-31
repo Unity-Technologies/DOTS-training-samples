@@ -23,14 +23,15 @@ namespace GameAI
             var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             var job = Entities
                 //.WithReadOnly(typeof(HasTarget))
-                .ForEach((Entity entity, int entityInQueryIndex, ref AnimationCompleteTag _, ref HasTarget target, ref TilePositionable tilePositionable) =>
+                .WithAll<AnimationCompleteTag>()
+                .ForEach((Entity entity, int entityInQueryIndex, ref HasTarget target, ref TilePositionable tilePositionable) =>
                 {
                     tilePositionable.Position = target.TargetPosition;
                     ecb.RemoveComponent<HasTarget>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
 
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
-            return JobHandle.CombineDependencies(inputDeps, job);
+            return job;
         }
     }
 }
