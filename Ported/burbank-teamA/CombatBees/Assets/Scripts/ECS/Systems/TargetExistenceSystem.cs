@@ -6,7 +6,6 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using static Unity.Mathematics.math;
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class TargetExistenceSystem : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
