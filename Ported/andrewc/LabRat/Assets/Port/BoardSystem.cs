@@ -92,8 +92,6 @@ public struct Board : IDisposable
 {
     public const int k_Width = 13;
     public const int k_Height = 13;
-<<<<<<< HEAD
-=======
 
     public Vector2 Size
     {
@@ -104,7 +102,6 @@ public struct Board : IDisposable
     {
         get => new Vector2(1f, 1f);
     }
->>>>>>> c6c45ec5d40f140172a4ea94db834478fafbcf45
 
     public static int2 ConvertWorldToTileCoordinates(float3 position)
     {
@@ -144,7 +141,7 @@ public struct Board : IDisposable
             int y = UnityEngine.Random.Range(0, k_Height);
             int dir = UnityEngine.Random.Range(0, 4);
             int index = y * k_Width + x;
-            m_Tiles[index].SetWall((eDirection)dir, true);
+            m_Tiles[index] = m_Tiles[index].SetWall((eDirection)dir, true);
 
             //if (cell.HasWallOrNeighborWall(direction) || cell.WallOrNeighborWallCount > 3)
             //    c--;
@@ -153,10 +150,14 @@ public struct Board : IDisposable
 
         // setup home bases
         float offset = 1f / 3f;
-        m_Tiles[(int)(k_Width * offset + k_Height * offset * k_Width)].SetTileType(eTileType.HomeBase);
-        m_Tiles[(int)(k_Width * 2f * offset + k_Height * 2f * offset * k_Width)].SetTileType(eTileType.HomeBase);
-        m_Tiles[(int)(k_Width * offset + k_Height * 2f* offset * k_Width)].SetTileType(eTileType.HomeBase);
-        m_Tiles[(int)(k_Width * 2f * offset + k_Height * offset * k_Width)].SetTileType(eTileType.HomeBase);
+        int idx = (int)(k_Width * offset + k_Height * offset * k_Width);
+        m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        idx = (int)(k_Width * 2f * offset + k_Height * 2f * offset * k_Width);
+        m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        //idx = (int)(k_Width * offset + k_Height * 2f * offset * k_Width);
+        //m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        //idx = (int)(k_Width * 2f * offset + k_Height * offset * k_Width);
+        //m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
     }
 
     public void Dispose()
