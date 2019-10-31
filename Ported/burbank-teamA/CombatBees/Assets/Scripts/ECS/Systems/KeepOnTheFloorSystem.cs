@@ -2,22 +2,42 @@
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 
 public class KeepOnTheFloorSystem : JobComponentSystem
 {
-   protected override JobHandle OnUpdate(JobHandle inputDeps)
+
+    BeginInitializationEntityCommandBufferSystem bufferSystem;
+
+
+    protected override void OnCreate()
+    {
+        bufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+    }
+
+
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var gameBounds = GetSingleton<GameBounds>().Value;
+        var commandBuffer = bufferSystem.CreateCommandBuffer().ToConcurrent();
 
-        return Entities.WithAny<ResourceTag, ParticleTag>()
-            .ForEach((ref Translation t, ref Velocity velocity, ref GravityMultiplier gm) =>
+        return Entities.WithoutBurst().WithAny<ResourceTag, ParticleTag>()
+            .ForEach((Entity e, ref Translation t, ref Velocity velocity, ref GravityMultiplier gm) =>
             {
 
                 if (t.Value.y < -gameBounds.y)
                 {
+
+                    if (math.abs(t.Value.x) > gameBounds.x*0.8)
+                    {
+
+                        commandBuffer.DestroyEntity(0, e);
+                    }
+
                     gm.Value = 0;
                     velocity.Value = new float3();
+
                 }
 
                 if (math.abs(t.Value.x) > gameBounds.x)

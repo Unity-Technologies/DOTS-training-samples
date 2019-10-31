@@ -33,7 +33,7 @@ public class DieParticlesSystem : JobComponentSystem
                })
             .Schedule(inputDeps);
                
-
+      
         bufferSystem.AddJobHandleForProducer(jobHandle);
 
         return jobHandle;

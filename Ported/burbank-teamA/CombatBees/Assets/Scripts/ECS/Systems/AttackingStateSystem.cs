@@ -26,7 +26,7 @@ public class AttackingStateSystem : JobComponentSystem
        // var stateContainer = GetComponentDataFromEntity<State>(false);
         var commonBuffer = buffer.CreateCommandBuffer().ToConcurrent();
 
-        var handle = Entities.WithReadOnly(translationContainer).ForEach((Entity entity, ref TargetEntity targetEntity, ref TargetVelocity targetVelocity, in State state) =>
+        var handle = Entities.WithReadOnly(translationContainer).ForEach((Entity entity, ref TargetEntity targetEntity, ref TargetVelocity targetVelocity, ref State state) =>
         {
             
 
@@ -42,10 +42,14 @@ public class AttackingStateSystem : JobComponentSystem
 
                 if (distance <= (attackDistance * 0.1f))
                 {
+
+                    state.Value = State.StateType.Idle;
+
                     commonBuffer.SetComponent(0, targetEntity.Value, new State
                     {
                         Value = State.StateType.Dead
                     });
+
                     targetEntity.Value = Entity.Null;
                 }
 
