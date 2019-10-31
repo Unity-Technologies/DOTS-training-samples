@@ -16,6 +16,7 @@ public class BoardAuthoring_FromEntity : MonoBehaviour, IDeclareReferencedPrefab
     {
         referencedPrefabs.Add(TilePrefab);
         referencedPrefabs.Add(WallPrefab);
+        referencedPrefabs.Add(HomebasePrefab);
     }
 
     //private void 
@@ -52,11 +53,11 @@ public class BoardAuthoring_FromEntity : MonoBehaviour, IDeclareReferencedPrefab
                         break;
                     case eTileType.HomeBase:
                         {
-                            Translation spawnTrans = new Translation { Value = new Vector3(i * CellSize.x, Random.value * yNoise, j * CellSize.y) };
+                            Vector3 spawnTrans = new Vector3(i * CellSize.x, Random.value * yNoise, j * CellSize.y);
                             Entity tile = dstManager.Instantiate(TileEntity);
                             Entity homebase = dstManager.Instantiate(HomebaseEntity);
-                            dstManager.SetComponentData(tile, spawnTrans);
-                            dstManager.SetComponentData(homebase, spawnTrans);
+                            dstManager.SetComponentData(tile, new Translation { Value = spawnTrans });
+                            dstManager.SetComponentData(homebase, new Translation { Value = spawnTrans + new Vector3(0, 1, 0) });
                             break;
                         }
                     default:
