@@ -15,7 +15,7 @@ namespace GameAI
         }
     }
 
-    public struct FarmerComponent : IComponentData
+    public struct TagFarmer : IComponentData
     {
     };
 }

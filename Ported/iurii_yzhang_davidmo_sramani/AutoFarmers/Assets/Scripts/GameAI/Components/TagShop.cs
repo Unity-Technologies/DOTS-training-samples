@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace GameAI
 {
-    public struct ShopComponent : IComponentData
+    public struct TagShop : IComponentData
     {
     };
 }

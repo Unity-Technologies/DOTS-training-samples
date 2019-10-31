@@ -30,7 +30,7 @@ namespace AutoFarmersTests
 
             var ecb1 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             var job1 = Entities
-                .WithAll<FarmerComponent>()
+                .WithAll<TagFarmer>()
                 .ForEach((Entity entity, int nativeThreadIndex, ref TilePositionable positionable) =>
                 {
                     var dirX = new int4(1, -1, 0, 0);
