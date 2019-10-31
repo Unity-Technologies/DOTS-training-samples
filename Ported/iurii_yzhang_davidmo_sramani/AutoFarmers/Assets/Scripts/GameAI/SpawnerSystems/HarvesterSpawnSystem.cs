@@ -25,53 +25,10 @@ namespace GameAI
         /// </summary>
         protected override void OnCreate()
         {
-            var defaultFarmerArchetype = EntityManager.CreateArchetype(
-                // TODO: Add additional components movement components for map
-                typeof(NonUniformScale),
-                typeof(Translation),
-                typeof(LocalToWorld),
-                typeof(RenderMesh),
-                typeof(RenderingAnimationComponent),
-                typeof(FarmerAITag),
-                typeof(AITagTaskNone));
-
-            var farmerMeshRenderer = RenderingUnity.instance.farmer;
-            defaultFarmerEntity = EntityManager.CreateEntity(defaultFarmerArchetype);
-            var farmerRenderMesh = new RenderMesh
-            {
-                mesh = farmerMeshRenderer.GetComponent<MeshFilter>().sharedMesh,
-                material = farmerMeshRenderer.sharedMaterial,
-                castShadows = farmerMeshRenderer.shadowCastingMode,
-                // TODO: Set back once performance is proven.
-                receiveShadows = false
-            };
-            EntityManager.SetSharedComponentData<RenderMesh>(defaultFarmerEntity, farmerRenderMesh);
-            EntityManager.SetComponentData(defaultFarmerEntity,
-                new NonUniformScale {Value = farmerMeshRenderer.transform.localScale});
-
-            var defaultDroneArchetype = EntityManager.CreateArchetype(
-                // TODO: Add additional components movement components for map
-                typeof(NonUniformScale), 
-                typeof(Translation),
-                typeof(LocalToWorld), 
-                typeof(RenderMesh), 
-                typeof(RenderingAnimationComponent),
-                typeof(RenderingAnimationDroneFlyComponent),
-                typeof(AITagTaskNone));
+            var initSys = World.GetOrCreateSystem<RenderingMapInit>();
             
-            var droneMeshRenderer = RenderingUnity.instance.drone;
-            defaultDroneEntity = EntityManager.CreateEntity(defaultDroneArchetype);
-            var droneRenderMesh = new RenderMesh
-            {
-                mesh = droneMeshRenderer.GetComponent<MeshFilter>().sharedMesh,
-                material = droneMeshRenderer.sharedMaterial,
-                castShadows = droneMeshRenderer.shadowCastingMode,
-                // TODO: Set back once performance is proven.
-                receiveShadows = false
-            };
-            EntityManager.SetSharedComponentData<RenderMesh>(defaultDroneEntity, droneRenderMesh);
-            EntityManager.SetComponentData(defaultFarmerEntity,
-                new NonUniformScale {Value = droneMeshRenderer.transform.localScale});
+            defaultFarmerEntity = initSys.farmerEntityPrefab;
+            defaultDroneEntity = initSys.droneEntityPrefab;
         }
 
         /// <summary>
@@ -120,7 +77,7 @@ namespace GameAI
             ecbSystem.AddJobHandleForProducer(createDroneJobHandle);
 
             // Aggregates the job handles with the previous jobs
-            return JobHandle.CombineDependencies(inputDependencies, createFarmerJobHandle, createDroneJobHandle);
+            return JobHandle.CombineDependencies(createFarmerJobHandle, createDroneJobHandle);
         }
     }
 }

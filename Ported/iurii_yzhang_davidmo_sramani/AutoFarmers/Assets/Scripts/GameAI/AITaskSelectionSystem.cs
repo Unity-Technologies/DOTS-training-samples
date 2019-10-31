@@ -26,20 +26,20 @@ namespace GameAI
                     var seed = nativeThreadIndex + (int)rnd * 7;
                     var randomNum = new Random((uint) seed);
 
-                    ecb1.RemoveComponent(nativeThreadIndex, e, typeof(AITagTaskNone));
+                    ecb1.RemoveComponent<AITagTaskNone>(nativeThreadIndex, e);
                     switch (randomNum.NextInt(4))
                     {
                         default:
-                            ecb1.AddComponent(nativeThreadIndex, e, new AITagTaskClearRock());
+                            ecb1.AddComponent<AITagTaskClearRock>(nativeThreadIndex, e);
                             break;
                         case 1:
-                            ecb1.AddComponent(nativeThreadIndex, e, new AITagTaskTill());
+                            ecb1.AddComponent<AITagTaskTill>(nativeThreadIndex, e);
                             break;
                         case 2:
-                            ecb1.AddComponent(nativeThreadIndex, e, new AITagTaskPlant());
+                            ecb1.AddComponent<AITagTaskPlant>(nativeThreadIndex, e);
                             break;
                         case 3:
-                            ecb1.AddComponent(nativeThreadIndex, e, new AITagTaskCollect());
+                            ecb1.AddComponent<AITagTaskCollect>(nativeThreadIndex, e);
                             break;
                     }
                 }).Schedule(inputDependencies);
@@ -51,14 +51,14 @@ namespace GameAI
 //            .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e) =>
                 {
-                    ecb2.RemoveComponent(nativeThreadIndex, e, typeof(AITagTaskNone));
-                    ecb2.AddComponent(nativeThreadIndex, e, new AITagTaskCollect());
+                    ecb2.RemoveComponent<AITagTaskNone>(nativeThreadIndex, e);
+                    ecb2.AddComponent<AITagTaskCollect>(nativeThreadIndex, e);
                 }).Schedule(inputDependencies);
 
             ecbSystem.AddJobHandleForProducer(groundSelectorHandle);
             ecbSystem.AddJobHandleForProducer(airSelectorHandle);
 
-            return JobHandle.CombineDependencies(groundSelectorHandle, airSelectorHandle, inputDependencies);
+            return JobHandle.CombineDependencies(groundSelectorHandle, airSelectorHandle);
         }
     }
 }
