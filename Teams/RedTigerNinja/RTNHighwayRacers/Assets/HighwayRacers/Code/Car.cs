@@ -306,9 +306,9 @@ namespace HighwayRacers
         }
 
 
-        public static CarLocation GetOtherCar(Entity id)
+        public static CarLocation GetOtherCar(Highway.HighwayStateStruct highway, Entity id)
         {
-            return CarLocation.NullLocation;
+            return highway.CarByEntityId[id];
         }
 
         public const bool IsTotalHackData = false;
@@ -478,7 +478,7 @@ namespace HighwayRacers
 					tryMergeRight = true;
 				} else {
 					// if passed overtake car
-					if (highway.DistanceTo(car.distance, car.lane, GetOtherCar( carMind.overtakeCarEntity ).distance, GetOtherCar(carMind.overtakeCarEntity).lane) > highway.length(car.lane) / 2) {
+					if (highway.DistanceTo(car.distance, car.lane, GetOtherCar(highway, carMind.overtakeCarEntity ).distance, GetOtherCar(highway, carMind.overtakeCarEntity).lane) > highway.length(car.lane) / 2) {
 						tryMergeRight = true;
 					}
 				}

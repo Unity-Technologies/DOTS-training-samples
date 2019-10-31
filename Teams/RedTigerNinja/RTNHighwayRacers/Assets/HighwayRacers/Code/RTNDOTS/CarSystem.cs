@@ -26,6 +26,7 @@ namespace HighwayRacers {
             var highway = Highway.instance.HighwayState;
             highway.AllCars = carSorted;
             highway.AllPieces = hpcAr;
+            highway.CarByEntityId = this.GetComponentDataFromEntity<CarLocation>(true);
 
             // testing code:
             var isTestSum = false;

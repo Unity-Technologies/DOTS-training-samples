@@ -511,6 +511,7 @@ namespace HighwayRacers
         {
             [ReadOnly] public Unity.Collections.NativeArray<CarLocation> AllCars;
             [ReadOnly] public Unity.Collections.NativeArray<HighwayPiece.HighwayPieceState> AllPieces;
+            [ReadOnly] public Unity.Entities.ComponentDataFromEntity<CarLocation> CarByEntityId;
             public float lane0Length;
 
             //public HighwayStateStruct() { }
