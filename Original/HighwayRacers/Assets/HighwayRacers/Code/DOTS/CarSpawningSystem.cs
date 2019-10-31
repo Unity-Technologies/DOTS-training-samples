@@ -25,19 +25,29 @@ public class CarSpawningSystem : ComponentSystem
             var random = new System.Random(100);
 
             var entities = new NativeArray<Entity>(carSpawnCount, Allocator.Temp);
-            var carArchetype = EntityManager.CreateArchetype(
+            var carActiveComponentTypes = new ComponentTypes(
                                 typeof(CarBasicState),
                                 typeof(CarCrossVelocity),
-                                typeof(CarLogicState),
+                                typeof(CarLogicState)
+                            );
+            var carStaticComponentTypes = new ComponentTypes(
                                 typeof(CarVelocityStaticProperties),
                                 typeof(CarMergeStaticProperties),
                                 typeof(CarOvertakeStaticProperties)
                             );
-            EntityManager.CreateEntity(carArchetype, entities);
+            // Instantiate with the prefab and add all the components.
+            for (int i = 0; i < carSpawnCount; ++i)
+            {
+                // Is this really necessary, or should the Drawing System just
+                // DrawMeshInstanced using this prefab?
+                entities[i] = EntityManager.Instantiate(spawner.carPrefab);
+                EntityManager.AddComponents(entities[i],carActiveComponentTypes);
+                EntityManager.AddComponents(entities[i],carStaticComponentTypes);
+            }
 
             // Create a whole bunch of cars equally spaced within the road as a starting point.
             float curPosition = 0;
-            int curLane = 1;
+            int curLane = 0;
             float positionStep = computePositionStep(hiway.highwayLength, carsPerLane, curLane);
             for (int i = 0; i < carSpawnCount; ++i)
             {
@@ -80,7 +90,7 @@ public class CarSpawningSystem : ComponentSystem
                 EntityManager.SetComponentData(entities[i], cbs);
 
                 // If we've filled up this lane, move to the next one.
-                if (((i + 1) % carsPerLane) == 0 && (curLane != 4))
+                if (((i + 1) % carsPerLane) == 0 && (curLane != 3))
                 {
                     curPosition = 0;
                     ++curLane;
@@ -91,9 +101,6 @@ public class CarSpawningSystem : ComponentSystem
                     curPosition += positionStep;
                 }
 
-                // Is this really necessary, or should the Drawing System just
-                // DrawMeshInstanced using this prefab?
-                EntityManager.Instantiate(spawner.carPrefab);
             }
 
             // Remove the spawner component so that we never update this system
