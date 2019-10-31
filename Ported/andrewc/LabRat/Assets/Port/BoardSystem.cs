@@ -90,8 +90,18 @@ public struct Tile
 
 public struct Board : IDisposable
 {
-    public const int k_Width = 20;
-    public const int k_Height = 20;
+    public const int k_Width = 13;
+    public const int k_Height = 13;
+
+    public Vector2 Size
+    {
+        get => new Vector2(k_Width, k_Height);
+    }
+
+    public Vector2 CellSize
+    {
+        get => new Vector2(1f, 1f);
+    }
 
     public static int2 ConvertWorldToTileCoordinates(float3 position)
     {

@@ -14,6 +14,7 @@ public class GameManagementSystem : ComponentSystem
     static readonly double k_SetDisplayTimeInSeconds = 1f;
     static readonly double k_GoDisplayTimeInSeconds = 1f;
     static readonly double k_GameOverWaitTimeInSeconds = 4f;
+    static readonly float k_OverheadFactor = 1.5f;
 
     float m_numSecondsLeftInGame = k_NumSecondsPerGame;
     public float NumSecondsLeftInGame
@@ -65,10 +66,39 @@ public class GameManagementSystem : ComponentSystem
     }
 
     double m_lastTimestamp;
+    bool m_isCameraInitialized;
+    BoardSystem m_boardSystem;
+    Board m_board;
 
     protected override void OnCreate()
     {
-        m_lastTimestamp = Time.ElapsedTime;
+        m_boardSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<BoardSystem>();
+        m_board = m_boardSystem.Board;
+
+        ResetGame();
+    }
+
+    void UpdateCameraIfNeeded()
+    {
+        if (m_isCameraInitialized)
+            return;
+
+        Debug.Log("UpdateCamera");
+        var cam = Camera.main;
+        cam.orthographic = true;
+
+        float maxSize = Mathf.Max(m_board.Size.x, m_board.Size.y);
+
+        float maxCellSize = Mathf.Max(m_board.CellSize.x, m_board.CellSize.y);
+
+        cam.orthographicSize = maxSize * maxCellSize * .65f;
+        var posXZ = Vector2.Scale(new Vector2(m_board.Size.x, m_board.Size.y) * 0.5f, m_board.CellSize);
+
+        cam.transform.position = new Vector3(0, maxSize * maxCellSize * k_OverheadFactor, 0);
+        cam.transform.LookAt(new Vector3(posXZ.x, 0f, posXZ.y));
+
+        m_isCameraInitialized = true;
+        Debug.Log("UpdateCamera DONE");
     }
 
     protected override void OnDestroy()
@@ -147,6 +177,7 @@ public class GameManagementSystem : ComponentSystem
 
     protected override void OnUpdate()
     {
+        UpdateCameraIfNeeded();
         switch (m_gameState)
         {
             case GameState.DisplayReadyText:
