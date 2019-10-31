@@ -2,6 +2,7 @@ using System;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Entities;
+using UnityEngine;
 
 public struct Tile
 {
@@ -82,8 +83,8 @@ public struct Tile
 
 public struct Board : IDisposable
 {
-    const int k_Width = 13;
-    const int k_Height = 13;
+    public const int k_Width = 13;
+    public const int k_Height = 13;
 
     public static int2 ConvertWorldToTileCoordinates(float3 position)
     {
