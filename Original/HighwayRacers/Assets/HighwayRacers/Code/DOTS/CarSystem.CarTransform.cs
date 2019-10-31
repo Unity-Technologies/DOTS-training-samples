@@ -1,4 +1,4 @@
-﻿using Unity.Burst;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
@@ -26,7 +26,9 @@ partial class CarSystem
 
             float3 localPos = new float3(localX, localToWorld.Position.y, localZ);
             float3 piecePos = xforms[hitPiece].Position;
-            localToWorld.Value = float4x4.Translate(localPos + piecePos);
+            localToWorld.Value = float4x4.TRS(localPos + piecePos,
+                                        quaternion.RotateY(localRot),
+                                        new float3(1, 1, 1));
         }
     }
 }

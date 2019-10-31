@@ -27,6 +27,7 @@ public class CarSpawningSystem : ComponentSystem
         {
             var carSpawnCount = hiway.numCars;
             var carsPerLane = (int)Math.Floor((float)carSpawnCount / HighwayConstants.NUM_LANES);
+            carsPerLane = Math.Max(carsPerLane, 2);
             var random = new System.Random(100);
 
             var entities = new NativeArray<Entity>(carSpawnCount, Allocator.Temp);
