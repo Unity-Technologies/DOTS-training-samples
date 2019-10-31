@@ -5,7 +5,7 @@ using Unity.Jobs;
 using Unity.Transforms;
 using UnityEngine;
 using static Unity.Mathematics.math;
-using float3 = Unity.Mathematics.float3;
+using Unity.Mathematics;
 using quaternion = Unity.Mathematics.quaternion;
 
 [BurstCompile]
@@ -56,7 +56,8 @@ public class ParticleSys : JobComponentSystem
                 dist - Mathf.Clamp01(tornadoPos.y / tornado.height) * 30.0f * particleComponent.RadiusMult + 2.0f;
 
             // Rotation
-            rot.Value = Quaternion.identity;
+            float2 normalVec = normalize(float2(delta.x, delta.z));
+            rot.Value = Quaternion.Euler(-90.0f, 0.0f, acos(normalVec.x) * 57.2958f); // asin(normalVec.x / normalVec.y)
             
             // Increment to position
             pos.Value += float3(
