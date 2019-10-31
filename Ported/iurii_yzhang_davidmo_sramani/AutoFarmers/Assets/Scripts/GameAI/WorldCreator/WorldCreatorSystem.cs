@@ -32,7 +32,7 @@ namespace GameAI
         
         private EntityArchetype m_tile;
         private EntityArchetype m_plant;
-        private EntityArchetype m_store;
+        private EntityArchetype m_stone;
         private EntityArchetype m_score;    // singleton
         private EntityArchetype m_shop;
 
@@ -48,7 +48,7 @@ namespace GameAI
             m_tile = EntityManager.CreateArchetype(typeof(TilePositionRequest));
             m_plant = EntityManager.CreateArchetype(typeof(PlantPositionRequest));
 
-            m_store = EntityManager.CreateArchetype(typeof(StonePositionRequest));
+            m_stone = EntityManager.CreateArchetype(typeof(StonePositionRequest));
             scoreArray = new NativeArray<int>(128, Allocator.Persistent);
 
             m_stone = EntityManager.CreateArchetype(typeof(StonePositionRequest));
