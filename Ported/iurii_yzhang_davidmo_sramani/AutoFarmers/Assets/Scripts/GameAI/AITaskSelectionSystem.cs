@@ -51,14 +51,14 @@ namespace GameAI
 //            .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e) =>
                 {
-                    ecb2.RemoveComponent(nativeThreadIndex, e, typeof(AITagTaskNone));
-                    ecb2.AddComponent(nativeThreadIndex, e, new AITagTaskCollect());
+                    ecb2.RemoveComponent<AITagTaskNone>(nativeThreadIndex, e);
+                    ecb2.AddComponent<AITagTaskCollect>(nativeThreadIndex, e);
                 }).Schedule(inputDependencies);
 
             ecbSystem.AddJobHandleForProducer(groundSelectorHandle);
             ecbSystem.AddJobHandleForProducer(airSelectorHandle);
 
-            return JobHandle.CombineDependencies(groundSelectorHandle, airSelectorHandle, inputDependencies);
+            return JobHandle.CombineDependencies(groundSelectorHandle, airSelectorHandle);
         }
     }
 }

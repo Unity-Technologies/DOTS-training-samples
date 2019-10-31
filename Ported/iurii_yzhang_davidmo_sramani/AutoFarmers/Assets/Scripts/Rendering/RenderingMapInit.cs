@@ -125,9 +125,6 @@ public class RenderingMapInit : JobComponentSystem
         ecbSystem.AddJobHandleForProducer(handle2);
         ecbSystem.AddJobHandleForProducer(handle3);
 
-        var farmerSpawner1 = EntityManager.CreateEntity();
-        
-//        Debug.Log("Map Init");
         return handle;
     }
     
