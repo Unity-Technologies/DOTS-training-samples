@@ -5,5 +5,4 @@ using Unity.Mathematics;
 public struct GameBounds : IComponentData
 {
     public float3 Value;
-    public float threshold;
 }

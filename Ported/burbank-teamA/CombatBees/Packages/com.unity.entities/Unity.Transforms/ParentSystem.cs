@@ -265,9 +265,9 @@ namespace Unity.Transforms
             // 2. Get (Parent,Child) to add
             // 3. Get unique Parent change list
             // 4. Set PreviousParent to new Parent
-            var parentChildrenToAdd = new NativeMultiHashMap<Entity, Entity>(count, Allocator.TempJob);
-            var parentChildrenToRemove = new NativeMultiHashMap<Entity, Entity>(count, Allocator.TempJob);
-            var uniqueParents = new NativeHashMap<Entity, int>(count, Allocator.TempJob);
+            var parentChildrenToAdd = new NativeMultiHashMap<Entity, Entity>(2*count, Allocator.TempJob);
+            var parentChildrenToRemove = new NativeMultiHashMap<Entity, Entity>(2*count, Allocator.TempJob);
+            var uniqueParents = new NativeHashMap<Entity, int>(2*count, Allocator.TempJob);
             var gatherChangedParentsJob = new GatherChangedParents
             {
                 ParentChildrenToAdd = parentChildrenToAdd.AsParallelWriter(),
