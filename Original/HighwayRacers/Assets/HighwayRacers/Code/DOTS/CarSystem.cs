@@ -1,8 +1,7 @@
-﻿#define ENABLE_TEST
+﻿//#define ENABLE_TEST
 
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 
 [AlwaysUpdateSystem]
 public partial class CarSystem : JobComponentSystem
@@ -21,14 +20,30 @@ public partial class CarSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        const int carCount = 1000;
+        var deltaTime = UnityEngine.Time.deltaTime;
+        if (deltaTime == 0) // possible when the game is paused
+            return inputDeps;
+
+#if ENABLE_TEST
+        var highway = new HighwayProperties()
+        {
+            numCars = 1000,
+            highwayLength = 250.0f
+        };
+#else
+        if (!HasSingleton<HighwayProperties>())
+            return inputDeps;
+        var highway = GetSingleton<HighwayProperties>();
+#endif
+
+        var numCars = highway.numCars;
 
 #if ENABLE_TEST
         if (firstTime)
         {
             rnd.InitState(9999);
             // Spawn a bunch of Lane and Position components for testing purpose.
-            for (int i = 0; i < carCount; ++i)
+            for (int i = 0; i < numCars; ++i)
             {
                 var e = EntityManager.CreateEntity();
                 EntityManager.AddComponentData(e, new CarBasicState()
@@ -42,16 +57,13 @@ public partial class CarSystem : JobComponentSystem
         }
 #endif
 
-        var deltaTime = UnityEngine.Time.deltaTime;
-        if (deltaTime == 0) // possible when the game is paused
-            return inputDeps;
-
-        var queryStructure = new CarQueryStructure(carCount);
-        inputDeps = queryStructure.Build(this, inputDeps, 250.0f);
+        var queryStructure = new CarQueryStructure(numCars);
+        inputDeps = queryStructure.Build(this, inputDeps, highway.highwayLength);
 
         inputDeps = new CarUpdateJob()
         {
             Dt = deltaTime,
+            HighwayLen = highway.highwayLength,
             QueryStructure = queryStructure,
         }.Schedule(this, inputDeps);
 

@@ -55,6 +55,8 @@ public class HighwayPropertiesAuthoring : MonoBehaviour, IDeclareReferencedPrefa
     }
 }
 
+#if UNITY_EDITOR
+
 [CustomEditor(typeof(HighwayPropertiesAuthoring))]
 public class HighwayPropertiesEditor : Editor
 {
@@ -71,10 +73,17 @@ public class HighwayPropertiesEditor : Editor
             GameObject pStraight = hpa.straightSection;
             GameObject pCurve = hpa.curveSection;
 
+            EditorGUI.BeginChangeCheck();
+
             hpa.highWayLen = EditorGUILayout.Slider("Highway Length", initialLen, HighwayConstants.MID_RADIUS * 4, HighwayConstants.MAX_HIGHWAY_LENGTH);
             hpa.carsCount = EditorGUILayout.IntSlider("Number of Cars", initialCount, 0, (int)Math.Floor(hpa.highWayLen * 2));
             hpa.straightSection = (GameObject)EditorGUILayout.ObjectField("Straight Section Prefab", pStraight, typeof(GameObject), false);
             hpa.curveSection = (GameObject)EditorGUILayout.ObjectField("Curve Section Prefab", pCurve, typeof(GameObject), false);
+
+            if (EditorGUI.EndChangeCheck())
+                EditorUtility.SetDirty(hpa);
         }
     }
 }
+
+#endif

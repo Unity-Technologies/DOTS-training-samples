@@ -76,11 +76,11 @@ public class CarSpawningSystem : ComponentSystem
                 CarCrossVelocity ccv;
 
                 cbs.Speed = 0;
-                cbs.Lane = curLane;
+                cbs.Lane = curLane - 1;
                 cbs.Position = curPosition;
 
                 cls.state = VehicleState.NORMAL;
-                cls.targetLane = curLane;
+                cls.targetLane = curLane - 1;
                 cls.targetSpeed = cvsp.DefaultSpeed;
 
                 ccv.CrossLaneVel = 0;
