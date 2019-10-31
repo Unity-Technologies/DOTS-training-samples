@@ -10,9 +10,9 @@ using Random = Unity.Mathematics.Random;
 public class Sys_BuildBarTRS : JobComponentSystem
 {
     [ BurstCompile ]
-    struct UpdateBarTRSJob : IJobForEach< BarPoint1, BarPoint2, Translation, Rotation, NonUniformScale >
+    struct UpdateBarTRSJob : IJobForEach< BarPoint1, BarPoint2, BarLength, Translation, Rotation, NonUniformScale >
     {
-        public void Execute( [ ReadOnly ] ref BarPoint1 b1, ref BarPoint2 b2, ref Translation t, ref Rotation r, ref NonUniformScale s )
+        public void Execute( [ ReadOnly ] ref BarPoint1 b1, ref BarPoint2 b2, ref BarLength l, ref Translation t, ref Rotation r, ref NonUniformScale s )
         {
             float3 diff = b2.pos - b1.pos;
             var forward = math.normalizesafe( diff );
@@ -22,7 +22,7 @@ public class Sys_BuildBarTRS : JobComponentSystem
 
             t.Value = ( b1.pos + b2.pos ) * .5f;
             r.Value = rot;
-            s.Value.z = math.length( b1.pos - b2.pos );
+            s.Value.z = l.value;
         }
     }
 
