@@ -24,7 +24,9 @@ public class CollectStateSystem : JobComponentSystem
             (Entity entity, ref TargetVelocity targetVelocity, ref State state, ref CollectedEntity collected, in TargetEntity targetEntity) =>
             {
                 if (state.Value != State.StateType.Collecting) return;
-                
+                if (!translationContainer.Exists(targetEntity.Value)) return;
+
+
                 targetVelocity.Value = collectVelocity;
 
                 var myTranslation = translationContainer[entity];
