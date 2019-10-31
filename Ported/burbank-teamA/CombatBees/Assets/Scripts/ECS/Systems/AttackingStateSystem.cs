@@ -41,7 +41,8 @@ public class AttackingStateSystem : JobComponentSystem
 
                 if (distance <= (attackDistance * 0.1f))
                 {
-                        commonBuffer.SetComponent(0, targetEntity.Value, new State
+
+                    commonBuffer.SetComponent(0, targetEntity.Value, new State
                     {
                         Value = State.StateType.Dead
                     });

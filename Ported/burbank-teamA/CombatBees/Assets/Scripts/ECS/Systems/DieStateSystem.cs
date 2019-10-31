@@ -22,10 +22,11 @@ public class DieStateSystem : JobComponentSystem
         var commonBuffer = buffer.CreateCommandBuffer().ToConcurrent();
         var bloodPrefab = GetSingleton<BloodParticlesPrefab>().Value;
 
-        var handle = Entities.ForEach((Entity entity, in Translation translation, in State state) =>
+        var handle = Entities.WithoutBurst().ForEach((Entity entity, in Translation translation, in State state) =>
         {
             if (state.Value == State.StateType.Dead)
             {
+
                 var spawnedBlood = commonBuffer.Instantiate(0, bloodPrefab);
                 commonBuffer.DestroyEntity(0, entity);
                 commonBuffer.SetComponent(0, spawnedBlood, new Translation
