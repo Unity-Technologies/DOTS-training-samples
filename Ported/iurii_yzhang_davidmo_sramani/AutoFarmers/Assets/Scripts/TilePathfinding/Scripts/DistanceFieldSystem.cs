@@ -9,40 +9,49 @@ namespace Pathfinding
 {
     public class DistanceField
     {
+        public enum FieldType
+        {
+            Plant,
+            Stone,
+            Shop
+        }
+
+        private FieldType fieldType;
+        
         private int2 worldSize;
         
         private EntityQuery plantQuery;
         private EntityQuery stoneQuery;
         
-        private JobHandle plantJob;
-        private bool plantExpecting = false;
-        private bool plantFirstActive;
-        NativeArray<int> plantDistField1;
-        NativeArray<int> plantDistField2;
+        private JobHandle job;
+        private bool expecting = false;
+        private bool firstActive;
+        NativeArray<int> distField1;
+        NativeArray<int> distField2;
 
-        public NativeArray<int> PlantDistFieldRead
+        public NativeArray<int> DistFieldRead
         {
             get
             {
-                PlantSwapIfNeeded();
-                return plantFirstActive ? plantDistField1 : plantDistField2;
+                SwapIfNeeded();
+                return firstActive ? distField1 : distField2;
             }
         }
 
-        private NativeArray<int> PlantDistFieldWrite
+        private NativeArray<int> DistFieldWrite
         {
             get
             {
-                PlantSwapIfNeeded();
-                return plantFirstActive ? plantDistField2 : plantDistField1;
+                SwapIfNeeded();
+                return firstActive ? distField2 : distField1;
             }
         }
         
-        //[BurstCompile]
+        [BurstCompile]
         public struct MarkFieldJob : IJob
         {
-            public NativeArray<PlantPositionRequest> plants;
-            public NativeArray<int>   result;
+            public NativeList<int2> target;
+            public NativeArray<int>    result;
             public NativeQueue<int2>   queue;
             public NativeQueue<int2>   queue2;
             public NativeHashMap<int2, byte>   visited;
@@ -50,7 +59,7 @@ namespace Pathfinding
             public void Execute()
             {
                 var n = result.Length;
-                var pn = plants.Length;
+                var pn = target.Length;
 
                 for (var i = 0; i < n; i++)
                     result[i] = int.MaxValue;
@@ -59,7 +68,7 @@ namespace Pathfinding
 
                 for (var p = 0; p < pn; p++)
                 {
-                    var pos = plants[p].position;
+                    var pos = target[p];
                     if (visited.ContainsKey(pos) == false)
                     {
                         queue.Enqueue(pos);
@@ -125,51 +134,98 @@ namespace Pathfinding
             }
         }
 
-        public DistanceField(int2 size, EntityQuery plantQuery, EntityQuery stoneQuery)
+        public DistanceField(FieldType fieldType, int2 size, EntityQuery plantQuery, EntityQuery stoneQuery)
         {
+            this.fieldType = fieldType;
+            
             worldSize = size;
 
             this.plantQuery = plantQuery;
             this.stoneQuery = stoneQuery;
                 
-            plantDistField1 = new NativeArray<int>(worldSize.x * worldSize.y, Allocator.Persistent);
-            plantDistField2 = new NativeArray<int>(worldSize.x * worldSize.y, Allocator.Persistent);
+            distField1 = new NativeArray<int>(worldSize.x * worldSize.y, Allocator.Persistent);
+            distField2 = new NativeArray<int>(worldSize.x * worldSize.y, Allocator.Persistent);
+        }
+
+        public void Dispose()
+        {
+            job.Complete();
+            distField1.Dispose();
+            distField2.Dispose();
         }
         
-        ~DistanceField()
+        public JobHandle Schedule()
         {
-            plantDistField1.Dispose();
-            plantDistField2.Dispose();
-        }
-        
-        public JobHandle SchedulePlantField()
-        {
-            if (plantJob.IsCompleted)
+            if (job.IsCompleted)
             {
-                var writePlant = PlantDistFieldWrite; // before plantExpecting = true
+                var writePlant = DistFieldWrite; // before plantExpecting = true
+
+                bool stonesAreObstacles = fieldType == FieldType.Plant || fieldType == FieldType.Shop;
                 
-                var allPlants = plantQuery.ToComponentDataArray<PlantPositionRequest>(Allocator.Persistent);
-                
+                var targets = new NativeList<int2>(Allocator.Persistent);
                 var q1 = new NativeQueue<int2>(Allocator.Persistent);
                 var q2 = new NativeQueue<int2>(Allocator.Persistent);
                 var visited = new NativeHashMap<int2, byte>(worldSize.x * worldSize.y, Allocator.Persistent);
 
-                using (var allStones = stoneQuery.ToComponentDataArray<StonePositionRequest>(Allocator.TempJob))
+                if (fieldType == FieldType.Plant)
                 {
-                    foreach (var stone in allStones)
+                    using (var allPlants = plantQuery.ToComponentDataArray<PlantPositionRequest>(Allocator.TempJob))
                     {
-                        for (int x = stone.position.x; x < stone.position.x + stone.size.x; x++)
+                        var n = allPlants.Length;
+                        for (int i = 0; i < n; i++)
+                            targets.Add(allPlants[i].position);
+                    }
+                }
+                else if (fieldType == FieldType.Stone)
+                {
+                    using (var allStones = stoneQuery.ToComponentDataArray<StonePositionRequest>(Allocator.TempJob))
+                    {
+                        var n = allStones.Length;
+                        // border
+                        for (int i = 0; i < n; i++)
+                        {
+                            var stone = allStones[i];
+                            var rigX = stone.position.x + stone.size.x - 1;
+                            var lefX = stone.position.x;
+                            var topY = stone.position.y + stone.size.y - 1;
+                            var botY = stone.position.y;
+                            for (int x = stone.position.x; x < stone.position.x + stone.size.x; x++)
+                            {
+                                targets.Add(new int2(x, topY));
+                                targets.Add(new int2(x, botY));
+                            }
+                            
+                            for (int y = stone.position.y + 1; y < stone.position.y + stone.size.y - 1; y++)
+                            {
+                                targets.Add(new int2(lefX, y));
+                                targets.Add(new int2(rigX, y));
+                            }
+                        }
+                    }
+                }
+                else if (fieldType == FieldType.Shop)
+                {
+                    
+                }
+
+                if (stonesAreObstacles)
+                {
+                    using (var allStones = stoneQuery.ToComponentDataArray<StonePositionRequest>(Allocator.TempJob))
+                    {
+                        foreach (var stone in allStones)
+                        {
+                            for (int x = stone.position.x; x < stone.position.x + stone.size.x; x++)
                             for (int y = stone.position.y; y < stone.position.y + stone.size.y; y++)
                                 visited[new int2(x, y)] = 1;
-                    }    
+                        }
+                    }
                 }
-                
-                
-                plantExpecting = true;
 
-                plantJob = new MarkFieldJob
+                expecting = true;
+
+                job = new MarkFieldJob
                 {
-                    plants = allPlants,
+                    target = targets,
                     result = writePlant,
                     queue = q1,
                     queue2 = q2,
@@ -177,24 +233,24 @@ namespace Pathfinding
                     worldSize = worldSize
                 }.Schedule();
 
-                plantJob = allPlants.Dispose(plantJob);
-                plantJob = visited.Dispose(plantJob);
-                plantJob = q1.Dispose(plantJob);
-                plantJob = q2.Dispose(plantJob);
+                job = targets.Dispose(job);
+                job = visited.Dispose(job);
+                job = q1.Dispose(job);
+                job = q2.Dispose(job);
             }
             
-            return plantJob;
+            return job;
         }
 
-        private void PlantSwapIfNeeded()
+        private void SwapIfNeeded()
         {
             // if we scheduled last time and now it is completed
-            if (plantJob.IsCompleted && plantExpecting)
+            if (job.IsCompleted && expecting)
             {
-                plantFirstActive = !plantFirstActive;
+                firstActive = !firstActive;
             }
 
-            plantExpecting = false;
+            expecting = false;
         }
 
         public int2 PathToPlant(int2 currentPosition, out bool reached)
@@ -233,7 +289,7 @@ namespace Pathfinding
             {
                 if (p.y >= 0 && p.y < worldSize.y)
                 {
-                    return PlantDistFieldRead[p.y * worldSize.x + p.x];
+                    return DistFieldRead[p.y * worldSize.x + p.x];
                 }
             }
 

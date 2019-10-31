@@ -61,6 +61,9 @@ namespace PerfTests
                 })
                 .SetUp(() =>
                 {
+                    var go = new GameObject();
+                    go.AddComponent<RenderingUnity>().Initialize();
+
                     m_Manager.CompleteAllJobs();
                     
                     // kill all entities
@@ -79,11 +82,6 @@ namespace PerfTests
                     creator.Update();
 
                     RenderingMapInit.ResetExecuteOnceTag(m_Manager);
-
-                    Assert.IsTrue(mapInit.Enabled, "mapInit.Enabled");
-                    Assert.IsTrue(barrier.Enabled, "barrier.Enabled");
-                    Assert.IsTrue(mapInit.ShouldRunSystem(), "mapInit.ShouldRunSystem()");
-                    Assert.IsTrue(barrier.ShouldRunSystem(), "barrier.ShouldRunSystem()");
                 })
                 .WarmupCount(10)
                 .MeasurementCount(100)
