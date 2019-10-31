@@ -108,6 +108,11 @@ public struct Board : IDisposable
         return new int2((int)math.round(position.x), (int)math.round(position.z));
     }
 
+    public static Vector3 GetTileCenterAtCoord(Vector2Int index)
+    {
+        return new Vector3(index.x, 0f, index.y);
+    }
+
     public void Init()
     {
         m_Tiles = new NativeArray<Tile>(k_Width * k_Height, Allocator.Persistent);
@@ -127,12 +132,76 @@ public struct Board : IDisposable
                 else if (y == k_Height - 1)
                     m_Tiles[index] = m_Tiles[index].SetWall(eDirection.North, true);
 
-                if (x == 5 && y == 5)
-                    m_Tiles[index] = m_Tiles[index].SetTileType(eTileType.Hole);
-                if (x == 6 && y == 6)
-                    m_Tiles[index] = m_Tiles[index].SetTileType(eTileType.HomeBase);
+                //if (x == 5 && y == 5)
+                //    m_Tiles[index] = m_Tiles[index].SetTileType(eTileType.Hole);
+                //if (x == 6 && y == 6)
+                //    m_Tiles[index] = m_Tiles[index].SetTileType(eTileType.HomeBase);
             }
         }
+
+        int numWalls = (int)(k_Width * k_Height * 0.2f);
+        for (int c = 0; c < numWalls; ++c)
+        {
+            int x = UnityEngine.Random.Range(0, k_Width);
+            int y = UnityEngine.Random.Range(0, k_Height);
+            int dir = UnityEngine.Random.Range(0, 4);
+            int index = y * k_Width + x;
+            switch((eDirection)dir)
+            {
+                case eDirection.North:
+                    m_Tiles[index] = m_Tiles[index].SetWall(eDirection.North, true);
+                   // if( y+1 < k_Height)
+                    {
+                        index = (y + 1) * k_Width + x;
+                        m_Tiles[index] = m_Tiles[index].SetWall(eDirection.South, true);
+                    }
+                    break;
+                case eDirection.South:
+                    m_Tiles[index] = m_Tiles[index].SetWall(eDirection.South, true);
+                    //if (y - 1 >= 0)
+                    {
+                        index = (y - 1) * k_Width + x;
+                        m_Tiles[index] = m_Tiles[index].SetWall(eDirection.North, true);
+                    }
+                    break;
+                case eDirection.East:
+                    m_Tiles[index] = m_Tiles[index].SetWall(eDirection.East, true);
+                    if (x + 1 < k_Width)
+                    {
+                        index = y * k_Width + x + 1;
+                        m_Tiles[index] = m_Tiles[index].SetWall(eDirection.West, true);
+                    }
+                    break;
+                case eDirection.West:
+                    m_Tiles[index] = m_Tiles[index].SetWall(eDirection.West, true);
+                    if (x - 1 >= 0)
+                    {
+                        index = y * k_Width + x - 1;
+                        m_Tiles[index] = m_Tiles[index].SetWall(eDirection.East, true);
+                    }
+                    break;
+            }
+           
+        }
+
+        // setup home bases
+        float offset = 1f / 3f;
+        int idx = (int)(k_Width * offset) + (int)(k_Height * offset) * k_Width;
+        m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        m_Tiles[idx] = m_Tiles[idx].SetColor(eColor.Red);
+
+        idx = (int)(k_Width * 2f * offset) + (int)(k_Height * offset * 2f) * k_Width;
+        m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        m_Tiles[idx] = m_Tiles[idx].SetColor(eColor.Green);
+
+        idx = (int)(k_Width * offset) + (int)(k_Height * offset * 2f) * k_Width;
+        m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        m_Tiles[idx] = m_Tiles[idx].SetColor(eColor.Black);
+
+        idx = (int)(k_Width * 2f * offset) + (int)(k_Height * offset) * k_Width;
+        m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        m_Tiles[idx] = m_Tiles[idx].SetColor(eColor.Blue);
+
     }
 
     public void Dispose()

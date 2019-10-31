@@ -34,8 +34,9 @@ public class SpawnSystem : JobComponentSystem
                 Entity cat = spawner.CatPrefab;
                 // spwan cat
                 var entity = CommandBuffer.Instantiate(index, cat);
+
                 CommandBuffer.SetComponent(index, entity, new Translation { Value = spawner.SpawnPos });
-                CommandBuffer.AddComponent(index, entity, new Direction { Value = eDirection.East });
+                CommandBuffer.AddComponent(index, entity, new Direction { Value = spawner.CatSpawnDirection });
                 CommandBuffer.AddComponent(index, entity, new Speed { Value = 1.5f });
                 CommandBuffer.AddComponent(index, entity, new CatTag());
                 // update spawner comp
@@ -49,7 +50,7 @@ public class SpawnSystem : JobComponentSystem
                 // spwan rat
                 var entity = CommandBuffer.Instantiate(index, rat);
                 CommandBuffer.SetComponent(index, entity, new Translation { Value = spawner.SpawnPos });
-                CommandBuffer.AddComponent(index, entity, new Direction { Value = eDirection.East });
+                CommandBuffer.AddComponent(index, entity, new Direction { Value = spawner.RatSpawnDirection });
                 CommandBuffer.AddComponent(index, entity, new Speed { Value = 1.5f });
                 CommandBuffer.AddComponent(index, entity, new MouseTag());
                 // update spawner comp

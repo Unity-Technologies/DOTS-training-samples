@@ -159,11 +159,18 @@ public class GameManagementSystem : ComponentSystem
     {
         m_playerCursorScreenPos[0] = Input.mousePosition;
 
-        // TMP: 
-        //m_playerCursorScreenPos[1] = new Vector3(UnityEngine.Random.Range(0f, Screen.width), UnityEngine.Random.Range(0f, Screen.height), UnityEngine.Random.Range(0f, 1f));
-        //m_playerCursorScreenPos[2] = new Vector3(UnityEngine.Random.Range(0f, Screen.width), UnityEngine.Random.Range(0f, Screen.height), UnityEngine.Random.Range(0f, 1f));
-        //m_playerCursorScreenPos[3] = new Vector3(UnityEngine.Random.Range(0f, Screen.width), UnityEngine.Random.Range(0f, Screen.height), UnityEngine.Random.Range(0f, 1f));
-        // TMP
+        if ((int)(Time.ElapsedTime - m_lastTimestamp) > 3f) // Update every 3s
+        {
+            m_lastTimestamp = Time.ElapsedTime;
+            var size = m_board.Size;
+            for (int i = 1; i < k_NumPlayers; ++i)
+            {
+                var cellPos = Board.GetTileCenterAtCoord(
+                    new Vector2Int((int)UnityEngine.Random.Range(0, size.x),
+                                    (int)UnityEngine.Random.Range(0f, (float)size.y)));
+                m_playerCursorScreenPos[i] = Camera.main.WorldToScreenPoint(cellPos);
+            }
+        }
     }
 
     void HandleGameOver()
