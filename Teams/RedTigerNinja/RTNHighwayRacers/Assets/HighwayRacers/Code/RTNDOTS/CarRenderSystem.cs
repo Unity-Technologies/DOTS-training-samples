@@ -31,9 +31,7 @@ namespace HighwayRacers
             var inst = CarRenderSystem.instance;
             if ((!inst) || (inst.MatBlock==null)) return inputDeps;
 
-            var em = Unity.Entities.World.Active.EntityManager;
-
-            var carQuery = em.CreateEntityQuery(ComponentType.ReadOnly<CarRenderData>());
+            var carQuery = this.GetEntityQuery(ComponentType.ReadOnly<CarRenderData>());
             var carData = carQuery.ToComponentDataArray<CarRenderData>(Unity.Collections.Allocator.TempJob);
 
             if ((inst.PoseArray==null) || (inst.PoseArray.Length != carData.Length))

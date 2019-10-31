@@ -447,6 +447,8 @@ namespace HighwayRacers
             return null;
         }
 
+        private EntityArchetype CarArchtype;
+
         /// <summary>
         /// Adds a car to the highway, without checking if it would fit first.
         /// </summary>
@@ -460,18 +462,31 @@ namespace HighwayRacers
             car.CarData.Location.lane = lane;
 
             //var ent = em.Instantiate(CaptureNewEntity.CreatedEntity);// em.CreateEntity();
-            var ent = em.CreateEntity();
-            em.AddComponentData(ent, new Unity.Transforms.LocalToWorld());
-            em.AddComponentData(ent, new Unity.Transforms.Translation());
-            em.AddComponentData(ent, new Unity.Transforms.Rotation());
+            if (!this.CarArchtype.Valid)
+            {
+                this.CarArchtype = em.CreateArchetype(
+                    ComponentType.ReadWrite<CarLocation>(),
+                    ComponentType.ReadWrite<CarSettingsStruct>(),
+                    ComponentType.ReadWrite<CarMindState>(),
+                    ComponentType.ReadWrite<CarSystem.CarNextState>(),
+                    ComponentType.ReadWrite<Unity.Transforms.LocalToWorld>(),
+                    ComponentType.ReadWrite<Unity.Transforms.Translation>(),
+                    ComponentType.ReadWrite<Unity.Transforms.Rotation>(),
+                    ComponentType.ReadWrite<CarRenderData>()
+                );
+            }
+            var ent = em.CreateEntity(this.CarArchtype);
+            //em.AddComponentData(ent, new Unity.Transforms.LocalToWorld());
+            //em.AddComponentData(ent, new Unity.Transforms.Translation());
+            //em.AddComponentData(ent, new Unity.Transforms.Rotation());
 
             car.CarData.Location.ThisCarEntity = ent;
 			car.CarData.Location.velocityPosition = car.CarData.Settings.defaultSpeed;
-            em.AddComponentData(ent, car.CarData.Location);
-            em.AddComponentData(ent, car.CarData.Settings);
-            em.AddComponentData(ent, car.CarData.Mind);
-            em.AddComponentData(ent, new CarSystem.CarNextState(car.CarData));
-            em.AddComponentData(ent, CarRenderData.Default );
+            em.SetComponentData(ent, car.CarData.Location);
+            em.SetComponentData(ent, car.CarData.Settings);
+            em.SetComponentData(ent, car.CarData.Mind);
+            em.SetComponentData(ent, new CarSystem.CarNextState(car.CarData));
+            em.SetComponentData(ent, CarRenderData.Default );
             allCarsList.Add(car);
             //this.UpdateCarList();
             car.UpdatePosition(ref car.CarData.Location, ref Highway.instance.HighwayState);

@@ -27,6 +27,25 @@ namespace HighwayRacers {
             highway.AllCars = carSorted;
             highway.AllPieces = hpcAr;
 
+            // testing code:
+            var isTestSum = false;
+            if (isTestSum)
+            {
+                NativeQueue<float> sq = new NativeQueue<float>(Allocator.TempJob);
+                inputDeps = (new CarAverageSpeedJob() { Writer = sq.AsParallelWriter() }).Schedule(this, inputDeps);
+                inputDeps.Complete();
+                float sum = 0.0f;
+                int count = 0;
+                float current;
+                while (sq.TryDequeue(out current))
+                {
+                    sum += current;
+                    count++;
+                }
+                var avg = sum / ((float)count);
+                Debug.Log("Average = " + avg);
+            }
+
             // sort the cars:
             inputDeps = (new CarSortJob() { cars = carSorted }).Schedule(inputDeps);
 
@@ -54,6 +73,18 @@ namespace HighwayRacers {
 
 
             return inputDeps;
+        }
+
+        public struct CarAverageSpeedJob : IJobForEach<CarLocation>
+        {
+            public NativeQueue<float>.ParallelWriter Writer;
+
+            public void Execute(ref CarLocation c0)
+            {
+                if (c0.IsInLane(2.0f)) {
+                    this.Writer.Enqueue(c0.velocityPosition);
+                }
+            }
         }
 
         public struct CarSorter : System.Collections.Generic.IComparer<CarLocation>
