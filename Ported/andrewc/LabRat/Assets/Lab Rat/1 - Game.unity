@@ -182,11 +182,11 @@ MonoBehaviour:
   RatPrefab: {fileID: 1565721843962348, guid: fd9947d7db73f441cb1a4d06a4fc087d, type: 3}
   RatFrequency: 0.4
   RatMaxSpawn: 1000
-  RatSpawnDirection: 0
+  RatSpawnDirection: 2
   CatPrefab: {fileID: 1377909340170110, guid: 19268829cf75c415f8f14765efcab529, type: 3}
   CatFrequency: 7
   CatMaxSpawn: 50
-  CatSpawnDirection: 0
+  CatSpawnDirection: 2
 --- !u!1 &402478382
 GameObject:
   m_ObjectHideFlags: 0
@@ -281,11 +281,11 @@ MonoBehaviour:
   RatPrefab: {fileID: 1565721843962348, guid: fd9947d7db73f441cb1a4d06a4fc087d, type: 3}
   RatFrequency: 0.4
   RatMaxSpawn: 1000
-  RatSpawnDirection: 0
+  RatSpawnDirection: 3
   CatPrefab: {fileID: 1377909340170110, guid: 19268829cf75c415f8f14765efcab529, type: 3}
   CatFrequency: 7
   CatMaxSpawn: 50
-  CatSpawnDirection: 0
+  CatSpawnDirection: 3
 --- !u!1001 &565524511
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -697,11 +697,11 @@ MonoBehaviour:
   RatPrefab: {fileID: 1565721843962348, guid: fd9947d7db73f441cb1a4d06a4fc087d, type: 3}
   RatFrequency: 0.2
   RatMaxSpawn: 1000
-  RatSpawnDirection: 0
+  RatSpawnDirection: 1
   CatPrefab: {fileID: 1377909340170110, guid: 19268829cf75c415f8f14765efcab529, type: 3}
   CatFrequency: 7
   CatMaxSpawn: 50
-  CatSpawnDirection: 0
+  CatSpawnDirection: 1
 --- !u!1001 &1914612089
 PrefabInstance:
   m_ObjectHideFlags: 0
