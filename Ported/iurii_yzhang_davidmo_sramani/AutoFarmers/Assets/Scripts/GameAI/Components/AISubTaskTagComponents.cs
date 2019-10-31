@@ -9,6 +9,7 @@ namespace GameAI
 
     public struct AISubTaskTagFindUntilledTile : IComponentData {}
     public struct AISubTaskTagTillGroundTile : IComponentData {}
+    public struct AISubTaskTagPlantSeed : IComponentData {}
 
     public struct AISubTaskTagFindRock : IComponentData {}
     public struct AISubTaskTagClearRock : IComponentData {}
