@@ -46,7 +46,7 @@ public class SpawnerSystem : JobComponentSystem
         {
             var entityIndex = 0;
             var gridIndex = 0;
-
+            
             while (resourcesComponent.MoneyForFarmers >= 10)
             {
                 for (int i = gridIndex; i < gridComponent.Size * gridComponent.Size; i++)
@@ -70,7 +70,7 @@ public class SpawnerSystem : JobComponentSystem
                         });   
                         resourcesComponent.MoneyForFarmers -= 10;
                         
-                        gridIndex = i;
+                        gridIndex = i+1;
                         entityIndex++;
                         break;
                     }

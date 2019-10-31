@@ -24,6 +24,7 @@ public class ActorGetGoalSystem : JobComponentSystem
         // The [ReadOnly] attribute tells the job scheduler that this job will not write to rotSpeedIJobForEach
         public void Execute(ref ActorMovementComponent actor, ref DotsIntentionComponent intention)
         {
+            float size = internalBuffer.Length;
             //If we have no goalPosition we need to find another one
             if (actor.targetPosition.x < 0.0f || actor.targetPosition.y < 0.0f)
             {
@@ -41,7 +42,8 @@ public class ActorGetGoalSystem : JobComponentSystem
                     {
                         for (int j = y - Delta; j <= y + Delta; j++)
                         {
-                            if (i < 0 || i > 511 || j < 0 || j > 511)
+                           // if (i < 0 || i > size || j < 0 || j > 511)
+                           if(i + (j * 512) > size)
                             {
                                 continue;
                             }
