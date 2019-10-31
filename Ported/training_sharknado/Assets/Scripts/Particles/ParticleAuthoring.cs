@@ -16,7 +16,7 @@ public class ParticleAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
         currentSeed++;
         
-        var data = new ParticleComponent { /*RadiusMult = random.NextFloat(1.0f)*/ };
+        var data = new ParticleComponent();
         dstManager.AddComponentData(entity, data);
     }
 }
