@@ -43,7 +43,7 @@ namespace Tests
 
             foreach (var val in distanceField.PlantDistFieldRead)
             {
-                Assert.AreEqual(-1, val);
+                Assert.AreEqual(int.MaxValue, val);
             }
         }
         
@@ -128,7 +128,7 @@ namespace Tests
             ..");
 
             var data = df.PlantDistFieldRead;
-            Assert.AreEqual(-1, data[0]);
+            Assert.AreEqual(int.MaxValue, data[0]);
             Assert.AreEqual(0, data[1]);
             Assert.AreEqual(2, data[2]);
             Assert.AreEqual(1, data[3]);
