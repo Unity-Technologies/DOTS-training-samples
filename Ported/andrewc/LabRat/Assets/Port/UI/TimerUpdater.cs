@@ -7,7 +7,6 @@ using UnityEngine.UI;
 
 namespace ECSExamples
 {
-
     [RequireComponent(typeof(Text))]
     public class TimerUpdater : MonoBehaviour
     {
