@@ -28,6 +28,7 @@ namespace GameAI
                 {
                     tilePositionable.Position = target.TargetPosition;
                     ecb.RemoveComponent<HasTarget>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<AnimationCompleteTag>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
 
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job);

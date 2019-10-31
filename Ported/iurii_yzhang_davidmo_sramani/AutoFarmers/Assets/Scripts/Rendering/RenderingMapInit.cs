@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using GameAI;
 using Unity.Collections;
@@ -69,6 +70,10 @@ public class RenderingMapInit : JobComponentSystem
             ResetExecuteOnceTag(EntityManager);
             CreatePrefabEntity();
         }
+
+        var initialFarmerSpawnerEntity = EntityManager.CreateEntity(typeof(SpawnPointComponent), typeof(SpawnFarmerTagComponent), typeof(InitialSpawnerTagComponent));
+        // TODO decide start position.
+        EntityManager.SetComponentData<SpawnPointComponent>(initialFarmerSpawnerEntity, new SpawnPointComponent { MapSpawnPosition = new int2 (1, 1) });
         
         m_executeOnce = GetEntityQuery(ComponentType.ReadOnly<ExecuteOnceTag>());
         RequireForUpdate(m_executeOnce);
