@@ -188,12 +188,20 @@ public struct Board : IDisposable
         float offset = 1f / 3f;
         int idx = (int)(k_Width * offset) + (int)(k_Height * offset) * k_Width;
         m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        m_Tiles[idx] = m_Tiles[idx].SetColor(eColor.Red);
+
         idx = (int)(k_Width * 2f * offset) + (int)(k_Height * offset * 2f) * k_Width;
         m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        m_Tiles[idx] = m_Tiles[idx].SetColor(eColor.Green);
+
         idx = (int)(k_Width * offset) + (int)(k_Height * offset * 2f) * k_Width;
         m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        m_Tiles[idx] = m_Tiles[idx].SetColor(eColor.Black);
+
         idx = (int)(k_Width * 2f * offset) + (int)(k_Height * offset) * k_Width;
         m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
+        m_Tiles[idx] = m_Tiles[idx].SetColor(eColor.Blue);
+
     }
 
     public void Dispose()
