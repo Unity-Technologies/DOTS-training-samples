@@ -6,5 +6,6 @@ public struct ActorMovementComponent : IComponentData
     public float2 targetPosition;
     public float2 position;
     public float speed;
+    public Entity actor;
 }
 

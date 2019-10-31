@@ -1,17 +1,16 @@
-﻿using System.Reflection;
-using System;
+﻿using System;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
-using Unity.Transforms;
 
 public class ActorInteractSystem : JobComponentSystem
 {
-    private DynamicBuffer<GridTile> buffer;
-    private EntityQuery query;
+    DynamicBuffer<GridTile> buffer;
+    EntityQuery query;
+    NativeQueue<GridOperation> gridOperations;
 
     protected override void OnCreate()
     {
@@ -24,9 +23,10 @@ public class ActorInteractSystem : JobComponentSystem
     struct GoalPositionJob : IJobForEach<ActorMovementComponent, DotsIntentionComponent>
     {
         [ReadOnly] public DynamicBuffer<GridTile> internalBuffer;
+        [ReadOnly] public NativeQueue<GridOperation> internalGridOperations;
 
         // The [ReadOnly] attribute tells the job scheduler that this job will not write to rotSpeedIJobForEach
-        public void Execute([ReadOnly] ref ActorMovementComponent actor, [ReadOnly] ref DotsIntentionComponent intention)
+        public void Execute([ReadOnly] ref ActorMovementComponent actor, ref DotsIntentionComponent intention)
         {
             var atGoal = math.abs(actor.targetPosition.x - actor.position.x) < 0.5f;
             if (!atGoal)
@@ -36,22 +36,28 @@ public class ActorInteractSystem : JobComponentSystem
             var gridTile = internalBuffer[Convert.ToInt32(actor.targetPosition.x) + (512 * Convert.ToInt32(actor.targetPosition.y))];
             if (intention.intention == DotsIntention.Rock && gridTile.IsRock())
             {
-                //TODO insert bang rock in command buffer
+                intention.intention = DotsIntention.RockFinished;
+                internalGridOperations.Enqueue(new GridOperation(){actor = actor.actor, gridTile = gridTile, desiredGridValue = gridTile.Value - 2});
             } 
             else if (intention.intention == DotsIntention.Till && gridTile.IsNothing())
             {
-                //TODO insert till in command buffer
+                intention.intention = DotsIntention.TillFinished;
+                internalGridOperations.Enqueue(new GridOperation(){actor = actor.actor, gridTile = gridTile, desiredGridValue = 1});
             } 
             else if (intention.intention == DotsIntention.Plant && gridTile.IsTilled())
             {
-                //TODO insert plant in command buffer
+                intention.intention = DotsIntention.PlantFinished;
+                internalGridOperations.Enqueue(new GridOperation(){actor = actor.actor, gridTile = gridTile, desiredGridValue = 3});
             } 
             else if (intention.intention == DotsIntention.Harvest && gridTile.IsPlant() && gridTile.GetPlantHealth() > 75f)
             {
-                //TODO insert harvest in command buffer
+                intention.intention = DotsIntention.HarvestFinished;
+                internalGridOperations.Enqueue(new GridOperation(){actor = actor.actor, gridTile = gridTile, desiredGridValue = 1});
             }
             else if (intention.intention == DotsIntention.Shop && gridTile.IsShop())
             {
+                intention.intention = DotsIntention.ShopFinished;
+
                 //TODO insert shop in command buffer
             }
         }
@@ -63,12 +69,11 @@ public class ActorInteractSystem : JobComponentSystem
     {
         Entity farm = query.GetSingletonEntity();
         buffer = EntityManager.GetBuffer<GridTile>(farm);
-
-
+        
         var job = new GoalPositionJob
         {
-            internalBuffer = buffer
-            //DeltaTime = Time.deltaTime
+            internalBuffer = buffer,
+            internalGridOperations = gridOperations
         };
 
         return job.Schedule(this, inputDependencies);

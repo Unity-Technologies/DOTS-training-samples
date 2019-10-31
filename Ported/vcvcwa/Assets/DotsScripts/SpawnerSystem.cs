@@ -65,7 +65,8 @@ public class SpawnerSystem : JobComponentSystem
                         CommandBuffer.SetComponent(entityIndex, instance, new ActorMovementComponent()
                         {
                             targetPosition = new Vector2(-1,-1),
-                            position = new Vector2(x,y)
+                            position = new Vector2(x,y),
+                            actor = entity
                         });   
                         resourcesComponent.MoneyForFarmers -= 10;
                         
