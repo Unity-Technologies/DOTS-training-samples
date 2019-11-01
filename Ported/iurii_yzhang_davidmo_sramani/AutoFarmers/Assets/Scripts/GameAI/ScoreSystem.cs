@@ -40,7 +40,7 @@ namespace GameAI
                 .ForEach((Entity entity, int entityInQueryIndex, int nativeThreadIndex) => 
                 {
                     ecb.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
-                    score[nativeThreadIndex] = score[nativeThreadIndex] + 1;
+                    score[nativeThreadIndex] = score[nativeThreadIndex] + 3;
                 }).Schedule(inputDeps);
 
             // smash rock +1
