@@ -84,6 +84,7 @@ namespace HighwayRacers {
             return inputDeps;
         }
 
+        [BurstCompile]
         public struct CarAverageSpeedJob : IJobForEach<CarLocation>
         {
             public NativeQueue<float>.ParallelWriter Writer;
@@ -96,6 +97,7 @@ namespace HighwayRacers {
             }
         }
 
+        [BurstCompile]
         public struct CarSorter : System.Collections.Generic.IComparer<CarLocation>
         {
             public int Compare(CarLocation a, CarLocation b)
@@ -104,6 +106,7 @@ namespace HighwayRacers {
             }
         }
 
+        [BurstCompile]
         public struct CarSortJob : IJob
         {
             public NativeArray<CarLocation> cars;
@@ -136,7 +139,7 @@ namespace HighwayRacers {
             }
         }
 
-
+        [BurstCompile]
         public struct CarNextState : IComponentData
         {
             public CarDataAll NextState;
@@ -145,6 +148,7 @@ namespace HighwayRacers {
             public CarNextState(CarDataAll initial) { this.NextState = initial; }
         }
 
+        [BurstCompile]
         public struct CarUpdateStateFromNextJob : IJobForEach<CarLocation, CarMindState, CarNextState>
         {
             public void Execute([WriteOnly] ref CarLocation carLoc,[WriteOnly] ref CarMindState carMind, [ReadOnly] ref CarNextState c1)
@@ -154,7 +158,7 @@ namespace HighwayRacers {
             }
         }
 
-
+        [BurstCompile]
         public struct CarUpdatePoseJob : IJobForEach<CarLocation, CarSettingsStruct, Unity.Transforms.Rotation, Unity.Transforms.Translation, CarRenderData>
         {
             public Highway.HighwayStateStruct HighwayState;
@@ -172,7 +176,7 @@ namespace HighwayRacers {
             }
         }
 
-
+        [BurstCompile]
         public struct CarUpdateNextJob : IJobForEach<CarNextState,CarLocation,CarMindState,CarSettingsStruct>
         {
             //public ComponentDataFromEntity<CarStateStruct> OtherCarQuery;
