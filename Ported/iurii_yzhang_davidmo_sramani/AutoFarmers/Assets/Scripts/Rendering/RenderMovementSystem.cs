@@ -74,7 +74,8 @@ namespace GameAI
                     translationComponent.Value.y = (float)sin(flyRenderComponent.offset) * droneOffsetLoc;
                 }).Schedule(movementSystemJobHandle);
 
-            return droneTweakJobHandle;
+            return inputDependencies;
+//            return droneTweakJobHandle;
         }
     }
 }

@@ -57,7 +57,7 @@ namespace GameAI
             ecbSystem.AddJobHandleForProducer(groundSelectorHandle);
             ecbSystem.AddJobHandleForProducer(airSelectorHandle);
 
-            return JobHandle.CombineDependencies(groundSelectorHandle, airSelectorHandle);
+            return inputDependencies;
         }
     }
 }

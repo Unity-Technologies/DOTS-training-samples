@@ -96,7 +96,7 @@ namespace GameAI
             ecbSystem.AddJobHandleForProducer(createDroneJobHandle);
 
             // Aggregates the job handles with the previous jobs
-            return JobHandle.CombineDependencies(createFarmerJobHandle, createDroneJobHandle);
+            return inputDependencies;
         }
     }
 }

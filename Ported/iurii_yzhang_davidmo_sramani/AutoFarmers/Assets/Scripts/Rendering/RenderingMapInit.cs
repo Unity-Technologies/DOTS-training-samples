@@ -155,14 +155,14 @@ public class RenderingMapInit : JobComponentSystem
             
         }).Schedule(inputDeps);
 
-        var handle = JobHandle.CombineDependencies(handle1, handle2, handle3);
+        JobHandle.CombineDependencies(handle1, handle2, handle3);
         
         ecbSystem.AddJobHandleForProducer(handle1);
         ecbSystem.AddJobHandleForProducer(handle2);
         ecbSystem.AddJobHandleForProducer(handle3);
         ecbSystem.AddJobHandleForProducer(handle4);
 
-        return JobHandle.CombineDependencies(handle, handle4);
+        return inputDeps;
     }
     
     public static void ResetExecuteOnceTag(EntityManager mManager)

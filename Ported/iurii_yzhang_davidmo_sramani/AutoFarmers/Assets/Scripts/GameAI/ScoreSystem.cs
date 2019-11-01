@@ -86,7 +86,7 @@ namespace GameAI
             EntityManager.SetComponentData<CurrentScoreRequest>(singletonScore, new CurrentScoreRequest{TotalScore = totalScore});
             shopEntityArray.Dispose();
 
-            return handle;
+            return inputDeps;
         }
     }
 }

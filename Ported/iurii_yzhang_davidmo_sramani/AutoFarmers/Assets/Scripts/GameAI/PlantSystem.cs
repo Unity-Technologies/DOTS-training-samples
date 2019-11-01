@@ -90,7 +90,7 @@ public class PlantSystem : JobComponentSystem
 		m_EntityCommandBufferSystem.AddJobHandleForProducer(job2);
 		m_EntityCommandBufferSystem.AddJobHandleForProducer(job3);
 		var handle = JobHandle.CombineDependencies(job, job2, job3);
-			
-		return handle;
+
+		return inputDeps;
 	}
 }

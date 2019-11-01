@@ -42,6 +42,7 @@ public class RockSystem : JobComponentSystem
             }).Schedule(inputDeps);
 
         m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
-        return JobHandle.CombineDependencies(inputDeps, job);
+
+        return inputDeps;
     }
 }

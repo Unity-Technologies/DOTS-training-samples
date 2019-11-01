@@ -220,11 +220,7 @@ namespace Pathfinding
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job9);
 //            m_EntityCommandBufferSystem.AddJobHandleForProducer(job10);
 
-            return JobHandle.CombineDependencies(
-                        job2,
-//                    JobHandle.CombineDependencies(/*job10, */job2, job3),
-                    JobHandle.CombineDependencies(job4, job5/*, job6*/),
-                    JobHandle.CombineDependencies(/*job7, */job8, job9));
+            return inputDeps;
         }
 
         private bool dirty = true;
