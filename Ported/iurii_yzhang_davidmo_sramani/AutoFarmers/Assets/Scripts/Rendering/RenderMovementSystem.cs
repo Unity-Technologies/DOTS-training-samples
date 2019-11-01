@@ -13,7 +13,7 @@ namespace GameAI
     public class RenderMovementSystem : JobComponentSystem
     {
         int2 worldHalfSize;
-        const float maxDroneOffset = 1.5f; // In meters
+        const float maxDroneOffset = 0.1f; // In meters
 
         protected override void OnCreate()
         {
@@ -30,7 +30,6 @@ namespace GameAI
 
             var movementSystemJobHandle = Entities
                 .WithNone<AnimationCompleteTag>()
-                // .WithoutBurst()
                 .ForEach(
                 (int nativeThreadIndex, Entity e, ref Translation translationComponent, ref RenderingAnimationComponent animationComponent, in MovementSpeedComponent speedComponent, in TilePositionable tilePositionableComponent, in HasTarget hasTargetComponent) =>
                 {
