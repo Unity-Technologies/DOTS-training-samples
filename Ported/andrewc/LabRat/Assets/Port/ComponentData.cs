@@ -42,6 +42,35 @@ public static class DirectionExtensions
         return new float3(0.0f, 1.0f, 0.0f);
     }
 
+    public static quaternion GetWorldRotation(this eDirection direction)
+    {
+        float quartersOfPi = 0.5f;
+        switch (direction)
+        {
+            case eDirection.North:
+                quartersOfPi = 1.0f;
+                break;
+
+            case eDirection.South:
+                quartersOfPi = 3.0f;
+                break;
+
+            case eDirection.West:
+                quartersOfPi = 2.0f;
+                break;
+
+            case eDirection.East:
+                quartersOfPi = 0.0f;
+                break;
+        }
+
+        float sina, cosa;
+        math.sincos(0.5f * 0.25f * quartersOfPi * math.PI, out sina, out cosa);
+        return new quaternion(new float4(new float3(0.0f, 1.0f, 0.0f) * sina, cosa));
+
+        //return new quaternion.AxisAngle(float3.up(), 0.25f * quartersOfPi * math.PI);
+    }
+
     public static eDirection Flip(this eDirection direction)
     {
         switch (direction)
