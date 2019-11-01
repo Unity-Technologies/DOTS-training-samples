@@ -62,8 +62,8 @@ public class Sys_UpdateBars : JobComponentSystem
             float3 startPos = pos1;
 
             // TODO(wyatt): fix this ugly code
-            if (point1.neighbors != -1)
-            {
+            //if (point1.neighbors != -1)
+            //{
                 oldPos1.y += 0.01f;
 
                 if (tornadoDist < tornadoMaxForceDist)
@@ -92,7 +92,7 @@ public class Sys_UpdateBars : JobComponentSystem
                     oldPos1.x += (pos1.x - oldPos1.x) * friction;
                     oldPos1.z += (pos1.z - oldPos1.z) * friction;
                 }
-            }
+            //}
 
             tdx = tornadoPos.x + TornadoSway( pos2.y, time ) - pos2.x;
             tdz = tornadoPos.z - pos2.z;
@@ -101,8 +101,8 @@ public class Sys_UpdateBars : JobComponentSystem
             tdx /= tornadoDist;
             tdz /= tornadoDist;
 
-            if (point2.neighbors != -1)
-            {
+            //if (point2.neighbors != -1)
+            //{
                 oldPos2.y += 0.01f;
                 startPos = pos2;
 
@@ -132,7 +132,7 @@ public class Sys_UpdateBars : JobComponentSystem
                     oldPos2.x += (pos2.x - oldPos2.x) * friction;
                     oldPos2.z += (pos2.z - oldPos2.z) * friction;
                 }
-            }
+            //}
 
             point1.pos = pos1;
             point2.pos = pos2;
@@ -211,7 +211,7 @@ public class Sys_UpdateBars : JobComponentSystem
             invDamping = 1 - tornadoData.damping,
             tornadoMaxForceDist = tornadoData.maxForceDist,
             tornadoHeight = tornadoData.height,
-            tornadoUpForce = tornadoData.force,
+            tornadoUpForce = tornadoData.upForce,
             tornadoInwardForce = tornadoData.inwardForce,
             tornadoForce = tornadoData.force,
             breakResistance = tornadoData.breakResist

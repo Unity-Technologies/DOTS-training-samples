@@ -54,17 +54,33 @@ public class ConnectionSystem : JobComponentSystem
                 if (cb.entity == Entity.Null) continue;
                 if (cb.endpoint == 1)
                 {
-                    if (barPoints1[cb.entity].neighbors < 1) continue;
-                    var tempcb = barAvgPoints1[cb.entity];
-                    tempcb.pos = averagePosition;
-                    barAvgPoints1[cb.entity] = tempcb;
+                    if (barPoints1[cb.entity].neighbors > 0)
+                    {
+                        var tempcb = barAvgPoints1[cb.entity];
+                        tempcb.pos = averagePosition;
+                        barAvgPoints1[cb.entity] = tempcb;
+                    }
+                    else
+                    {
+                        var tempcb = barAvgPoints1[cb.entity];
+                        tempcb.pos = barPoints1[cb.entity].pos;
+                        barAvgPoints1[cb.entity] = tempcb;
+                    }
                 }
                 else if (cb.endpoint == 2)
                 {
-                    if (barPoints1[cb.entity].neighbors < 1) continue;
-                    var tempcb = barAvgPoints2[cb.entity];
-                    tempcb.pos = averagePosition;
-                    barAvgPoints2[cb.entity] = tempcb;
+                    if (barPoints1[cb.entity].neighbors > 0)
+                    {
+                        var tempcb = barAvgPoints2[cb.entity];
+                        tempcb.pos = averagePosition;
+                        barAvgPoints2[cb.entity] = tempcb;
+                    }
+                    else
+                    {
+                        var tempcb = barAvgPoints2[cb.entity];
+                        tempcb.pos = barPoints2[cb.entity].pos;
+                        barAvgPoints2[cb.entity] = tempcb;
+                    }
                 }
             }
         }
@@ -73,8 +89,8 @@ public class ConnectionSystem : JobComponentSystem
     {
         public void Execute(ref BarPoint1 bp1, ref BarPoint2 bp2, [ReadOnly] ref BarAveragedPoints1 bap1, [ReadOnly] ref BarAveragedPoints2 bap2)
         {
-            //bp1.pos = bap1.pos;
-            //bp2.pos = bap2.pos;
+            bp1.pos = bap1.pos;
+            bp2.pos = bap2.pos;
         }
     }
 
