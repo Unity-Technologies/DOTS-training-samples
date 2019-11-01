@@ -88,7 +88,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b202ab75b5bbbf49aeb86b9518b11c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moneyForFarmers: 100
+  moneyForFarmers: 100000
   moneyForDrones: 50
 --- !u!114 &7673139793519757245
 MonoBehaviour:

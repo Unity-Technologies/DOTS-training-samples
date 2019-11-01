@@ -47,25 +47,24 @@ public class SpawnerSystem : JobComponentSystem
             ref ResourcesComponent resourcesComponent, [ReadOnly] ref FarmerDataComponent farmerDataComponent,
             [ReadOnly] ref GridComponent gridComponent, [ReadOnly] ref DroneDataComponent droneDataComponent)
         {
-            var entityIndex = 0;
-            var gridIndex = 0;
-            
-            while (resourcesComponent.MoneyForFarmers >= 10)
+            var gridIndex = index * 512;
+            var spawnedCount = 0;
+            while (resourcesComponent.MoneyForFarmers >= 10 && spawnedCount <= 100)
             {
                 for (int i = gridIndex; i < gridComponent.Size * gridComponent.Size; i++)
                 {
                     if (gridTileBuffer[i].IsShop())
                         {
-                            var instance = CommandBuffer.Instantiate(entityIndex, farmerDataComponent.farmerEntity);
+                            var instance = CommandBuffer.Instantiate(index, farmerDataComponent.farmerEntity);
                             var x = i % gridComponent.Size;
                             var y = i / gridComponent.Size;
 
                             // Place the instantiated in a grid with some noise
                             var position = new float3(x, 0, y);
-                            CommandBuffer.SetComponent(entityIndex, instance, new MoveComponent() { fly = false });
-                            CommandBuffer.SetComponent(entityIndex, instance, new DotsIntentionComponent { intention = DotsIntention.Rock });
-                            CommandBuffer.SetComponent(entityIndex, instance, new Translation { Value = position });
-                            CommandBuffer.SetComponent(entityIndex, instance, new ActorMovementComponent()
+                            CommandBuffer.SetComponent(index, instance, new MoveComponent() { fly = false });
+                            CommandBuffer.SetComponent(index, instance, new DotsIntentionComponent { intention = DotsIntention.Rock });
+                            CommandBuffer.SetComponent(index, instance, new Translation { Value = position });
+                            CommandBuffer.SetComponent(index, instance, new ActorMovementComponent()
                             {
                                 targetPosition = new Vector2(-1, -1),
                                 position = new Vector2(x, y),
@@ -75,7 +74,7 @@ public class SpawnerSystem : JobComponentSystem
                             resourcesComponent.MoneyForFarmers -= 10;
 
                             gridIndex = i + 1;
-                            entityIndex++;
+                            spawnedCount++;
                             break;
                         }
                     }
@@ -86,7 +85,7 @@ public class SpawnerSystem : JobComponentSystem
                 }
             }
             
-            while (resourcesComponent.MoneyForDrones >= 50)
+            while (resourcesComponent.MoneyForDrones >= 50 && spawnedCount <= 100)
             {
                 for (int i = gridIndex; i < gridComponent.Size * gridComponent.Size; i++)
                 {
@@ -94,16 +93,16 @@ public class SpawnerSystem : JobComponentSystem
                     {
                         for (var j = 0; j < 5; j++)
                         {
-                            var instance = CommandBuffer.Instantiate(entityIndex, droneDataComponent.droneEntity);
+                            var instance = CommandBuffer.Instantiate(index, droneDataComponent.droneEntity);
                             var x = i % gridComponent.Size;
                             var y = i / gridComponent.Size;
                             
                             // Place the instantiated in a grid with some noise
                             var position = new float3(x,0.5f,y);
-                            CommandBuffer.SetComponent(entityIndex, instance, new MoveComponent() { fly = true});
-                            CommandBuffer.SetComponent(entityIndex, instance, new DotsIntentionComponent { intention = DotsIntention.Harvest});
-                            CommandBuffer.SetComponent(entityIndex, instance, new Translation {Value = position});
-                            CommandBuffer.SetComponent(entityIndex, instance, new ActorMovementComponent()
+                            CommandBuffer.SetComponent(index, instance, new MoveComponent() { fly = true});
+                            CommandBuffer.SetComponent(index, instance, new DotsIntentionComponent { intention = DotsIntention.Harvest});
+                            CommandBuffer.SetComponent(index, instance, new Translation {Value = position});
+                            CommandBuffer.SetComponent(index, instance, new ActorMovementComponent()
                             {
                                 targetPosition = new Vector2(-1,-1),
                                 position = new Vector2(x,y),
@@ -111,7 +110,7 @@ public class SpawnerSystem : JobComponentSystem
                             });
                             
                             gridIndex = i;
-                            entityIndex++;
+                            spawnedCount++;
                         }
                         resourcesComponent.MoneyForDrones -= 50;    
                         break;

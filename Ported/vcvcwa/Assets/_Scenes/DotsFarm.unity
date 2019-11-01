@@ -681,6 +681,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2593229008921169033, guid: 8c1166f69acdb9b478bbfcad4b77a8ad,
+        type: 3}
+      propertyPath: moneyForFarmers
+      value: 1000
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8c1166f69acdb9b478bbfcad4b77a8ad, type: 3}
 --- !u!1001 &6939908461447311094
