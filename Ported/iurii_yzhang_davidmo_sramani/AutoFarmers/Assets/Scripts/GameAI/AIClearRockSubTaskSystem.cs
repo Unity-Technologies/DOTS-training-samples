@@ -62,7 +62,7 @@ namespace GameAI
 
             var jobQuery = GetEntityQuery(typeof(AISubTaskTagClearRock), typeof(AISubTaskTagComplete), typeof(AITagTaskClearRock));
             if (jobQuery.CalculateEntityCount() > 0) {
-                World.GetOrCreateSystem<PathfindingSystem>().PlantOrStoneChanged();
+                World.GetOrCreateSystem<PathfindingSystem>().DistFieldDirty();
             }
             
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job);

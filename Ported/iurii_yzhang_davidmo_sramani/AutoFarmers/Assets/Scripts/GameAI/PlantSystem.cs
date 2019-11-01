@@ -47,7 +47,7 @@ public class PlantSystem : JobComponentSystem
 			None = new ComponentType[] {typeof(TagFullyGrownPlant)}
 		});
 		if (jobQuery.CalculateEntityCount() > 0) {
-			World.GetOrCreateSystem<PathfindingSystem>().PlantOrStoneChanged();
+			World.GetOrCreateSystem<PathfindingSystem>().DistFieldDirty();
 		}
 
 		// if the plant is being picked 
@@ -68,7 +68,7 @@ public class PlantSystem : JobComponentSystem
 
 		jobQuery = GetEntityQuery(typeof(TagFullyGrownPlant), typeof(AITagTaskDeliver));
 		if (jobQuery.CalculateEntityCount() > 0) {
-			World.GetOrCreateSystem<PathfindingSystem>().PlantOrStoneChanged();
+			World.GetOrCreateSystem<PathfindingSystem>().DistFieldDirty();
 		}
 
 		var defaultPlant = defaultPlantEntity;
