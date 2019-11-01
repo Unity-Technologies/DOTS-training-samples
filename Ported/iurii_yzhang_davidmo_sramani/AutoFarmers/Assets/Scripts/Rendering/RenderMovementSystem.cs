@@ -36,7 +36,7 @@ namespace GameAI
                     var endPos = RenderingUnity.Tile2WorldPosition(hasTargetComponent.TargetPosition, worldHalfSizeLoc);
                     animationComponent.targetPosition = RenderingUnity.Tile2WorldPosition(hasTargetComponent.TargetPosition, worldHalfSizeLoc).xz;
                     animationComponent.currentPosition += (normalizesafe(endPos.xz - animationComponent.currentPosition) * speedComponent.speedInMeters * deltaT);
-                    if (lengthsq(endPos.xz - animationComponent.currentPosition) < 0.5)
+                    if (lengthsq(endPos.xz - animationComponent.currentPosition) < 0.05)
                     {
                         // Add Animation Complete Tag
                         ecb.AddComponent<AnimationCompleteTag>(nativeThreadIndex, e);
