@@ -29,7 +29,7 @@ public class HighwayConstants
     public const float CURVE_LANE0_RADIUS = MID_RADIUS - LANE_SPACING * (NUM_LANES - 1) / 2f;
     public const float MIN_HIGHWAY_LANE0_LENGTH = CURVE_LANE0_RADIUS * 4;
     public const float MIN_DIST_BETWEEN_CARS = .7f;
-    public const float MAX_HIGHWAY_LENGTH = 1000 + LANE_SPACING * (NUM_LANES - 1) / 2f;
+    public const float MAX_HIGHWAY_LENGTH = 2000 + LANE_SPACING * (NUM_LANES - 1) / 2f;
     public const float STRAIGHT_BASE_LENGTH = 6.0f;
     public const float STRAIGHT_BASE_SCALE = 6.0f;
 }

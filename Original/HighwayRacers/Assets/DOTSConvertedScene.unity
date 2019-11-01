@@ -258,23 +258,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f1c6c3174bb64f9fbfe10f1e017e27b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  carObjPrefab: {fileID: 8451637772307019147, guid: b6d340de5721b4586a08b0d65f36666d,
-    type: 3}
-  normalSpeedMin: 30
-  normalSpeedMax: 35
+  normalSpeedMin: 10
+  normalSpeedMax: 30
   topSpeedMin: 40
   topSpeedMax: 50
-  eagernessMin: 1.4
-  eagernessMax: 2.5
+  eagernessMin: 0.7
+  eagernessMax: 2
   normalColor: {r: 0.7607844, g: 0.8352942, b: 0.83921576, a: 0}
   slowColor: {r: 0.9339623, g: 0.3304112, b: 0.3304112, a: 0}
   fastColor: {r: 0.48006266, g: 0.9339623, b: 0.2951673, a: 0}
-  mergeRoomMin: 0.7
-  mergeRoomMax: 1.4
-  mergeDistanceMin: 0.8
-  mergeDistanceMax: 2
-  accel: 10
-  brakeDecel: 15
+  mergeRoomMin: 2
+  mergeRoomMax: 25
+  mergeDistanceMin: 2
+  mergeDistanceMax: 15
+  accel: 15
+  brakeDecel: 20
   laneSwitchRate: 3
   maxPassingTime: 5
 --- !u!114 &447183389
@@ -289,8 +287,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52c9ab57c9b844732b641f5a5550eec7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highWayLen: 500
-  carsCount: 200
+  highWayLen: 2000
+  carsCount: 2366
   straightSection: {fileID: 1852285047314088, guid: 678178d21bc2ef948bc7b94a4661ec04,
     type: 3}
   curveSection: {fileID: 1194374486969068, guid: 8c21c0c39d0b2bd42ba1faffb9a8825b,
