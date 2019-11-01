@@ -1,15 +1,10 @@
-﻿using System;
+using System;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
 
 public struct HighwayMathUtils
 {
-    public static float laneLength(float lane0Length, float laneNum)
-    {
-        return lane0Length + (4 * HighwayConstants.LANE_SPACING * laneNum * Mathf.PI * 0.5f);
-    }
-
     public static void RotateAroundOrigin(float x, float z, float rotation, out float xOut, out float zOut)
     {
         float sin = Mathf.Sin(-rotation);
@@ -21,8 +16,8 @@ public struct HighwayMathUtils
 
     public static int RoadPosToRelativePos(ref NativeArray<HighwayPieceProperties> pieces, float highWayLen, float distInLane, float laneNum, out float x, out float z, out float rotation)
     {
-        // keep distance in [0, length)
-        distInLane -= Mathf.Floor(distInLane / laneLength(highWayLen, laneNum)) * laneLength(highWayLen, laneNum);
+        // Convert to lane0 because all piece lengths are calculated for lane0.
+        distInLane = Utilities.ConvertPositionToLane(distInLane, laneNum, 0, highWayLen);
 
         Vector3 pos = Vector3.zero;
         Quaternion rot = Quaternion.identity;
@@ -39,7 +34,7 @@ public struct HighwayMathUtils
         {
             pieceStartDistance = pieceEndDistance;
             pieceEndDistance += pieces[i].length;
-            if ((distInLane >= pieceEndDistance) && (i < 7))
+            if (distInLane >= pieceEndDistance)
                 continue;
 
             // inside piece i
@@ -54,8 +49,8 @@ public struct HighwayMathUtils
             }
             else
             {
-                float radius = pieces[i].length / (Mathf.PI * 0.5f) + laneNum * HighwayConstants.LANE_SPACING;
-                float angle = (distInLane - pieceStartDistance) / radius;
+                float radius = Utilities.CurvePieceRadius(laneNum);
+                float angle = (distInLane - pieceStartDistance) / HighwayConstants.CURVE_LANE0_RADIUS;
                 localX = HighwayConstants.MID_RADIUS - Mathf.Cos(angle) * radius;
                 localZ = Mathf.Sin(angle) * radius;
                 rotation = angle;

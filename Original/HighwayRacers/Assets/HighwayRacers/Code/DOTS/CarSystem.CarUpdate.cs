@@ -68,7 +68,6 @@ partial class CarSystem
                     break;
             }
 
-#if false
             if (carLogicState.OvertakingCarIndex >= 0)
             {
                 carLogicState.OvertakeRemainingTime -= Dt;
@@ -125,15 +124,16 @@ partial class CarSystem
 
                 if (tryMergeRight)
                 {
-                    //// don't merge if just going to merge back
-                    //Car rightCarInFront = Highway.instance.GetCarInFront(Highway.instance.GetEquivalentDistance(distanceFront, lane, lane - 1), lane - 1);
-                    //float distToRightCarInFront = rightCarInFront == null ? float.MaxValue : Highway.instance.DistanceTo(Highway.instance.GetEquivalentDistance(distanceFront, lane, lane - 1), lane - 1, rightCarInFront.distanceBack, rightCarInFront.lane);
-                    //// condition for merging to left lane
-                    //if (distToRightCarInFront < carReadOnlyProperties.MergeDistance // close enough to car in front
-                    //    && carReadOnlyProperties.OvertakeEagerness > rightCarInFront.Speed / carReadOnlyProperties.DefaultSpeed) // car in front is slow enough
-                    //{
-                    //    tryMergeRight = false;
-                    //}
+                    // don't merge if just going to merge back
+                    var hasRightCarInFront = QueryStructure.GetCarInFront(
+                        Utilities.ConvertPositionToLane(carBasicState.Position, carBasicState.Lane, carBasicState.Lane - 1, highwayLen),
+                        carBasicState.Lane - 1, out var rightCarInFront, out var rightCarInFrontIndex, out var distToRightCarInFront);
+                    // condition for merging to left lane
+                    if (distToRightCarInFront < carReadOnlyProperties.MergeDistance // close enough to car in front
+                        && carReadOnlyProperties.OvertakeEagerness > rightCarInFront.Speed / carReadOnlyProperties.DefaultSpeed) // car in front is slow enough
+                    {
+                        tryMergeRight = false;
+                    }
                 }
 
                 if (!carLogicState.State.IsMerging() // not currently merging
@@ -149,7 +149,6 @@ partial class CarSystem
                     }
                 }
             }
-#endif
 
             // increase to speed
             if (targetSpeed > carBasicState.Speed)
@@ -172,6 +171,7 @@ partial class CarSystem
                 newLane = roundLane;
 
             carBasicState.Position = Utilities.ConvertPositionToLane(carBasicState.Position, carBasicState.Lane, newLane, highwayLen);
+            carBasicState.Lane = newLane;
         }
     }
 }

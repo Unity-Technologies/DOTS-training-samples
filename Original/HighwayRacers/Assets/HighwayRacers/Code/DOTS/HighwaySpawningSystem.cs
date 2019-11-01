@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using Unity.Collections;
 using Unity.Entities;
@@ -18,8 +18,7 @@ public class HighwaySpawningSystem : ComponentSystem
         Entities.WithNone<DeactiveSpawner>().ForEach((Entity e, ref HighwayProperties hiway, ref LocalToWorld localToWorld) =>
         {
             float totalLen = hiway.highwayLength;
-            float totalCurve = HighwayConstants.CURVE_LANE0_RADIUS * Mathf.PI * 2;
-            float straightLen = (totalLen - totalCurve) / 4.0f; // Length of each straight piece.
+            float straightLen = Utilities.StraightPieceLength(totalLen);
             float scaleFactor = straightLen / HighwayConstants.STRAIGHT_BASE_LENGTH;// * HighwayConstants.STRAIGHT_BASE_SCALE;
 
             // We know there are 8 pieces -- 4 curve and 4 straight.
@@ -74,7 +73,7 @@ public class HighwaySpawningSystem : ComponentSystem
 
                     pos += rotQ * new Vector3(HighwayConstants.MID_RADIUS, 0, HighwayConstants.MID_RADIUS);
                     rot = Mathf.PI / 2 * (i / 2 + 1);
-                    rotQ = Quaternion.Euler(0, rot * Mathf.Rad2Deg, 0);
+                    rotQ = Quaternion.Euler(0, math.degrees(rot), 0);
                 }
             }
 

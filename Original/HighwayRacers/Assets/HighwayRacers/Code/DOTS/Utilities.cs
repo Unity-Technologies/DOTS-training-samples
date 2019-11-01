@@ -6,10 +6,10 @@ public static class Utilities
         => state == VehicleState.MERGE_LEFT || state == VehicleState.MERGE_RIGHT;
 
     public static float StraightPieceLength(float lane0Length)
-        => (lane0Length - HighwayRacers.Highway.CURVE_LANE0_RADIUS * 4) / 4;
+        => (lane0Length - CurvePieceLength(0) * 4) / 4;
 
     public static float CurvePieceRadius(float lane)
-        => HighwayRacers.Highway.CURVE_LANE0_RADIUS + lane * HighwayRacers.Highway.LANE_SPACING;
+        => HighwayConstants.CURVE_LANE0_RADIUS + lane * HighwayConstants.LANE_SPACING;
 
     public static float CurvePieceLength(float lane)
         => CurvePieceRadius(lane) * math.PI / 2;
