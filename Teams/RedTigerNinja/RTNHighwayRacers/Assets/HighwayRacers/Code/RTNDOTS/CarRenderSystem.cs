@@ -43,21 +43,29 @@ namespace HighwayRacers
             this.CachedMainQuery = carQuery;
             var carData = carQuery.ToComponentDataArray<CarRenderData>(Unity.Collections.Allocator.TempJob);
 
+            int maxBlockSize = 1000;
             if ((inst.PoseArray==null) || (inst.PoseArray.Length != carData.Length))
             {
-                inst.PoseArray = new Matrix4x4[carData.Length];
-                inst.ColorArray = new Vector4[carData.Length];
+                inst.PoseArray = new Matrix4x4[maxBlockSize];
+                inst.ColorArray = new Vector4[maxBlockSize];
                 inst.MatBlock = new MaterialPropertyBlock();
             }
             Matrix4x4[] carPoses = inst.PoseArray;
+            int outIndex = 0;
             for (var i=0; i<carData.Length; i++)
             {
-                inst.PoseArray[i] = carData[i].Matrix;
-                inst.ColorArray[i] = carData[i].Color;
+                var toIndex = (outIndex++);
+                inst.PoseArray[toIndex] = carData[i].Matrix;
+                inst.ColorArray[toIndex] = carData[i].Color;
+                if (outIndex == maxBlockSize)
+                {
+                    Graphics.DrawMeshInstanced(inst.ToDrawMesh, 0, inst.ToDrawMaterial, carPoses, outIndex, inst.MatBlock);
+                    outIndex = 0;
+                }
             }
             inst.MatBlock.SetVectorArray("_Color", inst.ColorArray);
 
-            Graphics.DrawMeshInstanced(inst.ToDrawMesh, 0, inst.ToDrawMaterial, carPoses, carPoses.Length, inst.MatBlock);
+            Graphics.DrawMeshInstanced(inst.ToDrawMesh, 0, inst.ToDrawMaterial, carPoses, outIndex, inst.MatBlock);
 
             carData.Dispose();
 
