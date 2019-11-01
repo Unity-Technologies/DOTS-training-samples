@@ -274,9 +274,8 @@ namespace Pathfinding
             if (job.IsCompleted && expecting)
             {
                 firstActive = !firstActive;
+                expecting = false;
             }
-
-            expecting = false;
         }
 
         public static int2 PathTo(int2 currentPosition, int2 worldSize, NativeArray<int> distFieldRead, out bool reached)
@@ -362,7 +361,7 @@ namespace Pathfinding
 
         public void Complete()
         {
-            job.Complete();
+            //job.Complete();
         }
 
         public static void DebugLogAround(int2 p, int2 worldSize, NativeArray<int> distanceField)
