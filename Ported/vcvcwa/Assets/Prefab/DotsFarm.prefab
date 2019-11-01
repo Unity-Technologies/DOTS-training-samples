@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3806043835369376880}
   - component: {fileID: 5914432975672431025}
   - component: {fileID: 2593229008921169033}
+  - component: {fileID: 7673139793519757245}
   m_Layer: 0
   m_Name: DotsFarm
   m_TagString: Untagged
@@ -87,5 +88,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b202ab75b5bbbf49aeb86b9518b11c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moneyForFarmers: 10
+  moneyForFarmers: 100
   moneyForDrones: 50
+--- !u!114 &7673139793519757245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3806043835369377164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53f463e85368ff441ad84c587b2907cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dronePrefab: {fileID: 7981896153945875330, guid: af27a51a8faceb8438cf6f68e55e69f1,
+    type: 3}

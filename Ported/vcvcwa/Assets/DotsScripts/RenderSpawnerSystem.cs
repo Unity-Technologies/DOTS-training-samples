@@ -95,6 +95,7 @@ public class RenderSpawnerSystem : JobComponentSystem
                                 CommandBuffer.AddComponent<TileRenderer>(chunkIndex, rockInstance);
                                 CommandBuffer.AddComponent<NonUniformScale>(chunkIndex, rockInstance);
                                 CommandBuffer.AddComponent<ScaledRenderer>(chunkIndex, rockInstance);
+                                
                                 CommandBuffer.SetComponent(chunkIndex, rockInstance, new Translation {Value = position});
                                 CommandBuffer.SetComponent(chunkIndex, rockInstance, new TileRenderer {tile = new int2(i, j)});
                                 CommandBuffer.SetComponent(chunkIndex, rockInstance, new ScaledRenderer

@@ -38,7 +38,8 @@ public class MovementSystem : JobComponentSystem
                 }
                 if (math.distance(actor.position, actor.targetPosition) > distanceMinimal)
                 {
-                    actor.position = math.lerp(actor.position, actor.targetPosition, dt * actor.speed);
+                    //actor.position = math.lerp(actor.position, actor.targetPosition, dt * actor.speed);
+                    actor.position += math.normalizesafe(actor.targetPosition - actor.position) * actor.speed * dt;
                     translation.Value = new float3(actor.position.x, targetY, actor.position.y);
                 }
             })

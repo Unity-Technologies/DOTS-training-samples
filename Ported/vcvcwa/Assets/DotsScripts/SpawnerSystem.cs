@@ -67,7 +67,8 @@ public class SpawnerSystem : JobComponentSystem
                             {
                                 targetPosition = new Vector2(-1, -1),
                                 position = new Vector2(x, y),
-                                actor = entity
+                                actor = entity,
+                                speed = 1f
                             });
                             resourcesComponent.MoneyForFarmers -= 10;
 
@@ -103,7 +104,8 @@ public class SpawnerSystem : JobComponentSystem
                             CommandBuffer.SetComponent(entityIndex, instance, new ActorMovementComponent()
                             {
                                 targetPosition = new Vector2(-1,-1),
-                                position = new Vector2(x,y)
+                                position = new Vector2(x,y),
+                                speed = 1f
                             });
                             
                             gridIndex = i;

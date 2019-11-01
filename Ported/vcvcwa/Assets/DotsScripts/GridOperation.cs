@@ -2,7 +2,7 @@
 
 public struct GridOperation
 {
-    public GridTile gridTile;
+    public int gridTileIndex;
     public Entity actor;
     public int desiredGridValue;
 }

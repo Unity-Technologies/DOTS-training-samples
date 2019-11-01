@@ -35,7 +35,7 @@ public class ScaledRenderSystem : JobComponentSystem
         var localGridSize = gridSize;
         
         var jobHandle = Entities.WithReadOnly(localGrid).WithReadOnly(localGridSize)
-            .ForEach((ref NonUniformScale scale, in TileRenderer tile, in ScaledRenderer scaling) =>
+            .ForEach((ref Translation translation, ref NonUniformScale scale, in TileRenderer tile, in ScaledRenderer scaling) =>
             {
                 int gridLocation = tile.tile.x * localGridSize + tile.tile.y;
                 if (gridLocation < localGrid.Length)
@@ -56,6 +56,8 @@ public class ScaledRenderSystem : JobComponentSystem
                     float scaleY = scaling.YScaleAtZero + lerpValue * (scaling.YScaleAtMax - scaling.YScaleAtZero);
 
                     scale.Value = new float3(scaleXZ, scaleY, scaleXZ);
+                    
+                    translation.Value = new float3(tile.tile.x, translation.Value.y, tile.tile.y) + new float3(scaleXZ * 0.5f, 0.0f, scaleXZ * 0.5f);  
                 }
             }).Schedule(inputDependencies);
 
