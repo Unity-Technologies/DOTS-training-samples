@@ -18,7 +18,7 @@ public class HighwaySpawningSystem : ComponentSystem
         Entities.WithNone<DeactiveSpawner>().ForEach((Entity e, ref HighwayProperties hiway, ref LocalToWorld localToWorld) =>
         {
             float totalLen = hiway.highwayLength;
-            float totalCurve = HighwayConstants.CURVE_LANE0_RADIUS * 4.0f;
+            float totalCurve = HighwayConstants.CURVE_LANE0_RADIUS * Mathf.PI * 2;
             float straightLen = (totalLen - totalCurve) / 4.0f; // Length of each straight piece.
             float scaleFactor = straightLen / HighwayConstants.STRAIGHT_BASE_LENGTH;// * HighwayConstants.STRAIGHT_BASE_SCALE;
 
@@ -58,7 +58,7 @@ public class HighwaySpawningSystem : ComponentSystem
                     EntityManager.AddComponent(entities[i], typeof(HighwayPieceProperties));
 
                     hpp.isStraight = false;
-                    hpp.length = HighwayConstants.CURVE_LANE0_RADIUS;
+                    hpp.length = HighwayConstants.CURVE_LANE0_RADIUS * Mathf.PI / 2;
                     hpp.startRotation = rot;
                     EntityManager.SetComponentData(entities[i], hpp);
                     Vector3 xformedPos = pos;

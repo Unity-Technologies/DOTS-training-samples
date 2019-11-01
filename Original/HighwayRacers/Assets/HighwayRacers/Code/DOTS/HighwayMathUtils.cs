@@ -7,7 +7,7 @@ public struct HighwayMathUtils
 {
     public static float laneLength(float lane0Length, float laneNum)
     {
-        return lane0Length + (4 * HighwayConstants.LANE_SPACING * laneNum);
+        return lane0Length + (4 * HighwayConstants.LANE_SPACING * laneNum * Mathf.PI * 0.5f);
     }
 
     public static void RotateAroundOrigin(float x, float z, float rotation, out float xOut, out float zOut)
@@ -39,7 +39,7 @@ public struct HighwayMathUtils
         {
             pieceStartDistance = pieceEndDistance;
             pieceEndDistance += pieces[i].length;
-            if ((distInLane >= pieceEndDistance))
+            if ((distInLane >= pieceEndDistance) && (i < 7))
                 continue;
 
             // inside piece i
@@ -54,7 +54,7 @@ public struct HighwayMathUtils
             }
             else
             {
-                float radius = pieces[i].length + laneNum * HighwayConstants.LANE_SPACING;
+                float radius = pieces[i].length / (Mathf.PI * 0.5f) + laneNum * HighwayConstants.LANE_SPACING;
                 float angle = (distInLane - pieceStartDistance) / radius;
                 localX = HighwayConstants.MID_RADIUS - Mathf.Cos(angle) * radius;
                 localZ = Mathf.Sin(angle) * radius;
@@ -63,25 +63,6 @@ public struct HighwayMathUtils
 
             RotateAroundOrigin(localX, localZ, pieces[i].startRotation, out x, out z);
             rotation += pieces[i].startRotation;
-
-            /*
-            // position and rotation local to the piece
-            float localX, localZ;
-            if (i % 2 == 0)
-            {
-                // straight piece
-                GetStraightPiecePosition(distance - pieceStartDistance, lane, out localX, out localZ, out rotation);
-            } else {
-                // curved piece
-                GetCurvePiecePosition(distance - pieceStartDistance, lane, out localX, out localZ, out rotation);
-            }
-            // transform
-            RotateAroundOrigin(localX, localZ, piece.startRotation, out x, out z);
-
-            x += piece.startX;
-            z += piece.startZ;
-            rotation += piece.startRotation;
-            */
             break;                
         }
         return pieceIdx;
