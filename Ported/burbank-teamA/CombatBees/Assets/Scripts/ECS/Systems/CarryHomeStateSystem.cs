@@ -37,7 +37,8 @@ public class CarryHomeStateSystem : JobComponentSystem
                 if (state.Value != State.StateType.Dropping) return;
 
                 targetVelocity.Value = carryHomeVelocity;
-                
+
+                //targetEntity.Value = hives[team.Value - 1];
                 for (var i = 0; i < hives.Length; i++)
                 {
                     var hive = hives[i];
