@@ -11,6 +11,7 @@ namespace Rendering
         public MeshRenderer farmer;
         public MeshRenderer ground;
         public MeshRenderer plant;
+        public MeshRenderer deliveryFarmer;
         public MeshRenderer rock;
         public MeshRenderer store;
 

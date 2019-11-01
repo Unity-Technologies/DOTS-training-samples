@@ -105,7 +105,7 @@ public class RenderingUnity : MonoBehaviour
         var atype = CreateFarmerArchetype(em);
         return Create(em, farmer, atype);
     }
-    
+
     public Entity CreateGround(EntityManager em)
     {
         var atype = CreateGroundArchetype(em);
@@ -166,6 +166,7 @@ public class RenderingUnity : MonoBehaviour
     
     public MeshRenderer drone;
     public MeshRenderer farmer;
+    public MeshRenderer deliveryFarmer;  // new material indicating it's delivering plant
     public MeshRenderer ground;
     public MeshRenderer plant;
     public MeshRenderer rock;

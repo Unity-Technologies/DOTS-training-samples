@@ -16,5 +16,7 @@ MonoBehaviour:
   farmer: {fileID: 3906487109842593513, guid: 154aed47f92dc4ff5a82f316900caf8d, type: 3}
   ground: {fileID: 3685260229654091683, guid: 4397d4a57daca46a0ae757c529bf7d62, type: 3}
   plant: {fileID: 646466672676688876, guid: 41c12d44bccae4948ac5d7e27277334a, type: 3}
+  deliveryFarmer: {fileID: 2698187302800636135, guid: ba3ec768b805a4261b6ad08b1b7fe44c,
+    type: 3}
   rock: {fileID: 3226369095738028422, guid: 2809a65a8af6243aaaeea8e3940a32f8, type: 3}
   store: {fileID: 6036490920964357572, guid: 1193f21919c424146a3148c633ca2402, type: 3}
