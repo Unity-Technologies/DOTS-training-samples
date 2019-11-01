@@ -4,6 +4,8 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Pathfinding
 {
@@ -174,6 +176,7 @@ namespace Pathfinding
                     using (var allPlants = plantQuery.ToComponentDataArray<TilePositionable>(Allocator.TempJob))
                     {
                         var n = allPlants.Length;
+                        Debug.Log($"Distance field scheduled with plants = {n}");
                         for (int i = 0; i < n; i++)
                             targets.Add(allPlants[i].Position);
                     }
@@ -184,6 +187,11 @@ namespace Pathfinding
                     using (var allSizes = stoneQuery.ToComponentDataArray<RockComponent>(Allocator.TempJob))
                     {
                         var n = allStones.Length;
+
+                        Assert.AreEqual(n, allSizes.Length);
+
+                        Debug.Log($"Distance field scheduled with stones = {n}");
+
                         // border
                         for (int i = 0; i < n; i++)
                         {
@@ -212,6 +220,9 @@ namespace Pathfinding
                     using (var allShops = shopQuery.ToComponentDataArray<TilePositionable>(Allocator.TempJob))
                     {
                         var n = allShops.Length;
+
+                        Debug.Log($"Distance field scheduled with shops = {n}");
+
                         for (int i = 0; i < n; i++)
                             targets.Add(allShops[i].Position);
                     }
@@ -347,5 +358,23 @@ namespace Pathfinding
 
         public int GetDistanceFieldValue(int2 p) { return GetDistanceFieldValue(p, worldSize, DistFieldRead); }
         public void Complete() { job.Complete(); }
+
+        public static void DebugLogAround(int2 p, int2 worldSize, NativeArray<int> distanceField)
+        {
+            var s = "";
+
+            for (int x = p.x - 3; x <= p.x + 3; x++)
+            {
+                for (int y = p.y - 3; y <= p.y + 3; y++)
+                {
+                    var val = distanceField[y * worldSize.x + x];
+                    var valStr = val == int.MaxValue ? "X" : val.ToString();
+
+                    s += valStr + " ";
+                }
+                s += '\n';
+            }
+            Debug.Log(s);
+        }
     }
 }
