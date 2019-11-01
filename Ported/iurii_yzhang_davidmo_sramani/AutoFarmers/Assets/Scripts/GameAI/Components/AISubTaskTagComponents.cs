@@ -22,6 +22,10 @@ namespace GameAI
     }
     
     public struct AISubTaskTagFindPlant : IComponentData {}
-    public struct AISubTaskTagFindShop : IComponentData {}
+
+    public struct AISubTaskTagFindShop : IComponentData
+    {
+        public Entity plantEntity;
+    }
     public struct AISubTaskSellPlant : IComponentData {}
 }

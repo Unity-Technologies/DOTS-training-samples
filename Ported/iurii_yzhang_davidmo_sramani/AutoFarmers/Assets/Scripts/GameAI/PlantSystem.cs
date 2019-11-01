@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using GameAI;
+using Pathfinding;
 
 public class PlantSystem : JobComponentSystem
 {
@@ -40,7 +41,15 @@ public class PlantSystem : JobComponentSystem
 					ecb.AddComponent<TagFullyGrownPlant>(entityInQueryIndex, e);
 				}
 			}).Schedule(inputDeps);
-		
+
+		var jobQuery = GetEntityQuery(new EntityQueryDesc {
+			All = new ComponentType[] {typeof(TagPlant)},
+			None = new ComponentType[] {typeof(TagFullyGrownPlant)}
+		});
+		if (jobQuery.CalculateEntityCount() > 0) {
+			World.GetOrCreateSystem<PathfindingSystem>().PlantOrStoneChanged();
+		}
+
 		// if the plant is being picked 
 		// DO nothing
 		
@@ -49,11 +58,18 @@ public class PlantSystem : JobComponentSystem
 		var job2 = Entities
 			.WithAll<TagFullyGrownPlant>()
 			.WithAll<AITagTaskDeliver>()
+			.WithoutBurst()
 			.ForEach((Entity e, int entityInQueryIndex, ref HealthComponent health) =>
 			{
+				Debug.Log("Delivering plant");
 				health.Value = 0;
 				ecb2.RemoveComponent<TagFullyGrownPlant>(entityInQueryIndex, e);
 			}).Schedule(job);
+
+		jobQuery = GetEntityQuery(typeof(TagFullyGrownPlant), typeof(AITagTaskDeliver));
+		if (jobQuery.CalculateEntityCount() > 0) {
+			World.GetOrCreateSystem<PathfindingSystem>().PlantOrStoneChanged();
+		}
 
 		var defaultPlant = defaultPlantEntity;
 		var ecb3 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
