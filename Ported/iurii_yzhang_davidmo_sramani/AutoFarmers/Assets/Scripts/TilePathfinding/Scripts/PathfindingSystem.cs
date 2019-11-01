@@ -150,11 +150,11 @@ namespace Pathfinding
                 .WithAll<AISubTaskTagFindPlant>()
                 .WithNone<AISubTaskTagComplete>()
                 .WithNone<HasTarget>()
-                .WithoutBurst()
+//                .WithoutBurst()
                 //.WithReadOnly(distanceFieldPlantRead)
                 .ForEach((Entity entity, int entityInQueryIndex, in TilePositionable position) =>
                 {
-                    DistanceField.DebugLogAround(position.Position, worldSize, distanceFieldPlantRead);
+//                    DistanceField.DebugLogAround(position.Position, worldSize, distanceFieldPlantRead);
 
                     bool reached = false;
                     int2 target = DistanceField.PathTo(position.Position, worldSize, distanceFieldPlantRead, out reached);

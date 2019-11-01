@@ -1,6 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using UnityEngine;
 
 namespace GameAI
 {
@@ -30,17 +31,30 @@ namespace GameAI
                     ecb1.AddComponent<AISubTaskTagFindPlant>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
 
+            var hashMap = World.GetOrCreateSystem<WorldCreatorSystem>().hashMap;
+            var health = GetComponentDataFromEntity<HealthComponent>(true);
+
             var job2 = Entities
                 .WithAll<AITagTaskDeliver>()
-                .WithAll<AISubTaskTagComplete>()
                 .WithAll<AISubTaskTagFindPlant>()
-                .ForEach((Entity entity, int entityInQueryIndex) =>
+                .WithReadOnly(hashMap)
+                .WithReadOnly(health)
+                .WithoutBurst()
+                .ForEach((Entity entity, int entityInQueryIndex, in AISubTaskTagComplete target) =>
                 {
+                    Entity plantEntity;
+                    var has = hashMap.TryGetValue(target.targetPos, out plantEntity);
+                    if (health.Exists(plantEntity)) {
+                        Debug.Log($"Removing plant {plantEntity}");
+                        ecb2.SetComponent(entityInQueryIndex, plantEntity, new HealthComponent() {Value = 0});
+                        ecb2.RemoveComponent<TagFullyGrownPlant>(entityInQueryIndex, plantEntity);
+                    }
                     ecb2.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
                     ecb2.RemoveComponent<AISubTaskTagFindPlant>(entityInQueryIndex, entity);
-                    ecb2.AddComponent<AISubTaskTagFindShop>(entityInQueryIndex, entity);
+                    ecb2.AddComponent(entityInQueryIndex, entity, new AISubTaskTagFindShop() {plantEntity = plantEntity});
                 }).Schedule(inputDeps);
             
+
             var job3 = Entities
                 .WithAll<AITagTaskDeliver>()
                 .WithAll<AISubTaskTagComplete>()
