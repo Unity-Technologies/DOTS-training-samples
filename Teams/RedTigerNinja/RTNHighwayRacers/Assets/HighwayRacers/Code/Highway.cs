@@ -476,9 +476,9 @@ namespace HighwayRacers
                     ComponentType.ReadWrite<CarSettingsStruct>(),
                     ComponentType.ReadWrite<CarMindState>(),
                     ComponentType.ReadWrite<CarSystem.CarNextState>(),
-                    ComponentType.ReadWrite<Unity.Transforms.LocalToWorld>(),
-                    ComponentType.ReadWrite<Unity.Transforms.Translation>(),
-                    ComponentType.ReadWrite<Unity.Transforms.Rotation>(),
+                    //ComponentType.ReadWrite<Unity.Transforms.LocalToWorld>(),
+                    //ComponentType.ReadWrite<Unity.Transforms.Translation>(),
+                    //ComponentType.ReadWrite<Unity.Transforms.Rotation>(),
                     ComponentType.ReadWrite<CarRenderData>(),
                     ComponentType.ReadWrite<CarsNearbyData>()
                 );
@@ -909,7 +909,7 @@ namespace HighwayRacers
             var bestCar = (Car)null;
 
 			foreach (Car car in allCarsList) {
-                var carWorldPosF3 = car.DOTSLocation.Position;// World.Active.EntityManager.GetComponentData<Unity.Transforms.LocalToWorld>(car.CarData.Location.ThisCarEntity).Position;
+                var carWorldPosF3 = car.DOTSLocation;// World.Active.EntityManager.GetComponentData<Unity.Transforms.LocalToWorld>(car.CarData.Location.ThisCarEntity).Position;
                 var carWorldVec = (Vector3)carWorldPosF3;
 
                 var angle = Vector3.AngleBetween(carWorldVec - ray.origin, ray.direction);

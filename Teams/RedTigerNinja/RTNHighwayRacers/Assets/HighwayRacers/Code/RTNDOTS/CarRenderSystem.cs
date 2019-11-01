@@ -100,7 +100,7 @@ namespace HighwayRacers
                     var mtx = Matrix4x4.TRS(
                         ((Vector3)(enty.MyPosition + lnk.Position) * 0.5f) + offset,
                         Quaternion.LookRotation(delta, Vector3.up),
-                        new Vector3(0.15f, 0.15f, delta.magnitude * 0.95f));
+                        new Vector3(0.15f, 0.15f, delta.magnitude * 1.05f));
                     inst.UnitPoseArray[index] = mtx;
 
                     if (numLinks == 1000)

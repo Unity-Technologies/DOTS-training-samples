@@ -26,6 +26,13 @@ namespace HighwayRacers
         public Matrix4x4 Matrix;
         public Vector4 Color;
 
+        public Vector3 Position {
+            get
+            {
+                return this.Matrix.MultiplyPoint(Vector3.zero);
+            }
+        }
+
         public static CarRenderData Default
         {
             get {
@@ -182,11 +189,11 @@ namespace HighwayRacers
 
         public CarDataAll CarData;
 
-        public Unity.Transforms.LocalToWorld DOTSLocation
+        public Vector3 DOTSLocation
         {
             get
             {
-                return World.Active.EntityManager.GetComponentData<Unity.Transforms.LocalToWorld>(this.CarData.Location.ThisCarEntity);
+                return World.Active.EntityManager.GetComponentData<CarRenderData>(this.CarData.Location.ThisCarEntity).Position;
             }
         }
 

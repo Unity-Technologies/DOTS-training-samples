@@ -103,8 +103,9 @@ namespace HighwayRacers {
 			case State.TO_CAR:
 			case State.CAR:
 
-                    var carPose = carRef.DOTSLocation;
-                    var carMtx = Matrix4x4.TRS(carPose.Position, Quaternion.LookRotation(carPose.Forward, carPose.Up), Vector3.one);
+                    var em = Unity.Entities.World.Active.EntityManager;
+                    var carPose = em.GetComponentData<CarRenderData>(carRef.CarData.Location.ThisCarEntity);
+                    var carMtx = carPose.Matrix;// Matrix4x4.TRS(carPose.Position, Quaternion.LookRotation(carPose.Forward, carPose.Up), Vector3.one);
 
                     carPosition = carMtx.MultiplyPoint(this.ReferenceCameraOffset.localPosition);
                     carRotation = carMtx.rotation * this.ReferenceCameraOffset.localRotation;

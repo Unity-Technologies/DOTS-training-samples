@@ -46,7 +46,7 @@ public class CarWorldSystem : MonoBehaviour
 
 
     [ContextMenu("Do World Test!")]
-    public void DoTest()
+    public void DoSaveLoadTest()
     {
         var world = World.Active;
         Debug.Log("SN=" + world.SequenceNumber + " Version=" + world.Version + " EV=" + world.EntityManager.Version + " GEV=" + world.EntityManager.GlobalSystemVersion);
@@ -79,6 +79,9 @@ public class CarWorldSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyUp(KeyCode.L))
+        {
+            this.DoSaveLoadTest();
+        }
     }
 }

@@ -103,7 +103,7 @@ namespace HighwayRacers
 
     public class CarsNearbySystem : JobComponentSystem
     {
-        public struct AngleSorter : System.Collections.Generic.IComparer<LocalToWorld>
+        public struct AngleSorter : System.Collections.Generic.IComparer<CarRenderData>
         {
             public float3 WorldCenter;
 
@@ -113,7 +113,7 @@ namespace HighwayRacers
                 return math.atan2(p.z, p.x);
             }
 
-            public int Compare(LocalToWorld x, LocalToWorld y)
+            public int Compare(CarRenderData x, CarRenderData y)
             {
                 var a1 = AngleValue(x.Position);
                 var a2 = AngleValue(y.Position);
@@ -142,11 +142,11 @@ namespace HighwayRacers
 
             var em = this.EntityManager;
 
-            var posQuery = PoseQuery ?? em.CreateEntityQuery(ComponentType.ReadOnly<LocalToWorld>());
+            var posQuery = PoseQuery ?? em.CreateEntityQuery(ComponentType.ReadOnly<CarRenderData>());
             PoseQuery = posQuery;
-            var poses = posQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob);
+            var poses = posQuery.ToComponentDataArray<CarRenderData>(Allocator.TempJob);
 
-            var sorted = new NativeArray<LocalToWorld>(poses, Allocator.TempJob);
+            var sorted = new NativeArray<CarRenderData>(poses, Allocator.TempJob);
             var sorter = new AngleSorter() { WorldCenter = CarRenderSystem.instance.ReferenceCenter.position };
 
             inputDeps = (new NearbyCarsSort() { SourceArray = poses, DestArray = sorted, Sorter = sorter }).Schedule(inputDeps);
@@ -178,8 +178,8 @@ namespace HighwayRacers
         [BurstCompile]
         public struct NearbyCarsSort : IJob
         {
-            [ReadOnly] public NativeArray<LocalToWorld> SourceArray;
-            public NativeArray<LocalToWorld> DestArray;
+            [ReadOnly] public NativeArray<CarRenderData> SourceArray;
+            public NativeArray<CarRenderData> DestArray;
             public AngleSorter Sorter;
 
             public void Execute()
@@ -202,9 +202,9 @@ namespace HighwayRacers
         }
 
         [BurstCompile]
-        public struct NearbyCarsJob : IJobForEach<CarsNearbyData, LocalToWorld>
+        public struct NearbyCarsJob : IJobForEach<CarsNearbyData, CarRenderData>
         {
-            [ReadOnly] public NativeArray<LocalToWorld> AllCars;
+            [ReadOnly] public NativeArray<CarRenderData> AllCars;
             public AngleSorter Angler;
 
             public IntRange GetRange(Vector3 pos, int maxIndexOffset)
@@ -240,7 +240,7 @@ namespace HighwayRacers
                 public IntRange(int mn, int mx) { Min = mn; Max = mx; }
             }
 
-            public void Execute(ref CarsNearbyData c0,[ReadOnly] ref LocalToWorld c1)
+            public void Execute(ref CarsNearbyData c0,[ReadOnly] ref CarRenderData c1)
             {
                 var lst = c0.Refs;
                 var rang = this.GetRange(c1.Position, 15);
@@ -266,7 +266,7 @@ namespace HighwayRacers
                         }
                         if (bestIndex < lst.MaxCount)
                         {
-                            var entry = new OtherPoint() { Position = other.Position, Distance = dist, CarId = i };
+                            var entry = new OtherPoint() { Position = (float3)other.Position, Distance = dist, CarId = i };
                             lst.InsertAt(bestIndex, entry);
                         }
                     }
