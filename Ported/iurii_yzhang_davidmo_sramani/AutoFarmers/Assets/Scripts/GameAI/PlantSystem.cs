@@ -81,6 +81,7 @@ public class PlantSystem : JobComponentSystem
 			{
 				var wpos = RenderingUnity.Tile2WorldPosition(tile.Position, worldSizeHalf);
 				var newEntity = ecb3.Instantiate(entityInQueryIndex, defaultPlant);
+				ecb3.SetComponent(entityInQueryIndex, newEntity, new TilePositionable() {Position = tile.Position});
 				ecb3.SetComponent(entityInQueryIndex, newEntity, new Translation {Value = wpos});
 				ecb3.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, e);
 			}).Schedule(inputDeps);
