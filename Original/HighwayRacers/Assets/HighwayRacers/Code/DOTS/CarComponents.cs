@@ -17,6 +17,11 @@ public struct CarBasicState : IComponentData
     public float Lane; // [0..4) //?
     public float Position; // Position on the road.
     public float Speed;
+}
+
+[Serializable]
+public struct CarColor : IComponentData
+{
     public float4 Color;
 }
 

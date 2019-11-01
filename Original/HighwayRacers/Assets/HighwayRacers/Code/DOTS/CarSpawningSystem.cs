@@ -2,6 +2,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class CarSpawningSystem : ComponentSystem
@@ -36,11 +37,13 @@ public class CarSpawningSystem : ComponentSystem
             var entities = new NativeArray<Entity>(carSpawnCount, Allocator.Temp);
             var carActiveComponentTypes = new ComponentTypes(
                                 typeof(CarBasicState),
+                                typeof(CarColor),
                                 typeof(CarLogicState)
                             );
             var carStaticComponentTypes = new ComponentTypes(
                                 typeof(CarReadOnlyProperties)
                             );
+
             // Instantiate with the prefab and add all the components.
             for (int i = 0; i < carSpawnCount; ++i)
             {
@@ -69,11 +72,12 @@ public class CarSpawningSystem : ComponentSystem
 
                 CarBasicState cbs;
                 CarLogicState cls;
+                CarColor col;
 
                 cbs.Speed = crop.DefaultSpeed;
                 cbs.Lane = curLane - 1;
                 cbs.Position = curPosition;
-                cbs.Color = new float4(spawner.defaultColor.r,
+                col.Color = new float4(spawner.defaultColor.r,
                                        spawner.defaultColor.g,
                                        spawner.defaultColor.b,
                                        spawner.defaultColor.a);

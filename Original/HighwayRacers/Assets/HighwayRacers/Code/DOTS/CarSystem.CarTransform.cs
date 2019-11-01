@@ -9,7 +9,7 @@ partial class CarSystem
 {
     [BurstCompile]
     // TOOD: Proper grouping of the properties based on access type: Read-write or Read-only.
-    private struct CarTransformJob : IJobForEachWithEntity<CarBasicState, CarReadOnlyProperties, LocalToWorld>
+    private struct CarTransformJob : IJobForEachWithEntity<CarBasicState, CarReadOnlyProperties, CarColor, LocalToWorld>
     {
         public float HighwayLen;
         public Color baseColor;
@@ -18,7 +18,7 @@ partial class CarSystem
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<HighwayPieceProperties> pieces;
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalToWorld> xforms;
 
-        public void Execute(Entity entity, int index, ref CarBasicState carBasicState, [ReadOnly] ref CarReadOnlyProperties crop, ref LocalToWorld localToWorld)
+        public void Execute(Entity entity, int index, [ReadOnly] ref CarBasicState carBasicState, [ReadOnly] ref CarReadOnlyProperties crop, ref CarColor ccol, ref LocalToWorld localToWorld)
         {
             float localX, localZ, localRot;
             int hitPiece = HighwayMathUtils.RoadPosToRelativePos(ref pieces,
@@ -38,14 +38,14 @@ partial class CarSystem
             if (carBasicState.Speed < crop.DefaultSpeed)
             {
                 float lerpFac = carBasicState.Speed / crop.DefaultSpeed;
-                curColor += (slowColor - baseColor) * lerpFac;
+                curColor = baseColor * lerpFac + slowColor * (1 - lerpFac);
             }
             else if (carBasicState.Speed > crop.DefaultSpeed)
             {
                 float lerpFac = (carBasicState.Speed - crop.DefaultSpeed) / (crop.MaxSpeed - crop.DefaultSpeed);
-                curColor += (fastColor - baseColor) * lerpFac;
+                curColor = fastColor * lerpFac + baseColor * (1 - lerpFac);
             }
-            carBasicState.Color = new float4(curColor.r, curColor.g, curColor.b, curColor.a);
+            ccol.Color = new float4(curColor.r, curColor.g, curColor.b, curColor.a);
         }
     }
 }
