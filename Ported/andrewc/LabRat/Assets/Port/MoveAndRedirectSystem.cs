@@ -21,6 +21,7 @@ class MoveAndRedirectSystem : JobComponentSystem
         [ReadOnly] public float DeltaTime;
         [ReadOnly] public Board Board;
 
+        [BurstCompile]
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
             var chunkTranslations = chunk.GetNativeArray(TranslationType);

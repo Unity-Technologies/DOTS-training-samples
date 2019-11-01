@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Scripting;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -25,6 +26,8 @@ public class SpawnSystem : JobComponentSystem
     {
         public EntityCommandBuffer.Concurrent CommandBuffer;
         public float DeltaTime;
+
+        [BurstCompile]
         public void Execute(Entity e, int index, ref Spawner_FromEntity spawner)
         {
             spawner.CatCounter += DeltaTime;

@@ -1,9 +1,11 @@
 using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Entities;
 using UnityEngine;
 
+[BurstCompile]
 public struct Tile
 {
     public eTileType TileType
