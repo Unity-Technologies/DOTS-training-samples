@@ -107,42 +107,20 @@ namespace Pathfinding
                 {
                     bool reached = false;
                     int2 target = DistanceField.PathTo(tile.Position, worldSize, distanceFieldStoneRead, out reached);
+                    if (!reached && (target[0] == tile.Position[0]) && (target[1] == tile.Position[1]))
+                    {
+                        ecb5.RemoveComponent<AISubTaskTagFindRock>(entityInQueryIndex, entity);
+                        ecb5.RemoveComponent<AITagTaskClearRock>(entityInQueryIndex, entity);
+                        ecb5.AddComponent<AITagTaskNone>(entityInQueryIndex, entity);
+                    }
 //                    int value = DistanceField.GetDistanceFieldValue(tile.Position, worldSize, distanceFieldStoneRead);
 //                    Debug.Log($"Path2 : {tile.Position} -> {target} = {reached}. dist field val = {value}");
-                    if (reached) {
+                    else if (reached) {
                         ecb5.AddComponent(entityInQueryIndex, entity, new AISubTaskTagComplete() {targetPos = target});
                     } else {
                         ecb5.AddComponent(entityInQueryIndex, entity, new HasTarget(target));
                     }
                 }).Schedule(inputDeps);
-
-//            // smash rock 
-//            var ecb6 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-//            var job6 = Entities
-//                .WithAll<AISubTaskTagTillGroundTile>()
-//                .WithNone<AISubTaskTagComplete>()
-//                //.WithoutBurst()
-//                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
-//                {
-//                    bool2 tt = (t.TargetPosition == tile.Position);
-//                    if (tt[0] && tt[1])
-//                    {
-//                        // Add tag: subTaskComplete
-//                        ecb6.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
-//                    }
-//                }).Schedule(inputDeps);
-
-//            // Seeding
-//            var ecb7 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-//            var job7 = Entities
-//                .WithAll<AISubTaskTagPlantSeed>()
-//                .WithNone<AISubTaskTagComplete>()
-//                //.WithoutBurst()
-//                .ForEach((Entity entity, int nativeThreadIndex) =>
-//                {
-//                    // Add tag: subTaskComplete
-//                    ecb7.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
-//                }).Schedule(inputDeps);
 
             // Find Plant
             var ecb8 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
@@ -161,7 +139,12 @@ namespace Pathfinding
 
                     bool reached = false;
                     int2 target = DistanceField.PathTo(position.Position, worldSize, distanceFieldPlantRead, out reached);
-                    if (reached) {
+                    if (!reached && (target[0] == position.Position[0]) && (target[1] == position.Position[1]))
+                    {
+                        ecb8.RemoveComponent<AISubTaskTagFindPlant>(entityInQueryIndex, entity);
+                        ecb8.AddComponent<AITagTaskNone>(entityInQueryIndex, entity);
+                    }
+                    else if (reached) {
                         ecb8.AddComponent(entityInQueryIndex, entity, new AISubTaskTagComplete() {targetPos = target});
                     } else {
                         ecb8.AddComponent(entityInQueryIndex, entity, new HasTarget(target));
