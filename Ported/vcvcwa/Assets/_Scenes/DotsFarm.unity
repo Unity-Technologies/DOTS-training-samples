@@ -156,7 +156,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 2
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.4
@@ -347,8 +347,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 693937889}
-  m_LocalRotation: {x: -0.09760103, y: -0.36923745, z: 0.039028734, w: -0.92337126}
-  m_LocalPosition: {x: 2.8177168, y: 7.2081013, z: 1.9252149}
+  m_LocalRotation: {x: -0.22015959, y: -0.27141562, z: 0.06392511, w: -0.93476033}
+  m_LocalPosition: {x: 52.29829, y: 8.319777, z: -1.1642913}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -369,26 +369,6 @@ MonoBehaviour:
   viewAngles: {x: 45, y: 30}
   viewDist: 10
   mouseSensitivity: 4000
---- !u!1 &785577201 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3806043835369377164, guid: 8c1166f69acdb9b478bbfcad4b77a8ad,
-    type: 3}
-  m_PrefabInstance: {fileID: 3806043833606784369}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &785577202
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 785577201}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53f463e85368ff441ad84c587b2907cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dronePrefab: {fileID: 7981896153945875330, guid: af27a51a8faceb8438cf6f68e55e69f1,
-    type: 3}
 --- !u!1 &1195896346
 GameObject:
   m_ObjectHideFlags: 0
@@ -701,13 +681,7 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -4699785633222605356, guid: 8c1166f69acdb9b478bbfcad4b77a8ad,
-        type: 3}
-      propertyPath: MoneyForDrones
-      value: 50
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: -4699785633222605356, guid: 8c1166f69acdb9b478bbfcad4b77a8ad, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8c1166f69acdb9b478bbfcad4b77a8ad, type: 3}
 --- !u!1001 &6939908461447311094
 PrefabInstance:
