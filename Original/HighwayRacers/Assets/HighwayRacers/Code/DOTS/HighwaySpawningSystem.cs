@@ -18,8 +18,7 @@ public class HighwaySpawningSystem : ComponentSystem
         Entities.WithNone<DeactiveSpawner>().ForEach((Entity e, ref HighwayProperties hiway, ref LocalToWorld localToWorld) =>
         {
             float totalLen = hiway.highwayLength;
-            float totalCurve = HighwayConstants.CURVE_LANE0_RADIUS * 4.0f;
-            float straightLen = (totalLen - totalCurve) / 4.0f; // Length of each straight piece.
+            float straightLen = Utilities.StraightPieceLength(totalLen);
             float scaleFactor = straightLen / HighwayConstants.STRAIGHT_BASE_LENGTH;// * HighwayConstants.STRAIGHT_BASE_SCALE;
 
             // We know there are 8 pieces -- 4 curve and 4 straight.
@@ -58,7 +57,7 @@ public class HighwaySpawningSystem : ComponentSystem
                     EntityManager.AddComponent(entities[i], typeof(HighwayPieceProperties));
 
                     hpp.isStraight = false;
-                    hpp.length = HighwayConstants.CURVE_LANE0_RADIUS;
+                    hpp.length = HighwayConstants.CURVE_LANE0_RADIUS * math.PI / 2;
                     hpp.startRotation = rot;
                     EntityManager.SetComponentData(entities[i], hpp);
                     Vector3 xformedPos = pos;
@@ -73,8 +72,8 @@ public class HighwaySpawningSystem : ComponentSystem
                     PostUpdateCommands.RemoveComponent<Rotation>(entities[i]);
 
                     pos += rotQ * new Vector3(HighwayConstants.MID_RADIUS, 0, HighwayConstants.MID_RADIUS);
-                    rot = Mathf.PI / 2 * (i / 2 + 1);
-                    rotQ = Quaternion.Euler(0, rot * Mathf.Rad2Deg, 0);
+                    rot = math.PI / 2 * (i / 2 + 1);
+                    rotQ = Quaternion.Euler(0, math.degrees(rot), 0);
                 }
             }
 
