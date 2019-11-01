@@ -15,6 +15,7 @@ namespace HighwayRacers
         public MaterialPropertyBlock MatBlock;
         public Matrix4x4[] PoseArray = null;
         public Vector4[] ColorArray = null;
+        public Transform ReferenceCenter;
 
         public Mesh UnitCubeMesh;
         public Material UnitCubeMat;

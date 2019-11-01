@@ -101,7 +101,23 @@ namespace HighwayRacers
 
     public class CarsNearbySystem : JobComponentSystem
     {
+        public struct AngleSorter : System.Collections.Generic.IComparer<LocalToWorld>
+        {
+            public float3 WorldCenter;
 
+            public float AngleValue(Vector3 v)
+            {
+                var p = (v - (Vector3)WorldCenter);
+                return math.atan2(p.z, p.x);
+            }
+
+            public int Compare(LocalToWorld x, LocalToWorld y)
+            {
+                var a1 = AngleValue(x.Position);
+                var a2 = AngleValue(y.Position);
+                return a1.CompareTo(a2);
+            }
+        }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
@@ -116,10 +132,15 @@ namespace HighwayRacers
             var posQuery = em.CreateEntityQuery(ComponentType.ReadOnly<LocalToWorld>());
             var poses = posQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob);
 
-            inputDeps = (new NearbyCarsJob() { AllCars = poses }).Schedule(this, inputDeps);
+            var sorted = new NativeArray<LocalToWorld>(poses, Allocator.TempJob);
+            var sorter = new AngleSorter() { WorldCenter = CarRenderSystem.instance.ReferenceCenter.position };
+            sorted.Sort(sorter);
+
+            inputDeps = (new NearbyCarsJob() { AllCars = sorted, Angler =  sorter}).Schedule(this, inputDeps);
 
             inputDeps.Complete();
             poses.Dispose();
+            sorted.Dispose();
 
             //return inputDeps;
 
@@ -157,11 +178,46 @@ namespace HighwayRacers
         public struct NearbyCarsJob : IJobForEach<CarsNearbyData, LocalToWorld>
         {
             [ReadOnly] public NativeArray<LocalToWorld> AllCars;
+            public AngleSorter Angler;
+
+            public IntRange GetRange(Vector3 pos, int maxIndexOffset)
+            {
+                IntRange range = new IntRange(0, AllCars.Length);
+                var goalAngle = Angler.AngleValue(pos);
+
+                while (range.Min+2 < range.Max)
+                {
+                    var mid = (range.Min + range.Max) / 2;
+                    var entry = this.AllCars[mid];
+                    var ang = Angler.AngleValue(entry.Position);
+                    if (goalAngle < ang)
+                    {
+                        range.Max = mid;
+                    }
+                    else
+                    {
+                        range.Min = mid;
+                    }
+                }
+
+                range.Min = math.max(0, (range.Min - maxIndexOffset));
+                range.Max = math.min(AllCars.Length - 1, range.Max + maxIndexOffset);
+
+                return range;
+
+            }
+
+            public struct IntRange
+            {
+                public int Min, Max;
+                public IntRange(int mn, int mx) { Min = mn; Max = mx; }
+            }
 
             public void Execute(ref CarsNearbyData c0,[ReadOnly] ref LocalToWorld c1)
             {
                 var lst = c0.Refs;
-                for (var i=0; i<AllCars.Length; i++)
+                var rang = this.GetRange(c1.Position, 15);
+                for (var i= rang.Min; i<rang.Max; i++)
                 {
                     var other = AllCars[i];
                     var delta = (Vector3)(c1.Position - other.Position);
