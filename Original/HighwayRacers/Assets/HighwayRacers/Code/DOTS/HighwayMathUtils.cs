@@ -5,9 +5,9 @@ using Unity.Collections;
 
 public struct HighwayMathUtils
 {
-    public static float laneLength(float laneMidLength, float laneNum)
+    public static float laneLength(float lane0Length, float laneNum)
     {
-        return laneMidLength - HighwayConstants.LANE_SPACING * (HighwayConstants.NUM_LANES / 2 - laneNum);
+        return lane0Length + (4 * HighwayConstants.LANE_SPACING * laneNum);
     }
 
     public static void RotateAroundOrigin(float x, float z, float rotation, out float xOut, out float zOut)
@@ -19,10 +19,10 @@ public struct HighwayMathUtils
         zOut = x * sin + z * cos;
     }
 
-    public static int RoadPosToRelativePos(ref NativeArray<HighwayPieceProperties> pieces, float distInLane, float laneNum, out float x, out float z, out float rotation)
+    public static int RoadPosToRelativePos(ref NativeArray<HighwayPieceProperties> pieces, float highWayLen, float distInLane, float laneNum, out float x, out float z, out float rotation)
     {
         // keep distance in [0, length)
-        distInLane -= Mathf.Floor(distInLane / laneLength(360, laneNum)) * laneLength(360, laneNum);
+        distInLane -= Mathf.Floor(distInLane / laneLength(highWayLen, laneNum)) * laneLength(highWayLen, laneNum);
 
         Vector3 pos = Vector3.zero;
         Quaternion rot = Quaternion.identity;
@@ -35,11 +35,11 @@ public struct HighwayMathUtils
 
         int pieceIdx = 0;
 
-        for (int i = 0; i< 8; i++)
+        for (int i = 0; i < 8; i++)
         {
             pieceStartDistance = pieceEndDistance;
             pieceEndDistance += pieces[i].length;
-            if ((distInLane >= pieceEndDistance) || (distInLane < pieceStartDistance))
+            if ((distInLane >= pieceEndDistance))
                 continue;
 
             // inside piece i
@@ -54,7 +54,7 @@ public struct HighwayMathUtils
             }
             else
             {
-                float radius = HighwayConstants.CURVE_LANE0_RADIUS + laneNum * HighwayConstants.LANE_SPACING;
+                float radius = pieces[i].length + laneNum * HighwayConstants.LANE_SPACING;
                 float angle = (distInLane - pieceStartDistance) / radius;
                 localX = HighwayConstants.MID_RADIUS - Mathf.Cos(angle) * radius;
                 localZ = Mathf.Sin(angle) * radius;
