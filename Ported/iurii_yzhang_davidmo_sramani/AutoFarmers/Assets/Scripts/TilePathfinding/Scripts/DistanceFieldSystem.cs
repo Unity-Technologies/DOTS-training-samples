@@ -171,33 +171,35 @@ namespace Pathfinding
 
                 if (fieldType == FieldType.Plant)
                 {
-                    using (var allPlants = plantQuery.ToComponentDataArray<PlantPositionRequest>(Allocator.TempJob))
+                    using (var allPlants = plantQuery.ToComponentDataArray<TilePositionable>(Allocator.TempJob))
                     {
                         var n = allPlants.Length;
                         for (int i = 0; i < n; i++)
-                            targets.Add(allPlants[i].position);
+                            targets.Add(allPlants[i].Position);
                     }
                 }
                 else if (fieldType == FieldType.Stone)
                 {
-                    using (var allStones = stoneQuery.ToComponentDataArray<StonePositionRequest>(Allocator.TempJob))
+                    using (var allStones = stoneQuery.ToComponentDataArray<TilePositionable>(Allocator.TempJob))
+                    using (var allSizes = stoneQuery.ToComponentDataArray<RockComponent>(Allocator.TempJob))
                     {
                         var n = allStones.Length;
                         // border
                         for (int i = 0; i < n; i++)
                         {
                             var stone = allStones[i];
-                            var rigX = stone.position.x + stone.size.x - 1;
-                            var lefX = stone.position.x;
-                            var topY = stone.position.y + stone.size.y - 1;
-                            var botY = stone.position.y;
-                            for (int x = stone.position.x; x < stone.position.x + stone.size.x; x++)
+                            var size = allSizes[i];
+                            var rigX = stone.Position.x + size.Size.x - 1;
+                            var lefX = stone.Position.x;
+                            var topY = stone.Position.y + size.Size.y - 1;
+                            var botY = stone.Position.y;
+                            for (int x = stone.Position.x; x < stone.Position.x + size.Size.x; x++)
                             {
                                 targets.Add(new int2(x, topY));
                                 targets.Add(new int2(x, botY));
                             }
                             
-                            for (int y = stone.position.y + 1; y < stone.position.y + stone.size.y - 1; y++)
+                            for (int y = stone.Position.y + 1; y < stone.Position.y + size.Size.y - 1; y++)
                             {
                                 targets.Add(new int2(lefX, y));
                                 targets.Add(new int2(rigX, y));
@@ -207,22 +209,26 @@ namespace Pathfinding
                 }
                 else if (fieldType == FieldType.Shop)
                 {
-                    using (var allShops = shopQuery.ToComponentDataArray<ShopPositionRequest>(Allocator.TempJob))
+                    using (var allShops = shopQuery.ToComponentDataArray<TilePositionable>(Allocator.TempJob))
                     {
                         var n = allShops.Length;
                         for (int i = 0; i < n; i++)
-                            targets.Add(allShops[i].position);
+                            targets.Add(allShops[i].Position);
                     }
                 }
 
                 if (stonesAreObstacles)
                 {
-                    using (var allStones = stoneQuery.ToComponentDataArray<StonePositionRequest>(Allocator.TempJob))
+                    using (var allStones = stoneQuery.ToComponentDataArray<TilePositionable>(Allocator.TempJob))
+                    using (var allSizes = stoneQuery.ToComponentDataArray<RockComponent>(Allocator.TempJob))
                     {
-                        foreach (var stone in allStones)
+                        var n = allStones.Length;
+                        for(int i=0; i<n; i++)
                         {
-                            for (int x = stone.position.x; x < stone.position.x + stone.size.x; x++)
-                            for (int y = stone.position.y; y < stone.position.y + stone.size.y; y++)
+                            var stone = allStones[i];
+                            var size = allSizes[i];
+                            for (int x = stone.Position.x; x < stone.Position.x + size.Size.x; x++)
+                            for (int y = stone.Position.y; y < stone.Position.y + size.Size.y; y++)
                                 visited[new int2(x, y)] = 1;
                         }
                     }

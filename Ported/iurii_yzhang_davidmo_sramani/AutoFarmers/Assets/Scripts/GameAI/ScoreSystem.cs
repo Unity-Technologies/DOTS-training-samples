@@ -65,9 +65,9 @@ namespace GameAI
                 .ForEach((Entity e, int nativeThreadIndex, int entityInQueryIndex, in TilePositionable tile) =>
                 {
                     // random chance it will spawn at this shop
-                    var random = new Unity.Mathematics.Random();
+                    var random = new Unity.Mathematics.Random(0xBAD5EED);
                     var p = random.NextDouble(1.0);
-                    if (p > 0.5)
+                    if (p < 0.3)
                     {
                         // get shop position
                         var pos = tile.Position;
@@ -88,9 +88,9 @@ namespace GameAI
                 .ForEach((Entity e, int nativeThreadIndex, int entityInQueryIndex, in TilePositionable tile) =>
                 {
                     // random chance it will spawn at this shop
-                    var random = new Unity.Mathematics.Random();
+                    var random = new Unity.Mathematics.Random(0xBAD5EED);
                     var p = random.NextDouble(1.0);
-                    if (p < 0.5)
+                    if (p < 0.1)
                     {
                         // get shop position
                         var pos = tile.Position;
@@ -120,7 +120,7 @@ namespace GameAI
                 
             EntityManager.SetComponentData<CurrentScoreRequest>(singletonScore, new CurrentScoreRequest{TotalScore = pre_score});
             
-            Debug.Log(score_tmp);
+            //Debug.Log(score_tmp);
 
             return handle;
         }

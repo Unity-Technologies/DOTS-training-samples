@@ -39,59 +39,89 @@ public class RenderingUnity : MonoBehaviour
         }
     }
 
+    public EntityArchetype CreateDroneArchetype(EntityManager em)
+    {
+        return em.CreateArchetype(
+        typeof(Translation),
+        typeof(NonUniformScale),
+        typeof(LocalToWorld),
+        typeof(RenderMesh),
+        typeof(RenderingAnimationComponent),
+        typeof(RenderingAnimationDroneFlyComponent),
+        typeof(AITagTaskNone),
+        typeof(MovementSpeedComponent),
+        typeof(TilePositionable));
+    }
+
+    public EntityArchetype CreateFarmerArchetype(EntityManager em)
+    {
+        return em.CreateArchetype(
+        typeof(Translation),
+        typeof(NonUniformScale),
+        typeof(LocalToWorld),
+        typeof(RenderMesh),
+        typeof(RenderingAnimationComponent),
+        typeof(FarmerAITag),
+        typeof(AITagTaskNone),
+        typeof(MovementSpeedComponent),
+        typeof(TilePositionable));
+    }
+
+    public EntityArchetype CreateGroundArchetype(EntityManager em)
+    {
+        return em.CreateArchetype(typeof(LocalToWorld), typeof(RenderMesh), typeof(TilePositionable));
+    }
+
+    public EntityArchetype CreateRockArchetype(EntityManager em)
+    {
+        return em.CreateArchetype(typeof(Translation), typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh), typeof(HealthComponent), typeof(RockComponent), typeof(TilePositionable));
+    }
+
+    public EntityArchetype CreatePlantArchetype(EntityManager em)
+    {
+        return em.CreateArchetype(typeof(Translation), typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh), typeof(HealthComponent), typeof(TagPlant), typeof(TilePositionable));
+    }
+
+    public EntityArchetype CreateStoreArchetype(EntityManager em)
+    {
+        return em.CreateArchetype(typeof(Translation),
+        typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh),
+        typeof(SpawnPointComponent), typeof(TagShop), typeof(TilePositionable));
+    }
+    
     public Entity CreateDrone(EntityManager em)
     {
-        var atype = em.CreateArchetype(
-            typeof(Translation),
-            typeof(NonUniformScale), 
-            typeof(LocalToWorld), 
-            typeof(RenderMesh), 
-            typeof(RenderingAnimationComponent),
-            typeof(RenderingAnimationDroneFlyComponent),
-            typeof(AITagTaskNone),
-            typeof(MovementSpeedComponent),
-            typeof(TilePositionable));
+        var atype = CreateDroneArchetype(em);
         return Create(em, drone, atype);
     }
     
     public Entity CreateFarmer(EntityManager em)
     {
-        var atype = em.CreateArchetype(
-            typeof(Translation),
-            typeof(NonUniformScale),
-            typeof(LocalToWorld),
-            typeof(RenderMesh),
-            typeof(RenderingAnimationComponent),
-            typeof(FarmerAITag),
-            typeof(AITagTaskNone),
-            typeof(MovementSpeedComponent),
-            typeof(TilePositionable));
+        var atype = CreateFarmerArchetype(em);
         return Create(em, farmer, atype);
     }
     
     public Entity CreateGround(EntityManager em)
     {
-        var atype = em.CreateArchetype(typeof(LocalToWorld), typeof(RenderMesh));
+        var atype = CreateGroundArchetype(em);
         return Create(em, ground, atype);
     }
 
     public Entity CreateStone(EntityManager em)
     {
-        var atype = em.CreateArchetype(typeof(Translation), typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh), typeof(HealthComponent), typeof(RockComponent));
+        var atype = CreateRockArchetype(em);
         return Create(em, rock, atype);
     }
 
     public Entity CreatePlant(EntityManager em)
     {
-        var atype = em.CreateArchetype(typeof(Translation), typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh), typeof(HealthComponent), typeof(TagPlant));
+        var atype = CreatePlantArchetype(em);
         return Create(em, plant, atype);
     }
     
     public Entity CreateStore(EntityManager em)
     {
-        var atype = em.CreateArchetype(typeof(Translation),
-            typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh),
-            typeof(SpawnPointComponent), typeof(TagShop));
+        var atype = CreateStoreArchetype(em);
         return Create(em, store, atype);
     }
 

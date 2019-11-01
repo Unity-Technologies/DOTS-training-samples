@@ -18,8 +18,8 @@ namespace Tests
             var creator = World.GetOrCreateSystem<WorldCreatorSystem>();
             creator.WorldSize = new int2(2, 3);
             
-            var pq = m_Manager.CreateEntityQuery(typeof(PlantPositionRequest));
-            var pblock = m_Manager.CreateEntityQuery(typeof(StonePositionRequest));
+            var pq = m_Manager.CreateEntityQuery(typeof(TilePositionable), typeof(TagPlant));
+            var pblock = m_Manager.CreateEntityQuery(typeof(TilePositionable), typeof(RockComponent));
             var shopQuery = m_Manager.CreateEntityQuery(typeof(ShopPositionRequest));
 
             var distanceField = new DistanceField(DistanceField.FieldType.Plant, creator.WorldSize, pq, pblock, shopQuery);
@@ -56,11 +56,11 @@ namespace Tests
             var creator = World.GetOrCreateSystem<WorldCreatorSystem>();
             creator.WorldSize = new int2(2, 3);
 
-            var e = m_Manager.CreateEntity(typeof(PlantPositionRequest));
-            m_Manager.SetComponentData(e, new PlantPositionRequest {position = new int2(1,2)});
+            var e = m_Manager.CreateEntity(typeof(TilePositionable), typeof(TagPlant));
+            m_Manager.SetComponentData(e, new TilePositionable() {Position = new int2(1,2)});
             
-            var pq = m_Manager.CreateEntityQuery(typeof(PlantPositionRequest));
-            var pblock = m_Manager.CreateEntityQuery(typeof(StonePositionRequest));
+            var pq = m_Manager.CreateEntityQuery(typeof(TilePositionable), typeof(TagPlant));
+            var pblock = m_Manager.CreateEntityQuery(typeof(TilePositionable), typeof(RockComponent));
             var shopQuery = m_Manager.CreateEntityQuery(typeof(ShopPositionRequest));
             var distanceField = new DistanceField(DistanceField.FieldType.Plant, creator.WorldSize, pq, pblock, shopQuery);
             
@@ -184,20 +184,20 @@ namespace Tests
                 {
                     if (lines[y][x] == 'X')
                     {
-                        var e = m_Manager.CreateEntity(typeof(StonePositionRequest));
-                        m_Manager.SetComponentData(e, new StonePositionRequest {position = new int2(x,y), size = new int2(1,1)});            
+                        var e = m_Manager.CreateEntity(typeof(TilePositionable), typeof(RockComponent));
+                        m_Manager.SetComponentData(e, new TilePositionable() {Position = new int2(x,y)});
+                        m_Manager.SetComponentData(e, new RockComponent() { Size = new int2(1,1)});
                     }
                     else if (lines[y][x] == 'O')
                     {
-                        var e = m_Manager.CreateEntity(typeof(PlantPositionRequest));
-                        m_Manager.SetComponentData(e, new PlantPositionRequest {position = new int2(x,y)});
+                        var e = m_Manager.CreateEntity(typeof(TilePositionable), typeof(TagPlant));
+                        m_Manager.SetComponentData(e, new TilePositionable() {Position = new int2(x,y)});
                     }
                 }
             }
             
-            
-            var pq = m_Manager.CreateEntityQuery(typeof(PlantPositionRequest));
-            var pblock = m_Manager.CreateEntityQuery(typeof(StonePositionRequest));
+            var pq = m_Manager.CreateEntityQuery(typeof(TilePositionable), typeof(TagPlant));
+            var pblock = m_Manager.CreateEntityQuery(typeof(TilePositionable), typeof(RockComponent));
             var shopQuery = m_Manager.CreateEntityQuery(typeof(ShopPositionRequest));
             var distanceField = new DistanceField(type, creator.WorldSize, pq, pblock, shopQuery);
             
@@ -234,14 +234,14 @@ namespace Tests
             var c = new int[sx * sy];
             var d = new int[sx * sy];
 
-            var e = m_Manager.CreateEntity(typeof(PlantPositionRequest));
-            m_Manager.SetComponentData(e, new PlantPositionRequest {position = new int2(1,2)});
+            var e = m_Manager.CreateEntity(typeof(TilePositionable), typeof(TagPlant));
+            m_Manager.SetComponentData(e, new TilePositionable() {Position = new int2(1,2)});
             
-            var e2 = m_Manager.CreateEntity(typeof(PlantPositionRequest));
-            m_Manager.SetComponentData(e2, new PlantPositionRequest {position = new int2(1,2)});
+            var e2 = m_Manager.CreateEntity(typeof(TilePositionable), typeof(TagPlant));
+            m_Manager.SetComponentData(e2, new TilePositionable() {Position = new int2(1,2)});
 
-            var pq = m_Manager.CreateEntityQuery(typeof(PlantPositionRequest));
-            var pblock = m_Manager.CreateEntityQuery(typeof(StonePositionRequest));
+            var pq = m_Manager.CreateEntityQuery(typeof(TilePositionable), typeof(TagPlant));
+            var pblock = m_Manager.CreateEntityQuery(typeof(TilePositionable), typeof(RockComponent));
             var shopQuery = m_Manager.CreateEntityQuery(typeof(ShopPositionRequest));
 
             var distanceField = new DistanceField(DistanceField.FieldType.Plant, creator.WorldSize, pq, pblock, shopQuery);
@@ -250,7 +250,7 @@ namespace Tests
 
             var handle1 = distanceField.Schedule();
             
-            m_Manager.SetComponentData(e2, new PlantPositionRequest {position = new int2(2,2)});
+            m_Manager.SetComponentData(e2, new TilePositionable() {Position = new int2(2,2)});
             
             handle1.Complete();
             Assert.IsTrue(handle1.IsCompleted);

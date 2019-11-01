@@ -25,9 +25,9 @@ namespace Pathfinding
         protected override void OnCreate()
         {
             m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
-            var plantQuery = EntityManager.CreateEntityQuery(typeof(PlantPositionRequest));
-            var stoneQuery = EntityManager.CreateEntityQuery(typeof(StonePositionRequest));
-            var shopQuery = EntityManager.CreateEntityQuery(typeof(ShopPositionRequest));
+            var plantQuery = EntityManager.CreateEntityQuery(typeof(TilePositionable), typeof(TagPlant), typeof(TagFullyGrownPlant));
+            var stoneQuery = EntityManager.CreateEntityQuery(typeof(TilePositionable), typeof(RockComponent));
+            var shopQuery = EntityManager.CreateEntityQuery(typeof(TilePositionable), typeof(TagShop));
             m_worldSize = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSize;
             
             m_distanceFieldShop = new DistanceField(DistanceField.FieldType.Shop, m_worldSize, plantQuery, stoneQuery, shopQuery);

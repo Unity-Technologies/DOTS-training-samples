@@ -10,6 +10,7 @@ using Unity.Transforms;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using Random = Unity.Mathematics.Random;
@@ -30,29 +31,30 @@ namespace GameAI
 
         Random rnd = new Random(0x12341fa);
         
-        private EntityArchetype m_tile;
-        private EntityArchetype m_plant;
-        private EntityArchetype m_stone;
+        private Entity m_tile;
+        private Entity m_plant;
+        private Entity m_stone;
         private EntityArchetype m_score;    // singleton
-        private EntityArchetype m_shop;
+        private Entity m_shop;
 
         public NativeHashMap<int2, Entity> hashMap;
 
         protected override void OnCreate()
         {
+            var ru = RenderingUnity.instance;
             ResetExecuteOnceTag(EntityManager);
             
             m_executeOnce = GetEntityQuery(ComponentType.ReadOnly<ExecuteOnceTag>());
             RequireForUpdate(m_executeOnce);
 
-            m_tile = EntityManager.CreateArchetype(typeof(TilePositionRequest));
-            m_plant = EntityManager.CreateArchetype(typeof(PlantPositionRequest));
-
+            m_tile = ru.CreateGround(EntityManager);
+            m_plant = ru.CreatePlant(EntityManager);
+            
             m_score = EntityManager.CreateArchetype(typeof(CurrentScoreRequest));
             scoreArray = new NativeArray<int>(128, Allocator.Persistent);
-
-            m_stone = EntityManager.CreateArchetype(typeof(StonePositionRequest));
-            m_shop = EntityManager.CreateArchetype(typeof(ShopPositionRequest));
+            
+            m_stone = ru.CreateStone(EntityManager);
+            m_shop = ru.CreateStore(EntityManager);
             
             hashMap = new NativeHashMap<int2, Entity>(1024, Allocator.Persistent);
         }
@@ -65,18 +67,24 @@ namespace GameAI
             Assert.IsTrue(once != Entity.Null);
             EntityManager.DestroyEntity(once);
 
+            var worldSizeHalf = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSizeHalf;
+            var halfSizeOffset = new float3(RenderingUnity.scale * 0.5f, 0, RenderingUnity.scale * 0.5f);
+
             // create TilePositionRequest's
             for (int x = 0; x < WorldSize.x; ++x)
             {
                 for (int y = 0; y < WorldSize.y; ++y)
                 {
-                    var e = EntityManager.CreateEntity(m_tile);
-                    EntityManager.SetComponentData(e, new TilePositionRequest {position = new int2(x, y)});
+                    var e = EntityManager.Instantiate(m_tile);
+                    var p = new int2(x, y);
+                    EntityManager.SetComponentData(e, new TilePositionable() {Position = p});
+                    var wpos = RenderingUnity.Tile2WorldPosition(p, worldSizeHalf) - new float3(0, 0.5f, 0);
+                    EntityManager.SetComponentData(e, new LocalToWorld() {Value = float4x4.TRS(wpos, quaternion.identity, new float3(0.2f, 1, 0.2f))});
                 }
             }
 
             int maxSize = math.max(WorldSize.x, WorldSize.y);
-            
+
             for (int i = 0; i < maxSize*5; ++i)
             {
                 int x = rnd.NextInt(WorldSize.x - 1);
@@ -98,9 +106,19 @@ namespace GameAI
                         if (hashMap.ContainsKey(new int2(_x, _y)))
                             goto WhoSaidGotoSuck;
                 
-                var e = EntityManager.CreateEntity(m_stone);
-                EntityManager.SetComponentData(e, new StonePositionRequest {position = new int2(x, y), size = new int2(sx, sy)});
+                var e = EntityManager.Instantiate(m_stone);
+                int2 position = new int2(x, y);
+                int2 size = new int2(sx, sy);
                 
+                var wpos = RenderingUnity.Tile2WorldPosition(position, worldSizeHalf); // min pos
+                var wsize = RenderingUnity.Tile2WorldSize(size) - 0.1f;
+                var wposCenter = wpos + wsize * 0.5f - halfSizeOffset;
+
+                EntityManager.SetComponentData(e, new Translation() {Value = wposCenter});
+                EntityManager.SetComponentData(e, new NonUniformScale() {Value = wsize});
+                EntityManager.SetComponentData(e, new TilePositionable() {Position = position});
+                EntityManager.SetComponentData(e, new RockComponent() {Size = new int2(sx, sy)});
+
                 for (int _x = x; _x <= end_x; _x++)
                     for (int _y = y; _y <= end_y; _y++)
                         hashMap.Add(new int2(_x, _y), e);
@@ -113,8 +131,10 @@ namespace GameAI
                 var p = new int2(rnd.NextInt(WorldSize.x), rnd.NextInt(WorldSize.y));
                 if (hashMap.ContainsKey(p) == false)
                 {
-                    var e = EntityManager.CreateEntity(m_plant);
-                    EntityManager.SetComponentData(e, new PlantPositionRequest {position = p});
+                    var e = EntityManager.Instantiate(m_plant);
+                    EntityManager.SetComponentData(e, new TilePositionable() {Position = p});
+                    var wpos = RenderingUnity.Tile2WorldPosition(p, worldSizeHalf);
+                    EntityManager.SetComponentData(e, new Translation() {Value = wpos});
                 }
             }
 
@@ -123,9 +143,12 @@ namespace GameAI
                 var p = new int2(rnd.NextInt(WorldSize.x), rnd.NextInt(WorldSize.y));
                 if (hashMap.ContainsKey(p) == false)
                 {
-                    var e = EntityManager.CreateEntity(m_shop);
-                    EntityManager.SetComponentData(e, new ShopPositionRequest {position = p});
+                    var e = EntityManager.Instantiate(m_shop);
+                    EntityManager.SetComponentData(e, new TilePositionable() {Position = p});
 
+                    var wpos = RenderingUnity.Tile2WorldPosition(p, worldSizeHalf);
+                    EntityManager.SetComponentData(e, new Translation() {Value = wpos});
+                    EntityManager.SetComponentData(e, new SpawnPointComponent() {MapSpawnPosition = p});
                     hashMap.Add(p, e);
 
                     break;
