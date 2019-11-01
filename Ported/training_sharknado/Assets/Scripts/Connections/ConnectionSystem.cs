@@ -92,6 +92,7 @@ public class ConnectionSystem : JobComponentSystem
             }
         }
     }
+    [BurstCompile]
     public struct CopyAverages : IJobForEach<BarPoint1, BarPoint2, BarAveragedPoints1, BarAveragedPoints2>
     {
         public void Execute(ref BarPoint1 bp1, ref BarPoint2 bp2, [ReadOnly] ref BarAveragedPoints1 bap1, [ReadOnly] ref BarAveragedPoints2 bap2)
