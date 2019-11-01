@@ -71,19 +71,7 @@ namespace GameAI
             var worldSizeHalf = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSizeHalf;
             var halfSizeOffset = new float3(RenderingUnity.scale * 0.5f, 0, RenderingUnity.scale * 0.5f);
 
-            // create TilePositionRequest's
-            for (int x = 0; x < WorldSize.x; ++x)
-            {
-                for (int y = 0; y < WorldSize.y; ++y)
-                {
-                    var e = EntityManager.Instantiate(m_tile);
-                    var p = new int2(x, y);
-                    EntityManager.SetComponentData(e, new TilePositionable() {Position = p});
-                    var wpos = RenderingUnity.Tile2WorldPosition(p, worldSizeHalf) - new float3(0, 0.5f, 0);
-                    EntityManager.SetComponentData(e, new LocalToWorld() {Value = float4x4.TRS(wpos, quaternion.identity, new float3(0.2f, 1, 0.2f))});
-                    hashMap[p] = e;
-                }
-            }
+
 
             int maxSize = math.max(WorldSize.x, WorldSize.y);
 
@@ -168,6 +156,23 @@ namespace GameAI
                     hashMap.Add(p, Entity.Null);
 
                     break;
+                }
+            }
+            
+            // create TilePositionRequest's
+            for (int x = 0; x < WorldSize.x; ++x)
+            {
+                for (int y = 0; y < WorldSize.y; ++y)
+                {
+                    var e = EntityManager.Instantiate(m_tile);
+                    var p = new int2(x, y);
+                    EntityManager.SetComponentData(e, new TilePositionable() {Position = p});
+                    var wpos = RenderingUnity.Tile2WorldPosition(p, worldSizeHalf) - new float3(0, 0.5f, 0);
+                    EntityManager.SetComponentData(e, new LocalToWorld() {Value = float4x4.TRS(wpos, quaternion.identity, new float3(0.2f, 1, 0.2f))});
+                    
+                    if (!hashMap.ContainsKey(p)) {
+                        hashMap[p] = e;
+                    }
                 }
             }
             
