@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using Rendering;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -12,6 +13,7 @@ namespace GameAI
     public class RenderMovementSystem : JobComponentSystem
     {
         int2 worldHalfSize;
+        const float maxDroneOffset = 1.5f; // In meters
 
         protected override void OnCreate()
         {
@@ -46,7 +48,16 @@ namespace GameAI
             
             ecbSystem.AddJobHandleForProducer(movementSystemJobHandle);
 
-            return movementSystemJobHandle;
+            var droneOffsetLoc = maxDroneOffset;
+
+            var droneTweakJobHandle = Entities
+                .ForEach((int nativeThreadIndex, Entity e, ref Translation translationComponent, ref RenderingAnimationDroneFlyComponent flyRenderComponent) =>
+                {
+                    flyRenderComponent.offset += deltaT;
+                    translationComponent.Value.y = (float)sin(flyRenderComponent.offset) * droneOffsetLoc;
+                }).Schedule(movementSystemJobHandle);
+
+            return droneTweakJobHandle;
         }
     }
 }
