@@ -173,7 +173,7 @@ namespace GameAI
             var es = EntityManager.CreateEntity(m_score);
             EntityManager.SetComponentData(es, new CurrentScoreRequest {TotalScore = 0});
 
-            World.GetOrCreateSystem<PathfindingSystem>().PlantOrStoneChanged();
+            World.GetOrCreateSystem<PathfindingSystem>().DistFieldDirty();
             Profiler.EndSample();
         }
 

@@ -8,6 +8,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using Random = Unity.Mathematics.Random;
 
@@ -49,6 +50,8 @@ namespace Pathfinding
         {
             var worldSize = m_worldSize;
 
+            World.GetOrCreateSystem<PathfindingSystem>().PlantOrStoneChanged();
+            
             // find Untilled Tile target
             var ecb2 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             var job2 = Entities
@@ -219,15 +222,31 @@ namespace Pathfinding
                     JobHandle.CombineDependencies(/*job7, */job8, job9));
         }
 
+        private bool dirty = true;
+
         public void PlantOrStoneChanged()
         {
-            m_distanceFieldShop.Complete();
-            m_distanceFieldPlant.Complete();
-            m_distanceFieldStone.Complete();
-            
-            m_distanceFieldShop.Schedule();
-            m_distanceFieldPlant.Schedule();
-            m_distanceFieldStone.Schedule();
+            if (dirty)
+            {
+                Profiler.BeginSample("Sync dist field");
+
+                m_distanceFieldShop.Complete();
+                m_distanceFieldPlant.Complete();
+                m_distanceFieldStone.Complete();
+
+
+                m_distanceFieldShop.Schedule();
+                m_distanceFieldPlant.Schedule();
+                m_distanceFieldStone.Schedule();
+
+                dirty = false;
+                Profiler.EndSample();
+            }
+        }
+
+        public void DistFieldDirty()
+        {
+            dirty = true;
         }
     }
 }

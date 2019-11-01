@@ -25,6 +25,8 @@ namespace GameAI
             var ecbSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
             var ecb = ecbSystem.CreateCommandBuffer().ToConcurrent();
             var ecb2 = ecbSystem.CreateCommandBuffer().ToConcurrent();
+
+            var localSpeedScalar = RenderingUnity.movementSpeedScale;
             
             var deltaT = Time.deltaTime;
             var worldHalfSizeLoc = worldHalfSize;
@@ -52,7 +54,7 @@ namespace GameAI
                     var endPos = RenderingUnity.Tile2WorldPosition(hasTargetComponent.TargetPosition, worldHalfSizeLoc);
                     animationComponent.targetPosition = RenderingUnity.Tile2WorldPosition(hasTargetComponent.TargetPosition, worldHalfSizeLoc).xz;
                     animationComponent.currentPosition += (normalizesafe(endPos.xz - animationComponent.currentPosition) * speedComponent.speedInMeters * deltaT);
-                    if (lengthsq(endPos.xz - animationComponent.currentPosition) < 0.05)
+                    if (lengthsq(endPos.xz - animationComponent.currentPosition) < 0.05 * localSpeedScalar)
                     {
                         // Add Animation Complete Tag
                         ecb.AddComponent<AnimationCompleteTag>(nativeThreadIndex, e);
