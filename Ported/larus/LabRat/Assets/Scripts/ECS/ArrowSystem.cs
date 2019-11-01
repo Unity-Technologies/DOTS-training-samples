@@ -248,7 +248,7 @@ public class ClientArrowSystem : ComponentSystem
         if (HasSingleton<ThinClientComponent>() && HasSingleton<LocalPlayerComponent>())
         {
             var random = new Random();
-            random.InitState((uint)(Time.time*10000));
+            random.InitState((uint)(Time.time*10000 * (GetSingleton<LocalPlayerComponent>().PlayerId + 1)));
 
             var nextX = random.NextInt(0, board.size.x);
             var nextY = random.NextInt(0, board.size.y);

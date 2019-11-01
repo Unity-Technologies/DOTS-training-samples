@@ -87,10 +87,9 @@ public class ApplyOverlayColors : ComponentSystem
                     mat.color = m_Colors[colorIndex];
                     PlayerMats[colorIndex] = mat;
                 }
-                //Debug.Log("Client set index " + colorIndex + " entity " + entity + " as color " + PlayerMats[colorIndex].color);
             }
 
-            Debug.Log("Client set index " + colorIndex + " entity " + entity + " as color " + PlayerMats[colorIndex].color);
+            //Debug.Log("Client set index " + colorIndex + " entity " + entity + " as color " + PlayerMats[colorIndex].color);
             sharedMesh.material = PlayerMats[colorIndex];
             EntityManager.SetSharedComponentData(entity, sharedMesh);
 
