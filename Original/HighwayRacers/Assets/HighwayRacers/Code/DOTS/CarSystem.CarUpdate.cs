@@ -6,7 +6,7 @@ using Unity.Mathematics;
 partial class CarSystem
 {
     [BurstCompile]
-    private struct CarUpdateJob : IJobForEachWithEntity<CarBasicState, CarLogicState, CarReadOnlyProperties>
+    private struct CarUpdateJob : IJobForEachWithEntity<CarBasicState, CarLogicState, CarSpeedReadOnlyProperties, CarReadOnlyProperties>
     {
         const float MIN_DIST_BETWEEN_CARS = .7f;
 
@@ -20,11 +20,11 @@ partial class CarSystem
         [ReadOnly] public CarQueryStructure QueryStructure;
 
         public void Execute(Entity entity, int index, ref CarBasicState carBasicState, ref CarLogicState carLogicState,
-            [ReadOnly] ref CarReadOnlyProperties carReadOnlyProperties)
+            [ReadOnly] ref CarSpeedReadOnlyProperties carSpeedReadOnlyProperties, [ReadOnly] ref CarReadOnlyProperties carReadOnlyProperties)
         {
             var highwayLen = QueryStructure.HighwayLen;
             var hasCarInFront = QueryStructure.GetCarInFront(index, carBasicState, out var carInFront, out var carInFrontIndex, out var distToCarInFront);
-            var targetSpeed = carReadOnlyProperties.DefaultSpeed;
+            var targetSpeed = carSpeedReadOnlyProperties.DefaultSpeed;
             float crossLaneSpeed = 0.0f;
 
             switch (carLogicState.State)
@@ -50,7 +50,7 @@ partial class CarSystem
                     break;
 
                 case VehicleState.OVERTAKING:
-                    targetSpeed = carReadOnlyProperties.MaxSpeed;
+                    targetSpeed = carSpeedReadOnlyProperties.MaxSpeed;
                     break;
 
                 case VehicleState.MERGE_RIGHT:
@@ -85,7 +85,7 @@ partial class CarSystem
                 // detect merging to left lane
                 if (carBasicState.Lane + 1 < 4 // left lane exists
                     && distToCarInFront < carReadOnlyProperties.MergeDistance // close enough to car in front
-                    && carReadOnlyProperties.OvertakeEagerness > carInFront.Speed / carReadOnlyProperties.DefaultSpeed) // car in front is slow enough
+                    && carReadOnlyProperties.OvertakeEagerness > carInFront.Speed / carSpeedReadOnlyProperties.DefaultSpeed) // car in front is slow enough
                 {
                     if (QueryStructure.CanMergeToLane(carBasicState, carReadOnlyProperties.MergeSpace, carBasicState.Lane + 1))
                     {
@@ -130,7 +130,7 @@ partial class CarSystem
                         carBasicState.Lane - 1, out var rightCarInFront, out var rightCarInFrontIndex, out var distToRightCarInFront);
                     // condition for merging to left lane
                     if (distToRightCarInFront < carReadOnlyProperties.MergeDistance // close enough to car in front
-                        && carReadOnlyProperties.OvertakeEagerness > rightCarInFront.Speed / carReadOnlyProperties.DefaultSpeed) // car in front is slow enough
+                        && carReadOnlyProperties.OvertakeEagerness > rightCarInFront.Speed / carSpeedReadOnlyProperties.DefaultSpeed) // car in front is slow enough
                     {
                         tryMergeRight = false;
                     }

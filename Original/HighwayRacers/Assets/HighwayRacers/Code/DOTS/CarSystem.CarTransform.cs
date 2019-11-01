@@ -9,7 +9,7 @@ partial class CarSystem
 {
     [BurstCompile]
     // TOOD: Proper grouping of the properties based on access type: Read-write or Read-only.
-    private struct CarTransformJob : IJobForEachWithEntity<CarBasicState, CarReadOnlyProperties, CarColor, LocalToWorld>
+    private struct CarTransformJob : IJobForEachWithEntity<CarBasicState, CarSpeedReadOnlyProperties, CarColor, LocalToWorld>
     {
         public float HighwayLen;
         public Color baseColor;
@@ -18,7 +18,7 @@ partial class CarSystem
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<HighwayPieceProperties> pieces;
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalToWorld> xforms;
 
-        public void Execute(Entity entity, int index, [ReadOnly] ref CarBasicState carBasicState, [ReadOnly] ref CarReadOnlyProperties crop, ref CarColor ccol, ref LocalToWorld localToWorld)
+        public void Execute(Entity entity, int index, [ReadOnly] ref CarBasicState carBasicState, [ReadOnly] ref CarSpeedReadOnlyProperties csrop, ref CarColor ccol, ref LocalToWorld localToWorld)
         {
             float localX, localZ, localRot;
             int hitPiece = HighwayMathUtils.RoadPosToRelativePos(ref pieces,
@@ -35,14 +35,14 @@ partial class CarSystem
                                         quaternion.RotateY(localRot),
                                         new float3(1, 1, 1));
             Color curColor = baseColor;
-            if (carBasicState.Speed < crop.DefaultSpeed)
+            if (carBasicState.Speed < csrop.DefaultSpeed)
             {
-                float lerpFac = carBasicState.Speed / crop.DefaultSpeed;
+                float lerpFac = carBasicState.Speed / csrop.DefaultSpeed;
                 curColor = baseColor * lerpFac + slowColor * (1 - lerpFac);
             }
-            else if (carBasicState.Speed > crop.DefaultSpeed)
+            else if (carBasicState.Speed > csrop.DefaultSpeed)
             {
-                float lerpFac = (carBasicState.Speed - crop.DefaultSpeed) / (crop.MaxSpeed - crop.DefaultSpeed);
+                float lerpFac = (carBasicState.Speed - csrop.DefaultSpeed) / (csrop.MaxSpeed - csrop.DefaultSpeed);
                 curColor = fastColor * lerpFac + baseColor * (1 - lerpFac);
             }
             ccol.Color = new float4(curColor.r, curColor.g, curColor.b, curColor.a);

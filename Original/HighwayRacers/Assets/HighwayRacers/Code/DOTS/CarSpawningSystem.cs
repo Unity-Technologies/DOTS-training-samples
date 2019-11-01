@@ -42,6 +42,7 @@ public class CarSpawningSystem : ComponentSystem
                                 typeof(CarLogicState),
                                 typeof(CarColor),
                                 typeof(LocalToWorld),
+                                typeof(CarSpeedReadOnlyProperties),
                                 typeof(CarReadOnlyProperties)
                                 );
             EntityManager.CreateEntity(carArchetype, entities);
@@ -52,21 +53,23 @@ public class CarSpawningSystem : ComponentSystem
             float positionStep = computePositionStep(hiway.highwayLength, carsPerLane, curLane);
             for (int i = 0; i < carSpawnCount; ++i)
             {
+                CarSpeedReadOnlyProperties csrop;
                 CarReadOnlyProperties crop;
 
-                crop.DefaultSpeed = RandomInRange(ref random, spawner.defaultSpeedMin, spawner.defaultSpeedMax);
-                crop.MaxSpeed = RandomInRange(ref random, spawner.overtakeSpeedMin, spawner.overtakeSpeedMax);
+                csrop.DefaultSpeed = RandomInRange(ref random, spawner.defaultSpeedMin, spawner.defaultSpeedMax);
+                csrop.MaxSpeed = RandomInRange(ref random, spawner.overtakeSpeedMin, spawner.overtakeSpeedMax);
                 crop.MergeDistance = RandomInRange(ref random, spawner.mergeLeftDistanceMin, spawner.mergeLeftDistanceMax);
                 crop.MergeSpace = RandomInRange(ref random, spawner.mergeSpaceMin, spawner.mergeSpaceMax);
                 crop.OvertakeEagerness = RandomInRange(ref random, spawner.overtakeEagernessMin, spawner.overtakeEagernessMax);
 
+                EntityManager.SetComponentData(entities[i], csrop);
                 EntityManager.SetComponentData(entities[i], crop);
 
                 CarBasicState cbs;
                 CarLogicState cls;
                 CarColor col;
 
-                cbs.Speed = crop.DefaultSpeed;
+                cbs.Speed = csrop.DefaultSpeed;
                 cbs.Lane = curLane - 1;
                 cbs.Position = curPosition;
 

@@ -35,10 +35,15 @@ public struct CarLogicState : IComponentData
 }
 
 [Serializable]
-public struct CarReadOnlyProperties : IComponentData
+public struct CarSpeedReadOnlyProperties : IComponentData
 {
     public float DefaultSpeed;
     public float MaxSpeed;
+}
+
+[Serializable]
+public struct CarReadOnlyProperties : IComponentData
+{
     public float MergeDistance;
     public float MergeSpace;
     public float OvertakeEagerness;
