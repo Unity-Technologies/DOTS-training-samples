@@ -2,7 +2,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
+using Unity.Transforms;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class CarSpawningSystem : ComponentSystem
@@ -35,24 +35,16 @@ public class CarSpawningSystem : ComponentSystem
             var random = new System.Random(100);
 
             var entities = new NativeArray<Entity>(carSpawnCount, Allocator.Temp);
-            var carActiveComponentTypes = new ComponentTypes(
+            // No more prefab (using the drawing system) means we need to add LocalToWorld
+            // ourselves.
+            var carArchetype = EntityManager.CreateArchetype(
                                 typeof(CarBasicState),
+                                typeof(CarLogicState),
                                 typeof(CarColor),
-                                typeof(CarLogicState)
-                            );
-            var carStaticComponentTypes = new ComponentTypes(
+                                typeof(LocalToWorld),
                                 typeof(CarReadOnlyProperties)
-                            );
-
-            // Instantiate with the prefab and add all the components.
-            for (int i = 0; i < carSpawnCount; ++i)
-            {
-                // Is this really necessary, or should the Drawing System just
-                // DrawMeshInstanced using this prefab?
-                entities[i] = EntityManager.Instantiate(spawner.carPrefab);
-                EntityManager.AddComponents(entities[i],carActiveComponentTypes);
-                EntityManager.AddComponents(entities[i],carStaticComponentTypes);
-            }
+                                );
+            EntityManager.CreateEntity(carArchetype, entities);
 
             // Create a whole bunch of cars equally spaced within the road as a starting point.
             float curPosition = 0;
@@ -77,6 +69,7 @@ public class CarSpawningSystem : ComponentSystem
                 cbs.Speed = crop.DefaultSpeed;
                 cbs.Lane = curLane - 1;
                 cbs.Position = curPosition;
+
                 col.Color = new float4(spawner.defaultColor.r,
                                        spawner.defaultColor.g,
                                        spawner.defaultColor.b,
@@ -89,6 +82,12 @@ public class CarSpawningSystem : ComponentSystem
 
                 EntityManager.SetComponentData(entities[i], cls);
                 EntityManager.SetComponentData(entities[i], cbs);
+                EntityManager.SetComponentData(entities[i], col);
+
+                LocalToWorld ltw;
+                ltw.Value = float4x4.identity;
+
+                EntityManager.SetComponentData<LocalToWorld>(entities[i], ltw);
 
                 // If we've filled up this lane, move to the next one.
                 if (((i + 1) % carsPerLane) == 0 && (curLane < 4))

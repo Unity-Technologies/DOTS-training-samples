@@ -7,7 +7,6 @@ using UnityEngine;
 [Serializable]
 public struct CarSpawnProperties : IComponentData
 {
-    public Entity carPrefab;
     public float defaultSpeedMin;
     public float defaultSpeedMax;
     public float overtakeSpeedMin;
@@ -29,10 +28,9 @@ public struct CarSpawnProperties : IComponentData
 
 [DisallowMultipleComponent]
 [RequiresEntityConversion]
-public class CarSpawnerComponent : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
+public class CarSpawnerComponent : MonoBehaviour, IConvertGameObjectToEntity
 {
     // Changing all the names because the compiler gives me too many name collision issues
-    public GameObject carObjPrefab;
     public float normalSpeedMin;
     public float normalSpeedMax;
     public float topSpeedMin;
@@ -51,17 +49,11 @@ public class CarSpawnerComponent : MonoBehaviour, IDeclareReferencedPrefabs, ICo
     public float laneSwitchRate;
     public float maxPassingTime;
 
-    public void DeclareReferencedPrefabs(List<GameObject> gameObjects)
-    {
-        gameObjects.Add(carObjPrefab);
-    }
-
     // Convert the MonoBehavior to an Entity
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         var data = new CarSpawnProperties
         {
-            carPrefab = conversionSystem.GetPrimaryEntity(carObjPrefab),
             defaultSpeedMin = normalSpeedMin,
             defaultSpeedMax = normalSpeedMax,
             overtakeSpeedMin = topSpeedMin,
