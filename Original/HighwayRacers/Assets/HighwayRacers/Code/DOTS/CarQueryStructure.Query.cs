@@ -75,20 +75,19 @@ partial struct CarQueryStructure
     }
 
     // Search for the first car with a greater position.
-    private static int BinarySearchCars(float position, ref NativeSlice<CarIndexAndState> cars, int begin, int end)
+    public static int BinarySearchCars(float position, ref NativeSlice<CarIndexAndState> cars, int begin, int end)
     {
-        //if (end < begin + 1)
-        //    UnityEngine.Debug.Log($"{begin}, {end}");
+        while (end > begin + 1)
+        {
+            int center = (begin + end) / 2;
+            var pivot = cars[center].State.Position;
+            if (pivot <= position)
+                begin = center + 1;
+            else
+                end = center;
+        }
 
-        if (end <= begin + 1)
-            //return cars[begin].State.Position > position ? begin : begin + 1;
-            return begin;
-
-        int center = (begin + end) / 2;
-        var pivot = cars[center].State.Position;
-        return pivot <= position
-            ? BinarySearchCars(position, ref cars, center + 1, end)
-            : BinarySearchCars(position, ref cars, begin, center);
+        return begin != end && cars[begin].State.Position <= position ? begin + 1 : begin;
     }
 
     //public bool GetCarInFront(float position, float lane, out CarBasicState frontCarState, out int frontCarIndex, out float distance)
