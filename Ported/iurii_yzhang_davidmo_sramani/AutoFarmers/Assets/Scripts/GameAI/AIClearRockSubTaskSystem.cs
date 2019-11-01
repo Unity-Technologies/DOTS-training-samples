@@ -43,7 +43,6 @@ namespace GameAI
 
                     Entity rockEntity;
                     var has = hashMap.TryGetValue(target.targetPos, out rockEntity);
-                    //Debug.Log($"hashMap has entity {stonePosition.entity} at {position.Position}");
                     
                     ecb2.AddComponent(entityInQueryIndex, entity, new AISubTaskTagClearRock() { rockEntity = rockEntity });
                 }).Schedule(inputDeps);
