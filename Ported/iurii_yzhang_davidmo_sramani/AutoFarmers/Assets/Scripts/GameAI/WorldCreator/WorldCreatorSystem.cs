@@ -86,30 +86,6 @@ namespace GameAI
 
             int maxSize = math.max(WorldSize.x, WorldSize.y);
 
-            {
-                var p = new int2(rnd.NextInt(WorldSize.x), rnd.NextInt(WorldSize.y));
-                var initialFarmerSpawnerEntity = EntityManager.CreateEntity(typeof(SpawnPointComponent), typeof(SpawnDroneTagComponent), typeof(SpawnFarmerTagComponent), typeof(InitialSpawnerTagComponent));
-                EntityManager.SetComponentData(initialFarmerSpawnerEntity, new SpawnPointComponent {MapSpawnPosition = p});
-                hashMap.Add(p, Entity.Null);
-            }
-
-            for (;;)
-            {
-                var p = new int2(rnd.NextInt(WorldSize.x), rnd.NextInt(WorldSize.y));
-                if (hashMap.ContainsKey(p) == false)
-                {
-                    var e = EntityManager.Instantiate(m_shop);
-                    EntityManager.SetComponentData(e, new TilePositionable() {Position = p});
-
-                    var wpos = RenderingUnity.Tile2WorldPosition(p, worldSizeHalf);
-                    EntityManager.SetComponentData(e, new Translation() {Value = wpos});
-                    EntityManager.SetComponentData(e, new SpawnPointComponent() {MapSpawnPosition = p});
-                    hashMap.Add(p, e);
-
-                    break;
-                }
-            }
-
             for (int i = 0; i < maxSize*5; ++i)
             {
                 int x = rnd.NextInt(WorldSize.x - 1);
@@ -163,6 +139,36 @@ namespace GameAI
                 }
             }
 
+            for (;;)
+            {
+                var p = new int2(rnd.NextInt(WorldSize.x), rnd.NextInt(WorldSize.y));
+                if (hashMap.ContainsKey(p) == false)
+                {
+                    var e = EntityManager.Instantiate(m_shop);
+                    EntityManager.SetComponentData(e, new TilePositionable() {Position = p});
+
+                    var wpos = RenderingUnity.Tile2WorldPosition(p, worldSizeHalf);
+                    EntityManager.SetComponentData(e, new Translation() {Value = wpos});
+                    EntityManager.SetComponentData(e, new SpawnPointComponent() {MapSpawnPosition = p});
+                    hashMap.Add(p, e);
+
+                    break;
+                }
+            }
+              
+            for (;;)
+            {
+                var p = new int2(rnd.NextInt(WorldSize.x), rnd.NextInt(WorldSize.y));
+                if (hashMap.ContainsKey(p) == false)
+                {
+                    var initialFarmerSpawnerEntity = EntityManager.CreateEntity(typeof(SpawnPointComponent), typeof(SpawnDroneTagComponent), typeof(SpawnFarmerTagComponent), typeof(InitialSpawnerTagComponent));
+                    EntityManager.SetComponentData(initialFarmerSpawnerEntity, new SpawnPointComponent {MapSpawnPosition = p});
+                    hashMap.Add(p, Entity.Null);
+
+                    break;
+                }
+            }
+            
             var es = EntityManager.CreateEntity(m_score);
             EntityManager.SetComponentData(es, new CurrentScoreRequest {TotalScore = 0});
 
