@@ -193,10 +193,12 @@ public class Sys_UpdateBars : JobComponentSystem
                 if (point2.neighbors > 0)
                 {
                     point2.neighbors = 0;
+                    point2.activated = 1;
                 }
                 else if (point1.neighbors > 0)
                 {
                     point1.neighbors = 0;
+                    point1.activated = 1;
                 }
             }
             point1.pos = pos1;
