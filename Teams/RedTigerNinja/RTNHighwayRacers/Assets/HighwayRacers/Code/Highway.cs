@@ -51,6 +51,7 @@ namespace HighwayRacers
         {
             return CURVE_LANE0_RADIUS + lane * LANE_SPACING;
         }
+        [Unity.Burst.BurstCompile]
         public static float curvePieceLength(float lane)
         {
             return curvePieceRadius(lane) * Mathf.PI / 2;
@@ -551,6 +552,7 @@ namespace HighwayRacers
                 return minIndex;
             }
 
+            [Unity.Burst.BurstCompile]
             public CarLocation GetCarInFront(ref CarLocation startCar, float distance, float lane)
             {
                 //CarMarker.Auto();
@@ -662,6 +664,7 @@ namespace HighwayRacers
             }
 
 
+            [Unity.Burst.BurstCompile]
             public float length(float lane)
             {
                 return straightPieceLength * 4 + curvePieceLength(lane) * 4;
@@ -678,6 +681,7 @@ namespace HighwayRacers
             /// <summary>
             /// Wraps distance to be in [0, l), where l is the length of the given lane.
             /// </summary>
+            [Unity.Burst.BurstCompile]
             public float WrapDistance(float distance, float lane)
             {
                 float l = length(lane);
@@ -707,6 +711,7 @@ namespace HighwayRacers
             /// <summary>
             /// Gets distance in another lane that appears to be the same distance in the given lane.
             /// </summary>
+            [Unity.Burst.BurstCompile]
             public float GetEquivalentDistance(float distance, float lane, float otherLane)
             {
                 //return distance; // TOTAL HORRIBLE HACK

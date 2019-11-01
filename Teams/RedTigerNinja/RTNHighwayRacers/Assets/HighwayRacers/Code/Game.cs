@@ -11,9 +11,9 @@ namespace HighwayRacers
 
         #region Inspector Properties
 
-		[Header("Highway Bounds Properties")]
-		public int maxNumCars = 100;
-		public float highwayMaxSize = 500;
+		//[Header("Highway Bounds Properties")]
+		public int maxNumCars => 5000;
+		public float highwayMaxSize => 5000;
 
 		[Header("Car Properties")]
 		public float acceleration = 15;
@@ -93,7 +93,7 @@ namespace HighwayRacers
 		void Start() {
 
 			Highway.instance.CreateHighway(250);
-			Highway.instance.SetNumCars(200);
+			Highway.instance.SetNumCars(500);
 			HighwayOptions.instance.UpdateSliderValues();
 
 			TopDownView();

@@ -124,6 +124,7 @@ namespace HighwayRacers {
             public float laneRefDistance;
         }
 
+        [BurstCompile]
         public struct DisposeJob<T> : IJob where T : struct, System.IDisposable
         {
             [DeallocateOnJobCompletion] public T DisposeMe;

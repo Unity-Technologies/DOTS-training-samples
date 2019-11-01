@@ -123,11 +123,15 @@ namespace HighwayRacers
 
         public EntityQuery PoseQuery;
         public EntityQuery RenderQuery;
+        public bool IsDoNearby { get; set; }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var isSkipThis = true;
-            if (isSkipThis)
+            if (Input.GetKeyUp(KeyCode.N))
+            {
+                this.IsDoNearby = !this.IsDoNearby;
+            }
+            if (!IsDoNearby)
             {
                 return inputDeps;
             }

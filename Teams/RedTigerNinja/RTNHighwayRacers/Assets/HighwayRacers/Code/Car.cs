@@ -382,6 +382,7 @@ namespace HighwayRacers
             car.Mind = mnd;
         }
 
+        [Unity.Burst.BurstCompile]
         public static void UpdateCarData(ref CarLocation car, CarSettingsStruct settings, ref CarMindState carMind, [Unity.Collections.ReadOnly] ref Highway.HighwayStateStruct highway, CarUpdateInfo updateInfo)
         {
             float dt = updateInfo.TimeDelta;
