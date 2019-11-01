@@ -5,6 +5,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Collections;
+using Unity.Burst;
 
 [UpdateAfter(typeof(Sys_UpdateBars))]
 public class ConnectionSystem : JobComponentSystem

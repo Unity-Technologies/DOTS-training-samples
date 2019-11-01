@@ -147,6 +147,8 @@ public class BarSpawnerSystem : JobComponentSystem
                         neighbors[j]++;
                         barpoint1.neighbors = neighbors[i];
                         barpoint2.neighbors = neighbors[j];
+                        barpoint1.activated = 0;
+                        barpoint2.activated = 0;
                         //////////////////
                         if (hasAnchors[i]) barpoint1.neighbors = -1;
                         if (hasAnchors[j]) barpoint2.neighbors = -1;

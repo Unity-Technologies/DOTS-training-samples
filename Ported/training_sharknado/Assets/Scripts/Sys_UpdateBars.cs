@@ -62,9 +62,9 @@ public class Sys_UpdateBars : JobComponentSystem
             float3 startPos = pos1;
 
             // TODO(wyatt): fix this ugly code
-            //if (point1.neighbors != -1)
-            //{
-                oldPos1.y += 0.01f;
+            if (point1.neighbors != -1)
+            {
+                oldPos1.y += 0.01f * point1.activated;
 
                 if (tornadoDist < tornadoMaxForceDist)
                 {
@@ -80,6 +80,12 @@ public class Sys_UpdateBars : JobComponentSystem
                     float forceZ = tdx + tdz * tornadoInwardForce * yFader;
                     oldPos1.x -= forceX * force;
                     oldPos1.z -= forceZ * force;
+                    point1.activated = math.saturate(point1.activated + 0.01f);
+                }
+                else
+                {
+                    if (point1.activated > 0)
+                        point1.activated = math.saturate(point1.activated + 0.01f);
                 }
 
                 pos1 += (pos1 - oldPos1) * invDamping;
@@ -92,7 +98,7 @@ public class Sys_UpdateBars : JobComponentSystem
                     oldPos1.x += (pos1.x - oldPos1.x) * friction;
                     oldPos1.z += (pos1.z - oldPos1.z) * friction;
                 }
-            //}
+            }
 
             tdx = tornadoPos.x + TornadoSway( pos2.y, time ) - pos2.x;
             tdz = tornadoPos.z - pos2.z;
@@ -101,9 +107,9 @@ public class Sys_UpdateBars : JobComponentSystem
             tdx /= tornadoDist;
             tdz /= tornadoDist;
 
-            //if (point2.neighbors != -1)
-            //{
-                oldPos2.y += 0.01f;
+            if (point2.neighbors != -1)
+            {
+                oldPos2.y += 0.01f * point2.activated;
                 startPos = pos2;
 
                 if (tornadoDist < tornadoMaxForceDist)
@@ -120,6 +126,12 @@ public class Sys_UpdateBars : JobComponentSystem
                     float forceZ = tdx + tdz * tornadoInwardForce * yFader;
                     oldPos2.x -= forceX * force;
                     oldPos2.z -= forceZ * force;
+                    point2.activated = math.saturate(point2.activated + 0.01f);
+                }
+                else
+                {
+                    if (point2.activated > 0)
+                        point2.activated = math.saturate(point2.activated + 0.01f);
                 }
 
                 pos2 += (pos2 - oldPos2) * invDamping;
@@ -132,7 +144,7 @@ public class Sys_UpdateBars : JobComponentSystem
                     oldPos2.x += (pos2.x - oldPos2.x) * friction;
                     oldPos2.z += (pos2.z - oldPos2.z) * friction;
                 }
-            //}
+            }
 
             point1.pos = pos1;
             point2.pos = pos2;

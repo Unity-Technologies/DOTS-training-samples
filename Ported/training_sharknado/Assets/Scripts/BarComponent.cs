@@ -20,12 +20,14 @@ public struct BarPoint1 : IComponentData
     public float3 pos;
     public float3 oldPos;
     public int neighbors;
+    public float activated;
 }
 public struct BarPoint2 : IComponentData
 {
     public float3 pos;
     public float3 oldPos;
     public int neighbors;
+    public float activated;
 }
 public struct BarAveragedPoints1 : IComponentData
 {
