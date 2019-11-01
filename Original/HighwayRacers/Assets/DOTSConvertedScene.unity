@@ -288,8 +288,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52c9ab57c9b844732b641f5a5550eec7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highWayLen: 360
-  carsCount: 720
+  highWayLen: 500
+  carsCount: 300
   straightSection: {fileID: 1852285047314088, guid: 678178d21bc2ef948bc7b94a4661ec04,
     type: 3}
   curveSection: {fileID: 1194374486969068, guid: 8c21c0c39d0b2bd42ba1faffb9a8825b,
