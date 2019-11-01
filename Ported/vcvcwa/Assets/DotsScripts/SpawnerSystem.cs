@@ -68,7 +68,7 @@ public class SpawnerSystem : JobComponentSystem
                                 targetPosition = new Vector2(-1, -1),
                                 position = new Vector2(x, y),
                                 actor = entity,
-                                speed = 1f
+                                speed = 3f
                             });
                             resourcesComponent.MoneyForFarmers -= 10;
 

@@ -31,7 +31,7 @@ public class ActorGetGoalSystem : JobComponentSystem
             {
                 float2 closestIntention = new float2(-1, -1);
 
-                int DeltaMax = 5;
+                int DeltaMax = 25;
                 int Delta = 0;
                 int x = (int) actor.position.x;
                 int y = (int) actor.position.y;
@@ -45,7 +45,7 @@ public class ActorGetGoalSystem : JobComponentSystem
                         {
                             // if (i < 0 || i > size || j < 0 || j > 511)
                             var index = (i * 512) + j;
-                            if (index > size || index < 0)
+                            if (index >= size || index < 0)
                             {
                                 continue;
                             }
