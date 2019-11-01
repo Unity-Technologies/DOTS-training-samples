@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
+using UnityEngine;
 
 #if ENABLE_TEST
 [AlwaysUpdateSystem]
@@ -80,6 +81,7 @@ public partial class CarSystem : JobComponentSystem
 
         // 4. Compose the matrices for each mesh instance for correct rendering.
         EntityQuery pieceQuery = GetEntityQuery(typeof(HighwayPieceProperties), typeof(LocalToWorld));
+
         if (pieceQuery.CalculateEntityCount() == 8)
         {
             NativeArray<HighwayPieceProperties> pieceProps = pieceQuery.ToComponentDataArray<HighwayPieceProperties>(Allocator.TempJob);
@@ -87,6 +89,9 @@ public partial class CarSystem : JobComponentSystem
             inputDeps = new CarTransformJob()
             {
                 HighwayLen = highway.highwayLength,
+                baseColor = spawnProperties.defaultColor,
+                fastColor = spawnProperties.highSpeedColor,
+                slowColor = spawnProperties.slowSpeedColor,
                 pieces = pieceProps,
                 xforms = pieceXforms
             }.Schedule(this, inputDeps);

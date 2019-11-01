@@ -3,18 +3,22 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
+using UnityEngine;
 
 partial class CarSystem
 {
     [BurstCompile]
     // TOOD: Proper grouping of the properties based on access type: Read-write or Read-only.
-    private struct CarTransformJob : IJobForEachWithEntity<CarBasicState, LocalToWorld>
+    private struct CarTransformJob : IJobForEachWithEntity<CarBasicState, CarReadOnlyProperties, LocalToWorld>
     {
         public float HighwayLen;
+        public Color baseColor;
+        public Color fastColor;
+        public Color slowColor;
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<HighwayPieceProperties> pieces;
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalToWorld> xforms;
 
-        public void Execute(Entity entity, int index, [ReadOnly] ref CarBasicState carBasicState, ref LocalToWorld localToWorld)
+        public void Execute(Entity entity, int index, ref CarBasicState carBasicState, [ReadOnly] ref CarReadOnlyProperties crop, ref LocalToWorld localToWorld)
         {
             float localX, localZ, localRot;
             int hitPiece = HighwayMathUtils.RoadPosToRelativePos(ref pieces,
@@ -30,6 +34,18 @@ partial class CarSystem
             localToWorld.Value = float4x4.TRS(localPos + piecePos,
                                         quaternion.RotateY(localRot),
                                         new float3(1, 1, 1));
+            Color curColor = baseColor;
+            if (carBasicState.Speed < crop.DefaultSpeed)
+            {
+                float lerpFac = carBasicState.Speed / crop.DefaultSpeed;
+                curColor += (slowColor - baseColor) * lerpFac;
+            }
+            else if (carBasicState.Speed > crop.DefaultSpeed)
+            {
+                float lerpFac = (carBasicState.Speed - crop.DefaultSpeed) / (crop.MaxSpeed - crop.DefaultSpeed);
+                curColor += (fastColor - baseColor) * lerpFac;
+            }
+            carBasicState.Color = new float4(curColor.r, curColor.g, curColor.b, curColor.a);
         }
     }
 }
