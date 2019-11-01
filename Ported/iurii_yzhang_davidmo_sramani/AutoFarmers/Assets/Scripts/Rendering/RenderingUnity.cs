@@ -79,7 +79,7 @@ public class RenderingUnity : MonoBehaviour
 
     public EntityArchetype CreatePlantArchetype(EntityManager em)
     {
-        return em.CreateArchetype(typeof(Translation), typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh), typeof(HealthComponent), typeof(TagPlant), typeof(TilePositionable));
+        return em.CreateArchetype(typeof(Translation), typeof(NonUniformScale), typeof(LocalToWorld), typeof(RenderMesh), typeof(HealthComponent), typeof(TagPlant), typeof(TagFullyGrownPlant), typeof(TilePositionable));
     }
 
     public EntityArchetype CreateStoreArchetype(EntityManager em)
