@@ -44,18 +44,18 @@ public class ActorGetGoalSystem : JobComponentSystem
                         for (int j = y - Delta; j <= y + Delta; j++)
                         {
                            // if (i < 0 || i > size || j < 0 || j > 511)
-                           var testIndex = (i*512) + j;
-                           if ( testIndex > size || testIndex < 0)
+                           var index = (i*512) + j;
+                           if ( index > size || index < 0)
                            {
                                continue;
                            }
 
-                           if ((intention.intention == DotsIntention.Rock && internalBuffer[testIndex].IsRock())
-                               || (intention.intention == DotsIntention.Plant && internalBuffer[testIndex].IsTilled())
-                               || (intention.intention == DotsIntention.Till && internalBuffer[testIndex].IsNothing())
-                               || (intention.intention == DotsIntention.Shop && internalBuffer[testIndex].IsShop())
-                               || (intention.intention == DotsIntention.Harvest && internalBuffer[testIndex].IsPlant()
-                                   && internalBuffer[testIndex].GetPlantHealth() >= 75))
+                           if ((intention.intention == DotsIntention.Rock && internalBuffer[index].IsRock())
+                               || (intention.intention == DotsIntention.Plant && internalBuffer[index].IsTilled())
+                               || (intention.intention == DotsIntention.Till && internalBuffer[index].IsNothing())
+                               || (intention.intention == DotsIntention.Shop && internalBuffer[index].IsShop())
+                               || (intention.intention == DotsIntention.Harvest && internalBuffer[index].IsPlant()
+                                   && internalBuffer[index].GetPlantHealth() >= 75))
 
                            {
                                closestIntention = new float2(i, j);

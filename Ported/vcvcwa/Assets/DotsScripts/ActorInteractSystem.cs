@@ -20,13 +20,13 @@ public class ActorInteractSystem : JobComponentSystem
         EntityQueryDesc queryDescription = new EntityQueryDesc();
         queryDescription.All = new[] {ComponentType.ReadOnly<GridTile>()};
         queryReading = GetEntityQuery(queryDescription);
-        
+
         queryDescription.All = new[] {ComponentType.ReadWrite<GridTile>()};
         queryWriting = GetEntityQuery(queryDescription);
-        
+
         gridOperations = new NativeQueue<GridOperation>(Allocator.Persistent);
     }
-    
+
     [BurstCompile]
     struct InteractJob : IJobForEachWithEntity<ActorMovementComponent, DotsIntentionComponent>
     {
@@ -34,7 +34,8 @@ public class ActorInteractSystem : JobComponentSystem
         public NativeQueue<GridOperation>.ParallelWriter internalGridOperations;
 
         // The [ReadOnly] attribute tells the job scheduler that this job will not write to rotSpeedIJobForEach
-        public void Execute(Entity entity, int index, [ReadOnly] ref ActorMovementComponent actor, ref DotsIntentionComponent intention)
+        public void Execute(Entity entity, int index, [ReadOnly] ref ActorMovementComponent actor,
+            ref DotsIntentionComponent intention)
         {
             var atGoal = math.abs(actor.targetPosition.x - actor.position.x) < 0.5f;
             if (!atGoal)
@@ -47,27 +48,32 @@ public class ActorInteractSystem : JobComponentSystem
             {
                 return;
             }
-            
+
             var gridTile = internalBuffer[testIndex];
             if (intention.intention == DotsIntention.Rock && gridTile.IsRock())
             {
                 intention.intention = DotsIntention.RockFinished;
-                internalGridOperations.Enqueue(new GridOperation(){actor = entity, gridTileIndex = testIndex, desiredGridValue = gridTile.Value - 2});
-            } 
+                internalGridOperations.Enqueue(new GridOperation()
+                    {actor = entity, gridTileIndex = testIndex, desiredGridValue = gridTile.Value - 2});
+            }
             else if (intention.intention == DotsIntention.Till && gridTile.IsNothing())
             {
                 intention.intention = DotsIntention.TillFinished;
-                internalGridOperations.Enqueue(new GridOperation(){actor = entity, gridTileIndex = testIndex, desiredGridValue = 1});
-            } 
+                internalGridOperations.Enqueue(new GridOperation()
+                    {actor = entity, gridTileIndex = testIndex, desiredGridValue = 1});
+            }
             else if (intention.intention == DotsIntention.Plant && gridTile.IsTilled())
             {
                 intention.intention = DotsIntention.PlantFinished;
-                internalGridOperations.Enqueue(new GridOperation(){actor = entity, gridTileIndex = testIndex, desiredGridValue = 3});
-            } 
-            else if (intention.intention == DotsIntention.Harvest && gridTile.IsPlant() && gridTile.GetPlantHealth() > 75f)
+                internalGridOperations.Enqueue(new GridOperation()
+                    {actor = entity, gridTileIndex = testIndex, desiredGridValue = 3});
+            }
+            else if (intention.intention == DotsIntention.Harvest && gridTile.IsPlant() &&
+                     gridTile.GetPlantHealth() > 75f)
             {
                 intention.intention = DotsIntention.HarvestFinished;
-                internalGridOperations.Enqueue(new GridOperation(){actor = entity, gridTileIndex = testIndex, desiredGridValue = 1});
+                internalGridOperations.Enqueue(new GridOperation()
+                    {actor = entity, gridTileIndex = testIndex, desiredGridValue = 1});
             }
             else if (intention.intention == DotsIntention.Shop && gridTile.IsShop())
             {
@@ -88,13 +94,21 @@ public class ActorInteractSystem : JobComponentSystem
         {
             while (internalGridOperations.TryDequeue(out var v))
             {
-                var grid =  internalBuffer[v.gridTileIndex];
-                grid.Value = v.desiredGridValue;
+                var grid = internalBuffer[v.gridTileIndex];
+                if (grid.IsRock() && grid.Value <= 4)
+                {
+                    grid.Value = 0;
+                }
+                else
+                {
+                    grid.Value = v.desiredGridValue;
+                }
+
                 internalBuffer[v.gridTileIndex] = grid;
             }
         }
     }
-    
+
     protected override void OnDestroy()
     {
         gridOperations.Dispose();
@@ -107,7 +121,7 @@ public class ActorInteractSystem : JobComponentSystem
         Entity farmRw = queryWriting.GetSingletonEntity();
         bufferReading = EntityManager.GetBuffer<GridTile>(farmRo);
         bufferWriting = EntityManager.GetBuffer<GridTile>(farmRw);
-        
+
         var job1 = new InteractJob
         {
             internalBuffer = bufferReading,
@@ -115,13 +129,13 @@ public class ActorInteractSystem : JobComponentSystem
         };
         var job1Handle = job1.Schedule(this, inputDependencies);
 
-        
+
         var job2 = new ChangeTilesValueJob()
         {
             internalBuffer = bufferWriting,
             internalGridOperations = gridOperations
         };
-        
+
         // HACK
 //        job1Handle.Complete();
 //        while (gridOperations.TryDequeue(out var v))
