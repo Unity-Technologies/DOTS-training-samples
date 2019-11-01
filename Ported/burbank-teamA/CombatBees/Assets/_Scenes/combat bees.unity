@@ -235,9 +235,9 @@ MonoBehaviour:
   resourceSize: 0.75
   snapStiffness: 2
   carryStiffness: 15
-  spawnRate: 10
-  beesPerResource: 8
-  startResourceCount: 500
+  spawnRate: 0
+  beesPerResource: 10
+  startResourceCount: 1000
 --- !u!4 &129398392
 Transform:
   m_ObjectHideFlags: 0
@@ -290,7 +290,7 @@ MonoBehaviour:
   maxBeeSize: 0.5
   speedStretch: 0.2
   rotationStiffness: 5
-  aggression: 0.5
+  aggression: 0.6
   flightJitter: 200
   teamAttraction: 5
   teamRepulsion: 4
@@ -302,7 +302,7 @@ MonoBehaviour:
   attackForce: 500
   hitDistance: 0.5
   maxSpawnSpeed: 75
-  startBeeCount: 100
+  startBeeCount: 100000
 --- !u!4 &374635490
 Transform:
   m_ObjectHideFlags: 0
@@ -709,6 +709,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   markerMaterial: {fileID: 2100000, guid: d3f1e6b14140c2b4b8730ba3ac23f5a2, type: 2}
+  marker: {fileID: 0}
 --- !u!1 &1720388217
 GameObject:
   m_ObjectHideFlags: 0

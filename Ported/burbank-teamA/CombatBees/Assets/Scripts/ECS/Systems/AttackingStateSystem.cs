@@ -55,6 +55,12 @@ public class AttackingStateSystem : JobComponentSystem
                     targetEntity.Value = Entity.Null;
                 }
 
+                if(distance > attackDistance)
+                {
+                    state.Value = State.StateType.Idle;
+                    targetEntity.Value = Entity.Null;
+                }
+
             }
         }).Schedule(inputDependencies);
         buffer.AddJobHandleForProducer(handle);
