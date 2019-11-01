@@ -59,6 +59,7 @@ namespace HighwayRacers
                 inst.ColorArray[toIndex] = carData[i].Color;
                 if (outIndex == maxBlockSize)
                 {
+                    inst.MatBlock.SetVectorArray("_Color", inst.ColorArray);
                     Graphics.DrawMeshInstanced(inst.ToDrawMesh, 0, inst.ToDrawMaterial, carPoses, outIndex, inst.MatBlock);
                     outIndex = 0;
                 }
