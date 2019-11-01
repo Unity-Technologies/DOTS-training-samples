@@ -22,7 +22,7 @@ namespace GameAI
 
             var groundSelectorHandle = Entities
                 .WithAll<AITagTaskNone, FarmerAITag>()
-                .WithoutBurst()
+                // .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e) =>
                 {
                     var seed = nativeThreadIndex + e.Index + e.Version + rnd;
@@ -47,7 +47,7 @@ namespace GameAI
             var airSelectorHandle = Entities
                 .WithNone<FarmerAITag>()
                 .WithAll<AITagTaskNone>()
-//            .WithoutBurst()
+                // .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e) =>
                 {
                     ecb2.RemoveComponent<AITagTaskNone>(nativeThreadIndex, e);
