@@ -230,9 +230,11 @@ namespace Pathfinding
             {
                 Profiler.BeginSample("Sync dist field");
 
+                /*
                 m_distanceFieldShop.Complete();
                 m_distanceFieldPlant.Complete();
                 m_distanceFieldStone.Complete();
+  */
 
 
                 m_distanceFieldShop.Schedule();

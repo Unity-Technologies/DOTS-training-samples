@@ -1,6 +1,7 @@
 using GameAI;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -29,6 +30,7 @@ namespace Pathfinding
         private JobHandle job;
         private bool expecting = false;
         private bool firstActive;
+        
         NativeArray<int> distField1;
         NativeArray<int> distField2;
 
@@ -54,7 +56,7 @@ namespace Pathfinding
         public struct MarkFieldJob : IJob
         {
             public NativeList<int2> target;
-            public NativeArray<int>    result;
+            [NativeDisableContainerSafetyRestriction] public NativeArray<int>    result;
             public NativeQueue<int2>   queue;
             public NativeQueue<int2>   queue2;
             public NativeHashMap<int2, byte>   visited;
@@ -176,7 +178,7 @@ namespace Pathfinding
                     using (var allPlants = plantQuery.ToComponentDataArray<TilePositionable>(Allocator.TempJob))
                     {
                         var n = allPlants.Length;
-                        Debug.Log($"Distance field scheduled with plants = {n}");
+                        //Debug.Log($"Distance field scheduled with plants = {n}");
                         for (int i = 0; i < n; i++)
                             targets.Add(allPlants[i].Position);
                     }
@@ -190,7 +192,7 @@ namespace Pathfinding
 
                         Assert.AreEqual(n, allSizes.Length);
 
-                        Debug.Log($"Distance field scheduled with stones = {n}");
+                        //Debug.Log($"Distance field scheduled with stones = {n}");
 
                         // border
                         for (int i = 0; i < n; i++)
@@ -221,7 +223,7 @@ namespace Pathfinding
                     {
                         var n = allShops.Length;
 
-                        Debug.Log($"Distance field scheduled with shops = {n}");
+                        //Debug.Log($"Distance field scheduled with shops = {n}");
 
                         for (int i = 0; i < n; i++)
                             targets.Add(allShops[i].Position);
@@ -357,7 +359,11 @@ namespace Pathfinding
         public int2 PathToPlant(int2 currentPosition, out bool reached) { return PathTo(currentPosition, worldSize, DistFieldRead, out reached); }
 
         public int GetDistanceFieldValue(int2 p) { return GetDistanceFieldValue(p, worldSize, DistFieldRead); }
-        public void Complete() { job.Complete(); }
+
+        public void Complete()
+        {
+            job.Complete();
+        }
 
         public static void DebugLogAround(int2 p, int2 worldSize, NativeArray<int> distanceField)
         {
