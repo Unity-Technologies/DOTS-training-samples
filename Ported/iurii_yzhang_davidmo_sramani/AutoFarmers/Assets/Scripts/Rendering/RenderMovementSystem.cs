@@ -33,14 +33,14 @@ namespace GameAI
             var maxHealth = 5.0;
             var defaultLocalScale = 1.0;
             var growPlantSystemJobHandle = Entities
-                .WithAll<PlantPositionRequest>()
+                .WithAll<TilePositionable>()
                 .WithAll<TagPlant>()
                 .WithNone<AnimationCompleteTag>()
                 .ForEach((int nativeThreadIndex, Entity e, ref HealthComponent h) =>
                 {
-                    h.Value = (float) max(maxHealth, h.Value + deltaT * 1.0);
+                    h.Value = (float) min(maxHealth, h.Value + deltaT * 1.0);
                     var s = (float)(defaultLocalScale * h.Value / maxHealth);
-                    ecb2.AddComponent(nativeThreadIndex, e, new NonUniformScale {Value = float3(1.0f,1.0f,s)});
+                    ecb2.AddComponent(nativeThreadIndex, e, new NonUniformScale {Value = float3(1.0f,s,1.0f)});
                 }).Schedule(inputDependencies);
 
             
