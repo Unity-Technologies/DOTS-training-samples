@@ -1,6 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -28,19 +29,19 @@ public class BarSystem : JobComponentSystem
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps) {
-        int maxNumBars = 3;
+
+        EntityQuery barQuery = GetEntityQuery(typeof(Bar));
+        var maxNumBars = barQuery.CalculateEntityCount();
 
         var points = GetComponentDataFromEntity<BarPoint>(true);
-        var modifiedPointList = new NativeArray<ModifiedPoint>(maxNumBars, Allocator.TempJob);
-        var newPointList      = new NativeArray<NewPoint>(maxNumBars, Allocator.TempJob);
+        var modifiedPointList = new NativeArray<ModifiedPoint>(maxNumBars * 2, Allocator.TempJob);
+        var newPointList = new NativeArray<NewPoint>(maxNumBars, Allocator.TempJob);
         var breakResistance = 0.5f;
 
         var barJob = Entities
             .WithReadOnly(points)
             .ForEach((int entityInQueryIndex, Entity e, ref Bar bar, ref LocalToWorld localToWorld, ref Translation position) => {
 
-                var thing = points[bar.point1];
-                /*
                 BarPoint point1 = points[bar.point1];
                 BarPoint point2 = points[bar.point2];
 
@@ -63,94 +64,116 @@ public class BarSystem : JobComponentSystem
                     point2.pos.y -= pushY;
                     point2.pos.z -= pushZ;
                 } else if (point1.anchor == 1) {
-                    point2.pos.x -= pushX*2f;
-                    point2.pos.y -= pushY*2f;
-                    point2.pos.z -= pushZ*2f;
+                    point2.pos.x -= pushX * 2f;
+                    point2.pos.y -= pushY * 2f;
+                    point2.pos.z -= pushZ * 2f;
                 } else if (point2.anchor == 1) {
-                    point1.pos.x += pushX*2f;
-                    point1.pos.y += pushY*2f;
-                    point1.pos.z += pushZ*2f;
+                    point1.pos.x += pushX * 2f;
+                    point1.pos.y += pushY * 2f;
+                    point1.pos.z += pushZ * 2f;
                 }
 
-                if (dx/dist * bar.oldPos.x + dy/dist*bar.oldPos.y + dz/dist*bar.oldPos.z <.99f) {
+                if (dx / dist * bar.oldPos.x + dy / dist * bar.oldPos.y + dz / dist * bar.oldPos.z < .99f) {
                     // bar has rotated: expensive full-matrix computation
+                    //position.Value = new float3(
+                    //    (point1.pos.x + point2.pos.x) * .5f,
+                    //    (point1.pos.y + point2.pos.y) * .5f,
+                    //    (point1.pos.z + point2.pos.z) * .5f
+                    //);
+                    // TODO: Set rotation
+
+                    Quaternion quat = Quaternion.LookRotation(new Vector3(dx, dy, dz));
                     localToWorld.Value = Matrix4x4.TRS(
                         new Vector3(
                             (point1.pos.x + point2.pos.x) * .5f,
                             (point1.pos.y + point2.pos.y) * .5f,
                             (point1.pos.z + point2.pos.z) * .5f),
-                        Quaternion.LookRotation(new Vector3(dx,dy,dz)),
-                        new Vector3(bar.thickness,bar.thickness,bar.length));
+                        new quaternion(quat.x, quat.y, quat.z, quat.w),
+                        new Vector3(bar.thickness, bar.thickness, bar.length));
                     bar.oldPos.x = dx / dist;
                     bar.oldPos.y = dy / dist;
                     bar.oldPos.z = dz / dist;
                 } else {
                     // bar hasn't rotated: set Transform directly
-                    position.Value.x = (point1.pos.x + point2.pos.x) * .5f;
-                    position.Value.y = (point1.pos.y + point2.pos.y) * .5f;
-                    position.Value.z = (point1.pos.z + point2.pos.z) * .5f;
+                    position.Value = new float3(
+                        (point1.pos.x + point2.pos.x) * .5f,
+                        (point1.pos.y + point2.pos.y) * .5f,
+                        (point1.pos.z + point2.pos.z) * .5f
+                    );
                 }
-
                 if (Mathf.Abs(extraDist) > breakResistance) {
-                    if (point2.neighborCount>1) {
+                    if (point2.neighborCount > 1) {
                         point2.neighborCount--;
                         BarPoint newPoint = new BarPoint();
                         CopyFromToPoint(point2, newPoint);
                         newPoint.neighborCount = 1;
                         newPointList[entityInQueryIndex] = new NewPoint {
-                            bar=bar,
-                            barEntity=e,
-                            isPoint1=0,
-                            point =newPoint,
+                            bar = bar,
+                            barEntity = e,
+                            isPoint1 = 0,
+                            point = newPoint,
                             isInitialized = 1
                         };
-                    } else if (point1.neighborCount>1) {
+                    } else if (point1.neighborCount > 1) {
                         point1.neighborCount--;
                         BarPoint newPoint = new BarPoint();
                         CopyFromToPoint(point1, newPoint);
                         newPoint.neighborCount = 1;
 
                         newPointList[entityInQueryIndex] = new NewPoint {
-                            bar=bar,
-                            barEntity=e,
-                            isPoint1=1,
-                            point=newPoint,
+                            bar = bar,
+                            barEntity = e,
+                            isPoint1 = 1,
+                            point = newPoint,
                             isInitialized = 1
                         };
                     }
                 }
 
-                bar.minBounds.x = Mathf.Min(point1.pos.x,point2.pos.x);
-                bar.maxBounds.x = Mathf.Max(point1.pos.x,point2.pos.x);
-                bar.minBounds.y = Mathf.Min(point1.pos.y,point2.pos.y);
-                bar.maxBounds.y = Mathf.Max(point1.pos.y,point2.pos.y);
-                bar.minBounds.z = Mathf.Min(point1.pos.z,point2.pos.z);
-                bar.maxBounds.z = Mathf.Max(point1.pos.z,point2.pos.z);
-                */
-        }).Schedule(inputDeps);
+                bar.minBounds.x = Mathf.Min(point1.pos.x, point2.pos.x);
+                bar.maxBounds.x = Mathf.Max(point1.pos.x, point2.pos.x);
+                bar.minBounds.y = Mathf.Min(point1.pos.y, point2.pos.y);
+                bar.maxBounds.y = Mathf.Max(point1.pos.y, point2.pos.y);
+                bar.minBounds.z = Mathf.Min(point1.pos.z, point2.pos.z);
+                bar.maxBounds.z = Mathf.Max(point1.pos.z, point2.pos.z);
+
+                modifiedPointList[entityInQueryIndex] = new ModifiedPoint {
+                    isInitialized = 1,
+                    point = point1,
+                    pointEntity = bar.point1
+                };
+                modifiedPointList[entityInQueryIndex] = new ModifiedPoint {
+                    isInitialized = 1,
+                    point = point2,
+                    pointEntity = bar.point2
+                };
+            }).Schedule(inputDeps);
 
         barJob.Complete();
         // Job done!
 
-        for (int i = 0; i < modifiedPointList.Length; i++) {
-            if (modifiedPointList[i].isInitialized == 0)
-                continue;
-            var modifiedPoint = modifiedPointList[i];
-            EntityManager.SetComponentData(modifiedPoint.pointEntity, modifiedPoint.point);
-        }
+        //int modifiedCount = 0;
+        //for (int i = 0; i < modifiedPointList.Length; i++) {
+        //    if (modifiedPointList[i].isInitialized == 0)
+        //        continue;
+        //    var modifiedPoint = modifiedPointList[i];
+        //    EntityManager.SetComponentData(modifiedPoint.pointEntity, modifiedPoint.point);
+        //    modifiedCount++;
+        //}
+        //Debug.Log(modifiedCount + " points modified");
 
-        for (int i = 0; i < newPointList.Length; i++) {
-            if (newPointList[i].isInitialized == 0)
-                continue;
-            Entity pointEntity = EntityManager.CreateEntity();
-            EntityManager.AddComponentData(pointEntity, newPointList[i].point);
-            Bar bar = newPointList[i].bar;
-            if (newPointList[i].isPoint1 == 1)
-                bar.point1 = pointEntity;
-            else
-                bar.point2 = pointEntity;
-            EntityManager.SetComponentData(newPointList[i].barEntity, bar);
-        }
+        //for (int i = 0; i < newPointList.Length; i++) {
+        //    if (newPointList[i].isInitialized == 0)
+        //        continue;
+        //    Entity pointEntity = EntityManager.CreateEntity();
+        //    EntityManager.AddComponentData(pointEntity, newPointList[i].point);
+        //    Bar bar = newPointList[i].bar;
+        //    if (newPointList[i].isPoint1 == 1)
+        //        bar.point1 = pointEntity;
+        //    else
+        //        bar.point2 = pointEntity;
+        //    EntityManager.SetComponentData(newPointList[i].barEntity, bar);
+        //}
 
         modifiedPointList.Dispose();
         newPointList.Dispose();
@@ -218,46 +241,3 @@ public class PointSystem : JobComponentSystem {
         return pointJob;
     }
 }
-
-/*
-Point point = points[i];
-			if (point.anchor == false) {
-				float startX = point.x;
-				float startY = point.y;
-				float startZ = point.z;
-
-				point.oldY += .01f;
-
-				// tornado force
-				float tdx = tornadoX+TornadoSway(point.y) - point.x;
-				float tdz = tornadoZ - point.z;
-				float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
-				tdx /= tornadoDist;
-				tdz /= tornadoDist;
-				if (tornadoDist<tornadoMaxForceDist) {
-					float force = (1f - tornadoDist / tornadoMaxForceDist);
-					float yFader= Mathf.Clamp01(1f - point.y / tornadoHeight);
-					force *= tornadoFader*tornadoForce*Random.Range(-.3f,1.3f);
-					float forceY = tornadoUpForce;
-					point.oldY -= forceY * force;
-					float forceX = -tdz + tdx * tornadoInwardForce*yFader;
-					float forceZ = tdx + tdz * tornadoInwardForce*yFader;
-					point.oldX -= forceX * force;
-					point.oldZ -= forceZ * force;
-				}
-
-				point.x += (point.x - point.oldX) * invDamping;
-				point.y += (point.y - point.oldY) * invDamping;
-				point.z += (point.z - point.oldZ) * invDamping;
-
-				point.oldX = startX;
-				point.oldY = startY;
-				point.oldZ = startZ;
-				if (point.y < 0f) {
-					point.y = 0f;
-					point.oldY = -point.oldY;
-					point.oldX += (point.x - point.oldX) * friction;
-					point.oldZ += (point.z - point.oldZ) * friction;
-				}
-			}
-*/
