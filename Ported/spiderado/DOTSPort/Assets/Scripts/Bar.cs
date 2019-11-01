@@ -10,11 +10,9 @@ public struct Bar : IComponentData, IEquatable<Bar>
     public Entity point2;
 
     public float length;
-    //public Matrix4x4 matrix;
     public float3 prevDelta;
     public float3 minBounds;
     public float3 maxBounds;
-    //public Color color;
     public float thickness;
     public float3 oldPos;
 

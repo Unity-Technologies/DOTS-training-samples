@@ -29,7 +29,9 @@ public class BarSystem : JobComponentSystem
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps) {
-        int maxNumBars = 9;
+
+        EntityQuery barQuery = GetEntityQuery(typeof(Bar));
+        var maxNumBars = barQuery.CalculateEntityCount();
 
         var points = GetComponentDataFromEntity<BarPoint>(true);
         var modifiedPointList = new NativeArray<ModifiedPoint>(maxNumBars * 2, Allocator.TempJob);
@@ -73,20 +75,21 @@ public class BarSystem : JobComponentSystem
 
                 if (dx / dist * bar.oldPos.x + dy / dist * bar.oldPos.y + dz / dist * bar.oldPos.z < .99f) {
                     // bar has rotated: expensive full-matrix computation
-                    position.Value = new float3(
-                        (point1.pos.x + point2.pos.x) * .5f,
-                        (point1.pos.y + point2.pos.y) * .5f,
-                        (point1.pos.z + point2.pos.z) * .5f
-                    );
+                    //position.Value = new float3(
+                    //    (point1.pos.x + point2.pos.x) * .5f,
+                    //    (point1.pos.y + point2.pos.y) * .5f,
+                    //    (point1.pos.z + point2.pos.z) * .5f
+                    //);
                     // TODO: Set rotation
 
-                    //localToWorld.Value = Matrix4x4.TRS(
-                    //    new Vector3(
-                    //        (point1.pos.x + point2.pos.x) * .5f,
-                    //        (point1.pos.y + point2.pos.y) * .5f,
-                    //        (point1.pos.z + point2.pos.z) * .5f),
-                    //    Quaternion.LookRotation(new Vector3(dx, dy, dz)) as quaternion,
-                    //    new Vector3(bar.thickness, bar.thickness, bar.length));
+                    Quaternion quat = Quaternion.LookRotation(new Vector3(dx, dy, dz));
+                    localToWorld.Value = Matrix4x4.TRS(
+                        new Vector3(
+                            (point1.pos.x + point2.pos.x) * .5f,
+                            (point1.pos.y + point2.pos.y) * .5f,
+                            (point1.pos.z + point2.pos.z) * .5f),
+                        new quaternion(quat.x, quat.y, quat.z, quat.w),
+                        new Vector3(bar.thickness, bar.thickness, bar.length));
                     bar.oldPos.x = dx / dist;
                     bar.oldPos.y = dy / dist;
                     bar.oldPos.z = dz / dist;
@@ -144,34 +147,33 @@ public class BarSystem : JobComponentSystem
                     point = point2,
                     pointEntity = bar.point2
                 };
-                //Debug.Log(entityInQueryIndex);
             }).Schedule(inputDeps);
 
         barJob.Complete();
         // Job done!
 
-        int modifiedCount = 0;
-        for (int i = 0; i < modifiedPointList.Length; i++) {
-            if (modifiedPointList[i].isInitialized == 0)
-                continue;
-            var modifiedPoint = modifiedPointList[i];
-            EntityManager.SetComponentData(modifiedPoint.pointEntity, modifiedPoint.point);
-            modifiedCount++;
-        }
-        Debug.Log(modifiedCount + " points modified");
+        //int modifiedCount = 0;
+        //for (int i = 0; i < modifiedPointList.Length; i++) {
+        //    if (modifiedPointList[i].isInitialized == 0)
+        //        continue;
+        //    var modifiedPoint = modifiedPointList[i];
+        //    EntityManager.SetComponentData(modifiedPoint.pointEntity, modifiedPoint.point);
+        //    modifiedCount++;
+        //}
+        //Debug.Log(modifiedCount + " points modified");
 
-        for (int i = 0; i < newPointList.Length; i++) {
-            if (newPointList[i].isInitialized == 0)
-                continue;
-            Entity pointEntity = EntityManager.CreateEntity();
-            EntityManager.AddComponentData(pointEntity, newPointList[i].point);
-            Bar bar = newPointList[i].bar;
-            if (newPointList[i].isPoint1 == 1)
-                bar.point1 = pointEntity;
-            else
-                bar.point2 = pointEntity;
-            EntityManager.SetComponentData(newPointList[i].barEntity, bar);
-        }
+        //for (int i = 0; i < newPointList.Length; i++) {
+        //    if (newPointList[i].isInitialized == 0)
+        //        continue;
+        //    Entity pointEntity = EntityManager.CreateEntity();
+        //    EntityManager.AddComponentData(pointEntity, newPointList[i].point);
+        //    Bar bar = newPointList[i].bar;
+        //    if (newPointList[i].isPoint1 == 1)
+        //        bar.point1 = pointEntity;
+        //    else
+        //        bar.point2 = pointEntity;
+        //    EntityManager.SetComponentData(newPointList[i].barEntity, bar);
+        //}
 
         modifiedPointList.Dispose();
         newPointList.Dispose();

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657838, g: 0.49641234, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -259,7 +259,7 @@ MonoBehaviour:
   spinRate: 50
   upwardSpeed: 3
   radiusMultiplier: 1
-  tornadoSway: 1
+  tornadoSway: 3
 --- !u!4 &950785361
 Transform:
   m_ObjectHideFlags: 0
@@ -449,8 +449,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc1cc69ef98a645f2bb3fecf1e9d62a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1064262672978824705, guid: 2558785e6e5e6c94791e58565ef83e70, type: 3}
-  buildingCount: 3
+  prefab: {fileID: 4029131532240341238, guid: 93eb180aa229e4a1f92ae9bd7e94fe9c, type: 3}
+  buildingCount: 50
 --- !u!114 &1785140239
 MonoBehaviour:
   m_ObjectHideFlags: 0
