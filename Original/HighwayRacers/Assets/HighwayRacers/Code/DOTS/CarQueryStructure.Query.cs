@@ -65,7 +65,8 @@ partial struct CarQueryStructure
 
         frontCarState = frontCar.State;
         frontCarIndex = frontCar.EntityArrayIndex;
-        distance = Utilities.WrapPositionToLane(Utilities.ConvertPositionToLane(frontCar.State.Position, frontCar.State.Lane, car.Lane, HighwayLen) - car.Position, car.Lane, HighwayLen);
+        distance = Utilities.DistanceTo(car.Position, car.Lane, frontCar.State.Position, frontCar.State.Lane, HighwayLen);
+        distance = math.max(0, distance - 2); // minus the car length (front + back)
         return true;
     }
 
@@ -135,7 +136,8 @@ partial struct CarQueryStructure
 
         frontCarState = frontCar.State;
         frontCarIndex = frontCar.EntityArrayIndex;
-        distance = Utilities.WrapPositionToLane(Utilities.ConvertPositionToLane(frontCar.State.Position, frontCar.State.Lane, lane, HighwayLen) - position, lane, HighwayLen);
+        distance = Utilities.DistanceTo(position, lane, frontCar.State.Position, frontCar.State.Lane, HighwayLen);
+        distance = math.max(0, distance - 2); // minus the car length (front + back)
         return true;
     }
 
