@@ -33,7 +33,6 @@ public class RockSystem : JobComponentSystem
                 } else {
                     var newHealth = health[rock.rockEntity].Value - rockSmashSpeed * dt;
                     if (newHealth < 0.0) {
-                        Cmd.DestroyEntity(entityInQueryIndex, rock.rockEntity);
                         Cmd.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
                     } else {
                         Cmd.SetComponent(entityInQueryIndex, rock.rockEntity, new HealthComponent() {Value = newHealth});
