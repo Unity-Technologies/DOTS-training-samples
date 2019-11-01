@@ -137,7 +137,7 @@ namespace GameAI
                 var p = new int2(rnd.NextInt(WorldSize.x), rnd.NextInt(WorldSize.y));
                 if (hashMap.ContainsKey(p) == false)
                 {
-                    var initialFarmerSpawnerEntity = EntityManager.CreateEntity(typeof(SpawnPointComponent), typeof(SpawnFarmerTagComponent), typeof(InitialSpawnerTagComponent));
+                    var initialFarmerSpawnerEntity = EntityManager.CreateEntity(typeof(SpawnPointComponent), typeof(SpawnDroneTagComponent), typeof(SpawnFarmerTagComponent), typeof(InitialSpawnerTagComponent));
                     EntityManager.SetComponentData(initialFarmerSpawnerEntity, new SpawnPointComponent {MapSpawnPosition = p});
                     hashMap.Add(p, Entity.Null);
 
