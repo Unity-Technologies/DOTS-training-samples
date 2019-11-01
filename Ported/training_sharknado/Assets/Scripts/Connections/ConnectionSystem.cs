@@ -75,7 +75,7 @@ public class ConnectionSystem : JobComponentSystem
                 }
                 else if (cb.endpoint == 2)
                 {
-                    if (barPoints1[cb.entity].neighbors > 0)
+                    if (barPoints2[cb.entity].neighbors > 0)
                     {
                         var tempcb = barAvgPoints2[cb.entity];
                         tempcb.pos = averagePosition;

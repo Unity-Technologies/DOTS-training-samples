@@ -135,7 +135,7 @@ public class BarSpawnerSystem : JobComponentSystem
                     BarLength barlength;
                     barlength.value = math.length( points[ i ] - points[ j ] );
 
-                    if (barlength.value < 5f && barlength.value > .2f )
+                    if (barlength.value < 5f && barlength.value > .2f && neighbors[i] <= MAX_CONNECTIONS && neighbors[j] <= MAX_CONNECTIONS)
                     {
                         barpoint1.oldPos = points[i];
                         barpoint1.pos = points[i];
