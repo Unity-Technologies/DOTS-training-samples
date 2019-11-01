@@ -15,7 +15,7 @@ namespace GameAI
         protected override void OnUpdate()
         {
             var entity = GetEntityQuery(typeof(InitialSpawnerTagComponent)).GetSingletonEntity();
-            // EntityManager.DestroyEntity(entity);
+            EntityManager.DestroyEntity(entity);
         }
     }
 }

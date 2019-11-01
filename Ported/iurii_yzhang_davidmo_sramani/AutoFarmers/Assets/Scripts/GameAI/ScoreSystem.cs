@@ -61,7 +61,7 @@ namespace GameAI
             var ecb3 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             var job3 = Entities
                 .WithAll<TagShop>()
-                // .WithoutBurst()
+                .WithoutBurst()
                 .ForEach((Entity e, int nativeThreadIndex, int entityInQueryIndex, in TilePositionable tile) =>
                 {
                     // random chance it will spawn at this shop
@@ -84,7 +84,7 @@ namespace GameAI
             var ecb4 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             var job4 = Entities
                 .WithAll<TagShop>()
-                // .WithoutBurst()
+                .WithoutBurst()
                 .ForEach((Entity e, int nativeThreadIndex, int entityInQueryIndex, in TilePositionable tile) =>
                 {
                     // random chance it will spawn at this shop
