@@ -44,9 +44,7 @@ public class ActorGetGoalSystem : JobComponentSystem
                         for (int j = y - Delta; j <= y + Delta; j++)
                         {
                            // if (i < 0 || i > size || j < 0 || j > 511)
-                           try
-                           {
-                               if (i + (j * 512) > size)
+                           if (i + (j * 512) > size)
                                {
                                    continue;
                                }
@@ -62,11 +60,6 @@ public class ActorGetGoalSystem : JobComponentSystem
                                    closestIntention = new float2(i, y);
                                    done = true;
                                }
-                           }
-                           catch (Exception)
-                           {
-                               //Swallow exception
-                           }
                         }
                     }
 

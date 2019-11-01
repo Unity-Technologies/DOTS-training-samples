@@ -52,9 +52,7 @@ public class SpawnerSystem : JobComponentSystem
             {
                 for (int i = gridIndex; i < gridComponent.Size * gridComponent.Size; i++)
                 {
-                    try
-                    {
-                        if (gridTileBuffer[i].IsShop())
+                    if (gridTileBuffer[i].IsShop())
                         {
                             var instance = CommandBuffer.Instantiate(entityIndex, farmerDataComponent.farmerEntity);
                             var x = i % gridComponent.Size;
@@ -78,11 +76,6 @@ public class SpawnerSystem : JobComponentSystem
                             break;
                         }
                     }
-                    catch (Exception)
-                    {
-                        //Nothing
-                    }
-                }
 
                 if (gridIndex == (gridComponent.Size * gridComponent.Size) - 1)
                 {
