@@ -6,6 +6,7 @@ using Unity.Jobs;
 using Unity.Collections;
 using Unity.Transforms;
 using Unity.Mathematics;
+using Unity.Burst;
 
 namespace HighwayRacers
 {
@@ -24,6 +25,7 @@ namespace HighwayRacers
         public int CarId;
     }
 
+    [BurstCompile]
     public struct FixedSize<T>
     {
         public T Ref0, Ref1, Ref2, Ref3;
@@ -119,6 +121,9 @@ namespace HighwayRacers
             }
         }
 
+        public EntityQuery PoseQuery;
+        public EntityQuery RenderQuery;
+
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var isSkipThis = true;
@@ -133,42 +138,55 @@ namespace HighwayRacers
 
             var em = this.EntityManager;
 
-            var posQuery = em.CreateEntityQuery(ComponentType.ReadOnly<LocalToWorld>());
+            var posQuery = PoseQuery ?? em.CreateEntityQuery(ComponentType.ReadOnly<LocalToWorld>());
+            PoseQuery = posQuery;
             var poses = posQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob);
 
             var sorted = new NativeArray<LocalToWorld>(poses, Allocator.TempJob);
             var sorter = new AngleSorter() { WorldCenter = CarRenderSystem.instance.ReferenceCenter.position };
-            sorted.Sort(sorter);
+
+            inputDeps = (new NearbyCarsSort() { SourceArray = poses, DestArray = sorted, Sorter = sorter }).Schedule(inputDeps);
 
             inputDeps = (new NearbyCarsJob() { AllCars = sorted, Angler =  sorter}).Schedule(this, inputDeps);
 
-            inputDeps.Complete();
-            poses.Dispose();
-            sorted.Dispose();
+            //inputDeps.Complete();
+
 
             //return inputDeps;
 
-            var debugData = em.CreateEntityQuery(ComponentType.ReadOnly<CarsNearbyData>());
+            inputDeps.Complete();
+
+            var debugData = RenderQuery ?? em.CreateEntityQuery(ComponentType.ReadOnly<CarsNearbyData>());
+            this.RenderQuery = debugData;
             var debugArray = debugData.ToComponentDataArray<CarsNearbyData>(Allocator.TempJob);
-
-            /*
-            for (var i=0; i<debugArray.Length; i++)
-            {
-                var enty = debugArray[i];
-                for (var j=0; j<enty.Refs.Count; j++)
-                {
-                    var to = enty.Refs.Get(j);
-                    Debug.DrawLine(enty.MyPosition, to.Position);
-                }
-            }
-            */
             inputDeps = CarRenderJobSystem.DrawNearbyStuff(inputDeps, debugArray);
-
             debugArray.Dispose();
+
+            // Cleanup:
+            poses.Dispose();
+            sorted.Dispose();
+            //inputDeps = (new CarSystem.DisposeJob<NativeArray<LocalToWorld>>(poses)).Schedule(inputDeps);
+            //inputDeps = (new CarSystem.DisposeJob<NativeArray<LocalToWorld>>(sorted)).Schedule(inputDeps);
 
             return inputDeps;
         }
 
+        [BurstCompile]
+        public struct NearbyCarsSort : IJob
+        {
+            [ReadOnly] public NativeArray<LocalToWorld> SourceArray;
+            public NativeArray<LocalToWorld> DestArray;
+            public AngleSorter Sorter;
+
+            public void Execute()
+            {
+                DestArray.CopyFrom(this.SourceArray);
+                DestArray.Sort(this.Sorter);
+            }
+        }
+
+
+        [BurstCompile]
         public struct NearbyCarsReset : IJobForEach<CarsNearbyData>
         {
             public void Execute(ref CarsNearbyData c0)
@@ -179,6 +197,7 @@ namespace HighwayRacers
             }
         }
 
+        [BurstCompile]
         public struct NearbyCarsJob : IJobForEach<CarsNearbyData, LocalToWorld>
         {
             [ReadOnly] public NativeArray<LocalToWorld> AllCars;
