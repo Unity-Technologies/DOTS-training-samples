@@ -66,15 +66,14 @@ namespace Pathfinding
                 //.WithoutBurst()
                 .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable pos) =>
                 {
-                    for (;;)
-                    {
-                        var p = new int2(rnd.NextInt(worldSize.x), rnd.NextInt(worldSize.y));
-                        if (hashMap.ContainsKey(p) == false) {
-                            ecb2.AddComponent(nativeThreadIndex, entity, new HasTarget(p));
-                            ecb2.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
-                            break;
-                        }
+                    
+                    var p = pos.Position + new int2(rnd.NextInt(-1, 1), rnd.NextInt(-1, 1));
+                    while (p.x < 0 || p.x > worldSize.x || p.y < 0 || p.y > worldSize.y || hashMap.ContainsKey(p)) {
+                        p = pos.Position + new int2(rnd.NextInt(-1, 1), rnd.NextInt(-1, 1));
                     }
+
+                    ecb2.AddComponent(nativeThreadIndex, entity, new HasTarget(p));
+                    ecb2.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
                 }).Schedule(inputDeps);
 
 //            // reach the tilling target
