@@ -65,46 +65,30 @@ public class BuildingSpawnSystem : JobComponentSystem
                     var point3Entity = CommandBuffer.CreateEntity(entityIndex);
                     CommandBuffer.AddComponent(entityIndex, point3Entity, point3);
 
-                    Bar bar1 = new Bar { point1 = point1Entity, point2 = point2Entity };
-                    var barentity1 = CommandBuffer.Instantiate(entityIndex, spawnerFromEntity.particlePrefab);
-                    CommandBuffer.AddComponent(entityIndex, barentity1, bar1);
-                    Bar bar2 = new Bar { point1 = point2Entity, point2 = point3Entity };
-                    var barentity2 = CommandBuffer.Instantiate(entityIndex, spawnerFromEntity.particlePrefab);
-                    CommandBuffer.AddComponent(entityIndex, barentity2, bar2);
-                    Bar bar3 = new Bar { point1 = point3Entity, point2 = point1Entity };
-                    var barentity3 = CommandBuffer.Instantiate(entityIndex, spawnerFromEntity.particlePrefab);
-                    CommandBuffer.AddComponent(entityIndex, barentity3, bar3);
-
-
                     float3 delta = point2.pos - point1.pos;
                     float3 newPos = new float3(point1.pos.x + point2.pos.x, point1.pos.y + point2.pos.y, point1.pos.z + point2.pos.z) * .5f;
-                    
-                    
+                    Bar bar1 = new Bar { point1 = point1Entity, point2 = point2Entity, length = math.length(delta), thickness = random.NextFloat(.25f,.35f) };
+                    var barentity1 = CommandBuffer.Instantiate(entityIndex, spawnerFromEntity.particlePrefab);
+                    CommandBuffer.AddComponent(entityIndex, barentity1, bar1);
                     CommandBuffer.SetComponent(entityIndex, barentity1, new Translation { Value = newPos });
                     CommandBuffer.SetComponent(entityIndex, barentity1, new Rotation { Value = quaternion.LookRotation(math.normalize(delta), new float3(0, 1, 0)) });
 
                     delta = point3.pos - point2.pos;
                     newPos = new float3(point2.pos.x + point3.pos.x, point2.pos.y + point3.pos.y, point2.pos.z + point3.pos.z) * .5f;
-                    // floorRotAxis = new float3(newPos.x, 0, 0);
-                    
-                    //.LookRotation(delta);
+                    Bar bar2 = new Bar { point1 = point2Entity, point2 = point3Entity, length = math.length(delta), thickness = random.NextFloat(.25f,.35f) };
+                    var barentity2 = CommandBuffer.Instantiate(entityIndex, spawnerFromEntity.particlePrefab);
+                    CommandBuffer.AddComponent(entityIndex, barentity2, bar2);
                     CommandBuffer.SetComponent(entityIndex, barentity2, new Translation { Value = newPos });
                     CommandBuffer.SetComponent(entityIndex, barentity2, new Rotation { Value = quaternion.LookRotation(math.normalize(delta), new float3(0, 1, 0)) });
 
                     delta = point1.pos - point3.pos;
                     newPos = new float3(point3.pos.x + point1.pos.x, point3.pos.y + point1.pos.y, point3.pos.z + point1.pos.z) * .5f;
-                    // floorRotAxis = new float3(newPos.x, 0, 0);
-                    
-                    //.LookRotation(delta);
+                    Bar bar3 = new Bar { point1 = point3Entity, point2 = point1Entity, length = math.length(delta), thickness = random.NextFloat(.25f,.35f) };
+                    var barentity3 = CommandBuffer.Instantiate(entityIndex, spawnerFromEntity.particlePrefab);
+                    CommandBuffer.AddComponent(entityIndex, barentity3, bar3);
                     CommandBuffer.SetComponent(entityIndex, barentity3, new Translation { Value = newPos });
                     CommandBuffer.SetComponent(entityIndex, barentity3, new Rotation { Value = quaternion.LookRotation(math.normalize(delta), new float3(0, 1, 0)) });
 
-
-                    // Place the instantiated in a grid with some noise
-                    //var position = new float3(x * 1.3F, noise.cnoise(new float2(x, 2) * 0.21F) * 50, 2 * 1.3F);
-                    //CommandBuffer.SetComponent(entityIndex, barentity1, new Translation { Value = position });
-                    //CommandBuffer.SetComponent(entityIndex, barentity2, new Translation { Value = position + new float3(1f) });
-                    //CommandBuffer.SetComponent(entityIndex, barentity3, new Translation { Value = position + new float3(2f) });  
                 }
             }
 
