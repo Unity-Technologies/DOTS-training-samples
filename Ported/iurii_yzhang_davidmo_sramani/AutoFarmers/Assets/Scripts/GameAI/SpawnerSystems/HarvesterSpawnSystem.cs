@@ -47,8 +47,10 @@ namespace GameAI
             var createFarmerJobHandle = Entities
                 .WithAll<SpawnFarmerTagComponent>()
                 // .WithoutBurst()
-                .ForEach((int nativeThreadIndex, in SpawnPointComponent spawnPointData) =>
+                .ForEach((int nativeThreadIndex, Entity e, in SpawnPointComponent spawnPointData) =>
                 {
+                    ecb1.RemoveComponent<SpawnFarmerTagComponent>(nativeThreadIndex, e);
+
                     var farmerEntity = ecb1.Instantiate(nativeThreadIndex, defaultFarmer);
                     var startWorldPosition = RenderingUnity.Tile2WorldPosition(spawnPointData.MapSpawnPosition, worldHalfSizeLoc);
                     ecb1.SetComponent<RenderingAnimationComponent>(
@@ -72,6 +74,8 @@ namespace GameAI
                 // .WithoutBurst()
                 .ForEach((int nativeThreadIndex, Entity e, in SpawnPointComponent spawnPointData) =>
                     {
+                        ecb2.RemoveComponent<SpawnDroneTagComponent>(nativeThreadIndex, e);
+
                         var droneEntity = ecb2.Instantiate(nativeThreadIndex, defaultDrone);
                         var startWorldPosition = RenderingUnity.Tile2WorldPosition(spawnPointData.MapSpawnPosition, worldHalfSizeLoc);
                         ecb2.SetComponent<RenderingAnimationComponent>(
