@@ -11,16 +11,21 @@ using GameAI;
 public class PlantSystem : JobComponentSystem
 {
 	BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
+	Entity defaultPlantEntity;
 
 	protected override void OnCreate()
 	{
 		// Cache the BeginInitializationEntityCommandBufferSystem in a field, so we don't have to create it every frame
 		m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+		var initSys = World.GetOrCreateSystem<RenderingMapInit>();
+		defaultPlantEntity = initSys.plantEntityPrefab;
 	}
 	
 	protected override JobHandle OnUpdate(JobHandle inputDeps)
 	{
 		var dt = Time.deltaTime;
+		var worldSizeHalf = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSizeHalf;
+
 		var plantGrowSpeed = 1;
 		// if the plant is growing on the ground
 		var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
@@ -46,13 +51,28 @@ public class PlantSystem : JobComponentSystem
 			.WithAll<AITagTaskDeliver>()
 			.ForEach((Entity e, int entityInQueryIndex, ref HealthComponent health) =>
 			{
-				health.Value = -1;
+				health.Value = 0;
 				ecb2.RemoveComponent<TagFullyGrownPlant>(entityInQueryIndex, e);
 			}).Schedule(job);
+
+		var defaultPlant = defaultPlantEntity;
+		var ecb3 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+		var job3 = Entities
+			.WithAll<AISubTaskTagPlantSeed>()
+			.WithAll<AITagTaskTill>()
+			.WithNone<AISubTaskTagComplete>()
+			.ForEach((Entity e, int entityInQueryIndex, ref TilePositionable tile) =>
+			{
+				var wpos = RenderingUnity.Tile2WorldPosition(tile.Position, worldSizeHalf);
+				var newEntity = ecb3.Instantiate(entityInQueryIndex, defaultPlant);
+				ecb3.SetComponent(entityInQueryIndex, newEntity, new Translation {Value = wpos});
+				ecb3.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, e);
+			}).Schedule(inputDeps);
 		
 		m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
 		m_EntityCommandBufferSystem.AddJobHandleForProducer(job2);
-		var handle = JobHandle.CombineDependencies(job, job2);
+		m_EntityCommandBufferSystem.AddJobHandleForProducer(job3);
+		var handle = JobHandle.CombineDependencies(job, job2, job3);
 			
 		return handle;
 	}

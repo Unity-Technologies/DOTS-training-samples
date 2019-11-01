@@ -113,33 +113,33 @@ namespace Pathfinding
                     }
                 }).Schedule(inputDeps);
 
-            // smash rock 
-            var ecb6 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-            var job6 = Entities
-                .WithAll<AISubTaskTagTillGroundTile>()
-                .WithNone<AISubTaskTagComplete>()
-                //.WithoutBurst()
-                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
-                {
-                    bool2 tt = (t.TargetPosition == tile.Position);
-                    if (tt[0] && tt[1])
-                    {
-                        // Add tag: subTaskComplete
-                        ecb6.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
-                    }
-                }).Schedule(inputDeps);
+//            // smash rock 
+//            var ecb6 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+//            var job6 = Entities
+//                .WithAll<AISubTaskTagTillGroundTile>()
+//                .WithNone<AISubTaskTagComplete>()
+//                //.WithoutBurst()
+//                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
+//                {
+//                    bool2 tt = (t.TargetPosition == tile.Position);
+//                    if (tt[0] && tt[1])
+//                    {
+//                        // Add tag: subTaskComplete
+//                        ecb6.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
+//                    }
+//                }).Schedule(inputDeps);
 
-            // Seeding
-            var ecb7 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-            var job7 = Entities
-                .WithAll<AISubTaskTagPlantSeed>()
-                .WithNone<AISubTaskTagComplete>()
-                //.WithoutBurst()
-                .ForEach((Entity entity, int nativeThreadIndex) =>
-                {
-                    // Add tag: subTaskComplete
-                    ecb7.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
-                }).Schedule(inputDeps);
+//            // Seeding
+//            var ecb7 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+//            var job7 = Entities
+//                .WithAll<AISubTaskTagPlantSeed>()
+//                .WithNone<AISubTaskTagComplete>()
+//                //.WithoutBurst()
+//                .ForEach((Entity entity, int nativeThreadIndex) =>
+//                {
+//                    // Add tag: subTaskComplete
+//                    ecb7.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
+//                }).Schedule(inputDeps);
 
             // Find Plant
             var ecb8 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
@@ -184,37 +184,37 @@ namespace Pathfinding
                     }
                 }).Schedule(inputDeps);
 
-            // Sell Plant
-            var ecb10 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-            var job10 = Entities
-                .WithAll<AISubTaskTagFindShop>()
-                .WithNone<AISubTaskTagComplete>()
-                //.WithoutBurst()
-                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
-                {
-                    bool2 tt = (t.TargetPosition == tile.Position);
-                    if (tt[0] && tt[1])
-                    {
-                        // Add tag: subTaskComplete
-                        ecb10.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
-                    }
-                }).Schedule(inputDeps);
+//            // Sell Plant
+//            var ecb10 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+//            var job10 = Entities
+//                .WithAll<AISubTaskTagFindShop>()
+//                .WithNone<AISubTaskTagComplete>()
+//                //.WithoutBurst()
+//                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
+//                {
+//                    bool2 tt = (t.TargetPosition == tile.Position);
+//                    if (tt[0] && tt[1])
+//                    {
+//                        // Add tag: subTaskComplete
+//                        ecb10.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
+//                    }
+//                }).Schedule(inputDeps);
 
             // m_EntityCommandBufferSystem.AddJobHandleForProducer(job1);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job2);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job3);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job4);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job5);
-            m_EntityCommandBufferSystem.AddJobHandleForProducer(job6);
-            m_EntityCommandBufferSystem.AddJobHandleForProducer(job7);
+            //m_EntityCommandBufferSystem.AddJobHandleForProducer(job6);
+//            m_EntityCommandBufferSystem.AddJobHandleForProducer(job7);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job8);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job9);
-            m_EntityCommandBufferSystem.AddJobHandleForProducer(job10);
+//            m_EntityCommandBufferSystem.AddJobHandleForProducer(job10);
 
             return JobHandle.CombineDependencies(
-                    JobHandle.CombineDependencies(job10, job2, job3),
-                    JobHandle.CombineDependencies(job4, job5, job6),
-                    JobHandle.CombineDependencies(job7, job8, job9));
+                    JobHandle.CombineDependencies(/*job10, */job2, job3),
+                    JobHandle.CombineDependencies(job4, job5/*, job6*/),
+                    JobHandle.CombineDependencies(/*job7, */job8, job9));
         }
 
         public void PlantOrStoneChanged()
