@@ -89,6 +89,12 @@ namespace HighwayRacers
                         Quaternion.LookRotation(delta, Vector3.up),
                         new Vector3(0.15f, 0.15f, delta.magnitude * 0.95f));
                     inst.UnitPoseArray[index] = mtx;
+
+                    if (numLinks == 1000)
+                    {
+                        Graphics.DrawMeshInstanced(inst.UnitCubeMesh, 0, inst.UnitCubeMat, inst.UnitPoseArray, numLinks);
+                        numLinks = 0;
+                    }
                 }
             }
 
