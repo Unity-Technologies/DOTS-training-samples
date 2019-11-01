@@ -30,13 +30,11 @@ namespace GameAI
                 }).Schedule(inputDeps);
 
             var hashMap = World.GetOrCreateSystem<WorldCreatorSystem>().hashMap;
-            var entitySearch = GetComponentDataFromEntity<StonePositionRequest>(true);
 
             var job2 = Entities
                 .WithAll<AITagTaskClearRock>()
                 .WithAll<AISubTaskTagFindRock>()
                 .WithReadOnly(hashMap)
-                .WithReadOnly(entitySearch)
 //                .WithoutBurst()
                 .ForEach((Entity entity, int entityInQueryIndex, in TilePositionable position, in AISubTaskTagComplete target) =>
                 {
@@ -45,10 +43,9 @@ namespace GameAI
 
                     Entity rockEntity;
                     var has = hashMap.TryGetValue(target.targetPos, out rockEntity);
-                    var stonePosition = entitySearch[rockEntity];
                     //Debug.Log($"hashMap has entity {stonePosition.entity} at {position.Position}");
                     
-                    ecb2.AddComponent(entityInQueryIndex, entity, new AISubTaskTagClearRock() { requestEntity = rockEntity, rockEntity = stonePosition.entity });
+                    ecb2.AddComponent(entityInQueryIndex, entity, new AISubTaskTagClearRock() { rockEntity = rockEntity });
                 }).Schedule(inputDeps);
             
             var job3 = Entities

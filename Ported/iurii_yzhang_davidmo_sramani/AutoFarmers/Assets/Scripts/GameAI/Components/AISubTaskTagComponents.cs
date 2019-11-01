@@ -18,7 +18,6 @@ namespace GameAI
 
     public struct AISubTaskTagClearRock : IComponentData
     {
-        public Entity requestEntity;
         public Entity rockEntity;
     }
     
