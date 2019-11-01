@@ -82,7 +82,7 @@ namespace HighwayRacers
             {
                 HighwayPiece.HighwayPieceState piece = highway.AllPieces[i]; // TODO: TOTAL HACK wth the %4
                 pieceStartDistance = pieceEndDistance;
-                pieceEndDistance += piece.length(lane);
+                pieceEndDistance += piece.lengthOfLane(lane);
                 if (distance >= pieceEndDistance)
                     continue;
 
@@ -196,6 +196,7 @@ namespace HighwayRacers
             Vector3 pos = Vector3.zero;
             float rot = 0;
 
+            HighwayPiece piecePrevious = null;
             for (int i = 0; i < 8; i++)
             {
                 if (i % 2 == 0)
@@ -226,6 +227,8 @@ namespace HighwayRacers
                     pos += curvePiece.startRotationQ * new Vector3(MID_RADIUS, 0, MID_RADIUS);
                     rot = Mathf.PI / 2 * (i / 2 + 1);
                 }
+                pieces[i].SetPiecePrevious(piecePrevious);
+                piecePrevious = pieces[i];
             }
 
             this.lane0Length = lane0Length;
@@ -517,6 +520,8 @@ namespace HighwayRacers
             [ReadOnly] public Unity.Collections.NativeArray<HighwayPiece.HighwayPieceState> AllPieces;
             [ReadOnly] public Unity.Entities.ComponentDataFromEntity<CarLocation> CarByEntityId;
             public float lane0Length;
+            public float lane0totalLength;
+            public float lane4totalLength;
 
             //public HighwayStateStruct() { }
 
@@ -550,15 +555,17 @@ namespace HighwayRacers
             {
                 //CarMarker.Auto();
 
+                //return CarLocation.NullLocation; // REMOVE!!! JUST A TEST
+
                 var refDistance = this.GetEquivalentReference(distance, lane);
 
                 var startIndex = this.GetClosestCarToRefDistance(refDistance);
 
                 CarLocation ret = CarLocation.NullLocation;
                 float diff = 0;
-                for (var ri = startIndex; ri< AllCars.Length; ri++)
+                for (var ri = startIndex; ri< startIndex+10; ri++)
                 {
-                    var car = AllCars[ri];
+                    var car = AllCars[ri % AllCars.Length];
 
                     var maxCarAheadInRef = 10.0f;
                     if ((car.laneRefDistance - refDistance) > maxCarAheadInRef)
@@ -702,8 +709,51 @@ namespace HighwayRacers
             /// </summary>
             public float GetEquivalentDistance(float distance, float lane, float otherLane)
             {
+                //return distance; // TOTAL HORRIBLE HACK
+
+
+
                 // keep distance in [0, length)
                 distance = WrapDistance(distance, lane);
+
+                var isHackyVersion = true;
+                if (isHackyVersion)
+                {
+                    return (distance / this.length(lane)) * this.length(otherLane);
+                }
+
+
+                var fasterVersion = true;
+                if (fasterVersion)
+                {
+                    int maxSeg = this.AllPieces.Length-1;
+                    int minSeg = 0;
+                    int segment = (minSeg + maxSeg) / 2;
+                    var pc = this.AllPieces[segment];
+                    while (minSeg < maxSeg)
+                    {
+                        var st = pc.startOfLane(lane);
+                        var lw = pc.lengthOfLane(lane);
+                        if (distance < st)
+                        {
+                            maxSeg = segment - 1;
+                        }
+                        else if (distance < (st + lw))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            minSeg = segment + 1;
+                        }
+                        segment = (minSeg + maxSeg) / 2;
+                        pc = this.AllPieces[segment];
+                    }
+                    var unitDist = (distance - pc.startOfLane(lane)) / pc.lengthOfLane(lane);
+                    var ansPos = pc.startOfLane(otherLane) + (unitDist * pc.lengthOfLane(otherLane));
+                    return ansPos;
+                }
+
 
                 float pieceStartDistance = 0;
                 float pieceEndDistance = 0;
@@ -715,8 +765,8 @@ namespace HighwayRacers
                     var piece = this.AllPieces[i];
                     pieceStartDistance = pieceEndDistance;
                     pieceStartDistanceOtherLane = pieceEndDistanceOtherLane;
-                    pieceEndDistance += piece.length(lane);
-                    pieceEndDistanceOtherLane += piece.length(otherLane);
+                    pieceEndDistance += piece.lengthOfLane(lane);
+                    pieceEndDistanceOtherLane += piece.lengthOfLane(otherLane);
                     if (distance >= pieceEndDistance)
                         continue;
 
@@ -790,6 +840,9 @@ namespace HighwayRacers
             this.UpdateHighwayPiecesState();
 
             this.HighwayState.lane0Length = this.lane0Length;
+            this.HighwayState.lane0totalLength = this.length(0.0f);
+            this.HighwayState.lane4totalLength = this.length(4.0f);
+            //Debug.Log("Updated total lengths.");
 
         }
 

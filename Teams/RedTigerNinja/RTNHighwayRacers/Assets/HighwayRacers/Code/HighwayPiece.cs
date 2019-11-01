@@ -8,6 +8,7 @@ namespace HighwayRacers
     public class HighwayPiece : MonoBehaviour
     {
         private Unity.Entities.Entity PieceEntity;
+        public HighwayPiece PieceBefore;
 
         private void Start()
         {
@@ -18,16 +19,31 @@ namespace HighwayRacers
 
         public struct HighwayPieceState : Unity.Entities.IComponentData
         {
-            public Vector4 LaneLengths;
+            //public Vector4 LaneLengths;
             public float startRotation, startX, startZ;
 
-            public float length(float li)
+            public float lane0start, lane0length;
+            public float lane4start, lane4length;
+
+            public float lane0end { get { return this.lane0start + this.lane0length; } }
+            public float lane4end { get { return this.lane4start + this.lane4length; } }
+
+            public float startOfLane(float li)
             {
-                int ndx = (int)li;
-                if ((ndx < 0)) ndx = 0;
-                if (ndx > 3) ndx = 3;
-                return this.LaneLengths[ndx];
+                float ul = (li / 4.0f);
+                return Mathf.Lerp(lane0start, lane4start, ul);
             }
+
+            public float lengthOfLane(float li)
+            {
+                float ul = (li / 4.0f);
+                return Mathf.Lerp(lane0length, lane4length, ul);
+            }
+        }
+
+        public void SetPiecePrevious(HighwayPiece other)
+        {
+            this.PieceBefore = other;
         }
 
         public virtual HighwayPieceState AsHighwayState
@@ -38,9 +54,12 @@ namespace HighwayRacers
                 ans.startRotation = this.startRotation;
                 ans.startX = this.startX;
                 ans.startZ = this.startZ;
-                for (var li=0; li<Highway.NUM_LANES; li++)
+                ans.lane0length = this.length(0);
+                ans.lane4length = this.length(4);
+                if (this.PieceBefore)
                 {
-                    ans.LaneLengths[li] = this.length((float)li);
+                    ans.lane0start = this.PieceBefore.AsHighwayState.lane0end;
+                    ans.lane4start = this.PieceBefore.AsHighwayState.lane4end;
                 }
                 return ans;
             }
