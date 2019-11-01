@@ -58,10 +58,10 @@ public class PlantSystem : JobComponentSystem
 		var job2 = Entities
 			.WithAll<TagFullyGrownPlant>()
 			.WithAll<AITagTaskDeliver>()
-			.WithoutBurst()
+			//.WithoutBurst()
 			.ForEach((Entity e, int entityInQueryIndex, ref HealthComponent health) =>
 			{
-				Debug.Log("Delivering plant");
+				//Debug.Log("Delivering plant");
 				health.Value = 0;
 				ecb2.RemoveComponent<TagFullyGrownPlant>(entityInQueryIndex, e);
 			}).Schedule(job);
