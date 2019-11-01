@@ -31,12 +31,8 @@ public class WalkSystem : JobComponentSystem
 		var ecb = m_Buffer.CreateCommandBuffer().ToConcurrent();
 		var deltaTime = Time.deltaTime;
 		var job = Entities.ForEach((Entity entity, int entityInQueryIndex , ref WalkComponent walker, ref Translation position, ref Rotation rotation) =>
-		//Entities.ForEach((Entity entity, ref WalkComponent walker, ref Translation position, ref Rotation rotation) =>
 		{
 			float3 fwd = ForwardVectorFromRotation(rotation.Value);
-
-			//if (!board || state == State.Dead)
-			//return;
 
 			// cap movement if the FPS is low to one cell
 			float remainingDistance = walker.Speed * deltaTime;
@@ -69,10 +65,8 @@ public class WalkSystem : JobComponentSystem
 				newPos.y += delta.y;
 				newPos.z += delta.z;
 				//Debug.Log("Delta " + delta + " fwd=" + fwd + " slice=" + slice);
-				//var myDirection = Walks.DirectionFromVector(fwd);
 				var myDirection = DirectionFromRotation(rotation.Value);
 
-				// TODO: seems this always resets position to ~0,0,0
 				// Round position values for checking the board. This is so that
 				// we collide with arrows and walls at the right time.
 				position.Value = newPos;
@@ -87,9 +81,6 @@ public class WalkSystem : JobComponentSystem
 				else
 					throw new System.ArgumentOutOfRangeException();
 
-				//var vect = new Vector3 {x = position.Value.x, y = position.Value.y, z = position.Value.z};
-				//var cell = m_Board.CellAtWorldPosition(vect);
-
 				var localPt = new float2(newPos.x, newPos.z);
 				localPt += board.cellSize * 0.5f; // offset by half cellsize
 				var cellCoord = new float2(Mathf.FloorToInt(localPt.x / board.cellSize.x),
@@ -99,7 +90,6 @@ public class WalkSystem : JobComponentSystem
 				if (cellIndex >= board.size.x * board.size.y)
 				{
 					ecb.DestroyEntity(entityInQueryIndex, entity);
-					//PostUpdateCommands.DestroyEntity(entity);
 					return;
 				}
 
@@ -125,8 +115,6 @@ public class WalkSystem : JobComponentSystem
 				newDirection = ShouldRedirect(cell, cellIndex, myDirection, arrow.Direction,
 					gameConfig.DiminishesArrows);
 
-				//newDirection = cell.ShouldRedirect(myDirection, gameConfig.DiminishesArrows);
-
 				//Debug.Log("Forward=" + fwd + " oldDir=" + myDirection + " newDir="+ newDirection);
 				if (newDirection != myDirection)
 				{
@@ -138,14 +126,6 @@ public class WalkSystem : JobComponentSystem
 					}
 				}
 			}
-
-			// TODO: Switch state logic
-			/*if (state == State.Falling)
-			{
-				transform.position += Vector3.down * fallingSpeed * Time.deltaTime;
-				if (transform.position.y < DIE_AT_DEPTH)
-					Destroy(gameObject);
-			}*/
 
 			// TODO: set transform.forward
 			// Lerp the visible forward direction towards the logical one each frame.

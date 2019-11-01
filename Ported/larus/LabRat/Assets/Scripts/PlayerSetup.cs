@@ -13,9 +13,9 @@ public class PlayerSetup : MonoBehaviour {
 	public int NumCPUS = 3;
 
 	public void OnEnable() {
-		InitPlayer(PlayerPrefab);
+		/*InitPlayer(PlayerPrefab);
 		for (int i = 0; i < NumCPUS; ++i)
-			InitPlayer(CPUPrefab);
+			InitPlayer(CPUPrefab);*/
 	}
 
 	void InitPlayer(GameObject prefab) {

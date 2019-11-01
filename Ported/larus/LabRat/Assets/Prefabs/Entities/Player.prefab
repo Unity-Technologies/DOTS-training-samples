@@ -97,7 +97,10 @@ MonoBehaviour:
     predictedClient: 1
     server: 1
     sendDataTo: 0
-    fields: []
-    manualFieldList: 1
+    fields:
+    - name: Value
+      quantization: 100
+      interpolate: 1
+    manualFieldList: 0
     entityIndex: 0
   doNotStrip: 0

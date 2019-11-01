@@ -5,11 +5,19 @@ using Unity.NetCode;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.UI;
 
 [UpdateInGroup(typeof(ClientSimulationSystemGroup))]
 public class ArrowRenderingSystem : ComponentSystem
 {
     private Material[] m_HomebaseMats;
+    private GameObject[] m_Cursors;
+    private Canvas m_Canvas;
+
+    protected override void OnCreate()
+    {
+        m_Canvas = GameObject.FindObjectOfType<Canvas>();
+    }
 
     public struct InitializedHomebase : IComponentData
     {}
@@ -33,27 +41,15 @@ public class ArrowRenderingSystem : ComponentSystem
                     break;
             }
             PostUpdateCommands.SetComponent(hoverOverlay, new Rotation{Value = rotation});
-
-
-            /*if (blockState == BlockState.Confuse) {
-                z = 0f;
-                mat = ConfuseMaterial;
-                color = Color.white;
-                localScale = Vector3.one;
-            } else {*/
-
             PostUpdateCommands.RemoveComponent<ArrowComponent>(entity);
         });
 
-        // TODO: Move elswhere or rename this file
+        // TODO: Move elsewhere or rename this file
         Entities.WithNone<InitializedHomebase>().ForEach((Entity entity, ref HomebaseComponent home) =>
         {
             if ((int)home.Color.x == 0 && (int)home.Color.y == 0 && (int)home.Color.z == 0 && (int)home.Color.w == 0)
                 return;
             var linkedEntityBuffer = EntityManager.GetBuffer<LinkedEntityGroup>(entity);
-            /*PostUpdateCommands.SetComponent(linkedEntityBuffer[2].Value, new MaterialColor{Value = home.Color});
-            PostUpdateCommands.SetComponent(linkedEntityBuffer[3].Value, new MaterialColor{Value = home.Color});*/
-
             var colorIndex = home.PlayerId - 1;
             var colors = World.GetExistingSystem<ApplyOverlayColors>();
 
@@ -66,6 +62,28 @@ public class ArrowRenderingSystem : ComponentSystem
             PostUpdateCommands.SetSharedComponent(linkedEntityBuffer[3].Value, sharedMesh);
 
             PostUpdateCommands.AddComponent<InitializedHomebase>(entity);
+        });
+
+        Entities.ForEach((Entity entity, ref PlayerComponent player, ref Translation position) =>
+        {
+            if (m_Cursors == null)
+                m_Cursors = new GameObject[PlayerConstants.MaxPlayers];
+            if (player.PlayerId == 0)
+                return;
+            var cursorIndex = player.PlayerId - 1;
+            if (m_Cursors[cursorIndex] == null)
+            {
+                var colors = World.GetExistingSystem<ApplyOverlayColors>();
+                var cursorPrefab = (GameObject)Resources.Load("Cursor");
+                m_Cursors[cursorIndex] = GameObject.Instantiate(cursorPrefab, Vector3.zero, Quaternion.identity, m_Canvas.transform);
+                var cursorImage = m_Cursors[cursorIndex].GetComponentInChildren<Image>();
+                cursorImage.color = colors.PlayerMats[cursorIndex].color;
+            }
+
+            Vector2 pos;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                m_Canvas.transform as RectTransform, new Vector2(position.Value.x, position.Value.y), m_Canvas.worldCamera, out pos);
+            m_Cursors[cursorIndex].transform.position = m_Canvas.transform.TransformPoint(pos);
         });
     }
 }

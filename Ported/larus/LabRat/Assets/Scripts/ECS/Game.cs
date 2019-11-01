@@ -1,17 +1,13 @@
-﻿using System;
-using ECSExamples;
+﻿using ECSExamples;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.NetCode;
 using Unity.Networking.Transport;
-using Unity.Burst;
-using Unity.Collections;
-using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
 
 // Control system updating in the default world
 [UpdateInWorld(UpdateInWorld.TargetWorld.Default)]
-public class Game : ComponentSystem
+public class ConnectionSetup : ComponentSystem
 {
     // Singleton component to trigger connections once from a control system
     struct InitGameComponent : IComponentData
@@ -47,9 +43,68 @@ public class Game : ComponentSystem
                 ep.Port = 7979;
                 Debug.Log("Listening on 7979");
                 network.Listen(ep);
+                var entity = world.EntityManager.CreateEntity();
+                world.EntityManager.AddComponent<GameStateComponent>(entity);
             }
             #endif
         }
+    }
+}
+
+[UpdateInGroup(typeof(ServerSimulationSystemGroup))]
+public class StartGame : ComponentSystem
+{
+    private EntityQuery m_Players;
+
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameStateComponent>();
+        m_Players = GetEntityQuery(typeof(PlayerComponent));
+    }
+
+    protected override void OnUpdate()
+    {
+        var gameConfig = GetSingleton<GameConfigComponent>();
+        var gameState = GetSingleton<GameStateComponent>();
+
+        // Reset game if game timer has expired
+        if (HasSingleton<GameInProgressComponentt>())
+        {
+            if (gameConfig.GameLength + gameState.StartTime < Time.time)
+            {
+                Debug.Log(">>>>>>>>> Game finished <<<<<<<<<<");
+                var entity = GetSingletonEntity<GameInProgressComponentt>();
+                EntityManager.DestroyEntity(entity);
+                var cleanup = GetEntityQuery(typeof(EatenComponentTag)).ToEntityArray(Allocator.TempJob);
+                for (int i = 0; i < cleanup.Length; ++i)
+                {
+                    EntityManager.DestroyEntity(cleanup[i]);
+                }
+                cleanup.Dispose();
+                cleanup = GetEntityQuery(typeof(EaterComponentTag)).ToEntityArray(Allocator.TempJob);
+                for (int i = 0; i < cleanup.Length; ++i)
+                {
+                    EntityManager.DestroyEntity(cleanup[i]);
+                }
+                cleanup.Dispose();
+                // TODO: Cleanup all state, arrow placements, move overlays to start positions, reset score etc
+            }
+            return;
+        }
+        // Wait a bit before starting another game (unless this is the first)
+        if (gameState.StartTime > 0 && gameState.StartTime + gameConfig.GameLength + 5f > Time.time)
+            return;
+
+        var playerEntities = m_Players.ToEntityArray(Allocator.TempJob);
+        if (playerEntities.Length > 0)
+        {
+            Debug.Log(">>>>>>>>> Starting new game <<<<<<<<<<");
+            gameState.StartTime = Time.time;
+            EntityManager.SetComponentData(GetSingletonEntity<GameStateComponent>(), gameState);
+            var entity = EntityManager.CreateEntity();
+            EntityManager.AddComponent<GameInProgressComponentt>(entity);
+        }
+        playerEntities.Dispose();
     }
 }
 

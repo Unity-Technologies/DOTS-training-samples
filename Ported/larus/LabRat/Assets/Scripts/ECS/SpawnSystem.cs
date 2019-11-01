@@ -9,6 +9,11 @@ using UnityEngine;
 [UpdateInGroup(typeof(ServerSimulationSystemGroup))]
 public class SpawnSystem : ComponentSystem
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameInProgressComponentt>();
+    }
+
     protected override void OnUpdate()
     {
         var gameConfig = GetEntityQuery(typeof(GameConfigComponent)).GetSingleton<GameConfigComponent>();

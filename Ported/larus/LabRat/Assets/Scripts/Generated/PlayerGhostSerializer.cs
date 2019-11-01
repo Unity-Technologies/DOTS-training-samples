@@ -12,6 +12,7 @@ public struct PlayerGhostSerializer : IGhostSerializer<PlayerSnapshotData>
     private ComponentType componentTypeTranslation;
     // FIXME: These disable safety since all serializers have an instance of the same type - causing aliasing. Should be fixed in a cleaner way
     [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<PlayerComponent> ghostPlayerComponentType;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] private ArchetypeChunkComponentType<Translation> ghostTranslationType;
 
 
     public int CalculateImportance(ArchetypeChunk chunk)
@@ -29,6 +30,7 @@ public struct PlayerGhostSerializer : IGhostSerializer<PlayerSnapshotData>
         componentTypeRotation = ComponentType.ReadWrite<Rotation>();
         componentTypeTranslation = ComponentType.ReadWrite<Translation>();
         ghostPlayerComponentType = system.GetArchetypeChunkComponentType<PlayerComponent>(true);
+        ghostTranslationType = system.GetArchetypeChunkComponentType<Translation>(true);
     }
 
     public bool CanSerialize(EntityArchetype arch)
@@ -53,6 +55,8 @@ public struct PlayerGhostSerializer : IGhostSerializer<PlayerSnapshotData>
     {
         snapshot.tick = tick;
         var chunkDataPlayerComponent = chunk.GetNativeArray(ghostPlayerComponentType);
+        var chunkDataTranslation = chunk.GetNativeArray(ghostTranslationType);
         snapshot.SetPlayerComponentPlayerId(chunkDataPlayerComponent[ent].PlayerId, serializerState);
+        snapshot.SetTranslationValue(chunkDataTranslation[ent].Value, serializerState);
     }
 }

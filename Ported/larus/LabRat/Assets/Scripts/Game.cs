@@ -21,7 +21,7 @@ public class Game : MonoBehaviour {
     static List<PlayerData> _players = new List<PlayerData>();
 
     void OnEnable() {
-        StartCoroutine(Intro());
+        //StartCoroutine(Intro());
     }
 
      public IEnumerator WaitForRealSeconds(float time) {
@@ -70,7 +70,7 @@ public class Game : MonoBehaviour {
 		StartTime = Time.time;
 	}
 
-    void Update() {
+    /*void Update() {
         if (TimeLeft() <= 0 && !_didGameOver) {
             _didGameOver = true;
             StartCoroutine(GameOver());
@@ -82,7 +82,7 @@ public class Game : MonoBehaviour {
                 StartCoroutine(GameOver());
             }
         }
-    }
+    }*/
 
     void GetWinners(List<PlayerData> players) {
         players.Clear();

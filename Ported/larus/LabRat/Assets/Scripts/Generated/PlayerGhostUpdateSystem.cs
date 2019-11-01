@@ -5,6 +5,7 @@ using Unity.Jobs;
 using Unity.Networking.Transport.Utilities;
 using Unity.NetCode;
 using Unity.Entities;
+using Unity.Transforms;
 
 [UpdateInGroup(typeof(GhostUpdateSystemGroup))]
 public class PlayerGhostUpdateSystem : JobComponentSystem
@@ -16,6 +17,7 @@ public class PlayerGhostUpdateSystem : JobComponentSystem
         [ReadOnly] public ArchetypeChunkBufferType<PlayerSnapshotData> ghostSnapshotDataType;
         [ReadOnly] public ArchetypeChunkEntityType ghostEntityType;
         public ArchetypeChunkComponentType<PlayerComponent> ghostPlayerComponentType;
+        public ArchetypeChunkComponentType<Translation> ghostTranslationType;
 
         public uint targetTick;
         public float targetTickFraction;
@@ -28,6 +30,7 @@ public class PlayerGhostUpdateSystem : JobComponentSystem
             var ghostEntityArray = chunk.GetNativeArray(ghostEntityType);
             var ghostSnapshotDataArray = chunk.GetBufferAccessor(ghostSnapshotDataType);
             var ghostPlayerComponentArray = chunk.GetNativeArray(ghostPlayerComponentType);
+            var ghostTranslationArray = chunk.GetNativeArray(ghostTranslationType);
             for (int entityIndex = 0; entityIndex < ghostEntityArray.Length; ++entityIndex)
             {
                 var snapshot = ghostSnapshotDataArray[entityIndex];
@@ -35,8 +38,11 @@ public class PlayerGhostUpdateSystem : JobComponentSystem
                 snapshot.GetDataAtTick(targetTick, targetTickFraction, out snapshotData);
 
                 var ghostPlayerComponent = ghostPlayerComponentArray[entityIndex];
+                var ghostTranslation = ghostTranslationArray[entityIndex];
                 ghostPlayerComponent.PlayerId = snapshotData.GetPlayerComponentPlayerId(deserializerState);
+                ghostTranslation.Value = snapshotData.GetTranslationValue(deserializerState);
                 ghostPlayerComponentArray[entityIndex] = ghostPlayerComponent;
+                ghostTranslationArray[entityIndex] = ghostTranslation;
             }
         }
     }
@@ -53,6 +59,7 @@ public class PlayerGhostUpdateSystem : JobComponentSystem
         [ReadOnly] public ArchetypeChunkEntityType ghostEntityType;
         public ArchetypeChunkComponentType<PredictedGhostComponent> predictedGhostComponentType;
         public ArchetypeChunkComponentType<PlayerComponent> ghostPlayerComponentType;
+        public ArchetypeChunkComponentType<Translation> ghostTranslationType;
         public uint targetTick;
         public uint lastPredictedTick;
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
@@ -65,6 +72,7 @@ public class PlayerGhostUpdateSystem : JobComponentSystem
             var ghostSnapshotDataArray = chunk.GetBufferAccessor(ghostSnapshotDataType);
             var predictedGhostComponentArray = chunk.GetNativeArray(predictedGhostComponentType);
             var ghostPlayerComponentArray = chunk.GetNativeArray(ghostPlayerComponentType);
+            var ghostTranslationArray = chunk.GetNativeArray(ghostTranslationType);
             for (int entityIndex = 0; entityIndex < ghostEntityArray.Length; ++entityIndex)
             {
                 var snapshot = ghostSnapshotDataArray[entityIndex];
@@ -84,8 +92,11 @@ public class PlayerGhostUpdateSystem : JobComponentSystem
                     continue;
 
                 var ghostPlayerComponent = ghostPlayerComponentArray[entityIndex];
+                var ghostTranslation = ghostTranslationArray[entityIndex];
                 ghostPlayerComponent.PlayerId = snapshotData.GetPlayerComponentPlayerId(deserializerState);
+                ghostTranslation.Value = snapshotData.GetTranslationValue(deserializerState);
                 ghostPlayerComponentArray[entityIndex] = ghostPlayerComponent;
+                ghostTranslationArray[entityIndex] = ghostTranslation;
             }
         }
     }
@@ -108,6 +119,7 @@ public class PlayerGhostUpdateSystem : JobComponentSystem
                 ComponentType.ReadWrite<PlayerSnapshotData>(),
                 ComponentType.ReadOnly<GhostComponent>(),
                 ComponentType.ReadWrite<PlayerComponent>(),
+                ComponentType.ReadWrite<Translation>(),
             },
             None = new []{ComponentType.ReadWrite<PredictedGhostComponent>()}
         });
@@ -118,6 +130,7 @@ public class PlayerGhostUpdateSystem : JobComponentSystem
                 ComponentType.ReadOnly<GhostComponent>(),
                 ComponentType.ReadOnly<PredictedGhostComponent>(),
                 ComponentType.ReadWrite<PlayerComponent>(),
+                ComponentType.ReadWrite<Translation>(),
             }
         });
         RequireForUpdate(GetEntityQuery(ComponentType.ReadWrite<PlayerSnapshotData>(),
@@ -135,6 +148,7 @@ public class PlayerGhostUpdateSystem : JobComponentSystem
                 ghostEntityType = GetArchetypeChunkEntityType(),
                 predictedGhostComponentType = GetArchetypeChunkComponentType<PredictedGhostComponent>(),
                 ghostPlayerComponentType = GetArchetypeChunkComponentType<PlayerComponent>(),
+                ghostTranslationType = GetArchetypeChunkComponentType<Translation>(),
 
                 targetTick = m_ClientSimulationSystemGroup.ServerTick,
                 lastPredictedTick = m_LastPredictedTick
@@ -153,6 +167,7 @@ public class PlayerGhostUpdateSystem : JobComponentSystem
                 ghostSnapshotDataType = GetArchetypeChunkBufferType<PlayerSnapshotData>(true),
                 ghostEntityType = GetArchetypeChunkEntityType(),
                 ghostPlayerComponentType = GetArchetypeChunkComponentType<PlayerComponent>(),
+                ghostTranslationType = GetArchetypeChunkComponentType<Translation>(),
                 targetTick = m_ClientSimulationSystemGroup.InterpolationTick,
                 targetTickFraction = m_ClientSimulationSystemGroup.InterpolationTickFraction
             };

@@ -1,18 +1,17 @@
-﻿using System.Runtime.CompilerServices;
-using ECSExamples;
+﻿using ECSExamples;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.NetCode;
 using Unity.Networking.Transport;
-using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 public struct PlayerInput : ICommandData<PlayerInput>
 {
+    // TODO: duplicate data between screen pos and cell coord
+    public float3 ScreenPosition;
     public int2 CellCoordinates;
     public Direction Direction;
     public bool Clicked;
@@ -22,6 +21,8 @@ public struct PlayerInput : ICommandData<PlayerInput>
 
     public void Serialize(DataStreamWriter writer)
     {
+        writer.Write(ScreenPosition.x);
+        writer.Write(ScreenPosition.y);
         writer.Write(CellCoordinates.x);
         writer.Write(CellCoordinates.y);
         writer.Write((byte)Direction);
@@ -31,9 +32,12 @@ public struct PlayerInput : ICommandData<PlayerInput>
     public void Deserialize(uint tick, DataStreamReader reader, ref DataStreamReader.Context ctx)
     {
         this.tick = tick;
-        var x = reader.ReadInt(ref ctx);
-        var y = reader.ReadInt(ref ctx);
-        CellCoordinates = new int2(x, y);
+        var screenX = reader.ReadFloat(ref ctx);
+        var screenY = reader.ReadFloat(ref ctx);
+        ScreenPosition = new float3(screenX, screenY, 0);
+        var cellX = reader.ReadInt(ref ctx);
+        var cellY = reader.ReadInt(ref ctx);
+        CellCoordinates = new int2(cellX, cellY);
         Direction = (Direction)reader.ReadByte(ref ctx);
         Clicked = reader.ReadByte(ref ctx) != 0;
     }
@@ -62,18 +66,14 @@ public class ArrowSystem : ComponentSystem
         // Draws a cursor with the player color on top of the default one
         //playerCursor.SetScreenPosition(screenPos);
 
-        var overlayEntities = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToEntityArray(Allocator.Persistent);
-        var overlayPositions = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.Persistent);
-        var overlayRotations = GetEntityQuery(typeof(OverlayComponentTag), typeof(Rotation)).ToComponentDataArray<Rotation>(Allocator.Persistent);
+        var overlayEntities = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToEntityArray(Allocator.TempJob);
+        var overlayPositions = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.TempJob);
         var overlayPlacementTick = GetEntityQuery(typeof(OverlayComponentTag), typeof(OverlayPlacementTickComponent))
-            .ToComponentDataArray<OverlayPlacementTickComponent>(Allocator.Persistent);
+            .ToComponentDataArray<OverlayPlacementTickComponent>(Allocator.TempJob);
+        var overlayColorEntities = GetEntityQuery(typeof(OverlayColorComponent), typeof(Translation)).ToEntityArray(Allocator.TempJob);
+        var keys = arrowMap.GetKeyArray(Allocator.TempJob);
 
-        var overlayColorEntities = GetEntityQuery(typeof(OverlayColorComponent), typeof(Translation)).ToEntityArray(Allocator.Persistent);
-        var keys = arrowMap.GetKeyArray(Allocator.Persistent);
-        //var overlayColorPositions = GetEntityQuery(typeof(OverlayColorComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.TempJob);
-
-        // SAMPLE INPUT BUFFER
-        Entities.ForEach((DynamicBuffer<PlayerInput> inputBuffer, ref PlayerComponent player) =>
+        Entities.ForEach((Entity entity, DynamicBuffer<PlayerInput> inputBuffer, ref PlayerComponent player) =>
         {
             var simulationSystemGroup = World.GetExistingSystem<ServerSimulationSystemGroup>();
             var inputTick = simulationSystemGroup.ServerTick;
@@ -186,46 +186,15 @@ public class ArrowSystem : ComponentSystem
                 PostUpdateCommands.SetComponent(overlayEntities[oldestIndex], new Rotation { Value = rotation});
                 PostUpdateCommands.SetComponent(overlayColorEntities[oldestIndex], new Translation { Value = new float3(input.CellCoordinates.x,0.6f,input.CellCoordinates.y)});
             }
+
+            // Update the current position of the players cursor
+            PostUpdateCommands.SetComponent(entity, new Translation{Value = input.ScreenPosition});
         });
         keys.Dispose();
         overlayPlacementTick.Dispose();
         overlayColorEntities.Dispose();
-        //overlayColorPositions.Dispose();
-        overlayRotations.Dispose();
         overlayPositions.Dispose();
         overlayEntities.Dispose();
-
-        // Wall building stuff
-        //if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-            //cell.ToggleWall(dir);
-
-        /*if (cell)
-            cell._OnMouseOver(dir);
-        if (cell != lastCell && lastCell)
-            lastCell._OnMouseExit();
-
-        lastCell = cell;
-
-        if (cell == null)
-            return;*/
-
-
-        /*if (Input.GetKeyDown(KeyCode.C))
-            cell.ToggleConfuse();
-
-        if (Input.GetKeyDown(KeyCode.H))
-            cell.ToggleHomebase();
-
-        if (canChangeArrow) {
-            if (Input.GetKeyDown(KeyCode.W))
-                _ToggleArrow(cell, Direction.North);
-            if (Input.GetKeyDown(KeyCode.D))
-                _ToggleArrow(cell, Direction.East);
-            if (Input.GetKeyDown(KeyCode.S))
-                _ToggleArrow(cell, Direction.South);
-            if (Input.GetKeyDown(KeyCode.A))
-                _ToggleArrow(cell, Direction.West);
-        }*/
     }
 }
 
@@ -245,6 +214,7 @@ public class ClientArrowSystem : ComponentSystem
         float2 cellCoord = float2.zero;
         Direction cellDirection = Direction.North;
         bool cellClicked = false;
+        float3 screenPos = float3.zero;
         if (HasSingleton<ThinClientComponent>() && HasSingleton<LocalPlayerComponent>())
         {
             var random = new Random();
@@ -273,7 +243,7 @@ public class ClientArrowSystem : ComponentSystem
         {
             // Input gathering
             cellClicked = Input.GetMouseButtonDown(0);
-            var screenPos = Input.mousePosition;
+            screenPos = Input.mousePosition;
             int cellIndex;
             float3 worldPos;
             Helpers.ScreenPositionToCell(screenPos, board.cellSize, board.size, out worldPos, out cellCoord, out cellIndex);
@@ -323,6 +293,7 @@ public class ClientArrowSystem : ComponentSystem
 
         // Send input to server
         var input = default(PlayerInput);
+        input.ScreenPosition = screenPos;
         input.Direction = cellDirection;
         input.CellCoordinates = (int2)cellCoord;
         input.Clicked = cellClicked;
