@@ -44,7 +44,7 @@ public class ActorGetGoalSystem : JobComponentSystem
                         for (int j = y - Delta; j <= y + Delta; j++)
                         {
                            // if (i < 0 || i > size || j < 0 || j > 511)
-                           var testIndex = i + (j * 512);
+                           var testIndex = (i*512) + j;
                            if ( testIndex > size || testIndex < 0)
                            {
                                continue;
