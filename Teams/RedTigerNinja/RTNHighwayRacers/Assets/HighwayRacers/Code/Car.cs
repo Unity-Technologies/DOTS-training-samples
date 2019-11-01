@@ -382,7 +382,7 @@ namespace HighwayRacers
             car.Mind = mnd;
         }
 
-        private static void UpdateCarData(ref CarLocation car, CarSettingsStruct settings, ref CarMindState carMind, ref Highway.HighwayStateStruct highway, CarUpdateInfo updateInfo)
+        public static void UpdateCarData(ref CarLocation car, CarSettingsStruct settings, ref CarMindState carMind, [Unity.Collections.ReadOnly] ref Highway.HighwayStateStruct highway, CarUpdateInfo updateInfo)
         {
             float dt = updateInfo.TimeDelta;
 			if (dt == 0) // possible when the game is paused

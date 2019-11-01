@@ -121,7 +121,11 @@ namespace HighwayRacers
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            //return inputDeps;
+            var isSkipThis = true;
+            if (isSkipThis)
+            {
+                return inputDeps;
+            }
 
             inputDeps = (new NearbyCarsReset()).Schedule(this, inputDeps);
 

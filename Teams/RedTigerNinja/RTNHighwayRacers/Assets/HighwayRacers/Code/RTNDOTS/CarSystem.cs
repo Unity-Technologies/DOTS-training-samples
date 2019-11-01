@@ -10,6 +10,8 @@ namespace HighwayRacers {
 
     public class CarSystem : JobComponentSystem
     {
+        private EntityQuery CacheQueryCar, CacheQueryHighway;
+
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             if (Car.IsTotalHackData) return inputDeps;
@@ -18,11 +20,13 @@ namespace HighwayRacers {
 
             Highway.instance.EnsureUpdated();
 
-            var carQuery = this.GetEntityQuery(ComponentType.ReadOnly<CarLocation>());
+            var carQuery = this.CacheQueryCar ?? this.GetEntityQuery(ComponentType.ReadOnly<CarLocation>());
+            this.CacheQueryCar = carQuery;
             var carAr = carQuery.ToComponentDataArray<CarLocation>(Allocator.TempJob);
             var carSorted = new NativeArray<CarLocation>(carAr, Allocator.TempJob);
 
-            var hpcQuery = this.GetEntityQuery(ComponentType.ReadOnly<HighwayPiece.HighwayPieceState>());
+            var hpcQuery = CacheQueryHighway ?? this.GetEntityQuery(ComponentType.ReadOnly<HighwayPiece.HighwayPieceState>());
+            this.CacheQueryHighway = hpcQuery;
             var hpcAr = hpcQuery.ToComponentDataArray<HighwayPiece.HighwayPieceState>(Allocator.TempJob);
 
             var highway = Highway.instance.HighwayState;
@@ -65,13 +69,14 @@ namespace HighwayRacers {
             // update the car position:
             inputDeps = (new CarUpdatePoseJob() { HighwayState = highway }).Schedule(this, inputDeps);
 
-            inputDeps.Complete();
-            hpcAr.Dispose();
-            carAr.Dispose();
-            carSorted.Dispose();
+            //inputDeps.Complete();
+            //hpcAr.Dispose();
+            //carAr.Dispose();
+            //carSorted.Dispose();
 
-            //inputDeps = (new DisposeJob<NativeArray<HighwayPiece.HighwayPieceState>>(hpcAr)).Schedule(inputDeps);
-            //inputDeps = (new DisposeJob<NativeArray<CarStateStruct>>(carAr)).Schedule(inputDeps);
+            inputDeps = (new DisposeJob<NativeArray<HighwayPiece.HighwayPieceState>>(hpcAr)).Schedule(inputDeps);
+            inputDeps = (new DisposeJob<NativeArray<CarLocation>>(carAr)).Schedule(inputDeps);
+            inputDeps = (new DisposeJob<NativeArray<CarLocation>>(carSorted)).Schedule(inputDeps);
             //inputDeps.Complete();
 
 
@@ -194,7 +199,7 @@ namespace HighwayRacers {
                 };
 
                 // Do the actual update logic:
-                Car.UpdateCarState_FromJob(ref temp, ref this.HighwayInst, this.UpdateInfo);
+                Car.UpdateCarData(ref temp.Location, temp.Settings, ref temp.Mind, ref this.HighwayInst, this.UpdateInfo);
 
                 // write it into the next state:
                 nextState.NextState = temp;
