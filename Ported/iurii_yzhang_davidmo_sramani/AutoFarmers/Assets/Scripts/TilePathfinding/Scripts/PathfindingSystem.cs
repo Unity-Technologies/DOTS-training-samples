@@ -67,7 +67,7 @@ namespace Pathfinding
                 .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable pos) =>
                 {
                     int count = 0;
-                    bool failed = true;
+                    bool failed = false;
                     var p = pos.Position + new int2(rnd.NextInt(-1, 1), rnd.NextInt(-1, 1));
                     while (p.x < 0 || p.x > worldSize.x || p.y < 0 || p.y > worldSize.y || hashMap.ContainsKey(p)) {
                         p = pos.Position + new int2(rnd.NextInt(-1, 1), rnd.NextInt(-1, 1));
