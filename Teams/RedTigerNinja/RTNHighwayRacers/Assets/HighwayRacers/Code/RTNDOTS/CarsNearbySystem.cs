@@ -13,6 +13,8 @@ namespace HighwayRacers
     {
         public FixedSize<OtherPoint> Refs;
         public float3 MyPosition;
+
+        public static int MAX_COUNT { get { return FixedSize<OtherPoint>.MAX_COUNT; } }
     }
 
     public struct OtherPoint
@@ -99,6 +101,8 @@ namespace HighwayRacers
 
     public class CarsNearbySystem : JobComponentSystem
     {
+
+
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             //return inputDeps;
@@ -122,6 +126,7 @@ namespace HighwayRacers
             var debugData = em.CreateEntityQuery(ComponentType.ReadOnly<CarsNearbyData>());
             var debugArray = debugData.ToComponentDataArray<CarsNearbyData>(Allocator.TempJob);
 
+            /*
             for (var i=0; i<debugArray.Length; i++)
             {
                 var enty = debugArray[i];
@@ -131,6 +136,8 @@ namespace HighwayRacers
                     Debug.DrawLine(enty.MyPosition, to.Position);
                 }
             }
+            */
+            inputDeps = CarRenderJobSystem.DrawNearbyStuff(inputDeps, debugArray);
 
             debugArray.Dispose();
 
@@ -159,7 +166,7 @@ namespace HighwayRacers
                     var other = AllCars[i];
                     var delta = (Vector3)(c1.Position - other.Position);
                     var dist = delta.magnitude;
-                    if (dist < 20.0f)
+                    if ((dist < 20.0f) && (dist > 0.1f))
                     {
                         int bestIndex = 0;
                         while (bestIndex < lst.Count)

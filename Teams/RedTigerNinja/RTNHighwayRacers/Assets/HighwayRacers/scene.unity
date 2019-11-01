@@ -2665,6 +2665,9 @@ MonoBehaviour:
   ToDrawMaterial: {fileID: 2100000, guid: 8c8351af47db34b75a8c9593d0b08c72, type: 2}
   PoseArray: []
   ColorArray: []
+  UnitCubeMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  UnitCubeMat: {fileID: 2100000, guid: b943ba1bdb5744dbaaf0a02a192a4488, type: 2}
+  UnitPoseArray: []
 --- !u!4 &1820381194
 Transform:
   m_ObjectHideFlags: 0
