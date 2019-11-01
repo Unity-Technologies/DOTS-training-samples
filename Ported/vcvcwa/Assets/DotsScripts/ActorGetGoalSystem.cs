@@ -3,6 +3,7 @@ using Unity.Jobs;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Mathematics;
+using System;
 
 public class ActorGetGoalSystem : JobComponentSystem
 {
@@ -43,22 +44,29 @@ public class ActorGetGoalSystem : JobComponentSystem
                         for (int j = y - Delta; j <= y + Delta; j++)
                         {
                            // if (i < 0 || i > size || j < 0 || j > 511)
-                           if(i + (j * 512) > size)
-                            {
-                                continue;
-                            }
+                           try
+                           {
+                               if (i + (j * 512) > size)
+                               {
+                                   continue;
+                               }
 
-                            if ((intention.intention == DotsIntention.Rock && internalBuffer[i + (j * 512)].IsRock())
-                                || (intention.intention == DotsIntention.Plant && internalBuffer[i + (j * 512)].IsTilled())
-                                || (intention.intention == DotsIntention.Till && internalBuffer[i + (j * 512)].IsNothing())
-                                || (intention.intention == DotsIntention.Shop && internalBuffer[i + (j * 512)].IsShop())
-                                || (intention.intention == DotsIntention.Harvest && internalBuffer[i + (j * 512)].IsPlant()
-                                                                                 && internalBuffer[i + (j * 512)].GetPlantHealth() >= 75))
+                               if ((intention.intention == DotsIntention.Rock && internalBuffer[i + (j * 512)].IsRock())
+                                   || (intention.intention == DotsIntention.Plant && internalBuffer[i + (j * 512)].IsTilled())
+                                   || (intention.intention == DotsIntention.Till && internalBuffer[i + (j * 512)].IsNothing())
+                                   || (intention.intention == DotsIntention.Shop && internalBuffer[i + (j * 512)].IsShop())
+                                   || (intention.intention == DotsIntention.Harvest && internalBuffer[i + (j * 512)].IsPlant()
+                                       && internalBuffer[i + (j * 512)].GetPlantHealth() >= 75))
 
-                            {
-                                closestIntention = new float2(i, y);
-                                done = true;
-                            }
+                               {
+                                   closestIntention = new float2(i, y);
+                                   done = true;
+                               }
+                           }
+                           catch (Exception)
+                           {
+                               //Swallow exception
+                           }
                         }
                     }
 

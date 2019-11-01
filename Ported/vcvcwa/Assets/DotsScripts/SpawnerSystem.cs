@@ -5,6 +5,7 @@ using UnityEngine;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
+using System;
 
 // JobComponentSystems can run on worker threads.
 // However, creating and removing Entities can only be done on the main thread to prevent race conditions.
@@ -51,28 +52,35 @@ public class SpawnerSystem : JobComponentSystem
             {
                 for (int i = gridIndex; i < gridComponent.Size * gridComponent.Size; i++)
                 {
-                    if (gridTileBuffer[i].IsShop())
+                    try
                     {
-                        var instance = CommandBuffer.Instantiate(entityIndex, farmerDataComponent.farmerEntity);
-                        var x = i % gridComponent.Size;
-                        var y = i / gridComponent.Size;
-                        
-                        // Place the instantiated in a grid with some noise
-                        var position = new float3(x,0,y);
-                        CommandBuffer.SetComponent(entityIndex, instance, new MoveComponent() { fly = false});
-                        CommandBuffer.SetComponent(entityIndex, instance, new DotsIntentionComponent { intention = DotsIntention.Rock});
-                        CommandBuffer.SetComponent(entityIndex, instance, new Translation {Value = position});
-                        CommandBuffer.SetComponent(entityIndex, instance, new ActorMovementComponent()
+                        if (gridTileBuffer[i].IsShop())
                         {
-                            targetPosition = new Vector2(-1,-1),
-                            position = new Vector2(x,y),
-                            actor = entity
-                        });   
-                        resourcesComponent.MoneyForFarmers -= 10;
-                        
-                        gridIndex = i+1;
-                        entityIndex++;
-                        break;
+                            var instance = CommandBuffer.Instantiate(entityIndex, farmerDataComponent.farmerEntity);
+                            var x = i % gridComponent.Size;
+                            var y = i / gridComponent.Size;
+
+                            // Place the instantiated in a grid with some noise
+                            var position = new float3(x, 0, y);
+                            CommandBuffer.SetComponent(entityIndex, instance, new MoveComponent() { fly = false });
+                            CommandBuffer.SetComponent(entityIndex, instance, new DotsIntentionComponent { intention = DotsIntention.Rock });
+                            CommandBuffer.SetComponent(entityIndex, instance, new Translation { Value = position });
+                            CommandBuffer.SetComponent(entityIndex, instance, new ActorMovementComponent()
+                            {
+                                targetPosition = new Vector2(-1, -1),
+                                position = new Vector2(x, y),
+                                actor = entity
+                            });
+                            resourcesComponent.MoneyForFarmers -= 10;
+
+                            gridIndex = i + 1;
+                            entityIndex++;
+                            break;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        //Nothing
                     }
                 }
 
