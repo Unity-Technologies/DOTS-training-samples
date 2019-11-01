@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class CarSpawningSystem : ComponentSystem
@@ -18,7 +19,9 @@ public class CarSpawningSystem : ComponentSystem
     private float computePositionStep(float roadLen, int carsPerLane, int laneNum)
     {
         // Compute the easiest possible spacing of the cars assuming the maximum number of cars in a given lane
-        return (roadLen - (HighwayConstants.LANE_SPACING * (HighwayConstants.NUM_LANES / 2 - laneNum))) / (carsPerLane + HighwayConstants.NUM_LANES - 1);
+        float maxLength = Utilities.LaneLength(laneNum, roadLen);
+        float lerpFac = (float)(laneNum-1) / (float)(HighwayConstants.NUM_LANES-1); 
+        return (roadLen + (maxLength - roadLen) * lerpFac) / (carsPerLane + HighwayConstants.NUM_LANES - 1);
     }
 
     protected override void OnUpdate()
@@ -70,6 +73,10 @@ public class CarSpawningSystem : ComponentSystem
                 cbs.Speed = crop.DefaultSpeed;
                 cbs.Lane = curLane - 1;
                 cbs.Position = curPosition;
+                cbs.Color = new float4(spawner.defaultColor.r,
+                                       spawner.defaultColor.g,
+                                       spawner.defaultColor.b,
+                                       spawner.defaultColor.a);
 
                 cls.State = VehicleState.NORMAL;
                 cls.TargetLane = cbs.Lane;
@@ -80,7 +87,7 @@ public class CarSpawningSystem : ComponentSystem
                 EntityManager.SetComponentData(entities[i], cbs);
 
                 // If we've filled up this lane, move to the next one.
-                if (((i + 1) % carsPerLane) == 0 && (curLane != 4))
+                if (((i + 1) % carsPerLane) == 0 && (curLane < 4))
                 {
                     curPosition = 0;
                     ++curLane;
