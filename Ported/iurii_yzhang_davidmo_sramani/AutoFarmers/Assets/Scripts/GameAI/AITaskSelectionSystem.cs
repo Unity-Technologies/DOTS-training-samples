@@ -18,7 +18,7 @@ namespace GameAI
             var ecbSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
             var ecb1 = ecbSystem.CreateCommandBuffer().ToConcurrent();
             var rnd = DateTime.Now.Ticks;
-            var randomNum = new Random();
+            var randomNum = new Random((uint) rnd);
 
             var groundSelectorHandle = Entities
                 .WithAll<AITagTaskNone, FarmerAITag>()

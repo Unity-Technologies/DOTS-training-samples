@@ -39,16 +39,23 @@ namespace GameAI
                     ecb2.RemoveComponent<AISubTaskTagFindUntilledTile>(entityInQueryIndex, entity);
                     ecb2.AddComponent<AISubTaskTagTillGroundTile>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
-            
+
+            var hashMap = World.GetOrCreateSystem<WorldCreatorSystem>().hashMap;
+
             var job3 = Entities
                 .WithAll<AITagTaskTill>()
-                .WithAll<AISubTaskTagComplete>()
                 .WithAll<AISubTaskTagTillGroundTile>()
-                .ForEach((Entity entity, int entityInQueryIndex) =>
+                .WithReadOnly(hashMap)
+                .ForEach((Entity entity, int entityInQueryIndex, in AISubTaskTagComplete target) =>
                 {
                     ecb3.RemoveComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
                     ecb3.RemoveComponent<AISubTaskTagTillGroundTile>(entityInQueryIndex, entity);
-                    ecb3.AddComponent<AISubTaskTagPlantSeed>(entityInQueryIndex, entity);
+                    
+                    Entity tileEntity;
+                    var has = hashMap.TryGetValue(target.targetPos, out tileEntity);
+                    //Debug.Log($"hashMap has entity {stonePosition.entity} at {position.Position}");
+                    
+                    ecb3.AddComponent(entityInQueryIndex, entity, new AISubTaskTagPlantSeed() {tileEntity = tileEntity});
                 }).Schedule(inputDeps);
 
             var job4 = Entities

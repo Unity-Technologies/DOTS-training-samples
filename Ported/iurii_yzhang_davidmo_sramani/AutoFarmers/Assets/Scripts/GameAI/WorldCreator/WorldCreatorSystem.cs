@@ -81,6 +81,7 @@ namespace GameAI
                     EntityManager.SetComponentData(e, new TilePositionable() {Position = p});
                     var wpos = RenderingUnity.Tile2WorldPosition(p, worldSizeHalf) - new float3(0, 0.5f, 0);
                     EntityManager.SetComponentData(e, new LocalToWorld() {Value = float4x4.TRS(wpos, quaternion.identity, new float3(0.2f, 1, 0.2f))});
+                    hashMap[p] = e;
                 }
             }
 

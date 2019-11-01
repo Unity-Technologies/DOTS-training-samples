@@ -52,36 +52,46 @@ namespace Pathfinding
 
             World.GetOrCreateSystem<PathfindingSystem>().PlantOrStoneChanged();
             
+            var hashMap = World.GetOrCreateSystem<WorldCreatorSystem>().hashMap;
+            var rndSeed = DateTime.Now.Ticks;
+            var rnd = new Random((uint) rndSeed);
+
             // find Untilled Tile target
             var ecb2 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             var job2 = Entities
                 .WithAll<AISubTaskTagFindUntilledTile>()
-                .WithNone<AISubTaskTagComplete>()
-                .WithNone<HasTarget>()
+                .WithNone<AISubTaskTagComplete, HasTarget>()
+                .WithReadOnly(hashMap)
+                .WithReadOnly(worldSize)
                 //.WithoutBurst()
                 .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable pos) =>
                 {
-                    // Distance Field will provide the target position
-                    // Add HasTarget.TargetPosition
-                    int2 targetpos = new int2(10, 10);
-                    ecb2.AddComponent(nativeThreadIndex, entity, new HasTarget(targetpos));
-                }).Schedule(inputDeps);
-
-            // reach the tilling target
-            var ecb3 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-            var job3 = Entities
-                .WithAll<AISubTaskTagFindUntilledTile>()
-                .WithNone<AISubTaskTagComplete>()
-                //.WithoutBurst()
-                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
-                {
-                    bool2 tt = (t.TargetPosition == tile.Position);
-                    if (tt[0] && tt[1])
+                    for (;;)
                     {
-                        // Add tag: subTaskComplete
-                        ecb3.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
+                        var p = new int2(rnd.NextInt(worldSize.x), rnd.NextInt(worldSize.y));
+                        if (hashMap.ContainsKey(p) == false) {
+                            ecb2.AddComponent(nativeThreadIndex, entity, new HasTarget(p));
+                            ecb2.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
+                            break;
+                        }
                     }
                 }).Schedule(inputDeps);
+
+//            // reach the tilling target
+//            var ecb3 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+//            var job3 = Entities
+//                .WithAll<AISubTaskTagFindUntilledTile>()
+//                .WithNone<AISubTaskTagComplete>()
+//                //.WithoutBurst()
+//                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable tile, in HasTarget t) =>
+//                {
+//                    bool2 tt = (t.TargetPosition == tile.Position);
+//                    if (tt[0] && tt[1])
+//                    {
+//                        // Add tag: subTaskComplete
+//                        ecb3.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
+//                    }
+//                }).Schedule(inputDeps);
 
             // till current tile
             var ecb4 = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
@@ -89,9 +99,9 @@ namespace Pathfinding
                 .WithAll<AISubTaskTagTillGroundTile>()
                 .WithNone<AISubTaskTagComplete>()
                 //.WithoutBurst()
-                .ForEach((Entity entity, int nativeThreadIndex) =>
+                .ForEach((Entity entity, int nativeThreadIndex, in TilePositionable pos) =>
                 {
-                    ecb4.AddComponent<AISubTaskTagComplete>(nativeThreadIndex, entity);
+                    ecb4.AddComponent(nativeThreadIndex, entity, new AISubTaskTagComplete() {targetPos = pos.Position});
                 }).Schedule(inputDeps);
 
             // Find Rock
@@ -207,7 +217,7 @@ namespace Pathfinding
 
             // m_EntityCommandBufferSystem.AddJobHandleForProducer(job1);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job2);
-            m_EntityCommandBufferSystem.AddJobHandleForProducer(job3);
+//            m_EntityCommandBufferSystem.AddJobHandleForProducer(job3);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job4);
             m_EntityCommandBufferSystem.AddJobHandleForProducer(job5);
             //m_EntityCommandBufferSystem.AddJobHandleForProducer(job6);
@@ -217,7 +227,8 @@ namespace Pathfinding
 //            m_EntityCommandBufferSystem.AddJobHandleForProducer(job10);
 
             return JobHandle.CombineDependencies(
-                    JobHandle.CombineDependencies(/*job10, */job2, job3),
+                        job2,
+//                    JobHandle.CombineDependencies(/*job10, */job2, job3),
                     JobHandle.CombineDependencies(job4, job5/*, job6*/),
                     JobHandle.CombineDependencies(/*job7, */job8, job9));
         }
