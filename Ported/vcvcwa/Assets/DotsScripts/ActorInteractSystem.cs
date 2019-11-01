@@ -68,8 +68,8 @@ public class ActorInteractSystem : JobComponentSystem
                 internalGridOperations.Enqueue(new GridOperation()
                     {actor = entity, gridTileIndex = testIndex, desiredGridValue = 3});
             }
-            else if (intention.intention == DotsIntention.Harvest && gridTile.IsPlant() &&
-                     gridTile.GetPlantHealth() > 75f)
+            else if (intention.intention == DotsIntention.Harvest && gridTile.IsPlant() /*&&
+                     gridTile.GetPlantHealth() > 75f*/)
             {
                 intention.intention = DotsIntention.HarvestFinished;
                 internalGridOperations.Enqueue(new GridOperation()

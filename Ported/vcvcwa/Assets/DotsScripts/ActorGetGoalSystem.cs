@@ -55,7 +55,7 @@ public class ActorGetGoalSystem : JobComponentSystem
                                 || (intention.intention == DotsIntention.Till && internalBuffer[index].IsNothing())
                                 || (intention.intention == DotsIntention.Shop && internalBuffer[index].IsShop())
                                 || (intention.intention == DotsIntention.Harvest && internalBuffer[index].IsPlant() 
-                                                                                 && internalBuffer[index].GetPlantHealth() >= 75))
+                                                                                 /*&& internalBuffer[index].GetPlantHealth() >= 75*/))
 
                             {
                                 closestIntention = new float2(i, j);
