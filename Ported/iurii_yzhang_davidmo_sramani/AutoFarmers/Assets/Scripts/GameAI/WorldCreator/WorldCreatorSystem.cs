@@ -48,7 +48,7 @@ namespace GameAI
             m_tile = EntityManager.CreateArchetype(typeof(TilePositionRequest));
             m_plant = EntityManager.CreateArchetype(typeof(PlantPositionRequest));
 
-            m_stone = EntityManager.CreateArchetype(typeof(StonePositionRequest));
+            m_score = EntityManager.CreateArchetype(typeof(CurrentScoreRequest));
             scoreArray = new NativeArray<int>(128, Allocator.Persistent);
 
             m_stone = EntityManager.CreateArchetype(typeof(StonePositionRequest));
@@ -144,6 +144,9 @@ namespace GameAI
                     break;
                 }
             }
+            
+            var es = EntityManager.CreateEntity(m_score);
+            EntityManager.SetComponentData(es, new CurrentScoreRequest {TotalScore = 0});
 
             World.GetOrCreateSystem<PathfindingSystem>().PlantOrStoneChanged();
             Profiler.EndSample();

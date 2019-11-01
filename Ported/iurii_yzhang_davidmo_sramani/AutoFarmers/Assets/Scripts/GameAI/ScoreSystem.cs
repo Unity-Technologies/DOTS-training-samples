@@ -114,6 +114,11 @@ namespace GameAI
             {
                 score_tmp += score[i];
             }
+
+            var singletonScore = GetEntityQuery(typeof(CurrentScoreRequest)).GetSingletonEntity();
+            var pre_score = EntityManager.GetComponentData<CurrentScoreRequest>(singletonScore).TotalScore + score_tmp;
+                
+            EntityManager.SetComponentData<CurrentScoreRequest>(singletonScore, new CurrentScoreRequest{TotalScore = pre_score});
             
             Debug.Log(score_tmp);
 

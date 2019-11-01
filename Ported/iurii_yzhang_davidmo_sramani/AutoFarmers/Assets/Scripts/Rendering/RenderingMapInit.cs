@@ -10,6 +10,11 @@ using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.Assertions;
 
+public struct CurrentScoreRequest : IComponentData
+{
+    public int TotalScore;
+}
+
 public struct TilePositionRequest : IComponentData
 {
     public int2 position;
