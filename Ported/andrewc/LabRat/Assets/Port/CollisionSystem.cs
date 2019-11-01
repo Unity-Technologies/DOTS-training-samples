@@ -5,6 +5,7 @@ using Unity.Jobs;
 using Unity.Transforms;
 
 [AlwaysUpdateSystem]
+[UpdateAfter(typeof(MoveAndRedirectSystem))]
 public class CollisionSystem : JobComponentSystem
 {
     EntityQuery m_CatQuery;
@@ -55,14 +56,18 @@ public class CollisionSystem : JobComponentSystem
             if (!MiceMap.TryGetFirstValue(tileCoords, out mouse, out iter))
                 return;
 
-            CheckForAndHandleCollision(threadId, entity, translation.Value, mouse);
+            CheckForAndHandleCollision(threadId, translation.Value, mouse);
             while (MiceMap.TryGetNextValue(out mouse, ref iter))
-                CheckForAndHandleCollision(threadId, entity, translation.Value, mouse);
+                CheckForAndHandleCollision(threadId, translation.Value, mouse);
         }
 
-        void CheckForAndHandleCollision(int threadId, Entity catEntity, float3 catPosition, EntityAndTranslation mouse)
+        void CheckForAndHandleCollision(int threadId, float3 catPosition, EntityAndTranslation mouse)
         {
+            float3 diff = mouse.Translation - catPosition;
+            if (math.lengthsq(diff) > 4.0f)
+                return;
 
+            CommandBuffer.DestroyEntity(threadId, mouse.Entity);
         }
     }
 
