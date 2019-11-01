@@ -29,7 +29,7 @@ public class ActorGetGoalSystem : JobComponentSystem
             //If we have no goalPosition we need to find another one
             if (actor.targetPosition.x < 0.0f || actor.targetPosition.y < 0.0f)
             {
-                float2 closestIntention = new float2(-1,-1);
+                float2 closestIntention = new float2(-1, -1);
 
                 int DeltaMax = 5;
                 int Delta = 0;
@@ -43,24 +43,24 @@ public class ActorGetGoalSystem : JobComponentSystem
                     {
                         for (int j = y - Delta; j <= y + Delta; j++)
                         {
-                           // if (i < 0 || i > size || j < 0 || j > 511)
-                           var index = (i*512) + j;
-                           if ( index > size || index < 0)
-                           {
-                               continue;
-                           }
+                            // if (i < 0 || i > size || j < 0 || j > 511)
+                            var index = (i * 512) + j;
+                            if (index > size || index < 0)
+                            {
+                                continue;
+                            }
 
-                           if ((intention.intention == DotsIntention.Rock && internalBuffer[index].IsRock())
-                               || (intention.intention == DotsIntention.Plant && internalBuffer[index].IsTilled())
-                               || (intention.intention == DotsIntention.Till && internalBuffer[index].IsNothing())
-                               || (intention.intention == DotsIntention.Shop && internalBuffer[index].IsShop())
-                               || (intention.intention == DotsIntention.Harvest && internalBuffer[index].IsPlant()
-                                   && internalBuffer[index].GetPlantHealth() >= 75))
+                            if ((intention.intention == DotsIntention.Rock && internalBuffer[index].IsRock())
+                                || (intention.intention == DotsIntention.Plant && internalBuffer[index].IsTilled())
+                                || (intention.intention == DotsIntention.Till && internalBuffer[index].IsNothing())
+                                || (intention.intention == DotsIntention.Shop && internalBuffer[index].IsShop())
+                                || (intention.intention == DotsIntention.Harvest && internalBuffer[index].IsPlant() 
+                                                                                 && internalBuffer[index].GetPlantHealth() >= 75))
 
-                           {
-                               closestIntention = new float2(i, j);
-                               done = true;
-                           }
+                            {
+                                closestIntention = new float2(i, j);
+                                done = true;
+                            }
                         }
                     }
 
@@ -74,14 +74,12 @@ public class ActorGetGoalSystem : JobComponentSystem
                     }
                 }
 
-                if (closestIntention.x < 0 && closestIntention.y < 0)
+                if (closestIntention.x < 0 || closestIntention.y < 0)
                 {
                     intention.intention += 1;
                 }
-                else
-                {
-                    actor.targetPosition = closestIntention;
-                }
+
+                actor.targetPosition = closestIntention;
             }
         }
     }

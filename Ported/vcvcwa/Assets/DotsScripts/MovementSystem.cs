@@ -16,7 +16,7 @@ public class MovementSystem : JobComponentSystem
             .ForEach((ref Translation translation, ref Rotation rotation,
                 ref ActorMovementComponent actor, in MoveComponent moveComponent, in DotsIntentionComponent dotsIntentionComponent) =>
             {
-                if (actor.position.x < 0 || actor.position.y < 0)
+                if (actor.targetPosition.x < 0 || actor.targetPosition.y < 0)
                 {
                     return;
                 }
