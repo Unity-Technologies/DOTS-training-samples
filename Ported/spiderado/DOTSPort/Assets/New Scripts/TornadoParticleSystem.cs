@@ -24,19 +24,21 @@ public class TornadoParticleSystem : JobComponentSystem
     [RequireComponentTag(typeof(TornadoData))]
     struct TornadoParticleSystemJob : IJobForEach<Translation>
     {
-        [ReadOnly] public float deltaTime;
+        [ReadOnly] public float timeSinceStart;
         [ReadOnly] public TornadoData tornado;
+        internal float deltaTime;
+
         public void Execute(ref Translation translation)
         {
             float3 tornadoPos = new float3(
-                Mathf.Cos(deltaTime / 6f) * 30f + Mathf.Sin((translation.Value.y) / 5f + deltaTime / 4f) * 3f,
+                Mathf.Cos(timeSinceStart / 6f) * 30f + Mathf.Sin((translation.Value.y) / 5f + timeSinceStart / 4f) * 3f,
                 translation.Value.y,
-                Mathf.Sin(deltaTime / 6f * 1.618f) * 30f);
+                Mathf.Sin(timeSinceStart / 6f * 1.618f) * 30f);
             float3 delta = (tornadoPos - translation.Value);
             float dist = math.length(delta);
             delta /= dist;
             float inForce = dist - Mathf.Clamp01(tornadoPos.y / 50f) * 30f * tornado.radiusMultiplier + 2f;
-            translation.Value += new float3(-delta.z * tornado.spinRate + delta.x * inForce, tornado.upwardSpeed, delta.x * tornado.spinRate + delta.z * inForce) * deltaTime;
+            translation.Value += new float3(-delta.z * tornado.spinRate + delta.x * inForce, tornado.upwardSpeed, delta.x * tornado.spinRate + delta.z * inForce) * timeSinceStart;
             if (translation.Value.y > 50f)
             {
                 translation.Value = new Vector3(translation.Value.x, translation.Value.y - 50f, translation.Value.z);
@@ -50,9 +52,9 @@ public class TornadoParticleSystem : JobComponentSystem
         var job = new TornadoParticleSystemJob
         {
             tornado = GetSingleton<TornadoData>(),
-            deltaTime = Time.deltaTime
+            timeSinceStart = Time.time,
+            deltaTime = Time.DeltaTime
         };
         return job.Schedule(m_particleQuery, inputDependencies);
     }
-
 }

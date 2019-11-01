@@ -24,11 +24,15 @@ public class BuildingSpawnSystem : JobComponentSystem
         public void Execute(Entity entity, int entityIndex, [ReadOnly] ref BarSpawner spawnerFromEntity, 
             [ReadOnly] ref Translation translation)
         {
+            float3 zeroFloat3 = new float3(0f, 0f, 0f);
             for (var x = 0; x < spawnerFromEntity.buildingCount; x++)
             {
-                BarPoint point1 = new BarPoint { index = 1 };
-                BarPoint point2 = new BarPoint { index = 2 };
-                BarPoint point3 = new BarPoint { index = 3 };
+                BarPoint point1 = new BarPoint { index = 1, anchor=0, neighborCount=1, pos=new float3(0, 0, 0) };
+                point1.oldPos = point1.pos;
+                BarPoint point2 = new BarPoint { index = 2, anchor=0, neighborCount=1, pos=new float3(2, 0, 0) };
+                point2.oldPos = point2.pos;
+                BarPoint point3 = new BarPoint { index = 3, anchor=0, neighborCount=1, pos=new float3(2, 2, 0) };
+                point3.oldPos = point3.pos;
                 var point1Entity = CommandBuffer.CreateEntity(entityIndex);
                 CommandBuffer.AddComponent(entityIndex, point1Entity, point1);
                 var point2Entity = CommandBuffer.CreateEntity(entityIndex);
@@ -36,13 +40,13 @@ public class BuildingSpawnSystem : JobComponentSystem
                 var point3Entity = CommandBuffer.CreateEntity(entityIndex);
                 CommandBuffer.AddComponent(entityIndex, point3Entity, point3);
 
-                Bar bar1 = new Bar { point1 = point1Entity, point2 = point2Entity };
+                Bar bar1 = new Bar { point1 = point1Entity, point2 = point2Entity, length=1f };
                 var barentity1 = CommandBuffer.Instantiate(entityIndex, spawnerFromEntity.particlePrefab);
                 CommandBuffer.AddComponent(entityIndex, barentity1, bar1);
-                Bar bar2 = new Bar { point1 = point2Entity, point2 = point3Entity };
+                Bar bar2 = new Bar { point1 = point2Entity, point2 = point3Entity, length=1f };
                 var barentity2 = CommandBuffer.Instantiate(entityIndex, spawnerFromEntity.particlePrefab);
                 CommandBuffer.AddComponent(entityIndex, barentity2, bar2);
-                Bar bar3 = new Bar { point1 = point3Entity, point2 = point1Entity };
+                Bar bar3 = new Bar { point1 = point3Entity, point2 = point1Entity, length=1f };
                 var barentity3 = CommandBuffer.Instantiate(entityIndex, spawnerFromEntity.particlePrefab);
                 CommandBuffer.AddComponent(entityIndex, barentity3, bar3);
 
