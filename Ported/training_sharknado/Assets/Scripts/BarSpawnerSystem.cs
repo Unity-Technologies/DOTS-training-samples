@@ -11,6 +11,7 @@ using Random = Unity.Mathematics.Random;
 
 public class BarSpawnerSystem : JobComponentSystem
 {
+    const int MAX_CONNECTIONS = 10;
     BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
 
     protected override void OnCreate()
@@ -31,7 +32,7 @@ public class BarSpawnerSystem : JobComponentSystem
             /////////////
             var neighbors = new NativeArray<int>(numPoints, Allocator.Temp);
             var pointKeepers = new NativeArray<Entity>(numPoints, Allocator.Temp);
-            var pointKBuffers = new NativeArray<ConnectionBuffer>(numPoints*20, Allocator.Temp);
+            var pointKBuffers = new NativeArray<ConnectionBuffer>(numPoints* MAX_CONNECTIONS, Allocator.Temp);
             /////////////
             var hasAnchors = new NativeArray< bool >(numPoints, Allocator.Temp );
 
@@ -169,25 +170,25 @@ public class BarSpawnerSystem : JobComponentSystem
                         CommandBuffer.AddComponent(jobIndex, instance, new BarAveragedPoints1());
                         CommandBuffer.AddComponent(jobIndex, instance, new BarAveragedPoints2());
                         CommandBuffer.AddComponent(jobIndex, instance, barlength);
-                        for (int k = 0; k < 20; k++)
+                        for (int k = 0; k < MAX_CONNECTIONS; k++)
                         {
-                            if (pointKBuffers[i*20+k].entity == Entity.Null)
+                            if (pointKBuffers[i* MAX_CONNECTIONS + k].entity == Entity.Null)
                             {
-                                ConnectionBuffer cb = pointKBuffers[i * 20 + k];
+                                ConnectionBuffer cb = pointKBuffers[i * MAX_CONNECTIONS + k];
                                 cb.entity = instance;
                                 cb.endpoint = 1;
-                                pointKBuffers[i * 20 + k] = cb;
+                                pointKBuffers[i * MAX_CONNECTIONS + k] = cb;
                                 break;
                             }
                         }
-                        for (int k = 0; k < 20; k++)
+                        for (int k = 0; k < MAX_CONNECTIONS; k++)
                         {
-                            if (pointKBuffers[j * 20 + k].entity == Entity.Null)
+                            if (pointKBuffers[j * MAX_CONNECTIONS + k].entity == Entity.Null)
                             {
-                                ConnectionBuffer cb = pointKBuffers[j * 20 + k];
+                                ConnectionBuffer cb = pointKBuffers[j * MAX_CONNECTIONS + k];
                                 cb.entity = instance;
                                 cb.endpoint = 2;
-                                pointKBuffers[j * 20 + k] = cb;
+                                pointKBuffers[j * MAX_CONNECTIONS + k] = cb;
                                 break;
                             }
                         }
@@ -196,10 +197,10 @@ public class BarSpawnerSystem : JobComponentSystem
             }
             for (int i = 0; i < pointIndex; i++)
             {
-                var buffer = CommandBuffer.AddBuffer<ConnectionBuffer>(jobIndex, pointKeepers[i]);
-                for (int k = 0; k < 20; k++)
+                DynamicBuffer<ConnectionBuffer> buffer = CommandBuffer.AddBuffer<ConnectionBuffer>(jobIndex, pointKeepers[i]);
+                for (int k = 0; k < MAX_CONNECTIONS; k++)
                 {
-                    buffer.Add(pointKBuffers[i * 20 + k]);
+                    buffer.Add(pointKBuffers[i * MAX_CONNECTIONS + k]);
                 }
             }
             CommandBuffer.RemoveComponent( jobIndex, entity, typeof( BarSpawner ) );

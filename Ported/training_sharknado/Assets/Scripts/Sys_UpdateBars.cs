@@ -7,7 +7,7 @@ using Unity.Burst;
 using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
-[ UpdateAfter( typeof( Sys_BarsGravity ) ) ]
+[ UpdateAfter( typeof( BarSpawnerSystem ) ) ]
 public class Sys_UpdateBars : JobComponentSystem
 {
     public Random random;

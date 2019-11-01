@@ -10,6 +10,7 @@ using Unity.Burst;
 [UpdateAfter(typeof(Sys_UpdateBars))]
 public class ConnectionSystem : JobComponentSystem
 {
+    [BurstCompile]
     public struct KeepThingsTogether : IJobForEach_B<ConnectionBuffer>
     {
         [ReadOnly]
@@ -24,10 +25,12 @@ public class ConnectionSystem : JobComponentSystem
         {
             float3 averagePosition = float3.zero;
             float numConnections = 0;
-            foreach (ConnectionBuffer cb in b0)
+            //foreach (ConnectionBuffer cb in b0)
+            for (int i = 0; i < b0.Length; i++)
             {
+                var cb = b0[i];
                 // TODO: try break
-                if (cb.entity == Entity.Null) continue;
+                if (cb.entity == Entity.Null) break;
                 if (cb.endpoint == 1)
                 {
                     if (barPoints1[cb.entity].neighbors > 0)
@@ -44,15 +47,17 @@ public class ConnectionSystem : JobComponentSystem
                         numConnections++;
                     }
                 }
+                b0[i] = cb;
             }
             if (numConnections > 0)
             {
                 averagePosition /= numConnections;
             }
-            foreach (ConnectionBuffer cb in b0)
+            for (int i = 0; i < b0.Length; i++)
             {
+                var cb = b0[i];
                 // TODO: try break
-                if (cb.entity == Entity.Null) continue;
+                if (cb.entity == Entity.Null) break;
                 if (cb.endpoint == 1)
                 {
                     if (barPoints1[cb.entity].neighbors > 0)
@@ -83,6 +88,7 @@ public class ConnectionSystem : JobComponentSystem
                         barAvgPoints2[cb.entity] = tempcb;
                     }
                 }
+                b0[i] = cb;
             }
         }
     }
