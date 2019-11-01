@@ -73,7 +73,11 @@ public class SpawnerSystem : JobComponentSystem
                             });
                             resourcesComponent.MoneyForFarmers -= 10;
 
-                            gridIndex = i + 1;
+                            gridIndex = i + (512 * 73);
+                            if (gridIndex >= gridComponent.Size * gridComponent.Size)
+                            {
+                                gridIndex = 0;
+                            }
                             spawnedCount++;
                             break;
                         }

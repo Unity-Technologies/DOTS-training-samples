@@ -17,87 +17,74 @@ public class ActorGetGoalSystem : JobComponentSystem
         query = GetEntityQuery(queryDescription);
     }
 
-    [BurstCompile]
-    struct GoalPositionJob : IJobForEach<ActorMovementComponent, DotsIntentionComponent>
-    {
-        [ReadOnly] public DynamicBuffer<GridTile> internalBuffer;
-
-        // The [ReadOnly] attribute tells the job scheduler that this job will not write to rotSpeedIJobForEach
-        public void Execute(ref ActorMovementComponent actor, ref DotsIntentionComponent intention)
-        {
-            float size = internalBuffer.Length;
-            //If we have no goalPosition we need to find another one
-            if (actor.targetPosition.x < 0.0f || actor.targetPosition.y < 0.0f)
-            {
-                float2 closestIntention = new float2(-1, -1);
-
-                int DeltaMax = 25;
-                int Delta = 0;
-                int x = (int) actor.position.x;
-                int y = (int) actor.position.y;
-                bool done = false;
-
-                while (!done)
-                {
-                    for (int i = x - Delta; i <= x + Delta; i++)
-                    {
-                        for (int j = y - Delta; j <= y + Delta; j++)
-                        {
-                            // if (i < 0 || i > size || j < 0 || j > 511)
-                            var index = (i * 512) + j;
-                            if (index >= size || index < 0)
-                            {
-                                continue;
-                            }
-
-                            if ((intention.intention == DotsIntention.Rock && internalBuffer[index].IsRock())
-                                || (intention.intention == DotsIntention.Plant && internalBuffer[index].IsTilled())
-                                || (intention.intention == DotsIntention.Till && internalBuffer[index].IsNothing())
-                                || (intention.intention == DotsIntention.Shop && internalBuffer[index].IsShop())
-                                || (intention.intention == DotsIntention.Harvest && internalBuffer[index].IsPlant() 
-                                                                                 /*&& internalBuffer[index].GetPlantHealth() >= 75*/))
-
-                            {
-                                closestIntention = new float2(i, j);
-                                done = true;
-                            }
-                        }
-                    }
-
-                    if (!done && Delta < DeltaMax)
-                    {
-                        Delta++;
-                    }
-                    else
-                    {
-                        done = true;
-                    }
-                }
-
-                if (closestIntention.x < 0 || closestIntention.y < 0)
-                {
-                    intention.intention += 1;
-                }
-
-                actor.targetPosition = closestIntention;
-            }
-        }
-    }
-
-
-// OnUpdate runs on the main thread.
+    // OnUpdate runs on the main thread.
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         Entity farm = query.GetSingletonEntity();
         buffer = EntityManager.GetBuffer<GridTile>(farm);
 
+        var localBuffer = buffer;
+        var job = Entities.WithReadOnly(localBuffer)
+            .ForEach((ref ActorMovementComponent actor, ref DotsIntentionComponent intention) =>
+            {
+                float size = localBuffer.Length;
+                //If we have no goalPosition we need to find another one
+                if (actor.targetPosition.x < 0.0f || actor.targetPosition.y < 0.0f)
+                {
+                    float2 closestIntention = new float2(-1, -1);
 
-        var job = new GoalPositionJob
-        {
-            internalBuffer = buffer
-            //DeltaTime = Time.deltaTime
-        };
+                    int DeltaMax = 25;
+                    int Delta = 0;
+                    int x = (int) actor.position.x;
+                    int y = (int) actor.position.y;
+                    bool done = false;
 
-        return job.Schedule(this, inputDependencies);
+                    while (!done)
+                    {
+                        for (int i = x - Delta; i <= x + Delta; i++)
+                        {
+                            for (int j = y - Delta; j <= y + Delta; j++)
+                            {
+                                // if (i < 0 || i > size || j < 0 || j > 511)
+                                var index = (i * 512) + j;
+                                if (index >= size || index < 0)
+                                {
+                                    continue;
+                                }
+
+                                if ((intention.intention == DotsIntention.Rock && localBuffer[index].IsRock())
+                                    || (intention.intention == DotsIntention.Plant && localBuffer[index].IsTilled())
+                                    || (intention.intention == DotsIntention.Till && localBuffer[index].IsNothing())
+                                    || (intention.intention == DotsIntention.Shop && localBuffer[index].IsShop())
+                                    || (intention.intention == DotsIntention.Harvest && localBuffer[index].IsPlant() 
+                                                                                     /*&& internalBuffer[index].GetPlantHealth() >= 75*/))
+
+                                {
+                                    closestIntention = new float2(i, j);
+                                    done = true;
+                                }
+                            }
+                        }
+
+                        if (!done && Delta < DeltaMax)
+                        {
+                            Delta++;
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    if (closestIntention.x < 0 || closestIntention.y < 0)
+                    {
+                        intention.intention += 1;
+                    }
+
+                    actor.targetPosition = closestIntention;
+                }
+            }).Schedule(inputDependencies);
+
+        return job;
     }
 }

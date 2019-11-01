@@ -56,7 +56,7 @@ public class ActorInteractSystem : JobComponentSystem
             {
                 intention.intention = DotsIntention.RockFinished;
                 if(gridTile.IsRock()) {
-                    var newPosition = actorBoardPosition - gridTile.GetRockOffset();
+                    var newPosition = actorBoardPosition + gridTile.GetRockOffset();
                     var newIndex = (actorBoardPosition.x * 512) + actorBoardPosition.y;
 
                     if (newIndex > 0 && newIndex < internalBuffer.Length && internalBuffer[newIndex].IsRockOrigin())
