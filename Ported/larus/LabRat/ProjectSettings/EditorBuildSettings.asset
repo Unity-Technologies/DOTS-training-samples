@@ -6,5 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Attract Mode.unity
-    guid: 3f35c955dfdf04b108e6c8f4d13bdbef
+    path: Assets/1 - Game.unity
+    guid: 17fa3a3a6ae7c4e5a8cac69f7ddbaa54
+  m_configObjects: {}

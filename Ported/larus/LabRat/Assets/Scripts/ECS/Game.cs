@@ -30,7 +30,7 @@ public class Game : ComponentSystem
         EntityManager.DestroyEntity(GetSingletonEntity<InitGameComponent>());
         foreach (var world in World.AllWorlds)
         {
-            var network = world.GetExistingSystem<NetworkStreamReceiveSystem>();
+            var network = world.GetOrCreateSystem<NetworkStreamReceiveSystem>();
             if (world.GetExistingSystem<ClientSimulationSystemGroup>() != null)
             {
                 // Client worlds automatically connect to localhost
@@ -39,7 +39,7 @@ public class Game : ComponentSystem
                 Debug.Log("Connecting to 127.0.0.1:7979");
                 network.Connect(ep);
             }
-            #if UNITY_EDITOR
+            #if UNITY_EDITOR || UNITY_SERVER
             else if (world.GetExistingSystem<ServerSimulationSystemGroup>() != null)
             {
                 // Server world automatically listen for connections from any host
