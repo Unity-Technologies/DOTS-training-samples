@@ -106,7 +106,7 @@ public class SpawnerSystem : JobComponentSystem
                             {
                                 targetPosition = new Vector2(-1,-1),
                                 position = new Vector2(x,y),
-                                speed = 1f
+                                speed = 7f
                             });
                             
                             gridIndex = i;

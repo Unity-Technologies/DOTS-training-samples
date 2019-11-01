@@ -20,14 +20,14 @@ public class MovementSystem : JobComponentSystem
                 {
                     return;
                 }
-                float targetY = 1.0f;
+                float targetY = 4.0f;
                 if (moveComponent.fly)
                 {
                     if (math.distance(actor.position, actor.targetPosition) > distanceMinimal)
                     {
                         if (dotsIntentionComponent.intention == DotsIntention.Harvest)
                         {
-                            targetY = 0.3f;
+                            targetY = 1.5f;
                         }
                         //TODO eventually bank toward target here
                     }

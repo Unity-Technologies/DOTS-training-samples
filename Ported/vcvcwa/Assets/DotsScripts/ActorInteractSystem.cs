@@ -52,43 +52,52 @@ public class ActorInteractSystem : JobComponentSystem
             }
 
             var gridTile = internalBuffer[testIndex];
-            if (intention.intention == DotsIntention.Rock && gridTile.IsRock())
+            if (intention.intention == DotsIntention.Rock)
             {
                 intention.intention = DotsIntention.RockFinished;
-                var newPosition = actorBoardPosition - gridTile.GetRockOffset();
-                var newIndex = (actorBoardPosition.x * 512) + actorBoardPosition.y;
+                if(gridTile.IsRock()) {
+                    var newPosition = actorBoardPosition - gridTile.GetRockOffset();
+                    var newIndex = (actorBoardPosition.x * 512) + actorBoardPosition.y;
 
-                if (newIndex > 0 && newIndex < internalBuffer.Length && internalBuffer[newIndex].IsRockOrigin())
-                {
-                    testIndex = newIndex;
-                    gridTile = internalBuffer[newIndex];
+                    if (newIndex > 0 && newIndex < internalBuffer.Length && internalBuffer[newIndex].IsRockOrigin())
+                    {
+                        testIndex = newIndex;
+                        gridTile = internalBuffer[newIndex];
+                    }
+                    
+                    internalGridOperations.Enqueue(new GridOperation(){actor = entity, gridTileIndex = testIndex, desiredGridValue = gridTile.Value - 2});
                 }
-                
-                internalGridOperations.Enqueue(new GridOperation(){actor = entity, gridTileIndex = testIndex, desiredGridValue = gridTile.Value - 2});
             } 
-            else if (intention.intention == DotsIntention.Till && gridTile.IsNothing())
+            else if (intention.intention == DotsIntention.Till)
             {
                 intention.intention = DotsIntention.TillFinished;
-                internalGridOperations.Enqueue(new GridOperation()
-                    {actor = entity, gridTileIndex = testIndex, desiredGridValue = 1});
+                if(gridTile.IsNothing()) {
+                    internalGridOperations.Enqueue(new GridOperation()
+                        {actor = entity, gridTileIndex = testIndex, desiredGridValue = 1});
+                }
             }
-            else if (intention.intention == DotsIntention.Plant && gridTile.IsTilled())
+            else if (intention.intention == DotsIntention.Plant)
             {
                 intention.intention = DotsIntention.PlantFinished;
-                internalGridOperations.Enqueue(new GridOperation()
-                    {actor = entity, gridTileIndex = testIndex, desiredGridValue = 3});
+                if(gridTile.IsTilled()) {
+                    internalGridOperations.Enqueue(new GridOperation()
+                        {actor = entity, gridTileIndex = testIndex, desiredGridValue = 3});
+                }
             }
-            else if (intention.intention == DotsIntention.Harvest && gridTile.IsPlant() /*&&
+            else if (intention.intention == DotsIntention.Harvest  /*&&
                      gridTile.GetPlantHealth() > 75f*/)
             {
                 intention.intention = DotsIntention.HarvestFinished;
-                internalGridOperations.Enqueue(new GridOperation()
-                    {actor = entity, gridTileIndex = testIndex, desiredGridValue = 1});
+                if(gridTile.IsPlant()) {
+                    internalGridOperations.Enqueue(new GridOperation()
+                        {actor = entity, gridTileIndex = testIndex, desiredGridValue = 1});
+                }
             }
-            else if (intention.intention == DotsIntention.Shop && gridTile.IsShop())
+            else if (intention.intention == DotsIntention.Shop)
             {
-                intention.intention = DotsIntention.ShopFinished;
-
+                if(gridTile.IsShop()) {
+                    intention.intention = DotsIntention.ShopFinished;
+                }
                 //TODO insert shop in command buffer
             }
         }
