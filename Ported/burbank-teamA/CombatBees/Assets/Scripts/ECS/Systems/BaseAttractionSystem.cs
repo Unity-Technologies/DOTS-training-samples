@@ -26,39 +26,46 @@ protected override void OnCreate()
 
 protected override JobHandle OnUpdate(JobHandle inputDependencies)
 {
-    var friendT1 = friendT1Group.ToComponentDataArray<Translation>(Allocator.TempJob);
-    var friendT2 = friendT2Group.ToComponentDataArray<Translation>(Allocator.TempJob);
+    //var friendT1 = friendT1Group.ToComponentDataArray<Translation>(Allocator.TempJob);
+    //var friendT2 = friendT2Group.ToComponentDataArray<Translation>(Allocator.TempJob);
+
         var delta = Time.deltaTime;
         var direction = Direction;
         var attrepf = GetSingleton<AttRepForce>();
-        var rnd = UnityEngine.Random.Range(-100, 100);
+        var rnd = UnityEngine.Random.Range(0, 100);
 
-    return Entities.WithoutBurst()
-            .WithDeallocateOnJobCompletion(friendT1)
-            .WithDeallocateOnJobCompletion(friendT2)
+    return Entities.WithBurst()
+            /*.WithDeallocateOnJobCompletion(friendT1)
+            .WithDeallocateOnJobCompletion(friendT2)*/
 
         .ForEach((Entity entity, ref Velocity velocity, ref TargetEntity targetEntity, in Translation translation, in Team team) =>
         {
             float3 friendTranslation = new float3();
-
+            /*
             if (team.Value == 1)
             {
-                int rand = (int)((noise.cnoise(translation.Value + new float3(rnd,rnd,rnd)) + 1) * (friendT1.Length - 1) / 2);
-                 friendTranslation = friendT1[rand].Value;
+                if (friendT1.Length == 0) return;
+
+                int rand = (int)((noise.cnoise(translation.Value + new float3(rnd,rnd,rnd)) + 1) * (friendT1.Length - 1) / 2.0f);
+
+                friendTranslation = friendT1[math.max(rand,0)].Value;
 
             }
 
             if (team.Value == 2)
             {
-                int rand = (int)((noise.cnoise(translation.Value + new float3(rnd, rnd, rnd)) + 1) * (friendT2.Length - 1) / 2);
-                friendTranslation = friendT2[rand].Value;
+                if (friendT2.Length == 0) return;
 
-            }
+                int rand = (int)((noise.cnoise(translation.Value + new float3(rnd, rnd, rnd)) + 1) * (friendT2.Length - 1) / 2.0f);
 
+                friendTranslation = friendT2[math.max(rand, 0)].Value;
+
+            }*/
+
+            friendTranslation = new float3(rnd, rnd, rnd);
 
             var directionTowards = math.normalize(friendTranslation - translation.Value);
             velocity.Value += directionTowards * attrepf.Value * delta * direction;
-            UnityEngine.Debug.Log(directionTowards * attrepf.Value * delta * direction);
 
         })
         .Schedule(inputDependencies);

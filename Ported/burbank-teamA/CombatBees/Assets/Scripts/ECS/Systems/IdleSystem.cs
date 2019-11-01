@@ -31,7 +31,7 @@ public class IdleSystem : JobComponentSystem
 
         var resources = resourceGroup.ToEntityArray(Allocator.TempJob);
         var aggr = GetSingleton<Aggressiveness>();
-        return Entities.WithoutBurst().WithDeallocateOnJobCompletion(resources)
+        return Entities.WithBurst().WithDeallocateOnJobCompletion(resources)
                 .WithDeallocateOnJobCompletion(enemyT1)
                 .WithDeallocateOnJobCompletion(enemyT2)
             .ForEach((ref State state, ref TargetEntity targetEntity, in Velocity velocity, in Team team) =>

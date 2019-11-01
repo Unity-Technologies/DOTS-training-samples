@@ -48,14 +48,18 @@ public class CarryHomeStateSystem : JobComponentSystem
                 
                 var myTranslation = translations[entity]; 
                 var targetTranslation = translations[targetEntity.Value];
-                var distance = math.distance(myTranslation.Value, targetTranslation.Value);
+                var distance = math.distance(myTranslation.Value, targetTranslation.Value); 
+
+                commonBuffer.SetComponent(0, targetEntity.Value, new Translation { Value = new float3(targetTranslation.Value.x, myTranslation.Value.y, myTranslation.Value.z) });
+
+
                 if (distance > dropDistance) return;
                 
                 commonBuffer.RemoveComponent<LocalToParent>(0, collected.Value);
                 commonBuffer.RemoveComponent<Parent>(0, collected.Value);
                 commonBuffer.SetComponent(0, collected.Value, new GravityMultiplier {Value = 1});
-                commonBuffer.SetComponent(0, collected.Value, new Translation {Value = myTranslation.Value});
-                
+                commonBuffer.SetComponent(0, collected.Value, new Translation { Value = myTranslation.Value });
+
                 state.Value = State.StateType.Idle;
                 collected.Value = Entity.Null;
                 

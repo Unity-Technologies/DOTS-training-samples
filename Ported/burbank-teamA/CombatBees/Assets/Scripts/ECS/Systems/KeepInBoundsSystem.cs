@@ -14,21 +14,21 @@ public class KeepInBoundsSystem : JobComponentSystem
             {
                 if (math.abs(t.Value.x) > gameBounds.x)
                 {
-                    velocity.Value.x *= -1;
-                    t.Value.x -= math.sign(t.Value.x)*0.5f;
+                    velocity.Value.x = -math.sign(t.Value.x)*math.abs(velocity.Value.x);
+                    t.Value.x = math.sign(t.Value.x)*(gameBounds.x-1);
                 }
 
                 if (math.abs(t.Value.y) > gameBounds.y)
                 {
-                    velocity.Value.y *= -1;
-                    t.Value.y -= math.sign(t.Value.y) * 0.5f;
+                    velocity.Value.y = -math.sign(t.Value.y) * math.abs(velocity.Value.y);
+                    t.Value.y = math.sign(t.Value.y) * (gameBounds.y - 1);
 
                 }
 
                 if (math.abs(t.Value.z) > gameBounds.z )
                 {
-                    velocity.Value.z *= -1;
-                    t.Value.z -= math.sign(t.Value.z) * 0.5f;
+                    velocity.Value.z = -math.sign(t.Value.z) * math.abs(velocity.Value.z);
+                    t.Value.z = math.sign(t.Value.z) * (gameBounds.z - 1);
 
                 }
             })
