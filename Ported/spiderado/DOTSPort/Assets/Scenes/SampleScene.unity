@@ -259,7 +259,7 @@ MonoBehaviour:
   spinRate: 50
   upwardSpeed: 3
   radiusMultiplier: 1
-  tornadoSway: 1
+  tornadoSway: 3
 --- !u!4 &950785361
 Transform:
   m_ObjectHideFlags: 0
@@ -450,7 +450,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: 4029131532240341238, guid: 93eb180aa229e4a1f92ae9bd7e94fe9c, type: 3}
-  buildingCount: 3
+  buildingCount: 50
 --- !u!114 &1785140239
 MonoBehaviour:
   m_ObjectHideFlags: 0

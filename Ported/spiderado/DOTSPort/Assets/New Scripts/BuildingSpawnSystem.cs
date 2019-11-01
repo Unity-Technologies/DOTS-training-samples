@@ -5,7 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
-using static Unity.Mathematics.math;
+using UnityEngine;
 
 public class BuildingSpawnSystem : JobComponentSystem
 {
@@ -76,29 +76,28 @@ public class BuildingSpawnSystem : JobComponentSystem
                     CommandBuffer.AddComponent(entityIndex, barentity3, bar3);
 
 
-                    float3 delta = new float3(point2.pos.x - point1.pos.x, point2.pos.y - point1.pos.y, point2.pos.z - point1.pos.z);
+                    float3 delta = point2.pos - point1.pos;
                     float3 newPos = new float3(point1.pos.x + point2.pos.x, point1.pos.y + point2.pos.y, point1.pos.z + point2.pos.z) * .5f;
-                    quaternion rot = new quaternion(0, 0, 0, 1);
-                    //quaternion rot = new quaternion(0.7071f, 0, 0.7071f, 0);
-                    //UnityEngine.Quaternion rot = new UnityEngine.Quaternion.LookRotation(delta);
-
-                    //.LookRotation(delta);
+                    
+                    
                     CommandBuffer.SetComponent(entityIndex, barentity1, new Translation { Value = newPos });
-                    CommandBuffer.SetComponent(entityIndex, barentity1, new Rotation { Value = rot });
+                    CommandBuffer.SetComponent(entityIndex, barentity1, new Rotation { Value = quaternion.LookRotation(math.normalize(delta), new float3(0, 1, 0)) });
 
-                    delta = new float3(point3.pos.x - point2.pos.x, point3.pos.y - point2.pos.y, point3.pos.z - point2.pos.z);
+                    delta = point3.pos - point2.pos;
                     newPos = new float3(point2.pos.x + point3.pos.x, point2.pos.y + point3.pos.y, point2.pos.z + point3.pos.z) * .5f;
-                    rot = new quaternion(0, 0, 0, 1);
+                    // floorRotAxis = new float3(newPos.x, 0, 0);
+                    
                     //.LookRotation(delta);
                     CommandBuffer.SetComponent(entityIndex, barentity2, new Translation { Value = newPos });
-                    CommandBuffer.SetComponent(entityIndex, barentity2, new Rotation { Value = rot });
+                    CommandBuffer.SetComponent(entityIndex, barentity2, new Rotation { Value = quaternion.LookRotation(math.normalize(delta), new float3(0, 1, 0)) });
 
-                    delta = new float3(point1.pos.x - point3.pos.x, point1.pos.y - point3.pos.y, point1.pos.z - point3.pos.z);
+                    delta = point1.pos - point3.pos;
                     newPos = new float3(point3.pos.x + point1.pos.x, point3.pos.y + point1.pos.y, point3.pos.z + point1.pos.z) * .5f;
-                    rot = new quaternion(0, 0, 0, 1);
+                    // floorRotAxis = new float3(newPos.x, 0, 0);
+                    
                     //.LookRotation(delta);
                     CommandBuffer.SetComponent(entityIndex, barentity3, new Translation { Value = newPos });
-                    CommandBuffer.SetComponent(entityIndex, barentity3, new Rotation { Value = rot });
+                    CommandBuffer.SetComponent(entityIndex, barentity3, new Rotation { Value = quaternion.LookRotation(math.normalize(delta), new float3(0, 1, 0)) });
 
 
                     // Place the instantiated in a grid with some noise
