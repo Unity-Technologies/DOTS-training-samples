@@ -400,9 +400,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b92e86289aabd4225a82cd24859fe25f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefab: {fileID: 8529826020246684707, guid: 95da4ea2b5ab44e18be4b033c1255f91, type: 3}
+  prefab: {fileID: 4029131532240341238, guid: 93eb180aa229e4a1f92ae9bd7e94fe9c, type: 3}
   grid:
-    x: 30
+    x: 300
     y: 10
     z: 3
 --- !u!4 &1269189482
@@ -450,7 +450,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: 4029131532240341238, guid: 93eb180aa229e4a1f92ae9bd7e94fe9c, type: 3}
-  buildingCount: 50
+  buildingCount: 25
 --- !u!114 &1785140239
 MonoBehaviour:
   m_ObjectHideFlags: 0
