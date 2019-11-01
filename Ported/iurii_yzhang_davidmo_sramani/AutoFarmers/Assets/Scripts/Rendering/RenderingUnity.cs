@@ -15,6 +15,11 @@ using Random = UnityEngine.Random;
 [DisallowMultipleComponent]
 public class RenderingUnity : MonoBehaviour
 {
+    [SerializeField] 
+    float m_MovementSpeedScale = 1.0f;
+    
+    internal static float movementSpeedScale = 1.0f;
+
     public const float scale = 2.1f;
 
     public static float3 Tile2WorldPosition(int2 pos, int2 worldSizeHalf)
@@ -136,6 +141,8 @@ public class RenderingUnity : MonoBehaviour
             castShadows = ShadowCastingMode.On,
             receiveShadows = true
         });
+
+        movementSpeedScale = m_MovementSpeedScale;
         
         if (em.HasComponent<Translation>(e))
             em.SetComponentData(e, new Translation {Value = new float3(0, meshRenderer.transform.position.y, 0)});
@@ -144,10 +151,10 @@ public class RenderingUnity : MonoBehaviour
             em.SetComponentData(e, new NonUniformScale {Value = meshRenderer.transform.localScale});
 
         if (em.HasComponent<FarmerAITag>(e) && em.HasComponent<MovementSpeedComponent>(e))
-            em.SetComponentData(e, new MovementSpeedComponent { speedInMeters = 4f });
+            em.SetComponentData(e, new MovementSpeedComponent { speedInMeters = 4f * movementSpeedScale });
         
         if (em.HasComponent<RenderingAnimationDroneFlyComponent>(e) && em.HasComponent<MovementSpeedComponent>(e))
-            em.SetComponentData(e, new MovementSpeedComponent { speedInMeters = 6f });
+            em.SetComponentData(e, new MovementSpeedComponent { speedInMeters = 6f * movementSpeedScale });
         
         if (em.HasComponent<RenderingAnimationDroneFlyComponent>(e))
             em.SetComponentData(e, new RenderingAnimationDroneFlyComponent {offset = Random.Range(-Mathf.PI, Mathf.PI)});
