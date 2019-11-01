@@ -1,9 +1,7 @@
 ﻿using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -23,7 +21,7 @@ namespace GameAI
             m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
         }
         
-        protected unsafe override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var score = m_world.scoreArray;
             for (int i = 0; i < score.Length; i++)

@@ -115,6 +115,8 @@ namespace GameAI
                 {
                     var e = EntityManager.CreateEntity(m_plant);
                     EntityManager.SetComponentData(e, new PlantPositionRequest {position = p});
+                    EntityManager.AddComponentData(e, new TagPlant {});
+                    EntityManager.AddComponentData(e, new HealthComponent {Value = 0});
                 }
             }
 

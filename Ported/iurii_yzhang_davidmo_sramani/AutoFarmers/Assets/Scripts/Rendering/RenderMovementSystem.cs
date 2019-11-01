@@ -24,10 +24,26 @@ namespace GameAI
         {
             var ecbSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
             var ecb = ecbSystem.CreateCommandBuffer().ToConcurrent();
-
+            var ecb2 = ecbSystem.CreateCommandBuffer().ToConcurrent();
+            
             var deltaT = Time.deltaTime;
             var worldHalfSizeLoc = worldHalfSize;
+            
+            // scale plant by health point
+            var maxHealth = 5.0;
+            var defaultLocalScale = 1.0;
+            var growPlantSystemJobHandle = Entities
+                .WithAll<PlantPositionRequest>()
+                .WithAll<TagPlant>()
+                .WithNone<AnimationCompleteTag>()
+                .ForEach((int nativeThreadIndex, Entity e, ref HealthComponent h) =>
+                {
+                    h.Value = (float) max(maxHealth, h.Value + deltaT * 1.0);
+                    var s = (float)(defaultLocalScale * h.Value / maxHealth);
+                    ecb2.AddComponent(nativeThreadIndex, e, new NonUniformScale {Value = float3(1.0f,1.0f,s)});
+                }).Schedule(inputDependencies);
 
+            
             var movementSystemJobHandle = Entities
                 .WithNone<AnimationCompleteTag>()
                 .ForEach(
@@ -43,7 +59,7 @@ namespace GameAI
                         animationComponent.currentPosition = endPos.xz;
                     }
                     translationComponent.Value.xz = animationComponent.currentPosition;
-                }).Schedule(inputDependencies);
+                }).Schedule(growPlantSystemJobHandle);
             
             ecbSystem.AddJobHandleForProducer(movementSystemJobHandle);
 
