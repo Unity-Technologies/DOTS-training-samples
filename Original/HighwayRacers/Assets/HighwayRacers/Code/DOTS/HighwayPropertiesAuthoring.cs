@@ -72,8 +72,6 @@ public class HighwayPropertiesEditor : Editor
 {
     public override void OnInspectorGUI()
     {
-        //base.OnInspectorGUI();
-
         HighwayPropertiesAuthoring hpa = (HighwayPropertiesAuthoring)target;
 
         if (hpa != null)

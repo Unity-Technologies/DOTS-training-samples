@@ -18,6 +18,7 @@ partial class CarSystem
         {
             float localX, localZ, localRot;
             int hitPiece = HighwayMathUtils.RoadPosToRelativePos(ref pieces,
+                                    HighwayLen,
                                     carBasicState.Position,
                                     carBasicState.Lane,
                                     out localX,
