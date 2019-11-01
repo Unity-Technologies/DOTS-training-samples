@@ -141,8 +141,23 @@ partial struct CarQueryStructure
         return true;
     }
 
-    public bool CanMergeToLane(in CarBasicState car, float mergeLane)
+    public bool CanMergeToLane(in CarBasicState car, float carMergeSpace, float mergeLane)
     {
+        UnityEngine.Debug.Assert(math.abs(mergeLane - math.floor(mergeLane)) < 0.01f);
+        var intLane = (int)mergeLane;
+        UnityEngine.Debug.Assert(car.Lane <= intLane - 1 || car.Lane >= intLane + 1);
+        var laneArray = LaneCars.Slice(intLane * CarCount, LaneCarCounts[intLane]);
+        if (laneArray.Length > 0)
+        {
+            var positionBack = Utilities.ConvertPositionToLane(car.Position - 1.0f - carMergeSpace - 0.01f, car.Lane, mergeLane, HighwayLen);
+            var frontCarIndex = BinarySearchCars(positionBack, ref laneArray);
+            var frontCar = laneArray[frontCarIndex == laneArray.Length ? 0 : frontCarIndex];
+
+            var distanceToFrontCarBack = Utilities.DistanceTo(positionBack, mergeLane, frontCar.State.Position - 1.0f, mergeLane, HighwayLen);
+            if (distanceToFrontCarBack < (carMergeSpace + 1) * 2)
+                return false;
+        }
+
         return true;
     }
 }

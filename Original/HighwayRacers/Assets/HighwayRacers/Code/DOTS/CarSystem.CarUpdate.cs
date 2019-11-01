@@ -87,7 +87,7 @@ partial class CarSystem
                     && distToCarInFront < carReadOnlyProperties.MergeDistance // close enough to car in front
                     && carReadOnlyProperties.OvertakeEagerness > carInFront.Speed / carReadOnlyProperties.DefaultSpeed) // car in front is slow enough
                 {
-                    if (QueryStructure.CanMergeToLane(carBasicState, carBasicState.Lane + 1))
+                    if (QueryStructure.CanMergeToLane(carBasicState, carReadOnlyProperties.MergeSpace, carBasicState.Lane + 1))
                     {
                         // if space is available
                         // start merge to left
@@ -139,7 +139,7 @@ partial class CarSystem
                 if (!carLogicState.State.IsMerging() // not currently merging
                     && tryMergeRight) // overtook target car (or overtake car doesn't exist)
                 {
-                    if (QueryStructure.CanMergeToLane(carBasicState, carBasicState.Lane - 1))
+                    if (QueryStructure.CanMergeToLane(carBasicState, carReadOnlyProperties.MergeSpace, carBasicState.Lane - 1))
                     {
                         // if space is available
                         // start merge to right
