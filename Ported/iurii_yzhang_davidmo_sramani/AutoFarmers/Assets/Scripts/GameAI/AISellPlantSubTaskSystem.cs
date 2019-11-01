@@ -39,13 +39,14 @@ namespace GameAI
                 .WithAll<AISubTaskTagFindPlant>()
                 .WithReadOnly(hashMap)
                 .WithReadOnly(health)
-                .WithoutBurst()
+//                .WithoutBurst()
                 .ForEach((Entity entity, int entityInQueryIndex, in AISubTaskTagComplete target) =>
                 {
                     Entity plantEntity;
                     var has = hashMap.TryGetValue(target.targetPos, out plantEntity);
+//                    Debug.Log($"Found plant {plantEntity} at {target.targetPos}");
                     if (health.Exists(plantEntity)) {
-                        Debug.Log($"Removing plant {plantEntity}");
+//                        Debug.Log($"Removing plant {plantEntity}");
                         ecb2.SetComponent(entityInQueryIndex, plantEntity, new HealthComponent() {Value = 0});
                         ecb2.RemoveComponent<TagFullyGrownPlant>(entityInQueryIndex, plantEntity);
                     }

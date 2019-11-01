@@ -136,6 +136,7 @@ namespace GameAI
                     EntityManager.SetComponentData(e, new TilePositionable() {Position = p});
                     var wpos = RenderingUnity.Tile2WorldPosition(p, worldSizeHalf);
                     EntityManager.SetComponentData(e, new Translation() {Value = wpos});
+                    hashMap.Add(p, e);
                 }
             }
 

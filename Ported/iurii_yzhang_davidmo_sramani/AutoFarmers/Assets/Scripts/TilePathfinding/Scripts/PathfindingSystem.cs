@@ -159,7 +159,7 @@ namespace Pathfinding
                     bool reached = false;
                     int2 target = DistanceField.PathTo(position.Position, worldSize, distanceFieldPlantRead, out reached);
                     if (reached) {
-                        ecb8.AddComponent<AISubTaskTagComplete>(entityInQueryIndex, entity);
+                        ecb8.AddComponent(entityInQueryIndex, entity, new AISubTaskTagComplete() {targetPos = target});
                     } else {
                         ecb8.AddComponent(entityInQueryIndex, entity, new HasTarget(target));
                     }
