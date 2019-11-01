@@ -6,6 +6,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
 using System;
+using Unity.Burst;
 
 // JobComponentSystems can run on worker threads.
 // However, creating and removing Entities can only be done on the main thread to prevent race conditions.
@@ -37,6 +38,7 @@ public class SpawnerSystem : JobComponentSystem
         query = GetEntityQuery(queryDescription);
     }
 
+    [BurstCompile]
     struct SpawnJob : IJobForEachWithEntity_EBCCCC<GridTile, ResourcesComponent, FarmerDataComponent, GridComponent, DroneDataComponent>
     { 
         public EntityCommandBuffer.Concurrent CommandBuffer;

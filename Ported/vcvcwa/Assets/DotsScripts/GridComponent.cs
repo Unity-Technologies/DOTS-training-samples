@@ -70,8 +70,8 @@ public struct GridTile : IBufferElementData
         var offset = new int2();
         if (Value < 0)
         {
-            offset.x = Value ^ 0x38;   // 00111000
-            offset.y = Value ^ 0x7;     // 00000111
+            offset.x = (Value & 0x38) >> 3;   // 00111000
+            offset.y = Value & 0x7;     // 00000111
         }
 
         return offset;

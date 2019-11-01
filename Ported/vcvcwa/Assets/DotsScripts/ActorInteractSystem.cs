@@ -43,7 +43,9 @@ public class ActorInteractSystem : JobComponentSystem
                 return;
             }
 
-            var testIndex = (Convert.ToInt32(actor.targetPosition.x)) * 512 + Convert.ToInt32(actor.targetPosition.y);
+            var actorBoardPosition = new int2(Convert.ToInt32(actor.targetPosition.x), Convert.ToInt32(actor.targetPosition.y));
+
+            var testIndex = (actorBoardPosition.x * 512) + actorBoardPosition.y;
             if (testIndex > internalBuffer.Length || testIndex < 0)
             {
                 return;
@@ -53,9 +55,17 @@ public class ActorInteractSystem : JobComponentSystem
             if (intention.intention == DotsIntention.Rock && gridTile.IsRock())
             {
                 intention.intention = DotsIntention.RockFinished;
-                internalGridOperations.Enqueue(new GridOperation()
-                    {actor = entity, gridTileIndex = testIndex, desiredGridValue = gridTile.Value - 2});
-            }
+                var newPosition = actorBoardPosition - gridTile.GetRockOffset();
+                var newIndex = (actorBoardPosition.x * 512) + actorBoardPosition.y;
+
+                if (newIndex > 0 && newIndex < internalBuffer.Length && internalBuffer[newIndex].IsRockOrigin())
+                {
+                    testIndex = newIndex;
+                    gridTile = internalBuffer[newIndex];
+                }
+                
+                internalGridOperations.Enqueue(new GridOperation(){actor = entity, gridTileIndex = testIndex, desiredGridValue = gridTile.Value - 2});
+            } 
             else if (intention.intention == DotsIntention.Till && gridTile.IsNothing())
             {
                 intention.intention = DotsIntention.TillFinished;
