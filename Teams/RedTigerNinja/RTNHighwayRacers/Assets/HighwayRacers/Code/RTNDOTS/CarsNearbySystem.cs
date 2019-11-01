@@ -11,20 +11,14 @@ namespace HighwayRacers
 {
     public struct CarsNearbyData : IComponentData
     {
-        public Vector3 MyPosition;
-    }
-
-    /*
-    public struct CarsNearbyData : IComponentData
-    {
         public FixedSize<OtherPoint> Refs;
-        public Vector3 MyPosition;
+        public float3 MyPosition;
     }
 
     public struct OtherPoint
     {
         public float Distance;
-        public Vector3 Position;
+        public float3 Position;
         public int CarId;
     }
 
@@ -46,7 +40,7 @@ namespace HighwayRacers
             return TryAdd(ref this, data);
         }
 
-        public void InsertAt(int ndx, T orig)
+        public bool InsertAt(int ndx, T orig)
         {
             var to = ndx;
             var data = orig;
@@ -58,7 +52,7 @@ namespace HighwayRacers
                 data = swp;
                 to++;
             }
-            TryAdd(data);
+            return TryAdd(data);
 
         }
 
@@ -107,17 +101,23 @@ namespace HighwayRacers
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
+            //return inputDeps;
+
+            inputDeps = (new NearbyCarsReset()).Schedule(this, inputDeps);
+
+            //return inputDeps;
+
             var em = this.EntityManager;
 
             var posQuery = em.CreateEntityQuery(ComponentType.ReadOnly<LocalToWorld>());
             var poses = posQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob);
 
-            inputDeps = (new NearbyCarsReset()).Schedule(this, inputDeps);
-
             inputDeps = (new NearbyCarsJob() { AllCars = poses }).Schedule(this, inputDeps);
 
             inputDeps.Complete();
             poses.Dispose();
+
+            //return inputDeps;
 
             var debugData = em.CreateEntityQuery(ComponentType.ReadOnly<CarsNearbyData>());
             var debugArray = debugData.ToComponentDataArray<CarsNearbyData>(Allocator.TempJob);
@@ -141,7 +141,9 @@ namespace HighwayRacers
         {
             public void Execute(ref CarsNearbyData c0)
             {
-                c0.Refs.Clear();
+                var lst = c0.Refs;
+                lst.Clear();
+                c0.Refs = lst;
             }
         }
 
@@ -167,6 +169,10 @@ namespace HighwayRacers
                                 // current is better
                                 bestIndex++;
                             }
+                            else
+                            {
+                                break;
+                            }
                         }
                         if (bestIndex < lst.MaxCount)
                         {
@@ -180,6 +186,6 @@ namespace HighwayRacers
             }
         }
     }
-    */
+
 
 }
