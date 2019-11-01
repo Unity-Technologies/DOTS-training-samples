@@ -14,6 +14,7 @@ using UnityEngine.Experimental.Rendering;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using Random = Unity.Mathematics.Random;
+using SysInfo = UnityEngine.SystemInfo; 
 
 // ReSharper disable once CheckNamespace
 namespace GameAI
@@ -51,7 +52,7 @@ namespace GameAI
             m_plant = ru.CreatePlant(EntityManager);
             
             m_score = EntityManager.CreateArchetype(typeof(CurrentScoreRequest));
-            scoreArray = new NativeArray<int>(128, Allocator.Persistent);
+            scoreArray = new NativeArray<int>(SysInfo.processorCount * 4, Allocator.Persistent);
             
             m_stone = ru.CreateStone(EntityManager);
             m_shop = ru.CreateStore(EntityManager);

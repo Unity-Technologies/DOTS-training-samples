@@ -31,7 +31,7 @@ namespace GameAI
             var score = m_world.scoreArray;
             
             // Just memset to zero
-            UnsafeUtility.MemSet(NativeArrayUnsafeUtility.GetUnsafePtr(score), 0, sizeof(int) * score.Length);
+            UnsafeUtility.MemClear(NativeArrayUnsafeUtility.GetUnsafePtr(score), sizeof(int) * score.Length);
             var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             
             var job = Entities
