@@ -79,6 +79,7 @@ namespace HighwayRacers {
             inputDeps = (new DisposeJob<NativeArray<CarLocation>>(carSorted)).Schedule(inputDeps);
             //inputDeps.Complete();
 
+            //inputDeps.Complete();
 
             return inputDeps;
         }

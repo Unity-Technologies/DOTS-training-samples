@@ -32,12 +32,15 @@ namespace HighwayRacers
 
     public class CarRenderJobSystem : JobComponentSystem
     {
+        private EntityQuery CachedMainQuery;
+
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var inst = CarRenderSystem.instance;
             if ((!inst) || (inst.MatBlock==null)) return inputDeps;
 
-            var carQuery = this.GetEntityQuery(ComponentType.ReadOnly<CarRenderData>());
+            var carQuery = CachedMainQuery ?? this.GetEntityQuery(ComponentType.ReadOnly<CarRenderData>());
+            this.CachedMainQuery = carQuery;
             var carData = carQuery.ToComponentDataArray<CarRenderData>(Unity.Collections.Allocator.TempJob);
 
             if ((inst.PoseArray==null) || (inst.PoseArray.Length != carData.Length))

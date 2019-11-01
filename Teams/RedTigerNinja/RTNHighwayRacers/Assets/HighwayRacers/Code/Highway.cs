@@ -418,6 +418,9 @@ namespace HighwayRacers
         {
             Highway.instance.EnsureUpdated();
 
+            // lewey: total hacky approximation:
+            return AddCarUnsafe(Random.Range(0.0f, Highway.MIN_HIGHWAY_LANE0_LENGTH*4.0f), lane);
+
             LinkedList<Car> cars = GetCarsInLane(lane);
             if (cars.Count == 0)
             {
@@ -545,7 +548,7 @@ namespace HighwayRacers
 
             public CarLocation GetCarInFront(ref CarLocation startCar, float distance, float lane)
             {
-                CarMarker.Auto();
+                //CarMarker.Auto();
 
                 var refDistance = this.GetEquivalentReference(distance, lane);
 
