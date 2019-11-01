@@ -27,7 +27,7 @@ public class PlantSystem : JobComponentSystem
 		var dt = Time.deltaTime;
 		var worldSizeHalf = World.GetOrCreateSystem<WorldCreatorSystem>().WorldSizeHalf;
 
-		var plantGrowSpeed = 1;
+		var plantGrowSpeed = 0.15f;
 		// if the plant is growing on the ground
 		var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 		var job = Entities
