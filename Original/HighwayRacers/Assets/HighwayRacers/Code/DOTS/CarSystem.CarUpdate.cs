@@ -17,7 +17,7 @@ partial class CarSystem
         public float LaneSwitchSpeed;
         public float MaxOvertakeTime;
 
-        [ReadOnly] public CarQueryStructure QueryStructure;
+        [ReadOnly][DeallocateOnJobCompletion] public CarQueryStructure QueryStructure;
 
         public void Execute(Entity entity, int index, ref CarBasicState carBasicState, ref CarLogicState carLogicState,
             [ReadOnly] ref CarSpeedReadOnlyProperties carSpeedReadOnlyProperties, [ReadOnly] ref CarReadOnlyProperties carReadOnlyProperties)

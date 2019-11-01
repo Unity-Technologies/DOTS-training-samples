@@ -97,11 +97,6 @@ public partial class CarSystem : JobComponentSystem
             }.Schedule(this, inputDeps);
         }
 
-        // TODO: dispose the arrays on completing jobs.
-        inputDeps.Complete();
-
-        queryStructure.Dispose();
-
         return inputDeps;
     }
 }
