@@ -168,8 +168,9 @@ public class GameManagementSystem : ComponentSystem
             if (m_board.RaycastCellDirection(m_playerCursorScreenPos[0], out direction, out tile, out coord))
             {
                 Debug.Log($"Setting arrow {direction} at {coord}");
-                tile.SetDirection(direction);
-                m_board[coord.x, coord.y] = tile;
+                tile = tile.SetDirection(direction);
+                tile = tile.SetTileType(eTileType.DirectionArrow);
+                m_board.m_Tiles[Board.GetIndex(coord.x, coord.y)] = tile;
             }
         }
     }

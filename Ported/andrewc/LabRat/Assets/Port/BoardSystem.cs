@@ -203,7 +203,6 @@ public struct Board : IDisposable
         idx = (int)(k_Width * 2f * offset) + (int)(k_Height * offset) * k_Width;
         m_Tiles[idx] = m_Tiles[idx].SetTileType(eTileType.HomeBase);
         m_Tiles[idx] = m_Tiles[idx].SetColor(eColor.Blue);
-
     }
 
     public void Dispose()
@@ -215,12 +214,17 @@ public struct Board : IDisposable
     {
         get
         {
-            return m_Tiles[y * k_Width + x];
+            return m_Tiles[GetIndex(x, y)];
         }
         set
         {
-            m_Tiles[y * k_Width + x] = value;
+            m_Tiles[GetIndex(x, y)] = value;
         }
+    }
+
+    public static int GetIndex(int x, int y)
+    {
+        return y * k_Width + x;
     }
 
     public bool TileAtWorldPosition(float3 worldPosition, out Tile tile)
@@ -261,21 +265,21 @@ public struct Board : IDisposable
             return false;
         }
 
-        outCoord = ConvertWorldToTileCoordinates(worldPos);
+        outCoord = ConvertWorldToTileCoordinates(new float3(worldPos.x, worldPos.y, worldPos.z));
         var centerOfTileInWorldCoord = Board.GetTileCenterAtCoord(outCoord);
 
         var pt = centerOfTileInWorldCoord - worldPos;
         if (Mathf.Abs(pt.z) > Mathf.Abs(pt.x))
-            cellDirection = pt.z > 0 ? eDirection.North : eDirection.South;
+            cellDirection = pt.z < 0 ? eDirection.North : eDirection.South;
         else
-            cellDirection = pt.x > 0 ? eDirection.East : eDirection.West;
+            cellDirection = pt.x < 0 ? eDirection.East : eDirection.West;
 
         outTile = tile;
 
         return true;
     }
 
-    private NativeArray<Tile> m_Tiles;
+    public NativeArray<Tile> m_Tiles;
 }
 
 public class BoardSystem : ComponentSystem
