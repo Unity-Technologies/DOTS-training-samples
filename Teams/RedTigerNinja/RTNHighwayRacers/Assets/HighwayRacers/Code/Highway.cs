@@ -890,6 +890,21 @@ namespace HighwayRacers
 					return;
 			}
 
+            var isResetCarRefs = true;
+            if (isResetCarRefs)
+            {
+                var em = Unity.Entities.World.Active.EntityManager;
+                var locs = em.CreateEntityQuery(ComponentType.ReadWrite<CarMindState>());
+                var ents = locs.ToEntityArray(Allocator.TempJob);
+                foreach (var eid in ents)
+                {
+                    var data = em.GetComponentData<CarMindState>(eid);
+                    data.overtakeCarEntity = Entity.Null;
+                    em.SetComponentData(eid, data);
+                }
+                ents.Dispose();
+                locs.Dispose();
+            }
 		}
         
         public void ClearCars()
