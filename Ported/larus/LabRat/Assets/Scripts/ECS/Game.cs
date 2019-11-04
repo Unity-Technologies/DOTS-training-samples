@@ -147,6 +147,7 @@ public class ClientGoInGameSystem : ComponentSystem
             {
                 var dummy = PostUpdateCommands.CreateEntity();
                 PostUpdateCommands.AddComponent(dummy, new PlayerComponent{PlayerId = id.Value});
+                PostUpdateCommands.AddComponent<AiPlayerComponent>(dummy);
             }
         });
     }

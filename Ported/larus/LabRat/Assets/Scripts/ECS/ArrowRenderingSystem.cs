@@ -64,12 +64,14 @@ public class ArrowRenderingSystem : ComponentSystem
             PostUpdateCommands.AddComponent<InitializedHomebase>(entity);
         });
 
-        Entities.ForEach((Entity entity, ref PlayerComponent player, ref Translation position) =>
+        Entities.WithNone<AiPlayerComponent>().ForEach((Entity entity, ref PlayerComponent player, ref Translation position) =>
         {
-            if (m_Cursors == null)
-                m_Cursors = new GameObject[PlayerConstants.MaxPlayers];
+            // Player spawned but has not yet received snapshot update
             if (player.PlayerId == 0)
                 return;
+
+            if (m_Cursors == null)
+                m_Cursors = new GameObject[PlayerConstants.MaxPlayers];
             var cursorIndex = player.PlayerId - 1;
             if (m_Cursors[cursorIndex] == null)
             {

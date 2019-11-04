@@ -1,4 +1,5 @@
-﻿using ECSExamples;
+﻿using System;
+using ECSExamples;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -217,27 +218,58 @@ public class ClientArrowSystem : ComponentSystem
         float3 screenPos = float3.zero;
         if (HasSingleton<ThinClientComponent>() && HasSingleton<LocalPlayerComponent>())
         {
+            var arrowData = GetSingleton<AiPlayerComponent>();
+
             var random = new Random();
-            random.InitState((uint)(Time.time*10000 * (GetSingleton<LocalPlayerComponent>().PlayerId + 1)));
-
-            var nextX = random.NextInt(0, board.size.x);
-            var nextY = random.NextInt(0, board.size.y);
-            var nextPosition = new float3(nextX, 0.55f, nextY);
-            var localPt = new float2(nextPosition.x, nextPosition.z);
-            localPt += board.cellSize * 0.5f;
-            cellCoord = new float2(Mathf.FloorToInt(localPt.x / board.cellSize.x), Mathf.FloorToInt(localPt.y / board.cellSize.y));
-
-            var directionValue = random.NextInt(0, 100);
-            if (directionValue < 25)
-                cellDirection = Direction.East;
-            else if (directionValue < 50)
-                cellDirection = Direction.West;
-            else if (directionValue < 75)
-                cellDirection = Direction.South;
+            var playerId = GetSingleton<LocalPlayerComponent>().PlayerId + 1;
+            random.InitState((uint)(Time.time*10000 * playerId));
 
             var shouldClick = random.NextFloat(0, 1);
-            if (shouldClick > 0.95f)
+            var playerEntity = GetSingletonEntity<LocalPlayerComponent>();
+            //var currentPosition = EntityManager.GetComponentData<Translation>(playerEntity);
+            var currentPosition = arrowData.CurrentPosition;
+            if (arrowData.StartTime > 0f && Math.Abs(currentPosition.x - arrowData.TargetPosition.x) < 0.1f &&
+                Math.Abs(currentPosition.y - arrowData.TargetPosition.y) < 0.1f)
+            {
+                Debug.Log("Reached target, clicking at " + currentPosition);
                 cellClicked = true;
+                cellDirection = arrowData.Direction;
+                cellCoord = arrowData.CellCoordinate;
+                arrowData.StartTime = 0f;
+                //EntityManager.RemoveComponent<AiArrowComponent>(playerEntity);
+            }
+            else if (arrowData.StartTime + 2f < Time.time && shouldClick > 0.95f)
+            {
+                Helpers.GetRandomArrowPlacement(out var nextPosition, out var nextDirection, out cellCoord, board, playerId, random);
+                arrowData.TargetPosition = Camera.main.WorldToScreenPoint(nextPosition);
+                //arrowData.TargetPosition = nextPosition;
+                arrowData.Direction = nextDirection;
+                arrowData.CellCoordinate = cellCoord;
+                arrowData.StartTime = Time.time;
+                EntityManager.SetComponentData(playerEntity, arrowData);
+                //cellClicked = true;
+                Debug.Log("2 sec delay expired, setting new target at " + nextPosition);
+            }
+
+            if (arrowData.TargetPosition.x == 0 && arrowData.TargetPosition.z == 0)
+                return;
+
+            // Gradually move towards the position of the next arrow placement
+            Vector2 currentVelocity = Vector2.zero;
+            var currentScreenPos = Vector2.SmoothDamp(
+                new Vector2(currentPosition.x, currentPosition.y), new Vector2(arrowData.TargetPosition.x, arrowData.TargetPosition.y), ref currentVelocity,
+                0.01f, 400f, Time.deltaTime);
+            //var currentScreenPos = Vector2.Lerp(new Vector2(currentPosition.Value.x, currentPosition.Value.z),
+            //    new Vector2(arrowData.TargetPosition.x, arrowData.TargetPosition.z), Time.deltaTime);
+            //screenPos = Camera.main.WorldToScreenPoint(new Vector3(currentScreenPos.x, currentScreenPos.y, 0f));
+            //screenPos.z = 0f;
+            //screenPos = new float3(currentScreenPos.x, 0.55f, currentScreenPos.y);
+            //EntityManager.SetComponentData(playerEntity, new Translation{Value = new float3(currentScreenPos.x, 0.55f, currentScreenPos.y)});
+            arrowData.CurrentPosition = new float3(currentScreenPos.x, currentScreenPos.y, 0f);
+            screenPos = arrowData.CurrentPosition;
+            EntityManager.SetComponentData(playerEntity, arrowData);
+
+            //Debug.Log("Screen pos: " + screenPos + " currentPos=" + currentPosition + " targetPos=" + arrowData.TargetPosition);
         }
         else
         {
@@ -324,6 +356,26 @@ public class Helpers
         localPt += cellSize * 0.5f; // offset by half cellsize
         cellCoord = new float2(Mathf.FloorToInt(localPt.x / cellSize.x), Mathf.FloorToInt(localPt.y / cellSize.y));
         cellIndex = (int)(cellCoord.y * boardSize.x + cellCoord.x);
+    }
+
+    public static void GetRandomArrowPlacement(out float3 nextPosition, out Direction cellDirection, out float2 cellCoord, BoardDataComponent board, int playerId, Random random)
+    {
+        var nextX = random.NextInt(0, board.size.x);
+        var nextY = random.NextInt(0, board.size.y);
+        nextPosition = new float3(nextX, 0.55f, nextY);
+        var localPt = new float2(nextPosition.x, nextPosition.z);
+        localPt += board.cellSize * 0.5f;
+        cellCoord = new float2(Mathf.FloorToInt(localPt.x / board.cellSize.x), Mathf.FloorToInt(localPt.y / board.cellSize.y));
+
+        var directionValue = random.NextInt(0, 100);
+        if (directionValue < 25)
+            cellDirection = Direction.East;
+        else if (directionValue < 50)
+            cellDirection = Direction.West;
+        else if (directionValue < 75)
+            cellDirection = Direction.South;
+        else
+            cellDirection = Direction.North;
     }
 }
 
