@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public struct GameInProgressComponentt : IComponentData
+public struct GameInProgressComponent : IComponentData
 {
     public float StartTime;
 }

@@ -11,7 +11,7 @@ public class SpawnSystem : ComponentSystem
 {
     protected override void OnCreate()
     {
-        RequireSingletonForUpdate<GameInProgressComponentt>();
+        RequireSingletonForUpdate<GameInProgressComponent>();
     }
 
     protected override void OnUpdate()

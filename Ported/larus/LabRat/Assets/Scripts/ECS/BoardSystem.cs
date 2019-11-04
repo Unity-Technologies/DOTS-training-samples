@@ -4,9 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.NetCode;
 using Unity.Transforms;
-using UnityEngine;
 
-//[UpdateBefore(typeof(GameObjectBeforeConversionGroup))]
 [UpdateInGroup(typeof(ServerSimulationSystemGroup))]
 public class BoardSystem : ComponentSystem
 {

@@ -34,14 +34,14 @@ public class OverlaySpawnerSystem : ComponentSystem
             {
                 // De las arrowas
                 var instance = EntityManager.Instantiate(prefab);
-                EntityManager.SetComponentData(instance, new Translation{Value = new float3(0,10,0)});
+                EntityManager.SetComponentData(instance, new Translation{Value = new float3(0,-10,-10)});
 
                 // Cell stamp color
                 instance = EntityManager.Instantiate(colorPrefab);
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
                 EntityManager.SetName(instance, "OverlayColor");
 #endif
-                EntityManager.SetComponentData(instance, new Translation{Value = new float3(0,10,0)});
+                EntityManager.SetComponentData(instance, new Translation{Value = new float3(0,-10,-10)});
                 var colorIndex = (byte) (math.floor(i / PlayerConstants.MaxArrows));
                 EntityManager.SetComponentData(instance, new OverlayColorComponent{Color = colorIndex});
                 Debug.Log("Set index " + i + " entity " + instance + " as color " + colorIndex);
