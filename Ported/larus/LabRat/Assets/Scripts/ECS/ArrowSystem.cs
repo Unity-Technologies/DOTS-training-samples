@@ -201,10 +201,13 @@ public class ArrowSystem : ComponentSystem
 [UpdateInGroup(typeof(ClientSimulationSystemGroup))]
 public class ClientArrowSystem : ComponentSystem
 {
+    private ClientSimulationSystemGroup m_ClientSystem;
+
     protected override void OnCreate()
     {
         // Don't start processing+sending inputs until a connection is ready
         RequireSingletonForUpdate<NetworkIdComponent>();
+        m_ClientSystem = World.GetExistingSystem<ClientSimulationSystemGroup>();
     }
 
     protected override void OnUpdate()
@@ -313,7 +316,7 @@ public class ClientArrowSystem : ComponentSystem
         input.Direction = cellDirection;
         input.CellCoordinates = (int2)cellCoord;
         input.Clicked = cellClicked;
-        input.tick = World.GetExistingSystem<ClientSimulationSystemGroup>().ServerTick;
+        input.tick = m_ClientSystem.ServerTick;
         var inputBuffer = EntityManager.GetBuffer<PlayerInput>(localInput);
         inputBuffer.AddCommandData(input);
     }

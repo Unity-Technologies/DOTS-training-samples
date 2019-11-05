@@ -75,36 +75,7 @@ public class StartGame : ComponentSystem
             if (gameConfig.GameLength + gameState.StartTime < Time.time)
             {
                 Debug.Log(">>>>>>>>> Game finished <<<<<<<<<<");
-                var entity = GetSingletonEntity<GameInProgressComponent>();
-                EntityManager.DestroyEntity(entity);
-                var cleanup = GetEntityQuery(typeof(EatenComponentTag)).ToEntityArray(Allocator.TempJob);
-                for (int i = 0; i < cleanup.Length; ++i)
-                    EntityManager.DestroyEntity(cleanup[i]);
-                cleanup.Dispose();
-                cleanup = GetEntityQuery(typeof(EaterComponentTag)).ToEntityArray(Allocator.TempJob);
-                for (int i = 0; i < cleanup.Length; ++i)
-                    EntityManager.DestroyEntity(cleanup[i]);
-                cleanup.Dispose();
-                cleanup = GetEntityQuery(typeof(OverlayColorComponent)).ToEntityArray(Allocator.TempJob);
-                for (int i = 0; i < cleanup.Length; ++i)
-                    EntityManager.SetComponentData(cleanup[i], new Translation{Value = new float3(0,-10f,-10f)});
-                cleanup.Dispose();
-                cleanup = GetEntityQuery(typeof(OverlayComponentTag)).ToEntityArray(Allocator.TempJob);
-                for (int i = 0; i < cleanup.Length; ++i)
-                    EntityManager.SetComponentData(cleanup[i], new Translation{Value = new float3(0,-10f,-10f)});
-                cleanup.Dispose();
-                var boardSystem = World.GetExistingSystem<BoardSystem>();
-                var cellMap = boardSystem.CellMap;
-                var cellKeys = cellMap.GetKeyArray(Allocator.TempJob);
-                for (int i = 0; i < cellKeys.Length; ++i)
-                {
-                    var data = cellMap[cellKeys[i]];
-                    data.data &= ~CellData.Arrow;
-                    cellMap[cellKeys[i]] = data;
-                }
-                cellKeys.Dispose();
-                boardSystem.ArrowMap.Clear();
-                // TODO: reset score etc
+                CleanupLevel();
             }
             return;
         }
@@ -121,7 +92,46 @@ public class StartGame : ComponentSystem
             var entity = EntityManager.CreateEntity();
             EntityManager.AddComponent<GameInProgressComponent>(entity);
         }
+        else if (gameState.StartTime > 0f)
+        {
+            gameState.StartTime = 0f;
+            CleanupLevel();
+        }
         playerEntities.Dispose();
+    }
+
+    private void CleanupLevel()
+    {
+        var entity = GetSingletonEntity<GameInProgressComponent>();
+        EntityManager.DestroyEntity(entity);
+        var cleanup = GetEntityQuery(typeof(EatenComponentTag)).ToEntityArray(Allocator.TempJob);
+        for (int i = 0; i < cleanup.Length; ++i)
+            EntityManager.DestroyEntity(cleanup[i]);
+        cleanup.Dispose();
+        cleanup = GetEntityQuery(typeof(EaterComponentTag)).ToEntityArray(Allocator.TempJob);
+        for (int i = 0; i < cleanup.Length; ++i)
+            EntityManager.DestroyEntity(cleanup[i]);
+        cleanup.Dispose();
+        cleanup = GetEntityQuery(typeof(OverlayColorComponent)).ToEntityArray(Allocator.TempJob);
+        for (int i = 0; i < cleanup.Length; ++i)
+            EntityManager.SetComponentData(cleanup[i], new Translation{Value = new float3(0,-10f,-10f)});
+        cleanup.Dispose();
+        cleanup = GetEntityQuery(typeof(OverlayComponentTag)).ToEntityArray(Allocator.TempJob);
+        for (int i = 0; i < cleanup.Length; ++i)
+            EntityManager.SetComponentData(cleanup[i], new Translation{Value = new float3(0,-10f,-10f)});
+        cleanup.Dispose();
+        var boardSystem = World.GetExistingSystem<BoardSystem>();
+        var cellMap = boardSystem.CellMap;
+        var cellKeys = cellMap.GetKeyArray(Allocator.TempJob);
+        for (int i = 0; i < cellKeys.Length; ++i)
+        {
+            var data = cellMap[cellKeys[i]];
+            data.data &= ~CellData.Arrow;
+            cellMap[cellKeys[i]] = data;
+        }
+        cellKeys.Dispose();
+        boardSystem.ArrowMap.Clear();
+        // TODO: reset score etc
     }
 }
 
