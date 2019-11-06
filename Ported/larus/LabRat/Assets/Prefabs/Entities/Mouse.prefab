@@ -142,7 +142,7 @@ MonoBehaviour:
   RandomScale:
     minVal: 0.9
     maxVal: 1.27
-  myScale: 0.91267496
+  myScale: 0.9415477
   mode: 0
   color: {r: 1, g: 1, b: 1, a: 1}
   SetColor: 0
@@ -320,9 +320,9 @@ MonoBehaviour:
     manualFieldList: 0
     entityIndex: 0
   - name: Unity.Transforms.LocalToWorld
-    interpolatedClient: 0
-    predictedClient: 0
-    server: 0
+    interpolatedClient: 1
+    predictedClient: 1
+    server: 1
     sendDataTo: 0
     fields: []
     manualFieldList: 0

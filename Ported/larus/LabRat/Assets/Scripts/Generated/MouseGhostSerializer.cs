@@ -8,6 +8,7 @@ using Unity.Rendering;
 public struct MouseGhostSerializer : IGhostSerializer<MouseSnapshotData>
 {
     private ComponentType componentTypeEatenComponentTag;
+    private ComponentType componentTypeLocalToWorld;
     private ComponentType componentTypeRotation;
     private ComponentType componentTypeTranslation;
     private ComponentType componentTypeWalkComponent;
@@ -27,6 +28,7 @@ public struct MouseGhostSerializer : IGhostSerializer<MouseSnapshotData>
     public void BeginSerialize(ComponentSystemBase system)
     {
         componentTypeEatenComponentTag = ComponentType.ReadWrite<EatenComponentTag>();
+        componentTypeLocalToWorld = ComponentType.ReadWrite<LocalToWorld>();
         componentTypeRotation = ComponentType.ReadWrite<Rotation>();
         componentTypeTranslation = ComponentType.ReadWrite<Translation>();
         componentTypeWalkComponent = ComponentType.ReadWrite<WalkComponent>();
@@ -42,6 +44,8 @@ public struct MouseGhostSerializer : IGhostSerializer<MouseSnapshotData>
         {
             if (components[i] == componentTypeEatenComponentTag)
                 ++matches;
+            if (components[i] == componentTypeLocalToWorld)
+                ++matches;
             if (components[i] == componentTypeRotation)
                 ++matches;
             if (components[i] == componentTypeTranslation)
@@ -49,7 +53,7 @@ public struct MouseGhostSerializer : IGhostSerializer<MouseSnapshotData>
             if (components[i] == componentTypeWalkComponent)
                 ++matches;
         }
-        return (matches == 4);
+        return (matches == 5);
     }
 
     public void CopyToSnapshot(ArchetypeChunk chunk, int ent, uint tick, ref MouseSnapshotData snapshot, GhostSerializerState serializerState)
