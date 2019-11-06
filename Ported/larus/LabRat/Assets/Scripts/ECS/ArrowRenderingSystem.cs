@@ -22,10 +22,10 @@ public class ArrowRenderingSystem : ComponentSystem
 
     protected override void OnUpdate()
     {
-        Entities.ForEach((Entity entity, ref ArrowComponent arrow, ref Translation position) =>
+        Entities.ForEach((Entity entity, ref ArrowComponent arrow) =>
         {
             var hoverOverlay = GetSingletonEntity<HoverOverlayComponentTag>();
-            PostUpdateCommands.SetComponent(hoverOverlay, new Translation { Value = position.Value + new float3(0,0.53f,0)});
+            PostUpdateCommands.SetComponent(hoverOverlay, new Translation { Value = new float3(arrow.Coordinates.x,0.55f,arrow.Coordinates.y)});
             var rotation = quaternion.RotateX(math.PI / 2);
             switch (arrow.Direction) {
                 case Direction.South:
@@ -39,7 +39,7 @@ public class ArrowRenderingSystem : ComponentSystem
                     break;
             }
             PostUpdateCommands.SetComponent(hoverOverlay, new Rotation{Value = rotation});
-            PostUpdateCommands.RemoveComponent<ArrowComponent>(entity);
+            PostUpdateCommands.DestroyEntity(entity);
         });
 
         // TODO: Move elsewhere or rename this file

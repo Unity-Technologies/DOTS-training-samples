@@ -17,6 +17,7 @@ public struct PlayerInput : IBufferElementData
     public bool Clicked;
 }
 
+[UpdateBefore(typeof(WalkSystem))]
 public class ArrowSystem : ComponentSystem
 {
     protected override void OnUpdate()
@@ -249,22 +250,13 @@ public class ClientArrowSystem : ComponentSystem
                 cellDirection = localPos.x > 0 ? Direction.East : Direction.West;
 
             // Show arrow placement overlay (before it's placed permanently)
-            var cellEntities = EntityManager.CreateEntityQuery(typeof(CellRenderingComponentTag)).ToEntityArray(Allocator.TempJob);
-            for (int i = 0; i < cellEntities.Length; ++i)
+            var hoverArrowComponent = EntityManager.CreateEntity();
+            EntityManager.AddComponentData(hoverArrowComponent, new ArrowComponent
             {
-                var position = EntityManager.GetComponentData<Translation>(cellEntities[i]);
-                var localPt = new float2(position.Value.x, position.Value.z) + board.cellSize * 0.5f;
-                var rendCellCoord = new float2(Mathf.FloorToInt(localPt.x / board.cellSize.x), Mathf.FloorToInt(localPt.y / board.cellSize.y));
-                var rendCellIndex = (int)(rendCellCoord.y * board.size.x + rendCellCoord.x);
-                if (rendCellIndex == cellIndex)
-                    EntityManager.AddComponentData(cellEntities[i], new ArrowComponent
-                    {
-                        Coordinates = cellCoord,
-                        Direction = cellDirection,
-                        PlacementTick = Time.time
-                    });
-            }
-            cellEntities.Dispose();
+                Coordinates = cellCoord,
+                Direction = cellDirection,
+                PlacementTick = Time.time
+            });
         }
 
         if (!HasSingleton<LocalPlayerComponent>())
