@@ -33,12 +33,10 @@ public class SpawnSystem : ComponentSystem
                 return;
 
             spawner.Counter += Time.deltaTime;
-            //bool didSpawn = false;
             while (spawner.Counter > spawner.Frequency || spawner.TotalSpawned == 0) {
                 spawner.Counter -= spawner.Frequency;
                 spawner.TotalSpawned++;
 
-                // TODO: Figure out why mice are slow here (avoid 4x multiplier)
                 var speed = gameConfig.EatenSpeed.RandomValue();
                 if (spawner.PrimaryType == SpawnerType.Eater)
                     speed = gameConfig.EaterSpeed.RandomValue();
@@ -48,11 +46,7 @@ public class SpawnSystem : ComponentSystem
                 PostUpdateCommands.SetComponent(rat, new WalkComponent{Speed = speed});
                 PostUpdateCommands.SetComponent(rat, new Translation{Value = position.Value});
                 PostUpdateCommands.SetComponent(rat, new Rotation{Value = rotation.Value});
-                //didSpawn = true;
             }
-            // DEBUG
-            //if (didSpawn)
-                //PostUpdateCommands.RemoveComponent<SpawnerComponent>(entity);
         });
     }
 }

@@ -16,36 +16,6 @@ public class Spawner : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefere
 	public Transform targetParent;
 	public Board board;
 
-	/*Coroutine coro;
-    bool InAlternate = false;
-
-	void OnEnable() {
-		Counter = Frequency;
-	}
-
-    void OnDisable() {
-        if (coro != null) {
-            StopCoroutine(coro);
-            coro = null;
-        }
-    }
-
-    void Start() {
-        if (AlternatePrefab)
-            coro = StartCoroutine(Alternates());
-    }
-
-    IEnumerator Alternates() {
-        while (enabled) {
-            yield return new WaitForSeconds(Random.Range(4.0f, 15f));
-            InAlternate = true;
-            yield return new WaitForSeconds(Random.Range(1.0f, 3.0f));
-            Spawn(AlternatePrefab);
-            yield return new WaitForSeconds(Random.Range(1.0f, 3.0f));
-            InAlternate = false;
-        }
-    }*/
-	
 	public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
 	{
 		referencedPrefabs.Add(Prefab);
@@ -54,7 +24,9 @@ public class Spawner : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefere
 
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
 	{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 		dstManager.SetName(entity, Prefab.name);
+#endif
 		var spawnerType = SpawnerType.Eaten;
 		if (Prefab.name.Contains("Cat"))
 			spawnerType = SpawnerType.Eater;

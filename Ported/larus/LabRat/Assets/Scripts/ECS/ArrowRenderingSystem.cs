@@ -1,23 +1,31 @@
 ﻿using ECSExamples;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEditor;
-using UnityEditor.iOS;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ArrowRenderingSystem : ComponentSystem
 {
+    private Material[] m_HomebaseMats;
+    private GameObject[] m_Cursors;
+    private Canvas m_Canvas;
+
+    protected override void OnCreate()
+    {
+        m_Canvas = GameObject.FindObjectOfType<Canvas>();
+    }
+
+    public struct InitializedHomebase : IComponentData
+    {}
+
     protected override void OnUpdate()
     {
-        //var overlays = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.TempJob);
-        //var overlayRotations = GetEntityQuery(typeof(OverlayComponentTag), typeof(Rotation)).ToComponentDataArray<Rotation>(Allocator.TempJob);
-        var overlayEntities = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToEntityArray(Allocator.TempJob);
         Entities.ForEach((Entity entity, ref ArrowComponent arrow, ref Translation position) =>
         {
-            PostUpdateCommands.SetComponent(overlayEntities[0], new Translation { Value = position.Value + new float3(0,0.53f,0)});
+            var hoverOverlay = GetSingletonEntity<HoverOverlayComponentTag>();
+            PostUpdateCommands.SetComponent(hoverOverlay, new Translation { Value = position.Value + new float3(0,0.53f,0)});
             var rotation = quaternion.RotateX(math.PI / 2);
             switch (arrow.Direction) {
                 case Direction.South:
@@ -30,37 +38,41 @@ public class ArrowRenderingSystem : ComponentSystem
                     rotation = math.mul(rotation, quaternion.RotateZ(math.PI/2));
                     break;
             }
-            PostUpdateCommands.SetComponent(overlayEntities[0], new Rotation{Value = rotation});
-
-
-            /*if (blockState == BlockState.Confuse) {
-                z = 0f;
-                mat = ConfuseMaterial;
-                color = Color.white;
-                localScale = Vector3.one;
-            } else {*/
-            //z = ((int)arrow.Direction) * -90f;
-            /*mat = ArrowMaterial;
-            color = ArrowColor;
-            localScale = arrowStrength == ArrowStrength.Small ? new Vector3(0.55f, 0.55f, 0.55f) : new Vector3(0.85f, 0.85f, 0.85f);
-
-            OverlayRenderer.transform.localRotation = Quaternion.Euler(90f, 0, z);
-            OverlayRenderer.transform.localScale = localScale;
-            OverlayRenderer.sharedMaterial = mat;
-            bool hasOverlay = color.a > 0f || blockState == BlockState.Confuse;
-
-            OverlayRenderer.gameObject.SetActive(hasOverlay);
-            OverlayColorRenderer.enabled = hasOverlay && HasArrow;
-
-            props.SetColor(_ColorID, color);
-            OverlayRenderer.SetPropertyBlock(props);
-
-            props.SetColor(_ColorID, overlayColor);
-            OverlayColorRenderer.SetPropertyBlock(props);*/
-
+            PostUpdateCommands.SetComponent(hoverOverlay, new Rotation{Value = rotation});
             PostUpdateCommands.RemoveComponent<ArrowComponent>(entity);
         });
-        //overlays.Dispose();
-        overlayEntities.Dispose();
+
+        // TODO: Move elsewhere or rename this file
+        Entities.WithNone<InitializedHomebase>().ForEach((Entity entity, ref HomebaseComponent home) =>
+        {
+            if ((int)home.Color.x == 0 && (int)home.Color.y == 0 && (int)home.Color.z == 0 && (int)home.Color.w == 0)
+                return;
+            var linkedEntityBuffer = EntityManager.GetBuffer<LinkedEntityGroup>(entity);
+            var colorIndex = home.PlayerId - 1;
+            var sharedMesh = EntityManager.GetSharedComponentData<RenderMesh>(linkedEntityBuffer[2].Value);
+
+            var colors = World.GetExistingSystem<ApplyOverlayColors>();
+            if (colors.PlayerMats == null || (colors.PlayerMats.Length >= PlayerConstants.MaxPlayers && colors.PlayerMats[colorIndex] == null))
+            {
+                if (colors.PlayerMats == null)
+                    colors.PlayerMats = new Material[PlayerConstants.MaxPlayers];
+
+                if (colors.PlayerMats[colorIndex] == null)
+                {
+                    var mat = new Material(sharedMesh.material);
+                    mat.color = colors.Colors[colorIndex];
+                    colors.PlayerMats[colorIndex] = mat;
+                }
+            }
+
+            sharedMesh.material = colors.PlayerMats[colorIndex];
+            PostUpdateCommands.SetSharedComponent(linkedEntityBuffer[2].Value, sharedMesh);
+
+            sharedMesh = EntityManager.GetSharedComponentData<RenderMesh>(linkedEntityBuffer[3].Value);
+            sharedMesh.material = colors.PlayerMats[colorIndex];
+            PostUpdateCommands.SetSharedComponent(linkedEntityBuffer[3].Value, sharedMesh);
+
+            PostUpdateCommands.AddComponent<InitializedHomebase>(entity);
+        });
     }
 }
