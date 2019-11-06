@@ -277,6 +277,12 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 					cellData = cellData | CellData.WallWest;
 			}
 
+			if (cell.Homebase != null)
+			{
+				cellData = cellData | CellData.HomeBase;
+				boardSystem.HomeBaseMap.Add(i, cell.Homebase.playerData.playerIndex);
+			}
+
 			if (cellData != 0)
 			{
 				//Debug.Log("Set data for " + i  + " coord=" + cell.coord.x + "," + cell.coord.y + " data=" + cellData);
