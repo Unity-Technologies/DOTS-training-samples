@@ -20,6 +20,7 @@ public class TornadoSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 	
 	public float Friction = 0.1f;
 	public float Gravity = 5.0f;
+    public bool EnableExtraIterations = false;
 
 	public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
 	{
@@ -45,5 +46,7 @@ public class TornadoSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
 		dstManager.AddComponentData<TornadoSpawner>(entity, tornado);
         dstManager.AddComponentData<TornadoPosition>(entity, new TornadoPosition() { position = new float3() });
+        
+        World.Active.GetExistingSystem<Sys_ExtraIterations>().Enabled = EnableExtraIterations;
     }
 }

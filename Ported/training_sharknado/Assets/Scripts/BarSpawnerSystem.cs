@@ -11,7 +11,7 @@ using Random = Unity.Mathematics.Random;
 
 public class BarSpawnerSystem : JobComponentSystem
 {
-    const int MAX_CONNECTIONS = 10;
+    const int MAX_CONNECTIONS = 20;
     BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
 
     protected override void OnCreate()
