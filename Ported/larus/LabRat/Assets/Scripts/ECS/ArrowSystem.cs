@@ -1,5 +1,4 @@
-﻿using System;
-using ECSExamples;
+﻿using ECSExamples;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -8,7 +7,7 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-public struct PlayerInput : IBufferElementData
+public struct PlayerInput : IComponentData
 {
     // TODO: duplicate data between screen pos and cell coord
     public float3 ScreenPosition;
@@ -21,30 +20,26 @@ public struct PlayerInput : IBufferElementData
 public class ArrowSystem : JobComponentSystem
 {
     private EndSimulationEntityCommandBufferSystem m_Buffer;
+    private BoardSystem m_Board;
 
     protected override void OnCreate()
     {
-        m_Buffer = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        m_Board = World.GetOrCreateSystem<BoardSystem>();
+        m_Buffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         RequireSingletonForUpdate<GameInProgressComponent>();
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var board = GetSingleton<BoardDataComponent>();
-        var cellMap = World.GetExistingSystem<BoardSystem>().CellMap;
-        var arrowMap = World.GetExistingSystem<BoardSystem>().ArrowMap;
+        var cellMap = m_Board.CellMap;
+        var arrowMap = m_Board.ArrowMap;
 
         var time = Time.time;
         var ecb = m_Buffer.CreateCommandBuffer().ToConcurrent();
-        var overlayTicks = GetComponentDataFromEntity<OverlayPlacementTickComponent>(false);
-        var job = Entities.ForEach((Entity entity, int entityInQueryIndex, DynamicBuffer<PlayerInput> inputBuffer, ref PlayerComponent player, ref PlayerOverlayComponent overlays) =>
+        var overlayTicks = GetComponentDataFromEntity<OverlayPlacementTickComponent>();
+        var job = Entities.ForEach((Entity entity, int entityInQueryIndex, ref PlayerInput input, ref PlayerComponent player, ref PlayerOverlayComponent overlays) =>
         {
-            PlayerInput input = default;
-            if (inputBuffer.Length == 0)
-                return;
-            // TODO: Mimic command input handling
-            input = inputBuffer[inputBuffer.Length - 1];
-
             if (input.Clicked)
             {
                 var cellIndex = input.CellCoordinates.y * board.size.y + input.CellCoordinates.x;
@@ -139,7 +134,7 @@ public class ArrowSystem : JobComponentSystem
                     }
                 }
 
-                ecb.SetComponent(entityInQueryIndex, oldestPlayerOverlay, new OverlayPlacementTickComponent { Tick = time});
+                overlayTicks[oldestPlayerOverlay] =  new OverlayPlacementTickComponent { Tick = time};
                 ecb.SetComponent(entityInQueryIndex, oldestPlayerOverlay, new Translation { Value = new float3(input.CellCoordinates.x,0.7f,input.CellCoordinates.y)});
                 var rotation = quaternion.RotateX(math.PI / 2);
                 switch (input.Direction) {
@@ -160,6 +155,7 @@ public class ArrowSystem : JobComponentSystem
             // Update the current position of the players cursor
             ecb.SetComponent(entityInQueryIndex, entity, new Translation{Value = input.ScreenPosition});
         }).WithReadOnly(cellMap).WithReadOnly(arrowMap).WithNativeDisableContainerSafetyRestriction(overlayTicks).Schedule(inputDeps);
+        m_Buffer.AddJobHandleForProducer(job);
         return job;
     }
 }
@@ -270,8 +266,7 @@ public class ClientArrowSystem : ComponentSystem
         input.Direction = cellDirection;
         input.CellCoordinates = (int2)cellCoord;
         input.Clicked = cellClicked;
-        var inputBuffer = EntityManager.GetBuffer<PlayerInput>(localInput);
-        inputBuffer.Add(input);
+        EntityManager.SetComponentData(localInput, input);
     }
 }
 

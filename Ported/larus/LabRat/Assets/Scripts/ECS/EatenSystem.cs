@@ -47,6 +47,7 @@ public class EatenSystem : JobComponentSystem
                 ecb.DestroyEntity(entityInQueryIndex, entity);
             }
         }).WithReadOnly(cellMap).WithReadOnly(homebaseMap).Schedule(inputDeps);
+        m_Buffer.AddJobHandleForProducer(job);
         return job;
     }
 }

@@ -87,7 +87,7 @@ public class StartGame : ComponentSystem
         var prefab = GetSingleton<PrefabCollectionComponent>().PlayerPrefab;
         var player = EntityManager.Instantiate(prefab);
         PostUpdateCommands.AddComponent(player, new PlayerComponent{PlayerId = playerId});
-        PostUpdateCommands.AddBuffer<PlayerInput>(player);
+        PostUpdateCommands.AddComponent<PlayerInput>(player);
 
         if (playerId == 1)
             PostUpdateCommands.AddComponent(player, new LocalPlayerComponent{PlayerId = playerId});

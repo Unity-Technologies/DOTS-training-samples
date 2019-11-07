@@ -136,6 +136,7 @@ public class WalkSystem : JobComponentSystem
 			newPos.y = newPos.y + (fwd.y - newPos.y) * t;
 			newPos.z = newPos.z + (fwd.z - newPos.z) * t;*/
 		}).WithReadOnly(cellMap).WithReadOnly(arrowMap).Schedule(inputDep);
+		m_Buffer.AddJobHandleForProducer(job);
 		return job;
 	}
 
