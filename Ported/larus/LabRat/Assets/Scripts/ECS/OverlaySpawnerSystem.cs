@@ -10,6 +10,7 @@ static class PlayerConstants
     public const int MaxPlayers = 4;
 }
 
+[UpdateBefore(typeof(StartGame))]
 public class OverlaySpawnerSystem : ComponentSystem
 {
     public struct InitializedOverlaySpawner : IComponentData

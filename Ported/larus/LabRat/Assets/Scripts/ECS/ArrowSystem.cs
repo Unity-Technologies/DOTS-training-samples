@@ -18,23 +18,26 @@ public struct PlayerInput : IBufferElementData
 }
 
 [UpdateBefore(typeof(WalkSystem))]
-public class ArrowSystem : ComponentSystem
+public class ArrowSystem : JobComponentSystem
 {
-    protected override void OnUpdate()
+    private EndSimulationEntityCommandBufferSystem m_Buffer;
+
+    protected override void OnCreate()
+    {
+        m_Buffer = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        RequireSingletonForUpdate<GameInProgressComponent>();
+    }
+
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var board = GetSingleton<BoardDataComponent>();
         var cellMap = World.GetExistingSystem<BoardSystem>().CellMap;
         var arrowMap = World.GetExistingSystem<BoardSystem>().ArrowMap;
 
-        // Draws a cursor with the player color on top of the default one
-        //playerCursor.SetScreenPosition(screenPos);
-
-        var overlayEntities = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToEntityArray(Allocator.TempJob);
-        var overlayPositions = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.TempJob);
-        var overlayPlacementTick = GetEntityQuery(typeof(OverlayComponentTag), typeof(OverlayPlacementTickComponent))
-            .ToComponentDataArray<OverlayPlacementTickComponent>(Allocator.TempJob);
-        var overlayColorEntities = GetEntityQuery(typeof(OverlayColorComponent), typeof(Translation)).ToEntityArray(Allocator.TempJob);
-        Entities.ForEach((Entity entity, DynamicBuffer<PlayerInput> inputBuffer, ref PlayerComponent player) =>
+        var time = Time.time;
+        var ecb = m_Buffer.CreateCommandBuffer().ToConcurrent();
+        var overlayTicks = GetComponentDataFromEntity<OverlayPlacementTickComponent>(false);
+        var job = Entities.ForEach((Entity entity, int entityInQueryIndex, DynamicBuffer<PlayerInput> inputBuffer, ref PlayerComponent player, ref PlayerOverlayComponent overlays) =>
         {
             PlayerInput input = default;
             if (inputBuffer.Length == 0)
@@ -42,7 +45,7 @@ public class ArrowSystem : ComponentSystem
             // TODO: Mimic command input handling
             input = inputBuffer[inputBuffer.Length - 1];
 
-            if (input.Clicked && HasSingleton<GameInProgressComponent>())
+            if (input.Clicked)
             {
                 var cellIndex = input.CellCoordinates.y * board.size.y + input.CellCoordinates.x;
 
@@ -70,13 +73,13 @@ public class ArrowSystem : ComponentSystem
                     Coordinates = input.CellCoordinates,
                     Direction = input.Direction,
                     PlayerId = player.PlayerId,
-                    PlacementTick = Time.time
+                    PlacementTick = time
                 };
 
                 int arrowCount = 0;
                 int oldestIndex = -1;
                 float oldestTick = float.MaxValue;
-                var keys = arrowMap.GetKeyArray(Allocator.TempJob);
+                var keys = arrowMap.GetKeyArray(Allocator.Temp);
                 for (int i = 0; i < keys.Length; ++i)
                 {
                     if (arrowMap[keys[i]].PlayerId == player.PlayerId)
@@ -112,30 +115,32 @@ public class ArrowSystem : ComponentSystem
                     arrowMap[cellIndex] = arrowData;
                 else
                     arrowMap.Add(cellIndex, arrowData);
-                Debug.Log("Placed arrow on cell="+input.CellCoordinates + " with dir=" + input.Direction);
 
                 // Update the overlays (arrow+color) which shows the player visually where the arrow is placed
-                var startIndex = (player.PlayerId-1) * PlayerConstants.MaxArrows;
                 oldestTick = float.MaxValue;
-                oldestIndex = -1;
-                for (int i = startIndex; i < (startIndex+PlayerConstants.MaxArrows); ++i)
+                var oldestPlayerOverlay = overlays.overlay0;
+                var oldestPlayerColorOverlay = overlays.overlayColor0;
+                for (int i = 0; i < PlayerConstants.MaxArrows; ++i)
                 {
-                    if (overlayPositions[i].Value.y >= 9.9f)
+                    var playerOverlay = Entity.Null;
+                    var playerColorOverlay = Entity.Null;
+                    switch (i)
                     {
-                        Debug.Log("Setting overlay " + overlayColorEntities[i] + " to player " + player.PlayerId);
-                        oldestIndex = i;
-                        break;
+                        case 0: playerOverlay = overlays.overlay0; playerColorOverlay = overlays.overlayColor0; break;
+                        case 1: playerOverlay = overlays.overlay1; playerColorOverlay = overlays.overlayColor1; break;
+                        case 2: playerOverlay = overlays.overlay2; playerColorOverlay = overlays.overlayColor2; break;
                     }
-                    if (oldestTick > overlayPlacementTick[i].Tick)
+
+                    if (oldestTick > overlayTicks[playerOverlay].Tick)
                     {
-                        oldestIndex = i;
-                        oldestTick = overlayPlacementTick[i].Tick;
+                        oldestPlayerOverlay = playerOverlay;
+                        oldestPlayerColorOverlay = playerColorOverlay;
+                        oldestTick = overlayTicks[playerOverlay].Tick;
                     }
                 }
 
-                Debug.Log("Player " + player.PlayerId + " now owns index=" + oldestIndex + " coord=" + input.CellCoordinates);
-                PostUpdateCommands.SetComponent(overlayEntities[oldestIndex], new OverlayPlacementTickComponent { Tick = Time.time});
-                PostUpdateCommands.SetComponent(overlayEntities[oldestIndex], new Translation { Value = new float3(input.CellCoordinates.x,0.7f,input.CellCoordinates.y)});
+                ecb.SetComponent(entityInQueryIndex, oldestPlayerOverlay, new OverlayPlacementTickComponent { Tick = time});
+                ecb.SetComponent(entityInQueryIndex, oldestPlayerOverlay, new Translation { Value = new float3(input.CellCoordinates.x,0.7f,input.CellCoordinates.y)});
                 var rotation = quaternion.RotateX(math.PI / 2);
                 switch (input.Direction) {
                     case Direction.South:
@@ -148,17 +153,14 @@ public class ArrowSystem : ComponentSystem
                         rotation = math.mul(rotation, quaternion.RotateZ(math.PI/2));
                         break;
                 }
-                PostUpdateCommands.SetComponent(overlayEntities[oldestIndex], new Rotation { Value = rotation});
-                PostUpdateCommands.SetComponent(overlayColorEntities[oldestIndex], new Translation { Value = new float3(input.CellCoordinates.x,0.6f,input.CellCoordinates.y)});
+                ecb.SetComponent(entityInQueryIndex, oldestPlayerOverlay, new Rotation { Value = rotation});
+                ecb.SetComponent(entityInQueryIndex, oldestPlayerColorOverlay, new Translation { Value = new float3(input.CellCoordinates.x,0.6f,input.CellCoordinates.y)});
             }
 
             // Update the current position of the players cursor
-            PostUpdateCommands.SetComponent(entity, new Translation{Value = input.ScreenPosition});
-        });
-        overlayPlacementTick.Dispose();
-        overlayColorEntities.Dispose();
-        overlayPositions.Dispose();
-        overlayEntities.Dispose();
+            ecb.SetComponent(entityInQueryIndex, entity, new Translation{Value = input.ScreenPosition});
+        }).WithReadOnly(cellMap).WithReadOnly(arrowMap).WithNativeDisableContainerSafetyRestriction(overlayTicks).Schedule(inputDeps);
+        return job;
     }
 }
 

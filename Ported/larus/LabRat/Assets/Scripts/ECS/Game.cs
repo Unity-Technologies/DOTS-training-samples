@@ -96,5 +96,21 @@ public class StartGame : ComponentSystem
 
         // Set up the players home base
         World.GetExistingSystem<BoardSystem>().SpawnHomebase(playerId);
+
+        // Set up links to this players overlays
+        var overlayEntities = GetEntityQuery(typeof(OverlayComponentTag), typeof(Translation)).ToEntityArray(Allocator.TempJob);
+        var overlayColorEntities = GetEntityQuery(typeof(OverlayColorComponent), typeof(Translation)).ToEntityArray(Allocator.TempJob);
+        var startIndex = (playerId-1) * PlayerConstants.MaxArrows;
+        PostUpdateCommands.AddComponent(player, new PlayerOverlayComponent
+        {
+            overlay0 = overlayEntities[startIndex],
+            overlay1 = overlayEntities[startIndex+1],
+            overlay2 = overlayEntities[startIndex+2],
+            overlayColor0 = overlayColorEntities[startIndex],
+            overlayColor1 = overlayColorEntities[startIndex+1],
+            overlayColor2 = overlayColorEntities[startIndex+2]
+        });
+        overlayEntities.Dispose();
+        overlayColorEntities.Dispose();
     }
 }
