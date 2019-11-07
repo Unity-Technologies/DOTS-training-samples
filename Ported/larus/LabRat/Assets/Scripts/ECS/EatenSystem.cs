@@ -36,9 +36,10 @@ public class EatenSystem : JobComponentSystem
 
             if ((cell.data & CellData.HomeBase) == CellData.HomeBase)
             {
+                // TODO: port the score tracking to ECS
                 var playerId = homebaseMap[cellIndex];
                 ecb.DestroyEntity(entityInQueryIndex, entity);
-                PlayerCursor.GetPlayerData(playerId).mouseCount++;
+                //PlayerCursor.GetPlayerData(playerId).mouseCount++;
             }
 
             if ((cell.data & CellData.Eater) == CellData.Eater)
