@@ -8,6 +8,8 @@
     "com.unity.entities": "file:../../../../../dots/Samples/Packages/com.unity.entities",
     "com.unity.collections": "file:../../../../../dots/Samples/Packages/com.unity.collections",
     "com.unity.jobs": "file:../../../../../dots/Samples/Packages/com.unity.jobs",
+    "com.unity.transport": "file:../../../../../multiplayer/com.unity.transport",
+    "com.unity.netcode": "file:../../../../../multiplayer/com.unity.netcode",
     "com.unity.rendering.hybrid": "0.2.0-preview.1",
     "com.unity.ide.rider": "1.1.0",
     "com.unity.ide.vscode": "1.1.2",
