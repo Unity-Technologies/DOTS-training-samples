@@ -18,7 +18,7 @@ public enum Direction {
 
 // Size=(8)+8+8+8+8+16+8+8+8+8+8+8+4+8+8+8+16+4+4+4+8+4+8+8=188
 [ExecuteInEditMode]
-public class Cell : MonoBehaviour {
+public class Cell : MonoBehaviour, IConvertGameObjectToEntity {
 	public Board board;
 	public Vector2Int coord;
 	public Renderer OverlayRenderer;
@@ -106,7 +106,7 @@ public class Cell : MonoBehaviour {
 		return this;
 	}
 
-	static Vector2Int[] WallDirections = new Vector2Int[] {
+	public static Vector2Int[] WallDirections = new Vector2Int[] {
 		Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
 	};
 
@@ -166,7 +166,7 @@ public class Cell : MonoBehaviour {
 		return DirectionWhenHitWall(dir, 2);
 	}
 
-	static Direction DirectionWhenHitWall(Direction dir, int delta = 1) {
+	public static Direction DirectionWhenHitWall(Direction dir, int delta = 1) {
 		return (Direction)(((int)dir + delta) % 4);
 	}
 
@@ -243,7 +243,7 @@ public class Cell : MonoBehaviour {
 		return myDirection;
 	}
 
-    void DiminishArrow() {
+	void DiminishArrow() {
         if (!HasArrow) {
             return;
         } else if (arrowStrength == ArrowStrength.Big) {
@@ -371,7 +371,7 @@ public class Cell : MonoBehaviour {
 
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
 	{
-
+		dstManager.SetName(entity, "Cell[" + coord.x + "," + coord.y + "]");
 	}
 }
 

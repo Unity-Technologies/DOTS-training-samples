@@ -11,7 +11,7 @@ using Random = UnityEngine.Random;
 namespace ECSExamples {
 
 [ExecuteInEditMode]
-public class Board : MonoBehaviour {
+public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 	public Mesh cellMesh;
 	public Material cellMaterial;
 	public BoardDesc boardDesc = new BoardDesc(new Vector2Int(10, 10), new Vector2(1f, 1f));
@@ -124,8 +124,8 @@ public class Board : MonoBehaviour {
 		lastDesc = boardDesc.Copy();
 	}
 
-	uint CoordToIndex(Vector2Int coord) {
-		return (uint)(coord.y * boardDesc.size.x + coord.x);
+	int CoordToIndex(Vector2Int coord) {
+		return (coord.y * boardDesc.size.x + coord.x);
 	}
 
 	public void Update () {
@@ -220,23 +220,32 @@ public class Board : MonoBehaviour {
 		});
 
 		var cellBuf = dstManager.AddBuffer<CellComponent>(entity);
-		foreach (var cell in cells)
+		for (int i = 0; i < cells.Length; ++i)
 		{
+			var cell = cells[i];
 			CellData cellData = 0;
 			if (cell == null)
 			{
-				cellData = cellData & CellData.Hole;
-				cellBuf.Add(new CellComponent {index = CoordToIndex(cell.coord), data = cellData});
+				cellData = cellData | CellData.Hole;
+				var lastCell = cells[i-1].coord;
+				var y = cells[i-1].coord.y + 1;
+				var x = cells[i-1].coord.x;
+				if (lastCell.y >= boardDesc.size.y)
+				{
+					y = 0;
+					x = cells[i-1].coord.x + 1;
+				}
+				cellBuf.Add(new CellComponent {index = CoordToIndex(new Vector2Int(x, y)), data = cellData});
 				continue;
 			}
 			if (cell.HasWall(Direction.North))
-				cellData = cellData & CellData.WallNorth;
+				cellData = cellData | CellData.WallNorth;
 			if (cell.HasWall(Direction.South))
-				cellData = cellData & CellData.WallSouth;
+				cellData = cellData | CellData.WallSouth;
 			if (cell.HasWall(Direction.East))
-				cellData = cellData & CellData.WallWest;
+				cellData = cellData | CellData.WallWest;
 			if (cell.HasWall(Direction.West))
-				cellData = cellData & CellData.WallEast;
+				cellData = cellData | CellData.WallEast;
 			if (cell.Homebase != null)
 			{
 				cellData = cellData & CellData.HomeBase;
@@ -244,7 +253,10 @@ public class Board : MonoBehaviour {
 			}
 
 			if (cellData != 0)
+			{
+				//Debug.Log("Set data for " + CoordToIndex(cell.coord)  + " coord=" + cell.coord.x + "," + cell.coord.y + " data=" + cellData);
 				cellBuf.Add(new CellComponent {index = CoordToIndex(cell.coord), data = cellData});
+			}
 		}
 	}
 }

@@ -4,7 +4,7 @@ using Unity.Entities;
 // TODO: Maybe split into dynamic (cat/arrow) and static cell data (wall/hole/homebase)
 public struct CellComponent : IBufferElementData
 {
-    public uint index;
+    public int index;
     public CellData data;
 }
 

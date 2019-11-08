@@ -42,7 +42,8 @@ public class CPUPlayerCursor : MonoBehaviour {
 
 	void Start() {
         playerCursor.SetColor(PlayerCursor.PlayerColors[PlayerIndex]);
-		coro = StartCoroutine(Play());
+        // TODO: Fix board references in AI player code
+		//coro = StartCoroutine(Play());
         homebase = Homebase.ForPlayerIndex(PlayerIndex);
 	}
 

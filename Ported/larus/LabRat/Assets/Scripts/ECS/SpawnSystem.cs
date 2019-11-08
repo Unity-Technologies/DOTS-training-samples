@@ -41,7 +41,7 @@ public class SpawnSystem : ComponentSystem
 
                 var mouseSpeed = gameConfig.Speed.RandomValue();
 
-                Debug.Log("Spawning mouse");
+                //Debug.Log("Spawning mouse");
                 var rat = PostUpdateCommands.Instantiate(spawner.Prefab);
                 PostUpdateCommands.SetComponent(rat, new WalkComponent{Speed = mouseSpeed});
                 PostUpdateCommands.SetComponent(rat, new Translation{Value = position.Value});
@@ -50,7 +50,7 @@ public class SpawnSystem : ComponentSystem
             }
             // DEBUG
             //if (didSpawn)
-            //    PostUpdateCommands.RemoveComponent<SpawnerComponent>(entity);
+                //PostUpdateCommands.RemoveComponent<SpawnerComponent>(entity);
         });
     }
 }

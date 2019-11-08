@@ -23,7 +23,8 @@ public class CursorFollowMouse : MonoBehaviour {
     }
 
     void Update() {
-        var screenPos = Input.mousePosition;
+        // TODO: Fix board references
+        /*var screenPos = Input.mousePosition;
         playerCursor.SetScreenPosition(screenPos);
 
         Direction dir;
@@ -65,7 +66,7 @@ public class CursorFollowMouse : MonoBehaviour {
                 _ToggleArrow(cell, Direction.South);
             if (Input.GetKeyDown(KeyCode.A))
                 _ToggleArrow(cell, Direction.West);
-        }
+        }*/
     }
 }
 
