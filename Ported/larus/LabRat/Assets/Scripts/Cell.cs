@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -12,6 +13,10 @@ public enum Direction {
 	West
 }
 
+//CellComponent
+//	short index
+
+// Size=(8)+8+8+8+8+16+8+8+8+8+8+8+4+8+8+8+16+4+4+4+8+4+8+8=188
 [ExecuteInEditMode]
 public class Cell : MonoBehaviour {
 	public Board board;
@@ -209,7 +214,7 @@ public class Cell : MonoBehaviour {
         return false;
     }
 
-	public Direction ShouldRedirect(Direction myDirection, ref Vector2Int lastRedirectCoord, Walks walker) {
+	public Direction ShouldRedirect(Direction myDirection, bool diminishesArrows) {
 		if (blockState == BlockState.Confuse) {
 			const int numDirections = 4;
 			var nextIndex = ((int)myDirection + 1 + Random.Range(0, numDirections - 1)) % numDirections;
@@ -219,7 +224,7 @@ public class Cell : MonoBehaviour {
 		Direction arrowDirection;
 		bool hasArrow = GetArrowDirection(out arrowDirection);
 		if (hasArrow && myDirection != arrowDirection) {
-			if (arrowDirection == OppositeDirection(myDirection) && walker.DiminishesArrows)
+			if (arrowDirection == OppositeDirection(myDirection) && diminishesArrows)
 				DiminishArrow();
 
 			myDirection = arrowDirection;
@@ -364,6 +369,10 @@ public class Cell : MonoBehaviour {
 	}
 
 
+	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+	{
+
+	}
 }
 
 }

@@ -1,13 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Unity.Entities;
 using UnityEngine;
 
 namespace ECSExamples {
 
-public class Spawner : MonoBehaviour {
+public class Spawner : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs {
 	public float Max = Mathf.Infinity;
-
 	public float Frequency = 0.2f;
+	float Counter = 0f;
+	int TotalSpawned = 0;
 
 	public GameObject Prefab;
     public GameObject AlternatePrefab;
@@ -15,7 +16,8 @@ public class Spawner : MonoBehaviour {
 	public Transform targetParent;
 	public Board board;
 
-	float Counter = 0f;
+	/*Coroutine coro;
+    bool InAlternate = false;
 
 	void OnEnable() {
 		Counter = Frequency;
@@ -26,17 +28,12 @@ public class Spawner : MonoBehaviour {
             StopCoroutine(coro);
             coro = null;
         }
-
     }
-
-    Coroutine coro;
 
     void Start() {
         if (AlternatePrefab)
             coro = StartCoroutine(Alternates());
     }
-
-    bool InAlternate = false;
 
     IEnumerator Alternates() {
         while (enabled) {
@@ -47,29 +44,28 @@ public class Spawner : MonoBehaviour {
             yield return new WaitForSeconds(Random.Range(1.0f, 3.0f));
             InAlternate = false;
         }
-    }
-
-	void Spawn(GameObject prefab) {
-		var parent = targetParent;
-		if (!parent)
-			parent = transform;
-
-		var obj = Instantiate<GameObject>(prefab, transform.position, Quaternion.identity, parent);
-		obj.GetComponent<ISpawnable>().OnSpawned(this);
+    }*/
+	
+	public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
+	{
+		referencedPrefabs.Add(Prefab);
+		referencedPrefabs.Add(AlternatePrefab);
 	}
 
-	int TotalSpawned = 0;
-
-	void Update () {
-		if (TotalSpawned >= Max || InAlternate)
-			return;
-
-		Counter += Time.deltaTime;
-		while (Counter > Frequency) {
-			Counter -= Frequency;
-			Spawn(Prefab);
-			TotalSpawned++;
-		}
+	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+	{
+		dstManager.SetName(entity, "Spawner");
+		dstManager.AddComponentData(entity, new SpawnerComponent
+		{
+			Prefab = conversionSystem.GetPrimaryEntity(Prefab),
+			AlternatePrefab = conversionSystem.GetPrimaryEntity(AlternatePrefab),
+			Counter = Counter,
+			Frequency = Frequency,
+			Max = Max,
+			TotalSpawned = TotalSpawned,
+			InAlternate = false,
+			Timer = 0f
+		});
 	}
 }
 

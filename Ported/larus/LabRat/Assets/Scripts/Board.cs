@@ -1,7 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.Runtime.InteropServices;
+using Unity.Entities;
+using Unity.Mathematics;
+using Random = UnityEngine.Random;
 
 namespace ECSExamples {
 
@@ -119,8 +124,8 @@ public class Board : MonoBehaviour {
 		lastDesc = boardDesc.Copy();
 	}
 
-	int CoordToIndex(Vector2Int coord) {
-		return coord.y * boardDesc.size.x + coord.x;
+	uint CoordToIndex(Vector2Int coord) {
+		return (uint)(coord.y * boardDesc.size.x + coord.x);
 	}
 
 	public void Update () {
@@ -151,6 +156,15 @@ public class Board : MonoBehaviour {
 		var cellCoord = new Vector2Int(Mathf.FloorToInt(localPt.x / boardDesc.cellSize.x), Mathf.FloorToInt(localPt.y / boardDesc.cellSize.y));
 		return CellAtCoord(cellCoord);
 	}
+
+	/*public static Cell CellAtWorldPosition(BoardDataComponent boardData, Vector3 worldPosition) {
+		//var localPt3D = transform.InverseTransformPoint(worldPosition);
+		var localPt = new Vector2(localPt3D.x, localPt3D.z);
+
+		localPt += boardData.cellSize * 0.5f; // offset by half cellsize
+		var cellCoord = new Vector2Int(Mathf.FloorToInt(localPt.x / boardData.cellSize.x), Mathf.FloorToInt(localPt.y / boardData.cellSize.y));
+		return CellAtCoord(cellCoord);
+	}*/
 
 	public Cell RaycastCellDirection(Vector2 screenPos, out Direction cellDirection) {
 		cellDirection = Direction.North;
@@ -195,5 +209,43 @@ public class Board : MonoBehaviour {
 
 		return cells[CoordToIndex(cellCoord)];
 	}
-} 
+
+	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+	{
+		dstManager.SetName(entity, "Board");
+		dstManager.AddComponentData(entity, new BoardDataComponent
+		{
+			size = new int2(boardDesc.size.x, boardDesc.size.y),
+			cellSize = boardDesc.cellSize
+		});
+
+		var cellBuf = dstManager.AddBuffer<CellComponent>(entity);
+		foreach (var cell in cells)
+		{
+			CellData cellData = 0;
+			if (cell == null)
+			{
+				cellData = cellData & CellData.Hole;
+				cellBuf.Add(new CellComponent {index = CoordToIndex(cell.coord), data = cellData});
+				continue;
+			}
+			if (cell.HasWall(Direction.North))
+				cellData = cellData & CellData.WallNorth;
+			if (cell.HasWall(Direction.South))
+				cellData = cellData & CellData.WallSouth;
+			if (cell.HasWall(Direction.East))
+				cellData = cellData & CellData.WallWest;
+			if (cell.HasWall(Direction.West))
+				cellData = cellData & CellData.WallEast;
+			if (cell.Homebase != null)
+			{
+				cellData = cellData & CellData.HomeBase;
+				// TODO: Set cell index => homebase player ID lookup
+			}
+
+			if (cellData != 0)
+				cellBuf.Add(new CellComponent {index = CoordToIndex(cell.coord), data = cellData});
+		}
+	}
+}
 }

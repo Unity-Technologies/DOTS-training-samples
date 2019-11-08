@@ -73,7 +73,7 @@ public class BoardDesign : MonoBehaviour {
         CellAt(boardSize.x * 2f * offset, boardSize.y * offset).SetHomebase(3);
 
         SpawnerAt(MouseSpawner, 0, 0, Quaternion.identity);
-        SpawnerAt(MouseSpawner, boardSize.x - 1, boardSize.y - 1, Quaternion.Euler(180, 0, 0));
+        SpawnerAt(MouseSpawner, boardSize.x - 1, boardSize.y - 1, Quaternion.Euler(0, 180, 0));
         SpawnerAt(CatSpawner, 0, boardSize.y - 1, Quaternion.Euler(0, 0, 0));
         SpawnerAt(CatSpawner, boardSize.x - 1, 0, Quaternion.Euler(0, 0, 0));
 

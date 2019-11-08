@@ -1,10 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Unity.Entities;
 using UnityEngine;
+using Unity.Mathematics;
 
 namespace ECSExamples {
 
-public class Walks : MonoBehaviour, ISpawnable {
+// Size (8)+8+4+8+12+4+1+4+4+8+8=69
+public class Walks : MonoBehaviour, /*ISpawnable,*/ IConvertGameObjectToEntity {
 	public Interval Speed = new Interval(0.9f, 1.2f);
 	public float fallingSpeed = 2f;
 	public Board board;
@@ -17,13 +19,15 @@ public class Walks : MonoBehaviour, ISpawnable {
 	static float DIE_AT_DEPTH = -5.0f; // how far to fall before dying
 	State state;
 
-	enum State {
+	Vector2Int lastRedirectCoord = new Vector2Int(-1, -1);
+
+	public enum State {
 		Walking,
 		Falling,
         Dead
 	}
 
-	void OnEnable() {
+	/*void OnEnable() {
 		Forward = transform.forward;
 		mySpeed = Speed.RandomValue();
 		state = State.Walking;
@@ -32,9 +36,9 @@ public class Walks : MonoBehaviour, ISpawnable {
 	public void OnSpawned(Spawner spawner) {
 		board = spawner.board;
 		Forward = transform.forward = spawner.transform.forward;
-	}
+	}*/
 
-	static Direction DirectionFromVector(Vector3 forward) {
+	public static Direction DirectionFromVector(Vector3 forward) {
 		if (forward == Vector3.forward)
 			return Direction.North;
 		else if (forward == -Vector3.forward)
@@ -43,11 +47,22 @@ public class Walks : MonoBehaviour, ISpawnable {
 			return Direction.East;
 		else if (forward == -Vector3.right)
 			return Direction.West;
+		// TODO: Errgh
+		else if (forward == Vector3.zero)
+			return Direction.North;
+		else if (forward.z > 0.1f)
+			return Direction.North;
+		else if (forward.z < -0.1f)
+			return Direction.South;
+		else if (forward.x > 0.1f)
+			return Direction.East;
+		else if (forward.x < -0.1f)
+			return Direction.West;
 
 		throw new System.ArgumentOutOfRangeException("invalid direction: " + forward);
 	}
 
-	static Vector3 ForwardVectorForDirection(Direction dir) {
+	public static Vector3 ForwardVectorForDirection(Direction dir) {
 		switch (dir) {
 			case Direction.North:
 				return Vector3.forward;
@@ -75,11 +90,9 @@ public class Walks : MonoBehaviour, ISpawnable {
 		}
 	}
 
-	static Quaternion RotationForDirection(Direction direction) {
+	public static Quaternion RotationForDirection(Direction direction) {
 		return Quaternion.Euler(0, 90f * (float)direction, 0);
 	}
-
-    Vector2Int lastRedirectCoord = new Vector2Int(-1, -1);
 
 	void Update () {
 		if (!board || state == State.Dead)
@@ -148,7 +161,7 @@ public class Walks : MonoBehaviour, ISpawnable {
                         break;
                     }
 
-					var newDirection = cell.ShouldRedirect(myDirection, ref lastRedirectCoord, this);;
+					var newDirection = cell.ShouldRedirect(myDirection, this);;
                     if (newDirection != myDirection) {
                         Forward = ForwardVectorForDirection(newDirection);
 						if (myDirection == Cell.OppositeDirection(newDirection)) {
@@ -180,7 +193,14 @@ public class Walks : MonoBehaviour, ISpawnable {
 		transform.position -= Forward * dist;
 		transform.rotation = newRotation;
 		transform.position += Forward * dist;
-	} 
+	}
+
+	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+	{
+		// TODO: Initial state for walker
+		dstManager.AddComponent<WalkComponent>(entity);
+		//lastRedirectCoord = new Vector2Int(-1, -1);
+	}
 }
 
 }
