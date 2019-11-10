@@ -32,7 +32,7 @@ public class SpawnSystem : ComponentSystem
             if (spawner.TotalSpawned >= spawner.Max || spawner.InAlternate)
                 return;
 
-            spawner.Counter += Time.deltaTime;
+            spawner.Counter += Time.DeltaTime;
             while (spawner.Counter > spawner.Frequency || spawner.TotalSpawned == 0) {
                 spawner.Counter -= spawner.Frequency;
                 spawner.TotalSpawned++;

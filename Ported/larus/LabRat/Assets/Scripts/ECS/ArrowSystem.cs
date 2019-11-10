@@ -173,11 +173,11 @@ public class ClientArrowSystem : ComponentSystem
     {
         var board = GetSingleton<BoardDataComponent>();
 
-        /*var time = Time.time;
-        var deltaTime = Time.deltaTime;
-        var ecb = m_Buffer.CreateCommandBuffer().ToConcurrent();
-        var aiInputs = GetBufferFromEntity<PlayerInput>();
-        var job = Entities.ForEach((Entity playerEntity, int entityInQueryIndex, ref AiPlayerComponent arrowData, ref PlayerComponent player) =>
+        var time = Time.time;
+        var deltaTime = Time.DeltaTime;
+        //var ecb = m_Buffer.CreateCommandBuffer().ToConcurrent();
+        //var job = Entities.ForEach((Entity playerEntity, int entityInQueryIndex, ref AiPlayerComponent arrowData, ref PlayerComponent player) =>
+        Entities.ForEach((Entity playerEntity, ref PlayerInput aiInput, ref AiPlayerComponent arrowData, ref PlayerComponent player) =>
         {
             float2 aiCellCoord = float2.zero;
             Direction aiCellDirection = Direction.North;
@@ -190,8 +190,8 @@ public class ClientArrowSystem : ComponentSystem
 
             var shouldClick = random.NextFloat(0, 1);
             var currentPosition = arrowData.CurrentPosition;
-            if (arrowData.StartTime > 0f && Math.Abs(currentPosition.x - arrowData.TargetPosition.x) < 0.1f &&
-                Math.Abs(currentPosition.y - arrowData.TargetPosition.y) < 0.1f)
+            if (arrowData.StartTime > 0f && math.abs(currentPosition.x - arrowData.TargetPosition.x) < 0.1f &&
+                math.abs(currentPosition.y - arrowData.TargetPosition.y) < 0.1f)
             {
                 aiCellClicked = true;
                 aiCellDirection = arrowData.Direction;
@@ -205,7 +205,7 @@ public class ClientArrowSystem : ComponentSystem
                 arrowData.Direction = nextDirection;
                 arrowData.CellCoordinate = aiCellCoord;
                 arrowData.StartTime = time;
-                ecb.SetComponent(entityInQueryIndex, playerEntity, arrowData);
+                //ecb.SetComponent(entityInQueryIndex, playerEntity, arrowData);
             }
 
             if (arrowData.TargetPosition.x == 0 && arrowData.TargetPosition.z == 0)
@@ -218,16 +218,16 @@ public class ClientArrowSystem : ComponentSystem
                 0.01f, 400f, deltaTime);
             arrowData.CurrentPosition = new float3(currentScreenPos.x, currentScreenPos.y, 0f);
             aiScreenPos = arrowData.CurrentPosition;
-            ecb.SetComponent(entityInQueryIndex, playerEntity, arrowData);
+            //ecb.SetComponent(entityInQueryIndex, playerEntity, arrowData);
 
-            aiInputs[playerEntity].Add(new PlayerInput
+            aiInput = new PlayerInput
             {
                 ScreenPosition = aiScreenPos,
                 Direction = aiCellDirection,
                 CellCoordinates = (int2)aiCellCoord,
                 Clicked = aiCellClicked
-            });
-        }).WithReadOnly(aiInputs).Schedule(inputDeps);*/
+            };
+        });//.WithReadOnly(aiInputs).Schedule(inputDeps);
 
         float2 cellCoord = float2.zero;
         Direction cellDirection = Direction.North;
@@ -242,7 +242,7 @@ public class ClientArrowSystem : ComponentSystem
             Helpers.ScreenPositionToCell(screenPos, board.cellSize, board.size, out worldPos, out cellCoord, out cellIndex);
 
             var localPos = new float2(worldPos.x - cellCoord.x, worldPos.z - cellCoord.y);
-            if (Mathf.Abs(localPos.y) > Mathf.Abs(localPos.x))
+            if (math.abs(localPos.y) > math.abs(localPos.x))
                 cellDirection = localPos.y > 0 ? Direction.North : Direction.South;
             else
                 cellDirection = localPos.x > 0 ? Direction.East : Direction.West;
@@ -285,11 +285,11 @@ public class Helpers
             return;
 
         worldPos = ray.GetPoint(enter);
-        if (worldPos.x < 0 || Mathf.FloorToInt(worldPos.x) >= boardSize.x-1 || worldPos.z < 0 || Mathf.FloorToInt(worldPos.z) >= boardSize.y-1)
+        if (worldPos.x < 0 || math.floor(worldPos.x) >= boardSize.x-1 || worldPos.z < 0 || math.floor(worldPos.z) >= boardSize.y-1)
             return;
         var localPt = new float2(worldPos.x, worldPos.z);
         localPt += cellSize * 0.5f; // offset by half cellsize
-        cellCoord = new float2(Mathf.FloorToInt(localPt.x / cellSize.x), Mathf.FloorToInt(localPt.y / cellSize.y));
+        cellCoord = new float2(math.floor(localPt.x / cellSize.x), math.floor(localPt.y / cellSize.y));
         cellIndex = (int)(cellCoord.y * boardSize.x + cellCoord.x);
     }
 
@@ -300,7 +300,7 @@ public class Helpers
         nextPosition = new float3(nextX, 0.55f, nextY);
         var localPt = new float2(nextPosition.x, nextPosition.z);
         localPt += board.cellSize * 0.5f;
-        cellCoord = new float2(Mathf.FloorToInt(localPt.x / board.cellSize.x), Mathf.FloorToInt(localPt.y / board.cellSize.y));
+        cellCoord = new float2(math.floor(localPt.x / board.cellSize.x), math.floor(localPt.y / board.cellSize.y));
 
         var directionValue = random.NextInt(0, 100);
         if (directionValue < 25)

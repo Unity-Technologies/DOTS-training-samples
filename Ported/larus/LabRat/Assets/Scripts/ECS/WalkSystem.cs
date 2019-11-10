@@ -28,7 +28,7 @@ public class WalkSystem : JobComponentSystem
 		var cellMap = m_Board.CellMap;
 		var arrowMap = m_Board.ArrowMap;
 		var ecb = m_Buffer.CreateCommandBuffer().ToConcurrent();
-		var deltaTime = Time.deltaTime;
+		var deltaTime = Time.DeltaTime;
 		var job = Entities.ForEach((Entity entity, int entityInQueryIndex , ref WalkComponent walker, ref Translation position, ref Rotation rotation) =>
 		{
 			float3 fwd = ForwardVectorFromRotation(rotation.Value);
