@@ -74,5 +74,29 @@ public class ArrowRenderingSystem : ComponentSystem
 
             PostUpdateCommands.AddComponent<InitializedHomebase>(entity);
         });
+
+        Entities.ForEach((Entity entity, ref PlayerComponent player, ref Translation position) =>
+        {
+            // Player spawned but has not yet received snapshot update
+            if (player.PlayerId == 0)
+                return;
+
+            if (m_Cursors == null)
+                m_Cursors = new GameObject[PlayerConstants.MaxPlayers];
+            var cursorIndex = player.PlayerId - 1;
+            if (m_Cursors[cursorIndex] == null)
+            {
+                var colors = World.GetExistingSystem<ApplyOverlayColors>();
+                var cursorPrefab = (GameObject)Resources.Load("Cursor");
+                m_Cursors[cursorIndex] = GameObject.Instantiate(cursorPrefab, Vector3.zero, Quaternion.identity, m_Canvas.transform);
+                var cursorImage = m_Cursors[cursorIndex].GetComponentInChildren<Image>();
+                cursorImage.color = colors.PlayerMats[cursorIndex].color;
+            }
+
+            Vector2 pos;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                m_Canvas.transform as RectTransform, new Vector2(position.Value.x, position.Value.y), m_Canvas.worldCamera, out pos);
+            m_Cursors[cursorIndex].transform.position = m_Canvas.transform.TransformPoint(pos);
+        });
     }
 }
