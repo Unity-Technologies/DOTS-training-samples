@@ -161,7 +161,9 @@ public class SpawnPlayerSystem : ComponentSystem
             PostUpdateCommands.SetComponent(entity, new CommandTargetComponent{targetEntity = player});
 
             // Set up the players home base
-            m_BoardSystem.SpawnHomebase(id.Value);
+            var gameConfig = GetSingleton<GameConfigComponent>();
+            if (!gameConfig.StressTest)
+                m_BoardSystem.SpawnHomebase(id.Value);
             Debug.Log("Server got new connection NetId=" + id.Value + " spawned player entity " + player);
 
             // Set up links to this players overlays

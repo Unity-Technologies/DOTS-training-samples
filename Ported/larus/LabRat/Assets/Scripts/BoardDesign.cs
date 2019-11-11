@@ -65,10 +65,14 @@ public class BoardDesign : MonoBehaviour {
 			}
 		}
 
-        SpawnerAt(MouseSpawner, 0, 0, Quaternion.identity);
-        SpawnerAt(MouseSpawner, boardSize.x - 1, boardSize.y - 1, Quaternion.Euler(0, 180, 0));
-        SpawnerAt(CatSpawner, 0, boardSize.y - 1, Quaternion.Euler(0, 0, 0));
-        SpawnerAt(CatSpawner, boardSize.x - 1, 0, Quaternion.Euler(0, 0, 0));
+		var config = FindObjectOfType<GameConfig>();
+		SpawnerAt(MouseSpawner, 0, 0, Quaternion.identity);
+		SpawnerAt(MouseSpawner, boardSize.x - 1, boardSize.y - 1, Quaternion.Euler(0, 180, 0));
+        if (!config.StressTest)
+        {
+	        SpawnerAt(CatSpawner, 0, boardSize.y - 1, Quaternion.Euler(0, 0, 0));
+            SpawnerAt(CatSpawner, boardSize.x - 1, 0, Quaternion.Euler(0, 0, 0));
+        }
         if (boardSize.x > 13)
         {
 	        float offset = boardSize.x / 4f;
@@ -119,20 +123,29 @@ public class BoardDesign : MonoBehaviour {
 	        SpawnerAt(MouseSpawner, offset*4f, boardSize.y - 1, Quaternion.Euler(0, 180, 0));
         }
 
-        int numHoles = Random.Range(0, 4);
-        for (int i = 0; i < numHoles; ++i) {
-            var coord = new Vector2Int(Random.Range(0, boardSize.x), Random.Range(0, boardSize.y));
-            if (coord.x > 0 && coord.y > 0 && coord.x < boardSize.x - 1 && coord.y < boardSize.y - 1 && board.CellAtCoord(coord).IsEmpty())
-                board.RemoveCell(coord);
+        if (!config.StressTest)
+        {
+            int numHoles = Random.Range(0, 4);
+            for (int i = 0; i < numHoles; ++i)
+            {
+                var coord = new Vector2Int(Random.Range(0, boardSize.x), Random.Range(0, boardSize.y));
+                if (coord.x > 0 && coord.y > 0 && coord.x < boardSize.x - 1 && coord.y < boardSize.y - 1 &&
+                    board.CellAtCoord(coord).IsEmpty())
+                    board.RemoveCell(coord);
+            }
         }
 
 		Random.state = oldState;
 	}
 
-    void SpawnerAt(GameObject spawner, float cellX, float cellY, Quaternion rotation) {
+    void SpawnerAt(GameObject spawner, float cellX, float cellY, Quaternion rotation, float frequency = -1f) {
         var worldPos = board.CoordToWorld(new Vector2Int((int)cellX, (int)cellY));
 		var s = Instantiate<GameObject>(spawner, worldPos, rotation, parent: null).GetComponent<Spawner>();
 		s.board = board;
+
+		var config = FindObjectOfType<GameConfig>();
+		if (config.StressTest)
+			s.Frequency = 0.05f;
     }
 
     Cell CellAt(float cellX, float cellY) {

@@ -9,6 +9,8 @@ using UnityEngine;
 [UpdateInGroup(typeof(ServerSimulationSystemGroup))]
 public class SpawnSystem : ComponentSystem
 {
+    static int GlobalMiceCount = 0;
+
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<GameInProgressComponent>();
@@ -16,10 +18,12 @@ public class SpawnSystem : ComponentSystem
 
     protected override void OnUpdate()
     {
-        var gameConfig = GetEntityQuery(typeof(GameConfigComponent)).GetSingleton<GameConfigComponent>();
+        var gameConfig = GetSingleton<GameConfigComponent>();
         var time = Time.time;
         Entities.ForEach((Entity entity, ref SpawnerComponent spawner, ref Translation position, ref Rotation rotation) =>
         {
+            if (gameConfig.StressTest && GlobalMiceCount > gameConfig.GlobalMaxSpawnCount) return;
+
             if (spawner.AlternatePrefab != Entity.Null && spawner.Timer - time >= 0)
             {
                 if (spawner.InAlternate)
@@ -43,16 +47,21 @@ public class SpawnSystem : ComponentSystem
             while (spawner.Counter > spawner.Frequency || spawner.TotalSpawned == 0) {
                 spawner.Counter -= spawner.Frequency;
                 spawner.TotalSpawned++;
+                GlobalMiceCount++;
 
                 var speed = gameConfig.EatenSpeed.RandomValue();
                 if (spawner.PrimaryType == SpawnerType.Eater)
                     speed = gameConfig.EaterSpeed.RandomValue();
 
-                //Debug.Log("Spawning " + spawner.Prefab + " counter=" + spawner.Counter + " totalSpawned=" + spawner.TotalSpawned + " max=" + spawner.Max);
                 var rat = PostUpdateCommands.Instantiate(spawner.Prefab);
                 PostUpdateCommands.SetComponent(rat, new WalkComponent{Speed = speed});
                 PostUpdateCommands.SetComponent(rat, new Translation{Value = position.Value});
                 PostUpdateCommands.SetComponent(rat, new Rotation{Value = rotation.Value});
+            }
+
+            if (gameConfig.StressTest && GlobalMiceCount % 10000 == 0)
+            {
+                Debug.Log("Spawned " + GlobalMiceCount + " mice");
             }
         });
     }
