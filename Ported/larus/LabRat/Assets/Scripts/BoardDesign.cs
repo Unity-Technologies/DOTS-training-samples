@@ -138,7 +138,7 @@ public class BoardDesign : MonoBehaviour {
 		Random.state = oldState;
 	}
 
-    void SpawnerAt(GameObject spawner, float cellX, float cellY, Quaternion rotation, float frequency = -1f) {
+    void SpawnerAt(GameObject spawner, float cellX, float cellY, Quaternion rotation) {
         var worldPos = board.CoordToWorld(new Vector2Int((int)cellX, (int)cellY));
 		var s = Instantiate<GameObject>(spawner, worldPos, rotation, parent: null).GetComponent<Spawner>();
 		s.board = board;
