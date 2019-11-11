@@ -13,10 +13,12 @@ public class ArrowRenderingSystem : ComponentSystem
     private Material[] m_HomebaseMats;
     private GameObject[] m_Cursors;
     private Canvas m_Canvas;
+    private ApplyOverlayColors m_Colors;
 
     protected override void OnCreate()
     {
         m_Canvas = GameObject.FindObjectOfType<Canvas>();
+        m_Colors = World.GetOrCreateSystem<ApplyOverlayColors>();
     }
 
     public struct InitializedHomebase : IComponentData
@@ -44,7 +46,6 @@ public class ArrowRenderingSystem : ComponentSystem
             PostUpdateCommands.DestroyEntity(entity);
         });
 
-        // TODO: Move elsewhere or rename this file
         Entities.WithNone<InitializedHomebase>().ForEach((Entity entity, ref HomebaseComponent home) =>
         {
             if ((int)home.Color.x == 0 && (int)home.Color.y == 0 && (int)home.Color.z == 0 && (int)home.Color.w == 0)
@@ -53,25 +54,24 @@ public class ArrowRenderingSystem : ComponentSystem
             var colorIndex = home.PlayerId - 1;
             var sharedMesh = EntityManager.GetSharedComponentData<RenderMesh>(linkedEntityBuffer[2].Value);
 
-            var colors = World.GetExistingSystem<ApplyOverlayColors>();
-            if (colors.PlayerMats == null || (colors.PlayerMats.Length >= PlayerConstants.MaxPlayers && colors.PlayerMats[colorIndex] == null))
+            if (m_Colors.PlayerMats == null || (m_Colors.PlayerMats.Length >= PlayerConstants.MaxPlayers && m_Colors.PlayerMats[colorIndex] == null))
             {
-                if (colors.PlayerMats == null)
-                    colors.PlayerMats = new Material[PlayerConstants.MaxPlayers];
+                if (m_Colors.PlayerMats == null)
+                    m_Colors.PlayerMats = new Material[PlayerConstants.MaxPlayers];
 
-                if (colors.PlayerMats[colorIndex] == null)
+                if (m_Colors.PlayerMats[colorIndex] == null)
                 {
                     var mat = new Material(sharedMesh.material);
-                    mat.color = colors.Colors[colorIndex];
-                    colors.PlayerMats[colorIndex] = mat;
+                    mat.color = m_Colors.Colors[colorIndex];
+                    m_Colors.PlayerMats[colorIndex] = mat;
                 }
             }
 
-            sharedMesh.material = colors.PlayerMats[colorIndex];
+            sharedMesh.material = m_Colors.PlayerMats[colorIndex];
             PostUpdateCommands.SetSharedComponent(linkedEntityBuffer[2].Value, sharedMesh);
 
             sharedMesh = EntityManager.GetSharedComponentData<RenderMesh>(linkedEntityBuffer[3].Value);
-            sharedMesh.material = colors.PlayerMats[colorIndex];
+            sharedMesh.material = m_Colors.PlayerMats[colorIndex];
             PostUpdateCommands.SetSharedComponent(linkedEntityBuffer[3].Value, sharedMesh);
 
             PostUpdateCommands.AddComponent<InitializedHomebase>(entity);
@@ -88,11 +88,10 @@ public class ArrowRenderingSystem : ComponentSystem
             var cursorIndex = player.PlayerId - 1;
             if (m_Cursors[cursorIndex] == null)
             {
-                var colors = World.GetExistingSystem<ApplyOverlayColors>();
                 var cursorPrefab = (GameObject)Resources.Load("Cursor");
                 m_Cursors[cursorIndex] = GameObject.Instantiate(cursorPrefab, Vector3.zero, Quaternion.identity, m_Canvas.transform);
                 var cursorImage = m_Cursors[cursorIndex].GetComponentInChildren<Image>();
-                cursorImage.color = colors.PlayerMats[cursorIndex].color;
+                cursorImage.color = m_Colors.PlayerMats[cursorIndex].color;
             }
 
             Vector2 pos;

@@ -62,8 +62,8 @@ public class BoardSystem : ComponentSystem
         var x = math.floor(offsetX);
         var y = math.floor(offsetY);
 
-        // TODO: Use better place to define player to color mappings
-        var color = PlayerCursor.PlayerColors[playerId-1];
+        var colors = World.GetOrCreateSystem<ApplyOverlayColors>();
+        var color = colors.Colors[playerId-1];
 
         var prefabs = GetSingleton<GhostPrefabCollectionComponent>();
         var serverPrefabs = EntityManager.GetBuffer<GhostPrefabBuffer>(prefabs.serverPrefabs);

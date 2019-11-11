@@ -67,20 +67,56 @@ public class BoardDesign : MonoBehaviour {
 
         SpawnerAt(MouseSpawner, 0, 0, Quaternion.identity);
         SpawnerAt(MouseSpawner, boardSize.x - 1, boardSize.y - 1, Quaternion.Euler(0, 180, 0));
-		SpawnerAt(CatSpawner, 0, boardSize.y - 1, Quaternion.Euler(0, 0, 0));
+        SpawnerAt(CatSpawner, 0, boardSize.y - 1, Quaternion.Euler(0, 0, 0));
         SpawnerAt(CatSpawner, boardSize.x - 1, 0, Quaternion.Euler(0, 0, 0));
         if (boardSize.x > 13)
         {
 	        float offset = boardSize.x / 4f;
 	        SpawnerAt(MouseSpawner, offset, offset, Quaternion.identity);
-	        SpawnerAt(MouseSpawner, offset, offset*2f, Quaternion.Euler(0, 180, 0));
-	        SpawnerAt(MouseSpawner, offset*2f, offset, Quaternion.identity);
-	        SpawnerAt(MouseSpawner, offset*2f, offset*2f, Quaternion.Euler(0, 180, 0));
+	        SpawnerAt(MouseSpawner, offset, offset * 3f, Quaternion.Euler(0, 180, 0));
+	        SpawnerAt(MouseSpawner, offset * 3f, offset, Quaternion.identity);
+	        SpawnerAt(MouseSpawner, offset * 3f, offset * 3f, Quaternion.Euler(0, 180, 0));
 	        offset = boardSize.x / 6f;
 	        SpawnerAt(MouseSpawner, offset, offset, Quaternion.identity);
-	        SpawnerAt(MouseSpawner, offset, offset*2f, Quaternion.Euler(0, 180, 0));
-	        SpawnerAt(MouseSpawner, offset*2f, offset, Quaternion.identity);
-	        SpawnerAt(MouseSpawner, offset*2f, offset*2f, Quaternion.Euler(0, 180, 0));
+	        SpawnerAt(MouseSpawner, offset, offset * 5f, Quaternion.Euler(0, 180, 0));
+	        SpawnerAt(MouseSpawner, offset * 5f, offset, Quaternion.identity);
+	        SpawnerAt(MouseSpawner, offset * 5f, offset * 5f, Quaternion.Euler(0, 180, 0));
+        }
+        if (boardSize.x >= 60)
+        {
+	        float offset = boardSize.x / 2f;
+	        SpawnerAt(MouseSpawner, 0, offset, Quaternion.identity);
+	        SpawnerAt(MouseSpawner, offset, 0, Quaternion.Euler(0, 180, 0));
+	        SpawnerAt(MouseSpawner, boardSize.x - 1, offset, Quaternion.identity);
+	        SpawnerAt(MouseSpawner, offset, boardSize.y - 1, Quaternion.Euler(0, 180, 0));
+			offset = boardSize.x / 5f;
+	        SpawnerAt(MouseSpawner, offset, offset, Quaternion.identity);
+	        SpawnerAt(MouseSpawner, offset, offset*4f, Quaternion.Euler(0, 180, 0));
+	        SpawnerAt(MouseSpawner, offset*4f, offset, Quaternion.identity);
+	        SpawnerAt(MouseSpawner, offset*4f, offset*4f, Quaternion.Euler(0, 180, 0));
+	        offset = boardSize.x / 7f;
+	        SpawnerAt(MouseSpawner, offset, offset, Quaternion.identity);
+	        SpawnerAt(MouseSpawner, offset, offset*6f, Quaternion.Euler(0, 180, 0));
+	        SpawnerAt(MouseSpawner, offset*6f, offset, Quaternion.identity);
+	        SpawnerAt(MouseSpawner, offset*6f, offset*6f, Quaternion.Euler(0, 180, 0));
+        }
+        if (boardSize.x >= 100)
+        {
+	        float offset = boardSize.x * 4f / 10f;
+	        SpawnerAt(MouseSpawner, offset, offset, Quaternion.identity);
+	        SpawnerAt(MouseSpawner, 0, offset*1.5f, Quaternion.Euler(0, 180, 0));
+	        SpawnerAt(MouseSpawner, offset*1.5f,0,  Quaternion.identity);
+	        SpawnerAt(MouseSpawner, offset*1.5f, offset*1.5f, Quaternion.Euler(0, 180, 0));
+	        offset = boardSize.x / 6f;
+	        SpawnerAt(MouseSpawner, 0, offset, Quaternion.identity);
+	        SpawnerAt(MouseSpawner, offset, 0, Quaternion.Euler(0, 180, 0));
+	        SpawnerAt(MouseSpawner, boardSize.x - 1, offset, Quaternion.identity);
+	        SpawnerAt(MouseSpawner, offset*4f, boardSize.y - 1, Quaternion.Euler(0, 180, 0));
+	        offset = boardSize.x / 8f;
+	        SpawnerAt(MouseSpawner, 0, offset, Quaternion.identity);
+	        SpawnerAt(MouseSpawner, offset, 0, Quaternion.Euler(0, 180, 0));
+	        SpawnerAt(MouseSpawner, boardSize.x - 1, offset, Quaternion.identity);
+	        SpawnerAt(MouseSpawner, offset*4f, boardSize.y - 1, Quaternion.Euler(0, 180, 0));
         }
 
         int numHoles = Random.Range(0, 4);

@@ -182,7 +182,6 @@ public class ArrowSystem : JobComponentSystem
 
                 overlayTicks[oldestPlayerOverlay] =  new OverlayPlacementTickComponent { Tick = time};
                 ecb.SetComponent(entityInQueryIndex, oldestPlayerOverlay, new Translation { Value = new float3(input.CellCoordinates.x,0.7f,input.CellCoordinates.y)});
-                //PostUpdateCommands.SetComponent(oldestPlayerOverlay, new Translation { Value = new float3(input.CellCoordinates.x,0.7f,input.CellCoordinates.y)});
                 var rotation = quaternion.RotateX(math.PI / 2);
                 switch (input.Direction) {
                     case Direction.South:
@@ -197,13 +196,10 @@ public class ArrowSystem : JobComponentSystem
                 }
                 ecb.SetComponent(entityInQueryIndex, oldestPlayerOverlay, new Rotation { Value = rotation});
                 ecb.SetComponent(entityInQueryIndex, oldestPlayerColorOverlay, new Translation { Value = new float3(input.CellCoordinates.x,0.6f,input.CellCoordinates.y)});
-                //PostUpdateCommands.SetComponent(oldestPlayerOverlay, new Rotation { Value = rotation});
-                //PostUpdateCommands.SetComponent(oldestPlayerColorOverlay, new Translation { Value = new float3(input.CellCoordinates.x,0.6f,input.CellCoordinates.y)});
             }
 
             // Update the current position of the players cursor
             ecb.SetComponent(entityInQueryIndex, entity, new Translation{Value = input.ScreenPosition});
-            //PostUpdateCommands.SetComponent(entity, new Translation{Value = input.ScreenPosition});
         }).WithReadOnly(cellMap).WithReadOnly(arrowMap).WithNativeDisableContainerSafetyRestriction(overlayTicks).Schedule(inputDeps);
         m_Buffer.AddJobHandleForProducer(job);
         return job;
@@ -277,7 +273,7 @@ public class ClientArrowSystem : ComponentSystem
             screenPos = Input.mousePosition;
             int cellIndex;
             float3 worldPos;
-            Helpers.ScreenPositionToCell(screenPos, board.cellSize, board.size, out worldPos, out cellCoord, out cellIndex);
+            Helpers.ScreenPositionToCell(screenPos, board, out worldPos, out cellCoord, out cellIndex);
 
             var localPos = new float2(worldPos.x - cellCoord.x, worldPos.z - cellCoord.y);
             if (math.abs(localPos.y) > math.abs(localPos.x))
@@ -327,7 +323,7 @@ public class ClientArrowSystem : ComponentSystem
 
 public class Helpers
 {
-    public static void ScreenPositionToCell(float3 position, float2 cellSize, int2 boardSize, out float3 worldPos, out float2 cellCoord, out int cellIndex)
+    public static void ScreenPositionToCell(float3 position, BoardDataComponent board, out float3 worldPos, out float2 cellCoord, out int cellIndex)
     {
         cellCoord = new float2(0f,0f);
         cellIndex = 0;
@@ -335,17 +331,14 @@ public class Helpers
 
         var ray = Camera.main.ScreenPointToRay(position);
         float enter;
-        var plane = new Plane(math.up(), new float3(0, cellSize.y * 0.5f, 0));
+        var plane = new Plane(math.up(), new float3(0, board.cellSize.y * 0.5f, 0));
         if (!plane.Raycast(ray, out enter))
             return;
 
         worldPos = ray.GetPoint(enter);
-        if (worldPos.x < 0 || math.floor(worldPos.x) >= boardSize.x-1 || worldPos.z < 0 || math.floor(worldPos.z) >= boardSize.y-1)
+        if (worldPos.x < 0 || math.floor(worldPos.x) >= board.size.x-1 || worldPos.z < 0 || math.floor(worldPos.z) >= board.size.y-1)
             return;
-        var localPt = new float2(worldPos.x, worldPos.z);
-        localPt += cellSize * 0.5f; // offset by half cellsize
-        cellCoord = new float2(math.floor(localPt.x / cellSize.x), math.floor(localPt.y / cellSize.y));
-        cellIndex = (int)(cellCoord.y * boardSize.x + cellCoord.x);
+        Util.PositionToCoordinates(worldPos, board, out cellCoord, out cellIndex);
     }
 
     public static void GetRandomArrowPlacement(out float3 nextPosition, out Direction cellDirection, out float2 cellCoord, BoardDataComponent board, int playerId, Random random)

@@ -57,11 +57,13 @@ public class ConnectionSetup : ComponentSystem
 public class StartGame : ComponentSystem
 {
     private EntityQuery m_Players;
+    private BoardSystem m_BoardSystem;
 
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<GameStateComponent>();
         m_Players = GetEntityQuery(typeof(PlayerComponent));
+        m_BoardSystem = World.GetExistingSystem<BoardSystem>();
     }
 
     protected override void OnUpdate()
@@ -120,8 +122,7 @@ public class StartGame : ComponentSystem
         for (int i = 0; i < cleanup.Length; ++i)
             EntityManager.SetComponentData(cleanup[i], new Translation{Value = new float3(0,-10f,-10f)});
         cleanup.Dispose();
-        var boardSystem = World.GetExistingSystem<BoardSystem>();
-        var cellMap = boardSystem.CellMap;
+        var cellMap = m_BoardSystem.CellMap;
         var cellKeys = cellMap.GetKeyArray(Allocator.TempJob);
         for (int i = 0; i < cellKeys.Length; ++i)
         {
@@ -130,7 +131,7 @@ public class StartGame : ComponentSystem
             cellMap[cellKeys[i]] = data;
         }
         cellKeys.Dispose();
-        boardSystem.ArrowMap.Clear();
+        m_BoardSystem.ArrowMap.Clear();
         // TODO: reset score etc
     }
 }
@@ -138,6 +139,13 @@ public class StartGame : ComponentSystem
 [UpdateInGroup(typeof(ServerSimulationSystemGroup))]
 public class SpawnPlayerSystem : ComponentSystem
 {
+    private BoardSystem m_BoardSystem;
+
+    protected override void OnCreate()
+    {
+        m_BoardSystem = World.GetExistingSystem<BoardSystem>();
+    }
+
     protected override void OnUpdate()
     {
         Entities.WithNone<NetworkStreamInGame>().ForEach((Entity entity, ref NetworkIdComponent id) =>
@@ -153,7 +161,7 @@ public class SpawnPlayerSystem : ComponentSystem
             PostUpdateCommands.SetComponent(entity, new CommandTargetComponent{targetEntity = player});
 
             // Set up the players home base
-            World.GetExistingSystem<BoardSystem>().SpawnHomebase(id.Value);
+            m_BoardSystem.SpawnHomebase(id.Value);
             Debug.Log("Server got new connection NetId=" + id.Value + " spawned player entity " + player);
 
             // Set up links to this players overlays

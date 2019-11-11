@@ -1,10 +1,7 @@
 ﻿using ECSExamples;
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.NetCode;
 using Unity.Transforms;
-using UnityEngine;
 
 public struct LastPositionComponent : IComponentData
 {
@@ -30,10 +27,7 @@ public class EaterSystem : ComponentSystem
 
         Entities.ForEach((Entity entity, ref EaterComponentTag eater, ref Translation position, ref LastPositionComponent lastPosition) =>
         {
-            var localPt = new float2(position.Value.x, position.Value.z);
-            localPt += board.cellSize * 0.5f; // offset by half cellsize
-            var cellCoord = new float2(Mathf.FloorToInt(localPt.x / board.cellSize.x), Mathf.FloorToInt(localPt.y / board.cellSize.y));
-            var cellIndex = (int)(cellCoord.y * board.size.x + cellCoord.x);
+            Util.PositionToCoordinates(position.Value, board, out var cellCoord, out var cellIndex);
 
             var lastIndex = lastPosition.Index;
             if (lastIndex == cellIndex)
