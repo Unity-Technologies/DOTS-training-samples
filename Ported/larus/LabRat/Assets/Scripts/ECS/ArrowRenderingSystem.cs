@@ -24,10 +24,10 @@ public class ArrowRenderingSystem : ComponentSystem
 
     protected override void OnUpdate()
     {
-        Entities.ForEach((Entity entity, ref ArrowComponent arrow, ref Translation position) =>
+        Entities.ForEach((Entity entity, ref ArrowComponent arrow) =>
         {
             var hoverOverlay = GetSingletonEntity<HoverOverlayComponentTag>();
-            PostUpdateCommands.SetComponent(hoverOverlay, new Translation { Value = position.Value + new float3(0,0.53f,0)});
+            PostUpdateCommands.SetComponent(hoverOverlay, new Translation { Value = new float3(arrow.Coordinates.x,0.55f,arrow.Coordinates.y)});
             var rotation = quaternion.RotateX(math.PI / 2);
             switch (arrow.Direction) {
                 case Direction.South:
@@ -41,7 +41,7 @@ public class ArrowRenderingSystem : ComponentSystem
                     break;
             }
             PostUpdateCommands.SetComponent(hoverOverlay, new Rotation{Value = rotation});
-            PostUpdateCommands.RemoveComponent<ArrowComponent>(entity);
+            PostUpdateCommands.DestroyEntity(entity);
         });
 
         // TODO: Move elsewhere or rename this file
@@ -51,9 +51,22 @@ public class ArrowRenderingSystem : ComponentSystem
                 return;
             var linkedEntityBuffer = EntityManager.GetBuffer<LinkedEntityGroup>(entity);
             var colorIndex = home.PlayerId - 1;
-            var colors = World.GetExistingSystem<ApplyOverlayColors>();
-
             var sharedMesh = EntityManager.GetSharedComponentData<RenderMesh>(linkedEntityBuffer[2].Value);
+
+            var colors = World.GetExistingSystem<ApplyOverlayColors>();
+            if (colors.PlayerMats == null || (colors.PlayerMats.Length >= PlayerConstants.MaxPlayers && colors.PlayerMats[colorIndex] == null))
+            {
+                if (colors.PlayerMats == null)
+                    colors.PlayerMats = new Material[PlayerConstants.MaxPlayers];
+
+                if (colors.PlayerMats[colorIndex] == null)
+                {
+                    var mat = new Material(sharedMesh.material);
+                    mat.color = colors.Colors[colorIndex];
+                    colors.PlayerMats[colorIndex] = mat;
+                }
+            }
+
             sharedMesh.material = colors.PlayerMats[colorIndex];
             PostUpdateCommands.SetSharedComponent(linkedEntityBuffer[2].Value, sharedMesh);
 
@@ -64,7 +77,7 @@ public class ArrowRenderingSystem : ComponentSystem
             PostUpdateCommands.AddComponent<InitializedHomebase>(entity);
         });
 
-        Entities.WithNone<AiPlayerComponent>().ForEach((Entity entity, ref PlayerComponent player, ref Translation position) =>
+        Entities.ForEach((Entity entity, ref PlayerComponent player, ref Translation position) =>
         {
             // Player spawned but has not yet received snapshot update
             if (player.PlayerId == 0)

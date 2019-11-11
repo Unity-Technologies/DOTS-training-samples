@@ -12,6 +12,7 @@ static class PlayerConstants
 }
 
 [UpdateInGroup(typeof(ServerSimulationSystemGroup))]
+[UpdateBefore(typeof(StartGame))]
 public class OverlaySpawnerSystem : ComponentSystem
 {
     public struct InitializedOverlaySpawner : IComponentData
@@ -56,7 +57,7 @@ public class OverlaySpawnerSystem : ComponentSystem
 public class ApplyOverlayColors : ComponentSystem
 {
     public Material[] PlayerMats;
-    private Color[] m_Colors = new[] {Color.black, Color.blue, Color.red, Color.green};
+    public Color[] Colors = new[] {Color.black, Color.blue, Color.red, Color.green};
 
     public struct InitializedColorTag : IComponentData
     {}
@@ -83,7 +84,7 @@ public class ApplyOverlayColors : ComponentSystem
                 if (PlayerMats[colorIndex] == null)
                 {
                     var mat = new Material(sharedMesh.material);
-                    mat.color = m_Colors[colorIndex];
+                    mat.color = Colors[colorIndex];
                     PlayerMats[colorIndex] = mat;
                 }
             }
