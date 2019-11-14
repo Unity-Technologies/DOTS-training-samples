@@ -4,4 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/_Scenes/attractors.unity
+    guid: 74914b95fef163f4e867fbc708c59fdf
+  m_configObjects: {}
