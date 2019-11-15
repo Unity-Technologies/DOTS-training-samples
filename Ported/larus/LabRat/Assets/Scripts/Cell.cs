@@ -40,8 +40,6 @@ public class Cell : MonoBehaviour, IConvertGameObjectToEntity {
 
 	public Material ArrowMaterial;
 	public Material ConfuseMaterial;
-	static public Material LightCell;
-	static public Material DarkCell;
 
     public float LastWalkTime = Mathf.NegativeInfinity;
 
@@ -111,13 +109,6 @@ public class Cell : MonoBehaviour, IConvertGameObjectToEntity {
 		this.board = board;
 		this.coord = coord;
 		//this.baseColor = baseColor;
-		if (LightCell == null)
-		{
-			LightCell = new Material(board.cellMaterial);
-			LightCell.color = board.boardDesc.colors[0];
-			DarkCell = new Material(board.cellMaterial);
-			DarkCell.color = board.boardDesc.colors[1];
-		}
 		return this;
 	}
 
@@ -393,17 +384,6 @@ public class Cell : MonoBehaviour, IConvertGameObjectToEntity {
 		dstManager.SetName(entity, "Cell[" + coord.x + "," + coord.y + "]");
 #endif
 		dstManager.AddComponent<CellRenderingComponentTag>(entity);
-
-		var index = (coord.y + coord.x) % 2 == 0 ? 1 : 0;
-		var sharedMesh = dstManager.GetSharedComponentData<RenderMesh>(entity);
-		//sharedMesh.material = board.cellMaterial;
-		if (index == 0)
-			sharedMesh.material = LightCell;
-		else
-			sharedMesh.material = DarkCell;
-
-		dstManager.SetSharedComponentData(entity, sharedMesh);
-		//Debug.Log("Setting cell " + coord + " color=" + sharedMesh.material.color);
 	}
 }
 

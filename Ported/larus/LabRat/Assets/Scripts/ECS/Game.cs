@@ -62,6 +62,7 @@ public class StartGame : ComponentSystem
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<GameStateComponent>();
+        RequireSingletonForUpdate<GameConfigComponent>();
         m_Players = GetEntityQuery(typeof(PlayerComponent));
         m_BoardSystem = World.GetExistingSystem<BoardSystem>();
     }
@@ -143,6 +144,8 @@ public class SpawnPlayerSystem : ComponentSystem
 
     protected override void OnCreate()
     {
+        RequireSingletonForUpdate<BoardDataComponent>();
+        RequireSingletonForUpdate<GhostPrefabCollectionComponent>();
         m_BoardSystem = World.GetExistingSystem<BoardSystem>();
     }
 

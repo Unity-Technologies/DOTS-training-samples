@@ -1,0 +1,9 @@
+{
+    "Dependencies": [
+        "GlobalObjectId_V1-1-af852f6ddcc0a44f3b5b40c6e129724b-93214019566545601-0"
+    ],
+    "Components": [{
+        "$type": "NetCodeConversionSettings, Unity.NetCode",
+        "Target": 1
+    }]
+}

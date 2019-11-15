@@ -16,6 +16,7 @@ public class EaterSystem : ComponentSystem
     protected override void OnCreate()
     {
         m_Board = World.GetExistingSystem<BoardSystem>();
+        RequireSingletonForUpdate<BoardDataComponent>();
     }
 
     protected override void OnUpdate()

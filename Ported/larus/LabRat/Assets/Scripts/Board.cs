@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Unity.Entities;
 using Unity.Mathematics;
 using Random = UnityEngine.Random;
@@ -18,6 +16,10 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 	public GameObject cellPrefab;
 	public bool AutoUpdate = true;
 	public int TargetFrameRate = -1;
+
+	public Material CellMaterial0;
+	public Material CellMaterial1;
+	public int RandomSeed;
 
 	BoardDesc lastDesc;
 	Cell[] cells;
@@ -107,6 +109,11 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 			
 			var index = (coord.x + coord.y) % 2 == 0 ? 1 : 0;
 			//var index = (int)Mathf.Repeat((float)count, boardDesc.colors.Length);
+			var renderer = obj.GetComponent<Renderer>();
+			if (index == 0)
+				renderer.material = CellMaterial0;
+			else
+				renderer.material = CellMaterial1;
 
 			var baseColor = boardDesc.colors[index];
 
@@ -209,12 +216,14 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 		dstManager.AddComponentData(entity, new BoardDataComponent
 		{
 			size = new int2(boardDesc.size.x, boardDesc.size.y),
-			cellSize = boardDesc.cellSize
+			cellSize = boardDesc.cellSize,
+			randomSeed = RandomSeed
 		});
 
-		var boardSystem = dstManager.World.GetOrCreateSystem<BoardSystem>();
+		dstManager.AddBuffer<BoardCellData>(entity);
 		for (int i = 0; i < cells.Length; ++i)
 		{
+			var buffer = dstManager.GetBuffer<BoardCellData>(entity);
 			var cell = cells[i];
 			CellData cellData = 0;
 			if (cell == null)
@@ -228,8 +237,10 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 					x = 0;
 					y = cells[i-1].coord.y + 1;
 				}
-				var index = CoordToIndex(new Vector2Int(x, y));
-				boardSystem.CellMap.Add(index, new CellComponent {data = cellData});
+				//var index = CoordToIndex(new Vector2Int(x, y));
+				//var newCell = dstManager.CreateEntity();
+				//dstManager.AddComponentData(newCell, new BoardCellData{index = index, cellData = cellData});
+				buffer.Add(new BoardCellData { index = i, cellData = cellData });
 				continue;
 			}
 
@@ -277,17 +288,12 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 					cellData = cellData | CellData.WallWest;
 			}
 
-			if (cell.Homebase != null)
-			{
-				cellData = cellData | CellData.HomeBase;
-				boardSystem.HomeBaseMap.Add(i, cell.Homebase.playerData.playerIndex);
-			}
-
 			if (cellData != 0)
 			{
-				//Debug.Log("Set data for " + i  + " coord=" + cell.coord.x + "," + cell.coord.y + " data=" + cellData);
-				boardSystem.CellMap.Add(i, new CellComponent {data = cellData});
+				//var newCell = dstManager.CreateEntity();
+				//dstManager.AddComponentData(newCell, new BoardCellData{index = i, cellData = cellData});
 			}
+			buffer.Add(new BoardCellData { index = i, cellData = cellData });
 		}
 	}
 }

@@ -1,0 +1,19 @@
+{
+    "Dependencies": [],
+    "Components": [{
+        "$type": "Unity.Build.Common.GeneralSettings, Unity.Build.Common",
+        "ProductName": "LabRat",
+        "CompanyName": "Unity"
+    }, {
+        "$type": "Unity.Build.Common.SceneList, Unity.Build.Common",
+        "BuildCurrentScene": false,
+        "Scenes": [
+            "GlobalObjectId_V1-1-17fa3a3a6ae7c4e5a8cac69f7ddbaa54-102900000-0"
+        ]
+    }, {
+        "$type": "Unity.Build.Common.ClassicScriptingSettings, Unity.Build.Common",
+        "ScriptingBackend": 0,
+        "Il2CppCompilerConfiguration": 1,
+        "UseIncrementalGC": false
+    }]
+}

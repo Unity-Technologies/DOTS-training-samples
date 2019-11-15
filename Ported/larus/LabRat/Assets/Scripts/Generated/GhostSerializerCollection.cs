@@ -17,11 +17,12 @@ public struct LabRatGhostSerializerCollection : IGhostSerializerCollection
             "OverlayColorGhostSerializer",
             "HomebaseGhostSerializer",
             "CatGhostSerializer",
+            "SpawnedWallGhostSerializer",
         };
         return arr;
     }
 
-    public int Length => 6;
+    public int Length => 7;
 #endif
     public static int FindGhostType<T>()
         where T : struct, ISnapshotData<T>
@@ -38,6 +39,8 @@ public struct LabRatGhostSerializerCollection : IGhostSerializerCollection
             return 4;
         if (typeof(T) == typeof(CatSnapshotData))
             return 5;
+        if (typeof(T) == typeof(SpawnedWallSnapshotData))
+            return 6;
         return -1;
     }
     public int FindSerializer(EntityArchetype arch)
@@ -54,6 +57,8 @@ public struct LabRatGhostSerializerCollection : IGhostSerializerCollection
             return 4;
         if (m_CatGhostSerializer.CanSerialize(arch))
             return 5;
+        if (m_SpawnedWallGhostSerializer.CanSerialize(arch))
+            return 6;
         throw new ArgumentException("Invalid serializer type");
     }
 
@@ -65,6 +70,7 @@ public struct LabRatGhostSerializerCollection : IGhostSerializerCollection
         m_OverlayColorGhostSerializer.BeginSerialize(system);
         m_HomebaseGhostSerializer.BeginSerialize(system);
         m_CatGhostSerializer.BeginSerialize(system);
+        m_SpawnedWallGhostSerializer.BeginSerialize(system);
     }
 
     public int CalculateImportance(int serializer, ArchetypeChunk chunk)
@@ -83,6 +89,8 @@ public struct LabRatGhostSerializerCollection : IGhostSerializerCollection
                 return m_HomebaseGhostSerializer.CalculateImportance(chunk);
             case 5:
                 return m_CatGhostSerializer.CalculateImportance(chunk);
+            case 6:
+                return m_SpawnedWallGhostSerializer.CalculateImportance(chunk);
         }
 
         throw new ArgumentException("Invalid serializer type");
@@ -104,6 +112,8 @@ public struct LabRatGhostSerializerCollection : IGhostSerializerCollection
                 return m_HomebaseGhostSerializer.WantsPredictionDelta;
             case 5:
                 return m_CatGhostSerializer.WantsPredictionDelta;
+            case 6:
+                return m_SpawnedWallGhostSerializer.WantsPredictionDelta;
         }
 
         throw new ArgumentException("Invalid serializer type");
@@ -125,6 +135,8 @@ public struct LabRatGhostSerializerCollection : IGhostSerializerCollection
                 return m_HomebaseGhostSerializer.SnapshotSize;
             case 5:
                 return m_CatGhostSerializer.SnapshotSize;
+            case 6:
+                return m_SpawnedWallGhostSerializer.SnapshotSize;
         }
 
         throw new ArgumentException("Invalid serializer type");
@@ -158,6 +170,10 @@ public struct LabRatGhostSerializerCollection : IGhostSerializerCollection
             {
                 return GhostSendSystem<LabRatGhostSerializerCollection>.InvokeSerialize<CatGhostSerializer, CatSnapshotData>(m_CatGhostSerializer, data);
             }
+            case 6:
+            {
+                return GhostSendSystem<LabRatGhostSerializerCollection>.InvokeSerialize<SpawnedWallGhostSerializer, SpawnedWallSnapshotData>(m_SpawnedWallGhostSerializer, data);
+            }
             default:
                 throw new ArgumentException("Invalid serializer type");
         }
@@ -168,6 +184,7 @@ public struct LabRatGhostSerializerCollection : IGhostSerializerCollection
     private OverlayColorGhostSerializer m_OverlayColorGhostSerializer;
     private HomebaseGhostSerializer m_HomebaseGhostSerializer;
     private CatGhostSerializer m_CatGhostSerializer;
+    private SpawnedWallGhostSerializer m_SpawnedWallGhostSerializer;
 }
 
 public struct EnableLabRatGhostSendSystemComponent : IComponentData

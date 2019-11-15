@@ -1,0 +1,12 @@
+{
+    "Dependencies": [
+        "GlobalObjectId_V1-1-38064942d5d9b47b1a810a59bbedf636-93214019566545601-0"
+    ],
+    "Components": [{
+        "$type": "Unity.Build.Common.ClassicBuildProfile, Unity.Build.Common",
+        "Target": 2,
+        "Configuration": 3,
+        "Pipeline": "GlobalObjectId_V1-3-a124a2a4b06e7411d930317c2e0a15d1-11400000-0",
+        "ExcludedAssemblies": []
+    }]
+}

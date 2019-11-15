@@ -212,7 +212,7 @@ public class WalkSystem : JobComponentSystem
 		return false;
 	}
 
-	static CellData DirectionToCellData(Direction dir)
+	public static CellData DirectionToCellData(Direction dir)
 	{
 		if (dir == Direction.South)
 			return CellData.WallSouth;

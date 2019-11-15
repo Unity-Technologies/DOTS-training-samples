@@ -215,6 +215,7 @@ public class ClientArrowSystem : ComponentSystem
     {
         // Don't start processing+sending inputs until a connection is ready
         RequireSingletonForUpdate<NetworkIdComponent>();
+        RequireSingletonForUpdate<BoardDataComponent>();
         m_ClientSystem = World.GetExistingSystem<ClientSimulationSystemGroup>();
     }
 
