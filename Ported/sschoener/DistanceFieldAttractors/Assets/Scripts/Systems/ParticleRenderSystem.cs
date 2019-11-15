@@ -7,6 +7,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -42,6 +43,8 @@ namespace Systems
             var particleSetup = EntityManager.GetSharedComponentData<ParticleSetupComponent>(m_ParticleSetup.GetSingletonEntity());
 
             var numRenderables = m_Renderables.CalculateEntityCount();
+            int remaining = numRenderables % k_MaxBatchSize;
+            int numBatches = numRenderables / k_MaxBatchSize + (remaining > 0 ? 1 : 0);
             using (var matrices = new NativeArray<Matrix4x4>(numRenderables, Allocator.TempJob))
             using (var colors = new NativeArray<Vector4>(numRenderables, Allocator.TempJob))
             {
@@ -52,8 +55,6 @@ namespace Systems
                 }.Schedule(this, inputDeps);
 
                 // allocate batch data
-                int remaining = numRenderables % k_MaxBatchSize;
-                int numBatches = numRenderables / k_MaxBatchSize + (remaining > 0 ? 1 : 0);
                 while (m_Matrices.Count < numBatches)
                 {
                     m_Matrices.Add(new Matrix4x4[k_MaxBatchSize]);
@@ -63,7 +64,7 @@ namespace Systems
                     m_PropertyBlocks.Add(propertyBlock);
                     propertyBlock.SetVectorArray(k_Color, batchColors);
                 }
-                
+
                 // Do the actual rendering:
                 //  * copy over matrices
                 //  * copy over colors
@@ -100,7 +101,17 @@ namespace Systems
                 for (int batch = 0; batch < numBatches; batch++)
                 {
                     batchJobHandles[batch].Complete();
-                    
+                    m_Handles[2 * batch + 0].Free();
+                    m_Handles[2 * batch + 1].Free();
+                }
+
+                m_Handles.Clear();
+            }
+
+            using (new ProfilerMarker("DrawMeshInstanced").Auto())
+            {
+                for (int batch = 0; batch < numBatches; batch++)
+                {
                     int batchSize = (batch == numBatches - 1) ? remaining : k_MaxBatchSize;
                     m_PropertyBlocks[batch].SetVectorArray(k_Color, m_Colors[batch]);
                     Graphics.DrawMeshInstanced(
@@ -111,10 +122,7 @@ namespace Systems
                         batchSize,
                         m_PropertyBlocks[batch]
                     );
-                    m_Handles[2 * batch + 0].Free();
-                    m_Handles[2 * batch + 1].Free();
                 }
-                m_Handles.Clear();
             }
 
             return default(JobHandle);
@@ -134,7 +142,7 @@ namespace Systems
                 UnsafeUtility.MemCpy(Dst, Src.GetUnsafeReadOnlyPtr(), Size);
             }
         }
-        
+
         [BurstCompile]
         struct CollectRenderDataJob : IJobForEachWithEntity<LocalToWorldComponent, RenderColorComponent>
         {
