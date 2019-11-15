@@ -30,7 +30,7 @@ namespace Systems {
         }
         
         
-        [BurstCompile]
+        [BurstCompile(FloatMode = FloatMode.Fast)]
         struct UpdateLocalToWorld : IJobForEach<PositionComponent, VelocityComponent, LocalToWorldComponent>
         {
             public float SpeedStretch;

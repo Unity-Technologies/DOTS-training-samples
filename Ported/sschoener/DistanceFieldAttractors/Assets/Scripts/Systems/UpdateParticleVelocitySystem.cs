@@ -32,7 +32,7 @@ namespace Systems {
             }.Schedule(this, inputDeps);
         }
 
-        [BurstCompile]
+        [BurstCompile(FloatMode = FloatMode.Fast)]
         struct UpdateVelocity : IJobForEach<PositionInDistanceFieldComponent, PositionComponent, VelocityComponent>
         {
             public Random Rng;
