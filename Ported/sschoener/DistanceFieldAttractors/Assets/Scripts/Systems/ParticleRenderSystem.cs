@@ -8,6 +8,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Systems
 {
@@ -18,6 +19,7 @@ namespace Systems
         EntityQuery m_ParticleSetup;
         readonly List<Matrix4x4[]> m_Matrices = new List<Matrix4x4[]>();
         readonly List<Vector4[]> m_Colors = new List<Vector4[]>();
+        readonly List<GCHandle> m_Handles = new List<GCHandle>();
         readonly List<MaterialPropertyBlock> m_PropertyBlocks = new List<MaterialPropertyBlock>();
         static readonly int k_Color = Shader.PropertyToID("_Color");
 
@@ -50,10 +52,9 @@ namespace Systems
                 }.Schedule(this, inputDeps);
 
                 // allocate batch data
-                int numFullBatches = numRenderables / k_MaxBatchSize;
                 int remaining = numRenderables % k_MaxBatchSize;
-                int totalBatches = numFullBatches + (remaining > 0 ? 1 : 0);
-                while (m_Matrices.Count < totalBatches)
+                int numBatches = numRenderables / k_MaxBatchSize + (remaining > 0 ? 1 : 0);
+                while (m_Matrices.Count < numBatches)
                 {
                     m_Matrices.Add(new Matrix4x4[k_MaxBatchSize]);
                     var batchColors = new Vector4[k_MaxBatchSize];
@@ -62,44 +63,78 @@ namespace Systems
                     m_PropertyBlocks.Add(propertyBlock);
                     propertyBlock.SetVectorArray(k_Color, batchColors);
                 }
-
-                renderDataJob.Complete();
                 
                 // Do the actual rendering:
                 //  * copy over matrices
                 //  * copy over colors
                 //  * use Graphics.DrawMeshInstanced
+                NativeArray<JobHandle> batchJobHandles = new NativeArray<JobHandle>(numBatches, Allocator.Temp);
                 unsafe
                 {
-                    var pSrcMatrices = (Matrix4x4*)matrices.GetUnsafeReadOnlyPtr();
-                    var pSrcColors = (Vector4*)colors.GetUnsafeReadOnlyPtr();
-                    for (int batch = 0; batch < numFullBatches; batch++)
+                    for (int batch = 0; batch < numBatches; batch++)
                     {
-                        int batchSize = (batch == numFullBatches - 1) ? remaining : k_MaxBatchSize;
-                        fixed (Matrix4x4* pDstMatrices = m_Matrices[batch])
-                        fixed (Vector4* pDstColors = m_Colors[batch])
+                        int batchSize = (batch == numBatches - 1) ? remaining : k_MaxBatchSize;
+                        var matricesHandle = GCHandle.Alloc(m_Matrices[batch], GCHandleType.Pinned);
+                        var colorsHandle = GCHandle.Alloc(m_Colors[batch], GCHandleType.Pinned);
+                        m_Handles.Add(matricesHandle);
+                        m_Handles.Add(colorsHandle);
                         {
-                            UnsafeUtility.MemCpy(pDstMatrices, pSrcMatrices, batchSize * sizeof(Matrix4x4));
-                            UnsafeUtility.MemCpy(pDstColors, pSrcColors, batchSize * sizeof(Vector4));
-                            pSrcMatrices += batchSize;
-                            pSrcColors += batchSize;
+                            var job1 = new MemcpyJob<Matrix4x4>()
+                            {
+                                Dst = matricesHandle.AddrOfPinnedObject().ToPointer(),
+                                Src = matrices.Slice(k_MaxBatchSize * batch, batchSize),
+                                Size = batchSize * sizeof(Matrix4x4)
+                            }.Schedule(renderDataJob);
+                            var job2 = new MemcpyJob<Vector4>()
+                            {
+                                Dst = colorsHandle.AddrOfPinnedObject().ToPointer(),
+                                Src = colors.Slice(k_MaxBatchSize * batch, batchSize),
+                                Size = batchSize * sizeof(Vector4)
+                            }.Schedule(renderDataJob);
+                            batchJobHandles[batch] = JobHandle.CombineDependencies(job1, job2);
                         }
-                        m_PropertyBlocks[batch].SetVectorArray(k_Color, m_Colors[batch]);
-                        Graphics.DrawMeshInstanced(
-                            particleSetup.Mesh,
-                            0,
-                            particleSetup.Material,
-                            m_Matrices[batch],
-                            batchSize,
-                            m_PropertyBlocks[batch]
-                        );
                     }
                 }
+
+                // wait for the render batches to complete and issue the draw calls
+                for (int batch = 0; batch < numBatches; batch++)
+                {
+                    batchJobHandles[batch].Complete();
+                    
+                    int batchSize = (batch == numBatches - 1) ? remaining : k_MaxBatchSize;
+                    m_PropertyBlocks[batch].SetVectorArray(k_Color, m_Colors[batch]);
+                    Graphics.DrawMeshInstanced(
+                        particleSetup.Mesh,
+                        0,
+                        particleSetup.Material,
+                        m_Matrices[batch],
+                        batchSize,
+                        m_PropertyBlocks[batch]
+                    );
+                    m_Handles[2 * batch + 0].Free();
+                    m_Handles[2 * batch + 1].Free();
+                }
+                m_Handles.Clear();
             }
 
             return default(JobHandle);
         }
 
+        [BurstCompile]
+        unsafe struct MemcpyJob<T> : IJob where T : struct
+        {
+            [ReadOnly]
+            public NativeSlice<T> Src;
+            [NativeDisableUnsafePtrRestriction]
+            public void* Dst;
+            public long Size;
+
+            public void Execute()
+            {
+                UnsafeUtility.MemCpy(Dst, Src.GetUnsafeReadOnlyPtr(), Size);
+            }
+        }
+        
         [BurstCompile]
         struct CollectRenderDataJob : IJobForEachWithEntity<LocalToWorldComponent, RenderColorComponent>
         {

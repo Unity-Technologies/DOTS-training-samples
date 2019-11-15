@@ -277,7 +277,7 @@ MonoBehaviour:
   Attraction: 3
   ExteriorColorDist: 5
   InteriorColorDist: 1.5
-  ColorStiffness: 0
+  ColorStiffness: 0.339
 --- !u!4 &843941424
 Transform:
   m_ObjectHideFlags: 0
