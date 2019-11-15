@@ -42,3 +42,4 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+*.zip
