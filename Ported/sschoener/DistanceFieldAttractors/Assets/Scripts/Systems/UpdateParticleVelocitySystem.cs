@@ -28,24 +28,25 @@ namespace Systems {
             {
                 Attraction = particleSetup.Attraction,
                 Jitter = particleSetup.Jitter,
-                Rng = new Random((uint)UnityEngine.Time.frameCount)
+                Seed = 1 + (uint)UnityEngine.Time.frameCount,
             }.Schedule(this, inputDeps);
         }
 
         [BurstCompile(FloatMode = FloatMode.Fast)]
-        struct UpdateVelocity : IJobForEach<PositionInDistanceFieldComponent, PositionComponent, VelocityComponent>
+        struct UpdateVelocity : IJobForEachWithEntity<PositionInDistanceFieldComponent, PositionComponent, VelocityComponent>
         {
-            public Random Rng;
+            public uint Seed;
             public float Attraction;
             public float Jitter;
             
-            public void Execute(
+            public void Execute(Entity entity, int index,
                 [ReadOnly] ref PositionInDistanceFieldComponent fieldPosition,
                 ref PositionComponent position,
                 ref VelocityComponent velocity)
             {
+                var rng = new Random(Seed * (uint)index);
                 float3 deltaV = -fieldPosition.Normal * Attraction * math.clamp(fieldPosition.Distance, -1, 1);
-                deltaV += Rng.NextFloat3Direction() * Rng.NextFloat() * Jitter;
+                deltaV += rng.NextFloat3Direction() * rng.NextFloat() * Jitter;
                 velocity.Value = .99f * (velocity.Value + deltaV);
                 position.Value += velocity.Value;
             }

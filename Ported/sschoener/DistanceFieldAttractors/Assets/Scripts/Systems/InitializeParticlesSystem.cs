@@ -15,20 +15,22 @@ namespace Systems {
         {
             return new InitializePositionsJob
             {
-                Rng = new Random((1 + (uint)Time.frameCount) * 104729),
+                Seed = (1 + (uint)Time.frameCount) * 104729,
                 SphereRadius = 50,
             }.Schedule(this, inputDeps);
         }
 
         [BurstCompile]
         [RequireComponentTag(typeof(UninitializedTagComponent))]
-        struct InitializePositionsJob : IJobForEach<PositionComponent>
+        struct InitializePositionsJob : IJobForEachWithEntity<PositionComponent>
         {
-            public Random Rng;
+            public uint Seed;
             public float SphereRadius;
-            public void Execute(ref PositionComponent position)
+
+            public void Execute(Entity entity, int index, ref PositionComponent position)
             {
-                position.Value = SphereRadius * Rng.NextFloat3Direction() * Rng.NextFloat();
+                var rng = new Random(Seed * (uint)index);
+                position.Value = SphereRadius * rng.NextFloat3Direction() * rng.NextFloat();
             }
         }
     }
