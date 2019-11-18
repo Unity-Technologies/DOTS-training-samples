@@ -40,11 +40,12 @@ namespace Systems {
                 [ReadOnly] ref VelocityComponent velocity,
                 ref LocalToWorldComponent localToWorld)
             {
-                float3 up = new float3(0, 0, 1);
-                quaternion rotation = quaternion.LookRotation(math.normalize(velocity.Value), up);
-                float3 scale = new float3(.1f, .01f, math.max(
-                    .1f, math.length(velocity.Value) * SpeedStretch
-                ));
+                float speed = math.length(velocity.Value);
+                
+                quaternion rotation = quaternion.LookRotation(velocity.Value/speed, new float3(0, 0, 1));
+                
+                float3 scale = new float3(.1f, .01f, math.max(.1f, speed * SpeedStretch));
+                
                 localToWorld.Value = float4x4.TRS(position.Value, rotation, scale);
             }
         }
