@@ -29,7 +29,7 @@ namespace Systems {
 
             public void Execute(Entity entity, int index, ref PositionComponent position)
             {
-                var rng = new Random(Seed * (uint)index);
+                var rng = new Random(Seed * (uint)(1 + index));
                 position.Value = SphereRadius * rng.NextFloat3Direction() * rng.NextFloat();
             }
         }

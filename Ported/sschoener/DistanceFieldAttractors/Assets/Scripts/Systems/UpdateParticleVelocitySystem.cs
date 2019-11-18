@@ -44,7 +44,7 @@ namespace Systems {
                 ref PositionComponent position,
                 ref VelocityComponent velocity)
             {
-                var rng = new Random(Seed * (uint)index);
+                var rng = new Random(Seed * (uint)(1 + index));
                 float3 deltaV = -fieldPosition.Normal * Attraction * math.clamp(fieldPosition.Distance, -1, 1);
                 deltaV += rng.NextFloat3Direction() * rng.NextFloat() * Jitter;
                 velocity.Value = .99f * (velocity.Value + deltaV);
