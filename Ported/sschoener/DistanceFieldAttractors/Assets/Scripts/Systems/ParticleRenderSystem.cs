@@ -45,68 +45,47 @@ namespace Systems
             var numRenderables = m_Renderables.CalculateEntityCount();
             int remaining = numRenderables % k_MaxBatchSize;
             int numBatches = numRenderables / k_MaxBatchSize + (remaining > 0 ? 1 : 0);
-            
-            using (var matrices = new NativeArray<Matrix4x4>(numRenderables, Allocator.TempJob))
-            using (var colors = new NativeArray<Vector4>(numRenderables, Allocator.TempJob))
+
+            // allocate batch data
+            while (m_Matrices.Count < numBatches)
             {
-                var renderDataJob = new CollectRenderDataJob
-                {
-                    Matrices = matrices,
-                    Colors = colors,
-                }.Schedule(this, inputDeps);
-
-                // allocate batch data
-                while (m_Matrices.Count < numBatches)
-                {
-                    m_Matrices.Add(new Matrix4x4[k_MaxBatchSize]);
-                    var batchColors = new Vector4[k_MaxBatchSize];
-                    m_Colors.Add(batchColors);
-                    var propertyBlock = new MaterialPropertyBlock();
-                    m_PropertyBlocks.Add(propertyBlock);
-                    propertyBlock.SetVectorArray(k_Color, batchColors);
-                }
-
-                // Do the actual rendering:
-                //  * copy over matrices
-                //  * copy over colors
-                //  * use Graphics.DrawMeshInstanced
-                NativeArray<JobHandle> batchJobHandles = new NativeArray<JobHandle>(numBatches, Allocator.Temp);
-                unsafe
-                {
-                    for (int batch = 0; batch < numBatches; batch++)
-                    {
-                        int batchSize = (batch == numBatches - 1) ? remaining : k_MaxBatchSize;
-                        var matricesHandle = GCHandle.Alloc(m_Matrices[batch], GCHandleType.Pinned);
-                        var colorsHandle = GCHandle.Alloc(m_Colors[batch], GCHandleType.Pinned);
-                        m_Handles.Add(matricesHandle);
-                        m_Handles.Add(colorsHandle);
-                        {
-                            var job1 = new MemcpyJob<Matrix4x4>()
-                            {
-                                Dst = matricesHandle.AddrOfPinnedObject().ToPointer(),
-                                Src = matrices.Reinterpret<Matrix4x4>().Slice(k_MaxBatchSize * batch, batchSize),
-                                Size = batchSize * sizeof(Matrix4x4)
-                            }.Schedule(renderDataJob);
-                            var job2 = new MemcpyJob<Vector4>()
-                            {
-                                Dst = colorsHandle.AddrOfPinnedObject().ToPointer(),
-                                Src = colors.Reinterpret<Vector4>().Slice(k_MaxBatchSize * batch, batchSize),
-                                Size = batchSize * sizeof(Vector4)
-                            }.Schedule(renderDataJob);
-                            batchJobHandles[batch] = JobHandle.CombineDependencies(job1, job2);
-                        }
-                    }
-                }
-
-                // wait for the render batches to complete and issue the draw calls
+                m_Matrices.Add(new Matrix4x4[k_MaxBatchSize]);
+                var batchColors = new Vector4[k_MaxBatchSize];
+                m_Colors.Add(batchColors);
+                var propertyBlock = new MaterialPropertyBlock();
+                m_PropertyBlocks.Add(propertyBlock);
+                propertyBlock.SetVectorArray(k_Color, batchColors);
+            }
+            
+            NativeArray<IntPtr> matrices  = new NativeArray<IntPtr>(numBatches, Allocator.Temp);
+            NativeArray<IntPtr> colors = new NativeArray<IntPtr>(numBatches, Allocator.Temp);
+            unsafe
+            {
                 for (int batch = 0; batch < numBatches; batch++)
                 {
-                    batchJobHandles[batch].Complete();
+                    int batchSize = (batch == numBatches - 1) ? remaining : k_MaxBatchSize;
+                    var matricesHandle = GCHandle.Alloc(m_Matrices[batch], GCHandleType.Pinned);
+                    var colorsHandle = GCHandle.Alloc(m_Colors[batch], GCHandleType.Pinned);
+                    m_Handles.Add(matricesHandle);
+                    m_Handles.Add(colorsHandle);
+                    matrices[batch] = matricesHandle.AddrOfPinnedObject();
+                    colors[batch] = colorsHandle.AddrOfPinnedObject();
+                }
+
+                new CollectRenderDataJob()
+                {
+                    Colors = (Vector4**)colors.GetUnsafePtr(),
+                    Matrices = (Matrix4x4**)matrices.GetUnsafePtr(),
+                }.Schedule(this, inputDeps).Complete();
+
+                for (int batch = 0; batch < numBatches; batch++)
+                {
                     m_Handles[2 * batch + 0].Free();
                     m_Handles[2 * batch + 1].Free();
                 }
 
                 m_Handles.Clear();
+                
             }
 
             using (new ProfilerMarker("DrawMeshInstanced").Auto())
@@ -130,36 +109,23 @@ namespace Systems
 
             return default(JobHandle);
         }
-
+        
         [BurstCompile]
-        unsafe struct MemcpyJob<T> : IJob where T : struct
+        unsafe struct CollectRenderDataJob : IJobForEachWithEntity<LocalToWorldComponent, RenderColorComponent>
         {
-            [ReadOnly]
-            public NativeSlice<T> Src;
             [NativeDisableUnsafePtrRestriction]
-            public void* Dst;
-            public long Size;
-
-            public void Execute()
-            {
-                UnsafeUtility.MemCpy(Dst, Src.GetUnsafeReadOnlyPtr(), Size);
-            }
-        }
-
-        [BurstCompile]
-        struct CollectRenderDataJob : IJobForEachWithEntity<LocalToWorldComponent, RenderColorComponent>
-        {
-            [NativeDisableParallelForRestriction]
-            public NativeArray<Matrix4x4> Matrices;
-            [NativeDisableParallelForRestriction]
-            public NativeArray<Vector4> Colors;
-
+            public Matrix4x4** Matrices;
+            [NativeDisableUnsafePtrRestriction]
+            public Vector4** Colors;
+            
             public void Execute(Entity entity, int index,
                 [ReadOnly] ref LocalToWorldComponent localToWorld,
                 [ReadOnly] ref RenderColorComponent color)
             {
-                Matrices[index] = localToWorld.Value;
-                Colors[index] = color.Value;
+                int batch = index / k_MaxBatchSize;
+                int offset = index % k_MaxBatchSize;
+                Matrices[batch][offset] = localToWorld.Value;
+                Colors[batch][offset] = color.Value;
             }
         }
     }
