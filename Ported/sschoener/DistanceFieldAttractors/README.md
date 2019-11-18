@@ -116,6 +116,14 @@ For comparison, here is the median frame from my sample:
 
 Most of the time is spent rendering shadow-maps and disabling shadows entirely solves all problems here (but unfortunately also robs the scene off some of its depth).
 
+#### Optimizations
+I have performed a few minor optimizations that I would like to highlight here:
+ * many of the distance field functions had redundant computations in them that are now done once per frame for all entities,
+ * usage of `math.sincos` instead of separate `sin/cos` calls,
+ * some constant folding for floating point numbers that the compiler wasn't willing to perform.
+
+Hoisting the redundant computations out of the inner loop was by far the most effective optimization since it replaces thousands of calls to trigonometric functions to just a handful.
+
 #### Issues
 * Right now, the main performance culprit is rendering. The scene is using soft shadows on the particles and this takes up most of the time. I'm sure there is a clever way to fake it and not pay that price.
 * Some of the distance field code could potentially be optimized across entities in a SIMD-fashion. It's currently fairly difficult to do that without making every entity correspond to 4 particles and change everything. This might be the right move, but the work required seems unjustified when you consider that there is no guarantee to get SIMD code without intrinsics.
