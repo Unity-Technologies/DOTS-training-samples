@@ -2,42 +2,45 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 [UpdateAfter(typeof(TargetingSystem))]
 public class ResourceCarrySystem : JobComponentSystem
 {
+    EntityQuery m_MapQuery;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        m_MapQuery = GetEntityQuery(ComponentType.ReadOnly<MapSettingsComponent>());
+    }
+
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        throw new System.NotImplementedException();
-    }
-
-    struct BaseJob
-    {
-        public void Execute([ReadOnly] ref PositionComponent position, [WriteOnly] ref FacingAngleComponent facingAngle)
-        {
-            
-        }
+        var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
+        return new Job {
+            ColonyPosition = map.ColonyPosition,
+            ResourcePosition = map.ResourcePosition
+        }.Schedule(this, inputDeps);
     }
     
-    [ExcludeComponent(typeof(HasResourcesTagComponent))]
-    struct SearcherJob : IJobForEach<PositionComponent, FacingAngleComponent>
+    struct Job : IJobForEach<PositionComponent, FacingAngleComponent, HasResourcesComponent>
     {
-        public BaseJob Data;
+        public float2 ColonyPosition;
+        public float2 ResourcePosition;
 
-        public void Execute([ReadOnly] ref PositionComponent position, [WriteOnly] ref FacingAngleComponent facingAngle)
+        public void Execute(
+            [ReadOnly] ref PositionComponent position,
+            [WriteOnly] ref FacingAngleComponent facingAngle,
+            ref HasResourcesComponent hasResources
+        )
         {
-            Data.Execute(ref position, ref facingAngle);
-        }
-    }
-    
-    [RequireComponentTag(typeof(HasResourcesTagComponent))]
-    struct CarrierJob : IJobForEach<PositionComponent, FacingAngleComponent>
-    {
-        public BaseJob Data;
-        public void Execute([ReadOnly] ref PositionComponent position, [WriteOnly] ref FacingAngleComponent facingAngle)
-        {
-            Data.Execute(ref position, ref facingAngle);
+            float2 target = math.select(ResourcePosition, ColonyPosition, hasResources.Value);
+            if (math.lengthsq(position.Value - target) < 4f * 4f) {
+                facingAngle.Value += math.PI;
+                hasResources.Value = !hasResources.Value;
+            }
         }
     }
 }

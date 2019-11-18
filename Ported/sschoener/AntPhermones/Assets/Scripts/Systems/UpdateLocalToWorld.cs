@@ -11,8 +11,9 @@ public class UpdateLocalToWorld : JobComponentSystem
         throw new System.NotImplementedException();
     }
 
-    struct Job : IJobForEach<FacingAngleComponent, PositionComponent, LocalToWorldComponent> {
-        public void Execute([ReadOnly]ref FacingAngleComponent angle, [ReadOnly] ref PositionComponent c1, [WriteOnly] ref LocalToWorldComponent c2)
+    struct Job : IJobForEach<FacingAngleComponent, PositionComponent, LocalToWorldComponent>
+    {
+        public void Execute([ReadOnly] ref FacingAngleComponent angle, [ReadOnly] ref PositionComponent c1, [WriteOnly] ref LocalToWorldComponent c2)
         {
             throw new System.NotImplementedException();
         }

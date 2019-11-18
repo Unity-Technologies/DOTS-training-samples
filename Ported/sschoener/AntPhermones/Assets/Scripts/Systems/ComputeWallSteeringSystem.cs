@@ -7,14 +7,28 @@ using Unity.Mathematics;
 [UpdateAfter(typeof(PerturbFacingSystem))]
 public class ComputeWallSteeringSystem : JobComponentSystem
 {
+    EntityQuery m_MapSettingsQuery;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        m_MapSettingsQuery = GetEntityQuery(ComponentType.ReadOnly<MapSettingsComponent>());
+    }
+
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        throw new System.NotImplementedException();
+        var map = m_MapSettingsQuery.GetSingleton<MapSettingsComponent>();
+        return new SteeringJob
+        {
+            Obstacles = map.Obstacles.Value.Obstacles,
+            MapSize = map.MapSize,
+        }.Schedule(this, inputDeps);
     }
 
     struct SteeringJob : IJobForEach<PositionComponent, FacingAngleComponent, WallSteeringComponent>
     {
         public float MapSize;
+        public BlobArray<float2> Obstacles;
 
         public void Execute([ReadOnly] ref PositionComponent position, [ReadOnly] ref FacingAngleComponent facingAngle, ref WallSteeringComponent steering)
         {

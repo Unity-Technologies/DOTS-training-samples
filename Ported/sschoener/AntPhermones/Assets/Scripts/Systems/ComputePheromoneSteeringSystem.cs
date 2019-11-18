@@ -7,17 +7,29 @@ using Unity.Mathematics;
 [UpdateAfter(typeof(PerturbFacingSystem))]
 public class ComputePheromoneSteeringSystem : JobComponentSystem
 {
+    EntityQuery m_PheromoneMapQuery;
+    EntityQuery m_MapSettingsQuery;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        m_PheromoneMapQuery = GetEntityQuery(ComponentType.ReadOnly<PheromoneMapComponent>());
+        m_MapSettingsQuery = GetEntityQuery(ComponentType.ReadOnly<MapSettingsComponent>());
+    }
+
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         return new SteeringJob
         {
-            MapSize = -1,
+            PheromoneMap = m_PheromoneMapQuery.GetSingleton<PheromoneMapComponent>().PheromoneMap.Value.Map,
+            MapSize = m_MapSettingsQuery.GetSingleton<MapSettingsComponent>().MapSize,
         }.Schedule(this, inputDeps);
     }
 
     struct SteeringJob : IJobForEach<FacingAngleComponent, PositionComponent, PheromoneSteeringComponent>
     {
         public float MapSize;
+        public BlobArray<float> PheromoneMap;
 
         public void Execute([ReadOnly] ref FacingAngleComponent facingAngle, [ReadOnly] ref PositionComponent position, ref PheromoneSteeringComponent steering)
         {
@@ -36,9 +48,9 @@ public class ComputePheromoneSteeringSystem : JobComponentSystem
                 }
                 else
                 {
-                    int index = PheromoneIndex((int)testX, (int)testY);
-                    float value = pheromones[index].r;
-                    output += value * i;
+
+                    int index = (int)(testY * MapSize + testX);
+                    output += PheromoneMap[index] * i;
                 }
             }
             steering.Value = output;

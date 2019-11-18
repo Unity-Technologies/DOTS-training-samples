@@ -21,70 +21,41 @@ public class PheromoneDropSystem : JobComponentSystem
     {
         var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
         var pheromoneMap = m_PheromoneMapQuery.GetSingleton<PheromoneMapComponent>();
-        new CarrierJob
+        new Job
         {
-            Data =
-            {
-                Excitement = 1,
-                TrailAdd = map.TrailAdd,
-                MaxSpeed = map.MaxSpeed,
-                MapSize = map.MapSize,
-            }
-        }.Run(this, inputDeps);
-        new SearcherJob
-        {
-            Data =
-            {
-                Excitement = .3f,
-                TrailAdd = map.TrailAdd,
-                MaxSpeed = map.MaxSpeed,
-                MapSize = map.MapSize,
-            }
+            CarrierExcitement = 1f,
+            SearcherExcitement = .3f,
+            TrailAdd = map.TrailAdd,
+            MaxSpeed = map.MaxSpeed,
+            MapSize = map.MapSize,
+            Pheromones = pheromoneMap.PheromoneMap.Value.Map,
         }.Run(this, inputDeps);
         return default;
     }
-
-    unsafe struct BaseJob
+    
+    struct Job : IJobForEach<PositionComponent, SpeedComponent, HasResourcesComponent>
     {
-        [NativeDisableUnsafePtrRestriction]
-        public float* Pheromones;
-        public float Excitement;
+        public BlobArray<float> Pheromones;
+        public float SearcherExcitement;
+        public float CarrierExcitement;
         public float MaxSpeed;
 
         public float TrailAdd;
         
         public int MapSize;
 
-        public void Execute([ReadOnly] ref PositionComponent position, [ReadOnly] ref SpeedComponent speed)
+        public void Execute(
+            [ReadOnly] ref PositionComponent position,
+            [ReadOnly] ref SpeedComponent speed,
+            [ReadOnly] ref HasResourcesComponent hasResources)
         {
             var p = (int2)math.floor(position.Value);
             if (math.any(p < 0) || math.any(p >= MapSize))
                 return;
-            float strength = Excitement * speed.Value / MaxSpeed;
+            float e = hasResources.Value ? CarrierExcitement : SearcherExcitement;
+            float strength = e * speed.Value / MaxSpeed;
             float pheromone = Pheromones[p.y * MapSize + p.x];
             Pheromones[p.y * MapSize + p.x] = math.min(1, pheromone + TrailAdd * strength * (1 - pheromone));
-        }
-    }
-    
-    [ExcludeComponent(typeof(HasResourcesTagComponent))]
-    struct SearcherJob : IJobForEach<PositionComponent, SpeedComponent>
-    {
-        public BaseJob Data;
-        
-        public void Execute([ReadOnly] ref PositionComponent position, [ReadOnly] ref SpeedComponent speed)
-        {
-            Data.Execute(ref position, ref speed);
-        }
-    }
-    
-    [RequireComponentTag(typeof(HasResourcesTagComponent))]
-    struct CarrierJob : IJobForEach<PositionComponent, SpeedComponent>
-    {
-        public BaseJob Data;
-        
-        public void Execute([ReadOnly] ref PositionComponent position, [ReadOnly] ref SpeedComponent speed)
-        {
-            Data.Execute(ref position, ref speed);
         }
     }
 }

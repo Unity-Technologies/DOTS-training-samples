@@ -4,6 +4,11 @@ using UnityEngine;
 
 public struct HasResourcesTagComponent : IComponentData { }
 
+public struct HasResourcesComponent : IComponentData
+{
+    public bool Value;
+}
+
 public struct FacingAngleComponent : IComponentData
 {
     public float Value;
@@ -52,9 +57,19 @@ public struct RenderColorComponent : IComponentData
 public struct MapSettingsComponent : IComponentData
 {
     public int MapSize;
+
+
     public float TrailDecay;
     public float TrailAdd;
     public float MaxSpeed;
+
+    public float ResourcePosition;
+    public float2 ColonyPosition;
+    public float InwardStrength;
+    public float OutwardStrength;
+
+
+    public float ObstacleRadius;    
     public BlobAssetReference<ObstacleList> Obstacles;
 }
 

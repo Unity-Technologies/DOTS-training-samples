@@ -1,40 +1,34 @@
-﻿using System;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class TargetingSystem : JobComponentSystem
 {
+    EntityQuery m_MapQuery;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        m_MapQuery = GetEntityQuery(ComponentType.ReadOnly<MapSettingsComponent>());
+    }
+
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        throw new System.NotImplementedException();
+        var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
+        return new Job {
+            ColonyPosition = map.ColonyPosition,
+            ResourcePosition = map.ResourcePosition,
+        }.Schedule(this, inputDeps);
     }
 
-    struct BaseJob
+    struct Job : IJobForEach<PositionComponent, HasResourcesComponent, FacingAngleComponent>
     {
-        public void Execute([ReadOnly] ref PositionComponent c0, ref FacingAngleComponent c1)
-        {
-            throw new System.NotImplementedException();
-        }
-    }
-    
-    [ExcludeComponent(typeof(HasResourcesTagComponent))]
-    struct SearcherJob : IJobForEach<PositionComponent, FacingAngleComponent>
-    {
-        public BaseJob Data;
+        public float2 ColonyPosition;
+        public float2 ResourcePosition;
 
-        public void Execute([ReadOnly] ref PositionComponent c0, ref FacingAngleComponent c1)
-        {
-            throw new System.NotImplementedException();
-        }
-    }
-    
-    [RequireComponentTag(typeof(HasResourcesTagComponent))]
-    struct CarrierJob : IJobForEach<PositionComponent, FacingAngleComponent>
-    {
-        public BaseJob Data;
-        public void Execute([ReadOnly] ref PositionComponent c0, ref FacingAngleComponent c1)
+        public void Execute([ReadOnly] ref PositionComponent position, [ReadOnly] ref HasResourcesComponent hasResources, ref FacingAngleComponent facingAngle)
         {
             throw new System.NotImplementedException();
         }

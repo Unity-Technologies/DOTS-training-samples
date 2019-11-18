@@ -8,9 +8,32 @@ using Unity.Mathematics;
 [UpdateAfter(typeof(ObstacleCollisionSystem))]
 public class RadialMovementSystem : JobComponentSystem
 {
+    EntityQuery m_MapQuery;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        m_MapQuery = GetEntityQuery(ComponentType.ReadOnly<MapSettingsComponent>());
+    }
+
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        throw new System.NotImplementedException();
+        var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
+        var carrier = new CarrierJob {
+            Data = {
+                ColonyPosition = map.ColonyPosition,
+                Strength = map.InwardStrength,
+                PushRadius = map.MapSize
+            }
+        }.Schedule(this, inputDeps);
+        var searcher = new SearcherJob {
+            Data = {
+                ColonyPosition = map.ColonyPosition,
+                Strength = -map.OutwardStrength,
+                PushRadius = map.MapSize * .4f
+            }
+        }.Schedule(this, inputDeps);
+        return JobHandle.CombineDependencies(carrier, searcher);
     }
 
     struct BaseJob
