@@ -10,8 +10,6 @@ namespace ECSExamples {
 
 [ExecuteInEditMode]
 public class Board : MonoBehaviour, IConvertGameObjectToEntity {
-	public Mesh cellMesh;
-	public Material cellMaterial;
 	public BoardDesc boardDesc = new BoardDesc(new Vector2Int(10, 10), new Vector2(1f, 1f));
 	public GameObject cellPrefab;
 	public bool AutoUpdate = true;
@@ -70,7 +68,6 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 	}
 
 	void OnEnable() {
-		cellMesh = Util.CreatePrimitiveMesh(PrimitiveType.Cube);
 		if (AutoUpdate)
 			Update();
 	}
@@ -237,10 +234,7 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 					x = 0;
 					y = cells[i-1].coord.y + 1;
 				}
-				//var index = CoordToIndex(new Vector2Int(x, y));
-				//var newCell = dstManager.CreateEntity();
-				//dstManager.AddComponentData(newCell, new BoardCellData{index = index, cellData = cellData});
-				buffer.Add(new BoardCellData { index = i, cellData = cellData });
+				buffer.Add(new BoardCellData { cellData = cellData });
 				continue;
 			}
 
@@ -288,12 +282,7 @@ public class Board : MonoBehaviour, IConvertGameObjectToEntity {
 					cellData = cellData | CellData.WallWest;
 			}
 
-			if (cellData != 0)
-			{
-				//var newCell = dstManager.CreateEntity();
-				//dstManager.AddComponentData(newCell, new BoardCellData{index = i, cellData = cellData});
-			}
-			buffer.Add(new BoardCellData { index = i, cellData = cellData });
+			buffer.Add(new BoardCellData { cellData = cellData });
 		}
 	}
 }

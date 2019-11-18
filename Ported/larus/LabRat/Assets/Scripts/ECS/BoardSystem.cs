@@ -50,7 +50,7 @@ public class BoardSystem : ComponentSystem
 	        for (int i = 0; i < cellData.Length; ++i)
 	        {
 		        if (cellData[i].cellData != 0)
-					m_CellMap.Add(cellData[i].index, new CellComponent{data = cellData[i].cellData});
+					m_CellMap.Add(i, new CellComponent{data = cellData[i].cellData});
 	        }
 	        PostUpdateCommands.AddComponent<InitializedCellData>(entity);
         });
@@ -138,53 +138,27 @@ public class BoardSystem : ComponentSystem
         if (board.randomSeed != -1)
             random.InitState((uint)board.randomSeed);
 
-//		if (design == Design.SimpleQuadrants) {
-//			const int wallLength = 3;
-//			for (int y = 0; y < wallLength; ++y) {
-//                {
-//                    var cell = CellAtCoord(new Vector2Int((int)(boardSize.x / 2f), y));
-//                    if (cell) cell.SetWall(Direction.East, true);
-//                }
-//                {
-//                    var cell = CellAtCoord(new Vector2Int((int)(boardSize.x / 2f), boardSize.y - 1 - y));
-//                    if (cell) cell.SetWall(Direction.West, true);
-//                }
-//			}
-//
-//			for (int x = 0; x < wallLength; ++x) {
-//                {
-//                    var cell = CellAtCoord(new Vector2Int(x, ((int)(boardSize.y / 2f))));
-//                    if (cell) cell.SetWall(Direction.South, true);
-//                }
-//                {
-//                    var cell = CellAtCoord(new Vector2Int(boardSize.x - 1 - x, ((int)(boardSize.y / 2f))));
-//                    if (cell) cell.SetWall(Direction.North, true);
-//                }
-//			}
-//		} else if (design == Design.RandomWalls) {
-            int numWalls = (int)(boardSize.x * boardSize.y * 0.2f);
-            var cells = EntityManager.CreateEntityQuery(typeof(CellRenderingComponentTag)).ToEntityArray(Allocator.TempJob);
-            var cellPositions = EntityManager.CreateEntityQuery(typeof(CellRenderingComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.TempJob);
-            //var cells = EntityManager.GetBuffer<BoardCellData>(boardEntity);
-            for (int c = 0; c < numWalls; ++c)
+        int numWalls = (int)(boardSize.x * boardSize.y * 0.2f);
+        var cells = EntityManager.CreateEntityQuery(typeof(CellRenderingComponentTag)).ToEntityArray(Allocator.TempJob);
+        var cellPositions = EntityManager.CreateEntityQuery(typeof(CellRenderingComponentTag), typeof(Translation)).ToComponentDataArray<Translation>(Allocator.TempJob);
+        for (int c = 0; c < numWalls; ++c)
+        {
+            var cellCoord = new float2(random.NextInt(boardSize.x), random.NextInt(boardSize.y));
+            var cellIndex = (int)(cellCoord.y * board.size.y + cellCoord.x);
+            var cellEntity = Entity.Null;
+            for (int i = 0; i < cells.Length; ++i)
             {
-                var cellCoord = new float2(random.NextInt(boardSize.x), random.NextInt(boardSize.y));
-                var cellIndex = (int)(cellCoord.y * board.size.y + cellCoord.x);
-                var cellEntity = Entity.Null;
-                for (int i = 0; i < cells.Length; ++i)
+                if (math.abs(cellPositions[i].Value.x - cellCoord.x) < 0.01f &&
+                    math.abs(cellPositions[i].Value.z - cellCoord.y) < 0.01f)
                 {
-                    if (math.abs(cellPositions[i].Value.x - cellCoord.x) < 0.01f &&
-                        math.abs(cellPositions[i].Value.z - cellCoord.y) < 0.01f)
-                    {
-                        cellEntity = cells[i];
-                        break;
-                    }
+                    cellEntity = cells[i];
+                    break;
                 }
-                var direction = (Direction)random.NextInt(4);
-                if (!PlaceWall(cellIndex, cellCoord, direction, board, cellEntity))
-                    c--;
             }
-//		}
+            var direction = (Direction)random.NextInt(4);
+            if (!PlaceWall(cellIndex, cellCoord, direction, board, cellEntity))
+                c--;
+        }
 
         var stressTest = false;
         //var config = FindObjectOfType<GameConfig>();
@@ -374,9 +348,13 @@ public class BoardSystem : ComponentSystem
         EntityManager.SetComponentData(entity, new Translation{Value = new float3(cellX, 0f, cellY)});
         EntityManager.SetComponentData(entity, new Rotation{Value = rotation});
 
-        //var config = FindObjectOfType<GameConfig>();
-        //if (stressTest)
-        //	s.Frequency = 0.05f;
+        var stressTest = GetSingleton<GameConfigComponent>().StressTest;
+        if (stressTest)
+        {
+            var spawnerComponent = EntityManager.GetComponentData<SpawnerComponent>(spawner);
+            spawnerComponent.Frequency = 0.05f;
+            EntityManager.SetComponentData(spawner, spawnerComponent);
+        }
     }
 
     public void SetWall(Direction direction, Entity parent)
@@ -388,26 +366,11 @@ public class BoardSystem : ComponentSystem
         var wall = EntityManager.Instantiate(wallPrefab);
         EntityManager.AddComponentData(wall, new Parent { Value = parent });
         EntityManager.AddComponentData(wall, new LocalToParent() );
-        //EntityManager.AddComponent<WorldRenderBounds>(wall);
-        //EntityManager.AddComponent<CompositeScale>(wall);
 
-        /*if (EntityManager.HasComponent<LinkedEntityGroup>(parent))
-        {
-            DynamicBuffer<LinkedEntityGroup> buf = EntityManager.GetBuffer<LinkedEntityGroup>(parent);
-            buf.Add(wall);
-        }
-        else
-        {
-            DynamicBuffer<LinkedEntityGroup> buf = EntityManager.AddBuffer<LinkedEntityGroup>(parent);
-            buf.Add(wall);
-        }*/
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-        //EntityManager.SetName(obj, "Wall[" + coord.x + "," + coord.y+"]");
         EntityManager.SetName(wall, "Wall");
 #endif
 
-        // Won't work yet
-        //var wallScale = EntityManager.GetComponentData<CompositeScale>(wall);
         var wallScale = new float3(0.05f, 0.45f, 1f);
         var parentPosition = EntityManager.GetComponentData<Translation>(parent);
         float z = 0;

@@ -10,7 +10,5 @@ public struct BoardDataComponent : IComponentData
 
 public struct BoardCellData : IBufferElementData
 {
-    public int index;
     public CellData cellData;
-
 }
