@@ -113,11 +113,13 @@ namespace Systems
                 {
                     float orbitRadius = (i / 2 + 2) * 2;
                     float angle = Time * 20f * (1f + i * .1f);
+                    
+                    math.sincos(angle, out var sin, out var cos);
 
                     float3 c = new float3(
-                        math.cos(angle) * orbitRadius,
-                        math.sin(angle),
-                        math.sin(angle) * orbitRadius
+                        cos * orbitRadius,
+                        sin,
+                        sin * orbitRadius
                     );
 
                     const float sphereRadius = 2;
@@ -146,7 +148,7 @@ namespace Systems
                 ref PositionInDistanceFieldComponent distanceField
             )
             {
-                float spacing = 5f + Mathf.Sin(Time * 5f) * 2f;
+                float spacing = 5f + math.sin(Time * 5f) * 2f;
                 float3 pos = position.Value;
                 pos += spacing * .5f;
                 pos -= spacing * (.5f + math.floor(pos / spacing));
