@@ -314,7 +314,6 @@ public class AntManager : MonoBehaviour
         {
             Ant ant = ants[i];
             {
-                 = antSpeed;
                 ant.facingAngle += Random.Range(-randomSteering, randomSteering);
                 float pheroSteering = PheromoneSteering(ant, 3f);
                 int wallSteering = WallSteering(ant, 1.5f);

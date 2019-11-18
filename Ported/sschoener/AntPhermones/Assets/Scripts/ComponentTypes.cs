@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 public struct HasResourcesTagComponent : IComponentData { }
 
@@ -33,14 +34,41 @@ public struct VelocityComponent : IComponentData
     public float2 Value;
 }
 
-public struct TargetComponent : IComponentData
+public struct LocalToWorldComponent : IComponentData
 {
-    public float2 Value;
+    public float4x4 Value;
 }
 
+public struct BrightnessComponent : IComponentData
+{
+    public float Value;
+}
 
 public struct RenderColorComponent : IComponentData
 {
-    public float Brightness;
-    public float InterpolatedValue;
+    public Color Value;
+}
+
+public struct MapSettingsComponent : IComponentData
+{
+    public int MapSize;
+    public float TrailDecay;
+    public float TrailAdd;
+    public float MaxSpeed;
+    public BlobAssetReference<ObstacleList> Obstacles;
+}
+
+public struct PheromoneMapComponent : IComponentData
+{
+    public BlobAssetReference<PheromoneMap> PheromoneMap;
+}
+
+public struct PheromoneMap
+{
+    public BlobArray<float> Map;
+}
+
+public struct ObstacleList
+{
+    public BlobArray<float2> Obstacles;
 }
