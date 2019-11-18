@@ -63,7 +63,6 @@ namespace Systems
             {
                 for (int batch = 0; batch < numBatches; batch++)
                 {
-                    int batchSize = (batch == numBatches - 1) ? remaining : k_MaxBatchSize;
                     var matricesHandle = GCHandle.Alloc(m_Matrices[batch], GCHandleType.Pinned);
                     var colorsHandle = GCHandle.Alloc(m_Colors[batch], GCHandleType.Pinned);
                     m_Handles.Add(matricesHandle);
