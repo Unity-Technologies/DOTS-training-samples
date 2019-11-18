@@ -20,7 +20,7 @@ namespace Systems {
                 DeltaTime = Time.deltaTime,
                 NumModels = m_NumModels,
                 Rng = new Random((1 + (uint)Time.frameCount) * 104729)
-            }.Schedule(this, inputDeps);
+            }.Run(this, inputDeps);
         }
 
         [BurstCompile]
