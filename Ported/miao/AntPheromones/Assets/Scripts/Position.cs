@@ -1,10 +1,11 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace AntPheromones_ECS
 {
     public struct Position : IComponentData
     {
-        public Vector2 Value;
+        public float2 Value;
     }
 }

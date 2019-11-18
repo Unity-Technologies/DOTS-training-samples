@@ -1,110 +1,62 @@
 ﻿using System;
-using Unity.Collections;
+using System.Linq;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
 
 namespace AntPheromones_ECS
 {
-//    public static class ObstacleBuckets
-//    {   
-//        private static readonly NativeArray<Obstacle> Empty = new NativeArray<Obstacle>(length: 0, Allocator.None);
-//        
-//        public static NativeArray<Obstacle> Get(float positionX, float positionY, float mapWidth, int bucketResolution)
-//        {
-//            int x = (int) (positionX / mapWidth * bucketResolution);
-//            int y = (int) (positionY / mapWidth * bucketResolution);
-//
-//            if (x < 0 || y < 0 || x >= bucketResolution || y >= bucketResolution)
-//            {
-//                return Empty;
-//            }
-//
-//            return Empty;
-//        }
-//    }
-    
-    public struct MapWidth : IComponentData
-    {
-        public float Value;
-    }
+    //            EntityQuery qquery = GetEntityQuery(ComponentType.ReadOnly<MapWidth>());
+//            Entity e = qquery.GetSingletonEntity();
+//            EntityManager.GetSharedComponentData<MapWidth>(e);
+//            var something= this.GetSingleton<MapWidth>();
 
-    public class ObstacleGenerationSystem : JobComponentSystem
-    {
-        public const int MapWidth = 128;
-        public const int BucketResolution = 64;
-
-        [ReadOnly] private NativeArray<Obstacle> Empty = new NativeArray<Obstacle>(length: 0, Allocator.None)
-            
-        
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void GetObstacleBucket(float candidateDestinationX, float candidateDestinationY)
-        {
-            int x = (int) (candidateDestinationX / MapWidth * BucketResolution);
-            int y = (int) (candidateDestinationY / MapWidth * BucketResolution);
-
-            if (IsWithinBounds(x, y))
-            {
-                return 
-            }
-            
-        }
-
-        public static bool IsWithinBounds(int positionX, int positionY)
-        {
-            return positionX >= 0 && positionY >= 0 && positionX < MapWidth && positionY < MapWidth;
-        }
-    }
-    
-    [UpdateAfter(typeof(ObstacleGenerationSystem))]
     public class SteeringSystem : JobComponentSystem
     {
-        private ObstacleGenerationSystem _obstacleGenerationSystem;
-        
+        public BlobAssetReference<ObstacleBlobs> Obstacles { get; private set; }
+            
         protected override void OnCreate()
         {
-            this._obstacleGenerationSystem = World.Active.GetOrCreateSystem<ObstacleGenerationSystem>();
+            this.Obstacles = ObstacleBlobs.GenerateObstacles();
         }
 
-        private struct SteerTowardsPheromoneJob  : IJobForEach<Position, Movement>
+        private struct SteerTowardsPheromoneJob : IJobForEach<Position, Movement>
         {
-            public float SteeringStrength; // 0.015f
-            public float Distance; // 3f
-            public ObstacleGenerationSystem ObstacleGenerationSystem;
+            public float SteeringStrength; 
+            public float Distance;
             
+            public float SteerAmount { get; private set; }
+
             public void Execute(ref Position position, ref Movement movement)
             {
                 float result = 0;
-                 
-                for (int i=-1;i<=1;i+=2) 
+
+                for (int i = -1; i <= 1; i += 2)
                 {
                     float angle = movement.FacingAngle + i * Mathf.PI * 0.25f;
-                    int candidateDestinationX = (int)(position.Value.x + Mathf.Cos(angle) * Distance);
-                    int candidateDestinationY = (int)(position.Value.y + Mathf.Sin(angle) * Distance);
+                    int candidateDestinationX = (int) (position.Value.x + Mathf.Cos(angle) * Distance);
+                    int candidateDestinationY = (int) (position.Value.y + Mathf.Sin(angle) * Distance);
 
-                    if (ObstacleGenerationSystem.IsWithinBounds(candidateDestinationX, candidateDestinationY))
+                    if (ObstacleBlobs.IsWithinBounds(candidateDestinationX, candidateDestinationY))
                     {
-                        int pheromoneIndex = candidateDestinationX + candidateDestinationY * ObstacleGenerationSystem.MapWidth;
-                        float redValue = AntManager.Instance.PheromoneColours[pheromoneIndex].r;
-                        result += redValue * i; 
+                        int pheromoneIndex = candidateDestinationX + candidateDestinationY * ObstacleBlobs.MapWidth;
+                        float redValue = AntManager.Instance.pheromoneColours[pheromoneIndex].r;
+                       result += redValue * i;
                     }
                 }
 
-                movement.FacingAngle += result * this.SteeringStrength;
+                this.SteerAmount = Mathf.Sign(result);
+                movement.FacingAngle += this.SteerAmount * this.SteeringStrength;
             }
         }
-        
+
         private struct SteerTowardsWallJob : IJobForEach<Position, Movement>
         {
             public float SteeringStrength; // 0.12f
             public float Distance; // 1.5f
-            public int BucketResolution; // 64
-            public int MapWidth; // 128
-            public ObstacleGenerationSystem ObstacleGenerationSystem;
+            public BlobAssetReference<ObstacleBlobs> Obstacles;
+            
+            public float SteerAmount { get; private set; }
             
             public void Execute(ref Position position, ref Movement movement)
             {
@@ -115,29 +67,60 @@ namespace AntPheromones_ECS
                     float angle = movement.FacingAngle + i * Mathf.PI * 0.25f;
                     int candidateDestinationY = (int)(position.Value.y + Mathf.Sin(angle) * this.Distance);
                     int candidateDestinationX = (int)(position.Value.x + Mathf.Cos(angle) * this.Distance);
-                    
-                    if (ObstacleGenerationSystem.IsWithinBounds(candidateDestinationX, candidateDestinationY))
+
+                    if (!ObstacleBlobs.IsWithinBounds(candidateDestinationX, candidateDestinationY))
                     {
-                        int obstacleBucketSize = this.ObstacleGenerationSystem.GetObstacleBucket(candidateDestinationX, candidateDestinationY).Length;
-                        if (obstacleBucketSize > 0)
-                        {
-                            result -= i;
-                        }
+                        continue;
+                    }
+
+                    if (this.Obstacles.Value.GetObstacleBucket(candidateDestinationX, candidateDestinationY).Length > 0)
+                    {
+                        result -= i;
                     }
                 }
 
-                movement.FacingAngle += result * this.SteeringStrength;
+                this.SteerAmount = Mathf.Sign(result);
+                movement.FacingAngle += this.SteerAmount * this.SteeringStrength;
             }
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputsDependencies)
+        private struct AdjustSpeedJob : IJobForEach<Position, Movement>
         {
-            //            EntityQuery qquery = GetEntityQuery(ComponentType.ReadOnly<MapWidth>());
-//            Entity e = qquery.GetSingletonEntity();
-//            EntityManager.GetSharedComponentData<MapWidth>(e);
-            var something= this.GetSingleton<MapWidth>();
+            private const float Acceleration = 0.07f;
             
-            throw new NotImplementedException();
+            public float PheromoneSteeringAmount;
+            public float WallSteeringAmount;
+            
+            public void Execute(ref Position position, ref Movement movement)
+            {
+                var targetSpeed = movement.Speed * 1f - (Mathf.Abs(this.PheromoneSteeringAmount) + Math.Abs(this.WallSteeringAmount)) / 3f;
+                movement.Speed += (targetSpeed - movement.Speed) * Acceleration;
+            }
+        }
+
+        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        {
+            var pheromoneJob = new SteerTowardsPheromoneJob
+            {
+                Distance = 3f,
+                SteeringStrength = 0.015f
+            };
+            JobHandle pheromoneJobHandle = pheromoneJob.Schedule(this, inputDependencies);
+
+            var wallJob = new SteerTowardsWallJob
+            { 
+                Distance = 1.5f,
+                SteeringStrength = 0.12f,
+                Obstacles = this.Obstacles
+            };
+            JobHandle wallJobHandle = wallJob.Schedule(this, pheromoneJobHandle);
+
+            var speedJob = new AdjustSpeedJob
+            {
+                PheromoneSteeringAmount = pheromoneJob.SteerAmount,
+                WallSteeringAmount = wallJob.SteerAmount
+            };
+            return speedJob.Schedule(this, wallJobHandle);
         }
     }
 }
