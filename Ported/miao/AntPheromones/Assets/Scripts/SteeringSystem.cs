@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
@@ -30,9 +31,32 @@ namespace AntPheromones_ECS
 
     public class ObstacleGenerationSystem : JobComponentSystem
     {
+        public const int MapWidth = 128;
+        public const int BucketResolution = 64;
+
+        [ReadOnly] private NativeArray<Obstacle> Empty = new NativeArray<Obstacle>(length: 0, Allocator.None)
+            
+        
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             throw new System.NotImplementedException();
+        }
+
+        public void GetObstacleBucket(float candidateDestinationX, float candidateDestinationY)
+        {
+            int x = (int) (candidateDestinationX / MapWidth * BucketResolution);
+            int y = (int) (candidateDestinationY / MapWidth * BucketResolution);
+
+            if (IsWithinBounds(x, y))
+            {
+                return 
+            }
+            
+        }
+
+        public static bool IsWithinBounds(int positionX, int positionY)
+        {
+            return positionX >= 0 && positionY >= 0 && positionX < MapWidth && positionY < MapWidth;
         }
     }
     
@@ -50,7 +74,7 @@ namespace AntPheromones_ECS
         {
             public float SteeringStrength; // 0.015f
             public float Distance; // 3f
-            public int MapWidth; // 128
+            public ObstacleGenerationSystem ObstacleGenerationSystem;
             
             public void Execute(ref Position position, ref Movement movement)
             {
@@ -59,17 +83,13 @@ namespace AntPheromones_ECS
                 for (int i=-1;i<=1;i+=2) 
                 {
                     float angle = movement.FacingAngle + i * Mathf.PI * 0.25f;
-                    float candidateDestinationX = position.Value.x + Mathf.Cos(angle) * Distance;
-                    float candidateDestinationY = position.Value.y + Mathf.Sin(angle) * Distance;
-                    
-                    bool targetPositionWithinBounds = 
-                        candidateDestinationX >= 0 && candidateDestinationY >= 0 && candidateDestinationX < MapWidth && candidateDestinationY < MapWidth;
-                    
-                    if (targetPositionWithinBounds)
+                    int candidateDestinationX = (int)(position.Value.x + Mathf.Cos(angle) * Distance);
+                    int candidateDestinationY = (int)(position.Value.y + Mathf.Sin(angle) * Distance);
+
+                    if (ObstacleGenerationSystem.IsWithinBounds(candidateDestinationX, candidateDestinationY))
                     {
-                        int pheromoneIndex = (int) candidateDestinationX + (int) candidateDestinationY * MapWidth;
+                        int pheromoneIndex = candidateDestinationX + candidateDestinationY * ObstacleGenerationSystem.MapWidth;
                         float redValue = AntManager.Instance.PheromoneColours[pheromoneIndex].r;
-                        
                         result += redValue * i; 
                     }
                 }
@@ -84,6 +104,7 @@ namespace AntPheromones_ECS
             public float Distance; // 1.5f
             public int BucketResolution; // 64
             public int MapWidth; // 128
+            public ObstacleGenerationSystem ObstacleGenerationSystem;
             
             public void Execute(ref Position position, ref Movement movement)
             {
@@ -92,18 +113,12 @@ namespace AntPheromones_ECS
                 for (int i=-1; i<=1; i+=2) 
                 {
                     float angle = movement.FacingAngle + i * Mathf.PI * 0.25f;
-                    float candidateDestinationX = position.Value.x + Mathf.Cos(angle) * this.Distance;
-                    float candidateDestinationY = position.Value.y + Mathf.Sin(angle) * this.Distance;
+                    int candidateDestinationY = (int)(position.Value.y + Mathf.Sin(angle) * this.Distance);
+                    int candidateDestinationX = (int)(position.Value.x + Mathf.Cos(angle) * this.Distance);
                     
-                    bool targetPositionWithinBounds = 
-                        candidateDestinationX >= 0
-                        && candidateDestinationY >= 0 
-                        && candidateDestinationX < this.MapWidth
-                        && candidateDestinationY < this.MapWidth;
-                    
-                    if (targetPositionWithinBounds)
+                    if (ObstacleGenerationSystem.IsWithinBounds(candidateDestinationX, candidateDestinationY))
                     {
-                        int obstacleBucketSize = GetObstacleBucket(candidateDestinationX, candidateDestinationY).Length;
+                        int obstacleBucketSize = this.ObstacleGenerationSystem.GetObstacleBucket(candidateDestinationX, candidateDestinationY).Length;
                         if (obstacleBucketSize > 0)
                         {
                             result -= i;
