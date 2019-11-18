@@ -33,25 +33,55 @@ namespace Systems
                 case DistanceFieldModel.SpherePlane:
                     handle = new UpdateParticlesSpherePlane
                     {
-                        Time = time
+                        InterpolationParameter = math.sin(time * 8) * .4f + .4f,
                     }.Schedule(this, inputDeps);
                     break;
                 case DistanceFieldModel.Metaballs:
+                {
+                    var metaBalls = new NativeArray<float3>(5, Allocator.TempJob);
+                    for (int i = 0; i < metaBalls.Length; i++)
+                    {
+                        float orbitRadius = i * .5f + 2f;
+                        float angle1 = time * 4f * (1f + i * .1f);
+                        float angle2 = time * 4f * (1.2f + i * .117f);
+                        float angle3 = time * 4f * (1.3f + i * .1618f);
+                        metaBalls[i] = orbitRadius * new float3(
+                            math.cos(angle1),
+                            math.sin(angle2),
+                            math.sin(angle3)
+                        );
+                    }
+
                     handle = new UpdateParticlesMetaBalls
                     {
-                        Time = time
+                        MetaBallCenters = metaBalls
                     }.Schedule(this, inputDeps);
                     break;
+                }
                 case DistanceFieldModel.SpinMixer:
+                    var centers = new NativeArray<float3>(6, Allocator.TempJob);
+                    for (int i = 0; i < centers.Length; i++)
+                    {
+                        float orbitRadius = (i / 2 + 2) * 2;
+                        float angle = time * 20f * (1f + i * .1f);
+
+                        math.sincos(angle, out var sin, out var cos);
+
+                        centers[i] = new float3(
+                            cos * orbitRadius,
+                            sin,
+                            sin * orbitRadius
+                        );
+                    }
                     handle = new UpdateParticlesSpinMixer
                     {
-                        Time = time
+                        Centers = centers
                     }.Schedule(this, inputDeps);
                     break;
                 case DistanceFieldModel.SphereField:
                     handle = new UpdateParticlesSphereField
                     {
-                        Time = time
+                        Spacing = 5f + math.sin(time * 5f) * 2f
                     }.Schedule(this, inputDeps);
                     break;
                 case DistanceFieldModel.FigureEight:
@@ -76,7 +106,7 @@ namespace Systems
         [BurstCompile]
         struct UpdateParticlesSpherePlane : IJobForEach<PositionComponent, PositionInDistanceFieldComponent>
         {
-            public float Time;
+            public float InterpolationParameter;
 
             public void Execute(
                 [ReadOnly] ref PositionComponent position,
@@ -91,16 +121,16 @@ namespace Systems
                 float planeDist = position.Value.y;
                 var planeNormal = new float3(0f, 1f, 0f);
 
-                float t = math.sin(Time * 8) * .4f + .4f;
-                distanceField.Distance = math.lerp(sphereDist, planeDist, t);
-                distanceField.Normal = math.normalize(math.lerp(sphereNormal, planeNormal, t));
+                distanceField.Distance = math.lerp(sphereDist, planeDist, InterpolationParameter);
+                distanceField.Normal = math.normalize(math.lerp(sphereNormal, planeNormal, InterpolationParameter));
             }
         }
 
         [BurstCompile]
         struct UpdateParticlesSpinMixer : IJobForEach<PositionComponent, PositionInDistanceFieldComponent>
         {
-            public float Time;
+            [ReadOnly, DeallocateOnJobCompletion]
+            public NativeArray<float3> Centers;
 
             public void Execute(
                 [ReadOnly] ref PositionComponent position,
@@ -111,19 +141,8 @@ namespace Systems
                 float3 normal = new float3(0, 0, 0);
                 for (int i = 0; i < 6; i++)
                 {
-                    float orbitRadius = (i / 2 + 2) * 2;
-                    float angle = Time * 20f * (1f + i * .1f);
-                    
-                    math.sincos(angle, out var sin, out var cos);
-
-                    float3 c = new float3(
-                        cos * orbitRadius,
-                        sin,
-                        sin * orbitRadius
-                    );
-
                     const float sphereRadius = 2;
-                    float3 delta = (position.Value - c);
+                    float3 delta = (position.Value - Centers[i]);
                     float deltaLength = math.length(delta);
                     float newDist = deltaLength - sphereRadius;
                     if (newDist < distance)
@@ -141,17 +160,16 @@ namespace Systems
         [BurstCompile]
         struct UpdateParticlesSphereField : IJobForEach<PositionComponent, PositionInDistanceFieldComponent>
         {
-            public float Time;
+            public float Spacing;
 
             public void Execute(
                 [ReadOnly] ref PositionComponent position,
                 ref PositionInDistanceFieldComponent distanceField
             )
             {
-                float spacing = 5f + math.sin(Time * 5f) * 2f;
                 float3 pos = position.Value;
-                pos += spacing * .5f;
-                pos -= spacing * (.5f + math.floor(pos / spacing));
+                pos += Spacing * .5f;
+                pos -= Spacing * (.5f + math.floor(pos / Spacing));
                 
                 float distanceToOrigin = math.length(pos);
                 const float sphereRadius = 5f;
@@ -223,7 +241,8 @@ namespace Systems
         [BurstCompile]
         struct UpdateParticlesMetaBalls : IJobForEach<PositionComponent, PositionInDistanceFieldComponent>
         {
-            public float Time;
+            [ReadOnly, DeallocateOnJobCompletion]
+            public NativeArray<float3> MetaBallCenters;
 
             public void Execute(
                 [ReadOnly] ref PositionComponent position,
@@ -232,19 +251,9 @@ namespace Systems
             {
                 float distance = float.MaxValue;
                 float3 normal = new float3(0,0,0);
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < MetaBallCenters.Length; i++)
                 {
-                    float orbitRadius = i * .5f + 2f;
-                    float angle1 = Time * 4f * (1f + i * .1f);
-                    float angle2 = Time * 4f * (1.2f + i * .117f);
-                    float angle3 = Time * 4f * (1.3f + i * .1618f);
-                    float3 c = orbitRadius * new float3(
-                        math.cos(angle1),
-                        math.sin(angle2),
-                        math.sin(angle3)
-                    );
-
-                    float3 delta = position.Value - c;
+                    float3 delta = position.Value - MetaBallCenters[i];
                     float deltaLength = math.length(delta);
 
                     const float sphereRadius = 2;
