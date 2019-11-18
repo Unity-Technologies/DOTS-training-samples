@@ -45,6 +45,7 @@ namespace Systems
             var numRenderables = m_Renderables.CalculateEntityCount();
             int remaining = numRenderables % k_MaxBatchSize;
             int numBatches = numRenderables / k_MaxBatchSize + (remaining > 0 ? 1 : 0);
+            
             using (var matrices = new NativeArray<Matrix4x4>(numRenderables, Allocator.TempJob))
             using (var colors = new NativeArray<Vector4>(numRenderables, Allocator.TempJob))
             {
@@ -83,13 +84,13 @@ namespace Systems
                             var job1 = new MemcpyJob<Matrix4x4>()
                             {
                                 Dst = matricesHandle.AddrOfPinnedObject().ToPointer(),
-                                Src = matrices.Slice(k_MaxBatchSize * batch, batchSize),
+                                Src = matrices.Reinterpret<Matrix4x4>().Slice(k_MaxBatchSize * batch, batchSize),
                                 Size = batchSize * sizeof(Matrix4x4)
                             }.Schedule(renderDataJob);
                             var job2 = new MemcpyJob<Vector4>()
                             {
                                 Dst = colorsHandle.AddrOfPinnedObject().ToPointer(),
-                                Src = colors.Slice(k_MaxBatchSize * batch, batchSize),
+                                Src = colors.Reinterpret<Vector4>().Slice(k_MaxBatchSize * batch, batchSize),
                                 Size = batchSize * sizeof(Vector4)
                             }.Schedule(renderDataJob);
                             batchJobHandles[batch] = JobHandle.CombineDependencies(job1, job2);
@@ -121,6 +122,8 @@ namespace Systems
                         m_Matrices[batch],
                         batchSize,
                         m_PropertyBlocks[batch]
+                        /*ShadowCastingMode.Off,
+                        false*/
                     );
                 }
             }
