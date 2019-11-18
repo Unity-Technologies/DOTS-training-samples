@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Entities;
 
 namespace Systems
@@ -11,6 +12,7 @@ namespace Systems
             // this system seems to create garbage
             systems.Remove(typeof(Unity.Rendering.RenderMeshSystemV2));
             systems.Remove(typeof(Unity.Rendering.LightSystem));
+            systems.Remove(typeof(Unity.Transforms.TransformSystemGroup));
             return systems;
         }
     }
