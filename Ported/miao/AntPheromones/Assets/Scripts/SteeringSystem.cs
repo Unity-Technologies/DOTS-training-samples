@@ -2,6 +2,7 @@
 using System.Linq;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Transforms;
 using UnityEngine;
 
 namespace AntPheromones_ECS
@@ -17,7 +18,7 @@ namespace AntPheromones_ECS
             
         protected override void OnCreate()
         {
-            this.Obstacles = ObstacleBlobs.GenerateObstacles();
+            this.Obstacles = ObstacleBlobs.Generate();
         }
 
         private struct SteerTowardsPheromoneJob : IJobForEach<Position, Movement>
@@ -34,12 +35,12 @@ namespace AntPheromones_ECS
                 for (int i = -1; i <= 1; i += 2)
                 {
                     float angle = movement.FacingAngle + i * Mathf.PI * 0.25f;
-                    int candidateDestinationX = (int) (position.Value.x + Mathf.Cos(angle) * Distance);
-                    int candidateDestinationY = (int) (position.Value.y + Mathf.Sin(angle) * Distance);
+                    int candidateDestinationX = (int)(position.Value.x + Mathf.Cos(angle) * Distance);
+                    int candidateDestinationY = (int)(position.Value.y + Mathf.Sin(angle) * Distance);
 
-                    if (ObstacleBlobs.IsWithinBounds(candidateDestinationX, candidateDestinationY))
+                    if (Map.IsWithinBounds(candidateDestinationX, candidateDestinationY))
                     {
-                        int pheromoneIndex = candidateDestinationX + candidateDestinationY * ObstacleBlobs.MapWidth;
+                        int pheromoneIndex = candidateDestinationX + candidateDestinationY * Map.Width;
                         float redValue = AntManager.Instance.pheromoneColours[pheromoneIndex].r;
                        result += redValue * i;
                     }
@@ -68,15 +69,15 @@ namespace AntPheromones_ECS
                     int candidateDestinationY = (int)(position.Value.y + Mathf.Sin(angle) * this.Distance);
                     int candidateDestinationX = (int)(position.Value.x + Mathf.Cos(angle) * this.Distance);
 
-                    if (!ObstacleBlobs.IsWithinBounds(candidateDestinationX, candidateDestinationY))
+                    if (!Map.IsWithinBounds(candidateDestinationX, candidateDestinationY))
                     {
                         continue;
                     }
-
-                    if (this.Obstacles.Value.GetObstacleBucket(candidateDestinationX, candidateDestinationY).Length > 0)
-                    {
-                        result -= i;
-                    }
+//
+//                    if (this.Obstacles.Value.GetObstacleBucket(candidateDestinationX, candidateDestinationY).Length > 0)
+//                    {
+//                        result -= i;
+//                    }
                 }
 
                 this.SteerAmount = Mathf.Sign(result);

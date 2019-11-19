@@ -8,21 +8,24 @@ namespace AntPheromones_ECS
 {
     public struct ObstacleBlobs
     {
-        public const int MapWidth = 128;
+        public struct Bucket
+        {
+            public BlobArray<Obstacle> Obstacles;
+        }
         
-        public BlobArray<BlobArray<Obstacle>> ObstacleBuckets;
+        public BlobArray<Bucket> Buckets;
         public BlobArray<Obstacle> Empty;
         public BlobArray<Obstacle> Obstacles;
-        private BlobArray<Matrix4x4> ObstacleMatrices;
+        private BlobArray<Matrix4x4> Matrices;
         
         private const int BucketResolution = 64;
-        private const int ObstacleRingCount = 3;
-        private const int ObstacleRadius = 2;
+        private const int RingCount = 3;
+        private const int Radius = 2;
         private const float NumObstaclesPerRing = 0.8f;
         private const int MaxHoleCount = 3;
         private const int MinHoleCount = 1;
 
-        public static BlobAssetReference<ObstacleBlobs> GenerateObstacles()
+        public static BlobAssetReference<ObstacleBlobs> Generate()
         {
             using (BlobBuilder builder = new BlobBuilder(Allocator.Temp))
             {
@@ -30,64 +33,64 @@ namespace AntPheromones_ECS
 
                 builder.Allocate(ref root.Empty, length: 0);
                 
-                BlobBuilderArray<Obstacle> obstacles = builder.Allocate(ref root.Obstacles, length: 250);
+                BlobBuilderArray<Obstacle> obstacles = builder.Allocate(ref root.Obstacles, length: 250); // TODO: 250 is a placeholder
 
-                for (int i = 0; i < ObstacleRingCount; i++)
+                for (int ring = 0; ring < RingCount; ring++)
                 {
-                    float ringRadius = i / (ObstacleRingCount + 1f) * (MapWidth * .5f);
+                    float ringRadius = ring / (RingCount + 1f) * (Map.Width * 0.5f);
                     float circumference = ringRadius * 2f * Mathf.PI;
 
-                    int maxObstacleCount = Mathf.CeilToInt(circumference / (2f * ObstacleRadius) * 2f);
+                    int maxObstacleCount = Mathf.CeilToInt(circumference / (2f * Radius) * 2f);
 
                     int offset = Random.Range(0, maxObstacleCount);
                     int holeCount = Random.Range(MinHoleCount, MaxHoleCount);
 
-                    for (int j = 0; j < maxObstacleCount; j++)
+                    for (int obstacle = 0; obstacle < maxObstacleCount; obstacle++)
                     {
-                        float t = (float) j / maxObstacleCount;
+                        float t = (float)obstacle / maxObstacleCount;
 
                         if (t * holeCount % 1f >= NumObstaclesPerRing)
                         {
                             continue;
                         }
                         
-                        float angle = (j + offset) / (float) maxObstacleCount * (2f * Mathf.PI);
-                        obstacles[i] = new Obstacle
+                        float angle = (obstacle + offset) / (float) maxObstacleCount * (2f * Mathf.PI);
+                        obstacles[ring] = new Obstacle
                         {
                             Position = 
                                 new float3(
-                                    MapWidth * 0.5f + Mathf.Cos(angle) * ringRadius, 
-                                    MapWidth * .5f + Mathf.Sin(angle) * ringRadius,
+                                    Map.Width * 0.5f + Mathf.Cos(angle) * ringRadius, 
+                                    Map.Width * .5f + Mathf.Sin(angle) * ringRadius,
                                     0),
-                            Radius = ObstacleRadius
+                            Radius = Radius
                         };
                     }
                 }
 
-                BlobBuilderArray<Matrix4x4> obstacleMatrices = builder.Allocate(ref root.ObstacleMatrices, length: obstacles.Length);
+                BlobBuilderArray<Matrix4x4> obstacleMatrices = builder.Allocate(ref root.Matrices, length: obstacles.Length);
 
                 for (int i = 0; i < obstacleMatrices.Length; i++)
                 {
-                    obstacleMatrices[i] = Unity.Mathematics.float4x4.TRS(
-                            obstacles[i].Position / MapWidth, Quaternion.identity,
-                            new float3(ObstacleRadius * 2f, ObstacleRadius * 2f, 1f) / MapWidth);
+                    obstacleMatrices[i] = float4x4.TRS(
+                            obstacles[i].Position / Map.Width, Quaternion.identity,
+                            new float3(Radius * 2f, Radius * 2f, 1f) / Map.Width);
                 }
 
-                BlobBuilderArray<BlobArray<Obstacle>> obstacleBuckets = 
-                    builder.Allocate(ref root.ObstacleBuckets, length: BucketResolution * BucketResolution);
-
-                for (int i = 0; i < obstacleBuckets.Length; i++)
-                {
-                    obstacleBuckets[i] = new BlobArray<Obstacle>();
-                }
+                var obstacleBuckets = builder.Allocate(ref root.Buckets, length: BucketResolution * BucketResolution);
+//
+//                for (int i = 0; i < obstacleBuckets.Length; i++)
+//                {
+//                    obstacleBuckets[i] = builder.Allocate(ref root.) // new BlobArray<Obstacle>();
+//                }
 
                 for (int i = 0; i < obstacles.Length; i++)
                 {
+                    
                     float3 position = obstacles[i].Position;
                     float radius = obstacles[i].Radius;
 
-                    for (int x = Mathf.FloorToInt((position.x - radius) / MapWidth * BucketResolution);
-                        x <= Mathf.FloorToInt((position.x + radius) / MapWidth * BucketResolution);
+                    for (int x = Mathf.FloorToInt((position.x - radius) / Map.Width * BucketResolution);
+                        x <= Mathf.FloorToInt((position.x + radius) / Map.Width * BucketResolution);
                         x++)
                     {
                         if (x < 0 || x >= BucketResolution)
@@ -98,8 +101,8 @@ namespace AntPheromones_ECS
                         int currentBucketIndex = x * BucketResolution + BucketResolution;
                         int currentBlobArrayWriteIndex = 0;
                         
-                        for (int y = Mathf.FloorToInt((position.y - radius) / MapWidth * BucketResolution);
-                            y <= Mathf.FloorToInt((position.y + radius) / MapWidth * BucketResolution);
+                        for (int y = Mathf.FloorToInt((position.y - radius) / Map.Width * BucketResolution);
+                            y <= Mathf.FloorToInt((position.y + radius) / Map.Width * BucketResolution);
                             y++)
                         {
                             if (y < 0 || y >= BucketResolution)
@@ -107,7 +110,7 @@ namespace AntPheromones_ECS
                                 continue;
                             }
 
-                            obstacleBuckets[currentBucketIndex][currentBlobArrayWriteIndex] = obstacles[i];
+//                            obstacleBuckets[currentBucketIndex][currentBlobArrayWriteIndex] = obstacles[i];
                             currentBucketIndex++;
                         }
                     }
@@ -117,17 +120,12 @@ namespace AntPheromones_ECS
             }
         }
 
-        public BlobArray<Obstacle> GetObstacleBucket(float candidateDestinationX, float candidateDestinationY)
-        {
-            int x = (int) (candidateDestinationX / MapWidth * BucketResolution);
-            int y = (int) (candidateDestinationY / MapWidth * BucketResolution);
-            
-            return IsWithinBounds(x, y) ? Empty : this.ObstacleBuckets[x * BucketResolution + BucketResolution];
-        }
-
-        public static bool IsWithinBounds(int positionX, int positionY)
-        {
-            return positionX >= 0 && positionY >= 0 && positionX < MapWidth && positionY < MapWidth;
-        }
+//        public BlobArray<Obstacle> GetObstacleBucket(float candidateDestinationX, float candidateDestinationY)
+//        {
+//            int x = (int)(candidateDestinationX / Map.Width * BucketResolution);
+//            int y = (int)(candidateDestinationY / Map.Width * BucketResolution);
+//            
+//            return Map.IsWithinBounds(x, y) ? Empty : this.Buckets[x * BucketResolution + BucketResolution];
+//        }
     }
 }

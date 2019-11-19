@@ -28,7 +28,7 @@ public class AntManager : MonoBehaviour {
 	public Color searchColor;
 	public Color carryColor;
 	public int antCount;
-	public int MapWidth = 128;
+//	public int MapWidth = 128;
 	public int bucketResolution;
 	public Vector3 antSize;
 	public float antSpeed;
@@ -58,14 +58,15 @@ public class AntManager : MonoBehaviour {
 	Matrix4x4[][] matrices;
 	Vector4[][] antColors;
 	MaterialPropertyBlock[] matProps;
-	Obstacle[] obstacles;
+	Obstacle_Old[] obstacles;
 	Matrix4x4[][] obstacleMatrices;
-	Obstacle[,][] obstacleBuckets;
+	Obstacle_Old[,][] obstacleBuckets;
 
 	Matrix4x4 resourceMatrix;
 	Matrix4x4 colonyMatrix;
 
 	Vector2 resourcePosition;
+//	Vector2 colonyPosition;
 	float3 colonyPosition;
 
 	const int instancesPerBatch = 1023;
@@ -73,25 +74,34 @@ public class AntManager : MonoBehaviour {
 	Matrix4x4[] rotationMatrixLookup;
 	void Start ()
 	{
-//
-//		GenerateObstacles();
+		GenerateObstacles();
 
-		this.colonyPosition = 0.5f * MapWidth * new float3(0f,0f,0f);
-		this.colonyMatrix = float4x4.TRS(this.colonyPosition / MapWidth, Quaternion.identity,new float3(4f,4f,0.1f) / MapWidth);
+		this.colonyPosition = new float3(1f, 1f, 0f) * Map.Width * 0.5f;
+		this.colonyMatrix = float4x4.TRS(this.colonyPosition / Map.Width, Quaternion.identity,new float3(4f,4f,0.1f) / Map.Width);
+		
+//		this.colonyPosition = 0.5f * Map.Width * Vector2.one;
+//		this.colonyMatrix = Matrix4x4.TRS(colonyPosition/MapWidth,Quaternion.identity,new Vector3(4f,4f,.1f)/MapWidth);
 		
 		float resourceAngle = Random.value * 2f * Mathf.PI;
-		this.resourcePosition = 0.5f * MapWidth * new float2(1f,1f) + new float2(Mathf.Cos(resourceAngle) * MapWidth * 0.475f,Mathf.Sin(resourceAngle) * MapWidth * 0.475f);
-		this.resourceMatrix = Matrix4x4.TRS(resourcePosition / MapWidth, Quaternion.identity,new float3(4f,4f,0.1f) / MapWidth);
+		this.resourcePosition = 0.5f * Map.Width * new float2(1f, 1f) +
+		                        new float2(Mathf.Cos(resourceAngle) * Map.Width * 0.475f, Mathf.Sin(resourceAngle) * Map.Width * 0.475f);
+		this.resourceMatrix = Matrix4x4.TRS(resourcePosition / Map.Width, Quaternion.identity,new float3(4f,4f,0.1f) / Map.Width);
 
-		this.pheromoneTexture = new Texture2D(MapWidth, MapWidth) { wrapMode = TextureWrapMode.Mirror };
-		this.pheromoneColours = new Color[MapWidth * MapWidth];
+		this.pheromoneTexture = new Texture2D(Map.Width, Map.Width) { wrapMode = TextureWrapMode.Mirror };
+		this.pheromoneColours = new Color[Map.Width * Map.Width];
 		
-		this.myPheromoneMaterial = new Material(basePheromoneMaterial) { mainTexture = this.pheromoneTexture };
-		pheromoneRenderer.sharedMaterial = this.myPheromoneMaterial;
+		this.pheromoneRenderer.sharedMaterial = new Material(basePheromoneMaterial) { mainTexture = this.pheromoneTexture };
 
 		var entityManager = World.Active.EntityManager;
 		EntityArchetype antArchetype = 
-			entityManager.CreateArchetype(typeof(Position), typeof(Movement), typeof(Brightness), typeof(ResourceCarrier), typeof(RenderMesh), typeof(LocalToWorld));
+			entityManager.CreateArchetype(
+				typeof(Position), 
+				typeof(Movement), 
+				typeof(Brightness),
+				typeof(ResourceCarrier), 
+				typeof(RenderMesh),
+				typeof(LocalToWorld),
+				typeof(Ant));
 		
 		this.antEntities = new NativeArray<Entity>(length: 1000, Allocator.Persistent);
 		entityManager.CreateEntity(antArchetype, this.antEntities);
@@ -102,7 +112,7 @@ public class AntManager : MonoBehaviour {
 				entity,
 				new Position
 				{
-					Value = new float2(Random.Range(-5f, 5f) + MapWidth * 0.5f, Random.Range(-5f, 5f) + MapWidth * .5f)
+					Value = new float2(Random.Range(-5f, 5f) + Map.Width * 0.5f, Random.Range(-5f, 5f) + Map.Width * .5f)
 				});
 			entityManager.SetSharedComponentData(entity, new RenderMesh
 				{
@@ -111,7 +121,7 @@ public class AntManager : MonoBehaviour {
 				});
 		}
 		
-//		ants = new Ant[antCount];
+		ants = new Ant[antCount];
 		matrices = new Matrix4x4[Mathf.CeilToInt((float)antCount / instancesPerBatch)][];
 		for (int i=0;i<matrices.Length;i++) {
 			if (i<matrices.Length-1) {
@@ -128,7 +138,7 @@ public class AntManager : MonoBehaviour {
 		}
 
 		for (int i = 0; i < antCount; i++) {
-			ants[i] = new Ant(new Vector2(Random.Range(-5f,5f)+MapWidth*.5f,Random.Range(-5f,5f) + MapWidth * .5f));
+			ants[i] = new Ant(new Vector2(Random.Range(-5f,5f)+Map.Width*.5f,Random.Range(-5f,5f) + Map.Width * .5f));
 		}
 
 		rotationMatrixLookup = new Matrix4x4[rotationResolution];
@@ -146,9 +156,9 @@ public class AntManager : MonoBehaviour {
 		return rotationMatrixLookup[((int)angle)%rotationResolution];
 	}
 
-	int PheromoneIndex(int x, int y) {
-		return x + y * MapWidth;
-	}
+//	int PheromoneIndex(int x, int y) {
+//		return x + y * MapWidth;
+//	}
 
 	void DropPheromones(Vector2 position,float strength) {
 		int x = Mathf.FloorToInt(position.x);
@@ -219,76 +229,76 @@ public class AntManager : MonoBehaviour {
 		return false;
 	}
 
-//	void GenerateObstacles() {
-//		List<Obstacle> output = new List<Obstacle>();
-//		for (int i=1;i<=obstacleRingCount;i++) {
-//			float ringRadius = (i / (obstacleRingCount+1f)) * (MapWidth * .5f);
-//			float circumference = ringRadius * 2f * Mathf.PI;
-//			int maxCount = Mathf.CeilToInt(circumference / (2f * obstacleRadius) * 2f);
-//			int offset = Random.Range(0,maxCount);
-//			int holeCount = Random.Range(1,3);
-//			for (int j=0;j<maxCount;j++) {
-//				float t = (float)j / maxCount;
-//				if ((t * holeCount)%1f < obstaclesPerRing) {
-//					float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
-//					Obstacle obstacle = new Obstacle();
-//					obstacle.Position = new Vector2(MapWidth * .5f + Mathf.Cos(angle) * ringRadius,MapWidth * .5f + Mathf.Sin(angle) * ringRadius);
-//					obstacle.Radius = obstacleRadius;
-//					output.Add(obstacle);
-//					//Debug.DrawRay(obstacle.position / mapSize,-Vector3.forward * .05f,Color.green,10000f);
-//				}
-//			}
-//		 }
-//
-//		obstacleMatrices = new Matrix4x4[Mathf.CeilToInt((float)output.Count / instancesPerBatch)][];
-//		for (int i=0;i<obstacleMatrices.Length;i++) {
-//			obstacleMatrices[i] = new Matrix4x4[Mathf.Min(instancesPerBatch,output.Count - i * instancesPerBatch)];
-//			for (int j=0;j<obstacleMatrices[i].Length;j++) {
-//				obstacleMatrices[i][j] = Matrix4x4.TRS(output[i * instancesPerBatch + j].Position / MapWidth,Quaternion.identity,new Vector3(obstacleRadius*2f,obstacleRadius*2f,1f)/MapWidth);
-//			}
-//		}
-//
-//		obstacles = output.ToArray();
-//
-//		List<Obstacle>[,] tempObstacleBuckets = new List<Obstacle>[bucketResolution,bucketResolution];
-//
-//		for (int x = 0; x < bucketResolution; x++) {
-//			for (int y = 0; y < bucketResolution; y++) {
-//				tempObstacleBuckets[x,y] = new List<Obstacle>();
-//			}
-//		}
-//
-//		for (int i = 0; i < obstacles.Length; i++) {
-//			Vector2 pos = obstacles[i].Position;
-//			float radius = obstacles[i].Radius;
-//			for (int x = Mathf.FloorToInt((pos.x - radius)/MapWidth*bucketResolution); x <= Mathf.FloorToInt((pos.x + radius)/MapWidth*bucketResolution); x++) {
-//				if (x < 0 || x >= bucketResolution) {
-//					continue;
-//				}
-//				for (int y = Mathf.FloorToInt((pos.y - radius) / MapWidth * bucketResolution); y <= Mathf.FloorToInt((pos.y + radius) / MapWidth * bucketResolution); y++) {
-//					if (y<0 || y>=bucketResolution) {
-//						continue;
-//					}
-//					tempObstacleBuckets[x,y].Add(obstacles[i]);
-//				}
-//			}
-//		}
-//
-//		obstacleBuckets = new Obstacle[bucketResolution,bucketResolution][];
-//		for (int x = 0; x < bucketResolution; x++) {
-//			for (int y = 0; y < bucketResolution; y++) {
-//				obstacleBuckets[x,y] = tempObstacleBuckets[x,y].ToArray();
-//			}
-//		}
-//	}
+	void GenerateObstacles() {
+		List<Obstacle_Old> output = new List<Obstacle_Old>();
+		for (int i=1;i<=obstacleRingCount;i++) {
+			float ringRadius = (i / (obstacleRingCount+1f)) * (MapWidth * .5f);
+			float circumference = ringRadius * 2f * Mathf.PI;
+			int maxCount = Mathf.CeilToInt(circumference / (2f * obstacleRadius) * 2f);
+			int offset = Random.Range(0,maxCount);
+			int holeCount = Random.Range(1,3);
+			for (int j=0;j<maxCount;j++) {
+				float t = (float)j / maxCount;
+				if ((t * holeCount)%1f < obstaclesPerRing) {
+					float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
+					Obstacle_Old obstacle = new Obstacle_Old();
+					obstacle.Position = new Vector2(MapWidth * .5f + Mathf.Cos(angle) * ringRadius,MapWidth * .5f + Mathf.Sin(angle) * ringRadius);
+					obstacle.Radius = obstacleRadius;
+					output.Add(obstacle);
+					//Debug.DrawRay(obstacle.position / mapSize,-Vector3.forward * .05f,Color.green,10000f);
+				}
+			}
+		 }
 
-	Obstacle[] emptyBucket = new Obstacle[0];
+		obstacleMatrices = new Matrix4x4[Mathf.CeilToInt((float)output.Count / instancesPerBatch)][];
+		for (int i=0;i<obstacleMatrices.Length;i++) {
+			obstacleMatrices[i] = new Matrix4x4[Mathf.Min(instancesPerBatch,output.Count - i * instancesPerBatch)];
+			for (int j=0;j<obstacleMatrices[i].Length;j++) {
+				obstacleMatrices[i][j] = Matrix4x4.TRS(output[i * instancesPerBatch + j].Position / MapWidth,Quaternion.identity,new Vector3(obstacleRadius*2f,obstacleRadius*2f,1f)/MapWidth);
+			}
+		}
+
+		obstacles = output.ToArray();
+
+		List<Obstacle_Old>[,] tempObstacleBuckets = new List<Obstacle_Old>[bucketResolution,bucketResolution];
+
+		for (int x = 0; x < bucketResolution; x++) {
+			for (int y = 0; y < bucketResolution; y++) {
+				tempObstacleBuckets[x,y] = new List<Obstacle_Old>();
+			}
+		}
+
+		for (int i = 0; i < obstacles.Length; i++) {
+			Vector2 pos = obstacles[i].Position;
+			float radius = obstacles[i].Radius;
+			for (int x = Mathf.FloorToInt((pos.x - radius)/MapWidth*bucketResolution); x <= Mathf.FloorToInt((pos.x + radius)/MapWidth*bucketResolution); x++) {
+				if (x < 0 || x >= bucketResolution) {
+					continue;
+				}
+				for (int y = Mathf.FloorToInt((pos.y - radius) / MapWidth * bucketResolution); y <= Mathf.FloorToInt((pos.y + radius) / MapWidth * bucketResolution); y++) {
+					if (y<0 || y>=bucketResolution) {
+						continue;
+					}
+					tempObstacleBuckets[x,y].Add(obstacles[i]);
+				}
+			}
+		}
+
+		obstacleBuckets = new Obstacle_Old[bucketResolution,bucketResolution][];
+		for (int x = 0; x < bucketResolution; x++) {
+			for (int y = 0; y < bucketResolution; y++) {
+				obstacleBuckets[x,y] = tempObstacleBuckets[x,y].ToArray();
+			}
+		}
+	}
+
+	Obstacle_Old[] emptyBucket = new Obstacle_Old[0];
 	private NativeArray<Entity> antEntities;
 
-	Obstacle[] GetObstacleBucket(Vector2 pos) {
+	Obstacle_Old[] GetObstacleBucket(Vector2 pos) {
 		return GetObstacleBucket(pos.x,pos.y);
 	}
-	Obstacle[] GetObstacleBucket(float posX, float posY) {
+	Obstacle_Old[] GetObstacleBucket(float posX, float posY) {
 		int x = (int)(posX / MapWidth * bucketResolution);
 		int y = (int)(posY / MapWidth * bucketResolution);
 		if (x<0 || y<0 || x>=bucketResolution || y>=bucketResolution) {
@@ -369,9 +379,9 @@ public class AntManager : MonoBehaviour {
 
 			float dx, dy, dist;
 
-			Obstacle[] nearbyObstacles = GetObstacleBucket(ant.position);
+			Obstacle_Old[] nearbyObstacles = GetObstacleBucket(ant.position);
 			for (int j=0;j<nearbyObstacles.Length;j++) {
-				Obstacle obstacle = nearbyObstacles[j];
+				Obstacle_Old obstacle = nearbyObstacles[j];
 				dx = ant.position.x - obstacle.Position.x;
 				dy = ant.position.y - obstacle.Position.y;
 				float sqrDist = dx * dx + dy * dy;

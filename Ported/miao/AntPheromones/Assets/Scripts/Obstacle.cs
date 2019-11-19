@@ -10,3 +10,9 @@ public struct Obstacle : IComponentData
 	public float3 Position;
 	public float Radius;
 }
+
+public struct Obstacle_Old : IComponentData
+{
+	public Vector2 Position;
+	public float Radius;
+}
