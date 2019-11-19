@@ -1,4 +1,3 @@
-using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -22,16 +21,23 @@ public class ApplySteeringSystem : JobComponentSystem
         var antSteering = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>();
         return new ApplySteeringJob {
             MaxSpeed = antSteering.MaxSpeed,
-            Acceleration = antSteering.Acceleration
+            Acceleration = antSteering.Acceleration,
+            PheromoneStrength = antSteering.PheromoneSteerStrength,
+            WallStrength = antSteering.WallSteerStrength
         }.Schedule(this, inputDeps);
     }
 
-    struct ApplySteeringJob : IJobForEach<PheromoneSteeringComponent, WallSteeringComponent, SpeedComponent>
+    struct ApplySteeringJob : IJobForEach<PheromoneSteeringComponent, WallSteeringComponent, SpeedComponent, FacingAngleComponent>
     {
         public float MaxSpeed;
         public float Acceleration;
-        public void Execute([ReadOnly] ref PheromoneSteeringComponent pheromone, [ReadOnly] ref WallSteeringComponent wall, ref SpeedComponent speed)
+        public float PheromoneStrength;
+        public float WallStrength;
+
+        public void Execute([ReadOnly] ref PheromoneSteeringComponent pheromone, [ReadOnly] ref WallSteeringComponent wall, ref SpeedComponent speed, ref FacingAngleComponent facingAngle)
         {
+            facingAngle.Value += pheromone.Value * PheromoneStrength;
+            facingAngle.Value += wall.Value * WallStrength;
             float targetSpeed = MaxSpeed;
             targetSpeed *= 1 - (math.abs(pheromone.Value) + math.abs(wall.Value)) / 3;
             speed.Value = (targetSpeed - speed.Value) * Acceleration;

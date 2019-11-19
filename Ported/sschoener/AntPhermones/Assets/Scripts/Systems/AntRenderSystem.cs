@@ -18,7 +18,6 @@ public class BatchedRenderSystem : JobComponentSystem
     readonly List<Vector4[]> m_Colors = new List<Vector4[]>();
     readonly List<GCHandle> m_Handles = new List<GCHandle>();
     readonly List<MaterialPropertyBlock> m_PropertyBlocks = new List<MaterialPropertyBlock>();
-    ArchetypeChunkSharedComponentType<RenderData> m_RenderDataType;
     static readonly int k_Color = Shader.PropertyToID("_Color");
 
     const int k_MaxBatchSize = 1023;
@@ -26,7 +25,6 @@ public class BatchedRenderSystem : JobComponentSystem
     protected override void OnCreate()
     {
         base.OnCreate();
-        m_RenderDataType = EntityManager.GetArchetypeChunkSharedComponentType<RenderData>();
         m_Renderables = GetEntityQuery(
             ComponentType.ReadOnly<LocalToWorldComponent>(),
             ComponentType.ReadOnly<RenderColorComponent>()

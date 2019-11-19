@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Entities;
+﻿using Unity.Entities;
 using UnityEngine;
 
 [RequiresEntityConversion]

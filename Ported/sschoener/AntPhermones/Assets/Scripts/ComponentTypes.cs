@@ -1,20 +1,29 @@
+using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-struct RenderData : ISharedComponentData
+struct RenderData : ISharedComponentData, IEquatable<RenderData>
 {
     public Mesh Mesh;
     public Material Material;
     public ShadowCastingMode ShadowCastingMode;
     public bool ReceiveShadows;
+
+    public bool Equals(RenderData other) =>
+        ReceiveShadows == other.ReceiveShadows &&
+        ShadowCastingMode == other.ShadowCastingMode &&
+        Material == other.Material &&
+        Mesh == other.Mesh;
 }
 
-struct PheromoneRenderData : ISharedComponentData
+struct PheromoneRenderData : ISharedComponentData, IEquatable<PheromoneRenderData>
 {
     public MeshRenderer Renderer;
     public Material Material;
+
+    public bool Equals(PheromoneRenderData other) => Renderer == other.Renderer && Material == other.Material;
 }
 
 public struct HasResourcesComponent : IComponentData
@@ -76,6 +85,9 @@ public struct AntRenderSettingsComponent : IComponentData
 
 public struct AntSteeringSettingsComponent : IComponentData
 {
+    public float RandomSteerStrength;
+    public float WallSteerStrength;
+    public float PheromoneSteerStrength;
     public float TargetSteerStrength;
     public float InwardSteerStrength;
     public float OutwardSteerStrength;

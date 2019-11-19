@@ -22,26 +22,30 @@ public class MapSettingsAuthoringComponent : MonoBehaviour, IConvertGameObjectTo
             ref var obs = ref b.ConstructRoot<ObstacleData>();
             obs.BucketResolution = GameManager.bucketResolution;
             obs.MapSize = GameManager.mapSize;
-            var list = b.Allocate(ref obs.Obstacles, obs.MapSize * obs.MapSize);
-            for (int i = 0; i < obstacleList.Length; i++)
-                list[i] = obstacleList[i];
-            
-            var map = b.Allocate(ref obs.ObstacleMap, obs.MapSize * obs.MapSize);
+
             {
+                int h = obstacleMap.GetLength(0);
+                int w = obstacleMap.GetLength(1);
+                var map = b.Allocate(ref obs.ObstacleMap, w * h);
                 int offset = 0;
-                for (int y = 0; y < obs.MapSize; y++)
+                for (int y = 0; y < h; y++)
                 {
-                    for (int x = 0; x < obs.MapSize; x++)
+                    for (int x = 0; x < w; x++)
                     {
                         map[offset] = obstacleMap[y, x].Length > 0;
                         offset++;
                     }
                 }
             }
+
+            var list = b.Allocate(ref obs.Obstacles, obs.MapSize * obs.MapSize);
+            for (int i = 0; i < obstacleList.Length; i++)
+                list[i] = obstacleList[i];
+
             return b.CreateBlobAssetReference<ObstacleData>(Allocator.Persistent);
         }
-    } 
-    
+    }
+
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity, new MapSettingsComponent
