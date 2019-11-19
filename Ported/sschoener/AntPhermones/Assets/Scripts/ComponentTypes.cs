@@ -1,8 +1,21 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Rendering;
 
-public struct HasResourcesTagComponent : IComponentData { }
+struct RenderData : ISharedComponentData
+{
+    public Mesh Mesh;
+    public Material Material;
+    public ShadowCastingMode ShadowCastingMode;
+    public bool ReceiveShadows;
+}
+
+struct PheromoneRenderData : ISharedComponentData
+{
+    public MeshRenderer Renderer;
+    public Material Material;
+}
 
 public struct HasResourcesComponent : IComponentData
 {
@@ -54,36 +67,57 @@ public struct RenderColorComponent : IComponentData
     public Color Value;
 }
 
+public struct AntRenderSettingsComponent : IComponentData
+{
+    public Color CarrierColor;
+    public Color SearcherColor;
+    public float3 Scale;
+}
+
+public struct AntSteeringSettingsComponent : IComponentData
+{
+    public float TargetSteerStrength;
+    public float InwardSteerStrength;
+    public float OutwardSteerStrength;
+    
+    public float MaxSpeed;
+    public float Acceleration;
+}
+
 public struct MapSettingsComponent : IComponentData
 {
     public int MapSize;
-
-
+    
     public float TrailDecay;
     public float TrailAdd;
-    public float MaxSpeed;
 
-    public float ResourcePosition;
+    public float2 ResourcePosition;
     public float2 ColonyPosition;
-    public float InwardStrength;
-    public float OutwardStrength;
-
-
+    
     public float ObstacleRadius;    
-    public BlobAssetReference<ObstacleList> Obstacles;
+    public BlobAssetReference<ObstacleData> Obstacles;
 }
 
-public struct PheromoneMapComponent : IComponentData
+public struct PheromoneBuffer : IBufferElementData
 {
-    public BlobAssetReference<PheromoneMap> PheromoneMap;
+    public float Value;
+    
+    public static implicit operator PheromoneBuffer(float v) => new PheromoneBuffer { Value = v };
+    public static implicit operator float(PheromoneBuffer p) => p.Value;
 }
 
-public struct PheromoneMap
+public struct ObstacleData
 {
-    public BlobArray<float> Map;
-}
-
-public struct ObstacleList
-{
+    public int BucketResolution;
+    public int MapSize;
     public BlobArray<float2> Obstacles;
+    public BlobArray<bool> ObstacleMap;
+
+    public bool HasObstacle(float2 pos)
+    {
+        var c = pos / MapSize * BucketResolution;
+        if (math.any(c < 0) || math.any(c > MapSize))
+            return false;
+        return ObstacleMap[(int)pos.y * MapSize + (int)pos.x];
+    }
 }

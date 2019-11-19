@@ -1,3 +1,4 @@
+using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -8,11 +9,20 @@ using Unity.Mathematics;
 [UpdateAfter(typeof(ComputeWallSteeringSystem))]
 public class ApplySteeringSystem : JobComponentSystem
 {
+    EntityQuery m_AntSteeringQuery;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        m_AntSteeringQuery = GetEntityQuery(ComponentType.ReadOnly<AntSteeringSettingsComponent>());
+    }
+
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        var antSteering = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>();
         return new ApplySteeringJob {
-            MaxSpeed = 0,
-            Acceleration = 0
+            MaxSpeed = antSteering.MaxSpeed,
+            Acceleration = antSteering.Acceleration
         }.Schedule(this, inputDeps);
     }
 

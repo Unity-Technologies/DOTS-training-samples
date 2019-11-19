@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 
@@ -19,10 +20,11 @@ public class UpdatePositionSystem : JobComponentSystem
         var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
         return new Job
         {
-            MapSize = map.MapSize,
+            MapSize = map.MapSize
         }.Schedule(this, inputDeps);
     }
 
+    [BurstCompile]
     struct Job : IJobForEach<PositionComponent, VelocityComponent>
     {
         public float MapSize;

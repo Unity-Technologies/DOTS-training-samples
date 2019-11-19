@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -25,6 +26,7 @@ public class ResourceCarrySystem : JobComponentSystem
         }.Schedule(this, inputDeps);
     }
     
+    [BurstCompile]
     struct Job : IJobForEach<PositionComponent, FacingAngleComponent, HasResourcesComponent>
     {
         public float2 ColonyPosition;

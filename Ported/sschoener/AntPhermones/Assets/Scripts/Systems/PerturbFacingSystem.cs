@@ -1,6 +1,8 @@
+using System;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class PerturbFacingSystem : JobComponentSystem
@@ -8,8 +10,8 @@ public class PerturbFacingSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         return new PerturbationJob {
-            Seed = 1 + (uint)UnityEngine.Time.frameCount,
-            Magnitude = 5,
+            Seed = 1 + (uint)Time.frameCount,
+            Magnitude = 5
         }.Schedule(this, inputDeps);
     }
 

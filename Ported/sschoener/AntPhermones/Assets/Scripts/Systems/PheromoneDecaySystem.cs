@@ -2,6 +2,7 @@
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
+using UnityEngine;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 [UpdateAfter(typeof(PheromoneDropSystem))]
@@ -9,21 +10,23 @@ public class PheromoneDecaySystem : JobComponentSystem
 {
     EntityQuery m_PheromoneMapQuery;
     EntityQuery m_MapQuery;
+    
     protected override void OnCreate()
     {
         base.OnCreate();
-        m_PheromoneMapQuery = GetEntityQuery(ComponentType.ReadWrite<PheromoneMapComponent>());
+        m_PheromoneMapQuery = GetEntityQuery(ComponentType.ReadWrite<PheromoneBuffer>());
         m_MapQuery = GetEntityQuery(ComponentType.ReadOnly<MapSettingsComponent>());
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var pheromoneMap = m_PheromoneMapQuery.GetSingleton<PheromoneMapComponent>();
+        var pheromoneFromEntity = GetBufferFromEntity<PheromoneBuffer>();
+        var pheromoneMap = pheromoneFromEntity[m_PheromoneMapQuery.GetSingletonEntity()];
         var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
         return new Job
         {
             TrailDecay = map.TrailDecay,
-            PheromoneMap = pheromoneMap.PheromoneMap,
+            PheromoneMap = pheromoneMap
         }.Schedule(map.MapSize, 64, inputDeps);
     }
 
@@ -31,10 +34,10 @@ public class PheromoneDecaySystem : JobComponentSystem
     struct Job : IJobParallelFor
     {
         public float TrailDecay;
-        public BlobAssetReference<PheromoneMap> PheromoneMap;
+        public DynamicBuffer<PheromoneBuffer> PheromoneMap;
         public void Execute(int index)
         {
-            PheromoneMap.Value.Map[index] *= TrailDecay;
+            PheromoneMap[index] *= TrailDecay;
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -13,23 +14,24 @@ public class ComputePheromoneSteeringSystem : JobComponentSystem
     protected override void OnCreate()
     {
         base.OnCreate();
-        m_PheromoneMapQuery = GetEntityQuery(ComponentType.ReadOnly<PheromoneMapComponent>());
+        m_PheromoneMapQuery = GetEntityQuery(ComponentType.ReadOnly<PheromoneBuffer>());
         m_MapSettingsQuery = GetEntityQuery(ComponentType.ReadOnly<MapSettingsComponent>());
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        var pheromoneMap = GetBufferFromEntity<PheromoneBuffer>(true)[m_PheromoneMapQuery.GetSingletonEntity()];
         return new SteeringJob
         {
-            PheromoneMap = m_PheromoneMapQuery.GetSingleton<PheromoneMapComponent>().PheromoneMap.Value.Map,
-            MapSize = m_MapSettingsQuery.GetSingleton<MapSettingsComponent>().MapSize,
+            PheromoneMap = pheromoneMap,
+            MapSize = m_MapSettingsQuery.GetSingleton<MapSettingsComponent>().MapSize
         }.Schedule(this, inputDeps);
     }
 
     struct SteeringJob : IJobForEach<FacingAngleComponent, PositionComponent, PheromoneSteeringComponent>
     {
         public float MapSize;
-        public BlobArray<float> PheromoneMap;
+        public DynamicBuffer<PheromoneBuffer> PheromoneMap;
 
         public void Execute([ReadOnly] ref FacingAngleComponent facingAngle, [ReadOnly] ref PositionComponent position, ref PheromoneSteeringComponent steering)
         {
@@ -48,7 +50,6 @@ public class ComputePheromoneSteeringSystem : JobComponentSystem
                 }
                 else
                 {
-
                     int index = (int)(testY * MapSize + testX);
                     output += PheromoneMap[index] * i;
                 }

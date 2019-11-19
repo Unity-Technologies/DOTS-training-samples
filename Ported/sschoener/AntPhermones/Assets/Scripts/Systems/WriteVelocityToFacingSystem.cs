@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -13,6 +14,7 @@ public class WriteVelocityToFacingSystem : JobComponentSystem
         return new Job().Schedule(this, inputDeps);
     }
 
+    [BurstCompile]
     struct Job : IJobForEach<VelocityComponent, FacingAngleComponent>
     {
         public void Execute([ReadOnly]ref VelocityComponent velocity, [WriteOnly] ref FacingAngleComponent facingAngle)
