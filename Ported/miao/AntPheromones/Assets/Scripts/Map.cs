@@ -1,6 +1,8 @@
-﻿namespace AntPheromones_ECS
+﻿using Unity.Entities;
+
+namespace AntPheromones_ECS
 {
-    public static class Map
+    public struct Map : IComponentData
     {
         public const int Width = 128;
 

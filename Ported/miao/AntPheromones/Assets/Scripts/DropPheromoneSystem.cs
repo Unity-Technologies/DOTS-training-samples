@@ -8,7 +8,7 @@ namespace AntPheromones_ECS
 {
     public class DropPheromoneSystem : JobComponentSystem
     {
-        private BlobAssetReference<ColourBlobs> PheromoneColours;
+        private BlobAssetReference<PheromoneColourBlobs> PheromoneColours;
         
         private struct DropPheromoneJob : IJobForEach<Position, Ant>
         {
@@ -43,27 +43,34 @@ namespace AntPheromones_ECS
 
         protected override void OnCreate()
         {
-            this.PheromoneColours = ColourBlobs.Generate();
+            this.PheromoneColours = PheromoneColourBlobs.Generate();
         }
        
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
-            DropPheromoneJob job = new DropPheromoneJob { DropForce = };
+            
+            throw new NotImplementedException();
+//            DropPheromoneJob job = new DropPheromoneJob { DropForce = inputDependencies.};
         }
     }
 
-    public struct ColourBlobs
+    public struct PheromoneColourBlobs
     {
         public BlobArray<Color> Colours;
 
-        public static BlobAssetReference<ColourBlobs> Generate()
+        public static BlobAssetReference<PheromoneColourBlobs> Generate()
         {
             using (var builder = new BlobBuilder(Allocator.Temp))
             {
-                ref ColourBlobs colourBlobs = ref builder.ConstructRoot<ColourBlobs>();
-                BlobBuilderArray<Color> blobBuilderArray = builder.Allocate(ref colourBlobs.Colours, length: Map.Width * Map.Width);
+                ref PheromoneColourBlobs pheromoneColourBlobs = ref builder.ConstructRoot<PheromoneColourBlobs>();
+                BlobBuilderArray<Color> blobBuilderArray = builder.Allocate(ref pheromoneColourBlobs.Colours, length: Map.Width * Map.Width);
 
-                return builder.CreateBlobAssetReference<ColourBlobs>(Allocator.Persistent);
+                for (int i = 0; i < pheromoneColourBlobs.Colours.Length; i++)
+                {
+                    blobBuilderArray[i] = new Color();
+                }
+
+                return builder.CreateBlobAssetReference<PheromoneColourBlobs>(Allocator.Persistent);
             }
         }
     }

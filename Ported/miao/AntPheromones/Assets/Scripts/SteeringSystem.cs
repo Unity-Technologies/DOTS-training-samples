@@ -12,6 +12,14 @@ namespace AntPheromones_ECS
 //            EntityManager.GetSharedComponentData<MapWidth>(e);
 //            var something= this.GetSingleton<MapWidth>();
 
+    public class UpdateAntColourSystem : JobComponentSystem
+    {
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class SteeringSystem : JobComponentSystem
     {
         public BlobAssetReference<ObstacleBlobs> Obstacles { get; private set; }
