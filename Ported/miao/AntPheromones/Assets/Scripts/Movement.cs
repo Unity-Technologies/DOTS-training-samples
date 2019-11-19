@@ -2,9 +2,19 @@
 
 namespace AntPheromones_ECS
 {
-    public struct Movement : IComponentData
+    public struct FacingAngle : IComponentData
     {
-        public float FacingAngle;
-        public float Speed;
+        public float Value;
     }
+
+    public struct Speed : IComponentData
+    {
+        public float Value;
+    }
+//    
+//    public struct Movement : IComponentData
+//    {
+//        public float FacingAngle;
+//        public float Speed;
+//    }
 }

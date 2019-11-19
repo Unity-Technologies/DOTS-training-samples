@@ -6,30 +6,27 @@ using Random = UnityEngine.Random;
 
 namespace AntPheromones_ECS
 {
-    public struct ObstacleBlobs
+    public struct MapObstacles
     {
-        public struct Bucket
-        {
-            public BlobArray<Obstacle> Obstacles;
-        }
-        
-        public BlobArray<Bucket> Buckets;
+        public BlobArray<BlobArray<Obstacle>> Buckets;
         public BlobArray<Obstacle> Empty;
         public BlobArray<Obstacle> Obstacles;
+                
+        public const int BucketResolution = 64;
+        
         private BlobArray<Matrix4x4> Matrices;
         
-        private const int BucketResolution = 64;
         private const int RingCount = 3;
         private const int Radius = 2;
         private const float NumObstaclesPerRing = 0.8f;
         private const int MaxHoleCount = 3;
         private const int MinHoleCount = 1;
 
-        public static BlobAssetReference<ObstacleBlobs> Generate()
+        public static BlobAssetReference<MapObstacles> Generate()
         {
             using (BlobBuilder builder = new BlobBuilder(Allocator.Temp))
             {
-                ref ObstacleBlobs root = ref builder.ConstructRoot<ObstacleBlobs>();
+                ref MapObstacles root = ref builder.ConstructRoot<MapObstacles>();
 
                 builder.Allocate(ref root.Empty, length: 0);
                 
@@ -77,11 +74,11 @@ namespace AntPheromones_ECS
                 }
 
                 var obstacleBuckets = builder.Allocate(ref root.Buckets, length: BucketResolution * BucketResolution);
-//
-//                for (int i = 0; i < obstacleBuckets.Length; i++)
-//                {
-//                    obstacleBuckets[i] = builder.Allocate(ref root.) // new BlobArray<Obstacle>();
-//                }
+
+                for (int i = 0; i < obstacleBuckets.Length; i++)
+                {
+                    obstacleBuckets[i] = new BlobArray<Obstacle>();
+                }
 
                 for (int i = 0; i < obstacles.Length; i++)
                 {
@@ -110,22 +107,22 @@ namespace AntPheromones_ECS
                                 continue;
                             }
 
-//                            obstacleBuckets[currentBucketIndex][currentBlobArrayWriteIndex] = obstacles[i];
+                            obstacleBuckets[currentBucketIndex][currentBlobArrayWriteIndex] = obstacles[i];
                             currentBucketIndex++;
                         }
                     }
                 }
 
-                return builder.CreateBlobAssetReference<ObstacleBlobs>(Allocator.Persistent);
+                return builder.CreateBlobAssetReference<MapObstacles>(Allocator.Persistent);
             }
         }
 
-//        public BlobArray<Obstacle> GetObstacleBucket(float candidateDestinationX, float candidateDestinationY)
-//        {
-//            int x = (int)(candidateDestinationX / Map.Width * BucketResolution);
-//            int y = (int)(candidateDestinationY / Map.Width * BucketResolution);
-//            
-//            return Map.IsWithinBounds(x, y) ? Empty : this.Buckets[x * BucketResolution + BucketResolution];
-//        }
+        public BlobArray<Obstacle> GetObstacleBucket(float candidateDestinationX, float candidateDestinationY)
+        {
+            int x = (int)(candidateDestinationX / Map.Width * BucketResolution);
+            int y = (int)(candidateDestinationY / Map.Width * BucketResolution);
+            
+            return Map.IsWithinBounds(x, y) ? Empty : this.Buckets[x * BucketResolution + BucketResolution];
+        }
     }
 }

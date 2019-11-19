@@ -102,7 +102,9 @@ public class AntManager : MonoBehaviour {
 		EntityArchetype antArchetype =
 			entityManager.CreateArchetype(
 				typeof(Position),
-				typeof(Movement),
+				typeof(FacingAngle),
+				typeof(Speed),
+				typeof(ColourDisplay),
 				typeof(Brightness),
 				typeof(ResourceCarrier),
 				typeof(RenderMesh),
@@ -128,6 +130,9 @@ public class AntManager : MonoBehaviour {
 			});
 		}
 
+		Entity pheromoneColourMapEntity = entityManager.CreateEntity(typeof(PheromoneColourMap));
+		entityManager.AddBuffer<PheromoneColour>(pheromoneColourMapEntity);
+		
 //
 //		DropPheromoneSystem dropPheromoneSystem = World.Active.GetOrCreateSystem<DropPheromoneSystem>();
 //
