@@ -1,4 +1,3 @@
-using System;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
@@ -18,7 +17,6 @@ public class PerturbFacingSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        return default;
         return new PerturbationJob {
             Seed = 1 + (uint)Time.frameCount,
             Magnitude = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>().RandomSteerStrength,

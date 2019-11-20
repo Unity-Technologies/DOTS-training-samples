@@ -19,7 +19,6 @@ public class ComputeWallSteeringSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        return default;
         var map = m_MapSettingsQuery.GetSingleton<MapSettingsComponent>();
         return new SteeringJob
         {

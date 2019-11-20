@@ -68,10 +68,7 @@ public class AntManager : MonoBehaviour
         return rotationMatrixLookup[((int)angle) % rotationResolution];
     }
 
-    int PheromoneIndex(int x, int y)
-    {
-        return x + y * mapSize;
-    }
+    int PheromoneIndex(int x, int y) => y * mapSize + x;
 
     void DropPheromones(Vector2 position, float strength)
     {
@@ -83,7 +80,8 @@ public class AntManager : MonoBehaviour
         }
 
         int index = PheromoneIndex(x, y);
-        pheromones[index].r += (trailAddSpeed * strength * Time.fixedDeltaTime) * (1f - pheromones[index].r);
+        float rate = trailAddSpeed * strength * Time.fixedDeltaTime;
+        pheromones[index].r += rate * (1f - pheromones[index].r);
         if (pheromones[index].r > 1f)
         {
             pheromones[index].r = 1f;
@@ -161,6 +159,7 @@ public class AntManager : MonoBehaviour
 
     void GenerateObstacles()
     {
+        Random.InitState(0);
         List<Obstacle> output = new List<Obstacle>();
         for (int i = 1; i <= obstacleRingCount; i++)
         {
@@ -238,10 +237,8 @@ public class AntManager : MonoBehaviour
     }
 
     Obstacle[] emptyBucket = new Obstacle[0];
-    Obstacle[] GetObstacleBucket(Vector2 pos)
-    {
-        return GetObstacleBucket(pos.x, pos.y);
-    }
+    Obstacle[] GetObstacleBucket(Vector2 pos) => GetObstacleBucket(pos.x, pos.y);
+    
     Obstacle[] GetObstacleBucket(float posX, float posY)
     {
         int x = (int)(posX / mapSize * bucketResolution);
@@ -261,6 +258,7 @@ public class AntManager : MonoBehaviour
 
         GenerateObstacles();
 
+        Random.InitState(5);
         colonyPosition = Vector2.one * mapSize * .5f;
         colonyMatrix = Matrix4x4.TRS(colonyPosition / mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / mapSize);
         float resourceAngle = Random.value * 2f * Mathf.PI;
@@ -311,128 +309,106 @@ public class AntManager : MonoBehaviour
     void FixedUpdate()
     {
         for (int i = 0; i < ants.Length; i++)
+            ants[i].facingAngle += Random.Range(-randomSteering, randomSteering);
+
+        for (int i = 0; i < ants.Length; i++)
         {
             Ant ant = ants[i];
-            {
-                ant.facingAngle += Random.Range(-randomSteering, randomSteering);
-                float pheroSteering = PheromoneSteering(ant, 3f);
-                int wallSteering = WallSteering(ant, 1.5f);
-                ant.facingAngle += pheroSteering * pheromoneSteerStrength;
-                ant.facingAngle += wallSteering * wallSteerStrength;
+            float pheroSteering = PheromoneSteering(ant, 3f);
+            int wallSteering = WallSteering(ant, 1.5f);
+            ant.facingAngle += pheroSteering * pheromoneSteerStrength;
+            ant.facingAngle += wallSteering * wallSteerStrength;
 
+            float targetSpeed = antSpeed;
+            targetSpeed *= 1f - (Mathf.Abs(pheroSteering) + Mathf.Abs(wallSteering)) / 3f;
+            ant.speed += (targetSpeed - ant.speed) * antAccel;
+        }
 
-                float targetSpeed = antSpeed;
-				targetSpeed *= 1f - (Mathf.Abs(pheroSteering) + Mathf.Abs(wallSteering)) / 3f;
-                ant.speed += (targetSpeed - ant.speed) * antAccel;
-            }
+        for (int i = 0; i < ants.Length; i++)
+        {
+            Ant ant = ants[i];
+            int index1 = i / instancesPerBatch;
+            int index2 = i % instancesPerBatch;
+            Color c = ant.holdingResource ? carryColor : searchColor;
+            antColors[index1][index2] += ((Vector4)c * ant.brightness - antColors[index1][index2]) * .05f;
+        }
 
-            Vector2 targetPos;
-            {
-                int index1 = i / instancesPerBatch;
-                int index2 = i % instancesPerBatch;
-                if (ant.holdingResource == false)
-                {
-                    targetPos = resourcePosition;
-                    antColors[index1][index2] += ((Vector4)searchColor * ant.brightness - antColors[index1][index2]) * .05f;
-                }
-                else
-                {
-                    targetPos = colonyPosition;
-                    antColors[index1][index2] += ((Vector4)carryColor * ant.brightness - antColors[index1][index2]) * .05f;
-                }
-            }
+        for (int i = 0; i < ants.Length; i++)
+        {
+            Ant ant = ants[i];
+            Vector2 targetPos = ant.holdingResource ? colonyPosition : resourcePosition;
 
             if (Linecast(ant.position, targetPos) == false)
             {
                 float targetAngle = Mathf.Atan2(targetPos.y - ant.position.y, targetPos.x - ant.position.x);
-                if (targetAngle - ant.facingAngle > Mathf.PI)
-                {
+                float deltaAngle = targetAngle - ant.facingAngle;
+                if (deltaAngle > Mathf.PI)
                     ant.facingAngle += Mathf.PI * 2f;
-                }
-                else if (targetAngle - ant.facingAngle < -Mathf.PI)
-                {
+                else if (deltaAngle < -Mathf.PI)
                     ant.facingAngle -= Mathf.PI * 2f;
-                }
-                else
-                {
-                    if (Mathf.Abs(targetAngle - ant.facingAngle) < Mathf.PI * .5f)
-                        ant.facingAngle += (targetAngle - ant.facingAngle) * goalSteerStrength;
-                }
+                else if (Mathf.Abs(deltaAngle) < Mathf.PI * .5f)
+                    ant.facingAngle += deltaAngle * goalSteerStrength;
             }
+        }
 
+        for (int i = 0; i < ants.Length; i++)
+        {
+            Ant ant = ants[i];
+            Vector2 targetPos = ant.holdingResource ? colonyPosition : resourcePosition;
             if ((ant.position - targetPos).sqrMagnitude < 4f * 4f)
             {
                 ant.holdingResource = !ant.holdingResource;
                 ant.facingAngle += Mathf.PI;
             }
+        }
 
-            float vx = Mathf.Cos(ant.facingAngle) * ant.speed;
-            float vy = Mathf.Sin(ant.facingAngle) * ant.speed;
-            float ovx = vx;
-            float ovy = vy;
+        for (int i = 0; i < ants.Length; i++)
+        {
+            Ant ant = ants[i];
+            var v = new Vector2(Mathf.Cos(ant.facingAngle), Mathf.Sin(ant.facingAngle)) * ant.speed;
 
             {
-                if (ant.position.x + vx < 0f || ant.position.x + vx > mapSize)
-                {
-                    vx = -vx;
-                }
+                var np = ant.position + v;
+                if (np.x < 0f || np.x > mapSize)
+                    v.x = -v.x;
                 else
-                {
-                    ant.position.x += vx;
-                }
-                if (ant.position.y + vy < 0f || ant.position.y + vy > mapSize)
-                {
-                    vy = -vy;
-                }
+                    ant.position.x += v.x;
+                if (np.y < 0f || np.y > mapSize)
+                    v.y = -v.y;
                 else
-                {
-                    ant.position.y += vy;
-                }
+                    ant.position.y += v.y;
             }
 
             Obstacle[] nearbyObstacles = GetObstacleBucket(ant.position);
             for (int j = 0; j < nearbyObstacles.Length; j++)
             {
                 Obstacle obstacle = nearbyObstacles[j];
-                float dx = ant.position.x - obstacle.position.x;
-                float dy = ant.position.y - obstacle.position.y;
-                float sqrDist = dx * dx + dy * dy;
+                Vector2 delta = ant.position - obstacle.position;
+                float sqrDist = delta.sqrMagnitude;
                 if (sqrDist < obstacleRadius * obstacleRadius)
                 {
-                    float dist = Mathf.Sqrt(sqrDist);
-                    dx /= dist;
-                    dy /= dist;
-                    ant.position.x = obstacle.position.x + dx * obstacleRadius;
-                    ant.position.y = obstacle.position.y + dy * obstacleRadius;
+                    delta /= Mathf.Sqrt(sqrDist);
+                    ant.position = obstacle.position + delta * obstacleRadius;
 
-                    vx -= dx * (dx * vx + dy * vy) * 1.5f;
-                    vy -= dy * (dx * vx + dy * vy) * 1.5f;
+                    v -= 1.5f * delta * Vector2.Dot(delta, v);
                 }
             }
 
             {
-                float inwardOrOutward = -outwardStrength;
-                float pushRadius = mapSize * .4f;
-                if (ant.holdingResource)
-                {
-                    inwardOrOutward = inwardStrength;
-                    pushRadius = mapSize;
-                }
+                float strength = ant.holdingResource ? inwardStrength : -outwardStrength;
+                float pushRadius = ant.holdingResource ? mapSize : mapSize * .4f;
 
-                float dx = colonyPosition.x - ant.position.x;
-                float dy = colonyPosition.y - ant.position.y;
-                float dist = Mathf.Sqrt(dx * dx + dy * dy);
-                inwardOrOutward *= 1f - Mathf.Clamp01(dist / pushRadius);
-                vx += dx / dist * inwardOrOutward;
-                vy += dy / dist * inwardOrOutward;
+                var delta = colonyPosition - ant.position;
+                float dist = delta.magnitude;
+                strength *= 1f - Mathf.Clamp01(dist / pushRadius);
+                v += delta * (strength / dist);
             }
-            {
-                if (ovx != vx || ovy != vy)
-                {
-                    ant.facingAngle = Mathf.Atan2(vy, vx);
-                }
-            }
+            ant.facingAngle = Mathf.Atan2(v.y, v.x);
+        }
 
+        for (int i = 0; i < ants.Length; i++)
+        {
+            Ant ant = ants[i];
             {
                 float excitement = .3f;
                 if (ant.holdingResource)
@@ -442,14 +418,16 @@ public class AntManager : MonoBehaviour
                 excitement *= ant.speed / antSpeed;
                 DropPheromones(ant.position, excitement);
             }
+        }
 
+        for (int i = 0; i < ants.Length; i++)
+        {
+            Ant ant = ants[i];
             // update local to world matrix
-            {
-                Matrix4x4 matrix = GetRotationMatrix(ant.facingAngle);
-                matrix.m03 = ant.position.x / mapSize;
-                matrix.m13 = ant.position.y / mapSize;
-                matrices[i / instancesPerBatch][i % instancesPerBatch] = matrix;
-            }
+            Matrix4x4 matrix = GetRotationMatrix(ant.facingAngle);
+            matrix.m03 = ant.position.x / mapSize;
+            matrix.m13 = ant.position.y / mapSize;
+            matrices[i / instancesPerBatch][i % instancesPerBatch] = matrix;
         }
 
         // decay pheromones

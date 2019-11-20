@@ -1,7 +1,7 @@
-﻿using System;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 [UpdateAfter(typeof(ComputeVelocitySystem))]
@@ -31,27 +31,10 @@ public class UpdatePositionSystem : JobComponentSystem
 
         public void Execute(ref PositionComponent position, ref VelocityComponent velocity)
         {
-            var p = position.Value;
-            var v = velocity.Value;
-            var newP = p + v;
-            if (newP.x < 0f || newP.x > MapSize)
-            {
-                v.x = -v.x;
-            }
-            else
-            {
-                p.x = newP.x;
-            }
-            if (newP.y < 0f || newP.y > MapSize)
-            {
-                v.y = -v.y;
-            }
-            else
-            {
-                p.y = newP.y;
-            }
-            position.Value = p;
-            velocity.Value = v;
+            var newP = position.Value + velocity.Value;
+            var mask = (float2)((newP < 0) | (newP > MapSize));
+            position.Value += (1 - mask) * velocity.Value;
+            velocity.Value -= 2 * velocity.Value * mask;
         }
     }
 }

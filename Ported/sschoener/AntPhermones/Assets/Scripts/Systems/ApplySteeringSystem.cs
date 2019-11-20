@@ -43,7 +43,7 @@ public class ApplySteeringSystem : JobComponentSystem
             facingAngle.Value += wall.Value * WallStrength;
             float targetSpeed = MaxSpeed;
             targetSpeed *= 1 - (math.abs(pheromone.Value) + math.abs(wall.Value)) / 3;
-            speed.Value = (targetSpeed - speed.Value) * Acceleration;
+            speed.Value += (targetSpeed - speed.Value) * Acceleration;
         }
     }
 }

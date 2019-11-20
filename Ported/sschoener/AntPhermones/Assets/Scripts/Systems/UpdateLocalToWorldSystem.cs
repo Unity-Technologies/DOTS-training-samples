@@ -1,11 +1,10 @@
-﻿using System;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateInGroup(typeof(PresentationSystemGroup))]
 public class UpdateLocalToWorldSystem : JobComponentSystem
 {
     EntityQuery m_AntSettingsQuery;

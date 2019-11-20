@@ -20,7 +20,6 @@ public class TargetingSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        return default;
         var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
         var antSteering = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>();
         return new Job {
@@ -67,17 +66,11 @@ public class TargetingSystem : JobComponentSystem
                 float targetAngle = math.atan2(targetPos.y - p.y, targetPos.x - p.x);
                 float deltaAngle = targetAngle - facingAngle.Value;
                 if (deltaAngle > math.PI)
-                {
                     facingAngle.Value += math.PI * 2f;
-                }
                 else if (deltaAngle < -math.PI)
-                {
                     facingAngle.Value -= math.PI * 2f;
-                }
                 else if (math.abs(deltaAngle) < math.PI * .5f)
-                {
                     facingAngle.Value += deltaAngle * TargetSteerStrength;
-                }
             }
         }
     }

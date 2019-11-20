@@ -1,10 +1,8 @@
-﻿using System;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
-using UnityEngine;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 [UpdateAfter(typeof(ObstacleCollisionSystem))]
@@ -22,7 +20,6 @@ public class RadialMovementSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        return default;
         var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
         var antSteering = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>();
         return new Job {

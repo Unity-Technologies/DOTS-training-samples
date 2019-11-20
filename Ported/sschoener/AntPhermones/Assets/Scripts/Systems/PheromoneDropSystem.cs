@@ -1,4 +1,3 @@
-using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -6,13 +5,12 @@ using Unity.Jobs;
 using Unity.Mathematics;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateAfter(typeof(ObstacleCollisionSystem))]
+[UpdateAfter(typeof(RadialMovementSystem))]
 public class PheromoneDropSystem : JobComponentSystem
 {
     EntityQuery m_PheromoneMapQuery;
     EntityQuery m_MapQuery;
     EntityQuery m_AntSteeringQuery;
-    ComputePheromoneSteeringSystem m_SteeringSystem;
 
     protected override void OnCreate()
     {
@@ -20,7 +18,6 @@ public class PheromoneDropSystem : JobComponentSystem
         m_PheromoneMapQuery = GetEntityQuery(ComponentType.ReadWrite<PheromoneBuffer>());
         m_MapQuery = GetEntityQuery(ComponentType.ReadOnly<MapSettingsComponent>());
         m_AntSteeringQuery = GetEntityQuery(ComponentType.ReadOnly<AntSteeringSettingsComponent>());
-        m_SteeringSystem = World.GetExistingSystem<ComputePheromoneSteeringSystem>();
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -32,9 +29,8 @@ public class PheromoneDropSystem : JobComponentSystem
         inputDeps.Complete();
         return new Job
         {
-            CarrierExcitement = 1f,
-            SearcherExcitement = .3f,
-            TrailAdd = map.TrailAdd,
+            // Time.fixedDeltaTime
+            TrailAdd = map.TrailAdd * 1/50f,
             MaxSpeed = antSteering.MaxSpeed,
             MapSize = map.MapSize,
             Pheromones = pheromoneMap,
@@ -46,8 +42,6 @@ public class PheromoneDropSystem : JobComponentSystem
     {
         [NativeDisableParallelForRestriction]
         public DynamicBuffer<PheromoneBuffer> Pheromones;
-        public float SearcherExcitement;
-        public float CarrierExcitement;
         public float MaxSpeed;
 
         public float TrailAdd;
@@ -62,10 +56,15 @@ public class PheromoneDropSystem : JobComponentSystem
             var p = (int2)math.floor(position.Value);
             if (math.any(p < 0) || math.any(p >= MapSize))
                 return;
-            float e = hasResources.Value ? CarrierExcitement : SearcherExcitement;
+            const float searcherExcitement = .3f;
+            const float carrierExcitement = 1;
+            float e = hasResources.Value ? carrierExcitement : searcherExcitement;
             float strength = e * speed.Value / MaxSpeed;
-            float pheromone = Pheromones[p.y * MapSize + p.x];
-            Pheromones[p.y * MapSize + p.x] = math.min(1, pheromone + TrailAdd * strength * (1 - pheromone));
+            int idx = p.y * MapSize + p.x;
+            float pheromone = Pheromones[idx];
+
+            pheromone += TrailAdd * strength * (1 - pheromone);
+            Pheromones[idx] = math.min(1, pheromone);
         }
     }
 }

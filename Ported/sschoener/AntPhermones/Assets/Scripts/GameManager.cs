@@ -55,6 +55,7 @@ public class GameManager : MonoBehaviour
         {
             if (!m_HasResourcePosition)
             {
+                Random.InitState(5);
                 float resourceAngle = Random.value * 2f * Mathf.PI;
                 var v = .475f * mapSize * new Vector2(Mathf.Cos(resourceAngle), Mathf.Sin(resourceAngle));
                 m_ResourcePosition = .5f * mapSize * Vector2.one + v; 
@@ -95,6 +96,7 @@ public class GameManager : MonoBehaviour
     
     void GenerateObstacles()
     {
+        Random.InitState(0);
         var output = m_Obstacles = GenerateObstaclePositions().ToArray();
         m_ObstacleMatrices = new Matrix4x4[Mathf.CeilToInt((float)output.Length / k_InstancesPerBatch)][];
         for (int i = 0; i < m_ObstacleMatrices.Length; i++)
