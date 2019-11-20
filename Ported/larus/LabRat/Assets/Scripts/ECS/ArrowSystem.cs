@@ -1,4 +1,5 @@
-﻿using ECSExamples;
+﻿using System;
+using ECSExamples;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -11,7 +12,6 @@ using Random = Unity.Mathematics.Random;
 
 public struct PlayerInput : ICommandData<PlayerInput>
 {
-    // TODO: duplicate data between screen pos and cell coord
     public float3 ScreenPosition;
     public int2 CellCoordinates;
     public Direction Direction;
@@ -62,6 +62,58 @@ public class ArrowSystem : JobComponentSystem
     private EndSimulationEntityCommandBufferSystem m_Buffer;
     private BoardSystem m_Board;
     private ServerSimulationSystemGroup m_SimulationSystemGroup;
+    private NativeQueue<AddToCellMap> m_CellMapChanges;
+    private NativeQueue<AddToArrowMap> m_ArrowMapChanges;
+
+    public struct AddToCellMap : IComponentData
+    {
+        public int Index;
+        public CellData Data;
+    }
+
+    public struct AddToArrowMap : IComponentData
+    {
+        public int Index;
+        public ArrowComponent Data;
+    }
+
+    public struct ChangeJob : IJob
+    {
+        public NativeQueue<AddToCellMap> cellItems;
+        public NativeHashMap<int, CellComponent> cellMap;
+        public NativeQueue<AddToArrowMap> arrowItems;
+        public NativeHashMap<int, ArrowComponent> arrowMap;
+
+        public void Execute()
+        {
+            AddToCellMap cell;
+            while (cellItems.TryDequeue(out cell))
+            {
+                if (cellMap.ContainsKey(cell.Index))
+                {
+                    if (cell.Data == 0)
+                        cellMap.Remove(cell.Index);
+                    else
+                        cellMap[cell.Index] = new CellComponent{data = cell.Data};
+                }
+                else
+                    cellMap.Add(cell.Index, new CellComponent { data = cell.Data });
+            }
+            AddToArrowMap arrow;
+            while (arrowItems.TryDequeue(out arrow))
+            {
+                if (arrowMap.ContainsKey(arrow.Index))
+                {
+                    if (arrow.Data.PlayerId == 0 && Math.Abs(arrow.Data.PlacementTick) < 0.01f)
+                        arrowMap.Remove(arrow.Index);
+                    else
+                        arrowMap[arrow.Index] = arrow.Data;
+                }
+                else
+                    arrowMap.Add(arrow.Index, arrow.Data);
+            }
+        }
+    }
 
     protected override void OnCreate()
     {
@@ -70,6 +122,14 @@ public class ArrowSystem : JobComponentSystem
 
         m_Buffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         RequireSingletonForUpdate<GameInProgressComponent>();
+        m_CellMapChanges = new NativeQueue<AddToCellMap>(Allocator.Persistent);
+        m_ArrowMapChanges = new NativeQueue<AddToArrowMap>(Allocator.Persistent);
+    }
+
+    protected override void OnDestroy()
+    {
+        m_CellMapChanges.Dispose();
+        m_ArrowMapChanges.Dispose();
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -82,6 +142,8 @@ public class ArrowSystem : JobComponentSystem
         var ecb = m_Buffer.CreateCommandBuffer().ToConcurrent();
         var overlayTicks = GetComponentDataFromEntity<OverlayPlacementTickComponent>();
         var inputTick = m_SimulationSystemGroup.ServerTick;
+        var cellChanges = m_CellMapChanges.AsParallelWriter();
+        var arrowChanges = m_ArrowMapChanges.AsParallelWriter();
         var job = Entities.ForEach((Entity entity, int entityInQueryIndex, DynamicBuffer<PlayerInput> inputBuffer, ref PlayerComponent player, ref PlayerOverlayComponent overlays) =>
         {
             PlayerInput input;
@@ -101,12 +163,12 @@ public class ArrowSystem : JobComponentSystem
                         (cell.data & CellData.Hole) == CellData.Hole)
                         return;
                     cell.data |= CellData.Arrow;
-                    cellMap[cellIndex] = cell;
+                    cellChanges.Enqueue(new AddToCellMap { Index = cellIndex, Data = cell.data});
                 }
                 else
                 {
                     cell.data |= CellData.Arrow;
-                    cellMap.Add(cellIndex, cell);
+                    cellChanges.Enqueue(new AddToCellMap { Index = cellIndex, Data = cell.data});
                 }
 
                 var arrowData = new ArrowComponent
@@ -143,19 +205,15 @@ public class ArrowSystem : JobComponentSystem
                 keys.Dispose();
                 if (arrowCount >= 3)
                 {
-                    arrowMap.Remove(oldestIndex);
+                    arrowChanges.Enqueue(new AddToArrowMap{Index = oldestIndex, Data = default});
                     cell = cellMap[oldestIndex];
                     cell.data &= ~CellData.Arrow;
                     if (cell.data == 0)
-                        cellMap.Remove(oldestIndex);
+                        cellChanges.Enqueue(new AddToCellMap { Index = oldestIndex, Data = 0});
                     else
-                        cellMap[oldestIndex] = cell;
+                        cellChanges.Enqueue(new AddToCellMap { Index = oldestIndex, Data = cell.data});
                 }
-
-                if (arrowMap.ContainsKey(cellIndex))
-                    arrowMap[cellIndex] = arrowData;
-                else
-                    arrowMap.Add(cellIndex, arrowData);
+                arrowChanges.Enqueue(new AddToArrowMap{Index = cellIndex, Data = arrowData});
 
                 // Update the overlays (arrow+color) which shows the player visually where the arrow is placed
                 oldestTick = float.MaxValue;
@@ -202,7 +260,15 @@ public class ArrowSystem : JobComponentSystem
             ecb.SetComponent(entityInQueryIndex, entity, new Translation{Value = input.ScreenPosition});
         }).WithReadOnly(cellMap).WithReadOnly(arrowMap).WithNativeDisableContainerSafetyRestriction(overlayTicks).Schedule(inputDeps);
         m_Buffer.AddJobHandleForProducer(job);
-        return job;
+        var changeJob = new ChangeJob
+        {
+            cellItems = m_CellMapChanges,
+            cellMap = m_Board.CellMap,
+            arrowItems = m_ArrowMapChanges,
+            arrowMap = m_Board.ArrowMap
+        };
+        var handle = changeJob.Schedule(job);
+        return handle;
     }
 }
 
