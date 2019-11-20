@@ -26,7 +26,7 @@ public class ObstacleCollisionSystem : JobComponentSystem
         }.Schedule(this, inputDeps);
     }
     
-    //[BurstCompile]
+    [BurstCompile]
     struct Job : IJobForEach<PositionComponent, VelocityComponent>
     {
         public float ObstacleRadius;
@@ -43,7 +43,6 @@ public class ObstacleCollisionSystem : JobComponentSystem
                 float sqrDist = math.lengthsq(delta);
                 if (sqrDist < ObstacleRadius * ObstacleRadius)
                 {
-                    Debug.Log("Collision!");
                     delta /= math.sqrt(sqrDist);
                     position.Value = obstaclePosition + delta * ObstacleRadius;
                     velocity.Value -= 1.5f * delta * math.dot(delta, velocity.Value);

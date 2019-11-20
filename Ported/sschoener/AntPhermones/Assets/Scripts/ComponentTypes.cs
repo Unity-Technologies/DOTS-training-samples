@@ -169,7 +169,6 @@ public struct ObstacleData
         TryGetObstacles(pos, out int offset, out int length);
         return length > 0;
     }
-
     
     public void TryGetObstacles(float2 pos, out int offset, out int length)
     {

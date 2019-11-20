@@ -153,8 +153,6 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        GenerateObstacles();
-
         m_ColonyMatrix = Matrix4x4.TRS(ColonyPosition / mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / mapSize);
         m_ResourceMatrix = Matrix4x4.TRS(ResourcePosition / mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / mapSize);
     }
