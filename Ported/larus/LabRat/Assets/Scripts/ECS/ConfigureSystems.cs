@@ -18,7 +18,7 @@ public class ConfigureClientSystems : ComponentSystem
 }
 
 [UpdateInGroup(typeof(ServerInitializationSystemGroup))]
-public class ServerGameLoopSystem : ComponentSystem
+public class ConfigureServerSystems : ComponentSystem
 {
     public static Hash128 ServerBuildSettingsGUID => new Hash128("38064942d5d9b47b1a810a59bbedf636");
 

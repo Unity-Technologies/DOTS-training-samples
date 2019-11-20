@@ -147,6 +147,14 @@ public class SpawnPlayerSystem : ComponentSystem
         RequireSingletonForUpdate<BoardDataComponent>();
         RequireSingletonForUpdate<GhostPrefabCollectionComponent>();
         m_BoardSystem = World.GetExistingSystem<BoardSystem>();
+        var tickRate = EntityManager.CreateEntity();
+        EntityManager.AddComponentData(tickRate, new ClientServerTickRate
+        {
+            MaxSimulationStepsPerFrame = 2,
+            NetworkTickRate = 30,
+            SimulationTickRate = 60,
+            TargetFrameRateMode = ClientServerTickRate.FrameRateMode.BusyWait
+        });
     }
 
     protected override void OnUpdate()
