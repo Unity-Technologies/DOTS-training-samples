@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
@@ -26,15 +27,15 @@ public class PheromoneDecaySystem : JobComponentSystem
         return new Job
         {
             TrailDecay = map.TrailDecay,
-            PheromoneMap = pheromoneMap
-        }.Schedule(map.MapSize, 64, inputDeps);
+            PheromoneMap = pheromoneMap.AsNativeArray()
+        }.Schedule(pheromoneMap.Length, 64, inputDeps);
     }
 
     [BurstCompile]
     struct Job : IJobParallelFor
     {
         public float TrailDecay;
-        public DynamicBuffer<PheromoneBuffer> PheromoneMap;
+        public NativeArray<PheromoneBuffer> PheromoneMap;
         public void Execute(int index)
         {
             PheromoneMap[index] *= TrailDecay;

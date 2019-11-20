@@ -1,4 +1,5 @@
 using System;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
@@ -17,20 +18,22 @@ public class PerturbFacingSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        return default;
         return new PerturbationJob {
             Seed = 1 + (uint)Time.frameCount,
             Magnitude = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>().RandomSteerStrength,
         }.Schedule(this, inputDeps);
     }
 
+    [BurstCompile]
     struct PerturbationJob : IJobForEachWithEntity<FacingAngleComponent> {
         public uint Seed;
         public float Magnitude;
 
-        public void Execute(Entity entity, int index, ref FacingAngleComponent facing)
+        public void Execute(Entity entity, int index, ref FacingAngleComponent facingAngle)
         {
-            var rng = new Random((uint)index * Seed);
-            facing.Value += rng.NextFloat(-Magnitude, Magnitude);
+            var rng = new Random(((uint)index + 1) * Seed);
+            facingAngle.Value += rng.NextFloat(-Magnitude, Magnitude);
         }
     }
 }

@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 [UpdateAfter(typeof(RadialMovementSystem))]
@@ -19,7 +20,7 @@ public class WriteVelocityToFacingSystem : JobComponentSystem
     {
         public void Execute([ReadOnly]ref VelocityComponent velocity, [WriteOnly] ref FacingAngleComponent facingAngle)
         {
-            facingAngle.Value = math.atan2(velocity.Value.x , velocity.Value.y);
+            facingAngle.Value = math.atan2(velocity.Value.y, velocity.Value.x);
         }
     }
 }

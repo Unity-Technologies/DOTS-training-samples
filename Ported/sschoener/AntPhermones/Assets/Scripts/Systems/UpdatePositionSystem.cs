@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Jobs;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateAfter(typeof(ResourceCarrySystem))]
+[UpdateAfter(typeof(ComputeVelocitySystem))]
 public class UpdatePositionSystem : JobComponentSystem
 {
     EntityQuery m_MapQuery;
@@ -33,21 +33,22 @@ public class UpdatePositionSystem : JobComponentSystem
         {
             var p = position.Value;
             var v = velocity.Value;
-            if (p.x + v.x < 0f || p.x + v.x > MapSize)
+            var newP = p + v;
+            if (newP.x < 0f || newP.x > MapSize)
             {
                 v.x = -v.x;
             }
             else
             {
-                p.x += v.x;
+                p.x = newP.x;
             }
-            if (p.y + v.y < 0f || p.y + v.y > MapSize)
+            if (newP.y < 0f || newP.y > MapSize)
             {
                 v.y = -v.y;
             }
             else
             {
-                p.y += v.y;
+                p.y = newP.y;
             }
             position.Value = p;
             velocity.Value = v;

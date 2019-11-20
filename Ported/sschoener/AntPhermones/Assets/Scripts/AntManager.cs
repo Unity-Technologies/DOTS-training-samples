@@ -418,13 +418,15 @@ public class AntManager : MonoBehaviour
                     inwardOrOutward = inwardStrength;
                     pushRadius = mapSize;
                 }
+
                 float dx = colonyPosition.x - ant.position.x;
                 float dy = colonyPosition.y - ant.position.y;
                 float dist = Mathf.Sqrt(dx * dx + dy * dy);
                 inwardOrOutward *= 1f - Mathf.Clamp01(dist / pushRadius);
                 vx += dx / dist * inwardOrOutward;
                 vy += dy / dist * inwardOrOutward;
-
+            }
+            {
                 if (ovx != vx || ovy != vy)
                 {
                     ant.facingAngle = Mathf.Atan2(vy, vx);

@@ -19,11 +19,11 @@ public class ComputeWallSteeringSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        return default;
         var map = m_MapSettingsQuery.GetSingleton<MapSettingsComponent>();
         return new SteeringJob
         {
-            Obstacles = map.Obstacles.Value.Obstacles,
-            ObstacleRadius = map.ObstacleRadius,
+            Obstacles = map.Obstacles,
             MapSize = map.MapSize
         }.Schedule(this, inputDeps);
     }
@@ -32,19 +32,7 @@ public class ComputeWallSteeringSystem : JobComponentSystem
     struct SteeringJob : IJobForEach<PositionComponent, FacingAngleComponent, WallSteeringComponent>
     {
         public float MapSize;
-        public float ObstacleRadius;
-        public BlobArray<float2> Obstacles;
-
-        bool FindObstacle(float2 position)
-        {
-            for (int i = 0; i < Obstacles.Length; i++)
-            {
-                if (math.lengthsq(position - Obstacles[i]) <= ObstacleRadius * ObstacleRadius)
-                    return true;
-            }
-
-            return false;
-        }
+        public BlobAssetReference<ObstacleData> Obstacles;
 
         public void Execute([ReadOnly] ref PositionComponent position, [ReadOnly] ref FacingAngleComponent facingAngle, ref WallSteeringComponent steering)
         {
@@ -59,12 +47,9 @@ public class ComputeWallSteeringSystem : JobComponentSystem
                 {
 
                 }
-                else
+                else if (Obstacles.Value.HasObstacle(test))
                 {
-                    if (FindObstacle(test))
-                    {
-                        output -= i;
-                    }
+                    output -= i;
                 }
             }
             steering.Value = output;

@@ -1,4 +1,5 @@
 using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -11,6 +12,7 @@ public class PheromoneDropSystem : JobComponentSystem
     EntityQuery m_PheromoneMapQuery;
     EntityQuery m_MapQuery;
     EntityQuery m_AntSteeringQuery;
+    ComputePheromoneSteeringSystem m_SteeringSystem;
 
     protected override void OnCreate()
     {
@@ -18,14 +20,17 @@ public class PheromoneDropSystem : JobComponentSystem
         m_PheromoneMapQuery = GetEntityQuery(ComponentType.ReadWrite<PheromoneBuffer>());
         m_MapQuery = GetEntityQuery(ComponentType.ReadOnly<MapSettingsComponent>());
         m_AntSteeringQuery = GetEntityQuery(ComponentType.ReadOnly<AntSteeringSettingsComponent>());
+        m_SteeringSystem = World.GetExistingSystem<ComputePheromoneSteeringSystem>();
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
-        var pheromoneMap = GetBufferFromEntity<PheromoneBuffer>()[m_PheromoneMapQuery.GetSingletonEntity()];
+        var pheromoneFromEntity = GetBufferFromEntity<PheromoneBuffer>();
+        var pheromoneMap = pheromoneFromEntity[m_PheromoneMapQuery.GetSingletonEntity()];
         var antSteering = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>();
-        new Job
+        inputDeps.Complete();
+        return new Job
         {
             CarrierExcitement = 1f,
             SearcherExcitement = .3f,
@@ -34,11 +39,12 @@ public class PheromoneDropSystem : JobComponentSystem
             MapSize = map.MapSize,
             Pheromones = pheromoneMap,
         }.Run(this, inputDeps);
-        return default;
     }
 
+    [BurstCompile]
     struct Job : IJobForEach<PositionComponent, SpeedComponent, HasResourcesComponent>
     {
+        [NativeDisableParallelForRestriction]
         public DynamicBuffer<PheromoneBuffer> Pheromones;
         public float SearcherExcitement;
         public float CarrierExcitement;

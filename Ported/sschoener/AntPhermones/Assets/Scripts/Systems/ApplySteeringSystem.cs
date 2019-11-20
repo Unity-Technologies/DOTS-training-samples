@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -27,6 +29,7 @@ public class ApplySteeringSystem : JobComponentSystem
         }.Schedule(this, inputDeps);
     }
 
+    [BurstCompile]
     struct ApplySteeringJob : IJobForEach<PheromoneSteeringComponent, WallSteeringComponent, SpeedComponent, FacingAngleComponent>
     {
         public float MaxSpeed;
@@ -34,7 +37,7 @@ public class ApplySteeringSystem : JobComponentSystem
         public float PheromoneStrength;
         public float WallStrength;
 
-        public void Execute([ReadOnly] ref PheromoneSteeringComponent pheromone, [ReadOnly] ref WallSteeringComponent wall, ref SpeedComponent speed, ref FacingAngleComponent facingAngle)
+        public void Execute([ReadOnly] ref PheromoneSteeringComponent pheromone, [ReadOnly] ref WallSteeringComponent wall, [WriteOnly] ref SpeedComponent speed, ref FacingAngleComponent facingAngle)
         {
             facingAngle.Value += pheromone.Value * PheromoneStrength;
             facingAngle.Value += wall.Value * WallStrength;

@@ -10,7 +10,8 @@ using Unity.Profiling;
 using UnityEngine;
 
 [UpdateInGroup(typeof(PresentationSystemGroup))]
-public class BatchedRenderSystem : JobComponentSystem
+[UpdateAfter(typeof(UpdateAntColorSystem))]
+public class AntRenderSystem : JobComponentSystem
 {
     EntityQuery m_Renderables;
     EntityQuery m_RenderSetup;

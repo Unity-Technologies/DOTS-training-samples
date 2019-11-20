@@ -15,7 +15,6 @@ public class MapSettingsAuthoringComponent : MonoBehaviour, IConvertGameObjectTo
 
     BlobAssetReference<ObstacleData> BuildObstacleData()
     {
-        var obstacleList = GameManager.Obstacles;
         var obstacleMap = GameManager.ObstacleBuckets;
         using (BlobBuilder b = new BlobBuilder(Allocator.Temp))
         {
@@ -23,24 +22,34 @@ public class MapSettingsAuthoringComponent : MonoBehaviour, IConvertGameObjectTo
             obs.BucketResolution = GameManager.bucketResolution;
             obs.MapSize = GameManager.mapSize;
 
+            int h = obstacleMap.GetLength(0);
+            int w = obstacleMap.GetLength(1);
+            int totalSize = 0;
+            for (int y = 0; y < h; y++)
             {
-                int h = obstacleMap.GetLength(0);
-                int w = obstacleMap.GetLength(1);
-                var map = b.Allocate(ref obs.ObstacleMap, w * h);
+                for (int x = 0; x < w; x++)
+                    totalSize += obstacleMap[y, x].Length;
+            }
+
+            {
+                var obstacles = b.Allocate(ref obs.Obstacles, totalSize);
+                var map = b.Allocate(ref obs.ObstacleBucketIndices, w * h);
                 int offset = 0;
                 for (int y = 0; y < h; y++)
                 {
                     for (int x = 0; x < w; x++)
                     {
-                        map[offset] = obstacleMap[y, x].Length > 0;
-                        offset++;
+                        var bucket = obstacleMap[x, y];
+                        int n = bucket.Length;
+                        map[y * w + x] = offset;
+                        for (int i = 0; i < n; i++)
+                        {
+                            obstacles[offset] = bucket[i];
+                            offset++;
+                        }
                     }
                 }
             }
-
-            var list = b.Allocate(ref obs.Obstacles, obs.MapSize * obs.MapSize);
-            for (int i = 0; i < obstacleList.Length; i++)
-                list[i] = obstacleList[i];
 
             return b.CreateBlobAssetReference<ObstacleData>(Allocator.Persistent);
         }

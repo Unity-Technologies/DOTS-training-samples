@@ -20,6 +20,7 @@ public class ComputePheromoneSteeringSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        return default;
         var pheromoneMap = GetBufferFromEntity<PheromoneBuffer>(true)[m_PheromoneMapQuery.GetSingletonEntity()];
         return new SteeringJob
         {
@@ -30,7 +31,8 @@ public class ComputePheromoneSteeringSystem : JobComponentSystem
 
     struct SteeringJob : IJobForEach<FacingAngleComponent, PositionComponent, PheromoneSteeringComponent>
     {
-        public float MapSize;
+        public int MapSize;
+        [ReadOnly]
         public DynamicBuffer<PheromoneBuffer> PheromoneMap;
 
         public void Execute([ReadOnly] ref FacingAngleComponent facingAngle, [ReadOnly] ref PositionComponent position, ref PheromoneSteeringComponent steering)
@@ -41,8 +43,8 @@ public class ComputePheromoneSteeringSystem : JobComponentSystem
             {
                 float angle = facingAngle.Value + i * math.PI * .25f;
                 math.sincos(angle, out var sin, out var cos);
-                float testX = position.Value.x + cos * distance;
-                float testY = position.Value.y + sin * distance;
+                int testX = (int) (position.Value.x + cos * distance);
+                int testY = (int) (position.Value.y + sin * distance);
 
                 if (testX < 0 || testY < 0 || testX >= MapSize || testY >= MapSize)
                 {
@@ -50,7 +52,7 @@ public class ComputePheromoneSteeringSystem : JobComponentSystem
                 }
                 else
                 {
-                    int index = (int)(testY * MapSize + testX);
+                    int index = testY * MapSize + testX;
                     output += PheromoneMap[index] * i;
                 }
             }

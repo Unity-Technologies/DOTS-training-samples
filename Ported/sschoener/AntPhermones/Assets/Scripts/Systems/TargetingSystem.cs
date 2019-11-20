@@ -20,16 +20,17 @@ public class TargetingSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        return default;
         var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
         var antSteering = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>();
         return new Job {
             ColonyPosition = map.ColonyPosition,
             ResourcePosition = map.ResourcePosition,
             TargetSteerStrength =  antSteering.TargetSteerStrength,
-            Obstacles = map.Obstacles.Value
+            Obstacles = map.Obstacles
         }.Schedule(this, inputDeps);
     }
-
+    
     [BurstCompile]
     struct Job : IJobForEach<PositionComponent, HasResourcesComponent, FacingAngleComponent>
     {
@@ -37,18 +38,18 @@ public class TargetingSystem : JobComponentSystem
         public float2 ResourcePosition;
         public float TargetSteerStrength;
         
-        public ObstacleData Obstacles;
+        public BlobAssetReference<ObstacleData> Obstacles;
         
         bool Linecast(float2 point1, float2 point2)
         {
             float2 d = point2 - point1;
-            float dist = math.lengthsq(d);
+            float dist = math.length(d);
 
             int stepCount = (int)math.ceil(dist * .5f);
             for (int i = 0; i < stepCount; i++)
             {
                 float t = (float)i / stepCount;
-                if (Obstacles.HasObstacle(point1 + t * d))
+                if (Obstacles.Value.HasObstacle(point1 + t * d))
                 {
                     return true;
                 }
@@ -75,7 +76,7 @@ public class TargetingSystem : JobComponentSystem
                 }
                 else if (math.abs(deltaAngle) < math.PI * .5f)
                 {
-                    facingAngle.Value += (deltaAngle) * TargetSteerStrength;
+                    facingAngle.Value += deltaAngle * TargetSteerStrength;
                 }
             }
         }

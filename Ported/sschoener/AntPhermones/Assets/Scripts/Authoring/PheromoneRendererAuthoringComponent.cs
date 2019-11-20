@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities;
 using UnityEngine;
 
 [RequiresEntityConversion]
@@ -16,6 +17,11 @@ public class PheromoneRendererAuthoringComponent : MonoBehaviour, IConvertGameOb
             Renderer = Renderer
         });
         int size = GameManager.mapSize;
-        dstManager.AddBuffer<PheromoneBuffer>(entity).ResizeUninitialized(size * size);
+        var buffer = dstManager.AddBuffer<PheromoneBuffer>(entity);
+        buffer.ResizeUninitialized(size * size);
+        unsafe
+        {
+            UnsafeUtility.MemClear(buffer.GetUnsafePtr(), buffer.Length * sizeof(PheromoneBuffer));
+        }
     }
 }

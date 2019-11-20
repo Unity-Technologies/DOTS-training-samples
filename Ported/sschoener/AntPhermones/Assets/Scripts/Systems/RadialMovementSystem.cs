@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 [UpdateAfter(typeof(ObstacleCollisionSystem))]
@@ -21,6 +22,7 @@ public class RadialMovementSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        return default;
         var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
         var antSteering = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>();
         return new Job {
@@ -47,7 +49,9 @@ public class RadialMovementSystem : JobComponentSystem
             var pushRadius = hasResources.Value ? InwardPushRadius : OutwardPushRadius;
             var delta = ColonyPosition - position.Value;
             float dist = math.length(delta);
-            velocity.Value += delta / dist * strength * (1f - math.clamp(dist / pushRadius, 0f, 1f));
+
+            strength *= 1f - math.clamp(dist / pushRadius, 0f, 1f);
+            velocity.Value += delta * (strength / dist);
         }
     }
     

@@ -21,7 +21,6 @@ public class PheromoneRenderSystem : ComponentSystem
 
     protected override void OnUpdate()
     {
-        var pheromoneBuffer = EntityManager.GetBuffer<PheromoneBuffer>(m_PheromoneQuery.GetSingletonEntity());
         if (m_PheromoneTexture == null)
         {
             var pheromoneRenderer = EntityManager.GetSharedComponentData<PheromoneRenderData>(m_PheromoneRendererQuery.GetSingletonEntity());
@@ -29,12 +28,15 @@ public class PheromoneRenderSystem : ComponentSystem
             m_PheromoneTexture = new Texture2D(map.MapSize, map.MapSize);
             m_PheromoneTexture.wrapMode = TextureWrapMode.Mirror;
             m_PheromoneMaterial = new Material(pheromoneRenderer.Material);
+            m_PheromoneMaterial.mainTexture = m_PheromoneTexture;
             pheromoneRenderer.Renderer.sharedMaterial = m_PheromoneMaterial;
             m_Colors = new Color[m_PheromoneTexture.width * m_PheromoneTexture.height];
         }
+        
+        var pheromoneBuffer = EntityManager.GetBuffer<PheromoneBuffer>(m_PheromoneQuery.GetSingletonEntity());
         for (int i = 0; i < pheromoneBuffer.Length; i++)
             m_Colors[i].r = pheromoneBuffer[i];
         m_PheromoneTexture.SetPixels(m_Colors);
-        m_PheromoneTexture.Apply(false);
+        m_PheromoneTexture.Apply();
     }
 }
