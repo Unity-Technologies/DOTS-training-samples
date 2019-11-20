@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
-    public struct PheromoneColour : IBufferElementData
+    public struct PheromoneColourRValue : IBufferElementData
     {
-        public Color Value; 
+        public float Value; 
         
-        public static implicit operator PheromoneColour(Color colour) 
-            => new PheromoneColour { Value = colour };
+        public static implicit operator PheromoneColourRValue(float rValue) 
+            => new PheromoneColourRValue { Value = rValue };
         
-        public static implicit operator Color(PheromoneColour buffer) 
+        public static implicit operator float(PheromoneColourRValue buffer) 
             => buffer.Value;
     }
     

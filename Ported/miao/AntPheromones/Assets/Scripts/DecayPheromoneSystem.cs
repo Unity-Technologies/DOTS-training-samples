@@ -5,17 +5,17 @@ namespace AntPheromones_ECS
 {
     public class DecayPheromoneSystem : JobComponentSystem
     {
-        private DynamicBuffer<PheromoneColour> _pheromoneColours;
+        private DynamicBuffer<PheromoneColourRValue> _pheromoneColours;
 
         private struct Job : IJobParallelFor
         {
-            public DynamicBuffer<PheromoneColour> PheromoneColours;
+            public DynamicBuffer<PheromoneColourRValue> PheromoneColours;
             
             public void Execute(int index)
             {
-                PheromoneColour colour = PheromoneColours[index];
-                colour.Value.r *= Map.TrailDecayRate;
-                PheromoneColours[index] = colour;
+                PheromoneColourRValue colourRValue = PheromoneColours[index];
+                colourRValue.Value.r *= Map.TrailDecayRate;
+                PheromoneColours[index] = colourRValue;
             }
         }
 
@@ -26,7 +26,7 @@ namespace AntPheromones_ECS
             EntityQuery entityQuery = GetEntityQuery(ComponentType.ReadOnly<PheromoneColourMap>());
             Entity pheromoneColourMap = entityQuery.GetSingletonEntity();
             
-            BufferFromEntity<PheromoneColour> lookUp = GetBufferFromEntity<PheromoneColour>();
+            BufferFromEntity<PheromoneColourRValue> lookUp = GetBufferFromEntity<PheromoneColourRValue>();
             this._pheromoneColours = lookUp[pheromoneColourMap];
         }
 
