@@ -3,18 +3,23 @@ using Unity.Jobs;
 
 namespace AntPheromones_ECS
 {
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateAfter(typeof(DropPheromoneSystem))]
     public class DecayPheromoneSystem : JobComponentSystem
     {
-        private DynamicBuffer<PheromoneColourRValue> _pheromoneColours;
+        private DynamicBuffer<PheromoneColourRValue> _pheromoneColourRValues;
+        private MapComponent _map;
 
         private struct Job : IJobParallelFor
         {
             public DynamicBuffer<PheromoneColourRValue> PheromoneColours;
+            public float TrailDecayRate;
             
             public void Execute(int index)
             {
                 PheromoneColourRValue colourRValue = PheromoneColours[index];
-                colourRValue.Value.r *= Map.TrailDecayRate;
+                colourRValue *= this.TrailDecayRate;
+                
                 PheromoneColours[index] = colourRValue;
             }
         }
@@ -22,20 +27,19 @@ namespace AntPheromones_ECS
         protected override void OnCreate()
         {
             base.OnCreate();
+            this._map = GetEntityQuery(ComponentType.ReadOnly<MapComponent>()).GetSingleton<MapComponent>();
             
-            EntityQuery entityQuery = GetEntityQuery(ComponentType.ReadOnly<PheromoneColourMap>());
-            Entity pheromoneColourMap = entityQuery.GetSingletonEntity();
-            
-            BufferFromEntity<PheromoneColourRValue> lookUp = GetBufferFromEntity<PheromoneColourRValue>();
-            this._pheromoneColours = lookUp[pheromoneColourMap];
+            Entity pheromoneRValues = GetEntityQuery(ComponentType.ReadWrite<PheromoneColourRValue>()).GetSingletonEntity();
+            this._pheromoneColourRValues = GetBufferFromEntity<PheromoneColourRValue>(isReadOnly: true)[pheromoneRValues];
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
-        { 
+        {
             return new Job
             {
-                PheromoneColours = this._pheromoneColours
-            }.Schedule(arrayLength: Map.Width,
+                TrailDecayRate = this._map.TrailDecayRate,
+                PheromoneColours = this._pheromoneColourRValues
+            }.Schedule(arrayLength: this._map.Width,
                 innerloopBatchCount: MapObstacles.BucketResolution,
                 inputDeps);  
         }

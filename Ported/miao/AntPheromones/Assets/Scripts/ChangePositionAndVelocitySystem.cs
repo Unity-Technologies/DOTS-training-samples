@@ -7,30 +7,30 @@ namespace AntPheromones_ECS
     using Unity.Jobs;
 
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    public class UpdatePositionSystem : JobComponentSystem
+    public class ChangePositionAndVelocitySystem : JobComponentSystem
     {
         EntityQuery m_MapQuery;
 
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_MapQuery = GetEntityQuery(ComponentType.ReadOnly<Map>());
+            m_MapQuery = GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var map = m_MapQuery.GetSingleton<Map>();
+            var map = m_MapQuery.GetSingleton<MapComponent>();
             return new Job
             {
                 MapWidth = map.Width,
             }.Schedule(this, inputDeps);
         }
 
-        struct Job : IJobForEach<Position, Velocity>
+        struct Job : IJobForEach<PositionComponent, VelocityComponent>
         {
             public float MapWidth;
 
-            public void Execute(ref Position position, ref Velocity velocity)
+            public void Execute(ref PositionComponent position, ref VelocityComponent velocity)
             {
                 float2 targetPosition = position.Value;
                 float2 targetVelocity = velocity.Value;

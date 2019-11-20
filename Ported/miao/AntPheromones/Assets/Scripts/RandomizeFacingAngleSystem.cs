@@ -6,11 +6,11 @@ namespace AntPheromones_ECS
 {
     public class RandomizeFacingAngleSystem : JobComponentSystem
     {
-        private struct Job : IJobForEach<FacingAngle>
+        private struct Job : IJobForEach<FacingAngleComponent>
         {
-            public void Execute(ref FacingAngle facingAngle)
+            public void Execute(ref FacingAngleComponent facingAngleComponent)
             {
-                facingAngle.Value += Random.Range(-0.14f, 0.14f);
+                facingAngleComponent.Value += Random.Range(-0.14f, 0.14f);
             }
         }
         

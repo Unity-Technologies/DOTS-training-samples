@@ -34,7 +34,7 @@ namespace AntPheromones_ECS
 
                 for (int ring = 0; ring < RingCount; ring++)
                 {
-                    float ringRadius = ring / (RingCount + 1f) * (Map.Width * 0.5f);
+                    float ringRadius = ring / (RingCount + 1f) * (MapComponent.Width * 0.5f);
                     float circumference = ringRadius * 2f * Mathf.PI;
 
                     int maxObstacleCount = Mathf.CeilToInt(circumference / (2f * Radius) * 2f);
@@ -56,8 +56,8 @@ namespace AntPheromones_ECS
                         {
                             Position = 
                                 new float3(
-                                    Map.Width * 0.5f + Mathf.Cos(angle) * ringRadius, 
-                                    Map.Width * .5f + Mathf.Sin(angle) * ringRadius,
+                                    MapComponent.Width * 0.5f + Mathf.Cos(angle) * ringRadius, 
+                                    MapComponent.Width * .5f + Mathf.Sin(angle) * ringRadius,
                                     0),
                             Radius = Radius
                         };
@@ -69,8 +69,8 @@ namespace AntPheromones_ECS
                 for (int i = 0; i < obstacleMatrices.Length; i++)
                 {
                     obstacleMatrices[i] = float4x4.TRS(
-                            obstacles[i].Position / Map.Width, Quaternion.identity,
-                            new float3(Radius * 2f, Radius * 2f, 1f) / Map.Width);
+                            obstacles[i].Position / MapComponent.Width, Quaternion.identity,
+                            new float3(Radius * 2f, Radius * 2f, 1f) / MapComponent.Width);
                 }
 
                 var obstacleBuckets = builder.Allocate(ref root.Buckets, length: BucketResolution * BucketResolution);
@@ -86,8 +86,8 @@ namespace AntPheromones_ECS
                     float3 position = obstacles[i].Position;
                     float radius = obstacles[i].Radius;
 
-                    for (int x = Mathf.FloorToInt((position.x - radius) / Map.Width * BucketResolution);
-                        x <= Mathf.FloorToInt((position.x + radius) / Map.Width * BucketResolution);
+                    for (int x = Mathf.FloorToInt((position.x - radius) / MapComponent.Width * BucketResolution);
+                        x <= Mathf.FloorToInt((position.x + radius) / MapComponent.Width * BucketResolution);
                         x++)
                     {
                         if (x < 0 || x >= BucketResolution)
@@ -98,8 +98,8 @@ namespace AntPheromones_ECS
                         int currentBucketIndex = x * BucketResolution + BucketResolution;
                         int currentBlobArrayWriteIndex = 0;
                         
-                        for (int y = Mathf.FloorToInt((position.y - radius) / Map.Width * BucketResolution);
-                            y <= Mathf.FloorToInt((position.y + radius) / Map.Width * BucketResolution);
+                        for (int y = Mathf.FloorToInt((position.y - radius) / MapComponent.Width * BucketResolution);
+                            y <= Mathf.FloorToInt((position.y + radius) / MapComponent.Width * BucketResolution);
                             y++)
                         {
                             if (y < 0 || y >= BucketResolution)
@@ -119,10 +119,10 @@ namespace AntPheromones_ECS
 
         public BlobArray<Obstacle> GetObstacleBucket(float candidateDestinationX, float candidateDestinationY)
         {
-            int x = (int)(candidateDestinationX / Map.Width * BucketResolution);
-            int y = (int)(candidateDestinationY / Map.Width * BucketResolution);
+            int x = (int)(candidateDestinationX / MapComponent.Width * BucketResolution);
+            int y = (int)(candidateDestinationY / MapComponent.Width * BucketResolution);
             
-            return Map.IsWithinBounds(x, y) ? Empty : this.Buckets[x * BucketResolution + BucketResolution];
+            return MapComponent.IsWithinBounds(x, y) ? Empty : this.Buckets[x * BucketResolution + BucketResolution];
         }
     }
 }

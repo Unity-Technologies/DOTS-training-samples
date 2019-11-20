@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -25,15 +26,15 @@ namespace AntPheromones_ECS
 		public Mesh resourceMesh;
 		public Color searchColor;
 		public Color carryColor;
-		public int antCount;
+		public int AntCount = 1000;
 		public int MapWidth = 128;
-		public int bucketResolution;
+		public int BucketResolution;
 		public Vector3 antSize;
 		public float antSpeed;
-		[Range(0f,1f)]
+		
 		public float antAccel;
 		public float trailAddSpeed;
-		[Range(0f,1f)]
+		
 		public float trailDecay;
 		public float randomSteering;
 		public float pheromoneSteerStrength;
@@ -45,8 +46,30 @@ namespace AntPheromones_ECS
 		public int ObstacleRingCount = 3;
 		public float ObstaclesPerRing = 0.8f;
 		public float ObstacleRadius = 2;
+
+		public float2[,][] ObstacleBuckets
+		{
+			get
+			{
+				if (!this._obstacleBuckets.IsGenerated)
+				{
+					GenerateObstacles();
+				}
+				return this._obstacleBuckets.Values;
+			}
+		}
 		
-		public 
+		public float2[] ObstaclePositions
+		{
+			get
+			{
+				if (!this._obstaclePositions.IsGenerated)
+				{
+					GenerateObstacles();
+				}
+				return this._obstaclePositions.Values;
+			}
+		}
 
 		public float2 ColonyPosition
 		{
@@ -54,8 +77,8 @@ namespace AntPheromones_ECS
 			{
 				if (!this._colonyPosition.IsCalculated)
 				{
-					this._colonyPosition.IsCalculated = true;
 					this._colonyPosition.Value = new float2(1f, 1f) * this.MapWidth * 0.5f;
+					this._colonyPosition.IsCalculated = true;
 				}
 				return this._colonyPosition.Value;
 			}
@@ -78,61 +101,50 @@ namespace AntPheromones_ECS
 				return this._resourcePosition.Value;
 			}
 		}
-
+		
+		private (bool IsCalculated, float2 Value) _colonyPosition;
+		private (bool IsCalculated, float2 Value) _resourcePosition;
+		private (bool IsGenerated, float2[] Values) _obstaclePositions;
+		private (bool IsGenerated, float2[,][] Values) _obstacleBuckets;
+		
 		Texture2D pheromoneTexture;
 		Material myPheromoneMaterial;
 
-	//	[FormerlySerializedAs("pheromones")] 
-		[FormerlySerializedAs("PheromoneColours")] public Color[] pheromoneColours;
+		public Color[] pheromoneColours;
 		Ant[] ants;
 		Matrix4x4[][] matrices;
 		Vector4[][] antColors;
 		MaterialPropertyBlock[] matProps;
-		Obstacle_Old[] obstacles;
-		Matrix4x4[][] obstacleMatrices;
-		Obstacle_Old[,][] obstacleBuckets;
+		float4x4[][] _obstacleMatrices;
+		
 
-		Matrix4x4 resourceMatrix;
-		Matrix4x4 colonyMatrix;
+		private Matrix4x4 _resourceMatrix;
+		private Matrix4x4 _colonyMatrix;
+		private NativeArray<Entity> antEntities;
 
-		Vector2 resourcePosition;
-	//	Vector2 colonyPosition;
-		float3 colonyPosition;
-
-		const int instancesPerBatch = 1023;
+		const int InstancesPerBatch = 1023;
 
 		Matrix4x4[] rotationMatrixLookup;
-		private NativeArray<Entity> antEntities;
 		
-		private (bool IsCalculated, float2 Value) _colonyPosition;
-		private (bool IsCalculated, float2 Value) _resourcePosition;
-
 		void Start()
 		{
-	//		GenerateObstacles();
 			EntityManager entityManager = World.Active.EntityManager;
-			Entity mapEntity = entityManager.CreateEntity(typeof(Map));
-			EntityQuery mapSingletonGroup = entityManager.CreateEntityQuery(typeof(Entity));
-			mapSingletonGroup.SetSingleton<Map>();
+//			Entity mapEntity = entityManager.CreateEntity(typeof(Map));
+//			EntityQuery mapSingletonGroup = entityManager.CreateEntityQuery(typeof(Entity));
+//			mapSingletonGroup.SetSingleton<Map>(mapEntity);
 
-			
+			this._colonyMatrix = float4x4.TRS(
+				new float3(this._colonyPosition.Value / this.MapWidth, 0), 
+				Quaternion.identity, 
+				new float3(4f, 4f, 0.1f) / this.MapWidth);
 
-			this.colonyPosition = new float3(1f, 1f, 0f) * Map.Width * 0.5f;
-			this.colonyMatrix = float4x4.TRS(this.colonyPosition / Map.Width, Quaternion.identity,
-				new float3(4f, 4f, 0.1f) / Map.Width);
+			this._resourceMatrix = float4x4.TRS(
+				new float3(this._resourcePosition.Value / this.MapWidth, 0f),
+				Quaternion.identity,
+				new float3(4f, 4f, 0.1f) / this.MapWidth);
 
-	//		this.colonyPosition = 0.5f * Map.Width * Vector2.one;
-	//		this.colonyMatrix = Matrix4x4.TRS(colonyPosition/MapWidth,Quaternion.identity,new Vector3(4f,4f,.1f)/MapWidth);
-
-			float resourceAngle = Random.value * 2f * Mathf.PI;
-			this.resourcePosition = 0.5f * Map.Width * new float2(1f, 1f) +
-			                        new float2(Mathf.Cos(resourceAngle) * Map.Width * 0.475f,
-				                        Mathf.Sin(resourceAngle) * Map.Width * 0.475f);
-			this.resourceMatrix = Matrix4x4.TRS(resourcePosition / Map.Width, Quaternion.identity,
-				new float3(4f, 4f, 0.1f) / Map.Width);
-
-			this.pheromoneTexture = new Texture2D(Map.Width, Map.Width) {wrapMode = TextureWrapMode.Mirror};
-			this.pheromoneColours = new Color[Map.Width * Map.Width];
+			this.pheromoneTexture = new Texture2D(MapComponent.Width, MapComponent.Width) {wrapMode = TextureWrapMode.Mirror};
+			this.pheromoneColours = new Color[MapComponent.Width * MapComponent.Width];
 
 			this.pheromoneRenderer.sharedMaterial = new Material(basePheromoneMaterial)
 				{mainTexture = this.pheromoneTexture};
@@ -140,9 +152,9 @@ namespace AntPheromones_ECS
 			
 			EntityArchetype antArchetype =
 				entityManager.CreateArchetype(
-					typeof(Position),
-					typeof(FacingAngle),
-					typeof(Speed),
+					typeof(PositionComponent),
+					typeof(FacingAngleComponent),
+					typeof(SpeedComponent),
 					typeof(ColourDisplay),
 					typeof(Brightness),
 					typeof(ResourceCarrier),
@@ -150,17 +162,17 @@ namespace AntPheromones_ECS
 					typeof(LocalToWorld),
 					typeof(Ant));
 
-			this.antEntities = new NativeArray<Entity>(length: 1000, Allocator.Persistent);
+			this.antEntities = new NativeArray<Entity>(length: this.AntCount, Allocator.Persistent);
 			entityManager.CreateEntity(antArchetype, this.antEntities);
 
 			foreach (var entity in this.antEntities)
 			{
 				entityManager.SetComponentData(
 					entity,
-					new Position
+					new PositionComponent
 					{
-						Value = new float2(Random.Range(-5f, 5f) + Map.Width * 0.5f,
-							Random.Range(-5f, 5f) + Map.Width * .5f)
+						Value = new float2(Random.Range(-5f, 5f) + this.MapWidth * 0.5f,
+							Random.Range(-5f, 5f) + this.MapWidth * .5f)
 					});
 				entityManager.SetSharedComponentData(entity, new RenderMesh
 				{
@@ -169,7 +181,7 @@ namespace AntPheromones_ECS
 				});
 			}
 
-			Entity pheromoneColourMapEntity = entityManager.CreateEntity(typeof(PheromoneColourMap));
+			Entity pheromoneColourMapEntity = entityManager.CreateEntity(typeof(PheromoneColourRValue));
 			entityManager.AddBuffer<PheromoneColourRValue>(pheromoneColourMapEntity);
 			
 	//
@@ -213,63 +225,6 @@ namespace AntPheromones_ECS
 			return rotationMatrixLookup[((int)angle)%rotationResolution];
 		}
 
-	//	int PheromoneIndex(int x, int y) {
-	//		return x + y * MapWidth;
-	//	}
-
-	//	void DropPheromones(Vector2 position,float strength) {
-	//		int x = Mathf.FloorToInt(position.x);
-	//		int y = Mathf.FloorToInt(position.y);
-	//		if (x < 0 || y < 0 || x >= MapWidth || y >= MapWidth) {
-	//			return;
-	//		}
-	//
-	//		int index = PheromoneIndex(x,y);
-	//		pheromoneColours[index].r += (trailAddSpeed*strength*Time.fixedDeltaTime)*(1f-pheromoneColours[index].r);
-	//		if (pheromoneColours[index].r>1f) {
-	//			pheromoneColours[index].r = 1f;
-	//		}
-	//	}
-	//
-	//	float PheromoneSteering(Ant ant,float distance) {
-	//		float output = 0;
-	//
-	//		for (int i=-1;i<=1;i+=2) {
-	//			float angle = ant.facingAngle + i * Mathf.PI*.25f;
-	//			float testX = ant.position.x + Mathf.Cos(angle) * distance;
-	//			float testY = ant.position.y + Mathf.Sin(angle) * distance;
-	//
-	//			if (testX <0 || testY<0 || testX>=MapWidth || testY>=MapWidth) {
-	//
-	//			} else {
-	//				int index = PheromoneIndex((int)testX,(int)testY);
-	//				float value = pheromoneColours[index].r;
-	//				output += value*i;
-	//			}
-	//		}
-	//		return Mathf.Sign(output);
-	//	}
-	//
-	//	int WallSteering(Ant ant,float distance) {
-	//		int output = 0;
-	//
-	//		for (int i = -1; i <= 1; i+=2) {
-	//			float angle = ant.facingAngle + i * Mathf.PI*.25f;
-	//			float testX = ant.position.x + Mathf.Cos(angle) * distance;
-	//			float testY = ant.position.y + Mathf.Sin(angle) * distance;
-	//
-	//			if (testX < 0 || testY < 0 || testX >= MapWidth || testY >= MapWidth) {
-	//
-	//			} else {
-	//				int value = GetObstacleBucket(testX,testY).Length;
-	//				if (value > 0) {
-	//					output -= i;
-	//				}
-	//			}
-	//		}
-	//		return output;
-	//	}
-	//
 	//	bool Linecast(Vector2 point1, Vector2 point2) {
 	//		float dx = point2.x - point1.x;
 	//		float dy = point2.y - point1.y;
@@ -286,85 +241,136 @@ namespace AntPheromones_ECS
 	//		return false;
 	//	}
 	//
-	//	void GenerateObstacles() {
-	//		List<Obstacle_Old> output = new List<Obstacle_Old>();
-	//		for (int i=1;i<=obstacleRingCount;i++) {
-	//			float ringRadius = (i / (obstacleRingCount+1f)) * (MapWidth * .5f);
-	//			float circumference = ringRadius * 2f * Mathf.PI;
-	//			int maxCount = Mathf.CeilToInt(circumference / (2f * obstacleRadius) * 2f);
-	//			int offset = Random.Range(0,maxCount);
-	//			int holeCount = Random.Range(1,3);
-	//			for (int j=0;j<maxCount;j++) {
-	//				float t = (float)j / maxCount;
-	//				if ((t * holeCount)%1f < obstaclesPerRing) {
-	//					float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
-	//					Obstacle_Old obstacle = new Obstacle_Old();
-	//					obstacle.Position = new Vector2(MapWidth * .5f + Mathf.Cos(angle) * ringRadius,MapWidth * .5f + Mathf.Sin(angle) * ringRadius);
-	//					obstacle.Radius = obstacleRadius;
-	//					output.Add(obstacle);
-	//					//Debug.DrawRay(obstacle.position / mapSize,-Vector3.forward * .05f,Color.green,10000f);
-	//				}
-	//			}
-	//		 }
-	//
-	//		obstacleMatrices = new Matrix4x4[Mathf.CeilToInt((float)output.Count / instancesPerBatch)][];
-	//		for (int i=0;i<obstacleMatrices.Length;i++) {
-	//			obstacleMatrices[i] = new Matrix4x4[Mathf.Min(instancesPerBatch,output.Count - i * instancesPerBatch)];
-	//			for (int j=0;j<obstacleMatrices[i].Length;j++) {
-	//				obstacleMatrices[i][j] = Matrix4x4.TRS(output[i * instancesPerBatch + j].Position / MapWidth,Quaternion.identity,new Vector3(obstacleRadius*2f,obstacleRadius*2f,1f)/MapWidth);
-	//			}
-	//		}
-	//
-	//		obstacles = output.ToArray();
-	//
-	//		List<Obstacle_Old>[,] tempObstacleBuckets = new List<Obstacle_Old>[bucketResolution,bucketResolution];
-	//
-	//		for (int x = 0; x < bucketResolution; x++) {
-	//			for (int y = 0; y < bucketResolution; y++) {
-	//				tempObstacleBuckets[x,y] = new List<Obstacle_Old>();
-	//			}
-	//		}
-	//
-	//		for (int i = 0; i < obstacles.Length; i++) {
-	//			Vector2 pos = obstacles[i].Position;
-	//			float radius = obstacles[i].Radius;
-	//			for (int x = Mathf.FloorToInt((pos.x - radius)/MapWidth*bucketResolution); x <= Mathf.FloorToInt((pos.x + radius)/MapWidth*bucketResolution); x++) {
-	//				if (x < 0 || x >= bucketResolution) {
-	//					continue;
-	//				}
-	//				for (int y = Mathf.FloorToInt((pos.y - radius) / MapWidth * bucketResolution); y <= Mathf.FloorToInt((pos.y + radius) / MapWidth * bucketResolution); y++) {
-	//					if (y<0 || y>=bucketResolution) {
-	//						continue;
-	//					}
-	//					tempObstacleBuckets[x,y].Add(obstacles[i]);
-	//				}
-	//			}
-	//		}
-	//
-	//		obstacleBuckets = new Obstacle_Old[bucketResolution,bucketResolution][];
-	//		for (int x = 0; x < bucketResolution; x++) {
-	//			for (int y = 0; y < bucketResolution; y++) {
-	//				obstacleBuckets[x,y] = tempObstacleBuckets[x,y].ToArray();
-	//			}
-	//		}
-	//	}
-	//
-	//	Obstacle_Old[] emptyBucket = new Obstacle_Old[0];
-	//	private NativeArray<Entity> antEntities;
-	//
-	//	Obstacle_Old[] GetObstacleBucket(Vector2 pos) {
-	//		return GetObstacleBucket(pos.x,pos.y);
-	//	}
-	//	Obstacle_Old[] GetObstacleBucket(float posX, float posY) {
-	//		int x = (int)(posX / MapWidth * bucketResolution);
-	//		int y = (int)(posY / MapWidth * bucketResolution);
-	//		if (x<0 || y<0 || x>=bucketResolution || y>=bucketResolution) {
-	//			return emptyBucket;
-	//		} else {
-	//			return obstacleBuckets[x,y];
-	//		}
-	//	}
-	//
+		private void GenerateObstacles()
+		{
+			this._obstaclePositions.Values = CalculateObstaclePositions().ToArray();
+			this._obstaclePositions.IsGenerated = true;
+			
+			this._obstacleMatrices = CalculateObstacleMatrices();
+			
+			List<float2>[,] temporaryObstacleBuckets = GenerateObstacleBuckets();
+			
+			this._obstacleBuckets.Values = new float2[this.BucketResolution, this.BucketResolution][];
+
+			for (int x = 0; x < this.BucketResolution; x++)
+			{
+				for (int y = 0; y < this.BucketResolution; y++)
+				{
+					this._obstacleBuckets.Values[x, y] = temporaryObstacleBuckets[x, y].ToArray();
+				}
+			}
+
+			this._obstacleBuckets.IsGenerated = true;
+		}
+
+		private List<float2>[,] GenerateObstacleBuckets()
+		{
+			List<float2>[,] buckets = new List<float2>[this.BucketResolution,this.BucketResolution];
+
+			for (int x = 0; x < this.BucketResolution; x++)
+			{
+				for (int y = 0; y < this.BucketResolution; y++)
+				{
+					buckets[x, y] = new List<float2>();
+				}
+			}
+
+			for (int i = 0; i < this._obstaclePositions.Values.Length; i++)
+			{
+				float2 position = this._obstaclePositions.Values[i];
+				
+				for (int x = Mathf.FloorToInt((position.x - this.ObstacleRadius) / this.MapWidth * this.BucketResolution);
+					x <= Mathf.FloorToInt((position.x + this.ObstacleRadius) / this.MapWidth * this.BucketResolution);
+					x++)
+				{
+					if (x < 0 || x >= BucketResolution)
+					{
+						continue;
+					}
+
+					for (int y = Mathf.FloorToInt((position.y - this.ObstacleRadius) / this.MapWidth * this.BucketResolution);
+						y <= Mathf.FloorToInt((position.y + this.ObstacleRadius) / this.MapWidth * this.BucketResolution);
+						y++)
+					{
+						if (y < 0 || y >= this.BucketResolution)
+						{
+							continue;
+						}
+
+						buckets[x, y].Add(this._obstaclePositions.Values[i]);
+					}
+				}
+			}
+
+			return buckets;
+		}
+
+		private List<float2> CalculateObstaclePositions()
+		{
+			var positions = new List<float2>();
+			
+            for (int i = 1; i <= this.ObstacleRingCount; i++)
+            {
+            	float ringRadius = i / (this.ObstacleRingCount + 1f) * (this.MapWidth * .5f);
+            	float circumference = ringRadius * 2f * Mathf.PI;
+            	int maxCount = Mathf.CeilToInt(circumference / (2f * this.ObstacleRadius) * 2f);
+            	int offset = Random.Range(0, maxCount);
+            	int holeCount = Random.Range(1, 3);
+            	
+            	for (int j = 0; j < maxCount; j++)
+            	{
+            		float t = (float) j / maxCount;
+
+            		if (!(t * holeCount % 1f < this.ObstaclesPerRing))
+            		{
+            			continue;
+            		}
+            		
+            		float angle = (j + offset) / (float) maxCount * (2f * Mathf.PI);
+            		float2 obstacle = 
+            			new float2(this.MapWidth * 0.5f + math.cos(angle) * ringRadius,
+            			this.MapWidth * 0.5f + math.sin(angle) * ringRadius); 
+
+                    positions.Add(obstacle);
+            	}
+            }
+
+            return positions;
+		}
+
+		private float4x4[][] CalculateObstacleMatrices()
+		{
+			float4x4[][] matrices = new float4x4[Mathf.CeilToInt((float)this._obstaclePositions.Values.Length / InstancesPerBatch)][];
+
+			for (int i = 0; i < this.matrices.Length; i++)
+			{
+				matrices[i] = new float4x4[Mathf.Min(InstancesPerBatch, this._obstaclePositions.Values.Length - i * InstancesPerBatch)];
+				
+				for (int j = 0; j < matrices[i].Length; j++)
+				{
+					matrices[i][j] =
+						float4x4.TRS(new float3(this._obstaclePositions.Values[i * InstancesPerBatch + j] / this.MapWidth, 0),
+							Quaternion.identity, new float3(this.ObstacleRadius * 2f, this.ObstacleRadius * 2f, 1f) / MapWidth);
+				}
+			}
+
+			return matrices;
+		}
+		
+		float2[] GetObstacleBucket(float2 position) {
+			int y = (int)(position.y / this.MapWidth * this.BucketResolution);
+			int x = (int)(position.x / this.MapWidth * this.BucketResolution);
+
+			if (x < 0 || y < 0 || x >= this.BucketResolution || y >= this.BucketResolution)
+			{
+				return null;
+			}
+			else
+			{
+				return this._obstacleBuckets.Values[x, y];
+			}
+		}
+	
 	//	private void Awake()
 	//	{
 	//		Instance = this;
@@ -526,12 +532,12 @@ namespace AntPheromones_ECS
 			for (int i = 0; i < matrices.Length; i++) {
 				Graphics.DrawMeshInstanced(antMesh,0,antMaterial,matrices[i],matrices[i].Length,matProps[i]);
 			}
-			for (int i=0;i<obstacleMatrices.Length;i++) {
-				Graphics.DrawMeshInstanced(obstacleMesh,0,obstacleMaterial,obstacleMatrices[i]);
+			for (int i=0;i<_obstacleMatrices.Length;i++) {
+				Graphics.DrawMeshInstanced(obstacleMesh,0,obstacleMaterial,_obstacleMatrices[i]);
 			}
 
-			Graphics.DrawMesh(colonyMesh,colonyMatrix,colonyMaterial,0);
-			Graphics.DrawMesh(resourceMesh,resourceMatrix,resourceMaterial,0);
+			Graphics.DrawMesh(colonyMesh,_colonyMatrix,colonyMaterial,0);
+			Graphics.DrawMesh(resourceMesh,_resourceMatrix,resourceMaterial,0);
 		}
 	}
 }

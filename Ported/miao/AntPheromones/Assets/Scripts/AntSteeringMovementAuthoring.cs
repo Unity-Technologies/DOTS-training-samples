@@ -7,11 +7,11 @@ namespace AntPheromones_ECS
     public class AntSteeringMovementAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public float MaxSpeed;
-        public float Acceleration;
+        [Range(0f, 1f)] public float Acceleration;
         
         public void Convert(Entity entity, EntityManager entityManager, GameObjectConversionSystem conversionSystem)
         {
-            entityManager.AddComponentData(entity, new SteeringMovement
+            entityManager.AddComponentData(entity, new SteeringMovementComponent
             {
                 MaxSpeed = this.MaxSpeed,
                 Acceleration = this.Acceleration

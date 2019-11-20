@@ -5,31 +5,31 @@
     using Unity.Mathematics;
 
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-//    [UpdateAfter(typeof(UpdatePositionSystem))]
-    public class ObstacleCollisionSystem : JobComponentSystem
+    [UpdateAfter(typeof(ChangePositionAndVelocitySystem))]
+    public class CollideWithObstacleSystem : JobComponentSystem
     {
-        private Map _map;
+        private MapComponent _map;
 
         protected override void OnCreate()
         {
             base.OnCreate();
-            this._map = GetEntityQuery(ComponentType.ReadOnly<Map>()).GetSingleton<Map>();
+            this._map = GetEntityQuery(ComponentType.ReadOnly<MapComponent>()).GetSingleton<MapComponent>();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             return new Job {
                 ObstacleRadius = this._map.ObstacleRadius,
-                Obstacles = this._map.Obstacles.Value.Obstacles
+                Obstacles = this._map.Obstacles.Value.Positions
             }.Schedule(this, inputDeps);
         }
 
-        private struct Job : IJobForEach<Position, Velocity>
+        private struct Job : IJobForEach<PositionComponent, VelocityComponent>
         {
             public float ObstacleRadius;
             public BlobArray<float2> Obstacles;
         
-            public void Execute(ref Position position, ref Velocity velocity)
+            public void Execute(ref PositionComponent position, ref VelocityComponent velocity)
             {
                 for (int obstacle = 0; obstacle < Obstacles.Length; obstacle++)
                 {

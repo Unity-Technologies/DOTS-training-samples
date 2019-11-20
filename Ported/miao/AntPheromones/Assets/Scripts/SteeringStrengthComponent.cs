@@ -2,7 +2,7 @@
 
 namespace AntPheromones_ECS
 {
-    public struct SteeringStrength : IComponentData
+    public struct SteeringStrengthComponent : IComponentData
     {
         public float Random;
         public float Wall;
@@ -12,7 +12,7 @@ namespace AntPheromones_ECS
         public float Outward;
     }
 
-    public struct SteeringMovement : IComponentData
+    public struct SteeringMovementComponent : IComponentData
     {
         public float MaxSpeed;
         public float Acceleration;

@@ -5,33 +5,34 @@ using Unity.Mathematics;
 
 namespace AntPheromones_ECS
 {
-    public class ResourceTransportationSystem : JobComponentSystem
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+//    [UpdateAfter(typeof(TargetingSystem))]
+    public class TransportResourceSystem : JobComponentSystem
     {
-        private Map _map;
+        private MapComponent _map;
         
         protected override void OnCreate()
         {
             base.OnCreate();
-            
-            EntityQuery entityQuery = GetEntityQuery(ComponentType.ReadOnly<Map>());
-            this._map = entityQuery.GetSingleton<Map>();
+            this._map = GetEntityQuery(ComponentType.ReadOnly<MapComponent>()).GetSingleton<MapComponent>();
         }
 
-        private struct Job : IJobForEach<Position, FacingAngle, ResourceCarrier>
+        private struct Job : IJobForEach<PositionComponent, FacingAngleComponent, ResourceCarrier>
         {
             public float2 ColonyPosition;
             public float2 ResourcePosition;
-            
-            public void Execute([ReadOnly] ref Position position, [WriteOnly] ref FacingAngle facingAngle, ref ResourceCarrier resourceCarrier)
+
+            public void Execute(
+                [ReadOnly] ref PositionComponent position,
+                [WriteOnly] ref FacingAngleComponent facingAngleComponent, 
+                ref ResourceCarrier resourceCarrier)
             {
-                float2 targetPosition = resourceCarrier.IsCarrying ? ResourcePosition : ColonyPosition;
-                
-                if (!(math.lengthsq(position.Value - targetPosition) < 4f * 4f))
+                if (!(math.lengthsq(position.Value - (resourceCarrier.IsCarrying ? ResourcePosition : ColonyPosition)) < 4f * 4f))
                 {
                     return;
                 }
                 
-                facingAngle.Value += math.PI;
+                facingAngleComponent.Value += math.PI;
                 resourceCarrier.IsCarrying = !resourceCarrier.IsCarrying;
             }
         }
