@@ -1,7 +1,9 @@
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
@@ -11,7 +13,7 @@ public class PheromoneDropSystem : JobComponentSystem
     EntityQuery m_PheromoneMapQuery;
     EntityQuery m_MapQuery;
     EntityQuery m_AntSteeringQuery;
-
+    
     protected override void OnCreate()
     {
         base.OnCreate();
@@ -26,8 +28,7 @@ public class PheromoneDropSystem : JobComponentSystem
         var pheromoneFromEntity = GetBufferFromEntity<PheromoneBuffer>();
         var pheromoneMap = pheromoneFromEntity[m_PheromoneMapQuery.GetSingletonEntity()];
         var antSteering = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>();
-        inputDeps.Complete();
-        return new Job
+        new Job
         {
             // Time.fixedDeltaTime
             TrailAdd = map.TrailAdd * 1/50f,
@@ -35,8 +36,9 @@ public class PheromoneDropSystem : JobComponentSystem
             MapSize = map.MapSize,
             Pheromones = pheromoneMap,
         }.Run(this, inputDeps);
+        return default;
     }
-
+    
     [BurstCompile]
     struct Job : IJobForEach<PositionComponent, SpeedComponent, HasResourcesComponent>
     {

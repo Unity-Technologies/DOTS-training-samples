@@ -1,4 +1,5 @@
 using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -28,6 +29,7 @@ public class ComputePheromoneSteeringSystem : JobComponentSystem
         }.Schedule(this, inputDeps);
     }
 
+    [BurstCompile]
     struct SteeringJob : IJobForEach<FacingAngleComponent, PositionComponent, PheromoneSteeringComponent>
     {
         public int MapSize;

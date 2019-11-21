@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -28,6 +29,7 @@ public class AntInitializationSystem : JobComponentSystem
     }
 
     [RequireComponentTag(typeof(UninitializedTagComponent))]
+    [BurstCompile]
     struct Job : IJobForEachWithEntity<BrightnessComponent, FacingAngleComponent, PositionComponent, RandomSteeringComponent>
     {
         public uint Seed;
