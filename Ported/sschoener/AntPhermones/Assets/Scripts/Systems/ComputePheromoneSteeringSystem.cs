@@ -42,19 +42,17 @@ public class ComputePheromoneSteeringSystem : JobComponentSystem
             {
                 float angle = facingAngle.Value + i * math.PI * .25f;
                 math.sincos(angle, out var sin, out var cos);
+                
                 var test = (int2) (position.Value + distance * new float2(cos, sin));
-
-                if (math.any(test < 0) || math.any(test >= MapSize))
-                {
-
-                }
-                else
+                if (math.all(test > 0) && math.all(test < MapSize))
                 {
                     int index = test.y * MapSize + test.x;
                     output += PheromoneMap[index] * i;
                 }
             }
-            steering.Value = output;
+            
+            // Mathf.Sign has a weird edge case:
+            steering.Value = output >= 0 ? 1 : -1;
         }
     }
 }

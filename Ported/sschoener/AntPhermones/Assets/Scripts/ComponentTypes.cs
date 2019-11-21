@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Random = Unity.Mathematics.Random;
 
 struct RenderData : ISharedComponentData, IEquatable<RenderData>
 {
@@ -63,6 +64,11 @@ public struct UninitializedTagComponent : IComponentData { }
 public struct HasResourcesComponent : IComponentData
 {
     public bool Value;
+}
+
+public struct RandomSteeringComponent : IComponentData
+{
+    public Random Rng;
 }
 
 public struct FacingAngleComponent : IComponentData

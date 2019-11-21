@@ -58,12 +58,13 @@ public class PheromoneDropSystem : JobComponentSystem
                 return;
             const float searcherExcitement = .3f;
             const float carrierExcitement = 1;
-            float e = hasResources.Value ? carrierExcitement : searcherExcitement;
-            float strength = e * speed.Value / MaxSpeed;
+            float excitement = hasResources.Value ? carrierExcitement : searcherExcitement;
+            float strength = excitement * speed.Value / MaxSpeed;
             int idx = p.y * MapSize + p.x;
+            
+            float rate = TrailAdd * strength;
             float pheromone = Pheromones[idx];
-
-            pheromone += TrailAdd * strength * (1 - pheromone);
+            pheromone += rate * (1 - pheromone);
             Pheromones[idx] = math.min(1, pheromone);
         }
     }

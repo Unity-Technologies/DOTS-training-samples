@@ -28,17 +28,18 @@ public class AntInitializationSystem : JobComponentSystem
     }
 
     [RequireComponentTag(typeof(UninitializedTagComponent))]
-    struct Job : IJobForEachWithEntity<BrightnessComponent, FacingAngleComponent, PositionComponent>
+    struct Job : IJobForEachWithEntity<BrightnessComponent, FacingAngleComponent, PositionComponent, RandomSteeringComponent>
     {
         public uint Seed;
         public int MapSize;
 
-        public void Execute(Entity entity, int index, ref BrightnessComponent brightness, ref FacingAngleComponent facingAngle, ref PositionComponent position)
+        public void Execute(Entity entity, int index, ref BrightnessComponent brightness, ref FacingAngleComponent facingAngle, ref PositionComponent position, ref RandomSteeringComponent random)
         {
-            var rng = new Random(((uint)index + 1) * Seed);
+            var rng = new Random(((uint)index + 1) * Seed * 100151);
             facingAngle.Value = rng.NextFloat() * 2 * math.PI;
             brightness.Value = rng.NextFloat(0.75f, 1.25f);
             position.Value = .5f * MapSize + new float2(rng.NextFloat(-5, 5), rng.NextFloat(-5, 5));
+            random.Rng = rng;
         }
     }
 }

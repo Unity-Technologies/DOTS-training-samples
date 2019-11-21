@@ -37,12 +37,12 @@ public class ApplySteeringSystem : JobComponentSystem
         public float PheromoneStrength;
         public float WallStrength;
 
-        public void Execute([ReadOnly] ref PheromoneSteeringComponent pheromone, [ReadOnly] ref WallSteeringComponent wall, [WriteOnly] ref SpeedComponent speed, ref FacingAngleComponent facingAngle)
+        public void Execute([ReadOnly] ref PheromoneSteeringComponent pheromoneSteering, [ReadOnly] ref WallSteeringComponent wallSteering, [WriteOnly] ref SpeedComponent speed, ref FacingAngleComponent facingAngle)
         {
-            facingAngle.Value += pheromone.Value * PheromoneStrength;
-            facingAngle.Value += wall.Value * WallStrength;
+            facingAngle.Value += pheromoneSteering.Value * PheromoneStrength;
+            facingAngle.Value += wallSteering.Value * WallStrength;
             float targetSpeed = MaxSpeed;
-            targetSpeed *= 1 - (math.abs(pheromone.Value) + math.abs(wall.Value)) / 3;
+            targetSpeed *= 1 - (math.abs(pheromoneSteering.Value) + math.abs(wallSteering.Value)) / 3;
             speed.Value += (targetSpeed - speed.Value) * Acceleration;
         }
     }

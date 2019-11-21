@@ -22,6 +22,7 @@ public class AntSpawningSystem : ComponentSystem
             
             typeof(PheromoneSteeringComponent),
             typeof(WallSteeringComponent),
+            typeof(RandomSteeringComponent),
 
             typeof(RenderColorComponent),
             typeof(BrightnessComponent),

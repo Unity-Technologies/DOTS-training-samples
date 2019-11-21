@@ -81,11 +81,9 @@ public class AntManager : MonoBehaviour
 
         int index = PheromoneIndex(x, y);
         float rate = trailAddSpeed * strength * Time.fixedDeltaTime;
-        pheromones[index].r += rate * (1f - pheromones[index].r);
-        if (pheromones[index].r > 1f)
-        {
-            pheromones[index].r = 1f;
-        }
+        float pheromone = pheromones[index].r;
+        pheromone += rate * (1f - pheromone);
+        pheromones[index].r = Mathf.Min(1, pheromone);
     }
 
     float PheromoneSteering(Ant ant, float distance)
@@ -98,15 +96,10 @@ public class AntManager : MonoBehaviour
             float testX = ant.position.x + Mathf.Cos(angle) * distance;
             float testY = ant.position.y + Mathf.Sin(angle) * distance;
 
-            if (testX < 0 || testY < 0 || testX >= mapSize || testY >= mapSize)
-            {
-
-            }
-            else
+            if (testX >= 0 && testY >= 0 && testX < mapSize && testY < mapSize)
             {
                 int index = PheromoneIndex((int)testX, (int)testY);
-                float value = pheromones[index].r;
-                output += value * i;
+                output += pheromones[index].r * i;
             }
         }
         return Mathf.Sign(output);
@@ -292,9 +285,12 @@ public class AntManager : MonoBehaviour
             matProps[i] = new MaterialPropertyBlock();
         }
 
-        for (int i = 0; i < antCount; i++)
         {
-            ants[i] = new Ant(new Vector2(Random.Range(-5f, 5f) + mapSize * .5f, Random.Range(-5f, 5f) + mapSize * .5f));
+            var center = mapSize * .5f * Vector2.one;
+            for (int i = 0; i < antCount; i++)
+            {
+                ants[i] = new Ant(center + new Vector2(Random.Range(-5f, 5f), Random.Range(-5f, 5f)));
+            }
         }
 
         rotationMatrixLookup = new Matrix4x4[rotationResolution];
@@ -390,7 +386,7 @@ public class AntManager : MonoBehaviour
                     delta /= Mathf.Sqrt(sqrDist);
                     ant.position = obstacle.position + delta * obstacleRadius;
 
-                    v -= 1.5f * delta * Vector2.Dot(delta, v);
+                    v -= 1.5f * Vector2.Dot(delta, v) * delta;
                 }
             }
 
@@ -400,8 +396,8 @@ public class AntManager : MonoBehaviour
 
                 var delta = colonyPosition - ant.position;
                 float dist = delta.magnitude;
-                strength *= 1f - Mathf.Clamp01(dist / pushRadius);
-                v += delta * (strength / dist);
+                float fallOff = 1f - Mathf.Clamp01(dist / pushRadius);
+                v += delta * (fallOff * strength / dist);
             }
             ant.facingAngle = Mathf.Atan2(v.y, v.x);
         }
@@ -410,16 +406,19 @@ public class AntManager : MonoBehaviour
         {
             Ant ant = ants[i];
             {
-                float excitement = .3f;
-                if (ant.holdingResource)
-                {
-                    excitement = 1f;
-                }
-                excitement *= ant.speed / antSpeed;
-                DropPheromones(ant.position, excitement);
+                float excitement = ant.holdingResource ? 1 : .3f;
+                float strength = excitement * ant.speed / antSpeed;
+                DropPheromones(ant.position, strength);
             }
         }
 
+        // decay pheromones
+        for (int i = 0; i < pheromones.Length; i++)
+            pheromones[i].r *= trailDecay;
+        
+        pheromoneTexture.SetPixels(pheromones);
+        pheromoneTexture.Apply();
+        
         for (int i = 0; i < ants.Length; i++)
         {
             Ant ant = ants[i];
@@ -429,19 +428,6 @@ public class AntManager : MonoBehaviour
             matrix.m13 = ant.position.y / mapSize;
             matrices[i / instancesPerBatch][i % instancesPerBatch] = matrix;
         }
-
-        // decay pheromones
-        for (int x = 0; x < mapSize; x++)
-        {
-            for (int y = 0; y < mapSize; y++)
-            {
-                int index = PheromoneIndex(x, y);
-                pheromones[index].r *= trailDecay;
-            }
-        }
-
-        pheromoneTexture.SetPixels(pheromones);
-        pheromoneTexture.Apply();
 
         for (int i = 0; i < matProps.Length; i++)
         {

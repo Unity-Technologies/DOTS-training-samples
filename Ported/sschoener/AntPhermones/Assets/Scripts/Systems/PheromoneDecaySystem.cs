@@ -26,7 +26,7 @@ public class PheromoneDecaySystem : JobComponentSystem
         {
             TrailDecay = map.TrailDecay,
             PheromoneMap = pheromoneMap.AsNativeArray()
-        }.Schedule(pheromoneMap.Length, 64, inputDeps);
+        }.Schedule(pheromoneMap.Length, 256, inputDeps);
     }
 
     [BurstCompile]

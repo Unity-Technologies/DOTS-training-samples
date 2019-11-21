@@ -122,6 +122,80 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &500088172
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 500088174}
+  - component: {fileID: 500088173}
+  m_Layer: 0
+  m_Name: Ant Manager (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &500088173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500088172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01aff38e18d96ed45afd43f377a8d9d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  basePheromoneMaterial: {fileID: 2100000, guid: 6f6ea5e44517b3d42ab85fb9577e4c93,
+    type: 2}
+  pheromoneRenderer: {fileID: 1690490650}
+  antMaterial: {fileID: 2100000, guid: c66329d3aec0ce443ba9cbe148029438, type: 2}
+  obstacleMaterial: {fileID: 2100000, guid: b580cd5f5ceb0f245b7111180e40301d, type: 2}
+  resourceMaterial: {fileID: 2100000, guid: b9f0e89d232e61841941ba0f7651f15b, type: 2}
+  colonyMaterial: {fileID: 2100000, guid: 4d609a20db07a9b429e13f6eb488714c, type: 2}
+  antMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  obstacleMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  colonyMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  resourceMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  searchColor: {r: 0.18944636, g: 0.21086979, b: 0.35294116, a: 0}
+  carryColor: {r: 0.7205882, g: 0.7116722, b: 0.39738318, a: 0}
+  antCount: 1000
+  mapSize: 128
+  bucketResolution: 64
+  antSize: {x: 0.008, y: 0.004, z: 0.004}
+  antSpeed: 0.2
+  antAccel: 0.07
+  trailAddSpeed: 0.3
+  trailDecay: 0.9985
+  randomSteering: 0.14
+  pheromoneSteerStrength: 0.015
+  wallSteerStrength: 0.12
+  goalSteerStrength: 0.04
+  outwardStrength: 0.003
+  inwardStrength: 0.003
+  rotationResolution: 360
+  obstacleRingCount: 3
+  obstaclesPerRing: 0.8
+  obstacleRadius: 2
+--- !u!4 &500088174
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500088172}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519808261
 GameObject:
   m_ObjectHideFlags: 0
@@ -738,7 +812,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2023315913}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 442b671956e944d1b725295f9050828d, type: 3}
   m_Name: 
@@ -899,7 +973,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2087170866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -907,7 +981,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2087170865}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 01aff38e18d96ed45afd43f377a8d9d2, type: 3}
   m_Name: 
