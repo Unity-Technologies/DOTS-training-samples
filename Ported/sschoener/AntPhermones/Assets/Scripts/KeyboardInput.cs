@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -21,6 +22,8 @@ public class KeyboardInput : MonoBehaviour {
 		}
 		if (Input.GetKeyDown(KeyCode.R)) {
 			Time.timeScale = 1f;
+			var em = World.Active.EntityManager;
+			em.DestroyEntity(em.UniversalQuery);
 			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 		}
 	}
