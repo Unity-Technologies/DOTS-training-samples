@@ -29,8 +29,10 @@ namespace AntPheromones_ECS
             base.OnCreate();
             this._map = GetEntityQuery(ComponentType.ReadOnly<MapComponent>()).GetSingleton<MapComponent>();
             
-            Entity pheromoneRValues = GetEntityQuery(ComponentType.ReadWrite<PheromoneColourRValue>()).GetSingletonEntity();
-            this._pheromoneColourRValues = GetBufferFromEntity<PheromoneColourRValue>(isReadOnly: true)[pheromoneRValues];
+            Entity pheromoneRValues = 
+                GetEntityQuery(ComponentType.ReadWrite<PheromoneColourRValue>()).GetSingletonEntity();
+            this._pheromoneColourRValues = 
+                GetBufferFromEntity<PheromoneColourRValue>()[pheromoneRValues];
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)

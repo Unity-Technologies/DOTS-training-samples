@@ -12,10 +12,10 @@ namespace AntPheromones_ECS
 
         public bool HasObstacle(float2 position)
         {
-            float2 coordinates = position / MapWidth * BucketResolution;
+            int2 coordinates = (int2)(position / MapWidth * BucketResolution);
             bool isWithinMapBounds = !math.any(coordinates < 0) && !math.any(coordinates > this.MapWidth);
             
-            return isWithinMapBounds && this.HasObstacles[(int) position.y * this.MapWidth + (int) position.x];
+            return isWithinMapBounds && this.HasObstacles[coordinates.y * this.MapWidth + coordinates.x];
         }
     }
 }

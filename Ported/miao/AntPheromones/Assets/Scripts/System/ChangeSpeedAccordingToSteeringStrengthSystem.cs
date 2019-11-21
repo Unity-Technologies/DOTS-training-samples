@@ -8,7 +8,7 @@ namespace AntPheromones_ECS
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(CalculatePheromoneSteeringSystem))]
     [UpdateAfter(typeof(CalculateWallSteeringSystem))]
-    public class ChangeSpeedSystem : JobComponentSystem
+    public class ChangeSpeedAccordingToSteeringStrengthSystem : JobComponentSystem
     {
         private SteeringMovementComponent _steeringMovement;
 

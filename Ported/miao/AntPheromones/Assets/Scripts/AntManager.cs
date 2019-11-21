@@ -2,11 +2,8 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
-using Unity.Rendering;
 
 namespace AntPheromones_ECS
 {
@@ -42,7 +39,7 @@ namespace AntPheromones_ECS
 		public float goalSteerStrength;
 		public float outwardStrength;
 		public float inwardStrength;
-		public int rotationResolution = 360;
+		public int RotationResolution = 360;
 		public int ObstacleRingCount = 3;
 		public float ObstaclesPerRing = 0.8f;
 		public float ObstacleRadius = 2;
@@ -111,27 +108,20 @@ namespace AntPheromones_ECS
 		Material myPheromoneMaterial;
 
 		public Color[] pheromoneColours;
-		Matrix4x4[][] matrices;
-		Vector4[][] antColors;
-		MaterialPropertyBlock[] matProps;
-		float4x4[][] _obstacleMatrices;
-		
-
+		private Matrix4x4[][] _matrices;
+		private Vector4[][] _antColors;
+		private MaterialPropertyBlock[] _materialPropertyBlock;
+		private Matrix4x4[][] _obstacleMatrices;
 		private Matrix4x4 _resourceMatrix;
 		private Matrix4x4 _colonyMatrix;
-		private NativeArray<Entity> antEntities;
+		private NativeArray<Entity> _antEntities;
 
-		const int RenderInstancesPerBatch = 1023;
+		const int InstancesPerBatch = 1023;
 
-		Matrix4x4[] rotationMatrixLookup;
+		Matrix4x4[] _rotationMatrixLookup;
 		
 		void Start()
 		{
-			EntityManager entityManager = World.Active.EntityManager;
-//			Entity mapEntity = entityManager.CreateEntity(typeof(Map));
-//			EntityQuery mapSingletonGroup = entityManager.CreateEntityQuery(typeof(Entity));
-//			mapSingletonGroup.SetSingleton<Map>(mapEntity);
-
 			this._colonyMatrix = float4x4.TRS(
 				new float3(this._colonyPosition.Value / this.MapWidth, 0), 
 				Quaternion.identity, 
@@ -141,104 +131,99 @@ namespace AntPheromones_ECS
 				new float3(this._resourcePosition.Value / this.MapWidth, 0f),
 				Quaternion.identity,
 				new float3(4f, 4f, 0.1f) / this.MapWidth);
+			
+			CreateAnts();
+			
+			this._matrices = GenerateAntMatrices();
+			this._materialPropertyBlock = new MaterialPropertyBlock[_matrices.Length];
+			
+			this._antColors = new Vector4[this._matrices.Length][];
 
-			this.pheromoneTexture = new Texture2D(this.MapWidth, this.MapWidth) {wrapMode = TextureWrapMode.Mirror};
-			this.pheromoneColours = new Color[this.MapWidth * this.MapWidth];
+			for (int i = 0; i < _materialPropertyBlock.Length; i++)
+			{
+				this._antColors[i] = new Vector4[this._matrices[i].Length];
+				this._materialPropertyBlock[i] = new MaterialPropertyBlock();
+			}
 
-			this.pheromoneRenderer.sharedMaterial = new Material(basePheromoneMaterial)
-				{mainTexture = this.pheromoneTexture};
+			this._rotationMatrixLookup = new Matrix4x4[this.RotationResolution];
+			
+			for (int i = 0; i < this.RotationResolution; i++)
+			{
+				float angle = (float) i / this.RotationResolution;
+				angle *= 360f;
+				_rotationMatrixLookup[i] = Matrix4x4.TRS(Vector3.zero, Quaternion.Euler(0f, 0f, angle), antSize);
+			}
+		}
 
+		private void CreateAnts()
+		{
+			EntityManager entityManager = World.Active.EntityManager;
 			
 			EntityArchetype antArchetype =
 				entityManager.CreateArchetype(
 					typeof(PositionComponent),
-					typeof(FacingAngleComponent),
+					typeof(VelocityComponent),
 					typeof(SpeedComponent),
+					typeof(FacingAngleComponent),
 					typeof(ColourComponent),
 					typeof(BrightnessComponent),
-					typeof(ResourceCarrierComponent),
-					typeof(RenderMesh),
-					typeof(LocalToWorld));
+					typeof(ResourceCarrierComponent));
 
-			this.antEntities = new NativeArray<Entity>(length: this.AntCount, Allocator.Persistent);
-			entityManager.CreateEntity(antArchetype, this.antEntities);
+			this._antEntities = new NativeArray<Entity>(length: this.AntCount, Allocator.Persistent);
+			entityManager.CreateEntity(antArchetype, this._antEntities);
 
-			foreach (var entity in this.antEntities)
+			foreach (Entity entity in this._antEntities)
 			{
 				entityManager.SetComponentData(
 					entity,
 					new PositionComponent
 					{
-						Value = new float2(Random.Range(-5f, 5f) + this.MapWidth * 0.5f,
-							Random.Range(-5f, 5f) + this.MapWidth * .5f)
+						Value = this.MapWidth * 0.5f + new float2(Random.Range(-5f, 5f), Random.Range(-5f, 5f))
 					});
-				entityManager.SetSharedComponentData(entity, new RenderMesh
-				{
-					mesh = this.antMesh,
-					material = this.antMaterial
-				});
+				entityManager.SetComponentData(
+					entity,
+					new BrightnessComponent
+					{
+						Value = Random.Range(0.75f, 1.25f)
+					});
+				entityManager.SetComponentData(
+					entity,
+					new FacingAngleComponent
+					{
+						Value = Random.value * 2 * math.PI
+					});
 			}
 
 			Entity pheromoneColourMapEntity = entityManager.CreateEntity(typeof(PheromoneColourRValue));
 			entityManager.AddBuffer<PheromoneColourRValue>(pheromoneColourMapEntity);
-			
-	//
-	//		DropPheromoneSystem dropPheromoneSystem = World.Active.GetOrCreateSystem<DropPheromoneSystem>();
-	//
-	////		Entity map = entityManager.CreateEntity(typeof(Map));
-	////		entityManager.AddBuffer<Color>(map);
-	//		
-	//		ants = new Ant[antCount];
-	//		matrices = new Matrix4x4[Mathf.CeilToInt((float)antCount / instancesPerBatch)][];
-	//		for (int i=0;i<matrices.Length;i++) {
-	//			if (i<matrices.Length-1) {
-	//				matrices[i] = new Matrix4x4[instancesPerBatch];
-	//			} else {
-	//				matrices[i] = new Matrix4x4[antCount - i * instancesPerBatch];
-	//			}
-	//		}
-	//		matProps = new MaterialPropertyBlock[matrices.Length];
-	//		antColors = new Vector4[matrices.Length][];
-	//		for (int i=0;i<matProps.Length;i++) {
-	//			antColors[i] = new Vector4[matrices[i].Length];
-	//			matProps[i] = new MaterialPropertyBlock();
-	//		}
-	//
-	//		for (int i = 0; i < antCount; i++) {
-	//			ants[i] = new Ant(new Vector2(Random.Range(-5f,5f)+Map.Width*.5f,Random.Range(-5f,5f) + Map.Width * .5f));
-	//		}
-	//
-	//		rotationMatrixLookup = new Matrix4x4[rotationResolution];
-	//		for (int i=0;i<rotationResolution;i++) {
-	//			float angle = (float)i / rotationResolution;
-	//			angle *= 360f;
-	//			rotationMatrixLookup[i] = Matrix4x4.TRS(Vector3.zero,Quaternion.Euler(0f,0f,angle),antSize);
-	//		}
 		}
-		
+
+		private Matrix4x4[][] GenerateAntMatrices()
+		{
+			Matrix4x4[][] matrices = new Matrix4x4[Mathf.CeilToInt((float)this.AntCount / InstancesPerBatch)][];
+
+			for (int i = 0; i < matrices.Length; i++)
+			{
+				if (i < matrices.Length - 1)
+				{
+					matrices[i] = new Matrix4x4[InstancesPerBatch];
+				}
+				else
+				{
+					matrices[i] = new Matrix4x4[this.AntCount - i * InstancesPerBatch];
+				}
+			}
+
+			return matrices;
+		}
+
 		Matrix4x4 GetRotationMatrix(float angle) {
 			angle /= Mathf.PI * 2f;
 			angle -= Mathf.Floor(angle);
-			angle *= rotationResolution;
-			return rotationMatrixLookup[((int)angle)%rotationResolution];
+			angle *= RotationResolution;
+			return this._rotationMatrixLookup[(int) angle % RotationResolution];
 		}
-
-	//	bool Linecast(Vector2 point1, Vector2 point2) {
-	//		float dx = point2.x - point1.x;
-	//		float dy = point2.y - point1.y;
-	//		float dist = Mathf.Sqrt(dx * dx + dy * dy);
-	//
-	//		int stepCount = Mathf.CeilToInt(dist*.5f);
-	//		for (int i=0;i<stepCount;i++) {
-	//			float t = (float)i / stepCount;
-	//			if (GetObstacleBucket(point1.x+dx*t,point1.y+dy*t).Length>0) {
-	//				return true;
-	//			}
-	//		}
-	//
-	//		return false;
-	//	}
-	//
+		
 		private void GenerateObstacles()
 		{
 			this._obstaclePositions.Values = CalculateObstaclePositions().ToArray();
@@ -336,18 +321,19 @@ namespace AntPheromones_ECS
             return positions;
 		}
 
-		private float4x4[][] CalculateObstacleMatrices()
+		private Matrix4x4[][] CalculateObstacleMatrices()
 		{
-			float4x4[][] obstacleMatrices = new float4x4[Mathf.CeilToInt((float)this._obstaclePositions.Values.Length / RenderInstancesPerBatch)][];
+			Matrix4x4[][] obstacleMatrices =
+				new Matrix4x4[Mathf.CeilToInt((float)this._obstaclePositions.Values.Length / InstancesPerBatch)][];
 
-			for (int i = 0; i < this.matrices.Length; i++)
+			for (int i = 0; i < this._matrices.Length; i++)
 			{
-				obstacleMatrices[i] = new float4x4[Mathf.Min(RenderInstancesPerBatch, this._obstaclePositions.Values.Length - i * RenderInstancesPerBatch)];
+				obstacleMatrices[i] = new Matrix4x4[Mathf.Min(InstancesPerBatch, this._obstaclePositions.Values.Length - i * InstancesPerBatch)];
 				
 				for (int j = 0; j < obstacleMatrices[i].Length; j++)
 				{
 					obstacleMatrices[i][j] =
-						float4x4.TRS(new float3(this._obstaclePositions.Values[i * RenderInstancesPerBatch + j] / this.MapWidth, 0),
+						Matrix4x4.TRS(new float3(this._obstaclePositions.Values[i * InstancesPerBatch + j] / this.MapWidth, 0),
 							Quaternion.identity, new float3(this.ObstacleRadius * 2f, this.ObstacleRadius * 2f, 1f) / MapWidth);
 				}
 			}
@@ -527,8 +513,8 @@ namespace AntPheromones_ECS
 				Time.timeScale = 9f;
 			}
 
-			for (int i = 0; i < matrices.Length; i++) {
-				Graphics.DrawMeshInstanced(antMesh,0,antMaterial,matrices[i],matrices[i].Length,matProps[i]);
+			for (int i = 0; i < _matrices.Length; i++) {
+				Graphics.DrawMeshInstanced(antMesh,0,antMaterial,_matrices[i],_matrices[i].Length,_materialPropertyBlock[i]);
 			}
 			for (int i=0;i<_obstacleMatrices.Length;i++) {
 				Graphics.DrawMeshInstanced(obstacleMesh,0,obstacleMaterial,_obstacleMatrices[i]);

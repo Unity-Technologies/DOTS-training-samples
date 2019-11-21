@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -8,7 +7,7 @@ using UnityEngine;
 namespace AntPheromones_ECS
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(CollideWithObstacleSystem))]
+    [UpdateAfter(typeof(ChangeFacingAngleAccordingToVelocitySystem))]
     public class DropPheromoneSystem : JobComponentSystem
     {
         private MapComponent _map;

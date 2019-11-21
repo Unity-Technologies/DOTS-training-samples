@@ -7,8 +7,8 @@ using Unity.Mathematics;
 namespace AntPheromones_ECS
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(MoveRadiallySystem))]
-    public class WriteVelocityToFacingSystem : JobComponentSystem
+    [UpdateAfter(typeof(ChangeVelocityAfterObstacleCollisionSystem))]
+    public class ChangeFacingAngleAccordingToVelocitySystem : JobComponentSystem
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {

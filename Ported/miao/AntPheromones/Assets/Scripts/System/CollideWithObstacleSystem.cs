@@ -5,7 +5,7 @@
     using Unity.Mathematics;
 
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(ChangePositionAndVelocitySystem))]
+    [UpdateAfter(typeof(ChangePositionAndVelocityAfterCarryingResourceSystem))]
     public class CollideWithObstacleSystem : JobComponentSystem
     {
         private MapComponent _map;

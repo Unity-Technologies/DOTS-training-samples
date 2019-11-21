@@ -7,6 +7,7 @@ using Unity.Mathematics;
 namespace AntPheromones_ECS
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateAfter(typeof(ChangeSpeedAccordingToSteeringStrengthSystem))]
     public class OrientTowardsGoalSystem : JobComponentSystem
     {
         private MapComponent _map;

@@ -1,13 +1,12 @@
 ﻿using Unity.Mathematics;
+using Unity.Entities;
+using Unity.Jobs;
 
 namespace AntPheromones_ECS
 {
-    using System;
-    using Unity.Entities;
-    using Unity.Jobs;
-
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    public class ChangePositionAndVelocitySystem : JobComponentSystem
+    [UpdateAfter(typeof(TransportResourceSystem))]
+    public class ChangePositionAndVelocityAfterCarryingResourceSystem : JobComponentSystem
     {
         EntityQuery m_MapQuery;
 

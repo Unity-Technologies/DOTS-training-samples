@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
-    public class AdjustAntBrightnessSystem : JobComponentSystem
+    public class ChangeBrightnessSystem : JobComponentSystem
     {
         private struct Job : IJobForEach<BrightnessComponent, ResourceCarrierComponent, ColourComponent>
         {
