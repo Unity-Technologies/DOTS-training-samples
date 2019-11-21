@@ -7,13 +7,15 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateAfter(typeof(CollideWithObstacleSystem))]
     public class DropPheromoneSystem : JobComponentSystem
     {
         private MapComponent _map;
         private SteeringMovementComponent _steeringMovement;
         private DynamicBuffer<PheromoneColourRValue> _pheromoneColourRValues;
 
-        private struct Job : IJobForEach<PositionComponent, SpeedComponent, ResourceCarrier>
+        private struct Job : IJobForEach<PositionComponent, SpeedComponent, ResourceCarrierComponent>
         {
             public DynamicBuffer<PheromoneColourRValue> PheromoneColourRValues;
             public float TrailVisibilityModifier;
@@ -23,7 +25,7 @@ namespace AntPheromones_ECS
             public void Execute(
                 [ReadOnly] ref PositionComponent position, 
                 [ReadOnly] ref SpeedComponent speed,
-                [ReadOnly] ref ResourceCarrier resourceCarrier)
+                [ReadOnly] ref ResourceCarrierComponent resourceCarrier)
             {
                 const float CarrierExcitement = 1f;
                 const float SearcherExcitement = 0.3f;

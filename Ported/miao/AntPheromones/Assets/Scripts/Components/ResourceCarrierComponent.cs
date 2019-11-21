@@ -2,7 +2,7 @@
 
 namespace AntPheromones_ECS
 {
-    public struct ResourceCarrier : IComponentData
+    public struct ResourceCarrierComponent : IComponentData
     {
         public bool IsCarrying;
     }

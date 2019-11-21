@@ -7,7 +7,7 @@ namespace AntPheromones_ECS
         public float Random;
         public float Wall;
         public float Pheromone;
-        public float Target;
+        public float Goal;
         public float Inward;
         public float Outward;
     }

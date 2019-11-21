@@ -1,23 +1,10 @@
 ﻿using Unity.Entities;
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace AntPheromones_ECS
 {
-//    public struct ColorBlobs
-//    {
-//        public BlobArray<float4> Colours;
-//
-//        public BlobAssetReference<ColorBlobs> GenerateColours()
-//        {
-//            using (BlobBuilder builder = new BlobBuilder())
-//            {
-//                
-//            }
-//        }
-//    }
-
-    public class TimescaleAdjustmentSystem : ComponentSystem
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    public class AdjustTimescaleSystem : ComponentSystem
     {
         protected override void OnUpdate()
         {

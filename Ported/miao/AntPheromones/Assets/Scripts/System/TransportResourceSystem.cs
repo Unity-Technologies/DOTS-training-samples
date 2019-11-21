@@ -6,7 +6,7 @@ using Unity.Mathematics;
 namespace AntPheromones_ECS
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-//    [UpdateAfter(typeof(TargetingSystem))]
+    [UpdateAfter(typeof(OrientTowardsGoalSystem))]
     public class TransportResourceSystem : JobComponentSystem
     {
         private MapComponent _map;
@@ -17,7 +17,7 @@ namespace AntPheromones_ECS
             this._map = GetEntityQuery(ComponentType.ReadOnly<MapComponent>()).GetSingleton<MapComponent>();
         }
 
-        private struct Job : IJobForEach<PositionComponent, FacingAngleComponent, ResourceCarrier>
+        private struct Job : IJobForEach<PositionComponent, FacingAngleComponent, ResourceCarrierComponent>
         {
             public float2 ColonyPosition;
             public float2 ResourcePosition;
@@ -25,7 +25,7 @@ namespace AntPheromones_ECS
             public void Execute(
                 [ReadOnly] ref PositionComponent position,
                 [WriteOnly] ref FacingAngleComponent facingAngleComponent, 
-                ref ResourceCarrier resourceCarrier)
+                ref ResourceCarrierComponent resourceCarrier)
             {
                 if (!(math.lengthsq(position.Value - (resourceCarrier.IsCarrying ? ResourcePosition : ColonyPosition)) < 4f * 4f))
                 {

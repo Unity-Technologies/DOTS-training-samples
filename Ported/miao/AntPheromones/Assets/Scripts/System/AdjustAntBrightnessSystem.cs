@@ -5,14 +5,14 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
-    public class UpdateAntColourSystem : JobComponentSystem
+    public class AdjustAntBrightnessSystem : JobComponentSystem
     {
-        private struct Job : IJobForEach<Brightness, ResourceCarrier, ColourDisplay>
+        private struct Job : IJobForEach<Brightness, ResourceCarrierComponent, ColourDisplay>
         {
             public Color SearchColour;
             public Color CarryColour;
             
-            public void Execute([ReadOnly] ref Brightness brightness, [ReadOnly] ref ResourceCarrier carrier, [WriteOnly] ref ColourDisplay colourDisplay)
+            public void Execute([ReadOnly] ref Brightness brightness, [ReadOnly] ref ResourceCarrierComponent carrier, [WriteOnly] ref ColourDisplay colourDisplay)
             {
                 Color colourToDisplay = carrier.IsCarrying ? this.SearchColour : this.CarryColour;
                 colourDisplay.Value += (colourToDisplay * brightness.Value - colourDisplay.Value) * 0.05f;

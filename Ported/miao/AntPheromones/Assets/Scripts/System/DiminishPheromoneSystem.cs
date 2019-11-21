@@ -40,7 +40,7 @@ namespace AntPheromones_ECS
                 TrailDecayRate = this._map.TrailDecayRate,
                 PheromoneColours = this._pheromoneColourRValues
             }.Schedule(arrayLength: this._map.Width,
-                innerloopBatchCount: MapObstacles.BucketResolution,
+                innerloopBatchCount: 64, // Heuristically determined
                 inputDeps);  
         }
     }

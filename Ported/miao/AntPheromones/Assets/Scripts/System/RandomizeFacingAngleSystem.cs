@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class RandomizeFacingAngleSystem : JobComponentSystem
     {
         private struct Job : IJobForEach<FacingAngleComponent>

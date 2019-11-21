@@ -18,7 +18,7 @@ namespace AntPheromones_ECS
         {
             entityManager.AddComponentData(entity, new SteeringStrengthComponent
             {
-                Target = this.Target,
+                Goal = this.Target,
                 Random = this.Random,
                 Wall = this.Wall,
                 Pheromone = this.Pheromone,

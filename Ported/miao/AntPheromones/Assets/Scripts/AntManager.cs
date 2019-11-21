@@ -143,8 +143,8 @@ namespace AntPheromones_ECS
 				Quaternion.identity,
 				new float3(4f, 4f, 0.1f) / this.MapWidth);
 
-			this.pheromoneTexture = new Texture2D(MapComponent.Width, MapComponent.Width) {wrapMode = TextureWrapMode.Mirror};
-			this.pheromoneColours = new Color[MapComponent.Width * MapComponent.Width];
+			this.pheromoneTexture = new Texture2D(this.MapWidth, this.MapWidth) {wrapMode = TextureWrapMode.Mirror};
+			this.pheromoneColours = new Color[this.MapWidth * this.MapWidth];
 
 			this.pheromoneRenderer.sharedMaterial = new Material(basePheromoneMaterial)
 				{mainTexture = this.pheromoneTexture};
@@ -157,7 +157,7 @@ namespace AntPheromones_ECS
 					typeof(SpeedComponent),
 					typeof(ColourDisplay),
 					typeof(Brightness),
-					typeof(ResourceCarrier),
+					typeof(ResourceCarrierComponent),
 					typeof(RenderMesh),
 					typeof(LocalToWorld),
 					typeof(Ant));

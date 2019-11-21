@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
-    public struct AntAppearance : IComponentData
+    public struct AntRenderingComponent : IComponentData
     {
         public Color CarryColour;
         public Color SearchColour;
