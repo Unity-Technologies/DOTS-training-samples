@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class AntManager : MonoBehaviour
@@ -46,9 +47,9 @@ public class AntManager : MonoBehaviour
     Matrix4x4[][] matrices;
     Vector4[][] antColors;
     MaterialPropertyBlock[] matProps;
-    Obstacle[] obstacles;
+    Vector2[] obstacles;
     Matrix4x4[][] obstacleMatrices;
-    Obstacle[,][] obstacleBuckets;
+    Vector2[,][] obstacleBuckets;
 
     Matrix4x4 resourceMatrix;
     Matrix4x4 colonyMatrix;
@@ -116,16 +117,11 @@ public class AntManager : MonoBehaviour
             float testY = ant.position.y + Mathf.Sin(angle) * distance;
 
             if (testX < 0 || testY < 0 || testX >= mapSize || testY >= mapSize)
+                continue;
+            int value = GetObstacleBucket(testX, testY).Length;
+            if (value > 0)
             {
-
-            }
-            else
-            {
-                int value = GetObstacleBucket(testX, testY).Length;
-                if (value > 0)
-                {
-                    output -= i;
-                }
+                output -= i;
             }
         }
         return output;
@@ -153,55 +149,34 @@ public class AntManager : MonoBehaviour
     void GenerateObstacles()
     {
         Random.InitState(0);
-        List<Obstacle> output = new List<Obstacle>();
-        for (int i = 1; i <= obstacleRingCount; i++)
-        {
-            float ringRadius = (i / (obstacleRingCount + 1f)) * (mapSize * .5f);
-            float circumference = ringRadius * 2f * Mathf.PI;
-            int maxCount = Mathf.CeilToInt(circumference / (2f * obstacleRadius) * 2f);
-            int offset = Random.Range(0, maxCount);
-            int holeCount = Random.Range(1, 3);
-            for (int j = 0; j < maxCount; j++)
-            {
-                float t = (float)j / maxCount;
-                if ((t * holeCount) % 1f < obstaclesPerRing)
-                {
-                    float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
-                    Obstacle obstacle = new Obstacle();
-                    obstacle.position = new Vector2(mapSize * .5f + Mathf.Cos(angle) * ringRadius, mapSize * .5f + Mathf.Sin(angle) * ringRadius);
-                    obstacle.radius = obstacleRadius;
-                    output.Add(obstacle);
-                    //Debug.DrawRay(obstacle.position / mapSize,-Vector3.forward * .05f,Color.green,10000f);
-                }
-            }
-        }
-
+        
+        List<Vector2> output = MapGeneration.GenerateObstaclePositions(mapSize, obstacleRingCount, obstaclesPerRing, obstacleRadius).Select(p => (Vector2)p).ToList();
         obstacleMatrices = new Matrix4x4[Mathf.CeilToInt((float)output.Count / instancesPerBatch)][];
         for (int i = 0; i < obstacleMatrices.Length; i++)
         {
             obstacleMatrices[i] = new Matrix4x4[Mathf.Min(instancesPerBatch, output.Count - i * instancesPerBatch)];
             for (int j = 0; j < obstacleMatrices[i].Length; j++)
             {
-                obstacleMatrices[i][j] = Matrix4x4.TRS(output[i * instancesPerBatch + j].position / mapSize, Quaternion.identity, new Vector3(obstacleRadius * 2f, obstacleRadius * 2f, 1f) / mapSize);
+                obstacleMatrices[i][j] = Matrix4x4.TRS(output[i * instancesPerBatch + j] / mapSize, Quaternion.identity, new Vector3(obstacleRadius * 2f, obstacleRadius * 2f, 1f) / mapSize);
             }
         }
 
         obstacles = output.ToArray();
 
-        List<Obstacle>[,] tempObstacleBuckets = new List<Obstacle>[bucketResolution, bucketResolution];
+        List<Vector2>[,] tempObstacleBuckets = new List<Vector2>[bucketResolution, bucketResolution];
 
         for (int x = 0; x < bucketResolution; x++)
         {
             for (int y = 0; y < bucketResolution; y++)
             {
-                tempObstacleBuckets[x, y] = new List<Obstacle>();
+                tempObstacleBuckets[x, y] = new List<Vector2>();
             }
         }
 
         for (int i = 0; i < obstacles.Length; i++)
         {
-            Vector2 pos = obstacles[i].position;
-            float radius = obstacles[i].radius;
+            Vector2 pos = obstacles[i];
+            float radius = obstacleRadius;
             for (int x = Mathf.FloorToInt((pos.x - radius) / mapSize * bucketResolution); x <= Mathf.FloorToInt((pos.x + radius) / mapSize * bucketResolution); x++)
             {
                 if (x < 0 || x >= bucketResolution)
@@ -219,7 +194,7 @@ public class AntManager : MonoBehaviour
             }
         }
 
-        obstacleBuckets = new Obstacle[bucketResolution, bucketResolution][];
+        obstacleBuckets = new Vector2[bucketResolution, bucketResolution][];
         for (int x = 0; x < bucketResolution; x++)
         {
             for (int y = 0; y < bucketResolution; y++)
@@ -229,21 +204,16 @@ public class AntManager : MonoBehaviour
         }
     }
 
-    Obstacle[] emptyBucket = new Obstacle[0];
-    Obstacle[] GetObstacleBucket(Vector2 pos) => GetObstacleBucket(pos.x, pos.y);
+    Vector2[] emptyBucket = new Vector2[0];
+    Vector2[] GetObstacleBucket(Vector2 pos) => GetObstacleBucket(pos.x, pos.y);
     
-    Obstacle[] GetObstacleBucket(float posX, float posY)
+    Vector2[] GetObstacleBucket(float posX, float posY)
     {
         int x = (int)(posX / mapSize * bucketResolution);
         int y = (int)(posY / mapSize * bucketResolution);
         if (x < 0 || y < 0 || x >= bucketResolution || y >= bucketResolution)
-        {
             return emptyBucket;
-        }
-        else
-        {
-            return obstacleBuckets[x, y];
-        }
+        return obstacleBuckets[x, y];
     }
 
     void Start()
@@ -375,16 +345,15 @@ public class AntManager : MonoBehaviour
                     ant.position.y += v.y;
             }
 
-            Obstacle[] nearbyObstacles = GetObstacleBucket(ant.position);
+            Vector2[] nearbyObstacles = GetObstacleBucket(ant.position);
             for (int j = 0; j < nearbyObstacles.Length; j++)
             {
-                Obstacle obstacle = nearbyObstacles[j];
-                Vector2 delta = ant.position - obstacle.position;
+                Vector2 delta = ant.position - nearbyObstacles[j];
                 float sqrDist = delta.sqrMagnitude;
                 if (sqrDist < obstacleRadius * obstacleRadius)
                 {
                     delta /= Mathf.Sqrt(sqrDist);
-                    ant.position = obstacle.position + delta * obstacleRadius;
+                    ant.position = nearbyObstacles[j] + delta * obstacleRadius;
 
                     v -= 1.5f * Vector2.Dot(delta, v) * delta;
                 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -67,37 +68,10 @@ public class GameManager : MonoBehaviour
 
     const int k_InstancesPerBatch = 1023;
 
-    List<float2> GenerateObstaclePositions()
-    {
-        var output = new List<float2>();
-        for (int i = 1; i <= obstacleRingCount; i++)
-        {
-            float ringRadius = (i / (obstacleRingCount + 1f)) * (mapSize * .5f);
-            float circumference = ringRadius * 2f * Mathf.PI;
-            int maxCount = Mathf.CeilToInt(circumference / (2f * obstacleRadius) * 2f);
-            int offset = Random.Range(0, maxCount);
-            int holeCount = Random.Range(1, 3);
-            for (int j = 0; j < maxCount; j++)
-            {
-                float t = (float)j / maxCount;
-                if ((t * holeCount) % 1f < obstaclesPerRing)
-                {
-                    float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
-                    var obstacle = new float2(
-                        mapSize * .5f + Mathf.Cos(angle) * ringRadius,
-                        mapSize * .5f + Mathf.Sin(angle) * ringRadius);
-                    
-                    output.Add(obstacle);
-                }
-            }
-        }
-        return output;
-    }
-    
     void GenerateObstacles()
     {
         Random.InitState(0);
-        var output = m_Obstacles = GenerateObstaclePositions().ToArray();
+        var output = m_Obstacles = MapGeneration.GenerateObstaclePositions(mapSize, obstacleRingCount, obstaclesPerRing, obstacleRadius).ToArray();
         m_ObstacleMatrices = new Matrix4x4[Mathf.CeilToInt((float)output.Length / k_InstancesPerBatch)][];
         for (int i = 0; i < m_ObstacleMatrices.Length; i++)
         {
@@ -158,9 +132,24 @@ public class GameManager : MonoBehaviour
         m_ColonyMatrix = Matrix4x4.TRS(ColonyPosition / mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / mapSize);
         m_ResourceMatrix = Matrix4x4.TRS(ResourcePosition / mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / mapSize);
     }
+
+    int m_NumUpdates;
+    SimulationSystemGroup m_SimulationSystemGroup;
+    void FixedUpdate()
+    {
+        int updatesFinished = m_NumUpdates;
+        m_NumUpdates++;
+        if (updatesFinished == 1)
+            return;
+        if (m_SimulationSystemGroup == null)
+            m_SimulationSystemGroup = World.Active.GetExistingSystem<SimulationSystemGroup>();
+        m_SimulationSystemGroup.Update();
+    }
     
     void Update()
     {
+        HandleKeyboardInput();
+        m_NumUpdates = 1;
         for (int i = 0; i < m_ObstacleMatrices.Length; i++)
         {
             Graphics.DrawMeshInstanced(obstacleMesh, 0, obstacleMaterial, m_ObstacleMatrices[i]);
@@ -168,5 +157,45 @@ public class GameManager : MonoBehaviour
 
         Graphics.DrawMesh(colonyMesh, m_ColonyMatrix, colonyMaterial, 0);
         Graphics.DrawMesh(resourceMesh, m_ResourceMatrix, resourceMaterial, 0);
+    }
+    
+    static void HandleKeyboardInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            Time.timeScale = 1f;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            Time.timeScale = 2f;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            Time.timeScale = 3f;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            Time.timeScale = 4f;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            Time.timeScale = 5f;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            Time.timeScale = 6f;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            Time.timeScale = 7f;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            Time.timeScale = 8f;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha9))
+        {
+            Time.timeScale = 9f;
+        }
     }
 }
