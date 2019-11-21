@@ -1,9 +1,13 @@
 ﻿using System;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
+using Unity.Jobs;
+using Unity.Profiling;
 using UnityEngine;
 
 [UpdateInGroup(typeof(PresentationSystemGroup))]
-public class PheromoneRenderSystem : ComponentSystem
+public class PheromoneRenderSystem : JobComponentSystem
 {
     EntityQuery m_PheromoneQuery;
     EntityQuery m_PheromoneRendererQuery;
@@ -19,24 +23,52 @@ public class PheromoneRenderSystem : ComponentSystem
         m_PheromoneRendererQuery = GetEntityQuery(ComponentType.ReadOnly<PheromoneRenderData>());
     }
 
-    protected override void OnUpdate()
+    protected override unsafe JobHandle OnUpdate(JobHandle inputDeps)
     {
+        var pheromoneRenderer = EntityManager.GetSharedComponentData<PheromoneRenderData>(m_PheromoneRendererQuery.GetSingletonEntity());
         if (m_PheromoneTexture == null)
         {
-            var pheromoneRenderer = EntityManager.GetSharedComponentData<PheromoneRenderData>(m_PheromoneRendererQuery.GetSingletonEntity());
             var map = GetSingleton<MapSettingsComponent>();
             m_PheromoneTexture = new Texture2D(map.MapSize, map.MapSize);
             m_PheromoneTexture.wrapMode = TextureWrapMode.Mirror;
             m_PheromoneMaterial = new Material(pheromoneRenderer.Material);
             m_PheromoneMaterial.mainTexture = m_PheromoneTexture;
-            pheromoneRenderer.Renderer.sharedMaterial = m_PheromoneMaterial;
             m_Colors = new Color[m_PheromoneTexture.width * m_PheromoneTexture.height];
         }
-        
-        var pheromoneBuffer = EntityManager.GetBuffer<PheromoneBuffer>(m_PheromoneQuery.GetSingletonEntity());
-        for (int i = 0; i < pheromoneBuffer.Length; i++)
-            m_Colors[i].r = pheromoneBuffer[i];
-        m_PheromoneTexture.SetPixels(m_Colors);
-        m_PheromoneTexture.Apply();
+        pheromoneRenderer.Renderer.sharedMaterial = m_PheromoneMaterial;
+
+        using (new ProfilerMarker("CopyColors").Auto())
+        {
+            fixed (Color* colors = m_Colors)
+            {
+                var pheromoneBuffer = EntityManager.GetBuffer<PheromoneBuffer>(m_PheromoneQuery.GetSingletonEntity());
+                new CopyColorJob
+                {
+                    Pheromones = pheromoneBuffer,
+                    Colors = colors
+                }.Schedule(pheromoneBuffer.Length, 128, inputDeps).Complete();
+            }
+        }
+
+        using (new ProfilerMarker("UpdateTexture").Auto())
+        {
+            m_PheromoneTexture.SetPixels(m_Colors);
+            m_PheromoneTexture.Apply();
+        }
+
+        return default;
+    }
+    
+    unsafe struct CopyColorJob : IJobParallelFor
+    {
+        [ReadOnly]
+        public DynamicBuffer<PheromoneBuffer> Pheromones;
+        [NativeDisableUnsafePtrRestriction]
+        public Color* Colors;
+
+        public void Execute(int index)
+        {
+            Colors[index].r = Pheromones[index];
+        }
     }
 }
