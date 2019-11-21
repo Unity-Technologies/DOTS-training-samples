@@ -32,8 +32,9 @@ namespace AntPheromones_ECS
                 for (int i = -1; i <= 1; i += 2) 
                 {
                     float angle = facingAngleComponent.Value + i * math.PI * 0.25f;
-                    float candidateDestinationY = position.Value.y + Mathf.Sin(angle) * Distance;
-                    float candidateDestinationX = position.Value.x + Mathf.Cos(angle) * Distance;
+                   
+                    float candidateDestinationY = position.Value.y + math.sin(angle) * Distance;
+                    float candidateDestinationX = position.Value.x + math.cos(angle) * Distance;
 
                     if (candidateDestinationX < 0 || candidateDestinationY < 0 ||
                         candidateDestinationX >= this.MapWidth || candidateDestinationY >= this.MapWidth)
@@ -46,7 +47,7 @@ namespace AntPheromones_ECS
                         result -= i;
                     }
                 }
-                facingAngleComponent.Value += Mathf.Sign(result) * Strength;
+                facingAngleComponent.Value += math.sign(result) * Strength;
             }
         }
         

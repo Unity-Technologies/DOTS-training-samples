@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
-    public struct ColourDisplay : IComponentData
+    public struct ColourComponent : IComponentData
     {
         public Color Value;
     }

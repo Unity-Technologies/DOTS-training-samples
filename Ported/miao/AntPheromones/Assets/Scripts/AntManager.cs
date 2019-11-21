@@ -111,7 +111,6 @@ namespace AntPheromones_ECS
 		Material myPheromoneMaterial;
 
 		public Color[] pheromoneColours;
-		Ant[] ants;
 		Matrix4x4[][] matrices;
 		Vector4[][] antColors;
 		MaterialPropertyBlock[] matProps;
@@ -122,7 +121,7 @@ namespace AntPheromones_ECS
 		private Matrix4x4 _colonyMatrix;
 		private NativeArray<Entity> antEntities;
 
-		const int InstancesPerBatch = 1023;
+		const int RenderInstancesPerBatch = 1023;
 
 		Matrix4x4[] rotationMatrixLookup;
 		
@@ -155,12 +154,11 @@ namespace AntPheromones_ECS
 					typeof(PositionComponent),
 					typeof(FacingAngleComponent),
 					typeof(SpeedComponent),
-					typeof(ColourDisplay),
-					typeof(Brightness),
+					typeof(ColourComponent),
+					typeof(BrightnessComponent),
 					typeof(ResourceCarrierComponent),
 					typeof(RenderMesh),
-					typeof(LocalToWorld),
-					typeof(Ant));
+					typeof(LocalToWorld));
 
 			this.antEntities = new NativeArray<Entity>(length: this.AntCount, Allocator.Persistent);
 			entityManager.CreateEntity(antArchetype, this.antEntities);
@@ -340,21 +338,21 @@ namespace AntPheromones_ECS
 
 		private float4x4[][] CalculateObstacleMatrices()
 		{
-			float4x4[][] matrices = new float4x4[Mathf.CeilToInt((float)this._obstaclePositions.Values.Length / InstancesPerBatch)][];
+			float4x4[][] obstacleMatrices = new float4x4[Mathf.CeilToInt((float)this._obstaclePositions.Values.Length / RenderInstancesPerBatch)][];
 
 			for (int i = 0; i < this.matrices.Length; i++)
 			{
-				matrices[i] = new float4x4[Mathf.Min(InstancesPerBatch, this._obstaclePositions.Values.Length - i * InstancesPerBatch)];
+				obstacleMatrices[i] = new float4x4[Mathf.Min(RenderInstancesPerBatch, this._obstaclePositions.Values.Length - i * RenderInstancesPerBatch)];
 				
-				for (int j = 0; j < matrices[i].Length; j++)
+				for (int j = 0; j < obstacleMatrices[i].Length; j++)
 				{
-					matrices[i][j] =
-						float4x4.TRS(new float3(this._obstaclePositions.Values[i * InstancesPerBatch + j] / this.MapWidth, 0),
+					obstacleMatrices[i][j] =
+						float4x4.TRS(new float3(this._obstaclePositions.Values[i * RenderInstancesPerBatch + j] / this.MapWidth, 0),
 							Quaternion.identity, new float3(this.ObstacleRadius * 2f, this.ObstacleRadius * 2f, 1f) / MapWidth);
 				}
 			}
 
-			return matrices;
+			return obstacleMatrices;
 		}
 		
 		float2[] GetObstacleBucket(float2 position) {
