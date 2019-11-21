@@ -28,6 +28,7 @@ public class PheromoneDropSystem : JobComponentSystem
         var pheromoneFromEntity = GetBufferFromEntity<PheromoneBuffer>();
         var pheromoneMap = pheromoneFromEntity[m_PheromoneMapQuery.GetSingletonEntity()];
         var antSteering = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>();
+        inputDeps.Complete();
         new Job
         {
             // Time.fixedDeltaTime
