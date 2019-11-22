@@ -1,4 +1,7 @@
-﻿namespace AntPheromones_ECS
+﻿using Unity.Burst;
+using Unity.Collections;
+
+namespace AntPheromones_ECS
 {
     using Unity.Entities;
     using Unity.Jobs;
@@ -8,32 +11,36 @@
     [UpdateAfter(typeof(ChangePositionAndVelocityAfterCarryingResourceSystem))]
     public class CollideWithObstacleSystem : JobComponentSystem
     {
-        private MapComponent _map;
+        private EntityQuery _mapQuery;
 
         protected override void OnCreate()
         {
             base.OnCreate();
-            this._map = GetEntityQuery(ComponentType.ReadOnly<MapComponent>()).GetSingleton<MapComponent>();
+            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            return new Job {
-                ObstacleRadius = this._map.ObstacleRadius,
-                Obstacles = this._map.Obstacles.Value.Positions
+            var map = this._mapQuery.GetSingleton<MapComponent>();
+            
+            return new Job 
+            {
+                ObstacleRadius = map.Obstacles.Value.Radius,
+                Obstacles = map.Obstacles
             }.Schedule(this, inputDeps);
         }
 
+        [BurstCompile]
         private struct Job : IJobForEach<PositionComponent, VelocityComponent>
         {
             public float ObstacleRadius;
-            public BlobArray<float2> Obstacles;
-        
+            public BlobAssetReference<Obstacles> Obstacles;
+            
             public void Execute(ref PositionComponent position, ref VelocityComponent velocity)
             {
-                for (int obstacle = 0; obstacle < Obstacles.Length; obstacle++)
+                for (int obstacle = 0; obstacle < Obstacles.Value.Positions.Length; obstacle++)
                 {
-                    float2 obstaclePosition = Obstacles[obstacle];
+                    float2 obstaclePosition = Obstacles.Value.Positions[obstacle];
                     float2 offset = position.Value - obstaclePosition;
                     
                     float distanceSquared = math.lengthsq(offset);

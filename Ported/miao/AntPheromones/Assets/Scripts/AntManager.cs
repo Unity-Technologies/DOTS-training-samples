@@ -7,39 +7,23 @@ using Random = UnityEngine.Random;
 
 namespace AntPheromones_ECS
 {
-	public class AntManager : MonoBehaviour 
+	public class AntManager : MonoBehaviour
 	{
 		public static AntManager Instance { get; private set; }
-		
-		public Material basePheromoneMaterial;
-		public Renderer pheromoneRenderer;
-		public Material antMaterial;
+		[Header("Materials")]
 		public Material obstacleMaterial;
 		public Material resourceMaterial;
 		public Material colonyMaterial;
-		public Mesh antMesh;
+		
+		[Header("Meshes")]
 		public Mesh obstacleMesh;
 		public Mesh colonyMesh;
 		public Mesh resourceMesh;
-		public Color searchColor;
-		public Color carryColor;
+		
 		public int AntCount = 1000;
 		public int MapWidth = 128;
 		public int BucketResolution;
-		public Vector3 antSize;
-		public float antSpeed;
-		
-		public float antAccel;
-		public float trailAddSpeed;
-		
-		public float trailDecay;
-		public float randomSteering;
-		public float pheromoneSteerStrength;
-		public float wallSteerStrength;
-		public float goalSteerStrength;
-		public float outwardStrength;
-		public float inwardStrength;
-		public int RotationResolution = 360;
+
 		public int ObstacleRingCount = 3;
 		public float ObstaclesPerRing = 0.8f;
 		public float ObstacleRadius = 2;
@@ -104,24 +88,21 @@ namespace AntPheromones_ECS
 		private (bool IsGenerated, float2[] Values) _obstaclePositions;
 		private (bool IsGenerated, float2[,][] Values) _obstacleBuckets;
 		
-		Texture2D pheromoneTexture;
-		Material myPheromoneMaterial;
-
-		public Color[] pheromoneColours;
-		private Matrix4x4[][] _matrices;
-		private Vector4[][] _antColors;
-		private MaterialPropertyBlock[] _materialPropertyBlock;
 		private Matrix4x4[][] _obstacleMatrices;
 		private Matrix4x4 _resourceMatrix;
 		private Matrix4x4 _colonyMatrix;
-		private NativeArray<Entity> _antEntities;
 
 		const int InstancesPerBatch = 1023;
 
-		Matrix4x4[] _rotationMatrixLookup;
-		
+		private void Awake()
+		{
+			Instance = this;
+		}
+
 		void Start()
 		{
+			GenerateObstacles();
+			
 			this._colonyMatrix = float4x4.TRS(
 				new float3(this._colonyPosition.Value / this.MapWidth, 0), 
 				Quaternion.identity, 
@@ -133,26 +114,6 @@ namespace AntPheromones_ECS
 				new float3(4f, 4f, 0.1f) / this.MapWidth);
 			
 			CreateAnts();
-			
-			this._matrices = GenerateAntMatrices();
-			this._materialPropertyBlock = new MaterialPropertyBlock[_matrices.Length];
-			
-			this._antColors = new Vector4[this._matrices.Length][];
-
-			for (int i = 0; i < _materialPropertyBlock.Length; i++)
-			{
-				this._antColors[i] = new Vector4[this._matrices[i].Length];
-				this._materialPropertyBlock[i] = new MaterialPropertyBlock();
-			}
-
-			this._rotationMatrixLookup = new Matrix4x4[this.RotationResolution];
-			
-			for (int i = 0; i < this.RotationResolution; i++)
-			{
-				float angle = (float) i / this.RotationResolution;
-				angle *= 360f;
-				_rotationMatrixLookup[i] = Matrix4x4.TRS(Vector3.zero, Quaternion.Euler(0f, 0f, angle), antSize);
-			}
 		}
 
 		private void CreateAnts()
@@ -169,10 +130,10 @@ namespace AntPheromones_ECS
 					typeof(BrightnessComponent),
 					typeof(ResourceCarrierComponent));
 
-			this._antEntities = new NativeArray<Entity>(length: this.AntCount, Allocator.Persistent);
-			entityManager.CreateEntity(antArchetype, this._antEntities);
+			NativeArray<Entity> antEntities = new NativeArray<Entity>(length: this.AntCount, Allocator.Temp);
+			entityManager.CreateEntity(antArchetype, antEntities);
 
-			foreach (Entity entity in this._antEntities)
+			foreach (Entity entity in antEntities)
 			{
 				entityManager.SetComponentData(
 					entity,
@@ -193,35 +154,7 @@ namespace AntPheromones_ECS
 						Value = Random.value * 2 * math.PI
 					});
 			}
-
-			Entity pheromoneColourMapEntity = entityManager.CreateEntity(typeof(PheromoneColourRValue));
-			entityManager.AddBuffer<PheromoneColourRValue>(pheromoneColourMapEntity);
-		}
-
-		private Matrix4x4[][] GenerateAntMatrices()
-		{
-			Matrix4x4[][] matrices = new Matrix4x4[Mathf.CeilToInt((float)this.AntCount / InstancesPerBatch)][];
-
-			for (int i = 0; i < matrices.Length; i++)
-			{
-				if (i < matrices.Length - 1)
-				{
-					matrices[i] = new Matrix4x4[InstancesPerBatch];
-				}
-				else
-				{
-					matrices[i] = new Matrix4x4[this.AntCount - i * InstancesPerBatch];
-				}
-			}
-
-			return matrices;
-		}
-
-		Matrix4x4 GetRotationMatrix(float angle) {
-			angle /= Mathf.PI * 2f;
-			angle -= Mathf.Floor(angle);
-			angle *= RotationResolution;
-			return this._rotationMatrixLookup[(int) angle % RotationResolution];
+			antEntities.Dispose();
 		}
 		
 		private void GenerateObstacles()
@@ -326,7 +259,7 @@ namespace AntPheromones_ECS
 			Matrix4x4[][] obstacleMatrices =
 				new Matrix4x4[Mathf.CeilToInt((float)this._obstaclePositions.Values.Length / InstancesPerBatch)][];
 
-			for (int i = 0; i < this._matrices.Length; i++)
+			for (int i = 0; i < obstacleMatrices.Length; i++)
 			{
 				obstacleMatrices[i] = new Matrix4x4[Mathf.Min(InstancesPerBatch, this._obstaclePositions.Values.Length - i * InstancesPerBatch)];
 				
@@ -340,21 +273,21 @@ namespace AntPheromones_ECS
 
 			return obstacleMatrices;
 		}
-		
-		float2[] GetObstacleBucket(float2 position) {
-			int y = (int)(position.y / this.MapWidth * this.BucketResolution);
-			int x = (int)(position.x / this.MapWidth * this.BucketResolution);
-
-			if (x < 0 || y < 0 || x >= this.BucketResolution || y >= this.BucketResolution)
-			{
-				return null;
-			}
-			else
-			{
-				return this._obstacleBuckets.Values[x, y];
-			}
-		}
-	
+//		
+//		float2[] GetObstacleBucket(float2 position) {
+//			int y = (int)(position.y / this.MapWidth * this.BucketResolution);
+//			int x = (int)(position.x / this.MapWidth * this.BucketResolution);
+//
+//			if (x < 0 || y < 0 || x >= this.BucketResolution || y >= this.BucketResolution)
+//			{
+//				return null;
+//			}
+//			else
+//			{
+//				return this._obstacleBuckets.Values[x, y];
+//			}
+//		}
+//	
 	//	private void Awake()
 	//	{
 	//		Instance = this;
@@ -491,37 +424,52 @@ namespace AntPheromones_ECS
 	//			matProps[i].SetVectorArray("_Color",antColors[i]);
 	//		}
 	//	}
-		private void Update() {
-
-			if (Input.GetKeyDown(KeyCode.Alpha1)) {
+		private void Update()
+		{
+			if (Input.GetKeyDown(KeyCode.Alpha1))
+			{
 				Time.timeScale = 1f;
-			} else if (Input.GetKeyDown(KeyCode.Alpha2)) {
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha2))
+			{
 				Time.timeScale = 2f;
-			} else if (Input.GetKeyDown(KeyCode.Alpha3)) {
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha3))
+			{
 				Time.timeScale = 3f;
-			} else if (Input.GetKeyDown(KeyCode.Alpha4)) {
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha4))
+			{
 				Time.timeScale = 4f;
-			} else if (Input.GetKeyDown(KeyCode.Alpha5)) {
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha5))
+			{
 				Time.timeScale = 5f;
-			} else if (Input.GetKeyDown(KeyCode.Alpha6)) {
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha6))
+			{
 				Time.timeScale = 6f;
-			} else if (Input.GetKeyDown(KeyCode.Alpha7)) {
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha7))
+			{
 				Time.timeScale = 7f;
-			} else if (Input.GetKeyDown(KeyCode.Alpha8)) {
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha8))
+			{
 				Time.timeScale = 8f;
-			} else if (Input.GetKeyDown(KeyCode.Alpha9)) {
+			}
+			else if (Input.GetKeyDown(KeyCode.Alpha9))
+			{
 				Time.timeScale = 9f;
 			}
-
-			for (int i = 0; i < _matrices.Length; i++) {
-				Graphics.DrawMeshInstanced(antMesh,0,antMaterial,_matrices[i],_matrices[i].Length,_materialPropertyBlock[i]);
-			}
-			for (int i=0;i<_obstacleMatrices.Length;i++) {
-				Graphics.DrawMeshInstanced(obstacleMesh,0,obstacleMaterial,_obstacleMatrices[i]);
+ 
+			for (int i = 0; i < this._obstacleMatrices.Length; i++)
+			{
+				Graphics.DrawMeshInstanced(this.obstacleMesh, 0, obstacleMaterial, _obstacleMatrices[i]);
 			}
 
-			Graphics.DrawMesh(colonyMesh,_colonyMatrix,colonyMaterial,0);
-			Graphics.DrawMesh(resourceMesh,_resourceMatrix,resourceMaterial,0);
+			Graphics.DrawMesh(colonyMesh, _colonyMatrix, colonyMaterial, 0);
+			Graphics.DrawMesh(resourceMesh, _resourceMatrix, resourceMaterial, 0);
 		}
 	}
 }

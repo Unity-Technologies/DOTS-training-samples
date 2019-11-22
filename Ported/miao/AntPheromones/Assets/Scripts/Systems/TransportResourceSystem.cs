@@ -9,12 +9,22 @@ namespace AntPheromones_ECS
     [UpdateAfter(typeof(OrientTowardsGoalSystem))]
     public class TransportResourceSystem : JobComponentSystem
     {
-        private MapComponent _map;
-        
+        private EntityQuery _mapQuery;
+
         protected override void OnCreate()
         {
             base.OnCreate();
-            this._map = GetEntityQuery(ComponentType.ReadOnly<MapComponent>()).GetSingleton<MapComponent>();
+            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
+        }
+        
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {
+            var map = this._mapQuery.GetSingleton<MapComponent>();
+            return new Job
+            {
+                ColonyPosition = map.ColonyPosition,
+                ResourcePosition = map.ResourcePosition
+            }.Schedule(this, inputDeps);
         }
 
         private struct Job : IJobForEach<PositionComponent, FacingAngleComponent, ResourceCarrierComponent>
@@ -35,14 +45,6 @@ namespace AntPheromones_ECS
                 facingAngleComponent.Value += math.PI;
                 resourceCarrier.IsCarrying = !resourceCarrier.IsCarrying;
             }
-        }
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
-        {
-            return new Job
-            {
-                ColonyPosition = this._map.ColonyPosition,
-                ResourcePosition = this._map.ResourcePosition
-            }.Schedule(this, inputDeps);
         }
     }
 }

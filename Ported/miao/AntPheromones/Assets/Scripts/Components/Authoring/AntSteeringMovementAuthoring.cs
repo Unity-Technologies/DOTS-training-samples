@@ -9,7 +9,7 @@ namespace AntPheromones_ECS
         public float MaxSpeed;
         [Range(0f, 1f)] public float Acceleration;
         
-        public void Convert(Entity entity, EntityManager entityManager, GameObjectConversionSystem conversionSystem)
+        public void Convert(Entity entity, EntityManager entityManager, GameObjectConversionSystem _)
         {
             entityManager.AddComponentData(entity, new SteeringMovementComponent
             {

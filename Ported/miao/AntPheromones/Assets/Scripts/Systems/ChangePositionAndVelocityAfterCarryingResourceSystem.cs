@@ -1,4 +1,5 @@
-﻿using Unity.Mathematics;
+﻿using Unity.Burst;
+using Unity.Mathematics;
 using Unity.Entities;
 using Unity.Jobs;
 
@@ -8,24 +9,25 @@ namespace AntPheromones_ECS
     [UpdateAfter(typeof(TransportResourceSystem))]
     public class ChangePositionAndVelocityAfterCarryingResourceSystem : JobComponentSystem
     {
-        EntityQuery m_MapQuery;
+        EntityQuery _mapQuery;
 
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_MapQuery = GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
+            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var map = m_MapQuery.GetSingleton<MapComponent>();
+            var map = _mapQuery.GetSingleton<MapComponent>();
             return new Job
             {
                 MapWidth = map.Width,
             }.Schedule(this, inputDeps);
         }
 
-        struct Job : IJobForEach<PositionComponent, VelocityComponent>
+        [BurstCompile]
+        private struct Job : IJobForEach<PositionComponent, VelocityComponent>
         {
             public float MapWidth;
 
@@ -34,7 +36,7 @@ namespace AntPheromones_ECS
                 float2 targetPosition = position.Value;
                 float2 targetVelocity = velocity.Value;
                 
-                if (targetPosition.x + targetVelocity.x < 0f || targetPosition.x + targetVelocity.x > MapWidth)
+                if (targetPosition.x + targetVelocity.x < 0f || targetPosition.x + targetVelocity.x > this.MapWidth)
                 {
                     targetVelocity.x = -targetVelocity.x;
                 }
@@ -42,7 +44,7 @@ namespace AntPheromones_ECS
                 {
                     targetPosition.x += targetVelocity.x;
                 }
-                if (targetPosition.y + targetVelocity.y < 0f || targetPosition.y + targetVelocity.y > MapWidth)
+                if (targetPosition.y + targetVelocity.y < 0f || targetPosition.y + targetVelocity.y > this.MapWidth)
                 {
                     targetVelocity.y = -targetVelocity.y;
                 }
@@ -55,5 +57,4 @@ namespace AntPheromones_ECS
             }
         }
     }
-
 }

@@ -1,0 +1,72 @@
+﻿using Unity.Burst;
+using Unity.Collections;
+using Unity.Entities;
+using Unity.Jobs;
+using Unity.Mathematics;
+
+namespace AntPheromones_ECS
+{
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateAfter(typeof(RandomizeFacingAngleSystem))]
+    public class CalculateWallSteeringSystem : JobComponentSystem
+    {
+        private EntityQuery _mapQuery;
+
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
+        }
+        
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {
+            var map = this._mapQuery.GetSingleton<MapComponent>();
+            
+            return new Job
+            {
+                Obstacles = map.Obstacles,
+                MapWidth = map.Width
+            }.Schedule(this, inputDeps);
+        }
+
+        [BurstCompile]
+        private struct Job : IJobForEach<PositionComponent, FacingAngleComponent, WallSteeringComponent>
+        {
+            public float MapWidth;
+            public BlobAssetReference<Obstacles> Obstacles;
+            
+            [BurstCompile]
+            public void Execute(
+                [ReadOnly] ref PositionComponent position, 
+                [ReadOnly] ref FacingAngleComponent facingAngle,
+                ref WallSteeringComponent steering)
+            {
+                const float Distance = 1.5f;
+                
+                float result = 0;
+
+                for (int i = 0; i <= 1; i++) 
+                {
+                    float angle = facingAngle.Value + i * math.PI * 0.25f;
+                    
+                    math.sincos(angle, out float sin, out float cos);
+                    float2 targetPosition = position.Value + Distance * new float2(cos, sin);
+
+                    bool targetDestinationOutOfMapBounds =
+                        math.any(targetPosition < 0) || math.any(targetPosition >= this.MapWidth);
+                    
+                    if (targetDestinationOutOfMapBounds)
+                    {
+                        continue;
+                    }
+
+                    if (this.Obstacles.Value.HasObstacle(targetPosition))
+                    {
+                        result -= i;
+                    }
+                }
+                steering.Value = result;
+            }
+        }
+    }
+}

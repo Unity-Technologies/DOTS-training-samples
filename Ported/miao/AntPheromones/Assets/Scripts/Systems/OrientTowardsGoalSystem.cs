@@ -10,26 +10,37 @@ namespace AntPheromones_ECS
     [UpdateAfter(typeof(ChangeSpeedAccordingToSteeringStrengthSystem))]
     public class OrientTowardsGoalSystem : JobComponentSystem
     {
-        private MapComponent _map;
-        private SteeringStrengthComponent _steeringStrengthComponent;
+        private EntityQuery _mapQuery;
+        private EntityQuery _steeringStrengthQuery;
+        private (bool IsRetrieved, float Goal) _steeringStrength;
 
         protected override void OnCreate()
         {
             base.OnCreate();
             
-            this._map =
-                GetEntityQuery(ComponentType.ReadOnly<MapComponent>()).GetSingleton<MapComponent>();
-            this._steeringStrengthComponent =
-                GetEntityQuery(ComponentType.ReadOnly<SteeringStrengthComponent>()).GetSingleton<SteeringStrengthComponent>();
+            this._mapQuery =
+                GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
+            this._steeringStrengthQuery =
+                GetEntityQuery(ComponentType.ReadOnly<SteeringStrengthComponent>());
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            return new Job {
-                GoalSteerStrength =  this._steeringStrengthComponent.Goal,
-                ColonyPosition = this._map.ColonyPosition,
-                ResourcePosition = this._map.ResourcePosition,
-                Obstacles = this._map.Obstacles.Value
+            if (!this._steeringStrength.IsRetrieved)
+            {
+                var steeringStrength = this._steeringStrengthQuery.GetSingleton<SteeringStrengthComponent>();
+                this._steeringStrength = (IsRetrieved: true, steeringStrength.Goal);
+            }
+
+            var map = this._mapQuery.GetSingleton<MapComponent>();
+            
+            return new Job
+            {
+                GoalSteerStrength =  this._steeringStrength.Goal,
+                
+                ColonyPosition = map.ColonyPosition,
+                ResourcePosition = map.ResourcePosition,
+                Obstacles = map.Obstacles
             }.Schedule(this, inputDeps);
         }
 
@@ -40,9 +51,12 @@ namespace AntPheromones_ECS
             public float2 ResourcePosition;
             public float GoalSteerStrength;
             
-            public ObstacleData Obstacles;
+            public BlobAssetReference<Obstacles> Obstacles;
             
-            public void Execute([ReadOnly] ref PositionComponent position, [ReadOnly] ref ResourceCarrierComponent resourcCarrier, ref FacingAngleComponent facingAngle)
+            public void Execute(
+                [ReadOnly] ref PositionComponent position, 
+                [ReadOnly] ref ResourceCarrierComponent resourcCarrier, 
+                ref FacingAngleComponent facingAngle)
             {
                 float2 targetPosition = resourcCarrier.IsCarrying ? this.ColonyPosition : this.ResourcePosition;
 
@@ -51,7 +65,8 @@ namespace AntPheromones_ECS
                     return;
                 }
                 
-                float targetAngle = math.atan2(targetPosition.y - position.Value.y, targetPosition.x - position.Value.x);
+                float targetAngle = 
+                    math.atan2(targetPosition.y - position.Value.y, targetPosition.x - position.Value.x);
                 float offset = targetAngle - facingAngle.Value;
                     
                 if (offset > math.PI)
@@ -77,13 +92,13 @@ namespace AntPheromones_ECS
                 for (int i = 0; i < stepCount; i++)
                 {
                     float t = (float)i / stepCount;
-                        
-                    if (this.Obstacles.HasObstacle(point1 + t * offset))
+
+                    var position = point1 + t * offset;
+                    if (this.Obstacles.Value.HasObstacle(position))
                     {
                         return true;
                     }
                 }
-
                 return false;
             }
         }

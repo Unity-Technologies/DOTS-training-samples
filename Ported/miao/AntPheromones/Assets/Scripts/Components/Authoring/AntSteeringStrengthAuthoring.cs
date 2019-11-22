@@ -6,7 +6,7 @@ namespace AntPheromones_ECS
     public class AntSteeringStrengthAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public float Random;
-        public float Target;
+        public float Goal;
         
         public float Pheromone;
         public float Wall;
@@ -14,11 +14,11 @@ namespace AntPheromones_ECS
         public float Inward;
         public float Outward;
         
-        public void Convert(Entity entity, EntityManager entityManager, GameObjectConversionSystem conversionSystem)
+        public void Convert(Entity entity, EntityManager entityManager, GameObjectConversionSystem _)
         {
             entityManager.AddComponentData(entity, new SteeringStrengthComponent
             {
-                Goal = this.Target,
+                Goal = this.Goal,
                 Random = this.Random,
                 Wall = this.Wall,
                 Pheromone = this.Pheromone,
