@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
@@ -8,7 +7,6 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Profiling;
 using UnityEngine;
-using FrustumPlanes = Unity.Rendering.FrustumPlanes;
 using Random = UnityEngine.Random;
 
 public class RoadGeneratorDots : MonoBehaviour
@@ -24,7 +22,6 @@ public class RoadGeneratorDots : MonoBehaviour
     public float carSpeed = 2f;
 
     NativeArray<bool> m_TrackVoxels;
-    List<TrackSpline> m_TrackSplines;
     int[,,] m_IntersectionsGrid;
     List<Car> m_Cars;
 
@@ -156,6 +153,14 @@ public class RoadGeneratorDots : MonoBehaviour
 
     int3 FromV3(Vector3Int v) => new int3(v.x, v.y, v.z);
 
+    struct TrackSplineCtorData
+    {
+        public float3 tangent1;
+        public float3 tangent2;
+        public int startIntersection;
+        public int endIntersection;
+    }
+    
     void SpawnRoads()
     {
         // first generation pass: plan roads as basic voxel data only
@@ -172,7 +177,6 @@ public class RoadGeneratorDots : MonoBehaviour
         }
 
         m_IntersectionPairs = new HashSet<long>();
-        m_TrackSplines = new List<TrackSpline>();
         m_RoadMeshes = new List<Mesh>();
         m_IntersectionMatrices = new List<List<Matrix4x4>>();
 
@@ -229,6 +233,7 @@ public class RoadGeneratorDots : MonoBehaviour
 
         using (new ProfilerMarker("FindNeighbors").Auto())
         {
+            var trackSplineList = new List<TrackSplineCtorData>();
             for (int i = 0; i < Intersections.Count; i++)
             {
                 int intersection = i;
@@ -247,25 +252,27 @@ public class RoadGeneratorDots : MonoBehaviour
                         {
                             // make sure we haven't already added the reverse-version of this spline
                             long hash = HashIntersectionPair(intersection, neighbor);
-                            if (!m_IntersectionPairs.Contains(hash))
+                            if (m_IntersectionPairs.Add(hash))
                             {
-                                m_IntersectionPairs.Add(hash);
-
-                                var spline = new TrackSpline(
-                                    intersection,
-                                    m_Dirs[j],
-                                    neighbor,
-                                    connectDir);
-                                m_TrackSplines.Add(spline);
+                                int splineIdx = trackSplineList.Count;
+                                trackSplineList.Add(new TrackSplineCtorData
+                                {
+                                    startIntersection = intersection,
+                                    endIntersection = neighbor,
+                                    tangent1 = m_Dirs[j],
+                                    tangent2 = connectDir
+                                });
 
                                 Intersections.Neighbors[intersection].Add(neighbor);
                                 Intersections.Neighbors[neighbor].Add(intersection);
-                                Intersections.NeighborSplines[intersection].Add(spline);
-                                Intersections.NeighborSplines[neighbor].Add(spline);
+                                Intersections.NeighborSplines[intersection].Add(splineIdx);
+                                Intersections.NeighborSplines[neighbor].Add(splineIdx);
                             }
                         }
                     }
                 }
+                
+                
 
                 // find this intersection's normal - it's the one axis
                 // along which we have no neighbors
@@ -301,14 +308,49 @@ public class RoadGeneratorDots : MonoBehaviour
                 // to nothing. these "hanging chains" are not included as splines, so the
                 // dead-ends that we see are actually "T" shapes with the top two segments hidden.
             }
+
+            {
+                int n = TrackSplines.Count = trackSplineList.Count;
+                TrackSplines.bezier = new CubicBezier[n];
+                TrackSplines.geometry = new TrackGeometry[n];
+                TrackSplines.endIntersection = new int[n];
+                TrackSplines.measuredLength = new float[n];
+                TrackSplines.startIntersection = new int[n];
+                TrackSplines.twistMode = new int[n];
+                TrackSplines.waitingQueues = new List<Car>[n][];
+                TrackSplines.carQueueSize = new float[n];
+                TrackSplines.maxCarCount = new int[n];
+
+                for (int i = 0; i < trackSplineList.Count; i++)
+                {
+                    int start = TrackSplines.startIntersection[i] = trackSplineList[i].startIntersection;
+                    int end = TrackSplines.endIntersection[i] = trackSplineList[i].endIntersection;
+                    var startP = TrackSplines.bezier[i].start = Intersections.Position[start] + .5f *  intersectionSize * trackSplineList[i].tangent1;
+                    var endP = TrackSplines.bezier[i].end = Intersections.Position[end] + .5f *  intersectionSize * trackSplineList[i].tangent2;
+
+                    float dist = math.length(startP - endP);
+                    TrackSplines.bezier[i].anchor1 = startP + .5f * dist * trackSplineList[i].tangent1;
+                    TrackSplines.bezier[i].anchor2 = endP + .5f * dist * trackSplineList[i].tangent2;
+                    TrackSplines.geometry[i].startTangent = math.round(trackSplineList[i].tangent1);
+                    TrackSplines.geometry[i].endTangent = math.round(trackSplineList[i].tangent2);
+
+                    var measuredLength = TrackSplines.measuredLength[i] = TrackSplines.bezier[i].MeasureLength(splineResolution);
+                    var maxCarCount = TrackSplines.maxCarCount[i] = (int)math.ceil(measuredLength / carSpacing);
+                    TrackSplines.carQueueSize[i] = 1f / maxCarCount;
+                    
+                    var queues = TrackSplines.waitingQueues[i] = new List<Car>[4];
+                    for (int j = 0; j < 4; j++)
+                        queues[j] = new List<Car>();
+                }
+            }
         }
 
-        Debug.Log(m_TrackSplines.Count + " road splines");
+        Debug.Log(TrackSplines.Count + " road splines");
 
         // generate road meshes
 
         using(new ProfilerMarker("Generate Meshes").Auto()) {
-            int numSplines = m_TrackSplines.Count;
+            int numSplines = TrackSplines.Count;
             TrackUtils.SizeOfMeshData(splineResolution, out int verticesPerSpline, out int indicesPerSpline);
             var vertices = new NativeArray<float3>(verticesPerSpline * numSplines, Allocator.TempJob);
             var uvs = new NativeArray<float2>(verticesPerSpline * numSplines, Allocator.TempJob);
@@ -323,11 +365,10 @@ public class RoadGeneratorDots : MonoBehaviour
                 var geometry = new NativeArray<TrackGeometry>(numSplines, Allocator.TempJob);
                 for (int i = 0; i < numSplines; i++)
                 {
-                    var ts = m_TrackSplines[i];
-                    ts.geometry.startNormal = Intersections.Normal[ts.startIntersection];
-                    ts.geometry.endNormal = Intersections.Normal[ts.endIntersection];
-                    geometry[i] = ts.geometry;
-                    bezier[i] = ts.bezier;
+                    TrackSplines.geometry[i].startNormal = Intersections.Normal[TrackSplines.startIntersection[i]];
+                    TrackSplines.geometry[i].endNormal = Intersections.Normal[TrackSplines.endIntersection[i]];
+                    geometry[i] = TrackSplines.geometry[i];
+                    bezier[i] = TrackSplines.bezier[i];
                 }
 
                 int splinesPerMesh = (3 * trisPerMesh) / indicesPerSpline;
@@ -351,7 +392,7 @@ public class RoadGeneratorDots : MonoBehaviour
                 job.Schedule(numSplines, 16).Complete();
 
                 for (int i = 0; i < numSplines; i++)
-                    m_TrackSplines[i].twistMode = twistMode[i];
+                    TrackSplines.twistMode[i] = twistMode[i];
 
                 using (new ProfilerMarker("create mesh").Auto())
                 {
@@ -398,9 +439,9 @@ public class RoadGeneratorDots : MonoBehaviour
             {
                 int splineSide = -1 + Random.Range(0, 2) * 2;
                 int splineDirection = -1 + Random.Range(0, 2) * 2;
-                var roadSpline = m_TrackSplines[Random.Range(0, m_TrackSplines.Count)];
+                var roadSpline = Random.Range(0, TrackSplines.Count);
                 Car car = new Car(splineSide, splineDirection, carSpeed, roadSpline);
-                roadSpline.GetQueue(splineDirection, splineSide).Add(car);
+                TrackSplines.GetQueue(roadSpline, splineDirection, splineSide).Add(car);
 
                 m_Cars.Add(car);
                 m_CarMatrices[batch].Add(Matrix4x4.identity);
@@ -481,12 +522,9 @@ public class RoadGeneratorDots : MonoBehaviour
                 }
             }
 
-            if (m_TrackSplines != null)
+            for (int i = 0; i < TrackSplines.Count; i++)
             {
-                for (int i = 0; i < m_TrackSplines.Count; i++)
-                {
-                    m_TrackSplines[i].DrawGizmos();
-                }
+                TrackSplines.DrawGizmos(i);
             }
         }
     }

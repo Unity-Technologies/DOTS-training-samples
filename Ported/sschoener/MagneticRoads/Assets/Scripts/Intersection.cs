@@ -10,7 +10,7 @@ public static class Intersections
 	public static float3[] Normal;
 
 	public static List<int>[] Neighbors;
-	public static List<TrackSpline>[] NeighborSplines;
+	public static List<int>[] NeighborSplines;
 	
 	// each side (top/bottom) has its own "occupied" flag
 	// (a car on the underside doesn't block a car on the top)
@@ -23,12 +23,12 @@ public static class Intersections
 		Index = new int3[n];
 		Normal = new float3[n];
 		Neighbors = new List<int>[n];
-		NeighborSplines = new List<TrackSpline>[n];
+		NeighborSplines = new List<int>[n];
 		Occupied = new bool[n][];
 		for (int i = 0; i < n; i++)
 		{
 			Neighbors[i] = new List<int>();
-			NeighborSplines[i] = new List<TrackSpline>();
+			NeighborSplines[i] = new List<int>();
 			Occupied[i] = new bool[2];
 		}
 	}
