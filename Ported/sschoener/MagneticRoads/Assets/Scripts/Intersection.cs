@@ -1,11 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
 public class Intersection {
 	public int id;
-	public Vector3 position;
+	public float3 position;
 	public Vector3Int index;
 	public float3 normal;
 

@@ -18,7 +18,7 @@ public class TrackSpline
     public int maxCarCount { get; private set; }
     public int twistMode;
 
-    public TrackSpline(Intersection start, Vector3 tangent1, Intersection end, Vector3 tangent2)
+    public TrackSpline(Intersection start, float3 tangent1, Intersection end, float3 tangent2)
     {
         startIntersection = start;
         endIntersection = end;
@@ -29,10 +29,8 @@ public class TrackSpline
         geometry.endTangent = math.round(tangent2);
 
         float dist = math.length(bezier.start - bezier.end);
-        bezier.anchor1 = bezier.start + .5f * dist * (float3)tangent1;
-        bezier.anchor2 = bezier.end + .5f * dist * (float3)tangent2;
-
-        // cubic bezier format: (startPoint, anchor1, anchor2, endPoint)
+        bezier.anchor1 = bezier.start + .5f * dist * tangent1;
+        bezier.anchor2 = bezier.end + .5f * dist * tangent2;
 
         MeasureLength();
 

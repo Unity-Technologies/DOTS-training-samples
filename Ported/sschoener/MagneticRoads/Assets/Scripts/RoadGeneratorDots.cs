@@ -311,7 +311,7 @@ public class RoadGeneratorDots : MonoBehaviour
                             {
                                 m_IntersectionPairs.Add(hash);
 
-                                TrackSpline spline = new TrackSpline(intersection, ToV3(m_Dirs[j]), neighbor, ToV3(connectDir));
+                                TrackSpline spline = new TrackSpline(intersection, m_Dirs[j], neighbor, connectDir);
                                 m_TrackSplines.Add(spline);
 
                                 intersection.neighbors.Add(neighbor);
@@ -364,17 +364,18 @@ public class RoadGeneratorDots : MonoBehaviour
 
         // generate road meshes
 
-        {
+        using(new ProfilerMarker("Generate Meshes").Auto()) {
             int numSplines = m_TrackSplines.Count;
             TrackUtils.SizeOfMeshData(splineResolution, out int verticesPerSpline, out int indicesPerSpline);
             var vertices = new NativeArray<float3>(verticesPerSpline * numSplines, Allocator.TempJob);
             var uvs = new NativeArray<float2>(verticesPerSpline * numSplines, Allocator.TempJob);
             var triangles = new NativeArray<int>(indicesPerSpline * numSplines, Allocator.TempJob);
+            var twistMode = new NativeArray<int>(numSplines, Allocator.TempJob);
             using (vertices)
             using (uvs)
             using (triangles)
+            using(twistMode)
             {
-                var twistMode = new NativeArray<int>(numSplines, Allocator.TempJob);
                 var bezier = new NativeArray<CubicBezier>(numSplines, Allocator.TempJob);
                 var geometry = new NativeArray<TrackGeometry>(numSplines, Allocator.TempJob);
                 for (int i = 0; i < numSplines; i++)
@@ -382,10 +383,8 @@ public class RoadGeneratorDots : MonoBehaviour
                     var ts = m_TrackSplines[i];
                     ts.geometry.startNormal = ts.startIntersection.normal;
                     ts.geometry.endNormal = ts.endIntersection.normal;
-                    ts.twistMode = TrackUtils.SelectTwistMode(ts.bezier, ts.geometry, splineResolution);
                     geometry[i] = ts.geometry;
                     bezier[i] = ts.bezier;
-                    twistMode[i] = ts.twistMode;
                 }
 
                 int splinesPerMesh = (3 * trisPerMesh) / indicesPerSpline;
@@ -397,16 +396,19 @@ public class RoadGeneratorDots : MonoBehaviour
                 {
                     VerticesPerSpline = verticesPerSpline,
                     IndicesPerSpline = indicesPerSpline,
-                    TwistMode = twistMode,
                     Bezier = bezier,
                     Geometry = geometry,
                     OutVertices = vertices,
                     OutUVs = uvs,
                     OutTriangles = triangles,
+                    OutTwistMode = twistMode,
                     SplinesPerMesh = splinesPerMesh,
                 };
                 job.Setup(splineResolution, trackRadius, trackThickness);
                 job.Schedule(numSplines, 16).Complete();
+
+                for (int i = 0; i < numSplines; i++)
+                    m_TrackSplines[i].twistMode = twistMode[i];
 
                 using (new ProfilerMarker("create mesh").Auto())
                 {

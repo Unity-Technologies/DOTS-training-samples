@@ -14,8 +14,7 @@ struct GenerateTrackMeshes : IJobParallelFor
     [NativeDisableParallelForRestriction]
     public NativeArray<int> OutTriangles;
 
-    [ReadOnly, DeallocateOnJobCompletion]
-    public NativeArray<int> TwistMode;
+    public NativeArray<int> OutTwistMode;
     [ReadOnly, DeallocateOnJobCompletion]
     public NativeArray<CubicBezier> Bezier;
     [ReadOnly, DeallocateOnJobCompletion]
@@ -47,6 +46,9 @@ struct GenerateTrackMeshes : IJobParallelFor
 
         int mesh = index / SplinesPerMesh;
         int relativeVertexIndex = vertexIndex - (mesh * SplinesPerMesh * VerticesPerSpline);
+
+        int twistMode = TrackUtils.SelectTwistMode(Bezier[index], Geometry[index], m_Resolution);
+        OutTwistMode[index] = twistMode;
 
         // extrude our rectangle as four strips
         for (int i = 0; i < 4; i++)
@@ -80,8 +82,8 @@ struct GenerateTrackMeshes : IJobParallelFor
             {
                 float t = (float)j / m_Resolution;
 
-                OutVertices[vertexIndex + 0] = TrackUtils.Extrude(Bezier[index], Geometry[index], TwistMode[index], p1, t);
-                OutVertices[vertexIndex + 1] = TrackUtils.Extrude(Bezier[index], Geometry[index], TwistMode[index], p2, t);
+                OutVertices[vertexIndex + 0] = TrackUtils.Extrude(Bezier[index], Geometry[index], twistMode, p1, t);
+                OutVertices[vertexIndex + 1] = TrackUtils.Extrude(Bezier[index], Geometry[index], twistMode, p2, t);
                 OutUVs[vertexIndex + 0] = new float2(0, t);
                 OutUVs[vertexIndex + 1] = new float2(1, t);
 

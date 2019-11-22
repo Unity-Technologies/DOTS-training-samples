@@ -202,10 +202,10 @@ public class Car
 
                     // now we'll prepare our intersection spline - this lets us
                     // create a "temporary lane" inside the current intersection
-                    m_IntersectionSpline.bezier.anchor1 = ((float3)intersection.position + m_IntersectionSpline.bezier.start) * .5f;
-                    m_IntersectionSpline.bezier.anchor2 = ((float3)intersection.position + m_IntersectionSpline.bezier.end) * .5f;
-                    m_IntersectionSpline.geometry.startTangent = math.round((intersection.position - (Vector3)m_IntersectionSpline.bezier.start).normalized);
-                    m_IntersectionSpline.geometry.endTangent = math.round((intersection.position - (Vector3)m_IntersectionSpline.bezier.end).normalized);
+                    m_IntersectionSpline.bezier.anchor1 = (intersection.position + m_IntersectionSpline.bezier.start) * .5f;
+                    m_IntersectionSpline.bezier.anchor2 = (intersection.position + m_IntersectionSpline.bezier.end) * .5f;
+                    m_IntersectionSpline.geometry.startTangent = math.round(math.normalize(intersection.position - m_IntersectionSpline.bezier.start));
+                    m_IntersectionSpline.geometry.endTangent = math.round(math.normalize(intersection.position - m_IntersectionSpline.bezier.end));
                     m_IntersectionSpline.geometry.startNormal = intersection.normal;
                     m_IntersectionSpline.geometry.endNormal = intersection.normal;
 
