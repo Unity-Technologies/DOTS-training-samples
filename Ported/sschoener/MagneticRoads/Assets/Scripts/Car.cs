@@ -89,11 +89,11 @@ public class Car
             Vector2 extrudePoint;
             if (!m_IsInsideIntersection)
             {
-                extrudePoint = new Vector2(-RoadGenerator.trackRadius * .5f * m_SplineDirection * m_SplineSide, RoadGenerator.trackThickness * .5f * m_SplineSide);
+                extrudePoint = new Vector2(-RoadGeneratorDots.trackRadius * .5f * m_SplineDirection * m_SplineSide, RoadGeneratorDots.trackThickness * .5f * m_SplineSide);
             }
             else
             {
-                extrudePoint = new Vector2(-RoadGenerator.trackRadius * .5f * m_IntersectionSide, RoadGenerator.trackThickness * .5f * m_IntersectionSide);
+                extrudePoint = new Vector2(-RoadGeneratorDots.trackRadius * .5f * m_IntersectionSide, RoadGeneratorDots.trackThickness * .5f * m_IntersectionSide);
             }
             
             float t = Mathf.Clamp01(m_SplineTimer);
@@ -212,11 +212,11 @@ public class Car
                     {
                         // u-turn - make our intersection spline more rounded than usual
                         float3 perp = math.cross(m_IntersectionSpline.geometry.startTangent, m_IntersectionSpline.geometry.startNormal);
-                        m_IntersectionSpline.bezier.anchor1 += .5f * RoadGenerator.intersectionSize * m_IntersectionSpline.geometry.startTangent;
-                        m_IntersectionSpline.bezier.anchor2 += .5f * RoadGenerator.intersectionSize * m_IntersectionSpline.geometry.startTangent;
+                        m_IntersectionSpline.bezier.anchor1 += .5f * RoadGeneratorDots.intersectionSize * m_IntersectionSpline.geometry.startTangent;
+                        m_IntersectionSpline.bezier.anchor2 += .5f * RoadGeneratorDots.intersectionSize * m_IntersectionSpline.geometry.startTangent;
 
-                        m_IntersectionSpline.bezier.anchor1 -= m_IntersectionSide * RoadGenerator.trackRadius * .5f * perp;
-                        m_IntersectionSpline.bezier.anchor2 += m_IntersectionSide * RoadGenerator.trackRadius * .5f * perp;
+                        m_IntersectionSpline.bezier.anchor1 -= m_IntersectionSide * RoadGeneratorDots.trackRadius * .5f * perp;
+                        m_IntersectionSpline.bezier.anchor2 += m_IntersectionSide * RoadGeneratorDots.trackRadius * .5f * perp;
                     }
 
                     m_IntersectionSpline.startIntersection = intersection;

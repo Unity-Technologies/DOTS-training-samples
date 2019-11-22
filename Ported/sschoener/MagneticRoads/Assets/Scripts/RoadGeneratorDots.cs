@@ -5,6 +5,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Profiling;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -361,44 +362,68 @@ public class RoadGeneratorDots : MonoBehaviour
 
         // generate road meshes
 
-        List<Vector3> vertices = new List<Vector3>();
-        List<Vector2> uvs = new List<Vector2>();
-        List<int> triangles = new List<int>();
-
-        int triCount = 0;
-
-        for (int i = 0; i < m_TrackSplines.Count; i++)
         {
-            var ts = m_TrackSplines[i];
-            ts.geometry.startNormal = (Vector3)ts.startIntersection.normal;
-            ts.geometry.endNormal = (Vector3)ts.endIntersection.normal;
-            ts.twistMode = TrackSpline.SelectTwistMode(ts.bezier, ts.geometry);
-            TrackSpline.GenerateMesh(ts.bezier, ts.geometry, ts.twistMode, vertices, uvs, triangles);
-
-            if (triangles.Count / 3 > trisPerMesh || i == m_TrackSplines.Count - 1)
+            int numSplines = m_TrackSplines.Count;
+            TrackUtils.SizeOfMeshData(splineResolution, out int verticesPerSpline, out int indicesPerSpline);
+            var vertices = new NativeArray<float3>(verticesPerSpline * numSplines, Allocator.TempJob);
+            var uvs = new NativeArray<float2>(verticesPerSpline * numSplines, Allocator.TempJob);
+            var triangles = new NativeArray<int>(indicesPerSpline * numSplines, Allocator.TempJob);
+            using (vertices)
+            using (uvs)
+            using (triangles)
             {
-                // our current mesh data is ready to go!
-                if (triangles.Count > 0)
+
+                var twistMode = new NativeArray<int>(numSplines, Allocator.TempJob);
+                var bezier = new NativeArray<CubicBezier>(numSplines, Allocator.TempJob);
+                var geometry = new NativeArray<TrackGeometry>(numSplines, Allocator.TempJob);
+                for (int i = 0; i < numSplines; i++)
                 {
-                    Mesh mesh = new Mesh();
-                    mesh.name = "Generated Road Mesh";
-                    mesh.SetVertices(vertices);
-                    mesh.SetUVs(0, uvs);
-                    mesh.SetTriangles(triangles, 0);
-                    mesh.RecalculateNormals();
-                    mesh.RecalculateBounds();
-                    m_RoadMeshes.Add(mesh);
-                    triCount += triangles.Count / 3;
+                    var ts = m_TrackSplines[i];
+                    ts.geometry.startNormal = ts.startIntersection.normal;
+                    ts.geometry.endNormal = ts.endIntersection.normal;
+                    ts.twistMode = TrackUtils.SelectTwistMode(ts.bezier, ts.geometry, splineResolution);
+                    geometry[i] = ts.geometry;
+                    bezier[i] = ts.bezier;
+                    twistMode[i] = ts.twistMode;
+                }
+                
+                int splinesPerMesh = (3 * trisPerMesh) / indicesPerSpline;
+                int numMeshes = numSplines / splinesPerMesh;
+                int remaining = numSplines % splinesPerMesh;
+                numMeshes += remaining != 0 ? 1 : 0;
+
+                var job = new GenerateTrackMeshes()
+                {
+                    VerticesPerSpline = verticesPerSpline,
+                    IndicesPerSpline = indicesPerSpline,
+                    TwistMode = twistMode,
+                    Bezier = bezier,
+                    Geometry = geometry,
+                    OutVertices = vertices,
+                    OutUVs = uvs,
+                    OutTriangles = triangles,
+                    SplinesPerMesh = splinesPerMesh,
+                };
+                job.Setup(splineResolution, trackRadius, trackThickness);
+                job.Schedule(numSplines, 16).Complete();
+
+                using (new ProfilerMarker("create mesh").Auto())
+                {
+                    for (int i = 0; i < numMeshes; i++)
+                    {
+                        int splines = i < numMeshes - 1 ? splinesPerMesh : remaining;
+                        Mesh mesh = new Mesh();
+                        mesh.name = "Generated Road Mesh";
+                        mesh.SetVertices(vertices, i * splinesPerMesh * verticesPerSpline, splines * verticesPerSpline);
+                        mesh.SetUVs(0, uvs, i * splinesPerMesh * verticesPerSpline, splines * verticesPerSpline);
+                        mesh.SetIndices(triangles, i * splinesPerMesh * indicesPerSpline, splines * indicesPerSpline, MeshTopology.Triangles, 0);
+                        mesh.RecalculateNormals();
+                        mesh.RecalculateBounds();
+                        m_RoadMeshes.Add(mesh);
+                    }
                 }
 
-                vertices.Clear();
-                uvs.Clear();
-                triangles.Clear();
-            }
-
-            if (i % 10 == 0)
-            {
-                yield return null;
+                Debug.Log(triangles.Length + " road triangles");
             }
         }
 
@@ -415,7 +440,7 @@ public class RoadGeneratorDots : MonoBehaviour
             }
         }
 
-        Debug.Log(triCount + " road triangles (" + m_RoadMeshes.Count + " meshes)");
+        Debug.Log(m_RoadMeshes.Count + " road meshes");
 
         // spawn cars
 

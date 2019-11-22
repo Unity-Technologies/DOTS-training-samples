@@ -26,7 +26,12 @@ public class Intersection {
 		occupied = new bool[2];
 	}
 
-	public Matrix4x4 GetMatrix() {
-		return Matrix4x4.TRS(position,Quaternion.LookRotation(normal),new Vector3(RoadGenerator.intersectionSize,RoadGenerator.intersectionSize,RoadGenerator.trackThickness));
+	public Matrix4x4 GetMatrix()
+	{
+		var scale = new Vector3(
+			RoadGeneratorDots.intersectionSize,
+			RoadGeneratorDots.intersectionSize,
+			RoadGeneratorDots.trackThickness); 
+		return Matrix4x4.TRS(position, Quaternion.LookRotation(normal), scale);
 	}
 }
