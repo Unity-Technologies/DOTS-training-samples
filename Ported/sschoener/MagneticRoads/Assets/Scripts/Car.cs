@@ -101,7 +101,8 @@ public class Car
                 t = 1f - t;
 
             // find our position and orientation
-            Vector3 splinePoint = currentSpline.Extrude(extrudePoint, t, out _, out up);
+            Vector3 splinePoint = currentSpline.Extrude(extrudePoint, t, out _, out var upTmp);
+            up = upTmp;
 
             up *= m_SplineSide;
 

@@ -65,11 +65,12 @@ public class RoadGeneratorDots : MonoBehaviour
             int idx = voxelCount * (pos.z * voxelCount + pos.y) + pos.x;
             return m_TrackVoxels[idx];
         }
+
         return false;
     }
 
     Vector3Int ToV3(int3 v) => new Vector3Int(v.x, v.y, v.z);
-    
+
     Intersection FindFirstIntersection(int3 pos, int3 dir, out int3 otherDirection)
     {
         // step along our voxel paths (before splines have been spawned),
@@ -140,7 +141,7 @@ public class RoadGeneratorDots : MonoBehaviour
             }
         }
 
-        StartCoroutine(SpawnRoads());
+        SpawnRoads();
     }
 
     [BurstCompile]
@@ -160,6 +161,7 @@ public class RoadGeneratorDots : MonoBehaviour
 
         int Idx(int3 p) => (p.z * VoxelCount + p.y) * VoxelCount + p.x;
         bool HasVoxel(int3 p) => math.any((p >= VoxelCount) & (p < 0)) || Voxels[Idx(p)];
+
         bool HasLessNeighborsThan(int3 p, int max, NativeArray<int3> dirList)
         {
             int neighborCount = 0;
@@ -172,8 +174,8 @@ public class RoadGeneratorDots : MonoBehaviour
                     if (neighborCount >= max)
                         return false;
                 }
-                    
             }
+
             return true;
         }
 
@@ -222,8 +224,8 @@ public class RoadGeneratorDots : MonoBehaviour
     }
 
     int3 FromV3(Vector3Int v) => new int3(v.x, v.y, v.z);
-    
-    IEnumerator SpawnRoads()
+
+    void SpawnRoads()
     {
         // first generation pass: plan roads as basic voxel data only
         m_TrackVoxels = new NativeArray<bool>(voxelCount * voxelCount * voxelCount, Allocator.Persistent);
@@ -245,6 +247,7 @@ public class RoadGeneratorDots : MonoBehaviour
         m_CarMatProps.SetVectorArray("_Color", new Vector4[k_InstancesPerBatch]);
 
         // plan roads broadly: first, as a grid of true/false voxels
+        using (new ProfilerMarker("VoxelGeneration").Auto())
         {
             using (var activeVoxels = new NativeList<int3>(Allocator.TempJob))
             using (var outputIntersections = new NativeList<int3>(Allocator.TempJob))
@@ -277,6 +280,7 @@ public class RoadGeneratorDots : MonoBehaviour
                 }
             }
         }
+
         Debug.Log(m_Intersections.Count + " intersections");
 
         // at this point, we've generated our full layout, but everything
@@ -286,75 +290,73 @@ public class RoadGeneratorDots : MonoBehaviour
         // (neighboring intersections are connected by a chain of voxels,
         // which we'll replace with splines)
 
-        for (int i = 0; i < m_Intersections.Count; i++)
+        using (new ProfilerMarker("FindNeighbors").Auto())
         {
-            Intersection intersection = m_Intersections[i];
-            int3 axesWithNeighbors = new int3();
-            for (int j = 0; j < m_Dirs.Length; j++)
+            for (int i = 0; i < m_Intersections.Count; i++)
             {
-                if (GetVoxel(FromV3(intersection.index) + m_Dirs[j]))
+                Intersection intersection = m_Intersections[i];
+                int3 axesWithNeighbors = new int3();
+                for (int j = 0; j < m_Dirs.Length; j++)
                 {
-                    axesWithNeighbors += math.abs(m_Dirs[j]);
-
-                    Intersection neighbor = FindFirstIntersection(FromV3(intersection.index), m_Dirs[j], out var connectDir);
-                    if (neighbor != null && neighbor != intersection)
+                    if (GetVoxel(FromV3(intersection.index) + m_Dirs[j]))
                     {
-                        // make sure we haven't already added the reverse-version of this spline
-                        long hash = HashIntersectionPair(intersection, neighbor);
-                        if (m_IntersectionPairs.Contains(hash) == false)
+                        axesWithNeighbors += math.abs(m_Dirs[j]);
+
+                        Intersection neighbor = FindFirstIntersection(FromV3(intersection.index), m_Dirs[j], out var connectDir);
+                        if (neighbor != null && neighbor != intersection)
                         {
-                            m_IntersectionPairs.Add(hash);
+                            // make sure we haven't already added the reverse-version of this spline
+                            long hash = HashIntersectionPair(intersection, neighbor);
+                            if (m_IntersectionPairs.Contains(hash) == false)
+                            {
+                                m_IntersectionPairs.Add(hash);
 
-                            TrackSpline spline = new TrackSpline(intersection, ToV3(m_Dirs[j]), neighbor, ToV3(connectDir));
-                            m_TrackSplines.Add(spline);
+                                TrackSpline spline = new TrackSpline(intersection, ToV3(m_Dirs[j]), neighbor, ToV3(connectDir));
+                                m_TrackSplines.Add(spline);
 
-                            intersection.neighbors.Add(neighbor);
-                            intersection.neighborSplines.Add(spline);
-                            neighbor.neighbors.Add(intersection);
-                            neighbor.neighborSplines.Add(spline);
+                                intersection.neighbors.Add(neighbor);
+                                intersection.neighborSplines.Add(spline);
+                                neighbor.neighbors.Add(intersection);
+                                neighbor.neighborSplines.Add(spline);
+                            }
                         }
                     }
                 }
-            }
 
-            // find this intersection's normal - it's the one axis
-            // along which we have no neighbors
-            for (int j = 0; j < 3; j++)
-            {
-                if (axesWithNeighbors[j] == 0)
+                // find this intersection's normal - it's the one axis
+                // along which we have no neighbors
+                for (int j = 0; j < 3; j++)
                 {
-                    if (intersection.normal.Equals(new float3()))
+                    if (axesWithNeighbors[j] == 0)
                     {
-                        intersection.normal = new float3();
-                        intersection.normal[j] = -1 + Random.Range(0, 2) * 2;
+                        if (intersection.normal.Equals(new float3()))
+                        {
+                            intersection.normal = new float3();
+                            intersection.normal[j] = -1 + Random.Range(0, 2) * 2;
 
-                        //Debug.DrawRay(intersection.position,(Vector3)intersection.normal * .5f,Color.red,1000f);
-                    }
-                    else
-                    {
-                        Debug.LogError("a straight line has been marked as an intersection!");
+                            //Debug.DrawRay(intersection.position,(Vector3)intersection.normal * .5f,Color.red,1000f);
+                        }
+                        else
+                        {
+                            Debug.LogError("a straight line has been marked as an intersection!");
+                        }
                     }
                 }
-            }
 
-            if (intersection.normal.Equals(new float3()))
-            {
-                Debug.LogError("nonplanar intersections are not allowed!");
-            }
+                if (intersection.normal.Equals(new float3()))
+                {
+                    Debug.LogError("nonplanar intersections are not allowed!");
+                }
 
-            // NOTE - if you investigate the above logic, you might be confused about how
-            // dead-ends are given normals, since we're assuming that all intersections
-            // have two axes with neighbors and only one axis without. dead-ends only have
-            // one neighbor-axis...and somehow they still get a normal without a special case.
-            //
-            // the "gotcha" is that the visible dead-ends in the demo have three
-            // neighbors during the voxel phase, with two of their neighbor chains leading
-            // to nothing. these "hanging chains" are not included as splines, so the
-            // dead-ends that we see are actually "T" shapes with the top two segments hidden.
-
-            if (i % 20 == 0)
-            {
-                yield return null;
+                // NOTE - if you investigate the above logic, you might be confused about how
+                // dead-ends are given normals, since we're assuming that all intersections
+                // have two axes with neighbors and only one axis without. dead-ends only have
+                // one neighbor-axis...and somehow they still get a normal without a special case.
+                //
+                // the "gotcha" is that the visible dead-ends in the demo have three
+                // neighbors during the voxel phase, with two of their neighbor chains leading
+                // to nothing. these "hanging chains" are not included as splines, so the
+                // dead-ends that we see are actually "T" shapes with the top two segments hidden.
             }
         }
 
@@ -372,7 +374,6 @@ public class RoadGeneratorDots : MonoBehaviour
             using (uvs)
             using (triangles)
             {
-
                 var twistMode = new NativeArray<int>(numSplines, Allocator.TempJob);
                 var bezier = new NativeArray<CubicBezier>(numSplines, Allocator.TempJob);
                 var geometry = new NativeArray<TrackGeometry>(numSplines, Allocator.TempJob);
@@ -386,7 +387,7 @@ public class RoadGeneratorDots : MonoBehaviour
                     bezier[i] = ts.bezier;
                     twistMode[i] = ts.twistMode;
                 }
-                
+
                 int splinesPerMesh = (3 * trisPerMesh) / indicesPerSpline;
                 int numMeshes = numSplines / splinesPerMesh;
                 int remaining = numSplines % splinesPerMesh;
@@ -424,43 +425,47 @@ public class RoadGeneratorDots : MonoBehaviour
                 }
 
                 Debug.Log(triangles.Length + " road triangles");
+                Debug.Log(m_RoadMeshes.Count + " road meshes");
             }
         }
 
         // generate intersection matrices for batch-rendering
-        int batch = 0;
-        m_IntersectionMatrices.Add(new List<Matrix4x4>());
-        for (int i = 0; i < m_Intersections.Count; i++)
         {
-            m_IntersectionMatrices[batch].Add(m_Intersections[i].GetMatrix());
-            if (m_IntersectionMatrices[batch].Count == k_InstancesPerBatch)
+            int batch = 0;
+            m_IntersectionMatrices.Add(new List<Matrix4x4>());
+            for (int i = 0; i < m_Intersections.Count; i++)
             {
-                batch++;
-                m_IntersectionMatrices.Add(new List<Matrix4x4>());
+                m_IntersectionMatrices[batch].Add(m_Intersections[i].GetMatrix());
+                if (m_IntersectionMatrices[batch].Count == k_InstancesPerBatch)
+                {
+                    batch++;
+                    m_IntersectionMatrices.Add(new List<Matrix4x4>());
+                }
             }
         }
-
-        Debug.Log(m_RoadMeshes.Count + " road meshes");
+        
 
         // spawn cars
 
-        batch = 0;
-        for (int i = 0; i < 4000; i++)
         {
-            int splineSide = -1 + Random.Range(0, 2) * 2;
-            int splineDirection = -1 + Random.Range(0, 2) * 2;
-            var roadSpline = m_TrackSplines[Random.Range(0, m_TrackSplines.Count)];
-            Car car = new Car(splineSide, splineDirection, carSpeed, roadSpline);
-            roadSpline.GetQueue(splineDirection, splineSide).Add(car);
-
-            m_Cars.Add(car);
-            m_CarMatrices[batch].Add(Matrix4x4.identity);
-            m_CarColors[batch].Add(Random.ColorHSV());
-            if (m_CarMatrices[batch].Count == k_InstancesPerBatch)
+            int batch = 0;
+            for (int i = 0; i < 4000; i++)
             {
-                m_CarMatrices.Add(new List<Matrix4x4>());
-                m_CarColors.Add(new List<Vector4>());
-                batch++;
+                int splineSide = -1 + Random.Range(0, 2) * 2;
+                int splineDirection = -1 + Random.Range(0, 2) * 2;
+                var roadSpline = m_TrackSplines[Random.Range(0, m_TrackSplines.Count)];
+                Car car = new Car(splineSide, splineDirection, carSpeed, roadSpline);
+                roadSpline.GetQueue(splineDirection, splineSide).Add(car);
+
+                m_Cars.Add(car);
+                m_CarMatrices[batch].Add(Matrix4x4.identity);
+                m_CarColors[batch].Add(Random.ColorHSV());
+                if (m_CarMatrices[batch].Count == k_InstancesPerBatch)
+                {
+                    m_CarMatrices.Add(new List<Matrix4x4>());
+                    m_CarColors.Add(new List<Vector4>());
+                    batch++;
+                }
             }
         }
     }

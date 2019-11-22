@@ -65,7 +65,7 @@ public class TrackSpline
 
     Vector3 Extrude(Vector2 point, float t) => Extrude(point, t, out _, out _);
 
-    public Vector3 Extrude(Vector2 point, float t, out Vector3 tangent, out Vector3 up) =>
+    public float3 Extrude(float2 point, float t, out float3 tangent, out float3 up) =>
         TrackUtils.Extrude(bezier, geometry, twistMode, point, t, out tangent, out up, out _);
 
     public void DrawGizmos()
