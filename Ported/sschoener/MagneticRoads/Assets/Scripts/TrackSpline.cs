@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class TrackSpline
 {
-    public Intersection startIntersection;
-    public Intersection endIntersection;
+    public int startIntersection;
+    public int endIntersection;
 
     public CubicBezier bezier;
     public TrackGeometry geometry;
@@ -18,12 +18,12 @@ public class TrackSpline
     public int maxCarCount { get; private set; }
     public int twistMode;
 
-    public TrackSpline(Intersection start, float3 tangent1, Intersection end, float3 tangent2)
+    public TrackSpline(int startIntersection, float3 tangent1, int endIntersection, float3 tangent2)
     {
-        startIntersection = start;
-        endIntersection = end;
-        bezier.start = start.position + .5f * RoadGeneratorDots.intersectionSize * tangent1;
-        bezier.end = end.position + .5f * RoadGeneratorDots.intersectionSize * tangent2;
+        this.startIntersection = startIntersection;
+        this.endIntersection = endIntersection;
+        bezier.start = Intersections.Position[startIntersection] + .5f * RoadGeneratorDots.intersectionSize * tangent1;
+        bezier.end = Intersections.Position[endIntersection] + .5f * RoadGeneratorDots.intersectionSize * tangent2;
 
         geometry.startTangent = math.round(tangent1);
         geometry.endTangent = math.round(tangent2);

@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Profiling;
 using UnityEngine;
+using FrustumPlanes = Unity.Rendering.FrustumPlanes;
 using Random = UnityEngine.Random;
 
 public class RoadGeneratorDots : MonoBehaviour
@@ -22,9 +24,8 @@ public class RoadGeneratorDots : MonoBehaviour
     public float carSpeed = 2f;
 
     NativeArray<bool> m_TrackVoxels;
-    List<Intersection> m_Intersections;
     List<TrackSpline> m_TrackSplines;
-    Intersection[,,] m_IntersectionsGrid;
+    int[,,] m_IntersectionsGrid;
     List<Car> m_Cars;
 
     List<List<Matrix4x4>> m_CarMatrices;
@@ -41,7 +42,7 @@ public class RoadGeneratorDots : MonoBehaviour
     const int k_InstancesPerBatch = 1023;
 
     // intersection pair:  two 32-bit IDs, packed together
-    HashSet<long> m_IntersectionPairs;
+    HashSet<ulong> m_IntersectionPairs;
 
     List<Mesh> m_RoadMeshes;
     List<List<Matrix4x4>> m_IntersectionMatrices;
@@ -49,14 +50,7 @@ public class RoadGeneratorDots : MonoBehaviour
     MaterialPropertyBlock m_CarMatProps;
     List<List<Vector4>> m_CarColors;
 
-    long HashIntersectionPair(Intersection a, Intersection b)
-    {
-        // pack two intersections' IDs into one int64
-        int id1 = a.id;
-        int id2 = b.id;
-
-        return ((long)Mathf.Min(id1, id2) << 32) + Mathf.Max(id1, id2);
-    }
+    ulong HashIntersectionPair(int a, int b) => ((ulong)a << 32) | (ulong)b;
 
     bool GetVoxel(int3 pos)
     {
@@ -71,14 +65,14 @@ public class RoadGeneratorDots : MonoBehaviour
 
     Vector3Int ToV3(int3 v) => new Vector3Int(v.x, v.y, v.z);
 
-    Intersection FindFirstIntersection(int3 pos, int3 dir, out int3 otherDirection)
+    int FindFirstIntersection(int3 pos, int3 dir, out int3 otherDirection)
     {
         // step along our voxel paths (before splines have been spawned),
         // starting at one intersection, and stopping when we reach another intersection
         while (true)
         {
             pos += dir;
-            if (m_IntersectionsGrid[pos.x, pos.y, pos.z] != null)
+            if (m_IntersectionsGrid[pos.x, pos.y, pos.z] >= 0)
             {
                 otherDirection = dir * -1;
                 return m_IntersectionsGrid[pos.x, pos.y, pos.z];
@@ -104,7 +98,7 @@ public class RoadGeneratorDots : MonoBehaviour
                 {
                     // dead end
                     otherDirection = new int3();
-                    return null;
+                    return -1;
                 }
             }
         }
@@ -231,9 +225,16 @@ public class RoadGeneratorDots : MonoBehaviour
         m_TrackVoxels = new NativeArray<bool>(voxelCount * voxelCount * voxelCount, Allocator.Persistent);
 
         // after voxel generation, we'll convert our network into non-voxels
-        m_Intersections = new List<Intersection>();
-        m_IntersectionsGrid = new Intersection[voxelCount, voxelCount, voxelCount];
-        m_IntersectionPairs = new HashSet<long>();
+        m_IntersectionsGrid = new int[voxelCount, voxelCount, voxelCount];
+        unsafe
+        {
+            fixed (int* g = m_IntersectionsGrid)
+            {
+                UnsafeUtility.MemSet(g, 0xFF, sizeof(int) * m_IntersectionsGrid.Length);
+            }
+        }
+
+        m_IntersectionPairs = new HashSet<ulong>();
         m_TrackSplines = new List<TrackSpline>();
         m_RoadMeshes = new List<Mesh>();
         m_IntersectionMatrices = new List<List<Matrix4x4>>();
@@ -267,21 +268,20 @@ public class RoadGeneratorDots : MonoBehaviour
                     FullDirections = m_FullDirs
                 }.Run();
 
+                Intersections.Init(outputIntersections.Length);
+                
                 for (int i = 0; i < outputIntersections.Length; i++)
                 {
-                    var pos = ToV3(outputIntersections[i]);
-                    var intersection = new Intersection(
-                        pos,
-                        (Vector3)pos * voxelSize,
-                        new float3());
-                    intersection.id = i;
-                    m_Intersections.Add(intersection);
-                    m_IntersectionsGrid[pos.x, pos.y, pos.z] = intersection;
+                    var pos = outputIntersections[i];
+                    Intersections.Index[i] = outputIntersections[i];
+                    Intersections.Position[i] = (float3)pos * voxelSize;
+                    Intersections.Normal[i] = new float3();
+                    m_IntersectionsGrid[pos.x, pos.y, pos.z] = i;
                 }
             }
         }
 
-        Debug.Log(m_Intersections.Count + " intersections");
+        Debug.Log(Intersections.Count + " intersections");
 
         // at this point, we've generated our full layout, but everything
         // is voxels, and we've identified which voxels are intersections.
@@ -292,32 +292,32 @@ public class RoadGeneratorDots : MonoBehaviour
 
         using (new ProfilerMarker("FindNeighbors").Auto())
         {
-            for (int i = 0; i < m_Intersections.Count; i++)
+            for (int i = 0; i < Intersections.Count; i++)
             {
-                Intersection intersection = m_Intersections[i];
+                int intersection = i;
                 int3 axesWithNeighbors = new int3();
                 for (int j = 0; j < m_Dirs.Length; j++)
                 {
-                    if (GetVoxel(FromV3(intersection.index) + m_Dirs[j]))
+                    if (GetVoxel(Intersections.Index[intersection] + m_Dirs[j]))
                     {
                         axesWithNeighbors += math.abs(m_Dirs[j]);
 
-                        Intersection neighbor = FindFirstIntersection(FromV3(intersection.index), m_Dirs[j], out var connectDir);
-                        if (neighbor != null && neighbor != intersection)
+                        int neighbor = FindFirstIntersection(Intersections.Index[intersection], m_Dirs[j], out var connectDir);
+                        if (neighbor >= 0 && neighbor != intersection)
                         {
                             // make sure we haven't already added the reverse-version of this spline
-                            long hash = HashIntersectionPair(intersection, neighbor);
+                            ulong hash = HashIntersectionPair(intersection, neighbor);
                             if (m_IntersectionPairs.Contains(hash) == false)
                             {
                                 m_IntersectionPairs.Add(hash);
 
-                                TrackSpline spline = new TrackSpline(intersection, m_Dirs[j], neighbor, connectDir);
+                                TrackSpline spline = new TrackSpline(i, m_Dirs[j], neighbor, connectDir);
                                 m_TrackSplines.Add(spline);
 
-                                intersection.neighbors.Add(neighbor);
-                                intersection.neighborSplines.Add(spline);
-                                neighbor.neighbors.Add(intersection);
-                                neighbor.neighborSplines.Add(spline);
+                                Intersections.Neighbors[intersection].Add(neighbor);
+                                Intersections.NeighborSplines[intersection].Add(spline);
+                                Intersections.Neighbors[neighbor].Add(intersection);
+                                Intersections.NeighborSplines[neighbor].Add(spline);
                             }
                         }
                     }
@@ -329,10 +329,9 @@ public class RoadGeneratorDots : MonoBehaviour
                 {
                     if (axesWithNeighbors[j] == 0)
                     {
-                        if (intersection.normal.Equals(new float3()))
+                        if (Intersections.Normal[intersection].Equals(new float3()))
                         {
-                            intersection.normal = new float3();
-                            intersection.normal[j] = -1 + Random.Range(0, 2) * 2;
+                            Intersections.Normal[intersection][j] = -1 + Random.Range(0, 2) * 2;
 
                             //Debug.DrawRay(intersection.position,(Vector3)intersection.normal * .5f,Color.red,1000f);
                         }
@@ -343,7 +342,7 @@ public class RoadGeneratorDots : MonoBehaviour
                     }
                 }
 
-                if (intersection.normal.Equals(new float3()))
+                if (Intersections.Normal[intersection].Equals(new float3()))
                 {
                     Debug.LogError("nonplanar intersections are not allowed!");
                 }
@@ -381,8 +380,8 @@ public class RoadGeneratorDots : MonoBehaviour
                 for (int i = 0; i < numSplines; i++)
                 {
                     var ts = m_TrackSplines[i];
-                    ts.geometry.startNormal = ts.startIntersection.normal;
-                    ts.geometry.endNormal = ts.endIntersection.normal;
+                    ts.geometry.startNormal = Intersections.Normal[ts.startIntersection];
+                    ts.geometry.endNormal = Intersections.Normal[ts.endIntersection];
                     geometry[i] = ts.geometry;
                     bezier[i] = ts.bezier;
                 }
@@ -435,9 +434,9 @@ public class RoadGeneratorDots : MonoBehaviour
         {
             int batch = 0;
             m_IntersectionMatrices.Add(new List<Matrix4x4>());
-            for (int i = 0; i < m_Intersections.Count; i++)
+            for (int i = 0; i < Intersections.Count; i++)
             {
-                m_IntersectionMatrices[batch].Add(m_Intersections[i].GetMatrix());
+                m_IntersectionMatrices[batch].Add(Intersections.GetMatrix(i));
                 if (m_IntersectionMatrices[batch].Count == k_InstancesPerBatch)
                 {
                     batch++;
@@ -523,14 +522,16 @@ public class RoadGeneratorDots : MonoBehaviour
         if (m_RoadMeshes != null && m_RoadMeshes.Count == 0)
         {
             // visualize splines before road meshes have spawned
-            if (m_Intersections != null)
+            if (Intersections.Count > 0)
             {
                 Gizmos.color = new Color(.2f, .2f, 1f);
-                for (int i = 0; i < m_Intersections.Count; i++)
+                for (int i = 0; i < Intersections.Count; i++)
                 {
-                    if (!m_Intersections[i].normal.Equals(new float3()))
+                    if (!Intersections.Normal[i].Equals(new float3()))
                     {
-                        Gizmos.DrawWireMesh(intersectionPreviewMesh, 0, m_Intersections[i].position, Quaternion.LookRotation(m_Intersections[i].normal), new Vector3(intersectionSize, intersectionSize, 0f));
+                        Gizmos.DrawWireMesh(intersectionPreviewMesh, 0, Intersections.Position[i],
+                            Quaternion.LookRotation(Intersections.Normal[i]),
+                            new Vector3(intersectionSize, intersectionSize, 0f));
                     }
                 }
             }
