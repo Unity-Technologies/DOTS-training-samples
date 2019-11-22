@@ -369,7 +369,11 @@ public class RoadGeneratorDots : MonoBehaviour
 
         for (int i = 0; i < m_TrackSplines.Count; i++)
         {
-            m_TrackSplines[i].GenerateMesh(vertices, uvs, triangles);
+            var ts = m_TrackSplines[i];
+            ts.geometry.startNormal = (Vector3)ts.startIntersection.normal;
+            ts.geometry.endNormal = (Vector3)ts.endIntersection.normal;
+            ts.twistMode = TrackSpline.SelectTwistMode(ts.bezier, ts.geometry);
+            TrackSpline.GenerateMesh(ts.bezier, ts.geometry, ts.twistMode, vertices, uvs, triangles);
 
             if (triangles.Count / 3 > trisPerMesh || i == m_TrackSplines.Count - 1)
             {

@@ -1,6 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
+
+public struct TrackSplineGeometry
+{
+    public float3 startNormal;
+    public float3 endNormal;
+    public float3 startTangent;
+    public float3 endTangent;
+}
 
 public class TrackSpline
 {
@@ -8,20 +17,14 @@ public class TrackSpline
     public Intersection endIntersection;
 
     public CubicBezier bezier;
+    public TrackSplineGeometry geometry;
 
     public float measuredLength;
-
-    public Vector3Int startNormal;
-    public Vector3Int endNormal;
-    public Vector3Int startTangent;
-    public Vector3Int endTangent;
 
     List<Car>[] m_WaitingQueues;
     public float carQueueSize { get; private set; }
     public int maxCarCount { get; private set; }
-
-    int m_TwistMode;
-    int m_ErrorCount;
+    public int twistMode;
 
     public TrackSpline(Intersection start, Vector3 tangent1, Intersection end, Vector3 tangent2)
     {
@@ -30,8 +33,10 @@ public class TrackSpline
         bezier.start = start.position + .5f * RoadGenerator.intersectionSize * tangent1;
         bezier.end = end.position + .5f * RoadGenerator.intersectionSize * tangent2;
 
-        startTangent = Vector3Int.RoundToInt(tangent1);
-        endTangent = Vector3Int.RoundToInt(tangent2);
+        geometry.startTangent = math.round(tangent1);
+        geometry.endTangent = math.round(tangent2);
+        geometry.startNormal = (Vector3)start.normal;
+        geometry.endNormal = (Vector3)end.normal;
 
         float dist = math.length(bezier.start - bezier.end);
         bezier.anchor1 = bezier.start + .5f * dist * (float3)tangent1;
@@ -63,26 +68,18 @@ public class TrackSpline
 
     public void MeasureLength()
     {
-        measuredLength = 0f;
-        Vector3 point = bezier.Evaluate(0f);
-        for (int i = 1; i <= RoadGenerator.splineResolution; i++)
-        {
-            Vector3 newPoint = bezier.Evaluate((float)i / RoadGenerator.splineResolution);
-            measuredLength += (newPoint - point).magnitude;
-            point = newPoint;
-        }
-
+        measuredLength = bezier.MeasureLength(RoadGenerator.splineResolution);
         maxCarCount = Mathf.CeilToInt(measuredLength / RoadGenerator.carSpacing);
         carQueueSize = 1f / maxCarCount;
     }
 
-    Vector3 Extrude(Vector2 point, float t)
-    {
-        Vector3 tangent, up;
-        return Extrude(point, t, out tangent, out up);
-    }
+    Vector3 Extrude(Vector2 point, float t) => Extrude(point, t, out _, out _);
 
-    public Vector3 Extrude(Vector2 point, float t, out Vector3 tangent, out Vector3 up)
+    public Vector3 Extrude(Vector2 point, float t, out Vector3 tangent, out Vector3 up) =>
+        Extrude(bezier, geometry, twistMode, point, t, out tangent, out up, out _);
+    
+    static Vector3 Extrude(in CubicBezier bezier, in TrackSplineGeometry geometry, int twistMode,
+        Vector2 point, float t, out Vector3 tangent, out Vector3 up, out bool error)
     {
         t = math.clamp(t, 0, 1);
         Vector3 sample1 = bezier.Evaluate(t);
@@ -104,22 +101,22 @@ public class TrackSpline
 
         // each spline uses one out of three possible twisting methods:
         Quaternion fromTo = Quaternion.identity;
-        if (m_TwistMode == 0)
+        if (twistMode == 0)
         {
-            // method 1 - rotate startNormal around our current tangent
-            float angle = Vector3.SignedAngle(startNormal, endNormal, tangent);
+            // method 1 - rotate startNormal around our current 
+            float angle = Vector3.SignedAngle(geometry.startNormal, geometry.endNormal, tangent);
             fromTo = Quaternion.AngleAxis(angle, tangent);
         }
-        else if (m_TwistMode == 1)
+        else if (twistMode == 1)
         {
             // method 2 - rotate startNormal toward endNormal
-            fromTo = Quaternion.FromToRotation(startNormal, endNormal);
+            fromTo = Quaternion.FromToRotation(geometry.startNormal, geometry.endNormal);
         }
-        else if (m_TwistMode == 2)
+        else if (twistMode == 2)
         {
             // method 3 - rotate startNormal by "startOrientation-to-endOrientation" rotation
-            Quaternion startRotation = Quaternion.LookRotation(startTangent, startNormal);
-            Quaternion endRotation = Quaternion.LookRotation(endTangent * -1, endNormal);
+            Quaternion startRotation = Quaternion.LookRotation(geometry.startTangent, geometry.startNormal);
+            Quaternion endRotation = Quaternion.LookRotation(geometry.endTangent * -1, geometry.endNormal);
             fromTo = endRotation * Quaternion.Inverse(startRotation);
         }
 
@@ -130,47 +127,50 @@ public class TrackSpline
 
         float smoothT = Mathf.SmoothStep(0f, 1f, t * 1.02f - .01f);
 
-        up = Quaternion.Slerp(Quaternion.identity, fromTo, smoothT) * startNormal;
+        up = Quaternion.Slerp(Quaternion.identity, fromTo, smoothT) * geometry.startNormal;
         Vector3 right = Vector3.Cross(tangent, up);
 
         // measure twisting errors:
         // we have three possible spline-twisting methods, and
         // we test each spline with all three to find the best pick
-        if (up.magnitude < .5f || right.magnitude < .5f)
-        {
-            m_ErrorCount++;
-        }
+        error = up.magnitude < .5f || right.magnitude < .5f;
 
         return sample1 + right * point.x + up * point.y;
     }
 
-    public void GenerateMesh(List<Vector3> vertices, List<Vector2> uvs, List<int> triangles)
+    public static int SelectTwistMode(in CubicBezier bezier, in TrackSplineGeometry geometry)
     {
-        startNormal = startIntersection.normal;
-        endNormal = endIntersection.normal;
-
-        // test three possible twisting modes to see which is best-suited
-        // to this particular spline
         int minErrors = int.MaxValue;
         int bestTwistMode = 0;
         for (int i = 0; i < 3; i++)
         {
-            m_TwistMode = i;
-            m_ErrorCount = 0;
+            int currentTwistMode = i;
+            int numErrors = 0;
             for (int j = 0; j <= RoadGenerator.splineResolution; j++)
             {
-                Extrude(Vector2.zero, (float)j / RoadGenerator.splineResolution);
+                float t = (float)j / RoadGenerator.splineResolution;
+                Extrude(bezier, geometry, currentTwistMode, Vector2.zero, t, out _, out _, out var error);
+                numErrors += error ? 1 : 0;
             }
 
-            if (m_ErrorCount < minErrors)
+            if (numErrors < minErrors)
             {
-                minErrors = m_ErrorCount;
+                minErrors = numErrors;
                 bestTwistMode = i;
             }
         }
 
-        m_TwistMode = bestTwistMode;
-
+        return bestTwistMode;
+    }
+    
+    public static void GenerateMesh(
+        in CubicBezier bezier,
+        in TrackSplineGeometry geometry,
+        int twistMode,
+        List<Vector3> vertices, List<Vector2> uvs, List<int> triangles
+    )
+    
+    {
         // a road segment is a rectangle extruded along a spline - here's the rectangle:
         Vector2 localPoint1 = new Vector2(-RoadGenerator.trackRadius, RoadGenerator.trackThickness * .5f);
         Vector2 localPoint2 = new Vector2(RoadGenerator.trackRadius, RoadGenerator.trackThickness * .5f);
@@ -210,8 +210,8 @@ public class TrackSpline
             {
                 float t = (float)j / RoadGenerator.splineResolution;
 
-                Vector3 point1 = Extrude(p1, t);
-                Vector3 point2 = Extrude(p2, t);
+                Vector3 point1 = Extrude(bezier, geometry, twistMode, p1, t, out _, out _, out _);;
+                Vector3 point2 = Extrude(bezier, geometry, twistMode, p2, t, out _, out _, out _);;
 
                 int index = vertices.Count;
 

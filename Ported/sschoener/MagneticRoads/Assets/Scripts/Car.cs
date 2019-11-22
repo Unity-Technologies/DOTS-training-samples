@@ -189,13 +189,13 @@ public class Car
                     if (newSpline.startIntersection == intersection)
                     {
                         m_SplineDirection = 1;
-                        newNormal = newSpline.startNormal;
+                        newNormal = newSpline.geometry.startNormal;
                         m_IntersectionSpline.bezier.end = newSpline.bezier.start;
                     }
                     else
                     {
                         m_SplineDirection = -1;
-                        newNormal = newSpline.endNormal;
+                        newNormal = newSpline.geometry.endNormal;
                         m_IntersectionSpline.bezier.end = newSpline.bezier.end;
                     }
 
@@ -203,17 +203,17 @@ public class Car
                     // create a "temporary lane" inside the current intersection
                     m_IntersectionSpline.bezier.anchor1 = ((float3)intersection.position + m_IntersectionSpline.bezier.start) * .5f;
                     m_IntersectionSpline.bezier.anchor2 = ((float3)intersection.position + m_IntersectionSpline.bezier.end) * .5f;
-                    m_IntersectionSpline.startTangent = Vector3Int.RoundToInt((intersection.position - (Vector3)m_IntersectionSpline.bezier.start).normalized);
-                    m_IntersectionSpline.endTangent = Vector3Int.RoundToInt((intersection.position - (Vector3)m_IntersectionSpline.bezier.end).normalized);
-                    m_IntersectionSpline.startNormal = intersection.normal;
-                    m_IntersectionSpline.endNormal = intersection.normal;
+                    m_IntersectionSpline.geometry.startTangent = math.round((intersection.position - (Vector3)m_IntersectionSpline.bezier.start).normalized);
+                    m_IntersectionSpline.geometry.endTangent = math.round((intersection.position - (Vector3)m_IntersectionSpline.bezier.end).normalized);
+                    m_IntersectionSpline.geometry.startNormal = (Vector3)intersection.normal;
+                    m_IntersectionSpline.geometry.endNormal = (Vector3)intersection.normal;
 
                     if (m_RoadSpline == newSpline)
                     {
                         // u-turn - make our intersection spline more rounded than usual
-                        float3 perp = math.cross((Vector3)m_IntersectionSpline.startTangent, (Vector3)m_IntersectionSpline.startNormal);
-                        m_IntersectionSpline.bezier.anchor1 += .5f * RoadGenerator.intersectionSize * (float3)(Vector3)m_IntersectionSpline.startTangent;
-                        m_IntersectionSpline.bezier.anchor2 += .5f * RoadGenerator.intersectionSize * (float3)(Vector3)m_IntersectionSpline.startTangent;
+                        float3 perp = math.cross(m_IntersectionSpline.geometry.startTangent, m_IntersectionSpline.geometry.startNormal);
+                        m_IntersectionSpline.bezier.anchor1 += .5f * RoadGenerator.intersectionSize * m_IntersectionSpline.geometry.startTangent;
+                        m_IntersectionSpline.bezier.anchor2 += .5f * RoadGenerator.intersectionSize * m_IntersectionSpline.geometry.startTangent;
 
                         m_IntersectionSpline.bezier.anchor1 -= m_IntersectionSide * RoadGenerator.trackRadius * .5f * perp;
                         m_IntersectionSpline.bezier.anchor2 += m_IntersectionSide * RoadGenerator.trackRadius * .5f * perp;
@@ -231,7 +231,7 @@ public class Car
                     m_SplineSide = Vector3.Dot(newNormal, up) > 0f ? 1 : -1;
 
                     // should we be on top of or underneath the intersection?
-                    m_IntersectionSide = Vector3.Dot(m_IntersectionSpline.startNormal, up) > 0f ? 1 : -1;
+                    m_IntersectionSide = Vector3.Dot(m_IntersectionSpline.geometry.startNormal, up) > 0f ? 1 : -1;
 
                     // block other cars from entering this intersection
                     intersection.occupied[(m_IntersectionSide + 1) / 2] = true;
