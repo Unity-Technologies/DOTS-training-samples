@@ -33,8 +33,8 @@ namespace AntPheromones_ECS
             {
                 TrailDecayRate = map.TrailDecayRate,
                 PheromoneColours = pheromoneColourRValues.AsNativeArray()
-            }.Schedule(arrayLength: map.Width,
-                innerloopBatchCount: 128,
+            }.Schedule(arrayLength: map.Width * map.Width,
+                innerloopBatchCount: 256,
                 inputDeps);  
         }
         
@@ -46,10 +46,7 @@ namespace AntPheromones_ECS
             
             public void Execute(int index)
             {
-                PheromoneColourRValueBuffer colourRValue = this.PheromoneColours[index];
-                colourRValue *= this.TrailDecayRate;
-                
-                PheromoneColours[index] = colourRValue;
+                PheromoneColours[index] *= this.TrailDecayRate;
             }
         }
     }

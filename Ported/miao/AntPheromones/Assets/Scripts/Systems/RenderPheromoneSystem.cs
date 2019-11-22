@@ -41,6 +41,7 @@ namespace AntPheromones_ECS
             
             var pheromoneBuffer = 
                 EntityManager.GetBuffer<PheromoneColourRValueBuffer>(this._pheromoneBufferQuery.GetSingletonEntity());
+            
             for (int i = 0; i < pheromoneBuffer.Length; i++)
             {
                 this._colours[i].r = pheromoneBuffer[i];

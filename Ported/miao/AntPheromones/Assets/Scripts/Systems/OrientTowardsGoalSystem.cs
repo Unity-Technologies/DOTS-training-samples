@@ -86,7 +86,7 @@ namespace AntPheromones_ECS
             private bool HasObstaclesBetween(float2 point1, float2 point2)
             {
                 float2 offset = point2 - point1;
-                float distance = math.lengthsq(offset);
+                float distance = math.length(offset);
 
                 int stepCount = (int)math.ceil(distance * 0.5f);
                 for (int i = 0; i < stepCount; i++)

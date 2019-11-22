@@ -52,7 +52,7 @@ namespace AntPheromones_ECS
                 float targetSpeed = this.MaxSpeed;
                 targetSpeed *= 1 - (math.abs(pheromone.Value) + math.abs(wall.Value)) / 3;
                 
-                speedComponent.Value = (targetSpeed - speedComponent.Value) * this.Acceleration;
+                speedComponent.Value += (targetSpeed - speedComponent.Value) * this.Acceleration;
             }
         }
     }

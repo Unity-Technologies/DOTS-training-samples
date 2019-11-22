@@ -20,6 +20,8 @@ namespace AntPheromones_ECS
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
+            inputDependencies.Complete();
+            
             var map = this._mapQuery.GetSingleton<MapComponent>();
             
             Entity pheromoneRValues = 
@@ -29,26 +31,26 @@ namespace AntPheromones_ECS
             return new Job
             {
                 MapWidth = map.Width,
-                PheromoneRValues = pheromoneColourRValues.AsNativeArray()
+                PheromoneRValues = pheromoneColourRValues
             }.ScheduleSingle(this, inputDependencies);
         }
 
         [BurstCompile]
         private struct Job : IJobForEach<PositionComponent, FacingAngleComponent, PheromoneSteeringComponent>
         {
-            public NativeArray<PheromoneColourRValueBuffer> PheromoneRValues;
+            [ReadOnly] public DynamicBuffer<PheromoneColourRValueBuffer> PheromoneRValues;
             public int MapWidth;
 
             public void Execute(
-                [ReadOnly] ref PositionComponent position,
-                [ReadOnly] ref FacingAngleComponent facingAngleComponent,
+                [Unity.Collections.ReadOnly] ref PositionComponent position,
+                [Unity.Collections.ReadOnly] ref FacingAngleComponent facingAngleComponent,
                 [WriteOnly] ref PheromoneSteeringComponent steering)
             {
                 const float Distance = 3;
 
                 float result = 0;
 
-                for (int i = 0; i <= 1; i++)
+                for (int i = -1; i <= 1; i += 2) 
                 {
                     float angle = facingAngleComponent.Value + i * Mathf.PI * 0.25f;
                     int targetDestinationX = (int)(position.Value.x + Mathf.Cos(angle) * Distance);

@@ -5,9 +5,9 @@ using Unity.Mathematics;
 
 namespace AntPheromones_ECS
 {
-    [UpdateInGroup(typeof(PresentationSystemGroup))]
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(TransportResourceSystem))]
-    public class CalculateVelocitySystem : JobComponentSystem
+    public class CalculateVelocityAfterTransportingResourceSystem : JobComponentSystem
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {

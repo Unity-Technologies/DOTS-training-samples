@@ -8,7 +8,7 @@ namespace AntPheromones_ECS
     using Unity.Mathematics;
 
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(ChangePositionAndVelocityAfterCarryingResourceSystem))]
+    [UpdateAfter(typeof(CalculatePositionAfterTransportingResourceSystem))]
     public class CollideWithObstacleSystem : JobComponentSystem
     {
         private EntityQuery _mapQuery;

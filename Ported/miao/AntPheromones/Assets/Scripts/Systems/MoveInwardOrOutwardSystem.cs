@@ -70,7 +70,8 @@ namespace AntPheromones_ECS
                 float2 offset = this.ColonyPosition - position.Value;
                 float distance = math.length(offset);
                 
-                velocity.Value += offset / distance * strength * (1f - math.clamp(distance / pushRadius, 0f, 1f));
+                strength *= 1f - math.clamp(distance / pushRadius, 0f, 1f);
+                velocity.Value += offset * (strength / distance);
             }
         }
     }

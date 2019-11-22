@@ -22,7 +22,7 @@ namespace AntPheromones_ECS
                 [ReadOnly] ref VelocityComponent velocity,
                 [WriteOnly] ref FacingAngleComponent facingAngle)
             {
-                facingAngle.Value = math.atan2(velocity.Value.x, velocity.Value.y);
+                facingAngle.Value = math.atan2(velocity.Value.y, velocity.Value.x);
             }
         }
     }

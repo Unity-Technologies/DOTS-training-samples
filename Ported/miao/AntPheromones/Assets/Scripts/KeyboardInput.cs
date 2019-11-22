@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -15,12 +16,18 @@ public class KeyboardInput : MonoBehaviour {
 	}
 	
 	void Update () {
-		if (Input.GetKeyDown(KeyCode.H)) {
+		if (Input.GetKeyDown(KeyCode.H)) 
+		{
 			showText = !showText;
 			text.enabled = showText;
 		}
-		if (Input.GetKeyDown(KeyCode.R)) {
+		if (Input.GetKeyDown(KeyCode.R)) 
+		{
 			Time.timeScale = 1f;
+			
+			var entityManager = World.Active.EntityManager;
+			entityManager.DestroyEntity(entityManager.UniversalQuery);
+			
 			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 		}
 	}

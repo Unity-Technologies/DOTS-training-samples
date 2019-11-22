@@ -45,7 +45,7 @@ namespace AntPheromones_ECS
                 {
                     for (int x = 0; x < width; x++)
                     {
-                        hasObstaclesBuilderArray[offset] = antManager.ObstacleBuckets[y, x].Length > 0;
+                        hasObstaclesBuilderArray[offset] = antManager.ObstacleBuckets[x, y].Length > 0;
                         offset++;
                     }
                 }

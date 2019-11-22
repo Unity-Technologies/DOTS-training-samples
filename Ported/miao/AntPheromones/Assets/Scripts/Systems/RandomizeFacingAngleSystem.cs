@@ -30,15 +30,15 @@ namespace AntPheromones_ECS
         }
         
         [BurstCompile]
-        private struct Job : IJobForEach<FacingAngleComponent>
+        private struct Job : IJobForEachWithEntity<FacingAngleComponent>
         {
             public uint RandomSeed;
             public float RandomSteeringStrength;
             
-            public void Execute([WriteOnly] ref FacingAngleComponent facingAngleComponent)
+            public void Execute(Entity e, int idx, [WriteOnly] ref FacingAngleComponent facingAngleComponent)
             {
                 facingAngleComponent.Value += 
-                    new Random(seed: this.RandomSeed).NextFloat(-this.RandomSteeringStrength, this.RandomSteeringStrength);
+                    new Random(seed: (uint)(idx + 1) * this.RandomSeed * 1300031).NextFloat(-this.RandomSteeringStrength, this.RandomSteeringStrength);
             }
         }
     }

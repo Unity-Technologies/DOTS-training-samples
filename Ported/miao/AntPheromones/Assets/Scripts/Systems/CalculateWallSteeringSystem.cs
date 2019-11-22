@@ -45,7 +45,7 @@ namespace AntPheromones_ECS
                 
                 float result = 0;
 
-                for (int i = 0; i <= 1; i++) 
+                for (int i = -1; i <= 1; i += 2) 
                 {
                     float angle = facingAngle.Value + i * math.PI * 0.25f;
                     

@@ -12,19 +12,25 @@ namespace AntPheromones_ECS
     public class UpdateLocalToWorldSystem : JobComponentSystem
     {
         private EntityQuery _antRenderingQuery;
+        private EntityQuery _mapQuery;
 
         protected override void OnCreate()
         {
             base.OnCreate();
+            
             this._antRenderingQuery = 
                 GetEntityQuery(ComponentType.ReadOnly<AntRenderingComponent>());
+            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var ant = this._antRenderingQuery.GetSingleton<AntRenderingComponent>();
+            var map = this._mapQuery.GetSingleton<MapComponent>();
+            
             return new Job
             {
+                MapWidth = map.Width,
                 Scale = ant.Scale
             }.Schedule(this, inputDeps);
         }
@@ -33,6 +39,7 @@ namespace AntPheromones_ECS
         struct Job : IJobForEach<FacingAngleComponent, PositionComponent, LocalToWorld>
         {
             public float3 Scale;
+            public int MapWidth;
 
             public void Execute(
                 [ReadOnly] ref FacingAngleComponent angle, 
@@ -40,7 +47,7 @@ namespace AntPheromones_ECS
                 [WriteOnly] ref LocalToWorld localToWorld)
             {
                 localToWorld.Value = float4x4.TRS(
-                    new float3(position.Value, 0) / 128,
+                    new float3(position.Value, 0) / this.MapWidth,
                     quaternion.Euler(new float3(0, 0, angle.Value)),
                     Scale);
             }

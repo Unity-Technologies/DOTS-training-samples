@@ -82,12 +82,11 @@ namespace AntPheromones_ECS
                 
                 int index = targetPosition.x + targetPosition.y * this.MapWidth;
 
+                const float FixedDeltaTime = 1 / 50f;
                 float rValue = this.PheromoneColourRValues[index];
-                rValue +=
-                    math.min(
-                        this.TrailVisibilityModifier * strength * (1f - rValue) + rValue, 1f);
+                rValue += this.TrailVisibilityModifier * FixedDeltaTime * strength * (1f - rValue);
                 
-                this.PheromoneColourRValues[index] = rValue;
+                this.PheromoneColourRValues[index] = math.min(rValue, 1f);
             }
         }
     }
