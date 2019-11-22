@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class RoadGenerator : MonoBehaviour
 {
@@ -215,7 +217,7 @@ public class RoadGenerator : MonoBehaviour
             {
                 // no more than three cardinal neighbors for any voxel (no 4-way intersections allowed)
                 // (really, this is to avoid nonplanar intersections)
-                Intersection intersection = new Intersection(pos, (Vector3)pos * voxelSize, Vector3Int.zero);
+                Intersection intersection = new Intersection(pos, (Vector3)pos * voxelSize, new float3());
                 intersection.id = intersections.Count;
                 intersections.Add(intersection);
                 intersectionsGrid[pos.x, pos.y, pos.z] = intersection;
@@ -277,9 +279,9 @@ public class RoadGenerator : MonoBehaviour
             {
                 if (axesWithNeighbors[j] == 0)
                 {
-                    if (intersection.normal == Vector3Int.zero)
+                    if (intersection.normal.Equals(new float3()))
                     {
-                        intersection.normal = new Vector3Int();
+                        intersection.normal = new float3();
                         intersection.normal[j] = -1 + Random.Range(0, 2) * 2;
 
                         //Debug.DrawRay(intersection.position,(Vector3)intersection.normal * .5f,Color.red,1000f);
@@ -291,7 +293,7 @@ public class RoadGenerator : MonoBehaviour
                 }
             }
 
-            if (intersection.normal == Vector3Int.zero)
+            if (intersection.normal.Equals(new float3()))
             {
                 Debug.LogError("nonplanar intersections are not allowed!");
             }
@@ -451,7 +453,7 @@ public class RoadGenerator : MonoBehaviour
                 Gizmos.color = new Color(.2f, .2f, 1f);
                 for (int i = 0; i < intersections.Count; i++)
                 {
-                    if (intersections[i].normal != Vector3Int.zero)
+                    if (!intersections[i].normal.Equals(new float3()))
                     {
                         Gizmos.DrawWireMesh(intersectionPreviewMesh, 0, intersections[i].position, Quaternion.LookRotation(intersections[i].normal), new Vector3(intersectionSize, intersectionSize, 0f));
                     }

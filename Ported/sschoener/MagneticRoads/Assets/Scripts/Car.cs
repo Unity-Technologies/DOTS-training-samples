@@ -205,8 +205,8 @@ public class Car
                     m_IntersectionSpline.bezier.anchor2 = ((float3)intersection.position + m_IntersectionSpline.bezier.end) * .5f;
                     m_IntersectionSpline.geometry.startTangent = math.round((intersection.position - (Vector3)m_IntersectionSpline.bezier.start).normalized);
                     m_IntersectionSpline.geometry.endTangent = math.round((intersection.position - (Vector3)m_IntersectionSpline.bezier.end).normalized);
-                    m_IntersectionSpline.geometry.startNormal = (Vector3)intersection.normal;
-                    m_IntersectionSpline.geometry.endNormal = (Vector3)intersection.normal;
+                    m_IntersectionSpline.geometry.startNormal = intersection.normal;
+                    m_IntersectionSpline.geometry.endNormal = intersection.normal;
 
                     if (m_RoadSpline == newSpline)
                     {

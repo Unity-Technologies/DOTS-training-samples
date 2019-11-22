@@ -35,8 +35,6 @@ public class TrackSpline
 
         geometry.startTangent = math.round(tangent1);
         geometry.endTangent = math.round(tangent2);
-        geometry.startNormal = (Vector3)start.normal;
-        geometry.endNormal = (Vector3)end.normal;
 
         float dist = math.length(bezier.start - bezier.end);
         bezier.anchor1 = bezier.start + .5f * dist * (float3)tangent1;

@@ -1,19 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class Intersection {
 	public int id;
 	public Vector3 position;
 	public Vector3Int index;
-	public Vector3Int normal;
+	public float3 normal;
 
 	public List<Intersection> neighbors;
 	public List<TrackSpline> neighborSplines;
 
 	public bool[] occupied;
 
-	public Intersection(Vector3Int intPos, Vector3 pos, Vector3Int norm) {
+	public Intersection(Vector3Int intPos, Vector3 pos, float3 norm) {
 		index = intPos;
 		position = pos;
 		normal = norm;
