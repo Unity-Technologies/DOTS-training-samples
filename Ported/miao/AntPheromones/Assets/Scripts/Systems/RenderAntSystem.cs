@@ -29,7 +29,7 @@ public class RenderAntSystem : JobComponentSystem
     {
         base.OnCreate();
         m_Renderables = GetEntityQuery(
-            ComponentType.ReadOnly<LocalToWorldComponent>(),
+            ComponentType.ReadOnly<LocalToWorld>(),
             ComponentType.ReadOnly<ColourComponent>()
         );
         m_RenderSetup = GetEntityQuery(

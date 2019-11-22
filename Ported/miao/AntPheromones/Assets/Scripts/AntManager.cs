@@ -2,7 +2,9 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 using Random = UnityEngine.Random;
 
 namespace AntPheromones_ECS
@@ -101,8 +103,6 @@ namespace AntPheromones_ECS
 
 		void Start()
 		{
-			GenerateObstacles();
-			
 			this._colonyMatrix = float4x4.TRS(
 				new float3(this._colonyPosition.Value / this.MapWidth, 0), 
 				Quaternion.identity, 
@@ -128,7 +128,10 @@ namespace AntPheromones_ECS
 					typeof(FacingAngleComponent),
 					typeof(ColourComponent),
 					typeof(BrightnessComponent),
-					typeof(ResourceCarrierComponent));
+					typeof(ResourceCarrierComponent),
+					typeof(PheromoneSteeringComponent),
+					typeof(WallSteeringComponent),
+					typeof(LocalToWorld));
 
 			NativeArray<Entity> antEntities = new NativeArray<Entity>(length: this.AntCount, Allocator.Temp);
 			entityManager.CreateEntity(antArchetype, antEntities);

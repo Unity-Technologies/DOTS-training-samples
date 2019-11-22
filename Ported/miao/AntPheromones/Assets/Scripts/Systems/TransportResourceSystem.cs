@@ -37,11 +37,11 @@ namespace AntPheromones_ECS
                 [WriteOnly] ref FacingAngleComponent facingAngleComponent, 
                 ref ResourceCarrierComponent resourceCarrier)
             {
-                if (math.lengthsq(position.Value - (resourceCarrier.IsCarrying ? ResourcePosition : ColonyPosition)) >= 16f)
+                if (math.lengthsq(position.Value - (resourceCarrier.IsCarrying ? ColonyPosition : ResourcePosition)) >= 16f)
                 {
                     return;
                 }
-                
+
                 facingAngleComponent.Value += math.PI;
                 resourceCarrier.IsCarrying = !resourceCarrier.IsCarrying;
             }

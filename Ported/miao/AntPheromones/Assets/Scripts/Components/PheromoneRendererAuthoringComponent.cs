@@ -16,8 +16,13 @@ namespace AntPheromones_ECS
                 Material = Material,
                 Renderer = Renderer
             });
-            entityManager.AddBuffer<PheromoneColourRValueBuffer>(entity)
-                         .ResizeUninitialized(this.AntManager.MapWidth * this.AntManager.MapWidth);
+            var buffer = entityManager.AddBuffer<PheromoneColourRValueBuffer>(entity);
+            buffer.ResizeUninitialized(this.AntManager.MapWidth * this.AntManager.MapWidth);
+
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                buffer[i] = 0;
+            }
         }
     }
 }

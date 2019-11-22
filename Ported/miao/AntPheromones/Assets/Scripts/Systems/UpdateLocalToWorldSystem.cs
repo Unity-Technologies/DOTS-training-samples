@@ -40,7 +40,7 @@ namespace AntPheromones_ECS
                 [WriteOnly] ref LocalToWorld localToWorld)
             {
                 localToWorld.Value = float4x4.TRS(
-                    new float3(position.Value, 0),
+                    new float3(position.Value, 0) / 128,
                     quaternion.Euler(new float3(0, 0, angle.Value)),
                     Scale);
             }

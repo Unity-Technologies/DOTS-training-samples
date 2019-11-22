@@ -30,7 +30,7 @@ namespace AntPheromones_ECS
             {
                 MapWidth = map.Width,
                 PheromoneRValues = pheromoneColourRValues.AsNativeArray()
-            }.Schedule(this, inputDependencies);
+            }.ScheduleSingle(this, inputDependencies);
         }
 
         [BurstCompile]
@@ -42,7 +42,7 @@ namespace AntPheromones_ECS
             public void Execute(
                 [ReadOnly] ref PositionComponent position,
                 [ReadOnly] ref FacingAngleComponent facingAngleComponent,
-                [WriteOnly] ref PheromoneSteeringComponent pheromoneSteeringComponent)
+                [WriteOnly] ref PheromoneSteeringComponent steering)
             {
                 const float Distance = 3;
 
@@ -63,7 +63,7 @@ namespace AntPheromones_ECS
                     result += this.PheromoneRValues[pheromoneIndex] * i;
                 }
 
-                pheromoneSteeringComponent.Value = result >= 0 ? 1 : -1;
+                steering.Value = result >= 0 ? 1 : -1;
             }
         }
     }

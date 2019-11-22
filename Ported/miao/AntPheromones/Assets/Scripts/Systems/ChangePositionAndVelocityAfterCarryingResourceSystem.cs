@@ -6,7 +6,7 @@ using Unity.Jobs;
 namespace AntPheromones_ECS
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(TransportResourceSystem))]
+    [UpdateAfter(typeof(CalculateVelocitySystem))]
     public class ChangePositionAndVelocityAfterCarryingResourceSystem : JobComponentSystem
     {
         EntityQuery _mapQuery;

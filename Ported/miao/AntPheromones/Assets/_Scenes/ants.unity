@@ -222,7 +222,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &527406489
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,9 +285,9 @@ MonoBehaviour:
   CarryColour: {r: 0.9194261, g: 0.9811321, b: 0.041651815, a: 0}
   SearchColour: {r: 0.09518514, g: 0.51584417, b: 0.8773585, a: 0}
   Scale:
-    x: 0
-    y: 0
-    z: 0
+    x: 0.008
+    y: 0.004
+    z: 0.004
   Material: {fileID: 2100000, guid: c66329d3aec0ce443ba9cbe148029438, type: 2}
   Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!114 &527406493
@@ -749,7 +749,6 @@ MonoBehaviour:
   ObstacleRingCount: 3
   ObstaclesPerRing: 0.8
   ObstacleRadius: 2
-  pheromoneColours: []
 --- !u!4 &2087170867
 Transform:
   m_ObjectHideFlags: 0

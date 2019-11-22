@@ -47,7 +47,7 @@ namespace AntPheromones_ECS
                 [ReadOnly] ref ResourceCarrierComponent carrier, 
                 [WriteOnly] ref ColourComponent colourDisplay)
             {
-                Color colourToDisplay = carrier.IsCarrying ? this.SearchColour : this.CarryColour;
+                Color colourToDisplay = carrier.IsCarrying ? this.CarryColour : this.SearchColour;
                 colourDisplay.Value += (colourToDisplay * brightness.Value - colourDisplay.Value) * 0.05f;
             }
         }

@@ -21,8 +21,8 @@ namespace AntPheromones_ECS
             });
             entityManager.AddSharedComponentData(entity, new AntRenderingSharedComponent
             {
-                Material = Material,
-                Mesh = Mesh
+                Material = this.Material,
+                Mesh = this.Mesh
             });
         }
     }

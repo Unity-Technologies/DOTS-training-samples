@@ -8,7 +8,7 @@ namespace AntPheromones_ECS
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(CollideWithObstacleSystem))]
-    public class ChangeVelocityAfterObstacleCollisionSystem : JobComponentSystem
+    public class MoveInwardOrOutwardSystem : JobComponentSystem
     {
         private EntityQuery _mapQuery;
         private EntityQuery _steeringStrengthQuery;
@@ -43,7 +43,7 @@ namespace AntPheromones_ECS
                 InwardStrength = this._steeringStrengths.Inward,
                 InwardPushRadius = map.Width,
                 
-                OutwardStrength = this._steeringStrengths.Outward,
+                OutwardStrength = -this._steeringStrengths.Outward,
                 OutwardPushRadius = map.Width * 0.4f
             }.Schedule(this, inputDependencies);
         }

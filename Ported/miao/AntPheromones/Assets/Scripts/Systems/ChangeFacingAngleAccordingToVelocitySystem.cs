@@ -7,7 +7,7 @@ using Unity.Mathematics;
 namespace AntPheromones_ECS
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(ChangeVelocityAfterObstacleCollisionSystem))]
+    [UpdateAfter(typeof(MoveInwardOrOutwardSystem))]
     public class ChangeFacingAngleAccordingToVelocitySystem : JobComponentSystem
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -22,7 +22,7 @@ namespace AntPheromones_ECS
                 [ReadOnly] ref VelocityComponent velocity,
                 [WriteOnly] ref FacingAngleComponent facingAngle)
             {
-                facingAngle.Value = math.atan2(velocity.Value.x , velocity.Value.y);
+                facingAngle.Value = math.atan2(velocity.Value.x, velocity.Value.y);
             }
         }
     }

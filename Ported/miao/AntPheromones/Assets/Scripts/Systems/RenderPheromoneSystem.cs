@@ -33,20 +33,21 @@ namespace AntPheromones_ECS
                 this._pheromoneTexture =
                     (IsInitialised: true,
                     Value: new Texture2D(map.Width, map.Width) {wrapMode = TextureWrapMode.Mirror});
-                this._colours = new Color[this._pheromoneTexture.Value.width * this._pheromoneTexture.Value.height];
+                this._colours = 
+                    new Color[this._pheromoneTexture.Value.width * this._pheromoneTexture.Value.height];
                 
                 renderer.Renderer.sharedMaterial = new Material(renderer.Material){mainTexture = this._pheromoneTexture.Value};
             }
             
             var pheromoneBuffer = 
                 EntityManager.GetBuffer<PheromoneColourRValueBuffer>(this._pheromoneBufferQuery.GetSingletonEntity());
-            
             for (int i = 0; i < pheromoneBuffer.Length; i++)
             {
                 this._colours[i].r = pheromoneBuffer[i];
             }
             
             this._pheromoneTexture.Value.SetPixels(_colours);
+            this._pheromoneTexture.Value.filterMode = FilterMode.Point;
             this._pheromoneTexture.Value.Apply();
         }
     }
