@@ -302,7 +302,10 @@ public class RoadGeneratorDots : MonoBehaviour
                     {
                         axesWithNeighbors += math.abs(m_Dirs[j]);
 
-                        int neighbor = FindFirstIntersection(Intersections.Index[intersection], m_Dirs[j], out var connectDir);
+                        int neighbor = FindFirstIntersection(
+                            Intersections.Index[intersection],
+                            m_Dirs[j],
+                            out var connectDir);
                         if (neighbor >= 0 && neighbor != intersection)
                         {
                             // make sure we haven't already added the reverse-version of this spline
@@ -311,12 +314,16 @@ public class RoadGeneratorDots : MonoBehaviour
                             {
                                 m_IntersectionPairs.Add(hash);
 
-                                TrackSpline spline = new TrackSpline(i, m_Dirs[j], neighbor, connectDir);
+                                var spline = new TrackSpline(
+                                    intersection,
+                                    m_Dirs[j],
+                                    neighbor,
+                                    connectDir);
                                 m_TrackSplines.Add(spline);
 
                                 Intersections.Neighbors[intersection].Add(neighbor);
-                                Intersections.NeighborSplines[intersection].Add(spline);
                                 Intersections.Neighbors[neighbor].Add(intersection);
+                                Intersections.NeighborSplines[intersection].Add(spline);
                                 Intersections.NeighborSplines[neighbor].Add(spline);
                             }
                         }
