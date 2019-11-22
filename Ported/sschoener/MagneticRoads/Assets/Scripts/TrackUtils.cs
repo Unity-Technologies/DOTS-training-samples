@@ -35,7 +35,7 @@ public static class TrackUtils
         {
             // method 1 - rotate startNormal around our current 
             float angle = Vector3.SignedAngle(geometry.startNormal, geometry.endNormal, tangent);
-            fromTo = quaternion.AxisAngle(tangent, angle);
+            fromTo = quaternion.AxisAngle(tangent, math.radians(angle));
         }
         else if (twistMode == 1)
         {
