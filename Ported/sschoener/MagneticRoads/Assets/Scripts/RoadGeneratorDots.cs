@@ -50,7 +50,7 @@ public class RoadGeneratorDots : MonoBehaviour
     MaterialPropertyBlock m_CarMatProps;
     List<List<Vector4>> m_CarColors;
 
-    ulong HashIntersectionPair(int a, int b) => ((ulong)a << 32) | (ulong)b;
+    ulong HashIntersectionPair(int a, int b) => (((ulong)a) << 32) | (ulong)b;
 
     bool GetVoxel(int3 pos)
     {
@@ -106,6 +106,7 @@ public class RoadGeneratorDots : MonoBehaviour
 
     void Start()
     {
+        Random.InitState(1);
         // cardinal directions:
         m_Dirs = new NativeArray<int3>(new int3[]
         {
