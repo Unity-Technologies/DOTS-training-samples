@@ -138,11 +138,30 @@ public class PointManager : MonoBehaviour
             {
                 for (int j = i + 1; j < pointsList.Count; j++)
                 {
-                    Bar bar = new Bar();
-                    var l = math.length(pointsList[i].pos - pointsList[j].pos);
+                    var pos1 = pointsList[i].pos;
+                    var pos2 = pointsList[j].pos;
+                    var delta = pos1 - pos2;
+                    var l = math.length(delta);
                     if (l < 5f && l > .2f)
                     {
-                        bar.AssignPoints(i, pointsList[i].pos, j, pointsList[j].pos);
+
+                        Bar bar = new Bar
+                        {
+                            point1 = i,
+                            point2 = j,
+                            length = l,
+                            thickness = Random.Range(.25f, .35f)
+                        };
+
+                        var pos = (pos1 + pos2) / 2;
+                        var rot = quaternion.LookRotation(delta, new float3(0, 1, 0));
+                        var scale = new float3(bar.thickness, bar.thickness, bar.length);
+                        bar.matrix = float4x4.TRS(pos, rot, scale);
+
+                        var proj = math.dot(new float3(0, 1, 0), delta / l);
+                        float upDot = math.acos(math.abs(proj)) / math.PI;
+                        bar.color = Color.white * upDot * Random.Range(.7f, 1f);
+                        
                         var p1 = pointsList[bar.point1];
                         p1.neighborCount++;
                         pointsList[bar.point1] = p1;
