@@ -27,7 +27,6 @@ public class PointManager : MonoBehaviour
     Bar[] m_Bars;
     int m_PointCount;
 
-    bool m_Generating;
     public static float tornadoX;
     public static float tornadoZ;
 
@@ -108,11 +107,7 @@ public class PointManager : MonoBehaviour
 
     void Generate()
     {
-        m_Generating = true;
-
         List<Point> pointsList = new List<Point>();
-        List<List<Matrix4x4>> matricesList = new List<List<Matrix4x4>>();
-        matricesList.Add(new List<Matrix4x4>());
 
         using (new ProfilerMarker("CreateBuildings").Auto())
         {
@@ -205,10 +200,23 @@ public class PointManager : MonoBehaviour
                 Seed = (uint)(Random.value * 1000000)
             }.Schedule(positions.Length, 1).Complete();
 
-            int batch = 0;
+            int numBatches = bars.Count / k_InstancesPerBatch;
+            int remaining = bars.Count % k_InstancesPerBatch;
+            numBatches += remaining > 0 ? 1 : 0;
+
+            m_Matrices = new Matrix4x4[numBatches][];
+            int lastBatchSize = remaining == 0 ? k_InstancesPerBatch : remaining;
+            for (int i = 0; i < numBatches; i++)
+            {
+                int batchSize = i == numBatches - 1 ? lastBatchSize : k_InstancesPerBatch;
+                m_Matrices[i] = new Matrix4x4[batchSize];
+            }
+
             m_Bars = new Bar[bars.Count];
             for (int i = 0; i < m_Bars.Length; i++)
             {
+                int batch = i / k_InstancesPerBatch;
+                int index = i % k_InstancesPerBatch;
                 m_Bars[i] = bars.Dequeue();
                 ref var bar = ref m_Bars[i];
                 {
@@ -219,12 +227,7 @@ public class PointManager : MonoBehaviour
                     p2.neighborCount++;
                     pointsList[bar.point2] = p2;
                 }
-                matricesList[batch].Add(bar.matrix);
-                if (matricesList[batch].Count == k_InstancesPerBatch)
-                {
-                    batch++;
-                    matricesList.Add(new List<Matrix4x4>());
-                }
+                m_Matrices[batch][index] = bar.matrix;
             }
 
             bars.Dispose();
@@ -254,12 +257,6 @@ public class PointManager : MonoBehaviour
 
         Debug.Log(m_PointCount + " points, room for " + m_Points.Length + " (" + m_Bars.Length + " bars)");
 
-        m_Matrices = new Matrix4x4[matricesList.Count][];
-        for (int i = 0; i < m_Matrices.Length; i++)
-        {
-            m_Matrices[i] = matricesList[i].ToArray();
-        }
-
         m_MatProps = new MaterialPropertyBlock[m_Bars.Length];
         Vector4[] colors = new Vector4[k_InstancesPerBatch];
         for (int i = 0; i < m_Bars.Length; i++)
@@ -273,126 +270,122 @@ public class PointManager : MonoBehaviour
             }
         }
 
-        m_Generating = false;
         Time.timeScale = 1f;
     }
 
     void FixedUpdate()
     {
-        if (!m_Generating)
+        m_TornadoFader = Mathf.Clamp01(m_TornadoFader + Time.deltaTime / 10f);
+
+        float invDamping = 1f - damping;
+        for (int i = 0; i < m_PointCount; i++)
         {
-            m_TornadoFader = Mathf.Clamp01(m_TornadoFader + Time.deltaTime / 10f);
-
-            float invDamping = 1f - damping;
-            for (int i = 0; i < m_PointCount; i++)
+            ref var point = ref m_Points[i];
+            if (point.anchor == false)
             {
-                ref var point = ref m_Points[i];
-                if (point.anchor == false)
+                float3 start = point.pos;
+
+                point.old.y += .01f;
+
+                // tornado force
+                float tdx = tornadoX + TornadoSway(point.pos.y) - point.pos.x;
+                float tdz = tornadoZ - point.pos.z;
+                float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
+                tdx /= tornadoDist;
+                tdz /= tornadoDist;
+                if (tornadoDist < tornadoMaxForceDist)
                 {
-                    float3 start = point.pos;
+                    float force = (1f - tornadoDist / tornadoMaxForceDist);
+                    float yFader = Mathf.Clamp01(1f - point.pos.y / tornadoHeight);
+                    force *= m_TornadoFader * tornadoForce * Random.Range(-.3f, 1.3f);
+                    float forceY = tornadoUpForce;
+                    float forceX = -tdz + tdx * tornadoInwardForce * yFader;
+                    float forceZ = tdx + tdz * tornadoInwardForce * yFader;
+                    point.old -= new float3(forceX, forceY, forceZ) * force;
+                }
 
-                    point.old.y += .01f;
+                point.pos += (point.pos - point.old) * invDamping;
 
-                    // tornado force
-                    float tdx = tornadoX + TornadoSway(point.pos.y) - point.pos.x;
-                    float tdz = tornadoZ - point.pos.z;
-                    float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
-                    tdx /= tornadoDist;
-                    tdz /= tornadoDist;
-                    if (tornadoDist < tornadoMaxForceDist)
-                    {
-                        float force = (1f - tornadoDist / tornadoMaxForceDist);
-                        float yFader = Mathf.Clamp01(1f - point.pos.y / tornadoHeight);
-                        force *= m_TornadoFader * tornadoForce * Random.Range(-.3f, 1.3f);
-                        float forceY = tornadoUpForce;
-                        float forceX = -tdz + tdx * tornadoInwardForce * yFader;
-                        float forceZ = tdx + tdz * tornadoInwardForce * yFader;
-                        point.old -= new float3(forceX, forceY, forceZ) * force;
-                    }
+                point.old = start;
+                if (point.pos.y < 0f)
+                {
+                    point.pos.y = 0f;
+                    point.old.y = -point.old.y;
+                    point.old.x += (point.pos.x - point.old.x) * friction;
+                    point.old.z += (point.pos.z - point.old.z) * friction;
+                }
+            }
+        }
 
-                    point.pos += (point.pos - point.old) * invDamping;
+        for (int i = 0; i < m_Bars.Length; i++)
+        {
+            ref var bar = ref m_Bars[i];
 
-                    point.old = start;
-                    if (point.pos.y < 0f)
-                    {
-                        point.pos.y = 0f;
-                        point.old.y = -point.old.y;
-                        point.old.x += (point.pos.x - point.old.x) * friction;
-                        point.old.z += (point.pos.z - point.old.z) * friction;
-                    }
+            ref var point1 = ref m_Points[bar.point1];
+            ref var point2 = ref m_Points[bar.point2];
+
+            var delta = point2.pos - point1.pos;
+
+            float dist = math.length(delta);
+            float extraDist = dist - bar.length;
+
+            var push = delta / dist * extraDist * .5f;
+            if (!point1.anchor && !point2.anchor)
+            {
+                point1.pos += push;
+                point2.pos -= push;
+            }
+            else if (point1.anchor)
+            {
+                point2.pos -= push * 2f;
+            }
+            else if (point2.anchor)
+            {
+                point1.pos += push * 2f;
+            }
+
+            if (math.dot(delta, bar.oldDelta) / dist < .99f)
+            {
+                // bar has rotated: expensive full-matrix computation
+                bar.matrix = Matrix4x4.TRS(
+                    (point1.pos + point2.pos) / 2,
+                    Quaternion.LookRotation(delta),
+                    new Vector3(bar.thickness, bar.thickness, bar.length));
+                bar.oldDelta = delta / dist;
+            }
+            else
+            {
+                // bar hasn't rotated: only update the position elements
+                Matrix4x4 matrix = bar.matrix;
+                matrix.m03 = (point1.pos.x + point2.pos.x) * .5f;
+                matrix.m13 = (point1.pos.y + point2.pos.y) * .5f;
+                matrix.m23 = (point1.pos.z + point2.pos.z) * .5f;
+                bar.matrix = matrix;
+            }
+
+            if (Mathf.Abs(extraDist) > breakResistance)
+            {
+                if (point2.neighborCount > 1)
+                {
+                    point2.neighborCount--;
+                    Point newPoint = point2;
+                    newPoint.neighborCount = 1;
+                    m_Points[m_PointCount] = newPoint;
+                    bar.point2 = m_PointCount;
+                    m_PointCount++;
+                }
+                else if (point1.neighborCount > 1)
+                {
+                    point1.neighborCount--;
+                    Point newPoint = point1;
+                    newPoint.neighborCount = 1;
+                    m_Points[m_PointCount] = newPoint;
+                    bar.point1 = m_PointCount;
+                    m_PointCount++;
                 }
             }
 
-            for (int i = 0; i < m_Bars.Length; i++)
-            {
-                ref var bar = ref m_Bars[i];
-
-                ref var point1 = ref m_Points[bar.point1];
-                ref var point2 = ref m_Points[bar.point2];
-
-                var delta = point2.pos - point1.pos;
-
-                float dist = math.length(delta);
-                float extraDist = dist - bar.length;
-
-                var push = delta / dist * extraDist * .5f;
-                if (!point1.anchor && !point2.anchor)
-                {
-                    point1.pos += push;
-                    point2.pos -= push;
-                }
-                else if (point1.anchor)
-                {
-                    point2.pos -= push * 2f;
-                }
-                else if (point2.anchor)
-                {
-                    point1.pos += push * 2f;
-                }
-
-                if (math.dot(delta, bar.oldDelta) / dist < .99f)
-                {
-                    // bar has rotated: expensive full-matrix computation
-                    bar.matrix = Matrix4x4.TRS(
-                        (point1.pos + point2.pos) / 2,
-                        Quaternion.LookRotation(delta),
-                        new Vector3(bar.thickness, bar.thickness, bar.length));
-                    bar.oldDelta = delta / dist;
-                }
-                else
-                {
-                    // bar hasn't rotated: only update the position elements
-                    Matrix4x4 matrix = bar.matrix;
-                    matrix.m03 = (point1.pos.x + point2.pos.x) * .5f;
-                    matrix.m13 = (point1.pos.y + point2.pos.y) * .5f;
-                    matrix.m23 = (point1.pos.z + point2.pos.z) * .5f;
-                    bar.matrix = matrix;
-                }
-
-                if (Mathf.Abs(extraDist) > breakResistance)
-                {
-                    if (point2.neighborCount > 1)
-                    {
-                        point2.neighborCount--;
-                        Point newPoint = point2;
-                        newPoint.neighborCount = 1;
-                        m_Points[m_PointCount] = newPoint;
-                        bar.point2 = m_PointCount;
-                        m_PointCount++;
-                    }
-                    else if (point1.neighborCount > 1)
-                    {
-                        point1.neighborCount--;
-                        Point newPoint = point1;
-                        newPoint.neighborCount = 1;
-                        m_Points[m_PointCount] = newPoint;
-                        bar.point1 = m_PointCount;
-                        m_PointCount++;
-                    }
-                }
-
-                m_Matrices[i / k_InstancesPerBatch][i % k_InstancesPerBatch] = bar.matrix;
-            }
+            m_Matrices[i / k_InstancesPerBatch][i % k_InstancesPerBatch] = bar.matrix;
         }
     }
 
