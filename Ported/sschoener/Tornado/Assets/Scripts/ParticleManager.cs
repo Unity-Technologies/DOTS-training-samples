@@ -37,9 +37,10 @@ public class ParticleManager : MonoBehaviour
 
     void Update()
     {
+        float time = Time.time;
         for (int i = 0; i < m_Points.Length; i++)
         {
-            float3 tornadoPos = new float3(PointManager.tornadoX + PointManager.TornadoSway(m_Points[i].y), m_Points[i].y, PointManager.tornadoZ);
+            float3 tornadoPos = new float3(PointManager.tornadoX + PointManager.TornadoSway(m_Points[i].y, time), m_Points[i].y, PointManager.tornadoZ);
             float3 delta = (tornadoPos - m_Points[i]);
             float dist = math.length(delta);
             delta /= dist;

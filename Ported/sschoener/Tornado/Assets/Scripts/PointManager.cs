@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -23,8 +24,8 @@ public class PointManager : MonoBehaviour
     public float tornadoUpForce;
     public float tornadoInwardForce;
 
-    Point[] m_Points;
-    Bar[] m_Bars;
+    NativeArray<Point> m_Points;
+    NativeArray<Bar> m_Bars;
     int m_PointCount;
 
     public static float tornadoX;
@@ -52,10 +53,13 @@ public class PointManager : MonoBehaviour
         m_Cam = Camera.main.transform;
     }
 
-    public static float TornadoSway(float y)
+    void OnDestroy()
     {
-        return Mathf.Sin(y / 5f + Time.time / 4f) * 3f;
+        m_Bars.Dispose();
+        m_Points.Dispose();
     }
+
+    public static float TornadoSway(float y, float time) => math.sin(y / 5f + time / 4f) * 3f;
 
     [BurstCompile]
     struct CollectBarsJob : IJobParallelFor
@@ -197,7 +201,7 @@ public class PointManager : MonoBehaviour
             {
                 Output = bars.AsParallelWriter(),
                 Positions = positions,
-                Seed = (uint)(Random.value * 1000000)
+                Seed = (uint)Random.Range(1, 1000000)
             }.Schedule(positions.Length, 1).Complete();
 
             int numBatches = bars.Count / k_InstancesPerBatch;
@@ -212,30 +216,30 @@ public class PointManager : MonoBehaviour
                 m_Matrices[i] = new Matrix4x4[batchSize];
             }
 
-            m_Bars = new Bar[bars.Count];
-            for (int i = 0; i < m_Bars.Length; i++)
+            using (new ProfilerMarker("SetNeighbors").Auto())
             {
-                int batch = i / k_InstancesPerBatch;
-                int index = i % k_InstancesPerBatch;
-                m_Bars[i] = bars.Dequeue();
-                ref var bar = ref m_Bars[i];
+                m_Bars = new NativeArray<Bar>(bars.Count, Allocator.Persistent);
+                for (int i = 0; i < m_Bars.Length; i++)
                 {
-                    var p1 = pointsList[bar.point1];
-                    p1.neighborCount++;
-                    pointsList[bar.point1] = p1;
-                    var p2 = pointsList[bar.point2];
-                    p2.neighborCount++;
-                    pointsList[bar.point2] = p2;
+                    m_Bars[i] = bars.Dequeue();
+                    {
+                        var p1 = pointsList[m_Bars[i].point1];
+                        p1.neighborCount++;
+                        pointsList[m_Bars[i].point1] = p1;
+                        var p2 = pointsList[m_Bars[i].point2];
+                        p2.neighborCount++;
+                        pointsList[m_Bars[i].point2] = p2;
+                    }
                 }
-                m_Matrices[batch][index] = bar.matrix;
             }
 
             bars.Dispose();
         }
 
+        using (new ProfilerMarker("RemapPoints").Auto())
         {
             var pointRemap = new int[pointsList.Count];
-            m_Points = new Point[m_Bars.Length * 2];
+            m_Points = new NativeArray<Point>(m_Bars.Length * 2, Allocator.Persistent);
             m_PointCount = 0;
 
             for (int i = 0; i < pointsList.Count; i++)
@@ -250,8 +254,10 @@ public class PointManager : MonoBehaviour
 
             for (int i = 0; i < m_Bars.Length; i++)
             {
-                m_Bars[i].point1 = pointRemap[m_Bars[i].point1];
-                m_Bars[i].point2 = pointRemap[m_Bars[i].point2];
+                var bar = m_Bars[i];
+                bar.point1 = pointRemap[bar.point1];
+                bar.point2 = pointRemap[bar.point2];
+                m_Bars[i] = bar;
             }
         }
 
@@ -273,14 +279,26 @@ public class PointManager : MonoBehaviour
         Time.timeScale = 1f;
     }
 
-    void FixedUpdate()
+    [BurstCompile]
+    struct UpdatePointsJob : IJobParallelFor
     {
-        m_TornadoFader = Mathf.Clamp01(m_TornadoFader + Time.deltaTime / 10f);
-
-        float invDamping = 1f - damping;
-        for (int i = 0; i < m_PointCount; i++)
+        public NativeArray<Point> Points;
+        public float TornadoMaxForceDist;
+        public float TornadoHeight;
+        public float TornadoFader;
+        public float TornadoForce;
+        public float TornadoInwardForce;
+        public float TornadoUpForce;
+        public float Friction;
+        public float InvDamping;
+        public float Time;
+        public float TornadoX;
+        public float TornadoZ;
+        public uint Seed;
+        public void Execute(int i)
         {
-            ref var point = ref m_Points[i];
+            var rng = new Unity.Mathematics.Random((1 + (uint)i) * Seed * 20479);
+            var point = Points[i];
             if (point.anchor == false)
             {
                 float3 start = point.pos;
@@ -288,41 +306,68 @@ public class PointManager : MonoBehaviour
                 point.old.y += .01f;
 
                 // tornado force
-                float tdx = tornadoX + TornadoSway(point.pos.y) - point.pos.x;
-                float tdz = tornadoZ - point.pos.z;
-                float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
+                float tdx = TornadoX + TornadoSway(point.pos.y, Time) - point.pos.x;
+                float tdz = TornadoZ - point.pos.z;
+                float tornadoDist = math.sqrt(tdx * tdx + tdz * tdz);
                 tdx /= tornadoDist;
                 tdz /= tornadoDist;
-                if (tornadoDist < tornadoMaxForceDist)
+                if (tornadoDist < TornadoMaxForceDist)
                 {
-                    float force = (1f - tornadoDist / tornadoMaxForceDist);
-                    float yFader = Mathf.Clamp01(1f - point.pos.y / tornadoHeight);
-                    force *= m_TornadoFader * tornadoForce * Random.Range(-.3f, 1.3f);
-                    float forceY = tornadoUpForce;
-                    float forceX = -tdz + tdx * tornadoInwardForce * yFader;
-                    float forceZ = tdx + tdz * tornadoInwardForce * yFader;
+                    float force = (1f - tornadoDist / TornadoMaxForceDist);
+                    float yFader = math.clamp(1f - point.pos.y / TornadoHeight, 0, 1);
+                    force *= TornadoFader * TornadoForce * rng.NextFloat(-.3f, 1.3f);
+                    float forceY = TornadoUpForce;
+                    float forceX = -tdz + tdx * TornadoInwardForce * yFader;
+                    float forceZ = tdx + tdz * TornadoInwardForce * yFader;
                     point.old -= new float3(forceX, forceY, forceZ) * force;
                 }
 
-                point.pos += (point.pos - point.old) * invDamping;
+                point.pos += (point.pos - point.old) * InvDamping;
 
                 point.old = start;
                 if (point.pos.y < 0f)
                 {
                     point.pos.y = 0f;
                     point.old.y = -point.old.y;
-                    point.old.x += (point.pos.x - point.old.x) * friction;
-                    point.old.z += (point.pos.z - point.old.z) * friction;
+                    point.old.x += (point.pos.x - point.old.x) * Friction;
+                    point.old.z += (point.pos.z - point.old.z) * Friction;
                 }
+                Points[i] = point;
             }
         }
+    }
+    
+    void FixedUpdate()
+    {
+        m_TornadoFader = Mathf.Clamp01(m_TornadoFader + Time.deltaTime / 10f);
+
+        float invDamping = 1f - damping;
+        
+        new UpdatePointsJob
+        {
+            TornadoFader = m_TornadoFader,
+            InvDamping = invDamping,
+            TornadoForce = tornadoForce,
+            TornadoHeight = tornadoHeight,
+            TornadoInwardForce = tornadoInwardForce,
+            TornadoUpForce = tornadoUpForce,
+            TornadoMaxForceDist = tornadoMaxForceDist,
+            Friction = friction,
+            Points = m_Points,
+            TornadoX = tornadoX,
+            TornadoZ = tornadoZ,
+            Time = Time.fixedTime,
+            Seed = (uint)Random.Range(1, 1000000)
+        }.Schedule(m_PointCount, 16).Complete();
 
         for (int i = 0; i < m_Bars.Length; i++)
         {
-            ref var bar = ref m_Bars[i];
+            var bar = m_Bars[i];
 
-            ref var point1 = ref m_Points[bar.point1];
-            ref var point2 = ref m_Points[bar.point2];
+            int origPoint1 = bar.point1;
+            int origPoint2 = bar.point2;
+            var point1 = m_Points[bar.point1];
+            var point2 = m_Points[bar.point2];
 
             var delta = point2.pos - point1.pos;
 
@@ -385,6 +430,9 @@ public class PointManager : MonoBehaviour
                 }
             }
 
+            m_Bars[i] = bar;
+            m_Points[origPoint1] = point1;
+            m_Points[origPoint2] = point2;
             m_Matrices[i / k_InstancesPerBatch][i % k_InstancesPerBatch] = bar.matrix;
         }
     }
