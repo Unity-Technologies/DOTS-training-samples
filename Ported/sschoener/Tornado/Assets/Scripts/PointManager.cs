@@ -120,29 +120,35 @@ public class PointManager : MonoBehaviour
             for (int i = 0; i < 35; i++)
             {
                 int height = Random.Range(4, 12);
-                Vector3 pos = new Vector3(Random.Range(-45f, 45f), 0f, Random.Range(-45f, 45f));
+                float3 pos = new float3(Random.Range(-45f, 45f), 0f, Random.Range(-45f, 45f));
                 float spacing = 2f;
                 for (int j = 0; j < height; j++)
                 {
                     {
-                        var point = new Point();
-                        point.pos = new float3(pos.x + spacing, j * spacing, pos.z - spacing);
+                        var point = new Point
+                        {
+                            pos = new float3(pos.x + spacing, j * spacing, pos.z - spacing),
+                            anchor = j == 0
+                        };
                         point.old = point.pos;
-                        point.anchor = j == 0;
                         pointsList.Add(point);
                     }
                     {
-                        var point = new Point();
-                        point.pos = new float3(pos.x - spacing, j * spacing, pos.z - spacing);
+                        var point = new Point
+                        {
+                            pos = new float3(pos.x - spacing, j * spacing, pos.z - spacing),
+                            anchor = j == 0
+                        };
                         point.old = point.pos;
-                        point.anchor = j == 0;
                         pointsList.Add(point);
                     }
                     {
-                        var point = new Point();
-                        point.pos = new float3(pos.x, j * spacing, pos.z + spacing);
+                        var point = new Point
+                        {
+                            pos = new float3(pos.x, j * spacing, pos.z + spacing),
+                            anchor = j == 0
+                        };
                         point.old = point.pos;
-                        point.anchor = j == 0;
                         pointsList.Add(point);
                     }
                 }
@@ -156,24 +162,28 @@ public class PointManager : MonoBehaviour
             {
                 var pos = new float3(Random.Range(-55f, 55f), 0f, Random.Range(-55f, 55f));
                 {
-                    var point = new Point();
-                    point.pos = pos + new float3(
-                        Random.Range(-.2f, -.1f),
-                        Random.Range(0f, 3f),
-                        Random.Range(.1f, .2f)
-                    );
+                    var point = new Point
+                    {
+                        pos = pos + new float3(
+                            Random.Range(-.2f, -.1f),
+                            Random.Range(0f, 3f),
+                            Random.Range(.1f, .2f)
+                        )
+                    };
                     point.old = point.pos;
                     pointsList.Add(point);
                 }
                 {
-                    var point = new Point();
-                    point.pos = pos + new float3(
-                        Random.Range(.1f, .2f),
-                        Random.Range(0, .2f),
-                        Random.Range(-.1f, -.2f)
-                    );
+                    var point = new Point
+                    {
+                        pos = pos + new float3(
+                            Random.Range(.1f, .2f),
+                            Random.Range(0, .2f),
+                            Random.Range(-.1f, -.2f)
+                        ),
+                        anchor = Random.value < .1f
+                    };
                     point.old = point.pos;
-                    point.anchor = Random.value < .1f;
 
                     pointsList.Add(point);
                 }
