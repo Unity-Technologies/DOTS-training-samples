@@ -7,6 +7,5 @@ public struct Bar
     public int point2;
     public float length;
     public float3 oldDelta;
-    public Color color;
     public float thickness;
 }

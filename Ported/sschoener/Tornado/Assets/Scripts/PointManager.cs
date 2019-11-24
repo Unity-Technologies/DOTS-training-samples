@@ -43,7 +43,6 @@ public class PointManager : MonoBehaviour
 
     void Awake()
     {
-        Time.timeScale = 0f;
         Random.InitState(0);
     }
 
@@ -61,19 +60,20 @@ public class PointManager : MonoBehaviour
 
     public static float TornadoSway(float y, float time) => math.sin(y / 5f + time / 4f) * 3f;
 
-    struct BarWithMatrix
+    struct BarWithGraphics
     {
         public Bar bar;
         public Matrix4x4 matrix;
+        public Color color;
     }
-    
+
     [BurstCompile]
     struct CollectBarsJob : IJobParallelFor
     {
         [ReadOnly]
         [DeallocateOnJobCompletion]
         public NativeArray<float3> Positions;
-        public NativeQueue<BarWithMatrix>.ParallelWriter Output;
+        public NativeQueue<BarWithGraphics>.ParallelWriter Output;
         public uint Seed;
 
         public void Execute(int index)
@@ -89,15 +89,16 @@ public class PointManager : MonoBehaviour
                 var l = math.length(delta);
                 if (l < 5f && l > .2f)
                 {
-                    var bar = new BarWithMatrix()
+                    var bar = new BarWithGraphics()
                     {
-                        bar = new Bar {
-                        point1 = index,
-                        point2 = j,
-                        length = l,
-                        thickness = rng.NextFloat(.25f, .35f)
+                        bar = new Bar
+                        {
+                            point1 = index,
+                            point2 = j,
+                            length = l,
+                            thickness = rng.NextFloat(.25f, .35f)
                         }
-                        };
+                    };
 
                     {
                         var pos = (pos1 + pos2) / 2;
@@ -108,7 +109,7 @@ public class PointManager : MonoBehaviour
                     {
                         var proj = math.dot(new float3(0, 1, 0), delta / l);
                         float upDot = math.acos(math.abs(proj)) / math.PI;
-                        bar.bar.color = Color.white * upDot * rng.NextFloat(.7f, 1f);
+                        bar.color = Color.white * upDot * rng.NextFloat(.7f, 1f);
                     }
 
                     Output.Enqueue(bar);
@@ -200,7 +201,7 @@ public class PointManager : MonoBehaviour
         using (new ProfilerMarker("CreateBars").Auto())
         {
             pointsList.Sort((p1, p2) => p1.pos.y.CompareTo(p2.pos.y));
-            var bars = new NativeQueue<BarWithMatrix>(Allocator.TempJob);
+            var bars = new NativeQueue<BarWithGraphics>(Allocator.TempJob);
             var positions = new NativeArray<float3>(pointsList.Count, Allocator.TempJob);
             for (int i = 0; i < pointsList.Count; i++)
                 positions[i] = pointsList[i].pos;
@@ -226,6 +227,11 @@ public class PointManager : MonoBehaviour
 
             using (new ProfilerMarker("SetNeighbors").Auto())
             {
+                m_MatProps = new MaterialPropertyBlock[numBatches];
+                for (int i = 0; i < numBatches; i++)
+                    m_MatProps[i] = new MaterialPropertyBlock();
+
+                Vector4[] colors = new Vector4[k_InstancesPerBatch];
                 m_Bars = new NativeArray<Bar>(bars.Count, Allocator.Persistent);
                 for (int i = 0; i < m_Bars.Length; i++)
                 {
@@ -242,6 +248,9 @@ public class PointManager : MonoBehaviour
                     int batch = i / k_InstancesPerBatch;
                     int index = i % k_InstancesPerBatch;
                     m_Matrices[batch][index] = bwm.matrix;
+                    colors[index] = bwm.color;
+                    if (index == colors.Length - 1 || i == m_Bars.Length - 1)
+                        m_MatProps[batch].SetVectorArray(k_Color, colors);
                 }
             }
 
@@ -274,21 +283,6 @@ public class PointManager : MonoBehaviour
         }
 
         Debug.Log(m_PointCount + " points, room for " + m_Points.Length + " (" + m_Bars.Length + " bars)");
-
-        m_MatProps = new MaterialPropertyBlock[m_Bars.Length];
-        Vector4[] colors = new Vector4[k_InstancesPerBatch];
-        for (int i = 0; i < m_Bars.Length; i++)
-        {
-            colors[i % k_InstancesPerBatch] = m_Bars[i].color;
-            if ((i + 1) % k_InstancesPerBatch == 0 || i == m_Bars.Length - 1)
-            {
-                MaterialPropertyBlock block = new MaterialPropertyBlock();
-                block.SetVectorArray(k_Color, colors);
-                m_MatProps[i / k_InstancesPerBatch] = block;
-            }
-        }
-
-        Time.timeScale = 1f;
     }
 
     [BurstCompile]
@@ -408,6 +402,7 @@ public class PointManager : MonoBehaviour
             if (math.dot(delta, bar.oldDelta) / dist < .99f)
             {
                 ref var matrix = ref m_Matrices[i / k_InstancesPerBatch][i % k_InstancesPerBatch];
+
                 // bar has rotated: expensive full-matrix computation
                 matrix = Matrix4x4.TRS(
                     (point1.pos + point2.pos) / 2,
