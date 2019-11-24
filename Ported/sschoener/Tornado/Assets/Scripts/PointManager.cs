@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -135,8 +134,12 @@ public class PointManager : MonoBehaviour
                     bar.AssignPoints(i, pointsList[i].pos, j, pointsList[j].pos);
                     if (bar.length < 5f && bar.length > .2f)
                     {
-                        pointsList[bar.point1].neighborCount++;
-                        pointsList[bar.point2].neighborCount++;
+                        var p1 = pointsList[bar.point1];
+                        p1.neighborCount++;
+                        pointsList[bar.point1] = p1;
+                        var p2 = pointsList[bar.point2];
+                        p2.neighborCount++;
+                        pointsList[bar.point2] = p2;
 
                         barsList.Add(bar);
                         matricesList[batch].Add(bar.matrix);
@@ -195,7 +198,6 @@ public class PointManager : MonoBehaviour
             }
         }
 
-        pointsList = null;
         barsList = null;
         matricesList = null;
         System.GC.Collect();
@@ -212,7 +214,7 @@ public class PointManager : MonoBehaviour
             float invDamping = 1f - damping;
             for (int i = 0; i < m_PointCount; i++)
             {
-                Point point = m_Points[i];
+                ref var point = ref m_Points[i];
                 if (point.anchor == false)
                 {
                     float3 start = point.pos;
@@ -253,8 +255,8 @@ public class PointManager : MonoBehaviour
             {
                 Bar bar = m_Bars[i];
 
-                Point point1 = m_Points[bar.point1];
-                Point point2 = m_Points[bar.point2];
+                ref var point1 = ref m_Points[bar.point1];
+                ref var point2 = ref m_Points[bar.point2];
 
                 var delta = point2.pos - point1.pos;
 
@@ -300,8 +302,7 @@ public class PointManager : MonoBehaviour
                     if (point2.neighborCount > 1)
                     {
                         point2.neighborCount--;
-                        Point newPoint = new Point();
-                        newPoint.CopyFrom(point2);
+                        Point newPoint = point2;
                         newPoint.neighborCount = 1;
                         m_Points[m_PointCount] = newPoint;
                         bar.point2 = m_PointCount;
@@ -310,8 +311,7 @@ public class PointManager : MonoBehaviour
                     else if (point1.neighborCount > 1)
                     {
                         point1.neighborCount--;
-                        Point newPoint = new Point();
-                        newPoint.CopyFrom(point1);
+                        Point newPoint = point1;
                         newPoint.neighborCount = 1;
                         m_Points[m_PointCount] = newPoint;
                         bar.point1 = m_PointCount;
