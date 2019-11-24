@@ -124,38 +124,51 @@ public class PointManager : MonoBehaviour
             }
         }
 
-        int batch = 0;
-
-        for (int i = 0; i < pointsList.Count; i++)
         {
-            for (int j = i + 1; j < pointsList.Count; j++)
-            {
-                Bar bar = new Bar();
-                bar.AssignPoints(pointsList[i], pointsList[j]);
-                if (bar.length < 5f && bar.length > .2f)
-                {
-                    bar.point1.neighborCount++;
-                    bar.point2.neighborCount++;
+            int batch = 0;
 
-                    barsList.Add(bar);
-                    matricesList[batch].Add(bar.matrix);
-                    if (matricesList[batch].Count == k_InstancesPerBatch)
+            for (int i = 0; i < pointsList.Count; i++)
+            {
+                for (int j = i + 1; j < pointsList.Count; j++)
+                {
+                    Bar bar = new Bar();
+                    bar.AssignPoints(i, pointsList[i].pos, j, pointsList[j].pos);
+                    if (bar.length < 5f && bar.length > .2f)
                     {
-                        batch++;
-                        matricesList.Add(new List<Matrix4x4>());
+                        pointsList[bar.point1].neighborCount++;
+                        pointsList[bar.point2].neighborCount++;
+
+                        barsList.Add(bar);
+                        matricesList[batch].Add(bar.matrix);
+                        if (matricesList[batch].Count == k_InstancesPerBatch)
+                        {
+                            batch++;
+                            matricesList.Add(new List<Matrix4x4>());
+                        }
                     }
                 }
             }
         }
 
-        m_Points = new Point[barsList.Count * 2];
-        m_PointCount = 0;
-        for (int i = 0; i < pointsList.Count; i++)
         {
-            if (pointsList[i].neighborCount > 0)
+            var pointRemap = new int[pointsList.Count];
+            m_Points = new Point[barsList.Count * 2];
+            m_PointCount = 0;
+
+            for (int i = 0; i < pointsList.Count; i++)
             {
-                m_Points[m_PointCount] = pointsList[i];
-                m_PointCount++;
+                if (pointsList[i].neighborCount > 0)
+                {
+                    m_Points[m_PointCount] = pointsList[i];
+                    pointRemap[i] = m_PointCount;
+                    m_PointCount++;
+                }
+            }
+
+            for (int i = 0; i < barsList.Count; i++)
+            {
+                barsList[i].point1 = pointRemap[barsList[i].point1];
+                barsList[i].point2 = pointRemap[barsList[i].point2];
             }
         }
 
@@ -240,8 +253,8 @@ public class PointManager : MonoBehaviour
             {
                 Bar bar = m_Bars[i];
 
-                Point point1 = bar.point1;
-                Point point2 = bar.point2;
+                Point point1 = m_Points[bar.point1];
+                Point point2 = m_Points[bar.point2];
 
                 var delta = point2.pos - point1.pos;
 
@@ -291,7 +304,7 @@ public class PointManager : MonoBehaviour
                         newPoint.CopyFrom(point2);
                         newPoint.neighborCount = 1;
                         m_Points[m_PointCount] = newPoint;
-                        bar.point2 = newPoint;
+                        bar.point2 = m_PointCount;
                         m_PointCount++;
                     }
                     else if (point1.neighborCount > 1)
@@ -301,7 +314,7 @@ public class PointManager : MonoBehaviour
                         newPoint.CopyFrom(point1);
                         newPoint.neighborCount = 1;
                         m_Points[m_PointCount] = newPoint;
-                        bar.point1 = newPoint;
+                        bar.point1 = m_PointCount;
                         m_PointCount++;
                     }
                 }
