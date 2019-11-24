@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Profiling;
@@ -26,7 +28,12 @@ public class PointManager : MonoBehaviour
 
     NativeArray<Point> m_Points;
     NativeArray<Bar> m_Bars;
-    int m_PointCount;
+    int pointCount
+    {
+        get => m_PointCountArray[0];
+        set => m_PointCountArray[0] = value;
+    }
+    NativeArray<int> m_PointCountArray;
 
     public static float tornadoX;
     public static float tornadoZ;
@@ -35,6 +42,7 @@ public class PointManager : MonoBehaviour
 
     Matrix4x4[][] m_Matrices;
     MaterialPropertyBlock[] m_MatProps;
+    List<GCHandle> m_GcHandles = new List<GCHandle>();
 
     Transform m_Cam;
     static readonly int k_Color = Shader.PropertyToID("_Color");
@@ -44,6 +52,7 @@ public class PointManager : MonoBehaviour
     void Awake()
     {
         Random.InitState(0);
+        m_PointCountArray = new NativeArray<int>(1, Allocator.Persistent);
     }
 
     void Start()
@@ -56,6 +65,7 @@ public class PointManager : MonoBehaviour
     {
         m_Bars.Dispose();
         m_Points.Dispose();
+        m_PointCountArray.Dispose();
     }
 
     public static float TornadoSway(float y, float time) => math.sin(y / 5f + time / 4f) * 3f;
@@ -261,15 +271,15 @@ public class PointManager : MonoBehaviour
         {
             var pointRemap = new int[pointsList.Count];
             m_Points = new NativeArray<Point>(m_Bars.Length * 2, Allocator.Persistent);
-            m_PointCount = 0;
+            pointCount = 0;
 
             for (int i = 0; i < pointsList.Count; i++)
             {
                 if (pointsList[i].neighborCount > 0)
                 {
-                    m_Points[m_PointCount] = pointsList[i];
-                    pointRemap[i] = m_PointCount;
-                    m_PointCount++;
+                    m_Points[pointCount] = pointsList[i];
+                    pointRemap[i] = pointCount;
+                    pointCount++;
                 }
             }
 
@@ -282,7 +292,7 @@ public class PointManager : MonoBehaviour
             }
         }
 
-        Debug.Log(m_PointCount + " points, room for " + m_Points.Length + " (" + m_Bars.Length + " bars)");
+        Debug.Log(pointCount + " points, room for " + m_Points.Length + " (" + m_Bars.Length + " bars)");
     }
 
     [BurstCompile]
@@ -345,13 +355,147 @@ public class PointManager : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
+    [BurstCompile]
+    unsafe struct ComputeMatrixJob : IJobParallelFor
+    {
+        [NativeDisableUnsafePtrRestriction]
+        public Matrix4x4** m_Matrices;
+
+        [ReadOnly]
+        public NativeArray<float3> Delta;
+        [ReadOnly]
+        public NativeArray<Point> Points;
+        public NativeArray<Bar> Bars;
+        
+        
+        public void Execute(int i)
+        {
+            var bar = Bars[i];
+            if (math.dot(Delta[i], bar.oldDelta) < .99f)
+            {
+                ref var matrix = ref m_Matrices[i / k_InstancesPerBatch][i % k_InstancesPerBatch];
+
+                // bar has rotated: expensive full-matrix computation
+                matrix = Matrix4x4.TRS(
+                    (Points[bar.point1].pos + Points[bar.point2].pos) / 2,
+                    Quaternion.LookRotation(Delta[i]),
+                    new Vector3(bar.thickness, bar.thickness, bar.length));
+                bar.oldDelta = Delta[i];
+            }
+            else
+            {
+                // bar hasn't rotated: only update the position elements
+                var p = (Points[bar.point1].pos + Points[bar.point2].pos) / 2;
+                ref var matrix = ref m_Matrices[i / k_InstancesPerBatch][i % k_InstancesPerBatch];
+                matrix.m03 = p.x;
+                matrix.m13 = p.y;
+                matrix.m23 = p.z;
+            
+            }
+        }
+    }
+
+    [BurstCompile]
+    struct ComputePushJob : IJob
+    {
+        [ReadOnly]
+        public NativeArray<Bar> Bars;
+        public NativeArray<Point> Points;
+        [WriteOnly]
+        public NativeArray<float> ExtraDist;
+        [WriteOnly]
+        public NativeArray<float3> Delta;
+        public void Execute()
+        {
+            for (int i = 0; i < Bars.Length; i++)
+            {
+                var bar = Bars[i];
+                var point1 = Points[bar.point1];
+                var point2 = Points[bar.point2];
+
+                var d = point2.pos - point1.pos;
+                float dist = math.length(d);
+                d = Delta[i] = d / dist;
+                float extra = ExtraDist[i] = dist - bar.length;
+
+                {
+                    var push = d * extra * .5f;
+                    if (!point1.anchor && !point2.anchor)
+                    {
+                        point1.pos += push;
+                        point2.pos -= push;
+                    }
+                    else if (point1.anchor)
+                    {
+                        point2.pos -= push * 2f;
+                    }
+                    else if (point2.anchor)
+                    {
+                        point1.pos += push * 2f;
+                    }
+                }
+                Points[bar.point1] = point1;
+                Points[bar.point2] = point2;
+            }
+        }
+    }
+
+    [BurstCompile]
+    struct DoBreakJob : IJob
+    {
+        public NativeArray<Bar> Bars;
+        public float BreakResistance;
+        public NativeArray<Point> Points;
+        public NativeArray<float> ExtraDist;
+        public NativeArray<int> PointCount;
+        
+        public void Execute()
+        {
+            for (int i = 0; i < Bars.Length; i++)
+            {
+                if (math.abs(ExtraDist[i]) > BreakResistance)
+                {
+                    var bar = Bars[i];
+                    int origPoint1 = bar.point1;
+                    int origPoint2 = bar.point2;
+                    var point1 = Points[origPoint1];
+                    var point2 = Points[origPoint2];
+                    if (point2.neighborCount > 1)
+                    {
+                        point2.neighborCount--;
+                        Point newPoint = point2;
+                        newPoint.neighborCount = 1;
+                        Points[PointCount[0]] = newPoint;
+                        bar.point2 = PointCount[0];
+                        PointCount[0] += 1;
+
+                        Points[origPoint2] = point2;
+                        Bars[i] = bar;
+                    }
+                    else if (point1.neighborCount > 1)
+                    {
+                        point1.neighborCount--;
+                        Point newPoint = point1;
+                        newPoint.neighborCount = 1;
+                        Points[PointCount[0]] = newPoint;
+                        bar.point1 = PointCount[0];
+                        PointCount[0] += 1;
+                        
+                        Points[origPoint1] = point1;
+                        Bars[i] = bar;
+                    }
+                }
+            }
+        }
+    }
+
+    unsafe void FixedUpdate()
     {
         m_TornadoFader = Mathf.Clamp01(m_TornadoFader + Time.deltaTime / 10f);
 
         float invDamping = 1f - damping;
 
-        new UpdatePointsJob
+        var updatePointsJob = new UpdatePointsJob
         {
             TornadoFader = m_TornadoFader,
             InvDamping = invDamping,
@@ -366,86 +510,51 @@ public class PointManager : MonoBehaviour
             TornadoZ = tornadoZ,
             Time = Time.fixedTime,
             Seed = (uint)Random.Range(1, 1000000)
-        }.Schedule(m_PointCount, 16).Complete();
+        }.Schedule(pointCount, 16);
 
-        for (int i = 0; i < m_Bars.Length; i++)
+        NativeArray<float> extraDist = new NativeArray<float>(m_Bars.Length, Allocator.TempJob);
+        NativeArray<float3> delta = new NativeArray<float3>(m_Bars.Length, Allocator.TempJob);
+
+        var pushJob = new ComputePushJob
         {
-            var bar = m_Bars[i];
+            Bars = m_Bars,
+            Delta = delta,
+            ExtraDist = extraDist,
+            Points = m_Points
+        }.Schedule(updatePointsJob);
 
-            int origPoint1 = bar.point1;
-            int origPoint2 = bar.point2;
-            var point1 = m_Points[bar.point1];
-            var point2 = m_Points[bar.point2];
-
-            var delta = point2.pos - point1.pos;
-
-            float dist = math.length(delta);
-            float extraDist = dist - bar.length;
-
-            {
-                var push = delta / dist * extraDist * .5f;
-                if (!point1.anchor && !point2.anchor)
-                {
-                    point1.pos += push;
-                    point2.pos -= push;
-                }
-                else if (point1.anchor)
-                {
-                    point2.pos -= push * 2f;
-                }
-                else if (point2.anchor)
-                {
-                    point1.pos += push * 2f;
-                }
-            }
-
-            if (math.dot(delta, bar.oldDelta) / dist < .99f)
-            {
-                ref var matrix = ref m_Matrices[i / k_InstancesPerBatch][i % k_InstancesPerBatch];
-
-                // bar has rotated: expensive full-matrix computation
-                matrix = Matrix4x4.TRS(
-                    (point1.pos + point2.pos) / 2,
-                    Quaternion.LookRotation(delta),
-                    new Vector3(bar.thickness, bar.thickness, bar.length));
-                bar.oldDelta = delta / dist;
-            }
-            else
-            {
-                // bar hasn't rotated: only update the position elements
-                var p = (point1.pos + point2.pos) / 2;
-                ref var matrix = ref m_Matrices[i / k_InstancesPerBatch][i % k_InstancesPerBatch];
-                matrix.m03 = p.x;
-                matrix.m13 = p.y;
-                matrix.m23 = p.z;
-            }
-
-            if (math.abs(extraDist) > breakResistance)
-            {
-                if (point2.neighborCount > 1)
-                {
-                    point2.neighborCount--;
-                    Point newPoint = point2;
-                    newPoint.neighborCount = 1;
-                    m_Points[m_PointCount] = newPoint;
-                    bar.point2 = m_PointCount;
-                    m_PointCount++;
-                }
-                else if (point1.neighborCount > 1)
-                {
-                    point1.neighborCount--;
-                    Point newPoint = point1;
-                    newPoint.neighborCount = 1;
-                    m_Points[m_PointCount] = newPoint;
-                    bar.point1 = m_PointCount;
-                    m_PointCount++;
-                }
-            }
-
-            m_Bars[i] = bar;
-            m_Points[origPoint1] = point1;
-            m_Points[origPoint2] = point2;
+        var matrices = new Matrix4x4*[m_Matrices.Length];
+        for (int i = 0; i < m_Matrices.Length; i++)
+        {
+            m_GcHandles.Add(GCHandle.Alloc(m_Matrices[i], GCHandleType.Pinned));
+            matrices[i] = (Matrix4x4*)m_GcHandles[i].AddrOfPinnedObject().ToPointer();
         }
+
+        var matrixHandle = GCHandle.Alloc(matrices, GCHandleType.Pinned);
+        var matrixJob = new ComputeMatrixJob
+        {
+            Bars = m_Bars,
+            Delta = delta,
+            Points = m_Points,
+            m_Matrices = (Matrix4x4**)matrixHandle.AddrOfPinnedObject().ToPointer()
+        }.Schedule(m_Bars.Length, 8, pushJob);
+
+        new DoBreakJob
+        {
+            BreakResistance = breakResistance,
+            ExtraDist = extraDist,
+            Bars = m_Bars,
+            Points = m_Points,
+            PointCount = m_PointCountArray
+        }.Schedule(matrixJob).Complete();
+        
+        matrixHandle.Free();
+        for (int i = 0; i < m_GcHandles.Count; i++)
+            m_GcHandles[i].Free();
+        m_GcHandles.Clear();
+        
+        delta.Dispose();
+        extraDist.Dispose();
     }
 
     void Update()
