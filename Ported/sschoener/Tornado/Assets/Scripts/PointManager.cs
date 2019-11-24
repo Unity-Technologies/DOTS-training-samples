@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Profiling;
 using UnityEngine;
@@ -55,12 +58,59 @@ public class PointManager : MonoBehaviour
         return Mathf.Sin(y / 5f + Time.time / 4f) * 3f;
     }
 
+    [BurstCompile]
+    struct CollectBarsJob : IJobParallelFor
+    {
+        [ReadOnly]
+        [DeallocateOnJobCompletion]
+        public NativeArray<float3> Positions;
+        public NativeQueue<Bar>.ParallelWriter Output;
+        public uint Seed;
+
+        public void Execute(int index)
+        {
+            var rng = new Unity.Mathematics.Random(Seed * (1 + (uint)index) * 100153);
+            var pos1 = Positions[index];
+            for (int j = index + 1; j < Positions.Length; j++)
+            {
+                var pos2 = Positions[j];
+                if (pos2.y >= pos1.y + 5f)
+                    break;
+                var delta = pos1 - pos2;
+                var l = math.length(delta);
+                if (l < 5f && l > .2f)
+                {
+                    Bar bar = new Bar
+                    {
+                        point1 = index,
+                        point2 = j,
+                        length = l,
+                        thickness = rng.NextFloat(.25f, .35f)
+                    };
+
+                    {
+                        var pos = (pos1 + pos2) / 2;
+                        var rot = quaternion.LookRotation(delta, new float3(0, 1, 0));
+                        var scale = new float3(bar.thickness, bar.thickness, bar.length);
+                        bar.matrix = float4x4.TRS(pos, rot, scale);
+                    }
+                    {
+                        var proj = math.dot(new float3(0, 1, 0), delta / l);
+                        float upDot = math.acos(math.abs(proj)) / math.PI;
+                        bar.color = Color.white * upDot * rng.NextFloat(.7f, 1f);
+                    }
+
+                    Output.Enqueue(bar);
+                }
+            }
+        }
+    }
+
     void Generate()
     {
         m_Generating = true;
 
         List<Point> pointsList = new List<Point>();
-        List<Bar> barsList = new List<Bar>();
         List<List<Matrix4x4>> matricesList = new List<List<Matrix4x4>>();
         matricesList.Add(new List<Matrix4x4>());
 
@@ -132,63 +182,47 @@ public class PointManager : MonoBehaviour
 
         using (new ProfilerMarker("CreateBars").Auto())
         {
-            int batch = 0;
             pointsList.Sort((p1, p2) => p1.pos.y.CompareTo(p2.pos.y));
-
+            var bars = new NativeQueue<Bar>(Allocator.TempJob);
+            var positions = new NativeArray<float3>(pointsList.Count, Allocator.TempJob);
             for (int i = 0; i < pointsList.Count; i++)
-            {
-                for (int j = i + 1; j < pointsList.Count; j++)
-                {
-                    var pos1 = pointsList[i].pos;
-                    var pos2 = pointsList[j].pos;
-                    if (pos2.y > pos1.y + .5f)
-                        break;
-                    var delta = pos1 - pos2;
-                    var l = math.length(delta);
-                    if (l < 5f && l > .2f)
-                    {
-                        Bar bar = new Bar
-                        {
-                            point1 = i,
-                            point2 = j,
-                            length = l,
-                            thickness = Random.Range(.25f, .35f)
-                        };
+                positions[i] = pointsList[i].pos;
 
-                        {
-                            var pos = (pos1 + pos2) / 2;
-                            var rot = quaternion.LookRotation(delta, new float3(0, 1, 0));
-                            var scale = new float3(bar.thickness, bar.thickness, bar.length);
-                            bar.matrix = float4x4.TRS(pos, rot, scale);
-                        }
-                        {
-                            var proj = math.dot(new float3(0, 1, 0), delta / l);
-                            float upDot = math.acos(math.abs(proj)) / math.PI;
-                            bar.color = Color.white * upDot * Random.Range(.7f, 1f);
-                        }
-                        {
-                            var p1 = pointsList[bar.point1];
-                            p1.neighborCount++;
-                            pointsList[bar.point1] = p1;
-                            var p2 = pointsList[bar.point2];
-                            p2.neighborCount++;
-                            pointsList[bar.point2] = p2;
-                        }
-                        barsList.Add(bar);
-                        matricesList[batch].Add(bar.matrix);
-                        if (matricesList[batch].Count == k_InstancesPerBatch)
-                        {
-                            batch++;
-                            matricesList.Add(new List<Matrix4x4>());
-                        }
-                    }
+            new CollectBarsJob
+            {
+                Output = bars.AsParallelWriter(),
+                Positions = positions,
+                Seed = (uint)(Random.value * 1000000)
+            }.Schedule(positions.Length, 1).Complete();
+
+            int batch = 0;
+            m_Bars = new Bar[bars.Count];
+            for (int i = 0; i < m_Bars.Length; i++)
+            {
+                m_Bars[i] = bars.Dequeue();
+                ref var bar = ref m_Bars[i];
+                {
+                    var p1 = pointsList[bar.point1];
+                    p1.neighborCount++;
+                    pointsList[bar.point1] = p1;
+                    var p2 = pointsList[bar.point2];
+                    p2.neighborCount++;
+                    pointsList[bar.point2] = p2;
+                }
+                matricesList[batch].Add(bar.matrix);
+                if (matricesList[batch].Count == k_InstancesPerBatch)
+                {
+                    batch++;
+                    matricesList.Add(new List<Matrix4x4>());
                 }
             }
+
+            bars.Dispose();
         }
 
         {
             var pointRemap = new int[pointsList.Count];
-            m_Points = new Point[barsList.Count * 2];
+            m_Points = new Point[m_Bars.Length * 2];
             m_PointCount = 0;
 
             for (int i = 0; i < pointsList.Count; i++)
@@ -201,7 +235,6 @@ public class PointManager : MonoBehaviour
                 }
             }
 
-            m_Bars = barsList.ToArray();
             for (int i = 0; i < m_Bars.Length; i++)
             {
                 m_Bars[i].point1 = pointRemap[m_Bars[i].point1];
@@ -209,7 +242,7 @@ public class PointManager : MonoBehaviour
             }
         }
 
-        Debug.Log(m_PointCount + " points, room for " + m_Points.Length + " (" + barsList.Count + " bars)");
+        Debug.Log(m_PointCount + " points, room for " + m_Points.Length + " (" + m_Bars.Length + " bars)");
 
         m_Matrices = new Matrix4x4[matricesList.Count][];
         for (int i = 0; i < m_Matrices.Length; i++)
@@ -217,12 +250,12 @@ public class PointManager : MonoBehaviour
             m_Matrices[i] = matricesList[i].ToArray();
         }
 
-        m_MatProps = new MaterialPropertyBlock[barsList.Count];
+        m_MatProps = new MaterialPropertyBlock[m_Bars.Length];
         Vector4[] colors = new Vector4[k_InstancesPerBatch];
-        for (int i = 0; i < barsList.Count; i++)
+        for (int i = 0; i < m_Bars.Length; i++)
         {
-            colors[i % k_InstancesPerBatch] = barsList[i].color;
-            if ((i + 1) % k_InstancesPerBatch == 0 || i == barsList.Count - 1)
+            colors[i % k_InstancesPerBatch] = m_Bars[i].color;
+            if ((i + 1) % k_InstancesPerBatch == 0 || i == m_Bars.Length - 1)
             {
                 MaterialPropertyBlock block = new MaterialPropertyBlock();
                 block.SetVectorArray(k_Color, colors);
@@ -230,8 +263,6 @@ public class PointManager : MonoBehaviour
             }
         }
 
-        matricesList = null;
-        System.GC.Collect();
         m_Generating = false;
         Time.timeScale = 1f;
     }
