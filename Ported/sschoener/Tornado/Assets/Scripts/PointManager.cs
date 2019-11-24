@@ -61,13 +61,19 @@ public class PointManager : MonoBehaviour
 
     public static float TornadoSway(float y, float time) => math.sin(y / 5f + time / 4f) * 3f;
 
+    struct BarWithMatrix
+    {
+        public Bar bar;
+        public Matrix4x4 matrix;
+    }
+    
     [BurstCompile]
     struct CollectBarsJob : IJobParallelFor
     {
         [ReadOnly]
         [DeallocateOnJobCompletion]
         public NativeArray<float3> Positions;
-        public NativeQueue<Bar>.ParallelWriter Output;
+        public NativeQueue<BarWithMatrix>.ParallelWriter Output;
         public uint Seed;
 
         public void Execute(int index)
@@ -83,24 +89,26 @@ public class PointManager : MonoBehaviour
                 var l = math.length(delta);
                 if (l < 5f && l > .2f)
                 {
-                    Bar bar = new Bar
+                    var bar = new BarWithMatrix()
                     {
+                        bar = new Bar {
                         point1 = index,
                         point2 = j,
                         length = l,
                         thickness = rng.NextFloat(.25f, .35f)
-                    };
+                        }
+                        };
 
                     {
                         var pos = (pos1 + pos2) / 2;
                         var rot = quaternion.LookRotation(delta, new float3(0, 1, 0));
-                        var scale = new float3(bar.thickness, bar.thickness, bar.length);
+                        var scale = new float3(bar.bar.thickness, bar.bar.thickness, bar.bar.length);
                         bar.matrix = float4x4.TRS(pos, rot, scale);
                     }
                     {
                         var proj = math.dot(new float3(0, 1, 0), delta / l);
                         float upDot = math.acos(math.abs(proj)) / math.PI;
-                        bar.color = Color.white * upDot * rng.NextFloat(.7f, 1f);
+                        bar.bar.color = Color.white * upDot * rng.NextFloat(.7f, 1f);
                     }
 
                     Output.Enqueue(bar);
@@ -192,7 +200,7 @@ public class PointManager : MonoBehaviour
         using (new ProfilerMarker("CreateBars").Auto())
         {
             pointsList.Sort((p1, p2) => p1.pos.y.CompareTo(p2.pos.y));
-            var bars = new NativeQueue<Bar>(Allocator.TempJob);
+            var bars = new NativeQueue<BarWithMatrix>(Allocator.TempJob);
             var positions = new NativeArray<float3>(pointsList.Count, Allocator.TempJob);
             for (int i = 0; i < pointsList.Count; i++)
                 positions[i] = pointsList[i].pos;
@@ -221,7 +229,8 @@ public class PointManager : MonoBehaviour
                 m_Bars = new NativeArray<Bar>(bars.Count, Allocator.Persistent);
                 for (int i = 0; i < m_Bars.Length; i++)
                 {
-                    m_Bars[i] = bars.Dequeue();
+                    var bwm = bars.Dequeue();
+                    m_Bars[i] = bwm.bar;
                     {
                         var p1 = pointsList[m_Bars[i].point1];
                         p1.neighborCount++;
@@ -230,6 +239,9 @@ public class PointManager : MonoBehaviour
                         p2.neighborCount++;
                         pointsList[m_Bars[i].point2] = p2;
                     }
+                    int batch = i / k_InstancesPerBatch;
+                    int index = i % k_InstancesPerBatch;
+                    m_Matrices[batch][index] = bwm.matrix;
                 }
             }
 
@@ -295,6 +307,7 @@ public class PointManager : MonoBehaviour
         public float TornadoX;
         public float TornadoZ;
         public uint Seed;
+
         public void Execute(int i)
         {
             var rng = new Unity.Mathematics.Random((1 + (uint)i) * Seed * 20479);
@@ -332,17 +345,18 @@ public class PointManager : MonoBehaviour
                     point.old.x += (point.pos.x - point.old.x) * Friction;
                     point.old.z += (point.pos.z - point.old.z) * Friction;
                 }
+
                 Points[i] = point;
             }
         }
     }
-    
+
     void FixedUpdate()
     {
         m_TornadoFader = Mathf.Clamp01(m_TornadoFader + Time.deltaTime / 10f);
 
         float invDamping = 1f - damping;
-        
+
         new UpdatePointsJob
         {
             TornadoFader = m_TornadoFader,
@@ -374,25 +388,28 @@ public class PointManager : MonoBehaviour
             float dist = math.length(delta);
             float extraDist = dist - bar.length;
 
-            var push = delta / dist * extraDist * .5f;
-            if (!point1.anchor && !point2.anchor)
             {
-                point1.pos += push;
-                point2.pos -= push;
-            }
-            else if (point1.anchor)
-            {
-                point2.pos -= push * 2f;
-            }
-            else if (point2.anchor)
-            {
-                point1.pos += push * 2f;
+                var push = delta / dist * extraDist * .5f;
+                if (!point1.anchor && !point2.anchor)
+                {
+                    point1.pos += push;
+                    point2.pos -= push;
+                }
+                else if (point1.anchor)
+                {
+                    point2.pos -= push * 2f;
+                }
+                else if (point2.anchor)
+                {
+                    point1.pos += push * 2f;
+                }
             }
 
             if (math.dot(delta, bar.oldDelta) / dist < .99f)
             {
+                ref var matrix = ref m_Matrices[i / k_InstancesPerBatch][i % k_InstancesPerBatch];
                 // bar has rotated: expensive full-matrix computation
-                bar.matrix = Matrix4x4.TRS(
+                matrix = Matrix4x4.TRS(
                     (point1.pos + point2.pos) / 2,
                     Quaternion.LookRotation(delta),
                     new Vector3(bar.thickness, bar.thickness, bar.length));
@@ -401,14 +418,14 @@ public class PointManager : MonoBehaviour
             else
             {
                 // bar hasn't rotated: only update the position elements
-                Matrix4x4 matrix = bar.matrix;
-                matrix.m03 = (point1.pos.x + point2.pos.x) * .5f;
-                matrix.m13 = (point1.pos.y + point2.pos.y) * .5f;
-                matrix.m23 = (point1.pos.z + point2.pos.z) * .5f;
-                bar.matrix = matrix;
+                var p = (point1.pos + point2.pos) / 2;
+                ref var matrix = ref m_Matrices[i / k_InstancesPerBatch][i % k_InstancesPerBatch];
+                matrix.m03 = p.x;
+                matrix.m13 = p.y;
+                matrix.m23 = p.z;
             }
 
-            if (Mathf.Abs(extraDist) > breakResistance)
+            if (math.abs(extraDist) > breakResistance)
             {
                 if (point2.neighborCount > 1)
                 {
@@ -433,7 +450,6 @@ public class PointManager : MonoBehaviour
             m_Bars[i] = bar;
             m_Points[origPoint1] = point1;
             m_Points[origPoint2] = point2;
-            m_Matrices[i / k_InstancesPerBatch][i % k_InstancesPerBatch] = bar.matrix;
         }
     }
 
