@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using Unity.Mathematics;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class PointManager : MonoBehaviour
 {
@@ -71,12 +74,8 @@ public class PointManager : MonoBehaviour
             for (int j = 0; j < height; j++)
             {
                 Point point = new Point();
-                point.x = pos.x + spacing;
-                point.y = j * spacing;
-                point.z = pos.z - spacing;
-                point.oldX = point.x;
-                point.oldY = point.y;
-                point.oldZ = point.z;
+                point.pos = new float3(pos.x + spacing, j * spacing, pos.z - spacing);
+                point.old = point.pos;
                 if (j == 0)
                 {
                     point.anchor = true;
@@ -84,12 +83,8 @@ public class PointManager : MonoBehaviour
 
                 pointsList.Add(point);
                 point = new Point();
-                point.x = pos.x - spacing;
-                point.y = j * spacing;
-                point.z = pos.z - spacing;
-                point.oldX = point.x;
-                point.oldY = point.y;
-                point.oldZ = point.z;
+                point.pos = new float3(pos.x - spacing, j * spacing, pos.z - spacing);
+                point.old = point.pos;
                 if (j == 0)
                 {
                     point.anchor = true;
@@ -97,12 +92,8 @@ public class PointManager : MonoBehaviour
 
                 pointsList.Add(point);
                 point = new Point();
-                point.x = pos.x + 0f;
-                point.y = j * spacing;
-                point.z = pos.z + spacing;
-                point.oldX = point.x;
-                point.oldY = point.y;
-                point.oldZ = point.z;
+                point.pos = new float3(pos.x, j * spacing, pos.z + spacing);
+                point.old = point.pos;
                 if (j == 0)
                 {
                     point.anchor = true;
@@ -115,23 +106,24 @@ public class PointManager : MonoBehaviour
         // ground details
         for (int i = 0; i < 600; i++)
         {
-            Vector3 pos = new Vector3(Random.Range(-55f, 55f), 0f, Random.Range(-55f, 55f));
+            var pos = new float3(Random.Range(-55f, 55f), 0f, Random.Range(-55f, 55f));
             Point point = new Point();
-            point.x = pos.x + Random.Range(-.2f, -.1f);
-            point.y = pos.y + Random.Range(0f, 3f);
-            point.z = pos.z + Random.Range(.1f, .2f);
-            point.oldX = point.x;
-            point.oldY = point.y;
-            point.oldZ = point.z;
+
+            point.pos = pos + new float3(
+                Random.Range(-.2f, -.1f),
+                Random.Range(0f, 3f),
+                Random.Range(.1f, .2f)
+            );
+            point.old = point.pos;
             pointsList.Add(point);
 
             point = new Point();
-            point.x = pos.x + Random.Range(.2f, .1f);
-            point.y = pos.y + Random.Range(0f, .2f);
-            point.z = pos.z + Random.Range(-.1f, -.2f);
-            point.oldX = point.x;
-            point.oldY = point.y;
-            point.oldZ = point.z;
+            point.pos = pos + new float3(
+                Random.Range(.1f, .2f),
+                Random.Range(0, .2f),
+                Random.Range(-.1f, -.2f)
+            );
+            point.old = point.pos;
             if (Random.value < .1f)
             {
                 point.anchor = true;
@@ -223,44 +215,36 @@ public class PointManager : MonoBehaviour
                 Point point = m_Points[i];
                 if (point.anchor == false)
                 {
-                    float startX = point.x;
-                    float startY = point.y;
-                    float startZ = point.z;
+                    float3 start = point.pos;
 
-                    point.oldY += .01f;
+                    point.old.y += .01f;
 
                     // tornado force
-                    float tdx = tornadoX + TornadoSway(point.y) - point.x;
-                    float tdz = tornadoZ - point.z;
+                    float tdx = tornadoX + TornadoSway(point.pos.y) - point.pos.x;
+                    float tdz = tornadoZ - point.pos.z;
                     float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
                     tdx /= tornadoDist;
                     tdz /= tornadoDist;
                     if (tornadoDist < tornadoMaxForceDist)
                     {
                         float force = (1f - tornadoDist / tornadoMaxForceDist);
-                        float yFader = Mathf.Clamp01(1f - point.y / tornadoHeight);
+                        float yFader = Mathf.Clamp01(1f - point.pos.y / tornadoHeight);
                         force *= m_TornadoFader * tornadoForce * Random.Range(-.3f, 1.3f);
                         float forceY = tornadoUpForce;
-                        point.oldY -= forceY * force;
                         float forceX = -tdz + tdx * tornadoInwardForce * yFader;
                         float forceZ = tdx + tdz * tornadoInwardForce * yFader;
-                        point.oldX -= forceX * force;
-                        point.oldZ -= forceZ * force;
+                        point.old -= new float3(forceX, forceY, forceZ) * force;
                     }
 
-                    point.x += (point.x - point.oldX) * invDamping;
-                    point.y += (point.y - point.oldY) * invDamping;
-                    point.z += (point.z - point.oldZ) * invDamping;
+                    point.pos += (point.pos - point.old) * invDamping;
 
-                    point.oldX = startX;
-                    point.oldY = startY;
-                    point.oldZ = startZ;
-                    if (point.y < 0f)
+                    point.old = start;
+                    if (point.pos.y < 0f)
                     {
-                        point.y = 0f;
-                        point.oldY = -point.oldY;
-                        point.oldX += (point.x - point.oldX) * friction;
-                        point.oldZ += (point.z - point.oldZ) * friction;
+                        point.pos.y = 0f;
+                        point.old.y = -point.old.y;
+                        point.old.x += (point.pos.x - point.old.x) * friction;
+                        point.old.z += (point.pos.z - point.old.z) * friction;
                     }
                 }
             }
@@ -272,56 +256,43 @@ public class PointManager : MonoBehaviour
                 Point point1 = bar.point1;
                 Point point2 = bar.point2;
 
-                float dx = point2.x - point1.x;
-                float dy = point2.y - point1.y;
-                float dz = point2.z - point1.z;
+                var delta = point2.pos - point1.pos;
 
-                float dist = Mathf.Sqrt(dx * dx + dy * dy + dz * dz);
+                float dist = math.length(delta);
                 float extraDist = dist - bar.length;
 
-                float pushX = (dx / dist * extraDist) * .5f;
-                float pushY = (dy / dist * extraDist) * .5f;
-                float pushZ = (dz / dist * extraDist) * .5f;
-
-                if (point1.anchor == false && point2.anchor == false)
+                var push = delta / dist * extraDist * .5f;
+                if (!point1.anchor && !point2.anchor)
                 {
-                    point1.x += pushX;
-                    point1.y += pushY;
-                    point1.z += pushZ;
-                    point2.x -= pushX;
-                    point2.y -= pushY;
-                    point2.z -= pushZ;
+                    point1.pos += push;
+                    point2.pos -= push;
                 }
                 else if (point1.anchor)
                 {
-                    point2.x -= pushX * 2f;
-                    point2.y -= pushY * 2f;
-                    point2.z -= pushZ * 2f;
+                    point2.pos -= push * 2f;
                 }
                 else if (point2.anchor)
                 {
-                    point1.x += pushX * 2f;
-                    point1.y += pushY * 2f;
-                    point1.z += pushZ * 2f;
+                    point1.pos += push * 2f;
                 }
 
-                if (dx / dist * bar.oldDX + dy / dist * bar.oldDY + dz / dist * bar.oldDZ < .99f)
+                
+                if (math.dot(delta, bar.oldDelta) / dist < .99f)
                 {
                     // bar has rotated: expensive full-matrix computation
-                    bar.matrix = Matrix4x4.TRS(new Vector3((point1.x + point2.x) * .5f, (point1.y + point2.y) * .5f, (point1.z + point2.z) * .5f),
-                        Quaternion.LookRotation(new Vector3(dx, dy, dz)),
+                    bar.matrix = Matrix4x4.TRS(
+                        (point1.pos + point2.pos) / 2,
+                        Quaternion.LookRotation(delta),
                         new Vector3(bar.thickness, bar.thickness, bar.length));
-                    bar.oldDX = dx / dist;
-                    bar.oldDY = dy / dist;
-                    bar.oldDZ = dz / dist;
+                    bar.oldDelta = delta / dist;
                 }
                 else
                 {
                     // bar hasn't rotated: only update the position elements
                     Matrix4x4 matrix = bar.matrix;
-                    matrix.m03 = (point1.x + point2.x) * .5f;
-                    matrix.m13 = (point1.y + point2.y) * .5f;
-                    matrix.m23 = (point1.z + point2.z) * .5f;
+                    matrix.m03 = (point1.pos.x + point2.pos.x) * .5f;
+                    matrix.m13 = (point1.pos.y + point2.pos.y) * .5f;
+                    matrix.m23 = (point1.pos.z + point2.pos.z) * .5f;
                     bar.matrix = matrix;
                 }
 

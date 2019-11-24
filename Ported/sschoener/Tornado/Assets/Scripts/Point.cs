@@ -1,26 +1,19 @@
-﻿using UnityEngine;
+﻿using Unity.Mathematics;
+using UnityEngine;
 
-public class Point {
-	public float x;
-	public float y;
-	public float z;
-
-	public float oldX;
-	public float oldY;
-	public float oldZ;
+public class Point
+{
+	public float3 pos;
+	public float3 old;
 
 	public bool anchor;
 
 	public int neighborCount;
 
-	public void CopyFrom(Point other) {
-		x = other.x;
-		y = other.y;
-		z = other.z;
-		oldX = other.oldX;
-		oldY = other.oldY;
-		oldZ = other.oldZ;
-
+	public void CopyFrom(Point other)
+	{
+		pos = other.pos;
+		old = other.old;
 		anchor = other.anchor;
 		neighborCount = other.neighborCount;
 	}
