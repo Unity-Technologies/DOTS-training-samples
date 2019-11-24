@@ -133,6 +133,7 @@ public class PointManager : MonoBehaviour
         using (new ProfilerMarker("CreateBars").Auto())
         {
             int batch = 0;
+            pointsList.Sort((p1, p2) => p1.pos.y.CompareTo(p2.pos.y));
 
             for (int i = 0; i < pointsList.Count; i++)
             {
@@ -140,11 +141,12 @@ public class PointManager : MonoBehaviour
                 {
                     var pos1 = pointsList[i].pos;
                     var pos2 = pointsList[j].pos;
+                    if (pos2.y > pos1.y + .5f)
+                        break;
                     var delta = pos1 - pos2;
                     var l = math.length(delta);
                     if (l < 5f && l > .2f)
                     {
-
                         Bar bar = new Bar
                         {
                             point1 = i,
@@ -153,22 +155,25 @@ public class PointManager : MonoBehaviour
                             thickness = Random.Range(.25f, .35f)
                         };
 
-                        var pos = (pos1 + pos2) / 2;
-                        var rot = quaternion.LookRotation(delta, new float3(0, 1, 0));
-                        var scale = new float3(bar.thickness, bar.thickness, bar.length);
-                        bar.matrix = float4x4.TRS(pos, rot, scale);
-
-                        var proj = math.dot(new float3(0, 1, 0), delta / l);
-                        float upDot = math.acos(math.abs(proj)) / math.PI;
-                        bar.color = Color.white * upDot * Random.Range(.7f, 1f);
-                        
-                        var p1 = pointsList[bar.point1];
-                        p1.neighborCount++;
-                        pointsList[bar.point1] = p1;
-                        var p2 = pointsList[bar.point2];
-                        p2.neighborCount++;
-                        pointsList[bar.point2] = p2;
-
+                        {
+                            var pos = (pos1 + pos2) / 2;
+                            var rot = quaternion.LookRotation(delta, new float3(0, 1, 0));
+                            var scale = new float3(bar.thickness, bar.thickness, bar.length);
+                            bar.matrix = float4x4.TRS(pos, rot, scale);
+                        }
+                        {
+                            var proj = math.dot(new float3(0, 1, 0), delta / l);
+                            float upDot = math.acos(math.abs(proj)) / math.PI;
+                            bar.color = Color.white * upDot * Random.Range(.7f, 1f);
+                        }
+                        {
+                            var p1 = pointsList[bar.point1];
+                            p1.neighborCount++;
+                            pointsList[bar.point1] = p1;
+                            var p2 = pointsList[bar.point2];
+                            p2.neighborCount++;
+                            pointsList[bar.point2] = p2;
+                        }
                         barsList.Add(bar);
                         matricesList[batch].Add(bar.matrix);
                         if (matricesList[batch].Count == k_InstancesPerBatch)
