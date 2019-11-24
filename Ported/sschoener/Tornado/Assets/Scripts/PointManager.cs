@@ -11,7 +11,6 @@ public class PointManager : MonoBehaviour
     [Range(0f, 1f)]
     public float friction;
     public float breakResistance;
-    public float expForce;
     [Range(0f, 1f)]
     public float tornadoForce;
     public float tornadoMaxForceDist;
