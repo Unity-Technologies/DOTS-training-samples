@@ -46,7 +46,7 @@ public class PointManager : MonoBehaviour
 
     void Start()
     {
-        StartCoroutine(Generate());
+        Generate();
         m_Cam = Camera.main.transform;
     }
 
@@ -55,7 +55,7 @@ public class PointManager : MonoBehaviour
         return Mathf.Sin(y / 5f + Time.time / 4f) * 3f;
     }
 
-    IEnumerator Generate()
+    void Generate()
     {
         m_Generating = true;
 
@@ -72,33 +72,27 @@ public class PointManager : MonoBehaviour
             float spacing = 2f;
             for (int j = 0; j < height; j++)
             {
-                Point point = new Point();
-                point.pos = new float3(pos.x + spacing, j * spacing, pos.z - spacing);
-                point.old = point.pos;
-                if (j == 0)
                 {
-                    point.anchor = true;
+                    var point = new Point();
+                    point.pos = new float3(pos.x + spacing, j * spacing, pos.z - spacing);
+                    point.old = point.pos;
+                    point.anchor = j == 0;
+                    pointsList.Add(point);
                 }
-
-                pointsList.Add(point);
-                point = new Point();
-                point.pos = new float3(pos.x - spacing, j * spacing, pos.z - spacing);
-                point.old = point.pos;
-                if (j == 0)
                 {
-                    point.anchor = true;
+                    var point = new Point();
+                    point.pos = new float3(pos.x - spacing, j * spacing, pos.z - spacing);
+                    point.old = point.pos;
+                    point.anchor = j == 0;
+                    pointsList.Add(point);
                 }
-
-                pointsList.Add(point);
-                point = new Point();
-                point.pos = new float3(pos.x, j * spacing, pos.z + spacing);
-                point.old = point.pos;
-                if (j == 0)
                 {
-                    point.anchor = true;
+                    var point = new Point();
+                    point.pos = new float3(pos.x, j * spacing, pos.z + spacing);
+                    point.old = point.pos;
+                    point.anchor = j == 0;
+                    pointsList.Add(point);
                 }
-
-                pointsList.Add(point);
             }
         }
 
@@ -106,29 +100,28 @@ public class PointManager : MonoBehaviour
         for (int i = 0; i < 600; i++)
         {
             var pos = new float3(Random.Range(-55f, 55f), 0f, Random.Range(-55f, 55f));
-            Point point = new Point();
-
-            point.pos = pos + new float3(
-                Random.Range(-.2f, -.1f),
-                Random.Range(0f, 3f),
-                Random.Range(.1f, .2f)
-            );
-            point.old = point.pos;
-            pointsList.Add(point);
-
-            point = new Point();
-            point.pos = pos + new float3(
-                Random.Range(.1f, .2f),
-                Random.Range(0, .2f),
-                Random.Range(-.1f, -.2f)
-            );
-            point.old = point.pos;
-            if (Random.value < .1f)
             {
-                point.anchor = true;
+                var point = new Point();
+                point.pos = pos + new float3(
+                    Random.Range(-.2f, -.1f),
+                    Random.Range(0f, 3f),
+                    Random.Range(.1f, .2f)
+                );
+                point.old = point.pos;
+                pointsList.Add(point);
             }
+            {
+                var point = new Point();
+                point.pos = pos + new float3(
+                    Random.Range(.1f, .2f),
+                    Random.Range(0, .2f),
+                    Random.Range(-.1f, -.2f)
+                );
+                point.old = point.pos;
+                point.anchor = Random.value < .1f;
 
-            pointsList.Add(point);
+                pointsList.Add(point);
+            }
         }
 
         int batch = 0;
@@ -150,11 +143,6 @@ public class PointManager : MonoBehaviour
                     {
                         batch++;
                         matricesList.Add(new List<Matrix4x4>());
-                    }
-
-                    if (barsList.Count % 500 == 0)
-                    {
-                        yield return null;
                     }
                 }
             }
@@ -275,7 +263,6 @@ public class PointManager : MonoBehaviour
                     point1.pos += push * 2f;
                 }
 
-                
                 if (math.dot(delta, bar.oldDelta) / dist < .99f)
                 {
                     // bar has rotated: expensive full-matrix computation
