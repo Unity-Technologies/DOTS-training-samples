@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Unity.Mathematics;
+using Unity.Profiling;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -63,66 +64,73 @@ public class PointManager : MonoBehaviour
         List<List<Matrix4x4>> matricesList = new List<List<Matrix4x4>>();
         matricesList.Add(new List<Matrix4x4>());
 
-        // buildings
-        for (int i = 0; i < 35; i++)
+        using (new ProfilerMarker("CreateBuildings").Auto())
         {
-            int height = Random.Range(4, 12);
-            Vector3 pos = new Vector3(Random.Range(-45f, 45f), 0f, Random.Range(-45f, 45f));
-            float spacing = 2f;
-            for (int j = 0; j < height; j++)
+            // buildings
+            for (int i = 0; i < 35; i++)
             {
+                int height = Random.Range(4, 12);
+                Vector3 pos = new Vector3(Random.Range(-45f, 45f), 0f, Random.Range(-45f, 45f));
+                float spacing = 2f;
+                for (int j = 0; j < height; j++)
+                {
+                    {
+                        var point = new Point();
+                        point.pos = new float3(pos.x + spacing, j * spacing, pos.z - spacing);
+                        point.old = point.pos;
+                        point.anchor = j == 0;
+                        pointsList.Add(point);
+                    }
+                    {
+                        var point = new Point();
+                        point.pos = new float3(pos.x - spacing, j * spacing, pos.z - spacing);
+                        point.old = point.pos;
+                        point.anchor = j == 0;
+                        pointsList.Add(point);
+                    }
+                    {
+                        var point = new Point();
+                        point.pos = new float3(pos.x, j * spacing, pos.z + spacing);
+                        point.old = point.pos;
+                        point.anchor = j == 0;
+                        pointsList.Add(point);
+                    }
+                }
+            }
+        }
+
+        using (new ProfilerMarker("CreateGroundDetails").Auto())
+        {
+            // ground details
+            for (int i = 0; i < 600; i++)
+            {
+                var pos = new float3(Random.Range(-55f, 55f), 0f, Random.Range(-55f, 55f));
                 {
                     var point = new Point();
-                    point.pos = new float3(pos.x + spacing, j * spacing, pos.z - spacing);
+                    point.pos = pos + new float3(
+                        Random.Range(-.2f, -.1f),
+                        Random.Range(0f, 3f),
+                        Random.Range(.1f, .2f)
+                    );
                     point.old = point.pos;
-                    point.anchor = j == 0;
                     pointsList.Add(point);
                 }
                 {
                     var point = new Point();
-                    point.pos = new float3(pos.x - spacing, j * spacing, pos.z - spacing);
+                    point.pos = pos + new float3(
+                        Random.Range(.1f, .2f),
+                        Random.Range(0, .2f),
+                        Random.Range(-.1f, -.2f)
+                    );
                     point.old = point.pos;
-                    point.anchor = j == 0;
-                    pointsList.Add(point);
-                }
-                {
-                    var point = new Point();
-                    point.pos = new float3(pos.x, j * spacing, pos.z + spacing);
-                    point.old = point.pos;
-                    point.anchor = j == 0;
+                    point.anchor = Random.value < .1f;
+
                     pointsList.Add(point);
                 }
             }
         }
 
-        // ground details
-        for (int i = 0; i < 600; i++)
-        {
-            var pos = new float3(Random.Range(-55f, 55f), 0f, Random.Range(-55f, 55f));
-            {
-                var point = new Point();
-                point.pos = pos + new float3(
-                    Random.Range(-.2f, -.1f),
-                    Random.Range(0f, 3f),
-                    Random.Range(.1f, .2f)
-                );
-                point.old = point.pos;
-                pointsList.Add(point);
-            }
-            {
-                var point = new Point();
-                point.pos = pos + new float3(
-                    Random.Range(.1f, .2f),
-                    Random.Range(0, .2f),
-                    Random.Range(-.1f, -.2f)
-                );
-                point.old = point.pos;
-                point.anchor = Random.value < .1f;
-
-                pointsList.Add(point);
-            }
-        }
-
+        using (new ProfilerMarker("CreateBars").Auto())
         {
             int batch = 0;
 
@@ -131,9 +139,10 @@ public class PointManager : MonoBehaviour
                 for (int j = i + 1; j < pointsList.Count; j++)
                 {
                     Bar bar = new Bar();
-                    bar.AssignPoints(i, pointsList[i].pos, j, pointsList[j].pos);
-                    if (bar.length < 5f && bar.length > .2f)
+                    var l = math.length(pointsList[i].pos - pointsList[j].pos);
+                    if (l < 5f && l > .2f)
                     {
+                        bar.AssignPoints(i, pointsList[i].pos, j, pointsList[j].pos);
                         var p1 = pointsList[bar.point1];
                         p1.neighborCount++;
                         pointsList[bar.point1] = p1;
@@ -168,16 +177,15 @@ public class PointManager : MonoBehaviour
                 }
             }
 
-            for (int i = 0; i < barsList.Count; i++)
+            m_Bars = barsList.ToArray();
+            for (int i = 0; i < m_Bars.Length; i++)
             {
-                barsList[i].point1 = pointRemap[barsList[i].point1];
-                barsList[i].point2 = pointRemap[barsList[i].point2];
+                m_Bars[i].point1 = pointRemap[m_Bars[i].point1];
+                m_Bars[i].point2 = pointRemap[m_Bars[i].point2];
             }
         }
 
         Debug.Log(m_PointCount + " points, room for " + m_Points.Length + " (" + barsList.Count + " bars)");
-
-        m_Bars = barsList.ToArray();
 
         m_Matrices = new Matrix4x4[matricesList.Count][];
         for (int i = 0; i < m_Matrices.Length; i++)
@@ -198,7 +206,6 @@ public class PointManager : MonoBehaviour
             }
         }
 
-        barsList = null;
         matricesList = null;
         System.GC.Collect();
         m_Generating = false;
@@ -253,7 +260,7 @@ public class PointManager : MonoBehaviour
 
             for (int i = 0; i < m_Bars.Length; i++)
             {
-                Bar bar = m_Bars[i];
+                ref var bar = ref m_Bars[i];
 
                 ref var point1 = ref m_Points[bar.point1];
                 ref var point2 = ref m_Points[bar.point2];

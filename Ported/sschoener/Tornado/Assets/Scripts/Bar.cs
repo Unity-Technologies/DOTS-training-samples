@@ -2,7 +2,7 @@
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class Bar
+public struct Bar
 {
     public int point1;
     public int point2;
