@@ -40,22 +40,26 @@ public class ParticleManager : MonoBehaviour
         float time = Time.time;
         for (int i = 0; i < m_Points.Length; i++)
         {
-            float3 tornadoPos = new float3(PointManager.tornadoX + PointManager.TornadoSway(m_Points[i].y, time), m_Points[i].y, PointManager.tornadoZ);
+            float3 tornadoPos = new float3(
+                PointManager.tornadoX + PointManager.TornadoSway(m_Points[i].y, time),
+                m_Points[i].y,
+                PointManager.tornadoZ);
             float3 delta = (tornadoPos - m_Points[i]);
             float dist = math.length(delta);
             delta /= dist;
             float inForce = dist - math.clamp(tornadoPos.y / 50f, 0, 1) * 30f * m_RadiusMults[i] + 2f;
-            m_Points[i] += new float3(-delta.z * spinRate + delta.x * inForce, upwardSpeed, delta.x * spinRate + delta.z * inForce) * Time.deltaTime;
+            m_Points[i] += new float3(
+                -delta.z * spinRate + delta.x * inForce,
+                upwardSpeed,
+                delta.x * spinRate + delta.z * inForce) * Time.deltaTime;
             if (m_Points[i].y > 50f)
             {
                 m_Points[i] = new float3(m_Points[i].x, 0f, m_Points[i].z);
             }
 
-            Matrix4x4 matrix = m_Matrices[i];
-            matrix.m03 = m_Points[i].x;
-            matrix.m13 = m_Points[i].y;
-            matrix.m23 = m_Points[i].z;
-            m_Matrices[i] = matrix;
+            m_Matrices[i].m03 = m_Points[i].x;
+            m_Matrices[i].m13 = m_Points[i].y;
+            m_Matrices[i].m23 = m_Points[i].z;
         }
 
         Graphics.DrawMeshInstanced(particleMesh, 0, particleMaterial, m_Matrices, m_Matrices.Length, m_MatProps);
