@@ -40,6 +40,7 @@ public class PointManager : MonoBehaviour
     void Awake()
     {
         Time.timeScale = 0f;
+        Random.InitState(0);
     }
 
     void Start()
