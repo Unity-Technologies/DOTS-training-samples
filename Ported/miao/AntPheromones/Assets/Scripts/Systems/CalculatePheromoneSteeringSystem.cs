@@ -50,8 +50,6 @@ namespace AntPheromones_ECS
                 [ReadOnly] ref FacingAngle facingAngle,
                 [WriteOnly] ref PheromoneSteering steering)
             {
-                
-
                 float result = 0;
 
                 for (int i = -1; i <= 1; i += 2) 
@@ -61,7 +59,7 @@ namespace AntPheromones_ECS
                     math.sincos(angle, out float sin, out float cos);
                     int2 targetDestination = (int2) (position.Value + Distance * new float2(cos, sin));
                     
-                    if (math.all(targetDestination < 0) && math.all(targetDestination >= MapWidth))
+                    if (math.any(targetDestination < 0) || math.any(targetDestination >= MapWidth))
                     {
                         continue;
                     }
