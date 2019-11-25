@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.SocialPlatforms;
 using Random = UnityEngine.Random;
 
 namespace AntPheromones_ECS
@@ -94,6 +94,9 @@ namespace AntPheromones_ECS
 		private Matrix4x4 _resourceMatrix;
 		private Matrix4x4 _colonyMatrix;
 
+		private bool _isJustStarted;
+		private (bool IsRetrieved, SimulationSystemGroup Value) _simulationSystemGroup;
+
 		const int InstancesPerBatch = 1023;
 
 		private void Awake()
@@ -103,6 +106,8 @@ namespace AntPheromones_ECS
 
 		void Start()
 		{
+			this._isJustStarted = true;
+			
 			this._colonyMatrix = float4x4.TRS(
 				new float3(this._colonyPosition.Value / this.MapWidth, 0), 
 				Quaternion.identity, 
@@ -122,15 +127,15 @@ namespace AntPheromones_ECS
 			
 			EntityArchetype antArchetype =
 				entityManager.CreateArchetype(
-					typeof(PositionComponent),
-					typeof(VelocityComponent),
-					typeof(SpeedComponent),
-					typeof(FacingAngleComponent),
-					typeof(ColourComponent),
-					typeof(BrightnessComponent),
-					typeof(ResourceCarrierComponent),
-					typeof(PheromoneSteeringComponent),
-					typeof(WallSteeringComponent),
+					typeof(Position),
+					typeof(Velocity),
+					typeof(Speed),
+					typeof(FacingAngle),
+					typeof(Colour),
+					typeof(Brightness),
+					typeof(ResourceCarrier),
+					typeof(PheromoneSteering),
+					typeof(WallSteering),
 					typeof(LocalToWorld));
 
 			NativeArray<Entity> antEntities = new NativeArray<Entity>(length: this.AntCount, Allocator.Temp);
@@ -140,19 +145,19 @@ namespace AntPheromones_ECS
 			{
 				entityManager.SetComponentData(
 					entity,
-					new PositionComponent
+					new Position
 					{
 						Value = this.MapWidth * 0.5f + new float2(Random.Range(-5f, 5f), Random.Range(-5f, 5f))
 					});
 				entityManager.SetComponentData(
 					entity,
-					new BrightnessComponent
+					new Brightness
 					{
 						Value = Random.Range(0.75f, 1.25f)
 					});
 				entityManager.SetComponentData(
 					entity,
-					new FacingAngleComponent
+					new FacingAngle
 					{
 						Value = Random.value * 2 * math.PI
 					});
@@ -324,6 +329,24 @@ namespace AntPheromones_ECS
 
 			Graphics.DrawMesh(colonyMesh, _colonyMatrix, colonyMaterial, 0);
 			Graphics.DrawMesh(resourceMesh, _resourceMatrix, resourceMaterial, 0);
+		}
+
+		private void FixedUpdate()
+		{
+			if (this._isJustStarted)
+			{
+				this._isJustStarted = false;
+				return;
+			}
+
+			if (!this._simulationSystemGroup.IsRetrieved)
+			{
+				this._simulationSystemGroup = 
+					(IsRetrieved: true,
+					Value: World.Active.GetExistingSystem<SimulationSystemGroup>());
+			}
+			
+			this._simulationSystemGroup.Value.Update();
 		}
 	}
 }
