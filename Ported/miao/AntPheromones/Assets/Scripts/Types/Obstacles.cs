@@ -19,16 +19,18 @@ namespace AntPheromones_ECS
             int2 coordinates = (int2)(position / this.MapWidth * BucketResolution);
             bool isWithinMapBounds = math.all(coordinates >= 0) && math.all(coordinates < this.BucketResolution);
 
-            return isWithinMapBounds && TryGetObstacles(position).HasObstacles;
+            TryGetObstacles(position, out int _, out int length);
+            return isWithinMapBounds && length > 0;
         }
 
-        public (bool HasObstacles, int? DistanceToNextBucket) TryGetObstacles(float2 position)
+        public void TryGetObstacles(float2 position, out int offset, out int distanceToNextBucket)
         {
             int2 coordinates = (int2) (position / this.MapWidth * this.BucketResolution);
 
             if (math.any(coordinates < 0) || math.any(coordinates >= this.BucketResolution))
             {
-                return (HasObstacles: false, DistanceToNextBucket: null);
+                offset = 0;
+                distanceToNextBucket = 0;
             }
 
             int currentBucket = coordinates.y * this.BucketResolution + coordinates.x;
@@ -36,50 +38,49 @@ namespace AntPheromones_ECS
                 currentBucket == this.ObstacleBucketIndices.Length - 1
                     ? this.Positions.Length
                     : this.ObstacleBucketIndices[currentBucket + 1];
-            int distanceToNextBucket = nextBucket - this.ObstacleBucketIndices[currentBucket];
 
-            return (HasObstacles: distanceToNextBucket > 0, DistanceToNextBucket: distanceToNextBucket);
+            offset = this.ObstacleBucketIndices[currentBucket];
+            distanceToNextBucket = nextBucket - offset;
         }
         
         public static BlobAssetReference<Obstacles> Build(AntManager antManager)
         {
             var obstacleMap = antManager.ObstacleBuckets;
-            using (BlobBuilder b = new BlobBuilder(Allocator.Temp))
+            using (BlobBuilder builder = new BlobBuilder(Allocator.Temp))
             {
-                ref var obstacles = ref b.ConstructRoot<Obstacles>();
+                ref Obstacles obstacles = ref builder.ConstructRoot<Obstacles>();
                 obstacles.BucketResolution = antManager.BucketResolution;
                 obstacles.MapWidth = antManager.MapWidth;
 
                 int h = obstacleMap.GetLength(0);
                 int w = obstacleMap.GetLength(1);
+                
                 int totalSize = 0;
+                
                 for (int y = 0; y < h; y++)
                 {
                     for (int x = 0; x < w; x++)
                         totalSize += obstacleMap[y, x].Length;
                 }
-
+                
+                BlobBuilderArray<float2> obstaclePositions = builder.Allocate(ref obstacles.Positions, totalSize);
+                BlobBuilderArray<int> bucketIndices = builder.Allocate(ref obstacles.ObstacleBucketIndices, w * h);
+                
+                int offset = 0;
+                for (int y = 0; y < h; y++)
                 {
-                    var obstacles = b.Allocate(ref obstacles.Obstacles, totalSize);
-                    var map = b.Allocate(ref obstacles.ObstacleBucketIndices, w * h);
-                    int offset = 0;
-                    for (int y = 0; y < h; y++)
+                    for (int x = 0; x < w; x++)
                     {
-                        for (int x = 0; x < w; x++)
+                        float2[] bucket = obstacleMap[x, y];
+                        bucketIndices[y * w + x] = offset;
+                        for (int i = 0; i < bucket.Length; i++)
                         {
-                            var bucket = obstacleMap[x, y];
-                            int n = bucket.Length;
-                            map[y * w + x] = offset;
-                            for (int i = 0; i < n; i++)
-                            {
-                                obstacles[offset] = bucket[i];
-                                offset++;
-                            }
+                            obstaclePositions[offset] = bucket[i];
+                            offset++;
                         }
                     }
                 }
-
-                return b.CreateBlobAssetReference<ObstacleData>(Allocator.Persistent);
+                return builder.CreateBlobAssetReference<Obstacles>(Allocator.Persistent);
             }
         }
     }

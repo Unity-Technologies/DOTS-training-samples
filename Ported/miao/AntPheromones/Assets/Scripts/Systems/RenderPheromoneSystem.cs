@@ -1,10 +1,14 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace AntPheromones_ECS
 {
     [UpdateInGroup(typeof(PresentationSystemGroup))]
-    public class RenderPheromoneSystem : ComponentSystem
+    public class RenderPheromoneSystem : JobComponentSystem
     {
         private (bool IsInitialised, Texture2D Value) _pheromoneTexture;
         private EntityQuery _pheromoneBufferQuery;
@@ -22,7 +26,7 @@ namespace AntPheromones_ECS
                 GetEntityQuery(ComponentType.ReadOnly<PheromoneSharedRendering>());
         }
 
-        protected override void OnUpdate()
+        protected override unsafe JobHandle OnUpdate(JobHandle inputDeps)
         {
             var renderer =
                 EntityManager.GetSharedComponentData<PheromoneSharedRendering>(this._renderingQuery.GetSingletonEntity());
@@ -33,7 +37,7 @@ namespace AntPheromones_ECS
               
                 this._pheromoneTexture =
                     (IsInitialised: true,
-                    Value: new Texture2D(map.Width, map.Width) {wrapMode = TextureWrapMode.Mirror});
+                        Value: new Texture2D(map.Width, map.Width) {wrapMode = TextureWrapMode.Mirror});
                 this._pheromoneMaterial = 
                     new Material(renderer.Material){mainTexture = this._pheromoneTexture.Value};
                 this._colours = 
@@ -41,18 +45,37 @@ namespace AntPheromones_ECS
             }
 
             renderer.Renderer.sharedMaterial = this._pheromoneMaterial;
-            
-            var pheromoneBuffer = 
-                EntityManager.GetBuffer<PheromoneColourRValueBuffer>(this._pheromoneBufferQuery.GetSingletonEntity());
-            
-            for (int i = 0; i < pheromoneBuffer.Length; i++)
+
+            fixed (Color* colours = this._colours)
             {
-                this._colours[i].r = pheromoneBuffer[i];
+                var pheromoneBuffer =
+                    EntityManager.GetBuffer<PheromoneColourRValueBuffer>(this._pheromoneBufferQuery.GetSingletonEntity());
+                
+                new Job
+                {
+                    Pheromones = pheromoneBuffer,
+                    Colors = colours
+                }.Schedule(pheromoneBuffer.Length, 256, inputDeps).Complete();
             }
+
             
             this._pheromoneTexture.Value.SetPixels(_colours);
             this._pheromoneTexture.Value.filterMode = FilterMode.Point;
             this._pheromoneTexture.Value.Apply();
+
+            return default;
+        }
+
+        [BurstCompile]
+        private unsafe struct Job : IJobParallelFor
+        {
+            [ReadOnly] public DynamicBuffer<PheromoneColourRValueBuffer> Pheromones;
+            [NativeDisableUnsafePtrRestriction] public Color* Colors;
+            
+            public void Execute(int index)
+            {
+                Colors[index].r = Pheromones[index];
+            }
         }
     }
 }
