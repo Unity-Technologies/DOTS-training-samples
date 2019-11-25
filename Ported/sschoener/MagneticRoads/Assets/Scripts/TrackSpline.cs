@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
 public static class TrackSplines
 {
     public static int Count;
-    public static int[] startIntersection;
-    public static int[] endIntersection;
+    public static ushort[] startIntersection;
+    public static ushort[] endIntersection;
     public static CubicBezier[] bezier;
     public static TrackGeometry[] geometry;
     public static int[] twistMode;
 
     public static float[] measuredLength;
-    public static List<int>[][] waitingQueues;
+    public static List<QueueEntry>[][] waitingQueues;
     public static float[] carQueueSize;
     public static int[] maxCarCount;
     
@@ -41,9 +42,15 @@ public static class TrackSplines
     }
     
     // each spline has four lanes
-    public static List<int> GetQueue(int track, int direction, int side)
+    public static List<QueueEntry> GetQueue(int track, int direction, int side)
     {
         int index = (direction + 1) + (side + 1) / 2;
         return waitingQueues[track][index];
     }
+}
+
+public struct QueueEntry
+{
+    public Entity Entity;
+    public float SplineTimer;
 }
