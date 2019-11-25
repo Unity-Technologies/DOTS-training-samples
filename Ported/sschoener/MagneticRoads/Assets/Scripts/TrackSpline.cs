@@ -19,7 +19,7 @@ public static class TrackSplines
     
     static Vector3 Extrude(int track, Vector2 point, float t) => Extrude(track, point, t, out _, out _);
 
-    public static float3 Extrude(int track, float2 point, float t, out float3 tangent, out float3 up) =>
+    static float3 Extrude(int track, float2 point, float t, out float3 tangent, out float3 up) =>
         TrackUtils.Extrude(bezier[track], geometry[track], twistMode[track], point, t, out tangent, out up, out _);
     
     public static void DrawGizmos(int track)

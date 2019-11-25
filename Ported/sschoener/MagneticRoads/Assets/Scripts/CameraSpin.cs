@@ -1,21 +1,19 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class CameraSpin : MonoBehaviour {
-	public Vector3 center;
-	public float distance;
-	public float tilt;
-	public float spinSpeed;
+public class CameraSpin : MonoBehaviour
+{
+    public Vector3 center;
+    public float distance;
+    public float tilt;
+    public float spinSpeed;
 
-	float spinAngle=0f;
-	void Start () {
-		
-	}
-	
-	void Update () {
-		spinAngle += spinSpeed*Time.deltaTime;
-		transform.rotation = Quaternion.Euler(tilt,spinAngle,0f);
-		transform.position = center - transform.forward * distance;
-	}
+    float m_SpinAngle;
+
+    void Update()
+    {
+        m_SpinAngle += spinSpeed * Time.deltaTime;
+        var t = transform;
+        t.rotation = Quaternion.Euler(tilt, m_SpinAngle, 0f);
+        t.position = center - t.forward * distance;
+    }
 }
