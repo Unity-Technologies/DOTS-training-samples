@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
@@ -34,8 +33,7 @@ public class RoadGeneratorDots : MonoBehaviour
     public const float trackRadius = .2f;
     public const float trackThickness = .05f;
     public const int splineResolution = 20;
-    public const float carSpacing = .13f;
-
+    const float k_CarSpacing = .13f;
     const int k_InstancesPerBatch = 1023;
 
     // intersection pair:  two 32-bit IDs, packed together
@@ -46,8 +44,9 @@ public class RoadGeneratorDots : MonoBehaviour
 
     MaterialPropertyBlock m_CarMatProps;
     List<List<Vector4>> m_CarColors;
+    static readonly int k_Color = Shader.PropertyToID("_Color");
 
-    long HashIntersectionPair(int a, int b)
+    static long HashIntersectionPair(int a, int b)
     {
         int u = math.min(a, b);
         int v = math.max(a, b);
@@ -64,8 +63,6 @@ public class RoadGeneratorDots : MonoBehaviour
 
         return false;
     }
-
-    Vector3Int ToV3(int3 v) => new Vector3Int(v.x, v.y, v.z);
 
     int FindFirstIntersection(int3 pos, int3 dir, out int3 otherDirection)
     {
@@ -110,7 +107,7 @@ public class RoadGeneratorDots : MonoBehaviour
     {
         Random.InitState(1);
         // cardinal directions:
-        m_Dirs = new NativeArray<int3>(new int3[]
+        m_Dirs = new NativeArray<int3>(new[]
         {
             new int3(1, 0, 0),
             new int3(-1, 0, 0),
@@ -151,8 +148,6 @@ public class RoadGeneratorDots : MonoBehaviour
             m_FullDirs.Dispose();
     }
 
-    int3 FromV3(Vector3Int v) => new int3(v.x, v.y, v.z);
-
     struct TrackSplineCtorData
     {
         public float3 tangent1;
@@ -186,7 +181,7 @@ public class RoadGeneratorDots : MonoBehaviour
         m_CarColors = new List<List<Vector4>>();
         m_CarColors.Add(new List<Vector4>());
         m_CarMatProps = new MaterialPropertyBlock();
-        m_CarMatProps.SetVectorArray("_Color", new Vector4[k_InstancesPerBatch]);
+        m_CarMatProps.SetVectorArray(k_Color, new Vector4[k_InstancesPerBatch]);
 
         // plan roads broadly: first, as a grid of true/false voxels
         using (new ProfilerMarker("VoxelGeneration").Auto())
@@ -295,7 +290,7 @@ public class RoadGeneratorDots : MonoBehaviour
 
                 if (Intersections.Normal[intersection].Equals(new float3()))
                 {
-                    Debug.LogError("nonplanar intersections are not allowed!");
+                    Debug.LogError("non-planar intersections are not allowed!");
                 }
 
                 // NOTE - if you investigate the above logic, you might be confused about how
@@ -335,7 +330,7 @@ public class RoadGeneratorDots : MonoBehaviour
                     TrackSplines.geometry[i].endTangent = math.round(trackSplineList[i].tangent2);
 
                     var measuredLength = TrackSplines.measuredLength[i] = TrackSplines.bezier[i].MeasureLength(splineResolution);
-                    var maxCarCount = TrackSplines.maxCarCount[i] = (int)math.ceil(measuredLength / carSpacing);
+                    var maxCarCount = TrackSplines.maxCarCount[i] = (int)math.ceil(measuredLength / k_CarSpacing);
                     TrackSplines.carQueueSize[i] = 1f / maxCarCount;
                     
                     var queues = TrackSplines.waitingQueues[i] = new List<Car>[4];
@@ -456,7 +451,7 @@ public class RoadGeneratorDots : MonoBehaviour
         }
     }
 
-    private void Update()
+    void Update()
     {
         for (int i = 0; i < m_Cars.Count; i++)
         {
@@ -478,13 +473,13 @@ public class RoadGeneratorDots : MonoBehaviour
         {
             if (m_CarMatrices[i].Count > 0)
             {
-                m_CarMatProps.SetVectorArray("_Color", m_CarColors[i]);
+                m_CarMatProps.SetVectorArray(k_Color, m_CarColors[i]);
                 Graphics.DrawMeshInstanced(carMesh, 0, carMaterial, m_CarMatrices[i], m_CarMatProps);
             }
         }
     }
 
-    private void OnDrawGizmos()
+    void OnDrawGizmos()
     {
         if (m_TrackVoxels.IsCreated && m_IntersectionPairs.Count == 0)
         {
