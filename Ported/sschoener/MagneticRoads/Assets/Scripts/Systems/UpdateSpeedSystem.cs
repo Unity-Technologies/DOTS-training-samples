@@ -1,7 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
-using Unity.Profiling;
 
 namespace Systems
 {
@@ -20,7 +19,7 @@ namespace Systems
                     length = localIntersection.Length;
                 else
                     length = TrackSplines.measuredLength[onSpline.Spline];
-                speed.NormalizedSpeed = math.min(speed.NormalizedSpeed * dt * 2, 1);
+                speed.NormalizedSpeed = math.min(speed.NormalizedSpeed + dt * 2, 1);
                 speed.SplineTimer += speed.NormalizedSpeed * maxSpeed / length * dt;
             }).WithoutBurst().Schedule(inputDeps);
         }

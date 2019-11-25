@@ -1,6 +1,8 @@
 ﻿using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 namespace Systems {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
@@ -9,20 +11,14 @@ namespace Systems {
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            return Entities.ForEach((Entity entity, ref LocalIntersectionComponent localIntersection, ref OnSplineComponent onSpline, ref CarSpeedComponent speed, ref InIntersectionComponent inIntersection, in CoordinateSystemComponent coords) =>
+            inputDeps.Complete();
+            int frame = 1 + UnityEngine.Time.frameCount;
+            Entities.ForEach((Entity entity, ref LocalIntersectionComponent localIntersection, ref OnSplineComponent onSpline, ref CarSpeedComponent speed, ref InIntersectionComponent inIntersection, in CoordinateSystemComponent coords) =>
             {
-                if (speed.SplineTimer < 1)
-                {
-                    var queue = TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side);
-                    int idx = queue.FindIndex(entry => entry.Entity == entity);
-                    var queueEntry = queue[idx];
-                    queueEntry.SplineTimer = speed.SplineTimer;
-                    queue[idx] = queueEntry;
-                    return;
-                }
-                    
                 if (inIntersection.Value)
                 {
+                    if (speed.SplineTimer < 1)
+                        return;
                     // we're exiting an intersection - make sure the next road
                     // segment has room for us before we proceed
                     if (TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side).Count <= TrackSplines.maxCarCount[onSpline.Spline])
@@ -39,6 +35,16 @@ namespace Systems {
                 }
                 else
                 {
+                    if (speed.SplineTimer < 1)
+                    {
+                        var queue = TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side);
+                        int idx = queue.FindIndex(entry => entry.Entity == entity);
+                        var queueEntry = queue[idx];
+                        queueEntry.SplineTimer = speed.SplineTimer;
+                        queue[idx] = queueEntry;
+                        return;
+                    }
+                    
                     // we're exiting a road segment - first, we need to know
                     // which intersection we're entering
                     ushort intersection;
@@ -59,9 +65,7 @@ namespace Systems {
                     if (Intersections.Neighbors[intersection].Count > 1)
                     {
                         int mySplineIndex = Intersections.NeighborSplines[intersection].IndexOf(onSpline.Spline);
-                        //newSplineIndex = Random.Range(0, Intersections.NeighborSplines[intersection].Count - 1);
-                        // TODO: fix spline index
-                        newSplineIndex = 0;
+                        newSplineIndex = new Random((uint)((entity.Index + 1) * frame * 47701)).NextInt(Intersections.NeighborSplines[intersection].Count - 1);
                         if (newSplineIndex >= mySplineIndex)
                         {
                             newSplineIndex++;
@@ -144,15 +148,18 @@ namespace Systems {
                         speed.SplineTimer = (speed.SplineTimer - 1f) * TrackSplines.measuredLength[onSpline.Spline] / localIntersection.Length;
                         onSpline.Spline = newSpline;
 
-                        TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side).Add(new QueueEntry
+                        var queue = TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side);
+                        queue.Add(new QueueEntry
                         {
                             Entity = entity,
                             SplineTimer = speed.SplineTimer
                         });
+                        Debug.Assert(queue.FindIndex(entry => entry.Entity == entity) >= 0);
                     }
                 }
                 
-            }).WithoutBurst().Schedule(inputDeps);
+            }).WithoutBurst().Run();
+            return default;
         }
     }
 }

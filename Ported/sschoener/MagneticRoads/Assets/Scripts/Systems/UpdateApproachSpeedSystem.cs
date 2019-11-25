@@ -11,20 +11,19 @@ namespace Systems {
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            return Entities.ForEach((Entity e, ref CarSpeedComponent speed, in InIntersectionComponent inIntersection, in OnSplineComponent onSpline) =>
+            return Entities.ForEach((Entity entity, ref CarSpeedComponent speed, in InIntersectionComponent inIntersection, in OnSplineComponent onSpline) =>
             {
                 float approachSpeed = 1f;
                 if (inIntersection.Value)
                     approachSpeed = .7f;
                 else
                 {
-                    var queue = TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Direction);
+                    var queue = TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side);
 
-                    if (queue[0].Entity != e)
+                    if (queue[0].Entity != entity)
                     {
                         // someone's ahead of us - don't clip through them
-                        int index = queue.FindIndex(entry => entry.Entity == e);
-                        Debug.Assert(index > 0);
+                        int index = queue.FindIndex(entry => entry.Entity == entity);
                         float queueSize = TrackSplines.carQueueSize[onSpline.Spline];
                         float maxT = queue[index - 1].SplineTimer - queueSize;
                         speed.SplineTimer = math.min(speed.SplineTimer, maxT);

@@ -36,7 +36,10 @@ namespace Systems {
                 coords.Up = up;
                 float3 lastPosition = coords.Position;
                 coords.Position = splinePoint + up * .06f;
-                coords.Forward = math.normalize(coords.Position - lastPosition);
+                var delta = coords.Position - lastPosition;
+                var sqLength = math.lengthsq(delta);
+                if (sqLength > 0)
+                    coords.Forward = delta / math.sqrt(sqLength);
             }).WithoutBurst().Schedule(inputDeps);
         }
     }

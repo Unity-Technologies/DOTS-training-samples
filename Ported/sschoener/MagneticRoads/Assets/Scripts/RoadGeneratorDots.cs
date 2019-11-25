@@ -418,7 +418,6 @@ public class RoadGeneratorDots : MonoBehaviour
             var world = World.DefaultGameObjectInjectionWorld;
             var em = world.EntityManager;
             const int numCars = 4000;
-            Cars.Car = new Car[numCars];
             var carArchetype = em.CreateArchetype(
                 typeof(CarSpeedComponent),
                 typeof(SplineDataComponent),
@@ -450,14 +449,13 @@ public class RoadGeneratorDots : MonoBehaviour
                     Side = (sbyte)splineSide
                 });
 
-                TrackSplines.GetQueue(roadSpline, splineDirection, splineSide).Add(new QueueEntry
+                var queue = TrackSplines.GetQueue(roadSpline, splineDirection, splineSide);
+                queue.Add(new QueueEntry
                 {
                     Entity = e,
                     SplineTimer = 1
                 });
-
-                int batch = i / k_InstancesPerBatch;
-                int offset = i % k_InstancesPerBatch;
+                Debug.Assert(queue.FindIndex(entry => entry.Entity == e) >= 0);
 
                 //carColors[batch][offset] = Random.ColorHSV();
                 em.AddSharedComponentData(e, new Unity.Rendering.RenderMesh
