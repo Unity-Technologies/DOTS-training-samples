@@ -26,6 +26,7 @@ public struct Car
 
     float3 m_Position;
     float3 m_LastPosition;
+    float3 m_Up;
     public quaternion rotation;
     public Matrix4x4 matrix;
     public int id;
@@ -74,23 +75,21 @@ public struct Car
         m_NormalizedSpeed = math.min(m_NormalizedSpeed, approachSpeed);
     }
 
-    Vector3 up;
-
     public void UpdatePosition()
     {
         // figure out our position in "unextruded" road space
         // (top of bottom of road, on the left or right side)
 
-        Vector2 extrudePoint;
+        float2 extrudePoint;
         if (!m_IsInsideIntersection)
-            extrudePoint = new Vector2(splineDirection * splineSide, splineSide);
+            extrudePoint = new float2(splineDirection * splineSide, splineSide);
         else
-            extrudePoint = new Vector2(m_IntersectionSide, m_IntersectionSide);
+            extrudePoint = new float2(m_IntersectionSide, m_IntersectionSide);
 
         extrudePoint.x *= -RoadGeneratorDots.trackRadius * .5f;
         extrudePoint.y *= RoadGeneratorDots.trackThickness * .5f;
 
-        float t = Mathf.Clamp01(splineTimer);
+        float t = math.clamp(splineTimer, 0, 1);
         if (!m_IsInsideIntersection && splineDirection == -1)
             t = 1f - t;
 
@@ -111,28 +110,25 @@ public struct Car
         }
 
         // find our position and orientation
-        Vector3 splinePoint = TrackUtils.Extrude(currentSplineBezier, currentSplineGeometry, currentSplineTwistMode, extrudePoint, t, out _, out var upTmp, out _);
-        up = upTmp;
+        float3 splinePoint = TrackUtils.Extrude(currentSplineBezier, currentSplineGeometry, currentSplineTwistMode, extrudePoint, t, out _, out m_Up, out _);
+        m_Up = math.normalize(m_Up);
 
-        up *= splineSide;
+        m_Up *= splineSide;
+        
 
-        m_Position = splinePoint + up.normalized * .06f;
+        m_Position = splinePoint + m_Up * .06f;
     }
 
     public void UpdateMatrix()
     {
-        Vector3 moveDir = m_Position - m_LastPosition;
-        if (moveDir.sqrMagnitude > 0.0001f && up.sqrMagnitude > 0.0001f)
-        {
-            rotation = Quaternion.LookRotation(moveDir * splineDirection, up);
-        }
+        float3 moveDir = m_Position - m_LastPosition;
+        if (math.lengthsq(moveDir) > 0.0001f && math.lengthsq(m_Up) > 0.0001f)
+            rotation = quaternion.LookRotation(moveDir * splineDirection, m_Up);
 
         m_LastPosition = m_Position;
 
-        {
-            Vector3 scale = new Vector3(.1f, .08f, .12f);
-            matrix = Matrix4x4.TRS(m_Position, rotation, scale);
-        }        
+        float3 scale = new float3(.1f, .08f, .12f);
+        matrix = float4x4.TRS(m_Position, rotation, scale);     
     }
     
     public void UpdateIntersection()
@@ -247,10 +243,10 @@ public struct Car
                 // to maintain our current orientation, should we be
                 // on top of or underneath our next road segment?
                 // (each road segment has its own "up" direction, at each end)
-                splineSide = Vector3.Dot(newNormal, up) > 0f ? 1 : -1;
+                splineSide = math.dot(newNormal, m_Up) > 0f ? 1 : -1;
 
                 // should we be on top of or underneath the intersection?
-                m_IntersectionSide = Vector3.Dot(m_IntersectionSplineGeometry.startNormal, up) > 0f ? 1 : -1;
+                m_IntersectionSide = math.dot(m_IntersectionSplineGeometry.startNormal, m_Up) > 0f ? 1 : -1;
 
                 // block other cars from entering this intersection
                 Intersections.Occupied[intersection][(m_IntersectionSide + 1) / 2] = true;
