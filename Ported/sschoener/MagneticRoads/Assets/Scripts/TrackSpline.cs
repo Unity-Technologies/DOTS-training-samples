@@ -13,7 +13,7 @@ public static class TrackSplines
     public static int[] twistMode;
 
     public static float[] measuredLength;
-    public static List<Car>[][] waitingQueues;
+    public static List<int>[][] waitingQueues;
     public static float[] carQueueSize;
     public static int[] maxCarCount;
     
@@ -41,7 +41,7 @@ public static class TrackSplines
     }
     
     // each spline has four lanes
-    public static List<Car> GetQueue(int track, int direction, int side)
+    public static List<int> GetQueue(int track, int direction, int side)
     {
         int index = (direction + 1) + (side + 1) / 2;
         return waitingQueues[track][index];
