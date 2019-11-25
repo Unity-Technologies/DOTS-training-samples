@@ -22,10 +22,10 @@ public class RoadGeneratorDots : MonoBehaviour
 
     NativeArray<bool> m_TrackVoxels;
     int[,,] m_IntersectionsGrid;
-    List<Car> m_Cars;
-
-    List<List<Matrix4x4>> m_CarMatrices;
-
+    Car[] m_Cars;
+    Matrix4x4[][] m_CarMatrices;
+    MaterialPropertyBlock[] m_CarMatProps;
+    
     NativeArray<int3> m_Dirs;
     NativeArray<int3> m_FullDirs;
 
@@ -41,9 +41,7 @@ public class RoadGeneratorDots : MonoBehaviour
 
     List<Mesh> m_RoadMeshes;
     List<List<Matrix4x4>> m_IntersectionMatrices;
-
-    MaterialPropertyBlock m_CarMatProps;
-    List<List<Vector4>> m_CarColors;
+    
     static readonly int k_Color = Shader.PropertyToID("_Color");
 
     static long HashIntersectionPair(int a, int b)
@@ -174,14 +172,6 @@ public class RoadGeneratorDots : MonoBehaviour
         m_IntersectionPairs = new HashSet<long>();
         m_RoadMeshes = new List<Mesh>();
         m_IntersectionMatrices = new List<List<Matrix4x4>>();
-
-        m_Cars = new List<Car>();
-        m_CarMatrices = new List<List<Matrix4x4>>();
-        m_CarMatrices.Add(new List<Matrix4x4>());
-        m_CarColors = new List<List<Vector4>>();
-        m_CarColors.Add(new List<Vector4>());
-        m_CarMatProps = new MaterialPropertyBlock();
-        m_CarMatProps.SetVectorArray(k_Color, new Vector4[k_InstancesPerBatch]);
 
         // plan roads broadly: first, as a grid of true/false voxels
         using (new ProfilerMarker("VoxelGeneration").Auto())
@@ -427,10 +417,27 @@ public class RoadGeneratorDots : MonoBehaviour
         
 
         // spawn cars
-
         {
-            int batch = 0;
-            for (int i = 0; i < 4000; i++)
+            const int numCars = 4000;
+            m_Cars = new Car[numCars];
+
+            int numCarBatches = numCars / k_InstancesPerBatch;
+            int remaining = numCars % k_InstancesPerBatch;
+            numCarBatches += remaining > 0 ? 1 : 0;
+            int lastBatchSize = remaining > 0 ? remaining : k_InstancesPerBatch;
+            
+            m_CarMatrices = new Matrix4x4[numCarBatches][];
+            var carColors = new Vector4[numCarBatches][];
+            m_CarMatProps = new MaterialPropertyBlock[numCarBatches];
+            for (int i = 0; i < numCarBatches; i++)
+            {
+                int batchSize = i == numCars - 1 ? lastBatchSize : k_InstancesPerBatch;
+                m_CarMatrices[i] = new Matrix4x4[batchSize];
+                carColors[i] = new Vector4[batchSize];
+                m_CarMatProps[i] = new MaterialPropertyBlock();
+            }
+
+            for (int i = 0; i < numCars; i++)
             {
                 int splineSide = -1 + Random.Range(0, 2) * 2;
                 int splineDirection = -1 + Random.Range(0, 2) * 2;
@@ -438,22 +445,21 @@ public class RoadGeneratorDots : MonoBehaviour
                 Car car = new Car(splineSide, splineDirection, carSpeed, roadSpline);
                 TrackSplines.GetQueue(roadSpline, splineDirection, splineSide).Add(car);
 
-                m_Cars.Add(car);
-                m_CarMatrices[batch].Add(Matrix4x4.identity);
-                m_CarColors[batch].Add(Random.ColorHSV());
-                if (m_CarMatrices[batch].Count == k_InstancesPerBatch)
-                {
-                    m_CarMatrices.Add(new List<Matrix4x4>());
-                    m_CarColors.Add(new List<Vector4>());
-                    batch++;
-                }
+                int batch = i / k_InstancesPerBatch;
+                int offset = i % k_InstancesPerBatch;
+
+                m_Cars[i] = car;
+                carColors[batch][offset] = Random.ColorHSV();
             }
+
+            for (int i = 0; i < numCarBatches; i++)
+                m_CarMatProps[i].SetVectorArray(k_Color, carColors[i]);
         }
     }
 
     void Update()
     {
-        for (int i = 0; i < m_Cars.Count; i++)
+        for (int i = 0; i < m_Cars.Length; i++)
         {
             m_Cars[i].Update();
             m_CarMatrices[i / k_InstancesPerBatch][i % k_InstancesPerBatch] = m_Cars[i].matrix;
@@ -469,13 +475,10 @@ public class RoadGeneratorDots : MonoBehaviour
             Graphics.DrawMeshInstanced(intersectionMesh, 0, roadMaterial, m_IntersectionMatrices[i]);
         }
 
-        for (int i = 0; i < m_CarMatrices.Count; i++)
+        for (int i = 0; i < m_CarMatrices.Length; i++)
         {
-            if (m_CarMatrices[i].Count > 0)
-            {
-                m_CarMatProps.SetVectorArray(k_Color, m_CarColors[i]);
-                Graphics.DrawMeshInstanced(carMesh, 0, carMaterial, m_CarMatrices[i], m_CarMatProps);
-            }
+            int n = m_CarMatrices[i].Length;
+            Graphics.DrawMeshInstanced(carMesh, 0, carMaterial, m_CarMatrices[i], n, m_CarMatProps[i]);
         }
     }
 
