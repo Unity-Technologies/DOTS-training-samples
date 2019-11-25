@@ -21,6 +21,7 @@ public class KeyboardInput : MonoBehaviour {
 			showText = !showText;
 			text.enabled = showText;
 		}
+		
 		if (Input.GetKeyDown(KeyCode.R)) 
 		{
 			Time.timeScale = 1f;

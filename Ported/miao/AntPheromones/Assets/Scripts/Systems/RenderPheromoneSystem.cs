@@ -10,7 +10,8 @@ namespace AntPheromones_ECS
         private EntityQuery _pheromoneBufferQuery;
         private EntityQuery _renderingQuery;
         private Color[] _colours;
-        
+        private Material _pheromoneMaterial;
+
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -23,21 +24,24 @@ namespace AntPheromones_ECS
 
         protected override void OnUpdate()
         {
+            var renderer =
+                EntityManager.GetSharedComponentData<PheromoneRenderingSharedComponent>(this._renderingQuery.GetSingletonEntity());
+            
             if (!this._pheromoneTexture.IsInitialised)
             {
-                var renderer =
-                    EntityManager.GetSharedComponentData<PheromoneRenderingSharedComponent>(
-                        this._renderingQuery.GetSingletonEntity());
+
                 MapComponent map = GetSingleton<MapComponent>();
               
                 this._pheromoneTexture =
                     (IsInitialised: true,
                     Value: new Texture2D(map.Width, map.Width) {wrapMode = TextureWrapMode.Mirror});
+                this._pheromoneMaterial = 
+                    new Material(renderer.Material){mainTexture = this._pheromoneTexture.Value};
                 this._colours = 
                     new Color[this._pheromoneTexture.Value.width * this._pheromoneTexture.Value.height];
-                
-                renderer.Renderer.sharedMaterial = new Material(renderer.Material){mainTexture = this._pheromoneTexture.Value};
             }
+
+            renderer.Renderer.sharedMaterial = this._pheromoneMaterial;
             
             var pheromoneBuffer = 
                 EntityManager.GetBuffer<PheromoneColourRValueBuffer>(this._pheromoneBufferQuery.GetSingletonEntity());
