@@ -463,26 +463,58 @@ public class RoadGeneratorDots : MonoBehaviour
 
     void Update()
     {
-        for (int i = 0; i < Cars.Car.Length; i++)
+        using (new ProfilerMarker("UpdateAcceleration").Auto())
         {
-            Cars.Car[i].Update();
-            m_CarMatrices[i / k_InstancesPerBatch][i % k_InstancesPerBatch] = Cars.Car[i].matrix;
+            for (int i = 0; i < Cars.Car.Length; i++)
+                Cars.Car[i].UpdateAcceleration();
         }
 
-        for (int i = 0; i < m_RoadMeshes.Count; i++)
+        using (new ProfilerMarker("UpdateApproach").Auto())
         {
-            Graphics.DrawMesh(m_RoadMeshes[i], Matrix4x4.identity, roadMaterial, 0);
+            for (int i = 0; i < Cars.Car.Length; i++)
+                Cars.Car[i].UpdateApproach();
         }
 
-        for (int i = 0; i < m_IntersectionMatrices.Count; i++)
+        using (new ProfilerMarker("UpdatePosition").Auto())
         {
-            Graphics.DrawMeshInstanced(intersectionMesh, 0, roadMaterial, m_IntersectionMatrices[i]);
+            for (int i = 0; i < Cars.Car.Length; i++)
+                Cars.Car[i].UpdatePosition();
         }
 
-        for (int i = 0; i < m_CarMatrices.Length; i++)
+        using (new ProfilerMarker("UpdateMatrix").Auto())
         {
-            int n = m_CarMatrices[i].Length;
-            Graphics.DrawMeshInstanced(carMesh, 0, carMaterial, m_CarMatrices[i], n, m_CarMatProps[i]);
+            for (int i = 0; i < Cars.Car.Length; i++)
+            {
+                Cars.Car[i].UpdateMatrix();
+                m_CarMatrices[i / k_InstancesPerBatch][i % k_InstancesPerBatch] = Cars.Car[i].matrix;
+            }
+        }
+
+        using (new ProfilerMarker("UpdateIntersection").Auto())
+        {
+            for (int i = 0; i < Cars.Car.Length; i++)
+            {
+                Cars.Car[i].UpdateIntersection();
+            }
+        }
+
+        using (new ProfilerMarker("DrawMeshes").Auto())
+        {
+            for (int i = 0; i < m_RoadMeshes.Count; i++)
+            {
+                Graphics.DrawMesh(m_RoadMeshes[i], Matrix4x4.identity, roadMaterial, 0);
+            }
+
+            for (int i = 0; i < m_IntersectionMatrices.Count; i++)
+            {
+                Graphics.DrawMeshInstanced(intersectionMesh, 0, roadMaterial, m_IntersectionMatrices[i]);
+            }
+
+            for (int i = 0; i < m_CarMatrices.Length; i++)
+            {
+                int n = m_CarMatrices[i].Length;
+                Graphics.DrawMeshInstanced(carMesh, 0, carMaterial, m_CarMatrices[i], n, m_CarMatProps[i]);
+            }
         }
     }
 

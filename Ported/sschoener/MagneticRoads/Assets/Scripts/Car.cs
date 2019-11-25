@@ -30,7 +30,7 @@ public struct Car
     public Matrix4x4 matrix;
     public int id;
 
-    public void Update()
+    public void UpdateAcceleration()
     {
         // acceleration
         m_NormalizedSpeed = math.min(m_NormalizedSpeed + Time.deltaTime * 2f, 1);
@@ -41,95 +41,102 @@ public struct Car
             var currentSplineLength = m_IsInsideIntersection ? m_IntersectionSplineLength : TrackSplines.measuredLength[roadSpline];
             splineTimer += m_NormalizedSpeed * maxSpeed / currentSplineLength * Time.deltaTime;
         }
+    }
 
+    public void UpdateApproach()
+    {
+        float approachSpeed = 1f;
+        if (m_IsInsideIntersection)
+            approachSpeed = .7f;
+        else
         {
-            float approachSpeed = 1f;
-            if (m_IsInsideIntersection)
-                approachSpeed = .7f;
-            else
+            // find other cars in our lane
+            var queue = TrackSplines.GetQueue(roadSpline, splineDirection, splineSide);
+
+            if (queue[0] != id)
             {
-                // find other cars in our lane
-                var queue = TrackSplines.GetQueue(roadSpline, splineDirection, splineSide);
-
-                if (queue[0] != id)
-                {
-                    // someone's ahead of us - don't clip through them
-                    int index = queue.IndexOf(id);
-                    float maxT = Cars.Car[queue[index - 1]].splineTimer - TrackSplines.carQueueSize[roadSpline];
-                    splineTimer = math.min(splineTimer, maxT);
-                    approachSpeed = (maxT - splineTimer) * 5f;
-                }
-                else
-                {
-                    // we're "first in line" in our lane, but we still might need
-                    // to slow down if our next intersection is occupied
-                    var target = splineDirection == 1 ? TrackSplines.endIntersection[roadSpline] : TrackSplines.startIntersection[roadSpline];
-                    if (Intersections.Occupied[target][(splineSide + 1) / 2])
-                        approachSpeed = (1f - splineTimer) * .8f + .2f;
-                }
-            }
-
-            m_NormalizedSpeed = math.min(m_NormalizedSpeed, approachSpeed);
-        }
-
-        Vector3 up;
-        {
-            // figure out our position in "unextruded" road space
-            // (top of bottom of road, on the left or right side)
-
-            Vector2 extrudePoint;
-            if (!m_IsInsideIntersection)
-                extrudePoint = new Vector2(splineDirection * splineSide, splineSide);
-            else
-                extrudePoint = new Vector2(m_IntersectionSide, m_IntersectionSide);
-
-            extrudePoint.x *= -RoadGeneratorDots.trackRadius * .5f;
-            extrudePoint.y *= RoadGeneratorDots.trackThickness * .5f;
-
-            float t = Mathf.Clamp01(splineTimer);
-            if (!m_IsInsideIntersection && splineDirection == -1)
-                t = 1f - t;
-
-            CubicBezier currentSplineBezier;
-            TrackGeometry currentSplineGeometry;
-            int currentSplineTwistMode;
-            if (m_IsInsideIntersection)
-            {
-                currentSplineBezier = m_IntersectionSplineBezier;
-                currentSplineGeometry = m_IntersectionSplineGeometry;
-                currentSplineTwistMode = 0;
+                // someone's ahead of us - don't clip through them
+                int index = queue.IndexOf(id);
+                float maxT = Cars.Car[queue[index - 1]].splineTimer - TrackSplines.carQueueSize[roadSpline];
+                splineTimer = math.min(splineTimer, maxT);
+                approachSpeed = (maxT - splineTimer) * 5f;
             }
             else
             {
-                currentSplineBezier = TrackSplines.bezier[roadSpline];
-                currentSplineGeometry = TrackSplines.geometry[roadSpline];
-                currentSplineTwistMode = TrackSplines.twistMode[roadSpline];
+                // we're "first in line" in our lane, but we still might need
+                // to slow down if our next intersection is occupied
+                var target = splineDirection == 1 ? TrackSplines.endIntersection[roadSpline] : TrackSplines.startIntersection[roadSpline];
+                if (Intersections.Occupied[target][(splineSide + 1) / 2])
+                    approachSpeed = (1f - splineTimer) * .8f + .2f;
             }
-
-            // find our position and orientation
-            Vector3 splinePoint = TrackUtils.Extrude(currentSplineBezier, currentSplineGeometry, currentSplineTwistMode, extrudePoint, t, out _, out var upTmp, out _);
-            up = upTmp;
-
-            up *= splineSide;
-
-            m_Position = splinePoint + up.normalized * .06f;
         }
+
+        m_NormalizedSpeed = math.min(m_NormalizedSpeed, approachSpeed);
+    }
+
+    Vector3 up;
+
+    public void UpdatePosition()
+    {
+        // figure out our position in "unextruded" road space
+        // (top of bottom of road, on the left or right side)
+
+        Vector2 extrudePoint;
+        if (!m_IsInsideIntersection)
+            extrudePoint = new Vector2(splineDirection * splineSide, splineSide);
+        else
+            extrudePoint = new Vector2(m_IntersectionSide, m_IntersectionSide);
+
+        extrudePoint.x *= -RoadGeneratorDots.trackRadius * .5f;
+        extrudePoint.y *= RoadGeneratorDots.trackThickness * .5f;
+
+        float t = Mathf.Clamp01(splineTimer);
+        if (!m_IsInsideIntersection && splineDirection == -1)
+            t = 1f - t;
+
+        CubicBezier currentSplineBezier;
+        TrackGeometry currentSplineGeometry;
+        int currentSplineTwistMode;
+        if (m_IsInsideIntersection)
+        {
+            currentSplineBezier = m_IntersectionSplineBezier;
+            currentSplineGeometry = m_IntersectionSplineGeometry;
+            currentSplineTwistMode = 0;
+        }
+        else
+        {
+            currentSplineBezier = TrackSplines.bezier[roadSpline];
+            currentSplineGeometry = TrackSplines.geometry[roadSpline];
+            currentSplineTwistMode = TrackSplines.twistMode[roadSpline];
+        }
+
+        // find our position and orientation
+        Vector3 splinePoint = TrackUtils.Extrude(currentSplineBezier, currentSplineGeometry, currentSplineTwistMode, extrudePoint, t, out _, out var upTmp, out _);
+        up = upTmp;
+
+        up *= splineSide;
+
+        m_Position = splinePoint + up.normalized * .06f;
+    }
+
+    public void UpdateMatrix()
+    {
+        Vector3 moveDir = m_Position - m_LastPosition;
+        if (moveDir.sqrMagnitude > 0.0001f && up.sqrMagnitude > 0.0001f)
+        {
+            rotation = Quaternion.LookRotation(moveDir * splineDirection, up);
+        }
+
+        m_LastPosition = m_Position;
 
         {
-            Vector3 moveDir = m_Position - m_LastPosition;
-            if (moveDir.sqrMagnitude > 0.0001f && up.sqrMagnitude > 0.0001f)
-            {
-                rotation = Quaternion.LookRotation(moveDir * splineDirection, up);
-            }
-
-            m_LastPosition = m_Position;
-
-            {
-                Vector3 scale = new Vector3(.1f, .08f, .12f);
-                matrix = Matrix4x4.TRS(m_Position, rotation, scale);
-            }
-        }
-
+            Vector3 scale = new Vector3(.1f, .08f, .12f);
+            matrix = Matrix4x4.TRS(m_Position, rotation, scale);
+        }        
+    }
+    
+    public void UpdateIntersection()
+    {
         if (splineTimer < 1)
             return;
 
