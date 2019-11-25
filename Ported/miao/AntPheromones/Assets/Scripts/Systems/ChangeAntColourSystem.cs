@@ -7,7 +7,7 @@ using UnityEngine;
 namespace AntPheromones_ECS
 {
     [UpdateInGroup(typeof(PresentationSystemGroup))]
-    public class ChangeBrightnessSystem : JobComponentSystem
+    public class ChangeAntColourSystem : JobComponentSystem
     {
         private EntityQuery _antRenderingQuery;
         private (bool AreRetrieved, Color Search, Color Carry) _colours;
@@ -15,12 +15,13 @@ namespace AntPheromones_ECS
         protected override void OnCreate()
         {
             base.OnCreate();
+            
             this._antRenderingQuery = GetEntityQuery(ComponentType.ReadOnly<AntRenderingComponent>());
         }
         
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            if (!_colours.AreRetrieved)
+            if (!this._colours.AreRetrieved)
             {
                 var antRenderingComponent = this._antRenderingQuery.GetSingleton<AntRenderingComponent>();
                 this._colours = 

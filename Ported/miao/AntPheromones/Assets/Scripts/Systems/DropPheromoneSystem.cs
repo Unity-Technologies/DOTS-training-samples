@@ -34,8 +34,6 @@ namespace AntPheromones_ECS
                     MaxSpeed: this._steeringMovementQuery.GetSingleton<SteeringMovementComponent>().MaxSpeed);
             }
             
-            inputDependencies.Complete();
-            
             Entity pheromoneRValues =
                 GetEntityQuery(ComponentType.ReadOnly<PheromoneColourRValueBuffer>()).GetSingletonEntity();
             var pheromoneColourRValues = 
@@ -53,7 +51,7 @@ namespace AntPheromones_ECS
                 PheromoneColourRValues = pheromoneColourRValues.AsNativeArray()
             }.ScheduleSingle(this, inputDependencies);
         }
-        
+
         [BurstCompile]
         private struct Job : IJobForEach<PositionComponent, SpeedComponent, ResourceCarrierComponent>
         {
@@ -64,7 +62,8 @@ namespace AntPheromones_ECS
 
             private const float SearchExcitement = 0.3f;
             private const float CarryExcitement = 1f;
-
+            private const float FixedDeltaTime = 1 / 50f;
+            
             public void Execute(
                 [ReadOnly] ref PositionComponent position, 
                 [ReadOnly] ref SpeedComponent speed,
@@ -81,8 +80,7 @@ namespace AntPheromones_ECS
                 float strength = excitement * speed.Value / this.MaxSpeed;
                 
                 int index = targetPosition.x + targetPosition.y * this.MapWidth;
-
-                const float FixedDeltaTime = 1 / 50f;
+                
                 float rValue = this.PheromoneColourRValues[index];
                 rValue += this.TrailVisibilityModifier * FixedDeltaTime * strength * (1f - rValue);
                 

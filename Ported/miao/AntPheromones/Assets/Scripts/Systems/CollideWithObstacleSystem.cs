@@ -1,12 +1,10 @@
 ﻿using Unity.Burst;
-using Unity.Collections;
+using Unity.Entities;
+using Unity.Jobs;
+using Unity.Mathematics;
 
 namespace AntPheromones_ECS
 {
-    using Unity.Entities;
-    using Unity.Jobs;
-    using Unity.Mathematics;
-
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(CalculatePositionAfterTransportingResourceSystem))]
     public class CollideWithObstacleSystem : JobComponentSystem
@@ -45,7 +43,7 @@ namespace AntPheromones_ECS
                     
                     float distanceSquared = math.lengthsq(offset);
 
-                    if (!(distanceSquared < ObstacleRadius * ObstacleRadius))
+                    if (distanceSquared >= ObstacleRadius * ObstacleRadius)
                     {
                         continue;
                     }
