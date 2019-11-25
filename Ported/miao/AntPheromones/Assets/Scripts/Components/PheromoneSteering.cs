@@ -2,7 +2,7 @@
 
 namespace AntPheromones_ECS
 {
-    public struct FacingAngleComponent : IComponentData
+    public struct PheromoneSteering : IComponentData
     {
         public float Value;
     }

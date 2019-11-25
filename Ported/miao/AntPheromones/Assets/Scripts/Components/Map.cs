@@ -3,7 +3,7 @@ using Unity.Mathematics;
 
 namespace AntPheromones_ECS
 {
-    public struct MapComponent : IComponentData
+    public struct Map : IComponentData
     {
         public int Width;
         public float TrailVisibilityModifier;

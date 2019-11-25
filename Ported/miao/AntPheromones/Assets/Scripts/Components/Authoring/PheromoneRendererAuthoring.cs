@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
-    public class PheromoneRendererAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
+    public class PheromoneRendererAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public AntManager AntManager;
         public MeshRenderer Renderer;
@@ -11,7 +11,7 @@ namespace AntPheromones_ECS
 
         public void Convert(Entity entity, EntityManager entityManager, GameObjectConversionSystem _)
         {
-            entityManager.AddSharedComponentData(entity, new PheromoneRenderingSharedComponent
+            entityManager.AddSharedComponentData(entity, new PheromoneSharedRendering
             {
                 Material = Material,
                 Renderer = Renderer

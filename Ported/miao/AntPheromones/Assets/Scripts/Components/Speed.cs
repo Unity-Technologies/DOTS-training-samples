@@ -2,7 +2,7 @@
 
 namespace AntPheromones_ECS
 {
-    public struct BrightnessComponent : IComponentData
+    public struct Speed : IComponentData
     {
         public float Value;
     }

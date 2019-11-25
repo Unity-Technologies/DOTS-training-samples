@@ -14,12 +14,12 @@ namespace AntPheromones_ECS
         protected override void OnCreate()
         {
             base.OnCreate();
-            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
+            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<Map>());
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var map = this._mapQuery.GetSingleton<MapComponent>();
+            var map = this._mapQuery.GetSingleton<Map>();
             
             return new Job 
             {
@@ -29,12 +29,12 @@ namespace AntPheromones_ECS
         }
 
         [BurstCompile]
-        private struct Job : IJobForEach<PositionComponent, VelocityComponent>
+        private struct Job : IJobForEach<Position, Velocity>
         {
             public float ObstacleRadius;
             public BlobAssetReference<Obstacles> Obstacles;
             
-            public void Execute(ref PositionComponent position, ref VelocityComponent velocity)
+            public void Execute(ref Position position, ref Velocity velocity)
             {
                 for (int obstacle = 0; obstacle < Obstacles.Value.Positions.Length; obstacle++)
                 {

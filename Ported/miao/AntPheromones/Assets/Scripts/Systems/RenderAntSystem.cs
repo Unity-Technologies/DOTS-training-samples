@@ -33,10 +33,10 @@ public class RenderAntSystem : JobComponentSystem
 
         this._antQuery = GetEntityQuery(
             ComponentType.ReadOnly<LocalToWorld>(),
-            ComponentType.ReadOnly<ColourComponent>()
+            ComponentType.ReadOnly<Colour>()
         );
         this._antSharedRenderingQuery = GetEntityQuery(
-            ComponentType.ReadOnly<AntRenderingSharedComponent>()
+            ComponentType.ReadOnly<AntSharedRendering>()
         );
     }
 
@@ -61,9 +61,9 @@ public class RenderAntSystem : JobComponentSystem
         }
 
         NativeArray<Matrix4x4> localToWorlds =
-            this._antQuery.ToComponentDataArray<LocalToWorld>(Allocator.Temp).Reinterpret<Matrix4x4>();
+            this._antQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob).Reinterpret<Matrix4x4>();
         NativeArray<Vector4> colours = 
-            this._antQuery.ToComponentDataArray<ColourComponent>(Allocator.Temp).Reinterpret<Vector4>();
+            this._antQuery.ToComponentDataArray<Colour>(Allocator.TempJob).Reinterpret<Vector4>();
 
         for (int batch = 0; batch < numBatches; batch++)
         {
@@ -81,7 +81,7 @@ public class RenderAntSystem : JobComponentSystem
             this._materialPropertyBlocks[batch].SetVectorArray(ColourId, this._colours[batch]);
             
             var sharedRenderingData =
-                EntityManager.GetSharedComponentData<AntRenderingSharedComponent>(
+                EntityManager.GetSharedComponentData<AntSharedRendering>(
                     this._antSharedRenderingQuery.GetSingletonEntity());
 
             Graphics.DrawMeshInstanced(

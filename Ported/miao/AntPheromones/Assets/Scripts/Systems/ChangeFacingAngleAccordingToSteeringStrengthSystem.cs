@@ -17,14 +17,14 @@ namespace AntPheromones_ECS
         {
             base.OnCreate();
             this._steeringStrengthQuery =
-                GetEntityQuery(ComponentType.ReadOnly<SteeringStrengthComponent>());
+                GetEntityQuery(ComponentType.ReadOnly<SteeringStrength>());
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             if (!this._steeringStrengths.AreRetrieved)
             {
-                var steeringStrength = this._steeringStrengthQuery.GetSingleton<SteeringStrengthComponent>();
+                var steeringStrength = this._steeringStrengthQuery.GetSingleton<SteeringStrength>();
                 this._steeringStrengths = 
                     (AreRetrieved: true, 
                     Wall: steeringStrength.Wall,
@@ -39,15 +39,15 @@ namespace AntPheromones_ECS
         }
 
         [BurstCompile]
-        private struct Job : IJobForEach<PheromoneSteeringComponent, WallSteeringComponent, FacingAngleComponent>
+        private struct Job : IJobForEach<PheromoneSteering, WallSteering, FacingAngle>
         {
             public float PheromoneStrength;
             public float WallStrength;
 
             public void Execute(
-                [ReadOnly] ref PheromoneSteeringComponent pheromone,
-                [ReadOnly] ref WallSteeringComponent wall, 
-                [WriteOnly] ref FacingAngleComponent facingAngle)
+                [ReadOnly] ref PheromoneSteering pheromone,
+                [ReadOnly] ref WallSteering wall, 
+                [WriteOnly] ref FacingAngle facingAngle)
             {
                 facingAngle.Value += pheromone.Value * this.PheromoneStrength;
                 facingAngle.Value += wall.Value * this.WallStrength;

@@ -19,20 +19,20 @@ namespace AntPheromones_ECS
             base.OnCreate();
             
             this._mapQuery =
-                GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
+                GetEntityQuery(ComponentType.ReadOnly<Map>());
             this._steeringStrengthQuery =
-                GetEntityQuery(ComponentType.ReadOnly<SteeringStrengthComponent>());
+                GetEntityQuery(ComponentType.ReadOnly<SteeringStrength>());
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             if (!this._steeringStrength.IsRetrieved)
             {
-                var steeringStrength = this._steeringStrengthQuery.GetSingleton<SteeringStrengthComponent>();
+                var steeringStrength = this._steeringStrengthQuery.GetSingleton<SteeringStrength>();
                 this._steeringStrength = (IsRetrieved: true, steeringStrength.Goal);
             }
 
-            var map = this._mapQuery.GetSingleton<MapComponent>();
+            var map = this._mapQuery.GetSingleton<Map>();
             
             return new Job
             {
@@ -45,7 +45,7 @@ namespace AntPheromones_ECS
         }
 
         [BurstCompile]
-        struct Job : IJobForEach<PositionComponent, ResourceCarrierComponent, FacingAngleComponent>
+        struct Job : IJobForEach<Position, ResourceCarrier, FacingAngle>
         {
             public float2 ColonyPosition;
             public float2 ResourcePosition;
@@ -54,9 +54,9 @@ namespace AntPheromones_ECS
             public BlobAssetReference<Obstacles> Obstacles;
             
             public void Execute(
-                [ReadOnly] ref PositionComponent position, 
-                [ReadOnly] ref ResourceCarrierComponent resourcCarrier, 
-                ref FacingAngleComponent facingAngle)
+                [ReadOnly] ref Position position, 
+                [ReadOnly] ref ResourceCarrier resourcCarrier, 
+                ref FacingAngle facingAngle)
             {
                 float2 targetPosition = resourcCarrier.IsCarrying ? this.ColonyPosition : this.ResourcePosition;
 

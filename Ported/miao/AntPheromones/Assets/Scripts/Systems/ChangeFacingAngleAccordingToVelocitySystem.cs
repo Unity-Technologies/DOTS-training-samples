@@ -16,11 +16,11 @@ namespace AntPheromones_ECS
         }
 
         [BurstCompile]
-        private struct Job : IJobForEach<VelocityComponent, FacingAngleComponent>
+        private struct Job : IJobForEach<Velocity, FacingAngle>
         {
             public void Execute(
-                [ReadOnly] ref VelocityComponent velocity,
-                [WriteOnly] ref FacingAngleComponent facingAngle)
+                [ReadOnly] ref Velocity velocity,
+                [WriteOnly] ref FacingAngle facingAngle)
             {
                 facingAngle.Value = math.atan2(velocity.Value.y, velocity.Value.x);
             }

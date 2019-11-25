@@ -11,7 +11,7 @@ namespace AntPheromones_ECS
         
         public void Convert(Entity entity, EntityManager entityManager, GameObjectConversionSystem _)
         {
-            entityManager.AddComponentData(entity, new SteeringMovementComponent
+            entityManager.AddComponentData(entity, new SteeringMovement
             {
                 MaxSpeed = this.MaxSpeed,
                 Acceleration = this.Acceleration

@@ -14,12 +14,12 @@ namespace AntPheromones_ECS
         protected override void OnCreate()
         {
             base.OnCreate();
-            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
+            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<Map>());
         }
         
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var map = this._mapQuery.GetSingleton<MapComponent>();
+            var map = this._mapQuery.GetSingleton<Map>();
             return new Job
             {
                 ColonyPosition = map.ColonyPosition,
@@ -27,22 +27,22 @@ namespace AntPheromones_ECS
             }.Schedule(this, inputDeps);
         }
 
-        private struct Job : IJobForEach<PositionComponent, FacingAngleComponent, ResourceCarrierComponent>
+        private struct Job : IJobForEach<Position, FacingAngle, ResourceCarrier>
         {
             public float2 ColonyPosition;
             public float2 ResourcePosition;
 
             public void Execute(
-                [ReadOnly] ref PositionComponent position,
-                [WriteOnly] ref FacingAngleComponent facingAngleComponent, 
-                ref ResourceCarrierComponent resourceCarrier)
+                [ReadOnly] ref Position position,
+                [WriteOnly] ref FacingAngle facingAngle, 
+                ref ResourceCarrier resourceCarrier)
             {
                 if (math.lengthsq(position.Value - (resourceCarrier.IsCarrying ? ColonyPosition : ResourcePosition)) >= 16f)
                 {
                     return;
                 }
 
-                facingAngleComponent.Value += math.PI;
+                facingAngle.Value += math.PI;
                 resourceCarrier.IsCarrying = !resourceCarrier.IsCarrying;
             }
         }

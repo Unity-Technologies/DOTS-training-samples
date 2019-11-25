@@ -16,14 +16,14 @@ namespace AntPheromones_ECS
         {
             base.OnCreate();
             
-            this._antRenderingQuery = GetEntityQuery(ComponentType.ReadOnly<AntRenderingComponent>());
+            this._antRenderingQuery = GetEntityQuery(ComponentType.ReadOnly<AntIndividualRendering>());
         }
         
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             if (!this._colours.AreRetrieved)
             {
-                var antRenderingComponent = this._antRenderingQuery.GetSingleton<AntRenderingComponent>();
+                var antRenderingComponent = this._antRenderingQuery.GetSingleton<AntIndividualRendering>();
                 this._colours = 
                     (AreRetrieved: true,
                     Search: antRenderingComponent.SearchColour,
@@ -38,15 +38,15 @@ namespace AntPheromones_ECS
         }
 
         [BurstCompile]
-        private struct Job : IJobForEach<BrightnessComponent, ResourceCarrierComponent, ColourComponent>
+        private struct Job : IJobForEach<Brightness, ResourceCarrier, Colour>
         {
             public Color SearchColour;
             public Color CarryColour;
             
             public void Execute(
-                [ReadOnly] ref BrightnessComponent brightness, 
-                [ReadOnly] ref ResourceCarrierComponent carrier, 
-                [WriteOnly] ref ColourComponent colourDisplay)
+                [ReadOnly] ref Brightness brightness, 
+                [ReadOnly] ref ResourceCarrier carrier, 
+                [WriteOnly] ref Colour colourDisplay)
             {
                 var targetColor = carrier.IsCarrying ? this.CarryColour : this.SearchColour; 
                 colourDisplay.Value += (targetColor * brightness.Value - colourDisplay.Value) * 0.05f;

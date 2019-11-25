@@ -14,12 +14,12 @@ namespace AntPheromones_ECS
             return new Job().Schedule(this, inputDeps);
         }
         
-        private struct Job : IJobForEach<SpeedComponent, FacingAngleComponent, VelocityComponent>
+        private struct Job : IJobForEach<Speed, FacingAngle, Velocity>
         {
             public void Execute(
-                [ReadOnly] ref SpeedComponent speed, 
-                [ReadOnly] ref FacingAngleComponent facingAngle, 
-                [WriteOnly] ref VelocityComponent velocity)
+                [ReadOnly] ref Speed speed, 
+                [ReadOnly] ref FacingAngle facingAngle, 
+                [WriteOnly] ref Velocity velocity)
             {
                 math.sincos(facingAngle.Value, out float sin, out float cos);
                 velocity.Value = new float2(cos, sin) * speed.Value;

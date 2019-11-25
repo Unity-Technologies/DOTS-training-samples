@@ -2,7 +2,7 @@
 
 namespace AntPheromones_ECS
 {
-    public struct SteeringMovementComponent : IComponentData
+    public struct SteeringMovement : IComponentData
     {
         public float MaxSpeed;
         public float Acceleration;

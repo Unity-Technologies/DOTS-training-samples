@@ -19,18 +19,17 @@ namespace AntPheromones_ECS
             this._pheromoneBufferQuery = 
                 GetEntityQuery(ComponentType.ReadOnly<PheromoneColourRValueBuffer>());
             this._renderingQuery = 
-                GetEntityQuery(ComponentType.ReadOnly<PheromoneRenderingSharedComponent>());
+                GetEntityQuery(ComponentType.ReadOnly<PheromoneSharedRendering>());
         }
 
         protected override void OnUpdate()
         {
             var renderer =
-                EntityManager.GetSharedComponentData<PheromoneRenderingSharedComponent>(this._renderingQuery.GetSingletonEntity());
+                EntityManager.GetSharedComponentData<PheromoneSharedRendering>(this._renderingQuery.GetSingletonEntity());
             
             if (!this._pheromoneTexture.IsInitialised)
             {
-
-                MapComponent map = GetSingleton<MapComponent>();
+                Map map = GetSingleton<Map>();
               
                 this._pheromoneTexture =
                     (IsInitialised: true,

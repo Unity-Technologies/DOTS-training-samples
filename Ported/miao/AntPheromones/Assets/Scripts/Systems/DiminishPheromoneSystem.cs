@@ -15,14 +15,14 @@ namespace AntPheromones_ECS
         protected override void OnCreate()
         {
             base.OnCreate();
-            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
+            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<Map>());
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             inputDeps.Complete();
             
-            var map = this._mapQuery.GetSingleton<MapComponent>();
+            var map = this._mapQuery.GetSingleton<Map>();
             
             Entity pheromoneRValues = 
                 GetEntityQuery(ComponentType.ReadWrite<PheromoneColourRValueBuffer>()).GetSingletonEntity();

@@ -20,9 +20,9 @@ namespace AntPheromones_ECS
             base.OnCreate();
             
             this._mapQuery = 
-                GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
+                GetEntityQuery(ComponentType.ReadOnly<Map>());
             this._steeringMovementQuery =
-                GetEntityQuery(ComponentType.ReadOnly<SteeringMovementComponent>());
+                GetEntityQuery(ComponentType.ReadOnly<SteeringMovement>());
         }
        
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
@@ -31,7 +31,7 @@ namespace AntPheromones_ECS
             {
                 this._steeringMovement = 
                     (IsRetrieved: true,
-                    MaxSpeed: this._steeringMovementQuery.GetSingleton<SteeringMovementComponent>().MaxSpeed);
+                    MaxSpeed: this._steeringMovementQuery.GetSingleton<SteeringMovement>().MaxSpeed);
             }
             
             Entity pheromoneRValues =
@@ -39,7 +39,7 @@ namespace AntPheromones_ECS
             var pheromoneColourRValues = 
                 GetBufferFromEntity<PheromoneColourRValueBuffer>(isReadOnly: true)[pheromoneRValues];
 
-            var map = this._mapQuery.GetSingleton<MapComponent>();
+            var map = this._mapQuery.GetSingleton<Map>();
             
             return new Job
             {
@@ -53,7 +53,7 @@ namespace AntPheromones_ECS
         }
 
         [BurstCompile]
-        private struct Job : IJobForEach<PositionComponent, SpeedComponent, ResourceCarrierComponent>
+        private struct Job : IJobForEach<Position, Speed, ResourceCarrier>
         {
             public NativeArray<PheromoneColourRValueBuffer> PheromoneColourRValues;
             public float TrailVisibilityModifier;
@@ -65,9 +65,9 @@ namespace AntPheromones_ECS
             private const float FixedDeltaTime = 1 / 50f;
             
             public void Execute(
-                [ReadOnly] ref PositionComponent position, 
-                [ReadOnly] ref SpeedComponent speed,
-                [ReadOnly] ref ResourceCarrierComponent resourceCarrier)
+                [ReadOnly] ref Position position, 
+                [ReadOnly] ref Speed speed,
+                [ReadOnly] ref ResourceCarrier resourceCarrier)
             {
                 int2 targetPosition = (int2)math.floor(position.Value);
 

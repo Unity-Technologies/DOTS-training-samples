@@ -2,6 +2,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace AntPheromones_ECS
@@ -15,18 +16,19 @@ namespace AntPheromones_ECS
         protected override void OnCreate()
         {
             base.OnCreate();
-            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
+            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<Map>());
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
             inputDependencies.Complete();
             
-            var map = this._mapQuery.GetSingleton<MapComponent>();
+            Map map = this._mapQuery.GetSingleton<Map>();
             
             Entity pheromoneRValues = 
                 GetEntityQuery(ComponentType.ReadOnly<PheromoneColourRValueBuffer>()).GetSingletonEntity();
-            var pheromoneColourRValues = GetBufferFromEntity<PheromoneColourRValueBuffer>(isReadOnly: true)[pheromoneRValues];
+            DynamicBuffer<PheromoneColourRValueBuffer> pheromoneColourRValues = 
+                GetBufferFromEntity<PheromoneColourRValueBuffer>(isReadOnly: true)[pheromoneRValues];
             
             return new Job
             {
@@ -36,33 +38,34 @@ namespace AntPheromones_ECS
         }
 
         [BurstCompile]
-        private struct Job : IJobForEach<PositionComponent, FacingAngleComponent, PheromoneSteeringComponent>
+        private struct Job : IJobForEach<Position, FacingAngle, PheromoneSteering>
         {
             [ReadOnly] public DynamicBuffer<PheromoneColourRValueBuffer> PheromoneRValues;
             public int MapWidth;
 
+            private const float Distance = 3;
+            
             public void Execute(
-                [Unity.Collections.ReadOnly] ref PositionComponent position,
-                [Unity.Collections.ReadOnly] ref FacingAngleComponent facingAngleComponent,
-                [WriteOnly] ref PheromoneSteeringComponent steering)
+                [ReadOnly] ref Position position,
+                [ReadOnly] ref FacingAngle facingAngle,
+                [WriteOnly] ref PheromoneSteering steering)
             {
-                const float Distance = 3;
+                
 
                 float result = 0;
 
                 for (int i = -1; i <= 1; i += 2) 
                 {
-                    float angle = facingAngleComponent.Value + i * Mathf.PI * 0.25f;
-                    int targetDestinationX = (int)(position.Value.x + Mathf.Cos(angle) * Distance);
-                    int targetDestinationY = (int)(position.Value.y + Mathf.Sin(angle) * Distance);
-
-                    if (targetDestinationX < 0 || targetDestinationY < 0 ||
-                        targetDestinationX >= this.MapWidth || targetDestinationY >= this.MapWidth)
+                    float angle = facingAngle.Value + i * Mathf.PI * 0.25f;
+                    
+                    math.sincos(angle, out float sin, out float cos);
+                    int2 targetDestination = (int2) (position.Value + Distance * new float2(cos, sin));
+                    
+                    if (math.all(targetDestination < 0) && math.all(targetDestination >= MapWidth))
                     {
                         continue;
                     }
-                    int pheromoneIndex = targetDestinationX + targetDestinationY * this.MapWidth;
-                    result += this.PheromoneRValues[pheromoneIndex] * i;
+                    result += this.PheromoneRValues[targetDestination.x + targetDestination.y * this.MapWidth] * i;
                 }
 
                 steering.Value = result >= 0 ? 1 : -1;

@@ -16,7 +16,7 @@ namespace AntPheromones_ECS
         
         public void Convert(Entity entity, EntityManager entityManager, GameObjectConversionSystem _)
         {
-            entityManager.AddComponentData(entity, new SteeringStrengthComponent
+            entityManager.AddComponentData(entity, new SteeringStrength
             {
                 Goal = this.Goal,
                 Random = this.Random,

@@ -18,14 +18,14 @@ namespace AntPheromones_ECS
         {
             base.OnCreate();
             this._steeringMovementQuery =
-                GetEntityQuery(ComponentType.ReadOnly<SteeringMovementComponent>());
+                GetEntityQuery(ComponentType.ReadOnly<SteeringMovement>());
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             if (!this._steeringMovement.IsRetrieved)
             {
-                var steeringMovement = this._steeringMovementQuery.GetSingleton<SteeringMovementComponent>();
+                var steeringMovement = this._steeringMovementQuery.GetSingleton<SteeringMovement>();
                 this._steeringMovement =
                     (IsRetrieved: true,
                     MaxSpeed: steeringMovement.MaxSpeed,
@@ -39,20 +39,20 @@ namespace AntPheromones_ECS
         }
         
         [BurstCompile]
-        private struct Job : IJobForEach<PheromoneSteeringComponent, WallSteeringComponent, SpeedComponent>
+        private struct Job : IJobForEach<PheromoneSteering, WallSteering, Speed>
         {
             public float MaxSpeed;
             public float Acceleration;
             
             public void Execute(
-                [ReadOnly] ref PheromoneSteeringComponent pheromone,
-                [ReadOnly] ref WallSteeringComponent wall, 
-                ref SpeedComponent speedComponent)
+                [ReadOnly] ref PheromoneSteering pheromone,
+                [ReadOnly] ref WallSteering wall, 
+                ref Speed speed)
             {
                 float targetSpeed = this.MaxSpeed;
                 targetSpeed *= 1 - (math.abs(pheromone.Value) + math.abs(wall.Value)) / 3;
                 
-                speedComponent.Value += (targetSpeed - speedComponent.Value) * this.Acceleration;
+                speed.Value += (targetSpeed - speed.Value) * this.Acceleration;
             }
         }
     }

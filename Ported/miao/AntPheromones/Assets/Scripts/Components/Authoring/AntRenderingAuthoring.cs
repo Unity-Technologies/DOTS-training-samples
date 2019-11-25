@@ -14,13 +14,13 @@ namespace AntPheromones_ECS
         
         public void Convert(Entity entity, EntityManager entityManager, GameObjectConversionSystem _)
         {
-            entityManager.AddComponentData(entity, new AntRenderingComponent
+            entityManager.AddComponentData(entity, new AntIndividualRendering
             {
                 CarryColour = this.CarryColour,
                 SearchColour = this.SearchColour,
                 Scale = this.Scale
             });
-            entityManager.AddSharedComponentData(entity, new AntRenderingSharedComponent
+            entityManager.AddSharedComponentData(entity, new AntSharedRendering
             {
                 Material = this.Material,
                 Mesh = this.Mesh

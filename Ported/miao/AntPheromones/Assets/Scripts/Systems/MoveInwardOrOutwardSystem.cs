@@ -18,23 +18,23 @@ namespace AntPheromones_ECS
         {
             base.OnCreate();
             
-            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
+            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<Map>());
             this._steeringStrengthQuery = 
-                GetEntityQuery(ComponentType.ReadOnly<SteeringStrengthComponent>());
+                GetEntityQuery(ComponentType.ReadOnly<SteeringStrength>());
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
             if (!this._steeringStrengths.AreRetrieved)
             {
-                var steeringStrength = this._steeringStrengthQuery.GetSingleton<SteeringStrengthComponent>();
+                var steeringStrength = this._steeringStrengthQuery.GetSingleton<SteeringStrength>();
                 this._steeringStrengths =
                     (AreRetrieved: true,
                     Inward: steeringStrength.Inward,
                     Outward: steeringStrength.Outward);
             }
             
-            var map = this._mapQuery.GetSingleton<MapComponent>();
+            var map = this._mapQuery.GetSingleton<Map>();
             
             return new Job
             {
@@ -49,7 +49,7 @@ namespace AntPheromones_ECS
         }
 
         [BurstCompile]
-        private struct Job : IJobForEach<PositionComponent, ResourceCarrierComponent, VelocityComponent>
+        private struct Job : IJobForEach<Position, ResourceCarrier, Velocity>
         {
             public float2 ColonyPosition;
 
@@ -60,9 +60,9 @@ namespace AntPheromones_ECS
             public float OutwardPushRadius;
             
             public void Execute(
-                [ReadOnly]ref PositionComponent position, 
-                [ReadOnly] ref ResourceCarrierComponent resourceCarrier,
-                [WriteOnly] ref VelocityComponent velocity)
+                [ReadOnly]ref Position position, 
+                [ReadOnly] ref ResourceCarrier resourceCarrier,
+                [WriteOnly] ref Velocity velocity)
             {
                 float pushRadius = resourceCarrier.IsCarrying ? this.InwardPushRadius : this.OutwardPushRadius;
                 float strength = resourceCarrier.IsCarrying ? this.InwardStrength : this.OutwardStrength;

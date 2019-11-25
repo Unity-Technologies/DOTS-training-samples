@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
-    public class MapAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
+    public class MapAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public AntManager AntManager;
         [Range(0f, 1f)] public float TrailVisibilityModifier = 0.3f;
@@ -13,7 +13,7 @@ namespace AntPheromones_ECS
         
         public void Convert(Entity entity, EntityManager entityManager, GameObjectConversionSystem _)
         {
-            entityManager.AddComponentData(entity, new MapComponent
+            entityManager.AddComponentData(entity, new Map
             {
                 Width = this.AntManager.MapWidth,
                 ColonyPosition = this.AntManager.ColonyPosition,

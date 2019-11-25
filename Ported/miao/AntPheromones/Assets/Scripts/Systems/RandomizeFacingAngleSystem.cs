@@ -19,8 +19,8 @@ namespace AntPheromones_ECS
             {
                 this._randomSteeringStrength = 
                     (IsRetrieved: true,
-                    Value: GetEntityQuery(ComponentType.ReadOnly<SteeringStrengthComponent>())
-                               .GetSingleton<SteeringStrengthComponent>().Random);
+                    Value: GetEntityQuery(ComponentType.ReadOnly<SteeringStrength>())
+                               .GetSingleton<SteeringStrength>().Random);
             }
             return new Job
             {
@@ -30,14 +30,14 @@ namespace AntPheromones_ECS
         }
         
         [BurstCompile]
-        private struct Job : IJobForEachWithEntity<FacingAngleComponent>
+        private struct Job : IJobForEachWithEntity<FacingAngle>
         {
             public uint RandomSeed;
             public float RandomSteeringStrength;
             
-            public void Execute(Entity e, int idx, [WriteOnly] ref FacingAngleComponent facingAngleComponent)
+            public void Execute(Entity e, int idx, [WriteOnly] ref FacingAngle facingAngle)
             {
-                facingAngleComponent.Value += 
+                facingAngle.Value += 
                     new Random(seed: (uint)(idx + 1) * this.RandomSeed * 1300031).NextFloat(-this.RandomSteeringStrength, this.RandomSteeringStrength);
             }
         }

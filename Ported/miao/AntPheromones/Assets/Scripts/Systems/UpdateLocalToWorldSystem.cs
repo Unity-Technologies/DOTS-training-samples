@@ -19,14 +19,14 @@ namespace AntPheromones_ECS
             base.OnCreate();
             
             this._antRenderingQuery = 
-                GetEntityQuery(ComponentType.ReadOnly<AntRenderingComponent>());
-            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
+                GetEntityQuery(ComponentType.ReadOnly<AntIndividualRendering>());
+            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<Map>());
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var ant = this._antRenderingQuery.GetSingleton<AntRenderingComponent>();
-            var map = this._mapQuery.GetSingleton<MapComponent>();
+            var ant = this._antRenderingQuery.GetSingleton<AntIndividualRendering>();
+            var map = this._mapQuery.GetSingleton<Map>();
             
             return new Job
             {
@@ -36,14 +36,14 @@ namespace AntPheromones_ECS
         }
 
         [BurstCompile]
-        struct Job : IJobForEach<FacingAngleComponent, PositionComponent, LocalToWorld>
+        struct Job : IJobForEach<FacingAngle, Position, LocalToWorld>
         {
             public float3 Scale;
             public int MapWidth;
 
             public void Execute(
-                [ReadOnly] ref FacingAngleComponent angle, 
-                [ReadOnly] ref PositionComponent position,
+                [ReadOnly] ref FacingAngle angle, 
+                [ReadOnly] ref Position position,
                 [WriteOnly] ref LocalToWorld localToWorld)
             {
                 localToWorld.Value = float4x4.TRS(

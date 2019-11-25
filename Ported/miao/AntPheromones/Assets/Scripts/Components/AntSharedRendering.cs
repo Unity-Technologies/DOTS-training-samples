@@ -4,19 +4,19 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
-    public struct AntRenderingSharedComponent : ISharedComponentData, IEquatable<AntRenderingSharedComponent>
+    public struct AntSharedRendering : ISharedComponentData, IEquatable<AntSharedRendering>
     {
         public Material Material;
         public Mesh Mesh;
 
-        public bool Equals(AntRenderingSharedComponent other)
+        public bool Equals(AntSharedRendering other)
         {
             return Equals(this.Material, other.Material) && Equals(this.Mesh, other.Mesh);
         }
 
         public override bool Equals(object obj)
         {
-            return obj is AntRenderingSharedComponent other && Equals(other);
+            return obj is AntSharedRendering other && Equals(other);
         }
 
         public override int GetHashCode()

@@ -15,12 +15,12 @@ namespace AntPheromones_ECS
         protected override void OnCreate()
         {
             base.OnCreate();
-            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<MapComponent>());
+            this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<Map>());
         }
         
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var map = this._mapQuery.GetSingleton<MapComponent>();
+            var map = this._mapQuery.GetSingleton<Map>();
             
             return new Job
             {
@@ -30,16 +30,16 @@ namespace AntPheromones_ECS
         }
 
         [BurstCompile]
-        private struct Job : IJobForEach<PositionComponent, FacingAngleComponent, WallSteeringComponent>
+        private struct Job : IJobForEach<Position, FacingAngle, WallSteering>
         {
             public float MapWidth;
             public BlobAssetReference<Obstacles> Obstacles;
             
             [BurstCompile]
             public void Execute(
-                [ReadOnly] ref PositionComponent position, 
-                [ReadOnly] ref FacingAngleComponent facingAngle,
-                ref WallSteeringComponent steering)
+                [ReadOnly] ref Position position, 
+                [ReadOnly] ref FacingAngle facingAngle,
+                ref WallSteering steering)
             {
                 const float Distance = 1.5f;
                 
