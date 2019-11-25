@@ -1,5 +1,7 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 
 public struct CarSpeedComponent : IComponentData
 {
@@ -40,4 +42,11 @@ public struct CoordinateSystemComponent : IComponentData
     public float3 Position;
     public float3 Up;
     public float3 Forward;
+}
+
+[Serializable]
+[MaterialProperty("_Color", MaterialPropertyFormat.Float4)]
+public struct CarColor : IComponentData
+{
+    public float4 Value;
 }

@@ -425,7 +425,8 @@ public class RoadGeneratorDots : MonoBehaviour
                 typeof(LocalIntersectionComponent),
                 typeof(InIntersectionComponent),
                 typeof(CoordinateSystemComponent),
-                typeof(LocalToWorld)
+                typeof(LocalToWorld),
+                typeof(CarColor)
             );
 
             var entities = new NativeArray<Entity>(numCars, Allocator.Temp);
@@ -448,16 +449,18 @@ public class RoadGeneratorDots : MonoBehaviour
                     Spline = (ushort)roadSpline,
                     Side = (sbyte)splineSide
                 });
+                
+                em.SetComponentData(e, new CarColor
+                {
+                    Value = (Vector4) Random.ColorHSV()
+                });
 
-                var queue = TrackSplines.GetQueue(roadSpline, splineDirection, splineSide);
-                queue.Add(new QueueEntry
+                TrackSplines.GetQueue(roadSpline, splineDirection, splineSide).Add(new QueueEntry
                 {
                     Entity = e,
                     SplineTimer = 1
                 });
-                Debug.Assert(queue.FindIndex(entry => entry.Entity == e) >= 0);
-
-                //carColors[batch][offset] = Random.ColorHSV();
+                
                 em.AddSharedComponentData(e, new Unity.Rendering.RenderMesh
                 {
                     mesh = carMesh,
