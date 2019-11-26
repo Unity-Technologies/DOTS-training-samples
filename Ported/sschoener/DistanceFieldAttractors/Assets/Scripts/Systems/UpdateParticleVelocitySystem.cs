@@ -24,32 +24,17 @@ namespace Systems {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var particleSetup = EntityManager.GetSharedComponentData<ParticleSetupComponent>(m_ParticleSetup.GetSingletonEntity());
-            return new UpdateVelocity
+            var attraction = particleSetup.Attraction;
+            var jitter = particleSetup.Jitter;
+            var seed = 1 + (uint)UnityEngine.Time.frameCount;
+            return Entities.ForEach((Entity entity, ref PositionComponent position, ref VelocityComponent velocity, in PositionInDistanceFieldComponent fieldPosition) =>
             {
-                Attraction = particleSetup.Attraction,
-                Jitter = particleSetup.Jitter,
-                Seed = 1 + (uint)UnityEngine.Time.frameCount,
-            }.Schedule(this, inputDeps);
-        }
-
-        [BurstCompile(FloatMode = FloatMode.Fast)]
-        struct UpdateVelocity : IJobForEachWithEntity<PositionInDistanceFieldComponent, PositionComponent, VelocityComponent>
-        {
-            public uint Seed;
-            public float Attraction;
-            public float Jitter;
-            
-            public void Execute(Entity entity, int index,
-                [ReadOnly] ref PositionInDistanceFieldComponent fieldPosition,
-                ref PositionComponent position,
-                ref VelocityComponent velocity)
-            {
-                var rng = new Random(Seed * (uint)(1 + index));
-                float3 deltaV = -fieldPosition.Normal * Attraction * math.clamp(fieldPosition.Distance, -1, 1);
-                deltaV += rng.NextFloat3Direction() * rng.NextFloat() * Jitter;
+                var rng = new Random(seed * (uint)(1 + entity.Index));
+                float3 deltaV = -fieldPosition.Normal * attraction * math.clamp(fieldPosition.Distance, -1, 1);
+                deltaV += rng.NextFloat3Direction() * rng.NextFloat() * jitter;
                 velocity.Value = .99f * (velocity.Value + deltaV);
                 position.Value += velocity.Value;
-            }
+            }).WithBurst(FloatMode.Fast).Schedule(inputDeps);
         }
     }
 }

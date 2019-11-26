@@ -15,30 +15,20 @@ namespace Systems {
         {
             // this is very much overkill, since scheduling the job is likely much more expensive than just
             // updating on the main thread.
-            return new UpdateJob
+            var deltaTime = Time.DeltaTime;
+            var numModels = m_NumModels;
+            var rng = new Random((1 + (uint)UnityEngine.Time.frameCount) * 104729);
+            inputDeps.Complete();
+            Entities.ForEach((ref DistanceFieldComponent distanceField) =>
             {
-                DeltaTime = Time.DeltaTime,
-                NumModels = m_NumModels,
-                Rng = new Random((1 + (uint)Time.frameCount) * 104729)
-            }.Run(this, inputDeps);
-        }
-
-        [BurstCompile]
-        struct UpdateJob : IJobForEach<DistanceFieldComponent>
-        {
-            public float DeltaTime;
-            public int NumModels;
-            public Random Rng;
-
-            public void Execute(ref DistanceFieldComponent distanceField)
-            {
-                distanceField.TimeToSwitch -= DeltaTime;
+                distanceField.TimeToSwitch -= deltaTime;
                 if (distanceField.TimeToSwitch <= 0)
                 {
                     distanceField.TimeToSwitch = 2;
-                    distanceField.ModelType = (DistanceFieldModel) Rng.NextInt(NumModels);
+                    distanceField.ModelType = (DistanceFieldModel) rng.NextInt(numModels);
                 }
-            }
+            }).Run();
+            return default(JobHandle);
         }
     }
 }

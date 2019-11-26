@@ -26,7 +26,7 @@ namespace Systems
         {
             var distanceFieldModel = m_DistanceFieldQuery.GetSingleton<DistanceFieldComponent>();
 
-            float time = .1f * Time.time;
+            float time = .1f * (float)Time.ElapsedTime;
             JobHandle handle;
             switch (distanceFieldModel.ModelType)
             {

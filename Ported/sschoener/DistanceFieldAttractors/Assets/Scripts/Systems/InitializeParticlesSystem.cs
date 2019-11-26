@@ -13,25 +13,13 @@ namespace Systems {
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            return new InitializePositionsJob
+            var seed = (1 + (uint)UnityEngine.Time.frameCount) * 104729;
+            const float sphereRadius = 50;
+            return Entities.ForEach((Entity entity, ref PositionComponent position) =>
             {
-                Seed = (1 + (uint)Time.frameCount) * 104729,
-                SphereRadius = 50,
-            }.Schedule(this, inputDeps);
-        }
-
-        [BurstCompile]
-        [RequireComponentTag(typeof(UninitializedTagComponent))]
-        struct InitializePositionsJob : IJobForEachWithEntity<PositionComponent>
-        {
-            public uint Seed;
-            public float SphereRadius;
-
-            public void Execute(Entity entity, int index, ref PositionComponent position)
-            {
-                var rng = new Random(Seed * (uint)(1 + index));
-                position.Value = SphereRadius * rng.NextFloat3Direction() * rng.NextFloat();
-            }
+                var rng = new Random(seed * (uint)(1 + entity.Index));
+                position.Value = sphereRadius * rng.NextFloat3Direction() * rng.NextFloat();
+            }).Schedule(inputDeps);
         }
     }
 }

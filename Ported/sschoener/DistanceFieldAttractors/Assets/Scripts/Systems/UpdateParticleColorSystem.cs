@@ -22,44 +22,20 @@ namespace Systems {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var particleSetup = EntityManager.GetSharedComponentData<ParticleSetupComponent>(m_ParticleSetup.GetSingletonEntity());
-            return new UpdateColor
-            {
-                SurfaceColor = particleSetup.SurfaceColor,
-                ExteriorColor = particleSetup.ExteriorColor,
-                InteriorColor = particleSetup.InteriorColor,
-                ColorStiffness = particleSetup.ColorStiffness,
-                ExteriorColorDist = particleSetup.ExteriorColorDist,
-                InteriorColorDist = particleSetup.InteriorColorDist
-            }.Schedule(this, inputDeps);
-        }
-        
-        [BurstCompile]
-        struct UpdateColor : IJobForEach<PositionInDistanceFieldComponent, RenderColorComponent>
-        {
-            public Color SurfaceColor;
-            public Color ExteriorColor;
-            public Color InteriorColor;
-            public float ColorStiffness;
-            public float ExteriorColorDist;
-            public float InteriorColorDist;
-            
-            public void Execute(
-                [ReadOnly] ref PositionInDistanceFieldComponent fieldPosition,
-                ref RenderColorComponent color)
+            var surfaceColor = particleSetup.SurfaceColor;
+            var exteriorColor = particleSetup.ExteriorColor;
+            var interiorColor = particleSetup.InteriorColor;
+            var colorStiffness = particleSetup.ColorStiffness;
+            var exteriorColorDist = particleSetup.ExteriorColorDist;
+            var interiorColorDist = particleSetup.InteriorColorDist;
+            return Entities.ForEach((ref RenderColorComponent color, in PositionInDistanceFieldComponent fieldPosition) =>
             {
                 
-                Color targetColor;
-                if (fieldPosition.Distance > 0)
-                {
-                    targetColor = Color.Lerp(SurfaceColor, ExteriorColor, fieldPosition.Distance / ExteriorColorDist);
-                }
-                else
-                {
-                    targetColor = Color.Lerp(SurfaceColor, InteriorColor, -fieldPosition.Distance / InteriorColorDist);
-                }
-
-                color.Value = Color.Lerp(color.Value, targetColor, (1 - ColorStiffness) / 60f);
-            }
+                Color otherColor = fieldPosition.Distance > 0 ? exteriorColor : interiorColor;
+                float distance = fieldPosition.Distance > 0 ? exteriorColorDist : -interiorColorDist;
+                Color targetColor = Color.Lerp(surfaceColor, otherColor, fieldPosition.Distance / distance);
+                color.Value = Color.Lerp(color.Value, targetColor, (1 - colorStiffness) / 60f);
+            }).Schedule(inputDeps);
         }
     }
 }
