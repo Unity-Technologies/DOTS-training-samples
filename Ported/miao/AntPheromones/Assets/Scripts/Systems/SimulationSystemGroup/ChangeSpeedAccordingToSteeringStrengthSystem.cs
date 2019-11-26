@@ -6,7 +6,6 @@ using Unity.Mathematics;
 
 namespace AntPheromones_ECS
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(CalculatePheromoneSteeringSystem))]
     [UpdateAfter(typeof(CalculateWallSteeringSystem))]
     public class ChangeSpeedAccordingToSteeringStrengthSystem : JobComponentSystem

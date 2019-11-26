@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ChangeFacingAngleAccordingToVelocitySystem))]
     public class DropPheromoneSystem : JobComponentSystem
     {

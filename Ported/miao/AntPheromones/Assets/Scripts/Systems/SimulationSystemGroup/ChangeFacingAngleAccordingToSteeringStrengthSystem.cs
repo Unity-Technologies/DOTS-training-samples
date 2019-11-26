@@ -5,7 +5,6 @@ using Unity.Jobs;
 
 namespace AntPheromones_ECS
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(CalculatePheromoneSteeringSystem))]
     [UpdateAfter(typeof(CalculateWallSteeringSystem))]
     public class ChangeFacingAngleAccordingToSteeringStrengthSystem : JobComponentSystem

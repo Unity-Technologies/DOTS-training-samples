@@ -5,7 +5,6 @@ using Unity.Mathematics;
 
 namespace AntPheromones_ECS
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(TransportResourceSystem))]
     public class CalculateVelocityAfterTransportingResourceSystem : JobComponentSystem
     {

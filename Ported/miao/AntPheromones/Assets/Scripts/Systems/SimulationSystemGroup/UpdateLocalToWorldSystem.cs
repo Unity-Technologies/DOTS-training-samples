@@ -7,7 +7,6 @@ using Unity.Transforms;
 
 namespace AntPheromones_ECS
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(DropPheromoneSystem))]
     public class UpdateLocalToWorldSystem : JobComponentSystem
     {

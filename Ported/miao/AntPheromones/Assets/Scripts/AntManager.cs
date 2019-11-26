@@ -12,7 +12,6 @@ namespace AntPheromones_ECS
 {
 	public class AntManager : MonoBehaviour
 	{
-		public static AntManager Instance { get; private set; }
 		[Header("Materials")]
 		public Material obstacleMaterial;
 		public Material resourceMaterial;
@@ -61,8 +60,7 @@ namespace AntPheromones_ECS
 			{
 				if (!this._colonyPosition.IsCalculated)
 				{
-					this._colonyPosition.Value = new float2(1f, 1f) * this.MapWidth * 0.5f;
-					this._colonyPosition.IsCalculated = true;
+					this._colonyPosition = (IsCalculated: true, Value: new float2(1f, 1f) * this.MapWidth * 0.5f);
 				}
 				return this._colonyPosition.Value;
 			}
@@ -75,11 +73,11 @@ namespace AntPheromones_ECS
 				if (!this._resourcePosition.IsCalculated)
 				{
 					float resourceAngle = Random.value * 2f * Mathf.PI;
-					this._resourcePosition.Value = 0.5f * this.MapWidth * new float2(1f, 1f) +
-					                        new float2(Mathf.Cos(resourceAngle) * this.MapWidth * 0.475f,
-						                        Mathf.Sin(resourceAngle) * this.MapWidth * 0.475f);
-					
-					this._resourcePosition.IsCalculated = true;
+					this._resourcePosition = 
+						(IsCalculated: true,
+						Value: 0.5f * this.MapWidth * new float2(1f, 1f) + new float2(
+							       Mathf.Cos(resourceAngle) * this.MapWidth * 0.475f,
+							       Mathf.Sin(resourceAngle) * this.MapWidth * 0.475f));
 				}
 
 				return this._resourcePosition.Value;
@@ -192,8 +190,6 @@ namespace AntPheromones_ECS
 		
 		private void GenerateObstacles()
 		{
-			Random.InitState(0);
-			
 			this._obstaclePositions = (IsGenerated: true, CalculateObstaclePositions().ToArray());
 			this._obstacleMatrices = CalculateObstacleMatrices();
 			

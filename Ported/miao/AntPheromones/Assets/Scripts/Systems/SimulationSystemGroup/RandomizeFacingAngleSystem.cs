@@ -7,7 +7,6 @@ using Random = Unity.Mathematics.Random;
 
 namespace AntPheromones_ECS
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class RandomizeFacingAngleSystem : JobComponentSystem
     {
         private EntityQuery _steeringStrengthQuery;

@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(RandomizeFacingAngleSystem))]
     public class CalculatePheromoneSteeringSystem : JobComponentSystem
     {

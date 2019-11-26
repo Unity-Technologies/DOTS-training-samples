@@ -6,7 +6,6 @@ using Unity.Mathematics;
 
 namespace AntPheromones_ECS
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(DropPheromoneSystem))]
     public class DiminishPheromoneSystem : JobComponentSystem
     {

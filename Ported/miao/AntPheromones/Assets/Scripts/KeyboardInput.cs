@@ -5,17 +5,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class KeyboardInput : MonoBehaviour {
-	Text text;
+public class KeyboardInput : MonoBehaviour 
+{
+	private Text _text;
+	private static bool _showText = true;
 
-	static bool showText=true;
-
-	void Start () {
-		text = GetComponent<Text>();
-		text.enabled = showText;
+	private void Start () 
+	{
+		this._text = GetComponent<Text>();
+		this._text.enabled = _showText;
 	}
 
-	void Update()
+	private void Update()
 	{
 		if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
 		{
@@ -55,8 +56,7 @@ public class KeyboardInput : MonoBehaviour {
 		}
 		else if (Input.GetKeyDown(KeyCode.H))
 		{
-			showText = !showText;
-			text.enabled = showText;
+			this._text.enabled = _showText = !_showText;
 		}
 		else if (Input.GetKeyDown(KeyCode.R))
 		{
