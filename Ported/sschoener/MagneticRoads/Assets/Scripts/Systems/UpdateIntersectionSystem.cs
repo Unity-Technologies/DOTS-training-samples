@@ -172,7 +172,7 @@ namespace Systems {
                     }
                 }
                 
-            }).WithoutBurst().Run();
+            }).WithoutBurst().WithName("UpdateIntersection").Run();
             return default;
         }
     }

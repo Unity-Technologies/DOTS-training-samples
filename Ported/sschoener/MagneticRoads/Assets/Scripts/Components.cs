@@ -13,7 +13,8 @@ public struct SplineDataComponent : IComponentData
 {
     public CubicBezier Bezier;
     public TrackGeometry Geometry;
-    public int TwistMode;
+    public float Length;
+    public byte TwistMode;
 }
 
 public struct OnSplineComponent : IComponentData

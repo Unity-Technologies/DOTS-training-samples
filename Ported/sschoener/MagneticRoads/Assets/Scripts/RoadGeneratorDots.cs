@@ -298,7 +298,7 @@ public class RoadGeneratorDots : MonoBehaviour
                 TrackSplines.endIntersection = new ushort[n];
                 TrackSplines.measuredLength = new float[n];
                 TrackSplines.startIntersection = new ushort[n];
-                TrackSplines.twistMode = new int[n];
+                TrackSplines.twistMode = new byte[n];
                 TrackSplines.waitingQueues = new List<QueueEntry>[n][];
                 TrackSplines.carQueueSize = new float[n];
                 TrackSplines.maxCarCount = new int[n];
@@ -338,7 +338,7 @@ public class RoadGeneratorDots : MonoBehaviour
             var vertices = new NativeArray<float3>(verticesPerSpline * numSplines, Allocator.TempJob);
             var uvs = new NativeArray<float2>(verticesPerSpline * numSplines, Allocator.TempJob);
             var triangles = new NativeArray<int>(indicesPerSpline * numSplines, Allocator.TempJob);
-            var twistMode = new NativeArray<int>(numSplines, Allocator.TempJob);
+            var twistMode = new NativeArray<byte>(numSplines, Allocator.TempJob);
             using (vertices)
             using (uvs)
             using (triangles)

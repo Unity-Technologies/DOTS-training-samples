@@ -16,7 +16,7 @@ namespace Systems {
                 var q = quaternion.LookRotation(coords.Forward, coords.Up);
                 float3 scale = new float3(.1f, .08f, .12f);
                 ltw.Value = float4x4.TRS(coords.Position, q, scale);
-            }).Schedule(inputDeps);
+            }).WithName("UpdateTransform").Schedule(inputDeps);
         }
     }
 }

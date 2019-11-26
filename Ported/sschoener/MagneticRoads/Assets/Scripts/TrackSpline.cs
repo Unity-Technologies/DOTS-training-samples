@@ -11,7 +11,7 @@ public static class TrackSplines
     public static ushort[] endIntersection;
     public static CubicBezier[] bezier;
     public static TrackGeometry[] geometry;
-    public static int[] twistMode;
+    public static byte[] twistMode;
 
     public static float[] measuredLength;
     public static List<QueueEntry>[][] waitingQueues;

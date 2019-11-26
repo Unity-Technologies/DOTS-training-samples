@@ -68,13 +68,13 @@ public static class TrackUtils
         return sample1 + right * point.x + up * point.y;
     }
 
-    public static int SelectTwistMode(in CubicBezier bezier, in TrackGeometry geometry, int resolution)
+    public static byte SelectTwistMode(in CubicBezier bezier, in TrackGeometry geometry, int resolution)
     {
         int minErrors = int.MaxValue;
-        int bestTwistMode = 0;
-        for (int i = 0; i < 3; i++)
+        byte bestTwistMode = 0;
+        for (byte i = 0; i < 3; i++)
         {
-            int currentTwistMode = i;
+            byte currentTwistMode = i;
             int numErrors = 0;
             for (int j = 0; j <= resolution; j++)
             {

@@ -14,7 +14,7 @@ struct GenerateTrackMeshes : IJobParallelFor
     [NativeDisableParallelForRestriction]
     public NativeArray<int> OutTriangles;
 
-    public NativeArray<int> OutTwistMode;
+    public NativeArray<byte> OutTwistMode;
     [ReadOnly, DeallocateOnJobCompletion]
     public NativeArray<CubicBezier> Bezier;
     [ReadOnly, DeallocateOnJobCompletion]
@@ -47,7 +47,7 @@ struct GenerateTrackMeshes : IJobParallelFor
         int mesh = index / SplinesPerMesh;
         int relativeVertexIndex = vertexIndex - (mesh * SplinesPerMesh * VerticesPerSpline);
 
-        int twistMode = TrackUtils.SelectTwistMode(Bezier[index], Geometry[index], m_Resolution);
+        byte twistMode = TrackUtils.SelectTwistMode(Bezier[index], Geometry[index], m_Resolution);
         OutTwistMode[index] = twistMode;
 
         // extrude our rectangle as four strips

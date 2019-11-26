@@ -15,14 +15,16 @@ namespace Systems {
                     spline.Bezier = localIntersection.Bezier;
                     spline.Geometry = localIntersection.Geometry;
                     spline.TwistMode = 0;
+                    spline.Length = localIntersection.Length;
                 }
                 else
                 {
                     spline.Bezier = TrackSplines.bezier[onSpline.Spline];
                     spline.Geometry = TrackSplines.geometry[onSpline.Spline];
                     spline.TwistMode = TrackSplines.twistMode[onSpline.Spline];
+                    spline.Length = TrackSplines.measuredLength[onSpline.Spline];
                 }
-            }).WithoutBurst().Schedule(inputDeps);
+            }).WithoutBurst().WithName("FetchSplineData").Schedule(inputDeps);
         }
     }
 }

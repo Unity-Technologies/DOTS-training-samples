@@ -12,16 +12,11 @@ namespace Systems
         {
             float dt = Time.DeltaTime;
             const float maxSpeed = 2;
-            return Entities.ForEach((ref CarSpeedComponent speed, in OnSplineComponent onSpline, in LocalIntersectionComponent localIntersection, in InIntersectionComponent inIntersection) =>
+            return Entities.ForEach((ref CarSpeedComponent speed, in SplineDataComponent spline) =>
             {
-                float length;
-                if (inIntersection.Value)
-                    length = localIntersection.Length;
-                else
-                    length = TrackSplines.measuredLength[onSpline.Spline];
                 speed.NormalizedSpeed = math.min(speed.NormalizedSpeed + dt * 2, 1);
-                speed.SplineTimer += speed.NormalizedSpeed * maxSpeed / length * dt;
-            }).WithoutBurst().Schedule(inputDeps);
+                speed.SplineTimer += speed.NormalizedSpeed * maxSpeed / spline.Length * dt;
+            }).WithName("UpdateSpeed").Schedule(inputDeps);
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Systems {
                 var sqLength = math.lengthsq(delta);
                 if (sqLength > 0)
                     coords.Forward = delta / math.sqrt(sqLength);
-            }).WithoutBurst().Schedule(inputDeps);
+            }).WithName("UpdateCoordinateSystem").Schedule(inputDeps);
         }
     }
 }
