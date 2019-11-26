@@ -17,7 +17,7 @@ namespace Systems {
             // updating on the main thread.
             return new UpdateJob
             {
-                DeltaTime = Time.deltaTime,
+                DeltaTime = Time.DeltaTime,
                 NumModels = m_NumModels,
                 Rng = new Random((1 + (uint)Time.frameCount) * 104729)
             }.Run(this, inputDeps);
