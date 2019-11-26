@@ -60,10 +60,14 @@ public class RenderAntSystem : JobComponentSystem
             propertyBlock.SetVectorArray(nameID: ColourId, batchColors);
         }
 
-        NativeArray<Matrix4x4> localToWorlds =
-            this._antQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob).Reinterpret<Matrix4x4>();
-        NativeArray<Vector4> colours = 
-            this._antQuery.ToComponentDataArray<Colour>(Allocator.TempJob).Reinterpret<Vector4>();
+        NativeArray<Matrix4x4> localToWorlds;
+        NativeArray<Vector4> colours;
+        
+        using (new ProfilerMarker("ToComponentArray").Auto())
+        {
+            localToWorlds = this._antQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob).Reinterpret<Matrix4x4>();
+            colours = this._antQuery.ToComponentDataArray<Colour>(Allocator.TempJob).Reinterpret<Vector4>();
+        }
 
         for (int batch = 0; batch < numBatches; batch++)
         {

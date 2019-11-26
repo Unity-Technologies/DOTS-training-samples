@@ -36,14 +36,14 @@ namespace AntPheromones_ECS
             
             public void Execute(ref Position position, ref Velocity velocity)
             {
-                this.Obstacles.Value.TryGetObstacles(position.Value, out int offset, out int distanceToNextBucket);
+                this.Obstacles.Value.TryGetObstacles(position.Value, out int indexOfCurrentBucket, out int distanceToNextBucket);
                 
-                for (int i = offset; i < offset + distanceToNextBucket; i++)
+                for (int i = indexOfCurrentBucket; i < indexOfCurrentBucket + distanceToNextBucket; i++)
                 {
                     float2 obstaclePosition = Obstacles.Value.Positions[i];
                     float2 delta = position.Value - obstaclePosition;
                     
-                    float distanceSquared = math.lengthsq(offset);
+                    float distanceSquared = math.lengthsq(delta);
 
                     if (distanceSquared >= ObstacleRadius * ObstacleRadius)
                     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -97,14 +98,9 @@ namespace AntPheromones_ECS
 		private bool _isJustStarted;
 		private (bool IsRetrieved, SimulationSystemGroup Value) _simulationSystemGroup;
 
-		const int InstancesPerBatch = 1023;
+		private const int InstancesPerBatch = 1023;
 
-		private void Awake()
-		{
-			Instance = this;
-		}
-
-		void Start()
+		private void Start()
 		{
 			this._isJustStarted = true;
 			
@@ -119,6 +115,35 @@ namespace AntPheromones_ECS
 				new float3(4f, 4f, 0.1f) / this.MapWidth);
 			
 			CreateAnts();
+		}
+
+		private void Update()
+		{
+			for (int i = 0; i < this._obstacleMatrices.Length; i++)
+			{
+				Graphics.DrawMeshInstanced(this.obstacleMesh, submeshIndex: 0, obstacleMaterial, _obstacleMatrices[i]);
+			}
+
+			Graphics.DrawMesh(colonyMesh, _colonyMatrix, colonyMaterial, layer: 0);
+			Graphics.DrawMesh(resourceMesh, _resourceMatrix, resourceMaterial, layer: 0);
+		}
+
+		private void FixedUpdate()
+		{
+			if (this._isJustStarted)
+			{
+				this._isJustStarted = false;
+				return;
+			}
+
+			if (!this._simulationSystemGroup.IsRetrieved)
+			{
+				this._simulationSystemGroup = 
+					(IsRetrieved: true, 
+					Value: World.Active.GetExistingSystem<SimulationSystemGroup>());
+			}
+			
+			this._simulationSystemGroup.Value.Update();
 		}
 
 		private void CreateAnts()
@@ -168,9 +193,8 @@ namespace AntPheromones_ECS
 		private void GenerateObstacles()
 		{
 			Random.InitState(0);
-			this._obstaclePositions.Values = CalculateObstaclePositions().ToArray();
-			this._obstaclePositions.IsGenerated = true;
 			
+			this._obstaclePositions = (IsGenerated: true, CalculateObstaclePositions().ToArray());
 			this._obstacleMatrices = CalculateObstacleMatrices();
 			
 			List<float2>[,] temporaryObstacleBuckets = GenerateObstacleBuckets();
@@ -230,15 +254,14 @@ namespace AntPheromones_ECS
 			return buckets;
 		}
 
-		private List<float2> CalculateObstaclePositions()
+		private IEnumerable<float2> CalculateObstaclePositions()
 		{
-			var positions = new List<float2>();
-			
             for (int i = 1; i <= this.ObstacleRingCount; i++)
             {
-            	float ringRadius = i / (this.ObstacleRingCount + 1f) * (this.MapWidth * .5f);
+            	float ringRadius = i / (this.ObstacleRingCount + 1f) * (this.MapWidth * 0.5f);
             	float circumference = ringRadius * 2f * Mathf.PI;
             	int maxCount = Mathf.CeilToInt(circumference / (2f * this.ObstacleRadius) * 2f);
+                
             	int offset = Random.Range(0, maxCount);
             	int holeCount = Random.Range(1, 3);
             	
@@ -252,15 +275,11 @@ namespace AntPheromones_ECS
             		}
             		
             		float angle = (j + offset) / (float) maxCount * (2f * Mathf.PI);
-            		float2 obstacle = 
-            			new float2(this.MapWidth * 0.5f + math.cos(angle) * ringRadius,
-            			this.MapWidth * 0.5f + math.sin(angle) * ringRadius); 
-
-                    positions.Add(obstacle);
+            		yield return new float2(
+	                    x: this.MapWidth * 0.5f + math.cos(angle) * ringRadius,
+            			y: this.MapWidth * 0.5f + math.sin(angle) * ringRadius); 
             	}
             }
-
-            return positions;
 		}
 
 		private Matrix4x4[][] CalculateObstacleMatrices()
@@ -275,78 +294,14 @@ namespace AntPheromones_ECS
 				for (int j = 0; j < obstacleMatrices[i].Length; j++)
 				{
 					obstacleMatrices[i][j] =
-						Matrix4x4.TRS(new float3(this._obstaclePositions.Values[i * InstancesPerBatch + j] / this.MapWidth, 0),
-							Quaternion.identity, new float3(this.ObstacleRadius * 2f, this.ObstacleRadius * 2f, 1f) / MapWidth);
+						Matrix4x4.TRS(
+							new float3(xy: this._obstaclePositions.Values[i * InstancesPerBatch + j] / this.MapWidth, z: 0),
+							Quaternion.identity,
+							s: new float3(this.ObstacleRadius * 2f, this.ObstacleRadius * 2f, 1f) / MapWidth);
 				}
 			}
 
 			return obstacleMatrices;
-		}
-
-		private void Update()
-		{
-			if (Input.GetKeyDown(KeyCode.Alpha1))
-			{
-				Time.timeScale = 1f;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha2))
-			{
-				Time.timeScale = 2f;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha3))
-			{
-				Time.timeScale = 3f;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha4))
-			{
-				Time.timeScale = 4f;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha5))
-			{
-				Time.timeScale = 5f;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha6))
-			{
-				Time.timeScale = 6f;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha7))
-			{
-				Time.timeScale = 7f;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha8))
-			{
-				Time.timeScale = 8f;
-			}
-			else if (Input.GetKeyDown(KeyCode.Alpha9))
-			{
-				Time.timeScale = 9f;
-			}
- 
-			for (int i = 0; i < this._obstacleMatrices.Length; i++)
-			{
-				Graphics.DrawMeshInstanced(this.obstacleMesh, 0, obstacleMaterial, _obstacleMatrices[i]);
-			}
-
-			Graphics.DrawMesh(colonyMesh, _colonyMatrix, colonyMaterial, 0);
-			Graphics.DrawMesh(resourceMesh, _resourceMatrix, resourceMaterial, 0);
-		}
-
-		private void FixedUpdate()
-		{
-			if (this._isJustStarted)
-			{
-				this._isJustStarted = false;
-				return;
-			}
-
-			if (!this._simulationSystemGroup.IsRetrieved)
-			{
-				this._simulationSystemGroup = 
-					(IsRetrieved: true,
-					Value: World.Active.GetExistingSystem<SimulationSystemGroup>());
-			}
-			
-			this._simulationSystemGroup.Value.Update();
 		}
 	}
 }
