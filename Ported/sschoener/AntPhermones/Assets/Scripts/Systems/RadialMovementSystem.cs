@@ -1,6 +1,4 @@
-﻿using Unity.Burst;
-using Unity.Collections;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
@@ -22,34 +20,20 @@ public class RadialMovementSystem : JobComponentSystem
     {
         var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
         var antSteering = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>();
-        return new Job {
-            ColonyPosition = map.ColonyPosition,
-            InwardStrength = antSteering.InwardSteerStrength,
-            InwardPushRadius = map.MapSize,
-            OutwardStrength = -antSteering.OutwardSteerStrength,
-            OutwardPushRadius = map.MapSize * .4f
-        }.Schedule(this, inputDeps);
-    }
-
-    [BurstCompile]
-    struct Job  : IJobForEach<PositionComponent, HasResourcesComponent, VelocityComponent>
-    {
-        public float2 ColonyPosition;
-        public float InwardStrength;
-        public float OutwardStrength;
-        public float InwardPushRadius;
-        public float OutwardPushRadius;
-        
-        public void Execute([ReadOnly] ref PositionComponent position, [ReadOnly] ref HasResourcesComponent hasResources, [WriteOnly] ref VelocityComponent velocity)
+        var colonyPosition = map.ColonyPosition;
+        var inwardStrength = antSteering.InwardSteerStrength;
+        var inwardPushRadius = map.MapSize;
+        var outwardStrength = -antSteering.OutwardSteerStrength;
+        var outwardPushRadius = map.MapSize * .4f;
+        return Entities.ForEach((ref VelocityComponent velocity, in PositionComponent position, in HasResourcesComponent hasResources) =>
         {
-            var strength = hasResources.Value ? InwardStrength : OutwardStrength;
-            var pushRadius = hasResources.Value ? InwardPushRadius : OutwardPushRadius;
-            var delta = ColonyPosition - position.Value;
+            var strength = hasResources.Value ? inwardStrength : outwardStrength;
+            var pushRadius = hasResources.Value ? inwardPushRadius : outwardPushRadius;
+            var delta = colonyPosition - position.Value;
             float dist = math.length(delta);
 
             strength *= 1f - math.clamp(dist / pushRadius, 0f, 1f);
             velocity.Value += delta * (strength / dist);
-        }
+        }).Schedule(inputDeps);
     }
-    
 }

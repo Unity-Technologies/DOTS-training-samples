@@ -22,7 +22,7 @@ public class TargetingSystem : JobComponentSystem
     {
         var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
         var antSteering = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>();
-        return new Job {
+        return new TargetingJob {
             ColonyPosition = map.ColonyPosition,
             ResourcePosition = map.ResourcePosition,
             TargetSteerStrength =  antSteering.TargetSteerStrength,
@@ -31,7 +31,7 @@ public class TargetingSystem : JobComponentSystem
     }
     
     [BurstCompile]
-    struct Job : IJobForEach<PositionComponent, HasResourcesComponent, FacingAngleComponent>
+    struct TargetingJob : IJobForEach<PositionComponent, HasResourcesComponent, FacingAngleComponent>
     {
         public float2 ColonyPosition;
         public float2 ResourcePosition;

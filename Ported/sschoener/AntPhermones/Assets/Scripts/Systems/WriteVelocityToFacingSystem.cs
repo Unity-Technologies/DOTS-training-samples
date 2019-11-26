@@ -1,6 +1,4 @@
-﻿using Unity.Burst;
-using Unity.Collections;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
@@ -8,17 +6,9 @@ using Unity.Mathematics;
 [UpdateAfter(typeof(RadialMovementSystem))]
 public class WriteVelocityToFacingSystem : JobComponentSystem
 {
-    protected override JobHandle OnUpdate(JobHandle inputDeps)
-    {
-        return new Job().Schedule(this, inputDeps);
-    }
-
-    [BurstCompile]
-    struct Job : IJobForEach<VelocityComponent, FacingAngleComponent>
-    {
-        public void Execute([ReadOnly]ref VelocityComponent velocity, [WriteOnly] ref FacingAngleComponent facingAngle)
+    protected override JobHandle OnUpdate(JobHandle inputDeps) =>
+        Entities.ForEach((ref FacingAngleComponent facingAngle, in VelocityComponent velocity) =>
         {
             facingAngle.Value = math.atan2(velocity.Value.y, velocity.Value.x);
-        }
-    }
+        }).Schedule(inputDeps);
 }

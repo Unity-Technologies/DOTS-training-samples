@@ -142,7 +142,7 @@ public class GameManager : MonoBehaviour
         if (updatesFinished == 1)
             return;
         if (m_SimulationSystemGroup == null)
-            m_SimulationSystemGroup = World.Active.GetExistingSystem<SimulationSystemGroup>();
+            m_SimulationSystemGroup = World.AllWorlds[0].GetExistingSystem<SimulationSystemGroup>();
         m_SimulationSystemGroup.Update();
     }
     

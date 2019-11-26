@@ -1,6 +1,4 @@
 ﻿using System;
-using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
@@ -19,26 +17,12 @@ public class UpdateAntColorSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var ants = m_AntSettingsQuery.GetSingleton<AntRenderSettingsComponent>();
-        return new Job
+        var searcherColor = ants.SearcherColor;
+        var carrierColor = ants.CarrierColor;
+        return Entities.ForEach((ref RenderColorComponent renderColor, in BrightnessComponent brightness, in HasResourcesComponent hasResources) =>
         {
-            SearcherColor = ants.SearcherColor,
-            CarrierColor = ants.CarrierColor
-        }.Schedule(this, inputDeps);
-    }
-
-    [BurstCompile]
-    struct Job : IJobForEach<BrightnessComponent, HasResourcesComponent, RenderColorComponent>
-    {
-        public Color SearcherColor;
-        public Color CarrierColor;
-
-        public void Execute(
-            [ReadOnly] ref BrightnessComponent brightness,
-            [ReadOnly] ref HasResourcesComponent hasResources,
-            [WriteOnly] ref RenderColorComponent renderColor)
-        {
-            var c = hasResources.Value ? CarrierColor : SearcherColor;
+            var c = hasResources.Value ? carrierColor : searcherColor;
             renderColor.Value += (c * brightness.Value - renderColor.Value) * .05f;
-        }
+        }).Schedule(inputDeps);
     }
 }

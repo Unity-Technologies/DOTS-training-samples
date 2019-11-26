@@ -28,47 +28,28 @@ public class PheromoneDropSystem : JobComponentSystem
         var pheromoneFromEntity = GetBufferFromEntity<PheromoneBuffer>();
         var pheromoneMap = pheromoneFromEntity[m_PheromoneMapQuery.GetSingletonEntity()];
         var antSteering = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>();
+        var trailAdd = map.TrailAdd * 1/50f;
+        var maxSpeed = antSteering.MaxSpeed;
+        var mapSize = map.MapSize;
+        var pheromones = pheromoneMap;
         inputDeps.Complete();
-        new Job
-        {
-            // Time.fixedDeltaTime
-            TrailAdd = map.TrailAdd * 1/50f,
-            MaxSpeed = antSteering.MaxSpeed,
-            MapSize = map.MapSize,
-            Pheromones = pheromoneMap,
-        }.Run(this, inputDeps);
-        return default;
-    }
-    
-    [BurstCompile]
-    struct Job : IJobForEach<PositionComponent, SpeedComponent, HasResourcesComponent>
-    {
-        [NativeDisableParallelForRestriction]
-        public DynamicBuffer<PheromoneBuffer> Pheromones;
-        public float MaxSpeed;
-
-        public float TrailAdd;
-
-        public int MapSize;
-
-        public void Execute(
-            [ReadOnly] ref PositionComponent position,
-            [ReadOnly] ref SpeedComponent speed,
-            [ReadOnly] ref HasResourcesComponent hasResources)
+        Entities.ForEach((in PositionComponent position, in SpeedComponent speed, in HasResourcesComponent hasResources) =>
         {
             var p = (int2)math.floor(position.Value);
-            if (math.any(p < 0) || math.any(p >= MapSize))
+            if (math.any(p < 0) || math.any(p >= mapSize))
                 return;
             const float searcherExcitement = .3f;
             const float carrierExcitement = 1;
             float excitement = hasResources.Value ? carrierExcitement : searcherExcitement;
-            float strength = excitement * speed.Value / MaxSpeed;
-            int idx = p.y * MapSize + p.x;
+            float strength = excitement * speed.Value / maxSpeed;
+            int idx = p.y * mapSize + p.x;
             
-            float rate = TrailAdd * strength;
-            float pheromone = Pheromones[idx];
+            float rate = trailAdd * strength;
+            float pheromone = pheromones[idx];
             pheromone += rate * (1 - pheromone);
-            Pheromones[idx] = math.min(1, pheromone);
-        }
+            pheromones[idx] = math.min(1, pheromone);
+        }).WithNativeDisableParallelForRestriction(pheromones).Run();
+        return default;
     }
+    
 }

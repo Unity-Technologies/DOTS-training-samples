@@ -1,4 +1,3 @@
-using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
@@ -16,18 +15,10 @@ public class PerturbFacingSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        return new PerturbationJob {
-            Magnitude = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>().RandomSteerStrength,
-        }.Schedule(this, inputDeps);
-    }
-
-    [BurstCompile]
-    struct PerturbationJob : IJobForEach<FacingAngleComponent, RandomSteeringComponent> {
-        public float Magnitude;
-
-        public void Execute(ref FacingAngleComponent facingAngle, ref RandomSteeringComponent random)
+        var magnitude = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>().RandomSteerStrength;
+        return Entities.ForEach((ref FacingAngleComponent facingAngle, ref RandomSteeringComponent random) =>
         {
-            facingAngle.Value += random.Rng.NextFloat(-Magnitude, Magnitude);
-        }
+            facingAngle.Value += random.Rng.NextFloat(-magnitude, magnitude);
+        }).Schedule(inputDeps);
     }
 }

@@ -1,6 +1,4 @@
-﻿using Unity.Burst;
-using Unity.Collections;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
@@ -20,26 +18,15 @@ public class UpdateLocalToWorldSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var ants = m_AntSettingsQuery.GetSingleton<AntRenderSettingsComponent>();
-        var map = m_MapSettingsQuery.GetSingleton<MapSettingsComponent>(); 
-        return new Job
-        {
-            Scale = ants.Scale,
-            MapSize =  map.MapSize
-        }.Schedule(this, inputDeps);
-    }
-
-    [BurstCompile]
-    struct Job : IJobForEach<FacingAngleComponent, PositionComponent, LocalToWorldComponent>
-    {
-        public float3 Scale;
-        public int MapSize;
-
-        public void Execute([ReadOnly] ref FacingAngleComponent angle, [ReadOnly] ref PositionComponent position, [WriteOnly] ref LocalToWorldComponent localToWorld)
+        var map = m_MapSettingsQuery.GetSingleton<MapSettingsComponent>();
+        var scale = ants.Scale;
+        var mapSize = map.MapSize;
+        return Entities.ForEach((ref LocalToWorldComponent localToWorld, in FacingAngleComponent angle, in PositionComponent position) =>
         {
             localToWorld.Value = float4x4.TRS(
-                new float3(position.Value / MapSize, 0),
+                new float3(position.Value / mapSize, 0),
                 quaternion.Euler(new float3(0, 0, angle.Value)),
-                Scale);
-        }
+                scale);
+        }).Schedule(inputDeps);
     }
 }

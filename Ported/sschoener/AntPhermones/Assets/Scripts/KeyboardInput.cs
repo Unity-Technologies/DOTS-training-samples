@@ -22,7 +22,7 @@ public class KeyboardInput : MonoBehaviour {
 		}
 		if (Input.GetKeyDown(KeyCode.R)) {
 			Time.timeScale = 1f;
-			var em = World.Active.EntityManager;
+			var em = World.DefaultGameObjectInjectionWorld.EntityManager;
 			em.DestroyEntity(em.UniversalQuery);
 			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 		}

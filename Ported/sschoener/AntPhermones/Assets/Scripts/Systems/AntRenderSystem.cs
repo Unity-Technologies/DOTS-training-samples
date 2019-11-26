@@ -5,6 +5,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
+using Unity.Entities.CodeGeneratedJobForEach;
 using Unity.Jobs;
 using Unity.Profiling;
 using UnityEngine;

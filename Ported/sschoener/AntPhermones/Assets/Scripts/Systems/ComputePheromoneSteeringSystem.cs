@@ -30,6 +30,7 @@ public class ComputePheromoneSteeringSystem : JobComponentSystem
     }
 
     [BurstCompile]
+    [ExcludeComponent(typeof(PheromoneBuffer))]
     struct SteeringJob : IJobForEach<FacingAngleComponent, PositionComponent, PheromoneSteeringComponent>
     {
         public int MapSize;

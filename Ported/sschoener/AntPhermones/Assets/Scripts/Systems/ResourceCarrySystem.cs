@@ -1,6 +1,4 @@
 ﻿using System;
-using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -21,29 +19,15 @@ public class ResourceCarrySystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
-        return new Job {
-            ColonyPosition = map.ColonyPosition,
-            ResourcePosition = map.ResourcePosition
-        }.Schedule(this, inputDeps);
-    }
-    
-    [BurstCompile]
-    struct Job : IJobForEach<PositionComponent, FacingAngleComponent, HasResourcesComponent>
-    {
-        public float2 ColonyPosition;
-        public float2 ResourcePosition;
-
-        public void Execute(
-            [ReadOnly] ref PositionComponent position,
-            [WriteOnly] ref FacingAngleComponent facingAngle,
-            ref HasResourcesComponent hasResources
-        )
+        var colonyPosition = map.ColonyPosition;
+        var resourcePosition = map.ResourcePosition;
+        return Entities.ForEach((ref FacingAngleComponent facingAngle, ref HasResourcesComponent hasResources, in PositionComponent position) =>
         {
-            float2 target = math.select(ResourcePosition, ColonyPosition, hasResources.Value);
+            float2 target = math.select(resourcePosition, colonyPosition, hasResources.Value);
             if (math.lengthsq(position.Value - target) < 4f * 4f) {
                 facingAngle.Value += math.PI;
                 hasResources.Value = !hasResources.Value;
             }
-        }
+        }).Schedule(inputDeps);
     }
 }

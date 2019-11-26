@@ -22,7 +22,7 @@ public class PheromoneDecaySystem : JobComponentSystem
         var pheromoneFromEntity = GetBufferFromEntity<PheromoneBuffer>();
         var pheromoneMap = pheromoneFromEntity[m_PheromoneMapQuery.GetSingletonEntity()];
         var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
-        return new Job
+        return new DecayJob
         {
             TrailDecay = map.TrailDecay,
             PheromoneMap = pheromoneMap.AsNativeArray()
@@ -30,7 +30,7 @@ public class PheromoneDecaySystem : JobComponentSystem
     }
 
     [BurstCompile]
-    struct Job : IJobParallelFor
+    struct DecayJob : IJobParallelFor
     {
         public float TrailDecay;
         public NativeArray<PheromoneBuffer> PheromoneMap;
