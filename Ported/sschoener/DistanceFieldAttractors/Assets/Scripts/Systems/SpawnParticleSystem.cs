@@ -1,15 +1,19 @@
 ﻿using System;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 namespace Systems {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
-    public class SpawnParticleSystem : ComponentSystem
+    public class SpawnParticleSystem : JobComponentSystem
     {
         EntityArchetype m_ParticleArchetype;
         EntityQuery m_SpawnParticleQuery;
+        EndInitializationEntityCommandBufferSystem m_EndInitEcbSystem;
+        EntityQuery m_UninitializedTagQuery;
 
         protected override void OnCreate()
         {
@@ -25,20 +29,30 @@ namespace Systems {
             m_SpawnParticleQuery = GetEntityQuery(
                 ComponentType.ReadWrite<SpawnParticleComponent>()
             );
+            m_UninitializedTagQuery = GetEntityQuery(typeof(UninitializedTagComponent));
+            m_EndInitEcbSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
         }
 
-        protected override void OnUpdate()
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            // this has to happen on the main thread anyway, might as well use a ComponentSystem
-            Entities.ForEach((ref SpawnParticleComponent spawn) =>
-                {
-                    using (var entities = new NativeArray<Entity>(spawn.Count, Allocator.Temp))
-                    {
-                        EntityManager.CreateEntity(m_ParticleArchetype, entities);
-                    }
-                }
-            );
-            EntityManager.DestroyEntity(m_SpawnParticleQuery);
+            int particleCount = 0;
+            Entities.ForEach((ref SpawnParticleComponent spawn) => particleCount += spawn.Count).Run();
+            using (var entities = new NativeArray<Entity>(particleCount, Allocator.Temp))
+            {
+                EntityManager.CreateEntity(m_ParticleArchetype, entities);
+            }
+            
+            var entityCommandBuffer = m_EndInitEcbSystem.CreateCommandBuffer();
+            entityCommandBuffer.DestroyEntity(m_SpawnParticleQuery);
+            entityCommandBuffer.RemoveComponent(m_UninitializedTagQuery, typeof(UninitializedTagComponent));
+
+            var seed = (1 + (uint)UnityEngine.Time.frameCount) * 104729;
+            const float sphereRadius = 50;
+            return Entities.WithAll<UninitializedTagComponent>().ForEach((Entity entity, ref PositionComponent position) =>
+            {
+                var rng = new Random(seed * (uint)(1 + entity.Index));
+                position.Value = sphereRadius * rng.NextFloat3Direction() * rng.NextFloat();
+            }).Schedule(inputDeps);
         }
     }
 }

@@ -142,7 +142,7 @@ namespace Systems
                 for (int i = 0; i < 6; i++)
                 {
                     const float sphereRadius = 2;
-                    float3 delta = (position.Value - Centers[i]);
+                    float3 delta = position.Value - Centers[i];
                     float deltaLength = math.length(delta);
                     float newDist = deltaLength - sphereRadius;
                     if (newDist < distance)
