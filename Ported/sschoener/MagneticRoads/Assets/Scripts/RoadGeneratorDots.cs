@@ -33,7 +33,6 @@ public class RoadGeneratorDots : MonoBehaviour
     public const float trackRadius = .2f;
     public const float trackThickness = .05f;
     public const int splineResolution = 20;
-    public const float carSpeed = 2f;
     const float k_CarSpacing = .13f;
     const int k_InstancesPerBatch = 1023;
 
@@ -373,14 +372,15 @@ public class RoadGeneratorDots : MonoBehaviour
                 job.Setup(splineResolution, trackRadius, trackThickness);
                 job.Schedule(numSplines, 16).Complete();
 
-                unsafe
+                using (var blobBuilder = new BlobBuilder(Allocator.Temp))
                 {
-                    using (var blobBuilder = new BlobBuilder(Allocator.Temp))
-                    {
-                        ref var splineArray = ref blobBuilder.ConstructRoot<TrackSplinesBlob>();
-                        var arrayBuilder = blobBuilder.Allocate(ref splineArray.Splines, numSplines);
+                    ref var splineArray = ref blobBuilder.ConstructRoot<TrackSplinesBlob>();
+                    var arrayBuilder = blobBuilder.Allocate(ref splineArray.Splines, numSplines);
 
-                        var buildBlobJob = new BlobAssetBuildJob()
+                    JobHandle buildBlobJob;
+                    unsafe
+                    {
+                        buildBlobJob = new BlobAssetBuildJob()
                         {
                             BlobArray = (TrackSpline*)arrayBuilder.GetUnsafePtr(),
                             Bezier = trackSplinesBezier,
@@ -392,30 +392,29 @@ public class RoadGeneratorDots : MonoBehaviour
                             MeasuredLength = trackSplinesMeasuredLength,
                             MaxCarCount = trackSplinesMaxCarCount
                         }.Schedule(numSplines, 16);
-
-                        using (new ProfilerMarker("create mesh").Auto())
-                        {
-                            for (int i = 0; i < numMeshes; i++)
-                            {
-                                int splines = i < numMeshes - 1 ? splinesPerMesh : remaining;
-                                Mesh mesh = new Mesh();
-                                mesh.name = "Generated Road Mesh";
-                                mesh.SetVertices(vertices, i * splinesPerMesh * verticesPerSpline, splines * verticesPerSpline);
-                                mesh.SetUVs(0, uvs, i * splinesPerMesh * verticesPerSpline, splines * verticesPerSpline);
-                                mesh.SetIndices(triangles, i * splinesPerMesh * indicesPerSpline, splines * indicesPerSpline, MeshTopology.Triangles, 0);
-                                mesh.RecalculateNormals();
-                                mesh.RecalculateBounds();
-                                m_RoadMeshes.Add(mesh);
-                            }
-                        }
-
-                        buildBlobJob.Complete();
-                        TrackSplinesBlob.Instance = blobBuilder.CreateBlobAssetReference<TrackSplinesBlob>(Allocator.Persistent);
                     }
+
+                    using (new ProfilerMarker("create mesh").Auto())
+                    {
+                        for (int i = 0; i < numMeshes; i++)
+                        {
+                            int splines = i < numMeshes - 1 ? splinesPerMesh : remaining;
+                            Mesh mesh = new Mesh();
+                            mesh.name = "Generated Road Mesh";
+                            mesh.SetVertices(vertices, i * splinesPerMesh * verticesPerSpline, splines * verticesPerSpline);
+                            mesh.SetUVs(0, uvs, i * splinesPerMesh * verticesPerSpline, splines * verticesPerSpline);
+                            mesh.SetIndices(triangles, i * splinesPerMesh * indicesPerSpline, splines * indicesPerSpline, MeshTopology.Triangles, 0);
+                            mesh.RecalculateNormals();
+                            mesh.RecalculateBounds();
+                            m_RoadMeshes.Add(mesh);
+                        }
+                    }
+
+                    buildBlobJob.Complete();
+                    TrackSplinesBlob.Instance = blobBuilder.CreateBlobAssetReference<TrackSplinesBlob>(Allocator.Persistent);
                 }
 
-                Debug.Log(triangles.Length + " road triangles");
-                Debug.Log(m_RoadMeshes.Count + " road meshes");
+                Debug.Log($"{triangles.Length} road triangles ({m_RoadMeshes.Count} meshes)");
             }
         }
 
