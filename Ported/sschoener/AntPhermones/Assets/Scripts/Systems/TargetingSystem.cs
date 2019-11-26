@@ -1,6 +1,4 @@
 ﻿using System;
-using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -22,46 +20,17 @@ public class TargetingSystem : JobComponentSystem
     {
         var map = m_MapQuery.GetSingleton<MapSettingsComponent>();
         var antSteering = m_AntSteeringQuery.GetSingleton<AntSteeringSettingsComponent>();
-        return new TargetingJob {
-            ColonyPosition = map.ColonyPosition,
-            ResourcePosition = map.ResourcePosition,
-            TargetSteerStrength =  antSteering.TargetSteerStrength,
-            Obstacles = map.Obstacles
-        }.Schedule(this, inputDeps);
-    }
-    
-    [BurstCompile]
-    struct TargetingJob : IJobForEach<PositionComponent, HasResourcesComponent, FacingAngleComponent>
-    {
-        public float2 ColonyPosition;
-        public float2 ResourcePosition;
-        public float TargetSteerStrength;
-        
-        public BlobAssetReference<ObstacleData> Obstacles;
-        
-        bool Linecast(float2 point1, float2 point2)
+        var colonyPosition = map.ColonyPosition;
+        var resourcePosition = map.ResourcePosition;
+        var targetSteerStrength = antSteering.TargetSteerStrength;
+        var obstacleRef = map.Obstacles;
+
+        return Entities.ForEach((ref FacingAngleComponent facingAngle, in PositionComponent position, in HasResourcesComponent hasResources) =>
         {
-            float2 d = point2 - point1;
-            float dist = math.length(d);
-
-            int stepCount = (int)math.ceil(dist * .5f);
-            for (int i = 0; i < stepCount; i++)
-            {
-                float t = (float)i / stepCount;
-                if (Obstacles.Value.HasObstacle(point1 + t * d))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public void Execute([ReadOnly] ref PositionComponent position, [ReadOnly] ref HasResourcesComponent hasResources, ref FacingAngleComponent facingAngle)
-        {
-            var targetPos = hasResources.Value ? ColonyPosition : ResourcePosition;
+            var targetPos = hasResources.Value ? colonyPosition : resourcePosition;
             var p = position.Value;
-            if (!Linecast(p, targetPos))
+            ref var obstacles = ref obstacleRef.Value;
+            if (!Linecast(p, targetPos, ref obstacles))
             {
                 float targetAngle = math.atan2(targetPos.y - p.y, targetPos.x - p.x);
                 float deltaAngle = targetAngle - facingAngle.Value;
@@ -70,8 +39,23 @@ public class TargetingSystem : JobComponentSystem
                 else if (deltaAngle < -math.PI)
                     facingAngle.Value -= math.PI * 2f;
                 else if (math.abs(deltaAngle) < math.PI * .5f)
-                    facingAngle.Value += deltaAngle * TargetSteerStrength;
+                    facingAngle.Value += deltaAngle * targetSteerStrength;
             }
+        }).Schedule(inputDeps);
+    }
+    
+    static bool Linecast(float2 point1, float2 point2, ref ObstacleData obstacles)
+    {
+        float2 d = point2 - point1;
+        float dist = math.length(d);
+
+        int stepCount = (int)math.ceil(dist * .5f);
+        for (int i = 0; i < stepCount; i++)
+        {
+            float t = (float)i / stepCount;
+            if (obstacles.HasObstacle(point1 + t * d))
+                return true;
         }
+        return false;
     }
 }
