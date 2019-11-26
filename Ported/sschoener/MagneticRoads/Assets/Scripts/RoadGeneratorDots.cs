@@ -423,7 +423,6 @@ public class RoadGeneratorDots : MonoBehaviour
                 typeof(SplineDataComponent),
                 typeof(OnSplineComponent),
                 typeof(LocalIntersectionComponent),
-                typeof(InIntersectionComponent),
                 typeof(CoordinateSystemComponent),
                 typeof(LocalToWorld),
                 typeof(CarColor)
@@ -447,7 +446,7 @@ public class RoadGeneratorDots : MonoBehaviour
                 {
                     Direction = (sbyte)splineDirection,
                     Spline = (ushort)roadSpline,
-                    Side = (sbyte)splineSide
+                    Side = (sbyte)splineSide,
                 });
                 
                 em.SetComponentData(e, new CarColor

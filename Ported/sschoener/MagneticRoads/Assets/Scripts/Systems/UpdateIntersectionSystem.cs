@@ -13,9 +13,9 @@ namespace Systems {
         {
             inputDeps.Complete();
             int frame = 1 + UnityEngine.Time.frameCount;
-            Entities.ForEach((Entity entity, ref LocalIntersectionComponent localIntersection, ref OnSplineComponent onSpline, ref CarSpeedComponent speed, ref InIntersectionComponent inIntersection, in CoordinateSystemComponent coords) =>
+            Entities.ForEach((Entity entity, ref LocalIntersectionComponent localIntersection, ref OnSplineComponent onSpline, ref CarSpeedComponent speed, in CoordinateSystemComponent coords) =>
             {
-                if (inIntersection.Value)
+                if (onSpline.InIntersection)
                 {
                     if (speed.SplineTimer < 1)
                         return;
@@ -24,7 +24,8 @@ namespace Systems {
                     if (TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side).Count <= TrackSplines.maxCarCount[onSpline.Spline])
                     {
                         Intersections.Occupied[localIntersection.Intersection][(localIntersection.Side + 1) / 2] = false;
-                        inIntersection.Value = false;
+                        onSpline.InIntersection = false;
+                        onSpline.Dirty = true;
                         speed.SplineTimer = 0f;
                     }
                     else
@@ -133,7 +134,8 @@ namespace Systems {
                         localIntersection.Intersection = intersection;
                         localIntersection.Length = localIntersection.Bezier.MeasureLength(RoadGeneratorDots.splineResolution);
 
-                        inIntersection.Value = true;
+                        onSpline.InIntersection = true;
+                        onSpline.Dirty = true;
 
                         // to maintain our current orientation, should we be
                         // on top of or underneath our next road segment?

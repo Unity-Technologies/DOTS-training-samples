@@ -17,11 +17,51 @@ public struct SplineDataComponent : IComponentData
     public byte TwistMode;
 }
 
+
+
 public struct OnSplineComponent : IComponentData
 {
     public ushort Spline;
-    public sbyte Side;
-    public sbyte Direction;
+    public sbyte State;
+
+    public sbyte Side
+    {
+        get => (sbyte)((State & 0x1) > 0 ? 1 : -1);
+        set
+        {
+            int v = value > 0 ? 1 : 0;
+            State = (sbyte)((State & ~0x1) | v);
+        }
+    }
+    public sbyte Direction
+    {
+        get => (sbyte)((State & 0x2) > 0 ? 1 : -1);
+        set
+        {
+            int v = value > 0 ? 2 : 0;
+            State = (sbyte)((State & ~0x2) | v);
+        }
+    }
+
+    public bool InIntersection
+    {
+        get => (State & 0x4) > 0;
+        set
+        {
+            int v = value ? 4 : 0;
+            State = (sbyte)((State & ~0x4) | v);
+        }
+    }
+    
+    public bool Dirty
+    {
+        get => (State & 0x8) == 0;
+        set
+        {
+            int v = value ? 0 : 8;
+            State = (sbyte)((State & ~0x8) | v);
+        }
+    }
 }
 
 public struct LocalIntersectionComponent : IComponentData
@@ -31,11 +71,6 @@ public struct LocalIntersectionComponent : IComponentData
     public float Length;
     public ushort Intersection;
     public sbyte Side;
-}
-
-public struct InIntersectionComponent : IComponentData
-{
-    public bool Value;
 }
 
 public struct CoordinateSystemComponent : IComponentData

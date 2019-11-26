@@ -11,10 +11,10 @@ namespace Systems {
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            return Entities.ForEach((Entity entity, ref CarSpeedComponent speed, in InIntersectionComponent inIntersection, in OnSplineComponent onSpline) =>
+            return Entities.ForEach((Entity entity, ref CarSpeedComponent speed, in OnSplineComponent onSpline) =>
             {
                 float approachSpeed = 1f;
-                if (inIntersection.Value)
+                if (onSpline.InIntersection)
                     approachSpeed = .7f;
                 else
                 {

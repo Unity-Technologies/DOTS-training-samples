@@ -8,9 +8,11 @@ namespace Systems {
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            return Entities.ForEach((ref SplineDataComponent spline, in OnSplineComponent onSpline, in LocalIntersectionComponent localIntersection, in InIntersectionComponent inIntersection) =>
+            return Entities.ForEach((ref SplineDataComponent spline, ref OnSplineComponent onSpline, in LocalIntersectionComponent localIntersection) =>
             {
-                if (inIntersection.Value)
+                if (!onSpline.Dirty)
+                    return;
+                if (onSpline.InIntersection)
                 {
                     spline.Bezier = localIntersection.Bezier;
                     spline.Geometry = localIntersection.Geometry;
@@ -24,6 +26,7 @@ namespace Systems {
                     spline.TwistMode = TrackSplines.twistMode[onSpline.Spline];
                     spline.Length = TrackSplines.measuredLength[onSpline.Spline];
                 }
+                onSpline.Dirty = false;
             }).WithoutBurst().WithName("FetchSplineData").Schedule(inputDeps);
         }
     }
