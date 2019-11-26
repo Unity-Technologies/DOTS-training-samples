@@ -23,7 +23,15 @@ namespace Systems {
                     if (queue[0].Entity != entity)
                     {
                         // someone's ahead of us - don't clip through them
-                        int index = queue.FindIndex(entry => entry.Entity == entity);
+                        int index = -1;
+                        for (int i = 0; i < queue.Count; i++)
+                        {
+                            if (queue[i].Entity == entity)
+                            {
+                                index = i;
+                                break;
+                            }
+                        }
                         float queueSize = TrackSplines.carQueueSize[onSpline.Spline];
                         float maxT = queue[index - 1].SplineTimer - queueSize;
                         speed.SplineTimer = math.min(speed.SplineTimer, maxT);

@@ -38,10 +38,16 @@ namespace Systems {
                     if (speed.SplineTimer < 1)
                     {
                         var queue = TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side);
-                        int idx = queue.FindIndex(entry => entry.Entity == entity);
-                        var queueEntry = queue[idx];
-                        queueEntry.SplineTimer = speed.SplineTimer;
-                        queue[idx] = queueEntry;
+                        for (int i = 0; i < queue.Count; i++)
+                        {
+                            if (queue[i].Entity == entity)
+                            {
+                                var queueEntry = queue[i];
+                                queueEntry.SplineTimer = speed.SplineTimer;
+                                queue[i] = queueEntry;
+                                break;
+                            }
+                        }
                         return;
                     }
                     
@@ -141,7 +147,16 @@ namespace Systems {
                         Intersections.Occupied[intersection][(localIntersection.Side + 1) / 2] = true;
 
                         // remove ourselves from our previous lane's list of cars
-                        previousLane.RemoveAll(entry => entry.Entity == entity);
+                        {
+                            for (int i = 0; i < previousLane.Count; i++)
+                            {
+                                if (previousLane[i].Entity == entity)
+                                {
+                                    previousLane.RemoveAt(i);
+                                    break;
+                                }
+                            }
+                        }
 
                         // add "leftover" spline timer value to our new spline timer
                         // (avoids a stutter when changing between splines)
@@ -154,7 +169,6 @@ namespace Systems {
                             Entity = entity,
                             SplineTimer = speed.SplineTimer
                         });
-                        Debug.Assert(queue.FindIndex(entry => entry.Entity == entity) >= 0);
                     }
                 }
                 
