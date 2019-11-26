@@ -8,6 +8,7 @@ namespace Systems {
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
+            var blob = TrackSplinesBlob.Instance;
             return Entities.ForEach((ref SplineDataComponent spline, ref OnSplineComponent onSpline, in LocalIntersectionComponent localIntersection) =>
             {
                 if (!onSpline.Dirty)
@@ -21,13 +22,14 @@ namespace Systems {
                 }
                 else
                 {
-                    spline.Bezier = TrackSplines.bezier[onSpline.Spline];
-                    spline.Geometry = TrackSplines.geometry[onSpline.Spline];
-                    spline.TwistMode = TrackSplines.twistMode[onSpline.Spline];
-                    spline.Length = TrackSplines.measuredLength[onSpline.Spline];
+                    ref var s = ref blob.Value.Splines[onSpline.Spline]; 
+                    spline.Bezier = s.Bezier;
+                    spline.Geometry = s.Geometry;
+                    spline.TwistMode = s.TwistMode;
+                    spline.Length = s.MeasuredLength;
                 }
                 onSpline.Dirty = false;
-            }).WithoutBurst().WithName("FetchSplineData").Schedule(inputDeps);
+            }).WithName("FetchSplineData").Schedule(inputDeps);
         }
     }
 }

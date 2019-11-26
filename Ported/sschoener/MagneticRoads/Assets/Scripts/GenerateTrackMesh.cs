@@ -15,9 +15,9 @@ struct GenerateTrackMeshes : IJobParallelFor
     public NativeArray<int> OutTriangles;
 
     public NativeArray<byte> OutTwistMode;
-    [ReadOnly, DeallocateOnJobCompletion]
+    [ReadOnly]
     public NativeArray<CubicBezier> Bezier;
-    [ReadOnly, DeallocateOnJobCompletion]
+    [ReadOnly]
     public NativeArray<TrackGeometry> Geometry;
 
     float2 m_LocalPoint1;
