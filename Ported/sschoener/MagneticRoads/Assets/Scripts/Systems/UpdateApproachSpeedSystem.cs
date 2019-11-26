@@ -12,14 +12,15 @@ namespace Systems {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var blobRef = TrackSplinesBlob.Instance;
+            var occupation = Intersections.Occupied; 
             return Entities.ForEach((Entity entity, ref CarSpeedComponent speed, in OnSplineComponent onSpline) =>
             {
                 float approachSpeed = 1f;
-                if (onSpline.InIntersection)
+                if (onSpline.Value.InIntersection)
                     approachSpeed = .7f;
                 else
                 {
-                    var queue = TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side);
+                    var queue = TrackSplines.GetQueue(onSpline.Value);
 
                     if (queue[0].Entity != entity)
                     {
@@ -33,7 +34,7 @@ namespace Systems {
                                 break;
                             }
                         }
-                        float queueSize = blobRef.Value.Splines[onSpline.Spline].CarQueueSize;
+                        float queueSize = blobRef.Value.Splines[onSpline.Value.Spline].CarQueueSize;
                         float maxT = queue[index - 1].SplineTimer - queueSize;
                         speed.SplineTimer = math.min(speed.SplineTimer, maxT);
                         approachSpeed = (maxT - speed.SplineTimer) * 5f;
@@ -42,10 +43,10 @@ namespace Systems {
                     {
                         // we're "first in line" in our lane, but we still might need
                         // to slow down if our next intersection is occupied
-                        var s = onSpline.Spline;
+                        var s = onSpline.Value.Spline;
                         ref var spl = ref blobRef.Value.Splines[s];
-                        var target = onSpline.Direction == 1 ? spl.EndIntersection : spl.StartIntersection;
-                        if (Intersections.Occupied[target][(onSpline.Side + 1) / 2])
+                        var target = onSpline.Value.Direction == 1 ? spl.EndIntersection : spl.StartIntersection;
+                        if (occupation[target][(onSpline.Value.Side + 1) / 2])
                             approachSpeed = (1f - speed.SplineTimer) * .8f + .2f;
                     }
                 }

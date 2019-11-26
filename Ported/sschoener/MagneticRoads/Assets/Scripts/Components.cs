@@ -17,9 +17,7 @@ public struct SplineDataComponent : IComponentData
     public byte TwistMode;
 }
 
-
-
-public struct OnSplineComponent : IComponentData
+public struct SplinePosition
 {
     public ushort Spline;
     public sbyte State;
@@ -64,6 +62,11 @@ public struct OnSplineComponent : IComponentData
     }
 }
 
+public struct OnSplineComponent : IComponentData
+{
+    public SplinePosition Value;
+}
+
 public struct LocalIntersectionComponent : IComponentData
 {
     public CubicBezier Bezier;
@@ -85,4 +88,11 @@ public struct CoordinateSystemComponent : IComponentData
 public struct CarColor : IComponentData
 {
     public float4 Value;
+}
+
+public struct ChangeQueueEvent
+{
+    public QueueEntry QueueEntry;
+    public SplinePosition From;
+    public SplinePosition To;
 }

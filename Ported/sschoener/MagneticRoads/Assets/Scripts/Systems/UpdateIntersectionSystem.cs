@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
@@ -11,23 +12,27 @@ namespace Systems {
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            inputDeps.Complete();
             int frame = 1 + UnityEngine.Time.frameCount;
             var splineBlob = TrackSplinesBlob.Instance;
             var intersectionBlob = IntersectionsBlob.Instance;
+            var occupation = Intersections.Occupied;
+            var changeQueue = new NativeQueue<ChangeQueueEvent>(Allocator.TempJob);
+            var changeQueueParallel = changeQueue.AsParallelWriter();
             Entities.ForEach((Entity entity, ref LocalIntersectionComponent localIntersection, ref OnSplineComponent onSpline, ref CarSpeedComponent speed, in CoordinateSystemComponent coords) =>
             {
-                if (onSpline.InIntersection)
+                if (onSpline.Value.InIntersection)
                 {
                     if (speed.SplineTimer < 1)
                         return;
                     // we're exiting an intersection - make sure the next road
                     // segment has room for us before we proceed
-                    if (TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side).Count <= splineBlob.Value.Splines[onSpline.Spline].MaxCarCount)
+                    if (TrackSplines.GetQueue(onSpline.Value).Count <= splineBlob.Value.Splines[onSpline.Value.Spline].MaxCarCount)
                     {
-                        Intersections.Occupied[localIntersection.Intersection][(localIntersection.Side + 1) / 2] = false;
-                        onSpline.InIntersection = false;
-                        onSpline.Dirty = true;
+                        var occupied = occupation[localIntersection.Intersection];
+                        occupied[(localIntersection.Side + 1) / 2] = false;
+                        occupation[localIntersection.Intersection] = occupied;
+                        onSpline.Value.InIntersection = false;
+                        onSpline.Value.Dirty = true;
                         speed.SplineTimer = 0f;
                     }
                     else
@@ -40,7 +45,7 @@ namespace Systems {
                 {
                     if (speed.SplineTimer < 1)
                     {
-                        var queue = TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side);
+                        var queue = TrackSplines.GetQueue(onSpline.Value);
                         for (int i = 0; i < queue.Count; i++)
                         {
                             if (queue[i].Entity == entity)
@@ -58,8 +63,8 @@ namespace Systems {
                     // which intersection we're entering
                     ushort intersection;
                     {
-                        ref var blobSpline = ref splineBlob.Value.Splines[onSpline.Spline];
-                        if (onSpline.Direction == 1)
+                        ref var blobSpline = ref splineBlob.Value.Splines[onSpline.Value.Spline];
+                        if (onSpline.Value.Direction == 1)
                         {
                             intersection = blobSpline.EndIntersection;
                             localIntersection.Bezier.start = blobSpline.Bezier.end;
@@ -77,7 +82,7 @@ namespace Systems {
                     ref var intersectionNeighbors = ref intersectionBlob.Value.Intersections[intersection].Neighbors; 
                     if (intersectionNeighbors.Count > 1)
                     {
-                        int mySplineIndex = intersectionNeighbors.IndexOfSpline(onSpline.Spline);
+                        int mySplineIndex = intersectionNeighbors.IndexOfSpline(onSpline.Value.Spline);
                         newSplineIndex = new Random((uint)((entity.Index + 1) * frame * 47701)).NextInt(intersectionNeighbors.Count - 1);
                         if (newSplineIndex >= mySplineIndex)
                         {
@@ -94,14 +99,14 @@ namespace Systems {
 
                     // make sure that our side of the intersection (top/bottom)
                     // is empty before we enter
-                    if (Intersections.Occupied[intersection][(localIntersection.Side + 1) / 2])
+                    if (occupation[intersection][(localIntersection.Side + 1) / 2])
                     {
                         speed.SplineTimer = 1f;
                         speed.NormalizedSpeed = 0f;
                     }
                     else
                     {
-                        var previousLane = TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side);
+                        var previousSpline = onSpline.Value;
 
                         // to avoid flipping between top/bottom of our roads,
                         // we need to know our new spline's normal at our entrance point
@@ -109,13 +114,13 @@ namespace Systems {
                         ref var newBlobSpline = ref splineBlob.Value.Splines[newSpline];
                         if (newBlobSpline.StartIntersection == intersection)
                         {
-                            onSpline.Direction = 1;
+                            onSpline.Value.Direction = 1;
                             newNormal = newBlobSpline.Geometry.startNormal;
                             localIntersection.Bezier.end = newBlobSpline.Bezier.start;
                         }
                         else
                         {
-                            onSpline.Direction = -1;
+                            onSpline.Value.Direction = -1;
                             newNormal = newBlobSpline.Geometry.endNormal;
                             localIntersection.Bezier.end = newBlobSpline.Bezier.end;
                         }
@@ -134,7 +139,7 @@ namespace Systems {
                             localIntersection.Geometry.endNormal = norm;
                         }
 
-                        if (onSpline.Spline == newSpline)
+                        if (onSpline.Value.Spline == newSpline)
                         {
                             // u-turn - make our intersection spline more rounded than usual
                             float3 perp = math.cross(localIntersection.Geometry.startTangent, localIntersection.Geometry.startNormal);
@@ -147,47 +152,62 @@ namespace Systems {
                         localIntersection.Intersection = intersection;
                         localIntersection.Length = localIntersection.Bezier.MeasureLength(RoadGeneratorDots.splineResolution);
 
-                        onSpline.InIntersection = true;
-                        onSpline.Dirty = true;
+                        onSpline.Value.InIntersection = true;
+                        onSpline.Value.Dirty = true;
 
                         // to maintain our current orientation, should we be
                         // on top of or underneath our next road segment?
                         // (each road segment has its own "up" direction, at each end)
-                        onSpline.Side = (sbyte) (math.dot(newNormal, coords.Up) > 0f ? 1 : -1);
+                        onSpline.Value.Side = (sbyte) (math.dot(newNormal, coords.Up) > 0f ? 1 : -1);
 
                         // should we be on top of or underneath the intersection?
                         localIntersection.Side = (sbyte) (math.dot(localIntersection.Geometry.startNormal, coords.Up) > 0f ? 1 : -1);
 
                         // block other cars from entering this intersection
-                        Intersections.Occupied[intersection][(localIntersection.Side + 1) / 2] = true;
-
-                        // remove ourselves from our previous lane's list of cars
-                        {
-                            for (int i = 0; i < previousLane.Count; i++)
-                            {
-                                if (previousLane[i].Entity == entity)
-                                {
-                                    previousLane.RemoveAt(i);
-                                    break;
-                                }
-                            }
-                        }
+                        var occupied = occupation[intersection];
+                        occupied[(localIntersection.Side + 1) / 2] = true;
+                        occupation[intersection] = occupied;
 
                         // add "leftover" spline timer value to our new spline timer
                         // (avoids a stutter when changing between splines)
-                        speed.SplineTimer = (speed.SplineTimer - 1f) * splineBlob.Value.Splines[onSpline.Spline].MeasuredLength / localIntersection.Length;
-                        onSpline.Spline = newSpline;
+                        speed.SplineTimer = (speed.SplineTimer - 1f) * splineBlob.Value.Splines[onSpline.Value.Spline].MeasuredLength / localIntersection.Length;
+                        onSpline.Value.Spline = newSpline;
 
-                        var queue = TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side);
-                        queue.Add(new QueueEntry
-                        {
-                            Entity = entity,
-                            SplineTimer = speed.SplineTimer
-                        });
+                        changeQueueParallel.Enqueue(
+                            new ChangeQueueEvent
+                            {
+                                QueueEntry = new QueueEntry
+                                {
+                                    Entity = entity,
+                                    SplineTimer = speed.SplineTimer
+                                },
+                                From = previousSpline,
+                                To = onSpline.Value
+                            });
                     }
                 }
                 
-            }).WithoutBurst().WithName("UpdateIntersection").Run();
+            }).WithoutBurst().WithName("UpdateIntersection").Schedule(inputDeps).Complete();
+
+            Job.WithCode(() =>
+            {
+                int c = changeQueue.Count;
+                for (int i = 0; i < c; i++)
+                {
+                    var changeEvent = changeQueue.Dequeue();
+                    TrackSplines.GetQueue(changeEvent.To).Add(changeEvent.QueueEntry);
+                    var fromQueue = TrackSplines.GetQueue(changeEvent.From);
+                    for (int j = 0; j < fromQueue.Count; j++)
+                    {
+                        if (fromQueue[j].Entity == changeEvent.QueueEntry.Entity)
+                        {
+                            fromQueue.RemoveAt(j);
+                            break;
+                        }
+                    }
+                }
+            }).WithoutBurst().Run();
+            changeQueue.Dispose();
             return default;
         }
     }

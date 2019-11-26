@@ -11,9 +11,9 @@ namespace Systems {
             var blob = TrackSplinesBlob.Instance;
             return Entities.ForEach((ref SplineDataComponent spline, ref OnSplineComponent onSpline, in LocalIntersectionComponent localIntersection) =>
             {
-                if (!onSpline.Dirty)
+                if (!onSpline.Value.Dirty)
                     return;
-                if (onSpline.InIntersection)
+                if (onSpline.Value.InIntersection)
                 {
                     spline.Bezier = localIntersection.Bezier;
                     spline.Geometry = localIntersection.Geometry;
@@ -22,13 +22,13 @@ namespace Systems {
                 }
                 else
                 {
-                    ref var s = ref blob.Value.Splines[onSpline.Spline]; 
+                    ref var s = ref blob.Value.Splines[onSpline.Value.Spline]; 
                     spline.Bezier = s.Bezier;
                     spline.Geometry = s.Geometry;
                     spline.TwistMode = s.TwistMode;
                     spline.Length = s.MeasuredLength;
                 }
-                onSpline.Dirty = false;
+                onSpline.Value.Dirty = false;
             }).WithName("FetchSplineData").Schedule(inputDeps);
         }
     }

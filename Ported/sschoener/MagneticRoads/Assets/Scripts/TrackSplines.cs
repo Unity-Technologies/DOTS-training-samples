@@ -7,9 +7,9 @@ public static class TrackSplines
     public static List<QueueEntry>[][] waitingQueues;
     
     // each spline has four lanes
-    public static List<QueueEntry> GetQueue(int track, int direction, int side)
+    public static List<QueueEntry> GetQueue(SplinePosition splinePos)
     {
-        int index = (direction + 1) + (side + 1) / 2;
-        return waitingQueues[track][index];
+        int index = (splinePos.Direction + 1) + (splinePos.Side + 1) / 2;
+        return waitingQueues[splinePos.Spline][index];
     }
 }

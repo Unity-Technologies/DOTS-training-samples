@@ -39,8 +39,6 @@ public class RoadGeneratorDots : MonoBehaviour
     List<Mesh> m_RoadMeshes;
     List<List<Matrix4x4>> m_IntersectionMatrices;
 
-    static readonly int k_Color = Shader.PropertyToID("_Color");
-
     static long HashIntersectionPair(int a, int b)
     {
         int u = math.min(a, b);
@@ -142,6 +140,8 @@ public class RoadGeneratorDots : MonoBehaviour
             m_Dirs.Dispose();
         if (m_FullDirs.IsCreated)
             m_FullDirs.Dispose();
+        if (Intersections.Occupied.IsCreated)
+            Intersections.Occupied.Dispose();
     }
 
     struct TrackSplineCtorData
@@ -198,7 +198,7 @@ public class RoadGeneratorDots : MonoBehaviour
                 intersections = new Intersection[outputIntersections.Length];
                 intersectionIndices = new int3[outputIntersections.Length];
 
-                Intersections.Occupied = new OccupiedSides[outputIntersections.Length];
+                Intersections.Occupied = new NativeArray<OccupiedSides>(outputIntersections.Length, Allocator.Persistent);
 
                 for (int i = 0; i < outputIntersections.Length; i++)
                 {
@@ -477,11 +477,16 @@ public class RoadGeneratorDots : MonoBehaviour
                 {
                     SplineTimer = 1
                 });
-                em.SetComponentData(e, new OnSplineComponent
+
+                var splinePos = new SplinePosition
                 {
                     Direction = (sbyte)splineDirection,
                     Spline = (ushort)roadSpline,
                     Side = (sbyte)splineSide,
+                }; 
+                em.SetComponentData(e, new OnSplineComponent
+                {
+                    Value = splinePos 
                 });
 
                 em.SetComponentData(e, new CarColor
@@ -489,7 +494,7 @@ public class RoadGeneratorDots : MonoBehaviour
                     Value = (Vector4)Random.ColorHSV()
                 });
 
-                TrackSplines.GetQueue(roadSpline, splineDirection, splineSide).Add(new QueueEntry
+                TrackSplines.GetQueue(splinePos).Add(new QueueEntry
                 {
                     Entity = e,
                     SplineTimer = 1
