@@ -9,7 +9,7 @@ namespace AntPheromones_ECS
     [UpdateAfter(typeof(CalculateVelocityAfterTransportingResourceSystem))]
     public class CalculatePositionAfterTransportingResourceSystem : JobComponentSystem
     {
-        EntityQuery _mapQuery;
+        private EntityQuery _mapQuery;
 
         protected override void OnCreate()
         {
@@ -19,10 +19,9 @@ namespace AntPheromones_ECS
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var map = _mapQuery.GetSingleton<Map>();
             return new Job
             {
-                MapWidth = map.Width,
+                MapWidth = this._mapQuery.GetSingleton<Map>().Width,
             }.Schedule(this, inputDeps);
         }
 
@@ -33,27 +32,22 @@ namespace AntPheromones_ECS
 
             public void Execute(ref Position position, ref Velocity velocity)
             {
-                float2 targetPosition = position.Value;
-                float2 targetVelocity = velocity.Value;
-                
-                if (targetPosition.x + targetVelocity.x < 0f || targetPosition.x + targetVelocity.x > this.MapWidth)
+                if (position.Value.x + velocity.Value.x < 0f || position.Value.x + velocity.Value.x > this.MapWidth)
                 {
-                    targetVelocity.x = -targetVelocity.x;
+                    velocity.Value.x = -velocity.Value.x;
                 }
                 else
                 {
-                    targetPosition.x += targetVelocity.x;
+                    position.Value.x += velocity.Value.x;
                 }
-                if (targetPosition.y + targetVelocity.y < 0f || targetPosition.y + targetVelocity.y > this.MapWidth)
+                if (position.Value.y + velocity.Value.y < 0f || position.Value.y + velocity.Value.y > this.MapWidth)
                 {
-                    targetVelocity.y = -targetVelocity.y;
+                    velocity.Value.y = -velocity.Value.y;
                 }
                 else
                 {
-                    targetPosition.y += targetVelocity.y;
+                    position.Value.y += velocity.Value.y;
                 }
-                position.Value = targetPosition;
-                velocity.Value = targetVelocity;
             }
         }
     }

@@ -10,7 +10,7 @@ namespace AntPheromones_ECS
         public float TrailDecayRate;
 
         public float2 ResourcePosition;
-        public float2 ColonyPosition; //= new float2(1f, 1f) * Width * 0.5f;
+        public float2 ColonyPosition;
  
         public BlobAssetReference<Obstacles> Obstacles;
     }

@@ -49,10 +49,7 @@ namespace AntPheromones_ECS
                 [ReadOnly] ref WallSteering wall, 
                 ref Speed speed)
             {
-                float targetSpeed = this.MaxSpeed;
-                targetSpeed *= 1 - (math.abs(pheromone.Value) + math.abs(wall.Value)) / 3;
-                
-                speed.Value += (targetSpeed - speed.Value) * this.Acceleration;
+                speed.Value += (this.MaxSpeed * (1 - (math.abs(pheromone.Value) + math.abs(wall.Value)) / 3) - speed.Value) * this.Acceleration;
             }
         }
     }

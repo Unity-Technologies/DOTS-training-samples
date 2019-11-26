@@ -34,11 +34,14 @@ namespace AntPheromones_ECS
         {
             public uint RandomSeed;
             public float RandomSteeringStrength;
+
+            private const int AwesomePalindromicPrimeNumber = 1300031;
             
             public void Execute(Entity e, int idx, [WriteOnly] ref FacingAngle facingAngle)
             {
                 facingAngle.Value += 
-                    new Random(seed: (uint)(idx + 1) * this.RandomSeed * 1300031).NextFloat(-this.RandomSteeringStrength, this.RandomSteeringStrength);
+                    new Random(seed: (uint)(idx + 1) * this.RandomSeed * AwesomePalindromicPrimeNumber)
+                        .NextFloat(-this.RandomSteeringStrength, this.RandomSteeringStrength);
             }
         }
     }

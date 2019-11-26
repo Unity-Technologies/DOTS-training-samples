@@ -49,8 +49,7 @@ namespace AntPheromones_ECS
                 [ReadOnly] ref WallSteering wall, 
                 [WriteOnly] ref FacingAngle facingAngle)
             {
-                facingAngle.Value += pheromone.Value * this.PheromoneStrength;
-                facingAngle.Value += wall.Value * this.WallStrength;
+                facingAngle.Value += pheromone.Value * this.PheromoneStrength + wall.Value * this.WallStrength;
             }
         }
     }

@@ -15,7 +15,6 @@ namespace AntPheromones_ECS
         protected override void OnCreate()
         {
             base.OnCreate();
-            
             this._antRenderingQuery = GetEntityQuery(ComponentType.ReadOnly<AntIndividualRendering>());
         }
         
@@ -23,11 +22,11 @@ namespace AntPheromones_ECS
         {
             if (!this._colours.AreRetrieved)
             {
-                var antRenderingComponent = this._antRenderingQuery.GetSingleton<AntIndividualRendering>();
+                var antRendering = this._antRenderingQuery.GetSingleton<AntIndividualRendering>();
                 this._colours = 
                     (AreRetrieved: true,
-                    Search: antRenderingComponent.SearchColour,
-                    Carry: antRenderingComponent.CarryColour);
+                    Search: antRendering.SearchColour,
+                    Carry: antRendering.CarryColour);
             }
             
             return new Job
@@ -48,8 +47,7 @@ namespace AntPheromones_ECS
                 [ReadOnly] ref ResourceCarrier carrier, 
                 [WriteOnly] ref Colour colourDisplay)
             {
-                var targetColor = carrier.IsCarrying ? this.CarryColour : this.SearchColour; 
-                colourDisplay.Value += (targetColor * brightness.Value - colourDisplay.Value) * 0.05f;
+                colourDisplay.Value += ((carrier.IsCarrying ? this.CarryColour : this.SearchColour) * brightness.Value - colourDisplay.Value) * 0.05f;
             }
         }
     }

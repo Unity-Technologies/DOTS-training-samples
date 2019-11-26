@@ -46,7 +46,7 @@ namespace AntPheromones_ECS
             
             public void Execute(int index)
             {
-                PheromoneColours[index] *= this.TrailDecayRate;
+                this.PheromoneColours[index] *= this.TrailDecayRate;
             }
         }
     }

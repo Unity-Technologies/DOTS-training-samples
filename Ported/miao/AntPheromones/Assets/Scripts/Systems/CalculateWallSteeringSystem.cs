@@ -35,14 +35,13 @@ namespace AntPheromones_ECS
             public float MapWidth;
             public BlobAssetReference<Obstacles> Obstacles;
             
-            [BurstCompile]
+            private const float Distance = 1.5f;
+            
             public void Execute(
                 [ReadOnly] ref Position position, 
                 [ReadOnly] ref FacingAngle facingAngle,
                 ref WallSteering steering)
             {
-                const float Distance = 1.5f;
-                
                 float result = 0;
 
                 for (int i = -1; i <= 1; i += 2) 

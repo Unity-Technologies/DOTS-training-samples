@@ -23,13 +23,12 @@ namespace AntPheromones_ECS
         {
             inputDependencies.Complete();
             
-            Map map = this._mapQuery.GetSingleton<Map>();
-            
             Entity pheromoneRValues = 
                 GetEntityQuery(ComponentType.ReadOnly<PheromoneColourRValueBuffer>()).GetSingletonEntity();
             DynamicBuffer<PheromoneColourRValueBuffer> pheromoneColourRValues = 
                 GetBufferFromEntity<PheromoneColourRValueBuffer>(isReadOnly: true)[pheromoneRValues];
             
+            Map map = this._mapQuery.GetSingleton<Map>();
             return new Job
             {
                 MapWidth = map.Width,

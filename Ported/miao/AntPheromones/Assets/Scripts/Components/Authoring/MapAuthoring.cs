@@ -1,6 +1,4 @@
-﻿using Unity.Collections;
-using Unity.Entities;
-using Unity.Mathematics;
+﻿using Unity.Entities;
 using UnityEngine;
 
 namespace AntPheromones_ECS
@@ -9,7 +7,7 @@ namespace AntPheromones_ECS
     {
         public AntManager AntManager;
         [Range(0f, 1f)] public float TrailVisibilityModifier = 0.3f;
-        [Range(0f, 1f)] public float TrailDecayRate = 0.95f;
+        [Range(0f, 1f)] public float TrailDecayRate = 0.9985f;
         
         public void Convert(Entity entity, EntityManager entityManager, GameObjectConversionSystem _)
         {

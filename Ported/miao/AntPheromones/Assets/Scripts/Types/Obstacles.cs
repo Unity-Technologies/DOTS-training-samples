@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using System.Linq;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine.UIElements;
@@ -16,18 +17,18 @@ namespace AntPheromones_ECS
 
         public bool HasObstacle(float2 position)
         {
-            TryGetObstacles(position, out int _, out int distanceToNextBucket);
+            TryGetObstacles(position, out int? _, out int? distanceToNextBucket);
             return distanceToNextBucket > 0;
         }
 
-        public void TryGetObstacles(float2 position, out int indexOfCurrentBucket, out int distanceToNextBucket)
+        public void TryGetObstacles(float2 position, out int? indexOfCurrentBucket, out int? distanceToNextBucket)
         {
             int2 coordinates = (int2) (position / this._mapWidth * this._bucketResolution);
 
             if (math.any(coordinates < 0) || math.any(coordinates >= this._bucketResolution))
             {
-                indexOfCurrentBucket = 0;
-                distanceToNextBucket = 0;
+                indexOfCurrentBucket = null;
+                distanceToNextBucket = null;
             }
             else
             {
@@ -57,18 +58,10 @@ namespace AntPheromones_ECS
                 int height = obstacleBuckets.GetLength(0);
                 int width = obstacleBuckets.GetLength(1);
                 
-                int numObstacles = 0;
-                
-                for (int y = 0; y < height; y++)
-                {
-                    for (int x = 0; x < width; x++)
-                    {
-                        numObstacles += obstacleBuckets[y, x].Length;
-                    }
-                }
-                
-                BlobBuilderArray<float2> obstaclePositions = builder.Allocate(ref obstacles.Positions, numObstacles);
-                BlobBuilderArray<int> bucketIndices = builder.Allocate(ref obstacles._obstacleBucketIndices, width * height);
+                BlobBuilderArray<float2> obstaclePositions =
+                    builder.Allocate(ref obstacles.Positions, CountObstacles(obstacleBuckets, height, width));
+                BlobBuilderArray<int> bucketIndices =
+                    builder.Allocate(ref obstacles._obstacleBucketIndices, width * height);
                 
                 int offset = 0;
                 for (int y = 0; y < height; y++)
@@ -87,6 +80,20 @@ namespace AntPheromones_ECS
                 }
                 return builder.CreateBlobAssetReference<Obstacles>(Allocator.Persistent);
             }
+        }
+
+        private static int CountObstacles(float2[,][] obstacleBuckets, int height, int width)
+        {
+            int numObstacles = 0;
+                
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    numObstacles += obstacleBuckets[y, x].Length;
+                }
+            }
+            return numObstacles;
         }
     }
 }
