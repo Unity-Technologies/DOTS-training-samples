@@ -22,7 +22,7 @@ public struct TrackSplinesBlob
     public static BlobAssetReference<TrackSplinesBlob> Instance;
 }
 
-unsafe struct BlobAssetBuildJob : IJobParallelFor
+unsafe struct BuildTrackSplineBlobJob : IJobParallelFor
 {
     [NativeDisableUnsafePtrRestriction]
     public TrackSpline* BlobArray;

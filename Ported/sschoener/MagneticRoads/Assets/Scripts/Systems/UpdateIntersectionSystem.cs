@@ -13,7 +13,8 @@ namespace Systems {
         {
             inputDeps.Complete();
             int frame = 1 + UnityEngine.Time.frameCount;
-            var blobRef = TrackSplinesBlob.Instance; 
+            var splineBlob = TrackSplinesBlob.Instance;
+            var intersectionBlob = IntersectionsBlob.Instance;
             Entities.ForEach((Entity entity, ref LocalIntersectionComponent localIntersection, ref OnSplineComponent onSpline, ref CarSpeedComponent speed, in CoordinateSystemComponent coords) =>
             {
                 if (onSpline.InIntersection)
@@ -22,7 +23,7 @@ namespace Systems {
                         return;
                     // we're exiting an intersection - make sure the next road
                     // segment has room for us before we proceed
-                    if (TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side).Count <= blobRef.Value.Splines[onSpline.Spline].MaxCarCount)
+                    if (TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side).Count <= splineBlob.Value.Splines[onSpline.Spline].MaxCarCount)
                     {
                         Intersections.Occupied[localIntersection.Intersection][(localIntersection.Side + 1) / 2] = false;
                         onSpline.InIntersection = false;
@@ -57,7 +58,7 @@ namespace Systems {
                     // which intersection we're entering
                     ushort intersection;
                     {
-                        ref var blobSpline = ref blobRef.Value.Splines[onSpline.Spline];
+                        ref var blobSpline = ref splineBlob.Value.Splines[onSpline.Spline];
                         if (onSpline.Direction == 1)
                         {
                             intersection = blobSpline.EndIntersection;
@@ -73,17 +74,23 @@ namespace Systems {
                     // now we need to know which road segment we'll move into
                     // (dead-ends force u-turns, but otherwise, u-turns are not allowed)
                     int newSplineIndex = 0;
-                    if (Intersections.Neighbors[intersection].Count > 1)
+                    ref var intersectionNeighbors = ref intersectionBlob.Value.Intersections[intersection].Neighbors; 
+                    if (intersectionNeighbors.Count > 1)
                     {
-                        int mySplineIndex = Intersections.NeighborSplines[intersection].IndexOf(onSpline.Spline);
-                        newSplineIndex = new Random((uint)((entity.Index + 1) * frame * 47701)).NextInt(Intersections.NeighborSplines[intersection].Count - 1);
+                        int mySplineIndex = intersectionNeighbors.IndexOfSpline(onSpline.Spline);
+                        newSplineIndex = new Random((uint)((entity.Index + 1) * frame * 47701)).NextInt(intersectionNeighbors.Count - 1);
                         if (newSplineIndex >= mySplineIndex)
                         {
                             newSplineIndex++;
                         }
                     }
 
-                    var newSpline = Intersections.NeighborSplines[intersection][newSplineIndex];
+                    
+                    ushort newSpline;
+                    unsafe
+                    {
+                        newSpline = intersectionNeighbors.Splines[newSplineIndex];
+                    }
 
                     // make sure that our side of the intersection (top/bottom)
                     // is empty before we enter
@@ -99,7 +106,7 @@ namespace Systems {
                         // to avoid flipping between top/bottom of our roads,
                         // we need to know our new spline's normal at our entrance point
                         float3 newNormal;
-                        ref var newBlobSpline = ref blobRef.Value.Splines[newSpline];
+                        ref var newBlobSpline = ref splineBlob.Value.Splines[newSpline];
                         if (newBlobSpline.StartIntersection == intersection)
                         {
                             onSpline.Direction = 1;
@@ -116,8 +123,9 @@ namespace Systems {
                         // now we'll prepare our intersection spline - this lets us
                         // create a "temporary lane" inside the current intersection
                         {
-                            var pos = Intersections.Position[intersection];
-                            var norm = Intersections.Normal[intersection];
+                            ref var intersectionData = ref intersectionBlob.Value.Intersections[intersection];
+                            var pos = intersectionData.Position;
+                            var norm = intersectionData.Normal;
                             localIntersection.Bezier.anchor1 = (pos + localIntersection.Bezier.start) * .5f;
                             localIntersection.Bezier.anchor2 = (pos + localIntersection.Bezier.end) * .5f;
                             localIntersection.Geometry.startTangent = math.round(math.normalize(pos - localIntersection.Bezier.start));
@@ -167,7 +175,7 @@ namespace Systems {
 
                         // add "leftover" spline timer value to our new spline timer
                         // (avoids a stutter when changing between splines)
-                        speed.SplineTimer = (speed.SplineTimer - 1f) * blobRef.Value.Splines[onSpline.Spline].MeasuredLength / localIntersection.Length;
+                        speed.SplineTimer = (speed.SplineTimer - 1f) * splineBlob.Value.Splines[onSpline.Spline].MeasuredLength / localIntersection.Length;
                         onSpline.Spline = newSpline;
 
                         var queue = TrackSplines.GetQueue(onSpline.Spline, onSpline.Direction, onSpline.Side);
