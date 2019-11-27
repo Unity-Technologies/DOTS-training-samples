@@ -8,7 +8,7 @@ namespace Systems {
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var blob = TrackSplinesBlob.Instance;
+            var blob = GetSingleton<RoadSetupComponent>().Splines;
             return Entities.ForEach((ref SplineDataComponent spline, ref OnSplineComponent onSpline, in LocalIntersectionComponent localIntersection) =>
             {
                 if (!onSpline.Value.Dirty)

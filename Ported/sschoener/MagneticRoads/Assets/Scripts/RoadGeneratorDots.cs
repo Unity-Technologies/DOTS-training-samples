@@ -14,17 +14,14 @@ public class RoadGeneratorDots : MonoBehaviour
     public float voxelSize = 1f;
     public int trisPerMesh = 4000;
     public Material roadMaterial;
-    public Mesh intersectionMesh;
 
     public const float intersectionSize = .5f;
     public const float trackRadius = .2f;
     public const float trackThickness = .05f;
     public const int splineResolution = 20;
     const float k_CarSpacing = .13f;
-    const int k_InstancesPerBatch = 1023;
 
     Mesh[] m_RoadMeshes;
-    List<List<Matrix4x4>> m_IntersectionMatrices;
 
     void OnDestroy()
     {
@@ -212,24 +209,6 @@ public class RoadGeneratorDots : MonoBehaviour
             Debug.Log(total);
 
             Intersections.Occupied = new NativeArray<OccupiedSides>(intersections.Length, Allocator.Persistent);
-
-            // generate intersection matrices for batch-rendering
-            {
-                int batch = 0;
-                m_IntersectionMatrices = new List<List<Matrix4x4>>();
-                m_IntersectionMatrices.Add(new List<Matrix4x4>());
-                var scale = new Vector3(intersectionSize, intersectionSize, trackThickness);
-                for (int i = 0; i < intersections.Length; i++)
-                {
-                    var matrix = Matrix4x4.TRS(intersections[i].Position, Quaternion.LookRotation(intersections[i].Normal), scale);
-                    m_IntersectionMatrices[batch].Add(matrix);
-                    if (m_IntersectionMatrices[batch].Count == k_InstancesPerBatch)
-                    {
-                        batch++;
-                        m_IntersectionMatrices.Add(new List<Matrix4x4>());
-                    }
-                }
-            }
         }
     }
 
@@ -237,14 +216,11 @@ public class RoadGeneratorDots : MonoBehaviour
     {
         using (new ProfilerMarker("DrawMeshes").Auto())
         {
+            if (m_RoadMeshes == null)
+                return;
             for (int i = 0; i < m_RoadMeshes.Length; i++)
             {
                 Graphics.DrawMesh(m_RoadMeshes[i], Matrix4x4.identity, roadMaterial, 0);
-            }
-
-            for (int i = 0; i < m_IntersectionMatrices.Count; i++)
-            {
-                Graphics.DrawMeshInstanced(intersectionMesh, 0, roadMaterial, m_IntersectionMatrices[i]);
             }
         }
     }

@@ -41,13 +41,14 @@ namespace Systems {
                 return default;
             var entities = new NativeArray<Entity>(numCars, Allocator.Temp);
             EntityManager.CreateEntity(m_CarArchetype, entities);
-         
+            
             var setupEntity = m_CarSetupQuery.GetSingletonEntity();
             EntityManager.SetSharedComponentData(m_NewCarsQuery, EntityManager.GetSharedComponentData<RenderMesh>(setupEntity));
             EntityManager.DestroyEntity(m_SpawnQuery);
 
             int seed = 100271 * UnityEngine.Time.frameCount;
-            int numSplines = TrackSplinesBlob.Instance.Value.Splines.Length;
+            var roads = GetSingleton<RoadSetupComponent>();
+            int numSplines = roads.Splines.Value.Splines.Length;
             Entities.WithAll<UninitializedComponentTag>().ForEach((Entity entity, ref CarSpeedComponent speed, ref OnSplineComponent onSpline, ref CarColor carColor) =>
             {
                 var rng = new Unity.Mathematics.Random((uint)((1 + entity.Index) * seed));

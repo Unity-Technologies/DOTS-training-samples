@@ -20,8 +20,9 @@ namespace Systems {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             int frame = 1 + UnityEngine.Time.frameCount;
-            var splineBlob = TrackSplinesBlob.Instance;
-            var intersectionBlob = IntersectionsBlob.Instance;
+            var roads = GetSingleton<RoadSetupComponent>();
+            var splineBlob = roads.Splines;
+            var intersectionBlob = roads.Intersections;
             var occupation = Intersections.Occupied;
             
             var changeQueue = new NativeQueue<ChangeQueueEvent>(Allocator.TempJob);

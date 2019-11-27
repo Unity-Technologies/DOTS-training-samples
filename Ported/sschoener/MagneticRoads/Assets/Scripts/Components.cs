@@ -95,10 +95,17 @@ public struct CoordinateSystemComponent : IComponentData
     public float3 Forward;
 }
 
-struct SplineSetupComponent : IComponentData
+struct RoadSetupComponent : IComponentData
 {
     public BlobAssetReference<TrackSplinesBlob> Splines;
     public BlobAssetReference<IntersectionsBlob> Intersections;
+    public float IntersectionSize;
+    public float TrackThickness;
+}
+
+struct IntersectionComponent : IComponentData
+{
+    public ushort Index;
 }
 
 [Serializable]

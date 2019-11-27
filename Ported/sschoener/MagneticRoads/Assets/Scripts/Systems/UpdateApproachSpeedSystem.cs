@@ -11,7 +11,7 @@ namespace Systems {
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var blobRef = TrackSplinesBlob.Instance;
+            var blobRef = GetSingleton<RoadSetupComponent>().Splines;
             var occupation = Intersections.Occupied; 
             return Entities.ForEach((Entity entity, ref CarSpeedComponent speed, in OnSplineComponent onSpline) =>
             {
