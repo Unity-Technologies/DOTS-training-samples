@@ -10,10 +10,13 @@ namespace AntPheromones_ECS
     public class DiminishPheromoneSystem : JobComponentSystem
     {
         private EntityQuery _mapQuery;
+        private EntityQuery _pheromoneQuery;
 
         protected override void OnCreate()
         {
             base.OnCreate();
+            
+            this._pheromoneQuery = GetEntityQuery(ComponentType.ReadWrite<PheromoneColourRValueBuffer>());
             this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<Map>());
         }
 
@@ -23,8 +26,7 @@ namespace AntPheromones_ECS
             
             var map = this._mapQuery.GetSingleton<Map>();
             
-            Entity pheromoneRValues = 
-                GetEntityQuery(ComponentType.ReadWrite<PheromoneColourRValueBuffer>()).GetSingletonEntity();
+            Entity pheromoneRValues = this._pheromoneQuery.GetSingletonEntity();
             var pheromoneColourRValues = 
                 GetBufferFromEntity<PheromoneColourRValueBuffer>()[pheromoneRValues];
             

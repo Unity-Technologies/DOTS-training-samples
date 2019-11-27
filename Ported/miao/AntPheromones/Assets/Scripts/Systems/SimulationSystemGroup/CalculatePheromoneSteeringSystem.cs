@@ -11,19 +11,20 @@ namespace AntPheromones_ECS
     public class CalculatePheromoneSteeringSystem : JobComponentSystem
     {
         private EntityQuery _mapQuery;
+        private EntityQuery _pheromoneQuery;
 
         protected override void OnCreate()
         {
             base.OnCreate();
             this._mapQuery = GetEntityQuery(ComponentType.ReadOnly<Map>());
+            this._pheromoneQuery = GetEntityQuery(ComponentType.ReadOnly<PheromoneColourRValueBuffer>());
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
-            inputDependencies.Complete();
+            inputDependencies.Complete(); 
             
-            Entity pheromoneRValues = 
-                GetEntityQuery(ComponentType.ReadOnly<PheromoneColourRValueBuffer>()).GetSingletonEntity();
+            Entity pheromoneRValues = this._pheromoneQuery.GetSingletonEntity();
             DynamicBuffer<PheromoneColourRValueBuffer> pheromoneColourRValues = 
                 GetBufferFromEntity<PheromoneColourRValueBuffer>(isReadOnly: true)[pheromoneRValues];
             

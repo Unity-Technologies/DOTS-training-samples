@@ -13,11 +13,13 @@ namespace AntPheromones_ECS
         private EntityQuery _mapQuery;
         private EntityQuery _steeringMovementQuery;
         private (bool IsRetrieved, float MaxSpeed) _steeringMovement;
+        private EntityQuery _pheromoneQuery;
 
         protected override void OnCreate()
         {
             base.OnCreate();
             
+            this._pheromoneQuery = GetEntityQuery(ComponentType.ReadOnly<PheromoneColourRValueBuffer>());
             this._mapQuery = 
                 GetEntityQuery(ComponentType.ReadOnly<Map>());
             this._steeringMovementQuery =
@@ -33,8 +35,7 @@ namespace AntPheromones_ECS
                     MaxSpeed: this._steeringMovementQuery.GetSingleton<SteeringMovement>().MaxSpeed);
             }
             
-            Entity pheromoneRValues =
-                GetEntityQuery(ComponentType.ReadOnly<PheromoneColourRValueBuffer>()).GetSingletonEntity();
+            Entity pheromoneRValues = this._pheromoneQuery .GetSingletonEntity();
             var pheromoneColourRValues = 
                 GetBufferFromEntity<PheromoneColourRValueBuffer>(isReadOnly: true)[pheromoneRValues];
 

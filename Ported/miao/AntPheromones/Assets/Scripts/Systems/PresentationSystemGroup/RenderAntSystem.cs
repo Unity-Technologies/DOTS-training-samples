@@ -21,9 +21,6 @@ public class RenderAntSystem : JobComponentSystem
     private readonly List<GCHandle> _gcHandlesToFree = new List<GCHandle>();
     private readonly List<MaterialPropertyBlock> _materialPropertyBlocks = new List<MaterialPropertyBlock>();
 
-    private static readonly int ColourId = Shader.PropertyToID("_Color");
-    private const int MaxBatchSize = 1023;
-
     protected override void OnCreate()
     {
         base.OnCreate();
@@ -41,20 +38,20 @@ public class RenderAntSystem : JobComponentSystem
     {
         int numAnts = this._antQuery.CalculateEntityCount();
 
-        int modulo = numAnts % MaxBatchSize;
-        int numBatches = numAnts / MaxBatchSize + (modulo > 0 ? 1 : 0);
+        int modulo = numAnts % Rendering.MaxNumMeshesPerDrawCall;
+        int numBatches = numAnts / Rendering.MaxNumMeshesPerDrawCall + (modulo > 0 ? 1 : 0);
 
         while (this._matrices.Count < numBatches)
         {
-            this._matrices.Add(new Matrix4x4[MaxBatchSize]);
+            this._matrices.Add(new Matrix4x4[Rendering.MaxNumMeshesPerDrawCall]);
 
-            var batchColors = new Vector4[MaxBatchSize];
+            var batchColors = new Vector4[Rendering.MaxNumMeshesPerDrawCall];
             this._colours.Add(batchColors);
 
             var propertyBlock = new MaterialPropertyBlock();
             this._materialPropertyBlocks.Add(propertyBlock);
 
-            propertyBlock.SetVectorArray(nameID: ColourId, batchColors);
+            propertyBlock.SetVectorArray(nameID: Rendering.ColourId, batchColors);
         }
 
         var antRenderer = 
@@ -93,8 +90,8 @@ public class RenderAntSystem : JobComponentSystem
 
         for (int batch = 0; batch < numBatches; batch++)
         {
-            int batchSize = batch == numBatches - 1 ? modulo : MaxBatchSize;
-            this._materialPropertyBlocks[batch].SetVectorArray(ColourId, this._colours[batch]);
+            int batchSize = batch == numBatches - 1 ? modulo : Rendering.MaxNumMeshesPerDrawCall;
+            this._materialPropertyBlocks[batch].SetVectorArray(Rendering.ColourId, this._colours[batch]);
             
             Graphics.DrawMeshInstanced(
                 antRenderer.Mesh,
@@ -120,8 +117,8 @@ public class RenderAntSystem : JobComponentSystem
             [ReadOnly] ref LocalToWorld localToWorld,
             [ReadOnly] ref Colour colour)
         {
-            int batch = index / MaxBatchSize;
-            int modulo = index % MaxBatchSize;
+            int batch = index / Rendering.MaxNumMeshesPerDrawCall;
+            int modulo = index % Rendering.MaxNumMeshesPerDrawCall;
             
             this.Matrices[batch][modulo] = localToWorld.Value;
             this.Colours[batch][modulo] = colour.Value;

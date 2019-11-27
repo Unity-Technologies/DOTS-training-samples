@@ -95,8 +95,6 @@ namespace AntPheromones_ECS
 		private Matrix4x4 _resourceMatrix;
 		private Matrix4x4 _colonyMatrix;
 
-		private const int InstancesPerBatch = 1023;
-
 		private void Start()
 		{
 //			this._isJustStarted = true;
@@ -283,17 +281,23 @@ namespace AntPheromones_ECS
 		private Matrix4x4[][] CalculateObstacleMatrices()
 		{
 			Matrix4x4[][] obstacleMatrices =
-				new Matrix4x4[Mathf.CeilToInt((float)this._obstaclePositions.Values.Length / InstancesPerBatch)][];
+				new Matrix4x4[Mathf.CeilToInt((float)this._obstaclePositions.Values.Length / Rendering.MaxNumMeshesPerDrawCall)][];
 
 			for (int i = 0; i < obstacleMatrices.Length; i++)
 			{
-				obstacleMatrices[i] = new Matrix4x4[Mathf.Min(InstancesPerBatch, this._obstaclePositions.Values.Length - i * InstancesPerBatch)];
+				obstacleMatrices[i] =
+					new Matrix4x4[
+						Mathf.Min(
+							Rendering.MaxNumMeshesPerDrawCall,
+							this._obstaclePositions.Values.Length - i * Rendering.MaxNumMeshesPerDrawCall)];
 				
 				for (int j = 0; j < obstacleMatrices[i].Length; j++)
 				{
 					obstacleMatrices[i][j] =
 						Matrix4x4.TRS(
-							new float3(xy: this._obstaclePositions.Values[i * InstancesPerBatch + j] / this.MapWidth, z: 0),
+							new float3(
+								xy: this._obstaclePositions.Values[i * Rendering.MaxNumMeshesPerDrawCall + j] / this.MapWidth, 
+								z: 0),
 							Quaternion.identity,
 							s: new float3(this.ObstacleRadius * 2f, this.ObstacleRadius * 2f, 1f) / MapWidth);
 				}
