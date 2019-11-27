@@ -17,8 +17,6 @@ public class RoadGeneratorDots : MonoBehaviour
     public Material roadMaterial;
     public Mesh intersectionMesh;
 
-    NativeArray<bool> m_TrackVoxels;
-    int[,,] m_IntersectionsGrid;
     Matrix4x4[][] m_CarMatrices;
     MaterialPropertyBlock[] m_CarMatProps;
 
@@ -42,37 +40,39 @@ public class RoadGeneratorDots : MonoBehaviour
         return ((long)u << 32) | v;
     }
 
-    bool GetVoxel(int3 pos)
+    static int Idx3d(int3 pos, int l)
     {
-        if (math.all((pos >= 0) & (pos < voxelCount)))
-        {
-            int idx = voxelCount * (pos.z * voxelCount + pos.y) + pos.x;
-            return m_TrackVoxels[idx];
-        }
-
-        return false;
+        if (math.all((pos >= 0) & (pos < l)))
+            return l * (pos.z * l + pos.y) + pos.x;
+        return -1;
+    }
+    
+    bool GetVoxel(NativeArray<bool> trackVoxels, int3 pos)
+    {
+        int idx = Idx3d(pos, voxelCount);
+        return idx >= 0 && trackVoxels[idx];
     }
 
-    int FindFirstIntersection(int3 pos, int3 dir, out int3 otherDirection)
+    int FindFirstIntersection(int[,,]intersectionsGrid, NativeArray<bool> trackVoxels, int3 pos, int3 dir, out int3 otherDirection)
     {
         // step along our voxel paths (before splines have been spawned),
         // starting at one intersection, and stopping when we reach another intersection
         while (true)
         {
             pos += dir;
-            if (m_IntersectionsGrid[pos.x, pos.y, pos.z] >= 0)
+            if (intersectionsGrid[pos.x, pos.y, pos.z] >= 0)
             {
                 otherDirection = dir * -1;
-                return m_IntersectionsGrid[pos.x, pos.y, pos.z];
+                return intersectionsGrid[pos.x, pos.y, pos.z];
             }
 
-            if (GetVoxel(pos + dir)) continue;
+            if (GetVoxel(trackVoxels,pos + dir)) continue;
             bool foundTurn = false;
             for (int i = 0; i < m_Dirs.Length; i++)
             {
                 if (math.all(m_Dirs[i] == dir) || math.all(m_Dirs[i] == dir * -1))
                     continue;
-                if (!GetVoxel(pos + m_Dirs[i]))
+                if (!GetVoxel(trackVoxels,pos + m_Dirs[i]))
                     continue;
                 dir = m_Dirs[i];
                 foundTurn = true;
@@ -126,8 +126,6 @@ public class RoadGeneratorDots : MonoBehaviour
 
     void OnDestroy()
     {
-        if (m_TrackVoxels.IsCreated)
-            m_TrackVoxels.Dispose();
         if (m_Dirs.IsCreated)
             m_Dirs.Dispose();
         if (m_FullDirs.IsCreated)
@@ -147,15 +145,15 @@ public class RoadGeneratorDots : MonoBehaviour
     void SpawnRoads()
     {
         // first generation pass: plan roads as basic voxel data only
-        m_TrackVoxels = new NativeArray<bool>(voxelCount * voxelCount * voxelCount, Allocator.Persistent);
+        var trackVoxels = new NativeArray<bool>(voxelCount * voxelCount * voxelCount, Allocator.TempJob);
 
         // after voxel generation, we'll convert our network into non-voxels
-        m_IntersectionsGrid = new int[voxelCount, voxelCount, voxelCount];
+        var intersectionsGrid = new int[voxelCount, voxelCount, voxelCount];
         unsafe
         {
-            fixed (int* g = m_IntersectionsGrid)
+            fixed (int* g = intersectionsGrid)
             {
-                UnsafeUtility.MemSet(g, 0xFF, sizeof(int) * m_IntersectionsGrid.Length);
+                UnsafeUtility.MemSet(g, 0xFF, sizeof(int) * intersectionsGrid.Length);
             }
         }
 
@@ -172,7 +170,7 @@ public class RoadGeneratorDots : MonoBehaviour
             using (var outputIntersections = new NativeList<int3>(Allocator.TempJob))
             {
                 activeVoxels.Add(new int3(voxelCount / 2));
-                m_TrackVoxels[voxelCount / 2 * (voxelCount * voxelCount + voxelCount + 1)] = true;
+                trackVoxels[voxelCount / 2 * (voxelCount * voxelCount + voxelCount + 1)] = true;
 
                 new GenerateVoxelsJob()
                 {
@@ -180,7 +178,7 @@ public class RoadGeneratorDots : MonoBehaviour
                     VoxelCount = voxelCount,
                     OutputIntersections = outputIntersections,
                     ActiveVoxels = activeVoxels,
-                    Voxels = m_TrackVoxels,
+                    Voxels = trackVoxels,
                     Directions = m_Dirs,
                     FullDirections = m_FullDirs
                 }.Run();
@@ -196,7 +194,7 @@ public class RoadGeneratorDots : MonoBehaviour
                     intersectionIndices[i] = pos;
                     intersections[i].Position = (float3)pos * voxelSize;
                     intersections[i].Normal = new float3();
-                    m_IntersectionsGrid[pos.x, pos.y, pos.z] = i;
+                    intersectionsGrid[pos.x, pos.y, pos.z] = i;
                 }
             }
         }
@@ -220,11 +218,11 @@ public class RoadGeneratorDots : MonoBehaviour
                 for (int j = 0; j < m_Dirs.Length; j++)
                 {
 
-                    if (!GetVoxel(intersectionIndices[i] + m_Dirs[j]))
+                    if (!GetVoxel(trackVoxels, intersectionIndices[i] + m_Dirs[j]))
                         continue;
                     axesWithNeighbors += math.abs(m_Dirs[j]);
 
-                    int neighbor = FindFirstIntersection(
+                    int neighbor = FindFirstIntersection(intersectionsGrid, trackVoxels,
                         intersectionIndices[i],
                         m_Dirs[j],
                         out var connectDir);
@@ -434,6 +432,8 @@ public class RoadGeneratorDots : MonoBehaviour
                 Count = numCars
             });
         }
+
+        trackVoxels.Dispose();
     }
 
     void Update()
