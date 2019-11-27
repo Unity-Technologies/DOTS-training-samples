@@ -150,10 +150,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 106fadd9fba94d5fbb8b91905d27d658, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  voxelCount: 60
-  voxelSize: 1.25
-  trisPerMesh: 4000
-  roadMaterial: {fileID: 2100000, guid: c2261b4990b26324bac9164b7f53de5e, type: 2}
 --- !u!4 &1063705585
 Transform:
   m_ObjectHideFlags: 0
@@ -721,11 +717,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c44e5c67c9e9448f858dbdfda00612a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RoadGenerator: {fileID: 1063705584}
   IntersectionMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   RoadMaterial: {fileID: 2100000, guid: c2261b4990b26324bac9164b7f53de5e, type: 2}
+  TrackRadius: 0.2
   TrackThickness: 0.05
   IntersectionSize: 0.5
+  TrisPerMesh: 4000
+  SplineResolution: 20
+  CarSpacing: 0.13
+  VoxelCount: 60
+  VoxelSize: 1.25
 --- !u!114 &2129073545
 MonoBehaviour:
   m_ObjectHideFlags: 0
