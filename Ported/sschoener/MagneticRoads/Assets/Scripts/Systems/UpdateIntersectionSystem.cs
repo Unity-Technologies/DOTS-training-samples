@@ -33,23 +33,13 @@ namespace Systems {
                 {
                     if (speed.SplineTimer < 1)
                         return;
-                    // we're exiting an intersection - make sure the next road
-                    // segment has room for us before we proceed
-                    if (TrackSplines.GetQueue(onSpline.Value).Count <= splineBlob.Value.Splines[onSpline.Value.Spline].MaxCarCount)
-                    {
-                        var occupied = occupation[localIntersection.Intersection];
-                        occupied[(localIntersection.Side + 1) / 2] = false;
-                        occupation[localIntersection.Intersection] = occupied;
-                        onSpline.Value.InIntersection = false;
-                        onSpline.Value.Dirty = true;
-                        speed.SplineTimer = 0f;
-                    }
-                    else
-                    {
-                        speed.SplineTimer = 1f;
-                        speed.NormalizedSpeed = 0f;
-                        Debug.Assert(false);
-                    }
+                    var occupied = occupation[localIntersection.Intersection];
+                    occupied[(localIntersection.Side + 1) / 2] = false;
+                    occupation[localIntersection.Intersection] = occupied;
+                    onSpline.Value.InIntersection = false;
+                    onSpline.Value.Dirty = true;
+                    speed.SplineTimer = 0f;
+                    
                 }
                 else
                 {

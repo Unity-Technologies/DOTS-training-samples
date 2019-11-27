@@ -15,8 +15,7 @@ namespace Systems {
                 float2 extrudePoint;
                 if (!spline.Value.InIntersection)
                 {
-                    extrudePoint = new float2(spline.Value.Side, spline.Value.Side);
-                    extrudePoint.x *= spline.Value.Direction;
+                    extrudePoint = new float2(spline.Value.Side * spline.Value.Direction, spline.Value.Side);
                 }
                 else
                 {
@@ -33,14 +32,10 @@ namespace Systems {
                 // find our position and orientation
                 var trackCoords = TrackUtils.Extrude(splineData.Bezier, splineData.Geometry, splineData.TwistMode, t, out _, out _);
                 float3 splinePoint = trackCoords.Base + trackCoords.Right * extrudePoint.x + trackCoords.Up * extrudePoint.y;
-                var up = math.normalize(trackCoords.Up) * spline.Value.Side;
+                var up = trackCoords.Up * spline.Value.Side;
                 coords.Up = up;
-                float3 lastPosition = coords.Position;
                 coords.Position = splinePoint + up * .06f;
-                var delta = coords.Position - lastPosition;
-                var sqLength = math.lengthsq(delta);
-                if (sqLength > 0)
-                    coords.Forward = delta / math.sqrt(sqLength);
+                coords.Forward = math.cross(trackCoords.Right, trackCoords.Up);
             }).WithName("UpdateCoordinateSystem").Schedule(inputDeps);
         }
     }
