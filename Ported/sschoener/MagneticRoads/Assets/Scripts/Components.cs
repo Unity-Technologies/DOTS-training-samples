@@ -101,10 +101,3 @@ public struct CarColor : IComponentData
 {
     public float4 Value;
 }
-
-public struct ChangeQueueEvent
-{
-    public QueueEntry QueueEntry;
-    public SplinePosition From;
-    public SplinePosition To;
-}

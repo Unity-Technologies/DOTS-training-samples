@@ -244,12 +244,15 @@ public class RoadGeneratorDots : MonoBehaviour
             #endregion
 
             TrackSplines.waitingQueues = new List<QueueEntry>[numSplines][];
+            int total = 0;
             for (int i = 0; i < trackSplines.Length; i++)
             {
                 var queues = TrackSplines.waitingQueues[i] = new List<QueueEntry>[4];
+                total += trackSplines[i].MaxCarCount;
                 for (int j = 0; j < 4; j++)
                     queues[j] = new List<QueueEntry>();
             }
+            Debug.Log(total);
 
             Intersections.Occupied = new NativeArray<OccupiedSides>(intersections.Length, Allocator.Persistent);
 

@@ -10,14 +10,23 @@ namespace Systems {
     [UpdateAfter(typeof(UpdateTransformSystem))]
     public class UpdateIntersectionSystem : JobComponentSystem
     {
+        struct ChangeQueueEvent
+        {
+            public QueueEntry QueueEntry;
+            public SplinePosition From;
+            public SplinePosition To;
+        }
+        
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             int frame = 1 + UnityEngine.Time.frameCount;
             var splineBlob = TrackSplinesBlob.Instance;
             var intersectionBlob = IntersectionsBlob.Instance;
             var occupation = Intersections.Occupied;
+            
             var changeQueue = new NativeQueue<ChangeQueueEvent>(Allocator.TempJob);
             var changeQueueParallel = changeQueue.AsParallelWriter();
+            
             Entities.ForEach((Entity entity, ref LocalIntersectionComponent localIntersection, ref OnSplineComponent onSpline, ref CarSpeedComponent speed, in CoordinateSystemComponent coords) =>
             {
                 if (onSpline.Value.InIntersection)
@@ -39,6 +48,7 @@ namespace Systems {
                     {
                         speed.SplineTimer = 1f;
                         speed.NormalizedSpeed = 0f;
+                        Debug.Assert(false);
                     }
                 }
                 else
@@ -76,27 +86,6 @@ namespace Systems {
                         }
                     }
 
-                    // now we need to know which road segment we'll move into
-                    // (dead-ends force u-turns, but otherwise, u-turns are not allowed)
-                    int newSplineIndex = 0;
-                    ref var intersectionNeighbors = ref intersectionBlob.Value.Intersections[intersection].Neighbors; 
-                    if (intersectionNeighbors.Count > 1)
-                    {
-                        int mySplineIndex = intersectionNeighbors.IndexOfSpline(onSpline.Value.Spline);
-                        newSplineIndex = new Random((uint)((entity.Index + 1) * frame * 47701)).NextInt(intersectionNeighbors.Count - 1);
-                        if (newSplineIndex >= mySplineIndex)
-                        {
-                            newSplineIndex++;
-                        }
-                    }
-
-                    
-                    ushort newSpline;
-                    unsafe
-                    {
-                        newSpline = intersectionNeighbors.Splines[newSplineIndex];
-                    }
-
                     // make sure that our side of the intersection (top/bottom)
                     // is empty before we enter
                     if (occupation[intersection][(localIntersection.Side + 1) / 2])
@@ -106,6 +95,27 @@ namespace Systems {
                     }
                     else
                     {
+                        // now we need to know which road segment we'll move into
+                        // (dead-ends force u-turns, but otherwise, u-turns are not allowed)
+                        int newSplineIndex = 0;
+                        ref var intersectionNeighbors = ref intersectionBlob.Value.Intersections[intersection].Neighbors; 
+                        if (intersectionNeighbors.Count > 1)
+                        {
+                            int mySplineIndex = intersectionNeighbors.IndexOfSpline(onSpline.Value.Spline);
+                            newSplineIndex = new Random((uint)((entity.Index + 1) * frame * 47701)).NextInt(intersectionNeighbors.Count - 1);
+                            if (newSplineIndex >= mySplineIndex)
+                            {
+                                newSplineIndex++;
+                            }
+                        }
+
+                    
+                        ushort newSpline;
+                        unsafe
+                        {
+                            newSpline = intersectionNeighbors.Splines[newSplineIndex];
+                        }
+                        
                         var previousSpline = onSpline.Value;
 
                         // to avoid flipping between top/bottom of our roads,
@@ -186,7 +196,6 @@ namespace Systems {
                             });
                     }
                 }
-                
             }).WithoutBurst().WithName("UpdateIntersection").Schedule(inputDeps).Complete();
 
             Job.WithCode(() =>
