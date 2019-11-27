@@ -149,53 +149,6 @@ public class RoadGeneratorDots : MonoBehaviour
 
             Debug.Log(numSplines + " road splines");
 
-            #region generate meshes
-
-            {
-                TrackUtils.SizeOfMeshData(splineResolution, out int verticesPerSpline, out int indicesPerSpline);
-                var vertices = new NativeArray<float3>(verticesPerSpline * numSplines, Allocator.TempJob);
-                var triangles = new NativeArray<int>(indicesPerSpline * numSplines, Allocator.TempJob);
-                using (vertices)
-                using (triangles)
-                {
-                    int splinesPerMesh = 3 * trisPerMesh / indicesPerSpline;
-                    var job = new GenerateTrackMeshes
-                    {
-                        VerticesPerSpline = verticesPerSpline,
-                        IndicesPerSpline = indicesPerSpline,
-                        TrackSplines = trackSplines,
-                        OutVertices = vertices,
-                        OutTriangles = triangles,
-                        SplinesPerMesh = splinesPerMesh,
-                    };
-                    job.Setup(splineResolution, trackRadius, trackThickness);
-                    job.Schedule(numSplines, 16).Complete();
-
-                    using (new ProfilerMarker("CreateMeshes").Auto())
-                    {
-                        int numMeshes = numSplines / splinesPerMesh;
-                        int remaining = numSplines % splinesPerMesh;
-                        numMeshes += remaining != 0 ? 1 : 0;
-                        m_RoadMeshes = new Mesh[numMeshes];
-                        for (int i = 0; i < numMeshes; i++)
-                        {
-                            int splines = i < numMeshes - 1 ? splinesPerMesh : remaining;
-                            Mesh mesh = new Mesh();
-                            mesh.name = "Generated Road Mesh";
-                            mesh.SetVertices(vertices, i * splinesPerMesh * verticesPerSpline, splines * verticesPerSpline);
-                            mesh.SetIndices(triangles, i * splinesPerMesh * indicesPerSpline, splines * indicesPerSpline, MeshTopology.Triangles, 0);
-                            mesh.RecalculateNormals();
-                            mesh.RecalculateBounds();
-                            m_RoadMeshes[i] = mesh;
-                        }
-                    }
-
-                    Debug.Log($"{triangles.Length} road triangles ({m_RoadMeshes.Length} meshes)");
-                }
-            }
-
-            #endregion
-
             TrackSplines.waitingQueues = new List<QueueEntry>[numSplines][];
             for (int i = 0; i < trackSplines.Length; i++)
             {
@@ -205,19 +158,6 @@ public class RoadGeneratorDots : MonoBehaviour
             }
 
             Intersections.Occupied = new NativeArray<OccupiedSides>(intersections.Length, Allocator.Persistent);
-        }
-    }
-
-    void Update()
-    {
-        using (new ProfilerMarker("DrawMeshes").Auto())
-        {
-            if (m_RoadMeshes == null)
-                return;
-            for (int i = 0; i < m_RoadMeshes.Length; i++)
-            {
-                Graphics.DrawMesh(m_RoadMeshes[i], Matrix4x4.identity, roadMaterial, 0);
-            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
@@ -12,8 +13,7 @@ struct GenerateTrackMeshes : IJobParallelFor
     [NativeDisableParallelForRestriction]
     public NativeArray<int> OutTriangles;
 
-    [ReadOnly]
-    public NativeList<TrackSpline> TrackSplines;
+    public BlobAssetReference<TrackSplinesBlob> TrackSplines;
 
     float2 m_LocalPoint1;
     float2 m_LocalPoint2;
@@ -42,9 +42,10 @@ struct GenerateTrackMeshes : IJobParallelFor
         int mesh = index / SplinesPerMesh;
         int relativeVertexIndex = vertexIndex - (mesh * SplinesPerMesh * VerticesPerSpline);
 
-        var g = TrackSplines[index].Geometry;
-        var b = TrackSplines[index].Bezier;
-        byte twistMode = TrackSplines[index].TwistMode;
+        ref var spline = ref TrackSplines.Value.Splines[index];
+        var g = spline.Geometry;
+        var b = spline.Bezier;
+        byte twistMode = spline.TwistMode;
 
         // extrude our rectangle as four strips
         for (int i = 0; i < 4; i++)

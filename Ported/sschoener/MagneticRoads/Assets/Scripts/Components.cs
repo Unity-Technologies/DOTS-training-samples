@@ -100,10 +100,18 @@ struct RoadSetupComponent : IComponentData
     public BlobAssetReference<TrackSplinesBlob> Splines;
     public BlobAssetReference<IntersectionsBlob> Intersections;
     public float IntersectionSize;
+    public float TrackRadius;
     public float TrackThickness;
+    public int SplineResolution;
+    public int TrisPerMesh;
 }
 
 struct IntersectionComponent : IComponentData
+{
+    public ushort Index;
+}
+
+struct RoadSplineComponent : IComponentData
 {
     public ushort Index;
 }
