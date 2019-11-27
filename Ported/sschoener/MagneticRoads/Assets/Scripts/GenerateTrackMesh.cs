@@ -4,6 +4,8 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 
+
+
 [BurstCompile]
 struct GenerateTrackMeshes : IJobParallelFor
 {

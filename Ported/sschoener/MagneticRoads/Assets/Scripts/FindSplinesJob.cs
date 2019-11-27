@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 
@@ -10,7 +11,8 @@ struct TrackSplineCtorData
     public ushort endIntersection;
 }
 
-struct FindNeighborsJob : IJob
+[BurstCompile]
+struct FindSplinesJob : IJob
 {
     public NativeList<Intersection> Intersections;
     [ReadOnly]
@@ -22,7 +24,7 @@ struct FindNeighborsJob : IJob
     [ReadOnly]
     public NativeArray<int3> Dirs;
 
-    public NativeList<TrackSplineCtorData> TrackSplineList;
+    public NativeList<TrackSplineCtorData> OutTrackSplinePrototypes;
 
     public Random Rng;
     public int VoxelCount;
@@ -106,15 +108,15 @@ struct FindNeighborsJob : IJob
                 long hash = HashIntersectionPair(i, neighbor);
                 if (!intersectionPairs.TryAdd(hash, true))
                     continue;
-                int splineIdx = TrackSplineList.Length;
-                TrackSplineList.Add(new TrackSplineCtorData
+                int splineIdx = OutTrackSplinePrototypes.Length;
+                OutTrackSplinePrototypes.Add(new TrackSplineCtorData
                 {
                     startIntersection = (ushort)i,
                     endIntersection = (ushort)neighbor,
                     tangent1 = Dirs[j],
                     tangent2 = connectDir
                 });
-
+                
                 {
                     var inter = Intersections[i];
                     inter.Neighbors.Add((ushort)neighbor, (ushort)splineIdx);
