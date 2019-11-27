@@ -17,9 +17,6 @@ public class RoadGeneratorDots : MonoBehaviour
     public Material roadMaterial;
     public Mesh intersectionMesh;
 
-    Matrix4x4[][] m_CarMatrices;
-    MaterialPropertyBlock[] m_CarMatProps;
-
     NativeArray<int3> m_Dirs;
     NativeArray<int3> m_FullDirs;
 
