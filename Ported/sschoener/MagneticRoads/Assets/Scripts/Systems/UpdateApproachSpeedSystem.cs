@@ -63,7 +63,7 @@ namespace Systems {
                     }
                 }
                 speed.NormalizedSpeed = math.min(speed.NormalizedSpeed, approachSpeed);
-            }).WithoutBurst().WithName("UpdateApproachSpeed").Schedule(inputDeps);
+            }).WithName("UpdateApproachSpeed").Schedule(inputDeps);
         }
     }
 }

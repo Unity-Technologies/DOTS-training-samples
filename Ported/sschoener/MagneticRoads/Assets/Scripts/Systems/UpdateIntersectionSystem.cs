@@ -13,6 +13,7 @@ namespace Systems
     public class UpdateIntersectionSystem : JobComponentSystem
     {
         RoadQueueSystem m_RoadQueueSystem;
+        EndSimulationEntityCommandBufferSystem m_EndSimulationEntityCommandBufferSystem;
 
         struct ChangeQueueEvent
         {
@@ -28,20 +29,20 @@ namespace Systems
         {
             base.OnCreate();
             m_RoadQueueSystem = World.GetExistingSystem<RoadQueueSystem>();
+            m_EndSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             int frame = 1 + UnityEngine.Time.frameCount;
-            var roads = GetSingleton<RoadSetupComponent>();
-            var splineBlob = roads.Splines;
-            var intersectionBlob = roads.Intersections;
+            var roadSetup = GetSingleton<RoadSetupComponent>();
+            var splineBlob = roadSetup.Splines;
+            var intersectionBlob = roadSetup.Intersections;
             var occupation = m_RoadQueueSystem.IntersectionOccupation;
 
             var changeQueue = new NativeQueue<ChangeQueueEvent>(Allocator.TempJob);
             var changeQueueParallel = changeQueue.AsParallelWriter();
 
-            var roadSetup = GetSingleton<RoadSetupComponent>();
             var queues = m_RoadQueueSystem.Queues;
             var queueEntries = m_RoadQueueSystem.QueueEntries;
             Entities.ForEach((Entity entity, ref LocalIntersectionComponent localIntersection, ref OnSplineComponent onSpline, ref CarSpeedComponent speed, ref VehicleStateComponent vehicleState, in CoordinateSystemComponent coords) =>
@@ -228,9 +229,9 @@ namespace Systems
                         onSpline.Value.Spline = newSpline;
                     }
                 }
-            }).WithoutBurst().WithName("UpdateIntersection").Schedule(inputDeps).Complete();
-
-            var ecb = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>().CreateCommandBuffer();
+            }).WithName("UpdateIntersection").Schedule(inputDeps).Complete();
+            
+            var ecb = m_EndSimulationEntityCommandBufferSystem.CreateCommandBuffer();
             Job.WithCode(() =>
             {
                 int c = changeQueue.Count;
@@ -282,7 +283,7 @@ namespace Systems
                         });
                     }
                 }
-            }).WithoutBurst().Run();
+            }).Run();
             changeQueue.Dispose();
             return default;
         }
