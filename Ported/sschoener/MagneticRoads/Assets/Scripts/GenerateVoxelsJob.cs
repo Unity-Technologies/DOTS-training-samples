@@ -19,6 +19,7 @@ struct GenerateVoxelsJob : IJob
     public NativeList<int3> ActiveVoxels;
     public NativeList<int3> OutputIntersectionIndices;
     public NativeList<Intersection> OutputIntersections;
+    public NativeArray<int> OutputIntersectionGrid;
     public Unity.Mathematics.Random Rng;
 
     int Idx(int3 p) => (p.z * VoxelCount + p.y) * VoxelCount + p.x;
@@ -73,6 +74,7 @@ struct GenerateVoxelsJob : IJob
                 {
                     Position = (float3) pos * VoxelSize
                 });
+                OutputIntersectionGrid[Idx(pos)] = OutputIntersectionIndices.Length - 1;
                 ActiveVoxels.RemoveAtSwapBack(index);
             }
         }

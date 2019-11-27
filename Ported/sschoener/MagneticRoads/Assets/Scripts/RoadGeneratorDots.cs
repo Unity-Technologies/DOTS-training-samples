@@ -154,23 +154,22 @@ public class RoadGeneratorDots : MonoBehaviour
         {
             UnsafeUtility.MemSet(intersectionsGrid.GetUnsafePtr(), 0xFF, sizeof(int) * intersectionsGrid.Length);
         }
+
         var intersections = new NativeList<Intersection>(Allocator.TempJob);
+        var intersectionIndices = new NativeList<int3>(Allocator.TempJob);
 
         using (trackVoxels)
         using (intersectionsGrid)
-        using(intersections)
+        using (intersections)
+        using (intersectionIndices)
         {
             m_RoadMeshes = new List<Mesh>();
             m_IntersectionMatrices = new List<List<Matrix4x4>>();
-
-            
-            int3[] intersectionIndices;
 
             // plan roads broadly: first, as a grid of true/false voxels
             using (new ProfilerMarker("VoxelGeneration").Auto())
             {
                 using (var activeVoxels = new NativeList<int3>(Allocator.TempJob))
-                using (var outputIntersections = new NativeList<int3>(Allocator.TempJob))
                 {
                     activeVoxels.Add(new int3(voxelCount / 2));
                     trackVoxels[voxelCount / 2 * (voxelCount * voxelCount + voxelCount + 1)] = true;
@@ -180,24 +179,16 @@ public class RoadGeneratorDots : MonoBehaviour
                         Rng = new Unity.Mathematics.Random(12345),
                         VoxelCount = voxelCount,
                         VoxelSize = voxelSize,
-                        OutputIntersectionIndices = outputIntersections,
+                        OutputIntersectionIndices = intersectionIndices,
                         OutputIntersections = intersections,
+                        OutputIntersectionGrid = intersectionsGrid,
                         ActiveVoxels = activeVoxels,
                         Voxels = trackVoxels,
                         Directions = m_Dirs,
                         FullDirections = m_FullDirs
                     }.Run();
 
-                    intersectionIndices = new int3[outputIntersections.Length];
-
-                    Intersections.Occupied = new NativeArray<OccupiedSides>(outputIntersections.Length, Allocator.Persistent);
-
-                    for (int i = 0; i < outputIntersections.Length; i++)
-                    {
-                        var pos = outputIntersections[i];
-                        intersectionIndices[i] = pos;
-                        intersectionsGrid[Idx3d(pos, voxelCount)] = i;
-                    }
+                    Intersections.Occupied = new NativeArray<OccupiedSides>(intersectionIndices.Length, Allocator.Persistent);
                 }
             }
 
