@@ -31,9 +31,9 @@ namespace Systems {
                     t = 1f - t;
                 
                 // find our position and orientation
-                var coord = TrackUtils.Extrude(splineData.Bezier, splineData.Geometry, splineData.TwistMode, t, out _, out var up, out _);
-                float3 splinePoint = coord.Base + coord.Right * extrudePoint.x + coord.Up * extrudePoint.y;
-                up = math.normalize(up) * spline.Value.Side;
+                var trackCoords = TrackUtils.Extrude(splineData.Bezier, splineData.Geometry, splineData.TwistMode, t, out _, out _);
+                float3 splinePoint = trackCoords.Base + trackCoords.Right * extrudePoint.x + trackCoords.Up * extrudePoint.y;
+                var up = math.normalize(trackCoords.Up) * spline.Value.Side;
                 coords.Up = up;
                 float3 lastPosition = coords.Position;
                 coords.Position = splinePoint + up * .06f;

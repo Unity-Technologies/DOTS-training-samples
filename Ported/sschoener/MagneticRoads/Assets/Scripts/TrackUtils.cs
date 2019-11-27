@@ -12,10 +12,10 @@ public static class TrackUtils
     }
     
     public static Coord Extrude(in CubicBezier bezier, in TrackGeometry geometry, int twistMode, float t)
-        => Extrude(bezier, geometry, twistMode, t, out _, out _, out _);
+        => Extrude(bezier, geometry, twistMode, t, out _, out _);
     
     public static Coord Extrude(in CubicBezier bezier, in TrackGeometry geometry, int twistMode,
-        float t, out float3 tangent, out float3 up, out bool error)
+        float t, out float3 tangent, out bool error)
     {
         t = math.clamp(t, 0, 1);
         float3 sample1 = bezier.Evaluate(t);
@@ -62,7 +62,7 @@ public static class TrackUtils
 
         float smoothT = math.smoothstep(0f, 1f, t * 1.02f - .01f);
 
-        up = math.mul(math.slerp(quaternion.identity, fromTo, smoothT), geometry.startNormal);
+        var up = math.mul(math.slerp(quaternion.identity, fromTo, smoothT), geometry.startNormal);
         float3 right = math.cross(tangent, up);
 
         // measure twisting errors:
@@ -88,7 +88,7 @@ public static class TrackUtils
             for (int j = 0; j <= resolution; j++)
             {
                 float t = (float)j / resolution;
-                Extrude(bezier, geometry, currentTwistMode, t, out _, out _, out var error);
+                Extrude(bezier, geometry, currentTwistMode, t, out _, out var error);
                 numErrors += error ? 1 : 0;
             }
 
