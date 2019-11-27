@@ -16,7 +16,6 @@ struct GenerateVoxelsJob : IJob
     public int VoxelCount;
     public float VoxelSize;
     public NativeArray<bool> Voxels;
-    public NativeList<int3> ActiveVoxels;
     public NativeList<int3> OutputIntersectionIndices;
     public NativeList<Intersection> OutputIntersections;
     public NativeArray<int> OutputIntersectionGrid;
@@ -46,11 +45,14 @@ struct GenerateVoxelsJob : IJob
     {
         const int steps = 50000;
         int ticker = 0;
-        while (ActiveVoxels.Length > 0 && ticker < steps)
+        var activeVoxels = new NativeList<int3>(Allocator.Temp);
+        activeVoxels.Add(new int3(VoxelCount / 2));
+        Voxels[VoxelCount / 2 * (VoxelCount * VoxelCount + VoxelCount + 1)] = true;
+        while (activeVoxels.Length > 0 && ticker < steps)
         {
             ticker++;
-            int index = Rng.NextInt(ActiveVoxels.Length);
-            int3 pos = ActiveVoxels[index];
+            int index = Rng.NextInt(activeVoxels.Length);
+            int3 pos = activeVoxels[index];
             int3 dir = Directions[Rng.NextInt(Directions.Length)];
             int3 pos2 = pos + dir;
             if (!HasVoxel(pos2))
@@ -60,7 +62,7 @@ struct GenerateVoxelsJob : IJob
                 // (this blocks nonplanar intersections from forming)
                 if (HasLessNeighborsThan(pos2, 3, FullDirections))
                 {
-                    ActiveVoxels.Add(pos2);
+                    activeVoxels.Add(pos2);
                     Voxels[Idx(pos2)] = true;
                 }
             }
@@ -75,7 +77,7 @@ struct GenerateVoxelsJob : IJob
                     Position = (float3) pos * VoxelSize
                 });
                 OutputIntersectionGrid[Idx(pos)] = OutputIntersectionIndices.Length - 1;
-                ActiveVoxels.RemoveAtSwapBack(index);
+                activeVoxels.RemoveAtSwapBack(index);
             }
         }
     }

@@ -169,27 +169,20 @@ public class RoadGeneratorDots : MonoBehaviour
             // plan roads broadly: first, as a grid of true/false voxels
             using (new ProfilerMarker("VoxelGeneration").Auto())
             {
-                using (var activeVoxels = new NativeList<int3>(Allocator.TempJob))
+                new GenerateVoxelsJob()
                 {
-                    activeVoxels.Add(new int3(voxelCount / 2));
-                    trackVoxels[voxelCount / 2 * (voxelCount * voxelCount + voxelCount + 1)] = true;
+                    Rng = new Unity.Mathematics.Random(12345),
+                    VoxelCount = voxelCount,
+                    VoxelSize = voxelSize,
+                    OutputIntersectionIndices = intersectionIndices,
+                    OutputIntersections = intersections,
+                    OutputIntersectionGrid = intersectionsGrid,
+                    Voxels = trackVoxels,
+                    Directions = m_Dirs,
+                    FullDirections = m_FullDirs
+                }.Run();
 
-                    new GenerateVoxelsJob()
-                    {
-                        Rng = new Unity.Mathematics.Random(12345),
-                        VoxelCount = voxelCount,
-                        VoxelSize = voxelSize,
-                        OutputIntersectionIndices = intersectionIndices,
-                        OutputIntersections = intersections,
-                        OutputIntersectionGrid = intersectionsGrid,
-                        ActiveVoxels = activeVoxels,
-                        Voxels = trackVoxels,
-                        Directions = m_Dirs,
-                        FullDirections = m_FullDirs
-                    }.Run();
-
-                    Intersections.Occupied = new NativeArray<OccupiedSides>(intersectionIndices.Length, Allocator.Persistent);
-                }
+                Intersections.Occupied = new NativeArray<OccupiedSides>(intersectionIndices.Length, Allocator.Persistent);
             }
 
             Debug.Log(intersections.Length + " intersections");
