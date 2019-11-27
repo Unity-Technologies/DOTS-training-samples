@@ -167,7 +167,6 @@ public class RoadGeneratorDots : MonoBehaviour
             }
         }
 
-        var intersectionPairs = new HashSet<long>();
         m_RoadMeshes = new List<Mesh>();
         m_IntersectionMatrices = new List<List<Matrix4x4>>();
 
@@ -181,7 +180,6 @@ public class RoadGeneratorDots : MonoBehaviour
             using (var outputIntersections = new NativeList<int3>(Allocator.TempJob))
             {
                 activeVoxels.Add(new int3(voxelCount / 2));
-
                 m_TrackVoxels[voxelCount / 2 * (voxelCount * voxelCount + voxelCount + 1)] = true;
 
                 new GenerateVoxelsJob()
@@ -223,40 +221,39 @@ public class RoadGeneratorDots : MonoBehaviour
         var trackSplineList = new List<TrackSplineCtorData>();
         using (new ProfilerMarker("FindNeighbors").Auto())
         {
+            var intersectionPairs = new HashSet<long>();
             for (int i = 0; i < intersections.Length; i++)
             {
-                int intersection = i;
                 int3 axesWithNeighbors = new int3();
                 for (int j = 0; j < m_Dirs.Length; j++)
                 {
-                    if (GetVoxel(intersectionIndices[intersection] + m_Dirs[j]))
+
+                    if (!GetVoxel(intersectionIndices[i] + m_Dirs[j]))
+                        continue;
+                    axesWithNeighbors += math.abs(m_Dirs[j]);
+
+                    int neighbor = FindFirstIntersection(
+                        intersectionIndices[i],
+                        m_Dirs[j],
+                        out var connectDir);
+                    if (neighbor < 0 || neighbor == i)
+                        continue;
+
+                    // make sure we haven't already added the reverse-version of this spline
+                    long hash = HashIntersectionPair(i, neighbor);
+                    if (!intersectionPairs.Add(hash))
+                        continue;
+                    int splineIdx = trackSplineList.Count;
+                    trackSplineList.Add(new TrackSplineCtorData
                     {
-                        axesWithNeighbors += math.abs(m_Dirs[j]);
+                        startIntersection = (ushort)i,
+                        endIntersection = (ushort)neighbor,
+                        tangent1 = m_Dirs[j],
+                        tangent2 = connectDir
+                    });
 
-                        int neighbor = FindFirstIntersection(
-                            intersectionIndices[intersection],
-                            m_Dirs[j],
-                            out var connectDir);
-                        if (neighbor >= 0 && neighbor != intersection)
-                        {
-                            // make sure we haven't already added the reverse-version of this spline
-                            long hash = HashIntersectionPair(intersection, neighbor);
-                            if (intersectionPairs.Add(hash))
-                            {
-                                int splineIdx = trackSplineList.Count;
-                                trackSplineList.Add(new TrackSplineCtorData
-                                {
-                                    startIntersection = (ushort)intersection,
-                                    endIntersection = (ushort)neighbor,
-                                    tangent1 = m_Dirs[j],
-                                    tangent2 = connectDir
-                                });
-
-                                intersections[intersection].Neighbors.Add((ushort)neighbor, (ushort)splineIdx);
-                                intersections[neighbor].Neighbors.Add((ushort)intersection, (ushort)splineIdx);
-                            }
-                        }
-                    }
+                    intersections[i].Neighbors.Add((ushort)neighbor, (ushort)splineIdx);
+                    intersections[neighbor].Neighbors.Add((ushort)i, (ushort)splineIdx);
                 }
 
                 // find this intersection's normal - it's the one axis
@@ -265,22 +262,9 @@ public class RoadGeneratorDots : MonoBehaviour
                 {
                     if (axesWithNeighbors[j] == 0)
                     {
-                        if (intersections[intersection].Normal.Equals(new float3()))
-                        {
-                            intersections[intersection].Normal[j] = -1 + Random.Range(0, 2) * 2;
-
-                            //Debug.DrawRay(intersection.position,(Vector3)intersection.normal * .5f,Color.red,1000f);
-                        }
-                        else
-                        {
-                            Debug.LogError("a straight line has been marked as an intersection!");
-                        }
+                        intersections[i].Normal[j] = -1 + Random.Range(0, 2) * 2;
+                        break;
                     }
-                }
-
-                if (intersections[intersection].Normal.Equals(new float3()))
-                {
-                    Debug.LogError("non-planar intersections are not allowed!");
                 }
 
                 // NOTE - if you investigate the above logic, you might be confused about how
@@ -344,8 +328,15 @@ public class RoadGeneratorDots : MonoBehaviour
 
         Debug.Log(numSplines + " road splines");
 
-        // generate road meshes
+        for (int i = 0; i < numSplines; i++)
+        {
+            var g = trackSplinesGeometry[i];
+            g.startNormal = intersections[trackSplinesStartIntersection[i]].Normal;
+            g.endNormal = intersections[trackSplinesEndIntersection[i]].Normal;
+            trackSplinesGeometry[i] = g;
+        }
 
+        // generate road meshes
         using (new ProfilerMarker("Generate Meshes").Auto())
         {
             TrackUtils.SizeOfMeshData(splineResolution, out int verticesPerSpline, out int indicesPerSpline);
@@ -356,14 +347,6 @@ public class RoadGeneratorDots : MonoBehaviour
             using (uvs)
             using (triangles)
             {
-                for (int i = 0; i < numSplines; i++)
-                {
-                    var g = trackSplinesGeometry[i];
-                    g.startNormal = intersections[trackSplinesStartIntersection[i]].Normal;
-                    g.endNormal = intersections[trackSplinesEndIntersection[i]].Normal;
-                    trackSplinesGeometry[i] = g;
-                }
-
                 int splinesPerMesh = (3 * trisPerMesh) / indicesPerSpline;
                 int numMeshes = numSplines / splinesPerMesh;
                 int remaining = numSplines % splinesPerMesh;
@@ -385,12 +368,12 @@ public class RoadGeneratorDots : MonoBehaviour
                 job.Setup(splineResolution, trackRadius, trackThickness);
                 job.Schedule(numSplines, 16).Complete();
 
-                using (var blobBuilder = new BlobBuilder(Allocator.Temp))
+                var blobBuilder = new BlobBuilder(Allocator.Temp);
+                JobHandle buildBlobJob;
                 {
                     ref var splineArray = ref blobBuilder.ConstructRoot<TrackSplinesBlob>();
                     var arrayBuilder = blobBuilder.Allocate(ref splineArray.Splines, numSplines);
 
-                    JobHandle buildBlobJob;
                     unsafe
                     {
                         buildBlobJob = new BuildTrackSplineBlobJob()
@@ -406,26 +389,27 @@ public class RoadGeneratorDots : MonoBehaviour
                             MaxCarCount = trackSplinesMaxCarCount
                         }.Schedule(numSplines, 16);
                     }
-
-                    using (new ProfilerMarker("create mesh").Auto())
-                    {
-                        for (int i = 0; i < numMeshes; i++)
-                        {
-                            int splines = i < numMeshes - 1 ? splinesPerMesh : remaining;
-                            Mesh mesh = new Mesh();
-                            mesh.name = "Generated Road Mesh";
-                            mesh.SetVertices(vertices, i * splinesPerMesh * verticesPerSpline, splines * verticesPerSpline);
-                            mesh.SetUVs(0, uvs, i * splinesPerMesh * verticesPerSpline, splines * verticesPerSpline);
-                            mesh.SetIndices(triangles, i * splinesPerMesh * indicesPerSpline, splines * indicesPerSpline, MeshTopology.Triangles, 0);
-                            mesh.RecalculateNormals();
-                            mesh.RecalculateBounds();
-                            m_RoadMeshes.Add(mesh);
-                        }
-                    }
-
-                    buildBlobJob.Complete();
-                    TrackSplinesBlob.Instance = blobBuilder.CreateBlobAssetReference<TrackSplinesBlob>(Allocator.Persistent);
                 }
+
+                using (new ProfilerMarker("create mesh").Auto())
+                {
+                    for (int i = 0; i < numMeshes; i++)
+                    {
+                        int splines = i < numMeshes - 1 ? splinesPerMesh : remaining;
+                        Mesh mesh = new Mesh();
+                        mesh.name = "Generated Road Mesh";
+                        mesh.SetVertices(vertices, i * splinesPerMesh * verticesPerSpline, splines * verticesPerSpline);
+                        mesh.SetUVs(0, uvs, i * splinesPerMesh * verticesPerSpline, splines * verticesPerSpline);
+                        mesh.SetIndices(triangles, i * splinesPerMesh * indicesPerSpline, splines * indicesPerSpline, MeshTopology.Triangles, 0);
+                        mesh.RecalculateNormals();
+                        mesh.RecalculateBounds();
+                        m_RoadMeshes.Add(mesh);
+                    }
+                }
+
+                buildBlobJob.Complete();
+                TrackSplinesBlob.Instance = blobBuilder.CreateBlobAssetReference<TrackSplinesBlob>(Allocator.Persistent);
+                blobBuilder.Dispose();
 
                 Debug.Log($"{triangles.Length} road triangles ({m_RoadMeshes.Count} meshes)");
             }
