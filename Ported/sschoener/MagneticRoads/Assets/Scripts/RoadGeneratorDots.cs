@@ -6,7 +6,6 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Profiling;
-using Unity.Transforms;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -17,9 +16,6 @@ public class RoadGeneratorDots : MonoBehaviour
     public int trisPerMesh = 4000;
     public Material roadMaterial;
     public Mesh intersectionMesh;
-    public Mesh intersectionPreviewMesh;
-    public Mesh carMesh;
-    public Material carMaterial;
 
     NativeArray<bool> m_TrackVoxels;
     int[,,] m_IntersectionsGrid;
@@ -457,28 +453,6 @@ public class RoadGeneratorDots : MonoBehaviour
             for (int i = 0; i < m_IntersectionMatrices.Count; i++)
             {
                 Graphics.DrawMeshInstanced(intersectionMesh, 0, roadMaterial, m_IntersectionMatrices[i]);
-            }
-        }
-    }
-
-    void OnDrawGizmos()
-    {
-        if (m_TrackVoxels.IsCreated)
-        {
-            // visualize voxel generation during generation
-            for (int x = 0; x < voxelCount; x++)
-            {
-                for (int y = 0; y < voxelCount; y++)
-                {
-                    for (int z = 0; z < voxelCount; z++)
-                    {
-                        if (GetVoxel(new int3(x, y, z)))
-                        {
-                            Gizmos.DrawWireCube(new Vector3(x, y, z) * voxelSize,
-                                new Vector3(.9f, .9f, .9f) * voxelSize);
-                        }
-                    }
-                }
             }
         }
     }
