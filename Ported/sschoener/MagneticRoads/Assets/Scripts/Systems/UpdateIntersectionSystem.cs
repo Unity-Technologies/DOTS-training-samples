@@ -33,13 +33,22 @@ namespace Systems {
                 {
                     if (speed.SplineTimer < 1)
                         return;
-                    var occupied = occupation[localIntersection.Intersection];
-                    occupied[(localIntersection.Side + 1) / 2] = false;
-                    occupation[localIntersection.Intersection] = occupied;
-                    onSpline.Value.InIntersection = false;
-                    onSpline.Value.Dirty = true;
-                    speed.SplineTimer = 0f;
-                    
+                    // we're exiting an intersection - make sure the next road
+                    // segment has room for us before we proceed
+                    if (TrackSplines.GetQueue(onSpline.Value).Count <= splineBlob.Value.Splines[onSpline.Value.Spline].MaxCarCount)
+                    {
+                        var occupied = occupation[localIntersection.Intersection];
+                        occupied[(localIntersection.Side + 1) / 2] = false;
+                        occupation[localIntersection.Intersection] = occupied;
+                        onSpline.Value.InIntersection = false;
+                        onSpline.Value.Dirty = true;
+                        speed.SplineTimer = 0f;
+                    }
+                    else
+                    {
+                        speed.SplineTimer = 1f;
+                        speed.NormalizedSpeed = 0f;
+                    }
                 }
                 else
                 {
@@ -91,8 +100,9 @@ namespace Systems {
                         ref var intersectionNeighbors = ref intersectionBlob.Value.Intersections[intersection].Neighbors; 
                         if (intersectionNeighbors.Count > 1)
                         {
+                            var rng = new Random((uint)((entity.Index + 1) * frame * 47701));
                             int mySplineIndex = intersectionNeighbors.IndexOfSpline(onSpline.Value.Spline);
-                            newSplineIndex = new Random((uint)((entity.Index + 1) * frame * 47701)).NextInt(intersectionNeighbors.Count - 1);
+                            newSplineIndex = rng.NextInt(intersectionNeighbors.Count - 1);
                             if (newSplineIndex >= mySplineIndex)
                             {
                                 newSplineIndex++;
@@ -196,14 +206,8 @@ namespace Systems {
                     var changeEvent = changeQueue.Dequeue();
                     TrackSplines.GetQueue(changeEvent.To).Add(changeEvent.QueueEntry);
                     var fromQueue = TrackSplines.GetQueue(changeEvent.From);
-                    for (int j = 0; j < fromQueue.Count; j++)
-                    {
-                        if (fromQueue[j].Entity == changeEvent.QueueEntry.Entity)
-                        {
-                            fromQueue.RemoveAt(j);
-                            break;
-                        }
-                    }
+                    Debug.Assert(fromQueue[0].Entity == changeEvent.QueueEntry.Entity); 
+                    fromQueue.RemoveAt(0);
                 }
             }).WithoutBurst().Run();
             changeQueue.Dispose();
