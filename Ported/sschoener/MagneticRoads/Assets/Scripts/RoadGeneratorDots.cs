@@ -53,17 +53,18 @@ public class RoadGeneratorDots : MonoBehaviour
         return idx >= 0 && trackVoxels[idx];
     }
 
-    int FindFirstIntersection(int[,,]intersectionsGrid, NativeArray<bool> trackVoxels, int3 pos, int3 dir, out int3 otherDirection)
+    int FindFirstIntersection(NativeArray<int> intersectionsGrid, NativeArray<bool> trackVoxels, int3 pos, int3 dir, out int3 otherDirection)
     {
         // step along our voxel paths (before splines have been spawned),
         // starting at one intersection, and stopping when we reach another intersection
         while (true)
         {
             pos += dir;
-            if (intersectionsGrid[pos.x, pos.y, pos.z] >= 0)
+            var posIdx = Idx3d(pos, voxelCount);
+            if (intersectionsGrid[posIdx] >= 0)
             {
                 otherDirection = dir * -1;
-                return intersectionsGrid[pos.x, pos.y, pos.z];
+                return intersectionsGrid[posIdx];
             }
 
             if (GetVoxel(trackVoxels,pos + dir)) continue;
@@ -148,13 +149,10 @@ public class RoadGeneratorDots : MonoBehaviour
         var trackVoxels = new NativeArray<bool>(voxelCount * voxelCount * voxelCount, Allocator.TempJob);
 
         // after voxel generation, we'll convert our network into non-voxels
-        var intersectionsGrid = new int[voxelCount, voxelCount, voxelCount];
+        var intersectionsGrid = new NativeArray<int>(voxelCount * voxelCount * voxelCount, Allocator.TempJob);
         unsafe
         {
-            fixed (int* g = intersectionsGrid)
-            {
-                UnsafeUtility.MemSet(g, 0xFF, sizeof(int) * intersectionsGrid.Length);
-            }
+            UnsafeUtility.MemSet(intersectionsGrid.GetUnsafePtr(), 0xFF, sizeof(int) * intersectionsGrid.Length);
         }
 
         m_RoadMeshes = new List<Mesh>();
@@ -194,7 +192,7 @@ public class RoadGeneratorDots : MonoBehaviour
                     intersectionIndices[i] = pos;
                     intersections[i].Position = (float3)pos * voxelSize;
                     intersections[i].Normal = new float3();
-                    intersectionsGrid[pos.x, pos.y, pos.z] = i;
+                    intersectionsGrid[Idx3d(pos, voxelCount)] = i;
                 }
             }
         }
