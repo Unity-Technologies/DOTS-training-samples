@@ -113,7 +113,6 @@ struct IntersectionComponent : IComponentData
 
 struct RoadSplineComponent : IComponentData
 {
-    public ushort Index;
 }
 
 [Serializable]

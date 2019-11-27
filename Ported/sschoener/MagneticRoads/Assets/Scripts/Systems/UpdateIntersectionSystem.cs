@@ -28,6 +28,7 @@ namespace Systems {
             var changeQueue = new NativeQueue<ChangeQueueEvent>(Allocator.TempJob);
             var changeQueueParallel = changeQueue.AsParallelWriter();
             
+            var roadSetup = GetSingleton<RoadSetupComponent>();
             Entities.ForEach((Entity entity, ref LocalIntersectionComponent localIntersection, ref OnSplineComponent onSpline, ref CarSpeedComponent speed, in CoordinateSystemComponent coords) =>
             {
                 if (onSpline.Value.InIntersection)
@@ -154,14 +155,14 @@ namespace Systems {
                         {
                             // u-turn - make our intersection spline more rounded than usual
                             float3 perp = math.cross(localIntersection.Geometry.startTangent, localIntersection.Geometry.startNormal);
-                            localIntersection.Bezier.anchor1 += .5f * RoadGeneratorDots.intersectionSize * localIntersection.Geometry.startTangent;
-                            localIntersection.Bezier.anchor2 += .5f * RoadGeneratorDots.intersectionSize * localIntersection.Geometry.startTangent;
-                            localIntersection.Bezier.anchor1 -= localIntersection.Side * RoadGeneratorDots.trackRadius * .5f * perp;
-                            localIntersection.Bezier.anchor2 += localIntersection.Side * RoadGeneratorDots.trackRadius * .5f * perp;
+                            localIntersection.Bezier.anchor1 += .5f * roadSetup.IntersectionSize * localIntersection.Geometry.startTangent;
+                            localIntersection.Bezier.anchor2 += .5f * roadSetup.IntersectionSize * localIntersection.Geometry.startTangent;
+                            localIntersection.Bezier.anchor1 -= localIntersection.Side * roadSetup.TrackRadius * .5f * perp;
+                            localIntersection.Bezier.anchor2 += localIntersection.Side * roadSetup.TrackRadius * .5f * perp;
                         }
 
                         localIntersection.Intersection = intersection;
-                        localIntersection.Length = localIntersection.Bezier.MeasureLength(RoadGeneratorDots.splineResolution);
+                        localIntersection.Length = localIntersection.Bezier.MeasureLength(roadSetup.SplineResolution);
 
                         onSpline.Value.InIntersection = true;
                         onSpline.Value.Dirty = true;
