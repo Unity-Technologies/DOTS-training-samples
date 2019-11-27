@@ -2,6 +2,18 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
+using UnityEngine;
+
+public struct UninitializedComponentTag : IComponentData{}
+
+public struct CarSpawnComponent : IComponentData
+{
+    public int Count;
+}
+
+public struct CarSetupTagComponent : IComponentData
+{
+}
 
 public struct CarSpeedComponent : IComponentData
 {

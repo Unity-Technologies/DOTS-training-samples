@@ -453,59 +453,11 @@ public class RoadGeneratorDots : MonoBehaviour
             var world = World.DefaultGameObjectInjectionWorld;
             var em = world.EntityManager;
             const int numCars = 4000;
-            var carArchetype = em.CreateArchetype(
-                typeof(CarSpeedComponent),
-                typeof(SplineDataComponent),
-                typeof(OnSplineComponent),
-                typeof(LocalIntersectionComponent),
-                typeof(CoordinateSystemComponent),
-                typeof(LocalToWorld),
-                typeof(CarColor)
-            );
-
-            var entities = new NativeArray<Entity>(numCars, Allocator.Temp);
-            em.CreateEntity(carArchetype, entities);
-
-            for (int i = 0; i < numCars; i++)
+            var e = em.CreateEntity();
+            em.AddComponentData(e, new CarSpawnComponent
             {
-                int splineSide = -1 + Random.Range(0, 2) * 2;
-                int splineDirection = -1 + Random.Range(0, 2) * 2;
-                var roadSpline = Random.Range(0, numSplines);
-
-                var e = entities[i];
-                em.SetComponentData(e, new CarSpeedComponent
-                {
-                    SplineTimer = 1
-                });
-
-                var splinePos = new SplinePosition
-                {
-                    Direction = (sbyte)splineDirection,
-                    Spline = (ushort)roadSpline,
-                    Side = (sbyte)splineSide,
-                }; 
-                em.SetComponentData(e, new OnSplineComponent
-                {
-                    Value = splinePos 
-                });
-
-                em.SetComponentData(e, new CarColor
-                {
-                    Value = (Vector4)Random.ColorHSV()
-                });
-
-                TrackSplines.GetQueue(splinePos).Add(new QueueEntry
-                {
-                    Entity = e,
-                    SplineTimer = 1
-                });
-
-                em.AddSharedComponentData(e, new Unity.Rendering.RenderMesh
-                {
-                    mesh = carMesh,
-                    material = carMaterial
-                });
-            }
+                Count = numCars
+            });
         }
     }
 
