@@ -14,7 +14,6 @@ namespace Systems {
     {
         EntityQuery m_RoadSetupQuery;
         EntityArchetype m_SplineMeshArchetype;
-        EntityQuery m_SplineQuery;
 
         protected override void OnCreate()
         {
@@ -26,7 +25,6 @@ namespace Systems {
                 typeof(LocalToWorld),
                 typeof(Static)
             );
-            m_SplineQuery = GetEntityQuery(typeof(RoadSplineComponent), typeof(RenderMesh));
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
