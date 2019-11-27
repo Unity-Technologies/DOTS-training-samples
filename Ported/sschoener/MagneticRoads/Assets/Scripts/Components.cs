@@ -90,7 +90,7 @@ public struct LocalIntersectionComponent : IComponentData
     public CubicBezier Bezier;
     public TrackGeometry Geometry;
     public float Length;
-    public SplinePosition FromSpline;
+    public SplinePosition ToSpline;
     public sbyte Side;
 }
 

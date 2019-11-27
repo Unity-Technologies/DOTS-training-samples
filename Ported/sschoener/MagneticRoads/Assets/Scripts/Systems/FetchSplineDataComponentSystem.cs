@@ -11,16 +11,14 @@ namespace Systems {
             var blob = GetSingleton<RoadSetupComponent>().Splines;
             return Entities.ForEach((ref SplineDataComponent spline, ref OnSplineComponent onSpline, in VehicleStateComponent vehicleState, in LocalIntersectionComponent localIntersection) =>
             {
-                if (!onSpline.Value.Dirty)
-                    return;
-                if (vehicleState == VehicleState.EnteringIntersection)
+                if (vehicleState == VehicleState.OnIntersection)
                 {
                     spline.Bezier = localIntersection.Bezier;
                     spline.Geometry = localIntersection.Geometry;
                     spline.TwistMode = 0;
                     spline.Length = localIntersection.Length;
                 }
-                else if (vehicleState == VehicleState.OnRoad)
+                else
                 {
                     ref var s = ref blob.Value.Splines[onSpline.Value.Spline]; 
                     spline.Bezier = s.Bezier;

@@ -23,6 +23,7 @@ namespace Systems
 
             public ushort Intersection;
             public sbyte IntersectionSide;
+            public float NormalizedSpeed;
         }
 
         protected override void OnCreate()
@@ -54,13 +55,14 @@ namespace Systems
 
                     // we're exiting an intersection - make sure the next road
                     // segment has room for us before we proceed
-                    var queueIndex = RoadQueueSystem.GetQueueIndex(onSpline.Value);
-                    if (queues[queueIndex].Length < splineBlob.Value.Splines[onSpline.Value.Spline].MaxCarCount)
+                    var queueIndex = RoadQueueSystem.GetQueueIndex(localIntersection.ToSpline);
+                    if (queues[queueIndex].Length < splineBlob.Value.Splines[localIntersection.ToSpline.Spline].MaxCarCount)
                     {
-                        ref var fromSpline = ref splineBlob.Value.Splines[localIntersection.FromSpline.Spline];
-                        ushort intersection = localIntersection.FromSpline.Direction > 0 ? fromSpline.EndIntersection : fromSpline.StartIntersection;
-                        onSpline.Value.Dirty = true;
+                        ref var fromSpline = ref splineBlob.Value.Splines[onSpline.Value.Spline];
+                        ushort intersection = onSpline.Value.Direction > 0 ? fromSpline.EndIntersection : fromSpline.StartIntersection;
                         speed.SplineTimer = 0f;
+
+                        // this operation does not fail, but needs to be synchronized
                         changeQueueParallel.Enqueue(
                             new ChangeQueueEvent
                             {
@@ -70,10 +72,11 @@ namespace Systems
                                     SplineTimer = 0
                                 },
                                 From = SplinePosition.Invalid,
-                                To = onSpline.Value,
+                                To = localIntersection.ToSpline,
                                 Intersection = intersection,
                                 IntersectionSide = localIntersection.Side
                             });
+                        onSpline.Value = localIntersection.ToSpline;
                     }
                     else
                     {
@@ -83,21 +86,25 @@ namespace Systems
                 }
                 else if (vehicleState == VehicleState.EnteringIntersection)
                 {
-                    ref var fromSpline = ref splineBlob.Value.Splines[localIntersection.FromSpline.Spline];
-                    ushort intersection = localIntersection.FromSpline.Direction > 0 ? fromSpline.EndIntersection : fromSpline.StartIntersection;
+                    ref var fromSpline = ref splineBlob.Value.Splines[onSpline.Value.Spline];
+                    ushort intersection = onSpline.Value.Direction > 0 ? fromSpline.EndIntersection : fromSpline.StartIntersection;
+
+                    // this operation can fail when the intersection is full already
                     changeQueueParallel.Enqueue(
                         new ChangeQueueEvent
                         {
                             QueueEntry = new QueueEntry
                             {
                                 Entity = entity,
-                                SplineTimer = speed.SplineTimer
+                                SplineTimer = 0
                             },
-                            From = localIntersection.FromSpline,
+                            From = onSpline.Value,
                             To = SplinePosition.Invalid,
                             Intersection = intersection,
-                            IntersectionSide = localIntersection.Side
-                        });
+                            IntersectionSide = localIntersection.Side,
+                            NormalizedSpeed = 0,
+                        }
+                    );
                 }
                 else if (vehicleState == VehicleState.OnRoad)
                 {
@@ -160,29 +167,35 @@ namespace Systems
                             }
                         }
 
-                        ushort newSpline;
+                        var nextSpline = new SplinePosition();
                         unsafe
                         {
-                            newSpline = intersectionNeighbors.Splines[newSplineIndex];
+                            nextSpline.Spline = intersectionNeighbors.Splines[newSplineIndex];
                         }
-
-                        var previousSpline = onSpline.Value;
 
                         // to avoid flipping between top/bottom of our roads,
                         // we need to know our new spline's normal at our entrance point
-                        float3 newNormal;
-                        ref var newBlobSpline = ref splineBlob.Value.Splines[newSpline];
-                        if (newBlobSpline.StartIntersection == intersection)
                         {
-                            onSpline.Value.Direction = 1;
-                            newNormal = newBlobSpline.Geometry.startNormal;
-                            localIntersection.Bezier.end = newBlobSpline.Bezier.start;
-                        }
-                        else
-                        {
-                            onSpline.Value.Direction = -1;
-                            newNormal = newBlobSpline.Geometry.endNormal;
-                            localIntersection.Bezier.end = newBlobSpline.Bezier.end;
+                            float3 newNormal;
+                            ref var newBlobSpline = ref splineBlob.Value.Splines[nextSpline.Spline];
+                            if (newBlobSpline.StartIntersection == intersection)
+                            {
+                                nextSpline.Direction = 1;
+                                newNormal = newBlobSpline.Geometry.startNormal;
+                                localIntersection.Bezier.end = newBlobSpline.Bezier.start;
+                            }
+                            else
+                            {
+                                nextSpline.Direction = -1;
+                                newNormal = newBlobSpline.Geometry.endNormal;
+                                localIntersection.Bezier.end = newBlobSpline.Bezier.end;
+                            }
+
+                            // to maintain our current orientation, should we be
+                            // on top of or underneath our next road segment?
+                            // (each road segment has its own "up" direction, at each end)
+                            nextSpline.Side = (sbyte)(math.dot(newNormal, coords.Up) > 0f ? 1 : -1);
+                            localIntersection.ToSpline = nextSpline;
                         }
 
                         // now we'll prepare our intersection spline - this lets us
@@ -199,7 +212,7 @@ namespace Systems
                             localIntersection.Geometry.endNormal = norm;
                         }
 
-                        if (onSpline.Value.Spline == newSpline)
+                        if (onSpline.Value.Spline == nextSpline.Spline)
                         {
                             // u-turn - make our intersection spline more rounded than usual
                             float3 perp = math.cross(localIntersection.Geometry.startTangent, localIntersection.Geometry.startNormal);
@@ -209,28 +222,34 @@ namespace Systems
                             localIntersection.Bezier.anchor2 += localIntersection.Side * roadSetup.TrackRadius * .5f * perp;
                         }
 
-                        localIntersection.FromSpline = previousSpline;
                         localIntersection.Length = localIntersection.Bezier.MeasureLength(roadSetup.SplineResolution);
 
                         // should we be on top of or underneath the intersection?
                         localIntersection.Side = (sbyte)(math.dot(localIntersection.Geometry.startNormal, coords.Up) > 0f ? 1 : -1);
 
-                        vehicleState.Value = VehicleState.EnteringIntersection;
-                        onSpline.Value.Dirty = true;
-
-                        // to maintain our current orientation, should we be
-                        // on top of or underneath our next road segment?
-                        // (each road segment has its own "up" direction, at each end)
-                        onSpline.Value.Side = (sbyte)(math.dot(newNormal, coords.Up) > 0f ? 1 : -1);
-
                         // add "leftover" spline timer value to our new spline timer
                         // (avoids a stutter when changing between splines)
                         speed.SplineTimer = (speed.SplineTimer - 1f) * splineBlob.Value.Splines[onSpline.Value.Spline].MeasuredLength / localIntersection.Length;
-                        onSpline.Value.Spline = newSpline;
+
+                        // this operation can fail when the intersection is blocked
+                        changeQueueParallel.Enqueue(
+                            new ChangeQueueEvent
+                            {
+                                QueueEntry = new QueueEntry
+                                {
+                                    Entity = entity,
+                                    SplineTimer = speed.SplineTimer
+                                },
+                                From = onSpline.Value,
+                                To = SplinePosition.Invalid,
+                                Intersection = intersection,
+                                IntersectionSide = localIntersection.Side,
+                                NormalizedSpeed = speed.NormalizedSpeed
+                            });
                     }
                 }
             }).WithName("UpdateIntersection").Schedule(inputDeps).Complete();
-            
+
             var ecb = m_EndSimulationEntityCommandBufferSystem.CreateCommandBuffer();
             Job.WithCode(() =>
             {
@@ -249,8 +268,10 @@ namespace Systems
                         int intersection = changeEvent.Intersection;
                         int side = changeEvent.IntersectionSide;
                         var occupied = occupation[intersection / 4];
+                        Debug.Assert(occupied[(uint)(intersection % 4 + (side + 1) / 2)]);
                         occupied[(uint)(intersection % 4 + (side + 1) / 2)] = false;
                         occupation[intersection / 4] = occupied;
+
                         ecb.SetComponent(changeEvent.QueueEntry.Entity, new VehicleStateComponent
                         {
                             Value = VehicleState.OnRoad
@@ -264,7 +285,19 @@ namespace Systems
                         var occupied = occupation[intersection / 4];
                         uint occupationIndex = (uint)(intersection % 4 + (side + 1) / 2);
                         if (occupied[occupationIndex])
+                        {
+                            ecb.SetComponent(changeEvent.QueueEntry.Entity, new CarSpeedComponent
+                            {
+                                NormalizedSpeed = 0,
+                                SplineTimer = 1
+                            });
+                            ecb.SetComponent(changeEvent.QueueEntry.Entity, new VehicleStateComponent
+                            {
+                                Value = VehicleState.EnteringIntersection
+                            });
                             continue;
+                        }
+
                         occupied[occupationIndex] = true;
                         occupation[intersection / 4] = occupied;
 
@@ -281,9 +314,14 @@ namespace Systems
                         {
                             Value = VehicleState.OnIntersection
                         });
+                        ecb.SetComponent(changeEvent.QueueEntry.Entity, new CarSpeedComponent
+                        {
+                            NormalizedSpeed = changeEvent.NormalizedSpeed,
+                            SplineTimer = changeEvent.QueueEntry.SplineTimer
+                        });
                     }
                 }
-            }).Run();
+            }).WithoutBurst().Run();
             changeQueue.Dispose();
             return default;
         }
