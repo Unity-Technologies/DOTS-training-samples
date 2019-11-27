@@ -7,7 +7,6 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Profiling;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class RoadGeneratorDots : MonoBehaviour
 {
@@ -27,20 +26,13 @@ public class RoadGeneratorDots : MonoBehaviour
     Mesh[] m_RoadMeshes;
     List<List<Matrix4x4>> m_IntersectionMatrices;
 
-    void Start()
-    {
-        Random.InitState(1);
-
-        SpawnRoads();
-    }
-
     void OnDestroy()
     {
         if (Intersections.Occupied.IsCreated)
             Intersections.Occupied.Dispose();
     }
 
-    void SpawnRoads()
+    public void SpawnRoads()
     {
         // first generation pass: plan roads as basic voxel data only
         // after voxel generation, we'll convert our network into non-voxels
@@ -50,6 +42,7 @@ public class RoadGeneratorDots : MonoBehaviour
         using (trackSplines)
         {
             #region build splines
+
             {
                 var intersectionsGrid = new NativeArray<int>(voxelCount * voxelCount * voxelCount, Allocator.TempJob);
                 unsafe
@@ -117,9 +110,11 @@ public class RoadGeneratorDots : MonoBehaviour
                     Splines = trackSplines
                 }.Schedule(trackSplines, 16, buildSplines).Complete();
             }
+
             #endregion
-            
+
             #region build blobs
+
             using (var blobBuilder = new BlobBuilder(Allocator.Temp))
             {
                 ref var intersectionsBlob = ref blobBuilder.ConstructRoot<IntersectionsBlob>();
@@ -152,11 +147,13 @@ public class RoadGeneratorDots : MonoBehaviour
 
                 TrackSplinesBlob.Instance = blobBuilder.CreateBlobAssetReference<TrackSplinesBlob>(Allocator.Persistent);
             }
+
             #endregion
 
             Debug.Log(numSplines + " road splines");
 
             #region generate meshes
+
             {
                 TrackUtils.SizeOfMeshData(splineResolution, out int verticesPerSpline, out int indicesPerSpline);
                 var vertices = new NativeArray<float3>(verticesPerSpline * numSplines, Allocator.TempJob);
@@ -199,6 +196,7 @@ public class RoadGeneratorDots : MonoBehaviour
                     Debug.Log($"{triangles.Length} road triangles ({m_RoadMeshes.Length} meshes)");
                 }
             }
+
             #endregion
 
             TrackSplines.waitingQueues = new List<QueueEntry>[numSplines][];
@@ -210,6 +208,7 @@ public class RoadGeneratorDots : MonoBehaviour
                 for (int j = 0; j < 4; j++)
                     queues[j] = new List<QueueEntry>();
             }
+
             Debug.Log(total);
 
             Intersections.Occupied = new NativeArray<OccupiedSides>(intersections.Length, Allocator.Persistent);
@@ -232,20 +231,6 @@ public class RoadGeneratorDots : MonoBehaviour
                 }
             }
         }
-
-        const int numCars = 4000;
-        SpawnCars(numCars);
-    }
-
-    static void SpawnCars(int num)
-    {
-        var world = World.DefaultGameObjectInjectionWorld;
-        var em = world.EntityManager;
-        var e = em.CreateEntity();
-        em.AddComponentData(e, new CarSpawnComponent
-        {
-            Count = num
-        });
     }
 
     void Update()

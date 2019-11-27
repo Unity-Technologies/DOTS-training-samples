@@ -95,6 +95,12 @@ public struct CoordinateSystemComponent : IComponentData
     public float3 Forward;
 }
 
+struct SplineSetupComponent : IComponentData
+{
+    public BlobAssetReference<TrackSplinesBlob> Splines;
+    public BlobAssetReference<IntersectionsBlob> Intersections;
+}
+
 [Serializable]
 [MaterialProperty("_Color", MaterialPropertyFormat.Float4)]
 public struct CarColor : IComponentData

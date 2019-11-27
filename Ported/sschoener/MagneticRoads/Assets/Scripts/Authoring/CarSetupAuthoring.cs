@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Rendering;
 using UnityEngine;
 
-public class RoadGeneratorAuthoring : MonoBehaviour, IConvertGameObjectToEntity
+public class CarSetupAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     public Mesh CarMesh;
     public Material CarMaterial;
