@@ -202,10 +202,8 @@ public class RoadGeneratorDots : MonoBehaviour
             {
                 TrackUtils.SizeOfMeshData(splineResolution, out int verticesPerSpline, out int indicesPerSpline);
                 var vertices = new NativeArray<float3>(verticesPerSpline * numSplines, Allocator.TempJob);
-                var uvs = new NativeArray<float2>(verticesPerSpline * numSplines, Allocator.TempJob);
                 var triangles = new NativeArray<int>(indicesPerSpline * numSplines, Allocator.TempJob);
                 using (vertices)
-                using (uvs)
                 using (triangles)
                 {
                     int splinesPerMesh = 3 * trisPerMesh / indicesPerSpline;
@@ -215,7 +213,6 @@ public class RoadGeneratorDots : MonoBehaviour
                         IndicesPerSpline = indicesPerSpline,
                         TrackSplines = trackSplines,
                         OutVertices = vertices,
-                        OutUVs = uvs,
                         OutTriangles = triangles,
                         SplinesPerMesh = splinesPerMesh,
                     };
@@ -234,7 +231,6 @@ public class RoadGeneratorDots : MonoBehaviour
                             Mesh mesh = new Mesh();
                             mesh.name = "Generated Road Mesh";
                             mesh.SetVertices(vertices, i * splinesPerMesh * verticesPerSpline, splines * verticesPerSpline);
-                            mesh.SetUVs(0, uvs, i * splinesPerMesh * verticesPerSpline, splines * verticesPerSpline);
                             mesh.SetIndices(triangles, i * splinesPerMesh * indicesPerSpline, splines * indicesPerSpline, MeshTopology.Triangles, 0);
                             mesh.RecalculateNormals();
                             mesh.RecalculateBounds();

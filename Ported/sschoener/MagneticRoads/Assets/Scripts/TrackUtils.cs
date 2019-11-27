@@ -4,12 +4,18 @@ using UnityEngine;
 
 public static class TrackUtils
 {
-    public static float3 Extrude(in CubicBezier bezier, in TrackGeometry geometry, int twistMode,
-        float2 point, float t)
-        => Extrude(bezier, geometry, twistMode, point, t, out _, out _, out _);
+    public struct Coord
+    {
+        public float3 Base;
+        public float3 Up;
+        public float3 Right;
+    }
     
-    public static float3 Extrude(in CubicBezier bezier, in TrackGeometry geometry, int twistMode,
-        float2 point, float t, out float3 tangent, out float3 up, out bool error)
+    public static Coord Extrude(in CubicBezier bezier, in TrackGeometry geometry, int twistMode, float t)
+        => Extrude(bezier, geometry, twistMode, t, out _, out _, out _);
+    
+    public static Coord Extrude(in CubicBezier bezier, in TrackGeometry geometry, int twistMode,
+        float t, out float3 tangent, out float3 up, out bool error)
     {
         t = math.clamp(t, 0, 1);
         float3 sample1 = bezier.Evaluate(t);
@@ -63,8 +69,12 @@ public static class TrackUtils
         // we have three possible spline-twisting methods, and
         // we test each spline with all three to find the best pick
         error = math.length(up) < .5f || math.length(right) < .5f;
-
-        return sample1 + right * point.x + up * point.y;
+        return new Coord
+        {
+            Base = sample1,
+            Right = right,
+            Up = up
+        };
     }
 
     public static byte SelectTwistMode(in CubicBezier bezier, in TrackGeometry geometry, int resolution)
@@ -78,7 +88,7 @@ public static class TrackUtils
             for (int j = 0; j <= resolution; j++)
             {
                 float t = (float)j / resolution;
-                Extrude(bezier, geometry, currentTwistMode, Vector2.zero, t, out _, out _, out var error);
+                Extrude(bezier, geometry, currentTwistMode, t, out _, out _, out var error);
                 numErrors += error ? 1 : 0;
             }
 

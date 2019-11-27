@@ -10,8 +10,6 @@ struct GenerateTrackMeshes : IJobParallelFor
     [NativeDisableParallelForRestriction]
     public NativeArray<float3> OutVertices;
     [NativeDisableParallelForRestriction]
-    public NativeArray<float2> OutUVs;
-    [NativeDisableParallelForRestriction]
     public NativeArray<int> OutTriangles;
 
     [ReadOnly]
@@ -80,10 +78,9 @@ struct GenerateTrackMeshes : IJobParallelFor
             {
                 float t = (float)j / m_Resolution;
 
-                OutVertices[vertexIndex + 0] = TrackUtils.Extrude(b, g, twistMode, p1, t);
-                OutVertices[vertexIndex + 1] = TrackUtils.Extrude(b, g, twistMode, p2, t);
-                OutUVs[vertexIndex + 0] = new float2(0, t);
-                OutUVs[vertexIndex + 1] = new float2(1, t);
+                var coord = TrackUtils.Extrude(b, g, twistMode, t);
+                OutVertices[vertexIndex + 0] = coord.Base + coord.Right * p1.x + coord.Up * p1.y;
+                OutVertices[vertexIndex + 1] = coord.Base + coord.Right * p2.x + coord.Up * p2.y;
 
                 if (j < m_Resolution)
                 {
