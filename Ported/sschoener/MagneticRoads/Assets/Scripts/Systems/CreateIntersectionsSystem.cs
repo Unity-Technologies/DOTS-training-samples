@@ -54,7 +54,6 @@ namespace Systems
             return Entities.WithStoreEntityQueryInField(ref m_IntersectionQuery).ForEach((int entityInQueryIndex, ref IntersectionComponent intersection, ref LocalToWorld ltw) =>
             {
                 ref var entry = ref blob.Value.Intersections[entityInQueryIndex];
-                float3 up = new float3(0, 1, 0);
                 ltw.Value = float4x4.TRS(entry.Position, Quaternion.LookRotation(entry.Normal), scale);
                 intersection.Index = (ushort)entityInQueryIndex;
             }).Schedule(inputDeps);

@@ -111,10 +111,6 @@ struct IntersectionComponent : IComponentData
     public ushort Index;
 }
 
-struct RoadSplineComponent : IComponentData
-{
-}
-
 [Serializable]
 [MaterialProperty("_Color", MaterialPropertyFormat.Float4)]
 public struct CarColor : IComponentData
