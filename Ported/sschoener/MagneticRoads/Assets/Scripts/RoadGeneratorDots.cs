@@ -17,9 +17,6 @@ public class RoadGeneratorDots : MonoBehaviour
     public Material roadMaterial;
     public Mesh intersectionMesh;
 
-    NativeArray<int3> m_Dirs;
-    NativeArray<int3> m_FullDirs;
-
     public const float intersectionSize = .5f;
     public const float trackRadius = .2f;
     public const float trackThickness = .05f;
@@ -34,44 +31,11 @@ public class RoadGeneratorDots : MonoBehaviour
     {
         Random.InitState(1);
 
-        // cardinal directions:
-        m_Dirs = new NativeArray<int3>(new[]
-        {
-            new int3(1, 0, 0),
-            new int3(-1, 0, 0),
-            new int3(0, 1, 0),
-            new int3(0, -1, 0),
-            new int3(0, 0, 1),
-            new int3(0, 0, -1)
-        }, Allocator.Persistent);
-
-        // cardinal directions + diagonals in 3D:
-        m_FullDirs = new NativeArray<int3>(26, Allocator.Persistent);
-        int dirIndex = 0;
-        for (int x = -1; x <= 1; x++)
-        {
-            for (int y = -1; y <= 1; y++)
-            {
-                for (int z = -1; z <= 1; z++)
-                {
-                    if (x != 0 || y != 0 || z != 0)
-                    {
-                        m_FullDirs[dirIndex] = new int3(x, y, z);
-                        dirIndex++;
-                    }
-                }
-            }
-        }
-
         SpawnRoads();
     }
 
     void OnDestroy()
     {
-        if (m_Dirs.IsCreated)
-            m_Dirs.Dispose();
-        if (m_FullDirs.IsCreated)
-            m_FullDirs.Dispose();
         if (Intersections.Occupied.IsCreated)
             Intersections.Occupied.Dispose();
     }
@@ -106,8 +70,6 @@ public class RoadGeneratorDots : MonoBehaviour
                     OutputIntersections = intersections,
                     OutputIntersectionGrid = intersectionsGrid,
                     Voxels = trackVoxels,
-                    Directions = m_Dirs,
-                    FullDirections = m_FullDirs
                 }.Run();
 
                 Debug.Log(intersections.Length + " intersections");
@@ -123,7 +85,6 @@ public class RoadGeneratorDots : MonoBehaviour
                 var findSplines = new FindSplinesJob
                 {
                     Intersections = intersections,
-                    Dirs = m_Dirs,
                     IntersectionIndices = intersectionIndices,
                     IntersectionsGrid = intersectionsGrid,
                     Rng = new Unity.Mathematics.Random(12345),

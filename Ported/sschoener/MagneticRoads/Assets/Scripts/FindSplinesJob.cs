@@ -21,8 +21,6 @@ struct FindSplinesJob : IJob
     public NativeArray<bool> TrackVoxels;
     [ReadOnly]
     public NativeArray<int> IntersectionsGrid;
-    [ReadOnly]
-    public NativeArray<int3> Dirs;
 
     public NativeList<TrackSplineCtorData> OutTrackSplinePrototypes;
 
@@ -42,7 +40,7 @@ struct FindSplinesJob : IJob
         return idx >= 0 && TrackVoxels[idx];
     }
 
-    int FindFirstIntersection(int3 pos, int3 dir, out int3 otherDirection)
+    int FindFirstIntersection(int3 pos,  NativeArray<int3> directions, int3 dir, out int3 otherDirection)
     {
         // step along our voxel paths (before splines have been spawned),
         // starting at one intersection, and stopping when we reach another intersection
@@ -58,13 +56,13 @@ struct FindSplinesJob : IJob
 
             if (GetVoxel(pos + dir)) continue;
             bool foundTurn = false;
-            for (int i = 0; i < Dirs.Length; i++)
+            for (int i = 0; i < directions.Length; i++)
             {
-                if (math.all(Dirs[i] == dir) || math.all(Dirs[i] == dir * -1))
+                if (math.all(directions[i] == dir) || math.all(directions[i] == dir * -1))
                     continue;
-                if (!GetVoxel(pos + Dirs[i]))
+                if (!GetVoxel(pos + directions[i]))
                     continue;
-                dir = Dirs[i];
+                dir = directions[i];
                 foundTurn = true;
                 break;
             }
@@ -87,19 +85,27 @@ struct FindSplinesJob : IJob
 
     public void Execute()
     {
+        var dirs = new NativeArray<int3>(6, Allocator.Temp);
+        dirs[0] = new int3(1, 0, 0);
+        dirs[1] = new int3(-1, 0, 0);
+        dirs[2] = new int3(0, 1, 0);
+        dirs[3] = new int3(0, -1, 0);
+        dirs[4] = new int3(0, 0, 1);
+        dirs[5] = new int3(0, 0, -1);
+        
         var intersectionPairs = new NativeHashMap<long, bool>(Intersections.Length, Allocator.Temp);
         for (int i = 0; i < Intersections.Length; i++)
         {
             int3 axesWithNeighbors = new int3();
-            for (int j = 0; j < Dirs.Length; j++)
+            for (int j = 0; j < dirs.Length; j++)
             {
-                if (!GetVoxel(IntersectionIndices[i] + Dirs[j]))
+                if (!GetVoxel(IntersectionIndices[i] + dirs[j]))
                     continue;
-                axesWithNeighbors += math.abs(Dirs[j]);
+                axesWithNeighbors += math.abs(dirs[j]);
 
                 int neighbor = FindFirstIntersection(
-                    IntersectionIndices[i],
-                    Dirs[j],
+                    IntersectionIndices[i], dirs,
+                    dirs[j],
                     out var connectDir);
                 if (neighbor < 0 || neighbor == i)
                     continue;
@@ -113,7 +119,7 @@ struct FindSplinesJob : IJob
                 {
                     startIntersection = (ushort)i,
                     endIntersection = (ushort)neighbor,
-                    tangent1 = Dirs[j],
+                    tangent1 = dirs[j],
                     tangent2 = connectDir
                 });
                 
