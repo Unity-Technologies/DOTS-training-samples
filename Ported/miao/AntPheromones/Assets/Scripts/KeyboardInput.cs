@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Entities;
+﻿using Unity.Entities;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -10,6 +8,14 @@ public class KeyboardInput : MonoBehaviour
 	private Text _text;
 	private static bool _showText = true;
 
+	public static KeyboardInput Instance { get; private set; }
+	public bool IsSimulationSpeedUpdated { get; private set; }
+
+	private void Awake()
+	{
+		Instance = this;
+	}
+
 	private void Start () 
 	{
 		this._text = GetComponent<Text>();
@@ -18,40 +24,51 @@ public class KeyboardInput : MonoBehaviour
 
 	private void Update()
 	{
-		if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
+		this.IsSimulationSpeedUpdated = false;
+		
+		if (Input.GetKeyDown(KeyCode.Alpha1))
 		{
+			this.IsSimulationSpeedUpdated = true;
 			Time.timeScale = 1f;
 		}
-		else if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
+		else if (Input.GetKeyDown(KeyCode.Alpha2))
 		{
+			this.IsSimulationSpeedUpdated = true;
 			Time.timeScale = 2f;
 		}
-		else if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
+		else if (Input.GetKeyDown(KeyCode.Alpha3))
 		{
+			this.IsSimulationSpeedUpdated = true;
 			Time.timeScale = 3f;
 		}
-		else if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
+		else if (Input.GetKeyDown(KeyCode.Alpha4))
 		{
+			this.IsSimulationSpeedUpdated = true;
 			Time.timeScale = 4f;
 		}
-		else if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5))
+		else if (Input.GetKeyDown(KeyCode.Alpha5))
 		{
+			this.IsSimulationSpeedUpdated = true;
 			Time.timeScale = 5f;
 		}
-		else if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6))
+		else if (Input.GetKeyDown(KeyCode.Alpha6))
 		{
+			this.IsSimulationSpeedUpdated = true;
 			Time.timeScale = 6f;
 		}
-		else if (Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7))
+		else if (Input.GetKeyDown(KeyCode.Alpha7))
 		{
+			this.IsSimulationSpeedUpdated = true;
 			Time.timeScale = 7f;
 		}
-		else if (Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Keypad8))
+		else if (Input.GetKeyDown(KeyCode.Alpha8))
 		{
+			this.IsSimulationSpeedUpdated = true;
 			Time.timeScale = 8f;
 		}
-		else if (Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Keypad9))
+		else if (Input.GetKeyDown(KeyCode.Alpha9))
 		{
+			this.IsSimulationSpeedUpdated = true;
 			Time.timeScale = 9f;
 		}
 		else if (Input.GetKeyDown(KeyCode.H))

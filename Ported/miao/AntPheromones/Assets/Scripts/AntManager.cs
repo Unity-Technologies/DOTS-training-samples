@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
@@ -88,19 +87,19 @@ namespace AntPheromones_ECS
 		private (bool IsCalculated, float2 Value) _resourcePosition;
 		private (bool IsGenerated, float2[] Values) _obstaclePositions;
 		private (bool IsGenerated, float2[,][] Values) _obstacleBuckets;
+		private (bool IsRetrieved, SimulationSystemGroup Value) _simulationSystemGroup;
+		
+		private bool _isJustStarted;
 		
 		private Matrix4x4[][] _obstacleMatrices;
 		private Matrix4x4 _resourceMatrix;
 		private Matrix4x4 _colonyMatrix;
 
-		private bool _isJustStarted;
-		private (bool IsRetrieved, SimulationSystemGroup Value) _simulationSystemGroup;
-
 		private const int InstancesPerBatch = 1023;
 
 		private void Start()
 		{
-			this._isJustStarted = true;
+//			this._isJustStarted = true;
 			
 			this._colonyMatrix = float4x4.TRS(
 				new float3(this._colonyPosition.Value / this.MapWidth, 0), 
@@ -125,24 +124,27 @@ namespace AntPheromones_ECS
 			Graphics.DrawMesh(colonyMesh, _colonyMatrix, colonyMaterial, layer: 0);
 			Graphics.DrawMesh(resourceMesh, _resourceMatrix, resourceMaterial, layer: 0);
 		}
-
-		private void FixedUpdate()
-		{
-			if (this._isJustStarted)
-			{
-				this._isJustStarted = false;
-				return;
-			}
-
-			if (!this._simulationSystemGroup.IsRetrieved)
-			{
-				this._simulationSystemGroup = 
-					(IsRetrieved: true, 
-					Value: World.Active.GetExistingSystem<SimulationSystemGroup>());
-			}
-			
-			this._simulationSystemGroup.Value.Update();
-		}
+//
+//		private void FixedUpdate()
+//		{
+//			if (this._isJustStarted)
+//			{
+//				this._isJustStarted = false;
+//				return;
+//			}
+//
+//			if (!this._simulationSystemGroup.IsRetrieved)
+//			{
+//				this._simulationSystemGroup = 
+//					(IsRetrieved: true, 
+//					Value: World.Active.GetExistingSystem<SimulationSystemGroup>());
+//			}
+//
+//			if (KeyboardInput.Instance.IsSimulationSpeedUpdated)
+//			{
+//				this._simulationSystemGroup.Value.Update();				
+//			}
+//		}
 
 		private void CreateAnts()
 		{
