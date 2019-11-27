@@ -5,43 +5,56 @@ using Unity.Mathematics;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-namespace Systems {
+namespace Systems
+{
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(UpdateTransformSystem))]
     public class UpdateIntersectionSystem : JobComponentSystem
     {
+        RoadQueueSystem m_RoadQueueSystem;
+
         struct ChangeQueueEvent
         {
             public QueueEntry QueueEntry;
             public SplinePosition From;
             public SplinePosition To;
         }
-        
+
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            m_RoadQueueSystem = World.GetExistingSystem<RoadQueueSystem>();
+        }
+
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             int frame = 1 + UnityEngine.Time.frameCount;
             var roads = GetSingleton<RoadSetupComponent>();
             var splineBlob = roads.Splines;
             var intersectionBlob = roads.Intersections;
-            var occupation = Intersections.Occupied;
-            
+            var occupation = m_RoadQueueSystem.IntersectionOccupation;
+
             var changeQueue = new NativeQueue<ChangeQueueEvent>(Allocator.TempJob);
             var changeQueueParallel = changeQueue.AsParallelWriter();
-            
+
             var roadSetup = GetSingleton<RoadSetupComponent>();
+            var queues = m_RoadQueueSystem.Queues;
+            var queueEntries = m_RoadQueueSystem.QueueEntries;
             Entities.ForEach((Entity entity, ref LocalIntersectionComponent localIntersection, ref OnSplineComponent onSpline, ref CarSpeedComponent speed, in CoordinateSystemComponent coords) =>
             {
                 if (onSpline.Value.InIntersection)
                 {
                     if (speed.SplineTimer < 1)
                         return;
+
                     // we're exiting an intersection - make sure the next road
                     // segment has room for us before we proceed
-                    if (TrackSplines.GetQueue(onSpline.Value).Count <= splineBlob.Value.Splines[onSpline.Value.Spline].MaxCarCount)
+                    var queueIndex = RoadQueueSystem.GetQueueIndex(onSpline.Value);
+                    if (queues[queueIndex].Length <= splineBlob.Value.Splines[onSpline.Value.Spline].MaxCarCount)
                     {
-                        var occupied = occupation[localIntersection.Intersection];
-                        occupied[(localIntersection.Side + 1) / 2] = false;
-                        occupation[localIntersection.Intersection] = occupied;
+                        var occupied = occupation[localIntersection.Intersection / 4];
+                        occupied[(uint)(localIntersection.Intersection % 4 + (localIntersection.Side + 1) / 2)] = false;
+                        occupation[localIntersection.Intersection / 4] = occupied;
                         onSpline.Value.InIntersection = false;
                         onSpline.Value.Dirty = true;
                         speed.SplineTimer = 0f;
@@ -56,20 +69,22 @@ namespace Systems {
                 {
                     if (speed.SplineTimer < 1)
                     {
-                        var queue = TrackSplines.GetQueue(onSpline.Value);
-                        for (int i = 0; i < queue.Count; i++)
+                        var queueIndex = RoadQueueSystem.GetQueueIndex(onSpline.Value);
+                        var queue = queues[queueIndex];
+                        for (int i = queue.Begin; i < queue.End; i++)
                         {
-                            if (queue[i].Entity == entity)
+                            if (queueEntries[i].Entity == entity)
                             {
-                                var queueEntry = queue[i];
+                                var queueEntry = queueEntries[i];
                                 queueEntry.SplineTimer = speed.SplineTimer;
-                                queue[i] = queueEntry;
+                                queueEntries[i] = queueEntry;
                                 break;
                             }
                         }
+
                         return;
                     }
-                    
+
                     // we're exiting a road segment - first, we need to know
                     // which intersection we're entering
                     ushort intersection;
@@ -89,7 +104,7 @@ namespace Systems {
 
                     // make sure that our side of the intersection (top/bottom)
                     // is empty before we enter
-                    if (occupation[intersection][(localIntersection.Side + 1) / 2])
+                    if (occupation[intersection / 4][(uint)(intersection % 4 + (localIntersection.Side + 1) / 2)])
                     {
                         speed.SplineTimer = 1f;
                         speed.NormalizedSpeed = 0f;
@@ -99,7 +114,7 @@ namespace Systems {
                         // now we need to know which road segment we'll move into
                         // (dead-ends force u-turns, but otherwise, u-turns are not allowed)
                         int newSplineIndex = 0;
-                        ref var intersectionNeighbors = ref intersectionBlob.Value.Intersections[intersection].Neighbors; 
+                        ref var intersectionNeighbors = ref intersectionBlob.Value.Intersections[intersection].Neighbors;
                         if (intersectionNeighbors.Count > 1)
                         {
                             var rng = new Random((uint)((entity.Index + 1) * frame * 47701));
@@ -111,13 +126,12 @@ namespace Systems {
                             }
                         }
 
-                    
                         ushort newSpline;
                         unsafe
                         {
                             newSpline = intersectionNeighbors.Splines[newSplineIndex];
                         }
-                        
+
                         var previousSpline = onSpline.Value;
 
                         // to avoid flipping between top/bottom of our roads,
@@ -170,15 +184,15 @@ namespace Systems {
                         // to maintain our current orientation, should we be
                         // on top of or underneath our next road segment?
                         // (each road segment has its own "up" direction, at each end)
-                        onSpline.Value.Side = (sbyte) (math.dot(newNormal, coords.Up) > 0f ? 1 : -1);
+                        onSpline.Value.Side = (sbyte)(math.dot(newNormal, coords.Up) > 0f ? 1 : -1);
 
                         // should we be on top of or underneath the intersection?
-                        localIntersection.Side = (sbyte) (math.dot(localIntersection.Geometry.startNormal, coords.Up) > 0f ? 1 : -1);
+                        localIntersection.Side = (sbyte)(math.dot(localIntersection.Geometry.startNormal, coords.Up) > 0f ? 1 : -1);
 
                         // block other cars from entering this intersection
-                        var occupied = occupation[intersection];
-                        occupied[(localIntersection.Side + 1) / 2] = true;
-                        occupation[intersection] = occupied;
+                        var occupied = occupation[intersection / 4];
+                        occupied[(uint)(intersection % 4 + (localIntersection.Side + 1) / 2)] = true;
+                        occupation[intersection / 4] = occupied;
 
                         // add "leftover" spline timer value to our new spline timer
                         // (avoids a stutter when changing between splines)
@@ -206,10 +220,20 @@ namespace Systems {
                 for (int i = 0; i < c; i++)
                 {
                     var changeEvent = changeQueue.Dequeue();
-                    TrackSplines.GetQueue(changeEvent.To).Add(changeEvent.QueueEntry);
-                    var fromQueue = TrackSplines.GetQueue(changeEvent.From);
-                    Debug.Assert(fromQueue[0].Entity == changeEvent.QueueEntry.Entity); 
-                    fromQueue.RemoveAt(0);
+                    var toIdx = RoadQueueSystem.GetQueueIndex(changeEvent.To);
+                    var toQueue = queues[toIdx];
+                    queueEntries[toQueue.End] = changeEvent.QueueEntry;
+                    toQueue.Length += 1;
+                    queues[toIdx] = toQueue;
+                    var fromIdx = RoadQueueSystem.GetQueueIndex(changeEvent.From);
+                    var fromQueue = queues[fromIdx];
+                    
+                    Debug.Assert(queueEntries[fromQueue.Begin].Entity == changeEvent.QueueEntry.Entity);
+                    for (int q = fromQueue.Begin; q < fromQueue.End - 1; q++)
+                        queueEntries[q] = queueEntries[q + 1];
+                    fromQueue.Length -= 1;
+                    queues[fromIdx] = fromQueue;
+
                 }
             }).WithoutBurst().Run();
             changeQueue.Dispose();

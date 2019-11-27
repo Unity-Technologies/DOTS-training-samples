@@ -161,16 +161,6 @@ public class RoadGeneratorAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             #endregion
 
             Debug.Log(numSplines + " road splines");
-
-            TrackSplines.waitingQueues = new List<QueueEntry>[numSplines][];
-            for (int i = 0; i < trackSplines.Length; i++)
-            {
-                var queues = TrackSplines.waitingQueues[i] = new List<QueueEntry>[4];
-                for (int j = 0; j < 4; j++)
-                    queues[j] = new List<QueueEntry>();
-            }
-
-            Intersections.Occupied = new NativeArray<OccupiedSides>(intersections.Length, Allocator.Persistent);
         }
     }
 }

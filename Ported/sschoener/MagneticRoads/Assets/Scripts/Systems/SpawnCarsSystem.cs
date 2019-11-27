@@ -7,7 +7,6 @@ using Unity.Transforms;
 using UnityEngine;
 
 namespace Systems {
-    
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class SpawnCarsSystem : JobComponentSystem
     {
@@ -15,7 +14,8 @@ namespace Systems {
         EntityQuery m_NewCarsQuery;
         EntityQuery m_SpawnQuery;
         EntityQuery m_CarSetupQuery;
-        
+        RoadQueueSystem m_RoadQueueSystem;
+
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -31,6 +31,7 @@ namespace Systems {
             );
             m_NewCarsQuery = GetEntityQuery(typeof(UninitializedComponentTag), typeof(CarSpeedComponent));
             m_CarSetupQuery = GetEntityQuery(typeof(CarSetupTagComponent));
+            m_RoadQueueSystem = World.GetExistingSystem<RoadQueueSystem>();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -60,13 +61,26 @@ namespace Systems {
                     Side = (sbyte)(-1 + rng.NextInt(2) * 2),
                     Spline = (ushort)rng.NextInt(0, numSplines),                  
                 };
+                
             }).Schedule(inputDeps).Complete();
+
+
+            var queues = m_RoadQueueSystem.Queues;
+            var queueEntries = m_RoadQueueSystem.QueueEntries;
             Entities.WithAll<UninitializedComponentTag>().ForEach((Entity entity, in OnSplineComponent onSpline) =>
             {
-                TrackSplines.GetQueue(onSpline.Value).Add(new QueueEntry
+                int index = RoadQueueSystem.GetQueueIndex(onSpline.Value);
+                var queue = queues[index];
+                queueEntries[queue.End] = new QueueEntry
                 {
-                    Entity = entity, SplineTimer = 1
-                });
+                    Entity = entity,
+                    SplineTimer = 1
+                };
+                queue.Length += 1;
+                queues[index] = queue;
+
+                int max = roads.Splines.Value.Splines[onSpline.Value.Spline].MaxCarCount;
+                Debug.Assert(queue.Length <= max, $"Too many cars ({queue.Length} > {max})");
             }).WithoutBurst().Run();
             EntityManager.RemoveComponent<UninitializedComponentTag>(EntityManager.UniversalQuery);
             return default;
