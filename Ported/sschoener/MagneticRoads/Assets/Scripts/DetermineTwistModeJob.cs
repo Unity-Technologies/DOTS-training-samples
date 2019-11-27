@@ -1,8 +1,10 @@
 ﻿using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 
+[BurstCompile]
 unsafe struct DetermineTwistModeJob : IJobParallelForDefer
 {
     public int Resolution;

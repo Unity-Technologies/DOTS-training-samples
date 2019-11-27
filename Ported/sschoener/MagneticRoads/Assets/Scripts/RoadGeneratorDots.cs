@@ -4,7 +4,6 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Profiling;
 using UnityEngine;
@@ -89,7 +88,7 @@ public class RoadGeneratorDots : MonoBehaviour
         using (intersections)
         using (trackSplines)
         {
-
+            #region build splines
             {
                 var intersectionsGrid = new NativeArray<int>(voxelCount * voxelCount * voxelCount, Allocator.TempJob);
                 unsafe
@@ -160,6 +159,9 @@ public class RoadGeneratorDots : MonoBehaviour
                     Splines = trackSplines
                 }.Schedule(trackSplines, 16, buildSplines).Complete();
             }
+            #endregion
+            
+            #region build blobs
             using (var blobBuilder = new BlobBuilder(Allocator.Temp))
             {
                 ref var intersectionsBlob = ref blobBuilder.ConstructRoot<IntersectionsBlob>();
@@ -192,10 +194,11 @@ public class RoadGeneratorDots : MonoBehaviour
 
                 TrackSplinesBlob.Instance = blobBuilder.CreateBlobAssetReference<TrackSplinesBlob>(Allocator.Persistent);
             }
+            #endregion
 
             Debug.Log(numSplines + " road splines");
 
-            // generate road meshes
+            #region generate meshes
             {
                 TrackUtils.SizeOfMeshData(splineResolution, out int verticesPerSpline, out int indicesPerSpline);
                 var vertices = new NativeArray<float3>(verticesPerSpline * numSplines, Allocator.TempJob);
@@ -242,10 +245,7 @@ public class RoadGeneratorDots : MonoBehaviour
                     Debug.Log($"{triangles.Length} road triangles ({m_RoadMeshes.Length} meshes)");
                 }
             }
-
-
-
-
+            #endregion
 
             TrackSplines.waitingQueues = new List<QueueEntry>[numSplines][];
             for (int i = 0; i < trackSplines.Length; i++)
@@ -276,18 +276,18 @@ public class RoadGeneratorDots : MonoBehaviour
             }
         }
 
-        SpawnCars();
+        const int numCars = 4000;
+        SpawnCars(numCars);
     }
 
-    void SpawnCars()
+    static void SpawnCars(int num)
     {
         var world = World.DefaultGameObjectInjectionWorld;
         var em = world.EntityManager;
-        const int numCars = 4000;
         var e = em.CreateEntity();
         em.AddComponentData(e, new CarSpawnComponent
         {
-            Count = numCars
+            Count = num
         });
     }
 
