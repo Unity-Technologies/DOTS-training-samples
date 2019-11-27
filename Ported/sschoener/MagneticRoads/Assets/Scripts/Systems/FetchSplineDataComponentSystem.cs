@@ -9,18 +9,18 @@ namespace Systems {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var blob = GetSingleton<RoadSetupComponent>().Splines;
-            return Entities.ForEach((ref SplineDataComponent spline, ref OnSplineComponent onSpline, in LocalIntersectionComponent localIntersection) =>
+            return Entities.ForEach((ref SplineDataComponent spline, ref OnSplineComponent onSpline, in VehicleStateComponent vehicleState, in LocalIntersectionComponent localIntersection) =>
             {
                 if (!onSpline.Value.Dirty)
                     return;
-                if (onSpline.Value.InIntersection)
+                if (vehicleState == VehicleState.EnteringIntersection)
                 {
                     spline.Bezier = localIntersection.Bezier;
                     spline.Geometry = localIntersection.Geometry;
                     spline.TwistMode = 0;
                     spline.Length = localIntersection.Length;
                 }
-                else
+                else if (vehicleState == VehicleState.OnRoad)
                 {
                     ref var s = ref blob.Value.Splines[onSpline.Value.Spline]; 
                     spline.Bezier = s.Bezier;

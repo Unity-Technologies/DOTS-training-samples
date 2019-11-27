@@ -27,7 +27,8 @@ namespace Systems {
                 typeof(CoordinateSystemComponent),
                 typeof(LocalToWorld),
                 typeof(CarColor),
-                typeof(UninitializedComponentTag)
+                typeof(UninitializedComponentTag),
+                typeof(VehicleStateComponent)
             );
             m_NewCarsQuery = GetEntityQuery(typeof(UninitializedComponentTag), typeof(CarSpeedComponent));
             m_CarSetupQuery = GetEntityQuery(typeof(CarSetupTagComponent));

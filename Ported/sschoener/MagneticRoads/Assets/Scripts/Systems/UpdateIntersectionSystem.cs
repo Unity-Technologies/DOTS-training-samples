@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -18,6 +19,9 @@ namespace Systems
             public QueueEntry QueueEntry;
             public SplinePosition From;
             public SplinePosition To;
+
+            public ushort Intersection;
+            public sbyte IntersectionSide;
         }
 
         protected override void OnCreate()
@@ -40,9 +44,9 @@ namespace Systems
             var roadSetup = GetSingleton<RoadSetupComponent>();
             var queues = m_RoadQueueSystem.Queues;
             var queueEntries = m_RoadQueueSystem.QueueEntries;
-            Entities.ForEach((Entity entity, ref LocalIntersectionComponent localIntersection, ref OnSplineComponent onSpline, ref CarSpeedComponent speed, in CoordinateSystemComponent coords) =>
+            Entities.ForEach((Entity entity, ref LocalIntersectionComponent localIntersection, ref OnSplineComponent onSpline, ref CarSpeedComponent speed, ref VehicleStateComponent vehicleState, in CoordinateSystemComponent coords) =>
             {
-                if (onSpline.Value.InIntersection)
+                if (vehicleState == VehicleState.OnIntersection)
                 {
                     if (speed.SplineTimer < 1)
                         return;
@@ -50,14 +54,25 @@ namespace Systems
                     // we're exiting an intersection - make sure the next road
                     // segment has room for us before we proceed
                     var queueIndex = RoadQueueSystem.GetQueueIndex(onSpline.Value);
-                    if (queues[queueIndex].Length <= splineBlob.Value.Splines[onSpline.Value.Spline].MaxCarCount)
+                    if (queues[queueIndex].Length < splineBlob.Value.Splines[onSpline.Value.Spline].MaxCarCount)
                     {
-                        var occupied = occupation[localIntersection.Intersection / 4];
-                        occupied[(uint)(localIntersection.Intersection % 4 + (localIntersection.Side + 1) / 2)] = false;
-                        occupation[localIntersection.Intersection / 4] = occupied;
-                        onSpline.Value.InIntersection = false;
+                        ref var fromSpline = ref splineBlob.Value.Splines[localIntersection.FromSpline.Spline];
+                        ushort intersection = localIntersection.FromSpline.Direction > 0 ? fromSpline.EndIntersection : fromSpline.StartIntersection;
                         onSpline.Value.Dirty = true;
                         speed.SplineTimer = 0f;
+                        changeQueueParallel.Enqueue(
+                            new ChangeQueueEvent
+                            {
+                                QueueEntry = new QueueEntry
+                                {
+                                    Entity = entity,
+                                    SplineTimer = 0
+                                },
+                                From = SplinePosition.Invalid,
+                                To = onSpline.Value,
+                                Intersection = intersection,
+                                IntersectionSide = localIntersection.Side
+                            });
                     }
                     else
                     {
@@ -65,7 +80,25 @@ namespace Systems
                         speed.NormalizedSpeed = 0f;
                     }
                 }
-                else
+                else if (vehicleState == VehicleState.EnteringIntersection)
+                {
+                    ref var fromSpline = ref splineBlob.Value.Splines[localIntersection.FromSpline.Spline];
+                    ushort intersection = localIntersection.FromSpline.Direction > 0 ? fromSpline.EndIntersection : fromSpline.StartIntersection;
+                    changeQueueParallel.Enqueue(
+                        new ChangeQueueEvent
+                        {
+                            QueueEntry = new QueueEntry
+                            {
+                                Entity = entity,
+                                SplineTimer = speed.SplineTimer
+                            },
+                            From = localIntersection.FromSpline,
+                            To = SplinePosition.Invalid,
+                            Intersection = intersection,
+                            IntersectionSide = localIntersection.Side
+                        });
+                }
+                else if (vehicleState == VehicleState.OnRoad)
                 {
                     if (speed.SplineTimer < 1)
                     {
@@ -175,10 +208,13 @@ namespace Systems
                             localIntersection.Bezier.anchor2 += localIntersection.Side * roadSetup.TrackRadius * .5f * perp;
                         }
 
-                        localIntersection.Intersection = intersection;
+                        localIntersection.FromSpline = previousSpline;
                         localIntersection.Length = localIntersection.Bezier.MeasureLength(roadSetup.SplineResolution);
 
-                        onSpline.Value.InIntersection = true;
+                        // should we be on top of or underneath the intersection?
+                        localIntersection.Side = (sbyte)(math.dot(localIntersection.Geometry.startNormal, coords.Up) > 0f ? 1 : -1);
+
+                        vehicleState.Value = VehicleState.EnteringIntersection;
                         onSpline.Value.Dirty = true;
 
                         // to maintain our current orientation, should we be
@@ -186,54 +222,65 @@ namespace Systems
                         // (each road segment has its own "up" direction, at each end)
                         onSpline.Value.Side = (sbyte)(math.dot(newNormal, coords.Up) > 0f ? 1 : -1);
 
-                        // should we be on top of or underneath the intersection?
-                        localIntersection.Side = (sbyte)(math.dot(localIntersection.Geometry.startNormal, coords.Up) > 0f ? 1 : -1);
-
-                        // block other cars from entering this intersection
-                        var occupied = occupation[intersection / 4];
-                        occupied[(uint)(intersection % 4 + (localIntersection.Side + 1) / 2)] = true;
-                        occupation[intersection / 4] = occupied;
-
                         // add "leftover" spline timer value to our new spline timer
                         // (avoids a stutter when changing between splines)
                         speed.SplineTimer = (speed.SplineTimer - 1f) * splineBlob.Value.Splines[onSpline.Value.Spline].MeasuredLength / localIntersection.Length;
                         onSpline.Value.Spline = newSpline;
-
-                        changeQueueParallel.Enqueue(
-                            new ChangeQueueEvent
-                            {
-                                QueueEntry = new QueueEntry
-                                {
-                                    Entity = entity,
-                                    SplineTimer = speed.SplineTimer
-                                },
-                                From = previousSpline,
-                                To = onSpline.Value
-                            });
                     }
                 }
             }).WithoutBurst().WithName("UpdateIntersection").Schedule(inputDeps).Complete();
 
+            var ecb = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>().CreateCommandBuffer();
             Job.WithCode(() =>
             {
                 int c = changeQueue.Count;
                 for (int i = 0; i < c; i++)
                 {
                     var changeEvent = changeQueue.Dequeue();
-                    var toIdx = RoadQueueSystem.GetQueueIndex(changeEvent.To);
-                    var toQueue = queues[toIdx];
-                    queueEntries[toQueue.End] = changeEvent.QueueEntry;
-                    toQueue.Length += 1;
-                    queues[toIdx] = toQueue;
-                    var fromIdx = RoadQueueSystem.GetQueueIndex(changeEvent.From);
-                    var fromQueue = queues[fromIdx];
-                    
-                    Debug.Assert(queueEntries[fromQueue.Begin].Entity == changeEvent.QueueEntry.Entity);
-                    for (int q = fromQueue.Begin; q < fromQueue.End - 1; q++)
-                        queueEntries[q] = queueEntries[q + 1];
-                    fromQueue.Length -= 1;
-                    queues[fromIdx] = fromQueue;
+                    if (changeEvent.To.Spline != UInt16.MaxValue)
+                    {
+                        var toIdx = RoadQueueSystem.GetQueueIndex(changeEvent.To);
+                        var toQueue = queues[toIdx];
+                        queueEntries[toQueue.End] = changeEvent.QueueEntry;
+                        toQueue.Length += 1;
+                        queues[toIdx] = toQueue;
 
+                        int intersection = changeEvent.Intersection;
+                        int side = changeEvent.IntersectionSide;
+                        var occupied = occupation[intersection / 4];
+                        occupied[(uint)(intersection % 4 + (side + 1) / 2)] = false;
+                        occupation[intersection / 4] = occupied;
+                        ecb.SetComponent(changeEvent.QueueEntry.Entity, new VehicleStateComponent
+                        {
+                            Value = VehicleState.OnRoad
+                        });
+                    }
+
+                    if (changeEvent.From.Spline != UInt16.MaxValue)
+                    {
+                        int intersection = changeEvent.Intersection;
+                        int side = changeEvent.IntersectionSide;
+                        var occupied = occupation[intersection / 4];
+                        uint occupationIndex = (uint)(intersection % 4 + (side + 1) / 2);
+                        if (occupied[occupationIndex])
+                            continue;
+                        occupied[occupationIndex] = true;
+                        occupation[intersection / 4] = occupied;
+
+                        var fromIdx = RoadQueueSystem.GetQueueIndex(changeEvent.From);
+                        var fromQueue = queues[fromIdx];
+
+                        Debug.Assert(queueEntries[fromQueue.Begin].Entity == changeEvent.QueueEntry.Entity);
+                        for (int q = fromQueue.Begin; q < fromQueue.End - 1; q++)
+                            queueEntries[q] = queueEntries[q + 1];
+                        fromQueue.Length -= 1;
+                        queues[fromIdx] = fromQueue;
+
+                        ecb.SetComponent(changeEvent.QueueEntry.Entity, new VehicleStateComponent
+                        {
+                            Value = VehicleState.OnIntersection
+                        });
+                    }
                 }
             }).WithoutBurst().Run();
             changeQueue.Dispose();

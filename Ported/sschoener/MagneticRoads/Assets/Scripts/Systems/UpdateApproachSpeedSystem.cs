@@ -24,10 +24,10 @@ namespace Systems {
 
             var queues = m_RoadQueueSystem.Queues;
             var queueEntries = m_RoadQueueSystem.QueueEntries;
-            return Entities.ForEach((Entity entity, ref CarSpeedComponent speed, in OnSplineComponent onSpline) =>
+            return Entities.ForEach((Entity entity, ref CarSpeedComponent speed, in OnSplineComponent onSpline, in VehicleStateComponent vehicleState) =>
             {
                 float approachSpeed = 1f;
-                if (onSpline.Value.InIntersection)
+                if (vehicleState != VehicleState.OnRoad)
                     approachSpeed = .7f;
                 else
                 {

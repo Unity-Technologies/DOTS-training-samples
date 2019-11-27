@@ -11,10 +11,10 @@ namespace Systems {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var roadSetup = GetSingleton<RoadSetupComponent>();
-            return Entities.ForEach((ref CoordinateSystemComponent coords, in LocalIntersectionComponent localIntersection, in CarSpeedComponent speed, in OnSplineComponent spline, in SplineDataComponent splineData) =>
+            return Entities.ForEach((ref CoordinateSystemComponent coords, in LocalIntersectionComponent localIntersection, in VehicleStateComponent vehicleState, in CarSpeedComponent speed, in OnSplineComponent spline, in SplineDataComponent splineData) =>
             {
                 float2 extrudePoint;
-                if (!spline.Value.InIntersection)
+                if (vehicleState == VehicleState.OnRoad)
                 {
                     extrudePoint = new float2(spline.Value.Side * spline.Value.Direction, spline.Value.Side);
                 }
@@ -27,7 +27,7 @@ namespace Systems {
                 extrudePoint.y *= roadSetup.TrackThickness * .5f;
 
                 float t = math.clamp(speed.SplineTimer, 0, 1);
-                if (!spline.Value.InIntersection && spline.Value.Direction == -1)
+                if (vehicleState == VehicleState.OnRoad && spline.Value.Direction == -1)
                     t = 1f - t;
                 
                 // find our position and orientation

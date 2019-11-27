@@ -29,6 +29,13 @@ public struct SplineDataComponent : IComponentData
     public byte TwistMode;
 }
 
+public enum VehicleState : byte
+{
+    OnRoad = 0,
+    OnIntersection = 1,
+    EnteringIntersection = 2,
+}
+
 public struct SplinePosition
 {
     public ushort Spline;
@@ -53,25 +60,24 @@ public struct SplinePosition
         }
     }
 
-    public bool InIntersection
-    {
-        get => (State & 0x4) > 0;
-        set
-        {
-            int v = value ? 4 : 0;
-            State = (sbyte)((State & ~0x4) | v);
-        }
-    }
-    
     public bool Dirty
     {
-        get => (State & 0x8) == 0;
+        get => (State & 0x10) == 0;
         set
         {
-            int v = value ? 0 : 8;
-            State = (sbyte)((State & ~0x8) | v);
+            int v = value ? 0 : 0x10;
+            State = (sbyte)((State & ~0x10) | v);
         }
     }
+
+    public static SplinePosition Invalid => new SplinePosition { Spline = UInt16.MaxValue };
+}
+
+public struct VehicleStateComponent : IComponentData
+{
+    public VehicleState Value;
+
+    public static implicit operator VehicleState(VehicleStateComponent vsc) => vsc.Value;
 }
 
 public struct OnSplineComponent : IComponentData
@@ -84,7 +90,7 @@ public struct LocalIntersectionComponent : IComponentData
     public CubicBezier Bezier;
     public TrackGeometry Geometry;
     public float Length;
-    public ushort Intersection;
+    public SplinePosition FromSpline;
     public sbyte Side;
 }
 
