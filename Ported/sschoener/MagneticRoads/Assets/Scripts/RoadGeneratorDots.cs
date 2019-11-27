@@ -66,28 +66,24 @@ public class RoadGeneratorDots : MonoBehaviour
                 return m_IntersectionsGrid[pos.x, pos.y, pos.z];
             }
 
-            if (!GetVoxel(pos + dir))
+            if (GetVoxel(pos + dir)) continue;
+            bool foundTurn = false;
+            for (int i = 0; i < m_Dirs.Length; i++)
             {
-                bool foundTurn = false;
-                for (int i = 0; i < m_Dirs.Length; i++)
-                {
-                    if (math.any(m_Dirs[i] != dir) && math.any(m_Dirs[i] != (dir * -1)))
-                    {
-                        if (GetVoxel(pos + m_Dirs[i]))
-                        {
-                            dir = m_Dirs[i];
-                            foundTurn = true;
-                            break;
-                        }
-                    }
-                }
+                if (math.all(m_Dirs[i] == dir) || math.all(m_Dirs[i] == dir * -1))
+                    continue;
+                if (!GetVoxel(pos + m_Dirs[i]))
+                    continue;
+                dir = m_Dirs[i];
+                foundTurn = true;
+                break;
+            }
 
-                if (foundTurn == false)
-                {
-                    // dead end
-                    otherDirection = new int3();
-                    return -1;
-                }
+            if (!foundTurn)
+            {
+                // dead end
+                otherDirection = new int3();
+                return -1;
             }
         }
     }
@@ -256,11 +252,10 @@ public class RoadGeneratorDots : MonoBehaviour
                 // along which we have no neighbors
                 for (int j = 0; j < 3; j++)
                 {
-                    if (axesWithNeighbors[j] == 0)
-                    {
-                        intersections[i].Normal[j] = -1 + Random.Range(0, 2) * 2;
-                        break;
-                    }
+                    if (axesWithNeighbors[j] != 0)
+                        continue;
+                    intersections[i].Normal[j] = -1 + Random.Range(0, 2) * 2;
+                    break;
                 }
 
                 // NOTE - if you investigate the above logic, you might be confused about how
