@@ -14,9 +14,11 @@ struct GenerateVoxelsJob : IJob
     public NativeArray<int3> FullDirections;
 
     public int VoxelCount;
+    public float VoxelSize;
     public NativeArray<bool> Voxels;
     public NativeList<int3> ActiveVoxels;
-    public NativeList<int3> OutputIntersections;
+    public NativeList<int3> OutputIntersectionIndices;
+    public NativeList<Intersection> OutputIntersections;
     public Unity.Mathematics.Random Rng;
 
     int Idx(int3 p) => (p.z * VoxelCount + p.y) * VoxelCount + p.x;
@@ -66,7 +68,11 @@ struct GenerateVoxelsJob : IJob
             {
                 // no more than three cardinal neighbors for any voxel (no 4-way intersections allowed)
                 // (really, this is to avoid nonplanar intersections)
-                OutputIntersections.Add(pos);
+                OutputIntersectionIndices.Add(pos);
+                OutputIntersections.Add(new Intersection
+                {
+                    Position = (float3) pos * VoxelSize
+                });
                 ActiveVoxels.RemoveAtSwapBack(index);
             }
         }
