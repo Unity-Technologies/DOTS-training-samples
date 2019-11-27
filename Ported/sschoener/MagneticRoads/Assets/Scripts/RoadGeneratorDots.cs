@@ -33,62 +33,6 @@ public class RoadGeneratorDots : MonoBehaviour
     List<Mesh> m_RoadMeshes;
     List<List<Matrix4x4>> m_IntersectionMatrices;
 
-    static long HashIntersectionPair(int a, int b)
-    {
-        int u = math.min(a, b);
-        int v = math.max(a, b);
-        return ((long)u << 32) | v;
-    }
-
-    static int Idx3d(int3 pos, int l)
-    {
-        if (math.all((pos >= 0) & (pos < l)))
-            return l * (pos.z * l + pos.y) + pos.x;
-        return -1;
-    }
-
-    bool GetVoxel(NativeArray<bool> trackVoxels, int3 pos)
-    {
-        int idx = Idx3d(pos, voxelCount);
-        return idx >= 0 && trackVoxels[idx];
-    }
-
-    int FindFirstIntersection(NativeArray<int> intersectionsGrid, NativeArray<bool> trackVoxels, int3 pos, int3 dir, out int3 otherDirection)
-    {
-        // step along our voxel paths (before splines have been spawned),
-        // starting at one intersection, and stopping when we reach another intersection
-        while (true)
-        {
-            pos += dir;
-            var posIdx = Idx3d(pos, voxelCount);
-            if (intersectionsGrid[posIdx] >= 0)
-            {
-                otherDirection = dir * -1;
-                return intersectionsGrid[posIdx];
-            }
-
-            if (GetVoxel(trackVoxels, pos + dir)) continue;
-            bool foundTurn = false;
-            for (int i = 0; i < m_Dirs.Length; i++)
-            {
-                if (math.all(m_Dirs[i] == dir) || math.all(m_Dirs[i] == dir * -1))
-                    continue;
-                if (!GetVoxel(trackVoxels, pos + m_Dirs[i]))
-                    continue;
-                dir = m_Dirs[i];
-                foundTurn = true;
-                break;
-            }
-
-            if (!foundTurn)
-            {
-                // dead end
-                otherDirection = new int3();
-                return -1;
-            }
-        }
-    }
-
     void Start()
     {
         Random.InitState(1);
@@ -133,14 +77,6 @@ public class RoadGeneratorDots : MonoBehaviour
             m_FullDirs.Dispose();
         if (Intersections.Occupied.IsCreated)
             Intersections.Occupied.Dispose();
-    }
-
-    struct TrackSplineCtorData
-    {
-        public float3 tangent1;
-        public float3 tangent2;
-        public ushort startIntersection;
-        public ushort endIntersection;
     }
 
     void SpawnRoads()
@@ -194,74 +130,20 @@ public class RoadGeneratorDots : MonoBehaviour
             // (neighboring intersections are connected by a chain of voxels,
             // which we'll replace with splines)
 
-            var trackSplineList = new List<TrackSplineCtorData>();
+            var trackSplineList = new NativeList<TrackSplineCtorData>(Allocator.TempJob);
             using (new ProfilerMarker("FindNeighbors").Auto())
             {
-                var intersectionPairs = new HashSet<long>();
-                for (int i = 0; i < intersections.Length; i++)
+                new FindNeighborsJob
                 {
-                    int3 axesWithNeighbors = new int3();
-                    for (int j = 0; j < m_Dirs.Length; j++)
-                    {
-                        if (!GetVoxel(trackVoxels, intersectionIndices[i] + m_Dirs[j]))
-                            continue;
-                        axesWithNeighbors += math.abs(m_Dirs[j]);
-
-                        int neighbor = FindFirstIntersection(intersectionsGrid, trackVoxels,
-                            intersectionIndices[i],
-                            m_Dirs[j],
-                            out var connectDir);
-                        if (neighbor < 0 || neighbor == i)
-                            continue;
-
-                        // make sure we haven't already added the reverse-version of this spline
-                        long hash = HashIntersectionPair(i, neighbor);
-                        if (!intersectionPairs.Add(hash))
-                            continue;
-                        int splineIdx = trackSplineList.Count;
-                        trackSplineList.Add(new TrackSplineCtorData
-                        {
-                            startIntersection = (ushort)i,
-                            endIntersection = (ushort)neighbor,
-                            tangent1 = m_Dirs[j],
-                            tangent2 = connectDir
-                        });
-
-                        {
-                            var inter = intersections[i];
-                            inter.Neighbors.Add((ushort)neighbor, (ushort)splineIdx);
-                            intersections[i] = inter;
-                        }
-
-                        {
-                            var inter = intersections[neighbor];
-                            inter.Neighbors.Add((ushort)i, (ushort)splineIdx);
-                            intersections[neighbor] = inter;
-                        }
-                    }
-
-                    // find this intersection's normal - it's the one axis
-                    // along which we have no neighbors
-                    for (int j = 0; j < 3; j++)
-                    {
-                        if (axesWithNeighbors[j] != 0)
-                            continue;
-                        var inter = intersections[i];
-                        inter.Normal[j] = -1 + Random.Range(0, 2) * 2;
-                        intersections[i] = inter;
-                        break;
-                    }
-
-                    // NOTE - if you investigate the above logic, you might be confused about how
-                    // dead-ends are given normals, since we're assuming that all intersections
-                    // have two axes with neighbors and only one axis without. dead-ends only have
-                    // one neighbor-axis...and somehow they still get a normal without a special case.
-                    //
-                    // the "gotcha" is that the visible dead-ends in the demo have three
-                    // neighbors during the voxel phase, with two of their neighbor chains leading
-                    // to nothing. these "hanging chains" are not included as splines, so the
-                    // dead-ends that we see are actually "T" shapes with the top two segments hidden.
-                }
+                    Intersections = intersections,
+                    Dirs = m_Dirs,
+                    IntersectionIndices = intersectionIndices,
+                    IntersectionsGrid = intersectionsGrid,
+                    Rng = new Unity.Mathematics.Random(12345),
+                    TrackSplineList = trackSplineList,
+                    TrackVoxels = trackVoxels,
+                    VoxelCount = voxelCount
+                }.Run();
             }
 
             {
@@ -277,8 +159,8 @@ public class RoadGeneratorDots : MonoBehaviour
                     IntersectionsBlob.Instance = blobBuilder.CreateBlobAssetReference<IntersectionsBlob>(Allocator.Persistent);
                 }
             }
-
-            int numSplines = trackSplineList.Count;
+            
+            int numSplines = trackSplineList.Length;
             var trackSplinesBezier = new NativeArray<CubicBezier>(numSplines, Allocator.TempJob);
             var trackSplinesGeometry = new NativeArray<TrackGeometry>(numSplines, Allocator.TempJob);
             var trackSplinesEndIntersection = new NativeArray<ushort>(numSplines, Allocator.TempJob);
@@ -289,7 +171,7 @@ public class RoadGeneratorDots : MonoBehaviour
             using (new ProfilerMarker("SetupSplines").Auto())
             {
                 TrackSplines.waitingQueues = new List<QueueEntry>[numSplines][];
-                for (int i = 0; i < trackSplineList.Count; i++)
+                for (int i = 0; i < trackSplineList.Length; i++)
                 {
                     ushort start = trackSplinesStartIntersection[i] = trackSplineList[i].startIntersection;
                     ushort end = trackSplinesEndIntersection[i] = trackSplineList[i].endIntersection;
