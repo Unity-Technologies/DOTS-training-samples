@@ -4,8 +4,6 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-
-
 [BurstCompile]
 struct GenerateTrackMeshes : IJobParallelFor
 {
@@ -16,11 +14,8 @@ struct GenerateTrackMeshes : IJobParallelFor
     [NativeDisableParallelForRestriction]
     public NativeArray<int> OutTriangles;
 
-    public NativeArray<byte> OutTwistMode;
     [ReadOnly]
-    public NativeArray<CubicBezier> Bezier;
-    [ReadOnly]
-    public NativeArray<TrackGeometry> Geometry;
+    public NativeList<TrackSpline> TrackSplines;
 
     float2 m_LocalPoint1;
     float2 m_LocalPoint2;
@@ -49,8 +44,9 @@ struct GenerateTrackMeshes : IJobParallelFor
         int mesh = index / SplinesPerMesh;
         int relativeVertexIndex = vertexIndex - (mesh * SplinesPerMesh * VerticesPerSpline);
 
-        byte twistMode = TrackUtils.SelectTwistMode(Bezier[index], Geometry[index], m_Resolution);
-        OutTwistMode[index] = twistMode;
+        var g = TrackSplines[index].Geometry;
+        var b = TrackSplines[index].Bezier;
+        byte twistMode = TrackSplines[index].TwistMode;
 
         // extrude our rectangle as four strips
         for (int i = 0; i < 4; i++)
@@ -84,8 +80,8 @@ struct GenerateTrackMeshes : IJobParallelFor
             {
                 float t = (float)j / m_Resolution;
 
-                OutVertices[vertexIndex + 0] = TrackUtils.Extrude(Bezier[index], Geometry[index], twistMode, p1, t);
-                OutVertices[vertexIndex + 1] = TrackUtils.Extrude(Bezier[index], Geometry[index], twistMode, p2, t);
+                OutVertices[vertexIndex + 0] = TrackUtils.Extrude(b, g, twistMode, p1, t);
+                OutVertices[vertexIndex + 1] = TrackUtils.Extrude(b, g, twistMode, p2, t);
                 OutUVs[vertexIndex + 0] = new float2(0, t);
                 OutUVs[vertexIndex + 1] = new float2(1, t);
 
