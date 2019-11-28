@@ -1,7 +1,5 @@
 # Port Report
-This is a port of the original `DistanceFieldAttractors` project to DOTS. It targets
- * `entities 0.1.1-preview`,
- * `hybrid rendeder 0.1.1-preview`.
+This is a port of the original `DistanceFieldAttractors` project to DOTS. It targets `entities 0.2.0`.
 
 
 ## The original project
