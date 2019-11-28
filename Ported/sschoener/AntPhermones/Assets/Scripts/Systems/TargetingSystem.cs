@@ -4,6 +4,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateAfter(typeof(ApplySteeringSystem))]
 public class TargetingSystem : JobComponentSystem
 {
     EntityQuery m_MapQuery;
