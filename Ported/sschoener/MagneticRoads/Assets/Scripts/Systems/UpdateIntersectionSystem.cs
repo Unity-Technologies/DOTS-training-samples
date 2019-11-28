@@ -30,7 +30,7 @@ namespace Systems
         {
             base.OnCreate();
             m_RoadQueueSystem = World.GetExistingSystem<RoadQueueSystem>();
-            m_EndSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+            m_EndSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
