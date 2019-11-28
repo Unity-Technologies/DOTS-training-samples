@@ -25,6 +25,12 @@ namespace Systems {
 
         public static int GetQueueIndex(SplinePosition splinePos) =>
             4 * splinePos.Spline + splinePos.Direction + 1 + (splinePos.Side + 1) / 2;
+
+        public static void GetOccupationIndex(int intersection, sbyte side, out int major, out uint minor)
+        {
+            major = intersection / 4;
+            minor = (uint)(intersection % 4 + (side + 1) / 2);
+        }
         
         void ClearArrays()
         {

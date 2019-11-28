@@ -33,7 +33,7 @@ public enum VehicleState : byte
 {
     OnRoad = 0,
     OnIntersection = 1,
-    EnteringIntersection = 2,
+    ExitingRoad = 2,
 }
 
 public struct SplinePosition

@@ -27,7 +27,7 @@ namespace Systems {
             return Entities.ForEach((Entity entity, ref CarSpeedComponent speed, in OnSplineComponent onSpline, in VehicleStateComponent vehicleState) =>
             {
                 float approachSpeed = 1f;
-                if (vehicleState != VehicleState.OnRoad)
+                if (vehicleState == VehicleState.OnIntersection)
                     approachSpeed = .7f;
                 else
                 {
@@ -58,7 +58,8 @@ namespace Systems {
                         var s = onSpline.Value.Spline;
                         ref var spl = ref blobRef.Value.Splines[s];
                         var target = onSpline.Value.Direction == 1 ? spl.EndIntersection : spl.StartIntersection;
-                        if (occupation[target/4][(uint)(target % 4 + (onSpline.Value.Side + 1) / 2)])
+                        RoadQueueSystem.GetOccupationIndex(target, onSpline.Value.Side, out var major, out var minor);
+                        if (occupation[major][minor])
                             approachSpeed = (1f - speed.SplineTimer) * .8f + .2f;
                     }
                 }

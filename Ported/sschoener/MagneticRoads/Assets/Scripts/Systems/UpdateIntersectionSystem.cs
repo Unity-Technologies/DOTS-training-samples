@@ -46,7 +46,7 @@ namespace Systems
 
             var queues = m_RoadQueueSystem.Queues;
             var queueEntries = m_RoadQueueSystem.QueueEntries;
-            Entities.ForEach((Entity entity, ref LocalIntersectionComponent localIntersection, ref OnSplineComponent onSpline, ref CarSpeedComponent speed, ref VehicleStateComponent vehicleState, in CoordinateSystemComponent coords) =>
+            Entities.ForEach((Entity entity, ref LocalIntersectionComponent localIntersection, ref OnSplineComponent onSpline, ref CarSpeedComponent speed, in VehicleStateComponent vehicleState, in CoordinateSystemComponent coords) =>
             {
                 if (vehicleState == VehicleState.OnIntersection)
                 {
@@ -84,7 +84,7 @@ namespace Systems
                         speed.NormalizedSpeed = 0f;
                     }
                 }
-                else if (vehicleState == VehicleState.EnteringIntersection)
+                else if (vehicleState == VehicleState.ExitingRoad)
                 {
                     ref var fromSpline = ref splineBlob.Value.Splines[onSpline.Value.Spline];
                     ushort intersection = onSpline.Value.Direction > 0 ? fromSpline.EndIntersection : fromSpline.StartIntersection;
@@ -145,7 +145,8 @@ namespace Systems
 
                     // make sure that our side of the intersection (top/bottom)
                     // is empty before we enter
-                    if (occupation[intersection / 4][(uint)(intersection % 4 + (localIntersection.Side + 1) / 2)])
+                    RoadQueueSystem.GetOccupationIndex(intersection, localIntersection.Side, out var major, out var minor);
+                    if (occupation[major][minor])
                     {
                         speed.SplineTimer = 1f;
                         speed.NormalizedSpeed = 0f;
@@ -266,25 +267,30 @@ namespace Systems
                         queues[toIdx] = toQueue;
 
                         int intersection = changeEvent.Intersection;
-                        int side = changeEvent.IntersectionSide;
-                        var occupied = occupation[intersection / 4];
-                        Debug.Assert(occupied[(uint)(intersection % 4 + (side + 1) / 2)]);
-                        occupied[(uint)(intersection % 4 + (side + 1) / 2)] = false;
-                        occupation[intersection / 4] = occupied;
+                        sbyte side = changeEvent.IntersectionSide;
+                        RoadQueueSystem.GetOccupationIndex(intersection, side, out var major, out var minor);
+                        var occupied = occupation[major];
+                        Debug.Assert(occupied[minor]);
+                        occupied[minor] = false;
+                        occupation[major] = occupied;
 
                         ecb.SetComponent(changeEvent.QueueEntry.Entity, new VehicleStateComponent
                         {
                             Value = VehicleState.OnRoad
+                        });
+                        ecb.SetComponent(changeEvent.QueueEntry.Entity, new CarColor
+                        {
+                            Value = new float4(0, 1, 0, 1)
                         });
                     }
 
                     if (changeEvent.From.Spline != UInt16.MaxValue)
                     {
                         int intersection = changeEvent.Intersection;
-                        int side = changeEvent.IntersectionSide;
-                        var occupied = occupation[intersection / 4];
-                        uint occupationIndex = (uint)(intersection % 4 + (side + 1) / 2);
-                        if (occupied[occupationIndex])
+                        sbyte side = changeEvent.IntersectionSide;
+                        RoadQueueSystem.GetOccupationIndex(intersection, side, out var major, out var minor);
+                        var occupied = occupation[major];
+                        if (occupied[minor])
                         {
                             ecb.SetComponent(changeEvent.QueueEntry.Entity, new CarSpeedComponent
                             {
@@ -293,13 +299,17 @@ namespace Systems
                             });
                             ecb.SetComponent(changeEvent.QueueEntry.Entity, new VehicleStateComponent
                             {
-                                Value = VehicleState.EnteringIntersection
+                                Value = VehicleState.ExitingRoad
+                            });
+                            ecb.SetComponent(changeEvent.QueueEntry.Entity, new CarColor
+                            {
+                                Value = new float4(1, 0, 0, 1)
                             });
                             continue;
                         }
 
-                        occupied[occupationIndex] = true;
-                        occupation[intersection / 4] = occupied;
+                        occupied[minor] = true;
+                        occupation[major] = occupied;
 
                         var fromIdx = RoadQueueSystem.GetQueueIndex(changeEvent.From);
                         var fromQueue = queues[fromIdx];
@@ -318,6 +328,10 @@ namespace Systems
                         {
                             NormalizedSpeed = changeEvent.NormalizedSpeed,
                             SplineTimer = changeEvent.QueueEntry.SplineTimer
+                        });
+                        ecb.SetComponent(changeEvent.QueueEntry.Entity, new CarColor
+                        {
+                            Value = new float4(0, 0, 1, 1)
                         });
                     }
                 }
