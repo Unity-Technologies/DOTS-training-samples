@@ -39,7 +39,7 @@ namespace AntPheromones_ECS
         [BurstCompile]
         private struct Job : IJobForEach<Position, FacingAngle, PheromoneSteering>
         {
-            [ReadOnly] public DynamicBuffer<PheromoneColourRValueBuffer> PheromoneRValues;
+            public DynamicBuffer<PheromoneColourRValueBuffer> PheromoneRValues;
             public int MapWidth;
 
             private const float Distance = 3;

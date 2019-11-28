@@ -147,7 +147,7 @@ namespace AntPheromones_ECS
 		private void CreateAnts()
 		{
 			EntityManager entityManager = World.Active.EntityManager;
-			
+	
 			EntityArchetype antArchetype =
 				entityManager.CreateArchetype(
 					typeof(Position),

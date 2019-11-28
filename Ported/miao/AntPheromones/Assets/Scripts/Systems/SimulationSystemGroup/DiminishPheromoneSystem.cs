@@ -2,7 +2,6 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 
 namespace AntPheromones_ECS
 {
@@ -29,8 +28,8 @@ namespace AntPheromones_ECS
             Entity pheromoneRValues = this._pheromoneQuery.GetSingletonEntity();
             var pheromoneColourRValues = 
                 GetBufferFromEntity<PheromoneColourRValueBuffer>()[pheromoneRValues];
-            
             return new Job
+            
             {
                 TrailDecayRate = map.TrailDecayRate,
                 PheromoneColours = pheromoneColourRValues.AsNativeArray()

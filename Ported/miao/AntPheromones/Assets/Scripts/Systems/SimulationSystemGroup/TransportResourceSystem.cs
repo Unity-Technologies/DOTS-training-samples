@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -26,6 +27,7 @@ namespace AntPheromones_ECS
             }.Schedule(this, inputDeps);
         }
 
+        [BurstCompile]
         private struct Job : IJobForEach<Position, FacingAngle, ResourceCarrier>
         {
             public float2 ColonyPosition;

@@ -6,39 +6,32 @@ namespace AntPheromones_ECS
 {
     public struct Obstacles
     {
-        public float Radius;
+        public float Radius { get; private set; }
         public BlobArray<float2> Positions;
         
         private int _mapWidth;
         private int _bucketResolution;
         private BlobArray<int> _obstacleBucketIndices;
 
-        public bool HasObstacle(float2 position)
-        {
-            TryGetObstacles(position, out int? _, out int? distanceToNextBucket);
-            return distanceToNextBucket > 0;
-        }
-
-        public void TryGetObstacles(float2 position, out int? indexOfCurrentBucket, out int? distanceToNextBucket)
+        public (bool Exist, int? IndexOfCurrentBucket, int? DistanceToNextBucket) TryGetObstacles(float2 position)
         {
             int2 coordinates = (int2) (position / this._mapWidth * this._bucketResolution);
 
             if (math.any(coordinates < 0) || math.any(coordinates >= this._bucketResolution))
             {
-                indexOfCurrentBucket = null;
-                distanceToNextBucket = null;
+                return (Exist: true, IndexOfCurrentBucket: 0, DistanceToNextBucket: 0);
             }
-            else
-            {
-                int currentBucket = coordinates.y * this._bucketResolution + coordinates.x;
-                int nextBucket = 
-                    currentBucket == this._obstacleBucketIndices.Length - 1
-                        ? this.Positions.Length
-                        : this._obstacleBucketIndices[currentBucket + 1];
 
-                indexOfCurrentBucket = this._obstacleBucketIndices[currentBucket];
-                distanceToNextBucket = nextBucket - indexOfCurrentBucket;
-            }
+            int currentBucket = coordinates.y * this._bucketResolution + coordinates.x;
+            int nextBucket = 
+                currentBucket == this._obstacleBucketIndices.Length - 1
+                    ? this.Positions.Length
+                    : this._obstacleBucketIndices[currentBucket + 1];
+
+            int indexOfCurrentBucket = this._obstacleBucketIndices[currentBucket];
+            int distanceToNextBucket = nextBucket - indexOfCurrentBucket;
+            
+            return (Exist: distanceToNextBucket > 0, IndexOfCurrentBucket: indexOfCurrentBucket, DistanceToNextBucket: distanceToNextBucket);
         }
         
         public static BlobAssetReference<Obstacles> Build(AntManager antManager)

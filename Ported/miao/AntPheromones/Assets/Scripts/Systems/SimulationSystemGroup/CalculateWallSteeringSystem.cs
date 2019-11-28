@@ -58,7 +58,7 @@ namespace AntPheromones_ECS
                         continue;
                     }
 
-                    if (this.Obstacles.Value.HasObstacle(targetPosition))
+                    if (this.Obstacles.Value.TryGetObstacles(targetPosition).Exist)
                     {
                         result -= i;
                     }

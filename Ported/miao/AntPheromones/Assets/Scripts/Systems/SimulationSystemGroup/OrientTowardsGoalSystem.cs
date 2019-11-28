@@ -93,7 +93,7 @@ namespace AntPheromones_ECS
                     float t = (float)i / stepCount;
 
                     var position = point1 + t * offset;
-                    if (this.Obstacles.Value.HasObstacle(position))
+                    if (this.Obstacles.Value.TryGetObstacles(position).Exist)
                     {
                         return true;
                     }

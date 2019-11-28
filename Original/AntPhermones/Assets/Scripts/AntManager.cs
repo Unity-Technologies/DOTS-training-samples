@@ -260,7 +260,7 @@ public class AntManager : MonoBehaviour {
 		}
 	}
 
-	void FixedUpdate() {
+	void UpdateAnts() {
 		for (int i = 0; i < ants.Length; i++) {
 			Ant ant = ants[i];
 			float targetSpeed = antSpeed;
@@ -391,8 +391,10 @@ public class AntManager : MonoBehaviour {
 			matProps[i].SetVectorArray("_Color",antColors[i]);
 		}
 	}
-	private void Update() {
-
+	private void Update()
+	{
+		UpdateAnts();
+		
 		if (Input.GetKeyDown(KeyCode.Alpha1)) {
 			Time.timeScale = 1f;
 		} else if (Input.GetKeyDown(KeyCode.Alpha2)) {

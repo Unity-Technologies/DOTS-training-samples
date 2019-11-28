@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -13,6 +14,7 @@ namespace AntPheromones_ECS
             return new Job().Schedule(this, inputDeps);
         }
         
+        [BurstCompile]
         private struct Job : IJobForEach<Speed, FacingAngle, Velocity>
         {
             public void Execute(
