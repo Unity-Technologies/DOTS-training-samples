@@ -66,6 +66,7 @@ The systems involved are in update order:
 ### Rendering
 I decided to use the batched renderer interface using `Graphics.DrawMeshInstanced` instead of using the new hybrid renderer, since it didn't support per instance properties when I started the porting process. This is quite straight-forward since the ants only need to change color whenever they are carrying food. The color is slowly interpolated across frames per ant, which is why it is stored as a component to begin with. Each frame the color and the transform of each ant is copied for rendering since the `Graphics.DrawMeshInstanced` API requires managed arrays as inputs. Originally, I tried using `ToComponentArray` and then copying the data into a native array batch by batch, but it turns out to be much faster to skip the additional copy and use some unsafe code to directly copy from the chunks in the ECS to the managed arrays.
 
+The static geometry (obstacles, source, nest) are still rendered from `MonoBehaviour`s.
 
 ### Notes
 
