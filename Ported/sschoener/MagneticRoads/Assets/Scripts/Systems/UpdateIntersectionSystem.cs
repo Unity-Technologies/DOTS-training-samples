@@ -278,10 +278,6 @@ namespace Systems
                         {
                             Value = VehicleState.OnRoad
                         });
-                        ecb.SetComponent(changeEvent.QueueEntry.Entity, new CarColor
-                        {
-                            Value = new float4(0, 1, 0, 1)
-                        });
                     }
 
                     if (changeEvent.From.Spline != UInt16.MaxValue)
@@ -300,10 +296,6 @@ namespace Systems
                             ecb.SetComponent(changeEvent.QueueEntry.Entity, new VehicleStateComponent
                             {
                                 Value = VehicleState.ExitingRoad
-                            });
-                            ecb.SetComponent(changeEvent.QueueEntry.Entity, new CarColor
-                            {
-                                Value = new float4(1, 0, 0, 1)
                             });
                             continue;
                         }
@@ -329,13 +321,9 @@ namespace Systems
                             NormalizedSpeed = changeEvent.NormalizedSpeed,
                             SplineTimer = changeEvent.QueueEntry.SplineTimer
                         });
-                        ecb.SetComponent(changeEvent.QueueEntry.Entity, new CarColor
-                        {
-                            Value = new float4(0, 0, 1, 1)
-                        });
                     }
                 }
-            }).WithoutBurst().Run();
+            }).Run();
             changeQueue.Dispose();
             return default;
         }
