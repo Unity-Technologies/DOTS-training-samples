@@ -1,7 +1,9 @@
 ﻿using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 [UpdateAfter(typeof(ApplySteeringSystem))]
@@ -24,15 +26,15 @@ public class TargetingSystem : JobComponentSystem
         var colonyPosition = map.ColonyPosition;
         var resourcePosition = map.ResourcePosition;
         var targetSteerStrength = antSteering.TargetSteerStrength;
-        var obstacleRef = map.Obstacles;
+        var visibilityRef = map.Visibility;
 
         return Entities.ForEach((ref FacingAngleComponent facingAngle, in PositionComponent position, in HasResourcesComponent hasResources) =>
         {
-            var targetPos = hasResources.Value ? colonyPosition : resourcePosition;
             var p = position.Value;
-            ref var obstacles = ref obstacleRef.Value;
-            if (!Linecast(p, targetPos, ref obstacles))
+            ref var visibility = ref visibilityRef.Value;
+            if (Visible(p, !hasResources.Value, ref visibility))
             {
+                var targetPos = hasResources.Value ? colonyPosition : resourcePosition;
                 float targetAngle = math.atan2(targetPos.y - p.y, targetPos.x - p.x);
                 float deltaAngle = targetAngle - facingAngle.Value;
                 if (deltaAngle > math.PI)
@@ -44,19 +46,16 @@ public class TargetingSystem : JobComponentSystem
             }
         }).Schedule(inputDeps);
     }
-    
-    static bool Linecast(float2 point1, float2 point2, ref ObstacleData obstacles)
-    {
-        float2 d = point2 - point1;
-        float dist = math.length(d);
 
-        int stepCount = (int)math.ceil(dist * .5f);
-        for (int i = 0; i < stepCount; i++)
-        {
-            float t = (float)i / stepCount;
-            if (obstacles.HasObstacle(point1 + t * d))
-                return true;
-        }
-        return false;
+    static bool Visible(float2 points, bool resource, ref VisibilityData visibility)
+    {
+        var coords = math.clamp((int2)math.floor(points), 0, visibility.MapSize - 1);
+        var index = coords.y * visibility.MapSize + coords.x;
+        var major = index / 8;
+        var minor = index % 8;
+        int mask = 0x1 << minor;
+        if (resource)
+            return (visibility.Resource[major] & mask) != 0;
+        return (visibility.Colony[major] & mask) != 0;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 [RequiresEntityConversion]
@@ -55,8 +56,53 @@ public class MapSettingsAuthoringComponent : MonoBehaviour, IConvertGameObjectTo
         }
     }
 
+    static bool IsVisible(float2 point1, float2 point2, ref ObstacleData obstacles)
+    {
+        float2 d = point2 - point1;
+        int stepCount = 10 * obstacles.MapSize;
+        for (int i = 0; i < stepCount; i++)
+        {
+            float t = (float)i / stepCount;
+            if (obstacles.HasObstacle(point1 + t * d))
+                return false;
+        }
+        return true;
+    }
+    
+    void BuildVisibilityData(int mapSize, BlobBuilderArray<byte> cells, float2 target, ref ObstacleData obstacles)
+    {
+        int idx = 0;
+        for (int y = 0; y < mapSize; y++)
+        {
+            float py = y + .5f;
+            for (int x = 0; x < mapSize; x++)
+            {
+                float px = x + .5f;
+                byte mask = (byte)(0x1 << (idx % 8));
+                if (IsVisible(new float2(px, py), target, ref obstacles))
+                    cells[idx / 8] |= mask;
+                else
+                    cells[idx / 8] &= (byte)~mask;
+                idx++;
+            }
+        }
+    }
+
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
+        var obstacles = BuildObstacleData();
+        BlobAssetReference<VisibilityData> visibility;
+        using (var blobBuilder = new BlobBuilder(Allocator.Temp))
+        {
+            int mapSize = GameManager.mapSize;
+            int numCells = 1 + mapSize * mapSize / 8;
+            ref var visData = ref blobBuilder.ConstructRoot<VisibilityData>();
+            BuildVisibilityData(mapSize, blobBuilder.Allocate(ref visData.Resource, numCells), GameManager.ResourcePosition, ref obstacles.Value);
+            BuildVisibilityData(mapSize, blobBuilder.Allocate(ref visData.Colony, numCells), GameManager.ColonyPosition, ref obstacles.Value);
+            visData.MapSize = mapSize;
+            visibility = blobBuilder.CreateBlobAssetReference<VisibilityData>(Allocator.Persistent);
+        }
+        
         dstManager.AddComponentData(entity, new MapSettingsComponent
         {
             MapSize = GameManager.mapSize,
@@ -65,7 +111,8 @@ public class MapSettingsAuthoringComponent : MonoBehaviour, IConvertGameObjectTo
             TrailDecay = TrailDecay,
             TrailAdd = TrailAdd,
             ObstacleRadius = GameManager.obstacleRadius,
-            Obstacles = BuildObstacleData()
+            Obstacles = obstacles,
+            Visibility = visibility
         });
     }
 }

@@ -153,6 +153,7 @@ public struct MapSettingsComponent : IComponentData
     
     public float ObstacleRadius;    
     public BlobAssetReference<ObstacleData> Obstacles;
+    public BlobAssetReference<VisibilityData> Visibility;
 }
 
 public struct PheromoneBuffer : IBufferElementData
@@ -189,4 +190,11 @@ public struct ObstacleData
         offset = ObstacleBucketIndices[idx];
         length = next - offset;
     }
+}
+
+public struct VisibilityData
+{
+    public int MapSize;
+    public BlobArray<byte> Colony;
+    public BlobArray<byte> Resource;
 }
