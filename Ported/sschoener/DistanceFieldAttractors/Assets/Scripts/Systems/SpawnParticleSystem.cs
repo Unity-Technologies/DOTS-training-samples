@@ -30,7 +30,7 @@ namespace Systems {
                 ComponentType.ReadWrite<SpawnParticleComponent>()
             );
             m_UninitializedTagQuery = GetEntityQuery(typeof(UninitializedTagComponent));
-            m_EndInitEcbSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+            m_EndInitEcbSystem = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
