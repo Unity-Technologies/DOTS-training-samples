@@ -15,13 +15,13 @@ public class RenderAntSystem : JobComponentSystem
 {
     private EntityQuery _antQuery;
     private EntityQuery _antSharedRenderingQuery;
-
+    private bool _allocatedBatchData;
+    
     private readonly List<Matrix4x4[]> _matrices = new List<Matrix4x4[]>();
     private readonly List<Vector4[]> _colours = new List<Vector4[]>();
     private readonly List<GCHandle> _gcHandlesToFree = new List<GCHandle>();
     private readonly List<MaterialPropertyBlock> _materialPropertyBlocks = new List<MaterialPropertyBlock>();
-    private bool _allocatedBatchData;
-
+    
     protected override void OnCreate()
     {
         base.OnCreate();
@@ -116,7 +116,7 @@ public class RenderAntSystem : JobComponentSystem
     }
 
     [BurstCompile]
-    unsafe struct Job : IJobForEachWithEntity<LocalToWorld, Colour>
+    private unsafe struct Job : IJobForEachWithEntity<LocalToWorld, Colour>
     {
         [NativeDisableUnsafePtrRestriction] public Matrix4x4** Matrices;
         [NativeDisableUnsafePtrRestriction] public Vector4** Colours;
