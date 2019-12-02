@@ -8,7 +8,7 @@ using UnityEngine;
 namespace AntPheromones_ECS
 {
     [UpdateAfter(typeof(RandomizeFacingAngleSystem))]
-    public class CalculatePheromoneSteeringSystem : JobComponentSystem
+    public class CalculateSteeringSystem : JobComponentSystem
     {
         private EntityQuery _mapQuery;
         private EntityQuery _pheromoneQuery;
@@ -29,15 +29,24 @@ namespace AntPheromones_ECS
                 GetBufferFromEntity<PheromoneColourRValueBuffer>(isReadOnly: true)[pheromoneRValues];
             
             Map map = this._mapQuery.GetSingleton<Map>();
-            return new Job
+            
+            JobHandle pheromoneSteeringJob = new CalculatePheromoneSteeringJob
             {
                 MapWidth = map.Width,
                 PheromoneRValues = pheromoneColourRValues
             }.ScheduleSingle(this, inputDependencies);
+
+            JobHandle wallSteeringJob = new CalculateWallSteeringJob
+            {
+                Obstacles = map.Obstacles,
+                MapWidth = map.Width
+            }.Schedule(this, inputDependencies);
+            
+            return JobHandle.CombineDependencies(wallSteeringJob, pheromoneSteeringJob);
         }
 
         [BurstCompile]
-        private struct Job : IJobForEach<Position, FacingAngle, PheromoneSteering>
+        private struct CalculatePheromoneSteeringJob : IJobForEach<Position, FacingAngle, PheromoneSteering>
         {
             public DynamicBuffer<PheromoneColourRValueBuffer> PheromoneRValues;
             public int MapWidth;
@@ -66,6 +75,45 @@ namespace AntPheromones_ECS
                 }
 
                 steering.Value = result >= 0 ? 1 : -1;
+            }
+        }
+        
+        [BurstCompile]
+        private struct CalculateWallSteeringJob : IJobForEach<Position, FacingAngle, WallSteering>
+        {
+            public float MapWidth;
+            public BlobAssetReference<Obstacles> Obstacles;
+            
+            private const float Distance = 1.5f;
+            
+            public void Execute(
+                [ReadOnly] ref Position position, 
+                [ReadOnly] ref FacingAngle facingAngle,
+                ref WallSteering steering)
+            {
+                float result = 0;
+
+                for (int i = -1; i <= 1; i += 2) 
+                {
+                    float angle = facingAngle.Value + i * math.PI * 0.25f;
+                    
+                    math.sincos(angle, out float sin, out float cos);
+                    float2 targetPosition = position.Value + Distance * new float2(cos, sin);
+
+                    bool targetDestinationOutOfMapBounds =
+                        math.any(targetPosition < 0) || math.any(targetPosition >= this.MapWidth);
+                    
+                    if (targetDestinationOutOfMapBounds)
+                    {
+                        continue;
+                    }
+
+                    if (this.Obstacles.Value.TryGetObstacles(targetPosition).Exist)
+                    {
+                        result -= i;
+                    }
+                }
+                steering.Value = result;
             }
         }
     }

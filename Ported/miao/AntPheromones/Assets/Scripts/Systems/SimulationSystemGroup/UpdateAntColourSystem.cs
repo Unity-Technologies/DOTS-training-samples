@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
-    public class ChangeAntColourSystem : JobComponentSystem
+    public class UpdateAntColourSystem : JobComponentSystem
     {
         private EntityQuery _antRenderingQuery;
         private (bool AreRetrieved, Color Search, Color Carry) _colours;
@@ -46,7 +46,8 @@ namespace AntPheromones_ECS
                 [ReadOnly] ref ResourceCarrier carrier, 
                 [WriteOnly] ref Colour colourDisplay)
             {
-                colourDisplay.Value += ((carrier.IsCarrying ? this.CarryColour : this.SearchColour) * brightness.Value - colourDisplay.Value) * 0.05f;
+                colourDisplay.Value += 
+                    ((carrier.IsCarrying ? this.CarryColour : this.SearchColour) * brightness.Value - colourDisplay.Value) * 0.05f;
             }
         }
     }

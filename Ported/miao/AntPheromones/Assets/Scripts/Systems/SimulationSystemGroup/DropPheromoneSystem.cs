@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
-    [UpdateAfter(typeof(ChangeFacingAngleAccordingToVelocitySystem))]
+    [UpdateAfter(typeof(MoveTowardsOrAwayFromColonySystem))]
     public class DropPheromoneSystem : JobComponentSystem
     {
         private EntityQuery _mapQuery;
@@ -76,15 +76,17 @@ namespace AntPheromones_ECS
                     return;
                 }
 
-                float excitement = resourceCarrier.IsCarrying ? CarryExcitement : SearchExcitement;
-                float strength = excitement * speed.Value / this.MaxSpeed;
+                int pheromoneIndex = targetPosition.x + targetPosition.y * this.MapWidth;
                 
-                int index = targetPosition.x + targetPosition.y * this.MapWidth;
+                float rValue = this.PheromoneColourRValues[pheromoneIndex];
+                rValue += this.TrailVisibilityModifier 
+                          * FixedDeltaTime 
+                          * ((resourceCarrier.IsCarrying ? CarryExcitement : SearchExcitement) 
+                             * speed.Value 
+                             / this.MaxSpeed) 
+                          * (1f - rValue);
                 
-                float rValue = this.PheromoneColourRValues[index];
-                rValue += this.TrailVisibilityModifier * FixedDeltaTime * strength * (1f - rValue);
-                
-                this.PheromoneColourRValues[index] = math.min(rValue, 1f);
+                this.PheromoneColourRValues[pheromoneIndex] = math.min(rValue, 1f);
             }
         }
     }

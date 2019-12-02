@@ -6,8 +6,8 @@ using Unity.Mathematics;
 
 namespace AntPheromones_ECS
 {
-    [UpdateAfter(typeof(CollideWithObstacleSystem))]
-    public class MoveInwardOrOutwardSystem : JobComponentSystem
+    [UpdateAfter(typeof(AvoidObstacleSystem))]
+    public class MoveTowardsOrAwayFromColonySystem : JobComponentSystem
     {
         private EntityQuery _mapQuery;
         private EntityQuery _steeringStrengthQuery;
@@ -48,7 +48,7 @@ namespace AntPheromones_ECS
         }
 
         [BurstCompile]
-        private struct Job : IJobForEach<Position, ResourceCarrier, Velocity>
+        private struct Job : IJobForEach<Position, ResourceCarrier, Velocity, FacingAngle>
         {
             public float2 ColonyPosition;
 
@@ -61,16 +61,18 @@ namespace AntPheromones_ECS
             public void Execute(
                 [ReadOnly]ref Position position, 
                 [ReadOnly] ref ResourceCarrier resourceCarrier,
-                [WriteOnly] ref Velocity velocity)
+                ref Velocity velocity,
+                [WriteOnly] ref FacingAngle facingAngle)
             {
-                float pushRadius = resourceCarrier.IsCarrying ? this.InwardPushRadius : this.OutwardPushRadius;
                 float strength = resourceCarrier.IsCarrying ? this.InwardStrength : this.OutwardStrength;
 
                 float2 offset = this.ColonyPosition - position.Value;
                 float distance = math.length(offset);
                 
-                strength *= 1f - math.clamp(distance / pushRadius, 0f, 1f);
+                strength *=
+                    1f - math.clamp(distance / (resourceCarrier.IsCarrying ? this.InwardPushRadius : this.OutwardPushRadius), 0f, 1f);
                 velocity.Value += offset * (strength / distance);
+                facingAngle.Value = math.atan2(velocity.Value.y, velocity.Value.x);
             }
         }
     }

@@ -1,12 +1,13 @@
 ﻿using Unity.Burst;
-using Unity.Mathematics;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 
 namespace AntPheromones_ECS
 {
-    [UpdateAfter(typeof(CalculateVelocityAfterTransportingResourceSystem))]
-    public class CalculatePositionAfterTransportingResourceSystem : JobComponentSystem
+    [UpdateAfter(typeof(PickUpOrDropOffResourceSystem))]
+    public class UpdatePositionAndVelocityAfterMovingResourceSystem : JobComponentSystem
     {
         private EntityQuery _mapQuery;
 
@@ -18,14 +19,29 @@ namespace AntPheromones_ECS
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            return new Job
+            JobHandle updateVelocityJob = new UpdateVelocityJob().Schedule(this, inputDeps);
+            
+            return new UpdatePositionJob
             {
                 MapWidth = this._mapQuery.GetSingleton<Map>().Width,
-            }.Schedule(this, inputDeps);
+            }.Schedule(this, updateVelocityJob);
         }
-
+        
         [BurstCompile]
-        private struct Job : IJobForEach<Position, Velocity>
+        private struct UpdateVelocityJob : IJobForEach<Speed, FacingAngle, Velocity>
+        {
+            public void Execute(
+                [ReadOnly] ref Speed speed, 
+                [ReadOnly] ref FacingAngle facingAngle, 
+                [WriteOnly] ref Velocity velocity)
+            {
+                math.sincos(facingAngle.Value, out float sin, out float cos);
+                velocity.Value = new float2(cos, sin) * speed.Value;
+            }
+        }
+        
+        [BurstCompile]
+        private struct UpdatePositionJob : IJobForEach<Position, Velocity>
         {
             public float MapWidth;
 

@@ -36,10 +36,10 @@ namespace AntPheromones_ECS
 
             private const int AwesomePalindromicPrimeNumber = 1300031;
             
-            public void Execute(Entity e, int idx, [WriteOnly] ref FacingAngle facingAngle)
+            public void Execute(Entity entity, int index, [WriteOnly] ref FacingAngle facingAngle)
             {
                 facingAngle.Value += 
-                    new Random(seed: (uint)(idx + 1) * this.RandomSeed * AwesomePalindromicPrimeNumber)
+                    new Random(seed: (uint)(index + 1) * this.RandomSeed * AwesomePalindromicPrimeNumber)
                         .NextFloat(-this.RandomSteeringStrength, this.RandomSteeringStrength);
             }
         }

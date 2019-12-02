@@ -97,8 +97,6 @@ namespace AntPheromones_ECS
 
 		private void Start()
 		{
-//			this._isJustStarted = true;
-			
 			this._colonyMatrix = float4x4.TRS(
 				new float3(this._colonyPosition.Value / this.MapWidth, 0), 
 				Quaternion.identity, 
@@ -122,28 +120,7 @@ namespace AntPheromones_ECS
 			Graphics.DrawMesh(colonyMesh, _colonyMatrix, colonyMaterial, layer: 0);
 			Graphics.DrawMesh(resourceMesh, _resourceMatrix, resourceMaterial, layer: 0);
 		}
-//
-//		private void FixedUpdate()
-//		{
-//			if (this._isJustStarted)
-//			{
-//				this._isJustStarted = false;
-//				return;
-//			}
-//
-//			if (!this._simulationSystemGroup.IsRetrieved)
-//			{
-//				this._simulationSystemGroup = 
-//					(IsRetrieved: true, 
-//					Value: World.Active.GetExistingSystem<SimulationSystemGroup>());
-//			}
-//
-//			if (KeyboardInput.Instance.IsSimulationSpeedUpdated)
-//			{
-//				this._simulationSystemGroup.Value.Update();				
-//			}
-//		}
-
+		
 		private void CreateAnts()
 		{
 			EntityManager entityManager = World.Active.EntityManager;

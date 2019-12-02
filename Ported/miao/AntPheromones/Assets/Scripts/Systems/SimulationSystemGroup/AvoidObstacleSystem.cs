@@ -5,8 +5,8 @@ using Unity.Mathematics;
 
 namespace AntPheromones_ECS
 {
-    [UpdateAfter(typeof(CalculatePositionAfterTransportingResourceSystem))]
-    public class CollideWithObstacleSystem : JobComponentSystem
+    [UpdateAfter(typeof(UpdatePositionAndVelocityAfterMovingResourceSystem))]
+    public class AvoidObstacleSystem : JobComponentSystem
     {
         private EntityQuery _mapQuery;
 
@@ -42,22 +42,26 @@ namespace AntPheromones_ECS
                     return;
                 }
                 
-                for (int i = obstacles.IndexOfCurrentBucket.Value; i < obstacles.IndexOfCurrentBucket.Value + obstacles.DistanceToNextBucket.Value; i++)
+                for (int i = obstacles.IndexOfCurrentBucket.Value;
+                    i < obstacles.IndexOfCurrentBucket.Value + obstacles.DistanceToNextBucket.Value;
+                    i++)
                 {
                     float2 obstaclePosition = this.Obstacles.Value.Positions[i];
-                    float2 delta = position.Value - obstaclePosition;
+                    float2 distanceToObstaclePosition = position.Value - obstaclePosition;
                     
-                    float distanceSquared = math.lengthsq(delta);
+                    float distanceSquared = math.lengthsq(distanceToObstaclePosition);
 
-                    if (distanceSquared >= this.ObstacleRadius * this.ObstacleRadius)
+                    bool obstacleIsTooFarAway = distanceSquared >= this.ObstacleRadius * this.ObstacleRadius;
+                    
+                    if (obstacleIsTooFarAway)
                     {
                         continue;
                     }
                     
-                    delta /= math.sqrt(distanceSquared);
+                    distanceToObstaclePosition /= math.sqrt(distanceSquared);
                     
-                    position.Value = obstaclePosition + delta * this.ObstacleRadius;
-                    velocity.Value -= 1.5f * delta * math.dot(delta, velocity.Value);
+                    position.Value = obstaclePosition + distanceToObstaclePosition * this.ObstacleRadius;
+                    velocity.Value -= 1.5f * distanceToObstaclePosition * math.dot(distanceToObstaclePosition, velocity.Value);
                 }
             }
         }

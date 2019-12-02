@@ -53,7 +53,7 @@ namespace AntPheromones_ECS
                 
                 new Job
                 {
-                    Pheromones = pheromoneBuffer,
+                    PheromoneRValues = pheromoneBuffer,
                     Colours = colours
                 }.Schedule(pheromoneBuffer.Length, 256, inputDeps).Complete();
             }
@@ -69,12 +69,12 @@ namespace AntPheromones_ECS
         [BurstCompile]
         private unsafe struct Job : IJobParallelFor
         {
-            [ReadOnly] public DynamicBuffer<PheromoneColourRValueBuffer> Pheromones;
+            [ReadOnly] public DynamicBuffer<PheromoneColourRValueBuffer> PheromoneRValues;
             [NativeDisableUnsafePtrRestriction] public Color* Colours;
             
             public void Execute(int index)
             {
-                this.Colours[index].r = this.Pheromones[index];
+                this.Colours[index].r = this.PheromoneRValues[index];
             }
         }
     }

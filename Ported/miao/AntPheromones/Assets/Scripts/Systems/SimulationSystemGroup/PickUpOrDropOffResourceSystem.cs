@@ -6,8 +6,8 @@ using Unity.Mathematics;
 
 namespace AntPheromones_ECS
 {
-    [UpdateAfter(typeof(OrientTowardsGoalSystem))]
-    public class TransportResourceSystem : JobComponentSystem
+    [UpdateAfter(typeof(OrientTowardsDestinationSystem))]
+    public class PickUpOrDropOffResourceSystem : JobComponentSystem
     {
         private EntityQuery _mapQuery;
 
@@ -38,7 +38,12 @@ namespace AntPheromones_ECS
                 [WriteOnly] ref FacingAngle facingAngle, 
                 ref ResourceCarrier resourceCarrier)
             {
-                if (math.lengthsq(position.Value - (resourceCarrier.IsCarrying ? ColonyPosition : ResourcePosition)) >= 16f)
+                float2 destination = resourceCarrier.IsCarrying ? ColonyPosition : ResourcePosition;
+                
+                bool isTooFarFromDestination = 
+                    math.lengthsq(position.Value - destination) >= 16f;
+                
+                if (isTooFarFromDestination)
                 {
                     return;
                 }

@@ -29,7 +29,6 @@ namespace AntPheromones_ECS
             var pheromoneColourRValues = 
                 GetBufferFromEntity<PheromoneColourRValueBuffer>()[pheromoneRValues];
             return new Job
-            
             {
                 TrailDecayRate = map.TrailDecayRate,
                 PheromoneColours = pheromoneColourRValues.AsNativeArray()

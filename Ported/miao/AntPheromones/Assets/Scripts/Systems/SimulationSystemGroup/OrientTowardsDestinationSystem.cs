@@ -6,8 +6,8 @@ using Unity.Mathematics;
 
 namespace AntPheromones_ECS
 {
-    [UpdateAfter(typeof(ChangeSpeedAccordingToSteeringStrengthSystem))]
-    public class OrientTowardsGoalSystem : JobComponentSystem
+    [UpdateAfter(typeof(UpdateSpeedAndFacingAngleBasedOnSteeringSystem))]
+    public class OrientTowardsDestinationSystem : JobComponentSystem
     {
         private EntityQuery _mapQuery;
         private EntityQuery _steeringStrengthQuery;
@@ -59,41 +59,43 @@ namespace AntPheromones_ECS
             {
                 float2 targetPosition = resourcCarrier.IsCarrying ? this.ColonyPosition : this.ResourcePosition;
 
-                if (HasObstaclesBetween(position.Value, targetPosition))
+                if (DirectLineOfSightExistBetween(position.Value, targetPosition))
                 {
                     return;
                 }
                 
                 float targetAngle = 
                     math.atan2(targetPosition.y - position.Value.y, targetPosition.x - position.Value.x);
-                float offset = targetAngle - facingAngle.Value;
+                float delta = targetAngle - facingAngle.Value;
                     
-                if (offset > math.PI)
+                if (delta > math.PI)
                 {
                     facingAngle.Value += math.PI * 2f;
+                    return;
                 }
-                else if (offset < -math.PI)
+
+                if (delta < -math.PI)
                 {
                     facingAngle.Value -= math.PI * 2f;
+                    return;
                 }
-                else if (math.abs(offset) < math.PI * 0.5f)
+
+                if (math.abs(delta) < math.PI * 0.5f)
                 {
-                    facingAngle.Value += offset * this.GoalSteerStrength;
+                    facingAngle.Value += delta * this.GoalSteerStrength;
                 }
             }
             
-            private bool HasObstaclesBetween(float2 point1, float2 point2)
+            private bool DirectLineOfSightExistBetween(float2 point1, float2 point2)
             {
                 float2 offset = point2 - point1;
                 float distance = math.length(offset);
 
-                int stepCount = (int)math.ceil(distance * 0.5f);
-                for (int i = 0; i < stepCount; i++)
+                int numSteps = (int)math.ceil(distance * 0.5f);
+                
+                for (int i = 0; i < numSteps; i++)
                 {
-                    float t = (float)i / stepCount;
-
-                    var position = point1 + t * offset;
-                    if (this.Obstacles.Value.TryGetObstacles(position).Exist)
+                    if (this.Obstacles.Value.TryGetObstacles(point1 + (float)i / numSteps * offset).Exist)
                     {
                         return true;
                     }
