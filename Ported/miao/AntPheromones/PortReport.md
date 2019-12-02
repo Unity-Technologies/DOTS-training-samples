@@ -188,36 +188,6 @@ With the appropriate API, all the code concerning ant creation can be pretty muc
 
 Such a method would communicate intent much more efficiently -- in one line, I can immediately understand that a specific number of entities with the specified components are to be created.
 
-Additionally, here is the code that subsumed under `// Randomise ants` in the `CreateAnts()` method:
-
-    foreach (Entity entity in antEntities)
-    {
-        entityManager.SetComponentData(
-            entity,
-            new Position
-            {
-                Value = MapWidth * 0.5f + new float2(Random.Range(-5f, 5f), Random.Range(-5f, 5f))
-            });
-        entityManager.SetComponentData(
-            entity,
-            new Brightness
-            {
-                Value = Random.Range(0.75f, 1.25f)
-            });
-        entityManager.SetComponentData(
-            entity,
-            new FacingAngle
-            {
-                Value = Random.value * 2 * math.PI
-            });
-    }
-
-It would nice to be able to write more succinct code like this:
-
-    antEntities.With(new Position { Value = MapWidth * 0.5f + new float2(Random.Range(-5f, 5f), Random.Range(-5f, 5f)) })
-               .With(new Brightness { Value = Random.Range(0.75f, 1.25f) })
-               .With(new FacingAngle { Value = Random.value * 2 * math.PI });
-
 There are many other areas of the APIs which can similarly benefit from more conciseness.
 
 ## Conclusion
