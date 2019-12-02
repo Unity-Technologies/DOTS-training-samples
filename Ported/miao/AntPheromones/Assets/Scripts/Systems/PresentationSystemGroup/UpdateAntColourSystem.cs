@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace AntPheromones_ECS
 {
+    [UpdateInGroup(typeof(PresentationSystemGroup))]
     public class UpdateAntColourSystem : JobComponentSystem
     {
         private EntityQuery _antRenderingQuery;

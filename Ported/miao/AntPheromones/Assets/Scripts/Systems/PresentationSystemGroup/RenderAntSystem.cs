@@ -8,10 +8,12 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateInGroup(typeof(PresentationSystemGroup))]
+[UpdateAfter(typeof(UpdateAntColourSystem))]
 public class RenderAntSystem : JobComponentSystem
 {
     private EntityQuery _antQuery;
     private EntityQuery _antSharedRenderingQuery;
+    private bool _allocatedBatchData;
 
     private readonly List<Matrix4x4[]> _matrices = new List<Matrix4x4[]>();
     private readonly List<Vector4[]> _colours = new List<Vector4[]>();
@@ -37,19 +39,12 @@ public class RenderAntSystem : JobComponentSystem
         int modulo = numAnts % Rendering.MaxNumMeshesPerDrawCall;
         int numBatches = numAnts / Rendering.MaxNumMeshesPerDrawCall + (modulo > 0 ? 1 : 0);
 
-        while (this._matrices.Count < numBatches)
+        if (!this._allocatedBatchData)
         {
-            this._matrices.Add(new Matrix4x4[Rendering.MaxNumMeshesPerDrawCall]);
-
-            var batchColors = new Vector4[Rendering.MaxNumMeshesPerDrawCall];
-            this._colours.Add(batchColors);
-
-            var propertyBlock = new MaterialPropertyBlock();
-            this._materialPropertyBlocks.Add(propertyBlock);
-
-            propertyBlock.SetVectorArray(nameID: Rendering.ColourId, batchColors);
+            AllocateBatchData(numBatches);
+            this._allocatedBatchData = true;
         }
-
+        
         NativeArray<Matrix4x4> localToWorlds;
         NativeArray<Vector4> colours;
         
@@ -75,8 +70,7 @@ public class RenderAntSystem : JobComponentSystem
             this._materialPropertyBlocks[batch].SetVectorArray(Rendering.ColourId, this._colours[batch]);
             
             var sharedRenderingData =
-                EntityManager.GetSharedComponentData<AntSharedRendering>(
-                    this._antSharedRenderingQuery.GetSingletonEntity());
+                EntityManager.GetSharedComponentData<AntSharedRendering>(this._antSharedRenderingQuery.GetSingletonEntity());
 
             Graphics.DrawMeshInstanced(
                 sharedRenderingData.Mesh, 
@@ -91,5 +85,21 @@ public class RenderAntSystem : JobComponentSystem
         colours.Dispose();
         
         return default;
+    }
+
+    private void AllocateBatchData(int numBatches)
+    {
+        while (this._matrices.Count < numBatches)
+        {
+            this._matrices.Add(new Matrix4x4[Rendering.MaxNumMeshesPerDrawCall]);
+
+            var batchColors = new Vector4[Rendering.MaxNumMeshesPerDrawCall];
+            this._colours.Add(batchColors);
+
+            var propertyBlock = new MaterialPropertyBlock();
+            this._materialPropertyBlocks.Add(propertyBlock);
+
+            propertyBlock.SetVectorArray(nameID: Rendering.ColourId, batchColors);
+        }
     }
 }
