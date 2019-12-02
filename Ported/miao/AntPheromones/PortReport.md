@@ -114,18 +114,18 @@ However, often it is the case that if I stop the simulation and start it again, 
 
 Here is a snippet of the code inside the `CollideWithObstacleSystem`:
 
-   [BurstCompile]
-   private struct Job : IJobForEach<Position, Velocity>
-   {
-	   public float ObstacleRadius;
-	   public BlobAssetReference<Obstacles> Obstacles;
+    [BurstCompile]
+    private struct Job : IJobForEach<Position, Velocity>
+    {
+	    public float ObstacleRadius;
+	    public BlobAssetReference<Obstacles> Obstacles;
 	   
-	   public void Execute(ref Position position, ref Velocity velocity)
-	   {
-		   var obstacles = Obstacles.Value.TryGetObstacles(position.Value);
-		   // Do more work
-	   }
-   }
+	    public void Execute(ref Position position, ref Velocity velocity)
+	    {
+		    var obstacles = Obstacles.Value.TryGetObstacles(position.Value);
+		    // Do more work
+	    }
+    }
 
 There was also one occasion in which no error messages were emitted, even though the jobs invoking the `TryGetObstacles(float2 position)` method were not Burst-compiled. (Unfortunately I neglected to take a screenshot of my profiler window on that occasion, and I have been unable to reproduce this specific behaviour.) Suffice to say, it is schizophrenic of the compiler to sometimes claim that something is an error, and sometimes claim that it is not.
 
