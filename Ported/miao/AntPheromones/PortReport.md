@@ -108,7 +108,7 @@ This method is invoked from within different jobs. Occasionally, an error messag
 
 ![alt text](https://i.imgur.com/Fak3yHx.png)
 
-However, often it is the case that if I stop the simulation and start it again, the Burst compiler stops complaining about the `ValueTuple` struct. E.g., in the profiler window, I can see that the job inside `CollideWithObstacleSystem` is Burst-compiled:
+However, often it is the case that if I stop the simulation and start it again, the Burst compiler stops complaining about the `ValueTuple` struct. E.g., in the profiler window, I can see that the job inside `CollideWithObstacleSystem` (now renamed to `AvoidObstacleSystem`) is Burst-compiled:
 
 ![alt text](https://i.imgur.com/DefH9ky.png)
 
