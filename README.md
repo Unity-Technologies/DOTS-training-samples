@@ -9,9 +9,9 @@ Clone this repository, make a new branch for your demo, then:
 * Use the originals for reference, but remember we're only trying to achieve the same output. Use ECS and data-oriented design!
 
 Difficulty Rating Outline:
-1: Easier, no concurrent data dependencies
-2: Moderate, concurrent reads and writes
-3: Difficult, lots of concurrency, data design problems to solve
+* 1: Easier, no concurrent data dependencies
+* 2: Moderate, concurrent reads and writes
+* 3: Difficult, lots of concurrency, data design problems to solve
 
 
 ## Project Overview
