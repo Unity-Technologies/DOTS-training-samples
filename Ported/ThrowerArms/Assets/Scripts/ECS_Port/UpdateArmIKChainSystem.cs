@@ -3,7 +3,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public class UpdateArmInverseKinematicsChainSystem : JobComponentSystem
+public class UpdateArmIKChainSystem : JobComponentSystem
 {
     private EntityQuery m_inverseKinematcsDataCreatorQuery;
 
@@ -22,11 +22,11 @@ public class UpdateArmInverseKinematicsChainSystem : JobComponentSystem
 
         return Entities.ForEach((in ArmComponent arm, in Translation translation) =>
         {
-            int lastIndex = (int)(translation.Value.x * ArmConstants.ArmChainCount + (ArmConstants.ArmChainCount - 1));
+            int lastIndex = (int) (translation.Value.x * ArmConstants.ArmChainCount + (ArmConstants.ArmChainCount - 1));
             armJointPositions[lastIndex] = arm.HandTarget;
 
             int firstIndex = (int) (translation.Value.x * ArmConstants.ArmChainCount);
-            
+
             for (int i = lastIndex - 1; i >= firstIndex; i--)
             {
                 armJointPositions[i] += arm.HandUp * ArmConstants.BendStrength;
@@ -41,6 +41,7 @@ public class UpdateArmInverseKinematicsChainSystem : JobComponentSystem
                 float3 delta = armJointPositions[i].Value - armJointPositions[i - 1].Value;
                 armJointPositions[i] = armJointPositions[i - 1] + math.normalize(delta) * ArmConstants.BoneLength;
             }
+        }).Schedule(inputDeps);
 
 //            FABRIK.Solve(armChain,armBoneLength,transform.position,handTarget,handUp*armBendStrength);
 //            public static void Solve(Vector3[] chain, float boneLength, Vector3 anchor, Vector3 target, Vector3 bendHint) {
@@ -57,6 +58,5 @@ public class UpdateArmInverseKinematicsChainSystem : JobComponentSystem
 //                    chain[i] = chain[i - 1] + delta.normalized * boneLength;
 //                }
 //            }
-        }).Schedule(inputDeps);
     }
 }
