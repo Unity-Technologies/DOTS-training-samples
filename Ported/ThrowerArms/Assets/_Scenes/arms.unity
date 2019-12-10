@@ -131,8 +131,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 117738162}
-  - component: {fileID: 117738161}
   - component: {fileID: 117738160}
+  - component: {fileID: 117738161}
   m_Layer: 0
   m_Name: RockSpawner
   m_TagString: Untagged
@@ -165,16 +165,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97f513b467722446eb72558d10f4a3f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  center:
-    x: 0
-    y: 0
-    z: 0
-  extend:
-    x: 100
-    y: 0
-    z: 0
-  spawnEntity: {fileID: 0}
-  frequency: 0
+  spawnPrefab: {fileID: 0}
 --- !u!4 &117738162
 Transform:
   m_ObjectHideFlags: 0
@@ -722,8 +713,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1718741835}
-  - component: {fileID: 1718741834}
   - component: {fileID: 1718741833}
+  - component: {fileID: 1718741834}
   m_Layer: 0
   m_Name: TinCanSpawner
   m_TagString: Untagged
@@ -756,16 +747,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97f513b467722446eb72558d10f4a3f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  center:
-    x: 0
-    y: 0
-    z: 0
-  extend:
-    x: 0
-    y: 0
-    z: 0
-  spawnEntity: {fileID: 0}
-  frequency: 0
+  spawnPrefab: {fileID: 0}
 --- !u!4 &1718741835
 Transform:
   m_ObjectHideFlags: 0
