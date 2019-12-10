@@ -22,18 +22,29 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
 
         return Entities.WithName("UpdateFingerIKChain").ForEach((in ArmComponent arm, in Translation translation) =>
         {
+            float grabTimer = 
+                3f * arm.ReachTimer * arm.ReachTimer - 2f * arm.ReachTimer * arm.ReachTimer * arm.ReachTimer;
+            
             for (int finger = 1; finger <= ArmConstants.FingerCount; finger++)
             {
-                int lastIndex = (int) (translation.Value.x * ArmConstants.FingerCount * finger + (ArmConstants.FingerCount - 1));
+                float3 position =
+                    translation.Value +
+                    arm.HandRight *
+                    (ArmConstants.FingerXOffset + finger * ArmConstants.FingerSpacing);
+                float3 target = position + arm.HandForward * (0.5f - 0.1f * grabTimer) + arm.HandUp * math.sin();
+                
+                int lastIndex = 
+                    (int) (translation.Value.x * ArmConstants.TotalFingerChainCount + (finger * ArmConstants.PerFingerChainCount - 1));
+                
                 positions[lastIndex] = arm.HandTarget;
 
-                int firstIndex = (int) (translation.Value.x * ArmConstants.FingerCount * finger);
+                int firstIndex = lastIndex - (ArmConstants.PerFingerChainCount - 1);
 
                 for (int i = lastIndex - 1; i >= firstIndex; i--)
                 {
-                    positions[i] += arm.HandUp * ArmConstants.BendStrength;
+                    positions[i] += arm.HandUp * ArmConstants.FingerBendStrength;
                     float3 delta = positions[i].Value - positions[i + 1].Value;
-                    positions[i] = positions[i + 1] + math.normalize(delta) * ArmConstants.BoneLength;
+                    positions[i] = positions[i + 1] + math.normalize(delta) * ArmConstants.FingerBoneLengths[finger - 1];
                 }
 
                 positions[firstIndex] = translation.Value;

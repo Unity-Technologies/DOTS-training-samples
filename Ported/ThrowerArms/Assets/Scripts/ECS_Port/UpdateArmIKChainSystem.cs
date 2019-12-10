@@ -30,7 +30,7 @@ public class UpdateArmIKChainSystem : JobComponentSystem
 
             for (int i = lastIndex - 1; i >= firstIndex; i--)
             {
-                positions[i] += arm.HandUp * ArmConstants.BendStrength;
+                positions[i] += arm.HandUp * ArmConstants.ArmBendStrength;
                 float3 delta = positions[i].Value - positions[i + 1].Value;
                 positions[i] = positions[i + 1] + math.normalize(delta) * ArmConstants.BoneLength;
             }

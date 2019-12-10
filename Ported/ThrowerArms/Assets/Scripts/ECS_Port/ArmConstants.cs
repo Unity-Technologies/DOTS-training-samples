@@ -1,13 +1,16 @@
-﻿public static class ArmConstants
+﻿using static UnityEngine.Random;
+
+public static class ArmConstants
 {
     public const int ArmChainCount = 3;
     public const int FingerCount = 4;
-    public const int FingerChainCountPerFinger = 4;
+    public const int PerFingerChainCount = 4;
+    public const int TotalFingerChainCount = FingerCount * PerFingerChainCount;
     public const int ThumbChainCount = 4;
     
     public const float BoneLength = 1;
     public const float BoneThickness = 0.15f;
-    public const float BendStrength = 0.1f;
+    public const float ArmBendStrength = 0.1f;
     public const float MaxReach = 1.8f;
     public const float ReachDuration = 1;
     public const float MaxHandSpeed = 1;
@@ -24,9 +27,10 @@
     public const float ThumbXOffset = -0.05f;
 
     public const float WindUpDuration = 0.7f;
-    public const float ThrowDuraton = 1.2f;
+    public const float ThrowDuration = 1.2f;
     public const float BaseThrowSpeed = 24f;
     public const float TargetXRange = 15f;
 
     public static readonly float[] FingerBoneLengths = {0.2f, 0.22f, 0.2f, 0.16f};
+    public static readonly float TimeOffset = value * 100f; 
 }
