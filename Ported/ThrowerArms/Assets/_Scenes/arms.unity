@@ -167,6 +167,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnPrefab: {fileID: 3640192408852119734, guid: 50997a8681c8d4157889c233bd2878fa,
     type: 3}
+  scaleRange: {x: 0.3, y: 1}
+  velocity: {x: 1, y: 0, z: 0}
 --- !u!4 &117738162
 Transform:
   m_ObjectHideFlags: 0
@@ -244,7 +246,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &411959029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -727,7 +729,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1156075678
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -807,6 +809,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnPrefab: {fileID: 4956942366655687727, guid: 645203d9566fe44229e145de42fde5bd,
     type: 3}
+  scaleRange: {x: 1, y: 1}
+  velocity: {x: -1, y: 0, z: 0}
 --- !u!4 &1718741835
 Transform:
   m_ObjectHideFlags: 0
