@@ -608,6 +608,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3e01046b796367458508d27e5992f2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  antPrefab: {fileID: 5827094772116445844, guid: dac47d2583673463bb87211304d18d58,
+    type: 3}
   searchColor: {r: 0.1882353, g: 0.21176471, b: 0.3529412, a: 0}
   carryColor: {r: 0.72156864, g: 0.70980394, b: 0.39607844, a: 0}
   antCount: 1000
