@@ -6,11 +6,11 @@ using UnityEngine;
 public class ArmSpawner : MonoBehaviour
 {
     public GameObject ArmPrefab;
-    
     public int Count = 100;
-    public float Spacing = 1;
-
+    
     public static float ArmRowWidth;
+    
+    private const float Spacing = 1;
     
     private void Awake()
     {
@@ -28,7 +28,8 @@ public class ArmSpawner : MonoBehaviour
         for (var i = 0; i < Count; i++)
         {
             Entity instance = entityManager.Instantiate(prefab);
-
+            
+            entityManager.AddComponentData(instance, new ArmComponent());
             entityManager.SetComponentData(instance, new Translation
             {
                 Value = Spacing * i * new float3(1, 0, 0)
