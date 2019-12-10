@@ -4,6 +4,7 @@ using UnityEngine;
 
 [DisallowMultipleComponent]
 [RequiresEntityConversion]
+[ConverterVersion("martinsch",1)]
 public class TrackWaypointAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     // Add fields to your component here. Remember that:

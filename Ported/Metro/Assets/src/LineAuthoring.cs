@@ -4,7 +4,7 @@ using UnityEngine;
 
 [DisallowMultipleComponent]
 [RequiresEntityConversion]
-[ConverterVersion("martinsch", 2)]
+[ConverterVersion("martinsch", 3)]
 public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     // Add fields to your component here. Remember that:
@@ -19,7 +19,7 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     //    public float scale;
 
     [SerializeField]
-    int m_lineIndex = 0;
+    int m_LineIndex = 0;
 
     const float k_StepSize = 0.1f;
 
@@ -69,7 +69,7 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         // For example,
         //   dstManager.AddComponentData(entity, new Unity.Transforms.Scale { Value = scale });
 
-        dstManager.AddComponentData(entity, new Line { ID = m_lineIndex });
+        dstManager.AddComponentData(entity, new Line { ID = m_LineIndex });
         var buffer = dstManager.AddBuffer<LinePositionBufferElement>(entity);
         var generationStep = new GenerationStep(1, transform.GetChild(0));
         float3 currentPosition = generationStep.CurrentWaypoint.position;
@@ -86,7 +86,6 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
                 {
                     generationStep = generationStep.Next;
                     currentPosition = generationStep.CurrentWaypoint.position;
-                    currentHeading = math.normalize(generationStep.FullDistanceBetweenWaypoints);
                     diff = (float3)generationStep.NextWaypoint.position - currentPosition;
                 }
                 else
@@ -99,8 +98,8 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             if(!done)
             {
                 var t = 1 - (math.length(diff) - k_StepSize) / math.length(generationStep.FullDistanceBetweenWaypoints);
-                var heading = math.lerp(currentHeading, math.normalize(diff), t);
-                var step = math.normalize(heading) * k_StepSize;
+                currentHeading = math.normalize(math.lerp(currentHeading, math.normalize(diff), t));
+                var step = currentHeading * k_StepSize;
                 currentPosition += step;
                 buffer.Add(currentPosition);
             }
