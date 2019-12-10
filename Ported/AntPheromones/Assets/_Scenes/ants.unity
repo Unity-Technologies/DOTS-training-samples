@@ -586,11 +586,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1978692385}
-  - component: {fileID: 1978692384}
   - component: {fileID: 1978692383}
   - component: {fileID: 1978692386}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: DOTS Systen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -630,23 +629,6 @@ MonoBehaviour:
   obstacleRingCount: 3
   obstaclesPerRing: 0.8
   obstacleRadius: 2
---- !u!1818360609 &1978692384
-RotationConstraint:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1978692382}
-  m_Enabled: 1
-  m_Weight: 1
-  m_RotationAtRest: {x: 0, y: 0, z: 0}
-  m_RotationOffset: {x: 0, y: 0, z: 0}
-  m_AffectRotationX: 1
-  m_AffectRotationY: 1
-  m_AffectRotationZ: 1
-  m_IsContraintActive: 0
-  m_IsLocked: 0
-  m_Sources: []
 --- !u!4 &1978692385
 Transform:
   m_ObjectHideFlags: 0
