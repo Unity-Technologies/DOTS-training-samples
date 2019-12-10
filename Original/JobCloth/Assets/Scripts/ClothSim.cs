@@ -8,204 +8,233 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using System.Linq;
 using Unity.Burst;
+using Unity.Collections.LowLevel.Unsafe;
 
 public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
 {
 
-	MeshFilter meshFilter;
-	Mesh mesh;
+    MeshFilter meshFilter;
+    Mesh mesh;
 
-	NativeArray<Vector3> vertices;
-	NativeArray<Vector3> oldVertices;
-	NativeArray<int> pins;
-	NativeArray<Vector2Int> bars;
-	NativeArray<float> barLengths;
-	Vector3[] editedVertices;
+    NativeArray<Vector3> vertices;
+    NativeArray<Vector3> oldVertices;
+    NativeArray<int> pins;
+    NativeArray<Vector2Int> bars;
+    NativeArray<float> barLengths;
+    Vector3[] editedVertices;
 
-	BarJob barJob;
-	JobHandle barJobHandle;
+    BarJob barJob;
+    JobHandle barJobHandle;
 
-	UpdateMeshJob meshJob;
-	JobHandle meshJobHandle;
+    UpdateMeshJob meshJob;
+    JobHandle meshJobHandle;
 
-	static int barCount = 0;
+    static int barCount = 0;
 
-	bool firstFrame = true;
+    bool firstFrame = true;
 
-	struct BarJob:IJob {
-		public NativeArray<Vector3> vertices;
-		[ReadOnly]
-		public NativeArray<Vector2Int> bars;
-		[ReadOnly]
-		public NativeArray<float> barLengths;
-		[ReadOnly]
-		public NativeArray<int> pins;
+    struct BarJob : IJob
+    {
+        public NativeArray<Vector3> vertices;
+        [ReadOnly]
+        public NativeArray<Vector2Int> bars;
+        [ReadOnly]
+        public NativeArray<float> barLengths;
+        [ReadOnly]
+        public NativeArray<int> pins;
 
-		public void Execute() {
+        public void Execute()
+        {
 
-			for (int i = 0; i < bars.Length; i++) {
-				Vector2Int pair = bars[i];
+            for (int i = 0; i < bars.Length; i++)
+            {
+                Vector2Int pair = bars[i];
 
-				Vector3 p1 = vertices[pair.x];
-				Vector3 p2 = vertices[pair.y];
-				int pin1 = pins[pair.x];
-				int pin2 = pins[pair.y];
+                Vector3 p1 = vertices[pair.x];
+                Vector3 p2 = vertices[pair.y];
+                int pin1 = pins[pair.x];
+                int pin2 = pins[pair.y];
 
-				float length = (p2 - p1).magnitude;
-				float extra = (length - barLengths[i]) * .5f;
-				Vector3 dir = (p2 - p1).normalized;
+                float length = (p2 - p1).magnitude;
+                float extra = (length - barLengths[i]) * .5f;
+                Vector3 dir = (p2 - p1).normalized;
 
-				if (pin1 == 0 && pin2 == 0) {
-					vertices[pair.x] += extra * dir;
-					vertices[pair.y] -= extra * dir;
-				} else if (pin1 == 0 && pin2 == 1) {
-					vertices[pair.x] += extra * dir * 2f;
-				} else if (pin1 == 1 && pin2 == 0) {
-					vertices[pair.y] -= extra * dir * 2f;
-				}
-			}
-		}
-	}
+                if (pin1 == 0 && pin2 == 0)
+                {
+                    vertices[pair.x] += extra * dir;
+                    vertices[pair.y] -= extra * dir;
+                }
+                else if (pin1 == 0 && pin2 == 1)
+                {
+                    vertices[pair.x] += extra * dir * 2f;
+                }
+                else if (pin1 == 1 && pin2 == 0)
+                {
+                    vertices[pair.y] -= extra * dir * 2f;
+                }
+            }
+        }
+    }
 
-	struct UpdateMeshJob:IJobParallelFor {
-		public NativeArray<Vector3> vertices;
-		public NativeArray<Vector3> oldVertices;
-		[ReadOnly]
-		public NativeArray<int> pins;
-		public Vector3 gravity;
-		public Matrix4x4 localToWorld;
-		public Matrix4x4 worldToLocal;
+    struct UpdateMeshJob : IJobParallelFor
+    {
+        public NativeArray<Vector3> vertices;
+        public NativeArray<Vector3> oldVertices;
+        [ReadOnly]
+        public NativeArray<int> pins;
+        public Vector3 gravity;
+        public Matrix4x4 localToWorld;
+        public Matrix4x4 worldToLocal;
 
-		public void Execute(int i) {
-			if (pins[i] == 0) {
+        public void Execute(int i)
+        {
+            if (pins[i] == 0)
+            {
 
-				Vector3 oldVert = oldVertices[i];
-				Vector3 vert = vertices[i];
+                Vector3 oldVert = oldVertices[i];
+                Vector3 vert = vertices[i];
 
-				Vector3 startPos = vert;
-				oldVert -= gravity;
-				vert += (vert - oldVert);
-				Vector3 worldPos = localToWorld.MultiplyPoint3x4(vert);
-				oldVert = startPos;
+                Vector3 startPos = vert;
+                oldVert -= gravity;
+                vert += (vert - oldVert);
+                Vector3 worldPos = localToWorld.MultiplyPoint3x4(vert);
+                oldVert = startPos;
 
-				if (worldPos.y < 0f) {
-					Vector3 oldWorldPos = localToWorld.MultiplyPoint3x4(oldVert);
-					oldWorldPos.y = (worldPos.y - oldWorldPos.y) * .5f;
-					worldPos.y = 0f;
-					vert = worldToLocal.MultiplyPoint3x4(worldPos);
-					oldVert = worldToLocal.MultiplyPoint3x4(oldWorldPos);
-				}
+                if (worldPos.y < 0f)
+                {
+                    Vector3 oldWorldPos = localToWorld.MultiplyPoint3x4(oldVert);
+                    oldWorldPos.y = (worldPos.y - oldWorldPos.y) * .5f;
+                    worldPos.y = 0f;
+                    vert = worldToLocal.MultiplyPoint3x4(worldPos);
+                    oldVert = worldToLocal.MultiplyPoint3x4(oldWorldPos);
+                }
 
-				vertices[i] = vert;
-				oldVertices[i] = oldVert;
-			}
-		}
-	}
+                vertices[i] = vert;
+                oldVertices[i] = oldVert;
+            }
+        }
+    }
 
-	void Start () {
-		meshFilter = GetComponent<MeshFilter>();
-		mesh = meshFilter.mesh;
-		mesh.MarkDynamic();
+    void Start()
+    {
+        meshFilter = GetComponent<MeshFilter>();
+        mesh = meshFilter.mesh;
+        mesh.MarkDynamic();
 
-		vertices = new NativeArray<Vector3>(mesh.vertices,Allocator.Persistent);
-		pins = new NativeArray<int>(vertices.Length,Allocator.Persistent);
-		oldVertices = new NativeArray<Vector3>(vertices,Allocator.Persistent);
-		editedVertices = new Vector3[vertices.Length];
+        vertices = new NativeArray<Vector3>(mesh.vertices, Allocator.Persistent);
+        pins = new NativeArray<int>(vertices.Length, Allocator.Persistent);
+        oldVertices = new NativeArray<Vector3>(vertices, Allocator.Persistent);
+        editedVertices = new Vector3[vertices.Length];
 
-		Vector3[] normals = mesh.normals;
+        Vector3[] normals = mesh.normals;
 
-		for (int i=0;i<pins.Length;i++) {
-			if (normals[i].y>.9f && vertices[i].y>.3f) {
-				pins[i] = 1;
-			}
-		}
+        for (int i = 0; i < pins.Length; i++)
+        {
+            if (normals[i].y > .9f && vertices[i].y > .3f)
+            {
+                pins[i] = 1;
+            }
+        }
 
-		HashSet<Vector2Int> barLookup = new HashSet<Vector2Int>();
-		int[] triangles = mesh.triangles;
-		for (int i = 0; i < triangles.Length; i += 3) {
-			for (int j=0;j<3;j++) {
-				Vector2Int pair = new Vector2Int();
-				pair.x = triangles[i + j];
-				pair.y = triangles[i + (j + 1)%3];
-				if (pair.x>pair.y) {
-					int temp = pair.x;
-					pair.x = pair.y;
-					pair.y = temp;
-				}
-				if (barLookup.Contains(pair)==false) {
-					barLookup.Add(pair);
-				}
-			}
-		}
-		List<Vector2Int> barList = new List<Vector2Int>(barLookup);
-		barCount += barList.Count;
+        HashSet<Vector2Int> barLookup = new HashSet<Vector2Int>();
+        int[] triangles = mesh.triangles;
+        for (int i = 0; i < triangles.Length; i += 3)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                Vector2Int pair = new Vector2Int();
+                pair.x = triangles[i + j];
+                pair.y = triangles[i + (j + 1) % 3];
+                if (pair.x > pair.y)
+                {
+                    int temp = pair.x;
+                    pair.x = pair.y;
+                    pair.y = temp;
+                }
+                if (barLookup.Contains(pair) == false)
+                {
+                    barLookup.Add(pair);
+                }
+            }
+        }
+        List<Vector2Int> barList = new List<Vector2Int>(barLookup);
+        barCount += barList.Count;
 
-		bars = new NativeArray<Vector2Int>(barList.ToArray(),Allocator.Persistent);
-		barLengths = new NativeArray<float>(barList.Count,Allocator.Persistent);
+        bars = new NativeArray<Vector2Int>(barList.ToArray(), Allocator.Persistent);
+        barLengths = new NativeArray<float>(barList.Count, Allocator.Persistent);
 
-		for (int i=0;i<barList.Count;i++) {
-			Vector2Int pair = barList[i];
-			Vector3 p1 = vertices[pair.x];
-			Vector3 p2 = vertices[pair.y];
-			barLengths[i] = (p2 - p1).magnitude;
-		}
-	}
-	
-	void Update () {
+        for (int i = 0; i < barList.Count; i++)
+        {
+            Vector2Int pair = barList[i];
+            Vector3 p1 = vertices[pair.x];
+            Vector3 p2 = vertices[pair.y];
+            barLengths[i] = (p2 - p1).magnitude;
+        }
+    }
 
-		if (firstFrame) {
-			firstFrame = false;
-		} else {
-			meshJobHandle.Complete();
+    void Update()
+    {
 
-			meshJob.vertices.CopyTo(editedVertices);
-			mesh.vertices = editedVertices;
-		}
-		
-		barJob = new BarJob {
-			vertices = vertices,
-			pins = pins,
-			bars = bars,
-			barLengths = barLengths
-		};
+        if (firstFrame)
+        {
+            firstFrame = false;
+        }
+        else
+        {
+            meshJobHandle.Complete();
 
-		meshJob = new UpdateMeshJob {
-			vertices = vertices,
-			oldVertices = oldVertices,
-			pins=pins,
-			gravity = transform.InverseTransformVector(-Vector3.up * Time.deltaTime*Time.deltaTime),
-			localToWorld = transform.localToWorldMatrix,
-			worldToLocal = transform.worldToLocalMatrix
-		};
+            meshJob.vertices.CopyTo(editedVertices);
+            mesh.vertices = editedVertices;
+        }
 
-		barJobHandle = barJob.Schedule();
-		meshJobHandle = meshJob.Schedule(vertices.Length,128,barJobHandle);
-	}
+        barJob = new BarJob
+        {
+            vertices = vertices,
+            pins = pins,
+            bars = bars,
+            barLengths = barLengths
+        };
 
-	private void LateUpdate() {
-		
-	}
+        meshJob = new UpdateMeshJob
+        {
+            vertices = vertices,
+            oldVertices = oldVertices,
+            pins = pins,
+            gravity = transform.InverseTransformVector(-Vector3.up * Time.deltaTime * Time.deltaTime),
+            localToWorld = transform.localToWorldMatrix,
+            worldToLocal = transform.worldToLocalMatrix
+        };
 
-	void OnDestroy() {
-		meshJobHandle.Complete();
+        barJobHandle = barJob.Schedule();
+        meshJobHandle = meshJob.Schedule(vertices.Length, 128, barJobHandle);
+    }
+
+    private void LateUpdate()
+    {
+
+    }
+
+    void OnDestroy()
+    {
+        meshJobHandle.Complete();
         if (vertices.IsCreated) vertices.Dispose();
         if (pins.IsCreated) pins.Dispose();
         if (bars.IsCreated) bars.Dispose();
         if (barLengths.IsCreated) barLengths.Dispose();
         if (oldVertices.IsCreated) oldVertices.Dispose();
-	}
+    }
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        var mesh        = GetComponent<MeshFilter>().sharedMesh;
-        var material    = GetComponent<MeshRenderer>().sharedMaterial;
-        var gravity     = (float3)transform.InverseTransformVector(-Vector3.up * Time.deltaTime * Time.deltaTime);
+        var mesh = GetComponent<MeshFilter>().sharedMesh;
+        var material = GetComponent<MeshRenderer>().sharedMaterial;
+        var gravity = (float3)transform.InverseTransformVector(-Vector3.up * Time.deltaTime * Time.deltaTime);
 
-        
-        var vertices    = mesh.vertices;
-        var normals     = mesh.normals;
-        var indices     = mesh.triangles;
-        var newMesh     = new Mesh();
+
+        var vertices = mesh.vertices;
+        var normals = mesh.normals;
+        var indices = mesh.triangles;
+        var newMesh = new Mesh();
         newMesh.vertices = vertices;
         newMesh.normals = normals;
         newMesh.triangles = indices;
@@ -225,16 +254,16 @@ public class ClothComponent : IComponentData
     public float3 Gravity;
     public Material Material;
 
-    public NativeArray<float3>  CurrentClothPosition;
-    public NativeArray<float3>  PreviousClothPosition;
-    public NativeArray<float3>  ClothNormals;
-    public NativeArray<int>     Pins;
+    public NativeArray<float3> CurrentClothPosition;
+    public NativeArray<float3> PreviousClothPosition;
+    public NativeArray<float3> ClothNormals;
+    public NativeArray<int> Pins;
 
-    public NativeArray<int2>    Constraint1Indices;
-    public NativeArray<float>   Constraint1Lengths;
+    public NativeArray<int2> Constraint1Indices;
+    public NativeArray<float> Constraint1Lengths;
 
-    public NativeArray<int2>    Constraint2Indices;
-    public NativeArray<float>   Constraint2Lengths;
+    public NativeArray<int2> Constraint2Indices;
+    public NativeArray<float> Constraint2Lengths;
 }
 
 [ExecuteAlways]
@@ -271,7 +300,7 @@ class ClothComponentSystem : ComponentSystem
             }
 
             var constraint1Lookup = new HashSet<int2>();
-            var constraint2Lookup = new HashSet<int2>(); 
+            var constraint2Lookup = new HashSet<int2>();
             for (int i = 0; i < indices.Length; i += 3)
             {
                 var index0 = indices[i + 0];
@@ -289,10 +318,10 @@ class ClothComponentSystem : ComponentSystem
                 if (cloth.Pins[index0] == 0 || cloth.Pins[index1] == 0)
                 {
                     if (cloth.Pins[index0] == 1)
-                        constraint1Lookup.Add(new int2(index0, index1));
-                    else 
-                    if (cloth.Pins[index1] == 1)
                         constraint1Lookup.Add(new int2(index1, index0));
+                    else
+                    if (cloth.Pins[index1] == 1)
+                        constraint1Lookup.Add(new int2(index0, index1));
                     else
                         constraint2Lookup.Add(constraint0);
                 }
@@ -309,10 +338,10 @@ class ClothComponentSystem : ComponentSystem
                 if (cloth.Pins[index0] == 0 || cloth.Pins[index2] == 0)
                 {
                     if (cloth.Pins[index2] == 1)
-                        constraint1Lookup.Add(new int2(index2, index0));
+                        constraint1Lookup.Add(new int2(index0, index2));
                     else
                     if (cloth.Pins[index0] == 1)
-                        constraint1Lookup.Add(new int2(index0, index2));
+                        constraint1Lookup.Add(new int2(index2, index0));
                     else
                         constraint2Lookup.Add(constraint2);
                 }
@@ -333,7 +362,7 @@ class ClothComponentSystem : ComponentSystem
             }
 
             cloth.Constraint2Lengths = new NativeArray<float>(constraint2Lookup.Count, Allocator.Persistent);
-            for (int i = 0; i < cloth.Constraint2Indices.Length; i ++)
+            for (int i = 0; i < cloth.Constraint2Indices.Length; i++)
             {
                 var constraint = cloth.Constraint2Indices[i];
 
@@ -349,79 +378,79 @@ class ClothComponentSystem : ComponentSystem
     {
         Entities.ForEach((ClothComponent cloth) =>
         {
-            if (cloth.CurrentClothPosition .IsCreated) cloth.CurrentClothPosition.Dispose();
+            if (cloth.CurrentClothPosition.IsCreated) cloth.CurrentClothPosition.Dispose();
             if (cloth.PreviousClothPosition.IsCreated) cloth.PreviousClothPosition.Dispose();
-            if (cloth.ClothNormals         .IsCreated) cloth.ClothNormals.Dispose();
-            if (cloth.Pins                 .IsCreated) cloth.Pins.Dispose();
-            
-            if (cloth.Constraint1Indices    .IsCreated) cloth.Constraint1Indices.Dispose();
-            if (cloth.Constraint1Lengths    .IsCreated) cloth.Constraint1Lengths.Dispose();
+            if (cloth.ClothNormals.IsCreated) cloth.ClothNormals.Dispose();
+            if (cloth.Pins.IsCreated) cloth.Pins.Dispose();
 
-            if (cloth.Constraint2Indices    .IsCreated) cloth.Constraint2Indices.Dispose();
-            if (cloth.Constraint2Lengths    .IsCreated) cloth.Constraint2Lengths.Dispose();
+            if (cloth.Constraint1Indices.IsCreated) cloth.Constraint1Indices.Dispose();
+            if (cloth.Constraint1Lengths.IsCreated) cloth.Constraint1Lengths.Dispose();
+
+            if (cloth.Constraint2Indices.IsCreated) cloth.Constraint2Indices.Dispose();
+            if (cloth.Constraint2Lengths.IsCreated) cloth.Constraint2Lengths.Dispose();
         });
     }
 
     [BurstCompile]
-    struct Constraint1Job : IJob
+    unsafe struct Constraint1Job : IJob
     {
         public NativeArray<float3> vertices;
         [ReadOnly] public NativeArray<int2> constraintIndices;
         [ReadOnly] public NativeArray<float> constraintLengths;
-        [ReadOnly] public NativeArray<int> pins;
 
         public void Execute()
         {
-            for (int i = 0; i < constraintIndices.Length; i++)
+            var indexCount = constraintIndices.Length;
+            float3* verticesPtr = (float3*)NativeArrayUnsafeUtility.GetUnsafePtr(vertices);
+            int2* constraintIndicesPtr = (int2*)NativeArrayUnsafeUtility.GetUnsafeReadOnlyPtr(constraintIndices);
+            float* constraintLengthsPtr = (float*)NativeArrayUnsafeUtility.GetUnsafeReadOnlyPtr(constraintLengths);
+            for (int i = 0; i < indexCount; i++)
             {
-                int2 pair = constraintIndices[i];
-                int pin1 = pins[pair.x];
-                int pin2 = pins[pair.y];
+                int2 pair = constraintIndicesPtr[i];
 
-                float3 p1 = vertices[pair.x];
-                float3 p2 = vertices[pair.y];
+                float3 p1 = verticesPtr[pair.x];
+                float3 p2 = verticesPtr[pair.y];
 
                 var delta = p2 - p1;
                 var length = math.length(delta);
-                var extra = (length - constraintLengths[i]) * .5f;
+                var extra = (length - constraintLengthsPtr[i]) * .5f;
                 var dir = delta / length;
-
-                if (pin1 == 0 && pin2 == 1)
-                {
-                    vertices[pair.x] += extra * dir * 2f;
-                }
-                else if (pin1 == 1 && pin2 == 0)
-                {
-                    vertices[pair.y] -= extra * dir * 2f;
-                }
+                var offset = extra * dir * 2f;
+                verticesPtr[pair.x] = p1 + offset;
             }
         }
     }
 
 
     [BurstCompile]
-    struct Constraint2Job : IJob
+    unsafe struct Constraint2Job : IJob
     {
-        public            NativeArray<float3> vertices;
+        public NativeArray<float3> vertices;
         [ReadOnly] public NativeArray<int2> constraintIndices;
         [ReadOnly] public NativeArray<float> constraintLengths;
 
         public void Execute()
         {
-            for (int i = 0; i < constraintIndices.Length; i++)
+            var indexCount = constraintIndices.Length;
+            float3* verticesPtr = (float3*)NativeArrayUnsafeUtility.GetUnsafePtr(vertices);
+            int2* constraintIndicesPtr = (int2*)NativeArrayUnsafeUtility.GetUnsafeReadOnlyPtr(constraintIndices);
+            float* constraintLengthsPtr = (float*)NativeArrayUnsafeUtility.GetUnsafeReadOnlyPtr(constraintLengths);
+            for (int i = 0; i < indexCount; i++)
             {
-                int2 pair = constraintIndices[i];
+                int2 pair = constraintIndicesPtr[i];
 
-                float3 p1 = vertices[pair.x];
-                float3 p2 = vertices[pair.y];
+                float3 p1 = verticesPtr[pair.x];
+                float3 p2 = verticesPtr[pair.y];
 
                 var delta = p2 - p1;
                 var length = math.length(delta);
-                var extra = (length - constraintLengths[i]) * .5f;
+                var extra = (length - constraintLengthsPtr[i]) * .5f;
                 var dir = delta / length;
 
-                vertices[pair.x] += extra * dir;
-                vertices[pair.y] -= extra * dir;
+                var offset = extra * dir;
+
+                verticesPtr[pair.x] = p1 + offset;
+                verticesPtr[pair.y] = p2 - offset;
             }
         }
     }
@@ -473,7 +502,6 @@ class ClothComponentSystem : ComponentSystem
             var constraint1Job = new Constraint1Job
             {
                 vertices = cloth.CurrentClothPosition,
-                pins = cloth.Pins,
                 constraintIndices = cloth.Constraint1Indices,
                 constraintLengths = cloth.Constraint1Lengths
             };
