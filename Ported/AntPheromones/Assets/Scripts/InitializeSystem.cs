@@ -5,34 +5,65 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using Unity.Rendering;
+using Unity.Transforms;
 using Random = UnityEngine.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 [UpdateAfter(typeof(ConvertToEntitySystem))]
 public class InitializeSystem : JobComponentSystem
 {
+    bool init;
+
     protected override void OnCreate()
     {
+        init = false; 
     }
 
 	// TODO: move all of this
 	static int instancesPerBatch = 1023;
 	NativeArray<Obstacle> Obstacles;
 	NativeArray<int2> ObstacleBuckets;
-	bool created = false;
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        if (init)
+            return inputDeps;
+
         inputDeps.Complete();
 
         AntSettings settings = GetSingleton<AntSettings>();
+        SpawnAnts(ref settings);
+        GenerateObstacles(ref settings);
+ 
+        init = true;
 
-		if (!created)
-		{
-			GenerateObstacles(ref settings);
-			created = true;
-		}
         return new JobHandle();
+    }
+    
+    protected void SpawnAnts(ref AntSettings settings)
+    {
+        Translation colonyPosition = new Translation();
+        colonyPosition.Value = new Vector3(.5f, .5f, 0);
+
+        NonUniformScale antSize = new NonUniformScale();
+        antSize.Value = settings.antSize;
+
+        const float perimeter = 0.03f;
+
+        for (int i = 0; i < 10; ++i)
+        {
+            Translation antPosition = new Translation();
+            antPosition.Value = new Vector3(Random.Range(-perimeter, perimeter) + colonyPosition.Value.x, Random.Range(-perimeter, perimeter) + colonyPosition.Value.y, 0);
+
+            Rotation antRotation = new Rotation();
+            antRotation.Value = Quaternion.Euler(0f, 0f, Random.Range(0.0f, 360.0f));
+
+            Entity ant = EntityManager.Instantiate(settings.antPrefab);
+            EntityManager.SetComponentData<Translation>(ant, antPosition);
+            EntityManager.AddComponentData<NonUniformScale>(ant, antSize);
+            EntityManager.SetComponentData<Rotation>(ant, antRotation);
+        }
     }
 
 	void GenerateObstacles(ref AntSettings settings)
