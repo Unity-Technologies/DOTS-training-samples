@@ -75,9 +75,9 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         float3 currentPosition = generationStep.CurrentWaypoint.position;
         float3 currentHeading = math.normalize(generationStep.FullDistanceBetweenWaypoints);
         buffer.Add(currentPosition);
-        
 
-        while (generationStep.NextWaypointIdx < transform.childCount)
+        bool done = false;
+        while (!done)
         {
             var diff = (float3)generationStep.NextWaypoint.position - currentPosition;
             while(math.length(diff) < k_StepSize)
@@ -90,13 +90,20 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
                     diff = (float3)generationStep.NextWaypoint.position - currentPosition;
                 }
                 else
-                    return;
+                {
+
+                    done = true;
+                    break;
+                }
             }
-            var t = 1 - (math.length(diff) - k_StepSize) / math.length(generationStep.FullDistanceBetweenWaypoints);
-            var heading = math.lerp(currentHeading, math.normalize(diff), t);
-            var step = math.normalize(heading) * k_StepSize;
-            currentPosition += step;
-            buffer.Add(currentPosition);
+            if(!done)
+            {
+                var t = 1 - (math.length(diff) - k_StepSize) / math.length(generationStep.FullDistanceBetweenWaypoints);
+                var heading = math.lerp(currentHeading, math.normalize(diff), t);
+                var step = math.normalize(heading) * k_StepSize;
+                currentPosition += step;
+                buffer.Add(currentPosition);
+            }
         }
         m_Entity = entity;
         m_EntityManager = dstManager;
