@@ -72,6 +72,9 @@ public class InitializeSystem : JobComponentSystem
 
 	void GenerateObstacles(ref AntSettings settings)
 	{
+        NonUniformScale prefabScale = new NonUniformScale();
+        prefabScale.Value = Vector3.one * 2 * settings.obstacleRadius/(float)settings.mapSize;
+
 		List<Obstacle> output = new List<Obstacle>();
 		for (int i = 1; i <= settings.obstacleRingCount; i++)
 		{
@@ -87,9 +90,19 @@ public class InitializeSystem : JobComponentSystem
 				{
 					float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
 					Obstacle obstacle = new Obstacle();
-					obstacle.position = new Vector2(settings.mapSize * .5f + Mathf.Cos(angle) * ringRadius, settings.mapSize * .5f + Mathf.Sin(angle) * ringRadius);
+                    float center = settings.mapSize * .5f;
+                    float x = Mathf.Cos(angle) * ringRadius + center;
+                    float y = Mathf.Sin(angle) * ringRadius + center;
+					obstacle.position = new Vector2(x, y);
 					obstacle.radius = settings.obstacleRadius;
 					output.Add(obstacle);
+
+                    var prefabEntity = EntityManager.Instantiate(settings.obstaclePrefab);
+                    Translation prefabTranslation = new Translation();
+                    
+                    prefabTranslation.Value = new Vector3(x + .5f, y + .5f, 0) / (float)settings.mapSize;
+                    EntityManager.SetComponentData(prefabEntity, prefabTranslation);
+                    EntityManager.AddComponentData(prefabEntity, prefabScale);
 				}
 			}
 		}
@@ -133,9 +146,6 @@ public class InitializeSystem : JobComponentSystem
 		// sort obstacles and fill buckets
 		int2 range = new int2(0, 0);
 
-        NonUniformScale prefabScale = new NonUniformScale();
-        prefabScale.Value = Vector3.one * settings.obstacleRadius/(float)settings.mapSize;
-
 		for (int x = 0; x < res; x++)
 		{
 			for (int y = 0; y < res; y++)
@@ -149,12 +159,6 @@ public class InitializeSystem : JobComponentSystem
                     var entity = EntityManager.CreateEntity(obstacleArchetype);
 					EntityManager.SetComponentData(entity, obstacle);
                     
-                    var prefabEntity = EntityManager.Instantiate(settings.obstaclePrefab);
-                    Translation prefabTranslation = new Translation();
-                    prefabTranslation.Value = new Vector3(x, y, 0) / (float)res;
-                    EntityManager.SetComponentData(prefabEntity, prefabTranslation);
-                    EntityManager.AddComponentData(prefabEntity, prefabScale);
-					
                     range.y++;
 				}
 				ObstacleBuckets[index] = range;
