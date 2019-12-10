@@ -49,10 +49,10 @@ public class RockManager : MonoBehaviour {
 		matrices = new Matrix4x4[rockCount];
 
 		minConveyorX = -conveyorMargin;
-		maxConveyorX = ArmManager.armRowWidth+conveyorMargin;
+		maxConveyorX = ArmSpawner.ArmRowWidth+conveyorMargin;
 		Vector3 basePos = new Vector3(minConveyorX,0f,1.5f);
 
-		float spacing = (ArmManager.armRowWidth+conveyorMargin*2f) / rockCount;
+		float spacing = (ArmSpawner.ArmRowWidth+conveyorMargin*2f) / rockCount;
 
 		for (int i = 0; i < rockCount; i++) {
 			Rock rock = new Rock();
@@ -76,7 +76,7 @@ public class RockManager : MonoBehaviour {
 			if (rock.state==Rock.State.Conveyor) {
 				rock.position.x += conveyorSpeed * Time.deltaTime;
 				if (rock.position.x>maxConveyorX) {
-					rock.position.x -= ArmManager.armRowWidth+conveyorMargin*2f;
+					rock.position.x -= ArmSpawner.ArmRowWidth+conveyorMargin*2f;
 					rock.size = 0f;
 				}
 			} else if (rock.state==Rock.State.Thrown) {

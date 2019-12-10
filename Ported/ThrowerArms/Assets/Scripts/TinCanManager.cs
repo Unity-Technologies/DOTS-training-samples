@@ -44,7 +44,7 @@ public class TinCanManager : MonoBehaviour {
 	}
 
 	void ResetCan(TinCan can) {
-		can.position = new Vector3(Random.Range(0f,ArmManager.armRowWidth+10f),Random.Range(3f,8f),15f);
+		can.position = new Vector3(Random.Range(0f,ArmSpawner.ArmRowWidth+10f),Random.Range(3f,8f),15f);
 		can.rotation = Quaternion.identity;
 		can.scale = 0f;
 		matrices[can.index] = Matrix4x4.TRS(can.position,can.rotation,canSize);
@@ -99,7 +99,7 @@ public class TinCanManager : MonoBehaviour {
 			can.velocity = -Vector3.right * 3f;
 			can.position += can.velocity * Time.deltaTime;
 			if (can.position.x < 0f && can.reserved == false) {
-				can.position.x = ArmManager.armRowWidth+10f;
+				can.position.x = ArmSpawner.ArmRowWidth+10f;
 				can.scale = 0f;
 			}
 			matrices[can.index].m03 = can.position.x;
