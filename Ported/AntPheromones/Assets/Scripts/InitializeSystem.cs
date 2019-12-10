@@ -133,6 +133,9 @@ public class InitializeSystem : JobComponentSystem
 		// sort obstacles and fill buckets
 		int2 range = new int2(0, 0);
 
+        NonUniformScale prefabScale = new NonUniformScale();
+        prefabScale.Value = Vector3.one * settings.obstacleRadius/(float)settings.mapSize;
+
 		for (int x = 0; x < res; x++)
 		{
 			for (int y = 0; y < res; y++)
@@ -142,9 +145,17 @@ public class InitializeSystem : JobComponentSystem
 				{
 					var obstacle = o;
 					obstacle.bucketIndex = index;
-					var entity = EntityManager.CreateEntity(obstacleArchetype);
+					
+                    var entity = EntityManager.CreateEntity(obstacleArchetype);
 					EntityManager.SetComponentData(entity, obstacle);
-					range.y++;
+                    
+                    var prefabEntity = EntityManager.Instantiate(settings.obstaclePrefab);
+                    Translation prefabTranslation = new Translation();
+                    prefabTranslation.Value = new Vector3(x, y, 0) / (float)res;
+                    EntityManager.SetComponentData(prefabEntity, prefabTranslation);
+                    EntityManager.AddComponentData(prefabEntity, prefabScale);
+					
+                    range.y++;
 				}
 				ObstacleBuckets[index] = range;
 
