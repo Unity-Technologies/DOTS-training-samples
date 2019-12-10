@@ -42,6 +42,14 @@ public struct Gravity : IComponentData
 {
 }
 
+
+public struct Grabable: IComponentData
+{
+}
+
+public struct Grabber : IComponentData
+{
+}
 public struct BoneMatrixBuffer : IBufferElementData
 {
     public Matrix4x4 Value;
