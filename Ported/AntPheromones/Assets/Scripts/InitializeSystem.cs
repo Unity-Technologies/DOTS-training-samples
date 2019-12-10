@@ -4,7 +4,8 @@ using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateAfter(typeof(ConvertToEntitySystem))]
 public class InitializeSystem : JobComponentSystem
 {
     protected override void OnCreate()
