@@ -1,7 +1,8 @@
 ﻿public static class ArmConstants
 {
     public const int ArmChainCount = 3;
-    public const int FingerChainCount = 16; // 4 fingers, and each finger has a chain count of 4
+    public const int FingerCount = 4;
+    public const int FingerChainCountPerFinger = 4;
     public const int ThumbChainCount = 4;
     
     public const float BoneLength = 1;

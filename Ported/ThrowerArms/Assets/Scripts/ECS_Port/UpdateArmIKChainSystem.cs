@@ -5,41 +5,42 @@ using Unity.Transforms;
 
 public class UpdateArmIKChainSystem : JobComponentSystem
 {
-    private EntityQuery m_inverseKinematcsDataCreatorQuery;
+    private EntityQuery m_positionBufferQuery;
 
     protected override void OnCreate()
     {
         base.OnCreate();
         
-        m_inverseKinematcsDataCreatorQuery = 
-            GetEntityQuery(ComponentType.ReadOnly<ArmJointPositionBuffer>());
+        m_positionBufferQuery = 
+            GetEntityQuery(ComponentType.ReadWrite<ArmJointPositionBuffer>());
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        Entity ikDataSingleton = m_inverseKinematcsDataCreatorQuery.GetSingletonEntity();
-        var armJointPositions = EntityManager.GetBuffer<ArmJointPositionBuffer>(ikDataSingleton);
+        Entity bufferSingleton = m_positionBufferQuery.GetSingletonEntity();
+        var positions = EntityManager.GetBuffer<ArmJointPositionBuffer>(bufferSingleton);
 
-        return Entities.ForEach((in ArmComponent arm, in Translation translation) =>
+        return Entities.WithName("UpdateArmIKChain")
+            .ForEach((in ArmComponent arm, in Translation translation) =>
         {
             int lastIndex = (int) (translation.Value.x * ArmConstants.ArmChainCount + (ArmConstants.ArmChainCount - 1));
-            armJointPositions[lastIndex] = arm.HandTarget;
+            positions[lastIndex] = arm.HandTarget;
 
             int firstIndex = (int) (translation.Value.x * ArmConstants.ArmChainCount);
 
             for (int i = lastIndex - 1; i >= firstIndex; i--)
             {
-                armJointPositions[i] += arm.HandUp * ArmConstants.BendStrength;
-                float3 delta = armJointPositions[i].Value - armJointPositions[i + 1].Value;
-                armJointPositions[i] = armJointPositions[i + 1] + math.normalize(delta) * ArmConstants.BoneLength;
+                positions[i] += arm.HandUp * ArmConstants.BendStrength;
+                float3 delta = positions[i].Value - positions[i + 1].Value;
+                positions[i] = positions[i + 1] + math.normalize(delta) * ArmConstants.BoneLength;
             }
 
-            armJointPositions[firstIndex] = translation.Value;
+            positions[firstIndex] = translation.Value;
 
             for (int i = firstIndex + 1; i <= lastIndex; i++)
             {
-                float3 delta = armJointPositions[i].Value - armJointPositions[i - 1].Value;
-                armJointPositions[i] = armJointPositions[i - 1] + math.normalize(delta) * ArmConstants.BoneLength;
+                float3 delta = positions[i].Value - positions[i - 1].Value;
+                positions[i] = positions[i - 1] + math.normalize(delta) * ArmConstants.BoneLength;
             }
         }).Schedule(inputDeps);
 
