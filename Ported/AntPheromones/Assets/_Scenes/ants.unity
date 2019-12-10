@@ -588,6 +588,7 @@ GameObject:
   - component: {fileID: 1978692385}
   - component: {fileID: 1978692384}
   - component: {fileID: 1978692383}
+  - component: {fileID: 1978692386}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -607,17 +608,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3e01046b796367458508d27e5992f2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  basePheromoneMaterial: {fileID: 2100000, guid: 6f6ea5e44517b3d42ab85fb9577e4c93,
-    type: 2}
-  pheromoneRenderer: {fileID: 519808262}
-  antMaterial: {fileID: 2100000, guid: c66329d3aec0ce443ba9cbe148029438, type: 2}
-  obstacleMaterial: {fileID: 2100000, guid: b580cd5f5ceb0f245b7111180e40301d, type: 2}
-  resourceMaterial: {fileID: 2100000, guid: b9f0e89d232e61841941ba0f7651f15b, type: 2}
-  colonyMaterial: {fileID: 2100000, guid: 4d609a20db07a9b429e13f6eb488714c, type: 2}
-  antMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  obstacleMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-  colonyMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-  resourceMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   searchColor: {r: 0.1882353, g: 0.21176471, b: 0.3529412, a: 0}
   carryColor: {r: 0.72156864, g: 0.70980394, b: 0.39607844, a: 0}
   antCount: 1000
@@ -669,6 +659,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1978692386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1978692382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea7d7495833204790ba1d3a8755397f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConversionMode: 0
 --- !u!1 &2087170865
 GameObject:
   m_ObjectHideFlags: 0
