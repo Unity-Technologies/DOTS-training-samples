@@ -12,11 +12,15 @@ public struct SpawnerComponent : IComponentData
     public float frequency;
     public float timeToNextSpawn;
     public Random random;
+    public float2 scaleRange;
+    public float3 velocity;
 }
 
 public class SpawnerAuthering : MonoBehaviour, IConvertGameObjectToEntity
 {
     public GameObject spawnPrefab;
+    public Vector2 scaleRange;
+    public Vector3 velocity;
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -28,7 +32,9 @@ public class SpawnerAuthering : MonoBehaviour, IConvertGameObjectToEntity
             frequency = 0.5f,
             spawnEntity = spawnEntity,
             timeToNextSpawn = 0,
-            random = new Random(783465)
+            random = new Random(783465),
+            scaleRange = scaleRange,
+            velocity = velocity
         });
     }
 }

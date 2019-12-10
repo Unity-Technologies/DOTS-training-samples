@@ -33,7 +33,9 @@ public class SpawnerSystem : JobComponentSystem
                 var entity = commandBuffer.Instantiate(spawner.spawnEntity);
                 var c = spawner.center;
                 commandBuffer.SetComponent(entity, new Translation { Value = c + new float3(x, y, z) });
-
+                if (!(spawner.scaleRange.x - spawner.scaleRange.y).Equals(0f))
+                    commandBuffer.AddComponent(entity, new Scale() { Value = spawner.random.NextFloat(spawner.scaleRange.x, spawner.scaleRange.y) });
+                commandBuffer.AddComponent(entity, new Velocity() { Value = spawner.velocity });
                 spawner.timeToNextSpawn += 1f / spawner.frequency;
             }
 
