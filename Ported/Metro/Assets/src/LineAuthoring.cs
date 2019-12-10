@@ -1,4 +1,6 @@
-﻿using Unity.Entities;
+﻿using src;
+using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -107,6 +109,20 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         }
         m_Entity = entity;
         m_EntityManager = dstManager;
+        
+        
+        var archetype = Archetypes.RailMarkerArchetype();
+        using (var markerEntities = dstManager.CreateEntity(archetype, buffer.Length, Allocator.Temp))
+        {
+            buffer = dstManager.GetBuffer<LinePositionBufferElement>(entity);
+            for (var index = 0; index < markerEntities.Length; index++)
+            {
+                var bufferElement = buffer[index];
+                var markerEntity = markerEntities[index];
+                dstManager.SetComponentData(markerEntity, new Unity.Transforms.Translation() {Value = bufferElement.Value});
+            }
+        }
+        
     }
 
     //void Update()
