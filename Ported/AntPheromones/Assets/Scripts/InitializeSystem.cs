@@ -9,6 +9,11 @@ using Unity.Rendering;
 using Unity.Transforms;
 using Random = UnityEngine.Random;
 
+struct ObstacleBucket : IComponentData
+{
+	public int2 range;
+}
+
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 [UpdateAfter(typeof(ConvertToEntitySystem))]
 public class InitializeSystem : JobComponentSystem
@@ -22,7 +27,6 @@ public class InitializeSystem : JobComponentSystem
 
 	// TODO: move all of this
 	static int instancesPerBatch = 1023;
-	NativeArray<Obstacle> Obstacles;
 	NativeArray<int2> ObstacleBuckets;
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -60,9 +64,9 @@ public class InitializeSystem : JobComponentSystem
             antRotation.Value = Quaternion.Euler(0f, 0f, Random.Range(0.0f, 360.0f));
 
             Entity ant = EntityManager.Instantiate(settings.antPrefab);
-            EntityManager.SetComponentData<Translation>(ant, antPosition);
-            EntityManager.AddComponentData<NonUniformScale>(ant, antSize);
-            EntityManager.SetComponentData<Rotation>(ant, antRotation);
+            EntityManager.SetComponentData(ant, antPosition);
+            EntityManager.AddComponentData(ant, antSize);
+            EntityManager.SetComponentData(ant, antRotation);
         }
     }
 
@@ -124,8 +128,9 @@ public class InitializeSystem : JobComponentSystem
 			}
 		}
 
+		var obstacleArchetype = new ComponentType[] { typeof(Obstacle) };
+
 		// sort obstacles and fill buckets
-		Obstacles = new NativeArray<Obstacle>(obstacleCount, Allocator.Persistent);
 		int2 range = new int2(0, 0);
 
 		for (int x = 0; x < res; x++)
@@ -135,7 +140,10 @@ public class InitializeSystem : JobComponentSystem
 				int index = x + y * res;
 				foreach (var o in tempObstacleBuckets[x,y])
 				{
-					Obstacles[range.x + range.y] = o;
+					var obstacle = o;
+					obstacle.bucketIndex = index;
+					var entity = EntityManager.CreateEntity(obstacleArchetype);
+					EntityManager.SetComponentData(entity, obstacle);
 					range.y++;
 				}
 				ObstacleBuckets[index] = range;

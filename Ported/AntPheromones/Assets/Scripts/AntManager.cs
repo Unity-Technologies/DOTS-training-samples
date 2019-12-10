@@ -164,7 +164,7 @@ public class AntManager : MonoBehaviour {
 		for (int i=0;i<obstacleMatrices.Length;i++) {
 			obstacleMatrices[i] = new Matrix4x4[Mathf.Min(instancesPerBatch,output.Count - i * instancesPerBatch)];
 			for (int j=0;j<obstacleMatrices[i].Length;j++) {
-				obstacleMatrices[i][j] = Matrix4x4.TRS(output[i * instancesPerBatch + j].position / mapSize,Quaternion.identity,new Vector3(obstacleRadius*2f,obstacleRadius*2f,1f)/mapSize);
+				obstacleMatrices[i][j] = Matrix4x4.TRS((Vector2)output[i * instancesPerBatch + j].position / mapSize,Quaternion.identity,new Vector3(obstacleRadius*2f,obstacleRadius*2f,1f)/mapSize);
 			}
 		}
 
