@@ -35,6 +35,14 @@ public struct Gravity : IComponentData
 {
 }
 
+public struct Grabable: IComponentData
+{
+}
+
+public struct Grabber : IComponentData
+{
+}
+
 public struct TinCanRendering : ISharedComponentData, IEquatable<TinCanRendering>
 {
     public Material Material;
