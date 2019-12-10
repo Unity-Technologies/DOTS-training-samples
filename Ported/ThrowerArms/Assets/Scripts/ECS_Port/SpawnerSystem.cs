@@ -6,6 +6,11 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using static Unity.Mathematics.math;
 
+public struct UpscaleComponent : IComponentData
+{
+    public float targetScale;
+}
+
 public class SpawnerSystem : JobComponentSystem
 {
     BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
@@ -33,9 +38,10 @@ public class SpawnerSystem : JobComponentSystem
                 var entity = commandBuffer.Instantiate(spawner.spawnEntity);
                 var c = spawner.center;
                 commandBuffer.SetComponent(entity, new Translation { Value = c + new float3(x, y, z) });
-                if (!(spawner.scaleRange.x - spawner.scaleRange.y).Equals(0f))
-                    commandBuffer.AddComponent(entity, new Scale() { Value = spawner.random.NextFloat(spawner.scaleRange.x, spawner.scaleRange.y) });
+                var scale = spawner.random.NextFloat(spawner.scaleRange.x, spawner.scaleRange.y);
+                commandBuffer.AddComponent(entity, new Scale() { Value = 0f });
                 commandBuffer.AddComponent(entity, new Velocity() { Value = spawner.velocity });
+                commandBuffer.AddComponent(entity, new UpscaleComponent() { targetScale = scale }) ;
                 spawner.timeToNextSpawn += 1f / spawner.frequency;
             }
 
@@ -44,4 +50,34 @@ public class SpawnerSystem : JobComponentSystem
         return inputDependencies;
     }
 
+}
+
+public class UpscalerSystem : JobComponentSystem
+{
+    BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
+
+    protected override void OnCreate()
+    {
+        m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+    }
+
+    protected override JobHandle OnUpdate(JobHandle inputDependencies)
+    {
+        var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer();
+        float deltaTime = Time.DeltaTime;
+
+        Entities.ForEach((ref Entity entity, ref UpscaleComponent scaler, ref Scale scale) =>
+        {
+            var newScale = scale.Value + 1f * deltaTime;
+            if (newScale > scaler.targetScale)
+            {
+                newScale = scaler.targetScale;
+                commandBuffer.RemoveComponent(entity, typeof(UpscaleComponent));
+            }
+            scale.Value = newScale;
+
+        }).Run();
+
+        return inputDependencies;
+    }
 }
