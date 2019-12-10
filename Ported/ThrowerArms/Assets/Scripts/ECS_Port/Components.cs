@@ -10,15 +10,11 @@ public struct FallingTag : IComponentData { }
 
 public struct ArmComponent : IComponentData
 {
-    public float3 HandTargetPosition;
+    public float3 HandTarget;
     public float3 HandForward;
     public float3 HandUp;
     public float3 HandRight;
     public Matrix4x4 HandMatrix;
-}
-
-public struct InverseKinematicsDataTag : IComponentData
-{
 }
 
 public struct GrabbedTag : IComponentData
