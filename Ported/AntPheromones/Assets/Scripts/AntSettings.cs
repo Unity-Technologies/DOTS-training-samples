@@ -18,6 +18,9 @@ public struct AntSettings : IComponentData
 	//public Mesh colonyMesh;
 	//public Mesh resourceMesh;
 	public Entity antPrefab;
+	public Entity colonyPrefab;
+	public Entity resourcePrefab;
+	public Entity obstaclePrefab;
 	public Color searchColor;
 	public Color carryColor;
 	public int antCount;
