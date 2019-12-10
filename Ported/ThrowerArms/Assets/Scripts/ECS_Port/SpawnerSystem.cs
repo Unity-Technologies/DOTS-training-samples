@@ -72,7 +72,7 @@ public class UpscalerSystem : JobComponentSystem
             if (newScale > scaler.targetScale)
             {
                 newScale = scaler.targetScale;
-                commandBuffer.RemoveComponent(entity, typeof(UpscaleComponent));
+                commandBuffer.RemoveComponent<UpscaleComponent>(entity);
             }
             scale.Value = newScale;
 
