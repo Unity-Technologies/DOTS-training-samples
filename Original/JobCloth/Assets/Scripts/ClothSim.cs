@@ -1,10 +1,16 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Jobs;
 using Unity.Collections;
+using Unity.Entities;
+using Unity.Transforms;
+using Unity.Mathematics;
+using System.Linq;
+using Unity.Burst;
 
-public class ClothSim : MonoBehaviour {
+public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
+{
 
 	MeshFilter meshFilter;
 	Mesh mesh;
@@ -182,10 +188,244 @@ public class ClothSim : MonoBehaviour {
 
 	void OnDestroy() {
 		meshJobHandle.Complete();
-		vertices.Dispose();
-		pins.Dispose();
-		bars.Dispose();
-		barLengths.Dispose();
-		oldVertices.Dispose();
+        if (vertices.IsCreated) vertices.Dispose();
+        if (pins.IsCreated) pins.Dispose();
+        if (bars.IsCreated) bars.Dispose();
+        if (barLengths.IsCreated) barLengths.Dispose();
+        if (oldVertices.IsCreated) oldVertices.Dispose();
 	}
+
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+        var mesh        = GetComponent<MeshFilter>().sharedMesh;
+        var material    = GetComponent<MeshRenderer>().sharedMaterial;
+        var gravity     = (float3)transform.InverseTransformVector(-Vector3.up * Time.deltaTime * Time.deltaTime);
+
+        
+        var vertices    = mesh.vertices;
+        var normals     = mesh.normals;
+        var indices     = mesh.triangles;
+        var newMesh     = new Mesh();
+        newMesh.vertices = vertices;
+        newMesh.normals = normals;
+        newMesh.triangles = indices;
+
+        dstManager.AddComponentData(entity, new ClothComponent
+        {
+            Mesh = newMesh,
+            Gravity = gravity,
+            Material = material
+        }); ;
+    }
+}
+
+public class ClothComponent : IComponentData
+{
+    public Mesh Mesh;
+    public float3 Gravity;
+    public Material Material;
+
+    public NativeArray<float3>  CurrentClothPosition;
+    public NativeArray<float3>  PreviousClothPosition;
+    public NativeArray<float3>  ClothNormals;
+    public NativeArray<int>     Pins;
+    public NativeArray<int2>    ConstraintIndices;
+    public NativeArray<float>   ConstraintLengths;
+}
+
+[ExecuteAlways]
+[AlwaysUpdateSystem]
+[UpdateInGroup(typeof(PresentationSystemGroup))]
+class ClothComponentSystem : ComponentSystem
+{
+
+    override protected void OnStartRunning()
+    {
+        Entities.ForEach((ClothComponent cloth) =>
+        {
+            var vertices = cloth.Mesh.vertices;
+            var normals = cloth.Mesh.normals;
+            var indices = cloth.Mesh.triangles;
+
+            cloth.CurrentClothPosition = new NativeArray<float3>(vertices.Length, Allocator.Persistent);
+            cloth.PreviousClothPosition = new NativeArray<float3>(vertices.Length, Allocator.Persistent);
+            cloth.ClothNormals = new NativeArray<float3>(vertices.Length, Allocator.Persistent);
+            cloth.Pins = new NativeArray<int>(vertices.Length, Allocator.Persistent);
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                cloth.PreviousClothPosition[i] =
+                cloth.CurrentClothPosition[i] = vertices[i];
+
+                cloth.ClothNormals[i] = normals[i];
+
+                if (normals[i].y > .9f && vertices[i].y > .3f)
+                    cloth.Pins[i] = 1;
+            }
+
+            var constraintLookup = new HashSet<int2>(); 
+            for (int i = 0, j = 0; i < indices.Length; i += 3)
+            {
+                var index0 = indices[i + 0];
+                var index1 = indices[i + 1];
+                var index2 = indices[i + 2];
+
+                int2 constraint0;
+                int2 constraint1;
+                int2 constraint2;
+
+                if (index0 > index1) constraint0 = new int2(index0, index1); else constraint0 = new int2(index1, index0);
+                if (index1 > index2) constraint1 = new int2(index1, index2); else constraint1 = new int2(index2, index1);
+                if (index2 > index0) constraint2 = new int2(index2, index0); else constraint2 = new int2(index0, index2);
+
+                if (!constraintLookup.Contains(constraint0)) { constraintLookup.Add(constraint0); }
+                if (!constraintLookup.Contains(constraint1)) { constraintLookup.Add(constraint1); }
+                if (!constraintLookup.Contains(constraint2)) { constraintLookup.Add(constraint2); }
+            }
+
+            cloth.ConstraintIndices = new NativeArray<int2>(constraintLookup.ToArray(), Allocator.Persistent);
+            cloth.ConstraintLengths = new NativeArray<float>(constraintLookup.Count, Allocator.Persistent);
+            for (int i = 0; i < cloth.ConstraintIndices.Length; i ++)
+            {
+                var constraint = cloth.ConstraintIndices[i];
+
+                var vertex0 = cloth.PreviousClothPosition[constraint.x];
+                var vertex1 = cloth.PreviousClothPosition[constraint.y];
+
+                cloth.ConstraintLengths[i] = math.length(vertex1 - vertex0);
+            }
+        });
+    }
+
+    override protected void OnDestroy()
+    {
+        Entities.ForEach((ClothComponent cloth) =>
+        {
+            if (cloth.CurrentClothPosition .IsCreated) cloth.CurrentClothPosition.Dispose();
+            if (cloth.PreviousClothPosition.IsCreated) cloth.PreviousClothPosition.Dispose();
+            if (cloth.ClothNormals         .IsCreated) cloth.ClothNormals.Dispose();
+            if (cloth.Pins                 .IsCreated) cloth.Pins.Dispose();
+            if (cloth.ConstraintIndices    .IsCreated) cloth.ConstraintIndices.Dispose();
+            if (cloth.ConstraintLengths    .IsCreated) cloth.ConstraintLengths.Dispose();
+        });
+    }
+
+
+    [BurstCompile]
+    struct ConstraintJob : IJob
+    {
+        public            NativeArray<float3> vertices;
+        [ReadOnly] public NativeArray<int2> constraintIndices;
+        [ReadOnly] public NativeArray<float> constraintLengths;
+        [ReadOnly] public NativeArray<int> pins;
+
+        public void Execute()
+        {
+            for (int i = 0; i < constraintIndices.Length; i++)
+            {
+                int2 pair = constraintIndices[i];
+                int pin1 = pins[pair.x];
+                int pin2 = pins[pair.y];
+
+                float3 p1 = vertices[pair.x];
+                float3 p2 = vertices[pair.y];
+
+                var delta = p2 - p1;
+                var length = math.length(delta);
+                var extra = (length - constraintLengths[i]) * .5f;
+                var dir = delta / length;
+
+                if (pin1 == 0 && pin2 == 0)
+                {
+                    vertices[pair.x] += extra * dir;
+                    vertices[pair.y] -= extra * dir;
+                }
+                else if (pin1 == 0 && pin2 == 1)
+                {
+                    vertices[pair.x] += extra * dir * 2f;
+                }
+                else if (pin1 == 1 && pin2 == 0)
+                {
+                    vertices[pair.y] -= extra * dir * 2f;
+                }
+            }
+        }
+    }
+
+    [BurstCompile]
+    struct UpdateMeshJob : IJobParallelFor
+    {
+        public NativeArray<float3> vertices;
+        public NativeArray<float3> oldVertices;
+        [ReadOnly]
+        public NativeArray<int> pins;
+        public float3 gravity;
+        public float4x4 localToWorld;
+        public float4x4 worldToLocal;
+
+        public void Execute(int i)
+        {
+            if (pins[i] == 0)
+            {
+                float3 oldVert = oldVertices[i];
+                float3 vert = vertices[i];
+
+                float3 startPos = vert;
+                oldVert -= gravity;
+                vert += (vert - oldVert);
+                float3 worldPos = math.mul(localToWorld, new float4(vert, 1)).xyz;
+                oldVert = startPos;
+
+                if (worldPos.y < 0f)
+                {
+                    float3 oldWorldPos = math.mul(localToWorld, new float4(oldVert, 1)).xyz;
+                    oldWorldPos.y = (worldPos.y - oldWorldPos.y) * .5f;
+                    worldPos.y = 0f;
+                    vert = math.mul(worldToLocal, new float4(worldPos, 1)).xyz;
+                    oldVert = math.mul(worldToLocal, new float4(oldWorldPos, 1)).xyz;
+                }
+
+                vertices[i] = vert;
+                oldVertices[i] = oldVert;
+            }
+        }
+    }
+
+    override protected void OnUpdate()
+    {
+
+        Entities.ForEach((ClothComponent cloth, ref LocalToWorld localToWorld) =>
+        {
+            var constraintJob = new ConstraintJob
+            {
+                vertices = cloth.CurrentClothPosition,
+                pins = cloth.Pins,
+                constraintIndices = cloth.ConstraintIndices,
+                constraintLengths = cloth.ConstraintLengths
+            };
+
+            var meshJob = new UpdateMeshJob
+            {
+                vertices = cloth.CurrentClothPosition,
+                oldVertices = cloth.PreviousClothPosition,
+                pins = cloth.Pins,
+                gravity = cloth.Gravity,
+                localToWorld = localToWorld.Value,
+                worldToLocal = math.inverse(localToWorld.Value)
+            };
+
+            var constraintHandle = constraintJob.Schedule();
+            var meshHandle = meshJob.Schedule(cloth.CurrentClothPosition.Length, 128, constraintHandle);
+            meshHandle.Complete();
+        });
+
+        Entities.ForEach((ClothComponent cloth, ref LocalToWorld localToWorld) =>
+        {
+            cloth.Mesh.SetVertices(cloth.CurrentClothPosition);
+        });
+
+        Entities.ForEach((ClothComponent cloth, ref LocalToWorld localToWorld) =>
+        {
+            Graphics.DrawMesh(cloth.Mesh, localToWorld.Value, cloth.Material, 0);
+        });
+    }
 }
