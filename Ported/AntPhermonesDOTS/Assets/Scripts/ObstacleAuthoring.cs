@@ -28,7 +28,17 @@ public class ObstacleAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         var builder = new BlobBuilder(Allocator.Temp);
         ref var root = ref builder.ConstructRoot<ObstacleBlobAsset>();
 
+        root.radius = obstacleRadius;
+
+        var positionCount = 4;
+        var posArray = builder.Allocate(ref root.positions, 4);
+        for (var i = 0; i < positionCount; ++i)
+        {
+            posArray[i] = new float3((float)i, (float)i, (float)i);
+        }
+
         var blobReference = builder.CreateBlobAssetReference<ObstacleBlobAsset>(Allocator.Persistent);
+        builder.Dispose();
 
         dstManager.AddComponentData(entity, new ObstacleSet
         {
