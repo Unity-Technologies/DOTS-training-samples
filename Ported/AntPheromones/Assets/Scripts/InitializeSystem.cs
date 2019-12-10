@@ -38,7 +38,8 @@ public class InitializeSystem : JobComponentSystem
 
         AntSettings settings = GetSingleton<AntSettings>();
         SpawnAnts(ref settings);
-        GenerateObstacles(ref settings);
+        SpawnObstacles(ref settings);
+        SpawnTargets(ref settings);
  
         init = true;
 
@@ -48,7 +49,7 @@ public class InitializeSystem : JobComponentSystem
     protected void SpawnAnts(ref AntSettings settings)
     {
         Translation colonyPosition = new Translation();
-        colonyPosition.Value = new Vector3(.5f, .5f, 0);
+        colonyPosition.Value = new Vector3(0.5f, 0.5f, 0);
 
         NonUniformScale antSize = new NonUniformScale();
         antSize.Value = settings.antSize;
@@ -70,7 +71,7 @@ public class InitializeSystem : JobComponentSystem
         }
     }
 
-	void GenerateObstacles(ref AntSettings settings)
+	protected void SpawnObstacles(ref AntSettings settings)
 	{
         NonUniformScale prefabScale = new NonUniformScale();
         prefabScale.Value = Vector3.one * 2 * settings.obstacleRadius/(float)settings.mapSize;
@@ -78,7 +79,7 @@ public class InitializeSystem : JobComponentSystem
 		List<Obstacle> output = new List<Obstacle>();
 		for (int i = 1; i <= settings.obstacleRingCount; i++)
 		{
-			float ringRadius = (i / (settings.obstacleRingCount + 1f)) * (settings.mapSize * .5f);
+			float ringRadius = (i / (settings.obstacleRingCount + 1f)) * (settings.mapSize * 0.5f);
 			float circumference = ringRadius * 2f * Mathf.PI;
 			int maxCount = Mathf.CeilToInt(circumference / (2f * settings.obstacleRadius) * 2f);
 			int offset = Random.Range(0, maxCount);
@@ -90,7 +91,7 @@ public class InitializeSystem : JobComponentSystem
 				{
 					float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
 					Obstacle obstacle = new Obstacle();
-                    float center = settings.mapSize * .5f;
+                    float center = settings.mapSize * 0.5f;
                     float x = Mathf.Cos(angle) * ringRadius + center;
                     float y = Mathf.Sin(angle) * ringRadius + center;
 					obstacle.position = new Vector2(x, y);
@@ -100,7 +101,7 @@ public class InitializeSystem : JobComponentSystem
                     var prefabEntity = EntityManager.Instantiate(settings.obstaclePrefab);
                     Translation prefabTranslation = new Translation();
                     
-                    prefabTranslation.Value = new Vector3(x + .5f, y + .5f, 0) / (float)settings.mapSize;
+                    prefabTranslation.Value = new Vector3(x, y, 0) / (float)settings.mapSize;
                     EntityManager.SetComponentData(prefabEntity, prefabTranslation);
                     EntityManager.AddComponentData(prefabEntity, prefabScale);
 				}
@@ -169,5 +170,26 @@ public class InitializeSystem : JobComponentSystem
 		}
 
 	}
+
+    protected void SpawnTargets(ref AntSettings settings)
+    {
+        NonUniformScale scale = new NonUniformScale();
+        scale.Value = Vector3.one * 2 * settings.obstacleRadius / (float)settings.mapSize;
+
+        Translation colonyTranslation = new Translation();
+        colonyTranslation.Value = new Vector3(0.5f, 0.5f, 0);
+
+        var colonyEntity = EntityManager.Instantiate(settings.colonyPrefab);
+        EntityManager.SetComponentData(colonyEntity, colonyTranslation);
+        EntityManager.AddComponentData(colonyEntity, scale);
+        
+        float resourceAngle = Random.value * 2f * Mathf.PI;
+        Translation resourceTranslation = new Translation();
+        resourceTranslation.Value = new Vector3(Mathf.Cos(resourceAngle) * .475f + 0.5f, Mathf.Sin(resourceAngle) * .475f + 0.5f, 0.0f);
+
+        var resourceEntity = EntityManager.Instantiate(settings.resourcePrefab);
+        EntityManager.SetComponentData(resourceEntity, resourceTranslation);
+        EntityManager.AddComponentData(resourceEntity, scale);
+    }
 
 }
