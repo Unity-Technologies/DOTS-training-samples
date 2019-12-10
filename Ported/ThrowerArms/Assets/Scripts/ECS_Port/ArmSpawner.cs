@@ -31,7 +31,7 @@ public class ArmSpawner : MonoBehaviour
 
             entityManager.SetComponentData(instance, new Translation
             {
-                Value = Spacing * i * Vector3.right
+                Value = Spacing * i * new float3(1, 0, 0)
             });
             entityManager.SetComponentData(instance, new Rotation
             {
