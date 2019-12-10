@@ -22,6 +22,37 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     Entity m_Entity;
     EntityManager m_EntityManager;
 
+    struct GenerationStep
+    {
+        public GenerationStep(int nextWaypointIdx, Transform currentWaypoint)
+        {
+            NextWaypointIdx = nextWaypointIdx;
+            CurrentWaypoint = currentWaypoint;
+            NextWaypoint = currentWaypoint.parent.GetChild(nextWaypointIdx);
+            FullDistanceBetweenWaypoints = NextWaypoint.position - currentWaypoint.position;
+        }
+
+        public readonly int NextWaypointIdx;
+        public readonly Transform CurrentWaypoint;
+        public readonly Transform NextWaypoint;
+        public readonly float3 FullDistanceBetweenWaypoints;
+
+        public bool HasNext
+        {
+            get
+            {
+                return CurrentWaypoint.parent.childCount > NextWaypointIdx + 1;
+            }
+        }
+
+        public GenerationStep Next
+        {
+            get {
+                return new GenerationStep(NextWaypointIdx + 1, NextWaypoint);
+            }
+        }
+    }
+
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         // Call methods on 'dstManager' to create runtime components on 'entity' here. Remember that:
@@ -35,24 +66,30 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         //   dstManager.AddComponentData(entity, new Unity.Transforms.Scale { Value = scale });
 
         var buffer = dstManager.AddBuffer<LinePositionBufferElement>(entity);
-        var currentWaypointIdx = 1;
-        float3 currentPosition = transform.GetChild(0).position;
+        var generationStep = new GenerationStep(1, transform.GetChild(0));
+        float3 currentPosition = generationStep.CurrentWaypoint.position;
+        float3 currentHeading = math.normalize(generationStep.FullDistanceBetweenWaypoints);
         buffer.Add(currentPosition);
-        while (currentWaypointIdx < transform.childCount)
+        
+
+        while (generationStep.NextWaypointIdx < transform.childCount)
         {
-            var nextWaypoint = transform.GetChild(currentWaypointIdx);
-            var diff = (float3)nextWaypoint.position - currentPosition;
+            var diff = (float3)generationStep.NextWaypoint.position - currentPosition;
             while(math.length(diff) < k_StepSize)
             {
-                if (++currentWaypointIdx < transform.childCount)
+                if (generationStep.HasNext)
                 {
-                    nextWaypoint = transform.GetChild(currentWaypointIdx);
-                    diff = (float3)nextWaypoint.position - currentPosition;
+                    generationStep = generationStep.Next;
+                    currentPosition = generationStep.CurrentWaypoint.position;
+                    currentHeading = math.normalize(generationStep.FullDistanceBetweenWaypoints);
+                    diff = (float3)generationStep.NextWaypoint.position - currentPosition;
                 }
                 else
                     return;
             }
-            var step = math.normalize(diff) * k_StepSize;
+            var t = 1 - (math.length(diff) - k_StepSize) / math.length(generationStep.FullDistanceBetweenWaypoints);
+            var heading = math.lerp(currentHeading, math.normalize(diff), t);
+            var step = math.normalize(heading) * k_StepSize;
             currentPosition += step;
             buffer.Add(currentPosition);
         }
