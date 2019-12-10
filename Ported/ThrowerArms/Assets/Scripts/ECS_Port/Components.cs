@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 public struct MovingTag : IComponentData { }
@@ -36,7 +37,11 @@ public struct Velocity : IComponentData
 
 public struct AngularVelocity : IComponentData
 {
-    public float3 Value;
+    public Rotation rotation;
+}
+
+public struct Gravity : IComponentData
+{
 }
 
 public struct BoneMatrixBuffer : IBufferElementData

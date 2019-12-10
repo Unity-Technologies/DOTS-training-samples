@@ -165,7 +165,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97f513b467722446eb72558d10f4a3f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnPrefab: {fileID: 0}
+  spawnPrefab: {fileID: 3640192408852119734, guid: 50997a8681c8d4157889c233bd2878fa,
+    type: 3}
 --- !u!4 &117738162
 Transform:
   m_ObjectHideFlags: 0
@@ -804,7 +805,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97f513b467722446eb72558d10f4a3f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnPrefab: {fileID: 0}
+  spawnPrefab: {fileID: 4956942366655687727, guid: 645203d9566fe44229e145de42fde5bd,
+    type: 3}
 --- !u!4 &1718741835
 Transform:
   m_ObjectHideFlags: 0
