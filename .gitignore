@@ -42,3 +42,5 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+Ported/Metro/Assets/SceneDependencyCache
+Ported/Metro/Assets/SceneDependencyCache.meta
