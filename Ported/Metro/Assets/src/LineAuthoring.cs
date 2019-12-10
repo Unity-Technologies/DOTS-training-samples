@@ -4,6 +4,7 @@ using UnityEngine;
 
 [DisallowMultipleComponent]
 [RequiresEntityConversion]
+[ConverterVersion("martinsch", 2)]
 public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     // Add fields to your component here. Remember that:
@@ -16,6 +17,9 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     //
     // For example,
     //    public float scale;
+
+    [SerializeField]
+    int m_lineIndex = 0;
 
     const float k_StepSize = 0.1f;
 
@@ -65,6 +69,7 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         // For example,
         //   dstManager.AddComponentData(entity, new Unity.Transforms.Scale { Value = scale });
 
+        dstManager.AddComponentData(entity, new Line { ID = m_lineIndex });
         var buffer = dstManager.AddBuffer<LinePositionBufferElement>(entity);
         var generationStep = new GenerationStep(1, transform.GetChild(0));
         float3 currentPosition = generationStep.CurrentWaypoint.position;
@@ -93,7 +98,6 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             currentPosition += step;
             buffer.Add(currentPosition);
         }
-        dstManager.AddComponentData(entity, new Line{ });
         m_Entity = entity;
         m_EntityManager = dstManager;
     }
