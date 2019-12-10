@@ -17,7 +17,7 @@ public class ArmSpawner : MonoBehaviour
         ArmRowWidth = (Count - 1) * Spacing;
     }
 
-    void Start()
+    private void Start()
     {
         GameObjectConversionSettings settings = 
             GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, blobAssetStore: null);
