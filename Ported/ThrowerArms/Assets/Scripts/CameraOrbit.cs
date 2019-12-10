@@ -37,7 +37,7 @@ public class CameraOrbit : MonoBehaviour {
 											0f);
 
 		float x = .5f - Mathf.Cos(swayXTimer * 2f * Mathf.PI) * .5f;
-		transform.position = new Vector3(ArmManager.armRowWidth*x,0f,0f)+posOffset;
+		transform.position = new Vector3(ArmSpawner.ArmRowWidth*x,0f,0f)+posOffset;
 
 		float zoomT = .5f-Mathf.Cos(zoomTimer*2f*Mathf.PI)*.5f;
 		cam.localPosition = new Vector3(0f,0f,-Mathf.Lerp(minCamDist,maxCamDist,zoomT));
