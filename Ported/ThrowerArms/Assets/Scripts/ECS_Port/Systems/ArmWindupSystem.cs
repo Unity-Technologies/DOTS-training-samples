@@ -30,11 +30,17 @@ public class ArmWindupSystem : JobComponentSystem
                 flatTargetDelta = math.normalize(flatTargetDelta);
                 // windup position is "behind us," relative to the target position
                 windup.HandTarget = pos.Value - flatTargetDelta * 2f + new float3(0,1,0) * (3f - windupT * 2.5f);
-                concurrentBuffer.SetComponent(0, windup.HeldEntity, new Translation { Value = arm.HandTarget });
+         //       concurrentBuffer.SetComponent(0, windup.HeldEntity, new Translation { Value = arm.HandTarget });
                 if(windup.WindupTimer > 1f)
                 {
                     concurrentBuffer.RemoveComponent<WindingUpState>(0, entity);
-         //           concurrentBuffer.AddComponent(0,entity, new ArmThrowComponent{ // TODO});
+                    concurrentBuffer.AddComponent(0,entity, new ThrowAtState
+                    {
+                        ThrowTimer = 0f,
+                         StartPosition = windup.HandTarget,
+                         AimedTargetEntity = windup.AimedTargetEntity,
+                         HeldEntity = windup.HeldEntity
+                    });
                 }
             })
             .Schedule(inputDeps);
