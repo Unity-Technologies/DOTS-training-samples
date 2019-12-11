@@ -47,7 +47,7 @@ public class InitializeSystem : JobComponentSystem
 
         const float perimeter = 0.03f;
 
-        for (int i = 0; i < 10; ++i)
+        for (int i = 0; i < settings.antCount; ++i)
         {
             Translation antPosition = new Translation();
             antPosition.Value = new Vector3(Random.Range(-perimeter, perimeter) + colonyPosition.Value.x, Random.Range(-perimeter, perimeter) + colonyPosition.Value.y, 0);
@@ -55,12 +55,16 @@ public class InitializeSystem : JobComponentSystem
             float angleInDegrees = Random.Range(0.0f, 360.0f);
             Rotation antRotation = new Rotation();
             antRotation.Value = Quaternion.Euler(0f, 0f, angleInDegrees);
-            
-            AntComponent ant = new AntComponent();
-            ant.acceleration = settings.antAccel;
-            ant.facingAngle = math.radians(angleInDegrees);
+
+			AntComponent ant = new AntComponent()
+			{
+				acceleration = settings.antAccel,
+				facingAngle = math.radians(angleInDegrees),
+				index = i
+			};
 
             Entity newEntity = EntityManager.Instantiate(settings.antPrefab);
+			EntityManager.AddComponentData(newEntity, new AntComponent() { index = i });
             EntityManager.SetComponentData(newEntity, antPosition);
             EntityManager.AddComponentData(newEntity, antSize);
             EntityManager.SetComponentData(newEntity, antRotation);
