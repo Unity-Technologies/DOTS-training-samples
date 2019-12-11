@@ -10,3 +10,8 @@ public struct Obstacle : IComponentData
 	public float radius;
 	public int bucketIndex;
 }
+
+struct ObstacleBucket : IComponentData
+{
+	public int2 range;
+}

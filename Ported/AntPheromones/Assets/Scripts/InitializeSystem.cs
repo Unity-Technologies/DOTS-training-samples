@@ -9,11 +9,6 @@ using Unity.Rendering;
 using Unity.Transforms;
 using Random = UnityEngine.Random;
 
-struct ObstacleBucket : IComponentData
-{
-	public int2 range;
-}
-
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 [UpdateAfter(typeof(ConvertToEntitySystem))]
 public class InitializeSystem : JobComponentSystem
@@ -120,7 +115,7 @@ public class InitializeSystem : JobComponentSystem
 		}
 
 		var res = settings.bucketResolution;
-		RuntimeManager.instance.ObstacleBuckets = new NativeArray<int2>(res * res, Allocator.Persistent);
+		RuntimeManager.instance.obstacleBuckets = new NativeArray<int2>(res * res, Allocator.Persistent);
 
 		int obstacleCount = 0;
 		foreach (var obstacle in output)
@@ -165,7 +160,7 @@ public class InitializeSystem : JobComponentSystem
                     range.y++;
 				}
 				
-				RuntimeManager.instance.ObstacleBuckets[index] = range;
+				RuntimeManager.instance.obstacleBuckets[index] = range;
 
 				range.x += range.y;
 				range.y = 0;

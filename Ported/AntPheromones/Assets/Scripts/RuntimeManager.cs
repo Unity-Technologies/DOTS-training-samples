@@ -4,7 +4,7 @@ using Unity.Mathematics;
 public class RuntimeManager
 {
     protected static RuntimeManager i = null;
-	public NativeArray<int2> ObstacleBuckets;
+	public NativeArray<int2> obstacleBuckets;
     public float3 colonyPosition;
     public float3 resourcePosition;
     public static RuntimeManager instance
@@ -16,5 +16,11 @@ public class RuntimeManager
 
             return i;
         }
+    }
+
+    ~RuntimeManager()
+    {
+        if (obstacleBuckets != null)
+            obstacleBuckets.Dispose();
     }
 }
