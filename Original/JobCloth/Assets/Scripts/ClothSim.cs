@@ -243,7 +243,6 @@ public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
         var constraints = ClothBlobAssetUtility.CreateFromMesh(newMesh);
 
         vertices = newMesh.vertices;
-        normals = newMesh.normals;
 
         var cloth = new ClothComponent
         {
@@ -251,18 +250,22 @@ public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
             constraints = constraints
         };
 
-        cloth.CurrentClothPosition = new NativeArray<float3>(vertices.Length, Allocator.Persistent);
-        cloth.PreviousClothPosition = new NativeArray<float3>(vertices.Length, Allocator.Persistent);
-        cloth.Forces = new NativeArray<float3>(vertices.Length, Allocator.Persistent);
-        cloth.ClothNormals = new NativeArray<float3>(vertices.Length, Allocator.Persistent);
+        dstManager.AddBuffer<CurrentVertex>(entity);
+        dstManager.AddBuffer<PreviousVertex>(entity);
+        dstManager.AddBuffer<Force>(entity);
 
+        var currentClothPositions   = dstManager.GetBuffer<CurrentVertex>(entity);
+        var previousClothPositions  = dstManager.GetBuffer<PreviousVertex>(entity);
+        var forces                  = dstManager.GetBuffer<Force>(entity);
+
+        currentClothPositions.Reserve(vertices.Length);
+        previousClothPositions.Reserve(vertices.Length);
+        forces.Reserve(vertices.Length);
         for (int i = 0; i < vertices.Length; i++)
         {
-            cloth.PreviousClothPosition[i] =
-            cloth.CurrentClothPosition[i] = vertices[i];
-            cloth.Forces[i] = float3.zero;
-
-            cloth.ClothNormals[i] = normals[i];
+            currentClothPositions.Add(vertices[i]);
+            previousClothPositions.Add(vertices[i]);
+            forces.Add(float3.zero);
         }
 
         dstManager.AddComponentData(entity, cloth);

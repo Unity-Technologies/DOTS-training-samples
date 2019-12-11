@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -13,23 +14,14 @@ public class ClothRenderSystem : JobComponentSystem
     {
         inputDeps.Complete();
 
-        Entities.WithoutBurst().ForEach((ClothComponent cloth, ClothRenderComponent renderCloth, ref LocalToWorld localToWorld) =>
+        Entities.WithoutBurst().ForEach((Entity entity, in ClothComponent cloth, in ClothRenderComponent renderCloth, in LocalToWorld localToWorld) =>
         {
-            renderCloth.Mesh.SetVertices(cloth.CurrentClothPosition);
+            var vertices = EntityManager.GetBuffer<CurrentVertex>(entity);
+            renderCloth.Mesh.SetVertices(vertices.Reinterpret<float3>().AsNativeArray());
 
             Graphics.DrawMesh(renderCloth.Mesh, localToWorld.Value, renderCloth.Material, 0);
         }).Run();
 
         return inputDeps;
-    }
-    override protected void OnDestroy()
-    {
-        Entities.WithoutBurst().ForEach((ClothComponent cloth) =>
-        {
-            if (cloth.CurrentClothPosition.IsCreated) cloth.CurrentClothPosition.Dispose();
-            if (cloth.PreviousClothPosition.IsCreated) cloth.PreviousClothPosition.Dispose();
-            if (cloth.Forces.IsCreated) cloth.Forces.Dispose();
-            if (cloth.ClothNormals.IsCreated) cloth.ClothNormals.Dispose();
-        }).Run();
     }
 }

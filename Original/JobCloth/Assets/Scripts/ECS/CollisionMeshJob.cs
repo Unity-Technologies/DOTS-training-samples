@@ -15,10 +15,10 @@ public class CollisionMesh_System : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        Entities.WithoutBurst().ForEach((ClothComponent cloth, ref LocalToWorld localToWorldParam) =>
+        Entities.WithoutBurst().ForEach((Entity entity, ClothComponent cloth, in LocalToWorld localToWorldParam) =>
         {
-            var vertices = cloth.CurrentClothPosition;
-            var oldVertices = cloth.PreviousClothPosition;
+            var vertices    = EntityManager.GetBuffer<CurrentVertex>(entity);
+            var oldVertices = EntityManager.GetBuffer<PreviousVertex>(entity);
             var localToWorld = localToWorldParam.Value;
             var worldToLocal = math.inverse(localToWorldParam.Value);
 
