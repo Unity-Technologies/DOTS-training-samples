@@ -4,3 +4,7 @@
 public struct GrabbableState : IComponentData
 {
 }
+
+public struct FlyingState : IComponentData
+{
+}
