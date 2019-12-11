@@ -14,7 +14,7 @@ public class PickSelectSystem : JobComponentSystem
     {
         base.OnCreate();
 
-        m_GrabbersQuery = GetEntityQuery(ComponentType.ReadOnly<Grabber>());
+        m_GrabbersQuery = GetEntityQuery(ComponentType.ReadOnly<FindGrabbableTargetState>());
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
@@ -24,16 +24,18 @@ public class PickSelectSystem : JobComponentSystem
         NativeArray<Entity> pickupArray = new NativeArray<Entity>(m_GrabbersQuery.CalculateEntityCount(), Allocator.TempJob, NativeArrayOptions.ClearMemory);
 
         JobHandle assignJobHandle = Entities.WithName("AssignRocksToArray")
-            .ForEach((Entity e, ref Translation translation, ref Grabable grabable) =>
+            .ForEach((Entity e, ref Translation translation, ref GrabbableState grabbable) =>
             {
                 int index = (int)math.round(translation.Value.x);
                 pickupArray[index] = e;
         }).Schedule(inputDependencies);
 
+        var accessor = GetComponentDataFromEntity<Scale>(isReadOnly: true);
+        
         EntityCommandBuffer.Concurrent concurrentBuffer = entityCommandBuffer.ToConcurrent();
         JobHandle grabJobHandle = Entities.WithName("GrabRocksFromArray")
             .WithDeallocateOnJobCompletion(pickupArray)
-            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Grabber grabber) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref FindGrabbableTargetState grabber) =>
         {
             int index = (int)math.round(translation.Value.x);
             Entity pickEntity = pickupArray[index];
@@ -43,8 +45,15 @@ public class PickSelectSystem : JobComponentSystem
                 // Do something with the picked entity.
 
                 // Remove the components so we do not pick another entity.
-                concurrentBuffer.RemoveComponent<Grabber>(entityInQueryIndex, entity);
-                concurrentBuffer.RemoveComponent<Grabable>(entityInQueryIndex, pickEntity);
+                concurrentBuffer.RemoveComponent<FindGrabbableTargetState>(entityInQueryIndex, entity);
+                concurrentBuffer.RemoveComponent<GrabbableState>(entityInQueryIndex, pickEntity);
+                
+                concurrentBuffer.AddComponent(entityInQueryIndex, entity, new ReachForTargetState
+                {
+                    ReachTimer = 1f,
+                    TargetEntity = pickEntity,
+                    TargetSize = accessor[pickEntity].Value
+                });
             }
         }).Schedule(assignJobHandle);
         endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(grabJobHandle);

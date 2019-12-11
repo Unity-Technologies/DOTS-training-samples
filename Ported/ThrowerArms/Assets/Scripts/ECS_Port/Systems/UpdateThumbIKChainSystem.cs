@@ -24,8 +24,10 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
         Entity bufferSingleton = m_positionBufferQuery.GetSingletonEntity();
         var positions = EntityManager.GetBuffer<ArmJointPositionBuffer>(bufferSingleton);
 
+        ComponentDataFromEntity<Translation> translationFromEntityAccessor = GetComponentDataFromEntity<Translation>();
+
         return Entities.WithName("UpdateThumbIK")
-            .ForEach((in ArmComponent arm, in Translation translation, in FingerComponent fingerComponent) =>
+            .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent, in ReachForTargetState reachTarget) =>
             {
                 float3 thumbPosition = translation.Value + arm.HandRight * ThumbConstants.XOffset;
                 float3 thumbTarget = thumbPosition - arm.HandRight * 0.15f +
@@ -34,9 +36,9 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
 
                 float3 thumbBendHint = -arm.HandRight - arm.HandForward * 0.5f;
 
-                float3 rockThumbDelta = thumbTarget - arm.LastIntendedRockPosition;
-                float3 rockThumbPosition = arm.LastIntendedRockPosition +
-                                           math.normalize(rockThumbDelta) * (arm.LastIntendedRockSize * 0.5f);
+                var targetRockPosition = translationFromEntityAccessor[reachTarget.TargetEntity].Value;
+                float3 rockThumbDelta = thumbTarget - targetRockPosition;
+                float3 rockThumbPosition = targetRockPosition + math.normalize(rockThumbDelta) * (reachTarget.TargetSize * 0.5f);
 
                 thumbTarget = math.lerp(thumbTarget, rockThumbPosition, fingerComponent.GrabExtent);
                 
