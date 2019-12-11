@@ -20,6 +20,7 @@ public class ClothComponent : IComponentData
 
     public NativeArray<float3> CurrentClothPosition;
     public NativeArray<float3> PreviousClothPosition;
+    public NativeArray<float3> Forces;
     public NativeArray<float3> ClothNormals;
 
     public NativeArray<int2> Constraint1Indices;
@@ -44,6 +45,7 @@ class ClothComponentSystem : ComponentSystem
 
             cloth.CurrentClothPosition = new NativeArray<float3>(vertices.Length, Allocator.Persistent);
             cloth.PreviousClothPosition = new NativeArray<float3>(vertices.Length, Allocator.Persistent);
+            cloth.Forces = new NativeArray<float3>(vertices.Length, Allocator.Persistent);
             cloth.ClothNormals = new NativeArray<float3>(vertices.Length, Allocator.Persistent);
             var pinned = new bool[vertices.Length];
             var lastPinned = 0;
@@ -51,6 +53,7 @@ class ClothComponentSystem : ComponentSystem
             {
                 cloth.PreviousClothPosition[i] =
                 cloth.CurrentClothPosition[i] = vertices[i];
+                cloth.Forces[i] = float3.zero;
 
                 cloth.ClothNormals[i] = normals[i];
 
@@ -173,6 +176,7 @@ class ClothComponentSystem : ComponentSystem
         {
             if (cloth.CurrentClothPosition.IsCreated) cloth.CurrentClothPosition.Dispose();
             if (cloth.PreviousClothPosition.IsCreated) cloth.PreviousClothPosition.Dispose();
+            if (cloth.Forces.IsCreated) cloth.Forces.Dispose();
             if (cloth.ClothNormals.IsCreated) cloth.ClothNormals.Dispose();
 
             if (cloth.Constraint1Indices.IsCreated) cloth.Constraint1Indices.Dispose();
@@ -188,6 +192,7 @@ class ClothComponentSystem : ComponentSystem
     {
         Entities.ForEach((ClothComponent cloth, ref LocalToWorld localToWorld) =>
         {
+            
             
         });
     }

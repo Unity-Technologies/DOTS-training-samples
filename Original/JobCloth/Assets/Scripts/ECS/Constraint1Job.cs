@@ -53,6 +53,7 @@ public unsafe class Constraint1_System : ComponentSystem
             var vertices = cloth.CurrentClothPosition;
             var constraintIndices = cloth.Constraint1Indices;
             var constraintLengths = cloth.Constraint1Lengths;
+            var forces = cloth.Forces;
 
             //Execute
             {
@@ -93,6 +94,7 @@ public unsafe class Constraint1_System : ComponentSystem
                 vertices = cloth.CurrentClothPosition,
                 oldVertices = cloth.PreviousClothPosition,
                 gravity = cloth.Gravity,
+                forces = forces
             };
 
             var collisionJob = new CollisionMeshJob
