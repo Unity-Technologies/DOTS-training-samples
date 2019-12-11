@@ -19,8 +19,9 @@ public class AccumulateForces_System : JobComponentSystem
             var oldVertices = EntityManager.GetBuffer<PreviousVertex>(entity);
             var gravity     = cloth.Gravity;
 
+            var firstPinnedIndex = cloth.constraints.Value.FirstPinnedIndex;
             //Execute
-            for (int i = 0; i < vertices.Length; ++i)
+            for (int i = 0; i < firstPinnedIndex; ++i)
             {
                 float3 oldVert  = oldVertices[i];
                 float3 vert     = vertices[i];
