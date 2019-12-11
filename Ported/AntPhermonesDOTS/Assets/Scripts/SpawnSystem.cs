@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using System.Xml;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -21,13 +22,17 @@ public class SpawnSystem : JobComponentSystem
             .WithName("SpawnerSystem")
             .ForEach((Entity entity, int entityInQueryIndex, ref Spawner spawner) =>
             {
-                spawner.Dummy += 1;
-                if (spawner.Dummy % 25 == 0)
+                var count = 3;
+                for (var x = 0; x < count; ++x)
                 {
-                    var instance = commandBuffer.Instantiate(entityInQueryIndex, spawner.Prefab);
-                    var position = new float3((float)spawner.Dummy * 0.2f,0,0);
-                    commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation {Value = position});
+                    for (var z = 0; z < count; ++z)
+                    {
+                        var instance = commandBuffer.Instantiate(entityInQueryIndex, spawner.Prefab);
+                        var position = new float3(x * 5.0f,0,z * 5.0f);
+                        commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation {Value = position}); 
+                    }
                 }
+                commandBuffer.DestroyEntity(entityInQueryIndex, entity);
 
             }).Schedule(inputDeps);
         m_EntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
