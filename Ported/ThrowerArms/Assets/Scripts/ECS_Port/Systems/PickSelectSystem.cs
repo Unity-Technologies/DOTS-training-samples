@@ -29,7 +29,11 @@ public class PickSelectSystem : JobComponentSystem
             .WithAll<GrabbableState>()
             .ForEach((Entity e, in Translation translation) =>
             {
-                pickupArray[CalculateIndex(translation)] = e;
+                int index = CalculateIndex(translation);
+                if (index < ArmSpawner.Count)
+                {
+                    pickupArray[index] = e;
+                }
         }).Schedule(inputDependencies);
 
         var accessor = GetComponentDataFromEntity<Scale>(isReadOnly: true);

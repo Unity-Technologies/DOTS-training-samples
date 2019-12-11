@@ -13,23 +13,28 @@ public class FindThrowTargetSystem : JobComponentSystem
     protected override void OnCreate()
     {
         base.OnCreate();
-
-        m_ThrowTargetsQuery = GetEntityQuery(ComponentType.ReadOnly<ThrowTargetState>());
     }
 
+    private static int CalculateIndex(in Translation translation)
+    {
+        return (int)math.round(translation.Value.x / ArmSpawner.Spacing);
+    }
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer entityCommandBuffer = endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
-        NativeArray<Entity> throwTargetsArray = new NativeArray<Entity>(m_ThrowTargetsQuery.CalculateEntityCount(), Allocator.TempJob, NativeArrayOptions.ClearMemory);
+        NativeArray<Entity> throwTargetsArray = new NativeArray<Entity>(ArmSpawner.Count, Allocator.TempJob, NativeArrayOptions.ClearMemory);
 
         JobHandle assignJobHandle = Entities.WithName("AssignTargetsToArray")
             .WithNativeDisableParallelForRestriction(throwTargetsArray)
             .ForEach((Entity e, in Translation translation, in ThrowTargetState throwTarget) =>
             {
-                int index = (int)math.round(translation.Value.x);
-                throwTargetsArray[index] = e;
+                int index = CalculateIndex(translation);
+                if (index < ArmSpawner.Count)
+                {
+                    throwTargetsArray[index] = e;
+                }
             }).Schedule(inputDependencies);
 
         EntityCommandBuffer.Concurrent concurrentBuffer = entityCommandBuffer.ToConcurrent();
@@ -38,7 +43,7 @@ public class FindThrowTargetSystem : JobComponentSystem
             .WithReadOnly(throwTargetsArray)
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation, in LookForThrowTargetState thrower) =>
             {
-                int index = (int)math.round(translation.Value.x);
+                int index = CalculateIndex(translation);
                 Entity targetEntity = throwTargetsArray[index];
 
                 if (targetEntity != Entity.Null)
