@@ -20,7 +20,7 @@ public class LineDebugDrawSystem : ComponentSystem
 
         if (!buffer.IsCreated) return;
         
-        for(int i = 0; i < buffer.Length - 1; ++i)
+        for(int i = 0; i < buffer.Length; ++i)
         {
             var element = buffer[i];
             for (int j = 0; j <= 9; j++)
