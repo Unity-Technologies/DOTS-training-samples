@@ -21,12 +21,26 @@ public struct ArmComponent : IComponentData
     public float3 HandRight;
     public Matrix4x4 HandMatrix;
 
-    public float3 LastIntendedRockPosition;
-    public float3 LastIntendedRockSize;
+//    public float3 LastIntendedRockPosition;
+//    public float3 LastIntendedRockSize;
     
-    public float ReachTimer;
+//    public float ReachTimer;
 
     public float OpenPalm;
+}
+
+public struct ArmReachForObject : IComponentData
+{
+    float ReachTimer;
+    Entity target;
+    float size;
+}
+
+public struct ArmWindup : IComponentData
+{
+    float windupTimer;
+    Entity selectedAimTarget;
+    Entity grabbedEntity;
 }
 
 public struct GrabbedTag : IComponentData
