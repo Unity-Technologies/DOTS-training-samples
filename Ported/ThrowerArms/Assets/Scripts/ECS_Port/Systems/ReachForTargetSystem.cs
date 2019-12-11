@@ -15,46 +15,49 @@ public class ReachForTargetSystem : JobComponentSystem
         var translationFromEntityAccessor = GetComponentDataFromEntity<Translation>();
         
         return Entities.WithName("TryReachForTargetRock")
-            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref ReachForTargetState reachState, ref ArmComponent arm) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref ReachForTargetState reachingState, ref ArmComponent arm) =>
         {
-            float3 desiredRockTranslation = translationFromEntityAccessor[reachState.TargetEntity].Value;
+            float3 desiredRockTranslation = translationFromEntityAccessor[reachingState.TargetEntity].Value;
             float3 delta = desiredRockTranslation - translation.Value;
 
             bool reachedRockSuccessfully = math.lengthsq(delta) < math.lengthsq(ArmConstants.MaxReach);
             
             if (reachedRockSuccessfully)
             {
-                if (math.all(reachState.FullyReachedOutHandTranslation == new float3(float.NaN, float.NaN, float.NaN)))
+                if (math.all(reachingState.FullyReachedOutHandTranslation == new float3(float.NaN, float.NaN, float.NaN)))
                 {
                     float3 flatDelta = delta;
                     flatDelta.y = 0;
                 
                     flatDelta = math.normalize(flatDelta);
 
-                    reachState.FullyReachedOutHandTranslation =
-                        desiredRockTranslation + new float3(0, 1, 0) * reachState.TargetSize * 0.5f - flatDelta * reachState.TargetSize * 0.5f;
+                    reachingState.FullyReachedOutHandTranslation =
+                        desiredRockTranslation + new float3(0, 1, 0) * reachingState.TargetSize * 0.5f - flatDelta * reachingState.TargetSize * 0.5f;
                 }
                 
-                reachState.ReachTimer += k_deltaTime / ArmConstants.ReachDuration;
+                reachingState.ReachTimer += k_deltaTime / ArmConstants.ReachDuration;
 
-                if (reachState.ReachTimer < 1f)
+                if (reachingState.ReachTimer < 1f)
                 {
                     return;
                 }
                 
-                ecb.AddComponent(reachState.TargetEntity, new HeldState());
+                ecb.AddComponent(reachingState.TargetEntity, new GrabbedState());
                 
                 ecb.RemoveComponent<ReachForTargetState>(entity);
                 
-                ecb.AddComponent(entity, new HoldTargetState
+                ecb.AddComponent(entity, new LookForThrowTargetState
                 {
-                    CountdownToStartWindingUp = new Random().NextFloat(-1f, 0f),
-                    HeldTargetOffsetFromHand = math.mul(math.inverse(arm.HandMatrix), new float4(desiredRockTranslation, 1)).xyz
+                    GrabbedEntity = reachingState.TargetEntity
+                });
+                ecb.AddComponent(entity, new GrabbingState
+                {
+                    GrabbedEntity = reachingState.TargetEntity
                 });
             }
             else
             {
-                ecb.AddComponent(reachState.TargetEntity, new GrabbableState());
+                ecb.AddComponent(reachingState.TargetEntity, new GrabbableState());
                 
                 ecb.RemoveComponent<ReachForTargetState>(entity);
                 

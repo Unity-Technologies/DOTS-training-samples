@@ -32,7 +32,7 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                     .Schedule(inputDeps);
         JobHandle grabExtentJob2 =
             Entities.WithName("UpdateFingerGrabExtentForHoldingTargetArm")
-                    .ForEach((ref Finger finger, in HoldTargetState holdTarget) =>
+                    .ForEach((ref Finger finger, in GrabbingState _) =>
                     {
                         finger.GrabExtent = 1f;
                     })

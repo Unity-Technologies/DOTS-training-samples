@@ -9,5 +9,4 @@ public struct WindingUpState : IComponentData
     public Entity HeldEntity;
     
     public float3 FullyWoundUpHandTranslation;
-    public float3 HeldTargetOffsetFromHand;
 }
