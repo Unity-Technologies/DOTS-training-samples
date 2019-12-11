@@ -7,16 +7,6 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct AntSettings : IComponentData
 {
-	//public Material basePheromoneMaterial;
-	//public Renderer pheromoneRenderer;
-	//public Material antMaterial;
-	//public Material obstacleMaterial;
-	//public Material resourceMaterial;
-	//public Material colonyMaterial;
-	//public Mesh antMesh;
-	//public Mesh obstacleMesh;
-	//public Mesh colonyMesh;
-	//public Mesh resourceMesh;
 	public Entity antPrefab;
 	public Entity colonyPrefab;
 	public Entity resourcePrefab;
