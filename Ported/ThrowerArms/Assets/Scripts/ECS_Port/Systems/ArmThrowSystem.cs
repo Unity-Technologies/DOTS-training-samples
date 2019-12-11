@@ -61,7 +61,7 @@ public class ArmThrowSystem : JobComponentSystem
             t = math.min(t1, t2);
         }
 
-        var output = velocity - .5f * new float3(0f, -RockManager.instance.gravityStrength, 0f) * t + (targetPosition - startPos) / t;
+        var output = velocity - .5f * new float3(0f, -25.0f, 0f) * t + (targetPosition - startPos) / t;
 
         if (length(output) > baseThrowSpeed * 2f)
         {
@@ -81,6 +81,8 @@ public class ArmThrowSystem : JobComponentSystem
         EntityCommandBuffer.Concurrent concurrentBuffer = entityCommandBuffer.ToConcurrent();
         var dt = Time.DeltaTime;
         var deps = Entities
+            .WithReadOnly(accessor)
+            .WithReadOnly(velocityAccessor)
             .ForEach((Entity entity, ref ArmComponent arm, ref ThrowAtState throwAt, in Translation pos) =>
             {
                 throwAt.ThrowTimer += dt / ArmConstants.ThrowDuration;

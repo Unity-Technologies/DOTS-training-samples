@@ -32,7 +32,7 @@ public class FindThrowTargetSystem : JobComponentSystem
             .ForEach((Entity e, in Translation translation) =>
             {
                 int index = CalculateIndex(translation);
-                if (index < ArmSpawner.Count)
+                if (index < ArmSpawner.Count && index >= 0)
                 {
                     throwTargetsArray[index] = e;
                 }
