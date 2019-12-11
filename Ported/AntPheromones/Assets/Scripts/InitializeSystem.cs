@@ -74,12 +74,10 @@ public class InitializeSystem : JobComponentSystem
 
 	protected void SpawnObstacles(ref AntSettings settings)
 	{
-        NonUniformScale prefabScale = new NonUniformScale();
-        prefabScale.Value = Vector3.one * 2 * settings.obstacleRadius/(float)settings.mapSize;
+		float radius = settings.obstacleRadius / settings.mapSize;
+		NonUniformScale prefabScale = new NonUniformScale() {Value = new float3(radius, radius, radius)};
 
-		List<ObstacleComponent> obstacleComponents = new List<ObstacleComponent>();
-		List<Translation> obstacleTranslations = new List<Translation>();
-		int numObstacles = 0;
+		List<RuntimeManager.CachedObstacle> cachedObstacles = new List<RuntimeManager.CachedObstacle>();
 		
 		for (int i = 1; i <= settings.obstacleRingCount; i++)
 		{
@@ -97,12 +95,11 @@ public class InitializeSystem : JobComponentSystem
                     float center = settings.mapSize * 0.5f;
                     float x = Mathf.Cos(angle) * ringRadius + center;
                     float y = Mathf.Sin(angle) * ringRadius + center;
-                    ObstacleComponent obstacleComponent = new ObstacleComponent() {radius = settings.obstacleRadius};
+                    ObstacleComponent obstacleComponent = new ObstacleComponent() {radius = radius};
                     Translation obstacleTranslation = new Translation() {Value = new float3(x / settings.mapSize, y / settings.mapSize, 0.0f)};
-
-                    obstacleComponents.Add(obstacleComponent);
-					obstacleTranslations.Add(obstacleTranslation);
-					numObstacles++;
+                    RuntimeManager.CachedObstacle cachedObstacle = new RuntimeManager.CachedObstacle() {position = obstacleTranslation.Value, radius = obstacleComponent.radius,};
+                    
+                    cachedObstacles.Add(cachedObstacle);
 
                     var prefabEntity = EntityManager.Instantiate(settings.obstaclePrefab);
                     EntityManager.SetComponentData(prefabEntity, obstacleComponent);
@@ -111,71 +108,68 @@ public class InitializeSystem : JobComponentSystem
 				}
 			}
 		}
-		List<ObstacleComponent>[,] tempObstacleBuckets = new List<ObstacleComponent>[settings.bucketResolution, settings.bucketResolution];
+		List<RuntimeManager.CachedObstacle>[,] tempCachedObstacleBuckets = new List<RuntimeManager.CachedObstacle>[settings.bucketResolution, settings.bucketResolution];
 
 		for (int x = 0; x < settings.bucketResolution; x++)
 		{
 			for (int y = 0; y < settings.bucketResolution; y++)
 			{
-				tempObstacleBuckets[x, y] = new List<ObstacleComponent>();
+				tempCachedObstacleBuckets[x, y] = new List<RuntimeManager.CachedObstacle>();
 			}
 		}
 
+		int numObstacles = cachedObstacles.Count;
 		var res = settings.bucketResolution;
-		RuntimeManager.instance.obstacleBuckets = new NativeArray<int2>(res * res, Allocator.Persistent);
-
+		NativeArray<int2> obstacleBuckets = new NativeArray<int2>(res * res, Allocator.Persistent);
 		int numBucketedObstacles = 0;
+		
 		for(int i = 0; i < numObstacles; i++)
 		{
-			ObstacleComponent obstacle = obstacleComponents[i];
-			Translation translation = obstacleTranslations[i];
-			float3 pos = translation.Value;
-			float radius = obstacle.radius;
+			RuntimeManager.CachedObstacle cachedObstacle = cachedObstacles[i];
+			float3 obstaclePosition = cachedObstacle.position;
+			float obstacleRadius = cachedObstacle.radius;
 
-			var startX = math.clamp((int)((pos.x - radius) / settings.mapSize * res), 0, res - 1);
-			var endX = math.clamp((int)((pos.x + radius) / settings.mapSize * res), 0, res - 1);
+			var startX = math.clamp((int)((obstaclePosition.x - obstacleRadius) * res), 0, res - 1);
+			var endX = math.clamp((int)((obstaclePosition.x + obstacleRadius) * res), 0, res - 1);
 
-			var startY = math.clamp((int)((pos.y - radius) / settings.mapSize * res), 0, res - 1);
-			var endY = math.clamp((int)((pos.y + radius) / settings.mapSize * res), 0, res - 1);
+			var startY = math.clamp((int)((obstaclePosition.y - obstacleRadius) * res), 0, res - 1);
+			var endY = math.clamp((int)((obstaclePosition.y + obstacleRadius) * res), 0, res - 1);
 
 			for (int x = startX; x <= endX; x++)
 			{
 				for (int y = startY; y <= endY; y++)
 				{
-					tempObstacleBuckets[x, y].Add(obstacle);
+					tempCachedObstacleBuckets[x, y].Add(cachedObstacle);
 					numBucketedObstacles++;
 				}
 			}
 		}
 
-		var obstacleArchetype = new ComponentType[] { typeof(ObstacleComponent) };
-
 		// sort obstacles and fill buckets
 		int2 range = new int2(0, 0);
+		List<RuntimeManager.CachedObstacle> bucketedCachedObjects = new List<RuntimeManager.CachedObstacle>();
 
 		for (int x = 0; x < res; x++)
 		{
 			for (int y = 0; y < res; y++)
 			{
 				int index = x + y * res;
-				foreach (var o in tempObstacleBuckets[x,y])
+				foreach (var o in tempCachedObstacleBuckets[x,y])
 				{
-					var obstacle = o;
-					obstacle.bucketIndex = index;
-					
-                    var entity = EntityManager.CreateEntity(obstacleArchetype);
-					EntityManager.SetComponentData(entity, obstacle);
-                    
+					bucketedCachedObjects.Add(o);
                     range.y++;
 				}
 				
-				RuntimeManager.instance.obstacleBuckets[index] = range;
+				obstacleBuckets[index] = range;
 
 				range.x += range.y;
 				range.y = 0;
 			}
 		}
 
+		RuntimeManager.instance.cachedObstacles = new NativeArray<RuntimeManager.CachedObstacle>(bucketedCachedObjects.ToArray(), Allocator.Persistent);
+		RuntimeManager.instance.obstacleBuckets = obstacleBuckets;
+		RuntimeManager.instance.obstacleBucketDimensions = new int2(res, res);
 	}
 
     protected void SpawnTargets(ref AntSettings settings)

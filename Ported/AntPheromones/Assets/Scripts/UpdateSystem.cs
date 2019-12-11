@@ -114,6 +114,9 @@ public class UpdateSystem : JobComponentSystem
             TimeDelta = Time.DeltaTime
         };
         var movementSystemJobHandle = movementJob.Schedule(this, pheromoneBucketsJobHandle);
+        
+        var obstacleJob = new AntObstacleAvoidanceJob(RuntimeManager.instance.obstacleBucketDimensions, RuntimeManager.instance.obstacleBuckets, RuntimeManager.instance.cachedObstacles);
+        var obstacleJobHandle = obstacleJob.Schedule(this, movementSystemJobHandle);
 
         var antOutputJob = new AntOutputJob()
         {
@@ -123,7 +126,7 @@ public class UpdateSystem : JobComponentSystem
             Ants = antComponents,
             Output = AntOutput
         };
-        var antOutputJobHandle = antOutputJob.Schedule(antComponents.Length, 64, movementSystemJobHandle);
+        var antOutputJobHandle = antOutputJob.Schedule(antComponents.Length, 64, obstacleJobHandle);
 
         var dropPheromonesJob = new DropPheromonesJob()
         {

@@ -11,11 +11,13 @@ public class RuntimeManager
     }
 
     private static RuntimeManager i = null;
-    
+
+    public int2 obstacleBucketDimensions;
 	public NativeArray<int2> obstacleBuckets;
     public NativeArray<CachedObstacle> cachedObstacles;
     public float3 colonyPosition;
     public float3 resourcePosition;
+    
     public static RuntimeManager instance
     {
         get 
