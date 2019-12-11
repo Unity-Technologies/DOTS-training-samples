@@ -24,16 +24,19 @@ public class SpawnSystem : JobComponentSystem
             .WithName("SpawnerSystem")
             .ForEach((Entity entity, int entityInQueryIndex, ref Spawner spawner) =>
             {
-                var count = 3;
+                var rng = new Random(123);
+                
+                var count = 6;
                 for (var x = 0; x < count; ++x)
                 {
                     for (var z = 0; z < count; ++z)
                     {
                         var instance = commandBuffer.Instantiate(entityInQueryIndex, spawner.Prefab);
-                        var position = new float3(x * 5.0f,z * 5.0f, 0);
+                        //var position = new float3(x*1.25f,z*1.25f,0) - new float3(64, 64, 0);
+                        var position = float3.zero;
                         commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation {Value = position});
                         commandBuffer.AddComponent<AntTag>(entityInQueryIndex, instance);
-                        commandBuffer.AddComponent(entityInQueryIndex, instance, new Velocity { Speed = 0.0f, Rotation = 0.0f });
+                        commandBuffer.AddComponent(entityInQueryIndex, instance, new Velocity { Speed = 0.0f, Rotation = rng.NextFloat(2.0f * math.PI) });
                     }
                 }
                 commandBuffer.DestroyEntity(entityInQueryIndex, entity);
