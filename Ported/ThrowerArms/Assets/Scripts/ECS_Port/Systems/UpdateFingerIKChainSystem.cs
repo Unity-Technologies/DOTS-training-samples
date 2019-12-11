@@ -37,7 +37,7 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                                 + (arm.HandUp * math.sin((time + finger * 0.2f) * 3f) * 0.2f * (1f - grabTimer));
 
                 float3 rockFingerDelta = target - arm.LastIntendedRockPosition;
-                float3 rockFingerPosition = arm.LastIntendedRockPosition + math.normalize(rockFingerDelta) * (arm.LastIntendedRockPosition * 0.5f + FingerConstants.Thickness);
+                float3 rockFingerPosition = arm.LastIntendedRockPosition + math.normalize(rockFingerDelta) * (arm.LastIntendedRockPosition * 0.5f + FingerConstants.BoneThickness);
                 
                 target = math.lerp(target, rockFingerPosition, grabTimer) + ((arm.HandUp * 0.3f + arm.HandForward * 0.1f + arm.HandRight * (finger - 1.5f) * 0.1f) * arm.OpenPalm);
                 
