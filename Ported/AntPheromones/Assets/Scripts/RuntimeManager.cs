@@ -1,10 +1,19 @@
 using Unity.Collections;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 public class RuntimeManager
 {
-    protected static RuntimeManager i = null;
+    public struct CachedObstacle
+    {
+        public float3 position;
+        public float radius;
+    }
+
+    private static RuntimeManager i = null;
+    
 	public NativeArray<int2> obstacleBuckets;
+    public NativeArray<CachedObstacle> cachedObstacles;
     public float3 colonyPosition;
     public float3 resourcePosition;
     public static RuntimeManager instance
