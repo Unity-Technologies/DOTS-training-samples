@@ -31,6 +31,7 @@ public class ObstacleAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDec
         var posArray = builder.Allocate(ref root.Positions, 4);
         for (var i = 0; i < positionCount; ++i)
         {
+            // TODO move the position generation code from ObstacleSystem here.
             posArray[i] = new float3((float)i, (float)i, (float)i);
         }
 
