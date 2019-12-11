@@ -33,6 +33,7 @@ public class SpawnSystem : JobComponentSystem
                         var position = new float3(x * 5.0f,z * 5.0f, 0);
                         commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation {Value = position});
                         commandBuffer.AddComponent<AntTag>(entityInQueryIndex, instance);
+                        commandBuffer.AddComponent(entityInQueryIndex, instance, new Velocity { Speed = 0.0f, Rotation = 0.0f });
                     }
                 }
                 commandBuffer.DestroyEntity(entityInQueryIndex, entity);
