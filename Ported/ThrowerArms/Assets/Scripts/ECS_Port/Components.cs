@@ -16,7 +16,11 @@ public struct ArmComponent : IComponentData
     public float3 HandRight;
     public Matrix4x4 HandMatrix;
 
+    public float3 LastIntendedRockPosition;
+    
     public float ReachTimer;
+
+    public float OpenPalm;
 }
 
 public struct GrabbedTag : IComponentData

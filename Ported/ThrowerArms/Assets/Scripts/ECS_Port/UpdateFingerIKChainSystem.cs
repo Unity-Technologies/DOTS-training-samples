@@ -20,6 +20,8 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
         Entity bufferSingleton = m_positionBufferQuery.GetSingletonEntity();
         var positions = EntityManager.GetBuffer<FingerJointPositionBuffer>(bufferSingleton);
 
+        float time = UnityEngine.Time.time + ArmConstants.TimeOffset;
+        
         return Entities.WithName("UpdateFingerIKChain").ForEach((in ArmComponent arm, in Translation translation) =>
         {
             float grabTimer = 
@@ -31,14 +33,20 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                     translation.Value +
                     arm.HandRight *
                     (ArmConstants.FingerXOffset + finger * ArmConstants.FingerSpacing);
-                float3 target = position + arm.HandForward * (0.5f - 0.1f * grabTimer) + arm.HandUp * math.sin();
+                float3 target = (position + arm.HandForward * (0.5f - 0.1f * grabTimer)) 
+                                + (arm.HandUp * math.sin((time + finger * 0.2f) * 3f) * 0.2f * (1f - grabTimer));
+
+                float3 rockFingerDelta = target - arm.LastIntendedRockPosition;
+                float3 rockFingerPosition = arm.LastIntendedRockPosition + math.normalize(rockFingerDelta) * (arm.LastIntendedRockPosition * 0.5f + ArmConstants.FingerThickness);
+                
+                target = math.lerp(target, rockFingerPosition, grabTimer) + ((arm.HandUp * 0.3f + arm.HandForward * 0.1f + arm.HandRight * (finger - 1.5f) * 0.1f) * arm.OpenPalm);
                 
                 int lastIndex = 
                     (int) (translation.Value.x * ArmConstants.TotalFingerChainCount + (finger * ArmConstants.PerFingerChainCount - 1));
                 
-                positions[lastIndex] = arm.HandTarget;
+                positions[lastIndex] = target;
 
-                int firstIndex = lastIndex - (ArmConstants.PerFingerChainCount - 1);
+                int firstIndex = lastIndex - ArmConstants.PerFingerChainCount + 1;
 
                 for (int i = lastIndex - 1; i >= firstIndex; i--)
                 {
@@ -47,30 +55,14 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                     positions[i] = positions[i + 1] + math.normalize(delta) * ArmConstants.FingerBoneLengths[finger - 1];
                 }
 
-                positions[firstIndex] = translation.Value;
+                positions[firstIndex] = position;
 
                 for (int i = firstIndex + 1; i <= lastIndex; i++)
                 {
                     float3 delta = positions[i].Value - positions[i - 1].Value;
-                    positions[i] = positions[i - 1] + math.normalize(delta) * ArmConstants.BoneLength;
+                    positions[i] = positions[i - 1] + math.normalize(delta) * ArmConstants.FingerBoneLengths[finger - 1];
                 }
             }
         }).Schedule(inputDeps);
-
-//            FABRIK.Solve(armChain,armBoneLength,transform.position,handTarget,handUp*armBendStrength);
-//            public static void Solve(Vector3[] chain, float boneLength, Vector3 anchor, Vector3 target, Vector3 bendHint) {
-//                chain[chain.Length - 1] = target;
-//                for (int i=chain.Length-2;i>=0;i--) {
-//                    chain[i] += bendHint;
-//                    Vector3 delta = chain[i] - chain[i + 1];
-//                    chain[i] = chain[i + 1] + delta.normalized * boneLength;
-//                }
-//
-//                chain[0] = anchor;
-//                for (int i = 1; i<chain.Length; i++) {
-//                    Vector3 delta = chain[i] - chain[i - 1];
-//                    chain[i] = chain[i - 1] + delta.normalized * boneLength;
-//                }
-//            }
     }
 }

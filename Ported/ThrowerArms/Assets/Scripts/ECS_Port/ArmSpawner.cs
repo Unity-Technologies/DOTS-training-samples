@@ -29,7 +29,7 @@ public class ArmSpawner : MonoBehaviour
         {
             Entity instance = entityManager.Instantiate(prefab);
             
-            entityManager.AddComponentData(instance, new HandComponent());
+            entityManager.AddComponentData(instance, new ArmComponent());
             entityManager.SetComponentData(instance, new Translation
             {
                 Value = Spacing * i * new float3(1, 0, 0)
