@@ -33,7 +33,7 @@ public class PickSelectSystem : JobComponentSystem
         EntityCommandBuffer.Concurrent concurrentBuffer = entityCommandBuffer.ToConcurrent();
         JobHandle grabJobHandle = Entities.WithName("GrabRocksFromArray")
             .WithDeallocateOnJobCompletion(pickupArray)
-            .ForEach((Entity entity, int nativeThreadIndex, ref Translation translation, ref Grabber grabable) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Grabber grabable) =>
         {
             int index = (int)math.round(translation.Value.x);
             Entity pickEntity = pickupArray[index];
@@ -44,8 +44,8 @@ public class PickSelectSystem : JobComponentSystem
 
 
                 // Remove the components so we do not pick another entity.
-                concurrentBuffer.RemoveComponent<Grabber>(nativeThreadIndex, entity);
-                concurrentBuffer.RemoveComponent<Grabable>(nativeThreadIndex, pickEntity);
+                concurrentBuffer.RemoveComponent<Grabber>(entityInQueryIndex, entity);
+                concurrentBuffer.RemoveComponent<Grabable>(entityInQueryIndex, pickEntity);
             }
         }).Schedule(assignJobHandle);
         endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(grabJobHandle);
