@@ -26,27 +26,13 @@ public class LineDebugDrawSystem : ComponentSystem
             for (int j = 0; j <= 9; j++)
             {
                 var t = j * 0.1f;
-                var p0 = GetPoint(element.p0, element.p1, element.p2, element.p3, t);
-                var p1 = GetPoint(element.p0, element.p1, element.p2, element.p3, t + 0.1f);
+                var p0 = BezierMath.GetPoint(element, t);
+                var p1 = BezierMath.GetPoint(element, t + 0.1f);
                 Debug.DrawLine(p0, p1, Color.red);
             }
             
         }
 
 
-    }
-
-    private static float3 GetPoint(float3 p0, float3 p1, float3 p2, float3 p3, float t)
-    {
-        float u = 1 - t;
-        float tt = t * t;
-        float uu = u * u;
-        float uuu = uu * u;
-        float ttt = tt * t;
-        float3 p = uuu * p0;
-        p += 3 * uu * t * p1;
-        p += 3 * u * tt * p2;
-        p += ttt * p3;
-        return p;
     }
 }
