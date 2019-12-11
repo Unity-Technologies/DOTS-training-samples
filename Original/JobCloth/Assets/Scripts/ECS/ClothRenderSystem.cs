@@ -6,7 +6,7 @@ using UnityEngine;
 [ExecuteAlways]
 [AlwaysUpdateSystem]
 [UpdateInGroup(typeof(PresentationSystemGroup))]
-[UpdateAfter(typeof(CollisionMeshJob))]
+[UpdateAfter(typeof(CollisionMesh_System))]
 public class ClothRenderSystem : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -21,5 +21,15 @@ public class ClothRenderSystem : JobComponentSystem
         }).Run();
 
         return inputDeps;
+    }
+    override protected void OnDestroy()
+    {
+        Entities.WithoutBurst().ForEach((ClothComponent cloth) =>
+        {
+            if (cloth.CurrentClothPosition.IsCreated) cloth.CurrentClothPosition.Dispose();
+            if (cloth.PreviousClothPosition.IsCreated) cloth.PreviousClothPosition.Dispose();
+            if (cloth.Forces.IsCreated) cloth.Forces.Dispose();
+            if (cloth.ClothNormals.IsCreated) cloth.ClothNormals.Dispose();
+        }).Run();
     }
 }

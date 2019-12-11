@@ -7,20 +7,6 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-[BurstCompile]
-unsafe struct CollisionMeshJob : IJobParallelFor
-{
-    public NativeArray<float3> vertices;
-    public NativeArray<float3> oldVertices;
-    public float4x4 localToWorld;
-    public float4x4 worldToLocal;
-
-    public void Execute(int i)
-    {
-
-    }
-}
-
 [ExecuteAlways]
 [AlwaysUpdateSystem]
 [UpdateInGroup(typeof(PresentationSystemGroup))]
