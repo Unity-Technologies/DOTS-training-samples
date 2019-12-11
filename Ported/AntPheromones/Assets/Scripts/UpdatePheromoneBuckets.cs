@@ -15,8 +15,8 @@ public unsafe struct UpdatePheromoneBuckets : IJob
     public int MapSize;
     public int AntCount;
     [DeallocateOnJobCompletion] public NativeArray<Entity> AntEntities;
-    [DeallocateOnJobCompletion] public NativeArray<AntComponent> AntComponents;
-    [DeallocateOnJobCompletion] public NativeArray<Translation> AntPositions;
+    public NativeArray<AntComponent> AntComponents;
+    public NativeArray<Translation> AntPositions;
 
     public void Execute()
     {

@@ -17,6 +17,7 @@ public class UpdateSystem : JobComponentSystem
     public NativeArray<int> IndexList;
     public NativeArray<int2> Buckets;
     public NativeArray<float> PheromoneMap;
+    public NativeArray<AntOutput> AntOutput;
     public Material PheromoneMaterial;
     public Texture2D PheromoneTexture;
 
@@ -29,6 +30,16 @@ public class UpdateSystem : JobComponentSystem
         m_Group = GetEntityQuery(typeof(AntComponent), typeof(Translation));
     }
 
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        Buckets.Dispose();
+        IndexList.Dispose();
+        AntOutput.Dispose();
+        PheromoneMap.Dispose();
+        PheromoneTexture = null;
+    }
 
     protected void Init(AntSettings settings)
     {
@@ -37,6 +48,8 @@ public class UpdateSystem : JobComponentSystem
 
         Buckets = new NativeArray<int2>(settings.mapSize, Allocator.Persistent);
         IndexList = new NativeArray<int>(settings.antCount, Allocator.Persistent);
+
+        AntOutput = new NativeArray<AntOutput>(settings.antCount, Allocator.Persistent);
 
         PheromoneTexture = new Texture2D(settings.mapSize, settings.mapSize, TextureFormat.RFloat, false);
         PheromoneTexture.wrapMode = TextureWrapMode.Mirror;
@@ -56,19 +69,15 @@ public class UpdateSystem : JobComponentSystem
         PheromoneMaterial = renderMesh.material;
         PheromoneMaterial.mainTexture = PheromoneTexture;
 
-        PheromoneMaterial.color = Color.HSVToRGB(UnityEngine.Random.Range(0.0f, 1.0f), 1, 1);
+        //PheromoneMaterial.color = Color.HSVToRGB(UnityEngine.Random.Range(0.0f, 1.0f), 1, 1);
         renderMesh.material = PheromoneMaterial;
-
-        for (int i = 0; i < PheromoneMap.Length; i++)
-        {
-            PheromoneMap[i] = UnityEngine.Random.Range(0.0f, 1.0f);
-        }
 
         var destData = PheromoneTexture.GetRawTextureData<float>();
         PheromoneMap.CopyTo(destData);
         PheromoneTexture.Apply();
         
         EntityManager.SetSharedComponentData<RenderMesh>(entities[0], renderMesh);
+        entities.Dispose();
     }
 
     unsafe protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -106,7 +115,28 @@ public class UpdateSystem : JobComponentSystem
         };
         var movementSystemJobHandle = movementJob.Schedule(this, pheromoneBucketsJobHandle);
 
-        movementSystemJobHandle.Complete();
+        var antOutputJob = new AntOutputJob()
+        {
+            TimeDelta = Time.DeltaTime,
+            Settings = settings,
+            Positions = antPositions,
+            Ants = antComponents,
+            Output = AntOutput
+        };
+        var antOutputJobHandle = antOutputJob.Schedule(antComponents.Length, 64, movementSystemJobHandle);
+
+        var dropPheromonesJob = new DropPheromonesJob()
+        {
+            Settings = settings,
+            Buckets = Buckets,
+            IndexList = IndexList,
+            AntOutput = AntOutput,
+            PheromoneMap = PheromoneMap
+        };
+        var dropPheromonesJobHandle = dropPheromonesJob.Schedule(Buckets.Length, 1, antOutputJobHandle);
+
+        dropPheromonesJobHandle.Complete();
+        
         UpdateTexture();
         return new JobHandle();
     }
