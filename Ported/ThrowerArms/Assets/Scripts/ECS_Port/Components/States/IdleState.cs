@@ -3,5 +3,5 @@ using Unity.Mathematics;
 
 public struct IdleState : IComponentData
 {
-    public float3 FullyIdleHandTranslation;
+    public float3 HandTarget;
 }
