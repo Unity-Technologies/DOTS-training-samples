@@ -1,7 +1,9 @@
-﻿using Unity.Burst;
+﻿using System.Xml;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
-using UnityEngine;
+using Unity.Mathematics;
+using Unity.Transforms;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class SpawnSystem : JobComponentSystem
@@ -16,24 +18,24 @@ public class SpawnSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-
         var jobHandle = Entities
             .WithName("SpawnerSystem")
-            .ForEach((Entity entity, ref Spawner spawner) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Spawner spawner) =>
             {
-                spawner.Dummy += 1;
-                if (spawner.Dummy % 50 == 0)
+                var count = 3;
+                for (var x = 0; x < count; ++x)
                 {
-                    //Debug.Log("Spawn!");
-                    //Debug.Log(spawner.Dummy);
+                    for (var z = 0; z < count; ++z)
+                    {
+                        var instance = commandBuffer.Instantiate(entityInQueryIndex, spawner.Prefab);
+                        var position = new float3(x * 5.0f,0,z * 5.0f);
+                        commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation {Value = position}); 
+                    }
                 }
-                //var instance = commandBuffer.Instantiate(entityInQueryIndex, spawnerFromEntity.Prefab);
-                //commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation {Value = position});
-                
-            }).Schedule(inputDeps);
-        
-        m_EntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
+                commandBuffer.DestroyEntity(entityInQueryIndex, entity);
 
+            }).Schedule(inputDeps);
+        m_EntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
         return jobHandle;
     }
 }
