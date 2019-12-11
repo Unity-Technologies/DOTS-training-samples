@@ -30,6 +30,11 @@ public class ArmSpawner : MonoBehaviour
             Entity instance = entityManager.Instantiate(prefab);
             
             entityManager.AddComponentData(instance, new ArmComponent());
+            entityManager.AddComponentData(instance, new Finger());
+            
+            entityManager.AddComponentData(instance, new IdleState());
+            entityManager.AddComponentData(instance, new FindGrabbableTargetState());
+            
             entityManager.SetComponentData(instance, new Translation
             {
                 Value = Spacing * i * new float3(1, 0, 0)

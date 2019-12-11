@@ -51,7 +51,8 @@ public class PickSelectSystem : JobComponentSystem
                 {
                     ReachTimer = 1f,
                     TargetEntity = pickEntity,
-                    TargetSize = accessor[pickEntity].Value
+                    TargetSize = accessor[pickEntity].Value,
+                    FullyReachedOutHandTranslation = new float3(float.NaN, float.NaN, float.NaN) 
                 });
             }
         }).Schedule(assignJobHandle);
