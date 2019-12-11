@@ -226,7 +226,7 @@ public class Arm : MonoBehaviour {
 			// we've got a target, which means we're currently throwing
 			if (windupTimer < 1f) {
 				// still winding up...
-				float windupT = Mathf.Clamp01(windupTimer) - Mathf.Clamp01(throwTimer * 2f);
+				float windupT = Mathf.Clamp01(windupTimer)/* - Mathf.Clamp01(throwTimer * 2f)*/;
 				windupT = 3f * windupT * windupT - 2f * windupT * windupT * windupT;
 				handTarget = Vector3.Lerp(handTarget,windupHandTarget,windupT);
 				Vector3 flatTargetDelta = targetCan.position - transform.position;
