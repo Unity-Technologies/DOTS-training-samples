@@ -1,4 +1,5 @@
-﻿using src;
+﻿using System.Collections.Generic;
+using src;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -6,7 +7,7 @@ using UnityEngine;
 
 [DisallowMultipleComponent]
 [RequiresEntityConversion]
-[ConverterVersion("martinsch", 3)]
+[ConverterVersion("christianw", 4)]
 public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     // Add fields to your component here. Remember that:
@@ -27,6 +28,11 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
     Entity m_Entity;
     EntityManager m_EntityManager;
+    
+    public Mesh RailMarkerMesh = null;
+    public Color RailMarkerColor = Color.white;
+    public Vector3 RailMarkerScale = new Vector3(0.1f, 1f, 0.025f);
+
 
     struct GenerationStep
     {
@@ -72,7 +78,7 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         //   dstManager.AddComponentData(entity, new Unity.Transforms.Scale { Value = scale });
 
         dstManager.AddComponentData(entity, new Line { ID = m_LineIndex });
-        var buffer = dstManager.AddBuffer<LinePositionBufferElement>(entity);
+        var buffer = new List<LinePositionBufferElement>();
         var generationStep = new GenerationStep(1, transform.GetChild(0));
         float3 currentPosition = generationStep.CurrentWaypoint.position;
         float3 currentHeading = math.normalize(generationStep.FullDistanceBetweenWaypoints);
@@ -108,20 +114,42 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         }
         m_Entity = entity;
         m_EntityManager = dstManager;
-        
-        
-        var archetype = Archetypes.RailMarkerArchetype();
-        using (var markerEntities = dstManager.CreateEntity(archetype, buffer.Length, Allocator.Temp))
+        var b = dstManager.AddBuffer<LinePositionBufferElement>(entity);
+        foreach (var bufferElement in buffer)
         {
-            buffer = dstManager.GetBuffer<LinePositionBufferElement>(entity);
-            for (var index = 0; index < markerEntities.Length; index++)
-            {
-                var bufferElement = buffer[index];
-                var markerEntity = markerEntities[index];
-                dstManager.SetComponentData(markerEntity, new Unity.Transforms.Translation() {Value = bufferElement.Value});
-            }
+            b.Add(bufferElement);
         }
         
+        
+        var material = new Material(Shader.Find("Standard"));
+        material.color = RailMarkerColor;
+
+        for (var index = 0; index < buffer.Count; index++)
+        {
+            var bufferElement = buffer[index];
+            var markerEntity = conversionSystem.CreateAdditionalEntity(gameObject);
+
+            var direction = index + 1 < buffer.Count ? buffer[index + 1].Value - bufferElement.Value : bufferElement.Value - buffer[index - 1].Value;
+            
+            dstManager.AddComponentData(markerEntity, new Unity.Transforms.Translation()
+            {
+                Value = bufferElement.Value
+            });
+            dstManager.AddComponentData(markerEntity, new Unity.Transforms.Rotation()
+            {
+                Value = Quaternion.LookRotation(direction)
+            });
+            dstManager.AddComponentData(markerEntity, new Unity.Transforms.LocalToWorld());
+            dstManager.AddComponentData(markerEntity, new Unity.Transforms.NonUniformScale()
+            {
+                Value = RailMarkerScale
+            });
+            dstManager.AddComponentData(markerEntity, new SimpleMeshRenderer
+            {
+                Mesh = RailMarkerMesh,
+                Material = material,
+            });
+        }
     }
 
     //void Update()

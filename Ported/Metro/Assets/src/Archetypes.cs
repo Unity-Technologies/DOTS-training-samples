@@ -6,13 +6,13 @@ namespace src
 {
     public class Archetypes
     {
-        public static EntityArchetype RailMarkerArchetype()
+        public static EntityArchetype RailMarkerArchetype(EntityManager dstManager)
         {
-            return World.Active.EntityManager.CreateArchetype(
+            return dstManager.CreateArchetype(
                 ComponentType.ReadWrite<Translation>(),
                 ComponentType.ReadWrite<Rotation>(),
                 ComponentType.ReadWrite<LocalToWorld>(),
-                ComponentType.ReadWrite<MeshRenderer>());
+                ComponentType.ReadWrite<SimpleMeshRenderer>());
         }
     }
 }
