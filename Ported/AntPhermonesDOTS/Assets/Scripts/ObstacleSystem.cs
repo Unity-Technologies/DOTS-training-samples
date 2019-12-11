@@ -27,6 +27,8 @@ public class ObstacleSystem : JobComponentSystem
             .WithBurst(FloatMode.Default, FloatPrecision.Standard, true)
             .ForEach((Entity entity, int entityInQueryIndex, in Obstacle obstacle) =>
             {
+                var worldOffset = new float3(1, 1, 0) * ((float)map.Size / -2.0f);
+                
                 var obstacleRingCount = obstacle.Blob.Value.RingCount;
                 var obstacleRadius = obstacle.Blob.Value.Radius;
                 var obstaclesPerRing = obstacle.Blob.Value.ObstaclesPerRing;
@@ -43,7 +45,7 @@ public class ObstacleSystem : JobComponentSystem
                         if ((t * holeCount)%1f < obstaclesPerRing)
                         {
                             float angle = (j + offset) / (float)maxCount * (2f * math.PI);
-                            var position = new float3(map.Size * .5f + math.cos(angle) * ringRadius,map.Size * .5f + math.sin(angle) * ringRadius, 0f);
+                            var position = worldOffset + new float3(map.Size * .5f + math.cos(angle) * ringRadius,map.Size * .5f + math.sin(angle) * ringRadius, 0f);
                             var instance = commandBuffer.Instantiate(entityInQueryIndex, obstacle.Prefab);
                             commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation {Value = position});
                         }
