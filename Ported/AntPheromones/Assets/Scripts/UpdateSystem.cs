@@ -25,7 +25,6 @@ public class UpdateSystem : JobComponentSystem
 
     unsafe protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        inputDeps.Complete();
         AntSettings settings = GetSingleton<AntSettings>();
 
         if (init)
