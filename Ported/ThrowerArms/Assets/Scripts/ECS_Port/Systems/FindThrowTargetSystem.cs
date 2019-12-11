@@ -50,7 +50,7 @@ public class FindThrowTargetSystem : JobComponentSystem
                     {
                         WindupTimer = -0.5f,
                         AimedTargetEntity = targetEntity,
-                        HeldEntity = thrower.GrabbedEntity
+                        HeldEntity = thrower.GrabbedEntity,
                     });
                 }
             }).Schedule(assignJobHandle);
