@@ -200,7 +200,7 @@ public class Arm : MonoBehaviour {
 		}
 		if (heldRock != null) {
 			// stop reaching after we've successfully grabbed a rock
-			reachTimer -= Time.deltaTime / reachDuration;
+//			reachTimer -= Time.deltaTime / reachDuration;
 
 			if (targetCan==null) {
 				// find a target
@@ -213,7 +213,7 @@ public class Arm : MonoBehaviour {
 			}
 		}		
 
-		reachTimer = Mathf.Clamp01(reachTimer);
+//		reachTimer = Mathf.Clamp01(reachTimer);
 
 		// smoothed reach timer
 		float grabT = reachTimer;

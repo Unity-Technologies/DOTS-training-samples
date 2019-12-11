@@ -5,9 +5,12 @@ public class InverseKinematicsDataCreator : MonoBehaviour, IConvertGameObjectToE
 {
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem _)
     {
-        dstManager.AddBuffer<ThumbJointPositionBuffer>(entity);
+        var thumbJointPositionBuffers = dstManager.AddBuffer<ThumbJointPositionBuffer>(entity);
+        thumbJointPositionBuffers.ResizeUninitialized(length: ArmSpawner.SpawnCount * ArmConstants.ChainCount);
+        
         dstManager.AddBuffer<FingerJointPositionBuffer>(entity);
         dstManager.AddBuffer<ArmJointPositionBuffer>(entity);
-        dstManager.AddBuffer<BoneMatrixBuffer>(entity);
+        
+        
     }
 }

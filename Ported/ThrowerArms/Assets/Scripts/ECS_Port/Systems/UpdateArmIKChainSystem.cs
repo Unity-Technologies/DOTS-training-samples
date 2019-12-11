@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -6,18 +7,22 @@ using Unity.Transforms;
 public class UpdateArmIKChainSystem : JobComponentSystem
 {
     private EntityQuery m_positionBufferQuery;
-
+    private EntityQuery m_matrixBufferQuery;
+    
     protected override void OnCreate()
     {
         base.OnCreate();
         
         m_positionBufferQuery = 
             GetEntityQuery(ComponentType.ReadWrite<ArmJointPositionBuffer>());
+        m_matrixBufferQuery =
+            GetEntityQuery(ComponentType.ReadWrite<ArmJointMatrixBuffer>());
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         Entity bufferSingleton = m_positionBufferQuery.GetSingletonEntity();
+        
         var armJointPositions = EntityManager.GetBuffer<ArmJointPositionBuffer>(bufferSingleton);
 
         JobHandle updateIkJob = Entities.WithName("UpdateArmIKChain")

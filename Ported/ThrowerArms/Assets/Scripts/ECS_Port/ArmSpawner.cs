@@ -8,6 +8,20 @@ public class ArmSpawner : MonoBehaviour
     public GameObject ArmPrefab;
     public int Count = 100;
     
+    private static (bool IsCalculated, int Value) _spawnCount;
+
+    public static (bool IsCalculated, int Value) SpawnCount
+    {
+        get
+        {
+            if (!_spawnCount.IsCalculated)
+            {
+                _spawnCount = (IsCalculated: true, _spawnCount: Count)
+            }
+        }
+        private set => _spawnCount = value;
+    }
+
     public static float ArmRowWidth{ get; private set;}
     
     private const float Spacing = 1;
@@ -15,6 +29,7 @@ public class ArmSpawner : MonoBehaviour
     private void Awake()
     {
         ArmRowWidth = (Count - 1) * Spacing;
+        SpawnCount = Count;
     }
 
     private void Start()
