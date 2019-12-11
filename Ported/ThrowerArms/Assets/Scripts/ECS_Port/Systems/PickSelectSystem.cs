@@ -8,26 +8,28 @@ using static Unity.Mathematics.math;
 
 public class PickSelectSystem : JobComponentSystem
 {
-    private EntityQuery m_GrabbersQuery;
-
     protected override void OnCreate()
     {
         base.OnCreate();
+    }
 
-        m_GrabbersQuery = GetEntityQuery(ComponentType.ReadOnly<FindGrabbableTargetState>());
+    private static int CalculateIndex(in Translation translation)
+    {
+        return (int)math.round(translation.Value.x / ArmSpawner.Spacing);
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer entityCommandBuffer = endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
-        NativeArray<Entity> pickupArray = new NativeArray<Entity>(m_GrabbersQuery.CalculateEntityCount(), Allocator.TempJob, NativeArrayOptions.ClearMemory);
+        NativeArray<Entity> pickupArray = new NativeArray<Entity>(ArmSpawner.Count, Allocator.TempJob, NativeArrayOptions.ClearMemory);
 
         JobHandle assignJobHandle = Entities.WithName("AssignRocksToArray")
-            .ForEach((Entity e, ref Translation translation, ref GrabbableState grabbable) =>
+            .WithNativeDisableParallelForRestriction(pickupArray)
+            .WithAll<GrabbableState>()
+            .ForEach((Entity e, in Translation translation) =>
             {
-                int index = (int)math.round(translation.Value.x);
-                pickupArray[index] = e;
+                pickupArray[CalculateIndex(translation)] = e;
         }).Schedule(inputDependencies);
 
         var accessor = GetComponentDataFromEntity<Scale>(isReadOnly: true);
@@ -35,10 +37,12 @@ public class PickSelectSystem : JobComponentSystem
         EntityCommandBuffer.Concurrent concurrentBuffer = entityCommandBuffer.ToConcurrent();
         JobHandle grabJobHandle = Entities.WithName("GrabRocksFromArray")
             .WithDeallocateOnJobCompletion(pickupArray)
-            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref FindGrabbableTargetState grabber) =>
+            .WithReadOnly(pickupArray)
+            .WithReadOnly(accessor)
+            .WithAll<FindGrabbableTargetState>()
+            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
         {
-            int index = (int)math.round(translation.Value.x);
-            Entity pickEntity = pickupArray[index];
+            Entity pickEntity = pickupArray[CalculateIndex(translation)];
 
             if (pickEntity != Entity.Null)
             {

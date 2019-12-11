@@ -6,7 +6,7 @@ using UnityEngine;
 public class ArmSpawner : MonoBehaviour
 {
     public GameObject ArmPrefab;
-    public int Count = 100;
+    public static int Count = 100;
     
     private static (bool IsCalculated, int Value) _spawnCount;
 
@@ -24,7 +24,7 @@ public class ArmSpawner : MonoBehaviour
 
     public static float ArmRowWidth{ get; private set;}
     
-    private const float Spacing = 1;
+    public static float Spacing = 1;
     
     private void Awake()
     {

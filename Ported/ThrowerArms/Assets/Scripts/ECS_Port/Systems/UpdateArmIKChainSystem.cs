@@ -26,6 +26,7 @@ public class UpdateArmIKChainSystem : JobComponentSystem
         var armJointPositions = EntityManager.GetBuffer<ArmJointPositionBuffer>(bufferSingleton);
 
         JobHandle updateIkJob = Entities.WithName("UpdateArmIKChain")
+            .WithNativeDisableParallelForRestriction(armJointPositions)
             .ForEach((in ArmComponent arm, in Translation translation) =>
         {
             int lastIndex = (int) (translation.Value.x * ArmConstants.ChainCount + (ArmConstants.ChainCount - 1));
@@ -52,6 +53,7 @@ public class UpdateArmIKChainSystem : JobComponentSystem
         float3 vRight = new float3(1.0f, 0.0f, 0.0f);
 
         JobHandle calculateHandMatrixJob = Entities.WithName("CalculateHandMatrix")
+            .WithReadOnly(armJointPositions)
             .ForEach((ref HandMatrix handMatrix, ref ArmComponent arm, in Translation translation) =>
             {
                 int lastIndex = (int)(translation.Value.x * ArmConstants.ChainCount + (ArmConstants.ChainCount - 1));

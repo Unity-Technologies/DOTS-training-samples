@@ -21,7 +21,7 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
         var fingerJointPositions = EntityManager.GetBuffer<FingerJointPositionBuffer>(bufferSingleton);
 
         float time = UnityEngine.Time.time + TimeConstants.Offset;
-        var translationFromEntity = GetComponentDataFromEntity<Translation>();
+        var translationFromEntity = GetComponentDataFromEntity<Translation>(true);
 
         JobHandle grabExtentJob1 = 
             Entities.WithName("UpdateFingerGrabExtentForReachingTargetArm")
@@ -32,13 +32,17 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                     .Schedule(inputDeps);
         JobHandle grabExtentJob2 =
             Entities.WithName("UpdateFingerGrabExtentForHoldingTargetArm")
-                    .ForEach((ref Finger finger, in GrabbingState _) =>
+            .WithAll<GrabbingState>()
+                    .ForEach((ref Finger finger) =>
                     {
                         finger.GrabExtent = 1f;
                     })
                     .Schedule(grabExtentJob1);
         
-        return Entities.WithName("UpdateFingerIKChain").ForEach(
+        return Entities.WithName("UpdateFingerIKChain")
+            .WithReadOnly(translationFromEntity)
+            .WithNativeDisableParallelForRestriction(fingerJointPositions)
+            .ForEach(
             (ref Finger fingerComponent, in ArmComponent armComponent, in ReachForTargetState reachComponent, in Translation translation) =>
         {
             Translation rockTargetTranslation = translationFromEntity[reachComponent.TargetEntity];

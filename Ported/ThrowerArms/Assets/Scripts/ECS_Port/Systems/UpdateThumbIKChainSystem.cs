@@ -24,9 +24,11 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
         Entity bufferSingleton = m_positionBufferQuery.GetSingletonEntity();
         var positions = EntityManager.GetBuffer<ArmJointPositionBuffer>(bufferSingleton);
 
-        ComponentDataFromEntity<Translation> translationFromEntityAccessor = GetComponentDataFromEntity<Translation>();
+        ComponentDataFromEntity<Translation> translationFromEntityAccessor = GetComponentDataFromEntity<Translation>(isReadOnly:true);
 
         return Entities.WithName("UpdateThumbIK")
+            .WithReadOnly(translationFromEntityAccessor)
+            .WithNativeDisableParallelForRestriction(positions)
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent, in ReachForTargetState reachTarget) =>
             {
                 float3 thumbPosition = translation.Value + arm.HandRight * ThumbConstants.XOffset;
