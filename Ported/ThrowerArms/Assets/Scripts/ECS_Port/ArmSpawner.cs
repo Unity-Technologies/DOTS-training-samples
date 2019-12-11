@@ -8,7 +8,7 @@ public class ArmSpawner : MonoBehaviour
     public GameObject ArmPrefab;
     public int Count = 100;
     
-    public static float ArmRowWidth;
+    public static float ArmRowWidth{ get; private set;}
     
     private const float Spacing = 1;
     
