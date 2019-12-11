@@ -23,6 +23,8 @@ struct TornadoJob : IJobParallelFor
     public float friction;
 
     public float time;
+
+    public Unity.Mathematics.Random rand;
     
     public static float TornadoSway(float y, float time) {
         return Mathf.Sin(y / 5f + time/4f) * 3f;
@@ -45,7 +47,7 @@ struct TornadoJob : IJobParallelFor
         if (tornadoDist<tornadoMaxForceDist) {
             float force = (1f - tornadoDist / tornadoMaxForceDist);
             float yFader= Mathf.Clamp01(1f - start.y / tornadoHeight);
-            force *= tornadoFader*tornadoForce*Random.Range(-.3f,1.3f);
+            force *= tornadoFader*tornadoForce * rand.NextFloat(-.3f,1.3f);
             float forceY = tornadoUpForce;
             float forceX = -tdz + tdx * tornadoInwardForce*yFader;
             float forceZ = tdx + tdz * tornadoInwardForce*yFader;

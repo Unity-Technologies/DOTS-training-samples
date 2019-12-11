@@ -1,15 +1,21 @@
-﻿using Unity.Collections;
+﻿using System;
+using System.Data.Common;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class TornadoSystem : JobComponentSystem
 {
+    Unity.Mathematics.Random rand;
+
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<GenerationSystem.State>();
+        rand = new Unity.Mathematics.Random((uint)DateTime.UtcNow.Ticks);
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -18,9 +24,9 @@ public class TornadoSystem : JobComponentSystem
         
         var settings = GetSingleton<GenerationSetting>();
         var simulationState = GetSingleton<GenerationSystem.State>();
-        var time = Time.time;
+        var time = (float)Time.ElapsedTime;
         var deltaTime = Time.DeltaTime;
-        
+        var random = rand;
         
         Entities.ForEach((Entity entity, ref DynamicBuffer<ConstrainedPointEntry> points) =>
         {
@@ -47,6 +53,8 @@ public class TornadoSystem : JobComponentSystem
                 tornadoX = simulationState.tornadoX,
                 tornadoZ = simulationState.tornadoZ,
                 tornadoFader = simulationState.tornadoFader,
+                
+                rand = random,
 
                 points = tempPoints,
             };
