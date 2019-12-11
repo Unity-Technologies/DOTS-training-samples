@@ -80,29 +80,7 @@ public unsafe class Constraint2_System : ComponentSystem
                 }
             }
 
-            var meshJob = new AccumulateForcesJob
-            {
-                vertices = cloth.CurrentClothPosition,
-                oldVertices = cloth.PreviousClothPosition,
-                gravity = cloth.Gravity,
-                forces = forces
-            };
-
-            var collisionJob = new CollisionMeshJob
-            {
-                vertices = cloth.CurrentClothPosition,
-                oldVertices = cloth.PreviousClothPosition,
-                localToWorld = localToWorld.Value,
-                worldToLocal = math.inverse(localToWorld.Value)
-            };
-
-            var meshHandle = meshJob.Schedule(cloth.FirstPinnedIndex, 128);
-            var collisionhHandle = collisionJob.Schedule(cloth.FirstPinnedIndex, 128, meshHandle);
-            collisionhHandle.Complete();
-
-            cloth.Mesh.SetVertices(cloth.CurrentClothPosition);
-
-            Graphics.DrawMesh(cloth.Mesh, localToWorld.Value, cloth.Material, 0);
+            
         });
     }
 }
