@@ -25,10 +25,6 @@ public class InitializeSystem : JobComponentSystem
         init = false; 
     }
 
-	// TODO: move all of this
-	static int instancesPerBatch = 1023;
-	NativeArray<int2> ObstacleBuckets;
-
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         if (init)
@@ -118,7 +114,7 @@ public class InitializeSystem : JobComponentSystem
 		}
 
 		var res = settings.bucketResolution;
-		ObstacleBuckets = new NativeArray<int2>(res * res, Allocator.Persistent);
+		RuntimeManager.instance.ObstacleBuckets = new NativeArray<int2>(res * res, Allocator.Persistent);
 
 		int obstacleCount = 0;
 		foreach (var obstacle in output)
@@ -162,7 +158,8 @@ public class InitializeSystem : JobComponentSystem
                     
                     range.y++;
 				}
-				ObstacleBuckets[index] = range;
+				
+				RuntimeManager.instance.ObstacleBuckets[index] = range;
 
 				range.x += range.y;
 				range.y = 0;
@@ -178,6 +175,7 @@ public class InitializeSystem : JobComponentSystem
 
         Translation colonyTranslation = new Translation();
         colonyTranslation.Value = new Vector3(0.5f, 0.5f, 0);
+		RuntimeManager.instance.colonyPosition = colonyTranslation.Value;
 
         var colonyEntity = EntityManager.Instantiate(settings.colonyPrefab);
         EntityManager.SetComponentData(colonyEntity, colonyTranslation);
@@ -186,6 +184,7 @@ public class InitializeSystem : JobComponentSystem
         float resourceAngle = Random.value * 2f * Mathf.PI;
         Translation resourceTranslation = new Translation();
         resourceTranslation.Value = new Vector3(Mathf.Cos(resourceAngle) * .475f + 0.5f, Mathf.Sin(resourceAngle) * .475f + 0.5f, 0.0f);
+		RuntimeManager.instance.resourcePosition = resourceTranslation.Value;
 
         var resourceEntity = EntityManager.Instantiate(settings.resourcePrefab);
         EntityManager.SetComponentData(resourceEntity, resourceTranslation);
