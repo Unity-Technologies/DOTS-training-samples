@@ -2,7 +2,7 @@
 using Unity.Entities;
 using UnityEngine;
 
-public class FoodAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
+public class ColonyAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
     public GameObject prefab;
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -11,7 +11,7 @@ public class FoodAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
     }
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new Food
+        dstManager.AddComponentData(entity, new Colony
         {
             Prefab = conversionSystem.GetPrimaryEntity(prefab)
         });
