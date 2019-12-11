@@ -46,9 +46,9 @@ public class ReachForTargetSystem : JobComponentSystem
                 
                 ecb.RemoveComponent<ReachForTargetState>(entity);
                 
-                ecb.AddComponent(entity, new WindingUpState
+                ecb.AddComponent(entity, new HoldTargetState
                 {
-                    WindupTimer = new Random().NextFloat(-1f, 0f),
+                    CountdownToStartWindingUp = new Random().NextFloat(-1f, 0f),
                     HeldTargetOffsetFromHand = math.mul(math.inverse(arm.HandMatrix), new float4(desiredRockTranslation, 1)).xyz
                 });
             }
