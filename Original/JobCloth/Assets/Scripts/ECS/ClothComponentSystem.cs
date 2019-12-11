@@ -16,18 +16,13 @@ public class ClothComponent : IComponentData
     public Mesh Mesh;
     public float3 Gravity;
     public Material Material;
-    public int FirstPinnedIndex;
 
     public NativeArray<float3> CurrentClothPosition;
     public NativeArray<float3> PreviousClothPosition;
     public NativeArray<float3> Forces;
     public NativeArray<float3> ClothNormals;
 
-    public NativeArray<int2> Constraint1Indices;
-    public NativeArray<float> Constraint1Lengths;
-
-    public NativeArray<int2> Constraint2Indices;
-    public NativeArray<float> Constraint2Lengths;
+    public BlobAssetReference<ClothBlobAsset> constraints;
 }
 
 [BurstCompile]
@@ -40,6 +35,8 @@ class ClothComponentSystem : ComponentSystem
     {
         Entities.ForEach((ClothComponent cloth) =>
         {
+            cloth.constraints = ClothBlobAssetUtility.CreateFromMesh(cloth.Mesh);
+
             var vertices = cloth.Mesh.vertices;
             var normals = cloth.Mesh.normals;
             var indices = cloth.Mesh.triangles;
@@ -48,8 +45,7 @@ class ClothComponentSystem : ComponentSystem
             cloth.PreviousClothPosition = new NativeArray<float3>(vertices.Length, Allocator.Persistent);
             cloth.Forces = new NativeArray<float3>(vertices.Length, Allocator.Persistent);
             cloth.ClothNormals = new NativeArray<float3>(vertices.Length, Allocator.Persistent);
-            var pinned = new bool[vertices.Length];
-            var lastPinned = 0;
+            
             for (int i = 0; i < vertices.Length; i++)
             {
                 cloth.PreviousClothPosition[i] =
@@ -57,117 +53,7 @@ class ClothComponentSystem : ComponentSystem
                 cloth.Forces[i] = float3.zero;
 
                 cloth.ClothNormals[i] = normals[i];
-
-                if (normals[i].y > .9f && vertices[i].y > .3f)
-                {
-                    pinned[i] = true;
-                }
-                else
-                {
-                    if (lastPinned != i)
-                    {
-                        { var t = cloth.PreviousClothPosition[lastPinned]; cloth.PreviousClothPosition[lastPinned] = cloth.PreviousClothPosition[i]; cloth.PreviousClothPosition[i] = t; }
-                        { var t = cloth.CurrentClothPosition[lastPinned]; cloth.CurrentClothPosition[lastPinned] = cloth.CurrentClothPosition[i]; cloth.CurrentClothPosition[i] = t; }
-                        { var t = cloth.ClothNormals[lastPinned]; cloth.ClothNormals[lastPinned] = cloth.ClothNormals[i]; cloth.ClothNormals[i] = t; }
-                        { var t = pinned[lastPinned]; pinned[lastPinned] = pinned[i]; pinned[i] = t; }
-                        { var t = vertices[lastPinned]; vertices[lastPinned] = vertices[i]; vertices[i] = t; }
-                        { var t = normals[lastPinned]; normals[lastPinned] = normals[i]; normals[i] = t; }
-
-                        // horrible hack
-                        for (int j = 0; j < indices.Length; j++)
-                        {
-                            if (indices[j] == i)
-                                indices[j] = lastPinned;
-                            else if (indices[j] == lastPinned)
-                                indices[j] = i;
-                        }
-                        lastPinned++;
-                    }
-                }
             }
-
-            cloth.FirstPinnedIndex = lastPinned;
-
-
-            cloth.Mesh.triangles = indices;
-            cloth.Mesh.vertices = vertices;
-            cloth.Mesh.normals = normals;
-
-            var constraint1Lookup = new HashSet<int2>();
-            var constraint2Lookup = new HashSet<int2>();
-            for (int i = 0; i < indices.Length; i += 3)
-            {
-                var index0 = indices[i + 0];
-                var index1 = indices[i + 1];
-                var index2 = indices[i + 2];
-
-                int2 constraint0;
-                int2 constraint1;
-                int2 constraint2;
-
-                if (index0 > index1) constraint0 = new int2(index0, index1); else constraint0 = new int2(index1, index0);
-                if (index1 > index2) constraint1 = new int2(index1, index2); else constraint1 = new int2(index2, index1);
-                if (index2 > index0) constraint2 = new int2(index2, index0); else constraint2 = new int2(index0, index2);
-
-                if (!pinned[index0] || !pinned[index1])
-                {
-                    if (pinned[index0])
-                        constraint1Lookup.Add(new int2(index1, index0));
-                    else
-                    if (pinned[index1])
-                        constraint1Lookup.Add(new int2(index0, index1));
-                    else
-                        constraint2Lookup.Add(constraint0);
-                }
-                if (!pinned[index1] || !pinned[index2])
-                {
-                    if (pinned[index1])
-                        constraint1Lookup.Add(new int2(index2, index1));
-                    else
-                    if (pinned[index2])
-                        constraint1Lookup.Add(new int2(index1, index2));
-                    else
-                        constraint2Lookup.Add(constraint1);
-                }
-                if (!pinned[index0] || !pinned[index2])
-                {
-                    if (pinned[index2])
-                        constraint1Lookup.Add(new int2(index0, index2));
-                    else
-                    if (pinned[index0])
-                        constraint1Lookup.Add(new int2(index2, index0));
-                    else
-                        constraint2Lookup.Add(constraint2);
-                }
-            }
-
-            cloth.Constraint1Indices = new NativeArray<int2>(constraint1Lookup.ToArray(), Allocator.Persistent);
-            cloth.Constraint2Indices = new NativeArray<int2>(constraint2Lookup.ToArray(), Allocator.Persistent);
-
-            cloth.Constraint1Lengths = new NativeArray<float>(constraint1Lookup.Count, Allocator.Persistent);
-            for (int i = 0; i < cloth.Constraint1Indices.Length; i++)
-            {
-                var constraint = cloth.Constraint1Indices[i];
-
-                var vertex0 = cloth.PreviousClothPosition[constraint.x];
-                var vertex1 = cloth.PreviousClothPosition[constraint.y];
-
-                cloth.Constraint1Lengths[i] = math.length(vertex1 - vertex0);
-            }
-
-            cloth.Constraint2Lengths = new NativeArray<float>(constraint2Lookup.Count, Allocator.Persistent);
-            for (int i = 0; i < cloth.Constraint2Indices.Length; i++)
-            {
-                var constraint = cloth.Constraint2Indices[i];
-
-                var vertex0 = cloth.PreviousClothPosition[constraint.x];
-                var vertex1 = cloth.PreviousClothPosition[constraint.y];
-
-                cloth.Constraint2Lengths[i] = math.length(vertex1 - vertex0);
-            }
-
-            if (cloth.CurrentClothPosition == null || !cloth.CurrentClothPosition.IsCreated || cloth.CurrentClothPosition.Length == 0)
-                Console.WriteLine("Here");
         });
     }
 
@@ -179,12 +65,6 @@ class ClothComponentSystem : ComponentSystem
             if (cloth.PreviousClothPosition.IsCreated) cloth.PreviousClothPosition.Dispose();
             if (cloth.Forces.IsCreated) cloth.Forces.Dispose();
             if (cloth.ClothNormals.IsCreated) cloth.ClothNormals.Dispose();
-
-            if (cloth.Constraint1Indices.IsCreated) cloth.Constraint1Indices.Dispose();
-            if (cloth.Constraint1Lengths.IsCreated) cloth.Constraint1Lengths.Dispose();
-
-            if (cloth.Constraint2Indices.IsCreated) cloth.Constraint2Indices.Dispose();
-            if (cloth.Constraint2Lengths.IsCreated) cloth.Constraint2Lengths.Dispose();
         });
     }
 
