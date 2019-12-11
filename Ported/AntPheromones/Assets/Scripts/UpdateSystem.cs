@@ -6,6 +6,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -15,6 +16,11 @@ public class UpdateSystem : JobComponentSystem
     EntityQuery m_Group;
     public NativeArray<int> IndexList;
     public NativeArray<int2> Buckets;
+    public NativeArray<float> PheromoneMap;
+    public Material PheromoneMaterial;
+    public Texture2D PheromoneTexture;
+
+    RenderMesh renderMesh;
 
     bool init = true;
 
@@ -23,24 +29,52 @@ public class UpdateSystem : JobComponentSystem
         m_Group = GetEntityQuery(typeof(AntComponent), typeof(Translation));
     }
 
+
+    protected void Init(AntSettings settings)
+    {
+        if (!init)
+            return;
+
+        Buckets = new NativeArray<int2>(settings.mapSize, Allocator.Persistent);
+        IndexList = new NativeArray<int>(settings.antCount, Allocator.Persistent);
+
+        PheromoneTexture = new Texture2D(settings.mapSize, settings.mapSize, TextureFormat.RFloat, false);
+        PheromoneTexture.wrapMode = TextureWrapMode.Mirror;
+        PheromoneTexture.Apply();
+
+        PheromoneMap = new NativeArray<float>(settings.mapSize * settings.mapSize, Allocator.Persistent);
+
+        init = false;
+    }
+
+    protected void UpdateTexture()
+    {
+        var entities = GetEntityQuery(typeof(PheromoneMapComponent), typeof(RenderMesh)).ToEntityArray(Allocator.TempJob);
+        Debug.Assert(entities.Length == 1, "There should only be one PheromoneMapComponent in the scene.");
+
+        renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(entities[0]);
+        PheromoneMaterial = renderMesh.material;
+        PheromoneMaterial.mainTexture = PheromoneTexture;
+
+        PheromoneMaterial.color = Color.HSVToRGB(UnityEngine.Random.Range(0.0f, 1.0f), 1, 1);
+        renderMesh.material = PheromoneMaterial;
+
+        for (int i = 0; i < PheromoneMap.Length; i++)
+        {
+            PheromoneMap[i] = UnityEngine.Random.Range(0.0f, 1.0f);
+        }
+
+        var destData = PheromoneTexture.GetRawTextureData<float>();
+        PheromoneMap.CopyTo(destData);
+        PheromoneTexture.Apply();
+        
+        EntityManager.SetSharedComponentData<RenderMesh>(entities[0], renderMesh);
+    }
+
     unsafe protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         AntSettings settings = GetSingleton<AntSettings>();
-
-        if (init)
-        {
-            Buckets = new NativeArray<int2>(settings.mapSize, Allocator.Persistent);
-            IndexList = new NativeArray<int>(settings.antCount, Allocator.Persistent);
-            init = false;
-        }
-
-        /*
-        var renderMesh = EntityManager.GetSharedComponentData<Unity.Rendering.RenderMesh>(settings.backgroundPlane);
-        Material newMaterial = new Material(renderMesh.material);
-        newMaterial.color = new Color(UnityEngine.Random.Range(0.0f, 1.0f), UnityEngine.Random.Range(0.0f, 1.0f), UnityEngine.Random.Range(0.0f, 1.0f));
-        renderMesh.material = newMaterial;
-        EntityManager.SetSharedComponentData<Unity.Rendering.RenderMesh>(settings.backgroundPlane, renderMesh);
-        */
+        Init(settings); 
 
         var antEntities = m_Group.ToEntityArray(Allocator.TempJob);
         
@@ -71,6 +105,9 @@ public class UpdateSystem : JobComponentSystem
             TimeDelta = Time.DeltaTime
         };
         var movementSystemJobHandle = movementJob.Schedule(this, pheromoneBucketsJobHandle);
-        return movementSystemJobHandle;
+
+        movementSystemJobHandle.Complete();
+        UpdateTexture();
+        return new JobHandle();
     }
 }
