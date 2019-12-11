@@ -61,13 +61,19 @@ public class InitializeSystem : JobComponentSystem
             Translation antPosition = new Translation();
             antPosition.Value = new Vector3(Random.Range(-perimeter, perimeter) + colonyPosition.Value.x, Random.Range(-perimeter, perimeter) + colonyPosition.Value.y, 0);
 
+            float angleInDegrees = Random.Range(0.0f, 360.0f);
             Rotation antRotation = new Rotation();
-            antRotation.Value = Quaternion.Euler(0f, 0f, Random.Range(0.0f, 360.0f));
+            antRotation.Value = Quaternion.Euler(0f, 0f, angleInDegrees);
+            
+            AntComponent ant = new AntComponent();
+            ant.acceleration = settings.antAccel;
+            ant.facingAngle = math.radians(angleInDegrees);
 
-            Entity ant = EntityManager.Instantiate(settings.antPrefab);
-            EntityManager.SetComponentData(ant, antPosition);
-            EntityManager.AddComponentData(ant, antSize);
-            EntityManager.SetComponentData(ant, antRotation);
+            Entity newEntity = EntityManager.Instantiate(settings.antPrefab);
+            EntityManager.SetComponentData(newEntity, antPosition);
+            EntityManager.AddComponentData(newEntity, antSize);
+            EntityManager.SetComponentData(newEntity, antRotation);
+            EntityManager.SetComponentData(newEntity, ant);
         }
     }
 
