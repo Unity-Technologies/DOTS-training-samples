@@ -20,7 +20,7 @@ public class UpdateArmIKChainSystem : JobComponentSystem
         Entity bufferSingleton = m_positionBufferQuery.GetSingletonEntity();
         var armJointPositions = EntityManager.GetBuffer<ArmJointPositionBuffer>(bufferSingleton);
 
-        return Entities.WithName("UpdateArmIKChain")
+        JobHandle updateIkJob = Entities.WithName("UpdateArmIKChain")
             .ForEach((in ArmComponent arm, in Translation translation) =>
         {
             int lastIndex = (int) (translation.Value.x * ArmConstants.ChainCount + (ArmConstants.ChainCount - 1));
@@ -43,5 +43,23 @@ public class UpdateArmIKChainSystem : JobComponentSystem
                 armJointPositions[i] = armJointPositions[i - 1] + math.normalize(delta) * ArmConstants.BoneLength;
             }
         }).Schedule(inputDeps);
+
+        float3 vRight = new float3(1.0f, 0.0f, 0.0f);
+
+        JobHandle calculateHandMatrixJob = Entities.WithName("CalculateHandMatrix")
+            .ForEach((ref HandMatrix handMatrix, in ArmComponent arm, in Translation translation) =>
+            {
+                int lastIndex = (int)(translation.Value.x * ArmConstants.ChainCount + (ArmConstants.ChainCount - 1));
+                float3 armChainPosLast = armJointPositions[lastIndex].Value;
+                float3 armChainPosBeforeLast = armJointPositions[lastIndex - 1].Value;
+
+                float3 handForward = math.normalize(armChainPosLast - armChainPosBeforeLast);
+                float3 handUp = math.normalize(math.cross(handForward, vRight));
+
+                handMatrix.Value = new float4x4(math.RigidTransform(quaternion.LookRotation(handForward, handUp), armChainPosLast));
+            }).Schedule(updateIkJob);
+
+
+        return calculateHandMatrixJob;
     }
 }
