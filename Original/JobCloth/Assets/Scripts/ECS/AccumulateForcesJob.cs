@@ -1,5 +1,6 @@
 ﻿using Unity.Burst;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
@@ -23,5 +24,13 @@ unsafe struct AccumulateForcesJob : IJobParallelFor
 
         vertices[i] = vert;
         oldVertices[i] = oldVert;
+    }
+}
+
+public class AccumulateForces_System : ComponentSystem
+{
+    protected override void OnUpdate()
+    {
+
     }
 }

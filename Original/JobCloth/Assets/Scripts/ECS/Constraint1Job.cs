@@ -4,6 +4,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities;
 
 [BurstCompile]
 public unsafe struct Constraint1Job : IJob
@@ -32,6 +33,15 @@ public unsafe struct Constraint1Job : IJob
             var offset = extra * dir;
             verticesPtr[pair.x] = p1 + offset;
         }
+    }
+}
+
+
+public class Constraint1_System : ComponentSystem
+{
+    protected override void OnUpdate()
+    {
+        
     }
 }
 

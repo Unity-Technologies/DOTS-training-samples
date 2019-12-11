@@ -2,6 +2,7 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
@@ -35,6 +36,14 @@ public unsafe struct Constraint2Job : IJob
             verticesPtr[pair.x] = p1 + offset;
             verticesPtr[pair.y] = p2 - offset;
         }
+    }
+}
+
+public class Constraint2_System : ComponentSystem
+{
+    protected override void OnUpdate()
+    {
+
     }
 }
 

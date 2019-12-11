@@ -1,6 +1,7 @@
 ﻿
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
@@ -30,5 +31,13 @@ unsafe struct CollisionMeshJob : IJobParallelFor
 
         vertices[i] = vert;
         oldVertices[i] = oldVert;
+    }
+}
+
+public class CollisionMesh_System : ComponentSystem
+{
+    protected override void OnUpdate()
+    {
+
     }
 }
