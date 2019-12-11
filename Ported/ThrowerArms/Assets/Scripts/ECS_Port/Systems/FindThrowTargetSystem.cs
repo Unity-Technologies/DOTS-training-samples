@@ -28,7 +28,8 @@ public class FindThrowTargetSystem : JobComponentSystem
 
         JobHandle assignJobHandle = Entities.WithName("AssignTargetsToArray")
             .WithNativeDisableParallelForRestriction(throwTargetsArray)
-            .ForEach((Entity e, in Translation translation, in ThrowTargetState throwTarget) =>
+            .WithAll<ThrowTargetState>()
+            .ForEach((Entity e, in Translation translation) =>
             {
                 int index = CalculateIndex(translation);
                 if (index < ArmSpawner.Count)
