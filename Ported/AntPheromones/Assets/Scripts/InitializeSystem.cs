@@ -77,7 +77,10 @@ public class InitializeSystem : JobComponentSystem
         NonUniformScale prefabScale = new NonUniformScale();
         prefabScale.Value = Vector3.one * 2 * settings.obstacleRadius/(float)settings.mapSize;
 
-		List<Obstacle> output = new List<Obstacle>();
+		List<ObstacleComponent> obstacleComponents = new List<ObstacleComponent>();
+		List<Translation> obstacleTranslations = new List<Translation>();
+		int numObstacles = 0;
+		
 		for (int i = 1; i <= settings.obstacleRingCount; i++)
 		{
 			float ringRadius = (i / (settings.obstacleRingCount + 1f)) * (settings.mapSize * 0.5f);
@@ -91,40 +94,42 @@ public class InitializeSystem : JobComponentSystem
 				if ((t * holeCount) % 1f < settings.obstaclesPerRing)
 				{
 					float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
-					Obstacle obstacle = new Obstacle();
                     float center = settings.mapSize * 0.5f;
                     float x = Mathf.Cos(angle) * ringRadius + center;
                     float y = Mathf.Sin(angle) * ringRadius + center;
-					obstacle.position = new Vector2(x, y);
-					obstacle.radius = settings.obstacleRadius;
-					output.Add(obstacle);
+                    ObstacleComponent obstacleComponent = new ObstacleComponent() {radius = settings.obstacleRadius};
+                    Translation obstacleTranslation = new Translation() {Value = new float3(x / settings.mapSize, y / settings.mapSize, 0.0f)};
+
+                    obstacleComponents.Add(obstacleComponent);
+					obstacleTranslations.Add(obstacleTranslation);
+					numObstacles++;
 
                     var prefabEntity = EntityManager.Instantiate(settings.obstaclePrefab);
-                    Translation prefabTranslation = new Translation();
-                    
-                    prefabTranslation.Value = new Vector3(x, y, 0) / (float)settings.mapSize;
-                    EntityManager.SetComponentData(prefabEntity, prefabTranslation);
+                    EntityManager.SetComponentData(prefabEntity, obstacleComponent);
+                    EntityManager.SetComponentData(prefabEntity, obstacleTranslation);
                     EntityManager.AddComponentData(prefabEntity, prefabScale);
 				}
 			}
 		}
-		List<Obstacle>[,] tempObstacleBuckets = new List<Obstacle>[settings.bucketResolution, settings.bucketResolution];
+		List<ObstacleComponent>[,] tempObstacleBuckets = new List<ObstacleComponent>[settings.bucketResolution, settings.bucketResolution];
 
 		for (int x = 0; x < settings.bucketResolution; x++)
 		{
 			for (int y = 0; y < settings.bucketResolution; y++)
 			{
-				tempObstacleBuckets[x, y] = new List<Obstacle>();
+				tempObstacleBuckets[x, y] = new List<ObstacleComponent>();
 			}
 		}
 
 		var res = settings.bucketResolution;
 		RuntimeManager.instance.obstacleBuckets = new NativeArray<int2>(res * res, Allocator.Persistent);
 
-		int obstacleCount = 0;
-		foreach (var obstacle in output)
+		int numBucketedObstacles = 0;
+		for(int i = 0; i < numObstacles; i++)
 		{
-			Vector2 pos = obstacle.position;
+			ObstacleComponent obstacle = obstacleComponents[i];
+			Translation translation = obstacleTranslations[i];
+			float3 pos = translation.Value;
 			float radius = obstacle.radius;
 
 			var startX = math.clamp((int)((pos.x - radius) / settings.mapSize * res), 0, res - 1);
@@ -138,12 +143,12 @@ public class InitializeSystem : JobComponentSystem
 				for (int y = startY; y <= endY; y++)
 				{
 					tempObstacleBuckets[x, y].Add(obstacle);
-					obstacleCount++;
+					numBucketedObstacles++;
 				}
 			}
 		}
 
-		var obstacleArchetype = new ComponentType[] { typeof(Obstacle) };
+		var obstacleArchetype = new ComponentType[] { typeof(ObstacleComponent) };
 
 		// sort obstacles and fill buckets
 		int2 range = new int2(0, 0);
