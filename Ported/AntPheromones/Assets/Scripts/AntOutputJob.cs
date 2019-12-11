@@ -31,7 +31,7 @@ public struct AntOutputJob : IJobParallelFor
         bool holdingResource = true;
         float strength = (holdingResource ? 1.0f : .3f) * ant.speed / Settings.antSpeed;
 
-        output.value = 10 * math.min(Settings.trailAddSpeed * strength * TimeDelta, 1.0f);
+        output.value = math.min(Settings.trailAddSpeed * strength * TimeDelta, 1.0f);
         Output[index] = output;
     }
 }
