@@ -5,6 +5,8 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+public struct AntTag : IComponentData { }
+
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class SpawnSystem : JobComponentSystem
 {
@@ -28,8 +30,9 @@ public class SpawnSystem : JobComponentSystem
                     for (var z = 0; z < count; ++z)
                     {
                         var instance = commandBuffer.Instantiate(entityInQueryIndex, spawner.Prefab);
-                        var position = new float3(x * 5.0f,0,z * 5.0f);
-                        commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation {Value = position}); 
+                        var position = new float3(x * 5.0f,z * 5.0f, 0);
+                        commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation {Value = position});
+                        commandBuffer.AddComponent<AntTag>(entityInQueryIndex, instance);
                     }
                 }
                 commandBuffer.DestroyEntity(entityInQueryIndex, entity);
