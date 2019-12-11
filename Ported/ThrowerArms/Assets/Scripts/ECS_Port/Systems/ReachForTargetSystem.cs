@@ -7,14 +7,20 @@ public class ReachForTargetSystem : JobComponentSystem
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
+            var endSimulationEcbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+            EntityCommandBuffer ecb = endSimulationEcbSystem.CreateCommandBuffer();
+            
             var translationFromEntityAccessor = GetComponentDataFromEntity<Translation>();
             
-            return Entities.ForEach((ref Translation translation, ref ReachForTargetState reachState, ref ArmComponent arm) =>
+            return Entities.WithName("TryReachForTargetRock")
+                .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref ReachForTargetState reachState, ref ArmComponent arm) =>
             {
                 float3 desiredRockTranslation = translationFromEntityAccessor[reachState.TargetEntity].Value;
                 float3 delta = desiredRockTranslation - translation.Value;
 
-                if (math.lengthsq(delta) < math.pow(ArmConstants.MaxReach, 2))
+                bool reachedRockSuccessfully = math.lengthsq(delta) < math.lengthsq(ArmConstants.MaxReach);
+                
+                if (reachedRockSuccessfully)
                 {
                     float3 flatDelta = delta;
                     flatDelta.y = 0;
@@ -22,6 +28,15 @@ public class ReachForTargetSystem : JobComponentSystem
                     float3 normalisedFlatDelta = math.normalize(flatDelta);
                     
                     
+                }
+                else
+                {
+                    ecb.AddComponent(reachState.TargetEntity, new GrabbableState());
+                    
+                    ecb.RemoveComponent<ReachForTargetState>(entity);
+                    
+                    ecb.AddComponent(entity, new IdleState());
+                    ecb.AddComponent(entity, new FindGrabbableTargetState());
                 }
             }).Schedule(inputDeps);
         }
