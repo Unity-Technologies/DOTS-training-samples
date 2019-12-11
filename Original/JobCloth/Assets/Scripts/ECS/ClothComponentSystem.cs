@@ -30,6 +30,7 @@ public class ClothComponent : IComponentData
     public NativeArray<float> Constraint2Lengths;
 }
 
+[BurstCompile]
 [ExecuteAlways]
 [AlwaysUpdateSystem]
 [UpdateInGroup(typeof(PresentationSystemGroup))]
