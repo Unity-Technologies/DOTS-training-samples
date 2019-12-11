@@ -4,6 +4,8 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Transforms;
+using UnityEngine;
 
 [BurstCompile]
 unsafe struct CollisionMeshJob : IJobParallelFor
@@ -34,10 +36,29 @@ unsafe struct CollisionMeshJob : IJobParallelFor
     }
 }
 
-public class CollisionMesh_System : ComponentSystem
+[ExecuteAlways]
+[AlwaysUpdateSystem]
+[UpdateInGroup(typeof(PresentationSystemGroup))]
+[UpdateAfter(typeof(AccumulateForces_System))]
+public class CollisionMesh_System : JobComponentSystem
 {
-    protected override void OnUpdate()
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        Entities.WithoutBurst().ForEach((ClothComponent cloth, ref LocalToWorld localToWorld) =>
+        {
+            var collisionJob = new CollisionMeshJob
+            {
+                vertices = cloth.CurrentClothPosition,
+                oldVertices = cloth.PreviousClothPosition,
+                localToWorld = localToWorld.Value,
+                worldToLocal = math.inverse(localToWorld.Value)
+            };
 
+            cloth.Mesh.SetVertices(cloth.CurrentClothPosition);
+
+            Graphics.DrawMesh(cloth.Mesh, localToWorld.Value, cloth.Material, 0);
+        }).Run();
+
+        return inputDeps;
     }
 }

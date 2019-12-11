@@ -40,16 +40,15 @@ public unsafe struct Constraint1Job : IJob
 }
 
 
-[BurstCompile]
 [ExecuteAlways]
 [AlwaysUpdateSystem]
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 [UpdateAfter(typeof(ClothComponentSystem))]
-public unsafe class Constraint1_System : ComponentSystem
+public unsafe class Constraint1_System : JobComponentSystem
 {
-    protected override void OnUpdate()
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        Entities.ForEach((ClothComponent cloth, ref LocalToWorld localToWorld) =>
+        Entities.WithoutBurst().ForEach((ClothComponent cloth, ref LocalToWorld localToWorld) =>
         {
             var vertices = cloth.CurrentClothPosition;
             var constraintIndices = cloth.Constraint1Indices;
@@ -77,10 +76,10 @@ public unsafe class Constraint1_System : ComponentSystem
                     var offset = extra * dir;
                     verticesPtr[pair.x] = p1 + offset;
                 }
-            }
+            }            
+        }).Run(); ;
 
-            
-        });
+        return inputDeps;
     }
 }
 

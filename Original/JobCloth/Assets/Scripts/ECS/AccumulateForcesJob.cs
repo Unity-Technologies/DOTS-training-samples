@@ -28,14 +28,13 @@ unsafe struct AccumulateForcesJob : IJobParallelFor
     }
 }
 
-[BurstCompile]
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 [UpdateAfter(typeof(Constraint2_System))]
-public class AccumulateForces_System : ComponentSystem
+public class AccumulateForces_System : JobComponentSystem
 {
-    protected override void OnUpdate()
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        Entities.ForEach((ClothComponent cloth, ref LocalToWorld localToWorld) =>
+        Entities.WithoutBurst().ForEach((ClothComponent cloth, ref LocalToWorld localToWorld) =>
         {
             var vertices = cloth.CurrentClothPosition;
             var oldVertices = cloth.PreviousClothPosition;
@@ -55,21 +54,8 @@ public class AccumulateForces_System : ComponentSystem
                 oldVertices[i] = startPos;
                 forces[i] = gravity;
             }
+        }).Run();
 
-            var collisionJob = new CollisionMeshJob
-            {
-                vertices = cloth.CurrentClothPosition,
-                oldVertices = cloth.PreviousClothPosition,
-                localToWorld = localToWorld.Value,
-                worldToLocal = math.inverse(localToWorld.Value)
-            };
-
-            var collisionhHandle = collisionJob.Schedule(cloth.FirstPinnedIndex, 128);
-            collisionhHandle.Complete();
-
-            cloth.Mesh.SetVertices(cloth.CurrentClothPosition);
-
-            Graphics.DrawMesh(cloth.Mesh, localToWorld.Value, cloth.Material, 0);
-        });
+        return inputDeps;
     }
 }
