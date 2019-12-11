@@ -4,7 +4,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 
 [BurstCompile]
-unsafe struct UpdateMeshJob : IJobParallelFor
+unsafe struct AccumulateForcesJob : IJobParallelFor
 {
     public NativeArray<float3> vertices;
     public NativeArray<float3> oldVertices;

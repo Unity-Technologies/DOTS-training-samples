@@ -200,7 +200,7 @@ class ClothComponentSystem : ComponentSystem
                 constraintLengths = cloth.Constraint2Lengths
             };
 
-            var meshJob = new UpdateMeshJob
+            var meshJob = new AccumulateForcesJob
             {
                 vertices = cloth.CurrentClothPosition,
                 oldVertices = cloth.PreviousClothPosition,
