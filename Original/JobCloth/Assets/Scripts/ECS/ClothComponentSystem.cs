@@ -137,7 +137,6 @@ class ClothComponentSystem : ComponentSystem
                 }
             }
 
-
             cloth.Constraint1Indices = new NativeArray<int2>(constraint1Lookup.ToArray(), Allocator.Persistent);
             cloth.Constraint2Indices = new NativeArray<int2>(constraint2Lookup.ToArray(), Allocator.Persistent);
 
@@ -162,6 +161,9 @@ class ClothComponentSystem : ComponentSystem
 
                 cloth.Constraint2Lengths[i] = math.length(vertex1 - vertex0);
             }
+
+            if (cloth.CurrentClothPosition == null || !cloth.CurrentClothPosition.IsCreated || cloth.CurrentClothPosition.Length == 0)
+                Console.WriteLine("Here");
         });
     }
 
@@ -186,44 +188,7 @@ class ClothComponentSystem : ComponentSystem
     {
         Entities.ForEach((ClothComponent cloth, ref LocalToWorld localToWorld) =>
         {
-            var constraint1Job = new Constraint1Job
-            {
-                vertices = cloth.CurrentClothPosition,
-                constraintIndices = cloth.Constraint1Indices,
-                constraintLengths = cloth.Constraint1Lengths
-            };
-
-            var constraint2Job = new Constraint2Job
-            {
-                vertices = cloth.CurrentClothPosition,
-                constraintIndices = cloth.Constraint2Indices,
-                constraintLengths = cloth.Constraint2Lengths
-            };
-
-            var meshJob = new AccumulateForcesJob
-            {
-                vertices = cloth.CurrentClothPosition,
-                oldVertices = cloth.PreviousClothPosition,
-                gravity = cloth.Gravity,
-            };
-
-            var collisionJob = new CollisionMeshJob
-            {
-                vertices = cloth.CurrentClothPosition,
-                oldVertices = cloth.PreviousClothPosition,
-                localToWorld = localToWorld.Value,
-                worldToLocal = math.inverse(localToWorld.Value)
-            };
-
-            var constraint1Handle = constraint1Job.Schedule();
-            var constraint2Handle = constraint2Job.Schedule(constraint1Handle);
-            var meshHandle = meshJob.Schedule(cloth.FirstPinnedIndex, 128, constraint2Handle);
-            var collisionhHandle = collisionJob.Schedule(cloth.FirstPinnedIndex, 128, meshHandle);
-            collisionhHandle.Complete();
-
-            cloth.Mesh.SetVertices(cloth.CurrentClothPosition);
-
-            Graphics.DrawMesh(cloth.Mesh, localToWorld.Value, cloth.Material, 0);
+            
         });
     }
 }
