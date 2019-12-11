@@ -19,7 +19,6 @@ public class ColonySystem : JobComponentSystem
         inputDeps.Complete();
         
         var commandBuffer = EntityCommandBufferSystem.CreateCommandBuffer();
-        //Map map = GetSingleton<Map>();
         Entity entity = GetSingletonEntity<Colony>();
         Colony colony = GetSingleton<Colony>();
 
