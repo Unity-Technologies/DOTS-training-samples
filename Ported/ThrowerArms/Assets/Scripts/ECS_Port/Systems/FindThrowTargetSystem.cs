@@ -25,7 +25,8 @@ public class FindThrowTargetSystem : JobComponentSystem
         NativeArray<Entity> throwTargetsArray = new NativeArray<Entity>(m_ThrowTargetsQuery.CalculateEntityCount(), Allocator.TempJob, NativeArrayOptions.ClearMemory);
 
         JobHandle assignJobHandle = Entities.WithName("AssignTargetsToArray")
-            .ForEach((Entity e, ref Translation translation, ref ThrowTargetState throwTarget) =>
+            .WithNativeDisableParallelForRestriction(throwTargetsArray)
+            .ForEach((Entity e, in Translation translation, in ThrowTargetState throwTarget) =>
             {
                 int index = (int)math.round(translation.Value.x);
                 throwTargetsArray[index] = e;
@@ -34,7 +35,8 @@ public class FindThrowTargetSystem : JobComponentSystem
         EntityCommandBuffer.Concurrent concurrentBuffer = entityCommandBuffer.ToConcurrent();
         JobHandle selectTargetJobHandle = Entities.WithName("AssignThrowTargetsToThrowers")
             .WithDeallocateOnJobCompletion(throwTargetsArray)
-            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref LookForThrowTargetState thrower) =>
+            .WithReadOnly(throwTargetsArray)
+            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation, in LookForThrowTargetState thrower) =>
             {
                 int index = (int)math.round(translation.Value.x);
                 Entity targetEntity = throwTargetsArray[index];

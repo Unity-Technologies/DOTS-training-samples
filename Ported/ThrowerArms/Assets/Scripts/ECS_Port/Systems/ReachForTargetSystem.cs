@@ -13,10 +13,11 @@ public class ReachForTargetSystem : JobComponentSystem
         EntityCommandBuffer ecb = endSimulationEcbSystem.CreateCommandBuffer();
         EntityCommandBuffer.Concurrent concurrentBuffer = ecb.ToConcurrent();
 
-        var translationFromEntityAccessor = GetComponentDataFromEntity<Translation>();
+        var translationFromEntityAccessor = GetComponentDataFromEntity<Translation>(true);
         
         JobHandle reachForRockJob = Entities.WithName("TryReachForTargetRock")
-            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref ReachForTargetState reachingState, ref ArmComponent arm) =>
+            .WithReadOnly(translationFromEntityAccessor)
+            .ForEach((Entity entity, int entityInQueryIndex, ref ReachForTargetState reachingState, ref ArmComponent arm, in Translation translation) =>
         {
             float3 desiredRockTranslation = translationFromEntityAccessor[reachingState.TargetEntity].Value;
             float3 delta = desiredRockTranslation - translation.Value;
