@@ -1,19 +1,25 @@
-using System.Collections.Generic;
-using System.Drawing;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
-//[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class GenerationSystem : ComponentSystem
 {
-    protected override void OnUpdate()
+	public struct State : ISystemStateComponentData
+	{
+		public float tornadoFader;
+		public float tornadoX;
+		public float tornadoZ;
+	}
+
+	protected override void OnUpdate()
     {
-        Entities.ForEach((Entity entity, ref GenerationSetting settings) =>
+        Entities.WithNone<State>().ForEach((Entity entity, ref GenerationSetting settings) =>
         {
+	        PostUpdateCommands.AddComponent<State>(entity);
+	        
 //            entity = PostUpdateCommands.CreateEntity();
             Debug.Log("Found the entity");
-            var points = new NativeArray<ConstrainedPoint>();
             
 		var pointsList = new NativeList<ConstrainedPoint>(Allocator.Temp);
 //		List<Bar> barsList = new List<Bar>();
@@ -141,8 +147,6 @@ public class GenerationSystem : ComponentSystem
 	        var pointsEntity = PostUpdateCommands.CreateEntity();
             var buffer = PostUpdateCommands.AddBuffer<ConstrainedPointEntry>(pointsEntity);
             buffer.AddRange(pointsList.AsArray().Reinterpret<ConstrainedPointEntry>());
-            
-            PostUpdateCommands.DestroyEntity(entity);
         });
     }
 }

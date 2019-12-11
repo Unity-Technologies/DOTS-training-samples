@@ -9,7 +9,6 @@ public struct ConstrainedPoint : IComponentData
     public bool anchor;
 }
 
-[InternalBufferCapacity(16)]
 public struct ConstrainedPointEntry : IBufferElementData
 {
     public ConstrainedPoint Value;

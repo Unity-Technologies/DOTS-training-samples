@@ -21,9 +21,11 @@ struct TornadoJob : IJobParallelFor
 
     public float invDamping;
     public float friction;
+
+    public float time;
     
-    public static float TornadoSway(float y) {
-        return Mathf.Sin(y / 5f + Time.time/4f) * 3f;
+    public static float TornadoSway(float y, float time) {
+        return Mathf.Sin(y / 5f + time/4f) * 3f;
     }
 
     public void Execute(int i)
@@ -35,7 +37,7 @@ struct TornadoJob : IJobParallelFor
         constrainedPoint.oldPosition.y += .01f;
 
         // tornado force
-        float tdx = tornadoX+TornadoSway(start.y) - start.x;
+        float tdx = tornadoX+TornadoSway(start.y, time) - start.x;
         float tdz = tornadoZ - start.z;
         float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
         tdx /= tornadoDist;

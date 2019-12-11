@@ -1,64 +1,60 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Collections;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
 
-public class Tornado : MonoBehaviour
+
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+public class TornadoSystem : JobComponentSystem
 {
-    [NonSerialized]
-    public NativeArray<ConstrainedPoint> points;
-
-    // Tornado
-    [Range(0f,1f)]
-    public float tornadoForce;
-    public float tornadoMaxForceDist;
-    public float tornadoHeight;
-    public float tornadoUpForce;
-    public float tornadoInwardForce;
-
-    [NonSerialized]
-    public float tornadoX;
-    [NonSerialized]
-    public float tornadoZ;
-
-    [Range(0f,1f)]
-    public float damping;
-    [Range(0f,1f)]
-    public float friction;
-
-    float tornadoFader = 0;
-    
-    public void Update()
+    protected override void OnCreate()
     {
-        tornadoFader = Mathf.Clamp01(tornadoFader + Time.deltaTime / 10f);
-        tornadoX = Mathf.Cos(Time.time/6f) * 30f;
-        tornadoZ = Mathf.Sin(Time.time/6f * 1.618f) * 30f;
+        RequireSingletonForUpdate<GenerationSystem.State>();
+    }
 
-        if (points.Length == 0)
-            return;
-
-        // Initialize the job data
-        var job = new TornadoJob()
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
+    {
+        inputDeps.Complete();
+        
+        var settings = GetSingleton<GenerationSetting>();
+        var simulationState = GetSingleton<GenerationSystem.State>();
+        var time = Time.time;
+        var deltaTime = Time.DeltaTime;
+        
+        
+        Entities.ForEach((Entity entity, ref DynamicBuffer<ConstrainedPointEntry> points) =>
         {
-            //time = Time.time,
-            tornadoForce = tornadoForce,
-            tornadoMaxForceDist = tornadoMaxForceDist,
-            tornadoHeight = tornadoHeight,
-            tornadoUpForce = tornadoUpForce,
-            tornadoInwardForce = tornadoInwardForce,
+            simulationState.tornadoFader = Mathf.Clamp01(simulationState.tornadoFader + deltaTime / 10f);
+            simulationState.tornadoX = Mathf.Cos(time/6f) * 30f;
+            simulationState.tornadoZ = Mathf.Sin(time/6f * 1.618f) * 30f;
 
-            tornadoX = tornadoX,
-            tornadoZ = tornadoZ,
+            if (points.Length == 0)
+                return;
 
-            tornadoFader = tornadoFader,
-            invDamping = 1f - damping,
-            friction = friction,
-            points = points
-        };
+            // Initialize the job data
+            var tempPoints = points.AsNativeArray().Reinterpret<ConstrainedPoint>();
+            var job = new TornadoJob
+            {
+                time = time,
+                tornadoForce = settings.tornadoForce,
+                tornadoMaxForceDist = settings.tornadoMaxForceDist,
+                tornadoHeight = settings.tornadoHeight,
+                tornadoUpForce = settings.tornadoUpForce,
+                tornadoInwardForce = settings.tornadoInwardForce,
+                invDamping = 1f - settings.damping,
+                friction = settings.friction,
+                
+                tornadoX = simulationState.tornadoX,
+                tornadoZ = simulationState.tornadoZ,
+                tornadoFader = simulationState.tornadoFader,
 
-        JobHandle jobHandle = job.Schedule(points.Length, 64);
-        jobHandle.Complete();
+                points = tempPoints,
+            };
+
+            JobHandle jobHandle = job.Schedule(points.Length, 64);
+            jobHandle.Complete();
+        }).Run();
+        
+        return inputDeps;
     }
 }
