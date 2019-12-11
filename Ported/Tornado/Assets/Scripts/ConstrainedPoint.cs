@@ -3,6 +3,7 @@ using Unity.Mathematics;
 
 public struct ConstrainedPoint : IComponentData
 {
-    float3 position;
-    int neightbours;
+    public float3 position;
+    public float3 oldPosition;
+    public int neightbours;
 }
