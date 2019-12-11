@@ -13,11 +13,11 @@ public class ClothRenderSystem : JobComponentSystem
     {
         inputDeps.Complete();
 
-        Entities.WithoutBurst().ForEach((ClothComponent cloth, ref LocalToWorld localToWorld) =>
+        Entities.WithoutBurst().ForEach((ClothComponent cloth, ClothRenderComponent renderCloth, ref LocalToWorld localToWorld) =>
         {
-            cloth.Mesh.SetVertices(cloth.CurrentClothPosition);
+            renderCloth.Mesh.SetVertices(cloth.CurrentClothPosition);
 
-            Graphics.DrawMesh(cloth.Mesh, localToWorld.Value, cloth.Material, 0);
+            Graphics.DrawMesh(renderCloth.Mesh, localToWorld.Value, renderCloth.Material, 0);
         }).Run();
 
         return inputDeps;

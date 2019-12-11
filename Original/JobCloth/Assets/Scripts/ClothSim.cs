@@ -247,9 +247,7 @@ public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
 
         var cloth = new ClothComponent
         {
-            Mesh = newMesh,
             Gravity = gravity,
-            Material = material,
             constraints = constraints
         };
 
@@ -268,6 +266,11 @@ public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
         }
 
         dstManager.AddComponentData(entity, cloth);
+        dstManager.AddComponentData(entity, new ClothRenderComponent()
+        {
+            Mesh = newMesh,
+            Material = material
+        });
     }
 }
 

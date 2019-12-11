@@ -13,9 +13,7 @@ using System;
 
 public class ClothComponent : IComponentData
 {
-    public Mesh Mesh;
     public float3 Gravity;
-    public Material Material;
 
     public NativeArray<float3> CurrentClothPosition;
     public NativeArray<float3> PreviousClothPosition;
@@ -23,4 +21,10 @@ public class ClothComponent : IComponentData
     public NativeArray<float3> ClothNormals;
 
     public BlobAssetReference<ClothBlobAsset> constraints;
+}
+
+public class ClothRenderComponent : IComponentData
+{
+    public Mesh     Mesh;
+    public Material Material;
 }
