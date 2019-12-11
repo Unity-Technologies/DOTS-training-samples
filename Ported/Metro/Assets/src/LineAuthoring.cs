@@ -7,7 +7,7 @@ using UnityEngine;
 
 [DisallowMultipleComponent]
 [RequiresEntityConversion]
-[ConverterVersion("christianw", 4)]
+[ConverterVersion("martinsch", 8)]
 public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     // Add fields to your component here. Remember that:
@@ -24,7 +24,7 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     [SerializeField]
     int m_LineIndex = 0;
 
-    const float k_StepSize = 0.1f;
+    const float k_StepSize = 1f;
 
     Entity m_Entity;
     EntityManager m_EntityManager;
@@ -79,39 +79,43 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
         dstManager.AddComponentData(entity, new Line { ID = m_LineIndex });
         var buffer = new List<LinePositionBufferElement>();
-        var generationStep = new GenerationStep(1, transform.GetChild(0));
-        float3 currentPosition = generationStep.CurrentWaypoint.position;
-        float3 currentHeading = math.normalize(generationStep.FullDistanceBetweenWaypoints);
-        buffer.Add(currentPosition);
-
-        bool done = false;
-        while (!done)
+        for (int i = 0; i < transform.childCount; i++)
         {
-            var diff = (float3)generationStep.NextWaypoint.position - currentPosition;
-            while(math.length(diff) < k_StepSize)
-            {
-                if (generationStep.HasNext)
-                {
-                    generationStep = generationStep.Next;
-                    currentPosition = generationStep.CurrentWaypoint.position;
-                    diff = (float3)generationStep.NextWaypoint.position - currentPosition;
-                }
-                else
-                {
-
-                    done = true;
-                    break;
-                }
-            }
-            if(!done)
-            {
-                var t = 1 - (math.length(diff) - k_StepSize) / math.length(generationStep.FullDistanceBetweenWaypoints);
-                currentHeading = math.normalize(math.lerp(currentHeading, math.normalize(diff), t));
-                var step = currentHeading * k_StepSize;
-                currentPosition += step;
-                buffer.Add(currentPosition);
-            }
+            buffer.Add((float3)transform.GetChild(i).position);
         }
+        //var generationStep = new GenerationStep(1, transform.GetChild(0));
+        //float3 currentPosition = generationStep.CurrentWaypoint.position;
+        //float3 currentHeading = math.normalize(generationStep.FullDistanceBetweenWaypoints);
+        //buffer.Add(currentPosition);
+
+        //bool done = false;
+        //while (!done)
+        //{
+        //    var diff = (float3)generationStep.NextWaypoint.position - currentPosition;
+        //    while(math.length(diff) < k_StepSize)
+        //    {
+        //        if (generationStep.HasNext)
+        //        {
+        //            generationStep = generationStep.Next;
+        //            currentPosition = generationStep.CurrentWaypoint.position;
+        //            diff = (float3)generationStep.NextWaypoint.position - currentPosition;
+        //        }
+        //        else
+        //        {
+
+        //            done = true;
+        //            break;
+        //        }
+        //    }
+        //    if(!done)
+        //    {
+        //        var t = 1 - (math.length(diff) - k_StepSize) / math.length(generationStep.FullDistanceBetweenWaypoints);
+        //        currentHeading = math.normalize(math.lerp(currentHeading, math.normalize(diff), t));
+        //        var step = currentHeading * k_StepSize;
+        //        currentPosition += step;
+        //        buffer.Add(currentPosition);
+        //    }
+        //}
         m_Entity = entity;
         m_EntityManager = dstManager;
         var b = dstManager.AddBuffer<LinePositionBufferElement>(entity);
