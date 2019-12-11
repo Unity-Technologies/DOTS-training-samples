@@ -24,17 +24,13 @@ public class ReachForTargetSystem : JobComponentSystem
             
             if (reachedRockSuccessfully)
             {
-                if (math.all(reachingState.FullyReachedOutHandTranslation == new float3(float.NaN, float.NaN, float.NaN)))
-                {
-                    float3 flatDelta = delta;
-                    flatDelta.y = 0;
-                
-                    flatDelta = math.normalize(flatDelta);
+                float3 flatDelta = delta;
+                flatDelta.y = 0;
+            
+                flatDelta = math.normalize(flatDelta);
 
-                    reachingState.FullyReachedOutHandTranslation =
-                        desiredRockTranslation + new float3(0, 1, 0) * reachingState.TargetSize * 0.5f - flatDelta * reachingState.TargetSize * 0.5f;
-                }
-                
+                reachingState.HandTarget =
+                    desiredRockTranslation + new float3(0, 1, 0) * reachingState.TargetSize * 0.5f - flatDelta * reachingState.TargetSize * 0.5f;
                 reachingState.ReachTimer += k_deltaTime / ArmConstants.ReachDuration;
 
                 if (reachingState.ReachTimer < 1f)
