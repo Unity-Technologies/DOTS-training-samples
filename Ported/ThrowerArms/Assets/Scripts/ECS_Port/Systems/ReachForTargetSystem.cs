@@ -42,8 +42,6 @@ public class ReachForTargetSystem : JobComponentSystem
                     return;
                 }
                 
-                ecb.AddComponent(reachingState.TargetEntity, new GrabbedState());
-                
                 ecb.RemoveComponent<ReachForTargetState>(entity);
                 
                 ecb.AddComponent(entity, new LookForThrowTargetState
