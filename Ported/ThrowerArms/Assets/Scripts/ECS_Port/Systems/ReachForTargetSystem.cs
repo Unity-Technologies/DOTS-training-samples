@@ -1,13 +1,28 @@
 ﻿using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
+using Unity.Transforms;
 
-namespace ECS_Port.Systems
-{
-    public class ReachForTargetSystem : JobComponentSystem
+public class ReachForTargetSystem : JobComponentSystem
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            throw new System.NotImplementedException();
+            var translationFromEntityAccessor = GetComponentDataFromEntity<Translation>();
+            
+            return Entities.ForEach((ref Translation translation, ref ReachForTargetState reachState, ref ArmComponent arm) =>
+            {
+                float3 desiredRockTranslation = translationFromEntityAccessor[reachState.TargetEntity].Value;
+                float3 delta = desiredRockTranslation - translation.Value;
+
+                if (math.lengthsq(delta) < math.pow(ArmConstants.MaxReach, 2))
+                {
+                    float3 flatDelta = delta;
+                    flatDelta.y = 0;
+                    
+                    float3 normalisedFlatDelta = math.normalize(flatDelta);
+                    
+                    
+                }
+            }).Schedule(inputDeps);
         }
     }
-}
