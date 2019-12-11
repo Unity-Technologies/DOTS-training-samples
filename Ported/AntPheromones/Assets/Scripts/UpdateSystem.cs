@@ -34,6 +34,14 @@ public class UpdateSystem : JobComponentSystem
             init = false;
         }
 
+        /*
+        var renderMesh = EntityManager.GetSharedComponentData<Unity.Rendering.RenderMesh>(settings.backgroundPlane);
+        Material newMaterial = new Material(renderMesh.material);
+        newMaterial.color = new Color(UnityEngine.Random.Range(0.0f, 1.0f), UnityEngine.Random.Range(0.0f, 1.0f), UnityEngine.Random.Range(0.0f, 1.0f));
+        renderMesh.material = newMaterial;
+        EntityManager.SetSharedComponentData<Unity.Rendering.RenderMesh>(settings.backgroundPlane, renderMesh);
+        */
+
         var antEntities = m_Group.ToEntityArray(Allocator.TempJob);
         
         // sort ants into buckets for pheromone processing

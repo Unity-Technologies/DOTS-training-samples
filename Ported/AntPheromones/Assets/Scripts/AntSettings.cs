@@ -17,6 +17,8 @@ public struct AntSettings : IComponentData
 	//public Mesh obstacleMesh;
 	//public Mesh colonyMesh;
 	//public Mesh resourceMesh;
+
+	public Entity backgroundPlane;
 	public Entity antPrefab;
 	public Entity colonyPrefab;
 	public Entity resourcePrefab;
