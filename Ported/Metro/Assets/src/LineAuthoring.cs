@@ -24,7 +24,7 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     [SerializeField]
     int m_LineIndex = 0;
 
-    const float k_StepSize = 1f;
+    public const float k_StepSize = 0.1f;
 
     Entity m_Entity;
     EntityManager m_EntityManager;
@@ -123,7 +123,6 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         {
             b.Add(bufferElement);
         }
-        
         
         var material = new Material(Shader.Find("Standard"));
         material.color = RailMarkerColor;
