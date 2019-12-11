@@ -15,10 +15,8 @@ public class Constraint1_System : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        inputDeps.Complete();
-        Entities.WithoutBurst().ForEach((Entity entity, ClothComponent cloth, in LocalToWorld localToWorld) =>
+        return Entities.ForEach((Entity entity, ref DynamicBuffer<CurrentVertex> vertices, in ClothComponent cloth, in LocalToWorld localToWorld) =>
         {
-            var vertices = EntityManager.GetBuffer<CurrentVertex>(entity);
             ref var constraintIndices = ref cloth.constraints.Value.Constraint1Indices;
             ref var constraintLengths = ref cloth.constraints.Value.Constraint1Lengths;
 
@@ -40,9 +38,7 @@ public class Constraint1_System : JobComponentSystem
                     vertices[pair.x] = p1 + offset;
                 }
             }            
-        }).Run();
-
-        return inputDeps;
+        }).Schedule(inputDeps);
     }
 }
 

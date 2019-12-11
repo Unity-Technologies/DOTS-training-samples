@@ -12,11 +12,8 @@ public class AccumulateForces_System : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        Entities.WithoutBurst().ForEach((Entity entity, ClothComponent cloth, in LocalToWorld localToWorld) =>
+        return Entities.ForEach((Entity entity, ref DynamicBuffer<Force> forces, ref DynamicBuffer<CurrentVertex> vertices, ref DynamicBuffer<PreviousVertex> oldVertices, in ClothComponent cloth, in LocalToWorld localToWorld) =>
         {
-            var forces      = EntityManager.GetBuffer<Force>(entity);
-            var vertices    = EntityManager.GetBuffer<CurrentVertex>(entity);
-            var oldVertices = EntityManager.GetBuffer<PreviousVertex>(entity);
             var gravity     = cloth.Gravity;
 
             var firstPinnedIndex = cloth.constraints.Value.FirstPinnedIndex;
@@ -33,8 +30,6 @@ public class AccumulateForces_System : JobComponentSystem
                 oldVertices[i]  = startPos;
                 forces[i]       = gravity;
             }
-        }).Run();
-
-        return inputDeps;
+        }).Schedule(inputDeps);
     }
 }
