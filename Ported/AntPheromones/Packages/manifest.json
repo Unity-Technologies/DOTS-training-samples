@@ -2,7 +2,7 @@
   "dependencies": {
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
-    "com.unity.burst": "1.1.2",
+    "com.unity.burst": "1.2.0-preview.10",
     "com.unity.collections": "0.3.0-preview.0",
     "com.unity.dots.editor": "0.1.0-preview.2",
     "com.unity.entities": "0.3.0-preview.4",
