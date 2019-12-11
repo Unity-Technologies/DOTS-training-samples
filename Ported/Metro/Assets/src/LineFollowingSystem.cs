@@ -1,35 +1,38 @@
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace src
 {
     public class LineFollowingSystem : JobComponentSystem
     {
+        const float k_SpeedIncrement = 0.001f;
+        const float k_SpeedIncrementEpsilon = 0.0005f;
+
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             float deltaTime = Time.DeltaTime;
             
-            var bufferFromEntity = GetBufferFromEntity<LinePositionBufferElement>(true);
             
             return Entities
-                .WithReadOnly(bufferFromEntity)
-                .ForEach((ref LinePosition position) =>
+                .ForEach((ref Speed speed, in Translation translation) =>
                 {
-                    var buffer = bufferFromEntity[position.Line];
-                    position.Progression += (deltaTime * LineAuthoring.k_StepSize * 500);
-                    while (position.Progression >= 1.0f)
+                    var distanceTravled = math.length(translation.Value - speed.LastPosition);
+                    speed.CurrentSpeed = distanceTravled / deltaTime;
+                    if(speed.CurrentSpeed + k_SpeedIncrementEpsilon < speed.TargetSpeed)
                     {
-                        position.Progression -= 1.0f;
-                        if (position.CurrentIndex + 1 == buffer.Length)
-                        {
-                            position.CurrentIndex = 0;
-                        }
-                        else
-                        {
-                            position.CurrentIndex++;
-                        }
+                        speed.Value += k_SpeedIncrement;
                     }
+                    else if(speed.CurrentSpeed - k_SpeedIncrementEpsilon > speed.TargetSpeed)
+                    {
+                        Debug.Log("Decrease Speed");
+                        speed.Value -= k_SpeedIncrement;
+                        if (speed.Value < 0)
+                            speed.Value = 0;
+                    }
+                    speed.LastPosition = translation.Value;
                 })
                 .Schedule(inputDeps);
         }

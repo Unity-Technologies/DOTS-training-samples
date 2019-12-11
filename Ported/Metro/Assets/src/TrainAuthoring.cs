@@ -5,11 +5,12 @@ namespace src
 {
     [DisallowMultipleComponent]
     [RequiresEntityConversion]
-    [ConverterVersion("christianw", 1)]
+    [ConverterVersion("martinsch", 3)]
     public class TrainAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public LineAuthoring Line;
         public Mesh Mesh;
+        public float TargetSpeed = 100;
         
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
@@ -27,6 +28,11 @@ namespace src
                 Line = conversionSystem.TryGetPrimaryEntity(Line),
                 CurrentIndex = 0,
                 Progression = 0,
+            });
+            dstManager.AddComponentData(carriage, new Speed()
+            {
+                Value = 0,
+                TargetSpeed = TargetSpeed,
             });
         }
     }
