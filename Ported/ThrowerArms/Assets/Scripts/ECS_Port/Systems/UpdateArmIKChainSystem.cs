@@ -47,16 +47,17 @@ public class UpdateArmIKChainSystem : JobComponentSystem
         float3 vRight = new float3(1.0f, 0.0f, 0.0f);
 
         JobHandle calculateHandMatrixJob = Entities.WithName("CalculateHandMatrix")
-            .ForEach((ref HandMatrix handMatrix, in ArmComponent arm, in Translation translation) =>
+            .ForEach((ref HandMatrix handMatrix, ref ArmComponent arm, in Translation translation) =>
             {
                 int lastIndex = (int)(translation.Value.x * ArmConstants.ChainCount + (ArmConstants.ChainCount - 1));
                 float3 armChainPosLast = armJointPositions[lastIndex].Value;
                 float3 armChainPosBeforeLast = armJointPositions[lastIndex - 1].Value;
 
-                float3 handForward = math.normalize(armChainPosLast - armChainPosBeforeLast);
-                float3 handUp = math.normalize(math.cross(handForward, vRight));
+                arm.HandForward = math.normalize(armChainPosLast - armChainPosBeforeLast);
+                arm.HandUp = math.normalize(math.cross(arm.HandForward, vRight));
+                arm.HandRight = math.normalize(math.cross(arm.HandForward, arm.HandUp));
 
-                handMatrix.Value = new float4x4(math.RigidTransform(quaternion.LookRotation(handForward, handUp), armChainPosLast));
+                handMatrix.Value = new float4x4(math.RigidTransform(quaternion.LookRotation(arm.HandForward, arm.HandUp), armChainPosLast));
             }).Schedule(updateIkJob);
 
 
