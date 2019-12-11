@@ -42,12 +42,11 @@ public class PickSelectSystem : JobComponentSystem
 
             if (pickEntity != Entity.Null)
             {
-                // Do something with the picked entity.
-
                 // Remove the components so we do not pick another entity.
                 concurrentBuffer.RemoveComponent<FindGrabbableTargetState>(entityInQueryIndex, entity);
                 concurrentBuffer.RemoveComponent<GrabbableState>(entityInQueryIndex, pickEntity);
                 
+                // Add the reach for target state.
                 concurrentBuffer.AddComponent(entityInQueryIndex, entity, new ReachForTargetState
                 {
                     ReachTimer = 1f,
