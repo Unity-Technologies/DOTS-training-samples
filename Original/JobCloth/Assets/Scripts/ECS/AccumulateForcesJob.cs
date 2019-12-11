@@ -9,21 +9,20 @@ unsafe struct AccumulateForcesJob : IJobParallelFor
 {
     public NativeArray<float3> vertices;
     public NativeArray<float3> oldVertices;
+    public NativeArray<float3> forces;
     public float3 gravity;
 
     public void Execute(int i)
     {
         float3 oldVert = oldVertices[i];
         float3 vert = vertices[i];
-
         float3 startPos = vert;
-        oldVert -= gravity;
-        vert += (vert - oldVert);
 
-        oldVert = startPos;
+        vert += (vert - oldVert + forces[i]);
 
         vertices[i] = vert;
-        oldVertices[i] = oldVert;
+        oldVertices[i] = startPos;
+        forces[i] = gravity;
     }
 }
 
