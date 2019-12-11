@@ -1,9 +1,11 @@
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+[BurstCompile]
 struct TornadoJob : IJobParallelFor
 {
     public float tornadoForce;

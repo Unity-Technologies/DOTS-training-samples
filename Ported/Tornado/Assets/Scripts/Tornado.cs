@@ -28,7 +28,7 @@ public class TornadoSystem : JobComponentSystem
         var deltaTime = Time.DeltaTime;
         var random = rand;
         
-        Entities.ForEach((Entity entity, ref DynamicBuffer<ConstrainedPointEntry> points) =>
+        Entities.WithoutBurst().ForEach((Entity entity, ref DynamicBuffer<ConstrainedPointEntry> points) =>
         {
             simulationState.tornadoFader = Mathf.Clamp01(simulationState.tornadoFader + deltaTime / 10f);
             simulationState.tornadoX = Mathf.Cos(time/6f) * 30f;
@@ -59,7 +59,7 @@ public class TornadoSystem : JobComponentSystem
                 points = tempPoints,
             };
 
-            JobHandle jobHandle = job.Schedule(points.Length, 64);
+            JobHandle jobHandle = job.Schedule(tempPoints.Length, 64);
             jobHandle.Complete();
         }).Run();
         
