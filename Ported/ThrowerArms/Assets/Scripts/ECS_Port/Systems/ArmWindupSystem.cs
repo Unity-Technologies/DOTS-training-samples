@@ -37,9 +37,9 @@ public class ArmWindupSystem : JobComponentSystem
                     concurrentBuffer.AddComponent(0,entity, new ThrowAtState
                     {
                         ThrowTimer = 0f,
-                         StartPosition = windup.HandTarget,
-                         AimedTargetEntity = windup.AimedTargetEntity,
-                         HeldEntity = windup.HeldEntity
+                        StartPosition = windup.HandTarget,
+                        AimedTargetEntity = windup.AimedTargetEntity,
+                        HeldEntity = windup.HeldEntity
                     });
                 }
             })
