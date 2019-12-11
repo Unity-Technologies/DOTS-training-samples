@@ -21,7 +21,8 @@ public struct AntObstacleAvoidanceJob : IJobForEach<AntComponent, Translation>
 	
 	public void Execute(ref AntComponent ant, ref Translation antTranslation)
 	{
-		int2 cell = new int2((int)(antTranslation.Value.x * m_Dimensions.x), (int)(antTranslation.Value.y * m_Dimensions.y));
+		int2 cell = new int2(math.clamp((int)(antTranslation.Value.x * m_Dimensions.x), 0, (m_Dimensions.x - 1)),
+							 math.clamp((int)(antTranslation.Value.y * m_Dimensions.y), 0, (m_Dimensions.y - 1)));
 		int bucketIndex = (cell.y * m_Dimensions.x) + cell.x;
 		int2 range = m_ObstacleBuckets[bucketIndex];
 
@@ -29,10 +30,15 @@ public struct AntObstacleAvoidanceJob : IJobForEach<AntComponent, Translation>
 		{
 			RuntimeManager.CachedObstacle cachedObstacle = m_CachedObstacles[range.x + i];
 			float distance = math.distance(cachedObstacle.position, antTranslation.Value);
-			float normalizedDistance = distance / cachedObstacle.radius;
-			float clamped = 1.0f - math.clamp(normalizedDistance, 0.0f, 1.0f);
 
-			ant.speed *= clamped;
+			if(distance < cachedObstacle.radius)
+			{
+				ant.speed = 0.0f;
+			}
+			// float normalizedDistance = distance / cachedObstacle.radius;
+			// float clamped = 1.0f - math.clamp(normalizedDistance, 0.0f, 1.0f);
+			//
+			// ant.speed *= clamped;
 		}
 	}
 }
