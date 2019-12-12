@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(UpdateFingerIKChainSystem))]
 public class UpdateThumbIKChainSystem : JobComponentSystem
 {
     private EntityQuery m_positionBufferQuery;

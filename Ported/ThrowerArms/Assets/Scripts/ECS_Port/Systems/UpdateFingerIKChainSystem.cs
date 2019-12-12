@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(UpdateArmIKChainSystem))]
 public class UpdateFingerIKChainSystem : JobComponentSystem
 {
     private EntityQuery m_positionBufferQuery;
