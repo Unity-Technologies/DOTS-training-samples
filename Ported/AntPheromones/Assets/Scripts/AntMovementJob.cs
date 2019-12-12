@@ -27,7 +27,7 @@ public struct AntMovementJob : IJobForEach<Translation, Rotation, AntComponent, 
 		angularVelocity += steering.WallSteering * WallSteeringStrength;
 
 		// Update the rotation/position...
-		ant.facingAngle += steering.RandomDirection + angularVelocity;	//* TimeDelta;
+		ant.facingAngle += steering.RandomDirection + angularVelocity + steering.TargetSteering;	//* TimeDelta;
 		math.sincos(ant.facingAngle, out float sin, out float cos);
 		ant.speed = math.clamp(ant.speed + velocityChange, 0.0f, AntMaxSpeed);
 
