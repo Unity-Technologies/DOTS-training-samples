@@ -4,10 +4,10 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(UpdateArmIKChainSystem))]
 public class UpdateFingerIKChainSystem : JobComponentSystem
 {
     private EntityQuery m_positionBufferQuery;
-    private EntityQuery m_matrixBufferQuery;
     private EntityQuery m_handUpBufferQuery;
 
     protected override void OnCreate()
@@ -16,8 +16,6 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
         
         m_positionBufferQuery = 
             GetEntityQuery(ComponentType.ReadOnly<FingerJointPositionBuffer>());
-        m_matrixBufferQuery =
-            GetEntityQuery(ComponentType.ReadWrite<ArmJointMatrixBuffer>());
         m_handUpBufferQuery = GetEntityQuery(ComponentType.ReadWrite<UpVectorBufferForArmsAndFingers>());
     }
 
@@ -30,8 +28,6 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
     {
         var fingerJointPositions = 
             EntityManager.GetBuffer<FingerJointPositionBuffer>(m_positionBufferQuery.GetSingletonEntity());
-        var armJointMatriceBuffer =
-            EntityManager.GetBuffer<ArmJointMatrixBuffer>(m_matrixBufferQuery.GetSingletonEntity());
         var upVectorBufferForArmsAndFingers =
             EntityManager.GetBuffer<UpVectorBufferForArmsAndFingers>(m_handUpBufferQuery.GetSingletonEntity());
 

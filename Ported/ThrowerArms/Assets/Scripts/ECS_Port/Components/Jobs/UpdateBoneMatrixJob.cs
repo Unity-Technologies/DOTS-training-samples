@@ -5,21 +5,21 @@ using UnityEngine;
 
 public struct UpdateBoneMatrixJob : IJobParallelFor
 {
-    [ReadOnly] public float BoneThickness;
-    [ReadOnly] public NativeArray<float3> UpVectorsForMatrixCalculations;
-    [ReadOnly] public NativeArray<float3> BoneTranslations;
-    [ReadOnly] public int NumBoneTranslationsPerArm;
+    [ReadOnly] public NativeArray<ArmBoneBuffer> BoneInfo;
+    [ReadOnly] public NativeArray<ArmUpVectorBuffer> UpVectors;
+    [ReadOnly] public NativeArray<ArmJointBuffer> JointPositions;
     
     [WriteOnly] public NativeArray<Matrix4x4> BoneMatrices;
     
-    public void Execute(int index)
+    public void Execute(int boneIndex)
     {
-        float3 delta = BoneTranslations[index + 1] - BoneTranslations[index];
-        BoneMatrices[index] = 
+        ArmBoneBuffer bone = BoneInfo[boneIndex];
+        float3 delta = JointPositions[bone.EndIndex].pos - JointPositions[bone.StartIndex].pos;
+        BoneMatrices[boneIndex] = 
             Matrix4x4.TRS(
-                BoneTranslations[index] + delta * 0.5f, 
-                quaternion.LookRotationSafe(
-                    delta, UpVectorsForMatrixCalculations[index / NumBoneTranslationsPerArm]),
-                new float3(BoneThickness, BoneThickness, math.length(delta)));
+                JointPositions[bone.StartIndex].pos + delta * 0.5f, 
+                quaternion.LookRotation(
+                    delta, UpVectors[bone.upIndex].up),
+                new float3(bone.Thickness, bone.Thickness, math.length(delta)));
     }
 }

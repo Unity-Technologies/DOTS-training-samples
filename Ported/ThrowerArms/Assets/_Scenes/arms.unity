@@ -365,6 +365,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ArmPrefab: {fileID: 1092234786245138, guid: 2ed48e1a6bdf2e54594a60c25672b050, type: 3}
+  ArmMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  ArmMaterial: {fileID: 2100000, guid: b998c5af23f4ade4a94568cc7bb3bff6, type: 2}
 --- !u!4 &642240202
 Transform:
   m_ObjectHideFlags: 0

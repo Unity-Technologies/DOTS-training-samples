@@ -9,7 +9,6 @@ using UnityEngine;
 public class UpdateArmIKChainSystem : JobComponentSystem
 {
     private EntityQuery m_positionBufferQuery;
-    private EntityQuery m_matrixBufferQuery;
     private EntityQuery m_handUpBufferQuery;
 
     protected override void OnCreate()
@@ -18,8 +17,6 @@ public class UpdateArmIKChainSystem : JobComponentSystem
         
         m_positionBufferQuery = 
             GetEntityQuery(ComponentType.ReadWrite<ArmJointPositionBuffer>());
-        m_matrixBufferQuery =
-            GetEntityQuery(ComponentType.ReadWrite<ArmJointMatrixBuffer>());
         m_handUpBufferQuery = GetEntityQuery(ComponentType.ReadWrite<UpVectorBufferForArmsAndFingers>());
     }
     
@@ -27,12 +24,9 @@ public class UpdateArmIKChainSystem : JobComponentSystem
     {
         var armJointPositionBuffer =
             EntityManager.GetBuffer<ArmJointPositionBuffer>(m_positionBufferQuery.GetSingletonEntity());
-        var armJointMatriceBuffer =
-            EntityManager.GetBuffer<ArmJointMatrixBuffer>(m_matrixBufferQuery.GetSingletonEntity());
         var upVectorBufferForArmsAndFingers =
             EntityManager.GetBuffer<UpVectorBufferForArmsAndFingers>(m_handUpBufferQuery.GetSingletonEntity());
         
-        EntityManager.GetBuffer<ArmJointMatrixBuffer>(m_matrixBufferQuery.GetSingletonEntity());
         JobHandle updateIkJob = Entities.WithName("UpdateArmIKChain")
             .WithNativeDisableParallelForRestriction(armJointPositionBuffer)
             .ForEach((in ArmComponent arm, in Translation translation) =>
@@ -78,19 +72,7 @@ public class UpdateArmIKChainSystem : JobComponentSystem
                 handMatrix.Value = new float4x4(math.RigidTransform(quaternion.LookRotationSafe(arm.HandForward, arm.HandUp), armChainPosLast));
             }).Schedule(updateIkJob);
         calculateHandMatrixJob.Complete();
-        
-        return
-            new UpdateBoneMatrixJob
-            {
-                BoneTranslations = armJointPositionBuffer.AsNativeArray().Reinterpret<float3>(),
-                UpVectorsForMatrixCalculations = upVectorBufferForArmsAndFingers.AsNativeArray().Reinterpret<float3>(),
-                NumBoneTranslationsPerArm = ArmConstants.ChainCount,
-                BoneThickness = ArmConstants.BoneThickness,
-                
-                BoneMatrices = armJointMatriceBuffer.AsNativeArray().Reinterpret<Matrix4x4>()
-            }.Schedule(
-                armJointPositionBuffer.Length - 1, 
-                innerloopBatchCount: 256,
-                dependsOn: calculateHandMatrixJob);
+
+        return calculateHandMatrixJob;
     }
 }
