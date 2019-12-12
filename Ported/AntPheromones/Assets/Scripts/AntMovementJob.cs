@@ -32,20 +32,19 @@ public struct AntMovementJob : IJobForEach<Translation, Rotation, AntComponent, 
 		ant.speed = math.clamp(ant.speed + velocityChange, 0.0f, AntMaxSpeed);
 
 		float speedChange = ant.speed * TimeDelta;
-		float3 velocity = new float3(speedChange * cos, speedChange * sin, 0.0f);
+		float3 velocity = speedChange * new float3(cos, sin, 0.0f);
 		position += velocity;
 
 		// Clamp to the edge of the map...
 		if((position.x < 0) || (position.x >= 1.0f))
 		{
 			velocity.x = -velocity.x;
-			position = translation.Value;
 		} 
 		if((position.y < 0.0f) || (position.y >= 1.0f))
 		{
 			velocity.y = -velocity.y;
-			position = translation.Value;
 		}
+		position = math.clamp(position, 0, 1);
 
 		// Output the modified values...
 		ant.facingAngle = math.atan2(velocity.y, velocity.x);

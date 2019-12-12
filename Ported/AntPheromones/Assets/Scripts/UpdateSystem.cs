@@ -129,7 +129,14 @@ public class UpdateSystem : JobComponentSystem
         };
         var steeringJobHandle = steeringJob.Schedule(this, pheromoneBucketsJobHandle);
 
-        var obstacleJob = new AntObstacleAvoidanceJob(RuntimeManager.instance.obstacleBucketDimensions, RuntimeManager.instance.obstacleBuckets, RuntimeManager.instance.cachedObstacles);
+        var obstacleJob = new AntObstacleAvoidanceJob
+        {
+            Dimensions = RuntimeManager.instance.obstacleBucketDimensions, 
+            ObstacleBuckets = RuntimeManager.instance.obstacleBuckets, 
+            CachedObstacles = RuntimeManager.instance.cachedObstacles,
+            LookAheadDistance = 3.0f / settings.mapSize
+        };
+       
         var obstacleJobHandle = obstacleJob.Schedule(this, steeringJobHandle);
 
         var movementJob = new AntMovementJob()
@@ -166,6 +173,10 @@ public class UpdateSystem : JobComponentSystem
         
         dropPheromonesJobHandle.Complete();
 
+        for (int i = 0; i < PheromoneMap.Length; i++)
+        {
+            PheromoneMap[i] *= math.pow(settings.trailDecay, TimeDelta / 60.0f);
+        }
         UpdateTexture();
         return new JobHandle();
     }

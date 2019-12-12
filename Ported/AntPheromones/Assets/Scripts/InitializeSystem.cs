@@ -14,7 +14,7 @@ using Unity.Rendering;
 public class InitializeSystem : JobComponentSystem
 {
 	private NativeArray<int2> m_ObstacleBuckets;
-	private NativeArray<RuntimeManager.CachedObstacle> m_CachedObstacles;
+	private NativeArray<MapObstacle> m_CachedObstacles;
 
     bool init;
 
@@ -88,7 +88,7 @@ public class InitializeSystem : JobComponentSystem
 		float radius = settings.obstacleRadius / settings.mapSize;
 		NonUniformScale prefabScale = new NonUniformScale() {Value = new float3(radius, radius, radius)};
 
-		List<RuntimeManager.CachedObstacle> cachedObstacles = new List<RuntimeManager.CachedObstacle>();
+		List<MapObstacle> cachedObstacles = new List<MapObstacle>();
 		
 		for (int i = 1; i <= settings.obstacleRingCount; i++)
 		{
@@ -108,7 +108,7 @@ public class InitializeSystem : JobComponentSystem
                     float y = Mathf.Sin(angle) * ringRadius + center;
                     ObstacleComponent obstacleComponent = new ObstacleComponent() {radius = radius};
                     Translation obstacleTranslation = new Translation() {Value = new float3(x / settings.mapSize, y / settings.mapSize, 0.0f)};
-                    RuntimeManager.CachedObstacle cachedObstacle = new RuntimeManager.CachedObstacle() {position = obstacleTranslation.Value, radius = obstacleComponent.radius,};
+                    MapObstacle cachedObstacle = new MapObstacle() {position = obstacleTranslation.Value, radius = obstacleComponent.radius,};
                     
                     cachedObstacles.Add(cachedObstacle);
 
@@ -119,13 +119,13 @@ public class InitializeSystem : JobComponentSystem
 				}
 			}
 		}
-		List<RuntimeManager.CachedObstacle>[,] tempCachedObstacleBuckets = new List<RuntimeManager.CachedObstacle>[settings.bucketResolution, settings.bucketResolution];
+		List<MapObstacle>[,] tempCachedObstacleBuckets = new List<MapObstacle>[settings.bucketResolution, settings.bucketResolution];
 
 		for (int x = 0; x < settings.bucketResolution; x++)
 		{
 			for (int y = 0; y < settings.bucketResolution; y++)
 			{
-				tempCachedObstacleBuckets[x, y] = new List<RuntimeManager.CachedObstacle>();
+				tempCachedObstacleBuckets[x, y] = new List<MapObstacle>();
 			}
 		}
 
@@ -137,7 +137,7 @@ public class InitializeSystem : JobComponentSystem
 
 		for(int i = 0; i < numObstacles; i++)
 		{
-			RuntimeManager.CachedObstacle cachedObstacle = cachedObstacles[i];
+			MapObstacle cachedObstacle = cachedObstacles[i];
 			float3 obstaclePosition = cachedObstacle.position;
 			float obstacleRadius = cachedObstacle.radius;
 
@@ -159,7 +159,7 @@ public class InitializeSystem : JobComponentSystem
 
 		// sort obstacles and fill buckets
 		int2 range = new int2(0, 0);
-		List<RuntimeManager.CachedObstacle> bucketedCachedObjects = new List<RuntimeManager.CachedObstacle>();
+		List<MapObstacle> bucketedCachedObjects = new List<MapObstacle>();
 
 		for (int x = 0; x < res; x++)
 		{
@@ -179,7 +179,7 @@ public class InitializeSystem : JobComponentSystem
 			}
 		}
 		
-		m_CachedObstacles = new NativeArray<RuntimeManager.CachedObstacle>(bucketedCachedObjects.ToArray(), Allocator.Persistent);
+		m_CachedObstacles = new NativeArray<MapObstacle>(bucketedCachedObjects.ToArray(), Allocator.Persistent);
 
 		RuntimeManager.instance.cachedObstacles = m_CachedObstacles;
 		RuntimeManager.instance.obstacleBuckets = m_ObstacleBuckets;

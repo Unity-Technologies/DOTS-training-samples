@@ -4,17 +4,11 @@ using Unity.Transforms;
 
 public class RuntimeManager
 {
-    public struct CachedObstacle
-    {
-        public float3 position;
-        public float radius;
-    }
-
     private static RuntimeManager i = null;
 
     public int2 obstacleBucketDimensions;
 	public NativeArray<int2> obstacleBuckets;
-    public NativeArray<CachedObstacle> cachedObstacles;
+    public NativeArray<MapObstacle> cachedObstacles;
     public float3 colonyPosition;
     public float3 resourcePosition;
     
