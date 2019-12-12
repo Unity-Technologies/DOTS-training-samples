@@ -6,10 +6,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
-using System.Linq;
-using Unity.Burst;
-using Unity.Collections.LowLevel.Unsafe;
-using System;
 
 public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
 {
@@ -229,6 +225,7 @@ public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
     {
         var mesh = GetComponent<MeshFilter>().sharedMesh;
         var material = GetComponent<MeshRenderer>().sharedMaterial;
+        //?
         var gravity = (float3)transform.InverseTransformVector(-Vector3.up * Time.deltaTime * Time.deltaTime);
 
 
@@ -240,6 +237,7 @@ public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
         newMesh.normals = normals;
         newMesh.triangles = indices;
 
+        //This also modifies the newMesh vertices, so we need to get them again
         var constraints = ClothBlobAssetUtility.CreateFromMesh(newMesh);
 
         vertices = newMesh.vertices;
@@ -254,6 +252,7 @@ public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddBuffer<PreviousVertex>(entity);
         dstManager.AddBuffer<Force>(entity);
 
+        //Need to get buffer explicitly, AddBuffer's return value is not allocated
         var currentClothPositions   = dstManager.GetBuffer<CurrentVertex>(entity);
         var previousClothPositions  = dstManager.GetBuffer<PreviousVertex>(entity);
         var forces                  = dstManager.GetBuffer<Force>(entity);
