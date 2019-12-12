@@ -8,6 +8,7 @@ using UnityEngine;
 public class PushToRenderSystem : JobComponentSystem
 {
     EntityQuery generationSettings;
+    EntityQuery particleSettings;
     const int instancesPerBatch = 1023;
     Matrix4x4[] instances;
 //    Matrix4x4[][] batches;
@@ -16,6 +17,7 @@ public class PushToRenderSystem : JobComponentSystem
     {
         RequireSingletonForUpdate<GenerationSystem.State>();
         generationSettings = GetEntityQuery(typeof(GenerationSetting));
+        particleSettings = GetEntityQuery(typeof(ParticleSettings));
         instances = new Matrix4x4[instancesPerBatch];
     }
     
@@ -24,7 +26,7 @@ public class PushToRenderSystem : JobComponentSystem
         var settingsEntity = generationSettings.GetSingletonEntity();
         var settings = EntityManager.GetComponentObject<GenerationSetting>(settingsEntity);
         
-        Entities.WithoutBurst().ForEach( (Entity entity, ref DynamicBuffer<RenderMatrixEntry> matricies) =>
+        Entities.WithoutBurst().ForEach( (Entity entity, in DynamicBuffer<RenderMatrixEntry> matricies) =>
         {
             var numBatches = matricies.Length / instancesPerBatch + 1;
             for (int i = 0; i < numBatches; i++)

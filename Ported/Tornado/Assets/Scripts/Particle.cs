@@ -1,7 +1,6 @@
-namespace DefaultNamespace
+using Unity.Entities;
+
+public struct Particle : IComponentData
 {
-    public class Particle
-    {
-        
-    }
+    public float RandomOffset;
 }

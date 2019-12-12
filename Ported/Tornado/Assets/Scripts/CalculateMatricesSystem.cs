@@ -7,6 +7,12 @@ using UnityEngine;
 [UpdateBefore(typeof(PushToRenderSystem))]
 public class CalculateMatricesSystem : JobComponentSystem
 {
+    
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<ConstrainedPointEntry>();
+    }
+    
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
 //        // Cubes
@@ -51,8 +57,7 @@ public class CalculateMatricesSystem : JobComponentSystem
                 matrices[i] = new RenderMatrixEntry {Value = matrix};
             }
 
-        }).Schedule(inputDeps);      
-        
+        }).Schedule(inputDeps);
         
         jobHandle.Complete();
         return jobHandle;
