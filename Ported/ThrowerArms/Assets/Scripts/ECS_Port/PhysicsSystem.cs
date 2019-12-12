@@ -4,19 +4,18 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using static Unity.Mathematics.math;
 
 public class PhysicsSystem : JobComponentSystem
 {
     [BurstCompile]
     struct GravityJob : IJobForEach<Velocity, Gravity>
     {
-        public float gravityTimesDeltaTime;
+        public float3 gravityTimesDeltaTime;
         public static readonly float3 kGravity = new float3(0.0f, -9.807f, 0.0f);
 
         public void Execute(ref Velocity velocity, [ReadOnly] ref Gravity gravity)
         {
-            velocity.Value += velocity.Value * gravityTimesDeltaTime;
+            velocity.Value += gravityTimesDeltaTime;
         }
     }
 
@@ -38,15 +37,16 @@ public class PhysicsSystem : JobComponentSystem
 
         public void Execute(ref Rotation rotation, [ReadOnly] ref AngularVelocity angularVelocity)
         {
-            quaternion combinedRotation = mul(rotation.Value, angularVelocity.rotation.Value);
-            rotation.Value = slerp(rotation.Value, combinedRotation, deltaTime);
+            //quaternion combinedRotation = mul(rotation.Value, angularVelocity.rotation);
+            //rotation.Value = math.slerp(rotation.Value, combinedRotation, deltaTime);
+         //   rotation.Value = math.mul(quaternion.AxisAngle(angularVelocity.Value, math.length(angularVelocity.Value) * deltaTime), rotation.Value);
         }
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
         var gravityJob = new GravityJob();
-        gravityJob.gravityTimesDeltaTime = mul(GravityJob.kGravity, new float3(UnityEngine.Time.deltaTime));
+        gravityJob.gravityTimesDeltaTime = GravityJob.kGravity * new float3(UnityEngine.Time.deltaTime);
         JobHandle gravityJobHandle = gravityJob.Schedule(this, inputDependencies);
 
         var velocityJob = new VelocityJob();

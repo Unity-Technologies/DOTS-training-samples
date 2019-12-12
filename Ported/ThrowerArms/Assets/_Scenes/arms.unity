@@ -169,6 +169,7 @@ MonoBehaviour:
     type: 3}
   scaleRange: {x: 0.3, y: 1}
   velocity: {x: 1, y: 0, z: 0}
+  frequency: 20
 --- !u!4 &117738162
 Transform:
   m_ObjectHideFlags: 0
@@ -364,7 +365,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ArmPrefab: {fileID: 1092234786245138, guid: 2ed48e1a6bdf2e54594a60c25672b050, type: 3}
-  Count: 100
 --- !u!4 &642240202
 Transform:
   m_ObjectHideFlags: 0
@@ -810,6 +810,7 @@ MonoBehaviour:
     type: 3}
   scaleRange: {x: 1, y: 1}
   velocity: {x: -1, y: 0, z: 0}
+  frequency: 20
 --- !u!4 &1718741835
 Transform:
   m_ObjectHideFlags: 0

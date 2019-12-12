@@ -60,7 +60,7 @@ public class ArmThrowSystem : JobComponentSystem
             t = math.min(t1, t2);
         }
 
-        var output = velocity - .5f * new float3(0f, -RockManager.instance.gravityStrength, 0f) * t + (targetPosition - startPos) / t;
+        var output = velocity - .5f * new float3(0f, -25.0f, 0f) * t + (targetPosition - startPos) / t;
 
         if (length(output) > baseThrowSpeed * 2f)
         {
@@ -79,7 +79,9 @@ public class ArmThrowSystem : JobComponentSystem
         var velocityAccessor = GetComponentDataFromEntity<Velocity>(true);
         EntityCommandBuffer.Concurrent concurrentBuffer = entityCommandBuffer.ToConcurrent();
         var deps = Entities
-            .ForEach((Entity entity, ref ArmComponent arm, ref ThrowAtState throwAt, in Translation pos) =>
+            .WithReadOnly(accessor)
+            .WithReadOnly(velocityAccessor)
+            .ForEach((Entity entity, int entityInQueryIndex, ref ArmComponent arm, ref ThrowAtState throwAt, in Translation pos) =>
             {
                 // update our aim until we release the rock
                 if (throwAt.HeldEntity != Entity.Null)
@@ -99,21 +101,21 @@ public class ArmThrowSystem : JobComponentSystem
 
                 if (arm.ThrowTimer > .15f && throwAt.HeldEntity != Entity.Null)
                 {
-                    concurrentBuffer.RemoveComponent<HoldingRockState>(jobIndex: 0, entity);
-                    concurrentBuffer.RemoveComponent<GrabbedState>(0, throwAt.HeldEntity);
+                    concurrentBuffer.RemoveComponent<GrabbedState>(entityInQueryIndex, throwAt.HeldEntity);
                     // release the rock
-                    concurrentBuffer.AddComponent(0, throwAt.HeldEntity, new Velocity() { Value = throwAt.AimVector });
-                    concurrentBuffer.AddComponent<FlyingState>(0, throwAt.HeldEntity);
-                    concurrentBuffer.AddComponent<Gravity>(0, throwAt.HeldEntity);
+                    concurrentBuffer.AddComponent<Velocity>(entityInQueryIndex, throwAt.HeldEntity, new Velocity() { Value = throwAt.AimVector });
+                    concurrentBuffer.AddComponent<FlyingState>(entityInQueryIndex, throwAt.HeldEntity);
+                    concurrentBuffer.AddComponent<MarkedForDeath>(entityInQueryIndex, throwAt.HeldEntity, new MarkedForDeath { Timer = 10.0f }) ;
+                    concurrentBuffer.AddComponent<Gravity>(entityInQueryIndex, throwAt.HeldEntity);
 
                     throwAt.HeldEntity = Entity.Null;
                 }
 
                 if (arm.ThrowTimer > 1f)
                 {
-                    concurrentBuffer.RemoveComponent<ThrowAtState>(0, entity);
-                    concurrentBuffer.AddComponent<IdleState>(0, entity);
-                    concurrentBuffer.AddComponent<FindGrabbableTargetState>(0, entity);
+                    concurrentBuffer.RemoveComponent<ThrowAtState>(entityInQueryIndex, entity);
+                    concurrentBuffer.AddComponent<IdleState>(entityInQueryIndex, entity);
+                    concurrentBuffer.AddComponent<FindGrabbableTargetState>(entityInQueryIndex, entity);
                 }
             })
             .Schedule(inputDeps);

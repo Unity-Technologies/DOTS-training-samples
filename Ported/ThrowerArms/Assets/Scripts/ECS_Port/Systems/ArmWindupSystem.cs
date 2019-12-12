@@ -17,6 +17,7 @@ public class ArmWindupSystem : JobComponentSystem
         EntityCommandBuffer.Concurrent concurrentBuffer = entityCommandBuffer.ToConcurrent();
         var dt = Time.DeltaTime;
         var deps = Entities
+            .WithReadOnly(accessor)
             .ForEach((Entity entity, ref ArmComponent arm, ref WindingUpState windup, in Translation pos) =>
             {
                 windup.WindupTimer += dt / ArmConstants.WindUpDuration;

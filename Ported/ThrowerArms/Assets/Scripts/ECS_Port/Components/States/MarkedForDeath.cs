@@ -3,7 +3,8 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-[GenerateAuthoringComponent]
-public struct ThrowTargetState : IComponentData
+[Serializable]
+public struct MarkedForDeath : IComponentData
 {
+    public float Timer;
 }

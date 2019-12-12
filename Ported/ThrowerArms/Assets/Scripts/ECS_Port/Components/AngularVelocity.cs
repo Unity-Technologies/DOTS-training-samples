@@ -1,7 +1,8 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 
 public struct AngularVelocity : IComponentData
 {
-    public Rotation rotation;
+    public float3 Value;
 }
