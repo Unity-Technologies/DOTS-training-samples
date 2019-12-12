@@ -69,7 +69,7 @@ public class CollisionSystem : JobComponentSystem
 
             }).Schedule(hashPositionsJobHandle);
         hashMap.Dispose(lastJobHandle);
-
+        endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(lastJobHandle);
         return lastJobHandle;
     }
 }

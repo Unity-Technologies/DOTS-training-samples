@@ -44,7 +44,7 @@ public class ArmWindupSystem : JobComponentSystem
                 }
             })
             .Schedule(inputDeps);
-
+        endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(deps);
         return deps;
     }
 

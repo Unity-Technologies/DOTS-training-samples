@@ -22,10 +22,10 @@ public class SpawnerSystem : JobComponentSystem
     
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
-        var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer();
+        var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
         float deltaTime = Time.DeltaTime;
 
-        Entities.ForEach((ref SpawnerComponent spawner) =>
+        var deps = Entities.ForEach((ref SpawnerComponent spawner) =>
         {
             spawner.timeToNextSpawn -= deltaTime;
             while (spawner.timeToNextSpawn < 0)
@@ -35,19 +35,20 @@ public class SpawnerSystem : JobComponentSystem
                 var z = spawner.random.NextFloat(-spawner.extend.z, spawner.extend.z) / 2f;
                 //var y = spawner.random.NextInt(0, rowCount - 1);
                 //var z = spawner.random.NextInt(0, rowCount - 1);
-                var entity = commandBuffer.Instantiate(spawner.spawnEntity);
+                var entity = commandBuffer.Instantiate(0, spawner.spawnEntity);
                 var c = spawner.center;
-                commandBuffer.SetComponent(entity, new Translation { Value = c + new float3(x, y, z) });
+                commandBuffer.SetComponent(0,entity, new Translation { Value = c + new float3(x, y, z) });
                 var scale = spawner.random.NextFloat(spawner.scaleRange.x, spawner.scaleRange.y);
-                commandBuffer.AddComponent(entity, new Scale() { Value = 0f });
-                commandBuffer.AddComponent(entity, new Velocity() { Value = spawner.velocity });
-                commandBuffer.AddComponent(entity, new UpscaleComponent() { targetScale = scale }) ;
+                commandBuffer.AddComponent(0,entity, new Scale() { Value = 0f });
+                commandBuffer.AddComponent(0,entity, new Velocity() { Value = spawner.velocity });
+                commandBuffer.AddComponent(0,entity, new UpscaleComponent() { targetScale = scale }) ;
                 spawner.timeToNextSpawn += 1f / spawner.frequency;
             }
 
-        }).Run();
+        }).Schedule(inputDependencies);
+        m_EntityCommandBufferSystem.AddJobHandleForProducer(deps);
 
-        return inputDependencies;
+        return deps;
     }
 
 }
@@ -63,21 +64,22 @@ public class UpscalerSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
-        var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer();
+        var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
         float deltaTime = Time.DeltaTime;
 
-        Entities.ForEach((ref Entity entity, ref UpscaleComponent scaler, ref Scale scale) =>
+        var deps = Entities.ForEach((ref Entity entity, ref UpscaleComponent scaler, ref Scale scale) =>
         {
             var newScale = scale.Value + 1f * deltaTime;
             if (newScale > scaler.targetScale)
             {
                 newScale = scaler.targetScale;
-                commandBuffer.RemoveComponent<UpscaleComponent>(entity);
+                commandBuffer.RemoveComponent<UpscaleComponent>(0, entity);
             }
             scale.Value = newScale;
 
-        }).Run();
+        }).Schedule(inputDependencies);
+        m_EntityCommandBufferSystem.AddJobHandleForProducer(deps);
 
-        return inputDependencies;
+        return deps;
     }
 }
