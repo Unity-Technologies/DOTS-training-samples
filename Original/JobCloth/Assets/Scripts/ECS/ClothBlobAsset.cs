@@ -22,6 +22,20 @@ public struct ClothBlobAsset
     public BlobArray<float> Constraint2Lengths;
 }
 
+//id and value
+//keep a dictionary of dictionaries, 
+    //first key is value of triangle index
+        //key inside other dictionary is ID (i.e. the index of the vertex)
+//Change values
+//Store what "changed"
+//reshuffle values
+public class IndexInfo
+{
+    public int id;
+    public int value;
+    public int oldValue;
+}
+
 public class ClothBlobAssetUtility
 {
     public static BlobAssetReference<ClothBlobAsset> CreateFromMesh(Mesh mesh)
@@ -32,8 +46,30 @@ public class ClothBlobAssetUtility
 
         var pinned = new bool[vertices.Length];
         var lastPinned = 0;
+
+        Dictionary<int, Dictionary<int, IndexInfo>> indexInfoDict = new Dictionary<int, Dictionary<int, IndexInfo>>();
+        List<IndexInfo> sortedIndexList = new List<IndexInfo>();
+
+        //build the helper lists
+        for (int i = 0; i < indices.Length; ++i)
+        {
+            int curValue = indices[i];
+            int curId = i;
+            if(!indexInfoDict.ContainsKey(curValue))
+            {
+                indexInfoDict[curValue] = new Dictionary<int, IndexInfo>();
+            }
+
+            var newIndexInfo = new IndexInfo { id = curId, value = curValue, oldValue = curValue };
+            sortedIndexList.Add(newIndexInfo);
+            indexInfoDict[curValue][curId] = newIndexInfo;
+        }
+
+        List<IndexInfo> infosToMove = new List<IndexInfo>();
         for (int i = 0; i < vertices.Length; i++)
         {
+            infosToMove.Clear();
+
             if (normals[i].y > .9f && vertices[i].y > .3f)
             {
                 pinned[i] = true;
@@ -46,6 +82,39 @@ public class ClothBlobAssetUtility
                     { var t = vertices[lastPinned]; vertices[lastPinned] = vertices[i]; vertices[i] = t; }
                     { var t = normals[lastPinned]; normals[lastPinned] = normals[i]; normals[i] = t; }
 
+
+                    var iDict = indexInfoDict[i];
+                    var lastPinnedDict = indexInfoDict[lastPinned];
+
+                    foreach (var curInfo in iDict)
+                    {
+                        var curIndexInfo = curInfo.Value;
+                        curIndexInfo.value = lastPinned;
+                        infosToMove.Add(curIndexInfo);
+                    }
+
+                    foreach (var curInfo in lastPinnedDict)
+                    {
+                        var curIndexInfo = curInfo.Value;
+                        curIndexInfo.value = i;
+                        infosToMove.Add(curIndexInfo);
+                    }
+
+                    //then move things around
+                    for(int infoIdx = 0; infoIdx < infosToMove.Count; ++infoIdx)
+                    {
+                        var curInfo = infosToMove[infoIdx];
+
+                        indexInfoDict[curInfo.oldValue].Remove(curInfo.id);
+                        if (!indexInfoDict.ContainsKey(curInfo.value))
+                            indexInfoDict[curInfo.value] = new Dictionary<int, IndexInfo>();
+
+                        indexInfoDict[curInfo.value][curInfo.id] = curInfo;
+                        curInfo.oldValue = curInfo.value;
+                    }
+
+                    //Keeping loop around for future reference
+                    /*
                     // horrible hack
                     for (int j = 0; j < indices.Length; j++)
                     {
@@ -53,13 +122,29 @@ public class ClothBlobAssetUtility
                             indices[j] = lastPinned;
                         else if (indices[j] == lastPinned)
                             indices[j] = i;
-                    }
+                    }*/
+
                     lastPinned++;
                 }
             }
         }
 
-        
+        //Verify that the values are the same
+        /*
+        for(int i = 0; i < indices.Length; ++i)
+        {
+            if(indices[i] != sortedIndexList[i].value)
+            {
+                Console.WriteLine("mismatch!");
+            }
+        }
+        */
+
+        for (int i = 0; i < indices.Length; ++i)
+        {
+            indices[i] = sortedIndexList[i].value;
+        }
+
         mesh.triangles = indices;
         mesh.vertices = vertices;
         mesh.normals = normals;
