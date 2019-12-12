@@ -11,7 +11,7 @@ public class FoodAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
     }
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new Food
+        dstManager.AddComponentData(entity, new FoodSpawner
         {
             Prefab = conversionSystem.GetPrimaryEntity(prefab)
         });

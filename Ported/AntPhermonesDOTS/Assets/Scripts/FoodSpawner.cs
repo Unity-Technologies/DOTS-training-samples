@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-struct Food : IComponentData
+struct FoodSpawner : IComponentData
 {
     public Entity Prefab;    
 }
