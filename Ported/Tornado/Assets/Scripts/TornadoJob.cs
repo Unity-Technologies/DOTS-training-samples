@@ -66,5 +66,7 @@ struct TornadoJob : IJobParallelFor
             constrainedPoint.oldPosition.x += (constrainedPoint.position.x - constrainedPoint.oldPosition.x) * friction;
             constrainedPoint.oldPosition.z += (constrainedPoint.position.z - constrainedPoint.oldPosition.z) * friction;
         }
+
+        points[i] = constrainedPoint;
     }
 }

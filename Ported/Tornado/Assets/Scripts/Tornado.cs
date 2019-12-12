@@ -32,6 +32,8 @@ public class TornadoSystem : JobComponentSystem
         simulationState.tornadoX = Mathf.Cos(time/6f) * 30f;
         simulationState.tornadoZ = Mathf.Sin(time/6f * 1.618f) * 30f;
         
+        SetSingleton(simulationState);
+        
         Entities.WithoutBurst().ForEach((Entity entity, ref DynamicBuffer<ConstrainedPointEntry> points) =>
         {
             if (points.Length == 0)
