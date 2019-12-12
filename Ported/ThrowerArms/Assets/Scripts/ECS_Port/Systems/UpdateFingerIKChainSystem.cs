@@ -102,8 +102,7 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                 }).Schedule(grabExtentJob2);
         
          return
-             Entities.WithName("UpdateFingerIKChainForFingersGrippingRock")
-             .WithReadOnly(translationFromEntity)
+             Entities.WithName("UpdateFingerIKChainForFingersIdle")
              .WithNativeDisableParallelForRestriction(fingerJointPositions)
              .WithNone<LookForThrowTargetState>()
              .ForEach((ref Finger fingerComponent, in ArmComponent armComponent, in Translation translation) =>
