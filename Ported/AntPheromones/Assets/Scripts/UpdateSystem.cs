@@ -163,8 +163,15 @@ public class UpdateSystem : JobComponentSystem
             CachedObstacles = RuntimeManager.instance.cachedObstacles,
             LookAheadDistance = 1.5f / settings.mapSize
         };
-       
         var obstacleJobHandle = obstacleJob.Schedule(this, steeringJobHandle);
+
+        var inwardOutwardStrengthJob = new AntInwardOutwardStrengthJob()
+        {
+            ColonyPosition = RuntimeManager.instance.colonyPosition.xy,
+            InwardStrength = settings.inwardStrength,
+            OutwardStrength = settings.outwardStrength,
+        };
+        var inwardOutwardStrengthJobHandle = inwardOutwardStrengthJob.Schedule(this, obstacleJobHandle);
 
         var movementJob = new AntMovementJob()
         {
@@ -176,7 +183,7 @@ public class UpdateSystem : JobComponentSystem
             ResourcePosition = RuntimeManager.instance.resourcePosition.xy,
             TargetRadius = 4.0f / settings.mapSize,
         };
-        var movementSystemJobHandle = movementJob.Schedule(this, obstacleJobHandle);
+        var movementSystemJobHandle = movementJob.Schedule(this, inwardOutwardStrengthJobHandle);
         
         var resolvePositionJob = new AntResolvePositionJob()
         {
