@@ -20,7 +20,7 @@ public unsafe class Constraint2_System : JobComponentSystem
 
             var constraintIndicesPtr = (int2*)constraintIndices.GetUnsafePtr();
             var constraintLengthsPtr = (float*)constraintLengths.GetUnsafePtr();
-            var verticesPtr = (float3*)vertices.GetUnsafePtr();
+            var verticesPtr          = (float3*)vertices.GetUnsafePtr();
 
             var indexCount = constraintIndices.Length;
             for (int i = 0; i < indexCount; i++)
@@ -31,11 +31,8 @@ public unsafe class Constraint2_System : JobComponentSystem
                 float3 p2 = verticesPtr[pair.y];
 
                 var delta = p2 - p1;
-                var length = math.length(delta);
-
-                //Possible Multiply/Add optimizations
-                //-0.5f + (math.inverse(constraintLengthsPtr[i]) * length) * delta?
-                var offset = (0.5f - (constraintLengthsPtr[i] / length)) * delta;
+                var length = math.rsqrt(math.lengthsq(delta));
+                var offset = ((constraintLengthsPtr[i] * length) + 0.5f) * delta;
 
                 verticesPtr[pair.x] = p1 + offset;
                 verticesPtr[pair.y] = p2 - offset;

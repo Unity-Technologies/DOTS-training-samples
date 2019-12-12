@@ -13,26 +13,21 @@ public unsafe class AccumulateForces_System : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        return Entities.ForEach((Entity entity, ref DynamicBuffer<Force> forces, ref DynamicBuffer<CurrentVertex> vertices, ref DynamicBuffer<PreviousVertex> oldVertices, in ClothComponent cloth, in LocalToWorld localToWorld) =>
+        float time = Time.DeltaTime * Time.DeltaTime;
+        return Entities.ForEach((Entity entity, ref DynamicBuffer<CurrentVertex> vertices, ref DynamicBuffer<PreviousVertex> oldVertices, in ClothComponent cloth, in LocalToWorld localToWorld) =>
         {
-            var gravity     = cloth.Gravity;
+            var gravity         = cloth.Gravity * time;
 
-            var forcesPtr = (float3*)forces.GetUnsafePtr();
-            var verticesPtr = (float3*)vertices.GetUnsafePtr();
-            var oldVerticesPtr = (float3*)oldVertices.GetUnsafePtr();
+            var verticesPtr     = (float3*)vertices.GetUnsafePtr();
+            var oldVerticesPtr  = (float3*)oldVertices.GetUnsafePtr();
 
             var firstPinnedIndex = cloth.constraints.Value.FirstPinnedIndex;
-            for (int i = 0; i < firstPinnedIndex; ++i)
+            for (int i = 0; i < firstPinnedIndex; i++)
             {
                 float3 oldVert  = oldVerticesPtr[i];
                 float3 vert     = verticesPtr[i];
-                float3 startPos = vert;
-
-                vert += (vert - oldVert + forcesPtr[i]);
-
-                oldVerticesPtr[i]   = startPos;
-                verticesPtr[i]      = vert;
-                forcesPtr[i]        = gravity;
+                oldVerticesPtr[i]   = vert;
+                verticesPtr[i]      = (vert + vert - oldVert + gravity);
             }
         }).Schedule(inputDeps);
     }

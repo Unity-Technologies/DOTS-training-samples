@@ -226,7 +226,7 @@ public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
         var mesh = GetComponent<MeshFilter>().sharedMesh;
         var material = GetComponent<MeshRenderer>().sharedMaterial;
         //?
-        var gravity = (float3)transform.InverseTransformVector(-Vector3.up * Time.deltaTime * Time.deltaTime);
+        var gravity = (float3)transform.InverseTransformVector(-Vector3.up);
 
 
         var vertices = mesh.vertices;
@@ -255,16 +255,13 @@ public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
         //Need to get buffer explicitly, AddBuffer's return value is not allocated
         var currentClothPositions   = dstManager.GetBuffer<CurrentVertex>(entity);
         var previousClothPositions  = dstManager.GetBuffer<PreviousVertex>(entity);
-        var forces                  = dstManager.GetBuffer<Force>(entity);
 
         currentClothPositions.Reserve(vertices.Length);
         previousClothPositions.Reserve(vertices.Length);
-        forces.Reserve(vertices.Length);
         for (int i = 0; i < vertices.Length; i++)
         {
             currentClothPositions.Add(vertices[i]);
             previousClothPositions.Add(vertices[i]);
-            forces.Add(float3.zero);
         }
 
         dstManager.AddComponentData(entity, cloth);

@@ -25,7 +25,7 @@ public unsafe class CollisionMesh_System : JobComponentSystem
 
             var firstPinnedIndex = cloth.constraints.Value.FirstPinnedIndex;
 
-            for (int i = 0; i < firstPinnedIndex; ++i)
+            for (int i = 0; i < firstPinnedIndex; i++)
             {
                 float3 oldVert = oldVerticesPtr[i];
                 float3 vert = verticesPtr[i];

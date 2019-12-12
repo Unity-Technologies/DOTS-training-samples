@@ -24,7 +24,7 @@ public unsafe class Constraint1_System : JobComponentSystem
 
             var constraintIndicesPtr = (int2*)constraintIndices.GetUnsafePtr();
             var constraintLengthsPtr = (float*)constraintLengths.GetUnsafePtr();
-            var verticesPtr = (float3*)vertices.GetUnsafePtr();
+            var verticesPtr          = (float3*)vertices.GetUnsafePtr();
 
             var indexCount = constraintIndices.Length;
             for (int i = 0; i < indexCount; i++)
@@ -35,11 +35,11 @@ public unsafe class Constraint1_System : JobComponentSystem
                 float3 p2 = verticesPtr[pair.y];
 
                 var delta = p2 - p1;
-                var length = math.length(delta);
-                var offset = (1 - (constraintLengthsPtr[i] / length)) * delta;
+                var length = math.rsqrt(math.lengthsq(delta));
+                var offset = (constraintLengthsPtr[i] * length) * delta;
 
-                verticesPtr[pair.x] = p1 + offset;
-            }            
+                verticesPtr[pair.x] = p2 + offset;
+            }
         }).Schedule(inputDeps);
     }
 }
