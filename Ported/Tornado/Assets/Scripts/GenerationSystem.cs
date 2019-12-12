@@ -98,12 +98,12 @@ public class GenerationSystem : ComponentSystem
 //			pointsList.Add(point);
 //		}
 //
-		for (uint i = 0; i < pointsList.Length; i++) {
-			for (uint j = i + 1; j < pointsList.Length; j++)
+		for (int i = 0; i < pointsList.Length; i++) {
+			for (int j = i + 1; j < pointsList.Length; j++)
 			{
 
-				var p1 = pointsList[(int)i];
-				var p2 = pointsList[(int)j];
+				var p1 = pointsList[i];
+				var p2 = pointsList[j];
 				Vector3 delta = p2.position - p1.position;
 				var length = delta.magnitude;
 
@@ -114,8 +114,8 @@ public class GenerationSystem : ComponentSystem
 					p2.neighborCount++;
 					barsList.Add(bar);
 
-					pointsList[(int)i] = p1;
-					pointsList[(int)j] = p2;
+					pointsList[i] = p1;
+					pointsList[j] = p2;
 
 //					matricesList[batch].Add(bar.matrix);
 //					if (matricesList[batch].Count == instancesPerBatch) {
