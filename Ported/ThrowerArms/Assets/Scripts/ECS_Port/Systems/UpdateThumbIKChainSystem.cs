@@ -82,6 +82,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
          var calculateThumbIkWhenInThrowStateJob = Entities.WithName("UpdateThumbIKWhenInThrowState")
             .WithReadOnly(translationFromEntityAccessor)
             .WithNativeDisableParallelForRestriction(thumbJointPositionBuffer)
+            .WithNativeDisableParallelForRestriction(upVectorBufferForThumbs)
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent, in LookForThrowTargetState throwState) =>
             {
                 float3 thumbPosition = translation.Value + arm.HandRight * ThumbConstants.XOffset;
