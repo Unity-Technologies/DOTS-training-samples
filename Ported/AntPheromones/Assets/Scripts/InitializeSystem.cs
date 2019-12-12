@@ -93,7 +93,7 @@ public class InitializeSystem : JobComponentSystem
 	protected void SpawnObstacles(ref AntSettings settings)
 	{
 		float radius = settings.obstacleRadius / settings.mapSize;
-		NonUniformScale prefabScale = new NonUniformScale() {Value = new float3(radius, radius, radius)};
+		NonUniformScale prefabScale = new NonUniformScale() {Value = new float3(radius * 2, radius * 2, radius * 2)};
 
 		List<MapObstacle> cachedObstacles = new List<MapObstacle>();
 		

@@ -156,6 +156,14 @@ public class UpdateSystem : JobComponentSystem
             TargetRadius = 4.0f / settings.mapSize,
         };
         var movementSystemJobHandle = movementJob.Schedule(this, obstacleJobHandle);
+        
+        var resolvePositionJob = new AntResolvePositionJob()
+        {
+           CachedObstacles = RuntimeManager.instance.cachedObstacles,
+           Dimensions = RuntimeManager.instance.obstacleBucketDimensions,
+           ObstacleBuckets = RuntimeManager.instance.obstacleBuckets,
+        };
+        var resolvePositionJobHandle = resolvePositionJob.Schedule(this, movementSystemJobHandle);
 
         var antOutputJob = new AntOutputJob()
         {
@@ -165,7 +173,7 @@ public class UpdateSystem : JobComponentSystem
             Ants = antComponents,
             Output = AntOutput
         };
-        var antOutputJobHandle = antOutputJob.Schedule(antComponents.Length, 64, movementSystemJobHandle);
+        var antOutputJobHandle = antOutputJob.Schedule(antComponents.Length, 64, resolvePositionJobHandle);
 
         var dropPheromonesJob = new DropPheromonesJob()
         {
