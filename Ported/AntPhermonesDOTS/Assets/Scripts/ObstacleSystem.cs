@@ -4,6 +4,10 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+public struct ObstacleInitializedTag : IComponentData
+{
+}
+
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class ObstacleSystem : JobComponentSystem
 {
@@ -24,6 +28,7 @@ public class ObstacleSystem : JobComponentSystem
         // Place the instantiated prefabs in pre-calculated concentric circles with holes.
         var jobHandle = Entities
             .WithName("ObstacleSystem")
+            .WithNone<ObstacleInitializedTag>()
             .WithBurst(FloatMode.Default, FloatPrecision.Standard, true)
             .ForEach((Entity entity, int entityInQueryIndex, in Obstacle obstacle) =>
             {
@@ -33,7 +38,7 @@ public class ObstacleSystem : JobComponentSystem
                     var instance = commandBuffer.Instantiate(entityInQueryIndex, obstacle.Prefab);
                     commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation {Value = position});
                 }
-                commandBuffer.DestroyEntity(entityInQueryIndex, entity);
+                commandBuffer.AddComponent<ObstacleInitializedTag>(entityInQueryIndex, entity);
             }).Schedule(inputDeps);
 
         EntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
