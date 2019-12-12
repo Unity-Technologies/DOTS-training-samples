@@ -23,7 +23,7 @@ public class ObstacleAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDec
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         var mapSize = 128; // TODO: Fetch proper value.
-        var tileCount = 8;
+        var tileCount = 32;
         var tileSize = mapSize / tileCount; // TODO: Fetch proper value.
         
         var builder = new BlobBuilder(Allocator.Temp);
