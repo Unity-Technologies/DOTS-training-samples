@@ -25,7 +25,7 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
 		return x + y * MapSize;
 	}
 
-    private int2 GetObstacleBucket(float3 position)
+    private int2 GetObstacleBucket(float2 position)
 	{
 		int2 cell = new int2(math.clamp((int)(position.x * ObstacleBucketDimensions.x), 0, (ObstacleBucketDimensions.x - 1)),
 							 math.clamp((int)(position.y * ObstacleBucketDimensions.y), 0, (ObstacleBucketDimensions.y - 1)));
@@ -37,17 +37,16 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
 
     bool Linecast(float3 point1, float3 point2) 
     {
-		float dx = point2.x - point1.x;
-		float dy = point2.y - point1.y;
-		float dist = Mathf.Sqrt(dx * dx + dy * dy);
+        float2 dp = point2.xy - point1.xy;
+        float dist = math.length(dp);
 
-		int stepCount = Mathf.CeilToInt(dist*.5f);
+		int stepCount = (int)math.ceil(dist*.5f);
 		
         for (int s = 0; s < stepCount; s++) 
         {
 			float t = (float)s / stepCount;
 
-            float3 lookAheadPosition = new float3(point1.x + dx*t, point1.y + dy*t, 0);
+            float2 lookAheadPosition = point1.xy + dp * t;
 
             int2 range = GetObstacleBucket(lookAheadPosition);
 
@@ -83,7 +82,7 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
             output += value * i;
 		}
 
-		return Mathf.Sign(output);
+		return math.sign(output);
 	}
 
     float TargetSteering(ref AntComponent ant, ref Translation translation)
@@ -96,17 +95,17 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
 
         float targetAngle = math.atan2(targetPos.y - translation.Value.y,targetPos.x - translation.Value.x);
         
-        if (targetAngle - ant.facingAngle > Mathf.PI) 
+        if (targetAngle - ant.facingAngle > math.PI) 
         {
-            return Mathf.PI * 2f;
+            return math.PI * 2f;
         } 
-        else if (targetAngle - ant.facingAngle < -Mathf.PI) 
+        else if (targetAngle - ant.facingAngle < -math.PI) 
         {
-            return -Mathf.PI * 2f;
+            return -math.PI * 2f;
         } 
         else 
         {
-            if (Mathf.Abs(targetAngle - ant.facingAngle) < Mathf.PI * 0.5f)
+            if (math.abs(targetAngle - ant.facingAngle) < math.PI * 0.5f)
                 return (targetAngle - ant.facingAngle);
         }
 

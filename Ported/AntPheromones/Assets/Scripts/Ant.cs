@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class Ant {
@@ -11,9 +12,9 @@ public class Ant {
 
 	public Ant(Vector2 pos) {
 		position = pos;
-		facingAngle = Random.value * Mathf.PI * 2f;
+		facingAngle = UnityEngine.Random.value * math.PI * 2f;
 		speed = 0f;
 		holdingResource = false;
-		brightness = Random.Range(.75f,1.25f);
+		brightness = UnityEngine.Random.Range(.75f,1.25f);
 	}
 }
