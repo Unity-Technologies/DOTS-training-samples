@@ -123,6 +123,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
         var calculateThumbIkWhenNotHoldingOrReachingForRock =
             Entities.WithName("UpdateThumbIKWhenNOTGrippingRock")
             .WithNativeDisableParallelForRestriction(thumbJointPositionBuffer)
+            .WithNativeDisableParallelForRestriction(upVectorBufferForThumbs)
             .WithNone<HoldingRockState>()
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent) =>
             {
