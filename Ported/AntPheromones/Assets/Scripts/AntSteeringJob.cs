@@ -67,9 +67,13 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
 
 		for (int i = -1; i <= 1; i += 2) 
         {
-            float angle = ant.facingAngle + i * Mathf.PI * 0.25f;
-			float testX = translation.Value.x + Mathf.Cos(angle) * lookAheadDistance/MapSize;
-			float testY = translation.Value.y + Mathf.Sin(angle) * lookAheadDistance/MapSize;
+            float angle = ant.facingAngle + i * math.PI * 0.25f;
+
+            float s, c;
+            math.sincos(angle, out s, out c);
+			
+            float testX = translation.Value.x + c * lookAheadDistance/MapSize;
+			float testY = translation.Value.y + s * lookAheadDistance/MapSize;
 
 			if (testX < 0 || testY < 0 || testX >= MapSize || testY >= MapSize) 
                 continue;
@@ -90,7 +94,7 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
         if (Linecast(translation.Value, targetPos))
             return 0.0f;
 
-        float targetAngle = Mathf.Atan2(targetPos.y - translation.Value.y,targetPos.x - translation.Value.x);
+        float targetAngle = math.atan2(targetPos.y - translation.Value.y,targetPos.x - translation.Value.x);
         
         if (targetAngle - ant.facingAngle > Mathf.PI) 
         {
