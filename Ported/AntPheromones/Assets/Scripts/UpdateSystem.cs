@@ -13,6 +13,7 @@ using UnityEngine;
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class UpdateSystem : JobComponentSystem
 {
+    private float m_TimeScale = 1.0f;
     EntityQuery m_Group;
     public NativeArray<int> IndexList;
     public NativeArray<int2> Buckets;
@@ -85,7 +86,7 @@ public class UpdateSystem : JobComponentSystem
         AntSettings settings = GetSingleton<AntSettings>();
         Init(settings);
 
-        var TimeDelta = Time.DeltaTime;
+        var TimeDelta = Time.DeltaTime * m_TimeScale;
         //for (int i = 0; i < PheromoneMap.Length; i++) PheromoneMap[i] = 0;
         var antEntities = m_Group.ToEntityArray(Allocator.TempJob);
         
@@ -94,6 +95,26 @@ public class UpdateSystem : JobComponentSystem
         var antPositions = new NativeArray<Translation>(settings.antCount, Allocator.TempJob);
 
         var antRandomDirections = new NativeArray<float>(settings.antCount, Allocator.TempJob);
+
+        if (Input.GetKeyDown(KeyCode.Alpha1)) {
+            m_TimeScale = 1f;
+        } else if (Input.GetKeyDown(KeyCode.Alpha2)) {
+            m_TimeScale = 2f;
+        } else if (Input.GetKeyDown(KeyCode.Alpha3)) {
+            m_TimeScale = 3f;
+        } else if (Input.GetKeyDown(KeyCode.Alpha4)) {
+            m_TimeScale = 4f;
+        } else if (Input.GetKeyDown(KeyCode.Alpha5)) {
+            m_TimeScale = 5f;
+        } else if (Input.GetKeyDown(KeyCode.Alpha6)) {
+            m_TimeScale = 6f;
+        } else if (Input.GetKeyDown(KeyCode.Alpha7)) {
+            m_TimeScale = 7f;
+        } else if (Input.GetKeyDown(KeyCode.Alpha8)) {
+            m_TimeScale = 8f;
+        } else if (Input.GetKeyDown(KeyCode.Alpha9)) {
+            m_TimeScale = 9f;
+        }
 
         for (int i = 0; i < settings.antCount; i++)
         {
