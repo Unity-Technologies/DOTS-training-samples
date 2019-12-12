@@ -181,7 +181,7 @@ public class UpdateSystem : JobComponentSystem
 
         for (int i = 0; i < PheromoneMap.Length; i++)
         {
-            PheromoneMap[i] *= math.pow(settings.trailDecay, TimeDelta / 60.0f);
+            PheromoneMap[i] *= settings.trailDecay;// math.pow(settings.trailDecay, TimeDelta / 60.0f);
         }
         UpdateTexture();
         return new JobHandle();
