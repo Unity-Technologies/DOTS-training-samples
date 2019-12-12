@@ -33,6 +33,7 @@ public class ObstacleSystem : JobComponentSystem
                     var instance = commandBuffer.Instantiate(entityInQueryIndex, obstacle.Prefab);
                     commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation {Value = position});
                 }
+                commandBuffer.DestroyEntity(entityInQueryIndex, entity);
             }).Schedule(inputDeps);
 
         EntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);

@@ -14,8 +14,6 @@ public class AntsAuthoring : MonoBehaviour
     [Range(0f,1f)]
     public float antAccel;
     public float trailAddSpeed;
-    [Range(0f,1f)]
-    public float trailDecay;
     public float randomSteering;
     public float pheromoneSteerStrength;
     public float wallSteerStrength;
