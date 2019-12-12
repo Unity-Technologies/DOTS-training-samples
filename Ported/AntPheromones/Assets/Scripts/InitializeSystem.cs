@@ -100,8 +100,8 @@ public class InitializeSystem : JobComponentSystem
 		for (int i = 1; i <= settings.obstacleRingCount; i++)
 		{
 			float ringRadius = (i / (settings.obstacleRingCount + 1f)) * (settings.mapSize * 0.5f);
-			float circumference = ringRadius * 2f * Mathf.PI;
-			int maxCount = Mathf.CeilToInt(circumference / (2f * settings.obstacleRadius) * 4f);
+			float circumference = ringRadius * 2f * math.PI;
+			int maxCount = (int)(circumference / (2f * settings.obstacleRadius) * 4f);
 			int offset = Random.Range(0, maxCount);
 			int holeCount = Random.Range(1, 3);
 			for (int j = 0; j < maxCount; j++)
@@ -109,10 +109,10 @@ public class InitializeSystem : JobComponentSystem
 				float t = (float)j / maxCount;
 				if ((t * holeCount) % 1f < settings.obstaclesPerRing)
 				{
-					float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
+					float angle = (j + offset) / (float)maxCount * (2f * math.PI);
                     float center = settings.mapSize * 0.5f;
-                    float x = Mathf.Cos(angle) * ringRadius + center;
-                    float y = Mathf.Sin(angle) * ringRadius + center;
+                    float x = math.cos(angle) * ringRadius + center;
+                    float y = math.sin(angle) * ringRadius + center;
                     ObstacleComponent obstacleComponent = new ObstacleComponent() {radius = radius};
                     Translation obstacleTranslation = new Translation() {Value = new float3(x / settings.mapSize, y / settings.mapSize, 0.0f)};
                     MapObstacle cachedObstacle = new MapObstacle() {position = obstacleTranslation.Value, radius = obstacleComponent.radius,};
@@ -206,9 +206,9 @@ public class InitializeSystem : JobComponentSystem
         EntityManager.SetComponentData(colonyEntity, colonyTranslation);
         EntityManager.AddComponentData(colonyEntity, scale);
         
-        float resourceAngle = Random.value * 2f * Mathf.PI;
+        float resourceAngle = Random.value * 2f * math.PI;
         Translation resourceTranslation = new Translation();
-        resourceTranslation.Value = new Vector3(Mathf.Cos(resourceAngle) * .475f + 0.5f, Mathf.Sin(resourceAngle) * .475f + 0.5f, 0.0f);
+        resourceTranslation.Value = new Vector3(math.cos(resourceAngle) * .475f + 0.5f, math.sin(resourceAngle) * .475f + 0.5f, 0.0f);
 		RuntimeManager.instance.resourcePosition = resourceTranslation.Value;
 
         var resourceEntity = EntityManager.Instantiate(settings.resourcePrefab);

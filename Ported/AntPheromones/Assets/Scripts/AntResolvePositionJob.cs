@@ -43,7 +43,7 @@ public struct AntResolvePositionJob : IJobForEach<Translation, AntComponent>
 			
 				if (sqrDist < (obstacleRadius * obstacleRadius))
 				{
-					float dist = Mathf.Sqrt(sqrDist);
+					float dist = math.sqrt(sqrDist);
 				
 					delta /= dist;
 					antPosition = obstacle.position + (delta * obstacleRadius);
