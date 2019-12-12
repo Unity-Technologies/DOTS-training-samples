@@ -37,7 +37,7 @@ public class ArmRenderingSystem : JobComponentSystem
         m_handUpBufferQuery = GetEntityQuery(ComponentType.ReadWrite<UpVectorBufferForArmsAndFingers>());
 
         BoneCount = ArmSpawner.Count * (ArmConstants.ChainCount - 1 + FingerConstants.TotalChainCount - FingerConstants.CountPerArm + ThumbConstants.ChainCount - 1);
-        var batchCount = (BoneCount - 1 / CountPerBatch) +1;
+        var batchCount = ((BoneCount - 1) / CountPerBatch) +1;
 
         for (int i = 0; i < batchCount; i++)
             matrices.Add(new Matrix4x4[CountPerBatch]);
