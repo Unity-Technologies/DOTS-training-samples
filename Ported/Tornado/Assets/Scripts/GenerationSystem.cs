@@ -33,7 +33,7 @@ public class GenerationSystem : ComponentSystem
 		Debug.Log("Found the entity");
             
 		var pointsList = new NativeList<ConstrainedPoint>(Allocator.Temp);
-//		List<Bar> barsList = new List<Bar>();
+		var barsList = new NativeList<Bar>(Allocator.Temp);
 //		List<List<Matrix4x4>> matricesList = new List<List<Matrix4x4>>();
 //		matricesList.Add(new List<Matrix4x4>());
 
@@ -98,37 +98,43 @@ public class GenerationSystem : ComponentSystem
 //			pointsList.Add(point);
 //		}
 //
-//		int batch = 0;
-//
-//		for (int i = 0; i < pointsList.Count; i++) {
-//			for (int j = i + 1; j < pointsList.Count; j++) {
-//				Bar bar = new Bar();
-//				bar.AssignPoints(pointsList[i],pointsList[j]);
-//				if (bar.length < 5f && bar.length>.2f) {
-//					bar.point1.neighborCount++;
-//					bar.point2.neighborCount++;
-//
-//					barsList.Add(bar);
+		for (uint i = 0; i < pointsList.Length; i++) {
+			for (uint j = i + 1; j < pointsList.Length; j++)
+			{
+
+				var p1 = pointsList[(int)i];
+				var p2 = pointsList[(int)j];
+				Vector3 delta = p2.position - p1.position;
+				var length = delta.magnitude;
+
+				if (length < 5f && length>.2f) {
+					Bar bar = new Bar();
+					bar.AssignPoints(i, j, length);
+					p1.neighborCount++;
+					p2.neighborCount++;
+					barsList.Add(bar);
+
+					pointsList[(int)i] = p1;
+					pointsList[(int)j] = p2;
+
 //					matricesList[batch].Add(bar.matrix);
 //					if (matricesList[batch].Count == instancesPerBatch) {
 //						batch++;
 //						matricesList.Add(new List<Matrix4x4>());
 //					}
-//					if (barsList.Count % 500 == 0) {
-//						yield return null;
-//					}
-//				}
-//			}
-//		}
-//		points = new Point[barsList.Count * 2];
-//		pointCount = 0;
-//		for (int i=0;i<pointsList.Count;i++) {
-//			if (pointsList[i].neighborCount > 0) {
-//				points[pointCount] = pointsList[i];
-//				pointCount++;
-//			}
-//		}
-//		Debug.Log(pointCount + " points, room for " + points.Length + " (" + barsList.Count + " bars)");
+				}
+			}
+		}
+
+		var connectedPoints = new NativeList<ConstrainedPoint>(Allocator.Temp);
+		var pointCount = 0;
+		for (int i = 0 ;i < pointsList.Length; i++) {
+			if (pointsList[i].neighborCount > 0) {
+				connectedPoints.Add(pointsList[i]);
+			}
+		}
+		Debug.Log(pointCount + " points, room for " + connectedPoints.Length + " (" + barsList.Length + " bars)");
+		
 //
 //		bars = barsList.ToArray();
 //
@@ -157,7 +163,14 @@ public class GenerationSystem : ComponentSystem
 
         var pointsEntity = PostUpdateCommands.CreateEntity();
         var pointBuffer = PostUpdateCommands.AddBuffer<ConstrainedPointEntry>(pointsEntity);
-        pointBuffer.AddRange(pointsList.AsArray().Reinterpret<ConstrainedPointEntry>());
+        pointBuffer.AddRange(connectedPoints.AsArray().Reinterpret<ConstrainedPointEntry>());
         var matrixBuffer = PostUpdateCommands.AddBuffer<RenderMatrixEntry>(pointsEntity);
+
+        var barsBuffer = PostUpdateCommands.AddBuffer<BarEntry>(pointsEntity);
+        barsBuffer.AddRange(barsList.AsArray().Reinterpret<BarEntry>());
+
+        barsList.Dispose();
+        connectedPoints.Dispose();
+        pointsList.Dispose();
 	}
 }
