@@ -23,14 +23,14 @@ public class PickSelectSystem : JobComponentSystem
         EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer entityCommandBuffer = endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
         NativeArray<Entity> pickupArray = new NativeArray<Entity>(ArmSpawner.Count, Allocator.TempJob, NativeArrayOptions.ClearMemory);
-
+        var count = ArmSpawner.Count;
         JobHandle assignJobHandle = Entities.WithName("AssignRocksToArray")
             .WithNativeDisableParallelForRestriction(pickupArray)
             .WithAll<GrabbableState>()
             .ForEach((Entity e, in Translation translation) =>
             {
                 int index = CalculateIndex(translation);
-                if (index < ArmSpawner.Count)
+                if (index < count)
                 {
                     pickupArray[index] = e;
                 }
