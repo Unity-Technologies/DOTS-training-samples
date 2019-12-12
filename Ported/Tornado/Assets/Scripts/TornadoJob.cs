@@ -35,6 +35,8 @@ struct TornadoJob : IJobParallelFor
     public void Execute(int i)
     {
         var constrainedPoint = points[i];
+        if (constrainedPoint.anchor)
+            return;
 
         var start = constrainedPoint.position;
 
