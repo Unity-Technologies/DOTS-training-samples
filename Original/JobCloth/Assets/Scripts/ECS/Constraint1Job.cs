@@ -10,13 +10,15 @@ using System;
 
 [ExecuteAlways]
 [AlwaysUpdateSystem]
-[UpdateInGroup(typeof(PresentationSystemGroup))]
+[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public unsafe class Constraint1_System : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         return Entities.ForEach((Entity entity, ref DynamicBuffer<CurrentVertex> vertices, in ClothComponent cloth, in LocalToWorld localToWorld) =>
         {
+            //Dynamic buffer and BlobArray don't have GetUnsafeReadOnlyPtr, so we grab
+            //the ptr instead.
             ref var constraintIndices = ref cloth.constraints.Value.Constraint1Indices;
             ref var constraintLengths = ref cloth.constraints.Value.Constraint1Lengths;
 

@@ -273,6 +273,8 @@ public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
             Mesh = newMesh,
             Material = material
         });
+
+
     }
 }
 

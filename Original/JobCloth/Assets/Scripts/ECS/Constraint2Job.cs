@@ -7,7 +7,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateInGroup(typeof(PresentationSystemGroup))]
+[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 [UpdateAfter(typeof(Constraint1_System))]
 public unsafe class Constraint2_System : JobComponentSystem
 {
@@ -32,6 +32,9 @@ public unsafe class Constraint2_System : JobComponentSystem
 
                 var delta = p2 - p1;
                 var length = math.length(delta);
+
+                //Possible Multiply/Add optimizations
+                //-0.5f + (math.inverse(constraintLengthsPtr[i]) * length) * delta?
                 var offset = (0.5f - (constraintLengthsPtr[i] / length)) * delta;
 
                 verticesPtr[pair.x] = p1 + offset;

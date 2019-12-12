@@ -7,7 +7,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 
-[UpdateInGroup(typeof(PresentationSystemGroup))]
+[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 [UpdateAfter(typeof(Constraint2_System))]
 public unsafe class AccumulateForces_System : JobComponentSystem
 {
@@ -31,6 +31,7 @@ public unsafe class AccumulateForces_System : JobComponentSystem
                 vert += (vert - oldVert + forcesPtr[i]);
 
                 oldVerticesPtr[i]   = startPos;
+                verticesPtr[i]      = vert;
                 forcesPtr[i]        = gravity;
             }
         }).Schedule(inputDeps);

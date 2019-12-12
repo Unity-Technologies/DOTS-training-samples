@@ -9,7 +9,7 @@ using UnityEngine;
 
 [ExecuteAlways]
 [AlwaysUpdateSystem]
-[UpdateInGroup(typeof(PresentationSystemGroup))]
+[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 [UpdateAfter(typeof(AccumulateForces_System))]
 public unsafe class CollisionMesh_System : JobComponentSystem
 {
