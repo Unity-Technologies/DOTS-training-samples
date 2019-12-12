@@ -5,6 +5,7 @@ struct Map : IComponentData
 {
     public int Size;
     public int TileSize;
+    public float TrailDecay;
 }
 
 struct Tile : IComponentData

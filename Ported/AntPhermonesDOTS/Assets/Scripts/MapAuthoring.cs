@@ -7,12 +7,15 @@ public class MapAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public int mapSize = 128;
     public int tileCount = 8;
     
+    [Range(0f,1f)]
+    public float trailDecay = 0.1f;
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity, new Map
         {
             Size = mapSize,
-            TileSize = mapSize / tileCount
+            TileSize = mapSize / tileCount,
+            TrailDecay = trailDecay
         });
     }
 }
