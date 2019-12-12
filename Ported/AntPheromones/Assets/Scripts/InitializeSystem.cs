@@ -1,11 +1,10 @@
-﻿using System.Collections;
+﻿
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
-using Unity.Rendering;
 using Unity.Transforms;
 using Random = UnityEngine.Random;
 
@@ -13,6 +12,9 @@ using Random = UnityEngine.Random;
 [UpdateAfter(typeof(ConvertToEntitySystem))]
 public class InitializeSystem : JobComponentSystem
 {
+	private NativeArray<int2> m_ObstacleBuckets;
+	private NativeArray<RuntimeManager.CachedObstacle> m_CachedObstacles;
+
     bool init;
 
     protected override void OnCreate()
@@ -121,9 +123,10 @@ public class InitializeSystem : JobComponentSystem
 
 		int numObstacles = cachedObstacles.Count;
 		var res = settings.bucketResolution;
-		NativeArray<int2> obstacleBuckets = new NativeArray<int2>(res * res, Allocator.Persistent);
 		int numBucketedObstacles = 0;
-		
+
+		m_ObstacleBuckets = new NativeArray<int2>(res * res, Allocator.Persistent);
+
 		for(int i = 0; i < numObstacles; i++)
 		{
 			RuntimeManager.CachedObstacle cachedObstacle = cachedObstacles[i];
@@ -161,19 +164,21 @@ public class InitializeSystem : JobComponentSystem
                     range.y++;
 				}
 				
-				obstacleBuckets[index] = range;
+				m_ObstacleBuckets[index] = range;
 
 				range.x += range.y;
 				range.y = 0;
 			}
 		}
+		
+		m_CachedObstacles = new NativeArray<RuntimeManager.CachedObstacle>(bucketedCachedObjects.ToArray(), Allocator.Persistent);
 
-		RuntimeManager.instance.cachedObstacles = new NativeArray<RuntimeManager.CachedObstacle>(bucketedCachedObjects.ToArray(), Allocator.Persistent);
-		RuntimeManager.instance.obstacleBuckets = obstacleBuckets;
+		RuntimeManager.instance.cachedObstacles = m_CachedObstacles;
+		RuntimeManager.instance.obstacleBuckets = m_ObstacleBuckets;
 		RuntimeManager.instance.obstacleBucketDimensions = new int2(res, res);
 	}
 
-    protected void SpawnTargets(ref AntSettings settings)
+	protected void SpawnTargets(ref AntSettings settings)
     {
         NonUniformScale scale = new NonUniformScale();
         scale.Value = Vector3.one * 2 * settings.obstacleRadius / (float)settings.mapSize;

@@ -28,10 +28,4 @@ public class RuntimeManager
             return i;
         }
     }
-
-    ~RuntimeManager()
-    {
-        if (obstacleBuckets != null)
-            obstacleBuckets.Dispose();
-    }
 }
