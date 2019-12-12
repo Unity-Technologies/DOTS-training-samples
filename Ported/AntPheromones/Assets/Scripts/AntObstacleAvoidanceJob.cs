@@ -1,3 +1,4 @@
+#define SIMPLE_CHECK
 
 using Unity.Burst;
 using Unity.Collections;
@@ -22,28 +23,53 @@ public struct AntObstacleAvoidanceJob : IJobForEach<AntComponent, Translation, A
 
 		return range;
 	}
-	
-	private int WallSteering(AntComponent ant, float3 position, float distance) {
-		int output = 0;
 
-		for (int i = -1; i <= 1; i+=2) {
-			float angle = ant.facingAngle + i * math.PI*.25f;
-			math.sincos(angle, out float sin, out float cos);
-			float testX = position.x + cos * distance;
-			float testY = position.y + sin * distance;
+	private bool ValidPosition(float3 position)
+	{
+		if (position.x < 0 || position.y < 0 || position.x >= 1.0f || position.y >= 1.0f)
+			return false;
 
-			if (testX < 0 || testY < 0 || testX >= 1.0f || testY >= 1.0f) {
+		int2 range = GetObstacleBucket(position.x, position.y);
 
-			} else {
-				int value = GetObstacleBucket(testX, testY).y;
-				if (value > 0) {
-					output -= i;
-				}
+#if !SIMPLE_CHECK
+		for (int j = 0; j < range.y; ++j)
+		{
+			int obstacleIndex = range.x + j;
+			var obstacle = CachedObstacles[obstacleIndex];
+			
+			if (math.lengthsq(position - obstacle.position) >= obstacle.radius * obstacle.radius)
+			{
+				return false;
 			}
 		}
-		return output;
+#else
+		if (range.y > 0)
+			return false;
+#endif
+
+		return true;
 	}
 
+	private float WallSteering(AntComponent ant, float3 position, float distance) 
+	{
+		float steering = 0.0f;
+		float3 newPosition = new float3(0, 0, 0);
+
+		for (int i = -1; i <= 1; i+=2) 
+		{
+			float correctionAngle = i * math.PI * 0.25f;
+			float angle = ant.facingAngle + correctionAngle;
+			math.sincos(angle, out float sin, out float cos);
+
+			newPosition.x = position.x + cos * distance;
+			newPosition.y = position.y + sin * distance;
+
+			if (!ValidPosition(newPosition))
+				steering -= correctionAngle;
+		}
+
+		return steering;
+	}
 
 	public void Execute([ReadOnly] ref AntComponent ant, [ReadOnly] ref Translation antTranslation, ref AntSteeringComponent antSteering)
 	{
