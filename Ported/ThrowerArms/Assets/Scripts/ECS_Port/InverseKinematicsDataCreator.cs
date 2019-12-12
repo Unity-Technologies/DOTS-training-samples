@@ -6,10 +6,10 @@ public class InverseKinematicsDataCreator : MonoBehaviour, IConvertGameObjectToE
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem _)
     {
         var thumbJointPositionBuffers = dstManager.AddBuffer<ThumbJointPositionBuffer>(entity);
-        thumbJointPositionBuffers.ResizeUninitialized(length: ArmSpawner.Count * ArmConstants.ChainCount);
+        thumbJointPositionBuffers.ResizeUninitialized(length: ArmSpawner.Count * ThumbConstants.ChainCount);
         
         var thumbJointMatrixBuffers = dstManager.AddBuffer<ThumbJointMatrixBuffer>(entity);
-        thumbJointMatrixBuffers.ResizeUninitialized(length: ArmSpawner.Count * ArmConstants.ChainCount);
+        thumbJointMatrixBuffers.ResizeUninitialized(length: ArmSpawner.Count * ThumbConstants.ChainCount);
 
         var fingerJointPositionBuffers = dstManager.AddBuffer<FingerJointPositionBuffer>(entity);
         fingerJointPositionBuffers.ResizeUninitialized(length: ArmSpawner.Count * FingerConstants.TotalChainCount);
@@ -18,10 +18,10 @@ public class InverseKinematicsDataCreator : MonoBehaviour, IConvertGameObjectToE
         fingerJointMatrixBuffers.ResizeUninitialized(length: ArmSpawner.Count * FingerConstants.TotalChainCount);
         
         var armJointPositionBuffers = dstManager.AddBuffer<ArmJointPositionBuffer>(entity);
-        armJointPositionBuffers.ResizeUninitialized(ArmSpawner.Count * ThumbConstants.ChainCount);
+        armJointPositionBuffers.ResizeUninitialized(ArmSpawner.Count * ArmConstants.ChainCount);
         
         var armJointMatrixBuffers = dstManager.AddBuffer<ArmJointMatrixBuffer>(entity);
-        armJointMatrixBuffers.ResizeUninitialized(ArmSpawner.Count * ThumbConstants.ChainCount);
+        armJointMatrixBuffers.ResizeUninitialized(ArmSpawner.Count * ArmConstants.ChainCount);
 
         var upVectorBufferForArmsAndFingers = dstManager.AddBuffer<UpVectorBufferForArmsAndFingers>(entity);
         upVectorBufferForArmsAndFingers.ResizeUninitialized(ArmSpawner.Count);
