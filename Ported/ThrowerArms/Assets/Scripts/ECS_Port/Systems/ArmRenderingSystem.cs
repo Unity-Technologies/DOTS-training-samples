@@ -99,6 +99,7 @@ public class ArmRenderingSystem : JobComponentSystem
         for (int i = 0; i < matrices.Count; i++)
         {
             int copyCount = math.min(remaining, CountPerBatch);
+
             NativeArray<Matrix4x4>.Copy(armJointMatriceBuffer.Reinterpret<Matrix4x4>(), CountPerBatch * i, matrices[i], 0, copyCount);
             remaining -= copyCount;
             Graphics.DrawMeshInstanced(ArmSpawner.SharedArmMesh, 0, ArmSpawner.SharedArmMaterial, matrices[i], copyCount);

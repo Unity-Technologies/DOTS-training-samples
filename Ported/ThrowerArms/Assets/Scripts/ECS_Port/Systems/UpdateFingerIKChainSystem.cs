@@ -73,7 +73,7 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                     {
                         // Find knuckle position for this finger
                         float3 fingerPosition =
-                            translation.Value +
+                            armComponent.HandPosition +
                             armComponent.HandRight *
                             (FingerConstants.XOffset + finger * FingerConstants.Spacing);
                         
@@ -126,7 +126,7 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                  for (int finger = 1; finger <= FingerConstants.CountPerArm; finger++)
                  {
                      // Find knuckle position for this finger
-                     float3 fingerPosition = translation.Value + armComponent.HandRight *
+                     float3 fingerPosition = armComponent.HandPosition + armComponent.HandRight *
                                              (FingerConstants.XOffset + finger * FingerConstants.Spacing);
 
                      // Find resting position for this fingertip

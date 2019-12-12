@@ -11,9 +11,10 @@ namespace ECS_Port.Systems
         {
             var time = UnityEngine.Time.time + TimeConstants.Offset;
             
-            return Entities.ForEach((ref Translation translation, ref IdleState idleState, ref ArmComponent arm) =>
+            return Entities.WithAll<IdleState>()
+                .ForEach((ref Translation translation, ref ArmComponent arm) =>
             {
-                idleState.HandTarget = translation.Value + new float3(math.sin(time) * 0.35f, 1f + math.cos(time * 1.618f) * 0.5f, 1.5f);
+                arm.HandTarget = translation.Value + new float3(math.sin(time) * 0.35f, 1f + math.cos(time * 1.618f) * 0.5f, 1.5f);
             }).Schedule(inputDeps);
         }
     }

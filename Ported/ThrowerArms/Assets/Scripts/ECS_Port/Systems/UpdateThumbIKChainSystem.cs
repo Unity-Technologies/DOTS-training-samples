@@ -46,7 +46,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
             .WithoutBurst()
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent, in ReachForTargetState reachTarget) =>
             {
-                float3 thumbPosition = translation.Value + arm.HandRight * ThumbConstants.XOffset;
+                float3 thumbPosition = arm.HandPosition + arm.HandRight * ThumbConstants.XOffset;
                 float3 thumbTarget = thumbPosition - arm.HandRight * 0.15f +
                                      arm.HandForward * (0.2f - 0.1f * fingerComponent.GrabExtent) - arm.HandUp * 0.1f;
                 thumbTarget += arm.HandRight * math.sin(time * 3f + 0.5f) * 0.1f * (1f - fingerComponent.GrabExtent);
@@ -72,7 +72,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                     thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i + 1] + math.normalize(delta) * ThumbConstants.BoneLength;
                 }
 
-                thumbJointPositionBuffer[firstIndex] = translation.Value;
+                thumbJointPositionBuffer[firstIndex] = thumbPosition;
 
                 for (int i = firstIndex + 1; i <= lastIndex; i++)
                 {
@@ -88,7 +88,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
             .WithNativeDisableParallelForRestriction(upVectorBufferForThumbs)
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent, in LookForThrowTargetState throwState) =>
             {
-                float3 thumbPosition = translation.Value + arm.HandRight * ThumbConstants.XOffset;
+                float3 thumbPosition = arm.HandPosition + arm.HandRight * ThumbConstants.XOffset;
                 float3 thumbTarget = thumbPosition - arm.HandRight * 0.15f +
                                      arm.HandForward * (0.2f - 0.1f * fingerComponent.GrabExtent) - arm.HandUp * 0.1f;
                 thumbTarget += arm.HandRight * math.sin(time * 3f + 0.5f) * 0.1f * (1f - fingerComponent.GrabExtent);
@@ -118,7 +118,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                     thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i + 1] + math.normalize(delta) * ThumbConstants.BoneLength;
                 }
 
-                thumbJointPositionBuffer[firstIndex] = translation.Value;
+                thumbJointPositionBuffer[firstIndex] = thumbPosition;
 
                 for (int i = firstIndex + 1; i <= lastIndex; i++)
                 {
@@ -135,7 +135,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
             .WithoutBurst()
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent) =>
             {
-                float3 thumbPosition = translation.Value + arm.HandRight * ThumbConstants.XOffset;
+                float3 thumbPosition = arm.HandPosition + arm.HandRight * ThumbConstants.XOffset;
                 float3 thumbTarget = thumbPosition - arm.HandRight * 0.15f +
                                      arm.HandForward * (0.2f - 0.1f * fingerComponent.GrabExtent) - arm.HandUp * 0.1f;
                 thumbTarget += arm.HandRight * math.sin(time * 3f + 0.5f) * 0.1f * (1f - fingerComponent.GrabExtent);
@@ -156,7 +156,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                     thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i + 1] + math.normalize(delta) * ThumbConstants.BoneLength;
                 }
 
-                thumbJointPositionBuffer[firstIndex] = translation.Value;
+                thumbJointPositionBuffer[firstIndex] = thumbPosition;
 
                 for (int i = firstIndex + 1; i <= lastIndex; i++)
                 {
