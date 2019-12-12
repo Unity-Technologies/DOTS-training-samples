@@ -5,7 +5,7 @@ public struct ConstrainedPoint : IComponentData
 {
     public float3 position;
     public float3 oldPosition;
-    public int neightbours;
+    public int neighborCount;
     public bool anchor;
 }
 

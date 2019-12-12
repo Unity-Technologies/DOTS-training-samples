@@ -3,11 +3,11 @@ using Unity.Mathematics;
 
 public struct Bar : IComponentData
 {
-    public uint p1, p2;
+    public int p1, p2;
     public float length;
     public float thickness;
     
-    public void AssignPoints(uint a, uint b, float l) {
+    public void AssignPoints(int a, int b, float l) {
         p1 = a;
         p2 = b;
         length = l;
