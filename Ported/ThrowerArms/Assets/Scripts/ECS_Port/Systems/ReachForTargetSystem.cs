@@ -13,10 +13,12 @@ public class ReachForTargetSystem : JobComponentSystem
         EntityCommandBuffer ecb = endSimulationEcbSystem.CreateCommandBuffer();
         EntityCommandBuffer.Concurrent concurrentBuffer = ecb.ToConcurrent();
 
+        var handMatrixAccessor = GetComponentDataFromEntity<HandMatrix>(true);
         var translationFromEntityAccessor = GetComponentDataFromEntity<Translation>(true);
         
         JobHandle reachForRockJob = Entities.WithName("TryReachForTargetRock")
             .WithReadOnly(translationFromEntityAccessor)
+            .WithReadOnly(handMatrixAccessor)
             .ForEach((Entity entity, int entityInQueryIndex, ref ReachForTargetState reachingState, ref ArmComponent arm, in Translation translation) =>
         {
             float3 desiredRockTranslation = translationFromEntityAccessor[reachingState.TargetEntity].Value;
@@ -53,7 +55,8 @@ public class ReachForTargetSystem : JobComponentSystem
             });
             concurrentBuffer.AddComponent(entityInQueryIndex, reachingState.TargetEntity, new GrabbedState
             {
-                GrabbingEntity = entity
+                GrabbingEntity = entity,
+                localPosition = math.transform(math.inverse(handMatrixAccessor[entity].Value), desiredRockTranslation)
             });
             concurrentBuffer.AddComponent<HoldingRockState>(entityInQueryIndex, entity);
         }).Schedule(inputDeps);
