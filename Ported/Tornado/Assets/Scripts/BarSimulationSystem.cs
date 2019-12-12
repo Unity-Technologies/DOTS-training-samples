@@ -11,7 +11,7 @@ public class BarSimulationSystem : JobComponentSystem
     
     protected override void OnCreate()
     {
-        q = GetEntityQuery(typeof(DynamicBuffer<ConstrainedPointEntry>));
+        q = GetEntityQuery(typeof(ConstrainedPointEntry));
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -19,7 +19,7 @@ public class BarSimulationSystem : JobComponentSystem
         var e = q.GetSingletonEntity();
         var pointsBuf = EntityManager.GetBuffer<ConstrainedPointEntry>(e).AsNativeArray().Reinterpret<ConstrainedPoint>();
 
-        var entities = GetEntityQuery(typeof(DynamicBuffer<BarEntry>)).ToEntityArray(Allocator.Temp);
+        var entities = GetEntityQuery(typeof(BarEntry)).ToEntityArray(Allocator.TempJob);
 
         foreach (var be in entities)
         {
@@ -32,44 +32,29 @@ public class BarSimulationSystem : JobComponentSystem
                 var point1 = pointsBuf[bar.p1];
                 var point2 = pointsBuf[bar.p2];
 
-                //float dx = point2.x - point1.x;
-                //float dy = point2.y - point1.y;
-                //float dz = point2.z - point1.z;
                 var dd = point2.position - point1.position;
 
                 float dist = Unity.Mathematics.math.length(dd);
                 float extraDist = dist - bar.length;
 
-//                float pushX = (dx / dist * extraDist) * .5f;
-//                float pushY = (dy / dist * extraDist) * .5f;
-//                float pushZ = (dz / dist * extraDist) * .5f;
                 var push = dd/dist * extraDist * 0.5f;
 
                 if (point1.anchor == false && point2.anchor == false)
                 {
-//                    point1.x += pushX;
-//                    point1.y += pushY;
-//                    point1.z += pushZ;
-//                    point2.x -= pushX;
-//                    point2.y -= pushY;
-//                    point2.z -= pushZ;
                     point1.position += push;
                     point2.position -= push;
                 }
                 else if (point1.anchor)
                 {
-//                    point2.x -= pushX * 2f;
-//                    point2.y -= pushY * 2f;
-//                    point2.z -= pushZ * 2f;
                     point2.position -= push * 2f;
                 }
                 else if (point2.anchor)
                 {
-//                    point1.x += pushX * 2f;
-//                    point1.y += pushY * 2f;
-//                    point1.z += pushZ * 2f;
                     point1.position += push * 2f;
                 }
+
+                pointsBuf[bar.p1] = point1;
+                pointsBuf[bar.p2] = point2;
 
 //                if (dx / dist * bar.oldDX + dy / dist * bar.oldDY + dz / dist * bar.oldDZ < .99f)
 //                {
@@ -117,6 +102,8 @@ public class BarSimulationSystem : JobComponentSystem
             }
         }
 
+        entities.Dispose();
+        
         return inputDeps;
     }
 }
