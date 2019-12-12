@@ -562,7 +562,8 @@ MonoBehaviour:
   BezierFactor: 0.5
   RailMarkerMesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
   RailMarkerColor: {r: 1, g: 1, b: 1, a: 1}
-  RailMarkerScale: {x: 0.01, y: 1, z: 0.0025}
+  RailMarkerScale: {x: 0.1, y: 1, z: 0.025}
+  RailMarkerDistance: 1
 --- !u!4 &550505701
 Transform:
   m_ObjectHideFlags: 0
