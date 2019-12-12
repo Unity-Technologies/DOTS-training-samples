@@ -209,8 +209,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 335241943}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -158.5691, y: 855, z: 292.1154}
-  m_LocalScale: {x: 100, y: 100, z: 100}
+  m_LocalPosition: {x: 0, y: 0.43, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
@@ -364,6 +364,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed7d2d04b2f74fa18b70a1a54779f4c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  barMaterial: {fileID: 2100000, guid: 95083d50a3c4a1a4d9ebc35e3618d89e, type: 2}
+  barMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   damping: 0.012
   friction: 0.4
   breakResistance: 0.55
@@ -558,7 +560,7 @@ Transform:
   m_GameObject: {fileID: 1441133977}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 300, y: 1, z: 300}
+  m_LocalScale: {x: 10, y: 1, z: 10}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3

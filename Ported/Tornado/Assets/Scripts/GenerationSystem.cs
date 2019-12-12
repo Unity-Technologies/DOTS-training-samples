@@ -5,21 +5,32 @@ using UnityEngine;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class GenerationSystem : ComponentSystem
 {
-	public struct State : ISystemStateComponentData
+	private EntityQuery settingsQuery;
+	
+	public struct State : IComponentData
 	{
 		public float tornadoFader;
 		public float tornadoX;
 		public float tornadoZ;
 	}
 
+	protected override void OnCreate()
+	{
+		base.OnCreate();
+		
+		settingsQuery = GetEntityQuery( new EntityQueryDesc {All=new ComponentType[]{typeof(GenerationSetting)}, 
+			None=new ComponentType[]{typeof(State)}});
+		
+		RequireForUpdate(settingsQuery);
+	}
+
 	protected override void OnUpdate()
-    {
-        Entities.WithNone<State>().ForEach((Entity entity, ref GenerationSetting settings) =>
-        {
-	        PostUpdateCommands.AddComponent<State>(entity);
-	        
-//            entity = PostUpdateCommands.CreateEntity();
-            Debug.Log("Found the entity");
+	{
+		var settingsEntity = settingsQuery.GetSingletonEntity();
+		var settings = EntityManager.GetComponentObject<GenerationSetting>(settingsEntity);
+		
+		PostUpdateCommands.AddComponent<State>(settingsEntity);
+		Debug.Log("Found the entity");
             
 		var pointsList = new NativeList<ConstrainedPoint>(Allocator.Temp);
 //		List<Bar> barsList = new List<Bar>();
@@ -144,9 +155,9 @@ public class GenerationSystem : ComponentSystem
 //		generating = false;
 //		Time.timeScale = 1f;
 
-	        var pointsEntity = PostUpdateCommands.CreateEntity();
-            var buffer = PostUpdateCommands.AddBuffer<ConstrainedPointEntry>(pointsEntity);
-            buffer.AddRange(pointsList.AsArray().Reinterpret<ConstrainedPointEntry>());
-        });
-    }
+        var pointsEntity = PostUpdateCommands.CreateEntity();
+        var pointBuffer = PostUpdateCommands.AddBuffer<ConstrainedPointEntry>(pointsEntity);
+        pointBuffer.AddRange(pointsList.AsArray().Reinterpret<ConstrainedPointEntry>());
+        var matrixBuffer = PostUpdateCommands.AddBuffer<RenderMatrixEntry>(pointsEntity);
+	}
 }

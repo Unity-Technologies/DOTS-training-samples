@@ -2,10 +2,10 @@ using Unity.Entities;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
-public struct GenerationSetting : IComponentData
+public class GenerationSetting : IComponentData
 {
-//    public Material barMaterial;
-//    public Mesh barMesh;
+    public Material barMaterial;
+    public Mesh barMesh;
     [Range(0f,1f)]
     public float damping;
     [Range(0f,1f)]
