@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 using Random = Unity.Mathematics.Random;
 
 [RequiresEntityConversion]
-[ConverterVersion("kasperrasmus", 3)]
+[ConverterVersion("kasperrasmus", 4)]
 public class ObstacleAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
     [FormerlySerializedAs("Prefab")] public GameObject prefab;
@@ -63,13 +63,17 @@ public class ObstacleAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDec
         var tileCountSquared = tileCount * tileCount;
         var bitFieldCount = (tileCountSquared - 1) / 64 + 1;
         var tileOccupancy = builder.Allocate(ref root.TileOccupancy, bitFieldCount);
+        for (var i = 0; i < bitFieldCount; ++i)
+        {
+            tileOccupancy[i].SetBits(0, false, 64);
+        }
         foreach (var position in positionList)
         {
-            var discretePosition = new int2((position.xy + mapSize * 0.5f) / new float2(tileSize, tileSize));
-            var globalIndex = discretePosition.x * tileCount + discretePosition.y;
+            var tilePosition = ObstacleHelper.WorldPosToTilePos(position.xy, mapSize, tileSize);
+            var tileIndex = ObstacleHelper.TileIndex(tilePosition, tileCount);
 
-            var bitFieldIndex = globalIndex / 64;
-            var bitIndex = globalIndex % 64;
+            var bitFieldIndex = ObstacleHelper.BitFieldIndex(tileIndex);
+            var bitIndex = ObstacleHelper.BitIndex(tileIndex);
             
             tileOccupancy[bitFieldIndex].SetBits(bitIndex, true);
         }
