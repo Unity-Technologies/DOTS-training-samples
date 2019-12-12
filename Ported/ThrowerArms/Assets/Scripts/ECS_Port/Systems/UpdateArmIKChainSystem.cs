@@ -6,6 +6,29 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+
+public static class FABRIK_ECS
+{
+
+    public static void Solve(DynamicBuffer<float3> chain, int firstIndex, int lastIndex, float boneLength, float3 anchor, float3 target, float3 bendHint)
+    {
+        chain[lastIndex] = target;
+        for (int i = lastIndex-1; i >= firstIndex; i--)
+        {
+            chain[i] += bendHint;
+            float3 delta = chain[i] - chain[i + 1];
+            chain[i] = chain[i + 1] + math.normalizesafe(delta) * boneLength;
+        }
+
+        chain[firstIndex] = anchor;
+        for (int i = firstIndex +1; i <= lastIndex; i++)
+        {
+            float3 delta = chain[i] - chain[i - 1];
+            chain[i] = chain[i - 1] + math.normalizesafe(delta) * boneLength;
+        }
+    }
+}
+
 public class UpdateArmIKChainSystem : JobComponentSystem
 {
     private EntityQuery m_positionBufferQuery;
@@ -32,24 +55,10 @@ public class UpdateArmIKChainSystem : JobComponentSystem
             .ForEach((in ArmComponent arm, in Translation translation) =>
         {
             int lastIndex = (int) (translation.Value.x * ArmConstants.ChainCount + (ArmConstants.ChainCount - 1));
-            armJointPositionBuffer[lastIndex] = arm.HandTarget;
-
             int firstIndex = (int) (translation.Value.x * ArmConstants.ChainCount);
+            FABRIK_ECS.Solve(armJointPositionBuffer.Reinterpret<float3>(), firstIndex, lastIndex, ArmConstants.BoneLength
+                , translation.Value, arm.HandTarget, arm.HandUp * ArmConstants.BendStrength);
 
-            for (int i = lastIndex - 1; i >= firstIndex; i--)
-            {
-                armJointPositionBuffer[i] += arm.HandUp * ArmConstants.BendStrength;
-                float3 delta = armJointPositionBuffer[i].Value - armJointPositionBuffer[i + 1].Value;
-                armJointPositionBuffer[i] = armJointPositionBuffer[i + 1] + math.normalizesafe(delta) * ArmConstants.BoneLength;
-            }
-
-            armJointPositionBuffer[firstIndex] = translation.Value;
-
-            for (int i = firstIndex + 1; i <= lastIndex; i++)
-            {
-                float3 delta = armJointPositionBuffer[i].Value - armJointPositionBuffer[i - 1].Value;
-                armJointPositionBuffer[i] = armJointPositionBuffer[i - 1] + math.normalizesafe(delta) * ArmConstants.BoneLength;
-            }
         }).Schedule(inputDeps);
 
         float3 vRight = new float3(1.0f, 0.0f, 0.0f);
