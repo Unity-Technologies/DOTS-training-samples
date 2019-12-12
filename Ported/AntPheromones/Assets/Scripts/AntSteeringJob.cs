@@ -12,12 +12,12 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent>
 {
     public int MapSize;
 	public float TimeDelta;
-    [NativeDisableParallelForRestriction] public NativeArray<float> RandomDirections;
+    [NativeDisableParallelForRestriction][DeallocateOnJobCompletion] public NativeArray<float> RandomDirections;
     public float AntSpeed;
     public float PheromoneSteeringStrength;
     [NativeDisableParallelForRestriction] public NativeArray<float> PheromoneMap;
 
-    private static float lookAheadDistance = 3.0f;
+    private readonly static float lookAheadDistance = 3.0f;
 
     int PheromoneIndex(int x, int y) 
     {
