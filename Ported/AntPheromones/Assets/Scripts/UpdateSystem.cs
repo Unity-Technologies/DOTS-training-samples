@@ -24,6 +24,9 @@ public class UpdateSystem : JobComponentSystem
 
     RenderMesh renderMesh;
 
+    Material carryMaterial;
+    Material searchMaterial;
+
     bool init = true;
 
     protected override void OnCreate()
@@ -57,6 +60,12 @@ public class UpdateSystem : JobComponentSystem
         PheromoneTexture.Apply();
 
         PheromoneMap = new NativeArray<float>(settings.mapSize * settings.mapSize, Allocator.Persistent);
+
+        searchMaterial = new Material(Shader.Find("Custom/InstancedColor"));
+        searchMaterial.color = settings.searchColor;
+
+        carryMaterial = new Material(Shader.Find("Custom/InstancedColor"));
+        carryMaterial.color = settings.carryColor;
 
         init = false;
     }
@@ -128,6 +137,12 @@ public class UpdateSystem : JobComponentSystem
             antPositions[i] = EntityManager.GetComponentData<Translation>(antEntities[i]);
 
             antRandomDirections[i] = UnityEngine.Random.Range(-settings.randomSteering, settings.randomSteering);
+
+            {
+                var antRenderMesh = EntityManager.GetSharedComponentData<RenderMesh>(antEntities[i]);
+                antRenderMesh.material = ant.state == 1 ? carryMaterial : searchMaterial;
+                EntityManager.SetSharedComponentData<RenderMesh>(antEntities[i], antRenderMesh);
+            }
         }
 
         var pheromoneBucketsJob = new UpdatePheromoneBuckets()
@@ -161,7 +176,7 @@ public class UpdateSystem : JobComponentSystem
             Dimensions = RuntimeManager.instance.obstacleBucketDimensions, 
             ObstacleBuckets = RuntimeManager.instance.obstacleBuckets, 
             CachedObstacles = RuntimeManager.instance.cachedObstacles,
-            LookAheadDistance = 1.5f / settings.mapSize
+            LookAheadDistance = 1.5f / settings.bucketResolution
         };
         var obstacleJobHandle = obstacleJob.Schedule(this, steeringJobHandle);
 
@@ -219,7 +234,9 @@ public class UpdateSystem : JobComponentSystem
         {
             PheromoneMap[i] *= settings.trailDecay;// math.pow(settings.trailDecay, TimeDelta / 60.0f);
         }
+        
         UpdateTexture();
+
         return new JobHandle();
     }
 }

@@ -7,10 +7,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using UnityEngine;
 
-public class ColorAnimationSystem : JobComponentSystem
-{
-    [BurstCompile]
-    struct ColorAnimationJob : IJobForEach<AntComponent, MaterialColor>
+struct ColorAnimationJob : IJobForEach<AntComponent, MaterialColor>
     {
         public float4 SearchColor;
         public float4 CarryColor;
@@ -22,8 +19,13 @@ public class ColorAnimationSystem : JobComponentSystem
         }
     }
 
+public class ColorAnimationSystem : JobComponentSystem
+{
+    [BurstCompile]
+    
+
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
-    {
+    {/*
         AntSettings settings = GetSingleton<AntSettings>();
 
         var jobColor = new ColorAnimationJob()
@@ -33,6 +35,7 @@ public class ColorAnimationSystem : JobComponentSystem
         };
         var jobColorHandle = jobColor.Schedule(this, inputDependencies);
 
-        return jobColorHandle;
+        return jobColorHandle;*/
+        return inputDependencies;
     }
 }
