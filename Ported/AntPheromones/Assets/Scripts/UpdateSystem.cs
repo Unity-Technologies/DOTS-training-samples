@@ -142,6 +142,7 @@ public class UpdateSystem : JobComponentSystem
             TimeDelta = TimeDelta,
             AntMaxSpeed =  settings.antSpeed,
             PheromoneSteeringStrength = settings.pheromoneSteerStrength,
+            TargetSteeringStrength = settings.goalSteerStrength,
             WallSteeringStrength = settings.wallSteerStrength,
             ColonyPosition = RuntimeManager.instance.colonyPosition.xy,
             ResourcePosition = RuntimeManager.instance.resourcePosition.xy,
