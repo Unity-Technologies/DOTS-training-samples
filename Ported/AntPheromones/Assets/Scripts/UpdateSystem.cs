@@ -139,7 +139,7 @@ public class UpdateSystem : JobComponentSystem
             Dimensions = RuntimeManager.instance.obstacleBucketDimensions, 
             ObstacleBuckets = RuntimeManager.instance.obstacleBuckets, 
             CachedObstacles = RuntimeManager.instance.cachedObstacles,
-            LookAheadDistance = 3.0f / settings.mapSize
+            LookAheadDistance = 1.5f / settings.mapSize
         };
        
         var obstacleJobHandle = obstacleJob.Schedule(this, steeringJobHandle);
