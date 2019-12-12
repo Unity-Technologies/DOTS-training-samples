@@ -13,12 +13,13 @@ public unsafe class AccumulateForces_System : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        float time = Time.DeltaTime * Time.DeltaTime;
         return Entities.ForEach((Entity entity, ref DynamicBuffer<CurrentVertex> vertices, ref DynamicBuffer<PreviousVertex> oldVertices, in ClothComponent cloth, in LocalToWorld localToWorld) =>
         {
-            var gravity     = cloth.Gravity;
+            var gravity         = cloth.Gravity * time;
 
-            var verticesPtr = (float3*)vertices.GetUnsafePtr();
-            var oldVerticesPtr = (float3*)oldVertices.GetUnsafePtr();
+            var verticesPtr     = (float3*)vertices.GetUnsafePtr();
+            var oldVerticesPtr  = (float3*)oldVertices.GetUnsafePtr();
 
             var firstPinnedIndex = cloth.constraints.Value.FirstPinnedIndex;
             for (int i = 0; i < firstPinnedIndex; i++)

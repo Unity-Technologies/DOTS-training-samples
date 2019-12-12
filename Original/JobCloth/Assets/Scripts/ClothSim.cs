@@ -226,7 +226,7 @@ public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
         var mesh = GetComponent<MeshFilter>().sharedMesh;
         var material = GetComponent<MeshRenderer>().sharedMaterial;
         //?
-        var gravity = (float3)transform.InverseTransformVector(-Vector3.up * Time.deltaTime * Time.deltaTime);
+        var gravity = (float3)transform.InverseTransformVector(-Vector3.up);
 
 
         var vertices = mesh.vertices;
