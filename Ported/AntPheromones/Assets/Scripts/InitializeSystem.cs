@@ -36,25 +36,25 @@ public class InitializeSystem : JobComponentSystem
 
         return new JobHandle();
     }
-    
-    protected void SpawnAnts(ref AntSettings settings)
-    {
-        Translation colonyPosition = new Translation();
-        colonyPosition.Value = new Vector3(0.5f, 0.5f, 0);
 
-        NonUniformScale antSize = new NonUniformScale();
-        antSize.Value = settings.antSize;
+	protected void SpawnAnts(ref AntSettings settings)
+	{
+		Translation colonyPosition = new Translation();
+		colonyPosition.Value = new Vector3(0.5f, 0.5f, 0);
 
-        const float perimeter = 0.03f;
+		NonUniformScale antSize = new NonUniformScale();
+		antSize.Value = settings.antSize;
 
-        for (int i = 0; i < settings.antCount; ++i)
-        {
-            Translation antPosition = new Translation();
-            antPosition.Value = new Vector3(Random.Range(-perimeter, perimeter) + colonyPosition.Value.x, Random.Range(-perimeter, perimeter) + colonyPosition.Value.y, 0);
+		const float perimeter = 0.03f;
 
-            float angleInDegrees = Random.Range(0.0f, 360.0f);
-            Rotation antRotation = new Rotation();
-            antRotation.Value = Quaternion.Euler(0f, 0f, angleInDegrees);
+		for (int i = 0; i < settings.antCount; ++i)
+		{
+			Translation antPosition = new Translation();
+			antPosition.Value = new Vector3(Random.Range(-perimeter, perimeter) + colonyPosition.Value.x, Random.Range(-perimeter, perimeter) + colonyPosition.Value.y, 0);
+
+			float angleInDegrees = Random.Range(0.0f, 360.0f);
+			Rotation antRotation = new Rotation();
+			antRotation.Value = Quaternion.Euler(0f, 0f, angleInDegrees);
 
 			AntComponent ant = new AntComponent()
 			{
@@ -63,15 +63,13 @@ public class InitializeSystem : JobComponentSystem
 				index = i
 			};
 
-            Entity newEntity = EntityManager.Instantiate(settings.antPrefab);
-			EntityManager.AddComponentData(newEntity, new AntComponent() { index = i });
-            EntityManager.SetComponentData(newEntity, antPosition);
-            EntityManager.AddComponentData(newEntity, antSize);
-            EntityManager.SetComponentData(newEntity, antRotation);
-            EntityManager.SetComponentData(newEntity, ant);
-        }
-    }
-
+			Entity newEntity = EntityManager.Instantiate(settings.antPrefab);
+			EntityManager.SetComponentData(newEntity, antPosition);
+			EntityManager.AddComponentData(newEntity, antSize);
+			EntityManager.SetComponentData(newEntity, antRotation);
+			EntityManager.SetComponentData(newEntity, ant);
+		}	
+	}
 	protected void SpawnObstacles(ref AntSettings settings)
 	{
 		float radius = settings.obstacleRadius / settings.mapSize;
