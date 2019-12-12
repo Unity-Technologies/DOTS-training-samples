@@ -160,18 +160,5 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
              })
              .Schedule(updateFingerIkChainForFingersGrippingRock);
          
-         return
-             new UpdateBoneMatrixJob
-             {
-                 BoneTranslations = fingerJointPositions.AsNativeArray().Reinterpret<float3>(),
-                 UpVectorsForMatrixCalculations = upVectorBufferForArmsAndFingers.AsNativeArray().Reinterpret<float3>(),
-                 NumBoneTranslationsPerArm = ArmConstants.ChainCount,
-                 BoneThickness = ArmConstants.BoneThickness,
-                
-                 BoneMatrices = armJointMatriceBuffer.AsNativeArray().Reinterpret<Matrix4x4>()
-             }.Schedule(
-                 fingerJointPositions.Length - 1, 
-                 innerloopBatchCount: 256,
-                 dependsOn: updateFingerIkChainForFingersNOTGrippingRock);
     }
 }

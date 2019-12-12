@@ -19,7 +19,7 @@ public class PickSelectSystem : JobComponentSystem
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
-    {
+    {;
         EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer entityCommandBuffer = endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
         NativeArray<Entity> pickupArray = new NativeArray<Entity>(ArmSpawner.Count, Allocator.TempJob, NativeArrayOptions.ClearMemory);
