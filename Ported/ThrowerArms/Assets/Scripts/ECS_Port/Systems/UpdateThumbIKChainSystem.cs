@@ -164,7 +164,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
             {
                 BoneTranslations = thumbJointPositionBuffer.AsNativeArray().Reinterpret<float3>(),
                 UpVectorsForMatrixCalculations = upVectorBufferForThumbs.AsNativeArray().Reinterpret<float3>(),
-                NumBoneTranslationsPerArm = ArmConstants.ChainCount,
+                NumBoneTranslationsPerArm = ThumbConstants.ChainCount,
                 BoneThickness = ArmConstants.BoneThickness,
                 
                 BoneMatrices = thumbJointMatriceBuffer.AsNativeArray().Reinterpret<Matrix4x4>()
