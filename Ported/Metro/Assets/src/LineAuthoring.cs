@@ -57,47 +57,59 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         
         
         
-        var buffer = new List<LinePositionBufferElement>();
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            buffer.Add((float3)transform.GetChild(i).position);
-        } 
-        m_Entity = entity;
-        m_EntityManager = dstManager;
-        var b = dstManager.AddBuffer<LinePositionBufferElement>(entity);
-        foreach (var bufferElement in buffer)
-        {
-            b.Add(bufferElement);
-        }
-        
         var material = new Material(Shader.Find("Standard"));
         material.color = RailMarkerColor;
 
-        for (var index = 0; index < buffer.Count; index++)
+        var previousMarkerPos = float3.zero;
+        foreach (var segment in segments)
         {
-            var bufferElement = buffer[index];
-            var markerEntity = conversionSystem.CreateAdditionalEntity(gameObject);
-
-            var direction = index + 1 < buffer.Count ? buffer[index + 1].Value - bufferElement.Value : bufferElement.Value - buffer[index - 1].Value;
-            
-            dstManager.AddComponentData(markerEntity, new Unity.Transforms.Translation()
-            {
-                Value = bufferElement.Value
-            });
-            dstManager.AddComponentData(markerEntity, new Unity.Transforms.Rotation()
-            {
-                Value = Quaternion.LookRotation(direction)
-            });
-            dstManager.AddComponentData(markerEntity, new Unity.Transforms.LocalToWorld());
-            dstManager.AddComponentData(markerEntity, new Unity.Transforms.NonUniformScale()
-            {
-                Value = RailMarkerScale
-            });
-            dstManager.AddComponentData(markerEntity, new SimpleMeshRenderer
-            {
-                Mesh = RailMarkerMesh,
-                Material = material,
-            });
+            CreateMarkersForSegment(segment, dstManager, conversionSystem, material, ref previousMarkerPos);
         }
+    }
+
+    private void CreateMarkersForSegment(LineSegmentBufferElement segment, EntityManager dstManager,
+        GameObjectConversionSystem conversionSystem, Material material, ref float3 previousMarkerPos)
+    {
+        var t = 0f;
+        while (t < 1.0f)
+        {
+            var pos = BezierMath.GetPoint(segment, t);
+            if (math.length(previousMarkerPos - pos) > k_StepSize)
+            {
+                previousMarkerPos = pos;
+                var pointAhead = BezierMath.GetPoint(segment, t + 0.001f);
+                CreateMarker(dstManager, conversionSystem, material, pos, math.normalize(pointAhead - pos));
+            }
+            
+            t += 0.001f;
+        }
+    }
+
+    private void CreateMarker(EntityManager dstManager,
+        GameObjectConversionSystem conversionSystem, Material material, float3 translation, float3 direction)
+    {
+        var up = new float3(
+            direction.y * direction.x / (direction.x + direction.z),
+            math.length(new float2(direction.x, direction.z)),
+            direction.y * direction.z / (direction.x + direction.z));
+        var markerEntity = conversionSystem.CreateAdditionalEntity(gameObject);
+        dstManager.AddComponentData(markerEntity, new Unity.Transforms.Translation()
+        {
+            Value = translation
+        });
+        dstManager.AddComponentData(markerEntity, new Unity.Transforms.Rotation()
+        {
+            Value = quaternion.LookRotation(direction, up)
+        });
+        dstManager.AddComponentData(markerEntity, new Unity.Transforms.LocalToWorld());
+        dstManager.AddComponentData(markerEntity, new Unity.Transforms.NonUniformScale()
+        {
+            Value = RailMarkerScale
+        });
+        dstManager.AddComponentData(markerEntity, new SimpleMeshRenderer
+        {
+            Mesh = RailMarkerMesh,
+            Material = material,
+        });
     }
 }
