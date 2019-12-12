@@ -1,4 +1,3 @@
-using System;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;

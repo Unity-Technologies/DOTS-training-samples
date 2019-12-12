@@ -7,7 +7,6 @@ using Unity.Transforms;
 public class ParticleGenerationSystem : ComponentSystem
 {
     private EntityQuery settingsQuery;
-    private int numParticles = 1000;
 	
     public struct State : IComponentData
     {
@@ -29,7 +28,7 @@ public class ParticleGenerationSystem : ComponentSystem
         var particleSettings = EntityManager.GetComponentData<ParticleSettings>(settingsEntity);
         var rand = new Unity.Mathematics.Random((uint)DateTime.UtcNow.Ticks);
         
-        for (int i = 0; i < numParticles; i++) 
+        for (int i = 0; i < particleSettings.numberOfParticles; i++) 
         {
             float3 pos = new float3(UnityEngine.Random.Range(-50f,50f),
                 UnityEngine.Random.Range(0f,50f),UnityEngine.Random.Range(-50f,50f));

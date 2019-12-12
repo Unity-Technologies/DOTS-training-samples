@@ -5,6 +5,7 @@ using UnityEngine;
 public class ParticleSettingsAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
 {
     public GameObject Prefab;
+    public uint numberOfParticles;
     public float spinRate;
     public float upwardSpeed;
     [Range(0f, 1f)]
@@ -23,6 +24,7 @@ public class ParticleSettingsAuthoring : MonoBehaviour, IDeclareReferencedPrefab
         var particle = new ParticleSettings
         {
             prefab = conversionSystem.GetPrimaryEntity(Prefab),
+            numberOfParticles = numberOfParticles,
             spinRate = spinRate,
             upwardSpeed = 6,
             minSize = minSize,
