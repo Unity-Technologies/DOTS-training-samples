@@ -8,4 +8,5 @@ public struct AntComponent : IComponentData
 	public float facingAngle;
 	public float speed;
 	public int index;
+	public int state;
 }

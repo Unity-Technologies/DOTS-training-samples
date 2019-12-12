@@ -8,6 +8,9 @@ using Unity.Transforms;
 [BurstCompile]
 public struct AntMovementJob : IJobForEach<Translation, Rotation, AntComponent>
 {
+	public float2 ColonyPosition;
+	public float2 ResourcePosition;
+	public float TargetRadius;
 	public float TimeDelta;
 
 	public void Execute(ref Translation translation, ref Rotation rotation, ref AntComponent ant)
@@ -36,5 +39,13 @@ public struct AntMovementJob : IJobForEach<Translation, Rotation, AntComponent>
 		ant.facingAngle = math.atan2(velocity.y, velocity.x);
 		translation.Value = position;
 		rotation.Value = quaternion.Euler(0.0f, 0.0f, ant.facingAngle);
+
+		var targetPos = ant.state == 0 ? ResourcePosition : ColonyPosition;
+
+		if (math.lengthsq(translation.Value.xy - targetPos) < TargetRadius * TargetRadius)
+		{
+			ant.state = 1 - ant.state;
+			ant.facingAngle = math.fmod(ant.facingAngle + math.PI, math.PI * 2);
+		}
 	}
 }
