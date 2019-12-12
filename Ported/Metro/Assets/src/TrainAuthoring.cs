@@ -32,7 +32,10 @@ namespace src
             dstManager.AddComponentData(carriage, new Speed()
             {
                 Value = 0,
-                TargetSpeed = TargetSpeed,
+            });
+            dstManager.AddComponentData(carriage, new TargetSpeed()
+            {
+                Value = TargetSpeed,
             });
         }
     }

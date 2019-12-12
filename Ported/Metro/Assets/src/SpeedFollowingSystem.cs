@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace src
 {
-    public class LineFollowingSystem : JobComponentSystem
+    public class SpeedFollowingSystem : JobComponentSystem
     {
         const float k_SpeedIncrement = 0.001f;
         const float k_SpeedIncrementEpsilon = 0.0005f;
@@ -17,22 +17,21 @@ namespace src
             
             
             return Entities
-                .ForEach((ref Speed speed, in Translation translation) =>
+                .ForEach((ref Speed speed, ref TargetSpeed targetSpeed, in Translation translation) =>
                 {
-                    var distanceTravled = math.length(translation.Value - speed.LastPosition);
-                    speed.CurrentSpeed = distanceTravled / deltaTime;
-                    if(speed.CurrentSpeed + k_SpeedIncrementEpsilon < speed.TargetSpeed)
+                    var distanceTravled = math.length(translation.Value - targetSpeed.LastPosition);
+                    var currentSpeed = distanceTravled / deltaTime;
+                    if(currentSpeed + k_SpeedIncrementEpsilon < targetSpeed.Value)
                     {
                         speed.Value += k_SpeedIncrement;
                     }
-                    else if(speed.CurrentSpeed - k_SpeedIncrementEpsilon > speed.TargetSpeed)
+                    else if(currentSpeed- k_SpeedIncrementEpsilon > targetSpeed.Value)
                     {
-                        Debug.Log("Decrease Speed");
                         speed.Value -= k_SpeedIncrement;
                         if (speed.Value < 0)
                             speed.Value = 0;
                     }
-                    speed.LastPosition = translation.Value;
+                    targetSpeed.LastPosition = translation.Value;
                 })
                 .Schedule(inputDeps);
         }
