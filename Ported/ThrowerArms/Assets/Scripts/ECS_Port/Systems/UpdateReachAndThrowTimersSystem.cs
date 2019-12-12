@@ -34,6 +34,7 @@ public class UpdateReachAndThrowTimersSystem : JobComponentSystem
         
         return
             Entities.WithAny<HoldingRockState, IdleState>()
+            .WithNone<ThrowAtState>()
                 .ForEach((ref ArmComponent arm) => { arm.ThrowTimer = 0; })
                 .Schedule(incrementThrowTimerJob);
     }
