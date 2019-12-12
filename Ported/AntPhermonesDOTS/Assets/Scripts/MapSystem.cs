@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using UnityEngine;
 
 public struct MapInitializedTag : IComponentData { }
@@ -12,6 +13,7 @@ public class MapSystem : JobComponentSystem
 {
     BeginInitializationEntityCommandBufferSystem EntityCommandBufferSystem;
     private EntityQuery TileInitQuery;
+    private EntityQuery RendererQuery;
     
     Texture2D PheromoneTexture;
     private NativeArray<Color> colors;
@@ -20,6 +22,7 @@ public class MapSystem : JobComponentSystem
     {
         EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
         TileInitQuery = GetEntityQuery(ComponentType.ReadWrite<MapInitializedTag>());
+        RendererQuery = GetEntityQuery(ComponentType.ReadWrite<RenderMesh>());
         RequireSingletonForUpdate<Map>();
     }
 
@@ -40,7 +43,6 @@ public class MapSystem : JobComponentSystem
             PheromoneTexture = new Texture2D(map.Size, map.Size);
             PheromoneTexture.wrapMode = TextureWrapMode.Mirror;
             colors = new NativeArray<Color>(map.Size * map.Size, Allocator.Persistent);
-            //Material.mainTexture = PheromoneTexture;
         }
         
         // Generate computation tiles.
@@ -55,7 +57,8 @@ public class MapSystem : JobComponentSystem
                     for (var i = 0; i < numCores; i++)
                     {
                         var entity = commandBuffer.CreateEntity(entityInQueryIndex);
-                        commandBuffer.AddComponent<Tile>(entityInQueryIndex, entity, new Tile {Coordinates = new int2(i * elementsPerTile, 0)});
+                        int index = i * elementsPerTile;
+                        commandBuffer.AddComponent<Tile>(entityInQueryIndex, entity, new Tile {Coordinates = new int2(index, index + elementsPerTile)});
                     }
 
                     commandBuffer.AddComponent<MapInitializedTag>(entityInQueryIndex, mapEntity);
@@ -73,17 +76,28 @@ public class MapSystem : JobComponentSystem
             .ForEach((Entity entity, int entityInQueryIndex, in Tile tile) =>
             {
                 int begin = tile.Coordinates.x;
-                int end = tile.Coordinates.x + elementsPerTile;
-                for (int i = begin; i < end; ++i)
+                int end = tile.Coordinates.y;
+                for (int x = begin; x < end; ++x)
                 {
-                    colorArray[i] = new Color(entityInQueryIndex * 1.33f, i / elementsPerTile, i);
+                    colorArray[x] = new Color(x / (map.Size * map.Size), x / map.Size,
+                        x / elementsPerTile);
+                
                 }
             }).Schedule(combined);
         updateColorsJobHandle.Complete();
 
         PheromoneTexture.SetPixels(colorArray.ToArray());
         PheromoneTexture.Apply();
-        
+
+        if (RendererQuery.IsEmptyIgnoreFilter == false)
+        {
+            Entities.WithoutBurst().ForEach((Entity entity, in RenderMesh renderMesh, in Map mapReadonly) =>
+            {
+                renderMesh.material.mainTexture = PheromoneTexture;
+                renderMesh.material.SetTexture("_UnlitColorMap", PheromoneTexture);
+            }).Run();
+        }
+
         return JobHandle.CombineDependencies(combined, updateColorsJobHandle);
     }
 }
