@@ -38,7 +38,7 @@ public class GenerationSystem : ComponentSystem
 //		matricesList.Add(new List<Matrix4x4>());
 
 		// buildings
-		for (int i = 0; i < 35; i++) {
+		for (int i = 0; i < 1000; i++) {
 			int height = Random.Range(4,12);
 			Vector3 pos = new Vector3(Random.Range(-45f,45f),0f,Random.Range(-45f,45f));
 			float spacing = 2f;

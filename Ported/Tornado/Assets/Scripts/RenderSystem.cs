@@ -9,25 +9,15 @@ public class PushToRenderSystem : JobComponentSystem
 {
     EntityQuery generationSettings;
     const int instancesPerBatch = 1023;
-    Matrix4x4[] arraySlice;
+    Matrix4x4[] instances;
 //    Matrix4x4[][] batches;
 
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<GenerationSystem.State>();
         generationSettings = GetEntityQuery(typeof(GenerationSetting));
-        arraySlice = new Matrix4x4[instancesPerBatch];
+        instances = new Matrix4x4[instancesPerBatch];
     }
-    
-//    private EntityQuery settingsQuery;
-//
-//    protected override void OnCreate()
-//    {
-//        base.OnCreate();
-//
-//        settingsQuery = GetEntityQuery(new EntityQueryDesc {All = new ComponentType[] {typeof(GenerationSetting)}});
-//        RequireForUpdate(settingsQuery);
-//    }
     
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
@@ -36,18 +26,14 @@ public class PushToRenderSystem : JobComponentSystem
         
         Entities.WithoutBurst().ForEach( (Entity entity, ref DynamicBuffer<RenderMatrixEntry> matricies) =>
         {
-//            var matrixArray = matricies.AsNativeArray().Reinterpret<Matrix4x4>();
-//            var numBatches = matrixArray.Length / instancesPerBatch + 1;
-//            // TODO: Initialize batches supporting a number of Matrecies higher than instancesPerBatch
-
-//            var arraySlice = matrixArray.GetSubArray(0, 700).ToArray();
-//            for (int i = 0; i < numBatches; i++)
-//                Graphics.DrawMeshInstanced(settings.barMesh, 0, settings.barMaterial, arraySlice, 700);
-//                Graphics.DrawMeshInstanced(settings.barMesh, 0, settings.barMaterial, batches[i], batches[i].Length);
-//
-            for (int i = 0; i < matricies.Length; i++)
-                Graphics.DrawMesh(settings.barMesh, matricies[i].Value, settings.barMaterial, 0);
-
+            var numBatches = matricies.Length / instancesPerBatch + 1;
+            for (int i = 0; i < numBatches; i++)
+            {
+                var start = i * instancesPerBatch;
+                var length = math.min(instancesPerBatch, matricies.Length - start);
+                NativeArray<Matrix4x4>.Copy(matricies.AsNativeArray().Reinterpret<Matrix4x4>(), start, instances, 0, length);
+                Graphics.DrawMeshInstanced(settings.barMesh, 0, settings.barMaterial, instances, length);
+            }
         }).Run();
         
         return inputDeps;
