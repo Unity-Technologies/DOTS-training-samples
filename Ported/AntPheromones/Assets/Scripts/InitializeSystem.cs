@@ -14,7 +14,7 @@ using Unity.Rendering;
 public class InitializeSystem : JobComponentSystem
 {
 	private NativeArray<int2> m_ObstacleBuckets;
-	private NativeArray<MapObstacle> m_CachedObstacles;
+	private NativeArray<MapObstacle> m_Obstacles;
 
     bool init;
 
@@ -23,7 +23,14 @@ public class InitializeSystem : JobComponentSystem
         init = false; 
     }
 
-    protected override JobHandle OnUpdate(JobHandle inputDeps)
+	protected override void OnDestroy()
+	{
+		base.OnDestroy();
+		m_ObstacleBuckets.Dispose();
+		m_Obstacles.Dispose();
+	}
+
+	protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         if (init)
             return inputDeps;
@@ -179,9 +186,9 @@ public class InitializeSystem : JobComponentSystem
 			}
 		}
 		
-		m_CachedObstacles = new NativeArray<MapObstacle>(bucketedCachedObjects.ToArray(), Allocator.Persistent);
+		m_Obstacles = new NativeArray<MapObstacle>(bucketedCachedObjects.ToArray(), Allocator.Persistent);
 
-		RuntimeManager.instance.cachedObstacles = m_CachedObstacles;
+		RuntimeManager.instance.cachedObstacles = m_Obstacles;
 		RuntimeManager.instance.obstacleBuckets = m_ObstacleBuckets;
 		RuntimeManager.instance.obstacleBucketDimensions = new int2(res, res);
 	}
