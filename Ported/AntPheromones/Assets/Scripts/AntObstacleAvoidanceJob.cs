@@ -35,7 +35,9 @@ public struct AntObstacleAvoidanceJob : IJobForEach<AntComponent, Translation>
 
 		float3 antPosition = antTranslation.Value;
 		float lookAheadDistance = 0.01f;
-		float3 lookAheadPosition = antPosition + new float3(cos * lookAheadDistance, sin * lookAheadDistance, 0.0f);
+		float3 lookAheadDirection = new float3(cos, sin, 0.0f);
+		float3 perpendicularDirection = new float3(sin, -cos, 0.0f);
+		float3 lookAheadPosition = antPosition + (lookAheadDirection * lookAheadDistance);
 		int2 range = GetObstacleBucket(lookAheadPosition);
 
 		for(int i = 0; i < range.y; i++)
@@ -45,11 +47,10 @@ public struct AntObstacleAvoidanceJob : IJobForEach<AntComponent, Translation>
 
 			if(distance < cachedObstacle.radius)
 			{
-				float3 testDirection = new float3(sin, -cos, 0.0f);
-				float3 directionToObstacle = cachedObstacle.position - lookAheadPosition;
-				float dotProduct = math.dot(testDirection, directionToObstacle);
+				float3 directionToObstacle = math.normalize(cachedObstacle.position - lookAheadPosition);
+				float dotProduct = math.dot(perpendicularDirection, directionToObstacle);
 				float angleDelta = dotProduct;
-				
+			
 				// We've found an obstacle - steer away from it...
 				ant.facingAngle += angleDelta;
 				ant.speed = 0.0f;
