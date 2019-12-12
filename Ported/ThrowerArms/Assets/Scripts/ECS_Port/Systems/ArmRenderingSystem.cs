@@ -19,9 +19,17 @@ public class ArmRenderingSystem : JobComponentSystem
     private readonly List<GCHandle> _gcHandlesToFree = new List<GCHandle>();
     private readonly List<MaterialPropertyBlock> _materialPropertyBlocks = new List<MaterialPropertyBlock>();
 
-    private EntityQuery m_positionBufferQuery;
-    private EntityQuery m_matrixBufferQuery;
+    private EntityQuery m_ArmPositionBufferQuery;
+    private EntityQuery m_FingerPositionBufferQuery;
+    private EntityQuery m_ThumbPositionBufferQuery;
+
     private EntityQuery m_handUpBufferQuery;
+    private EntityQuery m_thumbUpBufferQuery;
+
+    private EntityQuery m_boneBufferQuery;
+    private EntityQuery m_matrixBufferQuery;
+    private EntityQuery m_jointBufferQuery;
+    private EntityQuery m_upVectorBufferQuery;
 
     private List<Matrix4x4[]> matrices = new List<Matrix4x4[]>();
 
@@ -32,9 +40,17 @@ public class ArmRenderingSystem : JobComponentSystem
     {
         base.OnCreate();
 
-        m_positionBufferQuery = GetEntityQuery(ComponentType.ReadWrite<ArmJointPositionBuffer>());
+        m_ArmPositionBufferQuery = GetEntityQuery(ComponentType.ReadOnly<ArmJointPositionBuffer>());
+        m_FingerPositionBufferQuery = GetEntityQuery(ComponentType.ReadOnly<FingerJointPositionBuffer>());
+        m_ThumbPositionBufferQuery = GetEntityQuery(ComponentType.ReadOnly<ThumbJointPositionBuffer>());
+
+        m_handUpBufferQuery = GetEntityQuery(ComponentType.ReadOnly<UpVectorBufferForArmsAndFingers>());
+        m_thumbUpBufferQuery = GetEntityQuery(ComponentType.ReadOnly<UpVectorBufferForThumbs>());
+
+        m_boneBufferQuery = GetEntityQuery(ComponentType.ReadWrite<ArmBoneBuffer>());
         m_matrixBufferQuery = GetEntityQuery(ComponentType.ReadWrite<ArmJointMatrixBuffer>());
-        m_handUpBufferQuery = GetEntityQuery(ComponentType.ReadWrite<UpVectorBufferForArmsAndFingers>());
+        m_jointBufferQuery = GetEntityQuery(ComponentType.ReadWrite<ArmJointBuffer>());
+        m_upVectorBufferQuery = GetEntityQuery(ComponentType.ReadWrite<ArmUpVectorBuffer>());
 
         BoneCount = ArmSpawner.Count * (ArmConstants.ChainCount - 1 + FingerConstants.TotalChainCount - FingerConstants.CountPerArm + ThumbConstants.ChainCount - 1);
         var batchCount = ((BoneCount - 1) / CountPerBatch) +1;
@@ -47,21 +63,22 @@ public class ArmRenderingSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var armJointPositionBuffer =
-            EntityManager.GetBuffer<ArmJointPositionBuffer>(m_positionBufferQuery.GetSingletonEntity()).AsNativeArray();
+            EntityManager.GetBuffer<ArmJointPositionBuffer>(m_ArmPositionBufferQuery.GetSingletonEntity()).AsNativeArray();
         var fingerJointPositionBuffer =
-            EntityManager.GetBuffer<FingerJointPositionBuffer>(m_positionBufferQuery.GetSingletonEntity()).AsNativeArray();
+            EntityManager.GetBuffer<FingerJointPositionBuffer>(m_FingerPositionBufferQuery.GetSingletonEntity()).AsNativeArray();
         var thumbJointPositionBuffer =
-            EntityManager.GetBuffer<ThumbJointPositionBuffer>(m_positionBufferQuery.GetSingletonEntity()).AsNativeArray();
+            EntityManager.GetBuffer<ThumbJointPositionBuffer>(m_ThumbPositionBufferQuery.GetSingletonEntity()).AsNativeArray();
+
         var upVectorBufferForArmsAndFingers =
             EntityManager.GetBuffer<UpVectorBufferForArmsAndFingers>(m_handUpBufferQuery.GetSingletonEntity()).AsNativeArray();
         var upVectorBufferForThumbs =
-            EntityManager.GetBuffer<UpVectorBufferForThumbs>(m_handUpBufferQuery.GetSingletonEntity()).AsNativeArray();
+            EntityManager.GetBuffer<UpVectorBufferForThumbs>(m_thumbUpBufferQuery.GetSingletonEntity()).AsNativeArray();
 
 
         var armJointBuffer =
-            EntityManager.GetBuffer<ArmJointBuffer>(m_matrixBufferQuery.GetSingletonEntity()).AsNativeArray();
+            EntityManager.GetBuffer<ArmJointBuffer>(m_jointBufferQuery.GetSingletonEntity()).AsNativeArray();
         var armUpVectorBuffer =
-            EntityManager.GetBuffer<ArmUpVectorBuffer>(m_matrixBufferQuery.GetSingletonEntity()).AsNativeArray();
+            EntityManager.GetBuffer<ArmUpVectorBuffer>(m_upVectorBufferQuery.GetSingletonEntity()).AsNativeArray();
 
         var pos = 0;
         NativeArray<float3>.Copy(armJointPositionBuffer.Reinterpret<float3>(), 0, armJointBuffer.Reinterpret<float3>(), pos, armJointPositionBuffer.Length);
@@ -76,7 +93,7 @@ public class ArmRenderingSystem : JobComponentSystem
         NativeArray<float3>.Copy( upVectorBufferForThumbs.Reinterpret<float3>(), 0, armUpVectorBuffer.Reinterpret<float3>(), pos, upVectorBufferForThumbs.Length);
 
         var armBoneBuffer =
-            EntityManager.GetBuffer<ArmBoneBuffer>(m_matrixBufferQuery.GetSingletonEntity()).AsNativeArray();
+            EntityManager.GetBuffer<ArmBoneBuffer>(m_boneBufferQuery.GetSingletonEntity()).AsNativeArray();
         var armJointMatriceBuffer =
                     EntityManager.GetBuffer<ArmJointMatrixBuffer>(m_matrixBufferQuery.GetSingletonEntity()).AsNativeArray();
 
