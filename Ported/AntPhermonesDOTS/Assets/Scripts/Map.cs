@@ -4,6 +4,7 @@ using Unity.Mathematics;
 struct Map : IComponentData
 {
     public int Size;
+    public int TileSize;
 }
 
 struct Tile : IComponentData
