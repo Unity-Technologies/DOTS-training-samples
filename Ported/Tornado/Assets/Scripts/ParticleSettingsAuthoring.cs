@@ -7,6 +7,10 @@ public class ParticleSettingsAuthoring : MonoBehaviour, IDeclareReferencedPrefab
     public GameObject Prefab;
     public float spinRate;
     public float upwardSpeed;
+    [Range(0f, 1f)]
+    public float minSize;
+    [Range(0f, 1f)]
+    public float maxSize;
 
     
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -21,6 +25,8 @@ public class ParticleSettingsAuthoring : MonoBehaviour, IDeclareReferencedPrefab
             prefab = conversionSystem.GetPrimaryEntity(Prefab),
             spinRate = spinRate,
             upwardSpeed = 6,
+            minSize = minSize,
+            maxSize = maxSize
         };
 
         dstManager.AddComponentData(entity, particle);

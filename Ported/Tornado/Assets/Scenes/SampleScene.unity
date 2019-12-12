@@ -154,6 +154,8 @@ MonoBehaviour:
   Prefab: {fileID: 836459227816667722, guid: de8e450697dceab4fbe239457824deeb, type: 3}
   spinRate: 37
   upwardSpeed: 6
+  minSize: 0.25
+  maxSize: 0.75
 --- !u!114 &450738856
 MonoBehaviour:
   m_ObjectHideFlags: 0

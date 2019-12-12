@@ -37,6 +37,8 @@ public class ParticleGenerationSystem : ComponentSystem
             var instance = PostUpdateCommands.Instantiate(particleSettings.prefab);
             
             PostUpdateCommands.SetComponent(instance, new Translation {Value = pos});
+            var particleSize = rand.NextFloat(particleSettings.minSize, particleSettings.maxSize);
+            PostUpdateCommands.AddComponent(instance, new NonUniformScale { Value = particleSize } );
             PostUpdateCommands.AddComponent(instance, new Particle {RandomOffset = rand.NextFloat(0f, 1f)});
         }
         
