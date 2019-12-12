@@ -156,7 +156,9 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                     thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i - 1] + math.normalize(delta) * ThumbConstants.BoneLength;
                 }
             }).Schedule(calculateThumbIkWhenInThrowStateJob);
-        
+        calculateThumbIkWhenNotHoldingOrReachingForRock.Complete();
+
+
         return
             new UpdateBoneMatrixJob
             {
