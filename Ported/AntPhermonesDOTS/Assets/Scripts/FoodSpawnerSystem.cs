@@ -4,7 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-public class FoodSystem : JobComponentSystem
+public class FoodSpawnerSystem : JobComponentSystem
 {
     BeginInitializationEntityCommandBufferSystem EntityCommandBufferSystem;
     
@@ -29,6 +29,7 @@ public class FoodSystem : JobComponentSystem
         // Place the food prefab at random location.
         var instance = commandBuffer.Instantiate(foodSpawner.Prefab);
         commandBuffer.SetComponent(instance, new Translation {Value = new float3(offset.x, offset.y, 0.0f)});
+        commandBuffer.AddComponent(instance, new Food());
         commandBuffer.DestroyEntity(entity);
 
         return default;
