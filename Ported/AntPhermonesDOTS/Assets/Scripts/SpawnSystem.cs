@@ -5,8 +5,6 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public struct AntTag : IComponentData { }
-
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class SpawnSystem : JobComponentSystem
 {
