@@ -119,7 +119,7 @@ public class ArmThrowSystem : JobComponentSystem
                 }
             })
             .Schedule(inputDeps);
-
+        endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(deps);
         return deps;
     }
 }
