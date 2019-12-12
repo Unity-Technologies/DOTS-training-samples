@@ -41,6 +41,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
         var calculateThumbIkWhenReachingJob = Entities.WithName("UpdateThumbIKWhenReachingForRock")
             .WithReadOnly(translationFromEntityAccessor)
             .WithNativeDisableParallelForRestriction(thumbJointPositionBuffer)
+            .WithNativeDisableParallelForRestriction(upVectorBufferForThumbs)
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent, in ReachForTargetState reachTarget) =>
             {
                 float3 thumbPosition = translation.Value + arm.HandRight * ThumbConstants.XOffset;
