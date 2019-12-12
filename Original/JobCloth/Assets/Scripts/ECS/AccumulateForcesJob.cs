@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 [UpdateAfter(typeof(Constraint2_System))]
 public unsafe class AccumulateForces_System : JobComponentSystem
@@ -21,7 +22,6 @@ public unsafe class AccumulateForces_System : JobComponentSystem
             var oldVerticesPtr = (float3*)oldVertices.GetUnsafePtr();
 
             var firstPinnedIndex = cloth.constraints.Value.FirstPinnedIndex;
-            //Execute
             for (int i = 0; i < firstPinnedIndex; ++i)
             {
                 float3 oldVert  = oldVerticesPtr[i];
@@ -30,8 +30,7 @@ public unsafe class AccumulateForces_System : JobComponentSystem
 
                 vert += (vert - oldVert + forcesPtr[i]);
 
-                oldVerticesPtr[i]   = vert;
-                oldVertices[i]      = startPos;
+                oldVerticesPtr[i]   = startPos;
                 forcesPtr[i]        = gravity;
             }
         }).Schedule(inputDeps);
