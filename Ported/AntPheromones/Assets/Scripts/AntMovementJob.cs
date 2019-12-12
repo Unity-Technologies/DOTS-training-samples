@@ -12,6 +12,9 @@ public struct AntMovementJob : IJobForEach<Translation, Rotation, AntComponent, 
 	[ReadOnly] public float AntMaxSpeed;
 	[ReadOnly] public float PheromoneSteeringStrength;
 	[ReadOnly] public float WallSteeringStrength;
+	[ReadOnly] public float2 ColonyPosition;
+	[ReadOnly] public float2 ResourcePosition;
+	[ReadOnly] public float TargetRadius;
 
 	public void Execute(ref Translation translation, ref Rotation rotation, ref AntComponent ant, [ReadOnly] ref AntSteeringComponent steering)
 	{
@@ -48,5 +51,13 @@ public struct AntMovementJob : IJobForEach<Translation, Rotation, AntComponent, 
 		ant.facingAngle = math.atan2(velocity.y, velocity.x);
 		translation.Value = position;
 		rotation.Value = quaternion.Euler(0.0f, 0.0f, ant.facingAngle);
+
+		var targetPos = ant.state == 0 ? ResourcePosition : ColonyPosition;
+
+		if (math.lengthsq(translation.Value.xy - targetPos) < TargetRadius * TargetRadius)
+		{
+			ant.state = 1 - ant.state;
+			ant.facingAngle = math.fmod(ant.facingAngle + math.PI, math.PI * 2);
+		}
 	}
 }

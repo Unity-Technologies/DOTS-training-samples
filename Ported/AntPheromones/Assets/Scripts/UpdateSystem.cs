@@ -137,6 +137,9 @@ public class UpdateSystem : JobComponentSystem
             AntMaxSpeed =  settings.antSpeed,
             PheromoneSteeringStrength = settings.pheromoneSteerStrength,
             WallSteeringStrength = settings.wallSteerStrength,
+            ColonyPosition = RuntimeManager.instance.colonyPosition.xy,
+            ResourcePosition = RuntimeManager.instance.resourcePosition.xy,
+            TargetRadius = 4.0f / settings.mapSize,
         };
         var movementSystemJobHandle = movementJob.Schedule(this, obstacleJobHandle);
 
@@ -159,7 +162,7 @@ public class UpdateSystem : JobComponentSystem
             PheromoneMap = PheromoneMap
         };
         var dropPheromonesJobHandle = dropPheromonesJob.Schedule(Buckets.Length, 1, antOutputJobHandle);
-
+        
         dropPheromonesJobHandle.Complete();
 
         UpdateTexture();
