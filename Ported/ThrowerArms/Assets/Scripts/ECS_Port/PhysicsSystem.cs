@@ -11,7 +11,7 @@ public class PhysicsSystem : JobComponentSystem
     struct GravityJob : IJobForEach<Velocity, Gravity>
     {
         public float3 gravityTimesDeltaTime;
-        public static readonly float3 kGravity = new float3(0.0f, -9.807f, 0.0f);
+        public static readonly float3 kGravity = new float3(0.0f, -25.0f, 0.0f);
 
         public void Execute(ref Velocity velocity, [ReadOnly] ref Gravity gravity)
         {
