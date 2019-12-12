@@ -6,5 +6,4 @@ using Unity.Mathematics;
 [Serializable]
 public struct MarkedForDeath : IComponentData
 {
-    public float Timer;
 }

@@ -62,6 +62,7 @@ public class UpdateArmIKChainSystem : JobComponentSystem
 
         JobHandle calculateHandMatrixJob = Entities.WithName("CalculateHandMatrix")
             .WithReadOnly(armJointPositionBuffer)
+            .WithNativeDisableParallelForRestriction(upVectorBufferForArmsAndFingers)
             .ForEach((ref HandMatrix handMatrix, ref ArmComponent arm, in Translation translation) =>
             {
                 int lastIndex = (int)(translation.Value.x * ArmConstants.ChainCount + (ArmConstants.ChainCount - 1));
@@ -77,6 +78,7 @@ public class UpdateArmIKChainSystem : JobComponentSystem
 
                 handMatrix.Value = new float4x4(math.RigidTransform(quaternion.LookRotation(arm.HandForward, arm.HandUp), armChainPosLast));
             }).Schedule(updateIkJob);
+        calculateHandMatrixJob.Complete();
         
         return
             new UpdateBoneMatrixJob

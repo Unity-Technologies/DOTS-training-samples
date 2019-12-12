@@ -105,7 +105,7 @@ public class ArmThrowSystem : JobComponentSystem
                     // release the rock
                     concurrentBuffer.AddComponent<Velocity>(entityInQueryIndex, throwAt.HeldEntity, new Velocity() { Value = throwAt.AimVector });
                     concurrentBuffer.AddComponent<FlyingState>(entityInQueryIndex, throwAt.HeldEntity);
-                    concurrentBuffer.AddComponent<MarkedForDeath>(entityInQueryIndex, throwAt.HeldEntity, new MarkedForDeath { Timer = 10.0f }) ;
+                    concurrentBuffer.AddComponent<MarkedForDeath>(entityInQueryIndex, throwAt.HeldEntity) ;
                     concurrentBuffer.AddComponent<Gravity>(entityInQueryIndex, throwAt.HeldEntity);
 
                     throwAt.HeldEntity = Entity.Null;

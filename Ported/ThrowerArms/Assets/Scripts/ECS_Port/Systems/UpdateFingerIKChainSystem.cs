@@ -112,9 +112,8 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                     }
                 }).Schedule(grabExtentJob2);
         
-         var updateFingerIkChainForFingersNOTGrippingRock =
-             Entities.WithName("UpdateFingerIKChainForFingersNOTGrippingRock")
-             .WithReadOnly(translationFromEntity)
+         return
+             Entities.WithName("UpdateFingerIKChainForFingersIdle")
              .WithNativeDisableParallelForRestriction(fingerJointPositions)
              .WithNone<LookForThrowTargetState>()
              .ForEach((ref Finger fingerComponent, in ArmComponent armComponent, in Translation translation) =>

@@ -14,10 +14,15 @@ public class KillSystem : JobComponentSystem
         EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer entityCommandBuffer = endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
         EntityCommandBuffer.Concurrent concurrentBuffer = entityCommandBuffer.ToConcurrent();
-        JobHandle jobHandle = Entities.ForEach((Entity entity, int entityInQueryIndex, ref MarkedForDeath deathMark) =>
+        JobHandle jobHandle = Entities
+            .WithAll<MarkedForDeath>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref Scale scale, in Translation pos) =>
         {
-            deathMark.Timer -= deltaTime;
-            if (deathMark.Timer <= 0.0f)
+           if (pos.Value.y < -1.0f)
+            {
+                scale.Value -= deltaTime / 0.3f;
+            }
+            if (scale.Value <= 0.0f)
             {
                 concurrentBuffer.DestroyEntity(entityInQueryIndex, entity);
             }
