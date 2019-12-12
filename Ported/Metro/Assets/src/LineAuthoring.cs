@@ -14,16 +14,17 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     [SerializeField]
     int m_LineIndex = 0;
 
-    public const float k_StepSize = 0.1f;
     [Range(0.001f, 0.5f)]
     public float BezierFactor = 0.5f;
 
+
     Entity m_Entity;
     EntityManager m_EntityManager;
-    
+
     public Mesh RailMarkerMesh = null;
     public Color RailMarkerColor = Color.white;
     public Vector3 RailMarkerScale = new Vector3(0.1f, 1f, 0.025f);
+    public float RailMarkerDistance = 0.1f;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -74,7 +75,7 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         while (t < 1.0f)
         {
             var pos = BezierMath.GetPoint(segment, t);
-            if (math.length(previousMarkerPos - pos) > k_StepSize)
+            if (math.length(previousMarkerPos - pos) > RailMarkerDistance)
             {
                 previousMarkerPos = pos;
                 var pointAhead = BezierMath.GetPoint(segment, t + 0.001f);

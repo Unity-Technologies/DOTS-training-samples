@@ -478,7 +478,8 @@ MonoBehaviour:
   BezierFactor: 0.5
   RailMarkerMesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
   RailMarkerColor: {r: 1, g: 1, b: 1, a: 1}
-  RailMarkerScale: {x: 0.01, y: 1, z: 0.0025}
+  RailMarkerScale: {x: 0.1, y: 1, z: 0.025}
+  RailMarkerDistance: 1
 --- !u!4 &306050295 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4731349670020782499, guid: d0b6e7213897f68498a1adde3027976b,
@@ -587,7 +588,7 @@ MonoBehaviour:
   Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   TargetSpeed: 5
   NumberOfCarriages: 3
-  CarriageDistance: 5.2
+  CarriageDistance: 6
 --- !u!4 &436305018
 Transform:
   m_ObjectHideFlags: 0
