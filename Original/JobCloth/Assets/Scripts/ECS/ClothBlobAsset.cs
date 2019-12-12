@@ -140,7 +140,7 @@ public class ClothBlobAssetUtility
                 var vertex0 = (float3)vertices[constraint.x];
                 var vertex1 = (float3)vertices[constraint.y];
 
-                constraint2Lengths[i] = math.length(vertex1 - vertex0);
+                constraint2Lengths[i] = math.length(vertex1 - vertex0) * 0.5f;
             }
 
             root.FirstPinnedIndex = lastPinned;

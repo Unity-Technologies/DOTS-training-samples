@@ -32,9 +32,8 @@ public class Constraint1_System : JobComponentSystem
 
                     var delta = p2 - p1;
                     var length = math.length(delta);
-                    var extra = (length - constraintLengths[i]);
-                    var dir = delta / length;
-                    var offset = extra * dir;
+                    var offset = (1 - (constraintLengths[i] / length)) * delta;
+
                     vertices[pair.x] = p1 + offset;
                 }
             }            
