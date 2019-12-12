@@ -36,7 +36,6 @@ public class ArmWindupSystem : JobComponentSystem
                     concurrentBuffer.RemoveComponent<WindingUpState>(0, entity);
                     concurrentBuffer.AddComponent(0,entity, new ThrowAtState
                     {
-                        ThrowTimer = 0f,
                         StartPosition = windup.HandTarget,
                         AimedTargetEntity = windup.AimedTargetEntity,
                         HeldEntity = windup.HeldEntity

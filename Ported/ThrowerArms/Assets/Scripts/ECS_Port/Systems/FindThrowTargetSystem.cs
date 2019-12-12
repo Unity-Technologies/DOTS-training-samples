@@ -10,11 +10,6 @@ public class FindThrowTargetSystem : JobComponentSystem
 {
     private EntityQuery m_ThrowTargetsQuery;
 
-    protected override void OnCreate()
-    {
-        base.OnCreate();
-    }
-
     private static int CalculateIndex(in Translation translation)
     {
         return (int)math.round(translation.Value.x / ArmSpawner.Spacing);

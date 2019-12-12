@@ -39,9 +39,11 @@ public class ReachForTargetSystem : JobComponentSystem
 
             reachingState.HandTarget =
                 desiredRockTranslation + new float3(0, 1, 0) * reachingState.TargetSize * 0.5f - flatDelta * reachingState.TargetSize * 0.5f;
-            reachingState.ReachTimer += deltaTime / ArmConstants.ReachDuration;
+            
+            arm.ReachTimer += deltaTime / ArmConstants.ReachDuration;
+            
 
-            if (reachingState.ReachTimer < 1f)
+            if (arm.ReachTimer < 1f)
             {
                 return;
             }
@@ -56,7 +58,7 @@ public class ReachForTargetSystem : JobComponentSystem
             {
                 GrabbingEntity = entity
             });
-            concurrentBuffer.AddComponent<GrabbingState>(entityInQueryIndex, entity);
+            concurrentBuffer.AddComponent<HoldingRockState>(entityInQueryIndex, entity);
         }).Schedule(inputDeps);
         endSimulationEcbSystem.AddJobHandleForProducer(reachForRockJob);
 

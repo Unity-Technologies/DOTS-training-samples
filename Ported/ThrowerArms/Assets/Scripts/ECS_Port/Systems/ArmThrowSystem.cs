@@ -1,5 +1,4 @@
 ﻿using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -9,7 +8,7 @@ using static Unity.Mathematics.math;
 public class ArmThrowSystem : JobComponentSystem
 {
     [BurstCompile]
-    static float GetCurveValue(float samplePos)
+    public static float GetCurveValue(float samplePos)
     {
         return math.clamp(sin(samplePos * 2.0f * 3.14f), 0f, 1f);
     }
@@ -79,12 +78,9 @@ public class ArmThrowSystem : JobComponentSystem
         var accessor = GetComponentDataFromEntity<Translation>(true);
         var velocityAccessor = GetComponentDataFromEntity<Velocity>(true);
         EntityCommandBuffer.Concurrent concurrentBuffer = entityCommandBuffer.ToConcurrent();
-        var dt = Time.DeltaTime;
         var deps = Entities
             .ForEach((Entity entity, ref ArmComponent arm, ref ThrowAtState throwAt, in Translation pos) =>
             {
-                throwAt.ThrowTimer += dt / ArmConstants.ThrowDuration;
-                
                 // update our aim until we release the rock
                 if (throwAt.HeldEntity != Entity.Null)
                 {
@@ -93,26 +89,27 @@ public class ArmThrowSystem : JobComponentSystem
 
                 // we start this animation in our windup position,
                 // and end it by returning to our default idle pose
-                float3 restingPos = math.lerp(throwAt.StartPosition, arm.HandTarget, throwAt.ThrowTimer);
+                float3 restingPos = math.lerp(throwAt.StartPosition, arm.HandTarget, arm.ThrowTimer);
 
                 // find the hand's target position to perform the throw
                 // (somewhere forward and upward from the windup position)
                 var throwHandTarget = throwAt.StartPosition + normalize(throwAt.AimVector) * 2.5f;
 
-                arm.HandTarget = math.lerp(restingPos, throwHandTarget, GetCurveValue(throwAt.ThrowTimer));
+                arm.HandTarget = math.lerp(restingPos, throwHandTarget, GetCurveValue(arm.ThrowTimer));
 
-                if (throwAt.ThrowTimer > .15f && throwAt.HeldEntity != Entity.Null)
+                if (arm.ThrowTimer > .15f && throwAt.HeldEntity != Entity.Null)
                 {
+                    concurrentBuffer.RemoveComponent<HoldingRockState>(jobIndex: 0, entity);
                     concurrentBuffer.RemoveComponent<GrabbedState>(0, throwAt.HeldEntity);
                     // release the rock
-                    concurrentBuffer.AddComponent<Velocity>(0, throwAt.HeldEntity, new Velocity() { Value = throwAt.AimVector });
+                    concurrentBuffer.AddComponent(0, throwAt.HeldEntity, new Velocity() { Value = throwAt.AimVector });
                     concurrentBuffer.AddComponent<FlyingState>(0, throwAt.HeldEntity);
                     concurrentBuffer.AddComponent<Gravity>(0, throwAt.HeldEntity);
 
                     throwAt.HeldEntity = Entity.Null;
                 }
 
-                if (throwAt.ThrowTimer > 1f)
+                if (arm.ThrowTimer > 1f)
                 {
                     concurrentBuffer.RemoveComponent<ThrowAtState>(0, entity);
                     concurrentBuffer.AddComponent<IdleState>(0, entity);

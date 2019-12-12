@@ -57,7 +57,6 @@ public class PickSelectSystem : JobComponentSystem
                 // Add the reach for target state.
                 concurrentBuffer.AddComponent(entityInQueryIndex, entity, new ReachForTargetState
                 {
-                    ReachTimer = 1f,
                     TargetEntity = pickEntity,
                     TargetSize = accessor[pickEntity].Value,
                     HandTarget = new float3(float.NaN, float.NaN, float.NaN) 
