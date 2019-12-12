@@ -16,44 +16,35 @@ public class CarriagesVisualsSpawnerSystem : JobComponentSystem
     protected override void OnCreate()
     {
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
-        m_CarriageQuery = GetEntityQuery(
-            ComponentType.ReadOnly(typeof(LinePosition)),
-            ComponentType.ReadOnly(typeof(Translation)),
-            ComponentType.ReadOnly(typeof(Rotation)),
-            ComponentType.ReadOnly(typeof(LocalToWorld))
-            );
+        m_CarriageQuery = GetEntityQuery(ComponentType.ReadOnly(typeof(CarriageVisualsSpawner)) );
+        
+        RequireForUpdate(m_CarriageQuery);
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        var spawnerComponent = m_CarriageQuery.GetSingleton<CarriageVisualsSpawner>();
         var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-        var carriages = m_CarriageQuery.ToEntityArray(Allocator.TempJob);
-        var carriagePositions = m_CarriageQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-        var carriageRotation = m_CarriageQuery.ToComponentDataArray<Rotation>(Allocator.TempJob);
-        
+        var needsVisualsComponentType = ComponentType.ReadOnly(typeof(NeedsVisuals));
+        var hasVisualsComponentType = ComponentType.ReadOnly(typeof(HasVisuals));
+            
         var jobHandle = Entities
             .WithName("TrainSpawnerSystem")
-            .WithBurst(FloatMode.Default, FloatPrecision.Standard, true)
-            .ForEach((Entity entity, int entityInQueryIndex, in CarriageVisualsSpawner spawnerFromEntity) =>
+//                .WithReadOnly(spawner)
+            .WithAll<NeedsVisuals>()
+//            .WithBurst(FloatMode.Default, FloatPrecision.Standard, true)
+            .ForEach((Entity entity, int entityInQueryIndex, in LinePosition linePosition, in Translation translation, in Rotation rotation) =>
         {
-            for (int i = 0; i < carriages.Length; i++)
-            {
-                var carriage = commandBuffer.Instantiate(entityInQueryIndex, spawnerFromEntity.Prefab);
-                commandBuffer.SetComponent(entityInQueryIndex, carriage, carriagePositions[i]);
-                commandBuffer.SetComponent(entityInQueryIndex, carriage, carriageRotation[i]);
-                commandBuffer.SetComponent(entityInQueryIndex, carriage, new CarriageVisuals{LogicalEntity = carriages[i] });
-            }
+            var visuals = commandBuffer.Instantiate(entityInQueryIndex, spawnerComponent.Prefab);
+            commandBuffer.SetComponent(entityInQueryIndex, visuals, translation);
+            commandBuffer.SetComponent(entityInQueryIndex, visuals, rotation);
+            commandBuffer.SetComponent(entityInQueryIndex, visuals, new CarriageVisuals{LogicalEntity = entity });
+            commandBuffer.RemoveComponent(entityInQueryIndex, entity, needsVisualsComponentType);
+            commandBuffer.AddComponent(entityInQueryIndex, entity, hasVisualsComponentType);
+            commandBuffer.SetComponent(entityInQueryIndex, entity, new HasVisuals{Visuals = visuals});
             
-            // destroy the spanwer and therefore ensure the system won't run again.
-            commandBuffer.DestroyEntity(entityInQueryIndex, entity);
         }).Schedule(inputDeps);
-        
-        carriages.Dispose(jobHandle);
-        carriagePositions.Dispose(jobHandle);
-        carriageRotation.Dispose(jobHandle);
-        
-        m_CarriageQuery.AddDependency(jobHandle);
-        
+        m_EntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
         return jobHandle;
     }
 }

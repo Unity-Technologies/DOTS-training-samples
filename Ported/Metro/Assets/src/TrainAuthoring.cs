@@ -5,7 +5,7 @@ namespace src
 {
     [DisallowMultipleComponent]
     [RequiresEntityConversion]
-    [ConverterVersion("martinsch", 3)]
+    [ConverterVersion("martinsch", 4)]
     public class TrainAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public LineAuthoring Line;
@@ -24,6 +24,7 @@ namespace src
                 dstManager.AddComponent(carriage, typeof(Unity.Transforms.Translation));
                 dstManager.AddComponent(carriage, typeof(Unity.Transforms.Rotation));
                 dstManager.AddComponent(carriage, typeof(Unity.Transforms.LocalToWorld));
+                dstManager.AddComponent(carriage, typeof(NeedsVisuals));
 
                 var material = new Material(Shader.Find("Standard"));
                 if (i == 0)
