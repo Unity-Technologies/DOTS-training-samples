@@ -9,7 +9,6 @@ using UnityEngine;
 public class UpdateThumbIKChainSystem : JobComponentSystem
 {
     private EntityQuery m_positionBufferQuery;
-    private EntityQuery m_matrixBufferQuery;
     private EntityQuery m_handUpBufferQuery;
 
 
@@ -19,8 +18,6 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
         
         m_positionBufferQuery = 
             GetEntityQuery(ComponentType.ReadWrite<ArmJointPositionBuffer>());
-        m_matrixBufferQuery =
-            GetEntityQuery(ComponentType.ReadWrite<ArmJointMatrixBuffer>());
         m_handUpBufferQuery = GetEntityQuery(ComponentType.ReadWrite<UpVectorBufferForArmsAndFingers>());
 
     }
@@ -36,8 +33,6 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
         
         var thumbJointPositionBuffer =
             EntityManager.GetBuffer<ThumbJointPositionBuffer>(m_positionBufferQuery.GetSingletonEntity());
-        var thumbJointMatriceBuffer =
-            EntityManager.GetBuffer<ThumbJointMatrixBuffer>(m_matrixBufferQuery.GetSingletonEntity());
         var upVectorBufferForThumbs =
             EntityManager.GetBuffer<UpVectorBufferForThumbs>(m_handUpBufferQuery.GetSingletonEntity());
 
@@ -167,18 +162,6 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
         calculateThumbIkWhenNotHoldingOrReachingForRock.Complete();
 
 
-        return
-            new UpdateBoneMatrixJob
-            {
-                BoneTranslations = thumbJointPositionBuffer.AsNativeArray().Reinterpret<float3>(),
-                UpVectorsForMatrixCalculations = upVectorBufferForThumbs.AsNativeArray().Reinterpret<float3>(),
-                NumBoneTranslationsPerArm = ThumbConstants.ChainCount,
-                BoneThickness = ArmConstants.BoneThickness,
-                
-                BoneMatrices = thumbJointMatriceBuffer.AsNativeArray().Reinterpret<Matrix4x4>()
-            }.Schedule(
-                thumbJointPositionBuffer.Length - 1, 
-                innerloopBatchCount: 256,
-                dependsOn: calculateThumbIkWhenNotHoldingOrReachingForRock);
+        return calculateThumbIkWhenNotHoldingOrReachingForRock;
     }
 }

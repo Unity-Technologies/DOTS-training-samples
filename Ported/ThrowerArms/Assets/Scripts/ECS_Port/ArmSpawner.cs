@@ -7,14 +7,21 @@ public class ArmSpawner : MonoBehaviour
 {
     public GameObject ArmPrefab;
     public static int Count = 100;
-    
+    public Mesh ArmMesh;
+    public Material ArmMaterial;
+
     public static float ArmRowWidth{ get; private set;}
     
     public static float Spacing = 1;
-    
+
+    public static Mesh SharedArmMesh;
+    public static Material SharedArmMaterial;
+
     private void Awake()
     {
         ArmRowWidth = (Count - 1) * Spacing;
+        SharedArmMaterial = ArmMaterial;
+        SharedArmMesh = ArmMesh;
     }
 
     private void Start()
@@ -44,5 +51,7 @@ public class ArmSpawner : MonoBehaviour
                 Value = quaternion.identity
             });
         }
+
+
     }
 }
