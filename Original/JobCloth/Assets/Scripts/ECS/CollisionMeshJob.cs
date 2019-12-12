@@ -11,7 +11,7 @@ using UnityEngine;
 [AlwaysUpdateSystem]
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 [UpdateAfter(typeof(AccumulateForces_System))]
-public class CollisionMesh_System : JobComponentSystem
+public unsafe class CollisionMesh_System : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
@@ -20,10 +20,15 @@ public class CollisionMesh_System : JobComponentSystem
             var localToWorld = localToWorldParam.Value;
             var worldToLocal = math.inverse(localToWorldParam.Value);
 
-            for (int i = 0; i < vertices.Length; ++i)
+            var verticesPtr = (float3*)vertices.GetUnsafePtr();
+            var oldVerticesPtr = (float3*)oldVertices.GetUnsafePtr();
+
+            var firstPinnedIndex = cloth.constraints.Value.FirstPinnedIndex;
+
+            for (int i = 0; i < firstPinnedIndex; ++i)
             {
-                float3 oldVert = oldVertices[i];
-                float3 vert = vertices[i];
+                float3 oldVert = oldVerticesPtr[i];
+                float3 vert = verticesPtr[i];
 
                 float3 worldPos = math.mul(localToWorld, new float4(vert, 1)).xyz;
 
@@ -36,8 +41,8 @@ public class CollisionMesh_System : JobComponentSystem
                     oldVert = math.mul(worldToLocal, new float4(oldWorldPos, 1)).xyz;
                 }
 
-                vertices[i] = vert;
-                oldVertices[i] = oldVert;
+                verticesPtr[i] = vert;
+                oldVerticesPtr[i] = oldVert;
             }
         }).Schedule(inputDeps);
     }
