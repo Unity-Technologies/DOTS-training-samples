@@ -8,7 +8,6 @@ public class ReachForTargetSystem : JobComponentSystem
 {   
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        float deltaTime = Time.DeltaTime;
         var endSimulationEcbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = endSimulationEcbSystem.CreateCommandBuffer();
         EntityCommandBuffer.Concurrent concurrentBuffer = ecb.ToConcurrent();
@@ -49,7 +48,8 @@ public class ReachForTargetSystem : JobComponentSystem
 
             concurrentBuffer.AddComponent(entityInQueryIndex, entity, new LookForThrowTargetState
             {
-                GrabbedEntity = reachingState.TargetEntity
+                GrabbedEntity = reachingState.TargetEntity,
+                TargetSize = translationFromEntityAccessor[reachingState.TargetEntity].Value
             });
             concurrentBuffer.AddComponent(entityInQueryIndex, reachingState.TargetEntity, new GrabbedState
             {

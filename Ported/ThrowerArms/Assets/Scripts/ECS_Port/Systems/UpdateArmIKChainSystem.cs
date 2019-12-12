@@ -78,7 +78,7 @@ public class UpdateArmIKChainSystem : JobComponentSystem
                 handMatrix.Value = new float4x4(math.RigidTransform(quaternion.LookRotation(arm.HandForward, arm.HandUp), armChainPosLast));
             }).Schedule(updateIkJob);
         
-        JobHandle calculateArmMatrixJob =
+        return
             new UpdateBoneMatrixJob
             {
                 BoneTranslations = armJointPositionBuffer.AsNativeArray().Reinterpret<float3>(),
@@ -91,7 +91,5 @@ public class UpdateArmIKChainSystem : JobComponentSystem
                 armJointPositionBuffer.Length - 1, 
                 innerloopBatchCount: 256,
                 dependsOn: calculateHandMatrixJob);
-            
-        return calculateArmMatrixJob;
     }
 }

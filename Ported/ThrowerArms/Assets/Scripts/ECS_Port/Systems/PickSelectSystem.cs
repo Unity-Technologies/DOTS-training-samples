@@ -58,8 +58,7 @@ public class PickSelectSystem : JobComponentSystem
                 concurrentBuffer.AddComponent(entityInQueryIndex, entity, new ReachForTargetState
                 {
                     TargetEntity = pickEntity,
-                    TargetSize = accessor[pickEntity].Value,
-                    HandTarget = new float3(float.NaN, float.NaN, float.NaN) 
+                    TargetSize = accessor[pickEntity].Value
                 });
             }
         }).Schedule(assignJobHandle);

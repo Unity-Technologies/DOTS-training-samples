@@ -2,10 +2,13 @@
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public class UpdateFingerIKChainSystem : JobComponentSystem
 {
     private EntityQuery m_positionBufferQuery;
+    private EntityQuery m_matrixBufferQuery;
+    private EntityQuery m_handUpBufferQuery;
 
     protected override void OnCreate()
     {
@@ -13,12 +16,20 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
         
         m_positionBufferQuery = 
             GetEntityQuery(ComponentType.ReadOnly<FingerJointPositionBuffer>());
+        m_matrixBufferQuery =
+            GetEntityQuery(ComponentType.ReadWrite<ArmJointMatrixBuffer>());
+        m_handUpBufferQuery = GetEntityQuery(ComponentType.ReadWrite<UpVectorBufferForArmsAndFingers>());
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        Entity bufferSingleton = m_positionBufferQuery.GetSingletonEntity();
-        var fingerJointPositions = EntityManager.GetBuffer<FingerJointPositionBuffer>(bufferSingleton);
+        var fingerJointPositions = 
+            EntityManager.GetBuffer<FingerJointPositionBuffer>(m_positionBufferQuery.GetSingletonEntity());
+        var armJointMatriceBuffer =
+            EntityManager.GetBuffer<ArmJointMatrixBuffer>(m_matrixBufferQuery.GetSingletonEntity());
+        var upVectorBufferForArmsAndFingers =
+            EntityManager.GetBuffer<UpVectorBufferForArmsAndFingers>(m_handUpBufferQuery.GetSingletonEntity());
+
 
         float time = UnityEngine.Time.time + TimeConstants.Offset;
         var translationFromEntity = GetComponentDataFromEntity<Translation>(true);
@@ -101,8 +112,8 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                     }
                 }).Schedule(grabExtentJob2);
         
-         return
-             Entities.WithName("UpdateFingerIKChainForFingersGrippingRock")
+         var updateFingerIkChainForFingersNOTGrippingRock =
+             Entities.WithName("UpdateFingerIKChainForFingersNOTGrippingRock")
              .WithReadOnly(translationFromEntity)
              .WithNativeDisableParallelForRestriction(fingerJointPositions)
              .WithNone<LookForThrowTargetState>()
@@ -149,5 +160,19 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                  }
              })
              .Schedule(updateFingerIkChainForFingersGrippingRock);
+         
+         return
+             new UpdateBoneMatrixJob
+             {
+                 BoneTranslations = fingerJointPositions.AsNativeArray().Reinterpret<float3>(),
+                 UpVectorsForMatrixCalculations = upVectorBufferForArmsAndFingers.AsNativeArray().Reinterpret<float3>(),
+                 NumBoneTranslationsPerArm = ArmConstants.ChainCount,
+                 BoneThickness = ArmConstants.BoneThickness,
+                
+                 BoneMatrices = armJointMatriceBuffer.AsNativeArray().Reinterpret<Matrix4x4>()
+             }.Schedule(
+                 fingerJointPositions.Length - 1, 
+                 innerloopBatchCount: 256,
+                 dependsOn: updateFingerIkChainForFingersNOTGrippingRock);
     }
 }
