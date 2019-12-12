@@ -60,6 +60,7 @@ public class PickSelectSystem : JobComponentSystem
                     TargetEntity = pickEntity,
                     TargetSize = accessor[pickEntity].Value
                 });
+                concurrentBuffer.RemoveComponent<IdleState>(entityInQueryIndex, entity);
             }
         }).Schedule(assignJobHandle);
         endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(grabJobHandle);

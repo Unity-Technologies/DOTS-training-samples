@@ -66,13 +66,7 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                     in ArmComponent armComponent, 
                     in LookForThrowTargetState lookForThrowTargetState, 
                     in Translation translation) =>
-                {
-                    Debug.Assert(!IsNan(armComponent.HandUp));
-                    Debug.Assert(!IsNan(armComponent.HandForward));
-                    Debug.Assert(!IsNan(armComponent.HandRight));
-                    Debug.Assert(!IsNan(armComponent.HandTarget));
-                    Debug.Assert(!IsNan(translation.Value));
-                    
+                {   
                     Translation rockTargetTranslation = translationFromEntity[lookForThrowTargetState.GrabbedEntity];
             
                     for (int finger = 1; finger <= FingerConstants.CountPerArm; finger++)
@@ -129,13 +123,6 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
              .WithNone<LookForThrowTargetState>()
              .ForEach((ref Finger fingerComponent, in ArmComponent armComponent, in Translation translation) =>
              {
-                 Debug.Assert(!IsNan(armComponent.HandUp));
-                 Debug.Assert(!IsNan(armComponent.HandForward));
-                 Debug.Assert(!IsNan(armComponent.HandRight));
-                 Debug.Assert(!IsNan(armComponent.HandTarget));
-                 Debug.Assert(!IsNan(translation.Value));
-                 Debug.Assert(!IsNan(fingerComponent.Target));
-
                  for (int finger = 1; finger <= FingerConstants.CountPerArm; finger++)
                  {
                      // Find knuckle position for this finger

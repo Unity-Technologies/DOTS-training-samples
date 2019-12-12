@@ -40,6 +40,7 @@ public class ReachForTargetSystem : JobComponentSystem
 
             reachingState.HandTarget =
                 desiredRockTranslation + new float3(0, 1, 0) * reachingState.TargetSize * 0.5f - flatDelta * reachingState.TargetSize * 0.5f;
+            arm.HandTarget = reachingState.HandTarget;
             
             if (arm.ReachTimer < 1f)
             {
