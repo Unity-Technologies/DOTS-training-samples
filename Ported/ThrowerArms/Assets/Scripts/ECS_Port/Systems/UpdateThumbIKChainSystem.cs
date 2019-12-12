@@ -69,7 +69,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                 {
                     thumbJointPositionBuffer[i] += thumbBendHint;
                     float3 delta = thumbJointPositionBuffer[i].Value - thumbJointPositionBuffer[i + 1].Value;
-                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i + 1] + math.normalize(delta) * ThumbConstants.BoneLength;
+                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i + 1] + math.normalizesafe(delta) * ThumbConstants.BoneLength;
                 }
 
                 thumbJointPositionBuffer[firstIndex] = thumbPosition;
@@ -77,7 +77,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                 for (int i = firstIndex + 1; i <= lastIndex; i++)
                 {
                     float3 delta = thumbJointPositionBuffer[i].Value - thumbJointPositionBuffer[i - 1].Value;
-                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i - 1] + math.normalize(delta) * ThumbConstants.BoneLength;
+                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i - 1] + math.normalizesafe(delta) * ThumbConstants.BoneLength;
                 }
             }).Schedule(inputDeps);
         
@@ -115,7 +115,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                 {
                     thumbJointPositionBuffer[i] += thumbBendHint;
                     float3 delta = thumbJointPositionBuffer[i].Value - thumbJointPositionBuffer[i + 1].Value;
-                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i + 1] + math.normalize(delta) * ThumbConstants.BoneLength;
+                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i + 1] + math.normalizesafe(delta) * ThumbConstants.BoneLength;
                 }
 
                 thumbJointPositionBuffer[firstIndex] = thumbPosition;
@@ -123,7 +123,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                 for (int i = firstIndex + 1; i <= lastIndex; i++)
                 {
                     float3 delta = thumbJointPositionBuffer[i].Value - thumbJointPositionBuffer[i - 1].Value;
-                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i - 1] + math.normalize(delta) * ThumbConstants.BoneLength;
+                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i - 1] + math.normalizesafe(delta) * ThumbConstants.BoneLength;
                 }
             }).Schedule(calculateThumbIkWhenReachingJob);
         
@@ -153,7 +153,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                 {
                     thumbJointPositionBuffer[i] += thumbBendHint;
                     float3 delta = thumbJointPositionBuffer[i].Value - thumbJointPositionBuffer[i + 1].Value;
-                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i + 1] + math.normalize(delta) * ThumbConstants.BoneLength;
+                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i + 1] + math.normalizesafe(delta) * ThumbConstants.BoneLength;
                 }
 
                 thumbJointPositionBuffer[firstIndex] = thumbPosition;
@@ -161,7 +161,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                 for (int i = firstIndex + 1; i <= lastIndex; i++)
                 {
                     float3 delta = thumbJointPositionBuffer[i].Value - thumbJointPositionBuffer[i - 1].Value;
-                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i - 1] + math.normalize(delta) * ThumbConstants.BoneLength;
+                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i - 1] + math.normalizesafe(delta) * ThumbConstants.BoneLength;
                 }
             }).Schedule(calculateThumbIkWhenInThrowStateJob);
         calculateThumbIkWhenNotHoldingOrReachingForRock.Complete();

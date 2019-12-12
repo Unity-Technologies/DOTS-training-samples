@@ -104,7 +104,7 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                         {
                             fingerJointPositions[i] += armComponent.HandUp * FingerConstants.BendStrength;
                             float3 delta = fingerJointPositions[i].Value - fingerJointPositions[i + 1].Value;
-                            fingerJointPositions[i] = fingerJointPositions[i + 1] + math.normalize(delta) * FingerConstants.BoneLengths[finger - 1];
+                            fingerJointPositions[i] = fingerJointPositions[i + 1] + math.normalizesafe(delta) * FingerConstants.BoneLengths[finger - 1];
                         }
 
                         fingerJointPositions[firstIndex] = fingerPosition;
@@ -112,7 +112,7 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                         for (int i = firstIndex + 1; i <= lastIndex; i++)
                         {
                             float3 delta = fingerJointPositions[i].Value - fingerJointPositions[i - 1].Value;
-                            fingerJointPositions[i] = fingerJointPositions[i - 1] + math.normalize(delta) * FingerConstants.BoneLengths[finger - 1];
+                            fingerJointPositions[i] = fingerJointPositions[i - 1] + math.normalizesafe(delta) * FingerConstants.BoneLengths[finger - 1];
                         }
                     }
                 }).Schedule(grabExtentJob2);
@@ -150,7 +150,7 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                          fingerJointPositions[i] += armComponent.HandUp * FingerConstants.BendStrength;
                          float3 delta = fingerJointPositions[i].Value - fingerJointPositions[i + 1].Value;
                          fingerJointPositions[i] = fingerJointPositions[i + 1] +
-                                                   math.normalize(delta) * FingerConstants.BoneLengths[finger - 1];
+                                                   math.normalizesafe(delta) * FingerConstants.BoneLengths[finger - 1];
                      }
 
                      fingerJointPositions[firstIndex] = fingerPosition;
@@ -159,7 +159,7 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                      {
                          float3 delta = fingerJointPositions[i].Value - fingerJointPositions[i - 1].Value;
                          fingerJointPositions[i] = fingerJointPositions[i - 1] +
-                                                   math.normalize(delta) * FingerConstants.BoneLengths[finger - 1];
+                                                   math.normalizesafe(delta) * FingerConstants.BoneLengths[finger - 1];
                      }
                  }
              })

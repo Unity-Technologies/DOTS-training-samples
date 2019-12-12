@@ -40,7 +40,7 @@ public class UpdateArmIKChainSystem : JobComponentSystem
             {
                 armJointPositionBuffer[i] += arm.HandUp * ArmConstants.BendStrength;
                 float3 delta = armJointPositionBuffer[i].Value - armJointPositionBuffer[i + 1].Value;
-                armJointPositionBuffer[i] = armJointPositionBuffer[i + 1] + math.normalize(delta) * ArmConstants.BoneLength;
+                armJointPositionBuffer[i] = armJointPositionBuffer[i + 1] + math.normalizesafe(delta) * ArmConstants.BoneLength;
             }
 
             armJointPositionBuffer[firstIndex] = translation.Value;
@@ -48,7 +48,7 @@ public class UpdateArmIKChainSystem : JobComponentSystem
             for (int i = firstIndex + 1; i <= lastIndex; i++)
             {
                 float3 delta = armJointPositionBuffer[i].Value - armJointPositionBuffer[i - 1].Value;
-                armJointPositionBuffer[i] = armJointPositionBuffer[i - 1] + math.normalize(delta) * ArmConstants.BoneLength;
+                armJointPositionBuffer[i] = armJointPositionBuffer[i - 1] + math.normalizesafe(delta) * ArmConstants.BoneLength;
             }
         }).Schedule(inputDeps);
 
@@ -64,11 +64,11 @@ public class UpdateArmIKChainSystem : JobComponentSystem
                 float3 armChainPosBeforeLast = armJointPositionBuffer[lastIndex - 1].Value;
 
                 arm.HandPosition = armChainPosLast;
-                arm.HandForward = math.normalize(armChainPosLast - armChainPosBeforeLast);
-                arm.HandUp = math.normalize(math.cross(arm.HandForward, vRight));
+                arm.HandForward = math.normalizesafe(armChainPosLast - armChainPosBeforeLast);
+                arm.HandUp = math.normalizesafe(math.cross(arm.HandForward, vRight));
                 upVectorBufferForArmsAndFingers[(int)translation.Value.x] = arm.HandUp;
                 
-                arm.HandRight = math.normalize(math.cross(arm.HandForward, arm.HandUp));
+                arm.HandRight = math.normalizesafe(math.cross(arm.HandForward, arm.HandUp));
 
                 handMatrix.Value = new float4x4(math.RigidTransform(quaternion.LookRotationSafe(arm.HandForward, arm.HandUp), armChainPosLast));
             }).Schedule(updateIkJob);
