@@ -9,7 +9,7 @@ public class MoveSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var jobHandle = Entities
-            .WithName("SpawnerSystem")
+            .WithName("MoveSystem")
             .WithAll<AntTag>()
             .ForEach((Entity entity, ref Translation translation, ref Rotation rotation, in Velocity velocity) =>
             {

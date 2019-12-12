@@ -4,7 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-public class FoodSystem : JobComponentSystem
+public class FoodSpawnerSystem : JobComponentSystem
 {
     BeginInitializationEntityCommandBufferSystem EntityCommandBufferSystem;
     
@@ -12,7 +12,7 @@ public class FoodSystem : JobComponentSystem
     {
         EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
         RequireSingletonForUpdate<Map>();
-        RequireSingletonForUpdate<Food>();
+        RequireSingletonForUpdate<FoodSpawner>();
     }
     
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -22,13 +22,14 @@ public class FoodSystem : JobComponentSystem
         var RNG = new Random(3);
         var commandBuffer = EntityCommandBufferSystem.CreateCommandBuffer();
         Map map = GetSingleton<Map>();
-        Entity entity = GetSingletonEntity<Food>();
-        Food food = GetSingleton<Food>();
+        Entity entity = GetSingletonEntity<FoodSpawner>();
+        FoodSpawner foodSpawner = GetSingleton<FoodSpawner>();
         int2 offset = RNG.NextInt2(0,map.Size);
         
         // Place the food prefab at random location.
-        var instance = commandBuffer.Instantiate(food.Prefab);
+        var instance = commandBuffer.Instantiate(foodSpawner.Prefab);
         commandBuffer.SetComponent(instance, new Translation {Value = new float3(offset.x, offset.y, 0.0f)});
+        commandBuffer.AddComponent(instance, new Food());
         commandBuffer.DestroyEntity(entity);
 
         return default;
