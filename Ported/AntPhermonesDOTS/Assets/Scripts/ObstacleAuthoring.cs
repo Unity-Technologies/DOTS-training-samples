@@ -23,13 +23,13 @@ public class ObstacleAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDec
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         var mapSize = 128; // TODO: Fetch proper value.
+        var tileCount = 8;
+        var tileSize = mapSize / tileCount; // TODO: Fetch proper value.
         
         var builder = new BlobBuilder(Allocator.Temp);
         ref var root = ref builder.ConstructRoot<ObstacleBlobAsset>();
 
         root.Radius = obstacleRadius;
-        root.RingCount = obstacleRingCount;
-        root.ObstaclesPerRing = obstaclesPerRing;
         
         var RNG = new Random(1);
         
@@ -53,12 +53,33 @@ public class ObstacleAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDec
                 }
             }
         }
-        
+
         var blobPosArray = builder.Allocate(ref root.Positions, positionList.Count);
         for (var i = 0; i < positionList.Count; ++i)
         {
             blobPosArray[i] = positionList[i];
         }
+
+        var tileCountSquared = tileCount * tileCount;
+        var bitFieldCount = (tileCountSquared - 1) / 64 + 1;
+        var tileOccupancy = builder.Allocate(ref root.TileOccupancy, bitFieldCount);
+        foreach (var position in positionList)
+        {
+            var discretePosition = new int2((position.xy + mapSize * 0.5f) / new float2(tileSize, tileSize));
+            var globalIndex = discretePosition.x * tileCount + discretePosition.y;
+
+            var bitFieldIndex = globalIndex / 64;
+            var bitIndex = globalIndex % 64;
+            
+            tileOccupancy[bitFieldIndex].SetBits(bitIndex, true);
+        }
+
+        for (var i = 0; i < positionList.Count; ++i)
+        {
+            blobPosArray[i] = positionList[i];
+        }
+        
+        
         var blobReference = builder.CreateBlobAssetReference<ObstacleBlobAsset>(Allocator.Persistent);
         builder.Dispose();
 

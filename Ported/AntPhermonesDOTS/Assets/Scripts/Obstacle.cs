@@ -1,12 +1,12 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 
 struct ObstacleBlobAsset
 {
     public float Radius;
-    public int RingCount;
-    public float ObstaclesPerRing;
     public BlobArray<float3> Positions;
+    public BlobArray<BitField64> TileOccupancy;
 }
 struct Obstacle : IComponentData
 {
