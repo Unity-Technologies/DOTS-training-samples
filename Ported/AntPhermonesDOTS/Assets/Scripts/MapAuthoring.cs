@@ -9,13 +9,17 @@ public class MapAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     
     [Range(0f,1f)]
     public float trailDecay = 0.1f;
+    
+    [Range(0f,10f)]
+    public float trailAddSpeed = 2.0f;
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity, new Map
         {
             Size = mapSize,
             TileSize = mapSize / tileCount,
-            TrailDecay = trailDecay
+            TrailDecay = trailDecay,
+            TrailAdd = trailAddSpeed
         });
     }
 }

@@ -58,7 +58,7 @@ public class PheromoneDropSystem : JobComponentSystem
                 //System.Threading.Interlocked.Increment(v.Value);
                 // but once each texel in the pheromone map gets a
                 // list of ants there will not be any threading issues.
-                v.Value++; // leave some pheromones.
+                v.Value += map.TrailAdd; // leave some pheromones.
                 parallel[bufferIndex] = v;
             }).Schedule(inputDeps);
         
