@@ -92,6 +92,8 @@ public class UpdateSystem : JobComponentSystem
         var antComponents = new NativeArray<AntComponent>(settings.antCount, Allocator.TempJob);
         var antPositions = new NativeArray<Translation>(settings.antCount, Allocator.TempJob);
 
+        var antRandomDirections = new NativeArray<float>(settings.antCount, Allocator.TempJob);
+
         for (int i = 0; i < settings.antCount; i++)
         {
             antComponents[i] = EntityManager.GetComponentData<AntComponent>(antEntities[i]);
@@ -102,6 +104,8 @@ public class UpdateSystem : JobComponentSystem
             EntityManager.SetComponentData(antEntities[i], antComponents[i]);
 
             antPositions[i] = EntityManager.GetComponentData<Translation>(antEntities[i]);
+
+            antRandomDirections[i] = UnityEngine.Random.Range(-settings.randomSteering, settings.randomSteering);
         }
 
         var pheromoneBucketsJob = new UpdatePheromoneBuckets()
@@ -116,14 +120,25 @@ public class UpdateSystem : JobComponentSystem
         };
         var pheromoneBucketsJobHandle = pheromoneBucketsJob.Schedule(inputDeps);
 
+        var steeringJob = new AntSteeringJob()
+        {
+            MapSize = settings.mapSize,
+            TimeDelta = Time.DeltaTime,
+            RandomDirections = antRandomDirections,
+            AntSpeed = settings.antSpeed,
+            PheromoneSteeringStrength = settings.pheromoneSteerStrength,
+            PheromoneMap = PheromoneMap,
+        };
+        var steeringJobHandle = steeringJob.Schedule(this, pheromoneBucketsJobHandle);
+
+        var obstacleJob = new AntObstacleAvoidanceJob(RuntimeManager.instance.obstacleBucketDimensions, RuntimeManager.instance.obstacleBuckets, RuntimeManager.instance.cachedObstacles);
+        var obstacleJobHandle = obstacleJob.Schedule(this, steeringJobHandle);
+
         var movementJob = new AntMovementJob()
         {
             TimeDelta = Time.DeltaTime
         };
-        var movementSystemJobHandle = movementJob.Schedule(this, pheromoneBucketsJobHandle);
-        
-        var obstacleJob = new AntObstacleAvoidanceJob(RuntimeManager.instance.obstacleBucketDimensions, RuntimeManager.instance.obstacleBuckets, RuntimeManager.instance.cachedObstacles);
-        var obstacleJobHandle = obstacleJob.Schedule(this, movementSystemJobHandle);
+        var movementSystemJobHandle = movementJob.Schedule(this, obstacleJobHandle);
 
         var antOutputJob = new AntOutputJob()
         {
@@ -133,7 +148,7 @@ public class UpdateSystem : JobComponentSystem
             Ants = antComponents,
             Output = AntOutput
         };
-        var antOutputJobHandle = antOutputJob.Schedule(antComponents.Length, 64, obstacleJobHandle);
+        var antOutputJobHandle = antOutputJob.Schedule(antComponents.Length, 64, movementSystemJobHandle);
 
         var dropPheromonesJob = new DropPheromonesJob()
         {
