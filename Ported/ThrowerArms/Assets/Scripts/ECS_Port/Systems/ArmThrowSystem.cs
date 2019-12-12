@@ -83,7 +83,7 @@ public class ArmThrowSystem : JobComponentSystem
         var deps = Entities
             .WithReadOnly(accessor)
             .WithReadOnly(velocityAccessor)
-            .ForEach((Entity entity, ref ArmComponent arm, ref ThrowAtState throwAt, in Translation pos) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref ArmComponent arm, ref ThrowAtState throwAt, in Translation pos) =>
             {
                 throwAt.ThrowTimer += dt / ArmConstants.ThrowDuration;
                 
@@ -105,20 +105,21 @@ public class ArmThrowSystem : JobComponentSystem
 
                 if (throwAt.ThrowTimer > .15f && throwAt.HeldEntity != Entity.Null)
                 {
-                    concurrentBuffer.RemoveComponent<GrabbedState>(0, throwAt.HeldEntity);
+                    concurrentBuffer.RemoveComponent<GrabbedState>(entityInQueryIndex, throwAt.HeldEntity);
                     // release the rock
-                    concurrentBuffer.AddComponent<Velocity>(0, throwAt.HeldEntity, new Velocity() { Value = throwAt.AimVector });
-                    concurrentBuffer.AddComponent<FlyingState>(0, throwAt.HeldEntity);
-                    concurrentBuffer.AddComponent<Gravity>(0, throwAt.HeldEntity);
+                    concurrentBuffer.AddComponent<Velocity>(entityInQueryIndex, throwAt.HeldEntity, new Velocity() { Value = throwAt.AimVector });
+                    concurrentBuffer.AddComponent<FlyingState>(entityInQueryIndex, throwAt.HeldEntity);
+                    concurrentBuffer.AddComponent<MarkedForDeath>(entityInQueryIndex, throwAt.HeldEntity, new MarkedForDeath { Timer = 10.0f }) ;
+                    concurrentBuffer.AddComponent<Gravity>(entityInQueryIndex, throwAt.HeldEntity);
 
                     throwAt.HeldEntity = Entity.Null;
                 }
 
                 if (throwAt.ThrowTimer > 1f)
                 {
-                    concurrentBuffer.RemoveComponent<ThrowAtState>(0, entity);
-                    concurrentBuffer.AddComponent<IdleState>(0, entity);
-                    concurrentBuffer.AddComponent<FindGrabbableTargetState>(0, entity);
+                    concurrentBuffer.RemoveComponent<ThrowAtState>(entityInQueryIndex, entity);
+                    concurrentBuffer.AddComponent<IdleState>(entityInQueryIndex, entity);
+                    concurrentBuffer.AddComponent<FindGrabbableTargetState>(entityInQueryIndex, entity);
                 }
             })
             .Schedule(inputDeps);
