@@ -27,7 +27,7 @@ public class UpdateSystem : JobComponentSystem
 
     protected override void OnCreate()
     {
-        m_Group = GetEntityQuery(typeof(AntComponent), typeof(Translation));
+        m_Group = GetEntityQuery(typeof(AntComponent));
     }
 
     protected override void OnDestroy()
@@ -83,8 +83,9 @@ public class UpdateSystem : JobComponentSystem
     unsafe protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         AntSettings settings = GetSingleton<AntSettings>();
-        Init(settings); 
+        Init(settings);
 
+        //for (int i = 0; i < PheromoneMap.Length; i++) PheromoneMap[i] = 0;
         var antEntities = m_Group.ToEntityArray(Allocator.TempJob);
         
         // sort ants into buckets for pheromone processing
@@ -94,6 +95,12 @@ public class UpdateSystem : JobComponentSystem
         for (int i = 0; i < settings.antCount; i++)
         {
             antComponents[i] = EntityManager.GetComponentData<AntComponent>(antEntities[i]);
+
+            var ant = antComponents[i];
+            ant.index = i;
+            antComponents[i] = ant;
+            EntityManager.SetComponentData(antEntities[i], antComponents[i]);
+
             antPositions[i] = EntityManager.GetComponentData<Translation>(antEntities[i]);
         }
 
@@ -139,7 +146,7 @@ public class UpdateSystem : JobComponentSystem
         var dropPheromonesJobHandle = dropPheromonesJob.Schedule(Buckets.Length, 1, antOutputJobHandle);
 
         dropPheromonesJobHandle.Complete();
-        
+
         UpdateTexture();
         return new JobHandle();
     }
