@@ -30,9 +30,9 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
         float time = UnityEngine.Time.time;
         
         var thumbJointPositionBuffer =
-            EntityManager.GetBuffer<ArmJointPositionBuffer>(m_positionBufferQuery.GetSingletonEntity());
+            EntityManager.GetBuffer<ThumbJointPositionBuffer>(m_positionBufferQuery.GetSingletonEntity());
         var thumbJointMatriceBuffer =
-            EntityManager.GetBuffer<ArmJointMatrixBuffer>(m_matrixBufferQuery.GetSingletonEntity());
+            EntityManager.GetBuffer<ThumbJointMatrixBuffer>(m_matrixBufferQuery.GetSingletonEntity());
         var upVectorBufferForThumbs =
             EntityManager.GetBuffer<UpVectorBufferForThumbs>(m_handUpBufferQuery.GetSingletonEntity());
 
