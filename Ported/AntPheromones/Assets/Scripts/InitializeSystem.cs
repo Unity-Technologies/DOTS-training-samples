@@ -62,14 +62,17 @@ public class InitializeSystem : JobComponentSystem
 				facingAngle = math.radians(angleInDegrees),
 				index = i
 			};
+			AntSteeringComponent antSteering = new AntSteeringComponent();
 
 			Entity newEntity = EntityManager.Instantiate(settings.antPrefab);
 			EntityManager.SetComponentData(newEntity, antPosition);
 			EntityManager.AddComponentData(newEntity, antSize);
 			EntityManager.SetComponentData(newEntity, antRotation);
 			EntityManager.SetComponentData(newEntity, ant);
+			EntityManager.AddComponentData(newEntity, antSteering);
 		}	
 	}
+	
 	protected void SpawnObstacles(ref AntSettings settings)
 	{
 		float radius = settings.obstacleRadius / settings.mapSize;
@@ -81,7 +84,7 @@ public class InitializeSystem : JobComponentSystem
 		{
 			float ringRadius = (i / (settings.obstacleRingCount + 1f)) * (settings.mapSize * 0.5f);
 			float circumference = ringRadius * 2f * Mathf.PI;
-			int maxCount = Mathf.CeilToInt(circumference / (2f * settings.obstacleRadius) * 2f);
+			int maxCount = Mathf.CeilToInt(circumference / (2f * settings.obstacleRadius) * 4f);
 			int offset = Random.Range(0, maxCount);
 			int holeCount = Random.Range(1, 3);
 			for (int j = 0; j < maxCount; j++)

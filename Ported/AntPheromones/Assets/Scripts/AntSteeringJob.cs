@@ -1,21 +1,16 @@
 
 using Unity.Burst;
 using Unity.Entities;
-using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
 using UnityEngine;
 
 [BurstCompile]
-public struct AntSteeringJob : IJobForEach<Translation, AntComponent>
+public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteeringComponent>
 {
-    public int MapSize;
-	public float TimeDelta;
-    [NativeDisableParallelForRestriction][DeallocateOnJobCompletion] public NativeArray<float> RandomDirections;
-    public float AntSpeed;
-    public float PheromoneSteeringStrength;
-    [NativeDisableParallelForRestriction] public NativeArray<float> PheromoneMap;
+    [ReadOnly] public int MapSize;
+    [ReadOnly] [NativeDisableParallelForRestriction] [DeallocateOnJobCompletion] public NativeArray<float> RandomDirections;
+    [ReadOnly] [NativeDisableParallelForRestriction] public NativeArray<float> PheromoneMap;
 
     private readonly static float lookAheadDistance = 3.0f;
 
@@ -45,12 +40,9 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent>
 		return Mathf.Sign(output);
 	}
 
-	public void Execute([ReadOnly] ref Translation translation, ref AntComponent ant)
+	public void Execute([ReadOnly] ref Translation translation, [ReadOnly] ref AntComponent ant, ref AntSteeringComponent antSteering)
 	{
-        float targetSpeed = AntSpeed;
-        ant.facingAngle += RandomDirections[ant.index];
-
-        float pheroSteering = PheromoneSteering(ant, translation);
-        ant.facingAngle += pheroSteering * PheromoneSteeringStrength;
+		antSteering.RandomDirection = RandomDirections[ant.index];
+		antSteering.PheromoneSteering = PheromoneSteering(ant, translation);
 	}
 }

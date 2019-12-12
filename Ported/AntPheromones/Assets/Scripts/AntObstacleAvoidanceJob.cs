@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [BurstCompile]
-public struct AntObstacleAvoidanceJob : IJobForEach<AntComponent, Translation>
+public struct AntObstacleAvoidanceJob : IJobForEach<AntComponent, Translation, AntSteeringComponent>
 {
 	[ReadOnly] private int2 m_Dimensions;
 	[ReadOnly] private NativeArray<int2> m_ObstacleBuckets;
@@ -29,7 +29,7 @@ public struct AntObstacleAvoidanceJob : IJobForEach<AntComponent, Translation>
 		m_CachedObstacles = cachedObstacles;
 	}
 	
-	public void Execute(ref AntComponent ant, ref Translation antTranslation)
+	public void Execute([ReadOnly] ref AntComponent ant, [ReadOnly] ref Translation antTranslation, ref AntSteeringComponent antSteering)
 	{
 		math.sincos(ant.facingAngle, out float sin, out float cos);
 
@@ -39,22 +39,25 @@ public struct AntObstacleAvoidanceJob : IJobForEach<AntComponent, Translation>
 		float3 perpendicularDirection = new float3(sin, -cos, 0.0f);
 		float3 lookAheadPosition = antPosition + (lookAheadDirection * lookAheadDistance);
 		int2 range = GetObstacleBucket(lookAheadPosition);
+		float steeringValue = 0.0f;
 
+		// Loop through all obstacles in our bucket...
 		for(int i = 0; i < range.y; i++)
 		{
 			RuntimeManager.CachedObstacle cachedObstacle = m_CachedObstacles[range.x + i];
-			float distance = math.distance(cachedObstacle.position, lookAheadPosition);
+			float distance2 = math.distancesq(cachedObstacle.position, lookAheadPosition);
 
-			if(distance < cachedObstacle.radius)
+			if(distance2 < (cachedObstacle.radius * cachedObstacle.radius * 2.25f))
 			{
 				float3 directionToObstacle = math.normalize(cachedObstacle.position - lookAheadPosition);
 				float dotProduct = math.dot(perpendicularDirection, directionToObstacle);
 				float angleDelta = dotProduct;
 			
 				// We've found an obstacle - steer away from it...
-				ant.facingAngle += angleDelta;
-				ant.speed = 0.0f;
+				steeringValue += math.sign(angleDelta);
 			}
 		}
+
+		antSteering.WallSteering = steeringValue;
 	}
 }

@@ -123,10 +123,7 @@ public class UpdateSystem : JobComponentSystem
         var steeringJob = new AntSteeringJob()
         {
             MapSize = settings.mapSize,
-            TimeDelta = Time.DeltaTime,
             RandomDirections = antRandomDirections,
-            AntSpeed = settings.antSpeed,
-            PheromoneSteeringStrength = settings.pheromoneSteerStrength,
             PheromoneMap = PheromoneMap,
         };
         var steeringJobHandle = steeringJob.Schedule(this, pheromoneBucketsJobHandle);
@@ -136,7 +133,10 @@ public class UpdateSystem : JobComponentSystem
 
         var movementJob = new AntMovementJob()
         {
-            TimeDelta = Time.DeltaTime
+            TimeDelta = Time.DeltaTime,
+            AntMaxSpeed =  settings.antSpeed,
+            PheromoneSteeringStrength = settings.pheromoneSteerStrength,
+            WallSteeringStrength = settings.wallSteerStrength,
         };
         var movementSystemJobHandle = movementJob.Schedule(this, obstacleJobHandle);
 
