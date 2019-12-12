@@ -59,6 +59,7 @@ public class CollisionSystem : JobComponentSystem
                     {
                         concurrentBuffer.AddComponent(0, tincan.t1, new FlyingState());
                         concurrentBuffer.AddComponent(0, tincan.t1, new Gravity());
+                        concurrentBuffer.AddComponent(0, tincan.t1, new MarkedForDeath());
                         concurrentBuffer.SetComponent(0, tincan.t1, velocity);
                         concurrentBuffer.AddComponent(0, tincan.t1, new AngularVelocity() { Value = random.NextFloat3Direction() * length(velocity.Value) * 40f });
                         velocity.Value = random.NextFloat3Direction() * 3f;
