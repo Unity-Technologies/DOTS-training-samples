@@ -25,6 +25,11 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
 
     }
 
+    static bool IsNan(float3 f)
+    {
+        return float.IsNaN(f.x) || float.IsNaN(f.y) || float.IsNaN(f.z);
+    }
+
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         float time = UnityEngine.Time.time;
@@ -42,8 +47,16 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
             .WithReadOnly(translationFromEntityAccessor)
             .WithNativeDisableParallelForRestriction(thumbJointPositionBuffer)
             .WithNativeDisableParallelForRestriction(upVectorBufferForThumbs)
+            .WithoutBurst()
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent, in ReachForTargetState reachTarget) =>
             {
+                Debug.Assert(!IsNan(arm.HandUp));
+                Debug.Assert(!IsNan(arm.HandForward));
+                Debug.Assert(!IsNan(arm.HandRight));
+                Debug.Assert(!IsNan(arm.HandTarget));
+                Debug.Assert(!IsNan(fingerComponent.Target));
+                Debug.Assert(!IsNan(translation.Value));
+                Debug.Assert(!IsNan(reachTarget.HandTarget));
                 float3 thumbPosition = translation.Value + arm.HandRight * ThumbConstants.XOffset;
                 float3 thumbTarget = thumbPosition - arm.HandRight * 0.15f +
                                      arm.HandForward * (0.2f - 0.1f * fingerComponent.GrabExtent) - arm.HandUp * 0.1f;
@@ -81,10 +94,18 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
         
          var calculateThumbIkWhenInThrowStateJob = Entities.WithName("UpdateThumbIKWhenInThrowState")
             .WithReadOnly(translationFromEntityAccessor)
+            .WithoutBurst()
             .WithNativeDisableParallelForRestriction(thumbJointPositionBuffer)
             .WithNativeDisableParallelForRestriction(upVectorBufferForThumbs)
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent, in LookForThrowTargetState throwState) =>
             {
+                Debug.Assert(!IsNan(arm.HandUp));
+                Debug.Assert(!IsNan(arm.HandForward));
+                Debug.Assert(!IsNan(arm.HandRight));
+                Debug.Assert(!IsNan(arm.HandTarget));
+                Debug.Assert(!IsNan(fingerComponent.Target));
+                Debug.Assert(!IsNan(translation.Value));
+                Debug.Assert(!IsNan(throwState.TargetSize));
                 float3 thumbPosition = translation.Value + arm.HandRight * ThumbConstants.XOffset;
                 float3 thumbTarget = thumbPosition - arm.HandRight * 0.15f +
                                      arm.HandForward * (0.2f - 0.1f * fingerComponent.GrabExtent) - arm.HandUp * 0.1f;
@@ -125,8 +146,15 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
             .WithNativeDisableParallelForRestriction(thumbJointPositionBuffer)
             .WithNativeDisableParallelForRestriction(upVectorBufferForThumbs)
             .WithNone<HoldingRockState>()
+            .WithoutBurst()
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent) =>
             {
+                Debug.Assert(!IsNan(arm.HandUp));
+                Debug.Assert(!IsNan(arm.HandForward));
+                Debug.Assert(!IsNan(arm.HandRight));
+                Debug.Assert(!IsNan(arm.HandTarget));
+                Debug.Assert(!IsNan(fingerComponent.Target));
+                Debug.Assert(!IsNan(translation.Value));
                 float3 thumbPosition = translation.Value + arm.HandRight * ThumbConstants.XOffset;
                 float3 thumbTarget = thumbPosition - arm.HandRight * 0.15f +
                                      arm.HandForward * (0.2f - 0.1f * fingerComponent.GrabExtent) - arm.HandUp * 0.1f;

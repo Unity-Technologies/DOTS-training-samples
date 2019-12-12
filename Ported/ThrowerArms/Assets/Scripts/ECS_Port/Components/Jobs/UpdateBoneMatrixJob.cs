@@ -18,7 +18,7 @@ public struct UpdateBoneMatrixJob : IJobParallelFor
         BoneMatrices[index] = 
             Matrix4x4.TRS(
                 BoneTranslations[index] + delta * 0.5f, 
-                quaternion.LookRotation(
+                quaternion.LookRotationSafe(
                     delta, UpVectorsForMatrixCalculations[index / NumBoneTranslationsPerArm]),
                 new float3(BoneThickness, BoneThickness, math.length(delta)));
     }

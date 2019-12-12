@@ -22,7 +22,7 @@ public class UpdateArmIKChainSystem : JobComponentSystem
             GetEntityQuery(ComponentType.ReadWrite<ArmJointMatrixBuffer>());
         m_handUpBufferQuery = GetEntityQuery(ComponentType.ReadWrite<UpVectorBufferForArmsAndFingers>());
     }
-
+    
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var armJointPositionBuffer =
