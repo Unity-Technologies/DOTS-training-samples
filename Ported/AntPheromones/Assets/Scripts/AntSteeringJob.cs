@@ -16,7 +16,7 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
     [ReadOnly] [NativeDisableParallelForRestriction] public NativeArray<float> PheromoneMap;
     [ReadOnly] public int2 ObstacleBucketDimensions;
     [ReadOnly] public NativeArray<int2> ObstacleBuckets;
-    [ReadOnly] public NativeArray<RuntimeManager.CachedObstacle> CachedObstacles;
+    [ReadOnly] public NativeArray<MapObstacle> CachedObstacles;
 
     private readonly static float lookAheadDistance = 3.0f;
 
