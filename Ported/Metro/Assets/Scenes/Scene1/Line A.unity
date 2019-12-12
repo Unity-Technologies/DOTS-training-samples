@@ -586,6 +586,8 @@ MonoBehaviour:
   Line: {fileID: 276022305}
   Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   TargetSpeed: 5
+  NumberOfCarriages: 3
+  CarriageDistance: 5.2
 --- !u!4 &436305018
 Transform:
   m_ObjectHideFlags: 0
