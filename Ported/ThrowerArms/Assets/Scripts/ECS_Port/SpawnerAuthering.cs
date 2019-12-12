@@ -23,6 +23,7 @@ public class SpawnerAuthering : MonoBehaviour, IConvertGameObjectToEntity, IDecl
     public GameObject spawnPrefab;
     public Vector2 scaleRange;
     public Vector3 velocity;
+    public float frequency;
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -30,7 +31,7 @@ public class SpawnerAuthering : MonoBehaviour, IConvertGameObjectToEntity, IDecl
         dstManager.AddComponentData(entity, new SpawnerComponent() {
             center = transform.position,
             extend = transform.localScale,
-            frequency = 50f,
+            frequency = frequency,
             spawnEntity = spawnEntity,
             timeToNextSpawn = 0,
             random = new Random(783465),

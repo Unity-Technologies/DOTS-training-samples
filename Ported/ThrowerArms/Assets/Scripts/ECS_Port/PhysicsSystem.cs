@@ -4,7 +4,6 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using static Unity.Mathematics.math;
 
 public class PhysicsSystem : JobComponentSystem
 {
@@ -38,8 +37,9 @@ public class PhysicsSystem : JobComponentSystem
 
         public void Execute(ref Rotation rotation, [ReadOnly] ref AngularVelocity angularVelocity)
         {
-            quaternion combinedRotation = mul(rotation.Value, angularVelocity.rotation.Value);
-            rotation.Value = slerp(rotation.Value, combinedRotation, deltaTime);
+            //quaternion combinedRotation = mul(rotation.Value, angularVelocity.rotation);
+            //rotation.Value = math.slerp(rotation.Value, combinedRotation, deltaTime);
+         //   rotation.Value = math.mul(quaternion.AxisAngle(angularVelocity.Value, math.length(angularVelocity.Value) * deltaTime), rotation.Value);
         }
     }
 

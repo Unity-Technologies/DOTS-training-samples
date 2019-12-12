@@ -26,6 +26,6 @@ public class ArmRenderingSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        throw new NotImplementedException();
+        return inputDeps;
     }
 }
