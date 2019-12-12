@@ -69,9 +69,7 @@ public class UpdateArmIKChainSystem : JobComponentSystem
                 float3 armChainPosLast = armJointPositionBuffer[lastIndex].Value;
                 float3 armChainPosBeforeLast = armJointPositionBuffer[lastIndex - 1].Value;
 
-                //Debug.Log("Result: " + (math.normalize(armChainPosLast - armChainPosBeforeLast)) + ", armChainPosLast: " + armChainPosLast + ", armChainPosBeforeLast: " + armChainPosBeforeLast);
                 arm.HandForward = math.normalize(armChainPosLast - armChainPosBeforeLast);
-
                 arm.HandUp = math.normalize(math.cross(arm.HandForward, vRight));
                 upVectorBufferForArmsAndFingers[(int)translation.Value.x] = arm.HandUp;
                 

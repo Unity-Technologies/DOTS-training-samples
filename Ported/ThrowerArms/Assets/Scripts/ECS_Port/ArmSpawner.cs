@@ -28,8 +28,8 @@ public class ArmSpawner : MonoBehaviour
         for (var i = 0; i < Count; i++)
         {
             Entity instance = entityManager.Instantiate(prefab);
-            
-            entityManager.AddComponentData(instance, new ArmComponent());
+
+            entityManager.AddComponentData(instance, new ArmComponent { HandUp = new float3(0.0f, 1.0f, 0.0f) });
             entityManager.AddComponentData(instance, new Finger());
             
             entityManager.AddComponentData(instance, new IdleState());
