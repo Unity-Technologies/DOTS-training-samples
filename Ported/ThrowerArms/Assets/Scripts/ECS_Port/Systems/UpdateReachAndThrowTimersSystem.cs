@@ -31,11 +31,7 @@ public class UpdateReachAndThrowTimersSystem : JobComponentSystem
                     arm.ThrowTimer += deltaTime / ArmConstants.ThrowDuration;
                     arm.ThrowTimer = math.clamp(arm.ThrowTimer, 0f, 1f);
                 }).Schedule(decrementReachTimerJob);
-        
-        return
-            Entities.WithAny<HoldingRockState, IdleState>()
-            .WithNone<ThrowAtState>()
-                .ForEach((ref ArmComponent arm) => { arm.ThrowTimer = 0; })
-                .Schedule(incrementThrowTimerJob);
+
+        return incrementThrowTimerJob;
     }
 }

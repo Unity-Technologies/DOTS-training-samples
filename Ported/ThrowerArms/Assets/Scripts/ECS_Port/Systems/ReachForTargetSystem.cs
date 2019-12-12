@@ -47,6 +47,7 @@ public class ReachForTargetSystem : JobComponentSystem
                 return;
             }
 
+            arm.ThrowTimer = 0.0f;
             concurrentBuffer.RemoveComponent<ReachForTargetState>(entityInQueryIndex, entity);
 
             concurrentBuffer.AddComponent(entityInQueryIndex, entity, new LookForThrowTargetState

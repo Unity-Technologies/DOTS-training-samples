@@ -116,6 +116,7 @@ public class ArmThrowSystem : JobComponentSystem
                     concurrentBuffer.RemoveComponent<ThrowAtState>(entityInQueryIndex, entity);
                     concurrentBuffer.AddComponent<IdleState>(entityInQueryIndex, entity);
                     concurrentBuffer.AddComponent<FindGrabbableTargetState>(entityInQueryIndex, entity);
+                    arm.ThrowTimer = 0.0f;
                 }
             })
             .Schedule(inputDeps);
