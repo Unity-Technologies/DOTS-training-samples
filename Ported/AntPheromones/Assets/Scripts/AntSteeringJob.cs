@@ -17,6 +17,7 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
     [ReadOnly] public int2 ObstacleBucketDimensions;
     [ReadOnly] public NativeArray<int2> ObstacleBuckets;
     [ReadOnly] public NativeArray<MapObstacle> CachedObstacles;
+    [ReadOnly] public float TargetSteeringStrength;
 
     private readonly static float lookAheadDistance = 3.0f;
 
@@ -93,20 +94,21 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
         if (Linecast(translation.Value, targetPos))
             return 0.0f;
 
-        float targetAngle = math.atan2(targetPos.y - translation.Value.y,targetPos.x - translation.Value.x);
-        
-        if (targetAngle - ant.facingAngle > math.PI) 
+        float targetAngle = math.atan2(targetPos.y - translation.Value.y, targetPos.x - translation.Value.x);
+        float angleDelta = targetAngle - ant.facingAngle;
+
+        if (angleDelta > math.PI) 
         {
             return math.PI * 2f;
         } 
-        else if (targetAngle - ant.facingAngle < -math.PI) 
+        else if (angleDelta < -math.PI) 
         {
             return -math.PI * 2f;
         } 
         else 
         {
-            if (math.abs(targetAngle - ant.facingAngle) < math.PI * 0.5f)
-                return (targetAngle - ant.facingAngle);
+            if (math.abs(angleDelta) < math.PI * 0.5f)
+                return (angleDelta) * TargetSteeringStrength;
         }
 
         return 0.0f;
