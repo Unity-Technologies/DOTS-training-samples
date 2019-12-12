@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace src
 {
@@ -34,8 +35,11 @@ namespace src
                         step = buffer[position.CurrentIndex];
                     }
                     translation.Value = BezierMath.GetPoint(step, position.Progression);
-                    var lookDirection = BezierMath.GetPoint(step, position.Progression + 0.001f) - translation.Value;
-                    rotation.Value = quaternion.LookRotation(lookDirection, new float3 { y = 1 });
+                    var lookDirection = math.normalize(BezierMath.GetPoint(step, position.Progression + 0.001f) - translation.Value);
+                    rotation.Value = quaternion.LookRotation(lookDirection, new float3(
+                        lookDirection.y * lookDirection.x / (lookDirection.x + lookDirection.z),
+                        math.length(new float2(lookDirection.x, lookDirection.z)),
+                        lookDirection.y * lookDirection.z / (lookDirection.x + lookDirection.z)));
                 })
                 .Schedule(inputDeps);
         }
