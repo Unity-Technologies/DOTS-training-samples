@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public class MoveSystem : JobComponentSystem
 {
@@ -10,11 +11,12 @@ public class MoveSystem : JobComponentSystem
         var jobHandle = Entities
             .WithName("SpawnerSystem")
             .WithAll<AntTag>()
-            .ForEach((Entity entity, ref Translation translation, in Velocity velocity) =>
+            .ForEach((Entity entity, ref Translation translation, ref Rotation rotation, in Velocity velocity) =>
             {
                 var y = math.sin(velocity.Rotation);
                 var x = math.cos(velocity.Rotation);
-                translation.Value += new float3(y, x, 0) * velocity.Speed;
+                translation.Value += new float3(x, y, 0) * velocity.Speed;
+                rotation.Value = Quaternion.AngleAxis(velocity.Rotation / (2*math.PI) * 360.0f, Vector3.forward);
             }).Schedule(inputDeps);
         return jobHandle;
     }
