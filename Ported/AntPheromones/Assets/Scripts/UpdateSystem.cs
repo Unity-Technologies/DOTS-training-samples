@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
@@ -123,9 +123,14 @@ public class UpdateSystem : JobComponentSystem
 
         var steeringJob = new AntSteeringJob()
         {
+            ColonyPosition = RuntimeManager.instance.colonyPosition,
+            ResourcePosition = RuntimeManager.instance.resourcePosition,
             MapSize = settings.mapSize,
             RandomDirections = antRandomDirections,
             PheromoneMap = PheromoneMap,
+            ObstacleBucketDimensions = RuntimeManager.instance.obstacleBucketDimensions, 
+            ObstacleBuckets = RuntimeManager.instance.obstacleBuckets, 
+            CachedObstacles = RuntimeManager.instance.cachedObstacles
         };
         var steeringJobHandle = steeringJob.Schedule(this, pheromoneBucketsJobHandle);
 
@@ -144,6 +149,7 @@ public class UpdateSystem : JobComponentSystem
             TimeDelta = TimeDelta,
             AntMaxSpeed =  settings.antSpeed,
             PheromoneSteeringStrength = settings.pheromoneSteerStrength,
+            TargetSteeringStrength = settings.goalSteerStrength,
             WallSteeringStrength = settings.wallSteerStrength,
             ColonyPosition = RuntimeManager.instance.colonyPosition.xy,
             ResourcePosition = RuntimeManager.instance.resourcePosition.xy,
