@@ -19,7 +19,7 @@ public class SpawnSystem : JobComponentSystem
     {
         var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
         var jobHandle = Entities
-            .WithName("SpawnerSystem")
+            .WithName("AntSpawnerSystem")
             .ForEach((Entity entity, int entityInQueryIndex, ref Spawner spawner) =>
             {
                 var rng = new Random(123);
