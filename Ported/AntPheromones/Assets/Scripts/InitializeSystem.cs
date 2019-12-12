@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using Unity.Transforms;
 using Random = UnityEngine.Random;
+using Unity.Rendering;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 [UpdateAfter(typeof(ConvertToEntitySystem))]
@@ -62,7 +63,13 @@ public class InitializeSystem : JobComponentSystem
 			{
 				acceleration = settings.antAccel,
 				facingAngle = math.radians(angleInDegrees),
-				index = i
+				brightness = Random.Range(.75f, 1.25f),
+				index = i,
+				state = 0
+			};
+			MaterialColor color = new MaterialColor()
+			{
+				Value = (Vector4)settings.searchColor
 			};
 			AntSteeringComponent antSteering = new AntSteeringComponent();
 
@@ -71,6 +78,7 @@ public class InitializeSystem : JobComponentSystem
 			EntityManager.AddComponentData(newEntity, antSize);
 			EntityManager.SetComponentData(newEntity, antRotation);
 			EntityManager.SetComponentData(newEntity, ant);
+			EntityManager.AddComponentData(newEntity, color);
 			EntityManager.AddComponentData(newEntity, antSteering);
 		}	
 	}

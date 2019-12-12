@@ -85,6 +85,7 @@ public class UpdateSystem : JobComponentSystem
         AntSettings settings = GetSingleton<AntSettings>();
         Init(settings);
 
+        var TimeDelta = Time.DeltaTime;
         //for (int i = 0; i < PheromoneMap.Length; i++) PheromoneMap[i] = 0;
         var antEntities = m_Group.ToEntityArray(Allocator.TempJob);
         
@@ -133,7 +134,7 @@ public class UpdateSystem : JobComponentSystem
 
         var movementJob = new AntMovementJob()
         {
-            TimeDelta = Time.DeltaTime,
+            TimeDelta = TimeDelta,
             AntMaxSpeed =  settings.antSpeed,
             PheromoneSteeringStrength = settings.pheromoneSteerStrength,
             WallSteeringStrength = settings.wallSteerStrength,
@@ -145,7 +146,7 @@ public class UpdateSystem : JobComponentSystem
 
         var antOutputJob = new AntOutputJob()
         {
-            TimeDelta = Time.DeltaTime,
+            TimeDelta = TimeDelta,
             Settings = settings,
             Positions = antPositions,
             Ants = antComponents,

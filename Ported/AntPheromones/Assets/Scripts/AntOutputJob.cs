@@ -28,10 +28,10 @@ public struct AntOutputJob : IJobParallelFor
         var pos = Positions[index].Value;
         output.pos = (int)(pos.x * Settings.mapSize);
 
-        bool holdingResource = true;
-        float strength = (holdingResource ? 1.0f : .3f) * ant.speed / Settings.antSpeed;
+        bool holdingResource = (ant.state == 1);
+        float excitement = (holdingResource ? 1.0f : .3f) * ant.speed / Settings.antSpeed;
 
-        output.value = math.min(Settings.trailAddSpeed * strength * TimeDelta, 1.0f);
+        output.value = math.min(Settings.trailAddSpeed * excitement * TimeDelta, 1.0f);
         Output[index] = output;
     }
 }
