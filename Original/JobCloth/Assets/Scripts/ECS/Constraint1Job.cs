@@ -11,7 +11,7 @@ using System;
 [ExecuteAlways]
 [AlwaysUpdateSystem]
 [UpdateInGroup(typeof(PresentationSystemGroup))]
-public class Constraint1_System : JobComponentSystem
+public unsafe class Constraint1_System : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
@@ -20,22 +20,23 @@ public class Constraint1_System : JobComponentSystem
             ref var constraintIndices = ref cloth.constraints.Value.Constraint1Indices;
             ref var constraintLengths = ref cloth.constraints.Value.Constraint1Lengths;
 
-            //Execute
+            var constraintIndicesPtr = (int2*)constraintIndices.GetUnsafePtr();
+            var constraintLengthsPtr = (float*)constraintLengths.GetUnsafePtr();
+            var verticesPtr = (float3*)vertices.GetUnsafePtr();
+
+            var indexCount = constraintIndices.Length;
+            for (int i = 0; i < indexCount; i++)
             {
-                var indexCount = constraintIndices.Length;
-                for (int i = 0; i < indexCount; i++)
-                {
-                    int2 pair = constraintIndices[i];
+                int2 pair = constraintIndicesPtr[i];
 
-                    float3 p1 = vertices[pair.x];
-                    float3 p2 = vertices[pair.y];
+                float3 p1 = verticesPtr[pair.x];
+                float3 p2 = verticesPtr[pair.y];
 
-                    var delta = p2 - p1;
-                    var length = math.length(delta);
-                    var offset = (1 - (constraintLengths[i] / length)) * delta;
+                var delta = p2 - p1;
+                var length = math.length(delta);
+                var offset = (1 - (constraintLengthsPtr[i] / length)) * delta;
 
-                    vertices[pair.x] = p1 + offset;
-                }
+                verticesPtr[pair.x] = p1 + offset;
             }            
         }).Schedule(inputDeps);
     }
