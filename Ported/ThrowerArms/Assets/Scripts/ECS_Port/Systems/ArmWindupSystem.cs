@@ -18,7 +18,7 @@ public class ArmWindupSystem : JobComponentSystem
         var dt = Time.DeltaTime;
         var deps = Entities
             .WithReadOnly(accessor)
-            .ForEach((Entity entity, ref ArmComponent arm, ref WindingUpState windup, in Translation pos) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref ArmComponent arm, ref WindingUpState windup, in Translation pos) =>
             {
                 windup.WindupTimer += dt / ArmConstants.WindUpDuration;
                 if (windup.WindupTimer < 0f)
@@ -26,6 +26,12 @@ public class ArmWindupSystem : JobComponentSystem
                 float windupT = Mathf.Clamp01(windup.WindupTimer);
                 windupT = 3f * windupT * windupT - 2f * windupT * windupT * windupT;
                 arm.HandTarget = Vector3.Lerp(arm.HandTarget, windup.HandTarget, windupT);
+                if (!accessor.Exists(windup.AimedTargetEntity))
+                {
+                    concurrentBuffer.RemoveComponent<WindingUpState>(entityInQueryIndex, entity);
+                    concurrentBuffer.AddComponent<LookForThrowTargetState>(entityInQueryIndex, entity, new LookForThrowTargetState { GrabbedEntity = windup.HeldEntity, TargetSize = 1.0f } );
+                    return;
+                }
                 var flatTargetDelta = accessor[windup.AimedTargetEntity].Value - pos.Value;
                 flatTargetDelta.y = 0f;
                 flatTargetDelta = math.normalize(flatTargetDelta);

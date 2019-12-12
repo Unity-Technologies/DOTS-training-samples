@@ -66,7 +66,11 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                     in ArmComponent armComponent, 
                     in LookForThrowTargetState lookForThrowTargetState, 
                     in Translation translation) =>
-                {   
+                {
+                    if (!translationFromEntity.Exists(lookForThrowTargetState.GrabbedEntity))
+                    {
+                        return;
+                    }
                     Translation rockTargetTranslation = translationFromEntity[lookForThrowTargetState.GrabbedEntity];
             
                     for (int finger = 1; finger <= FingerConstants.CountPerArm; finger++)

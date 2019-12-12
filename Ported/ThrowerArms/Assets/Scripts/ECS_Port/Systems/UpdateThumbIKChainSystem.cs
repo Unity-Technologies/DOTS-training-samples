@@ -100,6 +100,10 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                 float3 thumbBendHint = -arm.HandRight - arm.HandForward * 0.5f;
                 upVectorBufferForThumbs[(int) translation.Value.x] = thumbBendHint;
 
+                if (!translationFromEntityAccessor.Exists(throwState.GrabbedEntity))
+                {
+                    return;
+                }
                 var targetRockPosition = translationFromEntityAccessor[throwState.GrabbedEntity].Value;
                 float3 rockThumbDelta = thumbTarget - targetRockPosition;
                 float3 rockThumbPosition = targetRockPosition + math.normalize(rockThumbDelta) * (throwState.TargetSize * 0.5f);

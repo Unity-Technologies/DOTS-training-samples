@@ -83,6 +83,15 @@ public class ArmThrowSystem : JobComponentSystem
             .WithReadOnly(velocityAccessor)
             .ForEach((Entity entity, int entityInQueryIndex, ref ArmComponent arm, ref ThrowAtState throwAt, in Translation pos) =>
             {
+                bool aimedTargetAlreadyDestroyed =
+                    !velocityAccessor.Exists(throwAt.AimedTargetEntity) || !accessor.Exists(throwAt.AimedTargetEntity);
+                if (aimedTargetAlreadyDestroyed)
+                {
+                    concurrentBuffer.RemoveComponent<ThrowAtState>(entityInQueryIndex, entity);
+                    concurrentBuffer.AddComponent<LookForThrowTargetState>(entityInQueryIndex, entity, new LookForThrowTargetState { GrabbedEntity = throwAt.HeldEntity, TargetSize = 1.0f } );
+                    return;
+                }
+
                 // update our aim until we release the rock
                 if (throwAt.HeldEntity != Entity.Null)
                 {
