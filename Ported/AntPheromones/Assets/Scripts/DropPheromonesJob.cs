@@ -24,7 +24,9 @@ public struct DropPheromonesJob : IJobParallelFor
             {
                 continue;
             }
-            PheromoneMap[index * Settings.mapSize + o.pos] = o.value;
+
+            int idx = index * Settings.mapSize + o.pos;
+            PheromoneMap[idx] = math.min(PheromoneMap[idx] + o.value * (1 - PheromoneMap[idx]), 1.0f);
         }
     }
 

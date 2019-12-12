@@ -11,7 +11,6 @@ public struct AntMovementJob : IJobForEach<Translation, Rotation, AntComponent, 
 	[ReadOnly] public float TimeDelta;
 	[ReadOnly] public float AntMaxSpeed;
 	[ReadOnly] public float PheromoneSteeringStrength;
-	[ReadOnly] public float TargetSteeringStrength;
 	[ReadOnly] public float WallSteeringStrength;
 	[ReadOnly] public float2 ColonyPosition;
 	[ReadOnly] public float2 ResourcePosition;
@@ -26,11 +25,10 @@ public struct AntMovementJob : IJobForEach<Translation, Rotation, AntComponent, 
 		// Update the steering...
 		angularVelocity += steering.PheromoneSteering * PheromoneSteeringStrength;
 		angularVelocity += steering.WallSteering * WallSteeringStrength;
-
-		float targetSteering = steering.TargetSteering * TargetSteeringStrength;
+		angularVelocity += steering.TargetSteering;
 
 		// Update the rotation/position...
-		ant.facingAngle += steering.RandomDirection + angularVelocity + targetSteering;	//* TimeDelta;
+		ant.facingAngle += steering.RandomDirection + angularVelocity;	//* TimeDelta;
 		math.sincos(ant.facingAngle, out float sin, out float cos);
 		ant.speed = math.clamp(ant.speed + velocityChange, 0.0f, AntMaxSpeed);
 
