@@ -19,7 +19,7 @@ public class FoodSpawnerSystem : JobComponentSystem
     {
         inputDeps.Complete();
         
-        var RNG = new Random(3);
+        var RNG = new Random(13);
         var commandBuffer = EntityCommandBufferSystem.CreateCommandBuffer();
         Map map = GetSingleton<Map>();
         Entity entity = GetSingletonEntity<FoodSpawner>();
