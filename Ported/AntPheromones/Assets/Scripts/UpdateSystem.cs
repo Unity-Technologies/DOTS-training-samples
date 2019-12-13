@@ -138,10 +138,12 @@ public class UpdateSystem : JobComponentSystem
 
             antRandomDirections[i] = UnityEngine.Random.Range(-settings.randomSteering, settings.randomSteering);
 
+            if (ant.stateSwitch)
             {
                 var antRenderMesh = EntityManager.GetSharedComponentData<RenderMesh>(antEntities[i]);
                 antRenderMesh.material = ant.state == 1 ? carryMaterial : searchMaterial;
                 EntityManager.SetSharedComponentData<RenderMesh>(antEntities[i], antRenderMesh);
+                ant.stateSwitch = false;
             }
         }
 

@@ -57,6 +57,7 @@ public struct AntMovementJob : IJobForEach<Translation, Rotation, AntComponent, 
 		if (math.lengthsq(translation.Value.xy - targetPos) < TargetRadius * TargetRadius)
 		{
 			ant.state = 1 - ant.state;
+			ant.stateSwitch = true;
 			ant.facingAngle = math.fmod(ant.facingAngle + math.PI, math.PI * 2);
 		}
 	}

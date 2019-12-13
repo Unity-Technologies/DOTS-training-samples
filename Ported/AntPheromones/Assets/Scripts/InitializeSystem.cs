@@ -72,7 +72,8 @@ public class InitializeSystem : JobComponentSystem
 				facingAngle = math.radians(angleInDegrees),
 				brightness = Random.Range(.75f, 1.25f),
 				index = i,
-				state = 0
+				state = 0,
+				stateSwitch = false
 			};
 			MaterialColor color = new MaterialColor()
 			{

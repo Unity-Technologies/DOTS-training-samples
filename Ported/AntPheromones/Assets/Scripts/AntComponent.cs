@@ -10,4 +10,5 @@ public struct AntComponent : IComponentData
 	public float brightness;
 	public int index;
 	public int state;
+	public bool stateSwitch;
 }
