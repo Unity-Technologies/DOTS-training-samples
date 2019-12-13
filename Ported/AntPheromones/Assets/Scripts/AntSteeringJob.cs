@@ -70,7 +70,7 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
             float2 dp;
             math.sincos(angle, out dp.x, out dp.y);
 
-            int2 test = (int2)(MapSize * (translation.Value.xy + dp * lookAheadDistance));
+            int2 test = (int2)(MapSize * translation.Value.xy + dp * lookAheadDistance);
 
             if (math.any(test < 0) || math.any(test >= MapSize))
                 continue;
