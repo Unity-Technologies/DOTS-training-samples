@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -13,21 +14,21 @@ public unsafe class AccumulateForces_System : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        float time = Time.DeltaTime * Time.DeltaTime;
         return Entities.ForEach((Entity entity, ref DynamicBuffer<CurrentVertex> vertices, ref DynamicBuffer<PreviousVertex> oldVertices, in ClothComponent cloth, in LocalToWorld localToWorld) =>
         {
-            var gravity         = cloth.Gravity * time;
+            var timeStep = 0.00016f;
+            var gravity = cloth.Gravity * timeStep;
 
-            var verticesPtr     = (float3*)vertices.GetUnsafePtr();
-            var oldVerticesPtr  = (float3*)oldVertices.GetUnsafePtr();
+            var verticesPtr = (float3*)vertices.GetUnsafePtr();
+            var oldVerticesPtr = (float3*)oldVertices.GetUnsafePtr();
 
             var firstPinnedIndex = cloth.constraints.Value.FirstPinnedIndex;
             for (int i = 0; i < firstPinnedIndex; i++)
             {
-                float3 oldVert  = oldVerticesPtr[i];
-                float3 vert     = verticesPtr[i];
-                oldVerticesPtr[i]   = vert;
-                verticesPtr[i]      = (vert + vert - oldVert + gravity);
+                float3 oldVert = oldVerticesPtr[i];
+                float3 vert = verticesPtr[i];
+                oldVerticesPtr[i] = vert;
+                verticesPtr[i] = (vert + vert - oldVert + gravity);
             }
         }).Schedule(inputDeps);
     }

@@ -197,7 +197,7 @@ public class ClothSim : MonoBehaviour, IConvertGameObjectToEntity
             vertices = vertices,
             oldVertices = oldVertices,
             pins = pins,
-            gravity = transform.InverseTransformVector(-Vector3.up * Time.deltaTime * Time.deltaTime),
+            gravity = new Vector3(0, -9.8f, 0),
             localToWorld = transform.localToWorldMatrix,
             worldToLocal = transform.worldToLocalMatrix
         };
