@@ -1,4 +1,5 @@
-﻿using src;
+﻿//#define DEBUG_LINES
+using src;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -17,6 +18,7 @@ public class LineDebugDrawSystem : ComponentSystem
 
     protected override void OnUpdate()
     {
+#if DEBUG_LINES
         var lines = query.ToEntityArray(Allocator.TempJob);
         for (int line = 0; line < lines.Length; line++)
         {
@@ -39,5 +41,6 @@ public class LineDebugDrawSystem : ComponentSystem
         }
 
         lines.Dispose();
+#endif
     }
 }
