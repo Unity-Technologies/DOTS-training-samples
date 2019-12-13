@@ -19,7 +19,6 @@ public class UpdateSystem : JobComponentSystem
     public NativeArray<int2> Buckets;
     public NativeArray<float> PheromoneMap;
     public NativeArray<AntOutput> AntOutput;
-    public NativeArray<float> AntRandomDirections;
     public Material PheromoneMaterial;
     public Texture2D PheromoneTexture;
 
@@ -68,11 +67,6 @@ public class UpdateSystem : JobComponentSystem
         carryMaterial = new Material(Shader.Find("Custom/InstancedColor"));
         carryMaterial.color = settings.carryColor;
 
-        AntRandomDirections = new NativeArray<float>(settings.antCount, Allocator.TempJob);
-        for (int i = 0; i < settings.antCount; i++)
-        {
-            AntRandomDirections[i] = UnityEngine.Random.Range(-settings.randomSteering, settings.randomSteering);
-        }
         init = false;
     }
 
@@ -122,6 +116,8 @@ public class UpdateSystem : JobComponentSystem
         // sort ants into buckets for pheromone processing
         var antComponents = new NativeArray<AntComponent>(settings.antCount, Allocator.TempJob);
         var antPositions = new NativeArray<Translation>(settings.antCount, Allocator.TempJob);
+
+        var antRandomDirections = new NativeArray<float>(settings.antCount, Allocator.TempJob);
 
         if (Input.GetKeyDown(KeyCode.Alpha1)) {
             m_TimeScale = 1f;
@@ -175,7 +171,7 @@ public class UpdateSystem : JobComponentSystem
             ColonyPosition = RuntimeManager.instance.colonyPosition,
             ResourcePosition = RuntimeManager.instance.resourcePosition,
             MapSize = settings.mapSize,
-            RandomDirections = AntRandomDirections,
+            RandomDirections = antRandomDirections,
             PheromoneMap = PheromoneMap,
             TargetSteeringStrength = settings.goalSteerStrength,
             ObstacleBucketDimensions = RuntimeManager.instance.obstacleBucketDimensions, 
