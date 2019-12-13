@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using static Unity.Mathematics.math;
 
+[UpdateAfter(typeof(TranslationFollowingSystem))]
 public class CarriageVisualsSystem : JobComponentSystem
 {
     EntityQuery m_CarriageQuery;

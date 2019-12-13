@@ -30,9 +30,8 @@ public class CarriagesVisualsSpawnerSystem : JobComponentSystem
             
         var jobHandle = Entities
             .WithName("TrainSpawnerSystem")
-//                .WithReadOnly(spawner)
             .WithAll<NeedsVisuals>()
-//            .WithBurst(FloatMode.Default, FloatPrecision.Standard, true)
+            .WithBurst(FloatMode.Default, FloatPrecision.Standard, true)
             .ForEach((Entity entity, int entityInQueryIndex, in LinePosition linePosition, in Translation translation, in Rotation rotation) =>
         {
             var visuals = commandBuffer.Instantiate(entityInQueryIndex, spawnerComponent.Prefab);
