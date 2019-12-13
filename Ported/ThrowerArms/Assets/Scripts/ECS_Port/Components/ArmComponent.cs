@@ -10,7 +10,7 @@ public struct ArmComponent : IComponentData
     public float3 HandForward;
     public float3 HandUp;
     public float3 HandRight;
-
+    public float IdleOffset;
     public float ReachTimer;
     public float ThrowTimer;
 }

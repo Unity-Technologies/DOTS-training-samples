@@ -10,11 +10,12 @@ namespace ECS_Port.Systems
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var time = UnityEngine.Time.time + TimeConstants.Offset;
+            var _time = UnityEngine.Time.time + TimeConstants.Offset;
 
             var idleUpdate = Entities
                .ForEach((ref Translation translation, ref ArmComponent arm) =>
                {
+                   var time = arm.IdleOffset + _time;
                    arm.IdleHandTarget = translation.Value + new float3(math.sin(time) * 0.35f, 1f + math.cos(time * 1.618f) * 0.5f, 1.5f);
                }).Schedule(inputDeps);
 
