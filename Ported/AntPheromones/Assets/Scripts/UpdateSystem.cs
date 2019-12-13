@@ -90,6 +90,20 @@ public class UpdateSystem : JobComponentSystem
         entities.Dispose();
     }
 
+    [BurstCompile]
+    struct SetupAntsJob : IJobForEachWithEntity<AntComponent, Translation>
+    {
+        [NativeDisableParallelForRestriction] public NativeArray<AntComponent> Ants;
+        [NativeDisableParallelForRestriction] public NativeArray<Translation> Translations;
+
+        public void Execute(Entity entity, int index, ref AntComponent ant, ref Translation pos)
+        {
+            ant.index = index;
+            Ants[index] = ant;
+            Translations[index] = pos;
+        }
+    }
+
     unsafe protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         AntSettings settings = GetSingleton<AntSettings>();
@@ -125,19 +139,12 @@ public class UpdateSystem : JobComponentSystem
             m_TimeScale = 9f;
         }
 
+        var setupAntsJob = new SetupAntsJob() { Ants = antComponents, Translations = antPositions };
+        var setupAntsJobHandle = setupAntsJob.Run(this, inputDeps);
+
         for (int i = 0; i < settings.antCount; i++)
         {
-            antComponents[i] = EntityManager.GetComponentData<AntComponent>(antEntities[i]);
-
             var ant = antComponents[i];
-            ant.index = i;
-            antComponents[i] = ant;
-            EntityManager.SetComponentData(antEntities[i], antComponents[i]);
-
-            antPositions[i] = EntityManager.GetComponentData<Translation>(antEntities[i]);
-
-            antRandomDirections[i] = UnityEngine.Random.Range(-settings.randomSteering, settings.randomSteering);
-
             if (ant.stateSwitch)
             {
                 var antRenderMesh = EntityManager.GetSharedComponentData<RenderMesh>(antEntities[i]);
