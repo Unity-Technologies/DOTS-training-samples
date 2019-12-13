@@ -43,7 +43,6 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
             .WithReadOnly(translationFromEntityAccessor)
             .WithNativeDisableParallelForRestriction(thumbJointPositionBuffer)
             .WithNativeDisableParallelForRestriction(upVectorBufferForThumbs)
-            .WithoutBurst()
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent, in ReachForTargetState reachTarget) =>
             {
                 float3 thumbPosition = arm.HandPosition + arm.HandRight * ThumbConstants.XOffset;
@@ -69,7 +68,6 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
         
          var calculateThumbIkWhenInThrowStateJob = Entities.WithName("UpdateThumbIKWhenInThrowState")
             .WithReadOnly(translationFromEntityAccessor)
-            .WithoutBurst()
             .WithNativeDisableParallelForRestriction(thumbJointPositionBuffer)
             .WithNativeDisableParallelForRestriction(upVectorBufferForThumbs)
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent, in HoldingRockState holdingRockState) =>
@@ -104,7 +102,6 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
             .WithNativeDisableParallelForRestriction(thumbJointPositionBuffer)
             .WithNativeDisableParallelForRestriction(upVectorBufferForThumbs)
             .WithNone<HoldingRockState>()
-            .WithoutBurst()
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent) =>
             {
                 float3 thumbPosition = arm.HandPosition + arm.HandRight * ThumbConstants.XOffset;
