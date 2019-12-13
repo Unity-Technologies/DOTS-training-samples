@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -12,6 +13,7 @@ public struct AntOutput
     public float value;
 }
 
+[BurstCompile]
 public struct AntOutputJob : IJobParallelFor
 {
     public AntSettings Settings;
