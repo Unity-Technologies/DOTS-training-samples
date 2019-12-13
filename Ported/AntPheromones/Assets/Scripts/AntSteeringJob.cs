@@ -28,9 +28,8 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
 
     private int2 GetObstacleBucket(float2 position)
 	{
-		int2 cell = new int2(math.clamp((int)(position.x * ObstacleBucketDimensions.x), 0, (ObstacleBucketDimensions.x - 1)),
-							 math.clamp((int)(position.y * ObstacleBucketDimensions.y), 0, (ObstacleBucketDimensions.y - 1)));
-		int bucketIndex = (cell.y * ObstacleBucketDimensions.x) + cell.x;
+        int2 cell = math.clamp((int2)(position * ObstacleBucketDimensions), 0, ObstacleBucketDimensions - 1);
+        int bucketIndex = cell.y * ObstacleBucketDimensions.x + cell.x;
 		int2 range = ObstacleBuckets[bucketIndex];
 
 		return range;
@@ -65,22 +64,22 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
     {
 		float output = 0;
 
+        float angle = ant.facingAngle - math.PI * 0.25f;
 		for (int i = -1; i <= 1; i += 2) 
         {
-            float angle = ant.facingAngle + i * math.PI * 0.25f;
+            float2 dp;
+            math.sincos(angle, out dp.x, out dp.y);
 
-            float s, c;
-            math.sincos(angle, out s, out c);
-			
-            float testX = translation.Value.x + c * lookAheadDistance/MapSize;
-			float testY = translation.Value.y + s * lookAheadDistance/MapSize;
+            float2 test = translation.Value.xy + dp * lookAheadDistance / MapSize;
 
-			if (testX < 0 || testY < 0 || testX >= MapSize || testY >= MapSize) 
+            if (math.any(test < 0) || math.any(test >= MapSize))
                 continue;
 
-            int index = PheromoneIndex((int)testX, (int)testY);
+            int index = PheromoneIndex((int)test.x, (int)test.y);
             float value = PheromoneMap[index];
             output += value * i;
+
+            angle += math.PI * 0.5f;
 		}
 
 		return math.sign(output);
