@@ -72,7 +72,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
             .WithoutBurst()
             .WithNativeDisableParallelForRestriction(thumbJointPositionBuffer)
             .WithNativeDisableParallelForRestriction(upVectorBufferForThumbs)
-            .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent, in LookForThrowTargetState throwState) =>
+            .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent, in HoldingRockState holdingRockState) =>
             {
                 float3 thumbPosition = arm.HandPosition + arm.HandRight * ThumbConstants.XOffset;
                 float3 thumbTarget = thumbPosition - arm.HandRight * 0.15f +
@@ -82,13 +82,13 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                 float3 thumbBendHint = -arm.HandRight - arm.HandForward * 0.5f;
                 upVectorBufferForThumbs[(int) translation.Value.x] = thumbBendHint;
 
-                if (!translationFromEntityAccessor.Exists(throwState.GrabbedEntity))
+                if (!translationFromEntityAccessor.Exists(holdingRockState.HeldEntity))
                 {
                     return;
                 }
-                var targetRockPosition = translationFromEntityAccessor[throwState.GrabbedEntity].Value;
+                var targetRockPosition = translationFromEntityAccessor[holdingRockState.HeldEntity].Value;
                 float3 rockThumbDelta = thumbTarget - targetRockPosition;
-                float3 rockThumbPosition = targetRockPosition + math.normalize(rockThumbDelta) * (throwState.TargetSize * 0.5f);
+                float3 rockThumbPosition = targetRockPosition + math.normalize(rockThumbDelta) * (holdingRockState.EntitySize * 0.5f);
 
                 thumbTarget = math.lerp(thumbTarget, rockThumbPosition, fingerComponent.GrabExtent);
 

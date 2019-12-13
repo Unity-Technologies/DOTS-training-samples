@@ -61,7 +61,7 @@ public class ReachForTargetSystem : JobComponentSystem
                 GrabbingEntity = entity,
                 localPosition = math.transform(math.inverse(handMatrixAccessor[entity].Value), desiredRockTranslation)
             });
-            concurrentBuffer.AddComponent<HoldingRockState>(entityInQueryIndex, entity);
+            concurrentBuffer.AddComponent<HoldingRockState>(entityInQueryIndex, entity, new HoldingRockState { HeldEntity = reachingState.TargetEntity, EntitySize = reachingState.TargetSize });
         }).Schedule(inputDeps);
         endSimulationEcbSystem.AddJobHandleForProducer(reachForRockJob);
 

@@ -9,4 +9,6 @@ public struct GrabbedState : IComponentData
 
 public struct HoldingRockState : IComponentData
 {
+    public Entity HeldEntity;
+    public float EntitySize;
 }
