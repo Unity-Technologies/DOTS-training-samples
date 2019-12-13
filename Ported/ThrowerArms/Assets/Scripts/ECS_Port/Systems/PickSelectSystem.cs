@@ -13,13 +13,14 @@ public class PickSelectSystem : JobComponentSystem
         base.OnCreate();
     }
 
-    private static int CalculateIndex(in Translation translation)
+    private static int CalculateIndex(in Translation translation, float spacing)
     {
-        return (int)math.round(translation.Value.x / ArmSpawner.Spacing);
+        return (int)math.round(translation.Value.x / spacing);
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
-    {;
+    {
+        float spacing = ArmSpawner.Spacing;
         EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer entityCommandBuffer = endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
         NativeArray<Entity> pickupArray = new NativeArray<Entity>(ArmSpawner.Count, Allocator.TempJob, NativeArrayOptions.ClearMemory);
@@ -29,7 +30,7 @@ public class PickSelectSystem : JobComponentSystem
             .WithAll<GrabbableState>()
             .ForEach((Entity e, in Translation translation) =>
             {
-                int index = CalculateIndex(translation);
+                int index = CalculateIndex(translation, spacing);
                 if (index < count)
                 {
                     pickupArray[index] = e;
@@ -46,7 +47,7 @@ public class PickSelectSystem : JobComponentSystem
             .WithAll<FindGrabbableTargetState>()
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
         {
-            Entity pickEntity = pickupArray[CalculateIndex(translation)];
+            Entity pickEntity = pickupArray[CalculateIndex(translation, spacing)];
 
             if (pickEntity != Entity.Null)
             {

@@ -10,24 +10,27 @@ public class FindThrowTargetSystem : JobComponentSystem
 {
     private EntityQuery m_ThrowTargetsQuery;
 
-    private static int CalculateIndex(in Translation translation)
+    private static int CalculateIndex(in Translation translation, float spacing)
     {
-        return (int)math.round(translation.Value.x / ArmSpawner.Spacing);
+        return (int)math.round(translation.Value.x / spacing);
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
+        float spacing = ArmSpawner.Spacing;
+        int count = ArmSpawner.Count;
+
         EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer entityCommandBuffer = endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
-        NativeArray<Entity> throwTargetsArray = new NativeArray<Entity>(ArmSpawner.Count, Allocator.TempJob, NativeArrayOptions.ClearMemory);
+        NativeArray<Entity> throwTargetsArray = new NativeArray<Entity>(count, Allocator.TempJob, NativeArrayOptions.ClearMemory);
 
         JobHandle assignJobHandle = Entities.WithName("AssignTargetsToArray")
             .WithNativeDisableParallelForRestriction(throwTargetsArray)
             .WithAll<ThrowTargetState>()
             .ForEach((Entity e, in Translation translation) =>
             {
-                int index = CalculateIndex(translation);
-                if (index < ArmSpawner.Count && index >= 0)
+                int index = CalculateIndex(translation, spacing);
+                if (index < count && index >= 0)
                 {
                     throwTargetsArray[index] = e;
                 }
@@ -39,7 +42,7 @@ public class FindThrowTargetSystem : JobComponentSystem
             .WithReadOnly(throwTargetsArray)
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation, in LookForThrowTargetState thrower) =>
             {
-                int index = CalculateIndex(translation);
+                int index = CalculateIndex(translation, spacing);
                 Entity targetEntity = throwTargetsArray[index];
 
                 if (targetEntity != Entity.Null)

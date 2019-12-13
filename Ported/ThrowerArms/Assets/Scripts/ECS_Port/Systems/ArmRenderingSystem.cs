@@ -7,6 +7,8 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
+[UpdateAfter(typeof(UpdateFingerIKChainSystem))]
+[UpdateAfter(typeof(UpdateThumbIKChainSystem))]
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 public class ArmRenderingSystem : JobComponentSystem
 {
