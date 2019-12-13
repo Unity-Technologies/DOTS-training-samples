@@ -65,12 +65,12 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
 		float output = 0;
 
         float angle = ant.facingAngle - math.PI * 0.25f;
-		for (int i = -1; i <= 1; i += 2) 
+		for (int i = -1; i <= 1; i += 2, angle += math.PI * 0.5f) 
         {
             float2 dp;
             math.sincos(angle, out dp.x, out dp.y);
 
-            float2 test = translation.Value.xy + dp * lookAheadDistance / MapSize;
+            int2 test = (int2)(MapSize * (translation.Value.xy + dp * lookAheadDistance));
 
             if (math.any(test < 0) || math.any(test >= MapSize))
                 continue;
@@ -78,8 +78,6 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
             int index = PheromoneIndex((int)test.x, (int)test.y);
             float value = PheromoneMap[index];
             output += value * i;
-
-            angle += math.PI * 0.5f;
 		}
 
 		return math.sign(output);
