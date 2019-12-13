@@ -3,6 +3,8 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateAfter(typeof(SpawnSystem))]
 public class MoveSystem : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
