@@ -48,9 +48,8 @@ public class InverseKinematicsDataCreator : MonoBehaviour, IConvertGameObjectToE
         }
 
 
-        var boneCount = (ArmConstants.ChainCount - 1 + FingerConstants.TotalChainCount - FingerConstants.CountPerArm + ThumbConstants.ChainCount - 1);
         var armBoneBuffers = dstManager.AddBuffer<ArmBoneBuffer>(entity);
-        armBoneBuffers.ResizeUninitialized(ArmSpawner.Count * boneCount);
+        armBoneBuffers.ResizeUninitialized(ArmSpawner.Count * ArmConstants.BoneCount);
 
         int currentIndex = 0;
         int jointIndex = 0;
@@ -83,7 +82,7 @@ public class InverseKinematicsDataCreator : MonoBehaviour, IConvertGameObjectToE
         armUpVectorBuffers.ResizeUninitialized(ArmSpawner.Count * 2);
 
         var armMatrixBuffers = dstManager.AddBuffer<ArmJointMatrixBuffer>(entity);
-        armMatrixBuffers.ResizeUninitialized(ArmSpawner.Count * boneCount);
+        armMatrixBuffers.ResizeUninitialized(ArmSpawner.Count * ArmConstants.BoneCount);
 
     }
 }

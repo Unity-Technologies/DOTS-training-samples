@@ -14,4 +14,6 @@
     public const float ThrowDuration = 1.2f;
     public const float BaseThrowSpeed = 24f;
     public const float TargetXRange = 15f;
+
+    public const int BoneCount = (ArmConstants.ChainCount - 1 + FingerConstants.TotalChainCount - FingerConstants.CountPerArm + ThumbConstants.ChainCount - 1);
 }
