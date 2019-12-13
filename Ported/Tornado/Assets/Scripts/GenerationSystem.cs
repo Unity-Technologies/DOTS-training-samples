@@ -40,13 +40,13 @@ public class GenerationSystem : ComponentSystem
 		var listOfLists = new List<NativeList<Bar>>();
 
 		// buildings
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < 500; i++)
 		{
 			var plStart = pointsList.Length;
 			var barsList = new NativeList<Bar>(Allocator.Temp);
 			listOfLists.Add(barsList);
 			int height = Random.Range(4,12);
-			Vector3 pos = new Vector3(Random.Range(-45f,45f),0f,Random.Range(-45f,45f));
+			Vector3 pos = new Vector3(Random.Range(-100f, 100f),0f,Random.Range(-100f, 100f));
 			float spacing = 2f;
 			for (int j = 0; j < height; j++)
 			{

@@ -29,8 +29,8 @@ public class TornadoSystem : JobComponentSystem
         var random = rand;
         
         simulationState.tornadoFader = Mathf.Clamp01(simulationState.tornadoFader + deltaTime / 10f);
-        simulationState.tornadoX = Mathf.Cos(time/6f) * 30f;
-        simulationState.tornadoZ = Mathf.Sin(time/6f * 1.618f) * 30f;
+        simulationState.tornadoX = Mathf.Cos(time/6f) * 90f;
+        simulationState.tornadoZ = Mathf.Sin(time/6f * 1.618f) * 90f;
         
         SetSingleton(simulationState);
         
