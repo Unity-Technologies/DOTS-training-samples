@@ -6,7 +6,7 @@ using UnityEngine;
 public class ArmSpawner : MonoBehaviour
 {
     public GameObject ArmPrefab;
-    public static int Count = 100;
+    public static int Count = 200;
     public Mesh ArmMesh;
     public Material ArmMaterial;
 
@@ -32,11 +32,12 @@ public class ArmSpawner : MonoBehaviour
         Entity prefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(ArmPrefab, settings);
         EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
+        Unity.Mathematics.Random rnd = new Unity.Mathematics.Random(34);
         for (var i = 0; i < Count; i++)
         {
             Entity instance = entityManager.Instantiate(prefab);
 
-            entityManager.AddComponentData(instance, new ArmComponent { HandUp = new float3(0.0f, 1.0f, 0.0f) });
+            entityManager.AddComponentData(instance, new ArmComponent { HandUp = new float3(0.0f, 1.0f, 0.0f), IdleOffset = rnd.NextFloat() }) ;
             entityManager.AddComponentData(instance, new Finger());
             
             entityManager.AddComponentData(instance, new IdleState());
