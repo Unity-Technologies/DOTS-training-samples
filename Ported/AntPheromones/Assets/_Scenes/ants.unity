@@ -642,7 +642,7 @@ MonoBehaviour:
   pheromoneSteerStrength: 0.015
   wallSteerStrength: 0.2
   goalSteerStrength: 0.04
-  outwardStrength: 0.003
+  outwardStrength: 0.0003
   inwardStrength: 0.003
   rotationResolution: 360
   obstacleRingCount: 3

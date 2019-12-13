@@ -13,7 +13,7 @@ public struct AntInwardOutwardStrengthJob : IJobForEach<AntComponent, Translatio
 	
 	public void Execute(ref AntComponent ant, [ReadOnly] ref Translation translation)
 	{
-		float3 antPosition = translation.Value;
+		float2 antPosition = translation.Value.xy;
 		float inwardOrOutward = -OutwardStrength;
 		float pushRadius = .4f;
 		
@@ -22,8 +22,10 @@ public struct AntInwardOutwardStrengthJob : IJobForEach<AntComponent, Translatio
 			pushRadius = 1.0f;
 		}
 		
-		float dist = math.distance(ColonyPosition, antPosition.xy);
+		float2 delta = ColonyPosition - antPosition;
+		float dist = math.lengthsq(delta);
 		inwardOrOutward *= 1.0f - math.clamp(dist / pushRadius, 0.0f, 1.0f);
 		ant.speed += dist * inwardOrOutward;
+		ant.velocity = delta / dist * inwardOrOutward;
 	}
 }

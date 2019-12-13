@@ -32,7 +32,7 @@ public struct AntMovementJob : IJobForEach<Translation, Rotation, AntComponent, 
 		math.sincos(ant.facingAngle, out float sin, out float cos);
 		ant.speed += (targetSpeed - ant.speed) * Settings.antAccel;
 
-		float2 velocity = ant.speed * new float2(cos, sin) * TimeDelta;
+		float2 velocity = (ant.velocity + ant.speed * new float2(cos, sin)) * TimeDelta;
 
 		// Clamp to the edge of the map...
 		if (position.x + velocity.x < 0f || position.x + velocity.x >= 1)

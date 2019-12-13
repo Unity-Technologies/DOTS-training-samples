@@ -72,7 +72,8 @@ public class InitializeSystem : JobComponentSystem
 				brightness = Random.Range(.75f, 1.25f),
 				index = i,
 				state = 0,
-				stateSwitch = false
+				stateSwitch = false,
+				velocity = 0
 			};
 			MaterialColor color = new MaterialColor()
 			{

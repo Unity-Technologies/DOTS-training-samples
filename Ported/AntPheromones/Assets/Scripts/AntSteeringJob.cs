@@ -21,9 +21,9 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
 
     private readonly static float lookAheadDistance = 3.0f;
 
-    int PheromoneIndex(int x, int y) 
+    int PheromoneIndex(int2 p) 
     {
-		return x + y * MapSize;
+		return math.dot(p, new int2(1, MapSize));
 	}
 
     private int2 GetObstacleBucket(float2 position)
@@ -75,7 +75,7 @@ public struct AntSteeringJob : IJobForEach<Translation, AntComponent, AntSteerin
             if (math.any(test < 0) || math.any(test >= MapSize))
                 continue;
 
-            int index = PheromoneIndex((int)test.x, (int)test.y);
+            int index = PheromoneIndex(test);
             float value = PheromoneMap[index];
             output += value * i;
 		}
