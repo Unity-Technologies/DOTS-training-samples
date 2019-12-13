@@ -3,7 +3,7 @@ using UnityEngine;
 
 public struct MapObstacle
 {
-    public float3 position;
+    public float2 position;
     public float radius;
 }
 

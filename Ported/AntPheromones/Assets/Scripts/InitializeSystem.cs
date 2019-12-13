@@ -116,7 +116,7 @@ public class InitializeSystem : JobComponentSystem
                     float y = math.sin(angle) * ringRadius + center;
                     ObstacleComponent obstacleComponent = new ObstacleComponent() {radius = radius};
                     Translation obstacleTranslation = new Translation() {Value = new float3(x / settings.mapSize, y / settings.mapSize, 0.0f)};
-                    MapObstacle cachedObstacle = new MapObstacle() {position = obstacleTranslation.Value, radius = obstacleComponent.radius,};
+                    MapObstacle cachedObstacle = new MapObstacle() {position = obstacleTranslation.Value.xy, radius = obstacleComponent.radius,};
                     
                     cachedObstacles.Add(cachedObstacle);
 
@@ -146,7 +146,7 @@ public class InitializeSystem : JobComponentSystem
 		for(int i = 0; i < numObstacles; i++)
 		{
 			MapObstacle cachedObstacle = cachedObstacles[i];
-			float3 obstaclePosition = cachedObstacle.position;
+			float2 obstaclePosition = cachedObstacle.position;
 			float obstacleRadius = cachedObstacle.radius;
 
 			var startX = math.clamp((int)((obstaclePosition.x - obstacleRadius) * res), 0, res - 1);

@@ -24,7 +24,7 @@ public struct AntObstacleAvoidanceJob : IJobForEach<AntComponent, Translation, A
 		return range;
 	}
 
-	private bool ValidPosition(float3 position)
+	private bool ValidPosition(float2 position)
 	{
 		if (position.x < 0 || position.y < 0 || position.x >= 1.0f || position.y >= 1.0f)
 			return false;
@@ -53,16 +53,20 @@ public struct AntObstacleAvoidanceJob : IJobForEach<AntComponent, Translation, A
 	private float WallSteering(AntComponent ant, float3 position, float distance) 
 	{
 		float steering = 0.0f;
-		float3 newPosition = new float3(0, 0, 0);
+		float2 newPosition = 0;
 
 		for (int i = -1; i <= 1; i+=2) 
 		{
 			float correctionAngle = i * math.PI * 0.25f;
 			float angle = ant.facingAngle + correctionAngle;
-			math.sincos(angle, out float sin, out float cos);
 
-			newPosition.x = position.x + cos * distance;
-			newPosition.y = position.y + sin * distance;
+			float2 dp;
+			math.sincos(angle, out dp.x, out dp.y);
+
+			newPosition = position.xy + dp * distance;
+
+			if (math.any(newPosition < 0) || math.any(newPosition >= 1))
+				continue;
 
 			if (!ValidPosition(newPosition))
 				steering -= correctionAngle;
