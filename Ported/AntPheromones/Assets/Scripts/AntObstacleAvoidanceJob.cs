@@ -1,4 +1,4 @@
-//#define SIMPLE_CHECK
+#define SIMPLE_CHECK
 
 using Unity.Burst;
 using Unity.Collections;
@@ -53,7 +53,7 @@ public struct AntObstacleAvoidanceJob : IJobForEach<AntComponent, Translation, A
 	private float WallSteering(AntComponent ant, float3 position, float distance) 
 	{
 		float steering = 0.0f;
-		float2 newPosition = 0;
+		float2 newPosition;
 
 		for (int i = -1; i <= 1; i+=2) 
 		{

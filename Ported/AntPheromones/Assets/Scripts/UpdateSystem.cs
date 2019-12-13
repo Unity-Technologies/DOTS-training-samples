@@ -204,9 +204,7 @@ public class UpdateSystem : JobComponentSystem
         var movementJob = new AntMovementJob()
         {
             TimeDelta = TimeDelta,
-            AntMaxSpeed =  settings.antSpeed,
-            PheromoneSteeringStrength = settings.pheromoneSteerStrength,
-            WallSteeringStrength = settings.wallSteerStrength,
+            Settings = settings,
             ColonyPosition = RuntimeManager.instance.colonyPosition.xy,
             ResourcePosition = RuntimeManager.instance.resourcePosition.xy,
             TargetRadius = 4.0f / settings.mapSize,
@@ -245,7 +243,7 @@ public class UpdateSystem : JobComponentSystem
 
         for (int i = 0; i < PheromoneMap.Length; i++)
         {
-            PheromoneMap[i] *= settings.trailDecay;// math.pow(settings.trailDecay, TimeDelta / 60.0f);
+            PheromoneMap[i] *= settings.trailDecay;// math.pow(settings.trailDecay, TimeDelta / Time.fixedDeltaTime);
         }
         
         UpdateTexture();

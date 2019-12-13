@@ -68,7 +68,6 @@ public class InitializeSystem : JobComponentSystem
 
 			AntComponent ant = new AntComponent()
 			{
-				acceleration = settings.antAccel,
 				facingAngle = math.radians(angleInDegrees),
 				brightness = Random.Range(.75f, 1.25f),
 				index = i,
