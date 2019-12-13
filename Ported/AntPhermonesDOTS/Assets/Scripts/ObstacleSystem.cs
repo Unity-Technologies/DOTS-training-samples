@@ -29,7 +29,8 @@ public class ObstacleSystem : JobComponentSystem
         var jobHandle = Entities
             .WithName("ObstacleSystem")
             .WithNone<ObstacleInitializedTag>()
-            .WithBurst(FloatMode.Default, FloatPrecision.Standard, true)
+            .WithoutBurst()
+//            .WithBurst(FloatMode.Default, FloatPrecision.Standard, true)
             .ForEach((Entity entity, int entityInQueryIndex, in Obstacle obstacle) =>
             {
                 var posArray = obstacle.Blob.Value.Positions.ToArray();
