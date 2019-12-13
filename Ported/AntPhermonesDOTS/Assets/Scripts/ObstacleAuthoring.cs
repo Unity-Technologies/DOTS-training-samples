@@ -7,7 +7,7 @@ using UnityEngine.Serialization;
 using Random = Unity.Mathematics.Random;
 
 [RequiresEntityConversion]
-[ConverterVersion("kasperrasmus", 4)]
+[ConverterVersion("kasperrasmus", 5)]
 public class ObstacleAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
     [FormerlySerializedAs("Prefab")] public GameObject prefab;
@@ -39,7 +39,7 @@ public class ObstacleAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDec
         {
             float ringRadius = (i / (obstacleRingCount+1f)) * (mapSize * .5f);
             float circumference = ringRadius * 2f * math.PI;
-            int maxCount = (int)math.ceil(circumference / (2f * obstacleRadius) * 2f);
+            int maxCount = (int)math.ceil(circumference / (2f * obstacleRadius) * 2f) * 2;
             int offset = RNG.NextInt(0,maxCount);
             int holeCount = RNG.NextInt(1,3);
             for (int j = 0; j < maxCount; j++)
@@ -69,21 +69,45 @@ public class ObstacleAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDec
         }
         foreach (var position in positionList)
         {
-            var tilePosition = ObstacleHelper.WorldPosToTilePos(position.xy, mapSize, tileSize);
-            var tileIndex = ObstacleHelper.TileIndex(tilePosition, tileCount);
+            for (var x = 0; x < 2; ++x)
+            {
+                for (var y = 0; y < 2; ++y)
+                {
+                    var pos = position.xy + new float2((-0.5f + 1.0f * x), -0.5f + 1.0f * y) * tileSize;
+                    var tilePosition = ObstacleHelper.WorldPosToTilePos(pos, mapSize, tileSize);
+                    var tileIndex = ObstacleHelper.TileIndex(tilePosition, tileCount);
 
-            var bitFieldIndex = ObstacleHelper.BitFieldIndex(tileIndex);
-            var bitIndex = ObstacleHelper.BitIndex(tileIndex);
-            
-            tileOccupancy[bitFieldIndex].SetBits(bitIndex, true);
+                    var bitFieldIndex = ObstacleHelper.BitFieldIndex(tileIndex);
+                    var bitIndex = ObstacleHelper.BitIndex(tileIndex);
+                    
+                    tileOccupancy[bitFieldIndex].SetBits(bitIndex, true);
+                }
+            }
         }
 
         for (var i = 0; i < positionList.Count; ++i)
         {
             blobPosArray[i] = positionList[i];
         }
-        
-        
+
+        /*
+        var txt = "";
+        for (var y = 0; y < tileCount; ++y)
+        {
+            for (var x = 0; x < tileCount; ++x)
+            {
+                var tilePosition = new int2(x, y);
+                var tileIndex = ObstacleHelper.TileIndex(tilePosition, tileCount);
+                var bitFieldIndex = ObstacleHelper.BitFieldIndex(tileIndex);
+                var bitIndex = ObstacleHelper.BitIndex(tileIndex);
+                var isSet = tileOccupancy[bitFieldIndex].GetBits(bitIndex) != 0;
+                txt += isSet ? " X " : " O ";
+            }
+            txt += "\n";
+        }
+        Debug.Log(txt);
+        */
+
         var blobReference = builder.CreateBlobAssetReference<ObstacleBlobAsset>(Allocator.Persistent);
         builder.Dispose();
 
