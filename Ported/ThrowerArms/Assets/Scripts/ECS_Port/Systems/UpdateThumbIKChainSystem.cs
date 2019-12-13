@@ -38,7 +38,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
             EntityManager.GetBuffer<UpVectorBufferForThumbs>(m_handUpBufferQuery.GetSingletonEntity());
 
         ComponentDataFromEntity<Translation> translationFromEntityAccessor = GetComponentDataFromEntity<Translation>(isReadOnly:true);
-
+        
         var calculateThumbIkWhenReachingJob = Entities.WithName("UpdateThumbIKWhenReachingForRock")
             .WithReadOnly(translationFromEntityAccessor)
             .WithNativeDisableParallelForRestriction(thumbJointPositionBuffer)
@@ -59,26 +59,12 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                 float3 rockThumbPosition = targetRockPosition + math.normalize(rockThumbDelta) * (reachTarget.TargetSize * 0.5f);
 
                 thumbTarget = math.lerp(thumbTarget, rockThumbPosition, fingerComponent.GrabExtent);
-                
-                int lastIndex = (int) (translation.Value.x * ThumbConstants.ChainCount + (ThumbConstants.ChainCount - 1));
-                thumbJointPositionBuffer[lastIndex] = thumbTarget;
 
-                int firstIndex = (int) (translation.Value.x * ThumbConstants.ChainCount);
-
-                for (int i = lastIndex - 1; i >= firstIndex; i--)
-                {
-                    thumbJointPositionBuffer[i] += thumbBendHint;
-                    float3 delta = thumbJointPositionBuffer[i].Value - thumbJointPositionBuffer[i + 1].Value;
-                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i + 1] + math.normalizesafe(delta) * ThumbConstants.BoneLength;
-                }
-
-                thumbJointPositionBuffer[firstIndex] = thumbPosition;
-
-                for (int i = firstIndex + 1; i <= lastIndex; i++)
-                {
-                    float3 delta = thumbJointPositionBuffer[i].Value - thumbJointPositionBuffer[i - 1].Value;
-                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i - 1] + math.normalizesafe(delta) * ThumbConstants.BoneLength;
-                }
+                // Solve this finger's IK chain
+                int lastIndex = (int)(translation.Value.x * ThumbConstants.ChainCount + (ThumbConstants.ChainCount - 1));
+                int firstIndex = (int)(translation.Value.x * ThumbConstants.ChainCount);
+                FABRIK_ECS.Solve(thumbJointPositionBuffer.Reinterpret<float3>(), firstIndex, lastIndex, ThumbConstants.BoneLength
+                    , thumbPosition, thumbTarget, thumbBendHint);                
             }).Schedule(inputDeps);
         
          var calculateThumbIkWhenInThrowStateJob = Entities.WithName("UpdateThumbIKWhenInThrowState")
@@ -105,26 +91,12 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                 float3 rockThumbPosition = targetRockPosition + math.normalize(rockThumbDelta) * (throwState.TargetSize * 0.5f);
 
                 thumbTarget = math.lerp(thumbTarget, rockThumbPosition, fingerComponent.GrabExtent);
-                
-                int lastIndex = (int) (translation.Value.x * ThumbConstants.ChainCount + (ThumbConstants.ChainCount - 1));
-                thumbJointPositionBuffer[lastIndex] = thumbTarget;
 
-                int firstIndex = (int) (translation.Value.x * ThumbConstants.ChainCount);
-
-                for (int i = lastIndex - 1; i >= firstIndex; i--)
-                {
-                    thumbJointPositionBuffer[i] += thumbBendHint;
-                    float3 delta = thumbJointPositionBuffer[i].Value - thumbJointPositionBuffer[i + 1].Value;
-                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i + 1] + math.normalizesafe(delta) * ThumbConstants.BoneLength;
-                }
-
-                thumbJointPositionBuffer[firstIndex] = thumbPosition;
-
-                for (int i = firstIndex + 1; i <= lastIndex; i++)
-                {
-                    float3 delta = thumbJointPositionBuffer[i].Value - thumbJointPositionBuffer[i - 1].Value;
-                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i - 1] + math.normalizesafe(delta) * ThumbConstants.BoneLength;
-                }
+                // Solve this finger's IK chain
+                int lastIndex = (int)(translation.Value.x * ThumbConstants.ChainCount + (ThumbConstants.ChainCount - 1));
+                int firstIndex = (int)(translation.Value.x * ThumbConstants.ChainCount);
+                FABRIK_ECS.Solve(thumbJointPositionBuffer.Reinterpret<float3>(), firstIndex, lastIndex, ThumbConstants.BoneLength
+                    , thumbPosition, thumbTarget, thumbBendHint);
             }).Schedule(calculateThumbIkWhenReachingJob);
         
         var calculateThumbIkWhenNotHoldingOrReachingForRock =
@@ -143,26 +115,11 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
                 float3 thumbBendHint = -arm.HandRight - arm.HandForward * 0.5f;
                 upVectorBufferForThumbs[(int) translation.Value.x] = thumbBendHint;
 
-                // Solve thumb IK chain
-                int lastIndex = (int) (translation.Value.x * ThumbConstants.ChainCount + (ThumbConstants.ChainCount - 1));
-                thumbJointPositionBuffer[lastIndex] = thumbTarget;
-
-                int firstIndex = (int) (translation.Value.x * ThumbConstants.ChainCount);
-
-                for (int i = lastIndex - 1; i >= firstIndex; i--)
-                {
-                    thumbJointPositionBuffer[i] += thumbBendHint;
-                    float3 delta = thumbJointPositionBuffer[i].Value - thumbJointPositionBuffer[i + 1].Value;
-                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i + 1] + math.normalizesafe(delta) * ThumbConstants.BoneLength;
-                }
-
-                thumbJointPositionBuffer[firstIndex] = thumbPosition;
-
-                for (int i = firstIndex + 1; i <= lastIndex; i++)
-                {
-                    float3 delta = thumbJointPositionBuffer[i].Value - thumbJointPositionBuffer[i - 1].Value;
-                    thumbJointPositionBuffer[i] = thumbJointPositionBuffer[i - 1] + math.normalizesafe(delta) * ThumbConstants.BoneLength;
-                }
+                // Solve this finger's IK chain
+                int lastIndex = (int)(translation.Value.x * ThumbConstants.ChainCount + (ThumbConstants.ChainCount - 1));
+                int firstIndex = (int)(translation.Value.x * ThumbConstants.ChainCount);
+                FABRIK_ECS.Solve(thumbJointPositionBuffer.Reinterpret<float3>(), firstIndex, lastIndex, ThumbConstants.BoneLength
+                    , thumbPosition, thumbTarget, thumbBendHint);
             }).Schedule(calculateThumbIkWhenInThrowStateJob);
         calculateThumbIkWhenNotHoldingOrReachingForRock.Complete();
 

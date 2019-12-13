@@ -93,27 +93,10 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                             (armComponent.HandUp * 0.3f + armComponent.HandForward * 0.1f + armComponent.HandRight * (finger - 1.5f) * 0.1f) * ArmThrowSystem.GetCurveValue(armComponent.ThrowTimer);
             
                         // Solve this finger's IK chain
-                        int lastIndex = 
-                            (int) (translation.Value.x * FingerConstants.TotalChainCount + (finger * FingerConstants.PerFingerChainCount - 1));
-                
-                        fingerJointPositions[lastIndex] = fingerTarget;
-
+                        int lastIndex = (int) (translation.Value.x * FingerConstants.TotalChainCount + (finger * FingerConstants.PerFingerChainCount - 1));
                         int firstIndex = lastIndex - FingerConstants.PerFingerChainCount + 1;
-
-                        for (int i = lastIndex - 1; i >= firstIndex; i--)
-                        {
-                            fingerJointPositions[i] += armComponent.HandUp * FingerConstants.BendStrength;
-                            float3 delta = fingerJointPositions[i].Value - fingerJointPositions[i + 1].Value;
-                            fingerJointPositions[i] = fingerJointPositions[i + 1] + math.normalizesafe(delta) * FingerConstants.BoneLengths[finger - 1];
-                        }
-
-                        fingerJointPositions[firstIndex] = fingerPosition;
-
-                        for (int i = firstIndex + 1; i <= lastIndex; i++)
-                        {
-                            float3 delta = fingerJointPositions[i].Value - fingerJointPositions[i - 1].Value;
-                            fingerJointPositions[i] = fingerJointPositions[i - 1] + math.normalizesafe(delta) * FingerConstants.BoneLengths[finger - 1];
-                        }
+                        FABRIK_ECS.Solve(fingerJointPositions.Reinterpret<float3>(), firstIndex, lastIndex, FingerConstants.BoneLengths[finger - 1]
+                            , fingerPosition, fingerTarget, armComponent.HandUp * FingerConstants.BendStrength);
                     }
                 }).Schedule(grabExtentJob2);
         
@@ -138,29 +121,10 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                                      (1f - fingerComponent.GrabExtent);
 
                      // Solve this finger's IK chain
-                     int lastIndex = (int) (translation.Value.x * FingerConstants.TotalChainCount +
-                                            (finger * FingerConstants.PerFingerChainCount - 1));
-
-                     fingerJointPositions[lastIndex] = fingerTarget;
-
+                     int lastIndex = (int)(translation.Value.x * FingerConstants.TotalChainCount + (finger * FingerConstants.PerFingerChainCount - 1));
                      int firstIndex = lastIndex - FingerConstants.PerFingerChainCount + 1;
-
-                     for (int i = lastIndex - 1; i >= firstIndex; i--)
-                     {
-                         fingerJointPositions[i] += armComponent.HandUp * FingerConstants.BendStrength;
-                         float3 delta = fingerJointPositions[i].Value - fingerJointPositions[i + 1].Value;
-                         fingerJointPositions[i] = fingerJointPositions[i + 1] +
-                                                   math.normalizesafe(delta) * FingerConstants.BoneLengths[finger - 1];
-                     }
-
-                     fingerJointPositions[firstIndex] = fingerPosition;
-
-                     for (int i = firstIndex + 1; i <= lastIndex; i++)
-                     {
-                         float3 delta = fingerJointPositions[i].Value - fingerJointPositions[i - 1].Value;
-                         fingerJointPositions[i] = fingerJointPositions[i - 1] +
-                                                   math.normalizesafe(delta) * FingerConstants.BoneLengths[finger - 1];
-                     }
+                     FABRIK_ECS.Solve(fingerJointPositions.Reinterpret<float3>(), firstIndex, lastIndex, FingerConstants.BoneLengths[finger - 1]
+                         , fingerPosition, fingerTarget, armComponent.HandUp * FingerConstants.BendStrength);
                  }
              })
              .Schedule(updateFingerIkChainForFingersGrippingRock);
