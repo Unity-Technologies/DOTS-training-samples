@@ -4,11 +4,12 @@ using src;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using UnityEngine;
 
 [DisallowMultipleComponent]
 [RequiresEntityConversion]
-[ConverterVersion("martinsch", 8)]
+[ConverterVersion("martinsch", 10)]
 public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     [SerializeField]
@@ -103,14 +104,14 @@ public class LineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             Value = quaternion.LookRotation(direction, up)
         });
         dstManager.AddComponentData(markerEntity, new Unity.Transforms.LocalToWorld());
-        dstManager.AddComponentData(markerEntity, new Unity.Transforms.NonUniformScale()
+//        dstManager.AddComponentData(markerEntity, new Unity.Transforms.NonUniformScale()
+//        {
+//            Value = RailMarkerScale
+//        });
+        dstManager.AddSharedComponentData(markerEntity, new RenderMesh
         {
-            Value = RailMarkerScale
-        });
-        dstManager.AddComponentData(markerEntity, new SimpleMeshRenderer
-        {
-            Mesh = RailMarkerMesh,
-            Material = material,
+            mesh = RailMarkerMesh,
+            material = material,
         });
     }
 }

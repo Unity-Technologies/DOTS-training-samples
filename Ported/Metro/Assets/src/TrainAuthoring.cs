@@ -1,11 +1,12 @@
 using Unity.Entities;
+using Unity.Rendering;
 using UnityEngine;
 
 namespace src
 {
     [DisallowMultipleComponent]
     [RequiresEntityConversion]
-    [ConverterVersion("martinsch", 4)]
+    [ConverterVersion("martinsch", 5)]
     public class TrainAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public LineAuthoring Line;
@@ -26,17 +27,16 @@ namespace src
                 dstManager.AddComponent(carriage, typeof(Unity.Transforms.LocalToWorld));
                 dstManager.AddComponent(carriage, typeof(NeedsVisuals));
 
-                var material = new Material(Shader.Find("Standard"));
-                if (i == 0)
-                {
-                    material.color = Color.blue;
-                }
-                
-                dstManager.AddComponentData(carriage, new SimpleMeshRenderer()
-                {
-                    Material = material,
-                    Mesh = Mesh
-                });
+//                var material = new Material(Shader.Find("Standard"));
+//                if (i == 0)
+//                {
+//                    material.color = Color.blue;
+//                }
+//                dstManager.AddSharedComponentData(carriage, new RenderMesh()
+//                {
+//                    mesh = Mesh,
+//                    material = material,
+//                });
                 dstManager.AddComponentData(carriage, new LinePosition()
                 {
                     Line = conversionSystem.TryGetPrimaryEntity(Line),

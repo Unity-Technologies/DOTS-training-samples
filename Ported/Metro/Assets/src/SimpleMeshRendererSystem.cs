@@ -3,7 +3,6 @@ using Unity.Transforms;
 using UnityEngine;
 
 [ExecuteAlways]
-[AlwaysUpdateSystem]
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 class SimpleMeshRendererSystem : ComponentSystem
 {

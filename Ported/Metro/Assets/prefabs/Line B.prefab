@@ -61,7 +61,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_LineIndex: 1
   BezierFactor: 0.5
-  RailMarkerMesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  RailMarkerMesh: {fileID: 4300000, guid: 9c646142e973e294b9f60718c67985d8, type: 2}
   RailMarkerColor: {r: 1, g: 1, b: 1, a: 1}
   RailMarkerScale: {x: 0.1, y: 1, z: 0.025}
   RailMarkerDistance: 1
