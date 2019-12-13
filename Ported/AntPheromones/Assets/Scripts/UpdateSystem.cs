@@ -118,6 +118,10 @@ public class UpdateSystem : JobComponentSystem
         var antPositions = new NativeArray<Translation>(settings.antCount, Allocator.TempJob);
 
         var antRandomDirections = new NativeArray<float>(settings.antCount, Allocator.TempJob);
+        for (int i = 0; i < settings.antCount; i++)
+        {
+            antRandomDirections[i] = UnityEngine.Random.Range(-settings.randomSteering, settings.randomSteering);
+        }
 
         if (Input.GetKeyDown(KeyCode.Alpha1)) {
             m_TimeScale = 1f;
