@@ -15,7 +15,7 @@ public class PickSelectSystem : JobComponentSystem
 
     private static int CalculateIndex(in Translation translation, float spacing)
     {
-        return (int)math.round(translation.Value.x / spacing)+1;
+        return (int)math.round((translation.Value.x+1f) / spacing);
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
@@ -23,7 +23,7 @@ public class PickSelectSystem : JobComponentSystem
         float spacing = ArmSpawner.Spacing;
         EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer entityCommandBuffer = endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
-        NativeArray<Entity> pickupArray = new NativeArray<Entity>(ArmSpawner.Count+2, Allocator.TempJob, NativeArrayOptions.ClearMemory);
+        NativeArray<Entity> pickupArray = new NativeArray<Entity>(ArmSpawner.Count, Allocator.TempJob, NativeArrayOptions.ClearMemory);
         var count = ArmSpawner.Count;
         JobHandle assignJobHandle = Entities.WithName("AssignRocksToArray")
             .WithNativeDisableParallelForRestriction(pickupArray)
@@ -37,19 +37,26 @@ public class PickSelectSystem : JobComponentSystem
                 }
         }).Schedule(inputDependencies);
 
-        var accessor = GetComponentDataFromEntity<Scale>(isReadOnly: true);
-        
+        var translationFromEntityAccessor = GetComponentDataFromEntity<Translation>(true);
+        assignJobHandle.Complete();
+
         EntityCommandBuffer.Concurrent concurrentBuffer = entityCommandBuffer.ToConcurrent();
         JobHandle grabJobHandle = Entities.WithName("GrabRocksFromArray")
             .WithDeallocateOnJobCompletion(pickupArray)
             .WithReadOnly(pickupArray)
-            .WithReadOnly(accessor)
+            .WithReadOnly(translationFromEntityAccessor)
             .WithAll<FindGrabbableTargetState>()
-            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
+            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation, in ArmComponent arm) =>
         {
             Entity pickEntity = pickupArray[CalculateIndex(translation, spacing)-1];
+            if (pickEntity == Entity.Null)
+                return;
 
-            if (pickEntity != Entity.Null)
+            float3 rockTranslation = translationFromEntityAccessor[pickEntity].Value;
+            float3 delta = rockTranslation - translation.Value;
+
+            bool rockIsReachable = math.lengthsq(delta) < math.lengthsq(ArmConstants.MaxReach);
+            if (!rockIsReachable)
             {
                 // Remove the components so we do not pick another entity.
                 concurrentBuffer.RemoveComponent<FindGrabbableTargetState>(entityInQueryIndex, entity);
@@ -59,7 +66,6 @@ public class PickSelectSystem : JobComponentSystem
                 concurrentBuffer.AddComponent(entityInQueryIndex, entity, new ReachForTargetState
                 {
                     TargetEntity = pickEntity,
-                    TargetSize = accessor[pickEntity].Value
                 });
                 concurrentBuffer.RemoveComponent<IdleState>(entityInQueryIndex, entity);
             }

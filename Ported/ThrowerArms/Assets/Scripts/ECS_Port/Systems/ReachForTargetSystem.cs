@@ -15,9 +15,11 @@ public class ReachForTargetSystem : JobComponentSystem
 
         var handMatrixAccessor = GetComponentDataFromEntity<HandMatrix>(true);
         var translationFromEntityAccessor = GetComponentDataFromEntity<Translation>(true);
-        
+        var scaleFromEntityAccessor = GetComponentDataFromEntity<Scale>(true);
+
         JobHandle reachForRockJob = Entities.WithName("TryReachForTargetRock")
             .WithReadOnly(translationFromEntityAccessor)
+            .WithReadOnly(scaleFromEntityAccessor)
             .WithReadOnly(handMatrixAccessor)
             .ForEach((Entity entity, int entityInQueryIndex, ref ReachForTargetState reachingState, ref ArmComponent arm, in Translation translation) =>
         {
@@ -38,10 +40,13 @@ public class ReachForTargetSystem : JobComponentSystem
             flatDelta.y = 0;
             
             flatDelta = math.normalize(flatDelta);
-
+            var size = scaleFromEntityAccessor[reachingState.TargetEntity].Value;
             reachingState.HandTarget =
-                desiredRockTranslation + new float3(0, 1, 0) * reachingState.TargetSize * 0.5f - flatDelta * reachingState.TargetSize * 0.5f;
-            arm.HandTarget = reachingState.HandTarget;
+                desiredRockTranslation + new float3(0, 1, 0) * size * 0.5f - flatDelta * size * 0.5f;
+
+            float grabT = arm.ReachTimer;
+            grabT = 3f * grabT * grabT - 2f * grabT * grabT * grabT;
+            arm.HandTarget = math.lerp(arm.IdleHandTarget, reachingState.HandTarget, grabT);
             
             if (arm.ReachTimer < 1f)
             {
@@ -61,7 +66,7 @@ public class ReachForTargetSystem : JobComponentSystem
                 GrabbingEntity = entity,
                 localPosition = math.transform(math.inverse(handMatrixAccessor[entity].Value), desiredRockTranslation)
             });
-            concurrentBuffer.AddComponent<HoldingRockState>(entityInQueryIndex, entity, new HoldingRockState { HeldEntity = reachingState.TargetEntity, EntitySize = reachingState.TargetSize });
+            concurrentBuffer.AddComponent<HoldingRockState>(entityInQueryIndex, entity, new HoldingRockState { HeldEntity = reachingState.TargetEntity, EntitySize = size });
         }).Schedule(inputDeps);
         endSimulationEcbSystem.AddJobHandleForProducer(reachForRockJob);
 

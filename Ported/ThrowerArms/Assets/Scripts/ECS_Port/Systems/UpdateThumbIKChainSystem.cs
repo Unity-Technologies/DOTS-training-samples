@@ -37,13 +37,14 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
         var upVectorBufferForThumbs =
             EntityManager.GetBuffer<UpVectorBufferForThumbs>(m_handUpBufferQuery.GetSingletonEntity());
 
-        ComponentDataFromEntity<Translation> translationFromEntityAccessor = GetComponentDataFromEntity<Translation>(isReadOnly:true);
-        
+        ComponentDataFromEntity<Translation> translationFromEntityAccessor = GetComponentDataFromEntity<Translation>(isReadOnly: true);
+        ComponentDataFromEntity<Scale> scaleFromEntityAccessor = GetComponentDataFromEntity<Scale>(isReadOnly: true);
+
         var calculateThumbIkWhenReachingJob = Entities.WithName("UpdateThumbIKWhenReachingForRock")
             .WithReadOnly(translationFromEntityAccessor)
+            .WithReadOnly(scaleFromEntityAccessor)
             .WithNativeDisableParallelForRestriction(thumbJointPositionBuffer)
             .WithNativeDisableParallelForRestriction(upVectorBufferForThumbs)
-            .WithoutBurst()
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent, in ReachForTargetState reachTarget) =>
             {
                 float3 thumbPosition = arm.HandPosition + arm.HandRight * ThumbConstants.XOffset;
@@ -56,7 +57,7 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
 
                 var targetRockPosition = translationFromEntityAccessor[reachTarget.TargetEntity].Value;
                 float3 rockThumbDelta = thumbTarget - targetRockPosition;
-                float3 rockThumbPosition = targetRockPosition + math.normalize(rockThumbDelta) * (reachTarget.TargetSize * 0.5f);
+                float3 rockThumbPosition = targetRockPosition + math.normalize(rockThumbDelta) * (scaleFromEntityAccessor[reachTarget.TargetEntity].Value * 0.5f);
 
                 thumbTarget = math.lerp(thumbTarget, rockThumbPosition, fingerComponent.GrabExtent);
 
@@ -69,7 +70,6 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
         
          var calculateThumbIkWhenInThrowStateJob = Entities.WithName("UpdateThumbIKWhenInThrowState")
             .WithReadOnly(translationFromEntityAccessor)
-            .WithoutBurst()
             .WithNativeDisableParallelForRestriction(thumbJointPositionBuffer)
             .WithNativeDisableParallelForRestriction(upVectorBufferForThumbs)
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent, in HoldingRockState holdingRockState) =>
@@ -104,7 +104,6 @@ public class UpdateThumbIKChainSystem : JobComponentSystem
             .WithNativeDisableParallelForRestriction(thumbJointPositionBuffer)
             .WithNativeDisableParallelForRestriction(upVectorBufferForThumbs)
             .WithNone<HoldingRockState>()
-            .WithoutBurst()
             .ForEach((in ArmComponent arm, in Translation translation, in Finger fingerComponent) =>
             {
                 float3 thumbPosition = arm.HandPosition + arm.HandRight * ThumbConstants.XOffset;

@@ -2,6 +2,7 @@
 using Unity.Jobs;
 using Unity.Mathematics;
 
+[UpdateInGroup(typeof(PresentationSystemGroup))]
 public class UpdateReachAndThrowTimersSystem : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)

@@ -102,7 +102,7 @@ public class ArmThrowSystem : JobComponentSystem
 
                 // we start this animation in our windup position,
                 // and end it by returning to our default idle pose
-                float3 restingPos = math.lerp(throwAt.StartPosition, arm.HandTarget, arm.ThrowTimer);
+                float3 restingPos = math.lerp(throwAt.StartPosition, arm.IdleHandTarget, arm.ThrowTimer);
 
                 // find the hand's target position to perform the throw
                 // (somewhere forward and upward from the windup position)

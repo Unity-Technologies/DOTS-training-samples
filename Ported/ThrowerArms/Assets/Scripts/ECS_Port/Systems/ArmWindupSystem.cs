@@ -24,7 +24,7 @@ public class ArmWindupSystem : JobComponentSystem
                 windup.WindupTimer += dt / ArmConstants.WindUpDuration;
                 if (windup.WindupTimer < 0f)
                     return;
-                float windupT = Mathf.Clamp01(windup.WindupTimer);
+                float windupT = math.clamp(windup.WindupTimer,0,1) - math.clamp(arm.ThrowTimer * 2f,0,1) ;
                 windupT = 3f * windupT * windupT - 2f * windupT * windupT * windupT;
                 arm.HandTarget = Vector3.Lerp(arm.HandTarget, windup.HandTarget, windupT);
                 if (!accessor.Exists(windup.AimedTargetEntity))

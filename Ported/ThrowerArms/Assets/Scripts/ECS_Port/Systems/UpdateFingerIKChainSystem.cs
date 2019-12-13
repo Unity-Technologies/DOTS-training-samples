@@ -47,7 +47,7 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
         JobHandle grabExtentJob2 =
             Entities.WithName("UpdateFingerGrabExtentForHoldingTargetArm")
                     .WithAll<HoldingRockState>()
-                    .ForEach((ref Finger finger, ref ArmComponent arm) =>
+                    .ForEach((ref Finger finger, in ArmComponent arm) =>
                     {
                         finger.GrabExtent = 1f;
                     })
@@ -100,7 +100,7 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                     }
                 }).Schedule(grabExtentJob2);
         
-         return
+         var updateFingerIkChainForFingersIdle =
              Entities.WithName("UpdateFingerIKChainForFingersIdle")
              .WithNativeDisableParallelForRestriction(fingerJointPositions)
              .WithNone<LookForThrowTargetState>()
@@ -128,6 +128,8 @@ public class UpdateFingerIKChainSystem : JobComponentSystem
                  }
              })
              .Schedule(updateFingerIkChainForFingersGrippingRock);
+
+        return updateFingerIkChainForFingersIdle;
          
     }
 }

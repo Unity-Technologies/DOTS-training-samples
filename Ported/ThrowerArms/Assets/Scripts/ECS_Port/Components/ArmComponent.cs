@@ -6,6 +6,7 @@ public struct ArmComponent : IComponentData
 {
     public float3 HandPosition;
     public float3 HandTarget;
+    public float3 IdleHandTarget;
     public float3 HandForward;
     public float3 HandUp;
     public float3 HandRight;
