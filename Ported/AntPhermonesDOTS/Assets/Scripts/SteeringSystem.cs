@@ -44,7 +44,7 @@ public class SteeringSystem: JobComponentSystem
                 var rotationBefore = velocity.Rotation;
                 
                 var randomStrength = 0.15f;
-                uint seed = (uint)(entityInQueryIndex * 0x9F6ABC1) + frameCount + 1;
+                uint seed = (uint)(entityInQueryIndex * 0x9F6ABC1) + frameCount;
                 uint scrambledSeed = WangHash(seed);
                 if (scrambledSeed == 0) scrambledSeed = 1;
                 var rng = new Random(scrambledSeed);
