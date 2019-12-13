@@ -87,7 +87,7 @@ public class ArmThrowSystem : JobComponentSystem
             {
                 bool aimedTargetAlreadyDestroyed =
                     !velocityAccessor.Exists(throwAt.AimedTargetEntity) || !accessor.Exists(throwAt.AimedTargetEntity);
-                if (aimedTargetAlreadyDestroyed)
+                if (aimedTargetAlreadyDestroyed && throwAt.HeldEntity != Entity.Null)
                 {
                     concurrentBuffer.RemoveComponent<ThrowAtState>(entityInQueryIndex, entity);
                     concurrentBuffer.AddComponent<LookForThrowTargetState>(entityInQueryIndex, entity, new LookForThrowTargetState { GrabbedEntity = throwAt.HeldEntity, TargetSize = 1.0f } );
@@ -112,6 +112,7 @@ public class ArmThrowSystem : JobComponentSystem
 
                 if (arm.ThrowTimer > .15f && throwAt.HeldEntity != Entity.Null)
                 {
+                    concurrentBuffer.RemoveComponent<HoldingRockState>(entityInQueryIndex, entity);
                     concurrentBuffer.RemoveComponent<GrabbedState>(entityInQueryIndex, throwAt.HeldEntity);
                     // release the rock
                     concurrentBuffer.AddComponent<Velocity>(entityInQueryIndex, throwAt.HeldEntity, new Velocity() { Value = throwAt.AimVector });
@@ -122,7 +123,7 @@ public class ArmThrowSystem : JobComponentSystem
                     throwAt.HeldEntity = Entity.Null;
                 }
 
-                if (arm.ThrowTimer > 1f)
+                if (arm.ThrowTimer >= 1f)
                 {
                     concurrentBuffer.RemoveComponent<ThrowAtState>(entityInQueryIndex, entity);
                     concurrentBuffer.AddComponent<IdleState>(entityInQueryIndex, entity);
