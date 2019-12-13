@@ -106,7 +106,7 @@ public class ArmRenderingSystem : JobComponentSystem
                 JointPositions = armJointBuffer,
                 UpVectors = armUpVectorBuffer,
                 
-                BoneMatrices = armJointMatriceBuffer.Reinterpret<Matrix4x4>()
+                BoneMatrices = armJointMatriceBuffer.Reinterpret<float4x4>()
             }.Schedule(
                 armBoneBuffer.Length,
                 innerloopBatchCount: 256,
