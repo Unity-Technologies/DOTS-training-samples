@@ -49,6 +49,7 @@ public class CollisionSystem : JobComponentSystem
             .WithName("CollisionJob")
             .WithReadOnly(hashMap)
             .WithAll<RockComponent>()
+            .WithoutBurst()
             .ForEach((ref Velocity velocity, in Translation pos) =>
             {
                 var hash = (int)math.hash(new int3(math.floor(pos.Value / 2f)));
