@@ -24,25 +24,26 @@ public class SpawnerSystem : JobComponentSystem
     {
         var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
         float deltaTime = Time.DeltaTime;
-
+        float count = ArmSpawner.Count;
         var deps = Entities.ForEach((ref SpawnerComponent spawner) =>
         {
             spawner.timeToNextSpawn -= deltaTime;
             while (spawner.timeToNextSpawn < 0)
             {
-                var x = spawner.random.NextFloat(-spawner.extend.x, spawner.extend.x) / 2f;
+                var x = spawner.random.NextFloat(-5, count + 5);
                 var y = spawner.random.NextFloat(-spawner.extend.y, spawner.extend.y) / 2f;
                 var z = spawner.random.NextFloat(-spawner.extend.z, spawner.extend.z) / 2f;
                 //var y = spawner.random.NextInt(0, rowCount - 1);
                 //var z = spawner.random.NextInt(0, rowCount - 1);
                 var entity = commandBuffer.Instantiate(0, spawner.spawnEntity);
                 var c = spawner.center;
+                c.x = 0;
                 commandBuffer.SetComponent(0,entity, new Translation { Value = c + new float3(x, y, z) });
                 var scale = spawner.random.NextFloat(spawner.scaleRange.x, spawner.scaleRange.y);
                 commandBuffer.AddComponent(0,entity, new Scale() { Value = 0f });
                 commandBuffer.AddComponent(0,entity, new Velocity() { Value = spawner.velocity });
                 commandBuffer.AddComponent(0,entity, new UpscaleComponent() { targetScale = scale }) ;
-                spawner.timeToNextSpawn += 1f / spawner.frequency;
+                spawner.timeToNextSpawn += 1f / (spawner.frequency * count);
             }
 
         }).Schedule(inputDependencies);

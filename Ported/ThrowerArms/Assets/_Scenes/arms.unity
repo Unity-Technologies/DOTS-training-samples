@@ -169,7 +169,7 @@ MonoBehaviour:
     type: 3}
   scaleRange: {x: 0.2, y: 0.45}
   velocity: {x: 1, y: 0, z: 0}
-  frequency: 20
+  frequency: 0.2
 --- !u!4 &117738162
 Transform:
   m_ObjectHideFlags: 0
@@ -812,7 +812,7 @@ MonoBehaviour:
     type: 3}
   scaleRange: {x: 1, y: 1}
   velocity: {x: -1, y: 0, z: 0}
-  frequency: 20
+  frequency: 0.2
 --- !u!4 &1718741835
 Transform:
   m_ObjectHideFlags: 0
