@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateBefore(typeof(UpdateArmIKChainSystem))]
 public class ArmWindupSystem : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)

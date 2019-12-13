@@ -5,6 +5,7 @@ using Unity.Transforms;
 
 namespace ECS_Port.Systems
 {
+    [UpdateBefore(typeof(UpdateArmIKChainSystem))]
     public class IdleHandMovementSystem : JobComponentSystem
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)

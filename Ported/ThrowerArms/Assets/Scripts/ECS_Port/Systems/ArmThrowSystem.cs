@@ -5,6 +5,8 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using static Unity.Mathematics.math;
 
+
+[UpdateBefore(typeof(UpdateArmIKChainSystem))]
 public class ArmThrowSystem : JobComponentSystem
 {
     [BurstCompile]

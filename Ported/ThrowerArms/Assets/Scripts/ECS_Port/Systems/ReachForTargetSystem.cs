@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateBefore(typeof(UpdateArmIKChainSystem))]
 public class ReachForTargetSystem : JobComponentSystem
 {   
     protected override JobHandle OnUpdate(JobHandle inputDeps)
