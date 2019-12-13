@@ -1,4 +1,4 @@
-#define SIMPLE_CHECK
+//#define SIMPLE_CHECK
 
 using Unity.Burst;
 using Unity.Collections;
