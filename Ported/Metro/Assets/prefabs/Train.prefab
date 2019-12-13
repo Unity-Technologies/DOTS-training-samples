@@ -45,6 +45,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Line: {fileID: 0}
   Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  TargetSpeed: 5
+  TargetSpeed: 15
   NumberOfCarriages: 5
   CarriageDistance: 6

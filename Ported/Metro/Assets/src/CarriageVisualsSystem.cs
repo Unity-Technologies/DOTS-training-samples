@@ -30,7 +30,7 @@ public class CarriageVisualsSystem : JobComponentSystem
         var carriageRotation = new NativeArray<Rotation>(m_CarriageQuery.CalculateEntityCount(),Allocator.TempJob);
         
         var jobHandle = Entities
-            .WithName("CarriageVisualsSystem Fetch Values")
+            .WithName("CarriageVisualsSystem_Fetch_Values")
             .WithReadOnly(getTranslation)
             .WithReadOnly(getRotation)
             .ForEach((int entityInQueryIndex, in CarriageVisuals carriageVisuals) =>
@@ -40,7 +40,7 @@ public class CarriageVisualsSystem : JobComponentSystem
         }).Schedule(inputDeps);
         
         jobHandle = Entities
-            .WithName("CarriageVisualsSystem Set Values")
+            .WithName("CarriageVisualsSystem_Set_Values")
             .ForEach((int entityInQueryIndex, ref Translation translation, ref Rotation rotation, in CarriageVisuals carriageVisuals) =>
         {
             translation = carriagePositions[entityInQueryIndex];
