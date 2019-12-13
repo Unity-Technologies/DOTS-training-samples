@@ -1,109 +1,139 @@
 using System.Drawing;
+using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
 
-public class BarSimulationSystem : JobComponentSystem
+[BurstCompile]
+struct BarSimulationJob : IJob
 {
-    EntityQuery q;
-    EntityQuery bq;
+    public Entity entity;
+    public BufferFromEntity<BarEntry> barAccessor;
+//    [ReadOnly]
+//    public DynamicBuffer<BarEntry> bars;
+//    [NativeDisableContainerSafetyRestriction]
+[NativeDisableContainerSafetyRestriction]
+    public NativeArray<ConstrainedPoint> pointsBuf;
+
+    public float breakResistance;
     
-    protected override void OnCreate()
+    public void Execute()
     {
-        q = GetEntityQuery(typeof(ConstrainedPointEntry));
-    }
-
-    protected override JobHandle OnUpdate(JobHandle inputDeps)
-    {
-        var e = q.GetSingletonEntity();
-        var pointsBuf = EntityManager.GetBuffer<ConstrainedPointEntry>(e).AsNativeArray().Reinterpret<ConstrainedPoint>();
-
-        var entities = GetEntityQuery(typeof(BarEntry)).ToEntityArray(Allocator.TempJob);
-
-        foreach (var be in entities)
+        var bars = barAccessor[entity];
+        for (int i = 0; i < bars.Length; i++)
         {
-            NativeArray<Bar> bars = EntityManager.GetBuffer<BarEntry>(be).AsNativeArray().Reinterpret<Bar>();
-            
-            for (int i = 0; i < bars.Length; i++)
+            Bar bar = bars[i].Value;
+
+            var point1 = pointsBuf[bar.p1];
+            var point2 = pointsBuf[bar.p2];
+
+            var dd = point2.position - point1.position;
+
+            float dist = Unity.Mathematics.math.length(dd);
+            float extraDist = dist - bar.length;
+
+            var push = dd/dist * extraDist * 0.5f;
+
+            if (point1.anchor == false && point2.anchor == false)
             {
-                Bar bar = bars[i];
+                point1.position += push;
+                point2.position -= push;
+            }
+            else if (point1.anchor)
+            {
+                point2.position -= push * 2f;
+            }
+            else if (point2.anchor)
+            {
+                point1.position += push * 2f;
+            }
 
-                var point1 = pointsBuf[bar.p1];
-                var point2 = pointsBuf[bar.p2];
+            pointsBuf[bar.p1] = point1;
+            pointsBuf[bar.p2] = point2;
 
-                var dd = point2.position - point1.position;
-
-                float dist = Unity.Mathematics.math.length(dd);
-                float extraDist = dist - bar.length;
-
-                var push = dd/dist * extraDist * 0.5f;
-
-                if (point1.anchor == false && point2.anchor == false)
-                {
-                    point1.position += push;
-                    point2.position -= push;
-                }
-                else if (point1.anchor)
-                {
-                    point2.position -= push * 2f;
-                }
-                else if (point2.anchor)
-                {
-                    point1.position += push * 2f;
-                }
-
-                pointsBuf[bar.p1] = point1;
-                pointsBuf[bar.p2] = point2;
-
-//                if (dx / dist * bar.oldDX + dy / dist * bar.oldDY + dz / dist * bar.oldDZ < .99f)
-//                {
-//                    // bar has rotated: expensive full-matrix computation
-//                    bar.matrix = Matrix4x4.TRS(new Vector3((point1.x + point2.x) * .5f, (point1.y + point2.y) * .5f, (point1.z + point2.z) * .5f),
-//                        Quaternion.LookRotation(new Vector3(dx, dy, dz)),
-//                        new Vector3(bar.thickness, bar.thickness, bar.length));
-//                    bar.oldDX = dx / dist;
-//                    bar.oldDY = dy / dist;
-//                    bar.oldDZ = dz / dist;
-//                }
-//                else
-//                {
-//                    // bar hasn't rotated: only update the position elements
-//                    Matrix4x4 matrix = bar.matrix;
-//                    matrix.m03 = (point1.x + point2.x) * .5f;
-//                    matrix.m13 = (point1.y + point2.y) * .5f;
-//                    matrix.m23 = (point1.z + point2.z) * .5f;
-//                    bar.matrix = matrix;
-//                }
-
+//                pointsBuf[bar.p1] = new ConstrainedPointEntry { Value = point1};
+//                pointsBuf[bar.p2] = new ConstrainedPointEntry { Value = point2};
+            
 //                if (Mathf.Abs(extraDist) > breakResistance)
 //                {
 //                    if (point2.neighborCount > 1)
 //                    {
 //                        point2.neighborCount--;
-//                        Point newPoint = new Point();
-//                        newPoint.CopyFrom(point2);
+//                        var newPoint = new ConstrainedPoint();
+//                        newPoint = point2;
 //                        newPoint.neighborCount = 1;
-//                        points[pointCount] = newPoint;
-//                        bar.point2 = newPoint;
-//                        pointCount++;
+//                        newPoint.anchor = false;
+//                        pointsBuf.Add(new ConstrainedPointEntry { Value = newPoint});
+//                        bar.p2 = pointsBuf.Length - 1;
 //                    }
 //                    else if (point1.neighborCount > 1)
 //                    {
 //                        point1.neighborCount--;
-//                        Point newPoint = new Point();
-//                        newPoint.CopyFrom(point1);
+//                        var newPoint = new ConstrainedPoint();
+//                        newPoint = point1;
 //                        newPoint.neighborCount = 1;
-//                        points[pointCount] = newPoint;
-//                        bar.point1 = newPoint;
-//                        pointCount++;
+//                        newPoint.anchor = false;
+//                        pointsBuf.Add(new ConstrainedPointEntry { Value = newPoint});
+//                        bar.p1 = pointsBuf.Length - 1;
 //                    }
 //                }
-            }
-        }
 
-        entities.Dispose();
+//                bars[i] = bar;
+        }
+    }
+}
+
+
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateAfter(typeof(TornadoSystem))]
+public class BarSimulationSystem : JobComponentSystem
+{
+    EntityQuery q;
+    EntityQuery generationSettings;
+    
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GenerationSystem.State>();
+        q = GetEntityQuery(typeof(ConstrainedPointEntry));
+        generationSettings = GetEntityQuery(typeof(GenerationSetting));
+    }
+
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
+    {
+        var settingsEntity = generationSettings.GetSingletonEntity();
+        var settings = EntityManager.GetComponentObject<GenerationSetting>(settingsEntity);
+
+        var e = q.GetSingletonEntity();
+        var pointsBuf = EntityManager.GetBuffer<ConstrainedPointEntry>(e).AsNativeArray().Reinterpret<ConstrainedPoint>();
+
+        var entities = GetEntityQuery(typeof(BarEntry)).ToEntityArray(Allocator.TempJob);
+        var jobs = new NativeArray<JobHandle>(entities.Length, Allocator.TempJob);
+
+        var barAccessor = GetBufferFromEntity<BarEntry>(isReadOnly: true);
+       
+        for(int i = 0; i < entities.Length; ++i)
+        {
+            var job = new BarSimulationJob()
+            {
+                entity = entities[i],
+                barAccessor = barAccessor,
+                //bars = EntityManager.GetBuffer<BarEntry>(entities[i]),
+                pointsBuf = pointsBuf,
+                breakResistance = settings.breakResistance
+            };
+
+            //job.Schedule(inputDeps).Complete();
+            var jobHandle = job.Schedule();
+            jobs[i] = jobHandle;
+        }
+       
+        var jj = JobHandle.CombineDependencies(jobs);
+        jj.Complete();
         
+        entities.Dispose();
+        jobs.Dispose();
         return inputDeps;
     }
 }

@@ -1,6 +1,10 @@
+using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class GenerationSystem : ComponentSystem
@@ -33,116 +37,104 @@ public class GenerationSystem : ComponentSystem
 		Debug.Log("Found the entity");
             
 		var pointsList = new NativeList<ConstrainedPoint>(Allocator.Temp);
-		var barsList = new NativeList<Bar>(Allocator.Temp);
-//		List<List<Matrix4x4>> matricesList = new List<List<Matrix4x4>>();
-//		matricesList.Add(new List<Matrix4x4>());
+		var listOfLists = new List<NativeList<Bar>>();
 
 		// buildings
-		for (int i = 0; i < 35; i++) {
+		for (int i = 0; i < 100; i++)
+		{
+			var plStart = pointsList.Length;
+			var barsList = new NativeList<Bar>(Allocator.Temp);
+			listOfLists.Add(barsList);
 			int height = Random.Range(4,12);
 			Vector3 pos = new Vector3(Random.Range(-45f,45f),0f,Random.Range(-45f,45f));
 			float spacing = 2f;
-			for (int j = 0; j < height; j++) {
+			for (int j = 0; j < height; j++)
+			{
 				var point = new ConstrainedPoint();
-				point.position.x = pos.x+spacing;
+				point.position.x = pos.x + spacing;
 				point.position.y = j * spacing;
-				point.position.z = pos.z-spacing;
+				point.position.z = pos.z - spacing;
 				point.oldPosition = point.position;
-				if (j==0) {
-					point.anchor=true;
+				if (j == 0)
+				{
+					point.anchor = true;
 				}
+
 				pointsList.Add(point);
 				point = new ConstrainedPoint();
-				point.position.x = pos.x-spacing;
+				point.position.x = pos.x - spacing;
 				point.position.y = j * spacing;
-				point.position.z = pos.z-spacing;
+				point.position.z = pos.z - spacing;
 				point.oldPosition = point.position;
-				if (j==0) {
-					point.anchor=true;
+				if (j == 0)
+				{
+					point.anchor = true;
 				}
+
 				pointsList.Add(point);
 				point = new ConstrainedPoint();
-				point.position.x = pos.x+0f;
+				point.position.x = pos.x + 0f;
 				point.position.y = j * spacing;
-				point.position.z = pos.z+spacing;
+				point.position.z = pos.z + spacing;
 				point.oldPosition = point.position;
-				if (j==0) {
-					point.anchor=true;
+				if (j == 0)
+				{
+					point.anchor = true;
 				}
+
 				pointsList.Add(point);
+			}
+			
+			for (int pl = plStart; pl < pointsList.Length; pl++) {
+				for (int j = pl + 1; j < pointsList.Length; j++)
+				{
+					var p1 = pointsList[pl];
+					var p2 = pointsList[j];
+					Vector3 delta = p2.position - p1.position;
+					var length = delta.magnitude;
+
+					if (length < 5f && length>.2f) {
+						Bar bar = new Bar();
+						bar.AssignPoints(pl, j, length);
+						p1.neighborCount++;
+						p2.neighborCount++;
+						barsList.Add(bar);
+
+						pointsList[pl] = p1;
+						pointsList[j] = p2;
+					}
+				}
 			}
 		}
 
-//		// ground details
+		// ground details
 //		for (int i=0;i<600;i++) {
 //			Vector3 pos = new Vector3(Random.Range(-55f,55f),0f,Random.Range(-55f,55f));
-//			Point point = new Point();
-//			point.x = pos.x + Random.Range(-.2f,-.1f);
-//			point.y = pos.y+Random.Range(0f,3f);
-//			point.z = pos.z + Random.Range(.1f,.2f);
-//			point.oldX = point.x;
-//			point.oldY = point.y;
-//			point.oldZ = point.z;
+//			var point = new ConstrainedPoint();
+//			point.position = new float3(pos.x + Random.Range(-.2f, -.1f), pos.y + Random.Range(0f, 3f), pos.z + Random.Range(.1f, .2f));
+//			point.oldPosition = point.position;
 //			pointsList.Add(point);
 //
-//			point = new Point();
-//			point.x = pos.x + Random.Range(.2f,.1f);
-//			point.y = pos.y + Random.Range(0f,.2f);
-//			point.z = pos.z + Random.Range(-.1f,-.2f);
-//			point.oldX = point.x;
-//			point.oldY = point.y;
-//			point.oldZ = point.z;
+//			point = new ConstrainedPoint();
+//			point.position = new float3(pos.x + Random.Range(.2f, .1f), pos.y + Random.Range(0f, .2f), pos.z + Random.Range(-.1f, -.2f));
+//			point.oldPosition = point.position;
+//			pointsList.Add(point);
+//
 //			if (Random.value<.1f) {
 //				point.anchor = true;
 //			}
 //			pointsList.Add(point);
 //		}
-//
-		for (int i = 0; i < pointsList.Length; i++) {
-			for (int j = i + 1; j < pointsList.Length; j++)
-			{
 
-				var p1 = pointsList[i];
-				var p2 = pointsList[j];
-				Vector3 delta = p2.position - p1.position;
-				var length = delta.magnitude;
-
-				if (length < 5f && length>.2f) {
-					Bar bar = new Bar();
-					bar.AssignPoints(i, j, length);
-					p1.neighborCount++;
-					p2.neighborCount++;
-					barsList.Add(bar);
-
-					pointsList[i] = p1;
-					pointsList[j] = p2;
-
-//					matricesList[batch].Add(bar.matrix);
-//					if (matricesList[batch].Count == instancesPerBatch) {
-//						batch++;
-//						matricesList.Add(new List<Matrix4x4>());
-//					}
-				}
-			}
-		}
-
-		var connectedPoints = new NativeList<ConstrainedPoint>(Allocator.Temp);
-		var pointCount = 0;
-		for (int i = 0 ;i < pointsList.Length; i++) {
-			if (pointsList[i].neighborCount > 0) {
-				connectedPoints.Add(pointsList[i]);
-			}
-		}
-		Debug.Log(pointCount + " points, room for " + connectedPoints.Length + " (" + barsList.Length + " bars)");
-		
-//
-//		bars = barsList.ToArray();
-//
-//		matrices = new Matrix4x4[matricesList.Count][];
-//		for (int i=0;i<matrices.Length;i++) {
-//			matrices[i] = matricesList[i].ToArray();
+//		var connectedPoints = new NativeList<ConstrainedPoint>(Allocator.Temp);
+//		var pointCount = 0;
+//		for (int i = 0 ;i < pointsList.Length; i++) {
+//			if (pointsList[i].neighborCount > 0) {
+//				connectedPoints.Add(pointsList[i]);
+//			}
 //		}
 //
+		
 //		matProps = new MaterialPropertyBlock[barsList.Count];
 //		Vector4[] colors = new Vector4[instancesPerBatch];
 //		for (int i=0;i<barsList.Count;i++) {
@@ -153,24 +145,20 @@ public class GenerationSystem : ComponentSystem
 //				matProps[i / instancesPerBatch] = block;
 //			}
 //		}
-//
-//		pointsList = null;
-//		barsList = null;
-//		matricesList = null;
-//		System.GC.Collect();
-//		generating = false;
-//		Time.timeScale = 1f;
 
-        var pointsEntity = PostUpdateCommands.CreateEntity();
+		var pointsEntity = PostUpdateCommands.CreateEntity();
         var pointBuffer = PostUpdateCommands.AddBuffer<ConstrainedPointEntry>(pointsEntity);
-        pointBuffer.AddRange(connectedPoints.AsArray().Reinterpret<ConstrainedPointEntry>());
-        var matrixBuffer = PostUpdateCommands.AddBuffer<RenderMatrixEntry>(pointsEntity);
+        pointBuffer.AddRange(pointsList.AsArray().Reinterpret<ConstrainedPointEntry>());
 
-        var barsBuffer = PostUpdateCommands.AddBuffer<BarEntry>(pointsEntity);
-        barsBuffer.AddRange(barsList.AsArray().Reinterpret<BarEntry>());
+        foreach (var bl in listOfLists)
+        {
+	        var barsEntity = PostUpdateCommands.CreateEntity();
+	        var barsBuffer = PostUpdateCommands.AddBuffer<BarEntry>(barsEntity);
+	        PostUpdateCommands.AddBuffer<RenderMatrixEntry>(barsEntity);
+	        barsBuffer.AddRange(bl.AsArray().Reinterpret<BarEntry>());
+	        bl.Dispose();
+        }
 
-        barsList.Dispose();
-        connectedPoints.Dispose();
         pointsList.Dispose();
 	}
 }
