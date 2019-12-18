@@ -1,0 +1,18 @@
+---
+states:
+  - modification_time:
+      secs_since_epoch: 1524595088
+      nanos_since_epoch: 135646900
+    size: 154
+  - modification_time:
+      secs_since_epoch: 1524595397
+      nanos_since_epoch: 882039300
+    size: 153
+  - modification_time:
+      secs_since_epoch: 1524772127
+      nanos_since_epoch: 838215200
+    size: 112
+  - modification_time:
+      secs_since_epoch: 1525395549
+      nanos_since_epoch: 11270600
+    size: 424

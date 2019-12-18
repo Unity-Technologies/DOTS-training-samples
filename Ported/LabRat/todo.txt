@@ -1,0 +1,7 @@
+x add homebases to generator
+ax dd ui for mouse count
+x add timer
+make ai pick squares that have had mice on them recently
+document stuff
+x (B) 2018-04-24 read path tracer series http://aras-p.info/blog/2018/04/16/Daily-Pathtracer-10-Update-CsharpGPU/
+x (A) 2018-05-03 Abhinav Demkeys on Twitter: "If you're using the C# Job System and/or Entity Component System in Unity and have doubts, I highly recommend checking out this section of the Unity Forum: https://t.co/BIbXy7weW4 Lots of info available there. And there are many helpful people too! #gamedev #unity3d"
