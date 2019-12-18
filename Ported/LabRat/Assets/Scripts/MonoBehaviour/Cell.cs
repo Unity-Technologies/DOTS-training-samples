@@ -5,13 +5,6 @@ using UnityEngine.Assertions;
 
 namespace ECSExamples {
 
-public enum Direction {
-	North,
-	East,
-	South,
-	West
-}
-
 [ExecuteInEditMode]
 public class Cell : MonoBehaviour {
 	public Board board;
