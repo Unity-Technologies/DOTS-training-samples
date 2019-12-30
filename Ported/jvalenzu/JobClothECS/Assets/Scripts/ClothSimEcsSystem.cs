@@ -106,9 +106,9 @@ public class ClothSimEcsSystem : JobComponentSystem
     [BurstCompile]
     struct ClothSimVertexJob0 : IJobParallelForBatch {
         [ReadOnly]
-        public Matrix4x4 localToWorld;
+        public float4x4 localToWorld;
         [ReadOnly]
-        public Matrix4x4 worldToLocal;
+        public float4x4 worldToLocal;
         [ReadOnly]
         public float3 gravity;
         [ReadOnly]
@@ -130,13 +130,13 @@ public class ClothSimEcsSystem : JobComponentSystem
                 vert += (vert - oldVert);
                 oldVert = startPos;
 
-                Vector3 worldPos = localToWorld.MultiplyPoint3x4(vert);
+                float3 worldPos = math.transform(localToWorld, vert);
                 if (worldPos.y < 0f) {
-                    Vector3 oldWorldPos = localToWorld.MultiplyPoint3x4(oldVert);
+                    Vector3 oldWorldPos = math.transform(localToWorld, oldVert);
                     oldWorldPos.y = (worldPos.y - oldWorldPos.y) * .5f;
                     worldPos.y = 0.0f;
-                    vert = worldToLocal.MultiplyPoint3x4(worldPos);
-                    oldVert = worldToLocal.MultiplyPoint3x4(oldWorldPos);
+                    vert = math.transform(worldToLocal, worldPos);
+                    oldVert = math.transform(worldToLocal, oldWorldPos);
                 }
 
                 oldVertexState[i] = oldVert;
