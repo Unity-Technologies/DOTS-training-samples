@@ -8,9 +8,9 @@ TODO
   
 [x] read Unity.Collections information
 
-[ ] write description of how program works
-  [ ] identify read and writes in existing program
-  [ ] what are pins?
+[x] write description of how program works
+  [x] identify read and writes in existing program
+  [x] what are pins?
   
 Update is driven through the ClothSim component.  Two jobs are created:
 
@@ -59,8 +59,6 @@ UpdateMeshJob (parallel):
 [ ] Followup work: can we make barJob parallel as well?  Maybe we could sort vertices topographically and chunk them in islands.
 [ ] read through ECS introductory material
 
-
-
 notes:
 * would be handle to have batch/chunk size in execute
 * So I'm running into problems trying to model the problem.
@@ -71,4 +69,17 @@ I have 8000 vertices and I'd like them (MeshJob) processed in parallel.  Here ar
 * one component for all the vertices, which doesn't imply a lot of parallelism.
 * IJobChunk operates in chunks of archtype instances which doesn't solve the problem - I'd have to have multiple entities to run in parallel
 * https://docs.unity3d.com/Packages/com.unity.entities@0.0/manual/manual_iteration.html
+* It seems like there are a lot of sequence points on the main thread to collect jobs and kick them off again.  Is there a workflow that allows us to kick jobs off from other jobs?
+
+Alternatives:
+* naive, one entity and IJobParallelFor over vertices
+* naive + Burst compile
+* filter update mesh job on pins
+* one entity/component/mesh per letter, use ForEach
+* one entity/component per vertex
+* one entity/shared component/component instances cover range or chunked by output.
+
+[ ] Fill out JobSystem code until it compiles
+[ ] How do we convert component to match?
+[ ] break out sharable data?
 

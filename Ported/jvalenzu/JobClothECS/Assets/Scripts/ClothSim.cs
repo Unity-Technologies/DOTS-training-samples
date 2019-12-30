@@ -114,7 +114,7 @@ public class ClothSim : MonoBehaviour {
         }
     }
 
-    void Start () {
+    void Awake () {
 	processorCount = SystemInfo.processorCount;
         meshFilter = GetComponent<MeshFilter>();
         mesh = meshFilter.mesh;
