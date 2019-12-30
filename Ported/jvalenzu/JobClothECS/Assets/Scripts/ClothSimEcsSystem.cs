@@ -164,9 +164,6 @@ public class ClothSimEcsSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         float4 worldGravity = new float4(-Vector3.up * Time.DeltaTime*Time.DeltaTime, 0.0f);
-
-        List<RenderMesh> meshTypes = new List<RenderMesh>();
-        EntityManager.GetAllUniqueSharedComponentData(meshTypes);
         JobHandle combinedJobHandle = new JobHandle();
 
 	int entityCount = simGroup.CalculateEntityCount();
