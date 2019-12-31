@@ -6,43 +6,54 @@ using Unity.Collections;
 using Unity.Burst;
 using Unity.Mathematics;
 
-[RequiresEntityConversion]
-[ConverterVersion("jvalenzu", 1)]
-public class ClothSimEcsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
+public class ClothSimEcsAuthoring : MonoBehaviour
 {
-    Mesh originalMesh;
-
-    public void OnEnable()
+    void Start()
     {
         MeshFilter meshFilter = GetComponent<MeshFilter>();
         if (meshFilter)
         {
-	    originalMesh = meshFilter.mesh;
-	}
+	    Mesh originalMesh = meshFilter.sharedMesh;
+	    Mesh mesh = meshFilter.sharedMesh = Instantiate(originalMesh);
+
+	    // Create entity prefab from the game object hierarchy once
+	    EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+	    GameObjectConversionSettings settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
+	    Entity entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(gameObject, settings);
+
+            DynamicBuffer<BarElement> bars = entityManager.AddBuffer<BarElement>(entity);
+            bars.ResizeUninitialized(mesh.vertices.Length);
+            DynamicBuffer<BarLengthElement> barLengths = entityManager.AddBuffer<BarLengthElement>(entity);
+            barLengths.ResizeUninitialized(mesh.vertices.Length);
+            DynamicBuffer<VertexStateCurrentElement> vertexStateCurrentElement = entityManager.AddBuffer<VertexStateCurrentElement>(entity);
+            DynamicBuffer<VertexStateOldElement> vertexStateOldElement = entityManager.AddBuffer<VertexStateOldElement>(entity);
+
+            vertexStateCurrentElement = entityManager.GetBuffer<VertexStateCurrentElement>(entity);
+	    vertexStateCurrentElement.ResizeUninitialized(mesh.vertices.Length);
+
+            vertexStateOldElement = entityManager.GetBuffer<VertexStateOldElement>(entity);
+	    vertexStateOldElement.ResizeUninitialized(mesh.vertices.Length);
+	    for (int i=0,n=mesh.vertices.Length; i<n; ++i)
+	    {
+		vertexStateCurrentElement[i] = mesh.vertices[i];
+		vertexStateOldElement[i] = mesh.vertices[i];
+	    }
+
+	    ClothSimEcsSystem.AddSharedComponents(entity, originalMesh, entityManager);
+	    meshFilter.sharedMesh = originalMesh;
+	    UnityEngine.Object.Destroy(gameObject);
+        }
     }
 
-    public void OnDestroy()
-    {
-        MeshFilter meshFilter = GetComponent<MeshFilter>();
-        if (meshFilter)
-        {
-	    meshFilter.mesh = originalMesh;
-	}
-    }
-
+#if FALSE
+    // jiv fixme
+    // - try out the subscene conversion workflow when it is more robust (or at least more obvious how to use robustly).
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-	if (originalMesh == null)
-	{
-	    originalMesh = GetComponent<MeshFilter>().mesh;
-	}
-
-	Debug.LogFormat("Convert", originalMesh == null ? "null" : "not null");
         MeshFilter meshFilter = GetComponent<MeshFilter>();
         if (meshFilter)
         {
-            Mesh mesh = Instantiate(originalMesh);
-	    meshFilter.mesh = mesh;
+	    Mesh mesh = meshFilter.mesh = Instantiate(prefabMesh);
 
             DynamicBuffer<BarElement> bars = dstManager.AddBuffer<BarElement>(entity);
             bars.ResizeUninitialized(mesh.vertices.Length);
@@ -62,7 +73,8 @@ public class ClothSimEcsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		vertexStateOldElement[i] = mesh.vertices[i];
 	    }
 
-	    ClothSimEcsSystem.AddSharedComponents(entity, originalMesh, dstManager);
+	    ClothSimEcsSystem.AddSharedComponents(entity, prefabMesh, dstManager);
         }
     }
+#endif
 };
