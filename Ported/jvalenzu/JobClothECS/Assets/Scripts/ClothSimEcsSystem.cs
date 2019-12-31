@@ -48,11 +48,21 @@ public class ClothSimEcsSystem : JobComponentSystem
             NativeArray<Vector2Int> bars = new NativeArray<Vector2Int>(barList.ToArray(), Allocator.Persistent);
             NativeArray<float> barLengths = new NativeArray<float>(barList.Count, Allocator.Persistent);
             NativeArray<int> pins = new NativeArray<int>(mesh.vertices.Length, Allocator.Persistent);
-            
-            for (int i=0,n=pins.Length; i<n; ++i) {
-                if (mesh.normals[i].y >= 0.9f && mesh.vertices[i].y > 0.3f)
-                    pins[i] = 1;
-            }
+
+	    if (mesh.normals == null)
+	    {
+		for (int i=0,n=pins.Length; i<n; ++i) {
+		    if (mesh.vertices[i].y > 0.3f)
+			pins[i] = 1;
+		}
+	    }
+	    else
+	    {
+		for (int i=0,n=pins.Length; i<n; ++i) {
+		    if (mesh.normals[i].y >= 0.9f && mesh.vertices[i].y > 0.3f)
+			pins[i] = 1;
+		}
+	    }
 
             for (int i=0,n=barList.Count; i<n; ++i) {
                 Vector2Int pair = barList[i];

@@ -5,7 +5,7 @@
     "Components": [{
         "$type": "Unity.Build.Common.ClassicBuildProfile, Unity.Build.Common",
         "Target": 2,
-        "Configuration": 3,
+        "Configuration": 2,
         "Pipeline": "GlobalObjectId_V1-1-b08acfa97ea29e84597342a6a2afa6b2-93214019566545601-0",
         "ExcludedAssemblies": []
     }]

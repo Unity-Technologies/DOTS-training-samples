@@ -30,7 +30,8 @@ Shader "Debug/Debug"
       {
         vertOut o;
         o.m_Pos = UnityObjectToClipPos(v.vertex);
-        // o.m_Color = float4(0.5f * (float3(1,1,1)+ v.normal.xyz), 1);
+        o.m_Color = float4(0.5f * (float3(1,1,1)+ v.normal.xyz), 1);
+#if FALSE
         if (v.texcoord.x >= 0.75f)
           o.m_Color = float4(1,0,0,1);
         else if (v.texcoord.x >= 0.5f)
@@ -39,6 +40,7 @@ Shader "Debug/Debug"
           o.m_Color = float4(0,0,1,1);
         else
           o.m_Color = float4(0,0,0,1);
+#endif
         return o;
       }
 

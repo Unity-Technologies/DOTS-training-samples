@@ -16,6 +16,8 @@ public class ClothSimEcsAuthoring : MonoBehaviour
 	    Mesh originalMesh = meshFilter.sharedMesh;
 	    Mesh mesh = meshFilter.sharedMesh = Instantiate(originalMesh);
 
+	    Debug.LogFormat("mesh v: {0} n: {1}", mesh.vertices.Length, mesh.normals.Length);
+
 	    // Create entity prefab from the game object hierarchy once
 	    EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 	    GameObjectConversionSettings settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
