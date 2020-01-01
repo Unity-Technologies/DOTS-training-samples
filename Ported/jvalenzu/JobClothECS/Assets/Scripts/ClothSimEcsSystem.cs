@@ -211,6 +211,12 @@ public class ClothSimEcsSystem : JobComponentSystem
         {
 	    PotentiallyResizeBecauseNewEntityHighwater(entityCount);
 
+            Entities.WithoutBurst().ForEach((RenderMesh renderMesh,
+                                             ref DynamicBuffer<VertexStateCurrentElement> currentVertexState) =>
+            {
+		renderMesh.mesh.SetVertices(currentVertexState.Reinterpret<Vector3>().AsNativeArray());
+	    }).Run();
+
             Entities.WithoutBurst().ForEach((int entityInQueryIndex,
                                              RenderMesh renderMesh,
                                              ref DynamicBuffer<VertexStateCurrentElement> currentVertexState,
@@ -221,15 +227,8 @@ public class ClothSimEcsSystem : JobComponentSystem
                 // jiv fixme: there's a WorldToLocal component that doesn't seem to be added automatically
                 float4x4 worldToLocal = math.inverse(localToWorld.Value);
 
-                // jiv begin fixme
-                {
-                    renderMesh.mesh.SetVertices(currentVertexState.Reinterpret<Vector3>().AsNativeArray());
-                }
-                // jiv end fixme
-
                 NativeArray<float3> vertices = currentVertexState.Reinterpret<float3>().AsNativeArray();
-
-                int vLength = currentVertexState.Length;
+                int vLength = clothBarSimEcs.pins.Length;
 
                 ClothSimBarJob clothSimBarJob = new ClothSimBarJob {
                     vertices = vertices,
@@ -240,6 +239,8 @@ public class ClothSimEcsSystem : JobComponentSystem
 
                 JobHandle clothSimBarJobHandle = clothSimBarJob.Schedule(inputDeps);
 
+		Debug.LogFormat("entity: {0} current: {1}", entityInQueryIndex, currentVertexState.GetHashCode());
+
                 ClothSimVertexJob0 clothSimVertexJob0 = new ClothSimVertexJob0 {
                     pins = clothBarSimEcs.pins,
                     localToWorld = localToWorld.Value,
@@ -249,8 +250,11 @@ public class ClothSimEcsSystem : JobComponentSystem
                     oldVertexState = oldVertexState.Reinterpret<float3>().AsNativeArray()
                 };
 
+		Debug.LogFormat("entityInQueryIndex: {0}", entityInQueryIndex);
                 jobHandles[entityInQueryIndex] = clothSimVertexJob0.ScheduleBatch(vLength, vLength/SystemInfo.processorCount, clothSimBarJobHandle);
             }).Run();
+
+	    Debug.LogFormat("entityCount: {0}", entityCount);
 
             combinedJobHandle = JobHandle.CombineDependencies(new NativeSlice<JobHandle>(jobHandles, 0, entityCount));
         }
