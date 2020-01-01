@@ -16,9 +16,6 @@ public class ClothSimEcsAuthoring : MonoBehaviour
 	    Mesh originalMesh = meshFilter.sharedMesh;
 	    Mesh mesh = meshFilter.sharedMesh = Instantiate(originalMesh);
 
-	    Debug.LogFormat("mesh v: {0} n: {1}", mesh.vertices.Length, mesh.normals.Length);
-
-	    // Create entity prefab from the game object hierarchy once
 	    EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 	    GameObjectConversionSettings settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
 	    Entity entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(gameObject, settings);
@@ -46,37 +43,4 @@ public class ClothSimEcsAuthoring : MonoBehaviour
 	    UnityEngine.Object.Destroy(gameObject);
         }
     }
-
-#if FALSE
-    // jiv fixme
-    // - try out the subscene conversion workflow when it is more robust (or at least more obvious how to use robustly).
-    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
-    {
-        MeshFilter meshFilter = GetComponent<MeshFilter>();
-        if (meshFilter)
-        {
-	    Mesh mesh = meshFilter.mesh = Instantiate(prefabMesh);
-
-            DynamicBuffer<BarElement> bars = dstManager.AddBuffer<BarElement>(entity);
-            bars.ResizeUninitialized(mesh.vertices.Length);
-            DynamicBuffer<BarLengthElement> barLengths = dstManager.AddBuffer<BarLengthElement>(entity);
-            barLengths.ResizeUninitialized(mesh.vertices.Length);
-            DynamicBuffer<VertexStateCurrentElement> vertexStateCurrentElement = dstManager.AddBuffer<VertexStateCurrentElement>(entity);
-            DynamicBuffer<VertexStateOldElement> vertexStateOldElement = dstManager.AddBuffer<VertexStateOldElement>(entity);
-
-            vertexStateCurrentElement = dstManager.GetBuffer<VertexStateCurrentElement>(entity);
-	    vertexStateCurrentElement.ResizeUninitialized(mesh.vertices.Length);
-
-            vertexStateOldElement = dstManager.GetBuffer<VertexStateOldElement>(entity);
-	    vertexStateOldElement.ResizeUninitialized(mesh.vertices.Length);
-	    for (int i=0,n=mesh.vertices.Length; i<n; ++i)
-	    {
-		vertexStateCurrentElement[i] = mesh.vertices[i];
-		vertexStateOldElement[i] = mesh.vertices[i];
-	    }
-
-	    ClothSimEcsSystem.AddSharedComponents(entity, prefabMesh, dstManager);
-        }
-    }
-#endif
 };

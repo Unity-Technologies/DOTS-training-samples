@@ -5,6 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using Unity.Rendering;
 
@@ -84,6 +85,7 @@ public class ClothSimEcsSystem : JobComponentSystem
 
     [BurstCompile]    
     struct ClothSimBarJob : IJob {
+	[NativeDisableContainerSafetyRestriction]
         public NativeArray<float3> vertices;
         [ReadOnly]
         public NativeArray<Vector2Int> bars;
@@ -128,7 +130,9 @@ public class ClothSimEcsSystem : JobComponentSystem
         public float3 gravity;
         [ReadOnly]
         public NativeArray<int> pins;
+	[NativeDisableContainerSafetyRestriction]
         public NativeArray<float3> currentVertexState;
+	[NativeDisableContainerSafetyRestriction]
         public NativeArray<float3> oldVertexState;
 
         public void Execute(int startIndex, int count) {
@@ -211,6 +215,12 @@ public class ClothSimEcsSystem : JobComponentSystem
         {
 	    PotentiallyResizeBecauseNewEntityHighwater(entityCount);
 
+            Entities.WithoutBurst().ForEach((RenderMesh renderMesh,
+                                             ref DynamicBuffer<VertexStateCurrentElement> currentVertexState) =>
+            {
+		renderMesh.mesh.SetVertices(currentVertexState.Reinterpret<Vector3>().AsNativeArray());
+	    }).Run();
+
             Entities.WithoutBurst().ForEach((int entityInQueryIndex,
                                              RenderMesh renderMesh,
                                              ref DynamicBuffer<VertexStateCurrentElement> currentVertexState,
@@ -221,15 +231,8 @@ public class ClothSimEcsSystem : JobComponentSystem
                 // jiv fixme: there's a WorldToLocal component that doesn't seem to be added automatically
                 float4x4 worldToLocal = math.inverse(localToWorld.Value);
 
-                // jiv begin fixme
-                {
-                    renderMesh.mesh.SetVertices(currentVertexState.Reinterpret<Vector3>().AsNativeArray());
-                }
-                // jiv end fixme
-
                 NativeArray<float3> vertices = currentVertexState.Reinterpret<float3>().AsNativeArray();
-
-                int vLength = currentVertexState.Length;
+                int vLength = clothBarSimEcs.pins.Length;
 
                 ClothSimBarJob clothSimBarJob = new ClothSimBarJob {
                     vertices = vertices,
@@ -249,7 +252,8 @@ public class ClothSimEcsSystem : JobComponentSystem
                     oldVertexState = oldVertexState.Reinterpret<float3>().AsNativeArray()
                 };
 
-                jobHandles[entityInQueryIndex] = clothSimVertexJob0.ScheduleBatch(vLength, vLength/SystemInfo.processorCount, clothSimBarJobHandle);
+                JobHandle simVertexJobHandle = clothSimVertexJob0.ScheduleBatch(vLength, vLength/SystemInfo.processorCount, clothSimBarJobHandle);
+		jobHandles[entityInQueryIndex] = JobHandle.CombineDependencies(clothSimBarJobHandle, simVertexJobHandle);
             }).Run();
 
             combinedJobHandle = JobHandle.CombineDependencies(new NativeSlice<JobHandle>(jobHandles, 0, entityCount));
