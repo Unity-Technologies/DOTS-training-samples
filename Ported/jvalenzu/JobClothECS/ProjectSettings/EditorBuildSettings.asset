@@ -6,9 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/_Scenes/ClothEcs.unity
-    guid: 64c2864fc513345d4959683987abd284
-  - enabled: 1
-    path: Assets/_Scenes/ClothEcs/Cloth Text (One Combined Mesh - Slower).unity
-    guid: 4deb0ac05c25e4e4a8a2e952724f47a1
+    path: Assets/_Scenes/ClothEcsMulti.unity
+    guid: 9029a92a79844444fbe7d3b631336190
   m_configObjects: {}
