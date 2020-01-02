@@ -5,6 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using Unity.Rendering;
 
@@ -14,18 +15,39 @@ public class ClothSimEcsSystem : JobComponentSystem
     NativeArray<JobHandle> jobHandles;
     EntityQuery simGroup;
 
+    // arbitrary estimate of initial entities
     enum EntityHighwater
     {
-	kInitial = 5
+        kInitial = 5
     };
-    
+
+    // we both find relevant entities and partition their immutable data via the ClothBarSimEcs
+    // component.
+    //
+    // debated moving this into a two-stage initialization, but it's tough to actually jobify since
+    // we're going to end up accessing the managed Mesh type for vertex and normal data.  Moving
+    // it the other direction, to a tool time conversion, seems preferable.
     static public void AddSharedComponents(Entity entity, Mesh mesh, EntityManager dstManager)
     {
-        // jiv fixme: perform initialization off the main thread.
-        //   * need a two-stage initialization so we can allocate a ClothBarSimEcs without
-        //   * using it this frame, maybe do a pass after the ClothSimVertexJob.
         if (!s_MeshToBarSimLookup.ContainsKey(mesh))
         {
+            NativeArray<int> pins = new NativeArray<int>(mesh.vertices.Length, Allocator.Persistent);
+
+            if (mesh.normals == null)
+            {
+                for (int i=0,n=pins.Length; i<n; ++i) {
+                    if (mesh.vertices[i].y > 0.3f)
+                        pins[i] = 1;
+                }
+            }
+            else
+            {
+                for (int i=0,n=pins.Length; i<n; ++i) {
+                    if (mesh.normals[i].y >= 0.9f && mesh.vertices[i].y > 0.3f)
+                        pins[i] = 1;
+                }
+            }
+            
             HashSet<Vector2Int> barLookup = new HashSet<Vector2Int>();
             int[] triangles = mesh.triangles;
             for (int i=0, n=triangles.Length; i<n; i += 3)
@@ -40,29 +62,18 @@ public class ClothSimEcsSystem : JobComponentSystem
                         pair.x = pair.y;
                         pair.y = temp;
                     }
-                    if (barLookup.Contains(pair) == false)
+
+                    if (barLookup.Contains(pair) == false &&
+                        // two pinned verts can't move, so don't simulate them
+                        pins[pair.x] + pins[pair.y] != 2)
+                    {
                         barLookup.Add(pair);
+                    }
                 }
             }
             List<Vector2Int> barList = new List<Vector2Int>(barLookup);
             NativeArray<Vector2Int> bars = new NativeArray<Vector2Int>(barList.ToArray(), Allocator.Persistent);
             NativeArray<float> barLengths = new NativeArray<float>(barList.Count, Allocator.Persistent);
-            NativeArray<int> pins = new NativeArray<int>(mesh.vertices.Length, Allocator.Persistent);
-
-	    if (mesh.normals == null)
-	    {
-		for (int i=0,n=pins.Length; i<n; ++i) {
-		    if (mesh.vertices[i].y > 0.3f)
-			pins[i] = 1;
-		}
-	    }
-	    else
-	    {
-		for (int i=0,n=pins.Length; i<n; ++i) {
-		    if (mesh.normals[i].y >= 0.9f && mesh.vertices[i].y > 0.3f)
-			pins[i] = 1;
-		}
-	    }
 
             for (int i=0,n=barList.Count; i<n; ++i) {
                 Vector2Int pair = barList[i];
@@ -83,7 +94,8 @@ public class ClothSimEcsSystem : JobComponentSystem
     }
 
     [BurstCompile]    
-    struct ClothSimBarJob : IJob {
+    struct ClothBarSimJob : IJob {
+        [NativeDisableContainerSafetyRestriction]
         public NativeArray<float3> vertices;
         [ReadOnly]
         public NativeArray<Vector2Int> bars;
@@ -128,7 +140,9 @@ public class ClothSimEcsSystem : JobComponentSystem
         public float3 gravity;
         [ReadOnly]
         public NativeArray<int> pins;
+        [NativeDisableContainerSafetyRestriction]
         public NativeArray<float3> currentVertexState;
+        [NativeDisableContainerSafetyRestriction]
         public NativeArray<float3> oldVertexState;
 
         public void Execute(int startIndex, int count) {
@@ -169,8 +183,8 @@ public class ClothSimEcsSystem : JobComponentSystem
             barSimEcs.pins.Dispose();
         }
 
-	if (jobHandles.Length > 0)
-	    jobHandles.Dispose();
+        if (jobHandles.Length > 0)
+            jobHandles.Dispose();
     }
 
     protected override void OnCreate()
@@ -185,37 +199,45 @@ public class ClothSimEcsSystem : JobComponentSystem
             }
         });
 
-        RequireForUpdate(simGroup);
-
-	PotentiallyResizeBecauseNewEntityHighwater((int)EntityHighwater.kInitial);
+        PotentiallyResizeBecauseNewEntityHighwater((int)EntityHighwater.kInitial);
     }
 
     private void PotentiallyResizeBecauseNewEntityHighwater(int newHighwater)
     {
-	if (newHighwater > jobHandles.Length)
-	{
-	    if (jobHandles.Length > 0)
-		jobHandles.Dispose();
+        if (newHighwater > jobHandles.Length)
+        {
+            if (jobHandles.Length > 0)
+                jobHandles.Dispose();
 
-	    jobHandles = new NativeArray<JobHandle>(newHighwater, Allocator.Persistent);
-	}
+            jobHandles = new NativeArray<JobHandle>(newHighwater, Allocator.Persistent);
+        }
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         float4 worldGravity = new float4(-Vector3.up * Time.DeltaTime*Time.DeltaTime, 0.0f);
-        JobHandle combinedJobHandle = new JobHandle();
+        JobHandle combinedJobHandle = inputDeps;
 
         int entityCount = simGroup.CalculateEntityCount();
         if (entityCount > 0)
         {
-	    PotentiallyResizeBecauseNewEntityHighwater(entityCount);
+            PotentiallyResizeBecauseNewEntityHighwater(entityCount);
 
             Entities.WithoutBurst().ForEach((RenderMesh renderMesh,
                                              ref DynamicBuffer<VertexStateCurrentElement> currentVertexState) =>
             {
-		renderMesh.mesh.SetVertices(currentVertexState.Reinterpret<Vector3>().AsNativeArray());
-	    }).Run();
+                // jiv - RenderMesh is a shared component. We happen to know that there's a 1-1
+                //       relationship between entities and RenderMesh instances, so it's not
+                //       actually causing an error, but updating the mesh vertices per instance
+                //       seems incorrect.
+                renderMesh.mesh.SetVertices(currentVertexState.Reinterpret<Vector3>().AsNativeArray());
+            }).Run();
+
+            Entities.WithoutBurst().ForEach((RenderMesh renderMesh,
+                                             ref DynamicBuffer<VertexStateCurrentElement> currentVertexState) =>
+            {
+                renderMesh.mesh.SetVertices(currentVertexState.Reinterpret<Vector3>().AsNativeArray());
+            }).Run();
 
             Entities.WithoutBurst().ForEach((int entityInQueryIndex,
                                              RenderMesh renderMesh,
@@ -224,23 +246,23 @@ public class ClothSimEcsSystem : JobComponentSystem
                                              in ClothBarSimEcs clothBarSimEcs,
                                              in LocalToWorld localToWorld) =>
             {
-                // jiv fixme: there's a WorldToLocal component that doesn't seem to be added automatically
                 float4x4 worldToLocal = math.inverse(localToWorld.Value);
 
                 NativeArray<float3> vertices = currentVertexState.Reinterpret<float3>().AsNativeArray();
                 int vLength = clothBarSimEcs.pins.Length;
 
-                ClothSimBarJob clothSimBarJob = new ClothSimBarJob {
+                // update vertices according to length constraints.  This process is serial
+                // due to the nature of the dependencies between vertices.
+                ClothBarSimJob clothBarSimJob = new ClothBarSimJob {
                     vertices = vertices,
                     bars = clothBarSimEcs.bars,
                     barLengths = clothBarSimEcs.barLengths,
                     pins = clothBarSimEcs.pins
                 };
 
-                JobHandle clothSimBarJobHandle = clothSimBarJob.Schedule(inputDeps);
+                JobHandle clothBarSimJobHandle = clothBarSimJob.Schedule(inputDeps);
 
-		Debug.LogFormat("entity: {0} current: {1}", entityInQueryIndex, currentVertexState.GetHashCode());
-
+                // apply gravity, bound (loosely) to +y halfspace, tick vertex state
                 ClothSimVertexJob0 clothSimVertexJob0 = new ClothSimVertexJob0 {
                     pins = clothBarSimEcs.pins,
                     localToWorld = localToWorld.Value,
@@ -250,11 +272,9 @@ public class ClothSimEcsSystem : JobComponentSystem
                     oldVertexState = oldVertexState.Reinterpret<float3>().AsNativeArray()
                 };
 
-		Debug.LogFormat("entityInQueryIndex: {0}", entityInQueryIndex);
-                jobHandles[entityInQueryIndex] = clothSimVertexJob0.ScheduleBatch(vLength, vLength/SystemInfo.processorCount, clothSimBarJobHandle);
+                JobHandle simVertexJobHandle = clothSimVertexJob0.ScheduleBatch(vLength, vLength/SystemInfo.processorCount, clothBarSimJobHandle);
+                jobHandles[entityInQueryIndex] = JobHandle.CombineDependencies(clothBarSimJobHandle, simVertexJobHandle);
             }).Run();
-
-	    Debug.LogFormat("entityCount: {0}", entityCount);
 
             combinedJobHandle = JobHandle.CombineDependencies(new NativeSlice<JobHandle>(jobHandles, 0, entityCount));
         }
