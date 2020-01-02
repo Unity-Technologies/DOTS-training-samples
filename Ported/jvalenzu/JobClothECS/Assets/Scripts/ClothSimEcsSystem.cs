@@ -27,27 +27,6 @@ public class ClothSimEcsSystem : JobComponentSystem
         //   * using it this frame, maybe do a pass after the ClothSimVertexJob.
         if (!s_MeshToBarSimLookup.ContainsKey(mesh))
         {
-            HashSet<Vector2Int> barLookup = new HashSet<Vector2Int>();
-            int[] triangles = mesh.triangles;
-            for (int i=0, n=triangles.Length; i<n; i += 3)
-            {
-                for (int j=0; j<3; ++j)
-                {
-                    Vector2Int pair = new Vector2Int();
-                    pair.x = triangles[i + j];
-                    pair.y = triangles[i + (j + 1)%3];
-                    if (pair.x > pair.y) {
-                        int temp = pair.x;
-                        pair.x = pair.y;
-                        pair.y = temp;
-                    }
-                    if (barLookup.Contains(pair) == false)
-                        barLookup.Add(pair);
-                }
-            }
-            List<Vector2Int> barList = new List<Vector2Int>(barLookup);
-            NativeArray<Vector2Int> bars = new NativeArray<Vector2Int>(barList.ToArray(), Allocator.Persistent);
-            NativeArray<float> barLengths = new NativeArray<float>(barList.Count, Allocator.Persistent);
             NativeArray<int> pins = new NativeArray<int>(mesh.vertices.Length, Allocator.Persistent);
 
 	    if (mesh.normals == null)
@@ -64,6 +43,33 @@ public class ClothSimEcsSystem : JobComponentSystem
 			pins[i] = 1;
 		}
 	    }
+	    
+            HashSet<Vector2Int> barLookup = new HashSet<Vector2Int>();
+            int[] triangles = mesh.triangles;
+            for (int i=0, n=triangles.Length; i<n; i += 3)
+            {
+                for (int j=0; j<3; ++j)
+                {
+                    Vector2Int pair = new Vector2Int();
+                    pair.x = triangles[i + j];
+                    pair.y = triangles[i + (j + 1)%3];
+                    if (pair.x > pair.y) {
+                        int temp = pair.x;
+                        pair.x = pair.y;
+                        pair.y = temp;
+                    }
+
+                    if (barLookup.Contains(pair) == false &&
+			// two pinned verts can't move, so don't simulate them
+			pins[pair.x] + pins[pair.y] != 2)
+		    {
+                        barLookup.Add(pair);
+		    }
+                }
+            }
+            List<Vector2Int> barList = new List<Vector2Int>(barLookup);
+            NativeArray<Vector2Int> bars = new NativeArray<Vector2Int>(barList.ToArray(), Allocator.Persistent);
+            NativeArray<float> barLengths = new NativeArray<float>(barList.Count, Allocator.Persistent);
 
             for (int i=0,n=barList.Count; i<n; ++i) {
                 Vector2Int pair = barList[i];
