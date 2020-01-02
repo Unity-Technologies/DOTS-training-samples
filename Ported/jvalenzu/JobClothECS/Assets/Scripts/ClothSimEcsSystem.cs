@@ -157,6 +157,7 @@ public class ClothSimEcsSystem : JobComponentSystem
         public float localY0;
         [ReadOnly]
         public NativeArray<byte> pins;
+
         [NativeDisableContainerSafetyRestriction]
         public NativeArray<float3> currentVertexState;
         [NativeDisableContainerSafetyRestriction]

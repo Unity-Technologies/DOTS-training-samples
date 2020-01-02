@@ -43,7 +43,6 @@ public struct VertexStateOldElement : IBufferElementData
     public float3 Value;
 };
 
-<<<<<<< HEAD
 public struct ClothInstance : IComponentData {
     public float4x4 worldToLocalMatrix;
     public float localY0;
@@ -67,20 +66,6 @@ public struct ClothBarSimEcs : ISharedComponentData, IEquatable<ClothBarSimEcs> 
         int h1 = pinState.GetHashCode();
 
         return h0 * 31771 ^ h1;
-=======
-public struct ClothBarSimEcs : ISharedComponentData, IEquatable<ClothBarSimEcs> {
-    public NativeArray<Vector2Int> bars;
-    public NativeArray<float> barLengths;
-    public NativeArray<int> pins;
-
-    public override int GetHashCode()
-    {
-        int h0 = bars.GetHashCode();
-        int h1 = barLengths.GetHashCode();
-        int h2 = pins.GetHashCode();
-
-        return h0 ^ h1 ^ h2;
->>>>>>> JobClothSim cleanup
     }
 
     public bool Equals(ClothBarSimEcs other)
