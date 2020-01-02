@@ -90,7 +90,7 @@ public class ClothSimEcsSystem : JobComponentSystem
     }
 
     [BurstCompile]    
-    struct ClothSimBarJob : IJob {
+    struct ClothBarSimJob : IJob {
 	[NativeDisableContainerSafetyRestriction]
         public NativeArray<float3> vertices;
         [ReadOnly]
@@ -240,14 +240,14 @@ public class ClothSimEcsSystem : JobComponentSystem
                 NativeArray<float3> vertices = currentVertexState.Reinterpret<float3>().AsNativeArray();
                 int vLength = clothBarSimEcs.pins.Length;
 
-                ClothSimBarJob clothSimBarJob = new ClothSimBarJob {
+                ClothBarSimJob clothBarSimJob = new ClothBarSimJob {
                     vertices = vertices,
                     bars = clothBarSimEcs.bars,
                     barLengths = clothBarSimEcs.barLengths,
                     pins = clothBarSimEcs.pins
                 };
 
-                JobHandle clothSimBarJobHandle = clothSimBarJob.Schedule(inputDeps);
+                JobHandle clothBarSimJobHandle = clothBarSimJob.Schedule(inputDeps);
 
                 ClothSimVertexJob0 clothSimVertexJob0 = new ClothSimVertexJob0 {
                     pins = clothBarSimEcs.pins,
@@ -258,8 +258,8 @@ public class ClothSimEcsSystem : JobComponentSystem
                     oldVertexState = oldVertexState.Reinterpret<float3>().AsNativeArray()
                 };
 
-                JobHandle simVertexJobHandle = clothSimVertexJob0.ScheduleBatch(vLength, vLength/SystemInfo.processorCount, clothSimBarJobHandle);
-		jobHandles[entityInQueryIndex] = JobHandle.CombineDependencies(clothSimBarJobHandle, simVertexJobHandle);
+                JobHandle simVertexJobHandle = clothSimVertexJob0.ScheduleBatch(vLength, vLength/SystemInfo.processorCount, clothBarSimJobHandle);
+		jobHandles[entityInQueryIndex] = JobHandle.CombineDependencies(clothBarSimJobHandle, simVertexJobHandle);
             }).Run();
 
             combinedJobHandle = JobHandle.CombineDependencies(new NativeSlice<JobHandle>(jobHandles, 0, entityCount));
