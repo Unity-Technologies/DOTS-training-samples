@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 81d7373b54b404d2491a2891a0f190e1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - antMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  - antMaterial: {fileID: 2100000, guid: c66329d3aec0ce443ba9cbe148029438, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
