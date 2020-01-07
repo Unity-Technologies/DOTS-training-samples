@@ -157,6 +157,7 @@ public class ClothSimEcsSystem : JobComponentSystem
         public float localY0;
         [ReadOnly]
         public NativeArray<byte> pins;
+
         [NativeDisableContainerSafetyRestriction]
         public NativeArray<float3> currentVertexState;
         [NativeDisableContainerSafetyRestriction]
@@ -238,7 +239,6 @@ public class ClothSimEcsSystem : JobComponentSystem
         {
             PotentiallyResizeBecauseNewEntityHighwater(entityCount);
 
-            UnityEngine.Profiling.Profiler.BeginSample("Cloth Mesh update");
             Entities.WithoutBurst().ForEach((RenderMesh renderMesh,
                                              ref DynamicBuffer<VertexStateCurrentElement> currentVertexState) =>
             {
@@ -247,6 +247,43 @@ public class ClothSimEcsSystem : JobComponentSystem
                 //       actually causing an error, but updating the mesh vertices per instance
                 //       seems incorrect.
                 renderMesh.mesh.SetVertices(currentVertexState.Reinterpret<Vector3>().AsNativeArray());
+            }).Run();
+
+            Entities.WithoutBurst().ForEach((int entityInQueryIndex,
+                                             RenderMesh renderMesh,
+                                             ref DynamicBuffer<VertexStateCurrentElement> currentVertexState,
+                                             ref DynamicBuffer<VertexStateOldElement> oldVertexState,
+                                             in ClothBarSimEcs clothBarSimEcs,
+                                             in LocalToWorld localToWorld) =>
+            {
+                float4x4 worldToLocal = math.inverse(localToWorld.Value);
+
+                NativeArray<float3> vertices = currentVertexState.Reinterpret<float3>().AsNativeArray();
+                int vLength = clothBarSimEcs.pins.Length;
+
+                // update vertices according to length constraints.  This process is serial
+                // due to the nature of the dependencies between vertices.
+                ClothBarSimJob clothBarSimJob = new ClothBarSimJob {
+                    vertices = vertices,
+                    bars = clothBarSimEcs.bars,
+                    barLengths = clothBarSimEcs.barLengths,
+                    pins = clothBarSimEcs.pins
+                };
+
+                JobHandle clothBarSimJobHandle = clothBarSimJob.Schedule(inputDeps);
+
+                // apply gravity, bound (loosely) to +y halfspace, tick vertex state
+                ClothSimVertexJob0 clothSimVertexJob0 = new ClothSimVertexJob0 {
+                    pins = clothBarSimEcs.pins,
+                    localToWorld = localToWorld.Value,
+                    worldToLocal = worldToLocal,
+                    gravity = math.mul(worldToLocal, worldGravity).xyz,
+                    currentVertexState = vertices,
+                    oldVertexState = oldVertexState.Reinterpret<float3>().AsNativeArray()
+                };
+
+                JobHandle simVertexJobHandle = clothSimVertexJob0.ScheduleBatch(vLength, vLength/SystemInfo.processorCount, clothBarSimJobHandle);
+                jobHandles[entityInQueryIndex] = JobHandle.CombineDependencies(clothBarSimJobHandle, simVertexJobHandle);
             }).Run();
             UnityEngine.Profiling.Profiler.EndSample();
 

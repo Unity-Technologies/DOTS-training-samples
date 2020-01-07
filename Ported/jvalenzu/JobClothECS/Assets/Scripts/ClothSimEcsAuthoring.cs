@@ -40,7 +40,6 @@ public class ClothSimEcsAuthoring : MonoBehaviour
             // this slightly awkward initialization pattern (add buffer, then get) is to avoid:
             // InvalidOperationException: The NativeArray has been deallocated, it is not allowed to access it
             // Unity.Collections.LowLevel.Unsafe.AtomicSafetyHandle.CheckWriteAndThrowNoEarlyOut (Unity.Collections.LowLevel.Unsafe.AtomicSafetyHandle handle) <0x1a344da60 + 0x00052> in <ad86e8e508c54768abd7c1fb9256ddc2>:0
-
             vertexStateCurrentElement = entityManager.GetBuffer<VertexStateCurrentElement>(entity);
             vertexStateOldElement = entityManager.GetBuffer<VertexStateOldElement>(entity);
             for (int i=0,n=mesh.vertices.Length; i<n; ++i)
