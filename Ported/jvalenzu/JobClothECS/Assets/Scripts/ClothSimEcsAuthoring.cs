@@ -50,6 +50,12 @@ public class ClothSimEcsAuthoring : MonoBehaviour
 
             ClothSimEcsSystem.AddSharedComponents(entity, originalMesh, entityManager);
 
+	    entityManager.AddComponentData(entity, new ClothInstance
+	    {
+		worldToLocalMatrix = transform.worldToLocalMatrix,
+		localY0 = transform.worldToLocalMatrix.MultiplyPoint(new Vector3(0,0,0)).y // not quite right
+	    });
+
             meshFilter.sharedMesh = originalMesh;
             UnityEngine.Object.Destroy(gameObject);
         }

@@ -249,6 +249,8 @@ public class ClothSimEcsSystem : JobComponentSystem
                 renderMesh.mesh.SetVertices(currentVertexState.Reinterpret<Vector3>().AsNativeArray());
             }).Run();
 
+	    UnityEngine.Profiling.Profiler.BeginSample("ClothSetup");
+	
             // jiv
             // loop alone: ~0.43ms
             // ClothBarSimJob: ~1.04ms
@@ -262,7 +264,7 @@ public class ClothSimEcsSystem : JobComponentSystem
             {
 		// can't hoist, will generate il2cpp codegen error about other omitted captures
 		float4 worldGravity = new float4(-Vector3.up * Time.DeltaTime*Time.DeltaTime, 0.0f);
-		
+
                 NativeArray<float3> vertices = currentVertexState.Reinterpret<float3>().AsNativeArray();
                 int vLength = clothBarSimEcs.pinState.Length;
 
@@ -286,8 +288,9 @@ public class ClothSimEcsSystem : JobComponentSystem
                     oldVertexState = oldVertexState.Reinterpret<float3>().AsNativeArray()
                 };
 
-                JobHandle simVertexJobHandle = clothSimVertexJob0.ScheduleBatch(vLength, vLength/SystemInfo.processorCount, clothBarSimJobHandle);
-                jobHandles[entityInQueryIndex] = JobHandle.CombineDependencies(clothBarSimJobHandle, simVertexJobHandle);
+                jobHandles[entityInQueryIndex] = clothSimVertexJob0.ScheduleBatch(vLength,
+										  vLength/SystemInfo.processorCount,
+										  clothBarSimJobHandle);
             }).Run();
             UnityEngine.Profiling.Profiler.EndSample();
 
