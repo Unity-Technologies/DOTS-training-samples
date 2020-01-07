@@ -31,7 +31,7 @@ public class ClothSimEcsSystem : JobComponentSystem
     {
         if (!s_MeshToBarSimLookup.ContainsKey(mesh))
         {
-            NativeArray<int> pins = new NativeArray<int>(mesh.vertices.Length, Allocator.Persistent);
+            NativeArray<byte> pins = new NativeArray<byte>(mesh.vertices.Length, Allocator.Persistent);
 
             if (mesh.normals == null)
             {
@@ -72,20 +72,25 @@ public class ClothSimEcsSystem : JobComponentSystem
                 }
             }
             List<Vector2Int> barList = new List<Vector2Int>(barLookup);
-            NativeArray<Vector2Int> bars = new NativeArray<Vector2Int>(barList.ToArray(), Allocator.Persistent);
-            NativeArray<float> barLengths = new NativeArray<float>(barList.Count, Allocator.Persistent);
+            NativeArray<ClothConstraint> constraints = new NativeArray<ClothConstraint>(barList.Count, Allocator.Persistent);
 
             for (int i=0,n=barList.Count; i<n; ++i) {
                 Vector2Int pair = barList[i];
                 Vector3 p1 = mesh.vertices[pair.x];
                 Vector3 p2 = mesh.vertices[pair.y];
-                barLengths[i] = (p2 - p1).magnitude;
+
+                ClothConstraint constraint = new ClothConstraint();
+                constraint.x = (ushort) pair.x;
+                constraint.y = (ushort) pair.y;
+                constraint.pinPair = (ushort) ((pins[pair.x]<<1) | pins[pair.y]);
+                constraint.length = (ushort) ((p2 - p1).magnitude * 256);
+
+                constraints[i] = constraint;
             }
 
             ClothBarSimEcs barSimEcs = new ClothBarSimEcs();
-            barSimEcs.pins = pins;
-            barSimEcs.barLengths = barLengths;
-            barSimEcs.bars = bars;
+            barSimEcs.pinState = pins;
+            barSimEcs.constraints = constraints;
 
             s_MeshToBarSimLookup.Add(mesh, barSimEcs);
         }
@@ -93,45 +98,55 @@ public class ClothSimEcsSystem : JobComponentSystem
         dstManager.AddSharedComponentData(entity, s_MeshToBarSimLookup[mesh]);
     }
 
-    [BurstCompile]    
+    [BurstCompile]
     struct ClothBarSimJob : IJob {
         [NativeDisableContainerSafetyRestriction]
         public NativeArray<float3> vertices;
         [ReadOnly]
-        public NativeArray<Vector2Int> bars;
-        [ReadOnly]
-        public NativeArray<float> barLengths;
-        [ReadOnly]
-        public NativeArray<int> pins;
+        public NativeArray<ClothConstraint> constraints;
+
+        // p0 | p1 | c0 | d0
+        // -----------------
+        //  0 |  0 |  1 |  1
+        //  0 |  1 |  2 |  0
+        //  1 |  0 |  0 |  2
+        //  1 |  1 |  0 |  0
+        readonly static float[] scaleX = {
+            1.0f,
+            2.0f,
+            0.0f,
+            0.0f
+        };
+        readonly static float[] scaleY = {
+            1.0f,
+            0.0f,
+            2.0f,
+            0.0f
+        };
 
         public void Execute() {
-            for (int i=0,n=bars.Length; i<n; ++i)
+            for (int i=0,n=constraints.Length; i<n; ++i)
             {
-                Vector2Int pair = bars[i];
+                ClothConstraint constraint = constraints[i];
 
-                float3 p1 = vertices[pair.x];
-                float3 p2 = vertices[pair.y];
-                int pin1 = pins[pair.x];
-                int pin2 = pins[pair.y];
+                float length = constraint.length * 1.953125e-3f; // (1/256) * (1/2)
+                float3 p1 = vertices[constraint.x];
+                float3 p2 = vertices[constraint.y];
+                float3 v0 = p2 - p1;
+                float3 v1 = v0 * (0.5f - length / math.length(v0));
 
-                float length = math.length(p2 - p1);
-                float extra = (length - barLengths[i]) * .5f;
-                float3 dir = math.normalize(p2 - p1);
+                int pinPairIndex = constraint.pinPair;
+                p1 += v1 * scaleX[pinPairIndex];
+                p2 -= v1 * scaleY[pinPairIndex];
 
-                if (pin1 == 0 && pin2 == 0) {
-                    vertices[pair.x] += extra * dir;
-                    vertices[pair.y] -= extra * dir;
-                } else if (pin1 == 0 && pin2 == 1) {
-                    vertices[pair.x] += extra * dir * 2f;
-                } else if (pin1 == 1 && pin2 == 0) {
-                    vertices[pair.y] -= extra * dir * 2f;
-                }
+                vertices[constraint.x] = p1;
+                vertices[constraint.y] = p2;
             }
         }
     }
 
     [BurstCompile]
-    struct ClothSimVertexJob0 : IJobParallelForBatch {
+    struct ClothSimVertexJob0 : IJobParallelOverVertices {
         [ReadOnly]
         public float4x4 localToWorld;
         [ReadOnly]
@@ -139,7 +154,9 @@ public class ClothSimEcsSystem : JobComponentSystem
         [ReadOnly]
         public float3 gravity;
         [ReadOnly]
-        public NativeArray<int> pins;
+        public float localY0;
+        [ReadOnly]
+        public NativeArray<byte> pins;
         [NativeDisableContainerSafetyRestriction]
         public NativeArray<float3> currentVertexState;
         [NativeDisableContainerSafetyRestriction]
@@ -154,22 +171,20 @@ public class ClothSimEcsSystem : JobComponentSystem
                 float3 oldVert = oldVertexState[i];
                 float3 vert = currentVertexState[i];
 
-                float3 startPos = vert;
-                oldVert -= gravity;
-                vert += (vert - oldVert);
-                oldVert = startPos;
+                float3 v0 = vert;
+                float3 v1 = 2.0f * vert - oldVert + gravity;
 
-                float3 worldPos = math.transform(localToWorld, vert);
-                if (worldPos.y < 0f) {
-                    Vector3 oldWorldPos = math.transform(localToWorld, oldVert);
+                if (v1.y < localY0) {
+                    float3 worldPos = math.transform(localToWorld, v1);
+                    Vector3 oldWorldPos = math.transform(localToWorld, v0);
                     oldWorldPos.y = (worldPos.y - oldWorldPos.y) * .5f;
                     worldPos.y = 0.0f;
-                    vert = math.transform(worldToLocal, worldPos);
-                    oldVert = math.transform(worldToLocal, oldWorldPos);
+                    v1 = math.transform(worldToLocal, worldPos);
+                    v0 = math.transform(worldToLocal, oldWorldPos);
                 }
 
-                oldVertexState[i] = oldVert;
-                currentVertexState[i] = vert;
+                oldVertexState[i] = v0;
+                currentVertexState[i] = v1;
             }
         }
     };
@@ -178,13 +193,14 @@ public class ClothSimEcsSystem : JobComponentSystem
     {
         foreach (ClothBarSimEcs barSimEcs in s_MeshToBarSimLookup.Values)
         {
-            barSimEcs.bars.Dispose();
-            barSimEcs.barLengths.Dispose();
-            barSimEcs.pins.Dispose();
+            barSimEcs.constraints.Dispose();
+            barSimEcs.pinState.Dispose();
         }
 
         if (jobHandles.Length > 0)
-            jobHandles.Dispose();
+	{
+	    jobHandles.Dispose();
+	}
     }
 
     protected override void OnCreate()
@@ -215,14 +231,14 @@ public class ClothSimEcsSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        float4 worldGravity = new float4(-Vector3.up * Time.DeltaTime*Time.DeltaTime, 0.0f);
         JobHandle combinedJobHandle = inputDeps;
-
+	
         int entityCount = simGroup.CalculateEntityCount();
         if (entityCount > 0)
         {
             PotentiallyResizeBecauseNewEntityHighwater(entityCount);
 
+            UnityEngine.Profiling.Profiler.BeginSample("Cloth Mesh update");
             Entities.WithoutBurst().ForEach((RenderMesh renderMesh,
                                              ref DynamicBuffer<VertexStateCurrentElement> currentVertexState) =>
             {
@@ -232,49 +248,54 @@ public class ClothSimEcsSystem : JobComponentSystem
                 //       seems incorrect.
                 renderMesh.mesh.SetVertices(currentVertexState.Reinterpret<Vector3>().AsNativeArray());
             }).Run();
+            UnityEngine.Profiling.Profiler.EndSample();
 
-            Entities.WithoutBurst().ForEach((RenderMesh renderMesh,
-                                             ref DynamicBuffer<VertexStateCurrentElement> currentVertexState) =>
-            {
-                renderMesh.mesh.SetVertices(currentVertexState.Reinterpret<Vector3>().AsNativeArray());
-            }).Run();
+            UnityEngine.Profiling.Profiler.BeginSample("Cloth Job setup");
 
-            Entities.WithoutBurst().ForEach((int entityInQueryIndex,
-                                             RenderMesh renderMesh,
-                                             ref DynamicBuffer<VertexStateCurrentElement> currentVertexState,
-                                             ref DynamicBuffer<VertexStateOldElement> oldVertexState,
-                                             in ClothBarSimEcs clothBarSimEcs,
-                                             in LocalToWorld localToWorld) =>
-            {
-                float4x4 worldToLocal = math.inverse(localToWorld.Value);
+            // jiv
+            // loop alone: ~0.43ms
+            // ClothBarSimJob: ~1.04ms
+            // ClothBarSimJob + instantiate but don't schedule ClothSimVertexJob0: 0.78
+	    Entities
+		.WithoutBurst()
+		.ForEach((int entityInQueryIndex,
+			  ref DynamicBuffer<VertexStateCurrentElement> currentVertexState,
+			  ref DynamicBuffer<VertexStateOldElement> oldVertexState,
+			  in ClothBarSimEcs clothBarSimEcs,
+			  in LocalToWorld localToWorld,
+			  in ClothInstance clothInstanceData) =>
+		{
+		    // can't hoist, will generate il2cpp codegen error about other omitted captures
+		    float4 worldGravity = new float4(-Vector3.up * Time.DeltaTime*Time.DeltaTime, 0.0f);
 
-                NativeArray<float3> vertices = currentVertexState.Reinterpret<float3>().AsNativeArray();
-                int vLength = clothBarSimEcs.pins.Length;
+		    NativeArray<float3> vertices = currentVertexState.Reinterpret<float3>().AsNativeArray();
+		    NativeArray<float3> oldVertices = oldVertexState.Reinterpret<float3>().AsNativeArray();
+		    int vLength = clothBarSimEcs.pinState.Length;
 
-                // update vertices according to length constraints.  This process is serial
-                // due to the nature of the dependencies between vertices.
-                ClothBarSimJob clothBarSimJob = new ClothBarSimJob {
-                    vertices = vertices,
-                    bars = clothBarSimEcs.bars,
-                    barLengths = clothBarSimEcs.barLengths,
-                    pins = clothBarSimEcs.pins
-                };
+		    // update vertices according to length constraints.  This process is serial
+		    // due to the nature of the dependencies between vertices.
+		    ClothBarSimJob clothBarSimJob = new ClothBarSimJob {
+			vertices = vertices,
+			constraints = clothBarSimEcs.constraints
+		    };
 
-                JobHandle clothBarSimJobHandle = clothBarSimJob.Schedule(inputDeps);
+		    // apply gravity, bound (loosely) to +y halfspace, tick vertex state
+		    ClothSimVertexJob0 clothSimVertexJob0 = new ClothSimVertexJob0 {
+			pins = clothBarSimEcs.pinState,
+			localToWorld = localToWorld.Value,
+			worldToLocal = clothInstanceData.worldToLocalMatrix,
+			localY0 = clothInstanceData.localY0,
+			gravity = math.mul(clothInstanceData.worldToLocalMatrix, worldGravity).xyz,
+			currentVertexState = vertices,
+			oldVertexState = oldVertices
+		    };
 
-                // apply gravity, bound (loosely) to +y halfspace, tick vertex state
-                ClothSimVertexJob0 clothSimVertexJob0 = new ClothSimVertexJob0 {
-                    pins = clothBarSimEcs.pins,
-                    localToWorld = localToWorld.Value,
-                    worldToLocal = worldToLocal,
-                    gravity = math.mul(worldToLocal, worldGravity).xyz,
-                    currentVertexState = vertices,
-                    oldVertexState = oldVertexState.Reinterpret<float3>().AsNativeArray()
-                };
+		    jobHandles[entityInQueryIndex] = clothSimVertexJob0.ScheduleBatch(vLength,
+										      vLength/SystemInfo.processorCount,
+										      clothBarSimJob.Schedule(inputDeps));
+		}).Run();
 
-                JobHandle simVertexJobHandle = clothSimVertexJob0.ScheduleBatch(vLength, vLength/SystemInfo.processorCount, clothBarSimJobHandle);
-                jobHandles[entityInQueryIndex] = JobHandle.CombineDependencies(clothBarSimJobHandle, simVertexJobHandle);
-            }).Run();
+            UnityEngine.Profiling.Profiler.EndSample();
 
             combinedJobHandle = JobHandle.CombineDependencies(new NativeSlice<JobHandle>(jobHandles, 0, entityCount));
         }
