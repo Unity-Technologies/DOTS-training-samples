@@ -157,6 +157,7 @@ public class ClothSimEcsSystem : JobComponentSystem
         public float localY0;
         [ReadOnly]
         public NativeArray<byte> pins;
+
         [NativeDisableContainerSafetyRestriction]
         public NativeArray<float3> currentVertexState;
         [NativeDisableContainerSafetyRestriction]
@@ -238,7 +239,6 @@ public class ClothSimEcsSystem : JobComponentSystem
         {
             PotentiallyResizeBecauseNewEntityHighwater(entityCount);
 
-            UnityEngine.Profiling.Profiler.BeginSample("Cloth Mesh update");
             Entities.WithoutBurst().ForEach((RenderMesh renderMesh,
                                              ref DynamicBuffer<VertexStateCurrentElement> currentVertexState) =>
             {
@@ -248,53 +248,50 @@ public class ClothSimEcsSystem : JobComponentSystem
                 //       seems incorrect.
                 renderMesh.mesh.SetVertices(currentVertexState.Reinterpret<Vector3>().AsNativeArray());
             }).Run();
-            UnityEngine.Profiling.Profiler.EndSample();
 
-            UnityEngine.Profiling.Profiler.BeginSample("Cloth Job setup");
-
+	    UnityEngine.Profiling.Profiler.BeginSample("ClothSetup");
+	
             // jiv
             // loop alone: ~0.43ms
             // ClothBarSimJob: ~1.04ms
             // ClothBarSimJob + instantiate but don't schedule ClothSimVertexJob0: 0.78
-	    Entities
-		.WithoutBurst()
-		.ForEach((int entityInQueryIndex,
-			  ref DynamicBuffer<VertexStateCurrentElement> currentVertexState,
-			  ref DynamicBuffer<VertexStateOldElement> oldVertexState,
-			  in ClothBarSimEcs clothBarSimEcs,
-			  in LocalToWorld localToWorld,
-			  in ClothInstance clothInstanceData) =>
-		{
-		    // can't hoist, will generate il2cpp codegen error about other omitted captures
-		    float4 worldGravity = new float4(-Vector3.up * Time.DeltaTime*Time.DeltaTime, 0.0f);
+            Entities.WithoutBurst().ForEach((int entityInQueryIndex,
+                                             ref DynamicBuffer<VertexStateCurrentElement> currentVertexState,
+                                             ref DynamicBuffer<VertexStateOldElement> oldVertexState,
+                                             in ClothBarSimEcs clothBarSimEcs,
+					     in ClothInstance clothInstance,
+                                             in LocalToWorld localToWorld) =>
+            {
+		// can't hoist, will generate il2cpp codegen error about other omitted captures
+		float4 worldGravity = new float4(-Vector3.up * Time.DeltaTime*Time.DeltaTime, 0.0f);
 
-		    NativeArray<float3> vertices = currentVertexState.Reinterpret<float3>().AsNativeArray();
-		    NativeArray<float3> oldVertices = oldVertexState.Reinterpret<float3>().AsNativeArray();
-		    int vLength = clothBarSimEcs.pinState.Length;
+                NativeArray<float3> vertices = currentVertexState.Reinterpret<float3>().AsNativeArray();
+                int vLength = clothBarSimEcs.pinState.Length;
 
-		    // update vertices according to length constraints.  This process is serial
-		    // due to the nature of the dependencies between vertices.
-		    ClothBarSimJob clothBarSimJob = new ClothBarSimJob {
-			vertices = vertices,
-			constraints = clothBarSimEcs.constraints
-		    };
+                // update vertices according to length constraints.  This process is serial
+                // due to the nature of the dependencies between vertices.
+                ClothBarSimJob clothBarSimJob = new ClothBarSimJob {
+                    vertices = vertices,
+                    constraints = clothBarSimEcs.constraints
+                };
 
-		    // apply gravity, bound (loosely) to +y halfspace, tick vertex state
-		    ClothSimVertexJob0 clothSimVertexJob0 = new ClothSimVertexJob0 {
-			pins = clothBarSimEcs.pinState,
-			localToWorld = localToWorld.Value,
-			worldToLocal = clothInstanceData.worldToLocalMatrix,
-			localY0 = clothInstanceData.localY0,
-			gravity = math.mul(clothInstanceData.worldToLocalMatrix, worldGravity).xyz,
-			currentVertexState = vertices,
-			oldVertexState = oldVertices
-		    };
+                JobHandle clothBarSimJobHandle = clothBarSimJob.Schedule(inputDeps);
 
-		    jobHandles[entityInQueryIndex] = clothSimVertexJob0.ScheduleBatch(vLength,
-										      vLength/SystemInfo.processorCount,
-										      clothBarSimJob.Schedule(inputDeps));
-		}).Run();
+                // apply gravity, bound (loosely) to +y halfspace, tick vertex state
+                ClothSimVertexJob0 clothSimVertexJob0 = new ClothSimVertexJob0 {
+                    pins = clothBarSimEcs.pinState,
+                    localToWorld = localToWorld.Value,
+                    worldToLocal = clothInstance.worldToLocalMatrix,
+		    localY0 = clothInstance.localY0,
+                    gravity = math.mul(clothInstance.worldToLocalMatrix, worldGravity).xyz,
+                    currentVertexState = vertices,
+                    oldVertexState = oldVertexState.Reinterpret<float3>().AsNativeArray()
+                };
 
+                jobHandles[entityInQueryIndex] = clothSimVertexJob0.ScheduleBatch(vLength,
+										  vLength/SystemInfo.processorCount,
+										  clothBarSimJobHandle);
+            }).Run();
             UnityEngine.Profiling.Profiler.EndSample();
 
             combinedJobHandle = JobHandle.CombineDependencies(new NativeSlice<JobHandle>(jobHandles, 0, entityCount));
