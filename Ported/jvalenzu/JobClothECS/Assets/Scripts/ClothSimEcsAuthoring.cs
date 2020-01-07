@@ -50,13 +50,6 @@ public class ClothSimEcsAuthoring : MonoBehaviour
 
             ClothSimEcsSystem.AddSharedComponents(entity, originalMesh, entityManager);
 
-	    // we don't move, so cache inverted matrix
-	    entityManager.AddComponentData(entity, new ClothInstance
-	    {
-		worldToLocalMatrix = transform.worldToLocalMatrix,
-		localY0 = (transform.worldToLocalMatrix.MultiplyPoint(new Vector3(0,0,0))).y
-	    });
-
             meshFilter.sharedMesh = originalMesh;
             UnityEngine.Object.Destroy(gameObject);
         }
