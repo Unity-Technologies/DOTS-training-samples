@@ -5,6 +5,7 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Burst;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 public class ClothSimEcsAuthoring : MonoBehaviour
 {
@@ -39,7 +40,7 @@ public class ClothSimEcsAuthoring : MonoBehaviour
             // this slightly awkward initialization pattern (add buffer, then get) is to avoid:
             // InvalidOperationException: The NativeArray has been deallocated, it is not allowed to access it
             // Unity.Collections.LowLevel.Unsafe.AtomicSafetyHandle.CheckWriteAndThrowNoEarlyOut (Unity.Collections.LowLevel.Unsafe.AtomicSafetyHandle handle) <0x1a344da60 + 0x00052> in <ad86e8e508c54768abd7c1fb9256ddc2>:0
-            
+
             vertexStateCurrentElement = entityManager.GetBuffer<VertexStateCurrentElement>(entity);
             vertexStateOldElement = entityManager.GetBuffer<VertexStateOldElement>(entity);
             for (int i=0,n=mesh.vertices.Length; i<n; ++i)
@@ -49,6 +50,14 @@ public class ClothSimEcsAuthoring : MonoBehaviour
             }
 
             ClothSimEcsSystem.AddSharedComponents(entity, originalMesh, entityManager);
+
+	    // we don't move, so cache inverted matrix
+	    entityManager.AddComponentData(entity, new ClothInstance
+	    {
+		worldToLocalMatrix = transform.worldToLocalMatrix,
+		localY0 = (transform.worldToLocalMatrix.MultiplyPoint(new Vector3(0,0,0))).y
+	    });
+
             meshFilter.sharedMesh = originalMesh;
             UnityEngine.Object.Destroy(gameObject);
         }
