@@ -54,17 +54,17 @@ public static class IJobParallelOverVerticesExtensions
     public static unsafe JobHandle ScheduleBatch<T>(this T jobData, int arrayLength, int minIndicesPerJobCount,
         JobHandle dependsOn = new JobHandle()) where T : struct, IJobParallelOverVertices
     {
-	UnityEngine.Profiling.Profiler.BeginSample("IJobParallelOverVertices init job schedule");
+	// UnityEngine.Profiling.Profiler.BeginSample("IJobParallelOverVertices init job schedule");
         var scheduleParams = new JobsUtility.JobScheduleParameters(
             UnsafeUtility.AddressOf(ref jobData),
             ParallelOverVerticesJobStruct<T>.Initialize(),
             dependsOn,
             ScheduleMode.Batched);
-	UnityEngine.Profiling.Profiler.EndSample();
+	// UnityEngine.Profiling.Profiler.EndSample();
 
-	UnityEngine.Profiling.Profiler.BeginSample("IJobParallelOverVertices schedule parallel for");
+	// UnityEngine.Profiling.Profiler.BeginSample("IJobParallelOverVertices schedule parallel for");
         JobHandle ret = JobsUtility.ScheduleParallelFor(ref scheduleParams, arrayLength, minIndicesPerJobCount);
-	UnityEngine.Profiling.Profiler.EndSample();
+	// UnityEngine.Profiling.Profiler.EndSample();
 	return ret;
     }
 

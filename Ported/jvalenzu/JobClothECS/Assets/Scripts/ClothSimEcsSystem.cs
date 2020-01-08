@@ -1,3 +1,5 @@
+// #define JIV_PARALLEL
+
 using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Entities;
@@ -8,6 +10,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using Unity.Rendering;
+
 
 public class ClothSimEcsSystem : JobComponentSystem
 {
@@ -178,10 +181,57 @@ public class ClothSimEcsSystem : JobComponentSystem
                 if (v1.y < localY0) {
                     float3 worldPos = math.transform(localToWorld, v1);
                     Vector3 oldWorldPos = math.transform(localToWorld, v0);
-		    
+                    
                     oldWorldPos.y = (worldPos.y - oldWorldPos.y) * .5f;
                     worldPos.y = 0.0f;
-		    
+                    
+                    v0 = math.transform(worldToLocal, oldWorldPos);
+                    v1 = math.transform(worldToLocal, worldPos);
+                }
+
+                oldVertexState[i] = v0;
+                currentVertexState[i] = v1;
+            }
+        }
+    };
+
+    [BurstCompile]
+    struct ClothSimVertexJob1 : IJob {
+        [ReadOnly]
+        public float4x4 localToWorld;
+        [ReadOnly]
+        public float4x4 worldToLocal;
+        [ReadOnly]
+        public float3 gravity;
+        [ReadOnly]
+        public float localY0;
+        [ReadOnly]
+        public NativeArray<byte> pins;
+
+        [NativeDisableContainerSafetyRestriction]
+        public NativeArray<float3> currentVertexState;
+        [NativeDisableContainerSafetyRestriction]
+        public NativeArray<float3> oldVertexState;
+
+        public void Execute() {
+            for (int i=0,n=pins.Length; i<n; ++i)
+            {
+                if (pins[i] != 0)
+                    continue;
+
+                float3 oldVert = oldVertexState[i];
+                float3 vert = currentVertexState[i];
+
+                float3 v0 = vert;
+                float3 v1 = 2.0f * vert - oldVert + gravity;
+
+                if (v1.y < localY0) {
+                    float3 worldPos = math.transform(localToWorld, v1);
+                    Vector3 oldWorldPos = math.transform(localToWorld, v0);
+                    
+                    oldWorldPos.y = (worldPos.y - oldWorldPos.y) * .5f;
+                    worldPos.y = 0.0f;
+                    
                     v0 = math.transform(worldToLocal, oldWorldPos);
                     v1 = math.transform(worldToLocal, worldPos);
                 }
@@ -201,9 +251,9 @@ public class ClothSimEcsSystem : JobComponentSystem
         }
 
         if (jobHandles.Length > 0)
-	{
-	    jobHandles.Dispose();
-	}
+        {
+            jobHandles.Dispose();
+        }
     }
 
     protected override void OnCreate()
@@ -235,7 +285,7 @@ public class ClothSimEcsSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         JobHandle combinedJobHandle = inputDeps;
-	
+        
         int entityCount = simGroup.CalculateEntityCount();
         if (entityCount > 0)
         {
@@ -251,21 +301,17 @@ public class ClothSimEcsSystem : JobComponentSystem
                 renderMesh.mesh.SetVertices(currentVertexState.Reinterpret<Vector3>().AsNativeArray());
             }).Run();
 
-	    UnityEngine.Profiling.Profiler.BeginSample("ClothSetup");
-	
-            // jiv
-            // loop alone: ~0.43ms
-            // ClothBarSimJob: ~1.04ms
-            // ClothBarSimJob + instantiate but don't schedule ClothSimVertexJob0: 0.78
+            UnityEngine.Profiling.Profiler.BeginSample("ClothSetup");
+        
             Entities.WithoutBurst().ForEach((int entityInQueryIndex,
                                              ref DynamicBuffer<VertexStateCurrentElement> currentVertexState,
                                              ref DynamicBuffer<VertexStateOldElement> oldVertexState,
                                              in ClothBarSimEcs clothBarSimEcs,
-					     in ClothInstance clothInstance,
+                                             in ClothInstance clothInstance,
                                              in LocalToWorld localToWorld) =>
             {
-		// can't hoist, will generate il2cpp codegen error about other omitted captures
-		float4 worldGravity = new float4(-Vector3.up * Time.DeltaTime*Time.DeltaTime, 0.0f);
+                // can't hoist, will generate il2cpp codegen error about other omitted captures
+                float4 worldGravity = new float4(-Vector3.up * Time.DeltaTime*Time.DeltaTime, 0.0f);
 
                 NativeArray<float3> vertices = currentVertexState.Reinterpret<float3>().AsNativeArray();
                 int vLength = clothBarSimEcs.pinState.Length;
@@ -280,19 +326,27 @@ public class ClothSimEcsSystem : JobComponentSystem
                 JobHandle clothBarSimJobHandle = clothBarSimJob.Schedule(inputDeps);
 
                 // apply gravity, bound (loosely) to +y halfspace, tick vertex state
-                ClothSimVertexJob0 clothSimVertexJob0 = new ClothSimVertexJob0 {
+#if JIV_PARALLEL
+                ClothSimVertexJob0 clothSimVertexJob = new ClothSimVertexJob0 {
+#else
+                ClothSimVertexJob1 clothSimVertexJob = new ClothSimVertexJob1 {
+#endif
                     pins = clothBarSimEcs.pinState,
                     localToWorld = localToWorld.Value,
                     worldToLocal = clothInstance.worldToLocalMatrix,
-		    localY0 = clothInstance.localY0,
+                    localY0 = clothInstance.localY0,
                     gravity = math.mul(clothInstance.worldToLocalMatrix, worldGravity).xyz,
                     currentVertexState = vertices,
                     oldVertexState = oldVertexState.Reinterpret<float3>().AsNativeArray()
                 };
 
-                jobHandles[entityInQueryIndex] = clothSimVertexJob0.ScheduleBatch(vLength,
-										  vLength/SystemInfo.processorCount,
-										  clothBarSimJobHandle);
+#if JIV_PARALLEL
+                jobHandles[entityInQueryIndex] = clothSimVertexJob.ScheduleBatch(vLength,
+                                                                                 vLength/SystemInfo.processorCount-1,
+                                                                                 clothBarSimJobHandle);
+#else
+                jobHandles[entityInQueryIndex] = clothSimVertexJob.Schedule(clothBarSimJobHandle);
+#endif
             }).Run();
             UnityEngine.Profiling.Profiler.EndSample();
 
