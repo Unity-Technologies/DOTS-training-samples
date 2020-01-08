@@ -178,10 +178,12 @@ public class ClothSimEcsSystem : JobComponentSystem
                 if (v1.y < localY0) {
                     float3 worldPos = math.transform(localToWorld, v1);
                     Vector3 oldWorldPos = math.transform(localToWorld, v0);
+		    
                     oldWorldPos.y = (worldPos.y - oldWorldPos.y) * .5f;
                     worldPos.y = 0.0f;
-                    v1 = math.transform(worldToLocal, worldPos);
+		    
                     v0 = math.transform(worldToLocal, oldWorldPos);
+                    v1 = math.transform(worldToLocal, worldPos);
                 }
 
                 oldVertexState[i] = v0;
