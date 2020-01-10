@@ -24,14 +24,15 @@ When dealing with so many instances, there's an alternative modeling where we go
 
 These numbers reflect a snapshot in time on a specific machine (i9-9900K 3.6Ghz 16 cores), they may not accurately reflect the current code.
 
-|instances | Job type          | # threads | setup (ms) | sim (ms) |
-| :------- | :---------------- | --------: | ---------: | -------: |
-|        1 | IJob              |        15 |      ~0.37 |    ~0.17 |
-|        1 | IJobParallelBatch |        15 |      ~0.47 |    ~0.51 |
-|        1 | ForEach           |        15 |      ~0.11 |    ~0.06 |
-|     4369 | IJob              |        15 |     ~16.47 |    ~6.45 |
-|     4369 | IJobParallelBatch |        15 |     ~26.93 |   ~15.28 |
-|     4369 | ForEach           |        15 |      ~0.07 |    ~6.84 |
+|instances | Job type          | setup (ms) | sim (ms) |
+| :------- | :---------------- | ---------: | -------: |
+|        1 | IJob              |      ~0.37 |    ~0.17 |
+|        1 | IJobParallelBatch |      ~0.47 |    ~0.51 |
+|        1 | ForEach           |      ~0.11 |    ~0.06 |
+|     4369 | (original)        |     ~47.23 |   ~48.71 |
+|     4369 | IJob              |     ~16.47 |    ~6.45 |
+|     4369 | IJobParallelBatch |     ~26.93 |   ~15.28 |
+|     4369 | ForEach           |      ~0.07 |    ~6.84 |
 
 A little surprised how much better IJob is than IJobParallelBatch - while IJob doesn't go as wide as I expected I did see it on more than one worker thread.
 
