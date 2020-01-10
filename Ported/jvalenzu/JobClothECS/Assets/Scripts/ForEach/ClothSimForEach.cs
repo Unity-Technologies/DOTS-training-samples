@@ -32,12 +32,6 @@ public class ClothSimForEach : JobComponentSystem
     NativeArray<float> scaleX = new NativeArray<float>(new float[]{1.0f, 2.0f, 0.0f, 0.0f}, Allocator.Persistent);
     NativeArray<float> scaleY = new NativeArray<float>(new float[]{1.0f, 0.0f, 2.0f, 0.0f}, Allocator.Persistent);
 
-    // we both find relevant entities and partition their immutable data via the ClothBarSimEcs
-    // component.
-    //
-    // debated moving this into a two-stage initialization, but it's tough to actually jobify since
-    // we're going to end up accessing the managed Mesh type for vertex and normal data.  Moving
-    // it the other direction, to a tool time conversion, seems preferable.
     static public BlobAssetReference<ClothConstraintAsset> AddBlobAssetReference(Entity entity, Mesh mesh, EntityManager dstManager)
     {
         if (!s_MeshToBlobAssetReferenceIndexLookup.ContainsKey(mesh))
