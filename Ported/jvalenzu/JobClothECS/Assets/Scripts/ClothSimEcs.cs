@@ -43,9 +43,20 @@ public struct VertexStateOldElement : IBufferElementData
     public float3 Value;
 };
 
-public struct ClothInstance : IComponentData {
+public struct ClothInstanceIJobIJob : IComponentData {
     public float4x4 worldToLocalMatrix;
     public float localY0;
+};
+
+public struct ClothInstanceIJobIJobParallel : IComponentData {
+    public float4x4 worldToLocalMatrix;
+    public float localY0;
+};
+
+public struct ClothInstanceForEach : IComponentData {
+    public float4x4 worldToLocalMatrix;
+    public float localY0;
+    public BlobAssetReference<ClothConstraintAsset> clothConstraints;
 };
 
 public struct ClothConstraint
@@ -54,6 +65,12 @@ public struct ClothConstraint
     public ushort y;
     public ushort pinPair; // bbbbbbbbbbbbbbb | pair.x | pair.y
     public ushort length;  // 8.8
+};
+
+public struct ClothConstraintAsset
+{
+    public BlobArray<ClothConstraint> constraints;
+    public BlobArray<byte> pinState;
 };
 
 public struct ClothBarSimEcs : ISharedComponentData, IEquatable<ClothBarSimEcs> {

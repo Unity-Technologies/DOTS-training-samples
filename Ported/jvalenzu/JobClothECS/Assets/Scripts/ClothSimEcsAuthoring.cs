@@ -9,6 +9,14 @@ using Unity.Transforms;
 
 public class ClothSimEcsAuthoring : MonoBehaviour
 {
+    public enum SystemType
+    {
+        IJob_IJob,
+        IJob_IJobParallel,
+        ForEach
+    };
+    public SystemType system = SystemType.IJob_IJob;
+    
     void Start()
     {
         // would prefer to use the new conversion workflow but I couldn't get it to work robustly -
@@ -48,13 +56,40 @@ public class ClothSimEcsAuthoring : MonoBehaviour
                 vertexStateOldElement[i] = mesh.vertices[i];
             }
 
-            ClothSimEcsSystem.AddSharedComponents(entity, originalMesh, entityManager);
+            switch (system)
+            {
+                case SystemType.IJob_IJob:
+                {
+                    entityManager.AddComponentData(entity, new ClothInstanceIJobIJob
+                    {
+                        worldToLocalMatrix = transform.worldToLocalMatrix,
+                        localY0 = transform.worldToLocalMatrix.MultiplyPoint(new Vector3(0,0,0)).y, // not quite right
+                    });
+                    ClothSimEcsIJobSystem.AddSharedComponents(entity, originalMesh, entityManager);
+                    break;
+                }
+                case SystemType.IJob_IJobParallel:
+                {
+                    entityManager.AddComponentData(entity, new ClothInstanceIJobIJobParallel
+                    {
+                        worldToLocalMatrix = transform.worldToLocalMatrix,
+                        localY0 = transform.worldToLocalMatrix.MultiplyPoint(new Vector3(0,0,0)).y, // not quite right
+                    });
+                    ClothSimEcsIJobParallelSystem.AddSharedComponents(entity, originalMesh, entityManager);
+                    break;
+                }
+                case SystemType.ForEach:
+                {
+                    entityManager.AddComponentData(entity, new ClothInstanceForEach
+                    {
+                        worldToLocalMatrix = transform.worldToLocalMatrix,
+                        localY0 = transform.worldToLocalMatrix.MultiplyPoint(new Vector3(0,0,0)).y, // not quite right
+                        clothConstraints = ClothSimForEach.AddBlobAssetReference(entity, originalMesh, entityManager)
+                    });
+                    break;
+                }
+            }
 
-	    entityManager.AddComponentData(entity, new ClothInstance
-	    {
-		worldToLocalMatrix = transform.worldToLocalMatrix,
-		localY0 = transform.worldToLocalMatrix.MultiplyPoint(new Vector3(0,0,0)).y // not quite right
-	    });
 
             meshFilter.sharedMesh = originalMesh;
             UnityEngine.Object.Destroy(gameObject);

@@ -27,6 +27,11 @@ A little surprised how much better IJob is than IJobParallelBatch - while IJob d
 
 ## notes
 
+* I would not usually structure a project with so much copy and paste.
+* I'd considered and dismissed using a shared component to filter objects instead of separate ClothInstance types.
+* I have to duplicate the EntityQuery logic, once explicit to get the entityCount (to allocate handles) and once implicit to get query
+  * would be nice to be able to setup a Unity.Entities.CodeGeneratedJobForEach.ForEachLambdaJobDescription, get entity count, then Run
+
 * wishlist
   + would like to be able to save out profiler info to text/json
   + would like max time per job across all runs in a frame
