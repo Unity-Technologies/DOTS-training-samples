@@ -37,13 +37,9 @@ A little surprised how much better IJob is than IJobParallelBatch - while IJob d
 
 ## notes
 
-* I would not usually structure a project with so much copy and paste.
+* Apologies for the copy pasta, I wouldn't usually structure a project like this.
 * I'd considered and dismissed using a shared component to filter objects instead of separate ClothInstance types.
-* I have to duplicate the EntityQuery logic, once explicit to get the entityCount (to allocate handles) and once implicit to get query
-  * would be nice to be able to setup a Unity.Entities.CodeGeneratedJobForEach.ForEachLambdaJobDescription, get entity count, then Run
-
-* wishlist
-  + would like to be able to save out profiler info to text/json
-  + would like max time per job across all runs in a frame
+* During manual iteration, I'd initially preallocated a JobHandle array and used entityInQueryIndex to fill it in, combining at the very end to produce a final JobHandle.  Unfortunately this required duplicating the EntityQuery logic - using an explicit EntityQuery to get the entityCount (to preallocate handles).  This got out of sync at some point with the query that was actually iterating the entities and ended up costing an inordinate amount.  Would be nice to be able to setup a Unity.Entities.CodeGeneratedJobForEach.ForEachLambdaJobDescription, get entity count, then Run.
+* When profiling I ended up having the eyeball/manually copy data a lot.  It would be great to either save out to csv/json or at least copy/paste rows.  max time per job across all runs in a frame would be great too.
 * I couldn't get the subscene based conversion workflow working reliably.
-* Find it a little odd that safety handles are by type instead of instance, requiring me to use NativeDisableContainerSafetyRestriction on currentVertexState, oldVertexState.
+* Found it unintuitive that safety handles are by type instead of instance.

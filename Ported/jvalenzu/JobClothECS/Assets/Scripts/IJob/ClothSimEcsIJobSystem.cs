@@ -153,8 +153,7 @@ public class ClothSimEcsIJobSystem : JobComponentSystem
         
         UnityEngine.Profiling.Profiler.BeginSample("ClothSetup");
 
-        Entities.WithoutBurst().ForEach((int entityInQueryIndex,
-                                         ref DynamicBuffer<VertexStateCurrentElement> currentVertexState,
+        Entities.WithoutBurst().ForEach((ref DynamicBuffer<VertexStateCurrentElement> currentVertexState,
                                          ref DynamicBuffer<VertexStateOldElement> oldVertexState,
                                          in ClothBarSimEcs clothBarSimEcs,
                                          in ClothInstanceIJobIJob clothInstance,
