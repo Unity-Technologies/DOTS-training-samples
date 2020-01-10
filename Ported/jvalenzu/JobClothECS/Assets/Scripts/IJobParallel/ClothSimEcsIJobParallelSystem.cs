@@ -138,53 +138,6 @@ public class ClothSimEcsIJobParallelSystem : JobComponentSystem
         }
     };
 
-    [BurstCompile]
-    struct ClothSimVertexIJob : IJob {
-        [ReadOnly]
-        public float4x4 localToWorld;
-        [ReadOnly]
-        public float4x4 worldToLocal;
-        [ReadOnly]
-        public float3 gravity;
-        [ReadOnly]
-        public float localY0;
-        [ReadOnly]
-        public NativeArray<byte> pins;
-
-        [NativeDisableContainerSafetyRestriction]
-        public NativeArray<float3> currentVertexState;
-        [NativeDisableContainerSafetyRestriction]
-        public NativeArray<float3> oldVertexState;
-
-        public void Execute() {
-            for (int i=0,n=pins.Length; i<n; ++i)
-            {
-                if (pins[i] != 0)
-                    continue;
-
-                float3 oldVert = oldVertexState[i];
-                float3 vert = currentVertexState[i];
-
-                float3 v0 = vert;
-                float3 v1 = 2.0f * vert - oldVert + gravity;
-
-                if (v1.y < localY0) {
-                    float3 worldPos = math.transform(localToWorld, v1);
-                    Vector3 oldWorldPos = math.transform(localToWorld, v0);
-                    
-                    oldWorldPos.y = (worldPos.y - oldWorldPos.y) * .5f;
-                    worldPos.y = 0.0f;
-                    
-                    v0 = math.transform(worldToLocal, oldWorldPos);
-                    v1 = math.transform(worldToLocal, worldPos);
-                }
-
-                oldVertexState[i] = v0;
-                currentVertexState[i] = v1;
-            }
-        }
-    };
-
     protected override void OnDestroy()
     {
         foreach (ClothBarSimEcs barSimEcs in s_MeshToBarSimLookup.Values)
