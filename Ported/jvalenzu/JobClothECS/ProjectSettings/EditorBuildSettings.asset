@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/_Scenes/ClothEcsMultiForEach.unity
-    guid: 1b0a4a1adb695460e82579a6c60a33b4
+    path: Assets/_Scenes/ClothEcsOneInstanceForEach.unity
+    guid: 81340b8d0fda4473ca6d829f7c76ebc9
   m_configObjects: {}

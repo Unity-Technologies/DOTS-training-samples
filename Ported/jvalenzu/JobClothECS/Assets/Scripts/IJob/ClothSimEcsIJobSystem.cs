@@ -151,45 +151,45 @@ public class ClothSimEcsIJobSystem : JobComponentSystem
     {
         JobHandle combinedJobHandle = inputDeps;
         
-	UnityEngine.Profiling.Profiler.BeginSample("ClothSetup");
+        UnityEngine.Profiling.Profiler.BeginSample("ClothSetup");
 
-	Entities.WithoutBurst().ForEach((int entityInQueryIndex,
-					 ref DynamicBuffer<VertexStateCurrentElement> currentVertexState,
-					 ref DynamicBuffer<VertexStateOldElement> oldVertexState,
-					 in ClothBarSimEcs clothBarSimEcs,
-					 in ClothInstanceIJobIJob clothInstance,
-					 in LocalToWorld localToWorld) =>
-	{
-	    // can't hoist, will generate il2cpp codegen error about other omitted captures
-	    float4 worldGravity = new float4(-Vector3.up * Time.DeltaTime*Time.DeltaTime, 0.0f);
+        Entities.WithoutBurst().ForEach((int entityInQueryIndex,
+                                         ref DynamicBuffer<VertexStateCurrentElement> currentVertexState,
+                                         ref DynamicBuffer<VertexStateOldElement> oldVertexState,
+                                         in ClothBarSimEcs clothBarSimEcs,
+                                         in ClothInstanceIJobIJob clothInstance,
+                                         in LocalToWorld localToWorld) =>
+        {
+            // can't hoist, will generate il2cpp codegen error about other omitted captures
+            float4 worldGravity = new float4(-Vector3.up * Time.DeltaTime*Time.DeltaTime, 0.0f);
 
-	    NativeArray<float3> vertices = currentVertexState.Reinterpret<float3>().AsNativeArray();
-	    int vLength = clothBarSimEcs.pinState.Length;
+            NativeArray<float3> vertices = currentVertexState.Reinterpret<float3>().AsNativeArray();
+            int vLength = clothBarSimEcs.pinState.Length;
 
-	    // update vertices according to length constraints.  This process is serial
-	    // due to the nature of the dependencies between vertices.
-	    ClothBarSimJob clothBarSimJob = new ClothBarSimJob {
-		vertices = vertices,
-		constraints = clothBarSimEcs.constraints
-	    };
+            // update vertices according to length constraints.  This process is serial
+            // due to the nature of the dependencies between vertices.
+            ClothBarSimJob clothBarSimJob = new ClothBarSimJob {
+                vertices = vertices,
+                constraints = clothBarSimEcs.constraints
+            };
 
-	    JobHandle clothBarSimJobHandle = clothBarSimJob.Schedule(inputDeps);
+            JobHandle clothBarSimJobHandle = clothBarSimJob.Schedule(inputDeps);
 
-	    // apply gravity, bound (loosely) to +y halfspace, tick vertex state
-	    ClothSimVertexIJob clothSimVertexJob = new ClothSimVertexIJob {
-		pins = clothBarSimEcs.pinState,
-		localToWorld = localToWorld.Value,
-		worldToLocal = clothInstance.worldToLocalMatrix,
-		localY0 = clothInstance.localY0,
-		gravity = math.mul(clothInstance.worldToLocalMatrix, worldGravity).xyz,
-		currentVertexState = vertices,
-		oldVertexState = oldVertexState.Reinterpret<float3>().AsNativeArray()
-	    };
+            // apply gravity, bound (loosely) to +y halfspace, tick vertex state
+            ClothSimVertexIJob clothSimVertexJob = new ClothSimVertexIJob {
+                pins = clothBarSimEcs.pinState,
+                localToWorld = localToWorld.Value,
+                worldToLocal = clothInstance.worldToLocalMatrix,
+                localY0 = clothInstance.localY0,
+                gravity = math.mul(clothInstance.worldToLocalMatrix, worldGravity).xyz,
+                currentVertexState = vertices,
+                oldVertexState = oldVertexState.Reinterpret<float3>().AsNativeArray()
+            };
 
-	    combinedJobHandle = JobHandle.CombineDependencies(combinedJobHandle, clothSimVertexJob.Schedule(clothBarSimJobHandle));
-	}).Run();
+            combinedJobHandle = JobHandle.CombineDependencies(combinedJobHandle, clothSimVertexJob.Schedule(clothBarSimJobHandle));
+        }).Run();
 
-	UnityEngine.Profiling.Profiler.EndSample();
+        UnityEngine.Profiling.Profiler.EndSample();
 
         return combinedJobHandle;
     }
