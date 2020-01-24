@@ -207,7 +207,7 @@ public class DistanceFieldSystem : JobComponentSystem
                 //float dist = DistanceField.GetDistance(pos.position.x, orbiter.position.y, orbiter.position.z, out normal);
                 velocity.value -= normal * props.Attraction * math.clamp(dist, -1f, 1f);
                 velocity.value += rng.NextFloat3Direction() * props.Jitter;
-                velocity.value *= .99f;
+                //velocity.value *= .99f;
                 position.value += velocity.value;
                 float4 targetColor;
 

@@ -338,6 +338,7 @@ MonoBehaviour:
   exteriorColorDist: 5
   interiorColorDist: 1.5
   colorStiffness: 4
+  spawnCount: 4
 --- !u!4 &1005362915
 Transform:
   m_ObjectHideFlags: 0

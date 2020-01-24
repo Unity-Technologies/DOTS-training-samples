@@ -16,6 +16,7 @@ public class EmitterPropertiesAuthoring : MonoBehaviour, IConvertGameObjectToEnt
     [SerializeField] public float exteriorColorDist;
     [SerializeField] public float interiorColorDist;
     [SerializeField] public float colorStiffness;
+    [SerializeField] public int spawnCount;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -36,6 +37,7 @@ public class EmitterPropertiesAuthoring : MonoBehaviour, IConvertGameObjectToEnt
             ExteriorColorDist = exteriorColorDist,
             InteriorColorDist = interiorColorDist,
             ColorStiffness = colorStiffness,
+            SpawnCount = spawnCount,
         });
 
         dstManager.AddSharedComponentData(entity, new ParticleMesh

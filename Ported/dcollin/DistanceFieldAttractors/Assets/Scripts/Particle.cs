@@ -39,5 +39,4 @@ public struct ParticleMesh : ISharedComponentData, IEquatable<ParticleMesh>
             return hashCode;
         }
     }
-
 }

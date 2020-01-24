@@ -12,4 +12,5 @@ public struct EmitterPropetiers : IComponentData
     public float ExteriorColorDist;
     public float InteriorColorDist;
     public float ColorStiffness;
+    public int SpawnCount;
 }
