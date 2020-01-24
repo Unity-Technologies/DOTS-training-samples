@@ -168,7 +168,7 @@ private void Update()
 */
 
 //public class DistanceFieldSystem : JobComponentSystem
-public class DistanceFieldSystem : ComponentSystem
+public class DistanceFieldSystem : JobComponentSystem
 {
     static float SmoothMin(float a, float b, float radius)
     {
@@ -181,22 +181,16 @@ public class DistanceFieldSystem : ComponentSystem
         return math.dot(pos, pos) - radius;
     }
 
-    //protected override JobHandle OnUpdate(JobHandle inputDeps)
-    protected override void OnUpdate()
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         float deltaTime = Time.DeltaTime;
 
         var rng = new Random();
-        //var props = EntityManager.GetSharedComponentData<EmitterPropetiers>(0);
-
-        // This is somewhat of a hack right now
-        var sharedComponentData = new List<EmitterPropetiers>();
-        EntityManager.GetAllUniqueSharedComponentData(sharedComponentData);
-        var props = sharedComponentData[1];
+        var props = GetSingleton<EmitterPropetiers>();
 
         rng.InitState();
 
-        Entities
+        var jobHandle = Entities
             //.WithSharedComponentFilter(props)
             .ForEach((ref ParticlePosition position, ref ParticleVelocity velocity, ref LocalToWorld localToWorld, ref ParticleColor color) =>
             {
@@ -230,9 +224,8 @@ public class DistanceFieldSystem : ComponentSystem
                      new float3(.1f, .01f, math.max(.1f, math.length(velocity.value) * props.SpeedStretch)))
                 };
 
-            });
-            //}).Schedule(inputDeps);
+            }).Schedule(inputDeps);
 
-        //return jobHandle;
+        return jobHandle;
     }
 }

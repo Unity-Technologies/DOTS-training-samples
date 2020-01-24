@@ -8,8 +8,8 @@ public class EmitterPropertiesAuthoring : MonoBehaviour, IConvertGameObjectToEnt
     [SerializeField] public float attraction;
     [SerializeField] public float speedStretch;
     [SerializeField] public float jitter;
-    //public Mesh particleMesh;
-    //public Material particleMaterial;
+    [SerializeField] public Mesh particleMesh;
+    [SerializeField] public Material particleMaterial;
     [SerializeField] public Color surfaceColor;
     [SerializeField] public Color interiorColor;
     [SerializeField] public Color exteriorColor;
@@ -22,7 +22,10 @@ public class EmitterPropertiesAuthoring : MonoBehaviour, IConvertGameObjectToEnt
         dstManager.AddComponentData(entity, new ParticleColor { value = float4.zero });
         dstManager.AddComponentData(entity, new ParticlePosition { value = new float3(1.0f, 1.0f, 1.0f) });
         dstManager.AddComponentData(entity, new ParticleVelocity { value = float3.zero });
-        dstManager.AddSharedComponentData(entity, new EmitterPropetiers
+
+        var singletonEntity = dstManager.CreateEntity(typeof(EmitterPropetiers));
+        var singletonGroup = dstManager.CreateEntityQuery(typeof(EmitterPropetiers));
+        singletonGroup.SetSingleton<EmitterPropetiers>(new EmitterPropetiers
         {
             Attraction = attraction,
             SpeedStretch = speedStretch,
@@ -33,6 +36,12 @@ public class EmitterPropertiesAuthoring : MonoBehaviour, IConvertGameObjectToEnt
             ExteriorColorDist = exteriorColorDist,
             InteriorColorDist = interiorColorDist,
             ColorStiffness = colorStiffness,
+        });
+
+        dstManager.AddSharedComponentData(entity, new ParticleMesh
+        {
+            Mesh = particleMesh,
+            Material = particleMaterial,
         });
     }
 }

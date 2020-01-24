@@ -43,7 +43,7 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 11
+  serializedVersion: 12
   m_GIWorkflowMode: 0
   m_GISettings:
     serializedVersion: 2
@@ -98,7 +98,8 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 9f8ba0bd5226a09419343caa9edb88b6,
+    type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -290,7 +291,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: 1, z: -11.05}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -329,6 +330,8 @@ MonoBehaviour:
   attraction: 0.003
   speedStretch: 5
   jitter: 0.001
+  particleMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  particleMaterial: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
   surfaceColor: {r: 0.47198147, g: 0.20932716, b: 0.5283019, a: 0}
   interiorColor: {r: 0.7169812, g: 0.35264912, b: 0.2976148, a: 0}
   exteriorColor: {r: 0.21484514, g: 0.6513351, b: 0.6698113, a: 0}
