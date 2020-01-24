@@ -10,7 +10,7 @@ public class ParticleSpawnSystem : JobComponentSystem
 {
     EndInitializationEntityCommandBufferSystem m_Ecb;
     EntityArchetype m_ParticleArchetype;
-    bool m_hasStarted = false;
+    bool m_HasStartedHack = false;
     protected override void OnCreate()
     {
         base.OnCreate();
@@ -25,10 +25,10 @@ public class ParticleSpawnSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        if (m_hasStarted)
+        if (m_HasStartedHack)
             return default;
 
-        m_hasStarted = true;
+        m_HasStartedHack = true;
 
         //var props = GetSingleton<EmitterPropetiers>();
         var spawnCount = 1000;
@@ -41,10 +41,10 @@ public class ParticleSpawnSystem : JobComponentSystem
         var entityCommandBuffer = m_Ecb.CreateCommandBuffer();
 
         uint seed = 2; 
-        const float sphereRadius = 5.0f;
+        const float sphereRadius = 50.0f;
         return Entities.ForEach((Entity entity, ref ParticlePosition position, ref ParticleVelocity velocity) =>
         {
-            var rng = new Random(seed * (uint)(1 + entity.Index));
+            var rng = new Random(1 + (seed * (uint)entity.Index));
             position.value = sphereRadius * rng.NextFloat3Direction() * rng.NextFloat();
             velocity.value = float3.zero; 
 
