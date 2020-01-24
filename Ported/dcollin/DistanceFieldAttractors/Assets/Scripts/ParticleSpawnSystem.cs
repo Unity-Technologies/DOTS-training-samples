@@ -8,7 +8,6 @@ using Unity.Mathematics;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class ParticleSpawnSystem : JobComponentSystem
 {
-    EndInitializationEntityCommandBufferSystem m_Ecb;
     EntityArchetype m_ParticleArchetype;
     bool m_HasStartedHack = false;
     protected override void OnCreate()
@@ -19,8 +18,6 @@ public class ParticleSpawnSystem : JobComponentSystem
             typeof(ParticleVelocity),
             typeof(ParticleColor),
             typeof(LocalToWorld));
-
-        m_Ecb = World.GetOrCreateSystem<EndInitializationEntityCommandBufferSystem>();
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -38,8 +35,6 @@ public class ParticleSpawnSystem : JobComponentSystem
             EntityManager.CreateEntity(m_ParticleArchetype, entities);
         }
 
-        var entityCommandBuffer = m_Ecb.CreateCommandBuffer();
-
         uint seed = 2; 
         const float sphereRadius = 50.0f;
         return Entities.ForEach((Entity entity, ref ParticlePosition position, ref ParticleVelocity velocity) =>
@@ -47,7 +42,6 @@ public class ParticleSpawnSystem : JobComponentSystem
             var rng = new Random(1 + (seed * (uint)entity.Index));
             position.value = sphereRadius * rng.NextFloat3Direction() * rng.NextFloat();
             velocity.value = float3.zero; 
-
         }).Schedule(inputDeps);
     }
 }
