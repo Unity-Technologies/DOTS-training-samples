@@ -123,7 +123,7 @@ namespace JumpTheGun
             {
                 PlayerEntity = _playerQuery.GetSingletonEntity(),
                 PositionFromEntity = GetComponentDataFromEntity<Translation>(true),
-                ElapsedTime = Time.time,
+                ElapsedTime = (float)Time.ElapsedTime,
                 TerrainSize = new int2(_options.terrainSizeX, _options.terrainSizeZ),
                 EnableInvincibility = _options.invincibility,
                 BlockHeights = _terrain.CachedBlockHeights,

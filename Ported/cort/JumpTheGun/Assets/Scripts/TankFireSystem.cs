@@ -242,7 +242,7 @@ namespace JumpTheGun
                 TerrainSize = _terrain.TerrainSize,
                 FirePeriod = _options.tankLaunchPeriod,
                 DeltaTime = World.Time.DeltaTime,
-                ElapsedTime = Time.time,
+                ElapsedTime = (float)Time.ElapsedTime,
                 CommandBuffer = _barrier.CreateCommandBuffer().ToConcurrent(),
                 CannonballPrefab = _cannonballPrefabEntity,
             }.Schedule(this, inputDeps);

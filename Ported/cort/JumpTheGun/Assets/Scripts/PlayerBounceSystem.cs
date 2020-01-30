@@ -139,7 +139,7 @@ namespace JumpTheGun
 
             return new UpdateBounceJob
             {
-                ElapsedTime = Time.time,
+                ElapsedTime = (float)Time.ElapsedTime,
                 MouseBoxCoords = mouseBoxCoords,
                 TerrainSize = new int2(_options.terrainSizeX, _options.terrainSizeZ),
                 BlockHeights = _terrain.CachedBlockHeights,
