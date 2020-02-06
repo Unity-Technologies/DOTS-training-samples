@@ -1,0 +1,28 @@
+{
+    "Dependencies": [
+        "GlobalObjectId_V1-1-86ac500e7424d3a4ba350fa7fc704b67-93214019566545601-0"
+    ],
+    "Components": [{
+        "$type": "Unity.Entities.Runtime.Build.DotsRuntimeBuildProfile, Unity.Entities.Runtime.Build",
+        "ShouldWriteDataFiles": true,
+        "EnableManagedDebugging": false,
+        "EnableMultiThreading": false,
+        "EnableBurst": false,
+        "RootAssembly": "GlobalObjectId_V1-1-58dde0388d9d1476889e0defb94cc1ba-5897886265953266890-0",
+        "Target": "windows-il2cpp",
+        "Configuration": 2,
+        "Pipeline": "GlobalObjectId_V1-1-56241f83dacec1141b7d967eb30bf934-93214019566545601-0",
+        "BeeTargetOverride": null
+    }, {
+        "$type": "Unity.Build.Common.SceneList, Unity.Build.Common",
+        "BuildCurrentScene": false,
+        "Scenes": [
+            "GlobalObjectId_V1-1-81340b8d0fda4473ca6d829f7c76ebc9-102900000-0"
+        ]
+    }, {
+        "$type": "Unity.Entities.Conversion.ConversionSystemFilterSettings, Unity.Entities.Hybrid",
+        "ExcludedConversionSystemAssemblies": [
+            "GlobalObjectId_V1-1-62560a592fed84f5fbc81ea79f9f4fe7-5897886265953266890-0"
+        ]
+    }]
+}

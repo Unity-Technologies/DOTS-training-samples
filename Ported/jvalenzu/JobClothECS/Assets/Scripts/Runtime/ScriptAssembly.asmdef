@@ -1,0 +1,27 @@
+{
+    "name": "ScriptAssembly",
+    "references": [
+        "Unity.Entities",
+        "Unity.Jobs",
+        "Unity.Burst",
+        "Unity.Mathematics",
+        "Unity.Transforms",
+        "Unity.Tiny.Main",
+        "Unity.Tiny.EntryPoint",
+        "Unity.Tiny.Core",
+        "Unity.Tiny.Rendering",
+        "Unity.Tiny.Input",
+        "Unity.Tiny.RendererExtras",
+        "Unity.Tiny.Image2D",
+        "Unity.Tiny.GLFW"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
