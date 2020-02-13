@@ -9,7 +9,9 @@ using static Unity.Mathematics.math;
 public class TrainPositioningSystem : JobComponentSystem
 {
     public NativeArray<float3> m_PathPositions;
-    public NativeArray<uint> m_PathStopBits;
+    public BitArray m_PathStopBits;
+    public NativeArray<int2> m_StartEndPositionIndicies;
+    public uint m_PathCount;
     
     // This declares a new kind of job, which is a unit of work to do.
     // The job is declared as an IJobForEach<Translation, Rotation>,
@@ -56,5 +58,23 @@ public class TrainPositioningSystem : JobComponentSystem
         
         // Now that the job is set up, schedule it to be run. 
         return job.Schedule(this, inputDependencies);
+    }
+
+    protected override void OnDestroy()
+    {
+        if(m_PathPositions.IsCreated)
+        {
+            m_PathPositions.Dispose();
+        }
+
+        if(m_PathStopBits.IsCreated)
+        {
+            m_PathStopBits.Dispose();
+        }
+
+        if(m_StartEndPositionIndicies.IsCreated)
+        {
+            m_StartEndPositionIndicies.Dispose();
+        }
     }
 }
