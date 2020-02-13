@@ -37,8 +37,8 @@ RenderSettings:
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_Sun: {fileID: 0}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.574817, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -56,8 +56,8 @@ LightmapSettings:
   m_LightmapEditorSettings:
     serializedVersion: 12
     m_Resolution: 2
-    m_BakeResolution: 40
-    m_AtlasSize: 1024
+    m_BakeResolution: 10
+    m_AtlasSize: 512
     m_AO: 0
     m_AOMaxDistance: 1
     m_CompAOExponent: 1
@@ -75,9 +75,9 @@ LightmapSettings:
     m_BakeBackend: 1
     m_PVRSampling: 1
     m_PVRDirectSampleCount: 32
-    m_PVRSampleCount: 500
+    m_PVRSampleCount: 256
     m_PVRBounces: 2
-    m_PVREnvironmentSampleCount: 500
+    m_PVREnvironmentSampleCount: 256
     m_PVREnvironmentReferencePointCount: 2048
     m_PVRFilteringMode: 2
     m_PVRDenoiserTypeDirect: 0
@@ -121,178 +121,1368 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &705507993
-GameObject:
+--- !u!1001 &85670761
+PrefabInstance:
   m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 705507995}
-  - component: {fileID: 705507994}
-  m_Layer: 0
-  m_Name: Directional Light
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!108 &705507994
-Light:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 705507993}
-  m_Enabled: 1
-  serializedVersion: 10
-  m_Type: 1
-  m_Shape: 0
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 1
-  m_Range: 10
-  m_SpotAngle: 30
-  m_InnerSpotAngle: 21.80208
-  m_CookieSize: 10
-  m_Shadows:
-    m_Type: 2
-    m_Resolution: -1
-    m_CustomResolution: -1
-    m_Strength: 1
-    m_Bias: 0.05
-    m_NormalBias: 0.4
-    m_NearPlane: 0.2
-    m_CullingMatrixOverride:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    m_UseCullingMatrixOverride: 0
-  m_Cookie: {fileID: 0}
-  m_DrawHalo: 0
-  m_Flare: {fileID: 0}
-  m_RenderMode: 0
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_RenderingLayerMask: 1
-  m_Lightmapping: 1
-  m_LightShadowCasterMode: 0
-  m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
-  m_ColorTemperature: 6570
-  m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
-  m_UseBoundingSphereOverride: 0
-  m_ShadowRadius: 0
-  m_ShadowAngle: 0
---- !u!4 &705507995
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 705507993}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &963194225
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 963194228}
-  - component: {fileID: 963194227}
-  - component: {fileID: 963194226}
-  m_Layer: 0
-  m_Name: Main Camera
-  m_TagString: MainCamera
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!81 &963194226
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 963194225}
-  m_Enabled: 1
---- !u!20 &963194227
-Camera:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 963194225}
-  m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
-  m_projectionMatrixMode: 1
-  m_GateFitMode: 2
-  m_FOVAxisMode: 0
-  m_SensorSize: {x: 36, y: 24}
-  m_LensShift: {x: 0, y: 0}
-  m_FocalLength: 50
-  m_NormalizedViewPortRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
-  near clip plane: 0.3
-  far clip plane: 1000
-  field of view: 60
-  orthographic: 0
-  orthographic size: 5
-  m_Depth: -1
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_RenderingPath: -1
-  m_TargetTexture: {fileID: 0}
-  m_TargetDisplay: 0
-  m_TargetEye: 3
-  m_HDR: 1
-  m_AllowMSAA: 1
-  m_AllowDynamicResolution: 0
-  m_ForceIntoRT: 0
-  m_OcclusionCulling: 1
-  m_StereoConvergence: 10
-  m_StereoSeparation: 0.022
---- !u!4 &963194228
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4269999368093940, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4269999368093940, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4269999368093940, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4269999368093940, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4269999368093940, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4269999368093940, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4269999368093940, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4269999368093940, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineNames.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: maxTrains.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: carriagesPerTrain.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: maxTrainSpeed.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineColours.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: maxCommuters
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: prefab_trainCarriage
+      value: 
+      objectReference: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc,
+        type: 3}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: prefab_platform
+      value: 
+      objectReference: {fileID: 1891511846621564, guid: 01884bc9b2b1947729476fa75daf772a,
+        type: 3}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: prefab_commuter
+      value: 
+      objectReference: {fileID: 1598512793004306, guid: 1b7c16b60bc3a4b37b5a2f18f064dcb4,
+        type: 3}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: prefab_rail
+      value: 
+      objectReference: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2,
+        type: 3}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: Train_railFriction
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: Train_delay_doors_OPEN
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: Train_delay_departure
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineNames.Array.data[0]
+      value: R
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineNames.Array.data[1]
+      value: G
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineNames.Array.data[2]
+      value: B
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineNames.Array.data[3]
+      value: Y
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: maxTrains.Array.data[0]
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: maxTrains.Array.data[1]
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: maxTrains.Array.data[2]
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: maxTrains.Array.data[3]
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: carriagesPerTrain.Array.data[0]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: carriagesPerTrain.Array.data[1]
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: carriagesPerTrain.Array.data[2]
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: carriagesPerTrain.Array.data[3]
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: maxTrainSpeed.Array.data[0]
+      value: 0.002
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: maxTrainSpeed.Array.data[1]
+      value: 0.002
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: maxTrainSpeed.Array.data[2]
+      value: 0.002
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: maxTrainSpeed.Array.data[3]
+      value: 0.002
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineColours.Array.data[0].r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineColours.Array.data[0].g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineColours.Array.data[0].b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineColours.Array.data[1].g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineColours.Array.data[2].g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineColours.Array.data[2].r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineColours.Array.data[3].b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineColours.Array.data[0].a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineColours.Array.data[1].a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineColours.Array.data[2].a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: LineColours.Array.data[3].a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114020548398726684, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114020548398726684, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114020548398726684, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114030757739855518, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114030757739855518, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114030757739855518, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114041953921473728, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114041953921473728, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 114041953921473728, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114044149035620386, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114044149035620386, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 114044149035620386, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114047563222559538, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 114047563222559538, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114052773395998614, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114052773395998614, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114052846713099278, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114052846713099278, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 114052846713099278, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114053462907955200, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114053462907955200, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114053462907955200, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114073027286319060, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114073027286319060, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 114073027286319060, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114077548389067402, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114077548389067402, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 114077548389067402, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114108050751282558, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114108050751282558, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 114108050751282558, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114124022840144870, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114124022840144870, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 114124022840144870, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114135393647670682, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114135393647670682, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114160194149821704, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114160194149821704, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114160194149821704, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114171330718013648, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114171330718013648, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114171330718013648, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114235166288824708, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114235166288824708, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 114235166288824708, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114268996390782130, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 114268996390782130, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114326898546995702, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114326898546995702, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 114326898546995702, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114338761342150360, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114338761342150360, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 114338761342150360, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114343058149458478, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114343058149458478, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 114343058149458478, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114346393096366996, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114346393096366996, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 114346393096366996, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114356007815512992, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114356007815512992, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 114356007815512992, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114360302681610658, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114360302681610658, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 114360302681610658, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114368307302290320, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114368307302290320, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 21
+      objectReference: {fileID: 0}
+    - target: {fileID: 114368307302290320, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114369910148915918, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114393871665126376, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114393871665126376, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 114393871665126376, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114404297744255302, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114404297744255302, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 114404297744255302, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114420367020080732, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114420367020080732, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 114420367020080732, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114437630155985638, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114437630155985638, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114437630155985638, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114442860476059706, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 114442860476059706, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114457692466716074, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114457692466716074, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 114457692466716074, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114463487579086708, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114463487579086708, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 114463487579086708, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114472416189528208, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114472416189528208, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 17
+      objectReference: {fileID: 0}
+    - target: {fileID: 114472416189528208, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114474297251638940, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114474297251638940, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 114474297251638940, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114479002012349690, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114479002012349690, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 114479002012349690, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114491531253626444, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114491531253626444, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114491531253626444, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114499185703885408, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114499185703885408, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 114499185703885408, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114501779345314776, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114501779345314776, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 17
+      objectReference: {fileID: 0}
+    - target: {fileID: 114501779345314776, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114510085671823890, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 114510085671823890, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114522384708752270, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 114522384708752270, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114543857510632450, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114543857510632450, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 114543857510632450, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114546980820107882, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114546980820107882, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114546980820107882, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114550150564276854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114550150564276854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 114550150564276854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114573242308737704, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 114573242308737704, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114576550736089862, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 114576550736089862, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114586900935905118, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114586900935905118, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114616371510558892, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114616371510558892, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 114616371510558892, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114627093636496090, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 17
+      objectReference: {fileID: 0}
+    - target: {fileID: 114627093636496090, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114635668409767672, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114635668409767672, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 114635668409767672, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114636389535266052, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 23
+      objectReference: {fileID: 0}
+    - target: {fileID: 114636389535266052, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114656231394830934, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114656231394830934, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114671951490849702, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114671951490849702, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114681583230420136, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114681583230420136, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114681583230420136, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114701107294077544, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 114701107294077544, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114708995456096066, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114708995456096066, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114748241087113158, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 114748241087113158, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114748508960072022, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114748508960072022, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 114748508960072022, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114749854091514332, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114749854091514332, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 23
+      objectReference: {fileID: 0}
+    - target: {fileID: 114749854091514332, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114762473627722414, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114762473627722414, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 114762473627722414, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114771763360705184, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114771763360705184, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114771763360705184, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114775854463671352, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114775854463671352, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 114775854463671352, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114782521549179814, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114782521549179814, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 114782521549179814, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114786211104123550, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 114786211104123550, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114791196149474190, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114791196149474190, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 114791196149474190, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114797272217732192, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 114797272217732192, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114805738586952934, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114805738586952934, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 114805738586952934, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114813507662373186, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 21
+      objectReference: {fileID: 0}
+    - target: {fileID: 114813507662373186, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114818536290461094, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 114818536290461094, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114818536290461094, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114819217138738316, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114819217138738316, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114819217138738316, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114834188263338932, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 114834188263338932, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114835283445418914, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114835283445418914, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 114835283445418914, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114845132676176534, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114845132676176534, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 114845132676176534, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114851487728101500, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114851487728101500, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 114851487728101500, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114863827424377734, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114863827424377734, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114873613212460004, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114873613212460004, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 114873613212460004, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114875474685469298, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 114875474685469298, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114894514280092672, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114894514280092672, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114897471420671118, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 114897471420671118, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114901988491031430, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 114901988491031430, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114905523948773878, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114905523948773878, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 114905523948773878, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114947645019594742, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114947645019594742, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 114947645019594742, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114958798640448086, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 114958798640448086, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114959321644537262, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114959321644537262, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 114959321644537262, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114985176838047508, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 114985176838047508, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114990559661102698, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: pointIndex
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 114990559661102698, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: railMarkerType
+      value: 2
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
