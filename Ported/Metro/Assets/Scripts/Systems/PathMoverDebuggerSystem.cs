@@ -16,6 +16,8 @@ public class PathMoverDebuggerSystem : JobComponentSystem
 
         var goConvert = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
         m_ecb = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+
+        Enabled = false;
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)

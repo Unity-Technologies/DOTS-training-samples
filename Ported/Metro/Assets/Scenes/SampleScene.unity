@@ -130,23 +130,23 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1392208647110676, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1422488238657810, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1605161000036920, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1802617429528656, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1930844579531390, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4269999368093940, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
       propertyPath: m_LocalPosition.x
