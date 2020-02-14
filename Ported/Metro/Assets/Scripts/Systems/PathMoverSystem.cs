@@ -13,30 +13,26 @@ public class PathMoverSystem : JobComponentSystem
     public NativeArray<float3> m_PathPositions;
     public NativeArray<int2> m_PathIndices;
 
+    public const float FRICTION = 0.8f;
+    public const float ARRIVAL_THRESHOLD = 0.02f;
+
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var pathData = m_PathPositions;
         var dt = Time.DeltaTime;
-        var totalTime = 0.5f;
         var pathIndices = m_PathIndices;
 
-        var outputDeps = Entities.ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref PathMoverComponent pathMoverComponent) =>
+        var outputDeps = Entities.ForEach((ref Translation translation, ref PathMoverComponent pathMoverComponent, ref MovementDerivatives movement) =>
         {
             int2 range = pathIndices[pathMoverComponent.m_TrackIndex];
             int nextPoint = (pathMoverComponent.CurrentPointIndex + 1) % (range.y - range.x);
 
-            float3 currentPosition = pathData[pathMoverComponent.CurrentPointIndex + range.x];
             float3 nextPosition = pathData[nextPoint + range.x];
 
-            translation.Value = math.lerp(currentPosition, nextPosition, pathMoverComponent.t);
-            pathMoverComponent.t += dt / totalTime;
-
-            if (pathMoverComponent.t > 1) 
+            if (Approach.Apply(ref translation.Value, ref movement.Speed, nextPosition, movement.Acceleration * dt, ARRIVAL_THRESHOLD, FRICTION))
             {
                 pathMoverComponent.CurrentPointIndex = nextPoint;
-                pathMoverComponent.t = 0;
             }
-
         }).Schedule(inputDeps);
         return outputDeps;
     }
