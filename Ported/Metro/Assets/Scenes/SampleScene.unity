@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.5748172, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1394,6 +1394,11 @@ PrefabInstance:
       propertyPath: railMarkerType
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 114875474685469298, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: metroLineID
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 114894514280092672, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
         type: 3}
       propertyPath: pointIndex
@@ -1525,6 +1530,24 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 85670761}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1223225054 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1392208647110676, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+    type: 3}
+  m_PrefabInstance: {fileID: 85670761}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1710587127 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1802617429528656, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+    type: 3}
+  m_PrefabInstance: {fileID: 85670761}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1997101081 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1930844579531390, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+    type: 3}
+  m_PrefabInstance: {fileID: 85670761}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2002015202
 GameObject:
   m_ObjectHideFlags: 0
@@ -1557,8 +1580,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ParentsLoopedPaths:
   - {fileID: 944538277}
+  - {fileID: 1223225054}
+  - {fileID: 1997101081}
+  - {fileID: 1710587127}
   m_ParentsSinglePaths: []
-  m_LoopPathOffset: 1
+  m_LoopPathOffset: 10
 --- !u!4 &2002015204
 Transform:
   m_ObjectHideFlags: 0
