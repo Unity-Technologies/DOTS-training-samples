@@ -103,6 +103,7 @@ GameObject:
   - component: {fileID: 4269999368093940}
   - component: {fileID: 114014868198753854}
   - component: {fileID: 4810039986871022391}
+  - component: {fileID: -6520314561060446317}
   m_Layer: 0
   m_Name: METRO_Linear
   m_TagString: Untagged
@@ -186,6 +187,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ConversionMode: 1
+--- !u!114 &-6520314561060446317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1023473699395924}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d6e76d070817d347bb8d67ef4347f12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ParentsLoopedPaths:
+  - {fileID: 1422488238657810}
+  - {fileID: 1392208647110676}
+  - {fileID: 1930844579531390}
+  - {fileID: 1802617429528656}
+  m_ParentsSinglePaths: []
+  m_LoopPathOffset: 8
+  prefabPlatform: {fileID: 1891511846621564, guid: 01884bc9b2b1947729476fa75daf772a,
+    type: 3}
 --- !u!1 &1044549425943040
 GameObject:
   m_ObjectHideFlags: 0
