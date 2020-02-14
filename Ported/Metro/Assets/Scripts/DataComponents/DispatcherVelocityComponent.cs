@@ -7,6 +7,5 @@ using Unity.Mathematics;
 [GenerateAuthoringComponent]
 public struct DispatcherVelocityComponent : IComponentData
 {
-    public float GoalVelocity;
-    public float CurrentVelocity;
+    public float GoalAcceleration;
 }

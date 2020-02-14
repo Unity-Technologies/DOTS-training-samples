@@ -9,9 +9,7 @@ public struct PathMoverComponent : IComponentData
 {
     public int m_TrackIndex;
     [HideInInspector]
-    public int VelocityIdx;
+    public int AccelerationIdx;
     [HideInInspector]
     public int CurrentPointIndex;
-    [HideInInspector]
-    public float t;
 }
