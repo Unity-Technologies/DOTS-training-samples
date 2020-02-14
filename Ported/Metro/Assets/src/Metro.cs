@@ -1,11 +1,13 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Unity.Entities;
 using UnityEditor;
 using UnityEngine;
 
-public class Metro : MonoBehaviour
+public class Metro : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
 {
     public static float CUSTOMER_SATISFACTION = 1f;
     public static float BEZIER_HANDLE_REACH = 0.1f;
@@ -62,6 +64,21 @@ public class Metro : MonoBehaviour
     private int totalLines = 0;
     public Color[] LineColours;
 
+    public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
+    {
+        referencedPrefabs.Add(prefab_commuter);
+    }
+
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+        var commuterPrefabEntity = conversionSystem.GetPrimaryEntity(prefab_commuter);
+        dstManager.AddComponentData(entity, new CommuterSpawn
+        {
+            Prefab = commuterPrefabEntity,
+            Count = maxCommuters,
+            Seed = 42
+        });
+    }
     private void Awake()
     {
     }
