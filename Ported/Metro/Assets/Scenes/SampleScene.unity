@@ -163,17 +163,17 @@ PrefabInstance:
     - target: {fileID: 108546264303205598, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
         type: 3}
       propertyPath: m_BoundingSphereOverride.y
-      value: 2.6895414e-18
+      value: 2.3510647e-38
       objectReference: {fileID: 0}
     - target: {fileID: 108546264303205598, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
         type: 3}
       propertyPath: m_BoundingSphereOverride.z
-      value: 8e-43
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 108546264303205598, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
         type: 3}
       propertyPath: m_BoundingSphereOverride.w
-      value: 0.00000010256662
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
         type: 3}
@@ -1519,27 +1519,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d63016cc0b8730a419446c5c46956896, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &247236197 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1802617429528656, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
-    type: 3}
-  m_PrefabInstance: {fileID: 85670761}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &313047943 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1930844579531390, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
-    type: 3}
-  m_PrefabInstance: {fileID: 85670761}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &944538277 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1422488238657810, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
-    type: 3}
-  m_PrefabInstance: {fileID: 85670761}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1871794085 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1392208647110676, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
     type: 3}
   m_PrefabInstance: {fileID: 85670761}
   m_PrefabAsset: {fileID: 0}
@@ -1573,11 +1555,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d6e76d070817d347bb8d67ef4347f12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PathParents:
+  m_ParentsLoopedPaths:
   - {fileID: 944538277}
-  - {fileID: 1871794085}
-  - {fileID: 313047943}
-  - {fileID: 247236197}
+  m_ParentsSinglePaths: []
+  m_LoopPathOffset: 1
 --- !u!4 &2002015204
 Transform:
   m_ObjectHideFlags: 0
