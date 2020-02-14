@@ -128,6 +128,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1392208647110676, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1422488238657810, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1605161000036920, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1802617429528656, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1930844579531390, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4269999368093940, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -1519,9 +1539,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d63016cc0b8730a419446c5c46956896, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &866122098 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1802617429528656, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+    type: 3}
+  m_PrefabInstance: {fileID: 85670761}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &944538277 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1422488238657810, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+    type: 3}
+  m_PrefabInstance: {fileID: 85670761}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1733417664 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1930844579531390, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+    type: 3}
+  m_PrefabInstance: {fileID: 85670761}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1968877869 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1392208647110676, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
     type: 3}
   m_PrefabInstance: {fileID: 85670761}
   m_PrefabAsset: {fileID: 0}
@@ -1557,8 +1595,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ParentsLoopedPaths:
   - {fileID: 944538277}
+  - {fileID: 1968877869}
+  - {fileID: 1733417664}
+  - {fileID: 866122098}
   m_ParentsSinglePaths: []
-  m_LoopPathOffset: 1
+  m_LoopPathOffset: 10
 --- !u!4 &2002015204
 Transform:
   m_ObjectHideFlags: 0
