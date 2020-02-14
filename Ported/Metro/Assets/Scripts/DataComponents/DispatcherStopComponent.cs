@@ -5,5 +5,6 @@ using Unity.Entities;
 [GenerateAuthoringComponent]
 public struct DispatcherStopComponent : IComponentData
 {
-    public float LeaveTime;    
+    public float LeaveTime;
+    public int LastPoint;
 }
