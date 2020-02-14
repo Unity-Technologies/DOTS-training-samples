@@ -11,7 +11,8 @@ public class TrainPositioningSystem : JobComponentSystem
     public NativeArray<float3> m_PathPositions;
     public BitArray m_PathStopBits;
     public NativeArray<int2> m_StartEndPositionIndicies;
-    public uint m_PathCount;
+    public int m_PathCount;
+    public int m_SinglePathStartIndex;
     
     // This declares a new kind of job, which is a unit of work to do.
     // The job is declared as an IJobForEach<Translation, Rotation>,
