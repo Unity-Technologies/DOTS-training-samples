@@ -6,44 +6,23 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using static Unity.Mathematics.math;
+using UnityEngine;
 
 public class PathMoverSystem : JobComponentSystem
 {
-    private NativeArray<float3> PathData;
-    protected override void OnCreate()
-    {
-        base.OnCreate();
-
-        List<float3> testPoints = new List<float3>();
-
-        for(int i = 0; i < 100; i++) 
-        {
-            testPoints.Add(new float3(i, 0, 0));
-        }
-
-        for (int i = 99; i >= 0; i--)
-        {
-            testPoints.Add(new float3(i, 0, 0));
-        }
-
-        PathData = new NativeArray<float3>(testPoints.ToArray(), Allocator.Persistent);
-    }
-
-    protected override void OnDestroy()
-    {
-        PathData.Dispose();
-        base.OnDestroy();
-    }
+    public NativeArray<float3> m_PathPositions;
+    public NativeArray<int2> m_PathIndices;
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
-        var pathData = PathData;
+        var pathData = m_PathPositions;
         var dt = Time.DeltaTime;
         var totalTime = 0.5f;
+        var pathIndices = m_PathIndices;
 
-        var outputDeps = Entities.ForEach((ref Translation translation, ref PathMoverComponent pathMoverComponent) =>
+        var outputDeps = Entities.ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref PathMoverComponent pathMoverComponent) =>
         {
-            int2 range = pathMoverComponent.PathIndices;
+            int2 range = pathIndices[pathMoverComponent.m_TrackIndex];
             int nextPoint = (pathMoverComponent.CurrentPointIndex + 1) % (range.y - range.x);
 
             float3 currentPosition = pathData[pathMoverComponent.CurrentPointIndex + range.x];

@@ -19,6 +19,7 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         Debug.Assert(totalPositionsCount > 0);
         World world = dstManager.World;
         TrainPositioningSystem trainPositioningSystem = world.GetExistingSystem<TrainPositioningSystem>();
+        PathMoverSystem pathMoverSystem = world.GetExistingSystem<PathMoverSystem>();
         Debug.Assert(trainPositioningSystem != null);
         trainPositioningSystem.m_PathPositions = new NativeArray<float3>(totalPositionsCount, Allocator.Persistent);
         trainPositioningSystem.m_PathCount = (uint)m_PathParents.Count;
@@ -46,7 +47,8 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
             startEnd.y = currIndex;
             trainPositioningSystem.m_StartEndPositionIndicies[i] = startEnd;
         }
-
+        pathMoverSystem.m_PathPositions = trainPositioningSystem.m_PathPositions;
+        pathMoverSystem.m_PathIndices = trainPositioningSystem.m_StartEndPositionIndicies;
         m_TrainPositioningSytem = trainPositioningSystem;
     }
 
