@@ -183,17 +183,22 @@ PrefabInstance:
     - target: {fileID: 108546264303205598, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
         type: 3}
       propertyPath: m_BoundingSphereOverride.y
-      value: 2.3510647e-38
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 108546264303205598, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
         type: 3}
       propertyPath: m_BoundingSphereOverride.z
-      value: 0
+      value: NaN
       objectReference: {fileID: 0}
     - target: {fileID: 108546264303205598, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
         type: 3}
       propertyPath: m_BoundingSphereOverride.w
-      value: 0
+      value: 7e-45
+      objectReference: {fileID: 0}
+    - target: {fileID: 108546264303205598, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: m_BoundingSphereOverride.x
+      value: 1.7e-43
       objectReference: {fileID: 0}
     - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
         type: 3}
@@ -1605,6 +1610,10 @@ MonoBehaviour:
   - {fileID: 866122098}
   m_ParentsSinglePaths: []
   m_LoopPathOffset: 10
+  m_MaxAdjacentPlatforms: 5
+  m_AdjacentDistance: 15
+  prefabPlatform: {fileID: 1891511846621564, guid: 01884bc9b2b1947729476fa75daf772a,
+    type: 3}
 --- !u!4 &2002015204
 Transform:
   m_ObjectHideFlags: 0
