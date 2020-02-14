@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
+using Unity.Transforms;
 
 public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
 {
@@ -11,6 +12,9 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
     public List<GameObject> m_ParentsSinglePaths;
     public float m_LoopPathOffset = 1;
     private TrainPositioningSystem m_TrainPositioningSytem;
+
+    public GameObject prefabPlatform;
+
     void CreatPathPositionData(ref int currIndex, TrainPositioningSystem trainPositioningSystem, List<GameObject> pathParents, bool isLooped)
     {     
         for(int i = 0; i < pathParents.Count; i++)
@@ -86,6 +90,55 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         pathMoverSystem.m_PathIndices = trainPositioningSystem.m_StartEndPositionIndicies;
 
         m_TrainPositioningSytem = trainPositioningSystem;
+
+        InstantiatePlatforms(prefabPlatform);
+    }
+
+    public void InstantiatePlatforms(GameObject prefab)
+    {
+        Debug.Assert(prefab != null);
+
+        // Create entity prefab from the game object hierarchy once
+        var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
+        var entityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefab, settings);
+        var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+
+        // Only spawn platforms at stops in loop paths, not single paths.
+        // This seems a little hacky / non-obvious, in that we assume a loop path is specifically a train path that has platforms.
+        for (int pathIndex = 0; pathIndex < m_TrainPositioningSytem.m_SinglePathStartIndex; ++pathIndex)
+        {
+            int2 startEndIndices = m_TrainPositioningSytem.m_StartEndPositionIndicies[pathIndex];
+
+            for (int i = startEndIndices.x; i < startEndIndices.y; ++i)
+            {
+                if (!m_TrainPositioningSytem.m_PathStopBits.IsBitSet(i)) { continue; }
+                // Encountered a stop vertex. Place a platform for this stop.
+
+                // Efficiently instantiate a bunch of entities from the already converted entity prefab
+                var entity = entityManager.Instantiate(entityPrefab);
+
+                float3 position = m_TrainPositioningSytem.m_PathPositions[i];
+
+                float3 forward = math.normalize(m_TrainPositioningSytem.m_PathPositions[i + 0] - m_TrainPositioningSytem.m_PathPositions[i + 1]);
+                float3 tangent = math.normalize(math.cross(forward, Vector3.up));
+                quaternion rotation = quaternion.LookRotation(tangent, Vector3.up);
+                
+                entityManager.SetComponentData(
+                    entity,
+                    new Translation
+                    {
+                        Value = position,
+                    }
+                );
+                entityManager.SetComponentData(
+                    entity,
+                    new Rotation
+                    {
+                        Value = rotation
+                    }
+                );
+            }
+        }
     }
 
     void OnDrawGizmos()
@@ -95,7 +148,7 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
             Debug.Log("Not converted");
             return;
         }
-        Debug.Log("totalPositionsCount = " + m_TrainPositioningSytem.m_PathCount);     
+
         for (int i = 0; i < m_TrainPositioningSytem.m_StartEndPositionIndicies.Length; ++i)
         {
             int2 startEndPosition = m_TrainPositioningSytem.m_StartEndPositionIndicies[i];
@@ -113,6 +166,5 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
                 
             }
         }
-    
     }
 }
