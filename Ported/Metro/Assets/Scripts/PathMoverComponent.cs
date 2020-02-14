@@ -7,7 +7,7 @@ using Unity.Mathematics;
 [GenerateAuthoringComponent]
 public struct PathMoverComponent : IComponentData
 {
-    public int2 PathIndices;
+    public int m_TrackIndex;
     [HideInInspector]
     public int VelocityIdx;
     [HideInInspector]

@@ -11,7 +11,6 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
     public List<GameObject> m_ParentsSinglePaths;
     public float m_LoopPathOffset = 1;
     private TrainPositioningSystem m_TrainPositioningSytem;
-
     void CreatPathPositionData(ref int currIndex, TrainPositioningSystem trainPositioningSystem, List<GameObject> pathParents, bool isLooped)
     {     
         for(int i = 0; i < pathParents.Count; i++)
@@ -69,6 +68,7 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         Debug.Assert(totalPositionsCount > 0);
         World world = dstManager.World;
         TrainPositioningSystem trainPositioningSystem = world.GetExistingSystem<TrainPositioningSystem>();
+        PathMoverSystem pathMoverSystem = world.GetExistingSystem<PathMoverSystem>();
 
         Debug.Assert(trainPositioningSystem != null);
         trainPositioningSystem.m_PathPositions = new NativeArray<float3>(totalPositionsCount, Allocator.Persistent);
@@ -81,6 +81,9 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         int currIndex = 0;
         CreatPathPositionData(ref currIndex, trainPositioningSystem, m_ParentsLoopedPaths, true);
         CreatPathPositionData(ref currIndex, trainPositioningSystem, m_ParentsSinglePaths, false);
+
+        pathMoverSystem.m_PathPositions = trainPositioningSystem.m_PathPositions;
+        pathMoverSystem.m_PathIndices = trainPositioningSystem.m_StartEndPositionIndicies;
 
         m_TrainPositioningSytem = trainPositioningSystem;
     }
