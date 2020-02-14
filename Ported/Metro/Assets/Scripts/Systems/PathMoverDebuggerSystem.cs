@@ -26,11 +26,11 @@ public class PathMoverDebuggerSystem : JobComponentSystem
 
         var outputDeps = Entities.ForEach((Entity entity, int entityInQueryIndex, in PathMoverComponent pathMoverComponent) =>
         {
-            if (pathMoverComponent.t == 0)
-            {
-                var newEntity = ecb.Instantiate(entityInQueryIndex, entity);
-                ecb.RemoveComponent<PathMoverComponent>(entityInQueryIndex, newEntity);
-            }
+            //if (pathMoverComponent == 0)
+            //{
+            //    var newEntity = ecb.Instantiate(entityInQueryIndex, entity);
+            //    ecb.RemoveComponent<PathMoverComponent>(entityInQueryIndex, newEntity);
+            //}
 
         }).Schedule(inputDeps);
         m_ecb.AddJobHandleForProducer(outputDeps);
