@@ -12,6 +12,8 @@ public class PlatformConnectionSystem : JobComponentSystem
     public NativeArray<quaternion> m_PlatformRotations;
     public NativeArray<int> m_Next;
     public NativeArray<int> m_Opposite;
+    public NativeArray<int> m_NumAdjacent;
+    public NativeArray<int> m_Adjacents;
         
     // This declares a new kind of job, which is a unit of work to do.
     // The job is declared as an IJobForEach<Translation, Rotation>,
@@ -70,6 +72,12 @@ public class PlatformConnectionSystem : JobComponentSystem
             m_Next.Dispose();
         if(m_Opposite.IsCreated)
             m_Opposite.Dispose();
+
+        if(m_NumAdjacent.IsCreated)
+            m_NumAdjacent.Dispose();
+        if(m_Adjacents.IsCreated)
+            m_Adjacents.Dispose();
+
 
     }
 }

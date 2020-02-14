@@ -11,6 +11,8 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
     public List<GameObject> m_ParentsLoopedPaths;
     public List<GameObject> m_ParentsSinglePaths;
     public float m_LoopPathOffset = 1;
+    public int m_MaxAdjacentPlatforms = 5;
+    public float m_AdjacentDistance = 15.0f;
     private TrainPositioningSystem m_TrainPositioningSytem;
     private PlatformConnectionSystem m_PlatformConnectionSystem;
 
@@ -99,6 +101,62 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         InstantiatePlatforms(prefabPlatform, dstManager);
     }
 
+    void FindNext(List<int> stationIndices, PlatformConnectionSystem platformConnectionSystem)
+    {
+         // next platform
+        for( int i = 0; i < stationIndices.Count; i++)
+        {
+            platformConnectionSystem.m_Next[stationIndices[i]] = stationIndices[(i + 1) % stationIndices.Count];
+        }
+    }
+
+    void FindOpposite(List<int> stationIndices, PlatformConnectionSystem platformConnectionSystem)
+    {
+         // opposite platform
+        for( int i = 0; i < stationIndices.Count; i++)
+        {
+            float minDist = 9999999999.0f;
+            int oppIndex = i;
+            for( int j = 0; j < stationIndices.Count; j++)
+            {
+                if(i != j)
+                {
+                    float dist = math.distance(platformConnectionSystem.m_PlatformPositions[stationIndices[i]], platformConnectionSystem.m_PlatformPositions[stationIndices[j]]);
+                    if(dist < minDist)
+                    {
+                        minDist = dist;
+                        oppIndex = j;
+                    }
+                }
+            }
+            Debug.Assert(oppIndex != i);
+            platformConnectionSystem.m_Opposite[stationIndices[i]] = stationIndices[oppIndex];
+        }
+    }
+
+    void FindAdjacent(List<int> stationIndices, PlatformConnectionSystem platformConnectionSystem)
+    {
+         // opposite platform
+        for( int i = 0; i < stationIndices.Count; i++)
+        {           
+            platformConnectionSystem.m_NumAdjacent[stationIndices[i]] = 0;
+            for( int j = 0; j < stationIndices.Count; j++)
+            {
+                if((i != j) && (platformConnectionSystem.m_Opposite[stationIndices[i]] != stationIndices[j])) // not the same and not opposite
+                {
+                    float dist = math.distance(platformConnectionSystem.m_PlatformPositions[stationIndices[i]], platformConnectionSystem.m_PlatformPositions[stationIndices[j]]);
+                    if(dist < m_AdjacentDistance)
+                    {
+                        platformConnectionSystem.m_Adjacents[platformConnectionSystem.m_NumAdjacent[stationIndices[i]]] = stationIndices[j];
+                        platformConnectionSystem.m_NumAdjacent[stationIndices[i]]++;
+                        if(platformConnectionSystem.m_NumAdjacent[stationIndices[i]] == m_MaxAdjacentPlatforms)
+                           break;
+                    }
+                }
+            }
+        }
+    }
+
     public void InstantiatePlatforms(GameObject prefab, EntityManager dstManager)
     {
         Debug.Assert(prefab != null);
@@ -128,6 +186,8 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         platformConnectionSystem.m_PlatformRotations = new NativeArray<quaternion>(platformCount, Allocator.Persistent);
         platformConnectionSystem.m_Next = new NativeArray<int>(platformCount, Allocator.Persistent);
         platformConnectionSystem.m_Opposite = new NativeArray<int>(platformCount, Allocator.Persistent);
+        platformConnectionSystem.m_NumAdjacent = new NativeArray<int>(platformCount, Allocator.Persistent);
+        platformConnectionSystem.m_Adjacents = new NativeArray<int>(platformCount * m_MaxAdjacentPlatforms, Allocator.Persistent);
 
         // Only spawn platforms at stops in loop paths, not single paths.
         // This seems a little hacky / non-obvious, in that we assume a loop path is specifically a train path that has platforms.
@@ -171,32 +231,9 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
                 );
             }
 
-            // next platform
-            for( int i = 0; i < stationIndices.Count; i++)
-            {
-                platformConnectionSystem.m_Next[stationIndices[i]] = stationIndices[(i + 1) % stationIndices.Count];
-            }
-
-            // opposite platform
-            for( int i = 0; i < stationIndices.Count; i++)
-            {
-                float minDist = 9999999999.0f;
-                int oppIndex = i;
-                for( int j = 0; j < stationIndices.Count; j++)
-                {
-                    if(i != j)
-                    {
-                        float dist = math.distance(platformConnectionSystem.m_PlatformPositions[stationIndices[i]], platformConnectionSystem.m_PlatformPositions[stationIndices[j]]);
-                        if(dist < minDist)
-                        {
-                            minDist = dist;
-                            oppIndex = j;
-                        }
-                    }
-                }
-                Debug.Assert(oppIndex != i);
-                platformConnectionSystem.m_Opposite[stationIndices[i]] = stationIndices[oppIndex];
-            }
+            FindNext(stationIndices, platformConnectionSystem);
+            FindOpposite(stationIndices, platformConnectionSystem);
+            FindAdjacent(stationIndices, platformConnectionSystem);           
         }
     }
 
