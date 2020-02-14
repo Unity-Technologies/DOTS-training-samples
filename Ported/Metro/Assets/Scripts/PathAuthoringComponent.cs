@@ -11,7 +11,10 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
     public List<GameObject> m_ParentsLoopedPaths;
     public List<GameObject> m_ParentsSinglePaths;
     public float m_LoopPathOffset = 1;
+    public int m_MaxAdjacentPlatforms = 5;
+    public float m_AdjacentDistance = 15.0f;
     private TrainPositioningSystem m_TrainPositioningSytem;
+    private PlatformConnectionSystem m_PlatformConnectionSystem;
 
     public GameObject prefabPlatform;
     public GameObject prefabMover;
@@ -75,6 +78,7 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         World world = dstManager.World;
         TrainPositioningSystem trainPositioningSystem = world.GetExistingSystem<TrainPositioningSystem>();
         PathMoverSystem pathMoverSystem = world.GetExistingSystem<PathMoverSystem>();
+        DispatcherStopSystem dispatcherStopSystem = world.GetExistingSystem<DispatcherStopSystem>();
 
         Debug.Assert(trainPositioningSystem != null);
         trainPositioningSystem.m_PathPositions = new NativeArray<float3>(totalPositionsCount, Allocator.Persistent);
@@ -91,27 +95,110 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         pathMoverSystem.m_PathPositions = trainPositioningSystem.m_PathPositions;
         pathMoverSystem.m_PathIndices = trainPositioningSystem.m_StartEndPositionIndicies;
 
+        dispatcherStopSystem.m_PathStopBits = trainPositioningSystem.m_PathStopBits;
+        dispatcherStopSystem.m_PathIndices = trainPositioningSystem.m_StartEndPositionIndicies;
+
         m_TrainPositioningSytem = trainPositioningSystem;
 
-        InstantiatePlatforms(prefabPlatform);
-        InstantiatePathMoversOnLoopPaths(prefabMover, moverCount);
+        InstantiatePlatforms(prefabPlatform, dstManager);
+        InstantiatePathMoversOnLoopPaths(prefabMover, moverCount);        
     }
 
-    private void InstantiatePlatforms(GameObject prefab)
+    void FindNext(List<int> stationIndices, PlatformConnectionSystem platformConnectionSystem)
+    {
+         // next platform
+        for( int i = 0; i < stationIndices.Count; i++)
+        {
+            platformConnectionSystem.m_Next[stationIndices[i]] = stationIndices[(i + 1) % stationIndices.Count];
+        }
+    }
+
+    void FindOpposite(List<int> stationIndices, PlatformConnectionSystem platformConnectionSystem)
+    {
+         // opposite platform
+        for( int i = 0; i < stationIndices.Count; i++)
+        {
+            float minDist = 9999999999.0f;
+            int oppIndex = i;
+            for( int j = 0; j < stationIndices.Count; j++)
+            {
+                if(i != j)
+                {
+                    float dist = math.distance(platformConnectionSystem.m_PlatformPositions[stationIndices[i]], platformConnectionSystem.m_PlatformPositions[stationIndices[j]]);
+                    if(dist < minDist)
+                    {
+                        minDist = dist;
+                        oppIndex = j;
+                    }
+                }
+            }
+            Debug.Assert(oppIndex != i);
+            platformConnectionSystem.m_Opposite[stationIndices[i]] = stationIndices[oppIndex];
+        }
+    }
+
+    void FindAdjacent(List<int> stationIndices, PlatformConnectionSystem platformConnectionSystem)
+    {
+         // opposite platform
+        for( int i = 0; i < stationIndices.Count; i++)
+        {           
+            platformConnectionSystem.m_NumAdjacent[stationIndices[i]] = 0;
+            for( int j = 0; j < stationIndices.Count; j++)
+            {
+                if((i != j) && (platformConnectionSystem.m_Opposite[stationIndices[i]] != stationIndices[j])) // not the same and not opposite
+                {
+                    float dist = math.distance(platformConnectionSystem.m_PlatformPositions[stationIndices[i]], platformConnectionSystem.m_PlatformPositions[stationIndices[j]]);
+                    if(dist < m_AdjacentDistance)
+                    {
+                        platformConnectionSystem.m_Adjacents[platformConnectionSystem.m_NumAdjacent[stationIndices[i]]] = stationIndices[j];
+                        platformConnectionSystem.m_NumAdjacent[stationIndices[i]]++;
+                        if(platformConnectionSystem.m_NumAdjacent[stationIndices[i]] == m_MaxAdjacentPlatforms)
+                           break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void InstantiatePlatforms(GameObject prefab, EntityManager dstManager)
     {
         Debug.Assert(prefab != null);
+        World world = dstManager.World;
+        PlatformConnectionSystem platformConnectionSystem = world.GetExistingSystem<PlatformConnectionSystem>();
+        m_PlatformConnectionSystem = platformConnectionSystem;
 
         // Create entity prefab from the game object hierarchy once
         var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
         var entityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefab, settings);
         var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
-        // Only spawn platforms at stops in loop paths, not single paths.
-        // This seems a little hacky / non-obvious, in that we assume a loop path is specifically a train path that has platforms.
+        int platformCount = 0;    
         for (int pathIndex = 0; pathIndex < m_TrainPositioningSytem.m_SinglePathStartIndex; ++pathIndex)
         {
             int2 startEndIndices = m_TrainPositioningSytem.m_StartEndPositionIndicies[pathIndex];
+            for (int i = startEndIndices.x; i < startEndIndices.y; ++i)
+            {
+                if (m_TrainPositioningSytem.m_PathStopBits.IsBitSet(i))
+                { 
+                    platformCount++;
+                }
+            }
+        }
 
+        platformConnectionSystem.m_PlatformPositions = new NativeArray<float3>(platformCount, Allocator.Persistent);
+        platformConnectionSystem.m_PlatformRotations = new NativeArray<quaternion>(platformCount, Allocator.Persistent);
+        platformConnectionSystem.m_Next = new NativeArray<int>(platformCount, Allocator.Persistent);
+        platformConnectionSystem.m_Opposite = new NativeArray<int>(platformCount, Allocator.Persistent);
+        platformConnectionSystem.m_NumAdjacent = new NativeArray<int>(platformCount, Allocator.Persistent);
+        platformConnectionSystem.m_Adjacents = new NativeArray<int>(platformCount * m_MaxAdjacentPlatforms, Allocator.Persistent);
+
+        // Only spawn platforms at stops in loop paths, not single paths.
+        // This seems a little hacky / non-obvious, in that we assume a loop path is specifically a train path that has platforms.
+        platformCount = 0;
+        for (int pathIndex = 0; pathIndex < m_TrainPositioningSytem.m_SinglePathStartIndex; ++pathIndex)
+        {
+            int2 startEndIndices = m_TrainPositioningSytem.m_StartEndPositionIndicies[pathIndex];
+            List<int> stationIndices = new List<int>();
             for (int i = startEndIndices.x; i < startEndIndices.y; ++i)
             {
                 if (!m_TrainPositioningSytem.m_PathStopBits.IsBitSet(i)) { continue; }
@@ -125,6 +212,11 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
                 float3 forward = math.normalize(m_TrainPositioningSytem.m_PathPositions[i + 0] - m_TrainPositioningSytem.m_PathPositions[i + 1]);
                 float3 tangent = math.normalize(math.cross(forward, Vector3.up));
                 quaternion rotation = quaternion.LookRotation(tangent, Vector3.up);
+
+                stationIndices.Add(platformCount);
+                platformConnectionSystem.m_PlatformPositions[platformCount] = position;
+                platformConnectionSystem.m_PlatformRotations[platformCount] = rotation;
+                platformCount++;
 
                 entityManager.SetComponentData(
                     entity,
@@ -141,6 +233,10 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
                     }
                 );
             }
+
+            FindNext(stationIndices, platformConnectionSystem);
+            FindOpposite(stationIndices, platformConnectionSystem);
+            FindAdjacent(stationIndices, platformConnectionSystem);           
         }
     }
 
@@ -304,15 +400,15 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         return pathIndex < m_TrainPositioningSytem.m_SinglePathStartIndex;
     }
 
-    void OnDrawGizmos()
+    void DrawTrackGizmo()
     {
         if (m_TrainPositioningSytem == null)
         {
-            Debug.Log("Not converted");
             return;
         }
 
-        for (int i = 0; i < m_TrainPositioningSytem.m_StartEndPositionIndicies.Length; ++i)
+        Color c = Gizmos.color;
+        for (int i = 0; i < m_TrainPositioningSytem.m_SinglePathStartIndex; ++i)
         {
             int2 startEndPosition = m_TrainPositioningSytem.m_StartEndPositionIndicies[i];
             
@@ -325,9 +421,36 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
                 
                 Gizmos.color = Metro.INSTANCE().LineColours[i];
                 Gizmos.color *= isStop ? new Color(0.25f, 0.25f, 0.25f, 1.0f) : new Color(1.0f, 1.0f, 1.0f, 1.0f);
-                Gizmos.DrawLine(positionStart, positionEnd);
-                
+                Gizmos.DrawLine(positionStart, positionEnd);                
             }
         }
+        Gizmos.color = c;
+    }
+
+    void DrawPlatformGizmo()
+    {
+        if (m_PlatformConnectionSystem == null)
+        {
+            return;
+        }
+
+        Color c = Gizmos.color;        
+        for(int i = 0; i < m_PlatformConnectionSystem.m_PlatformPositions.Length; i++)
+        {
+            float3 current = m_PlatformConnectionSystem.m_PlatformPositions[i];
+            float3 next = m_PlatformConnectionSystem.m_PlatformPositions[m_PlatformConnectionSystem.m_Next[i]];
+            float3 opposite = m_PlatformConnectionSystem.m_PlatformPositions[m_PlatformConnectionSystem.m_Opposite[i]];            
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawLine(current, next);
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(current, opposite);
+        }
+        Gizmos.color = c;
+    }
+
+    void OnDrawGizmos()
+    {
+        DrawTrackGizmo();
+        DrawPlatformGizmo();
     }
 }
