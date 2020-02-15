@@ -16,9 +16,10 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
     private TrainPositioningSystem m_TrainPositioningSytem;
     private PlatformConnectionSystem m_PlatformConnectionSystem;
 
-    public GameObject prefabPlatform;
-    public GameObject prefabMover;
-    public int moverCount = 1;
+    public GameObject m_PrefabPlatform;
+    public GameObject m_PrefabMover;
+    public int m_MoverCount = 1;
+    public float m_MoverAcceleration = 5.0f;
 
     void CreatPathPositionData(ref int currIndex, TrainPositioningSystem trainPositioningSystem, List<GameObject> pathParents, bool isLooped)
     {     
@@ -100,8 +101,8 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
 
         m_TrainPositioningSytem = trainPositioningSystem;
 
-        InstantiatePlatforms(prefabPlatform, dstManager);
-        InstantiatePathMoversOnLoopPaths(prefabMover, moverCount);        
+        InstantiatePlatforms(m_PrefabPlatform, dstManager);
+        InstantiatePathMoversOnLoopPaths(m_PrefabMover, m_MoverCount, m_MoverAcceleration);        
     }
 
     void FindNext(List<int> stationIndices, PlatformConnectionSystem platformConnectionSystem)
@@ -240,7 +241,7 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         }
     }
 
-    private void InstantiatePathMoversOnLoopPaths(GameObject prefab, int pathMoverRequestCount)
+    private void InstantiatePathMoversOnLoopPaths(GameObject prefab, int pathMoverRequestCount, float acceleration)
     {
         Debug.Assert(pathMoverRequestCount > 0);
 
@@ -331,7 +332,8 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
                     new MovementDerivatives
                     {
                         Speed = 0,
-                        Acceleration = 20.0f
+                        Acceleration = acceleration,
+                        AccelerationGoal = acceleration
                     }
                 );
 

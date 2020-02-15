@@ -139,6 +139,28 @@ PrefabInstance:
       propertyPath: moverCount
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: -6520314561060446317, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: m_MoverCount
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: -6520314561060446317, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: m_PrefabPlatform
+      value: 
+      objectReference: {fileID: 1891511846621564, guid: 01884bc9b2b1947729476fa75daf772a,
+        type: 3}
+    - target: {fileID: -6520314561060446317, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: m_PrefabMover
+      value: 
+      objectReference: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc,
+        type: 3}
+    - target: {fileID: -6520314561060446317, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
+        type: 3}
+      propertyPath: m_MoverAcceleration
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 1392208647110676, guid: 8ca719e9d16104f78ba3feaa2aea2c96, type: 3}
       propertyPath: m_IsActive
       value: 1

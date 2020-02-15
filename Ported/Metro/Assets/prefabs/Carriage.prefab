@@ -109,6 +109,7 @@ GameObject:
   - component: {fileID: 6811599287204980269}
   - component: {fileID: 8186151881116384727}
   - component: {fileID: 1682921684384160917}
+  - component: {fileID: 6619438505904445209}
   m_Layer: 0
   m_Name: Carriage
   m_TagString: Untagged
@@ -179,6 +180,21 @@ MonoBehaviour:
     y: 0
     z: 0
   Acceleration: 0
+  AccelerationGoal: 0
+--- !u!114 &6619438505904445209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1005656507454012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02270138a233cc54b93300a0dcd67379, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LeaveTime: 0
+  LastPoint: 0
 --- !u!1 &1010550110454968
 GameObject:
   m_ObjectHideFlags: 0

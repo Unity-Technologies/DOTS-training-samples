@@ -24,22 +24,23 @@ public class DispatcherStopSystem : JobComponentSystem
             {
                 int2 range = pathIndices[pathMoverComponent.m_TrackIndex];
 
-                bool atStop = pathData.IsBitSet(currentPoint + range.x);
+                bool atStop = pathData.IsBitSet(currentPoint);
 
                 if (atStop)
                 {
                     stopComponent.LeaveTime = TIME_TO_WAIT;
                     stopComponent.LastPoint = currentPoint;
                     movement.Acceleration = 0;
+                    movement.Speed = 0;
                 }
             }
-            else
+            else if (stopComponent.LeaveTime > 0.0f)
             {
                 stopComponent.LeaveTime -= dt;
 
-                if(stopComponent.LeaveTime <= 0.1f)
+                if(stopComponent.LeaveTime <= 0.0f)
                 {
-                    movement.Acceleration = 20;
+                    movement.Acceleration = movement.AccelerationGoal;
                 }
             }
         }).Schedule(inputDependencies);

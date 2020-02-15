@@ -6,4 +6,5 @@ public struct MovementDerivatives : IComponentData
 {
     public float3 Speed;
     public float Acceleration;
+    public float AccelerationGoal;
 }
