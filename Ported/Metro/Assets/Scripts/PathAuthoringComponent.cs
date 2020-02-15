@@ -17,6 +17,8 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
     private PlatformConnectionSystem m_PlatformConnectionSystem;
 
     public GameObject prefabPlatform;
+    public GameObject prefabMover;
+    public int moverCount = 1;
 
     void CreatPathPositionData(ref int currIndex, TrainPositioningSystem trainPositioningSystem, List<GameObject> pathParents, bool isLooped)
     {     
@@ -99,6 +101,7 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         m_TrainPositioningSytem = trainPositioningSystem;
 
         InstantiatePlatforms(prefabPlatform, dstManager);
+        InstantiatePathMoversOnLoopPaths(prefabMover, moverCount);        
     }
 
     void FindNext(List<int> stationIndices, PlatformConnectionSystem platformConnectionSystem)
@@ -235,6 +238,174 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
             FindOpposite(stationIndices, platformConnectionSystem);
             FindAdjacent(stationIndices, platformConnectionSystem);           
         }
+    }
+
+    private void InstantiatePathMoversOnLoopPaths(GameObject prefab, int pathMoverRequestCount)
+    {
+        Debug.Assert(pathMoverRequestCount > 0);
+
+        // Create entity prefab from the game object hierarchy once
+        var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
+        var entityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefab, settings);
+        var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+
+        // Perform stratified sampling of paths to on average evenly distribute movers with some variation.
+        float pathLengthTotal = ComputePathLengthTotalFromPathRange(0, m_TrainPositioningSytem.m_SinglePathStartIndex);
+        float samplePDF = pathLengthTotal / pathMoverRequestCount;
+        float cdf = 0.0f;
+
+        int sampleIndex = 0;
+        int pathIndex = 0;
+        while (sampleIndex < pathMoverRequestCount && pathIndex < m_TrainPositioningSytem.m_SinglePathStartIndex)
+        {
+            float pathLengthCurrent = ComputePathLength(pathIndex);
+            Debug.Assert(pathIndex < m_TrainPositioningSytem.m_SinglePathStartIndex);
+
+            float pathStartCDF = cdf;
+            float pathEndCDF = cdf + pathLengthCurrent;
+
+            int2 startEndIndices = m_TrainPositioningSytem.m_StartEndPositionIndicies[pathIndex];
+
+            int pathPositionIndexCurrent = startEndIndices.x;
+            Entity entityPreviousOnPath = Entity.Null;
+            Entity entityFirstOnPath = Entity.Null;
+            while (pathPositionIndexCurrent < startEndIndices.y && cdf < pathEndCDF)
+            {
+                float sampleCDF = UnityEngine.Random.value * samplePDF + cdf;
+
+                float3 samplePosition = float3.zero;
+                quaternion sampleRotation = quaternion.identity;
+                int samplePositionIndex = -1;
+                while (cdf < sampleCDF && pathPositionIndexCurrent < startEndIndices.y)
+                {
+                    int pathPositionIndex0 = pathPositionIndexCurrent;
+                    int pathPositionIndex1 = ((pathPositionIndexCurrent + 1 - startEndIndices.x) % (startEndIndices.y - startEndIndices.x)) + startEndIndices.x;
+                    float3 pathSegmentV0 = m_TrainPositioningSytem.m_PathPositions[pathPositionIndex0];
+                    float3 pathSegmentV1 = m_TrainPositioningSytem.m_PathPositions[pathPositionIndex1];
+                    
+                    float pathSegmentLength = math.length(pathSegmentV1 - pathSegmentV0);
+                    float offsetCDF = math.min(pathSegmentLength, sampleCDF - cdf);
+                    float t = offsetCDF / pathSegmentLength;
+
+                    samplePosition = math.lerp(pathSegmentV0, pathSegmentV1, t);
+
+                    float3 forward = math.normalize(pathSegmentV1 - pathSegmentV0);
+                    float3 tangent = math.normalize(math.cross(forward, Vector3.up));
+                    sampleRotation = quaternion.LookRotation(forward, Vector3.up);
+
+                    samplePositionIndex = pathPositionIndexCurrent;
+
+                    cdf += offsetCDF;
+                    ++pathPositionIndexCurrent;
+                }
+
+                // Efficiently instantiate a bunch of entities from the already converted entity prefab
+                // Debug.Log("Instantiating Mover: {\nposition: {" + samplePosition.x + ", " + samplePosition.y + ", " + samplePosition.z + "}\n}");
+                var entity = entityManager.Instantiate(entityPrefab);
+                entityManager.SetComponentData(
+                    entity,
+                    new Translation
+                    {
+                        Value = samplePosition,
+                    }
+                );
+                entityManager.SetComponentData(
+                    entity,
+                    new Rotation
+                    {
+                        Value = sampleRotation
+                    }
+                );
+                entityManager.SetComponentData(
+                    entity,
+                    new PathMoverComponent
+                    {
+                        m_TrackIndex = pathIndex,
+                        AccelerationIdx = -1, // TODO: What is this?
+                        CurrentPointIndex = samplePositionIndex
+
+                    }
+                );
+                entityManager.SetComponentData(
+                    entity,
+                    new MovementDerivatives
+                    {
+                        Speed = 0,
+                        Acceleration = 20.0f
+                    }
+                );
+
+                if (entityPreviousOnPath != Entity.Null)
+                {
+                    entityManager.SetComponentData(
+                        entityPreviousOnPath,
+                        new PathMoverSafeFollowComponent
+                        {
+                            m_FollowEntity = entity
+                        }
+                    );
+                }
+                else
+                {
+                    entityFirstOnPath = entity;
+                }
+                entityPreviousOnPath = entity;
+
+
+                ++sampleIndex;
+                cdf += samplePDF;
+            }
+
+            // Close loop: link the last entity on the current path to follow the first entity on the current path.
+            if (entityPreviousOnPath != Entity.Null && entityPreviousOnPath != entityFirstOnPath)
+            {
+                entityManager.SetComponentData(
+                    entityPreviousOnPath,
+                    new PathMoverSafeFollowComponent
+                    {
+                        m_FollowEntity = entityFirstOnPath
+                    }
+                );
+            }
+
+            ++pathIndex;
+        }
+    }
+
+    private float ComputePathLengthTotalFromPathRange(int pathIndexStart, int pathIndexEnd)
+    {
+        float pathLength = 0.0f;
+        for (int pathIndex = pathIndexStart; pathIndex < pathIndexEnd; ++pathIndex)
+        {
+            pathLength += ComputePathLength(pathIndex);
+        }
+
+        return pathLength;
+    }
+
+    private float ComputePathLength(int pathIndex)
+    {
+        int2 startEndIndices = m_TrainPositioningSytem.m_StartEndPositionIndicies[pathIndex];
+
+        float pathLength = 0.0f;
+        for (int i = startEndIndices.x, iLen = (startEndIndices.y - 1); i < iLen; ++i)
+        {
+            pathLength += math.length(m_TrainPositioningSytem.m_PathPositions[i + 1] - m_TrainPositioningSytem.m_PathPositions[i + 0]);
+        }
+
+        if (ComputePathIsLoopFromIndex(pathIndex))
+        {
+            // Handle loop closure segment.
+            pathLength += math.length(m_TrainPositioningSytem.m_PathPositions[startEndIndices.x]
+                - m_TrainPositioningSytem.m_PathPositions[startEndIndices.y - 1]);
+        }
+
+        return pathLength;
+    }
+
+    private bool ComputePathIsLoopFromIndex(int pathIndex)
+    {
+        return pathIndex < m_TrainPositioningSytem.m_SinglePathStartIndex;
     }
 
     void DrawTrackGizmo()
