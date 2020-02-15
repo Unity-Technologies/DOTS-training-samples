@@ -5,8 +5,8 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using static Unity.Mathematics.math;
 using UnityEngine;
+
 
 public class PathMoverSystem : JobComponentSystem
 {
@@ -22,12 +22,19 @@ public class PathMoverSystem : JobComponentSystem
         var dt = Time.DeltaTime;
         var pathIndices = m_PathIndices;
 
-        var outputDeps = Entities.ForEach((ref Translation translation, ref PathMoverComponent pathMoverComponent, ref MovementDerivatives movement) =>
+        var outputDeps = Entities.ForEach((ref Translation translation, ref Rotation rotation, ref PathMoverComponent pathMoverComponent, ref MovementDerivatives movement) =>
         {
             int2 range = pathIndices[pathMoverComponent.m_TrackIndex];
+            
             int nextPoint = (pathMoverComponent.CurrentPointIndex + 1) % (range.y - range.x);
 
+            float3 currentPoint = pathData[pathMoverComponent.CurrentPointIndex];
             float3 nextPosition = pathData[nextPoint + range.x];
+
+            float3 forward = math.normalize(nextPosition - currentPoint);
+            float3 tangent = math.normalize(math.cross(forward, new float3(0.0f, 1.0f, 0.0f)));
+            quaternion nextRotation = quaternion.LookRotation(forward, new float3(0.0f, 1.0f, 0.0f));
+            rotation.Value = nextRotation; 
 
             if (Approach.Apply(ref translation.Value, ref movement.Speed, nextPosition, movement.Acceleration * dt, ARRIVAL_THRESHOLD, FRICTION))
             {

@@ -300,7 +300,7 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
                 }
 
                 // Efficiently instantiate a bunch of entities from the already converted entity prefab
-                Debug.Log("Instantiating Mover: {\nposition: {" + samplePosition.x + ", " + samplePosition.y + ", " + samplePosition.z + "}\n}");
+                // Debug.Log("Instantiating Mover: {\nposition: {" + samplePosition.x + ", " + samplePosition.y + ", " + samplePosition.z + "}\n}");
                 var entity = entityManager.Instantiate(entityPrefab);
                 entityManager.SetComponentData(
                     entity,
@@ -324,6 +324,14 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
                         AccelerationIdx = -1, // TODO: What is this?
                         CurrentPointIndex = samplePositionIndex
 
+                    }
+                );
+                entityManager.SetComponentData(
+                    entity,
+                    new MovementDerivatives
+                    {
+                        Speed = 0,
+                        Acceleration = 20.0f
                     }
                 );
 
