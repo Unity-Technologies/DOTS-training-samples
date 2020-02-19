@@ -171,7 +171,6 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         // Create entity prefab from the game object hierarchy once
         var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
         var entityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefab, settings);
-        var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
         int platformCount = 0;    
         for (int pathIndex = 0; pathIndex < m_TrainPositioningSytem.m_SinglePathStartIndex; ++pathIndex)
@@ -206,7 +205,7 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
                 // Encountered a stop vertex. Place a platform for this stop.
 
                 // Efficiently instantiate a bunch of entities from the already converted entity prefab
-                var entity = entityManager.Instantiate(entityPrefab);
+                var entity = dstManager.Instantiate(entityPrefab);
 
                 float3 position = m_TrainPositioningSytem.m_PathPositions[i];
 
@@ -219,14 +218,18 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
                 platformConnectionSystem.m_PlatformRotations[platformCount] = rotation;
                 platformCount++;
 
-                entityManager.SetComponentData(
+                dstManager.SetComponentData(entity, new LocalToWorld
+                {
+                    Value = float4x4.TRS(position, rotation, new float3(1f))
+                });
+                dstManager.SetComponentData(
                     entity,
                     new Translation
                     {
                         Value = position,
                     }
                 );
-                entityManager.SetComponentData(
+                dstManager.SetComponentData(
                     entity,
                     new Rotation
                     {
