@@ -5,6 +5,7 @@ using UnityEngine;
 // ReSharper disable once InconsistentNaming
 [RequiresEntityConversion]
 [AddComponentMenu("DOTS Samples/IJobChunk/Rotation Speed")]
+// todo - why is this this way? To avoid polluting cache
 [ConverterVersion("joe", 1)]
 public class RotationSpeedAuthoring_IJobChunk : MonoBehaviour, IConvertGameObjectToEntity
 {
