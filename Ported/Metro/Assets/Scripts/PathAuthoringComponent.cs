@@ -101,7 +101,8 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         m_TrainPositioningSytem = trainPositioningSystem;
 
         InstantiatePlatforms(prefabPlatform, dstManager);
-        InstantiatePathMoversOnLoopPaths(prefabMover, moverCount);        
+        InstantiateCars(prefabMover, dstManager);
+//        InstantiatePathMoversOnLoopPaths(prefabMover, moverCount);        
     }
 
     void FindNext(List<int> stationIndices, PlatformConnectionSystem platformConnectionSystem)
@@ -160,7 +161,59 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         }
     }
 
-    public void InstantiatePlatforms(GameObject prefab, EntityManager dstManager)
+    private void InstantiateCars(GameObject prefab, EntityManager dstManager)
+    {
+        Debug.Assert(prefab != null);
+        World world = dstManager.World;
+        GameObjectConversionSettings settings = GameObjectConversionSettings.FromWorld(world, null);
+        Entity entityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefab, settings);
+        for (int pathIndex = 0; pathIndex < m_TrainPositioningSytem.m_SinglePathStartIndex; ++pathIndex)
+        {
+            int2 startEndIndices = m_TrainPositioningSytem.m_StartEndPositionIndicies[pathIndex];
+            for (int i = startEndIndices.x; i < startEndIndices.y; ++i)
+            {
+                if (!m_TrainPositioningSytem.m_PathStopBits.IsBitSet(i))
+                {
+                    continue;
+                }
+                Entity entity = dstManager.Instantiate(entityPrefab);
+                
+                float3 position = m_TrainPositioningSytem.m_PathPositions[i];
+                float3 forward = math.normalize(m_TrainPositioningSytem.m_PathPositions[i + 0] - m_TrainPositioningSytem.m_PathPositions[i + 1]);
+                float3 tangent = math.normalize(math.cross(forward, Vector3.up));
+                quaternion rotation = quaternion.LookRotation(tangent, Vector3.up);
+
+                dstManager.SetComponentData(
+                    entity,
+                    new Translation
+                    {
+                        Value = position,
+                    }
+                );
+
+                dstManager.SetComponentData(
+                    entity,
+                    new Rotation
+                    {
+                        Value = rotation
+                    }
+                );
+
+                TrackIndexComponent trackIndexComponent = new TrackIndexComponent();
+                trackIndexComponent.m_TrackIndex = pathIndex;
+
+                CarriageComponent carriageComponent = new CarriageComponent();
+                carriageComponent.m_CurrentPointIndex = i;
+
+                dstManager.AddComponent<CarriageComponent>(entity);
+                dstManager.AddComponent<TrackIndexComponent>(entity);
+                dstManager.AddComponentData(entity, carriageComponent);
+                dstManager.AddSharedComponentData(entity, trackIndexComponent);
+            }
+        }
+    }
+
+    private void InstantiatePlatforms(GameObject prefab, EntityManager dstManager)
     {
         Debug.Assert(prefab != null);
         World world = dstManager.World;
@@ -201,11 +254,14 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
             List<int> stationIndices = new List<int>();
             for (int i = startEndIndices.x; i < startEndIndices.y; ++i)
             {
-                if (!m_TrainPositioningSytem.m_PathStopBits.IsBitSet(i)) { continue; }
+                if (!m_TrainPositioningSytem.m_PathStopBits.IsBitSet(i))
+                {
+                    continue;
+                }
                 // Encountered a stop vertex. Place a platform for this stop.
 
                 // Efficiently instantiate a bunch of entities from the already converted entity prefab
-                var entity = entityManager.Instantiate(entityPrefab);
+                Entity entity = entityManager.Instantiate(entityPrefab);
 
                 float3 position = m_TrainPositioningSytem.m_PathPositions[i];
 
@@ -240,6 +296,7 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         }
     }
 
+    /*
     private void InstantiatePathMoversOnLoopPaths(GameObject prefab, int pathMoverRequestCount)
     {
         Debug.Assert(pathMoverRequestCount > 0);
@@ -370,7 +427,7 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
 
             ++pathIndex;
         }
-    }
+    }*/
 
     private float ComputePathLengthTotalFromPathRange(int pathIndexStart, int pathIndexEnd)
     {
@@ -459,6 +516,6 @@ public class PathAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
     void OnDrawGizmos()
     {
         DrawTrackGizmo();
-        DrawPlatformGizmo();
+        //DrawPlatformGizmo();
     }
 }

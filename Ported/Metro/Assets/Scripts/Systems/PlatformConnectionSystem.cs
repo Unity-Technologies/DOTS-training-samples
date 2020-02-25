@@ -77,7 +77,5 @@ public class PlatformConnectionSystem : JobComponentSystem
             m_NumAdjacent.Dispose();
         if(m_Adjacents.IsCreated)
             m_Adjacents.Dispose();
-
-
     }
 }

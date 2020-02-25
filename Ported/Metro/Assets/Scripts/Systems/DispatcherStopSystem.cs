@@ -12,6 +12,7 @@ public class DispatcherStopSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
+        return inputDependencies;
         var pathData = m_PathStopBits;
         var pathIndices = m_PathIndices;
         var dt = Time.DeltaTime;

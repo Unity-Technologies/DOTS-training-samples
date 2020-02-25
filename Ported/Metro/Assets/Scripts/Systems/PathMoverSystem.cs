@@ -18,6 +18,7 @@ public class PathMoverSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        return inputDeps;
         var pathData = m_PathPositions;
         var dt = Time.DeltaTime;
         var pathIndices = m_PathIndices;

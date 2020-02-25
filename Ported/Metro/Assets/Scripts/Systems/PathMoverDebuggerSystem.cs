@@ -24,6 +24,7 @@ public class PathMoverDebuggerSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        return inputDeps;
         var ecb = m_ecb.CreateCommandBuffer().ToConcurrent();
         t -= Time.DeltaTime;
         var drop = t <= 0;
