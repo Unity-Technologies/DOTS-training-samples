@@ -119,7 +119,8 @@ public class Arm : MonoBehaviour {
 	}
 
 	void Start () {
-		timeOffset = Random.value * 100f;
+		timeOffset = 0f;
+		//timeOffset = Random.value * 100f;
 
 		// each chain is a list of points, so
 		// the number of bones in a chain is numberOfPoints-1
@@ -140,9 +141,9 @@ public class Arm : MonoBehaviour {
 		matrices = new Matrix4x4[boneCount];
 	}
 	
-	void Update () {
-		float time = Time.time + timeOffset;
-
+	void Update ()
+	{
+		float time = 0f;
 		// resting position
 		Vector3 idleHandTarget = transform.position+new Vector3(Mathf.Sin(time)*.35f,1f+Mathf.Cos(time*1.618f)*.5f,1.5f);
 
@@ -313,21 +314,29 @@ public class Arm : MonoBehaviour {
 
 			// find resting position for this fingertip
 			Vector3 fingerTarget = fingerPos + handForward * (.5f-.1f*fingerGrabT);
-
-			// spooky finger wiggling while we're idle
-			fingerTarget += handUp * Mathf.Sin((time + i*.2f)*3f) * .2f*(1f-fingerGrabT);
 			
-			// if we're gripping, move this fingertip onto the surface of our rock
-			Vector3 rockFingerDelta = fingerTarget - lastIntendedRockPos;
-			Vector3 rockFingerPos = lastIntendedRockPos + rockFingerDelta.normalized * (lastIntendedRockSize * .5f+fingerThicknesses[i]);
-			fingerTarget = Vector3.Lerp(fingerTarget,rockFingerPos,fingerGrabT);
-
-			// apply finger-spreading during throw animation
-			fingerTarget += (handUp * .3f + handForward * .1f + handRight*(i-1.5f)*.1f) * openPalm;
+			// // spooky finger wiggling while we're idle
+			// fingerTarget += handUp * Mathf.Sin((time + i*.2f)*3f) * .2f*(1f-fingerGrabT);
+			//
+			// // if we're gripping, move this fingertip onto the surface of our rock
+			// Vector3 rockFingerDelta = fingerTarget - lastIntendedRockPos;
+			// Vector3 rockFingerPos = lastIntendedRockPos + rockFingerDelta.normalized * (lastIntendedRockSize * .5f+fingerThicknesses[i]);
+			// fingerTarget = Vector3.Lerp(fingerTarget,rockFingerPos,fingerGrabT);
+			//
+			// // apply finger-spreading during throw animation
+			// fingerTarget += (handUp * .3f + handForward * .1f + handRight*(i-1.5f)*.1f) * openPalm;
 
 			// solve this finger's IK chain
 			FABRIK.Solve(fingerChains[i],fingerBoneLengths[i],fingerPos,fingerTarget,handUp*fingerBendStrength);
 
+			for (int j = 0; j < fingerChains[i].Length - 1; j++)
+			{
+				Vector3 delta = fingerChains[i][j + 1] - fingerChains[i][j];
+
+				var posDebug = new Vector3(fingerChains[i][j].x, fingerChains[i][j].y, fingerChains[i][j].z);
+
+				Debug.DrawLine(posDebug, posDebug + delta, Color.white);
+			}
 			// update this finger's rendering matrices
 			UpdateMatrices(fingerChains[i],matrixIndex,fingerThicknesses[i],handUp);
 			matrixIndex += fingerChains[i].Length - 1;

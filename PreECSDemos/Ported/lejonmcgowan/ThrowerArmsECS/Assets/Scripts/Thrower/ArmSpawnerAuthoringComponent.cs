@@ -32,7 +32,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour, IConvertGameObjectToE
         }
     }
 
-    void createEntities(float3[] chain,float thickness, float3 up, ref EntityManager dstManager,Entity prefab)
+    void createEntities(float3[] chain, float thickness, float3 up, ref EntityManager dstManager, Entity prefab)
     {
         // find the rendering matrices for an IK chain
         // (each pair of neighboring points is connected by a beam)
@@ -43,7 +43,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour, IConvertGameObjectToE
             Entity entity = dstManager.Instantiate(prefab);
             NonUniformScale scale = new NonUniformScale()
             {
-                Value = new float3(thickness, thickness, math.length(delta)) 
+                Value = new float3(thickness, thickness, math.length(delta))
             };
             Translation translation = new Translation()
             {
@@ -53,10 +53,10 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour, IConvertGameObjectToE
             {
                 Value = quaternion.LookRotation(delta, up)
             };
-            
-            dstManager.SetComponentData(entity,translation);
-            dstManager.SetComponentData(entity,rotation);
-            dstManager.AddComponentData(entity,scale);
+
+            dstManager.SetComponentData(entity, translation);
+            dstManager.SetComponentData(entity, rotation);
+            dstManager.AddComponentData(entity, scale);
         }
     }
 
@@ -80,15 +80,15 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour, IConvertGameObjectToE
 
         for (int armIter = 0; armIter < spawnComponent.numToSpawn; armIter++)
         {
-            float3 offset = new float3(spawnComponent.numToSpawn / 2.0f - armIter,0,0);
+            float3 offset = new float3(spawnComponent.numToSpawn / 2.0f - armIter, 0, 0);
             //spawn arms here
             float3[] armChain = new float3[3];
-            float3 target = position - offset + new float3(-0.25f,0.75f,1.5f);
-            Solve(armChain, 1f, position -  offset, target, float3.zero);
+            float3 target = position - offset + new float3(0, 1, 1.5f);
+            Solve(armChain, 1f, position - offset, target, float3.zero);
 
             float3 handForward = math.normalize(armChain[armChain.Length - 1] - armChain[armChain.Length - 2]);
             float3 handUp = math.normalize(math.cross(handForward, transform.right));
-            float3 handRight = math.cross(handForward, handUp);
+            float3 handRight = math.cross(handUp, handForward);
 
             createEntities(armChain, 0.15f, handUp, ref dstManager, spawnComponent.prefab);
 
@@ -96,13 +96,24 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour, IConvertGameObjectToE
             for (int i = 0; i < 4; i++)
             {
                 float3 armPos = armChain[armChain.Length - 1];
-                
+
                 float3 fingerPos = armPos + handRight * (-0.12f + i * 0.08f);
-                float3 fingerTtarget = fingerPos + handForward + 0.5f + handUp * math.sin( i*1.2f);
-                
-                armPos.x += (0.15f - 0.1f * i);
+                float3 fingerTtarget = fingerPos + handForward * 0.5f;
                 float3[] fingerChain = new float3[4];
-                Solve(fingerChain, 0.22f, fingerPos, fingerTtarget, 0.1f * handUp);
+                for (int j = 0; j < fingerChain.Length; j++) fingerChain[j] = float3.zero;
+
+                Solve(fingerChain, 0.22f, fingerPos, fingerTtarget, 0.2f * handUp);
+
+                for (int j = 0; j < fingerChain.Length - 1; j++)
+                {
+                    float3 delta = fingerChain[j + 1] - fingerChain[j];
+
+                    var posDebug = new Vector3(fingerChain[j].x, fingerChain[j].y, fingerChain[j].z);
+
+                    Debug.DrawLine(posDebug, posDebug + new Vector3(delta.x, delta.y, delta.z), Color.red, 240f);
+                    Debug.DrawLine(posDebug, posDebug + new Vector3(handUp.x, handUp.y, handUp.z), Color.green, 240f);
+                }
+
                 createEntities(fingerChain, 0.05f, handUp, ref dstManager, spawnComponent.prefab);
             }
         }
