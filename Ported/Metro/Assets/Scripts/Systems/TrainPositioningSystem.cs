@@ -66,7 +66,7 @@ public class TrainPositioningSystem : JobComponentSystem
                 CarriageComponent carriageComponent = chunkCarriages[i];                
                 int currPointIndex = carriageComponent.m_CurrentPointIndex;
                 int nextPointIndex = m_StartEndPositionIndicies.x + (currPointIndex - m_StartEndPositionIndicies.x + 1) % (m_StartEndPositionIndicies.y - m_StartEndPositionIndicies.x);
-                float3 currPosition = m_PathPositions[currPointIndex];
+                float3 currPosition = translation.Value;
                 float3 nextPosition = m_PathPositions[nextPointIndex];
                 float3 vecToNextPosition = nextPosition - currPosition;
                 float distToNextPosition = math.length(vecToNextPosition);
@@ -93,7 +93,6 @@ public class TrainPositioningSystem : JobComponentSystem
         }                
     }
 
-    TrainPositioningSystemJob job = new TrainPositioningSystemJob();   
     
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
@@ -108,10 +107,11 @@ public class TrainPositioningSystem : JobComponentSystem
         }
         
         EntityManager.GetAllUniqueSharedComponentData(m_UniqueTracks);
-        for(int trackIndex = 0; trackIndex < m_UniqueTracks.Count; trackIndex++)
+        for(int trackIndex = 0; trackIndex < m_UniqueTracks.Count; trackIndex++)        
         {
             m_Query.AddSharedComponentFilter(m_UniqueTracks[trackIndex]);
-            //TrainPositioningSystemJob job = new TrainPositioningSystemJob();        
+            int entityCount = m_Query.CalculateEntityCount();
+            TrainPositioningSystemJob job = new TrainPositioningSystemJob();        
             job.m_DeltaTime = Time.DeltaTime;
             job.m_MaxSpeed = Metro.INSTANCE().maxTrainSpeed[m_UniqueTracks[trackIndex].m_TrackIndex];
             job.m_TranslationType = GetArchetypeChunkComponentType<Translation>();
@@ -120,15 +120,14 @@ public class TrainPositioningSystem : JobComponentSystem
             job.m_PathPositions = m_PathPositions;
             job.m_PathStopBits = m_PathStopBits;
             job.m_StartEndPositionIndicies = m_StartEndPositionIndicies[m_UniqueTracks[trackIndex].m_TrackIndex];
-            //m_Handles[trackIndex] = job.Schedule(m_Query, inputDependencies);   
-            job.Run(m_Query);
+            m_Handles[trackIndex] = job.Schedule(m_Query, inputDependencies);   
+            //job.Run(m_Query);
             m_Query.ResetFilter();
         }     
         m_UniqueTracks.Clear();
-        //JobHandle outputDependencies = JobHandle.CombineDependencies(m_Handles);
-        //outputDependencies.Complete();
-        //return outputDependencies;
-        return inputDependencies;
+        JobHandle outputDependencies = JobHandle.CombineDependencies(m_Handles);
+        outputDependencies.Complete();
+        return outputDependencies;
     }
 
     protected override void OnDestroy()
