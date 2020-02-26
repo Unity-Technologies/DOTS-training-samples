@@ -51,7 +51,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour, IConvertGameObjectToE
             };
             Rotation rotation = new Rotation()
             {
-                Value = quaternion.LookRotation(delta, up)
+                Value = quaternion.LookRotation(math.normalize(delta), up)
             };
 
             dstManager.SetComponentData(entity, translation);
@@ -110,8 +110,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour, IConvertGameObjectToE
 
                     var posDebug = new Vector3(fingerChain[j].x, fingerChain[j].y, fingerChain[j].z);
 
-                    Debug.DrawLine(posDebug, posDebug + new Vector3(delta.x, delta.y, delta.z), Color.red, 240f);
-                    Debug.DrawLine(posDebug, posDebug + new Vector3(handUp.x, handUp.y, handUp.z), Color.green, 240f);
+                    Debug.DrawLine(posDebug, posDebug + new Vector3(delta.x, delta.y, delta.z), Color.magenta, 240f);
                 }
 
                 createEntities(fingerChain, 0.05f, handUp, ref dstManager, spawnComponent.prefab);
