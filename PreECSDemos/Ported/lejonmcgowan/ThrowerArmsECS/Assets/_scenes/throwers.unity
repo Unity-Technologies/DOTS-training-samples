@@ -420,7 +420,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshPrefab: {fileID: 4067742829601932432, guid: 4e6a863e597f3b149a47dea776214e12,
     type: 3}
-  numArms: 10
+  numArms: 1
 --- !u!4 &1867224298
 Transform:
   m_ObjectHideFlags: 0

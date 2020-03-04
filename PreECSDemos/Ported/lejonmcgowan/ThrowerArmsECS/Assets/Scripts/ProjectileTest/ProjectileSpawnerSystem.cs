@@ -16,7 +16,6 @@ public class ProjectileSpawnerSystem: JobComponentSystem
     {
         float dt = Time.DeltaTime;
         
-        
         Entities.
             WithStructuralChanges().
             ForEach(
