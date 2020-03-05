@@ -3,14 +3,16 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateAfter(typeof(ClothTimestepSystem))]
+// See ClothSolverSystemGroup
+[DisableAutoCreation]
 public class ClothProjectSystem : JobComponentSystem
 {
     [BurstCompile]
     [ExcludeComponent(typeof(ClothHierarchyParentEntity))]
     struct ProjectClothPositionsJob : IJobForEach_BBBB<ClothProjectedPosition, ClothCurrentPosition, ClothPreviousPosition, ClothPinWeight>
     {
+        public float Damping;
+        
         public void Execute(
             DynamicBuffer<ClothProjectedPosition> projectedPositions, 
             DynamicBuffer<ClothCurrentPosition> currentPositions, 
@@ -28,7 +30,7 @@ public class ClothProjectSystem : JobComponentSystem
                 var gravity = math.mul(float4x4.identity, new float4(0.0f, -9.8f, 0.0f, 0.0f)).xyz * fixedStepSq;
                 velocity += gravity;
 
-                var newProjected = currentPosition + velocity * pinWeights[vertexIndex].InvPinWeight * 0.99f;
+                var newProjected = currentPosition + velocity * pinWeights[vertexIndex].InvPinWeight * Damping;
                 projectedPositions[vertexIndex] = new ClothProjectedPosition {Value = newProjected};
             }
         }
@@ -36,7 +38,10 @@ public class ClothProjectSystem : JobComponentSystem
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies)
     {
-        var job = new ProjectClothPositionsJob();
+        var job = new ProjectClothPositionsJob
+        {
+            Damping = GetSingleton<GlobalDamping>().Value
+        };
         
         return job.Schedule(this, inputDependencies);
     }

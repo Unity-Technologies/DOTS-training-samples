@@ -1,21 +1,15 @@
 {
   "dependencies": {
-    "com.unity.2d.sprite": "1.0.0",
-    "com.unity.2d.tilemap": "1.0.0",
-    "com.unity.collections": "file:../ModifiedPackages/com.unity.collections",
-    "com.unity.entities": "file:../ModifiedPackages/com.unity.entities",
-    "com.unity.ide.rider": "1.0.8",
-    "com.unity.ide.visualstudio": "1.0.11",
-    "com.unity.ide.vscode": "1.0.7",
-    "com.unity.jobs": "0.0.7-preview.13",
-    "com.unity.multiplayer-hlapi": "1.0.4",
-    "com.unity.performance.profile-analyzer": "0.4.0-preview.5",
-    "com.unity.physics": "0.1.0-preview",
-    "com.unity.rendering.hybrid": "0.0.1-preview.12",
-    "com.unity.test-framework": "1.0.16",
-    "com.unity.timeline": "1.1.0",
+    "com.unity.collab-proxy": "1.2.16",
+    "com.unity.entities": "0.7.0-preview.19",
+    "com.unity.ide.rider": "1.1.4",
+    "com.unity.ide.vscode": "1.1.4",
+    "com.unity.performance.profile-analyzer": "0.5.0-preview.1",
+    "com.unity.rendering.hybrid": "0.3.5-preview.15",
+    "com.unity.test-framework": "1.1.9",
+    "com.unity.textmeshpro": "2.0.1",
+    "com.unity.timeline": "1.2.10",
     "com.unity.ugui": "1.0.0",
-    "com.unity.xr.legacyinputhelpers": "2.0.4",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
@@ -47,6 +41,5 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  },
-  "registry": "https://staging-packages.unity.com"
+  }
 }

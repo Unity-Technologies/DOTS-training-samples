@@ -208,7 +208,7 @@ public class ClothSimSystem : JobComponentSystem
         {
             for (int clusterIndex = 1; clusterIndex < clusterCount; ++clusterIndex)
             {
-                m_clothConstraintsGroup.SetFilter(new ConstraintCluster {ClusterIndex = clusterIndex});
+                m_clothConstraintsGroup.SetSharedComponentFilter(new ConstraintCluster {ClusterIndex = clusterIndex});
                 var solverJob = new ConstraintSolverJob
                 {
                     Positions = GetComponentDataFromEntity<ProjectedPosition>(),
@@ -244,7 +244,7 @@ public class ClothSimSystem : JobComponentSystem
             var simPointsAsVertices = new NativeArray<Vector3>(vertexCount, Allocator.TempJob);
             vertexPositions.Add(simPointsAsVertices);
 
-            m_allClothPointsGroup.SetFilter(garment);
+            m_allClothPointsGroup.SetSharedComponentFilter(garment);
             var copyToVertexJob = new CopySimPointsToVerticesJob
             {
                 Vertices = simPointsAsVertices
@@ -276,7 +276,7 @@ public class ClothSimSystem : JobComponentSystem
         return allPreviousSolversHandle;
     }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {   
         m_allClothPointsGroup = GetEntityQuery(
             typeof(Translation), 
@@ -291,7 +291,7 @@ public class ClothSimSystem : JobComponentSystem
             typeof(ConstraintCluster));
     }
 
-    protected override void OnDestroyManager()
+    protected override void OnDestroy()
     {
         if(s_allGarmentWorldToLocals.IsCreated)
             s_allGarmentWorldToLocals.Dispose();

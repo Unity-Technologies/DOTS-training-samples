@@ -2,7 +2,8 @@
 using Unity.Entities;
 using UnityEngine;
 
-[UpdateInGroup(typeof(LateSimulationSystemGroup))]
+// See ClothSolverSystemGroup
+[DisableAutoCreation]
 public unsafe class CopyVerticesToMeshSystem : ComponentSystem
 {
     protected override void OnUpdate()

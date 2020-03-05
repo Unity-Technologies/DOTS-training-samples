@@ -4,8 +4,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-//[UpdateInGroup(typeof(SimulationSystemGroup))]
-//[UpdateAfter(typeof(ClothConstraintSolverSystem))]
+// See ClothSolverSystemGroup
 [DisableAutoCreation]
 public class ClothPredictiveContactSolverSystem : JobComponentSystem
 {

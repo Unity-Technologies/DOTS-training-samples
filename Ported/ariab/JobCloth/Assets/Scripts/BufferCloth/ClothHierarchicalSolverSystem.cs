@@ -9,6 +9,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
+// See ClothSolverSystemGroup
 [DisableAutoCreation]
 public class ClothHierarchicalSolverSystem : JobComponentSystem
 {
@@ -92,7 +93,7 @@ public class ClothHierarchicalSolverSystem : JobComponentSystem
         }
     }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
         m_LevelQuery = GetEntityQuery(
             ComponentType.ReadOnly<ClothHierarchyDepth>(),
@@ -144,7 +145,7 @@ public class ClothHierarchicalSolverSystem : JobComponentSystem
         // Then solve the rest hierarchically
         for (int levelIndex = maxHierarchyLevel - 1; levelIndex >= 0; levelIndex--)
         {
-            m_LevelQuery.SetFilter(m_AllHierarchyDepths[levelIndex]);
+            m_LevelQuery.SetSharedComponentFilter(m_AllHierarchyDepths[levelIndex]);
 
             waitHandle = new PropagateOneHierarchyLevelJob
             {

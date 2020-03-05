@@ -5,7 +5,8 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-[UpdateInGroup(typeof(LateSimulationSystemGroup))]
+// See ClothSolverSystemGroup
+[DisableAutoCreation]
 public class ClothCopyProjectedToPreviousSystem : JobComponentSystem
 {
     [BurstCompile]
@@ -19,7 +20,7 @@ public class ClothCopyProjectedToPreviousSystem : JobComponentSystem
             DynamicBuffer<ClothPreviousPosition> previous)
         {
             var copySize = sizeof(float3) * previous.Length;
-            
+
             // Copy current to previous
             {
                 var srcPtr = current.GetUnsafePtr();

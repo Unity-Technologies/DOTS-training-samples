@@ -67,7 +67,7 @@ public class ClothSimConvertToEntities : JobComponentSystem
     
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {        
-        var numClothToConvert = m_clothToConvertGroup.CalculateLength();
+        var numClothToConvert = m_clothToConvertGroup.CalculateEntityCount();
         if (numClothToConvert <= 0)
             return inputDeps;
         
@@ -142,7 +142,7 @@ public class ClothSimConvertToEntities : JobComponentSystem
             verticesAsNativeArray.CopyFrom(meshVertices);
            
             // set garment sim point positions
-            m_clothConvertedGroup.SetFilter(new ClothGarment{ GarmentIndex = (byte)(garmentIndex+1) });
+            m_clothConvertedGroup.SetSharedComponentFilter(new ClothGarment{ GarmentIndex = (byte)(garmentIndex+1) });
             var copyToSimPointsJob = new CopyVerticesToSimPointsJob
             {
                 Vertices = verticesAsNativeArray
@@ -195,7 +195,7 @@ public class ClothSimConvertToEntities : JobComponentSystem
             // todo: eww allocations
             // We've already allocated and deallocated these same arrays above
             // Store them in a list, use them here, then deallocate them after
-            m_clothConvertedGroup.SetFilter(new ClothGarment{ GarmentIndex = (byte)(garmentIndex+1)});
+            m_clothConvertedGroup.SetSharedComponentFilter(new ClothGarment{ GarmentIndex = (byte)(garmentIndex+1)});
             var simPointEntities = m_clothConvertedGroup.ToEntityArray(Allocator.TempJob);
         
             for (int constraintIndex = 0; constraintIndex < barList.Count; constraintIndex++)
@@ -335,7 +335,7 @@ public class ClothSimConvertToEntities : JobComponentSystem
         return outHandle;
     }
 
-    protected override void OnCreateManager()
+    protected override void OnCreate()
     {
         m_clothToConvertGroup = GetEntityQuery(
         typeof(ConvertToCloth), 

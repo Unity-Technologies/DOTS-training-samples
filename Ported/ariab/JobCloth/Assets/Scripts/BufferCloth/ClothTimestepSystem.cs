@@ -2,15 +2,35 @@
 using Unity.Mathematics;
 using UnityEngine;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
+struct ClothTimestepSingleton : IComponentData
+{
+    public int IntegrationCount;
+}
+
+// See ClothSolverSystemGroup
+[DisableAutoCreation]
+[AlwaysUpdateSystem]
 public class ClothTimestepSystem : ComponentSystem
 {
+    private EntityQuery ClothTimeSingletonQuery;
+    
+    protected override void OnCreate()
+    {
+        ClothTimeSingletonQuery = GetEntityQuery(typeof(ClothTimestepSingleton));
+    }
+
     protected override void OnUpdate()
     {
+        if (ClothTimeSingletonQuery.CalculateEntityCount() == 0)
+            EntityManager.CreateEntity(typeof(ClothTimestepSingleton));
+        
+        // hack: use the highest number of iterations for all cloth for simple scheduling. DOTS needs scheduling jobs from jobs :(
+        var mostIterations = 0;
+        
         Entities.ForEach((ref ClothTotalTime timeData, ref ClothTimestepData fixedTimeStep) =>
         {
             var totalTime = timeData.TotalTime;
-            var newTotalTime = totalTime + Time.deltaTime;
+            var newTotalTime = totalTime + Time.DeltaTime;
 
             var integrationCount = 0;
             while (newTotalTime > fixedTimeStep.FixedTimestep)
@@ -19,6 +39,7 @@ public class ClothTimestepSystem : ComponentSystem
                 integrationCount++;
             }
             integrationCount = math.min(integrationCount, 4);
+            mostIterations = math.max(mostIterations, integrationCount);
 
             // Write back time data
             timeData = new ClothTotalTime
@@ -32,5 +53,7 @@ public class ClothTimestepSystem : ComponentSystem
                 IterationCount = integrationCount
             };
         });
+        
+        SetSingleton(new ClothTimestepSingleton{IntegrationCount = mostIterations});
     }
 }

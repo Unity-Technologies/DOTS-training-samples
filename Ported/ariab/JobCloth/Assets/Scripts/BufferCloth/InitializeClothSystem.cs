@@ -8,7 +8,6 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-//[UpdateInGroup(typeof(InitializationSystemGroup))]
 public unsafe class InitializeClothSystem : GameObjectConversionSystem
 {
     enum HierarchicalClassification
@@ -116,7 +115,7 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
 
         for (int i = 0; i < vertexCount; ++i)
         {
-            if (math.abs(thisLevelPositions[i].x) > 2.4f)
+            if (thisLevelPositions[i].x > 2.4f)
                 pinWeightBuffer.Add(new ClothPinWeight {InvPinWeight = 0.0f});
             else
                 pinWeightBuffer.Add(new ClothPinWeight {InvPinWeight = 1.0f});
@@ -552,7 +551,6 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
             typeof(ClothCapsuleCollider),
             typeof(ClothPlaneCollider),
             typeof(ClothCollisionContact),
-            typeof(ClothTriangle),
             typeof(ClothWorldToLocal),
             typeof(ClothConstraintSetup));
         var entity = DstEntityManager.CreateEntity(archetype);
@@ -584,10 +582,6 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
         var originPositionBuffer = DstEntityManager.GetBuffer<ClothPositionOrigin>(entity);
         originPositionBuffer.Reserve(vertexCount);
 
-        var triangleBuffer = DstEntityManager.GetBuffer<ClothTriangle>(entity);
-        triangleBuffer.Reserve(vertexCount);
-
-
         fixed (Vector3* positions = mesh.vertices)
         {
             var currentPositionsAsNativeArray = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<ClothCurrentPosition>((float3*) positions, vertexCount, Allocator.Invalid);
@@ -613,9 +607,6 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
         var triangles = mesh.triangles;
         for (int i = 0; i < triangles.Length; i += 3)
         {
-            triangleBuffer.Add(new ClothTriangle { v0 = triangles[i], v1 = triangles[i + 1], v2 = triangles[i + 2] });
-
-
             for (int j = 0; j < 3; j++)
             {
                 Vector2Int pair = new Vector2Int
@@ -666,8 +657,7 @@ public unsafe class InitializeClothSystem : GameObjectConversionSystem
         var normals = mesh.normals;
         for (int i = 0; i < vertexCount; ++i)
         {
-            //if (normals[i].y > .9f && vertices[i].y > .3f)
-            if (math.abs(vertices[i].x) > 2.25f)
+            if (vertices[i].x > 0.0f && vertices[i].z > 0.0f && math.length(vertices[i]) > 2.25f )
                 pinWeightBuffer.Add(new ClothPinWeight {InvPinWeight = 0.0f});
             else
                 pinWeightBuffer.Add(new ClothPinWeight {InvPinWeight = 1.0f});
