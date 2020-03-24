@@ -12,11 +12,11 @@ public class RenderUpdateSystem: JobComponentSystem
         {
             translation = new Translation()
             {
-                Value = renderData.position + 0.5f * renderData.forward
+                Value = renderData.position + 0.5f * renderData.delta
             };
             rotation = new Rotation()
             {
-                Value = quaternion.LookRotation(renderData.forward,renderData.anchorUp)
+                Value = quaternion.LookRotation(math.normalize(renderData.delta),renderData.anchorUp)
             };
         }).Run();
 

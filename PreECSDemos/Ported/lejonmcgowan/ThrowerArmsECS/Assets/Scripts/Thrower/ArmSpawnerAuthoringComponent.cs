@@ -5,12 +5,12 @@ using Unity.Transforms;
 using UnityEngine;
 
 [RequiresEntityConversion]
-[AddComponentMenu("ECS Thrower/Hand Renderer")]
+[AddComponentMenu("ECS Thrower/Thrower Spawner")]
 public class ArmSpawnerAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
     public GameObject meshPrefab;
     public int numArms;
-    
+    public int reach = 1;
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         float3 position = transform.position;
@@ -23,7 +23,8 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour, IConvertGameObjectToE
                 Value = position
             },
             right = new float3(transform.right),
-            numToSpawn = numArms
+            numToSpawn = numArms,
+            reach = reach
         };
         
         //give converted spawner game object component data for initial spawn

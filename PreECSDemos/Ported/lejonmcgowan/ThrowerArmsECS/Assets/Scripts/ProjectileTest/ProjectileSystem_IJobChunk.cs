@@ -14,7 +14,7 @@ public class ProjectileSystem: JobComponentSystem
         Entities.
             WithStructuralChanges().
             ForEach(
-                (Entity entity, ref Translation translation,ref ProjectileComponentData projectile) =>
+                (Entity entity, ref Translation translation,ref TestProjectileComponentData projectile) =>
                 {
                     float3 vel = projectile.Velocity;
 

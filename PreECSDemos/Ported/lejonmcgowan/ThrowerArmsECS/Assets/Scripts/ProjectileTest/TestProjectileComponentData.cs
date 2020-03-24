@@ -4,7 +4,7 @@ using Unity.Mathematics;
 using UnityEngine;
 
 [Serializable]
-public struct ProjectileComponentData : IComponentData
+public struct TestProjectileComponentData : IComponentData
 {
     public float Lifetime;
     

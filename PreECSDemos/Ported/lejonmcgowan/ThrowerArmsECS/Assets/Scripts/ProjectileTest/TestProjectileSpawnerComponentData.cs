@@ -2,7 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class ProjectileSpawnerComponentData: IComponentData
+public class TestProjectileSpawnerComponentData: IComponentData
 {
     public float2 velocityRange;
     public float3 velocityDirection;

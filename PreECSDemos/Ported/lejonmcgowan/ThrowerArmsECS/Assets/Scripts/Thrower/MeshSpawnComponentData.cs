@@ -8,4 +8,5 @@ public struct MeshSpawnComponentData : IComponentData
     public int numToSpawn;
     public Translation position;
     public float3 right;
+    public int reach;
 }

@@ -8,4 +8,6 @@ public struct ArmBaseComponentData: IComponentData
     public Translation anchorPosition;
     public float3 anchorRight;
     public float3 LastHandUp;
+    public float grabT;
+    public float reach;
 }

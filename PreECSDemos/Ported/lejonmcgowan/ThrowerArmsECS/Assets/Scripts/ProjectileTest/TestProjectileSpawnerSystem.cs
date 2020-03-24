@@ -9,7 +9,7 @@ using UnityEngine.AI;
 using BoxCollider = UnityEngine.BoxCollider;
 using Random = UnityEngine.Random;
 
-public class ProjectileSpawnerSystem: JobComponentSystem
+public class TestProjectileSpawnerSystem: JobComponentSystem
 {
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -19,7 +19,7 @@ public class ProjectileSpawnerSystem: JobComponentSystem
         Entities.
             WithStructuralChanges().
             ForEach(
-            (PhysicsCollider collider, LocalToWorld transform, ProjectileSpawnerComponentData spawnerData) =>
+            (PhysicsCollider collider, LocalToWorld transform, TestProjectileSpawnerComponentData spawnerData) =>
             {
                 spawnerData.timeUntilSpawn -= dt;
                 
@@ -51,7 +51,7 @@ public class ProjectileSpawnerSystem: JobComponentSystem
                     float3 initPos = randomPos;
 
                     Entity newProjectile = EntityManager.Instantiate(spawnerData.projectilePrefab);
-                    ProjectileComponentData data = new ProjectileComponentData()
+                    TestProjectileComponentData data = new TestProjectileComponentData()
                     {
                         TimeLeft = life,
                         Velocity = vel,

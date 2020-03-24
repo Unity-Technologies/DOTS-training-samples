@@ -6,6 +6,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class ThrowerSpawnSystem: JobComponentSystem
 {
     private BeginInitializationEntityCommandBufferSystem m_spawnerECB;
@@ -56,7 +57,7 @@ public class ThrowerSpawnSystem: JobComponentSystem
                 Value = baseData.anchorPosition.Value + new float3(0, 0, 5f)
             };
             baseData.anchorRight = anchorRight;
-            
+            baseData.reach = 10;
             ecb.AddComponent(entityQueryIndex, firstEntity,baseData);
             ecb.AddComponent<ArmTag>(entityQueryIndex,firstEntity);
         }
@@ -67,7 +68,7 @@ public class ThrowerSpawnSystem: JobComponentSystem
         }
         
         ecb.AddComponent<ArmFingerComponentData>(entityQueryIndex,firstEntity);
-        
+
         parentBuffer?.Add(firstEntity);
         
         Entity parentEntity = firstEntity;
@@ -93,6 +94,7 @@ public class ThrowerSpawnSystem: JobComponentSystem
         if(isArm)
             lastBuffer = ecb.AddBuffer<ChildComponentData>(entityQueryIndex, parentEntity);
         
+        
         return lastBuffer;
     }
 
@@ -116,13 +118,6 @@ public class ThrowerSpawnSystem: JobComponentSystem
                     var spawnPosition = spawnComponentData.position.Value - offset;
                     float3 target = spawnPosition + new float3(0, 1, 1.5f);
                     FABIK.Solve(armChain, 1f, spawnPosition, target, float3.zero);
-
-                    // Entity armChainEntity = commandBuffer.CreateEntity(entityInQueryIndex);
-                    // var armChainBuffer = commandBuffer.AddBuffer<ChainBuffer>(entityInQueryIndex,armChainEntity);
-                    // for (int i = 0; i < armChain.Length; i++)
-                    // {
-                    //     armChainBuffer.Add(new ChainBuffer());
-                    // }
                     
                     float3 handForward = math.normalize(armChain[armChain.Length - 1] - armChain[armChain.Length - 2]);
                     float3 handUp = math.normalize(math.cross(handForward, spawnComponentData.right));

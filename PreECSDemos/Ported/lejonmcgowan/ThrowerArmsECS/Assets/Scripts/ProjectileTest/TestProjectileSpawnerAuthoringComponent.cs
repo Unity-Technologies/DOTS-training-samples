@@ -6,8 +6,8 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 [RequiresEntityConversion]
-[AddComponentMenu("ESC Thrower/Projectile Spawner")]
-public class ProjectileSpawnerAuthoringComponent: MonoBehaviour,IConvertGameObjectToEntity,IDeclareReferencedPrefabs
+[AddComponentMenu("ESC Thrower/Test Projectile Spawner")]
+public class TestProjectileSpawnerAuthoringComponent: MonoBehaviour,IConvertGameObjectToEntity,IDeclareReferencedPrefabs
 {
     public float2 projeciltLifetimeRange;
     public float2 velRange;
@@ -18,7 +18,7 @@ public class ProjectileSpawnerAuthoringComponent: MonoBehaviour,IConvertGameObje
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         var boxTransform = boxCollider.transform;
-        ProjectileSpawnerComponentData data = new ProjectileSpawnerComponentData
+        TestProjectileSpawnerComponentData data = new TestProjectileSpawnerComponentData
         {
             lifetimeRange = projeciltLifetimeRange,
             velocityRange = velRange,
