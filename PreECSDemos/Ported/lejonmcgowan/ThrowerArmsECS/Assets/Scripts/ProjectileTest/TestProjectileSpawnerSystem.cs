@@ -1,12 +1,8 @@
-using System.Security.Cryptography;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
-using Unity.Physics;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.AI;
-using BoxCollider = UnityEngine.BoxCollider;
 using Random = UnityEngine.Random;
 
 public class TestProjectileSpawnerSystem: JobComponentSystem
@@ -19,7 +15,7 @@ public class TestProjectileSpawnerSystem: JobComponentSystem
         Entities.
             WithStructuralChanges().
             ForEach(
-            (PhysicsCollider collider, LocalToWorld transform, TestProjectileSpawnerComponentData spawnerData) =>
+            (/*PhysicsCollider collider,*/ LocalToWorld transform, TestProjectileSpawnerComponentData spawnerData) =>
             {
                 spawnerData.timeUntilSpawn -= dt;
                 
@@ -34,9 +30,9 @@ public class TestProjectileSpawnerSystem: JobComponentSystem
                         Value = transform.Rotation,
                     };
                     
-                    var aabb = collider.Value.Value.CalculateAabb();
+                    //var aabb = collider.Value.Value.CalculateAabb();
                     
-                    Bounds bounds = new Bounds(translation.Value,aabb.Extents);
+                    Bounds bounds = new Bounds(/*translation.Value,aabb.Extents*/);
                     
                     spawnerData.timeUntilSpawn = spawnerData.spawnTime;
                     float life = Random.Range(spawnerData.lifetimeRange.x, spawnerData.lifetimeRange.y);
