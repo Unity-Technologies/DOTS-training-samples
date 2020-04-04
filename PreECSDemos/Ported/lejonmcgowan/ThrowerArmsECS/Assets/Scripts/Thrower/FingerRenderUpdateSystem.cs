@@ -23,7 +23,8 @@ public class FingerRenderUpdateSystem : SystemBase
             .WithReadOnly(UpBases)
             .WithReadOnly(FingerParents)
             .ForEach((ref Translation translation, ref Rotation rotation, ref NonUniformScale scale,
-                in FingerRenderComponentData fingerRef) =>
+                in FingerRenderComponentData fingerRef,
+                in FingerThicknessComponentData thickness) =>
             {
                 var armRef = FingerParents[fingerRef.fingerEntity];
                 var joints = FingerJointsFromEntity[fingerRef.fingerEntity];
@@ -44,7 +45,7 @@ public class FingerRenderUpdateSystem : SystemBase
 
                 scale = new NonUniformScale()
                 {
-                    Value = new float3(0.05f, 0.05f, math.length(delta))
+                    Value = new float3(thickness, thickness, math.length(delta))
                 };
             }).ScheduleParallel();
 

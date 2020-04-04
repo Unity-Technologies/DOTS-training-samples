@@ -1,5 +1,6 @@
 ﻿
 using Unity.Entities;
+using Unity.Entities.UniversalDelegates;
 using Unity.Mathematics;
 
 public struct FingerRenderComponentData: IComponentData
@@ -7,6 +8,19 @@ public struct FingerRenderComponentData: IComponentData
     public Entity fingerEntity;
     public int jointIndex;
 }
+
+public struct FingerThicknessComponentData : IComponentData
+{
+    public float value;
+    
+    public static implicit operator FingerThicknessComponentData(float thick) =>  new FingerThicknessComponentData
+    {
+        value = thick
+    };
+
+    public static implicit operator float(FingerThicknessComponentData c) => c.value;
+}
+
 
 public struct FingerIndexComponentData: IComponentData
 {
@@ -56,31 +70,6 @@ public struct FingerIdleTargetComponentData: IComponentData
     public static implicit operator float3(FingerIdleTargetComponentData c) => c.value;
 }
 
-public struct FingerBaseIdleTargetComponentData : IComponentData
-{
-    public float3 value;
-    
-    public static implicit operator FingerBaseIdleTargetComponentData(float3 pos) => new FingerBaseIdleTargetComponentData
-    {
-        value = pos
-    };
-    
-    public static implicit operator float3(FingerBaseIdleTargetComponentData c) => c.value;
-}
-
-public struct FingerIKTargetComponentData: IComponentData
-{
-    public float3 value;
-    
-    public static implicit operator FingerIKTargetComponentData(float3 pos) => new FingerIKTargetComponentData
-    {
-        value = pos
-    };
-    
-    public static implicit operator float3(FingerIKTargetComponentData c) => c.value;
-    
-}
-
 public struct FingerJointElementData: IBufferElementData
 {
     public float3 value;
@@ -92,5 +81,6 @@ public struct FingerJointElementData: IBufferElementData
     
     public static implicit operator float3(FingerJointElementData c) => c.value;
 }
+
 
 

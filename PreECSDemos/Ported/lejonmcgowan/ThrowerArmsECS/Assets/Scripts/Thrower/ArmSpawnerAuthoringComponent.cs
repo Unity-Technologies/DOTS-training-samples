@@ -26,63 +26,80 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
         // Create entity prefab from the game object hierarchy once
         var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
         prefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(meshPrefab, settings);
+
         
         
-        EntityArchetype armArchetype = dstManager.CreateArchetype(
-            typeof(ArmUpComponentData),
-            typeof(ArmForwardComponentData),
-            typeof(ArmRightComponentData),
-            typeof(ArmIdleTargetComponentData),
-            typeof(ArmIKTargetComponentData),
-            typeof(ArmJointElementData),
-            typeof(AnchorPosComponentData),
-            typeof(IdleArmSeedComponentData)
+        ComponentTypes armComponents = new ComponentTypes(new ComponentType[]
+            {
+                typeof(ArmUpComponentData),
+                typeof(ArmForwardComponentData),
+                typeof(ArmRightComponentData),
+                typeof(ArmIdleTargetComponentData),
+                typeof(ArmIKTargetComponentData),
+                typeof(ArmJointElementData),
+                typeof(AnchorPosComponentData),
+                typeof(ArmGrabTargetComponentData),
+                typeof(ArmGrabTimerComponentData),
+                typeof(IdleArmSeedComponentData)
+        }
+            
         );
         
-        EntityArchetype fingerArchetype = dstManager.CreateArchetype(
+        ComponentTypes fingerComponents = new ComponentTypes(
             typeof(FingerParentComponentData),
             typeof(FingerIdleTargetComponentData),
-            typeof(FingerBaseIdleTargetComponentData),
-            typeof(FingerIKTargetComponentData),
-            typeof(FingerJointElementData)
+            typeof(FingerJointElementData),
+            typeof(FingerThicknessComponentData)
         );
-
-
+        
         for (int i = 0; i < numArms; i++)
         {
 
             // Create the Arm entity
             Entity armEntity = conversionSystem.CreateAdditionalEntity(gameObject);
-            dstManager.SetArchetype(armEntity, armArchetype);
+            dstManager.AddComponents(armEntity, armComponents);
             dstManager.SetName(armEntity, "Simulated Arm");
 
             float3 right = transform.right;
 
             float3 anchorPos = right * i * armSpacing;
             
-            SetupArmEntities(dstManager, conversionSystem, armEntity,anchorPos);
+            SetupArmEntities(dstManager, armEntity,anchorPos);
             
             // Create the renderable finger joint entities (5 per Arm)
             for (int fingerIndex = 0; fingerIndex < 4; fingerIndex++)
             {
                 Entity fingerEntity = conversionSystem.CreateAdditionalEntity(gameObject);
-                dstManager.SetArchetype(fingerEntity, fingerArchetype);
+                dstManager.AddComponents(fingerEntity, fingerComponents);
                 dstManager.SetName(fingerEntity, "Simulated Finger");
                 dstManager.SetComponentData<FingerParentComponentData>(fingerEntity, armEntity);
-
-                SetupFingerEntities(dstManager, conversionSystem, fingerEntity, armEntity, fingerIndex);
+                dstManager.SetComponentData(fingerEntity, new FingerThicknessComponentData()
+                {
+                    value = 0.05f
+                });
+                
+                SetupFingerEntities(dstManager, fingerEntity, armEntity, fingerIndex);
             }
-
+            
             //create thumb render (just a finger with different bases vector
-
+            Entity thumbEntity = conversionSystem.CreateAdditionalEntity(gameObject);
+            dstManager.AddComponents(thumbEntity,fingerComponents);
+            dstManager.SetName(thumbEntity, "Simulated Thumb");
+            dstManager.SetComponentData<FingerParentComponentData>(thumbEntity,armEntity);
+            dstManager.SetComponentData(thumbEntity, new FingerThicknessComponentData()
+            {
+                value = 0.06f
+            });
+            SetupThumbEntity(dstManager,thumbEntity,armEntity);
         }
-
+        
+        
         //kill spanwner entity, it's job is done
         dstManager.DestroyEntity(entity);
         
     }
     
-    private void SetupArmEntities(EntityManager dstManager, GameObjectConversionSystem conversionSystem, Entity armEntity, float3 anchorPos)
+    private void SetupArmEntities(EntityManager dstManager, Entity armEntity, float3 anchorPos)
     {
         var armJoints = dstManager.GetBuffer<ArmJointElementData>(armEntity);
         armJoints.Capacity = 3; 
@@ -137,7 +154,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             });
         }
     }
-    private void SetupFingerEntities(EntityManager dstManager, GameObjectConversionSystem conversionSystem,
+    private void SetupFingerEntities(EntityManager dstManager,
         Entity fingerEntity, Entity armParentEntity, int fingerIndex)
     {
         var fingerJointBuffer = dstManager.GetBuffer<FingerJointElementData>(fingerEntity);
@@ -152,9 +169,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
         dstManager.AddComponentData<FingerParentComponentData>(fingerEntity, armParentEntity);
         dstManager.AddComponentData<FingerIndexComponentData>(fingerEntity,fingerIndex);
         
-        dstManager.AddComponent<FingerBaseIdleTargetComponentData>(fingerEntity);
         dstManager.AddComponent<FingerIdleTargetComponentData>(fingerEntity);
-        dstManager.AddComponent<FingerIKTargetComponentData>(fingerEntity);
         dstManager.AddComponent<FingerGrabTimerComponentData>(fingerEntity);
 
         
@@ -176,6 +191,58 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             {
                 jointIndex = fingerJoint,
                 fingerEntity = fingerEntity
+            });
+            
+            dstManager.AddComponentData(fingerJointEntity, new FingerThicknessComponentData()
+            {
+                value = 0.05f
+            });
+        }
+        
+    }
+    
+    private void SetupThumbEntity(EntityManager dstManager,
+        Entity thumbEntity, Entity armParentEntity)
+    {
+        var thumbJointBuffer = dstManager.GetBuffer<FingerJointElementData>(thumbEntity);
+        thumbJointBuffer.Capacity = 4;        
+        int numThumbJoints = thumbJointBuffer.Capacity;
+        
+        for (int i = 0; i < thumbJointBuffer.Capacity; i++)
+        {
+            thumbJointBuffer.Add(float3.zero);
+        }
+        
+        dstManager.AddComponentData<FingerParentComponentData>(thumbEntity, armParentEntity);
+     
+        
+        dstManager.AddComponent<FingerIdleTargetComponentData>(thumbEntity);
+        dstManager.AddComponent<FingerGrabTimerComponentData>(thumbEntity);
+
+        
+        // Create the renderable finger joint entities (4 per Arm by default, not counting thumb)
+        for (int fingerJoint = 0; fingerJoint < numThumbJoints - 1; fingerJoint++)
+        {
+            //todo same note as in SetupArmEntities
+            
+            var thumbJointEntity = dstManager.Instantiate(prefab);
+
+            dstManager.SetName(thumbJointEntity, "Renderable Thumb Joint");
+            
+            dstManager.AddComponent<LocalToWorld>(thumbJointEntity);
+            dstManager.AddComponent<Translation>(thumbJointEntity);
+            dstManager.AddComponent<Rotation>(thumbJointEntity);
+            dstManager.AddComponent<NonUniformScale>(thumbJointEntity);
+
+            dstManager.AddComponentData(thumbJointEntity,  new FingerRenderComponentData()
+            {
+                fingerEntity = thumbEntity,
+                jointIndex = fingerJoint
+            });
+            
+            dstManager.AddComponentData(thumbJointEntity, new FingerThicknessComponentData()
+            {
+                value = 0.06f
             });
         }
         
