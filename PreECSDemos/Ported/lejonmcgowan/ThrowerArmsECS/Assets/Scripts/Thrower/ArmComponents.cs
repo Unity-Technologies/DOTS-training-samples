@@ -2,107 +2,114 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
+
 public struct ArmRenderComponentData: IComponentData
 {
     public Entity armEntity;
     public int jointIndex;
 }
 
-public struct ArmIdleTargetComponentData: IComponentData
+public struct ArmLastRockRecord: IComponentData
+{
+    public float size;
+    public float3 pos;
+}
+
+public struct ArmIdleTarget: IComponentData
 {
     public float3 value;
     
-    public static implicit operator ArmIdleTargetComponentData(float3 up) => new ArmIdleTargetComponentData
+    public static implicit operator ArmIdleTarget(float3 up) => new ArmIdleTarget
     {
         value = up
     };
     
-    public static implicit operator float3(ArmIdleTargetComponentData c) => c.value;
+    public static implicit operator float3(ArmIdleTarget c) => c.value;
 }
 
-public struct ArmReservedRockComponent : IComponentData
+public struct ArmReservedRock : IComponentData
 {
     public Entity value;
     
-    public static implicit operator ArmReservedRockComponent(Entity up) => new ArmReservedRockComponent
+    public static implicit operator ArmReservedRock(Entity up) => new ArmReservedRock
     {
         value = up
     };
     
-    public static implicit operator Entity(ArmReservedRockComponent c) => c.value;
+    public static implicit operator Entity(ArmReservedRock c) => c.value;
 }
 
-public struct ArmGrabTimerComponentData : IComponentData
+public struct ArmGrabTimer : IComponentData
 {
     public float value;
 
-    public static implicit operator ArmGrabTimerComponentData(float t) => new ArmGrabTimerComponentData()
+    public static implicit operator ArmGrabTimer(float t) => new ArmGrabTimer()
     {
         value = t
     };
 
-    public static implicit operator float(ArmGrabTimerComponentData c) => c.value;
+    public static implicit operator float(ArmGrabTimer c) => c.value;
 }
 
 
-public struct ArmIKTargetComponentData: IComponentData
+public struct ArmIKTarget: IComponentData
 {
     public float3 value;
     
-    public static implicit operator ArmIKTargetComponentData(float3 up) => new ArmIKTargetComponentData
+    public static implicit operator ArmIKTarget(float3 up) => new ArmIKTarget
     {
         value = up
     };
     
-    public static implicit operator float3(ArmIKTargetComponentData c) => c.value;
+    public static implicit operator float3(ArmIKTarget c) => c.value;
 }
 
-public struct ArmGrabTargetComponentData: IComponentData
+public struct ArmGrabTarget: IComponentData
 {
     public float3 value;
     
-    public static implicit operator ArmGrabTargetComponentData(float3 target) => new ArmGrabTargetComponentData
+    public static implicit operator ArmGrabTarget(float3 target) => new ArmGrabTarget
     {
         value = target
     };
     
-    public static implicit operator float3(ArmGrabTargetComponentData c) => c.value;
+    public static implicit operator float3(ArmGrabTarget c) => c.value;
 }
 
-public struct ArmUpComponentData: IComponentData
+public struct ArmBasesUp: IComponentData
 {
     public float3 value;
     
-    public static implicit operator ArmUpComponentData(float3 up) => new ArmUpComponentData
+    public static implicit operator ArmBasesUp(float3 up) => new ArmBasesUp
     {
         value = up
     };
     
-    public static implicit operator float3(ArmUpComponentData c) => c.value;
+    public static implicit operator float3(ArmBasesUp c) => c.value;
 }
 
-public struct ArmRightComponentData: IComponentData
+public struct ArmBasisRight: IComponentData
 {
     public float3 value;
     
-    public static implicit operator ArmRightComponentData(float3 up) => new ArmRightComponentData
+    public static implicit operator ArmBasisRight(float3 up) => new ArmBasisRight
     {
         value = up
     };
     
-    public static implicit operator float3(ArmRightComponentData c) => c.value;
+    public static implicit operator float3(ArmBasisRight c) => c.value;
 }
 
-public struct ArmForwardComponentData: IComponentData
+public struct ArmBasesForward: IComponentData
 {
     public float3 value;
     
-    public static implicit operator ArmForwardComponentData(float3 up) => new ArmForwardComponentData
+    public static implicit operator ArmBasesForward(float3 up) => new ArmBasesForward
     {
         value = up
     };
     
-    public static implicit operator float3(ArmForwardComponentData c) => c.value;
+    public static implicit operator float3(ArmBasesForward c) => c.value;
 }
 
 public struct ArmJointElementData: IBufferElementData
@@ -118,26 +125,38 @@ public struct ArmJointElementData: IBufferElementData
     
 }
 
-public struct AnchorPosComponentData: IComponentData
+public struct ArmAnchorPos: IComponentData
 {
     public float3 value;
     
-    public static implicit operator AnchorPosComponentData(float3 up) => new AnchorPosComponentData
+    public static implicit operator ArmAnchorPos(float3 up) => new ArmAnchorPos
     {
         value = up
     };
     
-    public static implicit operator float3(AnchorPosComponentData c) => c.value;
+    public static implicit operator float3(ArmAnchorPos c) => c.value;
 }
 
-public struct IdleArmSeedComponentData: IComponentData
+public struct IdleArmSeed: IComponentData
 {
     public int value;
     
-    public static implicit operator IdleArmSeedComponentData(int up) => new IdleArmSeedComponentData
+    public static implicit operator IdleArmSeed(int up) => new IdleArmSeed
     {
         value = up
     };
     
-    public static implicit operator int(IdleArmSeedComponentData c) => c.value;
+    public static implicit operator int(IdleArmSeed c) => c.value;
+}
+
+public struct Wrist : IComponentData
+{
+    public Entity value;
+    
+    public static implicit operator Wrist(Entity e) => new Wrist
+    {
+        value = e
+    };
+    
+    public static implicit operator Entity(Wrist c) => c.value;
 }

@@ -16,15 +16,15 @@ public class FingerRenderUpdateSystem : SystemBase
     {
         // TODO: SystemBase has a way to eliminate the need for this GetBufferFromEntity
         var FingerJointsFromEntity = GetBufferFromEntity<FingerJointElementData>(true);
-        var UpBases = GetComponentDataFromEntity<ArmUpComponentData>(true);
-        var FingerParents = GetComponentDataFromEntity<FingerParentComponentData>(true);
+        var UpBases = GetComponentDataFromEntity<ArmBasesUp>(true);
+        var FingerParents = GetComponentDataFromEntity<FingerParent>(true);
 
         Entities.WithReadOnly(FingerJointsFromEntity)
             .WithReadOnly(UpBases)
             .WithReadOnly(FingerParents)
             .ForEach((ref Translation translation, ref Rotation rotation, ref NonUniformScale scale,
                 in FingerRenderComponentData fingerRef,
-                in FingerThicknessComponentData thickness) =>
+                in FingerThickness thickness) =>
             {
                 var armRef = FingerParents[fingerRef.fingerEntity];
                 var joints = FingerJointsFromEntity[fingerRef.fingerEntity];

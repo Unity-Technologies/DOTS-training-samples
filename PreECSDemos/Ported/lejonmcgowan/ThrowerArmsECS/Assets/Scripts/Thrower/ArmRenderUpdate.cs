@@ -14,7 +14,7 @@ public class ArmRenderUpdateSystem: SystemBase
     {
         // TODO: SystemBase has a way to eliminate the need for this GetBufferFromEntity
         var ArmJointsFromEntity = GetBufferFromEntity<ArmJointElementData>(true);
-        var UpBases = GetComponentDataFromEntity<ArmUpComponentData>(true);
+        var UpBases = GetComponentDataFromEntity<ArmBasesUp>(true);
         
         Entities.WithReadOnly(ArmJointsFromEntity)
             .WithReadOnly(UpBases)
