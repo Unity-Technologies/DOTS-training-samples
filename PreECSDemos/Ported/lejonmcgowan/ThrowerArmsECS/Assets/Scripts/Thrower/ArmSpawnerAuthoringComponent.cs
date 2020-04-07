@@ -49,7 +49,6 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
         
         ComponentTypes fingerComponents = new ComponentTypes(
             typeof(FingerParent),
-            typeof(FingerIdleTarget),
             typeof(FingerJointElementData),
             typeof(FingerThickness)
         );
@@ -184,7 +183,6 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
         dstManager.AddComponentData<FingerParent>(fingerEntity, armParentEntity);
         dstManager.AddComponentData<FingerIndex>(fingerEntity,fingerIndex);
         
-        dstManager.AddComponent<FingerIdleTarget>(fingerEntity);
         dstManager.AddComponent<FingerGrabTimer>(fingerEntity);
 
         
@@ -231,7 +229,6 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
         dstManager.AddComponentData<FingerParent>(thumbEntity, armParentEntity);
      
         
-        dstManager.AddComponent<FingerIdleTarget>(thumbEntity);
         dstManager.AddComponent<FingerGrabTimer>(thumbEntity);
 
         

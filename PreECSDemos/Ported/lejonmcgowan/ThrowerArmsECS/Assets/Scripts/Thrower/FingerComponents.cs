@@ -61,17 +61,6 @@ public struct FingerParent: IComponentData
     public static implicit operator Entity(FingerParent c) => c.armParentEntity;
 }
 
-public struct FingerIdleTarget: IComponentData
-{
-    public float3 value;
-    
-    public static implicit operator FingerIdleTarget(float3 pos) => new FingerIdleTarget
-    {
-        value = pos
-    };
-    
-    public static implicit operator float3(FingerIdleTarget c) => c.value;
-}
 
 public struct FingerJointElementData: IBufferElementData
 {

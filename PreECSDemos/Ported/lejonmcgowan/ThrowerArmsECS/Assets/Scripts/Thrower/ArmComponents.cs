@@ -12,7 +12,7 @@ public struct ArmRenderComponentData: IComponentData
 public struct ArmLastRockRecord: IComponentData
 {
     public float size;
-    public float3 pos;
+    public float3 worldPos;
 }
 
 public struct ArmIdleTarget: IComponentData

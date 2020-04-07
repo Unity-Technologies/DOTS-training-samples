@@ -46,7 +46,7 @@ public class ArmSystem : SystemBase
                 for (int i = 0; i < availableRockEntities.Length; i++)
                 {
                     var rock = availableRockEntities[i];
-                    var rockPos = GetComponent<Translation>(rock).Value;
+                    var rockPos = GetComponent<LocalToWorld>(rock).Position;
                     float distSq = math.distancesq(rockPos, anchorPos);
                     float reachSq = 2.0f * 2.0f;
                     if (distSq < reachSq)
@@ -82,10 +82,10 @@ public class ArmSystem : SystemBase
             in ArmBasesUp armUp,
             in ArmReservedRock reservedRock) =>
         {
-            float3 rockPos = GetComponent<Translation>(reservedRock).Value;
+            float3 rockPos = GetComponent<LocalToWorld>(reservedRock).Position;
             float rockSize = GetComponent<RockRadiusComponentData>(reservedRock);
 
-            lastRockRecord.pos = rockPos;
+            lastRockRecord.worldPos = rockPos;
             lastRockRecord.size = rockSize;
 
             float3 delta = rockPos - anchorPos;
@@ -97,7 +97,7 @@ public class ArmSystem : SystemBase
             grabTarget = rockPos + armUp.value * rockSize * .5f -
                          flatDelta * rockSize * .5f;
 
-            grabT = 1.02f * math.sin(0.2f * t);
+            grabT = 1.005f * math.sin(0.2f * t);
             grabT = math.clamp(grabT, 0f, 1f);
         }).ScheduleParallel(idleJob);
         
@@ -124,15 +124,15 @@ public class ArmSystem : SystemBase
                     };
 
                     float3 wristToRock = GetComponent<Translation>(reservedRock).Value -
-                                     GetComponent<Translation>(wrist).Value;
-                                     
-                    grabEcb.AddComponent(entityInQueryIndex, reservedRock, wristParent);
-                    grabEcb.AddComponent(entityInQueryIndex, reservedRock, new LocalToParent());
+                                     (GetComponent<Translation>(wrist).Value - new float3(0,0.25f,0));
+
                     grabEcb.SetComponent(entityInQueryIndex, reservedRock, new Translation
                     {
-                        Value = new float3(0.0f,0.0f,0.05f)
+                        Value = float3.zero
                     });
                     
+                    grabEcb.AddComponent(entityInQueryIndex, reservedRock, wristParent);
+                    grabEcb.AddComponent(entityInQueryIndex, reservedRock, new LocalToParent());
                     grabEcb.AddComponent(entityInQueryIndex, reservedRock, new DebugRockGrabbedTag());
                 }
             }

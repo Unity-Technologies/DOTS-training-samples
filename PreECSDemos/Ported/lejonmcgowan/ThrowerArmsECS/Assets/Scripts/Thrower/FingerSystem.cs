@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 [UpdateAfter(typeof(ArmSystem))]
 public class FingerSystem : SystemBase
@@ -43,7 +44,7 @@ public class FingerSystem : SystemBase
             }
             
         }).ScheduleParallel(Dependency);
-        
+
         var IKJob = Entities
             .WithReadOnly(ArmJointsFromEntity)
             .WithReadOnly(UpBases)
@@ -74,10 +75,10 @@ public class FingerSystem : SystemBase
                 float3 fingerPos = wristPos + armRight * (fingerOffsetX + fingerIndex * fingerSpacing);
                 float3 fingerTarget = fingerPos + armForward * (.5f - .1f * fingerGrabT);
                 //finger wiggle
-                fingerTarget += .2f * armUp * math.sin((t + fingerIndex * .2f) * 3f)  * (1f - fingerGrabT);
+               //fingerTarget += .2f * armUp * math.sin((t + fingerIndex * .2f) * 3f)  * (1f - fingerGrabT);
                 
-                float3 rockFingerDelta = fingerTarget - rockData.pos;
-                float3 rockFingerPos = rockData.pos +
+                float3 rockFingerDelta = fingerTarget - rockData.worldPos;
+                float3 rockFingerPos = rockData.worldPos +
                                        math.normalize(rockFingerDelta)  * (rockData.size * .5f + fingerThickness);
 
 
@@ -124,8 +125,8 @@ public class FingerSystem : SystemBase
                //thumb wiggle?
                thumbTarget += thumbPos - armRight * .15f + armForward * (.2f + .1f * grabT) - armUp * .1f;
                
-               float3 rockThumbDelta = thumbTarget - rockData.pos;
-               float3 rockThumbPos = rockData.pos +
+               float3 rockThumbDelta = thumbTarget - rockData.worldPos;
+               float3 rockThumbPos = rockData.worldPos +
                                       math.normalize(rockThumbDelta)  * (rockData.size * .5f + thickness);
 
 
