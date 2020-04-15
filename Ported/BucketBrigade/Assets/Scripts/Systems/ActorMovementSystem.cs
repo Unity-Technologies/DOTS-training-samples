@@ -45,7 +45,6 @@ public class ActorMovementSystem : SystemBase
         Entities
             .WithAll<Bucket>()
             .WithReadOnly(getActorPosition)
-            .WithNativeDisableParallelForRestriction(getActorPosition)
             .WithNativeDisableContainerSafetyRestriction(getActorPosition)
             .ForEach((Entity Bucket, ref Translation bucketTranslation, in HeldBy heldBy) =>
             {

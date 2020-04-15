@@ -159,7 +159,7 @@ MonoBehaviour:
   ValuePropagationPerTick: 0
   ValueThreshold: 0
   ActorSpeed: 3
-  BucketCapacity: 0
+  BucketCapacity: 10
 --- !u!114 &1271445247
 MonoBehaviour:
   m_ObjectHideFlags: 0

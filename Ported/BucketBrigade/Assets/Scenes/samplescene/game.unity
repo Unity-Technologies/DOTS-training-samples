@@ -152,7 +152,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ActorPrefab: {fileID: 2967542071843380644, guid: d0afb906bef96794d87e01529122a424,
     type: 3}
-  ActorCount: 3
+  ActorCount: 100
 --- !u!4 &983389829
 Transform:
   m_ObjectHideFlags: 0
@@ -210,6 +210,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3315e7618ab4a19a9dc01aca6362f7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BucketCount: 3
+  BucketCount: 100
   BucketPrefab: {fileID: 894909700840513703, guid: 2781262188e9a454aa55139bc2d5b066,
     type: 3}
