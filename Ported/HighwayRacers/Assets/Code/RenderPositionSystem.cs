@@ -5,6 +5,11 @@ using Unity.Mathematics;
 
 public class RenderPositionSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireForUpdate(EntityManager.CreateEntityQuery(typeof(LaneInfo)));
+    }
+
     protected override void OnUpdate()
     {
         var laneInfo = GetSingleton<LaneInfo>();
