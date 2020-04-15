@@ -41,5 +41,6 @@ public class ActorMovementSystem : SystemBase
 
 
         ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }

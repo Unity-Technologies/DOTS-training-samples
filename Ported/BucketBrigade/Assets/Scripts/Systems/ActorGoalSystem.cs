@@ -36,5 +36,7 @@ public class ActorGoalSystem : SystemBase
 
         mRand = rand;
         ecb.Playback(EntityManager);
+
+        ecb.Dispose();
     }
 }
