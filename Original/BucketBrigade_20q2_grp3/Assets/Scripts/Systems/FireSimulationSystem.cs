@@ -13,10 +13,13 @@ public class FireSimulationSystem : SystemBase
     public float FireSpreadProbabilityMultiplier = 1;
 
     private const float m_PropagationChance = 0.3f;
-    private const float m_GrowSpeed = 0.02f;
+    private const float m_GrowSpeed = 0.01f;
 
     private const double m_UpdateFrequency = 0.01f;
     private double m_LastUpdateTime;
+
+    private const double m_UpdatePropagationFrequency = 0.5f;
+    private double m_LastUpdatePropagationTime;
 
     private FloatRandom m_Random;
 
@@ -25,21 +28,26 @@ public class FireSimulationSystem : SystemBase
         base.OnCreate();
 
         m_Random = FloatRandom.Create(0);
-        m_LastUpdateTime = Time.ElapsedTime;
+        m_LastUpdatePropagationTime = m_LastUpdateTime = Time.ElapsedTime;
     }
 
     protected override void OnUpdate()
     {
         if (!GridData.Instance.Heat.IsCreated)
             return;
+        
+        if (m_LastUpdatePropagationTime + m_UpdatePropagationFrequency < Time.ElapsedTime)
+        {
+            m_LastUpdatePropagationTime = Time.ElapsedTime;
+
+            PropagateFire();
+        }
 
         if (m_LastUpdateTime + m_UpdateFrequency < Time.ElapsedTime)
         {
             m_LastUpdateTime = Time.ElapsedTime;
 
             GrowFire();
-
-            PropagateFire();
 
             // TODO: Remove since this will be done by another system?
             UpdateFirePosition();
