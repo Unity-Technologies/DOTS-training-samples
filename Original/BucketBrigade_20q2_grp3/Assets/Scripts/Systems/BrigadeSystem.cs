@@ -52,7 +52,7 @@ public class BrigadeFindSourceSystem : SystemBase
             .ForEach((Entity e, in BrigadeLine line) =>
             {
                 ecb.RemoveComponent<BrigadeLineEstablished>(e);
-                ecb.AddComponent(e, new ResourceSourcePosition() { Value = random.NextFloat2(new float2(-10,-10), new float2(10,10))});
+                ecb.AddComponent(e, new ResourceSourcePosition() { Value = random.NextFloat2(new float2(-100,-100), new float2(100,100))});
             }).Run();
         ecb.Playback(EntityManager);
     }
@@ -93,7 +93,7 @@ public class BrigadeGenerateWorkerPositionsSystem : SystemBase
                 var end = target.Value;
                 for (int i = 0; i < workers.Length; i++)
                 {
-                    ecb.AddComponent(workers[i].Value, new WorkerMoveTo() { End = math.lerp(start, end, (float)i / workers.Length) });
+                    ecb.AddComponent(workers[i].Value, new WorkerMoveTo() { Value = math.lerp(start, end, (float)i / workers.Length) });
                 }
                 ecb.AddComponent(e, new BrigadeLineEstablished());
             }).Run();
