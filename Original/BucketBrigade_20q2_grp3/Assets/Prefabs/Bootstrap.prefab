@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4602122899406231677
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4602122899406231664}
+  - component: {fileID: 4602122899406231667}
+  - component: {fileID: 4602122899406231666}
+  m_Layer: 0
+  m_Name: Bootstrap
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4602122899406231664
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4602122899406231677}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4602122899406231667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4602122899406231677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ff61fe48e574f20a1cf9122417563db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GridWidth: 100
+  GridHeight: 100
+  FireSpreadProbabilityMultiplier: 10
+  FirePrefab: {fileID: 7817518053473750089, guid: dc8b28665ac2319448149d4b9d385cc8,
+    type: 3}
+  StartingFireCount: 10
+  maxFlameHeight: 0.1
+  cellSize: 0.05
+  rows: 20
+  columns: 20
+  flashpoint: 0.2
+  heatRadius: 2
+  heatTransferRate: 0.0003
+  colour_fireCell_neutral: {r: 0.15966536, g: 0.49056602, b: 0.22821292, a: 0}
+  colour_fireCell_cool: {r: 0.6973353, g: 0.7169812, b: 0.15218942, a: 0}
+  colour_fireCell_hot: {r: 0.8113208, g: 0.08036668, b: 0.11613029, a: 0}
+  colour_bot_SCOOP: {r: 0.050418302, g: 0.9716981, b: 0.10316225, a: 0}
+  colour_bot_PASS_FULL: {r: 0.89411765, g: 0.9433962, b: 0.9433962, a: 0}
+  colour_bot_PASS_EMPTY: {r: 0.8773585, g: 0.63318795, b: 0.63318795, a: 0}
+  colour_bot_THROW: {r: 0.65255374, g: 0.20630117, b: 0.7169812, a: 0}
+  colour_bot_OMNIBOT: {r: 0, g: 0, b: 0, a: 0}
+  colour_bucket_empty: {r: 0.6509434, g: 0.2784314, b: 0.25490198, a: 0}
+  colour_bucket_full: {r: 0.27803493, g: 0.78262556, b: 0.8301887, a: 0}
+  BrigadeLines: []
+--- !u!114 &4602122899406231666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4602122899406231677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea7d7495833204790ba1d3a8755397f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConversionMode: 0
