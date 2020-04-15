@@ -35,32 +35,31 @@ public class BlockSystem : SystemBase
         var percentCompletes =
             agentQuery.ToComponentDataArrayAsync<PercentComplete>(Allocator.TempJob, out var percentCompletesHandle);
 
-        //// Allocate an array of all speeds in the world.
-        //var speeds =
-        //    agentQuery.ToComponentDataArrayAsync<Speed>(Allocator.TempJob, out var speedHandle);
+        // Allocate an array of all speeds in the world.
+        var speeds =
+            agentQuery.ToComponentDataArrayAsync<Speed>(Allocator.TempJob, out var speedHandle);
 
         var agentEntities = agentQuery.ToEntityArrayAsync(Allocator.TempJob, out var agentEntitiesHandle);
 
         Dependency = JobHandle.CombineDependencies(Dependency, laneAssignmentsHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, percentCompletesHandle);
-        //Dependency = JobHandle.CombineDependencies(Dependency, speedHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency, speedHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, agentEntitiesHandle);
 
-        //var entityCommandBuffer = new EntityCommandBuffer(Allocator.Temp);
+        EntityCommandBuffer.Concurrent entityCommandBuffer = entityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
         Entities
             // Used to help mark the lambda in the profiler.
             .WithName("block_system")
             // Only get entities that have a BlockSpeed component.
             .WithNone<BlockSpeed>()
-            //.WithAll<MinimumDistance, PercentComplete, LaneAssignment>()
             // Deallocate the arrays when this job completes.
             .WithDeallocateOnJobCompletion(laneAssignments)
             .WithDeallocateOnJobCompletion(percentCompletes)
-            //.WithDeallocateOnJobCompletion(speeds)
+            .WithDeallocateOnJobCompletion(speeds)
             .WithDeallocateOnJobCompletion(agentEntities)
             // Iterate through each entity with the following:
-            .ForEach((int entityInQueryIndex, Entity entity, in MinimumDistance minimumDistance,
+            .ForEach((Entity entity, int nativeThreadIndex, in MinimumDistance minimumDistance,
             in PercentComplete percentComplete, in LaneAssignment currentLane) =>
             {
                 for (int i = 0; i < agentEntities.Length; ++i)
@@ -89,7 +88,7 @@ public class BlockSystem : SystemBase
                     if (distance < minimumDistance.Value)
                     {
                         // Add a BlockSpeed component with the speed of the car that is ahead of it.
-                        //entityCommandBuffer.AddComponent(entity, new BlockSpeed { Value = speeds[i].Value });
+                        entityCommandBuffer.AddComponent(nativeThreadIndex, entity, new BlockSpeed { Value = speeds[i].Value });
                     }
                 }
             })
