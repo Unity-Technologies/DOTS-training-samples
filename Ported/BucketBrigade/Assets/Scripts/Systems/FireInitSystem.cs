@@ -8,13 +8,6 @@ using UnityEngine;
 
 public class FireInitSystem : SystemBase
 {
-    // private EntityCommandBufferSystem m_CommandBufferSystem;
-    
-    // protected override void OnCreate()
-    // {
-    //     m_CommandBufferSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
-    // }
-    
     protected override void OnUpdate()
     {
         
@@ -30,9 +23,9 @@ public class FireInitSystem : SystemBase
                     translation.x += x - (data.GridSize.x - 1) / 2f;
                     translation.z += y - (data.GridSize.y - 1) / 2f;
                     ecb.SetComponent(instance, new Translation {Value = translation});
+                    ecb.SetComponent(instance, new GridIndex(){Index = new int2(x,y)});
                 }
             }
-            
             
             ecb.RemoveComponent<InitData>(spawnerEntity);
         }).Run();
