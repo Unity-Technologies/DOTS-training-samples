@@ -14,9 +14,12 @@ public class FireVisualSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         
         Entities.WithAll<Fire>().
-            ForEach((ref Translation translation, in ValueComponent val) =>
+            ForEach((ref FireMaterialComponent mat,  ref Translation translation, in ValueComponent val) =>
         {
             translation.Value.y = val.Value / 255f;
+            mat.Amount = val.Value / 255f;
+            // ecb.SetComponent(e, new FireMaterialComponent { Amount = val.Value / 255f });
+
         }).Run();
 
         ecb.Playback(EntityManager);
