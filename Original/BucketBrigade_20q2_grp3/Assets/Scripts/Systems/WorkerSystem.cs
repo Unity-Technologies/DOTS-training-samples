@@ -34,7 +34,7 @@ public class WorkerMoveToSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        float speed = 5.0f;
+        float speed = 25.0f;
         float deltaTime = Time.DeltaTime;
 
         var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
