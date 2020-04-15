@@ -16,7 +16,7 @@ public class FireMaterialSystem : SystemBase
         {
             //material[]
             // float amount  = val.Value
-            ecb.SetComponent(spawnerEntity, new FireMaterialComponent { Amount = 1 });
+            ecb.SetComponent(spawnerEntity, new FireMaterialComponent { Amount = 0 });
 
 
         }).Run();
