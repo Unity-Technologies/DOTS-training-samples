@@ -8,7 +8,7 @@ public struct Worker : IComponentData
 
 public struct WorkerMoveTo : IComponentData
 {
-    float2 Start, End;
+    public float2 Start, End;
 }
 
 public class WorkerMoveToSystem : SystemBase

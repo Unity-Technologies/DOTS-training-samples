@@ -19,10 +19,8 @@ Entities.Foreach(Entity e, in ref BrigadeLine line, ref Worker worker)
 }*/
 
 // This goes on the brigade entity
-public struct BrigadeLine : IComponentData
-{
-}
 
+/*
 // This goes on the worker
 public struct BrigadeLineRef : ISharedComponentData
 {
@@ -30,18 +28,12 @@ public struct BrigadeLineRef : ISharedComponentData
     public override int GetHashCode() => BrigadeLineEntity.GetHashCode();
     public override bool Equals(object obj) => ((BrigadeLineRef)obj).BrigadeLineEntity.Equals(BrigadeLineEntity);
 }
-
+*/
 public struct ResourceQuantity : IComponentData
 {
     public int Value;
 }
 
-
-
-public struct BrigadeInitInfo : IComponentData
-{
-    public int WorkerCount;
-}
 
 public struct WorkerPositionsNeedUpdate : IComponentData
 {
