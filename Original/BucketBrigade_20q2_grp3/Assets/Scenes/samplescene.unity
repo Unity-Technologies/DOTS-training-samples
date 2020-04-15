@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 2035111234}
-  m_IndirectSpecularColor: {r: 131.16855, g: 162.52502, b: 215.10977, a: 1}
+  m_IndirectSpecularColor: {r: 112.02822, g: 143.25911, b: 195.02287, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -201,7 +201,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Profile: {fileID: 11400000, guid: a123fc0ac58cb774e8592c925f167e7c, type: 2}
   m_StaticLightingSkyUniqueID: 1
-  m_SkySettings: {fileID: 1217914467}
+  m_SkySettings: {fileID: 503947684}
   m_SkySettingsFromProfile: {fileID: -1658960478407648048, guid: a123fc0ac58cb774e8592c925f167e7c,
     type: 2}
 --- !u!4 &313761475
@@ -757,6 +757,24 @@ MonoBehaviour:
   FireSpreadProbabilityMultiplier: 0.1
   FirePrefab: {fileID: 7817518053473750089, guid: dc8b28665ac2319448149d4b9d385cc8,
     type: 3}
+  StartingFireCount: 10
+  maxFlameHeight: 0.1
+  cellSize: 0.05
+  rows: 20
+  columns: 20
+  flashpoint: 0.2
+  heatRadius: 2
+  heatTransferRate: 0.0003
+  colour_fireCell_neutral: {r: 0.15966536, g: 0.49056602, b: 0.22821292, a: 0}
+  colour_fireCell_cool: {r: 0.6973353, g: 0.7169812, b: 0.15218942, a: 0}
+  colour_fireCell_hot: {r: 0.8113208, g: 0.08036668, b: 0.11613029, a: 0}
+  colour_bot_SCOOP: {r: 0.050418302, g: 0.9716981, b: 0.10316225, a: 0}
+  colour_bot_PASS_FULL: {r: 0.89411765, g: 0.9433962, b: 0.9433962, a: 0}
+  colour_bot_PASS_EMPTY: {r: 0.8773585, g: 0.63318795, b: 0.63318795, a: 0}
+  colour_bot_THROW: {r: 0.65255374, g: 0.20630117, b: 0.7169812, a: 0}
+  colour_bot_OMNIBOT: {r: 0, g: 0, b: 0, a: 0}
+  colour_bucket_empty: {r: 0.6509434, g: 0.2784314, b: 0.25490198, a: 0}
+  colour_bucket_full: {r: 0.27803493, g: 0.78262556, b: 0.8301887, a: 0}
 --- !u!4 &1989809162
 Transform:
   m_ObjectHideFlags: 0
