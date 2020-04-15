@@ -2,6 +2,7 @@
 using Unity.Jobs;
 using Unity.Collections;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 [UpdateAfter(typeof(PercentCompleteSystem))]
 public class RenderPositionSystem : SystemBase
@@ -15,11 +16,12 @@ public class RenderPositionSystem : SystemBase
     {
         var laneInfo = GetSingleton<LaneInfo>();
 
-        Entities.ForEach((ref Position position, in PercentComplete percentComplete, in LaneAssignment laneAssignment) =>
+        Entities.ForEach((ref Translation translation, in PercentComplete percentComplete, in LaneAssignment laneAssignment) =>
         {
             float xPos = ((laneInfo.StartXZ.x - laneInfo.EndXZ.y) / 4) * laneAssignment.Value;
             float yPos = laneInfo.StartXZ.y + (laneInfo.EndXZ.y - laneInfo.StartXZ.x) * percentComplete.Value;
-            position.Value = new float2(xPos, yPos);
+            translation.Value.x = xPos;
+            translation.Value.z = yPos;
         }).ScheduleParallel();
     }
 }
