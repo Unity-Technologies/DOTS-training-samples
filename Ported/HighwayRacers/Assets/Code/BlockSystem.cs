@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 
 [UpdateAfter(typeof(PercentCompleteSystem))]
 public class BlockSystem : SystemBase
@@ -62,34 +63,55 @@ public class BlockSystem : SystemBase
             .ForEach((Entity entity, int nativeThreadIndex, in MinimumDistance minimumDistance,
             in PercentComplete percentComplete, in LaneAssignment currentLane) =>
             {
+                // Cache the minimum distance, which will be used for a depth test.
+                var minimumDistanceTemp = minimumDistance.Value;
+
+                // Speed of zero is invalid. Which means that there is no other agent blocking this agent.
+                var blockSpeed = new BlockSpeed { Value = 0 };
+
+                // For every agent on the board, perform the following:
                 for (int i = 0; i < agentEntities.Length; ++i)
                 {
+                    // If the index matches this agent, then: 
                     if (entity.Index != agentEntities[i].Index)
                     {
+                        // Do not proceed with this agent.
                         continue;
                     }
 
-                    // Ignore agents that are not in the same lane.
+                    // If the other agent is not in the same lane, then:
                     if (currentLane.Value != laneAssignments[i].Value)
                     {
+                        // Do not proceed with this agent.
                         continue;
                     }
 
-                    // Ignore agents that are behind this agent.
-                    if (percentCompletes[i].Value < 0)
-                    {
-                        continue;
-                    }
+                    // Otherwise, other agent is ahead of agent in the same lane.
 
                     // Get the distance of between this agent and the other agent, with agents in front yielding a positive value.
                     float distance = percentCompletes[i].Value - percentComplete.Value;
 
-                    // If the car is not behind the agent, and the distance is within the minimum distance between two agents, then:
-                    if (distance < minimumDistance.Value)
+                    // If the other agent is behind this agent, then:
+                    if (distance < 0)
                     {
-                        // Add a BlockSpeed component with the speed of the car that is ahead of it.
-                        entityCommandBuffer.AddComponent(nativeThreadIndex, entity, new BlockSpeed { Value = speeds[i].Value });
+                        // Recalculate the distance in case od modulo wrap around.
+                        distance = 1 - (percentComplete.Value - percentCompletes[i].Value);
                     }
+
+                    // If the distance is within the minimum distance between two agents, then:
+                    if (distance < minimumDistanceTemp)
+                    {
+                        // Update the minimum distance and make the speed matc the closer agent.
+                        minimumDistanceTemp = distance;
+                        blockSpeed.Value = speeds[i].Value;
+                    }
+                }
+
+                // If there is a valid block speed value, then:
+                if (math.abs(blockSpeed.Value) > float.Epsilon)
+                {
+                    // Add a BlockSpeed component with the speed of the car that is ahead of it.
+                    entityCommandBuffer.AddComponent(nativeThreadIndex, entity, blockSpeed);
                 }
             })
             .ScheduleParallel();
