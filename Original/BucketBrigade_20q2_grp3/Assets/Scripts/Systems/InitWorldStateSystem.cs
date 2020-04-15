@@ -41,7 +41,7 @@ public class InitWorldStateSystem : SystemBase
             // Start random fires
             for (int i = 0; i < StartingFireCount; i++)
             {
-                grid.Heat[grid.GetIndex((Random.Range(0, GridWidth), Random.Range(0, GridHeight)))] = 0.1f;
+                grid.Heat[grid.GetIndex((Random.Range(0, GridWidth), Random.Range(0, GridHeight)))] = 0.5f;
             }
         }
     }
