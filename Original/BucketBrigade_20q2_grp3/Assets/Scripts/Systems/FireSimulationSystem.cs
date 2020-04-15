@@ -11,16 +11,14 @@ using Random = UnityEngine.Random;
 public class FireSimulationSystem : SystemBase
 {
     public float FireSpreadProbabilityMultiplier = 1;
+    
+    public float PropagationChance;
+    public float GrowSpeed;
+    public double UpdateFrequency;
+    public double UpdatePropagationFrequency;
 
-    private const float m_PropagationChance = 0.3f;
-    private const float m_GrowSpeed = 0.01f;
-
-    private const double m_UpdateFrequency = 0.01f;
     private double m_LastUpdateTime;
-
-    private const double m_UpdatePropagationFrequency = 0.5f;
     private double m_LastUpdatePropagationTime;
-
     private FloatRandom m_Random;
 
     protected override void OnCreate()
@@ -36,14 +34,14 @@ public class FireSimulationSystem : SystemBase
         if (!GridData.Instance.Heat.IsCreated)
             return;
         
-        if (m_LastUpdatePropagationTime + m_UpdatePropagationFrequency < Time.ElapsedTime)
+        if (m_LastUpdatePropagationTime + UpdatePropagationFrequency < Time.ElapsedTime)
         {
             m_LastUpdatePropagationTime = Time.ElapsedTime;
 
             PropagateFire();
         }
 
-        if (m_LastUpdateTime + m_UpdateFrequency < Time.ElapsedTime)
+        if (m_LastUpdateTime + UpdateFrequency < Time.ElapsedTime)
         {
             m_LastUpdateTime = Time.ElapsedTime;
 
@@ -57,14 +55,14 @@ public class FireSimulationSystem : SystemBase
     private void GrowFire()
     {
         var data = GridData.Instance;
-        var job = new GrowFireJob { Data = data }.Schedule(data.Width * data.Height, data.Width);
+        var job = new GrowFireJob { Data = data, Speed = GrowSpeed }.Schedule(data.Width * data.Height, data.Width);
         job.Complete();
     }
 
     private void PropagateFire()
     {
         var data = GridData.Instance;
-        var job = new PropagateFireJob { Heat = data.Heat, Width = data.Width, Random = m_Random, ProbabilityMultiplier = FireSpreadProbabilityMultiplier}.Schedule(/*data.Width * data.Height, data.Width*/);
+        var job = new PropagateFireJob { Heat = data.Heat, Width = data.Width, Random = m_Random, ProbabilityMultiplier = FireSpreadProbabilityMultiplier, Speed = GrowSpeed}.Schedule(/*data.Width * data.Height, data.Width*/);
         job.Complete();
     }
 
@@ -95,6 +93,7 @@ public class FireSimulationSystem : SystemBase
         public int Width;
         public FloatRandom Random;
         public float ProbabilityMultiplier;
+        public float Speed;
 
         public void Execute()
         {
@@ -108,7 +107,7 @@ public class FireSimulationSystem : SystemBase
                     {
                         if (Random.NextFloat() < Heat[up] * ProbabilityMultiplier)
                         {
-                            Heat[index] = m_GrowSpeed;
+                            Heat[index] = Speed;
                             continue;
                         }
                     }
@@ -118,7 +117,7 @@ public class FireSimulationSystem : SystemBase
                     {
                         if (Random.NextFloat() < Heat[right] * ProbabilityMultiplier)
                         {
-                            Heat[index] = m_GrowSpeed;
+                            Heat[index] = Speed;
                             continue;
                         }
                     }
@@ -127,7 +126,7 @@ public class FireSimulationSystem : SystemBase
                     {
                         if (Random.NextFloat() < Heat[down] * ProbabilityMultiplier)
                         {
-                            Heat[index] = m_GrowSpeed;
+                            Heat[index] = Speed;
                             continue;
                         }
                     }
@@ -137,7 +136,7 @@ public class FireSimulationSystem : SystemBase
                     {
                         if (Random.NextFloat() < Heat[left] * ProbabilityMultiplier)
                         {
-                            Heat[index] = m_GrowSpeed;
+                            Heat[index] = Speed;
                             continue;
                         }
                     }
@@ -150,12 +149,13 @@ public class FireSimulationSystem : SystemBase
     private struct GrowFireJob : IJobParallelFor
     {
         public GridData Data;
-
+        public float Speed;
+        
         public void Execute(int index)
         {
             if (Data.Heat[index] > 0 && Data.Heat[index] < 1)
             {
-                Data.Heat[index] = math.min(Data.Heat[index] + m_GrowSpeed, 1);
+                Data.Heat[index] = math.min(Data.Heat[index] + Speed, 1);
             }
         }
     }

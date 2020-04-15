@@ -9,6 +9,16 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
     public int GridHeight;
     public float FireSpreadProbabilityMultiplier = 1f;
     public GameObject FirePrefab;
+    public float PropagationChance = 0.3f;
+    public float GrowSpeed = 0.01f;
+    public float UpdateFrequency = 0.01f;
+    public float UpdatePropagationFrequency = 0.5f;
+    [Tooltip("Random seed to use, or 0 to allow random per-run")]
+    public int RandomSeed = 0;
+    [Tooltip("How many fires to start on initialization")]
+    public int StartingFireCount = 1;
+    
+/*
     //note copied from original we may not use all these values
     [Tooltip("How many random fires do you want to battle?")]
     public int StartingFireCount = 10;
@@ -27,7 +37,7 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
     public int heatRadius = 2;
     [Tooltip("How fast will adjacent cells heat up?")]
     public float heatTransferRate = 0.0003f;
-
+*/
     [Header("Colours")]
     // cell colours
     public Color colour_fireCell_neutral;
@@ -58,6 +68,8 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
         var init = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<InitWorldStateSystem>();
         init.GridWidth = GridWidth;
         init.GridHeight = GridHeight;
+        init.StartingFireCount = StartingFireCount;
+        init.RandomSeed = RandomSeed;
         init.FirePrefab = conversionSystem.GetPrimaryEntity(FirePrefab);
 
         World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireSimulationSystem>().FireSpreadProbabilityMultiplier = FireSpreadProbabilityMultiplier;
@@ -65,8 +77,14 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
         foreach (var br in BrigadeLines)
         {
             var bInfo = dstManager.CreateEntity(ComponentType.ReadOnly<BrigadeInitInfo>());
-       //     dstManager.SetComponentData(bInfo, new BrigadeInitInfo() { WorkerCount = br.WorkerCount });
+            dstManager.SetComponentData(bInfo, new BrigadeInitInfo() {WorkerCount = br.WorkerCount});
         }
+
+        var fireSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireSimulationSystem>();
+        fireSystem.PropagationChance = PropagationChance;
+        fireSystem.GrowSpeed = GrowSpeed;
+        fireSystem.UpdateFrequency = UpdateFrequency;
+        fireSystem.UpdatePropagationFrequency = UpdatePropagationFrequency;
     }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
