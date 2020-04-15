@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using UnityEngine;
 
+[UpdateAfter(typeof(OvertakeSystem))]
 public class SpeedSystem : SystemBase
 {
     protected override void OnUpdate()
