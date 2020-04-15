@@ -10,7 +10,7 @@ public class SpeedSystem : SystemBase
             speed.Value = blockSpeed.Value;
         }).ScheduleParallel();
         
-        Entities.ForEach((ref Speed speed, in TargetSpeed targetSpeed, in OvertakeTag overtakeTag, in OvertakeSpeedIncrement overtakeSpeedIncrement) =>
+        Entities.WithAll<OvertakeTag>().ForEach((ref Speed speed, in TargetSpeed targetSpeed, in OvertakeSpeedIncrement overtakeSpeedIncrement) =>
         {
             speed.Value = targetSpeed.Value + overtakeSpeedIncrement.Value;
         }).ScheduleParallel();
