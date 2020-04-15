@@ -20,6 +20,7 @@ public class PercentCompleteSystem : SystemBase
         float totalDistance = math.abs(laneInfo.EndXZ.y - laneInfo.StartXZ.y);
         float deltaTime = Time.DeltaTime;
 
+        //may not need road length
         Entities.ForEach((ref PercentComplete percentComplete, in Speed speed) =>
         {
             float relativeStartPosition = totalDistance * percentComplete.Value;
