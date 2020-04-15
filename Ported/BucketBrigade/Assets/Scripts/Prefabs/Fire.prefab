@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 8573554411245246020}
   - component: {fileID: 9080156054040246877}
   - component: {fileID: 2876278769909057858}
-  - component: {fileID: 7832638187485310958}
   - component: {fileID: 1346037048931328553}
+  - component: {fileID: 4965888056406879940}
   m_Layer: 0
   m_Name: Fire
   m_TagString: Untagged
@@ -124,21 +124,6 @@ MonoBehaviour:
   Index:
     x: 0
     y: 0
---- !u!114 &7832638187485310958
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8290236675973035952}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 895b9f3d4ec8f984d9591f9ea6fc6d74, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  FireColor: {r: 0.13838823, g: 0.5754717, b: 0.01628694, a: 0}
-  GrassColor: {r: 0.7830189, g: 0.06648275, b: 0.06648275, a: 0}
-  Amount: 0.5
 --- !u!114 &1346037048931328553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -152,3 +137,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value: 0
+--- !u!114 &4965888056406879940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8290236675973035952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dc18885051ed9647a2e39ce96666f56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
