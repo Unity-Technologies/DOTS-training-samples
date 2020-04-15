@@ -135,6 +135,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 895b9f3d4ec8f984d9591f9ea6fc6d74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FireColor: {r: 0, g: 0, b: 0, a: 0}
-  GrassColor: {r: 0, g: 0, b: 0, a: 0}
-  Amount: 0
+  FireColor: {r: 0.13838823, g: 0.5754717, b: 0.01628694, a: 0}
+  GrassColor: {r: 0.7830189, g: 0.06648275, b: 0.06648275, a: 0}
+  Amount: 0.5
