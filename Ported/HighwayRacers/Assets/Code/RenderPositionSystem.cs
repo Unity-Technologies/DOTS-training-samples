@@ -3,8 +3,14 @@ using Unity.Jobs;
 using Unity.Collections;
 using Unity.Mathematics;
 
+[UpdateAfter(typeof(PercentCompleteSystem))]
 public class RenderPositionSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireForUpdate(EntityManager.CreateEntityQuery(typeof(LaneInfo)));
+    }
+
     protected override void OnUpdate()
     {
         var laneInfo = GetSingleton<LaneInfo>();

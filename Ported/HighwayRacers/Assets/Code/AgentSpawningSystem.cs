@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class AgentSpawningSystem : SystemBase
 {
     private Random m_Random;
@@ -15,7 +16,7 @@ public class AgentSpawningSystem : SystemBase
     protected override void OnCreate()
     {
         m_Random = new Random(0x1234567);
-        //m_LaneInfo = GetSingleton<LaneInfo>();
+        RequireForUpdate(EntityManager.CreateEntityQuery(typeof(LaneInfo)));
     }
 
     protected override void OnUpdate()

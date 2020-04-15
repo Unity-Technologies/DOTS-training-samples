@@ -1,7 +1,8 @@
-﻿using Unity.Collections;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 
+[UpdateAfter(typeof(PercentCompleteSystem))]
 public class BlockSystem : SystemBase
 {
     private EntityQuery agentQuery;
@@ -95,7 +96,5 @@ public class BlockSystem : SystemBase
             .ScheduleParallel();
 
         entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
-
-        //entityCommandBuffer.Playback(EntityManager);
     }
 }
