@@ -15,7 +15,7 @@ public class AgentSpawningSystem : SystemBase
     protected override void OnCreate()
     {
         m_Random = new Random(0x1234567);
-        //m_LaneInfo = GetSingleton<LaneInfo>();
+        RequireForUpdate(EntityManager.CreateEntityQuery(typeof(LaneInfo)));
     }
 
     protected override void OnUpdate()
