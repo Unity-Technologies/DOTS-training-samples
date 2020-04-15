@@ -1,4 +1,6 @@
 ﻿using Unity.Entities;
+
+[UpdateAfter(typeof(BlockSystem))]
 public class OvertakeSystem : SystemBase
 {
     public const int LEFT_LANE = 3;
