@@ -18,7 +18,7 @@ public class CreateBrigadeSystem : SystemBase
                 {
                     var worker = ecb.Instantiate(prefabs.WorkerPrefab);
                     ecb.AddComponent(worker, new Worker());
-                //    ecb.AddSharedComponent(worker, new BrigadeLineRef() { BrigadeLineEntity = e });
+//                    ecb.AddSharedComponent(worker, new BrigadeLineRef() { BrigadeLineEntity = e });
                 }
             }).Run();
         ecb.Playback(EntityManager);

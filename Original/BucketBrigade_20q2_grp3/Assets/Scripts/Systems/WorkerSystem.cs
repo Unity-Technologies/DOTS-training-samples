@@ -1,12 +1,22 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
-public class WorkerSystem : SystemBase
+public struct Worker : IComponentData
+{
+
+}
+
+public struct WorkerMoveTo : IComponentData
+{
+    float2 Start, End;
+}
+
+public class WorkerMoveToSystem : SystemBase
 {
     protected override void OnUpdate()
     {
         Entities
-            .ForEach((Entity e, Worker w) =>
+            .ForEach((Entity e, Worker w, ref WorkerMoveTo target) =>
         {
 
         }).Run();
