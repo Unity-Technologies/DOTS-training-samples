@@ -158,7 +158,7 @@ MonoBehaviour:
   MaxValue: 0
   ValuePropagationPerTick: 0
   ValueThreshold: 0
-  ActorSpeed: 0
+  ActorSpeed: 3
   BucketCapacity: 0
 --- !u!114 &1271445247
 MonoBehaviour:

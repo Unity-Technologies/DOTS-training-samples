@@ -5,13 +5,13 @@ using Unity.Transforms;
 
 public class ActorMovementSystem : SystemBase
 {
-    private EntityQuery mActorsToMove;
-
+    private EndSimulationEntityCommandBufferSystem mEndSimBufferSystem;
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        mActorsToMove = GetEntityQuery(ComponentType.ReadOnly<Actor>(), ComponentType.ReadWrite<Translation>(), ComponentType.ReadWrite<Destination>());
+        GetEntityQuery(ComponentType.ReadOnly<Actor>(), ComponentType.ReadWrite<Translation>(), ComponentType.ReadWrite<Destination>());
+        mEndSimBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -19,28 +19,46 @@ public class ActorMovementSystem : SystemBase
         var tuningData = GetSingleton<TuningData>();
         var deltaTime = Time.DeltaTime;
 
-        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var ecb = mEndSimBufferSystem.CreateCommandBuffer().ToConcurrent();
         Entities
             .WithName("Actor_Movement")
             .WithAll<Actor>()
-            .ForEach((Entity actorEntity, ref Translation translation, in Destination dest) =>
+            .ForEach((int entityInQueryIndex, Entity actorEntity, ref Translation translation, in Destination dest) =>
             {
                 float3 delta = dest.position - translation.Value;
-
-
+                float remainingDistance = math.length(delta);
                 float maxTravelDistance = deltaTime * tuningData.ActorSpeed;
-                float distance = deltaTime * math.length(delta);
-                distance = math.min(distance, maxTravelDistance);
 
-                translation.Value = distance * math.normalize(delta) + translation.Value;
-                if (distance < 1e-2)
-                {;
-                    ecb.RemoveComponent<Destination>(actorEntity);
+                if (maxTravelDistance >= remainingDistance)
+                {
+                    translation.Value = dest.position;
+                    ecb.RemoveComponent<Destination>(entityInQueryIndex, actorEntity);
                 }
+                else
+                {
+                    translation.Value = maxTravelDistance * math.normalize(delta) + translation.Value;
+                }
+            }).ScheduleParallel();
+
+        var getActorPosition = GetComponentDataFromEntity<Translation>(true);
+        var getActorHolding = GetComponentDataFromEntity<HoldingBucket>();
+        Entities
+            .WithAll<Bucket>()
+            .WithReadOnly(getActorPosition)
+            .WithNativeDisableParallelForRestriction(getActorPosition)
+            .WithNativeDisableContainerSafetyRestriction(getActorPosition)
+            .ForEach((Entity Bucket, ref Translation bucketTranslation, in HeldBy heldBy) =>
+            {
+                if (!getActorHolding.Exists(heldBy.holder))
+                {
+                    return;
+                }
+
+                var actorPosition = getActorPosition[heldBy.holder];
+                bucketTranslation = new Translation()  {
+                    Value = actorPosition.Value + math.up() * .5f
+                };
             }).Run();
-
-
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        mEndSimBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
