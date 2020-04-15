@@ -183,7 +183,7 @@ MonoBehaviour:
     y: 0
   EndXZ:
     x: 10
-    y: 100
+    y: 20
 --- !u!1 &285360169
 GameObject:
   m_ObjectHideFlags: 0
@@ -282,7 +282,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PrefabAgent: {fileID: 1999935204370666, guid: eb09540518ebb214aba8500b41634a1b,
     type: 3}
-  AgentNumber: 50
+  AgentNumber: 3
 --- !u!114 &1120589865
 MonoBehaviour:
   m_ObjectHideFlags: 0

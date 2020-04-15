@@ -1,5 +1,10 @@
-﻿using Unity.Collections;
+﻿using System.Diagnostics;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
+using Unity.Mathematics;
+using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class PercentCompleteSystem : SystemBase
 {
@@ -12,7 +17,7 @@ public class PercentCompleteSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         LaneInfo laneInfo = GetSingleton<LaneInfo>();
-        float totalDistance = laneInfo.EndXZ.y - laneInfo.StartXZ.y;
+        float totalDistance = math.abs(laneInfo.EndXZ.y - laneInfo.StartXZ.y);
         float deltaTime = Time.DeltaTime;
 
         Entities.ForEach((ref PercentComplete percentComplete, in Speed speed) =>
