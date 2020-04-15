@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 9080156054040246877}
   - component: {fileID: 2876278769909057858}
   - component: {fileID: 7832638187485310958}
+  - component: {fileID: 1346037048931328553}
   m_Layer: 0
   m_Name: Fire
   m_TagString: Untagged
@@ -138,3 +139,16 @@ MonoBehaviour:
   FireColor: {r: 0.13838823, g: 0.5754717, b: 0.01628694, a: 0}
   GrassColor: {r: 0.7830189, g: 0.06648275, b: 0.06648275, a: 0}
   Amount: 0.5
+--- !u!114 &1346037048931328553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8290236675973035952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cca9153a449224543a2df75a6425a81f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: 0
