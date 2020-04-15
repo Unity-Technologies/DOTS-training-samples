@@ -21,6 +21,13 @@ public struct WorkerStartEndPositions : IComponentData
 
 public class WorkerMoveToSystem : SystemBase
 {
+    private EntityCommandBufferSystem m_ECBSystem;
+
+    protected override void OnCreate()
+    {
+        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     static float3 MoveTo(float3 pos, float3 dest, float amount)
     {
         float len = math.length(pos - dest);
@@ -32,23 +39,23 @@ public class WorkerMoveToSystem : SystemBase
         return newPos;
     }
 
-    protected override void OnUpdate()
+    protected override void OnUpdate() 
     {
         float speed = 25.0f;
         float deltaTime = Time.DeltaTime;
 
-        var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
         Entities
-            .ForEach((Entity e, ref Translation pos, in Worker worker, in WorkerMoveTo target) =>
+            .ForEach((int entityInQueryIndex, Entity e, ref Translation pos, in Worker worker, in WorkerMoveTo target) =>
         {
             float3 targetPos = new float3(target.Value.x, pos.Value.y, target.Value.y);
             pos.Value = MoveTo(pos.Value, targetPos, deltaTime * speed);
 
             if (pos.Value.x == targetPos.x && pos.Value.y == targetPos.y && pos.Value.z == targetPos.y)
-                ecb.RemoveComponent<WorkerMoveTo>(e);
+                ecb.RemoveComponent<WorkerMoveTo>(entityInQueryIndex, e);
 
-        }).Run();
-        ecb.Playback(EntityManager);
+        }).ScheduleParallel();
+        m_ECBSystem.AddJobHandleForProducer(Dependency);
         // get each entity that is in the WorkerWaitingForDropOff and NextWorkerInLine has WorkerWaitingForPickup
     }
 }
