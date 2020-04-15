@@ -19,7 +19,10 @@ public class PercentCompleteSystem : SystemBase
         {
             float relativeStartPosition = totalDistance * percentComplete.Value;
             var distance = speed.Value * deltaTime;
-            percentComplete.Value = (relativeStartPosition + distance) / totalDistance;
+            float newPercentComplete = (relativeStartPosition + distance) / totalDistance;
+            if (newPercentComplete > 1.0f)
+                newPercentComplete = 0.0f;
+            percentComplete.Value = newPercentComplete;
 
         }).Schedule();
 
