@@ -5,23 +5,33 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
-[RequiresEntityConversion]
 public class AgentSpawningSystem : SystemBase
 {
+    private Random m_Random;
+    private LaneInfo m_LaneInfo;
+
+    protected override void OnCreate()
+    {
+        m_Random = new Random(0x1234567);
+        //m_LaneInfo = GetSingleton<LaneInfo>();
+    }
+
     protected override void OnUpdate()
     {
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
+        var random = m_Random;
+        var laneInfo = GetSingleton<LaneInfo>();//m_LaneInfo;
         Entities.ForEach((Entity e, in AgentSpawner spawner) =>
         {
             for (int i = 0; i < spawner.NumAgents; i++)
             {
                 var spawnedEntity = ecb.Instantiate(spawner.Prefab);
-
-                //Here we could set the agents to specific values along the track.
                 Translation translation = new Translation()
                 {
-                    Value = new float3(0f, 0f, 0f)
+                    Value = new float3((int)random.NextFloat(laneInfo.StartXZ.x, laneInfo.EndXZ.x), 0f,
+                        random.NextFloat(laneInfo.StartXZ.y, laneInfo.EndXZ.y))
                 };
 
                 ecb.SetComponent(spawnedEntity, translation);
@@ -31,5 +41,6 @@ public class AgentSpawningSystem : SystemBase
         }).Run();
 
         ecb.Playback(EntityManager);
+        m_Random = random;
     }
 }
