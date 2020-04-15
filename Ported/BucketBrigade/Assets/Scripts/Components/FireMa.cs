@@ -31,6 +31,6 @@ public class FireMa : MonoBehaviour, IConvertGameObjectToEntity
         // For example,
         //   dstManager.AddComponentData(entity, new Unity.Transforms.Scale { Value = scale });
 
-        dstManager.AddComponentData(entity, new FireMaterialComponent { Amount = 1 });
+        dstManager.AddComponentData(entity, new FireMaterialComponent { Amount = 0 });
     }
 }
