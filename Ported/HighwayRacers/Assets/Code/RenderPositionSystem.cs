@@ -18,7 +18,7 @@ public class RenderPositionSystem : SystemBase
 
         Entities.ForEach((ref Translation translation, in PercentComplete percentComplete, in LaneAssignment laneAssignment) =>
         {
-            float xPos = ((laneInfo.StartXZ.x - laneInfo.EndXZ.x) / 4) * laneAssignment.Value;
+            float xPos = ((laneInfo.EndXZ.x - laneInfo.StartXZ.x) / 4) * laneAssignment.Value;
             float yPos = laneInfo.StartXZ.y + (laneInfo.EndXZ.y - laneInfo.StartXZ.y) * percentComplete.Value;
             translation.Value.x = xPos;
             translation.Value.z = yPos;
