@@ -5,16 +5,6 @@ using Unity.Mathematics;
 
 public class RenderPositionSystem : SystemBase
 {
-    protected override void OnCreate()
-    {
-        Entity m_laneInfoEntity = EntityManager.CreateEntity(typeof(LaneInfo));
-        EntityManager.SetComponentData(m_laneInfoEntity, new LaneInfo() 
-        { 
-            StartXZ = new float2 (0,0),
-            EndXZ = new float2 (4,100)
-        });
-    }
-
     protected override void OnUpdate()
     {
         var laneInfo = GetSingleton<LaneInfo>();
