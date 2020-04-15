@@ -29,6 +29,9 @@ public class AgentSpawningSystem : SystemBase
             for (int i = 0; i < spawner.NumAgents; i++)
             {
                 var spawnedEntity = ecb.Instantiate(spawner.Prefab);
+                //Need to resolve situation where cars are embeded in each other.
+                //Precalculate all the slots that cars can go in and assign those slots here.
+
                 Translation translation = new Translation()
                 {
                     Value = new float3((int)random.NextFloat(laneInfo.StartXZ.x, laneInfo.EndXZ.x), 0f,
