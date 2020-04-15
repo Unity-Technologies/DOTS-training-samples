@@ -19,64 +19,85 @@ public struct WorkerEntityElementData : IBufferElementData
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class CreateBrigadeSystem : SystemBase
 {
+    private EntityCommandBufferSystem m_ECBSystem;
+
+    protected override void OnCreate()
+    {
+        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
         var prefabs = GetSingleton<GlobalPrefabs>();
         var random = new Random(745453);
-        var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
         Entities
             .WithNone<BrigadeLine>()
-            .ForEach((Entity e, in BrigadeInitInfo info) =>
+            .ForEach((int entityInQueryIndex, Entity e, in BrigadeInitInfo info) =>
             {
-                ecb.AddComponent<BrigadeLine>(e);
-                var workerBuffer = ecb.AddBuffer<WorkerEntityElementData>(e);
+                ecb.AddComponent<BrigadeLine>(entityInQueryIndex, e);
+                var workerBuffer = ecb.AddBuffer<WorkerEntityElementData>(entityInQueryIndex, e);
                 for (int i = 0; i < info.WorkerCount; i++)
                 {
-                    var worker = ecb.Instantiate(prefabs.WorkerPrefab);
-                    ecb.SetComponent(worker, new Translation() { Value = random.NextFloat3(new float3(0,0,0), new float3(100,0,100)) });
-                    ecb.AddComponent(worker, new Worker());
+                    var worker = ecb.Instantiate(entityInQueryIndex, prefabs.WorkerPrefab);
+                    ecb.SetComponent(entityInQueryIndex, worker, new Translation() { Value = random.NextFloat3(new float3(0,0,0), new float3(100,0,100)) });
+                    ecb.AddComponent(entityInQueryIndex, worker, new Worker());
                     workerBuffer.Add(new WorkerEntityElementData() { Value = worker });
                 }
-            }).Run();
-        ecb.Playback(EntityManager);
+            }).ScheduleParallel();
+        m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }
 
 public class BrigadeFindSourceSystem : SystemBase
 {
+    private EntityCommandBufferSystem m_ECBSystem;
+
+    protected override void OnCreate()
+    {
+        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     Random random = new Random(234523456);
     protected override void OnUpdate()
     {
         var rand = random;
-        var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
         Entities
             .WithNone<ResourceSourcePosition>()
-            .ForEach((Entity e, in BrigadeLine line) =>
+            .ForEach((int entityInQueryIndex, Entity e, in BrigadeLine line) =>
             {
-                ecb.RemoveComponent<BrigadeLineEstablished>(e);
-                ecb.AddComponent(e, new ResourceSourcePosition() { Value = rand.NextFloat2(new float2(0,0), new float2(100,100))});
-            }).Run();
-        ecb.Playback(EntityManager);
+                ecb.RemoveComponent<BrigadeLineEstablished>(entityInQueryIndex, e);
+                ecb.AddComponent(entityInQueryIndex, e, new ResourceSourcePosition() { Value = rand.NextFloat2(new float2(0,0), new float2(100,100))});
+            }).ScheduleParallel();
         random = rand;
+        m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }
 
 public class BrigadeFindTargetSystem : SystemBase
 {
+    private EntityCommandBufferSystem m_ECBSystem;
+
+    protected override void OnCreate()
+    {
+        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     Random random = new Random(775453);
     protected override void OnUpdate()
     {
         var rand = random;
-        var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
         Entities
             .WithNone<ResourceTargetPosition>()
-            .ForEach((Entity e, in BrigadeLine line) =>
+            .ForEach((int entityInQueryIndex, Entity e, in BrigadeLine line) =>
             {
-                ecb.RemoveComponent<BrigadeLineEstablished>(e);
-                ecb.AddComponent(e, new ResourceTargetPosition() { Value = rand.NextFloat2(new float2(0,0), new float2(100, 100)) });
-            }).Run();
-        ecb.Playback(EntityManager);
+                ecb.RemoveComponent<BrigadeLineEstablished>(entityInQueryIndex, e);
+                ecb.AddComponent(entityInQueryIndex, e, new ResourceTargetPosition() { Value = rand.NextFloat2(new float2(0,0), new float2(100, 100)) });
+            }).ScheduleParallel();
         random = rand;
+        m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }
 
@@ -86,26 +107,33 @@ public struct BrigadeLineEstablished : IComponentData
 
 public class BrigadeGenerateWorkerPositionsSystem : SystemBase
 {
+    private EntityCommandBufferSystem m_ECBSystem;
+
+    protected override void OnCreate()
+    {
+        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     Random rand = new Random(455676);
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
         var r = rand;
-        var time = Time.ElapsedTime + r.NextDouble(3, 10);
+        var time = Time.ElapsedTime;
         Entities
             .WithNone<BrigadeLineEstablished>()
-            .ForEach((Entity e, in BrigadeLine line, in ResourceSourcePosition source, in ResourceTargetPosition target, in DynamicBuffer<WorkerEntityElementData> workers) =>
+            .ForEach((int entityInQueryIndex, Entity e, in BrigadeLine line, in ResourceSourcePosition source, in ResourceTargetPosition target, in DynamicBuffer<WorkerEntityElementData> workers) =>
             {
                 var start = source.Value;
                 var end = target.Value;
                 for (int i = 0; i < workers.Length; i++)
                 {
-                    ecb.AddComponent(workers[i].Value, new WorkerMoveTo() { Value = math.lerp(start, end, (float)i / workers.Length) });
+                    ecb.AddComponent(entityInQueryIndex, workers[i].Value, new WorkerMoveTo() { Value = math.lerp(start, end, (float)i / workers.Length) });
                 }
-                ecb.AddComponent(e, new BrigadeLineEstablished());
-                ecb.AddComponent(e, new Reset() { ResetTime = time });
-                }).Run();
-        ecb.Playback(EntityManager);
+                ecb.AddComponent(entityInQueryIndex, e, new BrigadeLineEstablished());
+                ecb.AddComponent(entityInQueryIndex, e, new Reset() { ResetTime = time + r.NextDouble(3, 10) });
+                }).ScheduleParallel();
+        m_ECBSystem.AddJobHandleForProducer(Dependency);
         rand = r;
     }
 }
@@ -117,18 +145,25 @@ public struct Reset : IComponentData
 
 public class ResetSystem : SystemBase
 {
+    private EntityCommandBufferSystem m_ECBSystem;
+
+    protected override void OnCreate()
+    {
+        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
         var time = Time.ElapsedTime;
-        var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
-        Entities.ForEach((Entity e, Reset r) =>
+        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
+        Entities.ForEach((int entityInQueryIndex, Entity e, Reset r) =>
         {
             if (time > r.ResetTime)
             {
-                ecb.RemoveComponent<ResourceSourcePosition>(e);
-                ecb.RemoveComponent<ResourceTargetPosition>(e);
+                ecb.RemoveComponent<ResourceSourcePosition>(entityInQueryIndex, e);
+                ecb.RemoveComponent<ResourceTargetPosition>(entityInQueryIndex, e);
             }
-        }).Run();
-        ecb.Playback(EntityManager);
+        }).ScheduleParallel();
+        m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }
