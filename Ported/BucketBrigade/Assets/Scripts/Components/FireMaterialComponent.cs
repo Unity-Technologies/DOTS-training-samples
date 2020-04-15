@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
-[GenerateAuthoringComponent]
+using Unity.Rendering;
+
+[MaterialProperty("_Amount", MaterialPropertyFormat.Float)]
 public struct FireMaterialComponent : IComponentData
 {
-    public Color FireColor;
-    public Color GrassColor;
     public float Amount;
 }

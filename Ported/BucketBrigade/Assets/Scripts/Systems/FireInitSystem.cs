@@ -25,9 +25,15 @@ public class FireInitSystem : SystemBase
                     translation.z += y - (data.GridSize.y - 1) / 2f;
                     ecb.SetComponent(instance, new Translation {Value = translation});
                     ecb.SetComponent(instance, new GridIndex(){Index = new int2(x,y)});
+                    
+                    if ((x * y) % 17 == 1)
+                    {
+                        int v = (x * y * 5) % 255;
+                        ecb.SetComponent(instance, new ValueComponent(){Value = (byte)v });
+                    }
+
                 }
             }
-            
             ecb.RemoveComponent<InitData>(spawnerEntity);
         }).Run();
         

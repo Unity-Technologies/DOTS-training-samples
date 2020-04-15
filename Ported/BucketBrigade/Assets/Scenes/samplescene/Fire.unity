@@ -152,8 +152,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GridSize:
-    x: 100
-    y: 100
+    x: 30
+    y: 30
   ValueIncreasePerTick: 0
   MaxValue: 0
   ValuePropagationPerTick: 0
