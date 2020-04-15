@@ -1,6 +1,5 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 
 public class BlockSystem : SystemBase
 {
@@ -17,6 +16,7 @@ public class BlockSystem : SystemBase
                 ComponentType.ReadOnly<MinimumDistance>(),
                 ComponentType.ReadOnly<PercentComplete>(),
                 ComponentType.ReadOnly<LaneAssignment>(),
+                ComponentType.ReadOnly<Speed>(),
             }
         });
 
@@ -25,14 +25,19 @@ public class BlockSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        // Allocate an array of all lane assignments in the world.
         var laneAssignments =
             agentQuery.ToComponentDataArrayAsync<LaneAssignment>(Allocator.TempJob, out var laneAssignmentsHandle);
 
+        // Allocate an array of all percents in the world.
         var percentCompletes =
             agentQuery.ToComponentDataArrayAsync<PercentComplete>(Allocator.TempJob, out var percentCompletesHandle);
 
+        // Allocate an array of all speeds in the world.
         var speeds =
             agentQuery.ToComponentDataArrayAsync<Speed>(Allocator.TempJob, out var speedHandle);
+
+        var agentEntities = agentQuery.ToEntityArrayAsync(Allocator.TempJob, out var agentEntitiesHandle);
 
         var entityCommandBuffer = new EntityCommandBuffer(Allocator.Temp);
 
@@ -41,15 +46,23 @@ public class BlockSystem : SystemBase
             .WithName("block_system")
             // Only get entities that have a BlockSpeed component.
             .WithNone<BlockSpeed>()
+            .WithAll<MinimumDistance, PercentComplete, PercentComplete>()
             // Dealocate the arrays when this job completes.
             .WithDeallocateOnJobCompletion(laneAssignments)
             .WithDeallocateOnJobCompletion(percentCompletes)
             .WithDeallocateOnJobCompletion(speeds)
+            .WithDeallocateOnJobCompletion(agentEntities)
+            // Iterate through each entity with the following:
             .ForEach((int entityInQueryIndex, Entity entity, in MinimumDistance minimumDistance,
             in PercentComplete percentComplete, in LaneAssignment currentLane) =>
             {
                 for (int i = 0; i < laneAssignments.Length; ++i)
                 {
+                    if (entity.Index != agentEntities[i].Index)
+                    {
+                        continue;
+                    }
+
                     // Ignore agents that are not in the same lane.
                     if (currentLane.Value != laneAssignments[i].Value)
                     {
