@@ -1,0 +1,124 @@
+﻿using Unity.Collections;
+using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
+
+public class ActorGoalSystem : SystemBase
+{
+    private Random mRand;
+    private EntityQuery mAllBucketsNotBeingHeld;
+
+    protected override void OnCreate()
+    {
+        GetEntityQuery(ComponentType.ReadWrite<Actor>(), ComponentType.Exclude<Destination>());
+        mAllBucketsNotBeingHeld = GetEntityQuery(ComponentType.ReadWrite<Bucket>(), ComponentType.Exclude<HeldBy>());
+
+        mRand = new Random(1337);
+        base.OnCreate();
+    }
+
+    protected override void OnUpdate()
+    {
+        var actorPerformActionBuffer = new EntityCommandBuffer(Allocator.TempJob);
+        var actorCreateGoalBuffer = new EntityCommandBuffer(Allocator.TempJob);
+
+        var rand = mRand;
+
+        var getBucketComponent = GetComponentDataFromEntity<Bucket>();
+        var getRiverComponent = GetComponentDataFromEntity<River>();
+
+        Entities
+            .WithName("Actor_Perform_Action")
+            .WithAll<Actor>()
+            .WithNone<Destination>()
+            .ForEach((Entity actor, in TargetEntity target) => {
+
+                //TODO: If target is a river, get water, if fire dump water, if another actor, send them a bucket
+
+                if (getBucketComponent.Exists(target.target))
+                {
+
+                }
+
+                actorPerformActionBuffer.RemoveComponent<TargetEntity>(actor);
+            }).Run();
+
+        actorPerformActionBuffer.Playback(EntityManager);
+
+        int numAvailableBuckets = mAllBucketsNotBeingHeld.CalculateEntityCount();
+        if (numAvailableBuckets > 0)
+        {
+            // var bucketEntities = mAllBucketsNotBeingHeld.ToEntityArrayAsync(Allocator.TempJob, out var getBucketEntitiesHandle);
+            // var bucketPositions = mAllBucketsNotBeingHeld.ToEntityArrayAsync(Allocator.TempJob, out var getBucketPositionsHandle);
+            // var bucketsTaken = new NativeHashMap<Entity, Entity>(numAvailableBuckets, Allocator.TempJob);
+            //
+            // var parallelBucketsTaken = bucketsTaken.AsParallelWriter();
+            //
+            // Entities
+            //     .WithName("Actor_Find_Bucket")
+            //     .WithAll<Actor>()
+            //     .WithNone<Destination, HoldingBucket>()
+            //     .WithDeallocateOnJobCompletion(bucketEntities)
+            //     .WithDeallocateOnJobCompletion(bucketPositions)
+            //     .WithDeallocateOnJobCompletion(bucketsTaken)
+            //     .ForEach((Entity actor, in Translation currentPos) =>
+            //     {
+            //         //TODO: Find bucket
+            //         var randomCircle = (rand.NextFloat2() - 1) * 2;
+            //         randomCircle *= rand.NextFloat() * 5;
+            //         Destination dest = new Destination()
+            //         {
+            //             position = currentPos.Value + new float3(randomCircle.x, 0f, randomCircle.y)
+            //         };
+            //
+            //         actorCreateGoalBuffer.AddComponent(actor, dest);
+            //     }).Run();
+        }
+
+        Entities
+            .WithName("Actor_Find_Water")
+            .WithAll<Actor, HoldingBucket>()
+            .WithNone<Destination>()
+            .ForEach((Entity actor, in Translation currentPos) =>
+            {
+                //TODO: Find water destination
+                var randomCircle = (rand.NextFloat2() - 1) * 2;
+                randomCircle *= rand.NextFloat() * 5;
+                Destination dest = new Destination()
+                {
+                    position = currentPos.Value + new float3(randomCircle.x, 0f, randomCircle.y)
+                };
+
+                actorCreateGoalBuffer.AddComponent(actor, dest);
+            }).Run();
+
+        Entities
+            .WithName("Actor_Find_Fire")
+            .WithAll<Actor, HoldingBucket>()
+            .WithNone<Destination>()
+            .ForEach((Entity actor, in Translation currentPos) =>
+            {
+                //TODO: Find fire destination
+                var randomCircle = (rand.NextFloat2() - 1) * 2;
+                randomCircle *= rand.NextFloat() * 5;
+                Destination dest = new Destination()
+                {
+                    position = currentPos.Value + new float3(randomCircle.x, 0f, randomCircle.y)
+                };
+
+                actorCreateGoalBuffer.AddComponent(actor, dest);
+            }).Run();
+
+        mRand = rand;
+<<<<<<< Updated upstream
+        ecb.Playback(EntityManager);
+
+        ecb.Dispose();
+=======
+        actorCreateGoalBuffer.Playback(EntityManager);
+
+        actorCreateGoalBuffer.Dispose();
+        actorPerformActionBuffer.Dispose();
+>>>>>>> Stashed changes
+    }
+}
