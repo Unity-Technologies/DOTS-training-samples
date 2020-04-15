@@ -16,6 +16,10 @@ public class ActorMovementSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        if (!HasSingleton<TuningData>())
+        {
+            return;
+        }
         var tuningData = GetSingleton<TuningData>();
         var deltaTime = Time.DeltaTime;
 
