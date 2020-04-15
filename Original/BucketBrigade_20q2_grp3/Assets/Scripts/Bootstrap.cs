@@ -7,7 +7,6 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
     [Header("FIRE")]
     public int GridWidth;
     public int GridHeight;
-    public float FireSpreadProbabilityMultiplier = 1f;
     public GameObject FirePrefab;
     public float PropagationChance = 0.3f;
     public float GrowSpeed = 0.01f;
@@ -52,7 +51,7 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
         init.RandomSeed = RandomSeed;
         init.FirePrefab = conversionSystem.GetPrimaryEntity(FirePrefab);
 
-        World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireSimulationSystem>().FireSpreadProbabilityMultiplier = FireSpreadProbabilityMultiplier;
+        World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireSimulationSystem>().PropagationChance = PropagationChance;
 
         foreach (var br in BrigadeLines)
         {

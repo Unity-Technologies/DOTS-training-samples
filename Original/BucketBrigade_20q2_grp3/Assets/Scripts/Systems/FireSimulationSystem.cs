@@ -1,19 +1,14 @@
 using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
-using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class FireSimulationSystem : SystemBase
 {
-    public float FireSpreadProbabilityMultiplier = 1;
-
-    public float PropagationChance;
+    public float PropagationChance = 1;
     public float GrowSpeed;
     public double UpdateFrequency;
     public double UpdatePropagationFrequency;
@@ -65,11 +60,12 @@ public class FireSimulationSystem : SystemBase
     {
         var data = GridData.Instance;
         Entities
+            .WithName("UpdateFireColor")
             .WithReadOnly(data)
             .ForEach((ref Unity.Rendering.MaterialColor color, in GridCell cell) =>
             {
                 var heat = data.Heat[cell.Index];
-                var value = math.pow(1 - heat, 3);
+                var value = math.pow(1 - heat, 2);
                 color.Value = new float4(1, value, value, 1);
             }).Schedule();
     }
@@ -77,7 +73,7 @@ public class FireSimulationSystem : SystemBase
     private void PropagateFire()
     {
         var data = GridData.Instance;
-        var job = new PropagateFireJob { Heat = data.Heat, Width = data.Width, Random = m_Random, ProbabilityMultiplier = FireSpreadProbabilityMultiplier, Speed = GrowSpeed}.Schedule(/*data.Width * data.Height, data.Width*/);
+        var job = new PropagateFireJob { Heat = data.Heat, Width = data.Width, Random = m_Random, PropagationChance = PropagationChance, Speed = GrowSpeed}.Schedule(/*data.Width * data.Height, data.Width*/);
         job.Complete();
     }
 
@@ -108,7 +104,7 @@ public class FireSimulationSystem : SystemBase
         [NativeDisableParallelForRestriction] public NativeArray<float> Heat;
         public int Width;
         public FloatRandom Random;
-        public float ProbabilityMultiplier;
+        public float PropagationChance;
         public float Speed;
 
         public void Execute()
@@ -121,7 +117,7 @@ public class FireSimulationSystem : SystemBase
                     var up = index + Width;
                     if (up < Heat.Length && Heat[up] > float.Epsilon)
                     {
-                        if (Random.NextFloat() < Heat[up] * ProbabilityMultiplier)
+                        if (Random.NextFloat() < Heat[up] * PropagationChance)
                         {
                             Heat[index] = Speed;
                             continue;
@@ -131,7 +127,7 @@ public class FireSimulationSystem : SystemBase
                     var right = index + 1;
                     if (right < Heat.Length && Heat[right] > float.Epsilon && row == right / Width)
                     {
-                        if (Random.NextFloat() < Heat[right] * ProbabilityMultiplier)
+                        if (Random.NextFloat() < Heat[right] * PropagationChance)
                         {
                             Heat[index] = Speed;
                             continue;
@@ -140,7 +136,7 @@ public class FireSimulationSystem : SystemBase
                     var down = index - Width;
                     if (down >= 0 && Heat[down] > float.Epsilon)
                     {
-                        if (Random.NextFloat() < Heat[down] * ProbabilityMultiplier)
+                        if (Random.NextFloat() < Heat[down] * PropagationChance)
                         {
                             Heat[index] = Speed;
                             continue;
@@ -150,7 +146,7 @@ public class FireSimulationSystem : SystemBase
                     var left = index - 1;
                     if (left >= 0 && Heat[left] > float.Epsilon && row == left / Width)
                     {
-                        if (Random.NextFloat() < Heat[left] * ProbabilityMultiplier)
+                        if (Random.NextFloat() < Heat[left] * PropagationChance)
                         {
                             Heat[index] = Speed;
                             continue;
