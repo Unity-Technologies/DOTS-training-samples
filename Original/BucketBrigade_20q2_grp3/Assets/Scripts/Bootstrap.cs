@@ -13,6 +13,10 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
     public float GrowSpeed = 0.01f;
     public float UpdateFrequency = 0.01f;
     public float UpdatePropagationFrequency = 0.5f;
+    [Tooltip("Random seed to use, or 0 to allow random per-run")]
+    public int RandomSeed = 0;
+    [Tooltip("How many fires to start on initialization")]
+    public int StartingFireCount = 1;
     
 /*
     //note copied from original we may not use all these values
@@ -64,6 +68,8 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
         var init = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<InitWorldStateSystem>();
         init.GridWidth = GridWidth;
         init.GridHeight = GridHeight;
+        init.StartingFireCount = StartingFireCount;
+        init.RandomSeed = RandomSeed;
         init.FirePrefab = conversionSystem.GetPrimaryEntity(FirePrefab);
 
         World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireSimulationSystem>().FireSpreadProbabilityMultiplier = FireSpreadProbabilityMultiplier;
