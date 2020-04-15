@@ -42,8 +42,9 @@ public class BlockSystem : SystemBase
             // Only get entities that have a BlockSpeed component.
             .WithNone<BlockSpeed>()
             // Dealocate the arrays when this job completes.
-            .WithDeallocateOnJobCompletion(laneAssignmentsHandle)
-            .WithDeallocateOnJobCompletion(percentCompletesHandle)
+            .WithDeallocateOnJobCompletion(laneAssignments)
+            .WithDeallocateOnJobCompletion(percentCompletes)
+            .WithDeallocateOnJobCompletion(speeds)
             .ForEach((int entityInQueryIndex, Entity entity, in MinimumDistance minimumDistance,
             in PercentComplete percentComplete, in LaneAssignment currentLane) =>
             {
@@ -68,7 +69,7 @@ public class BlockSystem : SystemBase
                     if (distance < minimumDistance.Value)
                     {
                         // Add a BlockSpeed component with the speed of the car that is ahead of it.
-                        entityCommandBuffer.AddComponent(entity, new BlockSpeed { Value = speeds[i].Value };
+                        entityCommandBuffer.AddComponent(entity, new BlockSpeed { Value = speeds[i].Value });
                     }
                 }
             })
