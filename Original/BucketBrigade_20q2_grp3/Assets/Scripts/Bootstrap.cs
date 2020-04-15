@@ -43,6 +43,16 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
     public Color colour_bucket_empty;
     public Color colour_bucket_full;
 
+    [System.Serializable]
+    public class BrigadeLineInfo
+    {
+        [Range(1, 1000)]
+        public int WorkerCount;
+    }
+
+    [Tooltip("Brigade Line Setup")]
+    public List<BrigadeLineInfo> BrigadeLines = new List<BrigadeLineInfo>();
+
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         var init = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<InitWorldStateSystem>();
@@ -51,6 +61,12 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
         init.FirePrefab = conversionSystem.GetPrimaryEntity(FirePrefab);
 
         World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireSimulationSystem>().FireSpreadProbabilityMultiplier = FireSpreadProbabilityMultiplier;
+
+        foreach (var br in BrigadeLines)
+        {
+            var bInfo = dstManager.CreateEntity(ComponentType.ReadOnly<BrigadeInitInfo>());
+            dstManager.SetComponentData(bInfo, new BrigadeInitInfo() { WorkerCount = br.WorkerCount });
+        }
     }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
