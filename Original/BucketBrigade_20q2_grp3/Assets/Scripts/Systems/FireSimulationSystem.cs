@@ -4,6 +4,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -11,7 +12,7 @@ using Random = UnityEngine.Random;
 public class FireSimulationSystem : SystemBase
 {
     public float FireSpreadProbabilityMultiplier = 1;
-    
+
     public float PropagationChance;
     public float GrowSpeed;
     public double UpdateFrequency;
@@ -33,7 +34,7 @@ public class FireSimulationSystem : SystemBase
     {
         if (!GridData.Instance.Heat.IsCreated)
             return;
-        
+
         if (m_LastUpdatePropagationTime + UpdatePropagationFrequency < Time.ElapsedTime)
         {
             m_LastUpdatePropagationTime = Time.ElapsedTime;
@@ -46,6 +47,7 @@ public class FireSimulationSystem : SystemBase
             m_LastUpdateTime = Time.ElapsedTime;
 
             GrowFire();
+            UpdateColor();
 
             // TODO: Remove since this will be done by another system?
             UpdateFirePosition();
@@ -57,6 +59,19 @@ public class FireSimulationSystem : SystemBase
         var data = GridData.Instance;
         var job = new GrowFireJob { Data = data, Speed = GrowSpeed }.Schedule(data.Width * data.Height, data.Width);
         job.Complete();
+    }
+
+    private void UpdateColor()
+    {
+        var data = GridData.Instance;
+        Entities
+            .WithReadOnly(data)
+            .ForEach((ref Unity.Rendering.MaterialColor color, in GridCell cell) =>
+            {
+                var heat = data.Heat[cell.Index];
+                var value = math.pow(1 - heat, 3);
+                color.Value = new float4(1, value, value, 1);
+            }).Schedule();
     }
 
     private void PropagateFire()
@@ -72,6 +87,7 @@ public class FireSimulationSystem : SystemBase
         var time = Time.ElapsedTime;
         Entities
             .WithName("UpdateFirePosition")
+            .WithReadOnly(data)
             .ForEach((ref Translation translation, in GridCell cell) =>
         {
             var position = translation.Value;
@@ -150,7 +166,7 @@ public class FireSimulationSystem : SystemBase
     {
         public GridData Data;
         public float Speed;
-        
+
         public void Execute(int index)
         {
             if (Data.Heat[index] > 0 && Data.Heat[index] < 1)
