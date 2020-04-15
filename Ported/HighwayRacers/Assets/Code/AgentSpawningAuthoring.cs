@@ -23,3 +23,4 @@ public class AgentSpawningAuthoring : MonoBehaviour, IConvertGameObjectToEntity,
         referencedPrefabs.Add(PrefabAgent);
     }
 }
+//
