@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-public struct OvertakeSpeed : IComponentData
+public struct OvertakeSpeedIncrement : IComponentData
 {
     public float Value;
 }
