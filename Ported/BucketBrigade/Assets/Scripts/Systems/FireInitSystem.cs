@@ -28,8 +28,8 @@ public class FireInitSystem : SystemBase
                     
                     if ((x * y) % 17 == 1)
                     {
-                        int v = (x * y * 5) % 255;
-                        ecb.SetComponent(instance, new ValueComponent(){Value = (byte)v });
+                        float v = data.ValueThreshold + (x * y * 5) % (data.ValueThreshold * 0.1f);
+                        ecb.SetComponent(instance, new ValueComponent(){Value = v });
                     }
 
                 }
