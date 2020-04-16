@@ -4,6 +4,7 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class InitWorldStateSystem : SystemBase
 {
     public int GridWidth;
