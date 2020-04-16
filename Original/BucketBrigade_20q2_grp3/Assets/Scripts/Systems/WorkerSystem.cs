@@ -54,10 +54,6 @@ public class WorkerMoveToSystem : SystemBase
             if (pos.Value.x == targetPos.x && pos.Value.y == targetPos.y && pos.Value.z == targetPos.z)
             {
                 ecb.RemoveComponent<WorkerMoveTo>(entityInQueryIndex, e);
-                //note, every worker tries to apply water when it stops moving (not fully correct)
-                var extinguishDataEntity = ecb.CreateEntity(entityInQueryIndex);
-                ecb.AddComponent(entityInQueryIndex, extinguishDataEntity, new ExtinguishData() {X = (int)pos.Value.x, Y = (int)pos.Value.z});
-                ecb.RemoveComponent<ResourceTargetPosition>(entityInQueryIndex, e);
             }
 
         }).ScheduleParallel();
@@ -93,6 +89,14 @@ public class PassBucketSystem : SystemBase
                         ecb.AddComponent(target.NextWorkerInLine, bucketRef);
                         ecb.SetComponent(bucketRef.Bucket, new BucketWorkerRef() { WorkerRef = target.NextWorkerInLine });
                     }
+                }
+                else
+                {
+                    var extinguishDataEntity = ecb.CreateEntity();
+                    ecb.AddComponent(extinguishDataEntity, new ExtinguishData() {X = (int)positions.End.x, Y = (int)positions.End.y});
+                    ecb.DestroyEntity(bucketRef.Bucket);
+                    ecb.RemoveComponent<BucketRef>(e);
+                    ecb.AddComponent(e, new WorkerMoveTo() { Value = positions.Start });
                 }
             }).Run();
         ecb.Playback(EntityManager);
