@@ -51,7 +51,7 @@ public class WorkerMoveToSystem : SystemBase
             float3 targetPos = new float3(target.Value.x, pos.Value.y, target.Value.y);
             pos.Value = MoveTo(pos.Value, targetPos, deltaTime * speed);
 
-            if (pos.Value.x == targetPos.x && pos.Value.y == targetPos.y && pos.Value.z == targetPos.y)
+            if (pos.Value.x == targetPos.x && pos.Value.y == targetPos.y && pos.Value.z == targetPos.z)
                 ecb.RemoveComponent<WorkerMoveTo>(entityInQueryIndex, e);
 
         }).ScheduleParallel();
@@ -73,16 +73,19 @@ public class PassBucketSystem : SystemBase
         Entities.WithNone<WorkerMoveTo>()
             .ForEach((Entity e, in Worker target, in WorkerStartEndPositions positions, in BucketRef bucketRef) =>
             {
-                bool nextWorkerIsMoving = HasComponent<WorkerMoveTo>(target.NextWorkerInLine);
-                bool nextWorkerHasBucket = HasComponent<BucketRef>(target.NextWorkerInLine);
-                if (!nextWorkerIsMoving && !nextWorkerHasBucket)
+                if (target.NextWorkerInLine != default(Entity))
                 {
-                    ecb.RemoveComponent<BucketRef>(e);
-                    ecb.AddComponent(e, new WorkerMoveTo() { Value = positions.Start });
+                    bool nextWorkerIsMoving = HasComponent<WorkerMoveTo>(target.NextWorkerInLine);
+                    bool nextWorkerHasBucket = HasComponent<BucketRef>(target.NextWorkerInLine);
+                    if (!nextWorkerIsMoving && !nextWorkerHasBucket)
+                    {
+                        ecb.RemoveComponent<BucketRef>(e);
+                        ecb.AddComponent(e, new WorkerMoveTo() { Value = positions.Start });
 
-                    WorkerStartEndPositions nextDest = GetComponent<WorkerStartEndPositions>(target.NextWorkerInLine);
-                    ecb.AddComponent(target.NextWorkerInLine, new WorkerMoveTo() { Value = nextDest.End });
-                    ecb.AddComponent(target.NextWorkerInLine, bucketRef);
+                        WorkerStartEndPositions nextDest = GetComponent<WorkerStartEndPositions>(target.NextWorkerInLine);
+                        ecb.AddComponent(target.NextWorkerInLine, new WorkerMoveTo() { Value = nextDest.End });
+                        ecb.AddComponent(target.NextWorkerInLine, bucketRef);
+                    }
                 }
             }).Run();
         ecb.Playback(EntityManager);
