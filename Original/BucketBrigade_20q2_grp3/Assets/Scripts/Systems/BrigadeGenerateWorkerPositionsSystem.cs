@@ -11,6 +11,11 @@ public class BrigadeGenerateWorkerPositionsSystem : SystemBase
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
+    static float2 GetWaypoint(float2 src, float2 dest, int pointIndex, int pointCount)
+    {
+        return math.lerp(src, dest, ((float)pointIndex / (float)pointCount));
+    }
+
     Random rand = new Random(455676);
     protected override void OnUpdate()
     {
@@ -24,21 +29,21 @@ public class BrigadeGenerateWorkerPositionsSystem : SystemBase
                 var bucket = ecb.CreateEntity(entityInQueryIndex);
                 var start = source.Value;
                 var end = target.Value;
-                float2 prevPos = default;
-                for (int i = workers.Length - 1; i >= 0; i--)
+                for(int i = 0; i < workers.Length; i++)
                 {
-                    var pos = math.lerp(start, end, (float)i / workers.Length);
-                    ecb.AddComponent(entityInQueryIndex, workers[i].Value, new WorkerStartEndPositions() { Start = pos, End = prevPos });
+                    var positions = new WorkerStartEndPositions()
+                    {
+                        Start = GetWaypoint(start, end, i, workers.Length + 1),
+                        End = GetWaypoint(start, end, i + 1, workers.Length + 1),
+                    };
+                    var initialDestination = new WorkerMoveTo() { Value = positions.Start };
+                    ecb.AddComponent(entityInQueryIndex, workers[i].Value, positions);
                     if (i == 0)
                     {
                         ecb.AddComponent(entityInQueryIndex, workers[i].Value, new BucketRef() { Bucket = bucket });
-                        ecb.AddComponent(entityInQueryIndex, workers[i].Value, new WorkerMoveTo() { Value = prevPos });
+                        initialDestination.Value = positions.End;
                     }
-                    else
-                    {
-                        ecb.AddComponent(entityInQueryIndex, workers[i].Value, new WorkerMoveTo() { Value = pos });
-                    }
-                    prevPos = pos;
+                    ecb.AddComponent(entityInQueryIndex, workers[i].Value, initialDestination);
                 }
                 ecb.AddComponent(entityInQueryIndex, e, new BrigadeLineEstablished());
           //      ecb.AddComponent(entityInQueryIndex, e, new Reset() { ResetTime = time + r.NextDouble(3, 10) });
