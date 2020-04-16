@@ -222,7 +222,7 @@ public class ActorGoalSystem : SystemBase
 
             var getBucketValue = GetComponentDataFromEntity<ValueComponent>(true);
 
-            Entities
+            /*Entities
                 .WithName("Actor_Find_Water")
                 .WithAll<Actor>()
                 .WithNone<Destination, TargetEntity>()
@@ -295,7 +295,7 @@ public class ActorGoalSystem : SystemBase
                         actorCreateGoalBuffer.AddComponent(nativeThreadIndex, actor, new Destination() {position = allFirePositions[closestFireEntity].Value});
                         actorCreateGoalBuffer.AddComponent(nativeThreadIndex, actor, new TargetEntity() {target = allFireEntities[closestFireEntity]});
                     }
-                }).ScheduleParallel();
+                }).ScheduleParallel();*/
         }
 
         mRand = rand;

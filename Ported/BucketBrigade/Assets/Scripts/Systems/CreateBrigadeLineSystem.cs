@@ -1,26 +1,118 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
 public class CreateBrigadeLineSystem : SystemBase
 {
+    private EntityQuery mAllRiversQuery;
+    private EntityQuery mAllFires;
+    EntityQuery mAllBrigade;
+    protected override void OnCreate()
+    {
+        mAllRiversQuery = EntityManager.CreateEntityQuery(ComponentType.ReadWrite<River>(),
+            ComponentType.ReadWrite<Translation>(),
+            ComponentType.ReadWrite<ValueComponent>());
+        mAllFires = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Fire>(),
+            ComponentType.ReadOnly<ValueComponent>(),
+            ComponentType.ReadOnly<Translation>()); 
+        
+        mAllBrigade = base.GetEntityQuery(ComponentType.Exclude<LineComponent>(), ComponentType.ReadOnly<Brigade>());
+    }
+    
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        mAllRiversQuery.Dispose();
+        mAllFires.Dispose();
+    }
+
     protected override void OnUpdate()
     {
-        EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
-        Entities.WithoutBurst().WithAll<Brigade>().ForEach((Entity e, in DynamicBuffer<ActorElement> actors, in LineComponent line) =>
+        if (!HasSingleton<TuningData>())
+            return;
+
+        int brigadecount = mAllBrigade.CalculateChunkCount();
+        if (mAllBrigade.CalculateChunkCount() == 0)
+            return;
+        
+        var tuningData = GetSingleton<TuningData>();
+        var waterPositions = mAllRiversQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var waterPositionHandle);
+        var waterEntities = mAllRiversQuery.ToEntityArrayAsync(Allocator.TempJob, out var waterEntityHandle);
+        var findWaterJobHandle = JobHandle.CombineDependencies(waterPositionHandle, waterEntityHandle);
+        var translations = GetComponentDataFromEntity<Translation>(true);
+        
+        var allFireEntities = mAllFires.ToEntityArrayAsync(Allocator.TempJob, out var allFireEntitiesHandle);
+        var allFirePositions = mAllFires.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var allFirePositionsHandle);
+        var allFireValues = mAllFires.ToComponentDataArrayAsync<ValueComponent>(Allocator.TempJob, out var allFireValuesHandle);
+        var combinedDeps = JobHandle.CombineDependencies(allFireEntitiesHandle, allFirePositionsHandle);
+        combinedDeps = JobHandle.CombineDependencies(combinedDeps, allFireValuesHandle);
+        Dependency = JobHandle.CombineDependencies(combinedDeps, Dependency);
+        Dependency = JobHandle.CombineDependencies(Dependency, findWaterJobHandle);
+        
+        EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
+        Entities.
+            WithAll<Brigade>().
+            WithNone<LineComponent>().
+            WithReadOnly(translations).
+            WithDeallocateOnJobCompletion(waterPositions).
+            WithDeallocateOnJobCompletion(waterEntities).
+            WithDeallocateOnJobCompletion(allFireEntities).
+            WithDeallocateOnJobCompletion(allFirePositions).
+            WithDeallocateOnJobCompletion(allFireValues).ForEach((Entity e, in DynamicBuffer<ActorElement> actors) =>
         {
-            float3 positionStart = EntityManager.GetComponentData<Translation>(e).Value;
-            float3 positionEnd = EntityManager.GetComponentData<Translation>(e).Value;
+            var fillerEntity = actors[1].actor;
+            var fillerPosition = translations[fillerEntity];
             
+            float closestWater = float.MaxValue;
+            int closestWaterEntity = -1;
+            float3 actorPosition = fillerPosition.Value;
+
+            for (int i = 0; i < waterEntities.Length; ++i)
+            {
+                float distance = math.length(actorPosition - waterPositions[i].Value);
+                if (distance < closestWater)
+                {
+                    closestWaterEntity = i;
+                    closestWater = distance;
+                }
+            }
+
+            var throwerEntity = actors[actors.Length/2 - 1].actor;
+            var throwerPosition = translations[throwerEntity];
+            float closestFire = float.MaxValue;
+            int closestFireEntity = -1;
+            actorPosition = throwerPosition.Value;
+
+            for (int i = 0; i < allFireEntities.Length; ++i)
+            {
+                float distance = math.length(actorPosition - allFirePositions[i].Value);
+                if (distance < closestFire && allFireValues[i].Value > tuningData.ValueThreshold)
+                {
+                    closestFireEntity = i;
+                    closestFire = distance;
+                }
+            }
+
+            var lineComponent = new LineComponent()
+            {
+                start = waterEntities[closestWaterEntity],
+                end = allFireEntities[closestFireEntity]
+            };
+            ecb.AddComponent(e, lineComponent);
+
+            float3 startPosition = translations[lineComponent.start].Value;
+            float3 endPosition = translations[lineComponent.end].Value;
             for (int i = 0; i < actors.Length; i++)
             {
-                float newX = math.lerp(positionStart.x, positionEnd.x, i);
-                float newZ = math.lerp(positionStart.z, positionEnd.z, i);
-                
-                float3 initPosition = EntityManager.GetComponentData<Translation>(actors[i].actor).Value;
-                ecb.SetComponent(actors[i].actor, new Destination(){position = new float3(newX, initPosition.y, newZ)});
+                var actorEntity = actors[i].actor;
+                float3 pos = math.lerp(startPosition, endPosition, (i * 0.5f) / actors.Length);
+                float3 initPosition = translations[actorEntity].Value;
+                ecb.AddComponent(actors[i].actor, new Destination(){position = new float3(pos.x, initPosition.y, pos.z)});
+                ecb.RemoveComponent<TargetEntity>(actorEntity);
             }
+            
         }).Run();
         ecb.Playback(EntityManager);
         ecb.Dispose();

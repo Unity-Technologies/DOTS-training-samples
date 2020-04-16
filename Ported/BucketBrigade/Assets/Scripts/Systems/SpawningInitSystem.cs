@@ -25,7 +25,8 @@ public class SpawningInitSystem : SystemBase
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
         Entities.WithoutBurst().ForEach((Entity entity, in InitDataActors actorTunning) =>
         {
-            for (int brigade = 0; brigade < actorTunning.BrigadeCount; brigade++)
+            int actorCount = actorTunning.BrigadeCount;
+            for (int brigade = 0; brigade < actorCount; brigade++)
             {
                 Entity brigadeEntity = ecb.CreateEntity();
                 ecb.AddComponent<Brigade>(brigadeEntity);
@@ -42,14 +43,13 @@ public class SpawningInitSystem : SystemBase
                     };
                     ecb.SetComponent(e, position);
 
-                    if (actor == 1)
-                        ecb.AddComponent<ScooperTag>(e); 
-                    else if (actor == 2)
-                        ecb.AddComponent<ThrowerTag>(e); 
-                    else if (actor == 3)
+                    if (actor == 0)
+                        ecb.AddComponent<ScooperTag>(e);
+                    else if (actor == 1)
                         ecb.AddComponent<FillerTag>(e);
-                    
-                    
+                    else if (actor == actorCount / 2)
+                        ecb.AddComponent(e, new ThrowerTag() { brigade = entity });
+
                     //some way to add e to brigadeEntity...
                     buffer.Add(new ActorElement(){actor = e});
                 }
