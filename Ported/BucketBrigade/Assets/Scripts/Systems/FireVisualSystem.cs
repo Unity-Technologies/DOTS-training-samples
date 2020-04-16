@@ -26,7 +26,10 @@ public class FireVisualSystem : SystemBase
                 //map the overall value from [0-1]
                 float intensity = val.Value / maxValue;
                 translation.Value.y = intensity - 0.5f;
-                mat.Amount = 255f * intensity;
+                
+                //todo I believe this sets the color range from [0-84] based on 8 bit RGB values
+                //verify this is how the material coloring works
+                mat.Amount = 255f * intensity / 3.0f;
                 
             }).Run();
 

@@ -156,7 +156,7 @@ MonoBehaviour:
     y: 30
   ValueIncreasePerTick: 0
   MaxValue: 500
-  ValuePropagationPerTick: 3
+  ValuePropagationPerTick: 5
   ValueThreshold: 100
   ActorSpeed: 3
   BucketCapacity: 10
