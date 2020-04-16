@@ -15,7 +15,7 @@ public class BucketVisualSystem : SystemBase
             return;
         }
         var tuningData = GetSingleton<TuningData>();
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+ 
 
         Entities.WithAll<Bucket>()
             .WithName("Bucket_Visuals").ForEach((ref FireMaterialComponent mat, ref NonUniformScale scale, in ValueComponent val) =>
@@ -25,8 +25,8 @@ public class BucketVisualSystem : SystemBase
                 scale.Value.z = (1 + val.Value / tuningData.BucketCapacity ) * tuningData.BucketScale;
                 mat.Amount =  val.Value / tuningData.BucketCapacity;
 
-            }).Run();
+            }).ScheduleParallel();
 
-        ecb.Playback(EntityManager);
+
     }
 }
