@@ -2,19 +2,23 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 [UpdateAfter(typeof(FireInitSystem))]
 public class SpawningInitSystem : SystemBase
 {
     Random random = new Random(1000);
-
+    
     protected override void OnUpdate()
     {
+        if (!HasSingleton<TuningData>())
+            return;
+        
         Entity tuningDataEntity = GetSingletonEntity<TuningData>();
         TuningData tuningData = EntityManager.GetComponentData<TuningData>(tuningDataEntity);
         
-        EntityQuery eqFire = GetEntityQuery(ComponentType.ReadOnly<Fire>());
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
         Entities.WithoutBurst().ForEach((Entity entity, in InitDataActors actorTunning) =>
         {
