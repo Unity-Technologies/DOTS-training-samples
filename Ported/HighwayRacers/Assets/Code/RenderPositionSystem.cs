@@ -9,12 +9,12 @@ public class RenderPositionSystem : SystemBase
 {
     protected override void OnCreate()
     {
-        RequireForUpdate(EntityManager.CreateEntityQuery(typeof(LaneInfo)));
+        RequireForUpdate(EntityManager.CreateEntityQuery(typeof(RoadInfo)));
     }
 
     protected override void OnUpdate()
     {
-        var laneInfo = GetSingleton<LaneInfo>();
+        var laneInfo = GetSingleton<RoadInfo>();
 
         Entities.ForEach((ref Translation translation, in PercentComplete percentComplete, in LaneAssignment laneAssignment) =>
         {
