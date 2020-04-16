@@ -27,7 +27,7 @@ public class InitWorldStateSystem : SystemBase
 
             m_Initialized = true;
 
-            var grid = GridUtils.CreateGrid(GridWidth, GridHeight);
+            var grid = GridUtils.CreateGrid(GridWidth, GridHeight, 1);
 
             // Spawn grid cells
             for (int i = 0; i < GridWidth * GridHeight; i++)
@@ -35,7 +35,7 @@ public class InitWorldStateSystem : SystemBase
                 var entity = EntityManager.Instantiate(FirePrefab);
                 var comp = new GridCell { Index = i };
                 EntityManager.AddComponentData(entity, comp);
-                EntityManager.AddComponentData(entity, new Unity.Rendering.MaterialColor{ Value = new float4(0,1,1,1) });
+                EntityManager.AddComponentData(entity, new Unity.Rendering.MaterialColor{ Value = new float4(0,1,0,1) });
 
                 // TODO: Translation component should not be needed to build LocalToWorld
                 EntityManager.SetComponentData(entity, new Translation{ Value = new float3(i % GridWidth, 0, i / GridWidth) });

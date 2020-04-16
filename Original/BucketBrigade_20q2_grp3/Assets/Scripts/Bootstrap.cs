@@ -56,7 +56,7 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
         init.RandomSeed = RandomSeed;
         init.FirePrefab = conversionSystem.GetPrimaryEntity(FirePrefab);
 
-        World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireSimulationSystem>().PropagationChance = PropagationChance;
+        World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FirePropagateSystem>().PropagationChance = PropagationChance;
 
         foreach (var br in BrigadeLines)
         {
@@ -65,15 +65,17 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
             dstManager.SetComponentData(bInfo, new BrigadeInitInfo() {WorkerCount = br.WorkerCount});
         }
 
-        var fireSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireSimulationSystem>();
-        fireSystem.PropagationChance = PropagationChance;
-        fireSystem.FireGrowStep = FireGrowStep;
-        fireSystem.UpdateGrowFrequency = FireGrowFrequency;
-        fireSystem.UpdatePropagationFrequency = UpdatePropagationFrequency;
-
-        var extinguish = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<ExtinguishSystem>();
+        var extinguish = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireExtinguishSystem>();
         extinguish.ExtinguishDistance = ExtinguishDistance;
         extinguish.ExtinguishAmountAtMaxDistance = ExtinguishAmountAtMaxDistance;
+
+        var fireGrowSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireGrowSystem>();
+        fireGrowSystem.FireGrowStep = FireGrowStep;
+        fireGrowSystem.UpdateGrowFrequency = FireGrowFrequency;
+
+        var fireSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FirePropagateSystem>();
+        fireSystem.PropagationChance = PropagationChance;
+        fireSystem.UpdatePropagationFrequency = UpdatePropagationFrequency;
     }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)

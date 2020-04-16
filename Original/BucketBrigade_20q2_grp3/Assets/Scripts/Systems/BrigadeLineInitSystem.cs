@@ -7,6 +7,7 @@ using Unity.Transforms;
 public class BrigadeLineInitSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;
+    private bool m_Initialized;
 
     protected override void OnCreate()
     {
@@ -15,28 +16,35 @@ public class BrigadeLineInitSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var prefabs = GetSingleton<GlobalPrefabs>();
-        var random = new Random(745453);
-        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
-        Entities
-            .WithNone<BrigadeLine>()
-            .ForEach((int entityInQueryIndex, Entity e, in BrigadeInitInfo info) =>
-            {
-                ecb.AddComponent<BrigadeLine>(entityInQueryIndex, e);
-                var workerBuffer = ecb.AddBuffer<WorkerEntityElementData>(entityInQueryIndex, e);
-                
-                for (int i = 0; i < info.WorkerCount; i++)
+        if (!m_Initialized)
+        {
+            var prefabs = GetSingleton<GlobalPrefabs>();
+            var random = new Random(745453);
+            var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
+            Entities
+                .WithNone<BrigadeLine>()
+                .ForEach((int entityInQueryIndex, Entity e, in BrigadeInitInfo info) =>
                 {
-                    var worker = ecb.Instantiate(entityInQueryIndex, prefabs.WorkerPrefab);
-                    ecb.SetComponent(entityInQueryIndex, worker, new Translation() { Value = random.NextFloat3(new float3(0, 0, 0), new float3(100, 0, 100)) });
-                    ecb.AddComponent(entityInQueryIndex, worker, new Worker() { NextWorkerInLine = Entity.Null });
-                    workerBuffer.Add(new WorkerEntityElementData() { Value = worker });
-                }
+                    var center = random.NextFloat2(new float2(100, 100));
+                    ecb.AddComponent(entityInQueryIndex, e, new BrigadeLine() {Center = center});
+                    var workerBuffer = ecb.AddBuffer<WorkerEntityElementData>(entityInQueryIndex, e);
 
-                for (int i = 0; i < info.WorkerCount-1; i++)
-                    ecb.SetComponent(entityInQueryIndex, workerBuffer[i].Value, new Worker() { NextWorkerInLine = workerBuffer[i + 1].Value });
+                    for (int i = 0; i < info.WorkerCount; i++)
+                    {
+                        var worker = ecb.Instantiate(entityInQueryIndex, prefabs.WorkerPrefab);
+                        var wp = center + random.NextFloat2Direction() * 25;
+                        ecb.SetComponent(entityInQueryIndex, worker,
+                            new Translation() {Value = new float3(wp.x, 0, wp.y)});
+                        ecb.AddComponent(entityInQueryIndex, worker, new Worker() {NextWorkerInLine = Entity.Null});
+                        workerBuffer.Add(new WorkerEntityElementData() {Value = worker});
+                    }
 
-            }).ScheduleParallel();
-        m_ECBSystem.AddJobHandleForProducer(Dependency);
+                    for (int i = 0; i < info.WorkerCount - 1; i++)
+                        ecb.SetComponent(entityInQueryIndex, workerBuffer[i].Value,
+                            new Worker() {NextWorkerInLine = workerBuffer[i + 1].Value});
+                }).ScheduleParallel();
+            m_ECBSystem.AddJobHandleForProducer(Dependency);
+            m_Initialized = true;
+        }
     }
 }

@@ -2,7 +2,7 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 
-/*
+
 public struct Reset : IComponentData
 {
     public double ResetTime;
@@ -25,6 +25,11 @@ public class ResetSystem : SystemBase
         {
             if (time > r.ResetTime)
             {
+                if (HasComponent<ResourceSourcePosition>(e))
+                {
+                    var resourceId = GetComponent<ResourceSourcePosition>(e).Id;
+                    ecb.RemoveComponent<ResourceClaimed>(entityInQueryIndex, resourceId);
+                }
                 ecb.RemoveComponent<ResourceSourcePosition>(entityInQueryIndex, e);
                 ecb.RemoveComponent<ResourceTargetPosition>(entityInQueryIndex, e);
             }
@@ -32,4 +37,3 @@ public class ResetSystem : SystemBase
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }
-*/

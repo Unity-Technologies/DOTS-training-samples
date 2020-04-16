@@ -1,17 +1,22 @@
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class ExtinguishSystem : SystemBase
+public class FireExtinguishSystem : SystemBase
 {
     public int ExtinguishDistance;
     public int ExtinguishAmountAtMaxDistance;
 
+    public JobHandle Deps;
+
+    private FirePropagateSystem m_FirePropagateSystem;
     private EntityCommandBufferSystem m_EcbSystem;
 
     protected override void OnCreate()
     {
         m_EcbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        m_FirePropagateSystem = World.GetOrCreateSystem<FirePropagateSystem>();
     }
 
     protected override void OnUpdate()
@@ -20,13 +25,16 @@ public class ExtinguishSystem : SystemBase
         var ecb = m_EcbSystem.CreateCommandBuffer().ToConcurrent();
         var radius = ExtinguishDistance;
         var amountAtMaxDistance = ExtinguishAmountAtMaxDistance;
+
+        Dependency = JobHandle.CombineDependencies(Dependency, m_FirePropagateSystem.Deps);
+
         Entities
             .WithName("FireExtinguish")
             .ForEach((int entityInQueryIndex, Entity entity, in ExtinguishData data) =>
             {
                 ecb.DestroyEntity(entityInQueryIndex, entity);
 
-                var address = grid.GetAddress(data.CellIndex);
+                var address = new Vector2Int(data.X, data.Y);
                 if (!grid.InBounds(address))
                     return;
 
@@ -53,6 +61,8 @@ public class ExtinguishSystem : SystemBase
                 }
 
             }).Schedule();
+
         m_EcbSystem.AddJobHandleForProducer(Dependency);
+        Deps = Dependency;
     }
 }

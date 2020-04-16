@@ -41,7 +41,7 @@ public class WorkerMoveToSystem : SystemBase
 
     protected override void OnUpdate() 
     {
-        float speed = 25.0f;
+        float speed = 8.0f;
         float deltaTime = Time.DeltaTime;
 
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
@@ -52,7 +52,13 @@ public class WorkerMoveToSystem : SystemBase
             pos.Value = MoveTo(pos.Value, targetPos, deltaTime * speed);
 
             if (pos.Value.x == targetPos.x && pos.Value.y == targetPos.y && pos.Value.z == targetPos.z)
+            {
                 ecb.RemoveComponent<WorkerMoveTo>(entityInQueryIndex, e);
+                //note, every worker tries to apply water when it stops moving (not fully correct)
+                var extinguishDataEntity = ecb.CreateEntity(entityInQueryIndex);
+                ecb.AddComponent(entityInQueryIndex, extinguishDataEntity, new ExtinguishData() {X = (int)pos.Value.x, Y = (int)pos.Value.z});
+                ecb.RemoveComponent<ResourceTargetPosition>(entityInQueryIndex, e);
+            }
 
         }).ScheduleParallel();
         m_ECBSystem.AddJobHandleForProducer(Dependency);
