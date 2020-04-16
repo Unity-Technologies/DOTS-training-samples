@@ -1,6 +1,6 @@
 using System;
 using Unity.Collections;
-using Unity.Mathematics;
+using UnityEngine;
 
 public struct GridData : IDisposable
 {
@@ -8,6 +8,8 @@ public struct GridData : IDisposable
 
     public int Width;
     public int Height;
+
+    public float CellSize;
 
     public NativeArray<byte> Heat;
 

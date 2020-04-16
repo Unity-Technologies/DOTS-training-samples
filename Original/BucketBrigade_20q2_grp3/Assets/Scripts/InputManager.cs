@@ -10,7 +10,7 @@ public class InputManager : MonoBehaviour
     RaycastHit HitInfo;
     private Bootstrap bootstrap;
     private Plane hitPlane;
-    
+
     void Start()
     {
         bootstrap = GameObject.Find("Bootstrap").GetComponent<Bootstrap>();
@@ -52,20 +52,13 @@ public class InputManager : MonoBehaviour
             if (hitPlane.Raycast(mouseRay, out dist))
             {
                 var hitPosition = mouseRay.GetPoint(dist);
-                int2 gridPosition;
-                gridPosition.x = (int) hitPosition.x;
-                gridPosition.y = (int) hitPosition.z;
-                if (gridPosition.x >= 0 && gridPosition.x < bootstrap.GridWidth)
+                var grid = GridData.Instance;
+                if (grid.TryGetAddressFromWorldPosition(hitPosition, out int index))
                 {
-                    if (gridPosition.y >= 0 && gridPosition.y < bootstrap.GridHeight)
-                    {
-                        Debug.Log("Apply water at " + gridPosition.ToString());
-                        //startFire
-                        var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-                        var e = entityManager.CreateEntity(typeof(ExtinguishData));
-                        entityManager.SetName(e, "ResourceApplyGridPosition");
-                        entityManager.SetComponentData(e, new ExtinguishData() {CellIndex = GridData.Instance.GetIndex((gridPosition.x, gridPosition.y))});
-                    }
+                    var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+                    var e = entityManager.CreateEntity(typeof(ExtinguishData));
+                    entityManager.SetName(e, "ExtinguishData");
+                    entityManager.SetComponentData(e, new ExtinguishData() {CellIndex = index});
                 }
             }
         }

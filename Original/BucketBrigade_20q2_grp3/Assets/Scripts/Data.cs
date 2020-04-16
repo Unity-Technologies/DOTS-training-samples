@@ -16,7 +16,7 @@ public struct ResourceTargetPosition : IComponentData
 /*
 Entities.Foreach(Entity e, in ref BrigadeLine line, ref Worker worker)
 {
-    ///e is the worker, 
+    ///e is the worker,
 }*/
 
 // This goes on the brigade entity
@@ -66,9 +66,4 @@ Entities
 public struct FireStartGridPosition : IComponentData
 {
     public int2 Value;
-} 
-
-public struct ResourceApplyGridPosition : IComponentData
-{
-    public int2 Value;
-} 
+}
