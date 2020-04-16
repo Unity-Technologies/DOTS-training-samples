@@ -10,6 +10,9 @@ public class RoadCreationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public float2 EndXZ;
     public int MaxLanes;
 
+    //Move this probably
+    public float CarSpawningDistance;
+
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         float laneWidth = math.abs(EndXZ.x - StartXZ.x) / MaxLanes;
@@ -18,7 +21,8 @@ public class RoadCreationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             StartXZ = StartXZ,
             EndXZ = EndXZ,
             LaneWidth = laneWidth,
-            MaxLanes = MaxLanes
+            MaxLanes = MaxLanes,
+            CarSpawningDistance = CarSpawningDistance,
         });
 
         DynamicBuffer<LaneInfoElement> dynamicBuffer = dstManager.AddBuffer<LaneInfoElement>(entity);

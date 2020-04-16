@@ -10,7 +10,7 @@ public struct RoadInfo : IComponentData
     public int MaxLanes;
 
     //Move this probably
-    public float CarLength;
+    public float CarSpawningDistance;
 }
 
 public struct LaneInfo
