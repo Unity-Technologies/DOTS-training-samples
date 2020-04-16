@@ -5,7 +5,8 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 [GenerateAuthoringComponent]
-public struct BrigadeTag : IComponentData
+public struct Brigade : IComponentData
 {
+    
     
 }

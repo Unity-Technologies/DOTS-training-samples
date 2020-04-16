@@ -22,17 +22,33 @@ public class SpawningInitSystem : SystemBase
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
         Entities.WithoutBurst().ForEach((Entity entity, in InitDataActors actorTunning) =>
         {
-            for (int i = 0; i < actorTunning.ActorCount; i++)
+            for (int brigade = 0; brigade < actorTunning.BrigadeCount; brigade++)
             {
-                Entity e = ecb.Instantiate(actorTunning.ActorPrefab);
-                int x = random.NextInt((int)(-tuningData.GridSize.x * 0.5), (int)(tuningData.GridSize.x * 0.5));
-                int z = random.NextInt((int)(-tuningData.GridSize.y * 0.5), (int)(tuningData.GridSize.y * 0.5));
-                Translation position = new Translation()
+                Entity brigadeEntity = ecb.CreateEntity();
+                ecb.AddComponent<Brigade>(brigadeEntity);
+                for (int actor = 0; actor < actorTunning.ActorCountPerBrigade; actor++)
                 {
-                    Value = new float3(x, 1, z)
-                };
-                ecb.SetComponent(e, position);
+                    Entity e = ecb.Instantiate(actorTunning.ActorPrefab);
+                    int x = random.NextInt((int)(-tuningData.GridSize.x * 0.5), (int)(tuningData.GridSize.x * 0.5));
+                    int z = random.NextInt((int)(-tuningData.GridSize.y * 0.5), (int)(tuningData.GridSize.y * 0.5));
+                    Translation position = new Translation()
+                    {
+                        Value = new float3(x, 1, z)
+                    };
+                    ecb.SetComponent(e, position);
+
+                    if (actor == 1)
+                        ecb.AddComponent<ScooperTag>(e); 
+                    else if (actor == 2)
+                        ecb.AddComponent<ThrowerTag>(e); 
+                    else if (actor == 3)
+                        ecb.AddComponent<FillerTag>(e);
+                    
+                    
+                    //some way to add e to brigadeEntity...
+                }
             }
+
             ecb.RemoveComponent<InitDataActors>(entity);
         }).Run();
         

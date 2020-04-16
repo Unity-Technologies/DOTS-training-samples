@@ -150,9 +150,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ac787d453a40e642a58ea6a2b0bf04c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BrigadeCount: 2
   ActorPrefab: {fileID: 2967542071843380644, guid: d0afb906bef96794d87e01529122a424,
     type: 3}
-  ActorCount: 25
+  ActorCountPerBrigade: 20
 --- !u!4 &983389829
 Transform:
   m_ObjectHideFlags: 0
