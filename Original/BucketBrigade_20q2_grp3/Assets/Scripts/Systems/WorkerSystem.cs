@@ -83,10 +83,8 @@ public class PassBucketSystem : SystemBase
                 {
                     bool nextWorkerIsMoving = HasComponent<WorkerMoveTo>(target.NextWorkerInLine);
                     bool nextWorkerHasBucket = HasComponent<BucketRef>(target.NextWorkerInLine);
-                    //Debug.Log($"nextWorkerIsMoving {nextWorkerIsMoving} to nextWorkerHasBucket {nextWorkerHasBucket}");
                     if (!nextWorkerIsMoving && !nextWorkerHasBucket)
                     {
-                        //Debug.Log( $"Passing Bucket from {e.Index} to {target.NextWorkerInLine.Index}");
                         ecb.RemoveComponent<BucketRef>(e);
                         ecb.AddComponent(e, new WorkerMoveTo() { Value = positions.Start });
 
