@@ -34,7 +34,7 @@ public class ActorMovementSystem : SystemBase
                 float remainingDistance = math.length(delta);
                 float maxTravelDistance = deltaTime * tuningData.ActorSpeed;
 
-                if (maxTravelDistance >= remainingDistance)
+                if (maxTravelDistance * 30 >= remainingDistance)
                 {
                     translation.Value = dest.position;
                     ecb.RemoveComponent<Destination>(entityInQueryIndex, actorEntity);

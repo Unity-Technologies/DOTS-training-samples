@@ -31,7 +31,9 @@ public class SpawningInitSystem : SystemBase
                 Entity brigadeEntity = ecb.CreateEntity();
                 ecb.AddComponent<Brigade>(brigadeEntity);
                 var buffer = ecb.AddBuffer<ActorElement>(brigadeEntity);
-                
+
+                Entity previous = Entity.Null;
+                Entity filler = Entity.Null;
                 for (int actor = 0; actor < actorTunning.ActorCountPerBrigade; actor++)
                 {
                     Entity e = ecb.Instantiate(actorTunning.ActorPrefab);
@@ -46,9 +48,20 @@ public class SpawningInitSystem : SystemBase
                     if (actor == 0)
                         ecb.AddComponent<ScooperTag>(e);
                     else if (actor == 1)
+                    {
                         ecb.AddComponent<FillerTag>(e);
+                        filler = e;
+                    }
                     else if (actor == actorCount / 2)
                         ecb.AddComponent(e, new ThrowerTag() { brigade = entity });
+                    
+                    if (previous != Entity.Null)
+                    {
+                        ecb.SetComponent(previous, new Actor(){neighbor = e});
+                    }
+                    previous = e;
+                    if(actor == actorTunning.ActorCountPerBrigade-1)
+                        ecb.SetComponent(e, new Actor(){neighbor = filler});
 
                     //some way to add e to brigadeEntity...
                     buffer.Add(new ActorElement(){actor = e});
