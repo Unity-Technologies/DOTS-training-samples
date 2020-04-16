@@ -8,6 +8,9 @@ public struct RoadInfo : IComponentData
     public float2 EndXZ;
     public float LaneWidth;
     public int MaxLanes;
+
+    //Move this probably
+    public float CarLength;
 }
 
 public struct LaneInfo
