@@ -17,12 +17,15 @@ public class FireSimulationSystem : SystemBase
     private double m_LastUpdatePropagationTime;
     private FloatRandom m_Random;
 
+    private ExtinguishSystem m_ExtinguishSystem;
+
     protected override void OnCreate()
     {
         base.OnCreate();
 
         m_Random = FloatRandom.Create(0);
         m_LastUpdatePropagationTime = m_LastUpdateGrowTime = Time.ElapsedTime;
+        m_ExtinguishSystem = World.GetOrCreateSystem<ExtinguishSystem>();
     }
 
     protected override void OnUpdate()
@@ -51,9 +54,10 @@ public class FireSimulationSystem : SystemBase
 
     private void GrowFire()
     {
+        Dependency = JobHandle.CombineDependencies(Dependency, m_ExtinguishSystem.Deps);
         var data = GridData.Instance;
-        var job = new GrowFireJob { Data = data, IncreaseStep = FireGrowStep }.Schedule(data.Width * data.Height, data.Width);
-        job.Complete();
+        var job = new GrowFireJob { Data = data, IncreaseStep = FireGrowStep }.Schedule(data.Width * data.Height, data.Width, Dependency);
+        Dependency = JobHandle.CombineDependencies(Dependency, job);
     }
 
     private void UpdateColor()
@@ -73,8 +77,9 @@ public class FireSimulationSystem : SystemBase
     private void PropagateFire()
     {
         var data = GridData.Instance;
-        var job = new PropagateFireJob { Heat = data.Heat, Width = data.Width, Random = m_Random, PropagationChance = PropagationChance, IncreaseStep = FireGrowStep}.Schedule(/*data.Width * data.Height, data.Width*/);
+        var job = new PropagateFireJob { Heat = data.Heat, Width = data.Width, Random = m_Random, PropagationChance = PropagationChance, IncreaseStep = FireGrowStep}.Schedule(Dependency);
         job.Complete();
+        //Dependency = JobHandle.CombineDependencies(Dependency, job);
     }
 
     private void UpdateFirePosition()

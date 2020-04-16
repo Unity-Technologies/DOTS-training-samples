@@ -27,7 +27,7 @@ public class InitWorldStateSystem : SystemBase
 
             m_Initialized = true;
 
-            var grid = GridUtils.CreateGrid(GridWidth, GridHeight);
+            var grid = GridUtils.CreateGrid(GridWidth, GridHeight, 1);
 
             // Spawn grid cells
             for (int i = 0; i < GridWidth * GridHeight; i++)

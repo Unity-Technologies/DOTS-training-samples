@@ -1,11 +1,15 @@
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
+[UpdateBefore(typeof(FireSimulationSystem))]
 public class ExtinguishSystem : SystemBase
 {
     public int ExtinguishDistance;
     public int ExtinguishAmountAtMaxDistance;
+
+    public JobHandle Deps;
 
     private EntityCommandBufferSystem m_EcbSystem;
 
@@ -54,5 +58,6 @@ public class ExtinguishSystem : SystemBase
 
             }).Schedule();
         m_EcbSystem.AddJobHandleForProducer(Dependency);
+        Deps = Dependency;
     }
 }

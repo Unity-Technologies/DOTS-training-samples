@@ -1,13 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
+using UnityEditor;
 using UnityEngine;
 
 public static class GridUtils
 {
-    public static GridData CreateGrid(int width, int height)
+    public static GridData CreateGrid(int width, int height, float cellSize)
     {
-        GridData.Instance = new GridData { Width = width, Height = height, Heat = new NativeArray<byte>(width * height, Allocator.Persistent) };
+        GridData.Instance = new GridData
+        {
+            Width = width,
+            Height = height,
+            CellSize = cellSize,
+            Heat = new NativeArray<byte>(width * height, Allocator.Persistent),
+        };
         return GridData.Instance;
     }
 
@@ -34,5 +41,29 @@ public static class GridUtils
     public static IEnumerable<Vector2Int> GetAddressInRange(this GridData data, Vector2Int address, int distance)
     {
         yield return address;
+    }
+
+    public static bool TryGetAddressFromWorldPosition(this GridData data, Vector3 position, out Vector2Int address)
+    {
+        address = default;
+        var local = position / data.CellSize;
+        if (local.x < 0 || local.x < 0 || local.x > data.Width || local.z > data.Height)
+            return false;
+
+        address.x = (int) local.x;
+        address.y = (int) local.z;
+        return true;
+    }
+
+    public static bool TryGetAddressFromWorldPosition(this GridData data, Vector3 position, out int index)
+    {
+        if (data.TryGetAddressFromWorldPosition(position, out Vector2Int address))
+        {
+            index = data.GetIndex(address);
+            return true;
+        }
+
+        index = -1;
+        return false;
     }
 }
