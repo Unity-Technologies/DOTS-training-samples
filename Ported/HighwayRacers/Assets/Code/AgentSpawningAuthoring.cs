@@ -5,7 +5,6 @@ using UnityEngine;
 public class AgentSpawningAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
     public GameObject PrefabAgent;
-    public float CarLength;
 
     [Range(1, 100)]
     public int AgentNumber;
