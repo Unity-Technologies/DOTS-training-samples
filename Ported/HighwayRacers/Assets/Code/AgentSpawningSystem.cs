@@ -13,6 +13,11 @@ public class AgentSpawningSystem : SystemBase
     private Random m_Random;
     private RoadInfo m_RoadInfo;
 
+    public struct SpawnPosition : IBufferElementData
+    {
+        public float2 Position;
+    }
+
     protected override void OnCreate()
     {
         m_Random = new Random(0x1234567);
@@ -22,20 +27,36 @@ public class AgentSpawningSystem : SystemBase
     protected override void OnUpdate()
     {
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
+
         var random = m_Random;
-        var roadInfo = GetSingleton<RoadInfo>();//m_LaneInfo;
+        var roadInfo = GetSingleton<RoadInfo>();
+
+        var bufferEntity = ecb.CreateEntity();
+        var buffer = ecb.AddBuffer<SpawnPosition>(bufferEntity); 
+        for (float x = roadInfo.StartXZ.x; x < roadInfo.EndXZ.x; x += roadInfo.LaneWidth)
+        {
+            for (float y = roadInfo.StartXZ.y; y < roadInfo.EndXZ.y; y += roadInfo.CarLength)
+            {
+                buffer.Add(new SpawnPosition()
+                {
+                    Position = new float2(x, y)
+                });
+            }
+        }
+
         Entities.ForEach((Entity e, in AgentSpawner spawner) =>
         {
             for (int i = 0; i < spawner.NumAgents; i++)
             {
                 var spawnedEntity = ecb.Instantiate(spawner.Prefab);
-                //Need to resolve situation where cars are embeded in each other.
-                //Precalculate all the slots that cars can go in and assign those slots here.
-                
+
+                int randomIndex = random.NextInt(buffer.Length - 1);
+                var pos = buffer[randomIndex];
+                buffer.RemoveAt(randomIndex);
+
                 Translation translation = new Translation()
                 {
-                    Value = new float3((int)random.NextFloat(roadInfo.StartXZ.x, roadInfo.EndXZ.x), 0f,
-                        random.NextFloat(roadInfo.StartXZ.y, roadInfo.EndXZ.y))
+                    Value = new float3(pos.Position.x, 0f, pos.Position.y)
                 };
 
                 LaneAssignment laneAssignment = new LaneAssignment()
@@ -48,6 +69,12 @@ public class AgentSpawningSystem : SystemBase
                     Value = random.NextFloat(0.1f, 0.5f)
                 };
 
+                MinimumDistance minDistance = new MinimumDistance()
+                {
+                    Value = random.NextFloat(0.1f, 0.5f)
+                };
+
+                ecb.SetComponent(spawnedEntity, minDistance);
                 ecb.SetComponent(spawnedEntity, targetSpeed);
                 ecb.SetComponent(spawnedEntity, laneAssignment);
                 ecb.SetComponent(spawnedEntity, translation);
