@@ -154,10 +154,10 @@ MonoBehaviour:
   GridSize:
     x: 30
     y: 30
-  ValueIncreasePerTick: 0
-  MaxValue: 0
-  ValuePropagationPerTick: 0
-  ValueThreshold: 0
+  ValueIncreasePerTick: 1
+  MaxValue: 100
+  ValuePropagationPerTick: 1
+  ValueThreshold: 100
   ActorSpeed: 3
   BucketCapacity: 10
 --- !u!114 &1271445247
