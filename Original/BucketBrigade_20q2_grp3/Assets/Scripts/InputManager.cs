@@ -63,7 +63,7 @@ public class InputManager : MonoBehaviour
                         //startFire
                         var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
                         var e = entityManager.CreateEntity(typeof(ExtinguishData));
-                        entityManager.SetName(e, "ResourceApplyGridPosition");
+                        entityManager.SetName(e, "ExtinguishData");
                         entityManager.SetComponentData(e, new ExtinguishData() {CellIndex = GridData.Instance.GetIndex((gridPosition.x, gridPosition.y))});
                     }
                 }

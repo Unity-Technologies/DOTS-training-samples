@@ -52,7 +52,13 @@ public class WorkerMoveToSystem : SystemBase
             pos.Value = MoveTo(pos.Value, targetPos, deltaTime * speed);
 
             if (pos.Value.x == targetPos.x && pos.Value.y == targetPos.y && pos.Value.z == targetPos.z)
+            {
                 ecb.RemoveComponent<WorkerMoveTo>(entityInQueryIndex, e);
+                //note, every worker tries to apply water when it stops moving (not fully correct)
+                var extinguishDataEntity = ecb.CreateEntity(entityInQueryIndex);
+                ecb.AddComponent(entityInQueryIndex, extinguishDataEntity, new ExtinguishData() {CellIndex = GridData.Instance.GetIndex(((int)pos.Value.x, (int)pos.Value.z))});
+                ecb.RemoveComponent<ResourceTargetPosition>(entityInQueryIndex, e);
+            }
 
         }).ScheduleParallel();
         m_ECBSystem.AddJobHandleForProducer(Dependency);
