@@ -18,7 +18,7 @@ public class FireVisualSystem : SystemBase
         TuningData tuningData = GetSingleton<TuningData>();
         var maxValue = tuningData.MaxValue;
 
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+
 
         Entities.WithAll<Fire>()
             .WithName("Fire_Visuals").ForEach(
@@ -30,8 +30,8 @@ public class FireVisualSystem : SystemBase
                 
                 mat.Amount = intensity;
                 
-            }).Run();
+            }).ScheduleParallel ();
 
-        ecb.Playback(EntityManager);
+
     }
 }

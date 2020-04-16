@@ -156,10 +156,10 @@ MonoBehaviour:
     y: 60
   ValueIncreasePerTick: 0
   MaxValue: 500
-  ValuePropagationPerTick: 8
+  ValuePropagationPerTick: 20
   ValueThreshold: 100
   ActorSpeed: 3
-  BucketCapacity: 10
+  BucketCapacity: 500
   BucketScale: 0.5
   FireCellSize: 0.5
   StartingFireOdds: 0.005
