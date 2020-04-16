@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-
+using UnityEngine;
 
 public struct Worker : IComponentData
 {
@@ -77,14 +77,17 @@ public class PassBucketSystem : SystemBase
                 {
                     bool nextWorkerIsMoving = HasComponent<WorkerMoveTo>(target.NextWorkerInLine);
                     bool nextWorkerHasBucket = HasComponent<BucketRef>(target.NextWorkerInLine);
+                    //Debug.Log($"nextWorkerIsMoving {nextWorkerIsMoving} to nextWorkerHasBucket {nextWorkerHasBucket}");
                     if (!nextWorkerIsMoving && !nextWorkerHasBucket)
                     {
+                        Debug.Log( $"Passing Bucket from {e.Index} to {target.NextWorkerInLine.Index}");
                         ecb.RemoveComponent<BucketRef>(e);
                         ecb.AddComponent(e, new WorkerMoveTo() { Value = positions.Start });
 
                         WorkerStartEndPositions nextDest = GetComponent<WorkerStartEndPositions>(target.NextWorkerInLine);
                         ecb.AddComponent(target.NextWorkerInLine, new WorkerMoveTo() { Value = nextDest.End });
                         ecb.AddComponent(target.NextWorkerInLine, bucketRef);
+                        ecb.SetComponent(bucketRef.Bucket, new BucketWorkerRef() { WorkerRef = target.NextWorkerInLine });
                     }
                 }
             }).Run();

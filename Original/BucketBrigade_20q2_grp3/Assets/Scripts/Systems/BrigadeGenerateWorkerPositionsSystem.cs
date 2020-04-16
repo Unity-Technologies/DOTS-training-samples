@@ -19,6 +19,7 @@ public class BrigadeGenerateWorkerPositionsSystem : SystemBase
     Random rand = new Random(455676);
     protected override void OnUpdate()
     {
+        var prefabs = GetSingleton<GlobalPrefabs>();
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
         var r = rand;
         var time = Time.ElapsedTime;
@@ -26,7 +27,6 @@ public class BrigadeGenerateWorkerPositionsSystem : SystemBase
             .WithNone<BrigadeLineEstablished>()
             .ForEach((int entityInQueryIndex, Entity e, in BrigadeLine line, in ResourceSourcePosition source, in ResourceTargetPosition target, in DynamicBuffer<WorkerEntityElementData> workers) =>
             {
-                var bucket = ecb.CreateEntity(entityInQueryIndex);
                 var start = source.Value;
                 var end = target.Value;
                 for(int i = 0; i < workers.Length; i++)
@@ -40,6 +40,9 @@ public class BrigadeGenerateWorkerPositionsSystem : SystemBase
                     ecb.AddComponent(entityInQueryIndex, workers[i].Value, positions);
                     if (i == 0)
                     {
+                        var bucket = ecb.Instantiate(entityInQueryIndex, prefabs.BucketPrefab);
+                        ecb.AddComponent(entityInQueryIndex, bucket, new Bucket());
+                        ecb.AddComponent(entityInQueryIndex, bucket, new BucketWorkerRef() { WorkerRef = workers[i].Value });
                         ecb.AddComponent(entityInQueryIndex, workers[i].Value, new BucketRef() { Bucket = bucket });
                         initialDestination.Value = positions.End;
                     }
