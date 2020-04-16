@@ -185,7 +185,7 @@ MonoBehaviour:
     x: 7.39
     y: 24
   MaxLanes: 4
-  CarSpawningDistance: 3
+  CarSpawningDistance: 0.1
 --- !u!1 &285360169
 GameObject:
   m_ObjectHideFlags: 0
