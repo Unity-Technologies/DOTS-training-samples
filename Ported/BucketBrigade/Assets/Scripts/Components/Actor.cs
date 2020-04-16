@@ -9,3 +9,8 @@ public struct Actor : IComponentData
 {
     
 }
+
+public struct ActorElement : IBufferElementData
+{
+    public Entity actor;
+}
