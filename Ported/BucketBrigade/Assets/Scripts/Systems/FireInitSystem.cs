@@ -5,12 +5,24 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class FireInitSystem : SystemBase
 {
+    Random m_random = new Random(54321);
+    
     protected override void OnUpdate()
     {
+        if (!HasSingleton<TuningData>())
+            return;
+        
+        Entity tuningDataEntity = GetSingletonEntity<TuningData>();
+        TuningData tuningData = EntityManager.GetComponentData<TuningData>(tuningDataEntity);
+
+        var random = m_random;
+        float preFireOdds = 0.05f;//tuningDataEntity.OddsOfInitFire;
+        float maxFire = tuningData.MaxValue;
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         Entities.ForEach((Entity spawnerEntity, in InitData spawner, in TuningData data, in Translation spawnerTranslation) =>
@@ -26,10 +38,11 @@ public class FireInitSystem : SystemBase
                     ecb.SetComponent(instance, new Translation {Value = translation});
                     ecb.SetComponent(instance, new GridIndex(){Index = new int2(x,y)});
                     
-                    if ((x * y) % 17 == 1)
+                    
+                    
+                    if (random.NextFloat(0,1) < preFireOdds)
                     {
-                        int v = (x * y * 5) % 255;
-                        ecb.SetComponent(instance, new ValueComponent(){Value = (byte)v });
+                        ecb.SetComponent(instance, new ValueComponent(){Value = maxFire * 0.8f });
                     }
 
                 }
@@ -38,5 +51,6 @@ public class FireInitSystem : SystemBase
         }).Run();
         
         ecb.Playback(EntityManager);
+        m_random = random;
     }
 }

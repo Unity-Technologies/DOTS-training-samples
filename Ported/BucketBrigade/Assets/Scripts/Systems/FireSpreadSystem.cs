@@ -10,7 +10,7 @@ public class FireSpreadSystem: SystemBase
     static int flatIndex(int i, int j, int rows)
     {
       return j * rows + i;   
-    }
+    } 
     
     static bool isValidIndex(int length, int i, int j, int rows)
     {
@@ -29,16 +29,14 @@ public class FireSpreadSystem: SystemBase
 
         var tuningData = GetSingleton<TuningData>();
         
-        float kDebugThreshold = 1f;
-        float kDebugMaxThreshold = 2000f;
-
-        //var tuningData = GetSingleton<TuningData>();
-        
         int numRows = tuningData.GridSize.x;
         int numCols = tuningData.GridSize.y;
-        float incr = tuningData.ValueIncreasePerTick;
-        
-        //float maxThreshold = tuningData.ValueIncreasePerTick;
+        float selfHeatTick = tuningData.ValueIncreasePerTick;
+        float neighborTick = tuningData.ValuePropagationPerTick;
+        float spreadThreshold = tuningData.ValueThreshold;
+        float maxValue = tuningData.MaxValue;
+
+        float dt = Time.DeltaTime;
         
         NativeArray<float> startingVal = new NativeArray<float>(numRows * numCols,Allocator.TempJob);
         
@@ -62,31 +60,32 @@ public class FireSpreadSystem: SystemBase
             int flatIndexRight = flatIndex(gridIndices.Index.x + 1, gridIndices.Index.y,numRows);
             int flatIndexUp = flatIndex(gridIndices.Index.x , gridIndices.Index.y - 1,numRows);
             int flatIndexDown = flatIndex(gridIndices.Index.x, gridIndices.Index.y + 1,numRows);
-            
-            
+
+            //todo will just burn the entire forest without identifying what should selfHeat
+            //fireValue.Value += selfHeatTick * dt;
             
             //"left" neighrbor
-            if (validLeft && startingVal[flatIndexLeft] >= kDebugThreshold)
+            if (validLeft && startingVal[flatIndexLeft] >= spreadThreshold)
             {
-                fireValue.Value += incr;
+                fireValue.Value += neighborTick * dt;
             }
             //"Right" neighrbor
-            if (validRight && startingVal[flatIndexRight] >= kDebugThreshold)
+            if (validRight && startingVal[flatIndexRight] >= spreadThreshold)
             {
-                fireValue.Value += incr;
+                fireValue.Value += neighborTick * dt;
             }
             //"Up" neighrbor
-            if (validUp && startingVal[flatIndexUp] >= kDebugThreshold)
+            if (validUp && startingVal[flatIndexUp] >= spreadThreshold)
             {
-                fireValue.Value += incr;
+                fireValue.Value += neighborTick * dt;
             }
             //"Down" neighrbor
-            if (validDown && startingVal[flatIndexDown] >= kDebugThreshold)
+            if (validDown && startingVal[flatIndexDown] >= spreadThreshold)
             {
-                fireValue.Value += incr;
+                fireValue.Value += neighborTick * dt;
             }
             
-            var clamp = math.clamp(fireValue.Value, 0, kDebugMaxThreshold);
+            var clamp = math.clamp(fireValue.Value, 0, maxValue);
             fireValue.Value = clamp;
             
         }).ScheduleParallel(gridPopulateJob);
