@@ -17,34 +17,40 @@ public class BrigadeFindTargetSystem : SystemBase
         targetQuery = GetEntityQuery(ComponentType.ReadOnly<GridCell>(), ComponentType.ReadOnly<Translation>());
     }
 
-    Random random = new Random(775453);
     protected override void OnUpdate()
     {
         var translations = targetQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var fireTargetQueryHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, fireTargetQueryHandle);
         
-        var rand = random;
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
         Entities
             .WithNone<ResourceTargetPosition>()
+            .WithDeallocateOnJobCompletion(translations)
             .ForEach((int entityInQueryIndex, Entity e, in BrigadeLine line) =>
             {
-                float2 idealPosition = rand.NextFloat2(new float2(0, 0), new float2(100, 100));
-                int startingPosition = rand.NextInt(0, translations.Length);
-                //since we're starting at a random spot in the array, we might not find an on-fire cell. If not that's fine we'll try again later since we still don't have the ResourceTargetPosition component.
-                for (int i = startingPosition; i < translations.Length; i++)
+                var bestDist = float.MaxValue;
+                var bestPos = float2.zero;
+                var bestIndex = -1;
+                for (int i = 0; i < translations.Length; i++)
                 {
-                    var t = translations[i].Value;
-                    //TODO no magic numbers! I know this is 2.0 because of how we move the gridcells
-                    if (t.y > 2.0)
+                    var rp = translations[i].Value;
+                    if (rp.y > 2.0)
                     {
-                        ecb.RemoveComponent<BrigadeLineEstablished>(entityInQueryIndex, e);
-                        ecb.AddComponent(entityInQueryIndex, e, new ResourceTargetPosition() { Value = new float2(t.x, t.z)});
-                        break;
+                        var d2 = math.distancesq(new float2(rp.x, rp.z), line.Center);
+                        if (d2 < bestDist)
+                        {
+                            bestIndex = i;
+                            bestDist = d2;
+                            bestPos = new float2(rp.x, rp.z);
+                        }
                     }
                 }
+                if (bestIndex >= 0)
+                {
+                    ecb.RemoveComponent<BrigadeLineEstablished>(entityInQueryIndex, e);
+                    ecb.AddComponent(entityInQueryIndex, e, new ResourceTargetPosition() { Value = bestPos});
+                }
             }).ScheduleParallel();
-        random = rand;
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }

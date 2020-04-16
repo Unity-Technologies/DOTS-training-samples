@@ -9,6 +9,7 @@ public struct BrigadeInitInfo : IComponentData
 
 public struct BrigadeLine : IComponentData
 {
+    public float2 Center;
 }
 
 public struct BrigadeLineEstablished : IComponentData

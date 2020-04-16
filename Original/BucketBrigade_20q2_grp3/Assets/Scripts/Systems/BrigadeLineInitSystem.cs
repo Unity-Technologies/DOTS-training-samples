@@ -22,13 +22,15 @@ public class BrigadeLineInitSystem : SystemBase
             .WithNone<BrigadeLine>()
             .ForEach((int entityInQueryIndex, Entity e, in BrigadeInitInfo info) =>
             {
-                ecb.AddComponent<BrigadeLine>(entityInQueryIndex, e);
+                var center = random.NextFloat2(new float2(100, 100));
+                ecb.AddComponent(entityInQueryIndex, e, new BrigadeLine() { Center = center });
                 var workerBuffer = ecb.AddBuffer<WorkerEntityElementData>(entityInQueryIndex, e);
                 
                 for (int i = 0; i < info.WorkerCount; i++)
                 {
                     var worker = ecb.Instantiate(entityInQueryIndex, prefabs.WorkerPrefab);
-                    ecb.SetComponent(entityInQueryIndex, worker, new Translation() { Value = random.NextFloat3(new float3(0, 0, 0), new float3(100, 0, 100)) });
+                    var wp = center + random.NextFloat2Direction() * 25;
+                    ecb.SetComponent(entityInQueryIndex, worker, new Translation() { Value = new float3(wp.x, 0, wp.y) });
                     ecb.AddComponent(entityInQueryIndex, worker, new Worker() { NextWorkerInLine = Entity.Null });
                     workerBuffer.Add(new WorkerEntityElementData() { Value = worker });
                 }

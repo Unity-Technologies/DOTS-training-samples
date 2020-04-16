@@ -41,7 +41,7 @@ public class WorkerMoveToSystem : SystemBase
 
     protected override void OnUpdate() 
     {
-        float speed = 25.0f;
+        float speed = 8.0f;
         float deltaTime = Time.DeltaTime;
 
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();

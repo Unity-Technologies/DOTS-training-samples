@@ -5,6 +5,7 @@ using Unity.Mathematics;
 
 public struct ResourceSourcePosition : IComponentData
 {
+    public Entity Id;
     public float2 Value;
 }
 

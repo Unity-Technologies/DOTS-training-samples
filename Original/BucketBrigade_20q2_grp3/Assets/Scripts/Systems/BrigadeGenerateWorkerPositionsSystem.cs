@@ -24,7 +24,7 @@ public class BrigadeGenerateWorkerPositionsSystem : SystemBase
         var time = Time.ElapsedTime;
         Entities
             .WithNone<BrigadeLineEstablished>()
-            .ForEach((int entityInQueryIndex, Entity e, in BrigadeLine line, in ResourceSourcePosition source, in ResourceTargetPosition target, in DynamicBuffer<WorkerEntityElementData> workers) =>
+            .ForEach((int entityInQueryIndex, Entity e, ref BrigadeLine line, in ResourceSourcePosition source, in ResourceTargetPosition target, in DynamicBuffer<WorkerEntityElementData> workers) =>
             {
                 var bucket = ecb.CreateEntity(entityInQueryIndex);
                 var start = source.Value;
@@ -45,8 +45,9 @@ public class BrigadeGenerateWorkerPositionsSystem : SystemBase
                     }
                     ecb.AddComponent(entityInQueryIndex, workers[i].Value, initialDestination);
                 }
+                line.Center = (start + end) * .5f;
                 ecb.AddComponent(entityInQueryIndex, e, new BrigadeLineEstablished());
-          //      ecb.AddComponent(entityInQueryIndex, e, new Reset() { ResetTime = time + r.NextDouble(3, 10) });
+                ecb.AddComponent(entityInQueryIndex, e, new Reset() { ResetTime = time + r.NextDouble(3, 6) });
             }).ScheduleParallel();
         m_ECBSystem.AddJobHandleForProducer(Dependency);
         rand = r;
