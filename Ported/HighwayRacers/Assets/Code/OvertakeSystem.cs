@@ -1,4 +1,4 @@
-﻿using Unity.Entities;
+using Unity.Entities;
 
 [UpdateAfter(typeof(BlockSystem))]
 public class OvertakeSystem : SystemBase

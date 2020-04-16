@@ -130,8 +130,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 44823813}
-  - component: {fileID: 44823815}
   - component: {fileID: 44823814}
+  - component: {fileID: 44823815}
   m_Layer: 0
   m_Name: RoadCreator
   m_TagString: Untagged
@@ -175,7 +175,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 44823812}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69277373349cd9143b9b7edd8b27ade8, type: 3}
+  m_Script: {fileID: 11500000, guid: 1bb503a458d4f494ab029319a374fec5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   StartXZ:
@@ -184,6 +184,8 @@ MonoBehaviour:
   EndXZ:
     x: 10
     y: 20
+  LaneWidth: 5
+  MaxLanes: 4
 --- !u!1 &285360169
 GameObject:
   m_ObjectHideFlags: 0
