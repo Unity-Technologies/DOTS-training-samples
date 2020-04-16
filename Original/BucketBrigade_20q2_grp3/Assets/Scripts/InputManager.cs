@@ -1,26 +1,74 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
- 
+using Unity.Entities;
+using Unity.Mathematics;
+
 public class InputManager : MonoBehaviour
 {
     Ray RayOrigin;
     RaycastHit HitInfo;
- 
-    // Work in progress, not done!
-
+    private Bootstrap bootstrap;
+    private Plane hitPlane;
     
-    // Update is called once per frame
-    void Update ()
+    void Start()
     {
-        if(Input.GetKey(KeyCode.E))
+        bootstrap = GameObject.Find("Bootstrap").GetComponent<Bootstrap>();
+        hitPlane = new Plane(Vector3.up, Vector3.zero);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
         {
-            RayOrigin = Camera.main.ViewportPointToRay(new Vector3(0,0,0));
-            
-            var result = Physics.Raycast(RayOrigin,out HitInfo,1000f);
-            if (result)
+            Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            float dist;
+            if (hitPlane.Raycast(mouseRay, out dist))
             {
-                Debug.DrawRay(RayOrigin.direction,HitInfo.point,Color.yellow);
+                var hitPosition = mouseRay.GetPoint(dist);
+                int2 gridPosition;
+                gridPosition.x = (int) hitPosition.x;
+                gridPosition.y = (int) hitPosition.z;
+                if (gridPosition.x >= 0 && gridPosition.x < bootstrap.GridWidth)
+                {
+                    if (gridPosition.y >= 0 && gridPosition.y < bootstrap.GridHeight)
+                    {
+                        Debug.Log("Start Fire at " + gridPosition.ToString());
+                        //startFire
+                        var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+                        var e = entityManager.CreateEntity(typeof(FireStartGridPosition));
+                        entityManager.SetName(e, "ManualFireStartGridPosition");
+                        entityManager.SetComponentData(e, new FireStartGridPosition() {Value = gridPosition});
+                    }
+                }
+            }
+        }
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            float dist;
+            if (hitPlane.Raycast(mouseRay, out dist))
+            {
+                var hitPosition = mouseRay.GetPoint(dist);
+                int2 gridPosition;
+                gridPosition.x = (int) hitPosition.x;
+                gridPosition.y = (int) hitPosition.z;
+                if (gridPosition.x >= 0 && gridPosition.x < bootstrap.GridWidth)
+                {
+                    if (gridPosition.y >= 0 && gridPosition.y < bootstrap.GridHeight)
+                    {
+                        Debug.Log("Apply water at " + gridPosition.ToString());
+                        //startFire
+                        var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+                        var e = entityManager.CreateEntity(typeof(ResourceApplyGridPosition));
+                        entityManager.SetName(e, "ResourceApplyGridPosition");
+                        entityManager.SetComponentData(e, new ResourceApplyGridPosition() {Value = gridPosition});
+                    }
+                }
             }
         }
     }
 }
+
