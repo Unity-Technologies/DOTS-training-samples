@@ -17,6 +17,10 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
     public int RandomSeed = 0;
     [Tooltip("How many fires to start on initialization")]
     public int StartingFireCount = 1;
+    [Tooltip("How many cell in term of Manathan distance will also be affected by extinguish")]
+    public int ExtinguishDistance = 2;
+    [Tooltip("How many heat will be remove from the cells at the max distance (outer periphery of extinguish radius)")]
+    public int ExtinguishAmountAtMaxDistance = byte.MaxValue / 2;
 
     [Header("Colours")]
     // cell colours
@@ -66,6 +70,10 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
         fireSystem.FireGrowStep = FireGrowStep;
         fireSystem.UpdateGrowFrequency = FireGrowFrequency;
         fireSystem.UpdatePropagationFrequency = UpdatePropagationFrequency;
+
+        var extinguish = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<ExtinguishSystem>();
+        extinguish.ExtinguishDistance = ExtinguishDistance;
+        extinguish.ExtinguishAmountAtMaxDistance = ExtinguishAmountAtMaxDistance;
     }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
