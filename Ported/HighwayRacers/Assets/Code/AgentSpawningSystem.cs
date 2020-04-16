@@ -31,21 +31,21 @@ public class AgentSpawningSystem : SystemBase
         var random = m_Random;
         var roadInfo = GetSingleton<RoadInfo>();
 
-        var bufferEntity = ecb.CreateEntity();
-        var buffer = ecb.AddBuffer<SpawnPosition>(bufferEntity); 
-        for (float x = roadInfo.StartXZ.x; x < roadInfo.EndXZ.x; x += roadInfo.LaneWidth)
-        {
-            for (float y = roadInfo.StartXZ.y; y < roadInfo.EndXZ.y; y += roadInfo.CarLength)
-            {
-                buffer.Add(new SpawnPosition()
-                {
-                    Position = new float2(x, y)
-                });
-            }
-        }
-
         Entities.ForEach((Entity e, in AgentSpawner spawner) =>
         {
+            var bufferEntity = ecb.CreateEntity();
+            var buffer = ecb.AddBuffer<SpawnPosition>(bufferEntity);
+            for (float x = roadInfo.StartXZ.x; x < roadInfo.EndXZ.x; x += roadInfo.LaneWidth)
+            {
+                for (float y = roadInfo.StartXZ.y; y < roadInfo.EndXZ.y; y += roadInfo.CarLength)
+                {
+                    buffer.Add(new SpawnPosition()
+                    {
+                        Position = new float2(x, y)
+                    });
+                }
+            }
+
             for (int i = 0; i < spawner.NumAgents; i++)
             {
                 var spawnedEntity = ecb.Instantiate(spawner.Prefab);
