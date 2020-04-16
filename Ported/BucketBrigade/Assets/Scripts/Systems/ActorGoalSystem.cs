@@ -93,8 +93,6 @@ public class ActorGoalSystem : SystemBase
                     actorPerformActionBuffer.AddComponent<HoldingBucket>(nextActor, new HoldingBucket() { bucket = buck });
                     actorPerformActionBuffer.RemoveComponent<TargetEntity>(actor);
                     actorPerformActionBuffer.SetComponent(buck, new HeldBy() { holder = nextActor });
-                    
-                    Debug.Log("Handing bucket to: " + nextActor.Index);
                 }
                 //else
                 //{
@@ -159,13 +157,13 @@ public class ActorGoalSystem : SystemBase
         }).Run();
         
         Entities
-            .WithName("Actors_Pass_Bucket")
+            .WithName("Actors_Find_Bucket_Target")
             .WithNone<FillerTag, ScooperTag, ThrowerTag>()
             .WithNone<Destination, TargetEntity>()
             .WithAll<HoldingBucket>()
             .ForEach((Entity actor, in Actor actorData) =>
             {
-                Debug.Log("regular folk passing bucket");
+                Debug.Log("regular folk finding friend");
                 actorPerformActionBuffer.AddComponent<Destination>(actor, new Destination() {position = GetComponent<Translation>(actorData.neighbor).Value});
                 actorPerformActionBuffer.AddComponent<TargetEntity>(actor, new TargetEntity() {target = actorData.neighbor});
 
@@ -202,95 +200,7 @@ public class ActorGoalSystem : SystemBase
                     actorCreateGoalBuffer.AddComponent(entityInQueryIndex, actor, new Destination() {position = getPositions[bucketEntities[entityInQueryIndex]].Value});
                 }).Schedule();
         }
-        //
-        // //TODO: Make this part of brigade line initialization
-        // if (mAllActorsWithBucketAndNoDestination.CalculateChunkCount() > 0)
-        // {
-        //     var waterPositions = mAllRiversQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var waterPositionHandle);
-        //     var waterEntities = mAllRiversQuery.ToEntityArrayAsync(Allocator.TempJob, out var waterEntityHandle);
-        //
-        //     var findWaterJobHandle = JobHandle.CombineDependencies(waterPositionHandle, waterEntityHandle);
-        //
-        //     Dependency = JobHandle.CombineDependencies(Dependency, findWaterJobHandle);
-        //
-        //     var getBucketValue = GetComponentDataFromEntity<ValueComponent>(true);
-        //
-        //     Entities
-        //         .WithName("Actor_Find_Water")
-        //         .WithAll<Actor>()
-        //         .WithNone<Destination, TargetEntity>()
-        //         .WithReadOnly(getBucketValue)
-        //         .WithDeallocateOnJobCompletion(waterPositions)
-        //         .WithDeallocateOnJobCompletion(waterEntities)
-        //         .ForEach((int nativeThreadIndex, Entity actor, in HoldingBucket bucket, in Translation currentPos) =>
-        //         {
-        //             if (getBucketValue[bucket.bucket].Value > 0)//TODO: Can we represent this in the query?
-        //             {
-        //                 return;
-        //             }
-        //             float closestWater = float.MaxValue;
-        //             int closestWaterEntity = -1;
-        //             float3 actorPosition = currentPos.Value;
-        //
-        //             for (int i = 0; i < waterEntities.Length; ++i)
-        //             {
-        //                 float distance = math.length(actorPosition - waterPositions[i].Value);
-        //                 if (distance < closestWater)
-        //                 {
-        //                     closestWaterEntity = i;
-        //                     closestWater = distance;
-        //                 }
-        //             }
-        //
-        //             actorCreateGoalBuffer.AddComponent(nativeThreadIndex, actor, new Destination() {position = waterPositions[closestWaterEntity].Value});
-        //             actorCreateGoalBuffer.AddComponent(nativeThreadIndex, actor, new TargetEntity() {target = waterEntities[closestWaterEntity]});
-        //         }).ScheduleParallel();
-        //
-        //     var allFireEntities = mAllFires.ToEntityArrayAsync(Allocator.TempJob, out var allFireEntitiesHandle);
-        //     var allFirePositions = mAllFires.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var allFirePositionsHandle);
-        //     var allFireValues = mAllFires.ToComponentDataArrayAsync<ValueComponent>(Allocator.TempJob, out var allFireValuesHandle);
-        //
-        //     var combinedDeps = JobHandle.CombineDependencies(allFireEntitiesHandle, allFirePositionsHandle);
-        //     combinedDeps = JobHandle.CombineDependencies(combinedDeps, allFireValuesHandle);
-        //     Dependency = JobHandle.CombineDependencies(combinedDeps, Dependency);
-        //
-        //     Entities
-        //         .WithName("Actor_Find_Fire")
-        //         .WithAll<Actor>()
-        //         .WithNone<Destination, TargetEntity>()
-        //         .WithReadOnly(getBucketValue)
-        //         .WithDeallocateOnJobCompletion(allFireEntities)
-        //         .WithDeallocateOnJobCompletion(allFirePositions)
-        //         .WithDeallocateOnJobCompletion(allFireValues)
-        //         .ForEach((int nativeThreadIndex, Entity actor, in HoldingBucket bucket, in Translation currentPos) =>
-        //         {
-        //             if (getBucketValue[bucket.bucket].Value == 0) //TODO: Can we represent this in the query?
-        //             {
-        //                 return;
-        //             }
-        //
-        //             float closestFire = float.MaxValue;
-        //             int closestFireEntity = -1;
-        //             float3 actorPosition = currentPos.Value;
-        //
-        //             for (int i = 0; i < allFireEntities.Length; ++i)
-        //             {
-        //                 float distance = math.length(actorPosition - allFirePositions[i].Value);
-        //                 if (distance < closestFire && allFireValues[i].Value > tuningData.ValueThreshold)
-        //                 {
-        //                     closestFireEntity = i;
-        //                     closestFire = distance;
-        //                 }
-        //             }
-        //
-        //             if (closestFireEntity >= 0)
-        //             {
-        //                 actorCreateGoalBuffer.AddComponent(nativeThreadIndex, actor, new Destination() {position = allFirePositions[closestFireEntity].Value});
-        //                 actorCreateGoalBuffer.AddComponent(nativeThreadIndex, actor, new TargetEntity() {target = allFireEntities[closestFireEntity]});
-        //             }
-        //         }).ScheduleParallel();
-        // }
-
+      
         mRand = rand;
         mEndSimCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
