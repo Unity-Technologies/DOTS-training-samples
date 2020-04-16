@@ -21,14 +21,23 @@ public class FireSpreadSystem: SystemBase
     
     protected override void OnUpdate()
     {
+        
+        if (!HasSingleton<TuningData>())
+        {
+            return;
+        }
+
+        var tuningData = GetSingleton<TuningData>();
+        
         float kDebugThreshold = 1f;
         float kDebugMaxThreshold = 2000f;
 
         //var tuningData = GetSingleton<TuningData>();
         
-        int numRows = 10;
-        int numCols = 10;
-        float incr = 1;
+        int numRows = tuningData.GridSize.x;
+        int numCols = tuningData.GridSize.y;
+        float incr = tuningData.ValueIncreasePerTick;
+        
         //float maxThreshold = tuningData.ValueIncreasePerTick;
         
         NativeArray<float> startingVal = new NativeArray<float>(numRows * numCols,Allocator.TempJob);
