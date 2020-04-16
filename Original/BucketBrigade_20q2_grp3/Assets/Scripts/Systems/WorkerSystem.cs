@@ -56,7 +56,7 @@ public class WorkerMoveToSystem : SystemBase
                 ecb.RemoveComponent<WorkerMoveTo>(entityInQueryIndex, e);
                 //note, every worker tries to apply water when it stops moving (not fully correct)
                 var extinguishDataEntity = ecb.CreateEntity(entityInQueryIndex);
-                ecb.AddComponent(entityInQueryIndex, extinguishDataEntity, new ExtinguishData() {CellIndex = GridData.Instance.GetIndex(((int)pos.Value.x, (int)pos.Value.z))});
+                ecb.AddComponent(entityInQueryIndex, extinguishDataEntity, new ExtinguishData() {X = (int)pos.Value.x, Y = (int)pos.Value.z});
                 ecb.RemoveComponent<ResourceTargetPosition>(entityInQueryIndex, e);
             }
 

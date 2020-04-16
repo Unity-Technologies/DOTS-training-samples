@@ -26,7 +26,7 @@ public class ExtinguishSystem : SystemBase
             {
                 ecb.DestroyEntity(entityInQueryIndex, entity);
 
-                var address = grid.GetAddress(data.CellIndex);
+                var address = new Vector2Int(data.X, data.Y);
                 if (!grid.InBounds(address))
                     return;
 
