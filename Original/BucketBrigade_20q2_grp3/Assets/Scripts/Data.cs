@@ -61,3 +61,13 @@ Entities
 
 
     */
+
+public struct FireStartGridPosition : IComponentData
+{
+    public int2 Value;
+} 
+
+public struct ResourceApplyGridPosition : IComponentData
+{
+    public int2 Value;
+} 
