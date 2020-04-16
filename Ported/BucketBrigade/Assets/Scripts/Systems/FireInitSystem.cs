@@ -21,10 +21,10 @@ public class FireInitSystem : SystemBase
         TuningData tuningData = EntityManager.GetComponentData<TuningData>(tuningDataEntity);
 
         var random = m_random;
-        float preFireOdds = 0.05f;//tuningDataEntity.OddsOfInitFire;
+        float preFireOdds = tuningData.StartingFireOdds;
         float maxFire = tuningData.MaxValue;
 
-        float cellSize = 0.5f;
+        float cellSize = tuningData.FireCellSize;
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         Entities.ForEach((Entity spawnerEntity, in InitData spawner, in TuningData data, in Translation spawnerTranslation) =>

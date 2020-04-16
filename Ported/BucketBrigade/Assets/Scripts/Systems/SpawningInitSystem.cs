@@ -19,6 +19,9 @@ public class SpawningInitSystem : SystemBase
         Entity tuningDataEntity = GetSingletonEntity<TuningData>();
         TuningData tuningData = EntityManager.GetComponentData<TuningData>(tuningDataEntity);
         
+        int gridDimensionX = (int)(tuningData.GridSize.x * 0.5f * tuningData.FireCellSize);
+        int gridDimensionY = (int)(tuningData.GridSize.y * 0.5f * tuningData.FireCellSize);
+            
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
         Entities.WithoutBurst().ForEach((Entity entity, in InitDataActors actorTunning) =>
         {
@@ -31,8 +34,8 @@ public class SpawningInitSystem : SystemBase
                 for (int actor = 0; actor < actorTunning.ActorCountPerBrigade; actor++)
                 {
                     Entity e = ecb.Instantiate(actorTunning.ActorPrefab);
-                    int x = random.NextInt((int)(-tuningData.GridSize.x * 0.5), (int)(tuningData.GridSize.x * 0.5));
-                    int z = random.NextInt((int)(-tuningData.GridSize.y * 0.5), (int)(tuningData.GridSize.y * 0.5));
+                    int x = random.NextInt(-gridDimensionX, gridDimensionX);
+                    int z = random.NextInt(-gridDimensionY, gridDimensionY);
                     Translation position = new Translation()
                     {
                         Value = new float3(x, 1, z)
@@ -64,8 +67,8 @@ public class SpawningInitSystem : SystemBase
             for (int i = 0; i < bucketTunning.BucketCount; i++)
             {
                 Entity e = ecb.Instantiate(bucketTunning.BucketPrefab);
-                int x = random.NextInt((int)(-tuningData.GridSize.x * 0.5), (int)(tuningData.GridSize.x * 0.5));
-                int z = random.NextInt((int)(-tuningData.GridSize.y * 0.5), (int)(tuningData.GridSize.y * 0.5));
+                int x = random.NextInt(-gridDimensionX, gridDimensionX);
+                int z = random.NextInt(-gridDimensionY, gridDimensionY);
                 Translation position = new Translation()
                 {
                     Value = new float3(x, 1, z)
