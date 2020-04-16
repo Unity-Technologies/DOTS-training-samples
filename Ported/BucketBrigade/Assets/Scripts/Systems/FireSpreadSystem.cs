@@ -2,6 +2,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 public class FireSpreadSystem: SystemBase
 {
@@ -67,22 +68,22 @@ public class FireSpreadSystem: SystemBase
             //"left" neighrbor
             if (validLeft && startingVal[flatIndexLeft] >= spreadThreshold)
             {
-                fireValue.Value += neighborTick * dt;
+                fireValue.Value += neighborTick * dt * (startingVal[flatIndexLeft] / tuningData.MaxValue);
             }
             //"Right" neighrbor
             if (validRight && startingVal[flatIndexRight] >= spreadThreshold)
             {
-                fireValue.Value += neighborTick * dt;
+                fireValue.Value += neighborTick * dt * (startingVal[flatIndexRight] / tuningData.MaxValue);
             }
             //"Up" neighrbor
             if (validUp && startingVal[flatIndexUp] >= spreadThreshold)
             {
-                fireValue.Value += neighborTick * dt;
+                fireValue.Value += neighborTick * dt * (startingVal[flatIndexUp] / tuningData.MaxValue);
             }
             //"Down" neighrbor
             if (validDown && startingVal[flatIndexDown] >= spreadThreshold)
             {
-                fireValue.Value += neighborTick * dt;
+                fireValue.Value += neighborTick * dt * (startingVal[flatIndexDown] / tuningData.MaxValue);
             }
             
             var clamp = math.clamp(fireValue.Value, 0, maxValue);
