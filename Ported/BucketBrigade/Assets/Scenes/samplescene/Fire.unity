@@ -162,7 +162,7 @@ MonoBehaviour:
   BucketCapacity: 10
   BucketScale: 0.5
   FireCellSize: 0.5
-  StartingFireOdds: 0.04
+  StartingFireOdds: 0.005
 --- !u!114 &1271445247
 MonoBehaviour:
   m_ObjectHideFlags: 0
