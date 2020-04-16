@@ -10,13 +10,13 @@ public class PercentCompleteSystem : SystemBase
 {
     protected override void OnCreate()
     {
-        RequireForUpdate(EntityManager.CreateEntityQuery(typeof(LaneInfo)));
+        RequireForUpdate(EntityManager.CreateEntityQuery(typeof(RoadInfo)));
     }
 
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        LaneInfo laneInfo = GetSingleton<LaneInfo>();
+        RoadInfo laneInfo = GetSingleton<RoadInfo>();
         float totalDistance = math.abs(laneInfo.EndXZ.y - laneInfo.StartXZ.y);
         float deltaTime = Time.DeltaTime;
 

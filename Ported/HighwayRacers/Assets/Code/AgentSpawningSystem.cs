@@ -11,19 +11,19 @@ using Random = Unity.Mathematics.Random;
 public class AgentSpawningSystem : SystemBase
 {
     private Random m_Random;
-    private LaneInfo m_LaneInfo;
+    private RoadInfo m_LaneInfo;
 
     protected override void OnCreate()
     {
         m_Random = new Random(0x1234567);
-        RequireForUpdate(EntityManager.CreateEntityQuery(typeof(LaneInfo)));
+        RequireForUpdate(EntityManager.CreateEntityQuery(typeof(RoadInfo)));
     }
 
     protected override void OnUpdate()
     {
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
         var random = m_Random;
-        var laneInfo = GetSingleton<LaneInfo>();//m_LaneInfo;
+        var laneInfo = GetSingleton<RoadInfo>();//m_LaneInfo;
         Entities.ForEach((Entity e, in AgentSpawner spawner) =>
         {
             for (int i = 0; i < spawner.NumAgents; i++)
@@ -36,6 +36,11 @@ public class AgentSpawningSystem : SystemBase
                 {
                     Value = new float3((int)random.NextFloat(laneInfo.StartXZ.x, laneInfo.EndXZ.x), 0f,
                         random.NextFloat(laneInfo.StartXZ.y, laneInfo.EndXZ.y))
+                };
+
+                LaneAssignment laneAssignment = new LaneAssignment()
+                {
+                    Value = random.NextInt(0, laneInfo.MaxLanes)
                 };
 
                 ecb.SetComponent(spawnedEntity, translation);

@@ -11,7 +11,7 @@ public class RoadCreationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new LaneInfo()
+        dstManager.AddComponentData(entity, new RoadInfo()
         {
             StartXZ = StartXZ,
             EndXZ = EndXZ
