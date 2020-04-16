@@ -16,11 +16,11 @@ public class CreateBrigadeLineSystem : SystemBase
             ComponentType.ReadWrite<ValueComponent>());
         mAllFires = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Fire>(),
             ComponentType.ReadOnly<ValueComponent>(),
-            ComponentType.ReadOnly<Translation>()); 
-        
+            ComponentType.ReadOnly<Translation>());
+
         mAllBrigade = base.GetEntityQuery(ComponentType.Exclude<LineComponent>(), ComponentType.ReadOnly<Brigade>());
     }
-    
+
     protected override void OnDestroy()
     {
         base.OnDestroy();
@@ -36,13 +36,13 @@ public class CreateBrigadeLineSystem : SystemBase
         int brigadecount = mAllBrigade.CalculateChunkCount();
         if (mAllBrigade.CalculateChunkCount() == 0)
             return;
-        
+
         var tuningData = GetSingleton<TuningData>();
         var waterPositions = mAllRiversQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var waterPositionHandle);
         var waterEntities = mAllRiversQuery.ToEntityArrayAsync(Allocator.TempJob, out var waterEntityHandle);
         var findWaterJobHandle = JobHandle.CombineDependencies(waterPositionHandle, waterEntityHandle);
         var translations = GetComponentDataFromEntity<Translation>(true);
-        
+
         var allFireEntities = mAllFires.ToEntityArrayAsync(Allocator.TempJob, out var allFireEntitiesHandle);
         var allFirePositions = mAllFires.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var allFirePositionsHandle);
         var allFireValues = mAllFires.ToComponentDataArrayAsync<ValueComponent>(Allocator.TempJob, out var allFireValuesHandle);
@@ -50,7 +50,7 @@ public class CreateBrigadeLineSystem : SystemBase
         combinedDeps = JobHandle.CombineDependencies(combinedDeps, allFireValuesHandle);
         Dependency = JobHandle.CombineDependencies(combinedDeps, Dependency);
         Dependency = JobHandle.CombineDependencies(Dependency, findWaterJobHandle);
-        
+
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
         Entities.
             WithAll<Brigade>().
@@ -64,7 +64,7 @@ public class CreateBrigadeLineSystem : SystemBase
         {
             var fillerEntity = actors[1].actor;
             var fillerPosition = translations[fillerEntity];
-            
+
             float closestWater = float.MaxValue;
             int closestWaterEntity = -1;
             float3 actorPosition = fillerPosition.Value;
@@ -104,18 +104,42 @@ public class CreateBrigadeLineSystem : SystemBase
 
             float3 startPosition = translations[lineComponent.start].Value;
             float3 endPosition = translations[lineComponent.end].Value;
-            for (int i = 0; i < actors.Length; i++)
+
+            float3 dir = math.normalize(endPosition - startPosition);
+            float3 perpDir = math.cross(dir, math.up());
+
+            for (int i = 1; i < actors.Length; i++)
             {
                 var actorEntity = actors[i].actor;
-                float3 pos = math.lerp(startPosition, endPosition, (i * 0.5f) / actors.Length);
+
+                float t = (i - 1) / (float) (actors.Length - 2);
+                float3 pos = LinePositionFromIndex(t, startPosition, endPosition, perpDir);
                 float3 initPosition = translations[actorEntity].Value;
                 ecb.AddComponent(actors[i].actor, new Destination(){position = new float3(pos.x, initPosition.y, pos.z)});
                 ecb.RemoveComponent<TargetEntity>(actorEntity);
             }
-            
+
         }).Run();
         ecb.Playback(EntityManager);
         ecb.Dispose();
+    }
+
+    public static float3 LinePositionFromIndex(float t, float3 startPos, float3 endPos, float3 perpendicularOffsetDirection)
+    {
+        float perpOffset = 5f;
+
+        if (t > .5f)
+        {
+            t = .5f - (t - .5f);
+            perpOffset *= -1;
+        }
+
+        t *= 2f;
+
+        perpOffset *= (t * (t + -1f));
+        float3 perpVec = perpendicularOffsetDirection * perpOffset;
+
+        return math.lerp(startPos, endPos, t) + perpVec;
     }
 }
 
