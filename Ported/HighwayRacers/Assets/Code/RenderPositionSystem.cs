@@ -17,11 +17,11 @@ public class RenderPositionSystem : SystemBase
     {
         var laneInfo = GetSingleton<RoadInfo>();
         var entity = GetSingletonEntity<RoadInfo>();
-        var m_LaneInfoElements = EntityManager.GetBuffer<LaneInfoElement>(entity).AsNativeArray();
+        var laneInfoElements = EntityManager.GetBuffer<LaneInfoElement>(entity).AsNativeArray();
 
         Entities.ForEach((ref Translation translation, in PercentComplete percentComplete, in LaneAssignment laneAssignment) =>
         {
-            LaneInfoElement lane = m_LaneInfoElements[laneAssignment.Value];
+            LaneInfoElement lane = laneInfoElements[laneAssignment.Value];
             float xPos = lane.Value.Pivot;
             float yPos = laneInfo.StartXZ.y + (laneInfo.EndXZ.y - laneInfo.StartXZ.y) * percentComplete.Value;
             translation.Value.x = xPos;
