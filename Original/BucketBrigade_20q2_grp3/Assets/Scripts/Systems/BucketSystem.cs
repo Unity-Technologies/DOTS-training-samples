@@ -23,7 +23,7 @@ public class BucketCarrySystem : SystemBase
         var getWorkerPosition = GetComponentDataFromEntity<Translation>(true);
         Entities.WithNativeDisableContainerSafetyRestriction(getWorkerPosition).ForEach((ref Translation tx, in BucketWorkerRef workerRef) => {
             tx = getWorkerPosition[workerRef.WorkerRef];
-            tx.Value.y = 2.0f;
+            tx.Value.y = 4.0f;
         }).ScheduleParallel();
     }
 }
