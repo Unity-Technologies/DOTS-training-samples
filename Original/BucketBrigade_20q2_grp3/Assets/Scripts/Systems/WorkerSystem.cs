@@ -39,7 +39,7 @@ public class WorkerMoveToSystem : SystemBase
         return newPos;
     }
 
-    protected override void OnUpdate() 
+    protected override void OnUpdate()
     {
         float speed = 8.0f;
         float deltaTime = Time.DeltaTime;
@@ -86,7 +86,7 @@ public class PassBucketSystem : SystemBase
                     //Debug.Log($"nextWorkerIsMoving {nextWorkerIsMoving} to nextWorkerHasBucket {nextWorkerHasBucket}");
                     if (!nextWorkerIsMoving && !nextWorkerHasBucket)
                     {
-                        Debug.Log( $"Passing Bucket from {e.Index} to {target.NextWorkerInLine.Index}");
+                        //Debug.Log( $"Passing Bucket from {e.Index} to {target.NextWorkerInLine.Index}");
                         ecb.RemoveComponent<BucketRef>(e);
                         ecb.AddComponent(e, new WorkerMoveTo() { Value = positions.Start });
 
