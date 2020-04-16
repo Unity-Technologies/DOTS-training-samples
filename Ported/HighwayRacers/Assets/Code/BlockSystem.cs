@@ -73,7 +73,7 @@ public class BlockSystem : SystemBase
                 for (int i = 0; i < agentEntities.Length; ++i)
                 {
                     // If the index matches this agent, then: 
-                    if (entity.Index != agentEntities[i].Index)
+                    if (entity.Index == agentEntities[i].Index)
                     {
                         // Do not proceed with this agent.
                         continue;
@@ -112,6 +112,7 @@ public class BlockSystem : SystemBase
                 {
                     // Add a BlockSpeed component with the speed of the car that is ahead of it.
                     entityCommandBuffer.AddComponent(nativeThreadIndex, entity, blockSpeed);
+                    entityCommandBuffer.RemoveComponent<OvertakeTag>(nativeThreadIndex, entity);
                 }
             })
             .ScheduleParallel();
