@@ -10,6 +10,6 @@ public class PercentCompleteSystem : SystemBase
         Entities.ForEach((ref PercentComplete percentComplete, in Speed speed) =>
         {
             percentComplete.Value += speed.Value * deltaTime - (int)percentComplete.Value;
-        }).Schedule();
+        }).ScheduleParallel();
     }
 }

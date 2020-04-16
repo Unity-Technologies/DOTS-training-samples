@@ -37,7 +37,7 @@ public class AgentSpawningSystem : SystemBase
             var buffer = ecb.AddBuffer<SpawnPosition>(bufferEntity);
             for (float x = roadInfo.StartXZ.x; x < roadInfo.EndXZ.x; x += roadInfo.LaneWidth)
             {
-                for (float y = roadInfo.StartXZ.y; y < roadInfo.EndXZ.y; y += roadInfo.CarLength)
+                for (float y = roadInfo.StartXZ.y; y < roadInfo.EndXZ.y; y += roadInfo.CarSpawningDistance)
                 {
                     buffer.Add(new SpawnPosition()
                     {
