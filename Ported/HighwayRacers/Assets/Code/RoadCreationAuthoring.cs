@@ -22,7 +22,7 @@ public class RoadCreationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         });
 
         DynamicBuffer<LaneInfoElement> dynamicBuffer = dstManager.AddBuffer<LaneInfoElement>(entity);
-        float currentLanePos = laneWidth;
+        float currentLanePos = StartXZ.x + laneWidth / 2;
         for (int i = 0; i < MaxLanes; ++i)
         {
             LaneInfo info = new LaneInfo { Pivot = currentLanePos };
