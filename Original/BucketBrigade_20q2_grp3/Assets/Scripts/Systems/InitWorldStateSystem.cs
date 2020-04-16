@@ -16,6 +16,12 @@ public class InitWorldStateSystem : SystemBase
 
     private bool m_Initialized;
 
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        GridData.Instance.Dispose();
+    }
+
     protected override void OnUpdate()
     {
         if (!m_Initialized && GridWidth > 0 && GridHeight > 0)

@@ -29,6 +29,12 @@ public class FirePropagateSystem : SystemBase
         m_EcbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        m_Random.Dispose();
+    }
+
     protected override void OnUpdate()
     {
         if (!GridData.Instance.Heat.IsCreated)
