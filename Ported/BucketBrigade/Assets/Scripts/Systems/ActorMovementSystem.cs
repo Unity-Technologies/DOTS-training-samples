@@ -26,6 +26,7 @@ public class ActorMovementSystem : SystemBase
         var ecb = mEndSimBufferSystem.CreateCommandBuffer().ToConcurrent();
         Entities
             .WithName("Actor_Movement")
+            .WithNone<ScooperTag, FillerTag, ThrowerTag>()
             .WithAll<Actor>()
             .ForEach((int entityInQueryIndex, Entity actorEntity, ref Translation translation, in Destination dest) =>
             {
@@ -47,6 +48,7 @@ public class ActorMovementSystem : SystemBase
         var getActorPosition = GetComponentDataFromEntity<Translation>(true);
         var getActorHolding = GetComponentDataFromEntity<HoldingBucket>();
         Entities
+            .WithName("Bucket_Movement")
             .WithAll<Bucket>()
             .WithReadOnly(getActorPosition)
             .WithNativeDisableContainerSafetyRestriction(getActorPosition)

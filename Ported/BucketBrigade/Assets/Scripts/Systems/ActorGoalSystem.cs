@@ -69,6 +69,7 @@ public class ActorGoalSystem : SystemBase
         var getFireComponent = GetComponentDataFromEntity<Fire>(true);
         var getBucketComponent = GetComponentDataFromEntity<Bucket>(true);
         var getRiverComponent = GetComponentDataFromEntity<River>(true);
+        var getActorComponent = GetComponentDataFromEntity<Actor>(true);
         var getValueComponent = GetComponentDataFromEntity<ValueComponent>();
         var getHeldBucket = GetComponentDataFromEntity<HoldingBucket>(true);
 
@@ -77,32 +78,84 @@ public class ActorGoalSystem : SystemBase
             .WithName("Actor_Perform_Action")
             .WithAll<Actor>()
             .WithNone<Destination>()
-            .ForEach((Entity actor, in TargetEntity target) => {
+            .WithNone<ThrowerTag, ScooperTag, FillerTag>()
+            .ForEach((Entity actor, in TargetEntity target, in HoldingBucket bucket) => {
+
+                //Actor reached destination while holding a bucket and targeting another actor
+                var targetEntity = target.target;
+                if (getActorComponent.Exists(targetEntity))
+                {
+                    actorPerformActionBuffer.AddComponent<HoldingBucket>(targetEntity, new HoldingBucket() {bucket = bucket.bucket});
+                    actorPerformActionBuffer.RemoveComponent<HoldingBucket>(actor);
+                    actorPerformActionBuffer.SetComponent(bucket.bucket, new HeldBy() {holder = targetEntity});
+                }
+
+                actorPerformActionBuffer.RemoveComponent<TargetEntity>(actor);
+            }).Run();
+
+        Entities
+            .WithName("Scooper_Perform_Action")
+            .WithAll<Actor, ScooperTag>()
+            .WithNone<Destination>()
+            .ForEach((Entity actor, in TargetEntity target, in HoldingBucket bucket) => {
 
                 //TODO: If target is a river, get water, if fire dump water, if another actor, send them a bucket
 
                 var targetEntity = target.target;
-                if (getBucketComponent.Exists(targetEntity))
+                if (getRiverComponent.Exists(targetEntity))
                 {
-                    actorPerformActionBuffer.AddComponent<HoldingBucket>(actor, new HoldingBucket() {bucket = target.target});
-                }
-                else if (getRiverComponent.Exists(targetEntity))
-                {
-                    var bucket = getHeldBucket[actor];
                     var bucketValue = getValueComponent[bucket.bucket];
                     getValueComponent[bucket.bucket] = new ValueComponent() {Value = (byte) (bucketValue.Value + (byte) tuningData.BucketCapacity)};
                 }
-                else if (getFireComponent.Exists(targetEntity))
+                else if (getActorComponent.Exists(targetEntity))
                 {
-                    var bucket = getHeldBucket[actor];
+                    actorPerformActionBuffer.AddComponent<HoldingBucket>(targetEntity, new HoldingBucket() {bucket = bucket.bucket});
+                    actorPerformActionBuffer.RemoveComponent<HoldingBucket>(actor);
+                    actorPerformActionBuffer.SetComponent(bucket.bucket, new HeldBy() {holder = targetEntity});
+                }
+
+                actorPerformActionBuffer.RemoveComponent<TargetEntity>(actor);
+            }).Run();
+
+        Entities
+            .WithName("Thrower_Perform_Action")
+            .WithAll<Actor, ThrowerTag>()
+            .WithNone<Destination>()
+            .ForEach((Entity actor, in TargetEntity target, in HoldingBucket bucket) => {
+
+                var targetEntity = target.target;
+                if (getFireComponent.Exists(targetEntity))
+                {
                     var bucketValue = getValueComponent[bucket.bucket];
                     getValueComponent[bucket.bucket] = new ValueComponent() {Value = 0};
 
                     var fireValue = getValueComponent[targetEntity];
                     getValueComponent[targetEntity] = new ValueComponent() {Value = (byte)math.max(0, fireValue.Value - bucketValue.Value)};
                 }
+                else if (getActorComponent.Exists(targetEntity))
+                {
+                    actorPerformActionBuffer.AddComponent<HoldingBucket>(targetEntity, new HoldingBucket() {bucket = bucket.bucket});
+                    actorPerformActionBuffer.RemoveComponent<HoldingBucket>(actor);
+                    actorPerformActionBuffer.SetComponent(bucket.bucket, new HeldBy() {holder = targetEntity});
+                }
 
                 actorPerformActionBuffer.RemoveComponent<TargetEntity>(actor);
+            }).Run();
+
+        Entities
+            .WithName("Brigade_Pass_Bucket_Action")
+            .WithAll<Actor>()
+            .WithNone<Destination, TargetEntity, ScooperTag>()
+            .ForEach((Entity actor) => {
+                //TODO: Assign move/target to next fighter
+            }).Run();
+
+        Entities
+            .WithName("Scooper_return_bucket_Action")
+            .WithAll<Actor, ScooperTag>()
+            .WithNone<Destination, TargetEntity>()
+            .ForEach((Entity actor) => {
+                //TODO: Assign move/target to a fighter in the brigade
             }).Run();
 
         actorPerformActionBuffer.Playback(EntityManager);
@@ -118,8 +171,8 @@ public class ActorGoalSystem : SystemBase
 
             //Async, low freq action
             Entities
-                .WithName("Actor_Find_Bucket")
-                .WithAll<Actor>()
+                .WithName("Scooper_Find_Bucket")
+                .WithAll<Actor, ScooperTag>()
                 .WithNone<Destination, HoldingBucket, TargetEntity>()
                 .WithReadOnly(getPositions)
                 .WithDeallocateOnJobCompletion(bucketEntities)
@@ -157,6 +210,7 @@ public class ActorGoalSystem : SystemBase
         }
 #endif
 
+        //TODO: Make this part of brigade line initialization
         if (mAllActorsWithBucketAndNoDestination.CalculateChunkCount() > 0)
         {
             var waterPositions = mAllRiversQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var waterPositionHandle);
