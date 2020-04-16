@@ -17,4 +17,6 @@ public struct TuningData : IComponentData
     public int BucketCapacity;
     public float BucketScale;
 
+    public float FireCellSize;
+    public float StartingFireOdds;
 }

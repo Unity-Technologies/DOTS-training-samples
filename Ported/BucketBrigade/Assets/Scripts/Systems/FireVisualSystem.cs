@@ -20,7 +20,8 @@ public class FireVisualSystem : SystemBase
 
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities.WithAll<Fire>().ForEach(
+        Entities.WithAll<Fire>()
+            .WithName("Fire_Visuals").ForEach(
             (ref FireMaterialComponent mat, ref Translation translation, in ValueComponent val) =>
             {
                 //map the overall value from [0-1]

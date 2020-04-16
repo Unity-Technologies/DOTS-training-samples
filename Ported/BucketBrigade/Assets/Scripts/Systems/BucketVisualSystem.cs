@@ -17,12 +17,12 @@ public class BucketVisualSystem : SystemBase
         var tuningData = GetSingleton<TuningData>();
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities.WithAll<Bucket>().
-            ForEach((ref FireMaterialComponent mat, ref NonUniformScale scale, in ValueComponent val) =>
+        Entities.WithAll<Bucket>()
+            .WithName("Bucket_Visuals").ForEach((ref FireMaterialComponent mat, ref NonUniformScale scale, in ValueComponent val) =>
             {
-                scale.Value.x = val.Value / tuningData.BucketCapacity + tuningData.BucketScale;
-                scale.Value.y = val.Value / tuningData.BucketCapacity + tuningData.BucketScale;
-                scale.Value.z = val.Value / tuningData.BucketCapacity + tuningData.BucketScale;
+                scale.Value.x = (1 + val.Value / tuningData.BucketCapacity ) * tuningData.BucketScale;
+                scale.Value.y = (1 + val.Value / tuningData.BucketCapacity ) * tuningData.BucketScale;
+                scale.Value.z = (1 + val.Value / tuningData.BucketCapacity ) * tuningData.BucketScale;
                 mat.Amount =  val.Value / tuningData.BucketCapacity;
 
             }).Run();
