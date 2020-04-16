@@ -56,6 +56,7 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
         foreach (var br in BrigadeLines)
         {
             var bInfo = dstManager.CreateEntity(ComponentType.ReadOnly<BrigadeInitInfo>());
+            dstManager.SetName(bInfo, "BrigadeLine");
             dstManager.SetComponentData(bInfo, new BrigadeInitInfo() {WorkerCount = br.WorkerCount});
         }
 
