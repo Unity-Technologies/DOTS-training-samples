@@ -23,6 +23,8 @@ public class FireInitSystem : SystemBase
         var random = m_random;
         float preFireOdds = 0.05f;//tuningDataEntity.OddsOfInitFire;
         float maxFire = tuningData.MaxValue;
+
+        float cellSize = 0.5f;
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         Entities.ForEach((Entity spawnerEntity, in InitData spawner, in TuningData data, in Translation spawnerTranslation) =>
@@ -33,8 +35,8 @@ public class FireInitSystem : SystemBase
                 {
                     var instance = ecb.Instantiate(spawner.FirePrefab);
                     float3 translation = spawnerTranslation.Value;
-                    translation.x += x - (data.GridSize.x - 1) / 2f;
-                    translation.z += y - (data.GridSize.y - 1) / 2f;
+                    translation.x += (x - (data.GridSize.x - 1) / 2f) * cellSize;
+                    translation.z += (y - (data.GridSize.y - 1) / 2f) * cellSize;
                     ecb.SetComponent(instance, new Translation {Value = translation});
                     ecb.SetComponent(instance, new GridIndex(){Index = new int2(x,y)});
                     
