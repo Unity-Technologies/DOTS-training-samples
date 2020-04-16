@@ -6,7 +6,7 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct InitDataActors : IComponentData
 {
-
+    public int BrigadeCount;
     public Entity ActorPrefab;
-    public int ActorCount;
+    public int ActorCountPerBrigade;
 }
