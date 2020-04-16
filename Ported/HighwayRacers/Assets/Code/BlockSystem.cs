@@ -101,7 +101,7 @@ public class BlockSystem : SystemBase
                     // If the distance is within the minimum distance between two agents, then:
                     if (distance < minimumDistanceTemp)
                     {
-                        // Update the minimum distance and make the speed matc the closer agent.
+                        // Update the minimum distance and make the speed match the closer agent.
                         minimumDistanceTemp = distance;
                         blockSpeed.Value = speeds[i].Value;
                     }
