@@ -16,13 +16,13 @@ public class FireGrowSystem : SystemBase
 
     private double m_LastUpdateGrowTime;
 
-    private FireExtinguishSystem _mFireExtinguishSystem;
+    private FireExtinguishSystem m_FireExtinguishSystem;
 
     protected override void OnCreate()
     {
         base.OnCreate();
 
-        _mFireExtinguishSystem = World.GetOrCreateSystem<FireExtinguishSystem>();
+        m_FireExtinguishSystem = World.GetOrCreateSystem<FireExtinguishSystem>();
     }
 
     protected override void OnUpdate()
@@ -30,7 +30,7 @@ public class FireGrowSystem : SystemBase
         if (!GridData.Instance.Heat.IsCreated)
             return;
 
-        Dependency = JobHandle.CombineDependencies(Dependency, _mFireExtinguishSystem.Deps);
+        Dependency = JobHandle.CombineDependencies(Dependency, m_FireExtinguishSystem.Deps);
 
         if (m_LastUpdateGrowTime + UpdateGrowFrequency < Time.ElapsedTime)
         {

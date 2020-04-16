@@ -11,12 +11,12 @@ public class FireExtinguishSystem : SystemBase
     public JobHandle Deps;
 
     private FirePropagateSystem m_FirePropagateSystem;
-
     private EntityCommandBufferSystem m_EcbSystem;
 
     protected override void OnCreate()
     {
         m_EcbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        m_FirePropagateSystem = World.GetOrCreateSystem<FirePropagateSystem>();
     }
 
     protected override void OnUpdate()
@@ -25,6 +25,9 @@ public class FireExtinguishSystem : SystemBase
         var ecb = m_EcbSystem.CreateCommandBuffer().ToConcurrent();
         var radius = ExtinguishDistance;
         var amountAtMaxDistance = ExtinguishAmountAtMaxDistance;
+
+        Dependency = JobHandle.CombineDependencies(Dependency, m_FirePropagateSystem.Deps);
+
         Entities
             .WithName("FireExtinguish")
             .ForEach((int entityInQueryIndex, Entity entity, in ExtinguishData data) =>
@@ -58,6 +61,7 @@ public class FireExtinguishSystem : SystemBase
                 }
 
             }).Schedule();
+
         m_EcbSystem.AddJobHandleForProducer(Dependency);
         Deps = Dependency;
     }

@@ -12,10 +12,13 @@ public class FirePropagateSystem : SystemBase
     public float PropagationChance = 1;
     public double UpdatePropagationFrequency;
 
+    public JobHandle Deps;
+
     private double m_LastUpdatePropagationTime;
     private FloatRandom m_Random;
 
     private FireGrowSystem m_FireGrowSystem;
+    private EntityCommandBufferSystem m_EcbSystem;
 
     protected override void OnCreate()
     {
@@ -23,6 +26,7 @@ public class FirePropagateSystem : SystemBase
 
         m_Random = FloatRandom.Create(0);
         m_FireGrowSystem = World.GetOrCreateSystem<FireGrowSystem>();
+        m_EcbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -46,6 +50,9 @@ public class FirePropagateSystem : SystemBase
             }.Schedule(Dependency);
             Dependency = JobHandle.CombineDependencies(Dependency, job);
         }
+
+        Deps = Dependency;
+        m_EcbSystem.AddJobHandleForProducer(Dependency);
     }
 
     [BurstCompile]
