@@ -3,13 +3,14 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-[UpdateBefore(typeof(FireSimulationSystem))]
-public class ExtinguishSystem : SystemBase
+public class FireExtinguishSystem : SystemBase
 {
     public int ExtinguishDistance;
     public int ExtinguishAmountAtMaxDistance;
 
     public JobHandle Deps;
+
+    private FirePropagateSystem m_FirePropagateSystem;
 
     private EntityCommandBufferSystem m_EcbSystem;
 

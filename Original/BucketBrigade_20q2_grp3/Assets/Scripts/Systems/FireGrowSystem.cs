@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateAfter(typeof(ExtinguishSystem))]
+[UpdateAfter(typeof(FireExtinguishSystem))]
 public class FireGrowSystem : SystemBase
 {
     public int FireGrowStep;
@@ -16,13 +16,13 @@ public class FireGrowSystem : SystemBase
 
     private double m_LastUpdateGrowTime;
 
-    private ExtinguishSystem m_ExtinguishSystem;
+    private FireExtinguishSystem _mFireExtinguishSystem;
 
     protected override void OnCreate()
     {
         base.OnCreate();
 
-        m_ExtinguishSystem = World.GetOrCreateSystem<ExtinguishSystem>();
+        _mFireExtinguishSystem = World.GetOrCreateSystem<FireExtinguishSystem>();
     }
 
     protected override void OnUpdate()
@@ -30,11 +30,11 @@ public class FireGrowSystem : SystemBase
         if (!GridData.Instance.Heat.IsCreated)
             return;
 
+        Dependency = JobHandle.CombineDependencies(Dependency, _mFireExtinguishSystem.Deps);
+
         if (m_LastUpdateGrowTime + UpdateGrowFrequency < Time.ElapsedTime)
         {
             m_LastUpdateGrowTime = Time.ElapsedTime;
-
-            Dependency = JobHandle.CombineDependencies(Dependency, m_ExtinguishSystem.Deps);
 
             GrowFire();
             UpdateColor();
@@ -47,9 +47,12 @@ public class FireGrowSystem : SystemBase
 
     private void GrowFire()
     {
-        Dependency = JobHandle.CombineDependencies(Dependency, m_ExtinguishSystem.Deps);
         var data = GridData.Instance;
-        var job = new GrowFireJob { Data = data, IncreaseStep = FireGrowStep }.Schedule(data.Width * data.Height, data.Width, Dependency);
+        var job = new GrowFireJob
+        {
+            Data = data,
+            IncreaseStep = FireGrowStep
+        }.Schedule(data.Width * data.Height, data.Width, Dependency);
         Dependency = JobHandle.CombineDependencies(Dependency, job);
     }
 
@@ -63,7 +66,7 @@ public class FireGrowSystem : SystemBase
             {
                 var heat = (float)data.Heat[cell.Index] / byte.MaxValue;
                 var value = math.pow(1 - heat, 2);
-                color.Value = new float4(1, value, value, 1);
+                color.Value = new float4(1 - value, value, 0, 1);
             }).Schedule();
     }
 
