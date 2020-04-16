@@ -15,6 +15,6 @@ public struct TuningData : IComponentData
 
     public float ActorSpeed;
     public int BucketCapacity;
-    
+    public float BucketScale;
 
 }
