@@ -26,7 +26,7 @@ public class ActorMovementSystem : SystemBase
         var ecb = mEndSimBufferSystem.CreateCommandBuffer().ToConcurrent();
         Entities
             .WithName("Actor_Movement")
-            .WithNone<ScooperTag, FillerTag, ThrowerTag>()
+            // why need this? --.WithNone<ScooperTag, FillerTag, ThrowerTag>()
             .WithAll<Actor>()
             .ForEach((int entityInQueryIndex, Entity actorEntity, ref Translation translation, in Destination dest) =>
             {
