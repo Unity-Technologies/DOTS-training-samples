@@ -11,7 +11,7 @@ using Random = Unity.Mathematics.Random;
 public class AgentSpawningSystem : SystemBase
 {
     private Random m_Random;
-    private RoadInfo m_LaneInfo;
+    private RoadInfo m_RoadInfo;
 
     protected override void OnCreate()
     {
@@ -23,7 +23,7 @@ public class AgentSpawningSystem : SystemBase
     {
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
         var random = m_Random;
-        var laneInfo = GetSingleton<RoadInfo>();//m_LaneInfo;
+        var roadInfo = GetSingleton<RoadInfo>();//m_LaneInfo;
         Entities.ForEach((Entity e, in AgentSpawner spawner) =>
         {
             for (int i = 0; i < spawner.NumAgents; i++)
@@ -31,18 +31,25 @@ public class AgentSpawningSystem : SystemBase
                 var spawnedEntity = ecb.Instantiate(spawner.Prefab);
                 //Need to resolve situation where cars are embeded in each other.
                 //Precalculate all the slots that cars can go in and assign those slots here.
-
+                
                 Translation translation = new Translation()
                 {
-                    Value = new float3((int)random.NextFloat(laneInfo.StartXZ.x, laneInfo.EndXZ.x), 0f,
-                        random.NextFloat(laneInfo.StartXZ.y, laneInfo.EndXZ.y))
+                    Value = new float3((int)random.NextFloat(roadInfo.StartXZ.x, roadInfo.EndXZ.x), 0f,
+                        random.NextFloat(roadInfo.StartXZ.y, roadInfo.EndXZ.y))
                 };
 
                 LaneAssignment laneAssignment = new LaneAssignment()
                 {
-                    Value = random.NextInt(0, laneInfo.MaxLanes)
+                    Value = random.NextInt(0, roadInfo.MaxLanes)
                 };
 
+                TargetSpeed targetSpeed = new TargetSpeed()
+                {
+                    Value = random.NextFloat(0.1f, 0.5f)
+                };
+
+                ecb.SetComponent(spawnedEntity, targetSpeed);
+                ecb.SetComponent(spawnedEntity, laneAssignment);
                 ecb.SetComponent(spawnedEntity, translation);
             }
 

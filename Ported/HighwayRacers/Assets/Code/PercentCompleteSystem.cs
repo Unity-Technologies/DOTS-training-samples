@@ -23,12 +23,12 @@ public class PercentCompleteSystem : SystemBase
         //may not need road length
         Entities.ForEach((ref PercentComplete percentComplete, in Speed speed) =>
         {
-            float relativeStartPosition = totalDistance * percentComplete.Value;
+            //float relativeStartPosition = totalDistance * percentComplete.Value;
             var distance = speed.Value * deltaTime;
-            float newPercentComplete = (relativeStartPosition + distance) / totalDistance;
-            if (newPercentComplete > 1.0f)
-                newPercentComplete = 0.0f;
-            percentComplete.Value = newPercentComplete;
+            //float newPercentComplete = (relativeStartPosition + distance) / totalDistance;
+            //if (newPercentComplete > 1.0f)
+                //newPercentComplete = 0.0f;
+            percentComplete.Value = (percentComplete.Value + distance) % 1f;
 
         }).Schedule();
 
