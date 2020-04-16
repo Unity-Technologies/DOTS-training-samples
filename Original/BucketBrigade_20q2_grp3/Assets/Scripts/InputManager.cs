@@ -62,9 +62,9 @@ public class InputManager : MonoBehaviour
                         Debug.Log("Apply water at " + gridPosition.ToString());
                         //startFire
                         var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-                        var e = entityManager.CreateEntity(typeof(ResourceApplyGridPosition));
+                        var e = entityManager.CreateEntity(typeof(ExtinguishData));
                         entityManager.SetName(e, "ResourceApplyGridPosition");
-                        entityManager.SetComponentData(e, new ResourceApplyGridPosition() {Value = gridPosition});
+                        entityManager.SetComponentData(e, new ExtinguishData() {CellIndex = GridData.Instance.GetIndex((gridPosition.x, gridPosition.y))});
                     }
                 }
             }
