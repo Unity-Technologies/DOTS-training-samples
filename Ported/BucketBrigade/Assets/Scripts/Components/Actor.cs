@@ -7,7 +7,7 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct Actor : IComponentData
 {
-    
+    public Entity neighbor;
 }
 
 public struct ActorElement : IBufferElementData
