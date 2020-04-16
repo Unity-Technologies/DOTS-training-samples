@@ -186,7 +186,7 @@ MonoBehaviour:
     y: 24
   LaneWidth: 5
   MaxLanes: 4
-  CarLength: 1
+  CarLength: 3
 --- !u!1 &285360169
 GameObject:
   m_ObjectHideFlags: 0
