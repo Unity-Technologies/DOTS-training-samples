@@ -46,11 +46,12 @@ public class ActorMovementSystem : SystemBase
             }).ScheduleParallel();
 
         var getActorPosition = GetComponentDataFromEntity<Translation>(true);
-        var getActorHolding = GetComponentDataFromEntity<HoldingBucket>();
+        var getActorHolding = GetComponentDataFromEntity<HoldingBucket>(true);
         Entities
             .WithName("Bucket_Movement")
             .WithAll<Bucket>()
             .WithReadOnly(getActorPosition)
+            .WithReadOnly(getActorHolding)
             .WithNativeDisableContainerSafetyRestriction(getActorPosition)
             .ForEach((Entity Bucket, ref Translation bucketTranslation, in HeldBy heldBy) =>
             {
@@ -63,7 +64,7 @@ public class ActorMovementSystem : SystemBase
                 bucketTranslation = new Translation()  {
                     Value = actorPosition.Value + math.up() * .5f
                 };
-            }).Run();
+            }).ScheduleParallel();
         mEndSimBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
