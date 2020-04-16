@@ -7,6 +7,4 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct Brigade : IComponentData
 {
-    
-    
 }
