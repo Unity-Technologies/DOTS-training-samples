@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
@@ -9,8 +10,8 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
     public int GridHeight;
     public GameObject FirePrefab;
     public float PropagationChance = 0.3f;
-    public float GrowSpeed = 0.01f;
-    public float UpdateFrequency = 0.01f;
+    public int FireGrowStep = 1;
+    public float FireGrowFrequency = 0.1f;
     public float UpdatePropagationFrequency = 0.5f;
     [Tooltip("Random seed to use, or 0 to allow random per-run")]
     public int RandomSeed = 0;
@@ -61,8 +62,8 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
 
         var fireSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireSimulationSystem>();
         fireSystem.PropagationChance = PropagationChance;
-        fireSystem.GrowSpeed = GrowSpeed;
-        fireSystem.UpdateFrequency = UpdateFrequency;
+        fireSystem.FireGrowStep = FireGrowStep;
+        fireSystem.UpdateGrowFrequency = FireGrowFrequency;
         fireSystem.UpdatePropagationFrequency = UpdatePropagationFrequency;
     }
 

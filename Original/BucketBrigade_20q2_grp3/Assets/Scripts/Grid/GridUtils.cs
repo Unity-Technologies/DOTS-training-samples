@@ -5,7 +5,7 @@ public static class GridUtils
 {
     public static GridData CreateGrid(int width, int height)
     {
-        GridData.Instance = new GridData { Width = width, Height = height, Heat = new NativeArray<float>(width * height, Allocator.Persistent) };
+        GridData.Instance = new GridData { Width = width, Height = height, Heat = new NativeArray<byte>(width * height, Allocator.Persistent) };
         return GridData.Instance;
     }
 
