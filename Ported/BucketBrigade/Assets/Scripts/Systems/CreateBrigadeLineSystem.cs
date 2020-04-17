@@ -54,12 +54,7 @@ public class CreateBrigadeLineSystem : SystemBase
         Entities.
             WithAll<Brigade>().
             WithNone<LineComponent>().
-            WithReadOnly(translations).
-            WithDeallocateOnJobCompletion(waterPositions).
-            WithDeallocateOnJobCompletion(waterEntities).
-            WithDeallocateOnJobCompletion(allFireEntities).
-            WithDeallocateOnJobCompletion(allFirePositions).
-            WithDeallocateOnJobCompletion(allFireValues).ForEach((Entity e, in DynamicBuffer<ActorElement> actors) =>
+            WithReadOnly(translations).ForEach((Entity e, in DynamicBuffer<ActorElement> actors) =>
         {
             var fillerEntity = actors[1].actor;
             var fillerPosition = translations[fillerEntity];
@@ -120,8 +115,15 @@ public class CreateBrigadeLineSystem : SystemBase
             }
 
         }).Run();
+        
         ecb.Playback(EntityManager);
         ecb.Dispose();
+
+        waterPositions.Dispose();
+        waterEntities.Dispose();
+        allFireEntities.Dispose();
+        allFirePositions.Dispose();
+        allFireValues.Dispose();
     }
 
     public static float3 LinePositionFromIndex(float t, float3 startPos, float3 endPos, float3 perpendicularOffsetDirection)
