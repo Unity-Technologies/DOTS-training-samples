@@ -9,13 +9,13 @@ using Random = Unity.Mathematics.Random;
 [UpdateAfter(typeof(FireInitSystem))]
 public class SpawningInitSystem : SystemBase
 {
-    Random random = new Random(1000);
+
 
     protected override void OnUpdate()
     {
         if (!HasSingleton<TuningData>())
             return;
-
+        Random random = new Random(1000);
         Entity tuningDataEntity = GetSingletonEntity<TuningData>();
         TuningData tuningData = EntityManager.GetComponentData<TuningData>(tuningDataEntity);
 
@@ -23,11 +23,13 @@ public class SpawningInitSystem : SystemBase
         int gridDimensionY = (int)(tuningData.GridSize.y * 0.5f * tuningData.FireCellSize);
 
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
-        Entities.WithoutBurst().ForEach((Entity entity, in InitDataActors actorTunning) =>
+        Entities.ForEach((Entity entity, in InitDataActors actorTunning) =>
         {
+
             int actorCount = actorTunning.BrigadeCount;
             for (int brigade = 0; brigade < actorCount; brigade++)
             {
+                
                 Entity brigadeEntity = ecb.CreateEntity();
                 ecb.AddComponent<Brigade>(brigadeEntity);
                 var buffer = ecb.AddBuffer<ActorElement>(brigadeEntity);
@@ -75,7 +77,7 @@ public class SpawningInitSystem : SystemBase
         ecb.Playback(EntityManager);
         ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities.WithoutBurst().ForEach((Entity entity, in InitBucketData bucketTunning) =>
+        Entities.ForEach((Entity entity, in InitBucketData bucketTunning) =>
         {
             for (int i = 0; i < bucketTunning.BucketCount; i++)
             {

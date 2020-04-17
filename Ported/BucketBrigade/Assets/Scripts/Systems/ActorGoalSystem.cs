@@ -80,7 +80,6 @@ public class ActorGoalSystem : SystemBase
 
         Entities
             .WithName("Any_Pass_Bucket_Action")
-            .WithoutBurst()
             .WithNone<Destination, ThrowerTag>() //Thrower required because it handles its own bucket actions
             .WithNativeDisableContainerSafetyRestriction(getHeldBucket)
             .ForEach((Entity actor, in TargetEntity target, in HoldingBucket holdingBucket) =>

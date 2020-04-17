@@ -48,7 +48,6 @@ public class FireSpreadSystem: SystemBase
         }).ScheduleParallel(Dependency);
         
         var gridUpdateJob = Entities
-            .WithoutBurst()
             .WithDeallocateOnJobCompletion(startingVal)
             .ForEach((ref ValueComponent fireValue, in GridIndex gridIndices) =>
         {
