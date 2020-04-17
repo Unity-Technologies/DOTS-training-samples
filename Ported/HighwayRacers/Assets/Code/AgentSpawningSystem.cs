@@ -33,6 +33,9 @@ public class AgentSpawningSystem : SystemBase
 
         var random = m_Random;
         var roadInfo = GetSingleton<RoadInfo>(); 
+        
+        float roadLength = math.abs(roadInfo.EndXZ.y - roadInfo.StartXZ.y);
+        float validYDistance = roadInfo.CarSpawningDistancePercent * roadLength;
 
         // can't use Burst if we set a shared component (even using ecb)
         // (not a big loss for spwaning on init)
@@ -40,8 +43,6 @@ public class AgentSpawningSystem : SystemBase
         {
             var bufferEntity = ecb.CreateEntity();
             var buffer = ecb.AddBuffer<SpawnPosition>(bufferEntity);
-            float roadLength = math.abs(roadInfo.EndXZ.y - roadInfo.StartXZ.y);
-            float validYDistance = roadInfo.CarSpawningDistancePercent * roadLength;
 
             for (float x = roadInfo.StartXZ.x; x < roadInfo.EndXZ.x; x += roadInfo.LaneWidth)
             {

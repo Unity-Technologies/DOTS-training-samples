@@ -158,7 +158,7 @@ namespace HighwayRacers
         {
             float radius = curvePieceRadius(lane);
             float angle = localDistance / radius;
-            x = MID_RADIUS - Mathf.Cos(angle) * radius;
+            x = MID_RADIUS-Mathf.Cos(angle) * radius;
             z = Mathf.Sin(angle) * radius;
             rotation = angle;
         }
