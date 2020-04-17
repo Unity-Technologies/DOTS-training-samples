@@ -6,7 +6,7 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct ResourceAmount : IComponentData
 {
-    [Range(1f, 1000f)]
+    [Range(1, 255)]
     public int Value;
 }
 
