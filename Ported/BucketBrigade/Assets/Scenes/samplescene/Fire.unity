@@ -163,6 +163,7 @@ MonoBehaviour:
   BucketScale: 0.5
   FireCellSize: 0.5
   StartingFireOdds: 0.005
+  MovementEndRange: 0.25
 --- !u!114 &1271445247
 MonoBehaviour:
   m_ObjectHideFlags: 0

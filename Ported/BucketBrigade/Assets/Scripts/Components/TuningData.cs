@@ -19,4 +19,6 @@ public struct TuningData : IComponentData
 
     public float FireCellSize;
     public float StartingFireOdds;
+
+    public float MovementEndRange;
 }
