@@ -76,7 +76,7 @@ public class AgentSpawningSystem : SystemBase
 
                 ecb.SetComponent(spawnedEntity, minDistance);
                 ecb.SetComponent(spawnedEntity, targetSpeed);
-                ecb.SetComponent(spawnedEntity, laneAssignment);
+                ecb.SetSharedComponent(spawnedEntity, laneAssignment);
                 ecb.SetComponent(spawnedEntity, translation);
             }
 
