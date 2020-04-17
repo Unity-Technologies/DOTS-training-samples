@@ -20,7 +20,6 @@ public class CreateBucketSystem : SystemBase
         var prefabs = GetSingleton<GlobalPrefabs>();
         var ecb = m_ECBSystem.CreateCommandBuffer();
         Entities
-            .WithoutBurst()
             .WithAll<BrigadeLineEstablished>()
             .ForEach((Entity e, in BrigadeLine line, in ResourceSourcePosition source, in DynamicBuffer<WorkerEntityElementData> workers) =>
             {
