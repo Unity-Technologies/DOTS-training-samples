@@ -24,23 +24,26 @@ public class CreateBucketSystem : SystemBase
             .ForEach((int entityInQueryIndex, Entity e, in BrigadeLine line, in ResourceSourcePosition source, in DynamicBuffer<WorkerEntityElementData> workers) =>
             {
                 var resource = GetComponent<ResourceAmount>(source.Id);
-                if (resource.Value > 0)
+                if (time - resource.NextSpawnTime <= 0)
                 {
-                    ecb.SetComponent(source.Id, new ResourceAmount() { Value = resource.Value - 1, NextSpawnTime = time + .5 });
-                    var bucket = ecb.Instantiate(prefabs.BucketPrefab);
-                    ecb.AddComponent(bucket, new BucketWorkerRef() { WorkerRef = workers[0].Value });
-                    ecb.AddComponent(workers[0].Value, new BucketRef() { Bucket = bucket });
-                    ecb.AddComponent(source.Id, new Scale() { Value = (resource.Value / 255f) * 10 });
-                }
-                else
-                {
-                    if (HasComponent<ResourceSourcePosition>(e))
+                    if (resource.Value > 0)
                     {
-                        var resourceId = GetComponent<ResourceSourcePosition>(e).Id;
-                        ecb.RemoveComponent<ResourceClaimed>(resourceId);
+                        ecb.SetComponent(source.Id, new ResourceAmount() { Value = resource.Value - 1, NextSpawnTime = time + .5 });
+                        var bucket = ecb.Instantiate(prefabs.BucketPrefab);
+                        ecb.AddComponent(bucket, new BucketWorkerRef() { WorkerRef = workers[0].Value });
+                        ecb.AddComponent(workers[0].Value, new BucketRef() { Bucket = bucket });
+                        ecb.AddComponent(source.Id, new Scale() { Value = (resource.Value / 255f) * 10 });
                     }
-                    ecb.RemoveComponent<ResourceSourcePosition>(e);
-                    ecb.RemoveComponent<ResourceTargetPosition>(e);
+                    else
+                    {
+                        if (HasComponent<ResourceSourcePosition>(e))
+                        {
+                            var resourceId = GetComponent<ResourceSourcePosition>(e).Id;
+                            ecb.RemoveComponent<ResourceClaimed>(resourceId);
+                        }
+                        ecb.RemoveComponent<ResourceSourcePosition>(e);
+                        ecb.RemoveComponent<ResourceTargetPosition>(e);
+                    }
                 }
             }).Schedule();
         m_ECBSystem.AddJobHandleForProducer(Dependency);

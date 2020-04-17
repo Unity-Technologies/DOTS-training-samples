@@ -38,11 +38,18 @@ public class BrigadeFindSourceSystem : SystemBase
     [BurstCompile(Debug = true)]
     struct FindSourceJob : IJobChunk
     {
+        [ReadOnly]
         public ArchetypeChunkEntityType entityType;
+        [ReadOnly]
         public ArchetypeChunkComponentType<BrigadeLine> LineType;
+
+        [ReadOnly]
         public NativeArray<bool> resourceClaimed;
+        [ReadOnly]
         public NativeArray<ResourceAmount> resourceAmounts;
+        [ReadOnly]
         public NativeArray<float2> resourcePositions;
+        [ReadOnly]
         public NativeArray<Entity> resourceEntities;
         //[ReadOnly]
         public EntityCommandBuffer CommandBuffer;
@@ -100,9 +107,9 @@ public class BrigadeFindSourceSystem : SystemBase
         var count = lineQuery.CalculateChunkCount();
         if (count == 0)
             return;
-
-        var amounts = resourceQuery.ToComponentDataArrayAsync<ResourceAmount>(Allocator.TempJob, out var fireTargetQueryHandle);
-        Dependency = JobHandle.CombineDependencies(Dependency, fireTargetQueryHandle);
+        var localDependency = Dependency;
+        var amounts = resourceQuery.ToComponentDataArray<ResourceAmount>(Allocator.TempJob);//Async<ResourceAmount>(Allocator.TempJob, out var fireTargetQueryHandle);
+    //    Dependency = JobHandle.CombineDependencies(Dependency, fireTargetQueryHandle);
         var resourceClaimed = new NativeArray<bool>(resourceEntities.Length, Allocator.TempJob);
         for (int i = 0; i < resourceEntities.Length; i++)
             resourceClaimed[i] = EntityManager.HasComponent<ResourceClaimed>(resourceEntities[i]);
@@ -118,12 +125,13 @@ public class BrigadeFindSourceSystem : SystemBase
             resourcePositions = resourcePositions,
             LineType = lineType
         };
-        Dependency = job.ScheduleSingle(lineQuery, Dependency);
-        Dependency = amounts.Dispose(Dependency);
-        Dependency = resourceClaimed.Dispose(Dependency);
-        m_ECBSystem.AddJobHandleForProducer(Dependency);
+        localDependency = job.ScheduleSingle(lineQuery, localDependency);
+        localDependency = amounts.Dispose(localDependency);
+        localDependency = resourceClaimed.Dispose(localDependency);
+        m_ECBSystem.AddJobHandleForProducer(localDependency);
+        Dependency = localDependency;
     }
-
+}
     /*
     //NOTE: this needs to be run in a single job to ensure that multiple lines do not claim the same resource
     protected override void OnUpdate()
@@ -180,6 +188,6 @@ public class BrigadeFindSourceSystem : SystemBase
         ecb.Playback(EntityManager);
         //m_ECBSystem.AddJobHandleForProducer(Dependency);
     }*/
-}
+//}
 
 
