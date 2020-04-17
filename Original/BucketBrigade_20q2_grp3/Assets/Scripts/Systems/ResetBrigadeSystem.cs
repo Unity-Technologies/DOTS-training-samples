@@ -7,7 +7,7 @@ public struct Reset : IComponentData
 {
     public double ResetTime;
 }
-
+/*
 public class ResetSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;
@@ -37,3 +37,4 @@ public class ResetSystem : SystemBase
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }
+*/

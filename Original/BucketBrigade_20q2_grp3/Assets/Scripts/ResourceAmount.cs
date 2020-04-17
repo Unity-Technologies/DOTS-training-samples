@@ -4,10 +4,10 @@ using Unity.Entities;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
-public struct Resource : IComponentData
+public struct ResourceAmount : IComponentData
 {
-    [Range(3f, 10000f)]
-    public float Capacity;
+    [Range(1f, 1000f)]
+    public int Value;
 }
 
 public struct ResourceClaimed : IComponentData
