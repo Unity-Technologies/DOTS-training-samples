@@ -5,11 +5,6 @@ using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
 
-public struct Bucket : IComponentData
-{
-    public float Fill;
-}
-
 public struct BucketWorkerRef : IComponentData
 {
     public Entity WorkerRef;

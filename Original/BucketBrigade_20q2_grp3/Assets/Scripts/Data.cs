@@ -31,34 +31,6 @@ public struct BrigadeLineRef : ISharedComponentData
 }
 */
 
-
-public struct WorkerPositionsNeedUpdate : IComponentData
-{
-}
-/*
-//Create Line
-Entities
-    .WithAll<BrigadeInitInfo>() //created during conversion
-	.WithNone<BrigadeLine>()
-=>add BrigadeLine components
-
-//Find Resource System
-Entities
-    .WithAll<BrigadeLine>()
-	.WithNone<ResourceSourcePosition>()
-
-//Find Target System
-Entities
-   .WithAll<BrigadeLine>()
-	.WithNone<ResourceTargetPosition>()
-
-//Update worker positions. Query all lines that need updating. Find their workers using new BrigadeLineRef(lineEntity).
-Entities
-    .WithAll<WorkerPositionsNeedUpdate>()
-
-
-    */
-
 public struct FireStartGridPosition : IComponentData
 {
     public int2 Value;

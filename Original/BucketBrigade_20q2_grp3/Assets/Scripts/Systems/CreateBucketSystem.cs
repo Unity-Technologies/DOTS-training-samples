@@ -28,7 +28,6 @@ public class CreateBucketSystem : SystemBase
                 {
                     ecb.SetComponent(source.Id, new ResourceAmount() { Value = resource.Value - 1, NextSpawnTime = time + .5 });
                     var bucket = ecb.Instantiate(prefabs.BucketPrefab);
-                    ecb.AddComponent(bucket, new Bucket());
                     ecb.AddComponent(bucket, new BucketWorkerRef() { WorkerRef = workers[0].Value });
                     ecb.AddComponent(workers[0].Value, new BucketRef() { Bucket = bucket });
                     ecb.AddComponent(source.Id, new Scale() { Value = (resource.Value / 255f) * 10 });
