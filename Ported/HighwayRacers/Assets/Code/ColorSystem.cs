@@ -13,52 +13,6 @@ public class ColorSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        Entities
-            // Get the entities that are not overtaking or blocking, but have speed; the agents that are moving normally. 
-            .WithNone<OvertakeTag, BlockSpeed>()
-            .WithAll<Speed>()
-            .ForEach((ref MaterialColor baseColor, in Parent parent) =>
-            {
-                // Update the color to normal.
-                baseColor.Value = NormalColor;
 
-            }).ScheduleParallel();
-
-        Entities
-            // Get the entities that are blocking
-            .WithAll<BlockSpeed>()
-            .ForEach((ref MaterialColor baseColor) =>
-            {
-                // Update the color to blocked.
-                baseColor.Value = BlockedColor;
-            })
-            .ScheduleParallel();
-
-        Entities
-            // Get the entities that are overtaking
-            .WithAll<OvertakeTag>()
-            .ForEach((ref MaterialColor baseColor) =>
-            {
-                // Update the color to overtake.
-                baseColor.Value = OvertakeColor;
-            })
-            .ScheduleParallel();
-
-        // This system iterates through all the child objects that have renderers.
-        Entities
-            .ForEach((Entity entity, ref URPMaterialPropertyBaseColor baseColor, in Parent parent) =>
-            {
-                // Get the parent entity, which should be the agent.
-                Entity parentEntity = parent.Value;
-
-                // Get the color component of the agent.
-                MaterialColor carColor = EntityManager.GetComponentData<MaterialColor>(parentEntity);
-
-                // Copy the value over so that it affects the material color.
-                baseColor.Value = carColor.Value;
-
-            })
-            .WithoutBurst()
-            .Run();
     }
 }
