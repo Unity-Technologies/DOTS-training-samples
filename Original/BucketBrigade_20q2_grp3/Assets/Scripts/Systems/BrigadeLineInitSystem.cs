@@ -34,7 +34,7 @@ public class BrigadeLineInitSystem : SystemBase
                         var worker = ecb.Instantiate(entityInQueryIndex, prefabs.WorkerPrefab);
                         var wp = center + random.NextFloat2Direction() * 25;
                         ecb.SetComponent(entityInQueryIndex, worker,
-                            new Translation() {Value = new float3(wp.x, 0, wp.y)});
+                            new Translation() {Value = new float3(wp.x, 2.5f, wp.y)});
                         ecb.AddComponent(entityInQueryIndex, worker, new Worker() {NextWorkerInLine = Entity.Null});
                         workerBuffer.Add(new WorkerEntityElementData() {Value = worker});
                     }

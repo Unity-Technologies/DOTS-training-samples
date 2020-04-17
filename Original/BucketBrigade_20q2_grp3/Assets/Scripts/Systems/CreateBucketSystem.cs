@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -25,16 +26,21 @@ public class CreateBucketSystem : SystemBase
             {
                 var resource = GetComponent<ResourceAmount>(source.Id);
                 var spawnTime = GetComponent<ResourceNextSpawnTime>(source.Id);
-                if (time >= spawnTime.Value)
+                if (time > spawnTime.Value)
                 {
                     if (resource.Value > 0)
                     {
-                        ecb.SetComponent(source.Id, new ResourceAmount() { Value = resource.Value - 1});
-                        ecb.SetComponent(source.Id, new ResourceNextSpawnTime() { Value = time + 2 });
-                        var bucket = ecb.Instantiate(prefabs.BucketPrefab);
-                        ecb.AddComponent(bucket, new BucketWorkerRef() { WorkerRef = workers[0].Value });
-                        ecb.AddComponent(workers[0].Value, new BucketRef() { Bucket = bucket });
-                        ecb.AddComponent(source.Id, new Scale() { Value = (resource.Value / 255f) * 10 });
+                        var resourcePos = GetComponent<Translation>(source.Id).Value;
+                        var workerPos = GetComponent<Translation>(workers[0].Value).Value;
+                        if (math.distancesq(resourcePos, workerPos) < 1)
+                        {
+                            ecb.SetComponent(source.Id, new ResourceAmount() { Value = resource.Value - 1 });
+                            ecb.SetComponent(source.Id, new ResourceNextSpawnTime() { Value = time + prefabs.BucketSpawnInterval });
+                            var bucket = ecb.Instantiate(prefabs.BucketPrefab);
+                            ecb.AddComponent(bucket, new BucketWorkerRef() { WorkerRef = workers[0].Value });
+                            ecb.AddComponent(workers[0].Value, new BucketRef() { Bucket = bucket });
+                            ecb.AddComponent(source.Id, new Scale() { Value = (resource.Value / 255f) * 10 });
+                        }
                     }
                     else
                     {

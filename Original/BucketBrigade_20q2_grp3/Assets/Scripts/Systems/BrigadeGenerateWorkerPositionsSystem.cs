@@ -38,10 +38,6 @@ public class BrigadeGenerateWorkerPositionsSystem : SystemBase
                     };
                     var initialDestination = new WorkerMoveTo() { Value = positions.Start };
                     ecb.AddComponent(entityInQueryIndex, workers[i].Value, positions);
-                    if (i == 0)
-                    {
-                        initialDestination.Value = positions.End;
-                    }
                     ecb.AddComponent(entityInQueryIndex, workers[i].Value, initialDestination);
                 }
                 line.Center = (start + end) * .5f;

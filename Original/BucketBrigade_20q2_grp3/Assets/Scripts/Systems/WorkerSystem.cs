@@ -41,7 +41,8 @@ public class WorkerMoveToSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        float speed = 8.0f;
+        var prefabs = GetSingleton<GlobalPrefabs>();
+        float speed = prefabs.WorkerSpeed;
         float deltaTime = Time.DeltaTime;
 
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
