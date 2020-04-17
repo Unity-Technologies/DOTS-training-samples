@@ -25,7 +25,7 @@ public class BrigadeLineInitSystem : SystemBase
                 .WithNone<BrigadeLine>()
                 .ForEach((int entityInQueryIndex, Entity e, in BrigadeInitInfo info) =>
                 {
-                    var center = random.NextFloat2(new float2(100, 100));
+                    var center = random.NextFloat2(new float2(400, 400));
                     ecb.AddComponent(entityInQueryIndex, e, new BrigadeLine() {Center = center});
                     var workerBuffer = ecb.AddBuffer<WorkerEntityElementData>(entityInQueryIndex, e);
 
