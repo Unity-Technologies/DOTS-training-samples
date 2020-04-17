@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Entities;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -9,6 +10,7 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
     public int GridWidth;
     public int GridHeight;
     public GameObject FirePrefab;
+    public Material FireGridMaterial;
     public float PropagationChance = 0.3f;
     public int FireGrowStep = 1;
     public float FireGrowFrequency = 0.1f;
@@ -21,6 +23,8 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
     public int ExtinguishDistance = 2;
     [Tooltip("How many heat will be remove from the cells at the max distance (outer periphery of extinguish radius)")]
     public int ExtinguishAmountAtMaxDistance = byte.MaxValue / 2;
+
+    public bool UseTexture;
 
     [Header("Colours")]
     // cell colours
@@ -40,6 +44,7 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
     public int BrigadeLines = 10;
     [Range(0, 1000)]
     public int WorkersPerLine = 10;
+    public float WorkerSpeed = 8.0f;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -49,6 +54,7 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
         init.StartingFireCount = StartingFireCount;
         init.RandomSeed = RandomSeed;
         init.FirePrefab = conversionSystem.GetPrimaryEntity(FirePrefab);
+        init.UseTexture = UseTexture;
 
         World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FirePropagateSystem>().PropagationChance = PropagationChance;
 
@@ -70,10 +76,27 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
         var fireSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FirePropagateSystem>();
         fireSystem.PropagationChance = PropagationChance;
         fireSystem.UpdatePropagationFrequency = UpdatePropagationFrequency;
+
+        var fireColorSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireColorSystem>();
+        fireColorSystem.UpdateFrequency = UpdatePropagationFrequency;
+
+        var workerMoveSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem <WorkerMoveToSystem>();
+        workerMoveSystem.WorkerSpeed = WorkerSpeed;
     }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(FirePrefab);
+    }
+
+    void OnDrawGizmos()
+    {
+        var up = Vector3.forward * GridHeight;
+        var right = Vector3.right * GridWidth;
+        var upRight = up + right;
+        Gizmos.DrawLine(Vector3.zero, up);
+        Gizmos.DrawLine(Vector3.zero, right);
+        Gizmos.DrawLine(right, upRight);
+        Gizmos.DrawLine(up, upRight);
     }
 }

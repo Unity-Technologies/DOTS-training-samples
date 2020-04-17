@@ -18,16 +18,15 @@ public class FireGrowSystem : SystemBase
 
     private FireExtinguishSystem m_FireExtinguishSystem;
     private FireColorSystem m_FireColorSystem;
-    private EntityCommandBufferSystem m_ECBSystem;
     private FirePropagateSystem m_FirePropagateSystem;
-
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        m_FirePropagateSystem = World.GetOrCreateSystem<FirePropagateSystem>();
+
         m_FireExtinguishSystem = World.GetOrCreateSystem<FireExtinguishSystem>();
         m_FireColorSystem = World.GetOrCreateSystem<FireColorSystem>();
+        m_FirePropagateSystem = World.GetOrCreateSystem<FirePropagateSystem>();
     }
 
     protected override void OnUpdate()

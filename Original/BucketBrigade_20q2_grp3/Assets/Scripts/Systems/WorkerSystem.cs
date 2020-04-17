@@ -22,7 +22,7 @@ public struct WorkerStartEndPositions : IComponentData
 public class WorkerMoveToSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;
-
+    public float WorkerSpeed;
     protected override void OnCreate()
     {
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -42,7 +42,7 @@ public class WorkerMoveToSystem : SystemBase
     protected override void OnUpdate()
     {
         var prefabs = GetSingleton<GlobalPrefabs>();
-        float speed = prefabs.WorkerSpeed;
+        float speed = WorkerSpeed;
         float deltaTime = Time.DeltaTime;
 
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();

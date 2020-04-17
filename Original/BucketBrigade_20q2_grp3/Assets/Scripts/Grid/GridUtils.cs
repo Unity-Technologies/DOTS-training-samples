@@ -6,6 +6,8 @@ using UnityEngine;
 
 public static class GridUtils
 {
+    public static GridPlane GridPlane;
+
     public static GridData CreateGrid(int width, int height, float cellSize)
     {
         GridData.Instance = new GridData
@@ -14,6 +16,7 @@ public static class GridUtils
             Height = height,
             CellSize = cellSize,
             Heat = new NativeArray<byte>(width * height, Allocator.Persistent),
+            Color = new NativeArray<Color>(width * height, Allocator.Persistent),
         };
         return GridData.Instance;
     }
