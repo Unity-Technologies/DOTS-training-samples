@@ -40,15 +40,19 @@ public class FireSpreadSystem: SystemBase
         float dt = Time.DeltaTime;
         
         NativeArray<float> startingVal = new NativeArray<float>(numRows * numCols,Allocator.TempJob);
+        NativeArray<float> waterVal = new NativeArray<float>(numRows * numCols,Allocator.TempJob);
         
-        var gridPopulateJob = Entities.ForEach((in ValueComponent va, in GridIndex gridIndex) =>
+        var gridPopulateJob = Entities.ForEach((ref WaterSplashData water, in ValueComponent va, in GridIndex gridIndex) =>
         {
             startingVal[gridIndex.Index.y * numCols + gridIndex.Index.x] = va.Value;
+            waterVal[gridIndex.Index.y * numCols + gridIndex.Index.x] = water.Value;
+            water.Value = 0;
             
         }).ScheduleParallel(Dependency);
         
         var gridUpdateJob = Entities
             .WithDeallocateOnJobCompletion(startingVal)
+            .WithDeallocateOnJobCompletion(waterVal)
             .ForEach((ref ValueComponent fireValue, in GridIndex gridIndices) =>
         {
             bool validLeft = isValidIndex(startingVal.Length, gridIndices.Index.x - 1, gridIndices.Index.y,numRows);
@@ -73,47 +77,78 @@ public class FireSpreadSystem: SystemBase
 
             //todo will just burn the entire forest without identifying what should selfHeat
             //fireValue.Value += selfHeatTick * dt;
-            
             //"left" neighrbor
-            if (validLeft && startingVal[flatIndexLeft] >= spreadThreshold)
+            if (validLeft)
             {
-                fireValue.Value += neighborTick * dt * (startingVal[flatIndexLeft] / tuningData.MaxValue);
+                if( startingVal[flatIndexLeft] >= spreadThreshold)
+                    fireValue.Value += neighborTick * dt * (startingVal[flatIndexLeft] / tuningData.MaxValue);
+                if (waterVal[flatIndexLeft] >= spreadThreshold)
+                {
+                    fireValue.Value -= (waterVal[flatIndexLeft]) * tuningData.WaterSplashFalloff;
+                }
             }
             //"Right" neighrbor
-            if (validRight && startingVal[flatIndexRight] >= spreadThreshold)
+            if (validRight)
             {
-                fireValue.Value += neighborTick * dt * (startingVal[flatIndexRight] / tuningData.MaxValue);
+                if(startingVal[flatIndexRight] >= spreadThreshold)
+                    fireValue.Value += neighborTick * dt * (startingVal[flatIndexRight] / tuningData.MaxValue);
+                if (waterVal[flatIndexRight] >= spreadThreshold)
+                {
+                    fireValue.Value -= (waterVal[flatIndexRight]) * tuningData.WaterSplashFalloff;
+                }
             }
             //"Up" neighrbor
-            if (validUp && startingVal[flatIndexUp] >= spreadThreshold)
+            if (validUp)
             {
-                fireValue.Value += neighborTick * dt * (startingVal[flatIndexUp] / tuningData.MaxValue);
+                if (startingVal[flatIndexUp] >= spreadThreshold)
+                    fireValue.Value += neighborTick * dt * (startingVal[flatIndexUp] / tuningData.MaxValue);
+                if (waterVal[flatIndexUp] >= spreadThreshold)
+                {
+                    fireValue.Value -= (waterVal[flatIndexUp]) * tuningData.WaterSplashFalloff;
+                }
             }
             //"Down" neighrbor
-            if (validDown && startingVal[flatIndexDown] >= spreadThreshold)
+            if (validDown)
             {
-                fireValue.Value += neighborTick * dt * (startingVal[flatIndexDown] / tuningData.MaxValue);
+                if (startingVal[flatIndexDown] >= spreadThreshold)
+                    fireValue.Value += neighborTick * dt * (startingVal[flatIndexDown] / tuningData.MaxValue);
+                if (waterVal[flatIndexDown] >= spreadThreshold)
+                {
+                    fireValue.Value -= (waterVal[flatIndexDown]) * tuningData.WaterSplashFalloff;
+                }
             }
             
             //"Upleft" neighrbor
-            if (validUpLeft && startingVal[flatIndexUpLeft] >= spreadThreshold)
+            if (validUpLeft)
             {
-                fireValue.Value += neighborTick * dt * (startingVal[flatIndexUpLeft] / tuningData.MaxValue);
+                if (startingVal[flatIndexUpLeft] >= spreadThreshold)
+                    fireValue.Value += neighborTick * dt * (startingVal[flatIndexUpLeft] / tuningData.MaxValue) * tuningData.ValueDiagonalFalloff;
+                if(waterVal[flatIndexUpLeft] >= spreadThreshold)
+                    fireValue.Value -= (waterVal[flatIndexUpLeft]) * tuningData.WaterSplashFalloff * tuningData.WaterSplashFalloff;
             }
             //"UpRight" neighrbor
-            if (validUpRight && startingVal[flatIndexUpRight] >= spreadThreshold)
+            if (validUpRight)
             {
-                fireValue.Value += neighborTick * dt * (startingVal[flatIndexUpRight] / tuningData.MaxValue);
+                if (startingVal[flatIndexUpRight] >= spreadThreshold)
+                    fireValue.Value += neighborTick * dt * (startingVal[flatIndexUpRight] / tuningData.MaxValue) * tuningData.ValueDiagonalFalloff;
+                if(waterVal[flatIndexUpRight] >= spreadThreshold)
+                    fireValue.Value -= (waterVal[flatIndexUpRight]) * tuningData.WaterSplashFalloff * tuningData.WaterSplashFalloff;
             }
             //"DownLeft" neighrbor
-            if (validDownLeft && startingVal[flatIndexDownLeft] >= spreadThreshold)
+            if (validDownLeft)
             {
-                fireValue.Value += neighborTick * dt * (startingVal[flatIndexDownLeft] / tuningData.MaxValue);
+                if (startingVal[flatIndexDownLeft] >= spreadThreshold)
+                    fireValue.Value += neighborTick * dt * (startingVal[flatIndexDownLeft] / tuningData.MaxValue) * tuningData.ValueDiagonalFalloff;
+                if(waterVal[flatIndexDownLeft] >= spreadThreshold)
+                    fireValue.Value -= (waterVal[flatIndexDownLeft]) * tuningData.WaterSplashFalloff * tuningData.WaterSplashFalloff;
             }
             //"DownRight" neighrbor
-            if (validDownRight && startingVal[flatIndexDownRight] >= spreadThreshold)
+            if (validDownRight)
             {
-                fireValue.Value += neighborTick * dt * (startingVal[flatIndexDownRight] / tuningData.MaxValue);
+                if (startingVal[flatIndexDownRight] >= spreadThreshold)
+                    fireValue.Value += neighborTick * dt * (startingVal[flatIndexDownRight] / tuningData.MaxValue) * tuningData.ValueDiagonalFalloff;
+                if(waterVal[flatIndexDownRight] >= spreadThreshold)
+                    fireValue.Value -= (waterVal[flatIndexDownRight]) * tuningData.WaterSplashFalloff * tuningData.WaterSplashFalloff;
             }
             
             var clamp = math.clamp(fireValue.Value, 0, maxValue);

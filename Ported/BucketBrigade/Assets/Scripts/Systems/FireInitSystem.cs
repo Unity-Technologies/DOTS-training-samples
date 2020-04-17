@@ -40,6 +40,7 @@ public class FireInitSystem : SystemBase
                     ecb.SetComponent(instance, new Translation {Value = translation});
                     ecb.SetComponent(instance, new GridIndex(){Index = new int2(x,y)});
                     
+                    ecb.AddComponent<WaterSplashData>(instance, new WaterSplashData(){Value = 0});
                     
                     
                     if (random.NextFloat(0,1) < preFireOdds)

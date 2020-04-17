@@ -109,8 +109,10 @@ public class ActorGoalSystem : SystemBase
                     getValueComponent[bucket.bucket] = new ValueComponent() {Value = 0};
 
                     var fireValue = getValueComponent[targetEntity];
-                    fireValue = new ValueComponent() {Value = (byte) math.max(0, fireValue.Value - bucketValue.Value)};
+                    fireValue = new ValueComponent() {Value = math.max(0, fireValue.Value - bucketValue.Value)};
                     getValueComponent[targetEntity] = fireValue;
+                    
+                    actorPerformActionBuffer.SetComponent(targetEntity, new WaterSplashData(){Value = bucketValue.Value});
 
                     if (fireValue.Value <= 0f)
                     {
@@ -152,7 +154,7 @@ public class ActorGoalSystem : SystemBase
         {
             //Debug.Log("filling water");
             var bucketValue = getValueComponent[bucket.bucket];
-            getValueComponent[bucket.bucket] = new ValueComponent() {Value = (byte) (bucketValue.Value + (byte) tuningData.BucketCapacity)};
+            getValueComponent[bucket.bucket] = new ValueComponent() {Value = tuningData.BucketCapacity};
 
             actorPerformActionBuffer.AddComponent<Destination>(actor, new Destination() {position = getTranslationComponent[actorData.neighbor].Value});
             actorPerformActionBuffer.AddComponent<TargetEntity>(actor, new TargetEntity() {target = actorData.neighbor});

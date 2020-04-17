@@ -11,6 +11,7 @@ public struct TuningData : IComponentData
     public float ValueIncreasePerTick;
     public float MaxValue;
     public float ValuePropagationPerTick;
+    public float ValueDiagonalFalloff;
     public float ValueThreshold;
 
     public float ActorSpeed;
@@ -21,4 +22,6 @@ public struct TuningData : IComponentData
     public float StartingFireOdds;
 
     public float MovementEndRange;
+
+    public float WaterSplashFalloff;
 }

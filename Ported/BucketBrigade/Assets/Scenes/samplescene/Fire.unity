@@ -156,14 +156,16 @@ MonoBehaviour:
     y: 60
   ValueIncreasePerTick: 0
   MaxValue: 500
-  ValuePropagationPerTick: 20
+  ValuePropagationPerTick: 10
+  ValueDiagonalFalloff: 0.5
   ValueThreshold: 100
-  ActorSpeed: 3
+  ActorSpeed: 5
   BucketCapacity: 500
   BucketScale: 0.5
   FireCellSize: 0.5
   StartingFireOdds: 0.005
   MovementEndRange: 0.25
+  WaterSplashFalloff: 0.75
 --- !u!114 &1271445247
 MonoBehaviour:
   m_ObjectHideFlags: 0
