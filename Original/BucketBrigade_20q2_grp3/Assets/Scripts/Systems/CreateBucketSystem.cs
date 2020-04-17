@@ -20,15 +20,18 @@ public class CreateBucketSystem : SystemBase
         var prefabs = GetSingleton<GlobalPrefabs>();
         var ecb = m_ECBSystem.CreateCommandBuffer();
         Entities
+            .WithoutBurst()
             .WithAll<BrigadeLineEstablished>()
-            .ForEach((int entityInQueryIndex, Entity e, in BrigadeLine line, in ResourceSourcePosition source, in DynamicBuffer<WorkerEntityElementData> workers) =>
+            .ForEach((Entity e, in BrigadeLine line, in ResourceSourcePosition source, in DynamicBuffer<WorkerEntityElementData> workers) =>
             {
                 var resource = GetComponent<ResourceAmount>(source.Id);
-                if (time - resource.NextSpawnTime <= 0)
+                var spawnTime = GetComponent<ResourceNextSpawnTime>(source.Id);
+                if (time >= spawnTime.Value)
                 {
                     if (resource.Value > 0)
                     {
-                        ecb.SetComponent(source.Id, new ResourceAmount() { Value = resource.Value - 1, NextSpawnTime = time + .5 });
+                        ecb.SetComponent(source.Id, new ResourceAmount() { Value = resource.Value - 1});
+                        ecb.SetComponent(source.Id, new ResourceNextSpawnTime() { Value = time + 2 });
                         var bucket = ecb.Instantiate(prefabs.BucketPrefab);
                         ecb.AddComponent(bucket, new BucketWorkerRef() { WorkerRef = workers[0].Value });
                         ecb.AddComponent(workers[0].Value, new BucketRef() { Bucket = bucket });

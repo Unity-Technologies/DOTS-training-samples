@@ -84,6 +84,7 @@ public class BrigadeFindSourceSystem : SystemBase
                     var e = lineEntities[li];
                     CommandBuffer.RemoveComponent<BrigadeLineEstablished>(e);
                     CommandBuffer.AddComponent(e, new ResourceSourcePosition() { Value = bestPos, Id = resourceEntities[bestIndex] });
+                    CommandBuffer.AddComponent(resourceEntities[bestIndex], new ResourceNextSpawnTime() { Value = 0 });
                     CommandBuffer.AddComponent<ResourceClaimed>(resourceEntities[bestIndex]);
                 }
             }
