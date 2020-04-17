@@ -41,7 +41,6 @@ public class BrigadeGenerateWorkerPositionsSystem : SystemBase
                     if (i == 0)
                     {
                         var bucket = ecb.Instantiate(entityInQueryIndex, prefabs.BucketPrefab);
-                        ecb.AddComponent(entityInQueryIndex, bucket, new Bucket());
                         ecb.AddComponent(entityInQueryIndex, bucket, new BucketWorkerRef() { WorkerRef = workers[i].Value });
                         ecb.AddComponent(entityInQueryIndex, workers[i].Value, new BucketRef() { Bucket = bucket });
                         initialDestination.Value = positions.End;
