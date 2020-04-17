@@ -70,6 +70,9 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
         var fireSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FirePropagateSystem>();
         fireSystem.PropagationChance = PropagationChance;
         fireSystem.UpdatePropagationFrequency = UpdatePropagationFrequency;
+
+        var fireColorSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireColorSystem>();
+        fireColorSystem.UpdateFrequency = UpdatePropagationFrequency;
     }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)

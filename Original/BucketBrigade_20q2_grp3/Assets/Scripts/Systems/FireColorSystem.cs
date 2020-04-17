@@ -11,11 +11,11 @@ using UnityEngine;
 [UpdateAfter(typeof(RenderMeshSystemV2))]
 public class FireColorSystem : SystemBase
 {
-    public double UpdateGrowFrequency;
+    public double UpdateFrequency;
 
     public JobHandle Deps;
 
-    private double m_LastUpdateGrowTime;
+    private double m_LastUpdateTime;
 
     private FirePropagateSystem m_FirePropagateSystem;
 
@@ -33,9 +33,9 @@ public class FireColorSystem : SystemBase
 
         Dependency = JobHandle.CombineDependencies(Dependency, m_FirePropagateSystem.Deps);
 
-        if (m_LastUpdateGrowTime + UpdateGrowFrequency < Time.ElapsedTime)
+        if (m_LastUpdateTime + UpdateFrequency < Time.ElapsedTime)
         {
-            m_LastUpdateGrowTime = Time.ElapsedTime;
+            m_LastUpdateTime = Time.ElapsedTime;
 
             var data = GridData.Instance;
             Deps = Entities
