@@ -37,7 +37,6 @@ public class FireGrowSystem : SystemBase
             m_LastUpdateGrowTime = Time.ElapsedTime;
 
             GrowFire();
-            UpdateColor();
 
             UpdateFirePosition();
         }
@@ -54,20 +53,6 @@ public class FireGrowSystem : SystemBase
             IncreaseStep = FireGrowStep
         }.Schedule(data.Width * data.Height, data.Width, Dependency);
         Dependency = JobHandle.CombineDependencies(Dependency, job);
-    }
-
-    private void UpdateColor()
-    {
-        var data = GridData.Instance;
-        Entities
-            .WithName("UpdateFireColor")
-            .WithReadOnly(data)
-            .ForEach((ref Unity.Rendering.MaterialColor color, in GridCell cell) =>
-            {
-                var heat = (float)data.Heat[cell.Index] / byte.MaxValue;
-                var value = math.pow(1 - heat, 2);
-                color.Value = new float4(1 - value, value, 0, 1);
-            }).Schedule();
     }
 
     private void UpdateFirePosition()
