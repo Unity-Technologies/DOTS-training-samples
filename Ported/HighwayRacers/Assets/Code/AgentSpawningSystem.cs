@@ -29,9 +29,11 @@ public class AgentSpawningSystem : SystemBase
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
 
         var random = m_Random;
-        var roadInfo = GetSingleton<RoadInfo>();
+        var roadInfo = GetSingleton<RoadInfo>(); 
 
-        Entities.ForEach((Entity e, in AgentSpawner spawner) =>
+        // can't use Burst if we set a shared component (even using ecb)
+        // (not a big loss for spwaning on init)
+        Entities.WithoutBurst().ForEach((Entity e, in AgentSpawner spawner) =>
         {
             var bufferEntity = ecb.CreateEntity();
             var buffer = ecb.AddBuffer<SpawnPosition>(bufferEntity);
