@@ -33,7 +33,6 @@ public class CreateBrigadeLineSystem : SystemBase
         if (!HasSingleton<TuningData>())
             return;
 
-        int brigadecount = mAllBrigade.CalculateChunkCount();
         if (mAllBrigade.CalculateChunkCount() == 0)
             return;
 
@@ -79,8 +78,9 @@ public class CreateBrigadeLineSystem : SystemBase
                 }
             }
 
-            var throwerEntity = actors[actors.Length/2 - 1].actor;
-            var throwerPosition = translations[throwerEntity];
+            //Used to use thrower position, use river for closest
+            //var throwerEntity = actors[actors.Length/2 - 1].actor;
+            var throwerPosition = translations[waterEntities[closestWaterEntity]];
             float closestFire = float.MaxValue;
             int closestFireEntity = -1;
             actorPosition = throwerPosition.Value;

@@ -10,18 +10,18 @@ using Random = Unity.Mathematics.Random;
 public class SpawningInitSystem : SystemBase
 {
     Random random = new Random(1000);
-    
+
     protected override void OnUpdate()
     {
         if (!HasSingleton<TuningData>())
             return;
-        
+
         Entity tuningDataEntity = GetSingletonEntity<TuningData>();
         TuningData tuningData = EntityManager.GetComponentData<TuningData>(tuningDataEntity);
-        
+
         int gridDimensionX = (int)(tuningData.GridSize.x * 0.5f * tuningData.FireCellSize);
         int gridDimensionY = (int)(tuningData.GridSize.y * 0.5f * tuningData.FireCellSize);
-            
+
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
         Entities.WithoutBurst().ForEach((Entity entity, in InitDataActors actorTunning) =>
         {
@@ -52,9 +52,9 @@ public class SpawningInitSystem : SystemBase
                         ecb.AddComponent<FillerTag>(e);
                         filler = e;
                     }
-                    else if (actor == actorCount / 2)
-                        ecb.AddComponent(e, new ThrowerTag() { brigade = entity });
-                    
+                    else if (actor == actorTunning.ActorCountPerBrigade / 2)
+                        ecb.AddComponent(e, new ThrowerTag() { brigade = brigadeEntity });
+
                     if (previous != Entity.Null)
                     {
                         ecb.SetComponent(previous, new Actor(){neighbor = e});
@@ -66,12 +66,12 @@ public class SpawningInitSystem : SystemBase
                     //some way to add e to brigadeEntity...
                     buffer.Add(new ActorElement(){actor = e});
                 }
-                
+
             }
 
             ecb.RemoveComponent<InitDataActors>(entity);
         }).Run();
-        
+
         ecb.Playback(EntityManager);
         ecb = new EntityCommandBuffer(Allocator.Temp);
 

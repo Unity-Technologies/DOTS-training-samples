@@ -26,7 +26,6 @@ public class ActorMovementSystem : SystemBase
         var ecb = mEndSimBufferSystem.CreateCommandBuffer().ToConcurrent();
         Entities
             .WithName("Actor_Movement")
-            // why need this? --.WithNone<ScooperTag, FillerTag, ThrowerTag>()
             .WithAll<Actor>()
             .ForEach((int entityInQueryIndex, Entity actorEntity, ref Translation translation, in Destination dest) =>
             {
@@ -34,7 +33,7 @@ public class ActorMovementSystem : SystemBase
                 float remainingDistance = math.length(delta);
                 float maxTravelDistance = deltaTime * tuningData.ActorSpeed;
 
-                if (maxTravelDistance * 30 >= remainingDistance)
+                if (maxTravelDistance >= remainingDistance)
                 {
                     translation.Value = dest.position;
                     ecb.RemoveComponent<Destination>(entityInQueryIndex, actorEntity);
