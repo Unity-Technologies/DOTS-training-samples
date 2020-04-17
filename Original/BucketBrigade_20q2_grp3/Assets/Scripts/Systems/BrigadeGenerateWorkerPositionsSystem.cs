@@ -40,16 +40,13 @@ public class BrigadeGenerateWorkerPositionsSystem : SystemBase
                     ecb.AddComponent(entityInQueryIndex, workers[i].Value, positions);
                     if (i == 0)
                     {
-                        var bucket = ecb.Instantiate(entityInQueryIndex, prefabs.BucketPrefab);
-                        ecb.AddComponent(entityInQueryIndex, bucket, new BucketWorkerRef() { WorkerRef = workers[i].Value });
-                        ecb.AddComponent(entityInQueryIndex, workers[i].Value, new BucketRef() { Bucket = bucket });
                         initialDestination.Value = positions.End;
                     }
                     ecb.AddComponent(entityInQueryIndex, workers[i].Value, initialDestination);
                 }
                 line.Center = (start + end) * .5f;
                 ecb.AddComponent(entityInQueryIndex, e, new BrigadeLineEstablished());
-                ecb.AddComponent(entityInQueryIndex, e, new Reset() { ResetTime = time + r.NextDouble(3, 6) });
+           //     ecb.AddComponent(entityInQueryIndex, e, new Reset() { ResetTime = time + r.NextDouble(3, 6) });
             }).ScheduleParallel();
         m_ECBSystem.AddJobHandleForProducer(Dependency);
         rand = r;

@@ -30,10 +30,6 @@ public struct BrigadeLineRef : ISharedComponentData
     public override bool Equals(object obj) => ((BrigadeLineRef)obj).BrigadeLineEntity.Equals(BrigadeLineEntity);
 }
 */
-public struct ResourceQuantity : IComponentData
-{
-    public int Value;
-}
 
 public struct FireStartGridPosition : IComponentData
 {

@@ -44,7 +44,7 @@ public class BrigadeFindSourceSystem : SystemBase
         public NativeArray<ResourceAmount> resourceAmounts;
         public NativeArray<float2> resourcePositions;
         public NativeArray<Entity> resourceEntities;
-        [ReadOnly]
+        //[ReadOnly]
         public EntityCommandBuffer CommandBuffer;
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
@@ -119,7 +119,7 @@ public class BrigadeFindSourceSystem : SystemBase
             resourcePositions = resourcePositions,
             LineType = lineType
         };
-        Dependency = job.Schedule(lineQuery, Dependency);
+        Dependency = job.ScheduleSingle(lineQuery, Dependency);
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 
