@@ -22,6 +22,7 @@ public struct WorkerStartEndPositions : IComponentData
 public class WorkerMoveToSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;
+    public float WorkerSpeed;
 
     protected override void OnCreate()
     {
@@ -41,7 +42,7 @@ public class WorkerMoveToSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        float speed = 8.0f;
+        float speed = WorkerSpeed;
         float deltaTime = Time.DeltaTime;
 
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();

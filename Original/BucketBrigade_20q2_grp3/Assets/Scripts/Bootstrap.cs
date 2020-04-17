@@ -44,6 +44,7 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
     public int BrigadeLines = 10;
     [Range(0, 1000)]
     public int WorkersPerLine = 10;
+    public float WorkerSpeed = 8.0f;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -78,6 +79,9 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
 
         var fireColorSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireColorSystem>();
         fireColorSystem.UpdateFrequency = UpdatePropagationFrequency;
+
+        var workerMoveSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem <WorkerMoveToSystem>();
+        workerMoveSystem.WorkerSpeed = WorkerSpeed;
     }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
