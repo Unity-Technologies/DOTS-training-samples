@@ -35,9 +35,12 @@ public class AgentSpawningSystem : SystemBase
         {
             var bufferEntity = ecb.CreateEntity();
             var buffer = ecb.AddBuffer<SpawnPosition>(bufferEntity);
+            float roadLength = math.abs(roadInfo.EndXZ.y - roadInfo.StartXZ.y);
+            float validYDistance = roadInfo.CarSpawningDistancePercent * roadLength;
+
             for (float x = roadInfo.StartXZ.x; x < roadInfo.EndXZ.x; x += roadInfo.LaneWidth)
             {
-                for (float y = roadInfo.StartXZ.y; y < roadInfo.EndXZ.y; y += roadInfo.CarSpawningDistance)
+                for (float y = roadInfo.StartXZ.y; y < roadInfo.EndXZ.y; y += validYDistance)
                 {
                     buffer.Add(new SpawnPosition()
                     {
@@ -71,7 +74,7 @@ public class AgentSpawningSystem : SystemBase
 
                 MinimumDistance minDistance = new MinimumDistance()
                 {
-                    Value = random.NextFloat(0.1f, 0.5f)
+                    Value = roadInfo.CarSpawningDistancePercent
                 };
 
                 ecb.SetComponent(spawnedEntity, minDistance);

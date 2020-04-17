@@ -22,7 +22,7 @@ public class RoadCreationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             EndXZ = EndXZ,
             LaneWidth = laneWidth,
             MaxLanes = MaxLanes,
-            CarSpawningDistance = CarSpawningDistance,
+            CarSpawningDistancePercent = CarSpawningDistance,
         });
 
         DynamicBuffer<LaneInfoElement> dynamicBuffer = dstManager.AddBuffer<LaneInfoElement>(entity);
