@@ -21,7 +21,8 @@ public class FireVisualSystem : SystemBase
 
 
         Entities.WithAll<Fire>()
-            .WithName("Fire_Visuals").ForEach(
+            .WithName("Fire_Visuals").WithChangeFilter<ValueComponent>()
+             . ForEach(
             (ref FireMaterialComponent mat, ref Translation translation, in ValueComponent val) =>
             {
                 //map the overall value from [0-1]

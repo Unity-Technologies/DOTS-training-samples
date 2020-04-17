@@ -17,7 +17,7 @@ public class BucketVisualSystem : SystemBase
         var tuningData = GetSingleton<TuningData>();
  
 
-        Entities.WithAll<Bucket>()
+        Entities.WithAll<Bucket>().WithChangeFilter<ValueComponent>()
             .WithName("Bucket_Visuals").ForEach((ref FireMaterialComponent mat, ref NonUniformScale scale, in ValueComponent val) =>
             {
                 scale.Value.x = (1 + val.Value / tuningData.BucketCapacity ) * tuningData.BucketScale;
