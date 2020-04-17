@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-public class LocalRotation : IComponentData
+public struct LocalRotation : IComponentData
 {
-    float Value;
+    public float Value;
 }

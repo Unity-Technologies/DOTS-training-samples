@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class LocalTranslation : IComponentData
+public struct LocalTranslation : IComponentData
 {
     public float2 Value;
 }

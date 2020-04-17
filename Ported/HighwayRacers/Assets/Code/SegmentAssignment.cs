@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-public class SegmentAssignment : IComponentData
+public struct SegmentAssignment : IComponentData
 {
     public int Value;
 }
