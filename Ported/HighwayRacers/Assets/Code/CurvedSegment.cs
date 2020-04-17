@@ -5,5 +5,4 @@ using UnityEngine;
 
 public class CurvedSegment : IComponentData
 {
-    public float Radius;
 }
