@@ -47,7 +47,7 @@ public class FireColorSystem : SystemBase
                     var value = (1 - heat) * (1 - heat);
                     color.Value = new float4(1 - value, value, 0, 1);
                 }).ScheduleParallel(Dependency);
-            //Deps = Dependency;
+            Dependency = Deps;
         }
     }
 }
