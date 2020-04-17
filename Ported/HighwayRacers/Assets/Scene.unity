@@ -178,14 +178,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69277373349cd9143b9b7edd8b27ade8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StartXZ:
-    x: -0.5
-    y: 0
-  EndXZ:
-    x: 7.5
-    y: 500
+  LaneWidth: 1.9
   MaxLanes: 4
   CarSpawningDistance: 0.01
+  MidRadius: 31.46
+  StraightPieceLength: 6
+  SegmentCount: 8
 --- !u!1 &285360169
 GameObject:
   m_ObjectHideFlags: 0
@@ -377,10 +375,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1218384882}
-  m_LocalRotation: {x: 0.38542578, y: -0.1848965, z: 0.07913327, w: 0.9005544}
-  m_LocalPosition: {x: 17.031254, y: 87.792816, z: 118.11116}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 35.59, y: 71.43, z: 2.85}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: -270, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}

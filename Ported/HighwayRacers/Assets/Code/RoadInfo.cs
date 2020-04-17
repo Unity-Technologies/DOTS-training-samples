@@ -4,15 +4,14 @@ using UnityEngine;
 
 public struct RoadInfo : IComponentData
 {
-    public float2 StartXZ;
-    public float2 EndXZ;
-    public float TotalLength;
     public float LaneWidth;
     public int MaxLanes;
 
     //Move this probably
     public float CarSpawningDistancePercent;
+    
     public float MidRadius;
+    public float StraightPieceLength;
 
     public int SegmentCount;
 }
@@ -21,13 +20,15 @@ public struct LaneInfo
 {
     public float Pivot;
     public float Radius;
+    public float CurvedPieceLength;
+    public float TotalLength;
 }
 
 // This describes the number of buffer elements that should be reserved
-// in chunk data for each instance of a buffer. In this case, 8 integers
-// will be reserved (32 bytes) along with the size of the buffer header
+// in chunk data for each instance of a buffer. In this case, 16 integers
+// will be reserved (64 bytes) along with the size of the buffer header
 // (currently 16 bytes on 64-bit targets)
-[InternalBufferCapacity(8)]
+[InternalBufferCapacity(16)]
 public struct LaneInfoElement : IBufferElementData
 {
     // These implicit conversions are optional, but can help reduce typing.

@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using Unity.Entities;
-using Unity.Jobs;
-using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(PercentCompleteSystem))]
+[UpdateAfter(typeof(LocalPositionSystem))]
 public class RenderPositionSystem : SystemBase
 {
     protected override void OnCreate()
@@ -17,10 +15,8 @@ public class RenderPositionSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var laneInfo = GetSingleton<RoadInfo>();
         var entity = GetSingletonEntity<RoadInfo>();
 
-        var laneInfoElements = EntityManager.GetBuffer<LaneInfoElement>(entity).AsNativeArray();
         var segmentInfoElements = EntityManager.GetBuffer<SegmentInfoElement>(entity).AsNativeArray();
 
         List<LaneAssignment> lanes = new List<LaneAssignment>();
@@ -41,20 +37,21 @@ public class RenderPositionSystem : SystemBase
             //     }).Schedule(Dependency);
 
             Entities
+                .WithReadOnly(segmentInfoElements)
                 .WithSharedComponentFilter(lane)
                 .ForEach((ref Translation translation, ref Rotation rotation, in LocalTranslation localTranslation, in LocalRotation localRotation, in SegmentAssignment segmentAssignment) =>
                 {
-                    float sin = math.sin(-localRotation.Value);
-                    float cos = math.cos(-localRotation.Value);
+                    var segmentInfo = segmentInfoElements[segmentAssignment.Value].SegmentInfo;
+                    float sin = math.sin(-segmentInfo.StartRotation);
+                    float cos = math.cos(-segmentInfo.StartRotation);
 
                     float rotatedX  = localTranslation.Value.x * cos - localTranslation.Value.y * sin;
                     float rotatedZ = localTranslation.Value.x * sin + localTranslation.Value.y * cos;
 
                     // update translation
-                    var segmentInfo = segmentInfoElements[segmentAssignment.Value].Value;
                     float2 segmentStartXZ = segmentInfo.StartXZ;
                     translation.Value.x = rotatedX + segmentStartXZ.x;
-                    translation.Value.y = rotatedZ + segmentStartXZ.y;
+                    translation.Value.z = rotatedZ + segmentStartXZ.y;
                     
                     // update rotation
                     float newRotationValue = localRotation.Value + segmentInfo.StartRotation;

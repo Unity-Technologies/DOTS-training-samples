@@ -6,17 +6,17 @@ public class SpeedSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Entities.ForEach((ref Speed speed, in BlockSpeed blockSpeed) =>
+        Entities.WithName("Update_Speed_Blocked").ForEach((ref Speed speed, in BlockSpeed blockSpeed) =>
         {
             speed.Value = blockSpeed.Value;
         }).ScheduleParallel();
         
-        Entities.WithAll<OvertakeTag>().ForEach((ref Speed speed, in TargetSpeed targetSpeed, in OvertakeSpeedIncrement overtakeSpeedIncrement) =>
+        Entities.WithName("Update_Speed_Overtake").WithNone<BlockSpeed>().WithAll<OvertakeTag>().ForEach((ref Speed speed, in TargetSpeed targetSpeed, in OvertakeSpeedIncrement overtakeSpeedIncrement) =>
         {
             speed.Value = targetSpeed.Value + overtakeSpeedIncrement.Value;
         }).ScheduleParallel();
         
-        Entities.WithNone<BlockSpeed, OvertakeTag>().ForEach((ref Speed speed, in TargetSpeed targetSpeed) =>
+        Entities.WithName("Update_Speed_Default").WithNone<BlockSpeed, OvertakeTag>().ForEach((ref Speed speed, in TargetSpeed targetSpeed) =>
         {
             speed.Value = targetSpeed.Value;
         }).ScheduleParallel();

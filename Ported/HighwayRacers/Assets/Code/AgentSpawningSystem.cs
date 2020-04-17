@@ -15,7 +15,8 @@ public class AgentSpawningSystem : SystemBase
 
     public struct SpawnPosition : IBufferElementData
     {
-        public float2 Position;
+        public int Lane;
+        public float Percent;
     }
 
     protected override void OnCreate()
@@ -31,9 +32,6 @@ public class AgentSpawningSystem : SystemBase
         var random = m_Random;
         var roadInfo = GetSingleton<RoadInfo>(); 
         
-        float roadLength = math.abs(roadInfo.EndXZ.y - roadInfo.StartXZ.y);
-        float validYDistance = roadInfo.CarSpawningDistancePercent * roadLength;
-
         // can't use Burst if we set a shared component (even using ecb)
         // (not a big loss for spwaning on init)
         Entities.WithoutBurst().ForEach((Entity e, in AgentSpawner spawner) =>
@@ -41,13 +39,14 @@ public class AgentSpawningSystem : SystemBase
             var bufferEntity = ecb.CreateEntity();
             var buffer = ecb.AddBuffer<SpawnPosition>(bufferEntity);
 
-            for (float x = roadInfo.StartXZ.x; x < roadInfo.EndXZ.x; x += roadInfo.LaneWidth)
+            for (int i = 0; i < roadInfo.MaxLanes; i++)
             {
-                for (float y = roadInfo.StartXZ.y; y < roadInfo.EndXZ.y; y += validYDistance)
+                for (float j = 0; j < 1f; j += roadInfo.CarSpawningDistancePercent)
                 {
-                    buffer.Add(new SpawnPosition()
+                    buffer.Add(new SpawnPosition
                     {
-                        Position = new float2(x, y)
+                        Lane = i,
+                        Percent = j
                     });
                 }
             }
@@ -63,14 +62,9 @@ public class AgentSpawningSystem : SystemBase
                 var pos = buffer[randomIndex];
                 buffer.RemoveAt(randomIndex);
 
-                Translation translation = new Translation()
-                {
-                    Value = new float3(pos.Position.x, 0f, pos.Position.y)
-                };
-
                 LaneAssignment laneAssignment = new LaneAssignment()
                 {
-                    Value = random.NextInt(0, roadInfo.MaxLanes)
+                    Value = pos.Lane
                 };
 
                 TargetSpeed targetSpeed = new TargetSpeed()
@@ -80,7 +74,7 @@ public class AgentSpawningSystem : SystemBase
 
                 PercentComplete percentComplete = new PercentComplete()
                 {
-                    Value = pos.Position.y / roadLength
+                    Value = pos.Percent
                 };
 
                 OvertakeSpeedIncrement osi = new OvertakeSpeedIncrement()
@@ -92,7 +86,6 @@ public class AgentSpawningSystem : SystemBase
                 ecb.SetComponent(spawnedEntity, percentComplete);
                 ecb.SetComponent(spawnedEntity, targetSpeed);
                 ecb.SetSharedComponent(spawnedEntity, laneAssignment);
-                ecb.SetComponent(spawnedEntity, translation);
             }
 
             ecb.RemoveComponent<AgentSpawner>(e);

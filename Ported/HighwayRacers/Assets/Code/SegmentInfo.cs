@@ -1,24 +1,34 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
 public struct SegmentInfo : IComponentData
 {
-    public float Length;
     public float2 StartXZ;
-    public float2 EndXZ;
-    public int Order;
-    public float2 PercentageRange;
     public float StartRotation;
+    
+    public int Order;
+    public SegmentShape SegmentShape;
+}
+
+public enum SegmentShape
+{
+    Straight,
+    Curved
 }
 
 public struct SegmentInfoElement : IBufferElementData
 {
+    public Entity Entity;   
+    public SegmentInfo SegmentInfo;
+}
+
+public struct LanePercentageRangeElement : IBufferElementData
+{
     // These implicit conversions are optional, but can help reduce typing.
-    public static implicit operator SegmentInfo(SegmentInfoElement e) { return e.Value; }
-    public static implicit operator SegmentInfoElement(SegmentInfo e) { return new SegmentInfoElement { Value = e }; }
+    public static implicit operator float2(LanePercentageRangeElement e) { return e.Value; }
+    public static implicit operator LanePercentageRangeElement(float2 e) { return new LanePercentageRangeElement { Value = e }; }
     
-    public SegmentInfo Value;
+    public float2 Value;
 }
