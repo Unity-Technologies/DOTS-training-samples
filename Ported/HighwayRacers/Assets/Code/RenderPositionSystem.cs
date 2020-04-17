@@ -53,8 +53,8 @@ public class RenderPositionSystem : SystemBase
                     // update translation
                     var segmentInfo = segmentInfoElements[segmentAssignment.Value].Value;
                     float2 segmentStartXZ = segmentInfo.StartXZ;
-                    translation.Value.x += rotatedX + segmentStartXZ.x;
-                    translation.Value.y += rotationZ + segmentStartXZ.y;
+                    translation.Value.x = rotatedX + segmentStartXZ.x;
+                    translation.Value.y = rotationZ + segmentStartXZ.y;
                     
                     // update rotation
                     float newRotationValue = localRotation.Value + segmentInfo.StartRotation;
