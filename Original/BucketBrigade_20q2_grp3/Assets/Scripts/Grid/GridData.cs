@@ -12,12 +12,14 @@ public struct GridData : IDisposable
     public float CellSize;
 
     public NativeArray<byte> Heat;
+    public NativeArray<Color> Color;
 
     public void Dispose()
     {
         if (Heat.IsCreated)
         {
             Heat.Dispose();
+            Color.Dispose();
         }
     }
 }

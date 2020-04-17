@@ -11,6 +11,7 @@ public class InitWorldStateSystem : SystemBase
     public int GridHeight;
     public int StartingFireCount;
     public int RandomSeed;
+    public bool UseTexture;
 
     public Entity FirePrefab;
 
@@ -20,6 +21,7 @@ public class InitWorldStateSystem : SystemBase
     {
         base.OnDestroy();
         GridData.Instance.Dispose();
+        GridUtils.GridPlane?.Dispose();
     }
 
     protected override void OnUpdate()
@@ -38,10 +40,13 @@ public class InitWorldStateSystem : SystemBase
             // Spawn grid cells
             for (int i = 0; i < GridWidth * GridHeight; i++)
             {
-                var entity = EntityManager.Instantiate(FirePrefab);
+                var entity = UseTexture ? EntityManager.CreateEntity(typeof(Translation)) : EntityManager.Instantiate(FirePrefab);
                 var comp = new GridCell { Index = i };
                 EntityManager.AddComponentData(entity, comp);
-                EntityManager.AddComponentData(entity, new Unity.Rendering.MaterialColor{ Value = new float4(0,1,0,1) });
+                if (i == 0 || !UseTexture)
+                {
+                    EntityManager.AddComponentData(entity, new Unity.Rendering.MaterialColor{ Value = new float4(0,1,0,1) });
+                }
 
                 // TODO: Translation component should not be needed to build LocalToWorld
                 EntityManager.SetComponentData(entity, new Translation{ Value = new float3(i % GridWidth, 0, i / GridWidth) });
@@ -51,6 +56,11 @@ public class InitWorldStateSystem : SystemBase
             for (int i = 0; i < StartingFireCount; i++)
             {
                 grid.Heat[grid.GetIndex((Random.Range(0, GridWidth), Random.Range(0, GridHeight)))] = byte.MaxValue / 2;
+            }
+
+            if (UseTexture)
+            {
+                GridUtils.GridPlane = new GridPlane(GridWidth, GridHeight);
             }
         }
     }
