@@ -6,11 +6,13 @@ public struct RoadInfo : IComponentData
 {
     public float2 StartXZ;
     public float2 EndXZ;
+    public float TotalLength;
     public float LaneWidth;
     public int MaxLanes;
 
     //Move this probably
     public float CarSpawningDistancePercent;
+    public float MidRadius;
 
     public int SegmentCount;
 }

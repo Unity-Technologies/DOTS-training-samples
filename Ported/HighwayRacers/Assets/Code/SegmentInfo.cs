@@ -11,6 +11,7 @@ public struct SegmentInfo : IComponentData
     public float2 EndXZ;
     public int Order;
     public float2 PercentageRange;
+    public float StartRotation;
 }
 
 public struct SegmentInfoElement : IBufferElementData
