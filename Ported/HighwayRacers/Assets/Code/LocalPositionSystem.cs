@@ -32,7 +32,7 @@ public class LocalPositionSystem : SystemBase
                 .ForEach((ref LocalTranslation translation, ref LocalRotation rotation, in PercentComplete percentComplete, in SegmentAssignment segmentAssignment) =>
                 {
                     translation.Value.x = roadInfo.LaneWidth * ((roadInfo.MaxLanes - 1) / 2f - lane.Value);
-                    translation.Value.y = (percentComplete.Value * roadInfo.TotalLength) - segmentInfoElements[segmentAssignment.Value].Value.Length;
+                    translation.Value.y = (percentComplete.Value - segmentInfoElements[segmentAssignment.Value].Value.PercentageRange.x) * roadInfo.TotalLength;
                     rotation.Value = 0;
                 }).Schedule();
 
@@ -43,8 +43,9 @@ public class LocalPositionSystem : SystemBase
                 .ForEach((ref LocalTranslation translation, ref LocalRotation rotation, in PercentComplete percentComplete, in SegmentAssignment segmentAssignment) =>
                 {
                     float radius = laneInfoElements[lane.Value].Value.Radius;
-                    float localDistance = (percentComplete.Value * roadInfo.TotalLength) - segmentInfoElements[segmentAssignment.Value].Value.Length;
+                    float localDistance = (percentComplete.Value - segmentInfoElements[segmentAssignment.Value].Value.PercentageRange.x) * roadInfo.TotalLength;
                     float angle = localDistance / radius;
+
                     translation.Value.x = roadInfo.MidRadius - math.cos(angle) * radius;
                     translation.Value.y = math.sin(angle) * radius;
                     rotation.Value = angle;
