@@ -45,7 +45,8 @@ public class FireColorSystem : SystemBase
                 //         GridUtils.GridPlane.Texture.SetPixel(x, y, Color.blue);
                 //GridUtils.GridPlane.Texture.Apply();
 
-                var job = new ColorFireJob { Data = data }.Schedule(data.Width * data.Height, data.Width, Dependency);
+                var job = new ColorFireJob { Data = data, FromColor = new Color(77/255f, 195/255f, 51/255f), ToColor = Color.red}
+                    .Schedule(data.Width * data.Height, data.Width, Dependency);
                 job.Complete();
                 //new CopyColorFireJob{ Data = data }.Run();
 
@@ -74,12 +75,21 @@ public class FireColorSystem : SystemBase
     private struct ColorFireJob : IJobParallelFor
     {
         public GridData Data;
+        public Color FromColor;
+        public Color ToColor;
 
         public void Execute(int index)
         {
             var heat = (float)Data.Heat[index] / byte.MaxValue;
-            var value = (1 - heat) * (1 - heat);
-            Data.Color[index] = new Color(1 - value, value, 0);
+            //var value = (1 - heat) * (1 - heat);
+            //Data.Color[index] = new Color(0.5f - value/2f, value / 2 + 0.2f, 60/255f, 1); //0.5f - (value / 2));
+
+            var t = heat;
+            var inverse = 1 - t;
+            Data.Color[index] = new Color(FromColor.r * inverse + ToColor.r * t,
+                FromColor.g * inverse + ToColor.g * t,
+                FromColor.b * inverse + ToColor.b * t,
+                (1 - inverse * inverse) / 2+ 0.5f);
         }
     }
 
