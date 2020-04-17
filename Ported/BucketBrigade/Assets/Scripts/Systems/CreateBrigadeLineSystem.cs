@@ -58,8 +58,6 @@ public class CreateBrigadeLineSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(combinedDeps, Dependency);
         Dependency = JobHandle.CombineDependencies(Dependency, findWaterJobHandle);
 
-
-
         //EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
         Entities.
             WithAll<Brigade>().
@@ -78,6 +76,10 @@ public class CreateBrigadeLineSystem : SystemBase
             float closestWater = float.MaxValue;
             int closestWaterEntity = -1;
             float3 actorPosition = fillerPosition.Value;
+
+
+
+
 
             for (int i = 0; i < waterEntities.Length; ++i)
             {
@@ -106,29 +108,35 @@ public class CreateBrigadeLineSystem : SystemBase
                 }
             }
 
-            var lineComponent = new LineComponent()
+            if (closestFireEntity == -1)
             {
-                start = waterEntities[closestWaterEntity],
-                end = allFireEntities[closestFireEntity]
-            };
-            ecb.AddComponent( entityInQueryIndex, e, lineComponent);
-
-            float3 startPosition = translations[lineComponent.start].Value;
-            float3 endPosition = translations[lineComponent.end].Value;
-
-            float3 dir = math.normalize(endPosition - startPosition);
-            float3 perpDir = math.cross(dir, math.up());
-
-            for (int i = 1; i < actors.Length; i++)
-            {
-                var actorEntity = actors[i].actor;
-
-                float t = (i - 1) / (float)(actors.Length - 2);
-                float3 pos = LinePositionFromIndex(t, startPosition, endPosition, perpDir);
-                float3 initPosition = translations[actorEntity].Value;
-                ecb.AddComponent( entityInQueryIndex, actors[i].actor, new Destination() { position = new float3(pos.x, initPosition.y, pos.z) });
-                ecb.RemoveComponent<TargetEntity>( entityInQueryIndex, actorEntity);
+                return;
             }
+
+            var lineComponent = new LineComponent()
+                {
+                    start = waterEntities[closestWaterEntity],
+                    end = allFireEntities[closestFireEntity]
+                };
+                ecb.AddComponent(entityInQueryIndex, e, lineComponent);
+
+                float3 startPosition = translations[lineComponent.start].Value;
+                float3 endPosition = translations[lineComponent.end].Value;
+
+                float3 dir = math.normalize(endPosition - startPosition);
+                float3 perpDir = math.cross(dir, math.up());
+
+                for (int i = 1; i < actors.Length; i++)
+                {
+                    var actorEntity = actors[i].actor;
+
+                    float t = (i - 1) / (float)(actors.Length - 2);
+                    float3 pos = LinePositionFromIndex(t, startPosition, endPosition, perpDir);
+                    float3 initPosition = translations[actorEntity].Value;
+                    ecb.AddComponent(entityInQueryIndex, actors[i].actor, new Destination() { position = new float3(pos.x, initPosition.y, pos.z) });
+                    ecb.RemoveComponent<TargetEntity>(entityInQueryIndex, actorEntity);
+                }
+            
 
         }).Schedule();
 

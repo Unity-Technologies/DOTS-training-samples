@@ -172,9 +172,13 @@ public class ActorGoalSystem : SystemBase
                 if (bucketValue.Value > 0)
                 {
                     //Go to fire
-                    var lineComp = getLineComponent[thrower.brigade];
-                    actorPerformActionBuffer.AddComponent<Destination>(actor, new Destination() {position = getTranslationComponent[lineComp.end].Value});
-                    actorPerformActionBuffer.AddComponent<TargetEntity>(actor, new TargetEntity() {target = lineComp.end});
+                    if (getLineComponent.Exists(thrower.brigade))
+                    {
+                        var lineComp = getLineComponent[thrower.brigade];
+                        actorPerformActionBuffer.AddComponent<Destination>(actor, new Destination() { position = getTranslationComponent[lineComp.end].Value });
+                        actorPerformActionBuffer.AddComponent<TargetEntity>(actor, new TargetEntity() { target = lineComp.end });
+
+                    } 
                 }
                 else
                 {
