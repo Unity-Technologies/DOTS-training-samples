@@ -33,6 +33,10 @@ public class BlockSystem : SystemBase
         List<LaneAssignment> lanes = new List<LaneAssignment>();
         EntityManager.GetAllUniqueSharedComponentData<LaneAssignment>(lanes);
 
+        var roadInfo =
+            GetSingleton<RoadInfo>(); // TODO assumes one RoadInfo, but will we have multiple with segmentation? 
+        float minDist = roadInfo.CarSpawningDistancePercent;
+
         foreach (LaneAssignment lane in lanes)
         {
             agentQuery.SetSharedComponentFilter(lane);
@@ -59,12 +63,9 @@ public class BlockSystem : SystemBase
                 .WithDeallocateOnJobCompletion(agentEntities)
                 .WithSharedComponentFilter<LaneAssignment>(lane)
                 // Iterate through each entity with the following:
-                .ForEach((Entity entity, int nativeThreadIndex, in MinimumDistance minimumDistance,
+                .ForEach((Entity entity, int nativeThreadIndex,
                     in PercentComplete percentComplete) =>
                 {
-                    // Cache the minimum distance, which will be used for a depth test.
-                    var minimumDistanceTemp = minimumDistance.Value;
-
                     // Speed of zero is invalid. Which means that there is no other agent blocking this agent.
                     var blockSpeed = new BlockSpeed { Value = 0 };
 
@@ -89,10 +90,10 @@ public class BlockSystem : SystemBase
                         }
 
                         // If the distance is within the minimum distance between two agents, then:
-                        if (distance < minimumDistanceTemp)
+                        if (distance < minDist)
                         {
-                            // Update the minimum distance and make the speed match the closer agent.
-                            minimumDistanceTemp = distance;
+                            // Update the minimum distance and make the speed matc the closer agent.
+                            minDist = distance;
                             blockSpeed.Value = speeds[i].Value;
                         }
                     }

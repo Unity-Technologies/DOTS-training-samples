@@ -6,17 +6,21 @@ public struct RoadInfo : IComponentData
 {
     public float2 StartXZ;
     public float2 EndXZ;
+    public float TotalLength;
     public float LaneWidth;
     public int MaxLanes;
 
     //Move this probably
     public float CarSpawningDistancePercent;
+    public float MidRadius;
+
+    public int SegmentCount;
 }
 
 public struct LaneInfo
 {
-    public float LaneLength;
     public float Pivot;
+    public float Radius;
 }
 
 // This describes the number of buffer elements that should be reserved

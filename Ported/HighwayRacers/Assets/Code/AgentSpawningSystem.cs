@@ -30,6 +30,9 @@ public class AgentSpawningSystem : SystemBase
 
         var random = m_Random;
         var roadInfo = GetSingleton<RoadInfo>(); 
+        
+        float roadLength = math.abs(roadInfo.EndXZ.y - roadInfo.StartXZ.y);
+        float validYDistance = roadInfo.CarSpawningDistancePercent * roadLength;
 
         // can't use Burst if we set a shared component (even using ecb)
         // (not a big loss for spwaning on init)
@@ -37,8 +40,6 @@ public class AgentSpawningSystem : SystemBase
         {
             var bufferEntity = ecb.CreateEntity();
             var buffer = ecb.AddBuffer<SpawnPosition>(bufferEntity);
-            float roadLength = math.abs(roadInfo.EndXZ.y - roadInfo.StartXZ.y);
-            float validYDistance = roadInfo.CarSpawningDistancePercent * roadLength;
 
             for (float x = roadInfo.StartXZ.x; x < roadInfo.EndXZ.x; x += roadInfo.LaneWidth)
             {
@@ -54,6 +55,9 @@ public class AgentSpawningSystem : SystemBase
             for (int i = 0; i < spawner.NumAgents; i++)
             {
                 var spawnedEntity = ecb.Instantiate(spawner.Prefab);
+
+                if (buffer.Length == 0)
+                    break;
 
                 int randomIndex = random.NextInt(buffer.Length - 1);
                 var pos = buffer[randomIndex];
@@ -71,15 +75,21 @@ public class AgentSpawningSystem : SystemBase
 
                 TargetSpeed targetSpeed = new TargetSpeed()
                 {
-                    Value = random.NextFloat(0.1f, 0.5f)
+                    Value = random.NextFloat(spawner.MinSpeed, spawner.MaxSpeed)
                 };
 
-                MinimumDistance minDistance = new MinimumDistance()
+                PercentComplete percentComplete = new PercentComplete()
                 {
-                    Value = roadInfo.CarSpawningDistancePercent
+                    Value = pos.Position.y / roadLength
                 };
 
-                ecb.SetComponent(spawnedEntity, minDistance);
+                OvertakeSpeedIncrement osi = new OvertakeSpeedIncrement()
+                {
+                    Value = spawner.OvertakeIncrement
+                };
+
+                ecb.SetComponent(spawnedEntity, osi);
+                ecb.SetComponent(spawnedEntity, percentComplete);
                 ecb.SetComponent(spawnedEntity, targetSpeed);
                 ecb.SetSharedComponent(spawnedEntity, laneAssignment);
                 ecb.SetComponent(spawnedEntity, translation);
