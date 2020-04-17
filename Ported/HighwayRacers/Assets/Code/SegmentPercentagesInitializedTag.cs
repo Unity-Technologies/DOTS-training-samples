@@ -3,6 +3,6 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-public class CurvedSegment : IComponentData
+public struct SegmentPercentagesInitializedTag : IComponentData
 {
 }
