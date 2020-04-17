@@ -152,14 +152,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GridSize:
-    x: 60
-    y: 60
+    x: 500
+    y: 500
   ValueIncreasePerTick: 0
   MaxValue: 500
   ValuePropagationPerTick: 10
   ValueDiagonalFalloff: 0.5
   ValueThreshold: 100
-  ActorSpeed: 5
+  ActorSpeed: 10
   BucketCapacity: 500
   BucketScale: 0.5
   FireCellSize: 0.5

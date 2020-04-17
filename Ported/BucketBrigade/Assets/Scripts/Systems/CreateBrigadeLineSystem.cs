@@ -9,6 +9,8 @@ public class CreateBrigadeLineSystem : SystemBase
     private EntityQuery mAllRiversQuery;
     private EntityQuery mAllFires;
     EntityQuery mAllBrigade;
+    private EndSimulationEntityCommandBufferSystem mEndSimCommandBufferSystem;
+
     protected override void OnCreate()
     {
         mAllRiversQuery = EntityManager.CreateEntityQuery(ComponentType.ReadWrite<River>(),
@@ -19,6 +21,10 @@ public class CreateBrigadeLineSystem : SystemBase
             ComponentType.ReadOnly<Translation>());
 
         mAllBrigade = base.GetEntityQuery(ComponentType.Exclude<LineComponent>(), ComponentType.ReadOnly<Brigade>());
+
+
+        mEndSimCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+
     }
 
     protected override void OnDestroy()
@@ -36,6 +42,8 @@ public class CreateBrigadeLineSystem : SystemBase
         if (mAllBrigade.CalculateChunkCount() == 0)
             return;
 
+        var ecb = mEndSimCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+
         var tuningData = GetSingleton<TuningData>();
         var waterPositions = mAllRiversQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var waterPositionHandle);
         var waterEntities = mAllRiversQuery.ToEntityArrayAsync(Allocator.TempJob, out var waterEntityHandle);
@@ -50,11 +58,19 @@ public class CreateBrigadeLineSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(combinedDeps, Dependency);
         Dependency = JobHandle.CombineDependencies(Dependency, findWaterJobHandle);
 
-        EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
+
+
+        //EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
         Entities.
             WithAll<Brigade>().
             WithNone<LineComponent>().
-            WithReadOnly(translations).ForEach((Entity e, in DynamicBuffer<ActorElement> actors) =>
+            WithDeallocateOnJobCompletion(waterPositions).
+            WithDeallocateOnJobCompletion(waterEntities).
+            WithDeallocateOnJobCompletion(allFireEntities).
+            WithDeallocateOnJobCompletion(allFirePositions).
+            WithDeallocateOnJobCompletion(allFireValues).
+
+            WithReadOnly(translations).ForEach((int entityInQueryIndex, Entity e, in DynamicBuffer<ActorElement> actors) =>
         {
             var fillerEntity = actors[1].actor;
             var fillerPosition = translations[fillerEntity];
@@ -95,7 +111,7 @@ public class CreateBrigadeLineSystem : SystemBase
                 start = waterEntities[closestWaterEntity],
                 end = allFireEntities[closestFireEntity]
             };
-            ecb.AddComponent(e, lineComponent);
+            ecb.AddComponent( entityInQueryIndex, e, lineComponent);
 
             float3 startPosition = translations[lineComponent.start].Value;
             float3 endPosition = translations[lineComponent.end].Value;
@@ -107,23 +123,25 @@ public class CreateBrigadeLineSystem : SystemBase
             {
                 var actorEntity = actors[i].actor;
 
-                float t = (i - 1) / (float) (actors.Length - 2);
+                float t = (i - 1) / (float)(actors.Length - 2);
                 float3 pos = LinePositionFromIndex(t, startPosition, endPosition, perpDir);
                 float3 initPosition = translations[actorEntity].Value;
-                ecb.AddComponent(actors[i].actor, new Destination(){position = new float3(pos.x, initPosition.y, pos.z)});
-                ecb.RemoveComponent<TargetEntity>(actorEntity);
+                ecb.AddComponent( entityInQueryIndex, actors[i].actor, new Destination() { position = new float3(pos.x, initPosition.y, pos.z) });
+                ecb.RemoveComponent<TargetEntity>( entityInQueryIndex, actorEntity);
             }
 
-        }).Run();
-        
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        }).Schedule();
 
-        waterPositions.Dispose();
-        waterEntities.Dispose();
-        allFireEntities.Dispose();
-        allFirePositions.Dispose();
-        allFireValues.Dispose();
+        //ecb.Playback(EntityManager);
+        //ecb.Dispose();
+
+        //waterPositions.Dispose();
+        //waterEntities.Dispose();
+        //allFireEntities.Dispose();
+        //allFirePositions.Dispose();
+        //allFireValues.Dispose();
+
+        mEndSimCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 
     public static float3 LinePositionFromIndex(float t, float3 startPos, float3 endPos, float3 perpendicularOffsetDirection)
