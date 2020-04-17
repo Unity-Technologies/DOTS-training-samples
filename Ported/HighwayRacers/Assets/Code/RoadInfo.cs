@@ -11,6 +11,8 @@ public struct RoadInfo : IComponentData
 
     //Move this probably
     public float CarSpawningDistancePercent;
+
+    public int SegmentCount;
 }
 
 public struct LaneInfo
