@@ -36,16 +36,10 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
     // bucket Colours
     public Color colour_bucket_empty;
     public Color colour_bucket_full;
-
-    [System.Serializable]
-    public class BrigadeLineInfo
-    {
-        [Range(1, 1000)]
-        public int WorkerCount;
-    }
-
-    [Tooltip("Brigade Line Setup")]
-    public List<BrigadeLineInfo> BrigadeLines = new List<BrigadeLineInfo>();
+    [Range(0, 1000)]
+    public int BrigadeLines = 10;
+    [Range(0, 1000)]
+    public int WorkersPerLine = 10;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -58,11 +52,11 @@ public class Bootstrap : MonoBehaviour, IConvertGameObjectToEntity, IDeclareRefe
 
         World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FirePropagateSystem>().PropagationChance = PropagationChance;
 
-        foreach (var br in BrigadeLines)
+        for(int i = 0; i < BrigadeLines; i++)
         {
             var bInfo = dstManager.CreateEntity(ComponentType.ReadOnly<BrigadeInitInfo>());
             dstManager.SetName(bInfo, "BrigadeLine");
-            dstManager.SetComponentData(bInfo, new BrigadeInitInfo() {WorkerCount = br.WorkerCount});
+            dstManager.SetComponentData(bInfo, new BrigadeInitInfo() {WorkerCount = WorkersPerLine});
         }
 
         var extinguish = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<FireExtinguishSystem>();
