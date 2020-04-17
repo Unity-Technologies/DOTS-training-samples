@@ -69,11 +69,16 @@ public struct BucketRef : IComponentData
 
 public class PassBucketSystem : SystemBase
 {
+    private EntityCommandBufferSystem m_ECBSystem;
+    protected override void OnCreate()
+    {
+        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
         Entities.WithNone<WorkerMoveTo>()
-            .ForEach((Entity e, in Worker target, in WorkerStartEndPositions positions, in BucketRef bucketRef) =>
+            .ForEach((int entityInQueryIndex, Entity e, in Worker target, in WorkerStartEndPositions positions, in BucketRef bucketRef) =>
             {
                 if (target.NextWorkerInLine != default(Entity))
                 {
@@ -81,25 +86,25 @@ public class PassBucketSystem : SystemBase
                     bool nextWorkerHasBucket = HasComponent<BucketRef>(target.NextWorkerInLine);
                     if (!nextWorkerIsMoving && !nextWorkerHasBucket)
                     {
-                        ecb.RemoveComponent<BucketRef>(e);
-                        ecb.AddComponent(e, new WorkerMoveTo() { Value = positions.Start });
+                        ecb.RemoveComponent<BucketRef>(entityInQueryIndex, e);
+                        ecb.AddComponent(entityInQueryIndex, e, new WorkerMoveTo() { Value = positions.Start });
 
                         WorkerStartEndPositions nextDest = GetComponent<WorkerStartEndPositions>(target.NextWorkerInLine);
-                        ecb.AddComponent(target.NextWorkerInLine, new WorkerMoveTo() { Value = nextDest.End });
-                        ecb.AddComponent(target.NextWorkerInLine, bucketRef);
-                        ecb.SetComponent(bucketRef.Bucket, new BucketWorkerRef() { WorkerRef = target.NextWorkerInLine });
+                        ecb.AddComponent(entityInQueryIndex, target.NextWorkerInLine, new WorkerMoveTo() { Value = nextDest.End });
+                        ecb.AddComponent(entityInQueryIndex, target.NextWorkerInLine, bucketRef);
+                        ecb.SetComponent(entityInQueryIndex, bucketRef.Bucket, new BucketWorkerRef() { WorkerRef = target.NextWorkerInLine });
                     }
                 }
                 else
                 {
-                    var extinguishDataEntity = ecb.CreateEntity();
-                    ecb.AddComponent(extinguishDataEntity, new ExtinguishData() {X = (int)positions.End.x, Y = (int)positions.End.y});
-                    ecb.DestroyEntity(bucketRef.Bucket);
-                    ecb.RemoveComponent<BucketRef>(e);
-                    ecb.AddComponent(e, new WorkerMoveTo() { Value = positions.Start });
+                    var extinguishDataEntity = ecb.CreateEntity(entityInQueryIndex);
+                    ecb.AddComponent(entityInQueryIndex, extinguishDataEntity, new ExtinguishData() {X = (int)positions.End.x, Y = (int)positions.End.y});
+                    ecb.DestroyEntity(entityInQueryIndex, bucketRef.Bucket);
+                    ecb.RemoveComponent<BucketRef>(entityInQueryIndex, e);
+                    ecb.AddComponent(entityInQueryIndex, e, new WorkerMoveTo() { Value = positions.Start });
                 }
-            }).Run();
-        ecb.Playback(EntityManager);
+            }).ScheduleParallel();
+        m_ECBSystem.AddJobHandleForProducer(Dependency);
         // get each entity that is in the WorkerWaitingForDropOff and NextWorkerInLine has WorkerWaitingForPickup
     }
 }
