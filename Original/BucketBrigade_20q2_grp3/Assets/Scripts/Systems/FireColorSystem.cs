@@ -3,10 +3,12 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateAfter(typeof(FireExtinguishSystem))]
+[UpdateInGroup(typeof(PresentationSystemGroup))]
+[UpdateAfter(typeof(RenderMeshSystemV2))]
 public class FireColorSystem : SystemBase
 {
     public double UpdateGrowFrequency;
@@ -36,16 +38,16 @@ public class FireColorSystem : SystemBase
             m_LastUpdateGrowTime = Time.ElapsedTime;
 
             var data = GridData.Instance;
-            Entities
+            Deps = Entities
                 .WithName("UpdateFireColor")
                 .WithReadOnly(data)
                 .ForEach((ref Unity.Rendering.MaterialColor color, in GridCell cell) =>
                 {
                     var heat = (float)data.Heat[cell.Index] / byte.MaxValue;
-                    var value = math.pow(1 - heat, 2);
+                    var value = (1 - heat) * (1 - heat);
                     color.Value = new float4(1 - value, value, 0, 1);
-                }).ScheduleParallel();
-            Deps = Dependency;
+                }).ScheduleParallel(Dependency);
+            //Deps = Dependency;
         }
     }
 }
