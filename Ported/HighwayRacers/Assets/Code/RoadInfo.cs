@@ -17,8 +17,8 @@ public struct RoadInfo : IComponentData
 
 public struct LaneInfo
 {
-    public float LaneLength;
     public float Pivot;
+    public float Radius;
 }
 
 // This describes the number of buffer elements that should be reserved
