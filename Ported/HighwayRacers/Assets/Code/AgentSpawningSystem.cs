@@ -8,9 +8,6 @@ using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
-[UpdateBefore(typeof(RenderPositionSystem))]
-[UpdateBefore(typeof(OvertakeSystem))]
-[UpdateBefore(typeof(BlockSystem))]
 public class AgentSpawningSystem : SystemBase
 {
     private Random m_Random;
@@ -81,11 +78,6 @@ public class AgentSpawningSystem : SystemBase
                     Value = random.NextFloat(spawner.MinSpeed, spawner.MaxSpeed)
                 };
 
-                MinimumDistance minDistance = new MinimumDistance()
-                {
-                    Value = roadInfo.CarSpawningDistancePercent
-                };
-
                 PercentComplete percentComplete = new PercentComplete()
                 {
                     Value = pos.Position.y / roadLength
@@ -98,7 +90,6 @@ public class AgentSpawningSystem : SystemBase
 
                 ecb.SetComponent(spawnedEntity, osi);
                 ecb.SetComponent(spawnedEntity, percentComplete);
-                ecb.SetComponent(spawnedEntity, minDistance);
                 ecb.SetComponent(spawnedEntity, targetSpeed);
                 ecb.SetSharedComponent(spawnedEntity, laneAssignment);
                 ecb.SetComponent(spawnedEntity, translation);
