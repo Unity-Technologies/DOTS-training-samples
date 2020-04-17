@@ -17,12 +17,14 @@ public class FireGrowSystem : SystemBase
     private double m_LastUpdateGrowTime;
 
     private FireExtinguishSystem m_FireExtinguishSystem;
+    private FireColorSystem m_FireColorSystem;
 
     protected override void OnCreate()
     {
         base.OnCreate();
 
         m_FireExtinguishSystem = World.GetOrCreateSystem<FireExtinguishSystem>();
+        m_FireColorSystem = World.GetOrCreateSystem<FireColorSystem>();
     }
 
     protected override void OnUpdate()
@@ -31,6 +33,7 @@ public class FireGrowSystem : SystemBase
             return;
 
         Dependency = JobHandle.CombineDependencies(Dependency, m_FireExtinguishSystem.Deps);
+        Dependency = JobHandle.CombineDependencies(Dependency, m_FireColorSystem.Deps);
 
         if (m_LastUpdateGrowTime + UpdateGrowFrequency < Time.ElapsedTime)
         {
