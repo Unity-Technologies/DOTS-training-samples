@@ -29,7 +29,7 @@ public class OvertakeSystem : SystemBase
         m_laneQuery.AddSharedComponentFilter(new LaneAssignment());
     }
 
-    protected override void OnUpdate() 
+    protected override void OnUpdate()
     {
         int outerLane = RIGHT_LANE;
         int laneInc = 1;
@@ -38,55 +38,50 @@ public class OvertakeSystem : SystemBase
             outerLane = LEFT_LANE;
             laneInc = -1;
         }
+
         m_doLeft = !m_doLeft; // toggle for next frame
-        var roadInfo = GetSingleton<RoadInfo>(); // TODO assumes one RoadInfo, but will we have multiple with segmentation? 
-        float carLength = roadInfo.CarSpawningDistancePercent;
-        
+        var roadInfo =
+            GetSingleton<RoadInfo>(); // TODO assumes one RoadInfo, but will we have multiple with segmentation? 
+        float minDist = roadInfo.CarSpawningDistancePercent;
+        minDist *= 1.1f;   // add some extra padding
+
         List<LaneAssignment> lanes = new List<LaneAssignment>();
         EntityManager.GetAllUniqueSharedComponentData<LaneAssignment>(lanes);
-        
+
         JobHandle combined = new JobHandle();
         foreach (LaneAssignment lane in lanes)
         {
-            if (lane.Value != outerLane) 
+            if (lane.Value != outerLane)
             {
                 EntityCommandBuffer.Concurrent ecb = m_endSim.CreateCommandBuffer().ToConcurrent();
-                
+
                 m_laneQuery.SetSharedComponentFilter(new LaneAssignment() {Value = lane.Value + laneInc});
-                var percentCompletes = 
+                var percentCompletes =
                     m_laneQuery.ToComponentDataArrayAsync<PercentComplete>(Allocator.TempJob,
                         out var percentCompletesHandle);
-        
-                LaneAssignment otherLane = new LaneAssignment() {Value = lane.Value + laneInc};  
+
+                LaneAssignment otherLane = new LaneAssignment() {Value = lane.Value + laneInc};
 
                 var temp = Entities
                     .WithName("Update_Overtake_Merge_Right")
                     .WithAll<BlockSpeed>()
                     .WithSharedComponentFilter(lane)
-                    .WithoutBurst()    // TODO get rid of setting shared component to enable burst
+                    .WithoutBurst() // TODO get rid of setting shared component to enable burst
                     .ForEach(
-                        (Entity ent, int nativeThreadIndex, in PercentComplete percent,
-                            in MinimumDistance minDist) =>
+                        (Entity ent, int nativeThreadIndex, in PercentComplete percent) =>
                         {
-                            var min = minDist.Value;
-                            if (min < carLength)
-                            {
-                                min = carLength;
-                            }
-        
                             bool clear = true;
                             for (int i = 0; i < percentCompletes.Length; i++)
                             {
                                 var leftPercent = percentCompletes[i].Value;
-                                if (percent.Value < leftPercent + min)
+                                if (percent.Value < leftPercent + minDist &&
+                                    percent.Value + minDist > leftPercent)
                                 {
-                                    if (percent.Value + minDist.Value > leftPercent)
-                                    {
-                                        clear = false;
-                                        break;
-                                    }
+                                    clear = false;
+                                    break;
                                 }
                             }
+
                             if (clear)
                             {
                                 ecb.SetSharedComponent(nativeThreadIndex, ent, otherLane);
@@ -97,7 +92,7 @@ public class OvertakeSystem : SystemBase
                     )
                     .ScheduleParallel(
                         JobHandle.CombineDependencies(percentCompletesHandle, Dependency));
-                
+
                 combined = JobHandle.CombineDependencies(percentCompletes.Dispose(temp), combined);
             }
         }
