@@ -80,7 +80,6 @@ public class BrigadeFindSourceSystem : SystemBase
                     CommandBuffer.AddComponent<ResourceClaimed>(resourceEntities[bestIndex]);
                 }
             }
-       //     resourceAmounts.Dispose();
         }
     }
 
@@ -120,6 +119,8 @@ public class BrigadeFindSourceSystem : SystemBase
             LineType = lineType
         };
         Dependency = job.ScheduleSingle(lineQuery, Dependency);
+        Dependency = amounts.Dispose(Dependency);
+        Dependency = resourceClaimed.Dispose(Dependency);
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 
