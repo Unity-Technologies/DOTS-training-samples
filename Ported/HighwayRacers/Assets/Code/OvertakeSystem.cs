@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using UnityEngine;
 
 [UpdateAfter(typeof(BlockSystem))]
 public class OvertakeSystem : SystemBase
@@ -9,33 +10,26 @@ public class OvertakeSystem : SystemBase
     public const int LEFT_LANE = 0;
     public const int RIGHT_LANE = 3;
 
-    private EntityQuery[] m_laneQueries;
+    private EntityQuery m_laneQuery;
     private EntityCommandBufferSystem m_endSim;
     private bool m_doLeft = true; // toggle every frame
 
     protected override void OnCreate()
     {
         base.OnCreate();
-
         m_endSim = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-
-        m_laneQueries = new EntityQuery[RIGHT_LANE];
-
-        for (int i = 0; i < RIGHT_LANE; i++)
+        m_laneQuery = GetEntityQuery(new EntityQueryDesc
         {
-            m_laneQueries[i] = GetEntityQuery(new EntityQueryDesc
+            All = new[]
             {
-                All = new[]
-                {
-                    ComponentType.ReadOnly<LaneAssignment>(),
-                    ComponentType.ReadOnly<PercentComplete>(),
-                }
-            });
-            m_laneQueries[i].AddSharedComponentFilter(new LaneAssignment() {Value = i});
-        }
+                ComponentType.ReadOnly<LaneAssignment>(),
+                ComponentType.ReadOnly<PercentComplete>(),
+            }
+        });
+        m_laneQuery.AddSharedComponentFilter(new LaneAssignment());
     }
 
-    protected override void OnUpdate()
+    protected override void OnUpdate() 
     {
         int outerLane = RIGHT_LANE;
         int laneInc = 1;
@@ -45,32 +39,31 @@ public class OvertakeSystem : SystemBase
             laneInc = -1;
         }
         m_doLeft = !m_doLeft; // toggle for next frame
-
+        var roadInfo = GetSingleton<RoadInfo>(); // TODO assumes one RoadInfo, but will we have multiple with segmentation? 
+        float carLength = roadInfo.CarSpawningDistancePercent;
+        
         List<LaneAssignment> lanes = new List<LaneAssignment>();
         EntityManager.GetAllUniqueSharedComponentData<LaneAssignment>(lanes);
-
-        // TODO will we always have one RoadInfo?
-        var roadInfo = GetSingleton<RoadInfo>();
-        float carLength = roadInfo.CarSpawningDistance;
-
+        
         JobHandle combined = new JobHandle();
         foreach (LaneAssignment lane in lanes)
         {
-            EntityCommandBuffer.Concurrent ecb = m_endSim.CreateCommandBuffer().ToConcurrent();
-            
-            if (lane.Value != outerLane)
+            if (lane.Value != outerLane) 
             {
-                EntityQuery otherLaneQuery = m_laneQueries[lane.Value + laneInc];
-                var percentCompletes =
-                    otherLaneQuery.ToComponentDataArrayAsync<PercentComplete>(Allocator.TempJob,
+                EntityCommandBuffer.Concurrent ecb = m_endSim.CreateCommandBuffer().ToConcurrent();
+                
+                m_laneQuery.SetSharedComponentFilter(new LaneAssignment() {Value = lane.Value + laneInc});
+                var percentCompletes = 
+                    m_laneQuery.ToComponentDataArrayAsync<PercentComplete>(Allocator.TempJob,
                         out var percentCompletesHandle);
-
-                LaneAssignment otherLane = new LaneAssignment() {Value = lane.Value + laneInc};
+        
+                LaneAssignment otherLane = new LaneAssignment() {Value = lane.Value + laneInc};  
 
                 var temp = Entities
                     .WithName("Update_Overtake_Merge_Right")
                     .WithAll<BlockSpeed>()
                     .WithSharedComponentFilter(lane)
+                    .WithoutBurst()    // TODO get rid of setting shared component to enable burst
                     .ForEach(
                         (Entity ent, int nativeThreadIndex, in PercentComplete percent,
                             in MinimumDistance minDist) =>
@@ -80,7 +73,7 @@ public class OvertakeSystem : SystemBase
                             {
                                 min = carLength;
                             }
-
+        
                             bool clear = true;
                             for (int i = 0; i < percentCompletes.Length; i++)
                             {
@@ -104,9 +97,12 @@ public class OvertakeSystem : SystemBase
                     )
                     .ScheduleParallel(
                         JobHandle.CombineDependencies(percentCompletesHandle, Dependency));
-                combined = JobHandle.CombineDependencies(combined, temp);
+                
+                combined = JobHandle.CombineDependencies(percentCompletes.Dispose(temp), combined);
             }
         }
+
+        Dependency = combined;
         m_endSim.AddJobHandleForProducer(combined);
     }
 }
