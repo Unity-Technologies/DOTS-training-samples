@@ -48,13 +48,13 @@ public class RenderPositionSystem : SystemBase
                     float cos = math.cos(-localRotation.Value);
 
                     float rotatedX  = localTranslation.Value.x * cos - localTranslation.Value.y * sin;
-                    float rotationZ = localTranslation.Value.x * sin + localTranslation.Value.y * cos;
+                    float rotatedZ = localTranslation.Value.x * sin + localTranslation.Value.y * cos;
 
                     // update translation
                     var segmentInfo = segmentInfoElements[segmentAssignment.Value].Value;
                     float2 segmentStartXZ = segmentInfo.StartXZ;
                     translation.Value.x = rotatedX + segmentStartXZ.x;
-                    translation.Value.y = rotationZ + segmentStartXZ.y;
+                    translation.Value.y = rotatedZ + segmentStartXZ.y;
                     
                     // update rotation
                     float newRotationValue = localRotation.Value + segmentInfo.StartRotation;
