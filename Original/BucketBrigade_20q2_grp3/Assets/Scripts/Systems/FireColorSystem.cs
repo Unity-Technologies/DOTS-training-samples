@@ -99,8 +99,8 @@ public class FireColorSystem : SystemBase
 
         public void Execute()
         {
-            for (int x = 0; x < Data.Width; x++)
             for (int y = 0; y < Data.Height; y++)
+            for (int x = 0; x < Data.Width; x++)
             {
                 GridUtils.GridPlane.Texture.SetPixel(x, y, Data.Color[x + y * Data.Width]);
             }
