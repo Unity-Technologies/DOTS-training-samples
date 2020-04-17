@@ -179,13 +179,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StartXZ:
-    x: -0.14
+    x: -0.5
     y: 0
   EndXZ:
-    x: 7.39
-    y: 24
+    x: 7.5
+    y: 500
   MaxLanes: 4
-  CarSpawningDistance: 0.1
+  CarSpawningDistance: 0.01
 --- !u!1 &285360169
 GameObject:
   m_ObjectHideFlags: 0
@@ -197,7 +197,7 @@ GameObject:
   - component: {fileID: 285360171}
   - component: {fileID: 285360170}
   m_Layer: 0
-  m_Name: Spawner
+  m_Name: Road
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -284,7 +284,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PrefabAgent: {fileID: 1999935204370666, guid: eb09540518ebb214aba8500b41634a1b,
     type: 3}
-  AgentNumber: 10
+  AgentNumber: 100
+  MaxSpeedPercentage: 0.0334
+  MinSpeedPercentage: 0.0184
+  OvertakePercentIncrement: 0.029
 --- !u!114 &1120589865
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -350,8 +353,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 1
-  orthographic size: 12.26
+  orthographic: 0
+  orthographic size: 231.7
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -374,8 +377,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1218384882}
-  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: -0.7071068}
-  m_LocalPosition: {x: 3.68, y: 10, z: 12.16}
+  m_LocalRotation: {x: 0.38542578, y: -0.1848965, z: 0.07913327, w: 0.9005544}
+  m_LocalPosition: {x: 17.031254, y: 87.792816, z: 118.11116}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
