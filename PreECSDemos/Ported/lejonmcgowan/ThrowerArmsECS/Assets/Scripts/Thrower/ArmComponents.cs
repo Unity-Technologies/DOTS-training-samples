@@ -1,4 +1,4 @@
-﻿
+﻿﻿
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -12,7 +12,7 @@ public struct ArmRenderComponentData: IComponentData
 public struct ArmLastRockRecord: IComponentData
 {
     public float size;
-    public float3 worldPos;
+    public float3 pos;
 }
 
 public struct ArmIdleTarget: IComponentData

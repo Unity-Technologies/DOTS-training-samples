@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -6,8 +6,9 @@ using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEditor.SceneManagement;
+ using UnityEngine;
 
-[UpdateBefore(typeof(ArmRenderUpdateSystem))]
+ [UpdateBefore(typeof(ArmRenderUpdateSystem))]
 public class ArmSystem : SystemBase
 {
     private EntityQuery availableRocksQuery;
@@ -85,11 +86,11 @@ public class ArmSystem : SystemBase
             float3 rockPos = GetComponent<LocalToWorld>(reservedRock).Position;
             float rockSize = GetComponent<RockRadiusComponentData>(reservedRock);
 
-            lastRockRecord.worldPos = rockPos;
+            lastRockRecord.pos = rockPos;
             lastRockRecord.size = rockSize;
 
             float3 delta = rockPos - anchorPos;
-
+            Debug.Assert(math.lengthsq(delta) > 0, "rock and anchor can not be in the same place");
             float3 flatDelta = delta;
             flatDelta.y = 0f;
             flatDelta = math.normalize(flatDelta);
@@ -97,7 +98,7 @@ public class ArmSystem : SystemBase
             grabTarget = rockPos + armUp.value * rockSize * .5f -
                          flatDelta * rockSize * .5f;
 
-            grabT = 1.005f * math.sin(0.2f * t);
+            grabT = 1.02f * math.sin(0.2f * t);
             grabT = math.clamp(grabT, 0f, 1f);
         }).ScheduleParallel(idleJob);
         
@@ -122,13 +123,14 @@ public class ArmSystem : SystemBase
                     {
                         Value = wrist
                     };
-
+                    
                     float3 wristToRock = GetComponent<Translation>(reservedRock).Value -
-                                     (GetComponent<Translation>(wrist).Value - new float3(0,0.25f,0));
+                                         (GetComponent<Translation>(wrist).Value);
 
+                    
                     grabEcb.SetComponent(entityInQueryIndex, reservedRock, new Translation
                     {
-                        Value = float3.zero
+                        Value = wristToRock
                     });
                     
                     grabEcb.AddComponent(entityInQueryIndex, reservedRock, wristParent);

@@ -1,9 +1,9 @@
-﻿using System;
+﻿﻿using System;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
+ using UnityEditor.SceneManagement;
 
-[UpdateAfter(typeof(ArmSystem))]
+ [UpdateAfter(typeof(ArmSystem))]
 public class FingerSystem : SystemBase
 {
     private BeginSimulationEntityCommandBufferSystem beginSimECBSystem;
@@ -14,8 +14,6 @@ public class FingerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
-        
         var UpBases = GetComponentDataFromEntity<ArmBasesUp>(true);
         var RightBases = GetComponentDataFromEntity<ArmBasisRight>(true);
         var ForwardBases = GetComponentDataFromEntity<ArmBasesForward>(true);
@@ -27,10 +25,13 @@ public class FingerSystem : SystemBase
         //float dt = Time.DeltaTime;
         float t = (float)Time.ElapsedTime;
 
+        var ecb = beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
+        
         var grabCopyJob = Entities
             .WithNone<FingerGrabbedTag>()
             .WithReadOnly(ArmGrabTs)
-            .ForEach((Entity entity,int entityInQueryIndex,
+            .ForEach((Entity entity,
+                int entityInQueryIndex,
                 ref FingerGrabTimer fingerGrabT,
             in FingerParent fingerParent) =>
         {
@@ -38,13 +39,13 @@ public class FingerSystem : SystemBase
             float armGrabT = ArmGrabTs[armParent];
             fingerGrabT = armGrabT;
 
-            if (fingerGrabT >= 1.0f)
+            if (fingerGrabT >= 1f)
             {
                 ecb.AddComponent<FingerGrabbedTag>(entityInQueryIndex,entity);
             }
             
         }).ScheduleParallel(Dependency);
-
+        
         var IKJob = Entities
             .WithReadOnly(ArmJointsFromEntity)
             .WithReadOnly(UpBases)
@@ -75,10 +76,10 @@ public class FingerSystem : SystemBase
                 float3 fingerPos = wristPos + armRight * (fingerOffsetX + fingerIndex * fingerSpacing);
                 float3 fingerTarget = fingerPos + armForward * (.5f - .1f * fingerGrabT);
                 //finger wiggle
-               //fingerTarget += .2f * armUp * math.sin((t + fingerIndex * .2f) * 3f)  * (1f - fingerGrabT);
+                fingerTarget += .2f * armUp * math.sin((t + fingerIndex * .2f) * 3f)  * (1f - fingerGrabT);
                 
-                float3 rockFingerDelta = fingerTarget - rockData.worldPos;
-                float3 rockFingerPos = rockData.worldPos +
+                float3 rockFingerDelta = fingerTarget - rockData.pos;
+                float3 rockFingerPos = rockData.pos +
                                        math.normalize(rockFingerDelta)  * (rockData.size * .5f + fingerThickness);
 
 
@@ -125,8 +126,8 @@ public class FingerSystem : SystemBase
                //thumb wiggle?
                thumbTarget += thumbPos - armRight * .15f + armForward * (.2f + .1f * grabT) - armUp * .1f;
                
-               float3 rockThumbDelta = thumbTarget - rockData.worldPos;
-               float3 rockThumbPos = rockData.worldPos +
+               float3 rockThumbDelta = thumbTarget - rockData.pos;
+               float3 rockThumbPos = rockData.pos +
                                       math.normalize(rockThumbDelta)  * (rockData.size * .5f + thickness);
 
 
