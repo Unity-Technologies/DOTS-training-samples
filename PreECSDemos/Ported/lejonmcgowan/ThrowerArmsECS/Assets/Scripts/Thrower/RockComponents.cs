@@ -6,9 +6,9 @@ public struct RockVelocityComponentData: IComponentData
 {
     public float3 value;
 
-    public static implicit operator RockVelocityComponentData(float3 velX) => new RockVelocityComponentData()
+    public static implicit operator RockVelocityComponentData(float3 velocity) => new RockVelocityComponentData()
     {
-        value = velX
+        value = velocity
     };
 
     public static implicit operator float3(RockVelocityComponentData c) => c.value;
@@ -18,6 +18,16 @@ public struct DebugRockGrabbedTag : IComponentData
 {
     
 }
+ 
+ public struct RockTag : IComponentData
+ {
+    
+ }
+
+ public struct RockBounds : IComponentData
+ {
+     public float2 range;
+ }
 
 public struct RockReservedTag : IComponentData
 {
