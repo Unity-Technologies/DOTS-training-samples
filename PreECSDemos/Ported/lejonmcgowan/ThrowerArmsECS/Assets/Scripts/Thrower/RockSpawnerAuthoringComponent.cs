@@ -14,6 +14,7 @@ public class RockSpawnerAuthoringComponent: MonoBehaviour, IConvertGameObjectToE
     public GameObject meshPrefab;
     public Entity prefab;
     public float2 xKillPlanes;
+    public float2 xSpawnRanges;
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -33,28 +34,38 @@ public class RockSpawnerAuthoringComponent: MonoBehaviour, IConvertGameObjectToE
             spawnVelocity = spawnVelocity,
             prefab = prefab
         });
-        dstManager.AddComponentData(spawner, new RockBounds()
+        dstManager.AddComponentData(spawner, new RockDestroyBounds()
         {
-            range = xKillPlanes
+            Value = xKillPlanes
+        });
+        dstManager.AddComponentData(spawner, new RockSpawnerBounds()
+        {
+            Value= xSpawnRanges
         });
 
         for (int i = 0; i < initSpawnNumber; i++)
         {
             
             Entity rock = dstManager.Instantiate(prefab);
-            dstManager.SetName(spawner, "Init Rock " + i);
+            dstManager.SetName(rock, "Init Rock " + i);
             dstManager.AddComponent<RockTag>(rock);
             dstManager.AddComponentData(rock, new RockVelocityComponentData
             {
                 value = spawnVelocity
             });
-            dstManager.AddComponentData(rock, new RockBounds
+            dstManager.AddComponentData(rock, new RockDestroyBounds()
             {
-                range = xKillPlanes
+                Value = xKillPlanes
+            });
+            dstManager.AddComponentData(rock, new RockRadiusComponentData
+            {
+                value = 0.5f
             });
             dstManager.SetComponentData(rock,new Translation
             {
-                Value = new float3(0.8f * convertRNG.NextFloat(-10f,10f),0f,2.0f)
+                //initial spawn is based across the conveyour; NOT to be confused with the spawnRange for runtime 
+                //created rocks
+                Value = new float3(0.8f * convertRNG.NextFloat(xKillPlanes.x,xKillPlanes.y),0f,1.5f)
             });
         }
     }

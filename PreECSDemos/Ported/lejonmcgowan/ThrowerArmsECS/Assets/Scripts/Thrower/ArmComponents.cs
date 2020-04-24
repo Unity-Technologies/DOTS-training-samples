@@ -39,6 +39,10 @@ public struct ArmReservedRock : IComponentData
     public static implicit operator Entity(ArmReservedRock c) => c.value;
 }
 
+public struct ArmGrabbedTag : IComponentData
+{
+}
+
 public struct ArmGrabTimer : IComponentData
 {
     public float value;
