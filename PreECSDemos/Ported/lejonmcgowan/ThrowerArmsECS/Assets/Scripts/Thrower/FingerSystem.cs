@@ -15,7 +15,7 @@ public class FingerSystem : SystemBase
     protected override void OnUpdate()
     {
         var UpBases = GetComponentDataFromEntity<ArmBasesUp>(true);
-        var RightBases = GetComponentDataFromEntity<ArmBasisRight>(true);
+        var RightBases = GetComponentDataFromEntity<ArmBasesRight>(true);
         var ForwardBases = GetComponentDataFromEntity<ArmBasesForward>(true);
 
         var ArmJointsFromEntity = GetBufferFromEntity<ArmJointElementData>(true);

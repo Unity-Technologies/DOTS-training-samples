@@ -13,13 +13,13 @@ public class ArmSystem : SystemBase
 {
     private EntityQuery availableRocksQuery;
     private BeginSimulationEntityCommandBufferSystem beginSimEcbSystem;
-    
+
     private struct RockReserveJob : IJob
     {
         public NativeQueue<RockReserveRequest> RequestQueue;
         public NativeHashMap<Entity, RockReserveRequest> RequestMap;
         public EntityCommandBuffer ECB;
-            
+
         public void Execute( /*int index*/)
         {
             while (RequestQueue.TryDequeue(out var request))
@@ -55,7 +55,7 @@ public class ArmSystem : SystemBase
         availableRocksQuery = GetEntityQuery(new EntityQueryDesc()
         {
             All = new[] {ComponentType.ReadOnly<RockRadiusComponentData>(), ComponentType.ReadOnly<RockTag>()},
-            None = new[] {ComponentType.ReadWrite<RockReservedTag>(),ComponentType.ReadOnly<RockGrabbedTag>()}
+            None = new[] {ComponentType.ReadWrite<RockReservedTag>(), ComponentType.ReadOnly<RockGrabbedTag>()}
         });
 
         beginSimEcbSystem = World.GetExistingSystem<BeginSimulationEntityCommandBufferSystem>();
@@ -65,11 +65,11 @@ public class ArmSystem : SystemBase
     {
         float t = (float) Time.ElapsedTime;
         float dt = (float) Time.DeltaTime;
-        
+
         //1.8^2
         float reachDistSq = 3.24f;
         float reachDuration = 1.5f;
-        
+
 
         var reserveQueue = new NativeQueue<RockReserveRequest>(Allocator.TempJob);
         //todo query for armLength and use for capacity parameter
@@ -90,7 +90,7 @@ public class ArmSystem : SystemBase
 
         var rockRequestJob = Entities
             .WithReadOnly(availableRockEntities)
-            .WithNone<ArmReservedRock,ArmGrabbedTag>()
+            .WithNone<ArmReservedRock, ArmGrabbedTag>()
             .WithName("RockRequestJob")
             .WithDeallocateOnJobCompletion(availableRockEntities)
             .ForEach((Entity entity, int entityInQueryIndex, in ArmAnchorPos anchorPos, in ArmGrabTimer grabT) =>
@@ -123,10 +123,8 @@ public class ArmSystem : SystemBase
                         });
                     }
                 }
-
             }).ScheduleParallel(rockReserveJobInputDeps);
 
-        
 
         var rockReserveJob = new RockReserveJob
         {
@@ -158,8 +156,37 @@ public class ArmSystem : SystemBase
             {
                 grabT -= dt / reachDuration;
                 grabT = math.clamp(grabT, 0f, 1f);
-            }).ScheduleParallel(JobHandle.CombineDependencies(rockRequestJob,idleJob));
-        
+            }).ScheduleParallel(JobHandle.CombineDependencies(rockRequestJob, idleJob));
+
+        var childrenGroups = GetBufferFromEntity<Child>(true);
+
+
+        var armRecordJob = Entities
+            .WithName("RockRecordJob")
+            .WithReadOnly(childrenGroups)
+            .WithoutBurst()
+            .WithAll<ArmGrabbedTag>()
+            .ForEach((
+                ref ArmLastRockRecord lastRockRecord,
+                in Wrist wrist) =>
+            {
+                
+                /*due to the ECB playing back the GrabJob's action of adding a Parent component to the wrist, but before
+                 the TransformSystem adds a child to the wrist.*/ 
+                if (!childrenGroups.Exists(wrist))
+                    return;
+
+                //assumptiopn: a grabbed tag indicates that the wrist has exactly one child
+                var rockChildren = childrenGroups[wrist];
+                var rock = rockChildren[0].Value;
+
+                float3 rockPos = GetComponent<LocalToWorld>(rock).Position;
+                float rockSize = GetComponent<RockRadiusComponentData>(rock);
+
+                lastRockRecord.pos = rockPos;
+                lastRockRecord.size = rockSize;
+            }).ScheduleParallel(targetBackJob);
+
         var targetJob = Entities
             .WithName("ArmTargetJob")
             .ForEach((ref ArmGrabTarget grabTarget,
@@ -186,11 +213,12 @@ public class ArmSystem : SystemBase
 
                 grabT += dt / reachDuration;
                 grabT = math.clamp(grabT, 0f, 1f);
-            }).ScheduleParallel(targetBackJob);
+            }).ScheduleParallel(armRecordJob);
 
         JobHandle grabInputDeps = JobHandle.CombineDependencies(rockRequestJob, targetJob);
 
         var grabEcb = beginSimEcbSystem.CreateCommandBuffer().ToConcurrent();
+
         var grabJob = Entities
             .WithName("ArmGrabJob")
             .ForEach((
@@ -204,9 +232,9 @@ public class ArmSystem : SystemBase
             {
                 float3 wristToRock = GetComponent<Translation>(reservedRock).Value -
                                      (GetComponent<Translation>(wrist).Value);
-                
+
                 float3 anchorToRock = GetComponent<Translation>(reservedRock).Value - anchorPos;
-                
+
                 if (grabT >= 1.0f)
                 {
                     if (!HasComponent<Parent>(reservedRock.value))
@@ -215,7 +243,7 @@ public class ArmSystem : SystemBase
                         {
                             Value = wrist
                         };
-                        
+
                         grabEcb.SetComponent(entityInQueryIndex, reservedRock, new Translation
                         {
                             Value = wristToRock
@@ -224,18 +252,18 @@ public class ArmSystem : SystemBase
                         grabEcb.AddComponent(entityInQueryIndex, reservedRock, wristParent);
                         grabEcb.AddComponent(entityInQueryIndex, reservedRock, new LocalToParent());
                         grabEcb.AddComponent(entityInQueryIndex, reservedRock, new RockGrabbedTag());
-                        
+
                         grabEcb.AddComponent<ArmGrabbedTag>(entityInQueryIndex, armEntity);
                         grabEcb.RemoveComponent<ArmReservedRock>(entityInQueryIndex, armEntity);
                     }
                 }
-                else if (math.lengthsq(anchorToRock) >  reachDistSq)
+                else if (math.lengthsq(anchorToRock) > reachDistSq)
                 {
-                    grabEcb.RemoveComponent<RockReservedTag>(entityInQueryIndex,reservedRock);
-                    grabEcb.RemoveComponent<ArmReservedRock>(entityInQueryIndex,armEntity);
+                    grabEcb.RemoveComponent<RockReservedTag>(entityInQueryIndex, reservedRock);
+                    grabEcb.RemoveComponent<ArmReservedRock>(entityInQueryIndex, armEntity);
                 }
-                
             }).ScheduleParallel(grabInputDeps);
+
         beginSimEcbSystem.AddJobHandleForProducer(grabJob);
 
         //JobHandle lerpInputJobs = JobHandle.CombineDependencies(idleJob, targetJob,grabJob);
@@ -251,13 +279,14 @@ public class ArmSystem : SystemBase
             }).ScheduleParallel(grabJob);
 
         var TranslationFromEntity = GetComponentDataFromEntity<Translation>(false);
+
         var armIkJob = Entities
             .WithName("armIKJob")
             .WithNativeDisableParallelForRestriction(TranslationFromEntity)
             .ForEach((
                 int entityInQueryIndex,
                 ref ArmBasesForward armForward,
-                ref ArmBasisRight armRight,
+                ref ArmBasesRight armRight,
                 ref ArmBasesUp armUp,
                 ref DynamicBuffer<ArmJointElementData> armJoints,
                 ref Wrist wrist,

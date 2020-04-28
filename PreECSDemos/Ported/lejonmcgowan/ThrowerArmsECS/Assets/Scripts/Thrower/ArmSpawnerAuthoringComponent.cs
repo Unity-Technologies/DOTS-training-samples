@@ -33,7 +33,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             {
                 typeof(ArmBasesUp),
                 typeof(ArmBasesForward),
-                typeof(ArmBasisRight),
+                typeof(ArmBasesRight),
                 typeof(ArmIdleTarget),
                 typeof(ArmIKTarget),
                 typeof(ArmJointElementData),

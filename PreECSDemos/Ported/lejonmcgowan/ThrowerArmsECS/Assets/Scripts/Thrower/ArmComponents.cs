@@ -92,16 +92,16 @@ public struct ArmBasesUp: IComponentData
     public static implicit operator float3(ArmBasesUp c) => c.value;
 }
 
-public struct ArmBasisRight: IComponentData
+public struct ArmBasesRight: IComponentData
 {
     public float3 value;
     
-    public static implicit operator ArmBasisRight(float3 up) => new ArmBasisRight
+    public static implicit operator ArmBasesRight(float3 up) => new ArmBasesRight
     {
         value = up
     };
     
-    public static implicit operator float3(ArmBasisRight c) => c.value;
+    public static implicit operator float3(ArmBasesRight c) => c.value;
 }
 
 public struct ArmBasesForward: IComponentData
