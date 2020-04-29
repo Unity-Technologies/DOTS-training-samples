@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Assertions;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -15,6 +16,11 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
     public int numArms = 10;
     public float armSpacing = 1f;
     private Entity prefab;
+    public float[] fingerLengths = {0.2f,0.22f,0.2f,0.16f};
+    public float thumbLength = 0.13f;
+
+    private float fingerThickness = 0.05f;
+    private float thumbThickness = 0.06f;
     
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
@@ -71,6 +77,10 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
                 value = wristEntity 
             });
             dstManager.AddComponentData(wristEntity,new Translation());
+            dstManager.AddComponentData(wristEntity,new Rotation
+            {
+                Value = quaternion.identity
+            });
             
             dstManager.AddComponent<LocalToWorld>(wristEntity);
 
@@ -80,7 +90,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             
             SetupArmEntities(dstManager, armEntity,anchorPos);
             
-            // Create the renderable finger joint entities (5 per Arm)
+            // Create the simulated finger joint entities (4 per Arm)
             for (int fingerIndex = 0; fingerIndex < 4; fingerIndex++)
             {
                 Entity fingerEntity = conversionSystem.CreateAdditionalEntity(gameObject);
@@ -89,20 +99,24 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
                 dstManager.SetComponentData<FingerParent>(fingerEntity, armEntity);
                 dstManager.SetComponentData(fingerEntity, new FingerThickness()
                 {
-                    value = 0.05f
+                    value = fingerThickness
+                });
+                dstManager.AddComponentData(fingerEntity, new FingerLength()
+                {
+                    value =  fingerLengths[fingerIndex]
                 });
                 
                 SetupFingerEntities(dstManager, fingerEntity, armEntity, fingerIndex);
             }
             
-            //create thumb render (just a finger with different bases vector
+            //create thumb render (just a finger with different bases vector)
             Entity thumbEntity = conversionSystem.CreateAdditionalEntity(gameObject);
             dstManager.AddComponents(thumbEntity,fingerComponents);
             dstManager.SetName(thumbEntity, "Simulated Thumb");
             dstManager.SetComponentData<FingerParent>(thumbEntity,armEntity);
             dstManager.SetComponentData(thumbEntity, new FingerThickness()
             {
-                value = 0.06f
+                value = thumbThickness,
             });
             SetupThumbEntity(dstManager,thumbEntity,armEntity);
         }
@@ -184,7 +198,8 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
         dstManager.AddComponentData<FingerIndex>(fingerEntity,fingerIndex);
         
         dstManager.AddComponent<FingerGrabTimer>(fingerEntity);
-
+        
+        Assert.AreEqual(fingerLengths.Length,4);
         
         // Create the renderable finger joint entities (4 per Arm by default, not counting thumb)
         for (int fingerJoint = 0; fingerJoint < numFingerJoints - 1; fingerJoint++)
@@ -208,7 +223,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             
             dstManager.AddComponentData(fingerJointEntity, new FingerThickness()
             {
-                value = 0.05f
+                value = fingerThickness,
             });
         }
         
@@ -254,7 +269,12 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             
             dstManager.AddComponentData(thumbJointEntity, new FingerThickness()
             {
-                value = 0.06f
+                value = thumbThickness
+            });
+            
+            dstManager.AddComponentData(thumbJointEntity, new FingerLength()
+            {
+                value = thumbLength
             });
         }
         

@@ -64,11 +64,11 @@ public class ArmSystem : SystemBase
     protected override void OnUpdate()
     {
         float t = (float) Time.ElapsedTime;
-        float dt = (float) Time.DeltaTime;
+        float dt = Time.DeltaTime;
 
         //1.8^2
         float reachDistSq = 3.24f;
-        float reachDuration = 1.5f;
+        float reachDuration = 1f;
 
 
         var reserveQueue = new NativeQueue<RockReserveRequest>(Allocator.TempJob);
@@ -80,7 +80,6 @@ public class ArmSystem : SystemBase
         //availableRocksQuery.AddDependency(Dependency); // TODO: ask Aria is this would remove the need to combine the job handles below
         var availableRockEntities =
             availableRocksQuery.ToEntityArrayAsync(Allocator.TempJob, out var getAvailableRocksJob);
-        var ecb = beginSimEcbSystem.CreateCommandBuffer().ToConcurrent();
         var reserveECB = beginSimEcbSystem.CreateCommandBuffer();
 
         var rockReserveJobInputDeps = JobHandle.CombineDependencies(Dependency, getAvailableRocksJob);
@@ -225,6 +224,7 @@ public class ArmSystem : SystemBase
                 int entityInQueryIndex,
                 Entity armEntity,
                 ref ArmReservedRock reservedRock,
+                in ArmLastRockRecord lastRockRecord,
                 in ArmGrabTimer grabT,
                 in ArmAnchorPos anchorPos,
                 in Wrist wrist
@@ -246,7 +246,7 @@ public class ArmSystem : SystemBase
 
                         grabEcb.SetComponent(entityInQueryIndex, reservedRock, new Translation
                         {
-                            Value = wristToRock
+                            Value = new float3(0,-0.05f,lastRockRecord.size * 0.55F)
                         });
 
                         grabEcb.AddComponent(entityInQueryIndex, reservedRock, wristParent);
@@ -279,10 +279,12 @@ public class ArmSystem : SystemBase
             }).ScheduleParallel(grabJob);
 
         var TranslationFromEntity = GetComponentDataFromEntity<Translation>(false);
-
+        var RotationFromEntity = GetComponentDataFromEntity<Rotation>(false);
+        
         var armIkJob = Entities
             .WithName("armIKJob")
             .WithNativeDisableParallelForRestriction(TranslationFromEntity)
+            .WithNativeDisableParallelForRestriction(RotationFromEntity)
             .ForEach((
                 int entityInQueryIndex,
                 ref ArmBasesForward armForward,
@@ -302,13 +304,18 @@ public class ArmSystem : SystemBase
                 {
                     Value = armJoints[armJoints.Length - 1].value
                 };
-
-
+                
                 float3 transformRight = new float3(1, 0, 0);
                 armForward.value =
                     math.normalize(armJoints[armJoints.Length - 1].value - armJoints[armJoints.Length - 2].value);
                 armUp.value = math.normalize(math.cross(armForward.value, transformRight));
                 armRight.value = math.cross(armUp.value, armForward.value);
+                
+                RotationFromEntity[wrist] = new Rotation
+                {
+                    Value = quaternion.LookRotation(armForward, armUp)
+                };
+                
             }).ScheduleParallel(ikTargetJob);
 
         // Last job becomes the new output dependency

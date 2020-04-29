@@ -15,6 +15,7 @@ public class RockSpawnerAuthoringComponent: MonoBehaviour, IConvertGameObjectToE
     public Entity prefab;
     public float2 xKillPlanes;
     public float2 xSpawnRanges;
+    public float2 radiusRanges;
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -32,7 +33,8 @@ public class RockSpawnerAuthoringComponent: MonoBehaviour, IConvertGameObjectToE
             spawnTimeRemaining = spawnFrequency,
             spawnTime = spawnFrequency,
             spawnVelocity = spawnVelocity,
-            prefab = prefab
+            prefab = prefab,
+            radiusRanges = radiusRanges
         });
         dstManager.AddComponentData(spawner, new RockDestroyBounds()
         {
@@ -47,6 +49,8 @@ public class RockSpawnerAuthoringComponent: MonoBehaviour, IConvertGameObjectToE
         {
             
             Entity rock = dstManager.Instantiate(prefab);
+            float randRadius = convertRNG.NextFloat(radiusRanges.x, radiusRanges.y);
+
             dstManager.SetName(rock, "Init Rock " + i);
             dstManager.AddComponent<RockTag>(rock);
             dstManager.AddComponentData(rock, new RockVelocityComponentData
@@ -59,13 +63,17 @@ public class RockSpawnerAuthoringComponent: MonoBehaviour, IConvertGameObjectToE
             });
             dstManager.AddComponentData(rock, new RockRadiusComponentData
             {
-                value = 0.5f
+                value = randRadius,
             });
             dstManager.SetComponentData(rock,new Translation
             {
                 //initial spawn is based across the conveyour; NOT to be confused with the spawnRange for runtime 
                 //created rocks
                 Value = new float3(0.8f * convertRNG.NextFloat(xKillPlanes.x,xKillPlanes.y),0f,1.5f)
+            });
+            dstManager.SetComponentData(rock, new NonUniformScale
+            {
+                Value = new float3(randRadius,randRadius,randRadius)
             });
         }
     }

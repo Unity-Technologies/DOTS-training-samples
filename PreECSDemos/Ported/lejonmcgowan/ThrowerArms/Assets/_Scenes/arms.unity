@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   armPrefab: {fileID: 1092234786245138, guid: 2ed48e1a6bdf2e54594a60c25672b050, type: 3}
-  count: 1
+  count: 30
   spacing: 1
 --- !u!4 &374946654
 Transform:
@@ -391,10 +391,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c93097aaa7b9bc2448758e667469e405, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rockCount: 10
+  rockCount: 100
   conveyorMargin: 10
-  minRockSize: 0.4
-  maxRockSize: 0.6
+  minRockSize: 0.2
+  maxRockSize: 0.45
   conveyorSpeed: 1
   gravityStrength: 25
   rockMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}

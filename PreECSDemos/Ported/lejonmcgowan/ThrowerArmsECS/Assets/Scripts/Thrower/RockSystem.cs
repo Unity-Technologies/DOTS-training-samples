@@ -16,7 +16,6 @@ public class RockSystem: SystemBase
     {
         float t = (float)Time.ElapsedTime;
         float dt = Time.DeltaTime;
-        float3 centerPos = new float3(0,0,1.5f);
 
         var spawnECB = m_spawnerECB.CreateCommandBuffer().ToConcurrent();
         
@@ -38,6 +37,7 @@ public class RockSystem: SystemBase
                 if (spawner.spawnTimeRemaining < 0f)
                 {
                     float3 spawnPos = new float3(spawner.rng.NextFloat(spawnBounds.Value.x,spawnBounds.Value.y),0,1.5f);
+                    float randRadius = spawner.rng.NextFloat(spawner.radiusRanges.x, spawner.radiusRanges.y);
                     
                     var rockEntity = spawnECB.Instantiate(entityInQueryIndex,spawner.prefab);
                     spawnECB.AddComponent<RockTag>(entityInQueryIndex,rockEntity);
@@ -51,11 +51,15 @@ public class RockSystem: SystemBase
                     });
                     spawnECB.AddComponent(entityInQueryIndex,rockEntity, new RockRadiusComponentData
                     {
-                        value = 0.5f,
+                        value = randRadius,
                     });
                     spawnECB.SetComponent(entityInQueryIndex,rockEntity,new Translation
                     {
                         Value = spawnPos
+                    });
+                    spawnECB.SetComponent(entityInQueryIndex,rockEntity,new NonUniformScale()
+                    {
+                        Value = randRadius
                     });
 
                     spawner.spawnTimeRemaining = spawner.spawnTime;

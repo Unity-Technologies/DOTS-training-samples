@@ -427,11 +427,14 @@ MonoBehaviour:
   meshPrefab: {fileID: 6289717809889550831, guid: 5c2fb0ad46c029c4191cd0cec71f46af,
     type: 3}
   xKillPlanes:
-    x: -5
+    x: -20
     y: 70
   xSpawnRanges:
-    x: 0
-    y: 0
+    x: -15
+    y: 20
+  radiusRanges:
+    x: 0.2
+    y: 0.45
 --- !u!114 &857301291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -453,7 +456,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 857301289}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 2}
+  m_LocalPosition: {x: -2, y: 0, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -611,8 +614,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshPrefab: {fileID: 9094583421412165422, guid: 5ba73369b2787e647a72c62e598faa74,
     type: 3}
-  numArms: 10
+  numArms: 20
   armSpacing: 1
+  fingerLengths:
+  - 0.2
+  - 0.22
+  - 0.2
+  - 0.16
+  thumbLength: 0.13
 --- !u!4 &1867224298
 Transform:
   m_ObjectHideFlags: 0

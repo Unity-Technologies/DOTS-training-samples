@@ -47,7 +47,7 @@ MonoBehaviour:
   armBoneThickness: 0.15
   armBendStrength: 0.1
   maxReachLength: 1.8
-  reachDuration: 4
+  reachDuration: 1
   maxHandSpeed: 1
   grabTimerSmooth: 0
   fingerBoneLengths:

@@ -57,7 +57,8 @@ public class FingerSystem : SystemBase
                 in FingerParent fingerParent,
                 in FingerIndex fingerIndex,
                 in FingerGrabTimer fingerGrabT,
-                in FingerThickness fingerThickness) =>
+                in FingerThickness fingerThickness,
+                in FingerLength fingerLength) =>
             {
                 Entity armParentEntity = fingerParent.armParentEntity;
                 var armJointData = ArmJointsFromEntity[armParentEntity];
@@ -80,7 +81,7 @@ public class FingerSystem : SystemBase
                 
                 float3 rockFingerDelta = fingerTarget - rockData.pos;
                 float3 rockFingerPos = rockData.pos +
-                                       math.normalize(rockFingerDelta)  * (rockData.size * .5f + fingerThickness);
+                                       math.normalize(rockFingerDelta)  * (rockData.size * 0.5f + fingerThickness);
 
 
                 fingerTarget = math.lerp(fingerTarget, rockFingerPos, fingerGrabT);
@@ -89,8 +90,8 @@ public class FingerSystem : SystemBase
                 
                 
                 //todo add in variable bonelength for each finger in a component
-                FABRIK.Solve(fingerJoints.AsNativeArray().Reinterpret<float3>(), 0.2f, fingerPos, fingerTarget,
-                    0.1f * armUp);
+                FABRIK.Solve(fingerJoints.AsNativeArray().Reinterpret<float3>(), fingerLength, fingerPos, fingerTarget,
+                    0.2f * armUp);
                 
             }).ScheduleParallel(grabCopyJob);
         

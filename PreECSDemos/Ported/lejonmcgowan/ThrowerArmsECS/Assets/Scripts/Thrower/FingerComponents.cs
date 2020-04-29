@@ -20,6 +20,18 @@ public struct FingerThickness : IComponentData
     public static implicit operator float(FingerThickness c) => c.value;
 }
 
+public struct FingerLength : IComponentData
+{
+    public float value;
+    
+    public static implicit operator FingerLength(float len) =>  new FingerLength
+    {
+        value = len
+    };
+
+    public static implicit operator float(FingerLength c) => c.value;
+}
+
 public struct FingerGrabbedTag : IComponentData
 {
     
