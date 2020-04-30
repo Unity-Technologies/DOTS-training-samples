@@ -14,13 +14,12 @@ public class RockSystem: SystemBase
 
     protected override void OnUpdate()
     {
-        float t = (float)Time.ElapsedTime;
         float dt = Time.DeltaTime;
 
         var spawnECB = m_spawnerECB.CreateCommandBuffer().ToConcurrent();
+        var destroyEBC = m_spawnerECB.CreateCommandBuffer().ToConcurrent();
         
         Entities
-            .WithAll<RockTag>()
             .WithNone<RockGrabbedTag>()
             .WithName("RockMove")
             .ForEach((ref Translation pos, in RockVelocityComponentData rockVel) =>
@@ -40,7 +39,6 @@ public class RockSystem: SystemBase
                     float randRadius = spawner.rng.NextFloat(spawner.radiusRanges.x, spawner.radiusRanges.y);
                     
                     var rockEntity = spawnECB.Instantiate(entityInQueryIndex,spawner.prefab);
-                    spawnECB.AddComponent<RockTag>(entityInQueryIndex,rockEntity);
                     spawnECB.AddComponent(entityInQueryIndex,rockEntity, new RockVelocityComponentData
                     {
                         value = spawner.spawnVelocity
@@ -67,15 +65,16 @@ public class RockSystem: SystemBase
             }).ScheduleParallel();
         
         Entities
-            .WithAll<RockTag>()
-            .WithStructuralChanges()
             .WithName("RockBoundsJob")
-            .ForEach((Entity entity, ref Translation pos, in RockDestroyBounds bounds) =>
+            .ForEach((Entity entity,
+                int entityInQueryIndex,
+                ref Translation pos, in RockDestroyBounds bounds) =>
             {
                 if(pos.Value.x < bounds.Value.x ||
                    pos.Value.x > bounds.Value.y)
-                    EntityManager.DestroyEntity(entity);
+                    destroyEBC.DestroyEntity(entityInQueryIndex,entity);
                 
-            }).Run();
+            }).ScheduleParallel();
+
     }
 }

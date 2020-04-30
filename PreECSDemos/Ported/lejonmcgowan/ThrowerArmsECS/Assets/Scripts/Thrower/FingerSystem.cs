@@ -1,6 +1,7 @@
 ﻿﻿using System;
 using Unity.Entities;
-using Unity.Mathematics;
+ using Unity.Jobs;
+ using Unity.Mathematics;
  using UnityEditor.SceneManagement;
 
  [UpdateAfter(typeof(ArmSystem))]
@@ -27,7 +28,8 @@ public class FingerSystem : SystemBase
 
         var ecb = beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
         
-        var grabCopyJob = Entities
+        var fingerGrabTCopyJob = Entities
+            .WithName("FingerGrabTCopyJob")
             .WithNone<FingerGrabbedTag>()
             .WithReadOnly(ArmGrabTs)
             .ForEach((Entity entity,
@@ -46,7 +48,11 @@ public class FingerSystem : SystemBase
             
         }).ScheduleParallel(Dependency);
         
-        var IKJob = Entities
+        
+        
+        //todo see if possible to disable native safety checks on DynamicBuffer parameter of foreach Job
+        var fingerIKJob = Entities
+            .WithName("FingerIKJob")
             .WithReadOnly(ArmJointsFromEntity)
             .WithReadOnly(UpBases)
             .WithReadOnly(ForwardBases)
@@ -93,9 +99,10 @@ public class FingerSystem : SystemBase
                 FABRIK.Solve(fingerJoints.AsNativeArray().Reinterpret<float3>(), fingerLength, fingerPos, fingerTarget,
                     0.2f * armUp);
                 
-            }).ScheduleParallel(grabCopyJob);
+            }).ScheduleParallel(fingerGrabTCopyJob);
         
         var thumbIKJob = Entities
+            .WithName("ThumbIKJob")
             .WithNone<FingerIndex>()
             .WithReadOnly(ArmJointsFromEntity)
             .WithReadOnly(UpBases)
@@ -136,9 +143,8 @@ public class FingerSystem : SystemBase
                
                 FABRIK.Solve(thumbJoints.AsNativeArray().Reinterpret<float3>(), 0.13f, thumbPos, thumbTarget,
                     0.1f * thumbBendHint);
-            }).ScheduleParallel(IKJob);
-
-       
-        Dependency = thumbIKJob;
+            }).ScheduleParallel(fingerIKJob);
+        
+        Dependency = JobHandle.CombineDependencies(fingerIKJob,thumbIKJob);
     }
 }

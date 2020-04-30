@@ -141,16 +141,16 @@ public struct ArmAnchorPos: IComponentData
     public static implicit operator float3(ArmAnchorPos c) => c.value;
 }
 
-public struct IdleArmSeed: IComponentData
+public struct ArmIdleSeed: IComponentData
 {
     public int value;
     
-    public static implicit operator IdleArmSeed(int up) => new IdleArmSeed
+    public static implicit operator ArmIdleSeed(int up) => new ArmIdleSeed
     {
         value = up
     };
     
-    public static implicit operator int(IdleArmSeed c) => c.value;
+    public static implicit operator int(ArmIdleSeed c) => c.value;
 }
 
 public struct Wrist : IComponentData

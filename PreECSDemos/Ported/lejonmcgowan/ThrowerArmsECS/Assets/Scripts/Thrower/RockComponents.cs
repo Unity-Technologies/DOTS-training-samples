@@ -1,7 +1,5 @@
-﻿﻿using System;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
- using Unity.Transforms;
 
  public struct RockVelocityComponentData: IComponentData
 {
@@ -19,11 +17,6 @@ public struct RockGrabbedTag : IComponentData
 {
     
 }
- 
- public struct RockTag : IComponentData
- {
-    
- }
 
  public struct RockDestroyBounds : IComponentData
  {

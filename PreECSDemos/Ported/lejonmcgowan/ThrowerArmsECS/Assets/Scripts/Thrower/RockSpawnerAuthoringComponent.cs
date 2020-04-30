@@ -52,7 +52,6 @@ public class RockSpawnerAuthoringComponent: MonoBehaviour, IConvertGameObjectToE
             float randRadius = convertRNG.NextFloat(radiusRanges.x, radiusRanges.y);
 
             dstManager.SetName(rock, "Init Rock " + i);
-            dstManager.AddComponent<RockTag>(rock);
             dstManager.AddComponentData(rock, new RockVelocityComponentData
             {
                 value = spawnVelocity

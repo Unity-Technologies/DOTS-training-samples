@@ -1,46 +1,42 @@
-﻿using System;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 [UpdateBefore(typeof(ArmRenderUpdateSystem))]
 public class ArmSystem : SystemBase
 {
-    private EntityQuery availableRocksQuery;
-    private BeginSimulationEntityCommandBufferSystem beginSimEcbSystem;
+    private EntityQuery m_availableRocksQuery;
+    private BeginSimulationEntityCommandBufferSystem m_beginSimEcbSystem;
 
     private struct RockReserveJob : IJob
     {
-        public NativeQueue<RockReserveRequest> RequestQueue;
-        public NativeHashMap<Entity, RockReserveRequest> RequestMap;
-        public EntityCommandBuffer ECB;
+        public NativeQueue<RockReserveRequest> requestQueue;
+        public NativeHashMap<Entity, RockReserveRequest> requestMap;
+        public EntityCommandBuffer ecb;
 
-        public void Execute( /*int index*/)
+        public void Execute()
         {
-            while (RequestQueue.TryDequeue(out var request))
+            while (requestQueue.TryDequeue(out var request))
             {
-                if (!RequestMap.TryAdd(request.rockRef, request))
+                if (!requestMap.TryAdd(request.rockRef, request))
                 {
                     //tie-breaker
-                    var currentRequest = RequestMap[request.rockRef];
-                    RequestMap[request.armRef] = request.armPos.x < currentRequest.armPos.x ? request : currentRequest;
+                    var currentRequest = requestMap[request.rockRef];
+                    requestMap[request.armRef] = request.armPos.x < currentRequest.armPos.x ? request : currentRequest;
                 }
             }
 
-            //todo "jobs can only create temp memory". Despite there being a "TempJob" memory. Why?
-            var requestValues = RequestMap.GetValueArray(Allocator.Temp);
+            var requestValues = requestMap.GetValueArray(Allocator.Temp);
 
             for (int i = 0; i < requestValues.Length; i++)
             {
                 var request = requestValues[i];
-                ECB.AddComponent<RockReservedTag>(request.rockRef);
+                ecb.AddComponent<RockReservedTag>(request.rockRef);
 
-                ECB.AddComponent(request.armRef, new ArmReservedRock
+                ecb.AddComponent(request.armRef, new ArmReservedRock
                 {
                     value = request.rockRef
                 });
@@ -52,13 +48,13 @@ public class ArmSystem : SystemBase
 
     protected override void OnCreate()
     {
-        availableRocksQuery = GetEntityQuery(new EntityQueryDesc()
+        m_availableRocksQuery = GetEntityQuery(new EntityQueryDesc()
         {
-            All = new[] {ComponentType.ReadOnly<RockRadiusComponentData>(), ComponentType.ReadOnly<RockTag>()},
+            All = new[] {ComponentType.ReadOnly<RockRadiusComponentData>()},
             None = new[] {ComponentType.ReadWrite<RockReservedTag>(), ComponentType.ReadOnly<RockGrabbedTag>()}
         });
 
-        beginSimEcbSystem = World.GetExistingSystem<BeginSimulationEntityCommandBufferSystem>();
+        m_beginSimEcbSystem = World.GetExistingSystem<BeginSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -79,18 +75,14 @@ public class ArmSystem : SystemBase
 
         //availableRocksQuery.AddDependency(Dependency); // TODO: ask Aria is this would remove the need to combine the job handles below
         var availableRockEntities =
-            availableRocksQuery.ToEntityArrayAsync(Allocator.TempJob, out var getAvailableRocksJob);
-        var reserveECB = beginSimEcbSystem.CreateCommandBuffer();
-
-        var rockReserveJobInputDeps = JobHandle.CombineDependencies(Dependency, getAvailableRocksJob);
-
-        rockReserveJobInputDeps.Complete();
-
-
-        var rockRequestJob = Entities
+            m_availableRocksQuery.ToEntityArrayAsync(Allocator.TempJob, out var getAvailableRocksJob);
+        
+        var armQueueReservesInputDeps = JobHandle.CombineDependencies(Dependency, getAvailableRocksJob);
+        
+        var armQueueReservesJob = Entities
             .WithReadOnly(availableRockEntities)
             .WithNone<ArmReservedRock, ArmGrabbedTag>()
-            .WithName("RockRequestJob")
+            .WithName("ArmRockReserveJob")
             .WithDeallocateOnJobCompletion(availableRockEntities)
             .ForEach((Entity entity, int entityInQueryIndex, in ArmAnchorPos anchorPos, in ArmGrabTimer grabT) =>
             {
@@ -122,23 +114,25 @@ public class ArmSystem : SystemBase
                         });
                     }
                 }
-            }).ScheduleParallel(rockReserveJobInputDeps);
+            }).ScheduleParallel(armQueueReservesInputDeps);
 
-
+        
+        var rockReserveECB = m_beginSimEcbSystem.CreateCommandBuffer();
+        
         var rockReserveJob = new RockReserveJob
         {
-            RequestQueue = reserveQueue,
-            RequestMap = RequestMap,
-            ECB = reserveECB
-        }.Schedule(rockRequestJob);
+            requestQueue = reserveQueue,
+            requestMap = RequestMap,
+            ecb = rockReserveECB
+        }.Schedule(armQueueReservesJob);
 
         reserveQueue.Dispose(rockReserveJob);
         RequestMap.Dispose(rockReserveJob);
 
-        beginSimEcbSystem.AddJobHandleForProducer(rockReserveJob);
+        m_beginSimEcbSystem.AddJobHandleForProducer(rockReserveJob);
 
-        var idleJob = Entities
-            .WithName("ArmIdleJob")
+        var armidleTargetJob = Entities
+            .WithName("ArmIdleTasrgetJob")
             .ForEach((ref ArmIdleTarget armIdleTarget,
                 in ArmAnchorPos anchorPos) =>
             {
@@ -148,20 +142,20 @@ public class ArmSystem : SystemBase
                                 new float3(math.sin(time) * .35f, 1f + math.cos(time * 1.618f) * .5f, 1.5f);
             }).ScheduleParallel(Dependency);
 
-        var targetBackJob = Entities
+        var armLerpBackJob = Entities
             .WithName("ArmLerpBackJob")
             .WithNone<ArmReservedRock>()
             .ForEach((ref ArmGrabTimer grabT) =>
             {
                 grabT -= dt / reachDuration;
                 grabT = math.clamp(grabT, 0f, 1f);
-            }).ScheduleParallel(JobHandle.CombineDependencies(rockRequestJob, idleJob));
+            }).ScheduleParallel(JobHandle.CombineDependencies(armQueueReservesJob, armidleTargetJob));
 
         var childrenGroups = GetBufferFromEntity<Child>(true);
 
 
-        var armRecordJob = Entities
-            .WithName("RockRecordJob")
+        var armRockRecordUpdateJob = Entities
+            .WithName("ArmRockRecordUpdateJob")
             .WithReadOnly(childrenGroups)
             .WithoutBurst()
             .WithAll<ArmGrabbedTag>()
@@ -184,9 +178,9 @@ public class ArmSystem : SystemBase
 
                 lastRockRecord.pos = rockPos;
                 lastRockRecord.size = rockSize;
-            }).ScheduleParallel(targetBackJob);
+            }).ScheduleParallel(armLerpBackJob);
 
-        var targetJob = Entities
+        var armTargetJob = Entities
             .WithName("ArmTargetJob")
             .ForEach((ref ArmGrabTarget grabTarget,
                 ref ArmGrabTimer grabT,
@@ -212,13 +206,13 @@ public class ArmSystem : SystemBase
 
                 grabT += dt / reachDuration;
                 grabT = math.clamp(grabT, 0f, 1f);
-            }).ScheduleParallel(armRecordJob);
+            }).ScheduleParallel(armRockRecordUpdateJob);
 
-        JobHandle grabInputDeps = JobHandle.CombineDependencies(rockRequestJob, targetJob);
+        JobHandle grabInputDeps = JobHandle.CombineDependencies(armQueueReservesJob, armTargetJob);
 
-        var grabEcb = beginSimEcbSystem.CreateCommandBuffer().ToConcurrent();
+        var grabEcb = m_beginSimEcbSystem.CreateCommandBuffer().ToConcurrent();
 
-        var grabJob = Entities
+        var armGrabJob = Entities
             .WithName("ArmGrabJob")
             .ForEach((
                 int entityInQueryIndex,
@@ -230,9 +224,6 @@ public class ArmSystem : SystemBase
                 in Wrist wrist
             ) =>
             {
-                float3 wristToRock = GetComponent<Translation>(reservedRock).Value -
-                                     (GetComponent<Translation>(wrist).Value);
-
                 float3 anchorToRock = GetComponent<Translation>(reservedRock).Value - anchorPos;
 
                 if (grabT >= 1.0f)
@@ -264,11 +255,11 @@ public class ArmSystem : SystemBase
                 }
             }).ScheduleParallel(grabInputDeps);
 
-        beginSimEcbSystem.AddJobHandleForProducer(grabJob);
+        m_beginSimEcbSystem.AddJobHandleForProducer(armGrabJob);
 
         //JobHandle lerpInputJobs = JobHandle.CombineDependencies(idleJob, targetJob,grabJob);
 
-        var ikTargetJob = Entities
+        var armIKLerpJob = Entities
             .WithName("ArmIKLerpJob")
             .ForEach((ref ArmIKTarget armIKTarget,
                 in ArmIdleTarget armIdleTarget,
@@ -276,10 +267,10 @@ public class ArmSystem : SystemBase
                 in ArmGrabTimer grabT) =>
             {
                 armIKTarget.value = math.lerp(armIdleTarget, armGrabTarget, grabT);
-            }).ScheduleParallel(grabJob);
+            }).ScheduleParallel(armGrabJob);
 
-        var TranslationFromEntity = GetComponentDataFromEntity<Translation>(false);
-        var RotationFromEntity = GetComponentDataFromEntity<Rotation>(false);
+        var TranslationFromEntity = GetComponentDataFromEntity<Translation>();
+        var RotationFromEntity = GetComponentDataFromEntity<Rotation>();
         
         var armIkJob = Entities
             .WithName("armIKJob")
@@ -316,9 +307,9 @@ public class ArmSystem : SystemBase
                     Value = quaternion.LookRotation(armForward, armUp)
                 };
                 
-            }).ScheduleParallel(ikTargetJob);
+            }).ScheduleParallel(armIKLerpJob);
 
         // Last job becomes the new output dependency
-        Dependency = JobHandle.CombineDependencies(rockRequestJob, armIkJob);
+        Dependency = JobHandle.CombineDependencies(armQueueReservesJob, armIkJob);
     }
 }

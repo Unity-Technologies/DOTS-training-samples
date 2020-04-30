@@ -1,10 +1,7 @@
-using System;
 using System.Collections.Generic;
 using Unity.Assertions;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -32,8 +29,6 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
         // Create entity prefab from the game object hierarchy once
         var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
         prefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(meshPrefab, settings);
-
-        
         
         ComponentTypes armComponents = new ComponentTypes(new ComponentType[]
             {
@@ -46,7 +41,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
                 typeof(ArmAnchorPos),
                 typeof(ArmGrabTarget),
                 typeof(ArmGrabTimer),
-                typeof(IdleArmSeed),
+                typeof(ArmIdleSeed),
                 typeof(ArmLastRockRecord),
                 typeof(Wrist)
         }
@@ -65,13 +60,11 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             // Create the Arm entity
             Entity armEntity = conversionSystem.CreateAdditionalEntity(gameObject);
             dstManager.AddComponents(armEntity, armComponents);
-#if UNITY_EDITOR            
-            dstManager.SetName(armEntity, "Simulated Arm");
-#endif
+
 
 
             var wristEntity = conversionSystem.CreateAdditionalEntity(gameObject);
-            dstManager.SetName(wristEntity,"Simulated Wrist");
+            
             dstManager.SetComponentData(armEntity,new Wrist()
             {
                 value = wristEntity 
@@ -90,12 +83,16 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             
             SetupArmEntities(dstManager, armEntity,anchorPos);
             
+
             // Create the simulated finger joint entities (4 per Arm)
             for (int fingerIndex = 0; fingerIndex < 4; fingerIndex++)
             {
                 Entity fingerEntity = conversionSystem.CreateAdditionalEntity(gameObject);
-                dstManager.AddComponents(fingerEntity, fingerComponents);
+#if UNITY_EDITOR            
                 dstManager.SetName(fingerEntity, "Simulated Finger");
+#endif
+                
+                dstManager.AddComponents(fingerEntity, fingerComponents);
                 dstManager.SetComponentData<FingerParent>(fingerEntity, armEntity);
                 dstManager.SetComponentData(fingerEntity, new FingerThickness()
                 {
@@ -112,13 +109,18 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             //create thumb render (just a finger with different bases vector)
             Entity thumbEntity = conversionSystem.CreateAdditionalEntity(gameObject);
             dstManager.AddComponents(thumbEntity,fingerComponents);
-            dstManager.SetName(thumbEntity, "Simulated Thumb");
             dstManager.SetComponentData<FingerParent>(thumbEntity,armEntity);
             dstManager.SetComponentData(thumbEntity, new FingerThickness()
             {
                 value = thumbThickness,
             });
             SetupThumbEntity(dstManager,thumbEntity,armEntity);
+            
+#if UNITY_EDITOR            
+            dstManager.SetName(armEntity, "Simulated Arm");
+            dstManager.SetName(wristEntity,"Simulated Wrist");
+            dstManager.SetName(thumbEntity, "Simulated Thumb");
+#endif
         }
         
         
@@ -145,7 +147,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
 
         dstManager.SetComponentData<ArmIdleTarget>(armEntity, target);
         dstManager.SetComponentData<ArmIKTarget>(armEntity, target);
-        dstManager.SetComponentData<IdleArmSeed>(armEntity, 0);
+        dstManager.SetComponentData<ArmIdleSeed>(armEntity, 0);
         
         // Create the renderable Arm joint entities (2 per Arm)
         for (int armJoint = 0; armJoint < numArmJoints - 1; armJoint++)
@@ -166,9 +168,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
              */
             
             var armJointEntity = dstManager.Instantiate(prefab);
-
-            dstManager.SetName(armJointEntity, "Renderable Arm Joint");
-             
+            
             dstManager.AddComponent<LocalToWorld>(armJointEntity);
             dstManager.AddComponent<ArmRenderComponentData>(armJointEntity);
             dstManager.AddComponent<Translation>(armJointEntity);
@@ -180,8 +180,13 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
                 jointIndex = armJoint,
                 armEntity = armEntity
             });
+            
+#if UNITY_EDITOR            
+            dstManager.SetName(armJointEntity, "Renderable Arm Joint");
+#endif
         }
     }
+    
     private void SetupFingerEntities(EntityManager dstManager,
         Entity fingerEntity, Entity armParentEntity, int fingerIndex)
     {
@@ -207,8 +212,6 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             //todo same note as in SetupArmEntities
             
             var fingerJointEntity = dstManager.Instantiate(prefab);
-
-            dstManager.SetName(fingerJointEntity, "Renderable Finger Joint");
             
             dstManager.AddComponent<LocalToWorld>(fingerJointEntity);
             dstManager.AddComponent<Translation>(fingerJointEntity);
@@ -225,6 +228,10 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             {
                 value = fingerThickness,
             });
+            
+#if UNITY_EDITOR            
+            dstManager.SetName(fingerJointEntity, "Renderable Finger Joint");
+#endif
         }
         
     }
@@ -253,8 +260,6 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             //todo same note as in SetupArmEntities
             
             var thumbJointEntity = dstManager.Instantiate(prefab);
-
-            dstManager.SetName(thumbJointEntity, "Renderable Thumb Joint");
             
             dstManager.AddComponent<LocalToWorld>(thumbJointEntity);
             dstManager.AddComponent<Translation>(thumbJointEntity);
@@ -276,6 +281,11 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             {
                 value = thumbLength
             });
+            
+#if UNITY_EDITOR            
+            dstManager.SetName(thumbJointEntity, "Renderable Thumb Joint");
+#endif
+            
         }
         
     }
