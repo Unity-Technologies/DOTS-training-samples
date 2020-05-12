@@ -3,7 +3,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateBefore(typeof(ArmSystem))]
+[UpdateBefore(typeof(ArmIKSystem))]
 public class RockSystem: SystemBase
 {
     private BeginSimulationEntityCommandBufferSystem m_spawnerECB;
@@ -24,7 +24,7 @@ public class RockSystem: SystemBase
             .WithName("RockMove")
             .ForEach((ref Translation pos, in RockVelocityComponentData rockVel) =>
             {
-                pos.Value += rockVel.value * dt; 
+                pos.Value += rockVel.Value * dt; 
                 
             }).ScheduleParallel();
 
@@ -41,7 +41,7 @@ public class RockSystem: SystemBase
                     var rockEntity = spawnECB.Instantiate(entityInQueryIndex,spawner.prefab);
                     spawnECB.AddComponent(entityInQueryIndex,rockEntity, new RockVelocityComponentData
                     {
-                        value = spawner.spawnVelocity
+                        Value = spawner.spawnVelocity
                     });
                     spawnECB.AddComponent(entityInQueryIndex,rockEntity, new RockDestroyBounds()
                     {

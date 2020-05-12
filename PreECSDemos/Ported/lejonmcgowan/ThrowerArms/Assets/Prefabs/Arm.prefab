@@ -67,7 +67,7 @@ MonoBehaviour:
   thumbThickness: 0.06
   thumbBendStrength: 0.1
   thumbXOffset: -0.05
-  windupDuration: 0.7
+  windupDuration: 5
   throwDuration: 1.2
   throwCurve:
     serializedVersion: 2

@@ -1,11 +1,8 @@
 ﻿using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 
-// TODO: confirm this is updating early enough. If not, move to late in the SimulationSystemGroup.
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 [UpdateBefore(typeof(TransformSystemGroup))]
 public class ArmRenderUpdateSystem: SystemBase

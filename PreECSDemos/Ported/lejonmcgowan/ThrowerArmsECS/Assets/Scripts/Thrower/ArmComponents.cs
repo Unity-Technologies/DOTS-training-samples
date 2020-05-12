@@ -15,6 +15,7 @@ public struct ArmLastRockRecord: IComponentData
     public float3 pos;
 }
 
+
 public struct ArmIdleTarget: IComponentData
 {
     public float3 value;
@@ -39,6 +40,18 @@ public struct ArmReservedRock : IComponentData
     public static implicit operator Entity(ArmReservedRock c) => c.value;
 }
 
+public struct ArmReservedCan : IComponentData
+{
+    public Entity value;
+    
+    public static implicit operator ArmReservedCan(Entity e) => new ArmReservedCan
+    {
+        value = e
+    };
+    
+    public static implicit operator Entity(ArmReservedCan e) => e.value;
+}
+
 public struct ArmGrabbedTag : IComponentData
 {
 }
@@ -53,6 +66,13 @@ public struct ArmGrabTimer : IComponentData
     };
 
     public static implicit operator float(ArmGrabTimer c) => c.value;
+}
+
+
+public struct ArmLastThrowRecord: IComponentData
+{
+    public float throwTimer;
+    public float3 lastAimVelocity;
 }
 
 
@@ -79,6 +99,32 @@ public struct ArmGrabTarget: IComponentData
     
     public static implicit operator float3(ArmGrabTarget c) => c.value;
 }
+
+public struct ArmWindupTimer: IComponentData
+{
+    public float Value;
+    
+    public static implicit operator ArmWindupTimer(float target) => new ArmWindupTimer
+    {
+        Value = target
+    };
+    
+    public static implicit operator float(ArmWindupTimer c) => c.Value;
+}
+
+public struct ArmWindupTarget: IComponentData
+{
+    public float3 Value;
+    
+    public static implicit operator ArmWindupTarget(float3 target) => new ArmWindupTarget
+    {
+        Value = target
+    };
+    
+    public static implicit operator float3(ArmWindupTarget c) => c.Value;
+    
+}
+
 
 public struct ArmBasesUp: IComponentData
 {
