@@ -149,7 +149,6 @@ public class ArmSetupSystem : SystemBase
          var armRecordsJob = Entities
             .WithName("ArmRockRecordUpdateJob")
             .WithReadOnly(childrenGroups)
-            .WithoutBurst()
             .WithAll<ArmGrabbedTag>()
             .ForEach((
                 ref ArmLastRockRecord lastRockRecord,

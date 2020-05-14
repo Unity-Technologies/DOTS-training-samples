@@ -24,13 +24,13 @@ public class RockSystem: SystemBase
         
         Entities
             .WithName("RockCollision")
-            .WithoutBurst()
-            .ForEach((int entityInQueryIndex, ref Velocity rockVel, ref RockCollisionRNG rng,in WorldRenderBounds rockBounds, in RockReservedCan reservedCan) =>
+            .ForEach((int entityInQueryIndex, ref Velocity rockVel, ref RockCollisionRNG rng,
+                in WorldRenderBounds rockBounds, in Translation pos, in RockReservedCan reservedCan) =>
             {
-                WorldRenderBounds CanWorldRenderBounds = GetComponent<WorldRenderBounds>(reservedCan);
-                AABB canBounds = CanWorldRenderBounds.Value;
+                float3  canPos  = GetComponent<Translation>(reservedCan).Value;
                 
-                if (canBounds.Contains(rockBounds.Value))
+                
+                if (math.distancesq(canPos,pos.Value) < 0.5f * 0.5f) 
                 {
                     collisionECB.SetComponent(entityInQueryIndex,reservedCan,new Velocity
                     {

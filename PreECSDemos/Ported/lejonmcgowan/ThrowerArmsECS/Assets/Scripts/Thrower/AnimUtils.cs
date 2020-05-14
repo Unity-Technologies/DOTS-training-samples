@@ -2,7 +2,7 @@
 
 public static class AnimUtils
 {
-    public static float gravityStrength = 25f;
+    public static readonly float gravityStrength = 25f;
     public static float EvauateThrowCurveSmooth(float t)
     {
         float tPeak = 0.28f;
