@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateBefore(typeof(ArmIKSystem))]
-public class TinCanSystem: SystemBase
+public class CanSystem: SystemBase
 {
     
     private struct CanReserveJob : IJob
@@ -36,7 +36,11 @@ public class TinCanSystem: SystemBase
 
                 ecb.AddComponent(request.armRef, new ArmReservedCan
                 {
-                    value = request.canRef
+                    Value = request.canRef
+                });
+                ecb.AddComponent(request.rockRef, new RockReservedCan()
+                {
+                    Value = request.canRef
                 });
                 ecb.AddComponent(request.armRef, new ArmWindupTimer
                 {
@@ -61,7 +65,7 @@ public class TinCanSystem: SystemBase
         
         m_availableCansQuery = GetEntityQuery(new EntityQueryDesc()
         {
-            All = new[] {ComponentType.ReadOnly<CanVelocity>()},
+            All = new[] {ComponentType.ReadOnly<Velocity>(),ComponentType.ReadOnly<CanTag>()},
             None = new[] {ComponentType.ReadOnly<CanReservedTag>()}
         });
     }
@@ -69,7 +73,6 @@ public class TinCanSystem: SystemBase
 
     protected override void OnUpdate()
     {
-        var destoyECB = m_beginSimECB.CreateCommandBuffer().ToConcurrent();
         var spawnECB = m_beginSimECB.CreateCommandBuffer().ToConcurrent();
         var reserveECB = m_beginSimECB.CreateCommandBuffer();
         float dt = Time.DeltaTime;
@@ -82,20 +85,13 @@ public class TinCanSystem: SystemBase
 
         var availableCanEntities = m_availableCansQuery.ToEntityArrayAsync(Allocator.TempJob, out var getCansJob);
         
-        var velocityJob = Entities
-            .WithName("VelocityJob")
-            .ForEach((ref Translation position, in CanVelocity velocity) =>
-            {
-                position.Value += velocity.Value * dt;
-            }).ScheduleParallel(Dependency);
-
-        var canQueueReservesInputDeps = JobHandle.CombineDependencies(Dependency, getCansJob, velocityJob);
+        var canQueueReservesInputDeps = JobHandle.CombineDependencies(Dependency, getCansJob);
         
         var requestJob = Entities
             .WithName("RequestJob")
             .WithAll<ArmGrabbedTag>()
             .WithNone<ArmReservedCan>()
-            .ForEach((Entity entity,in ArmAnchorPos anchorPos) =>
+            .ForEach((Entity entity,in ArmAnchorPos anchorPos, in ArmReservedRock reservedRock) =>
         {
             int minIndex = -1;
             float minDistSquared = Single.MaxValue;
@@ -118,6 +114,7 @@ public class TinCanSystem: SystemBase
                 {
                     armPos = anchorPos,
                     armRef = entity,
+                    rockRef = reservedRock, 
                     canRef = availableCanEntities[minIndex]
                 });
             }
@@ -138,54 +135,9 @@ public class TinCanSystem: SystemBase
         reserveQueue.Dispose(reserveJob);
         
         m_beginSimECB.AddJobHandleForProducer(reserveJob);
-        
-        
-        var spawnJob = Entities
-            .WithName("SpawnJob")
-            .ForEach((int entityInQueryIndex, ref CanSpawnComponent spawner) =>
-            {
-                spawner.spawnTimeRemaining -= dt;
-                if (spawner.spawnTimeRemaining <= 0f)
-                {
-                    spawner.spawnTimeRemaining = spawner.spawnTime;
-                    var randPosY = spawner.rng.NextFloat(spawner.yRanges.x, spawner.yRanges.y);
-                    var can = spawnECB.Instantiate(entityInQueryIndex,spawner.prefab);
-                    spawnECB.AddComponent(entityInQueryIndex,can,new CanVelocity
-                    {
-                        Value = spawner.spawnVelocity
-                        
-                    });
-                    spawnECB.SetComponent(entityInQueryIndex,can,new Translation
-                    {
-                        Value = new float3(spawner.xSpawnPos,randPosY,spawner.zSpawnPos)
-                    });
-                    spawnECB.AddComponent(entityInQueryIndex,can,new CanDestroyBounds
-                    {
-                        Value = spawner.bounds
-                    });
-                }
-            }).ScheduleParallel(Dependency);
-       
-        
-        //todo: cans should wraparound, never destroy from bounds
-        var destroyJob = Entities
-            .WithName("WraparoundJob")
-            .ForEach((Entity entity,int entityInQueryIndex,
-        ref Translation position, in CanDestroyBounds bounds) =>
-        {
-            if (position.Value.x < bounds.Value.x)
-            {
-                position.Value.x = bounds.Value.y - 1f;
-            }
-            else if(position.Value.x > bounds.Value.y)
-            {
-                position.Value.x = bounds.Value.x + 1f;
-            }
-        }).ScheduleParallel(reserveJob);
-        
-        m_beginSimECB.AddJobHandleForProducer(spawnJob);
-        m_beginSimECB.AddJobHandleForProducer(destroyJob);
 
-        Dependency = JobHandle.CombineDependencies(reserveJob,spawnJob,destroyJob);
+
+
+        Dependency = reserveJob;
     }
 }

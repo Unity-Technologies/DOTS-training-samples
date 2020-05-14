@@ -1,8 +1,11 @@
-﻿﻿using Unity.Entities;
+﻿﻿using Unity.Collections;
+ using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
+ using Unity.Rendering;
+ using Unity.Transforms;
+ using UnityEngine.UIElements;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
+ [UpdateInGroup(typeof(SimulationSystemGroup))]
 [UpdateBefore(typeof(ArmIKSystem))]
 public class RockSystem: SystemBase
 {
@@ -17,20 +20,40 @@ public class RockSystem: SystemBase
         float dt = Time.DeltaTime;
 
         var spawnECB = m_spawnerECB.CreateCommandBuffer().ToConcurrent();
-        var destroyEBC = m_spawnerECB.CreateCommandBuffer().ToConcurrent();
+        var collisionECB = m_spawnerECB.CreateCommandBuffer().ToConcurrent();
         
         Entities
-            .WithNone<RockGrabbedTag>()
-            .WithName("RockMove")
-            .ForEach((ref Translation pos, in RockVelocityComponentData rockVel) =>
+            .WithName("RockCollision")
+            .WithoutBurst()
+            .ForEach((int entityInQueryIndex, ref Velocity rockVel, ref RockCollisionRNG rng,in WorldRenderBounds rockBounds, in RockReservedCan reservedCan) =>
             {
-                pos.Value += rockVel.Value * dt; 
+                WorldRenderBounds CanWorldRenderBounds = GetComponent<WorldRenderBounds>(reservedCan);
+                AABB canBounds = CanWorldRenderBounds.Value;
+                
+                if (canBounds.Contains(rockBounds.Value))
+                {
+                    collisionECB.SetComponent(entityInQueryIndex,reservedCan,new Velocity
+                    {
+                        Value = rockVel
+                    });
+                    
+                    // todo can.angularVelocity = Random.onUnitSphere * velocity.magnitude * 40f;
+
+                    //todo simulate insideUnitSphere?
+                    rockVel =  rng.Value.NextFloat3() * 3f;
+                    
+                    collisionECB.AddComponent(entityInQueryIndex,reservedCan, new Acceleration
+                    {
+                        Value = new float3(0,-AnimUtils.gravityStrength,0)
+                    });
+                }
                 
             }).ScheduleParallel();
+        
 
         Entities
             .WithName("RockSpawnJob")
-            .ForEach((int entityInQueryIndex, ref RockSpawnComponent spawner, in RockDestroyBounds killBounds, in RockSpawnerBounds spawnBounds) =>
+            .ForEach((int entityInQueryIndex, ref RockSpawnComponent spawner, in DestroyBoundsX killBounds, in SpawnerBoundsX spawnBounds) =>
             {
                 spawner.spawnTimeRemaining -= dt;
                 if (spawner.spawnTimeRemaining < 0f)
@@ -39,17 +62,17 @@ public class RockSystem: SystemBase
                     float randRadius = spawner.rng.NextFloat(spawner.radiusRanges.x, spawner.radiusRanges.y);
                     
                     var rockEntity = spawnECB.Instantiate(entityInQueryIndex,spawner.prefab);
-                    spawnECB.AddComponent(entityInQueryIndex,rockEntity, new RockVelocityComponentData
+                    spawnECB.AddComponent(entityInQueryIndex,rockEntity, new Velocity()
                     {
                         Value = spawner.spawnVelocity
                     });
-                    spawnECB.AddComponent(entityInQueryIndex,rockEntity, new RockDestroyBounds()
+                    spawnECB.AddComponent(entityInQueryIndex,rockEntity, new DestroyBoundsX()
                     {
                         Value = new float2(killBounds.Value.x,killBounds.Value.y)
                     });
                     spawnECB.AddComponent(entityInQueryIndex,rockEntity, new RockRadiusComponentData
                     {
-                        value = randRadius,
+                        Value = randRadius,
                     });
                     spawnECB.SetComponent(entityInQueryIndex,rockEntity,new Translation
                     {
@@ -59,21 +82,16 @@ public class RockSystem: SystemBase
                     {
                         Value = randRadius
                     });
+                    
+                    uint seed = 0x2048;
+                    seed <<= ((rockEntity.Index + 1) % 19);
+                    spawnECB.AddComponent(entityInQueryIndex, rockEntity, new RockCollisionRNG()
+                    {
+                        Value = new Random(seed)
+                    });
 
                     spawner.spawnTimeRemaining = spawner.spawnTime;
                 }
-            }).ScheduleParallel();
-        
-        Entities
-            .WithName("RockBoundsJob")
-            .ForEach((Entity entity,
-                int entityInQueryIndex,
-                ref Translation pos, in RockDestroyBounds bounds) =>
-            {
-                if(pos.Value.x < bounds.Value.x ||
-                   pos.Value.x > bounds.Value.y)
-                    destroyEBC.DestroyEntity(entityInQueryIndex,entity);
-                
             }).ScheduleParallel();
 
     }

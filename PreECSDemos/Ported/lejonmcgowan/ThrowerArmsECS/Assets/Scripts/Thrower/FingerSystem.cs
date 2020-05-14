@@ -92,7 +92,7 @@ public class FingerSystem : SystemBase
 
 
                 fingerTarget =
-                    math.lerp(fingerTarget, rockFingerPos, fingerGrabT); // fingerGrabT is already clamped [0..1]
+                    math.lerp(fingerTarget, rockFingerPos * (rockData.grabbing ? 1 : 0), fingerGrabT); // fingerGrabT is already clamped [0..1]
 
                 if (HasComponent<ArmLastThrowRecord>(armParentEntity))
                 {

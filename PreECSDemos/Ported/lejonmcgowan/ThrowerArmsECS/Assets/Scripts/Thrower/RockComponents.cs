@@ -1,32 +1,23 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
 
-public struct RockVelocityComponentData : IComponentData
+
+public struct RockReservedCan : IComponentData
 {
-    public float3 Value;
+    public Entity Value;
 
-    public static implicit operator RockVelocityComponentData(float3 velocity) => new RockVelocityComponentData()
+    public static implicit operator RockReservedCan(Entity can) => new RockReservedCan
     {
-        Value = velocity
+        Value = can
     };
 
-    public static implicit operator float3(RockVelocityComponentData c) => c.Value;
+    public static implicit operator Entity(RockReservedCan c) => c.Value;
 }
 
 struct RockGrabbedTag : IComponentData
 {
 }
 
-public struct RockDestroyBounds : IComponentData
-{
-    public float2 Value;
-}
-
-public struct RockSpawnerBounds : IComponentData
-{
-    public float2 Value;
-}
 
 public struct RockReservedTag : IComponentData
 {
@@ -43,12 +34,17 @@ public struct RockReserveRequest : IComponentData
 
 public struct RockRadiusComponentData : IComponentData
 {
-    public float value;
+    public float Value;
 
     public static implicit operator RockRadiusComponentData(float rad) => new RockRadiusComponentData()
     {
-        value = rad
+        Value = rad
     };
 
-    public static implicit operator float(RockRadiusComponentData c) => c.value;
+    public static implicit operator float(RockRadiusComponentData c) => c.Value;
+}
+
+public struct RockCollisionRNG : IComponentData
+{
+    public Random Value;
 }

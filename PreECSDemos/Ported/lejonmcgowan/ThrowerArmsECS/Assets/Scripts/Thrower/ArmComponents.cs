@@ -13,6 +13,7 @@ public struct ArmLastRockRecord: IComponentData
 {
     public float size;
     public float3 pos;
+    public bool grabbing;
 }
 
 
@@ -42,14 +43,14 @@ public struct ArmReservedRock : IComponentData
 
 public struct ArmReservedCan : IComponentData
 {
-    public Entity value;
+    public Entity Value;
     
     public static implicit operator ArmReservedCan(Entity e) => new ArmReservedCan
     {
-        value = e
+        Value = e
     };
     
-    public static implicit operator Entity(ArmReservedCan e) => e.value;
+    public static implicit operator Entity(ArmReservedCan e) => e.Value;
 }
 
 public struct ArmGrabbedTag : IComponentData

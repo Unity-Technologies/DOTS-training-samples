@@ -573,8 +573,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0942ff0c78f04556900ee4cb83d54e48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initSpawnNumber: 40
-  spawnFrequency: 20
+  spawnNumber: 20
   spawnVelocity:
     x: 1
     y: 0
@@ -584,12 +583,10 @@ MonoBehaviour:
   xKillPlanes:
     x: -20
     y: 20
-  xSpawnRanges:
-    x: -20
-    y: 20
   ySpawnRanges:
     x: 3
     y: 5
+  zSpawnPos: 15
 --- !u!114 &2051295198
 MonoBehaviour:
   m_ObjectHideFlags: 0

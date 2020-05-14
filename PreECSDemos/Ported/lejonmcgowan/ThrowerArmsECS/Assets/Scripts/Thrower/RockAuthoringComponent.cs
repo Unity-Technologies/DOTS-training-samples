@@ -12,12 +12,18 @@ public class RockAuthoringComponent: MonoBehaviour,IConvertGameObjectToEntity
 
         Vector3 scale = transform.localScale;
         float maxScale = math.max(math.max(scale.x, scale.y), scale.z);
-        
+        uint seed = 0x2048;
+        seed <<= entity.Index % 19;
         dstManager.AddComponentData(entity, new RockRadiusComponentData
         {
-            value = maxScale
+            Value = maxScale
         });
         
-        dstManager.AddComponent<RockVelocityComponentData>(entity);
+        dstManager.AddComponentData(entity, new RockCollisionRNG()
+        {
+            Value = new Unity.Mathematics.Random(seed)
+        });
+        
+        dstManager.AddComponent<Velocity>(entity);
     }
 }

@@ -36,13 +36,13 @@ public class RockSpawnerAuthoringComponent: MonoBehaviour, IConvertGameObjectToE
             prefab = prefab,
             radiusRanges = radiusRanges
         });
-        dstManager.AddComponentData(spawner, new RockDestroyBounds()
+        dstManager.AddComponentData(spawner, new DestroyBoundsX()
         {
             Value = xKillPlanes
         });
-        dstManager.AddComponentData(spawner, new RockSpawnerBounds()
+        dstManager.AddComponentData(spawner, new SpawnerBoundsX()
         {
-            Value= xSpawnRanges
+            Value = xSpawnRanges
         });
 
         for (int i = 0; i < initSpawnNumber; i++)
@@ -52,17 +52,17 @@ public class RockSpawnerAuthoringComponent: MonoBehaviour, IConvertGameObjectToE
             float randRadius = convertRNG.NextFloat(radiusRanges.x, radiusRanges.y);
 
             dstManager.SetName(rock, "Init Rock " + i);
-            dstManager.AddComponentData(rock, new RockVelocityComponentData
+            dstManager.AddComponentData(rock, new Velocity
             {
                 Value = spawnVelocity
             });
-            dstManager.AddComponentData(rock, new RockDestroyBounds()
+            dstManager.AddComponentData(rock, new DestroyBoundsX()
             {
                 Value = xKillPlanes
             });
             dstManager.AddComponentData(rock, new RockRadiusComponentData
             {
-                value = randRadius,
+                Value = randRadius,
             });
             dstManager.SetComponentData(rock,new Translation
             {
@@ -73,6 +73,12 @@ public class RockSpawnerAuthoringComponent: MonoBehaviour, IConvertGameObjectToE
             dstManager.SetComponentData(rock, new NonUniformScale
             {
                 Value = new float3(randRadius,randRadius,randRadius)
+            });
+            uint seed = 0x2048;
+            seed <<= entity.Index % 19;
+            dstManager.AddComponentData(rock, new RockCollisionRNG()
+            {
+                Value = new Random(seed)
             });
         }
     }

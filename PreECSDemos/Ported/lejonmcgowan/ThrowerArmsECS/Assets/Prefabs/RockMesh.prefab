@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3783925185428883918}
   - component: {fileID: 386230733914874039}
   - component: {fileID: -3516005152548816520}
+  - component: {fileID: 1300167258109455708}
   m_Layer: 0
   m_Name: RockMesh
   m_TagString: Untagged
@@ -93,3 +94,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ConversionMode: 0
+--- !u!135 &1300167258109455708
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6289717809889550831}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.7
+  m_Center: {x: 0, y: 0, z: 0}
