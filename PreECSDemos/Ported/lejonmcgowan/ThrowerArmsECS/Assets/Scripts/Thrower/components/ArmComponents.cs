@@ -31,14 +31,14 @@ public struct ArmIdleTarget: IComponentData
 
 public struct ArmReservedRock : IComponentData
 {
-    public Entity value;
+    public Entity Value;
     
     public static implicit operator ArmReservedRock(Entity up) => new ArmReservedRock
     {
-        value = up
+        Value = up
     };
     
-    public static implicit operator Entity(ArmReservedRock c) => c.value;
+    public static implicit operator Entity(ArmReservedRock c) => c.Value;
 }
 
 public struct ArmReservedCan : IComponentData
@@ -54,6 +54,10 @@ public struct ArmReservedCan : IComponentData
 }
 
 public struct ArmGrabbedTag : IComponentData
+{
+}
+
+public struct ArmThrowingTag : IComponentData
 {
 }
 

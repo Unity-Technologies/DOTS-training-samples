@@ -38,7 +38,7 @@ public class ArmSetupSystem : SystemBase
 
                 ecb.AddComponent(request.armRef, new ArmReservedRock
                 {
-                    value = request.rockRef
+                    Value = request.rockRef
                 });
             }
 

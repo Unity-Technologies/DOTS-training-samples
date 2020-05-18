@@ -37,6 +37,11 @@ public struct FingerGrabbedTag : IComponentData
     
 }
 
+public struct FingerReleasedTag : IComponentData
+{
+    
+}
+
 public struct FingerIndex: IComponentData
 {
     public int value;

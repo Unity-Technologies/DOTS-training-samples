@@ -11,9 +11,14 @@ public struct Velocity: IComponentData
     };
 
     public static implicit operator float3(Velocity c) => c.Value;
-
-
 }
+
+public struct AngularVelocity: IComponentData
+{
+    public float3 UnitAxis;
+    public float RadsPerSecond;
+}
+
 
 public struct Acceleration: IComponentData
 {

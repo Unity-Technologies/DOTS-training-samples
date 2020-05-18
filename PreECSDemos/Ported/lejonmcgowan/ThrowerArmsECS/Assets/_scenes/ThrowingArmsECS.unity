@@ -224,6 +224,7 @@ GameObject:
   - component: {fileID: 426202056}
   - component: {fileID: 426202055}
   - component: {fileID: 426202054}
+  - component: {fileID: 426202057}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -289,13 +290,36 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 426202053}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.028490065, y: 0.23886263, z: -0.0070112743, w: 0.97061}
+  m_LocalPosition: {x: 0, y: 9.45, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 3.3630002, y: 27.651001, z: 0}
+--- !u!114 &426202057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 426202053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a403d8eb74dc4aeb83bc1d311ff9b6cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zoomDuration: 30
+  minCamDist: 5
+  maxCamDist: 20
+  swayXDuration: 40
+  swayXAmount: 65
+  spinDuration: 16
+  spinAmount: 30
+  swayTiltDuration: 19.618
+  tiltAmount: 20
+  tiltOffset: 5
+  posOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &468630262
 GameObject:
   m_ObjectHideFlags: 0
@@ -418,8 +442,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3c3d4e74d8f4ab192dda2ab35e2d53f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initSpawnNumber: 100
-  spawnFrequency: 1
+  initSpawnNumber: 20
+  spawnFrequency: 0.1
   spawnVelocity:
     x: 1
     y: 0
@@ -427,14 +451,14 @@ MonoBehaviour:
   meshPrefab: {fileID: 6289717809889550831, guid: 5c2fb0ad46c029c4191cd0cec71f46af,
     type: 3}
   xKillPlanes:
-    x: -20
-    y: 70
+    x: -10
+    y: 120
   xSpawnRanges:
     x: -15
-    y: 20
+    y: 90
   radiusRanges:
     x: 0.2
-    y: 0.2
+    y: 0.45
 --- !u!114 &857301291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -494,7 +518,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshPrefab: {fileID: 9094583421412165422, guid: 5ba73369b2787e647a72c62e598faa74,
     type: 3}
-  numArms: 20
+  numArms: 1
   armSpacing: 1
   fingerLengths:
   - 0.2
@@ -573,7 +597,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0942ff0c78f04556900ee4cb83d54e48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnNumber: 50
+  spawnNumber: 200
   spawnVelocity:
     x: 1
     y: 0
@@ -581,11 +605,11 @@ MonoBehaviour:
   meshPrefab: {fileID: 7349744025544809810, guid: 7ea486e300746044d806956c8225ffcd,
     type: 3}
   xKillPlanes:
-    x: -20
-    y: 20
+    x: -10
+    y: 200
   ySpawnRanges:
-    x: 3
-    y: 5
+    x: 4
+    y: 15
   zSpawnPos: 15
 --- !u!114 &2051295198
 MonoBehaviour:

@@ -28,9 +28,10 @@ public class FingerSystem : SystemBase
         //float dt = Time.DeltaTime;
         float t = (float) Time.ElapsedTime;
 
-        var ecb = beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
+        var grabCopyECB = beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
+        var grabCheckECB = beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
 
-        var fingerGrabTCopyJob = Entities
+        Entities
             .WithName("FingerGrabTCopyJob")
             .WithNone<FingerGrabbedTag>()
             .WithReadOnly(ArmGrabTs)
@@ -45,13 +46,23 @@ public class FingerSystem : SystemBase
 
                 if (fingerGrabT >= 1f)
                 {
-                    ecb.AddComponent<FingerGrabbedTag>(entityInQueryIndex, entity);
+                    grabCopyECB.AddComponent<FingerGrabbedTag>(entityInQueryIndex, entity);
                 }
-            }).ScheduleParallel(Dependency);
+            }).ScheduleParallel();
 
+        Entities
+            .WithName("FingerCheckGrabbed")
+            .WithAny<FingerGrabbedTag>()
+            .ForEach((Entity entity, int entityInQueryIndex, in FingerParent fingerParent) =>
+            {
+                if (!HasComponent<ArmReservedRock>(fingerParent))
+                {
+                    grabCheckECB.RemoveComponent<FingerGrabbedTag>(entityInQueryIndex, entity);
+                }
+            }).ScheduleParallel();
 
         //todo see if possible to disable native safety checks on DynamicBuffer parameter of foreach Job
-        var fingerIKJob = Entities
+        Entities
             .WithName("FingerIKJob")
             .WithReadOnly(ArmJointsFromEntity)
             .WithReadOnly(UpBases)
@@ -92,7 +103,8 @@ public class FingerSystem : SystemBase
 
 
                 fingerTarget =
-                    math.lerp(fingerTarget, rockFingerPos * (rockData.grabbing ? 1 : 0), fingerGrabT); // fingerGrabT is already clamped [0..1]
+                    math.lerp(fingerTarget, rockFingerPos * (rockData.grabbing ? 1 : 0),
+                        fingerGrabT); // fingerGrabT is already clamped [0..1]
 
                 if (HasComponent<ArmLastThrowRecord>(armParentEntity))
                 {
@@ -104,9 +116,9 @@ public class FingerSystem : SystemBase
                 //todo add in variable bonelength for each finger in a component
                 FABRIK.Solve(fingerJoints.AsNativeArray().Reinterpret<float3>(), fingerLength, fingerPos, fingerTarget,
                     0.2f * armUp);
-            }).ScheduleParallel(fingerGrabTCopyJob);
+            }).ScheduleParallel();
 
-        var thumbIKJob = Entities
+        Entities
             .WithName("ThumbIKJob")
             .WithNone<FingerIndex>()
             .WithReadOnly(ArmJointsFromEntity)
@@ -148,8 +160,6 @@ public class FingerSystem : SystemBase
 
                 FABRIK.Solve(thumbJoints.AsNativeArray().Reinterpret<float3>(), 0.13f, thumbPos, thumbTarget,
                     0.1f * thumbBendHint);
-            }).ScheduleParallel(fingerIKJob);
-
-        Dependency = JobHandle.CombineDependencies(fingerIKJob, thumbIKJob);
+            }).ScheduleParallel();
     }
 }

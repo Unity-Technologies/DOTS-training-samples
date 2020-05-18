@@ -75,7 +75,6 @@ public class CanSystem: SystemBase
     {
         var spawnECB = m_beginSimECB.CreateCommandBuffer().ToConcurrent();
         var reserveECB = m_beginSimECB.CreateCommandBuffer();
-        float dt = Time.DeltaTime;
 
         var reserveQueue = new NativeQueue<CanReserveRequest>(Allocator.TempJob);
         //todo query for number of arms in scene and use for capacity parameter

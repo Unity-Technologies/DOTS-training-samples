@@ -1,7 +1,9 @@
 ﻿using Unity.Entities;
+using Unity.Entities.UniversalDelegates;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 [UpdateBefore(typeof(RockSystem))]
 public class MoveSystem: SystemBase
@@ -30,6 +32,16 @@ public class MoveSystem: SystemBase
             {
                 p.Value += v.Value * dt; 
                 
+            }).ScheduleParallel();
+        
+        Entities
+            .WithName("AngularVelocityJob")
+            .ForEach((ref Rotation r, in AngularVelocity av) =>
+            {
+                var avQuat = quaternion.AxisAngle(av.UnitAxis,av.RadsPerSecond * dt);
+                
+                r.Value = math.mul(avQuat,r.Value);
+
             }).ScheduleParallel();
         
         Entities
@@ -75,6 +87,8 @@ public class MoveSystem: SystemBase
                 }
             }).ScheduleParallel();
         
+        m_beginSimECBSystem.AddJobHandleForProducer(Dependency);
+        
         Entities
             .WithName("CanWraparoundXJob")
             .WithAll<CanTag>()
@@ -96,14 +110,26 @@ public class MoveSystem: SystemBase
             .WithName("CanWraparoundYJob")
             .WithAll<Acceleration>()
             .ForEach((Entity entity,int entityInQueryIndex,
-                ref Translation position, ref Velocity velocity, in DestroyBoundsY bounds, in CanInitSpeed canInitSpeed) =>
+                in Translation position, in DestroyBoundsY bounds, in CanInitSpeed canInitSpeed) =>
             {
                 if (position.Value.y < bounds.Value)
                 {
-                    position.Value = canInitSpeed.initPos;
-                    velocity.Value = canInitSpeed.initVel;
+                    respawnECB.SetComponent(entityInQueryIndex, entity, new Translation
+                    {
+                        Value = canInitSpeed.initPos
+                    });
+                    respawnECB.SetComponent(entityInQueryIndex, entity, new Velocity
+                    {
+                        Value = canInitSpeed.initVel
+                    });
+                    respawnECB.SetComponent(entityInQueryIndex, entity, new Rotation
+                    {
+                        Value = quaternion.identity
+                    });
+                    
                     respawnECB.RemoveComponent<CanReservedTag>(entityInQueryIndex,entity);
                     respawnECB.RemoveComponent<Acceleration>(entityInQueryIndex,entity);
+                    respawnECB.RemoveComponent<AngularVelocity>(entityInQueryIndex,entity);
                 }
             }).ScheduleParallel();
     }

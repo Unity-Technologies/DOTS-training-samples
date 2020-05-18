@@ -195,7 +195,6 @@ public class ArmIKSystem : SystemBase
                 ref ArmLastThrowRecord throwRecord,
                 ref ArmLastRockRecord lastRockRecord,
                 in ArmReservedCan reservedCan,
-                in ArmReservedRock reservedRock,
                 in ArmWindupTarget windupTarget
             ) =>
             {
@@ -206,66 +205,76 @@ public class ArmIKSystem : SystemBase
                 throwRecord.throwTimer += dt / throwDuration;
                 var throwTimeClamp = math.clamp(throwRecord.throwTimer, 0, 1);
 
-                var isRockHeld = HasComponent<Parent>(reservedRock);
-
-                if (isRockHeld)
+                if (HasComponent<ArmReservedRock>(entity))
                 {
-                    throwRecord.lastAimVelocity = AimAtCan(canPos, lastRockRecord.pos, canVelocity);
-                }
-                
-                // we start this animation in our windup position,
-                // and end it by returning to our default idle pose
-                
-                float3 restingPos = math.lerp(windupTarget, ikTarget, throwTimeClamp);
+                    var reservedRock = GetComponent<ArmReservedRock>(entity);
+                        
+                    var isRockHeld = HasComponent<Parent>(reservedRock);
 
-                // find the hand's target position to perform the throw
-                // (somewhere forward and upward from the windup position)
-                float3 throwHandTarget = windupTarget + math.normalize(throwRecord.lastAimVelocity) * 2.5f;
-
-
-                // This lerp is intentionally unclamped, as the throw curve ranges above 1.0
-                ikTarget =
-                    math.lerp(restingPos, throwHandTarget, AnimUtils.EvauateThrowCurveSmooth(throwTimeClamp));
-
-                
-
-                if (throwRecord.throwTimer > .15f && isRockHeld)
-                {
-                    // release the rock
-                    var rockWorldPos = GetComponent<LocalToWorld>(reservedRock).Position;
-                    lastRockRecord.grabbing = false;
-                    
-                    throwECB.RemoveComponent<Parent>(entityInQueryIndex, reservedRock);
-                    throwECB.SetComponent(entityInQueryIndex, reservedRock, new Translation
+                    if (isRockHeld)
                     {
-                        Value = rockWorldPos
-                    });
+                        throwRecord.lastAimVelocity = AimAtCan(canPos, lastRockRecord.pos, canVelocity);
+                    }
 
-                    throwECB.RemoveComponent<LocalToParent>(entityInQueryIndex, reservedRock);
-                    throwECB.RemoveComponent<RockGrabbedTag>(entityInQueryIndex, reservedRock);
-                    
-                    throwECB.SetComponent(entityInQueryIndex, reservedRock, new Velocity()
+                    // we start this animation in our windup position,
+                    // and end it by returning to our default idle pose
+
+                    float3 restingPos = math.lerp(windupTarget, ikTarget, throwTimeClamp);
+
+                    // find the hand's target position to perform the throw
+                    // (somewhere forward and upward from the windup position)
+                    float3 throwHandTarget = windupTarget + math.normalize(throwRecord.lastAimVelocity) * 2.5f;
+
+
+                    // This lerp is intentionally unclamped, as the throw curve ranges above 1.0
+                    ikTarget =
+                        math.lerp(restingPos, throwHandTarget, AnimUtils.EvauateThrowCurveSmooth(throwTimeClamp));
+
+
+
+                    if (throwRecord.throwTimer > .15f && isRockHeld)
                     {
-                        Value = throwRecord.lastAimVelocity
-                    });
-                    
-                    throwECB.AddComponent(entityInQueryIndex, reservedRock, new Acceleration()
-                    {
-                        Value = new float3(0,-AnimUtils.gravityStrength,0)
-                    });
-                    
-                    throwECB.AddComponent(entityInQueryIndex, reservedRock, new DestroyBoundsY()
-                    {
-                        Value = -10f
-                    });
-                    //heldRock = null;
+                        // release the rock
+                        var rockWorldPos = GetComponent<LocalToWorld>(reservedRock).Position;
+                        lastRockRecord.grabbing = false;
+
+                        throwECB.AddComponent(entityInQueryIndex, entity, new ArmThrowingTag());
+
+                        throwECB.RemoveComponent<Parent>(entityInQueryIndex, reservedRock);
+                        throwECB.SetComponent(entityInQueryIndex, reservedRock, new Translation
+                        {
+                            Value = rockWorldPos
+                        });
+
+                        throwECB.RemoveComponent<LocalToParent>(entityInQueryIndex, reservedRock);
+                        throwECB.RemoveComponent<RockGrabbedTag>(entityInQueryIndex, reservedRock);
+
+                        throwECB.SetComponent(entityInQueryIndex, reservedRock, new Velocity()
+                        {
+                            Value = throwRecord.lastAimVelocity
+                        });
+
+                        throwECB.AddComponent(entityInQueryIndex, reservedRock, new Acceleration()
+                        {
+                            Value = new float3(0, -AnimUtils.gravityStrength, 0)
+                        });
+
+                        throwECB.AddComponent(entityInQueryIndex, reservedRock, new DestroyBoundsY()
+                        {
+                            Value = -10f
+                        });
+
+                        throwECB.RemoveComponent<ArmReservedRock>(entityInQueryIndex, entity);
+                        //heldRock = null;
+                    }
                 }
 
                 if (throwRecord.throwTimer >= 1f)
                 {
                     throwECB.RemoveComponent<ArmWindupTarget>(entityInQueryIndex, entity);
+                    
                     throwECB.RemoveComponent<ArmLastThrowRecord>(entityInQueryIndex, entity);
-                    throwECB.RemoveComponent<ArmReservedRock>(entityInQueryIndex, entity);
+                    
                     throwECB.RemoveComponent<ArmLastThrowRecord>(entityInQueryIndex, entity);
                     throwECB.RemoveComponent<ArmWindupTarget>(entityInQueryIndex, entity);
                     throwECB.RemoveComponent<ArmReservedCan>(entityInQueryIndex, entity);
@@ -274,7 +283,7 @@ public class ArmIKSystem : SystemBase
                     //heldRock = null;
                 }
             }).ScheduleParallel();
-            
+
         m_beginSimEcbSystem.AddJobHandleForProducer(Dependency);
 
 
@@ -297,7 +306,7 @@ public class ArmIKSystem : SystemBase
 
                 if (grabT >= 1.0f)
                 {
-                    if (!HasComponent<Parent>(reservedRock.value))
+                    if (!HasComponent<Parent>(reservedRock.Value))
                     {
                         Parent wristParent = new Parent
                         {
@@ -370,11 +379,14 @@ public class ArmIKSystem : SystemBase
             .ForEach((ref ArmLastRockRecord lastRockRecord,
                 in ArmReservedRock reservedRock) =>
             {
-                float3 rockPos = GetComponent<LocalToWorld>(reservedRock).Position;
-                float rockSize = GetComponent<RockRadiusComponentData>(reservedRock);
+                if (reservedRock.Value != Entity.Null)
+                {
+                    float3 rockPos = GetComponent<LocalToWorld>(reservedRock).Position;
+                    float rockSize = GetComponent<RockRadiusComponentData>(reservedRock);
 
-                lastRockRecord.pos = rockPos;
-                lastRockRecord.size = rockSize;
+                    lastRockRecord.pos = rockPos;
+                    lastRockRecord.size = rockSize;
+                }
             }).ScheduleParallel();
     }
 }
