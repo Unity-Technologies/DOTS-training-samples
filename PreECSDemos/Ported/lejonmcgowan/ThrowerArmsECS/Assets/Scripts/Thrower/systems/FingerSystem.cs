@@ -61,7 +61,7 @@ public class FingerSystem : SystemBase
                 }
             }).ScheduleParallel();
 
-        //todo see if possible to disable native safety checks on DynamicBuffer parameter of foreach Job
+        //todo make use of a branch to combine this and ThumbIKJob
         Entities
             .WithName("FingerIKJob")
             .WithReadOnly(ArmJointsFromEntity)

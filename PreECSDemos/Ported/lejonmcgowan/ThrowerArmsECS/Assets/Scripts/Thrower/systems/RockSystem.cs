@@ -89,6 +89,10 @@ public class RockSystem : SystemBase
                     {
                         Value = randRadius
                     });
+                    spawnECB.AddComponent(entityInQueryIndex, rockEntity, new DestroyBoundsY()
+                    {
+                        Value = -10f
+                    });
 
                     uint seed = 0x2048;
                     seed <<= ((rockEntity.Index + 1) % 19);

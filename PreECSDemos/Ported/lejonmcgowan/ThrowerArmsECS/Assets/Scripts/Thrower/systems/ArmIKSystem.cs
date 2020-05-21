@@ -101,6 +101,7 @@ public class ArmIKSystem : SystemBase
 
                 lastRockRecord.pos = rockPos;
                 lastRockRecord.size = rockSize;
+                //todo check if this is still needed? it's used in palm spreading but am unsure if relevant
                 lastRockRecord.grabbing = true;
                 
                 float3 delta = rockPos - anchorPos;
@@ -158,7 +159,7 @@ public class ArmIKSystem : SystemBase
                 ref ArmIKTarget ikTarget,
                 ref ArmWindupTimer windupTimer,
                 ref ArmWindupTarget windupTarget,
-                ref ArmLastThrowRecord throwRecord,
+                in ArmLastThrowRecord throwRecord,
                 in ArmReservedCan reservedCan,
                 in ArmAnchorPos armPos
             ) =>
@@ -204,7 +205,9 @@ public class ArmIKSystem : SystemBase
                 // done winding up - actual throw, plus resetting to idle
                 throwRecord.throwTimer += dt / throwDuration;
                 var throwTimeClamp = math.clamp(throwRecord.throwTimer, 0, 1);
-
+                
+                
+                //todo make this branch into its own system?
                 if (HasComponent<ArmReservedRock>(entity))
                 {
                     var reservedRock = GetComponent<ArmReservedRock>(entity);
@@ -258,24 +261,18 @@ public class ArmIKSystem : SystemBase
                         {
                             Value = new float3(0, -AnimUtils.gravityStrength, 0)
                         });
-
-                        throwECB.AddComponent(entityInQueryIndex, reservedRock, new DestroyBoundsY()
-                        {
-                            Value = -10f
-                        });
-
+                        
                         throwECB.RemoveComponent<ArmReservedRock>(entityInQueryIndex, entity);
                         //heldRock = null;
                     }
                 }
 
-                if (throwRecord.throwTimer >= 1f)
+                else if (throwRecord.throwTimer >= 1f)
                 {
                     throwECB.RemoveComponent<ArmWindupTarget>(entityInQueryIndex, entity);
                     
                     throwECB.RemoveComponent<ArmLastThrowRecord>(entityInQueryIndex, entity);
                     
-                    throwECB.RemoveComponent<ArmLastThrowRecord>(entityInQueryIndex, entity);
                     throwECB.RemoveComponent<ArmWindupTarget>(entityInQueryIndex, entity);
                     throwECB.RemoveComponent<ArmReservedCan>(entityInQueryIndex, entity);
                     throwECB.RemoveComponent<ArmGrabbedTag>(entityInQueryIndex, entity);
@@ -296,7 +293,7 @@ public class ArmIKSystem : SystemBase
                 int entityInQueryIndex,
                 Entity armEntity,
                 ref ArmReservedRock reservedRock,
-                ref ArmLastRockRecord lastRockRecord,
+                in ArmLastRockRecord lastRockRecord,
                 in ArmGrabTimer grabT,
                 in ArmAnchorPos anchorPos,
                 in Wrist wrist
@@ -348,7 +345,7 @@ public class ArmIKSystem : SystemBase
                 ref ArmBasesRight armRight,
                 ref ArmBasesUp armUp,
                 ref DynamicBuffer<ArmJointElementData> armJoints,
-                ref Wrist wrist,
+                in Wrist wrist,
                 in ArmIKTarget armTarget,
                 in ArmAnchorPos armAnchorPos
             ) =>
@@ -374,19 +371,21 @@ public class ArmIKSystem : SystemBase
                 };
             }).ScheduleParallel();
 
-        Entities
-            .WithName("ArmRockRecordJob")
-            .ForEach((ref ArmLastRockRecord lastRockRecord,
-                in ArmReservedRock reservedRock) =>
-            {
-                if (reservedRock.Value != Entity.Null)
-                {
-                    float3 rockPos = GetComponent<LocalToWorld>(reservedRock).Position;
-                    float rockSize = GetComponent<RockRadiusComponentData>(reservedRock);
-
-                    lastRockRecord.pos = rockPos;
-                    lastRockRecord.size = rockSize;
-                }
-            }).ScheduleParallel();
+        
+        // //todo this is very likely redundant. Address the function here and in ArmSetupSystem
+        // Entities
+        //     .WithName("ArmRockRecordJob")
+        //     .ForEach((ref ArmLastRockRecord lastRockRecord,
+        //         in ArmReservedRock reservedRock) =>
+        //     {
+        //         if (reservedRock.Value != Entity.Null)
+        //         {
+        //             float3 rockPos = GetComponent<LocalToWorld>(reservedRock).Position;
+        //             float rockSize = GetComponent<RockRadiusComponentData>(reservedRock);
+        //
+        //             lastRockRecord.pos = rockPos;
+        //             lastRockRecord.size = rockSize;
+        //         }
+        //     }).ScheduleParallel();
     }
 }

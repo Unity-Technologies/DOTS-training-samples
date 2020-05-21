@@ -7,6 +7,8 @@ using Unity.Transforms;
 [UpdateBefore(typeof(TransformSystemGroup))]
 public class ArmRenderUpdateSystem: SystemBase
 {
+    
+    //todo look into combine with the FingerRenderUpdate?
     protected override void OnUpdate()
     {
         // TODO: SystemBase has a way to eliminate the need for this GetBufferFromEntity
@@ -37,6 +39,7 @@ public class ArmRenderUpdateSystem: SystemBase
             {
                 Value = new float3(0.15f,0.15f,math.length(delta))
             };
+
         }).ScheduleParallel();
     }
 }

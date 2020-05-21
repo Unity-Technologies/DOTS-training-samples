@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -8,7 +9,7 @@ using Unity.Transforms;
 [UpdateBefore(typeof(ArmIKSystem))]
 public class CanSystem: SystemBase
 {
-    
+    [BurstCompile]
     private struct CanReserveJob : IJob
     {
         public NativeQueue<CanReserveRequest> requestQueue;
@@ -73,7 +74,6 @@ public class CanSystem: SystemBase
 
     protected override void OnUpdate()
     {
-        var spawnECB = m_beginSimECB.CreateCommandBuffer().ToConcurrent();
         var reserveECB = m_beginSimECB.CreateCommandBuffer();
 
         var reserveQueue = new NativeQueue<CanReserveRequest>(Allocator.TempJob);
@@ -135,8 +135,8 @@ public class CanSystem: SystemBase
         
         m_beginSimECB.AddJobHandleForProducer(reserveJob);
 
+        Dependency = requestJob;
 
 
-        Dependency = reserveJob;
     }
 }

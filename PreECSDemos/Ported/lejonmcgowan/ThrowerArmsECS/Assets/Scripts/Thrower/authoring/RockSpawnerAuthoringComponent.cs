@@ -60,6 +60,10 @@ public class RockSpawnerAuthoringComponent: MonoBehaviour, IConvertGameObjectToE
             {
                 Value = xKillPlanes
             });
+            dstManager.AddComponentData(rock, new DestroyBoundsY()
+            {
+                Value = -10f
+            });
             dstManager.AddComponentData(rock, new RockRadiusComponentData
             {
                 Value = randRadius,

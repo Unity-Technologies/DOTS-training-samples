@@ -1,6 +1,8 @@
 ﻿using Unity.Entities;
 using Unity.Entities.UniversalDelegates;
+using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Profiling;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
@@ -10,6 +12,11 @@ public class MoveSystem: SystemBase
 {
     private BeginSimulationEntityCommandBufferSystem m_beginSimECBSystem;
     
+    private static ProfilerMarker velocityMarker = new ProfilerMarker("velocityJobMarker");
+    private static ProfilerMarker angularVelocityMarker = new ProfilerMarker("angularVelocityMarker");
+    private static ProfilerMarker acellerationMarker = new ProfilerMarker("AccelMarker");
+    private static ProfilerMarker rockBoundsMarker = new ProfilerMarker("rockBoundsMarker");
+    private static ProfilerMarker canBoundsMarker = new ProfilerMarker("canBoundsMarker");
     protected override void OnCreate()
     {
         base.OnCreate();
@@ -19,22 +26,17 @@ public class MoveSystem: SystemBase
 
     protected override void OnUpdate()
     {
+        
+
         float dt = Time.DeltaTime;
 
-        var destroyXEBC = m_beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
-        var destroyYEBC = m_beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
+        var destroyEBC = m_beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
         var respawnECB = m_beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
         
-        Entities
-            .WithName("VelocityJob")
-            .WithNone<RockGrabbedTag>()
-            .ForEach((ref Translation p, in Velocity v) =>
-            {
-                p.Value += v.Value * dt; 
-                
-            }).ScheduleParallel();
         
-        Entities
+        angularVelocityMarker.Begin();
+        
+        var angularVelJob = Entities
             .WithName("AngularVelocityJob")
             .ForEach((ref Rotation r, in AngularVelocity av) =>
             {
@@ -42,36 +44,35 @@ public class MoveSystem: SystemBase
                 
                 r.Value = math.mul(avQuat,r.Value);
 
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
         
-        Entities
+        angularVelocityMarker.End();
+        
+        acellerationMarker.Begin();
+        var acellJob = Entities
             .WithName("AccelerationJob")
             .ForEach((ref Velocity v, in Acceleration a) =>
             {
                 v.Value += a.Value * dt;
                 
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
         
-        Entities
-            .WithName("RockBoundsXJob")
+        acellerationMarker.End();
+        
+        rockBoundsMarker.Begin();
+        var rockBoundsJob = Entities
+            .WithName("RockBoundsJob")
             .WithNone<CanTag>()
             .ForEach((Entity entity,
                 int entityInQueryIndex,
-                ref Translation pos, in DestroyBoundsX boundsX) =>
+                in Translation pos, in DestroyBoundsX boundsX, in DestroyBoundsY boundY) =>
             {
+                //bounds X
                 if(pos.Value.x < boundsX.Value.x ||
                    pos.Value.x > boundsX.Value.y)
-                    destroyXEBC.DestroyEntity(entityInQueryIndex,entity);
+                    destroyEBC.DestroyEntity(entityInQueryIndex,entity);
                 
-            }).ScheduleParallel();
-        
-        Entities
-            .WithName("RockBoundsYJob")
-            .WithNone<CanTag,RockGrabbedTag>()
-            .ForEach((Entity entity,
-                int entityInQueryIndex,
-                ref Translation pos, in DestroyBoundsY boundY) =>
-            {
+                //bounds Y
                 if (pos.Value.y < boundY)
                 {
                     if (HasComponent<RockReservedCan>(entity))
@@ -79,40 +80,42 @@ public class MoveSystem: SystemBase
                         Entity can = GetComponent<RockReservedCan>(entity);
                         if (can != Entity.Null)
                         {
-                            destroyYEBC.RemoveComponent<CanReservedTag>(entityInQueryIndex,can);
+                            destroyEBC.RemoveComponent<CanReservedTag>(entityInQueryIndex,can);
                         }
                     }
                     
-                    destroyYEBC.DestroyEntity(entityInQueryIndex, entity);
+                    destroyEBC.DestroyEntity(entityInQueryIndex, entity);
                 }
-            }).ScheduleParallel();
+                
+            }).ScheduleParallel(Dependency);
         
-        m_beginSimECBSystem.AddJobHandleForProducer(Dependency);
+        rockBoundsMarker.End();
         
-        Entities
-            .WithName("CanWraparoundXJob")
-            .WithAll<CanTag>()
-            .WithNone<Acceleration>()
-            .ForEach((Entity entity,int entityInQueryIndex,
-                ref Translation position, in DestroyBoundsX bounds) =>
-            {
-                if (position.Value.x < bounds.Value.x)
-                {
-                    position.Value.x = bounds.Value.y - 1f;
-                }
-                else if(position.Value.x > bounds.Value.y)
-                {
-                    position.Value.x = bounds.Value.x + 1f;
-                }
-            }).ScheduleParallel();
+     
+        m_beginSimECBSystem.AddJobHandleForProducer(rockBoundsJob);
+   
         
-        Entities
-            .WithName("CanWraparoundYJob")
+        canBoundsMarker.Begin();
+
+        var wrapAroundJob = Entities
+            .WithName("CanWraparoundJob")
             .WithAll<Acceleration>()
             .ForEach((Entity entity,int entityInQueryIndex,
-                in Translation position, in DestroyBoundsY bounds, in CanInitSpeed canInitSpeed) =>
+                ref Translation position, in DestroyBoundsX boundsX, in DestroyBoundsY boundsY, in CanInitSpeed canInitSpeed) =>
             {
-                if (position.Value.y < bounds.Value)
+                
+                //check and wrap X bounds
+                if (position.Value.x < boundsX.Value.x)
+                {
+                    position.Value.x = boundsX.Value.y - 1f;
+                }
+                else if(position.Value.x > boundsX.Value.y)
+                {
+                    position.Value.x = boundsX.Value.x + 1f;
+                }
+                
+                //check and wrap Y bounds
+                if (position.Value.y < boundsY.Value)
                 {
                     respawnECB.SetComponent(entityInQueryIndex, entity, new Translation
                     {
@@ -131,6 +134,27 @@ public class MoveSystem: SystemBase
                     respawnECB.RemoveComponent<Acceleration>(entityInQueryIndex,entity);
                     respawnECB.RemoveComponent<AngularVelocity>(entityInQueryIndex,entity);
                 }
-            }).ScheduleParallel();
+            }).ScheduleParallel(rockBoundsJob);
+        
+        canBoundsMarker.End();
+        
+        m_beginSimECBSystem.AddJobHandleForProducer(wrapAroundJob);
+
+        velocityMarker.Begin();
+        
+        var velJob = Entities
+            .WithName("VelocityJob")
+            .WithNone<RockGrabbedTag>()
+            .ForEach((ref Translation p, in Velocity v) =>
+            {
+                p.Value += v.Value * dt; 
+                
+            }).ScheduleParallel(JobHandle.CombineDependencies(wrapAroundJob,acellJob));
+        
+        velocityMarker.End();
+
+        Dependency = JobHandle.CombineDependencies(velJob,angularVelJob);
+
+
     }
 }

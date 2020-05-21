@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -10,7 +11,8 @@ public class ArmSetupSystem : SystemBase
 {
     private EntityQuery m_availableRocksQuery;
     private BeginSimulationEntityCommandBufferSystem m_beginSimEcbSystem;
-
+    
+    [BurstCompile]
     private struct RockReserveJob : IJob
     {
         public NativeQueue<RockReserveRequest> requestQueue;
@@ -145,7 +147,7 @@ public class ArmSetupSystem : SystemBase
         
         var childrenGroups = GetBufferFromEntity<Child>(true);
 
-
+        //todo can this be simplified using ArmReservedRock?
          var armRecordsJob = Entities
             .WithName("ArmRockRecordUpdateJob")
             .WithReadOnly(childrenGroups)
