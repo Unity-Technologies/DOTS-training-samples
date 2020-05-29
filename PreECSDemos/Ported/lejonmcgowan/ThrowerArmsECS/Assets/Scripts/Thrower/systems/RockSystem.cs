@@ -38,7 +38,7 @@ public class RockSystem : SystemBase
                         Value = rockVel
                     });
 
-                    collisionECB.AddComponent(entityInQueryIndex, reservedCan, new AngularVelocity
+                    collisionECB.SetComponent(entityInQueryIndex, reservedCan, new AngularVelocity
                     {
                         UnitAxis = rng.Value.NextFloat3Direction(),
                         RadsPerSecond = math.radians(math.length(rockVel) * 40f)
@@ -46,7 +46,7 @@ public class RockSystem : SystemBase
 
                     rockVel = rng.Value.NextFloat3Direction() * 3f;
 
-                    collisionECB.AddComponent(entityInQueryIndex, reservedCan, new Acceleration
+                    collisionECB.SetComponent(entityInQueryIndex, reservedCan, new Acceleration
                     {
                         Value = new float3(0, -AnimUtils.gravityStrength, 0)
                     });
@@ -69,6 +69,8 @@ public class RockSystem : SystemBase
                     float randRadius = spawner.rng.NextFloat(spawner.radiusRanges.x, spawner.radiusRanges.y);
 
                     var rockEntity = spawnECB.Instantiate(entityInQueryIndex, spawner.prefab);
+                    spawnECB.AddComponent(entityInQueryIndex,rockEntity, new Acceleration());
+                    spawnECB.AddComponent(entityInQueryIndex,rockEntity, new AngularVelocity());
                     spawnECB.AddComponent(entityInQueryIndex, rockEntity, new Velocity()
                     {
                         Value = spawner.spawnVelocity

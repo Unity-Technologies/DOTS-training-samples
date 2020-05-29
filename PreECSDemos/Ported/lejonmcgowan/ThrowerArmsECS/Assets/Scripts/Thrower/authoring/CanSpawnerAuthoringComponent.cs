@@ -37,6 +37,8 @@ public class CanSpawnerAuthoringComponent: MonoBehaviour, IConvertGameObjectToEn
             {
                 Value = spawnVelocity
             });
+            dstManager.AddComponentData(can, new Acceleration());
+            dstManager.AddComponentData(can, new AngularVelocity());
             dstManager.AddComponentData(can, new DestroyBoundsX()
             {
                 Value = xKillPlanes

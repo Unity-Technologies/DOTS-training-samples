@@ -263,7 +263,7 @@ public class ArmIKSystem : SystemBase
                             Value = throwRecord.lastAimVelocity
                         });
 
-                        throwECB.AddComponent(entityInQueryIndex, reservedRock, new Acceleration()
+                        throwECB.SetComponent(entityInQueryIndex, reservedRock, new Acceleration()
                         {
                             Value = new float3(0, -AnimUtils.gravityStrength, 0)
                         });

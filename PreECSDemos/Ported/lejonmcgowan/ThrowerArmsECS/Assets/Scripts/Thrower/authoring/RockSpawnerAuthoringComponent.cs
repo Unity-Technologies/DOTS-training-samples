@@ -56,6 +56,9 @@ public class RockSpawnerAuthoringComponent: MonoBehaviour, IConvertGameObjectToE
             {
                 Value = spawnVelocity
             });
+            dstManager.AddComponentData(rock, new Acceleration());
+            dstManager.AddComponentData(rock, new AngularVelocity());
+            
             dstManager.AddComponentData(rock, new DestroyBoundsX()
             {
                 Value = xKillPlanes
