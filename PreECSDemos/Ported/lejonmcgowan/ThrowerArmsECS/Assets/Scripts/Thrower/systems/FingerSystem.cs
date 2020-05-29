@@ -148,48 +148,5 @@ public class FingerSystem : SystemBase
                 FABRIK.Solve(fingerJoints.AsNativeArray().Reinterpret<float3>(), 
                     fingerLength, fingerPos, fingerTarget, bendHint );
             }).ScheduleParallel();
-
-        // Entities
-        //     .WithName("ThumbIKJob")
-        //     .WithNone<FingerIndex>()
-        //     .WithReadOnly(WristsFromEntity)
-        //     .WithReadOnly(UpBases)
-        //     .WithReadOnly(ForwardBases)
-        //     .WithReadOnly(RightBases)
-        //     .WithReadOnly(ArmRockRecords)
-        //     .ForEach((
-        //         ref DynamicBuffer<JointElementData> thumbJoints,
-        //         in FingerParent thumbParent,
-        //         in FingerGrabTimer grabT,
-        //         in Thickness thickness) =>
-        //     {
-        //         Entity armParentEntity = thumbParent.armParentEntity;
-        //         var wristPos = GetComponent<Translation>(WristsFromEntity[armParentEntity].value).Value;
-        //         var rockData = ArmRockRecords[armParentEntity];
-        //
-        //         float3 armUp = UpBases[armParentEntity];
-        //         float3 armForward = ForwardBases[armParentEntity];
-        //         float3 armRight = RightBases[armParentEntity];
-        //
-        //         var thumbOffsetX = -0.08f;
-        //
-        //         //get base targetPosition
-        //         float3 thumbPos = wristPos + armRight * thumbOffsetX;
-        //         float3 thumbBendHint = -armRight - armForward * .5f;
-        //
-        //         float3 thumbTarget = .1f * armRight * math.sin(t * 3f + .5f) * (1f - grabT);
-        //         //thumb wiggle?
-        //         thumbTarget += thumbPos - armRight * .15f + armForward * (.2f + .1f * grabT) - armUp * .1f;
-        //
-        //         float3 rockThumbDelta = thumbTarget - rockData.pos;
-        //         float3 rockThumbPos = rockData.pos +
-        //                               math.normalize(rockThumbDelta) * (rockData.size * .5f + thickness);
-        //
-        //
-        //         thumbTarget = math.lerp(thumbTarget, rockThumbPos, grabT);
-        //
-        //         FABRIK.Solve(thumbJoints.AsNativeArray().Reinterpret<float3>(), 0.13f, thumbPos, thumbTarget,
-        //             0.1f * thumbBendHint);
-        //     }).ScheduleParallel();
     }
 }
