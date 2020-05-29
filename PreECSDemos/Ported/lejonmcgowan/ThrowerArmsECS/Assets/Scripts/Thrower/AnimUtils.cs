@@ -3,6 +3,11 @@
 public static class AnimUtils
 {
     public static readonly float gravityStrength = 25f;
+    //1.8^2
+    public static readonly float reachDistSq = 3.24f;
+    public static readonly float reachDuration = 1f;
+    public static readonly float windupDuration = 0.7f;
+    public static readonly float throwDuration = 1.2f;
     public static float EvauateThrowCurveSmooth(float t)
     {
         float tPeak = 0.28f;

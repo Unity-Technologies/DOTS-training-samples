@@ -79,13 +79,13 @@ public class ArmIKSystem : SystemBase
     protected override void OnUpdate()
     {
         float dt = Time.DeltaTime;
+        float t = (float)Time.ElapsedTime;
 
-        //1.8^2
-        float reachDistSq = 3.24f;
-        float reachDuration = 1f;
-        float windupDuration = 0.7f;
-        float throwDuration = 1.2f;
+      
     
+        var TranslationFromEntity = GetComponentDataFromEntity<Translation>();
+        var RotationFromEntity = GetComponentDataFromEntity<Rotation>();
+        
         
         //reaching arms
         Entities
@@ -115,7 +115,7 @@ public class ArmIKSystem : SystemBase
                 grabTarget = rockPos + armUp.value * rockSize * .5f -
                              flatDelta * rockSize * .5f;
 
-                grabT += dt / reachDuration;
+                grabT += dt / AnimUtils.reachDuration;
                 grabT = math.clamp(grabT, 0f, 1f);
             }).ScheduleParallel();
 
@@ -123,38 +123,35 @@ public class ArmIKSystem : SystemBase
         var throwECB = m_beginSimEcbSystem.CreateCommandBuffer().ToConcurrent();
         
         
-        //idle arms
-        Entities
-            .WithName("ArmFailedLerpBackJob")
-            .WithNone<ArmReservedRock>()
-            .ForEach((ref ArmGrabTimer grabT) =>
-            {
-                grabT -= dt / reachDuration;
-                grabT = math.clamp(grabT, 0f, 1f);
-            }).ScheduleParallel();
-        
         //grabbed arms
         Entities
             .WithName("ArmGrabbedLerpBackJob")
             .WithAny<ArmGrabbedTag>()
             .ForEach((ref ArmGrabTimer grabT) =>
             {
-                grabT -= dt / reachDuration;
+                grabT -= dt / AnimUtils.reachDuration;
                 grabT = math.clamp(grabT, 0f, 1f);
             }).ScheduleParallel();
         
         //all arms
         Entities
-            .WithName("ArmIKLerpJob")
+            .WithName("ArmIdleTargetJob")
             .ForEach((ref ArmIKTarget armIKTarget,
-                in ArmIdleTarget armIdleTarget,
+                ref ArmIdleTarget armIdleTarget,
                 in ArmGrabTarget armGrabTarget,
-                in ArmGrabTimer grabT) =>
+                in ArmGrabTimer grabT,
+                in ArmAnchorPos anchorPos) =>
             {
+                float time = t + anchorPos.value.x + anchorPos.value.y + anchorPos.value.z;
+
+                armIdleTarget = anchorPos +
+                                new float3(math.sin(time) * .35f, 1f + math.cos(time * 1.618f) * .5f, 1.5f);
+                
                 armIKTarget.value =
                     math.lerp(armIdleTarget, armGrabTarget, grabT); // grabT is already clamped to [0..1]
             }).ScheduleParallel();
-
+        
+        
         //winding arms
         Entities
             .WithName("ArmWindupJob")
@@ -186,7 +183,7 @@ public class ArmIKSystem : SystemBase
                 windupTarget = armPos - flatTargetDelta * 2f +
                                new float3(0, 1, 0) * (3f - windupT * 2.5f);
 
-                windupTimer += dt / windupDuration;
+                windupTimer += dt / AnimUtils.windupDuration;
 
                 if (windupTimer >= 1f)
                     windupECB.RemoveComponent<ArmWindupTimer>(entityInQueryIndex, entity);
@@ -209,7 +206,7 @@ public class ArmIKSystem : SystemBase
                 float3 canVelocity = GetComponent<Velocity>(reservedCan).Value;
 
                 // done winding up - actual throw, plus resetting to idle
-                throwRecord.throwTimer += dt / throwDuration;
+                throwRecord.throwTimer += dt / AnimUtils.throwDuration;
                 var throwTimeClamp = math.clamp(throwRecord.throwTimer, 0, 1);
                 
                 
@@ -329,7 +326,7 @@ public class ArmIKSystem : SystemBase
                         grabEcb.AddComponent<ArmGrabbedTag>(entityInQueryIndex, armEntity);
                     }
                 }
-                else if (math.lengthsq(anchorToRock) > reachDistSq)
+                else if (math.lengthsq(anchorToRock) > AnimUtils.reachDistSq)
                 {
                     grabEcb.RemoveComponent<RockReservedTag>(entityInQueryIndex, reservedRock);
                     grabEcb.RemoveComponent<ArmReservedRock>(entityInQueryIndex, armEntity);
@@ -339,10 +336,7 @@ public class ArmIKSystem : SystemBase
         
         m_beginSimEcbSystem.AddJobHandleForProducer(Dependency);
         
-        var TranslationFromEntity = GetComponentDataFromEntity<Translation>();
-        var RotationFromEntity = GetComponentDataFromEntity<Rotation>();
-        
-        
+     
         //all arms
         Entities
             .WithName("armIKJob")
@@ -379,6 +373,8 @@ public class ArmIKSystem : SystemBase
                     Value = quaternion.LookRotation(armForward, armUp)
                 };
             }).ScheduleParallel();
+        
+      
         
     }
 }

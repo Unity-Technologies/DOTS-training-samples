@@ -85,39 +85,45 @@ public class ArmSetupSystem : SystemBase
         //idle arms
         var armRequestJob = Entities
             .WithReadOnly(availableRockEntities)
-            .WithNone<ArmReservedRock, ArmGrabbedTag>()
+            .WithNone<ArmReservedRock>()
             .WithName("ArmRequestJob")
             .WithDeallocateOnJobCompletion(availableRockEntities)
-            .ForEach((Entity entity, int entityInQueryIndex, in ArmAnchorPos anchorPos, in ArmGrabTimer grabT) =>
+            .ForEach((Entity entity, int entityInQueryIndex,ref ArmGrabTimer grabT, in ArmAnchorPos anchorPos) =>
             {
-                if (grabT <= 0.0f)
+                if (!HasComponent<ArmGrabbedTag>(entity))
                 {
-                    var minDistSquared = float.MaxValue;
-                    int minIndex = -1;
-
-                    for (int i = 0; i < availableRockEntities.Length; i++)
+                    if (grabT <= 0.0f)
                     {
-                        var rock = availableRockEntities[i];
-                        var rockPos = GetComponent<Translation>(rock).Value;
-                        float distSq = math.distancesq(rockPos, anchorPos);
-                        if (distSq < minDistSquared)
+                        var minDistSquared = float.MaxValue;
+                        int minIndex = -1;
+
+                        for (int i = 0; i < availableRockEntities.Length; i++)
                         {
-                            minDistSquared = distSq;
-                            minIndex = i;
+                            var rock = availableRockEntities[i];
+                            var rockPos = GetComponent<Translation>(rock).Value;
+                            float distSq = math.distancesq(rockPos, anchorPos);
+                            if (distSq < minDistSquared)
+                            {
+                                minDistSquared = distSq;
+                                minIndex = i;
+                            }
+                        }
+
+
+                        if (minIndex > -1 && minDistSquared < reachDistSq)
+                        {
+                            reserveParallelWriter.Enqueue(new RockReserveRequest
+                            {
+                                armPos = anchorPos,
+                                armRef = entity,
+                                rockRef = availableRockEntities[minIndex]
+                            });
                         }
                     }
-
-
-                    if (minIndex > -1 && minDistSquared < reachDistSq)
-                    {
-                        reserveParallelWriter.Enqueue(new RockReserveRequest
-                        {
-                            armPos = anchorPos,
-                            armRef = entity,
-                            rockRef = availableRockEntities[minIndex]
-                        });
-                    }
                 }
+                grabT -= dt / AnimUtils.reachDuration;
+                grabT = math.clamp(grabT, 0f, 1f);
+                
             }).ScheduleParallel(armQueueReservesInputDeps);
 
         
@@ -136,17 +142,7 @@ public class ArmSetupSystem : SystemBase
         m_beginSimEcbSystem.AddJobHandleForProducer(rockReserveJob);
         
         
-        //all arms
-        var armIdleTargetJob = Entities
-            .WithName("ArmIdleTargetJob")
-            .ForEach((ref ArmIdleTarget armIdleTarget,
-                in ArmAnchorPos anchorPos) =>
-            {
-                float time = t + anchorPos.value.x + anchorPos.value.y + anchorPos.value.z;
-
-                armIdleTarget = anchorPos +
-                                new float3(math.sin(time) * .35f, 1f + math.cos(time * 1.618f) * .5f, 1.5f);
-            }).ScheduleParallel(Dependency);
+       
         
         var childrenGroups = GetBufferFromEntity<Child>(true);
         
@@ -177,6 +173,6 @@ public class ArmSetupSystem : SystemBase
                 lastRockRecord.size = rockSize;
             }).ScheduleParallel(armRequestJob);
 
-         Dependency = JobHandle.CombineDependencies(armRecordsJob, armIdleTargetJob);
+         Dependency = armRecordsJob;
     }
 }
