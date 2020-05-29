@@ -1,9 +1,6 @@
-﻿using System;
-using Unity.Entities;
-using Unity.Jobs;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEditor.SceneManagement;
 
 [UpdateAfter(typeof(ArmIKSystem))]
 public class FingerSystem : SystemBase
@@ -21,7 +18,6 @@ public class FingerSystem : SystemBase
         var RightBases = GetComponentDataFromEntity<ArmBasesRight>(true);
         var ForwardBases = GetComponentDataFromEntity<ArmBasesForward>(true);
 
-        var ArmJointsFromEntity = GetBufferFromEntity<JointElementData>(true);
         var WristsFromEntity = GetComponentDataFromEntity<Wrist>(true);
         var ArmGrabTs = GetComponentDataFromEntity<ArmGrabTimer>(true);
         var ArmRockRecords = GetComponentDataFromEntity<ArmLastRockRecord>(true);
@@ -30,39 +26,34 @@ public class FingerSystem : SystemBase
         //float dt = Time.DeltaTime;
         float t = (float) Time.ElapsedTime;
 
-        var grabCopyECB = beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
-        var grabCheckECB = beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
+        var grabManageECB = beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
 
         Entities
-            .WithName("FingerGrabTCopyJob")
-            .WithNone<FingerGrabbedTag>()
+            .WithName("FingerGrabManageJob")
             .WithReadOnly(ArmGrabTs)
             .ForEach((Entity entity,
                 int entityInQueryIndex,
                 ref FingerGrabTimer fingerGrabT,
                 in FingerParent fingerParent) =>
             {
-                Entity armParent = fingerParent.armParentEntity;
-                float armGrabT = ArmGrabTs[armParent];
-                fingerGrabT = armGrabT;
-
-                if (fingerGrabT >= 1f)
+                if (!HasComponent<FingerGrabbedTag>(entity))
                 {
-                    grabCopyECB.AddComponent<FingerGrabbedTag>(entityInQueryIndex, entity);
+                    Entity armParent = fingerParent.armParentEntity;
+                    float armGrabT = ArmGrabTs[armParent];
+                    fingerGrabT = armGrabT;
+
+                    if (fingerGrabT >= 1f)
+                    {
+                        grabManageECB.AddComponent<FingerGrabbedTag>(entityInQueryIndex, entity);
+                    }
+                }
+
+                else if (!HasComponent<ArmReservedRock>(fingerParent))
+                {
+                    grabManageECB.RemoveComponent<FingerGrabbedTag>(entityInQueryIndex, entity);
                 }
             }).ScheduleParallel();
-
-        Entities
-            .WithName("FingerCheckGrabbed")
-            .WithAny<FingerGrabbedTag>()
-            .ForEach((Entity entity, int entityInQueryIndex, in FingerParent fingerParent) =>
-            {
-                if (!HasComponent<ArmReservedRock>(fingerParent))
-                {
-                    grabCheckECB.RemoveComponent<FingerGrabbedTag>(entityInQueryIndex, entity);
-                }
-            }).ScheduleParallel();
-
+        
         //todo make use of a branch to combine this and ThumbIKJob
         Entities
             .WithName("FingerIKJob")

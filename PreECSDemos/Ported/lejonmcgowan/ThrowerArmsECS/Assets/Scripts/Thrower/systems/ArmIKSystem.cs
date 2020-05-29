@@ -379,22 +379,6 @@ public class ArmIKSystem : SystemBase
                     Value = quaternion.LookRotation(armForward, armUp)
                 };
             }).ScheduleParallel();
-
         
-        // //todo this is very likely redundant. Address the function here and in ArmSetupSystem
-        // Entities
-        //     .WithName("ArmRockRecordJob")
-        //     .ForEach((ref ArmLastRockRecord lastRockRecord,
-        //         in ArmReservedRock reservedRock) =>
-        //     {
-        //         if (reservedRock.Value != Entity.Null)
-        //         {
-        //             float3 rockPos = GetComponent<LocalToWorld>(reservedRock).Position;
-        //             float rockSize = GetComponent<RockRadiusComponentData>(reservedRock);
-        //
-        //             lastRockRecord.pos = rockPos;
-        //             lastRockRecord.size = rockSize;
-        //         }
-        //     }).ScheduleParallel();
     }
 }
