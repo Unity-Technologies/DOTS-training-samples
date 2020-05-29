@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEditor.SceneManagement;
 
 [UpdateAfter(typeof(ArmIKSystem))]
@@ -20,7 +21,8 @@ public class FingerSystem : SystemBase
         var RightBases = GetComponentDataFromEntity<ArmBasesRight>(true);
         var ForwardBases = GetComponentDataFromEntity<ArmBasesForward>(true);
 
-        var ArmJointsFromEntity = GetBufferFromEntity<ArmJointElementData>(true);
+        var ArmJointsFromEntity = GetBufferFromEntity<JointElementData>(true);
+        var WristsFromEntity = GetComponentDataFromEntity<Wrist>(true);
         var ArmGrabTs = GetComponentDataFromEntity<ArmGrabTimer>(true);
         var ArmRockRecords = GetComponentDataFromEntity<ArmLastRockRecord>(true);
         var ArmThrowRecords = GetComponentDataFromEntity<ArmLastThrowRecord>(true);
@@ -64,23 +66,22 @@ public class FingerSystem : SystemBase
         //todo make use of a branch to combine this and ThumbIKJob
         Entities
             .WithName("FingerIKJob")
-            .WithReadOnly(ArmJointsFromEntity)
+            .WithReadOnly(WristsFromEntity)
             .WithReadOnly(UpBases)
             .WithReadOnly(ForwardBases)
             .WithReadOnly(RightBases)
             .WithReadOnly(ArmRockRecords)
             .WithReadOnly(ArmThrowRecords)
             .ForEach((
-                ref DynamicBuffer<FingerJointElementData> fingerJoints,
+                ref DynamicBuffer<JointElementData> fingerJoints,
                 in FingerParent fingerParent,
                 in FingerIndex fingerIndex,
                 in FingerGrabTimer fingerGrabT,
-                in FingerThickness fingerThickness,
+                in Thickness fingerThickness,
                 in FingerLength fingerLength) =>
             {
                 Entity armParentEntity = fingerParent.armParentEntity;
-                var armJointData = ArmJointsFromEntity[armParentEntity];
-                var wristPos = armJointData[armJointData.Length - 1].value;
+                var wristPos = GetComponent<Translation>(WristsFromEntity[armParentEntity].value).Value;
                 var rockData = ArmRockRecords[armParentEntity];
 
                 float3 armUp = UpBases[armParentEntity];
@@ -121,20 +122,19 @@ public class FingerSystem : SystemBase
         Entities
             .WithName("ThumbIKJob")
             .WithNone<FingerIndex>()
-            .WithReadOnly(ArmJointsFromEntity)
+            .WithReadOnly(WristsFromEntity)
             .WithReadOnly(UpBases)
             .WithReadOnly(ForwardBases)
             .WithReadOnly(RightBases)
             .WithReadOnly(ArmRockRecords)
             .ForEach((
-                ref DynamicBuffer<FingerJointElementData> thumbJoints,
+                ref DynamicBuffer<JointElementData> thumbJoints,
                 in FingerParent thumbParent,
                 in FingerGrabTimer grabT,
-                in FingerThickness thickness) =>
+                in Thickness thickness) =>
             {
                 Entity armParentEntity = thumbParent.armParentEntity;
-                var armJointData = ArmJointsFromEntity[armParentEntity];
-                var wristPos = armJointData[armJointData.Length - 1].value;
+                var wristPos = GetComponent<Translation>(WristsFromEntity[armParentEntity].value).Value;
                 var rockData = ArmRockRecords[armParentEntity];
 
                 float3 armUp = UpBases[armParentEntity];

@@ -4,7 +4,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateAfter(typeof(ArmSetupSystem))]
-[UpdateBefore(typeof(ArmRenderUpdateSystem))]
+[UpdateBefore(typeof(RenderUpdateSystem))]
 public class ArmIKSystem : SystemBase
 {
     private BeginSimulationEntityCommandBufferSystem m_beginSimEcbSystem;
@@ -85,7 +85,9 @@ public class ArmIKSystem : SystemBase
         float reachDuration = 1f;
         float windupDuration = 0.7f;
         float throwDuration = 1.2f;
-
+    
+        
+        //reaching arms
         Entities
             .WithName("ArmTargetJob")
             .WithNone<ArmGrabbedTag>()
@@ -119,7 +121,9 @@ public class ArmIKSystem : SystemBase
 
         var windupECB = m_beginSimEcbSystem.CreateCommandBuffer().ToConcurrent();
         var throwECB = m_beginSimEcbSystem.CreateCommandBuffer().ToConcurrent();
-
+        
+        
+        //idle arms
         Entities
             .WithName("ArmFailedLerpBackJob")
             .WithNone<ArmReservedRock>()
@@ -128,7 +132,8 @@ public class ArmIKSystem : SystemBase
                 grabT -= dt / reachDuration;
                 grabT = math.clamp(grabT, 0f, 1f);
             }).ScheduleParallel();
-
+        
+        //grabbed arms
         Entities
             .WithName("ArmGrabbedLerpBackJob")
             .WithAny<ArmGrabbedTag>()
@@ -137,8 +142,8 @@ public class ArmIKSystem : SystemBase
                 grabT -= dt / reachDuration;
                 grabT = math.clamp(grabT, 0f, 1f);
             }).ScheduleParallel();
-
-
+        
+        //all arms
         Entities
             .WithName("ArmIKLerpJob")
             .ForEach((ref ArmIKTarget armIKTarget,
@@ -150,7 +155,7 @@ public class ArmIKSystem : SystemBase
                     math.lerp(armIdleTarget, armGrabTarget, grabT); // grabT is already clamped to [0..1]
             }).ScheduleParallel();
 
-
+        //winding arms
         Entities
             .WithName("ArmWindupJob")
             .ForEach((
@@ -187,6 +192,7 @@ public class ArmIKSystem : SystemBase
                     windupECB.RemoveComponent<ArmWindupTimer>(entityInQueryIndex, entity);
             }).ScheduleParallel();
         
+        //throwing arms
         Entities
             .WithName("ArmThrowJob")
             .WithNone<ArmWindupTimer>()
@@ -285,7 +291,8 @@ public class ArmIKSystem : SystemBase
 
 
         var grabEcb = m_beginSimEcbSystem.CreateCommandBuffer().ToConcurrent();
-
+        
+        //reaching arms
         Entities
             .WithName("ArmGrabJob")
             .WithNone<ArmGrabbedTag>()
@@ -334,7 +341,9 @@ public class ArmIKSystem : SystemBase
         
         var TranslationFromEntity = GetComponentDataFromEntity<Translation>();
         var RotationFromEntity = GetComponentDataFromEntity<Rotation>();
-
+        
+        
+        //all arms
         Entities
             .WithName("armIKJob")
             .WithNativeDisableParallelForRestriction(TranslationFromEntity)
@@ -344,7 +353,7 @@ public class ArmIKSystem : SystemBase
                 ref ArmBasesForward armForward,
                 ref ArmBasesRight armRight,
                 ref ArmBasesUp armUp,
-                ref DynamicBuffer<ArmJointElementData> armJoints,
+                ref DynamicBuffer<JointElementData> armJoints,
                 in Wrist wrist,
                 in ArmIKTarget armTarget,
                 in ArmAnchorPos armAnchorPos

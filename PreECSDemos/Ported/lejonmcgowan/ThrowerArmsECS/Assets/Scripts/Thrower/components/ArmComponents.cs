@@ -3,9 +3,9 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 
-public struct ArmRenderComponentData: IComponentData
+public struct RenderComponentData: IComponentData
 {
-    public Entity armEntity;
+    public Entity entityRef;
     public int jointIndex;
 }
 
@@ -167,16 +167,16 @@ public struct ArmBasesForward: IComponentData
     public static implicit operator float3(ArmBasesForward c) => c.value;
 }
 
-public struct ArmJointElementData: IBufferElementData
+public struct JointElementData: IBufferElementData
 {
     public float3 value;
     
-    public static implicit operator ArmJointElementData(float3 up) => new ArmJointElementData
+    public static implicit operator JointElementData(float3 up) => new JointElementData
     {
         value = up
     };
     
-    public static implicit operator float3(ArmJointElementData c) => c.value;
+    public static implicit operator float3(JointElementData c) => c.value;
     
 }
 

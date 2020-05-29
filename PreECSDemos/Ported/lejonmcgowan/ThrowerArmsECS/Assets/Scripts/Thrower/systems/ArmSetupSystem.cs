@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateBefore(typeof(ArmRenderUpdateSystem))]
+[UpdateBefore(typeof(RenderUpdateSystem))]
 public class ArmSetupSystem : SystemBase
 {
     private EntityQuery m_availableRocksQuery;
@@ -82,6 +82,7 @@ public class ArmSetupSystem : SystemBase
         
         var armQueueReservesInputDeps = JobHandle.CombineDependencies(Dependency, getAvailableRocksJob);
         
+        //idle arms
         var armRequestJob = Entities
             .WithReadOnly(availableRockEntities)
             .WithNone<ArmReservedRock, ArmGrabbedTag>()
@@ -133,7 +134,9 @@ public class ArmSetupSystem : SystemBase
         RequestMap.Dispose(rockReserveJob);
 
         m_beginSimEcbSystem.AddJobHandleForProducer(rockReserveJob);
-
+        
+        
+        //all arms
         var armIdleTargetJob = Entities
             .WithName("ArmIdleTargetJob")
             .ForEach((ref ArmIdleTarget armIdleTarget,
@@ -146,7 +149,8 @@ public class ArmSetupSystem : SystemBase
             }).ScheduleParallel(Dependency);
         
         var childrenGroups = GetBufferFromEntity<Child>(true);
-
+        
+        //all arms with rock (grabbed, windup, and throwing)
         //todo can this be simplified using ArmReservedRock?
          var armRecordsJob = Entities
             .WithName("ArmRockRecordUpdateJob")

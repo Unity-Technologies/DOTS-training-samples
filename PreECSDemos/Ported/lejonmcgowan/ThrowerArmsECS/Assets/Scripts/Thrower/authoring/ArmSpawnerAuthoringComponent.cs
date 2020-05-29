@@ -17,6 +17,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
     public float thumbLength = 0.13f;
 
     private float fingerThickness = 0.05f;
+    private float armThickness = 0.15f;
     private float thumbThickness = 0.06f;
     
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -32,12 +33,13 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
         
         ComponentTypes armComponents = new ComponentTypes(new ComponentType[]
             {
+                typeof(Thickness),
                 typeof(ArmBasesUp),
                 typeof(ArmBasesForward),
                 typeof(ArmBasesRight),
                 typeof(ArmIdleTarget),
                 typeof(ArmIKTarget),
-                typeof(ArmJointElementData),
+                typeof(JointElementData),
                 typeof(ArmAnchorPos),
                 typeof(ArmGrabTarget),
                 typeof(ArmGrabTimer),
@@ -50,8 +52,8 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
         
         ComponentTypes fingerComponents = new ComponentTypes(
             typeof(FingerParent),
-            typeof(FingerJointElementData),
-            typeof(FingerThickness)
+            typeof(JointElementData),
+            typeof(Thickness)
         );
         
         for (int i = 0; i < numArms; i++)
@@ -94,7 +96,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
                 
                 dstManager.AddComponents(fingerEntity, fingerComponents);
                 dstManager.SetComponentData<FingerParent>(fingerEntity, armEntity);
-                dstManager.SetComponentData(fingerEntity, new FingerThickness()
+                dstManager.SetComponentData(fingerEntity, new Thickness()
                 {
                     value = fingerThickness
                 });
@@ -110,7 +112,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             Entity thumbEntity = conversionSystem.CreateAdditionalEntity(gameObject);
             dstManager.AddComponents(thumbEntity,fingerComponents);
             dstManager.SetComponentData<FingerParent>(thumbEntity,armEntity);
-            dstManager.SetComponentData(thumbEntity, new FingerThickness()
+            dstManager.SetComponentData(thumbEntity, new Thickness()
             {
                 value = thumbThickness,
             });
@@ -131,7 +133,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
     
     private void SetupArmEntities(EntityManager dstManager, Entity armEntity, float3 anchorPos)
     {
-        var armJoints = dstManager.GetBuffer<ArmJointElementData>(armEntity);
+        var armJoints = dstManager.GetBuffer<JointElementData>(armEntity);
         armJoints.Capacity = 3; 
         
         float3 target = new float3(-0.3f, 1.0f, 1.5f);
@@ -170,15 +172,21 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             var armJointEntity = dstManager.Instantiate(prefab);
             
             dstManager.AddComponent<LocalToWorld>(armJointEntity);
-            dstManager.AddComponent<ArmRenderComponentData>(armJointEntity);
+            dstManager.AddComponent<RenderComponentData>(armJointEntity);
             dstManager.AddComponent<Translation>(armJointEntity);
             dstManager.AddComponent<Rotation>(armJointEntity);
             dstManager.AddComponent<NonUniformScale>(armJointEntity);
             
-            dstManager.AddComponentData(armJointEntity, new ArmRenderComponentData()
+            dstManager.AddComponent<NonUniformScale>(armJointEntity);
+            dstManager.AddComponentData(armJointEntity, new RenderComponentData()
             {
                 jointIndex = armJoint,
-                armEntity = armEntity
+                entityRef = armEntity
+            });
+            
+            dstManager.AddComponentData(armJointEntity, new Thickness
+            {
+                value = armThickness
             });
             
 #if UNITY_EDITOR            
@@ -190,7 +198,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
     private void SetupFingerEntities(EntityManager dstManager,
         Entity fingerEntity, Entity armParentEntity, int fingerIndex)
     {
-        var fingerJointBuffer = dstManager.GetBuffer<FingerJointElementData>(fingerEntity);
+        var fingerJointBuffer = dstManager.GetBuffer<JointElementData>(fingerEntity);
         fingerJointBuffer.Capacity = 4;        
         int numFingerJoints = fingerJointBuffer.Capacity;
         
@@ -218,13 +226,13 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             dstManager.AddComponent<Rotation>(fingerJointEntity);
             dstManager.AddComponent<NonUniformScale>(fingerJointEntity);
 
-            dstManager.AddComponentData(fingerJointEntity,  new FingerRenderComponentData()
+            dstManager.AddComponentData(fingerJointEntity,  new RenderComponentData()
             {
                 jointIndex = fingerJoint,
-                fingerEntity = fingerEntity
+                entityRef = fingerEntity
             });
             
-            dstManager.AddComponentData(fingerJointEntity, new FingerThickness()
+            dstManager.AddComponentData(fingerJointEntity, new Thickness()
             {
                 value = fingerThickness,
             });
@@ -239,7 +247,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
     private void SetupThumbEntity(EntityManager dstManager,
         Entity thumbEntity, Entity armParentEntity)
     {
-        var thumbJointBuffer = dstManager.GetBuffer<FingerJointElementData>(thumbEntity);
+        var thumbJointBuffer = dstManager.GetBuffer<JointElementData>(thumbEntity);
         thumbJointBuffer.Capacity = 4;        
         int numThumbJoints = thumbJointBuffer.Capacity;
         
@@ -266,13 +274,13 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             dstManager.AddComponent<Rotation>(thumbJointEntity);
             dstManager.AddComponent<NonUniformScale>(thumbJointEntity);
 
-            dstManager.AddComponentData(thumbJointEntity,  new FingerRenderComponentData()
+            dstManager.AddComponentData(thumbJointEntity,  new RenderComponentData()
             {
-                fingerEntity = thumbEntity,
+                entityRef = thumbEntity,
                 jointIndex = fingerJoint
             });
             
-            dstManager.AddComponentData(thumbJointEntity, new FingerThickness()
+            dstManager.AddComponentData(thumbJointEntity, new Thickness()
             {
                 value = thumbThickness
             });
