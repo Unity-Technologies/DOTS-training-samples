@@ -53,7 +53,8 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
         ComponentTypes fingerComponents = new ComponentTypes(
             typeof(FingerParent),
             typeof(JointElementData),
-            typeof(Thickness)
+            typeof(Thickness),
+            typeof(FingerLength)
         );
         
         for (int i = 0; i < numArms; i++)
@@ -100,7 +101,7 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
                 {
                     value = fingerThickness
                 });
-                dstManager.AddComponentData(fingerEntity, new FingerLength()
+                dstManager.SetComponentData(fingerEntity, new FingerLength()
                 {
                     value =  fingerLengths[fingerIndex]
                 });
@@ -115,6 +116,10 @@ public class ArmSpawnerAuthoringComponent : MonoBehaviour,IConvertGameObjectToEn
             dstManager.SetComponentData(thumbEntity, new Thickness()
             {
                 value = thumbThickness,
+            });
+            dstManager.SetComponentData(thumbEntity, new FingerLength()
+            {
+                value = thumbLength
             });
             SetupThumbEntity(dstManager,thumbEntity,armEntity);
             
