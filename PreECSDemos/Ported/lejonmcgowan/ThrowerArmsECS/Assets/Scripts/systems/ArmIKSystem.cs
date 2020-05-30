@@ -86,21 +86,27 @@ public class ArmIKSystem : SystemBase
         var TranslationFromEntity = GetComponentDataFromEntity<Translation>();
         var RotationFromEntity = GetComponentDataFromEntity<Rotation>();
         
+        var grabEcb = m_beginSimEcbSystem.CreateCommandBuffer().ToConcurrent();
         
         //reaching arms
         Entities
             .WithName("ArmTargetJob")
             .WithNone<ArmGrabbedTag>()
-            .ForEach((ref ArmGrabTarget grabTarget,
+            .ForEach((
+                int entityInQueryIndex,
+                Entity armEntity,
+                ref ArmGrabTarget grabTarget,
                 ref ArmGrabTimer grabT,
                 ref ArmLastRockRecord lastRockRecord,
-                in ArmAnchorPos anchorPos,
                 in ArmBasesUp armUp,
-                in ArmReservedRock reservedRock) =>
+                in ArmReservedRock reservedRock,
+                in Wrist wrist) =>
             {
                 float3 rockPos = GetComponent<LocalToWorld>(reservedRock).Position;
                 float rockSize = GetComponent<RockRadiusComponentData>(reservedRock);
 
+                var anchorPos = GetComponent<ArmAnchorPos>(armEntity);
+                
                 lastRockRecord.pos = rockPos;
                 lastRockRecord.size = rockSize;
                 //todo check if this is still needed? it's used in palm spreading but am unsure if relevant
@@ -117,11 +123,61 @@ public class ArmIKSystem : SystemBase
 
                 grabT += dt / AnimUtils.reachDuration;
                 grabT = math.clamp(grabT, 0f, 1f);
+                
+                //grab stuff
+                
+                
+                float3 anchorToRock = GetComponent<Translation>(reservedRock).Value - anchorPos;
+
+                if (grabT >= 1.0f)
+                {
+                    if (!HasComponent<Parent>(reservedRock.Value))
+                    {
+                        Parent wristParent = new Parent
+                        {
+                            Value = wrist
+                        };
+
+                        grabEcb.SetComponent(entityInQueryIndex, reservedRock, new Translation
+                        {
+                            Value = new float3(0, lastRockRecord.size * -0.1f, lastRockRecord.size * 0.55F)
+                        });
+                        
+                        grabEcb.AddComponent(entityInQueryIndex, reservedRock, wristParent);
+                        grabEcb.AddComponent(entityInQueryIndex, reservedRock, new LocalToParent());
+                        grabEcb.AddComponent(entityInQueryIndex, reservedRock, new RockGrabbedTag());
+
+                        grabEcb.AddComponent<ArmGrabbedTag>(entityInQueryIndex, armEntity);
+                    }
+                }
+                else if (math.lengthsq(anchorToRock) > AnimUtils.reachDistSq)
+                {
+                    grabEcb.RemoveComponent<RockReservedTag>(entityInQueryIndex, reservedRock);
+                    grabEcb.RemoveComponent<ArmReservedRock>(entityInQueryIndex, armEntity);
+                }
             }).ScheduleParallel();
 
+       
+        
+        //reaching arms
+        Entities
+            .WithName("ArmGrabJob")
+            .WithNone<ArmGrabbedTag>()
+            .ForEach((
+                int entityInQueryIndex,
+                Entity armEntity,
+                ref ArmReservedRock reservedRock,
+                in ArmLastRockRecord lastRockRecord,
+                in ArmGrabTimer grabT,
+                in ArmAnchorPos anchorPos,
+                in Wrist wrist
+            ) =>
+            {
+               
+            }).ScheduleParallel();
+        
         var windupECB = m_beginSimEcbSystem.CreateCommandBuffer().ToConcurrent();
         var throwECB = m_beginSimEcbSystem.CreateCommandBuffer().ToConcurrent();
-        
         
         //grabbed arms
         Entities
@@ -287,51 +343,7 @@ public class ArmIKSystem : SystemBase
         m_beginSimEcbSystem.AddJobHandleForProducer(Dependency);
 
 
-        var grabEcb = m_beginSimEcbSystem.CreateCommandBuffer().ToConcurrent();
-        
-        //reaching arms
-        Entities
-            .WithName("ArmGrabJob")
-            .WithNone<ArmGrabbedTag>()
-            .ForEach((
-                int entityInQueryIndex,
-                Entity armEntity,
-                ref ArmReservedRock reservedRock,
-                in ArmLastRockRecord lastRockRecord,
-                in ArmGrabTimer grabT,
-                in ArmAnchorPos anchorPos,
-                in Wrist wrist
-            ) =>
-            {
-                float3 anchorToRock = GetComponent<Translation>(reservedRock).Value - anchorPos;
-
-                if (grabT >= 1.0f)
-                {
-                    if (!HasComponent<Parent>(reservedRock.Value))
-                    {
-                        Parent wristParent = new Parent
-                        {
-                            Value = wrist
-                        };
-
-                        grabEcb.SetComponent(entityInQueryIndex, reservedRock, new Translation
-                        {
-                            Value = new float3(0, lastRockRecord.size * -0.1f, lastRockRecord.size * 0.55F)
-                        });
-                        
-                        grabEcb.AddComponent(entityInQueryIndex, reservedRock, wristParent);
-                        grabEcb.AddComponent(entityInQueryIndex, reservedRock, new LocalToParent());
-                        grabEcb.AddComponent(entityInQueryIndex, reservedRock, new RockGrabbedTag());
-
-                        grabEcb.AddComponent<ArmGrabbedTag>(entityInQueryIndex, armEntity);
-                    }
-                }
-                else if (math.lengthsq(anchorToRock) > AnimUtils.reachDistSq)
-                {
-                    grabEcb.RemoveComponent<RockReservedTag>(entityInQueryIndex, reservedRock);
-                    grabEcb.RemoveComponent<ArmReservedRock>(entityInQueryIndex, armEntity);
-                }
-            }).ScheduleParallel();
+       
         
         
         m_beginSimEcbSystem.AddJobHandleForProducer(Dependency);
