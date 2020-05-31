@@ -47,7 +47,7 @@ public class CanSpawnerAuthoringComponent: MonoBehaviour, IConvertGameObjectToEn
             {
                 Value = -10f
             });
-            dstManager.AddComponentData(can, new CanInitSpeed
+            dstManager.AddComponentData(can, new CanInit
             {
                 initPos = initPos,
                 initVel = spawnVelocity

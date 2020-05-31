@@ -156,25 +156,6 @@ public class ArmIKSystem : SystemBase
                     grabEcb.RemoveComponent<ArmReservedRock>(entityInQueryIndex, armEntity);
                 }
             }).ScheduleParallel();
-
-       
-        
-        //reaching arms
-        Entities
-            .WithName("ArmGrabJob")
-            .WithNone<ArmGrabbedTag>()
-            .ForEach((
-                int entityInQueryIndex,
-                Entity armEntity,
-                ref ArmReservedRock reservedRock,
-                in ArmLastRockRecord lastRockRecord,
-                in ArmGrabTimer grabT,
-                in ArmAnchorPos anchorPos,
-                in Wrist wrist
-            ) =>
-            {
-               
-            }).ScheduleParallel();
         
         var windupECB = m_beginSimEcbSystem.CreateCommandBuffer().ToConcurrent();
         var throwECB = m_beginSimEcbSystem.CreateCommandBuffer().ToConcurrent();
@@ -342,13 +323,6 @@ public class ArmIKSystem : SystemBase
 
         m_beginSimEcbSystem.AddJobHandleForProducer(Dependency);
 
-
-       
-        
-        
-        m_beginSimEcbSystem.AddJobHandleForProducer(Dependency);
-        
-     
         //all arms
         Entities
             .WithName("armIKJob")

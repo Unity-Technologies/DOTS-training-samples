@@ -25,20 +25,6 @@ public class MoveSystem : SystemBase
 
         var destroyEBC = m_beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
         var respawnECB = m_beginSimECBSystem.CreateCommandBuffer().ToConcurrent();
-
-
-        var preVelJob = Entities
-            .WithName("PreVelocityPhysicsJob")
-            .ForEach((ref Rotation r,
-                ref Velocity v,
-                in AngularVelocity av,
-                in Acceleration a) =>
-            {
-                var avQuat = quaternion.AxisAngle(av.UnitAxis, av.RadsPerSecond * dt);
-
-                r.Value = math.mul(avQuat, r.Value);
-                v.Value += a.Value * dt;
-            }).ScheduleParallel(Dependency);
         
         var rockBoundsJob = Entities
             .WithName("RockBoundsJob")
@@ -77,7 +63,7 @@ public class MoveSystem : SystemBase
             .WithAll<Acceleration>()
             .ForEach((Entity entity, int entityInQueryIndex,
                 ref Translation position, in DestroyBoundsX boundsX, in DestroyBoundsY boundsY,
-                in CanInitSpeed canInitSpeed) =>
+                in CanInit canInitParams) =>
             {
                 //check and wrap X bounds
                 if (position.Value.x < boundsX.Value.x)
@@ -94,11 +80,11 @@ public class MoveSystem : SystemBase
                 {
                     respawnECB.SetComponent(entityInQueryIndex, entity, new Translation
                     {
-                        Value = canInitSpeed.initPos
+                        Value = canInitParams.initPos
                     });
                     respawnECB.SetComponent(entityInQueryIndex, entity, new Velocity
                     {
-                        Value = canInitSpeed.initVel
+                        Value = canInitParams.initVel
                     });
                     respawnECB.SetComponent(entityInQueryIndex, entity, new Rotation
                     {
@@ -113,15 +99,28 @@ public class MoveSystem : SystemBase
 
 
         m_beginSimECBSystem.AddJobHandleForProducer(wrapAroundJob);
+        
+        var physicsJob = Entities
+            .WithName("PreVelocityPhysicsJob")
+            .ForEach((Entity entity,
+                ref Translation p,
+                ref Rotation r,
+                ref Velocity v,
+                in AngularVelocity av,
+                in Acceleration a) =>
+            {
+                var avQuat = quaternion.AxisAngle(av.UnitAxis, av.RadsPerSecond * dt);
 
+                r.Value = math.mul(avQuat, r.Value);
+                v.Value += a.Value * dt;
 
-        var velJob = Entities
-            .WithName("VelocityJob")
-            .WithNone<RockGrabbedTag>()
-            .ForEach((ref Translation p, in Velocity v) => { p.Value += v.Value * dt; })
-            .ScheduleParallel(JobHandle.CombineDependencies(preVelJob,wrapAroundJob));
+                if (!HasComponent<RockGrabbedTag>(entity))
+                {
+                    p.Value += v.Value * dt;
+                }
+            }).ScheduleParallel(wrapAroundJob);
+        
+        Dependency = physicsJob;
 
-
-        Dependency = velJob;
     }
 }

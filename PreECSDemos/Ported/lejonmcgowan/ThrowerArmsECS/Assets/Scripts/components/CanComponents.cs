@@ -20,7 +20,7 @@ public struct CanTag : IComponentData
     
 }
 
-public struct CanInitSpeed : IComponentData
+public struct CanInit : IComponentData
 {
     public float3 initPos;
     public float3 initVel;
