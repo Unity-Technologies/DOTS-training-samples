@@ -1,5 +1,6 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Entities.UniversalDelegates;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -31,6 +32,7 @@ class MovementSystem : SystemBase
 
         // update movement
         Entities
+            .WithNone<FallingTag>()
             .ForEach((int entityInQueryIndex, Entity entity, ref Position2D pos, ref Direction2D dir, in WalkSpeed speed) =>
             {
                 // TODO low fps handling here
@@ -46,7 +48,7 @@ class MovementSystem : SystemBase
                     if (slice <= 0f || NearlyEqual(0f, slice, k_SliceEpsilon))
                         break;
 
-                    var delta = new float2(1f, 0f) * slice;
+                    var delta = ForwardVectorForDirection(dir.Value) * slice;
                     pos.Value += delta;
 
                     var flooredPos = pos.Value;
@@ -71,19 +73,58 @@ class MovementSystem : SystemBase
                             throw new System.ArgumentOutOfRangeException("Invalid direction set");
                     }
 
-                    var cell = cells[0]; // TODO <- actual index, obviously
-                                         //cell = board.CellAtWorldPosition(pos);
 
-                    if (cell.IsHole())
+                    int2 cellCoord = Utility.WorldPositionToGridCoordinates(flooredPos, cellSize);
+                    if (cellCoord.x > cols || cellCoord.y > rows)
                     {
-                        // add falling tag
                         ecb.AddComponent<FallingTag>(entityInQueryIndex, entity);
-
+                        throw new System.ArgumentOutOfRangeException($"cell coordinates are out of range - {cellCoord.x}, {cellCoord.y}");
                     }
-                    else if (cell.IsBase())
+
+                    var cellIndex = (cellCoord.y * rows) + cellCoord.x;
+                    var cell = cells[cellIndex];
+
+                    //if (cell.IsHole())
+                    //{
+                    //    // add falling tag
+                    //    ecb.AddComponent<FallingTag>(entityInQueryIndex, entity);
+
+                    //}
+                    //else if (cell.IsBase())
+                    //{
+                    //    // remove entity and score
+                    //    //ecb.AddComponent<ReachedBase>(entityInQueryIndex, entity);
+                    //}
+                    //else
                     {
-                        // remove entity and score
-                        //ecb.AddComponent<ReachedBase>(entityInQueryIndex, entity);
+                        var newDirection = dir.Value;
+
+                        // check for arrows
+                        bool foundArrow = false;
+                        if (foundArrow)
+                        {
+                            var arrowDirection = GridDirection.NORTH;
+                            newDirection = arrowDirection;
+                        }
+                        else
+                        {
+                            if (!cell.CanTravel(newDirection))
+                            {
+                                do
+                                {
+                                    byte byteDir = (byte)newDirection;
+                                    byteDir++;
+                                    if (byteDir > (byte)GridDirection.WEST)
+                                        byteDir = 0;
+                                    newDirection = (GridDirection)byteDir;
+                                }
+                                while (!cell.CanTravel(newDirection)
+                                        && newDirection != dir.Value);
+
+                                if (newDirection == dir.Value)
+                                    throw new System.InvalidOperationException("Unable to resolve cell travel. Is there a valid exit from this cell?");
+                            }
+                        }
                     }
 
                     //var newDirection = cell.ShouldRedirect(myDirection, ref lastRedirectCoord, this); ;
@@ -103,6 +144,27 @@ class MovementSystem : SystemBase
             .ScheduleParallel();
 
         m_Barrier.AddJobHandleForProducer(Dependency);
+    }
+
+    static float2 ForwardVectorForDirection(GridDirection dir)
+    {
+        switch (dir)
+        {
+            case GridDirection.NORTH:
+                return new float2(0f, 1f);
+
+            case GridDirection.EAST:
+                return new float2(1f, 0f);
+
+            case GridDirection.SOUTH:
+                return new float2(0f, -1f);
+
+            case GridDirection.WEST:
+                return new float2(-1f, 0f);
+
+            default:
+                throw new System.ArgumentOutOfRangeException("Invalid direction set");
+        }
     }
 
     // taken from https://stackoverflow.com/questions/3874627/floating-point-comparison-functions-for-c-sharp
