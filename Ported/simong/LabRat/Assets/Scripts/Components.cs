@@ -37,5 +37,14 @@ public struct ReachedBase : IComponentData
 
 public struct ArrowRequest : IComponentData
 {
-    // TBC with ArrowSystem
+    public int2 Position;
+    public int OwnerID;
+    public GridDirection Direction;
+}
+public struct ArrowComponent : IComponentData
+{
+    public int2 Position;
+    public int OwnerID;
+    public GridDirection Direction;
+    public long SpawnTime;
 }

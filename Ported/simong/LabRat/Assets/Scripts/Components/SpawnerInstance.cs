@@ -4,4 +4,5 @@ using Unity.Entities;
 public struct SpawnerInstance : IComponentData
 {
     public float Time;
+    public float AlternateSpawnTime;
 }
