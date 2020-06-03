@@ -45,11 +45,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e18ffbeeb2d7bc54bb1e8685a7d318dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TrackLength: 0
+  TrackLength: 80
   TrackStartingPoint:
-    x: 0
-    y: 0
-  LaneSeparation: 0
+    x: -5
+    y: -5
+  LaneWidth: 4
+  NumberOfLanes: 4
+  SeparationWidth: 1
 --- !u!33 &8881250052852168552
 MeshFilter:
   m_ObjectHideFlags: 0

@@ -6,5 +6,7 @@ public struct TrackProperties : IComponentData
 {
     public float TrackLength;
     public float2 TrackStartingPoint;
-    public float LaneSeparation;
+    public float LaneWidth;
+    public int NumberOfLanes;
+    public float SeparationWidth;
 }
