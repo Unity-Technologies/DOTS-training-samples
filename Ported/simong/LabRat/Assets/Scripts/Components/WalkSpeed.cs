@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 
+[GenerateAuthoringComponent]
 public struct WalkSpeed : IComponentData
 {
-    public float Speed;
+    public float Value;
 }

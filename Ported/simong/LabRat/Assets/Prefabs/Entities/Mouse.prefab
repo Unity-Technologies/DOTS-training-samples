@@ -208,6 +208,7 @@ GameObject:
   - component: {fileID: -5826278349375847058}
   - component: {fileID: -3562123398523690082}
   - component: {fileID: 3044898595693845003}
+  - component: {fileID: -4825703698301311669}
   m_Layer: 9
   m_Name: Mouse
   m_TagString: Mouse
@@ -267,7 +268,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c3dae8cf9a010b4e894c36d9a6d39f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Value: 0
+  Value: 1
 --- !u!114 &3044898595693845003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280,6 +281,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e6efebfd1ec9674d9703f29d541a8c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-4825703698301311669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1565721843962348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f2a91e6ab1ae5f4eb705cf27c872ddc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: 1
 --- !u!1 &1693600454594072
 GameObject:
   m_ObjectHideFlags: 0
