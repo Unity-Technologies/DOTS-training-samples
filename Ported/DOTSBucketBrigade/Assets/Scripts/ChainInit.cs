@@ -47,11 +47,12 @@ namespace DefaultNamespace
                 SetChainStartEnd(chain, nearestWater, nearestFire);
 
                 // Scooper
-                var scooper = CreateAgent(ref rand, prefabs.ScooperPrefab, gridSize, chain, 0f);
+                var scooper = CreateAgent(ref rand, prefabs.ScooperPrefab, gridSize, chain, 0f, 
+                    1f);
                 SetTargetPosition(scooper, nearestWater);
 
                 // Thrower
-                var thrower = CreateAgent(ref rand, prefabs.ThrowerPrefab, gridSize, chain, 1f);
+                var thrower = CreateAgent(ref rand, prefabs.ThrowerPrefab, gridSize, chain, 1f, -1f);
                 SetTargetPosition(thrower, nearestFire);
                 
                 // Forward Chain
@@ -88,12 +89,9 @@ namespace DefaultNamespace
             
             for (int i = 0; i < config.NumberOfPassersInOneDirectionPerChain; ++i)
             {
-                var agent = CreateAgent(ref rand, prefabEntity, gridSize, chain, i / (float) (config.NumberOfPassersInOneDirectionPerChain - 1));
+                var agent = CreateAgent(ref rand, prefabEntity, gridSize, chain, i / (float) (config.NumberOfPassersInOneDirectionPerChain - 1), forward);
                 var agentComponent = EntityManager.GetComponentData<Agent>(agent);
-                var offset = math.sin(agentComponent.ChainT * math.PI);
-                var target = math.lerp(chainComponent.ChainStartPosition, chainComponent.ChainEndPosition,
-                    agentComponent.ChainT);
-                target += perpendicular * (offset * forward);
+                var target = CalculateChainPosition(agentComponent, chainComponent, perpendicular);
                 SetTargetPosition(agent,target);
             }
             
@@ -101,7 +99,16 @@ namespace DefaultNamespace
             // - What happens with the Thrower with respect to finding the 'end' of the chain, to pass back to?
         }
 
-        private Entity CreateAgent(ref Random rand, Entity prefabEntity, float2 gridSize, Entity chain, float chainT)
+        public static float3 CalculateChainPosition(in Agent agentComponent, in Chain chainComponent, float3 perpendicular)
+        {
+            var offset = math.sin(agentComponent.ChainT * math.PI);
+            var target = math.lerp(chainComponent.ChainStartPosition, chainComponent.ChainEndPosition,
+                agentComponent.ChainT);
+            target += perpendicular * (offset * agentComponent.Forward);
+            return target;
+        }
+
+        private Entity CreateAgent(ref Random rand, Entity prefabEntity, float2 gridSize, Entity chain, float chainT, float forward)
         {
             var agent = EntityManager.Instantiate(prefabEntity);
             var agentPos = GetComponent<Translation>(agent);
@@ -111,6 +118,7 @@ namespace DefaultNamespace
             var agentComponent = EntityManager.GetComponentData<Agent>(agent);
             agentComponent.ChainT = chainT;
             agentComponent.MyChain = chain;
+            agentComponent.Forward = forward;
             EntityManager.SetComponentData(agent, agentComponent);
             return agent;
         }
