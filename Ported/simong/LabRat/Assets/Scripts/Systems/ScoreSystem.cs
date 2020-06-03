@@ -7,9 +7,11 @@ public class ScoreSystem : SystemBase
 {
     private EntityQuery m_ReachedBaseQuery;
 
+    private bool m_Initialised;
+
     private int m_NumPlayers;
     private NativeArray<int> m_Scores;
-    
+
     protected override void OnCreate()
     {
         m_ReachedBaseQuery = GetEntityQuery(new EntityQueryDesc()
@@ -19,16 +21,43 @@ public class ScoreSystem : SystemBase
                 ComponentType.ReadOnly<ReachedBase>()
             }
         });
-        
+    }
+
+    protected override void OnDestroy()
+    {
+        if (m_Initialised)
+        {
+            m_NumPlayers = 0;
+            m_Scores.Dispose();
+
+            m_Initialised = false;
+        }
+    }
+
+    bool Init()
+    {
+        if (m_Initialised)
+            return true;
+
+        var constantData = ConstantData.Instance;
+        if (constantData == null)
+            return false;
+
         m_NumPlayers = ConstantData.Instance.NumPlayers;
         m_Scores = new NativeArray<int>(m_NumPlayers, Allocator.Persistent);
+
+        m_Initialised = true;
+        return true;
     }
 
     protected override void OnUpdate()
     {
+        if (!Init())
+            return;
+
         var numPlayers = m_NumPlayers;
         var scores = m_Scores;
-        
+
         Entities
             .WithName("AddMiceScore")
             .WithAll<MouseTag>()
@@ -41,7 +70,7 @@ public class ScoreSystem : SystemBase
                 }
             })
             .Run();
-        
+
         Entities
             .WithName("DeductCatScore")
             .WithAll<CatTag>()
@@ -54,7 +83,7 @@ public class ScoreSystem : SystemBase
                 }
             })
             .Run();
-        
+
         EntityManager.DestroyEntity(m_ReachedBaseQuery);
     }
 }
