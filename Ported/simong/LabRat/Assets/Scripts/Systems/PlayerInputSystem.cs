@@ -37,7 +37,7 @@ class PlayerInputSystem : SystemBase
                     direction = localCellPos.x < 0 ? GridDirection.WEST : GridDirection.EAST;
 
                 Ecb.SetComponent(PreviewArrow, new Position2D { Value = worldPos - localCellPos });
-
+                Ecb.SetComponent(PreviewArrow, new Rotation2D { Value = Utility.DirectionToAngle(direction) });
                 if (PlayerInput)
                 {
                     Entity arrowRequest = Ecb.CreateEntity(ArrowRequestArchetype);
