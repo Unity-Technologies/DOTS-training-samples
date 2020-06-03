@@ -4,6 +4,7 @@ using Unity.Transforms;
 
 namespace DefaultNamespace
 {
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class ChainInit : SystemBase
     {
         private EntityQuery m_ChainQuery;
@@ -34,43 +35,73 @@ namespace DefaultNamespace
             
             float2 gridSize = (float2)config.GridDimensions * config.CellSize;
 
+            // Nearest water TBC....
+            var nearestWater = new float3(rand.NextFloat(gridSize.x), 0, rand.NextFloat(gridSize.y));
+
+            // Nearest fire TBC....
+            var nearestFire = new float3(rand.NextFloat(gridSize.x), 0, rand.NextFloat(gridSize.y));
+
             for (int i = 0; i < config.NumberOfChains; ++i)
             {
                 var chain = EntityManager.CreateEntity(m_ChainArchetype);
-                
+                SetChainStartEnd(chain, nearestWater, nearestFire);
+
                 // Scooper
                 var scooper = CreateAgent(ref rand, prefabs.ScooperPrefab, gridSize);
-                
-                // Forward Chain
-                CreateChain(ref rand, config, prefabs.PasserForwardPrefab, gridSize);
-                
-                // Backwards Chain
-                CreateChain(ref rand, config, prefabs.PasserBackPrefab, gridSize);
-                
+                SetTargetPosition(scooper, nearestWater);
+
                 // Thrower
                 var thrower = CreateAgent(ref rand, prefabs.ThrowerPrefab, gridSize);
+                SetTargetPosition(thrower, nearestFire);
+                
+                // Forward Chain
+                CreateChain(ref rand, chain, config, prefabs.PasserForwardPrefab, gridSize);
+                
+                // Backwards Chain
+                CreateChain(ref rand, chain, config, prefabs.PasserBackPrefab, gridSize, -1f);
             }
         }
 
-        private void CreateChain(ref Random rand, in BucketBrigadeConfig config, in Entity prefabEntity, in float2 gridSize)
+        private void SetTargetPosition(Entity agent, float3 position)
         {
+            var targetPosition = EntityManager.GetComponentData<TargetPosition>(agent);
+            targetPosition.Target = position;
+            EntityManager.SetComponentData(agent, targetPosition);
+        }
+
+        private void SetChainStartEnd(Entity chain, float3 nearestWater, float3 nearestFire)
+        {
+            var chainComponent = EntityManager.GetComponentData<Chain>(chain);
+            chainComponent.ChainStartPosition = nearestWater;
+            chainComponent.ChainEndPosition = nearestFire;
+            EntityManager.SetComponentData(chain, chainComponent);
+        }
+
+        private void CreateChain(ref Random rand, in Entity chain, in BucketBrigadeConfig config,
+            in Entity prefabEntity, in float2 gridSize, float forward = 1f)
+        {
+            var chainComponent = EntityManager.GetComponentData<Chain>(chain);
+            var direction = math.normalize(chainComponent.ChainEndPosition - chainComponent.ChainStartPosition);
+            var perpendicular = new float3(direction.z, 0f, -direction.x);
+            
             // 1. Randomly distribute a Scooper, a Thrower and N Passers.
             
             for (int i = 0; i < config.NumberOfPassersInOneDirectionPerChain; ++i)
             {
-                CreateAgent(ref rand, prefabEntity, gridSize);
+                var agent = CreateAgent(ref rand, prefabEntity, gridSize);
+                var agentComponent = EntityManager.GetComponentData<Agent>(agent);
+                agentComponent.ChainT = i / (float) (config.NumberOfPassersInOneDirectionPerChain - 1);
+                agentComponent.MyChain = chain;
+                EntityManager.SetComponentData(agent, agentComponent);
+
+                // TODO: factor this out of ChainInit.
+                var offset = math.sin(agentComponent.ChainT * math.PI);
+                var target = math.lerp(chainComponent.ChainStartPosition, chainComponent.ChainEndPosition,
+                    agentComponent.ChainT);
+                target += perpendicular * (offset * forward);
+                SetTargetPosition(agent,target);
             }
-
-            // 2. The entity with a Chain component
-
-            // 3. Scooper at the start.
-
-            // 4. Thrower at the end.
-
-            // 5. Line of passers from the start to the end
-
-            // 6. Line of passers from the end to the start
-
+            
             // - What happens with the Scooper with respect to finding the 'start' of the chain, to start passing?
             // - What happens with the Thrower with respect to finding the 'end' of the chain, to pass back to?
         }
