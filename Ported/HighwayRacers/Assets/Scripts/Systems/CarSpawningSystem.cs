@@ -5,11 +5,18 @@ using Unity.Mathematics;
 
 public class CarSpawningSystem : SystemBase
 {
+    EndSimulationEntityCommandBufferSystem m_EntityCommandBufferSystem;
+
+    protected override void OnCreate()
+    {
+        m_EntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
         TrackProperties trackProperties = GetSingleton<TrackProperties>();
 
-        var barrier = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        var barrier = m_EntityCommandBufferSystem;
         var commandBuffer = barrier.CreateCommandBuffer();
 
         var random = new Unity.Mathematics.Random(1);

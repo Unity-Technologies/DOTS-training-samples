@@ -33,11 +33,15 @@ public class TrackInitialisationSystem : SystemBase
                         trackProperties.TrackStartingPoint.y + (trackProperties.LaneWidth + trackProperties.SeparationWidth) * i,
                         40);
 
-                    commandBuffer.SetComponent(entityInQueryIndex, trackEntity, new Translation { Value = position });
-
                     // 3. scale to end position (start + length)
                     var scale = new float3(trackProperties.TrackLength, trackProperties.LaneWidth, 1);
-                    commandBuffer.AddComponent(entityInQueryIndex, trackEntity, new NonUniformScale { Value = scale });
+
+                    commandBuffer.SetComponent(entityInQueryIndex, trackEntity, new LocalToWorld { Value = float4x4.TRS(position, quaternion.identity, scale) });
+
+                    commandBuffer.RemoveComponent<Translation>(entityInQueryIndex, trackEntity);
+                    commandBuffer.RemoveComponent<Rotation>(entityInQueryIndex, trackEntity);
+                    commandBuffer.RemoveComponent<Scale>(entityInQueryIndex, trackEntity);
+                    commandBuffer.RemoveComponent<NonUniformScale>(entityInQueryIndex, trackEntity);
                 }
 
                 // destroy the entity so we don't keep creating lanes
