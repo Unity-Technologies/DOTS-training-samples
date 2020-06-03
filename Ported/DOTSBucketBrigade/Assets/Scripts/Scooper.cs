@@ -6,8 +6,11 @@ using Unity.Transforms;
 
 namespace DefaultNamespace
 {
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateBefore(typeof(Movement))]
     public class Scooper : SystemBase
     {
+        public JobHandle MyLastDependency;
         private EntityQuery m_WaterSourceQuery;
 
         protected override void OnCreate()
@@ -26,7 +29,7 @@ namespace DefaultNamespace
             var translationComponent = GetComponentDataFromEntity<LocalToWorld>();
             var chainComponent = GetComponentDataFromEntity<Chain>();
             
-            Dependency = Entities.ForEach((ref ScooperState state, ref TargetPosition targetPosition, ref TargetWaterSource targetWaterSource, in Translation position, in Agent agent)
+            MyLastDependency = Entities.ForEach((ref ScooperState state, ref TargetPosition targetPosition, ref TargetWaterSource targetWaterSource, in Translation position, in Agent agent)
                 =>
             {
                 switch (state.State)

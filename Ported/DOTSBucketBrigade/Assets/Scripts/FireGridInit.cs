@@ -79,6 +79,11 @@ public class FireGridInit : SystemBase
         this.Enabled = false;
     }
 
+    public static float3 CellToWorldSpace(int2 cell, in BucketBrigadeConfig config)
+    {
+        return new float3(cell.x * config.CellSize, 0, cell.y * config.CellSize);
+    }
+
     protected override void OnDestroy() 
     {
         base.OnDestroy();

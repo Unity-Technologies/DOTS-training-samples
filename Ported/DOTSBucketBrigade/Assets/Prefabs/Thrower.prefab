@@ -127,6 +127,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ChainT: 0
+  Forward: 0
   MyChain: {fileID: 0}
 --- !u!114 &844973986869188888
 MonoBehaviour:
@@ -140,7 +141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 319424095f34747918b57fadedcf763e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  State: 0
+  State: 1
 --- !u!114 &4794022919827408995
 MonoBehaviour:
   m_ObjectHideFlags: 0

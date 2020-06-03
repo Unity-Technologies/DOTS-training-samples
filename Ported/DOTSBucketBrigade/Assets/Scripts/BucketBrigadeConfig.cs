@@ -2,7 +2,7 @@
 using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
-struct BucketBrigadeConfig : IComponentData
+public struct BucketBrigadeConfig : IComponentData
 {
     public float TemperatureIncreaseRate;
     public float Flashpoint;
