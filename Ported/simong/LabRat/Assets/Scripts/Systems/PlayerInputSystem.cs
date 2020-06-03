@@ -31,7 +31,7 @@ class PlayerInputSystem : SystemBase
                 Ecb.SetComponent(arrowRequest, new ArrowRequest
                 {
                     Direction = GridDirection.EAST,
-                    Position = Utility.WorldPositionToGridCoordinates(hit.Position, CellSize),
+                    Position = Utility.WorldPositionToGridCoordinates(new float2(hit.Position.x, hit.Position.y), CellSize),
                     OwnerID = 0
                 });
             }
