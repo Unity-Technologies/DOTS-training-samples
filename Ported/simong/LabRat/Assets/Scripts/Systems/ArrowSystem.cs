@@ -31,6 +31,7 @@ public class ArrowSystem : SystemBase
     protected override void OnUpdate()
     {
         int maxArrows = ConstantData.Instance.MaxArrows;
+        float2 cellSize = new float2(ConstantData.Instance.CellSize);
         double time = Time.ElapsedTime;
 
         Entity arrowPrefab = GetSingleton<PrefabReferenceComponent>().ArrowPrefab;
@@ -78,11 +79,9 @@ public class ArrowSystem : SystemBase
                     Entity spawnedArrow = ecb.Instantiate(arrowPrefab);
                     if (spawnedArrow != Entity.Null)
                     {
-                        ecb.SetComponent(spawnedArrow, new Position2D {Value = new float2(0f, 0f)});
+                        ecb.SetComponent(spawnedArrow, new Position2D {Value = Utility.GridCoordinatesToWorldPos(request.Position, cellSize)});
                         ecb.SetComponent(spawnedArrow, new Direction2D {Value = request.Direction});
-                        ecb.SetComponent(spawnedArrow,
-                            new ArrowComponent
-                                {GridCell = request.Position, SpawnTime = time, OwnerID = request.OwnerID});
+                        ecb.SetComponent(spawnedArrow, new ArrowComponent {GridCell = request.Position, SpawnTime = time, OwnerID = request.OwnerID});
                     }
                 }
 
