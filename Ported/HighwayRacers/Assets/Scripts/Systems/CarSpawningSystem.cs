@@ -42,6 +42,8 @@ public class CarSpawningSystem : SystemBase
                     TrackProgress = targetTrackProgress,
                 });
 
+                commandBuffer.AddComponent(newCar, new CarInFront());
+
                 commandBuffer.DestroyEntity(entity);
             }
         }).Schedule(Dependency);
