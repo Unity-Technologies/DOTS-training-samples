@@ -81,6 +81,7 @@ public class ArrowSystem : SystemBase
                     {
                         ecb.SetComponent(spawnedArrow, new Position2D {Value = Utility.GridCoordinatesToWorldPos(request.Position, cellSize)});
                         ecb.SetComponent(spawnedArrow, new Direction2D {Value = request.Direction});
+                        ecb.SetComponent(spawnedArrow, new Rotation2D { Value = Utility.DirectionToAngle(request.Direction) });
                         ecb.SetComponent(spawnedArrow, new ArrowComponent {GridCell = request.Position, SpawnTime = time, OwnerID = request.OwnerID});
                     }
                 }
