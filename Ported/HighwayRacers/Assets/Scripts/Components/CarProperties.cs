@@ -1,6 +1,5 @@
 ﻿using Unity.Entities;
 
-[GenerateAuthoringComponent]
 public struct CarProperties : IComponentData
 {
     public float DefaultSpeed;
