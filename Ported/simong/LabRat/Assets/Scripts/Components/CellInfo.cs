@@ -23,7 +23,7 @@ public struct CellInfo
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public CellInfo SetTravelDirections(GridDirection dir)
     {
-        m_Value = (byte)((m_Value & ~k_TravelMask) | ~((byte)dir & k_TravelMask));
+        m_Value = (byte)((m_Value & ~k_TravelMask) | (~(byte)dir & k_TravelMask));
         return this;
     }
 
