@@ -39,6 +39,7 @@ public class TransformSystem2D : SystemBase
         // Entities with a rotations but without any scale component
         Entities
             .WithChangeFilter<Position2D, Rotation2D>()
+            .WithNone<NonUniformScale>()
             .ForEach((ref LocalToWorld localToWorld, in Position2D position2D, in Rotation2D rotation2D) =>
             {
                 var trans4x4 = GetTranslationMatrix(position2D);
@@ -51,6 +52,7 @@ public class TransformSystem2D : SystemBase
         Entities
             .WithChangeFilter<Position2D>()
             .WithNone<Rotation2D>()
+            .WithNone<NonUniformScale>()
             .ForEach((ref LocalToWorld localToWorld, in Position2D position2D) =>
             {
                 var trans4x4 = GetTranslationMatrix(position2D);
