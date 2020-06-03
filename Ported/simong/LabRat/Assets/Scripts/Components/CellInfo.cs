@@ -1,20 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
-using Unity.Entities;
-using Unity.Mathematics;
-using UnityEditor.Experimental.GraphView;
-using UnityEngine;
-
-public enum GridDirection
-{
-    NORTH = (1 << 0),
-    EAST = (1 << 1),
-    SOUTH = (1 << 2),
-    WEST = (1 << 3)
-}
-
-// Contents of CellInfo
+﻿// Contents of CellInfo
 // - bottom 4 bits GridDirection
 // - is hole -> 1 bit
 // - is base -> 1 bit
