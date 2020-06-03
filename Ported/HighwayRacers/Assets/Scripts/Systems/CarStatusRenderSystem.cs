@@ -11,14 +11,23 @@ public class CarStatusRenderSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var blockedStatusMaterial = CarStatusDisplayManager.Instance.BlockedStatusMaterial;
-        var defaultSpeedStatusMaterial = CarStatusDisplayManager.Instance.DefaultSpeedStatusMaterial;
-        var accelerationStatusMaterial = CarStatusDisplayManager.Instance.AccelerationStatusMaterial;
+        CarSpawner spawner = GetSingleton<CarSpawner>();
+        var carPrefab = spawner.CarPrefab;
+        var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(carPrefab);
+
+        renderMesh.material = CarStatusDisplayManager.Instance.AccelerationStatusMaterial;
+        
+        var query = GetEntityQuery(ComponentType.ReadOnly<BlockedState>());
+
+        EntityManager.SetSharedComponentData<RenderMesh>(query, renderMesh);
+
+        // var blockedStatusMaterial = CarStatusDisplayManager.Instance.BlockedStatusMaterial;
+        // var defaultSpeedStatusMaterial = CarStatusDisplayManager.Instance.DefaultSpeedStatusMaterial;
+        // var accelerationStatusMaterial = CarStatusDisplayManager.Instance.AccelerationStatusMaterial;
 
         Entities.WithoutBurst()
-            .ForEach((RenderMesh renderMesh, in CarProperties translation, in Speed speed) =>
+            .ForEach((in CarProperties translation, in Speed speed) =>
             {
-                renderMesh.material = accelerationStatusMaterial;
             }).Run();
     }
 }

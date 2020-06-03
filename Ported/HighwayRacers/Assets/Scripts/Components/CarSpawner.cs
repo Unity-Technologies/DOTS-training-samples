@@ -3,7 +3,6 @@
 [GenerateAuthoringComponent]
 public struct CarSpawner : IComponentData
 {
-    public int InstancesToSpawn;
     public Entity CarPrefab;
 
     public float MinDefaultSpeed;
