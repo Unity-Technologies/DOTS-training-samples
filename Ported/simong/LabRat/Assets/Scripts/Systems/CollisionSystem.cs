@@ -19,7 +19,8 @@ public class CollisionSystem : SystemBase
         {
             All = new[]
             {
-                ComponentType.ReadOnly<CatTag>()
+                ComponentType.ReadOnly<CatTag>(),
+                ComponentType.ReadOnly<Position2D>()
             }
         });
         
@@ -38,6 +39,7 @@ public class CollisionSystem : SystemBase
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
         
         Entities
+            .WithDeallocateOnJobCompletion(catTranslations)
             .WithAll<MouseTag>()
             .ForEach((int entityInQueryIndex, Entity mouseEntity, ref Position2D pos) =>
             {
