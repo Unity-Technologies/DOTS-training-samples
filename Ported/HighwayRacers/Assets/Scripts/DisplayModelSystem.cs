@@ -12,9 +12,9 @@ public class DisplayModelSystem : SystemBase
             in TrackPosition trackPosition) =>
         {
             float2 carPosition = trackProperties.TrackStartingPoint + 
-                new float2(trackPosition.TrackProgress, trackPosition.Lane * trackProperties.LaneSeparation);
+                new float2(trackPosition.TrackProgress, trackPosition.Lane * (trackProperties.LaneWidth + trackProperties.SeparationWidth));
 
-            var trans = float4x4.Translate(new float3(carPosition.x, 0, carPosition.y));
+            var trans = float4x4.Translate(new float3(carPosition.x, carPosition.y, 38));
             localToWorld.Value = trans;
 
         }).ScheduleParallel();
