@@ -15,6 +15,9 @@ struct BucketBrigadeConfig : IComponentData
     public float AgentRadius;
     public float AgentSpeed;
     public int NumberOfBuckets;
+    
+    public int NumberOfPassersInOneDirectionPerChain;
+    public int NumberOfChains;
 
     public int StartingFireCount;
     public float MaxFlameHeight;

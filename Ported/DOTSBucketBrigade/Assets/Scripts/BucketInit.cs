@@ -2,6 +2,7 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class BucketInit : SystemBase
 {
     private EntityQuery m_BucketsQuery;
