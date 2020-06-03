@@ -104,6 +104,13 @@ public class GridCreationSystem : SystemBase
                         }
                     }
                 }
+
+                var spawner = ecb.Instantiate(prefabs.SpawnerPrefab);
+                if(spawner != Entity.Null)
+                {
+                    ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(0, 0), cellSize) });
+                    ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.EAST });
+                }
             }).Schedule();
 
             m_commandBuffer.AddJobHandleForProducer(Dependency);
