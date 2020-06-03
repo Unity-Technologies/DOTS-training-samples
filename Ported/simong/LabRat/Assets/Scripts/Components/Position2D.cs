@@ -3,7 +3,7 @@ using Unity.Mathematics;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
-public struct Rotation2D : IComponentData
+public struct Position2D : IComponentData
 {
-    public float Value;
+    public float2 Value;
 }
