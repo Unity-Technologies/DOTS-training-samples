@@ -1,7 +1,10 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Collections;
+using Unity.Entities;
+using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
-public struct CarSpawner : IComponentData
+public struct CarConfigurations : IComponentData
 {
     public Entity CarPrefab;
 
@@ -16,5 +19,7 @@ public struct CarSpawner : IComponentData
     public float MaxDistanceToCarBeforeOvertaking;
     public float MaxOvertakeEagerness;
     public float MaxMergeSpace;
+
     public float Acceleration;
+    public float Decceleration;
 }

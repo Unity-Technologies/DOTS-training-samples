@@ -26,8 +26,8 @@ public class CarStatusRenderSystem : SystemBase
         {
             m_InitDone = true;
 
-            CarSpawner spawner = GetSingleton<CarSpawner>();
-            var carPrefab = spawner.CarPrefab;
+            CarConfigurations carConfig = GetSingleton<CarConfigurations>();
+            var carPrefab = carConfig.CarPrefab;
 
             m_BlockedRenderMesh = EntityManager.GetSharedComponentData<RenderMesh>(carPrefab);
             m_BlockedRenderMesh.material = CarStatusDisplayManager.Instance.BlockedStatusMaterial;

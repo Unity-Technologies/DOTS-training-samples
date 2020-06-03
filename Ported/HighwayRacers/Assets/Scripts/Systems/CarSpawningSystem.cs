@@ -15,7 +15,7 @@ public class CarSpawningSystem : SystemBase
     protected override void OnUpdate()
     {
         TrackProperties trackProperties = GetSingleton<TrackProperties>();
-        CarSpawner spawner = GetSingleton<CarSpawner>();
+        CarConfigurations carConfig = GetSingleton<CarConfigurations>();
 
         var barrier = m_EntityCommandBufferSystem;
         var commandBuffer = barrier.CreateCommandBuffer();
@@ -24,19 +24,18 @@ public class CarSpawningSystem : SystemBase
         var jobHandle = Entities.ForEach((in Entity entity, in CarSpawnRequest request) => 
         {
             var numberToBeSpawned = request.InstancesToSpawn;
-            var carToBeSpawned = spawner.CarPrefab;
+            var carToBeSpawned = carConfig.CarPrefab;
 
             for (int i = 0; i < numberToBeSpawned; ++i)
             {
                 var newCar = commandBuffer.Instantiate(carToBeSpawned);
                 commandBuffer.SetComponent(newCar, new CarProperties
                 {
-                    DefaultSpeed = spawner.MinDefaultSpeed + random.NextFloat(spawner.MaxDefaultSpeed - spawner.MinDefaultSpeed),
-                    OvertakeSpeed = spawner.MinOvertakeSpeed + random.NextFloat(spawner.MaxOvertakeSpeed - spawner.MinOvertakeSpeed),
-                    DistanceToCarBeforeOvertaking = spawner.MinDistanceToCarBeforeOvertaking + random.NextFloat(spawner.MaxDistanceToCarBeforeOvertaking - spawner.MinDistanceToCarBeforeOvertaking),
-                    OvertakeEagerness = spawner.MinOvertakeEagerness + random.NextFloat(spawner.MaxOvertakeEagerness - spawner.MinOvertakeEagerness),
-                    MergeSpace = spawner.MinMergeSpace + random.NextFloat(spawner.MaxMergeSpace - spawner.MinMergeSpace),
-                    Acceleration = spawner.Acceleration,
+                    DefaultSpeed = carConfig.MinDefaultSpeed + random.NextFloat(carConfig.MaxDefaultSpeed - carConfig.MinDefaultSpeed),
+                    OvertakeSpeed = carConfig.MinOvertakeSpeed + random.NextFloat(carConfig.MaxOvertakeSpeed - carConfig.MinOvertakeSpeed),
+                    DistanceToCarBeforeOvertaking = carConfig.MinDistanceToCarBeforeOvertaking + random.NextFloat(carConfig.MaxDistanceToCarBeforeOvertaking - carConfig.MinDistanceToCarBeforeOvertaking),
+                    OvertakeEagerness = carConfig.MinOvertakeEagerness + random.NextFloat(carConfig.MaxOvertakeEagerness - carConfig.MinOvertakeEagerness),
+                    MergeSpace = carConfig.MinMergeSpace + random.NextFloat(carConfig.MaxMergeSpace - carConfig.MinMergeSpace),
                 });
 
                 commandBuffer.SetComponent(newCar, new Speed

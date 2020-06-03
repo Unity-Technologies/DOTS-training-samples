@@ -14,6 +14,7 @@ public class BlockedUpdateSystem : SystemBase
     protected override void OnUpdate()
     {
         TrackProperties trackProperties = GetSingleton<TrackProperties>();
+        CarConfigurations carConfig = GetSingleton<CarConfigurations>();
         float dtime = Time.DeltaTime;
 
         var ecb = entityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
@@ -25,7 +26,7 @@ public class BlockedUpdateSystem : SystemBase
                 ref TrackPosition trackPosition, 
                 in CarInFront carInFront, in Speed speed, in CarProperties carProperties) =>
         {
-            bool blocked = CheckBlock(speed.Value, carInFront.Speed, carProperties.Acceleration, 
+            bool blocked = CheckBlock(speed.Value, carInFront.Speed, carConfig.Decceleration, 
                 trackPosition.TrackProgress, carInFront.TrackProgressCarInFront,trackProperties.TrackLength);
 
            if (blocked) {
@@ -40,7 +41,7 @@ public class BlockedUpdateSystem : SystemBase
                 ref TrackPosition trackPosition, 
                 in CarInFront carInFront, in Speed speed, in CarProperties carProperties) =>
         {
-            bool blocked = CheckBlock(speed.Value, carInFront.Speed, carProperties.Acceleration, 
+            bool blocked = CheckBlock(speed.Value, carInFront.Speed, carConfig.Decceleration, 
                 trackPosition.TrackProgress, carInFront.TrackProgressCarInFront,trackProperties.TrackLength);
 
             if (!blocked) {

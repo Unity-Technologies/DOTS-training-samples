@@ -9,7 +9,6 @@ public class CarPropertiesAuthoring : MonoBehaviour
     public float DistanceToCarBeforeOvertaking;
     public float OvertakeEagerness;
     public float MergeSpace;
-    public float Acceleration;
 }
 
 [UpdateInGroup(typeof(GameObjectAfterConversionGroup))]
@@ -29,7 +28,6 @@ public class CarConversionSystem : GameObjectConversionSystem
                     DistanceToCarBeforeOvertaking = car.DistanceToCarBeforeOvertaking,
                     OvertakeEagerness = car.OvertakeEagerness,
                     MergeSpace = car.MergeSpace,
-                    Acceleration = car.Acceleration
                 });
 
             DstEntityManager.RemoveComponent<Translation>(entity);
