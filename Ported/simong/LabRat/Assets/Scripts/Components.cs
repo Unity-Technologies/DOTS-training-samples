@@ -63,19 +63,6 @@ public struct Rotation2D : IComponentData
 }*/
 
 //[GenerateAuthoringComponent]
-public struct SpawnerInfo : IComponentData
-{
-    public Entity Prefab;
-    public float Frequency;
-}
-
-//[GenerateAuthoringComponent]
-public struct SpawnerInstance : IComponentData
-{
-    public float Time;
-}
-
-//[GenerateAuthoringComponent]
 public struct MouseTag : IComponentData
 {
 }
