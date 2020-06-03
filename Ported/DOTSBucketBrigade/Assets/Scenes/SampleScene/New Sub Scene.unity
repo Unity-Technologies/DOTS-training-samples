@@ -152,8 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TemperatureIncreaseRate: 0.0003
-  FlashpointMax: 0.5
-  FlashpointMin: 0
+  Flashpoint: 0.2
   GridDimensions:
     x: 50
     y: 50
@@ -166,6 +165,9 @@ MonoBehaviour:
   NumberOfBuckets: 50
   NumberOfPassersInOneDirectionPerChain: 8
   NumberOfChains: 1
+  StartingFireCount: 10
+  MaxFlameHeight: 1
+  HeatRadius: 2
 --- !u!4 &59350167
 Transform:
   m_ObjectHideFlags: 0
@@ -193,6 +195,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BucketPrefab: {fileID: 8400393862565510247, guid: 80480241c761a4ae5a5a2285fd9a1172,
+    type: 3}
+  FireCellPrefab: {fileID: 1211166968341402883, guid: 88c1ce4f96aa75e4a9fb76708a4a52f3,
     type: 3}
   ScooperPrefab: {fileID: 6012665424101709685, guid: 1ef5a91fb62334c069d81856c6a682e1,
     type: 3}

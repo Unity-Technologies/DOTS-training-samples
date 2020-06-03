@@ -8,6 +8,8 @@ using UnityEngine;
 public class Spawner : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
 {
     public GameObject BucketPrefab;
+    public GameObject FireCellPrefab;
+
     
     public GameObject ScooperPrefab;
     public GameObject ThrowerPrefab;    
@@ -18,6 +20,7 @@ public class Spawner : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObj
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(BucketPrefab);
+        referencedPrefabs.Add(FireCellPrefab);
         referencedPrefabs.Add(ScooperPrefab);
         referencedPrefabs.Add(ThrowerPrefab);
         referencedPrefabs.Add(PasserForwardPrefab);
@@ -32,6 +35,7 @@ public class Spawner : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObj
             // The referenced prefab will be converted due to DeclareReferencedPrefabs.
             // So here we simply map the game object to an entity reference to that prefab.
             BucketPrefab = conversionSystem.GetPrimaryEntity(BucketPrefab),
+            FireCellPrefab = conversionSystem.GetPrimaryEntity(FireCellPrefab),
             ScooperPrefab = conversionSystem.GetPrimaryEntity(ScooperPrefab),
             ThrowerPrefab = conversionSystem.GetPrimaryEntity(ThrowerPrefab),
             PasserForwardPrefab = conversionSystem.GetPrimaryEntity(PasserForwardPrefab),
@@ -44,6 +48,7 @@ public class Spawner : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObj
 public struct SpawnerConfig : IComponentData
 {
     public Entity BucketPrefab;
+    public Entity FireCellPrefab;
     public Entity ScooperPrefab;
     public Entity ThrowerPrefab;    
     public Entity PasserForwardPrefab;
