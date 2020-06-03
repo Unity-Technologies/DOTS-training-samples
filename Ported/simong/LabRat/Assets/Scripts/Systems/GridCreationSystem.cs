@@ -43,7 +43,45 @@ public class GridCreationSystem : SystemBase
             }
 
             Cells = new NativeArray<CellInfo>(constantData.BoardDimensions.x * constantData.BoardDimensions.y, Allocator.Persistent);
-            Debug.Log("cell infos created");
+
+            var cellsarray = Cells;
+            int width = constantData.BoardDimensions.x;
+            int height = constantData.BoardDimensions.y;
+            int bottomLeft = width * (height - 1);
+            int bottomRight = (width * height) - 1;
+
+            cellsarray[0] = cellsarray[0].SetTravelDirections(GridDirection.SOUTH | GridDirection.EAST);
+
+            cellsarray[width - 1] = cellsarray[width - 1].SetTravelDirections(GridDirection.SOUTH | GridDirection.WEST);
+            cellsarray[bottomLeft] = cellsarray[bottomLeft].SetTravelDirections(GridDirection.NORTH | GridDirection.EAST);
+            cellsarray[bottomRight] = cellsarray[(width * height) - 1].SetTravelDirections(GridDirection.NORTH | GridDirection.WEST);
+
+            GridDirection fromNorth = GridDirection.SOUTH | GridDirection.EAST | GridDirection.WEST;
+            GridDirection fromSouth = GridDirection.NORTH | GridDirection.EAST | GridDirection.WEST;
+            GridDirection fromWest = GridDirection.NORTH | GridDirection.SOUTH | GridDirection.WEST;
+            GridDirection fromEast = GridDirection.NORTH | GridDirection.SOUTH | GridDirection.EAST;
+            
+            for (int i = 1; i < width; i++)
+            {
+                cellsarray[i] = cellsarray[i].SetTravelDirections(fromNorth);
+                cellsarray[bottomLeft + i] = cellsarray[bottomLeft + i].SetTravelDirections(fromSouth);
+            }
+
+            for (int i = 1; i < height; i++)
+            {
+                cellsarray[width * i] = cellsarray[width * i].SetTravelDirections(fromWest);
+                cellsarray[(width * (i + 1)) - 1] = cellsarray[(width * (i + 1)) - 1].SetTravelDirections(fromEast);
+            }
+
+            /*for (int i = 0; i <= bottomRight; i++)
+            {
+                Debug.Log(i + " can travel south: " + cellsarray[i].CanTravel(GridDirection.SOUTH));
+                Debug.Log(i + " can travel north: " + cellsarray[i].CanTravel(GridDirection.NORTH));
+                Debug.Log(i + " can travel east: " + cellsarray[i].CanTravel(GridDirection.EAST));
+                Debug.Log(i + " can travel west: " + cellsarray[i].CanTravel(GridDirection.WEST));
+            }
+
+            Debug.Log("cell infos created");*/
         }
     }
 }
