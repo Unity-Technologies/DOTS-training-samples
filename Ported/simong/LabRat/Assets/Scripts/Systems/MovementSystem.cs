@@ -1,8 +1,12 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
+using UnityEngine;
 
 class MovementSystem : SystemBase
 {
+    const float k_SliceEpsilon = 0.00001f;
+
     protected override void OnUpdate()
     {
         var gridSystem = World.GetOrCreateSystem<GridCreationSystem>();
@@ -12,15 +16,81 @@ class MovementSystem : SystemBase
         var cells = gridSystem.Cells;
         var rows = ConstantData.Instance.BoardDimensions.x;
         var cols = ConstantData.Instance.BoardDimensions.y;
+        var cellSize = ConstantData.Instance.CellSize;
+
+        var deltaTime = Time.DeltaTime;
 
         // update movement
         Entities
-            .ForEach((ref Position2D pos, ref Rotation2D rot, ref Direction2D dir, in WalkSpeed speed) =>
+            .ForEach((ref Position2D pos, ref Direction2D dir, in WalkSpeed speed) =>
             {
+                // TODO low fps handling here
 
+                float remainingDistance = speed.Value * deltaTime;
+
+                // Apply walk deltas in a loop so that even if we have a super low framerate, we
+                // don't skip cells in the board.
+                while (true)
+                {
+                    float slice = math.min(cellSize.x * 0.3f, remainingDistance);
+                    remainingDistance -= slice;
+                    if (slice <= 0f || NearlyEqual(0f, slice, k_SliceEpsilon))
+                        break;
+
+                    var delta = new float2(1f, 0f) * slice;
+                    pos.Value += delta;
+
+                    var flooredPos = pos.Value;
+
+                    // Round position values for checking the board. This is so that
+                    // we collide with arrows and walls at the right time.
+                    switch (dir.Value)
+                    {
+                        case GridDirection.NORTH:
+                            flooredPos.y = Mathf.Floor(flooredPos.y); 
+                            break;
+                        case GridDirection.SOUTH:
+                            flooredPos.y = Mathf.Ceil(flooredPos.y); 
+                            break;
+                        case GridDirection.EAST:
+                            flooredPos.x = Mathf.Floor(flooredPos.x); 
+                            break;
+                        case GridDirection.WEST:
+                            flooredPos.x = Mathf.Ceil(flooredPos.x); 
+                            break;
+                        default:
+                            throw new System.ArgumentOutOfRangeException(dir.Value.ToString());
+                    }
+                }
             })
             .WithName("UpdateMovables")
             .ScheduleParallel();
+    }
+
+    // taken from https://stackoverflow.com/questions/3874627/floating-point-comparison-functions-for-c-sharp
+    // as MathF.Approximately doesn't have an equivalent in unity.mathematics
+    public static bool NearlyEqual(float a, float b, float epsilon)
+    {
+        float absA = math.abs(a);
+        float absB = math.abs(b);
+        float diff = math.abs(a - b);
+
+        if (a == b)
+        {
+            // shortcut, handles infinities
+            return true;
+        }
+        else if (a == 0 || b == 0 || absA + absB < math.FLT_MIN_NORMAL)
+        {
+            // a or b is zero or both are extremely close to it
+            // relative error is less meaningful here
+            return diff < (epsilon * math.FLT_MIN_NORMAL);
+        }
+        else
+        {
+            // use relative error
+            return diff / (absA + absB) < epsilon;
+        }
     }
 }
 
