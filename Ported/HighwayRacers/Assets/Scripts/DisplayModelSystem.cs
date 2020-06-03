@@ -12,7 +12,7 @@ public class DisplayModelSystem : SystemBase
             in TrackPosition trackPosition) =>
         {
             float2 carPosition = trackProperties.TrackStartingPoint + 
-                new float2(trackPosition.TrackProgress, trackPosition.Lane * trackProperties.LaneSeparation);
+                new float2(trackPosition.TrackProgress, trackPosition.Lane * trackProperties.LaneWidth);
 
             var trans = float4x4.Translate(new float3(carPosition.x, 0, carPosition.y));
             localToWorld.Value = trans;
