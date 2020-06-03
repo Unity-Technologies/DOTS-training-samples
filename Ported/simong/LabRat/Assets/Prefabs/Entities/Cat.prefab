@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3066518405676488227}
   - component: {fileID: 7846846535622245130}
   - component: {fileID: -8357027069568205467}
+  - component: {fileID: 6186894869367560536}
   m_Layer: 0
   m_Name: Cat
   m_TagString: Cat
@@ -72,7 +73,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c3dae8cf9a010b4e894c36d9a6d39f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Value: 0
+  Value: 1
 --- !u!114 &-8357027069568205467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85,6 +86,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29d16ca8351c9f6419260c8a5c53ce95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6186894869367560536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1377909340170110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f2a91e6ab1ae5f4eb705cf27c872ddc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: 1
 --- !u!1 &1780733835329128
 GameObject:
   m_ObjectHideFlags: 0
