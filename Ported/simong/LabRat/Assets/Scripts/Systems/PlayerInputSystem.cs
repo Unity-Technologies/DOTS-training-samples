@@ -2,6 +2,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Systems;
 
@@ -16,15 +17,23 @@ class PlayerInputSystem : SystemBase
     {
         public RaycastInput RaycastInput;
         public EntityCommandBuffer Ecb;
+        [ReadOnly] public bool PlayerInput;
+        [ReadOnly] public float2 CellSize;
         [ReadOnly] public EntityArchetype ArrowRequestArchetype;
         [ReadOnly] public PhysicsWorld World;
 
         public void Execute()
         {
-            if (World.CastRay(RaycastInput, out RaycastHit hit))
+            if (PlayerInput && World.CastRay(RaycastInput, out RaycastHit hit))
             {
-                //Entity arrowRequest = Ecb.CreateEntity(ArrowRequestArchetype);
-                //Ecb.SetComponent(arrowRequest, new ArrowRequest { Direction = GridDirection.EAST, })
+                Entity arrowRequest = Ecb.CreateEntity(ArrowRequestArchetype);
+
+                Ecb.SetComponent(arrowRequest, new ArrowRequest
+                {
+                    Direction = GridDirection.EAST,
+                    Position = Utility.WorldPositionToGridCoordinates(hit.Position, CellSize),
+                    OwnerID = 0
+                });
             }
         }
     }
@@ -38,15 +47,20 @@ class PlayerInputSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = commandBufferSystem.CreateCommandBuffer();
+        
         UnityEngine.Ray ray = UnityEngine.Camera.main.ScreenPointToRay(UnityEngine.Input.mousePosition);
         RaycastInput raycastInput = new RaycastInput { Start = ray.origin, End = ray.origin + ray.direction * float.MaxValue, Filter = CollisionFilter.Default };
+        
+        bool playerInput = UnityEngine.Input.GetMouseButtonDown(0);
 
         var job = new RaycastJob
         {
             RaycastInput = raycastInput,
+            Ecb = ecb,
+            PlayerInput = playerInput,
+            CellSize = new float2(ConstantData.Instance.CellSize.x, ConstantData.Instance.CellSize.y),
             ArrowRequestArchetype = arrowRequestArchetype,
             World = World.GetExistingSystem<BuildPhysicsWorld>().PhysicsWorld,
-            Ecb = ecb
         };
 
         job.Run();
