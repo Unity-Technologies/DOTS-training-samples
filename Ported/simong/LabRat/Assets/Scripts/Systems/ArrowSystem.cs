@@ -51,6 +51,7 @@ public class ArrowSystem : SystemBase
                 int existingComponents = 0;
                 int oldestIndex = -1;
                 double oldestSpawnTime = double.MaxValue;
+                bool shouldSpawn = true;
                 for (int i = 0; i < arrowComponents.Length; i++)
                     if (arrowComponents[i].OwnerID == request.OwnerID)
                     {
@@ -60,19 +61,29 @@ public class ArrowSystem : SystemBase
                             oldestSpawnTime = arrowComponents[i].SpawnTime;
                             oldestIndex = i;
                         }
+
+                        if (arrowComponents[i].GridCell.x == request.Position.x && arrowComponents[i].GridCell.y == request.Position.y)
+                        {
+                            shouldSpawn = false;
+                        }
                     }
 
-                if (existingComponents >= maxArrows && oldestIndex >= 0)
+                if (shouldSpawn)
                 {
-                    ecb.DestroyEntity(arrowEntities[oldestIndex]);
-                }
+                    if (existingComponents >= maxArrows && oldestIndex >= 0)
+                    {
+                        ecb.DestroyEntity(arrowEntities[oldestIndex]);
+                    }
 
-                Entity spawnedArrow = ecb.Instantiate(arrowPrefab);
-                if (spawnedArrow != Entity.Null)
-                {
-                    ecb.SetComponent(spawnedArrow, new Position2D { Value = new float2(0f, 0f)});
-                    ecb.SetComponent(spawnedArrow, new Direction2D {Value = request.Direction});
-                    ecb.SetComponent(spawnedArrow, new ArrowComponent {SpawnTime = time, OwnerID = request.OwnerID});
+                    Entity spawnedArrow = ecb.Instantiate(arrowPrefab);
+                    if (spawnedArrow != Entity.Null)
+                    {
+                        ecb.SetComponent(spawnedArrow, new Position2D {Value = new float2(0f, 0f)});
+                        ecb.SetComponent(spawnedArrow, new Direction2D {Value = request.Direction});
+                        ecb.SetComponent(spawnedArrow,
+                            new ArrowComponent
+                                {GridCell = request.Position, SpawnTime = time, OwnerID = request.OwnerID});
+                    }
                 }
 
                 ecb.DestroyEntity(arrowRequestEntity);

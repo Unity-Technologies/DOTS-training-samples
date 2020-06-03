@@ -157,10 +157,10 @@ MonoBehaviour:
   AutoLoadScene: 1
   _SceneGUID:
     Value:
-      x: 0
-      y: 0
-      z: 0
-      w: 0
+      x: 867270531
+      y: 1162959148
+      z: 437536671
+      w: 2691645139
 --- !u!4 &1473339293
 Transform:
   m_ObjectHideFlags: 0
@@ -275,8 +275,8 @@ MonoBehaviour:
   - 1
   - 1
   Radius:
-  - 1
-  - 1
+  - 0.25
+  - 0.25
   RoundLength: 60
   BoardDimensions: {x: 30, y: 30}
   CellSize: {x: 1, y: 1}
