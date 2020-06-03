@@ -282,7 +282,8 @@ MonoBehaviour:
     type: 3}
   PreviewArrowPrefab: {fileID: 6922569374368231017, guid: 0437ee87cdde2f24a9ad1cd5c4771f22,
     type: 3}
-  CellPrefab: {fileID: 1695157876856304, guid: c2ef2e9ce5dad494d916f59769e7d27f, type: 3}
+  CellPrefab: {fileID: 6331638553213775543, guid: 051b50a947da5254ababbbdf8d8d1187,
+    type: 3}
   SpawnerPrefab: {fileID: 3266120362543766956, guid: 0db970dde13a6b44b91f34ddc8cc43d3,
     type: 3}
 --- !u!4 &2094815254
