@@ -20,13 +20,13 @@ class SpawnerSystem : SystemBase
             instance.AlternateSpawnTime += dt;
             Entity toSpawn = Entity.Null;
 
-            if(instance.AlternateSpawnTime >= info.AlternateSpawnFrequency)
+            if(info.AlternateSpawnFrequency != 0 && instance.AlternateSpawnTime >= info.AlternateSpawnFrequency)
             {
                 instance.AlternateSpawnTime -= info.AlternateSpawnFrequency;
                 instance.Time = 0; // Reset the default spawner time so it doesn't spawn randomly another entity straight away
                 toSpawn = ecb.Instantiate(info.AlternatePrefab);
             }
-            else if(instance.Time >= info.Frequency)
+            else if(info.Frequency != 0 && instance.Time >= info.Frequency)
             {
                 instance.Time -= info.Frequency;
                 toSpawn = ecb.Instantiate( info.Prefab);
