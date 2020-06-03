@@ -10,7 +10,6 @@ public class BlockedUpdateSystem : SystemBase
     {
         entityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>(); 
     }
-    
 
     protected override void OnUpdate()
     {
@@ -20,6 +19,7 @@ public class BlockedUpdateSystem : SystemBase
         var ecb = entityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
         Entities
+            // .WithoutBurst()
             .WithNone<BlockedState>()
             .ForEach((int entityInQueryIndex, Entity carEntity, 
                 ref TrackPosition trackPosition, 
@@ -32,6 +32,7 @@ public class BlockedUpdateSystem : SystemBase
                 ecb.AddComponent<BlockedState>(entityInQueryIndex, carEntity);
            }
         }).ScheduleParallel();
+        // }).Run();
     
         Entities
             .WithAll<BlockedState>()
@@ -51,17 +52,17 @@ public class BlockedUpdateSystem : SystemBase
     }
 
     static bool CheckBlock(float velocity, float velocityOfCarInFront, float acceleration, float trackProgress, float trackProgressCarInFront, float trackLength) {
-        float timeToSlowDown = (velocityOfCarInFront-velocity) / acceleration;
-        float spaceToSlowDown = velocity * timeToSlowDown + 0.5f * acceleration * timeToSlowDown * timeToSlowDown;
-    
-        float threshold = 1.25f;
+        float timeToSlowDown = (velocityOfCarInFront-velocity) / (-acceleration);
+        timeToSlowDown = math.max(0, timeToSlowDown);
 
+        float spaceToSlowDown = velocity * timeToSlowDown + 0.5f * (-acceleration) * timeToSlowDown * timeToSlowDown;
+        float threshold = 1.25f;
         float distanceBetweenCars = trackProgressCarInFront - trackProgress;
-        distanceBetweenCars -= threshold; // XXX temp. replace
 
         // get distance and take track length into account
         distanceBetweenCars = (distanceBetweenCars + trackLength) % trackLength;
+        float diff =  distanceBetweenCars - spaceToSlowDown;
 
-        return !(velocityOfCarInFront > velocity || distanceBetweenCars > spaceToSlowDown);
+        return diff <= threshold; 
     }
 }

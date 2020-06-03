@@ -14,17 +14,21 @@ public class SpeedUpdateSystem : SystemBase
             in TrackPosition trackPosition, in CarProperties carProperties, in CarInFront carInFront) =>
         {
             speed.Value -= carProperties.Acceleration * dtime; 
-            speed.Value = math.max(carInFront.Speed, math.max(speed.Value, 0));
+            // speed.Value = math.max(carInFront.Speed, math.max(speed.Value, 0));
+            speed.Value = math.max(speed.Value, 0);
         }).ScheduleParallel();
 
         // Accelerate in case the car is not blocked
-        Entities.WithNone<BlockedState>().ForEach((ref Speed speed, 
+        Entities
+            // .WithoutBurst()
+            .WithNone<BlockedState>().ForEach((ref Speed speed, 
             in TrackPosition trackPosition, in CarProperties carProperties, in CarInFront carInFront) =>
         {
             speed.Value += carProperties.Acceleration * dtime; 
 
             float maxSpeed = carProperties.DefaultSpeed;
-            speed.Value = math.min(carInFront.Speed, math.min(speed.Value, maxSpeed));
+            speed.Value = math.min(speed.Value, maxSpeed);
         }).ScheduleParallel();
+        // }).Run();
     }
 }

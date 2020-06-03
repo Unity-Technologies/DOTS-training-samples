@@ -44,7 +44,7 @@ public class CarSpawningSystem : SystemBase
                 });
 
                 var pointOnInterval = (float)i / (float)numberToBeSpawned;
-                UniformDistributionOverTrack(pointOnInterval, 4, trackProperties.TrackLength, out var targetLane, out var targetTrackProgress);
+                UniformDistributionOverTrack(pointOnInterval, trackProperties.NumberOfLanes, trackProperties.TrackLength, out var targetLane, out var targetTrackProgress);
                 commandBuffer.SetComponent(newCar, new TrackPosition
                 {
                     Lane = (float)targetLane,
