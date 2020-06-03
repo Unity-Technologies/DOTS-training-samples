@@ -76,7 +76,7 @@ public class AgentSpawningSystem : SystemBase
                 };
                 
                 ecb.SetComponent(spawnedEntity, targetSpeed);
-                ecb.SetSharedComponent(spawnedEntity, laneAssignment);
+                ecb.AddComponent(spawnedEntity, laneAssignment);
                 ecb.SetComponent(spawnedEntity, translation);
             }
 

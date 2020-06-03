@@ -6,7 +6,7 @@ public class AgentSpawningAuthoring : MonoBehaviour, IConvertGameObjectToEntity,
 {
     public GameObject PrefabAgent;
 
-    [Range(1, 100)]
+    [Range(1, 100000)]
     public int AgentNumber;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
