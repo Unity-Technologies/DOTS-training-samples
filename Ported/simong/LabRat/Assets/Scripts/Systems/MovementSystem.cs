@@ -84,18 +84,18 @@ class MovementSystem : SystemBase
                     var cellIndex = (cellCoord.y * rows) + cellCoord.x;
                     var cell = cells[cellIndex];
 
-                    //if (cell.IsHole())
-                    //{
-                    //    // add falling tag
-                    //    ecb.AddComponent<FallingTag>(entityInQueryIndex, entity);
+                    if (cell.IsHole())
+                    {
+                        // add falling tag
+                        ecb.AddComponent<FallingTag>(entityInQueryIndex, entity);
 
-                    //}
-                    //else if (cell.IsBase())
-                    //{
-                    //    // remove entity and score
-                    //    //ecb.AddComponent<ReachedBase>(entityInQueryIndex, entity);
-                    //}
-                    //else
+                    }
+                    else if (cell.IsBase())
+                    {
+                        // remove entity and score
+                        //ecb.AddComponent<ReachedBase>(entityInQueryIndex, entity);
+                    }
+                    else
                     {
                         var newDirection = dir.Value;
 
