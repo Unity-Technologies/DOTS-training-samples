@@ -31,7 +31,6 @@ public class ScoreSystem : SystemBase
         
         Entities
             .WithName("AddMiceScore")
-            .WithAll<ReachedBase>()
             .WithAll<MouseTag>()
             .ForEach((Entity entity, in ReachedBase reachedBase) =>
             {
@@ -45,7 +44,6 @@ public class ScoreSystem : SystemBase
         
         Entities
             .WithName("DeductCatScore")
-            .WithAll<ReachedBase>()
             .WithAll<CatTag>()
             .ForEach((Entity entity, in ReachedBase reachedBase) =>
             {
