@@ -183,9 +183,9 @@ MonoBehaviour:
     y: 0
   EndXZ:
     x: 7.39
-    y: 24
+    y: 240000
   MaxLanes: 4
-  CarSpawningDistance: 0.1
+  CarSpawningDistance: 0.0001
 --- !u!1 &285360169
 GameObject:
   m_ObjectHideFlags: 0
@@ -284,7 +284,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PrefabAgent: {fileID: 1999935204370666, guid: eb09540518ebb214aba8500b41634a1b,
     type: 3}
-  AgentNumber: 10
+  AgentNumber: 29983
 --- !u!114 &1120589865
 MonoBehaviour:
   m_ObjectHideFlags: 0
