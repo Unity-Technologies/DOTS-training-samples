@@ -15,14 +15,15 @@ public class CarSpawningSystem : SystemBase
     protected override void OnUpdate()
     {
         TrackProperties trackProperties = GetSingleton<TrackProperties>();
+        CarSpawner spawner = GetSingleton<CarSpawner>();
 
         var barrier = m_EntityCommandBufferSystem;
         var commandBuffer = barrier.CreateCommandBuffer();
 
         var random = new Unity.Mathematics.Random(1);
-        var jobHandle = Entities.ForEach((in Entity entity, in CarSpawner spawner) => 
+        var jobHandle = Entities.ForEach((in Entity entity, in CarSpawnRequest request) => 
         {
-            var numberToBeSpawned = spawner.InstancesToSpawn;
+            var numberToBeSpawned = request.InstancesToSpawn;
             var carToBeSpawned = spawner.CarPrefab;
 
             for (int i = 0; i < numberToBeSpawned; ++i)
@@ -52,7 +53,7 @@ public class CarSpawningSystem : SystemBase
                 });
 
                 commandBuffer.AddComponent(newCar, new CarInFront());
-
+                
                 commandBuffer.DestroyEntity(entity);
             }
         }).Schedule(Dependency);
