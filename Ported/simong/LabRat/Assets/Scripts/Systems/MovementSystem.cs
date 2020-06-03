@@ -27,6 +27,8 @@ class MovementSystem : SystemBase
         var cols = ConstantData.Instance.BoardDimensions.y;
         var cellSize = ConstantData.Instance.CellSize;
 
+        var rotationSpeed = ConstantData.Instance.RotationSpeed;
+
         var deltaTime = Time.DeltaTime;
 
         var ecb = m_Barrier.CreateCommandBuffer().ToConcurrent();
@@ -34,7 +36,7 @@ class MovementSystem : SystemBase
         // update walking
         Entities
             .WithNone<FallingTag>()
-            .ForEach((int entityInQueryIndex, Entity entity, ref Position2D pos, ref Direction2D dir, in WalkSpeed speed) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref Position2D pos, ref Rotation2D rot, ref Direction2D dir, in WalkSpeed speed) =>
             {
                 // TODO low fps handling here
 
@@ -46,10 +48,10 @@ class MovementSystem : SystemBase
                 {
                     float slice = math.min(cellSize.x * 0.3f, remainingDistance);
                     remainingDistance -= slice;
-                    if (slice <= 0f || NearlyEqual(0f, slice, k_SliceEpsilon))
+                    if (slice <= 0f || Utility.NearlyEqual(0f, slice, k_SliceEpsilon))
                         break;
 
-                    var delta = ForwardVectorForDirection(dir.Value) * slice;
+                    var delta = Utility.ForwardVectorForDirection(dir.Value) * slice;
                     pos.Value += delta;
 
                     var flooredPos = pos.Value;
@@ -131,11 +133,16 @@ class MovementSystem : SystemBase
                         dir.Value = newDirection;
                     }
 
+                    // Lerp the visible forward direction towards the logical one each frame.
+                    var goalRot = Utility.DirectionToAngle(dir.Value);
+                    rot.Value = math.lerp(rot.Value, goalRot, deltaTime * rotationSpeed);
                 }
             })
             .WithName("UpdateWalking")
             .ScheduleParallel();
 
+
+        // update falling
         var fallingSpeed = ConstantData.Instance.FallingSpeed;
         var fallingKillY = ConstantData.Instance.FallingKillY;
 
@@ -155,52 +162,6 @@ class MovementSystem : SystemBase
         m_Barrier.AddJobHandleForProducer(Dependency);
     }
 
-    static float2 ForwardVectorForDirection(GridDirection dir)
-    {
-        switch (dir)
-        {
-            case GridDirection.NORTH:
-                return new float2(0f, 1f);
-
-            case GridDirection.EAST:
-                return new float2(1f, 0f);
-
-            case GridDirection.SOUTH:
-                return new float2(0f, -1f);
-
-            case GridDirection.WEST:
-                return new float2(-1f, 0f);
-
-            default:
-                throw new System.ArgumentOutOfRangeException("Invalid direction set");
-        }
-    }
-
-    // taken from https://stackoverflow.com/questions/3874627/floating-point-comparison-functions-for-c-sharp
-    // as MathF.Approximately doesn't have an equivalent in unity.mathematics
-    public static bool NearlyEqual(float a, float b, float epsilon)
-    {
-        float absA = math.abs(a);
-        float absB = math.abs(b);
-        float diff = math.abs(a - b);
-
-        if (a == b)
-        {
-            // shortcut, handles infinities
-            return true;
-        }
-        else if (a == 0 || b == 0 || absA + absB < math.FLT_MIN_NORMAL)
-        {
-            // a or b is zero or both are extremely close to it
-            // relative error is less meaningful here
-            return diff < (epsilon * math.FLT_MIN_NORMAL);
-        }
-        else
-        {
-            // use relative error
-            return diff / (absA + absB) < epsilon;
-        }
-    }
 }
 
 
