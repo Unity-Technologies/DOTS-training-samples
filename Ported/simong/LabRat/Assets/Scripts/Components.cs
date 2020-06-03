@@ -44,13 +44,6 @@ public struct Rotation2D : IComponentData
     public float Value;
 }*/
 
-//[GenerateAuthoringComponent]
-public struct MouseTag : IComponentData
-{
-}
-
-
-
 public struct ReachedBase : IComponentData
 {
     public int PlayerID;
