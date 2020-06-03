@@ -42,7 +42,7 @@ public class GridCreationSystem : SystemBase
                 Unity.Physics.BoxCollider* boardCollider = (Unity.Physics.BoxCollider*)GetSingleton<Unity.Physics.PhysicsCollider>().ColliderPtr;
                 var geometry = boardCollider->Geometry;
                 geometry.Size = new float3(constantData.BoardDimensions.x, 1, constantData.BoardDimensions.y);
-                geometry.Center = new float3(constantData.BoardDimensions.x / 2, 0, constantData.BoardDimensions.y / 2);
+                geometry.Center = new float3(constantData.BoardDimensions.x / 2, -1, constantData.BoardDimensions.y / 2);
                 boardCollider->Geometry = geometry;
             }
 
