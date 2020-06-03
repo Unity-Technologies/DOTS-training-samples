@@ -71,7 +71,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5085067247852644097}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91ecdef601f67f54ab72e277454272f2, type: 3}
+  m_Script: {fileID: 11500000, guid: 6cb118801a494c7449d9f265bf268f74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   DefaultSpeed: 0
@@ -79,6 +79,7 @@ MonoBehaviour:
   DistanceToCarBeforeOvertaking: 0
   OvertakeEagerness: 0
   MergeSpace: 0
+  Acceleration: 0
 --- !u!23 &5085067247852644127
 MeshRenderer:
   m_ObjectHideFlags: 0
