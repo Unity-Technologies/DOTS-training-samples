@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af063ccc3d7345119181976c2cacb492, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InstancesToSpawn: 64
+  InstancesToSpawn: 16
 --- !u!4 &844579107
 Transform:
   m_ObjectHideFlags: 0
@@ -222,6 +222,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 779630516444014701, guid: 25c40300fdfa24a469cf1c09169abc64,
+        type: 3}
+      propertyPath: MinDefaultSpeed
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 779630516444014701, guid: 25c40300fdfa24a469cf1c09169abc64,
+        type: 3}
+      propertyPath: MaxDefaultSpeed
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 779630516444014701, guid: 25c40300fdfa24a469cf1c09169abc64,
+        type: 3}
+      propertyPath: Acceleration
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 7739578134229188621, guid: 25c40300fdfa24a469cf1c09169abc64,
         type: 3}
       propertyPath: m_Name

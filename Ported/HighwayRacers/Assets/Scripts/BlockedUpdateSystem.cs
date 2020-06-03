@@ -51,18 +51,23 @@ public class BlockedUpdateSystem : SystemBase
         entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 
-    static bool CheckBlock(float velocity, float velocityOfCarInFront, float acceleration, float trackProgress, float trackProgressCarInFront, float trackLength) {
-        float timeToSlowDown = (velocityOfCarInFront-velocity) / (-acceleration);
-        timeToSlowDown = math.max(0, timeToSlowDown);
+    static bool CheckBlock(float velocity, float velocityOfCarInFront, float acceleration, float trackProgress, float trackProgressCarInFront, float trackLength)
+    {
+        if (velocity < velocityOfCarInFront)
+            return false;
 
-        float spaceToSlowDown = velocity * timeToSlowDown + 0.5f * (-acceleration) * timeToSlowDown * timeToSlowDown;
-        float threshold = 1.25f;
+        float relativeVelocity = velocity - velocityOfCarInFront;
+
+        float timeToSlowDown = relativeVelocity / acceleration;
+
+        float spaceToSlowDown = relativeVelocity * timeToSlowDown - 0.5f * acceleration * timeToSlowDown * timeToSlowDown;
+
         float distanceBetweenCars = trackProgressCarInFront - trackProgress;
-
-        // get distance and take track length into account
         distanceBetweenCars = (distanceBetweenCars + trackLength) % trackLength;
-        float diff =  distanceBetweenCars - spaceToSlowDown;
 
-        return diff <= threshold; 
+        float diff = distanceBetweenCars - spaceToSlowDown;
+
+        const float threshold = 1.25f;
+        return diff <= threshold;
     }
 }
