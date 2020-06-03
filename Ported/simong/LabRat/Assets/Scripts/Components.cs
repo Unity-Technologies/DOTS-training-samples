@@ -35,16 +35,3 @@ public struct ReachedBase : IComponentData
     public int PlayerID;
 }
 
-public struct ArrowRequest : IComponentData
-{
-    public int2 Position;
-    public int OwnerID;
-    public GridDirection Direction;
-}
-public struct ArrowComponent : IComponentData
-{
-    public int2 Position;
-    public int OwnerID;
-    public GridDirection Direction;
-    public long SpawnTime;
-}
