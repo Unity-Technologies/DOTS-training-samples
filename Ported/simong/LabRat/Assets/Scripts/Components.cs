@@ -34,8 +34,3 @@ public struct ReachedBase : IComponentData
 {
     public int PlayerID;
 }
-
-public struct FallingTag : IComponentData
-{
-
-}
