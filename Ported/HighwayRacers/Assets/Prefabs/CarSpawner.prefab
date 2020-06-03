@@ -43,5 +43,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa8ce51d9861b294481040c1493d25ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  InstancesToSpawn: 4
   CarPrefab: {fileID: 5085067247852644097, guid: 7ea0e7bd29e38894e8f1dd2fc7e12158,
     type: 3}
+  MaxDefaultSpeed: 5
+  MaxOvertakeSpeed: 5
+  MaxDistanceToCarBeforeOvertaking: 5
+  MaxOvertakeEagerness: 5
+  MaxMergeSpace: 5
