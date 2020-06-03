@@ -36,6 +36,7 @@ class SpawnerSystem : SystemBase
             {
                 ecb.SetComponent(toSpawn, new Position2D { Value = position.Value });
                 ecb.SetComponent(toSpawn, new Direction2D { Value = direction.Value });
+                ecb.SetComponent(toSpawn, new Rotation2D { Value = Utility.DirectionToAngle(direction.Value) });
             }
         })
         .WithName("UpdateSpawners")
