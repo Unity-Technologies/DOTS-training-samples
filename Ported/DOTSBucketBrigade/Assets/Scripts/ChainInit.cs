@@ -47,11 +47,11 @@ namespace DefaultNamespace
                 SetChainStartEnd(chain, nearestWater, nearestFire);
 
                 // Scooper
-                var scooper = CreateAgent(ref rand, prefabs.ScooperPrefab, gridSize);
+                var scooper = CreateAgent(ref rand, prefabs.ScooperPrefab, gridSize, chain, 0f);
                 SetTargetPosition(scooper, nearestWater);
 
                 // Thrower
-                var thrower = CreateAgent(ref rand, prefabs.ThrowerPrefab, gridSize);
+                var thrower = CreateAgent(ref rand, prefabs.ThrowerPrefab, gridSize, chain, 1f);
                 SetTargetPosition(thrower, nearestFire);
                 
                 // Forward Chain
@@ -88,13 +88,8 @@ namespace DefaultNamespace
             
             for (int i = 0; i < config.NumberOfPassersInOneDirectionPerChain; ++i)
             {
-                var agent = CreateAgent(ref rand, prefabEntity, gridSize);
+                var agent = CreateAgent(ref rand, prefabEntity, gridSize, chain, i / (float) (config.NumberOfPassersInOneDirectionPerChain - 1));
                 var agentComponent = EntityManager.GetComponentData<Agent>(agent);
-                agentComponent.ChainT = i / (float) (config.NumberOfPassersInOneDirectionPerChain - 1);
-                agentComponent.MyChain = chain;
-                EntityManager.SetComponentData(agent, agentComponent);
-
-                // TODO: factor this out of ChainInit.
                 var offset = math.sin(agentComponent.ChainT * math.PI);
                 var target = math.lerp(chainComponent.ChainStartPosition, chainComponent.ChainEndPosition,
                     agentComponent.ChainT);
@@ -106,12 +101,17 @@ namespace DefaultNamespace
             // - What happens with the Thrower with respect to finding the 'end' of the chain, to pass back to?
         }
 
-        private Entity CreateAgent(ref Random rand, Entity prefabEntity, float2 gridSize)
+        private Entity CreateAgent(ref Random rand, Entity prefabEntity, float2 gridSize, Entity chain, float chainT)
         {
             var agent = EntityManager.Instantiate(prefabEntity);
             var agentPos = GetComponent<Translation>(agent);
             agentPos.Value = new float3(rand.NextFloat(gridSize.x), 0, rand.NextFloat(gridSize.y));
             SetComponent(agent, agentPos);
+            
+            var agentComponent = EntityManager.GetComponentData<Agent>(agent);
+            agentComponent.ChainT = chainT;
+            agentComponent.MyChain = chain;
+            EntityManager.SetComponentData(agent, agentComponent);
             return agent;
         }
     }
