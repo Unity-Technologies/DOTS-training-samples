@@ -7,6 +7,8 @@ public class CarSpawningSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        TrackProperties trackProperties = GetSingleton<TrackProperties>();
+
         var barrier = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         var commandBuffer = barrier.CreateCommandBuffer();
 
@@ -35,7 +37,7 @@ public class CarSpawningSystem : SystemBase
                 });
 
                 var pointOnInterval = (float)i / (float)numberToBeSpawned;
-                UniformDistributionOverTrack(pointOnInterval, 4, out var targetLane, out var targetTrackProgress);
+                UniformDistributionOverTrack(pointOnInterval, 4, trackProperties.TrackLength, out var targetLane, out var targetTrackProgress);
                 commandBuffer.SetComponent(newCar, new TrackPosition
                 {
                     Lane = (float)targetLane,
@@ -53,9 +55,9 @@ public class CarSpawningSystem : SystemBase
         barrier.AddJobHandleForProducer(jobHandle);
     }
 
-    static void UniformDistributionOverTrack(float value, int numLanes, out int lane, out float trackProgress)
+    static void UniformDistributionOverTrack(float value, int numLanes, float trackLength, out int lane, out float trackProgress)
     {
         lane = (int)math.floor(value * numLanes);
-        trackProgress = value * numLanes - lane;
+        trackProgress = (value * numLanes - lane) * trackLength;
     }
 }
