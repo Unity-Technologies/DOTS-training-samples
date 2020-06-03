@@ -18,20 +18,6 @@ public struct Position2D : IComponentData
     public float2 Value;
 }
 
-public enum GridDirection
-{
-    NORTH = (1<<0),
-    EAST = (1<<1),
-    SOUTH = (1<<2),
-    WEST = (1<<3)
-}
-
-// Contents of CellInfo
-// - bottom 4 bits GridDirection
-// - is hole -> 1 bit
-// - is base -> 1 bit
-// - above that is owning player id for bases -> which player owns a base
-
 //[GenerateAuthoringComponent]
 public struct Direction2D : IComponentData
 {
