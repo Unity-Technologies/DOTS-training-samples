@@ -5,6 +5,8 @@ using Unity.Transforms;
 
 public class MonitorFrontSystem : SystemBase
 {
+    private const float LaneBlockThreshold = 0.9f;
+
     protected override void OnUpdate()
     {
         //setup all other native arrays
@@ -20,13 +22,11 @@ public class MonitorFrontSystem : SystemBase
                 float firstInLaneSpeed = 0;
                 float inFrontProgress = float.MaxValue;
                 float inFrontSpeed = 0;
-                int lane = (int) car.Lane;
-                Entity e = entity;
 
                 // 2. sort through others and find closest (in front) in the same lane
                 for (int i = 0; i < otherCars.Length; i++)
                 {
-                    if ((int) otherCars[i].Lane == lane)
+                    if (math.abs(otherCars[i].Lane - car.Lane) < LaneBlockThreshold)
                     {
                         if (otherCars[i].TrackProgress > progress && otherCars[i].TrackProgress < inFrontProgress)
                         {
