@@ -7,6 +7,13 @@ class MovementSystem : SystemBase
 {
     const float k_SliceEpsilon = 0.00001f;
 
+    EndSimulationEntityCommandBufferSystem m_Barrier;
+
+    protected override void OnCreate()
+    {
+        m_Barrier = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
         var gridSystem = World.GetOrCreateSystem<GridCreationSystem>();
@@ -20,9 +27,11 @@ class MovementSystem : SystemBase
 
         var deltaTime = Time.DeltaTime;
 
+        var ecb = m_Barrier.CreateCommandBuffer().ToConcurrent();
+
         // update movement
         Entities
-            .ForEach((ref Position2D pos, ref Direction2D dir, in WalkSpeed speed) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref Position2D pos, ref Direction2D dir, in WalkSpeed speed) =>
             {
                 // TODO low fps handling here
 
@@ -61,10 +70,39 @@ class MovementSystem : SystemBase
                         default:
                             throw new System.ArgumentOutOfRangeException("Invalid direction set");
                     }
+
+                    var cell = cells[0]; // TODO <- actual index, obviously
+                                         //cell = board.CellAtWorldPosition(pos);
+
+                    if (cell.IsHole())
+                    {
+                        // add falling tag
+                        ecb.AddComponent<FallingTag>(entityInQueryIndex, entity);
+
+                    }
+                    else if (cell.IsBase())
+                    {
+                        // remove entity and score
+                        //ecb.AddComponent<ReachedBase>(entityInQueryIndex, entity);
+                    }
+
+                    //var newDirection = cell.ShouldRedirect(myDirection, ref lastRedirectCoord, this); ;
+                    //if (newDirection != myDirection)
+                    //{
+                    //    Forward = ForwardVectorForDirection(newDirection);
+                    //    if (myDirection == Cell.OppositeDirection(newDirection))
+                    //    {
+                    //        // Turn around fast when it's the opposite direction.
+                    //        transform.forward = Forward;
+                    //    }
+                    //    myDirection = newDirection;
+                    //}
                 }
             })
             .WithName("UpdateMovables")
             .ScheduleParallel();
+
+        m_Barrier.AddJobHandleForProducer(Dependency);
     }
 
     // taken from https://stackoverflow.com/questions/3874627/floating-point-comparison-functions-for-c-sharp

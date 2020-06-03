@@ -18,22 +18,22 @@ public struct CellInfo
     byte m_Value;
 
 
-    bool CanTravel(GridDirection dir)
+    public bool CanTravel(GridDirection dir)
     {
         return (m_Value & (byte)dir) > 0;
     }
 
-    bool IsHole()
+    public bool IsHole()
     {
         return (m_Value & k_IsHoleFlag) > 0;
     }
 
-    bool IsBase()
+    public bool IsBase()
     {
         return (m_Value & k_IsBaseFlag) > 0;
     }
 
-    int GetBasePlayerId()
+    public int GetBasePlayerId()
     {
         return (m_Value & k_BasePlayerIdMask) >> k_BasePlayerIdShift;
     }
