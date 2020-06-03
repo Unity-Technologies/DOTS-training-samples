@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Entities.UniversalDelegates;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 class MovementSystem : SystemBase
@@ -30,7 +31,7 @@ class MovementSystem : SystemBase
 
         var ecb = m_Barrier.CreateCommandBuffer().ToConcurrent();
 
-        // update movement
+        // update walking
         Entities
             .WithNone<FallingTag>()
             .ForEach((int entityInQueryIndex, Entity entity, ref Position2D pos, ref Direction2D dir, in WalkSpeed speed) =>
@@ -78,6 +79,7 @@ class MovementSystem : SystemBase
                     if (cellCoord.x > cols || cellCoord.y > rows)
                     {
                         ecb.AddComponent<FallingTag>(entityInQueryIndex, entity);
+                        ecb.RemoveComponent<Position2D>(entityInQueryIndex, entity);
                         throw new System.ArgumentOutOfRangeException($"cell coordinates are out of range - {cellCoord.x}, {cellCoord.y}");
                     }
 
@@ -88,7 +90,7 @@ class MovementSystem : SystemBase
                     {
                         // add falling tag
                         ecb.AddComponent<FallingTag>(entityInQueryIndex, entity);
-
+                        ecb.RemoveComponent<Position2D>(entityInQueryIndex, entity);
                     }
                     else if (cell.IsBase())
                     {
@@ -131,7 +133,23 @@ class MovementSystem : SystemBase
 
                 }
             })
-            .WithName("UpdateMovables")
+            .WithName("UpdateWalking")
+            .ScheduleParallel();
+
+        var fallingSpeed = ConstantData.Instance.FallingSpeed;
+        var fallingKillY = ConstantData.Instance.FallingKillY;
+
+        Entities
+            .WithAll<FallingTag>()
+            .ForEach((int entityInQueryIndex, Entity entity, ref LocalToWorld ltw) =>
+            {
+                var pos = ltw.Position - new float3(0f, 0f, fallingSpeed * deltaTime);
+                if (pos.y >= fallingKillY)
+                    ltw.Value.c3 = new float4(pos.x, pos.y, pos.z, 1f);
+                else
+                    ecb.DestroyEntity(entityInQueryIndex, entity);
+            })
+            .WithName("UpdateFalling")
             .ScheduleParallel();
 
         m_Barrier.AddJobHandleForProducer(Dependency);
