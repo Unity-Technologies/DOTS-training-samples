@@ -34,4 +34,3 @@ public struct ReachedBase : IComponentData
 {
     public int PlayerID;
 }
-

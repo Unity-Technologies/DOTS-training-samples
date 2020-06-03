@@ -63,7 +63,7 @@ class PlayerInputSystem : SystemBase
     {
         if (previewArrow == Entity.Null)
         {
-            previewArrow = EntityManager.Instantiate(GetSingleton<PrefabReferenceComponent>().ArrowPrefab);
+            previewArrow = EntityManager.Instantiate(GetSingleton<PrefabReferenceComponent>().PreviewArrowPrefab);
         }
         else
         {

@@ -280,6 +280,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ArrowPrefab: {fileID: 6922569374368231017, guid: bafbd4e5206bfbc4a8f2d00ce4923b29,
     type: 3}
+  PreviewArrowPrefab: {fileID: 6922569374368231017, guid: 0437ee87cdde2f24a9ad1cd5c4771f22,
+    type: 3}
   CellPrefab: {fileID: 6331638553213775543, guid: 051b50a947da5254ababbbdf8d8d1187,
     type: 3}
   SpawnerPrefab: {fileID: 3266120362543766956, guid: 0db970dde13a6b44b91f34ddc8cc43d3,
