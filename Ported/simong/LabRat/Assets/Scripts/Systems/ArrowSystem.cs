@@ -28,14 +28,25 @@ public class ArrowSystem : SystemBase
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
+    private NativeArray<Entity> m_arrowPrefabs = new NativeArray<Entity>(4, Allocator.Persistent);
+    private bool m_initedArrowPrefabs = false;
     protected override void OnUpdate()
     {
         int maxArrows = ConstantData.Instance.MaxArrows;
         float2 cellSize = new float2(ConstantData.Instance.CellSize);
         double time = Time.ElapsedTime;
 
-        Entity arrowPrefab = GetSingleton<PrefabReferenceComponent>().ArrowPrefab;
-        
+        if (m_initedArrowPrefabs == false)
+        {
+            m_arrowPrefabs[0] = GetSingleton<PrefabReferenceComponent>().ArrowPrefab0;
+            m_arrowPrefabs[1] = GetSingleton<PrefabReferenceComponent>().ArrowPrefab1;
+            m_arrowPrefabs[2] = GetSingleton<PrefabReferenceComponent>().ArrowPrefab2;
+            m_arrowPrefabs[3] = GetSingleton<PrefabReferenceComponent>().ArrowPrefab3;
+            m_initedArrowPrefabs = true;
+        }
+
+        var arrowPrefabs = m_arrowPrefabs;
+
         var arrowComponents = m_ArrowsQuery.ToComponentDataArrayAsync<ArrowComponent>(Allocator.TempJob, out var arrowComponentsHandle);
         var arrowEntities = m_ArrowsQuery.ToEntityArrayAsync(Allocator.TempJob, out var arrowEntitiesHandle);
         
@@ -47,7 +58,7 @@ public class ArrowSystem : SystemBase
         Entities
             .WithDeallocateOnJobCompletion(arrowComponents)
             .WithDeallocateOnJobCompletion(arrowEntities)
-           .ForEach((Entity arrowRequestEntity, ArrowRequest request) =>
+            .ForEach((Entity arrowRequestEntity, ArrowRequest request) =>
             {
                 int existingComponents = 0;
                 int oldestIndex = -1;
@@ -76,7 +87,7 @@ public class ArrowSystem : SystemBase
                         ecb.DestroyEntity(arrowEntities[oldestIndex]);
                     }
 
-                    Entity spawnedArrow = ecb.Instantiate(arrowPrefab);
+                    Entity spawnedArrow = ecb.Instantiate(arrowPrefabs[request.OwnerID]);
                     if (spawnedArrow != Entity.Null)
                     {
                         ecb.SetComponent(spawnedArrow, new Position2D {Value = Utility.GridCoordinatesToWorldPos(request.Position, cellSize)});

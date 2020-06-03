@@ -283,6 +283,11 @@ MonoBehaviour:
   ArrowLifeTime: 30
   MaxArrows: 3
   NumPlayers: 4
+  ArrowMaterials:
+  - {fileID: 2100000, guid: d6f3d58e14b9b3b4abb657b8df23a7f1, type: 2}
+  - {fileID: 2100000, guid: 3152e962a3f772a479cc731293b62535, type: 2}
+  - {fileID: 2100000, guid: 1ff587fa50cb81d49803ac0fce57bf7f, type: 2}
+  - {fileID: 2100000, guid: 2be36055677ab5b43b01fe2707cf337d, type: 2}
 --- !u!1 &1725028795
 GameObject:
   m_ObjectHideFlags: 0
