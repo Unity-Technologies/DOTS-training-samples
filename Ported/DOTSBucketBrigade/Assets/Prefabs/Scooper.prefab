@@ -13,6 +13,9 @@ GameObject:
   - component: {fileID: 6399250420643704135}
   - component: {fileID: 1715739863135225786}
   - component: {fileID: 7962501821030359037}
+  - component: {fileID: -6697947727677800823}
+  - component: {fileID: 5808085201387405283}
+  - component: {fileID: 6242783099794681436}
   m_Layer: 0
   m_Name: Scooper
   m_TagString: Untagged
@@ -107,3 +110,45 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   State: 0
+--- !u!114 &-6697947727677800823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6012665424101709685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 209e8e9b431194aaeb947082eb158635, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target:
+    x: 0
+    y: 0
+    z: 0
+--- !u!114 &5808085201387405283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6012665424101709685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8626b9726634948a9f6fc05282e9416, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target: {fileID: 0}
+--- !u!114 &6242783099794681436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6012665424101709685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f58b1da255f4c9eaf53370a519d53cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target: {fileID: 0}

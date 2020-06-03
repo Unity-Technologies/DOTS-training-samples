@@ -12,6 +12,9 @@ GameObject:
   - component: {fileID: 7297808413586839612}
   - component: {fileID: 5550514109772872925}
   - component: {fileID: 1505579157168208988}
+  - component: {fileID: -7356732598991746448}
+  - component: {fileID: 6095994530557967967}
+  - component: {fileID: 4851994432317490998}
   m_Layer: 0
   m_Name: PasserForward
   m_TagString: Untagged
@@ -93,3 +96,46 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-7356732598991746448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9178505292708079987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 209e8e9b431194aaeb947082eb158635, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target:
+    x: 0
+    y: 0
+    z: 0
+--- !u!114 &6095994530557967967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9178505292708079987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ef442c31dbaa42cb9cec97834f02c24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ChainT: 0
+  MyChain: {fileID: 0}
+--- !u!114 &4851994432317490998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9178505292708079987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8626b9726634948a9f6fc05282e9416, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target: {fileID: 0}

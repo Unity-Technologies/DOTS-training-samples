@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -191,6 +191,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BucketPrefab: {fileID: 8400393862565510247, guid: 80480241c761a4ae5a5a2285fd9a1172,
+    type: 3}
+  ScooperPrefab: {fileID: 6012665424101709685, guid: 1ef5a91fb62334c069d81856c6a682e1,
+    type: 3}
+  ThrowerPrefab: {fileID: 990607190443930912, guid: 38146fa252c2c4263beb5a5c70e1cfcc,
+    type: 3}
+  PasserForwardPrefab: {fileID: 9178505292708079987, guid: 84e9590b3bb5841d3bf49d72c17996aa,
+    type: 3}
+  PasserBackPrefab: {fileID: 4176595436693289604, guid: 41d8d6dce8f144206bd8b26585ff40af,
     type: 3}
 --- !u!1001 &443498169
 PrefabInstance:
