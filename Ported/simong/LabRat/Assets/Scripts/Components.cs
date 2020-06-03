@@ -30,7 +30,7 @@ public class ConstantData : MonoBehaviour
     public int NumPlayers = 4;
 }
 
-//[GenerateAuthoringComponent]
+/*[GenerateAuthoringComponent]
 public struct Position2D : IComponentData
 {
     public float2 Value;
@@ -60,7 +60,7 @@ public struct Direction2D : IComponentData
 public struct Rotation2D : IComponentData
 {
     public float Value;
-}
+}*/
 
 //[GenerateAuthoringComponent]
 public struct SpawnerInfo : IComponentData
