@@ -5,10 +5,13 @@ class MovementSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        // placeholder grid
-        var numRows = 30;
-        var numColumns = 30;
-        var grid = new NativeArray<CellInfo>(numRows * numColumns, Allocator.TempJob);
+        var gridSystem = World.GetOrCreateSystem<GridCreationSystem>();
+        if (!gridSystem.Cells.IsCreated)
+            return;
+
+        var cells = gridSystem.Cells;
+        var rows = ConstantData.Instance.BoardDimensions.x;
+        var cols = ConstantData.Instance.BoardDimensions.y;
 
         // update movement
         Entities
@@ -18,8 +21,5 @@ class MovementSystem : SystemBase
             })
             .WithName("UpdateMovables")
             .ScheduleParallel();
-
-        // clean up temporary memory
-        grid.Dispose(Dependency);
     }
 }
