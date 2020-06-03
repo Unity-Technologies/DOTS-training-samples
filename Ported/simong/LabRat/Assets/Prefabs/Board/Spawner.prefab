@@ -75,7 +75,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 1565721843962348, guid: fd9947d7db73f441cb1a4d06a4fc087d, type: 3}
+  AlternatePrefab: {fileID: 1377909340170110, guid: 19268829cf75c415f8f14765efcab529,
+    type: 3}
   Frequency: 1
+  AlternateSpawnFrequency: 5
 --- !u!114 &-5774549054950048670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -89,3 +92,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Time: 0
+  AlternateSpawnEnabled: 0
+  AlternateSpawnTime: 0
