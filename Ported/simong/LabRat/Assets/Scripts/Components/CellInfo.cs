@@ -3,7 +3,7 @@
 // - is hole -> 1 bit
 // - is base -> 1 bit
 // - above that is owning player id for bases -> which player owns a base
-struct CellInfo
+public struct CellInfo
 {
     const byte k_IsHoleFlag = (1 << 4);
     const byte k_IsBaseFlag = (1 << 5);
