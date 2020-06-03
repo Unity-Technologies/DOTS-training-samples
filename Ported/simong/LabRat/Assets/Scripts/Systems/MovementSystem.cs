@@ -84,18 +84,18 @@ class MovementSystem : SystemBase
                     var cellIndex = (cellCoord.y * rows) + cellCoord.x;
                     var cell = cells[cellIndex];
 
-                    //if (cell.IsHole())
-                    //{
-                    //    // add falling tag
-                    //    ecb.AddComponent<FallingTag>(entityInQueryIndex, entity);
+                    if (cell.IsHole())
+                    {
+                        // add falling tag
+                        ecb.AddComponent<FallingTag>(entityInQueryIndex, entity);
 
-                    //}
-                    //else if (cell.IsBase())
-                    //{
-                    //    // remove entity and score
-                    //    //ecb.AddComponent<ReachedBase>(entityInQueryIndex, entity);
-                    //}
-                    //else
+                    }
+                    else if (cell.IsBase())
+                    {
+                        // remove entity and score
+                        //ecb.AddComponent<ReachedBase>(entityInQueryIndex, entity);
+                    }
+                    else
                     {
                         var newDirection = dir.Value;
 
@@ -125,19 +125,10 @@ class MovementSystem : SystemBase
                                     throw new System.InvalidOperationException("Unable to resolve cell travel. Is there a valid exit from this cell?");
                             }
                         }
+
+                        dir.Value = newDirection;
                     }
 
-                    //var newDirection = cell.ShouldRedirect(myDirection, ref lastRedirectCoord, this); ;
-                    //if (newDirection != myDirection)
-                    //{
-                    //    Forward = ForwardVectorForDirection(newDirection);
-                    //    if (myDirection == Cell.OppositeDirection(newDirection))
-                    //    {
-                    //        // Turn around fast when it's the opposite direction.
-                    //        transform.forward = Forward;
-                    //    }
-                    //    myDirection = newDirection;
-                    //}
                 }
             })
             .WithName("UpdateMovables")

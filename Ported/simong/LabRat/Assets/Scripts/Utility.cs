@@ -12,4 +12,26 @@ public class Utility
     {
         return new float2(gridCoord.x * cellSize.x + cellSize.x / 2, gridCoord.y * cellSize.y + cellSize.y / 2);
     }
+
+    public static float DirectionToAngle(GridDirection dir)
+    {
+        switch (dir)
+        {
+            case GridDirection.NORTH:
+                return math.PI;
+
+            case GridDirection.EAST:
+                return math.PI * 1.5f;
+
+            case GridDirection.SOUTH:
+                return 0;
+
+            case GridDirection.WEST:
+                return math.PI * 0.5f;
+
+            default:
+                throw new System.ArgumentOutOfRangeException("Invalid direction set");
+        }
+    }
+
 }
