@@ -8,4 +8,5 @@ public struct CarProperties : IComponentData
     public float DistanceToCarBeforeOvertaking;
     public float OvertakeEagerness;
     public float MergeSpace;
+    public float Acceleration;
 }
