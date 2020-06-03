@@ -4,4 +4,6 @@
 public struct PrefabReferenceComponent : IComponentData
 {
     public Entity ArrowPrefab;
+    public Entity CellPrefab;
+    public Entity SpawnerPrefab;
 }
