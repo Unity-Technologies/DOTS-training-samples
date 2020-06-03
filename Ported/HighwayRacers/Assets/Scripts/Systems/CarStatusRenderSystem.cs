@@ -6,7 +6,6 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
-[DisableAutoCreation]
 public class CarStatusRenderSystem : SystemBase
 {
     protected override void OnUpdate()
@@ -14,8 +13,7 @@ public class CarStatusRenderSystem : SystemBase
         CarSpawner spawner = GetSingleton<CarSpawner>();
         var carPrefab = spawner.CarPrefab;
         var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(carPrefab);
-
-        renderMesh.material = CarStatusDisplayManager.Instance.AccelerationStatusMaterial;
+        renderMesh.material = CarStatusDisplayManager.Instance.BlockedStatusMaterial;
         
         var query = GetEntityQuery(ComponentType.ReadOnly<BlockedState>());
 
