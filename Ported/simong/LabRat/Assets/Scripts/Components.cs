@@ -12,24 +12,6 @@ public enum CharacterType
     MOUSE
 }
 
-public class ConstantData : MonoBehaviour
-{
-    public static ConstantData Instance;
-    
-    public float[] Speed = {1f, 1f};
-    public float[] Radius = {1f, 1f};
-    
-    public float RoundLength = 60f;
-    public Vector2Int BoardDimensions = new Vector2Int(30, 30);
-    public Vector2 CellSize = new Vector2(1f, 1f);
-
-    public float ArrowLifeTime = 30f;
-    public int MaxArrows = 3;
-
-    // assume player 0 is human, others AI
-    public int NumPlayers = 4;
-}
-
 /*[GenerateAuthoringComponent]
 public struct Position2D : IComponentData
 {
@@ -61,13 +43,6 @@ public struct Rotation2D : IComponentData
 {
     public float Value;
 }*/
-
-//[GenerateAuthoringComponent]
-public struct MouseTag : IComponentData
-{
-}
-
-
 
 public struct ReachedBase : IComponentData
 {
