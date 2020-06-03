@@ -1,7 +1,8 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
-public struct BucketBrigadeConfig : IComponentData
+[GenerateAuthoringComponent]
+struct BucketBrigadeConfig : IComponentData
 {
     public float TemperatureIncreaseRate;
     public float FlashpointMax;
