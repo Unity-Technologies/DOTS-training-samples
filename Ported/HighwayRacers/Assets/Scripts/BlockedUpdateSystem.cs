@@ -53,6 +53,13 @@ public class BlockedUpdateSystem : SystemBase
 
     static bool CheckBlock(float velocity, float velocityOfCarInFront, float acceleration, float trackProgress, float trackProgressCarInFront, float trackLength)
     {
+        float distanceBetweenCars = trackProgressCarInFront - trackProgress;
+        distanceBetweenCars = (distanceBetweenCars + trackLength) % trackLength;
+
+        const float minDistance = 1.25f;
+        if (distanceBetweenCars < minDistance)
+            return true;
+
         if (velocity < velocityOfCarInFront)
             return false;
 
@@ -62,12 +69,9 @@ public class BlockedUpdateSystem : SystemBase
 
         float spaceToSlowDown = relativeVelocity * timeToSlowDown - 0.5f * acceleration * timeToSlowDown * timeToSlowDown;
 
-        float distanceBetweenCars = trackProgressCarInFront - trackProgress;
-        distanceBetweenCars = (distanceBetweenCars + trackLength) % trackLength;
-
         float diff = distanceBetweenCars - spaceToSlowDown;
 
-        const float threshold = 1.25f;
+        const float threshold = 1.5f;
         return diff <= threshold;
     }
 }
