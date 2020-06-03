@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public struct MoveableTag : IComponentData
+public struct FallingTag : IComponentData
 {
 }

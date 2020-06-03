@@ -125,19 +125,10 @@ class MovementSystem : SystemBase
                                     throw new System.InvalidOperationException("Unable to resolve cell travel. Is there a valid exit from this cell?");
                             }
                         }
+
+                        dir.Value = newDirection;
                     }
 
-                    //var newDirection = cell.ShouldRedirect(myDirection, ref lastRedirectCoord, this); ;
-                    //if (newDirection != myDirection)
-                    //{
-                    //    Forward = ForwardVectorForDirection(newDirection);
-                    //    if (myDirection == Cell.OppositeDirection(newDirection))
-                    //    {
-                    //        // Turn around fast when it's the opposite direction.
-                    //        transform.forward = Forward;
-                    //    }
-                    //    myDirection = newDirection;
-                    //}
                 }
             })
             .WithName("UpdateMovables")
