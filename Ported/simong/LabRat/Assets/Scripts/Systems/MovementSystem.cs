@@ -47,19 +47,19 @@ class MovementSystem : SystemBase
                     switch (dir.Value)
                     {
                         case GridDirection.NORTH:
-                            flooredPos.y = Mathf.Floor(flooredPos.y); 
+                            flooredPos.y = Mathf.Floor(flooredPos.y);
                             break;
                         case GridDirection.SOUTH:
-                            flooredPos.y = Mathf.Ceil(flooredPos.y); 
+                            flooredPos.y = Mathf.Ceil(flooredPos.y);
                             break;
                         case GridDirection.EAST:
-                            flooredPos.x = Mathf.Floor(flooredPos.x); 
+                            flooredPos.x = Mathf.Floor(flooredPos.x);
                             break;
                         case GridDirection.WEST:
-                            flooredPos.x = Mathf.Ceil(flooredPos.x); 
+                            flooredPos.x = Mathf.Ceil(flooredPos.x);
                             break;
                         default:
-                            throw new System.ArgumentOutOfRangeException(dir.Value.ToString());
+                            throw new System.ArgumentOutOfRangeException("Invalid direction set");
                     }
                 }
             })
