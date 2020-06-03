@@ -34,4 +34,50 @@ public class Utility
         }
     }
 
+    public static float2 ForwardVectorForDirection(GridDirection dir)
+    {
+        switch (dir)
+        {
+            case GridDirection.NORTH:
+                return new float2(0f, 1f);
+
+            case GridDirection.EAST:
+                return new float2(1f, 0f);
+
+            case GridDirection.SOUTH:
+                return new float2(0f, -1f);
+
+            case GridDirection.WEST:
+                return new float2(-1f, 0f);
+
+            default:
+                throw new System.ArgumentOutOfRangeException("Invalid direction set");
+        }
+    }
+
+    // taken from https://stackoverflow.com/questions/3874627/floating-point-comparison-functions-for-c-sharp
+    // as MathF.Approximately doesn't have an equivalent in unity.mathematics
+    public static bool NearlyEqual(float a, float b, float epsilon)
+    {
+        float absA = math.abs(a);
+        float absB = math.abs(b);
+        float diff = math.abs(a - b);
+
+        if (a == b)
+        {
+            // shortcut, handles infinities
+            return true;
+        }
+        else if (a == 0 || b == 0 || absA + absB < math.FLT_MIN_NORMAL)
+        {
+            // a or b is zero or both are extremely close to it
+            // relative error is less meaningful here
+            return diff < (epsilon * math.FLT_MIN_NORMAL);
+        }
+        else
+        {
+            // use relative error
+            return diff / (absA + absB) < epsilon;
+        }
+    }
 }
