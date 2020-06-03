@@ -5,8 +5,7 @@ using Unity.Mathematics;
 struct BucketBrigadeConfig : IComponentData
 {
     public float TemperatureIncreaseRate;
-    public float FlashpointMax;
-    public float FlashpointMin;
+    public float Flashpoint;
     public int2 GridDimensions;
     public float CellSize;
 
@@ -16,4 +15,9 @@ struct BucketBrigadeConfig : IComponentData
     public float AgentRadius;
     public float AgentSpeed;
     public int NumberOfBuckets;
+
+    public int StartingFireCount;
+    public float MaxFlameHeight;
+    public int HeatRadius;
+
 }

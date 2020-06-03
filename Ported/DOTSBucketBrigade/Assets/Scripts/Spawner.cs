@@ -8,11 +8,13 @@ using UnityEngine;
 public class Spawner : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
 {
     public GameObject BucketPrefab;
+    public GameObject FireCellPrefab;
 
     // Referenced prefabs have to be declared so that the conversion system knows about them ahead of time
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(BucketPrefab);
+        referencedPrefabs.Add(FireCellPrefab);
     }
 
     // Lets you convert the editor data representation to the entity optimal runtime representation
@@ -23,6 +25,7 @@ public class Spawner : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObj
             // The referenced prefab will be converted due to DeclareReferencedPrefabs.
             // So here we simply map the game object to an entity reference to that prefab.
             BucketPrefab = conversionSystem.GetPrimaryEntity(BucketPrefab),
+            FireCellPrefab = conversionSystem.GetPrimaryEntity(FireCellPrefab),
         };
         dstManager.AddComponentData(entity, spawnerData);
     }
@@ -31,4 +34,5 @@ public class Spawner : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObj
 public struct SpawnerConfig : IComponentData
 {
     public Entity BucketPrefab;
+    public Entity FireCellPrefab;
 }
