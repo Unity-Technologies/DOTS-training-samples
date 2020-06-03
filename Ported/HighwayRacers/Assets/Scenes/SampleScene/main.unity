@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af063ccc3d7345119181976c2cacb492, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InstancesToSpawn: 16
+  InstancesToSpawn: 32
 --- !u!4 &844579107
 Transform:
   m_ObjectHideFlags: 0
@@ -163,7 +163,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1318585449
 GameObject:
@@ -194,7 +194,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1318585451
 MonoBehaviour:
@@ -225,17 +225,17 @@ PrefabInstance:
     - target: {fileID: 779630516444014701, guid: 25c40300fdfa24a469cf1c09169abc64,
         type: 3}
       propertyPath: MinDefaultSpeed
-      value: 13
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 779630516444014701, guid: 25c40300fdfa24a469cf1c09169abc64,
         type: 3}
       propertyPath: MaxDefaultSpeed
-      value: 15
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 779630516444014701, guid: 25c40300fdfa24a469cf1c09169abc64,
         type: 3}
       propertyPath: Acceleration
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7739578134229188621, guid: 25c40300fdfa24a469cf1c09169abc64,
         type: 3}
@@ -280,7 +280,7 @@ PrefabInstance:
     - target: {fileID: 8059043097593268958, guid: 25c40300fdfa24a469cf1c09169abc64,
         type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8059043097593268958, guid: 25c40300fdfa24a469cf1c09169abc64,
         type: 3}
@@ -349,7 +349,7 @@ PrefabInstance:
     - target: {fileID: 6477248333820253030, guid: ce1ec6c55e7adff4d99e0690bb061a95,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6477248333820253030, guid: ce1ec6c55e7adff4d99e0690bb061a95,
         type: 3}

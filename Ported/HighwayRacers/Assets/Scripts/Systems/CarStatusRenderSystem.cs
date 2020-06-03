@@ -8,24 +8,58 @@ using Unity.Transforms;
 
 public class CarStatusRenderSystem : SystemBase
 {
+    bool m_InitDone = false;
+    RenderMesh m_BlockedRenderMesh;
+    RenderMesh m_DefaultSpeedRenderMesh;
+    RenderMesh m_AcceleratingRenderMesh;
+
+    EntityCommandBufferSystem m_EntityCommandBufferSystem;
+
+    protected override void OnCreate()
+    {
+        m_EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
-        CarSpawner spawner = GetSingleton<CarSpawner>();
-        var carPrefab = spawner.CarPrefab;
-        var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(carPrefab);
-        renderMesh.material = CarStatusDisplayManager.Instance.BlockedStatusMaterial;
+        if (!m_InitDone)
+        {
+            m_InitDone = true;
+
+            CarSpawner spawner = GetSingleton<CarSpawner>();
+            var carPrefab = spawner.CarPrefab;
+
+            m_BlockedRenderMesh = EntityManager.GetSharedComponentData<RenderMesh>(carPrefab);
+            m_BlockedRenderMesh.material = CarStatusDisplayManager.Instance.BlockedStatusMaterial;
+
+            m_DefaultSpeedRenderMesh = m_BlockedRenderMesh;
+            m_DefaultSpeedRenderMesh.material = CarStatusDisplayManager.Instance.DefaultSpeedStatusMaterial;
+
+            m_AcceleratingRenderMesh = m_BlockedRenderMesh;
+            m_AcceleratingRenderMesh.material = CarStatusDisplayManager.Instance.AccelerationStatusMaterial;
+        }
         
         var query = GetEntityQuery(ComponentType.ReadOnly<BlockedState>());
+        EntityManager.SetSharedComponentData(query, m_BlockedRenderMesh);
 
-        EntityManager.SetSharedComponentData<RenderMesh>(query, renderMesh);
+        var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
 
-        // var blockedStatusMaterial = CarStatusDisplayManager.Instance.BlockedStatusMaterial;
-        // var defaultSpeedStatusMaterial = CarStatusDisplayManager.Instance.DefaultSpeedStatusMaterial;
-        // var accelerationStatusMaterial = CarStatusDisplayManager.Instance.AccelerationStatusMaterial;
+        var defaultSpeedRenderMesh = m_DefaultSpeedRenderMesh;
+        var acceleratingRenderMesh = m_AcceleratingRenderMesh;
 
-        Entities.WithoutBurst()
-            .ForEach((in CarProperties translation, in Speed speed) =>
+        Entities
+            .WithoutBurst()
+            .WithNone<BlockedState>()
+            .ForEach((Entity carEntity, in CarProperties carProperty, in Speed speed) =>
             {
+                if (carProperty.DefaultSpeed <= speed.Value)
+                {
+                    ecb.SetSharedComponent(carEntity, defaultSpeedRenderMesh);
+                }
+                else
+                {
+                    ecb.SetSharedComponent(carEntity, acceleratingRenderMesh);
+                }
             }).Run();
     }
 }
