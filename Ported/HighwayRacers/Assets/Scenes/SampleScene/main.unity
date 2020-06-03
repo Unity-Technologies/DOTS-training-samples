@@ -188,6 +188,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5085067247852644123, guid: 7ea0e7bd29e38894e8f1dd2fc7e12158,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5085067247852644123, guid: 7ea0e7bd29e38894e8f1dd2fc7e12158,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5085067247852644123, guid: 7ea0e7bd29e38894e8f1dd2fc7e12158,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7ea0e7bd29e38894e8f1dd2fc7e12158, type: 3}
 --- !u!1001 &1778341586
@@ -252,10 +267,35 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1035278832132006563, guid: b2be560e0e3e5b24e93e5b1e76871472,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1035278832132006563, guid: b2be560e0e3e5b24e93e5b1e76871472,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1035278832132006563, guid: b2be560e0e3e5b24e93e5b1e76871472,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3956360505101121866, guid: b2be560e0e3e5b24e93e5b1e76871472,
         type: 3}
       propertyPath: m_Name
       value: Track
+      objectReference: {fileID: 0}
+    - target: {fileID: 5790883513451077431, guid: b2be560e0e3e5b24e93e5b1e76871472,
+        type: 3}
+      propertyPath: LaneSeparation
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5790883513451077431, guid: b2be560e0e3e5b24e93e5b1e76871472,
+        type: 3}
+      propertyPath: TrackLength
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b2be560e0e3e5b24e93e5b1e76871472, type: 3}
@@ -266,11 +306,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 779630516444014701, guid: 25c40300fdfa24a469cf1c09169abc64,
-        type: 3}
-      propertyPath: InstancesToSpawn
-      value: 16
-      objectReference: {fileID: 0}
     - target: {fileID: 7739578134229188621, guid: 25c40300fdfa24a469cf1c09169abc64,
         type: 3}
       propertyPath: m_Name

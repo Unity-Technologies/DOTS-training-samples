@@ -1,9 +1,7 @@
-﻿using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
-using Unity.Transforms;
 
 public class CarSpawningSystem : SystemBase
 {
@@ -23,11 +21,12 @@ public class CarSpawningSystem : SystemBase
                 var newCar = commandBuffer.Instantiate(carToBeSpawned);
                 commandBuffer.SetComponent(newCar, new CarProperties
                 {
-                    DefaultSpeed = random.NextFloat(spawner.MaxDefaultSpeed),
-                    OvertakeSpeed = random.NextFloat(spawner.MaxOvertakeSpeed),
-                    DistanceToCarBeforeOvertaking = random.NextFloat(spawner.MaxDistanceToCarBeforeOvertaking),
-                    OvertakeEagerness = random.NextFloat(spawner.MaxOvertakeEagerness),
-                    MergeSpace = random.NextFloat(spawner.MaxMergeSpace),
+                    DefaultSpeed = spawner.MinDefaultSpeed + random.NextFloat(spawner.MaxDefaultSpeed - spawner.MinDefaultSpeed),
+                    OvertakeSpeed = spawner.MinOvertakeSpeed + random.NextFloat(spawner.MaxOvertakeSpeed - spawner.MinOvertakeSpeed),
+                    DistanceToCarBeforeOvertaking = spawner.MinDistanceToCarBeforeOvertaking + random.NextFloat(spawner.MaxDistanceToCarBeforeOvertaking - spawner.MinDistanceToCarBeforeOvertaking),
+                    OvertakeEagerness = spawner.MinOvertakeEagerness + random.NextFloat(spawner.MaxOvertakeEagerness - spawner.MinOvertakeEagerness),
+                    MergeSpace = spawner.MinMergeSpace + random.NextFloat(spawner.MaxMergeSpace - spawner.MinMergeSpace),
+                    Acceleration = spawner.Acceleration,
                 });
 
                 commandBuffer.SetComponent(newCar, new Speed
