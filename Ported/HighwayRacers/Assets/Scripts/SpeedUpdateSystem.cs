@@ -18,19 +18,22 @@ public class SpeedUpdateSystem : SystemBase
                 // t = (V-V0) / a -- time to slow down
 
              // s = v0 * t + 1/2 * a * t^2 
-            float v = carInFront.Speed; 
-            float v0 = speed.Value;
 
-            float timeToSlowDown = (v-v0) / carProperties.Acceleration;
-            float spaceToSlowDown = v0 * timeToSlowDown + 0.5f * carProperties.Acceleration * timeToSlowDown * timeToSlowDown;
-        
-            float threshold = 1.25f;
+       //     { // blocked state check
+                float v = carInFront.Speed; 
+                float v0 = speed.Value;
 
-            float distanceBetweenCars = carInFront.TrackProgressCarInFront - trackPosition.TrackProgress;
-            distanceBetweenCars -= threshold; // XXX temp. replace
+                float timeToSlowDown = (v-v0) / carProperties.Acceleration;
+                float spaceToSlowDown = v0 * timeToSlowDown + 0.5f * carProperties.Acceleration * timeToSlowDown * timeToSlowDown;
+            
+                float threshold = 1.25f;
 
-            // get distance and take track length into account
-            distanceBetweenCars = (distanceBetweenCars + trackProperties.TrackLength) % trackProperties.TrackLength;
+                float distanceBetweenCars = carInFront.TrackProgressCarInFront - trackPosition.TrackProgress;
+                distanceBetweenCars -= threshold; // XXX temp. replace
+
+                // get distance and take track length into account
+                distanceBetweenCars = (distanceBetweenCars + trackProperties.TrackLength) % trackProperties.TrackLength;
+       //     }
 
             if (v > v0 || distanceBetweenCars > spaceToSlowDown) {
                 // simple accelerate first
