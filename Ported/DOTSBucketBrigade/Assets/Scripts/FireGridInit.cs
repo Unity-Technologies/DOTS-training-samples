@@ -73,6 +73,7 @@ public class FireGridInit : SystemBase
 
             var index = GetComponent<GridCellIndex>(cell);
             index.Index = i;
+            SetComponent(cell, index);
 
         }
 
