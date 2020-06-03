@@ -28,6 +28,20 @@ public struct CellInfo
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public CellInfo SetIsHole()
+    {
+        m_Value = (byte)(m_Value | k_IsHoleFlag);
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public CellInfo ClearIsHole(bool isHole)
+    {
+        m_Value = (byte)(m_Value & ~k_IsHoleFlag);
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool CanTravel(GridDirection dir)
     {
         return (m_Value & (byte)dir) == 0;

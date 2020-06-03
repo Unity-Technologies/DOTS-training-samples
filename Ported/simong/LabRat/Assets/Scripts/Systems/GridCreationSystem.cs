@@ -80,6 +80,9 @@ public class GridCreationSystem : SystemBase
                     cellsarray[width * i] = cellsarray[width * i].SetTravelDirections(fromWest);
                     cellsarray[(width * (i + 1)) - 1] = cellsarray[(width * (i + 1)) - 1].SetTravelDirections(fromEast);
                 }
+
+                cellsarray[width + 1] = cellsarray[width + 1].SetIsHole();
+                
             }).Schedule();
 
             var ecb = m_commandBuffer.CreateCommandBuffer();
@@ -90,11 +93,14 @@ public class GridCreationSystem : SystemBase
                 {
                     for (int y = 0; y < height; y++)
                     {
-                        var entity = ecb.Instantiate(prefabs.CellPrefab);
-
-                        if (entity != Entity.Null)
+                        if(!cellsarray[(width * y) + x].IsHole())
                         {
-                            ecb.SetComponent(entity, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(x, y), cellSize) });
+                            var entity = ecb.Instantiate(prefabs.CellPrefab);
+
+                            if (entity != Entity.Null)
+                            {
+                                ecb.SetComponent(entity, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(x, y), cellSize) });
+                            }
                         }
                     }
                 }
