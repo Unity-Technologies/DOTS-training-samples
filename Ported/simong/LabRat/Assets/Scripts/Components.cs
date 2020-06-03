@@ -80,10 +80,7 @@ public struct MouseTag : IComponentData
 {
 }
 
-//[GenerateAuthoringComponent]
-public struct CatTag : IComponentData
-{
-}
+
 
 public struct ReachedBase : IComponentData
 {
