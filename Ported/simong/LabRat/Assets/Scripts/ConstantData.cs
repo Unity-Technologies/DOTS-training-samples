@@ -22,6 +22,7 @@ public class ConstantData : MonoBehaviour
     public void Awake()
     {
         Instance = this;
+        Debug.Log("constant data available");
     }
 }
 
