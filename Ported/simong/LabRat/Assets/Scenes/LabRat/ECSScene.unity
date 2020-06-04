@@ -134,7 +134,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1152229808}
   - component: {fileID: 1152229807}
-  - component: {fileID: 1152229809}
   m_Layer: 0
   m_Name: BoardCollider
   m_TagString: Untagged
@@ -229,27 +228,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1152229809
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1152229806}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb54ea4f67dc17342bcd49954c53502d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  DrawColliders: 1
-  DrawColliderEdges: 1
-  DrawColliderAabbs: 1
-  DrawBroadphase: 0
-  DrawMassProperties: 0
-  DrawContacts: 0
-  DrawCollisionEvents: 0
-  DrawTriggerEvents: 0
-  DrawJoints: 0
 --- !u!1 &2094815252
 GameObject:
   m_ObjectHideFlags: 0
