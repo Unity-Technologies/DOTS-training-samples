@@ -9,24 +9,34 @@ namespace DefaultNamespace
     [UpdateBefore(typeof(Movement))]
     public class Thrower : SystemBase
     {
+        private EntityArchetype m_SplashEntityArchetype;
+        private EndSimulationEntityCommandBufferSystem m_Barrier;
+
         protected override void OnCreate()
         {
+            m_SplashEntityArchetype = EntityManager.CreateArchetype(typeof(Splash), typeof(Translation));
+            m_Barrier =
+                World.DefaultGameObjectInjectionWorld.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
         protected override void OnUpdate()
         {
-            var fireGridEntity = GetSingletonEntity<FireGrid>();
+/*            var fireGridEntity = GetSingletonEntity<FireGrid>();
             var fireGridBuffer = GetBufferFromEntity<FireGridCell>();
             
             var translationComponent = GetComponentDataFromEntity<LocalToWorld>();
             var config = GetSingleton<BucketBrigadeConfig>();
             var chainComponent = GetComponentDataFromEntity<Chain>();
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
+            var waterLevelComponent = GetComponentDataFromEntity<WaterLevel>();
 
-            Entities.ForEach((Entity entity, ref ThrowerState state, ref TargetPosition targetPosition, ref TargetFire targetFire, in NextInChain nextInChain, in Translation position, in Agent agent)
+            var ecb = m_Barrier.CreateCommandBuffer().ToConcurrent();
+
+            var splashArchetype = m_SplashEntityArchetype;
+
+            Entities.ForEach((Entity entity, int entityInQueryIndex, ref ThrowerState state, ref TargetPosition targetPosition, ref TargetFire targetFire, in NextInChain nextInChain, in Translation position, in Agent agent)
                 =>
             {
-                
                 var myChain = chainComponent[agent.MyChain];
                 var targetBucket = targetBucketComponent[entity];
                 switch (state.State)
@@ -56,6 +66,13 @@ namespace DefaultNamespace
                         break;
                     
                     case EThrowerState.EmptyBucket:
+                        var bucketWaterLevel = waterLevelComponent[targetBucket.Target];
+                        bucketWaterLevel.Level = 0;
+                        waterLevelComponent[targetBucket.Target] = bucketWaterLevel;
+
+                        var splashEntity = ecb.CreateEntity(entityInQueryIndex, splashArchetype);
+                        ecb.SetComponent(entityInQueryIndex, splashEntity, position);
+                        
                         state.State = EThrowerState.WaitUntilChainEndInRangeAndNotCarrying;
                         break;
                     
@@ -85,7 +102,16 @@ namespace DefaultNamespace
                         state.State = EThrowerState.FindFire;
                         break;
                 }
-            }).WithReadOnly(fireGridBuffer).WithReadOnly(translationComponent).WithNativeDisableParallelForRestriction(targetBucketComponent).WithNativeDisableParallelForRestriction(chainComponent).ScheduleParallel();
+            })
+                .WithoutBurst()
+                .WithReadOnly(fireGridBuffer)
+                .WithReadOnly(translationComponent)
+                .WithNativeDisableParallelForRestriction(waterLevelComponent)
+                .WithNativeDisableParallelForRestriction(targetBucketComponent)
+                .WithNativeDisableParallelForRestriction(chainComponent)
+                .ScheduleParallel();
+            
+            m_Barrier.AddJobHandleForProducer(Dependency); */
         }
 
         private static bool TryFindNearestCellOnFire(BucketBrigadeConfig config, in DynamicBuffer<FireGridCell> fireGrid, Translation agentPosition, out float3 closestPosition, out int2 closestGridPosition)
@@ -101,7 +127,7 @@ namespace DefaultNamespace
                 {
                     int cellRowIndex = i / config.GridDimensions.x;
                     int cellColumnIndex = i % config.GridDimensions.x;
-                    var fireGridIndex = math.int2(cellRowIndex, cellColumnIndex);
+                    var fireGridIndex = math.int2(cellColumnIndex, cellRowIndex);
                     var fireGridPosition = FireGridInit.CellToWorldSpace(fireGridIndex, config);
                     var distanceSq = math.distancesq(fireGridPosition, agentPosition.Value);
                     if (distanceSq < closestPositionSq)

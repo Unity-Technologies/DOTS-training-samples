@@ -81,6 +81,8 @@ namespace DefaultNamespace
                     }
                 }
             }).WithReadOnly(translationComponent).WithReadOnly(availableBucketComponent).WithNativeDisableParallelForRestriction(targetBucketComponent).WithReadOnly(chainComponent).ScheduleParallel();
+            
+            m_Barrier.AddJobHandleForProducer(Dependency);
         }
     }
 }
