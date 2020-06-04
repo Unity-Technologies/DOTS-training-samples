@@ -39,6 +39,10 @@ public class ArrowSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var gridSystem = World.GetExistingSystem<GridCreationSystem>();
+        if (gridSystem == null || !gridSystem.Cells.IsCreated)
+            return;
+        
         int maxArrows = ConstantData.Instance.MaxArrows;
         float2 cellSize = new float2(ConstantData.Instance.CellSize);
         double time = Time.ElapsedTime;
@@ -62,15 +66,24 @@ public class ArrowSystem : SystemBase
         
         var ecb = m_ECBSystem.CreateCommandBuffer();
         
+        var cells = gridSystem.Cells;
+        var rows = ConstantData.Instance.BoardDimensions.x;
+        
         Entities
             .WithDeallocateOnJobCompletion(arrowComponents)
             .WithDeallocateOnJobCompletion(arrowEntities)
+            .WithReadOnly(cells)
             .ForEach((Entity arrowRequestEntity, ArrowRequest request) =>
             {
                 int existingComponents = 0;
                 int oldestIndex = -1;
                 double oldestSpawnTime = double.MaxValue;
                 bool shouldSpawn = true;
+                
+                var cellIndex = (request.Position.y * rows) + request.Position.x;
+                if (cells[cellIndex].IsBase())
+                    shouldSpawn = false;
+                
                 for (int i = 0; i < arrowComponents.Length; i++)
                     if (arrowComponents[i].OwnerID == request.OwnerID)
                     {

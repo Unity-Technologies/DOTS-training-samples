@@ -305,6 +305,7 @@ MonoBehaviour:
     type: 3}
   MouseSpawnerPrefab: {fileID: 3266120362543766956, guid: 0db970dde13a6b44b91f34ddc8cc43d3,
     type: 3}
+  WallPrefab: {fileID: 1948033712935058, guid: eea26364a72844748944744db673f3f1, type: 3}
 --- !u!4 &2094815254
 Transform:
   m_ObjectHideFlags: 0
