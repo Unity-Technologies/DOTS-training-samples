@@ -216,12 +216,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69277373349cd9143b9b7edd8b27ade8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StartXZ:
-    x: -0.14
-    y: 0
-  EndXZ:
-    x: 7.39
-    y: 240000
+  LaneWidth: 0
   MaxLanes: 4
   CarSpawningDistance: 0.0001
   MidRadius: 31.46
@@ -328,9 +323,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PrefabAgent: {fileID: 1999935204370666, guid: eb09540518ebb214aba8500b41634a1b,
-    type: 3}
-  AgentNumber: 29983
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
@@ -367,7 +359,6 @@ GameObject:
   m_Component:
   - component: {fileID: 389297967}
   - component: {fileID: 389297969}
-  - component: {fileID: 389297968}
   m_Layer: 5
   m_Name: HighwaySizeText
   m_TagString: Untagged
@@ -395,39 +386,6 @@ RectTransform:
   m_AnchoredPosition: {x: 5.354845, y: -39.8}
   m_SizeDelta: {x: 145.57, y: 20}
   m_Pivot: {x: 0, y: 0.5}
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 389297966}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 13
-    m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 1
-    m_MaxSize: 40
-    m_Alignment: 3
-    m_AlignByGeometry: 0
-    m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
-    m_LineSpacing: 1
-  m_Text: 'Highway Size:'
 --- !u!222 &389297969
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1293,7 +1251,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   numCarsText: {fileID: 1982959233}
   numCarsSlider: {fileID: 683780738}
-  highwaySizeText: {fileID: 389297968}
+  highwaySizeText: {fileID: 0}
   highwaySizeSlider: {fileID: 1585134746}
 --- !u!114 &1144665230
 MonoBehaviour:

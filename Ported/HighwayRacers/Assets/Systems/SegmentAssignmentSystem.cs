@@ -11,39 +11,33 @@ public class SegmentAssignmentSystem : SystemBase
         RequireForUpdate(EntityManager.CreateEntityQuery(typeof(SegmentsAddedToBufferTag)));
         RequireForUpdate(EntityManager.CreateEntityQuery(typeof(SegmentPercentagesInitializedTag)));
         RequireForUpdate(EntityManager.CreateEntityQuery(typeof(SegmentInfoElement)));
-        RequireForUpdate(EntityManager.CreateEntityQuery(typeof(LanePercentageRangeElement)));
+        RequireForUpdate(EntityManager.CreateEntityQuery(typeof(LanePercentageRange)));
     }
 
     protected override void OnUpdate()
     {
         var roadInfoEntity = GetSingletonEntity<SegmentsAddedToBufferTag>();
         var segmentInfoBuffer = EntityManager.GetBuffer<SegmentInfoElement>(roadInfoEntity).AsNativeArray();
-        var bufferLookup = GetBufferFromEntity<LanePercentageRangeElement>();
-
-        List<LaneAssignment> lanes = new List<LaneAssignment>();
-        EntityManager.GetAllUniqueSharedComponentData(lanes);
-
-        foreach (LaneAssignment lane in lanes)
-        {
-
-            Entities
-                .WithReadOnly(segmentInfoBuffer)
-                .WithReadOnly(bufferLookup)
-                .WithSharedComponentFilter(lane)
-                .ForEach((ref SegmentAssignment segmentAssignment, in PercentComplete percentComplete) =>
+        var bufferLookup = GetBufferFromEntity<LanePercentageRange>();
+        
+        Entities
+            .WithReadOnly(segmentInfoBuffer)
+            .WithReadOnly(bufferLookup)
+            .ForEach((ref SegmentAssignment segmentAssignment, in PercentComplete percentComplete,
+                in LaneAssignment lane) =>
+            {
+                for (int i = 0; i < segmentInfoBuffer.Length; i++)
                 {
-                    for (int i = 0; i < segmentInfoBuffer.Length; i++)
+                    var segmentInfoBufferElement = segmentInfoBuffer[i];
+                    var segmentInfoEntity = segmentInfoBufferElement.Entity;
+                    var ranges = bufferLookup[segmentInfoEntity];
+                    if (percentComplete.Value >= ranges[lane.Value].Value[0] &&
+                        percentComplete.Value < ranges[lane.Value].Value[1])
                     {
-                        var segmentInfoBufferElement = segmentInfoBuffer[i];
-                        var segmentInfoEntity = segmentInfoBufferElement.Entity;
-                        var ranges = bufferLookup[segmentInfoEntity];
-                        if (percentComplete.Value >= ranges[lane.Value].Value[0] && percentComplete.Value < ranges[lane.Value].Value[1])
-                        {
-                            segmentAssignment.Value = segmentInfoBufferElement.SegmentInfo.Order;
-                            break;
-                        }
+                        segmentAssignment.Value = segmentInfoBufferElement.SegmentInfo.Order;
+                        break;
                     }
-                }).ScheduleParallel();
-        }
+                }
+            }).ScheduleParallel();
     }
 }

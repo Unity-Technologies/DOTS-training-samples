@@ -9,7 +9,7 @@ public class SegmentInfoBufferInitSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-        
+
         RequireSingletonForUpdate<RoadInfo>();
         RequireForUpdate(EntityManager.CreateEntityQuery(typeof(SegmentInfo)));
     }
@@ -17,15 +17,15 @@ public class SegmentInfoBufferInitSystem : SystemBase
     protected override void OnUpdate()
     {
         var roadInfoEntity = GetSingletonEntity<RoadInfo>();
-        if(!HasComponent<SegmentsAddedToBufferTag>(roadInfoEntity))
+        if (!HasComponent<SegmentsAddedToBufferTag>(roadInfoEntity))
         {
             var roadInfo = GetComponent<RoadInfo>(roadInfoEntity);
-            var dynamicBuffer = EntityManager.AddBuffer<SegmentInfoElement>(roadInfoEntity);
-            dynamicBuffer.ResizeUninitialized(roadInfo.SegmentCount);
+            var segmentInfos = EntityManager.AddBuffer<SegmentInfoElement>(roadInfoEntity);
+            segmentInfos.ResizeUninitialized(roadInfo.SegmentCount);
 
             Entities.ForEach((in SegmentInfo segmentInfo, in Entity entity) =>
             {
-                dynamicBuffer[segmentInfo.Order] = new SegmentInfoElement { Entity = entity, SegmentInfo = segmentInfo };
+                segmentInfos[segmentInfo.Order] = new SegmentInfoElement {Entity = entity, SegmentInfo = segmentInfo};
             }).Run();
 
             EntityManager.AddComponent<SegmentsAddedToBufferTag>(roadInfoEntity);

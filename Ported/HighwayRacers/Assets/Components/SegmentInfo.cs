@@ -24,11 +24,11 @@ public struct SegmentInfoElement : IBufferElementData
     public SegmentInfo SegmentInfo;
 }
 
-public struct LanePercentageRangeElement : IBufferElementData
+public struct LanePercentageRange : IBufferElementData
 {
     // These implicit conversions are optional, but can help reduce typing.
-    public static implicit operator float2(LanePercentageRangeElement e) { return e.Value; }
-    public static implicit operator LanePercentageRangeElement(float2 e) { return new LanePercentageRangeElement { Value = e }; }
+    public static implicit operator float2(LanePercentageRange e) { return e.Value; }
+    public static implicit operator LanePercentageRange(float2 e) { return new LanePercentageRange { Value = e }; }
     
     public float2 Value;
 }

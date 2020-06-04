@@ -86,7 +86,6 @@ public class AgentSpawningSystem : SystemBase
                 ecb.SetComponent(spawnedEntity, percentComplete);
                 ecb.SetComponent(spawnedEntity, targetSpeed);
                 ecb.AddComponent(spawnedEntity, laneAssignment);
-                //ecb.SetComponent(spawnedEntity, translation);
             }
 
             ecb.RemoveComponent<AgentSpawner>(e);

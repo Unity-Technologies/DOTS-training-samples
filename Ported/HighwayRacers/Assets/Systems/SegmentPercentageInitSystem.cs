@@ -24,7 +24,7 @@ public class SegmentPercentageInitSystem : SystemBase
         if(!HasComponent<SegmentPercentagesInitializedTag>(roadInfoEntity))
         {
             var segmentInfoBuffer = EntityManager.GetBuffer<SegmentInfoElement>(roadInfoEntity);
-            var laneInfoBuffer = EntityManager.GetBuffer<LaneInfoElement>(roadInfoEntity);
+            var laneInfos = EntityManager.GetBuffer<LaneInfo>(roadInfoEntity);
             var roadInfo = GetComponent<RoadInfo>(roadInfoEntity);
 
             // total length of each lane for all segments
@@ -38,7 +38,7 @@ public class SegmentPercentageInitSystem : SystemBase
                 var segmentLaneLengthElement = new NativeArray<float>(roadInfo.MaxLanes, Allocator.Temp);
                 for (int lane = 0; lane < laneLengths.Length; lane++)
                 {
-                    var segmentLaneLength = segmentInfo.SegmentShape == SegmentShape.Straight ? roadInfo.StraightPieceLength : laneInfoBuffer[lane].Value.CurvedPieceLength;
+                    var segmentLaneLength = segmentInfo.SegmentShape == SegmentShape.Straight ? roadInfo.StraightPieceLength : laneInfos[lane].CurvedPieceLength;
                     segmentLaneLengthElement[lane] = segmentLaneLength;
                     laneLengths[lane] += segmentLaneLength;
                 }
@@ -47,23 +47,20 @@ public class SegmentPercentageInitSystem : SystemBase
             }
 
             // percentage ranges of each lane of each segment
-            var segmentLanePercentageRanges = new NativeArray<LanePercentageRangeElement>[segmentInfoBuffer.Length];
+            var segmentLanePercentageRanges = new NativeArray<LanePercentageRange>[segmentInfoBuffer.Length];
             // accumulates the total percentage of each lane for all segments
             var lastPercentage = new NativeArray<float>(roadInfo.MaxLanes, Allocator.Temp);
             
             for (int i = 0; i < segmentInfoBuffer.Length; i++)
             {
-                var lanePercentageRanges = new NativeArray<LanePercentageRangeElement>(roadInfo.MaxLanes, Allocator.Temp);
+                var lanePercentageRanges = new NativeArray<LanePercentageRange>(roadInfo.MaxLanes, Allocator.Temp);
                 
                 for (int j = 0; j < roadInfo.MaxLanes; j++)
                 {
-                    var laneInfo = laneInfoBuffer[j].Value;
+                    var laneInfo = laneInfos[j];
                     laneInfo.TotalLength = laneLengths[j];
-                    laneInfoBuffer[j] = new LaneInfoElement
-                    {
-                        Value = laneInfo
-                    };
-                    
+                    laneInfos[j] = laneInfo;
+
                     float nextPercentage = lastPercentage[j] + segmentLaneLengths[i][j] / laneLengths[j];
                     lanePercentageRanges[j] = new float2(lastPercentage[j], nextPercentage);
                     lastPercentage[j] = nextPercentage;
@@ -74,7 +71,7 @@ public class SegmentPercentageInitSystem : SystemBase
 
             Entities.WithStructuralChanges().ForEach((in SegmentInfo segmentInfo, in Entity entity) =>
             {
-                var percentageBuffer = EntityManager.AddBuffer<LanePercentageRangeElement>(entity);
+                var percentageBuffer = EntityManager.AddBuffer<LanePercentageRange>(entity);
                 percentageBuffer.AddRange(segmentLanePercentageRanges[segmentInfo.Order]);
             }).Run();
 

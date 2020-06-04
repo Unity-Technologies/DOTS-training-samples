@@ -30,7 +30,7 @@ public class RoadCreationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             SegmentCount = SegmentCount
         });
 
-        DynamicBuffer<LaneInfoElement> dynamicBuffer = dstManager.AddBuffer<LaneInfoElement>(entity);
+        DynamicBuffer<LaneInfo> infos = dstManager.AddBuffer<LaneInfo>(entity);
         for (int i = 0; i < MaxLanes; ++i)
         {
             LaneInfo info = new LaneInfo
@@ -41,7 +41,7 @@ public class RoadCreationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
             info.CurvedPieceLength = info.Radius * math.PI / 2f;
             
-            dynamicBuffer.Add(new LaneInfoElement { Value = info });
+            infos.Add(info);
         }
     }
 }
