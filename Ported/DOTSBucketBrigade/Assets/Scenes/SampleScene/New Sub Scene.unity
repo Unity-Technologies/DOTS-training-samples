@@ -164,9 +164,9 @@ MonoBehaviour:
   BucketRadius: 0.2
   AgentRadius: 0.2
   AgentSpeed: 0.75
-  NumberOfBuckets: 50
+  NumberOfBuckets: 400
   NumberOfPassersInOneDirectionPerChain: 8
-  NumberOfChains: 1
+  NumberOfChains: 50
   StartingFireCount: 10
   MaxFlameHeight: 1
   HeatRadius: 2
