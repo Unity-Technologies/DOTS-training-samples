@@ -137,20 +137,20 @@ namespace DefaultNamespace
                         sourceWaterLevel.Level -= bucketWaterLevel.Capacity;
                         bucketWaterLevel.Level = bucketWaterLevel.Capacity;
                         waterLevelComponent[targetBucket.Target]  = bucketWaterLevel;
-                        state.State = EScooperState.StartWalkingToChainStart;
+                        state.State = EScooperState.WaitUntilChainStartInRangeAndNotCarrying;
                         break;
-                    
-                    case EScooperState.StartWalkingToChainStart:
-                        targetPosition.Target = myChain.ChainStartPosition;
-                        state.State = EScooperState.WaitUntilChainStartInRange;
-                        break;
-                    
-                    case EScooperState.WaitUntilChainStartInRange:
-                        var chainDistSq = math.distancesq(myChain.ChainStartPosition.xz, position.Value.xz);
-
-                        if (chainDistSq < config.MovementTargetReachedThreshold)
+                   
+                    case EScooperState.WaitUntilChainStartInRangeAndNotCarrying:
+                        targetPosition.Target = translationComponent[nextInChain.Next].Position;
+                        var nextInChainTargetBucketHasBucket = targetBucketComponent[nextInChain.Next];
+                        if (nextInChainTargetBucketHasBucket.Target == Entity.Null)
                         {
-                            state.State = EScooperState.PassBucket;
+                            var chainDistSq = math.distancesq(targetPosition.Target.xz, position.Value.xz);
+
+                            if (chainDistSq < config.MovementTargetReachedThreshold)
+                            {
+                                state.State = EScooperState.PassBucket;
+                            }
                         }
                         break;
                     

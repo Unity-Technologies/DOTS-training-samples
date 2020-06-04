@@ -18,6 +18,7 @@ namespace DefaultNamespace
             var fireGridEntity = GetSingletonEntity<FireGrid>();
             var fireGridBuffer = GetBufferFromEntity<FireGridCell>();
             
+            var translationComponent = GetComponentDataFromEntity<LocalToWorld>();
             var config = GetSingleton<BucketBrigadeConfig>();
             var chainComponent = GetComponentDataFromEntity<Chain>();
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
@@ -55,21 +56,22 @@ namespace DefaultNamespace
                         break;
                     
                     case EThrowerState.EmptyBucket:
-                        state.State = EThrowerState.StartWalkingToChainEnd;
+                        state.State = EThrowerState.WaitUntilChainEndInRangeAndNotCarrying;
                         break;
                     
-                    case EThrowerState.StartWalkingToChainEnd:
-                        targetPosition.Target = myChain.ChainEndPosition;
-                        state.State = EThrowerState.WaitUntilChainEndInRange;
-                        break;
-                    
-                    case EThrowerState.WaitUntilChainEndInRange:
-                        var chainDistSq = math.distancesq(myChain.ChainEndPosition.xz, position.Value.xz);
-
-                        if (chainDistSq < config.MovementTargetReachedThreshold)
+                    case EThrowerState.WaitUntilChainEndInRangeAndNotCarrying:
+                        targetPosition.Target = translationComponent[nextInChain.Next].Position;
+                        var nextInChainTargetBucketHasBucket = targetBucketComponent[nextInChain.Next];
+                        if (nextInChainTargetBucketHasBucket.Target == Entity.Null)
                         {
-                            state.State = EThrowerState.PassBucket;
+                            var chainDistSq = math.distancesq(targetPosition.Target.xz, position.Value.xz);
+
+                            if (chainDistSq < config.MovementTargetReachedThreshold)
+                            {
+                                state.State = EThrowerState.PassBucket;
+                            }
                         }
+
                         break;
                     
                     case EThrowerState.PassBucket:
@@ -83,7 +85,7 @@ namespace DefaultNamespace
                         state.State = EThrowerState.FindFire;
                         break;
                 }
-            }).WithReadOnly(fireGridBuffer).WithNativeDisableParallelForRestriction(targetBucketComponent).WithNativeDisableParallelForRestriction(chainComponent).ScheduleParallel();
+            }).WithReadOnly(fireGridBuffer).WithReadOnly(translationComponent).WithNativeDisableParallelForRestriction(targetBucketComponent).WithNativeDisableParallelForRestriction(chainComponent).ScheduleParallel();
         }
 
         private static bool TryFindNearestCellOnFire(BucketBrigadeConfig config, in DynamicBuffer<FireGridCell> fireGrid, Translation agentPosition, out float3 closestPosition, out int2 closestGridPosition)

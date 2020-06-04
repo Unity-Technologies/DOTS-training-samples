@@ -7,8 +7,7 @@ public enum EScooperState
     StartWalkingToWater,
     WaitUntilWaterInRange,
     FillBucket,
-    StartWalkingToChainStart,
-    WaitUntilChainStartInRange,
+    WaitUntilChainStartInRangeAndNotCarrying,
     PassBucket,
     StartWalkingToBucket,
     WaitUntilBucketInRange
