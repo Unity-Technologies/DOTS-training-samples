@@ -82,18 +82,41 @@ public class GridCreationSystem : SystemBase
                 }
 
                 cellsarray[width + 1] = cellsarray[width + 1].SetIsHole();
-                
+
+                //position bases
+                int xOffset = (int)(width * 0.333f);
+                int yOffset = (int)(height * 0.333f);
+
+                int baseIndex = (yOffset * width) + xOffset; 
+
+                cellsarray[baseIndex] = cellsarray[baseIndex].SetBasePlayerId(0);
+
+                baseIndex = (yOffset * 2 * width) + xOffset * 2;
+
+                cellsarray[baseIndex] = cellsarray[baseIndex].SetBasePlayerId(1);
+
+                baseIndex = (yOffset * 2 * width) + xOffset;
+
+                cellsarray[baseIndex] = cellsarray[baseIndex].SetBasePlayerId(2);
+
+                baseIndex = (yOffset * width) + xOffset * 2;
+
+                cellsarray[baseIndex] = cellsarray[baseIndex].SetBasePlayerId(3);
+
             }).Schedule();
 
             var ecb = m_commandBuffer.CreateCommandBuffer();
             var cellSize = constantData.CellSize;
 
             Entities.ForEach((in PrefabReferenceComponent prefabs) => {
+
+                //create cells and bases
                 for (int x = 0; x < width; x++)
                 {
                     for (int y = 0; y < height; y++)
                     {
-                        if(!cellsarray[(width * y) + x].IsHole())
+                        int index = (width * y) + x;
+                        if (!cellsarray[index].IsHole())
                         {
                             var entity = ecb.Instantiate(prefabs.CellPrefab);
 
@@ -102,9 +125,45 @@ public class GridCreationSystem : SystemBase
                                 ecb.SetComponent(entity, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(x, y), cellSize) });
                             }
                         }
+
+                        if (cellsarray[index].IsBase())
+                        {
+                            int playerId = cellsarray[index].GetBasePlayerId();
+                            Entity basePrefab = Entity.Null;
+
+                            switch (playerId)
+                            {
+                                case 0:
+                                    basePrefab = prefabs.BasePrefab0;
+                                    break;
+
+                                case 1:
+                                    basePrefab = prefabs.BasePrefab1;
+                                    break;
+
+                                case 2:
+                                    basePrefab = prefabs.BasePrefab2;
+                                    break;
+
+                                case 3:
+                                    basePrefab = prefabs.BasePrefab3;
+                                    break;
+                            }
+
+                            if(basePrefab != Entity.Null)
+                            {
+                                var entity = ecb.Instantiate(basePrefab);
+
+                                if (entity != Entity.Null)
+                                {
+                                    ecb.SetComponent(entity, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(x, y), cellSize) });
+                                }
+                            }
+                        }
                     }
                 }
 
+                //create spawners
                 var spawner = ecb.Instantiate(prefabs.MouseSpawnerPrefab);
                 if(spawner != Entity.Null)
                 {
