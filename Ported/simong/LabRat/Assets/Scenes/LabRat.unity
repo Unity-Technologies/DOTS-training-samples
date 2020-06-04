@@ -315,7 +315,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 7
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -339,7 +339,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1694099035}
   m_LocalRotation: {x: 0.48066187, y: 0.3268136, z: -0.19909665, w: 0.7889978}
-  m_LocalPosition: {x: -36.9, y: 110, z: -36.9}
+  m_LocalPosition: {x: -36.9, y: 115, z: -36.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -371,9 +371,9 @@ MonoBehaviour:
   MaxArrows: 3
   NumPlayers: 4
   PlayerColors:
-  - {r: 0, g: 30, b: 255, a: 1}
+  - {r: 0.0036044943, g: 0.09518876, b: 0.764151, a: 1}
   - {r: 255, g: 0, b: 0, a: 1}
-  - {r: 0, g: 255, b: 6, a: 1}
+  - {r: 0, g: 0.7490196, b: 0.019607844, a: 1}
   - {r: 255, g: 0, b: 207, a: 1}
   MouseScoreAddition: 1
   CatScoreMultiplier: 0.66
