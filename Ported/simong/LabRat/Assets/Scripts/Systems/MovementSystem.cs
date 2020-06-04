@@ -37,6 +37,12 @@ class MovementSystem : SystemBase
 
     protected override unsafe void OnUpdate()
     {
+        var gameModeComponent = GetSingleton<GameModeComponent>();
+        if (gameModeComponent.Value != GameMode.GamePlay)
+        {
+            return;
+        }
+        
         var gridSystem = World.GetOrCreateSystem<GridCreationSystem>();
         if (!gridSystem.Cells.IsCreated)
             return;

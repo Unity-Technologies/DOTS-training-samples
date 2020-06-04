@@ -20,6 +20,12 @@ class PlayerInputSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var gameModeComponent = GetSingleton<GameModeComponent>();
+        if (gameModeComponent.Value != GameMode.GamePlay)
+        {
+            return;
+        }
+        
         if (previewArrow == Entity.Null)
         {
             // Ugly Simon's code, if it works, don't change it!

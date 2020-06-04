@@ -15,6 +15,12 @@ class SpawnerSystem : SystemBase
     }
     protected override void OnUpdate()
     {
+        var gameModeComponent = GetSingleton<GameModeComponent>();
+        if (gameModeComponent.Value != GameMode.GamePlay)
+        {
+            return;
+        }
+
         var ecb = commandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
         RandomComponent random = GetSingleton<RandomComponent>();

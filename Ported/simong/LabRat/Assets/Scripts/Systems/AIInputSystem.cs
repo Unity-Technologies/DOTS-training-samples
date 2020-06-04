@@ -71,6 +71,12 @@ class AIInputSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var gameModeComponent = GetSingleton<GameModeComponent>();
+        if (gameModeComponent.Value != GameMode.GamePlay)
+        {
+            return;
+        }
+        
         if (!ConstantData.Instance)
             return;
         
