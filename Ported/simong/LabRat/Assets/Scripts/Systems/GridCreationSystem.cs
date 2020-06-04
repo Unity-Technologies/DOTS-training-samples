@@ -105,7 +105,7 @@ public class GridCreationSystem : SystemBase
                     }
                 }
 
-                var spawner = ecb.Instantiate(prefabs.SpawnerPrefab);
+                var spawner = ecb.Instantiate(prefabs.MouseSpawnerPrefab);
                 if(spawner != Entity.Null)
                 {
                     ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(0, 0), cellSize) });
