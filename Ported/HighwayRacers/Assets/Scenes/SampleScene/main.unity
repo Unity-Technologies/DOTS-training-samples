@@ -207,7 +207,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af063ccc3d7345119181976c2cacb492, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InstancesToSpawn: 32
+  InstancesToSpawn: 8
 --- !u!4 &844579107
 Transform:
   m_ObjectHideFlags: 0

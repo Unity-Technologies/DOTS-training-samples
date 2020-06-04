@@ -20,7 +20,6 @@ public class BlockedUpdateSystem : SystemBase
         var ecb = entityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
         Entities
-            // .WithoutBurst()
             .WithNone<BlockedState>()
             .ForEach((int entityInQueryIndex, Entity carEntity, 
                 ref TrackPosition trackPosition, 
@@ -33,7 +32,6 @@ public class BlockedUpdateSystem : SystemBase
                 ecb.AddComponent<BlockedState>(entityInQueryIndex, carEntity);
            }
         }).ScheduleParallel();
-        // }).Run();
     
         Entities
             .WithAll<BlockedState>()
@@ -54,6 +52,9 @@ public class BlockedUpdateSystem : SystemBase
 
     static bool CheckBlock(float velocity, float velocityOfCarInFront, float acceleration, float trackProgress, float trackProgressCarInFront, float trackLength)
     {
+        if (trackProgressCarInFront >= float.MaxValue)
+            return false;
+
         float distanceBetweenCars = trackProgressCarInFront - trackProgress;
         distanceBetweenCars = (distanceBetweenCars + trackLength) % trackLength;
 

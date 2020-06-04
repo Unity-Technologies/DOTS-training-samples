@@ -23,13 +23,23 @@ public class LaneInterpolateSystem : SystemBase
             ref TrackPosition trackPosition, 
             in TargetLane targetLane) =>
         {
+            int oldTrackGroupIdx = TrackGroup.GetTrackGroupIdx(trackPosition.Lane);
+
             trackPosition.Lane = trackPosition.Lane * blend + targetLane.Value * (1.0f-blend);
+
+            int newTrackGroupIdx = TrackGroup.GetTrackGroupIdx(trackPosition.Lane);
 
             if (math.abs(trackPosition.Lane - targetLane.Value) < 0.01f) {
                 trackPosition.Lane = targetLane.Value;
                 ecb.RemoveComponent<TargetLane>(entityInQueryIndex, carEntity);
             }
-
+            
+            if (newTrackGroupIdx != oldTrackGroupIdx)
+            {
+                var newTrackGroup = new TrackGroup();
+                newTrackGroup.index = newTrackGroupIdx;
+                ecb.AddSharedComponent(entityInQueryIndex, carEntity, newTrackGroup);
+            }
         }).ScheduleParallel();
         
         entityCommandBufferSystem.AddJobHandleForProducer(Dependency);

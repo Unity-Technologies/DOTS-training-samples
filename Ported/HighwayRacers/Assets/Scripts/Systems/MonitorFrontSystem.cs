@@ -1,8 +1,8 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 
+[DisableAutoCreation]
 public class MonitorFrontSystem : SystemBase
 {
     private const float LaneBlockThreshold = 0.9f;
@@ -57,5 +57,31 @@ public class MonitorFrontSystem : SystemBase
             .WithDeallocateOnJobCompletion(otherCars)
             .WithDeallocateOnJobCompletion(otherSpeeds)
             .ScheduleParallel();
+    }
+}
+
+public class MonitorFrontSystemV2 : SystemBase
+{
+    private CarSortingByLaneSystem m_CarSortingByLaneSystem;
+
+    protected override void OnCreate()
+    {
+        m_CarSortingByLaneSystem = World.GetExistingSystem<CarSortingByLaneSystem>();
+    }
+
+    protected override void OnUpdate()
+    {
+        var carSortingByLaneSystem = m_CarSortingByLaneSystem;
+
+        Entities
+            .ForEach((ref CarInFront carInFront, in TrackPosition car) =>
+            {
+                var carDataInFront = carSortingByLaneSystem.GetCarInFront(car.Lane, car.TrackProgress);
+
+                carInFront.TrackProgressCarInFront = carDataInFront.position;
+                carInFront.Speed = carDataInFront.speed;
+            })
+            .WithoutBurst()
+            .Run();
     }
 }
