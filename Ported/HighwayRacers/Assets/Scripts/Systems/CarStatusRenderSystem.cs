@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(PresentationSystemGroup))]
 public class CarStatusRenderSystem : SystemBase
 {
     bool m_InitDone = false;
@@ -17,7 +18,7 @@ public class CarStatusRenderSystem : SystemBase
 
     protected override void OnCreate()
     {
-        m_EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        m_EntityCommandBufferSystem = World.GetExistingSystem<BeginInitializationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
