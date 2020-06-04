@@ -14,6 +14,7 @@ public class ApplySplash : SystemBase
         base.OnCreate();
 
         RequireSingletonForUpdate<BucketBrigadeConfig>();
+        RequireForUpdate(GetEntityQuery(new EntityQueryDesc {All = new[] {ComponentType.ReadOnly<Splash>()}}));
 
         m_EndSimulationEcbSystem = World
            .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
@@ -59,6 +60,7 @@ public class ApplySplash : SystemBase
                                     temperatureDrop = config.CoolingStrength * dowseCellStrength * config.BucketCapacity;
                                 }
                                 cell.Temperature = math.max(-1.0f, cell.Temperature - temperatureDrop);
+                                cells[Index] = cell;
                             }
                         }
                     }
