@@ -56,12 +56,14 @@ namespace DefaultNamespace
                 SetTargetPosition(thrower, nearestFire);
                 
                 // Forward Chain
-                var forwardHeadPasser = CreateHalfOfChain(ref rand, chain, config, prefabs.PasserForwardPrefab, gridSize);
-                SetNextInChain(scooper, forwardHeadPasser);
+                CreateHalfOfChain(ref rand, chain, config, prefabs.PasserForwardPrefab, gridSize, out var forwardHead, out var forwardTail);
+                SetNextInChain(scooper, forwardHead);
+                SetNextInChain(forwardTail, thrower);
                 
                 // Backwards Chain
-                var backwardsHeadPasser = CreateHalfOfChain(ref rand, chain, config, prefabs.PasserBackPrefab, gridSize, -1f);
-                SetNextInChain(thrower, backwardsHeadPasser);
+                CreateHalfOfChain(ref rand, chain, config, prefabs.PasserBackPrefab, gridSize, out var backwardsHead, out var backwardsTail, -1f);
+                SetNextInChain(thrower, backwardsHead);
+                SetNextInChain(backwardsTail, scooper);
             }
         }
 
@@ -80,14 +82,15 @@ namespace DefaultNamespace
             EntityManager.SetComponentData(chain, chainComponent);
         }
 
-        private Entity CreateHalfOfChain(ref Random rand, in Entity chain, in BucketBrigadeConfig config,
-            in Entity prefabEntity, in float2 gridSize, float forward = 1f)
+        private void CreateHalfOfChain(ref Random rand, in Entity chain, in BucketBrigadeConfig config,
+            in Entity prefabEntity, in float2 gridSize, out Entity head, out Entity tail, float forward = 1f)
         {
             var chainComponent = EntityManager.GetComponentData<Chain>(chain);
             var direction = math.normalize(chainComponent.ChainEndPosition - chainComponent.ChainStartPosition);
             var perpendicular = new float3(direction.z, 0f, -direction.x);
             
-            Entity headOfChain = Entity.Null;
+            head = Entity.Null;
+            tail = Entity.Null;
             Entity nextInChain = Entity.Null;
             
             // 1. Randomly distribute a Scooper, a Thrower and N Passers.
@@ -95,16 +98,16 @@ namespace DefaultNamespace
             for (int i = config.NumberOfPassersInOneDirectionPerChain - 1; i >= 0; --i)
             {
                 var agent = CreateAgent(ref rand, prefabEntity, gridSize, chain, i / (float) (config.NumberOfPassersInOneDirectionPerChain - 1), forward);
+                if (i == config.NumberOfPassersInOneDirectionPerChain - 1)
+                    tail = agent;
                 if (i == 0)
-                    headOfChain = agent;
+                    head = agent;
                 var agentComponent = EntityManager.GetComponentData<Agent>(agent);
                 var target = CalculateChainPosition(agentComponent, chainComponent, perpendicular);
                 SetTargetPosition(agent, target);
                 SetNextInChain(agent, nextInChain);
                 nextInChain = agent;
             }
-            
-            return headOfChain;
         }
 
         private void SetNextInChain(Entity agent, Entity prev)
