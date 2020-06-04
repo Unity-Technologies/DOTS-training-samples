@@ -26,7 +26,8 @@ namespace DefaultNamespace
             m_BucketQuery = GetEntityQuery(
                 new EntityQueryDesc
                 {
-                    All = new []{ComponentType.ReadOnly<AvailableBucketTag>() }
+                    All = new []{ComponentType.ReadOnly<AvailableBucketTag>() },
+                    None = new []{ComponentType.ReadOnly<ClaimedBucketTag>() }
                 });
 
             m_Barrier =
@@ -102,7 +103,7 @@ namespace DefaultNamespace
                         var nearestBucketPosition = translationComponent[nearestBucket];
                         targetBucket.Target = nearestBucket;
                         targetBucketComponent[entity] = targetBucket;
-                        ecb.RemoveComponent<AvailableBucketTag>(entityInQueryIndex, targetBucket.Target);
+                        ecb.AddComponent<ClaimedBucketTag>(entityInQueryIndex, targetBucket.Target);
                         targetPosition.Target = nearestBucketPosition.Position;
                         state.State = EScooperState.StartWalkingToBucket;
                         break;
@@ -119,6 +120,8 @@ namespace DefaultNamespace
 
                         if (bucketDistSq < config.MovementTargetReachedThreshold)
                         {
+                            ecb.RemoveComponent<ClaimedBucketTag>(entityInQueryIndex, targetBucket.Target);
+                            ecb.RemoveComponent<AvailableBucketTag>(entityInQueryIndex, targetBucket.Target);
                             state.State = EScooperState.StartWalkingToWater;
                         }
                         break;
