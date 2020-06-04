@@ -12,6 +12,8 @@ public class ScoreSystem : SystemBase
     private int m_NumPlayers;
     private NativeArray<int> m_Scores;
 
+    private EndSimulationEntityCommandBufferSystem m_EndSimulationECBS;
+
     protected override void OnCreate()
     {
         m_ReachedBaseQuery = GetEntityQuery(new EntityQueryDesc()
@@ -21,6 +23,8 @@ public class ScoreSystem : SystemBase
                 ComponentType.ReadOnly<ReachedBase>()
             }
         });
+
+        m_EndSimulationECBS = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnDestroy()
@@ -58,6 +62,8 @@ public class ScoreSystem : SystemBase
         var numPlayers = m_NumPlayers;
         var scores = m_Scores;
 
+        var ecb = m_EndSimulationECBS.CreateCommandBuffer();
+
         Entities
             .WithName("AddMiceScore")
             .WithAll<MouseTag>()
@@ -84,6 +90,16 @@ public class ScoreSystem : SystemBase
             })
             .Run();
 
-        EntityManager.DestroyEntity(m_ReachedBaseQuery);
+        ecb.DestroyEntity(m_ReachedBaseQuery);
+        
+        // Update Score UI
+        var uiHelper = UIHelper.Instance;
+        if (UIHelper.Instance != null)
+        {
+            for (int i = 0; i < m_Scores.Length; i++)
+            {
+                uiHelper.SetScore(i, m_Scores[i]);
+            }
+        }
     }
 }
