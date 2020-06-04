@@ -42,6 +42,24 @@ public class Utility
                 throw new System.ArgumentOutOfRangeException("Invalid direction set");
         }
     }
+    
+    public static GridDirection DirectionForVector(float2 dir)
+    {
+        if (math.abs(dir.x) > math.abs(dir.y))
+        {
+            if (dir.x > 0)
+                return GridDirection.EAST;
+            else
+                return GridDirection.WEST;
+        }
+        else
+        {
+            if (dir.y > 0)
+                return GridDirection.NORTH;
+            else
+                return GridDirection.SOUTH;
+        }
+    }
 
     public static float2 ForwardVectorForDirection(GridDirection dir)
     {

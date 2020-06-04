@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Systems;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = Unity.Mathematics.Random;
 
 public struct AIInfoComponent : IComponentData
@@ -23,6 +24,7 @@ class AIInputSystem : SystemBase
     private EntityArchetype arrowRequestArchetype;
     private Random m_Random = new Random(1234);
     private EntityQuery m_AIPlayerQuery;
+    private EntityQuery m_PlayerBaseQuery;
 
     protected override void OnCreate()
     {
@@ -33,6 +35,15 @@ class AIInputSystem : SystemBase
             All = new[]
             {
                 ComponentType.ReadOnly<AIInfoComponent>()
+            }
+        });
+        
+        m_PlayerBaseQuery = EntityManager.CreateEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<PlayerBase>(),
+                ComponentType.ReadOnly<Position2D>(), 
             }
         });
         
@@ -81,8 +92,15 @@ class AIInputSystem : SystemBase
             
             var ecb = commandBufferSystem.CreateCommandBuffer();
             
+            var baseComponents = m_PlayerBaseQuery.ToComponentDataArrayAsync<PlayerBase>(Allocator.TempJob, out var playerBaseComponentsHandle);
+            var basePositionComponents = m_PlayerBaseQuery.ToComponentDataArrayAsync<Position2D>(Allocator.TempJob, out var playerBasePositionHandle);
+            
+            Dependency = JobHandle.CombineDependencies(Dependency, playerBaseComponentsHandle);
+            Dependency = JobHandle.CombineDependencies(Dependency, playerBasePositionHandle);
+            
             Entities
                 .WithoutBurst()
+                .WithDeallocateOnJobCompletion(baseComponents)
                 .ForEach((Entity aiPlayerEntity, ref AIInfoComponent aiInfo) =>
                 {
                     if (r.NextFloat(100f) > 99.5f)
@@ -96,9 +114,18 @@ class AIInputSystem : SystemBase
 
                     if (math.length(cursorPositions[aiInfo.PlayerID] - aiInfo.TargetPosition) < 1f && aiInfo.Placed == false)
                     {
-                        GridDirection dir = (GridDirection) (1 << m_Random.NextInt(0, 3));
-                        int playerId = aiInfo.PlayerID;
                         int2 position = aiInfo.CellPosition;
+                        GridDirection dir = (GridDirection) (1 << m_Random.NextInt(0, 3));
+                        
+                        for (int i = 0; i < baseComponents.Length; i++)
+                        {
+                            if (baseComponents[i].PlayerID == aiInfo.PlayerID)
+                            {
+                                dir = Utility.DirectionForVector(basePositionComponents[i].Value - position);
+                            }
+                        }
+                        
+                        int playerId = aiInfo.PlayerID;
                         Entity e = ecb.CreateEntity(arrowRequestArchetype);
                         ecb.SetComponent(e, new ArrowRequest
                         {
