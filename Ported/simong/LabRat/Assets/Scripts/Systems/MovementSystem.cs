@@ -54,6 +54,7 @@ class MovementSystem : SystemBase
         // update walking
         Entities
             .WithNone<FallingTag>()
+            .WithReadOnly(cells)
             .WithReadOnly(arrows)
             .ForEach((int entityInQueryIndex, Entity entity, ref Position2D pos, ref Rotation2D rot, ref Direction2D dir, in WalkSpeed speed) =>
             {
