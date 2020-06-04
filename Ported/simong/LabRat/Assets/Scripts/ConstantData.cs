@@ -22,6 +22,8 @@ public class ConstantData : MonoBehaviour
     public float RoundLength = 60f;
     public Vector2Int BoardDimensions = new Vector2Int(30, 30);
     public Vector2 CellSize = new Vector2(1f, 1f);
+    
+    public Vector2Int UICanvasDimensions = new Vector2Int(1024, 800);
 
     public float ArrowLifeTime = 30f;
     public int MaxArrows = 3;
