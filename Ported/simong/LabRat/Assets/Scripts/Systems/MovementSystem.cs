@@ -1,4 +1,5 @@
 ﻿using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Entities.UniversalDelegates;
 using Unity.Mathematics;
@@ -15,8 +16,8 @@ class MovementSystem : SystemBase
         public GridDirection Direction;
     }
 
-    //NativeList<ArrowData> m_Arrows;
-    //NativeArray<bool> m_CellContainsArrowGrid;
+    NativeList<ArrowData> m_Arrows;
+    NativeArray<bool> m_CellContainsArrowGrid;
 
     EndSimulationEntityCommandBufferSystem m_Barrier;
 
@@ -25,38 +26,59 @@ class MovementSystem : SystemBase
         m_Barrier = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
-    protected override void OnUpdate()
+    protected override void OnDestroy()
+    {
+        if (!m_Arrows.IsCreated)
+        {
+            m_Arrows.Dispose();
+            m_CellContainsArrowGrid.Dispose();
+        }
+    }
+
+    protected override unsafe void OnUpdate()
     {
         var gridSystem = World.GetOrCreateSystem<GridCreationSystem>();
         if (!gridSystem.Cells.IsCreated)
             return;
 
-        var cells = gridSystem.Cells;
+        if (!m_Arrows.IsCreated)
+        {
+            m_Arrows = new NativeList<ArrowData>(ConstantData.Instance.MaxArrows * ConstantData.Instance.NumPlayers, Allocator.Persistent);
+            m_CellContainsArrowGrid = new NativeArray<bool>(ConstantData.Instance.BoardDimensions.x * ConstantData.Instance.BoardDimensions.y, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        }
+
+
         var rows = ConstantData.Instance.BoardDimensions.x;
         var cols = ConstantData.Instance.BoardDimensions.y;
-        var cellSize = new float2(ConstantData.Instance.CellSize);
-
-        var rotationSpeed = ConstantData.Instance.RotationSpeed;
-
-        var deltaTime = Time.DeltaTime;
-
-        var ecb = m_Barrier.CreateCommandBuffer().ToConcurrent();
 
         // find all arrows
-        var arrows = new NativeList<ArrowData>(ConstantData.Instance.MaxArrows * ConstantData.Instance.NumPlayers, Allocator.TempJob);
+        m_Arrows.Clear();
+        UnsafeUtility.MemClear(m_CellContainsArrowGrid.GetUnsafePtr(), ConstantData.Instance.BoardDimensions.x * ConstantData.Instance.BoardDimensions.y);
+
+        var arrows = m_Arrows;
+        var cellContainsArrowGrid = m_CellContainsArrowGrid;
+
         Entities
             .ForEach((in ArrowComponent arrow, in Direction2D dir) =>
             {
                 arrows.Add(new ArrowData { CellCoord = arrow.GridCell, Direction = dir.Value });
+                cellContainsArrowGrid[(arrow.GridCell.y * rows) + arrow.GridCell.x] = true;
             })
             .Schedule();
 
         // update walking
+        var cells = gridSystem.Cells;
+        var cellSize = new float2(ConstantData.Instance.CellSize);
+        var rotationSpeed = ConstantData.Instance.RotationSpeed;
+        var deltaTime = Time.DeltaTime;
+        var ecb = m_Barrier.CreateCommandBuffer().ToConcurrent();
+
         Entities
             .WithNone<FallingTag>()
             .WithNone<ReachedBase>()
             .WithReadOnly(cells)
             .WithReadOnly(arrows)
+            .WithReadOnly(cellContainsArrowGrid)
             .ForEach((int entityInQueryIndex, Entity entity, ref Position2D pos, ref Rotation2D rot, ref Direction2D dir, in WalkSpeed speed) =>
             {
                 // TODO low fps handling here
@@ -113,14 +135,18 @@ class MovementSystem : SystemBase
                         {
                             var newDirection = dir.Value;
 
-                            // check for arrows
-                            for (int i = 0; i < arrows.Length; i++)
+                            if (cellContainsArrowGrid[cellIndex])
                             {
-                                var arrow = arrows[i];
-                                if (arrow.CellCoord.x == cellCoord.x
-                                    && arrow.CellCoord.y == cellCoord.y)
+                                // check for arrows
+                                for (int i = 0; i < arrows.Length; i++)
                                 {
-                                    newDirection = arrow.Direction;
+                                    var arrow = arrows[i];
+                                    if (arrow.CellCoord.x == cellCoord.x
+                                        && arrow.CellCoord.y == cellCoord.y)
+                                    {
+                                        newDirection = arrow.Direction;
+                                        break;
+                                    }
                                 }
                             }
 
@@ -186,9 +212,6 @@ class MovementSystem : SystemBase
             .ScheduleParallel();
 
         m_Barrier.AddJobHandleForProducer(Dependency);
-
-        // clean up memory
-        arrows.Dispose(Dependency);
     }
 
     static int2 GetGridCoordinateFromPositionAndDirection(in float2 pos, GridDirection dir, in float2 cellSize, int cols, int rows)
