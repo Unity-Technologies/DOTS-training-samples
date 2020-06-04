@@ -25,7 +25,7 @@ public class ArrowSystem : SystemBase
             }
         });
 
-        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        m_ECBSystem = World.GetExistingSystem<BeginInitializationEntityCommandBufferSystem>();
     }
 
     private NativeArray<Entity> m_arrowPrefabs = new NativeArray<Entity>(4, Allocator.Persistent);
