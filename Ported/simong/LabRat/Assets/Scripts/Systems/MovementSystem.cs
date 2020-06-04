@@ -176,7 +176,7 @@ class MovementSystem : SystemBase
             .WithAll<FallingTag>()
             .ForEach((int entityInQueryIndex, Entity entity, ref LocalToWorld ltw) =>
             {
-                var pos = ltw.Position - new float3(0f, 0f, fallingSpeed * deltaTime);
+                var pos = ltw.Position - new float3(0f, fallingSpeed * deltaTime, 0f);
                 if (pos.y >= fallingKillY)
                     ltw.Value.c3 = new float4(pos.x, pos.y, pos.z, 1f);
                 else
