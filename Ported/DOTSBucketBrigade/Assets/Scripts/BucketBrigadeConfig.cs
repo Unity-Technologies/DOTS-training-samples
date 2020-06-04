@@ -26,6 +26,7 @@ public struct BucketBrigadeConfig : IComponentData
     public float FlickerRange;
 
     public float MovementTargetReachedThreshold;
+    public float CarriedBucketHeightOffset;
 
     public int SplashRadius;
     public float CoolingStrength;
