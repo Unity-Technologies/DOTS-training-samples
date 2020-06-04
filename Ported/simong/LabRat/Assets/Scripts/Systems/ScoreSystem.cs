@@ -1,5 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -17,6 +18,8 @@ public class ScoreSystem : SystemBase
 
     private EndSimulationEntityCommandBufferSystem m_EndSimulationECBS;
 
+    EntityQuery m_BasesQuery;
+
     protected override void OnCreate()
     {
         m_ReachedBaseQuery = GetEntityQuery(new EntityQueryDesc()
@@ -28,6 +31,14 @@ public class ScoreSystem : SystemBase
         });
 
         m_EndSimulationECBS = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+
+        m_BasesQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+           {
+                ComponentType.ReadOnly<PlayerBase>()
+            }
+        });
     }
 
     protected override void OnDestroy()
@@ -70,7 +81,11 @@ public class ScoreSystem : SystemBase
 
         var mouseAddition = m_MouseScoreAddition;
         var catMultiplier = m_CatScoreMultiplier;
-        
+
+        var playerBases = m_BasesQuery.ToComponentDataArrayAsync<PlayerBase>(Allocator.TempJob, out var playerBasesHandle);
+        var playerBaseEntities = m_BasesQuery.ToEntityArrayAsync(Allocator.TempJob, out var playerBaseEntitiesHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency, playerBasesHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency, playerBaseEntitiesHandle);
         var ecb = m_EndSimulationECBS.CreateCommandBuffer();
 
         Entities
@@ -82,6 +97,14 @@ public class ScoreSystem : SystemBase
                 if (playerId >= 0 && playerId < numPlayers)
                 {
                     scores[playerId] += mouseAddition;
+                    for(int i = 0; i < numPlayers; i++)
+                    {
+                        if(playerBases[i].PlayerID == playerId)
+                        {
+                            ecb.AddComponent< AnimateBaseTag>(playerBaseEntities[i]);
+                            break;
+                        }
+                    }
                 }
                 ecb.DestroyEntity(entity);
             })
@@ -96,11 +119,23 @@ public class ScoreSystem : SystemBase
                 if (playerId >= 0 && playerId < numPlayers)
                 {
                     scores[playerId] = (int) math.round(scores[playerId] * catMultiplier);
+                    for (int i = 0; i < numPlayers; i++)
+                    {
+                        if (playerBases[i].PlayerID == playerId)
+                        {
+                            ecb.AddComponent<AnimateBaseTag>(playerBaseEntities[i]);
+                            break;
+                        }
+                    }
                 }
                 ecb.DestroyEntity(entity);
+
             })
             .Run();
-        
+
+        playerBases.Dispose();
+        playerBaseEntities.Dispose();
+
         // Update Score UI
         var uiHelper = UIHelper.Instance;
         if (UIHelper.Instance != null)
