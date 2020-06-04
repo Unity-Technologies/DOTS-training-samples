@@ -22,6 +22,15 @@ class PlayerInputSystem : SystemBase
     {
         if (previewArrow == Entity.Null)
         {
+            // Ugly Simon's code, if it works, don't change it!
+            unsafe
+            {
+                Unity.Physics.BoxCollider* boardCollider = (Unity.Physics.BoxCollider*)GetSingleton<Unity.Physics.PhysicsCollider>().ColliderPtr;
+                var geometry = boardCollider->Geometry;
+                geometry.Size = new float3(ConstantData.Instance.BoardDimensions.x, 1, ConstantData.Instance.BoardDimensions.y);
+                geometry.Center = new float3(ConstantData.Instance.BoardDimensions.x / 2, -1, ConstantData.Instance.BoardDimensions.y / 2);
+                boardCollider->Geometry = geometry;
+            }
             previewArrow = EntityManager.Instantiate(GetSingleton<PrefabReferenceComponent>().PreviewArrowPrefab);
         }
         else
