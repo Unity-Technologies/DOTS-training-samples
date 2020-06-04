@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
@@ -66,8 +66,8 @@ public class GridCreationSystem : SystemBase
 
                 GridDirection fromNorth = GridDirection.SOUTH | GridDirection.EAST | GridDirection.WEST;
                 GridDirection fromSouth = GridDirection.NORTH | GridDirection.EAST | GridDirection.WEST;
-                GridDirection fromWest = GridDirection.NORTH | GridDirection.SOUTH | GridDirection.WEST;
-                GridDirection fromEast = GridDirection.NORTH | GridDirection.SOUTH | GridDirection.EAST;
+                GridDirection fromWest = GridDirection.NORTH | GridDirection.SOUTH | GridDirection.EAST;
+                GridDirection fromEast = GridDirection.NORTH | GridDirection.SOUTH | GridDirection.WEST;
 
                 for (int i = 1; i < (width - 1); i++)
                 {
