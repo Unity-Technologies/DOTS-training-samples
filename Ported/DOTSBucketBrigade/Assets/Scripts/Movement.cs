@@ -12,6 +12,7 @@ namespace DefaultNamespace
             var config = GetSingleton<BucketBrigadeConfig>();
             var dt = Time.DeltaTime;
             var bucketPositionComponent = GetComponentDataFromEntity<Translation>();
+            var availableBucketComponent = GetComponentDataFromEntity<AvailableBucketTag>();
             
             Entities.ForEach((ref Translation currentPosition, in TargetPosition targetPosition, in TargetBucket targetBucket)
                 =>
@@ -23,14 +24,14 @@ namespace DefaultNamespace
                     currentPosition.Value += direction * config.AgentSpeed * dt;
                 }
                 
-                if (targetBucket.Target != Entity.Null)
+                if (targetBucket.Target != Entity.Null && !availableBucketComponent.HasComponent(targetBucket.Target))
                 {
                     var bucketTranslation = bucketPositionComponent[targetBucket.Target];
                     bucketTranslation.Value = currentPosition.Value;
                     bucketTranslation.Value.y += 1f;
                     bucketPositionComponent[targetBucket.Target] = bucketTranslation;
                 }
-            }).WithNativeDisableParallelForRestriction(bucketPositionComponent).ScheduleParallel();
+            }).WithReadOnly(availableBucketComponent).WithNativeDisableParallelForRestriction(bucketPositionComponent).ScheduleParallel();
         }
     }
 }
