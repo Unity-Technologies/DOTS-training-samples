@@ -362,10 +362,11 @@ MonoBehaviour:
   - 0.25
   FallingSpeed: 2
   FallingKillY: -5
-  RotationSpeed: 0.5
+  RotationSpeed: 5
   RoundLength: 60
   BoardDimensions: {x: 10, y: 10}
   CellSize: {x: 1, y: 1}
+  UICanvasDimensions: {x: 1024, y: 800}
   ArrowLifeTime: 30
   MaxArrows: 3
   NumPlayers: 4
