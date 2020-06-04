@@ -189,6 +189,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: UI
       objectReference: {fileID: 0}
+    - target: {fileID: 2616872256740755990, guid: 6a082e4cacdbf48f7abd1b94383915a6,
+        type: 3}
+      propertyPath: m_UiScaleMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2616872256740755990, guid: 6a082e4cacdbf48f7abd1b94383915a6,
+        type: 3}
+      propertyPath: m_ReferenceResolution.x
+      value: 1024
+      objectReference: {fileID: 0}
+    - target: {fileID: 2616872256740755990, guid: 6a082e4cacdbf48f7abd1b94383915a6,
+        type: 3}
+      propertyPath: m_ReferenceResolution.y
+      value: 800
+      objectReference: {fileID: 0}
     - target: {fileID: 6379659315511988176, guid: 6a082e4cacdbf48f7abd1b94383915a6,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -354,6 +369,11 @@ MonoBehaviour:
   ArrowLifeTime: 30
   MaxArrows: 3
   NumPlayers: 4
+  PlayerColors:
+  - {r: 0, g: 30, b: 255, a: 1}
+  - {r: 255, g: 0, b: 0, a: 1}
+  - {r: 0, g: 255, b: 6, a: 1}
+  - {r: 255, g: 0, b: 207, a: 1}
   MouseScoreAddition: 1
   CatScoreMultiplier: 0.66
 --- !u!1 &1725028795

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,7 @@ public class UIHelper : MonoBehaviour
     public static UIHelper Instance;
 
     public Text[] Scores;
+    public Image[] Cursors;
     public int[] ScoreValues;
     
     public void Awake()
@@ -28,6 +30,7 @@ public class UIHelper : MonoBehaviour
             {
                 int colorIndex = i % constantData.PlayerColors.Length;
                 Scores[i].color = constantData.PlayerColors[colorIndex];
+                Cursors[i].color = constantData.PlayerColors[colorIndex];
             }
         }
     }
@@ -44,5 +47,15 @@ public class UIHelper : MonoBehaviour
             ScoreValues[playerId] = score;
             Scores[playerId].text = score.ToString();
         }
+    }
+    
+    public void SetCursorPosition(int playerId, int2 position)
+    {
+        if (playerId < 0 || playerId >= ScoreValues.Length)
+        {
+            return;
+        }
+
+        Cursors[playerId].rectTransform.anchoredPosition = new Vector2(position.x, position.y);
     }
 }
