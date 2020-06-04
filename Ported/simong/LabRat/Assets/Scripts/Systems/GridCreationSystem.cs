@@ -162,6 +162,22 @@ public class GridCreationSystem : SystemBase
                             }
                         }
                     }
+
+                    var wall = ecb.Instantiate(prefabs.WallPrefab);
+
+                    if(wall != Entity.Null)
+                    {
+                        ecb.SetComponent(wall, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(x, 0), cellSize) });
+                        ecb.SetComponent(wall, new Rotation2D { Value = Utility.DirectionToAngle(GridDirection.SOUTH) });
+                    }
+
+                    wall = ecb.Instantiate(prefabs.WallPrefab);
+
+                    if (wall != Entity.Null)
+                    {
+                        ecb.SetComponent(wall, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(x, width - 1), cellSize) });
+                        ecb.SetComponent(wall, new Rotation2D { Value = Utility.DirectionToAngle(GridDirection.NORTH) });
+                    }
                 }
 
                 //create spawners

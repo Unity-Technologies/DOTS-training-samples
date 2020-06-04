@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3266120362543766931}
   - component: {fileID: -5774549054950048670}
   m_Layer: 0
-  m_Name: Spawner
+  m_Name: MouseSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -75,7 +75,8 @@ MonoBehaviour:
   AlternatePrefab: {fileID: 1377909340170110, guid: 19268829cf75c415f8f14765efcab529,
     type: 3}
   Frequency: 1
-  AlternateSpawnFrequency: 5
+  AlternateSpawnMinFrequency: 5
+  AlternateSpawnMaxFrequency: 10
 --- !u!114 &-5774549054950048670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -90,3 +91,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Time: 0
   AlternateSpawnTime: 0
+  CurrentAlternateSpawnFrenquency: 0
