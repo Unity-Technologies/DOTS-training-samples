@@ -81,7 +81,7 @@ public class ArrowSystem : SystemBase
                 bool shouldSpawn = true;
                 
                 var cellIndex = (request.Position.y * rows) + request.Position.x;
-                if (cells[cellIndex].IsBase())
+                if (cells[cellIndex].IsBase() || cells[cellIndex].IsHole())
                     shouldSpawn = false;
 
                 for (int i = 0; i < arrowComponents.Length; i++)

@@ -1,4 +1,5 @@
 ﻿using Unity.Mathematics;
+using UnityEngine;
 
 public class Utility
 {
@@ -13,6 +14,14 @@ public class Utility
         return new float2(gridCoord.x * cellSize.x + cellSize.x / 2, gridCoord.y * cellSize.y + cellSize.y / 2);
     }
 
+    public static float2 GridCoordinatesToScreenPos(Camera cam, int2 gridCoord, float2 cellSize)
+    {
+        float2 wp = GridCoordinatesToWorldPos(gridCoord, cellSize);
+        Vector3 sp = cam.WorldToScreenPoint(new Vector3(wp.x, 0f, wp.y));
+        float2 rv = new float2(sp.x / cam.pixelWidth, sp.y / cam.pixelHeight);
+        return rv;
+    }
+    
     public static float DirectionToAngle(GridDirection dir)
     {
         switch (dir)

@@ -59,6 +59,7 @@ public class GridCreationSystem : SystemBase
             {
                 int bottomLeft = width * (height - 1);
 
+                //initialise travel
                 cellsarray[0] = cellsarray[0].SetTravelDirections(GridDirection.NORTH | GridDirection.EAST);
 
                 cellsarray[width - 1] = cellsarray[width - 1].SetTravelDirections(GridDirection.NORTH | GridDirection.WEST);
@@ -81,8 +82,6 @@ public class GridCreationSystem : SystemBase
                     cellsarray[width * i] = cellsarray[width * i].SetTravelDirections(fromWest);
                     cellsarray[(width * (i + 1)) - 1] = cellsarray[(width * (i + 1)) - 1].SetTravelDirections(fromEast);
                 }
-
-                cellsarray[width + 1] = cellsarray[width + 1].SetIsHole();
 
                 //position bases
                 int xOffset = (int)(width * 0.333f);
@@ -107,8 +106,10 @@ public class GridCreationSystem : SystemBase
             }).Schedule();
 
             Job.WithCode(() => {
-                int numWalls = (int)(width * height * 0.2f);
 
+                //add walls
+
+                int numWalls = (int)(width * height * 0.2f);
                 //Debug.Log("create walls: " + numWalls);
 
                 int count = 0;
@@ -156,6 +157,26 @@ public class GridCreationSystem : SystemBase
                         //Debug.Log("adding wall at (" + x + ", " + y + ") dir: " + dir);
                     }
                 }
+
+                //add holes
+                var numHoles = random.NextInt(0, 4);
+                count = 0;
+
+                while (count < numHoles)
+                {
+                    int x = random.NextInt(1, width - 1);
+                    int y = random.NextInt(1, height - 1);
+                    int index = (y * width) + x;
+
+                    var cell = cellsarray[index];
+
+                    if(cell.IsEmpty())
+                    {
+                        cellsarray[index] = cell.SetIsHole();
+                        count++;
+                    }
+                }
+
             }).Schedule();
 
             var ecb = m_commandBuffer.CreateCommandBuffer();

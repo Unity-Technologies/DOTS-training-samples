@@ -78,4 +78,10 @@ public struct CellInfo
     {
         return (m_Value & k_BasePlayerIdMask) >> k_BasePlayerIdShift;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsEmpty()
+    {
+        return !(IsHole() || IsBase());
+    }
 }

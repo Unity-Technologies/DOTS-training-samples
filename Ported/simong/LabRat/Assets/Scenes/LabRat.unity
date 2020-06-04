@@ -315,7 +315,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 7
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -339,7 +339,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1694099035}
   m_LocalRotation: {x: 0.48066187, y: 0.3268136, z: -0.19909665, w: 0.7889978}
-  m_LocalPosition: {x: -36.9, y: 110, z: -36.9}
+  m_LocalPosition: {x: -36.9, y: 115, z: -36.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -371,9 +371,9 @@ MonoBehaviour:
   MaxArrows: 3
   NumPlayers: 4
   PlayerColors:
-  - {r: 0, g: 30, b: 255, a: 1}
+  - {r: 0.0036044943, g: 0.09518876, b: 0.764151, a: 1}
   - {r: 255, g: 0, b: 0, a: 1}
-  - {r: 0, g: 255, b: 6, a: 1}
+  - {r: 0, g: 0.7490196, b: 0.019607844, a: 1}
   - {r: 255, g: 0, b: 207, a: 1}
   MouseScoreAddition: 1
   CatScoreMultiplier: 0.66
@@ -416,7 +416,7 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 1
+    m_Bias: 0
     m_NormalBias: 0.4
     m_NearPlane: 0.2
     m_CullingMatrixOverride:
@@ -462,10 +462,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1725028795}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: 0.24595264, y: -0.38689274, z: 0.056591876, w: 0.8869153}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 28.69, y: -48.642, z: -5.884}
