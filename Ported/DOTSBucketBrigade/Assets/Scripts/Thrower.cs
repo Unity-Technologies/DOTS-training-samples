@@ -21,7 +21,7 @@ namespace DefaultNamespace
 
         protected override void OnUpdate()
         {
-/*            var fireGridEntity = GetSingletonEntity<FireGrid>();
+            var fireGridEntity = GetSingletonEntity<FireGrid>();
             var fireGridBuffer = GetBufferFromEntity<FireGridCell>();
             
             var translationComponent = GetComponentDataFromEntity<LocalToWorld>();
@@ -111,7 +111,7 @@ namespace DefaultNamespace
                 .WithNativeDisableParallelForRestriction(chainComponent)
                 .ScheduleParallel();
             
-            m_Barrier.AddJobHandleForProducer(Dependency); */
+            m_Barrier.AddJobHandleForProducer(Dependency);
         }
 
         private static bool TryFindNearestCellOnFire(BucketBrigadeConfig config, in DynamicBuffer<FireGridCell> fireGrid, Translation agentPosition, out float3 closestPosition, out int2 closestGridPosition)

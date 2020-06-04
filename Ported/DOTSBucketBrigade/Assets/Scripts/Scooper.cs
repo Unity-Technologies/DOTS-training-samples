@@ -48,7 +48,6 @@ namespace DefaultNamespace
             var chainComponent = GetComponentDataFromEntity<Chain>();
             var waterLevelComponent = GetComponentDataFromEntity<WaterLevel>();
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
-            var availableBucketComponent = GetComponentDataFromEntity<AvailableBucketTag>();
             
             Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, ref ScooperState state, ref TargetPosition targetPosition, ref TargetWaterSource targetWaterSource, in NextInChain nextInChain, in Translation position, in Agent agent)
                 =>
@@ -120,11 +119,6 @@ namespace DefaultNamespace
 
                         if (bucketDistSq < config.MovementTargetReachedThreshold)
                         {
-                            if (!availableBucketComponent.HasComponent(targetBucket.Target))
-                            {
-                                state.State = EScooperState.FindBucket;
-                                break;
-                            }
                             state.State = EScooperState.StartWalkingToWater;
                         }
                         break;
@@ -176,7 +170,6 @@ namespace DefaultNamespace
             })
                 .WithDeallocateOnJobCompletion(waterEntities)
                 .WithDeallocateOnJobCompletion(bucketEntities)
-                .WithReadOnly(availableBucketComponent)
                 .WithNativeDisableParallelForRestriction(chainComponent)
                 .WithReadOnly(translationComponent)
                 .Schedule(combinedFetchJob);
