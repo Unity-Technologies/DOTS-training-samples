@@ -3,11 +3,15 @@
 public enum EScooperState
 {
     FindBucket,
-    WalkToBucket,
     FindWater,
-    WalkToWater,
+    StartWalkingToWater,
+    WaitUntilWaterInRange,
     FillBucket,
+    StartWalkingToChainStart,
+    WaitUntilChainStartInRange,
     PassBucket,
+    StartWalkingToBucket,
+    WaitUntilBucketInRange
 };
 
 [GenerateAuthoringComponent]

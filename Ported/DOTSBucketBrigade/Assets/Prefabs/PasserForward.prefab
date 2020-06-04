@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: -7356732598991746448}
   - component: {fileID: 6095994530557967967}
   - component: {fileID: 4851994432317490998}
+  - component: {fileID: 7016707975624263513}
   m_Layer: 0
   m_Name: PasserForward
   m_TagString: Untagged
@@ -125,6 +126,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ChainT: 0
+  Forward: 0
   MyChain: {fileID: 0}
 --- !u!114 &4851994432317490998
 MonoBehaviour:
@@ -139,3 +141,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Target: {fileID: 0}
+--- !u!114 &7016707975624263513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9178505292708079987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78fe244ee6ce4ee2a308fc10b7177504, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Next: {fileID: 0}

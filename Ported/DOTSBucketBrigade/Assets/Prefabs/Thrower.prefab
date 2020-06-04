@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 844973986869188888}
   - component: {fileID: 4794022919827408995}
   - component: {fileID: 2832521219321710368}
+  - component: {fileID: 1755635542497379601}
   m_Layer: 0
   m_Name: Thrower
   m_TagString: Untagged
@@ -170,3 +171,16 @@ MonoBehaviour:
   GridIndex:
     x: 0
     y: 0
+--- !u!114 &1755635542497379601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 990607190443930912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78fe244ee6ce4ee2a308fc10b7177504, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target: {fileID: 0}

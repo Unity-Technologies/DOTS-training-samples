@@ -56,10 +56,12 @@ namespace DefaultNamespace
                 SetTargetPosition(thrower, nearestFire);
                 
                 // Forward Chain
-                CreateChain(ref rand, chain, config, prefabs.PasserForwardPrefab, gridSize);
+                var forwardHeadPasser = CreateHalfOfChain(ref rand, chain, config, prefabs.PasserForwardPrefab, gridSize);
+                SetNextInChain(scooper, forwardHeadPasser);
                 
                 // Backwards Chain
-                CreateChain(ref rand, chain, config, prefabs.PasserBackPrefab, gridSize, -1f);
+                var backwardsHeadPasser = CreateHalfOfChain(ref rand, chain, config, prefabs.PasserBackPrefab, gridSize, -1f);
+                SetNextInChain(thrower, backwardsHeadPasser);
             }
         }
 
@@ -78,25 +80,36 @@ namespace DefaultNamespace
             EntityManager.SetComponentData(chain, chainComponent);
         }
 
-        private void CreateChain(ref Random rand, in Entity chain, in BucketBrigadeConfig config,
+        private Entity CreateHalfOfChain(ref Random rand, in Entity chain, in BucketBrigadeConfig config,
             in Entity prefabEntity, in float2 gridSize, float forward = 1f)
         {
             var chainComponent = EntityManager.GetComponentData<Chain>(chain);
             var direction = math.normalize(chainComponent.ChainEndPosition - chainComponent.ChainStartPosition);
             var perpendicular = new float3(direction.z, 0f, -direction.x);
             
+            Entity headOfChain = Entity.Null;
+            Entity nextInChain = Entity.Null;
+            
             // 1. Randomly distribute a Scooper, a Thrower and N Passers.
             
-            for (int i = 0; i < config.NumberOfPassersInOneDirectionPerChain; ++i)
+            for (int i = config.NumberOfPassersInOneDirectionPerChain - 1; i >= 0; --i)
             {
                 var agent = CreateAgent(ref rand, prefabEntity, gridSize, chain, i / (float) (config.NumberOfPassersInOneDirectionPerChain - 1), forward);
+                if (i == 0)
+                    headOfChain = agent;
                 var agentComponent = EntityManager.GetComponentData<Agent>(agent);
                 var target = CalculateChainPosition(agentComponent, chainComponent, perpendicular);
-                SetTargetPosition(agent,target);
+                SetTargetPosition(agent, target);
+                SetNextInChain(agent, nextInChain);
+                nextInChain = agent;
             }
             
-            // - What happens with the Scooper with respect to finding the 'start' of the chain, to start passing?
-            // - What happens with the Thrower with respect to finding the 'end' of the chain, to pass back to?
+            return headOfChain;
+        }
+
+        private void SetNextInChain(Entity agent, Entity prev)
+        {
+            EntityManager.SetComponentData(agent, new NextInChain { Next = prev });
         }
 
         public static float3 CalculateChainPosition(in Agent agentComponent, in Chain chainComponent, float3 perpendicular)

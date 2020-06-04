@@ -23,4 +23,6 @@ public struct BucketBrigadeConfig : IComponentData
     public float MaxFlameHeight;
     public int HeatRadius;
 
+    public float MovementTargetReachedThreshold;
+
 }

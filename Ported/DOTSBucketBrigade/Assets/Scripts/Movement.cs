@@ -16,7 +16,7 @@ namespace DefaultNamespace
                 =>
             {
                 var currentMinsTarget = targetPosition.Target - currentPosition.Value;
-                if (math.lengthsq(currentMinsTarget) > 0.005f)
+                if (math.lengthsq(currentMinsTarget) > config.MovementTargetReachedThreshold)
                 {
                     var direction = math.normalize(currentMinsTarget);
                     currentPosition.Value += direction * config.AgentSpeed * dt;

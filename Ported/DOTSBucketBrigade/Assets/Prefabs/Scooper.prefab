@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 5808085201387405283}
   - component: {fileID: 6242783099794681436}
   - component: {fileID: 8606869279802309373}
+  - component: {fileID: -6387130568720864922}
   m_Layer: 0
   m_Name: Scooper
   m_TagString: Untagged
@@ -110,7 +111,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9d5f93663e5844ec963b5da93c200a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  State: 2
+  State: 1
 --- !u!114 &-6697947727677800823
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -166,4 +167,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ChainT: 0
+  Forward: 0
   MyChain: {fileID: 0}
+--- !u!114 &-6387130568720864922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6012665424101709685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78fe244ee6ce4ee2a308fc10b7177504, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Next: {fileID: 0}
