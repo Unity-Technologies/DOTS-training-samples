@@ -19,13 +19,13 @@ namespace DefaultNamespace
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
             
             // ref TargetBucket targetBucket, in Translation position,
-            Entities.WithNone<ScooperState, ThrowerState>().ForEach((Entity entity, ref TargetPosition targetPosition,  in Agent agent,  in NextInChain nextInChain)
+            Entities.WithNone<ScooperState, ThrowerState>().ForEach((Entity entity, ref TargetPosition targetPosition, in Agent agent,  in NextInChain nextInChain)
                 =>
             {
                 var chain = chainComponent[agent.MyChain];
                 
                 // direction & perp can be computed once when the chain changes 
-                var direction = math.normalize(chain.ChainEndPosition - chain.ChainStartPosition);
+                var direction = math.normalize(chain.ChainEndPosition - chain.ChainStartPosition) * agent.Forward;
                 var perpendicular = new float3(direction.z, 0f, -direction.x);
                 var targetBucket = targetBucketComponent[entity];
                 var position = translationComponent[entity];
@@ -47,7 +47,14 @@ namespace DefaultNamespace
                 }
                 else
                 {
-                    targetPosition.Target = ChainInit.CalculateChainPosition(agent, chain, perpendicular);
+                    if (agent.Forward > 0)
+                    {
+                        targetPosition.Target = ChainInit.CalculateChainPosition(agent, perpendicular, chain.ChainStartPosition, chain.ChainEndPosition);
+                    }
+                    else
+                    {
+                        targetPosition.Target = ChainInit.CalculateChainPosition(agent, perpendicular, chain.ChainEndPosition, chain.ChainStartPosition);
+                    }
                 }
             }).WithReadOnly(translationComponent).WithReadOnly(availableBucketComponent).WithNativeDisableParallelForRestriction(targetBucketComponent).WithReadOnly(chainComponent).ScheduleParallel();
         }

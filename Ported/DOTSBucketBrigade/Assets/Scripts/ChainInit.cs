@@ -56,11 +56,15 @@ namespace DefaultNamespace
                 SetTargetPosition(thrower, nearestFire);
                 
                 // Forward Chain
+                // Start (Water) -> End (Fire)
+                // Scooper -> Head .. Tail -> Thrower
                 CreateHalfOfChain(ref rand, chain, config, prefabs.PasserForwardPrefab, gridSize, out var forwardHead, out var forwardTail);
                 SetNextInChain(scooper, forwardHead);
                 SetNextInChain(forwardTail, thrower);
                 
                 // Backwards Chain
+                // Start (Fire) -> End (Water)
+                // Thrower -> Head .. Tail -> Scooper
                 CreateHalfOfChain(ref rand, chain, config, prefabs.PasserBackPrefab, gridSize, out var backwardsHead, out var backwardsTail, -1f);
                 SetNextInChain(thrower, backwardsHead);
                 SetNextInChain(backwardsTail, scooper);
@@ -86,7 +90,7 @@ namespace DefaultNamespace
             in Entity prefabEntity, in float2 gridSize, out Entity head, out Entity tail, float forward = 1f)
         {
             var chainComponent = EntityManager.GetComponentData<Chain>(chain);
-            var direction = math.normalize(chainComponent.ChainEndPosition - chainComponent.ChainStartPosition);
+            var direction = math.normalize(chainComponent.ChainEndPosition - chainComponent.ChainStartPosition) * forward;
             var perpendicular = new float3(direction.z, 0f, -direction.x);
             
             head = Entity.Null;
@@ -103,7 +107,15 @@ namespace DefaultNamespace
                 if (i == 0)
                     head = agent;
                 var agentComponent = EntityManager.GetComponentData<Agent>(agent);
-                var target = CalculateChainPosition(agentComponent, chainComponent, perpendicular);
+                float3 target;
+                if (forward > 0)
+                {
+                    target = CalculateChainPosition(agentComponent, perpendicular, chainComponent.ChainStartPosition, chainComponent.ChainEndPosition);
+                }
+                else
+                {
+                    target = CalculateChainPosition(agentComponent, perpendicular, chainComponent.ChainEndPosition, chainComponent.ChainStartPosition); 
+                }
                 SetTargetPosition(agent, target);
                 SetNextInChain(agent, nextInChain);
                 nextInChain = agent;
@@ -115,12 +127,12 @@ namespace DefaultNamespace
             EntityManager.SetComponentData(agent, new NextInChain { Next = prev });
         }
 
-        public static float3 CalculateChainPosition(in Agent agentComponent, in Chain chainComponent, float3 perpendicular)
+        public static float3 CalculateChainPosition(in Agent agentComponent, in float3 perpendicular, in float3 start, in float3 end)
         {
             var offset = math.sin(agentComponent.ChainT * math.PI);
-            var target = math.lerp(chainComponent.ChainStartPosition, chainComponent.ChainEndPosition,
+            var target = math.lerp(start, end,
                 agentComponent.ChainT);
-            target += perpendicular * (offset * agentComponent.Forward);
+            target += perpendicular * offset;
             return target;
         }
 
