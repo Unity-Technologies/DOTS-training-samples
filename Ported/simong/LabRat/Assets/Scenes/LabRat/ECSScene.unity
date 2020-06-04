@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -97,7 +97,8 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000002, guid: 80bb81a9066175545b5ec01c9eb8b30e,
+    type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
@@ -280,11 +281,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ArrowPrefab0: {fileID: 6922569374368231017, guid: bafbd4e5206bfbc4a8f2d00ce4923b29,
     type: 3}
-  ArrowPrefab1: {fileID: 6922569374368231017, guid: e8efda497bd61324c9ebdf5439bf4885,
+  ArrowPrefab1: {fileID: 6922569374368231017, guid: 9c0d64ae50282f64d87374f221c1d658,
     type: 3}
-  ArrowPrefab2: {fileID: 6922569374368231017, guid: 1c834dd4b319aff499216353b6df7e43,
+  ArrowPrefab2: {fileID: 6922569374368231017, guid: 4d1ba5a7ec313e543a28f445241de26c,
     type: 3}
-  ArrowPrefab3: {fileID: 6922569374368231017, guid: c954f2e26e57e2f4396efd2a47ca70d7,
+  ArrowPrefab3: {fileID: 6922569374368231017, guid: 87769e30903c7b04dbab8ebf8bf9176c,
     type: 3}
   BasePrefab0: {fileID: 1633874070064508, guid: 9394fae3aa493460f81bfa9743f81448,
     type: 3}
@@ -297,6 +298,8 @@ MonoBehaviour:
   PreviewArrowPrefab: {fileID: 6922569374368231017, guid: 0437ee87cdde2f24a9ad1cd5c4771f22,
     type: 3}
   CellPrefab: {fileID: 6331638553213775543, guid: 051b50a947da5254ababbbdf8d8d1187,
+    type: 3}
+  CellOddPrefab: {fileID: 6331638553213775543, guid: 526c7d3b068e79448a5244ccb563ca9e,
     type: 3}
   CatSpawnerPrefab: {fileID: 3266120362543766956, guid: 661b06a8e400fd6449275b3af81c102e,
     type: 3}
