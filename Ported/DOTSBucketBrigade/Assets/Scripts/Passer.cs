@@ -18,7 +18,8 @@ namespace DefaultNamespace
             var translationComponent = GetComponentDataFromEntity<Translation>();
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
             
-            Entities.WithNone<ScooperState, ThrowerState>().ForEach((ref TargetPosition targetPosition, ref TargetBucket targetBucket, in Translation position, in Agent agent,  in NextInChain nextInChain)
+            // ref TargetBucket targetBucket, in Translation position,
+            Entities.WithNone<ScooperState, ThrowerState>().ForEach((Entity entity, ref TargetPosition targetPosition,  in Agent agent,  in NextInChain nextInChain)
                 =>
             {
                 var chain = chainComponent[agent.MyChain];
@@ -26,6 +27,8 @@ namespace DefaultNamespace
                 // direction & perp can be computed once when the chain changes 
                 var direction = math.normalize(chain.ChainEndPosition - chain.ChainStartPosition);
                 var perpendicular = new float3(direction.z, 0f, -direction.x);
+                var targetBucket = targetBucketComponent[entity];
+                var position = translationComponent[entity];
 
                 if (targetBucket.Target != Entity.Null && !availableBucketComponent.HasComponent(targetBucket.Target))
                 {
@@ -39,6 +42,7 @@ namespace DefaultNamespace
                         nextInChainTargetBucket.Target = targetBucket.Target;
                         targetBucketComponent[nextInChain.Next] = nextInChainTargetBucket;
                         targetBucket.Target = Entity.Null;
+                        targetBucketComponent[entity] = targetBucket;
                     }
                 }
                 else

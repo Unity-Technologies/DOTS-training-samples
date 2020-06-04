@@ -10,7 +10,6 @@ namespace DefaultNamespace
     [UpdateBefore(typeof(Movement))]
     public class Scooper : SystemBase
     {
-        public JobHandle MyLastDependency;
         private EntityQuery m_WaterSourceQuery;
         private EntityQuery m_BucketQuery;
         private EndSimulationEntityCommandBufferSystem m_Barrier;
@@ -50,13 +49,14 @@ namespace DefaultNamespace
             var waterLevelComponent = GetComponentDataFromEntity<WaterLevel>();
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
             
-            MyLastDependency = Entities.ForEach((int entityInQueryIndex, ref ScooperState state, ref TargetPosition targetPosition, ref TargetBucket targetBucket, ref TargetWaterSource targetWaterSource, in NextInChain nextInChain, in Translation position, in Agent agent)
+            Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, ref ScooperState state, ref TargetPosition targetPosition, ref TargetWaterSource targetWaterSource, in NextInChain nextInChain, in Translation position, in Agent agent)
                 =>
             {
                 // TODO: Commonality between
                 // - Start Moving To Target & Wait Until Target In Range...
                 // - Find Resource
                 var myChain = chainComponent[agent.MyChain];
+                var targetBucket = targetBucketComponent[entity];
                 switch (state.State)
                 {
                     case EScooperState.FindWater:
@@ -99,6 +99,7 @@ namespace DefaultNamespace
                         var nearestBucketPosition = translationComponent[nearestBucket];
 
                         targetBucket.Target = nearestBucket;
+                        targetBucketComponent[entity] = targetBucket;
                         targetPosition.Target = nearestBucketPosition.Position;
                         state.State = EScooperState.StartWalkingToBucket;
                         break;
@@ -159,6 +160,7 @@ namespace DefaultNamespace
                         targetBucketComponent[nextInChain.Next] = nextInChainTargetBucket;
                         
                         targetBucket.Target = Entity.Null;
+                        targetBucketComponent[entity] = targetBucket;
                         
                         state.State = EScooperState.FindBucket;
                         break;
