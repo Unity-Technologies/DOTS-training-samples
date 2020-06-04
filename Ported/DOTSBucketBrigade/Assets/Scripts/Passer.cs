@@ -39,10 +39,13 @@ namespace DefaultNamespace
                     if (nextDistSq < config.MovementTargetReachedThreshold)
                     {
                         var nextInChainTargetBucket = targetBucketComponent[nextInChain.Next];
-                        nextInChainTargetBucket.Target = targetBucket.Target;
-                        targetBucketComponent[nextInChain.Next] = nextInChainTargetBucket;
-                        targetBucket.Target = Entity.Null;
-                        targetBucketComponent[entity] = targetBucket;
+                        if (nextInChainTargetBucket.Target == Entity.Null)
+                        {
+                            nextInChainTargetBucket.Target = targetBucket.Target;
+                            targetBucketComponent[nextInChain.Next] = nextInChainTargetBucket;
+                            targetBucket.Target = Entity.Null;
+                            targetBucketComponent[entity] = targetBucket;
+                        }
                     }
                 }
                 else
