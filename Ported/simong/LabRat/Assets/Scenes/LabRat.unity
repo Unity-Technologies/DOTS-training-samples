@@ -360,8 +360,8 @@ MonoBehaviour:
   Radius:
   - 0.25
   - 0.25
-  FallingSpeed: 2
-  FallingKillY: -5
+  FallingSpeed: 5
+  FallingKillY: -2
   RotationSpeed: 5
   RoundLength: 60
   BoardDimensions: {x: 10, y: 10}
