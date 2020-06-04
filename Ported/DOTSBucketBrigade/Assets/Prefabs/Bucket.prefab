@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8400393862565510244}
   - component: {fileID: 8400393862565510245}
   - component: {fileID: 8625146187045867155}
+  - component: {fileID: -670649234505959177}
   - component: {fileID: 1006248983473247514}
   m_Layer: 0
   m_Name: Bucket
@@ -91,6 +92,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 46fdbb62c1d0a431894a0b4fd44112c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-670649234505959177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8400393862565510247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b54d7e4af163490ea2b7ffba72b8188c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &1006248983473247514

@@ -13,6 +13,7 @@ namespace DefaultNamespace
         public JobHandle MyLastDependency;
         private EntityQuery m_WaterSourceQuery;
         private EntityQuery m_BucketQuery;
+        private EndSimulationEntityCommandBufferSystem m_Barrier;
 
         protected override void OnCreate()
         {
@@ -23,17 +24,20 @@ namespace DefaultNamespace
                     All = new []{ComponentType.ReadOnly<WaterSource>() }
                 });
             
-            // TODO: this is going to find buckets that are not empty.
             m_BucketQuery = GetEntityQuery(
                 new EntityQueryDesc
                 {
-                    All = new []{ComponentType.ReadOnly<BucketTag>() }
-                });            
+                    All = new []{ComponentType.ReadOnly<AvailableBucketTag>() }
+                });
+
+            m_Barrier =
+                World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
         protected override void OnUpdate()
         {
             var config = GetSingleton<BucketBrigadeConfig>();
+            var ecb = m_Barrier.CreateCommandBuffer().ToConcurrent();
             
             // TODO: this does not need to be queried every frame.
             var waterEntities = m_WaterSourceQuery.ToEntityArrayAsync(Allocator.TempJob, out var fetchWaterEntitiesJob);
@@ -46,7 +50,7 @@ namespace DefaultNamespace
             var waterLevelComponent = GetComponentDataFromEntity<WaterLevel>();
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
             
-            MyLastDependency = Entities.ForEach((ref ScooperState state, ref TargetPosition targetPosition, ref TargetBucket targetBucket, ref TargetWaterSource targetWaterSource, in NextInChain nextInChain, in Translation position, in Agent agent)
+            MyLastDependency = Entities.ForEach((int entityInQueryIndex, ref ScooperState state, ref TargetPosition targetPosition, ref TargetBucket targetBucket, ref TargetWaterSource targetWaterSource, in NextInChain nextInChain, in Translation position, in Agent agent)
                 =>
             {
                 // TODO: Commonality between
@@ -82,7 +86,7 @@ namespace DefaultNamespace
                     
                     case EScooperState.WaitUntilWaterInRange:
                         var targetWaterPosition = translationComponent[targetWaterSource.Target];
-                        var waterDistSq = math.distancesq(targetWaterPosition.Position, position.Value);
+                        var waterDistSq = math.distancesq(targetWaterPosition.Position.xz, position.Value.xz);
 
                         if (waterDistSq < config.MovementTargetReachedThreshold)
                         {
@@ -107,10 +111,11 @@ namespace DefaultNamespace
                     
                     case EScooperState.WaitUntilBucketInRange:
                         var targetBucketPosition = translationComponent[targetBucket.Target];
-                        var bucketDistSq = math.distancesq(targetBucketPosition.Position, position.Value);
+                        var bucketDistSq = math.distancesq(targetBucketPosition.Position.xz, position.Value.xz);
 
                         if (bucketDistSq < config.MovementTargetReachedThreshold)
                         {
+                            ecb.RemoveComponent<AvailableBucketTag>(entityInQueryIndex, targetBucket.Target);
                             state.State = EScooperState.StartWalkingToWater;
                         }
                         break;
@@ -140,7 +145,7 @@ namespace DefaultNamespace
                         break;
                     
                     case EScooperState.WaitUntilChainStartInRange:
-                        var chainDistSq = math.distancesq(myChain.ChainStartPosition, position.Value);
+                        var chainDistSq = math.distancesq(myChain.ChainStartPosition.xz, position.Value.xz);
 
                         if (chainDistSq < config.MovementTargetReachedThreshold)
                         {
@@ -171,7 +176,7 @@ namespace DefaultNamespace
             {
                 var waterEntity = potentialEntities[i];
                 var waterPosition = translationComponent[waterEntity];
-                var distanceSq = math.distancesq(waterPosition.Position, position.Value);
+                var distanceSq = math.distancesq(waterPosition.Position.xz, position.Value.xz);
                 if (distanceSq < nearestDistanceSq)
                 {
                     nearestDistanceSq = distanceSq;
