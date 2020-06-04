@@ -49,6 +49,7 @@ namespace DefaultNamespace
             var chainComponent = GetComponentDataFromEntity<Chain>();
             var waterLevelComponent = GetComponentDataFromEntity<WaterLevel>();
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
+            var bucketColorComponent = GetComponentDataFromEntity<BucketColor>();
             
             Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, ref ScooperState state, ref TargetPosition targetPosition, ref TargetWaterSource targetWaterSource, in NextInChain nextInChain, in Translation position, in Agent agent)
                 =>
@@ -138,10 +139,15 @@ namespace DefaultNamespace
                             state.State = EScooperState.FindWater;
                             break;
                         }
+
+                        var bucketColor = bucketColorComponent[targetBucket.Target];
+                        bucketColor.Value = math.float4(config.FullBucketColor.r, config.FullBucketColor.g, config.FullBucketColor.b, 1f);
+                        bucketColorComponent[targetBucket.Target] = bucketColor;
                         
                         sourceWaterLevel.Level -= bucketWaterLevel.Capacity;
                         bucketWaterLevel.Level = bucketWaterLevel.Capacity;
                         waterLevelComponent[targetBucket.Target]  = bucketWaterLevel;
+                        waterLevelComponent[targetWaterSource.Target] = sourceWaterLevel;
                         state.State = EScooperState.WaitUntilChainStartInRangeAndNotCarrying;
                         break;
                    
@@ -174,6 +180,7 @@ namespace DefaultNamespace
                 .WithDeallocateOnJobCompletion(waterEntities)
                 .WithDeallocateOnJobCompletion(bucketEntities)
                 .WithNativeDisableParallelForRestriction(chainComponent)
+                .WithNativeDisableParallelForRestriction(bucketColorComponent)
                 .WithReadOnly(translationComponent)
                 .Schedule(combinedFetchJob);
             

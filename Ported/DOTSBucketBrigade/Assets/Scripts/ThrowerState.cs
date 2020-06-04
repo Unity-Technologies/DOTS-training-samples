@@ -4,7 +4,7 @@ public enum EThrowerState
 {
     WaitForBucket,
     FindFire,
-    WalkToFire,
+    WaitUntilInFireRange,
     EmptyBucket,
     PassBucket,
     WaitUntilChainEndInRangeAndNotCarrying
