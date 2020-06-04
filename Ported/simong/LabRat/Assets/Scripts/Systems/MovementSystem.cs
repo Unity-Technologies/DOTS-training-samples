@@ -156,21 +156,33 @@ class MovementSystem : SystemBase
 
                                 var startingDirection = newDirection;
 
-                                do
+                                int searchCount = 0;
+                                while(true)
                                 {
                                     byte byteDir = (byte)newDirection;
                                     byteDir *= 2;
                                     if (byteDir > (byte)GridDirection.WEST)
                                         byteDir = (byte)GridDirection.NORTH;
                                     newDirection = (GridDirection)byteDir;
-                                }
-                                while (!cell.CanTravel(newDirection)
-                                        && newDirection != startingDirection);
+
+                                    // is new direction valid
+                                    if(     cell.CanTravel(newDirection)
+
+                                        // and either this is a new direction, or they are opposite directions
+                                        // but we've exhauseted all other options
+                                        &&  (!Direction2D.DirectionsAreOpposite(newDirection, startingDirection) || searchCount >= 4))
+                                    {
+                                        // this is a valid move
+                                        break;
+                                    }
+
+                                    searchCount++;
+                                    if (searchCount == 8) // twice round
+                                        throw new System.InvalidOperationException("Unable to resolve cell travel. Is there a valid exit from this cell?");
+                                };
 
                                 //Debug.Log($"New direction is {newDirection.ToString()}");
 
-                                if (newDirection == startingDirection)
-                                    throw new System.InvalidOperationException("Unable to resolve cell travel. Is there a valid exit from this cell?");
                             }
 
                             if (dir.Value != newDirection)
