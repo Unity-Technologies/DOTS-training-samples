@@ -6,18 +6,10 @@ using Unity.Transforms;
 
 public class FireGridSimulate : SystemBase
 {
-    private EntityQuery m_GridQuery;
 
     protected override void OnCreate()
     {
-        RequireSingletonForUpdate<FireGrid>();
         RequireSingletonForUpdate<BucketBrigadeConfig>();
-
-        m_GridQuery = GetEntityQuery(
-            new EntityQueryDesc
-            {
-                All = new[] { ComponentType.ReadOnly<FireGrid>() },
-            });
     }
 
     protected override void OnUpdate()
