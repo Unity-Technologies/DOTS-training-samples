@@ -79,8 +79,12 @@ public class ArrowSystem : SystemBase
                 int oldestIndex = -1;
                 double oldestSpawnTime = double.MaxValue;
                 bool shouldSpawn = true;
-                
+
+                if (request.Position.x < 0 || request.Position.y < 0)
+                    return;
+
                 var cellIndex = (request.Position.y * rows) + request.Position.x;
+
                 if (cells[cellIndex].IsBase() || cells[cellIndex].IsHole())
                     shouldSpawn = false;
 
