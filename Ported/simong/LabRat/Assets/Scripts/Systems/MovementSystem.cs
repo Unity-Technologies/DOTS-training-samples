@@ -54,6 +54,7 @@ class MovementSystem : SystemBase
         // update walking
         Entities
             .WithNone<FallingTag>()
+            .WithNone<ReachedBase>()
             .WithReadOnly(cells)
             .WithReadOnly(arrows)
             .ForEach((int entityInQueryIndex, Entity entity, ref Position2D pos, ref Rotation2D rot, ref Direction2D dir, in WalkSpeed speed) =>
@@ -118,51 +119,48 @@ class MovementSystem : SystemBase
                         // add falling tag
                         ecb.AddComponent<FallingTag>(entityInQueryIndex, entity);
                         ecb.RemoveComponent<Position2D>(entityInQueryIndex, entity);
+                        return;
                     }
                     else if (cell.IsBase())
                     {
                         // remove entity and score
                         ecb.AddComponent(entityInQueryIndex, entity, new ReachedBase { PlayerID = cell.GetBasePlayerId() });
+                        return;
                     }
                     else
                     {
                         var newDirection = dir.Value;
 
                         // check for arrows
-                        bool foundArrow = false;
                         for (int i = 0; i < arrows.Length; i++)
                         {
                             var arrow = arrows[i];
                             if (arrow.CellCoord.x == cellCoord.x
                                 && arrow.CellCoord.y == cellCoord.y)
                             {
-                                foundArrow = true;
                                 newDirection = arrow.Direction;
                             }
                         }
 
-                        if (!foundArrow)
+                        if (!cell.CanTravel(newDirection))
                         {
-                            if (!cell.CanTravel(newDirection))
+                            //Debug.Log($"Can't travel in {newDirection.ToString()}");
+
+                            do
                             {
-                                //Debug.Log($"Can't travel in {newDirection.ToString()}");
-
-                                do
-                                {
-                                    byte byteDir = (byte)newDirection;
-                                    byteDir *= 2;
-                                    if (byteDir > (byte)GridDirection.WEST)
-                                        byteDir = (byte)GridDirection.NORTH;
-                                    newDirection = (GridDirection)byteDir;
-                                }
-                                while (!cell.CanTravel(newDirection)
-                                        && newDirection != dir.Value);
-
-                                //Debug.Log($"New direction is {newDirection.ToString()}");
-
-                                if (newDirection == dir.Value)
-                                    throw new System.InvalidOperationException("Unable to resolve cell travel. Is there a valid exit from this cell?");
+                                byte byteDir = (byte)newDirection;
+                                byteDir *= 2;
+                                if (byteDir > (byte)GridDirection.WEST)
+                                    byteDir = (byte)GridDirection.NORTH;
+                                newDirection = (GridDirection)byteDir;
                             }
+                            while (!cell.CanTravel(newDirection)
+                                    && newDirection != dir.Value);
+
+                            //Debug.Log($"New direction is {newDirection.ToString()}");
+
+                            if (newDirection == dir.Value)
+                                throw new System.InvalidOperationException("Unable to resolve cell travel. Is there a valid exit from this cell?");
                         }
 
                         dir.Value = newDirection;
