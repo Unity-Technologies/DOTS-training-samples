@@ -39,6 +39,10 @@ public class WaterInit : SystemBase
         for (int i = 0; i < config.NumberOfBuckets; ++i)
         {
             var bucket = EntityManager.Instantiate(prefabs.BucketPrefab);
+            var bucketWaterLevel = GetComponent<WaterLevel>(bucket);
+            bucketWaterLevel.Capacity = config.BucketCapacity;
+            SetComponent(bucket, bucketWaterLevel);
+            
             var bucketPos = GetComponent<Translation>(bucket);
             bucketPos.Value = new float3(rand.NextFloat(gridSize.x), 0, rand.NextFloat(gridSize.y));
             SetComponent(bucket, bucketPos);
@@ -56,7 +60,6 @@ public class WaterInit : SystemBase
         {
             ecb.AddComponent(entityInQueryIndex, entity, new InitialScale {Value = scale.Value});
         }).ScheduleParallel();
-        
         m_Barrier.AddJobHandleForProducer(Dependency);
     }
 }

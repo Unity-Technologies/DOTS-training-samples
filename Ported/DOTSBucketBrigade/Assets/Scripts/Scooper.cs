@@ -63,7 +63,11 @@ namespace DefaultNamespace
                 {
                     case EScooperState.FindWater:
                         // Find closest water to my position
-                        var nearestWater = FindNearestEntity(translationComponent, waterEntities, position);
+                        var nearestWater = FindNearestWaterWithCapacity(translationComponent, waterLevelComponent, waterEntities, position, config.BucketCapacity);
+                        
+                        if (nearestWater == Entity.Null)
+                            break;
+                        
                         var nearestWaterPosition = translationComponent[nearestWater];
 
                         myChain.ChainStartPosition = nearestWaterPosition.Position;
@@ -196,6 +200,30 @@ namespace DefaultNamespace
             for (int i = 0; i < potentialEntities.Length; ++i)
             {
                 var candidateEntity = potentialEntities[i];
+                var waterPosition = translationComponent[candidateEntity];
+                var distanceSq = math.distancesq(waterPosition.Position.xz, position.Value.xz);
+                if (distanceSq < nearestDistanceSq)
+                {
+                    nearestDistanceSq = distanceSq;
+                    nearestEntity = candidateEntity;
+                }
+            }
+
+            return nearestEntity;
+        }
+        
+        private static Entity FindNearestWaterWithCapacity(ComponentDataFromEntity<LocalToWorld> translationComponent, ComponentDataFromEntity<WaterLevel> waterLevelComponent, NativeArray<Entity> potentialEntities, in Translation position, float capacity)
+        {
+            Entity nearestEntity = default;
+            float nearestDistanceSq = float.MaxValue;
+            
+            for (int i = 0; i < potentialEntities.Length; ++i)
+            {
+                var candidateEntity = potentialEntities[i];
+                var waterLevel = waterLevelComponent[candidateEntity];
+                if (waterLevel.Level < capacity)
+                    continue;
+                
                 var waterPosition = translationComponent[candidateEntity];
                 var distanceSq = math.distancesq(waterPosition.Position.xz, position.Value.xz);
                 if (distanceSq < nearestDistanceSq)

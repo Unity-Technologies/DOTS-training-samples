@@ -55,6 +55,8 @@ namespace DefaultNamespace
                             var targetBucketPosition = translationComponent[targetBucket.Target];
                             targetBucketPosition.Value.y -= config.CarriedBucketHeightOffset;
                             translationComponent[targetBucket.Target] = targetBucketPosition;
+                            targetBucket.Target = Entity.Null;
+                            targetBucketComponent[entity] = targetBucket;
                         }
                         else
                         {
@@ -63,10 +65,10 @@ namespace DefaultNamespace
                             {
                                 nextInChainTargetBucket.Target = targetBucket.Target;
                                 targetBucketComponent[nextInChain.Next] = nextInChainTargetBucket;
+                                targetBucket.Target = Entity.Null;
+                                targetBucketComponent[entity] = targetBucket;
                             }
                         }
-                        targetBucket.Target = Entity.Null;
-                        targetBucketComponent[entity] = targetBucket;
                     }
                 }
                 else

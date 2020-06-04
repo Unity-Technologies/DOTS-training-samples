@@ -121,7 +121,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d1b257021f8a40c2bcc666a64f1ad78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Capacity: 3
+  Capacity: 0
   Level: 0
 --- !u!114 &6692689380808890003
 MonoBehaviour:
