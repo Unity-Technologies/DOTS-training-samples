@@ -156,7 +156,7 @@ MonoBehaviour:
   MinOvertakeSpeed: 3
   MinDistanceToCarBeforeOvertaking: 1
   MinOvertakeEagerness: 0.5
-  MinMergeSpace: 1
+  MinMergeSpace: 2
   MaxDefaultSpeed: 10
   MaxOvertakeSpeed: 5
   MaxDistanceToCarBeforeOvertaking: 5
