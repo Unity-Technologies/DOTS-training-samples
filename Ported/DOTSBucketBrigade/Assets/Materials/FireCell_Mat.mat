@@ -22,7 +22,8 @@ Material:
     m_TexEnvs: []
     m_Floats: []
     m_Colors:
-    - _BaseColor: {r: 0.8392157, g: 0.6576312, b: 0.035294127, a: 1}
+    - _BaseColor: {r: 0.035294127, g: 0.14958723, b: 0.8392157, a: 1}
+    - _CubeColor: {r: 0.03564434, g: 0.8396226, b: 0.041297063, a: 1}
 --- !u!114 &7279611270661450075
 MonoBehaviour:
   m_ObjectHideFlags: 11
