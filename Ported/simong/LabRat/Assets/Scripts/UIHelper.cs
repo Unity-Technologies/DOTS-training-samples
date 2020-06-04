@@ -12,7 +12,10 @@ public class UIHelper : MonoBehaviour
     public Text[] Scores;
     public Image[] Cursors;
     public Text RoundTime;
-
+    
+    public Canvas GameOverCanvas;
+    public Text GameOverText;
+    
     private int[] m_ScoreValues;
     private int m_RemainingTime;
 
@@ -74,5 +77,11 @@ public class UIHelper : MonoBehaviour
 
             RoundTime.text = $"{minutes:00}:{seconds:00}";
         }
+    }
+
+    public void ShowGameOverScreen(string gameOverText)
+    {
+        GameOverCanvas.enabled = true;
+        GameOverText.text = gameOverText;
     }
 }

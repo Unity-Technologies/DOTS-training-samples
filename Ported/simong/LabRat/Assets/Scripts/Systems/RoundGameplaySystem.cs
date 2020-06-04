@@ -1,3 +1,4 @@
+using System.Text;
 using Unity.Entities;
 
 public class RoundGameplaySystem : SystemBase
@@ -7,10 +8,11 @@ public class RoundGameplaySystem : SystemBase
     private float m_RoundLength;
     private float m_RemainingRoundTime;
 
+    private Entity m_GameplayEntity;
+
     protected override void OnCreate()
     {
-        EntityManager.CreateEntity(ComponentType.ReadWrite<GameModeComponent>());
-        
+        m_GameplayEntity = EntityManager.CreateEntity(ComponentType.ReadWrite<GameModeComponent>());
         SetSingleton(new GameModeComponent {Value = GameMode.Intro});
     }
 
@@ -76,9 +78,40 @@ public class RoundGameplaySystem : SystemBase
             uiHelper.SetRemainingTime(m_RemainingRoundTime);
         }
 
-        if (m_RemainingRoundTime < 0)
+        if (m_RemainingRoundTime <= 0)
         {
-            SetSingleton(new GameModeComponent() {Value = GameMode.GameOver});
+            EndGame();
+        }
+    }
+
+    void EndGame()
+    {
+        SetSingleton(new GameModeComponent() {Value = GameMode.GameOver});
+
+        var uiHelper = UIHelper.Instance;
+        if (uiHelper)
+        {
+            var scoreSystem = World.GetExistingSystem<ScoreSystem>();
+            var winningPlayers = scoreSystem.GetWinningPlayers();
+
+            var gameOverText = "Nobody wins";
+            if (winningPlayers.Count == 1)
+            {
+                gameOverText = $"Player {winningPlayers[0]} Wins!";
+            }
+            else if (winningPlayers.Count > 1)
+            {
+                gameOverText = "Draw between Players: ";
+                for (int i = 0; i < winningPlayers.Count; i++)
+                {
+                    if (i + 1 < winningPlayers.Count)
+                        gameOverText += i + ",";
+                    else
+                        gameOverText += i;
+                }
+            }
+
+            uiHelper.ShowGameOverScreen(gameOverText);
         }
     }
 }

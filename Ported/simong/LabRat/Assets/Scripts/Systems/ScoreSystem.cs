@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -20,6 +21,29 @@ public class ScoreSystem : SystemBase
 
     EntityQuery m_BasesQuery;
 
+    public List<int> GetWinningPlayers()
+    {
+        List<int> winningPlayers = new List<int>();
+
+        int greatestScore = -1;
+        for (int i = 0; i < m_NumPlayers; i++)
+        {
+            var playerScore = m_Scores[i];
+            if (playerScore == greatestScore)
+            {
+                winningPlayers.Add(i);
+            }
+            else if (playerScore > greatestScore)
+            {
+                winningPlayers.Clear();
+                winningPlayers.Add(i);
+                greatestScore = playerScore;
+            }
+        }
+
+        return winningPlayers;
+    }
+   
     protected override void OnCreate()
     {
         m_ReachedBaseQuery = GetEntityQuery(new EntityQueryDesc()
