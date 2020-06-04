@@ -4,4 +4,5 @@
 public struct WalkSpeed : IComponentData
 {
     public float Value;
+    public float RotationSpeed;
 }

@@ -72,8 +72,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 1565721843962348, guid: fd9947d7db73f441cb1a4d06a4fc087d, type: 3}
+  WalkSpeed:
+    x: 3
+    y: 5
+  RotationSpeed: 9
   AlternatePrefab: {fileID: 1377909340170110, guid: 19268829cf75c415f8f14765efcab529,
     type: 3}
+  AlternateWalkSpeed:
+    x: 1.5
+    y: 1.9
+  AlternateRotationSpeed: 7
   Frequency: 1
   AlternateSpawnMinFrequency: 5
   AlternateSpawnMaxFrequency: 10
