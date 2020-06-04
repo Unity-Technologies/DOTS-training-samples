@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e57378576946147d984b570f8f28c9bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TemperatureIncreaseRate: 0.0003
+  TemperatureIncreaseRate: 0.01
   Flashpoint: 0.2
   GridDimensions:
     x: 50
