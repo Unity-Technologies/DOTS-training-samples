@@ -7,6 +7,7 @@ using Unity.Physics;
 using Unity.Physics.Systems;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 using Random = Unity.Mathematics.Random;
 
 public struct AIInfoComponent : IComponentData
@@ -24,6 +25,7 @@ class AIInputSystem : SystemBase
     private EntityArchetype arrowRequestArchetype;
     private Random m_Random = new Random(1234);
     private EntityQuery m_AIPlayerQuery;
+    private EntityQuery m_MouseQuery;
     private EntityQuery m_PlayerBaseQuery;
 
     protected override void OnCreate()
@@ -35,6 +37,15 @@ class AIInputSystem : SystemBase
             All = new[]
             {
                 ComponentType.ReadOnly<AIInfoComponent>()
+            }
+        });
+        
+        m_MouseQuery = EntityManager.CreateEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<MouseTag>(),
+                ComponentType.ReadOnly<Position2D>()
             }
         });
         
@@ -98,14 +109,25 @@ class AIInputSystem : SystemBase
             Dependency = JobHandle.CombineDependencies(Dependency, playerBaseComponentsHandle);
             Dependency = JobHandle.CombineDependencies(Dependency, playerBasePositionHandle);
             
+            var mousePositionComponents = m_MouseQuery.ToComponentDataArrayAsync<Position2D>(Allocator.TempJob, out var mousePositionHandle);
+            
+            Dependency = JobHandle.CombineDependencies(Dependency, mousePositionHandle);
+            
             Entities
                 .WithoutBurst()
                 .WithDeallocateOnJobCompletion(baseComponents)
+                .WithDeallocateOnJobCompletion(basePositionComponents)
+                .WithDeallocateOnJobCompletion(mousePositionComponents)
                 .ForEach((Entity aiPlayerEntity, ref AIInfoComponent aiInfo) =>
                 {
-                    if (r.NextFloat(100f) > 99.5f)
+                    float val = r.NextFloat(100f);
+                    if (val > 99.5f)
                     {
-                        aiInfo.CellPosition = new int2(r.NextInt(0, gridSize.x), r.NextInt(0, gridSize.y));
+                        if (val > 99.75f || (mousePositionComponents.Length == 0))
+                            aiInfo.CellPosition = new int2(r.NextInt(0, gridSize.x), r.NextInt(0, gridSize.y));
+                        else
+                            aiInfo.CellPosition = Utility.WorldPositionToGridCoordinates(
+                                mousePositionComponents[r.NextInt(0, mousePositionComponents.Length)].Value, cellSize);
                         aiInfo.TargetPosition = new int2(Utility.GridCoordinatesToScreenPos(c, aiInfo.CellPosition, cellSize) * cPixelSize);
                         aiInfo.Placed = false;
                     }

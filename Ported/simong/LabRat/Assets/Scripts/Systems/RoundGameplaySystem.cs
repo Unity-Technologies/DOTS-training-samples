@@ -10,7 +10,15 @@ public class RoundGameplaySystem : SystemBase
     protected override void OnCreate()
     {
         EntityManager.CreateEntity(ComponentType.ReadWrite<GameModeComponent>());
+        
         SetSingleton(new GameModeComponent {Value = GameMode.Intro});
+    }
+
+    protected override void OnStartRunning()
+    {
+        EntityManager.CreateEntity(ComponentType.ReadOnly<GenerateGridRequestComponent>());
+
+        base.OnStartRunning();
     }
 
 

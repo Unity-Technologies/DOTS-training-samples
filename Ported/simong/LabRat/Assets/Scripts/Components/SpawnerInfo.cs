@@ -12,6 +12,7 @@ public struct SpawnerInfo : IComponentData
     public float2 AlternateWalkSpeed;
     public float AlternateRotationSpeed;
 
+    public float MaxSpawns;
     public float Frequency;
     public float AlternateSpawnMinFrequency;
     public float AlternateSpawnMaxFrequency;

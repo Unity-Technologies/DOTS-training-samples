@@ -5,16 +5,19 @@ using Unity.Mathematics;
 using UnityEngine;
 
 
-[ExecuteAlways]
 public class GridCreationSystem : SystemBase
 {
     public NativeArray<CellInfo> Cells { get; private set; }
 
     private EntityCommandBufferSystem m_commandBuffer;
+    private EntityQuery m_requestQuery;
 
     protected override void OnCreate()
     {
         m_commandBuffer = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+        m_requestQuery = GetEntityQuery(ComponentType.ReadOnly<GenerateGridRequestComponent>());
+
+        RequireForUpdate(m_requestQuery);
 
         base.OnCreate();
     }
@@ -33,17 +36,11 @@ public class GridCreationSystem : SystemBase
     {
         var constantData = ConstantData.Instance;
 
+        Debug.Log("generate grid");
+
         if(!Cells.IsCreated && constantData != null)
         {
-            // Ugly Simon's code, if it works, don't change it!
-            unsafe
-            {
-                Unity.Physics.BoxCollider* boardCollider = (Unity.Physics.BoxCollider*)GetSingleton<Unity.Physics.PhysicsCollider>().ColliderPtr;
-                var geometry = boardCollider->Geometry;
-                geometry.Size = new float3(constantData.BoardDimensions.x, 1, constantData.BoardDimensions.y);
-                geometry.Center = new float3(constantData.BoardDimensions.x / 2, -1, constantData.BoardDimensions.y / 2);
-                boardCollider->Geometry = geometry;
-            }
+            
 
             Cells = new NativeArray<CellInfo>(constantData.BoardDimensions.x * constantData.BoardDimensions.y, Allocator.Persistent);
 
@@ -300,6 +297,10 @@ public class GridCreationSystem : SystemBase
                     ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.EAST });
                 }
 
+            }).Schedule();
+
+            Entities.ForEach((Entity entity, in GenerateGridRequestComponent request) => {
+                ecb.DestroyEntity(entity);
             }).Schedule();
 
             m_commandBuffer.AddJobHandleForProducer(Dependency);
