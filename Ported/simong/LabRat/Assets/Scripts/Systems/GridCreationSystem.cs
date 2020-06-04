@@ -58,24 +58,24 @@ public class GridCreationSystem : SystemBase
             {
                 int bottomLeft = width * (height - 1);
 
-                cellsarray[0] = cellsarray[0].SetTravelDirections(GridDirection.SOUTH | GridDirection.EAST);
+                cellsarray[0] = cellsarray[0].SetTravelDirections(GridDirection.NORTH | GridDirection.EAST);
 
-                cellsarray[width - 1] = cellsarray[width - 1].SetTravelDirections(GridDirection.SOUTH | GridDirection.WEST);
-                cellsarray[bottomLeft] = cellsarray[bottomLeft].SetTravelDirections(GridDirection.NORTH | GridDirection.EAST);
-                cellsarray[bottomRight] = cellsarray[(width * height) - 1].SetTravelDirections(GridDirection.NORTH | GridDirection.WEST);
+                cellsarray[width - 1] = cellsarray[width - 1].SetTravelDirections(GridDirection.NORTH | GridDirection.WEST);
+                cellsarray[bottomLeft] = cellsarray[bottomLeft].SetTravelDirections(GridDirection.SOUTH | GridDirection.EAST);
+                cellsarray[bottomRight] = cellsarray[(width * height) - 1].SetTravelDirections(GridDirection.SOUTH | GridDirection.WEST);
 
                 GridDirection fromNorth = GridDirection.SOUTH | GridDirection.EAST | GridDirection.WEST;
                 GridDirection fromSouth = GridDirection.NORTH | GridDirection.EAST | GridDirection.WEST;
                 GridDirection fromWest = GridDirection.NORTH | GridDirection.SOUTH | GridDirection.WEST;
                 GridDirection fromEast = GridDirection.NORTH | GridDirection.SOUTH | GridDirection.EAST;
 
-                for (int i = 1; i < width; i++)
+                for (int i = 1; i < (width - 1); i++)
                 {
-                    cellsarray[i] = cellsarray[i].SetTravelDirections(fromNorth);
-                    cellsarray[bottomLeft + i] = cellsarray[bottomLeft + i].SetTravelDirections(fromSouth);
+                    cellsarray[i] = cellsarray[i].SetTravelDirections(fromSouth);
+                    cellsarray[bottomLeft + i] = cellsarray[bottomLeft + i].SetTravelDirections(fromNorth);
                 }
 
-                for (int i = 1; i < height; i++)
+                for (int i = 1; i < (height - 1); i++)
                 {
                     cellsarray[width * i] = cellsarray[width * i].SetTravelDirections(fromWest);
                     cellsarray[(width * (i + 1)) - 1] = cellsarray[(width * (i + 1)) - 1].SetTravelDirections(fromEast);
@@ -117,15 +117,17 @@ public class GridCreationSystem : SystemBase
 
             /*for (int i = 0; i <= bottomRight; i++)
             {
-                Debug.Log(i + " can travel south: " + cellsarray[i].CanTravel(GridDirection.SOUTH));
-                Debug.Log(i + " can travel north: " + cellsarray[i].CanTravel(GridDirection.NORTH));
-                Debug.Log(i + " can travel east: " + cellsarray[i].CanTravel(GridDirection.EAST));
-                Debug.Log(i + " can travel west: " + cellsarray[i].CanTravel(GridDirection.WEST));
+                var directions = i +" can travel: ";
+                if (cellsarray[i].CanTravel(GridDirection.NORTH)) directions += "N";
+                if (cellsarray[i].CanTravel(GridDirection.EAST)) directions += "E";
+                if (cellsarray[i].CanTravel(GridDirection.SOUTH)) directions += "S";
+                if (cellsarray[i].CanTravel(GridDirection.WEST)) directions += "W";
 
+                Debug.Log(directions);
                 Debug.Log(i + " is hole: " + cellsarray[i].IsHole());
             }
 
-            Debug.Log("cell infos created");*/
+            Debug.Log("cell infos created"); */
         }
     }
 }
