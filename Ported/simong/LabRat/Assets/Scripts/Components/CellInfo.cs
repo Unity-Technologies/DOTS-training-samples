@@ -42,6 +42,13 @@ public struct CellInfo
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public CellInfo SetBasePlayerId(int playerId)
+    {
+        m_Value |= (byte)((playerId << k_BasePlayerIdShift) | k_IsBaseFlag);
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool CanTravel(GridDirection dir)
     {
         return (m_Value & (byte)dir) == 0;
