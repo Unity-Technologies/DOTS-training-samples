@@ -80,7 +80,14 @@ namespace DefaultNamespace
                         targetPosition.Target = ChainInit.CalculateChainPosition(agent, perpendicular, chain.ChainEndPosition, chain.ChainStartPosition);
                     }
                 }
-            }).WithReadOnly(translationComponent).WithReadOnly(availableBucketComponent).WithNativeDisableParallelForRestriction(targetBucketComponent).WithReadOnly(chainComponent).ScheduleParallel();
+            })
+                .WithNativeDisableParallelForRestriction(translationComponent)
+                .WithReadOnly(availableBucketComponent)
+                .WithNativeDisableParallelForRestriction(targetBucketComponent)
+                .WithReadOnly(chainComponent)
+                .ScheduleParallel();
+            
+            m_Barrier.AddJobHandleForProducer(Dependency);
         }
     }
 }

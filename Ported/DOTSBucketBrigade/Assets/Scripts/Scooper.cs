@@ -26,7 +26,8 @@ namespace DefaultNamespace
             m_BucketQuery = GetEntityQuery(
                 new EntityQueryDesc
                 {
-                    All = new []{ComponentType.ReadOnly<AvailableBucketTag>() }
+                    All = new []{ComponentType.ReadOnly<AvailableBucketTag>() },
+                    None = new []{ComponentType.ReadOnly<ClaimedBucketTag>() }
                 });
 
             m_Barrier =
@@ -96,10 +97,13 @@ namespace DefaultNamespace
                     
                     case EScooperState.FindBucket:
                         var nearestBucket = FindNearestEntity(translationComponent, bucketEntities, position);
+                        if (nearestBucket == Entity.Null)
+                            break;
+                        
                         var nearestBucketPosition = translationComponent[nearestBucket];
-
                         targetBucket.Target = nearestBucket;
                         targetBucketComponent[entity] = targetBucket;
+                        ecb.AddComponent<ClaimedBucketTag>(entityInQueryIndex, targetBucket.Target);
                         targetPosition.Target = nearestBucketPosition.Position;
                         state.State = EScooperState.StartWalkingToBucket;
                         break;
@@ -116,6 +120,7 @@ namespace DefaultNamespace
 
                         if (bucketDistSq < config.MovementTargetReachedThreshold)
                         {
+                            ecb.RemoveComponent<ClaimedBucketTag>(entityInQueryIndex, targetBucket.Target);
                             ecb.RemoveComponent<AvailableBucketTag>(entityInQueryIndex, targetBucket.Target);
                             state.State = EScooperState.StartWalkingToWater;
                         }
@@ -165,10 +170,14 @@ namespace DefaultNamespace
                         state.State = EScooperState.FindBucket;
                         break;
                 }
-            }).WithoutBurst().WithNativeDisableParallelForRestriction(chainComponent).WithReadOnly(translationComponent).Schedule(combinedFetchJob);
-
-            Dependency = waterEntities.Dispose(Dependency);
-            Dependency = bucketEntities.Dispose(Dependency);
+            })
+                .WithDeallocateOnJobCompletion(waterEntities)
+                .WithDeallocateOnJobCompletion(bucketEntities)
+                .WithNativeDisableParallelForRestriction(chainComponent)
+                .WithReadOnly(translationComponent)
+                .Schedule(combinedFetchJob);
+            
+            m_Barrier.AddJobHandleForProducer(Dependency);
         }
 
         private static Entity FindNearestEntity(ComponentDataFromEntity<LocalToWorld> translationComponent,
@@ -179,13 +188,13 @@ namespace DefaultNamespace
             
             for (int i = 0; i < potentialEntities.Length; ++i)
             {
-                var waterEntity = potentialEntities[i];
-                var waterPosition = translationComponent[waterEntity];
+                var candidateEntity = potentialEntities[i];
+                var waterPosition = translationComponent[candidateEntity];
                 var distanceSq = math.distancesq(waterPosition.Position.xz, position.Value.xz);
                 if (distanceSq < nearestDistanceSq)
                 {
                     nearestDistanceSq = distanceSq;
-                    nearestEntity = waterEntity;
+                    nearestEntity = candidateEntity;
                 }
             }
 
