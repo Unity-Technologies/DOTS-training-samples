@@ -280,11 +280,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ArrowPrefab0: {fileID: 6922569374368231017, guid: bafbd4e5206bfbc4a8f2d00ce4923b29,
     type: 3}
-  ArrowPrefab1: {fileID: 6922569374368231017, guid: e8efda497bd61324c9ebdf5439bf4885,
+  ArrowPrefab1: {fileID: 6922569374368231017, guid: 9c0d64ae50282f64d87374f221c1d658,
     type: 3}
-  ArrowPrefab2: {fileID: 6922569374368231017, guid: 1c834dd4b319aff499216353b6df7e43,
+  ArrowPrefab2: {fileID: 6922569374368231017, guid: 4d1ba5a7ec313e543a28f445241de26c,
     type: 3}
-  ArrowPrefab3: {fileID: 6922569374368231017, guid: c954f2e26e57e2f4396efd2a47ca70d7,
+  ArrowPrefab3: {fileID: 6922569374368231017, guid: 87769e30903c7b04dbab8ebf8bf9176c,
     type: 3}
   BasePrefab0: {fileID: 1633874070064508, guid: 9394fae3aa493460f81bfa9743f81448,
     type: 3}

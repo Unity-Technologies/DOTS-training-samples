@@ -23,6 +23,14 @@ public class ConstantData : MonoBehaviour
     // assume player 0 is human, others AI
     public int NumPlayers = 4;
 
+    public Color[] PlayerColors = new Color[4]
+    {
+        new Color(0x00,0x1E,0xFF), 
+        new Color(0xFF,0x00,0x00), 
+        new Color(0x00,0xFF,0x06), 
+        new Color(0xFF,0x00,0xCF)
+    };
+
     public int MouseScoreAddition = 1;
     public float CatScoreMultiplier = 0.66f;
     
