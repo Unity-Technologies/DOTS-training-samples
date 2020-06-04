@@ -23,6 +23,9 @@ public class ConstantData : MonoBehaviour
     // assume player 0 is human, others AI
     public int NumPlayers = 4;
 
+    public int MouseScoreAddition = 1;
+    public float CatScoreMultiplier = 0.66f;
+    
     public void Awake()
     {
         Instance = this;

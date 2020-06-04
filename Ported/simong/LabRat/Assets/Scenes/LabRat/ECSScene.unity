@@ -286,6 +286,14 @@ MonoBehaviour:
     type: 3}
   ArrowPrefab3: {fileID: 6922569374368231017, guid: c954f2e26e57e2f4396efd2a47ca70d7,
     type: 3}
+  BasePrefab0: {fileID: 1633874070064508, guid: 9394fae3aa493460f81bfa9743f81448,
+    type: 3}
+  BasePrefab1: {fileID: 1633874070064508, guid: 947b509d405899841a92bc739c4ed0e9,
+    type: 3}
+  BasePrefab2: {fileID: 1633874070064508, guid: 883d63e9c1b352441b3e7115ea63d004,
+    type: 3}
+  BasePrefab3: {fileID: 1633874070064508, guid: de2b57e3797570346807948bc5b472df,
+    type: 3}
   PreviewArrowPrefab: {fileID: 6922569374368231017, guid: 0437ee87cdde2f24a9ad1cd5c4771f22,
     type: 3}
   CellPrefab: {fileID: 6331638553213775543, guid: 051b50a947da5254ababbbdf8d8d1187,
