@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum CharacterType
+{
+    CAT,
+    MOUSE
+}
+
 public class ConstantData : MonoBehaviour
 {
     public static ConstantData Instance;

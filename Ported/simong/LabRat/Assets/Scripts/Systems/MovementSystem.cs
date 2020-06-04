@@ -9,6 +9,15 @@ class MovementSystem : SystemBase
 {
     const float k_SliceEpsilon = 0.00001f;
 
+    struct ArrowData
+    {
+        public int2 CellCoord;
+        public GridDirection Direction;
+    }
+
+    //NativeList<ArrowData> m_Arrows;
+    //NativeArray<bool> m_CellContainsArrowGrid;
+
     EndSimulationEntityCommandBufferSystem m_Barrier;
 
     protected override void OnCreate()
@@ -33,10 +42,20 @@ class MovementSystem : SystemBase
 
         var ecb = m_Barrier.CreateCommandBuffer().ToConcurrent();
 
+        // find all arrows
+        var arrows = new NativeList<ArrowData>(ConstantData.Instance.MaxArrows * ConstantData.Instance.NumPlayers, Allocator.TempJob);
+        Entities
+            .ForEach((in ArrowComponent arrow, in Direction2D dir) =>
+            {
+                arrows.Add(new ArrowData { CellCoord = arrow.GridCell, Direction = dir.Value });
+            })
+            .Schedule();
+
         // update walking
         Entities
             .WithNone<FallingTag>()
             .WithReadOnly(cells)
+            .WithReadOnly(arrows)
             .ForEach((int entityInQueryIndex, Entity entity, ref Position2D pos, ref Rotation2D rot, ref Direction2D dir, in WalkSpeed speed) =>
             {
                 // TODO low fps handling here
@@ -103,7 +122,7 @@ class MovementSystem : SystemBase
                     else if (cell.IsBase())
                     {
                         // remove entity and score
-                        ecb.SetComponent(entityInQueryIndex, entity, new ReachedBase { PlayerID = cell.GetBasePlayerId() });
+                        ecb.AddComponent(entityInQueryIndex, entity, new ReachedBase { PlayerID = cell.GetBasePlayerId() });
                     }
                     else
                     {
@@ -111,12 +130,18 @@ class MovementSystem : SystemBase
 
                         // check for arrows
                         bool foundArrow = false;
-                        if (foundArrow)
+                        for (int i = 0; i < arrows.Length; i++)
                         {
-                            var arrowDirection = GridDirection.NORTH;
-                            newDirection = arrowDirection;
+                            var arrow = arrows[i];
+                            if (arrow.CellCoord.x == cellCoord.x
+                                && arrow.CellCoord.y == cellCoord.y)
+                            {
+                                foundArrow = true;
+                                newDirection = arrow.Direction;
+                            }
                         }
-                        else
+
+                        if (!foundArrow)
                         {
                             if (!cell.CanTravel(newDirection))
                             {
@@ -143,15 +168,14 @@ class MovementSystem : SystemBase
                         dir.Value = newDirection;
                     }
 
-                   // Lerp the visible forward direction towards the logical one each frame.
-                   var goalRot = Utility.DirectionToAngle(dir.Value);
-                   rot.Value = math.lerp(rot.Value, goalRot, deltaTime * rotationSpeed);
+                    // Lerp the visible forward direction towards the logical one each frame.
+                    var goalRot = Utility.DirectionToAngle(dir.Value);
+                    rot.Value = math.lerp(rot.Value, goalRot, deltaTime * rotationSpeed);
                 }
             })
             .WithName("UpdateWalking")
             //.WithoutBurst()
             .ScheduleParallel();
-
 
         // update falling
         var fallingSpeed = ConstantData.Instance.FallingSpeed;
@@ -171,6 +195,9 @@ class MovementSystem : SystemBase
             .ScheduleParallel();
 
         m_Barrier.AddJobHandleForProducer(Dependency);
+
+        // clean up memory
+        arrows.Dispose(Dependency);
     }
 }
 
