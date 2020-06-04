@@ -25,7 +25,7 @@ class MovementSystem : SystemBase
         var cells = gridSystem.Cells;
         var rows = ConstantData.Instance.BoardDimensions.x;
         var cols = ConstantData.Instance.BoardDimensions.y;
-        var cellSize = ConstantData.Instance.CellSize;
+        var cellSize = new float2(ConstantData.Instance.CellSize);
 
         var rotationSpeed = ConstantData.Instance.RotationSpeed;
 
@@ -55,6 +55,9 @@ class MovementSystem : SystemBase
                     pos.Value += delta;
 
                     var flooredPos = pos.Value;
+                    flooredPos -= cellSize * 0.5f;
+                    flooredPos.x = math.clamp(flooredPos.x, 0f, cellSize.x * cols);
+                    flooredPos.y = math.clamp(flooredPos.y, 0f, cellSize.y * rows);
 
                     // Round position values for checking the board. This is so that
                     // we collide with arrows and walls at the right time.
@@ -72,12 +75,12 @@ class MovementSystem : SystemBase
                         case GridDirection.WEST:
                             flooredPos.x = Mathf.Ceil(flooredPos.x);
                             break;
-                        default:
-                            throw new System.ArgumentOutOfRangeException("Invalid direction set");
                     }
 
-
                     int2 cellCoord = Utility.WorldPositionToGridCoordinates(flooredPos, cellSize);
+
+                    //Debug.Log($"cell is {cellCoord.x}, {cellCoord.y} travel {dir.Value.ToString()} pos {pos.Value} floored {flooredPos}");
+
                     if (cellCoord.x < 0 || cellCoord.x >= cols || cellCoord.y < 0 || cellCoord.y >= rows)
                     {
                         ecb.AddComponent<FallingTag>(entityInQueryIndex, entity);
@@ -87,6 +90,9 @@ class MovementSystem : SystemBase
 
                     var cellIndex = (cellCoord.y * rows) + cellCoord.x;
                     var cell = cells[cellIndex];
+
+                    //Debug.Log($"cell isHole {cell.IsHole()} - directions {(cell.CanTravel(GridDirection.NORTH) ? "N" : "")}{(cell.CanTravel(GridDirection.EAST) ? "E" : "")}{(cell.CanTravel(GridDirection.SOUTH) ? "S" : "")}{(cell.CanTravel(GridDirection.WEST) ? "W" : "")}");
+
                     if (cell.IsHole())
                     {
                         // add falling tag
@@ -113,6 +119,8 @@ class MovementSystem : SystemBase
                         {
                             if (!cell.CanTravel(newDirection))
                             {
+                                //Debug.Log($"Can't travel in {newDirection.ToString()}");
+
                                 do
                                 {
                                     byte byteDir = (byte)newDirection;
@@ -124,6 +132,8 @@ class MovementSystem : SystemBase
                                 while (!cell.CanTravel(newDirection)
                                         && newDirection != dir.Value);
 
+                                //Debug.Log($"New direction is {newDirection.ToString()}");
+
                                 if (newDirection == dir.Value)
                                     throw new System.InvalidOperationException("Unable to resolve cell travel. Is there a valid exit from this cell?");
                             }
@@ -132,12 +142,13 @@ class MovementSystem : SystemBase
                         dir.Value = newDirection;
                     }
 
-                    // Lerp the visible forward direction towards the logical one each frame.
-                    var goalRot = Utility.DirectionToAngle(dir.Value);
-                    rot.Value = math.lerp(rot.Value, goalRot, deltaTime * rotationSpeed);
+                   // Lerp the visible forward direction towards the logical one each frame.
+                   var goalRot = Utility.DirectionToAngle(dir.Value);
+                   rot.Value = math.lerp(rot.Value, goalRot, deltaTime * rotationSpeed);
                 }
             })
             .WithName("UpdateWalking")
+            //.WithoutBurst()
             .ScheduleParallel();
 
 
@@ -160,7 +171,6 @@ class MovementSystem : SystemBase
 
         m_Barrier.AddJobHandleForProducer(Dependency);
     }
-
 }
 
 

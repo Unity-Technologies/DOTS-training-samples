@@ -118,7 +118,8 @@ public class GridCreationSystem : SystemBase
                         int index = (width * y) + x;
                         if (!cellsarray[index].IsHole())
                         {
-                            var entity = ecb.Instantiate(prefabs.CellPrefab);
+                            Entity prefab = ((x + y) % 2) == 1 ? prefabs.CellOddPrefab : prefabs.CellPrefab;
+                            var entity = ecb.Instantiate(prefab);
 
                             if (entity != Entity.Null)
                             {

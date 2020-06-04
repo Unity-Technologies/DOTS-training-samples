@@ -15,6 +15,7 @@ public struct PrefabReferenceComponent : IComponentData
     
     public Entity PreviewArrowPrefab;
     public Entity CellPrefab;
+    public Entity CellOddPrefab;
     public Entity CatSpawnerPrefab;
     public Entity MouseSpawnerPrefab;
 }
