@@ -94,7 +94,7 @@ public class RoundGameplaySystem : SystemBase
             var scoreSystem = World.GetExistingSystem<ScoreSystem>();
             var winningPlayers = scoreSystem.GetWinningPlayers();
 
-            var gameOverText = "Nobody wins"
+            var gameOverText = "Nobody wins";
             if (winningPlayers.Count == 1)
             {
                 gameOverText = $"Player {winningPlayers[0]} Wins!";
