@@ -1,105 +1,191 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(MonitorFrontSystemV2))]
 public class CarSortingByLaneSystem : SystemBase
 {
-    public struct Entry : IComparable<Entry>
+    public struct CarInfo : IComparable<CarInfo>
     {
         public float position;
         public float speed;
 
-        public int CompareTo(Entry other)
+        public int CompareTo(CarInfo other)
         {
             return position.CompareTo(other.position);
         }
     }
-    public List<NativeList<Entry>> m_CarInfoByLaneGroup;
-    public int numLaneGroup;
-    public float trackLength;
-
-    protected override void OnDestroy()
+    public struct Database
     {
-        if (m_CarInfoByLaneGroup != null)
+        public UnsafeListWrapper<UnsafeListWrapper<CarInfo>> m_CarInfosByTrackGroupIdx;
+        public float m_TrackLength;
+
+        public CarInfo GetCarInFront(float lane, float ownProgress)
         {
-            for (int i = 0; i < m_CarInfoByLaneGroup.Count; ++i)
+            if (!m_CarInfosByTrackGroupIdx.IsCreated)
             {
-                m_CarInfoByLaneGroup[i].Dispose();
+                return new CarInfo
+                {
+                    position = float.MaxValue,
+                    speed = float.MaxValue
+                };
+            }
+
+            int laneGroup = TrackGroup.LaneValueToTrackGroupIdx(lane);
+
+            CarInfo entryWithMinProgressInFront = new CarInfo { position = float.MaxValue, speed = float.MaxValue };
+            float minDistanceInFrontOfUs = float.MaxValue;
+
+            GetEntryWithMinProgressInFront(laneGroup, ownProgress, ref minDistanceInFrontOfUs, ref entryWithMinProgressInFront);
+
+            if (laneGroup > 0)
+            {
+                GetEntryWithMinProgressInFront(laneGroup - 1, ownProgress, ref minDistanceInFrontOfUs, ref entryWithMinProgressInFront);
+            }
+
+            if (laneGroup < m_CarInfosByTrackGroupIdx.Length - 1)
+            {
+                GetEntryWithMinProgressInFront(laneGroup + 1, ownProgress, ref minDistanceInFrontOfUs, ref entryWithMinProgressInFront);
+            }
+
+            return entryWithMinProgressInFront;
+        }
+
+        void GetEntryWithMinProgressInFront(int laneGroup, float ownProgress, ref float minDistanceInFront, ref CarInfo entryWithMinProgressInFront)
+        {
+            var carInfos = m_CarInfosByTrackGroupIdx[laneGroup];
+            if (carInfos.Length > 0)
+            {
+                var found = ArrayBinarySearch(carInfos, ownProgress, out var indexInData);
+                if (!found || carInfos.Length > 1)
+                {
+                    var entryInFront = carInfos[(indexInData + 1) % carInfos.Length];
+
+                    var distanceInFront = GetLoopedDistanceInFront(ownProgress, entryInFront.position, m_TrackLength);
+
+                    if (distanceInFront < minDistanceInFront)
+                    {
+                        entryWithMinProgressInFront = entryInFront;
+                        minDistanceInFront = distanceInFront;
+                    }
+                }
             }
         }
+
+        // return true if search is successful, false otherwise
+        // indexInData is index of entry having same value as item if search is successful
+        // if search is unsuccessful, indexInData is index of largest entry that is smaller than item
+        static bool ArrayBinarySearch(in UnsafeListWrapper<CarInfo> sortedArrayToSearch, float item, out int indexInData)
+        {
+            int min = 0;
+            int N = sortedArrayToSearch.Length;
+            int max = N - 1;
+            do
+            {
+                int mid = (min + max) / 2;
+
+                if (item > sortedArrayToSearch[mid].position)
+                    min = mid + 1;
+                else
+                    max = mid - 1;
+
+                if (sortedArrayToSearch[mid].position == item)
+                {
+                    indexInData = mid;
+                    return true;
+                }
+
+            } while (min <= max);
+
+            indexInData = max;
+            return false;
+        }
+
+        static float GetLoopedDistanceInFront(float ownProgress, float frontProgress, float trackLength)
+        {
+            if (frontProgress >= ownProgress)
+            {
+                return frontProgress - ownProgress;
+            }
+            else
+            {
+                return (trackLength - ownProgress) + frontProgress;
+            }
+        }
+    }
+    Database m_Database;
+
+    public Database GetDatabase()
+    {
+        return m_Database;
     }
 
     protected override void OnUpdate()
     {
+        var monitorFrontSystem = World.GetExistingSystem<MonitorFrontSystemV2>();
+        var readerJobHandle = monitorFrontSystem.GetJobHandleReadFromCarInfos();
+        var inputDep = JobHandle.CombineDependencies(Dependency, readerJobHandle);
+
         var trackProperties = GetSingleton<TrackProperties>();
         var numOfTrackGroup = trackProperties.NumberOfLanes * 2 - 1;
 
-        if (m_CarInfoByLaneGroup == null)
+        if (!m_Database.m_CarInfosByTrackGroupIdx.IsCreated)
         {
-            m_CarInfoByLaneGroup = new List<NativeList<Entry>>(numOfTrackGroup);
+            m_Database.m_CarInfosByTrackGroupIdx = new UnsafeListWrapper<UnsafeListWrapper<CarInfo>>(numOfTrackGroup, Allocator.Persistent);
 
             for (int i = 0; i < numOfTrackGroup; ++i)
             {
-                m_CarInfoByLaneGroup.Add(new NativeList<Entry>(64, Allocator.Persistent));
+                m_Database.m_CarInfosByTrackGroupIdx.Add(new UnsafeListWrapper<CarInfo>(64, Allocator.Persistent));
             }
 
-            numLaneGroup = numOfTrackGroup;
-            trackLength = trackProperties.TrackLength;
+            m_Database.m_TrackLength = trackProperties.TrackLength;
         }
 
         var jobHandles = new NativeArray<JobHandle>(numOfTrackGroup, Allocator.Temp);
 
         for (int i = 0; i < numOfTrackGroup; ++i)
         {
-            var targetList = m_CarInfoByLaneGroup[i];
+            var carInfosToFill = m_Database.m_CarInfosByTrackGroupIdx[i];
 
             var jobHandle = Job.WithCode(() =>
             {
-                targetList.Clear();
+                carInfosToFill.Clear();
             })
-            .Schedule(Dependency);
-
-            var targetTrackGroup = new TrackGroup();
-            targetTrackGroup.index = i;
+            .Schedule(inputDep);
 
             jobHandle = Entities
-                .WithSharedComponentFilter(targetTrackGroup)
+                .WithSharedComponentFilter(new TrackGroup { Index = i })
                 .ForEach((in TrackPosition trackPos, in Speed speed) =>
             {
-                var entryValue = new Entry
+                carInfosToFill.Add(new CarInfo
                 {
                     position = trackPos.TrackProgress,
                     speed = speed.Value
-                };
-                targetList.Add(entryValue);
+                });
             })
             .Schedule(jobHandle);
 
             jobHandles[i] = Job.WithCode(() =>
             {
-                targetList.AsArray().Sort();
+                var carInfosAsNativeArray = carInfosToFill.AsArray();
+
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+                var tempSafetyHandle = AtomicSafetyHandle.Create();
+                NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref carInfosAsNativeArray, tempSafetyHandle);
+#endif
+
+                carInfosAsNativeArray.Sort();
+
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+                AtomicSafetyHandle.Release(tempSafetyHandle);
+#endif
             })
             .Schedule(jobHandle);
-
-            // Debug start
-            //jobHandles[i].Complete();
-            //Job.WithCode(() =>
-            //{
-            //    UnityEngine.Debug.Log("lane group = " + i);
-            //    for (int j = 0; j < targetList.Length; ++j)
-            //    {
-            //        UnityEngine.Debug.Log("entry idx = " + j);
-            //        UnityEngine.Debug.Log("position = " + targetList[j].position);
-            //        UnityEngine.Debug.Log("speed = " + targetList[j].speed);
-            //    }
-            //})
-            //.WithoutBurst()
-            //.Run();
-            // Debug end
         }
 
         Dependency = JobHandle.CombineDependencies(jobHandles);
@@ -107,87 +193,15 @@ public class CarSortingByLaneSystem : SystemBase
         jobHandles.Dispose();
     }
 
-    public static bool ArrayBinarySearch(NativeArray<Entry> data, float item, out int indexInData)
+    protected override void OnDestroy()
     {
-        int min = 0;
-        int N = data.Length;
-        int max = N - 1;
-        do
-        {            int mid = (min + max) / 2;            if (item > data[mid].position)
-                min = mid + 1;            else
-                max = mid - 1;            if (data[mid].position == item)
+        if (m_Database.m_CarInfosByTrackGroupIdx.IsCreated)
+        {
+            for (int i = 0; i < m_Database.m_CarInfosByTrackGroupIdx.Length; ++i)
             {
-                indexInData = mid;
-                return true;
+                m_Database.m_CarInfosByTrackGroupIdx[i].Dispose();
             }
-
-        } while (min <= max);
-
-        indexInData = max;
-        return false;
-    }
-
-    public Entry GetCarInFront(float lane, float ownProgress)
-    {
-        if (m_CarInfoByLaneGroup == null)
-        {
-            return new Entry { position = float.MaxValue, speed = float.MaxValue };
-        }
-
-        int laneGroup = TrackGroup.GetTrackGroupIdx(lane);
-
-        Entry entryWithMinProgressInFront = new Entry { position = float.MaxValue, speed = float.MaxValue };
-        float minDistanceInFrontOfUs = float.MaxValue;
-
-        GetEntryWithMinProgressInFront(laneGroup, ownProgress, ref minDistanceInFrontOfUs, ref entryWithMinProgressInFront);
-
-        if (laneGroup > 0)
-        {
-            GetEntryWithMinProgressInFront(laneGroup - 1, ownProgress, ref minDistanceInFrontOfUs, ref entryWithMinProgressInFront);
-        }
-        if (laneGroup < numLaneGroup - 1)
-        {
-            GetEntryWithMinProgressInFront(laneGroup + 1, ownProgress, ref minDistanceInFrontOfUs, ref entryWithMinProgressInFront);
-        }
-
-        return entryWithMinProgressInFront;
-    }
-
-    static float GetDistanceInFront(float ownProgress, float frontProgress, float trackLength)
-    {
-        if (frontProgress >= ownProgress)
-        {
-            return frontProgress - ownProgress;
-        }
-        else
-        {
-            return (trackLength - ownProgress) + frontProgress;
-        }
-    }
-
-    void GetEntryWithMinProgressInFront(int laneGroup, float ownProgress, ref float minDistanceInFront, ref Entry entryWithMinProgressInFront)
-    {
-        if (laneGroup < 0 || laneGroup > 6)
-        {
-            UnityEngine.Debug.Log("Oh no");
-        }
-
-        var carInfos = m_CarInfoByLaneGroup[laneGroup];
-        if (carInfos.Length > 0)
-        {
-            var found = ArrayBinarySearch(carInfos, ownProgress, out var indexInData);
-            if (!found || carInfos.Length > 1)
-            {
-                var entryInFront = carInfos[(indexInData + 1) % carInfos.Length];
-
-                var distanceInFront = GetDistanceInFront(ownProgress, entryInFront.position, trackLength);
-
-                if (distanceInFront < minDistanceInFront)
-                {
-                    entryWithMinProgressInFront = entryInFront;
-                    minDistanceInFront = distanceInFront;
-                }
-            }           
+            m_Database.m_CarInfosByTrackGroupIdx.Dispose();
         }
     }
 }

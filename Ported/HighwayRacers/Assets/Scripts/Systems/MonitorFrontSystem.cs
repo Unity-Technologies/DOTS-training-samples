@@ -1,5 +1,6 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 
 [DisableAutoCreation]
@@ -72,16 +73,24 @@ public class MonitorFrontSystemV2 : SystemBase
     protected override void OnUpdate()
     {
         var carSortingByLaneSystem = m_CarSortingByLaneSystem;
+        var carInfoDatabase = carSortingByLaneSystem.GetDatabase();
 
-        Entities
+        var jobHandle = Entities
             .ForEach((ref CarInFront carInFront, in TrackPosition car) =>
             {
-                var carDataInFront = carSortingByLaneSystem.GetCarInFront(car.Lane, car.TrackProgress);
+                var carDataInFront = carInfoDatabase.GetCarInFront(car.Lane, car.TrackProgress);
 
                 carInFront.TrackProgressCarInFront = carDataInFront.position;
                 carInFront.Speed = carDataInFront.speed;
             })
-            .WithoutBurst()
-            .Run();
+            .Schedule(Dependency);
+
+        jobReadFromCarInfos = Dependency = jobHandle;
+    }
+
+    JobHandle jobReadFromCarInfos;
+    public JobHandle GetJobHandleReadFromCarInfos()
+    {
+        return jobReadFromCarInfos;
     }
 }

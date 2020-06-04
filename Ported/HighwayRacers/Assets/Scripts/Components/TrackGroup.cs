@@ -2,14 +2,9 @@
 
 public struct TrackGroup : ISharedComponentData
 {
-    public int index;
+    public int Index;
 
-    public void SetTrack(float lane)
-    {
-        index = GetTrackGroupIdx(lane);
-    }
-
-    static public int GetTrackGroupIdx(float lane)
+    static public int LaneValueToTrackGroupIdx(float lane)
     {
         int laneBelow = (int)lane;
 

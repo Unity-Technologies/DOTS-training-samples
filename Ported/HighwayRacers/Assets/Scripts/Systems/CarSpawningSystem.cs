@@ -51,11 +51,16 @@ public class CarSpawningSystem : SystemBase
                     TrackProgress = targetTrackProgress,
                 });
 
-                var newTrackGroup = new TrackGroup();
-                newTrackGroup.SetTrack((float)targetLane);
-                commandBuffer.AddSharedComponent(newCar, newTrackGroup);
+                commandBuffer.AddSharedComponent(newCar, new TrackGroup
+                {
+                    Index = TrackGroup.LaneValueToTrackGroupIdx(targetLane)
+                });
 
-                commandBuffer.AddComponent(newCar, new CarInFront { TrackProgressCarInFront = float.MaxValue, Speed = float.MaxValue });
+                commandBuffer.AddComponent(newCar, new CarInFront
+                {
+                    TrackProgressCarInFront = float.MaxValue,
+                    Speed = float.MaxValue
+                });
 
                 commandBuffer.DestroyEntity(entity);
             }

@@ -155,7 +155,7 @@ MonoBehaviour:
   MinDefaultSpeed: 5
   MinOvertakeSpeed: 3
   MinDistanceToCarBeforeOvertaking: 1
-  MinOvertakeEagerness: 0.5
+  MinOvertakeEagerness: 1
   MinMergeSpace: 2
   MaxDefaultSpeed: 10
   MaxOvertakeSpeed: 5
@@ -207,7 +207,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af063ccc3d7345119181976c2cacb492, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InstancesToSpawn: 8
+  InstancesToSpawn: 32
 --- !u!4 &844579107
 Transform:
   m_ObjectHideFlags: 0
