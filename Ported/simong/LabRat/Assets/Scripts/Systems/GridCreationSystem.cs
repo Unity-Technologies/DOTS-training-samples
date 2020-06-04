@@ -5,16 +5,19 @@ using Unity.Mathematics;
 using UnityEngine;
 
 
-[ExecuteAlways]
 public class GridCreationSystem : SystemBase
 {
     public NativeArray<CellInfo> Cells { get; private set; }
 
     private EntityCommandBufferSystem m_commandBuffer;
+    private EntityQuery m_requestQuery;
 
     protected override void OnCreate()
     {
         m_commandBuffer = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+        m_requestQuery = GetEntityQuery(ComponentType.ReadOnly<GenerateGridRequestComponent>());
+
+        RequireForUpdate(m_requestQuery);
 
         base.OnCreate();
     }
@@ -32,6 +35,8 @@ public class GridCreationSystem : SystemBase
     protected override void OnUpdate()
     {
         var constantData = ConstantData.Instance;
+
+        Debug.Log("generate grid");
 
         if(!Cells.IsCreated && constantData != null)
         {
@@ -300,6 +305,10 @@ public class GridCreationSystem : SystemBase
                     ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.EAST });
                 }
 
+            }).Schedule();
+
+            Entities.ForEach((Entity entity, in GenerateGridRequestComponent request) => {
+                ecb.DestroyEntity(entity);
             }).Schedule();
 
             m_commandBuffer.AddJobHandleForProducer(Dependency);
