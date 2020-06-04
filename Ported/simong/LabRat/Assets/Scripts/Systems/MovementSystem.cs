@@ -78,7 +78,7 @@ class MovementSystem : SystemBase
 
 
                     int2 cellCoord = Utility.WorldPositionToGridCoordinates(flooredPos, cellSize);
-                    if (cellCoord.x > cols || cellCoord.y > rows)
+                    if (cellCoord.x < 0 || cellCoord.x >= cols || cellCoord.y < 0 || cellCoord.y >= rows)
                     {
                         ecb.AddComponent<FallingTag>(entityInQueryIndex, entity);
                         ecb.RemoveComponent<Position2D>(entityInQueryIndex, entity);
@@ -87,7 +87,6 @@ class MovementSystem : SystemBase
 
                     var cellIndex = (cellCoord.y * rows) + cellCoord.x;
                     var cell = cells[cellIndex];
-
                     if (cell.IsHole())
                     {
                         // add falling tag
@@ -97,7 +96,7 @@ class MovementSystem : SystemBase
                     else if (cell.IsBase())
                     {
                         // remove entity and score
-                        //ecb.AddComponent<ReachedBase>(entityInQueryIndex, entity);
+                        ecb.SetComponent(entityInQueryIndex, entity, new ReachedBase { PlayerID = cell.GetBasePlayerId() });
                     }
                     else
                     {
@@ -117,9 +116,9 @@ class MovementSystem : SystemBase
                                 do
                                 {
                                     byte byteDir = (byte)newDirection;
-                                    byteDir++;
+                                    byteDir *= 2;
                                     if (byteDir > (byte)GridDirection.WEST)
-                                        byteDir = 0;
+                                        byteDir = (byte)GridDirection.NORTH;
                                     newDirection = (GridDirection)byteDir;
                                 }
                                 while (!cell.CanTravel(newDirection)
