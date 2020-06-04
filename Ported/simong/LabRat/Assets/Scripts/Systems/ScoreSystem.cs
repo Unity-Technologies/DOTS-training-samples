@@ -12,6 +12,9 @@ public class ScoreSystem : SystemBase
     private int m_NumPlayers;
     private NativeArray<int> m_Scores;
 
+    private int m_MouseScoreAddition;
+    private float m_CatScoreMultiplier;
+
     private EndSimulationEntityCommandBufferSystem m_EndSimulationECBS;
 
     protected override void OnCreate()
@@ -47,8 +50,11 @@ public class ScoreSystem : SystemBase
         if (constantData == null)
             return false;
 
-        m_NumPlayers = ConstantData.Instance.NumPlayers;
+        m_NumPlayers = constantData.NumPlayers;
         m_Scores = new NativeArray<int>(m_NumPlayers, Allocator.Persistent);
+
+        m_MouseScoreAddition = constantData.MouseScoreAddition;
+        m_CatScoreMultiplier = constantData.CatScoreMultiplier;
 
         m_Initialised = true;
         return true;
@@ -62,6 +68,9 @@ public class ScoreSystem : SystemBase
         var numPlayers = m_NumPlayers;
         var scores = m_Scores;
 
+        var mouseAddition = m_MouseScoreAddition;
+        var catMultiplier = m_CatScoreMultiplier;
+        
         var ecb = m_EndSimulationECBS.CreateCommandBuffer();
 
         Entities
@@ -72,7 +81,7 @@ public class ScoreSystem : SystemBase
                 var playerId = reachedBase.PlayerID;
                 if (playerId >= 0 && playerId < numPlayers)
                 {
-                    scores[playerId] += 1;
+                    scores[playerId] += mouseAddition;
                 }
             })
             .Run();
@@ -85,7 +94,7 @@ public class ScoreSystem : SystemBase
                 var playerId = reachedBase.PlayerID;
                 if (playerId >= 0 && playerId < numPlayers)
                 {
-                    scores[playerId] = (int) math.round(scores[playerId] * 0.66f);
+                    scores[playerId] = (int) math.round(scores[playerId] * catMultiplier);
                 }
             })
             .Run();
