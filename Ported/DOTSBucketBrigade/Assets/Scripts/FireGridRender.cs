@@ -6,16 +6,14 @@ using Unity.Transforms;
 [UpdateAfter(typeof(FireGridSimulate))]
 public class FireGridRender : SystemBase
 {
-
+    private const float kGroundHeight = 0.001f;
     protected override void OnCreate()
     {
         base.OnCreate();
 
         RequireSingletonForUpdate<BucketBrigadeConfig>();
         RequireSingletonForUpdate<FireGrid>();
-
     }
-
 
     protected override void OnUpdate()
     {
@@ -23,25 +21,23 @@ public class FireGridRender : SystemBase
         var gridEntity = GetSingletonEntity<FireGrid>();
 
         var array = EntityManager.GetBuffer<FireGridCell>(gridEntity).AsNativeArray();
-
-        //pointerOfDoom = (FireGridCell*)buffer.GetUnsafeReadOnlyPtr();
-
         float flashpoint = config.Flashpoint;
 
-        //var localDoom = pointerOfDoom;
+        float time = (float)Time.ElapsedTime;
 
         Entities.WithNativeDisableContainerSafetyRestriction(array).ForEach((ref NonUniformScale Scale, in GridCellIndex Index) =>
         {
             FireGridCell cell = array[Index.Index];
+            float height = kGroundHeight;
 
             if (cell.Temperature > flashpoint)
             {
-                Scale.Value.y = math.max(cell.Temperature, 0.001f);
+                height = math.max(cell.Temperature, kGroundHeight);
+                height += (config.FlickerRange * 0.5f) + UnityEngine.Mathf.PerlinNoise((time - Index.Index) * config.FlickerRate - cell.Temperature, cell.Temperature) * config.FlickerRange;
             }
-            else
-            {
-                Scale.Value.y = 0.001f;
-            }
+
+            Scale.Value.y = height;
+
         }).ScheduleParallel();
     }
 }
