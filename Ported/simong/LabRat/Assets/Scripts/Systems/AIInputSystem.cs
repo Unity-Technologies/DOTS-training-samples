@@ -73,6 +73,7 @@ class AIInputSystem : SystemBase
             NativeArray<float2> cursorPositions = m_cursorPositions;
             Random r = new Random(m_Random.NextUInt());
             Camera c = Camera.main;
+            int2 cPixelSize = new int2(c.pixelWidth, c.pixelHeight);
             
             Entities
                 .WithoutBurst()
@@ -80,7 +81,7 @@ class AIInputSystem : SystemBase
                 {
                     if (r.NextFloat(100f) > 99.5f)
                     {
-                        aiInfo.TargetPosition = new int2(Utility.GridCoordinatesToScreenPos(c, new int2(r.NextInt(0, gridSize.x), r.NextInt(0, gridSize.y)), cellSize) * uiSize);
+                        aiInfo.TargetPosition = new int2(Utility.GridCoordinatesToScreenPos(c, new int2(r.NextInt(0, gridSize.x), r.NextInt(0, gridSize.y)), cellSize) * cPixelSize);
                     }
 
                     cursorPositions[aiInfo.PlayerID] = math.lerp(cursorPositions[aiInfo.PlayerID], aiInfo.TargetPosition, 0.1f);
