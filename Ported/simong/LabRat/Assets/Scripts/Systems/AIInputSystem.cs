@@ -123,7 +123,7 @@ class AIInputSystem : SystemBase
                     float val = r.NextFloat(100f);
                     if (val > 99.5f)
                     {
-                        if (val > 99.75f)
+                        if (val > 99.75f || (mousePositionComponents.Length == 0))
                             aiInfo.CellPosition = new int2(r.NextInt(0, gridSize.x), r.NextInt(0, gridSize.y));
                         else
                             aiInfo.CellPosition = Utility.WorldPositionToGridCoordinates(
