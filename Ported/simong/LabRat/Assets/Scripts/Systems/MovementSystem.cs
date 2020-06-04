@@ -165,7 +165,13 @@ class MovementSystem : SystemBase
                                 throw new System.InvalidOperationException("Unable to resolve cell travel. Is there a valid exit from this cell?");
                         }
 
-                        dir.Value = newDirection;
+                        if (dir.Value != newDirection)
+                        {
+                            dir.Value = newDirection;
+
+                            // clamp position to the centre of the cell
+                            pos.Value = new float2(cellSize.x * 0.5f + (cellCoord.x * cellSize.x), cellSize.y * 0.5f + (cellCoord.y * cellSize.y));
+                        }
                     }
 
                     // Lerp the visible forward direction towards the logical one each frame.

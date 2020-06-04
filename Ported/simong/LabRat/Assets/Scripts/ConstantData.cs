@@ -17,7 +17,7 @@ public class ConstantData : MonoBehaviour
     public float FallingSpeed = 2f;
     public float FallingKillY = -5f;
 
-    public float RotationSpeed = 0.5f;
+    public float RotationSpeed = 5f;
 
     public float RoundLength = 60f;
     public Vector2Int BoardDimensions = new Vector2Int(30, 30);
