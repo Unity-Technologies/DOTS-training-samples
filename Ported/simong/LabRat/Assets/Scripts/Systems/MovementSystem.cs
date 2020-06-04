@@ -28,7 +28,7 @@ class MovementSystem : SystemBase
 
     protected override void OnDestroy()
     {
-        if (!m_Arrows.IsCreated)
+        if (m_Arrows.IsCreated)
         {
             m_Arrows.Dispose();
             m_CellContainsArrowGrid.Dispose();
@@ -157,7 +157,7 @@ class MovementSystem : SystemBase
                                 var startingDirection = newDirection;
 
                                 int searchCount = 0;
-                                while(true)
+                                while (true)
                                 {
                                     byte byteDir = (byte)newDirection;
                                     byteDir *= 2;
@@ -166,11 +166,11 @@ class MovementSystem : SystemBase
                                     newDirection = (GridDirection)byteDir;
 
                                     // is new direction valid
-                                    if(     cell.CanTravel(newDirection)
+                                    if (cell.CanTravel(newDirection)
 
                                         // and either this is a new direction, or they are opposite directions
                                         // but we've exhauseted all other options
-                                        &&  (!Direction2D.DirectionsAreOpposite(newDirection, startingDirection) || searchCount >= 4))
+                                        && (!Direction2D.DirectionsAreOpposite(newDirection, startingDirection) || searchCount >= 4))
                                     {
                                         // this is a valid move
                                         break;
@@ -199,7 +199,7 @@ class MovementSystem : SystemBase
 
                     // Lerp the visible forward direction towards the logical one each frame.
                     var goalRot = Utility.DirectionToAngle(dir.Value);
-                    rot.Value = math.lerp(rot.Value, goalRot, deltaTime * rotationSpeed);
+                    rot.Value = math.lerp(rot.Value, goalRot, deltaTime * speed.RotationSpeed);
                 }
             })
             .WithName("UpdateWalking")

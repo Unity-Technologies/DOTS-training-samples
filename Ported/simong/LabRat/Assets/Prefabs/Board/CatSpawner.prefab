@@ -72,9 +72,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 1377909340170110, guid: 19268829cf75c415f8f14765efcab529, type: 3}
+  WalkSpeed:
+    x: 1.5
+    y: 1.9
+  RotationSpeed: 7
   AlternatePrefab: {fileID: 0}
+  AlternateWalkSpeed:
+    x: 0
+    y: 0
+  AlternateRotationSpeed: 0
   Frequency: 7
-  AlternateSpawnFrequency: 0
+  AlternateSpawnMinFrequency: 0
+  AlternateSpawnMaxFrequency: 0
 --- !u!114 &-5774549054950048670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -89,3 +98,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Time: 0
   AlternateSpawnTime: 0
+  CurrentAlternateSpawnFrenquency: 0
