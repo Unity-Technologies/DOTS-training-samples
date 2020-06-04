@@ -81,6 +81,7 @@ MonoBehaviour:
     x: 0
     y: 0
   AlternateRotationSpeed: 0
+  MaxSpawns: 3
   Frequency: 7
   AlternateSpawnMinFrequency: 0
   AlternateSpawnMaxFrequency: 0
@@ -96,6 +97,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0f40fdae8954309bc76a1cf789b41e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Time: 7
+  TotalSpawned: 0
+  Time: 0
   AlternateSpawnTime: 0
   CurrentAlternateSpawnFrenquency: 0

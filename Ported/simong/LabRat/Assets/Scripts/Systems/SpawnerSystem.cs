@@ -51,6 +51,7 @@ class SpawnerSystem : SystemBase
                 toSpawn = ecb.Instantiate(entityInQueryIndex, info.Prefab);
                 walkSpeed = random.Value.NextFloat(info.WalkSpeed.x, info.WalkSpeed.y);
                 rotationSpeed = info.RotationSpeed;
+                instance.TotalSpawned++;
             }
 
             if (toSpawn != Entity.Null)
@@ -62,6 +63,11 @@ class SpawnerSystem : SystemBase
             }
             float t = random.Value.NextFloat();
             ecb.SetComponent(entityInQueryIndex, tmpRandomEntity, random);
+
+            if(info.MaxSpawns > 0 && instance.TotalSpawned >= info.MaxSpawns)
+            {
+                ecb.DestroyEntity(entityInQueryIndex, entity);
+            }
         })
         .WithName("UpdateSpawners")
         .Schedule();
