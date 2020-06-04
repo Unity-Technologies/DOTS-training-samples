@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class Utility
 {
+    public const float k_TwoPI = (math.PI * 2f);
+
     public static int2 WorldPositionToGridCoordinates(float2 worldPos, float2 cellSize)
     {
         float2 worldPos2D = new float2(worldPos.x, worldPos.y);
@@ -106,5 +108,15 @@ public class Utility
             // use relative error
             return diff / (absA + absB) < epsilon;
         }
+    }
+
+    public static float UnwrapAngle(float angle)
+    {
+        if (angle >= 0f)
+        {
+            return angle % k_TwoPI;
+        }
+        else
+            return k_TwoPI - (-1f * angle) % (k_TwoPI);
     }
 }

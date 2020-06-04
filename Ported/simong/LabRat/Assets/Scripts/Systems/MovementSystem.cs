@@ -199,11 +199,12 @@ class MovementSystem : SystemBase
 
                     // Lerp the visible forward direction towards the logical one each frame.
                     var goalRot = Utility.DirectionToAngle(dir.Value);
-                    rot.Value = math.lerp(rot.Value, goalRot, deltaTime * speed.RotationSpeed);
+                    var angle = Utility.UnwrapAngle(goalRot - rot.Value);
+                    rot.Value += math.lerp(0, angle, deltaTime * speed.RotationSpeed);
                 }
             })
             .WithName("UpdateWalking")
-            //.WithoutBurst()
+            .WithoutBurst()
             .ScheduleParallel();
 
         // update falling
