@@ -109,8 +109,30 @@ public class GridCreationSystem : SystemBase
                 if(spawner != Entity.Null)
                 {
                     ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(0, 0), cellSize) });
+                    ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.NORTH });
+                }
+
+                spawner = ecb.Instantiate(prefabs.MouseSpawnerPrefab);
+                if (spawner != Entity.Null)
+                {
+                    ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(width - 1, height - 1), cellSize) });
+                    ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.SOUTH });
+                }
+
+                spawner = ecb.Instantiate(prefabs.CatSpawnerPrefab);
+                if (spawner != Entity.Null)
+                {
+                    ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(width - 1, 0), cellSize) });
+                    ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.WEST });
+                }
+
+                spawner = ecb.Instantiate(prefabs.CatSpawnerPrefab);
+                if (spawner != Entity.Null)
+                {
+                    ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(0, height - 1), cellSize) });
                     ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.EAST });
                 }
+
             }).Schedule();
 
             m_commandBuffer.AddJobHandleForProducer(Dependency);

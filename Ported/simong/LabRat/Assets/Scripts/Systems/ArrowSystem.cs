@@ -84,6 +84,12 @@ public class ArrowSystem : SystemBase
                         if (arrowComponents[i].GridCell.x == request.Position.x && arrowComponents[i].GridCell.y == request.Position.y)
                         {
                             shouldSpawn = false;
+
+                            if (arrowComponents[i].OwnerID == request.OwnerID)
+                            {
+                                ecb.DestroyEntity(arrowEntities[i]);
+                                break;
+                            }
                         }
                     }
 

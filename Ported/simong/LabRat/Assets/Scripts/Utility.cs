@@ -5,7 +5,6 @@ public class Utility
     public static int2 WorldPositionToGridCoordinates(float2 worldPos, float2 cellSize)
     {
         float2 worldPos2D = new float2(worldPos.x, worldPos.y);
-        worldPos2D += cellSize * 0.5f;
         return new int2((int)math.floor(worldPos2D.x / cellSize.x), (int)math.floor(worldPos2D.y / cellSize.y));
     }
 
