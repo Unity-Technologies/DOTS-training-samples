@@ -30,6 +30,13 @@ public class ArrowSystem : SystemBase
 
     private NativeArray<Entity> m_arrowPrefabs = new NativeArray<Entity>(4, Allocator.Persistent);
     private bool m_initedArrowPrefabs = false;
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        m_arrowPrefabs.Dispose();
+    }
+
     protected override void OnUpdate()
     {
         int maxArrows = ConstantData.Instance.MaxArrows;
