@@ -315,7 +315,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 7
+  orthographic size: 8.45
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -339,7 +339,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1694099035}
   m_LocalRotation: {x: 0.48066187, y: 0.3268136, z: -0.19909665, w: 0.7889978}
-  m_LocalPosition: {x: -36.9, y: 115, z: -36.9}
+  m_LocalPosition: {x: -34.7, y: 112.6, z: -34.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -364,7 +364,7 @@ MonoBehaviour:
   FallingKillY: -2
   RotationSpeed: 5
   RoundLength: 60
-  BoardDimensions: {x: 10, y: 10}
+  BoardDimensions: {x: 13, y: 13}
   CellSize: {x: 1, y: 1}
   UICanvasDimensions: {x: 1024, y: 800}
   ArrowLifeTime: 30
