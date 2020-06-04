@@ -4,34 +4,44 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
+[RequiresEntityConversion]
 public class RoadCreationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
-    public float2 StartXZ;
-    public float2 EndXZ;
+    public float LaneWidth;
     public int MaxLanes;
 
     //Move this probably
     public float CarSpawningDistance;
+    
+    public float MidRadius;
+    public float StraightPieceLength;
+
+    public int SegmentCount;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        float laneWidth = math.abs(EndXZ.x - StartXZ.x) / MaxLanes;
         dstManager.AddComponentData(entity, new RoadInfo()
         {
-            StartXZ = StartXZ,
-            EndXZ = EndXZ,
-            LaneWidth = laneWidth,
+            LaneWidth = LaneWidth,
             MaxLanes = MaxLanes,
             CarSpawningDistancePercent = CarSpawningDistance,
+            MidRadius = MidRadius,
+            StraightPieceLength = StraightPieceLength,
+            SegmentCount = SegmentCount
         });
 
         DynamicBuffer<LaneInfoElement> dynamicBuffer = dstManager.AddBuffer<LaneInfoElement>(entity);
-        float currentLanePos = StartXZ.x + laneWidth / 2;
         for (int i = 0; i < MaxLanes; ++i)
         {
-            LaneInfo info = new LaneInfo { Pivot = currentLanePos };
+            LaneInfo info = new LaneInfo
+            {
+                Pivot = LaneWidth * ((MaxLanes - 1) / 2f - i),
+                Radius = MidRadius - LaneWidth * (MaxLanes - 1) / 2f + i * LaneWidth
+            };
+
+            info.CurvedPieceLength = info.Radius * math.PI / 2f;
+            
             dynamicBuffer.Add(new LaneInfoElement { Value = info });
-            currentLanePos += laneWidth;
         }
     }
 }
