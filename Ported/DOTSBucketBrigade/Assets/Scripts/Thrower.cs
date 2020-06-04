@@ -47,19 +47,33 @@ namespace DefaultNamespace
                         {
                             // Set the target cell.
                             targetFire.GridIndex = nearestFireCell;
+                            targetFire.FirePosition = nearestFirePosition;
+                            
+                            var direction = math.normalize(nearestFirePosition - myChain.ChainStartPosition);
+                            var fireFightPoint = nearestFirePosition - (direction * config.HeatRadius);
                             
                             // Set the end of the chain.
-                            myChain.ChainEndPosition = nearestFirePosition;
+                            myChain.ChainEndPosition = fireFightPoint;
                             chainComponent[agent.MyChain] = myChain;
                             
                             // Set the agents target position
-                            targetPosition.Target = nearestFirePosition;
+                            targetPosition.Target = fireFightPoint;
                             state.State = EThrowerState.WaitForBucket;
                         }
                         break;
                     
                     case EThrowerState.WaitForBucket:
                         if (targetBucket.Target != Entity.Null)
+                        {   
+                            targetPosition.Target = targetFire.FirePosition;
+                            state.State = EThrowerState.WaitUntilInFireRange;
+                        }
+                        break;
+                    
+                    case EThrowerState.WaitUntilInFireRange:
+                        var fireDistSq = math.distancesq(targetFire.FirePosition.xz, position.Value.xz);
+
+                        if (fireDistSq < config.MovementTargetReachedThreshold)
                         {
                             state.State = EThrowerState.EmptyBucket;
                         }
