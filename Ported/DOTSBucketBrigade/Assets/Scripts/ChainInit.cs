@@ -67,7 +67,6 @@ namespace DefaultNamespace
                 // Thrower -> Head .. Tail -> Scooper
                 CreateHalfOfChain(ref rand, chain, config, prefabs.PasserBackPrefab, gridSize, out var backwardsHead, out var backwardsTail, -1f);
                 SetNextInChain(thrower, backwardsHead);
-                SetNextInChain(backwardsTail, scooper);
             }
         }
 

@@ -30,7 +30,7 @@ namespace DefaultNamespace
                 {
                     var bucketTranslation = positionComponent[targetBucket.Target];
                     bucketTranslation.Value = currentPosition.Value;
-                    bucketTranslation.Value.y += 1f;
+                    bucketTranslation.Value.y += config.CarriedBucketHeightOffset;
                     positionComponent[targetBucket.Target] = bucketTranslation;
                 }
             }).WithReadOnly(availableBucketComponent).WithNativeDisableParallelForRestriction(positionComponent).ScheduleParallel();
