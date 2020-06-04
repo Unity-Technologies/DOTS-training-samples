@@ -82,9 +82,9 @@ MonoBehaviour:
     x: 1.5
     y: 1.9
   AlternateRotationSpeed: 7
-  Frequency: 1
-  AlternateSpawnMinFrequency: 5
-  AlternateSpawnMaxFrequency: 10
+  Frequency: 0.2
+  AlternateSpawnMinFrequency: 6
+  AlternateSpawnMaxFrequency: 18
 --- !u!114 &-5774549054950048670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97,6 +97,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0f40fdae8954309bc76a1cf789b41e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Time: 0
+  Time: 1
   AlternateSpawnTime: 0
   CurrentAlternateSpawnFrenquency: 0
