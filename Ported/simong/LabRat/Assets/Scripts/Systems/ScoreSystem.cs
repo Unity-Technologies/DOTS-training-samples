@@ -83,6 +83,7 @@ public class ScoreSystem : SystemBase
                 {
                     scores[playerId] += mouseAddition;
                 }
+                ecb.DestroyEntity(entity);
             })
             .Run();
 
@@ -96,10 +97,9 @@ public class ScoreSystem : SystemBase
                 {
                     scores[playerId] = (int) math.round(scores[playerId] * catMultiplier);
                 }
+                ecb.DestroyEntity(entity);
             })
             .Run();
-
-        ecb.DestroyEntity(m_ReachedBaseQuery);
         
         // Update Score UI
         var uiHelper = UIHelper.Instance;

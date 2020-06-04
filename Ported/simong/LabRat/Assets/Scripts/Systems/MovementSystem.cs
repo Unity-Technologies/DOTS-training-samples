@@ -146,6 +146,8 @@ class MovementSystem : SystemBase
                         {
                             //Debug.Log($"Can't travel in {newDirection.ToString()}");
 
+                            var startingDirection = newDirection;
+
                             do
                             {
                                 byte byteDir = (byte)newDirection;
@@ -155,11 +157,11 @@ class MovementSystem : SystemBase
                                 newDirection = (GridDirection)byteDir;
                             }
                             while (!cell.CanTravel(newDirection)
-                                    && newDirection != dir.Value);
+                                    && newDirection != startingDirection);
 
                             //Debug.Log($"New direction is {newDirection.ToString()}");
 
-                            if (newDirection == dir.Value)
+                            if (newDirection == startingDirection)
                                 throw new System.InvalidOperationException("Unable to resolve cell travel. Is there a valid exit from this cell?");
                         }
 
