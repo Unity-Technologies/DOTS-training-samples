@@ -189,6 +189,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: UI
       objectReference: {fileID: 0}
+    - target: {fileID: 2616872256740755990, guid: 6a082e4cacdbf48f7abd1b94383915a6,
+        type: 3}
+      propertyPath: m_UiScaleMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2616872256740755990, guid: 6a082e4cacdbf48f7abd1b94383915a6,
+        type: 3}
+      propertyPath: m_ReferenceResolution.x
+      value: 1024
+      objectReference: {fileID: 0}
+    - target: {fileID: 2616872256740755990, guid: 6a082e4cacdbf48f7abd1b94383915a6,
+        type: 3}
+      propertyPath: m_ReferenceResolution.y
+      value: 800
+      objectReference: {fileID: 0}
     - target: {fileID: 6379659315511988176, guid: 6a082e4cacdbf48f7abd1b94383915a6,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -300,7 +315,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 7
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -324,7 +339,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1694099035}
   m_LocalRotation: {x: 0.48066187, y: 0.3268136, z: -0.19909665, w: 0.7889978}
-  m_LocalPosition: {x: -36.9, y: 110, z: -36.9}
+  m_LocalPosition: {x: -36.9, y: 115, z: -36.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -345,15 +360,21 @@ MonoBehaviour:
   Radius:
   - 0.25
   - 0.25
-  FallingSpeed: 2
-  FallingKillY: -5
-  RotationSpeed: 0.5
+  FallingSpeed: 5
+  FallingKillY: -2
+  RotationSpeed: 5
   RoundLength: 60
   BoardDimensions: {x: 10, y: 10}
   CellSize: {x: 1, y: 1}
+  UICanvasDimensions: {x: 1024, y: 800}
   ArrowLifeTime: 30
   MaxArrows: 3
   NumPlayers: 4
+  PlayerColors:
+  - {r: 0.0036044943, g: 0.09518876, b: 0.764151, a: 1}
+  - {r: 255, g: 0, b: 0, a: 1}
+  - {r: 0, g: 0.7490196, b: 0.019607844, a: 1}
+  - {r: 255, g: 0, b: 207, a: 1}
   MouseScoreAddition: 1
   CatScoreMultiplier: 0.66
 --- !u!1 &1725028795
@@ -395,7 +416,7 @@ Light:
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 1
+    m_Bias: 0
     m_NormalBias: 0.4
     m_NearPlane: 0.2
     m_CullingMatrixOverride:
@@ -441,10 +462,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1725028795}
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: 0.24595264, y: -0.38689274, z: 0.056591876, w: 0.8869153}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 28.69, y: -48.642, z: -5.884}

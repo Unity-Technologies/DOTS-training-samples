@@ -28,6 +28,13 @@ public struct CellInfo
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public CellInfo BlockTravel(GridDirection dir)
+    {
+        m_Value |= (byte)dir;
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public CellInfo SetIsHole()
     {
         m_Value = (byte)(m_Value | k_IsHoleFlag);
@@ -70,5 +77,11 @@ public struct CellInfo
     public int GetBasePlayerId()
     {
         return (m_Value & k_BasePlayerIdMask) >> k_BasePlayerIdShift;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsEmpty()
+    {
+        return !(IsHole() || IsBase());
     }
 }

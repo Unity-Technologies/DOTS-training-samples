@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -54,10 +53,13 @@ public class GridCreationSystem : SystemBase
             int height = constantData.BoardDimensions.y;
             int bottomRight = (width * height) - 1;
 
+            var random = new Unity.Mathematics.Random((uint)(DateTime.Now.Ticks % uint.MaxValue));
+
             Job.WithCode(() => 
             {
                 int bottomLeft = width * (height - 1);
 
+                //initialise travel
                 cellsarray[0] = cellsarray[0].SetTravelDirections(GridDirection.NORTH | GridDirection.EAST);
 
                 cellsarray[width - 1] = cellsarray[width - 1].SetTravelDirections(GridDirection.NORTH | GridDirection.WEST);
@@ -81,8 +83,6 @@ public class GridCreationSystem : SystemBase
                     cellsarray[(width * (i + 1)) - 1] = cellsarray[(width * (i + 1)) - 1].SetTravelDirections(fromEast);
                 }
 
-                cellsarray[width + 1] = cellsarray[width + 1].SetIsHole();
-
                 //position bases
                 int xOffset = (int)(width * 0.333f);
                 int yOffset = (int)(height * 0.333f);
@@ -105,6 +105,80 @@ public class GridCreationSystem : SystemBase
 
             }).Schedule();
 
+            Job.WithCode(() => {
+
+                //add walls
+
+                int numWalls = (int)(width * height * 0.2f);
+                //Debug.Log("create walls: " + numWalls);
+
+                int count = 0;
+                while (count < numWalls)
+                {
+                    int x = random.NextInt(0, width);
+                    int y = random.NextInt(0, height);
+                    int index = (y * width) + x;
+
+                    var cell = cellsarray[index];
+
+                    GridDirection dir = (GridDirection)(1 << (random.NextInt(0, 3)));
+
+                    if (cell.CanTravel(dir) && cell.CanTravel(GridDirection.ALL))
+                    {
+                        cellsarray[index] = cell.BlockTravel(dir);
+                        count++;
+
+                        switch (dir)
+                        {
+                            case GridDirection.NORTH:
+                                y++;
+                                dir = GridDirection.SOUTH;
+                                break;
+                            case GridDirection.SOUTH:
+                                dir = GridDirection.NORTH;
+                                y--;
+                                break;
+                            case GridDirection.EAST:
+                                dir = GridDirection.WEST;
+                                x++;
+                                break;
+                            case GridDirection.WEST:
+                                dir = GridDirection.EAST;
+                                x--;
+                                break;
+                        }
+
+                        if(x >= 0 && x < width && y >= 0 && y < height)
+                        {
+                            index = (y * width) + x;
+                            cellsarray[index] = cellsarray[index].BlockTravel(dir);
+                        }
+
+                        //Debug.Log("adding wall at (" + x + ", " + y + ") dir: " + dir);
+                    }
+                }
+
+                //add holes
+                var numHoles = random.NextInt(0, 4);
+                count = 0;
+
+                while (count < numHoles)
+                {
+                    int x = random.NextInt(1, width - 1);
+                    int y = random.NextInt(1, height - 1);
+                    int index = (y * width) + x;
+
+                    var cell = cellsarray[index];
+
+                    if(cell.IsEmpty())
+                    {
+                        cellsarray[index] = cell.SetIsHole();
+                        count++;
+                    }
+                }
+
+            }).Schedule();
+
             var ecb = m_commandBuffer.CreateCommandBuffer();
             var cellSize = constantData.CellSize;
 
@@ -115,8 +189,10 @@ public class GridCreationSystem : SystemBase
                 {
                     for (int y = 0; y < height; y++)
                     {
-                        int index = (width * y) + x;
-                        if (!cellsarray[index].IsHole())
+                        var index = (width * y) + x;
+                        var cell = cellsarray[index];
+
+                        if (!cell.IsHole())
                         {
                             Entity prefab = ((x + y) % 2) == 1 ? prefabs.CellOddPrefab : prefabs.CellPrefab;
                             var entity = ecb.Instantiate(prefab);
@@ -127,9 +203,9 @@ public class GridCreationSystem : SystemBase
                             }
                         }
 
-                        if (cellsarray[index].IsBase())
+                        if (cell.IsBase())
                         {
-                            int playerId = cellsarray[index].GetBasePlayerId();
+                            int playerId = cell.GetBasePlayerId();
                             Entity basePrefab = Entity.Null;
 
                             switch (playerId)
@@ -161,22 +237,37 @@ public class GridCreationSystem : SystemBase
                                 }
                             }
                         }
-                    }
 
-                    var wall = ecb.Instantiate(prefabs.WallPrefab);
+                        //Debug.Log("cell (" + x + ", " + y + ")");
 
-                    if(wall != Entity.Null)
-                    {
-                        ecb.SetComponent(wall, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(x, 0), cellSize) });
-                        ecb.SetComponent(wall, new Rotation2D { Value = Utility.DirectionToAngle(GridDirection.SOUTH) });
-                    }
+                        for (int i = 0; i <= 3; i++)
+                        {
+                            GridDirection dir = (GridDirection)(1 << i);
+                            bool check = true;
 
-                    wall = ecb.Instantiate(prefabs.WallPrefab);
+                            switch (dir)
+                            {
+                                case GridDirection.SOUTH:
+                                    check = (y == 0);
+                                    break;
+                                case GridDirection.WEST:
+                                    check = (x == 0);
+                                    break;
+                            }
+                            
+                            if (check && !cell.CanTravel(dir))
+                            {
+                                var wall = ecb.Instantiate(prefabs.WallPrefab);
 
-                    if (wall != Entity.Null)
-                    {
-                        ecb.SetComponent(wall, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(x, width - 1), cellSize) });
-                        ecb.SetComponent(wall, new Rotation2D { Value = Utility.DirectionToAngle(GridDirection.NORTH) });
+                                //Debug.Log("spawning wall at (" + x + ", " + y + ") dir: " + dir);
+
+                                if (wall != Entity.Null)
+                                {
+                                    ecb.SetComponent(wall, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(x, y), cellSize) });
+                                    ecb.SetComponent(wall, new Rotation2D { Value = Utility.DirectionToAngle(dir) });
+                                }
+                            }
+                        }
                     }
                 }
 

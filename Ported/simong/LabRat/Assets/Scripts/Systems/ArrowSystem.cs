@@ -81,10 +81,11 @@ public class ArrowSystem : SystemBase
                 bool shouldSpawn = true;
                 
                 var cellIndex = (request.Position.y * rows) + request.Position.x;
-                if (cells[cellIndex].IsBase())
+                if (cells[cellIndex].IsBase() || cells[cellIndex].IsHole())
                     shouldSpawn = false;
-                
+
                 for (int i = 0; i < arrowComponents.Length; i++)
+                {
                     if (arrowComponents[i].OwnerID == request.OwnerID)
                     {
                         existingComponents++;
@@ -93,18 +94,19 @@ public class ArrowSystem : SystemBase
                             oldestSpawnTime = arrowComponents[i].SpawnTime;
                             oldestIndex = i;
                         }
+                    }
 
-                        if (arrowComponents[i].GridCell.x == request.Position.x && arrowComponents[i].GridCell.y == request.Position.y)
+                    if (arrowComponents[i].GridCell.x == request.Position.x && arrowComponents[i].GridCell.y == request.Position.y)
+                    {
+                        shouldSpawn = false;
+
+                        if (arrowComponents[i].OwnerID == request.OwnerID)
                         {
-                            shouldSpawn = false;
-
-                            if (arrowComponents[i].OwnerID == request.OwnerID)
-                            {
-                                ecb.DestroyEntity(arrowEntities[i]);
-                                break;
-                            }
+                            ecb.DestroyEntity(arrowEntities[i]);
+                            break;
                         }
                     }
+                }
 
                 if (shouldSpawn)
                 {

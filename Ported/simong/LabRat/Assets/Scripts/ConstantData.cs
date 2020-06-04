@@ -17,11 +17,13 @@ public class ConstantData : MonoBehaviour
     public float FallingSpeed = 2f;
     public float FallingKillY = -5f;
 
-    public float RotationSpeed = 0.5f;
+    public float RotationSpeed = 5f;
 
     public float RoundLength = 60f;
     public Vector2Int BoardDimensions = new Vector2Int(30, 30);
     public Vector2 CellSize = new Vector2(1f, 1f);
+    
+    public Vector2Int UICanvasDimensions = new Vector2Int(1024, 800);
 
     public float ArrowLifeTime = 30f;
     public int MaxArrows = 3;
@@ -31,10 +33,10 @@ public class ConstantData : MonoBehaviour
 
     public Color[] PlayerColors = new Color[4]
     {
-        new Color(0x00,0x1E,0xFF), 
-        new Color(0xFF,0x00,0x00), 
-        new Color(0x00,0xFF,0x06), 
-        new Color(0xFF,0x00,0xCF)
+        new Color(0x00 / 255.0f,0x1E / 255.0f,0xFF / 255.0f), 
+        new Color(0xFF / 255.0f,0x00 / 255.0f,0x00 / 255.0f), 
+        new Color(0x00 / 255.0f,0xFF / 255.0f,0x06 / 255.0f), 
+        new Color(0xFF / 255.0f,0x00 / 255.0f,0xCF / 255.0f)
     };
 
     public int MouseScoreAddition = 1;
