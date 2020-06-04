@@ -25,11 +25,12 @@ namespace DefaultNamespace
             // TODO: we are not sure this is required.
             //Dependency = JobHandle.CombineDependencies(Dependency, World.DefaultGameObjectInjectionWorld.GetExistingSystem<Scooper>().MyLastDependency);
             
-            Entities.ForEach((ref ThrowerState state, ref TargetPosition targetPosition, ref TargetFire targetFire, ref TargetBucket targetBucket, in NextInChain nextInChain, in Translation position, in Agent agent)
+            Entities.ForEach((Entity entity, ref ThrowerState state, ref TargetPosition targetPosition, ref TargetFire targetFire, in NextInChain nextInChain, in Translation position, in Agent agent)
                 =>
             {
                 
                 var myChain = chainComponent[agent.MyChain];
+                var targetBucket = targetBucketComponent[entity];
                 switch (state.State)
                 {
                     case EThrowerState.FindFire:
@@ -80,6 +81,7 @@ namespace DefaultNamespace
                         targetBucketComponent[nextInChain.Next] = nextInChainTargetBucket;
                         
                         targetBucket.Target = Entity.Null;
+                        targetBucketComponent[entity] = targetBucket;
                         
                         state.State = EThrowerState.FindFire;
                         break;
