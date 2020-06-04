@@ -49,6 +49,8 @@ class AIInputSystem : SystemBase
             return;
         
         int2 uiSize = new int2(ConstantData.Instance.UICanvasDimensions.x, ConstantData.Instance.UICanvasDimensions.y);
+        int2 gridSize = new int2(ConstantData.Instance.BoardDimensions.x, ConstantData.Instance.BoardDimensions.y);
+        float2 cellSize = new float2(ConstantData.Instance.CellSize.x, ConstantData.Instance.CellSize.y);
         int numPlayers = ConstantData.Instance.NumPlayers;
         int numAI = numPlayers - 1;
         
@@ -70,14 +72,15 @@ class AIInputSystem : SystemBase
         {
             NativeArray<float2> cursorPositions = m_cursorPositions;
             Random r = new Random(m_Random.NextUInt());
+            Camera c = Camera.main;
             
             Entities
+                .WithoutBurst()
                 .ForEach((Entity aiPlayerEntity, ref AIInfoComponent aiInfo) =>
                 {
                     if (r.NextFloat(100f) > 99.5f)
                     {
-                        aiInfo.TargetPosition.x = r.NextInt(0, uiSize.x);
-                        aiInfo.TargetPosition.y = r.NextInt(0, uiSize.y);
+                        aiInfo.TargetPosition = new int2(Utility.GridCoordinatesToScreenPos(c, new int2(r.NextInt(0, gridSize.x), r.NextInt(0, gridSize.y)), cellSize) * uiSize);
                     }
 
                     cursorPositions[aiInfo.PlayerID] = math.lerp(cursorPositions[aiInfo.PlayerID], aiInfo.TargetPosition, 0.1f);
