@@ -29,6 +29,7 @@ namespace DefaultNamespace
             var chainComponent = GetComponentDataFromEntity<Chain>();
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
             var waterLevelComponent = GetComponentDataFromEntity<WaterLevel>();
+            var bucketColorComponent = GetComponentDataFromEntity<BucketColor>();
 
             var ecb = m_Barrier.CreateCommandBuffer().ToConcurrent();
 
@@ -87,6 +88,10 @@ namespace DefaultNamespace
                         var splashEntity = ecb.CreateEntity(entityInQueryIndex, splashArchetype);
                         ecb.SetComponent(entityInQueryIndex, splashEntity, position);
                         
+                        var bucketColor = bucketColorComponent[targetBucket.Target];
+                        bucketColor.Value = math.float4(config.EmptyBucketColor.r, config.EmptyBucketColor.g, config.EmptyBucketColor.b, 1f);
+                        bucketColorComponent[targetBucket.Target] = bucketColor;
+                        
                         state.State = EThrowerState.WaitUntilChainEndInRangeAndNotCarrying;
                         break;
                     
@@ -123,6 +128,7 @@ namespace DefaultNamespace
                 .WithNativeDisableParallelForRestriction(waterLevelComponent)
                 .WithNativeDisableParallelForRestriction(targetBucketComponent)
                 .WithNativeDisableParallelForRestriction(chainComponent)
+                .WithNativeDisableParallelForRestriction(bucketColorComponent)
                 .ScheduleParallel();
             
             m_Barrier.AddJobHandleForProducer(Dependency);

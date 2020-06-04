@@ -28,6 +28,10 @@ public struct BucketBrigadeConfig : IComponentData
 
     public float MovementTargetReachedThreshold;
     public float CarriedBucketHeightOffset;
+    public float FullBucketScaleFactor;
+    
+    public Color EmptyBucketColor;
+    public Color FullBucketColor;
 
     public int SplashRadius;
     public float CoolingStrength;
@@ -36,5 +40,4 @@ public struct BucketBrigadeConfig : IComponentData
     public Color ColorNeutral;
     public Color ColorCool;
     public Color ColorHot;
-
 }

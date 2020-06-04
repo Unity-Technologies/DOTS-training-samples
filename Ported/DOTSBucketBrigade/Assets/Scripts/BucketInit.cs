@@ -38,6 +38,11 @@ public class BucketInit : SystemBase
             var bucketPos = GetComponent<Translation>(bucket);
             bucketPos.Value = new float3(rand.NextFloat(gridSize.x), 0, rand.NextFloat(gridSize.y));
             SetComponent(bucket, bucketPos);
+
+            var bucketColor = GetComponent<BucketColor>(bucket);
+            bucketColor.Value = math.float4(config.EmptyBucketColor.r, config.EmptyBucketColor.g,
+                config.EmptyBucketColor.b, 1f);
+            SetComponent(bucket, bucketColor);
         }
     }
 }
