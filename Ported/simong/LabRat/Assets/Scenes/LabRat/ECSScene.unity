@@ -298,7 +298,9 @@ MonoBehaviour:
     type: 3}
   CellPrefab: {fileID: 6331638553213775543, guid: 051b50a947da5254ababbbdf8d8d1187,
     type: 3}
-  SpawnerPrefab: {fileID: 3266120362543766956, guid: 0db970dde13a6b44b91f34ddc8cc43d3,
+  CatSpawnerPrefab: {fileID: 3266120362543766956, guid: 661b06a8e400fd6449275b3af81c102e,
+    type: 3}
+  MouseSpawnerPrefab: {fileID: 3266120362543766956, guid: 0db970dde13a6b44b91f34ddc8cc43d3,
     type: 3}
 --- !u!4 &2094815254
 Transform:
