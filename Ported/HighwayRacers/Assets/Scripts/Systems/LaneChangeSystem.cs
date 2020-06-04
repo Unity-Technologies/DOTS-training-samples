@@ -73,13 +73,14 @@ public class LaneChangeSystem : SystemBase
                     }
 
                     // start changing lanes
-                    for (int i = 0; i < lanesToConsider.Length; i++)
+                    for (int i = lanesToConsider.Length - 1; i >= 0; --i)
                     {
                         // only look at nonblocked, neighboring lanes (difference == 1)
                         if (lanesToConsider[i] != -1 && math.abs(lane - i) == 1)
                         {
                             // add it to entity
                             commandBuffer.AddComponent(entityInQueryIndex, entity, new TargetLane { Value = i });
+                            break;
                         }
                     }
                 }
