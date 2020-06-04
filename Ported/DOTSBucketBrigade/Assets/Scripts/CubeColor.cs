@@ -2,8 +2,8 @@
 using Unity.Mathematics;
 using Unity.Rendering;
 
-[MaterialProperty("_CubeColor", MaterialPropertyFormat.Float3)]
+[MaterialProperty("_CubeColor", MaterialPropertyFormat.Float4)]
 public struct CubeColor : IComponentData
 {
-    public float3 Color;
+    public float4 Color;
 }

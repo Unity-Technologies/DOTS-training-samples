@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 [GenerateAuthoringComponent]
 public struct BucketBrigadeConfig : IComponentData
@@ -31,5 +32,9 @@ public struct BucketBrigadeConfig : IComponentData
     public int SplashRadius;
     public float CoolingStrength;
     public float CoolingFallOff;
+
+    public Color ColorNeutral;
+    public Color ColorCool;
+    public Color ColorHot;
 
 }

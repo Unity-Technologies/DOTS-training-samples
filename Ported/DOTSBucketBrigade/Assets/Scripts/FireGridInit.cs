@@ -75,7 +75,8 @@ public class FireGridInit : SystemBase
             index.Index = i;
             SetComponent(cell, index);
 
-            var cubeColor = new CubeColor {Color = rand.NextFloat3()};
+            //var cubeColor = new CubeColor {Color = rand.NextFloat3()};
+            var cubeColor = new CubeColor {Color = new float4(1, 1, 1, 1)};
             EntityManager.AddComponentData(cell, cubeColor);
 
         }
