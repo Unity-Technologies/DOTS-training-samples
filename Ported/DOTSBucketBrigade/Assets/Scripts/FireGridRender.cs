@@ -24,9 +24,15 @@ public class FireGridRender : SystemBase
         float flashpoint = config.Flashpoint;
 
         float time = (float)Time.ElapsedTime;
-        float4 neutralColor = new float4(config.ColorNeutral.r, config.ColorNeutral.g, config.ColorNeutral.b, 1);
-        float4 coolColor = new float4(config.ColorCool.r, config.ColorCool.g, config.ColorCool.b, 1);
-        float4 hotColor = new float4(config.ColorHot.r, config.ColorHot.g, config.ColorHot.b, 1);
+
+        float3 neutralinear = new float3(config.ColorNeutral.r, config.ColorNeutral.g, config.ColorNeutral.b);
+        float4 neutralColor = new float4 ((neutralinear * (neutralinear * (neutralinear * 0.305306011f + 0.682171111f) + 0.012522878f)), 1);
+        
+        float3 coolLinear = new float3(config.ColorCool.r, config.ColorCool.g, config.ColorCool.b);
+        float4 coolColor = new float4 ((coolLinear * (coolLinear * (coolLinear * 0.305306011f + 0.682171111f) + 0.012522878f)), 1);
+        
+        float3 hotLinear = new float3(config.ColorHot.r, config.ColorHot.g, config.ColorHot.b);
+        float4 hotColor = new float4 ((hotLinear * (hotLinear * (hotLinear * 0.305306011f + 0.682171111f) + 0.012522878f)), 1);
 
         Entities
             .WithNativeDisableContainerSafetyRestriction(array)
