@@ -166,6 +166,9 @@ namespace DefaultNamespace
                         break;
                 }
             }).WithoutBurst().WithNativeDisableParallelForRestriction(chainComponent).WithReadOnly(translationComponent).Schedule(combinedFetchJob);
+
+            Dependency = waterEntities.Dispose(Dependency);
+            Dependency = bucketEntities.Dispose(Dependency);
         }
 
         private static Entity FindNearestEntity(ComponentDataFromEntity<LocalToWorld> translationComponent,

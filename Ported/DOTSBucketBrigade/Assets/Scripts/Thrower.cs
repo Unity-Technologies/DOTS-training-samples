@@ -22,9 +22,6 @@ namespace DefaultNamespace
             var chainComponent = GetComponentDataFromEntity<Chain>();
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
 
-            // TODO: we are not sure this is required.
-            //Dependency = JobHandle.CombineDependencies(Dependency, World.DefaultGameObjectInjectionWorld.GetExistingSystem<Scooper>().MyLastDependency);
-            
             Entities.ForEach((Entity entity, ref ThrowerState state, ref TargetPosition targetPosition, ref TargetFire targetFire, in NextInChain nextInChain, in Translation position, in Agent agent)
                 =>
             {
@@ -62,12 +59,12 @@ namespace DefaultNamespace
                         break;
                     
                     case EThrowerState.StartWalkingToChainEnd:
-                        targetPosition.Target = myChain.ChainStartPosition;
+                        targetPosition.Target = myChain.ChainEndPosition;
                         state.State = EThrowerState.WaitUntilChainEndInRange;
                         break;
                     
                     case EThrowerState.WaitUntilChainEndInRange:
-                        var chainDistSq = math.distancesq(myChain.ChainStartPosition.xz, position.Value.xz);
+                        var chainDistSq = math.distancesq(myChain.ChainEndPosition.xz, position.Value.xz);
 
                         if (chainDistSq < config.MovementTargetReachedThreshold)
                         {
