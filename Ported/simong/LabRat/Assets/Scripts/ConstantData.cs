@@ -31,10 +31,10 @@ public class ConstantData : MonoBehaviour
 
     public Color[] PlayerColors = new Color[4]
     {
-        new Color(0x00,0x1E,0xFF), 
-        new Color(0xFF,0x00,0x00), 
-        new Color(0x00,0xFF,0x06), 
-        new Color(0xFF,0x00,0xCF)
+        new Color(0x00 / 255.0f,0x1E / 255.0f,0xFF / 255.0f), 
+        new Color(0xFF / 255.0f,0x00 / 255.0f,0x00 / 255.0f), 
+        new Color(0x00 / 255.0f,0xFF / 255.0f,0x06 / 255.0f), 
+        new Color(0xFF / 255.0f,0x00 / 255.0f,0xCF / 255.0f)
     };
 
     public int MouseScoreAddition = 1;
