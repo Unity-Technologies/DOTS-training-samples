@@ -11,14 +11,17 @@ public class UIHelper : MonoBehaviour
 
     public Text[] Scores;
     public Image[] Cursors;
-    public int[] ScoreValues;
-    
+    public Text RoundTime;
+
+    private int[] m_ScoreValues;
+    private int m_RemainingTime;
+
     public void Awake()
     {
         Instance = this;
         Debug.Log("UIHelper Available");
-        
-        ScoreValues = new int[Scores.Length];
+
+        m_ScoreValues = new int[Scores.Length];
     }
 
     public void Start()
@@ -37,25 +40,39 @@ public class UIHelper : MonoBehaviour
 
     public void SetScore(int playerId, int score)
     {
-        if (playerId < 0 || playerId >= ScoreValues.Length)
+        if (playerId < 0 || playerId >= m_ScoreValues.Length)
         {
             return;
         }
 
-        if (ScoreValues[playerId] != score)
+        if (m_ScoreValues[playerId] != score)
         {
-            ScoreValues[playerId] = score;
+            m_ScoreValues[playerId] = score;
             Scores[playerId].text = score.ToString();
         }
     }
-    
+
     public void SetCursorPosition(int playerId, int2 position)
     {
-        if (playerId < 0 || playerId >= ScoreValues.Length)
+        if (playerId < 0 || playerId >= m_ScoreValues.Length)
         {
             return;
         }
 
         Cursors[playerId].rectTransform.anchoredPosition = new Vector2(position.x, position.y);
+    }
+
+    public void SetRemainingTime(float time)
+    {
+        var newRemainingTime = Mathf.CeilToInt(time);
+        if (newRemainingTime != m_RemainingTime)
+        {
+            m_RemainingTime = newRemainingTime;
+
+            var minutes = m_RemainingTime / 60;
+            var seconds = m_RemainingTime % 60;
+
+            RoundTime.text = $"{minutes:00}:{seconds:00}";
+        }
     }
 }
