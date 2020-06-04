@@ -15,8 +15,7 @@ public class SpeedUpdateSystem : SystemBase
             in TrackPosition trackPosition, in CarProperties carProperties, in CarInFront carInFront) =>
         {
             speed.Value -= carConfig.Decceleration * dtime; 
-            // speed.Value = math.max(carInFront.Speed, math.max(speed.Value, 0));
-            speed.Value = math.max(speed.Value, 0);
+            speed.Value = math.max(carInFront.Speed, math.max(speed.Value, 0));
         }).ScheduleParallel();
 
         // Accelerate in case the car is not blocked
