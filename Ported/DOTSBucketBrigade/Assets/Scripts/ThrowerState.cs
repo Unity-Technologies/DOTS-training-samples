@@ -6,7 +6,9 @@ public enum EThrowerState
     FindFire,
     WalkToFire,
     EmptyBucket,
-    PassBackBucket,
+    PassBucket,
+    StartWalkingToChainEnd,
+    WaitUntilChainEndInRange
 };
 
 [GenerateAuthoringComponent]
