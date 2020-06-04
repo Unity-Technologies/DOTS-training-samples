@@ -147,6 +147,7 @@ namespace DefaultNamespace
                         sourceWaterLevel.Level -= bucketWaterLevel.Capacity;
                         bucketWaterLevel.Level = bucketWaterLevel.Capacity;
                         waterLevelComponent[targetBucket.Target]  = bucketWaterLevel;
+                        waterLevelComponent[targetWaterSource.Target] = sourceWaterLevel;
                         state.State = EScooperState.WaitUntilChainStartInRangeAndNotCarrying;
                         break;
                    
