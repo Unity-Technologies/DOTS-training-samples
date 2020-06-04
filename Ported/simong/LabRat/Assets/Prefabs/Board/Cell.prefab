@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3926720042464204328}
   - component: {fileID: 3898559193946259844}
   - component: {fileID: 3907745592128608484}
+  - component: {fileID: 3715827920892401917}
   m_Layer: 0
   m_Name: CellMesh
   m_TagString: Untagged
@@ -82,6 +83,18 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3715827920892401917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3920680769548654952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e40e9ea42c0fe314aa336c73c5fea93e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3921456407266195404
 GameObject:
   m_ObjectHideFlags: 0
