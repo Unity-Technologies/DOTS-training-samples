@@ -179,6 +179,9 @@ public class GridCreationSystem : SystemBase
             var ecb = m_commandBuffer.CreateCommandBuffer();
             var cellSize = constantData.CellSize;
 
+            var spawnCats = constantData.CatSpawnerCount;
+            var spawnMice = constantData.MouseSpawnerCount;
+
             Entities.ForEach((in PrefabReferenceComponent prefabs) => {
 
                 //create cells and bases
@@ -269,32 +272,54 @@ public class GridCreationSystem : SystemBase
                 }
 
                 //create spawners
-                var spawner = ecb.Instantiate(prefabs.MouseSpawnerPrefab);
-                if(spawner != Entity.Null)
+                var count = 0;
+                int offset = (int)(height / (spawnCats + 1));
+
+                while(count < spawnCats)
                 {
-                    ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(0, 0), cellSize) });
-                    ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.NORTH });
+                    var spawner = ecb.Instantiate(prefabs.CatSpawnerPrefab);
+                    if (spawner != Entity.Null)
+                    {
+                        ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(width - 1, count * offset), cellSize) });
+                        ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.WEST });
+                    }
+
+                    if(count < (spawnCats - 1))
+                    {
+                        spawner = ecb.Instantiate(prefabs.CatSpawnerPrefab);
+                        if (spawner != Entity.Null)
+                        {
+                            ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(0, height - 1 - (count * offset)), cellSize) });
+                            ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.EAST });
+                        }
+                    }
+
+                    count += 2;
                 }
 
-                spawner = ecb.Instantiate(prefabs.MouseSpawnerPrefab);
-                if (spawner != Entity.Null)
-                {
-                    ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(width - 1, height - 1), cellSize) });
-                    ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.SOUTH });
-                }
+                count = 0;
+                offset = (int)(width / (spawnMice + 1));
 
-                spawner = ecb.Instantiate(prefabs.CatSpawnerPrefab);
-                if (spawner != Entity.Null)
+                while (count < spawnMice)
                 {
-                    ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(width - 1, 0), cellSize) });
-                    ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.WEST });
-                }
+                    var spawner = ecb.Instantiate(prefabs.MouseSpawnerPrefab);
+                    if (spawner != Entity.Null)
+                    {
+                        ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(count * offset, 0), cellSize) });
+                        ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.NORTH });
+                    }
 
-                spawner = ecb.Instantiate(prefabs.CatSpawnerPrefab);
-                if (spawner != Entity.Null)
-                {
-                    ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(0, height - 1), cellSize) });
-                    ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.EAST });
+                    if(count < (spawnMice - 1))
+                    {
+                        spawner = ecb.Instantiate(prefabs.MouseSpawnerPrefab);
+                        if (spawner != Entity.Null)
+                        {
+                            ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(width - 1 - (count * offset), height - 1), cellSize) });
+                            ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.SOUTH });
+                        }
+                    }
+
+                    count += 2;
                 }
 
             }).Schedule();
