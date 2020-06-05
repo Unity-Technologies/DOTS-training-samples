@@ -83,7 +83,7 @@ public class MonitorFrontSystemV2 : SystemBase
                 carInFront.TrackProgressCarInFront = carDataInFront.position;
                 carInFront.Speed = carDataInFront.speed;
             })
-            .Schedule(Dependency);
+            .ScheduleParallel(Dependency);
 
         jobReadFromCarInfos = Dependency = jobHandle;
     }
