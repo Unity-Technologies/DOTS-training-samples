@@ -156,9 +156,9 @@ MonoBehaviour:
   TemperatureIncreaseRate: 0.01
   Flashpoint: 0.2
   GridDimensions:
-    x: 50
-    y: 50
-  CellSize: 0.3
+    x: 500
+    y: 500
+  CellSize: 0.03
   WaterSourceRefillRate: 0.01
   BucketCapacity: 3
   BucketRadius: 0.2
@@ -167,7 +167,7 @@ MonoBehaviour:
   NumberOfBuckets: 400
   NumberOfPassersInOneDirectionPerChain: 8
   NumberOfChains: 50
-  StartingFireCount: 10
+  StartingFireCount: 100
   MaxFlameHeight: 1
   HeatRadius: 2
   FlickerRate: 0.5
@@ -177,9 +177,9 @@ MonoBehaviour:
   FullBucketScaleFactor: 1.3
   EmptyBucketColor: {r: 1, g: 0.6841278, b: 0, a: 0}
   FullBucketColor: {r: 0, g: 1, b: 0.9388056, a: 0}
-  SplashRadius: 4
+  SplashRadius: 40
   CoolingStrength: 2
-  CoolingFallOff: 4
+  CoolingFallOff: 40
   ColorNeutral: {r: 0.49019608, g: 0.7921569, b: 0.45882353, a: 1}
   ColorCool: {r: 1, g: 0.9882353, b: 0.5137255, a: 1}
   ColorHot: {r: 1, g: 0, b: 0, a: 1}

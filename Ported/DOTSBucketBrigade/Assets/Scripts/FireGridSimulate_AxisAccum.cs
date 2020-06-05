@@ -1,4 +1,4 @@
-﻿/*
+﻿
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -10,7 +10,7 @@ public class FireGridSimulate : SystemBase
 
     // TODO: Rolling sum
     [BurstCompile]
-    struct GridAccumulateAxisJob : IJob
+    struct GridAccumulateAxisJob : IJobParallelFor
     {
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<float> InputCells;
         
@@ -21,43 +21,34 @@ public class FireGridSimulate : SystemBase
         public float Flashpoint;
         public bool CheckFlashPoint;
 
-        public void Execute()
+        public void Execute(int index)
         {
-            int accumBufferSize = (SearchSize * 2) + 1;
-            float[] accumBuffer = new float[accumBufferSize];
-            int accumBufferIdx = 0;
-            float accumulatedTotal;
-            
-            for (int index = 0; index < InputCells.Length; ++index)
+            int cellRowIndex = index / Dimensions.x;
+            int cellColumnIndex = index % Dimensions.x;
+
+            float change = 0;
+
+            int y = cellRowIndex;
+
+            for (int offset = -SearchSize; offset <= SearchSize; offset++)
             {
-                int cellRowIndex = index / Dimensions.x;
-                int cellColumnIndex = index % Dimensions.x;
-
-                int y = cellRowIndex;
-
-                if (cellColumnIndex == 0)
+                if (offset != 0)
                 {
-                    accumBufferIdx = 0;
-                    for (int i = 0; i < accumBufferSize; ++i)
+                    int x = cellColumnIndex + offset;
+                    if (x >= 0 && x < Dimensions.x)
                     {
-                        accumBuffer[i] = 0;
-                    }
+                        float neighbourCellTemperature = InputCells[y * Dimensions.x + x];
 
-                    for (int fwdOffset = 0; fwdOffset < SearchSize; ++fwdOffset)
-                    {
-                        accumBuffer[accumBufferIdx] = InputCells[index + fwdOffset];
+                        if (!CheckFlashPoint || neighbourCellTemperature > Flashpoint)
+                        {
+                            change += neighbourCellTemperature;
+                        }
                     }
-                    
-                    
-                    accumulatedTotal = 0;
                 }
-                
-                
-
-                
-                int newIndex = cellColumnIndex * Dimensions.x + cellRowIndex;
-                OutputCells[newIndex] = change;
             }
+
+            int newIndex = cellColumnIndex * Dimensions.x + cellRowIndex;
+            OutputCells[newIndex] = change;
         }
     }
 
@@ -113,7 +104,7 @@ public class FireGridSimulate : SystemBase
             SearchSize = searchSize,
             Flashpoint = flashpoint,
             CheckFlashPoint = true,
-        }.Schedule(Dependency);
+        }.Schedule(size, 1000, Dependency);
         
         // Accumulate rows
         Dependency = new GridAccumulateAxisJob
@@ -125,7 +116,7 @@ public class FireGridSimulate : SystemBase
             SearchSize = searchSize,
             Flashpoint = flashpoint,
             CheckFlashPoint = false,
-        }.Schedule(Dependency);
+        }.Schedule(size, 1000, Dependency);
 
         Dependency = new GridFinaliseJob
         {
@@ -136,4 +127,3 @@ public class FireGridSimulate : SystemBase
         }.Schedule(size, 1000, Dependency);
     }
 }
-*/
