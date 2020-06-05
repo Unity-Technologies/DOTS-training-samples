@@ -1,61 +1,92 @@
-﻿using Unity.Collections;
-using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Transforms;
+﻿using Unity.Entities;
 
+[UpdateAfter(typeof(TrackProgressUpdateSystem))]
 public class MonitorFrontSystem : SystemBase
 {
     private const float LaneBlockThreshold = 0.9f;
+    private EntityQuery m_TrackInfoQuery;
+
+    protected override void OnCreate()
+    {
+        m_TrackInfoQuery = GetEntityQuery(ComponentType.ReadOnly<TrackInfo>());
+    }
 
     protected override void OnUpdate()
     {
-        //setup all other native arrays
-        NativeArray<TrackPosition> otherCars = GetEntityQuery(typeof(TrackPosition), typeof(Speed)).ToComponentDataArray<TrackPosition>(Allocator.TempJob);
-        NativeArray<Speed> otherSpeeds = GetEntityQuery(typeof(TrackPosition), typeof(Speed)).ToComponentDataArray<Speed>(Allocator.TempJob);
+        TrackProperties trackProperties = GetSingleton<TrackProperties>();
+        int trackLength = (int) trackProperties.TrackLength;
+
+        TrackInfo trackInfo = m_TrackInfoQuery.GetSingleton<TrackInfo>();
+        var progresses = trackInfo.Progresses;
+        var speeds = trackInfo.Speeds;
 
         Entities
+            .WithReadOnly(progresses)
+            .WithReadOnly(speeds)
+            .WithNone<TargetLane>()
             .ForEach((Entity entity, int entityInQueryIndex, ref CarInFront carInFront, in TrackPosition car) =>
             {
-                // 1. get current progress
-                float progress = car.TrackProgress;
-                float firstInLaneProgress = float.MaxValue;
-                float firstInLaneSpeed = 0;
-                float inFrontProgress = float.MaxValue;
-                float inFrontSpeed = 0;
+                int lane = (int)car.Lane;
 
-                // 2. sort through others and find closest (in front) in the same lane
-                for (int i = 0; i < otherCars.Length; i++)
+                int trackIndexStart = lane * trackLength;
+                int trackIndexEnd = (lane + 1) * trackLength;
+
+                int index = (int)car.TrackProgress + trackIndexStart;
+
+                // loop over the track, find the next progress
+                for (int i = 1; i <= trackLength; i++)
                 {
-                    if (math.abs(otherCars[i].Lane - car.Lane) < LaneBlockThreshold)
-                    {
-                        if (otherCars[i].TrackProgress > progress && otherCars[i].TrackProgress < inFrontProgress)
-                        {
-                            inFrontProgress = otherCars[i].TrackProgress;
-                            inFrontSpeed = otherSpeeds[i].Value;
-                        }
+                    int actualIndex = index + i;
 
-                        if (otherCars[i].TrackProgress < firstInLaneProgress)
-                        {
-                            firstInLaneProgress = otherCars[i].TrackProgress;
-                            firstInLaneSpeed = otherSpeeds[i].Value;
-                        }
+                    if (actualIndex >= trackIndexEnd)
+                    {
+                        actualIndex -= trackLength;
+                    }
+
+                    float nextProgress = progresses[actualIndex];
+
+                    if (nextProgress != 0)
+                    {
+                        carInFront.TrackProgressCarInFront = nextProgress;
+                        carInFront.Speed = speeds[actualIndex];
+                        break;
                     }
                 }
-
-                // if there's no car in front assigned, use the first car in track
-                if (inFrontSpeed == 0)
-                {
-                    inFrontProgress = firstInLaneProgress;
-                    inFrontSpeed = firstInLaneSpeed;
-                }
-
-                // 3. set the values for the car in front
-                // write the data back to CarInFront component
-                carInFront.TrackProgressCarInFront = inFrontProgress;
-                carInFront.Speed = inFrontSpeed;
             })
-            .WithDeallocateOnJobCompletion(otherCars)
-            .WithDeallocateOnJobCompletion(otherSpeeds)
+            .ScheduleParallel();
+
+        Entities
+            .WithReadOnly(progresses)
+            .WithReadOnly(speeds)
+            .ForEach((Entity entity, int entityInQueryIndex, ref CarInFront carInFront, in TrackPosition car, in TargetLane targetLane) =>
+            {
+                int lane = targetLane.Value;
+
+                int trackIndexStart = lane * trackLength;
+                int trackIndexEnd = (lane + 1) * trackLength;
+
+                int index = (int) car.TrackProgress + trackIndexStart;
+
+                // loop over the track, find the next progress
+                for (int i = 1; i <= trackLength; i++)
+                {
+                    int actualIndex = index + i;
+
+                    if (actualIndex >= trackIndexEnd)
+                    {
+                        actualIndex -= trackLength;
+                    }
+
+                    float nextProgress = progresses[actualIndex];
+
+                    if (nextProgress != 0)
+                    {
+                        carInFront.TrackProgressCarInFront = nextProgress;
+                        carInFront.Speed = speeds[actualIndex];
+                        break;
+                    }
+                }
+            })
             .ScheduleParallel();
     }
 }
