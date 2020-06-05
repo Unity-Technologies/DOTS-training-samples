@@ -209,7 +209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af063ccc3d7345119181976c2cacb492, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InstancesToSpawn: 32
+  InstancesToSpawn: 1000
 --- !u!4 &844579107
 Transform:
   m_ObjectHideFlags: 0
@@ -267,7 +267,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e18ffbeeb2d7bc54bb1e8685a7d318dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TrackLength: 80
+  TrackLength: 1024
   TrackStartingPoint:
     x: -5
     y: -5
