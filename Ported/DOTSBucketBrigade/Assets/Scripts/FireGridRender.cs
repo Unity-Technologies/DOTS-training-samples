@@ -6,6 +6,8 @@ using Unity.Transforms;
 [UpdateAfter(typeof(FireGridSimulate))]
 public class FireGridRender : SystemBase
 {
+    EndSimulationEntityCommandBufferSystem m_EndSimulationEcbSystem;
+
     private const float kGroundHeight = 0.001f;
     protected override void OnCreate()
     {
@@ -13,6 +15,9 @@ public class FireGridRender : SystemBase
 
         RequireSingletonForUpdate<BucketBrigadeConfig>();
         RequireSingletonForUpdate<FireGrid>();
+
+        m_EndSimulationEcbSystem = World
+           .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -54,5 +59,8 @@ public class FireGridRender : SystemBase
             cubeColor.Color = color;
 
         }).ScheduleParallel();
+
+        // Make sure that the ECB system knows about our job
+        m_EndSimulationEcbSystem.AddJobHandleForProducer(this.Dependency);
     }
 }

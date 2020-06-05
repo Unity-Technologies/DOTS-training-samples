@@ -6,9 +6,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 
 public class FireGridSimulate : SystemBase
-{
-    EndSimulationEntityCommandBufferSystem m_EndSimulationEcbSystem;
-    
+{   
     // TODO: Rolling sum
     [BurstCompile]
     struct GridAccumulateAxisJob : IJobParallelFor
@@ -73,9 +71,6 @@ public class FireGridSimulate : SystemBase
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<BucketBrigadeConfig>();
-        
-        m_EndSimulationEcbSystem = World
-            .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -129,8 +124,8 @@ public class FireGridSimulate : SystemBase
             
             TransferRate = transfer * delta
         }.Schedule(size, 1000, Dependency);
-        
-        // Make sure that the ECB system knows about our job
-        m_EndSimulationEcbSystem.AddJobHandleForProducer(Dependency);
+
+        // Sad sync point
+        Dependency.Complete();
     }
 }

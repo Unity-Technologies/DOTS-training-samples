@@ -7,6 +7,14 @@ using Unity.Mathematics;
 
 public class FireGridSimulate : SystemBase
 {
+    
+
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<BucketBrigadeConfig>();
+        base.OnCreate();
+        
+    }
 
     // TODO: Rolling sum
     [BurstCompile]
@@ -15,6 +23,7 @@ public class FireGridSimulate : SystemBase
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<float> InputCells;
         
         [NativeDisableParallelForRestriction] public NativeArray<float> OutputCells;
+        [DeallocateOnJobCompletion] public NativeArray<float> AccumBuffer;
 
         public int2 Dimensions;
         public int SearchSize;
@@ -24,9 +33,10 @@ public class FireGridSimulate : SystemBase
         public void Execute()
         {
             int accumBufferSize = (SearchSize * 2) + 1;
-            float[] accumBuffer = new float[accumBufferSize];
+            //float[] accumBuffer = new float[accumBufferSize];
             int accumBufferIdx = 0;
-            float accumulatedTotal;
+            int currentCellBufferIndex = 0;
+            float accumulatedTotal = 0;
             
             for (int index = 0; index < InputCells.Length; ++index)
             {
@@ -37,26 +47,40 @@ public class FireGridSimulate : SystemBase
 
                 if (cellColumnIndex == 0)
                 {
-                    accumBufferIdx = 0;
+                    accumulatedTotal = 0;
+                    currentCellBufferIndex = SearchSize;
+                    accumBufferIdx = currentCellBufferIndex;
                     for (int i = 0; i < accumBufferSize; ++i)
                     {
-                        accumBuffer[i] = 0;
+                        AccumBuffer[i] = 0;
                     }
 
                     for (int fwdOffset = 0; fwdOffset < SearchSize; ++fwdOffset)
                     {
-                        accumBuffer[accumBufferIdx] = InputCells[index + fwdOffset];
+                        AccumBuffer[accumBufferIdx] = InputCells[index + fwdOffset];
+                        accumulatedTotal += AccumBuffer[accumBufferIdx++];
                     }
-                    
-                    
-                    accumulatedTotal = 0;
                 }
-                
-                
+                //[][][][][]
 
-                
+                // calculate new index
+                accumBufferIdx = (++accumBufferIdx) % accumBufferSize;
+                if (!CheckFlashPoint || AccumBuffer[accumBufferIdx] > Flashpoint)
+                {
+                    accumulatedTotal -= AccumBuffer[accumBufferIdx]; // remove tail
+                }
+
+                AccumBuffer[accumBufferIdx] = index + SearchSize < Dimensions.x ? InputCells[index + SearchSize] : 0;
+
+                if (!CheckFlashPoint || AccumBuffer[accumBufferIdx] > Flashpoint)
+                {
+                    accumulatedTotal += AccumBuffer[accumBufferIdx];
+                }
+
+                currentCellBufferIndex = (++currentCellBufferIndex) % accumBufferSize;
                 int newIndex = cellColumnIndex * Dimensions.x + cellRowIndex;
-                OutputCells[newIndex] = change;
+                OutputCells[newIndex] = accumulatedTotal - AccumBuffer[currentCellBufferIndex];
+
             }
         }
     }
@@ -76,11 +100,6 @@ public class FireGridSimulate : SystemBase
             cell.Temperature = math.clamp(cell.Temperature + (InputCells[index] * TransferRate), -1.0f, 1.0f);
             OutputCells[index] = cell;
         }
-    }
-
-    protected override void OnCreate()
-    {
-        RequireSingletonForUpdate<BucketBrigadeConfig>();
     }
 
     protected override void OnUpdate()
@@ -103,12 +122,14 @@ public class FireGridSimulate : SystemBase
         var accumColumns = new NativeArray<float>(size, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
         var accumRows = new NativeArray<float>(size, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
         
+       
+
         // Accumulate columns
         Dependency = new GridAccumulateAxisJob
         {
             InputCells = gridCopy,
             OutputCells = accumColumns,
-
+            AccumBuffer = new NativeArray<float>(searchSize * 2 +1, Allocator.TempJob),
             Dimensions = dimensions,
             SearchSize = searchSize,
             Flashpoint = flashpoint,
@@ -120,7 +141,7 @@ public class FireGridSimulate : SystemBase
         {
             InputCells = accumColumns,
             OutputCells = accumRows,
-
+            AccumBuffer = new NativeArray<float>(searchSize * 2 + 1, Allocator.TempJob),
             Dimensions = dimensions,
             SearchSize = searchSize,
             Flashpoint = flashpoint,
@@ -134,6 +155,8 @@ public class FireGridSimulate : SystemBase
             
             TransferRate = transfer * delta
         }.Schedule(size, 1000, Dependency);
+
+        Dependency.Complete();
     }
 }
 */
