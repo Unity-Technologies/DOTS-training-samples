@@ -27,7 +27,7 @@ class SpawnerSystem : SystemBase
         RandomComponent random = GetSingleton<RandomComponent>();
         Entity tmpRandomEntity = randomEntity;
 
-        float dt = Time.DeltaTime;
+        float dt = (Time.DeltaTime * ConstantData.Instance.SpawnerFrequencyMultiplier);
 
         Entities.ForEach((int entityInQueryIndex, Entity entity, ref SpawnerInstance instance, in SpawnerInfo info, in Position2D position, in Direction2D direction) =>
         {
@@ -35,19 +35,19 @@ class SpawnerSystem : SystemBase
             instance.AlternateSpawnTime += dt;
             Entity toSpawn = Entity.Null;
 
-            if (info.AlternateSpawnMinFrequency != 0 & info.AlternateSpawnMaxFrequency != 0 && instance.CurrentAlternateSpawnFrenquency == 0)
+            if (info.AlternateSpawnMinFrequency != 0 & info.AlternateSpawnMaxFrequency != 0 && instance.CurrentAlternateSpawnFrequency == 0)
             {
-                instance.CurrentAlternateSpawnFrenquency = random.Value.NextFloat(info.AlternateSpawnMinFrequency, info.AlternateSpawnMaxFrequency) + instance.Time;
-                instance.CurrentAlternateSpawnFrenquency += info.Frequency - instance.CurrentAlternateSpawnFrenquency % info.Frequency;
+                instance.CurrentAlternateSpawnFrequency = random.Value.NextFloat(info.AlternateSpawnMinFrequency, info.AlternateSpawnMaxFrequency) + instance.Time;
+                instance.CurrentAlternateSpawnFrequency += info.Frequency - instance.CurrentAlternateSpawnFrequency % info.Frequency;
             }
 
             float walkSpeed = 0f;
             float rotationSpeed = 0f;
             float scale = 0f;
-            if (instance.CurrentAlternateSpawnFrenquency != 0 && instance.AlternateSpawnTime >= instance.CurrentAlternateSpawnFrenquency)
+            if (instance.CurrentAlternateSpawnFrequency != 0 && instance.AlternateSpawnTime >= instance.CurrentAlternateSpawnFrequency)
             {
-                instance.AlternateSpawnTime -= instance.CurrentAlternateSpawnFrenquency;
-                instance.CurrentAlternateSpawnFrenquency = 0;
+                instance.AlternateSpawnTime -= instance.CurrentAlternateSpawnFrequency;
+                instance.CurrentAlternateSpawnFrequency = 0;
                 instance.Time = 0; // Reset the default spawner time so it doesn't spawn randomly another entity straight away
                 toSpawn = ecb.Instantiate(entityInQueryIndex, info.AlternatePrefab);
                 walkSpeed = random.Value.NextFloat(info.AlternateWalkSpeed.x, info.AlternateWalkSpeed.y);
@@ -73,7 +73,7 @@ class SpawnerSystem : SystemBase
                 ecb.AddComponent(entityInQueryIndex, toSpawn, new NonUniformScale { Value = new float3(scale) });
 
             }
-            float t = random.Value.NextFloat();
+            
             ecb.SetComponent(entityInQueryIndex, tmpRandomEntity, random);
 
             if (info.MaxSpawns > 0 && instance.TotalSpawned >= info.MaxSpawns)
