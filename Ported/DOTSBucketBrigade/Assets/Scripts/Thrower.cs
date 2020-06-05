@@ -133,10 +133,10 @@ namespace DefaultNamespace
                 .WithReadOnly(fireGridBuffer)
                 .WithReadOnly(translationComponent)
                 .WithNativeDisableParallelForRestriction(waterLevelComponent)
-                .WithNativeDisableParallelForRestriction(targetBucketComponent)
+                .WithReadOnly(targetBucketComponent)
                 .WithNativeDisableParallelForRestriction(chainComponent)
                 .WithNativeDisableParallelForRestriction(bucketColorComponent)
-                .ScheduleParallel();
+                .Schedule();
             
             m_Barrier.AddJobHandleForProducer(Dependency);
         }

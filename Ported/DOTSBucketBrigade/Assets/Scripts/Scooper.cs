@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using System.Threading;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -26,7 +27,8 @@ namespace DefaultNamespace
             m_BucketQuery = GetEntityQuery(
                 new EntityQueryDesc
                 {
-                    All = new []{ComponentType.ReadOnly<AvailableBucketTag>() }
+                    All = new []{ComponentType.ReadOnly<AvailableBucketTag>() },
+                    None = new []{ComponentType.ReadOnly<ClaimedBucketTag>() }
                 });
 
             m_Barrier =
@@ -106,6 +108,7 @@ namespace DefaultNamespace
                             break;
 
                         bucketAssignments[foundIndex] = 1;
+                        ecb.AddComponent<ClaimedBucketTag>(entityInQueryIndex, nearestBucket);
                         
                         var nearestBucketPosition = translationComponent[nearestBucket];
                         targetBucket.Target = nearestBucket;
@@ -126,6 +129,7 @@ namespace DefaultNamespace
 
                         if (bucketDistSq < config.MovementTargetReachedThreshold)
                         {
+                            ecb.RemoveComponent<ClaimedBucketTag>(entityInQueryIndex, targetBucket.Target);
                             ecb.RemoveComponent<AvailableBucketTag>(entityInQueryIndex, targetBucket.Target);
                             state.State = EScooperState.StartWalkingToWater;
                         }
