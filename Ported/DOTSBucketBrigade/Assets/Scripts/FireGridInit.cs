@@ -68,6 +68,8 @@ public class FireGridInit : SystemBase
             SetComponent(cell, position);
 
             var scale = GetComponent<NonUniformScale>(cell);
+            scale.Value.x = config.CellSize;
+            scale.Value.z = config.CellSize;
             scale.Value.y = StarData[i].Temperature +0.001f;
             SetComponent(cell, scale);
 
