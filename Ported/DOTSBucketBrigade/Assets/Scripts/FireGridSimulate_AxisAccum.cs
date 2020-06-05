@@ -71,6 +71,9 @@ public class FireGridSimulate : SystemBase
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<BucketBrigadeConfig>();
+
+        // Need this so that ECS realises we actually want to write to this
+        EntityQuery query = GetEntityQuery(ComponentType.ReadWrite<FireGridCell>());
     }
 
     protected override void OnUpdate()
@@ -124,8 +127,5 @@ public class FireGridSimulate : SystemBase
             
             TransferRate = transfer * delta
         }.Schedule(size, 1000, Dependency);
-
-        // Sad sync point
-        Dependency.Complete();
     }
 }
