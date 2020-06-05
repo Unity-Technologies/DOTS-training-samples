@@ -129,7 +129,6 @@ public class ScoreSystem : SystemBase
                     {
                         if (playerBases[i].PlayerID == playerId)
                         {
-                            Debug.Log("Mouse + Base!");
                             ecb.AddComponent(playerBaseEntities[i], new ScaleRequest { Scale = baseAbsorbScale, Time = baseAbsorbScaleTime });
                             break;
                         }
@@ -152,7 +151,6 @@ public class ScoreSystem : SystemBase
                     {
                         if (playerBases[i].PlayerID == playerId)
                         {
-                            Debug.Log("Cat + Base!");
                             ecb.AddComponent(playerBaseEntities[i], new ScaleRequest { Scale = baseAbsorbScale, Time = baseAbsorbScaleTime });
                             break;
                         }
