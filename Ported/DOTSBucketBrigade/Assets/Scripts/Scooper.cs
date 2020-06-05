@@ -44,9 +44,7 @@ namespace DefaultNamespace
             // TODO: this does not need to be queried every frame.
             var waterEntities = m_WaterSourceQuery.ToEntityArrayAsync(Allocator.TempJob, out var fetchWaterEntitiesJob);
             var bucketEntities = m_BucketQuery.ToEntityArrayAsync(Allocator.TempJob, out var fetchBucketEntitiesJob);
-            var bucketAssignments = new NativeArray<byte>(bucketEntities.Length, Allocator.TempJob);
-
-            var combinedFetchJob = JobHandle.CombineDependencies(Dependency, fetchWaterEntitiesJob, fetchBucketEntitiesJob);
+            var bucketAssignments = new NativeArray<byte>(m_BucketQuery.CalculateEntityCount(), Allocator.TempJob);
             
             var translationComponent = GetComponentDataFromEntity<LocalToWorld>();
             var chainComponent = GetComponentDataFromEntity<Chain>();
@@ -54,7 +52,7 @@ namespace DefaultNamespace
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
             var bucketColorComponent = GetComponentDataFromEntity<BucketColor>();
 
-            Entities.WithNone<BucketChangeRequest>().ForEach((Entity entity, int entityInQueryIndex,
+            Dependency = Entities.WithNone<BucketChangeRequest>().ForEach((Entity entity, int entityInQueryIndex,
                 ref ScooperState state, ref TargetPosition targetPosition, ref TargetBucket targetBucket, 
                  in Translation position) =>
             {
@@ -79,7 +77,7 @@ namespace DefaultNamespace
             })
                 .WithDeallocateOnJobCompletion(bucketEntities)
                 .WithDeallocateOnJobCompletion(bucketAssignments)
-                .Schedule();
+                .Schedule(JobHandle.CombineDependencies(Dependency, fetchBucketEntitiesJob));
             
             Dependency = Entities.WithNone<BucketChangeRequest>().ForEach((Entity entity, int entityInQueryIndex, ref ScooperState state, ref TargetPosition targetPosition, ref TargetWaterSource targetWaterSource, in NextInChain nextInChain, in Translation position, in Agent agent)
                 =>
@@ -203,7 +201,7 @@ namespace DefaultNamespace
                 .WithNativeDisableParallelForRestriction(waterLevelComponent)
                 .WithReadOnly(translationComponent)
                 .WithReadOnly(targetBucketComponent)
-                .ScheduleParallel(combinedFetchJob);
+                .ScheduleParallel(JobHandle.CombineDependencies(Dependency, fetchWaterEntitiesJob));
             
             m_Barrier.AddJobHandleForProducer(Dependency);
         }
