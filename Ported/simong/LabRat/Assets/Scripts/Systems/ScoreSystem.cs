@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 public class ScoreSystem : SystemBase
@@ -112,6 +113,9 @@ public class ScoreSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, playerBaseEntitiesHandle);
         var ecb = m_EndSimulationECBS.CreateCommandBuffer();
 
+        var baseAbsorbScale = ConstantData.Instance.BaseAbsorbScale;
+        var baseAbsorbScaleTime = ConstantData.Instance.BaseAbsorbScaleTime;
+
         Entities
             .WithName("AddMiceScore")
             .WithAll<MouseTag>()
@@ -125,7 +129,8 @@ public class ScoreSystem : SystemBase
                     {
                         if (playerBases[i].PlayerID == playerId)
                         {
-                            ecb.AddComponent(playerBaseEntities[i], new ScaleRequest { Scale = 1.5f, Time = 0.2f });
+                            Debug.Log("Mouse + Base!");
+                            ecb.AddComponent(playerBaseEntities[i], new ScaleRequest { Scale = baseAbsorbScale, Time = baseAbsorbScaleTime });
                             break;
                         }
                     }
@@ -147,7 +152,8 @@ public class ScoreSystem : SystemBase
                     {
                         if (playerBases[i].PlayerID == playerId)
                         {
-                            ecb.AddComponent(playerBaseEntities[i], new ScaleRequest { Scale = 1.5f, Time = 0.2f });
+                            Debug.Log("Cat + Base!");
+                            ecb.AddComponent(playerBaseEntities[i], new ScaleRequest { Scale = baseAbsorbScale, Time = baseAbsorbScaleTime });
                             break;
                         }
                     }

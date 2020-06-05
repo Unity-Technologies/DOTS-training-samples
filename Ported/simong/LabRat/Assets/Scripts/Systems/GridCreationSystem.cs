@@ -2,6 +2,7 @@ using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 
@@ -38,9 +39,9 @@ public class GridCreationSystem : SystemBase
 
         Debug.Log("generate grid");
 
-        if(!Cells.IsCreated && constantData != null)
+        if (!Cells.IsCreated && constantData != null)
         {
-            
+
 
             Cells = new NativeArray<CellInfo>(constantData.BoardDimensions.x * constantData.BoardDimensions.y, Allocator.Persistent);
 
@@ -52,7 +53,7 @@ public class GridCreationSystem : SystemBase
 
             var random = new Unity.Mathematics.Random((uint)(DateTime.Now.Ticks % uint.MaxValue));
 
-            Job.WithCode(() => 
+            Job.WithCode(() =>
             {
                 int bottomLeft = width * (height - 1);
 
@@ -84,7 +85,7 @@ public class GridCreationSystem : SystemBase
                 int xOffset = (int)(width * 0.333f);
                 int yOffset = (int)(height * 0.333f);
 
-                int baseIndex = (yOffset * width) + xOffset; 
+                int baseIndex = (yOffset * width) + xOffset;
 
                 cellsarray[baseIndex] = cellsarray[baseIndex].SetBasePlayerId(0);
 
@@ -102,7 +103,8 @@ public class GridCreationSystem : SystemBase
 
             }).Schedule();
 
-            Job.WithCode(() => {
+            Job.WithCode(() =>
+            {
 
                 //add walls
 
@@ -145,7 +147,7 @@ public class GridCreationSystem : SystemBase
                                 break;
                         }
 
-                        if(x >= 0 && x < width && y >= 0 && y < height)
+                        if (x >= 0 && x < width && y >= 0 && y < height)
                         {
                             index = (y * width) + x;
                             cellsarray[index] = cellsarray[index].BlockTravel(dir);
@@ -167,7 +169,7 @@ public class GridCreationSystem : SystemBase
 
                     var cell = cellsarray[index];
 
-                    if(cell.IsEmpty())
+                    if (cell.IsEmpty())
                     {
                         cellsarray[index] = cell.SetIsHole();
                         count++;
@@ -179,7 +181,8 @@ public class GridCreationSystem : SystemBase
             var ecb = m_commandBuffer.CreateCommandBuffer();
             var cellSize = constantData.CellSize;
 
-            Entities.ForEach((in PrefabReferenceComponent prefabs) => {
+            Entities.ForEach((in PrefabReferenceComponent prefabs) =>
+            {
 
                 //create cells and bases
                 for (int x = 0; x < width; x++)
@@ -224,13 +227,14 @@ public class GridCreationSystem : SystemBase
                                     break;
                             }
 
-                            if(basePrefab != Entity.Null)
+                            if (basePrefab != Entity.Null)
                             {
                                 var entity = ecb.Instantiate(basePrefab);
 
                                 if (entity != Entity.Null)
                                 {
                                     ecb.SetComponent(entity, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(x, y), cellSize) });
+                                    ecb.AddComponent(entity, new NonUniformScale { Value = new float3(1f) });
                                 }
                             }
                         }
@@ -251,7 +255,7 @@ public class GridCreationSystem : SystemBase
                                     check = (x == 0);
                                     break;
                             }
-                            
+
                             if (check && !cell.CanTravel(dir))
                             {
                                 var wall = ecb.Instantiate(prefabs.WallPrefab);
@@ -270,7 +274,7 @@ public class GridCreationSystem : SystemBase
 
                 //create spawners
                 var spawner = ecb.Instantiate(prefabs.MouseSpawnerPrefab);
-                if(spawner != Entity.Null)
+                if (spawner != Entity.Null)
                 {
                     ecb.SetComponent(spawner, new Position2D { Value = Utility.GridCoordinatesToWorldPos(new int2(0, 0), cellSize) });
                     ecb.SetComponent(spawner, new Direction2D { Value = GridDirection.NORTH });
@@ -299,7 +303,8 @@ public class GridCreationSystem : SystemBase
 
             }).Schedule();
 
-            Entities.ForEach((Entity entity, in GenerateGridRequestComponent request) => {
+            Entities.ForEach((Entity entity, in GenerateGridRequestComponent request) =>
+            {
                 ecb.DestroyEntity(entity);
             }).Schedule();
 

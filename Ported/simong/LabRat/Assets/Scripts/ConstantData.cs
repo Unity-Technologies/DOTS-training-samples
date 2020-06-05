@@ -22,6 +22,9 @@ public class ConstantData : MonoBehaviour
     public float EatingScale = 1.5f;
     public float EatingScaleTime = 0.2f;
 
+    public float BaseAbsorbScale = 1.2f;
+    public float BaseAbsorbScaleTime = 0.2f;
+
     public float RoundLength = 60f;
     public Vector2Int BoardDimensions = new Vector2Int(30, 30);
     public Vector2 CellSize = new Vector2(1f, 1f);

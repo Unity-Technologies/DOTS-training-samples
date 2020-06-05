@@ -27,7 +27,7 @@ public class TransformSystem2D : SystemBase
 
         // Also handle entities with only positions and a non uniform scale component 
         Entities
-            .WithChangeFilter<Position2D>()
+            .WithChangeFilter<Position2D, NonUniformScale>()
             .WithNone<Rotation2D>()
             .WithNone<CompositeScale>()
             .ForEach((ref LocalToWorld localToWorld, in Position2D position2D, in NonUniformScale scale) =>

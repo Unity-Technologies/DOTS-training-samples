@@ -35,7 +35,7 @@ public class ScaleAnimationSystem : SystemBase
         Entities
             .ForEach((int entityInQueryIndex, Entity entity, in ScaleRequest request) =>
             {
-                ecb.AddComponent(entityInQueryIndex, entity, new NonUniformScale { Value = new float3(request.Scale) });
+                ecb.SetComponent(entityInQueryIndex, entity, new NonUniformScale { Value = new float3(request.Scale) });
                 ecb.AddComponent(entityInQueryIndex, entity, new ScaleAnimation { Timer = request.Time });
                 ecb.RemoveComponent<ScaleRequest>(entityInQueryIndex, entity);
             })
@@ -49,7 +49,7 @@ public class ScaleAnimationSystem : SystemBase
                 animation.Timer -= dt;
                 if (animation.Timer <= 0f)
                 {
-                    ecb.AddComponent(entityInQueryIndex, entity, new NonUniformScale { Value = new float3(1f) });
+                    ecb.SetComponent(entityInQueryIndex, entity, new NonUniformScale { Value = new float3(1f) });
                     ecb.RemoveComponent<ScaleAnimation>(entityInQueryIndex, entity);
                 }
             })
