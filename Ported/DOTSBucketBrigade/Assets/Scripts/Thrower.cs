@@ -129,14 +129,13 @@ namespace DefaultNamespace
                         break;
                 }
             })
-                .WithoutBurst()
                 .WithReadOnly(fireGridBuffer)
                 .WithReadOnly(translationComponent)
                 .WithNativeDisableParallelForRestriction(waterLevelComponent)
                 .WithReadOnly(targetBucketComponent)
                 .WithNativeDisableParallelForRestriction(chainComponent)
                 .WithNativeDisableParallelForRestriction(bucketColorComponent)
-                .Schedule();
+                .ScheduleParallel();
             
             m_Barrier.AddJobHandleForProducer(Dependency);
         }

@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Entities.CodeGeneratedJobForEach;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -53,6 +54,33 @@ namespace DefaultNamespace
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
             var bucketColorComponent = GetComponentDataFromEntity<BucketColor>();
 
+            Entities.WithNone<BucketChangeRequest>().ForEach((Entity entity, int entityInQueryIndex,
+                ref ScooperState state, ref TargetPosition targetPosition, ref TargetBucket targetBucket, 
+                 in Translation position) =>
+            {
+                switch (state.State)
+                {
+                    case EScooperState.FindBucket:
+                        var nearestBucket = FindNearestBucket(translationComponent, bucketEntities, bucketAssignments,
+                            position, out var foundIndex);
+                        if (nearestBucket == Entity.Null)
+                            break;
+
+                        bucketAssignments[foundIndex] = 1;
+
+                        ecb.AddComponent<ClaimedBucketTag>(entityInQueryIndex, nearestBucket);
+
+                        var nearestBucketPosition = translationComponent[nearestBucket];
+                        targetBucket.Target = nearestBucket;
+                        targetPosition.Target = nearestBucketPosition.Position;
+                        state.State = EScooperState.StartWalkingToBucket;
+                        break;
+                }
+            })
+                .WithDeallocateOnJobCompletion(bucketEntities)
+                .WithDeallocateOnJobCompletion(bucketAssignments)
+                .Schedule();
+            
             Dependency = Entities.WithNone<BucketChangeRequest>().ForEach((Entity entity, int entityInQueryIndex, ref ScooperState state, ref TargetPosition targetPosition, ref TargetWaterSource targetWaterSource, in NextInChain nextInChain, in Translation position, in Agent agent)
                 =>
             {
@@ -100,22 +128,7 @@ namespace DefaultNamespace
                         {
                             state.State = EScooperState.FillBucket;
                         }
-                        break;
-                    
-                    case EScooperState.FindBucket:
-                        var nearestBucket = FindNearestBucket(translationComponent, bucketEntities, bucketAssignments, position, out var foundIndex);
-                        if (nearestBucket == Entity.Null)
-                            break;
-
-                        bucketAssignments[foundIndex] = 1;
-                        ecb.AddComponent<ClaimedBucketTag>(entityInQueryIndex, nearestBucket);
-                        
-                        var nearestBucketPosition = translationComponent[nearestBucket];
-                        targetBucket.Target = nearestBucket;
-                        targetBucketComponent[entity] = targetBucket;
-                        targetPosition.Target = nearestBucketPosition.Position;
-                        state.State = EScooperState.StartWalkingToBucket;
-                        break;                    
+                        break;                 
                     
                     case EScooperState.StartWalkingToBucket:
                         var walkToBucketPosition = translationComponent[targetBucket.Target];
@@ -185,12 +198,12 @@ namespace DefaultNamespace
                 }
             })
                 .WithDeallocateOnJobCompletion(waterEntities)
-                .WithDeallocateOnJobCompletion(bucketEntities)
-                .WithDeallocateOnJobCompletion(bucketAssignments)
                 .WithNativeDisableParallelForRestriction(chainComponent)
                 .WithNativeDisableParallelForRestriction(bucketColorComponent)
+                .WithNativeDisableParallelForRestriction(waterLevelComponent)
                 .WithReadOnly(translationComponent)
-                .Schedule(combinedFetchJob);
+                .WithReadOnly(targetBucketComponent)
+                .ScheduleParallel(combinedFetchJob);
             
             m_Barrier.AddJobHandleForProducer(Dependency);
         }
