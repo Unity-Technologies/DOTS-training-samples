@@ -8,6 +8,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateAfter(typeof(MonitorFrontSystemV2))]
+[UpdateAfter(typeof(LaneChangeSystem))]
 public class CarSortingByLaneSystem : SystemBase
 {
     public struct CarInfo : IComparable<CarInfo>
@@ -77,6 +78,80 @@ public class CarSortingByLaneSystem : SystemBase
             }
         }
 
+        public bool GetCarOnAdjacentLane(float lane, int offset, float ownProgress, out CarInfo carInFront, out CarInfo carBehind)
+        {
+            carInFront = new CarInfo
+            {
+                position = float.MaxValue,
+                speed = float.MaxValue
+            };
+
+            carBehind = new CarInfo
+            {
+                position = float.MaxValue,
+                speed = float.MaxValue
+            };
+
+            if (!m_CarInfosByTrackGroupIdx.IsCreated)
+            {
+                return false;
+            }
+
+            int laneGroup = TrackGroup.LaneValueToTrackGroupIdx(lane);
+
+            float minDistanceInFrontOfUs = float.MaxValue;
+            float minDistanceBehindUs = float.MaxValue;
+
+            var laneGroupMostFarAway = laneGroup + offset + offset;
+            if (laneGroupMostFarAway >= 0 && laneGroupMostFarAway <= m_CarInfosByTrackGroupIdx.Length - 1)
+            {
+                GetEntryInFrontAndBehind(laneGroupMostFarAway - offset, ownProgress,
+                    ref minDistanceInFrontOfUs, ref carInFront,
+                    ref minDistanceBehindUs, ref carBehind);
+
+                GetEntryInFrontAndBehind(laneGroupMostFarAway, ownProgress,
+                    ref minDistanceInFrontOfUs, ref carInFront,
+                    ref minDistanceBehindUs, ref carBehind);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        void GetEntryInFrontAndBehind(int laneGroup, float ownProgress, 
+            ref float minDistanceInFront, ref CarInfo entryWithMinDistanceInFront,
+            ref float minDistanceBehind, ref CarInfo entryWithMinDistanceBehind)
+        {
+            var carInfos = m_CarInfosByTrackGroupIdx[laneGroup];
+            if (carInfos.Length > 0)
+            {
+                var found = ArrayBinarySearch(carInfos, ownProgress, out var entryIdxBehind);
+                if (!found || carInfos.Length > 1)
+                {
+                    var entryInFront = carInfos[(entryIdxBehind + 1) % carInfos.Length];
+
+                    var distanceInFront = TrackPosition.GetLoopedDistanceInFront(ownProgress, entryInFront.position, m_TrackLength);
+
+                    if (distanceInFront < minDistanceInFront)
+                    {
+                        entryWithMinDistanceInFront = entryInFront;
+                        minDistanceInFront = distanceInFront;
+                    }
+
+                    var entryBehind = carInfos[(entryIdxBehind) % carInfos.Length];
+
+                    var distanceBehind = TrackPosition.GetLoopedDistanceInFront(entryBehind.position, ownProgress, m_TrackLength);
+
+                    if (distanceBehind < minDistanceBehind)
+                    {
+                        entryWithMinDistanceBehind = entryBehind;
+                        minDistanceBehind = distanceBehind;
+                    }
+                }
+            }
+        }
+
         // return true if search is successful, false otherwise
         // indexInData is index of entry having same value as item if search is successful
         // if search is unsuccessful, indexInData is index of largest entry that is smaller than item
@@ -116,8 +191,12 @@ public class CarSortingByLaneSystem : SystemBase
     protected override void OnUpdate()
     {
         var monitorFrontSystem = World.GetExistingSystem<MonitorFrontSystemV2>();
-        var readerJobHandle = monitorFrontSystem.GetJobHandleReadFromCarInfos();
-        var inputDep = JobHandle.CombineDependencies(Dependency, readerJobHandle);
+        var readerJobHandleA = monitorFrontSystem.GetJobHandleReadFromCarInfos();
+
+        var laneChangeSystem = World.GetExistingSystem<LaneChangeSystem>();
+        var readerJobHandleB = laneChangeSystem.GetJobHandleReadFromCarInfos();
+
+        var inputDep = JobHandle.CombineDependencies(Dependency, readerJobHandleA, readerJobHandleB);
 
         var trackProperties = GetSingleton<TrackProperties>();
         var numOfTrackGroup = trackProperties.NumberOfLanes * 2 - 1;
