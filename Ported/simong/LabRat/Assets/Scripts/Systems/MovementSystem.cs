@@ -8,6 +8,7 @@ using UnityEngine;
 
 class MovementSystem : SystemBase
 {
+    const float k_RotationEpsilon = 0.001f;
     const float k_SliceEpsilon = 0.00001f;
 
     struct ArrowData
@@ -42,7 +43,7 @@ class MovementSystem : SystemBase
         {
             return;
         }
-        
+
         var gridSystem = World.GetOrCreateSystem<GridCreationSystem>();
         if (!gridSystem.Cells.IsCreated)
             return;
@@ -205,8 +206,16 @@ class MovementSystem : SystemBase
 
                     // Lerp the visible forward direction towards the logical one each frame.
                     var goalRot = Utility.DirectionToAngle(dir.Value);
-                    var angle = Utility.UnwrapAngle(goalRot - rot.Value);
-                    rot.Value += math.lerp(0, angle, deltaTime * speed.RotationSpeed);
+                    if (goalRot == 0f && rot.Value > math.PI)
+                        goalRot += math.PI * 2f;
+                    if (goalRot <= math.PI && rot.Value >= (math.PI * 2f))
+                    {
+                        rot.Value -= (math.PI * 2f);
+                    }
+                    if (Utility.NearlyEqual(rot.Value, goalRot, k_RotationEpsilon))
+                        rot.Value = goalRot;
+                    else
+                        rot.Value = math.lerp(rot.Value, goalRot, deltaTime * speed.RotationSpeed);
                 }
             })
             .WithName("UpdateWalking")
