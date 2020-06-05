@@ -19,7 +19,9 @@ public class BlockedUpdateSystem : SystemBase
 
         var ecb = entityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
+        var trackLength = trackProperties.TrackLength;
         var threshold = carConfig.MinDistanceToFront + 0.25f;
+        var deceleration = carConfig.Deceleration;
 
         Entities
             .WithNone<BlockedState>()
@@ -27,8 +29,8 @@ public class BlockedUpdateSystem : SystemBase
                 ref TrackPosition trackPosition, 
                 in CarInFront carInFront, in Speed speed, in CarProperties carProperties) =>
         {
-            bool blocked = CheckBlock(speed.Value, carInFront.Speed, carConfig.Deceleration, 
-                trackPosition.TrackProgress, carInFront.TrackProgressCarInFront,trackProperties.TrackLength,
+            bool blocked = CheckBlock(speed.Value, carInFront.Speed, deceleration, 
+                trackPosition.TrackProgress, carInFront.TrackProgressCarInFront, trackLength,
                 threshold);
 
            if (blocked) {
@@ -42,8 +44,8 @@ public class BlockedUpdateSystem : SystemBase
                 ref TrackPosition trackPosition, 
                 in CarInFront carInFront, in Speed speed, in CarProperties carProperties) =>
         {
-            bool blocked = CheckBlock(speed.Value, carInFront.Speed, carConfig.Deceleration, 
-                trackPosition.TrackProgress, carInFront.TrackProgressCarInFront,trackProperties.TrackLength,
+            bool blocked = CheckBlock(speed.Value, carInFront.Speed, deceleration, 
+                trackPosition.TrackProgress, carInFront.TrackProgressCarInFront, trackLength,
                 threshold);
 
             if (!blocked) {
