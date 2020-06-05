@@ -72,11 +72,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 1377909340170110, guid: 19268829cf75c415f8f14765efcab529, type: 3}
+  Scale:
+    x: 1
+    y: 1
   WalkSpeed:
     x: 1.5
     y: 1.9
   RotationSpeed: 7
   AlternatePrefab: {fileID: 0}
+  AlternateScale:
+    x: 0
+    y: 0
   AlternateWalkSpeed:
     x: 0
     y: 0

@@ -5,10 +5,12 @@ using Unity.Mathematics;
 public struct SpawnerInfo : IComponentData
 {
     public Entity Prefab;
+    public float2 Scale;
     public float2 WalkSpeed;
     public float RotationSpeed;
 
     public Entity AlternatePrefab;
+    public float2 AlternateScale;
     public float2 AlternateWalkSpeed;
     public float AlternateRotationSpeed;
 
