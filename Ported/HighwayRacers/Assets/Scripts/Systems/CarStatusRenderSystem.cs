@@ -2,9 +2,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Rendering;
-using Unity.Transforms;
 
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 public class CarStatusRenderSystem : SystemBase
@@ -49,6 +47,19 @@ public class CarStatusRenderSystem : SystemBase
         var acceleratingRenderMesh = m_AcceleratingRenderMesh;
 
         Entities
+            .WithSharedComponentFilter(defaultSpeedRenderMesh)
+            .WithoutBurst()
+            .WithNone<BlockedState>()
+            .ForEach((Entity carEntity, in CarProperties carProperty, in Speed speed) =>
+            {
+                if (carProperty.DefaultSpeed > speed.Value)
+                {
+                    ecb.SetSharedComponent(carEntity, acceleratingRenderMesh);
+                }
+            }).Run();
+
+        Entities
+            .WithSharedComponentFilter(acceleratingRenderMesh)
             .WithoutBurst()
             .WithNone<BlockedState>()
             .ForEach((Entity carEntity, in CarProperties carProperty, in Speed speed) =>
@@ -57,9 +68,21 @@ public class CarStatusRenderSystem : SystemBase
                 {
                     ecb.SetSharedComponent(carEntity, defaultSpeedRenderMesh);
                 }
-                else
+            }).Run();
+
+        Entities
+            .WithSharedComponentFilter(m_BlockedRenderMesh)
+            .WithoutBurst()
+            .WithNone<BlockedState>()
+            .ForEach((Entity carEntity, in CarProperties carProperty, in Speed speed) =>
+            {
+                if (carProperty.DefaultSpeed > speed.Value)
                 {
                     ecb.SetSharedComponent(carEntity, acceleratingRenderMesh);
+                }
+                else
+                {
+                    ecb.SetSharedComponent(carEntity, defaultSpeedRenderMesh);
                 }
             }).Run();
     }
