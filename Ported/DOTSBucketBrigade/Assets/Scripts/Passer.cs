@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
@@ -13,6 +14,13 @@ namespace DefaultNamespace
                 World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
+        public struct BucketChangeRequest
+        {
+            public Entity From;
+            public Entity To;
+            public Entity Bucket;
+        }
+
         protected override void OnUpdate()
         {
             var config = GetSingleton<BucketBrigadeConfig>();
@@ -22,6 +30,9 @@ namespace DefaultNamespace
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
             var ecb = m_Barrier.CreateCommandBuffer().ToConcurrent();
             
+            var bucketChangeQueue = new NativeQueue<BucketChangeRequest>(Allocator.TempJob);
+            var bucketChangeQueueParallel = bucketChangeQueue.AsParallelWriter();
+
             // ref TargetBucket targetBucket, in Translation position,
             Entities.WithNone<ScooperState, ThrowerState>().ForEach((Entity entity, int entityInQueryIndex, ref TargetPosition targetPosition, in Agent agent,  in NextInChain nextInChain)
                 =>
@@ -51,22 +62,26 @@ namespace DefaultNamespace
                     {
                         if (nextInChain.Next == Entity.Null)
                         {
-                            ecb.AddComponent<AvailableBucketTag>(entityInQueryIndex, targetBucket.Target);
                             var targetBucketPosition = translationComponent[targetBucket.Target];
                             targetBucketPosition.Value.y -= config.CarriedBucketHeightOffset;
                             translationComponent[targetBucket.Target] = targetBucketPosition;
-                            targetBucket.Target = Entity.Null;
-                            targetBucketComponent[entity] = targetBucket;
+                            
+                            bucketChangeQueueParallel.Enqueue(new BucketChangeRequest { Bucket = targetBucket.Target, From = entity, To = Entity.Null});
+                            
+                            //targetBucket.Target = Entity.Null;
+                            //targetBucketComponent[entity] = targetBucket;
                         }
                         else
                         {
                             var nextInChainTargetBucket = targetBucketComponent[nextInChain.Next];
                             if (nextInChainTargetBucket.Target == Entity.Null)
                             {
-                                nextInChainTargetBucket.Target = targetBucket.Target;
-                                targetBucketComponent[nextInChain.Next] = nextInChainTargetBucket;
-                                targetBucket.Target = Entity.Null;
-                                targetBucketComponent[entity] = targetBucket;
+                                bucketChangeQueueParallel.Enqueue(new BucketChangeRequest { Bucket = targetBucket.Target, From = entity, To = nextInChain.Next});
+                                
+                                //nextInChainTargetBucket.Target = targetBucket.Target;
+                                //targetBucketComponent[nextInChain.Next] = nextInChainTargetBucket;
+                                //targetBucket.Target = Entity.Null;
+                                //targetBucketComponent[entity] = targetBucket;
                             }
                         }
                     }
@@ -85,11 +100,45 @@ namespace DefaultNamespace
             })
                 .WithNativeDisableParallelForRestriction(translationComponent)
                 .WithReadOnly(availableBucketComponent)
-                .WithNativeDisableParallelForRestriction(targetBucketComponent)
+                .WithReadOnly(targetBucketComponent)
+                //.WithNativeDisableParallelForRestriction(targetBucketComponent)
                 .WithReadOnly(chainComponent)
                 .ScheduleParallel();
+
+            Job.WithCode(() =>
+            {
+                while (bucketChangeQueue.TryDequeue(out var bucketAction))
+                {
+                    if (bucketAction.To != Entity.Null)
+                    {
+                        var toBucket = targetBucketComponent[bucketAction.To];
+                        if (toBucket.Target == Entity.Null)
+                        {
+                            toBucket.Target = bucketAction.Bucket;
+                            targetBucketComponent[bucketAction.To] = toBucket;
+                        }
+                    }
+
+                    if (bucketAction.From != Entity.Null)
+                    {
+                        var fromBucket = targetBucketComponent[bucketAction.From];
+                        if (fromBucket.Target != Entity.Null)
+                        {
+                            fromBucket.Target = Entity.Null;
+                            targetBucketComponent[bucketAction.From] = fromBucket;
+
+                            if (bucketAction.To == Entity.Null)
+                            {
+                                ecb.AddComponent<AvailableBucketTag>(0, bucketAction.Bucket);
+                            }
+                        }
+                    }
+                }
+            }).WithNativeDisableParallelForRestriction(targetBucketComponent).Schedule();
             
             m_Barrier.AddJobHandleForProducer(Dependency);
+
+            Dependency = bucketChangeQueue.Dispose(Dependency);
         }
     }
 }

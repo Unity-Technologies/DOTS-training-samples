@@ -26,14 +26,13 @@ namespace DefaultNamespace
             m_BucketQuery = GetEntityQuery(
                 new EntityQueryDesc
                 {
-                    All = new []{ComponentType.ReadOnly<AvailableBucketTag>() },
-                    None = new []{ComponentType.ReadOnly<ClaimedBucketTag>() }
+                    All = new []{ComponentType.ReadOnly<AvailableBucketTag>() }
                 });
 
             m_Barrier =
                 World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }
-
+        
         protected override void OnUpdate()
         {
             var config = GetSingleton<BucketBrigadeConfig>();
@@ -42,6 +41,7 @@ namespace DefaultNamespace
             // TODO: this does not need to be queried every frame.
             var waterEntities = m_WaterSourceQuery.ToEntityArrayAsync(Allocator.TempJob, out var fetchWaterEntitiesJob);
             var bucketEntities = m_BucketQuery.ToEntityArrayAsync(Allocator.TempJob, out var fetchBucketEntitiesJob);
+            var bucketAssignments = new NativeArray<byte>(bucketEntities.Length, Allocator.TempJob);
 
             var combinedFetchJob = JobHandle.CombineDependencies(Dependency, fetchWaterEntitiesJob, fetchBucketEntitiesJob);
             
@@ -50,7 +50,7 @@ namespace DefaultNamespace
             var waterLevelComponent = GetComponentDataFromEntity<WaterLevel>();
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
             var bucketColorComponent = GetComponentDataFromEntity<BucketColor>();
-            
+
             Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, ref ScooperState state, ref TargetPosition targetPosition, ref TargetWaterSource targetWaterSource, in NextInChain nextInChain, in Translation position, in Agent agent)
                 =>
             {
@@ -101,17 +101,18 @@ namespace DefaultNamespace
                         break;
                     
                     case EScooperState.FindBucket:
-                        var nearestBucket = FindNearestEntity(translationComponent, bucketEntities, position);
+                        var nearestBucket = FindNearestBucket(translationComponent, bucketEntities, bucketAssignments, position, out var foundIndex);
                         if (nearestBucket == Entity.Null)
                             break;
+
+                        bucketAssignments[foundIndex] = 1;
                         
                         var nearestBucketPosition = translationComponent[nearestBucket];
                         targetBucket.Target = nearestBucket;
                         targetBucketComponent[entity] = targetBucket;
-                        ecb.AddComponent<ClaimedBucketTag>(entityInQueryIndex, targetBucket.Target);
                         targetPosition.Target = nearestBucketPosition.Position;
                         state.State = EScooperState.StartWalkingToBucket;
-                        break;
+                        break;                    
                     
                     case EScooperState.StartWalkingToBucket:
                         var walkToBucketPosition = translationComponent[targetBucket.Target];
@@ -125,7 +126,6 @@ namespace DefaultNamespace
 
                         if (bucketDistSq < config.MovementTargetReachedThreshold)
                         {
-                            ecb.RemoveComponent<ClaimedBucketTag>(entityInQueryIndex, targetBucket.Target);
                             ecb.RemoveComponent<AvailableBucketTag>(entityInQueryIndex, targetBucket.Target);
                             state.State = EScooperState.StartWalkingToWater;
                         }
@@ -183,6 +183,7 @@ namespace DefaultNamespace
             })
                 .WithDeallocateOnJobCompletion(waterEntities)
                 .WithDeallocateOnJobCompletion(bucketEntities)
+                .WithDeallocateOnJobCompletion(bucketAssignments)
                 .WithNativeDisableParallelForRestriction(chainComponent)
                 .WithNativeDisableParallelForRestriction(bucketColorComponent)
                 .WithReadOnly(translationComponent)
@@ -191,14 +192,17 @@ namespace DefaultNamespace
             m_Barrier.AddJobHandleForProducer(Dependency);
         }
 
-        private static Entity FindNearestEntity(ComponentDataFromEntity<LocalToWorld> translationComponent,
-            NativeArray<Entity> potentialEntities, in Translation position)
+        private static Entity FindNearestBucket(ComponentDataFromEntity<LocalToWorld> translationComponent, NativeArray<Entity> potentialEntities, NativeArray<byte> alreadyAssigned, in Translation position, out int foundIndex)
         {
             Entity nearestEntity = default;
             float nearestDistanceSq = float.MaxValue;
+            foundIndex = -1;
             
             for (int i = 0; i < potentialEntities.Length; ++i)
             {
+                if (alreadyAssigned[i] > 0)
+                    continue;
+                
                 var candidateEntity = potentialEntities[i];
                 var waterPosition = translationComponent[candidateEntity];
                 var distanceSq = math.distancesq(waterPosition.Position.xz, position.Value.xz);
@@ -206,6 +210,7 @@ namespace DefaultNamespace
                 {
                     nearestDistanceSq = distanceSq;
                     nearestEntity = candidateEntity;
+                    foundIndex = i;
                 }
             }
 
