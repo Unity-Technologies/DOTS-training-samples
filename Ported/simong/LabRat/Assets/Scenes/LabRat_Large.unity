@@ -326,8 +326,8 @@ MonoBehaviour:
   MouseScoreAddition: 1
   CatScoreMultiplier: 0.66
   SpawnerFrequencyMultiplier: 10
-  CatSpawnerCount: 20
-  MouseSpawnerCount: 20
+  CatSpawnerCount: 100
+  MouseSpawnerCount: 100
   CatsKillMice: 0
 --- !u!1 &1725028795
 GameObject:
