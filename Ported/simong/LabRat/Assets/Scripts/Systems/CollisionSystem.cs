@@ -31,7 +31,10 @@ public class CollisionSystem : SystemBase
     {
         float radius = ConstantData.Instance.Radius[(int) CharacterType.CAT] +
                        ConstantData.Instance.Radius[(int) CharacterType.MOUSE];
-        
+
+        bool destroy = ConstantData.Instance.CatsKillMice;
+
+
         var catTranslations = m_CatsQuery.ToComponentDataArrayAsync<Position2D>(Allocator.TempJob, out var catTranslationsHandle);
         
         Dependency = JobHandle.CombineDependencies(Dependency, catTranslationsHandle);
@@ -49,7 +52,10 @@ public class CollisionSystem : SystemBase
 
                     if (math.length(diff) < radius)
                     {
-                        ecb.DestroyEntity(entityInQueryIndex, mouseEntity);
+                        if (destroy)
+                        {
+                            ecb.DestroyEntity(entityInQueryIndex, mouseEntity);
+                        }
                     }
                 }
             })

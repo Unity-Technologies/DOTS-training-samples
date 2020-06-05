@@ -27,7 +27,7 @@ class SpawnerSystem : SystemBase
         RandomComponent random = GetSingleton<RandomComponent>();
         Entity tmpRandomEntity = randomEntity;
 
-        float dt = Time.DeltaTime;
+        float dt = (Time.DeltaTime * ConstantData.Instance.SpawnerFrequencyMultiplier);
 
         Entities.ForEach((int entityInQueryIndex, Entity entity, ref SpawnerInstance instance, in SpawnerInfo info, in Position2D position, in Direction2D direction) =>
         {
