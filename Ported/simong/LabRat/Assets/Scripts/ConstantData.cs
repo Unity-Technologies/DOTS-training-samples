@@ -49,6 +49,8 @@ public class ConstantData : MonoBehaviour
     public float CatScoreMultiplier = 0.66f;
 
     public float SpawnerFrequencyMultiplier = 1f;
+    public int CatSpawnerCount = 2;
+    public int MouseSpawnerCount = 2;
 
     public bool CatsKillMice = true;
 
