@@ -129,7 +129,6 @@ namespace DefaultNamespace
                         break;
                 }
             })
-                .WithoutBurst()
                 .WithReadOnly(fireGridBuffer)
                 .WithReadOnly(translationComponent)
                 .WithNativeDisableParallelForRestriction(waterLevelComponent)
