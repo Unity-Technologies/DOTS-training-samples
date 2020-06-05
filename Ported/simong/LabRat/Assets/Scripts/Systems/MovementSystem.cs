@@ -219,7 +219,6 @@ class MovementSystem : SystemBase
                 }
             })
             .WithName("UpdateWalking")
-            .WithoutBurst()
             .ScheduleParallel();
 
         // update falling
