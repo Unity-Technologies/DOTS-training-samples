@@ -117,6 +117,14 @@ namespace DefaultNamespace
                             break;
                         }
 
+                        var waterLevel = waterLevelComponent[targetBucket.Target];
+                        if (waterLevel.Full)
+                        {
+                            state.State = EThrowerState.FindFire;
+                            break;
+                        }
+                            
+
                         ecb.AddComponent(entityInQueryIndex, entity, new BucketChangeRequest { Bucket = targetBucket.Target, From = entity, To = nextInChain.Next});
                         break;
                 }
