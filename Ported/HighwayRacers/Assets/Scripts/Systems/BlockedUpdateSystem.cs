@@ -56,14 +56,16 @@ public class BlockedUpdateSystem : SystemBase
 
     static bool CheckBlock(float velocity, float velocityOfCarInFront, float decelerationSpeed, float trackProgress, float trackProgressCarInFront, float trackLength, float minDistanceToFront)
     {
-        if (trackProgressCarInFront >= float.MaxValue)
-            return false;
+        float blockedFlag = 1;
+
+        // Turn off blocked flag if trackProgressCarInFront >= float.MaxValue
+        blockedFlag *= (1 - math.step(float.MaxValue, trackProgressCarInFront));
 
         float distanceBetweenCars = trackProgressCarInFront - trackProgress;
         distanceBetweenCars = (distanceBetweenCars + trackLength) % trackLength;
 
-        if (velocity < velocityOfCarInFront)
-            return false;
+        // Turn off blocked flag if velocity < velocityOfCarInFront
+        blockedFlag *= math.step(velocityOfCarInFront, velocity);
 
         float relativeVelocity = velocity - velocityOfCarInFront;
 
@@ -74,6 +76,10 @@ public class BlockedUpdateSystem : SystemBase
         float diff = distanceBetweenCars - spaceToSlowDown;
 
         float threshold = minDistanceToFront + 0.25f;
-        return diff <= threshold;
+
+        // Turn off blocked flag if diff > threshold
+        blockedFlag *= math.step(diff, threshold);
+
+        return blockedFlag > 0;
     }
 }
