@@ -40,20 +40,14 @@ public class LaneChangeSystem : SystemBase
                     int lane = (int)car.Lane;
                     float progress = car.TrackProgress;
 
-                    bool validAtAdjacentLane = carInfoDatabase.GetCarOnAdjacentLane(lane, -1, progress, out var outCarInFront, out var outCarBehind);
-                    if (validAtAdjacentLane && IsValidToChange(progress, outCarInFront.position, trackProperties, properties) 
-                        && IsValidToChange(progress, outCarBehind.position, trackProperties, properties))
+                    bool added = AddTargetLaneIfValidAtOffset(lane, progress, -1,
+                                    carInfoDatabase, trackProperties, properties,
+                                    ref commandBuffer, entityInQueryIndex, entity);
+                    if (!added)
                     {
-                        commandBuffer.AddComponent(entityInQueryIndex, entity, new TargetLane { Value = lane - 1 });
-                    }
-                    else
-                    {
-                        validAtAdjacentLane = carInfoDatabase.GetCarOnAdjacentLane(lane, 1, progress, out outCarInFront, out outCarBehind);
-                        if (validAtAdjacentLane && IsValidToChange(progress, outCarInFront.position, trackProperties, properties) 
-                            && IsValidToChange(progress, outCarBehind.position, trackProperties, properties))
-                        {
-                            commandBuffer.AddComponent(entityInQueryIndex, entity, new TargetLane { Value = lane + 1 });
-                        }
+                        AddTargetLaneIfValidAtOffset(lane, progress, 1,
+                            carInfoDatabase, trackProperties, properties,
+                            ref commandBuffer, entityInQueryIndex, entity);
                     }
                 }
             })
@@ -74,6 +68,22 @@ public class LaneChangeSystem : SystemBase
 
         // check if the closest car in front is closer than allowed merge space
         return !(distanceBetweenCars < properties.MergeSpace || reverseDistanceBetweenCars < properties.MergeSpace);
+    }
+
+    // Return true if targetLane is added
+    static bool AddTargetLaneIfValidAtOffset(int lane, float progress, int offset, 
+        in CarSortingByLaneSystem.Database carInfoDatabase, in TrackProperties trackProperties, in CarProperties carProperties,
+        ref EntityCommandBuffer.Concurrent commandBuffer, int entityInQueryIndex, Entity entity)
+    {
+        bool validAtAdjacentLane = carInfoDatabase.GetCarOnAdjacentLane(lane, offset, progress, out var outCarInFront, out var outCarBehind);
+        if (validAtAdjacentLane && IsValidToChange(progress, outCarInFront.position, trackProperties, carProperties)
+            && IsValidToChange(progress, outCarBehind.position, trackProperties, carProperties))
+        {
+            commandBuffer.AddComponent(entityInQueryIndex, entity, new TargetLane { Value = lane + offset });
+            return true;
+        }
+
+        return false;
     }
 
     JobHandle jobReadFromCarInfos;
