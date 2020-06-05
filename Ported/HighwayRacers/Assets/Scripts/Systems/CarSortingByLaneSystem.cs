@@ -7,8 +7,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(MonitorFrontSystemV2))]
-[UpdateAfter(typeof(LaneChangeSystem))]
+[UpdateInGroup(typeof(PresentationSystemGroup))]
 public class CarSortingByLaneSystem : SystemBase
 {
     public struct CarInfo : IComparable<CarInfo>
