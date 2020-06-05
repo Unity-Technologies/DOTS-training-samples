@@ -43,7 +43,7 @@ public class ScoreSystem : SystemBase
 
         return winningPlayers;
     }
-   
+
     protected override void OnCreate()
     {
         m_ReachedBaseQuery = GetEntityQuery(new EntityQueryDesc()
@@ -121,11 +121,11 @@ public class ScoreSystem : SystemBase
                 if (playerId >= 0 && playerId < numPlayers)
                 {
                     scores[playerId] += mouseAddition;
-                    for(int i = 0; i < numPlayers; i++)
+                    for (int i = 0; i < numPlayers; i++)
                     {
-                        if(playerBases[i].PlayerID == playerId)
+                        if (playerBases[i].PlayerID == playerId)
                         {
-                            ecb.AddComponent< AnimateBaseTag>(playerBaseEntities[i]);
+                            ecb.AddComponent(playerBaseEntities[i], new ScaleRequest { Scale = 1.5f, Time = 0.2f });
                             break;
                         }
                     }
@@ -142,12 +142,12 @@ public class ScoreSystem : SystemBase
                 var playerId = reachedBase.PlayerID;
                 if (playerId >= 0 && playerId < numPlayers)
                 {
-                    scores[playerId] = (int) math.round(scores[playerId] * catMultiplier);
+                    scores[playerId] = (int)math.round(scores[playerId] * catMultiplier);
                     for (int i = 0; i < numPlayers; i++)
                     {
                         if (playerBases[i].PlayerID == playerId)
                         {
-                            ecb.AddComponent<AnimateBaseTag>(playerBaseEntities[i]);
+                            ecb.AddComponent(playerBaseEntities[i], new ScaleRequest { Scale = 1.5f, Time = 0.2f });
                             break;
                         }
                     }
