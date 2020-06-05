@@ -19,14 +19,17 @@ public class BlockedUpdateSystem : SystemBase
 
         var ecb = entityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
+        var minDistanceToFront = carConfig.MinDistanceToFront;
+
         Entities
             .WithNone<BlockedState>()
             .ForEach((int entityInQueryIndex, Entity carEntity, 
                 ref TrackPosition trackPosition, 
                 in CarInFront carInFront, in Speed speed, in CarProperties carProperties) =>
         {
-            bool blocked = CheckBlock(speed.Value, carInFront.Speed, carConfig.Decceleration, 
-                trackPosition.TrackProgress, carInFront.TrackProgressCarInFront,trackProperties.TrackLength);
+            bool blocked = CheckBlock(speed.Value, carInFront.Speed, carConfig.Deceleration, 
+                trackPosition.TrackProgress, carInFront.TrackProgressCarInFront,trackProperties.TrackLength,
+                minDistanceToFront);
 
            if (blocked) {
                 ecb.AddComponent<BlockedState>(entityInQueryIndex, carEntity);
@@ -39,8 +42,9 @@ public class BlockedUpdateSystem : SystemBase
                 ref TrackPosition trackPosition, 
                 in CarInFront carInFront, in Speed speed, in CarProperties carProperties) =>
         {
-            bool blocked = CheckBlock(speed.Value, carInFront.Speed, carConfig.Decceleration, 
-                trackPosition.TrackProgress, carInFront.TrackProgressCarInFront,trackProperties.TrackLength);
+            bool blocked = CheckBlock(speed.Value, carInFront.Speed, carConfig.Deceleration, 
+                trackPosition.TrackProgress, carInFront.TrackProgressCarInFront,trackProperties.TrackLength,
+                minDistanceToFront);
 
             if (!blocked) {
                 ecb.RemoveComponent<BlockedState>(entityInQueryIndex, carEntity);        
@@ -50,7 +54,7 @@ public class BlockedUpdateSystem : SystemBase
         entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 
-    static bool CheckBlock(float velocity, float velocityOfCarInFront, float acceleration, float trackProgress, float trackProgressCarInFront, float trackLength)
+    static bool CheckBlock(float velocity, float velocityOfCarInFront, float decelerationSpeed, float trackProgress, float trackProgressCarInFront, float trackLength, float minDistanceToFront)
     {
         if (trackProgressCarInFront >= float.MaxValue)
             return false;
@@ -58,22 +62,18 @@ public class BlockedUpdateSystem : SystemBase
         float distanceBetweenCars = trackProgressCarInFront - trackProgress;
         distanceBetweenCars = (distanceBetweenCars + trackLength) % trackLength;
 
-        const float minDistance = 1.25f;
-        if (distanceBetweenCars < minDistance)
-            return true;
-
         if (velocity < velocityOfCarInFront)
             return false;
 
         float relativeVelocity = velocity - velocityOfCarInFront;
 
-        float timeToSlowDown = relativeVelocity / acceleration;
+        float timeToSlowDown = relativeVelocity / decelerationSpeed;
 
-        float spaceToSlowDown = relativeVelocity * timeToSlowDown - 0.5f * acceleration * timeToSlowDown * timeToSlowDown;
+        float spaceToSlowDown = relativeVelocity * timeToSlowDown - 0.5f * decelerationSpeed * timeToSlowDown * timeToSlowDown;
 
         float diff = distanceBetweenCars - spaceToSlowDown;
 
-        const float threshold = 1.5f;
+        float threshold = minDistanceToFront + 0.25f;
         return diff <= threshold;
     }
 }

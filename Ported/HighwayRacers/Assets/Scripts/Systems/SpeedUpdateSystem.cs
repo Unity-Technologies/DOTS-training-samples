@@ -10,12 +10,20 @@ public class SpeedUpdateSystem : SystemBase
         CarConfigurations carConfig = GetSingleton<CarConfigurations>();
         float dtime = Time.DeltaTime;
 
-        // deccelerate in case the car is blocked
+        var trackLength = trackProperties.TrackLength;
+        var minDistanceToFront = carConfig.MinDistanceToFront;
+        var decollisionDeceleration = carConfig.DecollisionDeceleration;
+
+        // decelerate in case the car is blocked
         Entities.WithAll<BlockedState>().ForEach((ref Speed speed, 
             in TrackPosition trackPosition, in CarProperties carProperties, in CarInFront carInFront) =>
         {
-            speed.Value -= carConfig.Decceleration * dtime; 
+            speed.Value -= carConfig.Deceleration * dtime;            
             speed.Value = math.max(carInFront.Speed, math.max(speed.Value, 0));
+
+            var distanceToFront = TrackPosition.GetLoopedDistanceInFront(trackPosition.TrackProgress, carInFront.TrackProgressCarInFront, trackLength);
+            speed.Value -= math.step(distanceToFront, minDistanceToFront) * decollisionDeceleration;
+            speed.Value = math.max(speed.Value, 0);
         }).ScheduleParallel();
 
         // Accelerate in case the car is not blocked

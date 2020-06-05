@@ -163,7 +163,9 @@ MonoBehaviour:
   MaxOvertakeEagerness: 1
   MaxMergeSpace: 1
   Acceleration: 5
-  Decceleration: 10
+  Deceleration: 10
+  MinDistanceToFront: 1.25
+  DecollisionDeceleration: 1
 --- !u!4 &16349103
 Transform:
   m_ObjectHideFlags: 0

@@ -66,7 +66,7 @@ public class CarSortingByLaneSystem : SystemBase
                 {
                     var entryInFront = carInfos[(indexInData + 1) % carInfos.Length];
 
-                    var distanceInFront = GetLoopedDistanceInFront(ownProgress, entryInFront.position, m_TrackLength);
+                    var distanceInFront = TrackPosition.GetLoopedDistanceInFront(ownProgress, entryInFront.position, m_TrackLength);
 
                     if (distanceInFront < minDistanceInFront)
                     {
@@ -104,18 +104,6 @@ public class CarSortingByLaneSystem : SystemBase
 
             indexInData = max;
             return false;
-        }
-
-        static float GetLoopedDistanceInFront(float ownProgress, float frontProgress, float trackLength)
-        {
-            if (frontProgress >= ownProgress)
-            {
-                return frontProgress - ownProgress;
-            }
-            else
-            {
-                return (trackLength - ownProgress) + frontProgress;
-            }
         }
     }
     Database m_Database;

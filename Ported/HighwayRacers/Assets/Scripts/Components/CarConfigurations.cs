@@ -1,7 +1,4 @@
-﻿using System;
-using Unity.Collections;
-using Unity.Entities;
-using Unity.Mathematics;
+﻿using Unity.Entities;
 
 [GenerateAuthoringComponent]
 public struct CarConfigurations : IComponentData
@@ -21,5 +18,7 @@ public struct CarConfigurations : IComponentData
     public float MaxMergeSpace;
 
     public float Acceleration;
-    public float Decceleration;
+    public float Deceleration;
+    public float MinDistanceToFront;
+    public float DecollisionDeceleration;
 }
