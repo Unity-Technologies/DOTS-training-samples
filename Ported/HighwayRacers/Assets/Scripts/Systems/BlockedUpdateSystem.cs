@@ -19,7 +19,7 @@ public class BlockedUpdateSystem : SystemBase
 
         var ecb = entityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
-        var minDistanceToFront = carConfig.MinDistanceToFront;
+        var threshold = carConfig.MinDistanceToFront + 0.25f;
 
         Entities
             .WithNone<BlockedState>()
@@ -29,7 +29,7 @@ public class BlockedUpdateSystem : SystemBase
         {
             bool blocked = CheckBlock(speed.Value, carInFront.Speed, carConfig.Deceleration, 
                 trackPosition.TrackProgress, carInFront.TrackProgressCarInFront,trackProperties.TrackLength,
-                minDistanceToFront);
+                threshold);
 
            if (blocked) {
                 ecb.AddComponent<BlockedState>(entityInQueryIndex, carEntity);
@@ -44,7 +44,7 @@ public class BlockedUpdateSystem : SystemBase
         {
             bool blocked = CheckBlock(speed.Value, carInFront.Speed, carConfig.Deceleration, 
                 trackPosition.TrackProgress, carInFront.TrackProgressCarInFront,trackProperties.TrackLength,
-                minDistanceToFront);
+                threshold);
 
             if (!blocked) {
                 ecb.RemoveComponent<BlockedState>(entityInQueryIndex, carEntity);        
@@ -54,7 +54,7 @@ public class BlockedUpdateSystem : SystemBase
         entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 
-    static bool CheckBlock(float velocity, float velocityOfCarInFront, float decelerationSpeed, float trackProgress, float trackProgressCarInFront, float trackLength, float minDistanceToFront)
+    static bool CheckBlock(float velocity, float velocityOfCarInFront, float decelerationSpeed, float trackProgress, float trackProgressCarInFront, float trackLength, float threshold)
     {
         float blockedFlag = 1;
 
@@ -74,8 +74,6 @@ public class BlockedUpdateSystem : SystemBase
         float spaceToSlowDown = relativeVelocity * timeToSlowDown - 0.5f * decelerationSpeed * timeToSlowDown * timeToSlowDown;
 
         float diff = distanceBetweenCars - spaceToSlowDown;
-
-        float threshold = minDistanceToFront + 0.25f;
 
         // Turn off blocked flag if diff > threshold
         blockedFlag *= math.step(diff, threshold);
