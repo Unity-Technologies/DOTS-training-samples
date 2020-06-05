@@ -8,6 +8,7 @@ using Unity.Rendering;
 public class CarStatusRenderSystem : SystemBase
 {
     bool m_InitDone = false;
+    RenderMesh m_InitRenderMesh;
     RenderMesh m_BlockedRenderMesh;
     RenderMesh m_DefaultSpeedRenderMesh;
     RenderMesh m_AcceleratingRenderMesh;
@@ -28,17 +29,28 @@ public class CarStatusRenderSystem : SystemBase
             CarConfigurations carConfig = GetSingleton<CarConfigurations>();
             var carPrefab = carConfig.CarPrefab;
 
-            m_BlockedRenderMesh = EntityManager.GetSharedComponentData<RenderMesh>(carPrefab);
+            m_InitRenderMesh = EntityManager.GetSharedComponentData<RenderMesh>(carPrefab);
+
+            m_BlockedRenderMesh = m_InitRenderMesh;
             m_BlockedRenderMesh.material = CarStatusDisplayManager.Instance.BlockedStatusMaterial;
 
-            m_DefaultSpeedRenderMesh = m_BlockedRenderMesh;
+            m_DefaultSpeedRenderMesh = m_InitRenderMesh;
             m_DefaultSpeedRenderMesh.material = CarStatusDisplayManager.Instance.DefaultSpeedStatusMaterial;
 
-            m_AcceleratingRenderMesh = m_BlockedRenderMesh;
+            m_AcceleratingRenderMesh = m_InitRenderMesh;
             m_AcceleratingRenderMesh.material = CarStatusDisplayManager.Instance.AccelerationStatusMaterial;
         }
         
-        var query = GetEntityQuery(ComponentType.ReadOnly<BlockedState>());
+        var query = GetEntityQuery(ComponentType.ReadOnly<BlockedState>(), ComponentType.ReadWrite<RenderMesh>());
+        query.SetSharedComponentFilter(m_InitRenderMesh);
+        EntityManager.SetSharedComponentData(query, m_BlockedRenderMesh);
+
+        query = GetEntityQuery(ComponentType.ReadOnly<BlockedState>(), ComponentType.ReadWrite<RenderMesh>());
+        query.SetSharedComponentFilter(m_DefaultSpeedRenderMesh);
+        EntityManager.SetSharedComponentData(query, m_BlockedRenderMesh);
+
+        query = GetEntityQuery(ComponentType.ReadOnly<BlockedState>(), ComponentType.ReadWrite<RenderMesh>());
+        query.SetSharedComponentFilter(m_AcceleratingRenderMesh);
         EntityManager.SetSharedComponentData(query, m_BlockedRenderMesh);
 
         var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
