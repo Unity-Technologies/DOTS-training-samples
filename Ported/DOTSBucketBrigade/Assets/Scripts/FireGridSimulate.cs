@@ -12,12 +12,15 @@ public class FireGridSimulate : SystemBase
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<BucketBrigadeConfig>();
+
+        // Need this so that ECS realises we actually want to write to this
+        EntityQuery query = GetEntityQuery(ComponentType.ReadWrite<FireGridCell>());
         base.OnCreate();
         
     }
 
     // TODO: Rolling sum
-    [BurstCompile]
+    //[BurstCompile]
     struct GridAccumulateAxisJob : IJob
     {
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<float> InputCells;
@@ -32,6 +35,7 @@ public class FireGridSimulate : SystemBase
 
         public void Execute()
         {
+            //float[] size = new float[10];
             int accumBufferSize = (SearchSize * 2) + 1;
             //float[] accumBuffer = new float[accumBufferSize];
             int accumBufferIdx = 0;
@@ -42,8 +46,6 @@ public class FireGridSimulate : SystemBase
             {
                 int cellRowIndex = index / Dimensions.x;
                 int cellColumnIndex = index % Dimensions.x;
-
-                int y = cellRowIndex;
 
                 if (cellColumnIndex == 0)
                 {
@@ -57,35 +59,43 @@ public class FireGridSimulate : SystemBase
 
                     for (int fwdOffset = 0; fwdOffset < SearchSize; ++fwdOffset)
                     {
-                        AccumBuffer[accumBufferIdx] = InputCells[index + fwdOffset];
-                        accumulatedTotal += AccumBuffer[accumBufferIdx++];
+                        float value = InputCells[index + fwdOffset];
+                        AccumBuffer[accumBufferIdx++] = value;
+
+                        if (!CheckFlashPoint || value > Flashpoint)
+                            accumulatedTotal += value;
                     }
                 }
                 //[][][][][]
 
-                // calculate new index
-                accumBufferIdx = (++accumBufferIdx) % accumBufferSize;
+                // Remove Old Value if needed
                 if (!CheckFlashPoint || AccumBuffer[accumBufferIdx] > Flashpoint)
                 {
                     accumulatedTotal -= AccumBuffer[accumBufferIdx]; // remove tail
                 }
-
+                // Get New Value
                 AccumBuffer[accumBufferIdx] = index + SearchSize < Dimensions.x ? InputCells[index + SearchSize] : 0;
-
+                // Update Total
                 if (!CheckFlashPoint || AccumBuffer[accumBufferIdx] > Flashpoint)
                 {
                     accumulatedTotal += AccumBuffer[accumBufferIdx];
                 }
+                // Increment Index
+                accumBufferIdx = (++accumBufferIdx) % accumBufferSize;
 
-                currentCellBufferIndex = (++currentCellBufferIndex) % accumBufferSize;
+                // calculate target index for output
                 int newIndex = cellColumnIndex * Dimensions.x + cellRowIndex;
-                OutputCells[newIndex] = accumulatedTotal - AccumBuffer[currentCellBufferIndex];
+                // get current value of the InputCells
+                OutputCells[newIndex] = accumulatedTotal;
 
             }
+
+            accumulatedTotal += 5;
         }
+
     }
 
-    [BurstCompile]
+//    [BurstCompile]
     struct GridFinaliseJob : IJobParallelFor
     {
         [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<float> InputCells;
@@ -93,11 +103,15 @@ public class FireGridSimulate : SystemBase
         [NativeDisableParallelForRestriction] public NativeArray<FireGridCell> OutputCells;
 
         public float TransferRate;
+        public float Flashpoint;
 
         public void Execute(int index)
         {
-            FireGridCell cell = OutputCells[index]; 
-            cell.Temperature = math.clamp(cell.Temperature + (InputCells[index] * TransferRate), -1.0f, 1.0f);
+            FireGridCell cell = OutputCells[index];
+
+            float value = InputCells[index] - (cell.Temperature > Flashpoint ? cell.Temperature : 0);
+
+            cell.Temperature = math.clamp(cell.Temperature + (value * TransferRate), -1.0f, 1.0f);
             OutputCells[index] = cell;
         }
     }
@@ -152,11 +166,9 @@ public class FireGridSimulate : SystemBase
         {
             InputCells = accumRows,
             OutputCells = cellBufferAsArray,
-            
+            Flashpoint = flashpoint,
             TransferRate = transfer * delta
         }.Schedule(size, 1000, Dependency);
-
-        Dependency.Complete();
     }
 }
-*/
+//*/
