@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
 public struct TrackPosition : IComponentData
@@ -8,13 +9,7 @@ public struct TrackPosition : IComponentData
 
     public static float GetLoopedDistanceInFront(float ownProgress, float frontProgress, float trackLength)
     {
-        if (frontProgress >= ownProgress)
-        {
-            return frontProgress - ownProgress;
-        }
-        else
-        {
-            return (trackLength - ownProgress) + frontProgress;
-        }
+        return math.step(ownProgress, frontProgress) * (frontProgress - ownProgress) 
+            + math.step(frontProgress, ownProgress) * ((trackLength - ownProgress) + frontProgress);
     }
 }
