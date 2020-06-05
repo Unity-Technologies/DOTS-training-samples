@@ -163,7 +163,7 @@ MonoBehaviour:
   BucketCapacity: 3
   BucketRadius: 0.2
   AgentRadius: 0.2
-  AgentSpeed: 1.5
+  AgentSpeed: 3
   NumberOfBuckets: 400
   NumberOfPassersInOneDirectionPerChain: 8
   NumberOfChains: 50

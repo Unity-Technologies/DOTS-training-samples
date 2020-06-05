@@ -86,7 +86,7 @@ namespace DefaultNamespace
                 .WithReadOnly(availableBucketComponent)
                 .WithReadOnly(targetBucketComponent)
                 .WithReadOnly(chainComponent)
-                .Schedule();
+                .ScheduleParallel();
 
             m_Barrier.AddJobHandleForProducer(Dependency);
         }

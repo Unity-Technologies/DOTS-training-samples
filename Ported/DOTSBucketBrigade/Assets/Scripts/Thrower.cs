@@ -136,7 +136,7 @@ namespace DefaultNamespace
                 .WithReadOnly(targetBucketComponent)
                 .WithNativeDisableParallelForRestriction(chainComponent)
                 .WithNativeDisableParallelForRestriction(bucketColorComponent)
-                .Schedule();
+                .ScheduleParallel();
             
             m_Barrier.AddJobHandleForProducer(Dependency);
         }
