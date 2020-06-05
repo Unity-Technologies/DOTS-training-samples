@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using UnityEngine;
 
 namespace DefaultNamespace
 {
@@ -17,8 +18,9 @@ namespace DefaultNamespace
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
             var ecb = m_Barrier.CreateCommandBuffer().ToConcurrent();
             
-            Entities.ForEach((Entity entity, int entityInQueryIndex, in BucketChangeRequest bucketAction) => 
+            Entities.ForEach((Entity entity, int entityInQueryIndex, in BucketChangeRequest bucketAction) =>
             {
+                bool success = false;
                 if (bucketAction.To != Entity.Null)
                 {
                     var toBucket = targetBucketComponent[bucketAction.To];
@@ -26,6 +28,7 @@ namespace DefaultNamespace
                     {
                         toBucket.Target = bucketAction.Bucket;
                         targetBucketComponent[bucketAction.To] = toBucket;
+                        success = true;
                     }
                 }
 
@@ -39,9 +42,16 @@ namespace DefaultNamespace
 
                         if (bucketAction.To == Entity.Null)
                         {
-                            ecb.AddComponent<AvailableBucketTag>(0, bucketAction.Bucket);
+                            ecb.AddComponent<AvailableBucketTag>(entityInQueryIndex, bucketAction.Bucket);
                         }
+
+                        success = true;
                     }
+                }
+
+                if (success)
+                {
+                    ecb.RemoveComponent<BucketChangeRequest>(entityInQueryIndex,entity );
                 }
             }).WithNativeDisableParallelForRestriction(targetBucketComponent).Schedule();
         }

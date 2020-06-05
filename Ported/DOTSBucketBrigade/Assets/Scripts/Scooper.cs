@@ -51,7 +51,7 @@ namespace DefaultNamespace
             var targetBucketComponent = GetComponentDataFromEntity<TargetBucket>();
             var bucketColorComponent = GetComponentDataFromEntity<BucketColor>();
 
-            Dependency = Entities.ForEach((Entity entity, int entityInQueryIndex, ref ScooperState state, ref TargetPosition targetPosition, ref TargetWaterSource targetWaterSource, in NextInChain nextInChain, in Translation position, in Agent agent)
+            Dependency = Entities.WithNone<BucketChangeRequest>().ForEach((Entity entity, int entityInQueryIndex, ref ScooperState state, ref TargetPosition targetPosition, ref TargetWaterSource targetWaterSource, in NextInChain nextInChain, in Translation position, in Agent agent)
                 =>
             {
                 // TODO: Commonality between
@@ -170,14 +170,13 @@ namespace DefaultNamespace
                         break;
                     
                     case EScooperState.PassBucket:
-                        var nextInChainTargetBucket = targetBucketComponent[nextInChain.Next];
-                        nextInChainTargetBucket.Target = targetBucket.Target;
-                        targetBucketComponent[nextInChain.Next] = nextInChainTargetBucket;
-                        
-                        targetBucket.Target = Entity.Null;
-                        targetBucketComponent[entity] = targetBucket;
-                        
-                        state.State = EScooperState.FindBucket;
+                        if (targetBucket.Target == Entity.Null)
+                        {
+                            state.State = EScooperState.FindBucket;
+                            break;
+                        }
+
+                        ecb.AddComponent(entityInQueryIndex, entity, new BucketChangeRequest { Bucket = targetBucket.Target, From = entity, To = nextInChain.Next});
                         break;
                 }
             })

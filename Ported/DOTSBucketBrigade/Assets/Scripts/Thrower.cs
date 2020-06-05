@@ -35,7 +35,7 @@ namespace DefaultNamespace
 
             var splashArchetype = m_SplashEntityArchetype;
 
-            Entities.ForEach((Entity entity, int entityInQueryIndex, ref ThrowerState state, ref TargetPosition targetPosition, ref TargetFire targetFire, in NextInChain nextInChain, in Translation position, in Agent agent)
+            Entities.WithNone<BucketChangeRequest>().ForEach((Entity entity, int entityInQueryIndex, ref ThrowerState state, ref TargetPosition targetPosition, ref TargetFire targetFire, in NextInChain nextInChain, in Translation position, in Agent agent)
                 =>
             {
                 var myChain = chainComponent[agent.MyChain];
@@ -111,14 +111,13 @@ namespace DefaultNamespace
                         break;
                     
                     case EThrowerState.PassBucket:
-                        var nextInChainTargetBucket = targetBucketComponent[nextInChain.Next];
-                        nextInChainTargetBucket.Target = targetBucket.Target;
-                        targetBucketComponent[nextInChain.Next] = nextInChainTargetBucket;
-                        
-                        targetBucket.Target = Entity.Null;
-                        targetBucketComponent[entity] = targetBucket;
-                        
-                        state.State = EThrowerState.FindFire;
+                        if (targetBucket.Target == Entity.Null)
+                        {
+                            state.State = EThrowerState.FindFire;
+                            break;
+                        }
+
+                        ecb.AddComponent(entityInQueryIndex, entity, new BucketChangeRequest { Bucket = targetBucket.Target, From = entity, To = nextInChain.Next});
                         break;
                 }
             })
