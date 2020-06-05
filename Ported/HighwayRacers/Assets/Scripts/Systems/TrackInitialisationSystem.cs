@@ -1,15 +1,30 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Collections;
+using System.Collections.Generic;
 
 public class TrackInitialisationSystem : SystemBase
 {
     BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
+    EntityQuery m_TrackInfoQuery;
 
     protected override void OnCreate()
     {
         // Cache the BeginInitializationEntityCommandBufferSystem in a field, so we don't have to create it every frame
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+        m_TrackInfoQuery = GetEntityQuery(ComponentType.ReadOnly<TrackInfo>());
+    }
+
+    protected override void OnDestroy()
+    {
+        var trackInfos = new List<TrackInfo>();
+
+        TrackInfo trackInfo = m_TrackInfoQuery.GetSingleton<TrackInfo>();
+
+        trackInfo.Progresses.Dispose();
+        trackInfo.Speeds.Dispose();
+        trackInfo.Lanes.Dispose();
     }
 
     protected override void OnUpdate()
@@ -17,6 +32,22 @@ public class TrackInitialisationSystem : SystemBase
         TrackProperties trackProperties = GetSingleton<TrackProperties>();
 
         var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+
+        Entities
+            .WithoutBurst()
+            .WithStructuralChanges()
+            .ForEach((in TrackSpawner spawner) =>
+            {
+                var entity = EntityManager.CreateEntity();
+                var trackInfo = new TrackInfo();
+                // TODO: get right length
+                int length = (int) trackProperties.TrackLength * trackProperties.NumberOfLanes;
+
+                trackInfo.Progresses = new NativeArray<float>(length, Allocator.Persistent);
+                trackInfo.Speeds = new NativeArray<float>(length, Allocator.Persistent);
+                trackInfo.Lanes = new NativeArray<float>(length, Allocator.Persistent);
+                EntityManager.AddComponentData(entity, trackInfo);
+            }).Run();
 
         Entities
             .WithoutBurst()
