@@ -3,8 +3,9 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateBefore(typeof(TransformSystemGroup))]
+// [UpdateInGroup(typeof(SimulationSystemGroup))]
+// [UpdateBefore(typeof(TransformSystemGroup))]
+[UpdateBefore(typeof(MoveSystem))]
 public class RenderUpdateSystem : SystemBase
 {
     //todo look into combine with the FingerRenderUpdate?
@@ -52,6 +53,6 @@ public class RenderUpdateSystem : SystemBase
                 {
                     Value = new float3(thickness, thickness, math.length(delta))
                 };
-            }).Run();
+            }).ScheduleParallel();
     }
 }

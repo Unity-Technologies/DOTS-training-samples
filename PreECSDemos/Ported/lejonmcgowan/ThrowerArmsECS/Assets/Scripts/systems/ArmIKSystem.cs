@@ -4,7 +4,6 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateAfter(typeof(ArmSetupSystem))]
-[UpdateBefore(typeof(RenderUpdateSystem))]
 public class ArmIKSystem : SystemBase
 {
     private BeginSimulationEntityCommandBufferSystem m_beginSimEcbSystem;

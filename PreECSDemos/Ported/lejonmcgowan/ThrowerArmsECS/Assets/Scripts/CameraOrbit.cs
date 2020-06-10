@@ -7,7 +7,7 @@ public class CameraOrbit : MonoBehaviour {
 	public float minCamDist;
 	public float maxCamDist;
 	public float swayXDuration;
-	public float swayXAmount;
+	public int  numArms;
 	public float spinDuration;
 	public float spinAmount;
 	public float swayTiltDuration;
@@ -37,9 +37,10 @@ public class CameraOrbit : MonoBehaviour {
 											0f);
 
 		float x = .5f - Mathf.Cos(swayXTimer * 2f * Mathf.PI) * .5f;
-		transform.position = new Vector3(500*x,0f,0f)+posOffset;
+		
 
 		float zoomT = .5f-Mathf.Cos(zoomTimer*2f*Mathf.PI)*.5f;
-		cam.localPosition = new Vector3(0f,0f,-Mathf.Lerp(minCamDist,maxCamDist,zoomT));
+		cam.localPosition = new Vector3(numArms * x,3f,-Mathf.Lerp(minCamDist,maxCamDist,zoomT));
+		
 	}
 }
