@@ -31,11 +31,11 @@ public class LocalPositionSystem : SystemBase
             .WithReadOnly(segmentInfoBuffer)
             .WithReadOnly(lanePercentageBufferLookup)
             .ForEach((ref LocalTranslation translation, ref LocalRotation rotation, in Entity entity,
-                in PercentComplete percentComplete, in SegmentAssignment segmentAssignment, in LaneAssignment lane) =>
+                in PercentComplete percentComplete, in SegmentAssignment segment, in LaneAssignment lane) =>
             {
                 var laneInfo = laneInfos[lane.Value];
-                var segmentInfo = segmentInfoBuffer[segmentAssignment.Value].SegmentInfo;
-                var segmentEntity = segmentInfoBuffer[segmentAssignment.Value].Entity;
+                var segmentInfo = segmentInfoBuffer[segment.Value].SegmentInfo;
+                var segmentEntity = segmentInfoBuffer[segment.Value].Entity;
                 var lanePercentageBuffer = lanePercentageBufferLookup[segmentEntity];
                 float localDistance = (percentComplete.Value - lanePercentageBuffer[lane.Value].Value.x) *
                                       laneInfo.TotalLength;

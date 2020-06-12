@@ -33,7 +33,7 @@ public class AgentSpawningSystem : SystemBase
         var roadInfo = GetSingleton<RoadInfo>(); 
         
         // can't use Burst if we set a shared component (even using ecb)
-        // (not a big loss for spwaning on init)
+        // (not a big loss for spawning on init)
         Entities.WithoutBurst().ForEach((Entity e, in AgentSpawner spawner) =>
         {
             var bufferEntity = ecb.CreateEntity();

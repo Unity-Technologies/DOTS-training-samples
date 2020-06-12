@@ -18,11 +18,11 @@ public class SegmentAssignmentSystem : SystemBase
     {
         var roadInfoEntity = GetSingletonEntity<SegmentsAddedToBufferTag>();
         var segmentInfoBuffer = EntityManager.GetBuffer<SegmentInfoElement>(roadInfoEntity).AsNativeArray();
-        var bufferLookup = GetBufferFromEntity<LanePercentageRange>();
-        
+        var rangesFromSegment = GetBufferFromEntity<LanePercentageRange>();
+
         Entities
             .WithReadOnly(segmentInfoBuffer)
-            .WithReadOnly(bufferLookup)
+            .WithReadOnly(rangesFromSegment)
             .ForEach((ref SegmentAssignment segmentAssignment, in PercentComplete percentComplete,
                 in LaneAssignment lane) =>
             {
@@ -30,9 +30,9 @@ public class SegmentAssignmentSystem : SystemBase
                 {
                     var segmentInfoBufferElement = segmentInfoBuffer[i];
                     var segmentInfoEntity = segmentInfoBufferElement.Entity;
-                    var ranges = bufferLookup[segmentInfoEntity];
-                    if (percentComplete.Value >= ranges[lane.Value].Value[0] &&
-                        percentComplete.Value < ranges[lane.Value].Value[1])
+                    var laneRanges = rangesFromSegment[segmentInfoEntity];
+                    if (percentComplete.Value >= laneRanges[lane.Value].Value[0] &&
+                        percentComplete.Value < laneRanges[lane.Value].Value[1])
                     {
                         segmentAssignment.Value = segmentInfoBufferElement.SegmentInfo.Order;
                         break;
