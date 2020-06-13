@@ -1,8 +1,9 @@
-﻿using System;
-using Unity.Entities;
+﻿using Unity.Entities;
 
-[GenerateAuthoringComponent]
-public struct Speed : IComponentData
+namespace HighwayRacer
 {
-    public float Value;
+    public struct Speed : IComponentData
+    {
+        public float Val;   // meters per second; actual current speed for this frame
+    }
 }

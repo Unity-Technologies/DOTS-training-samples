@@ -1,7 +1,9 @@
 ﻿using Unity.Entities;
 
-[GenerateAuthoringComponent]
-public struct TargetSpeed : IComponentData
+namespace HighwayRacer
 {
-    public float Value;
+    public struct TargetSpeed : IComponentData
+    {
+        public float Val;   // meters per second; speed which we are currently accelerating or decelerating to
+    }
 }
