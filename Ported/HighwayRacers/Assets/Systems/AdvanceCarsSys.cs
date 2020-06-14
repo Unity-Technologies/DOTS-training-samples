@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using UnityEngine;
 
 namespace HighwayRacer
 {
@@ -11,16 +12,23 @@ namespace HighwayRacer
 
         protected override void OnUpdate()
         {
-            float trackLength = 400.0f;  // todo: get from central source of truth
-            
-            Entities.ForEach((ref TrackPos trackPos, in Speed speed) =>
+            RoadInit road = GameObject.FindObjectOfType<RoadInit>();
+            if (road != null)
             {
-                trackPos.Val += speed.Val;
-                if (trackPos.Val > trackLength)
+                float trackLength = road.segmentInfos[road.segmentInfos.Length - 1].Threshold;
+
+                var dt = Time.DeltaTime;
+            
+                Entities.ForEach((ref TrackPos trackPos, in Speed speed) =>
                 {
-                    trackPos.Val -= trackLength;
-                }
-            }).Run();
+                    trackPos.Val += speed.Val * dt;
+                    if (trackPos.Val > trackLength)
+                    {
+                        trackPos.Val -= trackLength;
+                    }
+                }).Run();
+                
+            }
         }
     }
 }

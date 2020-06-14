@@ -2,82 +2,127 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class RoadInit : MonoBehaviour
 {
-    public NativeArray<RoadSegmentInfo> segmentInfos;
-    public NativeArray<float> segmentThresholds;
+    public NativeArray<RoadSegment> segmentInfos;
     
     void Start()
     {
+        var rotFromCardinal = new Dictionary<Cardinal, quaternion>();
+        rotFromCardinal[Cardinal.UP] = quaternion.EulerXYZ(0, 0, 0);
+        rotFromCardinal[Cardinal.DOWN] = quaternion.EulerXYZ(0, math.radians(180), 0);
+        rotFromCardinal[Cardinal.LEFT] = quaternion.EulerXYZ(0, math.radians(-90), 0);
+        rotFromCardinal[Cardinal.RIGHT] = quaternion.EulerXYZ(0, math.radians(90), 0);
+        
+        var vecFromCardinal = new Dictionary<Cardinal, float3>();
+        vecFromCardinal[Cardinal.UP] = Vector3.forward;
+        vecFromCardinal[Cardinal.DOWN] = Vector3.back;
+        vecFromCardinal[Cardinal.LEFT] = Vector3.left;
+        vecFromCardinal[Cardinal.RIGHT] = Vector3.right;
+        
+        var rightRotFromCardinal = new Dictionary<Cardinal, quaternion>();
+        rightRotFromCardinal[Cardinal.UP] = quaternion.EulerXYZ(0, math.radians(90), 0);
+        rightRotFromCardinal[Cardinal.DOWN] = quaternion.EulerXYZ(0, math.radians(270), 0);
+        rightRotFromCardinal[Cardinal.LEFT] = quaternion.EulerXYZ(0, 0, 0);
+        rightRotFromCardinal[Cardinal.RIGHT] = quaternion.EulerXYZ(0, math.radians(180), 0);
+        
+        var leftVecFromCardinal = new Dictionary<Cardinal, float3>();
+        leftVecFromCardinal[Cardinal.UP] = Vector3.left;
+        leftVecFromCardinal[Cardinal.DOWN] = Vector3.right;
+        leftVecFromCardinal[Cardinal.LEFT] = Vector3.back;
+        leftVecFromCardinal[Cardinal.RIGHT] = Vector3.forward;
+
         const float straightLength = 12.0f;
         const float curvedLength = 40.0f;   // todo get real measurement
+        const float laneWidth = 1.8f; // todo verify value
         
-        segmentInfos = new NativeArray<RoadSegmentInfo>(transform.childCount, Allocator.Persistent);
-        segmentThresholds = new NativeArray<float>(transform.childCount, Allocator.Persistent);
+        segmentInfos = new NativeArray<RoadSegment>(transform.childCount, Allocator.Persistent);
         
         var prev = transform.GetChild(0);
 
-        var direction = (prev.Find("EndPoint").position - prev.position).normalized; 
-        segmentInfos[0] = new RoadSegmentInfo()
+        var segmentInfo = prev.gameObject.GetComponent<SegmentAuth>(); 
+        var cardinal = segmentInfo.direction;
+        segmentInfos[0] = new RoadSegment()
         {
-            position = prev.position,
-            direction = direction,
-            laneOffsetDir = Quaternion.Euler(0, -90, 0) * direction,  // todo: check if should be negative to rotate left
-            length = straightLength,
-            id = 0,
-            curved = false,
+            Position = prev.position,
+            Direction = cardinal,
+            DirectionVec = vecFromCardinal[cardinal],
+            DirectionRot = rotFromCardinal[cardinal],
+            DirectionRotEnd = rightRotFromCardinal[cardinal],
+            DirectionLaneOffset = leftVecFromCardinal[cardinal] * laneWidth,
+            Length = straightLength,
+            Id = 0,
+            Curved = false,
+            Radius = segmentInfo.radius,
+            RadiusSqr = segmentInfo.radius * segmentInfo.radius,
+            Threshold = straightLength,
         };
-        segmentThresholds[0] = straightLength; 
+        var lengthSum = straightLength; 
         
         // put the track pieces in place:
         // Move start of child to endpoint of prev (in world coords).
         for (int i = 1; i < transform.childCount; i++)
         {
             var child = transform.GetChild(i);
-
-            var startPos = prev.Find("EndPoint").position;
-            var endPos = child.Find("EndPoint").position;
             
+            segmentInfo = child.gameObject.GetComponent<SegmentAuth>(); 
+            cardinal = segmentInfo.direction;
+
+            var pos = prev.Find("EndPoint").position;
             var curved = (i % 2 == 1);
-            direction = (child.Find("EndPoint").position - child.position).normalized;
-            if (curved)
-            {
-                // rotate left 45 degrees (we want the initial direction of travel for the curved piece
-                direction = Quaternion.Euler(0, 45, 0) * direction; // todo: positive or negative 45?
-                direction.Normalize();
-            }
 
-            child.position = startPos;
-            segmentInfos[i] = new RoadSegmentInfo()
+            lengthSum += curved ? curvedLength : straightLength; 
+            
+            child.position = pos;
+            segmentInfos[i] = new RoadSegment()
             {
-                position = startPos,
-                direction = direction,
-                laneOffsetDir = Quaternion.Euler(0, -90, 0) * direction,
-                length = curved ? curvedLength : straightLength,
-                id = (short)i,
-                curved = curved,
+                Position = pos,
+                Direction = cardinal,
+                DirectionVec = vecFromCardinal[cardinal],
+                DirectionRot = rotFromCardinal[cardinal],
+                DirectionRotEnd = rightRotFromCardinal[cardinal],
+                DirectionLaneOffset = leftVecFromCardinal[cardinal] * laneWidth,
+                Length = curved ? curvedLength : straightLength,
+                Id = (short)i,
+                Curved = curved,
+                Radius = segmentInfo.radius,
+                RadiusSqr = segmentInfo.radius * segmentInfo.radius,
+                Threshold = lengthSum,
             };
-            segmentThresholds[i] = segmentThresholds[i - 1] + segmentInfos[i].length;
-
+            
             prev = child;
         }
     }
 
     private void OnDestroy()
     {
-        segmentThresholds.Dispose();
         segmentInfos.Dispose();
     }
 }
 
-public struct RoadSegmentInfo
+
+// todo: use float2's instead
+public struct RoadSegment
 {
-    public Vector3 position;
-    public Vector3 direction;
-    public Vector3 laneOffsetDir;
-    public float length;
-    public short id;
-    public bool curved;
+    public float3 Position;
+    public Cardinal Direction;
+    public float3 DirectionVec;
+    public quaternion DirectionRot;
+    public quaternion DirectionRotEnd;    // only for curved segments; 90 degrees right of DirectionRot
+    public float3 DirectionLaneOffset;
+    public float Length;
+    public short Id;
+    public bool Curved;
+    public float Radius;     // only used for curved segments; radius for lane 0  // todo: init radius
+    public float RadiusSqr;     // only used for curved segments  // todo: init radius
+    public float Threshold;        // end track pos i.e. cummulative length of this segment and all prior
+}
+
+public enum Cardinal
+{
+    UP, DOWN, LEFT, RIGHT,
 }
