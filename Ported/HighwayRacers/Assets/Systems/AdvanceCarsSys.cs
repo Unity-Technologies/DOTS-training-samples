@@ -15,7 +15,7 @@ namespace HighwayRacer
             RoadInit road = GameObject.FindObjectOfType<RoadInit>();
             if (road != null)
             {
-                float trackLength = road.segmentInfos[road.segmentInfos.Length - 1].Threshold;
+                float trackLength = road.roadInfos[road.roadInfos.Length - 1].Threshold;
 
                 var dt = Time.DeltaTime;
             

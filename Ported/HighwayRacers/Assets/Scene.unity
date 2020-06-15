@@ -244,6 +244,7 @@ GameObject:
   m_Component:
   - component: {fileID: 389297967}
   - component: {fileID: 389297969}
+  - component: {fileID: 389297968}
   m_Layer: 5
   m_Name: HighwaySizeText
   m_TagString: Untagged
@@ -271,6 +272,40 @@ RectTransform:
   m_AnchoredPosition: {x: 5.354845, y: -39.8}
   m_SizeDelta: {x: 145.57, y: 20}
   m_Pivot: {x: 0, y: 0.5}
+--- !u!114 &389297968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 389297966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 13
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 1
+    m_MaxSize: 40
+    m_Alignment: 3
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: 'Length of Highway:'
 --- !u!222 &389297969
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3673,6 +3708,10 @@ PrefabInstance:
     - target: {fileID: 4913377197419762, guid: 678178d21bc2ef948bc7b94a4661ec04, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4913377197419762, guid: 678178d21bc2ef948bc7b94a4661ec04, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9134164636158380653, guid: 678178d21bc2ef948bc7b94a4661ec04,
         type: 3}

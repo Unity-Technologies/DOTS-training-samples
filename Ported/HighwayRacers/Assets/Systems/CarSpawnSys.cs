@@ -8,6 +8,7 @@ using UnityEngine;
 using Assert = UnityEngine.Assertions.Assert;
 using Random = Unity.Mathematics.Random;
 
+
 namespace HighwayRacer
 {
     public class CarSpawnSys : SystemBase
@@ -52,6 +53,7 @@ namespace HighwayRacer
                 EntityManager.AddComponent<BlockedDist>(carPrefab);
                 EntityManager.AddComponent<Translation>(carPrefab);
                 EntityManager.AddComponent<Rotation>(carPrefab);
+                EntityManager.AddComponent<Color>(carPrefab);
 
                 var ents = EntityManager.Instantiate(carPrefab, nCars, Allocator.Temp);
                 ents.Dispose();

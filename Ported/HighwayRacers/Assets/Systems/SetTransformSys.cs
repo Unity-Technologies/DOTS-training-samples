@@ -22,65 +22,62 @@ namespace HighwayRacer
             RoadInit road = GameObject.FindObjectOfType<RoadInit>();
             if (road != null)
             {
-                var infos = road.segmentInfos;
+                var infos = road.roadInfos;
                 
                 Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrackSegment segment, in TrackPos pos, in Lane lane) =>
                 {
                     var seg = infos[segment.Val];
                     var posInSegment = pos.Val - (seg.Threshold - seg.Length);
+                    
+                    translation.Value = seg.Position;
+                    translation.Value += seg.DirectionLaneOffset * lane.Val;
+                    
                     if (seg.Curved)
                     {
                         var percentage = posInSegment / seg.Length;
 
                         rotation.Value = new quaternion(math.lerp(seg.DirectionRot.value, seg.DirectionRotEnd.value, percentage));
 
-                        var radius = seg.Radius + lane.Val * laneWidth;
-                        float x, y;
+                        var radius = seg.Radius + lane.Val * laneWidth;   // todo: seg.Radius can just be const because will always be same 
+
+                        // rotate the origin around pivot to get displacement
+                        float3 pivot = new float3();
+                        float3 displacement =  float3.zero;
+
                         switch (seg.Direction)
                         {
                             case Cardinal.UP:
-                                // find x, y of quarter circle traced from (-r, 0) to (0, r)
-                                x = math.lerp(-radius, 0, percentage); 
-                                y = math.sqrt(radius * radius - x * x);
-                                translation.Value = seg.Position;
-                                translation.Value += seg.DirectionLaneOffset * lane.Val;
-                                translation.Value += new float3(x + radius, 0, y);
+                                pivot = new float3(radius, 0, 0);
                                 break;
                             case Cardinal.DOWN:
-                                // find x, y of quarter circle traced from (r, 0) to (0, -r)
-                                x = math.lerp(radius, 0, percentage);
-                                y = -math.sqrt(radius * radius - x * x);
-                                translation.Value = seg.Position;
-                                translation.Value += seg.DirectionLaneOffset * lane.Val;
-                                translation.Value += new float3(x - radius, 0, y);
+                                pivot = new float3(-radius, 0, 0);
                                 break;
                             case Cardinal.LEFT:
-                                // find x, y of quarter circle traced from (0, -r) to (-r, 0)
-                                x = math.lerp(0, -radius, percentage);
-                                y = -math.sqrt(radius * radius - x * x);
-                                translation.Value = seg.Position;
-                                translation.Value += seg.DirectionLaneOffset * lane.Val;
-                                translation.Value += new float3(x, 0, y + radius);
+                                pivot = new float3(0, 0, radius);
                                 break;
                             case Cardinal.RIGHT:
-                                // find x, y of quarter circle traced from (0, r) to (r, 0)
-                                x = math.lerp(0, radius, percentage);
-                                y = math.sqrt(radius * radius - x * x);
-                                translation.Value = seg.Position;
-                                translation.Value += seg.DirectionLaneOffset * lane.Val;
-                                translation.Value += new float3(x, 0, y - radius);
+                                pivot = new float3(0, 0, -radius);
                                 break;
                         }
+
+                        // rotate displacement by angle around pivot
+                        var angle = math.lerp(math.radians(0), math.radians(-90), percentage);  // -90 because cos & sin assume clockwise
+                        displacement -= pivot;
+                        var c = math.cos(angle);
+                        var s = math.sin(angle);
+                        float x = displacement.x * c - displacement.z * s;
+                        displacement.z = displacement.z * c + displacement.x * s;
+                        displacement.x = x;
+                        displacement += pivot;
+                        
+                        translation.Value += displacement;
                     }
                     else
                     {
-                        
-                        translation.Value = seg.Position;
                         translation.Value += posInSegment * seg.DirectionVec;
-                        translation.Value += seg.DirectionLaneOffset * lane.Val;
                         rotation.Value = seg.DirectionRot;
                     }
-                }).ScheduleParallel();
+                }).Run();
             }
         }
     }

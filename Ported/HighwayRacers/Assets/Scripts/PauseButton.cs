@@ -3,25 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public class PauseButton : MonoBehaviour
+{
+    [Header("Children")] public Text text;
 
+    public void onButtonPress()
+    {
+        if (Time.timeScale > 0)
+        {
+            prevTimeScale = Time.timeScale;
+            Time.timeScale = 0;
+            text.text = "Resume";
+        }
+        else
+        {
+            Time.timeScale = prevTimeScale;
+            text.text = "Pause";
+        }
+    }
 
-public class PauseButton : MonoBehaviour {
-
-	[Header("Children")]
-	public Text text;
-
-	public void onButtonPress(){
-		if (Time.timeScale > 0) {
-			prevTimeScale = Time.timeScale;
-			Time.timeScale = 0;
-			text.text = "Resume";
-		} else {
-			Time.timeScale = prevTimeScale;
-			text.text = "Pause";
-		}
-	}
-
-	private float prevTimeScale = 1;
-
+    private float prevTimeScale = 1;
 }
-

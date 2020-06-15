@@ -17,7 +17,7 @@ namespace HighwayRacer
             RoadInit road = GameObject.FindObjectOfType<RoadInit>();
             if (road != null)
             {
-                var segs = road.segmentInfos;
+                var segs = road.roadInfos;
 
                 Entities.ForEach((ref TrackSegment segment, in TrackPos pos) =>
                 {
