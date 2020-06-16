@@ -14,10 +14,9 @@ namespace HighwayRacer
 
         protected override void OnUpdate()
         {
-            RoadInit road = GameObject.FindObjectOfType<RoadInit>();
-            if (road != null)
+            if (RoadInit.roadSegments.IsCreated)
             {
-                var segs = road.roadInfos;
+                var segs = RoadInit.roadSegments;
 
                 Entities.ForEach((ref TrackSegment segment, in TrackPos pos) =>
                 {
@@ -29,7 +28,7 @@ namespace HighwayRacer
                             return;
                         }
                     }
-                    segment.Val = (byte)(segs.Length - 1);  // last segment gets all the rest (better accounts for float imprecision)
+                    segment.Val = (byte)(segs.Length - 1);  // last segment gets all the rest (to account for float imprecision)
                 }).Run();
             }
         }

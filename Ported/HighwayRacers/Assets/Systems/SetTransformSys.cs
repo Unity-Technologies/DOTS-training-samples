@@ -18,11 +18,10 @@ namespace HighwayRacer
         protected override void OnUpdate()
         {
             const float laneWidth = 1.8f; // todo verify value
-
-            RoadInit road = GameObject.FindObjectOfType<RoadInit>();
-            if (road != null)
+            
+            if (RoadInit.roadSegments.IsCreated)
             {
-                var infos = road.roadInfos;
+                var infos = RoadInit.roadSegments;
                 
                 Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrackSegment segment, in TrackPos pos, in Lane lane) =>
                 {

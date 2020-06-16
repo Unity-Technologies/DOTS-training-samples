@@ -9,8 +9,15 @@ using UnityEngine;
 
 public class RoadInit : MonoBehaviour
 {
-    public NativeArray<RoadSegment> roadInfos;
+    public static NativeArray<RoadSegment> roadSegments;
 
+    public const int nLanes = 4;
+    public const int nSegments = 8;
+    public const int initialCarsPerLaneOfSegment = 20; // past a certain track size, this will need to be bigger
+    public const float minDist = 4.0f;
+
+    public static float trackLength = 0.0f;
+    
     void Start()
     {
         var rotFromCardinal = new Dictionary<Cardinal, quaternion>();
@@ -44,7 +51,7 @@ public class RoadInit : MonoBehaviour
         float straightLength = 32.0f;   // can set this to desired length
         float straightScale = straightLength / baseStraightLength;
 
-        roadInfos = new NativeArray<RoadSegment>(transform.childCount, Allocator.Persistent);
+        roadSegments = new NativeArray<RoadSegment>(transform.childCount, Allocator.Persistent);
 
         // put the track pieces in place:
         
@@ -78,7 +85,7 @@ public class RoadInit : MonoBehaviour
             }
             
             child.position = pos;
-            roadInfos[i] = new RoadSegment()
+            roadSegments[i] = new RoadSegment()
             {
                 Position = pos,
                 EndPosition = endPos,
@@ -96,11 +103,13 @@ public class RoadInit : MonoBehaviour
 
             pos = endPos;
         }
+        
+        RoadInit.trackLength = roadSegments[roadSegments.Length - 1].Threshold;
     }
 
     private void OnDestroy()
     {
-        roadInfos.Dispose();
+        roadSegments.Dispose();
     }
 }
 

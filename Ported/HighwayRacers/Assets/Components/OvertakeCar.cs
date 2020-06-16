@@ -2,8 +2,7 @@
 
 namespace HighwayRacer
 {
-    public struct OvertakeCar : IComponentData
+    public struct Overtaking : IComponentData
     {
-        public Entity Val;
     }
 }

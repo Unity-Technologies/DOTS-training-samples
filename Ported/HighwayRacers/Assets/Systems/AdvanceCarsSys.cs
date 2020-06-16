@@ -12,10 +12,9 @@ namespace HighwayRacer
 
         protected override void OnUpdate()
         {
-            RoadInit road = GameObject.FindObjectOfType<RoadInit>();
-            if (road != null)
+            if (RoadInit.roadSegments.IsCreated)
             {
-                float trackLength = road.roadInfos[road.roadInfos.Length - 1].Threshold;
+                float trackLength = RoadInit.roadSegments[RoadInit.roadSegments.Length - 1].Threshold;
 
                 var dt = Time.DeltaTime;
             
@@ -27,7 +26,6 @@ namespace HighwayRacer
                         trackPos.Val -= trackLength;
                     }
                 }).Run();
-                
             }
         }
     }
