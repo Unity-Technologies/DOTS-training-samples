@@ -2,8 +2,6 @@
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEditorInternal.VersionControl;
-using UnityEngine;
 
 namespace HighwayRacer
 {
@@ -14,18 +12,23 @@ namespace HighwayRacer
         private NativeArray<OtherCar> selection; // the OtherCar segments to compare against a particular car
 
         const int nSegments = RoadInit.nSegments;
-        const int nLanes = RoadInit.nLanes;
-        const int initialCarsPerLaneOfSegment = RoadInit.initialCarsPerLaneOfSegment;
         const float minDist = RoadInit.minDist;
 
-        const float decelerationRate = 10.0f; // m/s to lose per second
-        const float accelerationRate = 15.0f; // m/s to lose per second
+        const float decelerationRate = RoadInit.decelerationRate;
+        const float accelerationRate = RoadInit.accelerationRate;
 
         protected override void OnCreate()
         {
             base.OnCreate();
 
-            selection = new NativeArray<OtherCar>(3, Allocator.Persistent);
+            selection = new NativeArray<OtherCar>(2, Allocator.Persistent);
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            selection.Dispose();
         }
 
         protected override void OnUpdate()
@@ -40,88 +43,73 @@ namespace HighwayRacer
             // make sure we don't hit next car ahead, and trigger overtake state
             var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
-            Entities.WithNone<Overtaking>().ForEach((Entity ent, ref TargetSpeed targetSpeed, ref Speed speed, in TrackPos trackPos, in Lane lane,
-                in TrackSegment trackSegment, in BlockedDist blockedDist) =>
-            {
-                var laneBaseIdx = lane.Val * nSegments;
-
-                var idx = laneBaseIdx + trackSegment.Val;
-                selection[0] = otherCars[idx];
-
-                // next
-                idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
-                selection[1] = otherCars[idx];
-
-                // find pos and speed of closest car ahead
-                var closestSpeed = -1.0f;
-                var closestPos = trackLength; // max distance away
-                for (int i = 0; i < 2; i++)
+            Entities.WithNone<Blocked>().WithNone<Overtaking>()
+                .ForEach((Entity ent, ref TargetSpeed targetSpeed, ref Speed speed, in TrackPos trackPos, in Lane lane,
+                    in TrackSegment trackSegment, in BlockedDist blockedDist) =>
                 {
-                    var posSegment = selection[i].positions;
-                    var speedSegment = selection[i].speeds;
+                    var laneBaseIdx = lane.Val * nSegments;
 
-                    var wrapAround = (trackSegment.Val == nSegments - 1) && i == 1;
+                    var idx = laneBaseIdx + trackSegment.Val;
+                    selection[0] = otherCars[idx];
 
-                    for (int j = 0; j < posSegment.Length; j++)
+                    // next
+                    idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
+                    selection[1] = otherCars[idx];
+
+                    // find pos and speed of closest car ahead
+                    var closestSpeed = 0.0f;
+                    var closestPos = float.MaxValue;
+                    for (int i = 0; i < 2; i++)
                     {
-                        var otherPos = posSegment[j].Val + (wrapAround ? trackLength : 0);
-                        var otherSpeed = speedSegment[j];
+                        var posSegment = selection[i].positions;
+                        var speedSegment = selection[i].speeds;
 
-                        if (otherPos < closestPos &&
-                            otherPos > trackPos.Val) // found car ahead closer than previous closest
+                        var wrapAround = (trackSegment.Val == nSegments - 1) && i == 1;
+
+                        for (int j = 0; j < posSegment.Length; j++)
                         {
-                            closestPos = otherPos;
-                            closestSpeed = otherSpeed.Val;
+                            var otherPos = posSegment[j].Val + (wrapAround ? trackLength : 0);
+                            var otherSpeed = speedSegment[j];
+
+                            if (otherPos < closestPos &&
+                                otherPos > trackPos.Val) // found a car ahead closer than previous closest
+                            {
+                                closestPos = otherPos;
+                                closestSpeed = otherSpeed.Val;
+                            }
                         }
                     }
-                }
 
-                var blocked = false;
-                var dist = closestPos - trackPos.Val;
-                if (dist <= blockedDist.Val &&
-                    speed.Val < closestSpeed) // car is blocked ahead in lane
-                {
-                    ecb.AddComponent<Blocked>(ent);
-                    
-                    var speedDiff = speed.Val - closestSpeed;
-                    var closeness = (dist - minDist) / (blockedDist.Val - minDist); // 0 is max closeness, 1 is min
-                    speed.Val -= math.lerp(speedDiff, 0, closeness); // todo: this is probably too quick a deceleration
-                    blocked = true;
+                    if (closestPos != float.MaxValue)
+                    {
+                        if ((closestPos - trackPos.Val) <= blockedDist.Val &&
+                            speed.Val > closestSpeed) // car is blocked ahead in lane
+                        {
+                            ecb.AddComponent<Blocked>(ent);  // BlockedCarSys will set the speed
+                            return;
+                        }    
+                    }
 
-                    if (targetSpeed.Val > closestSpeed)
+                    if (targetSpeed.Val < speed.Val)
                     {
-                        targetSpeed.Val = closestSpeed;
+                        speed.Val -= decelerationRate * dt;
+                        if (speed.Val < targetSpeed.Val)
+                        {
+                            speed.Val = targetSpeed.Val;
+                        }
                     }
-                }
-
-                // if blocked, we only want to go slower, not faste
-                if (targetSpeed.Val < speed.Val)
-                {
-                    speed.Val -= decelerationRate * dt;
-                    if (speed.Val < targetSpeed.Val)
+                    else if (targetSpeed.Val > speed.Val)
                     {
-                        speed.Val = targetSpeed.Val;
+                        speed.Val += accelerationRate * dt;
+                        if (speed.Val > targetSpeed.Val)
+                        {
+                            speed.Val = targetSpeed.Val;
+                        }
                     }
-                }
-                else if (targetSpeed.Val > speed.Val && !blocked)
-                {
-                    speed.Val += accelerationRate * dt;
-                    if (speed.Val > targetSpeed.Val)
-                    {
-                        speed.Val = targetSpeed.Val;
-                    }
-                }
-            }).Run();
+                }).Run();
 
             ecb.Playback(EntityManager);
             ecb.Dispose();
         }
-    }
-
-    public struct OtherCar
-    {
-        public UnsafeList<TrackPos> positions;
-        public UnsafeList<Entity> entities;
-        public UnsafeList<Speed> speeds;
     }
 }

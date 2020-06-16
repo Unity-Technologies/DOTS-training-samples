@@ -15,6 +15,9 @@ public class RoadInit : MonoBehaviour
     public const int nSegments = 8;
     public const int initialCarsPerLaneOfSegment = 20; // past a certain track size, this will need to be bigger
     public const float minDist = 4.0f;
+    
+    public const float decelerationRate = 3.0f; // m/s to lose per second
+    public const float accelerationRate = 8.0f; // m/s to lose per second
 
     public static float trackLength = 0.0f;
     

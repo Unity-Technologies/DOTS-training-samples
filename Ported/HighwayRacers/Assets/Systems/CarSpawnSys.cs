@@ -33,8 +33,12 @@ namespace HighwayRacer
                 const float trackLength = 400.0f;
                 const int maxCarsInLane = 20; // todo calculate this from track length
 
-                const float minSpeed = 10.0f;
-                const float maxSpeed = 30.0f; // max cruising speed
+                const float minSpeed = 7.0f;
+                const float maxSpeed = 20.0f; // max cruising speed
+
+                const float minBlockedDist = 8.0f;
+                const float maxBlockedDist = 15.0f;
+                
                 const float minOvertakeModifier = 1.2f;
                 const float maxOvertakeModifier = 1.6f;
                 const float spawnDist = 12.0f;
@@ -66,9 +70,9 @@ namespace HighwayRacer
                 rand.NextFloat();
 
                 carsSpawned = true;
-
+                
                 Entities.ForEach((ref Speed speed, ref TrackPos trackPos, ref TargetSpeed targetSpeed, ref UnblockedSpeed unblockedSpeed,
-                    ref OvertakeSpeed overtakeSpeed, ref Lane lane) =>
+                    ref OvertakeSpeed overtakeSpeed, ref Lane lane, ref BlockedDist blockedDist, ref Color color) =>
                 {
                     if (nCarsInLane >= maxCarsInLane)
                     {
@@ -77,13 +81,15 @@ namespace HighwayRacer
                         nextTrackPos = 0.0f;
                         Assert.IsTrue(currentLane < nLanes);
                     }
-
-                    speed.Val = 2.0f; // start off slow but not stopped (todo: does logic break if cars stop?)
-                    targetSpeed.Val = 1.0f;
+                    
                     unblockedSpeed.Val = math.lerp(minSpeed, maxSpeed, rand.NextFloat());
+                    targetSpeed.Val = unblockedSpeed.Val;
+                    speed.Val = 2.0f; // start off slow but not stopped (todo: does logic break if cars stop?)
+                    blockedDist.Val = math.lerp(minBlockedDist, maxBlockedDist, rand.NextFloat());
                     overtakeSpeed.Val = targetSpeed.Val * math.lerp(minOvertakeModifier, maxOvertakeModifier, rand.NextFloat());
                     trackPos.Val = nextTrackPos;
                     lane.Val = currentLane;
+                    color.Val = new float4(SetColor.cruiseColor, 1.0f);
 
                     nextTrackPos += spawnDist;
                     Assert.IsTrue(nextTrackPos <= trackLength - spawnDist, "Spawning more cars than will fit in lane.");

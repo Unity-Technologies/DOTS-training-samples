@@ -12,7 +12,6 @@ namespace HighwayRacer
         const int nSegments = RoadInit.nSegments;
         const int nLanes = RoadInit.nLanes;
         const int initialCarsPerLaneOfSegment = RoadInit.initialCarsPerLaneOfSegment;
-        const float minDist = RoadInit.minDist;
 
         protected override void OnCreate()
         {
@@ -24,12 +23,26 @@ namespace HighwayRacer
             {
                 var oc = otherCars[i];
                 oc.positions = new UnsafeList<TrackPos>(initialCarsPerLaneOfSegment, Allocator.Persistent);
-                oc.entities = new UnsafeList<Entity>(initialCarsPerLaneOfSegment, Allocator.Persistent);
                 oc.speeds = new UnsafeList<Speed>(initialCarsPerLaneOfSegment, Allocator.Persistent);
                 otherCars[i] = oc;
             }
         }
-        
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            
+            for (int i = 0; i < nLanes * nSegments; i++)
+            {
+                var oc = otherCars[i];
+                oc.positions.Dispose();
+                oc.speeds.Dispose();
+                otherCars[i] = oc;
+            }
+            
+            otherCars.Dispose();
+        }
+
         protected override void OnUpdate()
         {
             var otherCars = this.otherCars;
@@ -42,14 +55,10 @@ namespace HighwayRacer
                 var posTemp = oc.positions;
                 posTemp.Clear();
 
-                var entTemp = oc.entities;
-                entTemp.Clear();
-
                 var speedTemp = oc.speeds;
                 speedTemp.Clear();
 
                 oc.positions = posTemp;
-                oc.entities = entTemp;
                 oc.speeds = speedTemp;
 
                 otherCars[i] = oc;
@@ -60,19 +69,23 @@ namespace HighwayRacer
                 var oc = otherCars[lane.Val * nSegments + trackSegment.Val];
 
                 var positions = oc.positions;
-                var entities = oc.entities;
                 var speeds = oc.speeds;
 
                 positions.Add(trackPos);
-                entities.Add(ent);
                 speeds.Add(speed);
 
                 oc.positions = positions;
-                oc.entities = entities;
                 oc.speeds = speeds;
 
                 otherCars[lane.Val * nSegments + trackSegment.Val] = oc;
             }).Run();
         }
+    }
+    
+    public struct OtherCar
+    {
+        public UnsafeList<TrackPos> positions;
+        public UnsafeList<Entity> entities;
+        public UnsafeList<Speed> speeds;
     }
 }
