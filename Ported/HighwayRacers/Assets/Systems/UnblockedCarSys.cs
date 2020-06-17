@@ -9,7 +9,7 @@ namespace HighwayRacer
     [UpdateBefore(typeof(AdvanceCarsSys))]
     public class UnblockedCarSys : SystemBase
     {
-        private NativeArray<OtherCar> selection; // the OtherCar segments to compare against a particular car
+        private NativeArray<OtherCars> selection; // the OtherCar segments to compare against a particular car
 
         const int nSegments = RoadInit.nSegments;
         const float minDist = RoadInit.minDist;
@@ -21,7 +21,7 @@ namespace HighwayRacer
         {
             base.OnCreate();
 
-            selection = new NativeArray<OtherCar>(2, Allocator.Persistent);
+            selection = new NativeArray<OtherCars>(2, Allocator.Persistent);
         }
 
         protected override void OnDestroy()

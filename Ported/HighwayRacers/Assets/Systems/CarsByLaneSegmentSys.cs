@@ -7,7 +7,7 @@ namespace HighwayRacer
     public class CarsByLaneSegmentSys : SystemBase
     {
         // index is (lane * nSegment + segment). Values are the positions within that lane & segment.
-        public NativeArray<OtherCar> otherCars;
+        public NativeArray<OtherCars> otherCars;
         
         const int nSegments = RoadInit.nSegments;
         const int nLanes = RoadInit.nLanes;
@@ -17,7 +17,7 @@ namespace HighwayRacer
         {
             base.OnCreate();
 
-            otherCars = new NativeArray<OtherCar>(nLanes * nSegments, Allocator.Persistent);
+            otherCars = new NativeArray<OtherCars>(nLanes * nSegments, Allocator.Persistent);
 
             for (int i = 0; i < nLanes * nSegments; i++)
             {
@@ -82,7 +82,7 @@ namespace HighwayRacer
         }
     }
     
-    public struct OtherCar
+    public struct OtherCars
     {
         public UnsafeList<TrackPos> positions;
         public UnsafeList<Entity> entities;
