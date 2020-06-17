@@ -12,8 +12,12 @@ namespace HighwayRacer
 
         const int nSegments = RoadInit.nSegments;
         const int nLanes = RoadInit.nLanes;
+
         const float minDist = RoadInit.minDist;
-        const float minMergeSegmentPos = RoadInit.minMergeSegmentPos;
+
+        const float mergeLookAhead = RoadInit.mergeLookAhead;
+        const float mergeLookBehind = RoadInit.mergeLookBehind;
+
         const float decelerationRate = RoadInit.decelerationRate;
         const float accelerationRate = RoadInit.accelerationRate;
 
@@ -30,61 +34,58 @@ namespace HighwayRacer
             selection.Dispose();
         }
 
-        private struct Util
+
+        // todo: account for speed of adjacent car ahead and car behind relative to this car
+        public static bool canMerge(float pos, int destLane, int segment, NativeArray<OtherCars> otherCars, float trackLength)
         {
-            // todo: account for speed of adjacent car ahead and car behind relative to this car
-            public static bool canMerge(float pos, int destLane, int segment, NativeArray<OtherCars> otherCars, float trackLength)
+            var laneBaseIdx = destLane * nSegments;
+
+            var idx = laneBaseIdx + segment;
+            var adjacentLane = otherCars[idx];
+
+            var wrapAround = (segment == nSegments - 1);
+
+            idx = laneBaseIdx + (wrapAround ? 0 : segment + 1);
+            var adjacentLaneNextSegment = otherCars[idx];
+
+            // find pos and speed of closest car ahead and closest car behind 
+            var closestAheadPos = float.MaxValue;
+            var closestAheadSpeed = 0.0f;
+
+            var closestBehindPos = float.MinValue;
+            var closestBehindSpeed = 0.0f;
+
+            var posSegment = adjacentLane.positions;
+            var speedSegment = adjacentLane.speeds;
+
+            for (int i = 0; i < 2; i++)
             {
-                var laneBaseIdx = destLane * nSegments;
-                
-                var idx = laneBaseIdx + segment;
-                var adjacentLane = otherCars[idx];
-
-                var wrapAround = (segment == nSegments - 1);
-                
-                idx = laneBaseIdx + (wrapAround ? 0 : segment + 1);
-                var adjacentLaneNextSegment = otherCars[idx];
-
-                // find pos and speed of closest car ahead and closest car behind 
-                var closestAheadPos = float.MaxValue;
-                var closestAheadSpeed = 0.0f;
-
-                var closestBehindPos = float.MinValue;
-                var closestBehindSpeed = 0.0f;
-
-                var posSegment = adjacentLane.positions;
-                var speedSegment = adjacentLane.speeds;
-                
-                for (int i = 0; i < 2; i++)
+                for (int j = 0; j < posSegment.Length; j++)
                 {
-                    for (int j = 0; j < posSegment.Length; j++)
+                    var otherPos = posSegment[j].Val + (wrapAround && i == 1 ? trackLength : 0);
+                    var otherSpeed = speedSegment[j];
+
+                    if (otherPos < closestAheadPos &&
+                        otherPos > pos) // found a car ahead that's closer than previous closest
                     {
-                        var otherPos = posSegment[j].Val + (wrapAround && i == 1 ? trackLength : 0);
-                        var otherSpeed = speedSegment[j];
-
-                        if (otherPos < closestAheadPos &&
-                            otherPos > pos) // found a car ahead that's closer than previous closest
-                        {
-                            closestAheadPos = otherPos;
-                            closestAheadSpeed = otherSpeed.Val;
-                        }
-                        else if (otherPos > closestBehindPos &&
-                                 otherPos <= pos) // found a car behind (or equal) that's closer than previous closest
-                        {
-                            closestBehindPos = otherPos;
-                            closestBehindSpeed = otherSpeed.Val;
-                        }
+                        closestAheadPos = otherPos;
+                        closestAheadSpeed = otherSpeed.Val;
                     }
-
-                    posSegment = adjacentLaneNextSegment.positions;
-                    speedSegment = adjacentLaneNextSegment.speeds;
+                    else if (otherPos > closestBehindPos &&
+                             otherPos <= pos) // found a car behind (or equal) that's closer than previous closest
+                    {
+                        closestBehindPos = otherPos;
+                        closestBehindSpeed = otherSpeed.Val;
+                    }
                 }
 
-                return false;
-                //return true;
+                posSegment = adjacentLaneNextSegment.positions;
+                speedSegment = adjacentLaneNextSegment.speeds;
             }
-        }
 
+            // sufficient margin of open space
+            return (closestBehindPos + mergeLookBehind) < pos && (closestAheadPos - mergeLookAhead) > pos;
+        }
 
         protected override void OnUpdate()
         {
@@ -150,11 +151,11 @@ namespace HighwayRacer
                         {
                             speed.Val = newSpeed;
                         }
-                        
-                        // if pos is too close to start of its segment, can't merge
 
-                        var segmentPos = trackPos.Val - roadSegments[trackSegment.Val].Threshold; 
-                        if (segmentPos < minMergeSegmentPos)
+                        // to spare us from having to check prior segment, can't merge if too close to start of segment
+                        var threshold = roadSegments[(trackSegment.Val > 0) ? trackSegment.Val - 1 : nSegments - 1].Threshold;
+                        var segmentPos = trackPos.Val - threshold;
+                        if (segmentPos < mergeLookBehind)
                         {
                             return;
                         }
@@ -163,9 +164,10 @@ namespace HighwayRacer
                         if (lane.Val < nLanes - 1)
                         {
                             var leftLaneIdx = lane.Val + 1;
-                            if (Util.canMerge(trackPos.Val, leftLaneIdx, trackSegment.Val, otherCars, trackLength))
+                            if (canMerge(trackPos.Val, leftLaneIdx, trackSegment.Val, otherCars, trackLength))
                             {
                                 ecb.AddComponent<MergingLeft>(ent);
+                                ecb.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = -1.0f});
                                 ecb.RemoveComponent<Blocked>(ent);
                                 lane.Val = (byte) leftLaneIdx;
                             }
@@ -175,9 +177,10 @@ namespace HighwayRacer
                         if (lane.Val > 0)
                         {
                             var rightLaneIdx = lane.Val - 1;
-                            if (Util.canMerge(trackPos.Val, rightLaneIdx, trackSegment.Val, otherCars, trackLength))
+                            if (canMerge(trackPos.Val, rightLaneIdx, trackSegment.Val, otherCars, trackLength))
                             {
                                 ecb.AddComponent<MergingRight>(ent);
+                                ecb.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = 1.0f});
                                 ecb.RemoveComponent<Blocked>(ent);
                                 lane.Val = (byte) rightLaneIdx;
                             }
