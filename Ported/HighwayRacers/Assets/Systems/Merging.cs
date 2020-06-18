@@ -21,6 +21,7 @@ namespace HighwayRacer
                     laneOffset.Val = 0;
                     ecb.RemoveComponent<MergingLeft>(ent);   // if only there were a method to remove multiple components in one call!
                     ecb.RemoveComponent<LaneOffset>(ent);
+                    ecb.AddComponent<OvertakingRight>(ent);
                 }
             }).Run();
 
@@ -32,6 +33,7 @@ namespace HighwayRacer
                     laneOffset.Val = 0;
                     ecb.RemoveComponent<MergingRight>(ent);   
                     ecb.RemoveComponent<LaneOffset>(ent);
+                    ecb.AddComponent<OvertakingLeft>(ent);
                 }
             }).Run();
 

@@ -5,8 +5,10 @@ using Unity.Mathematics;
 
 namespace HighwayRacer
 {
-    [UpdateAfter(typeof(UnblockedCarSys))]
-    public class BlockedCarSys : SystemBase
+    // update cars that aren't merging or overtaking 
+    [UpdateBefore(typeof(AdvanceCarsSys))]
+    [UpdateAfter(typeof(MergingCarSys))]
+    public class CarSys : SystemBase
     {
         private NativeArray<OtherCars> selection; // the OtherCar segments to compare against a particular car
 
@@ -34,8 +36,35 @@ namespace HighwayRacer
             selection.Dispose();
         }
 
+        public static void GetClosestPosAndSpeed(out float closestPos, out float closestSpeed, NativeArray<OtherCars> selection,
+            TrackSegment trackSegment, float trackLength, TrackPos trackPos)
+        {
+            // find pos and speed of closest car ahead
+            closestSpeed = 0.0f;
+            closestPos = float.MaxValue;
+            for (int i = 0; i < selection.Length; i++)
+            {
+                var posSegment = selection[i].positions;
+                var speedSegment = selection[i].speeds;
 
-        // todo: account for speed of adjacent car ahead and car behind relative to this car
+                var wrapAround = (trackSegment.Val == nSegments - 1) && i == 1;
+
+                for (int j = 0; j < posSegment.Length; j++)
+                {
+                    var otherPos = posSegment[j].Val + (wrapAround ? trackLength : 0);
+                    var otherSpeed = speedSegment[j];
+
+                    if (otherPos < closestPos &&
+                        otherPos > trackPos.Val) // found a car ahead closer than previous closest
+                    {
+                        closestPos = otherPos;
+                        closestSpeed = otherSpeed.Val;
+                    }
+                }
+            }
+        }
+
+        // todo: account for *speed* of adjacent car ahead and car behind relative to this car?
         public static bool canMerge(float pos, int destLane, int segment, NativeArray<OtherCars> otherCars, float trackLength)
         {
             var laneBaseIdx = destLane * nSegments;
@@ -86,6 +115,28 @@ namespace HighwayRacer
             // sufficient margin of open space
             return (closestBehindPos + mergeLookBehind) < pos && (closestAheadPos - mergeLookAhead) > pos;
         }
+        
+        public static void SetSpeedForUnblocked(ref TargetSpeed targetSpeed, ref Speed speed, float dt, UnblockedSpeed unblockedSpeed)
+        {
+            targetSpeed.Val = unblockedSpeed.Val;
+
+            if (targetSpeed.Val < speed.Val)
+            {
+                speed.Val -= decelerationRate * dt;
+                if (speed.Val < targetSpeed.Val)
+                {
+                    speed.Val = targetSpeed.Val;
+                }
+            }
+            else if (targetSpeed.Val > speed.Val)
+            {
+                speed.Val += accelerationRate * dt;
+                if (speed.Val > targetSpeed.Val)
+                {
+                    speed.Val = targetSpeed.Val;
+                }
+            }
+        }
 
         protected override void OnUpdate()
         {
@@ -100,7 +151,8 @@ namespace HighwayRacer
             // make sure we don't hit next car ahead, and trigger overtake state
             var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
-            Entities.WithAll<Blocked>().ForEach((Entity ent, ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
+            Entities.WithNone<MergingLeft, MergingRight>().ForEach((Entity ent, ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane,
+                in TrackPos trackPos,
                 in TrackSegment trackSegment, in BlockedDist blockedDist, in UnblockedSpeed unblockedSpeed) =>
             {
                 var laneBaseIdx = lane.Val * nSegments;
@@ -112,29 +164,7 @@ namespace HighwayRacer
                 idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
                 selection[1] = otherCars[idx];
 
-                // find pos and speed of closest car ahead
-                var closestSpeed = 0.0f;
-                var closestPos = float.MaxValue;
-                for (int i = 0; i < 2; i++)
-                {
-                    var posSegment = selection[i].positions;
-                    var speedSegment = selection[i].speeds;
-
-                    var wrapAround = (trackSegment.Val == nSegments - 1) && i == 1;
-
-                    for (int j = 0; j < posSegment.Length; j++)
-                    {
-                        var otherPos = posSegment[j].Val + (wrapAround ? trackLength : 0);
-                        var otherSpeed = speedSegment[j];
-
-                        if (otherPos < closestPos &&
-                            otherPos > trackPos.Val) // found a car ahead closer than previous closest
-                        {
-                            closestPos = otherPos;
-                            closestSpeed = otherSpeed.Val;
-                        }
-                    }
-                }
+                GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos);
 
                 if (closestPos != float.MaxValue)
                 {
@@ -168,7 +198,6 @@ namespace HighwayRacer
                             {
                                 ecb.AddComponent<MergingLeft>(ent);
                                 ecb.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = -1.0f});
-                                ecb.RemoveComponent<Blocked>(ent);
                                 lane.Val = (byte) leftLaneIdx;
                             }
                         }
@@ -181,7 +210,6 @@ namespace HighwayRacer
                             {
                                 ecb.AddComponent<MergingRight>(ent);
                                 ecb.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = 1.0f});
-                                ecb.RemoveComponent<Blocked>(ent);
                                 lane.Val = (byte) rightLaneIdx;
                             }
                         }
@@ -190,26 +218,7 @@ namespace HighwayRacer
                     }
                 }
 
-                ecb.RemoveComponent<Blocked>(ent);
-
-                targetSpeed.Val = unblockedSpeed.Val;
-
-                if (targetSpeed.Val < speed.Val)
-                {
-                    speed.Val -= decelerationRate * dt;
-                    if (speed.Val < targetSpeed.Val)
-                    {
-                        speed.Val = targetSpeed.Val;
-                    }
-                }
-                else if (targetSpeed.Val > speed.Val)
-                {
-                    speed.Val += accelerationRate * dt;
-                    if (speed.Val > targetSpeed.Val)
-                    {
-                        speed.Val = targetSpeed.Val;
-                    }
-                }
+                SetSpeedForUnblocked(ref targetSpeed, ref speed, dt, unblockedSpeed);
             }).Run();
 
             ecb.Playback(EntityManager);

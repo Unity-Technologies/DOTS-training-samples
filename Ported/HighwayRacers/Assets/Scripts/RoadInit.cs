@@ -16,10 +16,8 @@ public class RoadInit : MonoBehaviour
     public const int initialCarsPerLaneOfSegment = 20; // past a certain track size, this will need to be bigger
     public const float minDist = 4.0f;
 
-    public const float mergeLookAhead = 10.0f;
-    public const float mergeLookBehind = 6.0f;
-    
-    public const float minMergeSegmentPos = 6.0f;  // how far into segment must a car be to merge (not allowing merge in first stretch spares us from looking behind)
+    public const float mergeLookAhead = 9.0f;
+    public const float mergeLookBehind = 5.5f;
     
     public const float decelerationRate = 3.0f; // m/s to lose per second
     public const float accelerationRate = 8.0f; // m/s to lose per second

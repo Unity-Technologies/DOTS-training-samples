@@ -28,16 +28,16 @@ namespace HighwayRacer
                 }
             }).Run();
 
-            // for debug, make left blue, right yellow
-            Entities.ForEach((ref Color color, in MergingLeft mergingLeft) =>
-            {
-                color.Val = new float4(0, 0, 1, 1);
-            }).Run();
-            
-            Entities.ForEach((ref Color color, in MergingRight mergingRight) =>
-            {
-                color.Val = new float4(0, 1, 1, 1);
-            }).Run();
+            // // for debug, make left blue, right yellow
+            // Entities.ForEach((ref Color color, in MergingLeft mergingLeft) =>
+            // {
+            //     color.Val = new float4(0, 0.2f, 0.8f, 1);
+            // }).Run();
+            //
+            // Entities.ForEach((ref Color color, in MergingRight mergingRight) =>
+            // {
+            //     color.Val = new float4(0, 1, 1, 1);
+            // }).Run();
         }
     }
 }

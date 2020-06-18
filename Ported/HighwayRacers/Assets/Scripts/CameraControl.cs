@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+﻿using Unity.Entities;
+using UnityEngine;
 
+public class CameraControl : MonoBehaviour
+{
 
-
-
-public class CameraControl : MonoBehaviour {
+	public new Camera camera;
 	
 	public Rect bounds;
 	public float moveSpeed = 20;
@@ -13,7 +14,7 @@ public class CameraControl : MonoBehaviour {
 	Quaternion topDownRotation = new Quaternion();
 	// Vector3 carPosition = new Vector3();
 	// Quaternion carRotation = new Quaternion();
-	// Car carRef = null;
+	Entity car;
 
 	public static CameraControl instance { get; private set; }
 
@@ -55,11 +56,11 @@ public class CameraControl : MonoBehaviour {
 	}
 
 	// Use this for initialization
-	void Start () {
-
+	void Start ()
+	{
+		camera = GetComponent<Camera>();
 		topDownPosition = transform.position;
 		topDownRotation = transform.rotation;
-
 	}
 	
 	// Update is called once per frame
@@ -90,6 +91,21 @@ public class CameraControl : MonoBehaviour {
 				v.y = 0;
 			}
 			
+			// look for car nearest to click; if closest car is close enough, switch to that car's cam
+			if (Input.GetMouseButtonDown(0))
+			{
+				RaycastHit hit;
+				Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+        
+				if (Physics.Raycast(ray, out hit)) {
+                
+					
+					Debug.Log(hit.point);
+					
+					
+				}    
+			}
+			
 			transform.position = new Vector3 (
 				Mathf.Clamp (transform.position.x + v.x * dt, bounds.xMin, bounds.xMax),
 				transform.position.y,
@@ -99,26 +115,26 @@ public class CameraControl : MonoBehaviour {
 			break;
 
 		// case State.TO_CAR:
-		// case State.CAR:
-		//
-		// 	carPosition = carRef.cameraPos.position;
-		// 	carRotation = carRef.cameraPos.rotation;
-		//
-		// 	if (time >= transitionDuration || state == State.CAR) {
-		// 		if (state == State.TO_CAR) {
-		// 			state = State.CAR;
-		// 			carRef.Hide();
-		// 		}
-		// 		transform.position = carPosition;
-		// 		transform.rotation = carRotation;
-		// 	} else {
-		//
-		// 		transform.position = Vector3.Lerp(topDownPosition, carPosition, time / transitionDuration);
-		// 		transform.rotation = Quaternion.Slerp(topDownRotation, carRotation, time / transitionDuration);
-		//
-		// 	}
-		//
-		// 	break;
+		case State.CAR:
+		
+			// carPosition = car.cameraPos.position;
+			// carRotation = car.cameraPos.rotation;
+			//
+			// if (time >= transitionDuration || state == State.CAR) {
+			// 	if (state == State.TO_CAR) {
+			// 		state = State.CAR;
+			// 		carRef.Hide();
+			// 	}
+			// 	transform.position = carPosition;
+			// 	transform.rotation = carRotation;
+			// } else {
+			//
+			// 	transform.position = Vector3.Lerp(topDownPosition, carPosition, time / transitionDuration);
+			// 	transform.rotation = Quaternion.Slerp(topDownRotation, carRotation, time / transitionDuration);
+			//
+			// }
+		
+			break;
 
 		// case State.TO_TOP_DOWN:
 		//

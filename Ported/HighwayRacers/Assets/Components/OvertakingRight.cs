@@ -2,7 +2,7 @@
 
 namespace HighwayRacer
 {
-    public struct Overtaking : IComponentData
+    public struct OvertakingRight : IComponentData
     {
     }
 }
