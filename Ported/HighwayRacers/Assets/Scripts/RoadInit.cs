@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using HighwayRacer;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -23,7 +24,30 @@ public class RoadInit : MonoBehaviour
     public const float accelerationRate = 8.0f; // m/s to lose per second
 
     public static float trackLength = 0.0f;
+
+    public const float carSpawnDist = 8.0f; 
     
+    public static int numCars = 50;
+
+    public static float minLength = 380.0f;   // 4 * curved length + 4 * min straight length
+    public static float maxLength = 1000;
+    
+    public static float roadLength = minLength;
+
+    public void RestartRoad(float length, int nCars)
+    {
+        roadSegments.Dispose();
+        CarSpawnSys.respawnCars = true;
+        numCars = nCars;
+        roadLength = length;
+        Start();
+    }
+
+    public static int GetMaxCars(float length)
+    {
+        return (int)Mathf.Floor((nLanes * length) / carSpawnDist);
+    }
+
     void Start()
     {
         var rotFromCardinal = new Dictionary<Cardinal, quaternion>();
@@ -50,11 +74,11 @@ public class RoadInit : MonoBehaviour
         leftVecFromCardinal[Cardinal.LEFT] = Vector3.back;
         leftVecFromCardinal[Cardinal.RIGHT] = Vector3.forward;
 
-
         const float baseStraightLength = 12.0f;
         const float curvedLength = 48.69f;   // calculated from radius that is midpoint between first and last lane
         const float laneWidth = 1.8f;
-        float straightLength = 32.0f;   // can set this to desired length
+
+        float straightLength = (roadLength - curvedLength * 4) / 4;
         float straightScale = straightLength / baseStraightLength;
 
         roadSegments = new NativeArray<RoadSegment>(transform.childCount, Allocator.Persistent);

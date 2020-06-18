@@ -19,45 +19,55 @@ namespace HighwayRacer
         protected override void OnCreate()
         {
             base.OnCreate();
-            carQuery = GetEntityQuery(typeof(RenderMesh));
+            carQuery = GetEntityQuery(new EntityQueryDesc[]
+            {
+                new EntityQueryDesc()
+                {
+                    All = new ComponentType[] {typeof(RenderMesh)},
+                    None = new ComponentType[] {typeof(Prefab)},
+                },
+            });
         }
 
-        private bool carsSpawned = false;
+        public static bool respawnCars = true;
+
+        public static bool firstTime = true;
 
         protected override void OnUpdate()
         {
-            if (!carsSpawned)
+            if (respawnCars)
             {
-                const int nCars = 50;
+                respawnCars = false;
+
+                if (firstTime)
+                {
+                    firstTime = false;
+                    
+                    carPrefab = carQuery.GetSingletonEntity();    
+                    Debug.Log("got prefab");
+                    var types = new ComponentType[]
+                    {
+                        typeof(Prefab), typeof(Speed), typeof(TrackPos), typeof(TrackSegment), typeof(TargetSpeed),
+                        typeof(UnblockedSpeed), typeof(OvertakeSpeed), typeof(Lane), typeof(BlockedDist), typeof(Translation), typeof(Rotation), typeof(Color)
+                    };
+                    EntityManager.AddComponents(carPrefab, new ComponentTypes(types));
+                }
+                
+                // destroy all cars except for prefab
+                EntityManager.DestroyEntity(carQuery);
+
+                int nCars = RoadInit.numCars;
+                float trackLength = RoadInit.roadLength;
                 const int nLanes = 4;
-                const float trackLength = 400.0f;
-                const int maxCarsInLane = 20; // todo calculate this from track length
 
                 const float minSpeed = 7.0f;
                 const float maxSpeed = 20.0f; // max cruising speed
 
                 const float minBlockedDist = 8.0f;
                 const float maxBlockedDist = 15.0f;
-                
+
                 const float minOvertakeModifier = 1.2f;
                 const float maxOvertakeModifier = 1.6f;
-                const float spawnDist = 12.0f;
-
-                Assert.IsTrue(nCars < maxCarsInLane * nLanes, "Spawning more cars than will fit on track.");
-
-                carPrefab = carQuery.GetSingletonEntity();
-                Debug.Log("got prefab");
-                EntityManager.AddComponent<Speed>(carPrefab);
-                EntityManager.AddComponent<TrackPos>(carPrefab);
-                EntityManager.AddComponent<TrackSegment>(carPrefab);
-                EntityManager.AddComponent<TargetSpeed>(carPrefab);
-                EntityManager.AddComponent<UnblockedSpeed>(carPrefab);
-                EntityManager.AddComponent<OvertakeSpeed>(carPrefab);
-                EntityManager.AddComponent<Lane>(carPrefab);
-                EntityManager.AddComponent<BlockedDist>(carPrefab);
-                EntityManager.AddComponent<Translation>(carPrefab);
-                EntityManager.AddComponent<Rotation>(carPrefab);
-                EntityManager.AddComponent<Color>(carPrefab);
 
                 var ents = EntityManager.Instantiate(carPrefab, nCars, Allocator.Temp);
                 ents.Dispose();
@@ -69,8 +79,8 @@ namespace HighwayRacer
                 var rand = new Random((uint) DateTime.Now.Millisecond);
                 rand.NextFloat();
 
-                carsSpawned = true;
-                
+                var maxCarsInLane = (nCars % nLanes == 0) ? (nCars / nLanes) : (nCars / nLanes) + 1;
+
                 Entities.ForEach((ref Speed speed, ref TrackPos trackPos, ref TargetSpeed targetSpeed, ref UnblockedSpeed unblockedSpeed,
                     ref OvertakeSpeed overtakeSpeed, ref Lane lane, ref BlockedDist blockedDist, ref Color color) =>
                 {
@@ -81,7 +91,7 @@ namespace HighwayRacer
                         nextTrackPos = 0.0f;
                         Assert.IsTrue(currentLane < nLanes);
                     }
-                    
+
                     unblockedSpeed.Val = math.lerp(minSpeed, maxSpeed, rand.NextFloat());
                     targetSpeed.Val = unblockedSpeed.Val;
                     speed.Val = 2.0f; // start off slow but not stopped (todo: does logic break if cars stop?)
@@ -91,8 +101,8 @@ namespace HighwayRacer
                     lane.Val = currentLane;
                     color.Val = new float4(SetColor.cruiseColor, 1.0f);
 
-                    nextTrackPos += spawnDist;
-                    Assert.IsTrue(nextTrackPos <= trackLength - spawnDist, "Spawning more cars than will fit in lane.");
+                    nextTrackPos += RoadInit.carSpawnDist;
+                    Assert.IsTrue(nextTrackPos <= trackLength - RoadInit.carSpawnDist, "Spawning more cars than will fit in lane.");
                     nCarsInLane++;
                 }).Run();
 

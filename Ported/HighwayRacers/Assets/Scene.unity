@@ -1214,7 +1214,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   numCarsText: {fileID: 1982959233}
   numCarsSlider: {fileID: 683780738}
-  highwaySizeText: {fileID: 0}
+  highwaySizeText: {fileID: 389297968}
   highwaySizeSlider: {fileID: 1585134746}
 --- !u!114 &1144665230
 MonoBehaviour:

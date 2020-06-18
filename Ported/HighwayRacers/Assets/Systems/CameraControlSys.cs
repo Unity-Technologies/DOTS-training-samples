@@ -143,10 +143,6 @@ namespace HighwayRacer
 
                     break;
                 
-                
-                
-                    break;
-                
                 // case State.TO_TOP_DOWN:
                 //
                 // 	transform.position = Vector3.Lerp (carPosition, topDownPosition, time / transitionDuration);
