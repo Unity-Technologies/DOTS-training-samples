@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -8,29 +9,35 @@ namespace HighwayRacer
     public enum State
     {
         TOP_DOWN,
-        TO_CAR,
         CAR,
-        TO_TOP_DOWN,
     }
 
     public class CameraControlSys : SystemBase
     {
         public Rect bounds = new Rect(-500, -500, 1000, 1000);
         public float moveSpeed = 20;
-        public float transitionDuration = 3;
+        public const float transitionDuration = 2;
 
-        Vector3 topDownPosition = new Vector3();
-        Quaternion topDownRotation = Quaternion.Euler(90, 0, 0);
+        public float transitionTimer;
 
-        public const float minClickDist = 2f;
+        private Vector3 topDownPosition = new Vector3();
+        private Quaternion topDownRotation = Quaternion.Euler(90, 0, 0);
+
+        public const float minClickDist = 3f;
+        public readonly float3 carCamOffset = new float3(0, 0.797f, 1.67f);
 
         public Entity car;
-        
         public State state = State.TOP_DOWN;
 
         protected override void OnCreate()
         {
             base.OnCreate();
+        }
+
+        public void ResetCamera()
+        {
+            state = State.TOP_DOWN;
+            Camera.main.transform.position = topDownPosition;
         }
 
         protected override void OnUpdate()
@@ -61,7 +68,6 @@ namespace HighwayRacer
                     if (Input.GetKey(KeyCode.DownArrow))
                     {
                         v.y = -moveSpeed;
-                        Debug.Log("down");
                     }
                     else if (Input.GetKey(KeyCode.UpArrow))
                     {
@@ -80,8 +86,6 @@ namespace HighwayRacer
 
                         if (Physics.Raycast(ray, out hit))
                         {
-                            Debug.Log(hit.point);
-
                             var point = new float3(hit.point);
                             var closestEnt = new Entity() {Index = -1};
                             var closestTrans = float3.zero;
@@ -101,6 +105,8 @@ namespace HighwayRacer
                             {
                                 car = closestEnt;
                                 state = State.CAR;
+                                transitionTimer = 0;
+                                CarProperties.instance.Show(closestEnt);
                             }
                         }
                     }
@@ -114,45 +120,33 @@ namespace HighwayRacer
                     topDownPosition = newPos;
                     Camera.main.transform.SetPositionAndRotation(topDownPosition, topDownRotation);
                     break;
-
-                case State.TO_CAR:
+                
                 case State.CAR:
 
                     if (Input.GetKey(KeyCode.Escape))
                     {
                         state = State.TOP_DOWN;
                         Camera.main.transform.SetPositionAndRotation(topDownPosition, topDownRotation);
+                        return;
                     }
+
+                    transitionTimer += Time.DeltaTime;
                     
-                    // carPosition = car.cameraPos.position;
-                    // carRotation = car.cameraPos.rotation;
-                    //
-                    // if (time >= transitionDuration || state == State.CAR) {
-                    // 	if (state == State.TO_CAR) {
-                    // 		state = State.CAR;
-                    // 		carRef.Hide();
-                    // 	}
-                    // 	transform.position = carPosition;
-                    // 	transform.rotation = carRotation;
-                    // } else {
-                    //
-                    // 	transform.position = Vector3.Lerp(topDownPosition, carPosition, time / transitionDuration);
-                    // 	transform.rotation = Quaternion.Slerp(topDownRotation, carRotation, time / transitionDuration);
-                    //
-                    // }
+                    var trans = EntityManager.GetComponentData<Translation>(car);
+                    var rot = EntityManager.GetComponentData<Rotation>(car);
+
+                    var camPos = math.rotate(rot.Value, carCamOffset);
+                    camPos += trans.Value;
+
+                    if (transitionTimer < transitionDuration)
+                    {
+                        var fraction = transitionTimer / transitionDuration;
+                        camPos = math.lerp(topDownPosition, camPos, fraction);
+                        rot.Value = math.nlerp(topDownRotation, rot.Value, fraction);   // use slerp?
+                    }
+                    Camera.main.transform.SetPositionAndRotation(camPos, rot.Value);    
 
                     break;
-                
-                // case State.TO_TOP_DOWN:
-                //
-                // 	transform.position = Vector3.Lerp (carPosition, topDownPosition, time / transitionDuration);
-                // 	transform.rotation = Quaternion.Slerp (carRotation, topDownRotation, time / transitionDuration);
-                //
-                // 	if (time >= transitionDuration || state == State.CAR) {
-                // 		state = State.TOP_DOWN;
-                // 	} 
-                // 	break;
-                //
             }
         }
     }

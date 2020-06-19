@@ -10,6 +10,8 @@ namespace HighwayRacer
         public readonly static float3 fastestColor = new float3(0, 1.0f, 0);
         public readonly static float3 slowestColor = new float3(1.0f, 0.0f, 0);
         
+        public readonly static float4 other = new float4(1, 0, 0, 1);
+        
         protected override void OnUpdate()
         {
             const float minSpeed = 10.0f;

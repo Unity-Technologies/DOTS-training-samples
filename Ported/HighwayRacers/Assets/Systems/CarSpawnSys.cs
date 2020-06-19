@@ -15,6 +15,17 @@ namespace HighwayRacer
     {
         private EntityQuery carQuery;
         private Entity carPrefab;
+        
+        public readonly static int nLanes = 4;
+
+        public readonly static float minSpeed = 7.0f;
+        public readonly static float maxSpeed = 20.0f; // max cruising speed
+
+        public readonly static float minBlockedDist = 8.0f;
+        public readonly static float maxBlockedDist = 15.0f;
+
+        public readonly static float minOvertakeModifier = 1.2f;
+        public readonly static float maxOvertakeModifier = 1.6f;
 
         protected override void OnCreate()
         {
@@ -30,7 +41,6 @@ namespace HighwayRacer
         }
 
         public static bool respawnCars = true;
-
         public static bool firstTime = true;
 
         protected override void OnUpdate()
@@ -44,7 +54,6 @@ namespace HighwayRacer
                     firstTime = false;
                     
                     carPrefab = carQuery.GetSingletonEntity();    
-                    Debug.Log("got prefab");
                     var types = new ComponentType[]
                     {
                         typeof(Prefab), typeof(Speed), typeof(TrackPos), typeof(TrackSegment), typeof(TargetSpeed),
@@ -58,16 +67,6 @@ namespace HighwayRacer
 
                 int nCars = RoadInit.numCars;
                 float trackLength = RoadInit.roadLength;
-                const int nLanes = 4;
-
-                const float minSpeed = 7.0f;
-                const float maxSpeed = 20.0f; // max cruising speed
-
-                const float minBlockedDist = 8.0f;
-                const float maxBlockedDist = 15.0f;
-
-                const float minOvertakeModifier = 1.2f;
-                const float maxOvertakeModifier = 1.6f;
 
                 var ents = EntityManager.Instantiate(carPrefab, nCars, Allocator.Temp);
                 ents.Dispose();
@@ -105,8 +104,6 @@ namespace HighwayRacer
                     Assert.IsTrue(nextTrackPos <= trackLength - RoadInit.carSpawnDist, "Spawning more cars than will fit in lane.");
                     nCarsInLane++;
                 }).Run();
-
-                Debug.Log("cars spawned");
             }
         }
     }

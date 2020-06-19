@@ -36,6 +36,7 @@ public class RoadInit : MonoBehaviour
 
     public void RestartRoad(float length, int nCars)
     {
+        World.DefaultGameObjectInjectionWorld.GetExistingSystem<CameraControlSys>().ResetCamera();
         roadSegments.Dispose();
         CarSpawnSys.respawnCars = true;
         numCars = nCars;
@@ -45,7 +46,8 @@ public class RoadInit : MonoBehaviour
 
     public static int GetMaxCars(float length)
     {
-        return (int)Mathf.Floor((nLanes * length) / carSpawnDist);
+        var n = (int) Mathf.Floor((nLanes * length) / carSpawnDist);
+        return n - nLanes - nLanes;  // account for wrap around + for rounding error   
     }
 
     void Start()
