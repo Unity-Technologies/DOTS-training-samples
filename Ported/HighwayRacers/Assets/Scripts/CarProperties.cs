@@ -30,8 +30,6 @@ public class CarProperties : MonoBehaviour
         SetSliderProperties();
     }
 
-    // public Car selectedCar { get; private set; }
-
     private void SetSliderProperties()
     {
         var em = World.DefaultGameObjectInjectionWorld.EntityManager;
@@ -40,27 +38,39 @@ public class CarProperties : MonoBehaviour
         var blockedDist = em.GetComponentData<Blocking>(selectedCar);
         
         defaultSpeedSlider.value = desiredSpeed.Unblocked;
-        defaultSpeedSlider.SetText("Default Speed: " + desiredSpeed.Unblocked.ToString("0.0") + " m/s");
         overtakeSpeedSlider.value = desiredSpeed.Overtake;
-        overtakeSpeedSlider.SetText("Overtake Speed: " + desiredSpeed.Overtake.ToString("0.0") + " m/s");
         headwayBlockingDistanceSlider.value = blockedDist.Dist;
-        headwayBlockingDistanceSlider.SetText("Look Ahead Distance: " + blockedDist.Dist.ToString("0.0"));
+        SetSliderText();
+    }
+
+    private void SetSliderText()
+    {
+        defaultSpeedSlider.SetText("Default Speed: " + defaultSpeedSlider.value.ToString("0.0") + " m/s");
+        overtakeSpeedSlider.SetText("Overtake Speed: " + overtakeSpeedSlider.value.ToString("0.0") + " m/s");
+        headwayBlockingDistanceSlider.SetText("Look Ahead Distance: " + headwayBlockingDistanceSlider.value.ToString("0.0"));
     }
 
     public void SliderUpdated(float value)
     {
-        // if (selectedCar == null)
-        // 	return;
-        // if (preventUpdatingCar)
-        // 	return;
-        //
-        // selectedCar.defaultSpeed = defaultSpeed.value;
-        // selectedCar.overtakePercent = overtakePercent.value;
-        // selectedCar.leftMergeDistance = leftMergeDistance.value;
-        // selectedCar.mergeSpace = mergeSpace.value;
-        // selectedCar.overtakeEagerness = overtakeEagerness.value;
-        //
-        // SetSliderProperties();
+        if (selectedCar.Index == 0)
+        {
+            return;
+        }
+
+        var em = World.DefaultGameObjectInjectionWorld.EntityManager;
+        
+        em.SetComponentData<DesiredSpeed>(selectedCar, new DesiredSpeed()
+        {
+            Unblocked = defaultSpeedSlider.value,
+            Overtake = overtakeSpeedSlider.value,
+        });
+
+        em.SetComponentData<Blocking>(selectedCar, new Blocking()
+        {
+            Dist = headwayBlockingDistanceSlider.value,
+        });
+        
+        SetSliderText();
     }
 
     public void BackButtonPressed()

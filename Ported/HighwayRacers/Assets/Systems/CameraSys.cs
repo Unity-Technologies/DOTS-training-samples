@@ -28,7 +28,7 @@ namespace HighwayRacer
 
         public Entity car;
         public State state = State.TOP_DOWN;
-
+        
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -81,9 +81,8 @@ namespace HighwayRacer
                     // look for car nearest to click; if closest car is close enough, switch to that car's cam
                     if (Input.GetMouseButtonDown(0))
                     {
-                        RaycastHit hit;
                         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
+                        RaycastHit hit;
                         if (Physics.Raycast(ray, out hit))
                         {
                             var point = new float3(hit.point);
