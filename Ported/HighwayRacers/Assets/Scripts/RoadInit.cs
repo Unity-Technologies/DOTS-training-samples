@@ -17,7 +17,7 @@ public class RoadInit : MonoBehaviour
     public const int initialCarsPerLaneOfSegment = 20; // past a certain track size, this will need to be bigger
     public const float minDist = 4.0f;
 
-    public const float mergeLookAhead = 18.0f;
+    public const float mergeLookAhead = 14.0f;
     public const float mergeLookBehind = 5.5f;
     
     public const float decelerationRate = 3.0f; // m/s to lose per second
@@ -30,7 +30,8 @@ public class RoadInit : MonoBehaviour
     public static int numCars = 50;
 
     public static float minLength = 380.0f;   // 4 * curved length + 4 * min straight length
-    public static float maxLength = 1000;
+    public static float maxLength = 2000;
+    public const float laneWidth = 1.88f;
     
     public static float roadLength = minLength;
 
@@ -78,7 +79,6 @@ public class RoadInit : MonoBehaviour
 
         const float baseStraightLength = 12.0f;
         const float curvedLength = 48.69f;   // calculated from radius that is midpoint between first and last lane
-        const float laneWidth = 1.8f;
 
         float straightLength = (roadLength - curvedLength * 4) / 4;
         float straightScale = straightLength / baseStraightLength;

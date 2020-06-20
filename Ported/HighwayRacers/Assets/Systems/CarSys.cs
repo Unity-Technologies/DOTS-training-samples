@@ -79,10 +79,7 @@ namespace HighwayRacer
 
             // find pos and speed of closest car ahead and closest car behind 
             var closestAheadPos = float.MaxValue;
-            var closestAheadSpeed = 0.0f;
-
             var closestBehindPos = float.MinValue;
-            var closestBehindSpeed = 0.0f;
 
             var posSegment = adjacentLane.positions;
             var speedSegment = adjacentLane.speeds;
@@ -98,13 +95,11 @@ namespace HighwayRacer
                         otherPos > pos) // found a car ahead that's closer than previous closest
                     {
                         closestAheadPos = otherPos;
-                        closestAheadSpeed = otherSpeed.Val;
                     }
                     else if (otherPos > closestBehindPos &&
                              otherPos <= pos) // found a car behind (or equal) that's closer than previous closest
                     {
                         closestBehindPos = otherPos;
-                        closestBehindSpeed = otherSpeed.Val;
                     }
                 }
 
@@ -113,7 +108,8 @@ namespace HighwayRacer
             }
 
             // sufficient margin of open space
-            return (closestBehindPos + mergeLookBehind) < pos && (closestAheadPos - mergeLookAhead) > pos;
+             var ret = (closestBehindPos + mergeLookBehind) < pos && (closestAheadPos - mergeLookAhead) > pos;
+             return ret;
         }
 
         public static void SetSpeedForUnblocked(ref TargetSpeed targetSpeed, ref Speed speed, float dt, float unblockedSpeed)
@@ -184,8 +180,7 @@ namespace HighwayRacer
                         }
 
                         // to spare us from having to check prior segment, can't merge if too close to start of segment
-                        var threshold = roadSegments[(trackSegment.Val > 0) ? trackSegment.Val - 1 : nSegments - 1].Threshold;
-                        var segmentPos = trackPos.Val - threshold;
+                        float segmentPos = (trackSegment.Val == 0) ? trackPos.Val : trackPos.Val - roadSegments[trackSegment.Val - 1].Threshold;
                         if (segmentPos < mergeLookBehind)
                         {
                             return;
@@ -202,7 +197,7 @@ namespace HighwayRacer
                                 lane.Val = (byte) leftLaneIdx;
                             }
                         }
-                        else if (lane.Val > 0) // look for opening on right
+                        else if (!mergeLeftFrame && lane.Val > 0) // look for opening on right
                         {
                             var rightLaneIdx = lane.Val - 1;
                             if (canMerge(trackPos.Val, rightLaneIdx, trackSegment.Val, otherCars, trackLength))

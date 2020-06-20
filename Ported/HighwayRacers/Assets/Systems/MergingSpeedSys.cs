@@ -40,9 +40,6 @@ namespace HighwayRacer
 
             var trackLength = RoadInit.trackLength;
 
-            // make sure we don't hit next car ahead, and trigger overtake state
-            var ecb = new EntityCommandBuffer(Allocator.TempJob);
-
             Entities.WithAll<MergingLeft>()
                 .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
                     in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
@@ -136,9 +133,7 @@ namespace HighwayRacer
 
                     CarSys.SetSpeedForUnblocked(ref targetSpeed, ref speed, dt, desiredSpeed.Unblocked);
                 }).Run();
-            
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+           
         }
     }
 }

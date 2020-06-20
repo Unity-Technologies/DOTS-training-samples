@@ -15,11 +15,11 @@ namespace HighwayRacer
             base.OnCreate();
         }
 
+        public const float laneWidth = RoadInit.laneWidth;
+        
         private static void setTransform(in NativeArray<RoadSegment> infos, in TrackPos pos, in TrackSegment segment, float lane,
             ref Translation translation, ref Rotation rotation)
         {
-            const float laneWidth = 1.8f; // todo: verify value
-
             var seg = infos[segment.Val];
             var posInSegment = pos.Val - (seg.Threshold - seg.Length);
 

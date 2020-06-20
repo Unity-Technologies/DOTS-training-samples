@@ -100,8 +100,7 @@ namespace HighwayRacer
                 }
     
                 // to spare us from having to check prior segment, can't merge if too close to start of segment
-                var threshold = roadSegments[(trackSegment.Val > 0) ? trackSegment.Val - 1 : nSegments - 1].Threshold;
-                var segmentPos = trackPos.Val - threshold;
+                float segmentPos = (trackSegment.Val == 0) ? trackPos.Val : trackPos.Val - roadSegments[trackSegment.Val - 1].Threshold;
                 if (segmentPos < mergeLookBehind)
                 {
                     return;
