@@ -12,8 +12,12 @@ namespace HighwayRacer
             base.OnCreate();
         }
 
+        public static bool mergeLeftFrame = true;     // toggles every frame: in a frame, we only initiate merges either left or right, not both
+        
         protected override void OnUpdate()
         {
+            mergeLeftFrame = !mergeLeftFrame;
+            
             if (RoadInit.roadSegments.IsCreated)
             {
                 var segs = RoadInit.roadSegments;

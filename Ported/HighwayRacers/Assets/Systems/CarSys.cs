@@ -7,7 +7,7 @@ namespace HighwayRacer
 {
     // update cars that aren't merging or overtaking 
     [UpdateBefore(typeof(AdvanceCarsSys))]
-    [UpdateAfter(typeof(MergingCarSys))]
+    [UpdateAfter(typeof(MergingSpeedSys))]
     public class CarSys : SystemBase
     {
         private NativeArray<OtherCars> selection; // the OtherCar segments to compare against a particular car
@@ -115,10 +115,10 @@ namespace HighwayRacer
             // sufficient margin of open space
             return (closestBehindPos + mergeLookBehind) < pos && (closestAheadPos - mergeLookAhead) > pos;
         }
-        
-        public static void SetSpeedForUnblocked(ref TargetSpeed targetSpeed, ref Speed speed, float dt, UnblockedSpeed unblockedSpeed)
+
+        public static void SetSpeedForUnblocked(ref TargetSpeed targetSpeed, ref Speed speed, float dt, float unblockedSpeed)
         {
-            targetSpeed.Val = unblockedSpeed.Val;
+            targetSpeed.Val = unblockedSpeed;
 
             if (targetSpeed.Val < speed.Val)
             {
@@ -146,14 +146,15 @@ namespace HighwayRacer
             var selection = this.selection;
             var otherCars = World.GetExistingSystem<CarsByLaneSegmentSys>().otherCars;
 
+            var mergeLeftFrame = SegmentizeSys.mergeLeftFrame;
+
             var dt = Time.DeltaTime;
 
             // make sure we don't hit next car ahead, and trigger overtake state
             var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
-            Entities.WithNone<MergingLeft, MergingRight>().ForEach((Entity ent, ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane,
-                in TrackPos trackPos,
-                in TrackSegment trackSegment, in BlockedDist blockedDist, in UnblockedSpeed unblockedSpeed) =>
+            Entities.WithNone<MergingLeft, MergingRight>().WithNone<OvertakingLeft, OvertakingRight>().ForEach((Entity ent, ref TargetSpeed targetSpeed,
+                ref Speed speed, ref Lane lane, in TrackPos trackPos, in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
             {
                 var laneBaseIdx = lane.Val * nSegments;
 
@@ -169,10 +170,10 @@ namespace HighwayRacer
                 if (closestPos != float.MaxValue)
                 {
                     var dist = closestPos - trackPos.Val;
-                    if (dist <= blockedDist.Val &&
+                    if (dist <= blocking.Dist &&
                         speed.Val > closestSpeed) // car is still blocked ahead in lane
                     {
-                        var closeness = (dist - minDist) / (blockedDist.Val - minDist); // 0 is max closeness, 1 is min
+                        var closeness = (dist - minDist) / (blocking.Dist - minDist); // 0 is max closeness, 1 is min
 
                         // closer we get within minDist of leading car, the closer we match speed
                         const float fudge = 2.0f;
@@ -191,7 +192,7 @@ namespace HighwayRacer
                         }
 
                         // look for opening on left
-                        if (lane.Val < nLanes - 1)
+                        if (mergeLeftFrame && lane.Val < nLanes - 1)
                         {
                             var leftLaneIdx = lane.Val + 1;
                             if (canMerge(trackPos.Val, leftLaneIdx, trackSegment.Val, otherCars, trackLength))
@@ -201,9 +202,7 @@ namespace HighwayRacer
                                 lane.Val = (byte) leftLaneIdx;
                             }
                         }
-
-                        // look for opening on right
-                        if (lane.Val > 0)
+                        else if (lane.Val > 0) // look for opening on right
                         {
                             var rightLaneIdx = lane.Val - 1;
                             if (canMerge(trackPos.Val, rightLaneIdx, trackSegment.Val, otherCars, trackLength))
@@ -218,7 +217,7 @@ namespace HighwayRacer
                     }
                 }
 
-                SetSpeedForUnblocked(ref targetSpeed, ref speed, dt, unblockedSpeed);
+                SetSpeedForUnblocked(ref targetSpeed, ref speed, dt, desiredSpeed.Unblocked);
             }).Run();
 
             ecb.Playback(EntityManager);

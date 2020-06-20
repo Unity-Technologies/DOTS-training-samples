@@ -3,7 +3,7 @@ using Unity.Mathematics;
 
 namespace HighwayRacer
 {
-    public class SetColor : SystemBase
+    public class SetColorSys : SystemBase
     {
         
         public readonly static float3 cruiseColor = new float3(0.5f, 0.5f, 0.5f);
@@ -16,16 +16,16 @@ namespace HighwayRacer
         {
             const float minSpeed = 10.0f;
 
-            Entities.ForEach((ref Color color, in Speed speed, in UnblockedSpeed unblockedSpeed, in OvertakeSpeed overtakeSpeed) =>
+            Entities.ForEach((ref Color color, in Speed speed, in DesiredSpeed desiredSpeed) =>
             {
-                if (speed.Val >= unblockedSpeed.Val)
+                if (speed.Val >= desiredSpeed.Unblocked)
                 {
-                    var percentage = (speed.Val - unblockedSpeed.Val) / (overtakeSpeed.Val - unblockedSpeed.Val);
+                    var percentage = (speed.Val - desiredSpeed.Unblocked) / (desiredSpeed.Overtake - desiredSpeed.Unblocked);
                     color.Val = new float4(math.lerp(cruiseColor, fastestColor, percentage), 1.0f);
                 }
                 else
                 {
-                    var percentage = (unblockedSpeed.Val - speed.Val) / (unblockedSpeed.Val - minSpeed);
+                    var percentage = (desiredSpeed.Unblocked - speed.Val) / (desiredSpeed.Unblocked - minSpeed);
                     color.Val = new float4(math.lerp(cruiseColor, slowestColor, percentage), 1.0f);
                 }
             }).Run();

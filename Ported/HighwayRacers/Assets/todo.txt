@@ -1,6 +1,6 @@
-﻿camera transition to car might rotate backwards
+﻿car info sliders should update the actual values
 
-display car info of clicked car
+clicks on menu windows shouldn't register as clicks on cars
 
 implement logic for OvertakingRight and OvertakingLeft
 

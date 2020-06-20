@@ -17,7 +17,7 @@ public class RoadInit : MonoBehaviour
     public const int initialCarsPerLaneOfSegment = 20; // past a certain track size, this will need to be bigger
     public const float minDist = 4.0f;
 
-    public const float mergeLookAhead = 9.0f;
+    public const float mergeLookAhead = 18.0f;
     public const float mergeLookBehind = 5.5f;
     
     public const float decelerationRate = 3.0f; // m/s to lose per second
@@ -36,7 +36,7 @@ public class RoadInit : MonoBehaviour
 
     public void RestartRoad(float length, int nCars)
     {
-        World.DefaultGameObjectInjectionWorld.GetExistingSystem<CameraControlSys>().ResetCamera();
+        World.DefaultGameObjectInjectionWorld.GetExistingSystem<CameraSys>().ResetCamera();
         roadSegments.Dispose();
         CarSpawnSys.respawnCars = true;
         numCars = nCars;

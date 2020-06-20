@@ -7,7 +7,7 @@ namespace HighwayRacer
 {
     [UpdateAfter(typeof(CarsByLaneSegmentSys))]
     [UpdateBefore(typeof(AdvanceCarsSys))]
-    public class MergingCarSys : SystemBase
+    public class MergingSpeedSys : SystemBase
     {
         private NativeArray<OtherCars> selection; // the OtherCar segments to compare against a particular car
 
@@ -44,8 +44,8 @@ namespace HighwayRacer
             var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
             Entities.WithAll<MergingLeft>()
-                .ForEach((Entity ent, ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
-                    in TrackSegment trackSegment, in BlockedDist blockedDist, in UnblockedSpeed unblockedSpeed) =>
+                .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
+                    in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
                 {
                     var laneBaseIdx = lane.Val * nSegments;
 
@@ -70,10 +70,10 @@ namespace HighwayRacer
                     if (closestPos != float.MaxValue)
                     {
                         var dist = closestPos - trackPos.Val;
-                        if (dist <= blockedDist.Val &&
+                        if (dist <= blocking.Dist &&
                             speed.Val > closestSpeed) // car is blocked ahead in lane
                         {
-                            var closeness = (dist - minDist) / (blockedDist.Val - minDist); // 0 is max closeness, 1 is min
+                            var closeness = (dist - minDist) / (blocking.Dist - minDist); // 0 is max closeness, 1 is min
 
                             // closer we get within minDist of leading car, the closer we match speed
                             const float fudge = 2.0f;
@@ -87,12 +87,12 @@ namespace HighwayRacer
                         }
                     }
 
-                    CarSys.SetSpeedForUnblocked(ref targetSpeed, ref speed, dt, unblockedSpeed);
+                    CarSys.SetSpeedForUnblocked(ref targetSpeed, ref speed, dt, desiredSpeed.Unblocked);
                 }).Run();
 
             Entities.WithAll<MergingRight>()
-                .ForEach((Entity ent, ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
-                    in TrackSegment trackSegment, in BlockedDist blockedDist, in UnblockedSpeed unblockedSpeed) =>
+                .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
+                    in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
                 {
                     var laneBaseIdx = lane.Val * nSegments;
 
@@ -117,10 +117,10 @@ namespace HighwayRacer
                     if (closestPos != float.MaxValue)
                     {
                         var dist = closestPos - trackPos.Val;
-                        if (dist <= blockedDist.Val &&
+                        if (dist <= blocking.Dist &&
                             speed.Val > closestSpeed) // car is blocked ahead in lane
                         {
-                            var closeness = (dist - minDist) / (blockedDist.Val - minDist); // 0 is max closeness, 1 is min
+                            var closeness = (dist - minDist) / (blocking.Dist - minDist); // 0 is max closeness, 1 is min
 
                             // closer we get within minDist of leading car, the closer we match speed
                             const float fudge = 2.0f;
@@ -134,7 +134,7 @@ namespace HighwayRacer
                         }
                     }
 
-                    CarSys.SetSpeedForUnblocked(ref targetSpeed, ref speed, dt, unblockedSpeed);
+                    CarSys.SetSpeedForUnblocked(ref targetSpeed, ref speed, dt, desiredSpeed.Unblocked);
                 }).Run();
             
             ecb.Playback(EntityManager);

@@ -12,11 +12,11 @@ namespace HighwayRacer
         CAR,
     }
 
-    public class CameraControlSys : SystemBase
+    public class CameraSys : SystemBase
     {
         public Rect bounds = new Rect(-500, -500, 1000, 1000);
         public float moveSpeed = 20;
-        public const float transitionDuration = 2;
+        public const float transitionDuration = 1.5f;
 
         public float transitionTimer;
 

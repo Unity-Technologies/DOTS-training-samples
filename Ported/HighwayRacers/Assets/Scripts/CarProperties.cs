@@ -36,16 +36,15 @@ public class CarProperties : MonoBehaviour
     {
         var em = World.DefaultGameObjectInjectionWorld.EntityManager;
         Assert.IsTrue(em.Exists(selectedCar), "Shouldn't be setting slider property when no car is selected. How'd we get here?");
-        var unblockedSpeed = em.GetComponentData<UnblockedSpeed>(selectedCar);
-        var overtakeSpeed = em.GetComponentData<OvertakeSpeed>(selectedCar);
-        var blockedDist = em.GetComponentData<BlockedDist>(selectedCar);
+        var desiredSpeed = em.GetComponentData<DesiredSpeed>(selectedCar);
+        var blockedDist = em.GetComponentData<Blocking>(selectedCar);
         
-        defaultSpeedSlider.value = unblockedSpeed.Val;
-        defaultSpeedSlider.SetText("Default Speed: " + unblockedSpeed.Val.ToString("0.0") + " m/s");
-        overtakeSpeedSlider.value = overtakeSpeed.Val;
-        overtakeSpeedSlider.SetText("Overtake Speed: " + overtakeSpeed.Val.ToString("0.0") + " m/s");
-        headwayBlockingDistanceSlider.value = blockedDist.Val;
-        headwayBlockingDistanceSlider.SetText("Look Ahead Distance: " + blockedDist.Val.ToString("0.0"));
+        defaultSpeedSlider.value = desiredSpeed.Unblocked;
+        defaultSpeedSlider.SetText("Default Speed: " + desiredSpeed.Unblocked.ToString("0.0") + " m/s");
+        overtakeSpeedSlider.value = desiredSpeed.Overtake;
+        overtakeSpeedSlider.SetText("Overtake Speed: " + desiredSpeed.Overtake.ToString("0.0") + " m/s");
+        headwayBlockingDistanceSlider.value = blockedDist.Dist;
+        headwayBlockingDistanceSlider.SetText("Look Ahead Distance: " + blockedDist.Dist.ToString("0.0"));
     }
 
     public void SliderUpdated(float value)
@@ -67,7 +66,7 @@ public class CarProperties : MonoBehaviour
     public void BackButtonPressed()
     {
         Hide();
-        World.DefaultGameObjectInjectionWorld.GetExistingSystem<CameraControlSys>().ResetCamera();
+        World.DefaultGameObjectInjectionWorld.GetExistingSystem<CameraSys>().ResetCamera();
     }
 
     void Awake()

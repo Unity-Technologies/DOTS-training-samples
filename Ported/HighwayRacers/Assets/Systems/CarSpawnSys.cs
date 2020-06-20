@@ -57,7 +57,7 @@ namespace HighwayRacer
                     var types = new ComponentType[]
                     {
                         typeof(Prefab), typeof(Speed), typeof(TrackPos), typeof(TrackSegment), typeof(TargetSpeed),
-                        typeof(UnblockedSpeed), typeof(OvertakeSpeed), typeof(Lane), typeof(BlockedDist), typeof(Translation), typeof(Rotation), typeof(Color)
+                        typeof(DesiredSpeed), typeof(Lane), typeof(Blocking), typeof(Translation), typeof(Rotation), typeof(Color)
                     };
                     EntityManager.AddComponents(carPrefab, new ComponentTypes(types));
                 }
@@ -80,8 +80,8 @@ namespace HighwayRacer
 
                 var maxCarsInLane = (nCars % nLanes == 0) ? (nCars / nLanes) : (nCars / nLanes) + 1;
 
-                Entities.ForEach((ref Speed speed, ref TrackPos trackPos, ref TargetSpeed targetSpeed, ref UnblockedSpeed unblockedSpeed,
-                    ref OvertakeSpeed overtakeSpeed, ref Lane lane, ref BlockedDist blockedDist, ref Color color) =>
+                Entities.ForEach((ref Speed speed, ref TrackPos trackPos, ref TargetSpeed targetSpeed, ref DesiredSpeed desiredSpeed,
+                    ref Lane lane, ref Blocking blockedDist, ref Color color) =>
                 {
                     if (nCarsInLane >= maxCarsInLane)
                     {
@@ -91,14 +91,14 @@ namespace HighwayRacer
                         Assert.IsTrue(currentLane < nLanes);
                     }
 
-                    unblockedSpeed.Val = math.lerp(minSpeed, maxSpeed, rand.NextFloat());
-                    targetSpeed.Val = unblockedSpeed.Val;
+                    desiredSpeed.Unblocked = math.lerp(minSpeed, maxSpeed, rand.NextFloat());
+                    targetSpeed.Val = desiredSpeed.Unblocked;
                     speed.Val = 2.0f; // start off slow but not stopped (todo: does logic break if cars stop?)
-                    blockedDist.Val = math.lerp(minBlockedDist, maxBlockedDist, rand.NextFloat());
-                    overtakeSpeed.Val = targetSpeed.Val * math.lerp(minOvertakeModifier, maxOvertakeModifier, rand.NextFloat());
+                    blockedDist.Dist = math.lerp(minBlockedDist, maxBlockedDist, rand.NextFloat());
+                    desiredSpeed.Overtake = targetSpeed.Val * math.lerp(minOvertakeModifier, maxOvertakeModifier, rand.NextFloat());
                     trackPos.Val = nextTrackPos;
                     lane.Val = currentLane;
-                    color.Val = new float4(SetColor.cruiseColor, 1.0f);
+                    color.Val = new float4(SetColorSys.cruiseColor, 1.0f);
 
                     nextTrackPos += RoadInit.carSpawnDist;
                     Assert.IsTrue(nextTrackPos <= trackLength - RoadInit.carSpawnDist, "Spawning more cars than will fit in lane.");
