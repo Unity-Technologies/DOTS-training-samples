@@ -28,7 +28,7 @@ namespace HighwayRacer
                     var percentage = (desiredSpeed.Unblocked - speed.Val) / (desiredSpeed.Unblocked - minSpeed);
                     color.Val = new float4(math.lerp(cruiseColor, slowestColor, percentage), 1.0f);
                 }
-            }).Run();
+            }).ScheduleParallel();
 
             // for debug, make left blue, right yellow
             // Entities.ForEach((ref Color color, in MergingLeft mergingLeft) =>

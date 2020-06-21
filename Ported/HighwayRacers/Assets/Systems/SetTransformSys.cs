@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -77,17 +78,18 @@ namespace HighwayRacer
             {
                 var infos = Road.roadSegments;
 
-                Entities.WithNone<LaneOffset>().ForEach((ref Translation translation, ref Rotation rotation,
+                // todo these two foreachs should be able to run concurrently
+                Entities.WithReadOnly(infos).WithNone<LaneOffset>().ForEach((ref Translation translation, ref Rotation rotation,
                     in TrackSegment segment, in TrackPos pos, in Lane lane) =>
                 {
                     setTransform(in infos, in pos, in segment, lane.Val, ref translation, ref rotation);
-                }).Run();
+                }).ScheduleParallel();
 
-                Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrackSegment segment, in TrackPos pos,
+                Entities.WithReadOnly(infos).ForEach((ref Translation translation, ref Rotation rotation, in TrackSegment segment, in TrackPos pos,
                     in Lane lane, in LaneOffset laneOffset) =>
                 {
                     setTransform(in infos, in pos, in segment, lane.Val + laneOffset.Val, ref translation, ref rotation);
-                }).Run();
+                }).ScheduleParallel();
             }
         }
     }

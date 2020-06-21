@@ -35,7 +35,7 @@ namespace HighwayRacer
                         }
                     }
                     segment.Val = (byte)lastIdx;  // last segment gets all the rest (to account for float imprecision)
-                }).Run();
+                }).ScheduleParallel();
             }
         }
     }
