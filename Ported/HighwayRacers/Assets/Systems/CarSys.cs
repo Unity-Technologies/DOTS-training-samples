@@ -11,17 +11,16 @@ namespace HighwayRacer
     public class CarSys : SystemBase
     {
         private NativeArray<OtherCars> selection; // the OtherCar segments to compare against a particular car
+        
+        const int nLanes = Road.nLanes;
 
-        const int nSegments = RoadInit.nSegments;
-        const int nLanes = RoadInit.nLanes;
+        const float minDist = Road.minDist;
 
-        const float minDist = RoadInit.minDist;
+        const float mergeLookAhead = Road.mergeLookAhead;
+        const float mergeLookBehind = Road.mergeLookBehind;
 
-        const float mergeLookAhead = RoadInit.mergeLookAhead;
-        const float mergeLookBehind = RoadInit.mergeLookBehind;
-
-        const float decelerationRate = RoadInit.decelerationRate;
-        const float accelerationRate = RoadInit.accelerationRate;
+        const float decelerationRate = Road.decelerationRate;
+        const float accelerationRate = Road.accelerationRate;
 
         protected override void OnCreate()
         {
@@ -37,7 +36,7 @@ namespace HighwayRacer
         }
 
         public static void GetClosestPosAndSpeed(out float closestPos, out float closestSpeed, NativeArray<OtherCars> selection,
-            TrackSegment trackSegment, float trackLength, TrackPos trackPos)
+            TrackSegment trackSegment, float trackLength, TrackPos trackPos, int nSegments)
         {
             // find pos and speed of closest car ahead
             closestSpeed = 0.0f;
@@ -65,7 +64,7 @@ namespace HighwayRacer
         }
 
         // todo: account for *speed* of adjacent car ahead and car behind relative to this car?
-        public static bool canMerge(float pos, int destLane, int segment, NativeArray<OtherCars> otherCars, float trackLength)
+        public static bool canMerge(float pos, int destLane, int segment, NativeArray<OtherCars> otherCars, float trackLength, int nSegments)
         {
             var laneBaseIdx = destLane * nSegments;
 
@@ -136,8 +135,10 @@ namespace HighwayRacer
 
         protected override void OnUpdate()
         {
-            var trackLength = RoadInit.trackLength;
-            var roadSegments = RoadInit.roadSegments;
+            var nSegments = Road.nSegments;
+            
+            var trackLength = Road.roadLength;
+            var roadSegments = Road.roadSegments;
 
             var selection = this.selection;
             var otherCars = World.GetExistingSystem<CarsByLaneSegmentSys>().otherCars;
@@ -161,7 +162,7 @@ namespace HighwayRacer
                 idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
                 selection[1] = otherCars[idx];
 
-                GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos);
+                GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
 
                 if (closestPos != float.MaxValue)
                 {
@@ -190,7 +191,7 @@ namespace HighwayRacer
                         if (mergeLeftFrame && lane.Val < nLanes - 1)
                         {
                             var leftLaneIdx = lane.Val + 1;
-                            if (canMerge(trackPos.Val, leftLaneIdx, trackSegment.Val, otherCars, trackLength))
+                            if (canMerge(trackPos.Val, leftLaneIdx, trackSegment.Val, otherCars, trackLength, nSegments))
                             {
                                 ecb.AddComponent<MergingLeft>(ent);
                                 ecb.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = -1.0f});
@@ -200,7 +201,7 @@ namespace HighwayRacer
                         else if (!mergeLeftFrame && lane.Val > 0) // look for opening on right
                         {
                             var rightLaneIdx = lane.Val - 1;
-                            if (canMerge(trackPos.Val, rightLaneIdx, trackSegment.Val, otherCars, trackLength))
+                            if (canMerge(trackPos.Val, rightLaneIdx, trackSegment.Val, otherCars, trackLength, nSegments))
                             {
                                 ecb.AddComponent<MergingRight>(ent);
                                 ecb.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = 1.0f});

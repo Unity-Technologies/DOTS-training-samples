@@ -25,7 +25,7 @@ public class RoadConfigMenu : MonoBehaviour
 
     public void UpdateButtonPressed()
     {
-        GameObject.Find("Road").GetComponent<RoadInit>().RestartRoad(highwaySizeSlider.value, Mathf.RoundToInt(numCarsSlider.value));
+        GameObject.Find("Road").GetComponent<Road>().RestartRoad(highwaySizeSlider.value, Mathf.RoundToInt(numCarsSlider.value));
     }
 
     public void UpdateSliderValues()
@@ -51,13 +51,13 @@ public class RoadConfigMenu : MonoBehaviour
     {
         // update slider values
         numCarsSlider.minValue = 1;
-        numCarsSlider.maxValue = (float)RoadInit.GetMaxCars(RoadInit.roadLength);
+        numCarsSlider.maxValue = (float)Road.GetMaxCars(Road.roadLength);
         
-        highwaySizeSlider.minValue = Mathf.Ceil(RoadInit.minLength);
-        highwaySizeSlider.maxValue = RoadInit.maxLength;
+        highwaySizeSlider.minValue = Mathf.Ceil(Road.minLength);
+        highwaySizeSlider.maxValue = Road.maxLength;
         
-        numCarsSlider.value = RoadInit.numCars;
-        highwaySizeSlider.value = RoadInit.roadLength;
+        numCarsSlider.value = Road.numCars;
+        highwaySizeSlider.value = Road.roadLength;
     }
 
     private void NumCarsSliderValueChanged(float value)
@@ -68,7 +68,7 @@ public class RoadConfigMenu : MonoBehaviour
     private void HighwaySizeSliderValueChanged(float value)
     {
         highwaySizeText.text = "Highway Size: " + Mathf.RoundToInt(value);
-        numCarsSlider.maxValue = (float) RoadInit.GetMaxCars(value);
+        numCarsSlider.maxValue = (float) Road.GetMaxCars(value);
     }
 
     // Update is called once per frame

@@ -11,11 +11,10 @@ namespace HighwayRacer
     {
         private NativeArray<OtherCars> selection; // the OtherCar segments to compare against a particular car
 
-        const int nSegments = RoadInit.nSegments;
-        const float minDist = RoadInit.minDist;
+        const float minDist = Road.minDist;
 
-        const float decelerationRate = RoadInit.decelerationRate;
-        const float accelerationRate = RoadInit.accelerationRate;
+        const float decelerationRate = Road.decelerationRate;
+        const float accelerationRate = Road.accelerationRate;
 
         protected override void OnCreate()
         {
@@ -33,12 +32,13 @@ namespace HighwayRacer
 
         protected override void OnUpdate()
         {
+            var nSegments = Road.nSegments;
             var otherCars = World.GetExistingSystem<CarsByLaneSegmentSys>().otherCars;
             var selection = this.selection;
 
             var dt = Time.DeltaTime;
 
-            var trackLength = RoadInit.trackLength;
+            var trackLength = Road.roadLength;
 
             Entities.WithAll<MergingLeft>()
                 .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
@@ -62,7 +62,7 @@ namespace HighwayRacer
                     idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
                     selection[3] = otherCars[idx];
 
-                    CarSys.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos);
+                    CarSys.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
 
                     if (closestPos != float.MaxValue)
                     {
@@ -109,7 +109,7 @@ namespace HighwayRacer
                     idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
                     selection[3] = otherCars[idx];
 
-                    CarSys.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos);
+                    CarSys.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
 
                     if (closestPos != float.MaxValue)
                     {

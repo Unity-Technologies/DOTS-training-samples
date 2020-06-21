@@ -1,4 +1,5 @@
 ﻿using Unity.Assertions;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
@@ -18,21 +19,22 @@ namespace HighwayRacer
         {
             mergeLeftFrame = !mergeLeftFrame;
             
-            if (RoadInit.roadSegments.IsCreated)
+            if (Road.roadSegments.IsCreated)
             {
-                var segs = RoadInit.roadSegments;
+                var thresholds = Road.thresholds;
+                var lastIdx = thresholds.Length - 1;
 
                 Entities.ForEach((ref TrackSegment segment, in TrackPos pos) =>
                 {
-                    for (byte i = 0; i < segs.Length - 1; i++)
+                    for (byte i = 0; i < lastIdx; i++)
                     {
-                        if (pos.Val < segs[i].Threshold)
+                        if (pos.Val < thresholds[i])    // todo: binary search (if num thresholds is large, might make sense)
                         {
                             segment.Val = i;
                             return;
                         }
                     }
-                    segment.Val = (byte)(segs.Length - 1);  // last segment gets all the rest (to account for float imprecision)
+                    segment.Val = (byte)lastIdx;  // last segment gets all the rest (to account for float imprecision)
                 }).Run();
             }
         }

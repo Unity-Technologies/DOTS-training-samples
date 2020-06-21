@@ -1,7 +1,13 @@
 ﻿clicks on menu windows shouldn't register as clicks on cars
 
-split long straight segments into smaller segments
-
 why are any cars turqouise (default shader color)
 
 switch to Schedule() / ScheduleParallel() 
+
+use float2's instead of float3's
+use half instead of float
+
+
+jobify CarsByLaneSegmentation (each job targets different segment; each job reads all the cars)
+
+profile with different segmentation sizes

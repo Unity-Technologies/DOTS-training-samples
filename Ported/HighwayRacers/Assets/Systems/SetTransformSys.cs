@@ -15,7 +15,7 @@ namespace HighwayRacer
             base.OnCreate();
         }
 
-        public const float laneWidth = RoadInit.laneWidth;
+        public const float laneWidth = Road.laneWidth;
         
         private static void setTransform(in NativeArray<RoadSegment> infos, in TrackPos pos, in TrackSegment segment, float lane,
             ref Translation translation, ref Rotation rotation)
@@ -26,12 +26,10 @@ namespace HighwayRacer
             translation.Value = seg.Position;
             translation.Value += seg.DirectionLaneOffset * lane;
 
-            if (seg.Curved)
+            if (seg.Radius > 0)
             {
                 var percentage = posInSegment / seg.Length;
-
                 rotation.Value = new quaternion(math.lerp(seg.DirectionRot.value, seg.DirectionRotEnd.value, percentage));
-
                 var radius = seg.Radius + lane * laneWidth; // todo: seg.Radius can just be const because will always be same 
 
                 // rotate the origin around pivot to get displacement
@@ -75,9 +73,9 @@ namespace HighwayRacer
 
         protected override void OnUpdate()
         {
-            if (RoadInit.roadSegments.IsCreated)
+            if (Road.roadSegments.IsCreated)
             {
-                var infos = RoadInit.roadSegments;
+                var infos = Road.roadSegments;
 
                 Entities.WithNone<LaneOffset>().ForEach((ref Translation translation, ref Rotation rotation,
                     in TrackSegment segment, in TrackPos pos, in Lane lane) =>

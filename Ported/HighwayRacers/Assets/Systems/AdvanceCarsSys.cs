@@ -12,18 +12,18 @@ namespace HighwayRacer
 
         protected override void OnUpdate()
         {
-            if (RoadInit.roadSegments.IsCreated)
+            if (Road.roadSegments.IsCreated)
             {
-                float trackLength = RoadInit.roadSegments[RoadInit.roadSegments.Length - 1].Threshold;
+                float roadLength = Road.roadLength;
 
                 var dt = Time.DeltaTime;
             
                 Entities.ForEach((ref TrackPos trackPos, in Speed speed) =>
                 {
                     trackPos.Val += speed.Val * dt;
-                    if (trackPos.Val > trackLength)
+                    if (trackPos.Val > roadLength)
                     {
-                        trackPos.Val -= trackLength;
+                        trackPos.Val -= roadLength;
                     }
                 }).Run();
             }

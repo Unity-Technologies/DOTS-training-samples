@@ -65,8 +65,8 @@ namespace HighwayRacer
                 // destroy all cars except for prefab
                 EntityManager.DestroyEntity(carQuery);
 
-                int nCars = RoadInit.numCars;
-                float trackLength = RoadInit.roadLength;
+                int nCars = Road.numCars;
+                float trackLength = Road.roadLength;
 
                 var ents = EntityManager.Instantiate(carPrefab, nCars, Allocator.Temp);
                 ents.Dispose();
@@ -100,8 +100,8 @@ namespace HighwayRacer
                     lane.Val = currentLane;
                     color.Val = new float4(SetColorSys.cruiseColor, 1.0f);
 
-                    nextTrackPos += RoadInit.carSpawnDist;
-                    Assert.IsTrue(nextTrackPos <= trackLength - RoadInit.carSpawnDist, "Spawning more cars than will fit in lane.");
+                    nextTrackPos += Road.carSpawnDist;
+                    Assert.IsTrue(nextTrackPos <= trackLength - Road.carSpawnDist, "Spawning more cars than will fit in lane.");
                     nCarsInLane++;
                 }).Run();
             }
