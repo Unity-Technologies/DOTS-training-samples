@@ -40,7 +40,7 @@ namespace HighwayRacer
                     laneOffset.Val = 0;
                     targetSpeed.Val = desiredSpeed.Unblocked;
                     rightECB.RemoveComponent<MergingRight>(ent);
-                    leftECB.RemoveComponent<OvertakingRight>(ent);
+                    rightECB.RemoveComponent<OvertakingRight>(ent);
                     rightECB.RemoveComponent<LaneOffset>(ent);
                 }
             }).Run();

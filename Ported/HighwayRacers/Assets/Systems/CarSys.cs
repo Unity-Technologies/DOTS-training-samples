@@ -81,14 +81,12 @@ namespace HighwayRacer
             var closestBehindPos = float.MinValue;
 
             var posSegment = adjacentLane.positions;
-            var speedSegment = adjacentLane.speeds;
 
             for (int i = 0; i < 2; i++)
             {
                 for (int j = 0; j < posSegment.Length; j++)
                 {
                     var otherPos = posSegment[j].Val + (wrapAround && i == 1 ? trackLength : 0);
-                    var otherSpeed = speedSegment[j];
 
                     if (otherPos < closestAheadPos &&
                         otherPos > pos) // found a car ahead that's closer than previous closest
@@ -103,7 +101,6 @@ namespace HighwayRacer
                 }
 
                 posSegment = adjacentLaneNextSegment.positions;
-                speedSegment = adjacentLaneNextSegment.speeds;
             }
 
             // sufficient margin of open space
