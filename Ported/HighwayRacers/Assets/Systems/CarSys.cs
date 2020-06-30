@@ -10,10 +10,7 @@ namespace HighwayRacer
     [UpdateAfter(typeof(MergingSpeedSys))]
     public class CarSys : SystemBase
     {
-        private NativeArray<OtherCars> selection; // the OtherCar segments to compare against a particular car
-        
         const int nLanes = Road.nLanes;
-
         const float minDist = Road.minDist;
 
         const float mergeLookAhead = Road.mergeLookAhead;
@@ -22,144 +19,41 @@ namespace HighwayRacer
         const float decelerationRate = Road.decelerationRate;
         const float accelerationRate = Road.accelerationRate;
 
+        private EntityCommandBufferSystem beginSim = new BeginSimulationEntityCommandBufferSystem();
+
         protected override void OnCreate()
         {
             base.OnCreate();
-
-            selection = new NativeArray<OtherCars>(2, Allocator.Persistent);
+            beginSim = World.GetExistingSystem<BeginSimulationEntityCommandBufferSystem>();
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            selection.Dispose();
-        }
-
-        public static void GetClosestPosAndSpeed(out float closestPos, out float closestSpeed, NativeArray<OtherCars> selection,
-            TrackSegment trackSegment, float trackLength, TrackPos trackPos, int nSegments)
-        {
-            // find pos and speed of closest car ahead
-            closestSpeed = 0.0f;
-            closestPos = float.MaxValue;
-            for (int i = 0; i < selection.Length; i++)
-            {
-                var posSegment = selection[i].positions;
-                var speedSegment = selection[i].speeds;
-
-                var wrapAround = (trackSegment.Val == nSegments - 1) && i == 1;
-
-                for (int j = 0; j < posSegment.Length; j++)
-                {
-                    var otherPos = posSegment[j].Val + (wrapAround ? trackLength : 0);
-                    var otherSpeed = speedSegment[j];
-
-                    if (otherPos < closestPos &&
-                        otherPos > trackPos.Val) // found a car ahead closer than previous closest
-                    {
-                        closestPos = otherPos;
-                        closestSpeed = otherSpeed.Val;
-                    }
-                }
-            }
-        }
-
-        // todo: account for *speed* of adjacent car ahead and car behind relative to this car?
-        public static bool canMerge(float pos, int destLane, int segment, NativeArray<OtherCars> otherCars, float trackLength, int nSegments)
-        {
-            var laneBaseIdx = destLane * nSegments;
-
-            var idx = laneBaseIdx + segment;
-            var adjacentLane = otherCars[idx];
-
-            var wrapAround = (segment == nSegments - 1);
-
-            idx = laneBaseIdx + (wrapAround ? 0 : segment + 1);
-            var adjacentLaneNextSegment = otherCars[idx];
-
-            // find pos and speed of closest car ahead and closest car behind 
-            var closestAheadPos = float.MaxValue;
-            var closestBehindPos = float.MinValue;
-
-            var posSegment = adjacentLane.positions;
-
-            for (int i = 0; i < 2; i++)
-            {
-                for (int j = 0; j < posSegment.Length; j++)
-                {
-                    var otherPos = posSegment[j].Val + (wrapAround && i == 1 ? trackLength : 0);
-
-                    if (otherPos < closestAheadPos &&
-                        otherPos > pos) // found a car ahead that's closer than previous closest
-                    {
-                        closestAheadPos = otherPos;
-                    }
-                    else if (otherPos > closestBehindPos &&
-                             otherPos <= pos) // found a car behind (or equal) that's closer than previous closest
-                    {
-                        closestBehindPos = otherPos;
-                    }
-                }
-
-                posSegment = adjacentLaneNextSegment.positions;
-            }
-
-            // sufficient margin of open space
-             var ret = (closestBehindPos + mergeLookBehind) < pos && (closestAheadPos - mergeLookAhead) > pos;
-             return ret;
-        }
-
-        public static void SetSpeedForUnblocked(ref TargetSpeed targetSpeed, ref Speed speed, float dt, float unblockedSpeed)
-        {
-            targetSpeed.Val = unblockedSpeed;
-
-            if (targetSpeed.Val < speed.Val)
-            {
-                speed.Val -= decelerationRate * dt;
-                if (speed.Val < targetSpeed.Val)
-                {
-                    speed.Val = targetSpeed.Val;
-                }
-            }
-            else if (targetSpeed.Val > speed.Val)
-            {
-                speed.Val += accelerationRate * dt;
-                if (speed.Val > targetSpeed.Val)
-                {
-                    speed.Val = targetSpeed.Val;
-                }
-            }
         }
 
         protected override void OnUpdate()
         {
             var nSegments = Road.nSegments;
-            
             var trackLength = Road.roadLength;
             var roadSegments = Road.roadSegments;
-
-            var selection = this.selection;
             var otherCars = World.GetExistingSystem<CarsByLaneSegmentSys>().otherCars;
-
             var mergeLeftFrame = SegmentizeSys.mergeLeftFrame;
-
             var dt = Time.DeltaTime;
 
             // make sure we don't hit next car ahead, and trigger overtake state
-            var ecb = new EntityCommandBuffer(Allocator.TempJob);
+            var ecb = beginSim.CreateCommandBuffer().ToConcurrent();
 
-            Entities.WithNone<MergingLeft, MergingRight>().WithNone<OvertakingLeft, OvertakingRight>().ForEach((Entity ent, ref TargetSpeed targetSpeed,
+            var jobHandle = Entities.WithName("CarSys").WithNone<MergingLeft, MergingRight>().WithNone<OvertakingLeft, OvertakingRight>().ForEach((Entity ent,
+                int entityInQueryIndex, ref TargetSpeed targetSpeed,
                 ref Speed speed, ref Lane lane, in TrackPos trackPos, in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
             {
                 var laneBaseIdx = lane.Val * nSegments;
-
-                var idx = laneBaseIdx + trackSegment.Val;
-                selection[0] = otherCars[idx];
-
-                // next
-                idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
-                selection[1] = otherCars[idx];
-
-                GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
+                var secondSegment = ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
+                CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, 
+                    otherCars[laneBaseIdx + trackSegment.Val], 
+                    otherCars[laneBaseIdx + secondSegment], 
+                    trackSegment, trackLength, trackPos, nSegments);
 
                 if (closestPos != float.MaxValue)
                 {
@@ -188,21 +82,21 @@ namespace HighwayRacer
                         if (mergeLeftFrame && lane.Val < nLanes - 1)
                         {
                             var leftLaneIdx = lane.Val + 1;
-                            if (canMerge(trackPos.Val, leftLaneIdx, trackSegment.Val, otherCars, trackLength, nSegments))
+                            if (CarUtil.canMerge(trackPos.Val, leftLaneIdx, trackSegment.Val, otherCars, trackLength, nSegments))
                             {
-                                ecb.AddComponent<MergingLeft>(ent);
-                                ecb.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = -1.0f});
-                                lane.Val = (byte) leftLaneIdx;
+                                ecb.AddComponent<MergingLeft>(entityInQueryIndex, ent);
+                                ecb.AddComponent<LaneOffset>(entityInQueryIndex, ent, new LaneOffset() {Val = -1.0f});
+                                ecb.SetComponent<Lane>(entityInQueryIndex, ent, new Lane() {Val = (byte) leftLaneIdx});
                             }
                         }
                         else if (!mergeLeftFrame && lane.Val > 0) // look for opening on right
                         {
                             var rightLaneIdx = lane.Val - 1;
-                            if (canMerge(trackPos.Val, rightLaneIdx, trackSegment.Val, otherCars, trackLength, nSegments))
+                            if (CarUtil.canMerge(trackPos.Val, rightLaneIdx, trackSegment.Val, otherCars, trackLength, nSegments))
                             {
-                                ecb.AddComponent<MergingRight>(ent);
-                                ecb.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = 1.0f});
-                                lane.Val = (byte) rightLaneIdx;
+                                ecb.AddComponent<MergingRight>(entityInQueryIndex, ent);
+                                ecb.AddComponent<LaneOffset>(entityInQueryIndex, ent, new LaneOffset() {Val = 1.0f});
+                                ecb.SetComponent<Lane>(entityInQueryIndex, ent, new Lane() {Val = (byte) rightLaneIdx});
                             }
                         }
 
@@ -210,11 +104,27 @@ namespace HighwayRacer
                     }
                 }
 
-                SetSpeedForUnblocked(ref targetSpeed, ref speed, dt, desiredSpeed.Unblocked);
-            }).Run();
+                CarUtil.SetUnblockedSpeed(ref speed, ref targetSpeed, dt, desiredSpeed.Unblocked);
+            }).ScheduleParallel(Dependency);
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            beginSim.AddJobHandleForProducer(jobHandle);
+            Dependency = jobHandle;
         }
     }
+}
+
+
+static class BringYourOwnDelegate
+{
+    // Declare the delegate that takes 12 parameters. T0 is used for the Entity argument
+    [Unity.Entities.CodeGeneratedJobForEach.EntitiesForEachCompatible]
+    public delegate void CustomForEachDelegate<T0, T1, T2, T3, T4, T5, T6, T7, T8>
+    (T0 t0, T1 t1, ref T2 t2, ref T3 t3, ref T4 t4, in T5 t5,
+        in T6 t6, in T7 t7, in T8 t8);
+
+    // Declare the function overload
+    public static TDescription ForEach<TDescription, T0, T1, T2, T3, T4, T5, T6, T7, T8>
+        (this TDescription description, CustomForEachDelegate<T0, T1, T2, T3, T4, T5, T6, T7, T8> codeToRun)
+        where TDescription : struct, Unity.Entities.CodeGeneratedJobForEach.ISupportForEachWithUniversalDelegate =>
+        LambdaForEachDescriptionConstructionMethods.ThrowCodeGenException<TDescription>();
 }

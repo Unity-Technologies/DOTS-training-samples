@@ -13,9 +13,6 @@ namespace HighwayRacer
 
         const float minDist = Road.minDist;
 
-        const float decelerationRate = Road.decelerationRate;
-        const float accelerationRate = Road.accelerationRate;
-
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -62,7 +59,7 @@ namespace HighwayRacer
                     idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
                     selection[3] = otherCars[idx];
 
-                    CarSys.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
+                    CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
 
                     if (closestPos != float.MaxValue)
                     {
@@ -84,7 +81,7 @@ namespace HighwayRacer
                         }
                     }
 
-                    CarSys.SetSpeedForUnblocked(ref targetSpeed, ref speed, dt, desiredSpeed.Unblocked);
+                    CarUtil.SetSpeedForUnblocked(ref targetSpeed, ref speed, dt, desiredSpeed.Unblocked);
                 }).Run();
 
             Entities.WithAll<MergingRight>()
@@ -109,7 +106,7 @@ namespace HighwayRacer
                     idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
                     selection[3] = otherCars[idx];
 
-                    CarSys.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
+                    CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
 
                     if (closestPos != float.MaxValue)
                     {
@@ -131,7 +128,7 @@ namespace HighwayRacer
                         }
                     }
 
-                    CarSys.SetSpeedForUnblocked(ref targetSpeed, ref speed, dt, desiredSpeed.Unblocked);
+                    CarUtil.SetSpeedForUnblocked(ref targetSpeed, ref speed, dt, desiredSpeed.Unblocked);
                 }).Run();
            
         }

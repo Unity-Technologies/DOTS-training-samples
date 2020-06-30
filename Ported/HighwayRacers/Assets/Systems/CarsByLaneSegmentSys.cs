@@ -22,6 +22,9 @@ namespace HighwayRacer
         {
             base.OnDestroy();
 
+            var x = new UnsafeList<int>().AsParallelWriter();
+            x.AddNoResize(3);
+
             Cleanup(this.nSegments);
         }
 
@@ -69,7 +72,7 @@ namespace HighwayRacer
                 otherCars[i] = oc;
             }
 
-            otherCars.Dispose();   
+            otherCars.Dispose();
         }
 
         protected override void OnUpdate()
@@ -100,18 +103,22 @@ namespace HighwayRacer
 
                 otherCars[i] = oc;
             }
+            
+            AtomicSafetyHandle atomic = new AtomicSafetyHandle();
+            
 
             // todo: we may not need speeds
             Entities.WithNone<MergingLeft, MergingRight>().ForEach(
                 (Entity ent, in TrackPos trackPos, in Speed speed, in Lane lane, in TrackSegment trackSegment) =>
                 {
+                    
                     addToLane(otherCars, lane.Val, trackSegment, trackPos, speed, nSegments); // todo: can we ensure this gets inlined?
                 }).Run();
 
             Entities.WithAll<MergingLeft>().ForEach((Entity ent, in TrackPos trackPos, in Speed speed, in Lane lane, in TrackSegment trackSegment) =>
             {
                 addToLane(otherCars, lane.Val, trackSegment, trackPos, speed, nSegments);
-                addToLane(otherCars, lane.Val - 1, trackSegment, trackPos, speed, nSegments); // lane to right (the old lane)  
+                addToLane(otherCars, lane.Val - 1, trackSegment, trackPos, speed, nSegments); // lane to right (the old lane)
             }).Run();
 
             Entities.WithAll<MergingRight>().ForEach((Entity ent, in TrackPos trackPos, in Speed speed, in Lane lane, in TrackSegment trackSegment) =>
@@ -125,7 +132,6 @@ namespace HighwayRacer
     public struct OtherCars
     {
         public UnsafeList<TrackPos> positions;
-        public UnsafeList<Entity> entities;
         public UnsafeList<Speed> speeds;
     }
 }

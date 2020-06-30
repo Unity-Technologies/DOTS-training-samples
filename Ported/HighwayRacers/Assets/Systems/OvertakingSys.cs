@@ -62,7 +62,7 @@ namespace HighwayRacer
                 idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
                 selection[1] = otherCars[idx];
     
-                CarSys.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
+                CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
                 
                 // if blocked, leave OvertakingLeft state
                 if (closestPos != float.MaxValue)
@@ -108,7 +108,7 @@ namespace HighwayRacer
                 if (elapsedSinceOvertake > overtakeTimeBeforeMerge && mergeLeftFrame)
                 {
                     var leftLaneIdx = lane.Val + 1;
-                    if (CarSys.canMerge(trackPos.Val, leftLaneIdx, trackSegment.Val, otherCars, trackLength, nSegments))
+                    if (CarUtil.canMerge(trackPos.Val, leftLaneIdx, trackSegment.Val, otherCars, trackLength, nSegments))
                     {
                         leftECB.AddComponent<MergingLeft>(ent);
                         leftECB.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = -1.0f});
@@ -147,7 +147,7 @@ namespace HighwayRacer
                 idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
                 selection[1] = otherCars[idx];
     
-                CarSys.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
+                CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
                 
                 // if blocked, leave OvertakingRight state
                 if (closestPos != float.MaxValue)
@@ -194,7 +194,7 @@ namespace HighwayRacer
                 if (elapsedSinceOvertake > overtakeTimeBeforeMerge && !mergeLeftFrame)
                 {
                     var rightLaneIdx = lane.Val - 1;
-                    if (CarSys.canMerge(trackPos.Val, rightLaneIdx, trackSegment.Val, otherCars, trackLength, nSegments))
+                    if (CarUtil.canMerge(trackPos.Val, rightLaneIdx, trackSegment.Val, otherCars, trackLength, nSegments))
                     {
                         rightECB.AddComponent<MergingRight>(ent);
                         rightECB.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = +1.0f});

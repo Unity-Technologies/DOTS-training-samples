@@ -3,6 +3,8 @@ using Unity.Entities;
 
 namespace HighwayRacer
 {
+    /* cars that are merging back into the lane after overtake */
+    
     [UpdateAfter(typeof(OvertakingSys))]
     public class MergingOvertakeSys : SystemBase
     {

@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace HighwayRacer
@@ -16,8 +17,10 @@ namespace HighwayRacer
             {
                 float roadLength = Road.roadLength;
 
+                Entity e = EntityManager.CreateEntity();
+
                 var dt = Time.DeltaTime;
-            
+
                 Entities.ForEach((ref TrackPos trackPos, in Speed speed) =>
                 {
                     trackPos.Val += speed.Val * dt;
@@ -25,7 +28,7 @@ namespace HighwayRacer
                     {
                         trackPos.Val -= roadLength;
                     }
-                }).Run();
+                }).ScheduleParallel();
             }
         }
     }

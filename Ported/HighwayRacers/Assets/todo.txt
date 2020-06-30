@@ -1,6 +1,7 @@
 ﻿clicks on menu windows shouldn't register as clicks on cars
 
 why are any cars turqouise (default shader color)
+    V2 hybrid define might fix it?
 
 switch to Schedule() / ScheduleParallel() 
 

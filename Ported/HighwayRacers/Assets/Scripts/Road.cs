@@ -25,10 +25,10 @@ public class Road : MonoBehaviour
     public const float accelerationRate = 8.0f; // m/s to lose per second
 
     public const float carSpawnDist = 8.0f;
-    public static int numCars = 50;
+    public static int numCars = 100;
 
     public static float minLength = 400.0f; // 4 * curved length + 4 * min straight length
-    public static float maxLength = 19999;
+    public static float maxLength = 39999;
     public const float laneWidth = 1.88f;
 
     public static float roadLength = minLength;

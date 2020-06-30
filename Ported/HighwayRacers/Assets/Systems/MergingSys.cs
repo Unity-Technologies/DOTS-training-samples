@@ -5,6 +5,7 @@ namespace HighwayRacer
 {
     // todo: could be combined with MergingSpeedSys
     [UpdateAfter(typeof(MergingSpeedSys))]
+    [UpdateBefore(typeof(CarSys))]
     public class MergingSys : SystemBase
     {
         public const float mergeTime = 1.2f; // number of seconds it takes to fully change lane 

@@ -12,6 +12,17 @@
         {
             "$type": "Unity.Build.Common.OutputBuildDirectory, Unity.Build.Common",
             "OutputDirectory": "build"
+        },
+        {
+            "$type": "Unity.Build.Common.SceneList, Unity.Build.Common",
+            "$version": 1,
+            "BuildCurrentScene": false,
+            "SceneInfos": [
+                {
+                    "Scene": "GlobalObjectId_V1-1-d9dc14fd4b20fc942850e3faa1f941ae-102900000-0",
+                    "AutoLoad": true
+                }
+            ]
         }
     ]
 }

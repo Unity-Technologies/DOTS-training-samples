@@ -15,7 +15,7 @@ namespace HighwayRacer
     {
         private EntityQuery carQuery;
         private Entity carPrefab;
-        
+
         public readonly static int nLanes = 4;
 
         public readonly static float minSpeed = 7.0f;
@@ -52,8 +52,8 @@ namespace HighwayRacer
                 if (firstTime)
                 {
                     firstTime = false;
-                    
-                    carPrefab = carQuery.GetSingletonEntity();    
+
+                    carPrefab = carQuery.GetSingletonEntity();
                     var types = new ComponentType[]
                     {
                         typeof(Prefab), typeof(Speed), typeof(TrackPos), typeof(TrackSegment), typeof(TargetSpeed),
@@ -61,7 +61,7 @@ namespace HighwayRacer
                     };
                     EntityManager.AddComponents(carPrefab, new ComponentTypes(types));
                 }
-                
+
                 // destroy all cars except for prefab
                 EntityManager.DestroyEntity(carQuery);
 
@@ -75,7 +75,10 @@ namespace HighwayRacer
                 byte currentLane = 0;
                 var nextTrackPos = 0.0f;
 
-                var rand = new Random((uint) DateTime.Now.Millisecond);
+                var seed = (uint) (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                //var seed = (uint) DateTime.Now.Millisecond;
+                Debug.Log("seed: " + seed);
+                var rand = new Random(seed);
                 rand.NextFloat();
 
                 var maxCarsInLane = (nCars % nLanes == 0) ? (nCars / nLanes) : (nCars / nLanes) + 1;
