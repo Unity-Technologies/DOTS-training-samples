@@ -9,8 +9,6 @@ namespace HighwayRacer
     [UpdateAfter(typeof(MergingSpeedSys))]
     public class OvertakingSys : SystemBase
     {
-        private NativeArray<OtherCars> selection; // the OtherCar segments to compare against a particular car
-    
         const float minDist = Road.minDist;
         const float mergeLookBehind = Road.mergeLookBehind;
     
@@ -23,14 +21,11 @@ namespace HighwayRacer
         protected override void OnCreate()
         {
             base.OnCreate();
-    
-            selection = new NativeArray<OtherCars>(2, Allocator.Persistent);
         }
     
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            selection.Dispose();
         }
     
         protected override void OnUpdate()
@@ -39,8 +34,7 @@ namespace HighwayRacer
             var trackLength = Road.roadLength;
             var roadSegments = Road.roadSegments;
     
-            var selection = this.selection;
-            var otherCars = World.GetExistingSystem<CarsByLaneSegmentSys>().otherCars;
+            var segmentizedCars = World.GetExistingSystem<BucketizeSys>().BucketizedCars;
             
             var mergeLeftFrame = SegmentizeSys.mergeLeftFrame;
     
@@ -53,16 +47,8 @@ namespace HighwayRacer
             Entities.WithNone<MergingLeft>().ForEach((Entity ent, ref Speed speed, ref Lane lane, in DesiredSpeed desiredSpeed,
                 in OvertakingLeft overtakingLeft, in TrackPos trackPos, in TrackSegment trackSegment, in Blocking blockingInfo) =>
             {
-                var laneBaseIdx = lane.Val * nSegments;
-    
-                var idx = laneBaseIdx + trackSegment.Val;
-                selection[0] = otherCars[idx];
-    
-                // next
-                idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
-                selection[1] = otherCars[idx];
-    
-                CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
+                CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, segmentizedCars, trackSegment.Val, lane.Val, 
+                    trackLength, trackPos, nSegments);
                 
                 // if blocked, leave OvertakingLeft state
                 if (closestPos != float.MaxValue)
@@ -108,7 +94,7 @@ namespace HighwayRacer
                 if (elapsedSinceOvertake > overtakeTimeBeforeMerge && mergeLeftFrame)
                 {
                     var leftLaneIdx = lane.Val + 1;
-                    if (CarUtil.canMerge(trackPos.Val, leftLaneIdx, trackSegment.Val, otherCars, trackLength, nSegments))
+                    if (CarUtil.canMerge(trackPos.Val, leftLaneIdx, trackSegment.Val, segmentizedCars, trackLength, nSegments))
                     {
                         leftECB.AddComponent<MergingLeft>(ent);
                         leftECB.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = -1.0f});
@@ -138,16 +124,8 @@ namespace HighwayRacer
             Entities.WithNone<MergingRight>().ForEach((Entity ent, ref Speed speed, ref Lane lane, in DesiredSpeed desiredSpeed,
                 in OvertakingRight overtakingRight, in TrackPos trackPos, in TrackSegment trackSegment, in Blocking blockingInfo) =>
             {
-                var laneBaseIdx = lane.Val * nSegments;
-    
-                var idx = laneBaseIdx + trackSegment.Val;
-                selection[0] = otherCars[idx];
-    
-                // next
-                idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
-                selection[1] = otherCars[idx];
-    
-                CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
+                CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, segmentizedCars, trackSegment.Val, lane.Val, 
+                    trackLength, trackPos, nSegments);
                 
                 // if blocked, leave OvertakingRight state
                 if (closestPos != float.MaxValue)
@@ -194,7 +172,7 @@ namespace HighwayRacer
                 if (elapsedSinceOvertake > overtakeTimeBeforeMerge && !mergeLeftFrame)
                 {
                     var rightLaneIdx = lane.Val - 1;
-                    if (CarUtil.canMerge(trackPos.Val, rightLaneIdx, trackSegment.Val, otherCars, trackLength, nSegments))
+                    if (CarUtil.canMerge(trackPos.Val, rightLaneIdx, trackSegment.Val, segmentizedCars, trackLength, nSegments))
                     {
                         rightECB.AddComponent<MergingRight>(ent);
                         rightECB.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = +1.0f});

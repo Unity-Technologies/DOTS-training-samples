@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace HighwayRacer
 {
+    [UpdateBefore(typeof(BucketizeSys))]
     public class AdvanceCarsSys : SystemBase
     {
         protected override void OnCreate()

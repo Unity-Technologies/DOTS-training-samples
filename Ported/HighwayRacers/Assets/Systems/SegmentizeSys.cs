@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace HighwayRacer
 {
-    [UpdateAfter(typeof(AdvanceCarsSys))]
     public class SegmentizeSys : SystemBase
     {
         protected override void OnCreate()

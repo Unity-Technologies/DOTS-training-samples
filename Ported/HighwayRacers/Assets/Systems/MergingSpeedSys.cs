@@ -5,33 +5,25 @@ using Unity.Mathematics;
 
 namespace HighwayRacer
 {
-    [UpdateAfter(typeof(CarsByLaneSegmentSys))]
-    [UpdateBefore(typeof(AdvanceCarsSys))]
+    [UpdateAfter(typeof(BucketizeSys))]
     public class MergingSpeedSys : SystemBase
     {
-        private NativeArray<OtherCars> selection; // the OtherCar segments to compare against a particular car
-
         const float minDist = Road.minDist;
 
         protected override void OnCreate()
         {
             base.OnCreate();
-
-            selection = new NativeArray<OtherCars>(4, Allocator.Persistent);
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
-
-            selection.Dispose();
         }
 
         protected override void OnUpdate()
         {
             var nSegments = Road.nSegments;
-            var otherCars = World.GetExistingSystem<CarsByLaneSegmentSys>().otherCars;
-            var selection = this.selection;
+            var segmentizedCars = World.GetExistingSystem<BucketizeSys>().BucketizedCars;
 
             var dt = Time.DeltaTime;
 
@@ -41,25 +33,8 @@ namespace HighwayRacer
                 .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
                     in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
                 {
-                    var laneBaseIdx = lane.Val * nSegments;
-
-                    var idx = laneBaseIdx + trackSegment.Val;
-                    selection[0] = otherCars[idx];
-
-                    // next
-                    idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
-                    selection[1] = otherCars[idx];
-
-                    // check lane to right as well (the lane we're merging from)
-                    laneBaseIdx = (lane.Val - 1) * nSegments;
-                    idx = laneBaseIdx + trackSegment.Val;
-                    selection[2] = otherCars[idx];
-
-                    // next
-                    idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
-                    selection[3] = otherCars[idx];
-
-                    CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
+                    CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, segmentizedCars,
+                        trackSegment.Val, lane.Val, lane.Val - 1, trackLength, trackPos, nSegments);
 
                     if (closestPos != float.MaxValue)
                     {
@@ -88,25 +63,8 @@ namespace HighwayRacer
                 .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
                     in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
                 {
-                    var laneBaseIdx = lane.Val * nSegments;
-
-                    var idx = laneBaseIdx + trackSegment.Val;
-                    selection[0] = otherCars[idx];
-
-                    // next
-                    idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
-                    selection[1] = otherCars[idx];
-
-                    // check lane to left as well (the lane we're merging from)
-                    laneBaseIdx = (lane.Val + 1) * nSegments;
-                    idx = laneBaseIdx + trackSegment.Val;
-                    selection[2] = otherCars[idx];
-
-                    // next
-                    idx = laneBaseIdx + ((trackSegment.Val == nSegments - 1) ? 0 : trackSegment.Val + 1);
-                    selection[3] = otherCars[idx];
-
-                    CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, selection, trackSegment, trackLength, trackPos, nSegments);
+                    CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, segmentizedCars,
+                        trackSegment.Val, lane.Val, lane.Val + 1, trackLength, trackPos, nSegments);
 
                     if (closestPos != float.MaxValue)
                     {

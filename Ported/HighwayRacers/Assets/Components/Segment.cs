@@ -4,6 +4,6 @@ namespace HighwayRacer
 {
     public struct TrackSegment : IComponentData
     {
-        public byte Val;
+        public ushort Val;
     }
 }

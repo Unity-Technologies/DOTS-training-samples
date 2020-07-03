@@ -25,13 +25,14 @@ public class Road : MonoBehaviour
     public const float accelerationRate = 8.0f; // m/s to lose per second
 
     public const float carSpawnDist = 8.0f;
-    public static int numCars = 100;
+    public static int numCars = 129;
 
     public static float minLength = 400.0f; // 4 * curved length + 4 * min straight length
     public static float maxLength = 39999;
     public const float laneWidth = 1.88f;
 
     public static float roadLength = minLength;
+    public static float straightLength;
     
     private List<GameObject> straightRoadExtraPieces = new List<GameObject>();  // pieces of straight road that should be destroyed when we recreate the road
 
@@ -43,6 +44,14 @@ public class Road : MonoBehaviour
         numCars = nCars;
         roadLength = length;
         Start();
+    }
+
+    public static int NumCarsFitInStraightLane()
+    {
+        Debug.Log("straightLength " + straightLength);
+        Debug.Log("minDist " + minDist);
+        Debug.Log("ceil " + (int) math.ceil(straightLength / minDist));
+        return (int) math.ceil(straightLength / minDist);
     }
 
     public static int GetMaxCars(float length)
@@ -83,7 +92,7 @@ public class Road : MonoBehaviour
         int segmentsPerStraightaway = (int)(roadLength / 1000) + 1;
         nSegments = 4 + (4 * segmentsPerStraightaway);
         
-        float straightLength = (roadLength - curvedLength * 4) / (nSegments - 4);
+        straightLength = (roadLength - curvedLength * 4) / (nSegments - 4);
         float straightScale = straightLength / baseStraightLength;
 
         if (roadSegments.IsCreated)
