@@ -2,6 +2,7 @@
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace HighwayRacer
 {
@@ -68,22 +69,22 @@ namespace HighwayRacer
                         // look for opening on left
                         if (mergeLeftFrame && lane.Val < RoadSys.nLanes - 1)
                         {
-                            var leftLaneIdx = lane.Val + 1;
-                            if (CarUtil.canMerge(trackPos.Val, leftLaneIdx, trackSegment.Val, segmentizedCars, trackLength, nSegments))
+                            var leftLane = lane.Val + 1;
+                            if (CarUtil.canMerge(trackPos.Val, leftLane, trackSegment.Val, segmentizedCars, trackLength, nSegments))
                             {
                                 ecb.AddComponent<MergingLeft>(entityInQueryIndex, ent);
                                 ecb.AddComponent<LaneOffset>(entityInQueryIndex, ent, new LaneOffset() {Val = -1.0f});
-                                ecb.SetComponent<Lane>(entityInQueryIndex, ent, new Lane() {Val = (byte) leftLaneIdx});
+                                ecb.SetComponent<Lane>(entityInQueryIndex, ent, new Lane() {Val = (byte) leftLane});
                             }
                         }
                         else if (!mergeLeftFrame && lane.Val > 0) // look for opening on right
                         {
-                            var rightLaneIdx = lane.Val - 1;
-                            if (CarUtil.canMerge(trackPos.Val, rightLaneIdx, trackSegment.Val, segmentizedCars, trackLength, nSegments))
+                            var rightLane = lane.Val - 1;
+                            if (CarUtil.canMerge(trackPos.Val, rightLane, trackSegment.Val, segmentizedCars, trackLength, nSegments))
                             {
                                 ecb.AddComponent<MergingRight>(entityInQueryIndex, ent);
                                 ecb.AddComponent<LaneOffset>(entityInQueryIndex, ent, new LaneOffset() {Val = 1.0f});
-                                ecb.SetComponent<Lane>(entityInQueryIndex, ent, new Lane() {Val = (byte) rightLaneIdx});
+                                ecb.SetComponent<Lane>(entityInQueryIndex, ent, new Lane() {Val = (byte) rightLane});
                             }
                         }
 

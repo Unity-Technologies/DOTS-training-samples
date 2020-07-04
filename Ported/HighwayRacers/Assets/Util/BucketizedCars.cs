@@ -21,8 +21,6 @@ namespace HighwayRacer
             int nCarsPerSegment = RoadSys.NumCarsFitInStraightLane() * 2;
             var nBuckets = RoadSys.nLanes * nSegments;
             
-            Debug.Log("nCarsPerSegment: " + nCarsPerSegment);
-            
             otherCarsWriters = new NativeArray<OtherCarsWriter>(nBuckets, Allocator.Persistent);
             lists =  new NativeArray<UnsafeList>(nBuckets * 2, Allocator.Persistent);
             
@@ -81,8 +79,6 @@ namespace HighwayRacer
 
         public void Dispose()
         {
-            Debug.Log("Disposing)");
-            
             for (int i = 0; i < lists.Length; i++)
             {
                 lists[i].Dispose();

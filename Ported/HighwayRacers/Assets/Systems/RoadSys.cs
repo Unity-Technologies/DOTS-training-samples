@@ -25,7 +25,7 @@ namespace HighwayRacer
         public static int numCars = 129;
 
         public static float minLength = 400.0f; // 4 * curved length + 4 * min straight length
-        public static float maxLength = 39999;
+        public static float maxLength = 79999;
         public const float laneWidth = 1.88f;
 
         public static float roadLength = minLength;
@@ -56,9 +56,6 @@ namespace HighwayRacer
 
         public static int NumCarsFitInStraightLane()
         {
-            Debug.Log("straightLength " + straightLength);
-            Debug.Log("minDist " + minDist);
-            Debug.Log("ceil " + (int) math.ceil(straightLength / minDist));
             return (int) math.ceil(straightLength / minDist);
         }
 
@@ -236,7 +233,6 @@ namespace HighwayRacer
             }
         }
     }
-
 
 // todo: use float2's instead
     public struct RoadSegment

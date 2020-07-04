@@ -77,8 +77,6 @@ namespace HighwayRacer
                 var nextTrackPos = 0.0f;
 
                 var seed = (uint) (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-                //var seed = (uint) DateTime.Now.Millisecond;
-                Debug.Log("seed: " + seed);
                 var rand = new Random(seed);
                 rand.NextFloat();
 

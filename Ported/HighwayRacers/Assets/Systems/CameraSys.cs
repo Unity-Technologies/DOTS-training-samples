@@ -21,7 +21,8 @@ namespace HighwayRacer
 
         public float transitionTimer;
 
-        private Vector3 topDownPosition = new Vector3();
+        private const float cameraHeight = 70;
+        private Vector3 topDownPosition = new Vector3(0, cameraHeight, 0);
         private Quaternion topDownRotation = Quaternion.Euler(90, 0, 0);
 
         public const float minClickDist = 3f;
@@ -29,7 +30,7 @@ namespace HighwayRacer
 
         public Entity car;
         public State state = State.TOP_DOWN;
-        
+
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -120,7 +121,7 @@ namespace HighwayRacer
                     topDownPosition = newPos;
                     Camera.main.transform.SetPositionAndRotation(topDownPosition, topDownRotation);
                     break;
-                
+
                 case State.CAR:
 
                     if (Input.GetKey(KeyCode.Escape))
@@ -131,7 +132,7 @@ namespace HighwayRacer
                     }
 
                     transitionTimer += Time.DeltaTime;
-                    
+
                     var trans = EntityManager.GetComponentData<Translation>(car);
                     var rot = EntityManager.GetComponentData<Rotation>(car);
 
@@ -142,9 +143,10 @@ namespace HighwayRacer
                     {
                         var fraction = transitionTimer / transitionDuration;
                         camPos = math.lerp(topDownPosition, camPos, fraction);
-                        rot.Value = math.nlerp(topDownRotation, rot.Value, fraction);   // use slerp?
+                        rot.Value = math.nlerp(topDownRotation, rot.Value, fraction); // use slerp?
                     }
-                    Camera.main.transform.SetPositionAndRotation(camPos, rot.Value);    
+
+                    Camera.main.transform.SetPositionAndRotation(camPos, rot.Value);
 
                     break;
             }

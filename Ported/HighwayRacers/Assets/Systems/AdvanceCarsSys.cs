@@ -26,6 +26,7 @@ namespace HighwayRacer
                     if (trackPos.Val > roadLength)
                     {
                         trackPos.Val -= roadLength;
+                        trackSegment.Val = 0;
                     }
                 }).ScheduleParallel();
             }
