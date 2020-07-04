@@ -12,6 +12,7 @@ namespace HighwayRacer
         CAR,
     }
 
+    [UpdateAfter(typeof(RoadSys))]
     public class CameraSys : SystemBase
     {
         public Rect bounds = new Rect(-500, -500, 1000, 1000);

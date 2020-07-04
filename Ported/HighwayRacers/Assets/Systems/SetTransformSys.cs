@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace HighwayRacer
 {
-    [UpdateAfter(typeof(SegmentizeSys))]
+    [UpdateAfter(typeof(SetColorSys))]
     public class SetTransformSys : SystemBase
     {
         protected override void OnCreate()
@@ -16,8 +16,6 @@ namespace HighwayRacer
             base.OnCreate();
         }
 
-        public const float laneWidth = Road.laneWidth;
-        
         private static void setTransform(in NativeArray<RoadSegment> infos, in TrackPos pos, in TrackSegment segment, float lane,
             ref Translation translation, ref Rotation rotation)
         {
@@ -31,7 +29,7 @@ namespace HighwayRacer
             {
                 var percentage = posInSegment / seg.Length;
                 rotation.Value = new quaternion(math.lerp(seg.DirectionRot.value, seg.DirectionRotEnd.value, percentage));
-                var radius = seg.Radius + lane * laneWidth; // todo: seg.Radius can just be const because will always be same 
+                var radius = seg.Radius + lane * RoadSys.laneWidth; // todo: seg.Radius can just be const because will always be same 
 
                 // rotate the origin around pivot to get displacement
                 float3 pivot = new float3();
@@ -74,11 +72,10 @@ namespace HighwayRacer
 
         protected override void OnUpdate()
         {
-            if (Road.roadSegments.IsCreated)
+            if (RoadSys.roadSegments.IsCreated)
             {
-                var infos = Road.roadSegments;
+                var infos = RoadSys.roadSegments;
 
-                // todo these two foreachs should be able to run concurrently
                 Entities.WithReadOnly(infos).WithNone<LaneOffset>().ForEach((ref Translation translation, ref Rotation rotation,
                     in TrackSegment segment, in TrackPos pos, in Lane lane) =>
                 {

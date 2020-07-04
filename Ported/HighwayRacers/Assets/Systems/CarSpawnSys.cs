@@ -11,6 +11,7 @@ using Random = Unity.Mathematics.Random;
 
 namespace HighwayRacer
 {
+    [UpdateAfter(typeof(CameraSys))]
     public class CarSpawnSys : SystemBase
     {
         private EntityQuery carQuery;
@@ -65,8 +66,8 @@ namespace HighwayRacer
                 // destroy all cars except for prefab
                 EntityManager.DestroyEntity(carQuery);
 
-                int nCars = Road.numCars;
-                float trackLength = Road.roadLength;
+                int nCars = RoadSys.numCars;
+                float trackLength = RoadSys.roadLength;
 
                 var ents = EntityManager.Instantiate(carPrefab, nCars, Allocator.Temp);
                 ents.Dispose();
@@ -103,8 +104,8 @@ namespace HighwayRacer
                     lane.Val = currentLane;
                     color.Val = new float4(SetColorSys.cruiseColor, 1.0f);
 
-                    nextTrackPos += Road.carSpawnDist;
-                    Assert.IsTrue(nextTrackPos <= trackLength - Road.carSpawnDist, "Spawning more cars than will fit in lane.");
+                    nextTrackPos += RoadSys.carSpawnDist;
+                    Assert.IsTrue(nextTrackPos <= trackLength - RoadSys.carSpawnDist, "Spawning more cars than will fit in lane.");
                     nCarsInLane++;
                 }).Run();
             }

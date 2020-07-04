@@ -3,7 +3,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
-namespace DataStruct
+namespace HighwayRacer
 {
     public unsafe struct BucketizedCars
     {
@@ -13,15 +13,13 @@ namespace DataStruct
         private NativeArray<OtherCarsWriter> otherCarsWriters;
         private NativeArray<UnsafeList> lists;
         
-        const int nLanes = Road.nLanes;        
-
         public BucketizedCars(int nSegments)
         {
             this.nSegments = nSegments;
             IsCreated = true;
             
-            int nCarsPerSegment = Road.NumCarsFitInStraightLane() * 2;
-            var nBuckets = nLanes * nSegments;
+            int nCarsPerSegment = RoadSys.NumCarsFitInStraightLane() * 2;
+            var nBuckets = RoadSys.nLanes * nSegments;
             
             Debug.Log("nCarsPerSegment: " + nCarsPerSegment);
             
@@ -69,7 +67,7 @@ namespace DataStruct
         public void Clear()
         {
             // clear all the lists
-            for (int i = 0; i < nLanes * nSegments; i++)
+            for (int i = 0; i < RoadSys.nLanes * nSegments; i++)
             {
                 var ocw = otherCarsWriters[i];
 

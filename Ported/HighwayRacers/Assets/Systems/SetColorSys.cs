@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace HighwayRacer
 {
+    [UpdateAfter(typeof(MergingOvertakeSys))]
     public class SetColorSys : SystemBase
     {
-        
         public readonly static float3 cruiseColor = new float3(0.5f, 0.5f, 0.5f);
         public readonly static float3 fastestColor = new float3(0, 1.0f, 0);
         public readonly static float3 slowestColor = new float3(1.0f, 0.0f, 0);

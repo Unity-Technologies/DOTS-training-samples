@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace HighwayRacer
 {
+    [UpdateAfter(typeof(CarSpawnSys))]
     public class SegmentizeSys : SystemBase
     {
         protected override void OnCreate()
@@ -13,16 +14,16 @@ namespace HighwayRacer
         }
 
         public static bool mergeLeftFrame = true;     // toggles every frame: in a frame, we only initiate merges either left or right, not both
-        
+
         protected override void OnUpdate()
         {
             mergeLeftFrame = !mergeLeftFrame;
-            
-            if (Road.roadSegments.IsCreated)
-            {
-                var thresholds = Road.thresholds;
-                var lastIdx = thresholds.Length - 1;
 
+            if (RoadSys.roadSegments.IsCreated)
+            {
+                var thresholds = RoadSys.thresholds;
+                var lastIdx = thresholds.Length - 1;
+                
                 Entities.ForEach((ref TrackSegment segment, in TrackPos pos) =>
                 {
                     for (byte i = 0; i < lastIdx; i++)

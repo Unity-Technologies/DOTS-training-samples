@@ -5,19 +5,10 @@ using Unity.Mathematics;
 
 namespace HighwayRacer
 {
-    // update cars that aren't merging or overtaking 
-    [UpdateAfter(typeof(MergingSpeedSys))]
-    public class RegularCarAvoidanceSys : SystemBase
+    // avoidance and set speed for cars that aren't merging or overtaking 
+    [UpdateAfter(typeof(BucketizeSys))]
+    public class AvoidanceAndSpeedSys : SystemBase
     {
-        const int nLanes = Road.nLanes;
-        const float minDist = Road.minDist;
-
-        const float mergeLookAhead = Road.mergeLookAhead;
-        const float mergeLookBehind = Road.mergeLookBehind;
-
-        const float decelerationRate = Road.decelerationRate;
-        const float accelerationRate = Road.accelerationRate;
-
         private EntityCommandBufferSystem beginSim = new BeginSimulationEntityCommandBufferSystem();
 
         protected override void OnCreate()
@@ -33,9 +24,9 @@ namespace HighwayRacer
 
         protected override void OnUpdate()
         {
-            var nSegments = Road.nSegments;
-            var trackLength = Road.roadLength;
-            var roadSegments = Road.roadSegments;
+            var nSegments = RoadSys.nSegments;
+            var trackLength = RoadSys.roadLength;
+            var roadSegments = RoadSys.roadSegments;
             var segmentizedCars = World.GetExistingSystem<BucketizeSys>().BucketizedCars;
             var mergeLeftFrame = SegmentizeSys.mergeLeftFrame;
             var dt = Time.DeltaTime;
@@ -57,7 +48,7 @@ namespace HighwayRacer
                     if (dist <= blocking.Dist &&
                         speed.Val > closestSpeed) // car is still blocked ahead in lane
                     {
-                        var closeness = (dist - minDist) / (blocking.Dist - minDist); // 0 is max closeness, 1 is min
+                        var closeness = (dist - RoadSys.minDist) / (blocking.Dist - RoadSys.minDist); // 0 is max closeness, 1 is min
 
                         // closer we get within minDist of leading car, the closer we match speed
                         const float fudge = 2.0f;
@@ -69,13 +60,13 @@ namespace HighwayRacer
 
                         // to spare us from having to check prior segment, can't merge if too close to start of segment
                         float segmentPos = (trackSegment.Val == 0) ? trackPos.Val : trackPos.Val - roadSegments[trackSegment.Val - 1].Threshold;
-                        if (segmentPos < mergeLookBehind)
+                        if (segmentPos < RoadSys.mergeLookBehind)
                         {
                             return;
                         }
 
                         // look for opening on left
-                        if (mergeLeftFrame && lane.Val < nLanes - 1)
+                        if (mergeLeftFrame && lane.Val < RoadSys.nLanes - 1)
                         {
                             var leftLaneIdx = lane.Val + 1;
                             if (CarUtil.canMerge(trackPos.Val, leftLaneIdx, trackSegment.Val, segmentizedCars, trackLength, nSegments))

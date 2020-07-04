@@ -1,5 +1,4 @@
-﻿using DataStruct;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 
@@ -8,11 +7,11 @@ namespace HighwayRacer
     public class CarUtil
     {
         
-        const float decelerationRate = Road.decelerationRate;
-        const float accelerationRate = Road.accelerationRate;
+        const float decelerationRate = RoadSys.decelerationRate;
+        const float accelerationRate = RoadSys.accelerationRate;
         
-        const float mergeLookAhead = Road.mergeLookAhead;
-        const float mergeLookBehind = Road.mergeLookBehind;
+        const float mergeLookAhead = RoadSys.mergeLookAhead;
+        const float mergeLookBehind = RoadSys.mergeLookBehind;
         
         public static void SetSpeedForUnblocked(ref TargetSpeed targetSpeed, ref Speed speed, float dt, float unblockedSpeed)
         {

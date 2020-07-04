@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using HighwayRacer;
+using Unity.Entities;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,7 +27,17 @@ public class RoadConfigMenu : MonoBehaviour
 
     public void UpdateButtonPressed()
     {
-        GameObject.Find("Road").GetComponent<Road>().RestartRoad(highwaySizeSlider.value, Mathf.RoundToInt(numCarsSlider.value));
+        var ecbSys = World.DefaultGameObjectInjectionWorld.GetExistingSystem<BeginSimulationEntityCommandBufferSystem>();
+        var ecb = ecbSys.CreateCommandBuffer();
+        var ent = ecb.CreateEntity();
+        ecb.AddComponent<RoadInit>(ent);
+        ecb.SetComponent(ent,
+            new RoadInit()
+            {
+                Length = highwaySizeSlider.value,
+                NumCars = Mathf.RoundToInt(numCarsSlider.value)
+            }
+        );
     }
 
     public void UpdateSliderValues()
@@ -51,13 +63,13 @@ public class RoadConfigMenu : MonoBehaviour
     {
         // update slider values
         numCarsSlider.minValue = 1;
-        numCarsSlider.maxValue = (float)Road.GetMaxCars(Road.roadLength);
-        
-        highwaySizeSlider.minValue = Mathf.Ceil(Road.minLength);
-        highwaySizeSlider.maxValue = Road.maxLength;
-        
-        numCarsSlider.value = Road.numCars;
-        highwaySizeSlider.value = Road.roadLength;
+        numCarsSlider.maxValue = (float) RoadSys.GetMaxCars(RoadSys.roadLength);
+
+        highwaySizeSlider.minValue = Mathf.Ceil(RoadSys.minLength);
+        highwaySizeSlider.maxValue = RoadSys.maxLength;
+
+        numCarsSlider.value = RoadSys.numCars;
+        highwaySizeSlider.value = RoadSys.roadLength;
     }
 
     private void NumCarsSliderValueChanged(float value)
@@ -68,7 +80,7 @@ public class RoadConfigMenu : MonoBehaviour
     private void HighwaySizeSliderValueChanged(float value)
     {
         highwaySizeText.text = "Highway Size: " + Mathf.RoundToInt(value);
-        numCarsSlider.maxValue = (float) Road.GetMaxCars(value);
+        numCarsSlider.maxValue = (float) RoadSys.GetMaxCars(value);
     }
 
     // Update is called once per frame

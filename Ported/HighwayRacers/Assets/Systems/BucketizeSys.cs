@@ -1,5 +1,4 @@
 ﻿using System;
-using DataStruct;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -10,10 +9,7 @@ namespace HighwayRacer
     [UpdateAfter(typeof(SegmentizeSys))]
     public class BucketizeSys : SystemBase
     {
-        // index is (lane * nSegment + segment). Values are the positions within that lane & segment.
-
         private int nSegments;
-        const int nLanes = Road.nLanes;
 
         public BucketizedCars BucketizedCars;
 
@@ -32,22 +28,21 @@ namespace HighwayRacer
 
         protected override void OnUpdate()
         {
-            var nSegments = Road.nSegments;
+            var nSegments = RoadSys.nSegments;
             if (nSegments != this.nSegments)
             {
                 if (this.BucketizedCars.IsCreated)
                 {
                     this.BucketizedCars.Dispose();
                 }
-                Debug.Log("new segmentization");
                 
                 this.BucketizedCars = new BucketizedCars(nSegments);
                 this.nSegments = nSegments;
             }
 
-            if (Road.numCars != nCars)
+            if (RoadSys.numCars != nCars)
             {
-                nCars = Road.numCars;
+                nCars = RoadSys.numCars;
                 Debug.Log(" num cars = "+  nCars);
             }
             

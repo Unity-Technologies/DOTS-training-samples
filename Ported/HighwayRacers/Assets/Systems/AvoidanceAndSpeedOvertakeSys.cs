@@ -5,15 +5,15 @@ using UnityEngine;
 
 namespace HighwayRacer
 {
-    [UpdateBefore(typeof(AdvanceCarsSys))]
-    [UpdateAfter(typeof(MergingSpeedSys))]
-    public class OvertakingSys : SystemBase
+    // avoidance and set speed for cars that are overtaking 
+    [UpdateAfter(typeof(AvoidanceAndSpeedMergingSys))]
+    public class AvoidanceAndSpeedOvertakeSys : SystemBase
     {
-        const float minDist = Road.minDist;
-        const float mergeLookBehind = Road.mergeLookBehind;
+        const float minDist = RoadSys.minDist;
+        const float mergeLookBehind = RoadSys.mergeLookBehind;
     
-        const float decelerationRate = Road.decelerationRate;
-        const float accelerationRate = Road.accelerationRate;
+        const float decelerationRate = RoadSys.decelerationRate;
+        const float accelerationRate = RoadSys.accelerationRate;
     
         const float overtakeTimeBeforeMerge = 3.0f;
         const float overtakeTimeout = overtakeTimeBeforeMerge + 3.0f;
@@ -30,9 +30,9 @@ namespace HighwayRacer
     
         protected override void OnUpdate()
         {
-            var nSegments = Road.nSegments;
-            var trackLength = Road.roadLength;
-            var roadSegments = Road.roadSegments;
+            var nSegments = RoadSys.nSegments;
+            var trackLength = RoadSys.roadLength;
+            var roadSegments = RoadSys.roadSegments;
     
             var segmentizedCars = World.GetExistingSystem<BucketizeSys>().BucketizedCars;
             

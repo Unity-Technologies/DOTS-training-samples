@@ -5,10 +5,11 @@ using Unity.Mathematics;
 
 namespace HighwayRacer
 {
-    [UpdateAfter(typeof(BucketizeSys))]
-    public class MergingSpeedSys : SystemBase
+    // avoidance and set speed for cars that are merging (but not overtaking) 
+    [UpdateAfter(typeof(AvoidanceAndSpeedSys))]
+    public class AvoidanceAndSpeedMergingSys : SystemBase
     {
-        const float minDist = Road.minDist;
+        const float minDist = RoadSys.minDist;
 
         protected override void OnCreate()
         {
@@ -22,12 +23,12 @@ namespace HighwayRacer
 
         protected override void OnUpdate()
         {
-            var nSegments = Road.nSegments;
+            var nSegments = RoadSys.nSegments;
             var segmentizedCars = World.GetExistingSystem<BucketizeSys>().BucketizedCars;
 
             var dt = Time.DeltaTime;
 
-            var trackLength = Road.roadLength;
+            var trackLength = RoadSys.roadLength;
 
             Entities.WithAll<MergingLeft>()
                 .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,

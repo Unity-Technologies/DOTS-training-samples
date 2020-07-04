@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using HighwayRacer;
 using UnityEngine;
 
 public class SegmentAuth : MonoBehaviour

@@ -4,8 +4,7 @@ using Unity.Entities;
 namespace HighwayRacer
 {
     /* cars that are merging back into the lane after overtake */
-    
-    [UpdateAfter(typeof(OvertakingSys))]
+    [UpdateAfter(typeof(MergingSys))]
     public class MergingOvertakeSys : SystemBase
     {
         public const float mergeTime = 1.2f; // number of seconds it takes to fully change lane 
