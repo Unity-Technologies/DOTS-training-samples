@@ -20,13 +20,12 @@ namespace HighwayRacer
 
                 var dt = Time.DeltaTime;
 
-                Entities.ForEach((ref TrackPos trackPos, ref TrackSegment trackSegment, in Speed speed) =>
+                Entities.ForEach((ref TrackPos trackPos, in Speed speed) =>
                 {
                     trackPos.Val += speed.Val * dt;
                     if (trackPos.Val > roadLength)
                     {
                         trackPos.Val -= roadLength;
-                        trackSegment.Val = 0;
                     }
                 }).ScheduleParallel();
             }

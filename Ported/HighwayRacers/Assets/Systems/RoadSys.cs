@@ -23,12 +23,13 @@ namespace HighwayRacer
 
         public const float carSpawnDist = 8.0f;
         public static int numCars = 129;
-
+        
         public static float minLength = 400.0f; // 4 * curved length + 4 * min straight length
         public static float maxLength = 79999;
-        public const float laneWidth = 1.88f;
 
+        public const float laneWidth = 1.88f;
         public static float roadLength = minLength;
+
         public static float straightLength;
 
         private List<GameObject> straightRoadExtraPieces = new List<GameObject>(); // pieces of straight road that should be destroyed when we recreate the road

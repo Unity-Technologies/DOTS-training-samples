@@ -28,7 +28,7 @@ namespace HighwayRacer
             var nSegments = RoadSys.nSegments;
             var trackLength = RoadSys.roadLength;
             var roadSegments = RoadSys.roadSegments;
-            var segmentizedCars = World.GetExistingSystem<BucketizeSys>().BucketizedCars;
+            var segmentizedCars = World.GetExistingSystem<BucketizeSys>().CarBuckets;
             var mergeLeftFrame = SegmentizeSys.mergeLeftFrame;
             var dt = Time.DeltaTime;
 

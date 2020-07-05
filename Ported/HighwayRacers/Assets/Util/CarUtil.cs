@@ -30,7 +30,7 @@ namespace HighwayRacer
         }
 
         // todo: account for *speed* of adjacent car ahead and car behind relative to this car?
-        public static bool canMerge(float pos, int destLane, int segment, BucketizedCars bucketizedCars,
+        public static bool canMerge(float pos, int destLane, int segment, CarBuckets carBuckets,
             float trackLength, int nSegments)
         {
             // find pos and speed of closest car ahead and closest car behind in the destination lane 
@@ -40,8 +40,8 @@ namespace HighwayRacer
             var wrapAround = (segment == nSegments - 1);
             var addLength = false;
 
-            var positions = bucketizedCars.GetPositions(destLane, segment);
-            var secondPositions =  bucketizedCars.GetPositions(destLane, (wrapAround) ? 0 : segment + 1);
+            var positions = carBuckets.GetPositions(destLane, segment);
+            var secondPositions =  carBuckets.GetPositions(destLane, (wrapAround) ? 0 : segment + 1);
 
             for (int i = 0; i < 2; i++)
             {
@@ -99,7 +99,7 @@ namespace HighwayRacer
         }
 
         public static void GetClosestPosAndSpeed(out float closestPos, out float closestSpeed, 
-            BucketizedCars bucketizedCars, int segment, int lane, int otherLane,
+            CarBuckets carBuckets, int segment, int lane, int otherLane,
             float trackLength, TrackPos trackPos, int nSegments)
         {
             // find pos and speed of closest car ahead, checking two lanes 
@@ -122,8 +122,8 @@ namespace HighwayRacer
                     lane = otherLane;
                 }
 
-                var positions = bucketizedCars.GetPositions(lane, seg);
-                var speeds = bucketizedCars.GetSpeeds(lane, seg);
+                var positions = carBuckets.GetPositions(lane, seg);
+                var speeds = carBuckets.GetSpeeds(lane, seg);
                 
                 for (int j = 0; j < positions.Length; j++)
                 {
@@ -141,7 +141,7 @@ namespace HighwayRacer
         }
         
         public static void GetClosestPosAndSpeed(out float closestPos, out float closestSpeed, 
-            BucketizedCars bucketizedCars, int segment, int lane,
+            CarBuckets carBuckets, int segment, int lane,
             float trackLength, TrackPos trackPos, int nSegments)
         {
             // find pos and speed of closest car ahead, checking two lanes 
@@ -155,8 +155,8 @@ namespace HighwayRacer
             //     lane, nextSegment
             for (int i = 0; i < 2; i++)
             {
-                var positions = bucketizedCars.GetPositions(lane, segment);
-                var speeds = bucketizedCars.GetSpeeds(lane, segment);
+                var positions = carBuckets.GetPositions(lane, segment);
+                var speeds = carBuckets.GetSpeeds(lane, segment);
                 
                 for (int j = 0; j < positions.Length; j++)
                 {

@@ -24,7 +24,7 @@ namespace HighwayRacer
         protected override void OnUpdate()
         {
             var nSegments = RoadSys.nSegments;
-            var segmentizedCars = World.GetExistingSystem<BucketizeSys>().BucketizedCars;
+            var segmentizedCars = World.GetExistingSystem<BucketizeSys>().CarBuckets;
 
             var dt = Time.DeltaTime;
 

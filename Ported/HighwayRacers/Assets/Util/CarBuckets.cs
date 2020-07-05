@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace HighwayRacer
 {
-    public unsafe struct BucketizedCars
+    public unsafe struct CarBuckets
     {
         public int nSegments;
         public bool IsCreated;
@@ -13,7 +13,7 @@ namespace HighwayRacer
         private NativeArray<OtherCarsWriter> otherCarsWriters;
         private NativeArray<UnsafeList> lists;
         
-        public BucketizedCars(int nSegments)
+        public CarBuckets(int nSegments)
         {
             this.nSegments = nSegments;
             IsCreated = true;

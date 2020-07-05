@@ -1,4 +1,13 @@
-﻿clicks on menu windows shouldn't register as clicks on cars
+﻿    *positions = new UnsafeList(UnsafeUtility.SizeOf<TrackPos>(), UnsafeUtility.AlignOf<TrackPos>(), nCarsPerSegment, Allocator.Persistent);
+    *speeds = new UnsafeList(UnsafeUtility.SizeOf<Speed>(), UnsafeUtility.AlignOf<Speed>(), nCarsPerSegment, Allocator.Persistent);
+
+        consider allocating these unsafelists all contiguously
+
+
+    sorting of buckets might pay off?
+
+
+clicks on menu windows shouldn't register as clicks on cars
 
 why are any cars turqouise (default shader color)
     V2 hybrid define might fix it?
