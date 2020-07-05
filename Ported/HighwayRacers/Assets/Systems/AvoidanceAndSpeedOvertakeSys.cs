@@ -47,17 +47,16 @@ namespace HighwayRacer
             Entities.WithNone<MergingLeft>().ForEach((Entity ent, ref Speed speed, ref Lane lane, in DesiredSpeed desiredSpeed,
                 in OvertakingLeft overtakingLeft, in TrackPos trackPos, in TrackSegment trackSegment, in Blocking blockingInfo) =>
             {
-                CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, carBuckets, trackSegment.Val, lane.Val, 
+                CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, carBuckets, trackSegment.Val, lane.Val, 
                     trackLength, trackPos, nSegments);
                 
                 // if blocked, leave OvertakingLeft state
-                if (closestPos != float.MaxValue)
+                if (distance != float.MaxValue)
                 {
-                    var dist = closestPos - trackPos.Val;
-                    if (dist <= blockingInfo.Dist &&
+                    if (distance <= blockingInfo.Dist &&
                         speed.Val > closestSpeed) // car is blocked ahead in lane
                     {
-                        var closeness = (dist - minDist) / (blockingInfo.Dist - minDist); // 0 is max closeness, 1 is min
+                        var closeness = (distance - minDist) / (blockingInfo.Dist - minDist); // 0 is max closeness, 1 is min
     
                         // closer we get within minDist of leading car, the closer we match speed
                         const float fudge = 2.0f;
@@ -124,17 +123,16 @@ namespace HighwayRacer
             Entities.WithNone<MergingRight>().ForEach((Entity ent, ref Speed speed, ref Lane lane, in DesiredSpeed desiredSpeed,
                 in OvertakingRight overtakingRight, in TrackPos trackPos, in TrackSegment trackSegment, in Blocking blockingInfo) =>
             {
-                CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, carBuckets, trackSegment.Val, lane.Val, 
+                CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, carBuckets, trackSegment.Val, lane.Val, 
                     trackLength, trackPos, nSegments);
                 
                 // if blocked, leave OvertakingRight state
-                if (closestPos != float.MaxValue)
+                if (distance != float.MaxValue)
                 {
-                    var dist = closestPos - trackPos.Val;
-                    if (dist <= blockingInfo.Dist &&
+                    if (distance <= blockingInfo.Dist &&
                         speed.Val > closestSpeed) // car is blocked ahead in lane
                     {
-                        var closeness = (dist - minDist) / (blockingInfo.Dist - minDist); // 0 is max closeness, 1 is min
+                        var closeness = (distance - minDist) / (blockingInfo.Dist - minDist); // 0 is max closeness, 1 is min
     
                         // closer we get within minDist of leading car, the closer we match speed
                         const float fudge = 2.0f;

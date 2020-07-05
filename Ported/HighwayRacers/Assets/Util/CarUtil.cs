@@ -32,7 +32,7 @@ namespace HighwayRacer
 
         // binary search to find a car's pos in the bucket
         // (we assume the pos is present!)
-        public static int findInBucket(UnsafeList<SortedCar> bucket, float pos, float lane)
+        private static int findInBucket(UnsafeList<SortedCar> bucket, float pos, float lane)
         {
             int start = 0;
             int end = bucket.Length - 1;
@@ -40,12 +40,13 @@ namespace HighwayRacer
             while (true)
             {
                 var candidate = bucket[idx];
-                var samePos = candidate.Pos == pos; 
+                var samePos = candidate.Pos == pos;
                 if (samePos && candidate.Lane == lane)
                 {
-                    break;
+                    return idx;
                 }
-                if ((samePos && candidate.Lane < lane) || (candidate.Pos < pos)) // look up 
+
+                if ((pos > candidate.Pos) || (samePos && lane > candidate.Lane)) // look up 
                 {
                     Assert.IsFalse(idx == end); // value should be present in the bucket
                     start = idx + 1;
@@ -60,75 +61,65 @@ namespace HighwayRacer
             }
         }
 
-        // todo: account for *speed* of adjacent car ahead and car behind relative to this car?
         public static bool canMerge(float pos, int destLane, int lane, int segment, CarBuckets carBuckets,
             float trackLength, int nSegments)
         {
             var bucket = carBuckets.GetCars(destLane, segment);
             int idx = findInBucket(bucket, pos, lane);
-            
+
             // return false if a car is behind in dest lane within the mergeBehind range
             for (int backIdx = idx - 1; backIdx < 0; backIdx--)
             {
                 var other = bucket[backIdx];
 
-                var inRange = (pos - other.Pos) < RoadSys.mergeLookBehind;
-                if (inRange)
-                {
-                    if (other.Lane == destLane)
-                    {
-                        return false; // blocked in the same lane
-                    }
-                }
-                else
+                if ((pos - other.Pos) > RoadSys.mergeLookBehind)
                 {
                     break; // all remaining cars too far back to block us from behind
                 }
+
+                if (other.Lane == destLane)
+                {
+                    return false; // blocked in the same lane
+                }
             }
-            
+
             // return false if a car is ahead in dest lane within the mergeAhead range
             for (int forwardIdx = idx + 1; forwardIdx < bucket.Length; forwardIdx++)
             {
                 var other = bucket[forwardIdx];
 
-                var inRange = (other.Pos - pos) < RoadSys.mergeLookAhead;
-                if (inRange)
+                if ((pos - other.Pos) > RoadSys.mergeLookAhead)
                 {
-                    if (other.Lane == destLane)
-                    {
-                        return false;  // blocked in the same lane
-                    }
+                    break; // all remaining cars too far ahead to block us
                 }
-                else
+
+                if (other.Lane == destLane)
                 {
-                    return false;   // all remaining cars too far ahead to block us
+                    return false; // blocked in the same lane
                 }
             }
-            
+
             // same as above, but continue check in second bucket
             var wrapAround = (segment == nSegments - 1);
             bucket = carBuckets.GetCars(destLane, (wrapAround) ? 0 : segment + 1);
-            
+
             for (int forwardIdx = 0; forwardIdx < bucket.Length; forwardIdx++)
             {
                 var other = bucket[forwardIdx];
-
                 var otherPos = (wrapAround) ? other.Pos + trackLength : other.Pos;
-                var inRange = (other.Pos - pos) < RoadSys.mergeLookAhead;
-                if (inRange)
+
+                if ((otherPos - pos) > RoadSys.mergeLookAhead)
                 {
-                    if (other.Lane == destLane)
-                    {
-                        return false;  // blocked in the same lane
-                    }
+                    return false; // all remaining cars too far ahead to block us
                 }
-                else
+
+                if (other.Lane == destLane)
                 {
-                    return false;   // all remaining cars too far ahead to block us
+                    return false; // blocked in the same lane
                 }
             }
 
-            return false;    // exhausted the second bucket without finding a blocking car ahead
+            return false; // exhausted the second bucket without finding a blocking car ahead
         }
 
 
@@ -160,81 +151,115 @@ namespace HighwayRacer
             targetSpeed.Val = newTargetSpeed;
         }
 
-        public static void GetClosestPosAndSpeed(out float closestPos, out float closestSpeed,
-            CarBuckets carBuckets, int segment, int lane, int otherLane,
-            float trackLength, TrackPos trackPos, int nSegments)
-        {
-            // find pos and speed of closest car ahead, checking two lanes 
-            closestPos = float.MaxValue;
-            closestSpeed = 0.0f;
-
-            var wrapAround = segment == nSegments - 1;
-            var nextSegment = (wrapAround) ? 0 : segment + 1;
-
-            // in this order:
-            //     lane, segment
-            //     lane, nextSegment
-            //     otherLane, segment
-            //     otherLane, nextSegment
-            for (int i = 0; i < 4; i++)
-            {
-                var seg = (i % 2 == 0) ? segment : nextSegment;
-                if (i == 2)
-                {
-                    lane = otherLane;
-                }
-
-                var positions = carBuckets.GetPositions(lane, seg);
-                var speeds = carBuckets.GetSpeeds(lane, seg);
-
-                for (int j = 0; j < positions.Length; j++)
-                {
-                    var otherPos = positions[j].Val + (wrapAround && i % 2 == 0 ? trackLength : 0);
-                    var otherSpeed = speeds[j];
-
-                    if (otherPos < closestPos &&
-                        otherPos > trackPos.Val) // found a car ahead closer than previous closest
-                    {
-                        closestPos = otherPos;
-                        closestSpeed = otherSpeed.Val;
-                    }
-                }
-            }
-        }
-
-        public static void GetClosestPosAndSpeed(out float closestPos, out float closestSpeed,
+        public static void GetClosestPosAndSpeed(out float distance, out float closestSpeed,
             CarBuckets carBuckets, int segment, int lane,
             float trackLength, TrackPos trackPos, int nSegments)
         {
-            // find pos and speed of closest car ahead, checking two lanes 
-            closestPos = float.MaxValue;
+            distance = float.MaxValue;
             closestSpeed = 0.0f;
 
-            var wrapAround = segment == nSegments - 1;
+            var bucket = carBuckets.GetCars(lane, segment);
+            int idx = findInBucket(bucket, trackPos.Val, lane);
 
-            // in this order:
-            //     lane, segment
-            //     lane, nextSegment
-            for (int i = 0; i < 2; i++)
+            // find pos and speed of car ahead in lane within the mergeAhead range
+            for (int i = idx + 1; i < bucket.Length; i++)
             {
-                var positions = carBuckets.GetPositions(lane, segment);
-                var speeds = carBuckets.GetSpeeds(lane, segment);
+                var other = bucket[i];
 
-                for (int j = 0; j < positions.Length; j++)
+                var dist = (other.Pos - trackPos.Val); 
+                if (dist > RoadSys.mergeLookAhead)
                 {
-                    var otherPos = positions[j].Val + (wrapAround && i == 1 ? trackLength : 0);
-                    var otherSpeed = speeds[j];
-
-                    if (otherPos < closestPos &&
-                        otherPos > trackPos.Val) // found a car ahead closer than previous closest
-                    {
-                        closestPos = otherPos;
-                        closestSpeed = otherSpeed.Val;
-                    }
+                    return; // all remaining cars too far ahead to block us
                 }
 
-                segment = wrapAround ? 0 : segment + 1;
+                if (other.Lane == lane) // blocked in the same lane
+                {
+                    distance = dist;
+                    closestSpeed = other.Speed;
+                    return;
+                }
             }
+
+            // continue check in second bucket
+            var wrapAround = (segment == nSegments - 1);
+            bucket = carBuckets.GetCars(lane, (wrapAround) ? 0 : segment + 1);
+
+            for (int forwardIdx = 0; forwardIdx < bucket.Length; forwardIdx++)
+            {
+                var other = bucket[forwardIdx];
+                var otherPos = (wrapAround) ? other.Pos + trackLength : other.Pos;
+
+                var dist = otherPos - trackPos.Val;
+                if (dist > RoadSys.mergeLookAhead)
+                {
+                    return; // all remaining cars too far ahead to block us
+                }
+
+                if (other.Lane == lane)
+                {
+                    distance = dist;
+                    closestSpeed = other.Speed;
+                    return; // blocked in the same lane
+                }
+            }
+
+            // exhausted the second bucket without finding a blocking car ahead
+        }
+        
+        
+        public static void GetClosestPosAndSpeed(out float distance, out float closestSpeed,
+            CarBuckets carBuckets, int segment, int lane, int destLane,
+            float trackLength, TrackPos trackPos, int nSegments)
+        {
+            distance = float.MaxValue;
+            closestSpeed = 0.0f;
+
+            var bucket = carBuckets.GetCars(lane, segment);
+            int idx = findInBucket(bucket, trackPos.Val, lane);
+
+            // find pos and speed of car ahead in lane within the mergeAhead range
+            for (int i = idx + 1; i < bucket.Length; i++)
+            {
+                var other = bucket[i];
+
+                var dist = (other.Pos - trackPos.Val); 
+                if (dist > RoadSys.mergeLookAhead)
+                {
+                    return; // all remaining cars too far ahead to block us
+                }
+
+                if (other.Lane == lane || other.Lane == destLane)  // blocked in the same lane + target merge lane
+                {
+                    distance = dist;
+                    closestSpeed = other.Speed;
+                    return;
+                }
+            }
+
+            // continue check in second bucket
+            var wrapAround = (segment == nSegments - 1);
+            bucket = carBuckets.GetCars(lane, (wrapAround) ? 0 : segment + 1);
+
+            for (int forwardIdx = 0; forwardIdx < bucket.Length; forwardIdx++)
+            {
+                var other = bucket[forwardIdx];
+                var otherPos = (wrapAround) ? other.Pos + trackLength : other.Pos;
+
+                var dist = otherPos - trackPos.Val;
+                if (dist > RoadSys.mergeLookAhead)
+                {
+                    return; // all remaining cars too far ahead to block us
+                }
+
+                if (other.Lane == lane || other.Lane == destLane)  // blocked in the same lane + target merge lane
+                {
+                    distance = dist;
+                    closestSpeed = other.Speed;
+                    return; // blocked in the same lane
+                }
+            }
+
+            // exhausted the second bucket without finding a blocking car ahead
         }
     }
 }

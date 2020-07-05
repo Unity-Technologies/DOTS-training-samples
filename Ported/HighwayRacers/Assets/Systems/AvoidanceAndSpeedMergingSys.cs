@@ -34,16 +34,15 @@ namespace HighwayRacer
                 .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
                     in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
                 {
-                    CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, carBuckets,
+                    CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, carBuckets,
                         trackSegment.Val, lane.Val, lane.Val - 1, trackLength, trackPos, nSegments);
 
-                    if (closestPos != float.MaxValue)
+                    if (distance != float.MaxValue)
                     {
-                        var dist = closestPos - trackPos.Val;
-                        if (dist <= blocking.Dist &&
+                        if (distance <= blocking.Dist &&
                             speed.Val > closestSpeed) // car is blocked ahead in lane
                         {
-                            var closeness = (dist - minDist) / (blocking.Dist - minDist); // 0 is max closeness, 1 is min
+                            var closeness = (distance - minDist) / (blocking.Dist - minDist); // 0 is max closeness, 1 is min
 
                             // closer we get within minDist of leading car, the closer we match speed
                             const float fudge = 2.0f;
@@ -64,16 +63,15 @@ namespace HighwayRacer
                 .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
                     in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
                 {
-                    CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, carBuckets,
+                    CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, carBuckets,
                         trackSegment.Val, lane.Val, lane.Val + 1, trackLength, trackPos, nSegments);
 
-                    if (closestPos != float.MaxValue)
+                    if (distance != float.MaxValue)
                     {
-                        var dist = closestPos - trackPos.Val;
-                        if (dist <= blocking.Dist &&
+                        if (distance <= blocking.Dist &&
                             speed.Val > closestSpeed) // car is blocked ahead in lane
                         {
-                            var closeness = (dist - minDist) / (blocking.Dist - minDist); // 0 is max closeness, 1 is min
+                            var closeness = (distance - minDist) / (blocking.Dist - minDist); // 0 is max closeness, 1 is min
 
                             // closer we get within minDist of leading car, the closer we match speed
                             const float fudge = 2.0f;
