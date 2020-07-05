@@ -24,7 +24,7 @@ namespace HighwayRacer
         protected override void OnUpdate()
         {
             var nSegments = RoadSys.nSegments;
-            var segmentizedCars = World.GetExistingSystem<BucketizeSys>().CarBuckets;
+            var carBuckets = World.GetExistingSystem<SegmentizeSys>().CarBuckets;
 
             var dt = Time.DeltaTime;
 
@@ -34,7 +34,7 @@ namespace HighwayRacer
                 .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
                     in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
                 {
-                    CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, segmentizedCars,
+                    CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, carBuckets,
                         trackSegment.Val, lane.Val, lane.Val - 1, trackLength, trackPos, nSegments);
 
                     if (closestPos != float.MaxValue)
@@ -64,7 +64,7 @@ namespace HighwayRacer
                 .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
                     in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
                 {
-                    CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, segmentizedCars,
+                    CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed, carBuckets,
                         trackSegment.Val, lane.Val, lane.Val + 1, trackLength, trackPos, nSegments);
 
                     if (closestPos != float.MaxValue)
@@ -89,7 +89,6 @@ namespace HighwayRacer
 
                     CarUtil.SetSpeedForUnblocked(ref targetSpeed, ref speed, dt, desiredSpeed.Unblocked);
                 }).Run();
-           
         }
     }
 }

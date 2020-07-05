@@ -1,4 +1,5 @@
-﻿using HighwayRacer;
+﻿using System.Collections.Generic;
+using HighwayRacer;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
@@ -7,75 +8,68 @@ namespace HighwayRacer
 {
     public unsafe struct CarBuckets
     {
-        public int nSegments;
         public bool IsCreated;
-        
-        private NativeArray<OtherCarsWriter> otherCarsWriters;
+
+        private NativeArray<UnsafeList.ParallelWriter> writers;
         private NativeArray<UnsafeList> lists;
-        
+
         public CarBuckets(int nSegments)
         {
-            this.nSegments = nSegments;
             IsCreated = true;
-            
-            int nCarsPerSegment = RoadSys.NumCarsFitInStraightLane() * 2;
-            var nBuckets = RoadSys.nLanes * nSegments;
-            
-            otherCarsWriters = new NativeArray<OtherCarsWriter>(nBuckets, Allocator.Persistent);
-            lists =  new NativeArray<UnsafeList>(nBuckets * 2, Allocator.Persistent);
-            
-            var ptr = (UnsafeList*) lists.GetUnsafePtr();
 
-            var idx = 0;
-            for (int i = 0; i < nBuckets; i++, idx += 2)
+            int nCarsPerSegment = RoadSys.NumCarsFitInStraightSegment() * 2;
+
+            writers = new NativeArray<UnsafeList.ParallelWriter>(nSegments, Allocator.Persistent);
+            lists = new NativeArray<UnsafeList>(nSegments, Allocator.Persistent);
+
+            var ptr = (UnsafeList*) lists.GetUnsafePtr();
+            
+            for (int i = 0; i < nSegments; i++)
             {
-                var positions = ptr + idx;
-                var speeds = ptr + idx + 1;
-                
-                *positions = new UnsafeList(UnsafeUtility.SizeOf<TrackPos>(), UnsafeUtility.AlignOf<TrackPos>(), nCarsPerSegment , Allocator.Persistent);
-                *speeds = new UnsafeList(UnsafeUtility.SizeOf<Speed>(), UnsafeUtility.AlignOf<Speed>(), nCarsPerSegment , Allocator.Persistent);
-                
-                OtherCarsWriter ocw;
-                ocw.positions = positions->AsParallelWriter();
-                ocw.speeds = speeds->AsParallelWriter();
-                otherCarsWriters[i] = ocw;
+                var bucket = ptr + i;
+                *bucket = new UnsafeList(UnsafeUtility.SizeOf<SortedCar>(), UnsafeUtility.AlignOf<SortedCar>(), nCarsPerSegment, Allocator.Persistent);
+                writers[i] = bucket->AsParallelWriter();
             }
         }
 
-        public UnsafeList<TrackPos> GetPositions(int lane, int segment)
+        public UnsafeList<SortedCar> GetCars(int lane, int segment)
         {
-            var list = otherCarsWriters[lane * nSegments + segment].positions.ListData;
-            return new UnsafeList<TrackPos>((TrackPos*)list->Ptr, list->Length);
+            var bucket = lists[segment];
+            return new UnsafeList<SortedCar>((SortedCar*)bucket.Ptr, bucket.Length);
         }
-        
-        public UnsafeList<Speed> GetSpeeds(int lane, int segment)
-        {
-            var list = otherCarsWriters[lane * nSegments + segment].speeds.ListData;
-            return new UnsafeList<Speed>((Speed*)list->Ptr, list->Length);
-        }
-        
-        public void AddCar(int lane, TrackSegment trackSegment, TrackPos trackPos, Speed speed, int nSegments)
-        {
-            var ocw = otherCarsWriters[lane * nSegments + trackSegment.Val];
 
-            ocw.positions.AddNoResize(trackPos);
-            ocw.speeds.AddNoResize(speed);
+        public void AddCar(TrackSegment trackSegment, TrackPos trackPos, Speed speed, Lane lane)
+        {
+            var writer = writers[trackSegment.Val];
+
+            writer.AddNoResize(new SortedCar()
+            {
+                Pos = trackPos.Val,
+                Speed = speed.Val,
+                Lane = lane.Val,
+            });
         }
 
         public void Clear()
         {
             // clear all the lists
-            for (int i = 0; i < RoadSys.nLanes * nSegments; i++)
+            // (has to be done through writers to properly modify the Length values as stored in each UnsafeList
+            for (int i = 0; i < writers.Length; i++)
             {
-                var ocw = otherCarsWriters[i];
-
-                var posTemp = ocw.positions.ListData;
-                posTemp->Clear();
-
-                var speedTemp = ocw.speeds.ListData;
-                speedTemp->Clear();
+                var writer = writers[i];
+                writer.ListData->Clear();
             }
         }
+        
+        // todo: sort in parallel
+        public void Sort()
+         {
+             for (int i = 0; i < lists.Length; i++)
+             {
+                 var list = lists[i];
+                 list.Sort<SortedCar, CarCompare>(new CarCompare());
+             }
+         }
 
         public void Dispose()
         {
@@ -84,14 +78,40 @@ namespace HighwayRacer
                 lists[i].Dispose();
             }
 
+            writers.Dispose();
             lists.Dispose();
-            otherCarsWriters.Dispose();
         }
     }
     
-    public struct OtherCarsWriter
+    public struct CarCompare : IComparer<SortedCar>
     {
-        public UnsafeList.ParallelWriter positions;
-        public UnsafeList.ParallelWriter speeds;
+        public int Compare(SortedCar x, SortedCar y)
+        {
+            if (x.Pos < y.Pos)
+            {
+                return -1;
+            }
+            else if (x.Pos > y.Pos)
+            {
+                return 1;
+            }
+
+            // lane is tie breaker
+            if (x.Lane < y.Lane)
+            {
+                return -1;
+            }
+            else // no two cars with equal Pos should have equal Lane, so we can assume now that (x.Lane > y.Lane)
+            {
+                return 1;
+            }
+        }
+    }
+
+    public struct SortedCar
+    {
+        public float Pos;
+        public int Lane;
+        public float Speed;
     }
 }

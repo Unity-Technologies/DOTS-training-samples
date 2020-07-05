@@ -7,7 +7,7 @@ using UnityEngine;
 namespace HighwayRacer
 {
     // avoidance and set speed for cars that aren't merging or overtaking 
-    [UpdateAfter(typeof(BucketizeSys))]
+    [UpdateAfter(typeof(SegmentizeSys))]
     public class AvoidanceAndSpeedSys : SystemBase
     {
         private EntityCommandBufferSystem beginSim = new BeginSimulationEntityCommandBufferSystem();
@@ -28,7 +28,7 @@ namespace HighwayRacer
             var nSegments = RoadSys.nSegments;
             var trackLength = RoadSys.roadLength;
             var roadSegments = RoadSys.roadSegments;
-            var segmentizedCars = World.GetExistingSystem<BucketizeSys>().CarBuckets;
+            var carBuckets = World.GetExistingSystem<SegmentizeSys>().CarBuckets;
             var mergeLeftFrame = SegmentizeSys.mergeLeftFrame;
             var dt = Time.DeltaTime;
 
@@ -40,7 +40,7 @@ namespace HighwayRacer
                 ref Speed speed, ref Lane lane, in TrackPos trackPos, in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
             {
                 CarUtil.GetClosestPosAndSpeed(out var closestPos, out var closestSpeed,
-                    segmentizedCars, trackSegment.Val, lane.Val,
+                    carBuckets, trackSegment.Val, lane.Val,
                     trackLength, trackPos, nSegments);
 
                 if (closestPos != float.MaxValue)
@@ -70,7 +70,7 @@ namespace HighwayRacer
                         if (mergeLeftFrame && lane.Val < RoadSys.nLanes - 1)
                         {
                             var leftLane = lane.Val + 1;
-                            if (CarUtil.canMerge(trackPos.Val, leftLane, trackSegment.Val, segmentizedCars, trackLength, nSegments))
+                            if (CarUtil.canMerge(trackPos.Val, leftLane, trackSegment.Val, carBuckets, trackLength, nSegments))
                             {
                                 ecb.AddComponent<MergingLeft>(entityInQueryIndex, ent);
                                 ecb.AddComponent<LaneOffset>(entityInQueryIndex, ent, new LaneOffset() {Val = -1.0f});
@@ -80,7 +80,7 @@ namespace HighwayRacer
                         else if (!mergeLeftFrame && lane.Val > 0) // look for opening on right
                         {
                             var rightLane = lane.Val - 1;
-                            if (CarUtil.canMerge(trackPos.Val, rightLane, trackSegment.Val, segmentizedCars, trackLength, nSegments))
+                            if (CarUtil.canMerge(trackPos.Val, rightLane, trackSegment.Val, carBuckets, trackLength, nSegments))
                             {
                                 ecb.AddComponent<MergingRight>(entityInQueryIndex, ent);
                                 ecb.AddComponent<LaneOffset>(entityInQueryIndex, ent, new LaneOffset() {Val = 1.0f});

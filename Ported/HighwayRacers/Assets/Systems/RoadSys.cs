@@ -59,6 +59,11 @@ namespace HighwayRacer
         {
             return (int) math.ceil(straightLength / minDist);
         }
+        
+        public static int NumCarsFitInStraightSegment()
+        {
+            return (int) math.ceil((nLanes * straightLength) / minDist);
+        }
 
         public static int GetMaxCars(float length)
         {
