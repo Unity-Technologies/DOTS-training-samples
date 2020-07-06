@@ -78,7 +78,6 @@ namespace HighwayRacer
 
                 var seed = (uint) (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
                 var rand = new Random(seed);
-                rand.NextFloat();
 
                 var maxCarsInLane = (nCars % nLanes == 0) ? (nCars / nLanes) : (nCars / nLanes) + 1;
 

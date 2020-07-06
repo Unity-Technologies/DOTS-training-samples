@@ -1,8 +1,5 @@
-﻿    *positions = new UnsafeList(UnsafeUtility.SizeOf<TrackPos>(), UnsafeUtility.AlignOf<TrackPos>(), nCarsPerSegment, Allocator.Persistent);
-    *speeds = new UnsafeList(UnsafeUtility.SizeOf<Speed>(), UnsafeUtility.AlignOf<Speed>(), nCarsPerSegment, Allocator.Persistent);
-
-        consider allocating these unsafelists all contiguously
-
+﻿
+    consider allocating these unsafelists all contiguously
 
     sorting of buckets might pay off?
 
@@ -18,6 +15,24 @@ use float2's instead of float3's
 use half instead of float
 
 
-jobify CarsByLaneSegmentation (each job targets different segment; each job reads all the cars)
-
 profile with different segmentation sizes
+
+SimulationSystemGroup
+    --
+        RoadSys
+        CameraSys
+    --
+        CarSpawnSys
+        SegmentizeSys
+    --
+        AvoidanceAndSpeedSys
+        AvoidanceAndSpeedMergingSys
+        AvoidanceAndSpeedOvertakeSys
+    --
+        MergingSys
+        MergingOvertakeSys
+    --
+        SetColorSys
+        SetTransformSys
+        AdvanceCarsSys
+    

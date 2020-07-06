@@ -13,17 +13,15 @@ namespace HighwayRacer
         private NativeArray<UnsafeList.ParallelWriter> writers;
         private NativeArray<UnsafeList> lists;
 
-        public CarBuckets(int nSegments)
+        public CarBuckets(int nSegments, int nCarsPerSegment)
         {
             IsCreated = true;
-
-            int nCarsPerSegment = RoadSys.NumCarsFitInStraightSegment() * 2;
 
             writers = new NativeArray<UnsafeList.ParallelWriter>(nSegments, Allocator.Persistent);
             lists = new NativeArray<UnsafeList>(nSegments, Allocator.Persistent);
 
             var ptr = (UnsafeList*) lists.GetUnsafePtr();
-            
+
             for (int i = 0; i < nSegments; i++)
             {
                 var bucket = ptr + i;
@@ -32,10 +30,10 @@ namespace HighwayRacer
             }
         }
 
-        public UnsafeList<SortedCar> GetCars(int lane, int segment)
+        public UnsafeList<SortedCar> GetCars(int segment)
         {
             var bucket = lists[segment];
-            return new UnsafeList<SortedCar>((SortedCar*)bucket.Ptr, bucket.Length);
+            return new UnsafeList<SortedCar>((SortedCar*) bucket.Ptr, bucket.Length);
         }
 
         public void AddCar(TrackSegment trackSegment, TrackPos trackPos, Speed speed, Lane lane)
@@ -60,29 +58,32 @@ namespace HighwayRacer
                 writer.ListData->Clear();
             }
         }
-        
+
         // todo: sort in parallel
         public void Sort()
-         {
-             for (int i = 0; i < lists.Length; i++)
-             {
-                 var list = lists[i];
-                 list.Sort<SortedCar, CarCompare>(new CarCompare());
-             }
-         }
-
-        public void Dispose()
         {
             for (int i = 0; i < lists.Length; i++)
             {
-                lists[i].Dispose();
+                var list = lists[i];
+                list.Sort<SortedCar, CarCompare>(new CarCompare());
             }
+        }
 
-            writers.Dispose();
-            lists.Dispose();
+        public void Dispose()
+        {
+            if (IsCreated)
+            {
+                for (int i = 0; i < lists.Length; i++)
+                {
+                    lists[i].Dispose();
+                }
+
+                writers.Dispose();
+                lists.Dispose();
+            }
         }
     }
-    
+
     public struct CarCompare : IComparer<SortedCar>
     {
         public int Compare(SortedCar x, SortedCar y)
@@ -100,6 +101,10 @@ namespace HighwayRacer
             if (x.Lane < y.Lane)
             {
                 return -1;
+            }
+            else if (x.Lane == y.Lane)
+            {
+                return 0;
             }
             else // no two cars with equal Pos should have equal Lane, so we can assume now that (x.Lane > y.Lane)
             {

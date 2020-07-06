@@ -93,7 +93,7 @@ namespace HighwayRacer
                 if (elapsedSinceOvertake > overtakeTimeBeforeMerge && mergeLeftFrame)
                 {
                     var leftLaneIdx = lane.Val + 1;
-                    if (CarUtil.canMerge(trackPos.Val, leftLaneIdx, lane.Val, trackSegment.Val, carBuckets, trackLength, nSegments))
+                    if (CarUtil.CanMerge(trackPos.Val, leftLaneIdx, lane.Val, trackSegment.Val, carBuckets, trackLength, nSegments))
                     {
                         leftECB.AddComponent<MergingLeft>(ent);
                         leftECB.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = -1.0f});
@@ -170,7 +170,7 @@ namespace HighwayRacer
                 if (elapsedSinceOvertake > overtakeTimeBeforeMerge && !mergeLeftFrame)
                 {
                     var rightLaneIdx = lane.Val - 1;
-                    if (CarUtil.canMerge(trackPos.Val, rightLaneIdx, lane.Val, trackSegment.Val, carBuckets, trackLength, nSegments))
+                    if (CarUtil.CanMerge(trackPos.Val, rightLaneIdx, lane.Val, trackSegment.Val, carBuckets, trackLength, nSegments))
                     {
                         rightECB.AddComponent<MergingRight>(ent);
                         rightECB.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = +1.0f});
