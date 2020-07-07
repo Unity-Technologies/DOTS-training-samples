@@ -7,7 +7,7 @@ using UnityEngine;
 namespace HighwayRacer
 {
     // avoidance and set speed for cars that aren't merging or overtaking 
-    [UpdateAfter(typeof(SegmentizeSys))]
+    [UpdateAfter(typeof(SegmentizeAndSortSys))]
     public class AvoidanceAndSpeedSys : SystemBase
     {
         private EntityCommandBufferSystem beginSim = new BeginSimulationEntityCommandBufferSystem();
@@ -28,8 +28,8 @@ namespace HighwayRacer
             var nSegments = RoadSys.nSegments;
             var trackLength = RoadSys.roadLength;
             var roadSegments = RoadSys.roadSegments;
-            var carBuckets = World.GetExistingSystem<SegmentizeSys>().CarBuckets;
-            var mergeLeftFrame = SegmentizeSys.mergeLeftFrame;
+            var carBuckets = World.GetExistingSystem<SegmentizeAndSortSys>().CarBuckets;
+            var mergeLeftFrame = SegmentizeAndSortSys.mergeLeftFrame;
             var dt = Time.DeltaTime;
 
             // make sure we don't hit next car ahead, and trigger overtake state
@@ -95,6 +95,8 @@ namespace HighwayRacer
             }).ScheduleParallel(Dependency);
 
             beginSim.AddJobHandleForProducer(jobHandle);
+            
+            //jobHandle.Complete();     // todo: temp
             Dependency = jobHandle;
         }
     }

@@ -9,7 +9,7 @@ using UnityEngine.Rendering;
 namespace HighwayRacer
 {
     [UpdateAfter(typeof(CarSpawnSys))]
-    public class SegmentizeSys : SystemBase
+    public class SegmentizeAndSortSys : SystemBase
     {
         public CarBuckets CarBuckets;
         private int nCars;
@@ -56,7 +56,8 @@ namespace HighwayRacer
                 SpeedType = GetArchetypeChunkComponentType<Speed>(),
                 LaneType = GetArchetypeChunkComponentType<Lane>(),
             };
-
+            
+            Dependency.Complete();
             var jobHandle = job.ScheduleParallel(query, Dependency);
             jobHandle.Complete();
             
