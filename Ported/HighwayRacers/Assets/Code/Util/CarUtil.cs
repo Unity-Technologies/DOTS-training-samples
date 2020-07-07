@@ -64,6 +64,8 @@ namespace HighwayRacer
         public static bool CanMerge(float pos, int destLane, int lane, int segment, CarBuckets carBuckets,
             float trackLength, int nSegments)
         {
+            return false;  // todo
+            
             var bucket = carBuckets.GetCars(segment);
             int idx = findInBucket(bucket, pos, lane);
 
@@ -90,7 +92,7 @@ namespace HighwayRacer
 
                 if ((pos - other.Pos) > RoadSys.mergeLookAhead)
                 {
-                    break; // all remaining cars too far ahead to block us
+                    return true; // all remaining cars too far ahead to block us
                 }
 
                 if (other.Lane == destLane)
@@ -110,7 +112,7 @@ namespace HighwayRacer
 
                 if ((otherPos - pos) > RoadSys.mergeLookAhead)
                 {
-                    return false; // all remaining cars too far ahead to block us
+                    return true; // all remaining cars too far ahead to block us
                 }
 
                 if (other.Lane == destLane)
@@ -119,7 +121,7 @@ namespace HighwayRacer
                 }
             }
 
-            return false; // exhausted the second bucket without finding a blocking car ahead
+            return true; // exhausted the second bucket without finding a blocking car ahead
         }
 
 

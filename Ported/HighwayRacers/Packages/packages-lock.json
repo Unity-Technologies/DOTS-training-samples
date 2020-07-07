@@ -1,11 +1,5 @@
 {
   "dependencies": {
-    "com.unity.2d.sprite": {
-      "version": "1.0.0",
-      "depth": 0,
-      "source": "builtin",
-      "dependencies": {}
-    },
     "com.unity.2d.tilemap": {
       "version": "1.0.0",
       "depth": 0,
@@ -206,12 +200,12 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.render-pipelines.universal": {
-      "version": "8.1.0",
+      "version": "9.0.0-preview.14",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.render-pipelines.core": "8.1.0",
-        "com.unity.shadergraph": "8.1.0"
+        "com.unity.render-pipelines.core": "9.0.0-preview.13",
+        "com.unity.shadergraph": "9.0.0-preview.14"
       },
       "url": "https://packages.unity.com"
     },
@@ -259,11 +253,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.shadergraph": {
-      "version": "8.1.0",
-      "depth": 0,
+      "version": "9.0.0-preview.14",
+      "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.render-pipelines.core": "8.1.0",
+        "com.unity.render-pipelines.core": "9.0.0-preview.13",
         "com.unity.searcher": "4.0.9"
       },
       "url": "https://packages.unity.com"
