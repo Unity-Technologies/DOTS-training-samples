@@ -80,13 +80,12 @@ namespace AutoFarmers
 
                     var instance = ecb.Instantiate(spawner.RockPrefab);
                     ecb.SetComponent(instance, new Translation { Value = translation });
-                    ecb.AddComponent(instance, new NonUniformScale { Value = scale });
-                    ecb.AddComponent(instance, new CellPosition { Value = position });
-                    ecb.AddComponent(instance, new CellSize { Value = size });
-                    ecb.AddComponent(instance, new Rock_Tag());
+                    ecb.SetComponent(instance, new NonUniformScale { Value = scale });
+                    ecb.SetComponent(instance, new CellPosition { Value = position });
+                    ecb.SetComponent(instance, new CellSize { Value = size });
 
                     float health = random.NextFloat(spawner.minHeight, spawner.maxHeight);
-                    ecb.AddComponent(instance, new Health { Value = health });
+                    ecb.SetComponent(instance, new Health { Value = health });
    
                     for (int j = 0; j < size.y; j++)
                     {
