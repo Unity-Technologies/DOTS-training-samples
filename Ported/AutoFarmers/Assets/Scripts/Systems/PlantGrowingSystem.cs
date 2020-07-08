@@ -13,10 +13,12 @@ public class PlantGrowingSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = m_CommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-        
+
+        float deltaTime = Time.DeltaTime;
+
         Entities.WithNone<FullyGrownPlant_Tag>().ForEach((int entityInQueryIndex, Entity entity, ref Plant plant) =>
         {
-            plant.Age += 1;
+            plant.Age += deltaTime;
             if (plant.Age >= FarmConstants.PlantMaturityAge)
             {
                 ecb.AddComponent<FullyGrownPlant_Tag>(entityInQueryIndex, entity, new FullyGrownPlant_Tag());
@@ -29,5 +31,5 @@ public class PlantGrowingSystem : SystemBase
 
 public struct FarmConstants
 {
-    public static int PlantMaturityAge = 40;
+    public static float PlantMaturityAge = 10.0f; // 10 Seconds
 }
