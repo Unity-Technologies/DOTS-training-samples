@@ -34,6 +34,5 @@ public class PlantGrowingSystem : SystemBase
 
 public struct FarmConstants
 {
-    public static float PlantGrowingScale = 0.1f; // 2 Seconds to mature
-    public static float RockStartingHealth = 10.0f; // 10 Seconds of smashing
+    public static readonly float PlantGrowingScale = 0.1f; // 2 Seconds to mature 
 }

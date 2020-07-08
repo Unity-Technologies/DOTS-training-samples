@@ -22,13 +22,11 @@ namespace AutoFarmers
                     randomPos.x = UnityEngine.Random.Range(0, grid.Size.x);
                     randomPos.y = UnityEngine.Random.Range(0, grid.Size.y);
                     
-                    randomDims.x = UnityEngine.Random.Range(1, 4);
-                    randomDims.y = UnityEngine.Random.Range(1, 4);
+                    randomDims.x = UnityEngine.Random.Range(2, 5);
+                    randomDims.y = UnityEngine.Random.Range(2, 5);
 
                     randomDims.x = math.min(randomDims.x, grid.Size.x - randomPos.x);
                     randomDims.y = math.min(randomDims.y, grid.Size.y - randomPos.y);
-
-                    UnityEngine.Debug.Log("HELOO: " + randomPos.ToString() + "  " + randomDims.ToString());
 
                     EntityManager.AddComponent<TillRect>(entity);
                     SetComponent(entity, new TillRect

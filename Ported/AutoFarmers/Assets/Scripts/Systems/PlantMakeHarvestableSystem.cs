@@ -1,6 +1,7 @@
 ﻿using AutoFarmers;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 public class PlantMakeHarvestableSystem : SystemBase
 {
@@ -29,13 +30,16 @@ public class PlantMakeHarvestableSystem : SystemBase
         Entities
             .WithAll<FullyGrownPlant_Tag>()            
             .WithNone<HarvestablePlant_Tag>()
-            .ForEach((int entityInQueryIndex, Entity entity, ref Position position) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref Translation translation) =>
         {            
             ecb.AddComponent<HarvestablePlant_Tag>(entityInQueryIndex, entity, new HarvestablePlant_Tag());
                
             // Update the cell type
             {
-                int index = (int)position.Value.y / gridSize.x + (int)position.Value.x;
+                int gridX = (int)(translation.Value.x);
+                int gridY = (int)(translation.Value.z);
+
+                int index = gridX * gridSize.x + gridY;
                 if (index < 0 || index >= typeBuffer.Length)
                 {
                     UnityEngine.Debug.Log("Out of bounds index in PlantMakeHarvestableSystem!");
@@ -45,7 +49,7 @@ public class PlantMakeHarvestableSystem : SystemBase
                     typeBuffer[index] = new CellTypeElement() { Value = CellType.Plant };
                 }
             }
-        }).Schedule();
+        }).Schedule(); // Run for now until we can get this working 100% in parallel
 
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
