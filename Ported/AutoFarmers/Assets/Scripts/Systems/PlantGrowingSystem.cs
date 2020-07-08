@@ -21,8 +21,8 @@ public class PlantGrowingSystem : SystemBase
             .WithAll<Plant_Tag>()
             .WithNone<FullyGrownPlant_Tag>().ForEach((int entityInQueryIndex, Entity entity, ref Health health) =>
         {
-            health.Value += deltaTime;
-            if (health.Value >= FarmConstants.PlantMaturityHealth)
+            health.Value += deltaTime * FarmConstants.PlantGrowingScale;
+            if (health.Value >= 1.0f)
             {
                 ecb.AddComponent<FullyGrownPlant_Tag>(entityInQueryIndex, entity, new FullyGrownPlant_Tag());
             }
@@ -34,6 +34,6 @@ public class PlantGrowingSystem : SystemBase
 
 public struct FarmConstants
 {
-    public static float PlantMaturityHealth = 10.0f; // 10 Seconds
+    public static float PlantGrowingScale = 0.1f; // 2 Seconds to mature
     public static float RockStartingHealth = 10.0f; // 10 Seconds of smashing
 }
