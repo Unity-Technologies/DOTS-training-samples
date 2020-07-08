@@ -7,9 +7,9 @@ using Unity.Transforms;
 public class FireExtinguishSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
-    const float coolingStrength = 5.0f;
+    const float coolingStrength = 2.0f;
     const float bucketCapacity = 3.0f;
-    const float coolingStrength_falloff = 1.0f;
+    const float coolingStrength_falloff = 4.0f;
 
     protected override void OnCreate()
     {
@@ -61,7 +61,7 @@ public class FireExtinguishSystem : SystemBase
 
                     // Compute the distance from the center click position
                     float rowShift = math.abs(coord.x - u);
-                    float columnShift = math.abs(coord.x - v);
+                    float columnShift = math.abs(coord.y - v);
 
                     // Change the fire temperature of the target cell
                     FireCell cell = buffer[index];
