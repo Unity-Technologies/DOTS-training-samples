@@ -28,7 +28,6 @@ public class PlayerNextMoveSystem : SystemBase
             if(normalisedMoveTime.Value >= 1.0f)
             {
                 movement.Origin = pos.Value;
-                movement.Target = pos.Value + math.float3(cubeSize * direction.Value, 0);
                 movement.Target = pos.Value + math.float3(cubeSize.x * direction.Value.x, 0, cubeSize.y * direction.Value.y);
                 normalisedMoveTime.Value = 0.0f;
             }
