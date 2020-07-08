@@ -39,7 +39,7 @@ public class CannonFireSystem : SystemBase
             }
             else
             {
-                coolDown.Value  -= 0.05f;
+                coolDown.Value  -= 0.0005f;
             }
         }).ScheduleParallel();
 
