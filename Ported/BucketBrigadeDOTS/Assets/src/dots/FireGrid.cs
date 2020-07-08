@@ -5,16 +5,10 @@ using Unity.Mathematics;
 [GenerateAuthoringComponent]
 public struct FireGridSettings : IComponentData
 {
-    public int2 FireGridResolution;
+    public uint2 FireGridResolution;
 }
 
 public struct FireCell : IBufferElementData
 {
     public float FireTemperature;
 }
-
-
-
-
-
-

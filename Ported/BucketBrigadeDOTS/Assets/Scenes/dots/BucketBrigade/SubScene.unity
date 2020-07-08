@@ -244,6 +244,7 @@ GameObject:
   - component: {fileID: 1401485849}
   - component: {fileID: 1401485848}
   - component: {fileID: 1401485850}
+  - component: {fileID: 1401485851}
   m_Layer: 0
   m_Name: FireGrid
   m_TagString: Untagged
@@ -298,3 +299,17 @@ MonoBehaviour:
   BoundsExtent:
     x: 10
     y: 10
+--- !u!114 &1401485851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1401485847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a4ed45e58bda494eba8485b00b5ba03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FirePrefab: {fileID: 1306931638197496, guid: d2414dc4033474771b65161755b347cb, type: 3}
+  StartingFireCount: 10
