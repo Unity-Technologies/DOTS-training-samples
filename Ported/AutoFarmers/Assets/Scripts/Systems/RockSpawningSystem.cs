@@ -53,7 +53,7 @@ namespace AutoFarmers
             Entities
             .WithChangeFilter<RockSpawner>()
             .WithStoreEntityQueryInField(ref m_Query)
-            .WithAll<Farm>()
+            .WithNone<RocksAreInitalizedTag>()
             .ForEach((Entity rockSpawner, in RockSpawner spawner) =>
             {
                 for (int n = 0; n < spawner.NumRocks; n++)

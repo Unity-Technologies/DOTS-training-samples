@@ -10,7 +10,6 @@ namespace AutoFarmers
     {
         private EntityQuery cellQuery;
         private EntityQuery farmQuery;
-        private EntityCommandBufferSystem commandBufferSystem;
         
         protected override void OnCreate()
         {
@@ -22,20 +21,19 @@ namespace AutoFarmers
             EntityManager.AddBuffer<CellTypeElement>(entity);
             EntityManager.AddBuffer<CellEntityElement>(entity);
             
-            commandBufferSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
             RequireForUpdate(farmQuery);
         }
 
         protected override void OnUpdate()
         {
             EntityManager.CompleteAllJobs();
-            var ecb = commandBufferSystem.CreateCommandBuffer();
             var entity = GetSingletonEntity<Grid>();
             Entities
                 .WithoutBurst()
                 .WithStructuralChanges()
                 .WithChangeFilter<Farm>()
                 .WithStoreEntityQueryInField(ref farmQuery)
+                .WithNone<GridInitializedTag>()
                 .ForEach((Entity farmEntity, Farm farm) =>
             {
                 EntityManager.SetComponentData(entity, new Grid { Size = farm.MapSize });
@@ -66,9 +64,8 @@ namespace AutoFarmers
                 }
                 
                 cellEntities.Dispose();
-                ecb.DestroyEntity(farmEntity);
+                EntityManager.AddComponent<GridInitializedTag>(farmEntity);
             }).Run();
-            commandBufferSystem.AddJobHandleForProducer(Dependency);
         }
     }
 }
