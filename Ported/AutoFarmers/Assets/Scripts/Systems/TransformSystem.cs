@@ -1,16 +1,18 @@
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 
-[UpdateAfter(typeof(VelocitySystem))]
+[UpdateInGroup(typeof(TransformSystemGroup))]
 public class TransformSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        float delta = UnityEngine.Time.deltaTime;
-        
         Entities
-            .ForEach((Entity entity, ref Position position, in Velocity velocity) =>
+            .WithChangeFilter<Position>()
+            .ForEach((ref LocalToWorld localToWorld, in Position position) =>
             {
-                position.Value += velocity.Value * delta;
+                var trans = float4x4.Translate(new float3(position.Value, 0));
+                localToWorld.Value = trans;
             }).ScheduleParallel();
     }
 }
