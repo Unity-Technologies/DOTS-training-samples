@@ -9,6 +9,8 @@
 t?
 p?
 
+**/Assets/SceneDependencyCache/
+**/Assets/SceneDependencyCache.meta
 **/Assets/Plugins/
 **/Assets/Plugins.meta
 Assets/AssetStoreTools*
