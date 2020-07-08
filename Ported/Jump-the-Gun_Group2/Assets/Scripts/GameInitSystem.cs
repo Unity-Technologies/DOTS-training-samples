@@ -5,6 +5,8 @@ using Unity.Collections;
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class GameInitSystem : SystemBase
 {
+    const float k_CannongHeightOffset = .3f;
+
     EntityCommandBufferSystem m_ECBSystem;
     EntityQuery m_Query;
     Random m_Random;
@@ -37,6 +39,7 @@ public class GameInitSystem : SystemBase
                 {
                     var instance = ecb.Instantiate(gameParams.TilePrefab);
                     var height = gameParams.TerrainHeightRange.x + random.NextFloat() * (gameParams.TerrainHeightRange.y - gameParams.TerrainHeightRange.x);
+                    tileHeights[y* dimension.x + x] = height;
                     ecb.SetComponent(instance, new Position { Value = new float3(x, 0, y) });
                     ecb.SetComponent(instance, new Height { Value = height });
                 }
@@ -52,7 +55,8 @@ public class GameInitSystem : SystemBase
                     while (occupiedSlots.Contains(pos))
                         pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
 
-                    ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeights[pos.y * dimension.x + pos.x], pos.y) });
+                    ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeights[pos.y * dimension.x + pos.x] + k_CannongHeightOffset, pos.y) });
+                    ecb.SetComponent(instance, new Rotation { Value = 2f * random.NextFloat() * math.PI});
                     occupiedSlots.Add(pos);
                 }
             }
