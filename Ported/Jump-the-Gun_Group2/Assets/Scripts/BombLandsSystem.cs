@@ -16,6 +16,8 @@ public class BombLandsSystem : SystemBase
             All = new[]
             {
                 ComponentType.ReadOnly<MovementParabola>(),
+                ComponentType.ReadOnly<Position>(),
+                ComponentType.ReadOnly<NormalisedMoveTime>()
             },
             None = new[]
             {

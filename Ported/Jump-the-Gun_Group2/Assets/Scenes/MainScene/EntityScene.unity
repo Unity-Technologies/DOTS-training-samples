@@ -154,6 +154,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TilePrefab: {fileID: 1408919642704132, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
+  CannonBallPrefab: {fileID: 1908342676492234, guid: 804354b785c584494afa73ff5ef3d1f4,
+    type: 3}
   TerrainHeightRange:
     x: 1
     y: 2
@@ -163,6 +165,7 @@ MonoBehaviour:
   CannonPrefab: {fileID: 1285056113001856, guid: c86b1bd6777d544aba9a2ee2262c61c4,
     type: 3}
   CannonCount: 5
+  CannonCooldown: 1
 --- !u!114 &1904175737
 MonoBehaviour:
   m_ObjectHideFlags: 0

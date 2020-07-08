@@ -126,7 +126,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value:
-    x: 0
-    y: 0
+    x: 0.4
+    y: 0.2
     z: 0
-    w: 0
+    w: 1
