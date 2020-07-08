@@ -72,12 +72,12 @@ public class CannonFireSystem : SystemBase
         float minBallZ = center.z;
         float maxBallZ = center.z + width;
 
-        if ((maxTileX < minBallX) || 
-            (minTileX > maxBallX) || 
-            (maxTileY < minBallY) || 
-            (minTileY > maxBallY) || 
-            (maxTileZ < minBallZ) ||
-            (minTileZ > maxBallZ))
+        if ((maxTileX <= minBallX) || 
+            (minTileX >= maxBallX) || 
+            (maxTileY <= minBallY) || 
+            (minTileY >= maxBallY) || 
+            (maxTileZ <= minBallZ) ||
+            (minTileZ >= maxBallZ))
         {
             return false;
         }
