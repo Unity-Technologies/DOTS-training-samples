@@ -21,6 +21,14 @@ public class FirefighterSpawnSystem : SystemBase
                     var instance = EntityManager.Instantiate(spawner.Prefab);
                     SetComponent<Translation2D>(instance, new Translation2D { Value = ltw.Position.xz + new float2(posX, posZ) });
                     EntityManager.AddComponent<Firefighter>(instance);
+                    if (firefigherID % 2 == 0)
+                    {
+                        EntityManager.AddComponent<FirefighterFullTag>(instance);
+                    }
+                    else
+                    {
+                        EntityManager.AddComponent<FirefighterEmptyTag>(instance);
+                    }
                     EntityManager.AddComponentData<FirefighterPositionInLine>(instance, new FirefighterPositionInLine { Value = (float)firefigherID/firefighterCount });
                     firefigherID++;
                 }

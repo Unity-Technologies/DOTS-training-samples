@@ -5,6 +5,14 @@ public struct Firefighter : IComponentData
 {
 }
 
+public struct FirefighterFullTag : IComponentData
+{
+}
+
+public struct FirefighterEmptyTag : IComponentData
+{
+}
+
 public struct Target : IComponentData
 {
     public float2 Value;
