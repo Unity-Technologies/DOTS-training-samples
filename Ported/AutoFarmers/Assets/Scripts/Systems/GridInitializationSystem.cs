@@ -13,29 +13,33 @@ namespace AutoFarmers
         protected override void OnCreate()
         {
             cellQuery = GetEntityQuery(ComponentType.ReadOnly<Cell>());
+            
+            // Create singleton entity
+            var entity = EntityManager.CreateEntity(ComponentType.ReadOnly<Grid>());
+            EntityManager.AddBuffer<CellTypeElement>(entity);
+            EntityManager.AddBuffer<CellEntityElement>(entity);
         }
 
         protected override void OnUpdate()
         {
+            var entity = GetSingletonEntity<Grid>();
             Entities
                 .WithoutBurst()
                 .WithStructuralChanges()
-                .WithChangeFilter<Farm>()
-                .WithNone<CellTypeElement>()
-                .ForEach((Entity entity, Farm farm) =>
+                .ForEach((Entity farmEntity, Farm farm) =>
             {
                 EntityManager.DestroyEntity(cellQuery);
                 var cellCount = farm.MapSize.x * farm.MapSize.y;
                 var cellEntities = EntityManager.Instantiate(farm.GroundPrefab, cellCount, Allocator.Temp);
                 
-                var typeBuffer = EntityManager.AddBuffer<CellTypeElement>(entity);
+                var typeBuffer = EntityManager.GetBuffer<CellTypeElement>(entity);
                 typeBuffer.ResizeUninitialized(cellCount);
                 for (var i = 0; i < cellCount; i++)
                 {
                     typeBuffer[i] = new CellTypeElement(CellType.Raw);
                 }
                 
-                var entityBuffer = EntityManager.AddBuffer<CellEntityElement>(entity);
+                var entityBuffer = EntityManager.GetBuffer<CellEntityElement>(entity);
                 entityBuffer.ResizeUninitialized(cellCount);
                 for (var i = 0; i < cellCount; i++)
                 {
@@ -50,6 +54,7 @@ namespace AutoFarmers
                 }
                 
                 cellEntities.Dispose();
+                EntityManager.DestroyEntity(farmEntity);
             }).Run();
         }
     }
