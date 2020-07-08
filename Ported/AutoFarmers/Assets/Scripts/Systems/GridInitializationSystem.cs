@@ -51,6 +51,7 @@ namespace AutoFarmers
                 {
                     var i = x * farm.MapSize.y + y;
                     EntityManager.SetComponentData(cellEntities[i], new Translation { Value = math.float3(x, 0, y)});
+                    EntityManager.SetName(cellEntities[i], $"Cell {i} ({x}, {y})");
                 }
                 
                 cellEntities.Dispose();
