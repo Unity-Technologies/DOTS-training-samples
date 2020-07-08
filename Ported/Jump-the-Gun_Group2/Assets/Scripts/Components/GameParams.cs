@@ -1,7 +1,10 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
+[GenerateAuthoringComponent]
 public struct GameParams : IComponentData
 {
-    // Todo add necessary parameters
+    public Entity TilePrefab;
+    public float2 TerrainHeightRange;
+    public float2 TerrainDimensions;
 }
