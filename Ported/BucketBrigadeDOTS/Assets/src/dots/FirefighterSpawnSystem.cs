@@ -16,10 +16,7 @@ public class FirefighterSpawnSystem : SystemBase
                     var posX = 2 * (x - (spawner.CountX - 1) / 2);
                     var posZ = 2 * (z - (spawner.CountZ - 1) / 2);
                     var instance = EntityManager.Instantiate(spawner.Prefab);
-                    SetComponent(instance, new Translation
-                    {
-                        Value = ltw.Position + new float3(posX, 0, posZ)
-                    });
+                    SetComponent<Translation2D>(instance, new Translation2D { Value = ltw.Position.xz + new float2(posX, posZ) });
                     EntityManager.AddComponent<Firefighter>(instance);
                 }
 
