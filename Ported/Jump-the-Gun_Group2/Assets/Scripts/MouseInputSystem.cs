@@ -30,7 +30,7 @@ public class MouseInputSystem : SystemBase
         mousePos -= 0.5f;
         mousePos *= 2;
         // 10 pixel away from center indicates a direction shift.
-        float2 threshold =  1.0f * math.rcp(math.float2(Screen.width, Screen.height));
+        float2 threshold =  10.0f * math.rcp(math.float2(Screen.width, Screen.height));
 
         Entities.ForEach((ref Direction d) => 
         {
