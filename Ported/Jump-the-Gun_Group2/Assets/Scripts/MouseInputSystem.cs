@@ -19,7 +19,7 @@ public class MouseInputSystem : SystemBase
             }
         });
 
-        RequireSingletonForUpdate<GameParams>();
+        RequireSingletonForUpdate<PlayerTag>();
     }
 
     protected override void OnUpdate()
