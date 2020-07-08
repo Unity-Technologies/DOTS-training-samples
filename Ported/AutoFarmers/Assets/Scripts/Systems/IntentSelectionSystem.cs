@@ -1,23 +1,20 @@
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
-using Unity.Mathematics;
+using UnityEngine;
+using UnityEngine.Playables;
+using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class IntentSelectionSystem : SystemBase
 {
-    private Random _random;
     private EntityCommandBufferSystem _entityCommandBufferSystem;
 
     protected override void OnCreate()
     {
-        _random = new Random(0x1234567);
         _entityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
-        Random random = _random;
         EntityCommandBuffer.Concurrent ecb = _entityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
         Entities
@@ -25,9 +22,11 @@ public class IntentSelectionSystem : SystemBase
             .WithNone<PlantSeeds_Intent>()
             .WithNone<SmashRock_Intent>()
             .WithNone<TillField_Intent>()
-            .ForEach((int entityInQueryIndex, Entity entity, in Farmer_Tag tag) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref RandomSeed randomSeed, in Farmer_Tag tag) =>
             {
+                Random random = new Random(randomSeed.Value);
                 int selection = random.NextInt(0, 4);
+                randomSeed.Value = random.state;
 
                 switch (selection)
                 {
@@ -35,13 +34,13 @@ public class IntentSelectionSystem : SystemBase
                         ecb.AddComponent(entityInQueryIndex, entity, new HarvestPlant_Intent());
                         break;
                     case 1:
-                        ecb.AddComponent(entityInQueryIndex, entity, new HarvestPlant_Intent());
+                        ecb.AddComponent(entityInQueryIndex, entity, new PlantSeeds_Intent());
                         break;
                     case 2:
-                        ecb.AddComponent(entityInQueryIndex, entity, new HarvestPlant_Intent());
+                        ecb.AddComponent(entityInQueryIndex, entity, new SmashRock_Intent());
                         break;
                     case 3:
-                        ecb.AddComponent(entityInQueryIndex, entity, new HarvestPlant_Intent());
+                        ecb.AddComponent(entityInQueryIndex, entity, new TillField_Intent());
                         break;
                 }
             }).ScheduleParallel();

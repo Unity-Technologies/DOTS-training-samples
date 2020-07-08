@@ -6,7 +6,7 @@ using Unity.Transforms;
 public class RockSpawningSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
-    private Random m_Random;
+    private Random _mRandom;
 
     // Set on spawners to make them go to sleep after init
     public struct RocksAreInitalizedTag : IComponentData
@@ -15,14 +15,14 @@ public class RockSpawningSystem : SystemBase
 
     protected override void OnCreate()
     {
-        m_Random = new Random(0x1234567);
+        _mRandom = new Random(0x1234567);
         m_CommandBufferSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
         var ecb = m_CommandBufferSystem.CreateCommandBuffer();
-        var random = m_Random;
+        var random = _mRandom;
 
         Entities
         .WithNone<RocksAreInitalizedTag>()

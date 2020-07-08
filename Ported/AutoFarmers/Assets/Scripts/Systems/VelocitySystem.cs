@@ -9,22 +9,19 @@ namespace AutoFarmers
     {
         protected override void OnUpdate()
         {
-            float delta = UnityEngine.Time.deltaTime;
-            float speed = 1f;
+            float speed = 2f;
             
             Entities
                 .ForEach((Entity entity, ref Velocity velocity, in Translation translation, in Target target) =>
                 {
                     Translation targetPosition = GetComponent<Translation>(target.Value);
-                    float3 direction = math.normalize(targetPosition.Value - translation.Value);
-                    float3 targetVelocity = direction * speed;
+                    float3 delta = targetPosition.Value - translation.Value;
+                    float3 direction = math.normalize(delta);
+                    float distance = math.length(delta);
+                    float finalSpeed = speed * math.clamp(distance, 0f, 1f);
+                    float3 targetVelocity = direction * finalSpeed;
                     velocity.Value = math.lerp(velocity.Value, targetVelocity, 0.5f);
                 }).ScheduleParallel();
-        }
-
-        private float2 GetVelocity()
-        {
-            throw new System.NotImplementedException();
         }
     }
 }
