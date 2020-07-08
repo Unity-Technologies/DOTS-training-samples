@@ -14,14 +14,14 @@ public class FirefighterRandomTargetSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = m_ECBSystem.CreateCommandBuffer();
+        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
 
-        Entities.WithNone<Target>().ForEach((Entity entity, Firefighter firefighter, in Translation2D translation) =>
+        Entities.WithNone<Target>().ForEach((int entityInQueryIndex, Entity entity, Firefighter firefighter, in Translation2D translation) =>
         {
             var rand = new Random((uint)((translation.Value.x * 10000 + translation.Value.y * 100 + 1 )));
             float2 pos = rand.NextFloat2(0, 10) - 5;
-            ecb.AddComponent<Target>(entity, new Target{ Value = pos });
-        }).Schedule();
+            ecb.AddComponent<Target>(entityInQueryIndex, entity, new Target{ Value = pos });
+        }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
