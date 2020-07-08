@@ -58,6 +58,15 @@ public class GameInitSystem : SystemBase
                 ecb.DestroyEntity(entity);
             }).Schedule();
 
+        // Clean up players
+        Entities
+            .WithAll<PlayerTag>()
+            .ForEach((Entity entity) =>
+            {
+                ecb.DestroyEntity(entity);
+            }).Schedule();
+
+
         // We destroy the grid as it will be recreated below.
         Entities.ForEach((Entity entity, in GridTag tag) =>
         {
@@ -125,7 +134,7 @@ public class GameInitSystem : SystemBase
                 }
             }
 
-            // Spawn player // NOT WORKING.
+            // Spawn player 
             {
                 var instance = ecb.Instantiate(gameParams.PlayerPrefab);
                 var pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
