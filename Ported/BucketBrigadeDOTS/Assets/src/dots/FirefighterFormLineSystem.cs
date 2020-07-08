@@ -21,7 +21,20 @@ public class FirefighterFormLineSystem : SystemBase
         
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
 
-        Entities.WithNone<Target>().ForEach((int entityInQueryIndex, Entity entity, Firefighter firefighter, FirefighterPositionInLine positionInLine, in Translation2D translation) =>
+        Entities.WithNone<Target>().ForEach((int entityInQueryIndex, Entity entity, FirefighterFullTag firefighter, FirefighterPositionInLine positionInLine, in Translation2D translation) =>
+        {
+            float offset = 0.4f * positionInLine.Value * (1.0f - positionInLine.Value);
+            float2 pos = fromTo * positionInLine.Value + src + offset * normal;
+            ecb.AddComponent<Target>(entityInQueryIndex, entity, new Target{ Value = pos });
+        }).ScheduleParallel();
+
+        fromTo = -fromTo;
+        normal = -normal;
+        float2 temp = src;
+        src = dst;
+        dst = temp;
+
+        Entities.WithNone<Target>().ForEach((int entityInQueryIndex, Entity entity, FirefighterEmptyTag firefighter, FirefighterPositionInLine positionInLine, in Translation2D translation) =>
         {
             float offset = 0.4f * positionInLine.Value * (1.0f - positionInLine.Value);
             float2 pos = fromTo * positionInLine.Value + src + offset * normal;
