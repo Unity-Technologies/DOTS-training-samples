@@ -13,21 +13,21 @@ public class CannonFireSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = m_ECBSystem.CreateCommandBuffer();
+        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
 
         var playerEntity = GetSingletonEntity<PlayerTag>();
         var playerLocation = EntityManager.GetComponentData<Position>(playerEntity);
         var gameParams = GetSingleton<GameParams>();
 
         Entities
-            .ForEach((ref Cooldown coolDown, in Position position) =>
+            .ForEach((int entityInQueryIndex, Entity e, ref Cooldown coolDown, in Position position) =>
         {
             // Fire
             if (coolDown.Value  < 0.0f)
             {
-                var instance = ecb.Instantiate(gameParams.CannonBallPrefab);
-                ecb.SetComponent(instance, new MovementParabola { Origin = position.Value, Target = playerLocation.Value, Parabola = new float3(0.0f, 0.0f, 0.0f) });
-                ecb.SetComponent(instance, new NormalisedMoveTime { Value = 0.0f });
+                var instance = ecb.Instantiate(entityInQueryIndex, gameParams.CannonBallPrefab);
+                ecb.SetComponent(entityInQueryIndex, instance, new MovementParabola { Origin = position.Value, Target = playerLocation.Value, Parabola = new float3(0.0f, 0.0f, 0.0f) });
+                ecb.SetComponent(entityInQueryIndex, instance, new NormalisedMoveTime { Value = 0.0f });
 
                 coolDown.Value = 1.0f;
             }
@@ -35,7 +35,7 @@ public class CannonFireSystem : SystemBase
             {
                 coolDown.Value  -= 0.1f;
             }
-        }).Schedule();
+        }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
