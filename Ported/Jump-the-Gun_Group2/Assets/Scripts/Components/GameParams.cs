@@ -14,4 +14,5 @@ public struct GameParams : IComponentData
     public float CannonCooldown;
     public float4 colorA;
     public float4 colorB;
+    public Entity PlayerPrefab;
 }

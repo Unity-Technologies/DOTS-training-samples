@@ -20,6 +20,10 @@ public class MouseInputSystem : SystemBase
         });
     }
 
+    // ibufferelementdata  to define an element and then dynamic buffer --> getdynamicbuffer
+    // fixedlist ? 
+    // class component -> worse. NativeArray 
+
     protected override void OnUpdate()
     {        
         float2 threshold = 0.03f * math.float2(Screen.width, Screen.height);
@@ -42,7 +46,6 @@ public class MouseInputSystem : SystemBase
         {
             targetDir.y += math.sign(playerToMouse.y);
         }
-
 
         Entities.ForEach((ref Direction d) => 
         {
