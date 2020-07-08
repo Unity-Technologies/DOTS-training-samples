@@ -1,16 +1,20 @@
 using Unity.Entities;
+using Unity.Transforms;
 
-[UpdateAfter(typeof(VelocitySystem))]
-public class MovementSystem : SystemBase
+namespace AutoFarmers
 {
-    protected override void OnUpdate()
+    [UpdateAfter(typeof(VelocitySystem))]
+    public class MovementSystem : SystemBase
     {
-        float delta = UnityEngine.Time.deltaTime;
-        
-        Entities
-            .ForEach((Entity entity, ref Position position, in Velocity velocity) =>
-            {
-                position.Value += velocity.Value * delta;
-            }).ScheduleParallel();
+        protected override void OnUpdate()
+        {
+            float delta = UnityEngine.Time.deltaTime;
+            
+            Entities
+                .ForEach((Entity entity, ref Translation translation, in Velocity velocity) =>
+                {
+                    translation.Value += velocity.Value * delta;
+                }).ScheduleParallel();
+        }
     }
 }

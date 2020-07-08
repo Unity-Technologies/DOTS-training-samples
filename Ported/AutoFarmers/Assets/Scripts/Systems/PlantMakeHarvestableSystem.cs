@@ -1,6 +1,7 @@
 ﻿using AutoFarmers;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 public class PlantMakeHarvestableSystem : SystemBase
 {
@@ -29,14 +30,14 @@ public class PlantMakeHarvestableSystem : SystemBase
         Entities
             .WithAll<FullyGrownPlant_Tag>()            
             .WithNone<HarvestablePlant_Tag>()
-            .ForEach((int entityInQueryIndex, Entity entity, ref Position position) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref Translation translation) =>
         {            
             ecb.AddComponent<HarvestablePlant_Tag>(entityInQueryIndex, entity, new HarvestablePlant_Tag());
                
             // Update the cell type
             {
-                int gridX = (int)(position.Value.x);
-                int gridY = (int)(position.Value.y);
+                int gridX = (int)(translation.Value.x);
+                int gridY = (int)(translation.Value.z);
 
                 int index = gridX * gridSize.x + gridY;
                 if (index < 0 || index >= typeBuffer.Length)
@@ -48,7 +49,7 @@ public class PlantMakeHarvestableSystem : SystemBase
                     typeBuffer[index] = new CellTypeElement() { Value = CellType.Plant };
                 }
             }
-        }).Run(); // Run for now until we can get this working 100% in parallel
+        }).Schedule(); // Run for now until we can get this working 100% in parallel
 
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
