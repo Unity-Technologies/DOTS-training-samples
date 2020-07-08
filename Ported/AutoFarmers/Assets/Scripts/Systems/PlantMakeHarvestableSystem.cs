@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 public class PlantMakeHarvestableSystem : SystemBase
 {
@@ -17,7 +18,7 @@ public class PlantMakeHarvestableSystem : SystemBase
         Entities
             .WithAll<FullyGrownPlant_Tag>()            
             .WithNone<HarvestablePlant_Tag>()
-            .ForEach((int entityInQueryIndex, Entity entity, ref Position position) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref Translation translation) =>
         {
             //UpdatePlantHarvestableGrid(position);
             ecb.AddComponent<HarvestablePlant_Tag>(entityInQueryIndex, entity, new HarvestablePlant_Tag());

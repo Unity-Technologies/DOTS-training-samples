@@ -2,7 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
-public struct Position : IComponentData
+public struct Cooldown : IComponentData
 {
-    public float2 Value;
+    public float Value;
 }

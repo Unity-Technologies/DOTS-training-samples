@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Transforms;
 
 [UpdateAfter(typeof(VelocitySystem))]
 public class MovementSystem : SystemBase
@@ -8,9 +9,9 @@ public class MovementSystem : SystemBase
         float delta = UnityEngine.Time.deltaTime;
         
         Entities
-            .ForEach((Entity entity, ref Position position, in Velocity velocity) =>
+            .ForEach((Entity entity, ref Translation translation, in Velocity velocity) =>
             {
-                position.Value += velocity.Value * delta;
+                translation.Value += velocity.Value * delta;
             }).ScheduleParallel();
     }
 }

@@ -18,17 +18,14 @@ public class IntentSelectionSystem : SystemBase
     protected override void OnUpdate()
     {
         Random random = _random;
-        
-        //Q: Use 'new' each update or store reference?
         EntityCommandBuffer.Concurrent ecb = _entityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-        //Dependency = JobHandle.CombineDependencies(Dependency, ballHandle);
 
         Entities
             .WithNone<HarvestPlant_Intent>()
             .WithNone<PlantSeeds_Intent>()
             .WithNone<SmashRock_Intent>()
             .WithNone<TillField_Intent>()
-            .ForEach((int entityInQueryIndex, Entity entity, ref Position position, in Velocity velocity) =>
+            .ForEach((int entityInQueryIndex, Entity entity, in Farmer_Tag tag) =>
             {
                 int selection = random.NextInt(0, 4);
 
