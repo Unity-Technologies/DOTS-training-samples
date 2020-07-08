@@ -1,6 +1,4 @@
 using Unity.Entities;
-using Unity.Mathematics;
-using UnityEngine;
 
 namespace AutoFarmers
 {
@@ -21,7 +19,6 @@ namespace AutoFarmers
             Entities
                 .ForEach((int entityInQueryIndex, Entity entity, in UsesRandomness randomness) =>
                 {
-                    Debug.LogFormat("init value: {0}", entity.Index);
                     ecb.AddComponent(entityInQueryIndex, entity, new RandomSeed() {
                         //NOTE: Seed must be non-zero
                         Value = (((uint) entity.Index) + 1) * 500

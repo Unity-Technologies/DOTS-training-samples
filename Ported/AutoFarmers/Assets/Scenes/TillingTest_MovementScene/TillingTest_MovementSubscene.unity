@@ -153,7 +153,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Farmer: {fileID: 6922660100209716034, guid: 72df04ae439930143813d4dcfc9af43a, type: 3}
-  NumFarmers: 5
 --- !u!4 &256089941
 Transform:
   m_ObjectHideFlags: 0

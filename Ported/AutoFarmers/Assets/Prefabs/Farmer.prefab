@@ -12,6 +12,9 @@ GameObject:
   - component: {fileID: 5127847057745410343}
   - component: {fileID: 6449652088386755173}
   - component: {fileID: 2065746396182538388}
+  - component: {fileID: -1911534104561701202}
+  - component: {fileID: -7348899276231113078}
+  - component: {fileID: 2675106681793685595}
   m_Layer: 0
   m_Name: Farmer
   m_TagString: Untagged
@@ -96,3 +99,43 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!114 &-1911534104561701202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6922660100209716034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91f3a43519df41e3a926d3c180bdc666, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
+    z: 0
+--- !u!114 &-7348899276231113078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6922660100209716034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b7878b910854430bdf5bbdf68b2ee8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2675106681793685595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6922660100209716034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5aac1cf234c4a4382f639056ce83b7d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
