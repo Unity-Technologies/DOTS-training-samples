@@ -20,29 +20,32 @@ public class MouseInputSystem : SystemBase
         });
     }
 
-    // ibufferelementdata  to define an element and then dynamic buffer --> getdynamicbuffer
-    // fixedlist ? 
-    // class component -> worse. NativeArray 
-
     protected override void OnUpdate()
     {        
-        float2 threshold = 0.03f * math.float2(Screen.width, Screen.height);
+        float threshold = 0.5f;
 
         // For now we assume only one player. Need to convert this to a global bound center encompassing all players
         // if we move to that.
         var playerEntity = GetSingletonEntity<PlayerTag>();
         var playerLocation = EntityManager.GetComponentData<Position>(playerEntity);
-        var playerScreenPos =  Camera.main.WorldToScreenPoint(playerLocation.Value);
-        var mouseScreenPos = ((float3)UnityEngine.Input.mousePosition).xy;
 
-        float2 playerToMouse = ((float3)UnityEngine.Input.mousePosition).xy - math.float2(playerScreenPos.x, playerScreenPos.y);
+        var gp = GetSingleton<GameParams>();
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        float t = ((gp.TerrainMax + gp.TerrainMin) * 0.5f - ray.origin.y) / ray.direction.y;
+        float3 mouseWorldPos = math.float3(0, 1, 0);
+        float3 pointOnRay = ray.GetPoint(t);
+        mouseWorldPos.x = pointOnRay.x;
+        mouseWorldPos.z = pointOnRay.z;
+        var mouseGridSpace = mouseWorldPos;
+
+        float2 playerToMouse = (mouseGridSpace.xz - playerLocation.Value.xz);
         float2 targetDir = math.float2(0.0f, 0.0f);
 
-        if (math.abs(playerToMouse.x) > threshold.x)
+        if (math.abs(playerToMouse.x) > threshold)
         {
             targetDir.x += math.sign(playerToMouse.x);
         }
-        if (math.abs(playerToMouse.y) > threshold.y)
+        if (math.abs(playerToMouse.y) > threshold)
         {
             targetDir.y += math.sign(playerToMouse.y);
         }
