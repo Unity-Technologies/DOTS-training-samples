@@ -18,6 +18,8 @@ public class MouseInputSystem : SystemBase
                 ComponentType.ReadOnly<Position>()
             }
         });
+
+        RequireSingletonForUpdate<GameParams>();
     }
 
     protected override void OnUpdate()
