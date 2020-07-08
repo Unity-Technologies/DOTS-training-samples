@@ -19,21 +19,20 @@ public class CannonFireSystem : SystemBase
         var playerLocation = EntityManager.GetComponentData<Position>(playerEntity);
 
         Entities
-            .WithAll<Cooldown>()
             .ForEach((int entityInQueryIndex, Entity entity, ref Cooldown coolDown, in Position position, in GameParams gameParams) =>
         {
             // Fire
             if (coolDown.Value  < 0.0f)
             {
                 var instance = ecb.Instantiate(gameParams.CannonBallPrefab);
-                ecb.SetComponent(instance, new MovementParabola { Origin = position.Value, Target = playerLocation.Value, Parabola = new float3(0, 0, 0) });
+                ecb.SetComponent(instance, new MovementParabola { Origin = position.Value, Target = playerLocation.Value, Parabola = new float3(0.0f, 0.0f, 0.0f) });
                 ecb.SetComponent(instance, new NormalisedMoveTime { Value = 0.0f });
 
                 coolDown.Value = 1.0f;
             }
             else
             {
-                coolDown.Value  -= 0.05f;
+                coolDown.Value  -= 0.1f;
             }
         }).ScheduleParallel();
 
