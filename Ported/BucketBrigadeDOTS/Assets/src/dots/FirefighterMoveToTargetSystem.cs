@@ -21,10 +21,16 @@ public class FirefighterMoveToTargetSystem : SystemBase
         {
             float2 fromTo = target.Value - translation.Value;
             float dist = math.length(fromTo);
-            if (dist < 0.1f)
+            var step = speed; // * deltaTime
+            if (dist < step)
+            {
+                translation.Value = target.Value;
                 ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
+            }
             else
-                translation.Value += fromTo * speed / dist;
+            {
+                translation.Value += step * fromTo / dist;
+            }
         }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);

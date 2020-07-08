@@ -9,3 +9,8 @@ public struct Target : IComponentData
 {
     public float2 Value;
 }
+
+public struct FirefighterPositionInLine : IComponentData
+{
+    public float Value;
+}

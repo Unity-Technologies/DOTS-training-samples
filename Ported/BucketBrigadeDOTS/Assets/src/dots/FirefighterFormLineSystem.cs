@@ -19,11 +19,9 @@ public class FirefighterFormLineSystem : SystemBase
         
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
 
-        Entities.WithNone<Target>().ForEach((int entityInQueryIndex, Entity entity, Firefighter firefighter, in Translation2D translation) =>
+        Entities.WithNone<Target>().ForEach((int entityInQueryIndex, Entity entity, Firefighter firefighter, FirefighterPositionInLine positionInLine, in Translation2D translation) =>
         {
-            var rand = new Random((uint)((translation.Value.x * 10000 + translation.Value.y * 100 + 1 )));
-            float normalizedPosOnLine = rand.NextFloat();
-            float2 pos = (dst - src) * normalizedPosOnLine + src;
+            float2 pos = (dst - src) * positionInLine.Value + src;
             ecb.AddComponent<Target>(entityInQueryIndex, entity, new Target{ Value = pos });
         }).ScheduleParallel();
 
