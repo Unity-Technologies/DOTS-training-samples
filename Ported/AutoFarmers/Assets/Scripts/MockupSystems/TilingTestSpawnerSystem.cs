@@ -27,6 +27,7 @@ namespace AutoFarmers
                             Value = new float3(randomX, 0.5f, randomY)
                         });
                         EntityManager.AddComponent<Farmer_Tag>(farmer);
+                        EntityManager.AddComponent<TillField_Intent>(farmer);
                         EntityManager.AddComponent<MovementTimerMockup>(farmer);
                         SetComponent(farmer, new MovementTimerMockup
                         {
