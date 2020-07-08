@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public struct Plant : IComponentData
+public struct Plant_Tag : IComponentData
 {
     public float Age;
 }

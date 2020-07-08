@@ -16,7 +16,7 @@ public class PlantGrowingSystem : SystemBase
 
         float deltaTime = Time.DeltaTime;
 
-        Entities.WithNone<FullyGrownPlant_Tag>().ForEach((int entityInQueryIndex, Entity entity, ref Plant plant) =>
+        Entities.WithNone<FullyGrownPlant_Tag>().ForEach((int entityInQueryIndex, Entity entity, ref Plant_Tag plant) =>
         {
             plant.Age += deltaTime;
             if (plant.Age >= FarmConstants.PlantMaturityAge)
