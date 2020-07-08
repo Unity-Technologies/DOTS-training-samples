@@ -137,6 +137,7 @@ GameObject:
   - component: {fileID: 1300243737}
   - component: {fileID: 1300243736}
   - component: {fileID: 1300243735}
+  - component: {fileID: 1300243741}
   m_Layer: 0
   m_Name: PlantStandin1
   m_TagString: Untagged
@@ -171,7 +172,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 415cd43488bee3e49b3127928e0464c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Age: 0
 --- !u!136 &1300243737
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -244,11 +244,24 @@ Transform:
   m_GameObject: {fileID: 1300243734}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1300243741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1300243734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c664e02f1e5004047bec36381b21a40f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: 0
 --- !u!1 &2038484263
 GameObject:
   m_ObjectHideFlags: 0
@@ -263,6 +276,7 @@ GameObject:
   - component: {fileID: 2038484266}
   - component: {fileID: 2038484265}
   - component: {fileID: 2038484264}
+  - component: {fileID: 2038484270}
   m_Layer: 0
   m_Name: PlantStandin2
   m_TagString: Untagged
@@ -297,7 +311,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 415cd43488bee3e49b3127928e0464c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Age: 0
 --- !u!136 &2038484266
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -370,8 +383,21 @@ Transform:
   m_GameObject: {fileID: 2038484263}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 4.44}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2038484270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2038484263}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c664e02f1e5004047bec36381b21a40f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: 0

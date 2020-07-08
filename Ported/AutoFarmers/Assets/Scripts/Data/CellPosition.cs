@@ -1,8 +1,11 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
-[GenerateAuthoringComponent]
-public struct CellPosition : IComponentData
+namespace AutoFarmers
 {
-    public int2 Value;
+    [GenerateAuthoringComponent]
+    public struct CellPosition : IComponentData
+    {
+        public int2 Value;
+    }
 }

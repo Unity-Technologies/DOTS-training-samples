@@ -16,6 +16,7 @@ namespace AutoFarmers
             
             // Create singleton entity
             var entity = EntityManager.CreateEntity(ComponentType.ReadOnly<Grid>());
+            EntityManager.SetName(entity, "Grid");
             EntityManager.AddBuffer<CellTypeElement>(entity);
             EntityManager.AddBuffer<CellEntityElement>(entity);
         }
@@ -28,6 +29,7 @@ namespace AutoFarmers
                 .WithStructuralChanges()
                 .ForEach((Entity farmEntity, Farm farm) =>
             {
+                EntityManager.SetComponentData(entity, new Grid { Size = farm.MapSize });
                 EntityManager.DestroyEntity(cellQuery);
                 var cellCount = farm.MapSize.x * farm.MapSize.y;
                 var cellEntities = EntityManager.Instantiate(farm.GroundPrefab, cellCount, Allocator.Temp);
@@ -51,6 +53,7 @@ namespace AutoFarmers
                 {
                     var i = x * farm.MapSize.y + y;
                     EntityManager.SetComponentData(cellEntities[i], new Translation { Value = math.float3(x, 0, y)});
+                    EntityManager.SetName(cellEntities[i], $"Cell {i} ({x}, {y})");
                 }
                 
                 cellEntities.Dispose();
