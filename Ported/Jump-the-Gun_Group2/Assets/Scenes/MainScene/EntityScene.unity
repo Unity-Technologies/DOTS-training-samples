@@ -267,6 +267,9 @@ MonoBehaviour:
   TerrainDimensions:
     x: 10
     y: 10
+  CannonPrefab: {fileID: 1285056113001856, guid: c86b1bd6777d544aba9a2ee2262c61c4,
+    type: 3}
+  CannonCount: 5
 --- !u!4 &1794005479
 Transform:
   m_ObjectHideFlags: 0

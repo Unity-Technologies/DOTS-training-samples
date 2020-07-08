@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Collections;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class GameInitSystem : SystemBase
@@ -26,9 +27,13 @@ public class GameInitSystem : SystemBase
         Entities
             .ForEach((int entityInQueryIndex, Entity entity, in GameParams gameParams) =>
         {
-            for (int y = 0; y < gameParams.TerrainDimensions.y; ++y)
+            var dimension = gameParams.TerrainDimensions;
+            var tileHeights = new NativeArray<float>(dimension.x * dimension.y, Allocator.Temp);
+
+            // Spawn Tiles
+            for (int y = 0; y < dimension.y; ++y)
             {
-                for (int x = 0; x < gameParams.TerrainDimensions.x; ++x)
+                for (int x = 0; x < dimension.x; ++x)
                 {
                     var instance = ecb.Instantiate(gameParams.TilePrefab);
                     var height = gameParams.TerrainHeightRange.x + random.NextFloat() * (gameParams.TerrainHeightRange.y - gameParams.TerrainHeightRange.x);
@@ -36,6 +41,26 @@ public class GameInitSystem : SystemBase
                     ecb.SetComponent(instance, new Height { Value = height });
                 }
             }
+
+            // Spawn Cannons
+            var occupiedSlots = new NativeList<int2>(gameParams.CannonCount, Allocator.Temp);
+            {
+                for (int i = 0; i < gameParams.CannonCount; ++i)
+                {
+                    var instance = ecb.Instantiate(gameParams.CannonPrefab);
+                    var pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
+                    while (occupiedSlots.Contains(pos))
+                        pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
+
+                    ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeights[pos.y * dimension.x + pos.x], pos.y) });
+                    occupiedSlots.Add(pos);
+                }
+            }
+
+            occupiedSlots.Dispose();
+            tileHeights.Dispose();
+
+            // Remove GameOverTag
             ecb.RemoveComponent<GameOverTag>(entity);
         }).Schedule();
 
