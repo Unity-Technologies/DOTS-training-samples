@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerNextMoveSystem : SystemBase
 {
     EntityQuery m_PlayerQuery;
+    EntityQuery m_BufferQuery;
 
     protected override void OnCreate()
     {
@@ -20,6 +21,13 @@ public class PlayerNextMoveSystem : SystemBase
         RequireSingletonForUpdate<GridTag>();
         RequireSingletonForUpdate<GameParams>();
 
+        m_BufferQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new []
+            {
+                ComponentType.ReadOnly<GridHeight>()
+            }
+        });
     }
 
     protected override void OnUpdate()

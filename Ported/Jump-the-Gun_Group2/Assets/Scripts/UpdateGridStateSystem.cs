@@ -4,6 +4,7 @@ using Unity.Mathematics;
 public class UpdateGridStateSystem : SystemBase
 {
     EntityQuery m_Query;
+    EntityQuery m_BufferQuery;
 
     protected override void OnCreate()
     {
@@ -16,6 +17,14 @@ public class UpdateGridStateSystem : SystemBase
         });
         m_Query.AddChangedVersionFilter(new ComponentType(typeof(Height)));
 
+        m_BufferQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadWrite<GridHeight>()
+            }
+        });
+
         RequireSingletonForUpdate<GameParams>();
         RequireSingletonForUpdate<GridTag>();
     }
@@ -24,12 +33,14 @@ public class UpdateGridStateSystem : SystemBase
     {
         var e = GetSingletonEntity<GridTag>();
         var gameParams = GetSingleton<GameParams>();
-        var buffer = EntityManager.GetBuffer<GridHeight>(e);
+        var buffer = EntityManager.GetBuffer<GridHeight>(e).AsNativeArray();
 
-        Entities.ForEach((in Height height, in Position position) =>
+        Entities
+            .WithNativeDisableContainerSafetyRestriction(buffer)
+            .ForEach((in Height height, in Position position) =>
         {
             var pos = (int2)position.Value.xz;
             buffer[pos.y * gameParams.TerrainDimensions.x + pos.x] = new GridHeight { Height = height.Value };
-        }).Schedule();
+        }).ScheduleParallel();
     }
 }
