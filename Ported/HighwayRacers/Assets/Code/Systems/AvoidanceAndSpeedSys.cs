@@ -32,10 +32,11 @@ namespace HighwayRacer
             var mergeLeftFrame = SegmentizeAndSortSys.mergeLeftFrame;
             var dt = Time.DeltaTime;
 
-            // make sure we don't hit next car ahead, and trigger overtake state
+            // 1. make sure we don't hit next car ahead
+            // 2. if blocked and can merge, trigger overtake state
             var ecb = beginSim.CreateCommandBuffer().ToConcurrent();
 
-            var jobHandle = Entities.WithName("CarSys").WithNone<MergingLeft, MergingRight>().WithNone<OvertakingLeft, OvertakingRight>().ForEach((Entity ent,
+            var jobHandle = Entities.WithName("AvoidanceAndSpeedSys").WithNone<MergingLeft, MergingRight>().WithNone<OvertakingLeft, OvertakingRight>().ForEach((Entity ent,
                 int entityInQueryIndex, ref TargetSpeed targetSpeed,
                 ref Speed speed, ref Lane lane, in TrackPos trackPos, in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
             {

@@ -23,9 +23,9 @@ namespace HighwayRacer
 
         public const float carSpawnDist = 8.0f;
         public static int numCars = 129;
-        
+
         public static float minLength = 400.0f; // 4 * curved length + 4 * min straight length
-        public static float maxLength = 79999;
+        public static float maxLength = 90999;
 
         public const float laneWidth = 1.88f;
         public static float roadLength = minLength;
@@ -68,7 +68,7 @@ namespace HighwayRacer
         public static int GetMaxCars(float length)
         {
             var n = (int) Mathf.Floor((nLanes * length) / carSpawnDist);
-            return n - nLanes - nLanes; // account for wrap around + for rounding error   
+            return n - (8 * nLanes);   // account for wrap around + for rounding error   
         }
 
         protected override void OnUpdate()

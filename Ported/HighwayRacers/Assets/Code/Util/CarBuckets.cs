@@ -139,5 +139,24 @@ namespace HighwayRacer
             var list = Lists[index];
             list.Sort<SortedCar, CarCompare>(new CarCompare());
         }
+        
+        // copied from 
+        unsafe static void InsertionSort<T, U>(void* array, int lo, int hi, U comp) where T : struct where U : IComparer<T>
+        {
+            int i, j;
+            T t;
+            for (i = lo; i < hi; i++)
+            {
+                j = i;
+                t = UnsafeUtility.ReadArrayElement<T>(array, i + 1);
+                while (j >= lo && comp.Compare(t, UnsafeUtility.ReadArrayElement<T>(array, j)) < 0)
+                {
+                    UnsafeUtility.WriteArrayElement<T>(array, j + 1, UnsafeUtility.ReadArrayElement<T>(array, j));
+                    j--;
+                }
+                UnsafeUtility.WriteArrayElement<T>(array, j + 1, t);
+            }
+        }
+        
     }
 }

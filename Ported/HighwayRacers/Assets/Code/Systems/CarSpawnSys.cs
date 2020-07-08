@@ -79,17 +79,16 @@ namespace HighwayRacer
                 var seed = (uint) (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
                 var rand = new Random(seed);
 
-                var maxCarsInLane = (nCars % nLanes == 0) ? (nCars / nLanes) : (nCars / nLanes) + 1;
+                var maxCarsInLane = nCars / nLanes;
 
                 Entities.ForEach((ref Speed speed, ref TrackPos trackPos, ref TargetSpeed targetSpeed, ref DesiredSpeed desiredSpeed,
                     ref Lane lane, ref Blocking blockedDist, ref URPMaterialPropertyBaseColor color) =>
                 {
-                    if (nCarsInLane >= maxCarsInLane)
+                    if (currentLane < (nLanes - 1) && nCarsInLane >= maxCarsInLane)
                     {
                         nCarsInLane = 0;
                         currentLane++;
                         nextTrackPos = 0.0f;
-                        Assert.IsTrue(currentLane < nLanes);
                     }
 
                     desiredSpeed.Unblocked = math.lerp(minSpeed, maxSpeed, rand.NextFloat());
@@ -102,7 +101,6 @@ namespace HighwayRacer
                     color.Value = new float4(SetColorSys.cruiseColor, 1.0f);
 
                     nextTrackPos += RoadSys.carSpawnDist;
-                    Assert.IsTrue(nextTrackPos <= trackLength - RoadSys.carSpawnDist, "Spawning more cars than will fit in lane.");
                     nCarsInLane++;
                 }).Run();
             }

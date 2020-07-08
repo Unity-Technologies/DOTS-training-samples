@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -16,7 +17,7 @@ namespace HighwayRacer
         private int nSegments;
 
         private EntityQuery query;
-
+        
         protected override void OnCreate()
         {
             query = GetEntityQuery(typeof(TrackSegment), typeof(TrackPos), typeof(Speed), typeof(Lane));
@@ -61,7 +62,7 @@ namespace HighwayRacer
             // todo: might the input dependency fail to include jobs that are still reading CarBuckets?
             // todo: if so, then we have an issue anyway when we clear the buckets
             var jobHandle = segmentJob.ScheduleParallel(query, Dependency);
-
+            
             jobHandle = carBuckets.Sort(jobHandle);
             jobHandle.Complete();
 
@@ -110,8 +111,8 @@ namespace HighwayRacer
 
             for (int ent = 0; ent < chunk.Count; ent++)
             {
-                trackSegment[ent] = new TrackSegment() {Val = (byte) LastSegmentIdx}; // last segment gets all the rest (to account for float imprecision)
-                for (byte seg = 0; seg < LastSegmentIdx; seg++)
+                trackSegment[ent] = new TrackSegment() {Val = (ushort) LastSegmentIdx}; // last segment gets all the rest (to account for float imprecision)
+                for (ushort seg = 0; seg < LastSegmentIdx; seg++)
                 {
                     if (trackPos[ent].Val < Thresholds[seg]) // todo: binary search (if num thresholds is large, might make sense)
                     {

@@ -7,7 +7,6 @@
 clicks on menu windows shouldn't register as clicks on cars
 
 why are any cars turqouise (default shader color)
-    V2 hybrid define might fix it?
 
 switch to Schedule() / ScheduleParallel() 
 
@@ -15,7 +14,28 @@ use float2's instead of float3's
 use half instead of float
 
 
-profile with different segmentation sizes
+
+
+SMALL THINGS
+
+1. try smaller segments sizes
+
+3. rotate which segment tests for merging in a frame 
+
+4. ClosestCarPos should return index of the car in bucket so that it can be passed to CanMerge
+
+BIG THINGS
+
+1. move to segment-relative Pos, and segmentize in AdvanceCars (would be necessary for non-closed track anyway)
+
+2. add remove cars from buckets when segmentizing
+
+    we advance cars in the lists AND ALSO advance the car entities themselves
+      
+    for removing cars, we advance them in first pass, then in second pass find first car that is past end of bucket and move that and all subsequent cars to next bucket 
+
+3. use sort that favors mostly-sorted lists (insertion? or bubble?); only makes sense if we don't completely rebuild the lists every frame!
+
 
 SimulationSystemGroup
     --
