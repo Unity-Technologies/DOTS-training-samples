@@ -5,7 +5,7 @@ using Unity.Transforms;
 namespace AutoFarmers
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
-    [UpdateAfter(typeof(GridInitializationSystem))]
+    [UpdateAfter(typeof(StoreSpawningSystem))]
     public class RockSpawningSystem : SystemBase
     {
         private EntityCommandBufferSystem m_CommandBufferSystem;
