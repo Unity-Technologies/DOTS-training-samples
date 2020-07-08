@@ -28,7 +28,7 @@ public class CannonFireSystem : SystemBase
             if (coolDown.Value  < 0.0f)
             {
                 var instance = ecb.Instantiate(entityInQueryIndex, gameParams.CannonBallPrefab);
-                MovementParabola movementParabole = new MovementParabola { Origin = position.Value, Target = playerLocation.Value, Parabola = new float3(0.0f, 0.0f, 0.0f) };
+                MovementParabola movementParabole = new MovementParabola { Origin = position.Value, Target = math.floor(playerLocation.Value), Parabola = new float3(0.0f, 0.0f, 0.0f) };
                 ParabolaMath.Create(position.Value.y, 10.0f, playerLocation.Value.y, out movementParabole.Parabola.x, out movementParabole.Parabola.y, out movementParabole.Parabola.z);
 
                 ecb.AddComponent(entityInQueryIndex, instance, new Position { Value = position.Value });

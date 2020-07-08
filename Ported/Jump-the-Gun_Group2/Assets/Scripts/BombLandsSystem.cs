@@ -33,24 +33,24 @@ public class BombLandsSystem : SystemBase
     {
         var ecb = cbs.CreateCommandBuffer().ToConcurrent();
 
-        var bombPosition = bombQuery.ToComponentDataArrayAsync<Position>(Allocator.TempJob, out var bombPositionHandle);
         var bombTime = bombQuery.ToComponentDataArrayAsync<NormalisedMoveTime>(Allocator.TempJob, out var bombTimeHandle);
+        var bombPara = bombQuery.ToComponentDataArrayAsync<MovementParabola>(Allocator.TempJob, out var bombParaHandle);
 
-        Dependency = JobHandle.CombineDependencies(Dependency, bombPositionHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, bombTimeHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency, bombParaHandle);
 
         GameParams gameParams = GetSingleton<GameParams>();
 
         Entities
-           .WithDeallocateOnJobCompletion(bombPosition)
            .WithDeallocateOnJobCompletion(bombTime)
+           .WithDeallocateOnJobCompletion(bombPara)
            //for all the tiles
-           .ForEach((ref Height height, ref Color c, in Position position) => {
+           .ForEach((ref Height height, ref Color c, ref Position pos) => {
                //for all the bombs
-               for (int i = 0; i < bombPosition.Length; ++i) {
-                   if (bombTime[i].Value > 1 && math.distance(bombPosition[i].Value, position.Value) < 0.1f) {
+               for (int i = 0; i < bombTime.Length; ++i) {
+                   if (bombTime[i].Value > 1 && math.distance(bombPara[i].Target.xz, pos.Value.xz) < 0.5f) {
                        
-                       height.Value = math.max(gameParams.TerrainMin, height.Value - 0.001f);
+                       height.Value = math.max(gameParams.TerrainMin, height.Value - 0.3f);
 
                        float range = (gameParams.TerrainMax - gameParams.TerrainMin);
                        float value = (height.Value - gameParams.TerrainMin) / range;
