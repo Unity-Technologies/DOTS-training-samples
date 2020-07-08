@@ -1,18 +1,16 @@
 using Unity.Entities;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
-public class VelocitySystem : SystemBase
+[UpdateAfter(typeof(VelocitySystem))]
+public class MovementSystem : SystemBase
 {
-    private float _deltaTime;
-    
     protected override void OnUpdate()
     {
-        _deltaTime = UnityEngine.Time.deltaTime;
+        float delta = UnityEngine.Time.deltaTime;
         
         Entities
             .ForEach((Entity entity, ref Position position, in Velocity velocity) =>
             {
-                position.Value += velocity.Value * _deltaTime;
+                position.Value += velocity.Value * delta;
             }).ScheduleParallel();
     }
 }
