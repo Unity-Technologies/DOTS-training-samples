@@ -125,15 +125,15 @@ public class GameInitSystem : SystemBase
                 }
             }
 
-            //// Spawn player // NOT WORKING.
-            //{
-            //    var instance = ecb.Instantiate(gameParams.PlayerPrefab);
-            //    var pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
-            //    while (tilesOccupiedBuffer[pos.y * dimension.x + pos.x].Occupied)
-            //        pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
+            // Spawn player // NOT WORKING.
+            {
+                var instance = ecb.Instantiate(gameParams.PlayerPrefab);
+                var pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
+                while (tilesOccupiedBuffer[pos.y * dimension.x + pos.x].Occupied)
+                    pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
 
-            //    ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeightsBuffer[pos.y * dimension.x + pos.x].Height + k_CannongHeightOffset, pos.y) });
-            //}
+                ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeightsBuffer[pos.y * dimension.x + pos.x].Height + 0.5f, pos.y) });
+            }
 
 
             // Remove GameOverTag
