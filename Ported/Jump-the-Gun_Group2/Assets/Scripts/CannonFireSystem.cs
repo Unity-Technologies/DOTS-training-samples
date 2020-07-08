@@ -35,7 +35,7 @@ public class CannonFireSystem : SystemBase
             {
                 coolDown.Value  -= 0.1f;
             }
-        }).ScheduleParallel();
+        }).Schedule();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
