@@ -15,4 +15,6 @@ public struct GameParams : IComponentData
     public float4 colorA;
     public float4 colorB;
     public Entity PlayerPrefab;
+    public float collisionStepMultiplier;
+    public float playerParabolaPrecision;
 }

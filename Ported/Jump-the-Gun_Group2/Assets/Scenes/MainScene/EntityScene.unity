@@ -177,6 +177,8 @@ MonoBehaviour:
     w: 1
   PlayerPrefab: {fileID: 1659188881559534, guid: 6ab41e7a804527944b222a5a4b6f1468,
     type: 3}
+  collisionStepMultiplier: 3
+  playerParabolaPrecision: 0.1
 --- !u!114 &1904175737
 MonoBehaviour:
   m_ObjectHideFlags: 0
