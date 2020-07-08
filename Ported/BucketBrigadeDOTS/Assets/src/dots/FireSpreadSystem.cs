@@ -4,11 +4,8 @@ using Unity.Transforms;
 
 public class FireSpreadSystem : SystemBase
 {
-    private EntityCommandBufferSystem m_CommandBufferSystem;
-
     protected override void OnCreate()
     {
-        m_CommandBufferSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -36,7 +33,8 @@ public class FireSpreadSystem : SystemBase
                 for (int v = rangeY.x; v <= rangeY.y; ++v)
                     for (int u = rangeX.x; u <= rangeX.y; ++u)
                     {
-                        cell.FireTemperature += bufferPrev[v * (int)fireGridSetting.FireGridResolution.x + u].FireTemperaturePrev * 0.03f * dt;
+                        float targetHistoryTemp = bufferPrev[v * (int)fireGridSetting.FireGridResolution.x + u].FireTemperaturePrev;
+                        cell.FireTemperature += targetHistoryTemp > 0.2f ? targetHistoryTemp * 0.03f * dt : 0.0f;
                     }
 
                 cell.FireTemperature = math.min(cell.FireTemperature, 1.0f);

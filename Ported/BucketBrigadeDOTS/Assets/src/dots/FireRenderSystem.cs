@@ -5,6 +5,8 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 public class FireRenderSystem : SystemBase
 {
+    const float flashPoint = 0.2f;
+
     protected override void OnCreate()
     {
         GetEntityQuery(typeof(FireCell));
@@ -29,20 +31,20 @@ public class FireRenderSystem : SystemBase
             // Grab the target cell this renderer should be matching
             FireCell currentCell = bufferRef[entityInQueryIndex];
 
-            float actualTemperature = currentCell.FireTemperature < 0.5f ? 0.001f : math.min(currentCell.FireTemperature, 1.0f);
+            float visualTemperature = currentCell.FireTemperature < flashPoint ? 0.001f : math.min(currentCell.FireTemperature, 1.0f);
 
-            float noise = actualTemperature < 0.5f ? 0.0f : 
+            float noise = visualTemperature < flashPoint ? math.max(Noise(0, 0.02f, 2.0f, entityInQueryIndex * 0.8f), 0.001f) : 
                 Noise(t, 0.02f, 2.0f, entityInQueryIndex * 0.8f) + 
                 Noise(t, 0.03f, 3.0f, entityInQueryIndex * 0.9f) + 
                 Noise(t, 0.04f, 4.0f, entityInQueryIndex * 1.0f);
-            float actualTemperatureWithNoise = actualTemperature + noise;
+            float actualTemperatureWithNoise = visualTemperature + noise;
 
             // Update its scale
             scale.Value.y = actualTemperatureWithNoise;
             // Update its translation
             translation.Value.y = scale.Value.y * 0.5f;
             // Update its color
-            fireColor.Value = actualTemperature < 0.5f ? new float4(0.0f, 1.0f, 0.0f, 1.0f) : math.lerp(new float4(1.0f, 1.0f, 0.0f, 1.0f), new float4(1.0f, 0.0f, 0.0f, 1.0f), (actualTemperature * 2.0f) - 1.0f);
+            fireColor.Value = visualTemperature < flashPoint ? new float4(0.0f, 1.0f, 0.0f, 1.0f) : math.lerp(new float4(1.0f, 1.0f, 0.0f, 1.0f), new float4(1.0f, 0.0f, 0.0f, 1.0f), (visualTemperature  - flashPoint) / (1.0f - flashPoint));
         }).ScheduleParallel();
     }
 }
