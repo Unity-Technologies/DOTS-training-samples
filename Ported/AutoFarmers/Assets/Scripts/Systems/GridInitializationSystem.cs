@@ -1,0 +1,61 @@
+using Unity.Collections;
+using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
+
+namespace AutoFarmers
+{
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
+    class GridInitializationSystem : SystemBase
+    {
+        private EntityQuery cellQuery;
+        
+        protected override void OnCreate()
+        {
+            cellQuery = GetEntityQuery(ComponentType.ReadOnly<Cell>());
+            
+            // Create singleton entity
+            var entity = EntityManager.CreateEntity(ComponentType.ReadOnly<Grid>());
+            EntityManager.AddBuffer<CellTypeElement>(entity);
+            EntityManager.AddBuffer<CellEntityElement>(entity);
+        }
+
+        protected override void OnUpdate()
+        {
+            var entity = GetSingletonEntity<Grid>();
+            Entities
+                .WithoutBurst()
+                .WithStructuralChanges()
+                .ForEach((Entity farmEntity, Farm farm) =>
+            {
+                EntityManager.DestroyEntity(cellQuery);
+                var cellCount = farm.MapSize.x * farm.MapSize.y;
+                var cellEntities = EntityManager.Instantiate(farm.GroundPrefab, cellCount, Allocator.Temp);
+                
+                var typeBuffer = EntityManager.GetBuffer<CellTypeElement>(entity);
+                typeBuffer.ResizeUninitialized(cellCount);
+                for (var i = 0; i < cellCount; i++)
+                {
+                    typeBuffer[i] = new CellTypeElement(CellType.Raw);
+                }
+                
+                var entityBuffer = EntityManager.GetBuffer<CellEntityElement>(entity);
+                entityBuffer.ResizeUninitialized(cellCount);
+                for (var i = 0; i < cellCount; i++)
+                {
+                    entityBuffer[i] = new CellEntityElement(cellEntities[i]);
+                }
+                
+                for (var x = 0; x < farm.MapSize.x; x++)
+                for (var y = 0; y < farm.MapSize.y; y++)
+                {
+                    var i = x * farm.MapSize.y + y;
+                    EntityManager.SetComponentData(cellEntities[i], new Translation { Value = math.float3(x, 0, y)});
+                }
+                
+                cellEntities.Dispose();
+                EntityManager.DestroyEntity(farmEntity);
+            }).Run();
+        }
+    }
+}

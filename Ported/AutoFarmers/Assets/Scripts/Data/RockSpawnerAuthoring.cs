@@ -8,6 +8,6 @@ public struct RockSpawner : IComponentData
     public int NumRocks;
     public int2 RandomSizeMin;
     public int2 RandomSizeMax;
-    public float minHealthPerArea;
-    public float maxHealthPerArea;
+    public float minHeight;
+    public float maxHeight;
 }

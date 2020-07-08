@@ -42,10 +42,7 @@ public class RockSpawningSystem : SystemBase
                 ecb.AddComponent(instance, new CellSize { Value = size });
                 ecb.AddComponent(instance, new Rock_Tag());
 
-                float area = size.x * size.y;
-                float healthPerArea = random.NextFloat(spawner.minHealthPerArea, spawner.maxHealthPerArea);
-                float health = area * healthPerArea;
-
+                float health = random.NextFloat(spawner.minHeight, spawner.maxHeight);
                 ecb.AddComponent(instance, new Health { Value = health });
             }
             ecb.AddComponent(rockSpawner, new RocksAreInitalizedTag());
