@@ -7,4 +7,5 @@ using UnityEngine;
 public struct TilingTestSpawner : IComponentData
 {
     public Entity Farmer;
+    public int NumFarmers;
 }

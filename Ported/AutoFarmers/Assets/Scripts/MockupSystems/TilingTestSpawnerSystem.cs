@@ -5,29 +5,38 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-public class TilingTestSpawnerSystem : SystemBase
+namespace AutoFarmers
 {
-    protected override void OnUpdate()
+    public class TilingTestSpawnerSystem : SystemBase
     {
-        Entities
-            .WithStructuralChanges()
-            .ForEach((Entity entity, in TilingTestSpawner spawner) =>
-            {
-                // Instantiate a spawner
-                var farmer = EntityManager.Instantiate(spawner.Farmer);
-                SetComponent(farmer, new Translation
+        protected override void OnUpdate()
+        {
+            Entities
+                .WithStructuralChanges()
+                .ForEach((Entity entity, in TilingTestSpawner spawner) =>
                 {
-                    Value = new float3(0, 0, 0)
-                });
-                EntityManager.AddComponent<Farmer_Tag>(farmer);
-                EntityManager.AddComponent<MovementTimerMockup>(farmer);
-                SetComponent(farmer, new MovementTimerMockup
-                {
-                    Value = 0.0f
-                });
+                    for (int f = 0; f < spawner.NumFarmers; ++f)
+                    {
+                        int2 gridDims = GetSingleton<Grid>().Size;
+                        int randomX = UnityEngine.Random.Range(0, gridDims.x);
+                        int randomY = UnityEngine.Random.Range(0, gridDims.y);
+                        // Instantiate a spawner
+                        var farmer = EntityManager.Instantiate(spawner.Farmer);
+                        SetComponent(farmer, new Translation
+                        {
+                            Value = new float3(randomX, 0.5f, randomY)
+                        });
+                        EntityManager.AddComponent<Farmer_Tag>(farmer);
+                        EntityManager.AddComponent<MovementTimerMockup>(farmer);
+                        SetComponent(farmer, new MovementTimerMockup
+                        {
+                            Value = 0.0f
+                        });
+                    }
 
-                
-                EntityManager.DestroyEntity(entity);
-            }).Run();
+
+                    EntityManager.DestroyEntity(entity);
+                }).Run();
+        }
     }
 }
