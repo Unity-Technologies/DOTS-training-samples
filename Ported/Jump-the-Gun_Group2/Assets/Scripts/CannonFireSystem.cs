@@ -17,9 +17,10 @@ public class CannonFireSystem : SystemBase
 
         var playerEntity = GetSingletonEntity<PlayerTag>();
         var playerLocation = EntityManager.GetComponentData<Position>(playerEntity);
+        var gameParams = GetSingleton<GameParams>();
 
         Entities
-            .ForEach((int entityInQueryIndex, Entity entity, ref Cooldown coolDown, in Position position, in GameParams gameParams) =>
+            .ForEach((ref Cooldown coolDown, in Position position) =>
         {
             // Fire
             if (coolDown.Value  < 0.0f)
