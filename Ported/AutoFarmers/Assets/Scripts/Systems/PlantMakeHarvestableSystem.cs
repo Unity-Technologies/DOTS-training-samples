@@ -35,7 +35,10 @@ public class PlantMakeHarvestableSystem : SystemBase
                
             // Update the cell type
             {
-                int index = (int)position.Value.y / gridSize.x + (int)position.Value.x;
+                int gridX = (int)(position.Value.x);
+                int gridY = (int)(position.Value.y);
+
+                int index = gridX * gridSize.x + gridY;
                 if (index < 0 || index >= typeBuffer.Length)
                 {
                     UnityEngine.Debug.Log("Out of bounds index in PlantMakeHarvestableSystem!");
@@ -45,7 +48,7 @@ public class PlantMakeHarvestableSystem : SystemBase
                     typeBuffer[index] = new CellTypeElement() { Value = CellType.Plant };
                 }
             }
-        }).Schedule();
+        }).Run(); // Run for now until we can get this working 100% in parallel
 
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
