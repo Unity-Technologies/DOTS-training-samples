@@ -26,10 +26,6 @@ public class PlantGrowingSystem : SystemBase
             {
                 ecb.AddComponent<FullyGrownPlant_Tag>(entityInQueryIndex, entity, new FullyGrownPlant_Tag());
             }
-
-            float size = health.Value / 10.0f;
-            ecb.SetComponent(entityInQueryIndex, entity, new NonUniformScale { Value = size });
-
         }).ScheduleParallel();
         
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
@@ -39,4 +35,5 @@ public class PlantGrowingSystem : SystemBase
 public struct FarmConstants
 {
     public static float PlantMaturityHealth = 10.0f; // 10 Seconds
+    public static float RockStartingHealth = 10.0f; // 10 Seconds of smashing
 }
