@@ -87,6 +87,7 @@ public class GameInitSystem : SystemBase
 
                     ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeights[pos.y * dimension.x + pos.x] + k_CannongHeightOffset, pos.y) });
                     ecb.SetComponent(instance, new Rotation { Value = 2f * random.NextFloat() * math.PI});
+                    ecb.SetComponent(instance, new Cooldown { Value = random.NextFloat() * gameParams.CannonCooldown });
                     occupiedSlots.Add(pos);
                 }
             }

@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
+[GenerateAuthoringComponent]
 public struct MovementParabola : IComponentData
 {
     public float3 Origin;

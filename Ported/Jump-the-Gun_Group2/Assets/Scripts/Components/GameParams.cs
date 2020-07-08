@@ -9,4 +9,5 @@ public struct GameParams : IComponentData
     public int2 TerrainDimensions;
     public Entity CannonPrefab;
     public int CannonCount;
+    public float CannonCooldown;
 }
