@@ -3,3 +3,7 @@
 public struct Firefighter : IComponentData
 {
 }
+
+public struct Target : IComponentData
+{
+}
