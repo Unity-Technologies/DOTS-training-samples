@@ -10,6 +10,7 @@ namespace AutoFarmers
     {
         private EntityCommandBufferSystem m_CommandBufferSystem;
         private Random m_Random;
+        private EntityQuery m_Query;
 
         // Set on spawners to make them go to sleep after init
         public struct RocksAreInitalizedTag : IComponentData
@@ -20,6 +21,7 @@ namespace AutoFarmers
         {
             m_Random = new Random(0x1234567);
             m_CommandBufferSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+            RequireForUpdate(m_Query);
         }
 
         static bool IsAreaFree(DynamicBuffer<CellTypeElement> buffer, int2 gridSize, int2 position, int2 areaSize)
@@ -46,11 +48,12 @@ namespace AutoFarmers
 
             var entity = GetSingletonEntity<Grid>();
             var typeBuffer = EntityManager.GetBuffer<CellTypeElement>(entity);
-            var entityBuffer = EntityManager.GetBuffer<CellEntityElement>(entity);
             int2 gridSize = GetSingleton<Grid>().Size;
 
             Entities
-            .WithNone<RocksAreInitalizedTag>()
+            .WithChangeFilter<RockSpawner>()
+            .WithStoreEntityQueryInField(ref m_Query)
+            .WithAll<Farm>()
             .ForEach((Entity rockSpawner, in RockSpawner spawner) =>
             {
                 for (int n = 0; n < spawner.NumRocks; n++)
@@ -96,7 +99,6 @@ namespace AutoFarmers
                         }
                     }
                 }
-                ecb.AddComponent(rockSpawner, new RocksAreInitalizedTag());
             }).Run();
 
             m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
