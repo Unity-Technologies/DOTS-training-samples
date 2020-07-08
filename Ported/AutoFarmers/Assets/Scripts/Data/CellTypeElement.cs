@@ -7,7 +7,8 @@ namespace AutoFarmers
         Raw,
         Tilled,
         Rock,
-        Plant
+        Plant,
+        Shop
     }
     
     struct CellTypeElement : IBufferElementData
