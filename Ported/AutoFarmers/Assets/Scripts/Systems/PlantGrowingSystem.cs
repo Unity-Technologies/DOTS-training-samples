@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 public class PlantGrowingSystem : SystemBase
 {
@@ -16,13 +17,19 @@ public class PlantGrowingSystem : SystemBase
 
         float deltaTime = Time.DeltaTime;
 
-        Entities.WithNone<FullyGrownPlant_Tag>().ForEach((int entityInQueryIndex, Entity entity, ref Plant_Tag plant) =>
+        Entities
+            .WithAll<Plant_Tag>()
+            .WithNone<FullyGrownPlant_Tag>().ForEach((int entityInQueryIndex, Entity entity, ref Health health) =>
         {
-            plant.Age += deltaTime;
-            if (plant.Age >= FarmConstants.PlantMaturityAge)
+            health.Value += deltaTime;
+            if (health.Value >= FarmConstants.PlantMaturityHealth)
             {
                 ecb.AddComponent<FullyGrownPlant_Tag>(entityInQueryIndex, entity, new FullyGrownPlant_Tag());
             }
+
+            float size = health.Value / 10.0f;
+            ecb.SetComponent(entityInQueryIndex, entity, new NonUniformScale { Value = size });
+
         }).ScheduleParallel();
         
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
@@ -31,5 +38,5 @@ public class PlantGrowingSystem : SystemBase
 
 public struct FarmConstants
 {
-    public static float PlantMaturityAge = 10.0f; // 10 Seconds
+    public static float PlantMaturityHealth = 10.0f; // 10 Seconds
 }
