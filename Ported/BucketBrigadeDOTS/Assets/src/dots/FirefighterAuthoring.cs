@@ -5,6 +5,11 @@ public struct Firefighter : IComponentData
 {
 }
 
+public struct FirefighterNext : IComponentData
+{
+    public Entity Value;
+}
+
 public struct FirefighterFullTag : IComponentData
 {
 }

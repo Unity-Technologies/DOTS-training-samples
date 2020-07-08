@@ -12,6 +12,8 @@ public class FirefighterSpawnSystem : SystemBase
             {
                 int firefigherID = 0;
                 int firefighterCount = spawner.CountX * spawner.CountZ;
+
+                var previousInstance = Entity.Null;
                 
                 for (int x = 0; x < spawner.CountX; ++x)
                 for (int z = 0; z < spawner.CountZ; ++z)
@@ -30,7 +32,12 @@ public class FirefighterSpawnSystem : SystemBase
                         EntityManager.AddComponent<FirefighterEmptyTag>(instance);
                     }
                     EntityManager.AddComponentData<FirefighterPositionInLine>(instance, new FirefighterPositionInLine { Value = (float)firefigherID/firefighterCount });
+
+                    if (previousInstance != Entity.Null)
+                        EntityManager.AddComponentData<FirefighterNext>(instance, new FirefighterNext { Value = previousInstance });
+                    
                     firefigherID++;
+                    previousInstance = instance;
                 }
 
                 EntityManager.DestroyEntity(entity);
