@@ -13,15 +13,20 @@ public class FireSpreadSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        //var fireGridEntity = GetSingletonEntity<FireGridSettings>();
-        //var bufferRef = EntityManager.GetBuffer<FireCell>(fireGridEntity);
-        /*
-        Entities
-        .ForEach((int entityInQueryIndex) =>
-        {
+        var fireGridEntity = GetSingletonEntity<FireGridSettings>();
+        var fireGridSetting = GetComponent<FireGridSettings>(fireGridEntity);
+        var bufferPrev = EntityManager.GetBuffer<FireCellHistory>(fireGridEntity);
 
+        Entities
+        .WithReadOnly(bufferPrev)
+        .ForEach((DynamicBuffer<FireCell> buffer) =>
+        {
+            for (int i = 0; i < buffer.Length; ++i)
+            {
+                FireCell cell = buffer[i];
+                cell.FireTemperature = bufferPrev[i].FireTemperaturePrev + 0.01f;
+                buffer[i] = cell;
+            }
         }).Schedule();
-        */
-        //m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
