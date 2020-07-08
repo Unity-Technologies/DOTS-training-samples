@@ -29,6 +29,7 @@ public class PlayerNextMoveSystem : SystemBase
             {
                 movement.Origin = pos.Value;
                 movement.Target = pos.Value + math.float3(cubeSize * direction.Value, 0);
+                movement.Target = pos.Value + math.float3(cubeSize.x * direction.Value.x, 0, cubeSize.y * direction.Value.y);
                 normalisedMoveTime.Value = 0.0f;
             }
         }).ScheduleParallel();

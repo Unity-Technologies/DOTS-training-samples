@@ -21,24 +21,32 @@ public class MouseInputSystem : SystemBase
     }
 
     protected override void OnUpdate()
-    {
-        float2 mousePos = ((float3)UnityEngine.Input.mousePosition).xy;
+    {        
+        float2 threshold = 0.03f * math.float2(Screen.width, Screen.height);
 
-        mousePos.x /= Screen.width;
-        mousePos.y /= Screen.height;
+        // For now we assume only one player. Need to convert this to a global bound center encompassing all players
+        // if we move to that.
+        var playerEntity = GetSingletonEntity<PlayerTag>();
+        var playerLocation = EntityManager.GetComponentData<Position>(playerEntity);
+        var playerScreenPos =  Camera.main.WorldToScreenPoint(playerLocation.Value);
+        var mouseScreenPos = ((float3)UnityEngine.Input.mousePosition).xy;
 
-        mousePos -= 0.5f;
-        mousePos *= 2;
-        // 10 pixel away from center indicates a direction shift.
-        float2 threshold =  10.0f * math.rcp(math.float2(Screen.width, Screen.height));
+        float2 playerToMouse = ((float3)UnityEngine.Input.mousePosition).xy - math.float2(playerScreenPos.x, playerScreenPos.y);
+        float2 targetDir = math.float2(0.0f, 0.0f);
+
+        if (math.abs(playerToMouse.x) > threshold.x)
+        {
+            targetDir.x += math.sign(playerToMouse.x);
+        }
+        if (math.abs(playerToMouse.y) > threshold.y)
+        {
+            targetDir.y += math.sign(playerToMouse.y);
+        }
+
 
         Entities.ForEach((ref Direction d) => 
         {
-            if (mousePos.x > threshold.x) d.Value.x = 1.0f;
-            if (mousePos.x < threshold.x) d.Value.x = -1.0f;
-            if (mousePos.y > threshold.y) d.Value.y = 1.0f;
-            if (mousePos.y < threshold.y) d.Value.y = -1.0f;
-
+            d.Value = targetDir;
         }).Schedule();
     }
 }
