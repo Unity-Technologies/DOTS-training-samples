@@ -9,6 +9,9 @@ public class TransformSystem2D : SystemBase
     {
         float3 firefighterScale = new float3(0.2f, 0.5f, 0.2f);
 
+        // These queries will be specialized for object type and assign correct 3D translation and 3D,
+        // so this system will effectively be presentation layer logic and will need a different name
+        
         Entities
             .WithChangeFilter<Translation2D>()
             .ForEach((ref LocalToWorld localToWorld, in Translation2D translation2D) =>
