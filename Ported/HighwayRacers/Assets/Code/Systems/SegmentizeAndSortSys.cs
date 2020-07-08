@@ -1,4 +1,5 @@
 ﻿using Unity.Assertions;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -63,14 +64,14 @@ namespace HighwayRacer
 
             jobHandle = carBuckets.Sort(jobHandle);
             jobHandle.Complete();
-            //carBuckets.Sort();
-            
+
             Dependency = jobHandle;
         }
     }
 
 
 
+    [BurstCompile(CompileSynchronously = true)]
     public struct SegmentizeJob : IJobChunk
     {
         [NativeDisableUnsafePtrRestriction] [NativeDisableContainerSafetyRestriction] // todo : is this necessary?

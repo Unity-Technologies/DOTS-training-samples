@@ -58,7 +58,7 @@ namespace HighwayRacer
                     var types = new ComponentType[]
                     {
                         typeof(Prefab), typeof(Speed), typeof(TrackPos), typeof(TrackSegment), typeof(TargetSpeed),
-                        typeof(DesiredSpeed), typeof(Lane), typeof(Blocking), typeof(Translation), typeof(Rotation), typeof(Color)
+                        typeof(DesiredSpeed), typeof(Lane), typeof(Blocking), typeof(Translation), typeof(Rotation), typeof(URPMaterialPropertyBaseColor)
                     };
                     EntityManager.AddComponents(carPrefab, new ComponentTypes(types));
                 }
@@ -82,7 +82,7 @@ namespace HighwayRacer
                 var maxCarsInLane = (nCars % nLanes == 0) ? (nCars / nLanes) : (nCars / nLanes) + 1;
 
                 Entities.ForEach((ref Speed speed, ref TrackPos trackPos, ref TargetSpeed targetSpeed, ref DesiredSpeed desiredSpeed,
-                    ref Lane lane, ref Blocking blockedDist, ref Color color) =>
+                    ref Lane lane, ref Blocking blockedDist, ref URPMaterialPropertyBaseColor color) =>
                 {
                     if (nCarsInLane >= maxCarsInLane)
                     {
@@ -99,7 +99,7 @@ namespace HighwayRacer
                     desiredSpeed.Overtake = targetSpeed.Val * math.lerp(minOvertakeModifier, maxOvertakeModifier, rand.NextFloat());
                     trackPos.Val = nextTrackPos;
                     lane.Val = currentLane;
-                    color.Val = new float4(SetColorSys.cruiseColor, 1.0f);
+                    color.Value = new float4(SetColorSys.cruiseColor, 1.0f);
 
                     nextTrackPos += RoadSys.carSpawnDist;
                     Assert.IsTrue(nextTrackPos <= trackLength - RoadSys.carSpawnDist, "Spawning more cars than will fit in lane.");

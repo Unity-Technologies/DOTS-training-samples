@@ -49,13 +49,13 @@ namespace HighwayRacer
 
                 if ((pos > candidate.Pos) || (samePos && lane > candidate.Lane)) // look up 
                 {
-                    Assert.IsFalse(idx == end, "exhausted search at end");
+                    //Assert.IsFalse(idx == end, "exhausted search at end");
                     start = idx + 1;
                     idx = (end - start) / 2 + start;
                 }
                 else // look down
                 {
-                    Assert.IsFalse(idx == start, "exhausted search at start");
+                    //Assert.IsFalse(idx == start, "exhausted search at start");
                     end = idx - 1;
                     idx = (end - start) / 2 + start;
                 }
