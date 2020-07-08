@@ -17,23 +17,20 @@ public class GameInitSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
+        var ecb = m_ECBSystem.CreateCommandBuffer();
 
         Entities
             .ForEach((int entityInQueryIndex, Entity entity, in GameParams gameParams) =>
         {
-            //var brickSize = GetComponent<Scale2D>(spawner.BrickPrefab).Value;
             for (int y = 0; y < gameParams.TerrainDimensions.y; ++y)
             {
                 for (int x = 0; x < gameParams.TerrainDimensions.x; ++x)
                 {
-                    var instance = ecb.Instantiate(entityInQueryIndex, gameParams.TilePrefab);
-              //      var translation = spawnerTranslation2D.Value + new float2(x - (spawner.SizeX - 1) / 2f, y);
-              //      translation *= brickSize * 1.1f;
-              //      ecb.SetComponent(instance, new Translation2D { Value = translation });
+                    var instance = ecb.Instantiate(gameParams.TilePrefab);
+                    ecb.SetComponent(instance, new Position { Value = new float3(x, 0, y) });
                 }
             }
-            //ecb.AddComponent<DisabledTag>(spawnerEntity);
+            ecb.RemoveComponent<GameOverTag>(entity);
         }).Schedule();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
