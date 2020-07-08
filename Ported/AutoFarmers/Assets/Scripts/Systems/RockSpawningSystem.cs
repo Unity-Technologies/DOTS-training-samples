@@ -10,6 +10,7 @@ namespace AutoFarmers
     {
         private EntityCommandBufferSystem m_CommandBufferSystem;
         private Random m_Random;
+        private EntityQuery m_Query;
 
         // Set on spawners to make them go to sleep after init
         public struct RocksAreInitalizedTag : IComponentData
@@ -20,6 +21,7 @@ namespace AutoFarmers
         {
             m_Random = new Random(0x1234567);
             m_CommandBufferSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+            RequireForUpdate(m_Query);
         }
 
         static bool IsAreaFree(DynamicBuffer<CellTypeElement> buffer, int2 gridSize, int2 position, int2 areaSize)
@@ -46,11 +48,12 @@ namespace AutoFarmers
 
             var entity = GetSingletonEntity<Grid>();
             var typeBuffer = EntityManager.GetBuffer<CellTypeElement>(entity);
-            var entityBuffer = EntityManager.GetBuffer<CellEntityElement>(entity);
             int2 gridSize = GetSingleton<Grid>().Size;
 
             Entities
-            .WithNone<RocksAreInitalizedTag>()
+            .WithChangeFilter<RockSpawner>()
+            .WithStoreEntityQueryInField(ref m_Query)
+            .WithAll<Farm>()
             .ForEach((Entity rockSpawner, in RockSpawner spawner) =>
             {
                 for (int n = 0; n < spawner.NumRocks; n++)
@@ -80,13 +83,12 @@ namespace AutoFarmers
 
                     var instance = ecb.Instantiate(spawner.RockPrefab);
                     ecb.SetComponent(instance, new Translation { Value = translation });
-                    ecb.AddComponent(instance, new NonUniformScale { Value = scale });
-                    ecb.AddComponent(instance, new CellPosition { Value = position });
-                    ecb.AddComponent(instance, new CellSize { Value = size });
-                    ecb.AddComponent(instance, new Rock_Tag());
+                    ecb.SetComponent(instance, new NonUniformScale { Value = scale });
+                    ecb.SetComponent(instance, new CellPosition { Value = position });
+                    ecb.SetComponent(instance, new CellSize { Value = size });
 
                     float health = random.NextFloat(spawner.minHeight, spawner.maxHeight);
-                    ecb.AddComponent(instance, new Health { Value = health });
+                    ecb.SetComponent(instance, new Health { Value = health });
    
                     for (int j = 0; j < size.y; j++)
                     {
@@ -97,7 +99,6 @@ namespace AutoFarmers
                         }
                     }
                 }
-                ecb.AddComponent(rockSpawner, new RocksAreInitalizedTag());
             }).Run();
 
             m_CommandBufferSystem.AddJobHandleForProducer(Dependency);

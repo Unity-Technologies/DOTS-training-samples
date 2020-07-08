@@ -4,7 +4,6 @@ using Unity.Transforms;
 
 namespace AutoFarmers
 {
-    [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class HealthScalingSystem : SystemBase
     {
         protected override void OnUpdate()
