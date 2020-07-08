@@ -16,6 +16,10 @@ public class PlayerNextMoveSystem : SystemBase
                 ComponentType.ReadOnly<Direction>()
             }
         });
+
+        RequireSingletonForUpdate<GridTag>();
+        RequireSingletonForUpdate<GameParams>();
+
     }
 
     protected override void OnUpdate()
@@ -23,12 +27,27 @@ public class PlayerNextMoveSystem : SystemBase
         // Assume it is scaled later
         float2 cubeSize = math.float2(1, 1);
 
-        Entities.ForEach((ref MovementParabola movement, ref NormalisedMoveTime normalisedMoveTime, in PlayerTag player, in Direction direction, in Position pos) =>
+        var gridtag = GetSingletonEntity<GridTag>();
+
+        DynamicBuffer<GridHeight> gh = EntityManager.GetBuffer<GridHeight>(gridtag);
+
+        GameParams gp =  GetSingleton<GameParams>();
+
+        Entities.
+        WithAll<PlayerTag>().
+        WithReadOnly(gh).
+        ForEach((ref MovementParabola movement, ref NormalisedMoveTime normalisedMoveTime, in Direction direction, in Position pos) =>
         {
             if(normalisedMoveTime.Value >= 1.0f)
             {
                 movement.Origin = pos.Value;
-                movement.Target = pos.Value + math.float3(cubeSize.x * direction.Value.x, 0, cubeSize.y * direction.Value.y);
+
+                int xp = math.clamp((int)(direction.Value.x + movement.Origin.x),0,gp.TerrainDimensions.x);
+                int yp = math.clamp((int)(direction.Value.y + movement.Origin.y),0,gp.TerrainDimensions.y);
+                float height = gh[xp + yp * gp.TerrainDimensions.y].Height + 1;
+                float3 newPos = new float3(xp, height, yp);
+
+                movement.Target = newPos;
                 normalisedMoveTime.Value = 0.0f;
             }
         }).ScheduleParallel();
