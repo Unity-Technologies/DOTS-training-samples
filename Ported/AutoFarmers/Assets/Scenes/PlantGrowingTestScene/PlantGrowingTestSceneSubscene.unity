@@ -136,7 +136,6 @@ GameObject:
   - component: {fileID: 1300243738}
   - component: {fileID: 1300243737}
   - component: {fileID: 1300243736}
-  - component: {fileID: 1300243735}
   - component: {fileID: 1300243741}
   m_Layer: 0
   m_Name: PlantStandin1
@@ -145,21 +144,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1300243735
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1300243734}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 691a340d7f0145529cf144fbd1b63f97, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Value:
-    x: 0
-    y: 0
 --- !u!114 &1300243736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -275,7 +259,6 @@ GameObject:
   - component: {fileID: 2038484267}
   - component: {fileID: 2038484266}
   - component: {fileID: 2038484265}
-  - component: {fileID: 2038484264}
   - component: {fileID: 2038484270}
   m_Layer: 0
   m_Name: PlantStandin2
@@ -284,21 +267,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2038484264
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2038484263}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 691a340d7f0145529cf144fbd1b63f97, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Value:
-    x: 0
-    y: 0
 --- !u!114 &2038484265
 MonoBehaviour:
   m_ObjectHideFlags: 0
