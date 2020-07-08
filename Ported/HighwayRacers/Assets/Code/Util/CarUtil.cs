@@ -1,4 +1,5 @@
-﻿using Unity.Assertions;
+﻿using System;
+using Unity.Assertions;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
@@ -54,7 +55,7 @@ namespace HighwayRacer
                 }
                 else // look down
                 {
-                    Assert.IsFalse(idx == start, "exhausted search at start"); 
+                    Assert.IsFalse(idx == start, "exhausted search at start");
                     end = idx - 1;
                     idx = (end - start) / 2 + start;
                 }
@@ -64,15 +65,13 @@ namespace HighwayRacer
         public static bool CanMerge(float pos, int destLane, int lane, int segment, CarBuckets carBuckets,
             float trackLength, int nSegments)
         {
-            return false;  // todo
-            
             var bucket = carBuckets.GetCars(segment);
             int idx = findInBucket(bucket, pos, lane);
 
             // return false if a car is behind in dest lane within the mergeBehind range
-            for (int backIdx = idx - 1; backIdx < 0; backIdx--)
+            for (int behindIdx = idx - 1; behindIdx >= 0; behindIdx--)
             {
-                var other = bucket[backIdx];
+                var other = bucket[behindIdx];
 
                 if ((pos - other.Pos) > RoadSys.mergeLookBehind)
                 {
@@ -81,23 +80,23 @@ namespace HighwayRacer
 
                 if (other.Lane == destLane)
                 {
-                    return false; // blocked in the same lane
+                    return false; // blocked
                 }
             }
 
             // return false if a car is ahead in dest lane within the mergeAhead range
-            for (int forwardIdx = idx + 1; forwardIdx < bucket.Length; forwardIdx++)
+            for (int aheadIdx = idx + 1; aheadIdx < bucket.Length; aheadIdx++)
             {
-                var other = bucket[forwardIdx];
+                var other = bucket[aheadIdx];
 
-                if ((pos - other.Pos) > RoadSys.mergeLookAhead)
+                if ((other.Pos - pos) > RoadSys.mergeLookAhead)
                 {
                     return true; // all remaining cars too far ahead to block us
                 }
 
                 if (other.Lane == destLane)
                 {
-                    return false; // blocked in the same lane
+                    return false; // blocked
                 }
             }
 
@@ -105,9 +104,9 @@ namespace HighwayRacer
             var wrapAround = (segment == nSegments - 1);
             bucket = carBuckets.GetCars((wrapAround) ? 0 : segment + 1);
 
-            for (int forwardIdx = 0; forwardIdx < bucket.Length; forwardIdx++)
+            for (int aheadIdx = 0; aheadIdx < bucket.Length; aheadIdx++)
             {
-                var other = bucket[forwardIdx];
+                var other = bucket[aheadIdx];
                 var otherPos = (wrapAround) ? other.Pos + trackLength : other.Pos;
 
                 if ((otherPos - pos) > RoadSys.mergeLookAhead)
@@ -117,7 +116,7 @@ namespace HighwayRacer
 
                 if (other.Lane == destLane)
                 {
-                    return false; // blocked in the same lane
+                    return false; // blocked
                 }
             }
 
@@ -168,7 +167,7 @@ namespace HighwayRacer
             {
                 var other = bucket[i];
 
-                var dist = (other.Pos - trackPos.Val); 
+                var dist = (other.Pos - trackPos.Val);
                 if (dist > RoadSys.mergeLookAhead)
                 {
                     return; // all remaining cars too far ahead to block us
@@ -207,8 +206,8 @@ namespace HighwayRacer
 
             // exhausted the second bucket without finding a blocking car ahead
         }
-        
-        
+
+
         public static void GetClosestPosAndSpeed(out float distance, out float closestSpeed,
             CarBuckets carBuckets, int segment, int lane, int destLane,
             float trackLength, TrackPos trackPos, int nSegments)
@@ -224,13 +223,13 @@ namespace HighwayRacer
             {
                 var other = bucket[i];
 
-                var dist = (other.Pos - trackPos.Val); 
+                var dist = (other.Pos - trackPos.Val);
                 if (dist > RoadSys.mergeLookAhead)
                 {
                     return; // all remaining cars too far ahead to block us
                 }
 
-                if (other.Lane == lane || other.Lane == destLane)  // blocked in the same lane + target merge lane
+                if (other.Lane == lane || other.Lane == destLane) // blocked in the same lane + target merge lane
                 {
                     distance = dist;
                     closestSpeed = other.Speed;
@@ -253,7 +252,7 @@ namespace HighwayRacer
                     return; // all remaining cars too far ahead to block us
                 }
 
-                if (other.Lane == lane || other.Lane == destLane)  // blocked in the same lane + target merge lane
+                if (other.Lane == lane || other.Lane == destLane) // blocked in the same lane + target merge lane
                 {
                     distance = dist;
                     closestSpeed = other.Speed;

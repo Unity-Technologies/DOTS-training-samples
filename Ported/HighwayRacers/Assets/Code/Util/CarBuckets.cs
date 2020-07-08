@@ -2,6 +2,7 @@
 using HighwayRacer;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace HighwayRacer
@@ -59,6 +60,16 @@ namespace HighwayRacer
             }
         }
 
+        public JobHandle Sort(JobHandle dependency)
+        {
+            var sortJob = new SortJob()
+            {
+                Lists = lists,
+            };
+
+            return sortJob.Schedule(RoadSys.nSegments, 1, dependency);
+        }
+        
         // todo: sort in parallel
         public void Sort()
         {
@@ -106,7 +117,7 @@ namespace HighwayRacer
             {
                 return 0;
             }
-            else // no two cars with equal Pos should have equal Lane, so we can assume now that (x.Lane > y.Lane)
+            else
             {
                 return 1;
             }
@@ -118,5 +129,15 @@ namespace HighwayRacer
         public float Pos;
         public int Lane;
         public float Speed;
+    }
+    
+    public struct SortJob : IJobParallelFor
+    {
+        public NativeArray<UnsafeList> Lists;
+        public void Execute(int index)
+        {
+            var list = Lists[index];
+            list.Sort<SortedCar, CarCompare>(new CarCompare());
+        }
     }
 }

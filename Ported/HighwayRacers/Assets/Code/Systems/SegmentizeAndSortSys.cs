@@ -12,7 +12,7 @@ namespace HighwayRacer
     public class SegmentizeAndSortSys : SystemBase
     {
         public CarBuckets CarBuckets;
-        private int nCars;
+        private int nSegments;
 
         private EntityQuery query;
 
@@ -32,11 +32,11 @@ namespace HighwayRacer
 
         protected override void OnUpdate()
         {
-            if (nCars != RoadSys.numCars)
+            if (nSegments != RoadSys.nSegments)
             {
                 CarBuckets.Dispose();
-                CarBuckets = new CarBuckets(RoadSys.numCars, RoadSys.NumCarsFitInStraightSegment() * 2);
-                nCars = RoadSys.numCars;
+                CarBuckets = new CarBuckets(RoadSys.nSegments, RoadSys.NumCarsFitInStraightSegment() * 2);
+                nSegments = RoadSys.nSegments;
             }
 
             CarBuckets.Clear();
@@ -44,7 +44,7 @@ namespace HighwayRacer
 
             mergeLeftFrame = !mergeLeftFrame;
 
-            var job = new SegmentizeAndSortJob()
+            var segmentJob = new SegmentizeJob()
             {
                 CarBuckets = CarBuckets,
                 Thresholds = RoadSys.thresholds,
@@ -56,24 +56,29 @@ namespace HighwayRacer
                 SpeedType = GetArchetypeChunkComponentType<Speed>(),
                 LaneType = GetArchetypeChunkComponentType<Lane>(),
             };
-            
-            Dependency.Complete();
-            var jobHandle = job.ScheduleParallel(query, Dependency);
+
+            // todo: might the input dependency fail to include jobs that are still reading CarBuckets?
+            // todo: if so, then we have an issue anyway when we clear the buckets
+            var jobHandle = segmentJob.ScheduleParallel(query, Dependency);
+
+            jobHandle = carBuckets.Sort(jobHandle);
             jobHandle.Complete();
+            //carBuckets.Sort();
             
-            carBuckets.Sort();
             Dependency = jobHandle;
         }
     }
 
-    public struct SegmentizeAndSortJob : IJobChunk
+
+
+    public struct SegmentizeJob : IJobChunk
     {
         [NativeDisableUnsafePtrRestriction] [NativeDisableContainerSafetyRestriction] // todo : is this necessary?
         public CarBuckets CarBuckets;
 
         [ReadOnly] public ArchetypeChunkComponentType<MergingLeft> MergingLeftType;
         [ReadOnly] public ArchetypeChunkComponentType<MergingRight> MergingRightType;
-        
+
         public ArchetypeChunkComponentType<TrackSegment> TrackSegmentType;
         [ReadOnly] public ArchetypeChunkComponentType<TrackPos> TrackPosType;
         [ReadOnly] public ArchetypeChunkComponentType<Speed> SpeedType;
@@ -87,11 +92,11 @@ namespace HighwayRacer
             sbyte laneOffset = 0; // todo: is sbyte instead of int saving anything? could it even be more costly
 
             // left and right should be mutually exclusive
-            if (chunk.Has(MergingLeftType)) 
+            if (chunk.Has(MergingLeftType))
             {
                 laneOffset = -1; // lane we came from to the right
             }
-            
+
             if (chunk.Has(MergingRightType))
             {
                 laneOffset = 1; // lane we came from to the left
