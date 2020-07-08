@@ -42,11 +42,8 @@ public class PlayerNextMoveSystem : SystemBase
             {
                 movement.Origin = pos.Value;
 
-                int xp = math.clamp((int)(direction.Value.x + movement.Origin.x),0,gp.TerrainDimensions.x);
-                int yp = math.clamp((int)(direction.Value.y + movement.Origin.y),0,gp.TerrainDimensions.y);
-                float height = gh[xp + yp * gp.TerrainDimensions.y].Height + 1;
-                float3 newPos = new float3(xp, height, yp);
-
+                float3 newPos = new float3(math.clamp((direction.Value.x + pos.Value.x), 0, gp.TerrainDimensions.x), 0, math.clamp((direction.Value.y + pos.Value.z), 0, gp.TerrainDimensions.y));
+                newPos.y = gh[(int)newPos.x + (int)newPos.y * gp.TerrainDimensions.x].Height + 1;
                 movement.Target = newPos;
                 normalisedMoveTime.Value = 0.0f;
             }
