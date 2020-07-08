@@ -5,23 +5,21 @@ using Unity.Collections;
 
 public class FirefighterRandomTargetSystem : SystemBase
 {
-    private Random m_Random;
     private EntityCommandBufferSystem m_ECBSystem;
 
     protected override void OnCreate()
     {
-        m_Random = new Random(0x1234567);
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
         var ecb = m_ECBSystem.CreateCommandBuffer();
-        var random = m_Random;
 
-        Entities.WithNone<Target>().ForEach((Entity entity, Firefighter firefighter) =>
+        Entities.WithNone<Target>().ForEach((Entity entity, Firefighter firefighter, in Translation2D translation) =>
         {
-            float2 pos = random.NextFloat2() * 10;
+            var rand = new Random((uint)((translation.Value.x * 10000 + translation.Value.y * 100 + 1 )));
+            float2 pos = rand.NextFloat2(0, 10) - 5;
             ecb.AddComponent<Target>(entity, new Target{ Value = pos });
         }).Schedule();
 
