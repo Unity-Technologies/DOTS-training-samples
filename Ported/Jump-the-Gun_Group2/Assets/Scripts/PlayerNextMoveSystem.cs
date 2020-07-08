@@ -50,7 +50,7 @@ public class PlayerNextMoveSystem : SystemBase
             {
                 movement.Origin = pos.Value;
 
-                float3 newPos = new float3(math.clamp((direction.Value.x + pos.Value.x), 0, gp.TerrainDimensions.x), 0, math.clamp((direction.Value.y + pos.Value.z), 0, gp.TerrainDimensions.y));
+                float3 newPos = new float3(math.clamp((direction.Value.x + pos.Value.x), 0.0f, gp.TerrainDimensions.x - 1), 0, math.clamp((direction.Value.y + pos.Value.z), 0, gp.TerrainDimensions.y - 1));
                 newPos.y = gh[(int)newPos.x + (int)newPos.y * gp.TerrainDimensions.x].Height + 1;
                 movement.Target = newPos;
                 normalisedMoveTime.Value = 0.0f;
