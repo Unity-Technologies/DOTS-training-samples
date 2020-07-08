@@ -6,5 +6,7 @@ public struct GameParams : IComponentData
 {
     public Entity TilePrefab;
     public float2 TerrainHeightRange;
-    public float2 TerrainDimensions;
+    public int2 TerrainDimensions;
+    public Entity CannonPrefab;
+    public int CannonCount;
 }
