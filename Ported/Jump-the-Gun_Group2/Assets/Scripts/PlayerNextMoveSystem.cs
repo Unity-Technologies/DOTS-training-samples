@@ -16,6 +16,10 @@ public class PlayerNextMoveSystem : SystemBase
                 ComponentType.ReadOnly<Direction>()
             }
         });
+
+        RequireSingletonForUpdate<GridTag>();
+        RequireSingletonForUpdate<GameParams>();
+
     }
 
     protected override void OnUpdate()
