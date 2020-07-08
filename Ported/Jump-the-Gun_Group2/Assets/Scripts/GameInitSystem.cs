@@ -44,7 +44,7 @@ public class GameInitSystem : SystemBase
             .WithNone<Height>()
             .WithNone<Rotation>()
             .WithNone<PlayerTag>()
-            .ForEach((Entity entity) => 
+            .ForEach((Entity entity) =>
             {
                 ecb.DestroyEntity(entity);
             }).Schedule();
@@ -128,7 +128,7 @@ public class GameInitSystem : SystemBase
                         pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
 
                     ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeightsBuffer[pos.y * dimension.x + pos.x].Height + k_CannongHeightOffset, pos.y) });
-                    ecb.SetComponent(instance, new Rotation { Value = 2f * random.NextFloat() * math.PI});
+                    ecb.SetComponent(instance, new Rotation { Value = 2f * random.NextFloat() * math.PI });
                     ecb.SetComponent(instance, new Cooldown { Value = random.NextFloat() * gameParams.CannonCooldown });
                     tilesOccupiedBuffer[pos.y * dimension.x + pos.x] = new GridOccupied { Occupied = true };
                 }
@@ -143,11 +143,15 @@ public class GameInitSystem : SystemBase
 
                 ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeightsBuffer[pos.y * dimension.x + pos.x].Height + 0.5f, pos.y) });
             }
-
-
-            // Remove GameOverTag
-            ecb.RemoveComponent<GameOverTag>(entity);
         }).Schedule();
+
+        // Remove GameOverTag
+        Entities
+            .WithAll<GameOverTag>()
+            .ForEach((Entity entity) =>
+            {
+                ecb.RemoveComponent<GameOverTag>(entity);
+            }).Schedule();
 
         m_Random = random;
 
