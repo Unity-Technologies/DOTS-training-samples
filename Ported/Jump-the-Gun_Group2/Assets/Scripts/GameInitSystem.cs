@@ -68,10 +68,16 @@ public class GameInitSystem : SystemBase
                 for (int x = 0; x < dimension.x; ++x)
                 {
                     var instance = ecb.Instantiate(gameParams.TilePrefab);
-                    var height = gameParams.TerrainHeightRange.x + random.NextFloat() * (gameParams.TerrainHeightRange.y - gameParams.TerrainHeightRange.x);
+                    var height = gameParams.TerrainMin + random.NextFloat() * (gameParams.TerrainMax - gameParams.TerrainMin);
                     tileHeights[y* dimension.x + x] = height;
                     ecb.SetComponent(instance, new Position { Value = new float3(x, 0, y) });
                     ecb.SetComponent(instance, new Height { Value = height });
+
+                    float range = (gameParams.TerrainMax - gameParams.TerrainMin);
+                    float value = (height - gameParams.TerrainMin) / range;
+                    float4 color = math.lerp(gameParams.colorA, gameParams.colorB, value);
+
+                    ecb.SetComponent(instance, new Color { Value = color });
                 }
             }
 

@@ -6,6 +6,7 @@ using Unity.Jobs;
 public class BombLandsSystem : SystemBase
 {
 
+    
     private EntityCommandBufferSystem cbs;
 
     private EntityQuery bombQuery;
@@ -38,15 +39,23 @@ public class BombLandsSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, bombPositionHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, bombTimeHandle);
 
+        GameParams gameParams = GetSingleton<GameParams>();
+
         Entities
            .WithDeallocateOnJobCompletion(bombPosition)
            .WithDeallocateOnJobCompletion(bombTime)
            //for all the tiles
-           .ForEach((ref Height height, in Position position, in Color c) => {
+           .ForEach((ref Height height, ref Color c, in Position position) => {
                //for all the bombs
                for (int i = 0; i < bombPosition.Length; ++i) {
-                   if (bombTime[i].Value > 1 && math.distance(bombPosition[i].Value, position.Value) < 0.01f) {
-                       height.Value -= 0.3f;
+                   if (bombTime[i].Value > 1 && math.distance(bombPosition[i].Value, position.Value) < 0.1f) {
+                       
+                       height.Value = math.max(gameParams.TerrainMin, height.Value - 0.001f);
+
+                       float range = (gameParams.TerrainMax - gameParams.TerrainMin);
+                       float value = (height.Value - gameParams.TerrainMin) / range;
+                       float4 color = math.lerp(gameParams.colorA, gameParams.colorB, value);
+                       c.Value = color;
                    }
                }
 
@@ -54,7 +63,7 @@ public class BombLandsSystem : SystemBase
 
         Entities
            .WithNone<PlayerTag>()
-           .ForEach((int entityInQueryIndex, Entity e, ref NormalisedMoveTime n, in MovementParabola p) => {
+           .ForEach((int entityInQueryIndex, Entity e, in NormalisedMoveTime n, in MovementParabola p) => {
 
                //if the bomb has finished moving
                if(n.Value > 1) {
