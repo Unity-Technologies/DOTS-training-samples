@@ -26,6 +26,36 @@ public class GameInitSystem : SystemBase
         var ecb = m_ECBSystem.CreateCommandBuffer();
         var random = m_Random;
 
+        // Clean up tiles
+        Entities
+            .WithAll<Position>()
+            .WithAll<Height>()
+            .ForEach((Entity entity) =>
+            {
+                ecb.DestroyEntity(entity);
+            }).Schedule();
+
+        // Clean up bombs
+        Entities
+            .WithAll<Position>()
+            .WithNone<Height>()
+            .WithNone<Rotation>()
+            .WithNone<PlayerTag>()
+            .ForEach((Entity entity) => 
+            {
+                ecb.DestroyEntity(entity);
+            }).Schedule();
+
+        // Clean up cannons
+        Entities
+            .WithAll<Position>()
+            .WithAll<Rotation>()
+            .ForEach((Entity entity) =>
+            {
+                ecb.DestroyEntity(entity);
+            }).Schedule();
+
+        // Setup the board
         Entities
             .ForEach((int entityInQueryIndex, Entity entity, in GameParams gameParams) =>
         {
