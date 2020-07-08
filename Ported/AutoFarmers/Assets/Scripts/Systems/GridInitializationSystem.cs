@@ -17,9 +17,6 @@ namespace AutoFarmers
 
         protected override void OnUpdate()
         {
-            // Make sure we only have 1 farm
-            GetSingletonEntity<Farm>();
-            
             Entities
                 .WithoutBurst()
                 .WithStructuralChanges()
