@@ -52,7 +52,7 @@ namespace AutoFarmers
                 for (var y = 0; y < farm.MapSize.y; y++)
                 {
                     var i = x * farm.MapSize.y + y;
-                    EntityManager.SetComponentData(cellEntities[i], new Translation { Value = math.float3(x, 0, y)});
+                    EntityManager.SetComponentData(cellEntities[i], new Translation { Value = math.float3(x, 0, y) + new float3(0.5f, 0.0f, 0.5f)});
                     EntityManager.SetName(cellEntities[i], $"Cell {i} ({x}, {y})");
                 }
                 
