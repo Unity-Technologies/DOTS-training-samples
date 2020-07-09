@@ -161,7 +161,9 @@ MonoBehaviour:
   TerrainDimensions:
     x: 100
     y: 100
-  CannonPrefab: {fileID: 1285056113001856, guid: c86b1bd6777d544aba9a2ee2262c61c4,
+  CannonPrefab: {fileID: 830797480604995125, guid: 0cabdad3b4f93ff48ae564e8f9bd2b1e,
+    type: 3}
+  CannonBarrelPrefab: {fileID: 3850145625959371371, guid: 5d9b08aa9f0a93d4daa1833eb777623a,
     type: 3}
   CannonCount: 5
   CannonCooldown: 5

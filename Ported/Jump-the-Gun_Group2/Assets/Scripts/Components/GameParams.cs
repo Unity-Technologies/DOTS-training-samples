@@ -13,6 +13,7 @@ public struct GameParams : IComponentData
     public float TerrainMax;
     public int2 TerrainDimensions;
     public Entity CannonPrefab;
+    public Entity CannonBarrel;
     public int CannonCount;
     public float CannonCooldown;
     public float4 colorA;

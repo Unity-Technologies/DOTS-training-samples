@@ -123,15 +123,22 @@ public class GameInitSystem : SystemBase
             {
                 for (int i = 0; i < gameParams.CannonCount; ++i)
                 {
-                    var instance = ecb.Instantiate(gameParams.CannonPrefab);
-                    var pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
-                    while (tilesOccupiedBuffer[pos.y * dimension.x + pos.x].Occupied)
-                        pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
+                    var cannonBarrel = ecb.Instantiate(gameParams.CannonBarrel);
+                    var tilePos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
+                    while (tilesOccupiedBuffer[tilePos.y * dimension.x + tilePos.x].Occupied)
+                        tilePos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
 
-                    ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeightsBuffer[GridFunctions.GetGridIndex(pos.xy, gameParams.TerrainDimensions)].Height + k_CannongHeightOffset, pos.y) });
-                    //ecb.SetComponent(instance, new Rotation { Value = 0 });
-                    ecb.SetComponent(instance, new Cooldown { Value = random.NextFloat() * gameParams.CannonCooldown });
-                    tilesOccupiedBuffer[GridFunctions.GetGridIndex(pos.xy, gameParams.TerrainDimensions)] = new GridOccupied { Occupied = true };
+                    var position = new float3(tilePos.x, tileHeightsBuffer[GridFunctions.GetGridIndex(tilePos.xy, gameParams.TerrainDimensions)].Height + k_CannongHeightOffset, tilePos.y);
+
+                    ecb.SetComponent(cannonBarrel, new Position { Value = position });
+                    ecb.SetComponent(cannonBarrel, new Rotation { Value = -0.5f * math.PI });
+                    ecb.SetComponent(cannonBarrel, new Cooldown { Value = random.NextFloat() * gameParams.CannonCooldown });
+
+                    var cannonBase = ecb.Instantiate(gameParams.CannonPrefab);
+                    ecb.AddComponent(cannonBase, new Position { Value = position });
+                    ecb.AddComponent(cannonBase, new LookAtPlayerTag());
+
+                    tilesOccupiedBuffer[GridFunctions.GetGridIndex(tilePos.xy, gameParams.TerrainDimensions)] = new GridOccupied { Occupied = true };
                 }
             }
 

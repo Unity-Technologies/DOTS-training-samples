@@ -28,6 +28,7 @@ public class LTWUpdateSystem : SystemBase
         var playerLocation = EntityManager.GetComponentData<Position>(playerEntity).Value.xz;
 
         Entities
+            .WithNone<Rotation>()
             .WithAll<LookAtPlayerTag>()
             .ForEach((ref LocalToWorld localToWorld, in Position pos) => {
                 var trans = float4x4.Translate(pos.Value);
@@ -40,5 +41,17 @@ public class LTWUpdateSystem : SystemBase
                 localToWorld.Value = math.mul(math.mul(trans, scale), rotate);
             }).ScheduleParallel();
 
+        Entities
+            .WithAll<LookAtPlayerTag>()
+            .ForEach((ref LocalToWorld localToWorld, in Position pos, in Rotation rot) => {
+                var trans = float4x4.Translate(pos.Value);
+                var scale = float4x4.Scale(1);
+                var direction = playerLocation - pos.Value.xz;
+                var yaw = math.atan(direction.x / direction.y);// direction.y < 0 ? math.PI : 0f;
+                        if (direction.y < 0)
+                    yaw += math.PI;
+                var rotate = float4x4.EulerXYZ(rot.Value, yaw, 0);
+                localToWorld.Value = math.mul(math.mul(trans, scale), rotate);
+            }).ScheduleParallel();
     }
 }
