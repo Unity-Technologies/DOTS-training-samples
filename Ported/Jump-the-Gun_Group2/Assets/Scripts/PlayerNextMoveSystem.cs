@@ -37,7 +37,7 @@ public class PlayerNextMoveSystem : SystemBase
     public static void InitPlayerPosition(ref MovementParabola movement, float3 pos, DynamicBuffer<GridHeight> gh, GameParams gp)
     {
         int2 originTile = new int2((int2)pos.xz);
-        movement.Origin = new float3(originTile.x + 0.5f, gh[GridFunctions.GetGridIndex(originTile, gp.TerrainDimensions)].Height + PlayerNextMoveSystem.kYOffset, originTile.y + 0.5f);
+        movement.Origin = new float3(originTile.x, gh[GridFunctions.GetGridIndex(originTile, gp.TerrainDimensions)].Height + PlayerNextMoveSystem.kYOffset, originTile.y);
 
         movement.Target = movement.Origin;
 
@@ -60,13 +60,15 @@ public class PlayerNextMoveSystem : SystemBase
 
         GameParams gp =  GetSingleton<GameParams>();
 
+        var deltaTime = Time.DeltaTime;
+
         Entities.
         WithAll<PlayerTag>().
         WithReadOnly(gh).
         WithReadOnly(go).
         ForEach((ref MovementParabola movement, ref NormalisedMoveTime normalisedMoveTime, in Direction direction, in Position pos) =>
         {
-            if (normalisedMoveTime.Value >= 1.0f) 
+            if (normalisedMoveTime.Value > (1.0f + deltaTime)) 
             {
                 InitPlayerPosition(ref movement, pos.Value, gh, gp);
 
@@ -76,7 +78,7 @@ public class PlayerNextMoveSystem : SystemBase
                 // Don't allow to move to target if it is occupied. Keep current position (setup in InitPlayerPosition)
                 if (!go[GridFunctions.GetGridIndex(targetTile, gp.TerrainDimensions)].Occupied)
                 {
-                    movement.Target = new float3(targetTile.x + 0.5f, gh[GridFunctions.GetGridIndex(targetTile, gp.TerrainDimensions)].Height + PlayerNextMoveSystem.kYOffset, targetTile.y + 0.5f);
+                    movement.Target = new float3(targetTile.x, gh[GridFunctions.GetGridIndex(targetTile, gp.TerrainDimensions)].Height + PlayerNextMoveSystem.kYOffset, targetTile.y);
                 }
 
                 if (math.all(movement.Origin == movement.Target))
