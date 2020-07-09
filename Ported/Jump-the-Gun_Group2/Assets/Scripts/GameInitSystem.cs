@@ -131,7 +131,7 @@ public class GameInitSystem : SystemBase
                     var position = new float3(tilePos.x, tileHeightsBuffer[GridFunctions.GetGridIndex(tilePos.xy, gameParams.TerrainDimensions)].Height + k_CannongHeightOffset, tilePos.y);
 
                     ecb.SetComponent(cannonBarrel, new Position { Value = position });
-                    ecb.SetComponent(cannonBarrel, new Rotation { Value = -0.5f * math.PI });
+                    ecb.SetComponent(cannonBarrel, new Rotation { Value = -0.25f * math.PI });
                     ecb.SetComponent(cannonBarrel, new Cooldown { Value = random.NextFloat() * gameParams.CannonCooldown });
 
                     var cannonBase = ecb.Instantiate(gameParams.CannonPrefab);
