@@ -4,6 +4,5 @@
 public struct FirefighterSpawner : IComponentData
 {
     public Entity Prefab;
-    public int CountX;
-    public int CountZ;
+    public int Count;
 }

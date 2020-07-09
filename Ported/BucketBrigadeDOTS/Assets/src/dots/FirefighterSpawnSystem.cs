@@ -13,34 +13,35 @@ public class FirefighterSpawnSystem : SystemBase
             .ForEach((Entity entity, in FirefighterSpawner spawner, in LocalToWorld ltw) =>
             {
                 int firefigherID = 0;
-                int firefighterCount = spawner.CountX * spawner.CountZ;
+                int firefighterCount = spawner.Count;
 
                 var previousInstance = Entity.Null;
+                var first = Entity.Null;
                 
-                for (int x = 0; x < spawner.CountX; ++x)
-                for (int z = 0; z < spawner.CountZ; ++z)
+                for (int i = 0; i < spawner.Count * 2; ++i)
                 {
-                    var posX = 2 * (x - (spawner.CountX - 1) / 2);
-                    var posZ = 2 * (z - (spawner.CountZ - 1) / 2);
+                    var posX = 2 * (i - (spawner.Count - 1) / 2);
                     var instance = EntityManager.Instantiate(spawner.Prefab);
-                    SetComponent<Translation2D>(instance, new Translation2D { Value = ltw.Position.xz + new float2(posX, posZ) });
-                    EntityManager.AddComponent<Firefighter>(instance);
-                    if (firefigherID % 2 == 0)
-                    {
-                        EntityManager.AddComponent<FirefighterFullTag>(instance);
-                    }
-                    else
-                    {
-                        EntityManager.AddComponent<FirefighterEmptyTag>(instance);
-                    }
-                    EntityManager.AddComponentData<FirefighterPositionInLine>(instance, new FirefighterPositionInLine { Value = (float)firefigherID/firefighterCount });
 
-                    if (previousInstance != Entity.Null)
-                        EntityManager.AddComponentData<FirefighterNext>(instance, new FirefighterNext { Value = previousInstance });
+                    if (first == Entity.Null)
+                        first = instance;
+
+                    SetComponent<Translation2D>(instance, new Translation2D { Value = ltw.Position.xz + new float2(posX, 0) });
+                    EntityManager.AddComponent<Firefighter>(instance);
                     
-                    firefigherID++;
+                    if (i < spawner.Count)
+                        EntityManager.AddComponent<FirefighterFullTag>(instance);
+                    else
+                        EntityManager.AddComponent<FirefighterEmptyTag>(instance);
+                    
+                    EntityManager.AddComponentData<FirefighterPositionInLine>(instance, new FirefighterPositionInLine { Value = (float) (i%spawner.Count)/firefighterCount });
+
+                    EntityManager.AddComponentData<FirefighterNext>(instance, new FirefighterNext { Value = previousInstance });
+
                     previousInstance = instance;
                 }
+
+                EntityManager.SetComponentData(first, new FirefighterNext { Value = previousInstance });
 
                 EntityManager.DestroyEntity(entity);
             }).Run();

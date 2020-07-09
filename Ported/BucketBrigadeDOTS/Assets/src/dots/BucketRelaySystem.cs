@@ -43,7 +43,7 @@ public class BucketRelaySystem : SystemBase
             {
                 var next = firefighterNext.Value;
                 Translation2D nextTranslation = GetComponent<Translation2D>(next);
-                ecb.AddComponent(entityInQueryIndex, next, new Target{ Value = nextTranslation.Value });
+                ecb.AddComponent(entityInQueryIndex, entity, new Target{ Value = nextTranslation.Value });
             }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
