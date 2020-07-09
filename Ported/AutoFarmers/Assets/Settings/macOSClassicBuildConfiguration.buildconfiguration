@@ -3,8 +3,8 @@
     "Components": [
         {
             "$type": "Unity.Build.Common.GeneralSettings, Unity.Build",
-            "ProductName": "Product Name",
-            "CompanyName": "Company Name"
+            "ProductName": "Autofarmers",
+            "CompanyName": "DOTS_A"
         },
         {
             "$type": "Unity.Build.Common.SceneList, Unity.Build",
