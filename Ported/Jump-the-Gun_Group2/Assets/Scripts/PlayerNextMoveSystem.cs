@@ -48,11 +48,16 @@ public class PlayerNextMoveSystem : SystemBase
         {
             if(normalisedMoveTime.Value >= 1.0f)
             {
-                movement.Origin = pos.Value;
+                float3 origin = (int3)(pos.Value+new float3(.5f));
+                origin.y = gh[GridFunctions.GetGridIndex(origin.xz, gp.TerrainDimensions)].Height;
+                movement.Origin = origin;
 
-                float3 newPos = new float3(math.clamp((direction.Value.x + pos.Value.x), 0.0f, gp.TerrainDimensions.x - 1), 0, math.clamp((direction.Value.y + pos.Value.z), 0, gp.TerrainDimensions.y - 1));
-                newPos.y = gh[GridFunctions.GetGridIndex(newPos.xz, gp.TerrainDimensions)].Height + 1;
-                movement.Target = newPos;
+                float3 target = origin;
+                target.x = math.clamp(target.x + direction.Value.x, 0f, gp.TerrainDimensions.x - 1);
+                target.z = math.clamp(target.z + direction.Value.y, 0f, gp.TerrainDimensions.y - 1);
+                target.y = gh[GridFunctions.GetGridIndex(target.xz, gp.TerrainDimensions)].Height;
+                movement.Target = target;
+
                 normalisedMoveTime.Value = 0.0f;
             }
         }).ScheduleParallel();
