@@ -6,7 +6,7 @@ public class PlayerNextMoveSystem : SystemBase
 {
     public const float kYOffset = .3f;
     public const float kBounceHeight = 2;
-    public const float kPlayerSpeed = 3.0f;
+    public const float kPlayerSpeed = 5.0f;
 
     EntityQuery m_PlayerQuery;
     EntityQuery m_BufferQuery;
