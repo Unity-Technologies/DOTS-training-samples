@@ -60,14 +60,8 @@ public class FireRenderSystem : SystemBase
             }
             float temperatureWithNoise = visualTemperature + noise;
 
-            float4x4 mat = transform.Value;
-            float4 c1 = transform.Value.c1;
-            float4 c3 = transform.Value.c3;
-            c1.y = temperatureWithNoise;
-            c3.y = temperatureWithNoise * 0.5f;
-            mat.c1 = c1;
-            mat.c3 = c3;
-            transform.Value = mat;
+            transform.Value.c1.y = temperatureWithNoise;
+            transform.Value.c3.y = temperatureWithNoise * 0.5f;
 
             // Update its color
             fireColor.Value = visualTemperature < flashPoint ? new float4(0.0f, 1.0f, 0.0f, 1.0f) : math.lerp(new float4(1.0f, 1.0f, 0.0f, 1.0f), new float4(1.0f, 0.0f, 0.0f, 1.0f), (visualTemperature - flashPoint) / (1.0f - flashPoint));
