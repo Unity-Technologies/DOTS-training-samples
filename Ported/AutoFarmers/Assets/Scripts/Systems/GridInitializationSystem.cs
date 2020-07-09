@@ -9,6 +9,7 @@ namespace AutoFarmers
     class GridInitializationSystem : SystemBase
     {
         private EntityQuery cellQuery;
+        private EntityQuery farmQuery;
         
         protected override void OnCreate()
         {
@@ -19,14 +20,20 @@ namespace AutoFarmers
             EntityManager.SetName(entity, "Grid");
             EntityManager.AddBuffer<CellTypeElement>(entity);
             EntityManager.AddBuffer<CellEntityElement>(entity);
+            
+            RequireForUpdate(farmQuery);
         }
 
         protected override void OnUpdate()
         {
+            EntityManager.CompleteAllJobs();
             var entity = GetSingletonEntity<Grid>();
             Entities
                 .WithoutBurst()
                 .WithStructuralChanges()
+                .WithChangeFilter<Farm>()
+                .WithStoreEntityQueryInField(ref farmQuery)
+                .WithNone<GridInitializedTag>()
                 .ForEach((Entity farmEntity, Farm farm) =>
             {
                 EntityManager.SetComponentData(entity, new Grid { Size = farm.MapSize });
@@ -52,12 +59,12 @@ namespace AutoFarmers
                 for (var y = 0; y < farm.MapSize.y; y++)
                 {
                     var i = x * farm.MapSize.y + y;
-                    EntityManager.SetComponentData(cellEntities[i], new Translation { Value = math.float3(x, 0, y)});
+                    EntityManager.SetComponentData(cellEntities[i], new Translation { Value = math.float3(x, 0, y) + new float3(0.5f, 0.0f, 0.5f)});
                     EntityManager.SetName(cellEntities[i], $"Cell {i} ({x}, {y})");
                 }
                 
                 cellEntities.Dispose();
-                EntityManager.DestroyEntity(farmEntity);
+                EntityManager.AddComponent<GridInitializedTag>(farmEntity);
             }).Run();
         }
     }
