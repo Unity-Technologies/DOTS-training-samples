@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class CannonFireSystem : SystemBase
 {
-    const float kCannonBallRadius = 0.25f;
-    const float kCannonBallSpeed = 2.5f;
+    public const float kCannonBallRadius = 0.25f;
+    public const float kCannonBallSpeed = 2.5f;
 
     EntityQuery m_BufferQuery;
 
@@ -40,15 +40,6 @@ public class CannonFireSystem : SystemBase
     protected static float GetTileHeight(DynamicBuffer<GridHeight> gridHeight, int2 tilePosition, int2 terrainDimension)
     {
         return gridHeight[GridFunctions.GetGridIndex(tilePosition.xy, tilePosition)].Height;
-    }
-
-    public static float3 GetSimulatedPosition(float3 start, float3 end, float paraA, float paraB, float paraC, float t)
-    {
-        return new float3(
-            math.lerp(start.x, end.x, t),
-            ParabolaMath.Solve(paraA, paraB, paraC, t),
-            math.lerp(start.z, end.z, t)
-        );
     }
 
     public static bool HitsCube(float3 center, float width, float height, int2 tilePosition)
@@ -128,7 +119,7 @@ public class CannonFireSystem : SystemBase
         {
             float t = i / (steps - 1f);
 
-            float3 pos = GetSimulatedPosition(start, end, paraA, paraB, paraC, t);
+            float3 pos = ParabolaMath.GetSimulatedPosition(start, end, paraA, paraB, paraC, t);
 
             if (TerrainHitsCube(pos, kCannonBallRadius, gameParam.TerrainDimensions, gridHeight))
             {
