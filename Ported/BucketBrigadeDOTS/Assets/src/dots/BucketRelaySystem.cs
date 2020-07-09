@@ -16,12 +16,13 @@ public class BucketRelaySystem : SystemBase
     protected override void OnUpdate()
     {
         // var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
-        // var ecbSeq = m_ECBSystem.CreateCommandBuffer();
-        // var ecb = ecbSeq.ToConcurrent();
+        var ecbSeq = m_ECBSystem.CreateCommandBuffer();
+        // var ecbSeq = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = ecbSeq.ToConcurrent();
 
         var handoverThreshold = 0.01f;
         Entities
-            .WithStructuralChanges()
+            // .WithStructuralChanges()
             .WithNone<Target>()
             .ForEach((int entityInQueryIndex
                 , Entity entity
@@ -34,28 +35,31 @@ public class BucketRelaySystem : SystemBase
                 Translation2D nextTranslation = GetComponent<Translation2D>(next);
                 if (math.length(nextTranslation.Value - translation2D.Value) < handoverThreshold)
                 {
-                    // ecb.AddComponent(entityInQueryIndex, next, waterBucketId);
-                    // ecb.RemoveComponent<WaterBucketID>(entityInQueryIndex, entity);
-                    // ecb.AddComponent(entityInQueryIndex, entity, new Target{ Value = relayReturn.Value });
-                    // ecb.RemoveComponent<RelayReturn>(entityInQueryIndex, entity);
+                    ecb.AddComponent(entityInQueryIndex, next, waterBucketId);
+                    ecb.RemoveComponent<WaterBucketID>(entityInQueryIndex, entity);
+                    ecb.AddComponent(entityInQueryIndex, entity, new Target{ Value = relayReturn.Value });
+                    ecb.RemoveComponent<RelayReturn>(entityInQueryIndex, entity);
 
                     // ecbSeq.AddComponent(next, waterBucketId);
                     // ecbSeq.RemoveComponent<WaterBucketID>(entity);
                     // ecbSeq.AddComponent(entity, new Target{ Value = relayReturn.Value });
                     // ecbSeq.RemoveComponent<RelayReturn>(entity);
 
-                    EntityManager.AddComponentData(next, waterBucketId);
-                    EntityManager.RemoveComponent<WaterBucketID>(entity);
-                    EntityManager.AddComponentData(entity, new Target{ Value = relayReturn.Value });
-                    EntityManager.RemoveComponent<RelayReturn>(entity);
+                    // EntityManager.AddComponentData(next, waterBucketId);
+                    // EntityManager.RemoveComponent<WaterBucketID>(entity);
+                    // EntityManager.AddComponentData(entity, new Target{ Value = relayReturn.Value });
+                    // EntityManager.RemoveComponent<RelayReturn>(entity);
                 }
-            // }).ScheduleParallel();
-            }).Run();
+            }).ScheduleParallel();
+            // }).Run();
 
         // ecbSeq.Playback(EntityManager);
+
+        var ecbSeq2 = m_ECBSystem.CreateCommandBuffer();
+        var ecb2 = ecbSeq2.ToConcurrent();
         
         Entities
-            .WithStructuralChanges()
+            // .WithStructuralChanges()
             .WithNone<Target>()
             .WithAll<WaterBucketID>()
             .ForEach((int entityInQueryIndex
@@ -65,20 +69,20 @@ public class BucketRelaySystem : SystemBase
             {
                 var next = firefighterNext.Value;
                 Translation2D nextTranslation = GetComponent<Translation2D>(next);
-                // ecb.AddComponent(entityInQueryIndex, entity, new Target{ Value = nextTranslation.Value });
-                // ecb.AddComponent(entityInQueryIndex, entity, new RelayReturn{ Value = translation.Value });
+                ecb2.AddComponent(entityInQueryIndex, entity, new Target{ Value = nextTranslation.Value });
+                ecb2.AddComponent(entityInQueryIndex, entity, new RelayReturn{ Value = translation.Value });
 
                 // ecbSeq.AddComponent(entity, new Target{ Value = nextTranslation.Value });
                 // ecbSeq.AddComponent(entity, new RelayReturn{ Value = translation.Value });
 
-                EntityManager.AddComponentData(entity, new Target{ Value = nextTranslation.Value });
-                EntityManager.AddComponentData(entity, new RelayReturn{ Value = translation.Value });
+                // EntityManager.AddComponentData(entity, new Target{ Value = nextTranslation.Value });
+                // EntityManager.AddComponentData(entity, new RelayReturn{ Value = translation.Value });
 
-            // }).ScheduleParallel();
-            }).Run();
+            }).ScheduleParallel();
+            // }).Run();
 
         // ecbSeq.Playback(EntityManager);
 
-        // m_ECBSystem.AddJobHandleForProducer(Dependency);
+        m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }
