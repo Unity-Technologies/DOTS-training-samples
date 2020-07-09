@@ -19,19 +19,35 @@ public class POIPickingSystem : SystemBase
     }
 
     static void PickClosestPoint(NativeArray<FireCellFlag> mipChainBuffer, NativeArray<FireGridMipLevelData> mipChainInfoBuffer,
-                                    float2 referencePosition, int currentMip, int2 mipOffset,
+                                    float2 referencePosition, int currentMip, int2 mipOffset, float2 parentCellPosition,
                                     ref float closestDistance, ref float2 closestPosition)
     {
         // Get the data of the current mip
         int2 mipLevelDimensions = (int2)mipChainInfoBuffer[currentMip].dimensions;
         int mipLevelOffset = (int)mipChainInfoBuffer[currentMip].offset;
 
-        // Loop through the cells
-        for (int v = mipOffset.y; v < mipOffset.y + 1; ++v)
+        // Compute the center pos of the cell
+        float2 localSpaceReferencePosition = referencePosition - parentCellPosition;
+
+        int3 loopRangeX = new int3(mipOffset.x, mipOffset.x + 1, 1);
+        if (localSpaceReferencePosition.x > 0 )
         {
-            for (int u = mipOffset.x; u < mipOffset.x + 1; ++u)
+            loopRangeX.x = mipOffset.x + 1;
+            loopRangeX.y = mipOffset.x;
+            loopRangeX.z = -1;
+        }
+        int3 loopRangeY = new int3(mipOffset.y, mipOffset.y + 1, 1);
+        if (localSpaceReferencePosition.y > 0)
+        {
+            loopRangeY.x = mipOffset.y + 1;
+            loopRangeY.y = mipOffset.y;
+            loopRangeY.z = -1;
+        }
+        // Loop through the cells
+        for (int v = loopRangeY.x; v <= loopRangeY.y; v = v + loopRangeY.z)
+        {
+            for (int u = loopRangeX.x; u <= loopRangeX.y; u = u + loopRangeX.z)
             {
-                // Compute the center pos of the cell
                 float2 cellCenterPosition = mipChainInfoBuffer[currentMip].minCellPosition + mipChainInfoBuffer[currentMip].cellSize * new float2(u, v);
 
                 // If this cell is flagged as on fire
@@ -60,7 +76,7 @@ public class POIPickingSystem : SystemBase
                             // Move to the next mip Level
                             int2 newMipOffset = new int2(u, v) * 2;
                             PickClosestPoint(mipChainBuffer, mipChainInfoBuffer,
-                                referencePosition, currentMip - 1, newMipOffset,
+                                referencePosition, currentMip - 1, newMipOffset, cellCenterPosition,
                                 ref closestDistance, ref closestPosition);
                         }
                     }
@@ -94,7 +110,7 @@ public class POIPickingSystem : SystemBase
 
             // Do the decent
             PickClosestPoint(mipChainBuffer, mipChainInfoBuffer, 
-                fireGridSpawner.POIReferencePosition, mipChainInfoBuffer.Length - 2, 0,
+                fireGridSpawner.POIReferencePosition, mipChainInfoBuffer.Length - 2, 0, fireGridBounds.BoundsCenter,
                 ref currentMinimalDistance, ref currentTargetPoint);
 
             Debug.Log(currentTargetPoint.ToString());
