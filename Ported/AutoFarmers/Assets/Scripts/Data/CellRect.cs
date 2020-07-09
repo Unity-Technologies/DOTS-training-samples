@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-public struct TillRect : IComponentData
+public struct CellRect : IComponentData
 {
     public int X;
     public int Y;
