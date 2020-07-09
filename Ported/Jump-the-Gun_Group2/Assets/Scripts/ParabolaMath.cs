@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Mathematics;
 
 public class ParabolaMath
 {
@@ -27,4 +28,13 @@ public class ParabolaMath
 		return a * t * t + b * t + c;
 	}
 
+
+    public static float3 GetSimulatedPosition(float3 start, float3 end, float paraA, float paraB, float paraC, float t)
+    {
+        return new float3(
+            math.lerp(start.x, end.x, t),
+            ParabolaMath.Solve(paraA, paraB, paraC, t),
+            math.lerp(start.z, end.z, t)
+        );
+    }
 }

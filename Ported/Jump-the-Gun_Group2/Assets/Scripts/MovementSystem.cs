@@ -9,8 +9,15 @@ public class MovementSystem : SystemBase
         float deltaTime = Time.DeltaTime;
         Entities.ForEach((ref Position pos, ref NormalisedMoveTime normalisedMoveTime, in MovementParabola movementParabola) =>
         {
-            pos.Value = math.lerp(movementParabola.Origin, movementParabola.Target, math.saturate(normalisedMoveTime.Value));
-            normalisedMoveTime.Value += deltaTime;
+            float distance = math.length(new float2(movementParabola.Origin.z - movementParabola.Origin.z, movementParabola.Target.x - movementParabola.Target.x));
+
+            float duration = distance / CannonFireSystem.kCannonBallSpeed;
+
+            pos.Value = ParabolaMath.GetSimulatedPosition(movementParabola.Origin, movementParabola.Target, 
+                                                            movementParabola.Parabola.x, movementParabola.Parabola.y, movementParabola.Parabola.z, 
+                                                            math.saturate(normalisedMoveTime.Value));
+
+            normalisedMoveTime.Value += deltaTime / duration;
 
         }).ScheduleParallel();
     }
