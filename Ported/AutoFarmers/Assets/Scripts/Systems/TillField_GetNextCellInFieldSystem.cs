@@ -29,7 +29,7 @@ namespace AutoFarmers
             Entities
                 .WithAll<TillField_Intent>()
                 .WithNone<Cooldown>()
-                .WithNone<Target>()
+                .WithNone<PathFindingTarget>()
                 .WithNativeDisableParallelForRestriction(cellTypeBuffer)
                 .WithNativeDisableParallelForRestriction(cellEntityBuffer)
                 .WithReadOnly(cellTypeBuffer)
@@ -60,7 +60,7 @@ namespace AutoFarmers
 
                     if (hasTarget)
                     {
-                        ecb.AddComponent(entityInQueryIndex, entity, new Target()
+                        ecb.AddComponent(entityInQueryIndex, entity, new PathFindingTarget()
                         {
                             Value = targetEntity
                         });

@@ -125,7 +125,7 @@ namespace AutoFarmers
                             Y = search.y,
                         });
 
-                         ecb.AddComponent(entityInQueryIndex, entity, new Target()
+                         ecb.AddComponent(entityInQueryIndex, entity, new PathFindingTarget()
                          {
                              Value = targetEntity
                          });

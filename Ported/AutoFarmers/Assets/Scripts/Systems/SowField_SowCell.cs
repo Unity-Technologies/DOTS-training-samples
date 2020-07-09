@@ -42,7 +42,7 @@ namespace AutoFarmers
                 .WithAll<PlantSeeds_Intent>()
                 .WithAll<TargetReached>()
                 .WithReadOnly(cellPositionAccessor)
-                .ForEach((int entityInQueryIndex, Entity entity, in Target target) =>
+                .ForEach((int entityInQueryIndex, Entity entity, in PathFindingTarget target) =>
                 {
                     CellPosition cp = cellPositionAccessor[target.Value];
                     int index = (int)(cp.Value.x * gridSize.x + cp.Value.y);
@@ -68,6 +68,7 @@ namespace AutoFarmers
                         ecb.AddComponent<Cooldown>(entityInQueryIndex, entity);
                         ecb.SetComponent<Cooldown>(entityInQueryIndex, entity, new Cooldown() { Value = 0.1f });
                         ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
+                        ecb.RemoveComponent<PathFindingTarget>(entityInQueryIndex, entity);
                         ecb.RemoveComponent<PlantSeeds_Intent>(entityInQueryIndex, entity);
                         ecb.RemoveComponent<TargetReached>(entityInQueryIndex, entity);
                     }
@@ -77,6 +78,7 @@ namespace AutoFarmers
                         ecb.AddComponent<Cooldown>(entityInQueryIndex, entity);
                         ecb.SetComponent<Cooldown>(entityInQueryIndex, entity, new Cooldown() { Value = 0.1f });
                         ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
+                        ecb.RemoveComponent<PathFindingTarget>(entityInQueryIndex, entity);
                         ecb.RemoveComponent<PlantSeeds_Intent>(entityInQueryIndex, entity);
                         ecb.RemoveComponent<TargetReached>(entityInQueryIndex, entity);
                     }

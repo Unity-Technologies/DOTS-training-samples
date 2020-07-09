@@ -35,14 +35,14 @@ namespace AutoFarmers
                 .WithNativeDisableParallelForRestriction(cellTypeBuffer)
                 .WithNativeDisableParallelForRestriction(cellPositionAccessor)
                 .WithReadOnly(cellTypeBuffer)
-                .ForEach((int entityInQueryIndex, Entity entity, in Target target) =>
+                .ForEach((int entityInQueryIndex, Entity entity, in PathFindingTarget target) =>
                 {
                     CellPosition cp = cellPositionAccessor[target.Value];
                     int index = (int) (cp.Value.x * gridSize.x + cp.Value.y);
 
                     if (cellTypeBuffer[index].Value != CellType.Raw)
                     {
-                        //ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
+                        //ecb.RemoveComponent<PathFindingTarget>(entityInQueryIndex, entity);
                     }
                 }).ScheduleParallel();
 

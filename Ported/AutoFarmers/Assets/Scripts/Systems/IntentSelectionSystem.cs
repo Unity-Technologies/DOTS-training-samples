@@ -43,8 +43,9 @@ public class IntentSelectionSystem : SystemBase
 
                 }
 
-               // ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
-               // ecb.RemoveComponent<TargetReached>(entityInQueryIndex, entity);
+                // ecb.RemoveComponent<PathFindingTarget>(entityInQueryIndex, entity);
+                // ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
+                // ecb.RemoveComponent<TargetReached>(entityInQueryIndex, entity);
 
             }).ScheduleParallel();
 

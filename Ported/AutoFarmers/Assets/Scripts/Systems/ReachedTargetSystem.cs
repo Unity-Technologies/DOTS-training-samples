@@ -20,7 +20,7 @@ namespace AutoFarmers
         
             Entities
                 .WithNone<TargetReached>()
-                .ForEach((int entityInQueryIndex, Entity entity, ref Velocity velocity, in Translation translation, in Target target) =>
+                .ForEach((int entityInQueryIndex, Entity entity, ref Velocity velocity, in Translation translation, in PathFindingTarget target) =>
                 {
                     Translation targetPosition = GetComponent<Translation>(target.Value);
                     float distance = math.distance(targetPosition.Value, translation.Value);

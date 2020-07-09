@@ -14,6 +14,7 @@ namespace AutoFarmers
         {
             _entityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
+            GetEntityQuery(ComponentType.ReadOnly<CellEntityElement>());
             GetEntityQuery(ComponentType.ReadOnly<CellTypeElement>());
         }
 
@@ -29,7 +30,7 @@ namespace AutoFarmers
             Entities
                 .WithAll<PlantSeeds_Intent>()
                 .WithNone<TargetReached>()
-                .WithNone<Target>()
+                .WithNone<PathFindingTarget>()
                 .WithReadOnly(typeBuffer)
                 .WithReadOnly(cellEntityBuffer)
                 .ForEach((int entityInQueryIndex, Entity entity, ref RandomSeed randomSeed) =>
@@ -73,7 +74,7 @@ namespace AutoFarmers
                         int index = plantPos.y * GridSize.x + plantPos.x;
                         Entity targetEntity = cellEntityBuffer[index].Value;
 
-                        ecb.AddComponent(entityInQueryIndex, entity, new Target()
+                        ecb.AddComponent(entityInQueryIndex, entity, new PathFindingTarget()
                         {
                             Value = targetEntity
                         });

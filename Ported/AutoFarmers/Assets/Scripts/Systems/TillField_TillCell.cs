@@ -29,7 +29,7 @@ namespace AutoFarmers
             Entities
                 .WithAll<TillField_Intent>()
                 .WithAll<TargetReached>()
-                .ForEach((Entity entity, in Target target) =>
+                .ForEach((Entity entity, in PathFindingTarget target) =>
                 {
                     CellPosition cp = cellPositionAccessor[target.Value];
                     int index = (int) (cp.Value.x * gridSize.x + cp.Value.y);
@@ -40,6 +40,7 @@ namespace AutoFarmers
                         ecb.AddComponent<Tilled>(cellEntityBuffer[index].Value);
                     }
                     ecb.AddComponent<Cooldown>(entity, new Cooldown { Value = 0.1f });
+                    ecb.RemoveComponent<PathFindingTarget>(entity);
                     ecb.RemoveComponent<Target>(entity);
                     ecb.RemoveComponent<TargetReached>(entity);
                 }).Schedule();

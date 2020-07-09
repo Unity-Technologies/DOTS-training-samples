@@ -31,7 +31,7 @@ namespace AutoFarmers
                 .WithAll<HarvestPlant_Intent>()
                 .WithAll<TargetReached>()
                 .WithAll<HarvestPlant>()
-                .ForEach((Entity entity, ref Target target, in Home home) =>
+                .ForEach((Entity entity, ref PathFindingTarget target, in Home home) =>
                 {
                     Entity plant = target.Value;
                     CellPosition cp = cellPositionAccessor[target.Value];
@@ -41,8 +41,8 @@ namespace AutoFarmers
                     ecb.RemoveComponent<Sowed>(cellEntityBuffer[index].Value);
 
                     //ecb.AddComponent<Cooldown>(entity, new Cooldown { Value = 0.1f });
-                    //ecb.SetComponent<Target>(new Target { Value = home.Value });
-                    target = new Target { Value = home.Value };
+                    //ecb.SetComponent<PathFindingTarget>(new PathFindingTarget { Value = home.Value });
+                    target = new PathFindingTarget { Value = home.Value };
                     ecb.RemoveComponent<TargetReached>(entity);
                     ecb.RemoveComponent<HarvestPlant>(entity);
                     ecb.AddComponent<TakePlantToStore>(entity, new TakePlantToStore { Value = plant } );

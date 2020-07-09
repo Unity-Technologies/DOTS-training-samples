@@ -16,10 +16,17 @@ namespace AutoFarmers
                 {
                     Translation targetPosition = GetComponent<Translation>(target.Value);
                     float3 delta = targetPosition.Value - translation.Value;
-                    float3 direction = math.normalize(delta);
-                    float distance = math.length(delta);
-                    float finalSpeed = speed * math.clamp(distance, 0f, 1f);
-                    float3 targetVelocity = direction * finalSpeed;
+                    float3 targetVelocity = 0.0f;
+
+                    // Avoid issues when we're already at the target
+                    if (math.lengthsq(delta) > 0.0001f)
+                    {
+                        float3 direction = math.normalize(delta);
+                        float distance = math.length(delta);
+                        float finalSpeed = speed * math.clamp(distance, 0f, 1f);
+                        targetVelocity = direction * finalSpeed;
+                    }
+
                     velocity.Value = math.lerp(velocity.Value, targetVelocity, 0.5f);
                 }).ScheduleParallel();
         }

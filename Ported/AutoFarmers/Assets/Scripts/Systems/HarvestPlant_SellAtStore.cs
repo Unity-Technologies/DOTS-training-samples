@@ -30,7 +30,7 @@ namespace AutoFarmers
                 .WithAll<HarvestPlant_Intent>()
                 .WithAll<TargetReached>()
                 .WithNone<HarvestPlant>()
-                .ForEach((Entity entity, ref Target target, in Home home) =>
+                .ForEach((Entity entity, ref PathFindingTarget target, in Home home) =>
                 {                    
                     ecb.RemoveComponent<TargetReached>(entity);
                     ecb.RemoveComponent<HarvestPlant_Intent>(entity);
@@ -39,6 +39,7 @@ namespace AutoFarmers
                     cnt.ForFarmers++;
                     ecb.SetComponent(home.Value, cnt);
                     ecb.RemoveComponent<Target>(entity);
+                    ecb.RemoveComponent<PathFindingTarget>(entity);
                     ecb.RemoveComponent<TakePlantToStore>(entity);
                     UnityEngine.Debug.Log("Sold");
                 }).Schedule();
