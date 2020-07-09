@@ -202,7 +202,7 @@ public class CannonFireSystem : SystemBase
 
         Entities
             .WithReadOnly(gridHeight)
-            .ForEach((int entityInQueryIndex, Entity e, ref Cooldown coolDown, in Position position) =>
+            .ForEach((int entityInQueryIndex, Entity e, ref Rotation rotation, ref Cooldown coolDown, in Position position) =>
         {            
             // Fire
             if (coolDown.Value  < 0.0f)
@@ -231,6 +231,7 @@ public class CannonFireSystem : SystemBase
                 ecb.AddComponent(entityInQueryIndex, instance, movementParabole);
                 ecb.AddComponent(entityInQueryIndex, instance, new NormalisedMoveTime { Value = 0.0f });
 
+                rotation.Value = -.25f * math.PI;
                 coolDown.Value = gameParams.CannonCooldown;
             }
             else
