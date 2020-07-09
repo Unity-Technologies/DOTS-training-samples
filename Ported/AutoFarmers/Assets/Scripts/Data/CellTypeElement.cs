@@ -8,6 +8,7 @@ namespace AutoFarmers
         Tilled,
         Rock,
         Plant,
+        HarvestablePlant,
         Shop
     }
     

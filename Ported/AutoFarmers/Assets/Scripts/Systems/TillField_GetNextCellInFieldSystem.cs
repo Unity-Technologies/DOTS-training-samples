@@ -27,7 +27,6 @@ namespace AutoFarmers
             DynamicBuffer<CellEntityElement> cellEntityBuffer = EntityManager.GetBuffer<CellEntityElement>(grid);
             
             Entities
-                .WithAll<Farmer_Tag>()
                 .WithAll<TillField_Intent>()
                 .WithNone<Cooldown>()
                 .WithNone<Target>()
@@ -35,18 +34,18 @@ namespace AutoFarmers
                 .WithNativeDisableParallelForRestriction(cellEntityBuffer)
                 .WithReadOnly(cellTypeBuffer)
                 .WithReadOnly(cellEntityBuffer)
-                .ForEach((int entityInQueryIndex, Entity entity, in TillRect tillRect) =>
+                .ForEach((int entityInQueryIndex, Entity entity, in CellRect cellRect) =>
                 {
                     //TODO: This feels dirty
                     Entity targetEntity = default(Entity);
                     
                     //NOTE: Get first non-tilled cell
                     bool hasTarget = false;
-                    for (int gridX = tillRect.X; gridX < tillRect.X + tillRect.Width; gridX++)
+                    for (int gridX = cellRect.X; gridX < cellRect.X + cellRect.Width; gridX++)
                     {
                         if (hasTarget) break;
                             
-                        for (int gridY = tillRect.Y; gridY < tillRect.Y + tillRect.Height; gridY++)
+                        for (int gridY = cellRect.Y; gridY < cellRect.Y + cellRect.Height; gridY++)
                         {
                             if (hasTarget) break;
                             
@@ -70,7 +69,7 @@ namespace AutoFarmers
                     {
                         // Tilled whole rect, get a new intent
                         ecb.RemoveComponent<TillField_Intent>(entityInQueryIndex, entity);
-                        ecb.RemoveComponent<TillRect>(entityInQueryIndex, entity);
+                        ecb.RemoveComponent<CellRect>(entityInQueryIndex, entity);
                     }
                 }).ScheduleParallel();
 

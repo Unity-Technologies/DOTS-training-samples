@@ -27,18 +27,18 @@ namespace AutoFarmers
             int2 gridSize = gridComponent.Size;
             
             DynamicBuffer<CellTypeElement> cellTypeBuffer = EntityManager.GetBuffer<CellTypeElement>(grid);
-            ComponentDataFromEntity<LocalToWorld> localToWorldAccessor = GetComponentDataFromEntity<LocalToWorld>();
+            ComponentDataFromEntity<CellPosition> cellPositionAccessor = GetComponentDataFromEntity<CellPosition>();
             
             Entities
                 .WithAll<Farmer_Tag>()
                 .WithAll<TillField_Intent>()
                 .WithNativeDisableParallelForRestriction(cellTypeBuffer)
-                .WithNativeDisableParallelForRestriction(localToWorldAccessor)
+                .WithNativeDisableParallelForRestriction(cellPositionAccessor)
                 .WithReadOnly(cellTypeBuffer)
                 .ForEach((int entityInQueryIndex, Entity entity, in Target target) =>
                 {
-                    LocalToWorld l2w = localToWorldAccessor[target.Value];
-                    int index = (int) (l2w.Position.x * gridSize.x + l2w.Position.z);
+                    CellPosition cp = cellPositionAccessor[target.Value];
+                    int index = (int) (cp.Value.x * gridSize.x + cp.Value.y);
 
                     if (cellTypeBuffer[index].Value == CellType.Tilled)
                     {
