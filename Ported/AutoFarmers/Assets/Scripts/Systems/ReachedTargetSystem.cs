@@ -19,6 +19,7 @@ namespace AutoFarmers
             EntityCommandBuffer.Concurrent ecb = _entityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
         
             Entities
+                .WithNone<TargetReached>()
                 .ForEach((int entityInQueryIndex, Entity entity, ref Velocity velocity, in Translation translation, in Target target) =>
                 {
                     Translation targetPosition = GetComponent<Translation>(target.Value);
