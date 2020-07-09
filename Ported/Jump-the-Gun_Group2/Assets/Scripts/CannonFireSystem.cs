@@ -217,7 +217,7 @@ public class CannonFireSystem : SystemBase
                 ecb.AddComponent(entityInQueryIndex, instance, movementParabole);
                 ecb.AddComponent(entityInQueryIndex, instance, new NormalisedMoveTime { Value = 0.0f });
 
-                coolDown.Value = 1.0f;
+                coolDown.Value = gameParams.CannonCooldown;
             }
             else
             {
