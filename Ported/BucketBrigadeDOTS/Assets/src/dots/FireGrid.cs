@@ -24,3 +24,11 @@ public struct FireCellFlag : IBufferElementData
 {
     public bool OnFire;
 }
+
+public struct FireGridMipLevelData : IBufferElementData
+{
+    public uint2 dimensions;
+    public uint offset;
+    public float2 cellSize;
+    public float2 minCellPosition;
+}

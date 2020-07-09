@@ -14,6 +14,17 @@ public class FireSpawnSystem : SystemBase
         RequireForUpdate(m_FireGridSpawnerQuery);
     }
 
+    static int ComputeNumberOfMips(int resolution)
+    {
+        int mip = 1;
+        while (resolution != 1)
+        {
+            resolution >>= 1;
+            mip++;
+        }
+        return mip;
+    }
+
     protected override void OnUpdate()
     {
         var fireGridSetting = GetSingleton<FireGridSettings>();
@@ -21,7 +32,7 @@ public class FireSpawnSystem : SystemBase
         Bounds gridBounds = EntityManager.GetComponentData<Bounds>(fireGridEntity);
         float2 gridCorner = gridBounds.BoundsCenter - gridBounds.BoundsExtent * 0.5f;
         var randomCopy = new Random(0x1234567);
-
+        int mipChainCount = ComputeNumberOfMips((int)fireGridSetting.FireGridResolution.x);
         float2 scaleXZ = gridBounds.BoundsExtent / (float2)fireGridSetting.FireGridResolution;
 
         var ecb = m_CommandBufferSystem.CreateCommandBuffer();
@@ -81,6 +92,23 @@ public class FireSpawnSystem : SystemBase
                 FireCellFlag invalidFlag;
                 invalidFlag.OnFire = false;
                 fireGridFlags[i] = invalidFlag;
+            }
+
+            // Allocate the mip info buffer
+            var fireGridMipInfos = ecb.AddBuffer<FireGridMipLevelData>(fireGridEntity);
+            fireGridMipInfos.ResizeUninitialized(mipChainCount);
+            uint2 currentSize = fireGridSetting.FireGridResolution;
+            uint currentOffset = 0;
+            for (int i = 0; i < mipChainCount; ++i)
+            {
+                FireGridMipLevelData mipLevelData;
+                mipLevelData.dimensions = currentSize;
+                mipLevelData.offset = currentOffset;
+                mipLevelData.cellSize = gridBounds.BoundsExtent / currentSize;
+                mipLevelData.minCellPosition = gridBounds.BoundsCenter - gridBounds.BoundsExtent * 0.5f + mipLevelData.cellSize * 0.5f;
+                currentOffset += (currentSize.x * currentSize.y);
+                currentSize = currentSize >> 1;
+                fireGridMipInfos[i] = mipLevelData;
             }
 
             // Remove the spawner component

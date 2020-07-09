@@ -21,5 +21,18 @@ public class OnClickSpillSystem : SystemBase
             EntityManager.AddComponent<WaterSpill>(newEntity);
             EntityManager.SetComponentData<WaterSpill>(newEntity, spill);
         }
+
+        if (UnityEngine.Input.GetMouseButtonDown(1))
+        {
+            var ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
+            new UnityEngine.Plane(UnityEngine.Vector3.up, 0).Raycast(ray, out var enter);
+            var hit = (float3)ray.GetPoint(enter);
+            var deltaTime = Time.DeltaTime;
+            var newEntity = EntityManager.CreateEntity();
+            PointOfInterestRequest poiRequest;
+            poiRequest.POIReferencePosition = hit.xz;
+            EntityManager.AddComponent<PointOfInterestRequest>(newEntity);
+            EntityManager.SetComponentData<PointOfInterestRequest>(newEntity, poiRequest);
+        }
     }
 }
