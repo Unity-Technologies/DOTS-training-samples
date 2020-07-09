@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
-public struct WaterBucketTag : IComponentData
+public struct WaterBucket : IComponentData
 {
+    public float Value;
 }

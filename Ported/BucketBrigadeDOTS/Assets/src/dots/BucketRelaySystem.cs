@@ -64,5 +64,25 @@ public class BucketRelaySystem : SystemBase
             }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
+
+        // Extinguish
+        Entities
+            .WithAll<FirefighterFullLastTag>()
+            .ForEach((ref WaterBucketID waterBucketID) =>
+        {
+            var waterBucket = GetComponent<WaterBucket>(waterBucketID.Value);
+            waterBucket.Value = 0.0f;
+            SetComponent(waterBucketID.Value, waterBucket);
+        }).Schedule();
+        
+        // Refill
+        Entities
+            .WithAll<FirefighterEmptyLastTag>()
+            .ForEach((ref WaterBucketID waterBucketID) =>
+            {
+                var waterBucket = GetComponent<WaterBucket>(waterBucketID.Value);
+                waterBucket.Value = 1.0f;
+                SetComponent(waterBucketID.Value, waterBucket);
+            }).Schedule();
     }
 }

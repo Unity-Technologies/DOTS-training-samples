@@ -20,7 +20,7 @@ public class BucketSpawnSystem : SystemBase
         {
             All = new ComponentType[]
             {
-                typeof(WaterBucketTag),
+                typeof(WaterBucket),
             }
         });
         
@@ -52,7 +52,7 @@ public class BucketSpawnSystem : SystemBase
                 {
                     var instance = EntityManager.Instantiate(spawner.Prefab);
                     SetComponent<Translation2D>(instance, new Translation2D { Value = 0 });
-                    EntityManager.AddComponent<WaterBucketTag>(instance);
+                    EntityManager.AddComponentData<WaterBucket>(instance, new WaterBucket { Value = 1.0f });
                 }
 
                 EntityManager.DestroyEntity(entity);
