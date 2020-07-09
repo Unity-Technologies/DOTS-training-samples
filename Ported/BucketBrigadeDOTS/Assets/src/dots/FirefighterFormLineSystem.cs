@@ -28,8 +28,8 @@ public class FirefighterFormLineSystem : SystemBase
     {        
         EntityManager.RemoveComponent<FirefighterFormLineSpawner>(m_FirefighterFormLineSpawnerQuery);
         
-        float2 src = new float2(0.0f, 5.0f);
-        float2 dst = new float2(0.0f, 10.0f);
+        float2 src = new float2(0.0f, 7.0f);
+        float2 dst = new float2(0.0f, 0.0f);
         float2 fromTo = (dst - src);
         float2 normal = new float2(-fromTo.y, fromTo.x);
         
