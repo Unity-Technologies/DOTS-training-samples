@@ -23,6 +23,14 @@ public struct FirefighterEmptyTag : IComponentData
 {
 }
 
+public struct FirefighterFullLastTag : IComponentData
+{
+}
+
+public struct FirefighterEmptyLastTag : IComponentData
+{
+}
+
 public struct Target : IComponentData
 {
     public float2 Value;

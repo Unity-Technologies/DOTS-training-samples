@@ -34,6 +34,12 @@ public class FirefighterSpawnSystem : SystemBase
                     else
                         EntityManager.AddComponent<FirefighterEmptyTag>(instance);
                     
+                    if (i == spawner.Count - 1)
+                        EntityManager.AddComponent<FirefighterFullLastTag>(instance);
+                    
+                    if (i == spawner.Count * 2 - 1)
+                        EntityManager.AddComponent<FirefighterEmptyLastTag>(instance);
+                    
                     EntityManager.AddComponentData<FirefighterPositionInLine>(instance, new FirefighterPositionInLine { Value = (float) (i%spawner.Count)/firefighterCount });
 
                     EntityManager.AddComponentData<FirefighterNext>(instance, new FirefighterNext { Value = previousInstance });
