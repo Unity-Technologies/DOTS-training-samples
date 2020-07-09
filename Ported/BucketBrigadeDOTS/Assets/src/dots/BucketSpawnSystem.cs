@@ -34,15 +34,13 @@ public class BucketSpawnSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        Debug.Log("BucketSpawnSystem 0");
-        
         Entity firstFirefighter = Entity.Null;
         using (var firefighterEntities = m_FirefighterFullTagQuery.ToEntityArray(Allocator.TempJob))
         {
             if (firefighterEntities.Length == 0)
                 return;
 
-            firstFirefighter = firefighterEntities[0];
+            firstFirefighter = firefighterEntities[firefighterEntities.Length - 1];
         }
 
         Entities.WithStructuralChanges()
@@ -59,8 +57,6 @@ public class BucketSpawnSystem : SystemBase
                 EntityManager.DestroyEntity(entity);
             }).Run();
 
-        Debug.Log("BucketSpawnSystem 1");
-        
         Entity firstWaterBucket = Entity.Null;
         using (var waterBucketEntities = m_WaterBucketQuery.ToEntityArray(Allocator.TempJob))
         {
@@ -69,21 +65,7 @@ public class BucketSpawnSystem : SystemBase
         
             firstWaterBucket = waterBucketEntities[0];
         
-            //EntityManager.AddComponentData(firstFirefighter, new WaterBucketID { Value = firstWaterBucket });
+            EntityManager.AddComponentData(firstFirefighter, new WaterBucketID { Value = firstWaterBucket });
         }
-
-        Entities
-            .WithStructuralChanges()
-            .WithAll<FirefighterFullTag>()
-            .ForEach((int entityInQueryIndex, Entity entity) =>
-            {
-                if (entityInQueryIndex == 0)
-                {
-                    EntityManager.AddComponent<WaterBucketID>(entity);
-                    SetComponent(entity, new WaterBucketID { Value = firstWaterBucket });
-                }
-            }).Run();
-        
-        Debug.Log("BucketSpawnSystem 2");
     }
 }
