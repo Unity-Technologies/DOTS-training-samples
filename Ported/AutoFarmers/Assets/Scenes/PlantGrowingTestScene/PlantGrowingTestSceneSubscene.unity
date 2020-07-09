@@ -123,6 +123,51 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &432230009
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 432230011}
+  - component: {fileID: 432230010}
+  m_Layer: 0
+  m_Name: SowingTestSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &432230010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 432230009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a1dd69eb5820ce499abc7e89f563122, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Farmer: {fileID: 6922660100209716034, guid: 72df04ae439930143813d4dcfc9af43a, type: 3}
+  NumFarmers: 1
+--- !u!4 &432230011
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 432230009}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.3194304, y: -4.9211364, z: 17.282772}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &820430919
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -132,7 +177,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5098137029704385978, guid: 36c9d80b5f8cff749a630b6c02ad1a23, type: 3}
       propertyPath: m_Name
-      value: Plant2
+      value: ManualPlant2
       objectReference: {fileID: 0}
     - target: {fileID: 5098137029704385982, guid: 36c9d80b5f8cff749a630b6c02ad1a23, type: 3}
       propertyPath: m_LocalPosition.x
@@ -234,7 +279,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5098137029704385978, guid: 36c9d80b5f8cff749a630b6c02ad1a23, type: 3}
       propertyPath: m_Name
-      value: Plant1
+      value: ManualPlant1
       objectReference: {fileID: 0}
     - target: {fileID: 5098137029704385982, guid: 36c9d80b5f8cff749a630b6c02ad1a23, type: 3}
       propertyPath: m_LocalPosition.x
@@ -357,8 +402,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MapSize:
-    x: 16
-    y: 16
+    x: 10
+    y: 10
   GroundPrefab: {fileID: 5899433351654851187, guid: 12166e2810b504d6d8e4630c76c4e232, type: 3}
 --- !u!4 &1301643006
 Transform:
@@ -372,7 +417,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1945423087
 GameObject:
@@ -418,4 +463,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlantPrefab: {fileID: 5098137029704385978, guid: 36c9d80b5f8cff749a630b6c02ad1a23, type: 3}
-  GrowRate: 0.01
+  GrowRate: 0.1

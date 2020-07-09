@@ -22,12 +22,17 @@ namespace AutoFarmers
                 attackingQuery.ToEntityArrayAsync(Allocator.TempJob, out var attackingEntitiesDependency);
             var attackingArray = attackingQuery.ToComponentDataArrayAsync<Attacking>(Allocator.TempJob, out var attackingArrayDependency);
             Dependency = JobHandle.CombineDependencies(Dependency, attackingArray.SortJob(attackingArrayDependency), attackingEntitiesDependency);
-            
+
+            var cellPositionAccessor = GetComponentDataFromEntity<CellPosition>(true);
+            var cellSizeAccessor = GetComponentDataFromEntity<CellSize>(true);
             var healthAccessor = GetComponentDataFromEntity<Health>();
             var deltaTime = Time.DeltaTime;
             var ecb = ecbSystem.CreateCommandBuffer();
+            var gridEntity = GetSingletonEntity<Grid>();
+            var grid = GetSingleton<Grid>();
+            var cellTypeBuffer = EntityManager.GetBuffer<CellTypeElement>(gridEntity);
             
-            Job.WithCode(() =>
+            Job.WithReadOnly(cellPositionAccessor).WithReadOnly(cellSizeAccessor).WithCode(() =>
             {
                 if (attackingArray.Length == 0)
                 {
@@ -47,24 +52,37 @@ namespace AutoFarmers
                     } while (i < attackingArray.Length && attackingArray[i].Target == target);
 
                     var damage = attackers * deltaTime * 0.1f;
-                    var health = healthAccessor[target].Value;
-                    health -= damage;
+                    var health = healthAccessor[target].Value - damage;
+                    
                     if (health < 0f)
                     {
                         for (var j = firstIndex; j < i; j++)
                         {
                             ecb.RemoveComponent<Attacking>(attackingEntities[j]);
                         }
-                        ecb.DestroyEntity(target);
 
-                        health = 0f;
+                        var cellPosition = cellPositionAccessor[target].Value;
+                        var cellSize = cellSizeAccessor[target].Value;
+                        
+                        for (var x = cellPosition.x; x < cellSize.x; x++)
+                        for (var y = cellPosition.y; y < cellSize.y; y++)
+                        {
+                            var cellIndex = x * grid.Size.y + y;
+                            cellTypeBuffer[cellIndex] = new CellTypeElement(CellType.Raw);
+                        }
+                        
+                        ecb.DestroyEntity(target);
                     }
-                    healthAccessor[target] = new Health { Value = health };
+                    else
+                    {
+                        healthAccessor[target] = new Health { Value = health };
+                    }
                 }
-            }).Schedule();
+            }).Run();
             
-            Dependency = attackingArray.Dispose(Dependency);
-            Dependency = attackingEntities.Dispose(Dependency);
+            Dependency = JobHandle.CombineDependencies(Dependency,
+                attackingArray.Dispose(Dependency),
+                attackingEntities.Dispose(Dependency));
             ecbSystem.AddJobHandleForProducer(Dependency);
         }
     }
