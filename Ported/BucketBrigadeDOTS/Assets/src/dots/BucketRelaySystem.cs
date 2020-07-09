@@ -36,6 +36,10 @@ public class BucketRelaySystem : SystemBase
                     ecb.AddComponent(entityInQueryIndex, entity, new Target{ Value = relayReturn.Value });
                     ecb.RemoveComponent<RelayReturn>(entityInQueryIndex, entity);
                 }
+                else
+                {
+                    ecb.AddComponent(entityInQueryIndex, entity, new Target{ Value = nextTranslation.Value });
+                }
             }).ScheduleParallel();
 
         var ecb2 = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
