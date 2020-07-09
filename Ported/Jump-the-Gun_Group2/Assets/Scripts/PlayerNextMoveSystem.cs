@@ -38,15 +38,17 @@ public class PlayerNextMoveSystem : SystemBase
         var gridtag = GetSingletonEntity<GridTag>();
 
         DynamicBuffer<GridHeight> gh = EntityManager.GetBuffer<GridHeight>(gridtag);
+        DynamicBuffer<GridOccupied> go = EntityManager.GetBuffer<GridOccupied>(gridtag);
 
         GameParams gp =  GetSingleton<GameParams>();
 
         Entities.
         WithAll<PlayerTag>().
         WithReadOnly(gh).
+        WithReadOnly(go).
         ForEach((ref MovementParabola movement, ref NormalisedMoveTime normalisedMoveTime, in Direction direction, in Position pos) =>
         {
-            if(normalisedMoveTime.Value >= 1.0f)
+            if(normalisedMoveTime.Value >= 1.0f) 
             {
                 float3 origin = (int3)(pos.Value+new float3(.5f));
                 origin.y = gh[GridFunctions.GetGridIndex(origin.xz, gp.TerrainDimensions)].Height;
@@ -58,7 +60,15 @@ public class PlayerNextMoveSystem : SystemBase
                 target.y = gh[GridFunctions.GetGridIndex(target.xz, gp.TerrainDimensions)].Height;
                 movement.Target = target;
 
-                normalisedMoveTime.Value = 0.0f;
+                if(go[GridFunctions.GetGridIndex(target.xz, gp.TerrainDimensions)].Occupied)
+                {
+                    movement.Target = origin;
+                    normalisedMoveTime.Value = 1.1f; // Allow querying another direction.
+                }
+                else
+                {
+                    normalisedMoveTime.Value = 0.0f;
+                }
             }
         }).ScheduleParallel();
 
