@@ -6,7 +6,7 @@ public class PlayerNextMoveSystem : SystemBase
 {
     public const float kYOffset = .3f;
     public const float kBounceHeight = 2;
-    public const float kPlayerSpeed = 3.0f;
+    public const float kPlayerSpeed = 5.0f;
 
     EntityQuery m_PlayerQuery;
     EntityQuery m_BufferQuery;
@@ -55,18 +55,22 @@ public class PlayerNextMoveSystem : SystemBase
 
         var gridtag = GetSingletonEntity<GridTag>();
 
-        DynamicBuffer<GridHeight> gh = EntityManager.GetBuffer<GridHeight>(gridtag);
+      
         DynamicBuffer<GridOccupied> go = EntityManager.GetBuffer<GridOccupied>(gridtag);
+        DynamicBuffer<GridHeight> gh = EntityManager.GetBuffer<GridHeight>(gridtag);
 
         GameParams gp =  GetSingleton<GameParams>();
 
         var deltaTime = Time.DeltaTime;
 
-        Entities.
-        WithAll<PlayerTag>().
-        WithReadOnly(gh).
-        WithReadOnly(go).
-        ForEach((ref MovementParabola movement, ref NormalisedMoveTime normalisedMoveTime, in Direction direction, in Position pos) =>
+        Entities
+        .WithAll<PlayerTag>()
+        .WithReadOnly(gh)
+        .WithReadOnly(go)
+        .WithNativeDisableParallelForRestriction(gh)
+             //   .WithNativeDisableContainerSafetyRestriction(gh)
+
+        .ForEach((ref MovementParabola movement, ref NormalisedMoveTime normalisedMoveTime, in Direction direction, in Position pos) =>
         {
             if (normalisedMoveTime.Value > (1.0f + deltaTime)) 
             {

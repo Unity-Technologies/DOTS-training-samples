@@ -163,8 +163,8 @@ MonoBehaviour:
     y: 100
   CannonPrefab: {fileID: 1285056113001856, guid: c86b1bd6777d544aba9a2ee2262c61c4,
     type: 3}
-  CannonCount: 5
-  CannonCooldown: 5
+  CannonCount: 1000
+  CannonCooldown: 1
   colorA: {r: 1, g: 0, b: 0, a: 0}
   colorB: {r: 0, g: 1, b: 0.0027880669, a: 0}
   PlayerPrefab: {fileID: 1659188881559534, guid: 6ab41e7a804527944b222a5a4b6f1468,

@@ -22,10 +22,10 @@ public class BombPlayerIntersectSystem : SystemBase {
           .WithNone<PlayerTag>()
           .WithAll<MovementParabola>()
           .ForEach((int entityInQueryIndex, in Position p) => {
-              if (math.distance(p.Value, playerPosition) < 1) {
-                  Entity e = ecb.CreateEntity(entityInQueryIndex);
-                  ecb.AddComponent<GameOverTag>(entityInQueryIndex, e);
-              }
+              //if (math.distance(p.Value, playerPosition) < 1) {
+              //    Entity e = ecb.CreateEntity(entityInQueryIndex);
+              //    ecb.AddComponent<GameOverTag>(entityInQueryIndex, e);
+              //}
           }).ScheduleParallel();
 
         cbs.AddJobHandleForProducer(Dependency);
