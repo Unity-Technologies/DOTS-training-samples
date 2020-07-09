@@ -6,6 +6,7 @@ using Unity.Mathematics;
 public struct FireGridSettings : IComponentData
 {
     public uint2 FireGridResolution;
+    public int MipDebugIndex;
 }
 
 public struct FireCell : IBufferElementData
@@ -17,4 +18,9 @@ public struct FireCell : IBufferElementData
 public struct FireCellHistory : IBufferElementData
 {
     public float FireTemperaturePrev;
+}
+
+public struct FireCellFlag : IBufferElementData
+{
+    public bool OnFire;
 }
