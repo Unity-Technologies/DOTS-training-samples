@@ -1,6 +1,5 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 
 namespace AutoFarmers
 {
@@ -18,7 +17,7 @@ namespace AutoFarmers
             Grid gridComponent = EntityManager.GetComponentData<Grid>(grid);
             int2 gridSize = gridComponent.Size;
             
-            ComponentDataFromEntity<LocalToWorld> localToWorldAccessor = GetComponentDataFromEntity<LocalToWorld>();
+            ComponentDataFromEntity<CellPosition> cellPositionAccessor = GetComponentDataFromEntity<CellPosition>();
             DynamicBuffer<CellTypeElement> cellTypeBuffer = EntityManager.GetBuffer<CellTypeElement>(grid);
             DynamicBuffer<CellEntityElement> cellEntityBuffer = EntityManager.GetBuffer<CellEntityElement>(grid);
             
@@ -28,8 +27,8 @@ namespace AutoFarmers
                 .WithStructuralChanges()
                 .ForEach((Entity entity, in Target target) =>
                 {
-                    LocalToWorld l2w = localToWorldAccessor[target.Value];
-                    int index = (int) (l2w.Position.x * gridSize.x + l2w.Position.z);
+                    CellPosition cp = cellPositionAccessor[target.Value];
+                    int index = (int) (cp.Value.x * gridSize.x + cp.Value.y);
                     
                     cellTypeBuffer[index] = new CellTypeElement() { Value = CellType.Tilled };
                     EntityManager.AddComponent<Tilled>(cellEntityBuffer[index].Value);

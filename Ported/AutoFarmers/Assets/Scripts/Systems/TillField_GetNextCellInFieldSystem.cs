@@ -1,10 +1,10 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
+using UnityEngine;
 
 namespace AutoFarmers
 {
-    public class TillField_GetTargetSystem : SystemBase
+    public class TillField_GetNextCellInFieldSystem : SystemBase
     {
         private EntityCommandBufferSystem _entityCommandBufferSystem;
 
@@ -65,6 +65,12 @@ namespace AutoFarmers
                         {
                             Value = targetEntity
                         });
+                    }
+                    else
+                    {
+                        // Tilled whole rect, get a new intent
+                        ecb.RemoveComponent<TillField_Intent>(entityInQueryIndex, entity);
+                        ecb.RemoveComponent<TillRect>(entityInQueryIndex, entity);
                     }
                 }).ScheduleParallel();
 
