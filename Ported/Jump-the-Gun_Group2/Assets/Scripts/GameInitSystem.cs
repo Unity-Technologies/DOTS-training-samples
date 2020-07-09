@@ -42,7 +42,7 @@ public class GameInitSystem : SystemBase
         Entities
             .WithAll<Position>()
             .WithNone<Height>()
-            .WithNone<Rotation>()
+            .WithNone<LookAtPlayerTag>()
             .WithNone<PlayerTag>()
             .ForEach((Entity entity) =>
             {
@@ -52,7 +52,7 @@ public class GameInitSystem : SystemBase
         // Clean up cannons
         Entities
             .WithAll<Position>()
-            .WithAll<Rotation>()
+            .WithAll<LookAtPlayerTag>()
             .ForEach((Entity entity) =>
             {
                 ecb.DestroyEntity(entity);
@@ -129,7 +129,7 @@ public class GameInitSystem : SystemBase
                         pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
 
                     ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeightsBuffer[GridFunctions.GetGridIndex(pos.xy, gameParams.TerrainDimensions)].Height + k_CannongHeightOffset, pos.y) });
-                    ecb.SetComponent(instance, new Rotation { Value = 2f * random.NextFloat() * math.PI });
+                    //ecb.SetComponent(instance, new Rotation { Value = 0 });
                     ecb.SetComponent(instance, new Cooldown { Value = random.NextFloat() * gameParams.CannonCooldown });
                     tilesOccupiedBuffer[GridFunctions.GetGridIndex(pos.xy, gameParams.TerrainDimensions)] = new GridOccupied { Occupied = true };
                 }
