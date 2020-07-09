@@ -28,7 +28,7 @@ public class BucketSpawnSystem : SystemBase
         {
             All = new ComponentType[]
             {
-                typeof(FirefighterEmptyTag),
+                typeof(FirefighterFullTag),
             }
         });
     }
