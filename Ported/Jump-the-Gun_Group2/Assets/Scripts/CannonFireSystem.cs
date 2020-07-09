@@ -39,12 +39,7 @@ public class CannonFireSystem : SystemBase
 
     protected static float GetTileHeight(DynamicBuffer<GridHeight> gridHeight, int2 tilePosition, int2 terrainDimension)
     {
-        tilePosition.x = math.min(tilePosition.x, terrainDimension.x - 1);
-        tilePosition.x = math.max(tilePosition.x, 0);
-        tilePosition.y = math.min(tilePosition.y, terrainDimension.y - 1);
-        tilePosition.y = math.max(tilePosition.y, 0);
-
-        return gridHeight[tilePosition.y * terrainDimension.x + tilePosition.x].Height;
+        return gridHeight[GridFunctions.GetGridIndex(tilePosition.xy, tilePosition)].Height;
     }
 
     public static float3 GetSimulatedPosition(float3 start, float3 end, float paraA, float paraB, float paraC, float t)

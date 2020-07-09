@@ -106,7 +106,7 @@ public class GameInitSystem : SystemBase
                     var height = gameParams.TerrainMin + random.NextFloat() * (gameParams.TerrainMax - gameParams.TerrainMin);
                     GridHeight tileHeight;
                     tileHeight.Height = height;
-                    tileHeightsBuffer[y * dimension.x + x] = tileHeight;
+                    tileHeightsBuffer[GridFunctions.GetGridIndex(math.float2(x,y), gameParams.TerrainDimensions)] = tileHeight;
                     ecb.SetComponent(instance, new Position { Value = new float3(x, 0, y) });
                     ecb.SetComponent(instance, new Height { Value = height });
 
@@ -127,10 +127,10 @@ public class GameInitSystem : SystemBase
                     while (tilesOccupiedBuffer[pos.y * dimension.x + pos.x].Occupied)
                         pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
 
-                    ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeightsBuffer[pos.y * dimension.x + pos.x].Height + k_CannongHeightOffset, pos.y) });
+                    ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeightsBuffer[GridFunctions.GetGridIndex(pos.xy, gameParams.TerrainDimensions)].Height + k_CannongHeightOffset, pos.y) });
                     ecb.SetComponent(instance, new Rotation { Value = 2f * random.NextFloat() * math.PI });
                     ecb.SetComponent(instance, new Cooldown { Value = random.NextFloat() * gameParams.CannonCooldown });
-                    tilesOccupiedBuffer[pos.y * dimension.x + pos.x] = new GridOccupied { Occupied = true };
+                    tilesOccupiedBuffer[GridFunctions.GetGridIndex(pos.xy, gameParams.TerrainDimensions)] = new GridOccupied { Occupied = true };
                 }
             }
 
@@ -138,10 +138,10 @@ public class GameInitSystem : SystemBase
             {
                 var instance = ecb.Instantiate(gameParams.PlayerPrefab);
                 var pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
-                while (tilesOccupiedBuffer[pos.y * dimension.x + pos.x].Occupied)
+                while (tilesOccupiedBuffer[GridFunctions.GetGridIndex(pos.xy, gameParams.TerrainDimensions)].Occupied)
                     pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
 
-                ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeightsBuffer[pos.y * dimension.x + pos.x].Height + 0.5f, pos.y) });
+                ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeightsBuffer[GridFunctions.GetGridIndex(pos.xy, gameParams.TerrainDimensions)].Height + 0.5f, pos.y) });
             }
         }).Schedule();
 

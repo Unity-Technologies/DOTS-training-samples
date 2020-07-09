@@ -40,7 +40,7 @@ public class UpdateGridStateSystem : SystemBase
             .ForEach((in Height height, in Position position) =>
         {
             var pos = (int2)position.Value.xz;
-            buffer[pos.y * gameParams.TerrainDimensions.x + pos.x] = new GridHeight { Height = height.Value };
+            buffer[GridFunctions.GetGridIndex(pos, gameParams.TerrainDimensions)] = new GridHeight { Height = height.Value };
         }).ScheduleParallel();
     }
 }
