@@ -43,12 +43,9 @@ public class MouseInputSystem : SystemBase
         float2 playerToMouse = (mouseGridSpace.xz - playerLocation.Value.xz);
         float2 targetDir = math.float2(0.0f, 0.0f);
 
-        if (math.abs(playerToMouse.x) > threshold)
+        if ((math.abs(playerToMouse.x) > threshold) || (math.abs(playerToMouse.y) > threshold))
         {
             targetDir.x += math.sign(playerToMouse.x);
-        }
-        if (math.abs(playerToMouse.y) > threshold)
-        {
             targetDir.y += math.sign(playerToMouse.y);
         }
 

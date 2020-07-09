@@ -36,7 +36,7 @@ public class PlayerNextMoveSystem : SystemBase
 
     public static void InitPlayerPosition(ref MovementParabola movement, float3 pos, DynamicBuffer<GridHeight> gh, GameParams gp)
     {
-        int2 originTile = new int2((int2)pos.xz);
+        int2 originTile = new int2(pos.xz + 0.5f);
         movement.Origin = new float3(originTile.x, gh[GridFunctions.GetGridIndex(originTile, gp.TerrainDimensions)].Height + PlayerNextMoveSystem.kYOffset, originTile.y);
 
         movement.Target = movement.Origin;
@@ -72,7 +72,7 @@ public class PlayerNextMoveSystem : SystemBase
             {
                 InitPlayerPosition(ref movement, movement.Target, gh, gp);
 
-                int2 targetTile = new int2((int2)pos.Value.xz);
+                int2 targetTile = new int2(pos.Value.xz + 0.5f);
                 targetTile = math.clamp(targetTile + direction.Value, 0, gp.TerrainDimensions - 1);
 
                 // Don't allow to move to target if it is occupied. Keep current position (setup in InitPlayerPosition)
