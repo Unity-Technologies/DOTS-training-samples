@@ -1,6 +1,4 @@
 using Unity.Entities;
-using UnityEngine;
-using UnityEngine.Playables;
 using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
@@ -27,6 +25,8 @@ public class IntentSelectionSystem : SystemBase
                 Random random = new Random(randomSeed.Value);
                 int selection = random.NextInt(0, 4);
                 randomSeed.Value = random.state;
+
+                selection = 3;
 
                 switch (selection)
                 {

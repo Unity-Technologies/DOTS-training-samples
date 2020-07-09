@@ -10,6 +10,7 @@ public class PlantMakeHarvestableSystem : SystemBase
     protected override void OnCreate()
     {
         m_CommandBufferSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+        GetEntityQuery(ComponentType.ReadWrite<CellTypeElement>());
     }
 
     protected override void OnUpdate()
