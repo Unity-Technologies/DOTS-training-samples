@@ -31,17 +31,20 @@ public class FireSpawnSystem : SystemBase
         {
             // Allocate and resize the buffer
             var fireGrid = ecb.AddBuffer<FireCell>(fireGridEntity);
+            var fireGridHist = ecb.AddBuffer<FireCellHistory>(fireGridEntity);
             fireGrid.Capacity = (int)(fireGridSetting.FireGridResolution.x * fireGridSetting.FireGridResolution.y);
 
             // Initialize the buffer
             FireCell nullCell;
-            nullCell.FireTemperature = 0.0f;
+            FireCellHistory nullCellHist;
+            nullCell.FireTemperature = nullCellHist.FireTemperaturePrev = 0.0f;
             for (int y = 0; y < fireGridSetting.FireGridResolution.y; ++y)
             {
                 for (int x = 0; x < fireGridSetting.FireGridResolution.x; ++x)
                 {
                     // Nullify the value first
                     fireGrid.Add(nullCell);
+                    fireGridHist.Add(nullCellHist);
 
                     // Add the instance prefab
                     var instance = ecb.Instantiate(fireGridSpawner.FirePrefab);
@@ -54,19 +57,20 @@ public class FireSpawnSystem : SystemBase
 
                     // Set a non-uniform scale (non guaranteed to be pre-existing)
                     NonUniformScale cellScale;
-                    cellScale.Value = new float3(scaleXZ.x, randomCopy.NextFloat(), scaleXZ.y);
+                    cellScale.Value = new float3(scaleXZ.x, 0.01f, scaleXZ.y);
                     ecb.AddComponent<NonUniformScale>(instance, cellScale);
+  
                 }
             }
 
             // Add the initial fire points
-            FireCell targetCell;
+            FireCellHistory targetCell;
             uint gridSize = fireGridSetting.FireGridResolution.x * fireGridSetting.FireGridResolution.y;
             for (int n = 0; n < fireGridSpawner.StartingFireCount; ++n)
             {
                 uint targetIndex = (randomCopy.NextUInt()) % gridSize;
-                targetCell.FireTemperature = 0.5f + (randomCopy.NextFloat() * 0.5f);
-                fireGrid[(int)targetIndex] = targetCell;
+                targetCell.FireTemperaturePrev = 0.5f + (randomCopy.NextFloat() * 0.5f);
+                fireGridHist[(int)targetIndex] = targetCell;
             }
 
             // Remove the spawner component
