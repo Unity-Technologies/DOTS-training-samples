@@ -26,8 +26,6 @@ public class IntentSelectionSystem : SystemBase
                 int selection = random.NextInt(0, 4);
                 randomSeed.Value = random.state;
 
-                selection = 3;
-
                 switch (selection)
                 {
                     case 0:

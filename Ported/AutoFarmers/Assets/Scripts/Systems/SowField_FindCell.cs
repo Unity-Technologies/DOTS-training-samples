@@ -59,7 +59,7 @@ namespace AutoFarmers
                                 break;
                             }
 
-                            if (typeBuffer[index].Value == CellType.Raw) // Tilled! Raw for the test
+                            if (typeBuffer[index].Value == CellType.Tilled)
                             { 
                                 suitablePosFound = true;
                             }

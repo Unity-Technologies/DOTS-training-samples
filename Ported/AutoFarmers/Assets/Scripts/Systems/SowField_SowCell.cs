@@ -18,55 +18,72 @@ namespace AutoFarmers
         {
             m_CommandBufferSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
             m_SpawnerQuery = GetEntityQuery(new EntityQueryDesc { All = new[] { ComponentType.ReadOnly<AutoFarmers.PlantSpawner>() } });
-            GetEntityQuery(ComponentType.ReadWrite<CellTypeElement>());
+            GetEntityQuery(ComponentType.ReadWrite<CellTypeElement>());            
         }
 
         protected override void OnUpdate()
         {
-            var ecb = m_CommandBufferSystem.CreateCommandBuffer();
+            var ecb = m_CommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
-            NativeArray<AutoFarmers.PlantSpawner> plantSpawnerArray = m_SpawnerQuery.ToComponentDataArray<AutoFarmers.PlantSpawner>(Allocator.TempJob);
+            NativeArray<AutoFarmers.PlantSpawner> plantSpawnerArray = m_SpawnerQuery.ToComponentDataArrayAsync<AutoFarmers.PlantSpawner>(Allocator.TempJob, out var nativeArrayJobHandle);
 
             Entity grid = GetSingletonEntity<Grid>();
             Grid gridComponent = EntityManager.GetComponentData<Grid>(grid);
             int2 gridSize = gridComponent.Size;
 
-            ComponentDataFromEntity<CellPosition> cellPositionAccessor = GetComponentDataFromEntity<CellPosition>();
+            ComponentDataFromEntity<CellPosition> cellPositionAccessor = GetComponentDataFromEntity<CellPosition>(true);
             DynamicBuffer<CellTypeElement> cellTypeBuffer = EntityManager.GetBuffer<CellTypeElement>(grid);
             DynamicBuffer<CellEntityElement> cellEntityBuffer = EntityManager.GetBuffer<CellEntityElement>(grid);
 
+            Dependency = JobHandle.CombineDependencies(Dependency, nativeArrayJobHandle);
+
             Entities
+                .WithDeallocateOnJobCompletion(plantSpawnerArray)
                 .WithAll<PlantSeeds_Intent>()
                 .WithAll<TargetReached>()
-                .WithStructuralChanges()
-                .ForEach((Entity entity, in Target target) =>
+                .WithReadOnly(cellPositionAccessor)
+                .ForEach((int entityInQueryIndex, Entity entity, in Target target) =>
                 {
                     CellPosition cp = cellPositionAccessor[target.Value];
                     int index = (int)(cp.Value.x * gridSize.x + cp.Value.y);
 
-                    // Instantiate new plant
-                    Entity sowedPlant = ecb.Instantiate(plantSpawnerArray[0].PlantPrefab);
-                    ecb.AddComponent(sowedPlant, new Plant_Tag()); 
-                    ecb.AddComponent(sowedPlant, new CellPosition { Value = cp.Value });
-                    ecb.SetComponent(sowedPlant, new Translation { Value = new float3(cp.Value.x, 0, cp.Value.y) + new float3(0.5f, 0.25f, 0.5f) });                    
-                    ecb.SetComponent(sowedPlant, new NonUniformScale { Value = new float3(1.0f, 1.0f, 1.0f) });
-                    ecb.AddComponent(sowedPlant, new Health { Value = 0.0f });
+                    if (cellTypeBuffer[index].Value == CellType.Tilled)
+                    {
+                        // Instantiate new plant
+                        Entity sowedPlant = ecb.Instantiate(entityInQueryIndex, plantSpawnerArray[0].PlantPrefab);
+                        ecb.AddComponent(entityInQueryIndex, sowedPlant, new Plant_Tag());
+                        ecb.AddComponent(entityInQueryIndex, sowedPlant, new CellPosition { Value = cp.Value });
+                        ecb.SetComponent(entityInQueryIndex, sowedPlant, new Translation { Value = new float3(cp.Value.x, 0, cp.Value.y) + new float3(0.5f, 0.25f, 0.5f) });
+                        ecb.SetComponent(entityInQueryIndex, sowedPlant, new NonUniformScale { Value = new float3(1.0f, 1.0f, 1.0f) });
+                        ecb.AddComponent(entityInQueryIndex, sowedPlant, new Health { Value = 0.0f });
 
-                    // Set Cell type to plant
-                    cellTypeBuffer[index] = new CellTypeElement() { Value = CellType.Plant };
+                        // Set Cell type to plant
+                        cellTypeBuffer[index] = new CellTypeElement() { Value = CellType.Plant };
 
-                    // Setup cell entity
-                    Entity cellEntity = cellEntityBuffer[index].Value;
-                    EntityManager.AddComponent<Sowed>(cellEntity);
-                    EntityManager.SetComponentData<Sowed>(cellEntity, new Sowed() { Plant = sowedPlant });
+                        // Setup cell entity
+                        Entity cellEntity = cellEntityBuffer[index].Value;
+                        ecb.AddComponent<Sowed>(entityInQueryIndex, cellEntity);
+                        ecb.SetComponent<Sowed>(entityInQueryIndex, cellEntity, new Sowed() { Plant = sowedPlant });
 
-                    EntityManager.AddComponent<Cooldown>(entity);
-                    EntityManager.SetComponentData<Cooldown>(entity, new Cooldown() { Value = 0.1f });
-                    EntityManager.RemoveComponent<Target>(entity);
-                    EntityManager.RemoveComponent<TargetReached>(entity);                    
-                }).Run();
+                        ecb.AddComponent<Cooldown>(entityInQueryIndex, entity);
+                        ecb.SetComponent<Cooldown>(entityInQueryIndex, entity, new Cooldown() { Value = 0.1f });
+                        ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
+                        ecb.RemoveComponent<PlantSeeds_Intent>(entityInQueryIndex, entity);
+                        ecb.RemoveComponent<TargetReached>(entityInQueryIndex, entity);
+                    }
+                    else
+                    {
+                        // Other farmer got here first
+                        ecb.AddComponent<Cooldown>(entityInQueryIndex, entity);
+                        ecb.SetComponent<Cooldown>(entityInQueryIndex, entity, new Cooldown() { Value = 0.1f });
+                        ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
+                        ecb.RemoveComponent<PlantSeeds_Intent>(entityInQueryIndex, entity);
+                        ecb.RemoveComponent<TargetReached>(entityInQueryIndex, entity);
+                    }
 
-            plantSpawnerArray.Dispose();
+                }).Schedule();
+
+            //plantSpawnerArray.Dispose();
 
             m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
