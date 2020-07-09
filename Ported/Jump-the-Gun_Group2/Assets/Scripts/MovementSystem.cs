@@ -33,7 +33,7 @@ public class MovementSystem : SystemBase
 
                 distance = (normalizedArcLength / (kStepCount + 1)) * math.length(movement.Target.xz - movement.Origin.xz);
 
-                pos.Value = ParabolaMath.GetSimulatedPosition(  movement.Origin + 0.001f, movement.Target + 0.001f,
+                pos.Value = ParabolaMath.GetSimulatedPosition(  movement.Origin + 0.01f, movement.Target + 0.01f,
                                                                 movement.Parabola.x, movement.Parabola.y, movement.Parabola.z,
                                                                 math.saturate(normalisedMoveTime.Value));
             }
