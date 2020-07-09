@@ -25,6 +25,8 @@ namespace AutoFarmers
             // should these be in some settings component?
             int2 MinFieldSize = new int2(2, 2);
             int2 MaxFieldSize = new int2(5, 5);
+            int initialNumTries = 10;     // if we don't find anything suitable within 10 tries, let it go for now
+            int initialSearchRadius = 10; // this "square" radius should allow allow for 16 fullsized fields, enough to start looking?
 
             Entity gridEntity = GetSingletonEntity<Grid>();
             DynamicBuffer<CellTypeElement> typeBuffer = EntityManager.GetBuffer<CellTypeElement>(gridEntity);
@@ -32,7 +34,7 @@ namespace AutoFarmers
                 .WithAll<TillField_Intent>()
                 .WithNone<CellRect>()
                 .WithReadOnly(typeBuffer)
-                .ForEach((int entityInQueryIndex, Entity entity, ref RandomSeed randomSeed) =>
+                .ForEach((int entityInQueryIndex, Entity entity, ref RandomSeed randomSeed, in Translation translation) =>
                 {
                     int2 fieldPos = new int2(0, 0);
                     int2 fieldDimensions = new int2(0, 0);
@@ -47,13 +49,32 @@ namespace AutoFarmers
                         // brute forcing it here
                         //  => rocks and shops are already there, worst case there's a false negative if a rock just disappeared
                         //  => other fields that just went from raw to tilled: possible overlap
-                        int numTries = 10;
+                        int numTries = initialNumTries;
                         while(!suitableFieldFound && numTries > 0)
                         {
                             numTries--; // This is a dumb brute-force algorithm, let's not make it stall ...
 
+                            // Binary switch between search locally vs search over the entire grid (could be done smoother, increase distance based on tryCounter, ...)
+                            int2 searchMin, searchMax;
+                            if(numTries > initialNumTries / 2)
+                            {
+                                // Search locally
+                                searchMin = new int2(
+                                    math.max((int)translation.Value.x - initialSearchRadius, 0),
+                                    math.max((int)translation.Value.z - initialSearchRadius, 0));
+                                searchMax = new int2(
+                                    math.min((int)translation.Value.x + initialSearchRadius, GridSize.x),
+                                    math.min((int)translation.Value.z + initialSearchRadius, GridSize.y));
+                            }
+                            else
+                            {
+                                // Search globally
+                                searchMin = new int2(0, 0);
+                                searchMax = GridSize;
+                            }
+
                             // Create a field
-                            fieldPos = random.NextInt2(new int2(0, 0), GridSize - MinFieldSize);
+                            fieldPos = random.NextInt2(searchMin, searchMax - MinFieldSize);
                             fieldDimensions = random.NextInt2(MinFieldSize, MaxFieldSize);
                             randomSeed.Value = random.state;
 

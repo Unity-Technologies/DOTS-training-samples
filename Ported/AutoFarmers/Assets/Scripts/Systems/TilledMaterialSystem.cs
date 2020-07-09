@@ -9,12 +9,12 @@ namespace AutoFarmers
         {
             Entities.WithNone<Tilled>().ForEach((ref TilledMaterialProperty tilledMaterialProperty) =>
             {
-                tilledMaterialProperty.Value = 1f;
+                tilledMaterialProperty.Value = 0f;
             }).ScheduleParallel();
             
             Entities.WithAll<Tilled>().ForEach((ref TilledMaterialProperty tilledMaterialProperty) =>
             {
-                tilledMaterialProperty.Value = 0f;
+                tilledMaterialProperty.Value = 1f;
             }).ScheduleParallel();
         }
     }
