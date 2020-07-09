@@ -31,7 +31,7 @@ public class TransformSystem2D : SystemBase
             .ForEach((ref LocalToWorld localToWorld, in WaterBucket waterBucket, in Translation2D translation2D) =>
         {
             var trans = float4x4.Translate(new float3(translation2D.Value.x, raisedBucketHeight, translation2D.Value.y));
-            var scale = float4x4.Scale(bucketScale * math.lerp(0.2f, 1.0f, waterBucket.Value));
+            var scale = float4x4.Scale(bucketScale * math.lerp(0.3f, 1.0f, waterBucket.Value));
             localToWorld.Value = math.mul(trans, scale);
         }).ScheduleParallel();
     }
