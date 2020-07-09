@@ -5,6 +5,14 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(TransformSystemGroup))]
 public class LTWUpdateSystem : SystemBase
 {
+
+    protected override void OnCreate() {
+
+        RequireSingletonForUpdate<GridTag>();
+        RequireSingletonForUpdate<GameParams>();
+
+    }
+
     protected override void OnUpdate()
     {
 
