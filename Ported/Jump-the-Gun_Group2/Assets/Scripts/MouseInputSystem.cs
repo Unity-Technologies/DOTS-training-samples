@@ -54,7 +54,7 @@ public class MouseInputSystem : SystemBase
 
         Entities.ForEach((ref Direction d) => 
         {
-            d.Value = targetDir;
+            d.Value = (int2)targetDir;
         }).Schedule();
     }
 }

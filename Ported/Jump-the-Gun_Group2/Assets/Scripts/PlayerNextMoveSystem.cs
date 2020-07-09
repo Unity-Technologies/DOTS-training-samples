@@ -6,7 +6,7 @@ public class PlayerNextMoveSystem : SystemBase
 {
     public const float kYOffset = .3f;
     public const float kBounceHeight = 2;
-    public const float kPlayerSpeed = .7f;
+    public const float kPlayerSpeed = 3.0f;
 
     EntityQuery m_PlayerQuery;
     EntityQuery m_BufferQuery;
@@ -34,6 +34,20 @@ public class PlayerNextMoveSystem : SystemBase
         });
     }
 
+    public static void InitPlayerPosition(ref MovementParabola movement, float3 pos, DynamicBuffer<GridHeight> gh, GameParams gp)
+    {
+        int2 originTile = new int2((int2)pos.xz);
+        movement.Origin = new float3(originTile.x + 0.5f, gh[GridFunctions.GetGridIndex(originTile, gp.TerrainDimensions)].Height + PlayerNextMoveSystem.kYOffset, originTile.y + 0.5f);
+
+        movement.Target = movement.Origin;
+
+        movement.Parabola.x = 0.0f;
+        movement.Parabola.y = kBounceHeight;
+        movement.Parabola.z = 0.0f;
+
+        movement.Speed = kPlayerSpeed;
+    }
+
     protected override void OnUpdate()
     {
         // Assume it is scaled later
@@ -54,35 +68,41 @@ public class PlayerNextMoveSystem : SystemBase
         {
             if (normalisedMoveTime.Value >= 1.0f) 
             {
-                float3 origin = (int3)(pos.Value+new float3(.5f));
-                origin.y = gh[GridFunctions.GetGridIndex(origin.xz, gp.TerrainDimensions)].Height + PlayerNextMoveSystem.kBounceHeight;
-                movement.Origin = origin;
+                InitPlayerPosition(ref movement, pos.Value, gh, gp);
 
-                float3 target = origin;
-                target.x = math.clamp(target.x + direction.Value.x, 0f, gp.TerrainDimensions.x - 1);
-                target.z = math.clamp(target.z + direction.Value.y, 0f, gp.TerrainDimensions.y - 1);
-                target.y = gh[GridFunctions.GetGridIndex(target.xz, gp.TerrainDimensions)].Height + PlayerNextMoveSystem.kBounceHeight;
-                movement.Target = target;
+                int2 targetTile = new int2((int2)pos.Value.xz);
+                targetTile = math.clamp(targetTile + direction.Value, 0, gp.TerrainDimensions - 1);
 
-                if (go[GridFunctions.GetGridIndex(target.xz, gp.TerrainDimensions)].Occupied)
+                // Don't allow to move to target if it is occupied. Keep current position (setup in InitPlayerPosition)
+                if (!go[GridFunctions.GetGridIndex(targetTile, gp.TerrainDimensions)].Occupied)
                 {
-                    movement.Target = origin;
-                    normalisedMoveTime.Value = 1.1f; // Allow querying another direction.
-                }
-                else
-                {
-                    normalisedMoveTime.Value = 0.0f;
+                    movement.Target = new float3(targetTile.x + 0.5f, gh[GridFunctions.GetGridIndex(targetTile, gp.TerrainDimensions)].Height + PlayerNextMoveSystem.kYOffset, targetTile.y + 0.5f);
                 }
 
                 if (math.all(movement.Origin == movement.Target))
                 {
                     movement.Parabola.x = 0.0f;
-                    movement.Parabola.y = kBounceHeight;
+                    movement.Parabola.y = movement.Origin.y + kBounceHeight;
                     movement.Parabola.z = 0.0f;
                 }
+                else
+                {
+                    // Solving parabola path
+                    float height = Mathf.Max(movement.Origin.y, movement.Target.y);
+                    // TODO: from original game
+                    // make height max of adjacent boxes when moving diagonally
+                 //   if (startBox.col != endBox.col && startBox.row != endBox.row)
+                  //  {
+                   //     height = Mathf.Max(height, TerrainArea.instance.GetBox(startBox.col, endBox.row).top, TerrainArea.instance.GetBox(endBox.col, startBox.row).top);
+                //    }
+                    height += kBounceHeight;
 
-                movement.Speed = kPlayerSpeed;
+                    ParabolaMath.Create(movement.Origin.y, height, movement.Target.y, out movement.Parabola.x, out movement.Parabola.y, out movement.Parabola.z);
+                }
+
+                normalisedMoveTime.Value = 0.0f;
             }
+
         }).ScheduleParallel();
 
     }
