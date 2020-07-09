@@ -157,10 +157,10 @@ MonoBehaviour:
   CannonBallPrefab: {fileID: 1908342676492234, guid: 804354b785c584494afa73ff5ef3d1f4,
     type: 3}
   TerrainMin: 1
-  TerrainMax: 3
+  TerrainMax: 2
   TerrainDimensions:
-    x: 10
-    y: 10
+    x: 100
+    y: 100
   CannonPrefab: {fileID: 1285056113001856, guid: c86b1bd6777d544aba9a2ee2262c61c4,
     type: 3}
   CannonCount: 5
