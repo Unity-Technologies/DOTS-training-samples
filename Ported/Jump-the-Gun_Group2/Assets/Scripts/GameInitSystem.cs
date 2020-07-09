@@ -103,6 +103,7 @@ public class GameInitSystem : SystemBase
                 for (int x = 0; x < dimension.x; ++x)
                 {
                     var instance = ecb.Instantiate(gameParams.TilePrefab);
+                    //var height = math.lerp(gameParams.TerrainMin, gameParams.TerrainMax, (y * dimension.x + x)/(float)(dimension.x * dimension.y));
                     var height = gameParams.TerrainMin + random.NextFloat() * (gameParams.TerrainMax - gameParams.TerrainMin);
                     GridHeight tileHeight;
                     tileHeight.Height = height;
