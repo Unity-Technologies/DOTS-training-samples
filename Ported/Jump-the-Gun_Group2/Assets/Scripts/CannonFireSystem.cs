@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CannonFireSystem : SystemBase
 {
-    public const float kCannonBallRadius = 0.25f;
+    public const float kCannonBallRadius = 0.5f;
     public const float kCannonBallSpeed = 6.0f;
 
     EntityQuery m_BufferQuery;
