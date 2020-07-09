@@ -18,6 +18,7 @@ internal class GameParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity, 
     public int2 TerrainDimensions;
 
     public GameObject CannonPrefab;
+    public GameObject CannonBarrelPrefab;
 
     public int CannonCount;
 
@@ -37,6 +38,7 @@ internal class GameParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity, 
         GameParams componentData = default(GameParams);
         componentData.TilePrefab = conversionSystem.GetPrimaryEntity(TilePrefab);
         componentData.CannonBallPrefab = conversionSystem.GetPrimaryEntity(CannonBallPrefab);
+        componentData.CannonBarrel = conversionSystem.GetPrimaryEntity(CannonBarrelPrefab);
         componentData.TerrainMin = TerrainMin;
         componentData.TerrainMax = TerrainMax;
         componentData.TerrainDimensions = TerrainDimensions;
@@ -61,5 +63,6 @@ internal class GameParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity, 
         GeneratedAuthoringComponentImplementation.AddReferencedPrefab(referencedPrefabs, CannonBallPrefab);
         GeneratedAuthoringComponentImplementation.AddReferencedPrefab(referencedPrefabs, CannonPrefab);
         GeneratedAuthoringComponentImplementation.AddReferencedPrefab(referencedPrefabs, PlayerPrefab);
+        GeneratedAuthoringComponentImplementation.AddReferencedPrefab(referencedPrefabs, CannonBarrelPrefab);
     }
 }
