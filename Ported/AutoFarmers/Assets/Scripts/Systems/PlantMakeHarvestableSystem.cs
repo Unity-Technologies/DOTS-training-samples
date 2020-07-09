@@ -14,8 +14,6 @@ public class PlantMakeHarvestableSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = m_CommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-
         Entity grid = GetSingletonEntity<Grid>();
         Grid gridComponent = EntityManager.GetComponentData<Grid>(grid);
         DynamicBuffer<CellTypeElement> typeBuffer = EntityManager.GetBuffer<CellTypeElement>(grid);
@@ -25,14 +23,16 @@ public class PlantMakeHarvestableSystem : SystemBase
             // You don't have a grid initialized yet!
             UnityEngine.Debug.Log("Not running PlantMakeharvestableSystem, you don't have a grid sized > 0!");
             return; 
-        }       
-        
+        }
+
+        var ecb = m_CommandBufferSystem.CreateCommandBuffer();
+
         Entities
             .WithAll<FullyGrownPlant_Tag>()            
             .WithNone<HarvestablePlant_Tag>()
             .ForEach((int entityInQueryIndex, Entity entity, ref Translation translation) =>
         {            
-            ecb.AddComponent<HarvestablePlant_Tag>(entityInQueryIndex, entity, new HarvestablePlant_Tag());
+            ecb.AddComponent<HarvestablePlant_Tag>(entity, new HarvestablePlant_Tag());
                
             // Update the cell type
             {
@@ -49,7 +49,7 @@ public class PlantMakeHarvestableSystem : SystemBase
                     typeBuffer[index] = new CellTypeElement() { Value = CellType.Plant };
                 }
             }
-        }).Schedule(); // Run for now until we can get this working 100% in parallel
+        }).Run(); // Run for now until we can get this working 100% in parallel
 
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
