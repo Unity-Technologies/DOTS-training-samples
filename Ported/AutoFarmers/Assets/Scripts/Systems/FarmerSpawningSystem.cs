@@ -41,6 +41,7 @@ namespace AutoFarmers
                     var instance = pecb.Instantiate(entityInQueryIndex, farmerPrefab);
                     pecb.SetComponent(entityInQueryIndex, instance, new Translation { Value = position });
                     pecb.SetComponent(entityInQueryIndex, instance, new Velocity { Value = velocity });
+                    pecb.SetComponent(entityInQueryIndex, instance, new Home { Value = store });
                     plantsInStore.ForFarmers -= farmerCost;
                 }
 
@@ -53,6 +54,7 @@ namespace AutoFarmers
                     position.y = 1.2f;// start above the store
                     pecb.SetComponent(entityInQueryIndex, instance, new Translation { Value = position });
                     pecb.SetComponent(entityInQueryIndex, instance, new Velocity { Value = velocity });
+                    pecb.SetComponent(entityInQueryIndex, instance, new Home { Value = store });
                     plantsInStore.ForDrones -= droneCost;
                 }
 
