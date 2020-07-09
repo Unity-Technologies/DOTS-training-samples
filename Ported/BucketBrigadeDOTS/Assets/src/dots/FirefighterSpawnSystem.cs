@@ -13,12 +13,13 @@ public class FirefighterSpawnSystem : SystemBase
             .ForEach((Entity entity, in FirefighterSpawner spawner, in LocalToWorld ltw) =>
             {
                 int firefigherID = 0;
-                int firefighterCount = spawner.Count;
+                int firefightersInLineCount = spawner.Count;
+                int firefightersTotalCount = spawner.Count * 2;
 
                 var previousInstance = Entity.Null;
                 var first = Entity.Null;
                 
-                for (int i = 0; i < spawner.Count * 2; ++i)
+                for (int i = 0; i < firefightersTotalCount; ++i)
                 {
                     var posX = 2 * (i - (spawner.Count - 1) / 2);
                     var instance = EntityManager.Instantiate(spawner.Prefab);
@@ -39,8 +40,9 @@ public class FirefighterSpawnSystem : SystemBase
                     
                     if (i == spawner.Count * 2 - 1)
                         EntityManager.AddComponent<FirefighterEmptyLastTag>(instance);
-                    
-                    EntityManager.AddComponentData<FirefighterPositionInLine>(instance, new FirefighterPositionInLine { Value = (float) (i%spawner.Count)/firefighterCount });
+
+                    float positionInLine = firefightersInLineCount > 1 ? (float)(i % firefightersInLineCount) / (firefightersInLineCount - 1) : 0;
+                    EntityManager.AddComponentData<FirefighterPositionInLine>(instance, new FirefighterPositionInLine { Value = positionInLine });
 
                     EntityManager.AddComponentData<FirefighterNext>(instance, new FirefighterNext { Value = previousInstance });
 
