@@ -28,11 +28,6 @@ namespace AutoFarmers
                         });
                         EntityManager.AddComponent<Farmer_Tag>(farmer);
                         EntityManager.AddComponent<TillField_Intent>(farmer);
-                        EntityManager.AddComponent<MovementTimerMockup>(farmer);
-                        SetComponent(farmer, new MovementTimerMockup
-                        {
-                            Value = 0.0f
-                        });
                     }
 
 

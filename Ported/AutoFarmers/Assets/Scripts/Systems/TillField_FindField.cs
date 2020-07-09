@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 namespace AutoFarmers
 {
-    public class FindTillableFieldSystem : SystemBase
+    public class TillField_FindField : SystemBase
     {
         private EntityCommandBufferSystem _entityCommandBufferSystem;
 
@@ -66,8 +68,9 @@ namespace AutoFarmers
                                 for (int y = fieldPos.y; y < fieldPos.y + fieldDimensions.y && suitableFieldFound; ++y)
                                 {
                                     int index = y * GridSize.x + x;
-                                    if(index >= 1024)
+                                    if(index >= 5000)
                                     {
+                                        UnityEngine.Debug.LogErrorFormat("x: {0}, y : {1}", GridSize.x, GridSize.y);
                                         UnityEngine.Debug.LogError("FindTillableField went out-of-bounds");
                                         suitableFieldFound = false;
                                         break;
@@ -82,7 +85,7 @@ namespace AutoFarmers
 
                     if(suitableFieldFound)
                     {
-                        ecb.RemoveComponent<PathFindingTargetReached_Tag>(entityInQueryIndex, entity);
+                        //Debug.LogFormat("found field {0} {1}", fieldPos.x, fieldPos.y);
                         ecb.AddComponent<TillRect>(entityInQueryIndex, entity, new TillRect
                         {
                             X = fieldPos.x,
