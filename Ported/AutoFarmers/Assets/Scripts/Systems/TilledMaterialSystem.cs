@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace AutoFarmers
 {
-    [ExecuteAlways]
     class TilledMaterialSystem : SystemBase
     {
         protected override void OnUpdate()
