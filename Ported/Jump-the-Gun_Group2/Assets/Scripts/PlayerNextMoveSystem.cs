@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class PlayerNextMoveSystem : SystemBase
 {
+    public const float kYOffset = .3f;
+    public const float kBounceHeight = 2;
+    public const float kPlayerSpeed = .7f;
+
     EntityQuery m_PlayerQuery;
     EntityQuery m_BufferQuery;
 
@@ -48,19 +52,19 @@ public class PlayerNextMoveSystem : SystemBase
         WithReadOnly(go).
         ForEach((ref MovementParabola movement, ref NormalisedMoveTime normalisedMoveTime, in Direction direction, in Position pos) =>
         {
-            if(normalisedMoveTime.Value >= 1.0f) 
+            if (normalisedMoveTime.Value >= 1.0f) 
             {
                 float3 origin = (int3)(pos.Value+new float3(.5f));
-                origin.y = gh[GridFunctions.GetGridIndex(origin.xz, gp.TerrainDimensions)].Height;
+                origin.y = gh[GridFunctions.GetGridIndex(origin.xz, gp.TerrainDimensions)].Height + PlayerNextMoveSystem.kBounceHeight;
                 movement.Origin = origin;
 
                 float3 target = origin;
                 target.x = math.clamp(target.x + direction.Value.x, 0f, gp.TerrainDimensions.x - 1);
                 target.z = math.clamp(target.z + direction.Value.y, 0f, gp.TerrainDimensions.y - 1);
-                target.y = gh[GridFunctions.GetGridIndex(target.xz, gp.TerrainDimensions)].Height;
+                target.y = gh[GridFunctions.GetGridIndex(target.xz, gp.TerrainDimensions)].Height + PlayerNextMoveSystem.kBounceHeight;
                 movement.Target = target;
 
-                if(go[GridFunctions.GetGridIndex(target.xz, gp.TerrainDimensions)].Occupied)
+                if (go[GridFunctions.GetGridIndex(target.xz, gp.TerrainDimensions)].Occupied)
                 {
                     movement.Target = origin;
                     normalisedMoveTime.Value = 1.1f; // Allow querying another direction.
@@ -69,6 +73,15 @@ public class PlayerNextMoveSystem : SystemBase
                 {
                     normalisedMoveTime.Value = 0.0f;
                 }
+
+                if (math.all(movement.Origin == movement.Target))
+                {
+                    movement.Parabola.x = 0.0f;
+                    movement.Parabola.y = kBounceHeight;
+                    movement.Parabola.z = 0.0f;
+                }
+
+                movement.Speed = kPlayerSpeed;
             }
         }).ScheduleParallel();
 

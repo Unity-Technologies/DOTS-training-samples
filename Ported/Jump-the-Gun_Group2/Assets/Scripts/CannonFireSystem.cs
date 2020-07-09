@@ -208,7 +208,7 @@ public class CannonFireSystem : SystemBase
                 var height = FindHeight(position.Value, playerLocation.Value, gridHeight, gameParams);
 
                 var instance = ecb.Instantiate(entityInQueryIndex, gameParams.CannonBallPrefab);
-                MovementParabola movementParabole = new MovementParabola { Origin = position.Value, Target = math.floor(playerLocation.Value), Parabola = new float3(0.0f, 0.0f, 0.0f) };
+                MovementParabola movementParabole = new MovementParabola { Origin = position.Value, Target = math.floor(playerLocation.Value), Parabola = new float3(0.0f, 0.0f, 0.0f), Speed = kCannonBallSpeed };
                 ParabolaMath.Create(position.Value.y, height, playerLocation.Value.y, out movementParabole.Parabola.x, out movementParabole.Parabola.y, out movementParabole.Parabola.z);
 
                 ecb.AddComponent(entityInQueryIndex, instance, new Position { Value = position.Value });

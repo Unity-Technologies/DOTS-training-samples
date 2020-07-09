@@ -7,4 +7,5 @@ public struct MovementParabola : IComponentData
     public float3 Origin;
     public float3 Target;
     public float3 Parabola;
+    public float Speed;
 }

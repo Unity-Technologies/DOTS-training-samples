@@ -142,7 +142,11 @@ public class GameInitSystem : SystemBase
                 while (tilesOccupiedBuffer[GridFunctions.GetGridIndex(pos.xy, gameParams.TerrainDimensions)].Occupied)
                     pos = (int2)(gameParams.TerrainDimensions * random.NextFloat2());
 
-                ecb.SetComponent(instance, new Position { Value = new float3(pos.x, tileHeightsBuffer[GridFunctions.GetGridIndex(pos.xy, gameParams.TerrainDimensions)].Height + 0.5f, pos.y) });
+                float3 position = new float3(pos.x, tileHeightsBuffer[GridFunctions.GetGridIndex(pos.xy, gameParams.TerrainDimensions)].Height + PlayerNextMoveSystem.kYOffset, pos.y);
+                MovementParabola movementParabole = new MovementParabola { Origin = position, Target = position, Parabola = new float3(0.0f, PlayerNextMoveSystem.kBounceHeight, 0.0f), Speed = PlayerNextMoveSystem.kBounceHeight };
+                ecb.SetComponent(instance, movementParabole);
+                ecb.SetComponent(instance, new NormalisedMoveTime { Value = 0.0f });
+                ecb.SetComponent(instance, new Position { Value = position });
             }
         }).Schedule();
 
