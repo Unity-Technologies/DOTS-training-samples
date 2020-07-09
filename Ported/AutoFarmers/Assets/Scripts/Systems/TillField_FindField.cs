@@ -30,7 +30,7 @@ namespace AutoFarmers
             DynamicBuffer<CellTypeElement> typeBuffer = EntityManager.GetBuffer<CellTypeElement>(gridEntity);
             Entities
                 .WithAll<TillField_Intent>()
-                .WithNone<TillRect>()
+                .WithNone<CellRect>()
                 .WithReadOnly(typeBuffer)
                 .ForEach((int entityInQueryIndex, Entity entity, ref RandomSeed randomSeed) =>
                 {
@@ -83,7 +83,7 @@ namespace AutoFarmers
                     if(suitableFieldFound)
                     {
                         ecb.RemoveComponent<PathFindingTargetReached_Tag>(entityInQueryIndex, entity);
-                        ecb.AddComponent<TillRect>(entityInQueryIndex, entity, new TillRect
+                        ecb.AddComponent<CellRect>(entityInQueryIndex, entity, new CellRect
                         {
                             X = fieldPos.x,
                             Y = fieldPos.y,
