@@ -208,7 +208,7 @@ public class CannonFireSystem : SystemBase
             if (coolDown.Value  < 0.0f)
             {
                 var cannonPos = (int2)(position.Value.xz + 0.5f);
-                var playerPos = (int2)playerLocation.Value.xz;
+                var playerPos = (int2)(playerLocation.Value.xz + 0.5f);
 
                 var cannonHeight = gridHeight[GridFunctions.GetGridIndex(position.Value.xz, gameParams.TerrainDimensions)].Height;
                 var playerHeight = gridHeight[GridFunctions.GetGridIndex(playerLocation.Value.xz, gameParams.TerrainDimensions)].Height;
