@@ -66,7 +66,7 @@ namespace AutoFarmers
                                 for (int y = fieldPos.y; y < fieldPos.y + fieldDimensions.y && suitableFieldFound; ++y)
                                 {
                                     int index = y * GridSize.x + x;
-                                    if(index >= 1024)
+                                    if(index < 0 || index >= GridSize.x * GridSize.y)
                                     {
                                         UnityEngine.Debug.LogError("FindTillableField went out-of-bounds");
                                         suitableFieldFound = false;
