@@ -196,27 +196,42 @@ public class CannonFireSystem : SystemBase
         var playerLocation = EntityManager.GetComponentData<Position>(playerEntity);
         var gameParams = GetSingleton<GameParams>();
         var gridEntity = GetSingletonEntity<GridTag>();
-        DynamicBuffer<GridHeight> gridHeight = EntityManager.GetBuffer<GridHeight>(gridEntity);
+        var gridHeight = GetBufferFromEntity<GridHeight>(true)[gridEntity];
 
         var deltaTime = Time.DeltaTime;
 
         Entities
             .WithReadOnly(gridHeight)
-            .ForEach((int entityInQueryIndex, Entity e, ref Cooldown coolDown, in Position position) =>
+            .ForEach((int entityInQueryIndex, Entity e, ref Rotation rotation, ref Cooldown coolDown, in Position position) =>
         {            
             // Fire
             if (coolDown.Value  < 0.0f)
             {
+                var cannonPos = (int2)(position.Value.xz + 0.5f);
+                var playerPos = (int2)playerLocation.Value.xz;
+
+                var cannonHeight = gridHeight[GridFunctions.GetGridIndex(position.Value.xz, gameParams.TerrainDimensions)].Height;
+                var playerHeight = gridHeight[GridFunctions.GetGridIndex(playerLocation.Value.xz, gameParams.TerrainDimensions)].Height;
+
+                var origin = new float3(cannonPos.x, cannonHeight, cannonPos.y);
+                var target = new float3(playerPos.x, playerHeight, playerPos.y);
+
                 var height = FindHeight(position.Value, playerLocation.Value, gridHeight, gameParams);
+                ParabolaMath.Create(cannonHeight, 3, playerHeight, out var a, out var b, out var c);
+                var movementParabole = new MovementParabola
+                {
+                    Origin = origin,
+                    Target = target,
+                    Parabola = new float3(a, b, c),
+                    Speed = kCannonBallSpeed
+                };
 
                 var instance = ecb.Instantiate(entityInQueryIndex, gameParams.CannonBallPrefab);
-                MovementParabola movementParabole = new MovementParabola { Origin = position.Value, Target = math.floor(playerLocation.Value), Parabola = new float3(0.0f, 0.0f, 0.0f), Speed = kCannonBallSpeed };
-                ParabolaMath.Create(position.Value.y, 3, playerLocation.Value.y, out movementParabole.Parabola.x, out movementParabole.Parabola.y, out movementParabole.Parabola.z);
-
-                ecb.AddComponent(entityInQueryIndex, instance, new Position { Value = position.Value });
+                ecb.AddComponent(entityInQueryIndex, instance, new Position { Value = origin});
                 ecb.AddComponent(entityInQueryIndex, instance, movementParabole);
                 ecb.AddComponent(entityInQueryIndex, instance, new NormalisedMoveTime { Value = 0.0f });
 
+                rotation.Value = -.25f * math.PI;
                 coolDown.Value = gameParams.CannonCooldown;
             }
             else
