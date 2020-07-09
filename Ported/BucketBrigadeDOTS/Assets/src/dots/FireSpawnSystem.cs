@@ -51,16 +51,14 @@ public class FireSpawnSystem : SystemBase
                     var instance = ecb.Instantiate(fireGridSpawner.FirePrefab);
 
                     // Set the translation
-                    Translation cellTranslation;
-                    float2 cellPositionWS = gridCorner + scaleXZ * (0.5f + new float2(x, y));
-                    cellTranslation.Value = new float3(cellPositionWS.x, 0.0f, cellPositionWS.y);
-                    ecb.SetComponent<Translation>(instance, cellTranslation);
+                    LocalToWorld trs;
 
-                    // Set a non-uniform scale (non guaranteed to be pre-existing)
-                    NonUniformScale cellScale;
-                    cellScale.Value = new float3(scaleXZ.x, 0.01f, scaleXZ.y);
-                    ecb.AddComponent<NonUniformScale>(instance, cellScale);
-  
+                    float2 cellPositionWS = gridCorner + scaleXZ * (0.5f + new float2(x, y));
+                    var trans = float4x4.Translate(new float3(cellPositionWS.x, 0.0f, cellPositionWS.y));
+                    var scale = float4x4.Scale(new float3(scaleXZ.x, 0.01f, scaleXZ.y));
+                    trs.Value = math.mul(trans, scale);
+
+                    ecb.SetComponent<LocalToWorld>(instance, trs);
                 }
             }
 

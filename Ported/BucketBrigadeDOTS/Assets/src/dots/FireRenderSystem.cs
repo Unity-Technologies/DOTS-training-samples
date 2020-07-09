@@ -37,7 +37,7 @@ public class FireRenderSystem : SystemBase
         .WithAll<FireRendererTag>()
         .WithReadOnly(bufferRef)
         .WithReadOnly(mipChainFlag)
-        .ForEach((int entityInQueryIndex, ref NonUniformScale scale, ref Translation translation, ref FireColor fireColor) =>
+        .ForEach((int entityInQueryIndex, ref LocalToWorld transform, ref FireColor fireColor) =>
         {
             // Grab the target cell this renderer should be matching
             FireCell currentCell = bufferRef[entityInQueryIndex];
@@ -60,10 +60,15 @@ public class FireRenderSystem : SystemBase
             }
             float temperatureWithNoise = visualTemperature + noise;
 
-            // Update its scale
-            scale.Value.y = temperatureWithNoise;
-            // Update its translation
-            translation.Value.y = scale.Value.y * 0.5f;
+            float4x4 mat = transform.Value;
+            float4 c1 = transform.Value.c1;
+            float4 c3 = transform.Value.c3;
+            c1.y = temperatureWithNoise;
+            c3.y = temperatureWithNoise * 0.5f;
+            mat.c1 = c1;
+            mat.c3 = c3;
+            transform.Value = mat;
+
             // Update its color
             fireColor.Value = visualTemperature < flashPoint ? new float4(0.0f, 1.0f, 0.0f, 1.0f) : math.lerp(new float4(1.0f, 1.0f, 0.0f, 1.0f), new float4(1.0f, 0.0f, 0.0f, 1.0f), (visualTemperature - flashPoint) / (1.0f - flashPoint));
 

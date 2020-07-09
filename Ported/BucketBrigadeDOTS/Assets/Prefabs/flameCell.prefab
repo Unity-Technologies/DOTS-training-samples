@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 114930137635937638}
   - component: {fileID: -7936655110454787905}
   - component: {fileID: 8763866150466347287}
+  - component: {fileID: -3494717572835263380}
   m_Layer: 0
   m_Name: flameCell
   m_TagString: Untagged
@@ -141,3 +142,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Color: {r: 0, g: 0, b: 0, a: 0}
+--- !u!114 &-3494717572835263380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1306931638197496}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a3fcf13b2ac82e46a3f5275ebd76213, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
