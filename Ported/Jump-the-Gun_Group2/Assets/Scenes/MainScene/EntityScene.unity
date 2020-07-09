@@ -132,8 +132,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1904175738}
-  - component: {fileID: 1904175737}
   - component: {fileID: 1904175736}
+  - component: {fileID: 1904175737}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -150,7 +150,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1904175735}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9ed23017c227f243accee811b06b636, type: 3}
+  m_Script: {fileID: 11500000, guid: ca7538a0d8b8e354c8ef520a351823aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   TilePrefab: {fileID: 1408919642704132, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
@@ -164,17 +164,9 @@ MonoBehaviour:
   CannonPrefab: {fileID: 1285056113001856, guid: c86b1bd6777d544aba9a2ee2262c61c4,
     type: 3}
   CannonCount: 5
-  CannonCooldown: 1
-  colorA:
-    x: 1
-    y: 0
-    z: 0
-    w: 1
-  colorB:
-    x: 0
-    y: 1
-    z: 0
-    w: 1
+  CannonCooldown: 5
+  colorA: {r: 1, g: 0, b: 0, a: 0}
+  colorB: {r: 0, g: 1, b: 0.0027880669, a: 0}
   PlayerPrefab: {fileID: 1659188881559534, guid: 6ab41e7a804527944b222a5a4b6f1468,
     type: 3}
   collisionStepMultiplier: 3

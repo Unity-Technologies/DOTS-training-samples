@@ -1,7 +1,10 @@
-﻿using Unity.Entities;
+﻿using System.Collections.Generic;
+using Unity.Entities;
+using Unity.Entities.Hybrid.Internal;
 using Unity.Mathematics;
+using Unity.Transforms;
+using UnityEngine;
 
-[GenerateAuthoringComponent]
 public struct GameParams : IComponentData
 {
     public Entity TilePrefab;
