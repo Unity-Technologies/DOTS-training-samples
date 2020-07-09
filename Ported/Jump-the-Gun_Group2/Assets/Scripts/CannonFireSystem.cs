@@ -231,7 +231,10 @@ public class CannonFireSystem : SystemBase
                 ecb.AddComponent(entityInQueryIndex, instance, movementParabole);
                 ecb.AddComponent(entityInQueryIndex, instance, new NormalisedMoveTime { Value = 0.0f });
 
-                rotation.Value = -.25f * math.PI;
+                var p2 = ParabolaMath.GetSimulatedPosition(origin, target, a, b, c, 0.1f);
+                var dir = p2 - origin;
+
+                rotation.Value = -math.atan(math.length(dir) / dir.y);
                 coolDown.Value = gameParams.CannonCooldown;
             }
             else
