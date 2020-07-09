@@ -39,7 +39,7 @@ namespace AutoFarmers
 
             Entities
                 .WithDeallocateOnJobCompletion(plantSpawnerArray)
-                .WithAll<TillField_Intent>()
+                .WithAll<PlantSeeds_Intent>()
                 .WithAll<TargetReached>()
                 .WithStructuralChanges()
                 .ForEach((int entityInQueryIndex, Entity entity, in Target target) =>
@@ -47,12 +47,18 @@ namespace AutoFarmers
                     CellPosition cp = cellPositionAccessor[target.Value];
                     int index = (int)(cp.Value.x * gridSize.x + cp.Value.y);
 
+                    // Instantiate new plant
                     Entity sowedPlant = ecb.Instantiate(entityInQueryIndex, plantSpawnerArray[0].PlantPrefab);
+                    ecb.SetComponent(entityInQueryIndex, sowedPlant, new Plant_Tag()); 
+                    ecb.SetComponent(entityInQueryIndex, sowedPlant, new CellPosition { Value = cp.Value });
                     ecb.SetComponent(entityInQueryIndex, sowedPlant, new Translation { Value = new float3(cp.Value.x, 0, cp.Value.y) });
                     ecb.SetComponent(entityInQueryIndex, sowedPlant, new NonUniformScale { Value = new float3(1.0f, 1.0f, 1.0f) });
                     ecb.SetComponent(entityInQueryIndex, sowedPlant, new Health { Value = 0.0f });
 
+                    // Set Cell type to plant
                     cellTypeBuffer[index] = new CellTypeElement() { Value = CellType.Plant };
+
+                    // Setup cell entity
                     Entity cellEntity = cellEntityBuffer[index].Value;
                     EntityManager.AddComponent<Sowed>(cellEntity);
                     EntityManager.SetComponentData<Sowed>(cellEntity, new Sowed() { Plant = sowedPlant });
