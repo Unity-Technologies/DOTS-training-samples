@@ -198,6 +198,8 @@ public class CannonFireSystem : SystemBase
         var gridEntity = GetSingletonEntity<GridTag>();
         DynamicBuffer<GridHeight> gridHeight = EntityManager.GetBuffer<GridHeight>(gridEntity);
 
+        var deltaTime = Time.DeltaTime;
+
         Entities
             .WithReadOnly(gridHeight)
             .ForEach((int entityInQueryIndex, Entity e, ref Cooldown coolDown, in Position position) =>
@@ -219,7 +221,7 @@ public class CannonFireSystem : SystemBase
             }
             else
             {
-                coolDown.Value  -= 0.0005f;
+                coolDown.Value  -= deltaTime;
             }
         }).ScheduleParallel();
 

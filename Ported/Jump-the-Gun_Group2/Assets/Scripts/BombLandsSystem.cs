@@ -45,7 +45,7 @@ public class BombLandsSystem : SystemBase
            .WithDeallocateOnJobCompletion(bombTime)
            .WithDeallocateOnJobCompletion(bombPara)
            //for all the tiles
-           .ForEach((ref Height height, ref Color c, ref Position pos) => {
+           .ForEach((ref Height height, ref Color c, in Position pos) => {
                //for all the bombs
                for (int i = 0; i < bombTime.Length; ++i) {
                    if (bombTime[i].Value > 1 && math.distance(bombPara[i].Target.xz, pos.Value.xz) < 0.5f) {
