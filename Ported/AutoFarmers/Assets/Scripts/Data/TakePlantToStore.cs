@@ -5,4 +5,5 @@ using UnityEngine;
 
 public struct TakePlantToStore : IComponentData
 {
+    public Entity Value;
 }

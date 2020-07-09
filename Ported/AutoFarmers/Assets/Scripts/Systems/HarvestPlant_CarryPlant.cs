@@ -1,10 +1,11 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 namespace AutoFarmers
 {
     [UpdateAfter(typeof(SimulationSystemGroup))]
-    public class HarvesPlant_DoHarvest : SystemBase
+    public class HarvesPlant_CarryPlant : SystemBase
     {
         private EntityCommandBufferSystem _entityCommandBufferSystem;
 
@@ -28,24 +29,9 @@ namespace AutoFarmers
             ComponentDataFromEntity<Sowed> sowedAccessor = GetComponentDataFromEntity<Sowed>();
 
             Entities
-                .WithAll<HarvestPlant_Intent>()
-                .WithAll<TargetReached>()
-                .WithAll<HarvestPlant>()
-                .ForEach((Entity entity, ref Target target, in Home home) =>
+                .ForEach((Entity entity, in TakePlantToStore target, in Translation thisPos) =>
                 {
-                    Entity plant = target.Value;
-                    CellPosition cp = cellPositionAccessor[target.Value];
-                    int index = (int) (cp.Value.x * gridSize.x + cp.Value.y);
-                    
-                    cellTypeBuffer[index] = new CellTypeElement() { Value = CellType.Tilled };
-                    ecb.RemoveComponent<Sowed>(cellEntityBuffer[index].Value);
-
-                    //ecb.AddComponent<Cooldown>(entity, new Cooldown { Value = 0.1f });
-                    //ecb.SetComponent<Target>(new Target { Value = home.Value });
-                    target = new Target { Value = home.Value };
-                    ecb.RemoveComponent<TargetReached>(entity);
-                    ecb.RemoveComponent<HarvestPlant>(entity);
-                    ecb.AddComponent<TakePlantToStore>(entity, new TakePlantToStore { Value = plant } );
+                    ecb.SetComponent(target.Value, new Translation { Value = thisPos.Value });
                 }).Schedule();
 
             _entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
