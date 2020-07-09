@@ -53,6 +53,7 @@ public class BucketSpawnSystem : SystemBase
                     var instance = EntityManager.Instantiate(spawner.Prefab);
                     SetComponent<Translation2D>(instance, new Translation2D { Value = 0 });
                     EntityManager.AddComponentData<WaterBucket>(instance, new WaterBucket { Value = 1.0f });
+                    EntityManager.AddComponentData(instance, new BaseColor() { Value = new float4(0.0f/255.0f, 250.0f/255.0f, 255.0f/255.0f, 1.0f) });
                 }
 
                 EntityManager.DestroyEntity(entity);

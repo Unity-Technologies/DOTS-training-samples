@@ -73,6 +73,7 @@ public class BucketRelaySystem : SystemBase
             var waterBucket = GetComponent<WaterBucket>(waterBucketID.Value);
             waterBucket.Value = 0.0f;
             SetComponent(waterBucketID.Value, waterBucket);
+            SetComponent(waterBucketID.Value, new BaseColor { Value = new float4(255.0f/255.0f, 105.0f/255.0f, 117.0f/255.0f, 1.0f) });
         }).Schedule();
         
         // Refill
@@ -83,6 +84,7 @@ public class BucketRelaySystem : SystemBase
                 var waterBucket = GetComponent<WaterBucket>(waterBucketID.Value);
                 waterBucket.Value = 1.0f;
                 SetComponent(waterBucketID.Value, waterBucket);
+                SetComponent(waterBucketID.Value, new BaseColor { Value = new float4(0.0f/255.0f, 250.0f/255.0f, 255.0f/255.0f, 1.0f) });
             }).Schedule();
     }
 }
