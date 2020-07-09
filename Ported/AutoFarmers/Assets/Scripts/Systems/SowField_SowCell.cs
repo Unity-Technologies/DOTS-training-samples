@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace AutoFarmers
 {
-    public abstract class SowField_SowCell : SystemBase
+    public class SowField_SowCell : SystemBase
     {
         private EntityCommandBufferSystem m_CommandBufferSystem;
         private EntityQuery m_SpawnerQuery;
@@ -23,11 +23,9 @@ namespace AutoFarmers
 
         protected override void OnUpdate()
         {
-            var ecb = m_CommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+            var ecb = m_CommandBufferSystem.CreateCommandBuffer();
 
-            NativeArray<AutoFarmers.PlantSpawner> plantSpawnerArray = m_SpawnerQuery.ToComponentDataArrayAsync<AutoFarmers.PlantSpawner>(Allocator.TempJob, out var spawnerHandle);
-
-            Dependency = JobHandle.CombineDependencies(Dependency, spawnerHandle);
+            NativeArray<AutoFarmers.PlantSpawner> plantSpawnerArray = m_SpawnerQuery.ToComponentDataArray<AutoFarmers.PlantSpawner>(Allocator.TempJob);
 
             Entity grid = GetSingletonEntity<Grid>();
             Grid gridComponent = EntityManager.GetComponentData<Grid>(grid);
@@ -38,22 +36,21 @@ namespace AutoFarmers
             DynamicBuffer<CellEntityElement> cellEntityBuffer = EntityManager.GetBuffer<CellEntityElement>(grid);
 
             Entities
-                .WithDeallocateOnJobCompletion(plantSpawnerArray)
                 .WithAll<PlantSeeds_Intent>()
                 .WithAll<TargetReached>()
                 .WithStructuralChanges()
-                .ForEach((int entityInQueryIndex, Entity entity, in Target target) =>
+                .ForEach((Entity entity, in Target target) =>
                 {
                     CellPosition cp = cellPositionAccessor[target.Value];
                     int index = (int)(cp.Value.x * gridSize.x + cp.Value.y);
 
                     // Instantiate new plant
-                    Entity sowedPlant = ecb.Instantiate(entityInQueryIndex, plantSpawnerArray[0].PlantPrefab);
-                    ecb.SetComponent(entityInQueryIndex, sowedPlant, new Plant_Tag()); 
-                    ecb.SetComponent(entityInQueryIndex, sowedPlant, new CellPosition { Value = cp.Value });
-                    ecb.SetComponent(entityInQueryIndex, sowedPlant, new Translation { Value = new float3(cp.Value.x, 0, cp.Value.y) });
-                    ecb.SetComponent(entityInQueryIndex, sowedPlant, new NonUniformScale { Value = new float3(1.0f, 1.0f, 1.0f) });
-                    ecb.SetComponent(entityInQueryIndex, sowedPlant, new Health { Value = 0.0f });
+                    Entity sowedPlant = ecb.Instantiate(plantSpawnerArray[0].PlantPrefab);
+                    ecb.AddComponent(sowedPlant, new Plant_Tag()); 
+                    ecb.AddComponent(sowedPlant, new CellPosition { Value = cp.Value });
+                    ecb.SetComponent(sowedPlant, new Translation { Value = new float3(cp.Value.x, 0, cp.Value.y) + new float3(0.5f, 0.25f, 0.5f) });                    
+                    ecb.SetComponent(sowedPlant, new NonUniformScale { Value = new float3(1.0f, 1.0f, 1.0f) });
+                    ecb.AddComponent(sowedPlant, new Health { Value = 0.0f });
 
                     // Set Cell type to plant
                     cellTypeBuffer[index] = new CellTypeElement() { Value = CellType.Plant };
@@ -68,6 +65,8 @@ namespace AutoFarmers
                     EntityManager.RemoveComponent<Target>(entity);
                     EntityManager.RemoveComponent<TargetReached>(entity);                    
                 }).Run();
+
+            plantSpawnerArray.Dispose();
 
             m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
