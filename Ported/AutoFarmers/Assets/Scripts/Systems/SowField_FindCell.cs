@@ -29,6 +29,7 @@ namespace AutoFarmers
             Entities
                 .WithAll<PlantSeeds_Intent>()
                 .WithNone<TargetReached>()
+                .WithNone<Target>()
                 .WithReadOnly(typeBuffer)
                 .WithReadOnly(cellEntityBuffer)
                 .ForEach((int entityInQueryIndex, Entity entity, ref RandomSeed randomSeed) =>
@@ -46,8 +47,8 @@ namespace AutoFarmers
                             numTries--;
 
                             // Random position to plant - TODO: scan region around Farmer's position instead!!
-                            //plantPos = random.NextInt2(new int2(0, 0), GridSize - 1);
-                            plantPos = new int2(5,5);
+                            plantPos = random.NextInt2(new int2(0, 0), GridSize - 1);
+                            //plantPos = new int2(5,5);
                             randomSeed.Value = random.state;
 
                             int index = plantPos.y * GridSize.x + plantPos.x;
