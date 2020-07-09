@@ -15,16 +15,22 @@ public class FirefighterMoveToTargetSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
-        var speed = 0.01f;
+        var speed = 0.11f;
 
         Entities.ForEach((int entityInQueryIndex, Entity entity, ref Translation2D translation, in Target target) =>
         {
             float2 fromTo = target.Value - translation.Value;
             float dist = math.length(fromTo);
-            if (dist < 0.1f)
+            var step = speed; // * deltaTime
+            if (dist < step)
+            {
+                translation.Value = target.Value;
                 ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
+            }
             else
-                translation.Value += fromTo * speed / dist;
+            {
+                translation.Value += step * fromTo / dist;
+            }
         }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
