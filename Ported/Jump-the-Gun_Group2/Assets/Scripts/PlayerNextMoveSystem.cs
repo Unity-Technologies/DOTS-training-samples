@@ -6,7 +6,7 @@ public class PlayerNextMoveSystem : SystemBase
 {
     public const float kYOffset = .3f;
     public const float kBounceHeight = 2;
-    public const float kPlayerSpeed = 3.0f;
+    public const float kPlayerSpeed = 10.0f;
 
     EntityQuery m_PlayerQuery;
     EntityQuery m_BufferQuery;
@@ -68,9 +68,9 @@ public class PlayerNextMoveSystem : SystemBase
         WithReadOnly(go).
         ForEach((ref MovementParabola movement, ref NormalisedMoveTime normalisedMoveTime, in Direction direction, in Position pos) =>
         {
-            if (normalisedMoveTime.Value > (1.0f + deltaTime)) 
+            if (normalisedMoveTime.Value > 1.0f) 
             {
-                InitPlayerPosition(ref movement, pos.Value, gh, gp);
+                InitPlayerPosition(ref movement, movement.Target, gh, gp);
 
                 int2 targetTile = new int2((int2)pos.Value.xz);
                 targetTile = math.clamp(targetTile + direction.Value, 0, gp.TerrainDimensions - 1);
