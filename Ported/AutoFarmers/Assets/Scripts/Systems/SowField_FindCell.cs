@@ -78,6 +78,10 @@ namespace AutoFarmers
                             Value = targetEntity
                         });
                     }
+                    else
+                    {
+                        ecb.RemoveComponent<PlantSeeds_Intent>(entityInQueryIndex, entity);
+                    }
                 }).ScheduleParallel();
 
             _entityCommandBufferSystem.AddJobHandleForProducer(Dependency);

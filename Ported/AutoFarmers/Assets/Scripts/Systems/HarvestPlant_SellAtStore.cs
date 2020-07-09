@@ -4,7 +4,7 @@ using Unity.Mathematics;
 namespace AutoFarmers
 {
     [UpdateAfter(typeof(SimulationSystemGroup))]
-    public class HarvesPlant_DoHarvest : SystemBase
+    public class HarvesPlant_SellAtStore : SystemBase
     {
         private EntityCommandBufferSystem _entityCommandBufferSystem;
 
@@ -22,28 +22,25 @@ namespace AutoFarmers
             Grid gridComponent = EntityManager.GetComponentData<Grid>(grid);
             int2 gridSize = gridComponent.Size;
             
-            ComponentDataFromEntity<CellPosition> cellPositionAccessor = GetComponentDataFromEntity<CellPosition>();
+            ComponentDataFromEntity<DepositedPlantCount> plantCoutnAcessor = GetComponentDataFromEntity<DepositedPlantCount>();
             DynamicBuffer<CellTypeElement> cellTypeBuffer = EntityManager.GetBuffer<CellTypeElement>(grid);
             DynamicBuffer<CellEntityElement> cellEntityBuffer = EntityManager.GetBuffer<CellEntityElement>(grid);
             
             Entities
                 .WithAll<HarvestPlant_Intent>()
                 .WithAll<TargetReached>()
-                .WithAll<HarvestPlant>()
+                .WithNone<HarvestPlant>()
                 .ForEach((Entity entity, ref Target target, in Home home) =>
-                {
-                    CellPosition cp = cellPositionAccessor[target.Value];
-                    int index = (int) (cp.Value.x * gridSize.x + cp.Value.y);
-                    
-                    cellTypeBuffer[index] = new CellTypeElement() { Value = CellType.Tilled };
-                    ecb.RemoveComponent<Sowed>(cellEntityBuffer[index].Value);
-
-                    //ecb.AddComponent<Cooldown>(entity, new Cooldown { Value = 0.1f });
-                    //ecb.SetComponent<Target>(new Target { Value = home.Value });
-                    target = new Target { Value = home.Value };
+                {                    
                     ecb.RemoveComponent<TargetReached>(entity);
-                    ecb.RemoveComponent<HarvestPlant>(entity);
-                    ecb.AddComponent<TakePlantToStore>(entity, new TakePlantToStore());
+                    ecb.RemoveComponent<HarvestPlant_Intent>(entity);
+                    DepositedPlantCount cnt = plantCoutnAcessor[home.Value];
+                    cnt.ForDrones++;
+                    cnt.ForFarmers++;
+                    ecb.SetComponent(home.Value, cnt);
+                    ecb.RemoveComponent<Target>(entity);
+                    ecb.RemoveComponent<TakePlantToStore>(entity);
+                    UnityEngine.Debug.Log("Sold");
                 }).Schedule();
 
             _entityCommandBufferSystem.AddJobHandleForProducer(Dependency);

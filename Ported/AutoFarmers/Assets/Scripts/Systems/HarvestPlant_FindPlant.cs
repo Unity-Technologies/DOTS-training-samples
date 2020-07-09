@@ -52,11 +52,16 @@ namespace AutoFarmers
             int2 GridSize = GetSingleton<Grid>().Size;
             Entity gridEntity = GetSingletonEntity<Grid>();
             DynamicBuffer<CellTypeElement> typeBuffer = EntityManager.GetBuffer<CellTypeElement>(gridEntity);
+            DynamicBuffer<CellEntityElement> entityBuffer = EntityManager.GetBuffer<CellEntityElement>(gridEntity);
+            ComponentDataFromEntity<Sowed> sowedAccessor = GetComponentDataFromEntity<Sowed>();
 
             Entities
                 .WithAll<HarvestPlant_Intent>()
                 .WithNone<HarvestPlant>()
+                .WithNone<TakePlantToStore>()
                 .WithReadOnly(typeBuffer)
+                .WithReadOnly(entityBuffer)
+                .WithReadOnly(sowedAccessor)
                 .ForEach((int entityInQueryIndex, Entity entity, ref RandomSeed randomSeed, in Translation tr) =>
                 {
                     int2 origin = CellPosition.FromTranslation(tr.Value);
@@ -64,30 +69,71 @@ namespace AutoFarmers
                     Random random = new Random(randomSeed.Value);
 
                     bool plantFound = false;
-                    int numTries = 100;
-                    int2 search = new int2(0, 0);
-                    for (int i = 0; i < numTries; i++)
+                /* int numTries = 100;
+                 int2 search = new int2(0, 0);
+                 for (int i = 0; i < numTries; i++)
+                 {
+                     int2 pos = origin + search;
+                     if (pos.x < 0 || pos.x >= GridSize.x || pos.y < 0 || pos.y >= GridSize.y) continue;
+                     int idx = pos.x + pos.y * GridSize.x;
+                     if (typeBuffer[idx].Value == CellType.Plant )
+                     {
+                         plantFound = true;
+                         search = search + origin;
+                         break;
+                     }
+                     search = nextInspiral(search);
+                 }*/
+
+                     int2 search = new int2(0,0);
+                    for (int j = 0; j < GridSize.y; j++)
                     {
-                        int2 pos = origin + search;
-                        if (pos.x < 0 || pos.x >= GridSize.x || pos.y < 0 || pos.y >= GridSize.y) continue;
-                        int idx = pos.x + pos.y * GridSize.x;
-                        if (typeBuffer[idx].Value == CellType.Plant )
+                        for (int i = 0; i < GridSize.x; i++)
                         {
-                            plantFound = true;
-                            search = search + origin;
-                            break;
+                            int idx = i +j * GridSize.x;
+                            if (typeBuffer[idx].Value == CellType.Plant)
+                            {
+                                plantFound = true;
+                                search = new int2(i, j);
+                            }
                         }
-                        search = nextInspiral(search);
                     }
-                    
+
                     if (plantFound)
                     {
-                        ecb.RemoveComponent<PathFindingTargetReached_Tag>(entityInQueryIndex, entity);
+                        UnityEngine.Debug.LogError("Cell " + search);
+                        Entity gridCellEnt = entityBuffer[search.x + search.y * GridSize.x].Value;
+                        UnityEngine.Debug.LogError("Cell ent " + gridCellEnt);
+
+                        if (!sowedAccessor.HasComponent(gridCellEnt))
+                        {
+                            UnityEngine.Debug.LogError("Grid has no plant but it's celltype was pant?");
+                        }
+
+                        var sowed = sowedAccessor[gridCellEnt];
+                        if (sowed.Plant != Entity.Null)
+                        {
+                            UnityEngine.Debug.LogError("found a plant " + sowed.Plant);
+                        }
+                        Entity targetEntity = sowed.Plant;
+
+                        //ecb.RemoveComponent<PathFindingTargetReached_Tag>(entityInQueryIndex, entity);
+                        //ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
                         ecb.AddComponent<HarvestPlant>(entityInQueryIndex, entity, new HarvestPlant
                         {
                             X = search.x,
                             Y = search.y,
                         });
+
+                         ecb.AddComponent(entityInQueryIndex, entity, new Target()
+                         {
+                             Value = targetEntity
+                         });
+                    }
+                    else
+                    {
+                        UnityEngine.Debug.Log("No plant found");
+                        ecb.RemoveComponent<HarvestPlant_Intent>(entityInQueryIndex, entity);
                     }
 
                     randomSeed.Value = random.state;
