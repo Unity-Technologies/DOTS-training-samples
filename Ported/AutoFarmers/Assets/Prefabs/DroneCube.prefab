@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 3287201491653412319}
   - component: {fileID: 3092135196902300847}
   - component: {fileID: 2127237822816704583}
+  - component: {fileID: 5741110239059882204}
   m_Layer: 0
   m_Name: DroneCube
   m_TagString: Untagged
@@ -125,3 +126,16 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+--- !u!114 &5741110239059882204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4292577671434559383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c8a6b7c60e5dd24c83b6c4f4c96f487, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: {fileID: 0}
