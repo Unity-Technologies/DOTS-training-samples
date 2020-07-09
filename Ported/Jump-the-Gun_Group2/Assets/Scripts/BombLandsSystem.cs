@@ -26,6 +26,8 @@ public class BombLandsSystem : SystemBase
             }
         });
 
+        RequireSingletonForUpdate<GridTag>();
+        RequireSingletonForUpdate<GameParams>();
         cbs = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
     }
 
@@ -33,44 +35,27 @@ public class BombLandsSystem : SystemBase
     {
         var ecb = cbs.CreateCommandBuffer().ToConcurrent();
 
-        var bombTime = bombQuery.ToComponentDataArrayAsync<NormalisedMoveTime>(Allocator.TempJob, out var bombTimeHandle);
-        var bombPara = bombQuery.ToComponentDataArrayAsync<MovementParabola>(Allocator.TempJob, out var bombParaHandle);
-
-        Dependency = JobHandle.CombineDependencies(Dependency, bombTimeHandle);
-        Dependency = JobHandle.CombineDependencies(Dependency, bombParaHandle);
-
         GameParams gameParams = GetSingleton<GameParams>();
+        var gridEntity = GetSingletonEntity<GridTag>();
+        var heightsBuffer = EntityManager.GetBuffer<GridHeight>(gridEntity).AsNativeArray();
 
         Entities
-           .WithDeallocateOnJobCompletion(bombTime)
-           .WithDeallocateOnJobCompletion(bombPara)
-           //for all the tiles
-           .ForEach((ref Height height, ref Color c, in Position pos) => {
-               //for all the bombs
-               for (int i = 0; i < bombTime.Length; ++i) {
-                   if (bombTime[i].Value > 1 && math.distance(bombPara[i].Target.xz, pos.Value.xz) < 0.5f) {
-                       
-                       height.Value = math.max(gameParams.TerrainMin, height.Value - 0.3f);
+            .WithNativeDisableContainerSafetyRestriction(heightsBuffer)
+           //for all the bombs
 
-                       float range = (gameParams.TerrainMax - gameParams.TerrainMin);
-                       float value = (height.Value - gameParams.TerrainMin) / range;
-                       float4 color = math.lerp(gameParams.colorA, gameParams.colorB, value);
-                       c.Value = color;
-                   }
-               }
-
-           }).ScheduleParallel();
-
-        Entities
            .WithNone<PlayerTag>()
-           .ForEach((int entityInQueryIndex, Entity e, in NormalisedMoveTime n, in MovementParabola p) => {
+           .ForEach((int entityInQueryIndex, Entity bomb, in NormalisedMoveTime time, in MovementParabola parabola) =>
+           {
+               if (time.Value >= 1.0f)
+               {
+                   // We reached destination. 
+                   var gridIndex = GridFunctions.GetGridIndex(parabola.Target.xz, gameParams.TerrainDimensions);
+                   var oldHeight = heightsBuffer[gridIndex];
+                   var newHeight = new GridHeight { Height = math.max(oldHeight.Height - 0.3f, gameParams.TerrainMin) };
+                   heightsBuffer[gridIndex] = newHeight;
+                   ecb.DestroyEntity(entityInQueryIndex, bomb);
 
-               //if the bomb has finished moving
-               if(n.Value > 1) {
-                   //destroy the bomb
-                   ecb.DestroyEntity(entityInQueryIndex, e);
                }
-
            }).ScheduleParallel();
 
         cbs.AddJobHandleForProducer(Dependency);

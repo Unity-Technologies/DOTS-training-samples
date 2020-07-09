@@ -32,7 +32,7 @@ public class GameInitSystem : SystemBase
         // Clean up tiles
         Entities
             .WithAll<Position>()
-            .WithAll<Height>()
+            .WithAll<Color>()
             .ForEach((Entity entity) =>
             {
                 ecb.DestroyEntity(entity);
@@ -41,7 +41,7 @@ public class GameInitSystem : SystemBase
         // Clean up bombs
         Entities
             .WithAll<Position>()
-            .WithNone<Height>()
+            .WithNone<Color>()
             .WithNone<LookAtPlayerTag>()
             .WithNone<PlayerTag>()
             .ForEach((Entity entity) =>
@@ -109,7 +109,7 @@ public class GameInitSystem : SystemBase
                     tileHeight.Height = height;
                     tileHeightsBuffer[GridFunctions.GetGridIndex(math.float2(x,y), gameParams.TerrainDimensions)] = tileHeight;
                     ecb.SetComponent(instance, new Position { Value = new float3(x, 0, y) });
-                    ecb.SetComponent(instance, new Height { Value = height });
+                    ecb.SetComponent(instance, new Color { Value = math.float4(1.0f, 0.0f, 0.0f, 1.0f) });
 
                     float range = (gameParams.TerrainMax - gameParams.TerrainMin);
                     float value = (height - gameParams.TerrainMin) / range;
