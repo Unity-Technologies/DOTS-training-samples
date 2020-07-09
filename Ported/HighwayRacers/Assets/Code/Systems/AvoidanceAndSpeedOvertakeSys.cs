@@ -47,7 +47,7 @@ namespace HighwayRacer
             Entities.WithNone<MergingLeft>().ForEach((Entity ent, ref Speed speed, ref Lane lane, in DesiredSpeed desiredSpeed,
                 in OvertakingLeft overtakingLeft, in TrackPos trackPos, in TrackSegment trackSegment, in Blocking blockingInfo) =>
             {
-                CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, carBuckets, trackSegment.Val, lane.Val, 
+                CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, out var index, carBuckets, trackSegment.Val, lane.Val, 
                     trackLength, trackPos, nSegments);
                 
                 // if blocked, leave OvertakingLeft state
@@ -93,7 +93,7 @@ namespace HighwayRacer
                 if (elapsedSinceOvertake > overtakeTimeBeforeMerge && mergeLeftFrame)
                 {
                     var leftLaneIdx = lane.Val + 1;
-                    if (CarUtil.CanMerge(trackPos.Val, leftLaneIdx, lane.Val, trackSegment.Val, carBuckets, trackLength, nSegments))
+                    if (CarUtil.CanMerge(index, trackPos.Val, leftLaneIdx, lane.Val, trackSegment.Val, carBuckets, trackLength, nSegments))
                     {
                         leftECB.AddComponent<MergingLeft>(ent);
                         leftECB.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = -1.0f});
@@ -123,7 +123,7 @@ namespace HighwayRacer
             Entities.WithNone<MergingRight>().ForEach((Entity ent, ref Speed speed, ref Lane lane, in DesiredSpeed desiredSpeed,
                 in OvertakingRight overtakingRight, in TrackPos trackPos, in TrackSegment trackSegment, in Blocking blockingInfo) =>
             {
-                CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, carBuckets, trackSegment.Val, lane.Val, 
+                CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, out var index, carBuckets, trackSegment.Val, lane.Val, 
                     trackLength, trackPos, nSegments);
                 
                 // if blocked, leave OvertakingRight state
@@ -170,7 +170,7 @@ namespace HighwayRacer
                 if (elapsedSinceOvertake > overtakeTimeBeforeMerge && !mergeLeftFrame)
                 {
                     var rightLaneIdx = lane.Val - 1;
-                    if (CarUtil.CanMerge(trackPos.Val, rightLaneIdx, lane.Val, trackSegment.Val, carBuckets, trackLength, nSegments))
+                    if (CarUtil.CanMerge(index, trackPos.Val, rightLaneIdx, lane.Val, trackSegment.Val, carBuckets, trackLength, nSegments))
                     {
                         rightECB.AddComponent<MergingRight>(ent);
                         rightECB.AddComponent<LaneOffset>(ent, new LaneOffset() {Val = +1.0f});

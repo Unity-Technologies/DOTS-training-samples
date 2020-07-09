@@ -20,7 +20,7 @@ SMALL THINGS
 
 1. try smaller segments sizes
 
-3. rotate which segment tests for merging in a frame 
+3. alternate which segments test for merging in a frame 
 
 4. ClosestCarPos should return index of the car in bucket so that it can be passed to CanMerge
 
@@ -35,6 +35,8 @@ BIG THINGS
     for removing cars, we advance them in first pass, then in second pass find first car that is past end of bucket and move that and all subsequent cars to next bucket 
 
 3. use sort that favors mostly-sorted lists (insertion? or bubble?); only makes sense if we don't completely rebuild the lists every frame!
+
+4. instead of Translation and Rotation, convert directly to LocalToWorld
 
 
 SimulationSystemGroup

@@ -62,14 +62,13 @@ namespace HighwayRacer
             }
         }
 
-        public static bool CanMerge(float pos, int destLane, int lane, int segment, CarBuckets carBuckets,
+        public static bool CanMerge(int index, float pos, int destLane, int lane, int segment, CarBuckets carBuckets,
             float trackLength, int nSegments)
         {
             var bucket = carBuckets.GetCars(segment);
-            int idx = findInBucket(bucket, pos, lane);
 
             // return false if a car is behind in dest lane within the mergeBehind range
-            for (int behindIdx = idx - 1; behindIdx >= 0; behindIdx--)
+            for (int behindIdx = index - 1; behindIdx >= 0; behindIdx--)
             {
                 var other = bucket[behindIdx];
 
@@ -85,7 +84,7 @@ namespace HighwayRacer
             }
 
             // return false if a car is ahead in dest lane within the mergeAhead range
-            for (int aheadIdx = idx + 1; aheadIdx < bucket.Length; aheadIdx++)
+            for (int aheadIdx = index + 1; aheadIdx < bucket.Length; aheadIdx++)
             {
                 var other = bucket[aheadIdx];
 
@@ -152,7 +151,8 @@ namespace HighwayRacer
             targetSpeed.Val = newTargetSpeed;
         }
 
-        public static void GetClosestPosAndSpeed(out float distance, out float closestSpeed,
+        // 'index' is the car's index in the bucket; it's valid even when car is not blocked 
+        public static void GetClosestPosAndSpeed(out float distance, out float closestSpeed, out int index,
             CarBuckets carBuckets, int segment, int lane,
             float trackLength, TrackPos trackPos, int nSegments)
         {
@@ -160,10 +160,10 @@ namespace HighwayRacer
             closestSpeed = 0.0f;
 
             var bucket = carBuckets.GetCars(segment);
-            int idx = findInBucket(bucket, trackPos.Val, lane);
+            index = findInBucket(bucket, trackPos.Val, lane);
 
             // find pos and speed of car ahead in lane within the mergeAhead range
-            for (int i = idx + 1; i < bucket.Length; i++)
+            for (int i = index + 1; i < bucket.Length; i++)
             {
                 var other = bucket[i];
 
@@ -208,7 +208,8 @@ namespace HighwayRacer
         }
 
 
-        public static void GetClosestPosAndSpeed(out float distance, out float closestSpeed,
+        // check in two lanes
+        public static void GetClosestPosAndSpeed(out float distance, out float closestSpeed, out int index,
             CarBuckets carBuckets, int segment, int lane, int destLane,
             float trackLength, TrackPos trackPos, int nSegments)
         {
@@ -216,10 +217,10 @@ namespace HighwayRacer
             closestSpeed = 0.0f;
 
             var bucket = carBuckets.GetCars(segment);
-            int idx = findInBucket(bucket, trackPos.Val, lane);
+            index = findInBucket(bucket, trackPos.Val, lane);
 
             // find pos and speed of car ahead in lane within the mergeAhead range
-            for (int i = idx + 1; i < bucket.Length; i++)
+            for (int i = index + 1; i < bucket.Length; i++)
             {
                 var other = bucket[i];
 

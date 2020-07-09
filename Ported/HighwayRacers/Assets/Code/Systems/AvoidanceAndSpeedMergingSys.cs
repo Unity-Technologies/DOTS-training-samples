@@ -34,7 +34,7 @@ namespace HighwayRacer
                 .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
                     in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
                 {
-                    CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, carBuckets,
+                    CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, out var index, carBuckets,
                         trackSegment.Val, lane.Val, lane.Val - 1, trackLength, trackPos, nSegments);
 
                     if (distance != float.MaxValue)
@@ -63,7 +63,7 @@ namespace HighwayRacer
                 .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
                     in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
                 {
-                    CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, carBuckets,
+                    CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, out var index, carBuckets,
                         trackSegment.Val, lane.Val, lane.Val + 1, trackLength, trackPos, nSegments);
 
                     if (distance != float.MaxValue)

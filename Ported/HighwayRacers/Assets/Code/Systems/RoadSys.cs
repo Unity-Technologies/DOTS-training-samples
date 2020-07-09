@@ -110,8 +110,8 @@ namespace HighwayRacer
 
             const float baseStraightLength = 12.0f;
             const float curvedLength = 48.69f; // calculated from radius that is midpoint between first and last lane
-
-            int segmentsPerStraightaway = (int) (roadLength / 1000) + 1;
+            
+            int segmentsPerStraightaway = (int) (roadLength / 4000) + 1;  // todo: play with this number to experiment with segment size
             nSegments = 4 + (4 * segmentsPerStraightaway);
 
             straightLength = (roadLength - curvedLength * 4) / (nSegments - 4);

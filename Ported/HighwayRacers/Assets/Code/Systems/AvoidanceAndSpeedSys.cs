@@ -36,67 +36,68 @@ namespace HighwayRacer
             // 2. if blocked and can merge, trigger overtake state
             var ecb = beginSim.CreateCommandBuffer().ToConcurrent();
 
-            var jobHandle = Entities.WithName("AvoidanceAndSpeedSys").WithNone<MergingLeft, MergingRight>().WithNone<OvertakingLeft, OvertakingRight>().ForEach((Entity ent,
-                int entityInQueryIndex, ref TargetSpeed targetSpeed,
-                ref Speed speed, ref Lane lane, in TrackPos trackPos, in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
-            {
-                CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed,
-                    carBuckets, trackSegment.Val, lane.Val,
-                    trackLength, trackPos, nSegments);
-
-                if (distance != float.MaxValue)
+            var jobHandle = Entities.WithName("AvoidanceAndSpeedSys").WithNone<MergingLeft, MergingRight>().WithNone<OvertakingLeft, OvertakingRight>().ForEach(
+                (Entity ent,
+                    int entityInQueryIndex, ref TargetSpeed targetSpeed,
+                    ref Speed speed, ref Lane lane, in TrackPos trackPos, in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
                 {
-                    if (distance <= blocking.Dist &&
-                        speed.Val > closestSpeed) // car is still blocked ahead in lane
+                    CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, out var index,
+                        carBuckets, trackSegment.Val, lane.Val,
+                        trackLength, trackPos, nSegments);
+
+                    if (distance != float.MaxValue)
                     {
-                        var closeness = (distance - RoadSys.minDist) / (blocking.Dist - RoadSys.minDist); // 0 is max closeness, 1 is min
-
-                        // closer we get within minDist of leading car, the closer we match speed
-                        const float fudge = 2.0f;
-                        var newSpeed = math.lerp(closestSpeed, speed.Val + fudge, closeness);
-                        if (newSpeed < speed.Val)
+                        if (distance <= blocking.Dist &&
+                            speed.Val > closestSpeed) // car is still blocked ahead in lane
                         {
-                            speed.Val = newSpeed;
-                        }
+                            var closeness = (distance - RoadSys.minDist) / (blocking.Dist - RoadSys.minDist); // 0 is max closeness, 1 is min
 
-                        // to spare us from having to check prior segment, can't merge if too close to start of segment
-                        float segmentPos = (trackSegment.Val == 0) ? trackPos.Val : trackPos.Val - roadSegments[trackSegment.Val - 1].Threshold;
-                        if (segmentPos < RoadSys.mergeLookBehind)
-                        {
+                            // closer we get within minDist of leading car, the closer we match speed
+                            const float fudge = 2.0f;
+                            var newSpeed = math.lerp(closestSpeed, speed.Val + fudge, closeness);
+                            if (newSpeed < speed.Val)
+                            {
+                                speed.Val = newSpeed;
+                            }
+
+                            // to spare us from having to check prior segment, can't merge if too close to start of segment
+                            float segmentPos = (trackSegment.Val == 0) ? trackPos.Val : trackPos.Val - roadSegments[trackSegment.Val - 1].Threshold;
+                            if (segmentPos < RoadSys.mergeLookBehind)
+                            {
+                                return;
+                            }
+
+                            // look for opening on left
+                            if (mergeLeftFrame && lane.Val < RoadSys.nLanes - 1)
+                            {
+                                var leftLane = lane.Val + 1;
+                                if (CarUtil.CanMerge(index, trackPos.Val, leftLane, lane.Val, trackSegment.Val, carBuckets, trackLength, nSegments))
+                                {
+                                    ecb.AddComponent<MergingLeft>(entityInQueryIndex, ent);
+                                    ecb.AddComponent<LaneOffset>(entityInQueryIndex, ent, new LaneOffset() {Val = -1.0f});
+                                    ecb.SetComponent<Lane>(entityInQueryIndex, ent, new Lane() {Val = (byte) leftLane});
+                                }
+                            }
+                            else if (!mergeLeftFrame && lane.Val > 0) // look for opening on right
+                            {
+                                var rightLane = lane.Val - 1;
+                                if (CarUtil.CanMerge(index, trackPos.Val, rightLane, lane.Val, trackSegment.Val, carBuckets, trackLength, nSegments))
+                                {
+                                    ecb.AddComponent<MergingRight>(entityInQueryIndex, ent);
+                                    ecb.AddComponent<LaneOffset>(entityInQueryIndex, ent, new LaneOffset() {Val = 1.0f});
+                                    ecb.SetComponent<Lane>(entityInQueryIndex, ent, new Lane() {Val = (byte) rightLane});
+                                }
+                            }
+
                             return;
                         }
-
-                        // look for opening on left
-                        if (mergeLeftFrame && lane.Val < RoadSys.nLanes - 1)
-                        {
-                            var leftLane = lane.Val + 1;
-                            if (CarUtil.CanMerge(trackPos.Val, leftLane, lane.Val, trackSegment.Val, carBuckets, trackLength, nSegments))
-                            {
-                                ecb.AddComponent<MergingLeft>(entityInQueryIndex, ent);
-                                ecb.AddComponent<LaneOffset>(entityInQueryIndex, ent, new LaneOffset() {Val = -1.0f});
-                                ecb.SetComponent<Lane>(entityInQueryIndex, ent, new Lane() {Val = (byte) leftLane});
-                            }
-                        }
-                        else if (!mergeLeftFrame && lane.Val > 0) // look for opening on right
-                        {
-                            var rightLane = lane.Val - 1;
-                            if (CarUtil.CanMerge(trackPos.Val, rightLane, lane.Val, trackSegment.Val, carBuckets, trackLength, nSegments))
-                            {
-                                ecb.AddComponent<MergingRight>(entityInQueryIndex, ent);
-                                ecb.AddComponent<LaneOffset>(entityInQueryIndex, ent, new LaneOffset() {Val = 1.0f});
-                                ecb.SetComponent<Lane>(entityInQueryIndex, ent, new Lane() {Val = (byte) rightLane});
-                            }
-                        }
-
-                        return;
                     }
-                }
 
-                CarUtil.SetUnblockedSpeed(ref speed, ref targetSpeed, dt, desiredSpeed.Unblocked);
-            }).ScheduleParallel(Dependency);
+                    CarUtil.SetUnblockedSpeed(ref speed, ref targetSpeed, dt, desiredSpeed.Unblocked);
+                }).ScheduleParallel(Dependency);
 
             beginSim.AddJobHandleForProducer(jobHandle);
-            
+
             //jobHandle.Complete();     // todo: temp
             Dependency = jobHandle;
         }
