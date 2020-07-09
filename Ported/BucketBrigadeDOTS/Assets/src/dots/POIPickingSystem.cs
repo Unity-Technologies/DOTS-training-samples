@@ -20,8 +20,9 @@ public class POIPickingSystem : SystemBase
 
     static void PickClosestPoint(NativeArray<FireCellFlag> mipChainBuffer, NativeArray<FireGridMipLevelData> mipChainInfoBuffer,
                                     float2 referencePosition, int currentMip, int2 mipOffset, float2 parentCellPosition,
-                                    ref float closestDistance, ref float2 closestPosition)
+                                    ref float closestDistance, ref float2 closestPosition, ref int numIterations)
     {
+        numIterations++;
         // Get the data of the current mip
         int2 mipLevelDimensions = (int2)mipChainInfoBuffer[currentMip].dimensions;
         int mipLevelOffset = (int)mipChainInfoBuffer[currentMip].offset;
@@ -44,9 +45,9 @@ public class POIPickingSystem : SystemBase
             loopRangeY.z = -1;
         }
         // Loop through the cells
-        for (int v = loopRangeY.x; v <= loopRangeY.y; v = v + loopRangeY.z)
+        for (int v = loopRangeY.x; v != (loopRangeY.y + loopRangeY.z); v = v + loopRangeY.z)
         {
-            for (int u = loopRangeX.x; u <= loopRangeX.y; u = u + loopRangeX.z)
+            for (int u = loopRangeX.x; u != (loopRangeX.y + loopRangeX.z); u = u + loopRangeX.z)
             {
                 float2 cellCenterPosition = mipChainInfoBuffer[currentMip].minCellPosition + mipChainInfoBuffer[currentMip].cellSize * new float2(u, v);
 
@@ -67,7 +68,8 @@ public class POIPickingSystem : SystemBase
                     else
                     {
                         // TODO, evaluate the minimal distance of the cell and check that with the current distance
-                        float2 projectedPoint = math.max(cellCenterPosition - mipChainInfoBuffer[currentMip].cellSize * 0.5f, math.max(cellCenterPosition + mipChainInfoBuffer[currentMip].cellSize * 0.5f, referencePosition));
+                        float2 projectedPoint = math.max(cellCenterPosition - mipChainInfoBuffer[currentMip].cellSize * 0.5f, 
+                                                math.min(cellCenterPosition + mipChainInfoBuffer[currentMip].cellSize * 0.5f, referencePosition));
                         float2 bestVec = (projectedPoint - referencePosition);
                         float bestPotentialDistance = math.dot(bestVec, bestVec);
 
@@ -76,8 +78,8 @@ public class POIPickingSystem : SystemBase
                             // Move to the next mip Level
                             int2 newMipOffset = new int2(u, v) * 2;
                             PickClosestPoint(mipChainBuffer, mipChainInfoBuffer,
-                                referencePosition, currentMip - 1, newMipOffset, cellCenterPosition,
-                                ref closestDistance, ref closestPosition);
+                                referencePosition, currentMip - 1, newMipOffset, cellCenterPosition, 
+                                ref closestDistance, ref closestPosition, ref numIterations);
                         }
                     }
                 }
@@ -107,22 +109,23 @@ public class POIPickingSystem : SystemBase
             // Initialize the distance
             float currentMinimalDistance = float.MaxValue;
             float2 currentTargetPoint = 0.0f;
-
+            int numIterations = 0;
             // Do the decent
             PickClosestPoint(mipChainBuffer, mipChainInfoBuffer, 
                 fireGridSpawner.POIReferencePosition, mipChainInfoBuffer.Length - 2, 0, fireGridBounds.BoundsCenter,
-                ref currentMinimalDistance, ref currentTargetPoint);
-
-            Debug.Log(currentTargetPoint.ToString());
+                ref currentMinimalDistance, ref currentTargetPoint, ref numIterations);
 
             // Remove the request component
             ecb.RemoveComponent<PointOfInterestRequest>(targetEntity);
 
-            // Add the result component
-            PointOfInterestEvaluated poiEval;
-            poiEval.POIPoisition = currentTargetPoint;
-            ecb.AddComponent<PointOfInterestEvaluated>(targetEntity);
-            ecb.SetComponent<PointOfInterestEvaluated>(targetEntity, poiEval);
+            if (currentMinimalDistance < float.MaxValue)
+            {
+                // Add the result component
+                PointOfInterestRequest poiEval;
+                poiEval.POIReferencePosition = currentTargetPoint;
+                ecb.AddComponent<PointOfInterestRequest>(targetEntity);
+                ecb.SetComponent<PointOfInterestRequest>(targetEntity, poiEval);
+            }
         }).Schedule();
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
 
