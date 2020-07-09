@@ -206,8 +206,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StorePrefab: {fileID: 7492693043368490785, guid: 15aa1382e22f8404e98efc36481c810c, type: 3}
-  FarmerPrefab: {fileID: 0}
-  DronePrefab: {fileID: 0}
+  FarmerPrefab: {fileID: 6922660100209716034, guid: 72df04ae439930143813d4dcfc9af43a, type: 3}
+  DronePrefab: {fileID: 4292577671434559383, guid: 8c850bce7b6a580498616990eedd416b, type: 3}
   NumStores: 100
   MinDistance: 4
   DroneCost: 50
