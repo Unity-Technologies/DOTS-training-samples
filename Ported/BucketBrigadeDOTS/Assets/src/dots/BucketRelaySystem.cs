@@ -16,12 +16,12 @@ public class BucketRelaySystem : SystemBase
     protected override void OnUpdate()
     {
         // var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
-        var ecbSeq = m_ECBSystem.CreateCommandBuffer();
-        // var ecbSeq = new EntityCommandBuffer(Allocator.Temp);
+        // var ecbSeq = m_ECBSystem.CreateCommandBuffer();
+        var ecbSeq = new EntityCommandBuffer(Allocator.TempJob);
         var ecb = ecbSeq.ToConcurrent();
 
         var handoverThreshold = 0.01f;
-        Entities
+        var job = Entities
             // .WithStructuralChanges()
             .WithNone<Target>()
             .ForEach((int entityInQueryIndex
@@ -50,10 +50,13 @@ public class BucketRelaySystem : SystemBase
                     // EntityManager.AddComponentData(entity, new Target{ Value = relayReturn.Value });
                     // EntityManager.RemoveComponent<RelayReturn>(entity);
                 }
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
+            // }).Schedule();
             // }).Run();
 
-        // ecbSeq.Playback(EntityManager);
+        job.Complete();
+        ecbSeq.Playback(EntityManager);
+        ecbSeq.Dispose();
 
         var ecbSeq2 = m_ECBSystem.CreateCommandBuffer();
         var ecb2 = ecbSeq2.ToConcurrent();
