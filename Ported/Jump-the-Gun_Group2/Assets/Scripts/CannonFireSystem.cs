@@ -196,7 +196,7 @@ public class CannonFireSystem : SystemBase
         var playerLocation = EntityManager.GetComponentData<Position>(playerEntity);
         var gameParams = GetSingleton<GameParams>();
         var gridEntity = GetSingletonEntity<GridTag>();
-        DynamicBuffer<GridHeight> gridHeight = EntityManager.GetBuffer<GridHeight>(gridEntity);
+        var gridHeight = GetBufferFromEntity<GridHeight>(true)[gridEntity];
 
         var deltaTime = Time.DeltaTime;
 
