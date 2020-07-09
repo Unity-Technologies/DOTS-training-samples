@@ -13,7 +13,7 @@ public class LTWUpdateSystem : SystemBase
             .ForEach((ref LocalToWorld localToWorld, in Position pos) =>
             {
                 var trans = float4x4.Translate(pos.Value);
-                var scale = float4x4.Scale(1);
+                var scale = float4x4.Scale(0.6f);
                 localToWorld.Value = math.mul(trans, scale);
             }).ScheduleParallel();
 

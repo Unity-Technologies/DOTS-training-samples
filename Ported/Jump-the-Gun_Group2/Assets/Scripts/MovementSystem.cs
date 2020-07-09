@@ -23,8 +23,15 @@ public class MovementSystem : SystemBase
             }
             else
             {
-                // TEMP: need to process
-                distance = 5; // math.length(new float2(movement.Origin.z - movement.Origin.z, movement.Target.x - movement.Target.x));
+                const float kStepCount = 10.0f;
+                float step = 1.0f / kStepCount;
+                float normalizedArcLength = 0.0f;
+                for (float f = 0; f <= 1.0f; f += step)
+                {
+                    normalizedArcLength += math.sqrt(1 + (movement.Parabola.x * f + movement.Parabola.y) * (movement.Parabola.x * f + movement.Parabola.y));
+                }
+
+                distance = (normalizedArcLength / (kStepCount + 1)) * math.length(movement.Target.xz - movement.Origin.xz);
 
                 pos.Value = ParabolaMath.GetSimulatedPosition(  movement.Origin + 0.001f, movement.Target + 0.001f,
                                                                 movement.Parabola.x, movement.Parabola.y, movement.Parabola.z,

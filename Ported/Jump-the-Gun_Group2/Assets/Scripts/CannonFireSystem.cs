@@ -5,7 +5,7 @@ using UnityEngine;
 public class CannonFireSystem : SystemBase
 {
     public const float kCannonBallRadius = 0.25f;
-    public const float kCannonBallSpeed = 2.5f;
+    public const float kCannonBallSpeed = 6.0f;
 
     EntityQuery m_BufferQuery;
 
@@ -211,7 +211,7 @@ public class CannonFireSystem : SystemBase
 
                 var instance = ecb.Instantiate(entityInQueryIndex, gameParams.CannonBallPrefab);
                 MovementParabola movementParabole = new MovementParabola { Origin = position.Value, Target = math.floor(playerLocation.Value), Parabola = new float3(0.0f, 0.0f, 0.0f), Speed = kCannonBallSpeed };
-                ParabolaMath.Create(position.Value.y, height, playerLocation.Value.y, out movementParabole.Parabola.x, out movementParabole.Parabola.y, out movementParabole.Parabola.z);
+                ParabolaMath.Create(position.Value.y, 3, playerLocation.Value.y, out movementParabole.Parabola.x, out movementParabole.Parabola.y, out movementParabole.Parabola.z);
 
                 ecb.AddComponent(entityInQueryIndex, instance, new Position { Value = position.Value });
                 ecb.AddComponent(entityInQueryIndex, instance, movementParabole);
