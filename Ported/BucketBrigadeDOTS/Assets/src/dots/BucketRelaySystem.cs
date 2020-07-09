@@ -15,14 +15,10 @@ public class BucketRelaySystem : SystemBase
 
     protected override void OnUpdate()
     {
-        // var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
-        // var ecbSeq = m_ECBSystem.CreateCommandBuffer();
-        var ecbSeq = new EntityCommandBuffer(Allocator.TempJob);
-        var ecb = ecbSeq.ToConcurrent();
+        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
 
         var handoverThreshold = 0.01f;
-        var job = Entities
-            // .WithStructuralChanges()
+        Entities
             .WithNone<Target>()
             .ForEach((int entityInQueryIndex
                 , Entity entity
@@ -39,31 +35,18 @@ public class BucketRelaySystem : SystemBase
                     ecb.RemoveComponent<WaterBucketID>(entityInQueryIndex, entity);
                     ecb.AddComponent(entityInQueryIndex, entity, new Target{ Value = relayReturn.Value });
                     ecb.RemoveComponent<RelayReturn>(entityInQueryIndex, entity);
-
-                    // ecbSeq.AddComponent(next, waterBucketId);
-                    // ecbSeq.RemoveComponent<WaterBucketID>(entity);
-                    // ecbSeq.AddComponent(entity, new Target{ Value = relayReturn.Value });
-                    // ecbSeq.RemoveComponent<RelayReturn>(entity);
-
-                    // EntityManager.AddComponentData(next, waterBucketId);
-                    // EntityManager.RemoveComponent<WaterBucketID>(entity);
-                    // EntityManager.AddComponentData(entity, new Target{ Value = relayReturn.Value });
-                    // EntityManager.RemoveComponent<RelayReturn>(entity);
                 }
-            }).ScheduleParallel(Dependency);
-            // }).Schedule();
-            // }).Run();
+            }).ScheduleParallel();
 
-        job.Complete();
-        ecbSeq.Playback(EntityManager);
-        ecbSeq.Dispose();
-
-        var ecbSeq2 = m_ECBSystem.CreateCommandBuffer();
-        var ecb2 = ecbSeq2.ToConcurrent();
+        var ecb2 = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
         
+        // Filtering on RelayReturn here is necessary. Otherwise the query will trigger for the state the entities had at the beginning 
+        // of this OnUpdate, so the Target from the above query haven't been added yet, and will get added below while there's an
+        // add Target component pending from the above query.
+
         Entities
-            // .WithStructuralChanges()
             .WithNone<Target>()
+            .WithNone<RelayReturn>()
             .WithAll<WaterBucketID>()
             .ForEach((int entityInQueryIndex
                 , Entity entity
@@ -74,17 +57,7 @@ public class BucketRelaySystem : SystemBase
                 Translation2D nextTranslation = GetComponent<Translation2D>(next);
                 ecb2.AddComponent(entityInQueryIndex, entity, new Target{ Value = nextTranslation.Value });
                 ecb2.AddComponent(entityInQueryIndex, entity, new RelayReturn{ Value = translation.Value });
-
-                // ecbSeq.AddComponent(entity, new Target{ Value = nextTranslation.Value });
-                // ecbSeq.AddComponent(entity, new RelayReturn{ Value = translation.Value });
-
-                // EntityManager.AddComponentData(entity, new Target{ Value = nextTranslation.Value });
-                // EntityManager.AddComponentData(entity, new RelayReturn{ Value = translation.Value });
-
             }).ScheduleParallel();
-            // }).Run();
-
-        // ecbSeq.Playback(EntityManager);
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
