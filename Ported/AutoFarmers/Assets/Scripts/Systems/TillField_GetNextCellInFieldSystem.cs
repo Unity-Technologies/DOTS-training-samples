@@ -50,7 +50,7 @@ namespace AutoFarmers
                             if (hasTarget) break;
                             
                             int index = gridX * gridSize.x + gridY;
-                            if (cellTypeBuffer[index].Value != CellType.Tilled)
+                            if (cellTypeBuffer[index].Value == CellType.Raw)
                             {
                                 targetEntity = cellEntityBuffer[index].Value;
                                 hasTarget = true;

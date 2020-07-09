@@ -33,10 +33,12 @@ namespace AutoFarmers
                 {
                     CellPosition cp = cellPositionAccessor[target.Value];
                     int index = (int) (cp.Value.x * gridSize.x + cp.Value.y);
-                    
-                    cellTypeBuffer[index] = new CellTypeElement() { Value = CellType.Tilled };
-                    ecb.AddComponent<Tilled>(cellEntityBuffer[index].Value);
 
+                    if (cellTypeBuffer[index].Value == CellType.Raw)
+                    {
+                        cellTypeBuffer[index] = new CellTypeElement() { Value = CellType.Tilled };
+                        ecb.AddComponent<Tilled>(cellEntityBuffer[index].Value);
+                    }
                     ecb.AddComponent<Cooldown>(entity, new Cooldown { Value = 0.1f });
                     ecb.RemoveComponent<Target>(entity);
                     ecb.RemoveComponent<TargetReached>(entity);

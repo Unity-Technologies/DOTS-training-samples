@@ -40,9 +40,9 @@ namespace AutoFarmers
                     CellPosition cp = cellPositionAccessor[target.Value];
                     int index = (int) (cp.Value.x * gridSize.x + cp.Value.y);
 
-                    if (cellTypeBuffer[index].Value == CellType.Tilled)
+                    if (cellTypeBuffer[index].Value != CellType.Raw)
                     {
-                        ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
+                        //ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
                     }
                 }).ScheduleParallel();
 

@@ -112,6 +112,11 @@ namespace AutoFarmers
                             Height = fieldDimensions.y
                         });
                     }
+                    else
+                    {
+                        ecb.RemoveComponent<PathFindingTargetReached_Tag>(entityInQueryIndex, entity);
+                        ecb.RemoveComponent<TillField_Intent>(entityInQueryIndex, entity);                        
+                    }
                 }).ScheduleParallel();
 
             _entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
