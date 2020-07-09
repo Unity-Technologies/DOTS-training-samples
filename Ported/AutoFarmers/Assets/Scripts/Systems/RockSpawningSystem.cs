@@ -99,6 +99,8 @@ namespace AutoFarmers
                         }
                     }
                 }
+
+                ecb.AddComponent(rockSpawner, new RocksAreInitalizedTag());
             }).Run();
 
             m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
