@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(FirefighterFormLineSystem))]
 public class BucketSpawnSystem : SystemBase
 {
     private EntityQuery m_WaterBucketSpawnerQuery;
@@ -27,7 +28,7 @@ public class BucketSpawnSystem : SystemBase
         {
             All = new ComponentType[]
             {
-                typeof(FirefighterFullTag),
+                typeof(FirefighterEmptyTag),
             }
         });
     }
