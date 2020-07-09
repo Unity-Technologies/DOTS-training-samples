@@ -26,7 +26,7 @@ public class FirefighterFormLineSystem : SystemBase
 
     protected override void OnUpdate()
     {        
-        // EntityManager.RemoveComponent<FirefighterFormLineSpawner>(m_FirefighterFormLineSpawnerQuery);
+        EntityManager.RemoveComponent<FirefighterFormLineSpawner>(m_FirefighterFormLineSpawnerQuery);
         
         float2 src = new float2(0.0f, 0.0f);
         float2 dst = new float2(10.0f, 10.0f);

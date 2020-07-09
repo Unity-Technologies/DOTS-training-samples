@@ -15,7 +15,7 @@ public class FirefighterMoveToTargetSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
-        var speed = 0.11f;
+        var speed = 0.011f;
 
         Entities.ForEach((int entityInQueryIndex, Entity entity, ref Translation2D translation, in Target target) =>
         {
