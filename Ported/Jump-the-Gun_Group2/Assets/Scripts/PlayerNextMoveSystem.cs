@@ -55,8 +55,8 @@ public class PlayerNextMoveSystem : SystemBase
 
         var gridtag = GetSingletonEntity<GridTag>();
 
-        DynamicBuffer<GridHeight> gh = EntityManager.GetBuffer<GridHeight>(gridtag);
-        DynamicBuffer<GridOccupied> go = EntityManager.GetBuffer<GridOccupied>(gridtag);
+        var go = GetBufferFromEntity<GridOccupied>(true)[gridtag];
+        var gh = GetBufferFromEntity<GridHeight>(true)[gridtag];
 
         GameParams gp =  GetSingleton<GameParams>();
 
