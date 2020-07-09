@@ -6,6 +6,7 @@ namespace AutoFarmers
 {
     public class FarmerSpawningSystem : SystemBase
     {
+        private static bool IsFirst = true;
         private EntityCommandBufferSystem m_CommandBufferSystem;
 
         protected override void OnCreate()
@@ -42,6 +43,12 @@ namespace AutoFarmers
                     pecb.SetComponent(entityInQueryIndex, instance, new Translation { Value = position });
                     pecb.SetComponent(entityInQueryIndex, instance, new Velocity { Value = velocity });
                     plantsInStore.ForFarmers -= farmerCost;
+
+                    if (IsFirst)
+                    {
+                        pecb.AddComponent<CameraFollow_Tag>(entityInQueryIndex, instance);
+                        IsFirst = false;
+                    }
                 }
 
                 if (plantsInStore.ForDrones >= droneCost)
