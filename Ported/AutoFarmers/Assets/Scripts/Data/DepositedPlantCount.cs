@@ -3,5 +3,6 @@
 [GenerateAuthoringComponent]
 public struct DepositedPlantCount : IComponentData
 {
-    public float Value;
+    public float ForFarmers;
+    public float ForDrones;
 }
