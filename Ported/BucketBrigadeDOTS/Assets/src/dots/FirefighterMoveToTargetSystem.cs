@@ -15,13 +15,14 @@ public class FirefighterMoveToTargetSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
-        var speed = 0.011f;
+        var speed = 2.0f;
+        var deltaTime = Time.DeltaTime;
 
         Entities.ForEach((int entityInQueryIndex, Entity entity, ref Translation2D translation, in Target target) =>
         {
             float2 fromTo = target.Value - translation.Value;
             float dist = math.length(fromTo);
-            var step = speed; // * deltaTime
+            var step = speed * deltaTime;
             if (dist < step)
             {
                 translation.Value = target.Value;
