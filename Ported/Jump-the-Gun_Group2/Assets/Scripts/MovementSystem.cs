@@ -26,7 +26,7 @@ public class MovementSystem : SystemBase
                 // TEMP: need to process
                 distance = 5; // math.length(new float2(movement.Origin.z - movement.Origin.z, movement.Target.x - movement.Target.x));
 
-                pos.Value = ParabolaMath.GetSimulatedPosition(  movement.Origin, movement.Target,
+                pos.Value = ParabolaMath.GetSimulatedPosition(  movement.Origin + 0.001f, movement.Target + 0.001f,
                                                                 movement.Parabola.x, movement.Parabola.y, movement.Parabola.z,
                                                                 math.saturate(normalisedMoveTime.Value));
             }
