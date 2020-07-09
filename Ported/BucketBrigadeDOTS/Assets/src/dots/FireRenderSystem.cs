@@ -30,20 +30,25 @@ public class FireRenderSystem : SystemBase
         var fireGridEntity = GetSingletonEntity<FireGridSettings>();
         var fireGridSetting = GetComponent<FireGridSettings>(fireGridEntity);
         var bufferRef = EntityManager.GetBuffer<FireCell>(fireGridEntity);
+        var mipChainFlag = EntityManager.GetBuffer<FireCellFlag>(fireGridEntity);
         float t = (float)Time.ElapsedTime;
 
         Entities
         .WithAll<FireRendererTag>()
         .WithReadOnly(bufferRef)
+        .WithReadOnly(mipChainFlag)
         .ForEach((int entityInQueryIndex, ref NonUniformScale scale, ref Translation translation, ref FireColor fireColor) =>
         {
             // Grab the target cell this renderer should be matching
             FireCell currentCell = bufferRef[entityInQueryIndex];
 
+
             float visualTemperature = currentCell.FireTemperature < flashPoint ? 0.001f : math.min(currentCell.FireTemperature, 1.0f);
 
             uint x = (uint)entityInQueryIndex % fireGridSetting.FireGridResolution.x;
             uint y = (uint)entityInQueryIndex / fireGridSetting.FireGridResolution.x;
+
+            
 
             float noise = 0.04f * Hash01((uint)entityInQueryIndex);
             if (visualTemperature >= flashPoint)
@@ -61,6 +66,25 @@ public class FireRenderSystem : SystemBase
             translation.Value.y = scale.Value.y * 0.5f;
             // Update its color
             fireColor.Value = visualTemperature < flashPoint ? new float4(0.0f, 1.0f, 0.0f, 1.0f) : math.lerp(new float4(1.0f, 1.0f, 0.0f, 1.0f), new float4(1.0f, 0.0f, 0.0f, 1.0f), (visualTemperature - flashPoint) / (1.0f - flashPoint));
+
+            // To visualize our mips
+            if (fireGridSetting.MipDebugIndex >= 0)
+            {
+                int mipIndex = fireGridSetting.MipDebugIndex;
+                int mipOffset = 0;
+                for (int moI = 0; moI < mipIndex; ++moI)
+                {
+                    int2 subResolution = (int2)fireGridSetting.FireGridResolution >> moI;
+                    mipOffset += (subResolution.x * subResolution.y);
+                }
+                uint subX = x >> mipIndex;
+                uint subY = y >> mipIndex;
+                int halfResPosition = (int)(subX + subY * (fireGridSetting.FireGridResolution.x >> mipIndex));
+                int mipChainIndex = halfResPosition + mipOffset;
+                FireCellFlag currentCellFlag = mipChainFlag[mipChainIndex];
+                fireColor.Value = currentCellFlag.OnFire ? new float4(1.0f, 0.0f, 1.0f, 1.0f) : new float4(0.0f, 0.0f, 1.0f, 1.0f);
+            }
+
         }).ScheduleParallel();
     }
 }

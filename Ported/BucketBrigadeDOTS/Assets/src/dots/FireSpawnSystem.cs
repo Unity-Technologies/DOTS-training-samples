@@ -32,7 +32,8 @@ public class FireSpawnSystem : SystemBase
             // Allocate and resize the buffer
             var fireGrid = ecb.AddBuffer<FireCell>(fireGridEntity);
             var fireGridHist = ecb.AddBuffer<FireCellHistory>(fireGridEntity);
-            fireGrid.Capacity = (int)(fireGridSetting.FireGridResolution.x * fireGridSetting.FireGridResolution.y);
+            int nativeBufferSize = (int)(fireGridSetting.FireGridResolution.x * fireGridSetting.FireGridResolution.y);
+            fireGrid.Capacity = nativeBufferSize;
 
             // Initialize the buffer
             FireCell nullCell;
@@ -71,6 +72,17 @@ public class FireSpawnSystem : SystemBase
                 uint targetIndex = (randomCopy.NextUInt()) % gridSize;
                 targetCell.FireTemperaturePrev = 0.5f + (randomCopy.NextFloat() * 0.5f);
                 fireGridHist[(int)targetIndex] = targetCell;
+            }
+
+            // Allocate the mip chain buffer
+            var fireGridFlags = ecb.AddBuffer<FireCellFlag>(fireGridEntity);
+            int mipChainLength = (int)(nativeBufferSize * 1.333333334f);
+            fireGridFlags.ResizeUninitialized(mipChainLength);
+            for (int i = 0; i < mipChainLength; ++i)
+            {
+                FireCellFlag invalidFlag;
+                invalidFlag.OnFire = false;
+                fireGridFlags[i] = invalidFlag;
             }
 
             // Remove the spawner component

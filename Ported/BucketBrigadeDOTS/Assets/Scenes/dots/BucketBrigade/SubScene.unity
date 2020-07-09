@@ -265,8 +265,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FireGridResolution:
-    x: 50
-    y: 50
+    x: 64
+    y: 64
+  MipDebugIndex: -1
 --- !u!4 &1401485849
 Transform:
   m_ObjectHideFlags: 0
