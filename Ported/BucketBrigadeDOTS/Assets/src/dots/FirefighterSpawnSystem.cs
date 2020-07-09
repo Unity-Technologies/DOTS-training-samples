@@ -12,7 +12,6 @@ public class FirefighterSpawnSystem : SystemBase
         Entities.WithStructuralChanges()
             .ForEach((Entity entity, in FirefighterSpawner spawner, in LocalToWorld ltw) =>
             {
-                int firefigherID = 0;
                 int firefightersInLineCount = spawner.Count;
                 int firefightersTotalCount = spawner.Count * 2;
 
