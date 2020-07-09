@@ -10,6 +10,11 @@ public struct FirefighterNext : IComponentData
     public Entity Value;
 }
 
+public struct WaterBucketID : IComponentData
+{
+    public Entity Value;
+}
+
 public struct FirefighterFullTag : IComponentData
 {
 }

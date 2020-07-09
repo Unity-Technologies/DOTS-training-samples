@@ -2,7 +2,9 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
+[UpdateBefore(typeof(BucketSpawnSystem))]
 public class FirefighterSpawnSystem : SystemBase
 {
     protected override void OnUpdate()
