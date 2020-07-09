@@ -31,25 +31,14 @@ public class PlantMakeHarvestableSystem : SystemBase
         Entities
             .WithAll<FullyGrownPlant_Tag>()            
             .WithNone<HarvestablePlant_Tag>()
-            .ForEach((int entityInQueryIndex, Entity entity, ref Translation translation) =>
+            .ForEach((int entityInQueryIndex, Entity entity, in CellPosition cp) =>
         {            
             ecb.AddComponent<HarvestablePlant_Tag>(entity, new HarvestablePlant_Tag());
                
             // Update the cell type
-            {
-                int gridX = (int)(translation.Value.x);
-                int gridY = (int)(translation.Value.z);
+            int index = (int)(cp.Value.x * gridSize.x + cp.Value.y);
+            typeBuffer[index] = new CellTypeElement() { Value = CellType.HarvestablePlant };
 
-                int index = gridX * gridSize.x + gridY;
-                if (index < 0 || index >= typeBuffer.Length)
-                {
-                    UnityEngine.Debug.Log("Out of bounds index in PlantMakeHarvestableSystem!");
-                }
-                else
-                {
-                    typeBuffer[index] = new CellTypeElement() { Value = CellType.Plant };
-                }
-            }
         }).Run(); // Run for now until we can get this working 100% in parallel
 
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
