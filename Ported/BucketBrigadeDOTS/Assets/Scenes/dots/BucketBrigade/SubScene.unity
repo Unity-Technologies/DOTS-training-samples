@@ -314,3 +314,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   FirePrefab: {fileID: 1306931638197496, guid: d2414dc4033474771b65161755b347cb, type: 3}
   StartingFireCount: 10
+  WaterPrefab: {fileID: 1068854535243822, guid: 236dd5ca7144c93478a7153c159c2e48,
+    type: 3}
+  DistanceToGrid: 3
+  ElementsPerSide: 10

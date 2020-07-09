@@ -111,6 +111,54 @@ public class FireSpawnSystem : SystemBase
                 fireGridMipInfos[i] = mipLevelData;
             }
 
+
+            // Spawn the water cells
+            WaterVolume nullVolume;
+            nullVolume.Volume = 50.0f;
+            // For every side of the grid
+            for (int i = 0; i < 4; ++i)
+            {
+                float2 lineCenter;
+                float2 lineDirection;
+                if (i == 0)
+                {
+                    lineCenter = new float2(1.0f, 0.0f);
+                    lineDirection = new float2(0.0f, 1.0f);
+                }
+                else if (i == 1)
+                {
+                    lineCenter = new float2(-1.0f, 0.0f);
+                    lineDirection = new float2(0.0f, 1.0f);
+                }
+                else if (i == 2)
+                {
+                    lineCenter = new float2(0.0f, 1.0f);
+                    lineDirection = new float2(1.0f, 0.0f);
+                }
+                else
+                {
+                    lineCenter = new float2(0.0f, -1.0f);
+                    lineDirection = new float2(1.0f, 0.0f);
+                }
+                
+                for (int e = 0; e < fireGridSpawner.ElementsPerSide; ++e)
+                {
+                    lineCenter *= (1.0f + (randomCopy.NextFloat() * 2.0f - 1.0f) * 0.05f);
+                    float2 centerLinePos = gridBounds.BoundsCenter - (gridBounds.BoundsExtent * 0.5f + fireGridSpawner.DistanceToGrid) * lineCenter;
+                    float2 lineMin = centerLinePos - (gridBounds.BoundsExtent * 0.5f * lineDirection);
+                    float lineStep = math.dot((float2)gridBounds.BoundsExtent, lineDirection) / (float)fireGridSpawner.ElementsPerSide;
+
+                    // Add the instance prefab
+                    var instance = ecb.Instantiate(fireGridSpawner.WaterPrefab);
+                    ecb.AddComponent<WaterVolume>(instance);
+
+                    Translation trs;
+                    trs.Value = new float3(lineMin.x + lineStep * lineDirection.x * e, 0.0f, lineMin.y + lineStep * lineDirection.y * e);
+
+                    ecb.SetComponent<Translation>(instance, trs);
+                }
+            }
+
             // Remove the spawner component
             ecb.RemoveComponent<FireGridSpawner>(spawnerEntity);
         }).Schedule();

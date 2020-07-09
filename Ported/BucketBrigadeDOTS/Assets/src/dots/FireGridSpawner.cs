@@ -7,4 +7,7 @@ public struct FireGridSpawner : IComponentData
 {
     public Entity FirePrefab;
     public int StartingFireCount;
+    public Entity WaterPrefab;
+    public float DistanceToGrid;
+    public int ElementsPerSide;
 }
