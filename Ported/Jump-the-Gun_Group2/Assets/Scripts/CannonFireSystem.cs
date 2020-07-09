@@ -201,8 +201,7 @@ public class CannonFireSystem : SystemBase
         var deltaTime = Time.DeltaTime;
 
         Entities
-            .WithNativeDisableContainerSafetyRestriction(gridHeight)
-            .WithNativeDisableParallelForRestriction(gridHeight)
+            .WithReadOnly(gridHeight)
             .ForEach((int entityInQueryIndex, Entity e, ref Cooldown coolDown, in Position position) =>
         {            
             // Fire

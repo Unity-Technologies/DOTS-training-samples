@@ -37,7 +37,6 @@ public class UpdateGridStateSystem : SystemBase
 
         Entities
             .WithNativeDisableContainerSafetyRestriction(buffer)
-            .WithNativeDisableParallelForRestriction(buffer)
             .ForEach((in Height height, in Position position) =>
         {
             var pos = (int2)position.Value.xz;

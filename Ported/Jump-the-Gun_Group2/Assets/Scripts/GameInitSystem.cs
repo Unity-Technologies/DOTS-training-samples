@@ -95,6 +95,8 @@ public class GameInitSystem : SystemBase
                 }
             }
 
+
+
             // Spawn Tiles
             for (int y = 0; y < dimension.y; ++y)
             {

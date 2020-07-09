@@ -46,13 +46,11 @@ public class PlayerNextMoveSystem : SystemBase
 
         GameParams gp =  GetSingleton<GameParams>();
 
-        Entities
-        .WithAll<PlayerTag>()
-        .WithNativeDisableContainerSafetyRestriction(gh)
-        .WithNativeDisableParallelForRestriction(gh)
-        .WithNativeDisableContainerSafetyRestriction(go)
-        .WithNativeDisableParallelForRestriction(go)
-        .ForEach((ref MovementParabola movement, ref NormalisedMoveTime normalisedMoveTime, in Direction direction, in Position pos) =>
+        Entities.
+        WithAll<PlayerTag>().
+        WithReadOnly(gh).
+        WithReadOnly(go).
+        ForEach((ref MovementParabola movement, ref NormalisedMoveTime normalisedMoveTime, in Direction direction, in Position pos) =>
         {
             if (normalisedMoveTime.Value >= 1.0f) 
             {
