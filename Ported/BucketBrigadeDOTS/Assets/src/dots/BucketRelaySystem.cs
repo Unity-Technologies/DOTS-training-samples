@@ -67,13 +67,26 @@ public class BucketRelaySystem : SystemBase
 
         // Extinguish
         Entities
+            .WithStructuralChanges()
             .WithAll<FirefighterFullLastTag>()
-            .ForEach((ref WaterBucketID waterBucketID) =>
+            .ForEach((ref WaterBucketID waterBucketID, in Translation2D translation) =>
         {
             var waterBucket = GetComponent<WaterBucket>(waterBucketID.Value);
-            waterBucket.Value = 0.0f;
-            SetComponent(waterBucketID.Value, waterBucket);
-        }).Schedule();
+
+            // Shouldn't be a busy check, use a WaterBucketEmpty tag instead
+            if (waterBucket.Value > 0)
+            {
+                waterBucket.Value = 0.0f;
+                SetComponent(waterBucketID.Value, waterBucket);
+
+                var newEntity = EntityManager.CreateEntity();
+                PointOfInterestRequest poiRequest;
+                poiRequest.POIReferencePosition = translation.Value;
+                EntityManager.AddComponent<PointOfInterestRequest>(newEntity);
+                EntityManager.SetComponentData<PointOfInterestRequest>(newEntity, poiRequest);
+            }
+        // TODO: make this Schedule() again
+        }).Run();
         
         // Refill
         Entities
