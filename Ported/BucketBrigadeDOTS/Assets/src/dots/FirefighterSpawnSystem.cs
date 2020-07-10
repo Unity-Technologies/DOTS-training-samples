@@ -6,6 +6,13 @@ using UnityEngine;
 [UpdateBefore(typeof(BucketSpawnSystem))]
 public class FirefighterSpawnSystem : SystemBase
 {
+    private EntityQuery m_FirefighterSpawnerQuery;
+
+    protected override void OnCreate()
+    {
+        RequireForUpdate(m_FirefighterSpawnerQuery);
+    }
+
     protected override void OnUpdate()
     {
         var fireGridEntity = GetSingletonEntity<FireGridSettings>();
@@ -14,6 +21,7 @@ public class FirefighterSpawnSystem : SystemBase
         float2 gridTopRight = gridBounds.BoundsCenter + gridBounds.BoundsExtent * 0.5f;
 
         Entities.WithStructuralChanges()
+            .WithStoreEntityQueryInField(ref m_FirefighterSpawnerQuery)
             .ForEach((Entity entity, in FirefighterSpawner spawner, in LocalToWorld ltw) =>
             {
                 int firefightersInLineCount = spawner.Count;
@@ -58,5 +66,12 @@ public class FirefighterSpawnSystem : SystemBase
 
                 EntityManager.DestroyEntity(entity);
             }).Run();
+        
+        // Make a new POI request that will in turn cause the firefighters to form a line
+        var newEntity = EntityManager.CreateEntity();
+        PointOfInterestRequest poiRequest;
+        poiRequest.POIReferencePosition = new float2(0.0f, 7.0f);
+        EntityManager.AddComponent<PointOfInterestRequest>(newEntity);
+        EntityManager.SetComponentData<PointOfInterestRequest>(newEntity, poiRequest);
     }
 }
