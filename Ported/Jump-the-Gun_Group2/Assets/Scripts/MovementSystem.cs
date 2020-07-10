@@ -17,7 +17,7 @@ public class MovementSystem : SystemBase
 
                 // TODO: do a better pendul movement
                 if (normalisedMoveTime.Value <= 0.5)
-                    pos.Value.y = math.lerp(movement.Origin.y, movement.Parabola.y, normalisedMoveTime.Value);
+                    pos.Value.y = math.lerp(movement.Origin.y, movement.Parabola.y, math.saturate(normalisedMoveTime.Value));
                 else // normalisedMoveTime > 0.5
                     pos.Value.y = math.lerp(movement.Parabola.y, movement.Origin.y, math.saturate(normalisedMoveTime.Value));
             }
@@ -38,7 +38,7 @@ public class MovementSystem : SystemBase
                                                                 math.saturate(normalisedMoveTime.Value));
             }
 
-            float duration = movement.Speed == 0.0f ? 1.0f : distance / movement.Speed; // Safety in case we haven't yet init the player movement
+            float duration = movement.Speed == 0.0f ? 1.0f : math.abs(distance) / movement.Speed; // Safety in case we haven't yet init the player movement
             normalisedMoveTime.Value += deltaTime / duration;
 
         }).ScheduleParallel();
