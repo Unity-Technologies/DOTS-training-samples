@@ -22,13 +22,13 @@ namespace AutoFarmers
             m_CommandBufferSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
         }
 
-        static bool IsAreaFree(DynamicBuffer<CellTypeElement> buffer, int2 gridSize, int2 position, int minDist)
+        static bool IsAreaFree(DynamicBuffer<CellTypeElement> buffer, Grid grid, int2 position, int minDist)
         {
             for (int j = -minDist; j < minDist; j++)
             {
                 for (int i = -minDist; i < minDist; i++)
                 {
-                    int idx = (position.x + i) + (position.y + j) * gridSize.x;
+                    int idx = grid.GetIndexFromCoords(position.x + i, position.y + j);
                     if (buffer[idx].Value != CellType.Raw)
                     {
                         return false;
@@ -47,7 +47,7 @@ namespace AutoFarmers
             var entity = GetSingletonEntity<Grid>();
             var typeBuffer = EntityManager.GetBuffer<CellTypeElement>(entity);
             var entityBuffer = EntityManager.GetBuffer<CellEntityElement>(entity);
-            int2 gridSize = GetSingleton<Grid>().Size;
+            Grid grid = GetSingleton<Grid>();
 
             Entities
             .WithNone<StoresAreInitalizedTag>()
@@ -62,9 +62,9 @@ namespace AutoFarmers
   
                     for (int tries =  0; tries < 100; tries++)
                     {
-                        position = random.NextInt2(minDist2, gridSize - minDist2);
+                        position = random.NextInt2(minDist2, grid.Size - minDist2);
 
-                        if ( IsAreaFree(typeBuffer, gridSize, position, minDist))
+                        if ( IsAreaFree(typeBuffer, grid, position, minDist))
                         {
                             break;
                         }
@@ -81,7 +81,7 @@ namespace AutoFarmers
                     var instance = ecb.Instantiate(spawner.StorePrefab);
                     ecb.SetComponent(instance, new Translation { Value = translation });
 
-                    int idx = position.x  + position.y  * gridSize.x;
+                    int idx = grid.GetIndexFromCoords(position);
                     typeBuffer[idx] = new CellTypeElement { Value = CellType.Shop };
                 }
                 ecb.AddComponent(storeSpawner, new StoresAreInitalizedTag());
