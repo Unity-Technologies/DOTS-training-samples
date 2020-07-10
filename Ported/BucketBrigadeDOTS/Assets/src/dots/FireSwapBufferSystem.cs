@@ -1,4 +1,7 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Collections;
+using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
@@ -10,21 +13,34 @@ public class FireSwapBufferSystem : SystemBase
         GetEntityQuery(typeof(FireCell));
     }
 
+    [BurstCompile]
+    struct CopyBufferJob : IJobParallelFor
+    {
+        public NativeArray<FireCellHistory> bufferDst;
+        [ReadOnly]
+        public NativeArray<FireCell> bufferSrc;
+
+        public void Execute(int index)
+        {
+            FireCellHistory cell;
+            cell.FireTemperaturePrev = bufferSrc[index].FireTemperature;
+            bufferDst[index] = cell;
+        }
+    }
+
     protected override void OnUpdate()
     {
         var fireGridEntity = GetSingletonEntity<FireGridSettings>();
-        var bufferCurrent = EntityManager.GetBuffer<FireCell>(fireGridEntity).AsNativeArray();
+        var bufferSrc = EntityManager.GetBuffer<FireCell>(fireGridEntity);
+        var bufferDst = EntityManager.GetBuffer<FireCellHistory>(fireGridEntity);
 
-        Entities
-        .WithReadOnly(bufferCurrent)
-        .ForEach((DynamicBuffer<FireCellHistory> bufferHist) =>
+        var bufferCopy = new CopyBufferJob
         {
-            for (int i = 0; i < bufferHist.Length; ++i)
-            {
-                FireCellHistory cell = bufferHist[i];
-                cell.FireTemperaturePrev = bufferCurrent[i].FireTemperature;
-                bufferHist[i] = cell;
-            }
-        }).Schedule();
+            bufferSrc = bufferSrc.AsNativeArray(),
+            bufferDst = bufferDst.AsNativeArray(),
+        };
+
+        JobHandle jobHandle = bufferCopy.Schedule(bufferDst.Length, 256);
+        jobHandle.Complete();
     }
 }
