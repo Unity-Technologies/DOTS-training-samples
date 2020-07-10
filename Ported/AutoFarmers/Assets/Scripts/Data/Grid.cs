@@ -11,5 +11,10 @@ namespace AutoFarmers
         {
             return x * Size.x + y;
         }
+
+        public int GetIndexFromCoords(int2 p)
+        {
+            return GetIndexFromCoords(p.x, p.y);
+        }
     }
 }

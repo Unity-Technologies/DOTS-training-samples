@@ -24,13 +24,13 @@ namespace AutoFarmers
             RequireForUpdate(m_Query);
         }
 
-        static bool IsAreaFree(DynamicBuffer<CellTypeElement> buffer, int2 gridSize, int2 position, int2 areaSize)
+        static bool IsAreaFree(DynamicBuffer<CellTypeElement> buffer, Grid grid, int2 position, int2 areaSize)
         {
             for (int j = 0; j < areaSize.y; j++)
             {
                 for (int i = 0; i < areaSize.x; i++)
                 {
-                    int idx = (position.x + i) + (position.y + j) * gridSize.x;
+                    int idx = grid.GetIndexFromCoords(position.x + i, position.y + j);
                     if ( buffer[idx].Value != CellType.Raw)
                     {
                         return false;
@@ -66,7 +66,7 @@ namespace AutoFarmers
                         size = random.NextInt2(spawner.RandomSizeMin, spawner.RandomSizeMax);
                         position = random.NextInt2(new int2(0, 0), grid.Size - size);
 
-                        if ( IsAreaFree(typeBuffer, grid.Size, position, size))
+                        if ( IsAreaFree(typeBuffer, grid, position, size))
                         {
                             break;
                         }
