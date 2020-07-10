@@ -31,25 +31,21 @@ public class FirefighterFormLineSystem : SystemBase
     }
     
     protected override void OnUpdate()
-    {        
-        Debug.Log("POI evaluated picked up by form line");
-
-        Entity poi = Entity.Null;
+    {
+        float2 dst = float2.zero;
         using (var poiEntities = m_PointOfInterestEvaluatedQuery.ToEntityArray(Allocator.TempJob))
         {
-            Debug.Log("    POI evaluated picked up by form line: " + poiEntities.Length);
-            if (poiEntities.Length == 0)
+            if (poiEntities.Length > 0)
             {
-                EntityManager.RemoveComponent<PointOfInterestEvaluated>(m_PointOfInterestEvaluatedQuery);
-                return;
+                var poiEntity = poiEntities[poiEntities.Length - 1];
+                dst = GetComponent<PointOfInterestEvaluated>(poiEntity).POIPoisition;
             }
 
-            poi = poiEntities[poiEntities.Length - 1];
+            Debug.Log("POI evaluated picked up by form line: " + dst);
+            EntityManager.RemoveComponent<PointOfInterestEvaluated>(m_PointOfInterestEvaluatedQuery);
         }
         
         float2 src = new float2(0.0f, 7.0f);
-        float2 dst = GetComponent<PointOfInterestEvaluated>(poi).POIPoisition;
-        EntityManager.RemoveComponent<PointOfInterestEvaluated>(m_PointOfInterestEvaluatedQuery);
         float2 fromTo = (dst - src);
         float2 normal = new float2(-fromTo.y, fromTo.x);
         
