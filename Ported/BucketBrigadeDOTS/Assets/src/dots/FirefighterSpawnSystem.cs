@@ -27,18 +27,12 @@ public class FirefighterSpawnSystem : SystemBase
                 for (int i = 0; i < firefightersTotalCount; ++i)
                 {
                     float2 pos = rand.NextFloat2(gridBottomLeft, gridTopRight);
-                    //float2 pos = rand.NextFloat2(0, 1); // works no matter what's below
                     var instance = EntityManager.Instantiate(spawner.Prefab);
 
                     if (first == Entity.Null)
                         first = instance;
                     
-                    // works
-                    // EntityManager.SetComponentData(instance, new Translation2D { Value = pos });
-                    
-                    // doesn't work
-                    SetComponent<Translation2D>(instance, new Translation2D { Value = pos });
-                    
+                    EntityManager.SetComponentData(instance, new Translation2D { Value = pos });
                     EntityManager.AddComponent<Firefighter>(instance);
                     
                     if (i < spawner.Count)
