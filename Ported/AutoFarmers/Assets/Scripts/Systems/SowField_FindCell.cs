@@ -25,6 +25,7 @@ namespace AutoFarmers
 
             Entity grid = GetSingletonEntity<Grid>();
             Grid gridComponent = EntityManager.GetComponentData<Grid>(grid);
+            int2 gridSize = gridComponent.Size;
             DynamicBuffer<CellTypeElement> typeBuffer = EntityManager.GetBuffer<CellTypeElement>(grid);
             DynamicBuffer<CellEntityElement> cellEntityBuffer = EntityManager.GetBuffer<CellEntityElement>(grid);
 
@@ -34,27 +35,40 @@ namespace AutoFarmers
                 .WithNone<PathFindingTarget>()
                 .WithReadOnly(typeBuffer)
                 .WithReadOnly(cellEntityBuffer)
-                .ForEach((int entityInQueryIndex, Entity entity, ref RandomSeed randomSeed) =>
+                .ForEach((int entityInQueryIndex, Entity entity, ref RandomSeed randomSeed, in Translation translation) =>
                 {
                     int2 plantPos = new int2(0, 0);                    
 
                     bool suitablePosFound = false;
                     // Find a suitable area to sow on tilled land
                     {
+                        int2 position = CellPosition.FromTranslation(translation.Value);
                         Random random = new Random(randomSeed.Value);
+                        int index = 0;
 
-                        int numTries = 10;
-                        while(!suitablePosFound && numTries > 0)
+                        int windowSize = 16;
+                        int maxTries = 20;
+                        int numTries = maxTries;
+
+                        // Random
+                        while (!suitablePosFound && numTries > 0)
                         {
                             numTries--;
 
-                            // Random position to plant - TODO: scan region around Farmer's position instead!!
-                            plantPos = random.NextInt2(new int2(0, 0), GridSize - 1);
-                            //plantPos = new int2(5,5);
+                            if (numTries < maxTries / 2)
+                            {
+                                plantPos = position + random.NextInt2(new int2(0, 0), windowSize) + new int2(-windowSize / 2, -windowSize / 2);
+                                plantPos = math.clamp(plantPos, new int2(0, 0), GridSize - new int2(1, 1));
+                            }
+                            else
+                            {
+                                plantPos = random.NextInt2(new int2(0, 0), GridSize - 1);
+                            }
+                                                        
                             randomSeed.Value = random.state;
 
-                            int index = gridComponent.GetIndexFromCoords(plantPos.x, plantPos.y);
-                            if(index < 0 || index >= GridSize.x * GridSize.y)
+                            index = gridComponent.GetIndexFromCoords(plantPos.x, plantPos.y);
+                            if (index < 0 || index >= GridSize.x * GridSize.y)
                             {
                                 UnityEngine.Debug.LogError("FindSowField went out-of-bounds");
                                 suitablePosFound = false;
