@@ -42,6 +42,7 @@ namespace AutoFarmers
                     //ecb.AddComponent<Cooldown>(entity, new Cooldown { Value = 0.1f });
                     //ecb.SetComponent<PathFindingTarget>(new PathFindingTarget { Value = home.Value });
                     target = new PathFindingTarget { Value = home.Value };
+                    ecb.RemoveComponent<Target>(entity);
                     ecb.RemoveComponent<TargetReached>(entity);
                     ecb.RemoveComponent<HarvestPlant>(entity);
                     ecb.AddComponent<TakePlantToStore>(entity, new TakePlantToStore { Value = plant } );
