@@ -3,14 +3,14 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 
-[UpdateAfter(typeof(FireSpreadSystem))]
+[UpdateBefore(typeof(FireSpreadSystem))]
 public class FireExtinguishSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
 
     protected override void OnCreate()
     {
-        GetEntityQuery(typeof(FireCell));
+        GetEntityQuery(typeof(FireCellHistory));
         RequireForUpdate(GetEntityQuery(ComponentType.ReadOnly<WaterSpill>()));
         m_CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
@@ -21,7 +21,7 @@ public class FireExtinguishSystem : SystemBase
         var fireGridEntity = GetSingletonEntity<FireGridSettings>();
         var fireGridSetting = GetComponent<FireGridSettings>(fireGridEntity);
         var fireGridBounds = GetComponent<Bounds>(fireGridEntity);
-        var buffer = EntityManager.GetBuffer<FireCell>(fireGridEntity);
+        var buffer = EntityManager.GetBuffer<FireCellHistory>(fireGridEntity);
 
         // Compute the min and max of the grid
         float2 minGridPos = fireGridBounds.BoundsCenter - fireGridBounds.BoundsExtent * 0.5f;
@@ -62,9 +62,9 @@ public class FireExtinguishSystem : SystemBase
                     float columnShift = math.abs(coord.y - v);
 
                     // Change the fire temperature of the target cell
-                    FireCell cell = buffer[index];
+                    FireCellHistory cell = buffer[index];
                     float dowseCellStrength = 1f / (math.abs(rowShift * fireGridSetting.CoolingStrenghtFalloff) + math.abs(columnShift * fireGridSetting.CoolingStrenghtFalloff));
-                    cell.FireTemperature = math.max(cell.FireTemperature - (fireGridSetting.CoolingStrength * dowseCellStrength) * fireGridSetting.BucketCapacity, 0);
+                    cell.FireTemperaturePrev = math.max(cell.FireTemperaturePrev - (fireGridSetting.CoolingStrength * dowseCellStrength) * fireGridSetting.BucketCapacity, 0);
 
                     // Propagate the info
                     buffer[index] = cell;
