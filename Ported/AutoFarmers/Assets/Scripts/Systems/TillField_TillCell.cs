@@ -3,14 +3,14 @@ using Unity.Mathematics;
 
 namespace AutoFarmers
 {
-    [UpdateAfter(typeof(SimulationSystemGroup))]
+    [UpdateInGroup(typeof(PresentationSystemGroup))]
     public class TillField_TillCell : SystemBase
     {
         private EntityCommandBufferSystem _entityCommandBufferSystem;
 
         protected override void OnCreate()
         {
-            _entityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+            _entityCommandBufferSystem = World.GetExistingSystem<BeginSimulationEntityCommandBufferSystem>();
             GetEntityQuery(ComponentType.ReadWrite<CellTypeElement>());
             
             RequireSingletonForUpdate<GameSettings>();

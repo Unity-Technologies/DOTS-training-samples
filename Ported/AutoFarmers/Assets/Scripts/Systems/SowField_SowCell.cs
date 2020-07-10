@@ -41,6 +41,8 @@ namespace AutoFarmers
                 .WithAll<PlantSeeds_Intent>()
                 .WithAll<TargetReached>()
                 .WithReadOnly(cellPositionAccessor)
+                .WithReadOnly(cellTypeBuffer)
+                .WithReadOnly(cellEntityBuffer)
                 .ForEach((int entityInQueryIndex, Entity entity, in PathFindingTarget target) =>
                 {
                     CellPosition cp = cellPositionAccessor[target.Value];
@@ -80,7 +82,7 @@ namespace AutoFarmers
                         ecb.RemoveComponent<TargetReached>(entityInQueryIndex, entity);
                     }
 
-                }).Schedule();
+                }).ScheduleParallel();
 
             //plantSpawnerArray.Dispose();
 
