@@ -12,9 +12,8 @@ namespace AutoFarmers
             float speed = 2f;
             
             Entities
-                .ForEach((Entity entity, ref Velocity velocity, in Translation translation, in Target target) =>
+                .ForEach((Entity entity, ref Velocity velocity, in Translation translation, in TargetPosition targetPosition) =>
                 {
-                    Translation targetPosition = GetComponent<Translation>(target.Value);
                     float3 delta = targetPosition.Value - translation.Value;
                     float3 targetVelocity = 0.0f;
 
