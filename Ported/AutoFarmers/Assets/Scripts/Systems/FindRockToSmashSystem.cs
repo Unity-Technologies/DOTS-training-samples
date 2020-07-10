@@ -32,7 +32,7 @@ namespace AutoFarmers
                 var dy = 0;
                 var segmentLength = 1;
                 var segmentPassed = 0;
-                for (var k = 0; k < 256; k++)
+                for (var k = 0; k < 1024; k++)
                 {
                     cellPosition.x += dx;
                     cellPosition.y += dy;
@@ -57,8 +57,8 @@ namespace AutoFarmers
                     }
 
                     Entity? nearbyRock = null;
-                    for (var x = math.max(0, cellPosition.x - 1); x <= math.min(grid.Size.x, cellPosition.x + 1); x += 2)
-                    for (var y = math.max(0, cellPosition.y - 1); y <= math.min(grid.Size.y, cellPosition.y + 1); y += 2)
+                    for (var x = math.max(0, cellPosition.x - 1); x <= math.min(grid.Size.x - 1, cellPosition.x + 1); x += 2)
+                    for (var y = math.max(0, cellPosition.y - 1); y <= math.min(grid.Size.y - 1, cellPosition.y + 1); y += 2)
                     {
                         var cellIndex = grid.GetIndexFromCoords(x, y);
                         if (cellTypeBuffer[cellIndex].Value == CellType.Rock)
