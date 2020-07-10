@@ -24,6 +24,12 @@ public class FirefighterFormLineSystem : SystemBase
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
+    private static float2 CalculatePosition(float positionInLine, float2 from, float2 fromTo, float2 normal)
+    {
+        float offset = 0.4f * positionInLine * (1.0f - positionInLine);
+        return fromTo * positionInLine + from + offset * normal;
+    }
+    
     protected override void OnUpdate()
     {        
         Debug.Log("POI evaluated picked up by form line");
@@ -54,8 +60,7 @@ public class FirefighterFormLineSystem : SystemBase
             .WithNone<WaterBucketID>()
             .ForEach((int entityInQueryIndex, Entity entity, FirefighterFullTag firefighter, FirefighterPositionInLine positionInLine, in Translation2D translation) =>
         {
-            float offset = 0.4f * positionInLine.Value * (1.0f - positionInLine.Value);
-            float2 pos = fromTo * positionInLine.Value + src + offset * normal;
+            float2 pos = CalculatePosition(positionInLine.Value, src, fromTo, normal);
             ecb.AddComponent<Target>(entityInQueryIndex, entity, new Target{ Value = pos });
         }).ScheduleParallel();
 
@@ -70,8 +75,7 @@ public class FirefighterFormLineSystem : SystemBase
             .WithNone<WaterBucketID>()
             .ForEach((int entityInQueryIndex, Entity entity, FirefighterEmptyTag firefighter, FirefighterPositionInLine positionInLine, in Translation2D translation) =>
         {
-            float offset = 0.4f * positionInLine.Value * (1.0f - positionInLine.Value);
-            float2 pos = fromTo * positionInLine.Value + src + offset * normal;
+            float2 pos = CalculatePosition(positionInLine.Value, src, fromTo, normal);
             ecb.AddComponent<Target>(entityInQueryIndex, entity, new Target{ Value = pos });
         }).ScheduleParallel();
 
