@@ -29,7 +29,6 @@ namespace AutoFarmers
 
             Entity grid = GetSingletonEntity<Grid>();
             Grid gridComponent = EntityManager.GetComponentData<Grid>(grid);
-            int2 gridSize = gridComponent.Size;
 
             ComponentDataFromEntity<CellPosition> cellPositionAccessor = GetComponentDataFromEntity<CellPosition>(true);
             DynamicBuffer<CellTypeElement> cellTypeBuffer = EntityManager.GetBuffer<CellTypeElement>(grid);
@@ -45,7 +44,7 @@ namespace AutoFarmers
                 .ForEach((int entityInQueryIndex, Entity entity, in PathFindingTarget target) =>
                 {
                     CellPosition cp = cellPositionAccessor[target.Value];
-                    int index = (int)(cp.Value.x * gridSize.x + cp.Value.y);
+                    int index = gridComponent.GetIndexFromCoords(cp.Value.x, cp.Value.y);
 
                     if (cellTypeBuffer[index].Value == CellType.Tilled)
                     {

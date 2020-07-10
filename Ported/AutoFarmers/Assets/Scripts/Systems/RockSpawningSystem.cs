@@ -48,7 +48,7 @@ namespace AutoFarmers
 
             var entity = GetSingletonEntity<Grid>();
             var typeBuffer = EntityManager.GetBuffer<CellTypeElement>(entity);
-            int2 gridSize = GetSingleton<Grid>().Size;
+            Grid grid = GetSingleton<Grid>();
 
             Entities
             .WithChangeFilter<RockSpawner>()
@@ -64,9 +64,9 @@ namespace AutoFarmers
                     for (int tries =  0; tries < 100; tries++)
                     {
                         size = random.NextInt2(spawner.RandomSizeMin, spawner.RandomSizeMax);
-                        position = random.NextInt2(new int2(0, 0), gridSize - size);
+                        position = random.NextInt2(new int2(0, 0), grid.Size - size);
 
-                        if ( IsAreaFree(typeBuffer, gridSize, position, size))
+                        if ( IsAreaFree(typeBuffer, grid.Size, position, size))
                         {
                             break;
                         }
@@ -94,7 +94,7 @@ namespace AutoFarmers
                     {
                         for (int i = 0; i < size.x; i++)
                         {
-                            int idx = (position.x + i) + (position.y + j) * gridSize.x;
+                            int idx = grid.GetIndexFromCoords(position.x + i, position.y + j);
                             typeBuffer[idx] = new CellTypeElement { Value = CellType.Rock };
                         }
                     }

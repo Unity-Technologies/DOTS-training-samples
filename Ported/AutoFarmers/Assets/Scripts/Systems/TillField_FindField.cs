@@ -20,7 +20,7 @@ namespace AutoFarmers
         protected override void OnUpdate()
         {
             EntityCommandBuffer.Concurrent ecb = _entityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
-            int2 GridSize = GetSingleton<Grid>().Size;
+            Grid grid = GetSingleton<Grid>();
 
             // should these be in some settings component?
             int2 MinFieldSize = new int2(2, 2);
@@ -63,14 +63,14 @@ namespace AutoFarmers
                                     math.max((int)translation.Value.x - initialSearchRadius, 0),
                                     math.max((int)translation.Value.z - initialSearchRadius, 0));
                                 searchMax = new int2(
-                                    math.min((int)translation.Value.x + initialSearchRadius, GridSize.x),
-                                    math.min((int)translation.Value.z + initialSearchRadius, GridSize.y));
+                                    math.min((int)translation.Value.x + initialSearchRadius, grid.Size.x),
+                                    math.min((int)translation.Value.z + initialSearchRadius, grid.Size.y));
                             }
                             else
                             {
                                 // Search globally
                                 searchMin = new int2(0, 0);
-                                searchMax = GridSize;
+                                searchMax = grid.Size;
                             }
 
                             // Create a field
@@ -78,16 +78,16 @@ namespace AutoFarmers
                             fieldDimensions = random.NextInt2(MinFieldSize, MaxFieldSize);
                             randomSeed.Value = random.state;
 
-                            fieldDimensions.x = math.min(fieldDimensions.x, GridSize.x - fieldPos.x);
-                            fieldDimensions.y = math.min(fieldDimensions.y, GridSize.y - fieldPos.y);
+                            fieldDimensions.x = math.min(fieldDimensions.x, grid.Size.x - fieldPos.x);
+                            fieldDimensions.y = math.min(fieldDimensions.y, grid.Size.y - fieldPos.y);
 
                             suitableFieldFound = true;
                             for(int x=fieldPos.x; x<fieldPos.x + fieldDimensions.x && suitableFieldFound; ++x)
                             {
                                 for (int y = fieldPos.y; y < fieldPos.y + fieldDimensions.y && suitableFieldFound; ++y)
                                 {
-                                    int index = y * GridSize.x + x;
-                                    if(index < 0 || index >= GridSize.x * GridSize.y)
+                                    int index = grid.GetIndexFromCoords(x, y);
+                                    if (index < 0 || index >= grid.Size.x * grid.Size.y)
                                     {
                                         UnityEngine.Debug.LogError("FindTillableField went out-of-bounds");
                                         suitableFieldFound = false;

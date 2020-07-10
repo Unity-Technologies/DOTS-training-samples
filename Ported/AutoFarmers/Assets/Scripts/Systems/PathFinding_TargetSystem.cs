@@ -20,7 +20,7 @@ namespace AutoFarmers
         {
             EntityCommandBuffer ecb = _entityCommandBufferSystem.CreateCommandBuffer();
 
-            bool usePathFinding = false;
+            bool usePathFinding = true;
             if (usePathFinding)
             {
                 Entities

@@ -20,7 +20,6 @@ namespace AutoFarmers
 
             Entity grid = GetSingletonEntity<Grid>();
             Grid gridComponent = EntityManager.GetComponentData<Grid>(grid);
-            int2 gridSize = gridComponent.Size;
             
             ComponentDataFromEntity<CellPosition> cellPositionAccessor = GetComponentDataFromEntity<CellPosition>();
             DynamicBuffer<CellTypeElement> cellTypeBuffer = EntityManager.GetBuffer<CellTypeElement>(grid);
@@ -35,7 +34,7 @@ namespace AutoFarmers
                 {
                     Entity plant = target.Value;
                     CellPosition cp = cellPositionAccessor[target.Value];
-                    int index = (int) (cp.Value.x * gridSize.x + cp.Value.y);
+                    int index = gridComponent.GetIndexFromCoords(cp.Value.x, cp.Value.y);
                     
                     cellTypeBuffer[index] = new CellTypeElement() { Value = CellType.Tilled };
                     ecb.RemoveComponent<Sowed>(cellEntityBuffer[index].Value);
