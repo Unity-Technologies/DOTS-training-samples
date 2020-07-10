@@ -34,7 +34,7 @@ namespace AutoFarmers
                 {
                     Entity plant = target.Value;
                     CellPosition cp = cellPositionAccessor[target.Value];
-                    int index = gridComponent.GetIndexFromCoords(cp.Value.x, cp.Value.y);
+                    int index = gridComponent.GetIndexFromCoords(cp.Value);
                     
                     cellTypeBuffer[index] = new CellTypeElement() { Value = CellType.Tilled };
                     ecb.RemoveComponent<Sowed>(cellEntityBuffer[index].Value);
