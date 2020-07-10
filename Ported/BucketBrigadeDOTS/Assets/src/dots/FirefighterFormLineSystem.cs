@@ -52,13 +52,25 @@ public class FirefighterFormLineSystem : SystemBase
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
 
         Entities
-            .WithNone<Target>()
+            //.WithNone<Target>()
             .WithNone<WaterBucketID>()
+            .WithNone<RelayReturn>()
             .ForEach((int entityInQueryIndex, Entity entity, FirefighterFullTag firefighter, FirefighterPositionInLine positionInLine, in Translation2D translation) =>
         {
             float2 pos = CalculatePosition(positionInLine.Value, src, fromTo, normal);
             ecb.AddComponent<Target>(entityInQueryIndex, entity, new Target{ Value = pos });
         }).ScheduleParallel();
+        
+        Entities
+            //.WithNone<Target>()
+            .WithNone<WaterBucketID>()
+            .ForEach((int entityInQueryIndex, Entity entity, FirefighterFullTag firefighter, FirefighterPositionInLine positionInLine, ref RelayReturn relayReturn, in Translation2D translation) =>
+            {
+                float2 pos = CalculatePosition(positionInLine.Value, src, fromTo, normal);
+                ecb.AddComponent<Target>(entityInQueryIndex, entity, new Target{ Value = pos });
+                relayReturn.Value = pos;
+                ecb.SetComponent(entityInQueryIndex, entity, relayReturn);
+            }).ScheduleParallel();
 
         fromTo = -fromTo;
         normal = -normal;
@@ -67,13 +79,25 @@ public class FirefighterFormLineSystem : SystemBase
         dst = temp;
 
         Entities
-            .WithNone<Target>()
+            //.WithNone<Target>()
             .WithNone<WaterBucketID>()
+            .WithNone<RelayReturn>()
             .ForEach((int entityInQueryIndex, Entity entity, FirefighterEmptyTag firefighter, FirefighterPositionInLine positionInLine, in Translation2D translation) =>
         {
             float2 pos = CalculatePosition(positionInLine.Value, src, fromTo, normal);
             ecb.AddComponent<Target>(entityInQueryIndex, entity, new Target{ Value = pos });
         }).ScheduleParallel();
+        
+        Entities
+            //.WithNone<Target>()
+            .WithNone<WaterBucketID>()
+            .ForEach((int entityInQueryIndex, Entity entity, FirefighterEmptyTag firefighter, FirefighterPositionInLine positionInLine, ref RelayReturn relayReturn, in Translation2D translation) =>
+            {
+                float2 pos = CalculatePosition(positionInLine.Value, src, fromTo, normal);
+                ecb.AddComponent<Target>(entityInQueryIndex, entity, new Target{ Value = pos });
+                relayReturn.Value = pos;
+                ecb.SetComponent(entityInQueryIndex, entity, relayReturn);
+            }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
