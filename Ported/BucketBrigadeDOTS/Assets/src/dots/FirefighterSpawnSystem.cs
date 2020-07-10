@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.Design.Serialization;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -9,6 +8,11 @@ public class FirefighterSpawnSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        var fireGridEntity = GetSingletonEntity<FireGridSettings>();
+        Bounds gridBounds = EntityManager.GetComponentData<Bounds>(fireGridEntity);
+        float2 gridBottomLeft = gridBounds.BoundsCenter - gridBounds.BoundsExtent * 0.5f;
+        float2 gridTopRight = gridBounds.BoundsCenter + gridBounds.BoundsExtent * 0.5f;
+
         Entities.WithStructuralChanges()
             .ForEach((Entity entity, in FirefighterSpawner spawner, in LocalToWorld ltw) =>
             {
@@ -18,15 +22,23 @@ public class FirefighterSpawnSystem : SystemBase
                 var previousInstance = Entity.Null;
                 var first = Entity.Null;
                 
+                var rand = new Unity.Mathematics.Random(876);
+
                 for (int i = 0; i < firefightersTotalCount; ++i)
                 {
-                    var posX = 2 * (i - (spawner.Count - 1) / 2);
+                    float2 pos = rand.NextFloat2(gridBottomLeft, gridTopRight);
+                    //float2 pos = rand.NextFloat2(0, 1); // works no matter what's below
                     var instance = EntityManager.Instantiate(spawner.Prefab);
 
                     if (first == Entity.Null)
                         first = instance;
-
-                    SetComponent<Translation2D>(instance, new Translation2D { Value = ltw.Position.xz + new float2(posX, 0) });
+                    
+                    // works
+                    // EntityManager.SetComponentData(instance, new Translation2D { Value = pos });
+                    
+                    // doesn't work
+                    SetComponent<Translation2D>(instance, new Translation2D { Value = pos });
+                    
                     EntityManager.AddComponent<Firefighter>(instance);
                     
                     if (i < spawner.Count)
