@@ -72,60 +72,63 @@ namespace AutoFarmers
                     Random random = new Random(randomSeed.Value);
 
                     bool plantFound = false;
-                /* int numTries = 100;
-                 int2 search = new int2(0, 0);
-                 for (int i = 0; i < numTries; i++)
-                 {
-                     int2 pos = origin + search;
-                     if (pos.x < 0 || pos.x >= GridSize.x || pos.y < 0 || pos.y >= GridSize.y) continue;
-                     int idx = pos.x + pos.y * GridSize.x;
-                     if (typeBuffer[idx].Value == CellType.Plant )
-                     {
-                         plantFound = true;
-                         search = search + origin;
-                         break;
-                     }
-                     search = nextInspiral(search);
-                 }*/
-
-                    int2 search = new int2(0,0);
-                    for (int j = 0; j < grid.Size.y; j++)
+                    int numTries = 400;
+                    int2 search = new int2(0, 0);
+                    for (int i = 0; i < numTries; i++)
                     {
-                        for (int i = 0; i < grid.Size.x; i++)
+                        int2 pos = origin + search;
+                        if (pos.x < 0 || pos.x >= grid.Size.x || pos.y < 0 || pos.y >= grid.Size.y) continue;
+                        int idx = grid.GetIndexFromCoords(pos.x, pos.y);
+                        if (typeBuffer[idx].Value == CellType.HarvestablePlant)
                         {
-                            int idx = grid.GetIndexFromCoords(i, j);
-                            if (typeBuffer[idx].Value == CellType.HarvestablePlant)
-                            {
-                                // Entity gridCellEnt = entityBuffer[idx].Value;
-                                //  Entity plantOnCellEnt = sowedAccessor[gridCellEnt].Plant;
-                                //  if ( fullyGrownAccessor.HasComponent(plantOnCellEnt))
-                                {
-                                    plantFound = true;
-                                    search = new int2(i, j);
-                                    //typeBuffer[idx] = new CellTypeElement { Value = CellType.ReservedPlant };
-                                    break;
-                                }
-                            }
+                            plantFound = true;
+                            search = search + origin;
+                            break;
                         }
-                        if (plantFound) break;
+                        search = nextInspiral(search);
                     }
+
+                    /*       int2 search = new int2(0,0);
+                           for (int j = 0; j < grid.Size.y; j++)
+                           {
+                               for (int i = 0; i < grid.Size.x; i++)
+                               {
+                                   int idx = grid.GetIndexFromCoords(i, j);
+                                   if (typeBuffer[idx].Value == CellType.HarvestablePlant)
+                                   {
+                                       // Entity gridCellEnt = entityBuffer[idx].Value;
+                                       //  Entity plantOnCellEnt = sowedAccessor[gridCellEnt].Plant;
+                                       //  if ( fullyGrownAccessor.HasComponent(plantOnCellEnt))
+                                       {
+                                           plantFound = true;
+                                           search = new int2(i, j);
+                                           //typeBuffer[idx] = new CellTypeElement { Value = CellType.ReservedPlant };
+                                           break;
+                                       }
+                                   }
+                               }
+                               if (plantFound) break;
+                           }*/
 
                     if (plantFound)
                     {
                         Entity gridCellEnt = entityBuffer[grid.GetIndexFromCoords(search)].Value;
-                        var sowed = sowedAccessor[gridCellEnt];
-                        Entity targetPlantEntity = sowed.Plant;
-
-                        ecb.AddComponent<HarvestPlant>(entityInQueryIndex, entity, new HarvestPlant
+                        if (sowedAccessor.HasComponent(gridCellEnt))
                         {
-                            X = search.x,
-                            Y = search.y,
-                        });
+                            var sowed = sowedAccessor[gridCellEnt];
+                            Entity targetPlantEntity = sowed.Plant;
 
-                         ecb.AddComponent(entityInQueryIndex, entity, new PathFindingTarget()
-                         {
-                             Value = targetPlantEntity
-                         });
+                            ecb.AddComponent<HarvestPlant>(entityInQueryIndex, entity, new HarvestPlant
+                            {
+                                X = search.x,
+                                Y = search.y,
+                            });
+
+                            ecb.AddComponent(entityInQueryIndex, entity, new PathFindingTarget()
+                            {
+                                Value = targetPlantEntity
+                            });
+                        }
                     }
                     else
                     {
