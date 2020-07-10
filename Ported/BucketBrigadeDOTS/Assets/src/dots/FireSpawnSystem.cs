@@ -124,7 +124,10 @@ public class FireSpawnSystem : SystemBase
 
             // Spawn the water cells
             WaterVolume nullVolume;
+            // The volume for every cell is fixed
             nullVolume.Volume = 50.0f;
+            // Compute the scale of the water cells
+            float2 waterScale = gridBounds.BoundsExtent.xy / (float)fireGridSpawner.ElementsPerSide;
             // For every side of the grid
             for (int i = 0; i < 4; ++i)
             {
@@ -151,21 +154,29 @@ public class FireSpawnSystem : SystemBase
                     lineDirection = new float2(1.0f, 0.0f);
                 }
                 
+                // The number of elements on each side is fixed
                 for (int e = 0; e < fireGridSpawner.ElementsPerSide; ++e)
                 {
-                    lineCenter *= (1.0f + (randomCopy.NextFloat() * 2.0f - 1.0f) * 0.05f);
-                    float2 centerLinePos = gridBounds.BoundsCenter - (gridBounds.BoundsExtent * 0.5f + fireGridSpawner.DistanceToGrid) * lineCenter;
-                    float2 lineMin = centerLinePos - (gridBounds.BoundsExtent * 0.5f * lineDirection);
+                    // Compute the position of the element
+                    float2 elementPosition = gridBounds.BoundsCenter - (gridBounds.BoundsExtent * (0.5f + 0.05f * randomCopy.NextFloat()) + fireGridSpawner.DistanceToGrid) * lineCenter;
+
+                    // The virtual line center with the displacement
+                    float2 lineMin = elementPosition - (gridBounds.BoundsExtent * 0.5f * lineDirection);
                     float lineStep = math.dot((float2)gridBounds.BoundsExtent, lineDirection) / (float)fireGridSpawner.ElementsPerSide;
 
                     // Add the instance prefab
                     var instance = ecb.Instantiate(fireGridSpawner.WaterPrefab);
                     ecb.AddComponent<WaterVolume>(instance);
-
+    
+                    // Compute the translation
                     Translation trs;
                     trs.Value = new float3(lineMin.x + lineStep * lineDirection.x * e, 0.0f, lineMin.y + lineStep * lineDirection.y * e);
-
                     ecb.SetComponent<Translation>(instance, trs);
+
+                    // Compute the scale
+                    NonUniformScale scale;
+                    scale.Value = new float3(waterScale.x, 0.001f, waterScale.y) ;
+                    ecb.SetComponent<NonUniformScale>(instance, scale);
                 }
             }
 
