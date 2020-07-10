@@ -6,30 +6,44 @@ using UnityEngine;
 
 public class FirefighterFormLineSystem : SystemBase
 {
-    private EntityQuery m_FirefighterFormLineSpawnerQuery;
+    private EntityQuery m_PointOfInterestEvaluatedQuery;
     private EntityCommandBufferSystem m_ECBSystem;
 
     protected override void OnCreate()
     {
-        m_FirefighterFormLineSpawnerQuery = GetEntityQuery(new EntityQueryDesc
+        m_PointOfInterestEvaluatedQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new ComponentType[]
             {
-                typeof(FirefighterFormLineSpawner),
+                typeof(PointOfInterestEvaluated),
             }
         });
         
-        RequireForUpdate(m_FirefighterFormLineSpawnerQuery);
+        RequireForUpdate(m_PointOfInterestEvaluatedQuery);
         
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {        
-        EntityManager.RemoveComponent<FirefighterFormLineSpawner>(m_FirefighterFormLineSpawnerQuery);
+        Debug.Log("POI evaluated picked up by form line");
+
+        Entity poi = Entity.Null;
+        using (var poiEntities = m_PointOfInterestEvaluatedQuery.ToEntityArray(Allocator.TempJob))
+        {
+            Debug.Log("    POI evaluated picked up by form line: " + poiEntities.Length);
+            if (poiEntities.Length == 0)
+            {
+                EntityManager.RemoveComponent<PointOfInterestEvaluated>(m_PointOfInterestEvaluatedQuery);
+                return;
+            }
+
+            poi = poiEntities[poiEntities.Length - 1];
+        }
         
         float2 src = new float2(0.0f, 7.0f);
-        float2 dst = new float2(0.0f, 0.0f);
+        float2 dst = GetComponent<PointOfInterestEvaluated>(poi).POIPoisition;
+        EntityManager.RemoveComponent<PointOfInterestEvaluated>(m_PointOfInterestEvaluatedQuery);
         float2 fromTo = (dst - src);
         float2 normal = new float2(-fromTo.y, fromTo.x);
         
