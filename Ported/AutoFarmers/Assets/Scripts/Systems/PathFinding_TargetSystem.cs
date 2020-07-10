@@ -14,6 +14,8 @@ namespace AutoFarmers
         protected override void OnCreate()
         {
             _entityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+            
+            RequireSingletonForUpdate<GameSettings>();
         }
 
         protected override void OnUpdate()

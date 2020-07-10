@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
 namespace AutoFarmers
 {
@@ -15,6 +14,8 @@ namespace AutoFarmers
             _entityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
             GetEntityQuery(ComponentType.ReadOnly<CellTypeElement>());
+            
+            RequireSingletonForUpdate<GameSettings>();
         }
 
         protected override void OnUpdate()
