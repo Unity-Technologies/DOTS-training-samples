@@ -9,7 +9,7 @@ namespace AutoFarmers
     {
         protected override void OnUpdate()
         {
-            float speed = 2f;
+            float speed = 4f;
             
             Entities
                 .ForEach((Entity entity, ref Velocity velocity, in Translation translation, in TargetPosition targetPosition) =>

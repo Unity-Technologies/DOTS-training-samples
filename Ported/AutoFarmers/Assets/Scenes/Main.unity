@@ -280,6 +280,7 @@ GameObject:
   - component: {fileID: 1419307377}
   - component: {fileID: 1419307380}
   - component: {fileID: 1419307381}
+  - component: {fileID: 1419307382}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -398,3 +399,15 @@ MonoBehaviour:
   viewAngles: {x: 45, y: 30}
   viewDist: 10
   mouseSensitivity: 4000
+--- !u!114 &1419307382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1419307376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b51845516fe9f934ba507f9c8d437cab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

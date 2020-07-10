@@ -42,21 +42,21 @@ namespace AutoFarmers
                 EntityManager.DestroyEntity(cellQuery);
                 var cellCount = farm.MapSize.x * farm.MapSize.y;
                 var cellEntities = EntityManager.Instantiate(farm.GroundPrefab, cellCount, Allocator.Temp);
-                
+
                 var typeBuffer = EntityManager.GetBuffer<CellTypeElement>(entity);
                 typeBuffer.ResizeUninitialized(cellCount);
                 for (var i = 0; i < cellCount; i++)
                 {
                     typeBuffer[i] = new CellTypeElement(CellType.Raw);
                 }
-                
+
                 var entityBuffer = EntityManager.GetBuffer<CellEntityElement>(entity);
                 entityBuffer.ResizeUninitialized(cellCount);
                 for (var i = 0; i < cellCount; i++)
                 {
                     entityBuffer[i] = new CellEntityElement(cellEntities[i]);
                 }
-                
+
                 for (var x = 0; x < farm.MapSize.x; x++)
                 for (var y = 0; y < farm.MapSize.y; y++)
                 {
@@ -64,10 +64,10 @@ namespace AutoFarmers
                     EntityManager.SetComponentData(cellEntities[i], new Translation { Value = math.float3(x, 0, y) + new float3(0.5f, 0.0f, 0.5f)});
                     EntityManager.SetComponentData(cellEntities[i], new CellPosition() { Value = new int2(x, y)} );
                     #if UNITY_EDITOR
-                        EntityManager.SetName(cellEntities[i], $"Cell {i} ({x}, {y})");
+               //         EntityManager.SetName(cellEntities[i], $"Cell {i} ({x}, {y})");
                     #endif
                 }
-                
+
                 cellEntities.Dispose();
                 EntityManager.AddComponent<GridInitializedTag>(farmEntity);
             }).Run();
