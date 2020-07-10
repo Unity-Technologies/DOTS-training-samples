@@ -73,17 +73,23 @@ public class BucketRelaySystem : SystemBase
         {
             var waterBucket = GetComponent<WaterBucket>(waterBucketID.Value);
 
-            // Shouldn't be a busy check, use a WaterBucketEmpty tag instead
+            // TODO: Shouldn't be a busy check
             if (waterBucket.Value > 0)
             {
                 waterBucket.Value = 0.0f;
                 SetComponent(waterBucketID.Value, waterBucket);
 
-                var newEntity = EntityManager.CreateEntity();
+                var waterSpillEntity = EntityManager.CreateEntity();
+                WaterSpill spill;
+                spill.SpillPosition = translation.Value;
+                EntityManager.AddComponent<WaterSpill>(waterSpillEntity);
+                EntityManager.SetComponentData<WaterSpill>(waterSpillEntity, spill);
+
+                var poiRequestEntity = EntityManager.CreateEntity();
                 PointOfInterestRequest poiRequest;
                 poiRequest.POIReferencePosition = translation.Value;
-                EntityManager.AddComponent<PointOfInterestRequest>(newEntity);
-                EntityManager.SetComponentData<PointOfInterestRequest>(newEntity, poiRequest);
+                EntityManager.AddComponent<PointOfInterestRequest>(poiRequestEntity);
+                EntityManager.SetComponentData<PointOfInterestRequest>(poiRequestEntity, poiRequest);
             }
         // TODO: make this Schedule() again
         }).Run();
