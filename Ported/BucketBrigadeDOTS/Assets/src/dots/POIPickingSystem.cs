@@ -104,7 +104,7 @@ public class POIPickingSystem : SystemBase
         Entities
         .WithReadOnly(mipChainBuffer)
         .WithReadOnly(mipChainInfoBuffer)
-        .ForEach((Entity targetEntity, in PointOfInterestRequest fireGridSpawner) =>
+        .ForEach((Entity targetEntity, in PointOfInterestRequest pointOfInterestRequest) =>
         {
             // Initialize the distance
             float currentMinimalDistance = float.MaxValue;
@@ -112,7 +112,7 @@ public class POIPickingSystem : SystemBase
             int numIterations = 0;
             // Do the decent
             PickClosestPoint(mipChainBuffer, mipChainInfoBuffer, 
-                fireGridSpawner.POIReferencePosition, mipChainInfoBuffer.Length - 2, 0, fireGridBounds.BoundsCenter,
+                pointOfInterestRequest.POIReferencePosition, mipChainInfoBuffer.Length - 2, 0, fireGridBounds.BoundsCenter,
                 ref currentMinimalDistance, ref currentTargetPoint, ref numIterations);
 
             // Remove the request component
@@ -121,10 +121,10 @@ public class POIPickingSystem : SystemBase
             if (currentMinimalDistance < float.MaxValue)
             {
                 // Add the result component
-                PointOfInterestRequest poiEval;
-                poiEval.POIReferencePosition = currentTargetPoint;
-                ecb.AddComponent<PointOfInterestRequest>(targetEntity);
-                ecb.SetComponent<PointOfInterestRequest>(targetEntity, poiEval);
+                PointOfInterestEvaluated poiEval;
+                poiEval.POIPoisition = currentTargetPoint;
+                ecb.AddComponent<PointOfInterestEvaluated>(targetEntity);
+                ecb.SetComponent<PointOfInterestEvaluated>(targetEntity, poiEval);
             }
         }).Schedule();
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
