@@ -12,6 +12,9 @@ GameObject:
   - component: {fileID: 5098137029704385983}
   - component: {fileID: 5098137029704385980}
   - component: {fileID: 5098137029704385981}
+  - component: {fileID: 7068290092480191352}
+  - component: {fileID: 4916429530477114044}
+  - component: {fileID: 7570275895965095127}
   m_Layer: 0
   m_Name: Plant
   m_TagString: Untagged
@@ -95,3 +98,43 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7068290092480191352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5098137029704385978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 415cd43488bee3e49b3127928e0464c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4916429530477114044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5098137029704385978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee6558cc615371b4f8317df3d59e91a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
+--- !u!114 &7570275895965095127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5098137029704385978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c664e02f1e5004047bec36381b21a40f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: 0
