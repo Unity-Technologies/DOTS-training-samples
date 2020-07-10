@@ -22,11 +22,11 @@ namespace AutoFarmers
             EntityCommandBuffer.Concurrent ecb = _entityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
             Grid grid = GetSingleton<Grid>();
 
-            // should these be in some settings component?
-            int2 MinFieldSize = new int2(2, 2);
-            int2 MaxFieldSize = new int2(5, 5);
-            int initialNumTries = 10;     // if we don't find anything suitable within 10 tries, let it go for now
-            int initialSearchRadius = 10; // this "square" radius should allow allow for 16 fullsized fields, enough to start looking?
+            GameSettings settings = GetSingleton<GameSettings>();
+            int2 MinFieldSize =  settings.MinFieldSize;
+            int2 MaxFieldSize = settings.MaxFieldSize;
+            int initialNumTries = settings.NumFindFieldTriesPerFrame;
+            int initialSearchRadius = settings.LocalFieldSearchRadius;
 
             Entity gridEntity = GetSingletonEntity<Grid>();
             DynamicBuffer<CellTypeElement> typeBuffer = EntityManager.GetBuffer<CellTypeElement>(gridEntity);
