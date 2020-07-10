@@ -7,6 +7,12 @@ public struct FireGridSettings : IComponentData
 {
     public uint2 FireGridResolution;
     public int MipDebugIndex;
+    public float FlashPoint;
+    public float HeatTransferRate;
+    public uint ExtinguishRadius;
+    public float CoolingStrength;
+    public float CoolingStrenghtFalloff;
+    public uint BucketCapacity;
 }
 
 public struct FireCell : IBufferElementData

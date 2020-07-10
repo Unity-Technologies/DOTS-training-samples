@@ -5,8 +5,6 @@ using Unity.Transforms;
 [UpdateAfter(typeof(FireExtinguishSystem))]
 public class FireRenderSystem : SystemBase
 {
-    const float flashPoint = 0.2f;
-
     protected override void OnCreate()
     {
         GetEntityQuery(typeof(FireCell));
@@ -43,7 +41,7 @@ public class FireRenderSystem : SystemBase
             FireCell currentCell = bufferRef[entityInQueryIndex];
 
 
-            float visualTemperature = currentCell.FireTemperature < flashPoint ? 0.001f : math.min(currentCell.FireTemperature, 1.0f);
+            float visualTemperature = currentCell.FireTemperature < fireGridSetting.FlashPoint ? 0.001f : math.min(currentCell.FireTemperature, 1.0f);
 
             uint x = (uint)entityInQueryIndex % fireGridSetting.FireGridResolution.x;
             uint y = (uint)entityInQueryIndex / fireGridSetting.FireGridResolution.x;
@@ -51,7 +49,7 @@ public class FireRenderSystem : SystemBase
             
 
             float noise = 0.04f * Hash01((uint)entityInQueryIndex);
-            if (visualTemperature >= flashPoint)
+            if (visualTemperature >= fireGridSetting.FlashPoint)
             {
                 noise += Wave(t, 0.02f, 2.3f, x * 1.1f + y * 2.9f) +
                     Wave(t, 0.02f, 2.9f, x * 2.3f - y * 2.3f) +
@@ -64,7 +62,7 @@ public class FireRenderSystem : SystemBase
             transform.Value.c3.y = temperatureWithNoise * 0.5f;
 
             // Update its color
-            fireColor.Value = visualTemperature < flashPoint ? new float4(0.0f, 1.0f, 0.0f, 1.0f) : math.lerp(new float4(1.0f, 1.0f, 0.0f, 1.0f), new float4(1.0f, 0.0f, 0.0f, 1.0f), (visualTemperature - flashPoint) / (1.0f - flashPoint));
+            fireColor.Value = visualTemperature < fireGridSetting.FlashPoint ? new float4(0.0f, 1.0f, 0.0f, 1.0f) : math.lerp(new float4(1.0f, 1.0f, 0.0f, 1.0f), new float4(1.0f, 0.0f, 0.0f, 1.0f), (visualTemperature - fireGridSetting.FlashPoint) / (1.0f - fireGridSetting.FlashPoint));
 
             // To visualize our mips
             if (fireGridSetting.MipDebugIndex >= 0)

@@ -7,9 +7,6 @@ using Unity.Transforms;
 public class FireExtinguishSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
-    const float coolingStrength = 2.0f;
-    const float bucketCapacity = 3.0f;
-    const float coolingStrength_falloff = 4.0f;
 
     protected override void OnCreate()
     {
@@ -66,8 +63,8 @@ public class FireExtinguishSystem : SystemBase
 
                     // Change the fire temperature of the target cell
                     FireCell cell = buffer[index];
-                    float dowseCellStrength = 1f / (math.abs(rowShift * coolingStrength_falloff) + math.abs(columnShift * coolingStrength_falloff));
-                    cell.FireTemperature = math.max(cell.FireTemperature - (coolingStrength * dowseCellStrength) * bucketCapacity, 0);
+                    float dowseCellStrength = 1f / (math.abs(rowShift * fireGridSetting.CoolingStrenghtFalloff) + math.abs(columnShift * fireGridSetting.CoolingStrenghtFalloff));
+                    cell.FireTemperature = math.max(cell.FireTemperature - (fireGridSetting.CoolingStrength * dowseCellStrength) * fireGridSetting.BucketCapacity, 0);
 
                     // Propagate the info
                     buffer[index] = cell;

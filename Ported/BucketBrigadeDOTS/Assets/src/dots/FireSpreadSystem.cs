@@ -20,6 +20,8 @@ public class FireSpreadSystem : SystemBase
         public NativeArray<FireCell> bufferDst;
         public NativeArray<FireCellFlag> mipChainBuffer; 
         public float timeStep;
+        public float heatTransfer;
+        public float flashPoint;
 
         public void Execute(int chunkIndex)
         { 
@@ -38,7 +40,7 @@ public class FireSpreadSystem : SystemBase
                 for (int u = rangeX.x; u <= rangeX.y; ++u)
                 {
                     float targetHistoryTemp = bufferSrc[v * (int)resolution.x + u].FireTemperaturePrev;
-                    cell.FireTemperature += targetHistoryTemp > 0.2f ? targetHistoryTemp * 0.03f * timeStep : 0.0f;
+                    cell.FireTemperature += targetHistoryTemp > flashPoint ? targetHistoryTemp * heatTransfer * timeStep : 0.0f;
                 }
 
             cell.FireTemperature = math.min(cell.FireTemperature, 1.0f);
@@ -46,7 +48,7 @@ public class FireSpreadSystem : SystemBase
 
             // Build the mip0
             FireCellFlag cellFlag;
-            cellFlag.OnFire = cell.FireTemperature > 0.2f;
+            cellFlag.OnFire = cell.FireTemperature > flashPoint;
             mipChainBuffer[i] = cellFlag;
         }
     }
@@ -66,6 +68,8 @@ public class FireSpreadSystem : SystemBase
             bufferDst = bufferDst.AsNativeArray(),
             mipChainBuffer = mipChainBuffer.AsNativeArray(),
             timeStep = Time.DeltaTime,
+            heatTransfer = fireGridSetting.HeatTransferRate,
+            flashPoint = fireGridSetting.FlashPoint,
         };
 
         JobHandle jobHandle = fireSim.Schedule(bufferDst.Length, 256);
