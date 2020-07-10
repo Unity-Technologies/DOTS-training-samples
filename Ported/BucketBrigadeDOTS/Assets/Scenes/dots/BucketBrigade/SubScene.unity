@@ -269,9 +269,9 @@ MonoBehaviour:
     y: 64
   MipDebugIndex: -1
   FlashPoint: 0.2
-  HeatTransferRate: 0.03
-  ExtinguishRadius: 3
-  CoolingStrength: 2
+  HeatTransferRate: 0.025
+  ExtinguishRadius: 7
+  CoolingStrength: 4
   CoolingStrenghtFalloff: 3
   BucketCapacity: 4
 --- !u!4 &1401485849
