@@ -14,6 +14,7 @@ public class FireExtinguishSystem : SystemBase
     protected override void OnCreate()
     {
         GetEntityQuery(typeof(FireCell));
+        RequireForUpdate(GetEntityQuery(ComponentType.ReadOnly<WaterSpill>()));
         m_CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 

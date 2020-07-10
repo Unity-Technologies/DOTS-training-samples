@@ -46,7 +46,6 @@ public class FireSpawnSystem : SystemBase
 
         var ecb = m_CommandBufferSystem.CreateCommandBuffer();
         Entities
-            .WithoutBurst()
             .WithStoreEntityQueryInField(ref m_FireGridSpawnerQuery)
             .ForEach((Entity spawnerEntity, in FireGridSpawner fireGridSpawner) =>
         {

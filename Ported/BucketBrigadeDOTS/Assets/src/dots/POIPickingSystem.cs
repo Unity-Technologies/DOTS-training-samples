@@ -16,6 +16,7 @@ public class POIPickingSystem : SystemBase
         m_CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         GetEntityQuery(typeof(FireCellFlag));
         GetEntityQuery(typeof(FireGridMipLevelData));
+        RequireForUpdate(GetEntityQuery(ComponentType.ReadOnly<PointOfInterestRequest>()));
     }
 
     static void PickClosestPoint(NativeArray<FireCellFlag> mipChainBuffer, NativeArray<FireGridMipLevelData> mipChainInfoBuffer,

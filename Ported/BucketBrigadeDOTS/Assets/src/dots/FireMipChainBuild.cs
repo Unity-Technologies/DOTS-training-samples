@@ -8,8 +8,11 @@ using Unity.Transforms;
 [UpdateAfter(typeof(FireSpreadSystem))]
 public class FireMipChainBuild : SystemBase
 {
+    EntityQuery m_POIRequestQuery;
+
     protected override void OnCreate()
     {
+        m_POIRequestQuery = GetEntityQuery(ComponentType.ReadOnly<PointOfInterestRequest>());
     }
 
     [BurstCompile]
@@ -57,6 +60,11 @@ public class FireMipChainBuild : SystemBase
         var fireGridEntity = GetSingletonEntity<FireGridSettings>();
         var fireGridSetting = GetComponent<FireGridSettings>(fireGridEntity);
         var mipChainBuffer = EntityManager.GetBuffer<FireCellFlag>(fireGridEntity);
+
+        // If debug mode is not enabled and no PointOfInterestRequest exist return;
+        if (fireGridSetting.MipDebugIndex < 0 && 
+            m_POIRequestQuery.CalculateEntityCount() == 0)
+            return;
 
         // Compute the number of  mips that we will have
         int mipChainCount = ComputeNumberOfMips((int)fireGridSetting.FireGridResolution.x);
