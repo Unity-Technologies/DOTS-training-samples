@@ -87,7 +87,7 @@ public class BucketRelaySystem : SystemBase
 
                 var poiRequestEntity = EntityManager.CreateEntity();
                 PointOfInterestRequest poiRequest;
-                poiRequest.POIReferencePosition = translation.Value;
+                poiRequest.POIReferencePosition = new float2(1.0f, 8.0f); // rough position in a river
                 EntityManager.AddComponent<PointOfInterestRequest>(poiRequestEntity);
                 EntityManager.SetComponentData<PointOfInterestRequest>(poiRequestEntity, poiRequest);
             }

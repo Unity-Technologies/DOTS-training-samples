@@ -45,7 +45,7 @@ public class FirefighterFormLineSystem : SystemBase
             EntityManager.RemoveComponent<PointOfInterestEvaluated>(m_PointOfInterestEvaluatedQuery);
         }
         
-        float2 src = new float2(0.0f, 7.0f);
+        float2 src = new float2(1.0f, 8.0f);
         float2 fromTo = (dst - src);
         float2 normal = new float2(-fromTo.y, fromTo.x);
         
