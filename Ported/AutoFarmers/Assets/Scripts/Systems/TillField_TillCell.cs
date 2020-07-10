@@ -12,6 +12,8 @@ namespace AutoFarmers
         {
             _entityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
             GetEntityQuery(ComponentType.ReadWrite<CellTypeElement>());
+            
+            RequireSingletonForUpdate<GameSettings>();
         }
         
         protected override void OnUpdate()
