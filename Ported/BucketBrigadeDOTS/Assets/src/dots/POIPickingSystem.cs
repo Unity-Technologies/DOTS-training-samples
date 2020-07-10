@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateAfter(typeof(FireSpreadSystem))]
+[UpdateAfter(typeof(FireMipChainBuild))]
 public class POIPickingSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
