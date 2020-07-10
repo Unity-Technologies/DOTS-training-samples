@@ -122,8 +122,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bb497a40473978479fbd10bea4b0e8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ForFarmers: 100
-  ForDrones: 100
+  ForFarmers: 10
+  ForDrones: 0
 --- !u!114 &8631135657204792028
 MonoBehaviour:
   m_ObjectHideFlags: 0
