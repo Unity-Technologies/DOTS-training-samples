@@ -24,6 +24,7 @@ namespace AutoFarmers
             int2 GridSize = GetSingleton<Grid>().Size;
 
             Entity grid = GetSingletonEntity<Grid>();
+            Grid gridComponent = EntityManager.GetComponentData<Grid>(grid);
             DynamicBuffer<CellTypeElement> typeBuffer = EntityManager.GetBuffer<CellTypeElement>(grid);
             DynamicBuffer<CellEntityElement> cellEntityBuffer = EntityManager.GetBuffer<CellEntityElement>(grid);
 
@@ -52,7 +53,7 @@ namespace AutoFarmers
                             //plantPos = new int2(5,5);
                             randomSeed.Value = random.state;
 
-                            int index = plantPos.y * GridSize.x + plantPos.x;
+                            int index = gridComponent.GetIndexFromCoords(plantPos.x, plantPos.y);
                             if(index < 0 || index >= GridSize.x * GridSize.y)
                             {
                                 UnityEngine.Debug.LogError("FindSowField went out-of-bounds");
@@ -71,7 +72,7 @@ namespace AutoFarmers
                     {
                         ecb.RemoveComponent<PathFindingTargetReached_Tag>(entityInQueryIndex, entity);
 
-                        int index = plantPos.y * GridSize.x + plantPos.x;
+                        int index = gridComponent.GetIndexFromCoords(plantPos.x, plantPos.y);
                         Entity targetEntity = cellEntityBuffer[index].Value;
 
                         ecb.AddComponent(entityInQueryIndex, entity, new PathFindingTarget()
