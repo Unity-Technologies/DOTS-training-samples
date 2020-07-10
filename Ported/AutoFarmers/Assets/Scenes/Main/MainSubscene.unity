@@ -305,10 +305,10 @@ MonoBehaviour:
   StorePrefab: {fileID: 7492693043368490785, guid: 15aa1382e22f8404e98efc36481c810c, type: 3}
   FarmerPrefab: {fileID: 6922660100209716034, guid: 72df04ae439930143813d4dcfc9af43a, type: 3}
   DronePrefab: {fileID: 4292577671434559383, guid: 8c850bce7b6a580498616990eedd416b, type: 3}
-  NumStores: 30
+  NumStores: 50
   MinDistance: 4
   DroneCost: 50
-  FarmerCost: 10
+  FarmerCost: 5
 --- !u!4 &1826633778
 Transform:
   m_ObjectHideFlags: 0
@@ -353,8 +353,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MapSize:
-    x: 64
-    y: 64
+    x: 100
+    y: 100
   GroundPrefab: {fileID: 5899433351654851187, guid: 12166e2810b504d6d8e4630c76c4e232, type: 3}
 --- !u!4 &1837890856
 Transform:
