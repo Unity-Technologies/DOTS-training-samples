@@ -48,6 +48,7 @@ namespace AutoFarmers
 
             var entity = GetSingletonEntity<Grid>();
             var typeBuffer = EntityManager.GetBuffer<CellTypeElement>(entity);
+            var entityBuffer = EntityManager.GetBuffer<CellEntityElement>(entity);
             Grid grid = GetSingleton<Grid>();
 
             Entities
@@ -95,7 +96,11 @@ namespace AutoFarmers
                         for (int i = 0; i < size.x; i++)
                         {
                             int idx = grid.GetIndexFromCoords(position.x + i, position.y + j);
+                            // This write is kind of bad, but needed, and ok since it only happens during init
                             typeBuffer[idx] = new CellTypeElement { Value = CellType.Rock };
+                            var cellEntity = entityBuffer[idx].Value;
+                            ecb.SetComponent(cellEntity, new Cell { Type = CellType.Rock });
+                            ecb.SetComponent(cellEntity, new CellOccupant { Value = instance });
                         }
                     }
                 }

@@ -3,8 +3,8 @@ using Unity.Entities;
 namespace AutoFarmers
 {
     [GenerateAuthoringComponent]
-    struct Cell : IComponentData
+    struct CellOccupant : IComponentData
     {
-        public CellType Type;
+        public Entity Value;
     }
 }

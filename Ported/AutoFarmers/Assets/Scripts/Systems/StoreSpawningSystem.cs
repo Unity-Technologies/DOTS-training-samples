@@ -82,7 +82,12 @@ namespace AutoFarmers
                     ecb.SetComponent(instance, new Translation { Value = translation });
 
                     int idx = grid.GetIndexFromCoords(position);
+                    // This write is kind of bad, but needed, and ok since it only happens during init
                     typeBuffer[idx] = new CellTypeElement { Value = CellType.Shop };
+                    
+                    var cellEntity = entityBuffer[idx].Value;
+                    ecb.SetComponent(cellEntity, new Cell { Type = CellType.Shop });
+                    ecb.SetComponent(cellEntity, new CellOccupant { Value = instance });
                 }
                 ecb.AddComponent(storeSpawner, new StoresAreInitalizedTag());
             }).Run();

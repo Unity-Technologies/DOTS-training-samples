@@ -56,12 +56,11 @@ namespace AutoFarmers
                         ecb.SetComponent(entityInQueryIndex, sowedPlant, new NonUniformScale { Value = new float3(1.0f, 1.0f, 1.0f) });
                         ecb.SetComponent(entityInQueryIndex, sowedPlant, new Health { Value = 0.0f });
 
-                        // Set Cell type to plant
-                        cellTypeBuffer[index] = new CellTypeElement() { Value = CellType.Plant };
-
                         // Setup cell entity
                         Entity cellEntity = cellEntityBuffer[index].Value;
                         ecb.AddComponent<Sowed>(entityInQueryIndex, cellEntity, new Sowed() { Plant = sowedPlant });
+                        ecb.SetComponent(entityInQueryIndex, cellEntity, new Cell { Type = CellType.Plant });
+                        ecb.SetComponent(entityInQueryIndex, cellEntity, new CellOccupant { Value = sowedPlant });
 
                         ecb.AddComponent<Cooldown>(entityInQueryIndex, entity);
                         ecb.SetComponent<Cooldown>(entityInQueryIndex, entity, new Cooldown() { Value = 0.1f });

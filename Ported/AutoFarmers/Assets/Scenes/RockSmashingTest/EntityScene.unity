@@ -141,6 +141,59 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Target: {fileID: 876886155}
+--- !u!1 &814397212
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 814397214}
+  - component: {fileID: 814397213}
+  m_Layer: 0
+  m_Name: RockSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &814397213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 814397212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4df7db3db8ca7f445837119fa122a662, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RockPrefab: {fileID: 1337530427360111442, guid: 632b69d19d8b63042bf7abd3f19834e2, type: 3}
+  NumRocks: 200
+  RandomSizeMin:
+    x: 1
+    y: 1
+  RandomSizeMax:
+    x: 5
+    y: 5
+  minHeight: 0.7
+  maxHeight: 1.5
+--- !u!4 &814397214
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 814397212}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.1523188, y: -10.040787, z: 12.416618}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &842225223
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -203,6 +256,53 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1337530427360111442, guid: 632b69d19d8b63042bf7abd3f19834e2, type: 3}
   m_PrefabInstance: {fileID: 842225223}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1158227286
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1158227288}
+  - component: {fileID: 1158227287}
+  m_Layer: 0
+  m_Name: Farm
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1158227287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1158227286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ee1ba9b9c964be4a901b98c770884ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MapSize:
+    x: 64
+    y: 64
+  GroundPrefab: {fileID: 5899433351654851187, guid: 12166e2810b504d6d8e4630c76c4e232, type: 3}
+--- !u!4 &1158227288
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1158227286}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 18.271906, y: 2.3310719, z: 10.489519}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1653321889
 PrefabInstance:
   m_ObjectHideFlags: 0

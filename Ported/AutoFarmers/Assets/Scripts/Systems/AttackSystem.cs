@@ -12,7 +12,11 @@ namespace AutoFarmers
 
         protected override void OnCreate()
         {
-            attackingQuery = GetEntityQuery(ComponentType.ReadWrite<Attacking>());
+            attackingQuery = GetEntityQuery(new EntityQueryDesc
+            {
+                All = new [] {ComponentType.ReadWrite<Attacking>()},
+                None = new [] {ComponentType.ReadWrite<Target>()}
+            });
             ecbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
@@ -22,7 +26,7 @@ namespace AutoFarmers
                 attackingQuery.ToEntityArrayAsync(Allocator.TempJob, out var attackingEntitiesDependency);
             var attackingArray = attackingQuery.ToComponentDataArrayAsync<Attacking>(Allocator.TempJob, out var attackingArrayDependency);
             Dependency = JobHandle.CombineDependencies(Dependency, attackingArray.SortJob(attackingArrayDependency), attackingEntitiesDependency);
-
+            
             var cellPositionAccessor = GetComponentDataFromEntity<CellPosition>(true);
             var cellSizeAccessor = GetComponentDataFromEntity<CellSize>(true);
             var healthAccessor = GetComponentDataFromEntity<Health>();
@@ -30,15 +34,10 @@ namespace AutoFarmers
             var ecb = ecbSystem.CreateCommandBuffer();
             var gridEntity = GetSingletonEntity<Grid>();
             var grid = GetSingleton<Grid>();
-            var cellTypeBuffer = EntityManager.GetBuffer<CellTypeElement>(gridEntity);
+            var cellEntityBuffer = EntityManager.GetBuffer<CellEntityElement>(gridEntity);
             
-            Job.WithReadOnly(cellPositionAccessor).WithReadOnly(cellSizeAccessor).WithCode(() =>
+            Job.WithReadOnly(cellPositionAccessor).WithReadOnly(cellSizeAccessor).WithReadOnly(cellEntityBuffer).WithCode(() =>
             {
-                if (attackingArray.Length == 0)
-                {
-                    return;
-                }
-
                 var i = 0;
                 while (i < attackingArray.Length)
                 {
@@ -64,11 +63,13 @@ namespace AutoFarmers
                         var cellPosition = cellPositionAccessor[target].Value;
                         var cellSize = cellSizeAccessor[target].Value;
                         
-                        for (var x = cellPosition.x; x < cellSize.x; x++)
-                        for (var y = cellPosition.y; y < cellSize.y; y++)
+                        for (var x = cellPosition.x; x < cellPosition.x + cellSize.x; x++)
+                        for (var y = cellPosition.y; y < cellPosition.y + cellSize.y; y++)
                         {
-                            var cellIndex = x * grid.Size.y + y;
-                            cellTypeBuffer[cellIndex] = new CellTypeElement(CellType.Raw);
+                            var cellIndex = y * grid.Size.x + x;
+                            var cellEntity = cellEntityBuffer[cellIndex].Value;
+                            ecb.SetComponent(cellEntity, new Cell { Type = CellType.Raw });
+                            ecb.SetComponent(cellEntity, new CellOccupant());
                         }
                         
                         ecb.DestroyEntity(target);
@@ -78,12 +79,13 @@ namespace AutoFarmers
                         healthAccessor[target] = new Health { Value = health };
                     }
                 }
-            }).Run();
+            }).Schedule();
             
             Dependency = JobHandle.CombineDependencies(Dependency,
                 attackingArray.Dispose(Dependency),
                 attackingEntities.Dispose(Dependency));
             ecbSystem.AddJobHandleForProducer(Dependency);
+            Dependency.Complete();
         }
     }
 }
