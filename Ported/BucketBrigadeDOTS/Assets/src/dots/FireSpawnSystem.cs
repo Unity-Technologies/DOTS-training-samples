@@ -1,8 +1,11 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
+using Unity.Scenes;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateAfter(typeof(SceneSystemGroup))]
 public class FireSpawnSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
@@ -35,8 +38,15 @@ public class FireSpawnSystem : SystemBase
         int mipChainCount = ComputeNumberOfMips((int)fireGridSetting.FireGridResolution.x);
         float2 scaleXZ = gridBounds.BoundsExtent / (float2)fireGridSetting.FireGridResolution;
 
+        // Hack to ensure correct ordering of spawned entities
+        var gridSpawner = GetSingleton<FireGridSpawner>();
+        EntityManager.AddComponent(gridSpawner.FirePrefab, ComponentType.ReadWrite<WorldRenderBounds>());
+        EntityManager.AddComponent(gridSpawner.FirePrefab, ComponentType.ChunkComponent<ChunkWorldRenderBounds>());
+        EntityManager.AddComponent(gridSpawner.FirePrefab, ComponentType.ChunkComponent<HybridChunkInfo>());
+
         var ecb = m_CommandBufferSystem.CreateCommandBuffer();
         Entities
+            .WithoutBurst()
             .WithStoreEntityQueryInField(ref m_FireGridSpawnerQuery)
             .ForEach((Entity spawnerEntity, in FireGridSpawner fireGridSpawner) =>
         {
@@ -161,7 +171,7 @@ public class FireSpawnSystem : SystemBase
 
             // Remove the spawner component
             ecb.RemoveComponent<FireGridSpawner>(spawnerEntity);
-        }).Schedule();
+        }).Run();
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
