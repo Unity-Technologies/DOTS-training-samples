@@ -62,8 +62,8 @@ public class FirefighterFormLineSystem : SystemBase
         Entities
             .ForEach((int entityInQueryIndex, Entity entity, FirefighterFullTag firefighter, FirefighterPositionInLine positionInLine, ref RelayReturn relayReturn, in Translation2D translation) =>
             {
+                // TODO: set a new target position, which is this fighterfighter's next firefighter's target, but: random access :/
                 float2 pos = CalculatePosition(positionInLine.Value, src, fromTo, normal);
-                ecb.AddComponent<Target>(entityInQueryIndex, entity, new Target{ Value = pos });
                 relayReturn.Value = pos;
                 ecb.SetComponent(entityInQueryIndex, entity, relayReturn);
             }).ScheduleParallel();
@@ -85,8 +85,8 @@ public class FirefighterFormLineSystem : SystemBase
         Entities
             .ForEach((int entityInQueryIndex, Entity entity, FirefighterEmptyTag firefighter, FirefighterPositionInLine positionInLine, ref RelayReturn relayReturn, in Translation2D translation) =>
             {
+                // TODO: set a new target position, which is this fighterfighter's next firefighter's target, but: random access :/
                 float2 pos = CalculatePosition(positionInLine.Value, src, fromTo, normal);
-                ecb.AddComponent<Target>(entityInQueryIndex, entity, new Target{ Value = pos });
                 relayReturn.Value = pos;
                 ecb.SetComponent(entityInQueryIndex, entity, relayReturn);
             }).ScheduleParallel();
