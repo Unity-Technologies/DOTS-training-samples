@@ -7,6 +7,7 @@ using UnityEngine;
 public class FirefighterFormLineSystem : SystemBase
 {
     private EntityQuery m_PointOfInterestEvaluatedQuery;
+    private EntityQuery m_WaterVolumeQuery;
     private EntityCommandBufferSystem m_ECBSystem;
 
     protected override void OnCreate()
@@ -16,6 +17,14 @@ public class FirefighterFormLineSystem : SystemBase
             All = new ComponentType[]
             {
                 typeof(PointOfInterestEvaluated),
+            }
+        });
+
+        m_WaterVolumeQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new ComponentType[]
+            {
+                typeof(WaterVolume),
             }
         });
         
@@ -41,11 +50,20 @@ public class FirefighterFormLineSystem : SystemBase
                 dst = GetComponent<PointOfInterestEvaluated>(poiEntity).POIPoisition;
             }
 
-            Debug.Log("POI evaluated picked up by form line: " + dst);
             EntityManager.RemoveComponent<PointOfInterestEvaluated>(m_PointOfInterestEvaluatedQuery);
         }
-        
+
         float2 src = new float2(1.0f, 8.0f);
+        using (var waterVolumeEntities = m_WaterVolumeQuery.ToEntityArray(Allocator.TempJob))
+        {
+            if (waterVolumeEntities.Length > 0)
+            {
+                var waterVolume = waterVolumeEntities[waterVolumeEntities.Length - 1];
+                float3 src3 = GetComponent<Translation>(waterVolume).Value;
+                src = new float2(src3.x, src3.z);
+            }
+        }
+        
         float2 fromTo = (dst - src);
         float2 normal = new float2(-fromTo.y, fromTo.x);
         
