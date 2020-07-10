@@ -38,7 +38,8 @@ namespace AutoFarmers
                 .ForEach((int entityInQueryIndex, Entity entity, in PathFindingTarget target) =>
                 {
                     CellPosition cp = cellPositionAccessor[target.Value];
-                    int index = (int) (cp.Value.x * gridSize.x + cp.Value.y);
+                    
+                    int index = gridComponent.GetIndexFromCoords(cp.Value.x, cp.Value.y);
 
                     if (cellTypeBuffer[index].Value != CellType.Raw)
                     {

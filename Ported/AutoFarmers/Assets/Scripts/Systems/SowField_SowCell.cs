@@ -61,8 +61,7 @@ namespace AutoFarmers
 
                         // Setup cell entity
                         Entity cellEntity = cellEntityBuffer[index].Value;
-                        ecb.AddComponent<Sowed>(entityInQueryIndex, cellEntity);
-                        ecb.SetComponent<Sowed>(entityInQueryIndex, cellEntity, new Sowed() { Plant = sowedPlant });
+                        ecb.AddComponent<Sowed>(entityInQueryIndex, cellEntity, new Sowed() { Plant = sowedPlant });
 
                         ecb.AddComponent<Cooldown>(entityInQueryIndex, entity);
                         ecb.SetComponent<Cooldown>(entityInQueryIndex, entity, new Cooldown() { Value = 0.1f });

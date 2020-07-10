@@ -48,8 +48,8 @@ namespace AutoFarmers
                         for (int gridY = cellRect.Y; gridY < cellRect.Y + cellRect.Height; gridY++)
                         {
                             if (hasTarget) break;
-                            
-                            int index = gridX * gridSize.x + gridY;
+
+                            int index = gridComponent.GetIndexFromCoords(gridX, gridY);
                             if (cellTypeBuffer[index].Value == CellType.Raw)
                             {
                                 targetEntity = cellEntityBuffer[index].Value;
