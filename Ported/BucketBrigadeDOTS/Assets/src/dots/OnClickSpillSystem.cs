@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public class OnClickSpillSystem : SystemBase
 {
@@ -11,6 +12,7 @@ public class OnClickSpillSystem : SystemBase
             return;
         if (UnityEngine.Input.GetMouseButtonDown(0))
         {
+            Debug.Log("Spilling water under mouse cursor");
             var ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
             new UnityEngine.Plane(UnityEngine.Vector3.up, 0).Raycast(ray, out var enter);
             var hit = (float3)ray.GetPoint(enter);
@@ -24,6 +26,7 @@ public class OnClickSpillSystem : SystemBase
 
         if (UnityEngine.Input.GetMouseButtonDown(1))
         {
+            Debug.Log("Picking POI");
             var ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
             new UnityEngine.Plane(UnityEngine.Vector3.up, 0).Raycast(ray, out var enter);
             var hit = (float3)ray.GetPoint(enter);
