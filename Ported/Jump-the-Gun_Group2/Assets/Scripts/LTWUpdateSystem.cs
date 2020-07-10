@@ -1,6 +1,8 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Collections;
+using Unity.Jobs;
 
 [UpdateInGroup(typeof(TransformSystemGroup))]
 public class LTWUpdateSystem : SystemBase
@@ -15,44 +17,49 @@ public class LTWUpdateSystem : SystemBase
 
     protected override void OnUpdate()
     {
-
         var gridtag = GetSingletonEntity<GridTag>();
 
         DynamicBuffer<GridHeight> gh = EntityManager.GetBuffer<GridHeight>(gridtag);
         GameParams gp = GetSingleton<GameParams>();
 
-        Entities
+        var handles = new NativeArray<JobHandle>(4, Allocator.Temp);
+
+        var localToWorld = GetComponentDataFromEntity<LocalToWorld>();
+
+        handles[0] = Entities
             .WithNone<Color>()
+            .WithNativeDisableContainerSafetyRestriction(localToWorld)
             .WithNone<LookAtPlayerTag>()
-            .ForEach((ref LocalToWorld localToWorld, in Position pos) =>
+            .ForEach((Entity e, in Position pos) =>
             {
                 var trans = float4x4.Translate(pos.Value);
                 var scale = float4x4.Scale(CannonFireSystem.kCannonBallRadius);
-                localToWorld.Value = math.mul(trans, scale);
-            }).ScheduleParallel();
+                localToWorld[e] = new LocalToWorld { Value = math.mul(trans, scale) };
+            }).ScheduleParallel(Dependency);
 
-        Entities
+        handles[1] = Entities
             .WithReadOnly(gh)
-            .ForEach((ref LocalToWorld localToWorld, ref Color c, in Position pos) => {
+            .WithNativeDisableContainerSafetyRestriction(localToWorld)
+            .ForEach((Entity e, ref Color c, in Position pos) => {
                 var trans = float4x4.Translate(pos.Value);
                 float height = gh[GridFunctions.GetGridIndex(pos.Value.xz, gp.TerrainDimensions)].Height;
-
                 var scale = float4x4.Scale(1, height, 1);
-                localToWorld.Value = math.mul(trans, scale);
+                localToWorld[e] = new LocalToWorld { Value = math.mul(trans, scale) };
 
                 float range = (gp.TerrainMax - gp.TerrainMin);
                 float value = (height - gp.TerrainMin) / range;
                 float4 color = math.lerp(gp.colorA, gp.colorB, value);
                 c.Value = color;
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
 
         var playerEntity = GetSingletonEntity<PlayerTag>();
         var playerLocation = EntityManager.GetComponentData<Position>(playerEntity).Value.xz;
 
-        Entities
+        handles[2] = Entities
             .WithNone<Rotation>()
+            .WithNativeDisableContainerSafetyRestriction(localToWorld)
             .WithAll<LookAtPlayerTag>()
-            .ForEach((ref LocalToWorld localToWorld, in Position pos) => {
+            .ForEach((Entity e, in Position pos) => {
                 var trans = float4x4.Translate(pos.Value);
                 var scale = float4x4.Scale(1);
                 var direction = playerLocation - pos.Value.xz;
@@ -60,12 +67,13 @@ public class LTWUpdateSystem : SystemBase
                 if (direction.y < 0)
                     yaw += math.PI;
                 var rotate = float4x4.RotateY(yaw);
-                localToWorld.Value = math.mul(math.mul(trans, scale), rotate);
-            }).ScheduleParallel();
+                localToWorld[e] = new LocalToWorld { Value = math.mul(math.mul(trans, scale), rotate) };                
+            }).ScheduleParallel(Dependency);
 
-        Entities
+        handles[3] = Entities
             .WithAll<LookAtPlayerTag>()
-            .ForEach((ref LocalToWorld localToWorld, in Position pos, in Rotation rot) => {
+            .WithNativeDisableContainerSafetyRestriction(localToWorld)
+            .ForEach((Entity e, in Position pos, in Rotation rot) => {
                 var trans = float4x4.Translate(pos.Value);
                 var scale = float4x4.Scale(1);
                 var direction = playerLocation - pos.Value.xz;
@@ -73,7 +81,9 @@ public class LTWUpdateSystem : SystemBase
                         if (direction.y < 0)
                     yaw += math.PI;
                 var rotate = float4x4.EulerXYZ(rot.Value, yaw, 0);
-                localToWorld.Value = math.mul(math.mul(trans, scale), rotate);
-            }).ScheduleParallel();
+                localToWorld[e] = new LocalToWorld { Value = math.mul(math.mul(trans, scale), rotate) };
+            }).ScheduleParallel(Dependency);
+
+        Dependency = JobHandle.CombineDependencies(handles);
     }
 }
