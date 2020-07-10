@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class MouseInputSystem : SystemBase
 {
+    const float k_InputDeadZonePercentage = .1f;
+
+    Camera m_Camera;
     EntityQuery m_PlayerQuery;
+
+    float deadZone;
 
     protected override void OnCreate()
     {
@@ -20,38 +25,30 @@ public class MouseInputSystem : SystemBase
         });
 
         RequireSingletonForUpdate<PlayerTag>();
+
+        // use height as this is generally smaller than the width. We want the deadzone to be a circle.
+        deadZone = Screen.height * k_InputDeadZonePercentage;
+
+        m_Camera = Camera.main;
     }
 
     protected override void OnUpdate()
-    {        
-        float threshold = 0.5f;
-
-        // For now we assume only one player. Need to convert this to a global bound center encompassing all players
-        // if we move to that.
+    {
         var playerEntity = GetSingletonEntity<PlayerTag>();
-        var playerLocation = EntityManager.GetComponentData<Position>(playerEntity);
+        var playerWorldPosition = EntityManager.GetComponentData<Position>(playerEntity);
 
-        var gp = GetSingleton<GameParams>();
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        float t = ((gp.TerrainMax + gp.TerrainMin) * 0.5f - ray.origin.y) / ray.direction.y;
-        float3 mouseWorldPos = math.float3(0, 1, 0);
-        float3 pointOnRay = ray.GetPoint(t);
-        mouseWorldPos.x = pointOnRay.x;
-        mouseWorldPos.z = pointOnRay.z;
-        var mouseGridSpace = mouseWorldPos;
+        float2 inputDirection = ((float3)(Input.mousePosition - m_Camera.WorldToScreenPoint(playerWorldPosition.Value))).xy;
+        float2 targetDir = new float2();
 
-        float2 playerToMouse = (mouseGridSpace.xz - playerLocation.Value.xz);
-        float2 targetDir = math.float2(0.0f, 0.0f);
-
-        if (math.abs(playerToMouse.x) > threshold)
+        if (math.lengthsq(inputDirection) > deadZone * deadZone)
         {
-            targetDir.x += math.sign(playerToMouse.x);
+            if(math.abs(math.dot(inputDirection, new float2(1f, 0))) > deadZone)
+                targetDir.y -= math.sign(inputDirection.x);
+            if(math.abs(math.dot(inputDirection, new float2(0f, 1f))) > deadZone)
+                targetDir.x += math.sign(inputDirection.y);
         }
-        if(math.abs(playerToMouse.y) > threshold)
-        {
-            targetDir.y += math.sign(playerToMouse.y);
-        }
-        Entities.ForEach((ref Direction d) => 
+
+        Entities.ForEach((ref Direction d) =>
         {
             d.Value = (int2)targetDir;
         }).Schedule();
