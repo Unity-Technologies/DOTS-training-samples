@@ -83,7 +83,6 @@ public class FirefighterFormLineSystem : SystemBase
                 // TODO: set a new target position, which is this fighterfighter's next firefighter's target, but: random access :/
                 float2 pos = CalculatePosition(positionInLine.Value, src, fromTo, normal);
                 relayReturn.Value = pos;
-                ecb.SetComponent(entityInQueryIndex, entity, relayReturn);
             }).ScheduleParallel();
 
         fromTo = -fromTo;
@@ -106,7 +105,6 @@ public class FirefighterFormLineSystem : SystemBase
                 // TODO: set a new target position, which is this fighterfighter's next firefighter's target, but: random access :/
                 float2 pos = CalculatePosition(positionInLine.Value, src, fromTo, normal);
                 relayReturn.Value = pos;
-                ecb.SetComponent(entityInQueryIndex, entity, relayReturn);
             }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
