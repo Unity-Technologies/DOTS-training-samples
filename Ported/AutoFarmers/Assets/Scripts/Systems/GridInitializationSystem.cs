@@ -38,7 +38,8 @@ namespace AutoFarmers
                 .WithNone<GridInitializedTag>()
                 .ForEach((Entity farmEntity, Farm farm) =>
             {
-                EntityManager.SetComponentData(entity, new Grid { Size = farm.MapSize });
+                var grid = new Grid { Size = farm.MapSize };
+                EntityManager.SetComponentData(entity, grid);
                 EntityManager.DestroyEntity(cellQuery);
                 var cellCount = farm.MapSize.x * farm.MapSize.y;
                 var cellEntities = EntityManager.Instantiate(farm.GroundPrefab, cellCount, Allocator.Temp);
@@ -60,7 +61,7 @@ namespace AutoFarmers
                 for (var x = 0; x < farm.MapSize.x; x++)
                 for (var y = 0; y < farm.MapSize.y; y++)
                 {
-                    var i = y * farm.MapSize.x + x;
+                    var i = grid.GetIndexFromCoords(x, y);
                     EntityManager.SetComponentData(cellEntities[i], new Translation { Value = math.float3(x, 0, y) + new float3(0.5f, 0.0f, 0.5f)});
                     EntityManager.SetComponentData(cellEntities[i], new CellPosition() { Value = new int2(x, y)} );
                     EntityManager.SetComponentData(cellEntities[i], new Cell { Type = CellType.Raw });

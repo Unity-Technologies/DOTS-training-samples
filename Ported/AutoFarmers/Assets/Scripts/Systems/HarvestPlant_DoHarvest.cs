@@ -36,8 +36,9 @@ namespace AutoFarmers
                     CellPosition cp = cellPositionAccessor[target.Value];
                     int index = gridComponent.GetIndexFromCoords(cp.Value);
                     
-                    cellTypeBuffer[index] = new CellTypeElement() { Value = CellType.Tilled };
-                    ecb.RemoveComponent<Sowed>(cellEntityBuffer[index].Value);
+                    var cellEntity = cellEntityBuffer[index].Value;
+                    ecb.RemoveComponent<Sowed>(cellEntity);
+                    ecb.SetComponent(cellEntity, new Cell { Type = CellType.Tilled });
 
                     //ecb.AddComponent<Cooldown>(entity, new Cooldown { Value = 0.1f });
                     //ecb.SetComponent<PathFindingTarget>(new PathFindingTarget { Value = home.Value });

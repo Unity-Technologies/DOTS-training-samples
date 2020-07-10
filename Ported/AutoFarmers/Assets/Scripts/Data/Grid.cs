@@ -9,7 +9,7 @@ namespace AutoFarmers
         public int2 Size;
         public int GetIndexFromCoords(int x, int y)
         {
-            return x * Size.x + y;
+            return y * Size.x + x;
         }
 
         public int GetIndexFromCoords(int2 p)

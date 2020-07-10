@@ -23,7 +23,7 @@ public class IntentSelectionSystem : SystemBase
             .ForEach((int entityInQueryIndex, Entity entity, ref RandomSeed randomSeed, in Farmer_Tag tag) =>
             {
                 Random random = new Random(randomSeed.Value);
-                int selection = random.NextInt(0, 3);
+                int selection = random.NextInt(0, 4);
                 randomSeed.Value = random.state;
 
                 switch (selection)
@@ -37,18 +37,16 @@ public class IntentSelectionSystem : SystemBase
                     case 2:
                         ecb.AddComponent(entityInQueryIndex, entity, new TillField_Intent());
                         break;
-                  /*  case 3:
+                    case 3:
                         ecb.AddComponent(entityInQueryIndex, entity, new SmashRock_Intent());
-                        break;*/
-
+                        break;
                 }
 
                 // ecb.RemoveComponent<PathFindingTarget>(entityInQueryIndex, entity);
                 // ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
                 // ecb.RemoveComponent<TargetReached>(entityInQueryIndex, entity);
-
             }).ScheduleParallel();
 
-        _entityCommandBufferSystem.AddJobHandleForProducer(Dependency); 
+        _entityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }

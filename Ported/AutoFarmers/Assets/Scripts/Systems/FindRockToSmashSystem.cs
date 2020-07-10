@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 
 namespace AutoFarmers
@@ -21,7 +22,7 @@ namespace AutoFarmers
             var cellEntityBuffer = EntityManager.GetBuffer<CellEntityElement>(gridEntity);
             var occupantAccessor = GetComponentDataFromEntity<CellOccupant>();
             
-            Entities.WithAll<SmashRock_Intent>().WithNone<Attacking>().WithNone<Target>()
+            Entities.WithAll<SmashRock_Intent>().WithNone<Attacking>().WithNone<PathFindingTarget>()
                 .WithReadOnly(cellTypeBuffer).WithReadOnly(cellEntityBuffer)
                 .WithStructuralChanges()
                 .ForEach((Entity entity, Translation translation) =>
@@ -49,12 +50,17 @@ namespace AutoFarmers
                             segmentLength++;
                         }
                     }
+                    
+                    if (math.any(cellPosition < (int2)0) || math.any(cellPosition > grid.Size))
+                    {
+                        continue;
+                    }
 
                     Entity? nearbyRock = null;
-                    for (var x = -1; x <= 1; x += 2)
-                    for (var y = -1; y <= 1; y += 2)
+                    for (var x = math.max(0, cellPosition.x - 1); x <= math.min(grid.Size.x, cellPosition.x + 1); x += 2)
+                    for (var y = math.max(0, cellPosition.y - 1); y <= math.min(grid.Size.y, cellPosition.y + 1); y += 2)
                     {
-                        var cellIndex = (cellPosition.x + x) * grid.Size.y + (cellPosition.y + y);
+                        var cellIndex = grid.GetIndexFromCoords(x, y);
                         if (cellTypeBuffer[cellIndex].Value == CellType.Rock)
                         {
                             var cellEntity = cellEntityBuffer[cellIndex].Value;
@@ -67,7 +73,7 @@ namespace AutoFarmers
                     {
                         var cellIndex = cellPosition.y * grid.Size.x + cellPosition.x;
                         var cellEntity = cellEntityBuffer[cellIndex].Value;
-                        ecb.AddComponent(entity, new Target
+                        ecb.AddComponent(entity, new PathFindingTarget
                         {
                             Value = cellEntity
                         });

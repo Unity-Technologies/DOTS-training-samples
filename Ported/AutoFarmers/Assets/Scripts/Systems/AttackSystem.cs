@@ -15,7 +15,7 @@ namespace AutoFarmers
             attackingQuery = GetEntityQuery(new EntityQueryDesc
             {
                 All = new [] {ComponentType.ReadWrite<Attacking>()},
-                None = new [] {ComponentType.ReadWrite<Target>()}
+                None = new [] {ComponentType.ReadWrite<PathFindingTarget>()}
             });
             ecbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         }
@@ -50,6 +50,15 @@ namespace AutoFarmers
                         i += 1;
                     } while (i < attackingArray.Length && attackingArray[i].Target == target);
 
+                    if (!healthAccessor.Exists(target))
+                    {
+                        for (var j = firstIndex; j < i; j++)
+                        {
+                            ecb.RemoveComponent<Attacking>(attackingEntities[j]);
+                        }
+                        continue;
+                    }
+
                     var damage = attackers * deltaTime * 0.1f;
                     var health = healthAccessor[target].Value - damage;
                     
@@ -66,7 +75,7 @@ namespace AutoFarmers
                         for (var x = cellPosition.x; x < cellPosition.x + cellSize.x; x++)
                         for (var y = cellPosition.y; y < cellPosition.y + cellSize.y; y++)
                         {
-                            var cellIndex = y * grid.Size.x + x;
+                            var cellIndex = grid.GetIndexFromCoords(x, y);
                             var cellEntity = cellEntityBuffer[cellIndex].Value;
                             ecb.SetComponent(cellEntity, new Cell { Type = CellType.Raw });
                             ecb.SetComponent(cellEntity, new CellOccupant());

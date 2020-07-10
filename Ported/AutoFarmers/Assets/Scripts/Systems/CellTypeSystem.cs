@@ -1,9 +1,10 @@
 using Unity.Entities;
+using UnityEngine.PlayerLoop;
 
 namespace AutoFarmers
 {
-    [UpdateAfter(typeof(SimulationSystemGroup))]
-    [UpdateBefore(typeof(PresentationSystemGroup))]
+    [UpdateInGroup(typeof(SimulationSystemGroup), OrderFirst = true)]
+    [UpdateAfter(typeof(BeginSimulationEntityCommandBufferSystem))]
     class CellTypeSystem : SystemBase
     {
         protected override void OnUpdate()
@@ -15,7 +16,7 @@ namespace AutoFarmers
             Entities.WithChangeFilter<Cell>().WithNativeDisableParallelForRestriction(typeBuffer)
                 .ForEach((Entity entity, CellPosition cellPosition, Cell cell) =>
             {
-                var i = cellPosition.Value.y * grid.Size.x + cellPosition.Value.x;
+                var i = grid.GetIndexFromCoords(cellPosition.Value);
                 typeBuffer[i] = new CellTypeElement(cell.Type);
             }).ScheduleParallel(Dependency).Complete();
         }

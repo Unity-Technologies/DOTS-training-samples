@@ -38,8 +38,9 @@ namespace AutoFarmers
 
                     if (cellTypeBuffer[index].Value == CellType.Raw)
                     {
-                        cellTypeBuffer[index] = new CellTypeElement() { Value = CellType.Tilled };
-                        ecb.AddComponent<Tilled>(cellEntityBuffer[index].Value);
+                        var cellEntity = cellEntityBuffer[index].Value;
+                        ecb.SetComponent(cellEntity, new Cell { Type = CellType.Tilled });
+                        ecb.AddComponent<Tilled>(cellEntity);
                     }
                     ecb.AddComponent<Cooldown>(entity, new Cooldown { Value = 0.1f });
                     ecb.RemoveComponent<PathFindingTarget>(entity);
