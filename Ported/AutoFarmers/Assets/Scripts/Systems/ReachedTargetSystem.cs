@@ -23,7 +23,7 @@ namespace AutoFarmers
                 .ForEach((int entityInQueryIndex, Entity entity, ref Velocity velocity, in Translation translation, in PathFindingTarget target) =>
                 {
                     Translation targetPosition = GetComponent<Translation>(target.Value);
-                    float distance = math.distance(targetPosition.Value, translation.Value);
+                    float distance = math.distance(targetPosition.Value.xz, translation.Value.xz);
                     if (distance <= 0.01f)
                     {
                         ecb.AddComponent(entityInQueryIndex, entity, new TargetReached());

@@ -20,7 +20,7 @@ namespace AutoFarmers
         {
             EntityCommandBuffer ecb = _entityCommandBufferSystem.CreateCommandBuffer();
 
-            bool usePathFinding = true;
+            bool usePathFinding = GetSingleton<GameSettings>().PathfindingEnabled;
             if (usePathFinding)
             {
                 Entities
