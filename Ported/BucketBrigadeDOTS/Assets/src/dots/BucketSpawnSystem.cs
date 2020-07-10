@@ -62,12 +62,23 @@ public class BucketSpawnSystem : SystemBase
         Entity firstWaterBucket = Entity.Null;
         using (var waterBucketEntities = m_WaterBucketQuery.ToEntityArray(Allocator.TempJob))
         {
-            if (waterBucketEntities.Length == 0)
+            int waterBucketCount = waterBucketEntities.Length;
+            if (waterBucketCount == 0)
                 return;
-        
-            firstWaterBucket = waterBucketEntities[0];
-        
-            EntityManager.AddComponentData(firstFirefighter, new WaterBucketID { Value = firstWaterBucket });
+
+            using (var firefighterEntities = m_FirefighterFullTagQuery.ToEntityArray(Allocator.TempJob))
+            {
+                int firefighterCount = firefighterEntities.Length;
+                if (firefighterCount == 0)
+                    return;
+
+                int firefighterWithBucketStride = firefighterCount / waterBucketCount;
+
+                for (int bucket = 0, firefighter = 0; bucket < waterBucketCount; bucket++, firefighter += firefighterWithBucketStride)
+                {
+                    EntityManager.AddComponentData(firefighterEntities[firefighter], new WaterBucketID { Value = waterBucketEntities[bucket] });
+                }
+            }
         }
     }
 }
