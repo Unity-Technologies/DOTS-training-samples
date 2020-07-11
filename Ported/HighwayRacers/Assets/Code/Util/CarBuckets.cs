@@ -44,16 +44,9 @@ namespace HighwayRacer
             return new UnsafeList<Car>((Car*) bucket.Ptr, bucket.Length);
         }
 
-        public void AddCar(Segment segment, TrackPos trackPos, Speed speed, Lane lane)
+        public void AddCar(int segment, float pos, float speed, int lane)
         {
-            var writer = writers[segment.Val];
 
-            writer.AddNoResize(new Car()
-            {
-                Pos = trackPos.Val,
-                Speed = speed.Val,
-                Lane = lane.Val,
-            });
         }
 
         public JobHandle AdvanceCars(NativeArray<float> segmentLengths, JobHandle dependencies)
@@ -80,7 +73,7 @@ namespace HighwayRacer
                 }
             }
 
-            // cache cars to move from last bucket and remove them from last bucket
+            // cache cars to move from last bucket, then actually remove them from that bucket
             var lastBucket = GetCars(lists.Length - 1);
             var index = indexMoveAllAfterToNext[lists.Length - 1];
             tempList.Clear();
@@ -120,18 +113,9 @@ namespace HighwayRacer
         {
             CarUtil.GetClosestPosAndSpeed(ref car, out var distance, out var closestSpeed, index, segmentLength, bucket, nextBucket);
 
-            if (distance <= car.BlockingDist &&
-                car.Speed > closestSpeed) // car is still blocked ahead in lane
+            if (distance <= car.BlockingDist && car.Speed > closestSpeed) // car is still blocked ahead in lane
             {
-                var closeness = (distance - RoadSys.minDist) / (car.BlockingDist - RoadSys.minDist); // 0 is max closeness, 1 is min
-
-                // closer we get within minDist of leading car, the closer we match speed
-                const float fudge = 2.0f;
-                var newSpeed = math.lerp(closestSpeed, car.Speed + fudge, closeness);
-                if (newSpeed < car.Speed)
-                {
-                    car.Speed = newSpeed; // todo: will this cause problem in parallel? other cars may care about this car's speed
-                }
+                car.SlowForBlock(distance, closestSpeed);
 
                 if (car.Pos < RoadSys.mergeLookBehind)
                 {
@@ -143,7 +127,7 @@ namespace HighwayRacer
                 {
                     if (CarUtil.CanMerge(index, ref car, car.LeftOfLane(), segmentLength, bucket, nextBucket))
                     {
-                        car.CarState = CarState.MergingLeftStartOvertake;
+                        car.CarState = CarState.OvertakingLeftStart;
                         car.LaneOffset = 0; // todo: we're going left, so value starts at 0.0 and will inc to 1.0
                         car.MergeLeftLane();
                     }
@@ -152,7 +136,7 @@ namespace HighwayRacer
                 {
                     if (CarUtil.CanMerge(index, ref car, car.RightOfLane(), segmentLength, bucket, nextBucket))
                     {
-                        car.CarState = CarState.MergingRightStartOvertake;
+                        car.CarState = CarState.OvertakingLeftEnd;
                         car.LaneOffset = 0; // todo: we're going right, so value starts at 0.0 and will dec to -1.0
                         car.MergeRightLane();
                     }
@@ -161,15 +145,74 @@ namespace HighwayRacer
                 return;
             }
 
+            car.SetSpeed(dt, car.DesiredSpeedUnblocked);
+        }
 
-            car.SetUnblockedSpeed(dt);
+        // 1. update LaneOffset of all merging cars
+        // 2. cars that complete merge change Lane and CarState
+        public void Merge(float dt)
+        {
+            var mergeSpeed = RoadSys.mergeTime * dt;
+            
+            for (int bucketIdx = lists.Length - 1; bucketIdx >= 0; bucketIdx--)
+            {
+                var bucket = GetCars(bucketIdx);
+
+                for (int i = 0; i < bucket.Length; i++)
+                {
+                    var car = bucket[i];
+
+                    switch (car.CarState)
+                    {
+                        case CarState.Normal:
+                            continue;
+                        case CarState.OvertakingLeft:
+                            continue;
+                        case CarState.OvertakingRight:
+                            continue;
+                        case CarState.OvertakingLeftStart:
+                            car.LaneOffset += mergeSpeed;
+                            if (car.LaneOffset > 1.0f)
+                            {
+                                car.CompleteRightMerge();
+                            }
+                            car.CarState = CarState.OvertakingLeft;
+                            break;
+                        case CarState.OvertakingRightEnd:
+                            car.LaneOffset += mergeSpeed;
+                            if (car.LaneOffset > 1.0f)
+                            {
+                                car.CompleteRightMerge();
+                            }
+                            car.CarState = CarState.Normal;
+                            break;
+                        case CarState.OvertakingRightStart:
+                            car.LaneOffset -= mergeSpeed;
+                            if (car.LaneOffset < -1.0f)
+                            {
+                                car.CompleteLeftMerge();
+                            }
+                            car.CarState = CarState.OvertakingRight;
+                            break;
+                        case CarState.OvertakingLeftEnd:
+                            car.LaneOffset -= mergeSpeed;
+                            if (car.LaneOffset < -1.0f)
+                            {
+                                car.CompleteLeftMerge();
+                            }
+                            car.CarState = CarState.Normal;
+                            break;
+                    }
+
+                    bucket[i] = car;
+                }
+            }
         }
 
         // 1. make sure we don't hit next car ahead
-        // 2. if blocked and can merge, trigger overtake state
-
-        // todo: account for all car states, for now just account for Normal
-        public void AvoidanceAndSetSpeed(float dt)
+        // 2. triggers most state changes (merging / overtaking)
+        // 3. sets speed
+        public void Avoidance(float dt)
         {
             var segmentLengths = RoadSys.segmentLengths;
             var mergeLeftFrame = AdvanceCarsSys.mergeLeftFrame;
@@ -190,20 +233,23 @@ namespace HighwayRacer
                         case CarState.Normal:
                             AvoidanceNormal(ref car, i, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
                             break;
-                        case CarState.Overtake:
-                            AvoidanceOvertake(ref car, i, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
+                        case CarState.OvertakingLeft:
+                            AvoidanceOvertaking(ref car, true, i, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
                             break;
-                        case CarState.MergingLeftStartOvertake:
-                            AvoidanceMergingLeftStartOvertake(ref car, i, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
+                        case CarState.OvertakingRight:
+                            AvoidanceOvertaking(ref car, false, i, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
                             break;
-                        case CarState.MergingLeftEndOvertake:
-                            AvoidanceMergingLeftEndOvertake(ref car, i, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
+                        case CarState.OvertakingLeftStart:
+                            AvoidanceOvertakingStart(ref car, true, i, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
                             break;
-                        case CarState.MergingRightStartOvertake:
-                            AvoidanceMergingRightStartOvertake(ref car, i, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
+                        case CarState.OvertakingRightStart:
+                            AvoidanceOvertakingStart(ref car, false, i, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
                             break;
-                        case CarState.MergingRightEndOvertake:
-                            AvoidanceMergingRightEndOvertake(ref car, i, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
+                        case CarState.OvertakingLeftEnd:
+                            AvoidanceOvertakingEnd(ref car, true, i, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
+                            break;
+                        case CarState.OvertakingRightEnd:
+                            AvoidanceOvertakingEnd(ref car, false, i, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
                             break;
                     }
 
@@ -214,14 +260,85 @@ namespace HighwayRacer
             }
         }
 
-        private void AvoidanceMergingLeftStartOvertake(ref Car car, int i, float segmentLength, UnsafeList<Car> bucket, UnsafeList<Car> nextBucket, bool mergeLeftFrame, float dt)
+        private void AvoidanceOvertakingEnd(ref Car car, bool overtakeLeft, int index, float segmentLength,
+            UnsafeList<Car> bucket, UnsafeList<Car> nextBucket, bool mergeLeftFrame, float dt)
         {
-            throw new System.NotImplementedException();
+            CarUtil.GetClosestPosAndSpeed(ref car, out var distance, out var closestSpeed, index, segmentLength, bucket, nextBucket);
+            
+            if (distance <= car.BlockingDist &&
+                car.Speed > closestSpeed) // car is blocked ahead in lane
+            {
+                car.SlowForBlock(distance, closestSpeed);
+                return;
+            }
+
+            car.SetSpeed(dt, car.DesiredSpeedOvertake);
         }
 
-        private void AvoidanceOvertake(ref Car car, int i, float segmentLength, UnsafeList<Car> bucket, UnsafeList<Car> nextBucket, bool mergeLeftFrame, float dt)
+        private void AvoidanceOvertakingStart(ref Car car, bool overtakeLeft, int index, float segmentLength,
+            UnsafeList<Car> bucket, UnsafeList<Car> nextBucket, bool mergeLeftFrame, float dt)
         {
-            throw new System.NotImplementedException();
+            car.OvertakeTimer -= dt;
+            
+            CarUtil.GetClosestPosAndSpeed(ref car, out var distance, out var closestSpeed, index, segmentLength, bucket, nextBucket);
+            
+            if (distance <= car.BlockingDist &&
+                car.Speed > closestSpeed) // car is blocked ahead in lane
+            {
+                car.SlowForBlock(distance, closestSpeed);
+                return;
+            }
+
+            car.SetSpeed(dt, car.DesiredSpeedOvertake);
+        }
+
+        private void AvoidanceOvertaking(ref Car car, bool overtakeLeft, int index, float segmentLength, UnsafeList<Car> bucket, UnsafeList<Car> nextBucket,
+            bool mergeLeftFrame, float dt)
+        {
+            car.OvertakeTimer -= dt;
+            
+            CarUtil.GetClosestPosAndSpeed(ref car, out var distance, out var closestSpeed, index, segmentLength, bucket, nextBucket);
+
+            // if blocked, leave OvertakingLeft state
+            if (distance <= car.BlockingDist && car.Speed > closestSpeed)
+            {
+                car.SlowForBlock(distance, closestSpeed);
+                car.CarState = CarState.Normal;
+                return;
+            }
+
+            // merging timed out, so end overtake
+            if (car.OvertakeTimer <= 0)
+            {
+                car.CarState = CarState.Normal;
+                return;
+            }
+
+            // try merge
+            var tryMerge = (overtakeLeft && !mergeLeftFrame) || (!overtakeLeft && mergeLeftFrame);
+            int destLane = overtakeLeft ? car.RightOfLane() : car.LeftOfLane();
+
+            if (car.OvertakeTimer < RoadSys.overtakeTimeTryMerge && tryMerge)
+            {
+                if (CarUtil.CanMerge(index, ref car, destLane, segmentLength, bucket, nextBucket))
+                {
+                    car.LaneOffset = 0;
+                    if (overtakeLeft)
+                    {
+                        car.CarState = CarState.OvertakingLeftEnd;
+                        car.MergeRightLane();
+                    }
+                    else
+                    {
+                        car.CarState = CarState.OvertakingRightEnd;
+                        car.MergeLeftLane();
+                    }
+
+                    return;
+                }
+            }
+
+            car.SetSpeed(dt, car.DesiredSpeedOvertake);
         }
 
 
@@ -294,58 +411,180 @@ namespace HighwayRacer
     public struct Car
     {
         public float Pos;
-        public int Lane;
-        public float LaneOffset;
+        public byte Lane;
         public float Speed;
-        public float TargetSpeed;
-        public float DesiredSpeed;
-        public float BlockingDist;
+        public float DesiredSpeedUnblocked;
+        public float DesiredSpeedOvertake;
         public CarState CarState;
+
+        // todo: these fields could be in an Entity referenced from each Car (but that saves just 8 bytes per Car?)
+        public float LaneOffset;
+        public float BlockingDist;
+        public float OvertakeTimer;
 
         public bool IsInLeftmostLane()
         {
-            throw new System.NotImplementedException();
+            return (8 & Lane) != 0;
+        }
+        
+        
+        public bool IsInRightmostLane()
+        {
+            return (1 & Lane) != 0;
         }
 
         public int LeftOfLane()
         {
-            throw new System.NotImplementedException();
-        }
-
-        public void MergeLeftLane()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public bool IsInRightmostLane()
-        {
-            throw new System.NotImplementedException();
+            switch (Lane)
+            {
+                case 1:           // 0001
+                    return 2;     // 0010
+                case 2:           // 0010
+                    return 4;     // 0100
+                case 4:           // 0100
+                    return 8;     // 1000
+                default:
+                    Debug.LogError("Invalid: no lane to left.");        
+                    return 8;
+            }
         }
 
         public int RightOfLane()
         {
-            throw new System.NotImplementedException();
+            switch (Lane)
+            {
+                case 2:           // 0010
+                    return 1;     // 0001
+                case 4:           // 0100
+                    return 2;     // 0010
+                case 8:           // 1000
+                    return 4;     // 0100
+                default:
+                    Debug.LogError("Invalid: no lane to right.");        
+                    return 1;
+            }
         }
+        
+        public void MergeLeftLane()
+        {
+            switch (Lane)
+            {
+                case 1:           // 0001
+                    Lane = 3;     // 0011 
+                    break;
+                case 2:           // 0010
+                    Lane = 6;     // 0110
+                    break;
+                case 4:           // 0100
+                    Lane = 12;    // 1100
+                    break;
+                default:
+                    Debug.LogError("Invalid merge left.");        
+                    break;
+            }
+        }
+
 
         public void MergeRightLane()
         {
-            throw new System.NotImplementedException();
+            switch (Lane)
+            {
+                case 2:           // 0010
+                    Lane = 3;     // 0011 
+                    break;
+                case 4:           // 0100
+                    Lane = 6;     // 0110
+                    break;
+                case 8:           // 1000
+                    Lane = 12;    // 1100
+                    break;
+                default:
+                    Debug.LogError("Invalid merge right.");        
+                    break;
+            }
         }
 
-        public void SetUnblockedSpeed(float dt)
+        public void SetSpeed(float dt, float targetSpeed)
         {
-            throw new System.NotImplementedException();
+            if (targetSpeed < Speed)
+            {
+                var s = Speed - RoadSys.decelerationRate * dt;
+                Speed = (s < targetSpeed) ? targetSpeed : s;
+            }
+            else if (targetSpeed > Speed)
+            {
+                var s = Speed + RoadSys.accelerationRate * dt;
+                Speed = (s > targetSpeed) ? targetSpeed : s;
+            }
+        }
+
+        public void SlowForBlock(float blockingCarDist, float blockingCarSpeed)
+        {
+            var closeness = (blockingCarDist - RoadSys.minDist) / (BlockingDist - RoadSys.minDist); // 0 is max closeness, 1 is min
+
+            // closer we get within minDist of leading car, the closer we match speed
+            const float fudge = 2.0f;
+            var newSpeed = math.lerp(blockingCarSpeed, Speed + fudge, closeness);
+            if (newSpeed < Speed)
+            {
+                Speed = newSpeed;
+            }
+        }
+
+        // return true if both lane values overlap
+        public bool IsOccupyingLane(int otherLane)
+        {
+            return (Lane & otherLane) != 0;
+        }
+        
+        public void CompleteLeftMerge()
+        {
+            switch (Lane)
+            {
+                case 3:           // 0011
+                    Lane = 2;     // 0010 
+                    break;
+                case 6:           // 0110
+                    Lane = 4;     // 0100
+                    break;
+                case 12:           // 1100
+                    Lane = 8;      // 1000
+                    break;
+                default:
+                    Debug.LogError("Invalid complete left right.");        
+                    break;
+            }
+        }
+        
+        public void CompleteRightMerge()
+        {
+            switch (Lane)
+            {
+                case 3:           // 0011
+                    Lane = 1;     // 0001 
+                    break;
+                case 6:           // 0110
+                    Lane = 2;     // 0010
+                    break;
+                case 12:           // 1100
+                    Lane = 4;      // 0100
+                    break;
+                default:
+                    Debug.LogError("Invalid complete merge right.");        
+                    break;
+            }
         }
     }
 
     public enum CarState : byte
     {
         Normal,
-        MergingLeftStartOvertake,
-        MergingLeftEndOvertake,
-        MergingRightStartOvertake,
-        MergingRightEndOvertake,
-        Overtake, // not overtaking
+        OvertakingLeft, // looking to merge right after timer
+        OvertakingLeftStart,
+        OvertakingLeftEnd,
+        OvertakingRight, // looking to merge left after timer
+        OvertakingRightStart,
+        OvertakingRightEnd,
     }
 
     public struct SortJob : IJobParallelFor

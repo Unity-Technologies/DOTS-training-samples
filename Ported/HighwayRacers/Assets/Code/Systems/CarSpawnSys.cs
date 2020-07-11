@@ -57,8 +57,7 @@ namespace HighwayRacer
                     carPrefab = carQuery.GetSingletonEntity();
                     var types = new ComponentType[]
                     {
-                        typeof(Prefab), typeof(Speed), typeof(TrackPos), typeof(Segment), typeof(SegmentLength), typeof(TargetSpeed),
-                        typeof(DesiredSpeed), typeof(Lane), typeof(Blocking), typeof(Translation), typeof(Rotation), typeof(URPMaterialPropertyBaseColor)
+                        typeof(Prefab), typeof(Translation), typeof(Rotation), typeof(URPMaterialPropertyBaseColor)
                     };
                     EntityManager.AddComponents(carPrefab, new ComponentTypes(types));
                 }

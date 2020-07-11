@@ -75,7 +75,15 @@ SimulationSystemGroup
         (for car in one lane, should be 0.0)
         (for car in two lanes: 0.0 = full right lane; 1.0 = full left lane; 0.5 = half in between)
   
-  4. every car has overtaking timer (could repurpose the LaneOffset? for cars in Normal and Overtake state, ignore LaneOffset for setting transform)
+  4. split car info so that overtake/merging state is in an entity referenced from the main Car
+  
+    use ComponentDataFromEntity for lookup of these values (why is it faster?)
+    
+    
+  5. combine Merge and Avoidance  (try parallelizing first, then see if combining helps any)
+  
+  
+  6. combine SetColorSys and SetTransformSys (we want to loop over all the entities once so that we can set color and transform of same entity)
   
   SimulationSystemGroup
       --

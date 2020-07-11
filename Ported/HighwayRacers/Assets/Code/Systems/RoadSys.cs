@@ -17,6 +17,8 @@ namespace HighwayRacer
         public static int nSegments = 8;
         public const float minDist = 4.0f;
 
+        public const float mergeTime = 1.2f; // number of seconds it takes to fully change lane
+        
         public const float mergeLookAhead = 14.0f;
         public const float mergeLookBehind = 5.5f;
 
@@ -33,6 +35,9 @@ namespace HighwayRacer
         public static float roadLength = minLength;
 
         public static float straightLength;
+        
+        public const float overtakeTime = 6.0f;
+        public const float overtakeTimeTryMerge = overtakeTime - 3.0f;
 
         private List<GameObject> straightRoadExtraPieces = new List<GameObject>(); // pieces of straight road that should be destroyed when we recreate the road
 
