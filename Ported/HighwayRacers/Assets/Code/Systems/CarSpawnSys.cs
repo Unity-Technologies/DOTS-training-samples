@@ -57,7 +57,7 @@ namespace HighwayRacer
                     carPrefab = carQuery.GetSingletonEntity();
                     var types = new ComponentType[]
                     {
-                        typeof(Prefab), typeof(Speed), typeof(TrackPos), typeof(TrackSegment), typeof(TargetSpeed),
+                        typeof(Prefab), typeof(Speed), typeof(TrackPos), typeof(Segment), typeof(SegmentLength), typeof(TargetSpeed),
                         typeof(DesiredSpeed), typeof(Lane), typeof(Blocking), typeof(Translation), typeof(Rotation), typeof(URPMaterialPropertyBaseColor)
                     };
                     EntityManager.AddComponents(carPrefab, new ComponentTypes(types));
@@ -102,6 +102,29 @@ namespace HighwayRacer
 
                     nextTrackPos += RoadSys.carSpawnDist;
                     nCarsInLane++;
+                }).Run();
+
+                var lastSegment = RoadSys.nSegments - 1;
+                var thresholds = RoadSys.thresholds;
+                var segmentLengths = RoadSys.segmentLengths;
+                var carBuckets = RoadSys.CarBuckets;
+                
+                // set segment, segmentLength, and set pos relative to segment
+                // also add cars to CarBuckets
+                Entities.ForEach((ref Segment segment, ref TrackPos trackPos, ref SegmentLength segmentLength, in Speed speed, in Lane lane) =>
+                {
+                    segment.Val =  (ushort) lastSegment;   // last segment gets all the rest (to account for float imprecision)
+                    for (ushort seg = 0; seg < lastSegment; seg++)
+                    {
+                        if (trackPos.Val < thresholds[seg]) 
+                        {
+                            segment.Val = seg;
+                            trackPos.Val -= thresholds[seg];
+                            segmentLength.Val = segmentLengths[seg];
+                            carBuckets.AddCar(segment, trackPos, speed, lane);
+                            break;
+                        }
+                    }
                 }).Run();
             }
         }

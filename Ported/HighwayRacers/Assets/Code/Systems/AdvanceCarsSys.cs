@@ -7,6 +7,8 @@ namespace HighwayRacer
     [UpdateAfter(typeof(SetTransformSys))]
     public class AdvanceCarsSys : SystemBase
     {
+        public static bool mergeLeftFrame = true; // toggles every frame: in a frame, we only initiate merges either left or right, not both
+        
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -16,18 +18,30 @@ namespace HighwayRacer
         {
             if (RoadSys.roadSegments.IsCreated)
             {
-                float roadLength = RoadSys.roadLength;
+                mergeLeftFrame = !mergeLeftFrame;
+                
+                var dt = Time.DeltaTime;  // todo: reliance on dt means could have bugs at very low framerates 
 
-                var dt = Time.DeltaTime;
+                ushort lastSegment = (ushort) (RoadSys.nSegments - 1);
+                var segmentLengths = RoadSys.segmentLengths;
 
-                Entities.ForEach((ref TrackPos trackPos, in Speed speed) =>
-                {
-                    trackPos.Val += speed.Val * dt;
-                    if (trackPos.Val > roadLength)
+                var jobAdvanceEntities = Entities.WithNativeDisableContainerSafetyRestriction(segmentLengths).ForEach(
+                    (ref TrackPos trackPos, ref Segment segment, ref SegmentLength segmentLength, in Speed speed) =>
                     {
-                        trackPos.Val -= roadLength;
-                    }
-                }).ScheduleParallel();
+                        trackPos.Val += speed.Val * dt;
+                        if (trackPos.Val > segmentLength.Val)
+                        {
+                            trackPos.Val -= segmentLength.Val;
+                            segment.Val = (segment.Val == lastSegment) ? (ushort) 0 : (ushort) (segment.Val + 1);
+                            segmentLength.Val = segmentLengths[segment.Val];
+                        }
+                    }).ScheduleParallel(Dependency);
+
+                var buckets = RoadSys.CarBuckets;
+                var jobAdvanceBuckets = buckets.AdvanceCars(segmentLengths, Dependency);
+                var jobSort = buckets.Sort(jobAdvanceBuckets);
+
+                Dependency = JobHandle.CombineDependencies(jobAdvanceEntities, jobSort);
             }
         }
     }

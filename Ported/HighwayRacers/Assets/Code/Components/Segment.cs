@@ -2,7 +2,7 @@
 
 namespace HighwayRacer
 {
-    public struct TrackSegment : IComponentData
+    public struct Segment : IComponentData
     {
         public ushort Val;
     }

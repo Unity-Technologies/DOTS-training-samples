@@ -11,7 +11,6 @@ namespace Tests
 {
     public class CarBuckets_Tests
     {
-        // A Test behaves as an ordinary method
         [Test]
         public void CarBuckets_FindCarInBucket()
         {
@@ -29,7 +28,7 @@ namespace Tests
             for (int i = 0; i < n; i++)
             {
                 buckets.AddCar(
-                    new TrackSegment() {Val = 0}, // cars all will belong to same segment
+                    new Segment() {Val = 0}, // cars all will belong to same segment
                     new TrackPos() {Val = rand.NextFloat()},
                     new Speed() {Val = rand.NextFloat() * maxSpeed},
                     new Lane() {Val = (byte) rand.NextInt(nLanes)}
@@ -65,7 +64,7 @@ namespace Tests
             for (int i = 0; i < n; i++)
             {
                 buckets.AddCar(
-                    new TrackSegment() {Val = 0}, // cars all will belong to same segment
+                    new Segment() {Val = 0}, // cars all will belong to same segment
                     new TrackPos() {Val = rand.NextFloat()},
                     new Speed() {Val = rand.NextFloat() * maxSpeed},
                     new Lane() {Val = (byte) rand.NextInt(nLanes)}
@@ -76,7 +75,7 @@ namespace Tests
 
             var bucket = buckets.GetCars(0);
 
-            var lastCar = new SortedCar()
+            var lastCar = new Car()
             {
                 Pos = 0.0f,
                 Lane = 0,

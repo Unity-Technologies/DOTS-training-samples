@@ -36,7 +36,7 @@ namespace HighwayRacer
     
             var carBuckets = World.GetExistingSystem<SegmentizeAndSortSys>().CarBuckets;
             
-            var mergeLeftFrame = SegmentizeAndSortSys.mergeLeftFrame;
+            var mergeLeftFrame = AdvanceCarsSys.mergeLeftFrame;
     
             var dt = Time.DeltaTime;
             var time = Time.ElapsedTime;
@@ -45,7 +45,7 @@ namespace HighwayRacer
             var rightECB = new EntityCommandBuffer(Allocator.TempJob);
 
             Entities.WithNone<MergingLeft>().ForEach((Entity ent, ref Speed speed, ref Lane lane, in DesiredSpeed desiredSpeed,
-                in OvertakingLeft overtakingLeft, in TrackPos trackPos, in TrackSegment trackSegment, in Blocking blockingInfo) =>
+                in OvertakingLeft overtakingLeft, in TrackPos trackPos, in Segment trackSegment, in Blocking blockingInfo) =>
             {
                 CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, out var index, carBuckets, trackSegment.Val, lane.Val, 
                     trackLength, trackPos, nSegments);
@@ -121,7 +121,7 @@ namespace HighwayRacer
             }).Run();
 
             Entities.WithNone<MergingRight>().ForEach((Entity ent, ref Speed speed, ref Lane lane, in DesiredSpeed desiredSpeed,
-                in OvertakingRight overtakingRight, in TrackPos trackPos, in TrackSegment trackSegment, in Blocking blockingInfo) =>
+                in OvertakingRight overtakingRight, in TrackPos trackPos, in Segment trackSegment, in Blocking blockingInfo) =>
             {
                 CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, out var index, carBuckets, trackSegment.Val, lane.Val, 
                     trackLength, trackPos, nSegments);

@@ -16,7 +16,7 @@ namespace HighwayRacer
             base.OnCreate();
         }
 
-        private static void setTransform(in NativeArray<RoadSegment> infos, in TrackPos pos, in TrackSegment segment, float lane,
+        private static void setTransform(in NativeArray<RoadSegment> infos, in TrackPos pos, in Segment segment, float lane,
             ref Translation translation, ref Rotation rotation)
         {
             var seg = infos[segment.Val];
@@ -77,12 +77,12 @@ namespace HighwayRacer
                 var infos = RoadSys.roadSegments;
 
                 Entities.WithReadOnly(infos).WithNone<LaneOffset>().ForEach((ref Translation translation, ref Rotation rotation,
-                    in TrackSegment segment, in TrackPos pos, in Lane lane) =>
+                    in Segment segment, in TrackPos pos, in Lane lane) =>
                 {
                     setTransform(in infos, in pos, in segment, lane.Val, ref translation, ref rotation);
                 }).ScheduleParallel();
 
-                Entities.WithReadOnly(infos).ForEach((ref Translation translation, ref Rotation rotation, in TrackSegment segment, in TrackPos pos,
+                Entities.WithReadOnly(infos).ForEach((ref Translation translation, ref Rotation rotation, in Segment segment, in TrackPos pos,
                     in Lane lane, in LaneOffset laneOffset) =>
                 {
                     setTransform(in infos, in pos, in segment, lane.Val + laneOffset.Val, ref translation, ref rotation);

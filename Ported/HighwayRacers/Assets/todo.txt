@@ -57,4 +57,42 @@ SimulationSystemGroup
         SetColorSys
         SetTransformSys
         AdvanceCarsSys
-    
+  
+  
+  
+  1. set color and transforms in one loop that copies both from Car to Entity
+  
+  2. a CarState enum for each car:
+  
+        Normal
+        MergingLeftStartOvertake
+        MergingLeftEndOvertake
+        MergingRightStartOvertake
+        MergingRightEndOvertake
+        Overtake  
+  
+  3. every car needs a LaneOffset   
+        (for car in one lane, should be 0.0)
+        (for car in two lanes: 0.0 = full right lane; 1.0 = full left lane; 0.5 = half in between)
+  
+  4. every car has overtaking timer (could repurpose the LaneOffset? for cars in Normal and Overtake state, ignore LaneOffset for setting transform)
+  
+  SimulationSystemGroup
+      --
+          RoadSys
+          CameraSys
+      --
+          CarSpawnSys
+          //SegmentizeSys
+      --
+          AvoidanceAndSpeedSys
+          AvoidanceAndSpeedMergingSys
+          AvoidanceAndSpeedOvertakeSys
+      --
+          MergingSys
+          MergingOvertakeSys
+      --
+          // SetColorSys
+          // SetTransformSys   
+          
+          AdvanceCarsSys  

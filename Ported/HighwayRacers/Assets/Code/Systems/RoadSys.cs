@@ -10,6 +10,8 @@ namespace HighwayRacer
     {
         public static NativeArray<RoadSegment> roadSegments;
         public static NativeArray<float> thresholds;
+        public static NativeArray<float> segmentLengths;
+        public static CarBuckets CarBuckets;
 
         public const int nLanes = 4;
         public static int nSegments = 8;
@@ -25,7 +27,7 @@ namespace HighwayRacer
         public static int numCars = 129;
 
         public static float minLength = 400.0f; // 4 * curved length + 4 * min straight length
-        public static float maxLength = 90999;
+        public static float maxLength = 200999;
 
         public const float laneWidth = 1.88f;
         public static float roadLength = minLength;
@@ -52,6 +54,8 @@ namespace HighwayRacer
         {
             roadSegments.Dispose();
             thresholds.Dispose();
+            segmentLengths.Dispose();
+            CarBuckets.Dispose();
             base.OnDestroy();
         }
 
@@ -60,7 +64,7 @@ namespace HighwayRacer
             return (int) math.ceil(straightLength / minDist);
         }
         
-        public static int NumCarsFitInStraightSegment()
+        public static int NumCarsFitInStraightSegment(float straightLength)
         {
             return (int) math.ceil((nLanes * straightLength) / minDist);
         }
@@ -129,6 +133,10 @@ namespace HighwayRacer
 
             roadSegments = new NativeArray<RoadSegment>(nSegments, Allocator.Persistent);
             thresholds = new NativeArray<float>(nSegments, Allocator.Persistent);
+            segmentLengths = new NativeArray<float>(nSegments, Allocator.Persistent);
+            
+            CarBuckets.Dispose();
+            CarBuckets = new CarBuckets(nSegments, NumCarsFitInStraightSegment(straightLength) * 2);
             
             var segmentGOs = new GameObject[nSegments];
 
@@ -232,6 +240,7 @@ namespace HighwayRacer
                 segment.Length = length;
                 segment.Threshold = lengthSum;
                 thresholds[i] = lengthSum;
+                segmentLengths[i] = length;
 
                 roadSegments[i] = segment;
 

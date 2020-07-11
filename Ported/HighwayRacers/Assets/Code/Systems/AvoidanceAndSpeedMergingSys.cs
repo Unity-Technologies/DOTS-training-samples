@@ -32,7 +32,7 @@ namespace HighwayRacer
 
             Entities.WithAll<MergingLeft>()
                 .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
-                    in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
+                    in Segment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
                 {
                     CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, out var index, carBuckets,
                         trackSegment.Val, lane.Val, lane.Val - 1, trackLength, trackPos, nSegments);
@@ -61,7 +61,7 @@ namespace HighwayRacer
 
             Entities.WithAll<MergingRight>()
                 .ForEach((ref TargetSpeed targetSpeed, ref Speed speed, ref Lane lane, in TrackPos trackPos,
-                    in TrackSegment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
+                    in Segment trackSegment, in Blocking blocking, in DesiredSpeed desiredSpeed) =>
                 {
                     CarUtil.GetClosestPosAndSpeed(out var distance, out var closestSpeed, out var index, carBuckets,
                         trackSegment.Val, lane.Val, lane.Val + 1, trackLength, trackPos, nSegments);
