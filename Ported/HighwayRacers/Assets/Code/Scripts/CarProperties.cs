@@ -34,13 +34,15 @@ public class CarProperties : MonoBehaviour
     {
         var em = World.DefaultGameObjectInjectionWorld.EntityManager;
         Assert.IsTrue(em.Exists(selectedCar), "Shouldn't be setting slider property when no car is selected. How'd we get here?");
-        var desiredSpeed = em.GetComponentData<DesiredSpeed>(selectedCar);
-        var blockedDist = em.GetComponentData<Blocking>(selectedCar);
         
-        defaultSpeedSlider.value = desiredSpeed.Unblocked;
-        overtakeSpeedSlider.value = desiredSpeed.Overtake;
-        headwayBlockingDistanceSlider.value = blockedDist.Dist;
-        SetSliderText();
+        // todo
+        // var desiredSpeed = em.GetComponentData<DesiredSpeed>(selectedCar);
+        // var blockedDist = em.GetComponentData<Blocking>(selectedCar);
+        //
+        // defaultSpeedSlider.value = desiredSpeed.Unblocked;
+        // overtakeSpeedSlider.value = desiredSpeed.Overtake;
+        // headwayBlockingDistanceSlider.value = blockedDist.Dist;
+        // SetSliderText();
     }
 
     private void SetSliderText()
@@ -57,18 +59,19 @@ public class CarProperties : MonoBehaviour
             return;
         }
 
-        var em = World.DefaultGameObjectInjectionWorld.EntityManager;
-        
-        em.SetComponentData<DesiredSpeed>(selectedCar, new DesiredSpeed()
-        {
-            Unblocked = defaultSpeedSlider.value,
-            Overtake = overtakeSpeedSlider.value,
-        });
-
-        em.SetComponentData<Blocking>(selectedCar, new Blocking()
-        {
-            Dist = headwayBlockingDistanceSlider.value,
-        });
+        // todo
+        // var em = World.DefaultGameObjectInjectionWorld.EntityManager;
+        //
+        // em.SetComponentData<DesiredSpeed>(selectedCar, new DesiredSpeed()
+        // {
+        //     Unblocked = defaultSpeedSlider.value,
+        //     Overtake = overtakeSpeedSlider.value,
+        // });
+        //
+        // em.SetComponentData<Blocking>(selectedCar, new Blocking()
+        // {
+        //     Dist = headwayBlockingDistanceSlider.value,
+        // });
         
         SetSliderText();
     }

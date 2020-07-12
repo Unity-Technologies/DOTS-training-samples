@@ -44,12 +44,13 @@ namespace HighwayRacer
             return new UnsafeList<Car>((Car*) bucket.Ptr, bucket.Length);
         }
 
-        public void AddCar(int segment, float pos, float speed, int lane)
+        public void AddCar(ref Car car, int bucketIdx)
         {
-
+            var bucket = GetCars(bucketIdx);
+            bucket.AddNoResize(car);
         }
 
-        public JobHandle AdvanceCars(NativeArray<float> segmentLengths, JobHandle dependencies)
+        public void AdvanceCars(NativeArray<float> segmentLengths)
         {
             // update car pos based on speed. Also record idx at-and-past which cars in the bucket should move to next bucket
             for (var segmentIdx = 0; segmentIdx < lists.Length; segmentIdx++)
@@ -92,8 +93,6 @@ namespace HighwayRacer
             moveCarsNext(tempList, 0, nextBucket);
 
             Sort(); // sorts all the buckets
-
-            return new JobHandle();
         }
 
         public void moveCarsNext(UnsafeList<Car> srcBucket, int indexMoveAllAfter, UnsafeList<Car> dstBucket)
@@ -153,7 +152,7 @@ namespace HighwayRacer
         public void Merge(float dt)
         {
             var mergeSpeed = RoadSys.mergeTime * dt;
-            
+
             for (int bucketIdx = lists.Length - 1; bucketIdx >= 0; bucketIdx--)
             {
                 var bucket = GetCars(bucketIdx);
@@ -176,6 +175,7 @@ namespace HighwayRacer
                             {
                                 car.CompleteRightMerge();
                             }
+
                             car.CarState = CarState.OvertakingLeft;
                             break;
                         case CarState.OvertakingRightEnd:
@@ -184,6 +184,7 @@ namespace HighwayRacer
                             {
                                 car.CompleteRightMerge();
                             }
+
                             car.CarState = CarState.Normal;
                             break;
                         case CarState.OvertakingRightStart:
@@ -192,6 +193,7 @@ namespace HighwayRacer
                             {
                                 car.CompleteLeftMerge();
                             }
+
                             car.CarState = CarState.OvertakingRight;
                             break;
                         case CarState.OvertakingLeftEnd:
@@ -200,6 +202,7 @@ namespace HighwayRacer
                             {
                                 car.CompleteLeftMerge();
                             }
+
                             car.CarState = CarState.Normal;
                             break;
                     }
@@ -215,7 +218,7 @@ namespace HighwayRacer
         public void Avoidance(float dt)
         {
             var segmentLengths = RoadSys.segmentLengths;
-            var mergeLeftFrame = AdvanceCarsSys.mergeLeftFrame;
+            var mergeLeftFrame = AvoidanceAndSpeedSys.mergeLeftFrame;
 
             var nextBucket = GetCars(0);
 
@@ -264,7 +267,7 @@ namespace HighwayRacer
             UnsafeList<Car> bucket, UnsafeList<Car> nextBucket, bool mergeLeftFrame, float dt)
         {
             CarUtil.GetClosestPosAndSpeed(ref car, out var distance, out var closestSpeed, index, segmentLength, bucket, nextBucket);
-            
+
             if (distance <= car.BlockingDist &&
                 car.Speed > closestSpeed) // car is blocked ahead in lane
             {
@@ -279,9 +282,9 @@ namespace HighwayRacer
             UnsafeList<Car> bucket, UnsafeList<Car> nextBucket, bool mergeLeftFrame, float dt)
         {
             car.OvertakeTimer -= dt;
-            
+
             CarUtil.GetClosestPosAndSpeed(ref car, out var distance, out var closestSpeed, index, segmentLength, bucket, nextBucket);
-            
+
             if (distance <= car.BlockingDist &&
                 car.Speed > closestSpeed) // car is blocked ahead in lane
             {
@@ -296,7 +299,7 @@ namespace HighwayRacer
             bool mergeLeftFrame, float dt)
         {
             car.OvertakeTimer -= dt;
-            
+
             CarUtil.GetClosestPosAndSpeed(ref car, out var distance, out var closestSpeed, index, segmentLength, bucket, nextBucket);
 
             // if blocked, leave OvertakingLeft state
@@ -376,6 +379,31 @@ namespace HighwayRacer
                 tempList.Dispose();
             }
         }
+
+        public bool BucketFull(int bucketIdx, NativeArray<RoadSegment> roadSegments)
+        {
+            var segment = roadSegments[bucketIdx];
+            if (segment.IsCurved())
+            {
+                return true;
+            }
+
+            var bucket = GetCars(bucketIdx);
+
+            if (bucket.Length == 0)
+            {
+                return true;
+            }
+
+            // true if current last car is not within 2 * carSpawnDist from end of segment
+            var lastCar = bucket[bucket.Length - 1];
+            return (lastCar.Pos < (segment.Length - RoadSys.carSpawnDist - RoadSys.carSpawnDist));
+        }
+
+        public bool IsBucket(int bucketIdx)
+        {
+            return bucketIdx >= 0 && bucketIdx < lists.Length;
+        }
     }
 
     public struct CarCompare : IComparer<Car>
@@ -426,8 +454,8 @@ namespace HighwayRacer
         {
             return (8 & Lane) != 0;
         }
-        
-        
+
+
         public bool IsInRightmostLane()
         {
             return (1 & Lane) != 0;
@@ -437,14 +465,14 @@ namespace HighwayRacer
         {
             switch (Lane)
             {
-                case 1:           // 0001
-                    return 2;     // 0010
-                case 2:           // 0010
-                    return 4;     // 0100
-                case 4:           // 0100
-                    return 8;     // 1000
+                case 1: // 0001
+                    return 2; // 0010
+                case 2: // 0010
+                    return 4; // 0100
+                case 4: // 0100
+                    return 8; // 1000
                 default:
-                    Debug.LogError("Invalid: no lane to left.");        
+                    Debug.LogError("Invalid: no lane to left.");
                     return 8;
             }
         }
@@ -453,33 +481,33 @@ namespace HighwayRacer
         {
             switch (Lane)
             {
-                case 2:           // 0010
-                    return 1;     // 0001
-                case 4:           // 0100
-                    return 2;     // 0010
-                case 8:           // 1000
-                    return 4;     // 0100
+                case 2: // 0010
+                    return 1; // 0001
+                case 4: // 0100
+                    return 2; // 0010
+                case 8: // 1000
+                    return 4; // 0100
                 default:
-                    Debug.LogError("Invalid: no lane to right.");        
+                    Debug.LogError("Invalid: no lane to right.");
                     return 1;
             }
         }
-        
+
         public void MergeLeftLane()
         {
             switch (Lane)
             {
-                case 1:           // 0001
-                    Lane = 3;     // 0011 
+                case 1: // 0001
+                    Lane = 3; // 0011 
                     break;
-                case 2:           // 0010
-                    Lane = 6;     // 0110
+                case 2: // 0010
+                    Lane = 6; // 0110
                     break;
-                case 4:           // 0100
-                    Lane = 12;    // 1100
+                case 4: // 0100
+                    Lane = 12; // 1100
                     break;
                 default:
-                    Debug.LogError("Invalid merge left.");        
+                    Debug.LogError("Invalid merge left.");
                     break;
             }
         }
@@ -489,17 +517,17 @@ namespace HighwayRacer
         {
             switch (Lane)
             {
-                case 2:           // 0010
-                    Lane = 3;     // 0011 
+                case 2: // 0010
+                    Lane = 3; // 0011 
                     break;
-                case 4:           // 0100
-                    Lane = 6;     // 0110
+                case 4: // 0100
+                    Lane = 6; // 0110
                     break;
-                case 8:           // 1000
-                    Lane = 12;    // 1100
+                case 8: // 1000
+                    Lane = 12; // 1100
                     break;
                 default:
-                    Debug.LogError("Invalid merge right.");        
+                    Debug.LogError("Invalid merge right.");
                     break;
             }
         }
@@ -536,41 +564,68 @@ namespace HighwayRacer
         {
             return (Lane & otherLane) != 0;
         }
-        
+
         public void CompleteLeftMerge()
         {
             switch (Lane)
             {
-                case 3:           // 0011
-                    Lane = 2;     // 0010 
+                case 3: // 0011
+                    Lane = 2; // 0010 
                     break;
-                case 6:           // 0110
-                    Lane = 4;     // 0100
+                case 6: // 0110
+                    Lane = 4; // 0100
                     break;
-                case 12:           // 1100
-                    Lane = 8;      // 1000
+                case 12: // 1100
+                    Lane = 8; // 1000
                     break;
                 default:
-                    Debug.LogError("Invalid complete left right.");        
+                    Debug.LogError("Invalid complete left right.");
                     break;
             }
         }
-        
+
         public void CompleteRightMerge()
         {
             switch (Lane)
             {
-                case 3:           // 0011
-                    Lane = 1;     // 0001 
+                case 3: // 0011
+                    Lane = 1; // 0001 
                     break;
-                case 6:           // 0110
-                    Lane = 2;     // 0010
+                case 6: // 0110
+                    Lane = 2; // 0010
                     break;
-                case 12:           // 1100
-                    Lane = 4;      // 0100
+                case 12: // 1100
+                    Lane = 4; // 0100
                     break;
                 default:
-                    Debug.LogError("Invalid complete merge right.");        
+                    Debug.LogError("Invalid complete merge right.");
+                    break;
+            }
+        }
+
+        public float LaneOffsetDist()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void SetLaneByIdx(byte currentLane)
+        {
+            switch (Lane)
+            {
+                case 0: 
+                    Lane = 1; // 0001 
+                    break;
+                case 1: 
+                    Lane = 2; // 0010
+                    break;
+                case 2: 
+                    Lane = 4; // 0100
+                    break;
+                case 3: 
+                    Lane = 8; // 1000
+                    break;
+                default:
+                    Debug.LogError("Invalid complete merge right.");
                     break;
             }
         }
@@ -585,6 +640,45 @@ namespace HighwayRacer
         OvertakingRight, // looking to merge left after timer
         OvertakingRightStart,
         OvertakingRightEnd,
+    }
+
+
+    public struct CarEnumerator
+    {
+        private CarBuckets buckets;
+        private NativeArray<RoadSegment> segments;
+        
+        private UnsafeList<Car> bucket;
+
+        private int carIdx;
+        private int bucketIdx;
+
+        public CarEnumerator(CarBuckets buckets, NativeArray<RoadSegment> segments, out RoadSegment segment)
+        {
+            this.buckets = buckets;
+            this.segments = segments;
+            
+            bucket = new UnsafeList<Car>();
+            segment = segments[0];
+            
+            carIdx = 0;
+            bucketIdx = 0;
+        }
+
+        public void Next(out Car car, ref RoadSegment segment)
+        {
+            while (carIdx >= bucket.Length)
+            {
+                carIdx = 0;
+                bucketIdx++;
+                
+                bucket = buckets.GetCars(bucketIdx);
+                segment = segments[bucketIdx];
+            }
+
+            car = bucket[carIdx];
+            carIdx++;
+        }
     }
 
     public struct SortJob : IJobParallelFor

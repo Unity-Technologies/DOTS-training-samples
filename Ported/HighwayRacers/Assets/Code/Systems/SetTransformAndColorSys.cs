@@ -3,33 +3,52 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
 namespace HighwayRacer
 {
-    [UpdateAfter(typeof(SetColorSys))]
-    public class SetTransformSys : SystemBase
+    [UpdateAfter(typeof(AvoidanceAndSpeedSys))]
+    public class SetTransformAndColorSys : SystemBase
     {
         protected override void OnCreate()
         {
             base.OnCreate();
         }
 
-        private static void setTransform(in NativeArray<RoadSegment> infos, in TrackPos pos, in Segment segment, float lane,
-            ref Translation translation, ref Rotation rotation)
+        public readonly static float3 cruiseColor = new float3(0.5f, 0.5f, 0.5f);
+        public readonly static float3 fastestColor = new float3(0, 1.0f, 0);
+        public readonly static float3 slowestColor = new float3(1.0f, 0.0f, 0);
+
+        private static void setColor(in Car car, ref URPMaterialPropertyBaseColor color)
         {
-            var seg = infos[segment.Val];
-            var posInSegment = pos.Val - (seg.Threshold - seg.Length);
+            if (car.Speed >= car.DesiredSpeedUnblocked)
+            {
+                var percentage = (car.Speed - car.DesiredSpeedUnblocked) / (car.DesiredSpeedOvertake - car.DesiredSpeedUnblocked);
+                color.Value = new float4(math.lerp(cruiseColor, fastestColor, percentage), 1.0f);
+            }
+            else
+            {
+                var percentage = (car.Speed - CarSpawnSys.minSpeed) / (car.DesiredSpeedUnblocked - CarSpawnSys.minSpeed);
+                color.Value = new float4(math.lerp(slowestColor, cruiseColor, percentage), 1.0f);
+            }
+        }
+
+        private static void setTransform(ref Car car, ref Translation translation, ref Rotation rotation, ref RoadSegment seg)
+        {
+            var posInSegment = car.Pos - (seg.Threshold - seg.Length);
+
+            var laneOffsetDist = car.LaneOffsetDist();
 
             translation.Value = seg.Position;
-            translation.Value += seg.DirectionLaneOffset * lane;
+            translation.Value += seg.DirectionLaneOffset * laneOffsetDist;
 
             if (seg.Radius > 0)
             {
                 var percentage = posInSegment / seg.Length;
                 rotation.Value = new quaternion(math.lerp(seg.DirectionRot.value, seg.DirectionRotEnd.value, percentage));
-                var radius = seg.Radius + lane * RoadSys.laneWidth; // todo: seg.Radius can just be const because will always be same 
+                var radius = seg.Radius + laneOffsetDist; // todo: seg.Radius can just be const because will always be same 
 
                 // rotate the origin around pivot to get displacement
                 float3 pivot = new float3();
@@ -72,22 +91,18 @@ namespace HighwayRacer
 
         protected override void OnUpdate()
         {
-            if (RoadSys.roadSegments.IsCreated)
-            {
-                var infos = RoadSys.roadSegments;
+            Car car;
+            RoadSegment segment;
+            var cars = new CarEnumerator(RoadSys.CarBuckets, RoadSys.roadSegments, out segment);
 
-                Entities.WithReadOnly(infos).WithNone<LaneOffset>().ForEach((ref Translation translation, ref Rotation rotation,
-                    in Segment segment, in TrackPos pos, in Lane lane) =>
+            // todo: to make parallel, ultimately need IJobChunk? per chunk, keep separate Car enumerator
+            Entities.WithReadOnly(RoadSys.CarBuckets).WithReadOnly(RoadSys.roadSegments).ForEach(
+                (ref Translation translation, ref Rotation rotation, ref URPMaterialPropertyBaseColor color) =>
                 {
-                    setTransform(in infos, in pos, in segment, lane.Val, ref translation, ref rotation);
-                }).ScheduleParallel();
-
-                Entities.WithReadOnly(infos).ForEach((ref Translation translation, ref Rotation rotation, in Segment segment, in TrackPos pos,
-                    in Lane lane, in LaneOffset laneOffset) =>
-                {
-                    setTransform(in infos, in pos, in segment, lane.Val + laneOffset.Val, ref translation, ref rotation);
-                }).ScheduleParallel();
-            }
+                    cars.Next(out car, ref segment);
+                    setTransform(ref car, ref translation, ref rotation, ref segment);
+                    setColor(in car, ref color);
+                }).Run();
         }
     }
 }

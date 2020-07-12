@@ -11,22 +11,21 @@ using Random = Unity.Mathematics.Random;
 
 namespace HighwayRacer
 {
-    [UpdateAfter(typeof(CameraSys))]
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
+    [UpdateAfter(typeof(RoadSys))]
     public class CarSpawnSys : SystemBase
     {
         private EntityQuery carQuery;
         private Entity carPrefab;
 
-        public readonly static int nLanes = 4;
+        public const float minSpeed = 7.0f;
+        public const float maxSpeed = 20.0f; // max cruising speed
 
-        public readonly static float minSpeed = 7.0f;
-        public readonly static float maxSpeed = 20.0f; // max cruising speed
+        public const float minBlockedDist = 8.0f;
+        public const float maxBlockedDist = 15.0f;
 
-        public readonly static float minBlockedDist = 8.0f;
-        public readonly static float maxBlockedDist = 15.0f;
-
-        public readonly static float minOvertakeModifier = 1.2f;
-        public readonly static float maxOvertakeModifier = 1.6f;
+        public const float minOvertakeModifier = 1.2f;
+        public const float maxOvertakeModifier = 1.6f;
 
         protected override void OnCreate()
         {
@@ -71,60 +70,38 @@ namespace HighwayRacer
                 var ents = EntityManager.Instantiate(carPrefab, nCars, Allocator.Temp);
                 ents.Dispose();
 
-                var nCarsInLane = 0;
-                byte currentLane = 0;
-                var nextTrackPos = 0.0f;
-
                 var seed = (uint) (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
                 var rand = new Random(seed);
 
-                var maxCarsInLane = nCars / nLanes;
-
-                Entities.ForEach((ref Speed speed, ref TrackPos trackPos, ref TargetSpeed targetSpeed, ref DesiredSpeed desiredSpeed,
-                    ref Lane lane, ref Blocking blockedDist, ref URPMaterialPropertyBaseColor color) =>
-                {
-                    if (currentLane < (nLanes - 1) && nCarsInLane >= maxCarsInLane)
-                    {
-                        nCarsInLane = 0;
-                        currentLane++;
-                        nextTrackPos = 0.0f;
-                    }
-
-                    desiredSpeed.Unblocked = math.lerp(minSpeed, maxSpeed, rand.NextFloat());
-                    targetSpeed.Val = desiredSpeed.Unblocked;
-                    speed.Val = 2.0f; // start off slow but not stopped (todo: does logic break if cars stop?)
-                    blockedDist.Dist = math.lerp(minBlockedDist, maxBlockedDist, rand.NextFloat());
-                    desiredSpeed.Overtake = targetSpeed.Val * math.lerp(minOvertakeModifier, maxOvertakeModifier, rand.NextFloat());
-                    trackPos.Val = nextTrackPos;
-                    lane.Val = currentLane;
-                    color.Value = new float4(SetColorSys.cruiseColor, 1.0f);
-
-                    nextTrackPos += RoadSys.carSpawnDist;
-                    nCarsInLane++;
-                }).Run();
-
-                var lastSegment = RoadSys.nSegments - 1;
-                var thresholds = RoadSys.thresholds;
-                var segmentLengths = RoadSys.segmentLengths;
                 var carBuckets = RoadSys.CarBuckets;
+
+                var bucketIdx = 0;
+                var roadSegments = RoadSys.roadSegments;
                 
-                // set segment, segmentLength, and set pos relative to segment
-                // also add cars to CarBuckets
-                Entities.ForEach((ref Segment segment, ref TrackPos trackPos, ref SegmentLength segmentLength, in Speed speed, in Lane lane) =>
+                // add cars to the buckets
+                for (int i = 0; i < nCars; i++)
                 {
-                    segment.Val =  (ushort) lastSegment;   // last segment gets all the rest (to account for float imprecision)
-                    for (ushort seg = 0; seg < lastSegment; seg++)
+                    Car car = new Car();
+
+                    car.DesiredSpeedUnblocked = math.lerp(minSpeed, maxSpeed, rand.NextFloat());
+                    car.DesiredSpeedOvertake = car.DesiredSpeedUnblocked * math.lerp(minOvertakeModifier, maxOvertakeModifier, rand.NextFloat());
+                    
+                    car.Speed = 2.0f; // start off slow but not stopped (todo: does logic break if cars stop?)
+                    car.BlockingDist = math.lerp(minBlockedDist, maxBlockedDist, rand.NextFloat());
+
+                    while (carBuckets.BucketFull(bucketIdx, roadSegments))
                     {
-                        if (trackPos.Val < thresholds[seg]) 
-                        {
-                            segment.Val = seg;
-                            trackPos.Val -= thresholds[seg];
-                            segmentLength.Val = segmentLengths[seg];
-                            carBuckets.AddCar(segment, trackPos, speed, lane);
-                            break;
-                        }
+                        bucketIdx++;
                     }
-                }).Run();
+
+                    if (!carBuckets.IsBucket(bucketIdx))
+                    {
+                        Debug.LogError("ran out of buckets when adding cars. On car " + i);  // shouldn't reach here
+                        return;
+                    }
+
+                    carBuckets.AddCar(ref car, bucketIdx);
+                }
             }
         }
     }

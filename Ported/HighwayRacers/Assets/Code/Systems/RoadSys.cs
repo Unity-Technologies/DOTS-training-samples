@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace HighwayRacer
 {
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class RoadSys : SystemBase
     {
         public static NativeArray<RoadSegment> roadSegments;
@@ -267,6 +268,12 @@ namespace HighwayRacer
         public float Length;
         public float Radius; // 0 for straight segments 
         public float Threshold; // end track pos i.e. cummulative length of this segment and all prior
+
+
+        public bool IsCurved()
+        {
+            return Radius != 0;
+        }
     }
 
     public enum Cardinal
