@@ -64,11 +64,6 @@ namespace HighwayRacer
             CarBuckets.Dispose();
             base.OnDestroy();
         }
-
-        public static int NumCarsFitInStraightLane()
-        {
-            return (int) math.ceil(straightLength / minDist);
-        }
         
         public static int NumCarsFitInStraightSegment(float straightLength)
         {
@@ -90,7 +85,8 @@ namespace HighwayRacer
             roadLength = roadInit.Length;
             
             World.DefaultGameObjectInjectionWorld.GetExistingSystem<CameraSys>().ResetCamera();
-            CarSpawnSys.respawnCars = true;
+
+            EntityManager.CreateEntity(typeof(SpawnCars));
 
             var transform = GameObject.Find("Road").transform;
 
@@ -151,7 +147,6 @@ namespace HighwayRacer
             {
                 GameObject.Destroy(go);
             }
-
             straightRoadExtraPieces.Clear();
 
             int newIdx = 0;
@@ -169,7 +164,6 @@ namespace HighwayRacer
                     roadSegments[newIdx] = new RoadSegment()
                     {
                         Position = new float3(),
-                        EndPosition = new float3(),
                         Direction = cardinal,
                         DirectionVec = vecFromCardinal[cardinal],
                         DirectionRot = rotFromCardinal[cardinal],
@@ -201,7 +195,6 @@ namespace HighwayRacer
                         roadSegments[newIdx] = new RoadSegment()
                         {
                             Position = new float3(),
-                            EndPosition = new float3(),
                             Direction = cardinal,
                             DirectionVec = vecFromCardinal[cardinal],
                             DirectionRot = rotFromCardinal[cardinal],
@@ -242,12 +235,10 @@ namespace HighwayRacer
                 segmentGOs[i].transform.position = pos;
 
                 segment.Position = pos;
-                segment.EndPosition = endPos;
                 segment.Length = length;
-                segment.Threshold = lengthSum;
+                
                 thresholds[i] = lengthSum;
                 segmentLengths[i] = length;
-
                 roadSegments[i] = segment;
 
                 pos = endPos;
@@ -255,11 +246,10 @@ namespace HighwayRacer
         }
     }
 
-// todo: use float2's instead
+    // todo: use float2's instead
     public struct RoadSegment
     {
         public float3 Position;
-        public float3 EndPosition; // relative from Position 
         public Cardinal Direction;
         public float3 DirectionVec;
         public quaternion DirectionRot;
@@ -267,8 +257,6 @@ namespace HighwayRacer
         public float3 DirectionLaneOffset;
         public float Length;
         public float Radius; // 0 for straight segments 
-        public float Threshold; // end track pos i.e. cummulative length of this segment and all prior
-
 
         public bool IsCurved()
         {

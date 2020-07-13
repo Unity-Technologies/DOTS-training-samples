@@ -79,38 +79,8 @@ namespace HighwayRacer
                     {
                         v.y = 0;
                     }
-
-                    // look for car nearest to click; if closest car is close enough, switch to that car's cam
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                        RaycastHit hit;
-                        if (Physics.Raycast(ray, out hit))
-                        {
-                            var point = new float3(hit.point);
-                            var closestEnt = new Entity() {Index = -1};
-                            var closestTrans = float3.zero;
-                            var closestDist = float.MaxValue;
-                            Entities.ForEach((Entity ent, in Translation translation) =>
-                            {
-                                var dist = math.distance(point, translation.Value);
-                                if (dist < closestDist)
-                                {
-                                    closestEnt = ent;
-                                    closestTrans = translation.Value;
-                                    closestDist = dist;
-                                }
-                            }).Run();
-
-                            if (closestDist != float.MaxValue && closestDist < minClickDist)
-                            {
-                                car = closestEnt;
-                                state = State.CAR;
-                                transitionTimer = 0;
-                                CarProperties.instance.Show(closestEnt);
-                            }
-                        }
-                    }
+                    
+                    findClickedCar();
 
                     var transform = Camera.main.transform;
                     var newPos = new Vector3(
@@ -123,32 +93,70 @@ namespace HighwayRacer
                     break;
 
                 case State.CAR:
-
-                    if (Input.GetKey(KeyCode.Escape))
-                    {
-                        state = State.TOP_DOWN;
-                        Camera.main.transform.SetPositionAndRotation(topDownPosition, topDownRotation);
-                        return;
-                    }
-
-                    transitionTimer += Time.DeltaTime;
-
-                    var trans = EntityManager.GetComponentData<Translation>(car);
-                    var rot = EntityManager.GetComponentData<Rotation>(car);
-
-                    var camPos = math.rotate(rot.Value, carCamOffset);
-                    camPos += trans.Value;
-
-                    if (transitionTimer < transitionDuration)
-                    {
-                        var fraction = transitionTimer / transitionDuration;
-                        camPos = math.lerp(topDownPosition, camPos, fraction);
-                        rot.Value = math.nlerp(topDownRotation, rot.Value, fraction); // use slerp?
-                    }
-
-                    Camera.main.transform.SetPositionAndRotation(camPos, rot.Value);
-
+                    updateCarCam();
                     break;
+            }
+        }
+
+        private void updateCarCam()
+        {
+            if (Input.GetKey(KeyCode.Escape))
+            {
+                state = State.TOP_DOWN;
+                Camera.main.transform.SetPositionAndRotation(topDownPosition, topDownRotation);
+                return;
+            }
+
+            transitionTimer += Time.DeltaTime;
+
+            var trans = EntityManager.GetComponentData<Translation>(car);
+            var rot = EntityManager.GetComponentData<Rotation>(car);
+
+            var camPos = math.rotate(rot.Value, carCamOffset);
+            camPos += trans.Value;
+
+            if (transitionTimer < transitionDuration)
+            {
+                var fraction = transitionTimer / transitionDuration;
+                camPos = math.lerp(topDownPosition, camPos, fraction);
+                rot.Value = math.nlerp(topDownRotation, rot.Value, fraction); // use slerp?
+            }
+
+            Camera.main.transform.SetPositionAndRotation(camPos, rot.Value);
+        }
+
+        // look for car nearest to click; if closest car is close enough, switch to that car's cam
+        private void findClickedCar()
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit))
+                {
+                    var point = new float3(hit.point);
+                    var closestEnt = new Entity() {Index = -1};
+                    var closestTrans = float3.zero;
+                    var closestDist = float.MaxValue;
+                    Entities.ForEach((Entity ent, in Translation translation) =>
+                    {
+                        var dist = math.distance(point, translation.Value);
+                        if (dist < closestDist)
+                        {
+                            closestEnt = ent;
+                            closestTrans = translation.Value;
+                            closestDist = dist;
+                        }
+                    }).Run();
+
+                    if (closestDist != float.MaxValue && closestDist < minClickDist)
+                    {
+                        car = closestEnt;
+                        state = State.CAR;
+                        transitionTimer = 0;
+                        CarProperties.instance.Show(closestEnt);
+                    }
+                }
             }
         }
     }

@@ -2,7 +2,7 @@
 
 namespace HighwayRacer
 {
-    public struct MergingRight : IComponentData
+    public struct SpawnCars : IComponentData
     {
     }
 }

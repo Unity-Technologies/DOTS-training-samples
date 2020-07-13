@@ -30,6 +30,8 @@ namespace HighwayRacer
         protected override void OnCreate()
         {
             base.OnCreate();
+            
+            RequireSingletonForUpdate<SpawnCars>();
             carQuery = GetEntityQuery(new EntityQueryDesc[]
             {
                 new EntityQueryDesc()
@@ -38,71 +40,63 @@ namespace HighwayRacer
                     None = new ComponentType[] {typeof(Prefab)},
                 },
             });
+            
+            carPrefab = carQuery.GetSingletonEntity();
+            var types = new ComponentType[]
+            {
+                typeof(Prefab), typeof(Translation), typeof(Rotation), typeof(URPMaterialPropertyBaseColor)
+            };
+            EntityManager.AddComponents(carPrefab, new ComponentTypes(types));
         }
-
-        public static bool respawnCars = true;
-        public static bool firstTime = true;
 
         protected override void OnUpdate()
         {
-            if (respawnCars)
+            var ent = GetSingletonEntity<SpawnCars>();
+            EntityManager.DestroyEntity(ent);
+
+            // destroy all cars except for prefab
+            EntityManager.DestroyEntity(carQuery);
+
+            int nCars = RoadSys.numCars;
+
+            var ents = EntityManager.Instantiate(carPrefab, nCars, Allocator.Temp);
+            ents.Dispose();
+
+            var seed = (uint) (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var rand = new Random(seed);
+
+            var carBuckets = RoadSys.CarBuckets;
+            var bucketIdx = 0;
+            var roadSegments = RoadSys.roadSegments;
+
+            // add cars to the buckets
+            for (int i = 0; i < nCars; i++)
             {
-                respawnCars = false;
+                Car car = new Car();
 
-                if (firstTime)
+                car.DesiredSpeedUnblocked = math.lerp(minSpeed, maxSpeed, rand.NextFloat());
+                car.DesiredSpeedOvertake = car.DesiredSpeedUnblocked * math.lerp(minOvertakeModifier, maxOvertakeModifier, rand.NextFloat());
+
+                car.Speed = 2.0f; // start off slow but not stopped (todo: does logic break if cars stop?)
+                car.BlockingDist = math.lerp(minBlockedDist, maxBlockedDist, rand.NextFloat());
+                car.CarState = CarState.Normal;
+
+                while (carBuckets.BucketFull(bucketIdx, roadSegments))
                 {
-                    firstTime = false;
-
-                    carPrefab = carQuery.GetSingletonEntity();
-                    var types = new ComponentType[]
-                    {
-                        typeof(Prefab), typeof(Translation), typeof(Rotation), typeof(URPMaterialPropertyBaseColor)
-                    };
-                    EntityManager.AddComponents(carPrefab, new ComponentTypes(types));
+                    bucketIdx++;
                 }
 
-                // destroy all cars except for prefab
-                EntityManager.DestroyEntity(carQuery);
-
-                int nCars = RoadSys.numCars;
-                float trackLength = RoadSys.roadLength;
-
-                var ents = EntityManager.Instantiate(carPrefab, nCars, Allocator.Temp);
-                ents.Dispose();
-
-                var seed = (uint) (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-                var rand = new Random(seed);
-
-                var carBuckets = RoadSys.CarBuckets;
-
-                var bucketIdx = 0;
-                var roadSegments = RoadSys.roadSegments;
-                
-                // add cars to the buckets
-                for (int i = 0; i < nCars; i++)
+                // defensive check
+                if (!carBuckets.IsBucketIdx(bucketIdx))
                 {
-                    Car car = new Car();
-
-                    car.DesiredSpeedUnblocked = math.lerp(minSpeed, maxSpeed, rand.NextFloat());
-                    car.DesiredSpeedOvertake = car.DesiredSpeedUnblocked * math.lerp(minOvertakeModifier, maxOvertakeModifier, rand.NextFloat());
-                    
-                    car.Speed = 2.0f; // start off slow but not stopped (todo: does logic break if cars stop?)
-                    car.BlockingDist = math.lerp(minBlockedDist, maxBlockedDist, rand.NextFloat());
-
-                    while (carBuckets.BucketFull(bucketIdx, roadSegments))
-                    {
-                        bucketIdx++;
-                    }
-
-                    if (!carBuckets.IsBucket(bucketIdx))
-                    {
-                        Debug.LogError("ran out of buckets when adding cars. On car " + i);  // shouldn't reach here
-                        return;
-                    }
-
-                    carBuckets.AddCar(ref car, bucketIdx);
+                    Debug.LogError("ran out of buckets when adding cars. On car " + i); // shouldn't reach here
+                    return;
                 }
+
+                carBuckets.AddCar(ref car, bucketIdx);
             }
+            
+            carBuckets.Sort();
         }
     }
 }

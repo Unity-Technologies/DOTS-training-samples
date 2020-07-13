@@ -60,37 +60,20 @@ SimulationSystemGroup
   
   
   
-  1. set color and transforms in one loop that copies both from Car to Entity
-  
-  2. a CarState enum for each car:
-  
-        Normal
-        MergingLeftStartOvertake
-        MergingLeftEndOvertake
-        MergingRightStartOvertake
-        MergingRightEndOvertake
-        Overtake
-  
-  4. split car info so that overtake/merging state is in an entity referenced from the main Car
-  
-    use ComponentDataFromEntity for lookup of these values (why is it faster?)   
-    
-  5. combine Merge and Avoidance  (try parallelizing first, then see if combining helps any)
-  
-  6. implement LaneOffsetDist
+ 1. set color and transforms in one loop that copies both from Car to Entity
+
+ 2. split Car so that Pos Lane and Speed are own struct in separate set of buckets
+ 
+ 3. implement LaneOffsetDist
   
   InitializationSystemGroup
-      --
-          RoadSys
-          CarSpawnSys
-          
+      
+      RoadSys
+      CarSpawnSys
           
   SimulationSystemGroup
-      --
-          CameraSys
-      --
-          MergeInProgressSys
-          AvoidanceAndSpeedSys
-      --
-          SetTransformAndColorSys   
-          AdvanceCarsSys  
+      
+      CameraSys
+      AvoidanceMergeSpeedSys
+      SetTransformAndColorSys   
+      AdvanceCarsSys

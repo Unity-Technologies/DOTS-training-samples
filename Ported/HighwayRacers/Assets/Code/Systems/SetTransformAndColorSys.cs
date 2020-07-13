@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace HighwayRacer
 {
-    [UpdateAfter(typeof(AvoidanceAndSpeedSys))]
+    [UpdateAfter(typeof(AvoidanceMergeSpeedSys))]
     public class SetTransformAndColorSys : SystemBase
     {
         protected override void OnCreate()
@@ -35,20 +35,18 @@ namespace HighwayRacer
             }
         }
 
-        private static void setTransform(ref Car car, ref Translation translation, ref Rotation rotation, ref RoadSegment seg)
+        private static void setTransform(in Car car, ref Translation translation, ref Rotation rotation, in RoadSegment seg)
         {
-            var posInSegment = car.Pos - (seg.Threshold - seg.Length);
-
             var laneOffsetDist = car.LaneOffsetDist();
 
             translation.Value = seg.Position;
             translation.Value += seg.DirectionLaneOffset * laneOffsetDist;
 
-            if (seg.Radius > 0)
+            if (seg.IsCurved())  
             {
-                var percentage = posInSegment / seg.Length;
+                var percentage = car.Pos / seg.Length;
                 rotation.Value = new quaternion(math.lerp(seg.DirectionRot.value, seg.DirectionRotEnd.value, percentage));
-                var radius = seg.Radius + laneOffsetDist; // todo: seg.Radius can just be const because will always be same 
+                var radius = seg.Radius + laneOffsetDist;  
 
                 // rotate the origin around pivot to get displacement
                 float3 pivot = new float3();
@@ -71,7 +69,7 @@ namespace HighwayRacer
                 }
 
                 // rotate displacement by angle around pivot
-                var angle = math.lerp(math.radians(0), math.radians(-90), percentage); // -90 because cos & sin assume clockwise
+                var angle = math.lerp(math.radians(0), math.radians(-90), percentage); // -90 because cos & sin assume counter-clockwise
                 displacement -= pivot;
                 var c = math.cos(angle);
                 var s = math.sin(angle);
@@ -84,7 +82,7 @@ namespace HighwayRacer
             }
             else
             {
-                translation.Value += posInSegment * seg.DirectionVec;
+                translation.Value += car.Pos * seg.DirectionVec;
                 rotation.Value = seg.DirectionRot;
             }
         }
@@ -100,7 +98,7 @@ namespace HighwayRacer
                 (ref Translation translation, ref Rotation rotation, ref URPMaterialPropertyBaseColor color) =>
                 {
                     cars.Next(out car, ref segment);
-                    setTransform(ref car, ref translation, ref rotation, ref segment);
+                    setTransform(in car, ref translation, ref rotation, in segment);
                     setColor(in car, ref color);
                 }).Run();
         }
