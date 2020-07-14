@@ -4,13 +4,16 @@ namespace HighwayRacer
 {
     [UpdateAfter(typeof(CameraSys))]
     [AlwaysUpdateSystem]
-    public class AvoidanceMergeSpeedSys : SystemBase 
+    public class AvoidanceMergeSpeedSys : SystemBase
     {
+        private bool mergeLeftFrame = false;
+        
         protected override void OnUpdate()
         {
+            mergeLeftFrame = !mergeLeftFrame;
             var buckets = RoadSys.CarBuckets;
             var dt = Time.DeltaTime;
-            buckets.UpdateCars(dt);
+            buckets.UpdateCars(dt, mergeLeftFrame);
         }
     }
 }

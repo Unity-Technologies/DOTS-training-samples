@@ -239,7 +239,7 @@ namespace HighwayRacer
             }
         }
 
-        public void Merge(float mergeSpeed)
+        public void MergingMove(float mergeSpeed)
         {
             switch (CarState)
             {
