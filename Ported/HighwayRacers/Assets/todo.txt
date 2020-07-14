@@ -39,32 +39,21 @@ BIG THINGS
 4. instead of Translation and Rotation, convert directly to LocalToWorld
 
 
-SimulationSystemGroup
-    --
-        RoadSys
-        CameraSys
-    --
-        CarSpawnSys
-        SegmentizeSys
-    --
-        AvoidanceAndSpeedSys
-        AvoidanceAndSpeedMergingSys
-        AvoidanceAndSpeedOvertakeSys
-    --
-        MergingSys
-        MergingOvertakeSys
-    --
-        SetColorSys
-        SetTransformSys
-        AdvanceCarsSys
-  
-  
-  
- 1. set color and transforms in one loop that copies both from Car to Entity
 
- 2. split Car so that Pos Lane and Speed are own struct in separate set of buckets
- 
- 3. implement LaneOffsetDist
+
+
+
+
+
+*   fix curve car rendering
+
+*   update num cars slider range when we change highway size
+*   test max num cars is valid for a given highway size
+
+*   is CarCompare an issue now for Lane comparison?
+*   what if we only sorted a bucket every few frames? might get erroneously moved to next bucket?
+
+*   split Car so that Pos Lane and Speed are own struct in separate set of buckets
   
   InitializationSystemGroup
       

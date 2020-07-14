@@ -35,7 +35,7 @@ namespace HighwayRacer
             }
         }
 
-        private static void setTransform(in Car car, ref Translation translation, ref Rotation rotation, in RoadSegment seg)
+        private static void setTransform(ref Car car, ref Translation translation, ref Rotation rotation, ref RoadSegment seg)
         {
             var laneOffsetDist = car.LaneOffsetDist();
 
@@ -98,7 +98,7 @@ namespace HighwayRacer
                 (ref Translation translation, ref Rotation rotation, ref URPMaterialPropertyBaseColor color) =>
                 {
                     cars.Next(out car, ref segment);
-                    setTransform(in car, ref translation, ref rotation, in segment);
+                    setTransform(ref car, ref translation, ref rotation, ref segment);
                     setColor(in car, ref color);
                 }).Run();
         }

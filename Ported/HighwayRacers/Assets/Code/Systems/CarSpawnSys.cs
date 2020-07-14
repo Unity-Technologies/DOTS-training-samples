@@ -26,12 +26,13 @@ namespace HighwayRacer
 
         public const float minOvertakeModifier = 1.2f;
         public const float maxOvertakeModifier = 1.6f;
+        
+        public const float startSpeed = 6.0f;
 
         protected override void OnCreate()
         {
             base.OnCreate();
-            
-            RequireSingletonForUpdate<SpawnCars>();
+
             carQuery = GetEntityQuery(new EntityQueryDesc[]
             {
                 new EntityQueryDesc()
@@ -40,17 +41,23 @@ namespace HighwayRacer
                     None = new ComponentType[] {typeof(Prefab)},
                 },
             });
-            
-            carPrefab = carQuery.GetSingletonEntity();
-            var types = new ComponentType[]
-            {
-                typeof(Prefab), typeof(Translation), typeof(Rotation), typeof(URPMaterialPropertyBaseColor)
-            };
-            EntityManager.AddComponents(carPrefab, new ComponentTypes(types));
+
+            RequireSingletonForUpdate<SpawnCars>();
+            RequireForUpdate(carQuery);
         }
 
         protected override void OnUpdate()
         {
+            if (!EntityManager.Exists(carPrefab))
+            {
+                carPrefab = carQuery.GetSingletonEntity();
+                var types = new ComponentType[]
+                {
+                    typeof(Prefab), typeof(Translation), typeof(Rotation), typeof(URPMaterialPropertyBaseColor)
+                };
+                EntityManager.AddComponents(carPrefab, new ComponentTypes(types));
+            }
+
             var ent = GetSingletonEntity<SpawnCars>();
             EntityManager.DestroyEntity(ent);
 
@@ -66,24 +73,33 @@ namespace HighwayRacer
             var rand = new Random(seed);
 
             var carBuckets = RoadSys.CarBuckets;
-            var bucketIdx = 0;
             var roadSegments = RoadSys.roadSegments;
+
+            var bucketIdx = 0;
+            var bucket = carBuckets.GetCars(bucketIdx);
+            var writer = carBuckets.GetWriter(bucketIdx);
+            var segment = roadSegments[bucketIdx];
+
+            Car car = new Car();
+            car.LaneOffset = 0.0f;
+            car.OvertakeTimer = 0.0f;
+            car.Pos = 0.0f;
+            car.RightMostLane();
 
             // add cars to the buckets
             for (int i = 0; i < nCars; i++)
             {
-                Car car = new Car();
-
-                car.DesiredSpeedUnblocked = math.lerp(minSpeed, maxSpeed, rand.NextFloat());
-                car.DesiredSpeedOvertake = car.DesiredSpeedUnblocked * math.lerp(minOvertakeModifier, maxOvertakeModifier, rand.NextFloat());
-
-                car.Speed = 2.0f; // start off slow but not stopped (todo: does logic break if cars stop?)
-                car.BlockingDist = math.lerp(minBlockedDist, maxBlockedDist, rand.NextFloat());
-                car.CarState = CarState.Normal;
-
-                while (carBuckets.BucketFull(bucketIdx, roadSegments))
+                // while bucket is full
+                while (bucket.Length >= bucket.Capacity ||
+                       segment.IsCurved() ||
+                       car.Pos >= (segment.Length - RoadSys.carSpawnDist - RoadSys.carSpawnDist))
                 {
                     bucketIdx++;
+                    car.Pos = 0.0f;
+                    car.RightMostLane();
+                    bucket = carBuckets.GetCars(bucketIdx);
+                    writer = carBuckets.GetWriter(bucketIdx);
+                    segment = roadSegments[bucketIdx];
                 }
 
                 // defensive check
@@ -93,9 +109,18 @@ namespace HighwayRacer
                     return;
                 }
 
-                carBuckets.AddCar(ref car, bucketIdx);
+                car.DesiredSpeedUnblocked = math.lerp(minSpeed, maxSpeed, rand.NextFloat());
+                car.DesiredSpeedOvertake = car.DesiredSpeedUnblocked * math.lerp(minOvertakeModifier, maxOvertakeModifier, rand.NextFloat());
+
+                car.Speed = startSpeed; // start off slow but not stopped (todo: does logic break if cars stop?)
+                car.BlockingDist = math.lerp(minBlockedDist, maxBlockedDist, rand.NextFloat());
+                car.CarState = CarState.Normal;
+
+                writer.AddNoResize(car);
+                
+                car.SetNextPosAndLane();
             }
-            
+
             carBuckets.Sort();
         }
     }

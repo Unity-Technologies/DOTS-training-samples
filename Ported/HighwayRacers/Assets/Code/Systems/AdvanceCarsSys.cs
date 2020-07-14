@@ -17,7 +17,12 @@ namespace HighwayRacer
         {
             var segmentLengths = RoadSys.segmentLengths;
             var buckets = RoadSys.CarBuckets;
-            buckets.AdvanceCars(segmentLengths);
+            var dt = Time.DeltaTime;
+            
+            if (buckets.IsCreated)
+            {
+                buckets.AdvanceCars(segmentLengths, dt);    
+            }
         }
     }
 }

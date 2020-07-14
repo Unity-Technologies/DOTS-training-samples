@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using HighwayRacer;
+using Unity.Assertions;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -16,8 +17,8 @@ namespace HighwayRacer
 
         private NativeArray<UnsafeList.ParallelWriter> writers;
         private NativeArray<UnsafeList> lists;
-        
-        private NativeArray<int> idxMoveMeAndAllAfter; // for each list, the index of first car that should be moved to next list
+
+        private NativeArray<int> moveIndexes; // for each list, the index of first car that should be moved to next list
         private UnsafeList<Car> tempList;
 
         public CarBuckets(int nSegments, int nCarsPerSegment)
@@ -27,7 +28,7 @@ namespace HighwayRacer
 
             writers = new NativeArray<UnsafeList.ParallelWriter>(nSegments, Allocator.Persistent);
             lists = new NativeArray<UnsafeList>(nSegments, Allocator.Persistent);
-            idxMoveMeAndAllAfter = new NativeArray<int>(nSegments, Allocator.Persistent);
+            moveIndexes = new NativeArray<int>(nSegments, Allocator.Persistent);
 
             var ptr = (UnsafeList*) lists.GetUnsafePtr();
 
@@ -41,27 +42,22 @@ namespace HighwayRacer
             tempList = new UnsafeList<Car>(nCarsPerSegment, Allocator.Persistent);
         }
 
-        public UnsafeList<Car> GetCars(int segment)
+        public UnsafeList<Car> GetCars(int segmentIdx)
         {
-            var bucket = lists[segment];
-            return new UnsafeList<Car>((Car*) bucket.Ptr, bucket.Length);
+            var bucket = lists[segmentIdx];
+            var list = new UnsafeList<Car>((Car*) bucket.Ptr, bucket.Length);
+            list.Capacity = bucket.Capacity;
+            return list;
         }
 
-        public void AddCar(ref Car car, int bucketIdx)
+        public UnsafeList.ParallelWriter GetWriter(int segmentIdx)
         {
-            var bucket = GetCars(bucketIdx);
-
-            var lastCar = bucket[bucket.Length - 1];
-            car.Lane = lastCar.Lane;
-            car.Pos = lastCar.Pos;
-            car.SetNextPosAndLane();
-
-            bucket.AddNoResize(car);
+            return writers[segmentIdx];
         }
 
         // 1. set new pos given speed
         // 2. moves cars between buckets when they move past end
-        public void AdvanceCars(NativeArray<float> segmentLengths)
+        public void AdvanceCars(NativeArray<float> segmentLengths, float dt)
         {
             // update car pos based on speed. Also record idx at-and-past which cars in the bucket should move to next bucket
             for (var segmentIdx = 0; segmentIdx < lists.Length; segmentIdx++)
@@ -69,90 +65,104 @@ namespace HighwayRacer
                 var segmentLength = segmentLengths[segmentIdx];
                 var cars = GetCars(segmentIdx);
 
-                idxMoveMeAndAllAfter[segmentIdx] = cars.Length;
+                var moveIdx = cars.Length;
                 for (var i = 0; i < cars.Length; i++)
                 {
                     var car = cars[i];
-                    car.Pos += car.Speed;
+                    car.Pos += car.Speed * dt;
                     if (car.Pos > segmentLength)
                     {
                         car.Pos -= segmentLength;
-                        if (i < idxMoveMeAndAllAfter[segmentIdx])
+                        if (i < moveIdx)
                         {
-                            idxMoveMeAndAllAfter[segmentIdx] = i;
+                            moveIdx = i;
                         }
                     }
                     cars[i] = car;
                 }
+
+                moveIndexes[segmentIdx] = (moveIdx == cars.Length) ? -1 : moveIdx;
             }
 
             // cache cars to move from last bucket, then actually remove them from that bucket
-            pushCarsToCache(idxMoveMeAndAllAfter[lists.Length - 1], lists.Length - 1);
-
+            pushCarsToCache(moveIndexes[lists.Length - 1], lists.Length - 1);
+            
             // from each bucket, move all cars at or past index to next bucket
             for (int bucketIdx = lists.Length - 2; bucketIdx >= 0; bucketIdx--)
             {
-                moveCarsNext(idxMoveMeAndAllAfter[bucketIdx], bucketIdx, bucketIdx + 1);
+                moveCarsNext(moveIndexes[bucketIdx], bucketIdx, bucketIdx + 1);
             }
-
+            
             // append cached cars to end of first bucket 
             popCarsFromCache(0);
 
             Sort(); // sorts all the buckets
         }
 
-        private void moveCarsNext(int idxMoveMeAndAllAfter, int srcBucketIdx, int dstBucketIdx)
+        private void moveCarsNext(int moveIdx, int srcBucketIdx, int dstBucketIdx)
         {
+            if (moveIdx == -1)
+            {
+                return;
+            }
+            
+            Debug.Log("moving cars to next bucket");
+            
             var ptr = (UnsafeList*) lists.GetUnsafePtr();
             var srcBucketPtr = ptr + srcBucketIdx;
             var srcBucket = GetCars(srcBucketIdx);
-            
+
             var dstBucketPtr = ptr + dstBucketIdx;
             var dstBucket = GetCars(dstBucketIdx);
-            
-            var count = srcBucket.Length - idxMoveMeAndAllAfter;
+
+            var count = srcBucket.Length - moveIdx;
             for (int i = 0; i < count; i++)
             {
-                 dstBucket[dstBucket.Length + i] = srcBucket[idxMoveMeAndAllAfter + i];
+                dstBucket[dstBucket.Length + i] = srcBucket[moveIdx + i];
             }
 
             dstBucketPtr->Length += count;
-            srcBucketPtr->Length = idxMoveMeAndAllAfter;
+            srcBucketPtr->Length = moveIdx;
         }
-        
-        
-        private void pushCarsToCache(int idxMoveMeAndAllAfter, int srcBucketIdx)
+
+
+        private void pushCarsToCache(int moveIdx, int srcBucketIdx)
         {
             tempList.Clear();
             
+            if (moveIdx == -1)
+            {
+                return;
+            }
+
             var ptr = (UnsafeList*) lists.GetUnsafePtr();
             var srcBucketPtr = ptr + srcBucketIdx;
             var srcBucket = GetCars(srcBucketIdx);
 
-            var count = srcBucket.Length - idxMoveMeAndAllAfter;
+            var count = srcBucket.Length - moveIdx;
             for (int i = 0; i < count; i++)
             {
-                tempList[i] = srcBucket[idxMoveMeAndAllAfter + i];
+                tempList[i] = srcBucket[moveIdx + i];
             }
-            
-            tempList.Length += count;
-            srcBucketPtr->Length = idxMoveMeAndAllAfter;
+
+            tempList.Length = count;
+            srcBucketPtr->Length = moveIdx;
         }
-        
+
         private void popCarsFromCache(int dstBucketIdx)
         {
             var ptr = (UnsafeList*) lists.GetUnsafePtr();
             var dstBucketPtr = ptr + dstBucketIdx;
             var dstBucket = GetCars(dstBucketIdx);
-            
+
             for (int i = 0; i < tempList.Length; i++)
             {
                 dstBucket[dstBucket.Length + i] = tempList[i];
             }
-            
-            dstBucketPtr->Length = tempList.Length;
+
+            dstBucketPtr->Length += tempList.Length;
         }
-        
+
 
         // updates cars in all ways except advancing their position
         // 1. update lane offset of merging cars; cars that complete merge leave merge state
@@ -199,10 +209,10 @@ namespace HighwayRacer
             for (int i = 0; i < lists.Length; i++)
             {
                 var list = lists[i];
-                InsertionSort<Car, CarCompare>(list.Ptr, 0, list.Length, new CarCompare());
+                InsertionSort<Car, CarCompare>(list.Ptr, 0, list.Length - 1, new CarCompare());
             }
         }
-        
+
         // copied from Collections
         void InsertionSort<T, U>(void* array, int lo, int hi, U comp) where T : struct where U : IComparer<T>
         {
@@ -233,32 +243,11 @@ namespace HighwayRacer
 
                 writers.Dispose();
                 lists.Dispose();
-                idxMoveMeAndAllAfter.Dispose();
+                moveIndexes.Dispose();
                 tempList.Dispose();
             }
         }
-
-        // assumes bucketIdx is valid
-        public bool BucketFull(int bucketIdx, NativeArray<RoadSegment> roadSegments)
-        {
-            var segment = roadSegments[bucketIdx];
-            if (segment.IsCurved())
-            {
-                return true;
-            }
-
-            var bucket = GetCars(bucketIdx);
-
-            if (bucket.Length == 0)
-            {
-                return true;
-            }
-
-            // true if current last car is not within 2 * carSpawnDist from end of segment
-            var lastCar = bucket[bucket.Length - 1];
-            return (lastCar.Pos < (segment.Length - RoadSys.carSpawnDist - RoadSys.carSpawnDist));
-        }
-
+        
         public bool IsBucketIdx(int bucketIdx)
         {
             return bucketIdx >= 0 && bucketIdx < lists.Length;
@@ -278,19 +267,7 @@ namespace HighwayRacer
                 return 1;
             }
 
-            // lane is tie breaker
-            if (x.Lane < y.Lane)
-            {
-                return -1;
-            }
-            else if (x.Lane == y.Lane)
-            {
-                return 0;
-            }
-            else
-            {
-                return 1;
-            }
+            return 0;
         }
     }
 
@@ -321,13 +298,13 @@ namespace HighwayRacer
             this.buckets = buckets;
             this.segments = segments;
 
-            bucket = new UnsafeList<Car>();
+            bucket = buckets.GetCars(0);
             segment = segments[0];
 
             carIdx = 0;
             bucketIdx = 0;
         }
-
+        
         public void Next(out Car car, ref RoadSegment segment)
         {
             while (carIdx >= bucket.Length)
@@ -335,6 +312,8 @@ namespace HighwayRacer
                 carIdx = 0;
                 bucketIdx++;
 
+                //Assert.IsTrue(bucketIdx < RoadSys.nSegments, "Improper Next()");
+                
                 bucket = buckets.GetCars(bucketIdx);
                 segment = segments[bucketIdx];
             }

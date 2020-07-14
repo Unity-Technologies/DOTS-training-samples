@@ -27,7 +27,7 @@ namespace HighwayRacer
         public const float accelerationRate = 8.0f; // m/s to lose per second
 
         public const float carSpawnDist = 8.0f;
-        public static int numCars = 129;
+        public static int numCars = 60;
 
         public static float minLength = 400.0f; // 4 * curved length + 4 * min straight length
         public static float maxLength = 200999;
@@ -58,22 +58,28 @@ namespace HighwayRacer
 
         protected override void OnDestroy()
         {
+            Cleanup();
+            base.OnDestroy();
+        }
+
+        private void Cleanup()
+        {
             roadSegments.Dispose();
             thresholds.Dispose();
             segmentLengths.Dispose();
             CarBuckets.Dispose();
-            base.OnDestroy();
         }
         
-        public static int NumCarsFitInStraightSegment(float straightLength)
+        public static int NumCarsFitInStraightSegment()
         {
-            return (int) math.ceil((nLanes * straightLength) / minDist);
+            var n = (int)(straightLength / RoadSys.carSpawnDist) - 2; // - 2 so cars can spawn comfortably within margin
+            return n * nLanes; 
         }
 
         public static int GetMaxCars(float length)
         {
-            var n = (int) Mathf.Floor((nLanes * length) / carSpawnDist);
-            return n - (8 * nLanes);   // account for wrap around + for rounding error   
+            var nStraightSegments = nSegments - 4;   // factor out the curved segments
+            return NumCarsFitInStraightSegment() * nStraightSegments;     
         }
 
         protected override void OnUpdate()
@@ -133,12 +139,20 @@ namespace HighwayRacer
                 thresholds.Dispose();
             }
 
+            if (segmentLengths.IsCreated)
+            {
+                segmentLengths.Dispose();
+            }
+
+            if (CarBuckets.IsCreated)
+            {
+                CarBuckets.Dispose();
+            }
+
             roadSegments = new NativeArray<RoadSegment>(nSegments, Allocator.Persistent);
             thresholds = new NativeArray<float>(nSegments, Allocator.Persistent);
             segmentLengths = new NativeArray<float>(nSegments, Allocator.Persistent);
-            
-            CarBuckets.Dispose();
-            CarBuckets = new CarBuckets(nSegments, NumCarsFitInStraightSegment(straightLength) * 2);
+            CarBuckets = new CarBuckets(nSegments, NumCarsFitInStraightSegment() * 2);
             
             var segmentGOs = new GameObject[nSegments];
 

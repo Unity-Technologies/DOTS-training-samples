@@ -60,6 +60,11 @@ namespace HighwayRacer
             }
         }
 
+        public void RightMostLane()
+        {
+            Lane = 1;
+        }
+
         public void MergeLeftLane()
         {
             switch (Lane)
@@ -177,31 +182,31 @@ namespace HighwayRacer
         public float LaneOffsetDist()
         {
             float baseOffset = 0;
-            
+
             switch (Lane)
             {
-                case 1:   // 0001
-                case 3:   // 0011
+                case 1: // 0001
+                case 3: // 0011
                     baseOffset = 0;
                     break;
-                case 2:   // 0010
-                case 6:   // 0110
-                    baseOffset =  RoadSys.laneWidth;
+                case 2: // 0010
+                case 6: // 0110
+                    baseOffset = 1;
                     break;
-                case 4:   // 0100
-                case 12:   // 1100
-                    baseOffset =  RoadSys.laneWidth * 2;
+                case 4: // 0100
+                case 12: // 1100
+                    baseOffset = 2;
                     break;
-                case 8:   // 1000
-                    baseOffset =  RoadSys.laneWidth * 3;
+                case 8: // 1000
+                    baseOffset = 3;
                     break;
             }
-            
+
             switch (CarState)
             {
                 case CarState.OvertakingRightStart:
                 case CarState.OvertakingLeftEnd:
-                    baseOffset +=  RoadSys.laneWidth;
+                    baseOffset += RoadSys.laneWidth;
                     break;
             }
 
@@ -211,11 +216,6 @@ namespace HighwayRacer
 
         public void SetNextPosAndLane()
         {
-            if (Lane == 8)
-            {
-                Pos += RoadSys.carSpawnDist;
-            }
-
             switch (Lane)
             {
                 case 0:
@@ -232,9 +232,7 @@ namespace HighwayRacer
                     break;
                 case 8:
                     Lane = 1; // 1000
-                    break;
-                default:
-                    Debug.LogError("Invalid complete merge right.");
+                    Pos += RoadSys.carSpawnDist;
                     break;
             }
         }
