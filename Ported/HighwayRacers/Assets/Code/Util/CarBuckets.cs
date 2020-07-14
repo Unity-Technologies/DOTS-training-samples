@@ -106,8 +106,6 @@ namespace HighwayRacer
                 return;
             }
             
-            Debug.Log("moving cars to next bucket");
-            
             var ptr = (UnsafeList*) lists.GetUnsafePtr();
             var srcBucketPtr = ptr + srcBucketIdx;
             var srcBucket = GetCars(srcBucketIdx);

@@ -18,7 +18,7 @@ namespace HighwayRacer
         public static int nSegments = 8;
         public const float minDist = 4.0f;
 
-        public const float mergeTime = 1.2f; // number of seconds it takes to fully change lane
+        public const float mergeTime = 1.7f; // number of seconds it takes to fully change lane
         
         public const float mergeLookAhead = 14.0f;
         public const float mergeLookBehind = 5.5f;
@@ -27,7 +27,7 @@ namespace HighwayRacer
         public const float accelerationRate = 8.0f; // m/s to lose per second
 
         public const float carSpawnDist = 8.0f;
-        public static int numCars = 60;
+        public static int numCars = 10;
 
         public static float minLength = 400.0f; // 4 * curved length + 4 * min straight length
         public static float maxLength = 200999;
@@ -36,6 +36,7 @@ namespace HighwayRacer
         public static float roadLength = minLength;
 
         public static float straightLength;
+        public const float curvedLength = 48.69f;
         
         public const float overtakeTime = 6.0f;
         public const float overtakeTimeTryMerge = overtakeTime - 3.0f;
@@ -70,16 +71,31 @@ namespace HighwayRacer
             CarBuckets.Dispose();
         }
         
-        public static int NumCarsFitInStraightSegment()
+        public static int NumCarsFitInStraightSegment(float straightLength)
         {
             var n = (int)(straightLength / RoadSys.carSpawnDist) - 2; // - 2 so cars can spawn comfortably within margin
             return n * nLanes; 
         }
 
-        public static int GetMaxCars(float length)
+        public static float GetLengthStraightSegment(float roadLength)
         {
-            var nStraightSegments = nSegments - 4;   // factor out the curved segments
-            return NumCarsFitInStraightSegment() * nStraightSegments;     
+            return (roadLength - RoadSys.curvedLength * 4) / (GetNumSegments(roadLength) - 4);
+        }
+
+        public static int GetNumSegments(float length)
+        {
+            return 4 + (4 * GetNumSegmentsPerStraightaway(length));
+        }
+        
+        public static int GetNumSegmentsPerStraightaway(float length)
+        {
+            return (int) (length / 4000) + 1;  // todo: play with this number to experiment with segment size
+        }
+
+        public static int GetMaxCars(float roadLength)
+        {
+            var straightLength = GetLengthStraightSegment(roadLength);
+            return GetNumSegmentsPerStraightaway(roadLength) * NumCarsFitInStraightSegment(straightLength) * 4;     
         }
 
         protected override void OnUpdate()
@@ -121,12 +137,11 @@ namespace HighwayRacer
             leftVecFromCardinal[Cardinal.RIGHT] = Vector3.forward;
 
             const float baseStraightLength = 12.0f;
-            const float curvedLength = 48.69f; // calculated from radius that is midpoint between first and last lane
-            
-            int segmentsPerStraightaway = (int) (roadLength / 4000) + 1;  // todo: play with this number to experiment with segment size
-            nSegments = 4 + (4 * segmentsPerStraightaway);
 
-            straightLength = (roadLength - curvedLength * 4) / (nSegments - 4);
+            int segmentsPerStraightaway = GetNumSegmentsPerStraightaway(roadLength);
+            nSegments = GetNumSegments(roadLength);
+
+            straightLength = GetLengthStraightSegment(roadLength);
             float straightScale = straightLength / baseStraightLength;
 
             if (roadSegments.IsCreated)
@@ -152,7 +167,7 @@ namespace HighwayRacer
             roadSegments = new NativeArray<RoadSegment>(nSegments, Allocator.Persistent);
             thresholds = new NativeArray<float>(nSegments, Allocator.Persistent);
             segmentLengths = new NativeArray<float>(nSegments, Allocator.Persistent);
-            CarBuckets = new CarBuckets(nSegments, NumCarsFitInStraightSegment() * 2);
+            CarBuckets = new CarBuckets(nSegments, NumCarsFitInStraightSegment(straightLength) * 2);
             
             var segmentGOs = new GameObject[nSegments];
 

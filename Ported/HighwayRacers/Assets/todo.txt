@@ -1,59 +1,23 @@
 ﻿
-    consider allocating these unsafelists all contiguously
-
-    sorting of buckets might pay off?
-
-
 clicks on menu windows shouldn't register as clicks on cars
-
-why are any cars turqouise (default shader color)
-
-switch to Schedule() / ScheduleParallel() 
 
 use float2's instead of float3's
 use half instead of float
-
-
 
 
 SMALL THINGS
 
 1. try smaller segments sizes
 
-3. alternate which segments test for merging in a frame 
+2. alternate which segments test for merging in a frame 
 
-4. ClosestCarPos should return index of the car in bucket so that it can be passed to CanMerge
-
-BIG THINGS
-
-1. move to segment-relative Pos, and segmentize in AdvanceCars (would be necessary for non-closed track anyway)
-
-2. add remove cars from buckets when segmentizing
-
-    we advance cars in the lists AND ALSO advance the car entities themselves
-      
-    for removing cars, we advance them in first pass, then in second pass find first car that is past end of bucket and move that and all subsequent cars to next bucket 
-
-3. use sort that favors mostly-sorted lists (insertion? or bubble?); only makes sense if we don't completely rebuild the lists every frame!
-
-4. instead of Translation and Rotation, convert directly to LocalToWorld
+3. instead of Translation and Rotation, convert directly to LocalToWorld
 
 
 
-
-
-
-
-
-*   fix curve car rendering
-
-*   update num cars slider range when we change highway size
-*   test max num cars is valid for a given highway size
-
-*   is CarCompare an issue now for Lane comparison?
 *   what if we only sorted a bucket every few frames? might get erroneously moved to next bucket?
-
 *   split Car so that Pos Lane and Speed are own struct in separate set of buckets
+
   
   InitializationSystemGroup
       

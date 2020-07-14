@@ -10,7 +10,7 @@ namespace HighwayRacer
         {
             var buckets = RoadSys.CarBuckets;
             var dt = Time.DeltaTime;
-            //buckets.UpdateCars(dt);
+            buckets.UpdateCars(dt);
         }
     }
 }

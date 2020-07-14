@@ -1,3 +1,4 @@
+using Unity.Assertions;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
@@ -21,7 +22,6 @@ namespace HighwayRacer
         {
             return (8 & Lane) != 0;
         }
-
 
         public bool IsInRightmostLane()
         {
@@ -79,7 +79,7 @@ namespace HighwayRacer
                     Lane = 12; // 1100
                     break;
                 default:
-                    Debug.LogError("Invalid merge left.");
+                    Debug.LogError("Invalid merge left. Lane: " + Lane);
                     break;
             }
         }
@@ -99,7 +99,7 @@ namespace HighwayRacer
                     Lane = 12; // 1100
                     break;
                 default:
-                    Debug.LogError("Invalid merge right.");
+                    Debug.LogError("Invalid merge right. Lane: " + Lane);
                     break;
             }
         }
@@ -143,6 +143,7 @@ namespace HighwayRacer
 
         public void CompleteLeftMerge()
         {
+            LaneOffset = 0;
             switch (Lane)
             {
                 case 3: // 0011
@@ -162,6 +163,7 @@ namespace HighwayRacer
 
         public void CompleteRightMerge()
         {
+            LaneOffset = 0;
             switch (Lane)
             {
                 case 3: // 0011
@@ -206,7 +208,7 @@ namespace HighwayRacer
             {
                 case CarState.OvertakingRightStart:
                 case CarState.OvertakingLeftEnd:
-                    baseOffset += RoadSys.laneWidth;
+                    baseOffset += 1;
                     break;
             }
 
@@ -250,36 +252,32 @@ namespace HighwayRacer
                     if (LaneOffset > 1.0f)
                     {
                         CompleteLeftMerge();
+                        CarState = CarState.OvertakingLeft;
                     }
-
-                    CarState = CarState.OvertakingLeft;
                     break;
                 case CarState.OvertakingRightEnd:
                     LaneOffset += mergeSpeed;
                     if (LaneOffset > 1.0f)
                     {
                         CompleteLeftMerge();
+                        CarState = CarState.Normal;
                     }
-
-                    CarState = CarState.Normal;
                     break;
                 case CarState.OvertakingRightStart:
                     LaneOffset -= mergeSpeed;
                     if (LaneOffset < -1.0f)
                     {
                         CompleteRightMerge();
+                        CarState = CarState.OvertakingRight;
                     }
-
-                    CarState = CarState.OvertakingRight;
                     break;
                 case CarState.OvertakingLeftEnd:
                     LaneOffset -= mergeSpeed;
                     if (LaneOffset < -1.0f)
                     {
                         CompleteRightMerge();
+                        CarState = CarState.Normal;
                     }
-
-                    CarState = CarState.Normal;
                     break;
             }
         }
