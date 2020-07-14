@@ -46,7 +46,7 @@ namespace HighwayRacer
             {
                 var percentage = car.Pos / seg.Length;
                 rotation.Value = new quaternion(math.lerp(seg.DirectionRot.value, seg.DirectionRotEnd.value, percentage));
-                var radius = seg.Radius + laneOffsetDist;  
+                var radius = seg.Radius + (laneOffsetDist * RoadSys.laneWidth); 
 
                 // rotate the origin around pivot to get displacement
                 float3 pivot = new float3();
