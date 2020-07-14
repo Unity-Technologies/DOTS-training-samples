@@ -21,7 +21,8 @@ namespace HighwayRacer
             
             if (buckets.IsCreated)
             {
-                buckets.AdvanceCars(segmentLengths, dt);    
+                //buckets.AdvanceCars(segmentLengths, dt);
+                buckets.AdvanceCarsJob(segmentLengths, dt, Dependency);
             }
         }
     }

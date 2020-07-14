@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using HighwayRacer;
 using Unity.Assertions;
 using Unity.Burst;
@@ -18,9 +19,9 @@ namespace HighwayRacer
         public bool IsCreated;
 
         private NativeArray<UnsafeList.ParallelWriter> writers;
-        private NativeArray<UnsafeList> lists;
+        [NativeDisableParallelForRestriction] private NativeArray<UnsafeList> lists;
 
-        private NativeArray<int> moveIndexes; // for each list, the index of first car that should be moved to next list
+        public NativeArray<int> moveIndexes; // for each list, the index of first car that should be moved to next list
         private UnsafeList<Car> tempList;
 
         public CarBuckets(int nSegments, int nCarsPerSegment)
@@ -104,6 +105,44 @@ namespace HighwayRacer
             popCarsFromCache(0);
 
             Sort(); // sorts all the buckets
+        }
+
+        // 1. set new pos given speed
+        // 2. moves cars between buckets when they move past end
+        public void AdvanceCarsJob(NativeArray<float> segmentLengths, float dt, JobHandle dependency)
+        {
+            const int advanceBatchCount = 8;
+            const int sortBatchCount = 4;
+
+            // update car pos based on speed. Also record idx at-and-past which cars in the bucket should move to next bucket
+            var advancePosJob = new AdvanceCarPosJob()
+            {
+                dt = dt,
+                segmentLengths = segmentLengths,
+                carBuckets = this,
+            };
+
+            var advancePosHandle = advancePosJob.Schedule(lists.Length, advanceBatchCount, dependency);
+            advancePosHandle.Complete();
+
+            // cache cars to move from last bucket, then actually remove them from that bucket
+            pushCarsToCache(moveIndexes[lists.Length - 1], lists.Length - 1);
+
+            // from each bucket, move all cars at or past index to next bucket
+            for (int bucketIdx = lists.Length - 2; bucketIdx >= 0; bucketIdx--)
+            {
+                moveCarsNext(moveIndexes[bucketIdx], bucketIdx, bucketIdx + 1);
+            }
+
+            // append cached cars to end of first bucket 
+            popCarsFromCache(0);
+
+            var sortJob = new SortJob()
+            {
+                carBuckets = this
+            };
+            var sortJobHandle = sortJob.Schedule(lists.Length, sortBatchCount);
+            sortJobHandle.Complete();
         }
 
         private void moveCarsNext(int moveIdx, int srcBucketIdx, int dstBucketIdx)
@@ -207,11 +246,10 @@ namespace HighwayRacer
             var segmentLengths = RoadSys.segmentLengths;
             var mergeSpeed = dt * RoadSys.mergeTime;
 
-            var count = lists.Length / 2;   // number of segments is always a multiple of 4, so always even
-            Assert.IsTrue(lists.Length % 2 == 0);  // should always be true as long as our track is a square loop
+            Assert.IsTrue(lists.Length % 2 == 0); // should always be true as long as our track is a square loop
 
-            const int batchSize = 4;  // todo experiment with batch size
-            
+            const int batchSize = 2; // todo experiment with batch size
+
             var evens = new UpdateCarsJob()
             {
                 dt = dt,
@@ -219,9 +257,9 @@ namespace HighwayRacer
                 mergeSpeed = mergeSpeed,
                 mergeLeftFrame = mergeLeftFrame,
                 carBuckets = this,
-                offset = 0,
+                doOdds = false,
             };
-            var evensHandle = evens.Schedule(count, batchSize, dependency);
+            var evensHandle = evens.Schedule(lists.Length, batchSize, dependency);
 
             var odds = new UpdateCarsJob()
             {
@@ -230,19 +268,9 @@ namespace HighwayRacer
                 mergeSpeed = mergeSpeed,
                 mergeLeftFrame = mergeLeftFrame,
                 carBuckets = this,
-                offset = 1,
+                doOdds = true,
             };
-            return odds.Schedule(count, batchSize, evensHandle);
-        }
-
-        public JobHandle Sort(JobHandle dependency)
-        {
-            var sortJob = new SortJob()
-            {
-                Lists = lists,
-            };
-
-            return sortJob.Schedule(RoadSys.nSegments, 1, dependency);
+            return odds.Schedule(lists.Length, batchSize, evensHandle);
         }
 
         public void Sort()
@@ -255,7 +283,7 @@ namespace HighwayRacer
         }
 
         // copied from Collections
-        void InsertionSort<T, U>(void* array, int lo, int hi, U comp) where T : struct where U : IComparer<T>
+        public void InsertionSort<T, U>(void* array, int lo, int hi, U comp) where T : struct where U : IComparer<T>
         {
             int i, j;
             T t;
@@ -364,14 +392,14 @@ namespace HighwayRacer
         }
     }
 
-    public struct SortJob : IJobParallelFor
+    public unsafe struct SortJob : IJobParallelFor
     {
-        public NativeArray<UnsafeList> Lists;
+        public CarBuckets carBuckets;
 
-        public void Execute(int index)
+        public void Execute(int idx)
         {
-            var list = Lists[index];
-            list.Sort<Car, CarCompare>(new CarCompare());
+            var bucket = carBuckets.GetCars(idx);
+            carBuckets.InsertionSort<Car, CarCompare>(bucket.Ptr, 0, bucket.Length - 1, new CarCompare());
         }
     }
 
@@ -379,16 +407,23 @@ namespace HighwayRacer
     public struct UpdateCarsJob : IJobParallelFor
     {
         public float dt;
+
         public NativeArray<float> segmentLengths;
         public float mergeSpeed;
         public bool mergeLeftFrame;
+
         public CarBuckets carBuckets;
-        public int offset; // used for controlling whether we do odds or evens
+        public bool doOdds; // used for controlling whether we do odds or evens
 
         public void Execute(int idx)
         {
-            idx *= 2;
-            idx += offset;
+            var even = idx % 2 == 0;
+            if ((doOdds && even) ||
+                (!doOdds && !even))
+            {
+                return;
+            }
+
             var segmentLength = segmentLengths[idx];
             var bucket = carBuckets.GetCars(idx);
             var nextIdx = (idx == carBuckets.LastIndex()) ? 0 : idx + 1;
@@ -401,6 +436,41 @@ namespace HighwayRacer
                 car.Avoidance(i, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
                 bucket[i] = car;
             }
+        }
+    }
+
+
+    [BurstCompile(CompileSynchronously = true)]
+    public struct AdvanceCarPosJob : IJobParallelFor
+    {
+        public float dt;
+        public NativeArray<float> segmentLengths;
+        public CarBuckets carBuckets;
+
+        public void Execute(int idx)
+        {
+            // update car pos based on speed. Also record idx at-and-past which cars in the bucket should move to next bucket
+            var segmentLength = segmentLengths[idx];
+            var bucket = carBuckets.GetCars(idx);
+
+            var moveIdx = bucket.Length;
+            for (var i = 0; i < bucket.Length; i++)
+            {
+                var car = bucket[i];
+                car.Pos += car.Speed * dt;
+                if (car.Pos > segmentLength)
+                {
+                    car.Pos -= segmentLength;
+                    if (i < moveIdx)
+                    {
+                        moveIdx = i;
+                    }
+                }
+
+                bucket[i] = car;
+            }
+
+            carBuckets.moveIndexes[idx] = (moveIdx == bucket.Length) ? -1 : moveIdx;
         }
     }
 }

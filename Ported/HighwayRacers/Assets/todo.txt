@@ -1,23 +1,20 @@
 ﻿
-clicks on menu windows shouldn't register as clicks on cars
+BUGS:
 
-use float2's instead of float3's
-use half instead of float
+*   clicks on menu windows shouldn't register as clicks on cars
+*   rendering exceptions?: IsFinite(distanceForSort)  IsFinite(distanceAlongView)
+           triggered when moving scene view camera down the road
 
+OPTIMIZE:
 
-SMALL THINGS
-
-1. try smaller segments sizes
-
-2. alternate which segments test for merging in a frame 
-
-3. instead of Translation and Rotation, convert directly to LocalToWorld
-
-
-
+*   use float2's instead of float3's
+*   use half instead of float
+*   try smaller segments sizes
+*   alternate which segments test for merging in a frame 
+*   instead of Translation and Rotation, convert directly to LocalToWorld
 *   what if we only sorted a bucket every few frames? might get erroneously moved to next bucket?
 *   split Car so that Pos Lane and Speed are own struct in separate set of buckets
-
+  
   
   InitializationSystemGroup
       

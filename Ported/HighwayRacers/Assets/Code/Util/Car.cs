@@ -39,7 +39,7 @@ namespace HighwayRacer
                 case 4: // 0100
                     return 8; // 1000
                 default:
-                    Debug.LogError("Invalid: no lane to left.");
+                    // Debug.LogError("Invalid: no lane to left.");
                     return 8;
             }
         }
@@ -55,7 +55,7 @@ namespace HighwayRacer
                 case 8: // 1000
                     return 4; // 0100
                 default:
-                    Debug.LogError("Invalid: no lane to right.");
+                    // Debug.LogError("Invalid: no lane to right.");
                     return 1;
             }
         }
@@ -79,7 +79,7 @@ namespace HighwayRacer
                     Lane = 12; // 1100
                     break;
                 default:
-                    Debug.LogError("Invalid merge left. Lane: " + Lane);
+//                    Debug.LogError("Invalid merge left. Lane: " + Lane);
                     break;
             }
         }
@@ -99,7 +99,7 @@ namespace HighwayRacer
                     Lane = 12; // 1100
                     break;
                 default:
-                    Debug.LogError("Invalid merge right. Lane: " + Lane);
+                    // Debug.LogError("Invalid merge right. Lane: " + Lane);
                     break;
             }
         }
@@ -156,7 +156,7 @@ namespace HighwayRacer
                     Lane = 8; // 1000
                     break;
                 default:
-                    Debug.LogError("Invalid complete left right.");
+                    // Debug.LogError("Invalid complete left right.");
                     break;
             }
         }
@@ -176,7 +176,7 @@ namespace HighwayRacer
                     Lane = 4; // 0100
                     break;
                 default:
-                    Debug.LogError("Invalid CompleteRightMerge.");
+                    // Debug.LogError("Invalid CompleteRightMerge.");
                     break;
             }
         }

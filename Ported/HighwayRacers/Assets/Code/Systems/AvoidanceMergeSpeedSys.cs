@@ -13,7 +13,9 @@ namespace HighwayRacer
             mergeLeftFrame = !mergeLeftFrame;
             var buckets = RoadSys.CarBuckets;
             var dt = Time.DeltaTime;
-            buckets.UpdateCars(dt, mergeLeftFrame);
+            //buckets.UpdateCars(dt, mergeLeftFrame);
+            var jobHandle = buckets.UpdateCarsJob(dt, mergeLeftFrame, Dependency);
+            jobHandle.Complete();
         }
     }
 }
