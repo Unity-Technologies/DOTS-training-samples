@@ -1064,5 +1064,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bee
       objectReference: {fileID: 0}
+    - target: {fileID: 8636141307000301011, guid: a51f1ac809e5a0948b6d84c8716bed21,
+        type: 3}
+      propertyPath: Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636141307000301011, guid: a51f1ac809e5a0948b6d84c8716bed21,
+        type: 3}
+      propertyPath: Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636141307000301011, guid: a51f1ac809e5a0948b6d84c8716bed21,
+        type: 3}
+      propertyPath: Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636141307000301011, guid: a51f1ac809e5a0948b6d84c8716bed21,
+        type: 3}
+      propertyPath: Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636141307000301011, guid: a51f1ac809e5a0948b6d84c8716bed21,
+        type: 3}
+      propertyPath: InitialVelocity.x
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a51f1ac809e5a0948b6d84c8716bed21, type: 3}
