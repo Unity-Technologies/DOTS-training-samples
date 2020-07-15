@@ -119,7 +119,6 @@ namespace HighwayRacer
             var chunks = query.CreateArchetypeChunkArray(Allocator.TempJob); // todo : could this be persistent and created only upon respawning cars?
 
             var nJobs = (chunks.Length >= JobsUtility.JobWorkerCount) ? JobsUtility.JobWorkerCount : chunks.Length;
-
             var nChunksPerJob = chunks.Length / nJobs;
             var remainder = chunks.Length % nJobs;
 

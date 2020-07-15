@@ -21,7 +21,7 @@ namespace HighwayRacer
         public const float minSpeed = 7.0f;
         public const float maxSpeed = 20.0f; // max cruising speed
 
-        public const float minBlockedDist = 8.0f;
+        public const float minBlockedDist = 9.0f;
         public const float maxBlockedDist = 15.0f;
 
         public const float minOvertakeModifier = 1.2f;
@@ -68,6 +68,14 @@ namespace HighwayRacer
 
             var ents = EntityManager.Instantiate(carPrefab, nCars, Allocator.Temp);
             ents.Dispose();
+            
+            // not strictly necessary, but for debugging, make sure cars have valid initial values
+            Entities.ForEach((ref Translation translation, ref Rotation rotation, ref URPMaterialPropertyBaseColor color) =>
+            {
+                translation.Value = float3.zero;
+                rotation.Value = quaternion.identity;
+                color.Value = new float4(0, 0, 0, 1);
+            }).Run();
 
             var seed = (uint) (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             var rand = new Random(seed);
@@ -112,7 +120,7 @@ namespace HighwayRacer
                 car.DesiredSpeedUnblocked = math.lerp(minSpeed, maxSpeed, rand.NextFloat());
                 car.DesiredSpeedOvertake = car.DesiredSpeedUnblocked * math.lerp(minOvertakeModifier, maxOvertakeModifier, rand.NextFloat());
 
-                car.Speed = startSpeed; // start off slow but not stopped (todo: does logic break if cars stop?)
+                car.Speed = startSpeed;
                 car.BlockingDist = math.lerp(minBlockedDist, maxBlockedDist, rand.NextFloat());
                 car.CarState = CarState.Normal;
 

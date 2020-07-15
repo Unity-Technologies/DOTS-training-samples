@@ -64,6 +64,44 @@ namespace HighwayRacer
         {
             return writers[segmentIdx];
         }
+        
+        // todo temp for debugging
+        public void CheckSorting()
+        {
+            for (int i = 0; i < lists.Length; i++)
+            {
+                var prevPos = float.MinValue;
+                var bucket = GetCars(i);
+                
+                for (int carIdx = 0; carIdx < bucket.Length; carIdx++)
+                {
+                    var car = bucket[carIdx];
+                    if (car.Pos < prevPos) 
+                    {
+                        Debug.Log("car.Pos is lesser than previous car");
+                    }
+                    prevPos = car.Pos;
+                }
+            }
+        }
+        
+        
+        // todo temp for debugging
+        public void CheckPosAreFinite()
+        {
+            for (int i = 0; i < lists.Length; i++)
+            {
+                var bucket = GetCars(i);
+                for (int carIdx = 0; carIdx < bucket.Length; carIdx++)
+                {
+                    var car = bucket[carIdx];
+                    if (!math.isfinite(car.Pos))
+                    {
+                        Debug.Log("car.Pos is non-finite");
+                    }
+                }
+            }
+        }
 
         // 1. set new pos given speed
         // 2. moves cars between buckets when they move past end
@@ -114,6 +152,7 @@ namespace HighwayRacer
         // 2. moves cars between buckets when they move past end
         public void AdvanceCarsJob(NativeArray<float> segmentLengths, float dt, JobHandle dependency)
         {
+            // todo experiment with these batch sizes
             const int advanceBatchCount = 8;
             const int sortBatchCount = 4;
 
@@ -139,7 +178,7 @@ namespace HighwayRacer
 
             // append cached cars to end of first bucket 
             popCarsFromCache(0);
-
+            
             var sortJob = new SortJob()
             {
                 carBuckets = this
@@ -208,29 +247,6 @@ namespace HighwayRacer
             }
 
             dstBucketPtr->Length += tempList.Length;
-        }
-
-
-        // updates cars in all ways except advancing their position
-        // 1. update lane offset of merging cars; cars that complete merge leave merge state
-        // 2. sets speed to match target speed unless need to slow for car ahead 
-        // 3. blocked cars look to merge
-        // 4. overtaking cars look to merge back to the lane they came from
-        public void UpdateCars(float dt, bool mergeLeftFrame)
-        {
-            var segmentLengths = RoadSys.segmentLengths;
-            var mergeSpeed = dt * RoadSys.mergeTime;
-
-            var nextBucket = GetCars(0);
-            for (int bucketIdx = lists.Length - 1; bucketIdx >= 0; bucketIdx--)
-            {
-                var bucket = GetCars(bucketIdx);
-                var segmentLength = segmentLengths[bucketIdx];
-
-                UpdateCarsBucket(bucket, nextBucket, dt, mergeSpeed, segmentLength, mergeLeftFrame);
-
-                nextBucket = bucket;
-            }
         }
 
         private void UpdateCarsBucket(UnsafeList<Car> bucket, UnsafeList<Car> nextBucket, float dt, float mergeSpeed, float segmentLength, bool mergeLeftFrame)
@@ -500,6 +516,7 @@ namespace HighwayRacer
             for (var i = 0; i < bucket.Length; i++)
             {
                 var car = bucket[i];
+                
                 car.Pos += car.Speed * dt;
                 if (car.Pos > segmentLength)
                 {

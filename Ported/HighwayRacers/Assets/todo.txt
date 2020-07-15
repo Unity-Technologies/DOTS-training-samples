@@ -1,6 +1,9 @@
 ﻿
 BUGS:
 
+* check if end overtake merge check looks back properly
+        increase the mergeLookBehind distance? 
+
 *   clicks on menu windows shouldn't register as clicks on cars
 *   rendering exceptions?: IsFinite(distanceForSort)  IsFinite(distanceAlongView)
            triggered when moving scene view camera down the road

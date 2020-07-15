@@ -18,10 +18,10 @@ namespace HighwayRacer
         public static int nSegments = 8;
         public const float minDist = 4.0f;
 
-        public const float mergeTime = 1.7f; // number of seconds it takes to fully change lane
+        public const float mergeTime = laneWidth / 1.8f; // merge rate (meters per second)
         
         public const float mergeLookAhead = 14.0f;
-        public const float mergeLookBehind = 5.5f;
+        public const float mergeLookBehind = 7.5f;
 
         public const float decelerationRate = 3.0f; // m/s to lose per second
         public const float accelerationRate = 8.0f; // m/s to lose per second
@@ -142,6 +142,7 @@ namespace HighwayRacer
             nSegments = GetNumSegments(roadLength);
 
             straightLength = GetLengthStraightSegment(roadLength);
+            Debug.Log("straighLength: " + straightLength);
             float straightScale = straightLength / baseStraightLength;
 
             if (roadSegments.IsCreated)

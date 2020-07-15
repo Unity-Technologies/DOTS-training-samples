@@ -126,10 +126,13 @@ namespace HighwayRacer
             // closer we get within minDist of leading car, the closer we match speed
             const float fudge = 2.0f;
             var newSpeed = math.lerp(blockingCarSpeed, Speed + fudge, closeness);
-
-            // todo: not sure this extra check is necessary: this method only called when this car is faster than blocking
+            
             // car, so newSpeed should always be slower than current Speed
-            if (newSpeed < Speed)
+            if (newSpeed < 0)
+            {
+                Speed = 0.1f;    
+            }
+            else if (newSpeed < Speed)
             {
                 Speed = newSpeed;
             }
