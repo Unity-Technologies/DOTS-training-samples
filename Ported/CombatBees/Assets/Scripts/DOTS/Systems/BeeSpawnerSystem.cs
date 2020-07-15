@@ -34,14 +34,22 @@ public class BeeSpawnerSystem : SystemBase
             {
                 for (int i = 0; i < mainField.Length; i++)
                 {
+                    float xCenter = mainField[i].Bounds.Center.x;
+                    float xExtents = mainField[i].Bounds.Extents.x;
+                    float yCenter = mainField[i].Bounds.Center.y;
+                    float yExtents = mainField[i].Bounds.Extents.y;
+                    float zCenter = mainField[i].Bounds.Center.z;
+                    float zExtents = mainField[i].Bounds.Extents.z;
                     for (int x = 0; x < spawner.BeeCount; ++x)
                     {
-                        //var xVal = m_Random.NextInt(mainField[i].Bounds.Extents.)
+                        var xVal = m_Random.NextFloat(xCenter - xExtents, xCenter + xExtents);
+                        var yVal = m_Random.NextFloat(yCenter - yExtents, yCenter + yExtents);
+                        var zVal = m_Random.NextFloat(zCenter - zExtents, zCenter + zExtents);
                         var instance = EntityManager.Instantiate(spawner.Prefab);
                         EntityManager.SetComponentData(instance,
                             new Translation
                             {
-                                Value = new float3(mainField[i].Bounds.Center.x, math.sin(x) * x, math.cos(x) * x)
+                                Value = new float3(xVal, yVal, zVal)
                             });
 
                         if (i == 0)
@@ -63,5 +71,7 @@ public class BeeSpawnerSystem : SystemBase
 
                 EntityManager.DestroyEntity(entity);
             }).Run();
+
+
     }
 }
