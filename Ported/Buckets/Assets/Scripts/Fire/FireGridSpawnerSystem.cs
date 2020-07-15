@@ -37,6 +37,13 @@ namespace Fire
 
         protected override void OnUpdate()
         {
+            // Check if we have initialized
+            EntityQuery queryGroup = GetEntityQuery(typeof(Initialized));
+            if (queryGroup.CalculateEntityCount() > 0)
+            {
+                return;
+            }
+
             var spawners = new NativeArray<SpawnerInfo>(UninitializedSpawners.CalculateEntityCount(), Allocator.TempJob);
 
             Entities.WithStoreEntityQueryInField(ref UninitializedSpawners).WithNone<Initialized>()
@@ -52,18 +59,14 @@ namespace Fire
                     };
                 }).Run();
 
-
             foreach (var spawner in spawners)
             {
                 EntityManager.Instantiate(spawner.Prefab, spawner.TotalCount, Allocator.Temp);
             }
 
             EntityManager.AddComponent<Initialized>(UninitializedSpawners);
-            /*
-            // Grab Fire buffer
-            var fireBufferEntity = GetSingletonEntity<FireGridAuthoring>();
-            var gridBufferLookup = GetBufferFromEntity<FireBufferElement>();
-            var gridBuffer = gridBufferLookup[fireBufferEntity];
+
+            var fireBufferEntity = GetSingletonEntity<FireBuffer>();
 
             SpawnerInfo spanwerInfoInstance = spawners[0];
             EntityManager.AddComponentData(fireBufferEntity, new FireBufferMetaData
@@ -72,12 +75,20 @@ namespace Fire
                 CountZ = spanwerInfoInstance.CountZ,
                 TotalSize = spanwerInfoInstance.TotalCount
             });
-            */
+
+            UnityEngine.Debug.Log($"FireGridSpawner initializing grid [{spanwerInfoInstance.CountX}, {spanwerInfoInstance.CountZ}] Total: {spanwerInfoInstance.TotalCount}");
+
+            // Grab Fire buffer
+            var gridBufferLookup = GetBufferFromEntity<FireBufferElement>();
+            var gridBuffer = gridBufferLookup[fireBufferEntity];
+            gridBuffer.ResizeUninitialized(spanwerInfoInstance.TotalCount);
+            var gridArray = gridBuffer.AsNativeArray();
+
             Random m_Random = new Random(0x1234567);
-            Entities.WithDeallocateOnJobCompletion(spawners)
+            Entities
+                .WithDeallocateOnJobCompletion(spawners)
                 .ForEach((Entity fireEntity, int entityInQueryIndex, ref Translation translation, in BoundsComponent bounds) =>
                 {
-                    // TODO write 
                     for (int i = 0; i < spawners.Length; ++i)
                     {
                         var spawner = spawners[i];
@@ -87,10 +98,11 @@ namespace Fire
                             int z = entityInQueryIndex / spawner.CountX;
                             var posX = bounds.SizeXZ * (x - (spawner.CountX - 1) / 2);
                             var posZ = bounds.SizeXZ * (z - (spawner.CountZ - 1) / 2);
-                            translation.Value = spawner.Center + new float3(posX, m_Random.NextFloat(-2f, 2f), posZ);
+                            // Add random offset on y to debug that the grid spacing is correct
+                            var posY = m_Random.NextFloat(-0.01f, 0.01f);
+                            translation.Value = spawner.Center + new float3(posX, posY, posZ);
 
-                            // Append entity
-                            //gridBuffer.Append(new FireBufferElement{FireEntity = fireEntity});
+                            gridArray[entityInQueryIndex] = new FireBufferElement { FireEntity = fireEntity };
                             break;
                         }
                         entityInQueryIndex -= spawner.TotalCount;
