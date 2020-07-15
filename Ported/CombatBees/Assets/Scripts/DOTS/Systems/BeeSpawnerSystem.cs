@@ -25,7 +25,14 @@ public class BeeSpawnerSystem : SystemBase
                                 Value = ltw.Position + new float3(BeeManager.Instance.baseLocations[i].x, math.sin(x) * x, math.cos(x) * x)
                             });
 
-                        EntityManager.SetSharedComponentData(instance, new Team { Value = i });
+                        if (i == 0)
+                        {
+                            EntityManager.AddComponentData(instance, new TeamOne() { });
+                        }
+                        else
+                        {
+                            EntityManager.AddComponentData(instance, new TeamTwo() { });
+                        }
 
                         EntityManager.SetComponentData(instance,
                             new BeeColor
