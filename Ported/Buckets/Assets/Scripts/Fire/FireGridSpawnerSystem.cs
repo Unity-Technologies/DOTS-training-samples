@@ -1,9 +1,10 @@
-﻿using Unity.Collections;
+﻿using System.Linq;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-namespace Fire.Authoring
+namespace Fire
 {
     [GenerateAuthoringComponent]
     public struct FireGridSpawner : IComponentData
@@ -11,9 +12,10 @@ namespace Fire.Authoring
         public Entity Prefab;
         public int CountX;
         public int CountZ;
+        public float3 Origin;
     }
 
-    public struct Initialised : IComponentData { };
+    public struct Initialized : IComponentData { };
 
     public class FireGridSpawnerSystem : SystemBase
     {
@@ -37,8 +39,8 @@ namespace Fire.Authoring
         {
             var spawners = new NativeArray<SpawnerInfo>(UninitializedSpawners.CalculateEntityCount(), Allocator.TempJob);
 
-            Entities.WithStoreEntityQueryInField(ref UninitializedSpawners).WithNone<Initialised>()
-                .ForEach((int entityInQueryIndex, ref FireGridSpawner spawner, in LocalToWorld ltw) =>
+            Entities.WithStoreEntityQueryInField(ref UninitializedSpawners).WithNone<Initialized>()
+                .ForEach((int entityInQueryIndex, ref FireGridSpawner spawner) =>
                 {
                     spawners[entityInQueryIndex] = new SpawnerInfo
                     {
@@ -46,22 +48,36 @@ namespace Fire.Authoring
                         CountX = spawner.CountX,
                         CountZ = spawner.CountZ,
                         TotalCount = spawner.CountX * spawner.CountZ,
-                        Center = ltw.Position
+                        Center = spawner.Origin
                     };
                 }).Run();
+
 
             foreach (var spawner in spawners)
             {
                 EntityManager.Instantiate(spawner.Prefab, spawner.TotalCount, Allocator.Temp);
             }
 
-            EntityManager.AddComponent<Initialised>(UninitializedSpawners);
+            EntityManager.AddComponent<Initialized>(UninitializedSpawners);
+            /*
+            // Grab Fire buffer
+            var fireBufferEntity = GetSingletonEntity<FireGridAuthoring>();
+            var gridBufferLookup = GetBufferFromEntity<FireBufferElement>();
+            var gridBuffer = gridBufferLookup[fireBufferEntity];
 
+            SpawnerInfo spanwerInfoInstance = spawners[0];
+            EntityManager.AddComponentData(fireBufferEntity, new FireBufferMetaData
+            {
+                CountX = spanwerInfoInstance.CountX,
+                CountZ = spanwerInfoInstance.CountZ,
+                TotalSize = spanwerInfoInstance.TotalCount
+            });
+            */
+            Random m_Random = new Random(0x1234567);
             Entities.WithDeallocateOnJobCompletion(spawners)
-                .ForEach((int entityInQueryIndex, ref Translation translation, in BoundsComponent bounds) =>
+                .ForEach((Entity fireEntity, int entityInQueryIndex, ref Translation translation, in BoundsComponent bounds) =>
                 {
-
-                    // TODO write
+                    // TODO write 
                     for (int i = 0; i < spawners.Length; ++i)
                     {
                         var spawner = spawners[i];
@@ -69,9 +85,12 @@ namespace Fire.Authoring
                         {
                             int x = entityInQueryIndex % spawner.CountX;
                             int z = entityInQueryIndex / spawner.CountX;
-                            var posX = bounds.Size / 2 * (x - (spawner.CountX - 1) / 2);
-                            var posZ = bounds.Size / 2 * (z - (spawner.CountZ - 1) / 2);
-                            translation.Value = spawner.Center + new float3(posX, 0, posZ);
+                            var posX = bounds.SizeXZ * (x - (spawner.CountX - 1) / 2);
+                            var posZ = bounds.SizeXZ * (z - (spawner.CountZ - 1) / 2);
+                            translation.Value = spawner.Center + new float3(posX, m_Random.NextFloat(-2f, 2f), posZ);
+
+                            // Append entity
+                            //gridBuffer.Append(new FireBufferElement{FireEntity = fireEntity});
                             break;
                         }
                         entityInQueryIndex -= spawner.TotalCount;
