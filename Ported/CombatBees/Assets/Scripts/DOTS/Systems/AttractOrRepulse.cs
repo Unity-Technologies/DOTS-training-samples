@@ -60,6 +60,7 @@ public class AttractOrRepulse : SystemBase
         var deltaTime = Time.DeltaTime;
         var teamOneEntities = m_TeamOneQuery.ToEntityArrayAsync(Allocator.TempJob, out var teamOneEntitiesHandle);
         var teamTwoEntities = m_TeamTwoQuery.ToEntityArrayAsync(Allocator.TempJob, out var teamTwoEntitiesHandle);
+        var attractionForce = BeeManager.Instance.teamAttraction - BeeManager.Instance.teamRepulsion;
 
         Dependency = JobHandle.CombineDependencies(Dependency, teamOneEntitiesHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, teamTwoEntitiesHandle);
@@ -74,9 +75,9 @@ public class AttractOrRepulse : SystemBase
                 var distSq = math.distancesq(friendPos.Value, translation.Value);
                 if (distSq > float.Epsilon)
                 {
-                    velocity.Value += delta * ((BeeManager.Instance.teamAttraction - BeeManager.Instance.teamRepulsion) * deltaTime / math.sqrt(distSq));
+                    velocity.Value += delta * (attractionForce * deltaTime / math.sqrt(distSq));
                 }
-            }).Schedule();
+            }).ScheduleParallel();
 
         Entities
             .WithDeallocateOnJobCompletion(teamTwoEntities)
@@ -88,9 +89,9 @@ public class AttractOrRepulse : SystemBase
                 var distSq = math.distancesq(friendPos.Value, translation.Value);
                 if (distSq > float.Epsilon)
                 {
-                    velocity.Value += delta * ((BeeManager.Instance.teamAttraction - BeeManager.Instance.teamRepulsion) * deltaTime / math.sqrt(distSq));
+                    velocity.Value += delta * (attractionForce * deltaTime / math.sqrt(distSq));
                 }
-            }).Schedule();
+            }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
 

@@ -9,6 +9,7 @@ public class BeeSpawnerSystem : SystemBase
 {
     private EntityQuery m_baseQuery;
     Unity.Mathematics.Random m_Random = new Unity.Mathematics.Random(0x5716318);
+
     protected override void OnCreate()
     {
         m_baseQuery = GetEntityQuery(new EntityQueryDesc
@@ -24,6 +25,7 @@ public class BeeSpawnerSystem : SystemBase
             }
         });
     }
+
     protected override void OnUpdate()
     {
         //var currentScore = GetSingleton<BeeManager.Instance>();
@@ -54,11 +56,11 @@ public class BeeSpawnerSystem : SystemBase
 
                         if (i == 0)
                         {
-                            EntityManager.AddComponentData(instance, new TeamOne() { });
+                            EntityManager.AddComponentData(instance, new TeamOne());
                         }
                         else
                         {
-                            EntityManager.AddComponentData(instance, new TeamTwo() { });
+                            EntityManager.AddComponentData(instance, new TeamTwo());
                         }
 
                         EntityManager.SetComponentData(instance,
@@ -71,7 +73,5 @@ public class BeeSpawnerSystem : SystemBase
 
                 EntityManager.DestroyEntity(entity);
             }).Run();
-
-
     }
 }

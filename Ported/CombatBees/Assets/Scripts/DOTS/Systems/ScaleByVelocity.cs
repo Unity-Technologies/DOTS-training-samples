@@ -27,6 +27,6 @@ public class ScaleByVelocity : SystemBase
             scale.Value.z *= stretch;
             scale.Value.x /= (stretch - 1f) / 5f + 1f;
             scale.Value.y /= (stretch - 1f) / 5f + 1f;
-        }).Schedule();
+        }).ScheduleParallel();
     }
 }
