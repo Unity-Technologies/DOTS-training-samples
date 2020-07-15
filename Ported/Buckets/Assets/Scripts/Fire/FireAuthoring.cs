@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Fire
 {
+    [RequiresEntityConversion]
     public class FireAuthoring : UnityEngine.MonoBehaviour, IConvertGameObjectToEntity
     {
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
