@@ -18,11 +18,14 @@ namespace HighwayRacer
     {
         public bool IsCreated;
 
-        private NativeArray<UnsafeList.ParallelWriter> writers;
-        [NativeDisableParallelForRestriction] private NativeArray<UnsafeList> lists;
+        [NativeDisableContainerSafetyRestriction] private NativeArray<UnsafeList.ParallelWriter> writers;
+        
+        [NativeDisableContainerSafetyRestriction]
+        [NativeDisableParallelForRestriction] 
+        private NativeArray<UnsafeList> lists;
 
-        public NativeArray<int> moveIndexes; // for each list, the index of first car that should be moved to next list
-        private UnsafeList<Car> tempList;
+        [NativeDisableContainerSafetyRestriction] public NativeArray<int> moveIndexes; // for each list, the index of first car that should be moved to next list
+        [NativeDisableContainerSafetyRestriction] private UnsafeList<Car> tempList;
 
         public CarBuckets(int nSegments, int nCarsPerSegment)
         {
@@ -320,6 +323,46 @@ namespace HighwayRacer
         public bool IsBucketIdx(int bucketIdx)
         {
             return bucketIdx >= 0 && bucketIdx < lists.Length;
+        }
+
+        // throws if exhausts buckets
+        public void NextNthCar(ref int bucketIdx, ref int carIdx, int nCars)
+        {
+            // special check for first bucket
+            var firstBucket = GetCars(bucketIdx);
+            if ((carIdx + nCars) < firstBucket.Length)
+            {
+                carIdx += nCars;
+                return;
+            }
+            nCars -= firstBucket.Length - carIdx;
+            bucketIdx++;
+
+            // all remaining buckets
+            for (;; bucketIdx++)
+            {
+                var bucket = GetCars(bucketIdx);
+                
+                if (nCars < bucket.Length)
+                {
+                    carIdx = nCars;
+                    return;
+                }
+
+                nCars -= bucket.Length;
+            }
+        }
+
+        public void FirstNonEmptyBucket(out int bucketIdx)
+        {
+            for (bucketIdx = 0; bucketIdx < lists.Length; bucketIdx++)
+            {
+                var bucket = GetCars(bucketIdx);
+                if (bucket.Length > 0)
+                {
+                    return;
+                }
+            }
         }
     }
 

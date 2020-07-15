@@ -15,6 +15,15 @@ OPTIMIZE:
 *   what if we only sorted a bucket every few frames? might get erroneously moved to next bucket?
 *   split Car so that Pos Lane and Speed are own struct in separate set of buckets
   
+ 
+*   check if all translations and rotations aren't NaN or Infinity (check unity.mathematics)
+        check the matrices
+ 
+ 
+* custom color override / shader  
+  
+* write groups?
+    go straight to LocalToWorld 
   
   InitializationSystemGroup
       
