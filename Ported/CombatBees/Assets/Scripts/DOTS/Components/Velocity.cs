@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-[Serializable]
+[GenerateAuthoringComponent]
 public struct Velocity : IComponentData
 {
     public Vector3 Value;

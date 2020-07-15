@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-[Serializable]
+[GenerateAuthoringComponent]
 public struct Scale : IComponentData
 {
     public float3 Value;
