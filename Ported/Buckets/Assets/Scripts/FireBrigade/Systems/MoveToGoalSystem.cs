@@ -2,9 +2,8 @@ using FireBrigade.Components;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
-namespace UnityTemplateProjects.FireBrigade.Systems
+namespace FireBrigade.Systems
 {
     public class MoveToGoalSystem : SystemBase
     {
@@ -18,9 +17,10 @@ namespace UnityTemplateProjects.FireBrigade.Systems
             {
                 if (math.distance(goalPosition.Value, translation.Value) < 0.1f) return;
 
-                var vec = goalPosition.Value - translation.Value;
-                vec = math.normalize(vec);
-                translation.Value += vec * speed * deltaTime;
+                var movementVector = goalPosition.Value - translation.Value;
+                movementVector = math.normalize(movementVector);
+                translation.Value += movementVector * speed * deltaTime;
+                
             }).ScheduleParallel();
         }
     }
