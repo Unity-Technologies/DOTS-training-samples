@@ -14,12 +14,27 @@ public class BeeSpawnerSystem : SystemBase
     {
         for (int x = 0; x < spawner.BeeCount; ++x)
         {
-            //var posX = 2 * (x - (spawner.CountX - 1) / 2);
-            //var posZ = 2 * (z - (spawner.CountZ - 1) / 2);
             var instance = EntityManager.Instantiate(spawner.Prefab);
             SetComponent(instance, new Translation
             {
                 Value = ltw.Position + new float3(x, 0, 0)
+            });
+            SetComponent(instance, new Team
+            {
+                Value = 0
+            });
+        }
+
+        for (int x = 0; x < spawner.BeeCount; ++x)
+        {
+            var instance = EntityManager.Instantiate(spawner.Prefab);
+            SetComponent(instance, new Translation
+            {
+                Value = ltw.Position + new float3(x, 10, 0)
+            });
+            SetComponent(instance, new Team
+            {
+                Value = 1
             });
         }
 
