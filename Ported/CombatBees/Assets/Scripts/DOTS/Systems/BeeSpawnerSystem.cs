@@ -19,19 +19,15 @@ public class BeeSpawnerSystem : SystemBase
                     for (int x = 0; x < spawner.BeeCount; ++x)
                     {
                         var instance = EntityManager.Instantiate(spawner.Prefab);
-                        SetComponent(instance,
+                        EntityManager.SetComponentData(instance,
                             new Translation
                             {
                                 Value = ltw.Position + new float3(x, i * 2, 0)
                             });
 
-                        SetComponent(instance,
-                            new Team
-                            {
-                                Value = i
-                            });
+                        EntityManager.SetSharedComponentData(instance, new Team { Value = i });
 
-                        SetComponent(instance,
+                        EntityManager.SetComponentData(instance,
                             new BeeColor
                             {
                                 Value = new float4(BeeManager.Instance.teamColors[i].r, BeeManager.Instance.teamColors[i].g, BeeManager.Instance.teamColors[i].b, BeeManager.Instance.teamColors[i].a)
