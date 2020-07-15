@@ -37,10 +37,10 @@ public class BeeManager : MonoBehaviour
     List<List<Matrix4x4>> beeMatrices;
     List<List<Vector4>> beeColors;
 
-    static BeeManager instance;
-
     const int beesPerBatch = 1023;
     MaterialPropertyBlock matProps;
+
+    public static BeeManager Instance { get; private set; }
 
     /*
     public static void SpawnBee(int team) {
@@ -87,7 +87,7 @@ public class BeeManager : MonoBehaviour
 
     void Awake()
     {
-        instance = this;
+        Instance = this;
     }
 
     void Start()

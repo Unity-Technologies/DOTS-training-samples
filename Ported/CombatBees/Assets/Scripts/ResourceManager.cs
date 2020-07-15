@@ -24,7 +24,7 @@ public class ResourceManager : MonoBehaviour
 
     float spawnTimer = 0f;
 
-    public static ResourceManager instance;
+    public static ResourceManager Instance { get; private set; }
 
     /*
     public static Resource TryGetRandomResource() {
@@ -88,7 +88,7 @@ public class ResourceManager : MonoBehaviour
 
     void Awake()
     {
-        instance = this;
+        Instance = this;
     }
 
     void Start()
