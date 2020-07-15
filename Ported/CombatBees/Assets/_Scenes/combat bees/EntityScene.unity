@@ -247,8 +247,8 @@ GameObject:
   - component: {fileID: 1627056327}
   - component: {fileID: 1627056326}
   - component: {fileID: 1627056325}
-  - component: {fileID: 1627056328}
   - component: {fileID: 1627056329}
+  - component: {fileID: 1627056328}
   m_Layer: 0
   m_Name: RightTeam
   m_TagString: Untagged
@@ -342,10 +342,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1627056323}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c6ddae1b44639d4e993aa84d943626c, type: 3}
+  m_Script: {fileID: 11500000, guid: 18ac17af36fd3c948beee064dea08714, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Value: 1
 --- !u!114 &1627056329
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -416,8 +415,8 @@ GameObject:
   - component: {fileID: 2057246131}
   - component: {fileID: 2057246130}
   - component: {fileID: 2057246129}
-  - component: {fileID: 2057246132}
   - component: {fileID: 2057246133}
+  - component: {fileID: 2057246132}
   m_Layer: 0
   m_Name: LeftTeam
   m_TagString: Untagged
@@ -511,10 +510,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2057246127}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c6ddae1b44639d4e993aa84d943626c, type: 3}
+  m_Script: {fileID: 11500000, guid: 0c335a9456b7fab43852a1d47db574ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Value: 0
 --- !u!114 &2057246133
 MonoBehaviour:
   m_ObjectHideFlags: 0

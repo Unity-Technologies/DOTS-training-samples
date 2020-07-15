@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Linq;
+﻿using System.Linq;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -19,7 +18,8 @@ public class ResourceSpawnerSystem : SystemBase
             }, 
             None = new[]
             {
-                ComponentType.ReadOnly<Team>()
+                ComponentType.ReadOnly<TeamOne>(),
+                ComponentType.ReadOnly<TeamTwo>()
             }
         });
     }
