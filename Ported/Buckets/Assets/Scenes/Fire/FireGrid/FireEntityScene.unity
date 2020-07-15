@@ -173,6 +173,10 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  MinInitialFires: 1
+  MaxInitialFires: 10
+  StartFireAmount: 0.5
+  StartFireVelocity: 0.05
 --- !u!1 &2056003908
 GameObject:
   m_ObjectHideFlags: 0
