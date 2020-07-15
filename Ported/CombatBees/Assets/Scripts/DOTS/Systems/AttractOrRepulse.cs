@@ -7,6 +7,28 @@ using Unity.Transforms;
 
 public class AttractOrRepulse : SystemBase
 {
+    EntityQuery m_FriendsQuery;
+    EntityQuery m_EnemiesQuery;
+
+    protected override void OnCreate()
+    {
+        m_FriendsQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<TeamOne>()
+            }
+        });
+
+        m_EnemiesQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<TeamTwo>()
+            }
+        });
+    }
+
     protected override void OnUpdate()
     {
         // Assign values to local variables captured in your job here, so that it has
@@ -19,10 +41,9 @@ public class AttractOrRepulse : SystemBase
         // meaning it will process all entities in the world that have both
         // Translation and Rotation components. Change it to process the component
         // types you want.
-        
-        
-        
-        Entities.ForEach((ref Translation translation, in Rotation rotation) => {
+
+        Entities.ForEach((ref Translation translation, in Rotation rotation) =>
+        {
             // Implement the work to perform for each entity here.
             // You should only access data that is local or that is a
             // field on this job. Note that the 'rotation' parameter is

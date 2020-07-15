@@ -4,7 +4,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
-public struct Team : ISharedComponentData
+public struct TeamOne : IComponentData
 {
-    public int Value;
 }
