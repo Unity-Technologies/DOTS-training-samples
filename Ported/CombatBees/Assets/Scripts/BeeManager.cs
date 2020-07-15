@@ -7,6 +7,7 @@ public class BeeManager : MonoBehaviour
     public Mesh beeMesh;
     public Material beeMaterial;
     public Color[] teamColors;
+    public Vector3[] baseLocations;
     public float minBeeSize;
     public float maxBeeSize;
     public float speedStretch;

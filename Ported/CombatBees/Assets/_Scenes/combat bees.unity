@@ -291,6 +291,7 @@ MonoBehaviour:
   teamColors:
   - {r: 0.30882353, g: 0.4279919, b: 1, a: 1}
   - {r: 0.94362324, g: 0.9485294, b: 0.5928309, a: 1}
+  baseLocations: []
   minBeeSize: 0.25
   maxBeeSize: 0.5
   speedStretch: 0.2

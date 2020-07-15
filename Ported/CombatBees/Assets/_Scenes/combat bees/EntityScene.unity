@@ -123,6 +123,72 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &885377514
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 885377516}
+  - component: {fileID: 885377515}
+  m_Layer: 0
+  m_Name: Bee Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &885377515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 885377514}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e4129bd858124941b2d18defdda06da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Count: 0
+  teamColors:
+  - {r: 0.30980393, g: 0.42745098, b: 1, a: 0}
+  - {r: 0.94509804, g: 0.9490196, b: 0.5921569, a: 0}
+  baseLocations: []
+  BeeCount: 0
+  minBeeSize: 0
+  maxBeeSize: 0
+  speedStretch: 0
+  rotationStiffness: 0
+  aggression: 0
+  flightJitter: 0
+  teamAttraction: 0
+  teamRepulsion: 0
+  damping: 0
+  chaseForce: 0
+  carryForce: 0
+  grabDistance: 0
+  attackDistance: 0
+  attackForce: 0
+  hitDistance: 0
+  maxSpawnSpeed: 0
+  startBeeCount: 100
+--- !u!4 &885377516
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 885377514}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 54.87294, y: 24.751104, z: 6.266838}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1084741869
 GameObject:
   m_ObjectHideFlags: 0
@@ -403,7 +469,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 5356589217516860716, guid: a51f1ac809e5a0948b6d84c8716bed21, type: 3}
-  BeeCount: 50
+  BeeCount: 100
 --- !u!1 &2057246127
 GameObject:
   m_ObjectHideFlags: 0
@@ -571,5 +637,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd14f9948bb9026428a3024a372a0b45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Prefab: {fileID: 8968268261922506393, guid: bf5da6c96cb75214189e68d348e41548, type: 3}
-  Count: 100
+  Prefab: {fileID: 0}
+  Count: 0
