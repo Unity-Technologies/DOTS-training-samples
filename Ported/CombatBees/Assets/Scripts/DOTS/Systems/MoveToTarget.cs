@@ -9,28 +9,31 @@ public class MoveToTarget : SystemBase
 {
     protected override void OnUpdate()
     {
-        // Assign values to local variables captured in your job here, so that it has
-        // everything it needs to do its work when it runs later.
-        // For example,
-        //     float deltaTime = Time.DeltaTime;
+        var deltaTime = Time.DeltaTime;
 
-        // This declares a new kind of job, which is a unit of work to do.
-        // The job is declared as an Entities.ForEach with the target components as parameters,
-        // meaning it will process all entities in the world that have both
-        // Translation and Rotation components. Change it to process the component
-        // types you want.
-        
-        
-        
-        Entities.ForEach((ref Translation translation, in Rotation rotation) => {
-            // Implement the work to perform for each entity here.
-            // You should only access data that is local or that is a
-            // field on this job. Note that the 'rotation' parameter is
-            // marked as 'in', which means it cannot be modified,
-            // but allows this job to run in parallel with other jobs
-            // that want to read Rotation component data.
-            // For example,
-            //     translation.Value += math.mul(rotation.Value, new float3(0, 0, 1)) * deltaTime;
+        Entities.ForEach((ref Velocity velocity, in Translation pos, in Target target) =>
+        {
+            var targetPos = GetComponent<Translation>(target.Value);
+            var delta = targetPos.Value - pos.Value;
+            var sqrDist = math.distancesq(targetPos.Value, pos.Value);
+            if (sqrDist > math.pow(BeeManager.Instance.attackDistance, 2))
+            {
+                velocity.Value += delta * (BeeManager.Instance.chaseForce * deltaTime / math.sqrt(sqrDist));
+            }
+            else
+            {
+                // bee.isAttacking = true;
+                velocity.Value += delta * (BeeManager.Instance.attackForce * deltaTime / math.sqrt(sqrDist));
+
+                if (sqrDist < math.pow(BeeManager.Instance.hitDistance, 2))
+                {
+                    // Hit on enemy
+                    // ParticleManager.SpawnParticle(bee.enemyTarget.position,ParticleType.Blood,bee.velocity * .35f,2f,6);
+                    // bee.enemyTarget.dead = true;
+                    // bee.enemyTarget.velocity *= .5f;
+                    // bee.enemyTarget = null;
+                }
+            }
         }).Schedule();
     }
 }
