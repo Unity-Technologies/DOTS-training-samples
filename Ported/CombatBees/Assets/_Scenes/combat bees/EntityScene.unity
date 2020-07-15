@@ -132,6 +132,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1861925292}
+  - component: {fileID: 1861925293}
   m_Layer: 0
   m_Name: BeeSpawner
   m_TagString: Untagged
@@ -153,72 +154,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &5356589216521145932
-PrefabInstance:
+--- !u!114 &1861925293
+MonoBehaviour:
   m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 5356589217516860712, guid: a51f1ac809e5a0948b6d84c8716bed21,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 49.781284
-      objectReference: {fileID: 0}
-    - target: {fileID: 5356589217516860712, guid: a51f1ac809e5a0948b6d84c8716bed21,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 15.623154
-      objectReference: {fileID: 0}
-    - target: {fileID: 5356589217516860712, guid: a51f1ac809e5a0948b6d84c8716bed21,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -10.467224
-      objectReference: {fileID: 0}
-    - target: {fileID: 5356589217516860712, guid: a51f1ac809e5a0948b6d84c8716bed21,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5356589217516860712, guid: a51f1ac809e5a0948b6d84c8716bed21,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5356589217516860712, guid: a51f1ac809e5a0948b6d84c8716bed21,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5356589217516860712, guid: a51f1ac809e5a0948b6d84c8716bed21,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5356589217516860712, guid: a51f1ac809e5a0948b6d84c8716bed21,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5356589217516860712, guid: a51f1ac809e5a0948b6d84c8716bed21,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5356589217516860712, guid: a51f1ac809e5a0948b6d84c8716bed21,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5356589217516860712, guid: a51f1ac809e5a0948b6d84c8716bed21,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5356589217516860716, guid: a51f1ac809e5a0948b6d84c8716bed21,
-        type: 3}
-      propertyPath: m_Name
-      value: Bee
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: a51f1ac809e5a0948b6d84c8716bed21, type: 3}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1861925291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 280c62dfe4700a34f805fc07b87f54ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 5356589217516860716, guid: a51f1ac809e5a0948b6d84c8716bed21, type: 3}
+  BeeCount: 50
