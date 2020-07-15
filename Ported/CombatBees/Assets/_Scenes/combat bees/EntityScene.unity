@@ -235,6 +235,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Height: 10
+  TeamColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &1627056323
 GameObject:
   m_ObjectHideFlags: 0
@@ -358,6 +359,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Height: 10
+  TeamColor: {r: 1, g: 0.8835707, b: 0, a: 0}
 --- !u!1 &1861925291
 GameObject:
   m_ObjectHideFlags: 0
@@ -526,6 +528,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Height: 10
+  TeamColor: {r: 0, g: 0.2157743, b: 1, a: 0}
 --- !u!1 &2057393679
 GameObject:
   m_ObjectHideFlags: 0
