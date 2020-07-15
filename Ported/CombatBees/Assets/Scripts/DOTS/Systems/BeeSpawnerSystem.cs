@@ -22,7 +22,7 @@ public class BeeSpawnerSystem : SystemBase
                         EntityManager.SetComponentData(instance,
                             new Translation
                             {
-                                Value = ltw.Position + new float3(x, i * 2, 0)
+                                Value = ltw.Position + new float3(BeeManager.Instance.baseLocations[i].x, math.sin(x) * x, math.cos(x) * x)
                             });
 
                         EntityManager.SetSharedComponentData(instance, new Team { Value = i });
