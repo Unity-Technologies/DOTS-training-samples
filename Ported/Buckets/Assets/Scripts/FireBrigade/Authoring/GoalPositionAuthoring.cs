@@ -10,8 +10,8 @@ namespace FireBrigade.Authoring
     {
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
+            Random.seed = (int) Time.time;
             dstManager.AddComponentData(entity, new GoalPosition{Value = new float3(Random.Range(-100f,100f), 0, Random.Range(100f, -100f))});
         }
-        
     }
 }

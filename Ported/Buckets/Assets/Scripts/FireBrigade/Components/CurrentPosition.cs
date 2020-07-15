@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-namespace FireBrigade.Authoring
+namespace FireBrigade.Components
 {
     [GenerateAuthoringComponent]
     public struct CurrentPosition : IComponentData

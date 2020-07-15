@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-namespace FireBrigade.Authoring
+namespace FireBrigade.Components
 {
     [GenerateAuthoringComponent]
     public struct GroupIdentifier : IComponentData
