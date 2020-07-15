@@ -1,13 +1,27 @@
-﻿using Unity.Entities;
+﻿using System.Diagnostics;
+using System.Linq;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
+
 
 public class ResourceSpawnerSystem : SystemBase
 {
+    private EntityQuery m_MainFieldQuery;
+
     protected override void OnCreate()
     {
-        
+        m_MainFieldQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<FieldInfo>()
+            }, 
+            None = new[]
+            {
+                ComponentType.ReadOnly<Team>()
+            }
+        });
     }
 
     protected override void OnUpdate()
@@ -15,12 +29,15 @@ public class ResourceSpawnerSystem : SystemBase
         Entities.WithStructuralChanges()
         .ForEach((Entity entity, in Spawner spawner, in LocalToWorld ltw) =>
         {
+            var mainField = m_MainFieldQuery.ToComponentDataArray<FieldInfo>(Unity.Collections.Allocator.Temp).FirstOrDefault();
+            var center = mainField.Bounds.Center;
+
             for (int x = 0; x < spawner.Count; ++x)
             {
                 var instance = EntityManager.Instantiate(spawner.Prefab);
                 SetComponent(instance, new Translation
                 {
-                    Value = ltw.Position + new float3(math.sin(x), 0, math.cos(x)) * x * 0.1f
+                    Value = center + new float3(math.sin(x), 0, math.cos(x)) * x * 0.1f
                 });
             }
 

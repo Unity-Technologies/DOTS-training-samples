@@ -14,8 +14,6 @@ public class FieldInfoAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         var scale = t.lossyScale;
         var halfHeight = Height * 0.5f;
 
-        Debug.Log($"pos{pos}, scale{scale}, halfHeight{halfHeight}"); 
-
         dstManager.AddComponentData(entity, new FieldInfo
         {
             Bounds = new Bounds
