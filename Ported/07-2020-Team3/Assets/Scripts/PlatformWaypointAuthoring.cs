@@ -4,9 +4,6 @@ using Unity.Entities;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
-public struct SpawnerAuthoring : IComponentData
+public struct PlatformWaypoint : IComponentData
 {
-    public Entity Prefab;
-    public int CountX;
-    public int CountY;
 }
