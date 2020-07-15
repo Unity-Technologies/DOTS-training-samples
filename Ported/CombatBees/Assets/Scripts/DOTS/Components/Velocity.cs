@@ -7,5 +7,5 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct Velocity : IComponentData
 {
-    public Vector3 Value;
+    public float3 Value;
 }
