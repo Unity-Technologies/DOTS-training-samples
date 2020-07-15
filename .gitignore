@@ -44,3 +44,7 @@ sysinfo.txt
 *.unitypackage
 
 *.DS_Store
+/Original/CombatBees/Packages/packages-lock.json
+/Ported/CombatBees/Assets/SceneDependencyCache
+/Ported/CombatBees/Assets/SceneDependencyCache.meta
+/Original/CombatBees/UserSettings/EditorUserSettings.asset
