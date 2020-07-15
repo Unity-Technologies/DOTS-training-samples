@@ -291,7 +291,9 @@ MonoBehaviour:
   teamColors:
   - {r: 0.30882353, g: 0.4279919, b: 1, a: 1}
   - {r: 0.94362324, g: 0.9485294, b: 0.5928309, a: 1}
-  baseLocations: []
+  baseLocations:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 0, z: 0}
   minBeeSize: 0.25
   maxBeeSize: 0.5
   speedStretch: 0.2
@@ -735,13 +737,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1710081621}
-  m_LocalRotation: {x: 0.11699843, y: -0.026503325, z: 0.003120223, w: 0.99277353}
-  m_LocalPosition: {x: 5.6819572, y: 19.412313, z: -78.94327}
+  m_LocalRotation: {x: 0.20278728, y: 0, z: 0, w: 0.97922283}
+  m_LocalPosition: {x: 5.6819572, y: 128.9, z: -404.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 23.4, y: 0, z: 0}
 --- !u!114 &1710081626
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -749,7 +751,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1710081621}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1c2700fa58cb82f4486cfa65cb75613b, type: 3}
   m_Name: 
@@ -764,7 +766,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1710081621}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a9631d8dca50d3243947f6f5bb2e746f, type: 3}
   m_Name: 
