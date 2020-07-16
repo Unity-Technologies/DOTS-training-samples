@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class TrainUpdateSystem : SystemBase
@@ -33,7 +34,7 @@ public class TrainUpdateSystem : SystemBase
         float deltaTime = Time.DeltaTime;
 
         BufferFromEntity<TrackPoint> trackPointsAccessor = GetBufferFromEntity<TrackPoint>(true);
-        BufferFromEntity<TrackPlatforms> platformsAccessor = GetBufferFromEntity<TrackPlatforms>(true);
+        BufferFromEntity<TrackStation> platformsAccessor = GetBufferFromEntity<TrackStation>(true);
         
         MaximumTrainSpeed maximumTrainSpeed = GetSingleton<MaximumTrainSpeed>();
         TrainWaitTime trainWaitTime = GetSingleton<TrainWaitTime>();
@@ -55,12 +56,12 @@ public class TrainUpdateSystem : SystemBase
 
                 float oldPosition = trainPosition.position;
                 float newPosition = oldPosition + trainPosition.speed * deltaTime;
-                Entity platformEntity = platforms[trainState.nextPlatform].platform;
-                float platformPosition = platforms[trainState.nextPlatform].position;
+                //Entity platformEntity = platforms[trainState.nextPlatform].platform;
+                float platformPosition = platforms[trainState.nextPlatform].Inbound.EndT * trackPoints.Length;
 
                 if(oldPosition <= platformPosition && platformPosition <= newPosition)
                 {
-                    trainState.currentPlatform = platformEntity;
+                    //trainState.currentPlatform = platformEntity;
                     trainState.nextPlatform++;
                     if (trainState.nextPlatform >= platforms.Length)
                         trainState.nextPlatform = 0;
