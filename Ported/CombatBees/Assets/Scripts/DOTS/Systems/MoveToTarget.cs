@@ -27,56 +27,57 @@ public class MoveToTarget : SystemBase
         Entities
             .WithNone<Dead>()
             .ForEach((Entity entity, int entityInQueryIndex, ref Velocity velocity, ref Smoothing smoothing, ref Target target, in Translation pos) =>
-        {
-            Translation targetPos;
-            if (target.EnemyTarget != Entity.Null)
             {
-                targetPos = GetComponent<Translation>(target.EnemyTarget);
-            }
-            else if (target.ResourceTarget != Entity.Null)
-            {
-                targetPos = GetComponent<Translation>(target.ResourceTarget);
-            }
-            else
-            {
-                return;
-            }
+                var oldSmoothPos = smoothing.SmoothPosition;
 
-            var oldSmoothPos = smoothing.SmoothPosition;
-
-            var delta = targetPos.Value - pos.Value;
-            var sqrDist = math.distancesq(targetPos.Value, pos.Value);
-
-            // Not attacking
-            if (sqrDist > math.pow(attackDistance, 2))
-            {
-                velocity.Value += delta * (chaseForce * deltaTime / math.sqrt(sqrDist));
-                smoothing.SmoothPosition = math.lerp(smoothing.SmoothPosition, pos.Value, deltaTime * rotationStiffness);
-            }
-
-            // Attacking
-            else
-            {
-                smoothing.SmoothPosition = pos.Value;
-
-                velocity.Value += delta * (attackForce * deltaTime / math.sqrt(sqrDist));
-
-                if (sqrDist < math.pow(hitDistance, 2))
+                Translation targetPos;
+                if (target.EnemyTarget != Entity.Null)
                 {
-                    // Hit on enemy
-                    ecb.AddComponent<Dead>(entityInQueryIndex, target.EnemyTarget);
-                    ecb.AddComponent<DespawnTimer>(entityInQueryIndex, target.EnemyTarget, new DespawnTimer { Time = 2 });
-                    ecb.AddComponent<Gravity>(entityInQueryIndex, target.EnemyTarget);
+                    targetPos = GetComponent<Translation>(target.EnemyTarget);
 
-                    ecb.SetComponent<Target>(entityInQueryIndex, entity, new Target { EnemyTarget = Entity.Null });
-                    // ParticleManager.SpawnParticle(bee.enemyTarget.position,ParticleType.Blood,bee.velocity * .35f,2f,6);
-                    // bee.enemyTarget.dead = true;
-                    // bee.enemyTarget.velocity *= .5f;
-                    // bee.enemyTarget = null;
+                    var delta = targetPos.Value - pos.Value;
+                    var dist = math.length(delta);
+
+                    // Not attacking
+                    if (dist > attackDistance)
+                    {
+                        velocity.Value += delta * (chaseForce * deltaTime / dist);
+                        smoothing.SmoothPosition = math.lerp(smoothing.SmoothPosition, pos.Value, deltaTime * rotationStiffness);
+                    }
+
+                    // Attacking
+                    else
+                    {
+                        smoothing.SmoothPosition = pos.Value;
+
+                        velocity.Value += delta * (attackForce * deltaTime / dist);
+
+                        if (dist < hitDistance)
+                        {
+                            // Hit on enemy
+                            ecb.AddComponent<Dead>(entityInQueryIndex, target.EnemyTarget);
+                            ecb.AddComponent<DespawnTimer>(entityInQueryIndex, target.EnemyTarget, new DespawnTimer { Time = 2 });
+                            ecb.AddComponent<Gravity>(entityInQueryIndex, target.EnemyTarget);
+
+                            ecb.SetComponent<Target>(entityInQueryIndex, entity, new Target { EnemyTarget = Entity.Null });
+
+                            // ParticleManager.SpawnParticle(bee.enemyTarget.position,ParticleType.Blood,bee.velocity * .35f,2f,6);
+                            // bee.enemyTarget.dead = true;
+                            // bee.enemyTarget.velocity *= .5f;
+                            // bee.enemyTarget = null;
+                        }
+                    }
                 }
-            }
+                else if (target.ResourceTarget != Entity.Null)
+                {
+                    targetPos = GetComponent<Translation>(target.ResourceTarget);
 
-            smoothing.SmoothDirection = smoothing.SmoothPosition - oldSmoothPos;
-        }).ScheduleParallel();
+                    var delta = targetPos.Value - pos.Value;
+                    var dist = math.length(delta);
+                    velocity.Value += delta * (chaseForce * deltaTime / dist);
+                }
+
+                smoothing.SmoothDirection = smoothing.SmoothPosition - oldSmoothPos;
+            }).ScheduleParallel();
     }
 }
