@@ -6,4 +6,5 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct Commuter : IComponentData
 {
+    public int NextWaypoint;
 }
