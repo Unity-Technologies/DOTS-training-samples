@@ -11,6 +11,12 @@ namespace Water
     {
         protected override void OnUpdate()
         {
+            var mouseLeftDown = UnityEngine.Input.GetMouseButton(0);
+            var mouseRightDown = UnityEngine.Input.GetMouseButton(1);
+
+            if(!mouseLeftDown && !mouseRightDown)
+                return;
+
             var camera = UnityEngine.Camera.main;
             if (camera == null)
                 return;
@@ -20,8 +26,7 @@ namespace Water
             var hit = (float3) ray.GetPoint(enter);
 
             var deltaTime = Time.DeltaTime;
-            var mouseLeftDown = UnityEngine.Input.GetMouseButton(0);
-            var mouseRightDown = UnityEngine.Input.GetMouseButton(1);
+        
             float splashRadius = .05f;
             float splashEffect = 2;
             //var fireBufferEntity = GetSingletonEntity<Fire.FireBuffer>();
