@@ -28,7 +28,7 @@ public class CommuterBoardTrainSystem : SystemBase
     protected override void OnUpdate()
     {
         var concurrentECB = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
-        var queueRandom = new Random((uint)(Time.ElapsedTime * 10));
+        var queueRandom = new Random((uint)(1 + Time.ElapsedTime * 10));
 
         var trainCarEntities =
             m_TrainCarsQuery.ToEntityArrayAsync(Allocator.TempJob, out var trainCarEntitiesHandle);
