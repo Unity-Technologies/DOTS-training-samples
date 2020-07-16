@@ -1,10 +1,41 @@
 ﻿// using System.Collections.Generic;
+// using Unity.Collections;
+// using Unity.Entities;
+// using Unity.Mathematics;
+// using UnityEngine;
+//
+// public struct BezierPoint_NEW : IBufferElementData
+// {
+//     public float3 Position;
+//     public float3 HandleIn;
+//     public float3 HandleOut;
+//     public float DistanceAlongPath;
+//
+//     public BezierPoint_NEW(float3 pos, float3 handleIn, float3 handleOut, float distanceAlongPath)
+//     {
+//         Position = pos;
+//         HandleIn = handleIn;
+//         HandleOut = handleOut;
+//         DistanceAlongPath = 0.0f;
+//     }
+// }
+//
+// public struct BezierDistance : IComponentData
+// {
+//     public float Value;
+// }
 //
 // public static class Bezier
 // {
-//     
-// }
+//     public static AddPoint(NativeList<BezierPoint_NEW> list, )
 //
+//     public static void SetHandles(this ref BezierPoint_NEW point, float3 distance, float reach)
+//     {
+//         distance *= reach;
+//         point.HandleIn = point.Position - distance;
+//         point.HandleOut = point.Position + distance;
+//     }
+// }
 //
 // public class BezierPath
 // {
