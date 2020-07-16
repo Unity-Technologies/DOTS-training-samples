@@ -18,8 +18,8 @@ namespace FireBrigade.Systems
             Entities.ForEach(
                 (Entity entity,
                     ref GoalPosition goalPosition,
-                    in WaterPosition waterPosition,
-                    in FirePosition firePosition,
+                    in WaterTarget waterPosition,
+                    in FireTarget firePosition,
                     in GroupIdentifier groupID,
                     in GroupCount numFighters,
                     in RoleIndex roleIndex,
@@ -31,18 +31,18 @@ namespace FireBrigade.Systems
                     switch (role.Value)
                     {
                         case FirefighterRole.scooper:
-                            newGoalPosition = waterPosition.Value;
+                            newGoalPosition = waterPosition.Position;
                             break;
                         case FirefighterRole.thrower:
-                            newGoalPosition = firePosition.Value;
+                            newGoalPosition = firePosition.Position;
                             break;
                         case FirefighterRole.full:
-                            newGoalPosition = GetChainPosition(roleIndex.Value, numFighters.Value, waterPosition.Value,
-                                firePosition.Value);
+                            newGoalPosition = GetChainPosition(roleIndex.Value, numFighters.Value, waterPosition.Position,
+                                firePosition.Position);
                             break;
                         case FirefighterRole.empty:
-                            newGoalPosition = GetChainPosition(roleIndex.Value, numFighters.Value, firePosition.Value,
-                                waterPosition.Value);
+                            newGoalPosition = GetChainPosition(roleIndex.Value, numFighters.Value, firePosition.Position,
+                                waterPosition.Position);
                             break;
                     }
 

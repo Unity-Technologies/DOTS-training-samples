@@ -90,8 +90,8 @@ namespace FireBrigade.Systems
                     ecb.SetComponent(firefighterEntity, new Translation {Value = randomFirefighterPosition});
                     ecb.SetComponent(firefighterEntity, new GroupIdentifier {Value = i});
                     ecb.AddComponent(firefighterEntity, new GroupCount {Value = spawner.numPerGroup});
-                    ecb.AddComponent(firefighterEntity, new WaterPosition {Value = waterPosition});
-                    ecb.AddComponent(firefighterEntity, new FirePosition {Value = firePosition});
+                    ecb.AddComponent(firefighterEntity, new WaterTarget {Position = waterPosition});
+                    ecb.AddComponent(firefighterEntity, new FireTarget {Position = firePosition});
                     ecb.SetComponent(firefighterEntity, new RoleIndex {Value = 0});
                     ecb.SetComponent(firefighterEntity, new Color(){Value = new float4(0f,0f,0f,1f)});
                     ecb.AddComponent(firefighterEntity, new GroupRole {Value = FirefighterRole.scooper});
@@ -103,8 +103,8 @@ namespace FireBrigade.Systems
                     ecb.SetComponent(firefighterEntity, new Translation {Value = randomFirefighterPosition});
                     ecb.SetComponent(firefighterEntity, new GroupIdentifier {Value = i});
                     ecb.AddComponent(firefighterEntity, new GroupCount {Value = spawner.numPerGroup});
-                    ecb.AddComponent(firefighterEntity, new WaterPosition {Value = waterPosition});
-                    ecb.AddComponent(firefighterEntity, new FirePosition {Value = firePosition});
+                    ecb.AddComponent(firefighterEntity, new WaterTarget {Position = waterPosition});
+                    ecb.AddComponent(firefighterEntity, new FireTarget {Position = firePosition});
                     ecb.SetComponent(firefighterEntity, new RoleIndex {Value = 0});
                     ecb.SetComponent(firefighterEntity, new Color(){Value = new float4(1f,1f,1f,1f)});
                     ecb.AddComponent(firefighterEntity, new GroupRole {Value = FirefighterRole.thrower});
@@ -120,8 +120,8 @@ namespace FireBrigade.Systems
                         ecb.SetComponent(firefighterEntity, new Translation {Value = randomFirefighterPosition});
                         ecb.SetComponent(firefighterEntity, new GroupIdentifier {Value = i});
                         ecb.AddComponent(firefighterEntity, new GroupCount {Value = chainCount});
-                        ecb.AddComponent(firefighterEntity, new WaterPosition {Value = waterPosition});
-                        ecb.AddComponent(firefighterEntity, new FirePosition {Value = firePosition});
+                        ecb.AddComponent(firefighterEntity, new WaterTarget {Position = waterPosition});
+                        ecb.AddComponent(firefighterEntity, new FireTarget {Position = firePosition});
                         ecb.SetComponent(firefighterEntity, new RoleIndex {Value = emptyCount});
                         ecb.SetComponent(firefighterEntity, new Color(){Value = new float4(1f,1f,1f,1f)});
                         ecb.AddComponent(firefighterEntity, new GroupRole {Value = FirefighterRole.empty});
@@ -135,8 +135,8 @@ namespace FireBrigade.Systems
                         ecb.SetComponent(firefighterEntity, new Translation {Value = randomFirefighterPosition});
                         ecb.SetComponent(firefighterEntity, new GroupIdentifier {Value = i});
                         ecb.AddComponent(firefighterEntity, new GroupCount {Value = chainCount});
-                        ecb.AddComponent(firefighterEntity, new WaterPosition {Value = waterPosition});
-                        ecb.AddComponent(firefighterEntity, new FirePosition {Value = firePosition});
+                        ecb.AddComponent(firefighterEntity, new WaterTarget {Position = waterPosition});
+                        ecb.AddComponent(firefighterEntity, new FireTarget {Position = firePosition});
                         ecb.SetComponent(firefighterEntity, new RoleIndex {Value = fullCount});
                         ecb.SetComponent(firefighterEntity, new Color(){Value = new float4(0f,1f,0f,1f)});
                         ecb.AddComponent(firefighterEntity, new GroupRole {Value = FirefighterRole.full});
@@ -149,7 +149,7 @@ namespace FireBrigade.Systems
                     ecb.SetComponent(firefighterEntity, new Translation {Value = randomFirefighterPosition});
                     ecb.SetComponent(firefighterEntity, new GroupIdentifier {Value = i});
                     ecb.AddComponent(firefighterEntity, new GroupCount {Value = spawner.numPerGroup});
-                    ecb.AddComponent(firefighterEntity, new WaterPosition {Value = waterPosition});
+                    ecb.AddComponent(firefighterEntity, new WaterTarget {Position = waterPosition});
                     ecb.SetComponent(firefighterEntity, new Color(){Value = new float4(0f,1f,1f,1f)});
                     ecb.AddComponent(firefighterEntity, new BucketCollector());
                     
