@@ -16,5 +16,6 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new Size() { Value = 1.0f });
         dstManager.AddComponentData(entity, new BeeColor() { Value = new float4(Color.r, Color.g, Color.b, Color.a) });
         dstManager.AddComponentData(entity, new NonUniformScale() { Value = new float3(1f) });
+        dstManager.AddComponentData(entity, new Smoothing() { SmoothPosition = float3.zero, SmoothDirection = Vector3.zero });
     }
 }
