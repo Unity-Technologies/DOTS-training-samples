@@ -1,11 +1,20 @@
 ﻿using System;
+using System.Data.SqlTypes;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 namespace Fire
 {
+    [GenerateAuthoringComponent]
+    public struct FireSpreadProperties : IComponentData
+    {
+
+    }
+
+
     public class FireUpdateSystem : SystemBase
     {
         protected override void OnCreate()
@@ -23,7 +32,11 @@ namespace Fire
 
             float deltaTime = Time.DeltaTime;
             float epsilon = Mathf.Epsilon;
+            float elapsedTime = (float)Time.ElapsedTime;
 
+            // Check current state to spread fires
+
+            // Update fires in scene
             Entities
                 .ForEach((Entity fireEntity, int entityInQueryIndex, ref Translation position, ref TemperatureComponent temperature, in BoundsComponent bounds, in StartHeight startHeight) =>
                 {
@@ -38,13 +51,16 @@ namespace Fire
                     var deltaVel = temperature.Velocity * deltaTime;
                     temperature.Value = temp + deltaVel;
 
-                    position.Value.y = startHeight.Value + bounds.SizeY / 2f * temperature.Value;
+                    float fireVariance = math.sin( 5 * temperature.Value * elapsedTime + 100 * math.PI * startHeight.Variance) * startHeight.Variance * temperature.Value;
+
+                    float newHeight = bounds.SizeY / 2f + fireVariance;
+                    position.Value.y = startHeight.Value + newHeight * temperature.Value;
 
                 }).ScheduleParallel();
         }
 
         /// <summary>
-        ///   <para>Compares two floating point values and returns true if they are similar.</para>
+        /// Compares two floating point values and returns true if they are similar.
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>

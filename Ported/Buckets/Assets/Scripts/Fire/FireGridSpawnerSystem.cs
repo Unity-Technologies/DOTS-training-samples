@@ -136,6 +136,7 @@ namespace Fire
                             // Add random offset on y to debug that the grid spacing is correct
                             var posY = random.NextFloat(-0.01f, 0.01f);
                             height.Value = posY;
+                            height.Variance = random.NextFloat(0.045f, 0.55f);
 
                             translation.Value = spawner.Center + new float3(posX, posY, posZ);
                             

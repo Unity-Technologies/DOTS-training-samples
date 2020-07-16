@@ -24,6 +24,7 @@ namespace Fire
     public struct StartHeight : IComponentData
     {
         public float Value;
+        public float Variance;
     }
 
     public struct TemperatureComponent : IComponentData
