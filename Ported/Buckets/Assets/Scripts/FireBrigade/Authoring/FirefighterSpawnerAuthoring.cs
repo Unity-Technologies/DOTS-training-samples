@@ -7,8 +7,8 @@ namespace FireBrigade.Authoring
     public class FirefighterSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public GameObject prefab;
-        [Min(4)]
-        public int firefightersPerGroup = 20;
+
+        [Min(4)] public int firefightersPerGroup = 20;
 
         [Min(1)] public int minGroups = 1;
         [Min(2)] public int maxGroups = 4;
