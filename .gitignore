@@ -44,3 +44,7 @@ sysinfo.txt
 *.unitypackage
 
 *.DS_Store
+
+Ported/Buckets/Assets/SceneDependencyCache/
+
+Ported/Buckets/Assets/SceneDependencyCache.meta
