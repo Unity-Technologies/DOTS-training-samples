@@ -13,6 +13,7 @@ public class MoveToTarget : SystemBase
     {
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
+
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
@@ -20,12 +21,12 @@ public class MoveToTarget : SystemBase
         var attackForce = BeeManager.Instance.attackForce;
         var attackDistance = BeeManager.Instance.attackDistance;
         var hitDistance = BeeManager.Instance.hitDistance;
-
+        var rotationStiffness = BeeManager.Instance.rotationStiffness;
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
 
         Entities
             .WithNone<Dead>()
-            .ForEach((int entityInQueryIndex, ref Velocity velocity, ref Target target, in Translation pos) =>
+            .ForEach((int entityInQueryIndex, ref Velocity velocity, ref Smoothing smoothing, in Translation pos, in Target target) =>
         {
             Translation targetPos;
             if (target.EnemyTarget != Entity.Null)
@@ -40,27 +41,40 @@ public class MoveToTarget : SystemBase
             {
                 return;
             }
+
+            var oldSmoothPos = smoothing.SmoothPosition;
+
             var delta = targetPos.Value - pos.Value;
             var sqrDist = math.distancesq(targetPos.Value, pos.Value);
+
+            // Not attacking
             if (sqrDist > math.pow(attackDistance, 2))
             {
                 velocity.Value += delta * (chaseForce * deltaTime / math.sqrt(sqrDist));
+                smoothing.SmoothPosition = math.lerp(smoothing.SmoothPosition, pos.Value, deltaTime * rotationStiffness);
             }
+
+            // Attacking
             else
             {
-                // bee.isAttacking = true;
+                smoothing.SmoothPosition = pos.Value;
+
                 velocity.Value += delta * (attackForce * deltaTime / math.sqrt(sqrDist));
 
                 if (sqrDist < math.pow(hitDistance, 2))
                 {
                     // Hit on enemy
                     ecb.AddComponent<Dead>(entityInQueryIndex, target.EnemyTarget);
+                    ecb.AddComponent<Gravity>(entityInQueryIndex, target.EnemyTarget);
+
                     // ParticleManager.SpawnParticle(bee.enemyTarget.position,ParticleType.Blood,bee.velocity * .35f,2f,6);
                     // bee.enemyTarget.dead = true;
                     // bee.enemyTarget.velocity *= .5f;
                     // bee.enemyTarget = null;
                 }
             }
+
+            smoothing.SmoothDirection = smoothing.SmoothPosition - oldSmoothPos;
         }).ScheduleParallel();
     }
 }

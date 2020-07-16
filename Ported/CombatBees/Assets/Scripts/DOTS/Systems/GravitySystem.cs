@@ -11,6 +11,6 @@ public class GravitySystem : SystemBase
         var force = new float3(0, k_Gravity * Time.DeltaTime, 0);
 
         Entities.WithAll<Gravity>()
-            .ForEach((ref Velocity v) => v.Value = v.Value + force).ScheduleParallel();
+            .ForEach((ref Velocity v) => v.Value += force).ScheduleParallel();
     }
 }
