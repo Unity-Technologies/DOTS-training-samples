@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-[InternalBufferCapacity(15)]
-public struct Seat : IBufferElementData
+[GenerateAuthoringComponent]
+public struct TrainWaitTime : IComponentData
 {
-    public Entity occupiedBy;
+    public float Value;
 }

@@ -26,19 +26,47 @@ public class TrainUpdateSystem : SystemBase
         float deltaTime = Time.DeltaTime;
 
         BufferFromEntity<TrackPoint> trackPointsAccessor = GetBufferFromEntity<TrackPoint>(true);
+        BufferFromEntity<TrackPlatforms> platformsAccessor = GetBufferFromEntity<TrackPlatforms>(true);
         MaximumTrainSpeed maximumTrainSpeed = GetSingleton<MaximumTrainSpeed>();
 
+        TrainWaitTime trainWaitTime = GetSingleton<TrainWaitTime>();
+
+        float dt = Time.DeltaTime;
+
         Entities
-            .ForEach((int entityInQueryIndex, Entity entity, ref TrainPosition trainPosition) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref TrainPosition trainPosition, ref TrainState trainState) =>
         {
 
-            var trackPoints = trackPointsAccessor[trainPosition.track];
+            trainState.timeUntilDeparture -= dt;
 
-            trainPosition.speed = maximumTrainSpeed.Value;
-            
-            trainPosition.position += trainPosition.speed * deltaTime;
-            if (trainPosition.position >= trackPoints.Length)
-                trainPosition.position = 0.0f;
+            if (trainState.timeUntilDeparture < 0)
+            {
+                var trackPoints = trackPointsAccessor[trainPosition.track];
+                var platforms = platformsAccessor[trainPosition.track];
+
+                trainPosition.speed = maximumTrainSpeed.Value;
+
+                float oldPosition = trainPosition.position;
+                float newPosition = oldPosition + trainPosition.speed * deltaTime;
+                float platformPosition = platforms[trainState.nextPlatform].position;
+
+                if(oldPosition <= platformPosition && platformPosition <= newPosition)
+                {
+                    trainState.nextPlatform++;
+                    if (trainState.nextPlatform >= platforms.Length)
+                        trainState.nextPlatform = 0;
+
+                    trainState.timeUntilDeparture = trainWaitTime.Value;
+                }
+
+
+                trainPosition.position = newPosition;
+                if (trainPosition.position >= trackPoints.Length)
+                    trainPosition.position = 0.0f;
+
+                
+                
+            }
 
         }).Schedule();
 

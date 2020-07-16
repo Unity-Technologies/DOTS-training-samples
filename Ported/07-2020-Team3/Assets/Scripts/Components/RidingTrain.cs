@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-[InternalBufferCapacity(15)]
-public struct Seat : IBufferElementData
+public struct RidingTrain : IComponentData
 {
-    public Entity occupiedBy;
 }

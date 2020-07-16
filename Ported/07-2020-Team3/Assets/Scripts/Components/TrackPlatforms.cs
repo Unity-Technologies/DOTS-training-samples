@@ -8,5 +8,5 @@ using UnityEngine;
 public struct TrackPlatforms : IBufferElementData
 {
     public Entity platform;
-    public float location;
+    public float position;
 }

@@ -11,6 +11,8 @@ public class MockInitialization : SystemBase
     private EntityArchetype _trainArchetype;
     private EntityCommandBufferSystem _ecb;
     private EntityQuery _trackQuery;
+    private EntityQuery _carQuery;
+    private EntityQuery _commuterQuery;
 
     protected override void OnCreate()
     {
@@ -23,6 +25,25 @@ public class MockInitialization : SystemBase
                 ComponentType.ReadWrite<TrackPoint>()
             }
         });
+
+        _carQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<TrainCar>()
+            }
+        });
+
+        _commuterQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<Commuter>()
+            }
+        });
+
+        
+
     }
 
     
@@ -31,15 +52,25 @@ public class MockInitialization : SystemBase
         
         var trackEntities = _trackQuery.ToEntityArray(Allocator.TempJob);
         var trackPointsAccessor = GetBufferFromEntity<TrackPoint>(false);
+        var carEntities = _carQuery.ToEntityArray(Allocator.TempJob);
+        var commuterEntities = _commuterQuery.ToEntityArray(Allocator.TempJob);
+        var seatAccessor = GetBufferFromEntity<Seat>();
         
         EntityCommandBuffer.Concurrent ecb = _ecb.CreateCommandBuffer().ToConcurrent();
 
+        var seatsPerCar = GetSingleton<SeatsPerCar>();
+
         Entities
             .WithDeallocateOnJobCompletion(trackEntities)
+            .WithDeallocateOnJobCompletion(carEntities)
+            .WithDeallocateOnJobCompletion(commuterEntities)
             .ForEach((int entityInQueryIndex, in Entity entity, in InitializationEvent initializationEvent) =>
         {
+            int commuterIndex = 0;
+            
+            
 
-            for(int i = 0; i < trackEntities.Length; i++)
+            for (int i = 0; i < trackEntities.Length; i++)
             {
                 var trackEntity = trackEntities[i];
                 var trackPoints = trackPointsAccessor[trackEntity];
@@ -49,34 +80,45 @@ public class MockInitialization : SystemBase
                 for (int j = 0; j < 16; j++)
                     trackPoints.Add(new TrackPoint { position = 100.0f * new float3(math.sin(2.0f * j * math.PI/16), 0, math.cos(2.0f * j * math.PI/16)) });
 
-                 
-                /*
-
-                Entity trackEntity = trackEntities[i];
-
-                Entity trainEntity = ecb.CreateEntity(entityInQueryIndex, trainArchetype);
-                TrainPosition trainPosition = new TrainPosition
+                DynamicBuffer<TrackPlatforms> trackPlatforms = ecb.AddBuffer<TrackPlatforms>(entityInQueryIndex, trackEntity);
+                trackPlatforms.Add(new TrackPlatforms
                 {
-                    track = trackEntity,
-                    position = 0.0f,
-                    speed = 0.1f,
-                };
-                ecb.SetComponent(entityInQueryIndex, trainEntity, trainPosition);
+                    platform = Entity.Null,
+                    position = 1.5f
+                });
 
-
-                for(int j = 0; j < 5; j++)
+                trackPlatforms.Add(new TrackPlatforms
                 {
-                    Entity carEntity = ecb.CreateEntity(entityInQueryIndex);
-                    TrainCar carCmp = new TrainCar
-                    {
-                        train = trainEntity,
-                        indexInTrain = j,
-                    };
-                    ecb.AddComponent<TrainCar>(entityInQueryIndex, carEntity);
-                }
-                */
+                    platform = Entity.Null,
+                    position = 5.5f
+                });
+
+                trackPlatforms.Add(new TrackPlatforms
+                {
+                    platform = Entity.Null,
+                    position = 8.5f
+                });
+
 
             }
+
+            
+            for(int i = 0; i < carEntities.Length; i++)
+            {
+                Entity carEntity = carEntities[i];
+                var seats = ecb.AddBuffer<Seat>(entityInQueryIndex, carEntity);
+
+                for (int j = 0; j < seatsPerCar.cols * seatsPerCar.rows; j++)
+                {
+                    seats.Add(new Seat
+                    {
+                        occupiedBy = commuterIndex < commuterEntities.Length ? commuterEntities[commuterIndex] : Entity.Null
+                    });
+                }
+            }
+
+
+            
 
             ecb.DestroyEntity(entityInQueryIndex, entity);
         }).Schedule();

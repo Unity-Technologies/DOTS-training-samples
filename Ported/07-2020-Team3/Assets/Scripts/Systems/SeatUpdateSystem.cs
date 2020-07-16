@@ -10,7 +10,7 @@ public class SeatUpdateSystem : SystemBase
 
     protected override void OnUpdate()
     {
-
+        /*
         var carPositionAccessor = GetComponentDataFromEntity<Translation>(true);
         var carRotationAccessor = GetComponentDataFromEntity<Rotation>(true);
         var seatsPerCar = GetSingleton<SeatsPerCar>();
@@ -39,6 +39,6 @@ public class SeatUpdateSystem : SystemBase
             Debug.DrawRay(position, Vector3.up);
 
         }).WithoutBurst().Run();
-
+        */
     }
 }

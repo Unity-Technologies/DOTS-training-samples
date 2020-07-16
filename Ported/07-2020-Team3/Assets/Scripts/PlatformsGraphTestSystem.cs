@@ -9,6 +9,7 @@ public class PlatformsGraphTestSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        return;
         var myBlobData = GetSingleton<PlatformsGraph>().Resolve;
         Entities
             .WithAll<Commuter>()
