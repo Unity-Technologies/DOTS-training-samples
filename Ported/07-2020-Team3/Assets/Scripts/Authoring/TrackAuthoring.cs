@@ -9,7 +9,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [RequireComponent(typeof(ColorAuthoring))]
-public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
+public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     [System.Serializable]
     struct TrackPointDefinition
@@ -35,11 +35,7 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclar
     [SerializeField, Range(0.5f, 10.0f)] float m_Radius = 3.0f;
     [SerializeField, Range(0.1f, 3.0f)] float m_PlatformOffset = 0.5f;
     [SerializeField, Range(1, 20)] int m_SplinePointsPerSegment = 5;
-    [SerializeField] GameObject m_SplineMarkPrefab;
-    [SerializeField] GameObject m_TrackMarkPrefab;
     [SerializeField] TrackPointDefinition[] m_Points;
-    [SerializeField] GameObject m_TrainPrefab;
-    [SerializeField] GameObject m_PlatformPrefab;
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -69,72 +65,23 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclar
                 PlatformOffset = m_PlatformOffset,
                 SplinePointsPerSegment = m_SplinePointsPerSegment
             }.Run();
-        
-            var trackLength = track.Length;
-
-            var trackMarks = new NativeArray<Entity>(trackLength, Allocator.Temp);
-            var trackMarkPrefab = conversionSystem.GetPrimaryEntity(m_TrackMarkPrefab);
-            var trackAsTranslations = ((NativeArray<float3>) track).Reinterpret<Translation>();
-            dstManager.Instantiate(trackMarkPrefab, trackMarks);
-            for (var i = 0; i < trackMarks.Length; i++)
-            {
-                dstManager.SetComponentData(trackMarks[i], trackAsTranslations[i]);
-            }
-
-            var splineArrayLength = spline.Length;
-            var splineAsTransforms = ((NativeArray<float3>) spline).Reinterpret<Translation>();
-            var splineMarks = new NativeArray<Entity>(splineArrayLength, Allocator.Temp);
-            var splineMarkPrefab = conversionSystem.GetPrimaryEntity(m_SplineMarkPrefab);
-            dstManager.Instantiate(splineMarkPrefab, splineMarks);
-            for (var i = 0; i < splineArrayLength; i++)
-            {
-                dstManager.SetComponentData(splineMarks[i], splineAsTransforms[i]);
-            }
-
+            
             var stationsLength = stationDefs.Length;
             var stations = new NativeArray<TrackStation>(stationsLength, Allocator.Temp);
-            
-            var platformPrefab = conversionSystem.GetPrimaryEntity(m_PlatformPrefab);
-            var platformEntities = new NativeArray<Entity>(stationsLength * 2, Allocator.Temp);
-            dstManager.Instantiate(platformPrefab, platformEntities);
             
             for (var i = 0; i < stationsLength; i++)
             {
                 var stationDef = stationDefs[i];
 
-                var outBound = platformEntities[i * 2];
-                dstManager.SetComponentData(outBound, new Translation
-                {
-                    Value = stationDef.Outbound.Position
-                });
-                
-                dstManager.SetComponentData(outBound, new Rotation
-                {
-                    Value = stationDef.Outbound.Rotation,
-                });
-                
-                var inBound = platformEntities[(i * 2) + 1];
-                dstManager.SetComponentData(inBound, new Translation
-                {
-                    Value = stationDef.Inbound.Position
-                });
-                
-                dstManager.SetComponentData(inBound, new Rotation
-                {
-                    Value = stationDef.Inbound.Rotation,
-                });
-
                 stations[i] = new TrackStation
                 {
                     Outbound = new TrackPlatform
                     {
-                        Entity = outBound,
                         StartT = stationDef.Outbound.Times.x,
                         EndT = stationDef.Outbound.Times.y
                     },
                     Inbound = new TrackPlatform
                     {
-                        Entity = inBound,
                         StartT = stationDef.Inbound.Times.x,
                         EndT = stationDef.Inbound.Times.y,
                     }
@@ -154,14 +101,6 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclar
             spline.Dispose();
             isPlatform.Dispose();
         }
-    }
-    
-    public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
-    {
-        referencedPrefabs.Add(m_PlatformPrefab);
-        referencedPrefabs.Add(m_SplineMarkPrefab);
-        referencedPrefabs.Add(m_TrackMarkPrefab);
-        referencedPrefabs.Add(m_TrainPrefab.gameObject);
     }
 
     [BurstCompile]
@@ -289,13 +228,6 @@ public struct TrackStation : IBufferElementData
 
 public struct TrackPlatform
 {
-    public Entity Entity;
     public float StartT;
     public float EndT;
 }
-//
-// [InternalBufferCapacity(128)]
-// public struct TrackPoint : IBufferElementData
-// {
-//     public float3 Value;
-// }

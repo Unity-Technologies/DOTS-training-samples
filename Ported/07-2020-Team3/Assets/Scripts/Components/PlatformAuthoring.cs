@@ -7,9 +7,15 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct Platform : IComponentData
 {
-    public float3 HeadStairsBottom;
-    public float3 HeadStairsTop;
-    public float3 FootStairsBottom;
-    public float3 FootStairsTop;
+    public Entity HeadStairsBottom;
+    public Entity HeadStairsTop;
+    public Entity FootStairsBottom;
+    public Entity FootStairsTop;
+    public Entity PlatformCenter;
+    public Entity Queue0;
+    public Entity Queue1;
+    public Entity Queue2;
+    public Entity Queue3;
+    public Entity Queue4;
     public Entity NextPlatform;
 }

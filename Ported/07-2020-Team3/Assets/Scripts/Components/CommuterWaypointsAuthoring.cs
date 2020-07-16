@@ -15,7 +15,6 @@ public class CommuterWaypointsAuthoring : MonoBehaviour, IConvertGameObjectToEnt
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        conversionSystem.DeclareDependency(this, GetComponent<CommuterAuthoring>());
         for (var i = 0; i < WaypointGameObjects.Length; ++i)
         {
             var waypointGameObject = WaypointGameObjects[i];
@@ -24,8 +23,6 @@ public class CommuterWaypointsAuthoring : MonoBehaviour, IConvertGameObjectToEnt
                 return;
         }
 
-        var firstWaypoint = WaypointGameObjects[0];
-        dstManager.SetComponentData(entity, new Commuter { Direction = (firstWaypoint.transform.position - transform.position).normalized });
         var waypointsBuffer = dstManager.AddBuffer<CommuterWaypoint>(entity);
         waypointsBuffer.Capacity = WaypointGameObjects.Length;
         for (var i = 0; i < WaypointGameObjects.Length; ++i)
