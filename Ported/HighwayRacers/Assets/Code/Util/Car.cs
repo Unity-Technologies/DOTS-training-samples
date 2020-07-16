@@ -8,15 +8,15 @@ namespace HighwayRacer
     public struct Car
     {
         // todo: split into SoA?
-        public float Pos;
         public byte Lane;
+        public float Pos;
         public float Speed;
-        public float BlockingDist;
-        public float DesiredSpeedUnblocked;
-        public float DesiredSpeedOvertake;
+        public half BlockingDist;
+        public half DesiredSpeedUnblocked;
+        public half DesiredSpeedOvertake;
         public CarState CarState;
-        public float LaneOffset;
-        public float OvertakeTimer;
+        public half LaneOffset;
+        public half OvertakeTimer;
 
         public bool IsInLeftmostLane()
         {
@@ -126,11 +126,11 @@ namespace HighwayRacer
             // closer we get within minDist of leading car, the closer we match speed
             const float fudge = 2.0f;
             var newSpeed = math.lerp(blockingCarSpeed, Speed + fudge, closeness);
-            
+
             // car, so newSpeed should always be slower than current Speed
             if (newSpeed < 0)
             {
-                Speed = 0.1f;    
+                Speed = 0.1f;
             }
             else if (newSpeed < Speed)
             {
@@ -146,7 +146,7 @@ namespace HighwayRacer
 
         public void CompleteLeftMerge()
         {
-            LaneOffset = 0;
+            LaneOffset = (half) 0;
             switch (Lane)
             {
                 case 3: // 0011
@@ -166,7 +166,7 @@ namespace HighwayRacer
 
         public void CompleteRightMerge()
         {
-            LaneOffset = 0;
+            LaneOffset = (half) 0;
             switch (Lane)
             {
                 case 3: // 0011
@@ -251,36 +251,40 @@ namespace HighwayRacer
                 case CarState.OvertakingRight:
                     break;
                 case CarState.OvertakingLeftStart:
-                    LaneOffset += mergeSpeed;
+                    LaneOffset += (half) mergeSpeed;
                     if (LaneOffset > 1.0f)
                     {
                         CompleteLeftMerge();
                         CarState = CarState.OvertakingLeft;
                     }
+
                     break;
                 case CarState.OvertakingRightEnd:
-                    LaneOffset += mergeSpeed;
+                    LaneOffset += (half) mergeSpeed;
                     if (LaneOffset > 1.0f)
                     {
                         CompleteLeftMerge();
                         CarState = CarState.Normal;
                     }
+
                     break;
                 case CarState.OvertakingRightStart:
-                    LaneOffset -= mergeSpeed;
+                    LaneOffset -= (half) mergeSpeed;
                     if (LaneOffset < -1.0f)
                     {
                         CompleteRightMerge();
                         CarState = CarState.OvertakingRight;
                     }
+
                     break;
                 case CarState.OvertakingLeftEnd:
-                    LaneOffset -= mergeSpeed;
+                    LaneOffset -= (half) mergeSpeed;
                     if (LaneOffset < -1.0f)
                     {
                         CompleteRightMerge();
                         CarState = CarState.Normal;
                     }
+
                     break;
             }
         }
@@ -293,18 +297,18 @@ namespace HighwayRacer
                     AvoidanceNormal(idx, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
                     break;
                 case CarState.OvertakingLeft:
-                    OvertakeTimer -= dt;
+                    OvertakeTimer -= (half) dt;
                     AvoidanceOvertaking(true, idx, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
                     break;
                 case CarState.OvertakingRight:
-                    OvertakeTimer -= dt;
+                    OvertakeTimer -= (half) dt;
                     AvoidanceOvertaking(false, idx, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
                     break;
                 case CarState.OvertakingLeftStart:
                 case CarState.OvertakingRightStart:
                 case CarState.OvertakingLeftEnd:
                 case CarState.OvertakingRightEnd:
-                    OvertakeTimer -= dt;
+                    OvertakeTimer -= (half) dt;
                     AvoidanceMerging(idx, segmentLength, bucket, nextBucket, dt);
                     break;
             }
@@ -331,8 +335,8 @@ namespace HighwayRacer
                     if (!IsInLeftmostLane() && CanMerge(idx, LaneToLeft(), segmentLength, bucket, nextBucket))
                     {
                         CarState = CarState.OvertakingLeftStart;
-                        OvertakeTimer = RoadSys.overtakeTime;
-                        LaneOffset = 0; // we're going left, so value starts at 0.0 and will inc to 1.0
+                        OvertakeTimer = (half)RoadSys.overtakeTime;
+                        LaneOffset = (half)0; // we're going left, so value starts at 0.0 and will inc to 1.0
                         MergeLeftLane();
                     }
                 }
@@ -342,8 +346,8 @@ namespace HighwayRacer
                     if (!IsInRightmostLane() && CanMerge(idx, LaneToRight(), segmentLength, bucket, nextBucket))
                     {
                         CarState = CarState.OvertakingRightStart;
-                        OvertakeTimer = RoadSys.overtakeTime;
-                        LaneOffset = 0; // we're going right, so value starts at 0.0 and will dec to -1.0
+                        OvertakeTimer = (half)RoadSys.overtakeTime;
+                        LaneOffset = (half)0; // we're going right, so value starts at 0.0 and will dec to -1.0
                         MergeRightLane();
                     }
                 }
@@ -379,7 +383,7 @@ namespace HighwayRacer
                 ((overtakeLeft && !mergeLeftFrame) || (!overtakeLeft && mergeLeftFrame)) &&
                 CanMerge(idx, (overtakeLeft ? LaneToRight() : LaneToLeft()), segmentLength, bucket, nextBucket))
             {
-                LaneOffset = 0;
+                LaneOffset = (half)0;
                 if (overtakeLeft)
                 {
                     CarState = CarState.OvertakingLeftEnd;

@@ -26,7 +26,7 @@ namespace HighwayRacer
 
         public const float minOvertakeModifier = 1.2f;
         public const float maxOvertakeModifier = 1.6f;
-        
+
         public const float startSpeed = 6.0f;
 
         protected override void OnCreate()
@@ -68,7 +68,7 @@ namespace HighwayRacer
 
             var ents = EntityManager.Instantiate(carPrefab, nCars, Allocator.Temp);
             ents.Dispose();
-            
+
             // not strictly necessary, but for debugging, make sure cars have valid initial values
             Entities.ForEach((ref Translation translation, ref Rotation rotation, ref URPMaterialPropertyBaseColor color) =>
             {
@@ -89,8 +89,8 @@ namespace HighwayRacer
             var segment = roadSegments[bucketIdx];
 
             Car car = new Car();
-            car.LaneOffset = 0.0f;
-            car.OvertakeTimer = 0.0f;
+            car.LaneOffset = (half) 0.0f;
+            car.OvertakeTimer = (half) 0.0f;
             car.Pos = 0.0f;
             car.RightMostLane();
 
@@ -117,15 +117,15 @@ namespace HighwayRacer
                     return;
                 }
 
-                car.DesiredSpeedUnblocked = math.lerp(minSpeed, maxSpeed, rand.NextFloat());
-                car.DesiredSpeedOvertake = car.DesiredSpeedUnblocked * math.lerp(minOvertakeModifier, maxOvertakeModifier, rand.NextFloat());
+                car.DesiredSpeedUnblocked = (half) math.lerp(minSpeed, maxSpeed, rand.NextFloat());
+                car.DesiredSpeedOvertake = new half(car.DesiredSpeedUnblocked * math.lerp(minOvertakeModifier, maxOvertakeModifier, rand.NextFloat()));
 
                 car.Speed = startSpeed;
-                car.BlockingDist = math.lerp(minBlockedDist, maxBlockedDist, rand.NextFloat());
+                car.BlockingDist = (half) math.lerp(minBlockedDist, maxBlockedDist, rand.NextFloat());
                 car.CarState = CarState.Normal;
 
                 writer.AddNoResize(car);
-                
+
                 car.SetNextPosAndLane();
             }
 
