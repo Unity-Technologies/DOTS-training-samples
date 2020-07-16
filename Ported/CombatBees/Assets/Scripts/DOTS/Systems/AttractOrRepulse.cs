@@ -60,7 +60,8 @@ public class AttractOrRepulse : SystemBase
         var deltaTime = Time.DeltaTime;
         var teamOneEntities = m_TeamOneQuery.ToEntityArrayAsync(Allocator.TempJob, out var teamOneEntitiesHandle);
         var teamTwoEntities = m_TeamTwoQuery.ToEntityArrayAsync(Allocator.TempJob, out var teamTwoEntitiesHandle);
-        var attractionForce = BeeManager.Instance.teamAttraction - BeeManager.Instance.teamRepulsion;
+        var attractionForce = BeeManager.Instance.teamAttraction;
+        var repulsionForce = BeeManager.Instance.teamRepulsion;
 
         Dependency = JobHandle.CombineDependencies(Dependency, teamOneEntitiesHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, teamTwoEntitiesHandle);
@@ -72,10 +73,19 @@ public class AttractOrRepulse : SystemBase
                 var attractiveFriend = teamOneEntities[random.NextInt(0, teamOneEntities.Length - 1)];
                 var friendPos = GetComponent<Translation>(attractiveFriend);
                 var delta = friendPos.Value - translation.Value;
-                var distSq = math.distancesq(friendPos.Value, translation.Value);
-                if (distSq > float.Epsilon)
+                var dist = math.length(delta);
+                if (dist > float.Epsilon)
                 {
-                    velocity.Value += delta * (attractionForce * deltaTime / math.sqrt(distSq));
+                    velocity.Value += delta * (attractionForce * deltaTime / dist);
+                }
+
+                var repulsiveFriend = teamOneEntities[random.NextInt(0, teamOneEntities.Length - 1)];
+                friendPos = GetComponent<Translation>(repulsiveFriend);
+                delta = friendPos.Value - translation.Value;
+                dist = math.length(delta);
+                if (dist > float.Epsilon)
+                {
+                    velocity.Value -= delta * (repulsionForce * deltaTime / dist);
                 }
             }).ScheduleParallel();
 
@@ -86,10 +96,19 @@ public class AttractOrRepulse : SystemBase
                 var attractiveFriend = teamTwoEntities[random.NextInt(0, teamTwoEntities.Length - 1)];
                 var friendPos = GetComponent<Translation>(attractiveFriend);
                 var delta = friendPos.Value - translation.Value;
-                var distSq = math.distancesq(friendPos.Value, translation.Value);
-                if (distSq > float.Epsilon)
+                var dist = math.length(delta);
+                if (dist > float.Epsilon)
                 {
-                    velocity.Value += delta * (attractionForce * deltaTime / math.sqrt(distSq));
+                    velocity.Value += delta * (attractionForce * deltaTime / dist);
+                }
+
+                var repulsiveFriend = teamTwoEntities[random.NextInt(0, teamTwoEntities.Length - 1)];
+                friendPos = GetComponent<Translation>(repulsiveFriend);
+                delta = friendPos.Value - translation.Value;
+                dist = math.length(delta);
+                if (dist > float.Epsilon)
+                {
+                    velocity.Value -= delta * (repulsionForce * deltaTime / dist);
                 }
             }).ScheduleParallel();
 
