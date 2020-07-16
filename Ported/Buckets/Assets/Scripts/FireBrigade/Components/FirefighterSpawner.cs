@@ -9,5 +9,7 @@ namespace FireBrigade.Components
         public int numPerGroup;
         public int minGroups;
         public int maxGroups;
+        public float spawnRange;
+        public int seed;
     }
 }

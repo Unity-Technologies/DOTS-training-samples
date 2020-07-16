@@ -1,8 +1,10 @@
+using System;
 using FireBrigade.Components;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
+using Water;
 
 namespace FireBrigade.Systems
 {
@@ -12,7 +14,7 @@ namespace FireBrigade.Systems
         {
             float deltaTime = Time.DeltaTime;
             
-            // Calculate goal
+            // Calculate formation for chain
             Entities.ForEach(
                 (Entity entity,
                     ref GoalPosition goalPosition,
@@ -20,52 +22,29 @@ namespace FireBrigade.Systems
                     in FirePosition firePosition,
                     in GroupIdentifier groupID,
                     in GroupCount numFighters,
-                    in GroupIndex groupIndex) =>
+                    in RoleIndex roleIndex,
+                    in GroupRole role) =>
                 {
 
-                    float progress = (float) groupIndex.Value / numFighters.Value;
-                    float curveOffset = math.sin(progress * math.PI) * 1f;
+                    float3 newGoalPosition = new float3();
 
-                    float2 heading = new float2(waterPosition.Value.x, waterPosition.Value.z) -  new float2(firePosition.Value.x, firePosition.Value.y);
-                    float distance = math.length(heading);
-                    float2 direction = heading / distance;
-                    float2 perpendicular = new float2(direction.y, -direction.x);
-
-                    float3 newGoalPosition;
-                    
-                    if (groupIndex.Value == 0) newGoalPosition = firePosition.Value;
-                    else if (groupIndex.Value == numFighters.Value - 1) newGoalPosition = waterPosition.Value;
-                    else
+                    switch (role.Value)
                     {
-                        if (groupIndex.Value % 2 == 0)
-                        {
-                            newGoalPosition = math.lerp(firePosition.Value, waterPosition.Value,
-                                (float) groupIndex.Value / (float) numFighters.Value +
-                                new float3(perpendicular.x, 0f, perpendicular.y) * curveOffset);
-                        }
-                        else
-                        {
-                            newGoalPosition = math.lerp(waterPosition.Value, firePosition.Value,
-                                (float) groupIndex.Value / (float) numFighters.Value +
-                                new float3(perpendicular.x, 0f, perpendicular.y) * curveOffset);
-                        }
+                        case FirefighterRole.scooper:
+                            newGoalPosition = waterPosition.Value;
+                            break;
+                        case FirefighterRole.thrower:
+                            newGoalPosition = firePosition.Value;
+                            break;
+                        case FirefighterRole.full:
+                            newGoalPosition = GetChainPosition(roleIndex.Value, numFighters.Value, waterPosition.Value,
+                                firePosition.Value);
+                            break;
+                        case FirefighterRole.empty:
+                            newGoalPosition = GetChainPosition(roleIndex.Value, numFighters.Value, firePosition.Value,
+                                waterPosition.Value);
+                            break;
                     }
-                        
-                        
-                    
-                    
-                    // var distanceBetweenTargets = math.distance(waterPosition.Value, firePosition.Value);
-                    // var spacing = distanceBetweenTargets / numFighters.Value;
-                    // var towardsFireVector = firePosition.Value - waterPosition.Value;
-                    // towardsFireVector = math.normalize(towardsFireVector);
-                    //
-                    // var newGoalPosition = new GoalPosition();
-                    // if (groupIndex.Value == 0) newGoalPosition.Value = firePosition.Value;
-                    // else if (groupIndex.Value == numFighters.Value - 1) newGoalPosition.Value = waterPosition.Value;
-                    // else
-                    // {
-                    //     newGoalPosition.Value = waterPosition.Value + (towardsFireVector * groupIndex.Value);
-                    // }
 
                     goalPosition.Value = newGoalPosition;
 
@@ -84,6 +63,22 @@ namespace FireBrigade.Systems
                 translation.Value += movementVector * speed.Value * deltaTime;
                 
             }).ScheduleParallel();
+        }
+
+        private static float3 GetChainPosition(int _index, int _chainLength, float3 _startPos, float3 _endPos)
+        {
+            // adds two to pad between the SCOOPER AND THROWER
+            float progress = (float) _index / _chainLength;
+            float curveOffset = math.sin(progress * math.PI) * 1f;
+
+            // get Vec2 data
+            float2 heading = new float2(_startPos.x, _startPos.z) -  new float2(_endPos.x, _endPos.y);
+            float distance = math.length(heading);
+            float2 direction = heading / distance;
+            float2 perpendicular = new float2(direction.y, -direction.x);
+
+            //Debug.Log("chain progress: " + progress + ",  curveOffset: " + curveOffset);
+            return math.lerp(_startPos, _endPos, (float)_index / (float)_chainLength) + (new float3(perpendicular.x, 0f, perpendicular.y) * curveOffset);
         }
     }
 }
