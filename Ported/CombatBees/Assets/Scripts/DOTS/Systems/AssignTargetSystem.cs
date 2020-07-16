@@ -61,6 +61,7 @@ public class AssignTargetSystem : SystemBase
 
         Entities
             .WithDeallocateOnJobCompletion(teamTwoEntities)
+            .WithNone<Dead>()
             .ForEach((ref Target target, in TeamOne team) =>
             {
                 if (target.EnemyTarget == Entity.Null && target.ResourceTarget == Entity.Null)
@@ -97,6 +98,7 @@ public class AssignTargetSystem : SystemBase
         Entities
             .WithDeallocateOnJobCompletion(teamOneEntities)
             .WithDeallocateOnJobCompletion(resourceEntities)
+            .WithNone<Dead>()
             .ForEach((ref Target target, in TeamTwo team) =>
             {
                 if (target.EnemyTarget == Entity.Null || target.ResourceTarget == Entity.Null)
