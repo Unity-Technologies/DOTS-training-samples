@@ -49,53 +49,53 @@ public class AssignTargetSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var random = m_Random;
-        var deltaTime = Time.DeltaTime;
-        var teamOneEntities = m_TeamOneQuery.ToEntityArrayAsync(Allocator.TempJob, out var teamOneEntitiesHandle);
-        var teamTwoEntities = m_TeamTwoQuery.ToEntityArrayAsync(Allocator.TempJob, out var teamTwoEntitiesHandle);
-        var resourceEntities = m_ResourceQuery.ToEntityArrayAsync(Allocator.TempJob, out var resourceEntitiesHandle);
+        //var random = m_Random;
+        //var deltaTime = Time.DeltaTime;
+        //var teamOneEntities = m_TeamOneQuery.ToEntityArrayAsync(Allocator.TempJob, out var teamOneEntitiesHandle);
+        //var teamTwoEntities = m_TeamTwoQuery.ToEntityArrayAsync(Allocator.TempJob, out var teamTwoEntitiesHandle);
+        //var resourceEntities = m_ResourceQuery.ToEntityArrayAsync(Allocator.TempJob, out var resourceEntitiesHandle);
 
-        Dependency = JobHandle.CombineDependencies(Dependency, teamOneEntitiesHandle);
-        Dependency = JobHandle.CombineDependencies(Dependency, teamTwoEntitiesHandle);
-        Dependency = JobHandle.CombineDependencies(Dependency, resourceEntitiesHandle);
-
-        Entities
-            .WithDeallocateOnJobCompletion(teamOneEntities)
-            .ForEach((ref Target target, in TeamOne team) =>
-            {
-                if (target.EnemyTarget == Entity.Null || target.ResourceTarget == Entity.Null)
-                {
-                    
-                    var aggression = random.NextFloat(0, 1);
-                    if (aggression < 0.5f)
-                    {
-                        target.EnemyTarget = teamTwoEntities[random.NextInt(0, teamOneEntities.Length - 1)];
-                    }
-                    else
-                    {
-                        target.ResourceTarget = resourceEntities[random.NextInt(0, resourceEntities.Length - 1)];
-                    }
-                }
-                else if (target.EnemyTarget != null)
-                {
-                    
-                }
-
-            }).Schedule();
+        //Dependency = JobHandle.CombineDependencies(Dependency, teamOneEntitiesHandle);
+        //Dependency = JobHandle.CombineDependencies(Dependency, teamTwoEntitiesHandle);
+        //Dependency = JobHandle.CombineDependencies(Dependency, resourceEntitiesHandle);
 
         //Entities
-        //    .WithDeallocateOnJobCompletion(teamTwoEntities)
-        //    .ForEach((ref Velocity velocity, in TeamTwo team, in Target target) =>
+        //    .WithDeallocateOnJobCompletion(teamOneEntities)
+        //    .ForEach((ref Target target, in TeamOne team) =>
         //    {
-        //        if (target.EnemyTarget == null || target.ResourceTarget == null)
+        //        if (target.EnemyTarget == Entity.Null || target.ResourceTarget == Entity.Null)
         //        {
-        //            var randomAttack = teamOneEntities[random.NextInt(0, teamTwoEntities.Length - 1)];
+                    
+        //            var aggression = random.NextFloat(0, 1);
+        //            if (aggression < 0.5f)
+        //            {
+        //                target.EnemyTarget = teamTwoEntities[random.NextInt(0, teamOneEntities.Length - 1)];
+        //            }
+        //            else
+        //            {
+        //                target.ResourceTarget = resourceEntities[random.NextInt(0, resourceEntities.Length - 1)];
+        //            }
+        //        }
+        //        else if (target.EnemyTarget != null)
+        //        {
+                    
         //        }
 
         //    }).Schedule();
 
-        m_ECBSystem.AddJobHandleForProducer(Dependency);
+        ////Entities
+        ////    .WithDeallocateOnJobCompletion(teamTwoEntities)
+        ////    .ForEach((ref Velocity velocity, in TeamTwo team, in Target target) =>
+        ////    {
+        ////        if (target.EnemyTarget == null || target.ResourceTarget == null)
+        ////        {
+        ////            var randomAttack = teamOneEntities[random.NextInt(0, teamTwoEntities.Length - 1)];
+        ////        }
 
-        m_Random = random;
+        ////    }).Schedule();
+
+        //m_ECBSystem.AddJobHandleForProducer(Dependency);
+
+        //m_Random = random;
     }
 }
