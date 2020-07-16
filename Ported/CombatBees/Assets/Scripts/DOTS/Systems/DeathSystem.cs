@@ -16,8 +16,7 @@ public class DeathSystem : SystemBase
             All = new[]
             {
                 ComponentType.ReadOnly<Dead>(),
-                ComponentType.ReadOnly<Gravity>(),
-                ComponentType.ReadOnly<Velocity>()
+                ComponentType.ReadOnly<ResourceEntity>(),
             }
         });
 
@@ -26,11 +25,11 @@ public class DeathSystem : SystemBase
             All = new[]
             {
                 ComponentType.ReadOnly<Dead>(),
-                ComponentType.ReadOnly<Velocity>()
             },
-            None = new[]
+            Any = new[]
             {
-                ComponentType.ReadOnly<Gravity>()
+                ComponentType.ReadOnly<TeamOne>(),
+                ComponentType.ReadOnly<TeamTwo>()
             }
         });
 

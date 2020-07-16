@@ -11,7 +11,10 @@ public class FieldInfoAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         var t = GetComponent<Transform>();
-        var pos = t.position;
+        var pos = t.position; 
+        var filter = GetComponent<MeshFilter>(); 
+        var mesh = filter.sharedMesh;
+        var meshBounds = mesh.bounds;
         var scale = t.lossyScale;
         var halfHeight = Height * 0.5f;
 
@@ -20,7 +23,7 @@ public class FieldInfoAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             Bounds = new Bounds
             {
                 Center = new float3(pos.x, pos.y + halfHeight, pos.z),
-                Extents = new float3(scale.x * 0.5f, halfHeight, scale.z * 0.5f)
+                Extents = new float3(meshBounds.extents.x * scale.x, halfHeight * scale.y, meshBounds.extents.z * scale.z)
             },
             TeamColor = TeamColor
         });

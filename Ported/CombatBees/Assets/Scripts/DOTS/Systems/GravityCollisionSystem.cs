@@ -55,14 +55,16 @@ public class GravityCollisionSystem : SystemBase
             .WithDeallocateOnJobCompletion(mainField)
             .WithDeallocateOnJobCompletion(teamFields)
             .WithNone<Dead>()
-            .ForEach((int entityInQueryIndex, Entity resourceEntity, ref Velocity v, in Translation t) =>
+            .ForEach((int entityInQueryIndex, Entity resourceEntity, ref Velocity v, in LocalToWorld ltw) =>
             {
+                var t = ltw.Position;
+
                 // Start with team fields to see if resources need to be flagged for death
                 for (int i = 0; i < teamFields.Length; ++i)
                 {
                     Bounds bounds = teamFields[i].Bounds;
 
-                    if (bounds.Intersects(t.Value, ignoreY:true) && (t.Value.y <= bounds.Floor))
+                    if (bounds.Intersects(t, ignoreY:true) && (t.y <= bounds.Floor))
                     {
                         // tag resource for death here...
                         ecb.AddComponent<Dead>(entityInQueryIndex, resourceEntity);
@@ -70,13 +72,13 @@ public class GravityCollisionSystem : SystemBase
                         continue;
                     }
                 }
-
+               
                 // Now check main field to see if resource should stop falling
                 for (int j = 0; j < mainField.Length; ++j)
                 {
                     Bounds bound = mainField[j].Bounds;
 
-                    if (t.Value.y <= bound.Floor)
+                    if (bound.Intersects(t, ignoreY: true) && t.y <= bound.Floor)
                         v.Value = new float3(0, 0, 0);
                 }
             }).ScheduleParallel();

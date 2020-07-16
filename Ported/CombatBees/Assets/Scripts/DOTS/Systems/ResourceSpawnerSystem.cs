@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -8,6 +8,7 @@ public class ResourceSpawnerSystem : SystemBase
 {
     private EntityQuery m_MainFieldQuery;
     private EntityCommandBufferSystem m_ECBSystem;
+    private Unity.Mathematics.Random m_Random; // = new Unity.Mathematics.Random(0x5716318);
 
     protected override void OnCreate()
     {
@@ -25,6 +26,7 @@ public class ResourceSpawnerSystem : SystemBase
         });
 
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        m_Random = new Unity.Mathematics.Random((uint)DateTime.Now.Ticks); 
     }
 
     protected override void OnUpdate()
@@ -34,12 +36,13 @@ public class ResourceSpawnerSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, mainFieldHandle);
 
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
+        var random = m_Random; 
 
         Entities
             .WithDeallocateOnJobCompletion(mainFields)
             .ForEach((int entityInQueryIndex, Entity entity, in Spawner spawner, in LocalToWorld ltw) =>
             {
-                var mainField = mainFields[0];//.FirstOrDefault(); 
+                var mainField = mainFields[0];
                 var center = mainField.Bounds.Center;
 
                 for (int x = 0; x < spawner.Count; ++x)
@@ -47,7 +50,7 @@ public class ResourceSpawnerSystem : SystemBase
                     var instance = ecb.Instantiate(entityInQueryIndex, spawner.Prefab);
                     ecb.SetComponent(entityInQueryIndex, instance, new Translation
                     {
-                        Value = center + new float3(math.sin(x), 0, math.cos(x)) * x * 0.1f
+                        Value = center + new float3(math.sin(x), 0, math.cos(x)) * mainField.Bounds.Extents.z * random.NextFloat()
                     });
 
                     ecb.AddComponent(entityInQueryIndex, instance, new ResourceEntity());
