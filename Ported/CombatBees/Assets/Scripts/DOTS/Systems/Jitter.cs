@@ -24,7 +24,10 @@ public class Jitter : SystemBase
         var damping = BeeManager.Instance.damping;
         var random = m_Random;
 
-        Entities.WithAll<Size>().ForEach((ref Velocity velocity) =>
+        Entities
+            .WithAll<Size>()
+            .WithNone<Dead>()
+            .ForEach((ref Velocity velocity) =>
         {
             velocity.Value += random.NextFloat3Direction() * (flightJitter * deltaTime);
             velocity.Value *= (1f - damping);

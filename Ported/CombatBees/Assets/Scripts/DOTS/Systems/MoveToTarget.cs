@@ -50,6 +50,6 @@ public class MoveToTarget : SystemBase
                     // bee.enemyTarget = null;
                 }
             }
-        }).Schedule();
+        }).ScheduleParallel();
     }
 }
