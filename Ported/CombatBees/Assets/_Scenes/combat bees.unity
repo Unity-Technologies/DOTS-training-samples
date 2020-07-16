@@ -300,10 +300,10 @@ MonoBehaviour:
   maxSpeedStretch: 8
   rotationStiffness: 5
   aggression: 0.5
-  flightJitter: 200
+  flightJitter: 20
   teamAttraction: 5
   teamRepulsion: 4
-  damping: 0.1
+  damping: 0.01
   chaseForce: 50
   carryForce: 25
   grabDistance: 0.5
