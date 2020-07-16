@@ -25,7 +25,7 @@ public class AssignTargetSystem : SystemBase
             },
             None = new[]
             {
-                ComponentType.ReadOnly<Dead>()
+                ComponentType.ReadOnly<DespawnTimer>()
             }
         });
 
@@ -38,7 +38,7 @@ public class AssignTargetSystem : SystemBase
             },
             None = new[]
             {
-                ComponentType.ReadOnly<Dead>()
+                ComponentType.ReadOnly<DespawnTimer>()
             }
         });
 
@@ -68,7 +68,7 @@ public class AssignTargetSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, resourceEntitiesHandle);
 
         Entities
-            .WithNone<Dead>()
+            .WithNone<DespawnTimer>()
             .WithDeallocateOnJobCompletion(teamTwoEntities)
             .ForEach((ref Target target, in TeamOne team) =>
             {
@@ -88,14 +88,14 @@ public class AssignTargetSystem : SystemBase
                 }
                 else if (target.EnemyTarget != Entity.Null)
                 {
-                    if (HasComponent<Dead>(target.EnemyTarget))
+                    if (HasComponent<DespawnTimer>(target.EnemyTarget))
                     {
                         target.EnemyTarget = Entity.Null;
                     }
                 }
                 else if (target.ResourceTarget != Entity.Null)
                 {
-                    if (HasComponent<Dead>(target.ResourceTarget))
+                    if (HasComponent<DespawnTimer>(target.ResourceTarget))
                     {
                         target.ResourceTarget = Entity.Null;
                     }
@@ -104,7 +104,7 @@ public class AssignTargetSystem : SystemBase
             }).Schedule();
 
         Entities
-            .WithNone<Dead>()
+            .WithNone<DespawnTimer>()
             .WithDeallocateOnJobCompletion(teamOneEntities)
             .WithDeallocateOnJobCompletion(resourceEntities)
             .ForEach((ref Target target, in TeamTwo team) =>
@@ -125,14 +125,14 @@ public class AssignTargetSystem : SystemBase
                 }
                 else if (target.EnemyTarget != Entity.Null)
                 {
-                    if (HasComponent<Dead>(target.EnemyTarget))
+                    if (HasComponent<DespawnTimer>(target.EnemyTarget))
                     {
                         target.EnemyTarget = Entity.Null;
                     }
                 }
                 else if (target.ResourceTarget != Entity.Null)
                 {
-                    if (HasComponent<Dead>(target.ResourceTarget))
+                    if (HasComponent<DespawnTimer>(target.ResourceTarget))
                     {
                         target.ResourceTarget = Entity.Null;
                     }

@@ -55,7 +55,7 @@ public class GravityCollisionSystem : SystemBase
         Entities.WithAll<Gravity>()
             .WithDeallocateOnJobCompletion(mainField)
             .WithDeallocateOnJobCompletion(teamFields)
-            .WithNone<Dead>()
+            .WithNone<DespawnTimer>()
             .ForEach((int entityInQueryIndex, Entity resourceEntity, ref Velocity v, in LocalToWorld ltw, in RenderBounds entityBounds) =>
             {
                 var t = ltw.Position;
@@ -69,8 +69,8 @@ public class GravityCollisionSystem : SystemBase
                     if (bounds.Intersects(t, ignoreY: true) && (t.y <= bounds.Floor))
                     {
                         // tag resource for death here...
-                        ecb.AddComponent<Dead>(entityInQueryIndex, resourceEntity);
-                        v.Value = new float3(0, 0, 0);
+                        ecb.AddComponent(entityInQueryIndex, resourceEntity, new DespawnTimer { Time = 0.1f });
+                        ecb.RemoveComponent<Gravity>(entityInQueryIndex, resourceEntity);
                         continue;
                     }
                 }

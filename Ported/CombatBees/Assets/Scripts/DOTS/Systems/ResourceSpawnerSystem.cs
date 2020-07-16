@@ -53,8 +53,6 @@ public class ResourceSpawnerSystem : SystemBase
                     {
                         Value = center + new float3(math.sin(x), 0, math.cos(x)) * mainField.Bounds.Extents.z * random.NextFloat()
                     });
-
-                    ecb.AddComponent(entityInQueryIndex, instance, new ResourceEntity());
                 }
 
                 ecb.DestroyEntity(entityInQueryIndex, entity);
