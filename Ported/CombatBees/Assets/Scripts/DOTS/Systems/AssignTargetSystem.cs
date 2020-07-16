@@ -62,7 +62,7 @@ public class AssignTargetSystem : SystemBase
         Entities
             .ForEach((ref Target target, in TeamOne team) =>
             {
-                if (target.EnemyTarget == Entity.Null || target.ResourceTarget == Entity.Null)
+                if (target.EnemyTarget == Entity.Null && target.ResourceTarget == Entity.Null)
                 {
                     var aggression = random.NextFloat(0, 1);
                     if (aggression < 0.5f)
