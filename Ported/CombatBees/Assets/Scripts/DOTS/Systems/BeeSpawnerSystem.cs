@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class BeeSpawnerSystem : SystemBase
 {
     private EntityQuery m_baseQuery;

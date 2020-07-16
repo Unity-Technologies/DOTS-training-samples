@@ -297,6 +297,7 @@ MonoBehaviour:
   minBeeSize: 0.25
   maxBeeSize: 0.5
   speedStretch: 0.2
+  maxSpeedStretch: 8
   rotationStiffness: 5
   aggression: 0.5
   flightJitter: 200
@@ -405,7 +406,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 5.669922, y: -5.5299683}
+  m_AnchoredPosition: {x: 5.669922, y: -5.5302734}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &669731901

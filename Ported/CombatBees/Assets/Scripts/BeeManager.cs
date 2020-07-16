@@ -11,6 +11,7 @@ public class BeeManager : MonoBehaviour
     public float minBeeSize;
     public float maxBeeSize;
     public float speedStretch;
+    public float maxSpeedStretch;
     public float rotationStiffness;
     [Space(10)]
     [Range(0f, 1f)]

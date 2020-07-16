@@ -4,6 +4,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class ResourceSpawnerSystem : SystemBase
 {
     private EntityQuery m_MainFieldQuery;

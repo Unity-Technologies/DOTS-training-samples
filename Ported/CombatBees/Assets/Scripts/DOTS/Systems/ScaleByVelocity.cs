@@ -20,10 +20,12 @@ public class ScaleByVelocity : SystemBase
         // }
 
         float speedStretch = BeeManager.Instance.speedStretch;
+        float maxSpeedStretch = BeeManager.Instance.maxSpeedStretch;
 
         Entities.ForEach((ref NonUniformScale scale, in Size size, in Velocity velocity) =>
         {
             float stretch = math.max(1.0f, math.length(velocity.Value) * speedStretch);
+            stretch = math.clamp(stretch, 1f, maxSpeedStretch);
             scale.Value = new float3(size.Value);
             scale.Value.z *= stretch;
             scale.Value.x /= (stretch - 1f) / 5f + 1f;
