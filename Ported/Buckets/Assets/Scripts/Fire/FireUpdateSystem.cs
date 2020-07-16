@@ -89,10 +89,9 @@ namespace Fire
                         maxTemp = math.max(maxTemp, leftTemp);
                         maxTemp = math.max(maxTemp, rightTemp);
 
-                        // TODO Use authoring spread flashpoint + Use neighboring velocity instead of fixed val
-                        if (maxTemp >= 0.95f)
+                        if (maxTemp >= (0.95f - temperature.IgnitionVariance))
                         {
-                            temperature.Velocity = 0.05f;
+                            temperature.Velocity = temperature.StartVelocity * (1 + temperature.IgnitionVariance);
                         }
                     }
 
@@ -101,7 +100,7 @@ namespace Fire
                     temperature.Value = math.clamp(temp + deltaVel, 0, 1);
 
                     // Compute variance for fire height fluctation
-                    float fireVariance = math.sin( 5 * temperature.Value * elapsedTime + 100 * math.PI * startHeight.Variance) * startHeight.Variance * temperature.Value;
+                    float fireVariance = math.sin( 5 * temperature.Value * elapsedTime + 100 * (1 + temperature.IgnitionVariance)) * startHeight.Variance * temperature.Value;
 
                     // Compute new height
                     float newHeight = bounds.SizeY / 2f + fireVariance;

@@ -15,7 +15,14 @@ namespace Fire
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            dstManager.AddComponentData(entity, new TemperatureComponent { Value = 0f });
+            dstManager.AddComponentData(entity, new TemperatureComponent
+            {
+                Value = 0f,
+                Velocity = 0f,
+                StartVelocity = 0f,
+                IgnitionVariance = 0f,
+                GridIndex = 0
+            });
 
             dstManager.AddComponentData(entity, new StartHeight { Value = 0f });
             dstManager.AddComponentData(entity, new BoundsComponent
@@ -58,6 +65,8 @@ namespace Fire
     {
         public float Value;
         public float Velocity;
+        public float StartVelocity;
+        public float IgnitionVariance;
         public int GridIndex;
     }
 
