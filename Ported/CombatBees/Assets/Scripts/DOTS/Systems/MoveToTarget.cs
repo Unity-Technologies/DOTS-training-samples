@@ -26,7 +26,7 @@ public class MoveToTarget : SystemBase
 
         Entities
             .WithNone<Dead>()
-            .ForEach((int entityInQueryIndex, ref Velocity velocity, ref Smoothing smoothing, in Translation pos, in Target target) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Velocity velocity, ref Smoothing smoothing, ref Target target, in Translation pos) =>
         {
             Translation targetPos;
             if (target.EnemyTarget != Entity.Null)
@@ -65,8 +65,10 @@ public class MoveToTarget : SystemBase
                 {
                     // Hit on enemy
                     ecb.AddComponent<Dead>(entityInQueryIndex, target.EnemyTarget);
+                    ecb.AddComponent<DespawnTimer>(entityInQueryIndex, target.EnemyTarget, new DespawnTimer { Time = 2 });
                     ecb.AddComponent<Gravity>(entityInQueryIndex, target.EnemyTarget);
 
+                    ecb.SetComponent<Target>(entityInQueryIndex, entity, new Target { EnemyTarget = Entity.Null });
                     // ParticleManager.SpawnParticle(bee.enemyTarget.position,ParticleType.Blood,bee.velocity * .35f,2f,6);
                     // bee.enemyTarget.dead = true;
                     // bee.enemyTarget.velocity *= .5f;

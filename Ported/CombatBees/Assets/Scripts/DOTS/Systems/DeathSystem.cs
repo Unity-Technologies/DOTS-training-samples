@@ -35,13 +35,14 @@ public class DeathSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, particleSpawnersHandle);
 
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
-        var random = m_Random; 
+        var random = m_Random;
+        var dt = Time.DeltaTime;
 
         // Resources 
         Entities
             .WithAll<Dead>()
             .WithNone<TeamOne, TeamTwo>()
-            .ForEach((int entityInQueryIndex, Entity entity, in LocalToWorld ltw) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref DespawnTimer timer, in LocalToWorld ltw) =>
             {
                 if (particleSpawners.Length > 0)
                 {
@@ -52,15 +53,16 @@ public class DeathSystem : SystemBase
                     ecb.SetComponent(entityInQueryIndex, particle, new Velocity { Value = new float3(0, random.NextFloat(1f, 5f), 0) });
                     ecb.AddComponent(entityInQueryIndex, particle, new DespawnTimer { Time = random.NextFloat(0.2f, 0.35f) });
                 }
-
-                ecb.DestroyEntity(entityInQueryIndex, entity);
+                timer.Time -= dt;
+                if (timer.Time <= 0)
+                    ecb.DestroyEntity(entityInQueryIndex, entity);
             }).ScheduleParallel(); 
 
         // Bees
         Entities.WithAll<Dead>()
             .WithAny<TeamOne, TeamTwo>()
             .WithDeallocateOnJobCompletion(particleSpawners)
-            .ForEach((int entityInQueryIndex, Entity entity, in LocalToWorld ltw) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref DespawnTimer timer, in LocalToWorld ltw) =>
             {
                 if (particleSpawners.Length > 0)
                 {
@@ -68,8 +70,9 @@ public class DeathSystem : SystemBase
                     //spawner.
                     //ecb.Instantiate(entityInQueryIndex, )
                 }
-
-                ecb.DestroyEntity(entityInQueryIndex, entity);
+                timer.Time -= dt;
+                if (timer.Time <= 0)
+                    ecb.DestroyEntity(entityInQueryIndex, entity);
             }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);

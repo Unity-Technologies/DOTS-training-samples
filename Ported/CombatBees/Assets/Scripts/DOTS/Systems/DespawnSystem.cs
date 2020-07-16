@@ -11,19 +11,19 @@ public class DespawnSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var dt = Time.DeltaTime;
+        //var dt = Time.DeltaTime;
 
-        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
+        //var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
 
-        Entities.ForEach((int entityInQueryIndex, Entity entity, ref DespawnTimer timer) =>
-        {
-            timer.Time -= dt;
+        //Entities.ForEach((int entityInQueryIndex, Entity entity, ref DespawnTimer timer) =>
+        //{
+        //    timer.Time -= dt;
             
-            if (timer.Time <= 0)
-                ecb.DestroyEntity(entityInQueryIndex, entity);
+        //    if (timer.Time <= 0)
+        //        ecb.DestroyEntity(entityInQueryIndex, entity);
 
-        }).ScheduleParallel();
+        //}).ScheduleParallel();
 
-        m_ECBSystem.AddJobHandleForProducer(Dependency);
+        //m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }

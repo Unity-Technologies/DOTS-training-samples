@@ -67,6 +67,7 @@ public class AttractOrRepulse : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, teamTwoEntitiesHandle);
 
         Entities
+            .WithNone<Dead>()
             .WithDeallocateOnJobCompletion(teamOneEntities)
             .ForEach((ref Velocity velocity, in TeamOne team, in Translation translation) =>
             {
@@ -90,6 +91,7 @@ public class AttractOrRepulse : SystemBase
             }).ScheduleParallel();
 
         Entities
+            .WithNone<Dead>()
             .WithDeallocateOnJobCompletion(teamTwoEntities)
             .ForEach((ref Velocity velocity, in TeamTwo team, in Translation translation) =>
             {

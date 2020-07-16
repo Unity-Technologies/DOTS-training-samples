@@ -68,6 +68,7 @@ public class AssignTargetSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, resourceEntitiesHandle);
 
         Entities
+            .WithNone<Dead>()
             .WithDeallocateOnJobCompletion(teamTwoEntities)
             .ForEach((ref Target target, in TeamOne team) =>
             {
@@ -103,6 +104,7 @@ public class AssignTargetSystem : SystemBase
             }).Schedule();
 
         Entities
+            .WithNone<Dead>()
             .WithDeallocateOnJobCompletion(teamOneEntities)
             .WithDeallocateOnJobCompletion(resourceEntities)
             .ForEach((ref Target target, in TeamTwo team) =>
