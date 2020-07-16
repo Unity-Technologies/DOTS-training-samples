@@ -28,7 +28,10 @@ public class CommuterSpawningSystem : SystemBase
         var speedRandom = m_SpeedRandom;
         const float twoPi = 2f * math.PI;
 
-        Entities.ForEach((Entity spawnerEntity, in CommuterSpawner spawner, in Translation spawnerTranslation, in DynamicBuffer<CommuterWaypoint> waypointsBuffer) =>
+        Entities
+            .WithAll<Platform>()
+            .ForEach((Entity spawnerEntity, in CommuterSpawner spawner,
+            in Translation spawnerTranslation, in DynamicBuffer<CommuterWaypoint> waypointsBuffer) =>
         {
             var maxRadius = spawner.SpawnRadius;
             var minSpeed = spawner.MinCommuterSpeed;
@@ -46,11 +49,16 @@ public class CommuterSpawningSystem : SystemBase
                 ecb.SetComponent(instance, new Translation { Value = instancePosition});
                 var buffer = ecb.SetBuffer<CommuterWaypoint>(instance);
                 buffer.CopyFrom(waypointsBuffer);
-                ecb.SetComponent(instance, new Commuter { Direction = math.normalize(firstWaypointPosition - instancePosition)});
+                ecb.SetComponent(instance, new Commuter
+                {
+                    Direction = math.normalize(firstWaypointPosition - instancePosition),
+                    CurrentPlatform = spawnerEntity
+                });
+
                 var speed = speedRandom.NextFloat(minSpeed, maxSpeed);
                 ecb.SetComponent(instance, new CommuterSpeed { Value = speed });
             }
-            ecb.DestroyEntity(spawnerEntity);
+            ecb.RemoveComponent<CommuterSpawner>(spawnerEntity);
         }).Schedule();
 
         m_AngleRandom = angleRandom;
