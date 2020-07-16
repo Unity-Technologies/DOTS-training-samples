@@ -93,7 +93,7 @@ public class BeeSpawnerSystem : SystemBase
                         ecb.SetComponent(entityInQueryIndex, instance, new Size() { Value = random.NextFloat(minBeeSize, maxBeeSize) });
 
                         // HACK
-                        ecb.AddComponent(entityInQueryIndex, instance, new KillBee { Time = random.NextFloat(1, 3) });
+                        //ecb.AddComponent(entityInQueryIndex, instance, new KillBee { Time = random.NextFloat(1, 3) });
                     }
                 }
 
