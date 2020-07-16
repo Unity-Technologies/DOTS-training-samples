@@ -2,17 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FireSearch : MonoBehaviour
+public static class FireSearch
 {
-    public static int[] GetNeighbors(int index, int width, int height)
+    public struct Neighbors
     {
-        int[] neighBors = new int[4];
-        neighBors[0] = index > width-1 ? index - height : -1; //Top
-        neighBors[1] = index % width-1 != 0 ? index + 1 : -1; //Right
-        neighBors[2] = (width * height) - index > width ? index + height : -1; //Bottom
-        neighBors[3] = index % width != 0 ? index - 1 : -1; //Left
+        public int Top;
+        public int Bottom;
+        public int Left;
+        public int Right;
+    }
 
-        
-        return neighBors;
+    public static Neighbors GetNeighboringIndicies(int index, int width, int height)
+    {
+        return new Neighbors
+        {
+            Top = index > width - 1 ? index - height : -1,
+            Bottom = (width * height) - index > width ? index + height : -1,
+            Left = index % width != 0 ? index - 1 : -1,
+            Right = index % width - 1 != 0 ? index + 1 : -1
+        };
     }
 }
