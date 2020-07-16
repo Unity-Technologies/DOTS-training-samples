@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Data.SqlTypes;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Utils;
 using Random = Unity.Mathematics.Random;
 
 namespace Fire
@@ -11,9 +12,8 @@ namespace Fire
     [GenerateAuthoringComponent]
     public struct FireSpreadProperties : IComponentData
     {
-
+        public float SpreadFlashPoint;
     }
-
 
     public class FireUpdateSystem : SystemBase
     {
@@ -38,36 +38,38 @@ namespace Fire
 
             // Update fires in scene
             Entities
-                .ForEach((Entity fireEntity, int entityInQueryIndex, ref Translation position, ref TemperatureComponent temperature, in BoundsComponent bounds, in StartHeight startHeight) =>
+                .ForEach((Entity fireEntity, int entityInQueryIndex, ref Translation position, ref TemperatureComponent temperature, ref FireColor color,
+                    in BoundsComponent bounds, in StartHeight startHeight, in FireColorPalette pallete) =>
                 {
                     var temp = math.clamp(temperature.Value, 0, 1);
 
                     // If temp is 0, velocity is put out
-                    if (Approximately(temp, 0f, epsilon))
+                    bool fireOut = UnityMathUtils.Approximately(temp, 0f, epsilon);
+                    if (fireOut)
                     {
-                        temperature.Value = 0;
+                        temperature.Velocity = 0;
                     }
 
                     var deltaVel = temperature.Velocity * deltaTime;
-                    temperature.Value = temp + deltaVel;
+                    temperature.Value = math.clamp(temp + deltaVel, 0, 1);
 
                     float fireVariance = math.sin( 5 * temperature.Value * elapsedTime + 100 * math.PI * startHeight.Variance) * startHeight.Variance * temperature.Value;
 
                     float newHeight = bounds.SizeY / 2f + fireVariance;
                     position.Value.y = startHeight.Value + newHeight * temperature.Value;
 
+                    if (fireOut)
+                    {
+                        color.Value = pallete.UnlitColor;
+                    }
+                    else
+                    {
+                        color.Value = UnityMathUtils.Lerp(pallete.LitLowColor, pallete.LitHighColor, temperature.Value);
+                    }
+
                 }).ScheduleParallel();
         }
 
-        /// <summary>
-        /// Compares two floating point values and returns true if they are similar.
-        /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <param name="epsilon"></param>
-        public static bool Approximately(float a, float b, float epsilon)
-        {
-            return (double)math.abs(b - a) < (double)math.max(1E-06f * math.max(math.abs(a), math.abs(b)), epsilon * 8f);
-        }
+  
     }
 }

@@ -94,3 +94,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 065c46c382a038f40905437431858625, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UnlitColor: {r: 0.062566735, g: 0.6981132, b: 0.062566735, a: 1}
+  LitLowColor: {r: 1, g: 0.823543, b: 0.015686274, a: 1}
+  LitHighColor: {r: 1, g: 0, b: 0.17090273, a: 1}
