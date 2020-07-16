@@ -41,15 +41,16 @@ public class MockInitialization : SystemBase
                 ComponentType.ReadOnly<Commuter>()
             }
         });
-
-        
-
     }
 
     
     protected override void OnUpdate()
     {
-        
+
+
+        if (!HasSingleton<SeatsPerCar>())
+            return;
+
         var trackEntities = _trackQuery.ToEntityArray(Allocator.TempJob);
         var trackPointsAccessor = GetBufferFromEntity<TrackPoint>(false);
         var carEntities = _carQuery.ToEntityArray(Allocator.TempJob);
@@ -75,30 +76,17 @@ public class MockInitialization : SystemBase
                 var trackEntity = trackEntities[i];
                 var trackPoints = trackPointsAccessor[trackEntity];
                 
+                /*
                 Debug.Log("Set Track");
                 trackPoints.Clear();
                 for (int j = 0; j < 16; j++)
                     trackPoints.Add(new TrackPoint { position = 100.0f * new float3(math.sin(2.0f * j * math.PI/16), 0, math.cos(2.0f * j * math.PI/16)) });
+                */
 
                 DynamicBuffer<TrackPlatforms> trackPlatforms = ecb.AddBuffer<TrackPlatforms>(entityInQueryIndex, trackEntity);
-                trackPlatforms.Add(new TrackPlatforms
-                {
-                    platform = Entity.Null,
-                    position = 1.5f
-                });
-
-                trackPlatforms.Add(new TrackPlatforms
-                {
-                    platform = Entity.Null,
-                    position = 5.5f
-                });
-
-                trackPlatforms.Add(new TrackPlatforms
-                {
-                    platform = Entity.Null,
-                    position = 8.5f
-                });
-
+                CreatePlatform(entityInQueryIndex, ref ecb, ref trackPlatforms, 1.5f);
+                CreatePlatform(entityInQueryIndex, ref ecb, ref trackPlatforms, 5.5f);
+                CreatePlatform(entityInQueryIndex, ref ecb, ref trackPlatforms, 8.5f);
 
             }
 
@@ -125,6 +113,18 @@ public class MockInitialization : SystemBase
 
         _ecb.AddJobHandleForProducer(Dependency);
         
+        
+    }
+    private static void CreatePlatform(int entityInQueryIndex, ref EntityCommandBuffer.Concurrent ecb, ref DynamicBuffer<TrackPlatforms> trackPlatforms, float position)
+    {
+        trackPlatforms.Add(new TrackPlatforms
+        {
+            platform = Entity.Null,
+            position = position
+        });
+
+        Entity platform = ecb.CreateEntity(entityInQueryIndex);
+        Entity platformWaypoint = ecb.CreateEntity(entityInQueryIndex);
         
     }
 

@@ -152,6 +152,7 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclar
             track.Dispose();
             stationDefs.Dispose();
             spline.Dispose();
+            isPlatform.Dispose();
         }
     }
     
