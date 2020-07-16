@@ -153,6 +153,9 @@ namespace Fire
                                 temperature.Velocity = spawner.StartFireVelocity;
                             }
 
+                            // Set initial fire params and variance
+                            temperature.StartVelocity = spawner.StartFireVelocity;
+                            temperature.IgnitionVariance = random.NextFloat(0f, 0.5f);
                             temperature.GridIndex = entityInQueryIndex;
 
                             gridArray[entityInQueryIndex] = new FireBufferElement {FireEntity = fireEntity};
