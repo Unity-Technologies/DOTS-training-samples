@@ -4,6 +4,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
-public struct ResourceNew : IComponentData
+public struct ResourceEntity : IComponentData
 {
 }

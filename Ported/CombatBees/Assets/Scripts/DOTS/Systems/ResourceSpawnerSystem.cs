@@ -39,7 +39,7 @@ public class ResourceSpawnerSystem : SystemBase
                 {
                     Value = center + new float3(math.sin(x), 0, math.cos(x)) * x * 0.1f
                 });
-                EntityManager.AddComponentData(instance, new ResourceNew());
+                EntityManager.AddComponentData(instance, new ResourceEntity());
             }
 
             EntityManager.DestroyEntity(entity);
