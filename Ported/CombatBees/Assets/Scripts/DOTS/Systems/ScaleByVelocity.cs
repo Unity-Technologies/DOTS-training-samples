@@ -5,6 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public class ScaleByVelocity : SystemBase
 {
     protected override void OnUpdate()
