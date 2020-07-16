@@ -9,7 +9,7 @@ public class ResourceSpawnerSystem : SystemBase
 {
     private EntityQuery m_MainFieldQuery;
     private EntityCommandBufferSystem m_ECBSystem;
-    private Unity.Mathematics.Random m_Random; // = new Unity.Mathematics.Random(0x5716318);
+    private Unity.Mathematics.Random m_Random;
 
     protected override void OnCreate()
     {
