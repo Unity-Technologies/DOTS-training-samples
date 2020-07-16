@@ -7,6 +7,12 @@ using Unity.Transforms;
 
 public class MoveToTarget : SystemBase
 {
+    private EntityCommandBufferSystem m_ECBSystem;
+
+    protected override void OnCreate()
+    {
+        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
@@ -15,7 +21,9 @@ public class MoveToTarget : SystemBase
         var attackDistance = BeeManager.Instance.attackDistance;
         var hitDistance = BeeManager.Instance.hitDistance;
 
-        Entities.ForEach((ref Velocity velocity, in Translation pos, in Target target) =>
+        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
+
+        Entities.ForEach((int entityInQueryIndex, ref Velocity velocity, ref Target target, in Translation pos) =>
         {
             Translation targetPos;
             if (target.EnemyTarget != Entity.Null)
@@ -44,6 +52,7 @@ public class MoveToTarget : SystemBase
                 if (sqrDist < math.pow(hitDistance, 2))
                 {
                     // Hit on enemy
+                    ecb.AddComponent<Dead>(entityInQueryIndex, target.EnemyTarget);
                     // ParticleManager.SpawnParticle(bee.enemyTarget.position,ParticleType.Blood,bee.velocity * .35f,2f,6);
                     // bee.enemyTarget.dead = true;
                     // bee.enemyTarget.velocity *= .5f;
