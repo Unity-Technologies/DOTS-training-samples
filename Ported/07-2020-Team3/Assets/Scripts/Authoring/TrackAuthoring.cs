@@ -163,7 +163,7 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
                 outboundPlatforms.Add(new PlatformDefinition
                 {
-                    Times = new float2(0.5f * (i + 2) / (last + 2), 0.5f * (i + 2) / (last + 2) + step),
+                    Times = new float2((float)(i + 1) / (2*last + 4), (float)(i + 1) / (2 * last + 4)),
                     Position = math.mad(offsetDir, PlatformOffset, point),
                     Rotation = quaternion.LookRotation(toNext, up),
                 });
@@ -195,7 +195,7 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
                 inBoundPlatforms.Add(new PlatformDefinition
                 {
-                    Times = new float2(1.0f - (0.5f * (i + 2) / (last + 2)) + step, 1.0f - (0.5f * (i + 3) / (last + 2))),
+                    Times = new float2(1.0f - (float)(i + 1) / (2 * last + 4), 1.0f - (float)(i + 1) / (2 * last + 4)),
                     Position = math.mad(offsetDir, PlatformOffset, point),
                     Rotation = quaternion.LookRotation(toNext, up),
                 });
