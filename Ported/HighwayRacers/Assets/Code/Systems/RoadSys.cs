@@ -16,6 +16,7 @@ namespace HighwayRacer
 
         public const int nLanes = 4;
         public static int nSegments = 8;
+        public const float lengthDivisor = 4000;    // bigger = fewer, larger segments
         public const float minDist = 4.0f;
 
         public const float mergeTime = laneWidth / 1.8f; // merge rate (meters per second)
@@ -89,7 +90,7 @@ namespace HighwayRacer
         
         public static int GetNumSegmentsPerStraightaway(float length)
         {
-            return (int) (length / 4000) + 1;  // todo: play with this number to experiment with segment size
+            return (int) (length / lengthDivisor) + 1;  // todo: play with this number to experiment with segment size
         }
 
         public static int GetMaxCars(float roadLength)

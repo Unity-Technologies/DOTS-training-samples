@@ -102,52 +102,7 @@ namespace HighwayRacer
                 }
             }
         }
-
-        // 1. set new pos given speed
-        // 2. moves cars between buckets when they move past end
-        public void AdvanceCars(NativeArray<float> segmentLengths, float dt)
-        {
-            // update car pos based on speed. Also record idx at-and-past which cars in the bucket should move to next bucket
-            for (var segmentIdx = 0; segmentIdx < lists.Length; segmentIdx++)
-            {
-                var segmentLength = segmentLengths[segmentIdx];
-                var cars = GetCars(segmentIdx);
-
-                var moveIdx = cars.Length;
-                for (var i = 0; i < cars.Length; i++)
-                {
-                    var car = cars[i];
-                    car.Pos += car.Speed * dt;
-                    if (car.Pos > segmentLength)
-                    {
-                        car.Pos -= segmentLength;
-                        if (i < moveIdx)
-                        {
-                            moveIdx = i;
-                        }
-                    }
-
-                    cars[i] = car;
-                }
-
-                moveIndexes[segmentIdx] = (moveIdx == cars.Length) ? -1 : moveIdx;
-            }
-
-            // cache cars to move from last bucket, then actually remove them from that bucket
-            pushCarsToCache(moveIndexes[lists.Length - 1], lists.Length - 1);
-
-            // from each bucket, move all cars at or past index to next bucket
-            for (int bucketIdx = lists.Length - 2; bucketIdx >= 0; bucketIdx--)
-            {
-                moveCarsNext(moveIndexes[bucketIdx], bucketIdx, bucketIdx + 1);
-            }
-
-            // append cached cars to end of first bucket 
-            popCarsFromCache(0);
-
-            Sort(); // sorts all the buckets
-        }
-
+        
         // 1. set new pos given speed
         // 2. moves cars between buckets when they move past end
         public void AdvanceCarsJob(NativeArray<float> segmentLengths, float dt, JobHandle dependency)
@@ -408,47 +363,6 @@ namespace HighwayRacer
         OvertakingRight, // looking to merge left after timer
         OvertakingRightStart,
         OvertakingRightEnd,
-    }
-
-
-    public struct CarEnumerator
-    {
-        private CarBuckets buckets;
-        private NativeArray<RoadSegment> segments;
-
-        private UnsafeList<Car> bucket;
-
-        private int carIdx;
-        private int bucketIdx;
-
-        public CarEnumerator(CarBuckets buckets, NativeArray<RoadSegment> segments, out RoadSegment segment)
-        {
-            this.buckets = buckets;
-            this.segments = segments;
-
-            bucket = buckets.GetCars(0);
-            segment = segments[0];
-
-            carIdx = 0;
-            bucketIdx = 0;
-        }
-
-        public void Next(out Car car, ref RoadSegment segment)
-        {
-            while (carIdx >= bucket.Length)
-            {
-                carIdx = 0;
-                bucketIdx++;
-
-                //Assert.IsTrue(bucketIdx < RoadSys.nSegments, "Improper Next()");
-
-                bucket = buckets.GetCars(bucketIdx);
-                segment = segments[bucketIdx];
-            }
-
-            car = bucket[carIdx];
-            carIdx++;
-        }
     }
 
     public unsafe struct SortJob : IJobParallelFor
