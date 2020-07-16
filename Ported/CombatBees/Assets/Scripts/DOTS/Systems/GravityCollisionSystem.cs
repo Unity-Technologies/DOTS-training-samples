@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
 using Unity.Mathematics;
+using Unity.Rendering;
 
 public class GravityCollisionSystem : SystemBase
 {
@@ -55,9 +56,10 @@ public class GravityCollisionSystem : SystemBase
             .WithDeallocateOnJobCompletion(mainField)
             .WithDeallocateOnJobCompletion(teamFields)
             .WithNone<Dead>()
-            .ForEach((int entityInQueryIndex, Entity resourceEntity, ref Velocity v, in LocalToWorld ltw) =>
+            .ForEach((int entityInQueryIndex, Entity resourceEntity, ref Velocity v, in LocalToWorld ltw, in RenderBounds entityBounds) =>
             {
                 var t = ltw.Position;
+                t.y -= entityBounds.Value.Extents.y;
 
                 // Start with team fields to see if resources need to be flagged for death
                 for (int i = 0; i < teamFields.Length; ++i)
