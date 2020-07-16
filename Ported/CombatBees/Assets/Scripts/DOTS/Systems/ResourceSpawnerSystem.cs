@@ -60,5 +60,6 @@ public class ResourceSpawnerSystem : SystemBase
             }).Schedule();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
+        Enabled = false;
     }
 }

@@ -86,7 +86,7 @@ public class BeeSpawnerSystem : SystemBase
                         ecb.SetComponent(entityInQueryIndex, instance, new BeeColor { Value = new float4(baseField.TeamColor.r, baseField.TeamColor.g, baseField.TeamColor.b, baseField.TeamColor.a) });
 
                         // Random start velocity
-                        ecb.SetComponent(entityInQueryIndex, instance, new Velocity() { Value = random.NextFloat3Direction() * maxSpawnSpeed });
+                        //ecb.SetComponent(entityInQueryIndex, instance, new Velocity() { Value = random.NextFloat3Direction() * maxSpawnSpeed });
 
                         // Random size
                         ecb.SetComponent(entityInQueryIndex, instance, new Size() { Value = random.NextFloat(minBeeSize, maxBeeSize) });
@@ -97,5 +97,6 @@ public class BeeSpawnerSystem : SystemBase
             }).Schedule();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
+        Enabled = false;
     }
 }
