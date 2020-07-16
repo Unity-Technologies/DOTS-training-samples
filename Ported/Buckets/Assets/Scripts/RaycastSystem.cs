@@ -44,7 +44,7 @@ namespace Water
 
                 if (extinguishDistance < splashRadius) 
                 { 
-                    temperature = new TemperatureComponent{Value = temperature.Value - ((splashRadius - extinguishDistance ) * splashEffect)};
+                    temperature.Value = temperature.Value - ((splashRadius - extinguishDistance ) * splashEffect);
                 }
 
                 //Create Fire
@@ -58,7 +58,7 @@ namespace Water
                 if(mouseRightDown && (leftBound > hit.x && hit.x > rightBound)
                 && (topBound > hit.z && hit.z > bottomBound))
                 {
-                    temperature = new TemperatureComponent{Value = 1};
+                    temperature.Value = 1;
                 }
 
             }).ScheduleParallel();
