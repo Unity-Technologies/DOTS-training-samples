@@ -25,7 +25,7 @@ public class Jitter : SystemBase
         var random = m_Random;
 
         Entities
-            .WithNone<Dead, ResourceEntity>()
+            .WithNone<DespawnTimer, ResourceEntity>()
             .ForEach((ref Velocity velocity) =>
         {
             velocity.Value += random.NextFloat3Direction() * (flightJitter * deltaTime);
