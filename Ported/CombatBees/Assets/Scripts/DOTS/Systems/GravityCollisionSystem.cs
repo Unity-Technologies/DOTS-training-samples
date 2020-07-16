@@ -64,7 +64,7 @@ public class GravityCollisionSystem : SystemBase
                 {
                     Bounds bounds = teamFields[i].Bounds;
 
-                    if (bounds.Intersects(t, ignoreY:true) && (t.y <= bounds.Floor))
+                    if (bounds.Intersects(t, ignoreY: true) && (t.y <= bounds.Floor))
                     {
                         // tag resource for death here...
                         ecb.AddComponent<Dead>(entityInQueryIndex, resourceEntity);
@@ -72,14 +72,17 @@ public class GravityCollisionSystem : SystemBase
                         continue;
                     }
                 }
-               
+
                 // Now check main field to see if resource should stop falling
                 for (int j = 0; j < mainField.Length; ++j)
                 {
                     Bounds bound = mainField[j].Bounds;
 
                     if (bound.Intersects(t, ignoreY: true) && t.y <= bound.Floor)
+                    {
                         v.Value = new float3(0, 0, 0);
+                        ecb.RemoveComponent<Gravity>(entityInQueryIndex, resourceEntity);
+                    }
                 }
             }).ScheduleParallel();
 
