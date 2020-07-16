@@ -1,12 +1,13 @@
 ﻿using System.Linq;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-
 
 public class ResourceSpawnerSystem : SystemBase
 {
     private EntityQuery m_MainFieldQuery;
+    private EntityCommandBufferSystem m_ECBSystem;
 
     protected override void OnCreate()
     {
@@ -22,27 +23,39 @@ public class ResourceSpawnerSystem : SystemBase
                 ComponentType.ReadOnly<TeamTwo>()
             }
         });
+
+        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
-        Entities.WithStructuralChanges()
-        .ForEach((Entity entity, in Spawner spawner, in LocalToWorld ltw) =>
-        {
-            var mainField = m_MainFieldQuery.ToComponentDataArray<FieldInfo>(Unity.Collections.Allocator.Temp).FirstOrDefault();
-            var center = mainField.Bounds.Center;
+        var mainFields = m_MainFieldQuery.ToComponentDataArrayAsync<FieldInfo>(Unity.Collections.Allocator.TempJob, out var mainFieldHandle);
 
-            for (int x = 0; x < spawner.Count; ++x)
+        Dependency = JobHandle.CombineDependencies(Dependency, mainFieldHandle);
+
+        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
+
+        Entities
+            .WithDeallocateOnJobCompletion(mainFields)
+            .ForEach((int entityInQueryIndex, Entity entity, in Spawner spawner, in LocalToWorld ltw) =>
             {
-                var instance = EntityManager.Instantiate(spawner.Prefab);
-                SetComponent(instance, new Translation
-                {
-                    Value = center + new float3(math.sin(x), 0, math.cos(x)) * x * 0.1f
-                });
-                EntityManager.AddComponentData(instance, new ResourceEntity());
-            }
+                var mainField = mainFields[0];//.FirstOrDefault(); 
+                var center = mainField.Bounds.Center;
 
-            EntityManager.DestroyEntity(entity);
-        }).Run();
+                for (int x = 0; x < spawner.Count; ++x)
+                {
+                    var instance = ecb.Instantiate(entityInQueryIndex, spawner.Prefab);
+                    ecb.SetComponent(entityInQueryIndex, instance, new Translation
+                    {
+                        Value = center + new float3(math.sin(x), 0, math.cos(x)) * x * 0.1f
+                    });
+
+                    ecb.AddComponent(entityInQueryIndex, instance, new ResourceEntity());
+                }
+
+                ecb.DestroyEntity(entityInQueryIndex, entity);
+            }).Schedule();
+
+        m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }
