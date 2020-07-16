@@ -55,36 +55,49 @@ public class GravityCollisionSystem : SystemBase
         Entities.WithAll<Gravity>()
             .WithDeallocateOnJobCompletion(mainField)
             .WithDeallocateOnJobCompletion(teamFields)
-            .WithNone<DespawnTimer>()
-            .ForEach((int entityInQueryIndex, Entity resourceEntity, ref Velocity v, in LocalToWorld ltw, in RenderBounds entityBounds) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref Velocity v, in LocalToWorld ltw, in RenderBounds entityBounds) =>
             {
                 var t = ltw.Position;
                 t.y -= entityBounds.Value.Extents.y;
 
-                // Start with team fields to see if resources need to be flagged for death
-                for (int i = 0; i < teamFields.Length; ++i)
+                if (HasComponent<ResourceEntity>(entity))
                 {
-                    Bounds bounds = teamFields[i].Bounds;
-
-                    if (bounds.Intersects(t, ignoreY: true) && (t.y <= bounds.Floor))
+                    // Start with team fields to see if resources need to be flagged for death
+                    for (int i = 0; i < teamFields.Length; ++i)
                     {
-                        // tag resource for death here...
-                        ecb.AddComponent(entityInQueryIndex, resourceEntity, new DespawnTimer { Time = 0.1f });
-                        ecb.RemoveComponent<Gravity>(entityInQueryIndex, resourceEntity);
-                        continue;
+                        Bounds bounds = teamFields[i].Bounds;
+
+                        if (bounds.Intersects(t, ignoreY: true) && (t.y <= bounds.Floor))
+                        {
+                            // tag resource for death here...
+                            ecb.AddComponent(entityInQueryIndex, entity, new DespawnTimer { Time = 0.1f });
+                            ecb.RemoveComponent<Gravity>(entityInQueryIndex, entity);
+                            continue;
+                        }
                     }
                 }
 
-                // Now check main field to see if resource should stop falling
+                // Now handle main field collision
                 for (int j = 0; j < mainField.Length; ++j)
                 {
                     Bounds bound = mainField[j].Bounds;
 
-                    if (bound.Intersects(t, ignoreY: true) && t.y <= bound.Floor)
+                    var value = v.Value; 
+
+                    if (t.y <= bound.Floor)
                     {
-                        v.Value = new float3(0, 0, 0);
-                        ecb.RemoveComponent<Gravity>(entityInQueryIndex, resourceEntity);
+                        value = new float3(0, 0, 0);
+                        ecb.RemoveComponent<Gravity>(entityInQueryIndex, entity);
                     }
+                    else 
+                    {
+                        if (t.x <= bound.Min.x || t.x >= bound.Max.x)
+                            value.x = 0;
+                        if (t.z <= bound.Min.z || t.z >= bound.Max.z)
+                            value.x = 0;
+                    }
+
+                    v.Value = value;
                 }
             }).ScheduleParallel();
 

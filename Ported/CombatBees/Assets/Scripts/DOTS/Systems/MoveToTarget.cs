@@ -56,7 +56,7 @@ public class MoveToTarget : SystemBase
                         {
                             // Hit on enemy
                             ecb.AddComponent<DespawnTimer>(entityInQueryIndex, target.EnemyTarget);
-                            ecb.AddComponent<DespawnTimer>(entityInQueryIndex, target.EnemyTarget, new DespawnTimer { Time = 2 });
+                            ecb.AddComponent<DespawnTimer>(entityInQueryIndex, target.EnemyTarget, new DespawnTimer { Time = 0.2f });
                             ecb.AddComponent<Gravity>(entityInQueryIndex, target.EnemyTarget);
 
                             ecb.SetComponent<Target>(entityInQueryIndex, entity, new Target { EnemyTarget = Entity.Null });

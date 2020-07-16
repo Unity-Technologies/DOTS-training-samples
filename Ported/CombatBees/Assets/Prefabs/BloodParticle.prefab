@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3112836372756415233}
   - component: {fileID: -7292789976159631980}
   - component: {fileID: -8599473253319076687}
+  - component: {fileID: 1123584278415234946}
   m_Layer: 0
   m_Name: BloodParticle
   m_TagString: Untagged
@@ -109,5 +110,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a74564e5a1d16f14caf600b7c5ab3c19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1123584278415234946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4712053832211347471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 648482937c223834881ac89effcede46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
