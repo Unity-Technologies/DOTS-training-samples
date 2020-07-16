@@ -4,6 +4,6 @@ using Unity.Entities;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
-public struct Commuter : IComponentData
+public struct CommuterWalking : IComponentData
 {
 }
