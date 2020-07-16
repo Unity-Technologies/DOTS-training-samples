@@ -9,7 +9,9 @@ public class GravityCollisionSystem : SystemBase
 {
     private EntityQuery m_MainFieldQuery;
     private EntityQuery m_TeamFieldsQuery;
+    private EntityQuery m_BeeSpawnerQuery; 
     private EntityCommandBufferSystem m_ECBSystem;
+    Unity.Mathematics.Random m_Random = new Unity.Mathematics.Random(0x5716318);
 
     protected override void OnCreate()
     {
@@ -39,6 +41,14 @@ public class GravityCollisionSystem : SystemBase
             }
         });
 
+        m_BeeSpawnerQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<BeeSpawner>()
+            }
+        }); 
+
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
@@ -46,15 +56,22 @@ public class GravityCollisionSystem : SystemBase
     {
         var mainField = m_MainFieldQuery.ToComponentDataArrayAsync<FieldInfo>(Unity.Collections.Allocator.TempJob, out var mainFieldHandle);
         var teamFields = m_TeamFieldsQuery.ToComponentDataArrayAsync<FieldInfo>(Unity.Collections.Allocator.TempJob, out var teamFieldsHandle);
+        var beeSpawners = m_BeeSpawnerQuery.ToComponentDataArrayAsync<BeeSpawner>(Unity.Collections.Allocator.TempJob, out var beeSpawnersHandle);
 
         Dependency = JobHandle.CombineDependencies(Dependency, mainFieldHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, teamFieldsHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency, beeSpawnersHandle);
 
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
+        var random = m_Random; 
+
+        var minBeeSize = BeeManager.Instance.minBeeSize;
+        var maxBeeSize = BeeManager.Instance.maxBeeSize;
 
         Entities.WithAll<Gravity>()
             .WithDeallocateOnJobCompletion(mainField)
             .WithDeallocateOnJobCompletion(teamFields)
+            .WithDeallocateOnJobCompletion(beeSpawners)
             .ForEach((int entityInQueryIndex, Entity entity, ref Velocity v, ref Translation translation, in RenderBounds entityBounds) =>
             {
                 var t = translation.Value;
@@ -69,9 +86,36 @@ public class GravityCollisionSystem : SystemBase
 
                         if (bounds.Intersects(t, ignoreY: true) && (t.y <= bounds.Floor))
                         {
-                            // tag resource for death here...
+                            // tag resource for death
                             ecb.AddComponent(entityInQueryIndex, entity, new DespawnTimer { Time = 0.1f });
                             ecb.RemoveComponent<Gravity>(entityInQueryIndex, entity);
+
+                            // spawn bees - this code is a bit hacky but we're out of time.
+                            if (beeSpawners.Length > 0)
+                            {
+                                var spawner = beeSpawners[0]; 
+
+                                for (int n = 0; n < spawner.BeesPerResource; ++n)
+                                {
+                                    var instance = ecb.Instantiate(entityInQueryIndex, spawner.Prefab);
+
+                                    ecb.SetComponent(entityInQueryIndex, instance, new Translation
+                                    {
+                                        Value = t
+                                    });
+
+                                    ecb.AddComponent(entityInQueryIndex, instance, new Target());
+
+                                    if (i == 0)
+                                        ecb.AddComponent(entityInQueryIndex, instance, new TeamOne());
+                                    else
+                                        ecb.AddComponent(entityInQueryIndex, instance, new TeamTwo());
+
+                                    ecb.SetComponent(entityInQueryIndex, instance, new BeeColor { Value = new float4(teamFields[i].TeamColor.r, teamFields[i].TeamColor.g, teamFields[i].TeamColor.b, teamFields[i].TeamColor.a) });
+                                    ecb.SetComponent(entityInQueryIndex, instance, new Size() { Value = random.NextFloat(minBeeSize, maxBeeSize) });
+
+                                }
+                            }
                             continue;
                         }
                     }
@@ -89,14 +133,6 @@ public class GravityCollisionSystem : SystemBase
                         value = new float3(0, 0, 0);
                         ecb.RemoveComponent<Gravity>(entityInQueryIndex, entity);
                     }
-
-                    //else 
-                    //{
-                    //    if (t.x <= bound.Min.x || t.x >= bound.Max.x)
-                    //        value.x = 0;
-                    //    if (t.z <= bound.Min.z || t.z >= bound.Max.z)
-                    //        value.z = 0;
-                    //}
 
                     v.Value = value;
                 }

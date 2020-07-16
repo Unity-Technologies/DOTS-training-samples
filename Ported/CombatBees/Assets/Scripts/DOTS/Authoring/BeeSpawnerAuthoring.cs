@@ -6,6 +6,7 @@ public struct BeeSpawner : IComponentData
 {
     public Entity Prefab;
     public int BeeCount;
+    public int BeesPerResource;
 }
 
 //[RequiresEntityConversion]

@@ -94,7 +94,7 @@ public class BeeSpawnerSystem : SystemBase
                     }
                 }
 
-                ecb.DestroyEntity(entityInQueryIndex, entity);
+                //ecb.DestroyEntity(entityInQueryIndex, entity);
             }).Schedule();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
