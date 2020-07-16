@@ -7,6 +7,7 @@ using UnityEngine;
 public struct TrainState : IComponentData
 {
     public int nextPlatform;
+    public bool inbound;
     public Entity currentPlatform;
     public float timeUntilDeparture;
 }

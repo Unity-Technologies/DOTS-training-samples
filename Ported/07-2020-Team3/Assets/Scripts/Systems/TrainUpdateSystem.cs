@@ -57,14 +57,31 @@ public class TrainUpdateSystem : SystemBase
                 float oldPosition = trainPosition.position;
                 float newPosition = oldPosition + trainPosition.speed * deltaTime;
                 //Entity platformEntity = platforms[trainState.nextPlatform].platform;
-                float platformPosition = platforms[trainState.nextPlatform].Inbound.EndT * trackPoints.Length;
+                float platformPosition = trainState.inbound ? platforms[trainState.nextPlatform].Inbound.EndT : platforms[trainState.nextPlatform].Outbound.EndT;
+                platformPosition *= trackPoints.Length;
 
                 if(oldPosition <= platformPosition && platformPosition <= newPosition)
                 {
-                    //trainState.currentPlatform = platformEntity;
-                    trainState.nextPlatform++;
-                    if (trainState.nextPlatform >= platforms.Length)
+                    
+                    if (trainState.inbound)
+                        trainState.nextPlatform--;
+                    else
+                        trainState.nextPlatform++;
+
+                    Debug.Log($"At Station - Next Station {trainState.nextPlatform}");
+
+                    if (trainState.nextPlatform < 0)
+                    {
+                        Debug.Log("Next Station Inbound");
+                        trainState.inbound = false;
                         trainState.nextPlatform = 0;
+                    }
+                    else if (trainState.nextPlatform >= platforms.Length)
+                    {
+                        Debug.Log("Next Station Outbound");
+                        trainState.inbound = true;
+                        trainState.nextPlatform = platforms.Length - 1;
+                    }
 
                     trainState.timeUntilDeparture = trainWaitTime.Value;
                 }
