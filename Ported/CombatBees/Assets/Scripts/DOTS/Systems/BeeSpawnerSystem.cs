@@ -54,6 +54,8 @@ public class BeeSpawnerSystem : SystemBase
                                 Value = new float3(xVal, yVal, zVal)
                             });
 
+                        EntityManager.AddComponentData(instance, new Target());
+
                         if (i == 0)
                         {
                             EntityManager.AddComponentData(instance, new TeamOne());
