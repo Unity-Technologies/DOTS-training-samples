@@ -135,21 +135,22 @@ namespace Fire
                             int z = entityInQueryIndex / spawner.CountX;
 
                             // Start pos
-                            var posX = bounds.SizeXZ * (x - (spawner.CountX - 1) / 2);
-                            var posZ = bounds.SizeXZ * (z - (spawner.CountZ - 1) / 2);
+                            var posX = spawner.Center.x + bounds.SizeXZ * (x - (spawner.CountX - 1) / 2);
+                            var posZ = spawner.Center.z + bounds.SizeXZ * (z - (spawner.CountZ - 1) / 2);
 
                             // Add random offset on y to debug that the grid spacing is correct
-                            var posY = random.NextFloat(-0.01f, 0.01f);
+                            var posY = random.NextFloat(-0.01f, 0.01f) + spawner.Center.y;
+
                             height.Value = posY;
                             height.Variance = random.NextFloat(0.055f, 0.065f);
 
-                            translation.Value = spawner.Center + new float3(posX, posY, posZ);
+                            translation.Value = new float3(posX, posY, posZ);
                             
                             // If we should start a fire, start it
                             if (fireIndiciesArr.Contains(entityInQueryIndex))
                             {
-                                temperature.Value = spanwerInfoInstance.StartFireAmount;
-                                temperature.Velocity = spanwerInfoInstance.StartFireVelocity;
+                                temperature.Value = spawner.StartFireAmount;
+                                temperature.Velocity = spawner.StartFireVelocity;
                             }
 
                             gridArray[entityInQueryIndex] = new FireBufferElement {FireEntity = fireEntity};
