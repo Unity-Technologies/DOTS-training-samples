@@ -11,13 +11,13 @@ BUGS:
 OPTIMIZE:
 
 *   use float2's instead of float3's
-*   use half instead of float
+
 *   try smaller segments sizes
-*   alternate which segments test for merging in a frame 
+*   alternate which segments test for merging in a frame
+ 
 *   instead of Translation and Rotation, convert directly to LocalToWorld
-*   what if we only sorted a bucket every few frames? might get erroneously moved to next bucket?
-*   split Car so that Pos Lane and Speed are own struct in separate set of buckets
-  
+
+*   split Car so that Pos Lane and Speed are own struct in separate set of buckets 
  
 *   check if all translations and rotations aren't NaN or Infinity (check unity.mathematics)
         check the matrices

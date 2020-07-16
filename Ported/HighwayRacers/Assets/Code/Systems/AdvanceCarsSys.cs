@@ -23,6 +23,9 @@ namespace HighwayRacer
             {
                 buckets.AdvanceCarsJob(segmentLengths, dt, Dependency);
             }
+            
+            //buckets.LargestBucketLength();
+            //RoadSys.CarBuckets = buckets;
         }
     }
 }

@@ -27,9 +27,16 @@ namespace HighwayRacer
         [NativeDisableContainerSafetyRestriction] public NativeArray<int> moveIndexes; // for each list, the index of first car that should be moved to next list
         [NativeDisableContainerSafetyRestriction] private UnsafeList<Car> tempList;
 
+        private int largestBucketLength;
+        private int bucketSize;
+
         public CarBuckets(int nSegments, int nCarsPerSegment)
         {
             IsCreated = true;
+
+            bucketSize = (int)(nCarsPerSegment * 1.6f);   // todo compute exactly how many cars fit in a bucket. This fudge seems to work though, but might be a bit wasteful
+            largestBucketLength = 0;
+            Debug.Log("bucket capacity: " + bucketSize + "  number of buckets: " + nSegments);
 
             writers = new NativeArray<UnsafeList.ParallelWriter>(nSegments, Allocator.Persistent);
             lists = new NativeArray<UnsafeList>(nSegments, Allocator.Persistent);
@@ -40,11 +47,11 @@ namespace HighwayRacer
             for (int i = 0; i < nSegments; i++)
             {
                 var bucket = ptr + i;
-                *bucket = new UnsafeList(UnsafeUtility.SizeOf<Car>(), UnsafeUtility.AlignOf<Car>(), nCarsPerSegment, Allocator.Persistent);
+                *bucket = new UnsafeList(UnsafeUtility.SizeOf<Car>(), UnsafeUtility.AlignOf<Car>(), bucketSize, Allocator.Persistent);
                 writers[i] = bucket->AsParallelWriter();
             }
 
-            tempList = new UnsafeList<Car>(nCarsPerSegment, Allocator.Persistent);
+            tempList = new UnsafeList<Car>(bucketSize, Allocator.Persistent);
         }
 
         public int LastIndex()
@@ -81,6 +88,19 @@ namespace HighwayRacer
                         Debug.Log("car.Pos is lesser than previous car");
                     }
                     prevPos = car.Pos;
+                }
+            }
+        }
+        
+        public void LargestBucketLength()
+        {
+            for (int i = 0; i < lists.Length; i++)
+            {
+                var len = lists[i].Length;
+                if (len > largestBucketLength)
+                {
+                    largestBucketLength = len;
+                    Debug.Log("new record bucket size: " + largestBucketLength + "  Capacity: " + bucketSize);
                 }
             }
         }

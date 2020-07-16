@@ -169,7 +169,7 @@ namespace HighwayRacer
             roadSegments = new NativeArray<RoadSegment>(nSegments, Allocator.Persistent);
             thresholds = new NativeArray<float>(nSegments, Allocator.Persistent);
             segmentLengths = new NativeArray<float>(nSegments, Allocator.Persistent);
-            CarBuckets = new CarBuckets(nSegments, NumCarsFitInStraightSegment(straightLength) * 2);
+            CarBuckets = new CarBuckets(nSegments, NumCarsFitInStraightSegment(straightLength));
             
             var segmentGOs = new GameObject[nSegments];
 

@@ -18,11 +18,11 @@ namespace HighwayRacer
         private EntityQuery carQuery;
         private Entity carPrefab;
 
-        public const float minSpeed = 7.0f;
-        public const float maxSpeed = 20.0f; // max cruising speed
+        public const float minSpeed = 7f;
+        public const float maxSpeed = 20f; // max cruising speed
 
-        public const float minBlockedDist = 9.0f;
-        public const float maxBlockedDist = 15.0f;
+        public const float minBlockedDist = 9f;
+        public const float maxBlockedDist = 15f;
 
         public const float minOvertakeModifier = 1.2f;
         public const float maxOvertakeModifier = 1.6f;
