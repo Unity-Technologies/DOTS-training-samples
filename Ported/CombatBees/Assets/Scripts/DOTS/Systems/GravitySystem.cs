@@ -3,16 +3,14 @@ using Unity.Mathematics;
 
 public class GravitySystem : SystemBase
 {
-    public float Gravity = -9.8f;
+    // Gravity value copied from the original.
+    const float k_Gravity = -20f;
 
     protected override void OnUpdate()
     {
-        var force = new float3(0, Gravity * Time.DeltaTime, 0);
+        var force = new float3(0, k_Gravity * Time.DeltaTime, 0);
 
         Entities.WithAll<Gravity>()
-            .ForEach((ref Velocity v) =>
-            {
-                v.Value = v.Value + force;
-            }).ScheduleParallel();
+            .ForEach((ref Velocity v) => v.Value = v.Value + force).ScheduleParallel();
     }
 }
