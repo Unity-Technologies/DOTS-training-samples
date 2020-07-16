@@ -26,12 +26,15 @@ public class TrainUpdateSystem : SystemBase
         float deltaTime = Time.DeltaTime;
 
         BufferFromEntity<TrackPoint> trackPointsAccessor = GetBufferFromEntity<TrackPoint>(true);
+        MaximumTrainSpeed maximumTrainSpeed = GetSingleton<MaximumTrainSpeed>();
 
         Entities
             .ForEach((int entityInQueryIndex, Entity entity, ref TrainPosition trainPosition) =>
         {
 
             var trackPoints = trackPointsAccessor[trainPosition.track];
+
+            trainPosition.speed = maximumTrainSpeed.Value;
             
             trainPosition.position += trainPosition.speed * deltaTime;
             if (trainPosition.position >= trackPoints.Length)

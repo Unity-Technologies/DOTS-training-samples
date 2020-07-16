@@ -24,12 +24,18 @@ public class CarUpdateSystem : SystemBase
             TrainPosition trainPosition = trainPositionAccessor[trainCar.train];
             var trackPoints = trackPointAccessor[trainPosition.track];
 
-            int trackIndex = (int)math.floor(trainPosition.position);
-            float3 posA = trackPoints[trackIndex].position;
-            float3 posB = trackPoints[(trackIndex + 1)%trackPoints.Length].position;
-            float3 pos = math.lerp(posA, posB, math.frac(trainPosition.position));
+            float carPosition = trainPosition.position - trainCar.indexInTrain * spacing.Value;
+            while (carPosition < 0.0f)
+                carPosition += trackPoints.Length;
 
-            translation.Value = pos - new float3(spacing.Value * trainCar.indexInTrain);
+            int trackIndex = (int)math.floor(carPosition);
+            float3 posA = trackPoints[trackIndex % trackPoints.Length].position;
+            float3 posB = trackPoints[(trackIndex + 1)%trackPoints.Length].position;
+            float3 pos = math.lerp(posA, posB, math.frac(carPosition));
+
+            rotation.Value = quaternion.LookRotationSafe(posA - posB, new float3(0, 1, 0));
+
+            translation.Value = pos;
 
         }).Schedule();
 

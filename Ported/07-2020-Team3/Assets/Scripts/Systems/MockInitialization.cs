@@ -2,6 +2,8 @@
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Collections;
+using UnityEditorInternal;
+using Unity.Mathematics;
 
 public class MockInitialization : SystemBase
 {
@@ -18,27 +20,19 @@ public class MockInitialization : SystemBase
         {
             All = new[]
             {
-                ComponentType.ReadOnly<TrackPoint>()
+                ComponentType.ReadWrite<TrackPoint>()
             }
         });
-
-
-        _trainArchetype = EntityManager.CreateArchetype(typeof(TrainPosition));
     }
 
     
     protected override void OnUpdate()
     {
-        /*
-        var trackEntities = _trackQuery.ToEntityArrayAsync(Allocator.TempJob, out var trackEntitiesHandle);
         
-        BufferFromEntity<TrackPoint> lookup = GetBufferFromEntity<TrackPoint>();
-
-        Dependency = JobHandle.CombineDependencies(Dependency, trackEntitiesHandle);
-
+        var trackEntities = _trackQuery.ToEntityArray(Allocator.TempJob);
+        var trackPointsAccessor = GetBufferFromEntity<TrackPoint>(false);
+        
         EntityCommandBuffer.Concurrent ecb = _ecb.CreateCommandBuffer().ToConcurrent();
-
-        EntityArchetype trainArchetype = _trainArchetype;
 
         Entities
             .WithDeallocateOnJobCompletion(trackEntities)
@@ -47,6 +41,17 @@ public class MockInitialization : SystemBase
 
             for(int i = 0; i < trackEntities.Length; i++)
             {
+                var trackEntity = trackEntities[i];
+                var trackPoints = trackPointsAccessor[trackEntity];
+                
+                Debug.Log("Set Track");
+                trackPoints.Clear();
+                for (int j = 0; j < 16; j++)
+                    trackPoints.Add(new TrackPoint { position = 100.0f * new float3(math.sin(2.0f * j * math.PI/16), 0, math.cos(2.0f * j * math.PI/16)) });
+
+                 
+                /*
+
                 Entity trackEntity = trackEntities[i];
 
                 Entity trainEntity = ecb.CreateEntity(entityInQueryIndex, trainArchetype);
@@ -69,6 +74,7 @@ public class MockInitialization : SystemBase
                     };
                     ecb.AddComponent<TrainCar>(entityInQueryIndex, carEntity);
                 }
+                */
 
             }
 
@@ -77,7 +83,7 @@ public class MockInitialization : SystemBase
 
         _ecb.AddJobHandleForProducer(Dependency);
         
-        //*/
+        
     }
 
 }
