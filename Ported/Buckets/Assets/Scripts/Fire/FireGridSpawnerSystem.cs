@@ -132,7 +132,7 @@ namespace Fire
                         if (entityInQueryIndex < spawner.TotalCount)
                         {
                             int x = entityInQueryIndex % spawner.CountX;
-                            int z = entityInQueryIndex / spawner.CountX;
+                            int z = entityInQueryIndex / spawner.CountZ;
 
                             // Start pos
                             var posX = spawner.Center.x + bounds.SizeXZ * (x - (spawner.CountX - 1) / 2);
@@ -152,6 +152,8 @@ namespace Fire
                                 temperature.Value = spawner.StartFireAmount;
                                 temperature.Velocity = spawner.StartFireVelocity;
                             }
+
+                            temperature.GridIndex = entityInQueryIndex;
 
                             gridArray[entityInQueryIndex] = new FireBufferElement {FireEntity = fireEntity};
                             break;

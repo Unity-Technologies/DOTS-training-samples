@@ -58,6 +58,7 @@ namespace Fire
     {
         public float Value;
         public float Velocity;
+        public int GridIndex;
     }
 
     // TODO make bounds readonly once initialized

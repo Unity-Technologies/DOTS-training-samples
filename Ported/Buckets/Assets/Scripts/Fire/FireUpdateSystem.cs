@@ -62,8 +62,6 @@ namespace Fire
                 temperatureComponents[i] = EntityManager.GetComponentData<TemperatureComponent>(gridArray[i].FireEntity);
             }
 
-            // Check current state to spread fires
-
             // Update fires in scene
             Entities
                 .WithDeallocateOnJobCompletion(temperatureComponents)
@@ -77,9 +75,9 @@ namespace Fire
                     if (fireOut)
                     {
                         temperature.Velocity = 0;
+
                         // Find neighboring temperatures
-                        //var neighbors = FireSearch.GetNeighboringIndicies(entityInQueryIndex, gridMetaData.CountX,gridMetaData.CountZ);
-                        var neighbors = new FireSearch.Neighbors();
+                        var neighbors = FireSearch.GetNeighboringIndicies(temperature.GridIndex, gridMetaData.CountX,gridMetaData.CountZ);
 
                         var topTemp = (neighbors.Top == -1) ? 0 : temperatureComponents[neighbors.Top].Value;
                         var bottomTemp = (neighbors.Bottom == -1) ? 0 : temperatureComponents[neighbors.Bottom].Value;
