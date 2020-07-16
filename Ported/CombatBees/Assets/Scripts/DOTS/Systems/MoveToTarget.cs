@@ -23,7 +23,9 @@ public class MoveToTarget : SystemBase
 
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
 
-        Entities.ForEach((int entityInQueryIndex, ref Velocity velocity, ref Target target, in Translation pos) =>
+        Entities
+            .WithNone<Dead>()
+            .ForEach((int entityInQueryIndex, ref Velocity velocity, ref Target target, in Translation pos) =>
         {
             Translation targetPos;
             if (target.EnemyTarget != Entity.Null)
