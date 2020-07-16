@@ -55,9 +55,9 @@ public class GravityCollisionSystem : SystemBase
         Entities.WithAll<Gravity>()
             .WithDeallocateOnJobCompletion(mainField)
             .WithDeallocateOnJobCompletion(teamFields)
-            .ForEach((int entityInQueryIndex, Entity entity, ref Velocity v, in LocalToWorld ltw, in RenderBounds entityBounds) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref Velocity v, ref Translation translation, in RenderBounds entityBounds) =>
             {
-                var t = ltw.Position;
+                var t = translation.Value;
                 t.y -= entityBounds.Value.Extents.y;
 
                 if (HasComponent<ResourceEntity>(entity))
@@ -84,18 +84,19 @@ public class GravityCollisionSystem : SystemBase
 
                     var value = v.Value; 
 
-                    if (t.y <= bound.Floor)
+                    if (bound.Intersects(t, ignoreY: true) && t.y <= bound.Floor)
                     {
                         value = new float3(0, 0, 0);
                         ecb.RemoveComponent<Gravity>(entityInQueryIndex, entity);
                     }
-                    else 
-                    {
-                        if (t.x <= bound.Min.x || t.x >= bound.Max.x)
-                            value.x = 0;
-                        if (t.z <= bound.Min.z || t.z >= bound.Max.z)
-                            value.x = 0;
-                    }
+
+                    //else 
+                    //{
+                    //    if (t.x <= bound.Min.x || t.x >= bound.Max.x)
+                    //        value.x = 0;
+                    //    if (t.z <= bound.Min.z || t.z >= bound.Max.z)
+                    //        value.z = 0;
+                    //}
 
                     v.Value = value;
                 }
