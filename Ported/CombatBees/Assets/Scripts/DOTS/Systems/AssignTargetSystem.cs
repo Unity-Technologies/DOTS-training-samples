@@ -21,7 +21,7 @@ public class AssignTargetSystem : SystemBase
             All = new[]
             {
                 ComponentType.ReadOnly<TeamOne>(),
-                ComponentType.ReadWrite<Target>()
+                ComponentType.ReadOnly<Target>()
             }
         });
 
@@ -30,7 +30,7 @@ public class AssignTargetSystem : SystemBase
             All = new[]
             {
                 ComponentType.ReadOnly<TeamTwo>(),
-                ComponentType.ReadWrite<Target>()
+                ComponentType.ReadOnly<Target>()
             }
         });
 
@@ -75,9 +75,19 @@ public class AssignTargetSystem : SystemBase
                             target.ResourceTarget = resourceEntities[random.NextInt(0, resourceEntities.Length - 1)];
                     }
                 }
-                else if (target.EnemyTarget != null)
+                else if (target.EnemyTarget != Entity.Null)
                 {
-
+                    if (HasComponent<Dead>(target.EnemyTarget))
+                    {
+                        target.EnemyTarget = Entity.Null;
+                    }
+                }
+                else if (target.ResourceTarget != Entity.Null)
+                {
+                    if (HasComponent<Dead>(target.ResourceTarget))
+                    {
+                        target.ResourceTarget = Entity.Null;
+                    }
                 }
 
             }).Schedule();
