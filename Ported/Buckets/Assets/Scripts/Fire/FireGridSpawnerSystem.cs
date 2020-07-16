@@ -108,7 +108,7 @@ namespace Fire
 
             // Start initial fires
             int numberOfFires = random.NextInt(spanwerInfoInstance.MinInitialFires, spanwerInfoInstance.MaxInitialFires);
-            int[] fireIndiciesArr = new int[numberOfFires];
+            NativeArray<int> fireIndiciesArr = new NativeArray<int>(numberOfFires, Allocator.TempJob);
 
             // Pick indicies of fires that should be started, at random
             for (int i = 0; i < numberOfFires; i++)
@@ -119,9 +119,9 @@ namespace Fire
 
             Entities
                 .WithDeallocateOnJobCompletion(spawners)
+                .WithDeallocateOnJobCompletion(fireIndiciesArr)
                 .ForEach((Entity fireEntity, int entityInQueryIndex, ref Translation translation,
-                    /*ref TemperatureComponent temperature,*/
-                    in BoundsComponent bounds) =>
+                    ref TemperatureComponent temperature, ref StartHeight height, in BoundsComponent bounds) =>
                 {
                     for (int i = 0; i < spawners.Length; ++i)
                     {
@@ -130,19 +130,23 @@ namespace Fire
                         {
                             int x = entityInQueryIndex % spawner.CountX;
                             int z = entityInQueryIndex / spawner.CountX;
+
+                            // Start pos
                             var posX = bounds.SizeXZ * (x - (spawner.CountX - 1) / 2);
                             var posZ = bounds.SizeXZ * (z - (spawner.CountZ - 1) / 2);
+
                             // Add random offset on y to debug that the grid spacing is correct
                             var posY = random.NextFloat(-0.01f, 0.01f);
+
                             translation.Value = spawner.Center + new float3(posX, posY, posZ);
-                            /*
+                            
                             // If we should start a fire, start it
                             if (fireIndiciesArr.Contains(entityInQueryIndex))
                             {
                                 temperature.Value = spanwerInfoInstance.StartFireAmount;
-                                // TODO rethink how to add fire velocity component
+                                temperature.Velocity = spanwerInfoInstance.StartFireVelocity;
                             }
-                            */
+
                             gridArray[entityInQueryIndex] = new FireBufferElement {FireEntity = fireEntity};
                             break;
                         }

@@ -10,8 +10,9 @@ namespace Fire
     {
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            //dstManager.AddComponentData(entity, new Translation { Value = new float3() });
             dstManager.AddComponentData(entity, new TemperatureComponent { Value = 0f });
+
+            dstManager.AddComponentData(entity, new StartHeight { Value = 0f });
             dstManager.AddComponentData(entity, new BoundsComponent
             {
                 SizeXZ = transform.localScale.x,
@@ -20,9 +21,15 @@ namespace Fire
         }
     }
 
+    public struct StartHeight : IComponentData
+    {
+        public float Value;
+    }
+
     public struct TemperatureComponent : IComponentData
     {
         public float Value;
+        public float Velocity;
     }
 
     // TODO make bounds readonly once initialized
@@ -30,11 +37,5 @@ namespace Fire
     {
         public float SizeXZ;
         public float SizeY;
-    }
-
-    // Note: added at runtime - used to signify "On Fire" state
-    public struct TemperatureVelocity : IComponentData
-    {
-        public float Value;
     }
 }
