@@ -25,7 +25,7 @@ public class MoveToTarget : SystemBase
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
 
         Entities
-            .WithNone<Dead>()
+            .WithNone<DespawnTimer>()
             .ForEach((Entity entity, int entityInQueryIndex, ref Velocity velocity, ref Smoothing smoothing, ref Target target, in Translation pos) =>
             {
                 var oldSmoothPos = smoothing.SmoothPosition;
@@ -55,7 +55,7 @@ public class MoveToTarget : SystemBase
                         if (dist < hitDistance)
                         {
                             // Hit on enemy
-                            ecb.AddComponent<Dead>(entityInQueryIndex, target.EnemyTarget);
+                            ecb.AddComponent<DespawnTimer>(entityInQueryIndex, target.EnemyTarget);
                             ecb.AddComponent<DespawnTimer>(entityInQueryIndex, target.EnemyTarget, new DespawnTimer { Time = 2 });
                             ecb.AddComponent<Gravity>(entityInQueryIndex, target.EnemyTarget);
 
