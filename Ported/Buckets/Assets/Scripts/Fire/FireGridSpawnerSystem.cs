@@ -11,6 +11,8 @@ namespace Fire
     {
         public Entity Prefab;
 
+        public int RandomSeed;
+
         public int CountX;
         public int CountZ;
         public float3 Origin;
@@ -31,6 +33,8 @@ namespace Fire
         struct SpawnerInfo
         {
             public Entity Prefab;
+
+            public int RandomSeed;
 
             public int CountX;
             public int CountZ;
@@ -66,6 +70,7 @@ namespace Fire
                     spawners[entityInQueryIndex] = new SpawnerInfo
                     {
                         Prefab = spawner.Prefab,
+                        RandomSeed = spawner.RandomSeed,
                         CountX = spawner.CountX,
                         CountZ = spawner.CountZ,
                         TotalCount = spawner.CountX * spawner.CountZ,
@@ -102,7 +107,7 @@ namespace Fire
             gridBuffer.ResizeUninitialized(spanwerInfoInstance.TotalCount);
             var gridArray = gridBuffer.AsNativeArray();
 
-            Random random = new Random(0x1234567);
+            Random random = new Random((uint)spanwerInfoInstance.RandomSeed);
 
             // Start initial fires
             int numberOfFires = random.NextInt(spanwerInfoInstance.MinInitialFires, spanwerInfoInstance.MaxInitialFires);
@@ -136,7 +141,7 @@ namespace Fire
                             // Add random offset on y to debug that the grid spacing is correct
                             var posY = random.NextFloat(-0.01f, 0.01f);
                             height.Value = posY;
-                            height.Variance = random.NextFloat(0.045f, 0.55f);
+                            height.Variance = random.NextFloat(0.055f, 0.065f);
 
                             translation.Value = spawner.Center + new float3(posX, posY, posZ);
                             

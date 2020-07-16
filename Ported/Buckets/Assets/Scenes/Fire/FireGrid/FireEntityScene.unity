@@ -167,6 +167,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 8689680459187752648, guid: 9b68219574e27fe4a9835c644411242c, type: 3}
+  RandomSeed: 10364
   CountX: 10
   CountZ: 10
   Origin:
