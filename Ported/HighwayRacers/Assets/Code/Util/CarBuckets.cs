@@ -105,7 +105,6 @@ namespace HighwayRacer
             }
         }
         
-        
         // todo temp for debugging
         public void CheckPosAreFinite()
         {

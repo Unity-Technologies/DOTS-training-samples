@@ -53,8 +53,10 @@ namespace HighwayRacer
                 carPrefab = carQuery.GetSingletonEntity();
                 var types = new ComponentType[]
                 {
-                    typeof(Prefab), typeof(Translation), typeof(Rotation), typeof(URPMaterialPropertyBaseColor)
+                    typeof(Prefab), typeof(URPMaterialPropertyBaseColor)
                 };
+                EntityManager.RemoveComponent<Rotation>(carPrefab);
+                EntityManager.RemoveComponent<Translation>(carPrefab);
                 EntityManager.AddComponents(carPrefab, new ComponentTypes(types));
             }
 
@@ -70,10 +72,9 @@ namespace HighwayRacer
             ents.Dispose();
 
             // not strictly necessary, but for debugging, make sure cars have valid initial values
-            Entities.ForEach((ref Translation translation, ref Rotation rotation, ref URPMaterialPropertyBaseColor color) =>
+            Entities.ForEach((ref LocalToWorld transform, ref URPMaterialPropertyBaseColor color) =>
             {
-                translation.Value = float3.zero;
-                rotation.Value = quaternion.identity;
+                transform.Value = float4x4.identity;
                 color.Value = new float4(0, 0, 0, 1);
             }).Run();
 

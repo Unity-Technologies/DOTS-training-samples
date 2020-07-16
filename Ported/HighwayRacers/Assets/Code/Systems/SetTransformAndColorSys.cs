@@ -17,15 +17,14 @@ namespace HighwayRacer
     {
         private EntityQuery query;
 
-        private ArchetypeChunkComponentType<Translation> translationType;
-        private ArchetypeChunkComponentType<Rotation> rotationType;
+        private ArchetypeChunkComponentType<LocalToWorld> transformType;
         private ArchetypeChunkComponentType<URPMaterialPropertyBaseColor> colorType;
-        
-        private TransformAndColorJob[] jobArray = new TransformAndColorJob[100];   // bigger than we'll ever need
-        
+
+        private TransformAndColorJob[] jobArray = new TransformAndColorJob[100]; // bigger than we'll ever need
+
         protected override void OnCreate()
         {
-            query = GetEntityQuery(typeof(Translation), typeof(Rotation), typeof(URPMaterialPropertyBaseColor));
+            query = GetEntityQuery(typeof(LocalToWorld), typeof(URPMaterialPropertyBaseColor));
             base.OnCreate();
         }
 
@@ -39,7 +38,7 @@ namespace HighwayRacer
         public readonly static float3 fastestColor = new float3(0, 1.0f, 0);
         public readonly static float3 slowestColor = new float3(1.0f, 0.0f, 0);
 
-        public static void setColor(in Car car, int entityIdx, NativeArray<URPMaterialPropertyBaseColor> colors)
+        public static void setColor(in Car car, int entityIdx, ref NativeArray<URPMaterialPropertyBaseColor> colors)
         {
             URPMaterialPropertyBaseColor color;
             if (car.Speed >= car.DesiredSpeedUnblocked)
@@ -56,23 +55,21 @@ namespace HighwayRacer
             colors[entityIdx] = color;
         }
 
-        public static void setTransform(ref Car car, int entityIdx, NativeArray<Translation> translations, NativeArray<Rotation> rotations, ref RoadSegment seg)
+        public static void setTransform(ref Car car, int entityIdx, ref NativeArray<LocalToWorld> transforms, ref RoadSegment seg)
         {
+            var transform = seg.Transform;
             var laneOffsetDist = car.LaneOffsetDist();
-
-            Translation translation;
-            Rotation rotation;
-
-            translation.Value = seg.Position;
-            translation.Value += seg.DirectionLaneOffset * laneOffsetDist;
+            var translation = seg.Transform.c3.xyz;
+            translation += seg.DirectionLaneOffset * laneOffsetDist;
 
             if (seg.IsCurved())
             {
                 var percentage = car.Pos / seg.Length;
-                rotation.Value = new quaternion(math.lerp(seg.DirectionRot.value, seg.DirectionRotEnd.value, percentage));
-                var radius = seg.Radius + (laneOffsetDist * RoadSys.laneWidth);
-
+                var radians = math.radians(math.lerp(seg.RotDegrees, seg.RotDegrees + 90, percentage));
+                transform = RoadSys.GetRotYMatrix(radians);
+                
                 // rotate the origin around pivot to get displacement
+                var radius = seg.Radius + (laneOffsetDist * RoadSys.laneWidth);
                 float3 pivot = new float3();
                 float3 displacement = float3.zero;
 
@@ -102,16 +99,15 @@ namespace HighwayRacer
                 displacement.x = x;
                 displacement += pivot;
 
-                translation.Value += displacement;
+                translation += displacement;
             }
             else
             {
-                translation.Value += car.Pos * seg.DirectionVec;
-                rotation.Value = seg.DirectionRot;
+                translation += car.Pos * seg.DirectionVec;
             }
-
-            translations[entityIdx] = translation;
-            rotations[entityIdx] = rotation;
+            
+            transform.c3 = new float4(translation, 1);
+            transforms[entityIdx] = new LocalToWorld() {Value = transform};
         }
 
         protected override void OnUpdate()
@@ -127,10 +123,9 @@ namespace HighwayRacer
             var buckets = RoadSys.CarBuckets;
             var roadSegments = RoadSys.roadSegments;
 
-            translationType = GetArchetypeChunkComponentType<Translation>();
-            rotationType = GetArchetypeChunkComponentType<Rotation>();
+            transformType = GetArchetypeChunkComponentType<LocalToWorld>();
             colorType = GetArchetypeChunkComponentType<URPMaterialPropertyBaseColor>();
-            
+
             buckets.FirstNonEmptyBucket(out int bucketIdx);
             var firstCarIdx = 0;
             var firstChunkIdx = 0;
@@ -151,8 +146,7 @@ namespace HighwayRacer
                     carBuckets = buckets,
                     roadSegments = roadSegments,
 
-                    translationType = translationType,
-                    rotationType = rotationType,
+                    transformType = transformType,
                     colorType = colorType,
                 };
 
@@ -166,18 +160,19 @@ namespace HighwayRacer
                     }
 
                     buckets.NextNthCar(ref bucketIdx, ref firstCarIdx, nCars);
-                    
+
                     firstChunkIdx += nChunksPerJob;
                 }
             }
-            
+
             var combined = new JobHandle();
             for (int i = 0; i < nJobs; i++)
             {
-                combined = JobHandle.CombineDependencies(combined, jobArray[i].Schedule(Dependency));    
+                combined = JobHandle.CombineDependencies(combined, jobArray[i].Schedule(Dependency));
             }
+
             combined.Complete();
-            
+
             chunks.Dispose();
         }
     }
@@ -185,12 +180,19 @@ namespace HighwayRacer
     [BurstCompile(CompileSynchronously = true)]
     public struct TransformAndColorJob : IJob
     {
-        [NativeDisableContainerSafetyRestriction] public NativeArray<ArchetypeChunk> chunks;
-        [NativeDisableContainerSafetyRestriction] public NativeArray<RoadSegment> roadSegments;
+        [NativeDisableContainerSafetyRestriction]
+        public NativeArray<ArchetypeChunk> chunks;
+
+        [NativeDisableContainerSafetyRestriction]
+        public NativeArray<RoadSegment> roadSegments;
+
         public CarBuckets carBuckets;
-        [NativeDisableContainerSafetyRestriction] public ArchetypeChunkComponentType<Translation> translationType;
-        [NativeDisableContainerSafetyRestriction] public ArchetypeChunkComponentType<Rotation> rotationType;
-        [NativeDisableContainerSafetyRestriction] public ArchetypeChunkComponentType<URPMaterialPropertyBaseColor> colorType;
+
+        [NativeDisableContainerSafetyRestriction]
+        public ArchetypeChunkComponentType<LocalToWorld> transformType;
+
+        [NativeDisableContainerSafetyRestriction]
+        public ArchetypeChunkComponentType<URPMaterialPropertyBaseColor> colorType;
 
         public int firstChunkIdx;
         public int lastChunkIdx;
@@ -210,8 +212,7 @@ namespace HighwayRacer
             {
                 var chunk = chunks[chunkIdx];
 
-                var translations = chunk.GetNativeArray(translationType);
-                var rotations = chunk.GetNativeArray(rotationType);
+                var transforms = chunk.GetNativeArray(transformType);
                 var colors = chunk.GetNativeArray(colorType);
 
                 for (int entityIdx = 0; entityIdx < chunk.Count; entityIdx++, carIdx++)
@@ -226,8 +227,8 @@ namespace HighwayRacer
 
                     Car car = bucket[carIdx];
 
-                    SetTransformAndColorSys.setTransform(ref car, entityIdx, translations, rotations, ref segment);
-                    SetTransformAndColorSys.setColor(in car, entityIdx, colors);
+                    SetTransformAndColorSys.setTransform(ref car, entityIdx, ref transforms, ref segment);
+                    SetTransformAndColorSys.setColor(in car, entityIdx, ref colors);
                 }
             }
         }

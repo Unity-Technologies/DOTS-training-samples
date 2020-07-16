@@ -12,11 +12,12 @@ OPTIMIZE:
 
 *   use float2's instead of float3's
 
+
 *   try smaller segments sizes
 *   alternate which segments test for merging in a frame
- 
-*   instead of Translation and Rotation, convert directly to LocalToWorld
 
+
+ 
 *   split Car so that Pos Lane and Speed are own struct in separate set of buckets 
  
 *   check if all translations and rotations aren't NaN or Infinity (check unity.mathematics)

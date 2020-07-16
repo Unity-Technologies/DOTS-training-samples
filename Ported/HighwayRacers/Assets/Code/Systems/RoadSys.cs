@@ -31,7 +31,7 @@ namespace HighwayRacer
         public static int numCars = 10;
 
         public static float minLength = 400.0f; // 4 * curved length + 4 * min straight length
-        public static float maxLength = 700999;
+        public static float maxLength = 1000000;
 
         public const float laneWidth = 1.88f;
         public static float roadLength = minLength;
@@ -99,6 +99,17 @@ namespace HighwayRacer
             return GetNumSegmentsPerStraightaway(roadLength) * NumCarsFitInStraightSegment(straightLength) * 4;     
         }
 
+        public static float4x4 GetRotYMatrix(float radians)
+        {
+            var mat = float4x4.identity;
+            var cos = math.cos(radians);
+            var sin = math.sin(radians);
+            mat.c0 = new float4(cos, 0, -sin, 1);
+            mat.c1 = new float4(0, 1, 0, 1);
+            mat.c2 = new float4(sin, 0, cos, 1);
+            return mat;
+        }
+
         protected override void OnUpdate()
         {
             var roadInit = GetSingleton<RoadInit>();
@@ -113,17 +124,23 @@ namespace HighwayRacer
 
             var transform = GameObject.Find("Road").transform;
 
-            var rotFromCardinal = new Dictionary<Cardinal, quaternion>();
-            rotFromCardinal[Cardinal.UP] = quaternion.EulerXYZ(0, 0, 0);
-            rotFromCardinal[Cardinal.DOWN] = quaternion.EulerXYZ(0, math.radians(180), 0);
-            rotFromCardinal[Cardinal.LEFT] = quaternion.EulerXYZ(0, math.radians(-90), 0);
-            rotFromCardinal[Cardinal.RIGHT] = quaternion.EulerXYZ(0, math.radians(90), 0);
+            var rotFromCardinal = new Dictionary<Cardinal, float>();
+            rotFromCardinal[Cardinal.UP] = 0;
+            rotFromCardinal[Cardinal.DOWN] = 180;
+            rotFromCardinal[Cardinal.LEFT] = -90;
+            rotFromCardinal[Cardinal.RIGHT] = 90;
 
             var vecFromCardinal = new Dictionary<Cardinal, float3>();
             vecFromCardinal[Cardinal.UP] = Vector3.forward;
             vecFromCardinal[Cardinal.DOWN] = Vector3.back;
             vecFromCardinal[Cardinal.LEFT] = Vector3.left;
             vecFromCardinal[Cardinal.RIGHT] = Vector3.right;
+
+            var transformFromCardinal = new Dictionary<Cardinal, float4x4>();
+            transformFromCardinal[Cardinal.UP] = GetRotYMatrix(0);
+            transformFromCardinal[Cardinal.DOWN] = GetRotYMatrix(math.radians(180));
+            transformFromCardinal[Cardinal.LEFT] = GetRotYMatrix(math.radians(-90));
+            transformFromCardinal[Cardinal.RIGHT] = GetRotYMatrix(math.radians(90));
 
             var rightRotFromCardinal = new Dictionary<Cardinal, quaternion>();
             rightRotFromCardinal[Cardinal.UP] = quaternion.EulerXYZ(0, math.radians(90), 0);
@@ -194,11 +211,10 @@ namespace HighwayRacer
 
                     roadSegments[newIdx] = new RoadSegment()
                     {
-                        Position = new float3(),
+                        Transform = transformFromCardinal[cardinal],
                         Direction = cardinal,
                         DirectionVec = vecFromCardinal[cardinal],
-                        DirectionRot = rotFromCardinal[cardinal],
-                        DirectionRotEnd = rightRotFromCardinal[cardinal],
+                        RotDegrees = rotFromCardinal[cardinal],
                         DirectionLaneOffset = leftVecFromCardinal[cardinal] * laneWidth,
                         Length = curvedLength,
                         Radius = segmentInfo.radius,
@@ -225,11 +241,10 @@ namespace HighwayRacer
 
                         roadSegments[newIdx] = new RoadSegment()
                         {
-                            Position = new float3(),
+                            Transform = transformFromCardinal[cardinal],
                             Direction = cardinal,
                             DirectionVec = vecFromCardinal[cardinal],
-                            DirectionRot = rotFromCardinal[cardinal],
-                            DirectionRotEnd = rightRotFromCardinal[cardinal],
+                            RotDegrees = rotFromCardinal[cardinal],
                             DirectionLaneOffset = leftVecFromCardinal[cardinal] * laneWidth,
                             Length = straightLength,
                             Radius = 0,
@@ -265,7 +280,10 @@ namespace HighwayRacer
 
                 segmentGOs[i].transform.position = pos;
 
-                segment.Position = pos;
+                var tr = segment.Transform;
+                tr.c3 = new float4(pos, 1);
+                
+                segment.Transform = tr;
                 segment.Length = length;
                 
                 thresholds[i] = lengthSum;
@@ -280,12 +298,11 @@ namespace HighwayRacer
     // todo: use float2's instead
     public struct RoadSegment
     {
-        public float3 Position;
+        public float4x4 Transform;   // transform for car in rightmost lane at start of segment
         public Cardinal Direction;
         public float3 DirectionVec;
-        public quaternion DirectionRot;
-        public quaternion DirectionRotEnd; // only for curved segments; 90 degrees right of DirectionRot
         public float3 DirectionLaneOffset;
+        public float RotDegrees;             
         public float Length;
         public float Radius; // 0 for straight segments 
 
