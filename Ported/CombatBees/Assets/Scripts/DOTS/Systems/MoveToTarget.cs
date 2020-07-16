@@ -10,6 +10,10 @@ public class MoveToTarget : SystemBase
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
+        var chaseForce = BeeManager.Instance.chaseForce;
+        var attackForce = BeeManager.Instance.attackForce;
+        var attackDistance = BeeManager.Instance.attackDistance;
+        var hitDistance = BeeManager.Instance.hitDistance;
 
         Entities.ForEach((ref Velocity velocity, in Translation pos, in Target target) =>
         {
@@ -28,16 +32,16 @@ public class MoveToTarget : SystemBase
             }
             var delta = targetPos.Value - pos.Value;
             var sqrDist = math.distancesq(targetPos.Value, pos.Value);
-            if (sqrDist > math.pow(BeeManager.Instance.attackDistance, 2))
+            if (sqrDist > math.pow(attackDistance, 2))
             {
-                velocity.Value += delta * (BeeManager.Instance.chaseForce * deltaTime / math.sqrt(sqrDist));
+                velocity.Value += delta * (chaseForce * deltaTime / math.sqrt(sqrDist));
             }
             else
             {
                 // bee.isAttacking = true;
-                velocity.Value += delta * (BeeManager.Instance.attackForce * deltaTime / math.sqrt(sqrDist));
+                velocity.Value += delta * (attackForce * deltaTime / math.sqrt(sqrDist));
 
-                if (sqrDist < math.pow(BeeManager.Instance.hitDistance, 2))
+                if (sqrDist < math.pow(hitDistance, 2))
                 {
                     // Hit on enemy
                     // ParticleManager.SpawnParticle(bee.enemyTarget.position,ParticleType.Blood,bee.velocity * .35f,2f,6);
