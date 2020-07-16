@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 namespace Fire
@@ -137,6 +135,7 @@ namespace Fire
 
                             // Add random offset on y to debug that the grid spacing is correct
                             var posY = random.NextFloat(-0.01f, 0.01f);
+                            height.Value = posY;
 
                             translation.Value = spawner.Center + new float3(posX, posY, posZ);
                             
