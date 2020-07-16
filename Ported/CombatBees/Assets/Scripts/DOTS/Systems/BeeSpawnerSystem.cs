@@ -28,7 +28,6 @@ public class BeeSpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        //var currentScore = GetSingleton<BeeManager.Instance>();
         var mainField = m_baseQuery.ToComponentDataArray<FieldInfo>(Unity.Collections.Allocator.Temp);
 
         Entities.WithStructuralChanges()
@@ -70,6 +69,12 @@ public class BeeSpawnerSystem : SystemBase
                             {
                                 Value = new float4(mainField[i].TeamColor.r, mainField[i].TeamColor.g, mainField[i].TeamColor.b, mainField[i].TeamColor.a)
                             });
+
+                        // Random start velocity
+                        EntityManager.SetComponentData(instance, new Velocity() { Value = m_Random.NextFloat3Direction() * BeeManager.Instance.maxSpawnSpeed });
+
+                        // Random size
+                        EntityManager.SetComponentData(instance, new Size() { Value = m_Random.NextFloat(BeeManager.Instance.minBeeSize, BeeManager.Instance.maxBeeSize) });
                     }
                 }
 
