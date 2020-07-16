@@ -60,6 +60,7 @@ public class AssignTargetSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, resourceEntitiesHandle);
 
         Entities
+            .WithDeallocateOnJobCompletion(teamTwoEntities)
             .ForEach((ref Target target, in TeamOne team) =>
             {
                 if (target.EnemyTarget == Entity.Null && target.ResourceTarget == Entity.Null)
@@ -67,7 +68,8 @@ public class AssignTargetSystem : SystemBase
                     var aggression = random.NextFloat(0, 1);
                     if (aggression < 0.5f)
                     {
-                        target.EnemyTarget = teamTwoEntities[random.NextInt(0, teamOneEntities.Length - 1)];
+                        if (teamTwoEntities.Length > 0)
+                            target.EnemyTarget = teamTwoEntities[random.NextInt(0, teamTwoEntities.Length - 1)];
                     }
                     else
                     {
@@ -94,7 +96,6 @@ public class AssignTargetSystem : SystemBase
 
         Entities
             .WithDeallocateOnJobCompletion(teamOneEntities)
-            .WithDeallocateOnJobCompletion(teamTwoEntities)
             .WithDeallocateOnJobCompletion(resourceEntities)
             .ForEach((ref Target target, in TeamTwo team) =>
             {
@@ -103,7 +104,8 @@ public class AssignTargetSystem : SystemBase
                     var aggression = random.NextFloat(0, 1);
                     if (aggression < 0.5f)
                     {
-                        target.EnemyTarget = teamTwoEntities[random.NextInt(0, teamOneEntities.Length - 1)];
+                        if (teamOneEntities.Length > 0)
+                            target.EnemyTarget = teamOneEntities[random.NextInt(0, teamOneEntities.Length - 1)];
                     }
                     else
                     {
@@ -111,9 +113,19 @@ public class AssignTargetSystem : SystemBase
                             target.ResourceTarget = resourceEntities[random.NextInt(0, resourceEntities.Length - 1)];
                     }
                 }
-                else if (target.EnemyTarget != null)
+                else if (target.EnemyTarget != Entity.Null)
                 {
-
+                    if (HasComponent<Dead>(target.EnemyTarget))
+                    {
+                        target.EnemyTarget = Entity.Null;
+                    }
+                }
+                else if (target.ResourceTarget != Entity.Null)
+                {
+                    if (HasComponent<Dead>(target.ResourceTarget))
+                    {
+                        target.ResourceTarget = Entity.Null;
+                    }
                 }
 
             }).Schedule();
