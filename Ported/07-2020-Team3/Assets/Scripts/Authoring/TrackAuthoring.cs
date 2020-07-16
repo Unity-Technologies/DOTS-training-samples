@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using Unity.Assertions;
+﻿using Unity.Assertions;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
 
 [RequireComponent(typeof(ColorAuthoring))]
@@ -68,23 +66,19 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             
             var stationsLength = stationDefs.Length;
             var stations = new NativeArray<TrackStation>(stationsLength, Allocator.Temp);
-            
+
+            var last = stationsLength - 1;
             for (var i = 0; i < stationsLength; i++)
             {
                 var stationDef = stationDefs[i];
-
+                
+                var outboundsNext = math.clamp(i + 1, 0, last);
+                var inboundsNext = math.clamp(i - 1, 0, last);
+                
                 stations[i] = new TrackStation
                 {
-                    Outbound = new TrackPlatform
-                    {
-                        StartT = stationDef.Outbound.Times.x,
-                        EndT = stationDef.Outbound.Times.y
-                    },
-                    Inbound = new TrackPlatform
-                    {
-                        StartT = stationDef.Inbound.Times.x,
-                        EndT = stationDef.Inbound.Times.y,
-                    }
+                    Outbound = CreatePlatform(stationDef.Outbound, outboundsNext),
+                    Inbound = CreatePlatform(stationDef.Inbound, inboundsNext),
                 };
             }
 
@@ -103,11 +97,21 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         }
     }
 
+    static TrackPlatform CreatePlatform(in PlatformDefinition platformDefinition, int nextIndex)
+    {
+        return new TrackPlatform
+        {
+            NextPlatformIndex = nextIndex,
+            Orientation = new RigidTransform(platformDefinition.Rotation, platformDefinition.Position),
+            StartT = platformDefinition.Times.x,
+            EndT = platformDefinition.Times.y,
+        };
+    }
+
     [BurstCompile]
     struct GenerateSplineAndStationsJob : IJob
     {
         public NativeList<float3> Spline;
-        
         public NativeList<StationDefinition> Stations;
         [ReadOnly] public NativeArray<float3> TrackPoints;
         [ReadOnly] public NativeBitArray IsPlatform;
@@ -228,6 +232,8 @@ public struct TrackStation : IBufferElementData
 
 public struct TrackPlatform
 {
+    public RigidTransform Orientation;
+    public int NextPlatformIndex;
     public float StartT;
     public float EndT;
 }
