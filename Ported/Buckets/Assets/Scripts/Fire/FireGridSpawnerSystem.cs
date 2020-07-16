@@ -2,6 +2,8 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
+using Water;
 using Random = Unity.Mathematics.Random;
 
 namespace Fire
@@ -9,19 +11,23 @@ namespace Fire
     [GenerateAuthoringComponent]
     public struct FireGridSpawner : IComponentData
     {
-        public Entity Prefab;
+        public Entity FirePrefab;
+        public Entity BucketPrefab;
 
         public int RandomSeed;
 
-        public int CountX;
-        public int CountZ;
+        public int FireCountX;
+        public int FireCountZ;
         public float3 Origin;
 
         public int MinInitialFires;
         public int MaxInitialFires;
+        public int MinInitialBuckets;
+        public int MaxInitialBuckets;
 
         public float StartFireAmount;
         public float StartFireVelocity;
+        public float StartFillAmount;
     }
 
     public struct Initialized : IComponentData { };
@@ -32,20 +38,25 @@ namespace Fire
 
         struct SpawnerInfo
         {
-            public Entity Prefab;
+            public Entity FirePrefab;
+            public Entity BucketPrefab;
 
             public int RandomSeed;
 
             public int CountX;
             public int CountZ;
-            public int TotalCount;
+            public int TotalFireCount;
             public float3 Center;
 
             public int MinInitialFires;
             public int MaxInitialFires;
+            public int MinInitialBuckets;
+            public int MaxInitialBuckets;
 
             public float StartFireAmount;
             public float StartFireVelocity;
+            public float StartFillAmount;
+
         }
 
         protected override void OnCreate()
@@ -69,59 +80,74 @@ namespace Fire
                 {
                     spawners[entityInQueryIndex] = new SpawnerInfo
                     {
-                        Prefab = spawner.Prefab,
+                        FirePrefab = spawner.FirePrefab,
+                        BucketPrefab = spawner.BucketPrefab,
                         RandomSeed = spawner.RandomSeed,
-                        CountX = spawner.CountX,
-                        CountZ = spawner.CountZ,
-                        TotalCount = spawner.CountX * spawner.CountZ,
+                        CountX = spawner.FireCountX,
+                        CountZ = spawner.FireCountZ,
+                        TotalFireCount = spawner.FireCountX * spawner.FireCountZ,
                         Center = spawner.Origin,
                         StartFireAmount = spawner.StartFireAmount,
                         StartFireVelocity = spawner.StartFireVelocity,
                         MinInitialFires = spawner.MinInitialFires,
-                        MaxInitialFires = spawner.MaxInitialFires
+                        MaxInitialFires = spawner.MaxInitialFires,
+                        MinInitialBuckets = spawner.MinInitialBuckets,
+                        MaxInitialBuckets = spawner.MaxInitialBuckets,
                     };
                 }).Run();
 
+            SpawnerInfo spanwerInfoInstance = spawners[0];
+            Random random = new Random((uint)spanwerInfoInstance.RandomSeed);
+
+            int totalBuckets = random.NextInt(spanwerInfoInstance.MinInitialBuckets, spanwerInfoInstance.MaxInitialBuckets);
             foreach (var spawner in spawners)
             {
-                EntityManager.Instantiate(spawner.Prefab, spawner.TotalCount, Allocator.Temp);
+                EntityManager.Instantiate(spawner.FirePrefab, spawner.TotalFireCount, Allocator.Temp);
+                EntityManager.Instantiate(spawner.BucketPrefab, totalBuckets, Allocator.Temp);
             }
 
             EntityManager.AddComponent<Initialized>(UninitializedSpawners);
 
             var fireBufferEntity = GetSingletonEntity<FireBuffer>();
 
-            SpawnerInfo spanwerInfoInstance = spawners[0];
             EntityManager.AddComponentData(fireBufferEntity, new FireBufferMetaData
             {
                 CountX = spanwerInfoInstance.CountX,
                 CountZ = spanwerInfoInstance.CountZ,
-                TotalSize = spanwerInfoInstance.TotalCount
+                TotalSize = spanwerInfoInstance.TotalFireCount
             });
 
-            UnityEngine.Debug.Log($"FireGridSpawner initializing grid [{spanwerInfoInstance.CountX}, {spanwerInfoInstance.CountZ}] Total: {spanwerInfoInstance.TotalCount}");
+            UnityEngine.Debug.Log($"FireGridSpawner initializing grid [{spanwerInfoInstance.CountX}, {spanwerInfoInstance.CountZ}] Total: {spanwerInfoInstance.TotalFireCount}");
 
             // Grab Fire buffer
             var gridBufferLookup = GetBufferFromEntity<FireBufferElement>();
             var gridBuffer = gridBufferLookup[fireBufferEntity];
-            gridBuffer.ResizeUninitialized(spanwerInfoInstance.TotalCount);
+            gridBuffer.ResizeUninitialized(spanwerInfoInstance.TotalFireCount);
             var gridArray = gridBuffer.AsNativeArray();
 
-            Random random = new Random((uint)spanwerInfoInstance.RandomSeed);
 
             // Start initial fires
             int numberOfFires = random.NextInt(spanwerInfoInstance.MinInitialFires, spanwerInfoInstance.MaxInitialFires);
+            int numberOfBuckets = random.NextInt(spanwerInfoInstance.MinInitialBuckets, spanwerInfoInstance.MaxInitialBuckets);
+            
             NativeArray<int> fireIndiciesArr = new NativeArray<int>(numberOfFires, Allocator.TempJob);
+            NativeArray<int> bucketIndiciesArr = new NativeArray<int>(numberOfBuckets, Allocator.TempJob);
 
             // Pick indicies of fires that should be started, at random
             for (int i = 0; i < numberOfFires; i++)
             {
-                int fireIndex = random.NextInt(0, spanwerInfoInstance.TotalCount - 1);
+                int fireIndex = random.NextInt(0, spanwerInfoInstance.TotalFireCount - 1);
                 fireIndiciesArr[i] = fireIndex;
             }
 
+            // Pick indicies of fires that should be started, at random
+            for (int i = 0; i < numberOfBuckets; i++)
+            {
+                int fireIndex = random.NextInt(0, spanwerInfoInstance.TotalFireCount - 1);
+                bucketIndiciesArr[i] = fireIndex;
+            }
+
             Entities
-                .WithDeallocateOnJobCompletion(spawners)
                 .WithDeallocateOnJobCompletion(fireIndiciesArr)
                 .ForEach((Entity fireEntity, int entityInQueryIndex, ref Translation translation,
                     ref TemperatureComponent temperature, ref StartHeight height, in BoundsComponent bounds) =>
@@ -129,7 +155,7 @@ namespace Fire
                     for (int i = 0; i < spawners.Length; ++i)
                     {
                         var spawner = spawners[i];
-                        if (entityInQueryIndex < spawner.TotalCount)
+                        if (entityInQueryIndex < spawner.TotalFireCount)
                         {
                             int x = entityInQueryIndex % spawner.CountX;
                             int z = entityInQueryIndex / spawner.CountZ;
@@ -161,7 +187,35 @@ namespace Fire
                             gridArray[entityInQueryIndex] = new FireBufferElement {FireEntity = fireEntity};
                             break;
                         }
-                        entityInQueryIndex -= spawner.TotalCount;
+                        entityInQueryIndex -= spawner.TotalFireCount;
+                    }
+                }).ScheduleParallel();
+
+            //Note: Hardcoding the fire bounds
+            float boundsSize = 0.5f;
+            Entities
+                .WithDeallocateOnJobCompletion(spawners)
+                .ForEach((Entity bucketEntity, int entityInQueryIndex, ref Translation translation,
+                    in BucketTag bucket, in BoundsComponent bounds) =>
+                {
+                    for (int i = 0; i < spawners.Length; ++i)
+                    {
+                        var spawner = spawners[i];
+                        if (entityInQueryIndex < totalBuckets)
+                        {
+                            int bucketIndex = random.NextInt(0, spawner.TotalFireCount);
+                            int x = bucketIndex % spawner.CountX;
+                            int z = bucketIndex / spawner.CountZ;
+
+                            // Start pos
+                            var posX = spawner.Center.x + boundsSize * (x - (spawner.CountX - 1) / 2);
+                            var posZ = spawner.Center.z + boundsSize * (z - (spawner.CountZ - 1) / 2);
+
+                            // Add random offset on y to debug that the grid spacing is correct
+                            translation.Value = new float3(posX, spawner.Center.y + boundsSize + bounds.SizeY/2, posZ);
+                            break;
+                        }
+                        entityInQueryIndex -= totalBuckets;
                     }
                 }).ScheduleParallel();
         }

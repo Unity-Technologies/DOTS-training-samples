@@ -18,10 +18,17 @@ namespace Water
 
             // Add water color
             dstManager.AddComponentData(entity, new WaterColor { Value = new float4(EmptyColor.r, EmptyColor.g, EmptyColor.b, 1) });
+            dstManager.AddComponentData(entity, new BucketTag{ });
             dstManager.AddComponentData(entity, new WaterColorPalette
             {
                 EmptyColor = new float4(EmptyColor.r, EmptyColor.g, EmptyColor.b, 1),
                 FullColor = new float4(FullColor.r, FullColor.g, FullColor.b, 1),
+            });
+
+            dstManager.AddComponentData(entity, new Fire.BoundsComponent
+            {
+                SizeXZ = transform.localScale.x,
+                SizeY = transform.localScale.y
             });
         }
     }
@@ -42,4 +49,6 @@ namespace Water
     {
         public float Value;
     }
+
+    public struct BucketTag : IComponentData{ }
 }
