@@ -92,8 +92,7 @@ namespace HighwayRacer
                 // rotate displacement by angle around pivot
                 var angle = math.lerp(math.radians(0), math.radians(-90), percentage); // -90 because cos & sin assume counter-clockwise
                 displacement -= pivot;
-                var c = math.cos(angle);
-                var s = math.sin(angle);
+                math.sincos(angle, out var s, out var c);
                 float x = displacement.x * c - displacement.z * s;
                 displacement.z = displacement.z * c + displacement.x * s;
                 displacement.x = x;

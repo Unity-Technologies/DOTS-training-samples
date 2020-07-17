@@ -1,0 +1,221 @@
+﻿#include "pch-cpp.hpp"
+
+#ifndef _MSC_VER
+# include <alloca.h>
+#else
+# include <malloc.h>
+#endif
+
+
+#include <stdint.h>
+#include <limits>
+
+
+
+// System.String
+struct String_t;
+// System.Void
+struct Void_t700C6383A2A510C2CF4DD86DABD5CA9FF70ADAC5;
+// System.Char[]
+struct CharU5BU5D_t7B7FC5BC8091AA3B9CB0B29CDD80B5EE9254AA34;
+
+struct ArchetypeChanges_t35906CB60455A327929231A2963A52EB539C9132 ;
+struct ArchetypeChunkIterator_tE04EF55BC2C63817E9A569418F527BAB3CFCDEB9 ;
+struct ArchetypeChunk_t75295C4582284E1ACB977DD61C6A44E3B9BDFF5D ;
+struct BasicCommand_t00E83DD145CDFE8C4CFFCA3CD45364687020CC39 ;
+struct ECBChainPlaybackState_t8C9DAA84221D83AD3BBACB198B2A742941EBDD2E ;
+struct ECBSharedPlaybackState_tBDF24D8FAEBFCCDBF96B4BA8F37AC01099D9B455_marshaled_pinvoke;
+struct EVENT_FILTER_DESCRIPTOR_t59379AB6F16CCEA5C0BDF328FF5AC64040CED05B ;
+struct EntityComponentStore_t1DFB6E6F991F5926D3FD53F6151873F9E5AE28EA ;
+struct EntityDataAccess_t14BF0F7A8F7622E7E73B5E3C0D52313B1F8D73D2 ;
+struct EntityQueryFilter_t690C4FE36F53541F724A2AE4AA29EA949A91200B ;
+struct Entity_tA8DE691EC83EB40E80A611C2E6D8C90C3C97AAF4 ;
+struct Guid_t ;
+struct UnsafeList_t45363E05DB545743D4FBBA9793AA68E6A32634AA ;
+struct UnsafeMatchingArchetypePtrList_tE1FE8A8C8E9DCD43ED08581C70899BB3555FA23C_marshaled_pinvoke;
+
+
+IL2CPP_EXTERN_C_BEGIN
+IL2CPP_EXTERN_C_END
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-offsetof"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+
+// System.Object
+
+
+// System.ValueType
+struct  ValueType_tDBF999C1B75C48C68621878250DBF6CDBCF51E52  : public RuntimeObject
+{
+public:
+
+public:
+};
+
+// Native definition for P/Invoke marshalling of System.ValueType
+struct ValueType_tDBF999C1B75C48C68621878250DBF6CDBCF51E52_marshaled_pinvoke
+{
+};
+// Native definition for COM marshalling of System.ValueType
+struct ValueType_tDBF999C1B75C48C68621878250DBF6CDBCF51E52_marshaled_com
+{
+};
+
+// System.Enum
+struct  Enum_t23B90B40F60E677A8025267341651C94AE079CDA  : public ValueType_tDBF999C1B75C48C68621878250DBF6CDBCF51E52
+{
+public:
+
+public:
+};
+
+struct Enum_t23B90B40F60E677A8025267341651C94AE079CDA_StaticFields
+{
+public:
+	// System.Char[] System.Enum::enumSeperatorCharArray
+	CharU5BU5D_t7B7FC5BC8091AA3B9CB0B29CDD80B5EE9254AA34* ___enumSeperatorCharArray_0;
+
+public:
+	inline static int32_t get_offset_of_enumSeperatorCharArray_0() { return static_cast<int32_t>(offsetof(Enum_t23B90B40F60E677A8025267341651C94AE079CDA_StaticFields, ___enumSeperatorCharArray_0)); }
+	inline CharU5BU5D_t7B7FC5BC8091AA3B9CB0B29CDD80B5EE9254AA34* get_enumSeperatorCharArray_0() const { return ___enumSeperatorCharArray_0; }
+	inline CharU5BU5D_t7B7FC5BC8091AA3B9CB0B29CDD80B5EE9254AA34** get_address_of_enumSeperatorCharArray_0() { return &___enumSeperatorCharArray_0; }
+	inline void set_enumSeperatorCharArray_0(CharU5BU5D_t7B7FC5BC8091AA3B9CB0B29CDD80B5EE9254AA34* value)
+	{
+		___enumSeperatorCharArray_0 = value;
+		Il2CppCodeGenWriteBarrier((void**)(&___enumSeperatorCharArray_0), (void*)value);
+	}
+};
+
+// Native definition for P/Invoke marshalling of System.Enum
+struct Enum_t23B90B40F60E677A8025267341651C94AE079CDA_marshaled_pinvoke
+{
+};
+// Native definition for COM marshalling of System.Enum
+struct Enum_t23B90B40F60E677A8025267341651C94AE079CDA_marshaled_com
+{
+};
+
+// System.IntPtr
+struct  IntPtr_t 
+{
+public:
+	// System.Void* System.IntPtr::m_value
+	void* ___m_value_0;
+
+public:
+	inline static int32_t get_offset_of_m_value_0() { return static_cast<int32_t>(offsetof(IntPtr_t, ___m_value_0)); }
+	inline void* get_m_value_0() const { return ___m_value_0; }
+	inline void** get_address_of_m_value_0() { return &___m_value_0; }
+	inline void set_m_value_0(void* value)
+	{
+		___m_value_0 = value;
+	}
+};
+
+struct IntPtr_t_StaticFields
+{
+public:
+	// System.IntPtr System.IntPtr::Zero
+	intptr_t ___Zero_1;
+
+public:
+	inline static int32_t get_offset_of_Zero_1() { return static_cast<int32_t>(offsetof(IntPtr_t_StaticFields, ___Zero_1)); }
+	inline intptr_t get_Zero_1() const { return ___Zero_1; }
+	inline intptr_t* get_address_of_Zero_1() { return &___Zero_1; }
+	inline void set_Zero_1(intptr_t value)
+	{
+		___Zero_1 = value;
+	}
+};
+
+
+// System.Void
+struct  Void_t700C6383A2A510C2CF4DD86DABD5CA9FF70ADAC5 
+{
+public:
+	union
+	{
+		struct
+		{
+		};
+		uint8_t Void_t700C6383A2A510C2CF4DD86DABD5CA9FF70ADAC5__padding[1];
+	};
+
+public:
+};
+
+
+// Unity.Entities.PlaybackPolicy
+struct  PlaybackPolicy_tF35E16E62B29D2FD5CD18E64D848CDD44037D21E 
+{
+public:
+	// System.Int32 Unity.Entities.PlaybackPolicy::value__
+	int32_t ___value___2;
+
+public:
+	inline static int32_t get_offset_of_value___2() { return static_cast<int32_t>(offsetof(PlaybackPolicy_tF35E16E62B29D2FD5CD18E64D848CDD44037D21E, ___value___2)); }
+	inline int32_t get_value___2() const { return ___value___2; }
+	inline int32_t* get_address_of_value___2() { return &___value___2; }
+	inline void set_value___2(int32_t value)
+	{
+		___value___2 = value;
+	}
+};
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_EventProvider_EtwEnableCallBack_m21ADE6DC652B28DDB916AC68B9FC908B18006FFD(Guid_t * ___sourceId0, int32_t ___controlCode1, uint8_t ___setLevel2, int64_t ___anyKeyword3, int64_t ___allKeyword4, EVENT_FILTER_DESCRIPTOR_t59379AB6F16CCEA5C0BDF328FF5AC64040CED05B * ___filterData5, void* ___callbackContext6);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_OSSpecificSynchronizationContext_InvocationEntry_m0045E44F7E960D6B4A864D5206D4116249C09BB0(intptr_t ___arg0);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_BurstRuntime_ManagedNativeLogImpl_m1F8647DF0D27A6D58B855F3341D46D664CFF0D7F(uint8_t* ___message0, int32_t ___logType1, uint8_t* ___filename2, int32_t ___lineNumber3);
+extern "C" int32_t CDECL ReversePInvokeWrapper_BurstCompilerHelper_IsBurstEnabled_mC1B24958FFA3F3D5360E1F933CE0900E586B2A5D();
+extern "C" int32_t DEFAULT_CALL ReversePInvokeWrapper_ChunkIterationUtility_CalculateEntityCountExecute_m7A890CE2DF299FF8638C814346C21A5338D41ED2(UnsafeMatchingArchetypePtrList_tE1FE8A8C8E9DCD43ED08581C70899BB3555FA23C_marshaled_pinvoke* ___matchingArchetypes0, EntityQueryFilter_t690C4FE36F53541F724A2AE4AA29EA949A91200B * ___filter1);
+extern "C" int32_t DEFAULT_CALL ReversePInvokeWrapper_ChunkIterationUtility_CalculateChunkCountExecute_m9B759E989AAA0CAB9911A14F123D55B24C7D2BC4(UnsafeMatchingArchetypePtrList_tE1FE8A8C8E9DCD43ED08581C70899BB3555FA23C_marshaled_pinvoke* ___matchingArchetypes0, EntityQueryFilter_t690C4FE36F53541F724A2AE4AA29EA949A91200B * ___filter1);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_EntityCommandBuffer_PlaybackChainChunkWrapper_mE8CA06848B310813C3765B32988F0AE367F9E6CE(EntityDataAccess_t14BF0F7A8F7622E7E73B5E3C0D52313B1F8D73D2 * ___mgr0, UnsafeList_t45363E05DB545743D4FBBA9793AA68E6A32634AA * ___managedReferenceIndexRemovalCount1, ArchetypeChanges_t35906CB60455A327929231A2963A52EB539C9132 * ___archetypeChanges2, ECBSharedPlaybackState_tBDF24D8FAEBFCCDBF96B4BA8F37AC01099D9B455_marshaled_pinvoke* ___playbackState3, ECBChainPlaybackState_t8C9DAA84221D83AD3BBACB198B2A742941EBDD2E * ___chainStates4, int32_t ___currentChain5, int32_t ___nextChain6, int32_t ___isFirstPlayback7, int32_t ___playbackPolicy8);
+extern "C" int32_t DEFAULT_CALL ReversePInvokeWrapper_EntityCommandBuffer_PlaybackUnmanagedCommandExecute_mAF7C24C5F7367C58C9D027F39F9175992BD21971(EntityComponentStore_t1DFB6E6F991F5926D3FD53F6151873F9E5AE28EA * ___mgr0, BasicCommand_t00E83DD145CDFE8C4CFFCA3CD45364687020CC39 * ___header1, ECBSharedPlaybackState_tBDF24D8FAEBFCCDBF96B4BA8F37AC01099D9B455_marshaled_pinvoke* ___playbackState2, int32_t ___playbackPolicy3);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_EntityDataAccess_PlaybackManagedDelegateInMonoWithWrappedExceptions_m7AA36EE192736F643BD9056CDF09C696B91C710E(intptr_t ___target0);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_StructuralChange__mono_to_burst_AddComponentEntitiesBatch_m77569D6951216F952594E8E49FC16C4CDACAA014(EntityComponentStore_t1DFB6E6F991F5926D3FD53F6151873F9E5AE28EA * ___entityComponentStore0, UnsafeList_t45363E05DB545743D4FBBA9793AA68E6A32634AA * ___entityBatchList1, int32_t ___typeIndex2);
+extern "C" int32_t DEFAULT_CALL ReversePInvokeWrapper_StructuralChange__mono_to_burst_AddComponentEntity_mAEEAEC5A75BEFA3D691453325F645824833D0306(EntityComponentStore_t1DFB6E6F991F5926D3FD53F6151873F9E5AE28EA * ___entityComponentStore0, Entity_tA8DE691EC83EB40E80A611C2E6D8C90C3C97AAF4 * ___entity1, int32_t ___typeIndex2);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_StructuralChange__mono_to_burst_AddComponentChunks_m1F8EA138066E2122AC99B1ED1F9D9DF023DD8F0A(EntityComponentStore_t1DFB6E6F991F5926D3FD53F6151873F9E5AE28EA * ___entityComponentStore0, ArchetypeChunk_t75295C4582284E1ACB977DD61C6A44E3B9BDFF5D * ___chunks1, int32_t ___chunkCount2, int32_t ___typeIndex3);
+extern "C" int32_t DEFAULT_CALL ReversePInvokeWrapper_StructuralChange__mono_to_burst_RemoveComponentEntity_mF7F1FA371AB2800070A943166582FFD8F8B0943C(EntityComponentStore_t1DFB6E6F991F5926D3FD53F6151873F9E5AE28EA * ___entityComponentStore0, Entity_tA8DE691EC83EB40E80A611C2E6D8C90C3C97AAF4 * ___entity1, int32_t ___typeIndex2);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_StructuralChange__mono_to_burst_RemoveComponentEntitiesBatch_m67523BA41364588AA1B78D63E45670B1FB131886(EntityComponentStore_t1DFB6E6F991F5926D3FD53F6151873F9E5AE28EA * ___entityComponentStore0, UnsafeList_t45363E05DB545743D4FBBA9793AA68E6A32634AA * ___entityBatchList1, int32_t ___typeIndex2);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_StructuralChange__mono_to_burst_RemoveComponentChunks_m727AACC2DC87B2C1791244D56D6548E18968393D(EntityComponentStore_t1DFB6E6F991F5926D3FD53F6151873F9E5AE28EA * ___entityComponentStore0, ArchetypeChunk_t75295C4582284E1ACB977DD61C6A44E3B9BDFF5D * ___chunks1, int32_t ___chunkCount2, int32_t ___typeIndex3);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_StructuralChange__mono_to_burst_AddSharedComponentChunks_m81E939D63FC4B791217C66C1004943B882D072AB(EntityComponentStore_t1DFB6E6F991F5926D3FD53F6151873F9E5AE28EA * ___entityComponentStore0, ArchetypeChunk_t75295C4582284E1ACB977DD61C6A44E3B9BDFF5D * ___chunks1, int32_t ___chunkCount2, int32_t ___componentTypeIndex3, int32_t ___sharedComponentIndex4);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_StructuralChange__mono_to_burst_MoveEntityArchetype_m77F5A9E546D2112AE6FE64E339D3356D08A8223E(EntityComponentStore_t1DFB6E6F991F5926D3FD53F6151873F9E5AE28EA * ___entityComponentStore0, Entity_tA8DE691EC83EB40E80A611C2E6D8C90C3C97AAF4 * ___entity1, void* ___dstArchetype2);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_StructuralChange__mono_to_burst_SetChunkComponent_m8A180FD31402A433260B4DE67802055F1A26E0FE(EntityComponentStore_t1DFB6E6F991F5926D3FD53F6151873F9E5AE28EA * ___entityComponentStore0, ArchetypeChunk_t75295C4582284E1ACB977DD61C6A44E3B9BDFF5D * ___chunks1, int32_t ___chunkCount2, void* ___componentData3, int32_t ___componentTypeIndex4);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_StructuralChange__mono_to_burst_CreateEntity_mD7378B66B74DC61FE1BDF9DDB3390C0388485053(EntityComponentStore_t1DFB6E6F991F5926D3FD53F6151873F9E5AE28EA * ___entityComponentStore0, void* ___archetype1, Entity_tA8DE691EC83EB40E80A611C2E6D8C90C3C97AAF4 * ___outEntities2, int32_t ___count3);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_StructuralChange__mono_to_burst_InstantiateEntities_m2C1F812F54145C0DEC3F33BFD55758944D61C755(EntityComponentStore_t1DFB6E6F991F5926D3FD53F6151873F9E5AE28EA * ___entityComponentStore0, Entity_tA8DE691EC83EB40E80A611C2E6D8C90C3C97AAF4 * ___srcEntity1, Entity_tA8DE691EC83EB40E80A611C2E6D8C90C3C97AAF4 * ___outputEntities2, int32_t ___instanceCount3);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_U3CU3Ec__DisplayClass_findClickedCar_LambdaJob0_RunWithoutJobSystem_mFA92A596373C80C9966A891BEE00934DA8F40731(ArchetypeChunkIterator_tE04EF55BC2C63817E9A569418F527BAB3CFCDEB9 * ___archetypeChunkIterator0, void* ___jobData1);
+extern "C" void DEFAULT_CALL ReversePInvokeWrapper_U3CU3Ec__DisplayClass_OnUpdate_LambdaJob0_RunWithoutJobSystem_m15E51B64101260D7F9C85D0752CC9A1D126C0654(ArchetypeChunkIterator_tE04EF55BC2C63817E9A569418F527BAB3CFCDEB9 * ___archetypeChunkIterator0, void* ___jobData1);
+
+
+extern const Il2CppMethodPointer g_ReversePInvokeWrapperPointers[];
+const Il2CppMethodPointer g_ReversePInvokeWrapperPointers[22] = 
+{
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_EventProvider_EtwEnableCallBack_m21ADE6DC652B28DDB916AC68B9FC908B18006FFD),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_OSSpecificSynchronizationContext_InvocationEntry_m0045E44F7E960D6B4A864D5206D4116249C09BB0),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_BurstRuntime_ManagedNativeLogImpl_m1F8647DF0D27A6D58B855F3341D46D664CFF0D7F),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_BurstCompilerHelper_IsBurstEnabled_mC1B24958FFA3F3D5360E1F933CE0900E586B2A5D),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_ChunkIterationUtility_CalculateEntityCountExecute_m7A890CE2DF299FF8638C814346C21A5338D41ED2),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_ChunkIterationUtility_CalculateChunkCountExecute_m9B759E989AAA0CAB9911A14F123D55B24C7D2BC4),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_EntityCommandBuffer_PlaybackChainChunkWrapper_mE8CA06848B310813C3765B32988F0AE367F9E6CE),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_EntityCommandBuffer_PlaybackUnmanagedCommandExecute_mAF7C24C5F7367C58C9D027F39F9175992BD21971),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_EntityDataAccess_PlaybackManagedDelegateInMonoWithWrappedExceptions_m7AA36EE192736F643BD9056CDF09C696B91C710E),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_StructuralChange__mono_to_burst_AddComponentEntitiesBatch_m77569D6951216F952594E8E49FC16C4CDACAA014),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_StructuralChange__mono_to_burst_AddComponentEntity_mAEEAEC5A75BEFA3D691453325F645824833D0306),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_StructuralChange__mono_to_burst_AddComponentChunks_m1F8EA138066E2122AC99B1ED1F9D9DF023DD8F0A),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_StructuralChange__mono_to_burst_RemoveComponentEntity_mF7F1FA371AB2800070A943166582FFD8F8B0943C),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_StructuralChange__mono_to_burst_RemoveComponentEntitiesBatch_m67523BA41364588AA1B78D63E45670B1FB131886),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_StructuralChange__mono_to_burst_RemoveComponentChunks_m727AACC2DC87B2C1791244D56D6548E18968393D),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_StructuralChange__mono_to_burst_AddSharedComponentChunks_m81E939D63FC4B791217C66C1004943B882D072AB),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_StructuralChange__mono_to_burst_MoveEntityArchetype_m77F5A9E546D2112AE6FE64E339D3356D08A8223E),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_StructuralChange__mono_to_burst_SetChunkComponent_m8A180FD31402A433260B4DE67802055F1A26E0FE),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_StructuralChange__mono_to_burst_CreateEntity_mD7378B66B74DC61FE1BDF9DDB3390C0388485053),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_StructuralChange__mono_to_burst_InstantiateEntities_m2C1F812F54145C0DEC3F33BFD55758944D61C755),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_U3CU3Ec__DisplayClass_findClickedCar_LambdaJob0_RunWithoutJobSystem_mFA92A596373C80C9966A891BEE00934DA8F40731),
+	reinterpret_cast<Il2CppMethodPointer>(ReversePInvokeWrapper_U3CU3Ec__DisplayClass_OnUpdate_LambdaJob0_RunWithoutJobSystem_m15E51B64101260D7F9C85D0752CC9A1D126C0654),
+};

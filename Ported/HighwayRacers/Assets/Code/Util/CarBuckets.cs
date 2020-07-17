@@ -1,14 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using HighwayRacer;
-using Unity.Assertions;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
-using UnityEditor.Build;
 using UnityEngine;
 using Assert = UnityEngine.Assertions.Assert;
 
@@ -72,7 +67,7 @@ namespace HighwayRacer
             return writers[segmentIdx];
         }
         
-        // todo temp for debugging
+        // for debugging
         public void CheckSorting()
         {
             for (int i = 0; i < lists.Length; i++)
@@ -92,6 +87,7 @@ namespace HighwayRacer
             }
         }
         
+        // for debugging
         public void LargestBucketLength()
         {
             for (int i = 0; i < lists.Length; i++)
@@ -105,7 +101,7 @@ namespace HighwayRacer
             }
         }
         
-        // todo temp for debugging
+        // for debugging
         public void CheckPosAreFinite()
         {
             for (int i = 0; i < lists.Length; i++)
@@ -221,17 +217,6 @@ namespace HighwayRacer
             }
 
             dstBucketPtr->Length += tempList.Length;
-        }
-
-        private void UpdateCarsBucket(UnsafeList<Car> bucket, UnsafeList<Car> nextBucket, float dt, float mergeSpeed, float segmentLength, bool mergeLeftFrame)
-        {
-            for (int i = 0; i < bucket.Length; i++)
-            {
-                var car = bucket[i];
-                car.MergingMove(mergeSpeed);
-                car.Avoidance(i, segmentLength, bucket, nextBucket, mergeLeftFrame, dt);
-                bucket[i] = car;
-            }
         }
 
         public JobHandle UpdateCarsJob(float dt, bool mergeLeftFrame, JobHandle dependency)
@@ -372,18 +357,8 @@ namespace HighwayRacer
             return 0;
         }
     }
-
-    public enum CarState : byte
-    {
-        Normal,
-        OvertakingLeft, // looking to merge right after timer
-        OvertakingLeftStart,
-        OvertakingLeftEnd,
-        OvertakingRight, // looking to merge left after timer
-        OvertakingRightStart,
-        OvertakingRightEnd,
-    }
-
+    
+    [BurstCompile(CompileSynchronously = true)]
     public unsafe struct SortJob : IJobParallelFor
     {
         public CarBuckets carBuckets;

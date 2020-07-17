@@ -102,11 +102,10 @@ namespace HighwayRacer
         public static float4x4 GetRotYMatrix(float radians)
         {
             var mat = float4x4.identity;
-            var cos = math.cos(radians);
-            var sin = math.sin(radians);
-            mat.c0 = new float4(cos, 0, -sin, 1);
+            math.sincos(radians, out var s, out var c);
+            mat.c0 = new float4(c, 0, -s, 1);
             mat.c1 = new float4(0, 1, 0, 1);
-            mat.c2 = new float4(sin, 0, cos, 1);
+            mat.c2 = new float4(s, 0, c, 1);
             return mat;
         }
 

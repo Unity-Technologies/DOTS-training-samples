@@ -518,4 +518,15 @@ namespace HighwayRacer
             // exhausted the second bucket without finding a blocking car ahead
         }
     }
+    
+    public enum CarState : byte
+    {
+        Normal,
+        OvertakingLeft, // looking to merge right after timer
+        OvertakingLeftStart,
+        OvertakingLeftEnd,
+        OvertakingRight, // looking to merge left after timer
+        OvertakingRightStart,
+        OvertakingRightEnd,
+    }
 }
