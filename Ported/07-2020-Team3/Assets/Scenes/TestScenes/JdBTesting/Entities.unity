@@ -1074,7 +1074,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 605c10c976a747a4781a3e36599e9cf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfTrainsPerTrack: 1
+  numberOfTrainsPerTrack: 10000
   trainPrefab: {fileID: 8991921846454915066, guid: 7b78b31f92fec264f8a09b38b5df107a, type: 3}
 --- !u!4 &968288761
 Transform:

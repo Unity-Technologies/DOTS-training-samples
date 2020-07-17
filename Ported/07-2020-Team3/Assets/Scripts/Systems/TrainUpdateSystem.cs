@@ -72,17 +72,13 @@ public class TrainUpdateSystem : SystemBase
                     else
                         trainState.nextPlatform++;
 
-                    Debug.Log($"At Station - Next Station {trainState.nextPlatform}");
-
                     if (trainState.nextPlatform < 0)
                     {
-                        Debug.Log("Next Station Inbound");
                         trainState.inbound = false;
                         trainState.nextPlatform = 0;
                     }
                     else if (trainState.nextPlatform >= platforms.Length)
                     {
-                        Debug.Log("Next Station Outbound");
                         trainState.inbound = true;
                         trainState.nextPlatform = platforms.Length - 1;
                     }

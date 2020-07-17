@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -8,20 +11,51 @@ using UnityEngine;
 
 public class CarUpdateSystem : SystemBase
 {
-
     
+    //private EntityQuery _trainQuery;
+
+    protected override void OnCreate()
+    {
+        /*
+        _trainQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<TrainPosition>(),
+                ComponentType.ReadOnly<TrainState>()
+            }
+        });
+        */
+    }
+
 
     protected override void OnUpdate()
     {
+        /*
+        var trainEntities = _trainQuery.ToEntityArrayAsync(Allocator.TempJob, out var trainEntitiesHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency, trainEntitiesHandle);
 
-        var trainPositionAccessor = GetComponentDataFromEntity<TrainPosition>();
-        var trainStateAccessor = GetComponentDataFromEntity<TrainState>();
-        var trackPointAccessor = GetBufferFromEntity<TrackPoint>();
+        var trainPositionAccessor = _trainQuery.ToComponentDataArrayAsync<TrainPosition>(Allocator.TempJob, out var trainPositionAccessorHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency, trainPositionAccessorHandle);
+
+        var trainStateAccessor = _trainQuery.ToComponentDataArrayAsync<TrainState>(Allocator.TempJob, out var trainStateAccessorHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency, trainStateAccessorHandle);
+        */
+
+        
+        var trainPositionAccessor = GetComponentDataFromEntity<TrainPosition>(true);
+        var trainStateAccessor = GetComponentDataFromEntity<TrainState>(true);
+        var trackPointAccessor = GetBufferFromEntity<TrackPoint>(true);
 
         CarSpacing spacing = GetSingleton<CarSpacing>();
 
-        Entities.ForEach((ref Translation translation, ref Rotation rotation, ref Color colorCmp, in TrainCar trainCar) =>
+        Entities
+            .WithReadOnly(trainPositionAccessor)
+            .WithReadOnly(trainStateAccessor)
+            .WithReadOnly(trackPointAccessor)
+            .ForEach((ref Translation translation, ref Rotation rotation, ref Color colorCmp, in TrainCar trainCar) =>
         {
+            
 
             TrainPosition trainPosition = trainPositionAccessor[trainCar.train];
             TrainState trainState = trainStateAccessor[trainCar.train];
@@ -42,7 +76,7 @@ public class CarUpdateSystem : SystemBase
 
             colorCmp.Value = trainState.timeUntilDeparture > 0.0f ? new float4(0, 1, 0, 1) : new float4(252.0f / 255, 183.0f / 255, 22.0f / 255, 1.0f);
 
-        }).Schedule();
+        }).ScheduleParallel();
 
     }
 }

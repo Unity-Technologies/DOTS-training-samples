@@ -36,11 +36,13 @@ public class CommuterOnTrainSystem : SystemBase
         //  TODO - Reenable burst
         //
         Entities
+            .WithNativeDisableContainerSafetyRestriction(commuterPositionAccessor)
+            .WithNativeDisableContainerSafetyRestriction(commuterRotationAccessor)
             .ForEach((in Entity carEntity, in TrainCar trainCar, in Translation carPosition, in Rotation carRotation, in DynamicBuffer<Seat> seats) =>
         {
             //var seats = seatBufferAccessor[carEntity];
 
-            for(int i = 0; i < seats.Length; i++)
+            for (int i = 0; i < seats.Length; i++)
             {
                 if (seats[i].occupiedBy != Entity.Null)
                 {
@@ -60,9 +62,9 @@ public class CommuterOnTrainSystem : SystemBase
                     commuterRotationAccessor[seats[i].occupiedBy] = new Rotation { Value = carRotation.Value };
                 }
             }
-            
 
-        }).WithoutBurst().Run();
+
+        }).ScheduleParallel();
         
     }
 }
