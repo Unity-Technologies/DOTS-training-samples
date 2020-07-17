@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -7,10 +8,30 @@ using Unity.Transforms;
 
 public class MoveToTarget : SystemBase
 {
-    private EntityCommandBufferSystem m_ECBSystem;
+    EntityQuery m_TeamOneFieldsQuery;
+    EntityQuery m_TeamTwoFieldsQuery;
+    EntityCommandBufferSystem m_ECBSystem;
 
     protected override void OnCreate()
     {
+        m_TeamOneFieldsQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<TeamOne>(),
+                ComponentType.ReadOnly<FieldInfo>()
+            }
+        });
+
+        m_TeamTwoFieldsQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<TeamTwo>(),
+                ComponentType.ReadOnly<FieldInfo>()
+            }
+        });
+
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
@@ -19,13 +40,24 @@ public class MoveToTarget : SystemBase
         var deltaTime = Time.DeltaTime;
         var chaseForce = BeeManager.Instance.chaseForce;
         var attackForce = BeeManager.Instance.attackForce;
+        var carryForce = BeeManager.Instance.carryForce;
         var attackDistance = BeeManager.Instance.attackDistance;
         var hitDistance = BeeManager.Instance.hitDistance;
         var rotationStiffness = BeeManager.Instance.rotationStiffness;
+        var grabDistance = BeeManager.Instance.grabDistance;
+
+        var teamOneFields = m_TeamOneFieldsQuery.ToComponentDataArrayAsync<FieldInfo>(Allocator.TempJob, out var teamOneFieldsHandle);
+        var teamTwoFields = m_TeamTwoFieldsQuery.ToComponentDataArrayAsync<FieldInfo>(Allocator.TempJob, out var teamTwoFieldsHandle);
+
+        Dependency = JobHandle.CombineDependencies(Dependency, teamOneFieldsHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency, teamTwoFieldsHandle);
+
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
 
         Entities
             .WithNone<DespawnTimer>()
+            .WithDeallocateOnJobCompletion(teamOneFields)
+            .WithDeallocateOnJobCompletion(teamTwoFields)
             .ForEach((Entity entity, int entityInQueryIndex, ref Velocity velocity, ref Smoothing smoothing, ref Target target, in Translation pos) =>
             {
                 var oldSmoothPos = smoothing.SmoothPosition;
@@ -56,10 +88,10 @@ public class MoveToTarget : SystemBase
                         {
                             // Hit on enemy
                             ecb.AddComponent<DespawnTimer>(entityInQueryIndex, target.EnemyTarget);
-                            ecb.AddComponent<DespawnTimer>(entityInQueryIndex, target.EnemyTarget, new DespawnTimer { Time = 0.2f });
+                            ecb.AddComponent(entityInQueryIndex, target.EnemyTarget, new DespawnTimer { Time = 2 });
                             ecb.AddComponent<Gravity>(entityInQueryIndex, target.EnemyTarget);
 
-                            ecb.SetComponent<Target>(entityInQueryIndex, entity, new Target { EnemyTarget = Entity.Null });
+                            ecb.SetComponent(entityInQueryIndex, entity, new Target { EnemyTarget = Entity.Null });
 
                             // ParticleManager.SpawnParticle(bee.enemyTarget.position,ParticleType.Blood,bee.velocity * .35f,2f,6);
                             // bee.enemyTarget.dead = true;
@@ -70,11 +102,52 @@ public class MoveToTarget : SystemBase
                 }
                 else if (target.ResourceTarget != Entity.Null)
                 {
-                    targetPos = GetComponent<Translation>(target.ResourceTarget);
+                    if (HasComponent<Carried>(target.ResourceTarget))
+                    {
+                        float3 homePos;
+                        if (HasComponent<TeamOne>(entity))
+                        {
+                            var homeField = teamOneFields[0];
 
-                    var delta = targetPos.Value - pos.Value;
-                    var dist = math.length(delta);
-                    velocity.Value += delta * (chaseForce * deltaTime / dist);
+                            //homePos = new float3(-homeField.Bounds.Size.x * .45f, 0f, pos.Value.z);
+                            homePos = homeField.Bounds.Center;
+                        }
+                        else
+                        {
+                            var homeField = teamTwoFields[0];
+
+                            //homePos = new float3(-homeField.Bounds.Size.x * .45f + homeField.Bounds.Size.x * .9f, 0f, pos.Value.z);
+                            homePos = homeField.Bounds.Center;
+                        }
+
+                        var delta = homePos - pos.Value;
+                        var dist = math.length(delta);
+                        velocity.Value += delta * (carryForce * deltaTime / dist);
+
+                        if (dist < 1f)
+                        {
+                            ecb.RemoveComponent<Carried>(entityInQueryIndex, target.ResourceTarget);
+                            ecb.AddComponent<Gravity>(entityInQueryIndex, target.ResourceTarget);
+
+                            target.ResourceTarget = Entity.Null;
+                        }
+                    }
+                    else
+                    {
+                        targetPos = GetComponent<Translation>(target.ResourceTarget);
+
+                        var delta = targetPos.Value - pos.Value;
+                        var dist = math.length(delta);
+
+                        if (dist > grabDistance)
+                        {
+                            velocity.Value += delta * (chaseForce * deltaTime / dist);
+                        }
+                        else
+                        {
+                            ecb.AddComponent(entityInQueryIndex, target.ResourceTarget, new Carried() { Value = entity });
+                        }
+                    }
                 }
 
                 smoothing.SmoothDirection = smoothing.SmoothPosition - oldSmoothPos;

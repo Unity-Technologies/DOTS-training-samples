@@ -83,7 +83,13 @@ public class AssignTargetSystem : SystemBase
                     else
                     {
                         if (resourceEntities.Length > 0)
+                        {
                             target.ResourceTarget = resourceEntities[random.NextInt(0, resourceEntities.Length - 1)];
+                            if (HasComponent<Gravity>(target.ResourceTarget))
+                            {
+                                target.ResourceTarget = Entity.Null;
+                            }
+                        }
                     }
                 }
                 else if (target.EnemyTarget != Entity.Null)
@@ -120,7 +126,13 @@ public class AssignTargetSystem : SystemBase
                     else
                     {
                         if (resourceEntities.Length > 0)
+                        {
                             target.ResourceTarget = resourceEntities[random.NextInt(0, resourceEntities.Length - 1)];
+                            if (HasComponent<Gravity>(target.ResourceTarget))
+                            {
+                                target.ResourceTarget = Entity.Null;
+                            }
+                        }
                     }
                 }
                 else if (target.EnemyTarget != Entity.Null)
