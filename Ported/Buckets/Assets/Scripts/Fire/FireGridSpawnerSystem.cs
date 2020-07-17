@@ -128,23 +128,14 @@ namespace Fire
 
             // Start initial fires
             int numberOfFires = random.NextInt(spanwerInfoInstance.MinInitialFires, spanwerInfoInstance.MaxInitialFires);
-            int numberOfBuckets = random.NextInt(spanwerInfoInstance.MinInitialBuckets, spanwerInfoInstance.MaxInitialBuckets);
             
             NativeArray<int> fireIndiciesArr = new NativeArray<int>(numberOfFires, Allocator.TempJob);
-            NativeArray<int> bucketIndiciesArr = new NativeArray<int>(numberOfBuckets, Allocator.TempJob);
 
             // Pick indicies of fires that should be started, at random
             for (int i = 0; i < numberOfFires; i++)
             {
                 int fireIndex = random.NextInt(0, spanwerInfoInstance.TotalFireCount - 1);
                 fireIndiciesArr[i] = fireIndex;
-            }
-
-            // Pick indicies of fires that should be started, at random
-            for (int i = 0; i < numberOfBuckets; i++)
-            {
-                int fireIndex = random.NextInt(0, spanwerInfoInstance.TotalFireCount - 1);
-                bucketIndiciesArr[i] = fireIndex;
             }
 
             Entities
@@ -218,6 +209,7 @@ namespace Fire
                         entityInQueryIndex -= totalBuckets;
                     }
                 }).ScheduleParallel();
+
         }
 
         /*
