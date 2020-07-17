@@ -154,8 +154,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   firefighterPrefab: {fileID: 6324107666920470728, guid: eb018a78dfaf741c1b87813b9901cb4d, type: 3}
   numPerGroup: 20
-  minGroups: 1
-  maxGroups: 4
+  minGroups: 2
+  maxGroups: 6
   spawnRange: 20
   seed: 3589
 --- !u!4 &1113674108

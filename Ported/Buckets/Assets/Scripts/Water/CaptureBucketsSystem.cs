@@ -34,13 +34,23 @@ namespace Water
                         var bucketPosition = GetComponent<Translation>(buckets[i]).Value;
                         if (math.distance(bucketPosition, transform.Position) < 1f)
                         {
-                            var oldAttach = GetComponent<Attached>(buckets[i]);
-                            ecb.RemoveComponent<HeldBucket>(oldAttach.Value);
+                            if (HasComponent<Attached>(buckets[i]))
+                            {
+                                var oldAttach = GetComponent<Attached>(buckets[i]);
+                                ecb.RemoveComponent<HeldBucket>(oldAttach.Value);
+                            }
                             var attachToWell = new Attached();
-                            attachToWell.Offset = float3.zero;
+                            attachToWell.Offset = new float3(0f, 0.5f, 0f);
                             attachToWell.Value = entity;
-                            SetComponent(buckets[i], attachToWell);
-                            ecb.AddComponent<InUse>(buckets[i]);
+                            if (HasComponent<Attached>(buckets[i]))
+                            {
+                                SetComponent(buckets[i], attachToWell);
+                            }
+                            else
+                            {
+                                ecb.AddComponent(buckets[i], attachToWell);
+                            }
+                            // ecb.AddComponent<InUse>(buckets[i]);
                         }
                     }
 

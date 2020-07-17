@@ -8,14 +8,16 @@ namespace Water
         protected override void OnUpdate()
         {
             var leaderTranslationLookup = GetComponentDataFromEntity<Translation>(true);
+            var ltwLookup = GetComponentDataFromEntity<LocalToWorld>(true);
             Entities
-                .WithReadOnly(leaderTranslationLookup)
-                .WithNativeDisableContainerSafetyRestriction(leaderTranslationLookup)
-                .ForEach((Entity Entity, ref Translation translation, in Attached attachedEntity) =>
+                .WithReadOnly(ltwLookup)
+                // .WithNativeDisableContainerSafetyRestriction(leaderTranslationLookup)
+                .ForEach((ref Translation translation, in Attached attachedEntity) =>
                 {
-                    var leaderTranslation = leaderTranslationLookup[attachedEntity.Value];
-                    translation.Value = attachedEntity.Offset + leaderTranslation.Value;
-                }).Schedule();
+                    // var leaderTranslation = leaderTranslationLookup[attachedEntity.Value];
+                    var leaderTranslation = ltwLookup[attachedEntity.Value].Position;
+                    translation.Value = attachedEntity.Offset + leaderTranslation;
+                }).ScheduleParallel();
         }
     }
 }

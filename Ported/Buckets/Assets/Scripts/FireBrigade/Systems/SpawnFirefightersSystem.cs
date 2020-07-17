@@ -82,6 +82,7 @@ namespace FireBrigade.Systems
                     }
                     var firePosition = GetComponent<LocalToWorld>(fireBuffer[closestFireIndex].FireEntity).Position;
                     firePosition.y = 0f;
+                    var fireEntity = fireBuffer[closestFireIndex].FireEntity;
                     
                     // Spawn firefighters of each role
                     
@@ -151,7 +152,7 @@ namespace FireBrigade.Systems
                     ecb.SetComponent(firefighterEntity, new Translation {Value = randomFirefighterPosition});
                     ecb.SetComponent(firefighterEntity, new GroupIdentifier {Value = i});
                     ecb.AddComponent(firefighterEntity, new GroupCount {Value = spawner.numPerGroup});
-                    ecb.AddComponent(firefighterEntity, new FireTarget {Position = firePosition});
+                    ecb.AddComponent(firefighterEntity, new FireTarget {Position = firePosition, Value = fireEntity});
                     ecb.AddComponent(firefighterEntity, new WaterTarget {Position = waterPosition});
                     ecb.SetComponent(firefighterEntity, new Color(){Value = new float4(0f,1f,1f,1f)});
                     ecb.AddComponent(firefighterEntity, new BucketCollector());
