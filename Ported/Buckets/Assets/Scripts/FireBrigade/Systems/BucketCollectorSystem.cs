@@ -9,6 +9,15 @@ namespace FireBrigade.Systems
 {
     public class BucketCollectorSystem : SystemBase
     {
+        struct BucketData
+        {
+            public Entity BucketEntity;
+            public bool HasBucket;
+            public bool InUse;
+            public float3 Position;
+            public float FillAmount;
+        }
+
         private EntityQuery bucketQuery;
         private EntityCommandBufferSystem m_ECBSystem;
 
@@ -23,38 +32,53 @@ namespace FireBrigade.Systems
         {
             var buckets = bucketQuery.ToEntityArray(Allocator.TempJob);
             var ecb = m_ECBSystem.CreateCommandBuffer();
+
+            var bucketData = new NativeArray<BucketData>(buckets.Length, Allocator.TempJob);
+            for (int i = 0; i < buckets.Length; i++)
+            {
+                BucketData data = new BucketData
+                {
+                    BucketEntity = buckets[i],
+                    HasBucket = HasComponent<Attached>(buckets[i]),
+                    InUse = HasComponent<InUse>(buckets[i]),
+                    FillAmount = GetComponent<FillAmount>(buckets[i]).Value,
+                    Position = GetComponent<LocalToWorld>(buckets[i]).Position,
+                };
+                bucketData[i] = data;
+            }
+            buckets.Dispose();
+
             // Move bucket collectors towards a bucket
             Entities
-                .WithDeallocateOnJobCompletion(buckets)
+                .WithDeallocateOnJobCompletion(bucketData)
                 .WithAll<BucketCollector>().WithNone<HeldBucket>()
                 .ForEach((Entity entity, ref GoalPosition goalPosition, in Translation translation) =>
                 {
                     // Pick closest water to group position
                     var closestDistance = float.MaxValue;
-                    var closestIndex = -1;
+                    float3 closestPosition = new float3();
+                    bool foundBucket = false;
+                    Entity bucketTarget = Entity.Null;
                     for (int bucketIndex = 0; bucketIndex < buckets.Length; bucketIndex++)
                     {
-                        if (HasComponent<Attached>(buckets[bucketIndex])
-                        || HasComponent<InUse>(buckets[bucketIndex])) continue;
+                        var indexData = bucketData[bucketIndex];
+                        if (indexData.HasBucket || indexData.InUse || indexData.FillAmount > 0) continue;
                         
-                        var fill = GetComponent<FillAmount>(buckets[bucketIndex]);
-                        if (fill.Value > 0) continue;
-                        
-                        var distance = math.distancesq(GetComponent<LocalToWorld>(buckets[bucketIndex]).Position,
-                            translation.Value);
+                        var distance = math.distancesq(indexData.Position, translation.Value);
                         if (distance < closestDistance)
                         {
                             closestDistance = distance;
-                            closestIndex = bucketIndex;
+                            closestPosition = indexData.Position;
+                            bucketTarget = indexData.BucketEntity;
+                            foundBucket = true;
                         }
                     }
 
-                    if (closestIndex < 0) return;
-                    var bucketPosition = GetComponent<LocalToWorld>(buckets[closestIndex]).Position;
+                    if (!foundBucket) return;
+                    var bucketPosition = closestPosition;
                     bucketPosition.y = 0f;
-
                     goalPosition.Value = bucketPosition;
-                    ecb.AddComponent(entity, new BucketTarget{entity = buckets[closestIndex], Position = bucketPosition});
+                    ecb.AddComponent(entity, new BucketTarget{entity = bucketTarget, Position = bucketPosition});
                 }).Schedule();
 
             // Pick up water bucket if at its position
