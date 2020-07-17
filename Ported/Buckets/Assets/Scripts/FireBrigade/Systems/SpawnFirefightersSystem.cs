@@ -4,7 +4,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 using Water;
 using Random = Unity.Mathematics.Random;
 
@@ -62,6 +61,8 @@ namespace FireBrigade.Systems
                     }
                     var waterPosition = GetComponent<LocalToWorld>(wells[closestWellIndex]).Position;
                     waterPosition.y = 0f;
+                    // Mark this water well as being used by the team
+                    ecb.AddComponent(wells[closestWellIndex], new InUse());
                     // pick a fire cell closest to our chosen water position that is above a threshold in temp
                     closestDistance = float.MaxValue;
                     var closestFireIndex = -1;
@@ -153,42 +154,6 @@ namespace FireBrigade.Systems
                     ecb.SetComponent(firefighterEntity, new Color(){Value = new float4(0f,1f,1f,1f)});
                     ecb.AddComponent(firefighterEntity, new BucketCollector());
                     
-
-                    // for (int j = 0; j < spawner.numPerGroup; j++)
-                    // {
-                    //     var firefighterEntity = ecb.Instantiate(spawner.firefighterPrefab);
-                    //     var randomFirefighterPosition = random.NextFloat(0.5f, 1f) * randomGroupPosition;
-                    //     randomFirefighterPosition.y = 0f;
-                    //     ecb.SetComponent(firefighterEntity, new Translation {Value = randomFirefighterPosition});
-                    //     ecb.SetComponent(firefighterEntity, new GroupIdentifier {Value = i});
-                    //     ecb.SetComponent(firefighterEntity, new RoleIndex {Value = j});
-                    //     ecb.AddComponent(firefighterEntity, new GroupCount {Value = spawner.numPerGroup});
-                    //     ecb.AddComponent(firefighterEntity, new WaterPosition {Value = waterPosition});
-                    //     ecb.AddComponent(firefighterEntity, new FirePosition {Value = firePosition});
-                    //     if (j == 0)
-                    //     {
-                    //         ecb.AddComponent(firefighterEntity, new GroupRole {Value = FirefighterRole.thrower});
-                    //         ecb.SetComponent(firefighterEntity, new Color(){Value = new float4(1f,1f,1f,1f)});
-                    //     }
-                    //     else if (j == spawner.numPerGroup - 1)
-                    //     {
-                    //         ecb.AddComponent(firefighterEntity, new GroupRole {Value = FirefighterRole.scooper});
-                    //         ecb.SetComponent(firefighterEntity, new Color(){Value = new float4(0f,0f,0f,1f)});
-                    //     }
-                    //     else
-                    //     {
-                    //         if (j % 2 == 0)
-                    //         {
-                    //             ecb.AddComponent(firefighterEntity, new GroupRole {Value = FirefighterRole.full});
-                    //             ecb.SetComponent(firefighterEntity, new Color(){Value = new float4(0f,1f,0f,1f)});
-                    //         }
-                    //         else
-                    //         {
-                    //             ecb.AddComponent(firefighterEntity, new GroupRole {Value = FirefighterRole.empty});
-                    //             ecb.SetComponent(firefighterEntity, new Color(){Value = new float4(1f,1f,0f,1f)});
-                    //         }
-                    //     }
-                    // }
                 }
                 ecb.DestroyEntity(entity);
             }).Schedule();

@@ -5039,18 +5039,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3592358155fee1d4082d864e1b9bf76d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Prefab: {fileID: 8689680459187752648, guid: 9b68219574e27fe4a9835c644411242c, type: 3}
-  RandomSeed: 10364
-  CountX: 40
-  CountZ: 40
+  FirePrefab: {fileID: 8689680459187752648, guid: 9b68219574e27fe4a9835c644411242c, type: 3}
+  BucketPrefab: {fileID: 7709613598814161213, guid: 43fe1c9cc3f706b4db165fe115327d19, type: 3}
+  RandomSeed: 12710
+  FireCountX: 40
+  FireCountZ: 40
   Origin:
     x: 0
     y: -0.45
     z: 0
   MinInitialFires: 1
   MaxInitialFires: 10
+  MinInitialBuckets: 10
+  MaxInitialBuckets: 30
   StartFireAmount: 0.5
   StartFireVelocity: 0.05
+  StartFillAmount: 0
 --- !u!4 &2019898872
 Transform:
   m_ObjectHideFlags: 0

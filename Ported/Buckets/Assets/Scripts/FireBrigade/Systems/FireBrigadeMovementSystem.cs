@@ -1,4 +1,5 @@
 using System;
+using Fire;
 using FireBrigade.Components;
 using Unity.Collections;
 using Unity.Entities;
@@ -13,6 +14,37 @@ namespace FireBrigade.Systems
         protected override void OnUpdate()
         {
             float deltaTime = Time.DeltaTime;
+            // Get fire
+            var fireBufferEntity = GetSingletonEntity<FireBufferElement>();
+            var fireLookup = GetBufferFromEntity<FireBufferElement>(true);
+            var fireBuffer = fireLookup[fireBufferEntity];
+
+            // Update target fire tlo always be the one closest to our water
+            Entities
+                .ForEach((ref FireTarget fireTarget, in WaterTarget waterTarget) =>
+                {
+                    // pick a fire cell closest to our chosen water position that is above a threshold in temp
+                    var closestDistance = float.MaxValue;
+                    var closestFireIndex = -1;
+                    for (int fireIndex = 0; fireIndex < fireBuffer.Length; fireIndex++)
+                    {
+                        var temperature = GetComponent<TemperatureComponent>(fireBuffer[fireIndex].FireEntity);
+                        if (temperature.Value < 0.2) continue;
+                        
+                        var distance = math.distancesq(GetComponent<LocalToWorld>(fireBuffer[fireIndex].FireEntity).Position,
+                            waterTarget.Position);
+                        if (distance < closestDistance)
+                        {
+                            closestDistance = distance;
+                            closestFireIndex = fireIndex;
+                        }
+                    }
+                    var firePosition = GetComponent<LocalToWorld>(fireBuffer[closestFireIndex].FireEntity).Position;
+                    firePosition.y = 0f;
+                    fireTarget.entity = fireBuffer[closestFireIndex].FireEntity;
+                    fireTarget.Position = firePosition;
+                    
+                }).Schedule();
             
             // Calculate formation for chain
             Entities.ForEach(
