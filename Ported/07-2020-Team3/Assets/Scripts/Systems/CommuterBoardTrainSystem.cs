@@ -103,6 +103,7 @@ public class CommuterBoardTrainSystem : SystemBase
                                 seat.occupiedBy = commuterEntity;
                                 concurrentECB.RemoveComponent<CommuterBoarding>(entityInQueryIndex, commuterEntity);
                                 boarded = true;
+                                seatsBuffer[j] = seat;
                                 break;
                             }
                         }
@@ -111,7 +112,7 @@ public class CommuterBoardTrainSystem : SystemBase
                             break;
                     }
                 }
-            }).WithoutBurst().Schedule();
+            }).Schedule();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
