@@ -147,7 +147,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 146700927}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 256.3, y: 1, z: 339.1}
+  m_LocalPosition: {x: 224.6, y: 1, z: 238.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2017936922}
@@ -462,7 +462,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 915713355}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1, y: 0, z: 42.5}
+  m_LocalPosition: {x: -28.1, y: 0, z: 18.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2017936922}
@@ -719,7 +719,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1798409425}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 171, y: 1, z: 231.2}
+  m_LocalPosition: {x: 157.7, y: 1, z: 183.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2017936922}
@@ -828,11 +828,11 @@ MonoBehaviour:
   - Transform: {fileID: 1396835147}
     IsPlatformStart: 0
   - Transform: {fileID: 915713356}
-    IsPlatformStart: 1
+    IsPlatformStart: 0
   - Transform: {fileID: 2052983274}
     IsPlatformStart: 0
   - Transform: {fileID: 346267397}
-    IsPlatformStart: 0
+    IsPlatformStart: 1
   - Transform: {fileID: 1798409426}
     IsPlatformStart: 0
   - Transform: {fileID: 146700928}

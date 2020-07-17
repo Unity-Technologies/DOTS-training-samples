@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8991921845619921036}
   - component: {fileID: 8991921845619921035}
   - component: {fileID: 5634874320350433845}
+  - component: {fileID: 4982357004640843024}
   m_Layer: 0
   m_Name: Car3
   m_TagString: Untagged
@@ -109,6 +110,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f92c20391f0e1a48b7f0486908303ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4982357004640843024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8991921845619921034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d83c010be1f61c4282a7a58f4aeb931, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Color: {r: 1, g: 0, b: 0, a: 0}
 --- !u!1 &8991921845936591322
 GameObject:
   m_ObjectHideFlags: 0
@@ -122,6 +136,7 @@ GameObject:
   - component: {fileID: 8991921845936591325}
   - component: {fileID: 8991921845936591324}
   - component: {fileID: 3938141232406626564}
+  - component: {fileID: 9160061482336772497}
   m_Layer: 0
   m_Name: Car1
   m_TagString: Untagged
@@ -218,6 +233,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f92c20391f0e1a48b7f0486908303ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &9160061482336772497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8991921845936591322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d83c010be1f61c4282a7a58f4aeb931, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Color: {r: 1, g: 0, b: 0, a: 0}
 --- !u!1 &8991921846170917817
 GameObject:
   m_ObjectHideFlags: 0
@@ -231,6 +259,7 @@ GameObject:
   - component: {fileID: 8991921846170917819}
   - component: {fileID: 8991921846170917818}
   - component: {fileID: 7838155313721027944}
+  - component: {fileID: 1145454651393932409}
   m_Layer: 0
   m_Name: Car2
   m_TagString: Untagged
@@ -327,6 +356,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f92c20391f0e1a48b7f0486908303ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1145454651393932409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8991921846170917817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d83c010be1f61c4282a7a58f4aeb931, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Color: {r: 1, g: 0, b: 0, a: 0}
 --- !u!1 &8991921846454915066
 GameObject:
   m_ObjectHideFlags: 0
@@ -422,6 +464,7 @@ GameObject:
   - component: {fileID: 8991921847404632789}
   - component: {fileID: 8991921847404632788}
   - component: {fileID: 3724235727389526617}
+  - component: {fileID: 7587965339702408098}
   m_Layer: 0
   m_Name: Car4
   m_TagString: Untagged
@@ -518,6 +561,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f92c20391f0e1a48b7f0486908303ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7587965339702408098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8991921847404632787}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d83c010be1f61c4282a7a58f4aeb931, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Color: {r: 1, g: 0, b: 0, a: 0}
 --- !u!1 &8991921847721897333
 GameObject:
   m_ObjectHideFlags: 0
@@ -531,6 +587,7 @@ GameObject:
   - component: {fileID: 8991921847721897335}
   - component: {fileID: 8991921847721897334}
   - component: {fileID: 8182398081986493446}
+  - component: {fileID: 2015472737176033904}
   m_Layer: 0
   m_Name: Car0
   m_TagString: Untagged
@@ -627,3 +684,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f92c20391f0e1a48b7f0486908303ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2015472737176033904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8991921847721897333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d83c010be1f61c4282a7a58f4aeb931, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Color: {r: 1, g: 0, b: 0, a: 0}

@@ -195,7 +195,7 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
                 inBoundPlatforms.Add(new PlatformDefinition
                 {
-                    Times = new float2(1.0f - (float)(i + 1) / (2 * last + 4), 1.0f - (float)(i + 1) / (2 * last + 4)),
+                    Times = new float2(1.0f - (float)(i + 1) / (2 * last + 4), 1.0f - (float)(i + 1) / (2 * last + 4) + step/2),
                     Position = math.mad(offsetDir, PlatformOffset, point),
                     Rotation = quaternion.LookRotation(toNext, up),
                 });

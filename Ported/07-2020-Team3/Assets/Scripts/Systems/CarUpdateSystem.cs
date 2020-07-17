@@ -15,14 +15,16 @@ public class CarUpdateSystem : SystemBase
     {
 
         var trainPositionAccessor = GetComponentDataFromEntity<TrainPosition>();
+        var trainStateAccessor = GetComponentDataFromEntity<TrainState>();
         var trackPointAccessor = GetBufferFromEntity<TrackPoint>();
 
         CarSpacing spacing = GetSingleton<CarSpacing>();
 
-        Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrainCar trainCar) =>
+        Entities.ForEach((ref Translation translation, ref Rotation rotation, ref Color colorCmp, in TrainCar trainCar) =>
         {
 
             TrainPosition trainPosition = trainPositionAccessor[trainCar.train];
+            TrainState trainState = trainStateAccessor[trainCar.train];
             var trackPoints = trackPointAccessor[trainPosition.track];
 
             float carPosition = trainPosition.position - trainCar.indexInTrain * spacing.Value;
@@ -37,6 +39,8 @@ public class CarUpdateSystem : SystemBase
             rotation.Value = quaternion.LookRotationSafe(posA - posB, new float3(0, 1, 0));
 
             translation.Value = pos;
+
+            colorCmp.Value = trainState.timeUntilDeparture > 0.0f ? new float4(0, 1, 0, 1) : new float4(252.0f / 255, 183.0f / 255, 22.0f / 255, 1.0f);
 
         }).Schedule();
 
