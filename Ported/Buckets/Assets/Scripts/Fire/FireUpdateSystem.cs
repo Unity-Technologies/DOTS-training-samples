@@ -67,8 +67,9 @@ namespace Fire
             Entities
                 .ForEach((Entity entity, ref TemperatureComponent temperature, ref ExtinguishAmount extinguishAmount) =>
                 {
+                    if (extinguishAmount.Value <= 0f) return;
+
                     temperature.Value -= extinguishAmount.Value;
-                    ecb.RemoveComponent<ExtinguishAmount>(entity);
                     float newExtinguishValue = extinguishAmount.Value - diminishAmount;
 
                     if(newExtinguishValue <= 0f) return;
@@ -101,16 +102,13 @@ namespace Fire
             Entities
                 .WithDeallocateOnJobCompletion(addFireArr)
                 .WithDeallocateOnJobCompletion(temperatureComponents)
-                .WithNone<ExtinguishAmount>()
-                .ForEach((Entity fireEntity, int entityInQueryIndex, ref Translation position, ref TemperatureComponent temperature, ref FireColor color,
+                .ForEach((Entity fireEntity, ref Translation position, ref TemperatureComponent temperature, ref FireColor color, ref ExtinguishAmount extinguishAmount,
                     in BoundsComponent bounds, in StartHeight startHeight, in FireColorPalette pallete) =>
                 {
                     if (addFireArr[temperature.GridIndex] > 0f)
                     {
-                        ecbPar.AddComponent(entityInQueryIndex, fireEntity, new ExtinguishAmount
-                        {
-                            Value = addFireArr[temperature.GridIndex]
-                        });
+                        float newValue = addFireArr[temperature.GridIndex];
+                        extinguishAmount.Value = math.max(extinguishAmount.Value, newValue);
                     }
 
                     var temp = math.clamp(temperature.Value, 0, 1);
