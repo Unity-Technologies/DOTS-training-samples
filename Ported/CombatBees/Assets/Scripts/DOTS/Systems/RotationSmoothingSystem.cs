@@ -13,7 +13,7 @@ public class RotationSmoothingSystem : SystemBase
     {
         Entities.ForEach((ref Rotation rotation, in Smoothing smoothing) =>
         {
-            if (smoothing.SmoothDirection != Vector3.zero)
+            if (math.lengthsq(smoothing.SmoothDirection) > float.Epsilon)
             {
                 rotation.Value = Quaternion.LookRotation(smoothing.SmoothDirection);
             }

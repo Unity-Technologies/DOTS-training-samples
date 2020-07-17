@@ -143,10 +143,10 @@ public class MoveToTarget : SystemBase
                         {
                             velocity.Value += delta * (chaseForce * deltaTime / dist);
                         }
-                        else
-                        {
-                            ecb.AddComponent(entityInQueryIndex, target.ResourceTarget, new Carried() { Value = entity });
-                        }
+                        // else
+                        // {
+                        //     ecb.AddComponent(entityInQueryIndex, target.ResourceTarget, new Carried() { Value = entity });
+                        // }
                     }
                 }
 
