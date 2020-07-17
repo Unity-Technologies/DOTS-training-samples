@@ -6,6 +6,35 @@ namespace Utils
     public static class UnityMathUtils
     {
         /// <summary>
+        /// Lerps between two float2s
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="alpha"></param>
+        /// <returns></returns>
+        public static float2 Lerp(float2 from, float2 to, float alpha)
+        {
+            float newX = math.lerp(from.x, to.x, alpha);
+            float newY = math.lerp(from.y, to.y, alpha);
+            return new float2(newX, newY);
+        }
+
+        /// <summary>
+        /// Lerps between two float3s
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="alpha"></param>
+        /// <returns></returns>
+        public static float3 Lerp(float3 from, float3 to, float alpha)
+        {
+            float newX = math.lerp(from.x, to.x, alpha);
+            float newY = math.lerp(from.y, to.y, alpha);
+            float newZ = math.lerp(from.z, to.z, alpha);
+            return new float3(newX, newY, newZ);
+        }
+
+        /// <summary>
         /// Lerps between two float4s
         /// </summary>
         /// <param name="from"></param>
