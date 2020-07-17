@@ -127,7 +127,6 @@ public class MoveToTarget : SystemBase
                         if (dist < 1f)
                         {
                             ecb.RemoveComponent<Carried>(entityInQueryIndex, target.ResourceTarget);
-                            ecb.AddComponent<Gravity>(entityInQueryIndex, target.ResourceTarget);
 
                             target.ResourceTarget = Entity.Null;
                         }

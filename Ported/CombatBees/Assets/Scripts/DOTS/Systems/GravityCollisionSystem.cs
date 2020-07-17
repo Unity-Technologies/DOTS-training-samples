@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
 using Unity.Mathematics;
@@ -69,6 +68,7 @@ public class GravityCollisionSystem : SystemBase
         var maxBeeSize = BeeManager.Instance.maxBeeSize;
 
         Entities.WithAll<Gravity>()
+            .WithNone<Carried>()
             .WithDeallocateOnJobCompletion(mainField)
             .WithDeallocateOnJobCompletion(teamFields)
             .WithDeallocateOnJobCompletion(beeSpawners)
@@ -131,7 +131,6 @@ public class GravityCollisionSystem : SystemBase
                     if (bound.Intersects(t, ignoreY: true) && t.y <= bound.Floor)
                     {
                         value = new float3(0, 0, 0);
-                        ecb.RemoveComponent<Gravity>(entityInQueryIndex, entity);
                     }
 
                     v.Value = value;

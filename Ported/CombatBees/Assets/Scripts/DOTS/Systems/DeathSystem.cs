@@ -48,10 +48,40 @@ public class DeathSystem : SystemBase
                     ecb.DestroyEntity(entityInQueryIndex, entity);
             }).ScheduleParallel();
 
+        // Bees
+        Entities
+            .WithAny<TeamOne, TeamTwo>()
+            .ForEach((int entityInQueryIndex, Entity entity, ref DespawnTimer timer, in LocalToWorld ltw, in Velocity v) =>
+            {
+                timer.Time -= dt;
+
+                if (timer.Time <= 0)
+                {
+                    var target = GetComponent<Target>(entity); 
+                    if (target.ResourceTarget != Entity.Null)
+                    {
+                        ecb.RemoveComponent<Carried>(entityInQueryIndex, target.ResourceTarget);
+                    }
+
+                    if (particleSpawners.Length > 0)
+                    {
+                        var spawner = particleSpawners[0];
+
+                        var particle = ecb.Instantiate(entityInQueryIndex, spawner.BloodPrefab);
+                        ecb.SetComponent(entityInQueryIndex, particle, new Translation { Value = ltw.Position });
+                        ecb.SetComponent(entityInQueryIndex, particle, new Velocity { Value = v.Value });
+                        ecb.AddComponent<Gravity>(entityInQueryIndex, particle);
+                        ecb.AddComponent(entityInQueryIndex, particle, new DespawnTimer { Time = random.NextFloat(2f, 5f) });
+                    }
+                    ecb.DestroyEntity(entityInQueryIndex, entity);
+                }
+            }).ScheduleParallel();
+
         // Resources 
         Entities
             .WithAll<ResourceEntity>()
             .WithNone<TeamOne, TeamTwo>()
+            .WithDeallocateOnJobCompletion(particleSpawners)
             .ForEach((int entityInQueryIndex, Entity entity, ref DespawnTimer timer, in LocalToWorld ltw) =>
             {
                 timer.Time -= dt;
@@ -68,30 +98,6 @@ public class DeathSystem : SystemBase
                         ecb.AddComponent(entityInQueryIndex, particle, new DespawnTimer { Time = random.NextFloat(0.2f, 0.35f) });
                     }
 
-                    ecb.DestroyEntity(entityInQueryIndex, entity);
-                }
-            }).ScheduleParallel(); 
-
-        // Bees
-        Entities
-            .WithAny<TeamOne, TeamTwo>()
-            .WithDeallocateOnJobCompletion(particleSpawners)
-            .ForEach((int entityInQueryIndex, Entity entity, ref DespawnTimer timer, in LocalToWorld ltw, in Velocity v) =>
-            {
-                timer.Time -= dt;
-
-                if (timer.Time <= 0)
-                {
-                    if (particleSpawners.Length > 0)
-                    {
-                        var spawner = particleSpawners[0];
-
-                        var particle = ecb.Instantiate(entityInQueryIndex, spawner.BloodPrefab);
-                        ecb.SetComponent(entityInQueryIndex, particle, new Translation { Value = ltw.Position });
-                        ecb.SetComponent(entityInQueryIndex, particle, new Velocity { Value = v.Value });
-                        ecb.AddComponent<Gravity>(entityInQueryIndex, particle);
-                        ecb.AddComponent(entityInQueryIndex, particle, new DespawnTimer { Time = random.NextFloat(2f, 5f) });
-                    }
                     ecb.DestroyEntity(entityInQueryIndex, entity);
                 }
             }).ScheduleParallel();

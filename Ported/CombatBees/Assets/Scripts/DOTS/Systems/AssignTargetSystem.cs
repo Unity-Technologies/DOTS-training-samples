@@ -85,7 +85,7 @@ public class AssignTargetSystem : SystemBase
                         if (resourceEntities.Length > 0)
                         {
                             target.ResourceTarget = resourceEntities[random.NextInt(0, resourceEntities.Length - 1)];
-                            if (HasComponent<Gravity>(target.ResourceTarget))
+                            if (HasComponent<Carried>(target.ResourceTarget))
                             {
                                 target.ResourceTarget = Entity.Null;
                             }
@@ -128,7 +128,7 @@ public class AssignTargetSystem : SystemBase
                         if (resourceEntities.Length > 0)
                         {
                             target.ResourceTarget = resourceEntities[random.NextInt(0, resourceEntities.Length - 1)];
-                            if (HasComponent<Gravity>(target.ResourceTarget))
+                            if (HasComponent<Carried>(target.ResourceTarget))
                             {
                                 target.ResourceTarget = Entity.Null;
                             }

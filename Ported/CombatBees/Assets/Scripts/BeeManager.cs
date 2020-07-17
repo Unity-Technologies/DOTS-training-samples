@@ -35,7 +35,7 @@ public class BeeManager : MonoBehaviour
     List<Bee>[] teamsOfBees;
     List<Bee> pooledBees;
 
-    int activeBatch = 0;
+    //int activeBatch = 0;
     List<List<Matrix4x4>> beeMatrices;
     List<List<Vector4>> beeColors;
 

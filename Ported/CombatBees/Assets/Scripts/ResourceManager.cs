@@ -22,7 +22,7 @@ public class ResourceManager : MonoBehaviour
 
     int[,] stackHeights;
 
-    float spawnTimer = 0f;
+    //float spawnTimer = 0f;
 
     public static ResourceManager Instance { get; private set; }
 
