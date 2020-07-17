@@ -11,11 +11,11 @@ public class RotationSmoothingSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Entities.ForEach((ref Rotation rotation, in Smoothing smoothing) =>
+        Entities.ForEach((ref Rotation rotation, in Velocity velocity) =>
         {
-            if (math.lengthsq(smoothing.SmoothDirection) > 0.01f)
+            if (math.lengthsq(velocity.Value) > 0.01f)
             {
-                rotation.Value = Quaternion.LookRotation(smoothing.SmoothDirection);
+                rotation.Value = Quaternion.LookRotation(velocity.Value);
             }
         }).ScheduleParallel();
     }
