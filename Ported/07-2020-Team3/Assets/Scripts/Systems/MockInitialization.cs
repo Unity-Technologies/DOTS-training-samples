@@ -100,7 +100,7 @@ public class MockInitialization : SystemBase
                 {
                     seats.Add(new Seat
                     {
-                        occupiedBy = commuterIndex < commuterEntities.Length ? commuterEntities[commuterIndex] : Entity.Null
+                        occupiedBy = commuterIndex < commuterEntities.Length ? commuterEntities[commuterIndex++] : Entity.Null
                     });
                 }
             }

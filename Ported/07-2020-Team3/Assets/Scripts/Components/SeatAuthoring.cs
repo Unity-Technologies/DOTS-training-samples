@@ -5,15 +5,17 @@ using UnityEngine;
 
 public class SeatAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
+    public GameObject[] occupiedBy;
+
+
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         DynamicBuffer<Seat> seat = dstManager.AddBuffer<Seat>(entity);
 
-        //
-        //  TODO - Don't hardcode this
-        //
-        for(int i = 0; i < 15; i++)
-            seat.Add(new Seat { occupiedBy = Entity.Null });
+        for(int i = 0; i < occupiedBy.Length; i++)
+            seat.Add(new Seat { occupiedBy = occupiedBy[i] == null ? Entity.Null : conversionSystem.GetPrimaryEntity(occupiedBy[i])});
 
     }
+
+    
 }

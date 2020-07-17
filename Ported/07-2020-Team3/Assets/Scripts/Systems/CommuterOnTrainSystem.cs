@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -26,12 +28,13 @@ public class CommuterOnTrainSystem : SystemBase
 
         var commuterPositionAccessor = GetComponentDataFromEntity<Translation>(false);
         //var seatBufferAccessor = GetBufferFromEntity<Seat>(false);
+        var seatsPerCar = GetSingleton<SeatsPerCar>();
 
         //
         //  TODO - Reenable burst
         //
         Entities
-            .ForEach((in Entity carEntity, in TrainCar trainCar, in Translation trainPosition, in DynamicBuffer<Seat> seats) =>
+            .ForEach((in Entity carEntity, in TrainCar trainCar, in Translation carPosition, in Rotation carRotation, in DynamicBuffer<Seat> seats) =>
         {
             //var seats = seatBufferAccessor[carEntity];
 
@@ -41,7 +44,7 @@ public class CommuterOnTrainSystem : SystemBase
                 {
                     var commuterPosition = new Translation
                     {
-                        Value = trainPosition.Value
+                        Value = carPosition.Value + seatsPerCar.spacing * i * math.mul(carRotation.Value, new float3(1, 0, 0)),
                     };
 
                     commuterPositionAccessor[seats[i].occupiedBy] = commuterPosition;

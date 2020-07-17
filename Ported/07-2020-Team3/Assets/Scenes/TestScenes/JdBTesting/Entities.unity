@@ -624,7 +624,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rows: 3
   cols: 5
-  spacing: 0.2
+  spacing: 1
 --- !u!114 &449403133
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1035,6 +1035,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trainPrefab: {fileID: 8991921846454915066, guid: 7b78b31f92fec264f8a09b38b5df107a, type: 3}
+  commuterPrefab: {fileID: 8197137346706109426, guid: 65e34845986c05545b80aeb3b5ac95f1, type: 3}
 --- !u!4 &968288761
 Transform:
   m_ObjectHideFlags: 0
