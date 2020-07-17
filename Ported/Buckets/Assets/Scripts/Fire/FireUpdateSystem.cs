@@ -63,18 +63,17 @@ namespace Fire
             }
 
             var ecb = m_ECBSystem.CreateCommandBuffer();
-            float diminishAmount = .2f; //How much the neighboring fires distinguish less
+            float diminishAmount = .25f; //How much the neighboring fires distinguish less
             Entities
                 .ForEach((Entity entity, ref TemperatureComponent temperature, ref ExtinguishAmount extinguishAmount) =>
                 {
-                    temperature.Value -= 1f;//extinguishAmount.Value;
+                    temperature.Value -= extinguishAmount.Value;
                     ecb.RemoveComponent<ExtinguishAmount>(entity);
+                    float newExtinguishValue = extinguishAmount.Value - diminishAmount;
 
-                    if(!extinguishAmount.Propagate) return;
+                    if(newExtinguishValue <= 0f) return;
 
                     var neighbors = FireSearch.GetNeighboringIndicies(temperature.GridIndex, gridMetaData.CountX, gridMetaData.CountZ);
-
-                    float newExtinguishValue = extinguishAmount.Value - diminishAmount;
 
                     if (neighbors.Top != -1)
                     {
@@ -110,8 +109,7 @@ namespace Fire
                     {
                         ecbPar.AddComponent(entityInQueryIndex, fireEntity, new ExtinguishAmount
                         {
-                            Value = addFireArr[temperature.GridIndex],
-                            Propagate = false
+                            Value = addFireArr[temperature.GridIndex]
                         });
                     }
 
