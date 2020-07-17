@@ -4,6 +4,5 @@ using UnityEngine;
 
 namespace Water
 {
-    [GenerateAuthoringComponent]
-    public class BucketFullTag : IComponentData{}
+    public struct BucketFullTag : IComponentData{}
 }

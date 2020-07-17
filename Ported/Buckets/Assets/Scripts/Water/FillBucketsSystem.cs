@@ -25,6 +25,7 @@ namespace Water
             // var wells = waterWellQuery.ToEntityArray(Allocator.TempJob);
             Entities
                 // .WithDeallocateOnJobCompletion(wells)
+                .WithNone<BucketFullTag>()
                 .ForEach((Entity entity, ref FillAmount fill, in Attached attachedEntity, in FireTarget fireTarget) =>
                 {
                     if (HasComponent<WellTag>(attachedEntity.Value))

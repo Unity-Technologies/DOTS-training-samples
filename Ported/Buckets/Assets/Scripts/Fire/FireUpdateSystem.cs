@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using Utils;
+using Water;
 using Random = Unity.Mathematics.Random;
 
 namespace Fire

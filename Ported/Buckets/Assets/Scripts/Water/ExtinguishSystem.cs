@@ -19,6 +19,7 @@ namespace Water
 
         protected override void OnUpdate()
         {
+            /*
             // Check if we have initialized
             EntityQuery queryGroup = GetEntityQuery(typeof(Fire.Initialized));
             if (queryGroup.CalculateEntityCount() == 0)
@@ -70,6 +71,7 @@ namespace Water
 
             }).Schedule();
             m_ECBSystem.AddJobHandleForProducer(Dependency);
+            */
         }
     }
 }
