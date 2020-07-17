@@ -7,6 +7,10 @@ using Unity.Transforms;
 using UnityEngine;
 using Utils;
 using Random = Unity.Mathematics.Random;
+using Unity.Profiling;
+using UnityEngine.Profiling;
+using Unity.Jobs;
+using Unity.Burst;
 
 namespace Fire
 {
@@ -35,6 +39,24 @@ namespace Fire
 
         }
 
+        [BurstCompile]
+        struct CopyTemperaturesFromFireGrid : IJob
+        {
+            [ReadOnly]
+            public ComponentDataFromEntity<TemperatureComponent> temperatures;
+            public NativeArray<FireBufferElement> gridArray;
+            public NativeArray<TemperatureComponent> temperatureComponents;
+
+            public void Execute()
+            {
+                for (int i = 0; i < gridArray.Length; i++)
+                {
+                    temperatureComponents[i] = temperatures[gridArray[i].FireEntity];
+                }
+            }
+        }
+
+
         protected override void OnUpdate()
         {
             // Check if we have initialized
@@ -55,15 +77,25 @@ namespace Fire
             var gridArray = gridBuffer.AsNativeArray();
             var gridMetaData = EntityManager.GetComponentData<FireBufferMetaData>(fireBufferEntity);
 
+            
+
+            Profiler.BeginSample("Native Loop");
             // Create cached native array of temperature components to read neighbor temperature data in jobs
             NativeArray<TemperatureComponent> temperatureComponents = new NativeArray<TemperatureComponent>(gridArray.Length, Allocator.TempJob);
-            for (int i = 0; i < gridArray.Length; i++)
+
+            var temperaturesFromEntity = GetComponentDataFromEntity<TemperatureComponent>(true);
+            Dependency = new CopyTemperaturesFromFireGrid()
             {
-                temperatureComponents[i] = EntityManager.GetComponentData<TemperatureComponent>(gridArray[i].FireEntity);
-            }
+                temperatures = temperaturesFromEntity,
+                gridArray = gridArray,
+                temperatureComponents = temperatureComponents
+            }.Schedule(Dependency);
+
+            Profiler.EndSample();
 
             // Update fires in scene
             Entities
+                .WithName("Fire_Update")
                 .WithDeallocateOnJobCompletion(temperatureComponents)
                 .ForEach((Entity fireEntity, int entityInQueryIndex, ref Translation position, ref TemperatureComponent temperature, ref FireColor color,
                     in BoundsComponent bounds, in StartHeight startHeight, in FireColorPalette pallete) =>
