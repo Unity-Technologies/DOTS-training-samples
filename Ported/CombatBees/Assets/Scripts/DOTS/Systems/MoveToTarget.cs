@@ -92,11 +92,6 @@ public class MoveToTarget : SystemBase
                             ecb.AddComponent<Gravity>(entityInQueryIndex, target.EnemyTarget);
 
                             ecb.SetComponent(entityInQueryIndex, entity, new Target { EnemyTarget = Entity.Null });
-
-                            // ParticleManager.SpawnParticle(bee.enemyTarget.position,ParticleType.Blood,bee.velocity * .35f,2f,6);
-                            // bee.enemyTarget.dead = true;
-                            // bee.enemyTarget.velocity *= .5f;
-                            // bee.enemyTarget = null;
                         }
                     }
                 }
@@ -104,21 +99,9 @@ public class MoveToTarget : SystemBase
                 {
                     if (HasComponent<Carried>(target.ResourceTarget))
                     {
-                        float3 homePos;
-                        if (HasComponent<TeamOne>(entity))
-                        {
-                            var homeField = teamOneFields[0];
-
-                            //homePos = new float3(-homeField.Bounds.Size.x * .45f, 0f, pos.Value.z);
-                            homePos = homeField.Bounds.Center;
-                        }
-                        else
-                        {
-                            var homeField = teamTwoFields[0];
-
-                            //homePos = new float3(-homeField.Bounds.Size.x * .45f + homeField.Bounds.Size.x * .9f, 0f, pos.Value.z);
-                            homePos = homeField.Bounds.Center;
-                        }
+                        var homeField = HasComponent<TeamOne>(entity) ? teamOneFields[0] : teamTwoFields[0];
+                        var homePos = homeField.Bounds.Center;
+                        homePos.y = homeField.Bounds.Center.y - (homeField.Bounds.Extents.y * .9f);
 
                         var delta = homePos - pos.Value;
                         var dist = math.length(delta);
@@ -142,10 +125,10 @@ public class MoveToTarget : SystemBase
                         {
                             velocity.Value += delta * (chaseForce * deltaTime / dist);
                         }
-                        // else
-                        // {
-                        //     ecb.AddComponent(entityInQueryIndex, target.ResourceTarget, new Carried() { Value = entity });
-                        // }
+                        else
+                        {
+                            ecb.AddComponent(entityInQueryIndex, target.ResourceTarget, new Carried() { Value = entity });
+                        }
                     }
                 }
 
