@@ -4,5 +4,6 @@
 public struct ParticleSpawnerAuthoring : IComponentData
 {
     public Entity BloodPrefab;
-    public Entity SmokePrefab; 
+    public Entity SmokePrefab;
+    public int NumBloodParticles;
 }

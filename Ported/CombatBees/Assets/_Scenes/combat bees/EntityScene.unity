@@ -596,6 +596,7 @@ MonoBehaviour:
     type: 3}
   SmokePrefab: {fileID: 6014937838678424058, guid: 13ad5d563918485498d4c4d47faf11d2,
     type: 3}
+  NumBloodParticles: 10
 --- !u!1 &1627056323
 GameObject:
   m_ObjectHideFlags: 0
@@ -973,8 +974,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 5356589217516860716, guid: a51f1ac809e5a0948b6d84c8716bed21, type: 3}
-  BeeCount: 100
-  BeesPerResource: 4
+  BeeCount: 15000
+  BeesPerResource: 100
 --- !u!1 &2057246127
 GameObject:
   m_ObjectHideFlags: 0
@@ -1143,4 +1144,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 8968268261922506393, guid: bf5da6c96cb75214189e68d348e41548, type: 3}
-  Count: 0
+  Count: 1000

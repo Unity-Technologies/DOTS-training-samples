@@ -73,11 +73,14 @@ public class DeathSystem : SystemBase
                     {
                         var spawner = particleSpawners[0];
 
-                        var particle = ecb1.Instantiate(entityInQueryIndex, spawner.BloodPrefab);
-                        ecb1.SetComponent(entityInQueryIndex, particle, new Translation { Value = ltw.Position });
-                        ecb1.SetComponent(entityInQueryIndex, particle, new Velocity { Value = v.Value });
-                        ecb1.AddComponent<Gravity>(entityInQueryIndex, particle);
-                        ecb1.AddComponent(entityInQueryIndex, particle, new DespawnTimer { Time = random.NextFloat(2f, 5f) });
+                        for (var i = 0; i < spawner.NumBloodParticles; ++i)
+                        {
+                            var particle = ecb1.Instantiate(entityInQueryIndex, spawner.BloodPrefab);
+                            ecb1.SetComponent(entityInQueryIndex, particle, new Translation { Value = ltw.Position });
+                            ecb1.SetComponent(entityInQueryIndex, particle, new Velocity { Value = v.Value + random.NextFloat3Direction() });
+                            ecb1.AddComponent<Gravity>(entityInQueryIndex, particle);
+                            ecb1.AddComponent(entityInQueryIndex, particle, new DespawnTimer { Time = random.NextFloat(2f, 5f) });
+                        }
                     }
 
                     ecb1.DestroyEntity(entityInQueryIndex, entity);
