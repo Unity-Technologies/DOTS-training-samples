@@ -114,7 +114,7 @@ public class MoveToTarget : SystemBase
                             target.ResourceTarget = Entity.Null;
                         }
                     }
-                    else
+                    else if (HasComponent<Translation>(target.ResourceTarget))
                     {
                         targetPos = GetComponent<Translation>(target.ResourceTarget);
 
