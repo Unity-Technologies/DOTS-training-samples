@@ -18,7 +18,7 @@ public class ResourceSpawnerSystem : SystemBase
             All = new[]
             {
                 ComponentType.ReadOnly<FieldInfo>()
-            }, 
+            },
             None = new[]
             {
                 ComponentType.ReadOnly<TeamOne>(),
@@ -27,7 +27,7 @@ public class ResourceSpawnerSystem : SystemBase
         });
 
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-        m_Random = new Unity.Mathematics.Random((uint)DateTime.Now.Ticks); 
+        m_Random = new Unity.Mathematics.Random((uint)DateTime.Now.Ticks);
     }
 
     protected override void OnUpdate()
@@ -37,9 +37,9 @@ public class ResourceSpawnerSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, mainFieldHandle);
 
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
-        var random = m_Random; 
+        var random = m_Random;
 
-        Entities
+        Dependency = Entities
             .WithDeallocateOnJobCompletion(mainFields)
             .ForEach((int entityInQueryIndex, Entity entity, in Spawner spawner, in LocalToWorld ltw) =>
             {
@@ -49,14 +49,16 @@ public class ResourceSpawnerSystem : SystemBase
                 for (int x = 0; x < spawner.Count; ++x)
                 {
                     var instance = ecb.Instantiate(entityInQueryIndex, spawner.Prefab);
-                    ecb.SetComponent(entityInQueryIndex, instance, new Translation
-                    {
-                        Value = center + new float3(math.sin(x), 0, math.cos(x)) * mainField.Bounds.Extents.z * random.NextFloat()
-                    });
+                    ecb.SetComponent(entityInQueryIndex,
+                        instance,
+                        new Translation
+                        {
+                            Value = center + new float3(math.sin(x), 0, math.cos(x)) * mainField.Bounds.Extents.z * random.NextFloat()
+                        });
                 }
 
                 ecb.DestroyEntity(entityInQueryIndex, entity);
-            }).Schedule();
+            }).ScheduleParallel(Dependency);
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
         Enabled = false;

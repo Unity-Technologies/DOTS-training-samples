@@ -36,6 +36,6 @@ public class MoveResource : SystemBase
                 var carrierVel = carrierVelocityLookup[carried.Value];
                 translation.Value = math.lerp(translation.Value, carrierPos.Value, carryStiffness * deltaTime);
                 velocity.Value = carrierVel.Value;
-            }).Schedule();
+            }).ScheduleParallel();
     }
 }

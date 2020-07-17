@@ -67,7 +67,7 @@ public class GravityCollisionSystem : SystemBase
         var minBeeSize = BeeManager.Instance.minBeeSize;
         var maxBeeSize = BeeManager.Instance.maxBeeSize;
 
-        Entities.WithAll<Gravity>()
+        Dependency = Entities.WithAll<Gravity>()
             .WithNone<Carried>()
             .WithDeallocateOnJobCompletion(mainField)
             .WithDeallocateOnJobCompletion(teamFields)
@@ -135,7 +135,7 @@ public class GravityCollisionSystem : SystemBase
 
                     v.Value = value;
                 }
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }

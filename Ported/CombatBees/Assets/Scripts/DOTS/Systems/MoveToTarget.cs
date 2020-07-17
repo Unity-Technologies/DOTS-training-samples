@@ -54,7 +54,7 @@ public class MoveToTarget : SystemBase
 
         var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
 
-        Entities
+        Dependency = Entities
             .WithNone<DespawnTimer>()
             .WithDeallocateOnJobCompletion(teamOneFields)
             .WithDeallocateOnJobCompletion(teamTwoFields)
@@ -133,6 +133,8 @@ public class MoveToTarget : SystemBase
                 }
 
                 smoothing.SmoothDirection = smoothing.SmoothPosition - oldSmoothPos;
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
+
+        m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }
