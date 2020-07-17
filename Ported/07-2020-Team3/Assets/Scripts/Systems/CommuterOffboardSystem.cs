@@ -38,9 +38,11 @@ public class CommuterOffboardSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, trainCarEntitiesHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, trainCarsHandle);
         var seatsBufferFromEntity = GetBufferFromEntity<Seat>();
+        var trainStatesAccessor = GetComponentDataFromEntity<TrainState>(true);
 
         Entities
             .WithName("Metro_CommuterOffboardJob")
+            .WithReadOnly(trainStatesAccessor)
             .WithDeallocateOnJobCompletion(trainCarEntities)
             .WithDeallocateOnJobCompletion(trainCars)
             .ForEach((Entity commuterEntity, int entityInQueryIndex, ref Commuter commuter, in Translation translation,
@@ -49,7 +51,7 @@ public class CommuterOffboardSystem : SystemBase
                 for (var i = 0; i < trainCars.Length; ++i)
                 {
                     var trainCar = trainCars[i];
-                    var trainState = GetComponent<TrainState>(trainCar.train);
+                    var trainState = trainStatesAccessor[trainCar.train];
                     if (trainState.currentPlatform != commuter.NextPlatform || trainState.timeUntilDeparture <= 0f)
                         continue;
 

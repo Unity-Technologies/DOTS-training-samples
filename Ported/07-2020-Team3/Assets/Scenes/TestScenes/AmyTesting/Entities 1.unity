@@ -1084,7 +1084,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 605c10c976a747a4781a3e36599e9cf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfTrainsPerTrack: 10
+  numberOfTrainsPerTrack: 2
   trainPrefab: {fileID: 8991921846454915066, guid: 7b78b31f92fec264f8a09b38b5df107a, type: 3}
 --- !u!4 &968288761
 Transform:
@@ -1117,7 +1117,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1059559036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1613,7 +1613,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1486767728
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2132,8 +2132,8 @@ MonoBehaviour:
   CommuterPrefab: {fileID: 8197137346706109426, guid: 65e34845986c05545b80aeb3b5ac95f1, type: 3}
   SpawnCount: 50000
   SpawnRadius: 15
-  MinCommuterSpeed: 8
-  MaxCommuterSpeed: 20
+  MinCommuterSpeed: 30
+  MaxCommuterSpeed: 30
 --- !u!114 &1929420485
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2287,7 +2287,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2019891816
 MonoBehaviour:
   m_ObjectHideFlags: 0
