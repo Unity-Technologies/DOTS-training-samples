@@ -156,7 +156,7 @@ namespace Fire
                             var posZ = spawner.Center.z + bounds.SizeXZ * (z - (spawner.CountZ - 1) / 2);
 
                             // Add random offset on y to debug that the grid spacing is correct
-                            var posY = random.NextFloat(-0.01f, 0.01f) + spawner.Center.y;
+                            var posY = /*random.NextFloat(-0.01f, 0.01f) +*/ -0.01f + spawner.Center.y;
 
                             height.Value = posY;
                             height.Variance = random.NextFloat(0.055f, 0.065f);

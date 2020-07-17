@@ -67,7 +67,7 @@ namespace Water
                     if ((leftBound > hit.x && hit.x > rightBound)
                     && (topBound > hit.z && hit.z > bottomBound))
                     {
-                        temperature.Value = 1;
+                        temperature.Value += 0.5f;
                     }
                 }
             }).ScheduleParallel();
