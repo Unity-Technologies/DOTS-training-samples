@@ -76,7 +76,7 @@ namespace FireBrigade.Systems
                         new Attached {Value = entity, Offset = new float3(0, 0.5f, 0)});
                     ecb.RemoveComponent<BucketTarget>(entityInQueryIndex, entity);
                     goalPosition.Value = waterTarget.Position;
-                    var bucketFireTarget = new FireTarget {entity = fireTarget.entity, Position = fireTarget.Position};
+                    var bucketFireTarget = new FireTarget {Position = fireTarget.Position};
                     ecb.AddComponent(entityInQueryIndex, bucketTarget.entity, bucketFireTarget);
                     ecb.RemoveComponent<BucketTarget>(entityInQueryIndex, entity);
 
