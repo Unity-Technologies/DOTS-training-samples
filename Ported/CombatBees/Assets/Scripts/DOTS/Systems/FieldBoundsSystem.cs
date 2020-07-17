@@ -32,7 +32,7 @@ public class FieldBoundsSystem : SystemBase
 
         Dependency = JobHandle.CombineDependencies(Dependency, mainFieldHandle);
 
-        Entities
+        Dependency = Entities
             .WithAny<TeamOne, TeamTwo>()
             .WithDeallocateOnJobCompletion(mainField)
             .ForEach((ref Velocity velocity, ref Translation translation) =>
@@ -70,6 +70,6 @@ public class FieldBoundsSystem : SystemBase
                         velocity.Value.z *= .8f;
                     }
                 }
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
     }
 }
