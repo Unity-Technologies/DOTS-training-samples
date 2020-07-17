@@ -27,6 +27,7 @@ public class MoveResource : SystemBase
 
         Entities
             .WithReadOnly(carrierTranslationLookup)
+            .WithReadOnly(carrierVelocityLookup)
             .WithNativeDisableContainerSafetyRestriction(carrierTranslationLookup)
             .WithNativeDisableContainerSafetyRestriction(carrierVelocityLookup)
             .ForEach((ref Translation translation, ref Velocity velocity, in Carried carried) =>
