@@ -31,7 +31,7 @@ namespace Water
                 {
                     if (!HasComponent<WellTag>(attachedEntity.Value)) return;
 
-                    fill.Value += 0.1f * deltaTime;
+                    fill.Value += 0.25f * deltaTime;
                     // fill.Value = math.max(1f, fill.Value);
                     
                     // Start moving full buckets toward the fire
@@ -39,7 +39,7 @@ namespace Water
                     {
                         ecb.AddComponent(entityInQueryIndex, entity, new BucketFullTag());
                         var speed = new MovementSpeed();
-                        speed.Value = 1f;
+                        speed.Value = 2f;
                         var goal = new GoalPosition();
                         goal.Value = fireTarget.Position;
                         if (HasComponent<MovementSpeed>(entity))
@@ -76,9 +76,11 @@ namespace Water
                 {
                     if (math.distance(transform.Position, fireTarget.Position) > 1f) return;
 
-                    Debug.Log("Extinguish");
                     fill.Value = 0f;
-                    ecb.AddComponent(entityInQueryIndex, fireTarget.Value, new ExtinguishAmount {Value = 1f, Propagate = true});
+                    if (!HasComponent<ExtinguishAmount>(fireTarget.Value))
+                    {
+                        ecb.AddComponent(entityInQueryIndex, fireTarget.Value, new ExtinguishAmount {Value = 1f, Propagate = true});
+                    }
                     ecb.RemoveComponent<BucketFullTag>(entityInQueryIndex, entity);
                     
                     // Set it moving back to the well to refill
