@@ -68,6 +68,9 @@ namespace Fire
                 .ForEach((Entity entity, ref TemperatureComponent temperature, ref ExtinguishAmount extinguishAmount) =>
                 {
                     temperature.Value -= 1f;//extinguishAmount.Value;
+                    ecb.RemoveComponent<ExtinguishAmount>(entity);
+
+                    if(!extinguishAmount.Propagate) return;
 
                     var neighbors = FireSearch.GetNeighboringIndicies(temperature.GridIndex, gridMetaData.CountX, gridMetaData.CountZ);
 
@@ -89,8 +92,6 @@ namespace Fire
                     {
                         addFireArr[neighbors.Right] = newExtinguishValue;
                     }
-                    ecb.RemoveComponent<ExtinguishAmount>(entity);
-
                 }).Run();
 
             float frameLerp = deltaTime * 8f;
@@ -107,7 +108,11 @@ namespace Fire
                 {
                     if (addFireArr[temperature.GridIndex] > 0f)
                     {
-                        ecbPar.AddComponent(entityInQueryIndex, fireEntity, new ExtinguishAmount{Value = addFireArr[temperature.GridIndex] });
+                        ecbPar.AddComponent(entityInQueryIndex, fireEntity, new ExtinguishAmount
+                        {
+                            Value = addFireArr[temperature.GridIndex],
+                            Propagate = false
+                        });
                     }
 
                     var temp = math.clamp(temperature.Value, 0, 1);

@@ -54,7 +54,7 @@ namespace Water
                 {
                     if (math.distancesq(ltw.Position, hit) < splashRadius)
                     {
-                        ecbPar.AddComponent(entityInQueryIndex, entity, new ExtinguishAmount { Value = 1f });
+                        ecbPar.AddComponent(entityInQueryIndex, entity, new ExtinguishAmount { Value = 1f, Propagate = true});
                     }
                 }
                 else if (mouseRightDown)

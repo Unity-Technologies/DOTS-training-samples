@@ -5,6 +5,7 @@ namespace Water
 {
     public struct ExtinguishAmount : IComponentData
     {
-        public float Value; 
+        public float Value;
+        public bool Propagate;
     }
 }
