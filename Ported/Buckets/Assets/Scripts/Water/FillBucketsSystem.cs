@@ -81,6 +81,10 @@ namespace Water
                     {
                         ecb.AddComponent(entityInQueryIndex, fireTarget.Value, new ExtinguishAmount {Value = 1f, Propagate = true});
                     }
+                    else
+                    {
+                        ecb.SetComponent(entityInQueryIndex, fireTarget.Value, new ExtinguishAmount {Value = 1f, Propagate = true});
+                    }
                     ecb.RemoveComponent<BucketFullTag>(entityInQueryIndex, entity);
                     
                     // Set it moving back to the well to refill
