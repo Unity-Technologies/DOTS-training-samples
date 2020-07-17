@@ -27,11 +27,53 @@ namespace FireBrigade.Systems
             }
 
             float deltaTime = Time.DeltaTime;
+            // Get fire
+            var fireBufferEntity = GetSingletonEntity<FireBufferElement>();
+            var fireLookup = GetBufferFromEntity<FireBufferElement>(true);
+            var fireBuffer = fireLookup[fireBufferEntity];
 
-            // Calculate formation for chain and update position for last frame's target
+            // Create cached native array of temperature components to read neighbor temperature data in jobs
+            NativeArray<FireData> fireData = new NativeArray<FireData>(fireBuffer.Length, Allocator.TempJob);
+            for (int i = 0; i < fireBuffer.Length; i++)
+            {
+                FireData data = new FireData
+                {
+                    temperatureComponent = EntityManager.GetComponentData<TemperatureComponent>(fireBuffer[i].FireEntity),
+                    localToWorldComponent = EntityManager.GetComponentData<LocalToWorld>(fireBuffer[i].FireEntity)
+                };
+                fireData[i] = data;
+            }
+
+            // Update target fire to always be the one closest to our water
+            Entities
+                .WithDeallocateOnJobCompletion(fireData)
+                .ForEach((ref FireTarget fireTarget, in WaterTarget waterTarget) =>
+                {
+                    // pick a fire cell closest to our chosen water position that is above a threshold in temp
+                    var closestDistance = float.MaxValue;
+                    float3 closestPosition = fireTarget.Position;
+                    for (int fireDataIndex = 0; fireDataIndex < fireData.Length; fireDataIndex++)
+                    {
+                        var data = fireData[fireDataIndex];
+                        var firePosition = data.localToWorldComponent.Position;
+                        if (data.temperatureComponent.Value < 0.2) continue;
+
+                        var distance = math.distancesq(firePosition, waterTarget.Position);
+                        if (distance < closestDistance)
+                        {
+                            closestDistance = distance;
+                            closestPosition = firePosition;
+                        }
+                    }
+                    closestPosition.y = 0f;
+                    fireTarget.Position = closestPosition;
+                }).ScheduleParallel();
+
+            // Calculate formation for chain for last frame's target
             Entities.ForEach(
                 (
                     ref Translation translation,
+                    ref GoalPosition goalPosition,
                     in WaterTarget waterPosition,
                     in FireTarget firePosition,
                     in GroupCount numFighters,
@@ -58,56 +100,21 @@ namespace FireBrigade.Systems
                                 waterPosition.Position);
                             break;
                     }
-
-                    if (math.distancesq(newGoalPosition, translation.Value) < 0.01f) return;
-
-                    var movementVector = newGoalPosition - translation.Value;
-                    movementVector = math.normalize(movementVector);
-                    translation.Value += movementVector * speed.Value * deltaTime;
+                    goalPosition.Value = newGoalPosition;
                 }).ScheduleParallel();
 
-
-            // Get fire
-            var fireBufferEntity = GetSingletonEntity<FireBufferElement>();
-            var fireLookup = GetBufferFromEntity<FireBufferElement>(true);
-            var fireBuffer = fireLookup[fireBufferEntity];
-
-            // Create cached native array of temperature components to read neighbor temperature data in jobs
-            NativeArray<FireData> fireData = new NativeArray<FireData>(fireBuffer.Length, Allocator.TempJob);
-            for (int i = 0; i < fireBuffer.Length; i++)
-            {
-                FireData data = new FireData
+            // Move toward goal
+            Entities.ForEach(
+                (ref Translation translation,
+                    in GoalPosition goalPosition,
+                    in MovementSpeed speed) =>
                 {
-                    temperatureComponent = EntityManager.GetComponentData<TemperatureComponent>(fireBuffer[i].FireEntity),
-                    localToWorldComponent = EntityManager.GetComponentData<LocalToWorld>(fireBuffer[i].FireEntity)
-                };
-                fireData[i] = data;
-            }
+                    if (math.distancesq(goalPosition.Value, translation.Value) < 0.01f) return;
 
-            // Update target fire to always be the one closest to our water
-            Entities
-                .WithDeallocateOnJobCompletion(fireData)
-                .ForEach((ref FireTarget fireTarget, in WaterTarget waterTarget) =>
-                {
-                    // pick a fire cell closest to our chosen water position that is above a threshold in temp
-                    var closestDistance = float.MaxValue;
-                    var closestFireIndex = -1;
-                    float3 closestPosition = new float3();
-                    for (int fireDataIndex = 0; fireDataIndex < fireData.Length; fireDataIndex++)
-                    {
-                        var data = fireData[fireDataIndex];
-                        var firePosition = data.localToWorldComponent.Position;
-                        if (data.temperatureComponent.Value < 0.2) continue;
-                        
-                        var distance = math.distancesq(firePosition, waterTarget.Position);
-                        if (distance < closestDistance)
-                        {
-                            closestDistance = distance;
-                            closestPosition = firePosition;
-                        }
-                    }
-                    closestPosition.y = 0f;
-                    fireTarget.Position = closestPosition;
+                    var movementVector = goalPosition.Value - translation.Value;
+                    movementVector = math.normalize(movementVector);
+                    translation.Value += movementVector * speed.Value * deltaTime;
+
                 }).ScheduleParallel();
         }
 
