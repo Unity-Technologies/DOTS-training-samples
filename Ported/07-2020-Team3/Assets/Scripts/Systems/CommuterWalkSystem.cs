@@ -32,10 +32,11 @@ public class CommuterWalkSystem : SystemBase
                 if (math.distancesq(currentPosition, targetPosition) < distanceToMove * distanceToMove)
                 {
                     translation.Value = targetPosition;
-                    if (HasComponent<PlatformCenter>(waypointEntity))
+                    if (HasComponent<Platform>(waypointEntity))
                     {
                         concurrentECB.RemoveComponent<CommuterWalking>(entityInQueryIndex, commuterEntity);
                         concurrentECB.AddComponent(entityInQueryIndex, commuterEntity, new CommuterBoarding { QueueIndex = -1 });
+                        commuter.CurrentPlatform = waypointEntity;
                     }
 
                     var waypointsCount = waypointsBuffer.Length;

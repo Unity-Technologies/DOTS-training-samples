@@ -29,14 +29,15 @@ public class CommuterSpawningSystem : SystemBase
         const float twoPi = 2f * math.PI;
 
         Entities
-            .WithAll<Platform>()
             .ForEach((Entity spawnerEntity, in CommuterSpawner spawner,
-            in Translation spawnerTranslation, in DynamicBuffer<CommuterWaypoint> waypointsBuffer) =>
+            in Translation spawnerTranslation, in DynamicBuffer<RoutePlatform> routePlatformsBuffer,
+            in DynamicBuffer<CommuterWaypoint> waypointsBuffer) =>
         {
             var maxRadius = spawner.SpawnRadius;
             var minSpeed = spawner.MinCommuterSpeed;
             var maxSpeed = spawner.MaxCommuterSpeed;
             var spawnerPosition = spawnerTranslation.Value;
+            var firstPlatform = routePlatformsBuffer[0].Value;
             var firstWaypointPosition = GetComponent<Waypoint>(waypointsBuffer[0].Value).WorldPosition;
             for (int i = 0; i < spawner.SpawnCount; ++i)
             {
@@ -52,7 +53,7 @@ public class CommuterSpawningSystem : SystemBase
                 ecb.SetComponent(instance, new Commuter
                 {
                     Direction = math.normalize(firstWaypointPosition - instancePosition),
-                    CurrentPlatform = spawnerEntity
+                    CurrentPlatform = firstPlatform
                 });
 
                 var speed = speedRandom.NextFloat(minSpeed, maxSpeed);
