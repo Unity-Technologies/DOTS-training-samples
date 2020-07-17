@@ -49,6 +49,8 @@ public class TrainUpdateSystem : SystemBase
 
             if (trainState.timeUntilDeparture < 0)
             {
+                trainState.currentPlatform = Entity.Null;
+
                 var trackPoints = trackPointsAccessor[trainPosition.track];
                 var platforms = platformsAccessor[trainPosition.track];
 
@@ -56,13 +58,15 @@ public class TrainUpdateSystem : SystemBase
 
                 float oldPosition = trainPosition.position;
                 float newPosition = oldPosition + trainPosition.speed * deltaTime;
-                //Entity platformEntity = platforms[trainState.nextPlatform].platform;
+                
                 float platformPosition = trainState.inbound ? platforms[trainState.nextPlatform].Inbound.EndT : platforms[trainState.nextPlatform].Outbound.EndT;
                 platformPosition *= trackPoints.Length;
+                
 
                 if(oldPosition <= platformPosition && platformPosition <= newPosition)
                 {
-                    
+                    trainState.currentPlatform = trainState.inbound ? platforms[trainState.nextPlatform].Inbound.Platform : platforms[trainState.nextPlatform].Outbound.Platform;
+
                     if (trainState.inbound)
                         trainState.nextPlatform--;
                     else
@@ -91,10 +95,7 @@ public class TrainUpdateSystem : SystemBase
                 if (trainPosition.position >= trackPoints.Length)
                     trainPosition.position = 0.0f;
             }
-            else
-            {
-                trainState.currentPlatform = Entity.Null;
-            }
+            
 
         }).Schedule();
 

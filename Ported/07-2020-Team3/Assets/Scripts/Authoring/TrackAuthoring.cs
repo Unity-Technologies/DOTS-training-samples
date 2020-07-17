@@ -1,4 +1,5 @@
-﻿using Unity.Assertions;
+﻿using System.Linq;
+using Unity.Assertions;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -14,6 +15,8 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public Transform Transform;
         public bool IsPlatformStart;
+        public GameObject inboundPlatform;
+        public GameObject outboundPlatform;
     }
 
     struct PlatformDefinition
@@ -22,6 +25,7 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         // public float2 InboundTimes;
         public float3 Position;
         public quaternion Rotation;
+        public Entity platform;
     }
 
     struct StationDefinition
@@ -42,6 +46,9 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         var stationDefs = new NativeList<StationDefinition>(pointsLength, Allocator.TempJob);
         var spline = new NativeList<float3>((pointsLength + 2) * m_SplinePointsPerSegment, Allocator.TempJob);
         var isPlatform = new NativeBitArray(pointsLength, Allocator.TempJob);
+
+        Entity[] outboundPlatforms = m_Points.Where(p => p.IsPlatformStart).Select(p => conversionSystem.GetPrimaryEntity(p.outboundPlatform)).ToArray();
+        Entity[] inboundPlatforms = m_Points.Where(p => p.IsPlatformStart).Select(p => conversionSystem.GetPrimaryEntity(p.inboundPlatform)).ToArray();
 
         try
         {
@@ -67,6 +74,9 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             var stationsLength = stationDefs.Length;
             var stations = new NativeArray<TrackStation>(stationsLength, Allocator.Temp);
 
+            Assert.AreEqual(stationsLength, outboundPlatforms.Length);
+            Assert.AreEqual(stationsLength, inboundPlatforms.Length);
+
             var last = stationsLength - 1;
             for (var i = 0; i < stationsLength; i++)
             {
@@ -77,8 +87,8 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity
                 
                 stations[i] = new TrackStation
                 {
-                    Outbound = CreatePlatform(stationDef.Outbound, outboundsNext),
-                    Inbound = CreatePlatform(stationDef.Inbound, inboundsNext),
+                    Outbound = CreatePlatform(stationDef.Outbound, outboundsNext, outboundPlatforms[i]),
+                    Inbound = CreatePlatform(stationDef.Inbound, inboundsNext, inboundPlatforms[i]),
                 };
             }
 
@@ -97,7 +107,7 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         }
     }
 
-    static TrackPlatform CreatePlatform(in PlatformDefinition platformDefinition, int nextIndex)
+    static TrackPlatform CreatePlatform(in PlatformDefinition platformDefinition, int nextIndex, Entity platform)
     {
         return new TrackPlatform
         {
@@ -105,6 +115,7 @@ public class TrackAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             Orientation = new RigidTransform(platformDefinition.Rotation, platformDefinition.Position),
             StartT = platformDefinition.Times.x,
             EndT = platformDefinition.Times.y,
+            Platform = platform,
         };
     }
 
@@ -236,4 +247,5 @@ public struct TrackPlatform
     public int NextPlatformIndex;
     public float StartT;
     public float EndT;
+    public Entity Platform;
 }
