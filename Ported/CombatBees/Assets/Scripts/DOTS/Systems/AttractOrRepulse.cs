@@ -66,7 +66,7 @@ public class AttractOrRepulse : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, teamOneEntitiesHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, teamTwoEntitiesHandle);
 
-        Entities
+        Dependency = Entities
             .WithNone<DespawnTimer>()
             .WithDeallocateOnJobCompletion(teamOneEntities)
             .ForEach((ref Velocity velocity, in TeamOne team, in Translation translation) =>
@@ -88,9 +88,9 @@ public class AttractOrRepulse : SystemBase
                 {
                     velocity.Value -= delta * (repulsionForce * deltaTime / dist);
                 }
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
 
-        Entities
+        Dependency = Entities
             .WithNone<DespawnTimer>()
             .WithDeallocateOnJobCompletion(teamTwoEntities)
             .ForEach((ref Velocity velocity, in TeamTwo team, in Translation translation) =>
@@ -112,7 +112,7 @@ public class AttractOrRepulse : SystemBase
                 {
                     velocity.Value -= delta * (repulsionForce * deltaTime / dist);
                 }
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
 

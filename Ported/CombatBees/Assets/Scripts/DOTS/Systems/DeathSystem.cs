@@ -13,7 +13,6 @@ public class DeathSystem : SystemBase
     private EntityCommandBufferSystem m_ECBSystem;
     private Random m_Random;
 
-
     protected override void OnCreate()
     {
         m_ParticleSpawnerQuery = GetEntityQuery(new EntityQueryDesc
@@ -34,7 +33,8 @@ public class DeathSystem : SystemBase
 
         Dependency = JobHandle.CombineDependencies(Dependency, particleSpawnersHandle);
 
-        var ecb = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
+        var ecb1 = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
+        var ecb2 = m_ECBSystem.CreateCommandBuffer().ToConcurrent();
         var random = m_Random;
         var dt = Time.DeltaTime;
 
@@ -45,45 +45,56 @@ public class DeathSystem : SystemBase
             {
                 timer.Time -= dt;
                 if (timer.Time <= 0)
-                    ecb.DestroyEntity(entityInQueryIndex, entity);
+                    ecb1.DestroyEntity(entityInQueryIndex, entity);
             }).ScheduleParallel();
+
+        var despawnTimers = GetComponentDataFromEntity<DespawnTimer>();
 
         // Bees
-        Entities
+        var job1 = Entities
             .WithAny<TeamOne, TeamTwo>()
-            .ForEach((int entityInQueryIndex, Entity entity, ref DespawnTimer timer, in LocalToWorld ltw, in Velocity v) =>
+            .WithAll<DespawnTimer>()
+            .WithNativeDisableContainerSafetyRestriction(despawnTimers)
+            .WithNativeDisableContainerSafetyRestriction(particleSpawners)
+            .ForEach((int entityInQueryIndex, Entity entity, in LocalToWorld ltw, in Velocity v) =>
             {
+                var timer = despawnTimers[entity];
                 timer.Time -= dt;
 
                 if (timer.Time <= 0)
                 {
-                    var target = GetComponent<Target>(entity); 
+                    var target = GetComponent<Target>(entity);
                     if (target.ResourceTarget != Entity.Null)
                     {
-                        ecb.RemoveComponent<Carried>(entityInQueryIndex, target.ResourceTarget);
+                        ecb1.RemoveComponent<Carried>(entityInQueryIndex, target.ResourceTarget);
                     }
 
                     if (particleSpawners.Length > 0)
                     {
                         var spawner = particleSpawners[0];
 
-                        var particle = ecb.Instantiate(entityInQueryIndex, spawner.BloodPrefab);
-                        ecb.SetComponent(entityInQueryIndex, particle, new Translation { Value = ltw.Position });
-                        ecb.SetComponent(entityInQueryIndex, particle, new Velocity { Value = v.Value });
-                        ecb.AddComponent<Gravity>(entityInQueryIndex, particle);
-                        ecb.AddComponent(entityInQueryIndex, particle, new DespawnTimer { Time = random.NextFloat(2f, 5f) });
+                        var particle = ecb1.Instantiate(entityInQueryIndex, spawner.BloodPrefab);
+                        ecb1.SetComponent(entityInQueryIndex, particle, new Translation { Value = ltw.Position });
+                        ecb1.SetComponent(entityInQueryIndex, particle, new Velocity { Value = v.Value });
+                        ecb1.AddComponent<Gravity>(entityInQueryIndex, particle);
+                        ecb1.AddComponent(entityInQueryIndex, particle, new DespawnTimer { Time = random.NextFloat(2f, 5f) });
                     }
-                    ecb.DestroyEntity(entityInQueryIndex, entity);
+
+                    ecb1.DestroyEntity(entityInQueryIndex, entity);
                 }
-            }).ScheduleParallel();
+
+                despawnTimers[entity] = timer;
+            }).ScheduleParallel(Dependency);
 
         // Resources 
-        Entities
-            .WithAll<ResourceEntity>()
+        var job2 = Entities
+            .WithAll<ResourceEntity, DespawnTimer>()
             .WithNone<TeamOne, TeamTwo>()
-            .WithDeallocateOnJobCompletion(particleSpawners)
-            .ForEach((int entityInQueryIndex, Entity entity, ref DespawnTimer timer, in LocalToWorld ltw) =>
+            .WithNativeDisableContainerSafetyRestriction(despawnTimers)
+            .WithNativeDisableContainerSafetyRestriction(particleSpawners)
+            .ForEach((int entityInQueryIndex, Entity entity, in LocalToWorld ltw) =>
             {
+                var timer = despawnTimers[entity];
                 timer.Time -= dt;
 
                 if (timer.Time <= 0)
@@ -92,15 +103,21 @@ public class DeathSystem : SystemBase
                     {
                         var spawner = particleSpawners[0];
 
-                        var particle = ecb.Instantiate(entityInQueryIndex, spawner.SmokePrefab);
-                        ecb.SetComponent(entityInQueryIndex, particle, new Translation { Value = ltw.Position });
-                        ecb.SetComponent(entityInQueryIndex, particle, new Velocity { Value = new float3(0, random.NextFloat(1f, 5f), 0) });
-                        ecb.AddComponent(entityInQueryIndex, particle, new DespawnTimer { Time = random.NextFloat(0.2f, 0.35f) });
+                        var particle = ecb2.Instantiate(entityInQueryIndex, spawner.SmokePrefab);
+                        ecb2.SetComponent(entityInQueryIndex, particle, new Translation { Value = ltw.Position });
+                        ecb2.SetComponent(entityInQueryIndex, particle, new Velocity { Value = new float3(0, random.NextFloat(1f, 5f), 0) });
+                        ecb2.AddComponent(entityInQueryIndex, particle, new DespawnTimer { Time = random.NextFloat(0.2f, 0.35f) });
                     }
 
-                    ecb.DestroyEntity(entityInQueryIndex, entity);
+                    ecb2.DestroyEntity(entityInQueryIndex, entity);
                 }
-            }).ScheduleParallel();
+
+                despawnTimers[entity] = timer;
+            }).ScheduleParallel(Dependency);
+
+        Dependency = JobHandle.CombineDependencies(job1, job2);
+
+        particleSpawners.Dispose(Dependency);
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }

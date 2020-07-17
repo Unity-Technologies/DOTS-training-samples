@@ -45,7 +45,7 @@ public class BeeSpawnerSystem : SystemBase
         var minBeeSize = BeeManager.Instance.minBeeSize;
         var maxBeeSize = BeeManager.Instance.maxBeeSize;
 
-        Entities
+        Dependency = Entities
             .WithDeallocateOnJobCompletion(baseFields)
             .ForEach((int entityInQueryIndex, Entity entity, in BeeSpawner spawner, in LocalToWorld ltw) =>
             {
@@ -95,7 +95,7 @@ public class BeeSpawnerSystem : SystemBase
                 }
 
                 //ecb.DestroyEntity(entityInQueryIndex, entity);
-            }).Schedule();
+            }).ScheduleParallel(Dependency);
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
         Enabled = false;
