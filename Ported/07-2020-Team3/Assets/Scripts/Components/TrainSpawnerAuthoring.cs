@@ -5,30 +5,27 @@ using UnityEngine;
 
 public struct TrainSpawner : IComponentData
 {
+    public int numberOfTrainsPerTrack;
     public Entity trainPrefab;
-    public Entity commuterPrefab;
 }
 
 
 public class TrainSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
+    public int numberOfTrainsPerTrack;
     public GameObject trainPrefab;
-    public GameObject commuterPrefab;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity, new TrainSpawner
         {
+            numberOfTrainsPerTrack = numberOfTrainsPerTrack,
             trainPrefab = conversionSystem.GetPrimaryEntity(trainPrefab),
-            commuterPrefab = conversionSystem.GetPrimaryEntity(commuterPrefab),
         });
     }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(trainPrefab);
-
-        if(commuterPrefab != null)
-            referencedPrefabs.Add(commuterPrefab);
     }
 }

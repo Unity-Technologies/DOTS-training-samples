@@ -26,11 +26,24 @@ public class TrainSpawnSystem : SystemBase
 
         Entities.ForEach((int entityInQueryIndex, ref DynamicBuffer<TrackPoint> trackPoint, in Entity trackEntity) =>
         {
-            Entity train = ecb.Instantiate(entityInQueryIndex, trainSpawner.trainPrefab);
-            ecb.SetComponent(entityInQueryIndex, train, new TrainPosition
+            for (int i = 0; i < trainSpawner.numberOfTrainsPerTrack; i++)
             {
-                track = trackEntity
-            });
+                Entity train = ecb.Instantiate(entityInQueryIndex, trainSpawner.trainPrefab);
+
+                float position = i * trackPoint.Length / trainSpawner.numberOfTrainsPerTrack;
+
+                ecb.SetComponent(entityInQueryIndex, train, new TrainPosition
+                {
+                    track = trackEntity,
+                    position = position
+                });
+                /*
+                ecb.SetComponent(entityInQueryIndex, train, new TrainState
+                {
+                    inbound = i > trackPoint.Length / 2
+                });
+                */
+            }
         }).Schedule();
 
         //
