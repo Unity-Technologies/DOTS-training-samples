@@ -119,6 +119,15 @@ public class GravityCollisionSystem : SystemBase
                             }
                         }
                     }
+
+                    for (int j = 0; j < mainField.Length; ++j)
+                    {
+                        t.x = math.clamp(t.x, mainField[j].Bounds.Min.x, mainField[j].Bounds.Max.x);
+                        t.z = math.clamp(t.z, mainField[j].Bounds.Min.z, mainField[j].Bounds.Max.z);
+                        t.y = math.max(t.y, mainField[j].Bounds.Floor);
+
+                        translation.Value = t;
+                    }
                 }
 
                 // Now handle main field collision
