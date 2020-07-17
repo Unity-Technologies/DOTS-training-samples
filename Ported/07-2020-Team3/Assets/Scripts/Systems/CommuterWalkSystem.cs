@@ -20,6 +20,7 @@ public class CommuterWalkSystem : SystemBase
 
         var deltaTime = Time.DeltaTime;
         Entities
+            .WithName("Metro_CommuterWalkJob")
             .WithAll<CommuterWalking>()
             .ForEach((Entity commuterEntity, int entityInQueryIndex, ref Commuter commuter,
                 ref Translation translation, in CommuterSpeed commuterSpeed, in DynamicBuffer<CommuterWaypoint> waypointsBuffer) =>

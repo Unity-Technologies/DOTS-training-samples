@@ -38,6 +38,7 @@ public class CommuterOnTrainSystem : SystemBase
         Entities
             .WithNativeDisableContainerSafetyRestriction(commuterPositionAccessor)
             .WithNativeDisableContainerSafetyRestriction(commuterRotationAccessor)
+            .WithName("Metro_CommuterOnTrainJob")
             .ForEach((in Entity carEntity, in TrainCar trainCar, in Translation carPosition, in Rotation carRotation, in DynamicBuffer<Seat> seats) =>
         {
             //var seats = seatBufferAccessor[carEntity];
@@ -63,8 +64,6 @@ public class CommuterOnTrainSystem : SystemBase
                 }
             }
 
-
         }).ScheduleParallel();
-        
     }
 }

@@ -53,6 +53,7 @@ public class CarUpdateSystem : SystemBase
             .WithReadOnly(trainPositionAccessor)
             .WithReadOnly(trainStateAccessor)
             .WithReadOnly(trackPointAccessor)
+            .WithName("Metro_CarUpdateJob")
             .ForEach((ref Translation translation, ref Rotation rotation, ref Color colorCmp, in TrainCar trainCar) =>
         {
             

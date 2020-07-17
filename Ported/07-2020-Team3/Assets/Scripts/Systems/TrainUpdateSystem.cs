@@ -35,13 +35,14 @@ public class TrainUpdateSystem : SystemBase
 
         BufferFromEntity<TrackPoint> trackPointsAccessor = GetBufferFromEntity<TrackPoint>(true);
         BufferFromEntity<TrackStation> platformsAccessor = GetBufferFromEntity<TrackStation>(true);
-        
+
         MaximumTrainSpeed maximumTrainSpeed = GetSingleton<MaximumTrainSpeed>();
         TrainWaitTime trainWaitTime = GetSingleton<TrainWaitTime>();
 
         float dt = Time.DeltaTime;
 
         Entities
+            .WithName("Metro_TrainUpdateJob")
             .ForEach((int entityInQueryIndex, Entity entity, ref TrainPosition trainPosition, ref TrainState trainState) =>
         {
 
@@ -58,10 +59,10 @@ public class TrainUpdateSystem : SystemBase
 
                 float oldPosition = trainPosition.position;
                 float newPosition = oldPosition + trainPosition.speed * deltaTime;
-                
+
                 float platformPosition = trainState.inbound ? platforms[trainState.nextPlatform].Inbound.EndT : platforms[trainState.nextPlatform].Outbound.EndT;
                 platformPosition *= trackPoints.Length;
-                
+
 
                 if(oldPosition <= platformPosition && platformPosition <= newPosition)
                 {
@@ -91,7 +92,7 @@ public class TrainUpdateSystem : SystemBase
                 if (trainPosition.position >= trackPoints.Length)
                     trainPosition.position = 0.0f;
             }
-            
+
 
         }).Schedule();
 
