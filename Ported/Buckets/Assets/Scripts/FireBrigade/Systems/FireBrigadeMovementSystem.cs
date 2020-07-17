@@ -30,8 +30,9 @@ namespace FireBrigade.Systems
                     {
                         var temperature = GetComponent<TemperatureComponent>(fireBuffer[fireIndex].FireEntity);
                         if (temperature.Value < 0.2) continue;
-                        
-                        var distance = math.distancesq(GetComponent<LocalToWorld>(fireBuffer[fireIndex].FireEntity).Position,
+
+                        var distance = math.distancesq(
+                            GetComponent<LocalToWorld>(fireBuffer[fireIndex].FireEntity).Position,
                             waterTarget.Position);
                         if (distance < closestDistance)
                         {
@@ -39,11 +40,12 @@ namespace FireBrigade.Systems
                             closestFireIndex = fireIndex;
                         }
                     }
+
                     var firePosition = GetComponent<LocalToWorld>(fireBuffer[closestFireIndex].FireEntity).Position;
                     firePosition.y = 0f;
                     fireTarget.entity = fireBuffer[closestFireIndex].FireEntity;
                     fireTarget.Position = firePosition;
-                    
+
                 }).Schedule();
             
             // Calculate formation for chain
@@ -69,11 +71,13 @@ namespace FireBrigade.Systems
                             newGoalPosition = firePosition.Position;
                             break;
                         case FirefighterRole.full:
-                            newGoalPosition = GetChainPosition(roleIndex.Value, numFighters.Value, waterPosition.Position,
+                            newGoalPosition = GetChainPosition(roleIndex.Value, numFighters.Value,
+                                waterPosition.Position,
                                 firePosition.Position);
                             break;
                         case FirefighterRole.empty:
-                            newGoalPosition = GetChainPosition(roleIndex.Value, numFighters.Value, firePosition.Position,
+                            newGoalPosition = GetChainPosition(roleIndex.Value, numFighters.Value,
+                                firePosition.Position,
                                 waterPosition.Position);
                             break;
                     }
