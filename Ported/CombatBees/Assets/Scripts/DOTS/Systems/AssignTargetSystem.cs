@@ -67,11 +67,17 @@ public class AssignTargetSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, teamTwoEntitiesHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, resourceEntitiesHandle);
 
-        Entities
+        var targets = GetComponentDataFromEntity<Target>();
+
+        var job1 = Entities
             .WithNone<DespawnTimer>()
+            .WithAll<Target>()
+            .WithNativeDisableContainerSafetyRestriction(targets)
+            .WithNativeDisableContainerSafetyRestriction(resourceEntities)
             .WithDeallocateOnJobCompletion(teamTwoEntities)
-            .ForEach((ref Target target, in TeamOne team) =>
+            .ForEach((Entity entity, in TeamOne team) =>
             {
+                var target = targets[entity];
                 if (target.EnemyTarget == Entity.Null && target.ResourceTarget == Entity.Null)
                 {
                     var aggression = random.NextFloat(0, 1);
@@ -107,14 +113,18 @@ public class AssignTargetSystem : SystemBase
                     }
                 }
 
-            }).Schedule();
+                targets[entity] = target;
+            }).ScheduleParallel(Dependency);
 
-        Entities
+        var job2 = Entities
             .WithNone<DespawnTimer>()
+            .WithAll<Target>()
+            .WithNativeDisableContainerSafetyRestriction(targets)
+            .WithNativeDisableContainerSafetyRestriction(resourceEntities)
             .WithDeallocateOnJobCompletion(teamOneEntities)
-            .WithDeallocateOnJobCompletion(resourceEntities)
-            .ForEach((ref Target target, in TeamTwo team) =>
+            .ForEach((Entity entity, in TeamTwo team) =>
             {
+                var target = targets[entity];
                 if (target.EnemyTarget == Entity.Null && target.ResourceTarget == Entity.Null)
                 {
                     var aggression = random.NextFloat(0, 1);
@@ -150,7 +160,12 @@ public class AssignTargetSystem : SystemBase
                     }
                 }
 
-            }).Schedule();
+                targets[entity] = target;
+            }).ScheduleParallel(Dependency);
+
+        Dependency = JobHandle.CombineDependencies(job1, job2);
+
+        resourceEntities.Dispose(Dependency);
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
 
