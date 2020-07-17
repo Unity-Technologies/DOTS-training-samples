@@ -58,10 +58,8 @@ public class MoveToTarget : SystemBase
             .WithNone<DespawnTimer>()
             .WithDeallocateOnJobCompletion(teamOneFields)
             .WithDeallocateOnJobCompletion(teamTwoFields)
-            .ForEach((Entity entity, int entityInQueryIndex, ref Velocity velocity, ref Smoothing smoothing, ref Target target, in Translation pos) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Velocity velocity, ref Target target, in Translation pos) =>
             {
-                var oldSmoothPos = smoothing.SmoothPosition;
-
                 Translation targetPos;
                 if (target.EnemyTarget != Entity.Null)
                 {
@@ -74,14 +72,11 @@ public class MoveToTarget : SystemBase
                     if (dist > attackDistance)
                     {
                         velocity.Value += delta * (chaseForce * deltaTime / dist);
-                        smoothing.SmoothPosition = math.lerp(smoothing.SmoothPosition, pos.Value, deltaTime * rotationStiffness);
                     }
 
                     // Attacking
                     else
                     {
-                        smoothing.SmoothPosition = pos.Value;
-
                         velocity.Value += delta * (attackForce * deltaTime / dist);
 
                         if (dist < hitDistance)
@@ -131,8 +126,6 @@ public class MoveToTarget : SystemBase
                         }
                     }
                 }
-
-                smoothing.SmoothDirection = smoothing.SmoothPosition - oldSmoothPos;
             }).ScheduleParallel(Dependency);
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
