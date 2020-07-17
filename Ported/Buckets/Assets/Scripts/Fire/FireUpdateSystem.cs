@@ -63,6 +63,8 @@ namespace Fire
                 temperatureComponents[i] = EntityManager.GetComponentData<TemperatureComponent>(gridArray[i].FireEntity);
             }
 
+            float frameLerp = deltaTime * 8f;
+
             // Update fires in scene
             Entities
                 .WithDeallocateOnJobCompletion(temperatureComponents)
@@ -105,10 +107,12 @@ namespace Fire
 
                     // Compute new height
                     float newHeight = bounds.SizeY / 2f + fireVariance;
-                    position.Value.y = startHeight.Value + newHeight * temperature.Value;
+                    float heightFrameTarget = startHeight.Value + newHeight * temperature.Value;
+                    position.Value.y = math.lerp(position.Value.y, heightFrameTarget, frameLerp);
 
                     // Update fire color
-                    color.Value = fireOut ? pallete.UnlitColor : UnityMathUtils.Lerp(pallete.LitLowColor, pallete.LitHighColor, temperature.Value);
+                    float4 newColor = fireOut ? pallete.UnlitColor : UnityMathUtils.Lerp(pallete.LitLowColor, pallete.LitHighColor, temperature.Value);
+                    color.Value = UnityMathUtils.Lerp(color.Value, newColor, frameLerp);
                 }).ScheduleParallel();
         }
     }
