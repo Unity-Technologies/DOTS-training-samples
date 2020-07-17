@@ -25,7 +25,8 @@ namespace Fire
                 GridIndex = 0
             });
 
-            dstManager.AddComponentData(entity, new ExtinguishAmount {Value = 0f});
+            dstManager.AddComponentData(entity, new ExtinguishAmount {Value = 0f, Propagate = false});
+
             dstManager.AddComponentData(entity, new StartHeight { Value = 0f });
             dstManager.AddComponentData(entity, new BoundsComponent
             {

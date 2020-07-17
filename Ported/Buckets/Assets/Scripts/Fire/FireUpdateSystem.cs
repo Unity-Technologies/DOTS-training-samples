@@ -69,7 +69,6 @@ namespace Fire
                 {
                     if (extinguishAmount.Value <= 0f) return;
 
-                    temperature.Value -= extinguishAmount.Value;
                     float newExtinguishValue = extinguishAmount.Value - diminishAmount;
 
                     if(newExtinguishValue <= 0f) return;
@@ -108,9 +107,10 @@ namespace Fire
                     if (addFireArr[temperature.GridIndex] > 0f)
                     {
                         float newValue = addFireArr[temperature.GridIndex];
-                        extinguishAmount.Value = math.max(extinguishAmount.Value, newValue);
+                        extinguishAmount.Value = newValue;
                     }
 
+                    //temperature.Value -= extinguishAmount.Value;
                     var temp = math.clamp(temperature.Value, 0, 1);
 
                     // If temp is 0, velocity is put out
