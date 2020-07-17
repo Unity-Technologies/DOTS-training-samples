@@ -104,6 +104,7 @@ public class CommuterBoardTrainSystem : SystemBase
                                 concurrentECB.RemoveComponent<CommuterBoarding>(entityInQueryIndex, commuterEntity);
                                 boarded = true;
                                 seatsBuffer[j] = seat;
+                                concurrentECB.AddComponent<RidingTrain>(entityInQueryIndex, commuterEntity);
                                 break;
                             }
                         }

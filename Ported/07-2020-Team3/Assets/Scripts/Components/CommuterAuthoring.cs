@@ -9,6 +9,7 @@ public struct Commuter : IComponentData
     public int NextWaypoint;
     public float3 Direction;
     public Entity CurrentPlatform;
+    public Entity NextPlatform;
 }
 
 public class CommuterAuthoring : MonoBehaviour, IConvertGameObjectToEntity

@@ -53,7 +53,7 @@ public class CommuterSpawningSystem : SystemBase
                 ecb.SetComponent(instance, new Commuter
                 {
                     Direction = math.normalize(firstWaypointPosition - instancePosition),
-                    CurrentPlatform = firstPlatform
+                    NextPlatform = firstPlatform
                 });
 
                 var speed = speedRandom.NextFloat(minSpeed, maxSpeed);

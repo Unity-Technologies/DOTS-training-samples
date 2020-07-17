@@ -2001,11 +2001,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   WaypointGameObjects:
+  - {fileID: 594664214}
   - {fileID: 545425388}
   - {fileID: 1073399415}
   - {fileID: 631520984}
   - {fileID: 2083386464}
   - {fileID: 65608200}
+  - {fileID: 834572582}
   - {fileID: 53410147}
   - {fileID: 63098643}
   - {fileID: 1544119379}

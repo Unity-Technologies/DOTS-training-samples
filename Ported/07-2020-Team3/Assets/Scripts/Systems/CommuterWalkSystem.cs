@@ -24,27 +24,37 @@ public class CommuterWalkSystem : SystemBase
             .ForEach((Entity commuterEntity, int entityInQueryIndex, ref Commuter commuter,
                 ref Translation translation, in CommuterSpeed commuterSpeed, in DynamicBuffer<CommuterWaypoint> waypointsBuffer) =>
             {
-                var targetWaypoint = commuter.NextWaypoint;
-                var waypointEntity = waypointsBuffer[targetWaypoint].Value;
+                var waypointsCount = waypointsBuffer.Length;
+                var targetWaypointIndex = commuter.NextWaypoint;
+                var nextWaypointIndex = targetWaypointIndex + 1;
+                var waypointEntity = waypointsBuffer[targetWaypointIndex].Value;
                 var targetPosition = GetComponent<Waypoint>(waypointEntity).WorldPosition; // TODO: DO NOT DO THIS! use entity query
                 var distanceToMove = commuterSpeed.Value * deltaTime;
                 var currentPosition = translation.Value;
                 if (math.distancesq(currentPosition, targetPosition) < distanceToMove * distanceToMove)
                 {
                     translation.Value = targetPosition;
-                    if (HasComponent<Platform>(waypointEntity))
+                    if (nextWaypointIndex >= waypointsCount)
                     {
-                        concurrentECB.RemoveComponent<CommuterWalking>(entityInQueryIndex, commuterEntity);
-                        concurrentECB.AddComponent(entityInQueryIndex, commuterEntity, new CommuterBoarding { QueueIndex = -1 });
-                        commuter.CurrentPlatform = waypointEntity;
+                        // Reached destination
+                        concurrentECB.DestroyEntity(entityInQueryIndex, commuterEntity);
                     }
-
-                    var waypointsCount = waypointsBuffer.Length;
-                    var nextWaypoint = targetWaypoint + 1;
-                    if (nextWaypoint < waypointsCount)
+                    else
                     {
-                        commuter.NextWaypoint = nextWaypoint;
-                        var nextWaypointEntity = waypointsBuffer[nextWaypoint].Value;
+                        var nextWaypointEntity = waypointsBuffer[nextWaypointIndex].Value;
+                        if (HasComponent<Platform>(waypointEntity))
+                        {
+                            if (HasComponent<Platform>(nextWaypointEntity))
+                            {
+                                concurrentECB.RemoveComponent<CommuterWalking>(entityInQueryIndex, commuterEntity);
+                                concurrentECB.AddComponent(entityInQueryIndex, commuterEntity, new CommuterBoarding { QueueIndex = -1 });
+                                commuter.NextPlatform = nextWaypointEntity;
+                            }
+
+                            commuter.CurrentPlatform = waypointEntity;
+                        }
+
+                        commuter.NextWaypoint = nextWaypointIndex;
                         var nextWaypointPosition = GetComponent<Waypoint>(nextWaypointEntity).WorldPosition;
                         commuter.Direction = math.normalize(nextWaypointPosition - translation.Value);
                     }
