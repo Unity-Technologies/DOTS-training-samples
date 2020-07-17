@@ -36,6 +36,7 @@ public class CommuterOnTrainSystem : SystemBase
         //  TODO - Reenable burst
         //
         Entities
+            .WithName("Metro_CommuterOnTrainJob")
             .ForEach((in Entity carEntity, in TrainCar trainCar, in Translation carPosition, in Rotation carRotation, in DynamicBuffer<Seat> seats) =>
         {
             //var seats = seatBufferAccessor[carEntity];
@@ -60,9 +61,9 @@ public class CommuterOnTrainSystem : SystemBase
                     commuterRotationAccessor[seats[i].occupiedBy] = new Rotation { Value = carRotation.Value };
                 }
             }
-            
+
 
         }).WithoutBurst().Run();
-        
+
     }
 }

@@ -40,6 +40,7 @@ public class CommuterOffboardSystem : SystemBase
         var seatsBufferFromEntity = GetBufferFromEntity<Seat>();
 
         Entities
+            .WithName("Metro_CommuterOffboardJob")
             .WithDeallocateOnJobCompletion(trainCarEntities)
             .WithDeallocateOnJobCompletion(trainCars)
             .ForEach((Entity commuterEntity, int entityInQueryIndex, ref Commuter commuter, in Translation translation,

@@ -9,7 +9,7 @@ using UnityEngine;
 public class CarUpdateSystem : SystemBase
 {
 
-    
+
 
     protected override void OnUpdate()
     {
@@ -20,7 +20,9 @@ public class CarUpdateSystem : SystemBase
 
         CarSpacing spacing = GetSingleton<CarSpacing>();
 
-        Entities.ForEach((ref Translation translation, ref Rotation rotation, ref Color colorCmp, in TrainCar trainCar) =>
+        Entities
+            .WithName("Metro_CarUpdateJob")
+            .ForEach((ref Translation translation, ref Rotation rotation, ref Color colorCmp, in TrainCar trainCar) =>
         {
 
             TrainPosition trainPosition = trainPositionAccessor[trainCar.train];
