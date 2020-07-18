@@ -22,23 +22,6 @@ namespace Fire
 
     public class FireUpdateSystem : SystemBase
     {
-        protected override void OnCreate()
-        {
-        }
-
-        protected override void OnStartRunning()
-        {
-            base.OnStartRunning();
-
-        }
-
-        protected override void OnStopRunning()
-        {
-
-            base.OnStopRunning();
-
-        }
-
         [BurstCompile]
         struct CopyTemperaturesFromFireGrid : IJob
         {
@@ -92,6 +75,7 @@ namespace Fire
             }.Schedule(Dependency);
 
             Profiler.EndSample();
+            Dependency.Complete();
 
             // Update fires in scene
             Entities
