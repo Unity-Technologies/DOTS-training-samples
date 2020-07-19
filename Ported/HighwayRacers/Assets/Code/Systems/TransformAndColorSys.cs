@@ -9,6 +9,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace HighwayRacer
 {
@@ -136,7 +137,8 @@ namespace HighwayRacer
             // remake car entities
             {
                 EntityManager.DestroyEntity(carQuery);
-                buckets.FindVisibleCarSegments(CameraSys.cameraBounds, RoadSys.roadSegments);
+                
+                buckets.FindVisibleCarSegments(CameraSys.cameraBounds, RoadSys.roadSegments);   // todo: this has obvious room for improvement (could be bursted and jobified)
                 var ents = EntityManager.Instantiate(carPrefab, buckets.visibleCarCount, Allocator.Temp);
                 ents.Dispose();
             }
