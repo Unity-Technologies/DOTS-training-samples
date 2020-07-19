@@ -11,7 +11,7 @@
         },
         {
             "$type": "Unity.Build.Common.OutputBuildDirectory, Unity.Build.Common",
-            "OutputDirectory": "buildIL"
+            "OutputDirectory": "build"
         },
         {
             "$type": "Unity.Build.Common.SceneList, Unity.Build.Common",
@@ -26,7 +26,7 @@
         },
         {
             "$type": "Unity.Build.Classic.ClassicScriptingSettings, Unity.Build.Classic",
-            "ScriptingBackend": 1,
+            "ScriptingBackend": 0,
             "Il2CppCompilerConfiguration": 1,
             "UseIncrementalGC": false
         }

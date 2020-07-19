@@ -13,14 +13,26 @@ namespace HighwayRacer
     {
         public bool IsCreated;
 
-        [NativeDisableContainerSafetyRestriction] private NativeArray<UnsafeList.ParallelWriter> writers;
-        
         [NativeDisableContainerSafetyRestriction]
-        [NativeDisableParallelForRestriction] 
+        private NativeArray<UnsafeList.ParallelWriter> writers;
+
+        [NativeDisableContainerSafetyRestriction] [NativeDisableParallelForRestriction]
         private NativeArray<UnsafeList> lists;
 
-        [NativeDisableContainerSafetyRestriction] public NativeArray<int> moveIndexes; // for each list, the index of first car that should be moved to next list
-        [NativeDisableContainerSafetyRestriction] private UnsafeList<Car> tempList;
+        [NativeDisableContainerSafetyRestriction] [NativeDisableParallelForRestriction]
+        private NativeArray<UnsafeList> listsVisible; // the buckets that are in view of the camera
+        
+        [NativeDisableContainerSafetyRestriction] [NativeDisableParallelForRestriction]
+        private NativeArray<int> visibleIndexes;   // needed to get corresponding RoadSegment
+
+        private int visibleListCount;
+        public int visibleCarCount;
+
+        [NativeDisableContainerSafetyRestriction]
+        public NativeArray<int> moveIndexes; // for each list, the index of first car that should be moved to next list
+
+        [NativeDisableContainerSafetyRestriction]
+        private UnsafeList<Car> tempList;
 
         private int largestBucketLength;
         private int bucketSize;
@@ -29,12 +41,17 @@ namespace HighwayRacer
         {
             IsCreated = true;
 
-            bucketSize = (int)(nCarsPerSegment * 1.6f);   // todo compute exactly how many cars fit in a bucket. This fudge seems to work though, but might be a bit wasteful
+            bucketSize = (int) (nCarsPerSegment *
+                                1.6f); // todo compute exactly how many cars fit in a bucket. This fudge seems to work though, but might be a bit wasteful
             largestBucketLength = 0;
             Debug.Log("bucket capacity: " + bucketSize + "  number of buckets: " + nSegments);
 
             writers = new NativeArray<UnsafeList.ParallelWriter>(nSegments, Allocator.Persistent);
             lists = new NativeArray<UnsafeList>(nSegments, Allocator.Persistent);
+            listsVisible = new NativeArray<UnsafeList>(nSegments, Allocator.Persistent);
+            visibleIndexes = new NativeArray<int>(nSegments, Allocator.Persistent);
+            visibleListCount = 0;
+            visibleCarCount = 0;
             moveIndexes = new NativeArray<int>(nSegments, Allocator.Persistent);
 
             var ptr = (UnsafeList*) lists.GetUnsafePtr();
@@ -61,12 +78,20 @@ namespace HighwayRacer
             list.Capacity = bucket.Capacity;
             return list;
         }
+        
+        public UnsafeList<Car> GetCarsVisible(int idx)
+        {
+            var bucket = listsVisible[idx];
+            var list = new UnsafeList<Car>((Car*) bucket.Ptr, bucket.Length);
+            list.Capacity = bucket.Capacity;
+            return list;
+        }
 
         public UnsafeList.ParallelWriter GetWriter(int segmentIdx)
         {
             return writers[segmentIdx];
         }
-        
+
         // for debugging
         public void CheckSorting()
         {
@@ -74,19 +99,20 @@ namespace HighwayRacer
             {
                 var prevPos = float.MinValue;
                 var bucket = GetCars(i);
-                
+
                 for (int carIdx = 0; carIdx < bucket.Length; carIdx++)
                 {
                     var car = bucket[carIdx];
-                    if (car.Pos < prevPos) 
+                    if (car.Pos < prevPos)
                     {
                         Debug.Log("car.Pos is lesser than previous car");
                     }
+
                     prevPos = car.Pos;
                 }
             }
         }
-        
+
         // for debugging
         public void LargestBucketLength()
         {
@@ -100,7 +126,7 @@ namespace HighwayRacer
                 }
             }
         }
-        
+
         // for debugging
         public void CheckPosAreFinite()
         {
@@ -117,7 +143,28 @@ namespace HighwayRacer
                 }
             }
         }
-        
+
+        public void FindVisibleCarSegments(Bounds cameraBounds, NativeArray<RoadSegment> roadSegments)
+        {
+            // get list of segments that are in view of the car
+            var carCount = 0;
+            visibleListCount = 0;
+            for (int i = 0; i < roadSegments.Length; i++)
+            {
+                var segBounds = roadSegments[i].Bounds;
+                if (cameraBounds.Intersects(segBounds))
+                {
+                    listsVisible[visibleListCount] = lists[i];
+                    visibleIndexes[visibleListCount] = i;
+                    visibleListCount++;
+
+                    carCount += GetCars(i).Length;
+                }
+            }
+            visibleCarCount = carCount;
+        }
+
+
         // 1. set new pos given speed
         // 2. moves cars between buckets when they move past end
         public void AdvanceCarsJob(NativeArray<float> segmentLengths, float dt, JobHandle dependency)
@@ -148,7 +195,7 @@ namespace HighwayRacer
 
             // append cached cars to end of first bucket 
             popCarsFromCache(0);
-            
+
             var sortJob = new SortJob()
             {
                 carBuckets = this
@@ -290,6 +337,8 @@ namespace HighwayRacer
 
                 writers.Dispose();
                 lists.Dispose();
+                listsVisible.Dispose();
+                visibleIndexes.Dispose();
                 moveIndexes.Dispose();
                 tempList.Dispose();
             }
@@ -301,23 +350,29 @@ namespace HighwayRacer
         }
 
         // throws if exhausts buckets
-        public void NextNthCar(ref int bucketIdx, ref int carIdx, int nCars)
+        public void NextNthCarVisible(ref int bucketIdx, ref int carIdx, int nCars)
         {
             // special check for first bucket
-            var firstBucket = GetCars(bucketIdx);
+            var firstBucket = listsVisible[bucketIdx];
             if ((carIdx + nCars) < firstBucket.Length)
             {
                 carIdx += nCars;
                 return;
             }
+
             nCars -= firstBucket.Length - carIdx;
             bucketIdx++;
 
             // all remaining buckets
             for (;; bucketIdx++)
             {
-                var bucket = GetCars(bucketIdx);
+                if (bucketIdx > listsVisible.Length)
+                {
+                    Debug.LogError("improperly exhausted visible buckets");
+                }
                 
+                var bucket = listsVisible[bucketIdx];
+
                 if (nCars < bucket.Length)
                 {
                     carIdx = nCars;
@@ -339,6 +394,24 @@ namespace HighwayRacer
                 }
             }
         }
+
+        public int FirstNonEmptyBucketVisible()
+        {
+            for (int bucketIdx = 0; bucketIdx < listsVisible.Length; bucketIdx++)
+            {
+                var bucket = listsVisible[bucketIdx];
+                if (bucket.Length > 0)
+                {
+                    return bucketIdx;
+                }
+            }
+            return -1;
+        }
+
+        public int VisibleRoadSegmentIndex(int bucketIdx)
+        {
+            return visibleIndexes[bucketIdx];
+        }
     }
 
     public struct CarCompare : IComparer<Car>
@@ -357,7 +430,7 @@ namespace HighwayRacer
             return 0;
         }
     }
-    
+
     [BurstCompile(CompileSynchronously = true)]
     public unsafe struct SortJob : IJobParallelFor
     {
@@ -424,7 +497,7 @@ namespace HighwayRacer
             for (var i = 0; i < bucket.Length; i++)
             {
                 var car = bucket[i];
-                
+
                 car.Pos += car.Speed * dt;
                 if (car.Pos > segmentLength)
                 {

@@ -12,6 +12,7 @@ namespace HighwayRacer
         public static NativeArray<RoadSegment> roadSegments;
         public static NativeArray<float> thresholds;
         public static NativeArray<float> segmentLengths;
+        
         public static CarBuckets CarBuckets;
 
         public const int nLanes = 4;
@@ -119,7 +120,7 @@ namespace HighwayRacer
             
             World.DefaultGameObjectInjectionWorld.GetExistingSystem<CameraSys>().ResetCamera();
 
-            EntityManager.CreateEntity(typeof(SpawnCars));
+            CarBucketSpawnSys.remakeBuckets = true;
 
             var transform = GameObject.Find("Road").transform;
 
@@ -176,7 +177,7 @@ namespace HighwayRacer
             {
                 segmentLengths.Dispose();
             }
-
+            
             if (CarBuckets.IsCreated)
             {
                 CarBuckets.Dispose();
@@ -256,6 +257,9 @@ namespace HighwayRacer
 
             var pos = new float3();
             float lengthSum = 0;
+            
+            var baseBounds = new Bounds();
+            baseBounds.extents = new Vector3(straightLength, straightLength, straightLength);
 
             // put the track pieces in place: end point of segment is start point of next
             for (int i = 0; i < roadSegments.Length; i++)
@@ -284,6 +288,8 @@ namespace HighwayRacer
                 
                 segment.Transform = tr;
                 segment.Length = length;
+                baseBounds.center = pos;
+                segment.Bounds = baseBounds;
                 
                 thresholds[i] = lengthSum;
                 segmentLengths[i] = length;
@@ -304,6 +310,7 @@ namespace HighwayRacer
         public float RotDegrees;             
         public float Length;
         public float Radius; // 0 for straight segments 
+        public Bounds Bounds;
 
         public bool IsCurved()
         {

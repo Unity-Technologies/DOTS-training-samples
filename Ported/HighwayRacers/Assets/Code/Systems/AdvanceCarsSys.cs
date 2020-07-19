@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace HighwayRacer
 {
-    [UpdateAfter(typeof(SetTransformAndColorSys))]
+    [UpdateAfter(typeof(TransformAndColorSys))]
     [AlwaysUpdateSystem]
     public class AdvanceCarsSys : SystemBase
     {

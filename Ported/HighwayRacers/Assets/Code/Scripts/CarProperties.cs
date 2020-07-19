@@ -101,9 +101,9 @@ public class CarProperties : MonoBehaviour
     void Start()
     {
         // set slider bounds
-        defaultSpeedSlider.SetBounds(CarSpawnSys.minSpeed, CarSpawnSys.maxSpeed);
-        overtakeSpeedSlider.SetBounds(CarSpawnSys.minOvertakeModifier * CarSpawnSys.minSpeed, CarSpawnSys.maxOvertakeModifier * CarSpawnSys.maxSpeed);
-        headwayBlockingDistanceSlider.SetBounds(CarSpawnSys.minBlockedDist, CarSpawnSys.maxBlockedDist);
+        defaultSpeedSlider.SetBounds(CarBucketSpawnSys.minSpeed, CarBucketSpawnSys.maxSpeed);
+        overtakeSpeedSlider.SetBounds(CarBucketSpawnSys.minOvertakeModifier * CarBucketSpawnSys.minSpeed, CarBucketSpawnSys.maxOvertakeModifier * CarBucketSpawnSys.maxSpeed);
+        headwayBlockingDistanceSlider.SetBounds(CarBucketSpawnSys.minBlockedDist, CarBucketSpawnSys.maxBlockedDist);
         Hide();
     }
 

@@ -38,5 +38,5 @@ OPTIMIZE:
       
       CameraSys
       AvoidanceMergeSpeedSys
-      SetTransformAndColorSys   
+      TransformAndColorSys   
       AdvanceCarsSys

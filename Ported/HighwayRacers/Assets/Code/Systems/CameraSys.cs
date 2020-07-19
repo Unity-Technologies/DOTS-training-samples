@@ -14,7 +14,7 @@ namespace HighwayRacer
 
     public class CameraSys : SystemBase
     {
-        public Rect bounds = new Rect(-500, -500, 1000, 1000);
+        public Rect moveBounds = new Rect(-500, -500, 1000, 1000);  // todo set this based on size of road
         public float moveSpeed = 20;
         public const float transitionDuration = 1.5f;
 
@@ -29,6 +29,12 @@ namespace HighwayRacer
 
         public Entity car;
         public State state = State.TOP_DOWN;
+        
+        private Vector3[] farCorners = new Vector3[4];
+        private Vector3[] nearCorners = new Vector3[4];
+        private Vector3[] corners = new Vector3[8];
+
+        public static Bounds cameraBounds;
 
         protected override void OnCreate()
         {
@@ -83,9 +89,9 @@ namespace HighwayRacer
 
                     var transform = Camera.main.transform;
                     var newPos = new Vector3(
-                        Mathf.Clamp(transform.position.x + v.x * dt * moveScale, bounds.xMin, bounds.xMax),
+                        Mathf.Clamp(transform.position.x + v.x * dt * moveScale, moveBounds.xMin, moveBounds.xMax),
                         transform.position.y,
-                        Mathf.Clamp(transform.position.z + v.y * dt * moveScale, bounds.yMin, bounds.yMax)
+                        Mathf.Clamp(transform.position.z + v.y * dt * moveScale, moveBounds.yMin, moveBounds.yMax)
                     );
                     topDownPosition = newPos;
                     Camera.main.transform.SetPositionAndRotation(topDownPosition, topDownRotation);
@@ -95,6 +101,17 @@ namespace HighwayRacer
                     updateCarCam();
                     break;
             }
+            
+            // get bounding area of segments
+            var camera = Camera.main;
+            
+            camera.CalculateFrustumCorners(new Rect(0, 0, 1, 1), camera.farClipPlane, Camera.MonoOrStereoscopicEye.Mono, farCorners);
+            camera.CalculateFrustumCorners(new Rect(0, 0, 1, 1), camera.nearClipPlane, Camera.MonoOrStereoscopicEye.Mono, nearCorners);
+            
+            farCorners.CopyTo(corners, 0);
+            nearCorners.CopyTo(corners, 4);
+            
+            cameraBounds = GeometryUtility.CalculateBounds(corners, camera.transform.localToWorldMatrix);
         }
 
         private void updateCarCam()
