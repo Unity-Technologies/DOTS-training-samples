@@ -32,7 +32,7 @@ namespace HighwayRacer
         public static int numCars = 10;
 
         public static float minLength = 400.0f; // 4 * curved length + 4 * min straight length
-        public static float maxLength = 1000000;
+        public static float maxLength = 3000000;
 
         public const float laneWidth = 1.88f;
         public static float roadLength = minLength;
