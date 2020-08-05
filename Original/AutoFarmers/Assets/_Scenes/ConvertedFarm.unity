@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 50623554}
   - component: {fileID: 50623553}
   - component: {fileID: 50623552}
+  - component: {fileID: 50623555}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -206,6 +207,39 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &50623555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 50623551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f10263e3bffb6b44698ab7ae32225d42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  farmerPrefab: {fileID: 0}
+  position: {x: 0, y: 0}
+  smoothPosition: {x: 0, y: 0}
+  intention: 0
+  matrix:
+    e00: 0
+    e01: 0
+    e02: 0
+    e03: 0
+    e10: 0
+    e11: 0
+    e12: 0
+    e13: 0
+    e20: 0
+    e21: 0
+    e22: 0
+    e23: 0
+    e30: 0
+    e31: 0
+    e32: 0
+    e33: 0
 --- !u!1 &1631158765
 GameObject:
   m_ObjectHideFlags: 0
