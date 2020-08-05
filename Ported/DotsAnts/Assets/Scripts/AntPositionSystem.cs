@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -62,7 +63,7 @@ public class AntPositionSystem : SystemBase
         defaultValues.obstaclesPerRing = defaults.obstaclesPerRing;
         defaultValues.obstacleRadius = defaults.obstacleRadius;
         
-        Entities.WithAll<Ant>().ForEach((ref Position position, ref DirectionAngle angle, ref Speed speed, in SteeringAngle steeringAngle, in CarryingFood carryingFood) =>
+        Entities.WithAll<Ant, LocalToWorld>().ForEach((ref Translation translation, ref Position position, ref DirectionAngle angle, ref Speed speed, in SteeringAngle steeringAngle, in CarryingFood carryingFood) =>
                 {
                     float targetSpeed = speed.value;
                     
@@ -120,6 +121,9 @@ public class AntPositionSystem : SystemBase
                     if (ovx != vx || ovy != vy) {
                         angle.value = Mathf.Atan2(vy,vx);
                     }
+                    
+                    // updating the actual entity positions in the world
+                    translation.Value = new float3(position.value.x, position.value.y, 0.0f);
                 }
             )
             .ScheduleParallel();
