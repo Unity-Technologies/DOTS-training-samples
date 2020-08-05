@@ -3,6 +3,7 @@ using Unity.Transforms;
 using Unity.Rendering;
 using UnityEngine;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class GameInitSystem:SystemBase
 {
     protected override void OnUpdate()
@@ -44,6 +45,9 @@ public class GameInitSystem:SystemBase
             EntityManager.RemoveComponent<Scale>(farmer);
             EntityManager.RemoveComponent<NonUniformScale>(farmer);
             EntityManager.AddComponentData<Position2D>(farmer,new Position2D { position = new Unity.Mathematics.float2(0,0) });
+            int posX = UnityEngine.Random.Range(0,10);
+            int posY = UnityEngine.Random.Range(0,10);
+            EntityManager.AddComponentData<WorkerTeleport>(farmer, new WorkerTeleport { position = new Unity.Mathematics.float2(posX,posY) });
 
             EntityManager.RemoveComponent<FarmerData>(entity);
 

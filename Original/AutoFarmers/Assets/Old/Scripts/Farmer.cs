@@ -59,6 +59,7 @@ public class Farmer:MonoBehaviour, IConvertGameObjectToEntity,IDeclareReferenced
         {
             farmerEntity = originalFarmer
         });
+        dstManager.AddComponentData<FarmerRuntimeData>(entity, new FarmerRuntimeData());
     }
 
     public Vector3 GetSmoothWorldPos() {
