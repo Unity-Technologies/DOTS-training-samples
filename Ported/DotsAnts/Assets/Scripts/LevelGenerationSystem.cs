@@ -5,32 +5,17 @@ using UnityEngine;
 
 public class LevelGenerationSystem : SystemBase
 {
-    //hardcoded for now, be moved later
-    public struct LevelSpawner : IComponentData
-    {
-        public int mapSize;
-        public int obstacleRingCount;
-        public float obstaclesPerRing;
-        public float obstacleRadius;
-    }
-    public LevelSpawner m_Spawner = new LevelSpawner()
-    {
-        mapSize = 126,
-        obstacleRingCount = 3,
-        obstaclesPerRing = 0.8f,
-        obstacleRadius = 2
-    };
-    
     protected override void OnUpdate()
     {
         Entities.WithStructuralChanges()
-            .ForEach((Entity entity, in ObstacleGeneratorAuthoring spawner, in MapResolution map, in LocalToWorld ltw) =>
+            .ForEach((Entity entity, in LevelGeneration spawner, in MapResolution map, in LocalToWorld ltw) =>
             {
                 //load / create texture with 2 channels (channel resolution to define)
                 Texture2D texture = new Texture2D(map.value, map.value, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32_SInt, UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
                 //if loaded reset the size
 
-                Color obstacleColor = new Color32(0, 1, 0, 0);
+                //obstacles are on the second channel
+                Color32 obstacleColor = new Color32(0, 1, 0, 0);
 
                 for (int i = 1; i <= spawner.obstacleRingCount; i++)
                 {
