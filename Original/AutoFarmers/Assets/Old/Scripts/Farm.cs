@@ -15,6 +15,7 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
 	}
 
 	public GameObject groundPrefab;
+    public GameObject rockPrefab;
 
 	public MapDebugOptions debugOptions = MapDebugOptions.Default;
 
@@ -300,6 +301,14 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
 			fieldSizeX = mapSize.x,
 			fieldSizeY = mapSize.y,
 		});
+
+        var originalRock = conversionSystem.GetPrimaryEntity(rockPrefab);
+        dstManager.AddComponentData<RockAuthoring>(entity, new RockAuthoring
+        {
+            rockEntity = originalRock,
+            mapX = mapSize.x,
+            mapY = mapSize.y
+        });
     }
 
 	void Start()
@@ -310,6 +319,7 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
 		referencedPrefabs.Add(groundPrefab);
+		referencedPrefabs.Add(rockPrefab);
     }
 
     Camera cam;

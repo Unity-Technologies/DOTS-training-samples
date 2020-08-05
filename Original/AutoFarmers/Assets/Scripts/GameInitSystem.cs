@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Rendering;
+using UnityEngine;
 
 public class GameInitSystem:SystemBase
 {
@@ -45,6 +46,27 @@ public class GameInitSystem:SystemBase
             EntityManager.AddComponentData<Position2D>(farmer,new Position2D { position = new Unity.Mathematics.float2(0,0) });
 
             EntityManager.RemoveComponent<FarmerData>(entity);
+
+        }).Run();
+
+        // Spawn rocks
+        Entities.WithStructuralChanges().ForEach((Entity entity, in RockAuthoring rockData) =>
+        {
+            for(int i = 0; i < 20; i++)
+            {
+                int rockX = Random.Range(0, rockData.mapX);
+                int rockY = Random.Range(0, rockData.mapY);
+
+                var farmer = EntityManager.Instantiate(rockData.rockEntity);
+                EntityManager.RemoveComponent<Translation>(farmer);
+                EntityManager.RemoveComponent<Rotation>(farmer);
+                EntityManager.RemoveComponent<Scale>(farmer);
+                EntityManager.RemoveComponent<NonUniformScale>(farmer);
+                EntityManager.AddComponentData<Position2D>(farmer, new Position2D { position = new Unity.Mathematics.float2(rockX, rockY) });
+            }
+            
+
+            EntityManager.RemoveComponent<RockAuthoring>(entity);
 
         }).Run();
     }
