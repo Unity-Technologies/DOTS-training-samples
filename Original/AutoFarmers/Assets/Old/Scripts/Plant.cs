@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 public class Plant {
 	public int x;
@@ -14,9 +15,12 @@ public class Plant {
 	public int index;
 	public int seed;
 
+	Random r;
+
 	public static Dictionary<int,Mesh> meshLookup;
 
 	public void Init(int posX, int posY, int randSeed) {
+		r = new Random((uint)randSeed);
 		seed = randSeed;
 		if (meshLookup==null) {
 			meshLookup = new Dictionary<int,Mesh>();
@@ -28,7 +32,7 @@ public class Plant {
 		harvested = false;
 		reserved = false;
 		Vector3 worldPos = new Vector3(posX+.5f,0f,posY+.5f);
-		rotation=Quaternion.Euler(Random.Range(-5f,5f),Random.value * 360f,Random.Range(-5f,5f));
+		rotation=Quaternion.Euler(r.NextFloat(-5, 5), r.NextFloat(0, 360),r.NextFloat(-5, 5));
 		matrix = Matrix4x4.TRS(worldPos,rotation,Vector3.one);
 	}
 
@@ -52,33 +56,30 @@ public class Plant {
 	}
 
 	Mesh GenerateMesh(int seed) {
-		Random.State oldRandState = Random.state;
-		Random.InitState(seed);
-
 		List<Vector3> vertices = new List<Vector3>();
 		List<int> triangles = new List<int>();
 		List<Color> colors = new List<Color>();
 		List<Vector2> uv = new List<Vector2>();
 
-		Color color1 = Random.ColorHSV(0f,1f,.5f,.8f,.25f,.9f);
-		Color color2 = Random.ColorHSV(0f,1f,.5f,.8f,.25f,.9f);
+		Color color1 = Color.HSVToRGB(r.NextFloat(), r.NextFloat(.5f, .8f), r.NextFloat(.25f, .9f));
+		Color color2 = Color.HSVToRGB(r.NextFloat(), r.NextFloat(.5f, .8f), r.NextFloat(.25f, .9f));
 
-		float height = Random.Range(.4f,1.4f);
+		float height = r.NextFloat(.4f,1.4f);
 
-		float angle = Random.value * Mathf.PI * 2f;
-		float armLength1 = Random.value * .4f + .1f;
-		float armLength2 = Random.value * .4f + .1f;
-		float armRaise1 = Random.value * .3f;
-		float armRaise2 = Random.value * .6f - .3f;
-		float armWidth1 = Random.value * .5f + .2f;
-		float armWidth2 = Random.value * .5f + .2f;
-		float armJitter1 = Random.value * .3f;
-		float armJitter2 = Random.value * .3f;
-		float stalkWaveStr = Random.value * .5f;
-		float stalkWaveFreq = Random.Range(.25f,1f);
-		float stalkWaveOffset = Random.value * Mathf.PI * 2f;
+		float angle = r.NextFloat(0, 1) * Mathf.PI * 2f;
+		float armLength1 = r.NextFloat(0, 1) * .4f + .1f;
+		float armLength2 = r.NextFloat(0, 1) * .4f + .1f;
+		float armRaise1 = r.NextFloat(0, 1) * .3f;
+		float armRaise2 = r.NextFloat(0, 1) * .6f - .3f;
+		float armWidth1 = r.NextFloat(0, 1) * .5f + .2f;
+		float armWidth2 = r.NextFloat(0, 1) * .5f + .2f;
+		float armJitter1 = r.NextFloat(0, 1) * .3f;
+		float armJitter2 = r.NextFloat(0, 1) * .3f;
+		float stalkWaveStr = r.NextFloat(0, 1) * .5f;
+		float stalkWaveFreq = UnityEngine.Random.Range(.25f,1f);
+		float stalkWaveOffset = r.NextFloat(0, 1) * Mathf.PI * 2f;
 
-		int triCount = Random.Range(15,35);
+		int triCount = UnityEngine.Random.Range(15,35);
 
 		for (int i=0;i<triCount;i++) {
 			// front face
@@ -101,9 +102,9 @@ public class Plant {
 			float y = t * height;
 			vertices.Add(new Vector3(stalkWave,y,0f));
 			Vector3 armPos = new Vector3(stalkWave + Mathf.Cos(angle)*armLength,y + armRaise,Mathf.Sin(angle)*armLength);
-			vertices.Add(armPos + Random.insideUnitSphere * armJitter);
+			vertices.Add(armPos + UnityEngine.Random.insideUnitSphere * armJitter);
 			armPos = new Vector3(stalkWave + Mathf.Cos(angle+armWidth) * armLength,y + armRaise,Mathf.Sin(angle+armWidth) * armLength);
-			vertices.Add(armPos+Random.insideUnitSphere*armJitter);
+			vertices.Add(armPos+UnityEngine.Random.insideUnitSphere*armJitter);
 
 			colors.Add(color1);
 			colors.Add(color2);
@@ -126,8 +127,6 @@ public class Plant {
 
 		meshLookup.Add(seed,outputMesh);
 
-		Farm.RegisterSeed(seed);
-		Random.state = oldRandState;
 		return outputMesh;
 	}
 }

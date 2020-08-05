@@ -16,5 +16,16 @@ public class Transform2DSystem : SystemBase
             // var scale = float4x4.Scale(new float3(scale2D.Value, 1));
             localToWorld.Value = trans;
         }).ScheduleParallel();
+
+        Entities
+            .WithChangeFilter<Position2D>()
+            .WithChangeFilter<Size>()
+            .ForEach((ref LocalToWorld localToWorld, in Position2D translation2D, in Size size) => // TODO: size and scale components
+        {
+            var trans = float4x4.Translate(new float3(translation2D.position.x, 0, translation2D.position.y));
+            var scale = float4x4.Scale(new float3(size.value, size.value, size.value));
+            localToWorld.Value = trans * scale;
+        }).ScheduleParallel();
+
     }
 }
