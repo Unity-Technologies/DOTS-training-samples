@@ -24,14 +24,14 @@ public class BuildSplineSystem : SystemBase
                 segmentArray[0] = new SegmentData
                 {
                     // A
-                    Start = new float3(-1, 1, 0),
+                    Start = new float3(-1, 0, 1),
                     End = new float3(0, 0, 0),
                 };
 
                 segmentArray[1] = new SegmentData
                 {
                     //B
-                    Start = new float3(-1, -1, 0),
+                    Start = new float3(-1, 0, -1),
                     End = new float3(0, 0, 0),
                 };
 
@@ -46,14 +46,14 @@ public class BuildSplineSystem : SystemBase
                 {
                     //D
                     Start = new float3(1, 0, 0),
-                    End = new float3(2, 1, 0),
+                    End = new float3(2, 0, 1),
                 };
 
                 segmentArray[4] = new SegmentData
                 {
                     //E
                     Start = new float3(1, 0, 0),
-                    End = new float3(2, -1, 0),
+                    End = new float3(2, 0, -1),
                 };
 
                 Entity segmentCollection = ecb.CreateEntity();
@@ -76,6 +76,7 @@ public class BuildSplineSystem : SystemBase
                 segmentArray[2] = 3;
 
                 Entity splineEntity = ecb.CreateEntity();
+
                 //EntityManager.SetName(splineEntity, "Spline Red");
                 ecb.AddComponent(splineEntity, new Spline
                 {
