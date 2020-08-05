@@ -66,14 +66,14 @@ public class CarInitializeSystem : SystemBase
                 var splineData = GetComponent<Spline>(splineEntities[randomSplineId]);
                 currentSegment.Value = splineData.Value.Value.Segments[0];
 
-                //Color based on spline destination, random for now
-                int destinationType = random.NextInt(0,4);
+                //Color based on spline destination
+                int destinationType = randomSplineId % 4; //repeat the colors for now
                 switch(destinationType)
                 {
                     case 0: color.Value = new float4(1,0,0,1); break; //Red
                     case 1: color.Value = new float4(0,0,1,1); break; //Blue
                     case 2: color.Value = new float4(0.5f,0,1,1); break; //Purple
-                    case 3: color.Value = new float4(1,1,1,1); break; //Pink
+                    case 3: color.Value = new float4(1,0.8f,1,1); break; //Pink
                 }
 
             }).ScheduleParallel();
