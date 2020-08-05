@@ -97,7 +97,7 @@ public class LevelGenerationSystem : SystemBase
     {
         public override void Action(int instanceId, string pathName, string resourceFile)
         {
-            AntDefaults defaults = Camera.main?.GetComponent<AntDefaults>();
+            AntDefaults defaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
             if (defaults == null || defaults.Equals(null))
             {
                 Debug.LogError($"There is no {typeof(AntDefaults)} on the MainCamera");
