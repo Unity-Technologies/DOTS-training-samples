@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Rendering;
 using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(CarSpawnerSystem))]
@@ -34,17 +35,19 @@ public class CarInitializeSystem : SystemBase
         var splineEntities = splineQuery.ToEntityArrayAsync(Allocator.TempJob, out var splineEntitiesHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, splineEntitiesHandle);
 
+        //Initializing the data for all the disabled cars
         Entities
             .WithName("CarInitSystem")
             .WithDisposeOnCompletion(splineEntities)
             .WithAll<Disabled>()
-            .ForEach((Entity entity, int entityInQueryIndex, 
+            .ForEach((
                 ref Offset offset,
                 ref Size size,
                 ref Speed speed,
                 ref BelongToSpline belongToSpline,
                 ref CurrentSegment currentSegment,
-                ref Progress progress
+                ref Progress progress,
+                ref URPMaterialPropertyBaseColor color
             ) =>
             {
                 //Initializing car data
@@ -63,8 +66,27 @@ public class CarInitializeSystem : SystemBase
                 var splineData = GetComponent<Spline>(splineEntities[randomSplineId]);
                 currentSegment.Value = splineData.Value.Value.Segments[0];
 
-                //Enable the car
+                //Color based on spline destination, random for now
+                int destinationType = random.NextInt(0,4);
+                switch(destinationType)
+                {
+                    case 0: color.Value = new float4(1,0,0,1); break; //Red
+                    case 1: color.Value = new float4(0,0,1,1); break; //Blue
+                    case 2: color.Value = new float4(0.5f,0,1,1); break; //Purple
+                    case 3: color.Value = new float4(1,1,1,1); break; //Pink
+                }
+
+            }).ScheduleParallel();
+        
+        //Enable the car after initializing the data
+        Entities
+            .WithName("CarInitSystem_EnableCar")
+            .WithAll<Disabled>()
+            .WithAll<BelongToSpline>()
+            .ForEach((Entity entity, int entityInQueryIndex) =>
+            {
                 commandBuffer.RemoveComponent<Disabled>(entityInQueryIndex,entity);
+
             }).ScheduleParallel();
 
         m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
