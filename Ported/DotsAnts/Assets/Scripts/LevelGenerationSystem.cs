@@ -28,6 +28,8 @@ public class LevelGenerationSystem : SystemBase
                 if (texture.width != mapSize || texture.height != mapSize)
                     texture.Resize(mapSize, mapSize);
 
+                Clear(texture);
+
                 //obstacles are on the second channel
                 Color32 obstacleColor = new Color32(0, 255, 0, 0);
 
@@ -48,7 +50,7 @@ public class LevelGenerationSystem : SystemBase
                             float posY = mapSize * .5f + Mathf.Sin(angle) * ringRadius;
 
                             //to check: clamping to integer
-                            Disc(texture, (int)math.ceil(posX), (int)math.ceil(posY), (int)spawner.obstacleRadius, obstacleColor);
+                            DrawDisc(texture, (int)math.ceil(posX), (int)math.ceil(posY), (int)spawner.obstacleRadius, obstacleColor);
                         }
                     }
                 }
@@ -59,8 +61,15 @@ public class LevelGenerationSystem : SystemBase
             }).Run();
     }
 
+    static void Clear(Texture2D tex)
+    {
+        for (int i = 0; i < tex.width; i++)
+            for (int j = 0; j < tex.height; j++)
+                tex.SetPixel(i, j, default);
+    }
+
     //todo: proper imlplementation based on bresenham path on from two ends on half brensenham circles
-    static void Disc(Texture2D tex, int cx, int cy, int r, Color col)
+    static void DrawDisc(Texture2D tex, int cx, int cy, int r, Color col)
     {
         int x, y, px, nx, py, ny, d;
 
