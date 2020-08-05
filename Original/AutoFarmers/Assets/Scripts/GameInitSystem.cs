@@ -48,6 +48,7 @@ public class GameInitSystem:SystemBase
             int posX = UnityEngine.Random.Range(0,10);
             int posY = UnityEngine.Random.Range(0,10);
             EntityManager.AddComponentData<WorkerTeleport>(farmer, new WorkerTeleport { position = new Unity.Mathematics.float2(posX,posY) });
+            EntityManager.AddComponent<FarmerIdle>(farmer);
 
             EntityManager.RemoveComponent<FarmerData>(entity);
 
