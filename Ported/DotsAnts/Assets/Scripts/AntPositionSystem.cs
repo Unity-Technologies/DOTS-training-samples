@@ -8,15 +8,6 @@ using Random = UnityEngine.Random;
 
 public class AntPositionSystem : SystemBase
 {
-    private AntDefaults defaults;
-    private bool gotDefaults = false;
-    
-    protected override void OnCreate()
-    {
-        base.OnCreate();
-        
-    }
-
     private struct DefaultValues
     {
         public int antCount;
@@ -40,48 +31,42 @@ public class AntPositionSystem : SystemBase
         public float obstaclesPerRing;
         public float obstacleRadius;
     }
+
+    private DefaultValues defaults = new DefaultValues();
+
+    
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+
+        var antDefaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
+                
+        defaults.antCount = antDefaults.antCount;
+        defaults.mapSize = antDefaults.mapSize;
+        defaults.bucketResolution = antDefaults.bucketResolution;
+        defaults.antSize = antDefaults.antSize;
+        defaults.antSpeed = antDefaults.antSpeed;
+        
+        defaults.antAccel = antDefaults.antAccel;
+        defaults.trailAddSpeed = antDefaults.trailAddSpeed;
+        defaults.trailDecay = antDefaults.trailDecay;
+        defaults.randomSteering = antDefaults.randomSteering;
+        defaults.pheromoneSteerStrength = antDefaults.pheromoneSteerStrength;
+        defaults.wallSteerStrength = antDefaults.wallSteerStrength;
+        defaults.goalSteerStrength = antDefaults.goalSteerStrength;
+        defaults.outwardStrength = antDefaults.outwardStrength;
+        defaults.inwardStrength = antDefaults.inwardStrength;
+        defaults.rotationResolution = antDefaults.rotationResolution;
+        defaults.obstacleRingCount = antDefaults.obstacleRingCount;
+        defaults.obstaclesPerRing = antDefaults.obstaclesPerRing;
+        defaults.obstacleRadius = antDefaults.obstacleRadius;
+    }
+
     
     protected override void OnUpdate()
     {
-        DefaultValues defaultValues = new DefaultValues();
-        
-        if (!gotDefaults)
-        {
-            var mainCamera = GameObject.Find("Main Camera");
-            if (mainCamera)
-            {
-                defaults =  mainCamera.GetComponent<AntDefaults>();
-                gotDefaults = true;
-                
-                defaultValues.antCount = defaults.antCount;
-                defaultValues.mapSize = defaults.mapSize;
-                defaultValues.bucketResolution = defaults.bucketResolution;
-                defaultValues.antSize = defaults.antSize;
-                defaultValues.antSpeed = defaults.antSpeed;
-        
-                defaultValues.antAccel = defaults.antAccel;
-                defaultValues.trailAddSpeed = defaults.trailAddSpeed;
-                defaultValues.trailDecay = defaults.trailDecay;
-                defaultValues.randomSteering = defaults.randomSteering;
-                defaultValues.pheromoneSteerStrength = defaults.pheromoneSteerStrength;
-                defaultValues.wallSteerStrength = defaults.wallSteerStrength;
-                defaultValues.goalSteerStrength = defaults.goalSteerStrength;
-                defaultValues.outwardStrength = defaults.outwardStrength;
-                defaultValues.inwardStrength = defaults.inwardStrength;
-                defaultValues.rotationResolution = defaults.rotationResolution;
-                defaultValues.obstacleRingCount = defaults.obstacleRingCount;
-                defaultValues.obstaclesPerRing = defaults.obstaclesPerRing;
-                defaultValues.obstacleRadius = defaults.obstacleRadius;
-            }
-        }
-        else
-        {
-            return;
-        }
-        
-        
-
         Unity.Mathematics.Random mathRandom = new Unity.Mathematics.Random(12345678);
+        var defaultValues = defaults;
         
         Entities.WithAll<Ant, LocalToWorld>().ForEach((ref Translation translation, ref Rotation rotation, ref Position position, ref DirectionAngle angle, ref Speed speed, in SteeringAngle steeringAngle, in CarryingFood carryingFood) =>
                 {
@@ -143,8 +128,8 @@ public class AntPositionSystem : SystemBase
                     }
                     
                     // updating the actual entity positions in the world
-                    //translation.Value = new float3(position.value.x, position.value.y, 0.0f);
-                    translation.Value += new float3(0.001f, 0.0f, 0.0f);
+                    translation.Value = new float3(position.value.x, position.value.y, 0.0f);
+                    //translation.Value += new float3(0.001f, 0.0f, 0.0f);
                     rotation.Value = quaternion.Euler(0, 0, angle.value, math.RotationOrder.XYZ);
                 }
             )

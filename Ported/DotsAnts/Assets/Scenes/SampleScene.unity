@@ -227,7 +227,6 @@ GameObject:
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
   - component: {fileID: 963194230}
-  - component: {fileID: 963194229}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -300,37 +299,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &963194229
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 963194225}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 958d844b1722fe4429521a00cb950e0b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  antCount: 1000
-  mapSize: 128
-  bucketResolution: 64
-  antSize: {x: 0, y: 0, z: 0}
-  antSpeed: 0.2
-  antAccel: 0.07
-  trailAddSpeed: 0.3
-  trailDecay: 0.9985
-  randomSteering: 0.14
-  pheromoneSteerStrength: 0.015
-  wallSteerStrength: 0.12
-  goalSteerStrength: 0.04
-  outwardStrength: 0.003
-  inwardStrength: 0.003
-  rotationResolution: 360
-  obstacleRingCount: 3
-  obstaclesPerRing: 0.8
-  obstacleRadius: 2
-  pheromoneMap: {fileID: 2800000, guid: f534929689fa7ff4ebc2f235c080068f, type: 2}
 --- !u!114 &963194230
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -362,6 +330,68 @@ MonoBehaviour:
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
   m_Version: 2
+--- !u!1 &1723572697
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1723572699}
+  - component: {fileID: 1723572698}
+  m_Layer: 0
+  m_Name: Default values
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1723572698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723572697}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 958d844b1722fe4429521a00cb950e0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  antCount: 1000
+  mapSize: 128
+  bucketResolution: 64
+  antSize: {x: 0, y: 0, z: 0}
+  antSpeed: 0.2
+  antAccel: 0.07
+  trailAddSpeed: 0.3
+  trailDecay: 0.9985
+  randomSteering: 0.14
+  pheromoneSteerStrength: 0.015
+  wallSteerStrength: 0.12
+  goalSteerStrength: 0.04
+  outwardStrength: 0.003
+  inwardStrength: 0.003
+  rotationResolution: 360
+  obstacleRingCount: 3
+  obstaclesPerRing: 0.8
+  obstacleRadius: 2
+  pheromoneMap: {fileID: 0}
+--- !u!4 &1723572699
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723572697}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1781815209
 GameObject:
   m_ObjectHideFlags: 0

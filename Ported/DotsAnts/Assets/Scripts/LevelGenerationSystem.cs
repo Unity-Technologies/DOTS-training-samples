@@ -15,7 +15,7 @@ public class LevelGenerationSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-        AntDefaults defaults = Camera.main.GetComponent<AntDefaults>();
+        var defaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
         texture = defaults.pheromoneMap;
         mapSize = defaults.mapSize;
     }
