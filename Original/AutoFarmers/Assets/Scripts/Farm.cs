@@ -95,5 +95,6 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
         referencedPrefabs.Add(tilledGround);
         referencedPrefabs.Add(rockPrefab);
         referencedPrefabs.Add(farmerPrefab);
+        referencedPrefabs.Add(dronePrefab);
     }
 }
