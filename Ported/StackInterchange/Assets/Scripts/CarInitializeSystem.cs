@@ -22,7 +22,7 @@ public class CarInitializeSystem : SystemBase
 
         var random = new Random( (uint) Time.ElapsedTime + 18564584);
 
-        var FakeSegmentEntity = GetSingletonEntity<Segment>();
+        var FakeSegment = GetSingleton<Segment>();
 
         Entities
             .WithName("CarInitSystem")
@@ -47,7 +47,7 @@ public class CarInitializeSystem : SystemBase
                 progress.Value = 0f;
 
                 //Spline and segment
-                currentSegment.Value = FakeSegmentEntity;
+                currentSegment.Value = FakeSegment;
 
                 //Enable the car
                 commandBuffer.RemoveComponent<Disabled>(entityInQueryIndex,entity);
