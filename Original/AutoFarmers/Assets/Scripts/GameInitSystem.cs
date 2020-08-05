@@ -2,13 +2,15 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Rendering;
 using UnityEngine;
+using Unity.Collections;
 
 public class GameInitSystem:SystemBase
 {
     protected override void OnUpdate()
     {
-        Entities.WithStructuralChanges().ForEach((Entity entity,in GroundData groundData) =>
+        Entities.WithStructuralChanges().ForEach((Entity entity, in GroundData groundData) =>
         {
+            // ref var d = blob.Value.storePositions;
             for(int y = 0;y < groundData.fieldSizeY;++y)
             {
                 for(int x = 0;x < groundData.fieldSizeX;++x)

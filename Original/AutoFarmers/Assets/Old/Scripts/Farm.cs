@@ -4,6 +4,9 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Collections;
+using System.Linq;
+using Unity.Mathematics;
+using Random = UnityEngine.Random;
 
 public enum MapDebugOptions
 {
@@ -305,9 +308,24 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
 		var defaultTile = conversionSystem.GetPrimaryEntity(defaultGround);
 		var tilledTile = conversionSystem.GetPrimaryEntity(tilledGround);
 
+		var rockPositions = rocks.Select(r => new float2(r.rect.x, r.rect.y)).ToList();
+		var rockSizes = rocks.Select(r => new float2(r.rect.width, r.rect.height)).ToList();
+		var allocatedRockPositions = blobBuilder.Allocate(ref root.rockPositions, rockPositions.Count);
+		var allocatedRockSizes = blobBuilder.Allocate(ref root.rockSizes, rockSizes.Count);
+		var allocatedStorePositions = blobBuilder.Allocate(ref root.storePositions, storeCount);
+
+		int i = 0;
+		for (i = 0; i < rockPositions.Count; i++)
+			allocatedRockPositions[i] = rockPositions[i];
+		for (i = 0; i < rockSizes.Count; i++)
+			allocatedRockSizes[i] = rockSizes[i];
+		i = 0;
+		for (int x = 0; x < mapSize.x; x++)
+			for (int y = 0; y < mapSize.y; y++)
+				if (storeTiles[x, y])
+					allocatedStorePositions[i++] = new float2(x, y);
 
 		var blobRef = blobBuilder.CreateBlobAssetReference<GroundDataRegistry>(Allocator.Persistent);
-		blobRef.Value = root;
 		dstManager.AddComponentData<GroundData>(entity, new GroundData{
 			registry = blobRef,
 			defaultGroundEntity = defaultTile,

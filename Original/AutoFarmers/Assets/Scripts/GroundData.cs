@@ -1,9 +1,12 @@
 using UnityEngine;
 using Unity.Entities;
+using Unity.Mathematics;
 
 public struct GroundDataRegistry
 {
-    // TODO: arrays?
+    public BlobArray<float2> rockPositions;
+    public BlobArray<float2> rockSizes;
+    public BlobArray<float2> storePositions;
 }
 
 public struct GroundData : IComponentData

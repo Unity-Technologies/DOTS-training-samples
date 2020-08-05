@@ -159,7 +159,7 @@ MonoBehaviour:
     type: 3}
   rockPrefab: {fileID: 3581142404792674452, guid: b6a0d024a652fc644ab7c2dd91f6e14b,
     type: 3}
-  debugOptions: 0
+  debugOptions: 2
   mapSize: {x: 60, y: 60}
   storeCount: 50
   rockSpawnAttempts: 2000
@@ -269,7 +269,7 @@ Transform:
   m_GameObject: {fileID: 1401502928}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.040094, y: 1.040094, z: 1.040094}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
