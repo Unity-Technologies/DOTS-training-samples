@@ -2,20 +2,33 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.ProjectWindowCallback;
+#endif
 
 public class LevelGenerationSystem : SystemBase
 {
+    AntDefaults defaults;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        defaults = Camera.main.GetComponent<AntDefaults>();
+    }
+
     protected override void OnUpdate()
     {
+        Texture2D texture = defaults.pheromoneMap;
+
         Entities.WithStructuralChanges()
-            .ForEach((Entity entity, in LevelGeneration spawner, in MapResolution map, in LocalToWorld ltw) =>
+            .ForEach((Entity entity, in LevelGeneration spawner, in MapResolution map) =>
             {
-                //load / create texture with 2 channels (channel resolution to define)
-                Texture2D texture = new Texture2D(map.value, map.value, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32_SInt, UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
-                //if loaded reset the size
+                if (texture.width != map.value || texture.height != map.value)
+                    texture.Resize(map.value, map.value);
 
                 //obstacles are on the second channel
-                Color32 obstacleColor = new Color32(0, 1, 0, 0);
+                Color32 obstacleColor = new Color32(0, 255, 0, 0);
 
                 for (int i = 1; i <= spawner.obstacleRingCount; i++)
                 {
@@ -68,4 +81,34 @@ public class LevelGenerationSystem : SystemBase
             }
         }
     }
+
+#if UNITY_EDITOR
+    class CreateAsset : EndNameEditAction
+    {
+        public override void Action(int instanceId, string pathName, string resourceFile)
+        {
+            AntDefaults defaults = Camera.main?.GetComponent<AntDefaults>();
+            if (defaults == null || defaults.Equals(null))
+            {
+                Debug.LogError($"There is no {typeof(AntDefaults)} on the MainCamera");
+                return;
+            }
+
+            //RenderTexture rt = new RenderTexture(defaults.mapSize, defaults.mapSize, 0, RenderTextureFormat.RG32);
+            //rt.Create();
+            Texture2D rt = new Texture2D(defaults.mapSize, defaults.mapSize, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32_SFloat, UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
+            AssetDatabase.CreateAsset(rt, pathName);
+            Selection.activeObject = rt;
+
+            if (defaults.pheromoneMap == null || defaults.pheromoneMap.Equals(null))
+                defaults.pheromoneMap = rt;
+        }
+    }
+
+    [MenuItem("Assets/Create/PheromoneMap", priority = 0)]
+    static void CreateMapMenu()
+    {
+        ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0, ScriptableObject.CreateInstance<CreateAsset>(), "PheromoneMap.asset", null, null);
+    }
+#endif
 }
