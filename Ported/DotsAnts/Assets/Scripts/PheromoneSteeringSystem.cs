@@ -4,6 +4,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 
+[UpdateBefore(typeof(AntPositionSystem))]
 public class PheromoneSteeringSystem : SystemBase
 {
 	static Texture2D texture;
@@ -12,7 +13,7 @@ public class PheromoneSteeringSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-        AntDefaults defaults = Camera.main.GetComponent<AntDefaults>();
+        var defaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
         texture = defaults.pheromoneMap;
         mapSize = defaults.mapSize;
     }
@@ -50,11 +51,13 @@ public class PheromoneSteeringSystem : SystemBase
 
         //AntDefaults defaults = GameObject.Find("MainCamera").GetComponent<AntDefaults>();
         //Debug.Log("test map 2 =" + defaults.mapSize);
-  
+        int mapSizeTemp = mapSize;
 
-		Entities.WithAll<Ant>().ForEach((in Position pos, in DirectionAngle directionAngle) => {
+		Entities.WithAll<Ant>().ForEach((
+			ref SteeringAngle steeringAngle, 
+			in Position pos, in DirectionAngle directionAngle) => {
 
-			float pheromoneSteering = PheromoneSteering(pos.value, directionAngle.value, 3f, mapSize);
+			steeringAngle.value.x = PheromoneSteering(pos.value, directionAngle.value, 3f, mapSizeTemp);
 
 		}).ScheduleParallel();
     }

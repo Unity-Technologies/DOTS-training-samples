@@ -3,7 +3,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-
+[UpdateBefore(typeof(AntPositionSystem))]
 public class WallSteeringSystem : SystemBase
 {
 	static private AntDefaults defaults;
@@ -11,7 +11,7 @@ public class WallSteeringSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-        defaults = GameObject.Find("MainCamera").GetComponent<AntDefaults>();
+        defaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
     }
 
 /*
@@ -53,5 +53,12 @@ public class WallSteeringSystem : SystemBase
     protected override void OnUpdate()
     {
     	//WallSteering(ant,1.5f);
+        int mapSize = defaults.mapSize;
+        Entities.WithAll<Ant>().ForEach((
+	        ref SteeringAngle steeringAngle,
+	        in Position position, in DirectionAngle angle) =>
+        {
+	        steeringAngle.value.y = WallSteering(position.value, angle.value, 1.5f, mapSize);
+        }).ScheduleParallel();
     }
 }
