@@ -4,14 +4,19 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Transforms;
 
-public struct GroundData : IComponentData
-{
-	public Entity groundEntity;
-}
-
 public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
+	public enum MapDebugOptions
+	{
+		Default,
+		Empty,
+		Tilled,
+		// Plants,
+	}
+
 	public GameObject groundPrefab;
+
+	public MapDebugOptions debugOptions = MapDebugOptions.Default;
 
 	public Vector2Int mapSize;
 	public int storeCount;
@@ -291,7 +296,9 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
 
 		var originalTile = conversionSystem.GetPrimaryEntity(groundPrefab);
 		dstManager.AddComponentData<GroundData>(entity, new GroundData{
-			groundEntity = originalTile
+			groundEntity = originalTile,
+			fieldSizeX = mapSize.x,
+			fieldSizeY = mapSize.y,
 		});
     }
 
