@@ -160,6 +160,8 @@ MonoBehaviour:
     type: 3}
   farmerPrefab: {fileID: 3581142404792674452, guid: f1d1e9ec534780248bb10f70ad16dba3,
     type: 3}
+  dronePrefab: {fileID: 3581142404792674452, guid: 250b39dc852ca2149b5d747a4137f9e5,
+    type: 3}
   initialMoneyForFarmers: 15
   initialMoneyForDrones: 0
   debugOptions: 2

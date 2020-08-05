@@ -23,6 +23,7 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
     public GameObject tilledGround;
     public GameObject rockPrefab;
     public GameObject farmerPrefab;
+    public GameObject dronePrefab;
     public int initialMoneyForFarmers = 15;
     public int initialMoneyForDrones = 0;
 
@@ -70,11 +71,16 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
         });
 
         var originalFarmer = conversionSystem.GetPrimaryEntity(farmerPrefab);
-        dstManager.AddComponentData<FarmerData>(entity,new FarmerData
+        dstManager.AddComponentData<FarmerData_Spawner>(entity,new FarmerData_Spawner
         {
-            farmerEntity = originalFarmer
+            prefab = originalFarmer
         });
-        dstManager.AddComponentData<FarmerRuntimeData>(entity,new FarmerRuntimeData());
+
+        var originalDrone = conversionSystem.GetPrimaryEntity(dronePrefab);
+        dstManager.AddComponentData<DroneData_Spawner>(entity,new DroneData_Spawner
+        {
+            prefab = originalDrone
+        });
 
         dstManager.AddComponentData<EconomyData>(entity,new EconomyData
         {
