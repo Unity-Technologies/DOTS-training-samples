@@ -1,3 +1,4 @@
+using UnityEngine;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Rendering;
@@ -12,7 +13,7 @@ public class GameInitSystem : SystemBase
             {
                 for (int x = 0; x < groundData.fieldSizeX; ++x)
                 {
-                    var tile = EntityManager.Instantiate(groundData.groundEntity);
+                    var tile = EntityManager.Instantiate(groundData.debugOptions == MapDebugOptions.Tilled ? groundData.tilledGroundEntity : groundData.defaultGroundEntity);
                     EntityManager.RemoveComponent<Translation>(tile);
                     EntityManager.RemoveComponent<Rotation>(tile);
                     EntityManager.RemoveComponent<Scale>(tile);
@@ -21,12 +22,11 @@ public class GameInitSystem : SystemBase
 
                     var renderer = EntityManager.GetSharedComponentData<RenderMesh>(tile);
 
-                    switch (Farm.instance.debugOptions)
+                    switch (groundData.debugOptions)
                     {
-                        case Farm.MapDebugOptions.Empty:
+                        case MapDebugOptions.Empty:
                             continue;
-                            break;
-                        case Farm.MapDebugOptions.Tilled:
+                        case MapDebugOptions.Tilled:
                             EntityManager.AddComponent<GroundTilledState>(tile);
                             break;
                     }

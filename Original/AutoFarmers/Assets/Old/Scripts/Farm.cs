@@ -3,20 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Transforms;
+using Unity.Collections;
+
+public enum MapDebugOptions
+{
+	Default,
+	Empty,
+	Tilled,
+	// Plants,
+}
 
 public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
-	public enum MapDebugOptions
-	{
-		Default,
-		Empty,
-		Tilled,
-		// Plants,
-	}
-
-	public GameObject groundPrefab;
+	[Header("DOTS settings")]
+	public GameObject defaultGround;
+	public GameObject tilledGround;
 
 	public MapDebugOptions debugOptions = MapDebugOptions.Default;
+
+	[Space(30)]
 
 	public Vector2Int mapSize;
 	public int storeCount;
@@ -294,9 +299,19 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
     {
 		AwakeFromConvert();
 
-		var originalTile = conversionSystem.GetPrimaryEntity(groundPrefab);
+		var blobBuilder = new BlobBuilder(Allocator.Temp);
+        ref var root = ref blobBuilder.ConstructRoot<GroundDataRegistry>();
+		var defaultTile = conversionSystem.GetPrimaryEntity(defaultGround);
+		var tilledTile = conversionSystem.GetPrimaryEntity(tilledGround);
+
+
+		var blobRef = blobBuilder.CreateBlobAssetReference<GroundDataRegistry>(Allocator.Persistent);
+		blobRef.Value = root;
 		dstManager.AddComponentData<GroundData>(entity, new GroundData{
-			groundEntity = originalTile,
+			registry = blobRef,
+			defaultGroundEntity = defaultTile,
+			tilledGroundEntity = tilledTile,
+			debugOptions = debugOptions,
 			fieldSizeX = mapSize.x,
 			fieldSizeY = mapSize.y,
 		});
@@ -309,7 +324,8 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
-		referencedPrefabs.Add(groundPrefab);
+		referencedPrefabs.Add(defaultGround);
+		referencedPrefabs.Add(tilledGround);
     }
 
     Camera cam;

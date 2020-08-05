@@ -152,8 +152,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bb9a50458257ab448b3d0a2966a7564, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  groundPrefab: {fileID: 1186172543812439480, guid: b02ee840c574f76499980f5e5b88bc39,
+  defaultGround: {fileID: 1186172543812439480, guid: b02ee840c574f76499980f5e5b88bc39,
     type: 3}
+  tilledGround: {fileID: 1186172543812439480, guid: 8be52c410e3aa594dad4f9a44fe9e354,
+    type: 3}
+  debugOptions: 2
   mapSize: {x: 60, y: 60}
   storeCount: 50
   rockSpawnAttempts: 2000

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1186172543812439482}
   - component: {fileID: 1186172543812439481}
   m_Layer: 0
-  m_Name: Ground Tile
+  m_Name: Tilled Ground Tile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -60,7 +60,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1a7e14a4d6de2cb4db04611495ac866e, type: 2}
+  - {fileID: 2100000, guid: 2559c5a702fee86499eabbf20fb22281, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
