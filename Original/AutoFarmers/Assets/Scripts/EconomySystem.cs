@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Transforms;
+using Unity.Mathematics;
 using Unity.Rendering;
 
 
@@ -70,7 +71,8 @@ public class EconomySystem:SystemBase
 
             EntityManager.AddComponent<Farmer>(newFarmer);
             EntityManager.AddComponent<FarmerIdle>(newFarmer);
-            EntityManager.AddComponentData<Position2D>(newFarmer,new Position2D { position = new Unity.Mathematics.float2(0,0) });
+            EntityManager.AddComponentData<Position2D>(newFarmer,new Position2D { position = new float2(0,0) });
+            EntityManager.AddComponentData<Color>(newFarmer, new Color {  Value = new float4(1,1,0,1) });
             int posX = UnityEngine.Random.Range(0,10);
             int posY = UnityEngine.Random.Range(0,10);
             EntityManager.AddComponentData<WorkerTeleport>(newFarmer,new WorkerTeleport { position = new Unity.Mathematics.float2(posX,posY) });
