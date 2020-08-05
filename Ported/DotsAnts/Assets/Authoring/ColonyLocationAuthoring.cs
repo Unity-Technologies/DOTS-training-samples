@@ -2,7 +2,7 @@
 using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
-public struct FoodLocation : IComponentData
+public struct ColonyLocation : IComponentData
 {
-    public float2 value;
+  public float2 value;
 }
