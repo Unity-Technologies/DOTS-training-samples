@@ -24,17 +24,17 @@ public class LevelGenerationSystem : SystemBase
     protected override void OnUpdate()
     {
         Entities.WithStructuralChanges()
-            .ForEach((Entity entity, in LevelSpawner spawner, in LocalToWorld ltw) =>
+            .ForEach((Entity entity, in ObstacleGeneratorAuthoring spawner, in MapResolution map, in LocalToWorld ltw) =>
             {
                 //load / create texture with 2 channels (channel resolution to define)
-                Texture2D texture = new Texture2D(spawner.mapSize, spawner.mapSize, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32_SInt, UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
+                Texture2D texture = new Texture2D(map.value, map.value, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32_SInt, UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
                 //if loaded reset the size
 
                 Color obstacleColor = new Color32(0, 1, 0, 0);
 
                 for (int i = 1; i <= spawner.obstacleRingCount; i++)
                 {
-                    float ringRadius = (i / (spawner.obstacleRingCount + 1f)) * (spawner.mapSize * .5f);
+                    float ringRadius = (i / (spawner.obstacleRingCount + 1f)) * (map.value * .5f);
                     float circumference = ringRadius * 2f * Mathf.PI;
                     int maxCount = Mathf.CeilToInt(circumference / (2f * spawner.obstacleRadius) * 2f);
                     int offset = UnityEngine.Random.Range(0, maxCount);
@@ -45,8 +45,8 @@ public class LevelGenerationSystem : SystemBase
                         if ((t * holeCount) % 1f < spawner.obstaclesPerRing)
                         {
                             float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
-                            float posX = spawner.mapSize * .5f + Mathf.Cos(angle) * ringRadius;
-                            float posY = spawner.mapSize * .5f + Mathf.Sin(angle) * ringRadius;
+                            float posX = map.value * .5f + Mathf.Cos(angle) * ringRadius;
+                            float posY = map.value * .5f + Mathf.Sin(angle) * ringRadius;
 
                             //to check: clamping to integer
                             Disc(texture, (int)math.ceil(posX), (int)math.ceil(posY), (int)spawner.obstacleRadius, obstacleColor);
