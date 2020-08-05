@@ -3,5 +3,5 @@
 [GenerateAuthoringComponent]
 public struct Offset : IComponentData
 {
-    float Value;
+    public float Value;
 }

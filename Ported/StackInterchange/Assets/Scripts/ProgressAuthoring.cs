@@ -3,5 +3,5 @@
 [GenerateAuthoringComponent]
 public struct Progress : IComponentData
 {
-    float Value;
+    public float Value;
 }

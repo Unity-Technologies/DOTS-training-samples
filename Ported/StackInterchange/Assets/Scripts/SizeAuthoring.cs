@@ -4,5 +4,5 @@ using Unity.Mathematics;
 [GenerateAuthoringComponent]
 public struct Size : IComponentData
 {
-    float3 Value;
+    public float3 Value;
 }
