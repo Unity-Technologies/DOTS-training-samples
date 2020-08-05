@@ -1,10 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Entities;
+using Unity.Transforms;
+
+public struct FarmerData:IComponentData
+{
+    public Entity farmerEntity;
+}
 
 [System.Serializable]
-public class Farmer {
-	public Vector2 position;
+public class Farmer:MonoBehaviour, IConvertGameObjectToEntity,IDeclareReferencedPrefabs {
+
+    public GameObject farmerPrefab;
+
+    public Vector2 position;
 	public Vector2 smoothPosition;
 	public Intention intention;
 	public Path path;
@@ -37,7 +47,21 @@ public class Farmer {
 		matrix = Matrix4x4.Translate(new Vector3(smoothPosition.x,.5f,smoothPosition.y)) * Matrix4x4.Scale(Vector3.one * .5f);
 	}
 
-	public Vector3 GetSmoothWorldPos() {
+    public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
+    {
+        referencedPrefabs.Add(farmerPrefab);
+    }
+
+    public void Convert(Entity entity,EntityManager dstManager,GameObjectConversionSystem conversionSystem)
+    {
+        var originalFarmer = conversionSystem.GetPrimaryEntity(farmerPrefab);
+        dstManager.AddComponentData<FarmerData>(entity,new FarmerData
+        {
+            farmerEntity = originalFarmer
+        });
+    }
+
+    public Vector3 GetSmoothWorldPos() {
 		return new Vector3(smoothPosition.x,0f,smoothPosition.y);
 	}
 
