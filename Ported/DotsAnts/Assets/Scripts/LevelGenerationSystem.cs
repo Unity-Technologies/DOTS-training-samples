@@ -6,7 +6,7 @@ using UnityEngine;
 public class LevelGenerationSystem : SystemBase
 {
     //hardcoded for now, be moved later
-    public struct LevelSpawner
+    public struct LevelSpawner : IComponentData
     {
         public int mapSize;
         public int obstacleRingCount;
