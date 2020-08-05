@@ -8,14 +8,6 @@ using Random = UnityEngine.Random;
 
 public class AntPositionSystem : SystemBase
 {
-    private AntDefaults defaults;
-    
-    protected override void OnCreate()
-    {
-        base.OnCreate();
-        defaults = GameObject.Find("MainCamera").GetComponent<AntDefaults>();
-    }
-
     private struct DefaultValues
     {
         public int antCount;
@@ -39,36 +31,49 @@ public class AntPositionSystem : SystemBase
         public float obstaclesPerRing;
         public float obstacleRadius;
     }
+
+    private DefaultValues defaults = new DefaultValues();
+
+    
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+
+        var antDefaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
+                
+        defaults.antCount = antDefaults.antCount;
+        defaults.mapSize = antDefaults.mapSize;
+        defaults.bucketResolution = antDefaults.bucketResolution;
+        defaults.antSize = antDefaults.antSize;
+        defaults.antSpeed = antDefaults.antSpeed;
+        
+        defaults.antAccel = antDefaults.antAccel;
+        defaults.trailAddSpeed = antDefaults.trailAddSpeed;
+        defaults.trailDecay = antDefaults.trailDecay;
+        defaults.randomSteering = antDefaults.randomSteering;
+        defaults.pheromoneSteerStrength = antDefaults.pheromoneSteerStrength;
+        defaults.wallSteerStrength = antDefaults.wallSteerStrength;
+        defaults.goalSteerStrength = antDefaults.goalSteerStrength;
+        defaults.outwardStrength = antDefaults.outwardStrength;
+        defaults.inwardStrength = antDefaults.inwardStrength;
+        defaults.rotationResolution = antDefaults.rotationResolution;
+        defaults.obstacleRingCount = antDefaults.obstacleRingCount;
+        defaults.obstaclesPerRing = antDefaults.obstaclesPerRing;
+        defaults.obstacleRadius = antDefaults.obstacleRadius;
+    }
+
     
     protected override void OnUpdate()
     {
-        DefaultValues defaultValues;
-        defaultValues.antCount = defaults.antCount;
-        defaultValues.mapSize = defaults.mapSize;
-        defaultValues.bucketResolution = defaults.bucketResolution;
-        defaultValues.antSize = defaults.antSize;
-        defaultValues.antSpeed = defaults.antSpeed;
+        Unity.Mathematics.Random mathRandom = new Unity.Mathematics.Random(12345678);
+        var defaultValues = defaults;
         
-        defaultValues.antAccel = defaults.antAccel;
-        defaultValues.trailAddSpeed = defaults.trailAddSpeed;
-        defaultValues.trailDecay = defaults.trailDecay;
-        defaultValues.randomSteering = defaults.randomSteering;
-        defaultValues.pheromoneSteerStrength = defaults.pheromoneSteerStrength;
-        defaultValues.wallSteerStrength = defaults.wallSteerStrength;
-        defaultValues.goalSteerStrength = defaults.goalSteerStrength;
-        defaultValues.outwardStrength = defaults.outwardStrength;
-        defaultValues.inwardStrength = defaults.inwardStrength;
-        defaultValues.rotationResolution = defaults.rotationResolution;
-        defaultValues.obstacleRingCount = defaults.obstacleRingCount;
-        defaultValues.obstaclesPerRing = defaults.obstaclesPerRing;
-        defaultValues.obstacleRadius = defaults.obstacleRadius;
-        
-        Entities.WithAll<Ant, LocalToWorld>().ForEach((ref Translation translation, ref Position position, ref DirectionAngle angle, ref Speed speed, in SteeringAngle steeringAngle, in CarryingFood carryingFood) =>
+        Entities.WithAll<Ant, LocalToWorld>().ForEach((ref Translation translation, ref Rotation rotation, ref Position position, ref DirectionAngle angle, ref Speed speed, in SteeringAngle steeringAngle, in CarryingFood carryingFood) =>
                 {
                     float targetSpeed = speed.value;
                     
                     // add random turn
-                    angle.value += Random.Range(-defaultValues.randomSteering, defaultValues.randomSteering);
+                    angle.value += mathRandom.NextFloat(-defaultValues.randomSteering, defaultValues.randomSteering);
                     
                     // add the steering angles
                     angle.value += steeringAngle.value.x * defaultValues.pheromoneSteerStrength;
@@ -124,6 +129,8 @@ public class AntPositionSystem : SystemBase
                     
                     // updating the actual entity positions in the world
                     translation.Value = new float3(position.value.x, position.value.y, 0.0f);
+                    //translation.Value += new float3(0.001f, 0.0f, 0.0f);
+                    rotation.Value = quaternion.Euler(0, 0, angle.value, math.RotationOrder.XYZ);
                 }
             )
             .ScheduleParallel();
