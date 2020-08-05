@@ -10,6 +10,7 @@
     "com.unity.ide.vscode": "1.2.1",
     "com.unity.multiplayer-hlapi": "1.0.2",
     "com.unity.render-pipelines.universal": "9.0.0-preview.35",
+    "com.unity.rendering.hybrid": "0.7.0-preview.24",
     "com.unity.test-framework": "1.1.14",
     "com.unity.textmeshpro": "3.0.0-preview.1",
     "com.unity.timeline": "1.2.6",

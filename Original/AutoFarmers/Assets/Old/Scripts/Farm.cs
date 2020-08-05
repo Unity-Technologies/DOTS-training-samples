@@ -1,8 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Entities;
+using Unity.Transforms;
 
-public class Farm : MonoBehaviour {
+public struct GroundData : IComponentData
+{
+	public Entity groundEntity;
+}
+
+public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
+{
+	public GameObject groundPrefab;
+
 	public Vector2Int mapSize;
 	public int storeCount;
 	public int rockSpawnAttempts;
@@ -202,7 +212,7 @@ public class Farm : MonoBehaviour {
 		return Matrix4x4.TRS(pos,Quaternion.Euler(90f,0f,zRot),Vector3.one);
 	}
 
-	void Awake () {
+	void AwakeFromConvert () {
 		instance = this;
 
 		moneyForFarmers = 5;
@@ -274,79 +284,99 @@ public class Farm : MonoBehaviour {
 			TrySpawnRock();
 		}
 	}
+	
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+		AwakeFromConvert();
 
-	Camera cam;
-	void Update () {
-		/*
-		if (cam==null) {
-			cam = Camera.main;
-		}
-		Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-		Plane groundPlane = new Plane(Vector3.up,Vector3.zero);
-		float dist;
-		if (groundPlane.Raycast(ray, out dist)) {
-			Vector3 mousePos = ray.GetPoint(dist);
-			Debug.DrawRay(mousePos,Vector3.up * 5f,Color.red);
-			int x = Mathf.FloorToInt(mousePos.x);
-			int y = Mathf.FloorToInt(mousePos.z);
-			if (x>=0 && y>=0 && x<mapSize.x && y<mapSize.y) {
-				if (Input.GetKey(KeyCode.Mouse0)) {
-					if (groundStates[x,y]==GroundState.Tilled) {
-						Plant plant = tilePlants[x,y];
-						HarvestPlant(x,y);
-						DeletePlant(plant);
-					}
-				}
-			}
-		}*/
+		var originalTile = conversionSystem.GetPrimaryEntity(groundPrefab);
+		dstManager.AddComponentData<GroundData>(entity, new GroundData{
+			groundEntity = originalTile
+		});
+    }
 
-		float smooth = 1f - Mathf.Pow(.1f,Time.deltaTime);
-		for (int i=0;i<soldPlants.Count;i++) {
-			Plant plant = soldPlants[i];
-			soldPlantTimers[i] += Time.deltaTime;
-			float t = soldPlantTimers[i];
-			float y = soldPlantYCurve.Evaluate(t);
-			float x = soldPlants[i].x+.5f;
-			float z = soldPlants[i].y+.5f;
-			float scaleXZ = soldPlantXZScaleCurve.Evaluate(t);
-			float scaleY = soldPlantYScaleCurve.Evaluate(t);
-			plant.EaseToWorldPosition(x,y,z,smooth);
-			Vector3 pos = new Vector3(plant.matrix.m03,plant.matrix.m13,plant.matrix.m23);
-			plant.matrix = Matrix4x4.TRS(pos,plant.rotation,new Vector3(scaleXZ,scaleY,scaleXZ));
-			plant.ApplyMatrixToFarm();
-			if (t>=1f) {
-				DeletePlant(plant);
-				soldPlants.RemoveAt(i);
-				soldPlantTimers.RemoveAt(i);
-				i--;
-			}
-		}
+	void Start()
+	{
 
-
-		Graphics.DrawMeshInstanced(storeMesh,0,storeMaterial,storeMatrices);
-		for (int i = 0; i < rockMatrices.Count; i++) {
-			Graphics.DrawMeshInstanced(rockMesh,0,rockMaterial,rockMatrices[i]);
-		}
-		for (int i=0;i<groundMatrices.Length;i++) {
-			groundMatProps[i].SetFloatArray("_Tilled",tilledProperties[i]);
-			Graphics.DrawMeshInstanced(groundMesh,0,groundMaterial,groundMatrices[i],groundMatrices[i].Length,groundMatProps[i]);
-		}
-		for (int i = 0; i < plantSeeds.Count; i++) {
-			int seed = plantSeeds[i];
-			Mesh plantMesh = Plant.meshLookup[seed];
-
-			List<Plant> plantList = plants[seed];
-
-			List<List<Matrix4x4>> matrices = plantMatrices[seed];
-			for (int j = 0; j < matrices.Count; j++) {
-				for (int k = 0; k < matrices[j].Count; k++) {
-					Plant plant = plantList[j * instancesPerBatch + k];
-					plant.growth = Mathf.Min(plant.growth + Time.deltaTime/10f,1f);
-					plantGrowthProperties[k] = plant.growth;
-				}
-				plantMatProps.SetFloatArray("_Growth",plantGrowthProperties);
-				Graphics.DrawMeshInstanced(plantMesh,0,plantMaterial,matrices[j],plantMatProps);
-			}
-		}
 	}
+
+    public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
+    {
+		referencedPrefabs.Add(groundPrefab);
+    }
+
+    Camera cam;
+	// void Update () {
+	// 	/*
+	// 	if (cam==null) {
+	// 		cam = Camera.main;
+	// 	}
+	// 	Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+	// 	Plane groundPlane = new Plane(Vector3.up,Vector3.zero);
+	// 	float dist;
+	// 	if (groundPlane.Raycast(ray, out dist)) {
+	// 		Vector3 mousePos = ray.GetPoint(dist);
+	// 		Debug.DrawRay(mousePos,Vector3.up * 5f,Color.red);
+	// 		int x = Mathf.FloorToInt(mousePos.x);
+	// 		int y = Mathf.FloorToInt(mousePos.z);
+	// 		if (x>=0 && y>=0 && x<mapSize.x && y<mapSize.y) {
+	// 			if (Input.GetKey(KeyCode.Mouse0)) {
+	// 				if (groundStates[x,y]==GroundState.Tilled) {
+	// 					Plant plant = tilePlants[x,y];
+	// 					HarvestPlant(x,y);
+	// 					DeletePlant(plant);
+	// 				}
+	// 			}
+	// 		}
+	// 	}*/
+
+	// 	float smooth = 1f - Mathf.Pow(.1f,Time.deltaTime);
+	// 	for (int i=0;i<soldPlants.Count;i++) {
+	// 		Plant plant = soldPlants[i];
+	// 		soldPlantTimers[i] += Time.deltaTime;
+	// 		float t = soldPlantTimers[i];
+	// 		float y = soldPlantYCurve.Evaluate(t);
+	// 		float x = soldPlants[i].x+.5f;
+	// 		float z = soldPlants[i].y+.5f;
+	// 		float scaleXZ = soldPlantXZScaleCurve.Evaluate(t);
+	// 		float scaleY = soldPlantYScaleCurve.Evaluate(t);
+	// 		plant.EaseToWorldPosition(x,y,z,smooth);
+	// 		Vector3 pos = new Vector3(plant.matrix.m03,plant.matrix.m13,plant.matrix.m23);
+	// 		plant.matrix = Matrix4x4.TRS(pos,plant.rotation,new Vector3(scaleXZ,scaleY,scaleXZ));
+	// 		plant.ApplyMatrixToFarm();
+	// 		if (t>=1f) {
+	// 			DeletePlant(plant);
+	// 			soldPlants.RemoveAt(i);
+	// 			soldPlantTimers.RemoveAt(i);
+	// 			i--;
+	// 		}
+	// 	}
+
+
+	// 	Graphics.DrawMeshInstanced(storeMesh,0,storeMaterial,storeMatrices);
+	// 	for (int i = 0; i < rockMatrices.Count; i++) {
+	// 		Graphics.DrawMeshInstanced(rockMesh,0,rockMaterial,rockMatrices[i]);
+	// 	}
+	// 	for (int i=0;i<groundMatrices.Length;i++) {
+	// 		groundMatProps[i].SetFloatArray("_Tilled",tilledProperties[i]);
+	// 		Graphics.DrawMeshInstanced(groundMesh,0,groundMaterial,groundMatrices[i],groundMatrices[i].Length,groundMatProps[i]);
+	// 	}
+	// 	for (int i = 0; i < plantSeeds.Count; i++) {
+	// 		int seed = plantSeeds[i];
+	// 		Mesh plantMesh = Plant.meshLookup[seed];
+
+	// 		List<Plant> plantList = plants[seed];
+
+	// 		List<List<Matrix4x4>> matrices = plantMatrices[seed];
+	// 		for (int j = 0; j < matrices.Count; j++) {
+	// 			for (int k = 0; k < matrices[j].Count; k++) {
+	// 				Plant plant = plantList[j * instancesPerBatch + k];
+	// 				plant.growth = Mathf.Min(plant.growth + Time.deltaTime/10f,1f);
+	// 				plantGrowthProperties[k] = plant.growth;
+	// 			}
+	// 			plantMatProps.SetFloatArray("_Growth",plantGrowthProperties);
+	// 			Graphics.DrawMeshInstanced(plantMesh,0,plantMaterial,matrices[j],plantMatProps);
+	// 		}
+	// 	}
+	// }
 }
