@@ -155,6 +155,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   groundPrefab: {fileID: 1186172543812439480, guid: b02ee840c574f76499980f5e5b88bc39,
     type: 3}
+  rockPrefab: {fileID: 3581142404792674452, guid: b6a0d024a652fc644ab7c2dd91f6e14b,
+    type: 3}
+  debugOptions: 0
   mapSize: {x: 60, y: 60}
   storeCount: 50
   rockSpawnAttempts: 2000
