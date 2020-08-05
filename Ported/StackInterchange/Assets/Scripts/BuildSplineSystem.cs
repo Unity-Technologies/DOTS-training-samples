@@ -21,39 +21,41 @@ public class BuildSplineSystem : SystemBase
                 ref var root = ref builder.ConstructRoot<SegmentHandle>();
                 var segmentArray = builder.Allocate(ref root.Segments, 5);
 
+                var scale = 5.0f;
+
                 segmentArray[0] = new SegmentData
                 {
                     // A
-                    Start = new float3(-1, 0, 1),
-                    End = new float3(0, 0, 0),
+                    Start = new float3(-1, 0, 1) * scale,
+                    End = new float3(0, 0, 0) * scale,
                 };
 
                 segmentArray[1] = new SegmentData
                 {
                     //B
-                    Start = new float3(-1, 0, -1),
-                    End = new float3(0, 0, 0),
+                    Start = new float3(-1, 0, -1) * scale,
+                    End = new float3(0, 0, 0) * scale,
                 };
 
                 segmentArray[2] = new SegmentData
                 {
                     //C
-                    Start = new float3(0, 0, 0),
-                    End = new float3(1, 0, 0),
+                    Start = new float3(0, 0, 0) * scale,
+                    End = new float3(1, 0, 0) * scale,
                 };
 
                 segmentArray[3] = new SegmentData
                 {
                     //D
-                    Start = new float3(1, 0, 0),
-                    End = new float3(2, 0, 1),
+                    Start = new float3(1, 0, 0) * scale,
+                    End = new float3(2, 0, 1) * scale,
                 };
 
                 segmentArray[4] = new SegmentData
                 {
                     //E
-                    Start = new float3(1, 0, 0),
-                    End = new float3(2, 0, -1),
+                    Start = new float3(1, 0, 0) * scale,
+                    End = new float3(2, 0, -1) * scale,
                 };
 
                 Entity segmentCollection = ecb.CreateEntity();
