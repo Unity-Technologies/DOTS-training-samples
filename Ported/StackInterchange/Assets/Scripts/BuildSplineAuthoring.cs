@@ -42,21 +42,31 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         var allSpline = new List<int>();
         var splineCollection = new List<int>();
 
-        var allPathManager = m_Reference.GetComponentsInChildren<PathManager>();
-        var sqrRadius = m_MergeRadius * m_MergeRadius;
-
-        foreach (var path in allPathManager)
+        //Using Prefab of Spline
+        var allTransformList = m_Reference.GetComponentsInChildren<PathManager>().Select(o =>
         {
-            if (path.waypoints.Length < 2)
+            return o.waypoints.Select(pathManager => pathManager.position).ToArray();
+        });
+
+        //Using Custom compute
+        allTransformList = allTransformList.Concat(m_Reference.GetComponentsInChildren<PathResult>().Select(o =>
+        {
+            return o.m_Path.Select(path => path.position).ToArray();
+        }));
+
+        var sqrRadius = m_MergeRadius * m_MergeRadius;
+        foreach (var path in allTransformList)
+        {
+            if (path.Length < 2)
                 continue;
 
             var currentSpline = new List<int>();
 
-            for (int i = 0; i < path.waypoints.Length - 1; ++i)
+            for (int i = 0; i < path.Length - 1; ++i)
             {
                 var currentSegment = (-1, -1);
-                currentSegment.Item1 = GetOrAddPointIndex(path.waypoints[i+0].position, waypointListCache, sqrRadius);
-                currentSegment.Item2 = GetOrAddPointIndex(path.waypoints[i+1].position, waypointListCache, sqrRadius);
+                currentSegment.Item1 = GetOrAddPointIndex(path[i+0], waypointListCache, sqrRadius);
+                currentSegment.Item2 = GetOrAddPointIndex(path[i+1], waypointListCache, sqrRadius);
 
                 int segmentIndex = segmentList.FindIndex(s => s.Item1 == currentSegment.Item1 && s.Item2 == currentSegment.Item2);
                 if (segmentIndex == -1)
