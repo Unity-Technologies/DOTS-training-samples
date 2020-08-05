@@ -43,7 +43,7 @@ public class Plant {
 		ApplyMatrixToFarm();
 	}
 	public void ApplyMatrixToFarm() {
-		Farm.plantMatrices[seed][index / Farm.instancesPerBatch][index % Farm.instancesPerBatch] = matrix;
+		// Farm.plantMatrices[seed][index / Farm.instancesPerBatch][index % Farm.instancesPerBatch] = matrix;
 	}
 
 	Mesh GetMesh(int seed) {
@@ -58,11 +58,11 @@ public class Plant {
 	Mesh GenerateMesh(int seed) {
 		List<Vector3> vertices = new List<Vector3>();
 		List<int> triangles = new List<int>();
-		List<Color> colors = new List<Color>();
+		List<UnityEngine.Color> colors = new List<UnityEngine.Color>();
 		List<Vector2> uv = new List<Vector2>();
 
-		Color color1 = Color.HSVToRGB(r.NextFloat(), r.NextFloat(.5f, .8f), r.NextFloat(.25f, .9f));
-		Color color2 = Color.HSVToRGB(r.NextFloat(), r.NextFloat(.5f, .8f), r.NextFloat(.25f, .9f));
+		UnityEngine.Color color1 = UnityEngine.Color.HSVToRGB(r.NextFloat(), r.NextFloat(.5f, .8f), r.NextFloat(.25f, .9f));
+		UnityEngine.Color color2 = UnityEngine.Color.HSVToRGB(r.NextFloat(), r.NextFloat(.5f, .8f), r.NextFloat(.25f, .9f));
 
 		float height = r.NextFloat(.4f,1.4f);
 

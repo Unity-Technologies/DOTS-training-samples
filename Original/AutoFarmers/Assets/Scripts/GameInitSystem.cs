@@ -39,24 +39,6 @@ public class GameInitSystem:SystemBase
             EntityManager.RemoveComponent<GroundData>(entity);
         }).Run();
 
-
-        Entities.WithStructuralChanges().ForEach((Entity entity,in FarmerData farmerData) =>
-        {
-            var farmer = EntityManager.Instantiate(farmerData.farmerEntity);
-            EntityManager.RemoveComponent<Translation>(farmer);
-            EntityManager.RemoveComponent<Rotation>(farmer);
-            EntityManager.RemoveComponent<Scale>(farmer);
-            EntityManager.RemoveComponent<NonUniformScale>(farmer);
-            EntityManager.AddComponentData<Position2D>(farmer,new Position2D { position = new Unity.Mathematics.float2(0,0) });
-            int posX = UnityEngine.Random.Range(0,10);
-            int posY = UnityEngine.Random.Range(0,10);
-            EntityManager.AddComponentData<WorkerTeleport>(farmer, new WorkerTeleport { position = new Unity.Mathematics.float2(posX,posY) });
-            EntityManager.AddComponent<FarmerIdle>(farmer);
-
-            EntityManager.RemoveComponent<FarmerData>(entity);
-
-        }).Run();
-
         // Spawn rocks
         Entities.WithStructuralChanges().ForEach((Entity entity, in RockAuthoring rockData) =>
         {
