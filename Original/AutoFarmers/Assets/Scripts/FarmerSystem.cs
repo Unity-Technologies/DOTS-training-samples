@@ -53,7 +53,7 @@ public class FarmerSystem : SystemBase
 
         // move all entities
         var deltaT = Time.DeltaTime;
-        Entities.ForEach((int entityInQueryIndex, Entity e, ref Position2D pos, in FarmerTarget target) =>
+        Entities.WithNone<WorkerTeleport>().ForEach((int entityInQueryIndex, Entity e, ref Position2D pos, in FarmerTarget target) =>
         {
             float2 dir = target.target - pos.position;
             float sqlen  = math.lengthsq( dir );

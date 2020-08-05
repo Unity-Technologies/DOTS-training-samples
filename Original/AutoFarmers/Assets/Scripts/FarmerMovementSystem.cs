@@ -12,7 +12,7 @@ public class FarmerMovementSystem:SystemBase
         {
             EntityManager.SetComponentData<Position2D>(entity, new Position2D { position = teleportData.position });
 
-           // EntityManager.RemoveComponent<WorkerTeleport>(entity);
+           EntityManager.RemoveComponent<WorkerTeleport>(entity);
 
         }).Run();
     }
