@@ -31,8 +31,6 @@ public class NavMeshResolver : MonoBehaviour
     public float m_mergeRadius = 1.0f;
     public GameObject m_root;
 
-    private List<Transform> m_computeWayPoint = new List<Transform>();
-
     private PathToResolve[] GeneratePathToResolve()
     {
         var pathToResolve = new PathToResolve[16];
@@ -50,7 +48,7 @@ public class NavMeshResolver : MonoBehaviour
         var redEnd = GameObject.Find("Red_End").transform;
 
         //Going forward
-        /*pathToResolve[0] = new PathToResolve()
+        pathToResolve[0] = new PathToResolve()
         {
             From = blueBegin,
             To = blueEnd
@@ -60,14 +58,13 @@ public class NavMeshResolver : MonoBehaviour
         {
             From = purpleBegin,
             To = purpleEnd
-        };*/
+        };
         
         pathToResolve[2] = new PathToResolve()
         {
             From = pinkBegin,
             To = pinkEnd
         };
-        /*
 
         pathToResolve[3] = new PathToResolve()
         {
@@ -123,7 +120,7 @@ public class NavMeshResolver : MonoBehaviour
         {
             From = redBegin,
             To = blueEnd
-        };*/
+        };
 
         return pathToResolve;
     }
@@ -140,6 +137,7 @@ public class NavMeshResolver : MonoBehaviour
         if (transform == null)
         {
             var newWayPoint = new GameObject("waypoint");
+            newWayPoint.tag = "waypoint";
             newWayPoint.transform.position = position;
             newWayPoint.transform.SetParent(m_root.transform, true);
             transform = newWayPoint.transform;
@@ -151,7 +149,11 @@ public class NavMeshResolver : MonoBehaviour
     {
         var pathToResolve = GeneratePathToResolve();
 
-        m_computeWayPoint.Clear();
+        var toDelete = GameObject.FindGameObjectsWithTag("waypoint");
+        foreach (var wayPoint in toDelete)
+        {
+            DestroyImmediate(wayPoint);
+        }
 
         var allPath = new List<GameObject>();
         foreach (var path in pathToResolve)
@@ -160,7 +162,13 @@ public class NavMeshResolver : MonoBehaviour
                 continue;
 
             var navMeshPath = new NavMeshPath();
-            var result = new GameObject(path.From.gameObject.name + "_" + path.To.gameObject.name);
+
+            var name = path.From.gameObject.name + "_" + path.To.gameObject.name;
+
+            GameObject result = GameObject.Find(name);
+            if(result == null)
+                result = new GameObject(name);
+
             result.transform.position = new Vector3(0, 100.0f, 0);
             var pathResult = result.AddComponent<PathResult>();
 
@@ -193,11 +201,13 @@ public class NavMeshResolver : MonoBehaviour
                 }
 
                 var direction = navMeshPath.corners[1] - currentPosition;
-                if (!addPoint && direction.sqrMagnitude < m_mergeRadius * m_mergeRadius)
+                /*
+                 * Not really necessary since we are staying on navMesh
+                 * if (!addPoint && direction.sqrMagnitude < m_mergeRadius * m_mergeRadius)
                 {
                     addPoint = true;
                     currentPosition = navMeshPath.corners[1];
-                }
+                }*/
 
                 if (!addPoint)
                 {
@@ -207,6 +217,12 @@ public class NavMeshResolver : MonoBehaviour
                         addPoint = true;
                         currentPosition = closeTransform.transform.position;
                     }
+                }
+
+                NavMeshHit hit;
+                if (NavMesh.SamplePosition(currentPosition, out hit, 5.0f, NavMesh.AllAreas))
+                {
+                    currentPosition = hit.position;
                 }
 
                 if (addPoint)
@@ -220,6 +236,7 @@ public class NavMeshResolver : MonoBehaviour
                     currentPosition += direction.normalized * dt;
                     distanceTraveled += dt;
                 }
+
             }
 
             pathResult.m_Path = currentWayPoint.ToArray();
