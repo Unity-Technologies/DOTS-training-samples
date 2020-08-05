@@ -152,6 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41efe40862ef6f44e93358268ecfd607, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_Reference: {fileID: 1672292930662818, guid: 2588e368fdac4cf4e937000a9fc27952, type: 3}
+  m_MergeRadius: 1
 --- !u!4 &67497756
 Transform:
   m_ObjectHideFlags: 0
