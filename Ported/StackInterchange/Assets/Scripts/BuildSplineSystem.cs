@@ -16,45 +16,54 @@ public class BuildSplineSystem : SystemBase
         Entities.ForEach((Entity entity, in BuildSpline buildSpline) =>
         {
             //Fake Segment section
-            Entity segment_A = ecb.CreateEntity();
-            //EntityManager.SetName(segment_A, "Segment A");
-            ecb.AddComponent(segment_A, new Segment
             {
-                Start = new float3(-1, -1, 0),
-                End = new float3(0, 0, 0),
-            });
+                var builder = new BlobBuilder(Allocator.Temp);
+                ref var root = ref builder.ConstructRoot<SegmentHandle>();
+                var segmentArray = builder.Allocate(ref root.Segments, 5);
 
-            Entity segment_B = ecb.CreateEntity();
-            //EntityManager.SetName(segment_B, "Segment B");
-            ecb.AddComponent(segment_B, new Segment
-            {
-                Start = new float3(-1, 1, 0),
-                End = new float3(0, 0, 0),
-            });
+                segmentArray[0] = new SegmentData
+                {
+                    // A
+                    Start = new float3(-1, 1, 0),
+                    End = new float3(0, 0, 0),
+                };
 
-            Entity segment_C = ecb.CreateEntity();
-            //EntityManager.SetName(segment_C, "Segment C");
-            ecb.AddComponent(segment_C, new Segment
-            {
-                Start = new float3(0, 0, 0),
-                End = new float3(1, 0, 0),
-            });
+                segmentArray[1] = new SegmentData
+                {
+                    //B
+                    Start = new float3(-1, -1, 0),
+                    End = new float3(0, 0, 0),
+                };
 
-            Entity segment_D = ecb.CreateEntity();
-            //EntityManager.SetName(segment_D, "Segment D");
-            ecb.AddComponent(segment_D, new Segment
-            {
-                Start = new float3(1, 0, 0),
-                End = new float3(2, 1, 0),
-            });
+                segmentArray[2] = new SegmentData
+                {
+                    //C
+                    Start = new float3(0, 0, 0),
+                    End = new float3(1, 0, 0),
+                };
 
-            Entity segment_E = ecb.CreateEntity();
-            //EntityManager.SetName(segment_D, "Segment E");
-            ecb.AddComponent(segment_E, new Segment
-            {
-                Start = new float3(1, 0, 0),
-                End = new float3(2, -1, 0),
-            });
+                segmentArray[3] = new SegmentData
+                {
+                    //D
+                    Start = new float3(1, 0, 0),
+                    End = new float3(2, 1, 0),
+                };
+
+                segmentArray[4] = new SegmentData
+                {
+                    //E
+                    Start = new float3(1, 0, 0),
+                    End = new float3(2, -1, 0),
+                };
+
+                Entity segmentCollection = ecb.CreateEntity();
+                //EntityManager.SetName(splineEntity, "Spline Red");
+                ecb.AddComponent(segmentCollection, new SegmentCollection
+                {
+                    Value = builder.CreateBlobAssetReference<SegmentHandle>(Allocator.Persistent)
+                });
+                builder.Dispose();
+            }
 
             //Creating green spline
             {
@@ -62,9 +71,9 @@ public class BuildSplineSystem : SystemBase
                 ref var root = ref builder.ConstructRoot<SplineHandle>();
                 var size = 3;
                 var segmentArray = builder.Allocate(ref root.Segments, size);
-                segmentArray[0] = segment_A;
-                segmentArray[1] = segment_C;
-                segmentArray[2] = segment_D;
+                segmentArray[0] = 0;
+                segmentArray[1] = 2;
+                segmentArray[2] = 3;
 
                 Entity splineEntity = ecb.CreateEntity();
                 //EntityManager.SetName(splineEntity, "Spline Red");
@@ -81,9 +90,9 @@ public class BuildSplineSystem : SystemBase
                 ref var root = ref builder.ConstructRoot<SplineHandle>();
                 var size = 3;
                 var segmentArray = builder.Allocate(ref root.Segments, size);
-                segmentArray[0] = segment_B;
-                segmentArray[1] = segment_C;
-                segmentArray[2] = segment_E;
+                segmentArray[0] = 1;
+                segmentArray[1] = 2;
+                segmentArray[2] = 4;
 
                 Entity splineEntity = ecb.CreateEntity();
                 //EntityManager.SetName(splineEntity, "Spline Green");
