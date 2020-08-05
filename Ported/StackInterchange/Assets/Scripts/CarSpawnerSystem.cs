@@ -5,7 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateAfter(typeof(BuildSplineSystem))]
 public class CarSpawnerSystem : SystemBase
 {
     BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
@@ -19,6 +19,7 @@ public class CarSpawnerSystem : SystemBase
     {
         var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
+        //spawning all the cars for 1 set
         Entities
             .WithName("CarSpawnerSystem")
             .WithBurst(FloatMode.Default, FloatPrecision.Standard, true)

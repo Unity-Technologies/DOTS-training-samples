@@ -6,15 +6,19 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateAfter(typeof(CarInitializeSystem))]
 public class CarRenderingSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        var segmentCollection = GetSingleton<SegmentCollection>();
+
         Entities
             .WithName("CarRenderingSystem")
             .ForEach((
-                ref LocalToWorld ltw,
+                ref Translation translation,
+                ref Rotation rotation,
+                ref NonUniformScale scale,
                 in Size size,
                 in Offset offset,
                 in CurrentSegment currentSegment,
@@ -22,17 +26,14 @@ public class CarRenderingSystem : SystemBase
             ) =>
             {
                 //Get segment
-                var segment = currentSegment.Value;
+                var segment = segmentCollection.Value.Value.Segments[currentSegment.Value];
 
                 //TRS
                 var position = math.lerp(segment.Start,segment.End,progress.Value);
-                var rotation = float4x4.LookAt(position,segment.End,new float3(0,1,0));
-                var scale = float4x4.Scale(size.Value);
-
-                //Set the localToWorld
-                var translation = float4x4.Translate(position);
-                ltw.Value = translation * rotation * scale;
-               // ltw.Value = math.mul(math.mul(float4x4.Translate(position), rotation) , scale);
+                var forward = segment.End - position;
+                translation.Value = position;
+                rotation.Value = quaternion.LookRotationSafe(forward,new float3(0,1,0));
+                scale.Value = size.Value;
 
             }).ScheduleParallel();
     }

@@ -3,5 +3,5 @@
 [GenerateAuthoringComponent]
 public struct CurrentSegment : IComponentData
 {
-    public Segment Value;
+    public int Value;
 }

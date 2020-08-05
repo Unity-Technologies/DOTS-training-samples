@@ -6,13 +6,22 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateAfter(typeof(CarSpawnerSystem))]
 public class CarInitializeSystem : SystemBase
 {
+    private EntityQuery splineQuery;
     BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
 
     protected override void OnCreate()
     {
+        splineQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<Spline>()
+            }
+        });
+
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
     }
 
@@ -22,10 +31,12 @@ public class CarInitializeSystem : SystemBase
 
         var random = new Random( (uint) Time.ElapsedTime + 18564584);
 
-        var FakeSegment = GetSingleton<Segment>();
+        var splineEntities = splineQuery.ToEntityArrayAsync(Allocator.TempJob, out var splineEntitiesHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency, splineEntitiesHandle);
 
         Entities
             .WithName("CarInitSystem")
+            .WithDisposeOnCompletion(splineEntities)
             .WithAll<Disabled>()
             .ForEach((Entity entity, int entityInQueryIndex, 
                 ref Offset offset,
@@ -47,7 +58,10 @@ public class CarInitializeSystem : SystemBase
                 progress.Value = 0f;
 
                 //Spline and segment
-                currentSegment.Value = FakeSegment;
+                int randomSplineId = random.NextInt(0,splineEntities.Length);
+                belongToSpline.Value = splineEntities[randomSplineId];
+                var splineData = GetComponent<Spline>(splineEntities[randomSplineId]);
+                currentSegment.Value = splineData.Value.Value.Segments[0];
 
                 //Enable the car
                 commandBuffer.RemoveComponent<Disabled>(entityInQueryIndex,entity);
