@@ -4,18 +4,30 @@ using Unity.Transforms;
 using Unity.Mathematics;
 
 
-
-public struct FarmerData:IComponentData
+public struct FarmerData_Spawner:IComponentData
 {
-    public Entity farmerEntity;
+    public Entity prefab;
+}
+
+public struct DroneData_Spawner:IComponentData
+{
+    public Entity prefab;
 }
 
 public struct WorkerTeleport:IComponentData {
     public float2 position;
 }
 
-public struct FarmerRuntimeData:IComponentData
+public struct WorkerDataCommon:IComponentData
 {
     public Entity plantAttached;
     public Entity targetEntity;
+}
+
+public struct Farmer:IComponentData
+{
+}
+
+public struct Drone:IComponentData
+{
 }
