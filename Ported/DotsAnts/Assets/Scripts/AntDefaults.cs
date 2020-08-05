@@ -24,4 +24,6 @@ public class AntDefaults : MonoBehaviour
     public int obstacleRingCount = 3;
     public float obstaclesPerRing = 0.8f;
     public float obstacleRadius = 2.0f;
+
+    public Texture2D pheromoneMap;
 }

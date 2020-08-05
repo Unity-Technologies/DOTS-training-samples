@@ -2,39 +2,38 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.ProjectWindowCallback;
+#endif
 
 public class LevelGenerationSystem : SystemBase
 {
-    //hardcoded for now, be moved later
-    public struct LevelSpawner : IComponentData
+    Texture2D texture;
+    int mapSize;
+
+    protected override void OnCreate()
     {
-        public int mapSize;
-        public int obstacleRingCount;
-        public float obstaclesPerRing;
-        public float obstacleRadius;
+        base.OnCreate();
+        AntDefaults defaults = Camera.main.GetComponent<AntDefaults>();
+        texture = defaults.pheromoneMap;
+        mapSize = defaults.mapSize;
     }
-    public LevelSpawner m_Spawner = new LevelSpawner()
-    {
-        mapSize = 126,
-        obstacleRingCount = 3,
-        obstaclesPerRing = 0.8f,
-        obstacleRadius = 2
-    };
-    
+
     protected override void OnUpdate()
     {
         Entities.WithStructuralChanges()
-            .ForEach((Entity entity, in ObstacleGeneratorAuthoring spawner, in MapResolution map, in LocalToWorld ltw) =>
+            .ForEach((Entity entity, in LevelGeneration spawner) =>
             {
-                //load / create texture with 2 channels (channel resolution to define)
-                Texture2D texture = new Texture2D(map.value, map.value, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32_SInt, UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
-                //if loaded reset the size
+                if (texture.width != mapSize || texture.height != mapSize)
+                    texture.Resize(mapSize, mapSize);
 
-                Color obstacleColor = new Color32(0, 1, 0, 0);
+                //obstacles are on the second channel
+                Color32 obstacleColor = new Color32(0, 255, 0, 0);
 
                 for (int i = 1; i <= spawner.obstacleRingCount; i++)
                 {
-                    float ringRadius = (i / (spawner.obstacleRingCount + 1f)) * (map.value * .5f);
+                    float ringRadius = (i / (spawner.obstacleRingCount + 1f)) * (mapSize * .5f);
                     float circumference = ringRadius * 2f * Mathf.PI;
                     int maxCount = Mathf.CeilToInt(circumference / (2f * spawner.obstacleRadius) * 2f);
                     int offset = UnityEngine.Random.Range(0, maxCount);
@@ -45,8 +44,8 @@ public class LevelGenerationSystem : SystemBase
                         if ((t * holeCount) % 1f < spawner.obstaclesPerRing)
                         {
                             float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
-                            float posX = map.value * .5f + Mathf.Cos(angle) * ringRadius;
-                            float posY = map.value * .5f + Mathf.Sin(angle) * ringRadius;
+                            float posX = mapSize * .5f + Mathf.Cos(angle) * ringRadius;
+                            float posY = mapSize * .5f + Mathf.Sin(angle) * ringRadius;
 
                             //to check: clamping to integer
                             Disc(texture, (int)math.ceil(posX), (int)math.ceil(posY), (int)spawner.obstacleRadius, obstacleColor);
@@ -83,4 +82,34 @@ public class LevelGenerationSystem : SystemBase
             }
         }
     }
+
+#if UNITY_EDITOR
+    class CreateAsset : EndNameEditAction
+    {
+        public override void Action(int instanceId, string pathName, string resourceFile)
+        {
+            AntDefaults defaults = Camera.main?.GetComponent<AntDefaults>();
+            if (defaults == null || defaults.Equals(null))
+            {
+                Debug.LogError($"There is no {typeof(AntDefaults)} on the MainCamera");
+                return;
+            }
+
+            //RenderTexture rt = new RenderTexture(defaults.mapSize, defaults.mapSize, 0, RenderTextureFormat.RG32);
+            //rt.Create();
+            Texture2D rt = new Texture2D(defaults.mapSize, defaults.mapSize, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32_SFloat, UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
+            AssetDatabase.CreateAsset(rt, pathName);
+            Selection.activeObject = rt;
+
+            if (defaults.pheromoneMap == null || defaults.pheromoneMap.Equals(null))
+                defaults.pheromoneMap = rt;
+        }
+    }
+
+    [MenuItem("Assets/Create/PheromoneMap", priority = 0)]
+    static void CreateMapMenu()
+    {
+        ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0, ScriptableObject.CreateInstance<CreateAsset>(), "PheromoneMap.asset", null, null);
+    }
+#endif
 }
