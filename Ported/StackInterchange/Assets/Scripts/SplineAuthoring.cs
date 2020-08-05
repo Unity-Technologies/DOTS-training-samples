@@ -1,7 +1,11 @@
 ﻿using Unity.Entities;
- 
-[GenerateAuthoringComponent]
+
 public struct Spline : IComponentData
 {
-    //??? Dynamic Buffer of Segment
+    public BlobAssetReference<SplineHandle> Value;
+}
+
+public struct SplineHandle
+{
+    public BlobArray<Entity> Segments;
 }
