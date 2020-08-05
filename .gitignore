@@ -44,3 +44,7 @@ sysinfo.txt
 *.unitypackage
 
 *.DS_Store
+
+# Dots subscene
+SceneDependencyCache.meta
+SceneDependencyCache/
