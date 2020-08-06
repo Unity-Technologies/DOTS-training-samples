@@ -377,7 +377,9 @@ MonoBehaviour:
   obstacleRingCount: 3
   obstaclesPerRing: 0.8
   obstacleRadius: 2
+  colisionMap: {fileID: 2800000, guid: a8c3d5eed5f6dba4eb4aa7620accee4a, type: 2}
   pheromoneMap: {fileID: 2800000, guid: f534929689fa7ff4ebc2f235c080068f, type: 2}
+  m_CurrentBuffer: 0
 --- !u!4 &1723572699
 Transform:
   m_ObjectHideFlags: 0
