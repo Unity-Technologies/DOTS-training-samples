@@ -15,7 +15,7 @@ public class FarmerCollisionSystem : SystemBase
         {
             All = new[]
            {
-                ComponentType.ReadOnly<Rock>()
+                ComponentType.ReadOnly<Rock>()                
             }
         });
 
@@ -32,19 +32,33 @@ public class FarmerCollisionSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, rocksEntitiesHandle);
 
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
+        var healthAccessor = GetComponentDataFromEntity<Health>();
 
         Entities
-            .WithAll<Farmer>()
+            .WithName("rock_farmer_collision_test")
             .WithDisposeOnCompletion(rockPosition)
             .WithDisposeOnCompletion(rockEntities)
+            .WithNativeDisableParallelForRestriction(healthAccessor)
+            .WithAll<Farmer>()
             .ForEach((int entityInQueryIndex, Entity farmerEntity, in Position2D farmerPosition) =>
             {
+                
                 var farmerRect = new Rect(farmerPosition.position.x - 0.5f, farmerPosition.position.y - 0.5f, 1f, 1f);
                 for (int i = 0; i < rockPosition.Length; ++i)
                 {
                     if (farmerRect.Overlaps(rockPosition[i].rectInt, true))
                     {
-                        ecb.DestroyEntity(entityInQueryIndex, rockEntities[i]);
+                        var currentHealth = healthAccessor[rockEntities[i]].Value;
+                        if (currentHealth > 0)
+                        {
+                            healthAccessor[rockEntities[i]] = new Health { Value = currentHealth -= 20.0f };
+
+                        }
+                        else if(currentHealth <= 0.0f)
+                        {
+                            ecb.DestroyEntity(entityInQueryIndex, rockEntities[i]);
+                        }
+                        
                     }
                 }
 
