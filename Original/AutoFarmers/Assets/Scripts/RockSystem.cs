@@ -14,7 +14,7 @@ public class RockSystem : SystemBase
         .WithStructuralChanges()
         .ForEach((Entity entity, in RockDataSpawner rockDataSpawner) =>
         {
-            SpawnRock(20, rockDataSpawner);
+            SpawnRock(rockDataSpawner.rockCount, rockDataSpawner);
             EntityManager.RemoveComponent<RockDataSpawner>(entity);
 
         }).Run();

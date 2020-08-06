@@ -7,6 +7,7 @@ public struct RockDataSpawner : IComponentData
 {
     public Entity prefab;
     public Vector2Int mapSize;
+    public int rockCount;
 }
 
 public struct Rock : IComponentData

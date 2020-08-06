@@ -26,6 +26,7 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
     public GameObject dronePrefab;
     public int initialMoneyForFarmers = 15;
     public int initialMoneyForDrones = 0;
+    public int rockCount = 100;
 
 
     public MapDebugOptions debugOptions = MapDebugOptions.Default;
@@ -66,7 +67,8 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
         dstManager.AddComponentData<RockDataSpawner>(entity,new RockDataSpawner
         {
             prefab = originalRock,
-            mapSize = mapSize
+            mapSize = mapSize,
+            rockCount = rockCount
         });
         
         var originalFarmer = conversionSystem.GetPrimaryEntity(farmerPrefab);
