@@ -15,6 +15,7 @@ public class CollisionSystem : SystemBase
     private const float AccelerationFactor = 1.0f / BrakingFactor;
     
     private EntityQuery m_CarQuery;
+    private EntityQuery m_SplineQuery;
     
     private struct SegmentCar
     {
@@ -52,6 +53,14 @@ public class CollisionSystem : SystemBase
                 ComponentType.ReadOnly<BelongToSpline>()
             }
         });
+
+        m_SplineQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<Spline>()
+            }
+        });
     }
 
     // TODO: This should be a generic helper in one place
@@ -86,7 +95,7 @@ public class CollisionSystem : SystemBase
         if (numberOfCars == 0) return; // This may be the case in the beginning
         
         var segmentCollection = GetSingleton<SegmentCollection>();
-        
+
         int numberOfSegments = segmentCollection.Value.Value.Segments.Length;
         if (numberOfSegments == 0) return;
 
@@ -156,11 +165,14 @@ public class CollisionSystem : SystemBase
             }
         }).Schedule();
 
+        var splineDataArray = m_SplineQuery.ToComponentDataArray<Spline>(Allocator.TempJob);
+
         // 3. For each car find the collisions with the cars in the same segment
         Entities
             .WithName("DetectAndAvoidCollisions")
             .WithDisposeOnCompletion(carsRangePerSegment)
             .WithDisposeOnCompletion(carList)
+            .WithDisposeOnCompletion(splineDataArray)
             .ForEach((
                 ref Speed speed,
                 in OriginalSpeed originalSpeed,
@@ -220,7 +232,7 @@ public class CollisionSystem : SystemBase
 
                 // Get the next segment too
                 var spline = GetComponent<BelongToSpline>(thisCarEntity);
-                var splineData = GetComponent<Spline>(spline.Value);
+                var splineData = splineDataArray[spline.Value];
                 var segmentCounter = GetComponent<SegmentCounter>(thisCarEntity);
                 if (segmentCounter.Value < splineData.Value.Value.Segments.Length - 1)
                 {
