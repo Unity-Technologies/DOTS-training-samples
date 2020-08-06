@@ -29,6 +29,7 @@ public class NavMeshResolver : MonoBehaviour
 
     public float m_maxSegmentLength = 15.0f;
     public float m_mergeRadius = 1.0f;
+    public float m_edgeAvoidLength = 0.0f;
     public GameObject m_root;
 
     private PathToResolve[] GeneratePathToResolve()
@@ -137,7 +138,6 @@ public class NavMeshResolver : MonoBehaviour
         if (transform == null)
         {
             var newWayPoint = new GameObject("waypoint");
-            newWayPoint.tag = "waypoint";
             newWayPoint.transform.position = position;
             newWayPoint.transform.SetParent(m_root.transform, true);
             transform = newWayPoint.transform;
@@ -149,11 +149,9 @@ public class NavMeshResolver : MonoBehaviour
     {
         var pathToResolve = GeneratePathToResolve();
 
-        var toDelete = GameObject.FindGameObjectsWithTag("waypoint");
-        foreach (var wayPoint in toDelete)
-        {
-            DestroyImmediate(wayPoint);
-        }
+        var backupName = m_root.name;
+        DestroyImmediate(m_root);
+        m_root = new GameObject(backupName);
 
         var allPath = new List<GameObject>();
         foreach (var path in pathToResolve)
@@ -176,21 +174,24 @@ public class NavMeshResolver : MonoBehaviour
             var distanceTraveled = float.MaxValue;
 
             Vector3 currentPosition = path.From.position;
-            int maxIteration = 1024;
-            while ((currentPosition - path.To.position).sqrMagnitude > m_mergeRadius * m_mergeRadius)
+            int maxIteration = 4096;
+            while ((currentPosition - path.To.position).sqrMagnitude > 0.1f)
             {
                 if (!NavMesh.CalculatePath(currentPosition, path.To.position, NavMesh.AllAreas, navMeshPath))
                 {
+                    Debug.LogError("Failing achieving CalculatePath for " + name);
                     break;
                 }
 
                 if (navMeshPath.corners.Length < 2)
                 {
+                    Debug.LogError("No more enough corner for " + name);
                     break;
                 }
 
                 if (maxIteration-- < 0)
                 {
+                    Debug.LogError("Possible infinite loop for " + name);
                     break;
                 }
 
@@ -201,9 +202,9 @@ public class NavMeshResolver : MonoBehaviour
                 }
 
                 var direction = navMeshPath.corners[1] - currentPosition;
-                /*
-                 * Not really necessary since we are staying on navMesh
-                 * if (!addPoint && direction.sqrMagnitude < m_mergeRadius * m_mergeRadius)
+                var directionNormalized = direction.normalized;
+
+                /*if (!addPoint && direction.sqrMagnitude < m_mergeRadius * m_mergeRadius)
                 {
                     addPoint = true;
                     currentPosition = navMeshPath.corners[1];
@@ -219,24 +220,51 @@ public class NavMeshResolver : MonoBehaviour
                     }
                 }
 
+                //Destination reached
+                if (!addPoint && (currentPosition - path.To.position).sqrMagnitude <= m_mergeRadius * m_mergeRadius)
+                {
+                    addPoint = true;
+                    currentPosition = path.To.position;
+                }
+
+                //Fit to navmesh
                 NavMeshHit hit;
                 if (NavMesh.SamplePosition(currentPosition, out hit, 5.0f, NavMesh.AllAreas))
                 {
                     currentPosition = hit.position;
+
+                    //Correct from edge
+                    if (m_edgeAvoidLength != 0.0f)
+                    {
+                        NavMeshHit closestEdge;
+                        if (NavMesh.FindClosestEdge(currentPosition, out closestEdge, NavMesh.AllAreas))
+                        {
+                            var edge = closestEdge.position - closestEdge.position;
+                            if (edge.sqrMagnitude < m_edgeAvoidLength * m_edgeAvoidLength)
+                            {
+                                currentPosition = currentPosition + closestEdge.normal * m_edgeAvoidLength;
+                            }
+                        }
+                    }
                 }
 
                 if (addPoint)
                 {
-                    currentWayPoint.Add(GetOrAddTransform(currentPosition));
+                    var newPosition = currentPosition;
+                    /*if (m_constantLeftOffset != 0.0f)
+                    {
+                        var left = Vector3.Cross(directionNormalized, Vector3.up);
+                        newPosition = newPosition + left * m_constantLeftOffset;
+                    }*/
+                    currentWayPoint.Add(GetOrAddTransform(newPosition));
                     distanceTraveled = 0.0f;
                 }
                 else
                 {
                     var dt = m_mergeRadius * 0.5f;
-                    currentPosition += direction.normalized * dt;
+                    currentPosition += directionNormalized * dt;
                     distanceTraveled += dt;
                 }
-
             }
 
             pathResult.m_Path = currentWayPoint.ToArray();
