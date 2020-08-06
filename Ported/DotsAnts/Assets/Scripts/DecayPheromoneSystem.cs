@@ -22,15 +22,15 @@ public class DecayPheromoneSystem : SystemBase
     {
         int sizeOfBuffer = defaults.bufferSize;
         NativeArray<float> pheromoneMap = defaults.GetCurrentPheromoneMapBuffer();
-
+/*
         Entities
-            .ForEach((Entity entity/*, in PheromoneDecay decay*/) =>
+            .ForEach((Entity entity, in PheromoneDecay decay) =>
             {
 
                 for (int x = 0; x < sizeOfBuffer; x++)
                     pheromoneMap[x] *= 1f;//decay.decaySpeed;
             }).Run();
-
+*/
         defaults.SwapPheromoneBuffer();
     }
 
