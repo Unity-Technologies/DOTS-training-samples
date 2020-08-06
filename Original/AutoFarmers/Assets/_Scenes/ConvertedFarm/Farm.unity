@@ -207,8 +207,11 @@ MonoBehaviour:
     type: 3}
   dronePrefab: {fileID: 3581142404792674452, guid: 250b39dc852ca2149b5d747a4137f9e5,
     type: 3}
+  storePrefab: {fileID: 1186172543812439480, guid: 430b5dacd48e0494d93ba1cff3aea142,
+    type: 3}
   initialMoneyForFarmers: 15
   initialMoneyForDrones: 0
+  numberOfStores: 20
   debugOptions: 2
   mapSize: {x: 60, y: 60}
 --- !u!4 &1401502930

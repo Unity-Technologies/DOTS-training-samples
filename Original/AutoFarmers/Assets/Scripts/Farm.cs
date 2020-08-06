@@ -24,8 +24,11 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
     public GameObject rockPrefab;
     public GameObject farmerPrefab;
     public GameObject dronePrefab;
+    public GameObject storePrefab;
     public int initialMoneyForFarmers = 15;
     public int initialMoneyForDrones = 0;
+    public int rockCount = 100;
+    public int numberOfStores = 5;
 
 
     public MapDebugOptions debugOptions = MapDebugOptions.Default;
@@ -63,13 +66,13 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
 		});
 
         var originalRock = conversionSystem.GetPrimaryEntity(rockPrefab);
-        dstManager.AddComponentData<RockAuthoring>(entity,new RockAuthoring
+        dstManager.AddComponentData<RockDataSpawner>(entity,new RockDataSpawner
         {
-            rockEntity = originalRock,
-            mapX = mapSize.x,
-            mapY = mapSize.y
+            prefab = originalRock,
+            mapSize = mapSize,
+            rockCount = rockCount
         });
-
+        
         var originalFarmer = conversionSystem.GetPrimaryEntity(farmerPrefab);
         dstManager.AddComponentData<FarmerData_Spawner>(entity,new FarmerData_Spawner
         {
@@ -87,6 +90,15 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
             moneyForFarmers = initialMoneyForFarmers,
             moneyForDrones = initialMoneyForDrones
         });
+
+        var originalStore = conversionSystem.GetPrimaryEntity(storePrefab);
+        dstManager.AddComponentData<StoreData_Spawner>(entity,new StoreData_Spawner
+        {
+            prefab = originalStore,
+            count = numberOfStores,
+            mapX = mapSize.x,
+            mapY = mapSize.y
+        });
     }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -95,5 +107,7 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
         referencedPrefabs.Add(tilledGround);
         referencedPrefabs.Add(rockPrefab);
         referencedPrefabs.Add(farmerPrefab);
+        referencedPrefabs.Add(dronePrefab);
+        referencedPrefabs.Add(storePrefab);
     }
 }

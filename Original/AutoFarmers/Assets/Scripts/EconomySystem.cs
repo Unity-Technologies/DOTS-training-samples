@@ -83,7 +83,7 @@ public class EconomySystem:SystemBase
     internal void SpawnDrones(int count,in DroneData_Spawner droneData)
     {
         for(int i = 0;i < count;++i)
-        {/*
+        {
             var newDrone = EntityManager.Instantiate(droneData.prefab);
 
             EntityManager.RemoveComponent<Translation>    (newDrone);
@@ -92,11 +92,12 @@ public class EconomySystem:SystemBase
             EntityManager.RemoveComponent<NonUniformScale>(newDrone);
 
             EntityManager.AddComponent<Drone>(newDrone);
+            EntityManager.AddComponentData<Color>(newDrone,new Color { Value = new float4(1,1,0,1) });
             //TODO: make it 3D
             EntityManager.AddComponentData<Position2D>(newDrone,new Position2D { position = new Unity.Mathematics.float2(0,0) });
             int posX = UnityEngine.Random.Range(0,10);
             int posY = UnityEngine.Random.Range(0,10);
-            EntityManager.AddComponentData<WorkerTeleport>(newDrone,new WorkerTeleport { position = new Unity.Mathematics.float2(posX,posY) });*/
+            EntityManager.AddComponentData<WorkerTeleport>(newDrone,new WorkerTeleport { position = new Unity.Mathematics.float2(posX,posY) });
         }
     }
 }

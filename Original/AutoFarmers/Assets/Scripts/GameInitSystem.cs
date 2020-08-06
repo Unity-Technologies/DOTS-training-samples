@@ -41,24 +41,25 @@ public class GameInitSystem:SystemBase
             EntityManager.RemoveComponent<GroundData>(entity);
         }).Run();
 
-        // Spawn rocks
-        Entities.WithStructuralChanges().ForEach((Entity entity, in RockAuthoring rockData) =>
+        // Spawn stores
+        Entities.WithStructuralChanges().ForEach((Entity entity,in StoreData_Spawner storeData) =>
         {
-            for(int i = 0; i < 20; i++)
+            for(int i = 0;i < storeData.count;i++)
             {
-                int rockX = Random.Range(0, rockData.mapX);
-                int rockY = Random.Range(0, rockData.mapY);
+                int posX = Random.Range(0,storeData.mapX);
+                int posY = Random.Range(0,storeData.mapY);
 
-                var farmer = EntityManager.Instantiate(rockData.rockEntity);
-                EntityManager.RemoveComponent<Translation>(farmer);
-                EntityManager.RemoveComponent<Rotation>(farmer);
-                EntityManager.RemoveComponent<Scale>(farmer);
-                EntityManager.RemoveComponent<NonUniformScale>(farmer);
-                EntityManager.AddComponentData<Position2D>(farmer, new Position2D { position = new Unity.Mathematics.float2(rockX, rockY) });
+                var store = EntityManager.Instantiate(storeData.prefab);
+                EntityManager.RemoveComponent<Translation>(store);
+                EntityManager.RemoveComponent<Rotation>(store);
+                EntityManager.RemoveComponent<Scale>(store);
+                EntityManager.RemoveComponent<NonUniformScale>(store);
+                EntityManager.AddComponentData<Position2D>(store,new Position2D { position = new Unity.Mathematics.float2(posX,posY) });
+                EntityManager.AddComponent<Store>(store);
             }
-            
 
-            EntityManager.RemoveComponent<RockAuthoring>(entity);
+
+            EntityManager.RemoveComponent<StoreData_Spawner>(entity);
 
         }).Run();
     }
