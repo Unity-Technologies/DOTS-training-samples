@@ -39,7 +39,7 @@ public class ObjectiveSteeringSystem : SystemBase
         float2 foodPos = GetSingleton<FoodLocation>().value;
         NativeArray<float> bakedCollisionMap = defaults.colisionMap.GetRawTextureData<float>();
 
-        Entities.WithoutBurst().WithAll<Ant>().ForEach((
+        Entities.WithAll<Ant>().ForEach((
             ref SteeringAngle steeringAngle,
             in Position antPos, in DirectionAngle directionAngle, in CarryingFood hasFood) =>
         {
@@ -48,10 +48,6 @@ public class ObjectiveSteeringSystem : SystemBase
             {
                 // If we can see the objective from the ant's position, steer straight towards it.
                 float2 relObjectivePos = antPos.value - objectivePos;
-                float a = directionAngle.value;
-                float b = relObjectivePos.y;
-                float c = relObjectivePos.x;
-                float d = (float)(Math.Atan2(relObjectivePos.y, relObjectivePos.x));
                 steeringAngle.value.z =  (float)(Math.Atan2(relObjectivePos.y, relObjectivePos.x) + Math.PI - directionAngle.value);
             }
             else
