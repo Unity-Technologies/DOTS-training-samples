@@ -43,9 +43,8 @@ public class CarInitializeSplineSystem : SystemBase
             ref SegmentCounter segmentCounter,
             ref URPMaterialPropertyBaseColor color) =>
             {
-                int randomSplineId = 0;
                 //Spline and segment
-                randomSplineId = random.NextInt(0, splineEntities.Length);
+                var randomSplineId = random.NextInt(0, splineEntities.Length);
 
                 belongToSpline.Value = splineEntities[randomSplineId];
                 var splineData = GetComponent<Spline>(splineEntities[randomSplineId]);
