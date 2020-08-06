@@ -97,7 +97,7 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
             prefab = originalStore,
             count = numberOfStores,
             mapX = mapSize.x,
-            mapY = mapSize.y
+            mapY = mapSize.y,
         });
     }
 
