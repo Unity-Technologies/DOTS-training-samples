@@ -154,6 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Reference: {fileID: 4209960757234686232, guid: e1f06f9accbb95a478281367ea719b38, type: 3}
   m_MergeRadius: 1
+  m_GenerateCopyCount: 1
 --- !u!4 &67497756
 Transform:
   m_ObjectHideFlags: 0
@@ -198,7 +199,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CarPrefab: {fileID: 7747456000150456392, guid: 00262c670d344064dafe321356f8c58c, type: 3}
-  Count: 10
+  Count: 2048
 --- !u!4 &1206798032
 Transform:
   m_ObjectHideFlags: 0

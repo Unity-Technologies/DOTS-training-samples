@@ -37,6 +37,7 @@ public class CarSegmentChangeSystem : SystemBase
             if (counter.Value == splineData.Value.Value.Segments.Length - 1)
             {
                 commandBuffer.AddComponent<Disabled>(entityInQueryIndex, entity);
+                commandBuffer.AddComponent<Restart>(entityInQueryIndex, entity);
             }
             else
             {
