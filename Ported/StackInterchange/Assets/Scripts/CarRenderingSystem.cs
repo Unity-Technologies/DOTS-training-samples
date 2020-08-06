@@ -4,7 +4,6 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(CarInitializeSystem))]
 public class CarRenderingSystem : SystemBase
@@ -25,14 +24,11 @@ public class CarRenderingSystem : SystemBase
                 in Progress progress
             ) =>
             {
-                //Get segment
-                var segment = segmentCollection.Value.Value.Segments[currentSegment.Value];
+                var forward = CollisionSystem.CalculateCarDirection(segmentCollection,currentSegment,progress,offset);
 
                 //TRS
-                var position = math.lerp(segment.Start,segment.End,progress.Value);
-                var forward = segment.End - position;
-                translation.Value = position;
-                rotation.Value = quaternion.LookRotationSafe(forward,new float3(0,1,0));
+                translation.Value = CollisionSystem.CalculateCarPosition(segmentCollection,currentSegment,progress,offset);
+                rotation.Value = quaternion.LookRotationSafe(forward, new float3(0,1,0));
                 scale.Value = size.Value;
 
             }).ScheduleParallel();

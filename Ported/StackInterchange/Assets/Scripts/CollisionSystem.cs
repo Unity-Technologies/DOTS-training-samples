@@ -49,7 +49,7 @@ public class CollisionSystem : SystemBase
 
     // TODO: This should be a generic helper in one place
     // TODO: Offset should be taken into account
-    private static float3 CalculateCarPosition(in SegmentCollection segmentCollection, 
+    public static float3 CalculateCarPosition(in SegmentCollection segmentCollection, 
         in CurrentSegment currentSegment, in Progress progress, in Offset offset)
     {
         var segment = segmentCollection.Value.Value.Segments[currentSegment.Value];
@@ -59,7 +59,7 @@ public class CollisionSystem : SystemBase
 
     // TODO: This should be a generic helper in one place
     // TODO: Offset should be taken into account
-    private static float3 CalculateCarDirection(in SegmentCollection segmentCollection,
+    public static float3 CalculateCarDirection(in SegmentCollection segmentCollection,
         in CurrentSegment currentSegment, in Progress progress, in Offset offset)
     {
         var segment = segmentCollection.Value.Value.Segments[currentSegment.Value];
