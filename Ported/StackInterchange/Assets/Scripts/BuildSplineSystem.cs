@@ -15,14 +15,41 @@ public class BuildSplineSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         Entities.ForEach((Entity entity, in BuildSpline buildSpline) =>
         {
-            //Fake Segment section
+            Entity segmentCollection = ecb.CreateEntity();
+            ecb.AddComponent(segmentCollection, new SegmentCollection
+            {
+                Value = buildSpline.SegmentCollection
+            });
+
+            int startOffset = 0;
+            for(int i = 0; i < buildSpline.SplineCollection.Value.Segments.Length; ++i)
+            {
+                var currentSize = buildSpline.SplineCollection.Value.Segments[i];
+
+                var builder = new BlobBuilder(Allocator.Temp);
+                ref var root = ref builder.ConstructRoot<SplineHandle>();
+                var segmentArray = builder.Allocate(ref root.Segments, currentSize);
+                for (int j = 0; j < currentSize; ++j)
+                {
+                    segmentArray[j] = buildSpline.AllSplines.Value.Segments[j + startOffset];
+                }
+
+                var splineEntity = ecb.CreateEntity();
+                ecb.AddComponent(splineEntity, new Spline
+                {
+                    Value = builder.CreateBlobAssetReference<SplineHandle>(Allocator.Persistent)
+                });
+                builder.Dispose();
+                startOffset += buildSpline.SplineCollection.Value.Segments[i];
+            }
+
+#if _HARDCODED_SPLINE
             {
                 var builder = new BlobBuilder(Allocator.Temp);
                 ref var root = ref builder.ConstructRoot<SegmentHandle>();
                 var segmentArray = builder.Allocate(ref root.Segments, 5);
 
                 var scale = 5.0f;
-
                 segmentArray[0] = new SegmentData
                 {
                     // A
@@ -59,7 +86,6 @@ public class BuildSplineSystem : SystemBase
                 };
 
                 Entity segmentCollection = ecb.CreateEntity();
-                //EntityManager.SetName(splineEntity, "Spline Red");
                 ecb.AddComponent(segmentCollection, new SegmentCollection
                 {
                     Value = builder.CreateBlobAssetReference<SegmentHandle>(Allocator.Persistent)
@@ -79,7 +105,6 @@ public class BuildSplineSystem : SystemBase
 
                 Entity splineEntity = ecb.CreateEntity();
 
-                //EntityManager.SetName(splineEntity, "Spline Red");
                 ecb.AddComponent(splineEntity, new Spline
                 {
                     Value = builder.CreateBlobAssetReference<SplineHandle>(Allocator.Persistent)
@@ -98,14 +123,13 @@ public class BuildSplineSystem : SystemBase
                 segmentArray[2] = 4;
 
                 Entity splineEntity = ecb.CreateEntity();
-                //EntityManager.SetName(splineEntity, "Spline Green");
                 ecb.AddComponent(splineEntity, new Spline
                 {
                     Value = builder.CreateBlobAssetReference<SplineHandle>(Allocator.Persistent)
                 });
                 builder.Dispose();
             }
-
+#endif
             ecb.DestroyEntity(entity);
         }).Run();
 
