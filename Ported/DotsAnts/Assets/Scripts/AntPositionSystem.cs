@@ -40,6 +40,12 @@ public class AntPositionSystem : SystemBase
     {
         base.OnCreate();
 
+        
+    }
+
+    
+    protected override void OnUpdate()
+    {
         var antDefaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
                 
         defaults.antCount = antDefaults.antCount;
@@ -61,11 +67,7 @@ public class AntPositionSystem : SystemBase
         defaults.obstacleRingCount = antDefaults.obstacleRingCount;
         defaults.obstaclesPerRing = antDefaults.obstaclesPerRing;
         defaults.obstacleRadius = antDefaults.obstacleRadius;
-    }
-
-    
-    protected override void OnUpdate()
-    {
+        
         Unity.Mathematics.Random mathRandom = new Unity.Mathematics.Random(23345678);
         var defaultValues = defaults;
         

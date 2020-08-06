@@ -551,7 +551,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 958d844b1722fe4429521a00cb950e0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  antCount: 10000
+  antCount: 1000
   mapSize: 128
   bucketResolution: 64
   antSize: {x: 0, y: 0, z: 0}
