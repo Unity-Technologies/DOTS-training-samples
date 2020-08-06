@@ -3,40 +3,60 @@ using Unity.Transforms;
 using Unity.Rendering;
 using UnityEngine;
 using Unity.Collections;
+using Unity.Mathematics;
+using Unity.Scenes;
+
+public struct Tile
+{
+    public Entity empty;
+    public Entity tilled;
+}
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateAfter(typeof(SceneSystemGroup))]
 public class GameInitSystem:SystemBase
 {
+    public static NativeHashMap<uint2, Tile> groundTiles;
+    public static uint2 mapSize;
+
+    static Entity tilledTile;
+
     protected override void OnUpdate()
     {
         Entities.WithStructuralChanges().ForEach((Entity entity, in GroundData groundData) =>
         {
-            // ref var d = blob.Value.storePositions;
+            groundTiles = new NativeHashMap<uint2, Tile>(groundData.fieldSizeX * groundData.fieldSizeY, Allocator.Persistent);
+            tilledTile = groundData.tilledGroundEntity;
+            mapSize = new uint2((uint)groundData.fieldSizeX, (uint)groundData.fieldSizeY);
+
             for(int y = 0;y < groundData.fieldSizeY;++y)
             {
                 for(int x = 0;x < groundData.fieldSizeX;++x)
                 {
-                    var tile = EntityManager.Instantiate(groundData.debugOptions == MapDebugOptions.Tilled || groundData.debugOptions == MapDebugOptions.Plants ? groundData.tilledGroundEntity : groundData.defaultGroundEntity);
-                    EntityManager.RemoveComponent<Translation>(tile);
-                    EntityManager.RemoveComponent<Rotation>(tile);
-                    EntityManager.RemoveComponent<Scale>(tile);
-                    EntityManager.RemoveComponent<NonUniformScale>(tile);
-                    EntityManager.AddComponentData<Position2D>(tile,new Position2D { position = new Unity.Mathematics.float2(x,y) });
+                    Entity empty = Entity.Null, tilled;
 
-                    var renderer = EntityManager.GetSharedComponentData<RenderMesh>(tile);
+                    tilled = EntityManager.Instantiate(groundData.tilledGroundEntity);
+                    EntityManager.RemoveComponent<Translation>(tilled);
+                    EntityManager.RemoveComponent<Rotation>(tilled);
+                    EntityManager.RemoveComponent<Scale>(tilled);
+                    EntityManager.RemoveComponent<NonUniformScale>(tilled);
+                    EntityManager.AddComponentData<Position2D>(tilled, new Position2D { position = new Unity.Mathematics.float2(x,y) });
+                    EntityManager.AddComponent<GroundTilledState>(tilled);
 
-                    switch (groundData.debugOptions)
+                    if (groundData.debugOptions == MapDebugOptions.Plants)
+                        EntityManager.AddComponent<PlantedSeedTag>(tilled);
+                    else if (groundData.debugOptions != MapDebugOptions.Tilled)
                     {
-                        case MapDebugOptions.Empty:
-                            continue;
-                        case MapDebugOptions.Tilled:
-                            EntityManager.AddComponent<GroundTilledState>(tile);
-                            break;
-                        case MapDebugOptions.Plants:
-                            EntityManager.AddComponent<PlantedSeedTag>(tile);
-                            EntityManager.AddComponent<GroundTilledState>(tile);
-                            break;
+                        empty = EntityManager.Instantiate(groundData.defaultGroundEntity);
+                        EntityManager.RemoveComponent<Translation>(empty);
+                        EntityManager.RemoveComponent<Rotation>(empty);
+                        EntityManager.RemoveComponent<Scale>(empty);
+                        EntityManager.RemoveComponent<NonUniformScale>(empty);
+                        EntityManager.AddComponentData<Position2D>(empty,new Position2D { position = new Unity.Mathematics.float2(x,y) });
+                        EntityManager.AddComponent<Disabled>(tilled);
                     }
+
+                    groundTiles[new uint2((uint)x, (uint)y)] = new Tile{ empty = empty, tilled = tilled };
                 }
             }
             EntityManager.RemoveComponent<GroundData>(entity);
@@ -47,8 +67,8 @@ public class GameInitSystem:SystemBase
         {
             for(int i = 0;i < storeData.count;i++)
             {
-                int posX = Random.Range(0,storeData.mapX);
-                int posY = Random.Range(0,storeData.mapY);
+                int posX = UnityEngine.Random.Range(0,storeData.mapX);
+                int posY = UnityEngine.Random.Range(0,storeData.mapY);
 
                 var store = EntityManager.Instantiate(storeData.prefab);
                 EntityManager.RemoveComponent<Translation>(store);
@@ -63,5 +83,10 @@ public class GameInitSystem:SystemBase
             EntityManager.RemoveComponent<StoreData_Spawner>(entity);
 
         }).Run();
+    }
+
+    protected override void OnDestroy()
+    {
+        groundTiles.Dispose();
     }
 }

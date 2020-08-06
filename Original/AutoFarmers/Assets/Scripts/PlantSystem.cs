@@ -61,7 +61,7 @@ public class PlantSystem : SystemBase
         Entities.WithAll<PlantGrowingTag>().ForEach((Entity entity, ref Size size) =>
         {
             size.value += t / 8.0f;
-        }).Run();
+        }).ScheduleParallel();
 
         // Mark ready for harvest
         Entities.WithStructuralChanges().WithAll<PlantGrowingTag>().ForEach((Entity entity, in Size size) =>
@@ -72,7 +72,5 @@ public class PlantSystem : SystemBase
                 EntityManager.RemoveComponent<PlantGrowingTag>(entity);
             }
         }).Run();
-
-        // TODO: system to increase plant size
     }
 }
