@@ -145,7 +145,7 @@ public class AntPositionSystem : SystemBase
                     // updating the actual entity positions in the world
                     translation.Value = new float3(position.value.x, 0.0f, position.value.y);
                     //translation.Value += new float3(0.001f, 0.0f, 0.0f);
-                    rotation.Value = quaternion.Euler(0, angle.value, 0, math.RotationOrder.XYZ);
+                    rotation.Value = quaternion.Euler(0, -angle.value, 0, math.RotationOrder.XYZ);
                 }
             )
             .Run();//ScheduleParallel();
