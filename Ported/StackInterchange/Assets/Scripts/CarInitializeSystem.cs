@@ -11,17 +11,19 @@ using Random = Unity.Mathematics.Random;
 public class CarInitializeSystem : SystemBase
 {
     BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
+    Random _random;
 
     protected override void OnCreate()
     {
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+        _random = new Random( (uint) 18564584);
     }
 
     protected override void OnUpdate()
     {
         var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
-        var random = new Random( (uint) Time.ElapsedTime + 18564584);
+        var random = _random;
 
         Entities
             .WithName("CarInitSystem")
@@ -32,8 +34,7 @@ public class CarInitializeSystem : SystemBase
                 ref Size size,
                 ref Speed speed,
                 ref OriginalSpeed originalSpeed,
-                ref Progress progress,
-                ref URPMaterialPropertyBaseColor color
+                ref Progress progress
             ) =>
             {
                 //Initializing car data
@@ -46,7 +47,7 @@ public class CarInitializeSystem : SystemBase
 
                 originalSpeed.Value = random.NextFloat(1.0F, 2.0F);
                 speed.Value = originalSpeed.Value;
-                progress.Value = 0f;
+                progress.Value = random.NextFloat(0.0F, 1.0F);
             }).ScheduleParallel();
         
         //Enable the car after initializing the data

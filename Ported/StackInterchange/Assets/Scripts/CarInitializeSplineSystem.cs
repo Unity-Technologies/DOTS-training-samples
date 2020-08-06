@@ -10,9 +10,11 @@ using Unity.Transforms;
 public class CarInitializeSplineSystem : SystemBase
 {
     private EntityQuery splineQuery;
+    Random _random;
 
     protected override void OnCreate()
     {
+        _random = new Random( (uint) 56418);
         splineQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new[]
@@ -24,7 +26,7 @@ public class CarInitializeSplineSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var random = new Random((uint)Time.ElapsedTime + 18564584);
+        var random = _random;
 
         var splineEntities = splineQuery.ToEntityArrayAsync(Allocator.TempJob, out var splineEntitiesHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, splineEntitiesHandle);
