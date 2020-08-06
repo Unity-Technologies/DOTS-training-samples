@@ -16,7 +16,7 @@ public class GameInitSystem:SystemBase
             {
                 for(int x = 0;x < groundData.fieldSizeX;++x)
                 {
-                    var tile = EntityManager.Instantiate(groundData.debugOptions == MapDebugOptions.Tilled ? groundData.tilledGroundEntity : groundData.defaultGroundEntity);
+                    var tile = EntityManager.Instantiate(groundData.debugOptions == MapDebugOptions.Tilled || groundData.debugOptions == MapDebugOptions.Plants ? groundData.tilledGroundEntity : groundData.defaultGroundEntity);
                     EntityManager.RemoveComponent<Translation>(tile);
                     EntityManager.RemoveComponent<Rotation>(tile);
                     EntityManager.RemoveComponent<Scale>(tile);
@@ -34,6 +34,7 @@ public class GameInitSystem:SystemBase
                             break;
                         case MapDebugOptions.Plants:
                             EntityManager.AddComponent<PlantedSeedTag>(tile);
+                            EntityManager.AddComponent<GroundTilledState>(tile);
                             break;
                     }
                 }
