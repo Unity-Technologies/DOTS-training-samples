@@ -1,10 +1,12 @@
-﻿using Unity.Burst;
+﻿using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(CarSpawnerSystem))]
 public class CarInitializeSplineSystem : SystemBase
@@ -14,7 +16,7 @@ public class CarInitializeSplineSystem : SystemBase
 
     protected override void OnCreate()
     {
-        _random = new Random( (uint) 56418);
+        _random = new Random((uint)56418);
         splineQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new[]
@@ -41,8 +43,9 @@ public class CarInitializeSplineSystem : SystemBase
             ref SegmentCounter segmentCounter,
             ref URPMaterialPropertyBaseColor color) =>
             {
+                int randomSplineId = 0;
                 //Spline and segment
-                int randomSplineId = random.NextInt(0, splineEntities.Length);
+                randomSplineId = random.NextInt(0, splineEntities.Length);
 
                 belongToSpline.Value = splineEntities[randomSplineId];
                 var splineData = GetComponent<Spline>(splineEntities[randomSplineId]);
@@ -57,6 +60,8 @@ public class CarInitializeSplineSystem : SystemBase
                     case 2: color.Value = new float4(0.5f, 0, 1, 1); break; //Purple
                     case 3: color.Value = new float4(1, 0.8f, 1, 1); break; //Pink
                 }
-            }).ScheduleParallel();
+            }).Run();
+
+        splineEntities.Dispose(); //TODO remove after debug
     }
 }
