@@ -12,11 +12,9 @@ using Random = Unity.Mathematics.Random;
 public class CarInitializeSplineSystem : SystemBase
 {
     private EntityQuery splineQuery;
-    Random _random;
 
     protected override void OnCreate()
     {
-        _random = new Random((uint)56418);
         splineQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new[]
@@ -28,7 +26,7 @@ public class CarInitializeSplineSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var random = _random;
+        var random = new Random((uint) (56418f * Time.DeltaTime));
 
         var splineEntities = splineQuery.ToEntityArrayAsync(Allocator.TempJob, out var splineEntitiesHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, splineEntitiesHandle);
