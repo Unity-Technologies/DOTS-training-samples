@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Unity.Collections;
 
 
 [UpdateBefore(typeof(AntPositionSystem))]
@@ -18,8 +19,13 @@ public class PheromoneSteeringSystem : SystemBase
         texture = defaults.pheromoneMap;
         mapSize = defaults.mapSize;
     }
+    
+    static public int PheromoneIndex(int x, int y, int mapSize)
+    {
+	    return x + y * mapSize;
+    }
 
-    static float PheromoneSteering(float2 position, float facingAngle, float distance, int mapSize)
+    static float PheromoneSteering(float2 position, float facingAngle, float distance, int mapSize, NativeArray<float> pheromoneArray)
 	{
 		float output = 0;
 
@@ -31,8 +37,10 @@ public class PheromoneSteeringSystem : SystemBase
 			if (testX <0 || testY<0 || testX>=mapSize || testY>=mapSize) {
 
 			} 
-			else {
-				float value = defaults.GetPheromoneAt((int) testX, (int) testY);
+			else
+			{
+				int index = PheromoneIndex((int)testX, (int)testY, mapSize);
+				float value = pheromoneArray[index];
 				output += value*i;
 			}
 		}
@@ -42,15 +50,16 @@ public class PheromoneSteeringSystem : SystemBase
     protected override void OnUpdate()
     {
 	    int mapSizeTemp = mapSize;
+	    
+	    NativeArray<float> pheromoneArray = defaults.GetCurrentPheromoneMapBuffer();
 
 		Entities.WithAll<Ant>()
-			.WithoutBurst()
 			.ForEach((
 			ref SteeringAngle steeringAngle, 
 			in Position pos, in DirectionAngle directionAngle) => {
 
-			steeringAngle.value.x = PheromoneSteering(pos.value, directionAngle.value, 3f, mapSizeTemp);
+			steeringAngle.value.x = PheromoneSteering(pos.value, directionAngle.value, 3f, mapSizeTemp, pheromoneArray);
 
-		}).Run(); // TODO: Change to ScheduleParallel
+		}).ScheduleParallel();
     }
 }
