@@ -85,6 +85,7 @@ public class AntPositionSystem : SystemBase
                     // add the steering angles
                     angle.value += steeringAngle.value.x * defaultValues.pheromoneSteerStrength;
                     angle.value += steeringAngle.value.y * defaultValues.wallSteerStrength;
+                    angle.value += steeringAngle.value.z;
 
                     targetSpeed *= 1f - (Mathf.Abs(steeringAngle.value.x) + Mathf.Abs(steeringAngle.value.y)) / 3f;
                     //speed.value += (targetSpeed - speed.value) * defaultValues.antAccel;
@@ -100,7 +101,7 @@ public class AntPositionSystem : SystemBase
                     float ovx = vx;
                     float ovy = vy;
 
-                    if (position.value.x + vx < 0f || position.value.x + vx > defaultValues.mapSize)
+                    if (position.value.x + vx < 0f || position.value.x + vx >= defaultValues.mapSize)
                     {
                         vx = -vx;
                     }
@@ -109,7 +110,7 @@ public class AntPositionSystem : SystemBase
                         position.value.x += vx;
                     }
 
-                    if (position.value.y + vy < 0f || position.value.y + vy > defaultValues.mapSize)
+                    if (position.value.y + vy < 0f || position.value.y + vy >= defaultValues.mapSize)
                     {
                         vy = -vy;
                     }
