@@ -67,6 +67,11 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
                 for (int i = 0; i < path.Length - 1; ++i)
                 {
                     var currentSegment = (-1, -1);
+                    var start = path[i + 0] + offset;
+                    var end = path[i + 1] + offset;
+                    if ((start - end).sqrMagnitude < 0.01f)
+                        continue;
+
                     currentSegment.Item1 = GetOrAddPointIndex(path[i + 0] + offset, waypointListCache, sqrRadius);
                     currentSegment.Item2 = GetOrAddPointIndex(path[i + 1] + offset, waypointListCache, sqrRadius);
 
