@@ -43,7 +43,7 @@ public class CarMovementSystem : SystemBase
             // Could also avoid this is if we assume that all segments have the same length and the segments are always linear
             var segmentLength = math.distance(start, end);
 
-            var dx = deltaTime * speed.Value * 100f;
+            var dx = deltaTime * speed.Value;
 
             progress.Value += dx / segmentLength;
             progress.Value = math.clamp(progress.Value, 0f, 1f);
