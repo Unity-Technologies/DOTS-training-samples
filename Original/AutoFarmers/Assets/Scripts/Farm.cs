@@ -24,8 +24,10 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
     public GameObject rockPrefab;
     public GameObject farmerPrefab;
     public GameObject dronePrefab;
+    public GameObject storePrefab;
     public int initialMoneyForFarmers = 15;
     public int initialMoneyForDrones = 0;
+    public int numberOfStores = 5;
 
 
     public MapDebugOptions debugOptions = MapDebugOptions.Default;
@@ -87,6 +89,15 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
             moneyForFarmers = initialMoneyForFarmers,
             moneyForDrones = initialMoneyForDrones
         });
+
+        var originalStore = conversionSystem.GetPrimaryEntity(storePrefab);
+        dstManager.AddComponentData<StoreData_Spawner>(entity,new StoreData_Spawner
+        {
+            prefab = originalStore,
+            count = numberOfStores,
+            mapX = mapSize.x,
+            mapY = mapSize.y
+        });
     }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -96,5 +107,6 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
         referencedPrefabs.Add(rockPrefab);
         referencedPrefabs.Add(farmerPrefab);
         referencedPrefabs.Add(dronePrefab);
+        referencedPrefabs.Add(storePrefab);
     }
 }
