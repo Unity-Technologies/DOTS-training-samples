@@ -24,9 +24,11 @@ public class CarRenderingSystem : SystemBase
                 in Progress progress
             ) =>
             {
+                var forward = CollisionSystem.CalculateCarDirection(segmentCollection,currentSegment,progress,offset);
+
                 //TRS
                 translation.Value = CollisionSystem.CalculateCarPosition(segmentCollection,currentSegment,progress,offset);
-                rotation.Value = quaternion.Euler(CollisionSystem.CalculateCarDirection(segmentCollection,currentSegment,progress,offset));
+                rotation.Value = quaternion.LookRotationSafe(forward, new float3(0,1,0));
                 scale.Value = size.Value;
 
             }).ScheduleParallel();
