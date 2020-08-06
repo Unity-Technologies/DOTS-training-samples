@@ -17,6 +17,7 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     public GameObject m_Reference;
     public float m_MergeRadius = 1.0f;
+    public uint m_GenerateCopyCount = 1;
 
     private static int GetOrAddPointIndex(float3 value, List<float3> list, float radius)
     {
@@ -48,30 +49,45 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         });
 
         var sqrRadius = m_MergeRadius * m_MergeRadius;
-        foreach (var path in allTransformList)
+
+        uint squareCount = (uint)Math.Round(Mathf.Sqrt(m_GenerateCopyCount));
+        if (squareCount == 0)
+            throw new InvalidOperationException("Convert fails");
+
+        for (uint currentCopy = 0; currentCopy < m_GenerateCopyCount; ++currentCopy)
         {
-            if (path.Length < 2)
-                continue;
+            int x = (int)(currentCopy % squareCount);
+            int y = (int)(currentCopy / squareCount);
+            x -= (int)squareCount / 2;
+            y -= (int)squareCount / 2;
 
-            var currentSpline = new List<int>();
+            var scale = 300.0f;
+            var offset = new Vector3(x, 0, y) * scale;
 
-            for (int i = 0; i < path.Length - 1; ++i)
+            foreach (var path in allTransformList)
             {
-                var currentSegment = (-1, -1);
-                currentSegment.Item1 = GetOrAddPointIndex(path[i+0], waypointListCache, sqrRadius);
-                currentSegment.Item2 = GetOrAddPointIndex(path[i+1], waypointListCache, sqrRadius);
+                if (path.Length < 2)
+                    continue;
 
-                int segmentIndex = segmentList.FindIndex(s => s.Item1 == currentSegment.Item1 && s.Item2 == currentSegment.Item2);
-                if (segmentIndex == -1)
+                var currentSpline = new List<int>();
+                for (int i = 0; i < path.Length - 1; ++i)
                 {
-                    segmentList.Add(currentSegment);
-                    segmentIndex = segmentList.Count - 1;
-                }
-                currentSpline.Add(segmentIndex);
-            }
+                    var currentSegment = (-1, -1);
+                    currentSegment.Item1 = GetOrAddPointIndex(path[i + 0] + offset, waypointListCache, sqrRadius);
+                    currentSegment.Item2 = GetOrAddPointIndex(path[i + 1] + offset, waypointListCache, sqrRadius);
 
-            allSpline.AddRange(currentSpline);
-            splineCollection.Add(currentSpline.Count());
+                    int segmentIndex = segmentList.FindIndex(s => s.Item1 == currentSegment.Item1 && s.Item2 == currentSegment.Item2);
+                    if (segmentIndex == -1)
+                    {
+                        segmentList.Add(currentSegment);
+                        segmentIndex = segmentList.Count - 1;
+                    }
+                    currentSpline.Add(segmentIndex);
+                }
+
+                allSpline.AddRange(currentSpline);
+                splineCollection.Add(currentSpline.Count());
+            }
         }
 
         //Building the segment collection
