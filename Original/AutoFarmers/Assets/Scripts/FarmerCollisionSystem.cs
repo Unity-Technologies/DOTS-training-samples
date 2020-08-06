@@ -39,15 +39,9 @@ public class FarmerCollisionSystem : SystemBase
             .WithDisposeOnCompletion(rockEntities)
             .ForEach((int entityInQueryIndex, Entity farmerEntity, in Position2D farmerPosition) =>
             {
-                //var farmerAabb = new AABB2D { Center = farmerPosition.position, Extents = 1 };
-                var farmerRect = new Rect(farmerPosition.position.x-0.5f, farmerPosition.position.y - 0.5f, 1f, 1f);
-                
-                //var axisFlip = new float2();
-
+                var farmerRect = new Rect(farmerPosition.position.x - 0.5f, farmerPosition.position.y - 0.5f, 1f, 1f);
                 for (int i = 0; i < rockPosition.Length; ++i)
-                { 
-                    var rockAabb = new AABB2D { Center = rockPosition[i].rectInt.position, Extents = rockPosition[i].rectInt.height / 2 };
-                    
+                {
                     if (farmerRect.Overlaps(rockPosition[i].rectInt, true))
                     {
                         ecb.DestroyEntity(entityInQueryIndex, rockEntities[i]);
