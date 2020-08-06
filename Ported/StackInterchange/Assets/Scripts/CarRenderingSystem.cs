@@ -5,7 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(CarInitializeSystem))]
+[UpdateAfter(typeof(CarMovementSystem))]
 public class CarRenderingSystem : SystemBase
 {
     protected override void OnUpdate()
