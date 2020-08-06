@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
@@ -65,76 +66,88 @@ public class AntPositionSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        Unity.Mathematics.Random mathRandom = new Unity.Mathematics.Random(12345678);
+        Unity.Mathematics.Random mathRandom = new Unity.Mathematics.Random(23345678);
         var defaultValues = defaults;
         
         float2 colonyPosition = GetSingleton<ColonyLocation>().value;
-        
-        Entities.WithAll<Ant, LocalToWorld>().ForEach((ref Translation translation, ref Rotation rotation, ref Position position, ref DirectionAngle angle, ref Speed speed, in SteeringAngle steeringAngle, in CarryingFood carryingFood) =>
+
+        Entities.WithAll<Ant, LocalToWorld>().ForEach(
+                (ref Translation translation, ref Rotation rotation, ref Position position, ref DirectionAngle angle,
+                    ref Speed speed, in SteeringAngle steeringAngle, in CarryingFood carryingFood) =>
                 {
                     float targetSpeed = speed.value;
-                    
+
                     // add random turn
                     angle.value += mathRandom.NextFloat(-defaultValues.randomSteering, defaultValues.randomSteering);
-                    
+
                     // add the steering angles
                     angle.value += steeringAngle.value.x * defaultValues.pheromoneSteerStrength;
                     angle.value += steeringAngle.value.y * defaultValues.wallSteerStrength;
-                    
+
                     targetSpeed *= 1f - (Mathf.Abs(steeringAngle.value.x) + Mathf.Abs(steeringAngle.value.y)) / 3f;
-                    speed.value += (targetSpeed - speed.value) * defaultValues.antAccel;
-                    
+                    //speed.value += (targetSpeed - speed.value) * defaultValues.antAccel;
+                    speed.value = 0.1f;
+
                     // TODO: need a way to update ant color 
-                    
+
                     // TODO: Do the linecasting to bounce from wall
-                    
+
                     // update ant position
                     float vx = Mathf.Cos(angle.value) * speed.value;
                     float vy = Mathf.Sin(angle.value) * speed.value;
                     float ovx = vx;
                     float ovy = vy;
 
-                    if (position.value.x + vx < 0f || position.value.x + vx > defaultValues.mapSize) {
+                    if (position.value.x + vx < 0f || position.value.x + vx > defaultValues.mapSize)
+                    {
                         vx = -vx;
-                    } else {
+                    }
+                    else
+                    {
                         position.value.x += vx;
                     }
-                    if (position.value.y + vy < 0f || position.value.y + vy > defaultValues.mapSize) {
+
+                    if (position.value.y + vy < 0f || position.value.y + vy > defaultValues.mapSize)
+                    {
                         vy = -vy;
-                    } else {
+                    }
+                    else
+                    {
                         position.value.y += vy;
                     }
-                    
+
                     float dx, dy, dist;
                     // TODO: Check for obstacles
-                    
+
                     // TODO: Check if this makes sense
                     float inwardOrOutward = -defaultValues.outwardStrength;
                     float pushRadius = defaultValues.mapSize * .4f;
-                    if (carryingFood.value) {
+                    if (carryingFood.value)
+                    {
                         inwardOrOutward = defaultValues.inwardStrength;
                         pushRadius = defaultValues.mapSize;
                     }
 
-                    
-                    
+
+
                     dx = colonyPosition.x - position.value.x;
                     dy = colonyPosition.y - position.value.y;
                     dist = Mathf.Sqrt(dx * dx + dy * dy);
-                    inwardOrOutward *= 1f-Mathf.Clamp01(dist / pushRadius);
+                    inwardOrOutward *= 1f - Mathf.Clamp01(dist / pushRadius);
                     vx += dx / dist * inwardOrOutward;
                     vy += dy / dist * inwardOrOutward;
 
-                    if (ovx != vx || ovy != vy) {
-                        angle.value = Mathf.Atan2(vy,vx);
+                    if (ovx != vx || ovy != vy)
+                    {
+                        angle.value = Mathf.Atan2(vy, vx);
                     }
-                    
+
                     // updating the actual entity positions in the world
-                    translation.Value = new float3(position.value.x, position.value.y, 0.0f);
+                    translation.Value = new float3(position.value.x, 0.0f, position.value.y);
                     //translation.Value += new float3(0.001f, 0.0f, 0.0f);
                     rotation.Value = quaternion.Euler(0, angle.value, 0, math.RotationOrder.XYZ);
                 }
             )
-            .ScheduleParallel();
+            .Run();//ScheduleParallel();
     }
 }

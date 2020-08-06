@@ -32,7 +32,7 @@ public class AntGenerationSystem : SystemBase
             {   
                 var instance = ecb.Instantiate(spawner.AntPrefab);
                 ecb.SetComponent(instance, new Position { value = colonyLocation });
-                ecb.SetComponent(instance, new DirectionAngle { value = math.PI * rng.NextFloat() });
+                ecb.SetComponent(instance, new DirectionAngle { value = 2.0f * math.PI * rng.NextFloat() });
                 ecb.SetComponent(instance, new CarryingFood { value = false });
             }
             ecb.DestroyEntity(spawnerEntity);
