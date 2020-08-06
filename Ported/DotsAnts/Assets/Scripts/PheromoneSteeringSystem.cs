@@ -9,21 +9,17 @@ public class PheromoneSteeringSystem : SystemBase
 {
 	static Texture2D texture;
     static int mapSize;
+    private static AntDefaults defaults;
     
     protected override void OnCreate()
     {
         base.OnCreate();
-        var defaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
+        defaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
         texture = defaults.pheromoneMap;
         mapSize = defaults.mapSize;
     }
 
-    static int PheromoneIndex(int x, int y, int mapSize)
-    {
-		return x + y * mapSize;
-	}
-
-	static float PheromoneSteering(float2 position, float facingAngle, float distance, int mapSize)
+    static float PheromoneSteering(float2 position, float facingAngle, float distance, int mapSize)
 	{
 		float output = 0;
 
@@ -36,8 +32,7 @@ public class PheromoneSteeringSystem : SystemBase
 
 			} 
 			else {
-				//int index = PheromoneIndex((int)testX,(int)testY,mapSize);
-				float value = texture.GetPixel((int)testX,(int)testY).r;
+				float value = defaults.GetPheromoneAt((int) testX, (int) testY);
 				output += value*i;
 			}
 		}
@@ -46,12 +41,7 @@ public class PheromoneSteeringSystem : SystemBase
 
     protected override void OnUpdate()
     {
-    	//var mapResolution = GetSingleton<MapResolution>();
-    	//Debug.Log("test map =" + mapResolution.value);
-
-        //AntDefaults defaults = GameObject.Find("MainCamera").GetComponent<AntDefaults>();
-        //Debug.Log("test map 2 =" + defaults.mapSize);
-        int mapSizeTemp = mapSize;
+	    int mapSizeTemp = mapSize;
 
 		Entities.WithAll<Ant>()
 			.WithoutBurst()

@@ -52,7 +52,18 @@ public class AntDefaults : MonoBehaviour
         pheromoneMap.LoadRawTextureData<float>(m_PheromoneMapBuffers[0]);
         m_CurrentBuffer = 1;
     }
+    
+    public int PheromoneIndex(int x, int y)
+    {
+        return x + y * mapSize;
+    }
 
+    public float GetPheromoneAt(int x, int y)
+    {
+        int index = PheromoneIndex(x,y);
+        return GetCurrentPheromoneMapBuffer()[index];
+    }
+    
     void OnDestroy()
     {
         for (int i = 0; i < 2; ++i)
