@@ -46,7 +46,7 @@ public class LevelGenerationSystem : SystemBase
                             float posY = mapSize * .5f + Mathf.Sin(angle) * ringRadius;
 
                             //to check: clamping to integer
-                            DrawDisc(texture, (int)math.ceil(posX), (int)math.ceil(posY), (int)spawner.obstacleRadius, Color.red);
+                            DrawDisc(texture, (int)math.ceil(posX), (int)math.ceil(posY), (int)spawner.obstacleRadius, UnityEngine.Color.red);
                         }
                     }
                 }
@@ -65,7 +65,7 @@ public class LevelGenerationSystem : SystemBase
     }
 
     //todo: proper imlplementation based on bresenham path on from two ends on half brensenham circles
-    static void DrawDisc(Texture2D tex, int cx, int cy, int r, Color col)
+    static void DrawDisc(Texture2D tex, int cx, int cy, int r, UnityEngine.Color col)
     {
         int x, y, px, nx, py, ny, d;
 
