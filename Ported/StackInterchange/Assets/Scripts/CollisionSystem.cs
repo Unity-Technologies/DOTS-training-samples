@@ -9,6 +9,7 @@ using UnityEngine.Networking;
 public class CollisionSystem : SystemBase
 {
     private const float BrakingFactor = 0.9f;
+    private const float AccelerationFactor = 1.0f / BrakingFactor;
     
     private EntityQuery m_CarQuery;
     
@@ -126,6 +127,7 @@ public class CollisionSystem : SystemBase
             .WithDisposeOnCompletion(carList)
             .ForEach((
                 ref Speed speed, 
+                in OriginalSpeed originalSpeed,
                 in Entity thisCarEntity,
                 in Size size,
                 in Offset offset,
@@ -134,11 +136,13 @@ public class CollisionSystem : SystemBase
             {
                 var position = CalculateCarPosition(segmentCollection, currentSegment, progress, offset);
                 var direction = CalculateCarDirection(segmentCollection, currentSegment, progress, offset);
+                var extent = math.length(size.Value);
 
                 // TODO: Make sure this is update the same way as CarMovementSystem does it
                 var nextPosition = position + speed.Value * direction;
 
                 bool willCollide = false;
+                float minDistance = 1e6f; // Big number
                 
                 // We test against a few cars nearby instead of all of them
                 CarRange carsToTest = carsRangePerSegment[currentSegment.Value];
@@ -173,7 +177,12 @@ public class CollisionSystem : SystemBase
                     if (theOtherCarIsInFront)
                     {
                         float distance = math.length(diff);
-                        float maxExtent = math.length(size.Value) + math.length(theOtherCarSize.Value);
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                        }
+                        
+                        float maxExtent = extent + math.length(theOtherCarSize.Value);
                         if (distance < maxExtent)
                         {
                             willCollide = true;
@@ -189,8 +198,14 @@ public class CollisionSystem : SystemBase
                 }
                 else
                 {
-                    // TODO: Detect the situation, where we have slowed down, but the road is clear again,
-                    //       and we could accelerate to the original speed.
+                    // Heuristics to detect the situation, when the road is clear and we could accelerate to the original speed.
+                    if (minDistance > extent * 3)
+                    {
+                        if (speed.Value < originalSpeed.Value)
+                        {
+                            speed.Value *= AccelerationFactor;
+                        }
+                    }
                 }
             }).ScheduleParallel();
     }
