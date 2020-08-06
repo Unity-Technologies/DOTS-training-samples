@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -13,6 +14,7 @@ public struct RockDataSpawner : IComponentData
 public struct Rock : IComponentData
 {
     public Matrix4x4 matrix;
+    public Rect rectInt;
 
 }
 
@@ -23,7 +25,7 @@ public struct RockRect : IComponentData
 
 public struct Health : IComponentData
 {
-    public int Value;
+    public float Value;
 }
 
 public struct BatchNumber : IComponentData
@@ -43,5 +45,6 @@ public struct WorldMatrix : IComponentData
 
 public struct StartHealth : IComponentData
 {
-    public int Value;
+    public float Value;
 }
+
