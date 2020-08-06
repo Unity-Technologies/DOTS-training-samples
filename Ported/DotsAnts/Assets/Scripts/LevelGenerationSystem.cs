@@ -1,6 +1,5 @@
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -16,7 +15,7 @@ public class LevelGenerationSystem : SystemBase
     {
         base.OnCreate();
         var defaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
-        texture = defaults.pheromoneMap;
+        texture = defaults.colisionMap;
         mapSize = defaults.mapSize;
     }
 
@@ -27,11 +26,8 @@ public class LevelGenerationSystem : SystemBase
             {
                 if (texture.width != mapSize || texture.height != mapSize)
                     texture.Resize(mapSize, mapSize);
-
+                
                 Clear(texture);
-
-                //obstacles are on the second channel
-                Color32 obstacleColor = new Color32(0, 255, 0, 0);
 
                 for (int i = 1; i <= spawner.obstacleRingCount; i++)
                 {
@@ -50,7 +46,7 @@ public class LevelGenerationSystem : SystemBase
                             float posY = mapSize * .5f + Mathf.Sin(angle) * ringRadius;
 
                             //to check: clamping to integer
-                            DrawDisc(texture, (int)math.ceil(posX), (int)math.ceil(posY), (int)spawner.obstacleRadius, obstacleColor);
+                            DrawDisc(texture, (int)math.ceil(posX), (int)math.ceil(posY), (int)spawner.obstacleRadius, Color.red);
                         }
                     }
                 }
@@ -100,25 +96,25 @@ public class LevelGenerationSystem : SystemBase
             AntDefaults defaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
             if (defaults == null || defaults.Equals(null))
             {
-                Debug.LogError($"There is no {typeof(AntDefaults)} on the MainCamera");
+                Debug.LogError($"There is no {typeof(AntDefaults)}");
                 return;
             }
 
             //RenderTexture rt = new RenderTexture(defaults.mapSize, defaults.mapSize, 0, RenderTextureFormat.RG32);
             //rt.Create();
-            Texture2D rt = new Texture2D(defaults.mapSize, defaults.mapSize, UnityEngine.Experimental.Rendering.GraphicsFormat.R32G32_SFloat, UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
+            Texture2D rt = new Texture2D(defaults.mapSize, defaults.mapSize, UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat, UnityEngine.Experimental.Rendering.TextureCreationFlags.None);
             AssetDatabase.CreateAsset(rt, pathName);
             Selection.activeObject = rt;
 
-            if (defaults.pheromoneMap == null || defaults.pheromoneMap.Equals(null))
-                defaults.pheromoneMap = rt;
+            if (defaults.colisionMap == null || defaults.colisionMap.Equals(null))
+                defaults.colisionMap = rt;
         }
     }
 
-    [MenuItem("Assets/Create/PheromoneMap", priority = 0)]
+    [MenuItem("Assets/Create/CollisionMap", priority = 0)]
     static void CreateMapMenu()
     {
-        ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0, ScriptableObject.CreateInstance<CreateAsset>(), "PheromoneMap.asset", null, null);
+        ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0, ScriptableObject.CreateInstance<CreateAsset>(), "CollisionMap.asset", null, null);
     }
 #endif
 }

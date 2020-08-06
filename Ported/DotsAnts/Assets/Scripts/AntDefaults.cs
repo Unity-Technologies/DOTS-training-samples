@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Collections;
 
 public class AntDefaults : MonoBehaviour
 {
@@ -25,5 +26,36 @@ public class AntDefaults : MonoBehaviour
     public float obstaclesPerRing = 0.8f;
     public float obstacleRadius = 2.0f;
 
+    public Texture2D colisionMap;
     public Texture2D pheromoneMap;
+
+    [SerializeField] NativeArray<float>[] m_PheromoneMapBuffers = new NativeArray<float>[2];
+    [SerializeField] int m_CurrentBuffer;
+    int m_BufferSize;
+
+    public int bufferSize => m_BufferSize;
+
+    public NativeArray<float> GetCurrentPheromoneMapBuffer() => m_PheromoneMapBuffers[m_CurrentBuffer];
+
+    public void SwapPheromoneBuffer()
+    {
+        int otherBuffer = (++m_CurrentBuffer) % 2;
+        m_PheromoneMapBuffers[m_CurrentBuffer].CopyTo(m_PheromoneMapBuffers[otherBuffer]);
+        m_CurrentBuffer = otherBuffer;
+    }
+
+    public void InitPheromoneBuffers(int width, int height)
+    {
+        m_BufferSize = width * height;
+        for (int i = 0; i < 2; ++i)
+            m_PheromoneMapBuffers[i] = new NativeArray<float>(width * height, Allocator.Persistent);
+        pheromoneMap.LoadRawTextureData<float>(m_PheromoneMapBuffers[0]);
+        m_CurrentBuffer = 1;
+    }
+
+    void OnDestroy()
+    {
+        for (int i = 0; i < 2; ++i)
+            m_PheromoneMapBuffers[i].Dispose();
+    }
 }
