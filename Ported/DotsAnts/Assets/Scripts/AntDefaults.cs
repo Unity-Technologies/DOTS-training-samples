@@ -41,6 +41,8 @@ public class AntDefaults : MonoBehaviour
     {
         int otherBuffer = (++m_CurrentBuffer) % 2;
         m_PheromoneMapBuffers[m_CurrentBuffer].CopyTo(m_PheromoneMapBuffers[otherBuffer]);
+        pheromoneMap.LoadRawTextureData<float>(m_PheromoneMapBuffers[m_CurrentBuffer]);
+        pheromoneMap.Apply();
         m_CurrentBuffer = otherBuffer;
     }
 
