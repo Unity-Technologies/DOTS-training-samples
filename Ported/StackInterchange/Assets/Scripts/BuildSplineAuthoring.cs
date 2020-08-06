@@ -41,7 +41,6 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         var allSpline = new List<int>();
         var splineCollection = new List<int>();
 
-
         //Using Custom compute
         var allTransformList = m_Reference.GetComponentsInChildren<PathResult>().Select(o =>
         {
@@ -94,7 +93,6 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             for (int i = 0; i < segmentArray.Length; ++i)
                 segmentArray[i] = arrayOfSegment[i];
 
-            var segmentCollection = dstManager.CreateEntity();
             buildSplineData.SegmentCollection = builder.CreateBlobAssetReference<SegmentHandle>(Allocator.Persistent);
         }
 
@@ -107,7 +105,6 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             for (int i = 0; i < splineHandle.Length; ++i)
                 splineHandle[i] = allSpline[i];
 
-            var segmentCollection = dstManager.CreateEntity();
             buildSplineData.AllSplines = builder.CreateBlobAssetReference<SplineHandle>(Allocator.Persistent);
         }
 
@@ -120,7 +117,6 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             for (int i = 0; i < splineHandle.Length; ++i)
                 splineHandle[i] = splineCollection[i];
 
-            var segmentCollection = dstManager.CreateEntity();
             buildSplineData.SplineCollection = builder.CreateBlobAssetReference<SplineHandle>(Allocator.Persistent);
         }
 
