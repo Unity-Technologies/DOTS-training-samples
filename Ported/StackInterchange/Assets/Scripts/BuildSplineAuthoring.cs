@@ -8,9 +8,6 @@ using Unity.Collections;
 
 public struct BuildSpline : IComponentData
 {
-    public BlobAssetReference<SegmentHandle> SegmentCollection;
-    public BlobAssetReference<SplineHandle> AllSplines;
-    public BlobAssetReference<SplineHandle> SplineCollection; //Use the same view as spline but represent count
 }
 
 public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
@@ -39,8 +36,6 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         var waypointListCache = new List<float3>();
         var segmentList = new List<(int, int)>();
-        var allSpline = new List<int>();
-        var splineCollection = new List<int>();
 
         var allTransformList = m_Reference.GetComponentsInChildren<PathResult>().Select(o =>
         {
@@ -84,16 +79,57 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
                     currentSpline.Add(segmentIndex);
                 }
 
-                allSpline.AddRange(currentSpline);
-                splineCollection.Add(currentSpline.Count());
+                //Compute category based on destination
+                var value = path.Last();
+                var directionFromCenter = value.normalized;
+
+                var directionArray = new[]
+                {
+                    Vector3.forward,
+                    Vector3.back,
+                    Vector3.right,
+                    Vector3.left
+                };
+
+                var max = float.MinValue;
+                var direction = -1;
+
+                for (int i = 0; i < directionArray.Length; ++i)
+                {
+                    var dot = Vector3.Dot(directionFromCenter, directionArray[i]);
+                    if (dot > max)
+                    {
+                        max = dot;
+                        direction = i;
+                    }
+                }
+
+                var splineEntity = conversionSystem.CreateAdditionalEntity(this);
+
+                var splineData = new Spline();
+                using (var builder = new BlobBuilder(Allocator.Temp))
+                {
+                    ref var root = ref builder.ConstructRoot<SplineHandle>();
+                    var splineHandle = builder.Allocate(ref root.Segments, currentSpline.Count);
+
+                    for (int i = 0; i < splineHandle.Length; ++i)
+                        splineHandle[i] = currentSpline[i];
+
+                    splineData.Value = builder.CreateBlobAssetReference<SplineHandle>(Allocator.Persistent);
+                }
+
+                var splineCategory = new SplineCategory()
+                {
+                    category = direction
+                };
+
+                dstManager.AddComponentData(splineEntity, splineData);
+                dstManager.AddComponentData(splineEntity, splineCategory);
             }
         }
 
         //Building the segment collection
-        //TODO: We can actually directly create Spline using GameObjectConversionSystem.CreateAdditionalEntity
-        var buildSplineData = new BuildSpline();
-
-        //Segment Collection
+        var segmentCollectionData = new SegmentCollection();
         using (var builder = new BlobBuilder(Allocator.Temp))
         {
             var arrayOfSegment = segmentList.Select(o => new SegmentData()
@@ -102,41 +138,19 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
                 End = waypointListCache[o.Item2]
             }).ToArray();
 
-
             ref var root = ref builder.ConstructRoot<SegmentHandle>();
             var segmentArray = builder.Allocate(ref root.Segments, arrayOfSegment.Length);
 
             for (int i = 0; i < segmentArray.Length; ++i)
                 segmentArray[i] = arrayOfSegment[i];
 
-            buildSplineData.SegmentCollection = builder.CreateBlobAssetReference<SegmentHandle>(Allocator.Persistent);
+            segmentCollectionData.Value = builder.CreateBlobAssetReference<SegmentHandle>(Allocator.Persistent);
         }
+        var segmentCollectionEntity = conversionSystem.CreateAdditionalEntity(this);
+        dstManager.AddComponentData(segmentCollectionEntity, segmentCollectionData);
 
-        //All Spline
-        using (var builder = new BlobBuilder(Allocator.Temp))
-        {
-            ref var root = ref builder.ConstructRoot<SplineHandle>();
-            var splineHandle = builder.Allocate(ref root.Segments, allSpline.Count);
-
-            for (int i = 0; i < splineHandle.Length; ++i)
-                splineHandle[i] = allSpline[i];
-
-            buildSplineData.AllSplines = builder.CreateBlobAssetReference<SplineHandle>(Allocator.Persistent);
-        }
-
-        //Spline Collection
-        using (var builder = new BlobBuilder(Allocator.Temp))
-        {
-            ref var root = ref builder.ConstructRoot<SplineHandle>();
-            var splineHandle = builder.Allocate(ref root.Segments, splineCollection.Count);
-
-            for (int i = 0; i < splineHandle.Length; ++i)
-                splineHandle[i] = splineCollection[i];
-
-            buildSplineData.SplineCollection = builder.CreateBlobAssetReference<SplineHandle>(Allocator.Persistent);
-        }
-
-        dstManager.AddComponentData(entity, buildSplineData);
+        //Keep a reference on created data maybe ? is it needed ?
+        dstManager.AddComponentData(entity, new BuildSpline());
 
     }
 }
