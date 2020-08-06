@@ -14,5 +14,4 @@ public struct StoreData_Spawner:IComponentData
 
 public struct Store:IComponentData
 {
-    public float2 position;
 }

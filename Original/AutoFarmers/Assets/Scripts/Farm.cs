@@ -27,6 +27,7 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
     public GameObject storePrefab;
     public int initialMoneyForFarmers = 15;
     public int initialMoneyForDrones = 0;
+    public int rockCount = 100;
     public int numberOfStores = 5;
 
 
