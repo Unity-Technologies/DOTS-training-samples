@@ -68,6 +68,8 @@ public class AntPositionSystem : SystemBase
         Unity.Mathematics.Random mathRandom = new Unity.Mathematics.Random(12345678);
         var defaultValues = defaults;
         
+        float2 colonyPosition = GetSingleton<ColonyLocation>().value;
+        
         Entities.WithAll<Ant, LocalToWorld>().ForEach((ref Translation translation, ref Rotation rotation, ref Position position, ref DirectionAngle angle, ref Speed speed, in SteeringAngle steeringAngle, in CarryingFood carryingFood) =>
                 {
                     float targetSpeed = speed.value;
@@ -114,7 +116,7 @@ public class AntPositionSystem : SystemBase
                         pushRadius = defaultValues.mapSize;
                     }
 
-                    var colonyPosition = new float2(defaultValues.mapSize / 2.0f, defaultValues.mapSize / 2.0f);
+                    
                     
                     dx = colonyPosition.x - position.value.x;
                     dy = colonyPosition.y - position.value.y;
