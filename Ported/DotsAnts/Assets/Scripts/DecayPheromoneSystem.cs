@@ -9,12 +9,12 @@ using UnityEditor.ProjectWindowCallback;
 [UpdateAfter(typeof(PheromoneOutputSystem))]
 public class DecayPheromoneSystem : SystemBase
 {
-    AntDefaults defaults;
+    private static AntDefaults defaults;
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        var defaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
+        defaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
         defaults.InitPheromoneBuffers(defaults.mapSize, defaults.mapSize);
     }
 
@@ -24,10 +24,11 @@ public class DecayPheromoneSystem : SystemBase
         NativeArray<float> pheromoneMap = defaults.GetCurrentPheromoneMapBuffer();
 
         Entities
-            .ForEach((Entity entity, in PheromoneDecay decay) =>
+            .ForEach((Entity entity/*, in PheromoneDecay decay*/) =>
             {
+
                 for (int x = 0; x < sizeOfBuffer; x++)
-                    pheromoneMap[x] *= decay.decaySpeed;
+                    pheromoneMap[x] *= 1f;//decay.decaySpeed;
             }).Run();
 
         defaults.SwapPheromoneBuffer();
