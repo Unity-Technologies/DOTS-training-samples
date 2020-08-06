@@ -39,27 +39,6 @@ public class GameInitSystem:SystemBase
             EntityManager.RemoveComponent<GroundData>(entity);
         }).Run();
 
-        // Spawn rocks
-        Entities.WithStructuralChanges().ForEach((Entity entity,in RockAuthoring rockData) =>
-        {
-            for(int i = 0;i < 20;i++)
-            {
-                int posX = Random.Range(0,rockData.mapX);
-                int posY = Random.Range(0,rockData.mapY);
-
-                var rock = EntityManager.Instantiate(rockData.rockEntity);
-                EntityManager.RemoveComponent<Translation>(rock);
-                EntityManager.RemoveComponent<Rotation>(rock);
-                EntityManager.RemoveComponent<Scale>(rock);
-                EntityManager.RemoveComponent<NonUniformScale>(rock);
-                EntityManager.AddComponentData<Position2D>(rock,new Position2D { position = new Unity.Mathematics.float2(posX,posY) });
-            }
-
-
-            EntityManager.RemoveComponent<RockAuthoring>(entity);
-
-        }).Run();
-
         // Spawn stores
         Entities.WithStructuralChanges().ForEach((Entity entity,in StoreData_Spawner storeData) =>
         {
