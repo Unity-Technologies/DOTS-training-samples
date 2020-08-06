@@ -53,12 +53,14 @@ public class PheromoneSteeringSystem : SystemBase
         //Debug.Log("test map 2 =" + defaults.mapSize);
         int mapSizeTemp = mapSize;
 
-		Entities.WithAll<Ant>().ForEach((
+		Entities.WithAll<Ant>()
+			.WithoutBurst()
+			.ForEach((
 			ref SteeringAngle steeringAngle, 
 			in Position pos, in DirectionAngle directionAngle) => {
 
 			steeringAngle.value.x = PheromoneSteering(pos.value, directionAngle.value, 3f, mapSizeTemp);
 
-		}).ScheduleParallel();
+		}).Run(); // TODO: Change to ScheduleParallel
     }
 }
