@@ -64,6 +64,6 @@ public class PheromoneOutputSystem : SystemBase
 					
 				}
 
-			}).Run();
+			}).ScheduleParallel();
     }
 }

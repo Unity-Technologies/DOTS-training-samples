@@ -256,8 +256,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value:
-    x: 64
-    y: 64
+    x: 0
+    y: 0
 --- !u!4 &1530239254
 Transform:
   m_ObjectHideFlags: 0

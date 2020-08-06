@@ -18,6 +18,7 @@ public class AntGenerationSystem : SystemBase
         var antDefaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
         int mapSize = antDefaults.mapSize;
         int antCount = antDefaults.antCount;
+        float antSpeed = antDefaults.antSpeed;
         float2 colonyLocation = new float2();
         bool successfullySpawned = false;
        
@@ -34,6 +35,7 @@ public class AntGenerationSystem : SystemBase
                 ecb.SetComponent(instance, new Position { value = colonyLocation });
                 ecb.SetComponent(instance, new DirectionAngle { value = 2.0f * math.PI * rng.NextFloat() });
                 ecb.SetComponent(instance, new CarryingFood { value = false });
+                ecb.SetComponent(instance, new Speed { value = antSpeed });
             }
             ecb.DestroyEntity(spawnerEntity);
             successfullySpawned = true;

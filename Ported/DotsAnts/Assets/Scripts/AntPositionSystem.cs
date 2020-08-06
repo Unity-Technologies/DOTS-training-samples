@@ -89,7 +89,7 @@ public class AntPositionSystem : SystemBase
 
                     targetSpeed *= 1f - (Mathf.Abs(steeringAngle.value.x) + Mathf.Abs(steeringAngle.value.y)) / 3f;
                     //speed.value += (targetSpeed - speed.value) * defaultValues.antAccel;
-                    speed.value = 0.1f;
+                    speed.value = defaultValues.antSpeed;
 
                     // TODO: need a way to update ant color 
 
@@ -146,7 +146,10 @@ public class AntPositionSystem : SystemBase
                     }
 
                     // updating the actual entity positions in the world
-                    translation.Value = new float3(position.value.x, 0.0f, position.value.y);
+                    translation.Value = new float3(
+                        position.value.x / defaultValues.mapSize * 128.0f, 
+                        0.0f, 
+                        position.value.y / defaultValues.mapSize * 128.0f);
                     //translation.Value += new float3(0.001f, 0.0f, 0.0f);
                     rotation.Value = quaternion.Euler(0, -angle.value, 0, math.RotationOrder.XYZ);
                 }
