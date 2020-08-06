@@ -9,6 +9,8 @@ public class MenuManager : MonoBehaviour
     Text text;
 
     static bool showText = true;
+    AntDefaults defaults;
+    float lastSpeed = 1f;
 
     void Start()
     {
@@ -30,39 +32,48 @@ public class MenuManager : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            Time.timeScale = 1f;
+            GameObject.Find("Default values").GetComponent<AntDefaults>().antSpeed *= 1f / lastSpeed;
+            lastSpeed = 1f;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            Time.timeScale = 2f;
+            GameObject.Find("Default values").GetComponent<AntDefaults>().antSpeed *= 2f / lastSpeed;
+            lastSpeed = 2f;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            Time.timeScale = 3f;
+            GameObject.Find("Default values").GetComponent<AntDefaults>().antSpeed *= 3f / lastSpeed;
+            lastSpeed = 3f;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            Time.timeScale = 4f;
+            GameObject.Find("Default values").GetComponent<AntDefaults>().antSpeed *= 4f / lastSpeed;
+            lastSpeed = 4f;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha5))
         {
-            Time.timeScale = 5f;
+            GameObject.Find("Default values").GetComponent<AntDefaults>().antSpeed *= 5f / lastSpeed;
+            lastSpeed = 5f;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha6))
         {
-            Time.timeScale = 6f;
+            GameObject.Find("Default values").GetComponent<AntDefaults>().antSpeed *= 6f / lastSpeed;
+            lastSpeed = 6f;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha7))
         {
-            Time.timeScale = 7f;
+            GameObject.Find("Default values").GetComponent<AntDefaults>().antSpeed *= 7f / lastSpeed;
+            lastSpeed = 7f;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha8))
         {
-            Time.timeScale = 8f;
+            GameObject.Find("Default values").GetComponent<AntDefaults>().antSpeed *= 8f / lastSpeed;
+            lastSpeed = 8f;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha9))
         {
-            Time.timeScale = 9f;
+            GameObject.Find("Default values").GetComponent<AntDefaults>().antSpeed *= 9f / lastSpeed;
+            lastSpeed = 9f;
         }
     }
 }
