@@ -211,8 +211,9 @@ MonoBehaviour:
     type: 3}
   initialMoneyForFarmers: 15
   initialMoneyForDrones: 0
+  rockCount: 100
   numberOfStores: 20
-  debugOptions: 2
+  debugOptions: 3
   mapSize: {x: 60, y: 60}
 --- !u!4 &1401502930
 Transform:
