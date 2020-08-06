@@ -31,7 +31,7 @@ public class CarInitializeSplineSystem : SystemBase
         var random = _random;
 
         var splineEntities = splineQuery.ToEntityArrayAsync(Allocator.TempJob, out var splineEntitiesHandle);
-        Dependency = JobHandle.CombineDependencies(Dependency, splineEntitiesHandle);
+        Dependency = JobHandle.CombineDependencies(splineEntitiesHandle, Dependency);
 
         Entities.
             WithAll<Disabled>().
@@ -50,7 +50,12 @@ public class CarInitializeSplineSystem : SystemBase
                 var splineData = GetComponent<Spline>(splineEntities[randomSplineId]);
                 currentSegment.Value = splineData.Value.Value.Segments[0];
                 segmentCounter.Value = 0;
+
                 color.Value = GetComponent<SplineCategory>(splineEntities[randomSplineId]).GetColor();
-            }).ScheduleParallel();
+            }).Run();
+
+        splineEntities.Dispose();
+
+        Dependency.Complete();
     }
 }

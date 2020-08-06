@@ -154,6 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Reference: {fileID: 4209960757234686232, guid: e1f06f9accbb95a478281367ea719b38, type: 3}
   m_MergeRadius: 1
+  m_GenerateCopyCount: 1
 --- !u!4 &67497756
 Transform:
   m_ObjectHideFlags: 0
