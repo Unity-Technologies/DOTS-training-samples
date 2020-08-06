@@ -4,5 +4,5 @@ using Unity.Mathematics;
 [GenerateAuthoringComponent]
 public struct SteeringAngle : IComponentData
 {
-    public float2 value;
+    public float3 value;
 }

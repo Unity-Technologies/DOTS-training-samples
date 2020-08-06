@@ -10,6 +10,7 @@ public class LevelGenerationSystem : SystemBase
 {
     Texture2D texture;
     int mapSize;
+    private float obstacleRingCount;
 
     protected override void OnCreate()
     {
@@ -17,10 +18,28 @@ public class LevelGenerationSystem : SystemBase
         var defaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
         texture = defaults.colisionMap;
         mapSize = defaults.mapSize;
+        obstacleRingCount = defaults.obstacleRingCount;
     }
 
+    static float2 SpawnNewFood(int mapSize)
+    {
+        float2 newRandomPoint = new float2(mapSize / 2.0f, mapSize / 2.0f);
+        float2 nestLocation = newRandomPoint;
+        float obstacleRingRadius = mapSize * .5f;
+
+        while (Unity.Mathematics.math.length(newRandomPoint - nestLocation) < obstacleRingRadius)
+        {
+            newRandomPoint = new float2(UnityEngine.Random.Range(0.0f, mapSize), UnityEngine.Random.Range(0.0f, mapSize));
+        }
+        
+        GameObject.Find("Food").GetComponent<Transform>().position = new Vector3(newRandomPoint.x, 0, newRandomPoint.y);
+
+        return newRandomPoint;
+    }
     protected override void OnUpdate()
     {
+        
+        
         Entities.WithStructuralChanges()
             .ForEach((Entity entity, in LevelGeneration spawner) =>
             {
@@ -53,6 +72,15 @@ public class LevelGenerationSystem : SystemBase
 
                 texture.Apply();
 
+                var newFoodPosition = SpawnNewFood(mapSize);
+                FoodLocation newFoodLocation;
+                newFoodLocation.value = newFoodPosition;
+                SetSingleton<FoodLocation>(newFoodLocation);
+
+                ColonyLocation colonyLocation;
+                colonyLocation.value = new float2(mapSize / 2.0f, mapSize / 2.0f);
+                SetSingleton<ColonyLocation>(colonyLocation);
+                
                 EntityManager.DestroyEntity(entity);
             }).Run();
     }

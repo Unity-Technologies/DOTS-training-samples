@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Collections;
 using UnityEngine;
+using Unity.Jobs;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.ProjectWindowCallback;
@@ -17,20 +18,30 @@ public class DecayPheromoneSystem : SystemBase
         defaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
         defaults.InitPheromoneBuffers(defaults.mapSize, defaults.mapSize);
     }
+    
+    public struct ParallelDecay : IJobParallelFor
+    {
+        [ReadOnly]
+        public float decaySpeed;
+        public NativeArray<float> inOutArray;
+
+        public void Execute(int i)
+        {
+            inOutArray[i] *= decaySpeed;
+        }
+    }
 
     protected override void OnUpdate()
     {
         int sizeOfBuffer = defaults.bufferSize;
-        NativeArray<float> pheromoneMap = defaults.GetCurrentPheromoneMapBuffer();
-/*
-        Entities
-            .ForEach((Entity entity, in PheromoneDecay decay) =>
-            {
 
-                for (int x = 0; x < sizeOfBuffer; x++)
-                    pheromoneMap[x] *= 1f;//decay.decaySpeed;
-            }).Run();
-*/
+        ParallelDecay jobData = new ParallelDecay();
+        jobData.inOutArray = defaults.GetCurrentPheromoneMapBuffer();
+        jobData.decaySpeed = defaults.trailDecay;
+
+        JobHandle handle = jobData.Schedule(sizeOfBuffer, 1);
+        handle.Complete();
+        
         defaults.SwapPheromoneBuffer();
     }
 
