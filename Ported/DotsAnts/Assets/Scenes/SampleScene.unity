@@ -847,7 +847,7 @@ MonoBehaviour:
   mapSize: 128
   bucketResolution: 64
   antSize: {x: 0, y: 0, z: 0}
-  antSpeed: 0.2
+  antSpeed: 0.1
   antAccel: 0.07
   trailAddSpeed: 0.3
   trailDecay: 0.9985
