@@ -63,13 +63,12 @@ public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReference
 		});
 
         var originalRock = conversionSystem.GetPrimaryEntity(rockPrefab);
-        dstManager.AddComponentData<RockAuthoring>(entity,new RockAuthoring
+        dstManager.AddComponentData<RockDataSpawner>(entity,new RockDataSpawner
         {
-            rockEntity = originalRock,
-            mapX = mapSize.x,
-            mapY = mapSize.y
+            prefab = originalRock,
+            mapSize = mapSize
         });
-
+        
         var originalFarmer = conversionSystem.GetPrimaryEntity(farmerPrefab);
         dstManager.AddComponentData<FarmerData_Spawner>(entity,new FarmerData_Spawner
         {
