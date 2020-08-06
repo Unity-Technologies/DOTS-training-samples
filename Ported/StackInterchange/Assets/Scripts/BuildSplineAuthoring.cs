@@ -42,11 +42,10 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         var allSpline = new List<int>();
         var splineCollection = new List<int>();
 
-        //Using Custom compute
         var allTransformList = m_Reference.GetComponentsInChildren<PathResult>().Select(o =>
         {
             return o.m_Path.Select(path => path.position).ToArray();
-        });
+        }).ToArray();
 
         var sqrRadius = m_MergeRadius * m_MergeRadius;
 
@@ -91,6 +90,7 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         }
 
         //Building the segment collection
+        //TODO: We can actually directly create Spline using GameObjectConversionSystem.CreateAdditionalEntity
         var buildSplineData = new BuildSpline();
 
         //Segment Collection
