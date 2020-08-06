@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Networking;
 
+[UpdateAfter(typeof(CarInitializeSystem))]
 public class CollisionSystem : SystemBase
 {
     private const float BrakingFactor = 0.9f;
