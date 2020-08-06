@@ -15,7 +15,7 @@ public class AntGenerationSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        AntDefaults antDefaults = (AntDefaults)Camera.main.GetComponent(typeof(AntDefaults));
+        var antDefaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
         int mapSize = antDefaults.mapSize;
         int antCount = antDefaults.antCount;
         float2 colonyLocation = new float2();
