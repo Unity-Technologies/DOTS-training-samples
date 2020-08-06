@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using UnityEngine;
 using UnityEngine.Networking;
 
+[UpdateAfter(typeof(CarInitializeSystem))]
 public class CollisionSystem : SystemBase
 {
     private const float BrakingFactor = 0.9f;
@@ -17,6 +20,7 @@ public class CollisionSystem : SystemBase
     {
         public int segmentIndex;
         public Entity carEntity;
+        public float carSpeed;
     }
 
     private struct CarRange
@@ -77,15 +81,20 @@ public class CollisionSystem : SystemBase
         
         int numberOfSegments = segmentCollection.Value.Value.Segments.Length;
         if (numberOfSegments == 0) return;
-        
+
         // 1. Sort cars by segment in one big array
         NativeArray<SegmentCar> carList = new NativeArray<SegmentCar>(numberOfCars, Allocator.TempJob);
         
         Entities
             .WithName("ListAllCars")
-            .ForEach((int entityInQueryIndex, in Entity entity, in CurrentSegment currentSegment) =>
+            .ForEach((int entityInQueryIndex, in Entity entity, in CurrentSegment currentSegment, in Speed speed) =>
             {
-                carList[entityInQueryIndex] = new SegmentCar{ carEntity = entity, segmentIndex = currentSegment.Value };    
+                carList[entityInQueryIndex] = new SegmentCar
+                {
+                    carEntity = entity,
+                    segmentIndex = currentSegment.Value,
+                    carSpeed = speed.Value
+                };    
             }).ScheduleParallel();
 
         // Using Jobs to utilize implicit dependencies
@@ -110,13 +119,15 @@ public class CollisionSystem : SystemBase
             {
                 int start = currentCarIndex;
                 int count = 0;
-                while (currentCarIndex >= numberOfCars && carList[currentCarIndex].segmentIndex == i)
+                while (currentCarIndex < numberOfCars && carList[currentCarIndex].segmentIndex == i)
                 {
                     count++;
                     currentCarIndex++;
                 }
 
                 carsRangePerSegment[i] = new CarRange {Count = count, Offset = start};
+                //if (count > 0)
+                    //Debug.Log("Segment " + i + " has " + count + " cars");
             }
         }).Schedule();
 
@@ -126,7 +137,7 @@ public class CollisionSystem : SystemBase
             .WithDisposeOnCompletion(carsRangePerSegment)
             .WithDisposeOnCompletion(carList)
             .ForEach((
-                ref Speed speed, 
+                ref Speed speed,
                 in OriginalSpeed originalSpeed,
                 in Entity thisCarEntity,
                 in Size size,
@@ -144,57 +155,121 @@ public class CollisionSystem : SystemBase
                 bool willCollide = false;
                 float minDistance = 1e6f; // Big number
                 
-                // We test against a few cars nearby instead of all of them
+                // We test against a few cars nearby (this segment and the next one) instead of all of them
                 CarRange carsToTest = carsRangePerSegment[currentSegment.Value];
-                for (int i = carsToTest.Offset; i < carsToTest.Offset + carsToTest.Count; ++i)
+                if (carsToTest.Count > 1) // Cannot collide, if there is only one car in the current segment
                 {
-                    Entity theOtherCarEntity = carList[i].carEntity;
-                    if (theOtherCarEntity == thisCarEntity) continue; // Don't compare the car against itself
-
-                    Size theOtherCarSize = GetComponent<Size>(theOtherCarEntity);
-                    Offset theOtherCarOffset = GetComponent<Offset>(theOtherCarEntity);
-                    CurrentSegment theOtherCarCurrentSegment = GetComponent<CurrentSegment>(theOtherCarEntity);
-                    Progress theOtherCarProgress = GetComponent<Progress>(theOtherCarEntity);
-                    
-                    var theOtherCarPosition = CalculateCarPosition(segmentCollection, 
-                        theOtherCarCurrentSegment,
-                        theOtherCarProgress,
-                        theOtherCarOffset);
-                    var theOtherCarDirection = CalculateCarDirection(segmentCollection,
-                        theOtherCarCurrentSegment,
-                        theOtherCarProgress,
-                        theOtherCarOffset);
-                    
-                    // TODO: Make sure this is update the same way as CarMovementSystem does it
-                    var theOtherCarNextPosition = position + speed.Value * direction;
-                    
-                    // Simply assume that if the car is in front of as and the next positions will be closer than the
-                    // car maximum extents together, then there can be a collision.
-                    float3 diff = theOtherCarNextPosition - nextPosition;
-                    bool theOtherCarIsInFront = math.dot(direction, diff) > 0;
-
-                    // The car in the back should do the braking, not the front one
-                    if (theOtherCarIsInFront)
+                    for (int i = carsToTest.Offset; i < carsToTest.Offset + carsToTest.Count; ++i)
                     {
-                        float distance = math.length(diff);
-                        if (distance < minDistance)
+                        Entity theOtherCarEntity = carList[i].carEntity;
+                        if (theOtherCarEntity == thisCarEntity) continue; // Don't compare the car against itself
+
+                        //Debug.Log("Checking car " + thisCarEntity + " against " + theOtherCarEntity);
+
+                        float theOtherCarSpeed = carList[i].carSpeed;
+                        Size theOtherCarSize = GetComponent<Size>(theOtherCarEntity);
+                        Offset theOtherCarOffset = GetComponent<Offset>(theOtherCarEntity);
+                        CurrentSegment theOtherCarCurrentSegment = GetComponent<CurrentSegment>(theOtherCarEntity);
+                        Progress theOtherCarProgress = GetComponent<Progress>(theOtherCarEntity);
+
+                        var theOtherCarPosition = CalculateCarPosition(segmentCollection,
+                            theOtherCarCurrentSegment,
+                            theOtherCarProgress,
+                            theOtherCarOffset);
+                        var theOtherCarDirection = CalculateCarDirection(segmentCollection,
+                            theOtherCarCurrentSegment,
+                            theOtherCarProgress,
+                            theOtherCarOffset);
+
+                        // TODO: Make sure this is update the same way as CarMovementSystem does it
+                        var theOtherCarNextPosition = theOtherCarPosition + theOtherCarSpeed * theOtherCarDirection;
+
+                        // Simply assume that if the car is in front of as and the next positions will be closer than the
+                        // car maximum extents together, then there can be a collision.
+                        float3 diff = theOtherCarNextPosition - nextPosition;
+                        bool theOtherCarIsInFront = math.dot(direction, diff) > 0;
+
+                        // The car in the back should do the braking, not the front one
+                        if (theOtherCarIsInFront)
                         {
-                            minDistance = distance;
-                        }
-                        
-                        float maxExtent = extent + math.length(theOtherCarSize.Value);
-                        if (distance < maxExtent)
-                        {
-                            willCollide = true;
-                            break;
+                            float distance = math.length(diff);
+                            if (distance < minDistance)
+                            {
+                                minDistance = distance;
+                            }
+
+                            float maxExtent = extent + math.length(theOtherCarSize.Value);
+                            if (distance < maxExtent)
+                            {
+                                willCollide = true;
+                            }
                         }
                     }
                 }
-                
+
+                // Get the next segment too
+                var spline = GetComponent<BelongToSpline>(thisCarEntity);
+                var splineData = GetComponent<Spline>(spline.Value);
+                var segmentCounter = GetComponent<SegmentCounter>(thisCarEntity);
+                if (segmentCounter.Value < splineData.Value.Value.Segments.Length - 1)
+                {
+                    carsToTest = carsRangePerSegment[splineData.Value.Value.Segments[segmentCounter.Value + 1]];
+                    
+                    for (int i = carsToTest.Offset; i < carsToTest.Offset + carsToTest.Count; ++i)
+                    {
+                        Entity theOtherCarEntity = carList[i].carEntity;
+                        if (theOtherCarEntity == thisCarEntity) continue; // Don't compare the car against itself
+
+                        //Debug.Log("Checking car " + thisCarEntity + " against " + theOtherCarEntity);
+
+                        float theOtherCarSpeed = carList[i].carSpeed;
+                        Size theOtherCarSize = GetComponent<Size>(theOtherCarEntity);
+                        Offset theOtherCarOffset = GetComponent<Offset>(theOtherCarEntity);
+                        CurrentSegment theOtherCarCurrentSegment = GetComponent<CurrentSegment>(theOtherCarEntity);
+                        Progress theOtherCarProgress = GetComponent<Progress>(theOtherCarEntity);
+
+                        var theOtherCarPosition = CalculateCarPosition(segmentCollection,
+                            theOtherCarCurrentSegment,
+                            theOtherCarProgress,
+                            theOtherCarOffset);
+                        var theOtherCarDirection = CalculateCarDirection(segmentCollection,
+                            theOtherCarCurrentSegment,
+                            theOtherCarProgress,
+                            theOtherCarOffset);
+
+                        // TODO: Make sure this is update the same way as CarMovementSystem does it
+                        var theOtherCarNextPosition = theOtherCarPosition + theOtherCarSpeed * theOtherCarDirection;
+
+                        // Simply assume that if the car is in front of as and the next positions will be closer than the
+                        // car maximum extents together, then there can be a collision.
+                        float3 diff = theOtherCarNextPosition - nextPosition;
+                        bool theOtherCarIsInFront = math.dot(direction, diff) > 0;
+
+                        // The car in the back should do the braking, not the front one
+                        if (theOtherCarIsInFront)
+                        {
+                            float distance = math.length(diff);
+                            if (distance < minDistance)
+                            {
+                                minDistance = distance;
+                            }
+
+                            float maxExtent = extent + math.length(theOtherCarSize.Value);
+                            if (distance < maxExtent)
+                            {
+                                willCollide = true;
+                            }
+                        }
+                    }
+                }
+
                 if (willCollide)
                 {
+                    //Debug.Log("Car " + thisCarEntity + " will collide soon.");
+                    
                     // Avoid collision by slowing down
-                    speed.Value *= BrakingFactor;
+                    float newSpeed = math.max(0.0f, speed.Value - originalSpeed.Value * 0.1f);
+                    speed.Value = newSpeed;
                 }
                 else
                 {
@@ -203,10 +278,16 @@ public class CollisionSystem : SystemBase
                     {
                         if (speed.Value < originalSpeed.Value)
                         {
-                            speed.Value *= AccelerationFactor;
+                            //Debug.Log("Car " + thisCarEntity + " accelerating back to original speed");
+                            
+                            float newSpeed = math.min(originalSpeed.Value, speed.Value + originalSpeed.Value * 0.1f);
+                            speed.Value = newSpeed;
                         }
                     }
                 }
             }).ScheduleParallel();
+
+        //carsRangePerSegment.Dispose();
+        //carList.Dispose();
     }
 }

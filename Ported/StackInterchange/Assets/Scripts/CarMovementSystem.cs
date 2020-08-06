@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 
-[UpdateAfter(typeof(CarInitializeSystem))]
+[UpdateAfter(typeof(CollisionSystem))]
 public class CarMovementSystem : SystemBase
 {
     BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
