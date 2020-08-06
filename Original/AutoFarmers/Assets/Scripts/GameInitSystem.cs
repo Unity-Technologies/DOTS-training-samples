@@ -49,19 +49,22 @@ public class GameInitSystem:SystemBase
             {
                 int posX = Random.Range(0,storeData.mapX);
                 int posY = Random.Range(0,storeData.mapY);
+                var pos = new Unity.Mathematics.float2(posX,posY); //TODOJENNY
 
                 var store = EntityManager.Instantiate(storeData.prefab);
                 EntityManager.RemoveComponent<Translation>(store);
                 EntityManager.RemoveComponent<Rotation>(store);
                 EntityManager.RemoveComponent<Scale>(store);
                 EntityManager.RemoveComponent<NonUniformScale>(store);
-                EntityManager.AddComponentData<Position2D>(store,new Position2D { position = new Unity.Mathematics.float2(posX,posY) });
-                EntityManager.AddComponent<Store>(store);
+                EntityManager.AddComponentData<Position2D>(store,new Position2D { position = pos });
+                EntityManager.AddComponentData<Store>(store, new Store 
+                { 
+                    nbPlantsSold = 0,
+                    position = pos 
+                });
             }
 
-
             EntityManager.RemoveComponent<StoreData_Spawner>(entity);
-
         }).Run();
     }
 }

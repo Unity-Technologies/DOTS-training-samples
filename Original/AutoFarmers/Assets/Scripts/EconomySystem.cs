@@ -2,6 +2,7 @@
 using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Rendering;
+using Unity.Collections;
 
 
 public struct EconomyData:IComponentData
@@ -14,11 +15,50 @@ public class EconomySystem:SystemBase
 {
     static int farmerPrice = 10;
     static int dronePrice = 50;
-    static float timeToNextMoneyIncrease = 1.0f;
+    static float timeToNextMoneyIncrease = 0.2f;
 
+    static Entity farmerPrefab;
+    static Entity dronePrefab;
+    EntityQuery economyQuery;
+    EntityQuery storesQuery;
+
+    protected override void OnCreate()
+    {
+        economyQuery = GetEntityQuery(ComponentType.ReadWrite<EconomyData>());
+        storesQuery = GetEntityQuery(ComponentType.ReadOnly<Store>());
+    }
 
     protected override void OnUpdate()
     {
+        if(farmerPrefab == Entity.Null)
+        {
+            farmerPrefab = GetEntityQuery(typeof(FarmerData_Spawner)).GetSingleton<FarmerData_Spawner>().prefab;
+            EntityManager.RemoveComponent<Translation>(farmerPrefab);
+            EntityManager.RemoveComponent<Rotation>(farmerPrefab);
+            EntityManager.RemoveComponent<Scale>(farmerPrefab);
+            EntityManager.RemoveComponent<NonUniformScale>(farmerPrefab);
+
+            EntityManager.AddComponentData<Color>(farmerPrefab,new Color { Value = new float4(1,1,0,1) });
+            EntityManager.AddComponentData<Position2D>(farmerPrefab,new Position2D { position = new Unity.Mathematics.float2(0,0) });
+            EntityManager.AddComponentData<WorkerDataCommon>(farmerPrefab,new WorkerDataCommon());
+            EntityManager.AddComponent<Farmer>(farmerPrefab);
+            EntityManager.AddComponent<FarmerIdle>(farmerPrefab);
+        }
+        if(dronePrefab == Entity.Null)
+        {
+            dronePrefab = GetEntityQuery(typeof(DroneData_Spawner)).GetSingleton<DroneData_Spawner>().prefab;
+            EntityManager.RemoveComponent<Translation>(dronePrefab);
+            EntityManager.RemoveComponent<Rotation>(dronePrefab);
+            EntityManager.RemoveComponent<Scale>(dronePrefab);
+            EntityManager.RemoveComponent<NonUniformScale>(dronePrefab);
+
+            EntityManager.AddComponentData<WorkerDataCommon>(dronePrefab,new WorkerDataCommon());
+            EntityManager.AddComponentData<Position2D>(dronePrefab,new Position2D { position = new Unity.Mathematics.float2(0,0) });
+            EntityManager.AddComponent<Drone>(dronePrefab);
+        }
+
+        var worldEconomy = economyQuery.GetSingleton<EconomyData>();
+
         // DEBUG
         timeToNextMoneyIncrease -= Time.DeltaTime; 
         if(timeToNextMoneyIncrease < 0)
@@ -36,68 +76,77 @@ public class EconomySystem:SystemBase
 
         Entities
         .WithStructuralChanges()
-        .ForEach((Entity entity,ref EconomyData economies,in FarmerData_Spawner farmerData) =>
+        .ForEach((Entity entity,ref Store store) =>
         {
-            int nbOfFarmersToSpawn = economies.moneyForFarmers / farmerPrice;
-            if(nbOfFarmersToSpawn > 0)
+            worldEconomy.moneyForDrones += store.nbPlantsSold;
+            worldEconomy.moneyForFarmers += store.nbPlantsSold;
+
+            if(store.nbPlantsSold > 0)
             {
-                SpawnFarmers(nbOfFarmersToSpawn,farmerData);
-                economies.moneyForFarmers -= nbOfFarmersToSpawn * farmerPrice;
+                int nbOfFarmersToSpawn = worldEconomy.moneyForFarmers / farmerPrice;
+                if(nbOfFarmersToSpawn > 0)
+                {
+                    SpawnFarmers(nbOfFarmersToSpawn,store.position);
+                    worldEconomy.moneyForFarmers -= nbOfFarmersToSpawn * farmerPrice;
+                }
+
+                int nbofDronesToSpawn = worldEconomy.moneyForDrones / dronePrice;
+                if(nbofDronesToSpawn > 0)
+                {
+                    SpawnDrones(nbofDronesToSpawn,store.position);
+                    worldEconomy.moneyForDrones -= nbofDronesToSpawn * dronePrice;
+                }
             }
+            store.nbPlantsSold = 0;
         }).Run();
 
         Entities
         .WithStructuralChanges()
-        .ForEach((Entity entity,ref EconomyData economies,in DroneData_Spawner droneData) =>
+        .ForEach((Entity entity,ref EconomyData economy) =>
         {
-            int nbofDronesToSpawn = economies.moneyForDrones / dronePrice;
+            int nbOfFarmersToSpawn = economy.moneyForFarmers / farmerPrice;
+            if(nbOfFarmersToSpawn > 0)
+            {
+                SpawnFarmers(nbOfFarmersToSpawn, GetRandomStorePosition());
+                economy.moneyForFarmers -= nbOfFarmersToSpawn * farmerPrice;
+            }
+
+            int nbofDronesToSpawn = economy.moneyForDrones / dronePrice;
             if(nbofDronesToSpawn > 0)
             {
-                SpawnDrones(nbofDronesToSpawn, droneData);
-                economies.moneyForDrones -= nbofDronesToSpawn * dronePrice;
+                SpawnDrones(nbofDronesToSpawn, GetRandomStorePosition());
+                economy.moneyForDrones -= nbofDronesToSpawn * dronePrice;
             }
         }).Run();
     }
 
-    internal void SpawnFarmers(int count,in FarmerData_Spawner farmerData)
+    float2 GetRandomStorePosition()
+    {
+        float2 position = new Unity.Mathematics.float2(0,0);
+        var storesArray = storesQuery.ToComponentDataArray<Store>(Allocator.TempJob);
+        if(storesArray.Length > 0)
+        {
+            position = storesArray[UnityEngine.Random.Range(0,storesArray.Length)].position;
+        }
+        storesArray.Dispose();
+        return position;
+    }
+
+    internal void SpawnFarmers(int count, in float2 pos)
     {
         for(int i = 0;i < count;++i)
         {
-            var newFarmer = EntityManager.Instantiate(farmerData.prefab);
-            EntityManager.RemoveComponent<Translation>      (newFarmer);
-            EntityManager.RemoveComponent<Rotation>         (newFarmer);
-            EntityManager.RemoveComponent<Scale>            (newFarmer);
-            EntityManager.RemoveComponent<NonUniformScale>  (newFarmer);
-
-            EntityManager.AddComponent<Farmer>(newFarmer);
-            EntityManager.AddComponent<FarmerIdle>(newFarmer);
-            EntityManager.AddComponentData<Position2D>(newFarmer,new Position2D { position = new float2(0,0) });
-            EntityManager.AddComponentData<Color>(newFarmer, new Color {  Value = new float4(1,1,0,1) });
-            int posX = UnityEngine.Random.Range(0,10);
-            int posY = UnityEngine.Random.Range(0,10);
-            EntityManager.AddComponentData<WorkerTeleport>(newFarmer,new WorkerTeleport { position = new Unity.Mathematics.float2(posX,posY) });
-            EntityManager.AddComponentData<WorkerDataCommon>(newFarmer,new WorkerDataCommon());
+            var newFarmer = EntityManager.Instantiate(farmerPrefab);
+            EntityManager.AddComponentData<WorkerTeleport>(newFarmer,new WorkerTeleport { position = pos });
         }
     }
 
-    internal void SpawnDrones(int count,in DroneData_Spawner droneData)
+    internal void SpawnDrones(int count, in float2 pos)
     {
-        for(int i = 0;i < count;++i)
+        for(int i = 0 ; i < count ; ++i)
         {
-            var newDrone = EntityManager.Instantiate(droneData.prefab);
-
-            EntityManager.RemoveComponent<Translation>    (newDrone);
-            EntityManager.RemoveComponent<Rotation>       (newDrone);
-            EntityManager.RemoveComponent<Scale>          (newDrone);
-            EntityManager.RemoveComponent<NonUniformScale>(newDrone);
-
-            EntityManager.AddComponent<Drone>(newDrone);
-            EntityManager.AddComponentData<Color>(newDrone,new Color { Value = new float4(1,1,0,1) });
-            //TODO: make it 3D
-            EntityManager.AddComponentData<Position2D>(newDrone,new Position2D { position = new Unity.Mathematics.float2(0,0) });
-            int posX = UnityEngine.Random.Range(0,10);
-            int posY = UnityEngine.Random.Range(0,10);
-            EntityManager.AddComponentData<WorkerTeleport>(newDrone,new WorkerTeleport { position = new Unity.Mathematics.float2(posX,posY) });
+            var newDrone = EntityManager.Instantiate(dronePrefab);
+            EntityManager.AddComponentData<WorkerTeleport>(newDrone,new WorkerTeleport { position = pos });
         }
     }
 }
