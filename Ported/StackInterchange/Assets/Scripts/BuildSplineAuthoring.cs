@@ -1,5 +1,4 @@
-﻿using SWS;
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using Unity.Entities;
@@ -42,17 +41,12 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         var allSpline = new List<int>();
         var splineCollection = new List<int>();
 
-        //Using Prefab of Spline
-        var allTransformList = m_Reference.GetComponentsInChildren<PathManager>().Select(o =>
-        {
-            return o.waypoints.Select(pathManager => pathManager.position).ToArray();
-        });
 
         //Using Custom compute
-        allTransformList = allTransformList.Concat(m_Reference.GetComponentsInChildren<PathResult>().Select(o =>
+        var allTransformList = m_Reference.GetComponentsInChildren<PathResult>().Select(o =>
         {
             return o.m_Path.Select(path => path.position).ToArray();
-        }));
+        });
 
         var sqrRadius = m_MergeRadius * m_MergeRadius;
         foreach (var path in allTransformList)
