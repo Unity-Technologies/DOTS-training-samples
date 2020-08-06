@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -363,7 +363,7 @@ public class AntManager : MonoBehaviour {
 
 			//if (ant.holdingResource == false) {
 			//float excitement = 1f-Mathf.Clamp01((targetPos - ant.position).magnitude / (mapSize * 1.2f));
-			float excitement = .3f;
+			float excitement = 1f;
 			if (ant.holdingResource) {
 				excitement = 1f;
 			}

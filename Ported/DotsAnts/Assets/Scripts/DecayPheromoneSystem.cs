@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEditor.ProjectWindowCallback;
 #endif
 
-//[UpdateAfter(typeof(AntPositionSystem))]
+[UpdateAfter(typeof(PheromoneOutputSystem))]
 public class DecayPheromoneSystem : SystemBase
 {
     AntDefaults defaults;
