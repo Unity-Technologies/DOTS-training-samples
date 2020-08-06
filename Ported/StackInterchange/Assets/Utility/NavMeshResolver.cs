@@ -1,9 +1,10 @@
 ﻿using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
+#if UNITY_EDITOR
+using UnityEditor;
 
 [CustomEditor(typeof(NavMeshResolver))]
 public class NavMeshResolverEditor : Editor
@@ -17,6 +18,7 @@ public class NavMeshResolverEditor : Editor
         }
     }
 }
+#endif
 
 [ExecuteInEditMode]
 public class NavMeshResolver : MonoBehaviour
