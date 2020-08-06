@@ -44,6 +44,7 @@ public class CarInitializeSystem : SystemBase
                 ref Offset offset,
                 ref Size size,
                 ref Speed speed,
+                ref OriginalSpeed originalSpeed,
                 ref BelongToSpline belongToSpline,
                 ref CurrentSegment currentSegment,
                 ref Progress progress,
@@ -57,7 +58,8 @@ public class CarInitializeSystem : SystemBase
                 newSize.y = random.NextFloat(1.0F, 2.0F);
                 newSize.z = random.NextFloat(1.0F, 2.0F);
                 size.Value = newSize;
-                speed.Value = random.NextFloat(1.0F, 2.0F);
+                originalSpeed.Value = random.NextFloat(1.0F, 2.0F);
+                speed.Value = originalSpeed.Value;
                 progress.Value = 0f;
 
                 //Spline and segment
