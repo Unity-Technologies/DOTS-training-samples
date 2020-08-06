@@ -45,7 +45,7 @@ public class BuildSplineSystem : SystemBase
                 spline.color = new float3(1, 0, 1);
                 switch (category)
                 {
-                    case 0: spline.color = new float3(0.9f, 0.9f, 0.9f); break; //North, white
+                    case 0: spline.color = new float3(1.0f, 0.0f, 0.0f); break; //North, red
                     case 1: spline.color = new float3(1.0f, 1.0f, 0.0f); break; //South, yellow
                     case 2: spline.color = new float3(0.0f, 1.0f, 0.0f); break; //East, green
                     case 3: spline.color = new float3(0.0f, 0.0f, 1.0f); break; //West, blue
