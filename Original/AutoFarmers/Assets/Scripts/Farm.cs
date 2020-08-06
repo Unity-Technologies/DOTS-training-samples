@@ -13,7 +13,7 @@ public enum MapDebugOptions
 	Default,
 	Empty,
 	Tilled,
-	// Plants,
+	Plants,
 }
 
 public class Farm : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs

@@ -28,10 +28,12 @@ public class GameInitSystem:SystemBase
                     switch (groundData.debugOptions)
                     {
                         case MapDebugOptions.Empty:
-                            // EntityManager.AddComponent<PlantedSeedTag>(tile);
                             continue;
                         case MapDebugOptions.Tilled:
                             EntityManager.AddComponent<GroundTilledState>(tile);
+                            break;
+                        case MapDebugOptions.Plants:
+                            EntityManager.AddComponent<PlantedSeedTag>(tile);
                             break;
                     }
                 }

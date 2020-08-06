@@ -8,7 +8,10 @@ using Unity.Collections;
 using Random = Unity.Mathematics.Random;
 
 public struct PlantedSeedTag : IComponentData {}
+public struct PlantGrowingTag : IComponentData {}
+public struct ReadyForHarvest : IComponentData {}
 
+[UpdateBefore(typeof(TransformSystemGroup))]
 public class PlantSystem : SystemBase
 {
     Plant[] bakedPlants = new Plant[10];
@@ -34,6 +37,7 @@ public class PlantSystem : SystemBase
             EntityManager.RemoveComponent<Scale>(plantPrefab);
             EntityManager.RemoveComponent<NonUniformScale>(plantPrefab);
             EntityManager.AddComponent<Size>(plantPrefab);
+            EntityManager.AddComponent<PlantGrowingTag>(plantPrefab);
         }
 
         // Add plants from seeds
@@ -42,7 +46,7 @@ public class PlantSystem : SystemBase
             var newPlant = EntityManager.Instantiate(plantPrefab);
 
             EntityManager.SetComponentData<Translation>(newPlant, new Translation{ Value = new Unity.Mathematics.float3(position.position.x, 0, position.position.y)});
-            EntityManager.SetComponentData<Size>(newPlant, new Size{ value = 1 });
+            EntityManager.SetComponentData<Size>(newPlant, new Size{ value = 0.1f });
             // TODO: set plant size, ect...
             var renderer = EntityManager.GetSharedComponentData<RenderMesh>(newPlant);
 
@@ -50,6 +54,23 @@ public class PlantSystem : SystemBase
             EntityManager.SetSharedComponentData(newPlant, renderer);
 
             EntityManager.RemoveComponent<PlantedSeedTag>(entity);
+        }).Run();
+
+        // Growing
+        float t = Time.DeltaTime;
+        Entities.WithAll<PlantGrowingTag>().ForEach((Entity entity, ref Size size) =>
+        {
+            size.value += t / 8.0f;
+        }).Run();
+
+        // Mark ready for harvest
+        Entities.WithStructuralChanges().WithAll<PlantGrowingTag>().ForEach((Entity entity, in Size size) =>
+        {
+            if (size.value >= 1.0f)
+            {
+                EntityManager.AddComponent<ReadyForHarvest>(entity);
+                EntityManager.RemoveComponent<PlantGrowingTag>(entity);
+            }
         }).Run();
 
         // TODO: system to increase plant size
