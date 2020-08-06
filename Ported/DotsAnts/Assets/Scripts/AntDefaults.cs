@@ -64,6 +64,28 @@ public class AntDefaults : MonoBehaviour
         return GetCurrentPheromoneMapBuffer()[index];
     }
     
+    public void SetPheromoneAt(int x, int y,float value)
+    {
+        int index = PheromoneIndex(x,y);
+        m_PheromoneMapBuffers[m_CurrentBuffer][index] = value;
+    }
+    
+    public void IncPheromoneAt(int x, int y,float value)
+    {
+        int index = PheromoneIndex(x,y);
+        m_PheromoneMapBuffers[m_CurrentBuffer][index] += value;
+    }
+    
+    public void IncPheromoneAtWithClamp(int x, int y,float value, float clampValue)
+    {
+        int index = PheromoneIndex(x,y);
+        m_PheromoneMapBuffers[m_CurrentBuffer][index] += value;
+        if (m_PheromoneMapBuffers[m_CurrentBuffer][index]>clampValue) {
+            m_PheromoneMapBuffers[m_CurrentBuffer][index] = clampValue;
+        }
+    }
+
+    
     void OnDestroy()
     {
         for (int i = 0; i < 2; ++i)
