@@ -148,6 +148,6 @@ public class AntPositionSystem : SystemBase
                     rotation.Value = quaternion.Euler(0, -angle.value, 0, math.RotationOrder.XYZ);
                 }
             )
-            .Run();//ScheduleParallel();
+            .ScheduleParallel();
     }
 }
