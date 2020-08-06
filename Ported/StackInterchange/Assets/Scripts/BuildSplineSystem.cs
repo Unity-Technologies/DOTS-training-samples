@@ -41,18 +41,14 @@ public class BuildSplineSystem : SystemBase
                     Value = builder.CreateBlobAssetReference<SplineHandle>(Allocator.Persistent)
                 };
 
-                var category = buildSpline.SplineCategory.Value.Segments[i];
-                spline.color = new float3(1, 0, 1);
-                switch (category)
+                var category = new SplineCategory
                 {
-                    case 0: spline.color = new float3(1.0f, 0.0f, 0.0f); break; //North, red
-                    case 1: spline.color = new float3(1.0f, 1.0f, 0.0f); break; //South, yellow
-                    case 2: spline.color = new float3(0.0f, 1.0f, 0.0f); break; //East, green
-                    case 3: spline.color = new float3(0.0f, 0.0f, 1.0f); break; //West, blue
-                }
+                    category = buildSpline.SplineCategory.Value.Segments[i]
+                };
 
                 var splineEntity = ecb.CreateEntity();
                 ecb.AddComponent(splineEntity, spline);
+                ecb.AddComponent(splineEntity, category);
                 builder.Dispose();
                 startOffset += buildSpline.SplineCollection.Value.Segments[i];
             }

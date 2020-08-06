@@ -7,6 +7,24 @@ public struct Spline : IComponentData
     public float3 color; //TODO: move it to another component
 }
 
+public struct SplineCategory : IComponentData
+{
+    public int category;
+
+    public float4 GetColor()
+    {
+        var color = new float4(1.0f, 0.0f, 1.0f, 1.0f);
+        switch (category)
+        {
+            case 0: color = new float4(1.0f, 0.0f, 0.0f, 1.0f); break; //North, red
+            case 1: color = new float4(1.0f, 1.0f, 0.0f, 1.0f); break; //South, yellow
+            case 2: color = new float4(0.0f, 1.0f, 0.0f, 1.0f); break; //East, green
+            case 3: color = new float4(0.0f, 0.0f, 1.0f, 1.0f); break; //West, blue
+        }
+        return color;
+    }
+}
+
 public struct SplineHandle
 {
     public BlobArray<int> Segments; //int offset in segment collection

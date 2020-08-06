@@ -48,8 +48,8 @@ public class CarInitializeSplineSystem : SystemBase
                 var splineData = GetComponent<Spline>(splineEntities[randomSplineId]);
                 currentSegment.Value = splineData.Value.Value.Segments[0];
                 segmentCounter.Value = 0;
+                color.Value = GetComponent<SplineCategory>(splineEntities[randomSplineId]).GetColor();
 
-                color.Value = new float4(splineData.color.x, splineData.color.y, splineData.color.z, 1.0f);
             }).ScheduleParallel();
     }
 }
