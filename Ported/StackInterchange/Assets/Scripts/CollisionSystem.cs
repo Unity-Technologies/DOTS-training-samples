@@ -20,7 +20,9 @@ public class CollisionSystem : SystemBase
     {
         public int segmentIndex;
         public Entity carEntity;
-        public float carSpeed;
+        //public float carSpeed;
+        public float3 carNextPosition;
+        public float carExtent;
     }
 
     private struct CarRange
@@ -94,14 +96,29 @@ public class CollisionSystem : SystemBase
         NativeArray<SegmentCar> carList = new NativeArray<SegmentCar>(numberOfCars, Allocator.TempJob);
         
         Entities
-            .WithName("ListAllCars")
-            .ForEach((int entityInQueryIndex, in Entity entity, in CurrentSegment currentSegment, in Speed speed) =>
+            .WithName("ListAllCarsAndCalculateNextPosition")
+            .ForEach((
+                int entityInQueryIndex,
+                in Entity entity,
+                in CurrentSegment currentSegment,
+                in Speed speed,
+                in Progress progress,
+                in Offset offset,
+                in Size size) =>
             {
+                var position = CalculateCarPosition(segmentCollection, currentSegment, progress, offset);
+                var direction = CalculateCarDirection(segmentCollection, currentSegment, progress, offset);
+                var extent = math.length(size.Value);
+
+                var step = speed.Value * deltaTime;
+                var nextPosition = position + step * direction;
+                
                 carList[entityInQueryIndex] = new SegmentCar
                 {
                     carEntity = entity,
                     segmentIndex = currentSegment.Value,
-                    carSpeed = speed.Value
+                    carNextPosition = nextPosition,
+                    carExtent = extent
                 };    
             }).ScheduleParallel();
 
@@ -174,22 +191,8 @@ public class CollisionSystem : SystemBase
 
                         //Debug.Log("Checking car " + thisCarEntity + " against " + theOtherCarEntity);
 
-                        float theOtherCarStep = carList[i].carSpeed * deltaTime;
-                        Size theOtherCarSize = GetComponent<Size>(theOtherCarEntity);
-                        Offset theOtherCarOffset = GetComponent<Offset>(theOtherCarEntity);
-                        CurrentSegment theOtherCarCurrentSegment = GetComponent<CurrentSegment>(theOtherCarEntity);
-                        Progress theOtherCarProgress = GetComponent<Progress>(theOtherCarEntity);
-
-                        var theOtherCarPosition = CalculateCarPosition(segmentCollection,
-                            theOtherCarCurrentSegment,
-                            theOtherCarProgress,
-                            theOtherCarOffset);
-                        var theOtherCarDirection = CalculateCarDirection(segmentCollection,
-                            theOtherCarCurrentSegment,
-                            theOtherCarProgress,
-                            theOtherCarOffset);
-                        
-                        var theOtherCarNextPosition = theOtherCarPosition + theOtherCarStep * theOtherCarDirection;
+                        var theOtherCarNextPosition = carList[i].carNextPosition;
+                        var theOtherCarExtent = carList[i].carExtent;
 
                         // Simply assume that if the car is in front of as and the next positions will be closer than the
                         // car maximum extents together, then there can be a collision.
@@ -206,7 +209,7 @@ public class CollisionSystem : SystemBase
                             }
 
                             // Heuristics to detect an imminent collision
-                            float safetyDistance = extent * 2 + math.length(theOtherCarSize.Value);
+                            float safetyDistance = extent * 2 + theOtherCarExtent;
                             if (distance < safetyDistance)
                             {
                                 willCollide = true;
@@ -230,22 +233,8 @@ public class CollisionSystem : SystemBase
 
                         //Debug.Log("Checking car " + thisCarEntity + " against " + theOtherCarEntity);
 
-                        float theOtherCarStep = carList[i].carSpeed * deltaTime;
-                        Size theOtherCarSize = GetComponent<Size>(theOtherCarEntity);
-                        Offset theOtherCarOffset = GetComponent<Offset>(theOtherCarEntity);
-                        CurrentSegment theOtherCarCurrentSegment = GetComponent<CurrentSegment>(theOtherCarEntity);
-                        Progress theOtherCarProgress = GetComponent<Progress>(theOtherCarEntity);
-
-                        var theOtherCarPosition = CalculateCarPosition(segmentCollection,
-                            theOtherCarCurrentSegment,
-                            theOtherCarProgress,
-                            theOtherCarOffset);
-                        var theOtherCarDirection = CalculateCarDirection(segmentCollection,
-                            theOtherCarCurrentSegment,
-                            theOtherCarProgress,
-                            theOtherCarOffset);
-                        
-                        var theOtherCarNextPosition = theOtherCarPosition + theOtherCarStep * theOtherCarDirection;
+                        var theOtherCarNextPosition = carList[i].carNextPosition;
+                        var theOtherCarExtent = carList[i].carExtent;
 
                         // Simply assume that if the car is in front of as and the next positions will be closer than the
                         // car maximum extents together, then there can be a collision.
@@ -262,7 +251,7 @@ public class CollisionSystem : SystemBase
                             }
 
                             // Heuristics to detect an imminent collision
-                            float safetyDistance = extent * 2 + math.length(theOtherCarSize.Value);
+                            float safetyDistance = extent * 2 + theOtherCarExtent;
                             if (distance < safetyDistance)
                             {
                                 willCollide = true;
