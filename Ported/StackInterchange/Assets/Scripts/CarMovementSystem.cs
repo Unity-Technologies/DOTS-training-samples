@@ -41,9 +41,9 @@ public class CarMovementSystem : SystemBase
             // We use the square distance here to avoid calculating the square root.
             // Could also calculate this once and keep it at the SegmentData struct?
             // Could also avoid this is if we assume that all segments have the same length and the segments are always linear
-            var segmentLength = math.distancesq(start, end);
+            var segmentLength = math.distance(start, end);
 
-            var dx = deltaTime * speed.Value * 10f;
+            var dx = deltaTime * speed.Value;
 
             progress.Value += dx / segmentLength;
             progress.Value = math.clamp(progress.Value, 0f, 1f);
