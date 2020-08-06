@@ -26,6 +26,22 @@ public class AntDefaults : MonoBehaviour
     public float obstaclesPerRing = 0.8f;
     public float obstacleRadius = 2.0f;
 
+    public bool usePerlinNoise = false;
+    [Range(1, 7)]
+    public int perlinOctaves = 3;
+    [Range(0.0f, 1.0f)]
+    public float perlinPersistence = 0.5f;
+    [Range(1.0f, 100.0f)]
+    public float perlinScale = 7.0f;
+    [Range(0.0f, 1.0f)]
+    public float perlinThreshold = 0.55f;
+    [Range(0, int.MaxValue)]
+    public int perlinSeed = 0;
+
+    public bool perturbRings = false;
+    [Range(0.0f, 50.0f)]
+    public float perlinAmplitude = 10.0f;
+
     public Texture2D colisionMap;
     public Texture2D pheromoneMap;
 

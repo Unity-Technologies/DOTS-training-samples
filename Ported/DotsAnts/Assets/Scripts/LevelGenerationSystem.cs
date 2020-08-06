@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
+using System;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.ProjectWindowCallback;
@@ -11,6 +12,14 @@ public class LevelGenerationSystem : SystemBase
     Texture2D texture;
     int mapSize;
     private float obstacleRingCount;
+    private float perlinPersistence;
+    private float perlinScale;
+    private float perlinThreshold;
+    private int perlinOctaves;
+    private float perlinAmplitude;
+    private bool usePerlinNoise;
+    private bool perturbRings;
+    private int perlinSeed;
 
     protected override void OnCreate()
     {
@@ -18,6 +27,14 @@ public class LevelGenerationSystem : SystemBase
         var defaults = GameObject.Find("Default values").GetComponent<AntDefaults>();
         texture = defaults.colisionMap;
         mapSize = defaults.mapSize;
+        perlinPersistence = defaults.perlinPersistence;
+        perlinOctaves = defaults.perlinOctaves;
+        perlinScale = defaults.perlinScale;
+        perlinThreshold = defaults.perlinThreshold;
+        perlinAmplitude = defaults.perlinAmplitude;
+        usePerlinNoise = defaults.usePerlinNoise;
+        perturbRings = defaults.perturbRings;
+        perlinSeed = defaults.perlinSeed;
         obstacleRingCount = defaults.obstacleRingCount;
     }
 
@@ -36,36 +53,59 @@ public class LevelGenerationSystem : SystemBase
 
         return newRandomPoint;
     }
+
     protected override void OnUpdate()
     {
-        
-        
+
+
         Entities.WithStructuralChanges()
             .ForEach((Entity entity, in LevelGeneration spawner) =>
             {
                 if (texture.width != mapSize || texture.height != mapSize)
                     texture.Resize(mapSize, mapSize);
-                
+
                 Clear(texture);
 
-                for (int i = 1; i <= spawner.obstacleRingCount; i++)
+                if (!usePerlinNoise)
                 {
-                    float ringRadius = (i / (spawner.obstacleRingCount + 1f)) * (mapSize * .5f);
-                    float circumference = ringRadius * 2f * Mathf.PI;
-                    int maxCount = Mathf.CeilToInt(circumference / (2f * spawner.obstacleRadius) * 2f);
-                    int offset = UnityEngine.Random.Range(0, maxCount);
-                    int holeCount = UnityEngine.Random.Range(1, 3);
-                    for (int j = 0; j < maxCount; j++)
+                    for (int i = 1; i <= spawner.obstacleRingCount; i++)
                     {
-                        float t = (float)j / maxCount;
-                        if ((t * holeCount) % 1f < spawner.obstaclesPerRing)
+                        float ringRadius = (i / (spawner.obstacleRingCount + 1f)) * (mapSize * .5f);
+                        float circumference = ringRadius * 2f * Mathf.PI;
+                        int maxCount = Mathf.CeilToInt(circumference / (2f * spawner.obstacleRadius) * 10f);
+                        int offset = UnityEngine.Random.Range(0, maxCount);
+                        int holeCount = UnityEngine.Random.Range(1, 3);
+                        for (int j = 0; j < maxCount; j++)
                         {
-                            float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
-                            float posX = mapSize * .5f + Mathf.Cos(angle) * ringRadius;
-                            float posY = mapSize * .5f + Mathf.Sin(angle) * ringRadius;
+                            float t = (float)j / maxCount;
+                            if ((t * holeCount) % 1f < spawner.obstaclesPerRing)
+                            {
+                                float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
+                                float posX = mapSize * .5f + Mathf.Cos(angle) * ringRadius;
+                                float posY = mapSize * .5f + Mathf.Sin(angle) * ringRadius;
 
-                            //to check: clamping to integer
-                            DrawDisc(texture, (int)math.ceil(posX), (int)math.ceil(posY), (int)spawner.obstacleRadius, UnityEngine.Color.red);
+                                if (perturbRings && perlinAmplitude > 0.0f)
+                                {
+                                    float perlinX = Noise.PerlinNoise((int)posX, (int)posY, perlinScale, perlinOctaves, perlinPersistence, 1.0f, perlinSeed + 98723456);
+                                    float perlinY = Noise.PerlinNoise((int)posX, (int)posY, perlinScale, perlinOctaves, perlinPersistence, 1.0f, perlinSeed + 16378623);
+                                    posX += (2.0f * perlinX - 1.0f) * perlinAmplitude;
+                                    posY += (2.0f * perlinY - 1.0f) * perlinAmplitude;
+                                }
+
+                                //to check: clamping to integer
+                                DrawDisc(texture, (int)math.ceil(posX), (int)math.ceil(posY), (int)spawner.obstacleRadius, UnityEngine.Color.red);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (int y = 0; y < texture.height; y++)
+                    {
+                        for (int x = 0; x < texture.width; x++)
+                        {
+                            float perlin = (Noise.PerlinNoise(x, y, perlinScale, perlinOctaves, perlinPersistence, 1.0f, perlinSeed) > perlinThreshold) ? 1.0f : 0.0f;
+                            texture.SetPixel(x, y, new UnityEngine.Color(1.0f, 1.0f, 1.0f) * perlin);
                         }
                     }
                 }
