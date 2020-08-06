@@ -4,7 +4,6 @@ using Unity.Mathematics;
 public struct Spline : IComponentData
 {
     public BlobAssetReference<SplineHandle> Value;
-    public float3 color; //TODO: move it to another component
 }
 
 public struct SplineCategory : IComponentData
