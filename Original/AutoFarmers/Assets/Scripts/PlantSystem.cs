@@ -6,6 +6,7 @@ using Unity.Transforms;
 using Unity.Rendering;
 using Unity.Collections;
 using Random = Unity.Mathematics.Random;
+using Unity.Mathematics;
 
 public struct PlantedSeedTag : IComponentData {}
 public struct PlantGrowingTag : IComponentData {}
@@ -40,6 +41,8 @@ public class PlantSystem : SystemBase
             EntityManager.AddComponent<PlantGrowingTag>(plantPrefab);
         }
 
+        var plantsMap = GameInitSystem.plantTiles.AsParallelWriter();
+
         // Add plants from seeds
         Entities.WithStructuralChanges().WithAll<PlantedSeedTag>().ForEach((Entity entity, in Position2D position) =>
         {
@@ -52,6 +55,8 @@ public class PlantSystem : SystemBase
 
             renderer.mesh = bakedPlants[random.NextInt(0, bakedPlants.Length)].mesh;
             EntityManager.SetSharedComponentData(newPlant, renderer);
+
+            plantsMap.TryAdd((uint2)position.position, newPlant);
 
             EntityManager.RemoveComponent<PlantedSeedTag>(entity);
         }).Run();

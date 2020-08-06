@@ -64,13 +64,17 @@ public class FarmerSystem : SystemBase
         var random = m_Random;
         m_Random.NextFloat2Direction();
         var tileMap = GameInitSystem.groundTiles;
+        var plantsMap = GameInitSystem.plantTiles;
         uint2 mapSize = GameInitSystem.mapSize;
 
         // gather ground tiles
         //var groundData = m_GroundQuery.ToComponentDataArrayAsync<GroundData>(Allocator.TempJob, out var ballTranslationsHandle);
 
         // handle all idle farmers
-        Entities.WithAll<FarmerIdle>().WithReadOnly(tileMap).ForEach((int entityInQueryIndex, Entity e, in Position2D farmerPosition) =>
+        Entities.WithAll<FarmerIdle>()
+            .WithReadOnly(tileMap)
+            .WithReadOnly(plantsMap)
+            .ForEach((int entityInQueryIndex, Entity e, in Position2D farmerPosition) =>
         {
             const int states = 3;
             int state = (int)math.round((random.NextDouble() * states));
@@ -98,7 +102,7 @@ public class FarmerSystem : SystemBase
             }
             else if (state == 2) // Plant
             {
-                if (tileMap.TryGetValue((uint2)farmerPosition.position, out var tile))
+                if (tileMap.TryGetValue((uint2)farmerPosition.position, out var tile) && !plantsMap.TryGetValue((uint2)farmerPosition.position, out var _))
                 {
                     if (!HasComponent<Disabled>(tile.tilled))
                     {
@@ -175,8 +179,8 @@ public class FarmerSystem : SystemBase
 
             if (tileMap.TryGetValue((uint2)farmerPosition.position, out var tile))
             {
-                if (HasComponent<Position2D>(tile.empty))
-                    ecb.AddComponent<PlantedSeedTag>(entityInQueryIndex, tile.empty);
+                if (HasComponent<Position2D>(tile.tilled))
+                    ecb.AddComponent<PlantedSeedTag>(entityInQueryIndex, tile.tilled);
             }
 
             ecb.SetComponent(entityInQueryIndex, e, new Color {  Value = new float4(0,1,0,1) });

@@ -17,6 +17,7 @@ public struct Tile
 public class GameInitSystem:SystemBase
 {
     public static NativeHashMap<uint2, Tile> groundTiles;
+    public static NativeHashMap<uint2, Entity> plantTiles;
     public static uint2 mapSize;
 
     static Entity tilledTile;
@@ -26,6 +27,7 @@ public class GameInitSystem:SystemBase
         Entities.WithStructuralChanges().ForEach((Entity entity, in GroundData groundData) =>
         {
             groundTiles = new NativeHashMap<uint2, Tile>(groundData.fieldSizeX * groundData.fieldSizeY, Allocator.Persistent);
+            plantTiles = new NativeHashMap<uint2, Entity>(groundData.fieldSizeX * groundData.fieldSizeY, Allocator.Persistent);
             tilledTile = groundData.tilledGroundEntity;
             mapSize = new uint2((uint)groundData.fieldSizeX, (uint)groundData.fieldSizeY);
 
@@ -91,5 +93,6 @@ public class GameInitSystem:SystemBase
     protected override void OnDestroy()
     {
         groundTiles.Dispose();
+        plantTiles.Dispose();
     }
 }
