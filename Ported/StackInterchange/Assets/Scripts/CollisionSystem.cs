@@ -69,10 +69,15 @@ public class CollisionSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        // 1. Sort cars by segment in one big array
         int numberOfCars = m_CarQuery.CalculateEntityCount();
         if (numberOfCars == 0) return; // This may be the case in the beginning
         
+        var segmentCollection = GetSingleton<SegmentCollection>();
+        
+        int numberOfSegments = segmentCollection.Value.Value.Segments.Length;
+        if (numberOfSegments == 0) return;
+        
+        // 1. Sort cars by segment in one big array
         NativeArray<SegmentCar> carList = new NativeArray<SegmentCar>(numberOfCars, Allocator.TempJob);
         
         Entities
@@ -82,7 +87,7 @@ public class CollisionSystem : SystemBase
                 carList[entityInQueryIndex] = new SegmentCar{ carEntity = entity, segmentIndex = currentSegment.Value };    
             }).ScheduleParallel();
 
-        // Using Jobs to utilize implicit dependies
+        // Using Jobs to utilize implicit dependencies
         Job
             .WithName("SortCarsBySegment")
             .WithCode(() =>
@@ -92,11 +97,9 @@ public class CollisionSystem : SystemBase
         }).Schedule();
         
         // 2. Find the start offset and number of cars for each segment in the array
-        var segmentCollection = GetSingleton<SegmentCollection>();
-        int numberOfSegments = segmentCollection.Value.Value.Segments.Length;
         NativeArray<CarRange> carsRangePerSegment = new NativeArray<CarRange>(numberOfSegments, Allocator.TempJob);
 
-        // Using Jobs to utilize implicit dependies
+        // Using Jobs to utilize implicit dependencies
         Job
             .WithName("FindSegmentCarsInArray")
             .WithCode(() =>
