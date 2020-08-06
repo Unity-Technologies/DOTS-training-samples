@@ -36,11 +36,23 @@ public class BuildSplineSystem : SystemBase
                     segmentArray[j] = buildSpline.AllSplines.Value.Segments[j + startOffset];
                 }
 
-                var splineEntity = ecb.CreateEntity();
-                ecb.AddComponent(splineEntity, new Spline
+                var spline = new Spline
                 {
                     Value = builder.CreateBlobAssetReference<SplineHandle>(Allocator.Persistent)
-                });
+                };
+
+                var category = buildSpline.SplineCategory.Value.Segments[i];
+                spline.color = new float3(1, 0, 1);
+                switch (category)
+                {
+                    case 0: spline.color = new float3(0.9f, 0.9f, 0.9f); break; //North, white
+                    case 1: spline.color = new float3(1.0f, 1.0f, 0.0f); break; //South, yellow
+                    case 2: spline.color = new float3(0.0f, 1.0f, 0.0f); break; //East, green
+                    case 3: spline.color = new float3(0.0f, 0.0f, 1.0f); break; //West, blue
+                }
+
+                var splineEntity = ecb.CreateEntity();
+                ecb.AddComponent(splineEntity, spline);
                 builder.Dispose();
                 startOffset += buildSpline.SplineCollection.Value.Segments[i];
             }

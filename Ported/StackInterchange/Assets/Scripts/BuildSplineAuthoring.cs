@@ -11,6 +11,7 @@ public struct BuildSpline : IComponentData
     public BlobAssetReference<SegmentHandle> SegmentCollection;
     public BlobAssetReference<SplineHandle> AllSplines;
     public BlobAssetReference<SplineHandle> SplineCollection; //Use the same view as spline but represent count
+    public BlobAssetReference<SplineHandle> SplineCategory; //N (z+), S(z-), E(x+), W(x-)
 }
 
 public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
@@ -41,6 +42,7 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         var segmentList = new List<(int, int)>();
         var allSpline = new List<int>();
         var splineCollection = new List<int>();
+        var splineCategory = new List<int>();
 
         var allTransformList = m_Reference.GetComponentsInChildren<PathResult>().Select(o =>
         {
@@ -86,6 +88,31 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
                 allSpline.AddRange(currentSpline);
                 splineCollection.Add(currentSpline.Count());
+
+                var value = path.Last();
+                var directionFromCenter = value.normalized;
+
+                var directionArray = new[]
+                {
+                    Vector3.forward,
+                    Vector3.back,
+                    Vector3.right,
+                    Vector3.left
+                };
+
+                var max = float.MinValue;
+                var direction = -1;
+
+                for (int i = 0; i < directionArray.Length; ++i)
+                {
+                    var dot = Vector3.Dot(directionFromCenter, directionArray[i]);
+                    if (dot > max)
+                    {
+                        max = dot;
+                        direction = i;
+                    }
+                }
+                splineCategory.Add(direction);
             }
         }
 
@@ -134,6 +161,18 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
                 splineHandle[i] = splineCollection[i];
 
             buildSplineData.SplineCollection = builder.CreateBlobAssetReference<SplineHandle>(Allocator.Persistent);
+        }
+
+        //Spline Category
+        using (var builder = new BlobBuilder(Allocator.Temp))
+        {
+            ref var root = ref builder.ConstructRoot<SplineHandle>();
+            var splineHandle = builder.Allocate(ref root.Segments, splineCategory.Count);
+
+            for (int i = 0; i < splineHandle.Length; ++i)
+                splineHandle[i] = splineCategory[i];
+
+            buildSplineData.SplineCategory = builder.CreateBlobAssetReference<SplineHandle>(Allocator.Persistent);
         }
 
         dstManager.AddComponentData(entity, buildSplineData);
