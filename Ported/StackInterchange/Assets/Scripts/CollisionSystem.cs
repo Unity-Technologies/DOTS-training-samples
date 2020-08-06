@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -70,37 +71,56 @@ public class CollisionSystem : SystemBase
     {
         // 1. Sort cars by segment in one big array
         int numberOfCars = m_CarQuery.CalculateEntityCount();
-        NativeArray<SegmentCar> carList = new NativeArray<SegmentCar>(numberOfCars, Allocator.Temp);
+        if (numberOfCars == 0) return; // This may be the case in the beginning
+        
+        NativeArray<SegmentCar> carList = new NativeArray<SegmentCar>(numberOfCars, Allocator.TempJob);
         
         Entities
+            .WithName("ListAllCars")
             .ForEach((int entityInQueryIndex, in Entity entity, in CurrentSegment currentSegment) =>
             {
                 carList[entityInQueryIndex] = new SegmentCar{ carEntity = entity, segmentIndex = currentSegment.Value };    
             }).ScheduleParallel();
 
-        var sortBySegment = new SortBySegment();
-        carList.Sort(sortBySegment);
-
+        // Using Jobs to utilize implicit dependies
+        Job
+            .WithName("SortCarsBySegment")
+            .WithCode(() =>
+        {
+            var sortBySegment = new SortBySegment();
+            carList.Sort(sortBySegment);
+        }).Schedule();
+        
         // 2. Find the start offset and number of cars for each segment in the array
         var segmentCollection = GetSingleton<SegmentCollection>();
         int numberOfSegments = segmentCollection.Value.Value.Segments.Length;
-        NativeArray<CarRange> carsRangePerSegment = new NativeArray<CarRange>(numberOfSegments, Allocator.Temp);
-        int currentCarIndex = 0;
-        for (int i = 0; i < numberOfSegments; ++i)
-        {
-            int start = currentCarIndex;
-            int count = 0;
-            while (currentCarIndex >= numberOfCars && carList[currentCarIndex].segmentIndex == i)
-            {
-                count++;
-                currentCarIndex++;
-            }
+        NativeArray<CarRange> carsRangePerSegment = new NativeArray<CarRange>(numberOfSegments, Allocator.TempJob);
 
-            carsRangePerSegment[i] = new CarRange {Count = count, Offset = start };
-        }
+        // Using Jobs to utilize implicit dependies
+        Job
+            .WithName("FindSegmentCarsInArray")
+            .WithCode(() =>
+        {
+            int currentCarIndex = 0;
+            for (int i = 0; i < numberOfSegments; ++i)
+            {
+                int start = currentCarIndex;
+                int count = 0;
+                while (currentCarIndex >= numberOfCars && carList[currentCarIndex].segmentIndex == i)
+                {
+                    count++;
+                    currentCarIndex++;
+                }
+
+                carsRangePerSegment[i] = new CarRange {Count = count, Offset = start};
+            }
+        }).Schedule();
 
         // 3. For each car find the collisions with the cars in the same segment
         Entities
+            .WithName("DetectAndAvoidCollisions")
+            .WithDisposeOnCompletion(carsRangePerSegment)
+            .WithDisposeOnCompletion(carList)
             .ForEach((
                 ref Speed speed, 
                 in Entity thisCarEntity,
