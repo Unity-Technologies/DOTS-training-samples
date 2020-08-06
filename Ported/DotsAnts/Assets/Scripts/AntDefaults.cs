@@ -36,10 +36,10 @@ public class AntDefaults : MonoBehaviour
     public int bufferSize => m_BufferSize;
 
     public NativeArray<float> GetCurrentPheromoneMapBuffer() => m_PheromoneMapBuffers[m_CurrentBuffer];
-
+    
     public void SwapPheromoneBuffer()
     {
-        int otherBuffer = (++m_CurrentBuffer) % 2;
+        int otherBuffer = (m_CurrentBuffer+1) % 2;
         m_PheromoneMapBuffers[m_CurrentBuffer].CopyTo(m_PheromoneMapBuffers[otherBuffer]);
         pheromoneMap.LoadRawTextureData<float>(m_PheromoneMapBuffers[m_CurrentBuffer]);
         pheromoneMap.Apply();
@@ -52,7 +52,7 @@ public class AntDefaults : MonoBehaviour
         for (int i = 0; i < 2; ++i)
             m_PheromoneMapBuffers[i] = new NativeArray<float>(width * height, Allocator.Persistent);
         pheromoneMap.LoadRawTextureData<float>(m_PheromoneMapBuffers[0]);
-        m_CurrentBuffer = 1;
+        m_CurrentBuffer = 0;
     }
     
     public int PheromoneIndex(int x, int y)
