@@ -21,7 +21,8 @@ public class CarInitializeSplineSystem : SystemBase
         {
             All = new[]
             {
-                ComponentType.ReadOnly<Spline>()
+                ComponentType.ReadOnly<Spline>(),
+                ComponentType.ReadOnly<SplineCategory>()
             }
         });
     }
@@ -29,32 +30,40 @@ public class CarInitializeSplineSystem : SystemBase
     protected override void OnUpdate()
     {
         var random = _random;
-
-        var splineEntities = splineQuery.ToEntityArrayAsync(Allocator.TempJob, out var splineEntitiesHandle);
-        Dependency = JobHandle.CombineDependencies(splineEntitiesHandle, Dependency);
+        
+        //var splineEntities = splineQuery.ToEntityArrayAsync(Allocator.TempJob, out var splineEntitiesHandle);
+        //Dependency = JobHandle.CombineDependencies(splineEntitiesHandle, Dependency);
+        var splineDatas = splineQuery.ToComponentDataArray<Spline>(Allocator.TempJob);
+        var splineCategories = splineQuery.ToComponentDataArray<SplineCategory>(Allocator.TempJob);
+        //var splineDebugData = splineQuery.ToComponentDataArray<Spline>(Allocator.TempJob);
 
         Entities.
             WithAll<Disabled>().
             WithName("CanInitializeSpline").
-            WithDisposeOnCompletion(splineEntities).
+            WithoutBurst().
+            //WithDisposeOnCompletion(splineEntities).
             ForEach((
-            ref BelongToSpline belongToSpline,
-            ref CurrentSegment currentSegment,
-            ref SegmentCounter segmentCounter,
-            ref URPMaterialPropertyBaseColor color) =>
+                ref BelongToSpline belongToSpline,
+                ref CurrentSegment currentSegment,
+                ref SegmentCounter segmentCounter,
+                ref URPMaterialPropertyBaseColor color) =>
             {
                 //Spline and segment
-                var randomSplineId = random.NextInt(0, splineEntities.Length);
+                var randomSplineId = random.NextInt(0, splineDatas.Length);
 
-                belongToSpline.Value = splineEntities[randomSplineId];
-                var splineData = GetComponent<Spline>(splineEntities[randomSplineId]);
+                belongToSpline.Value = randomSplineId;
+                //var splineData = GetComponent<Spline>(splineEntities[randomSplineId]);
+                var splineData = splineDatas[randomSplineId];
                 currentSegment.Value = splineData.Value.Value.Segments[0];
                 segmentCounter.Value = 0;
 
-                color.Value = GetComponent<SplineCategory>(splineEntities[randomSplineId]).GetColor();
+                color.Value = splineCategories[randomSplineId].GetColor();
             }).Run();
+        
+        splineDatas.Dispose();
+        splineCategories.Dispose();
 
-        splineEntities.Dispose();
+        _random = random; 
 
         Dependency.Complete();
     }
