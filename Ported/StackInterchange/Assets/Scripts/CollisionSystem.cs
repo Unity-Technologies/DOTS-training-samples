@@ -48,12 +48,18 @@ public class CollisionSystem : SystemBase
     }
 
     // TODO: This should be a generic helper in one place
-    // TODO: Offset should be taken into account
     public static float3 CalculateCarPosition(in SegmentCollection segmentCollection, 
         in CurrentSegment currentSegment, in Progress progress, in Offset offset)
     {
         var segment = segmentCollection.Value.Value.Segments[currentSegment.Value];
         var position = math.lerp(segment.Start, segment.End, progress.Value);
+
+        var forward = segment.End - segment.Start;
+        var up = new float3(0.0f, 1.0f, 0.0f);
+        var left = math.normalize(math.cross(up, forward)); //TODO: cache this value
+
+        position += offset.Value * left;
+
         return position;
     }
 
