@@ -21,7 +21,7 @@ public struct WorkerTeleport:IComponentData {
 public struct WorkerDataCommon:IComponentData
 {
     public Entity plantAttached;
-    public Entity targetEntity;
+    public Entity storeToSellTo;
 }
 
 public struct Farmer:IComponentData

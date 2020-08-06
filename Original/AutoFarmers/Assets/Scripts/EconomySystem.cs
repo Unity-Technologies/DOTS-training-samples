@@ -78,11 +78,11 @@ public class EconomySystem:SystemBase
         .WithStructuralChanges()
         .ForEach((Entity entity,ref Store store) =>
         {
-            worldEconomy.moneyForDrones += store.nbPlantsSold;
-            worldEconomy.moneyForFarmers += store.nbPlantsSold;
-
             if(store.nbPlantsSold > 0)
             {
+                worldEconomy.moneyForDrones += store.nbPlantsSold;
+                worldEconomy.moneyForFarmers += store.nbPlantsSold;
+
                 int nbOfFarmersToSpawn = worldEconomy.moneyForFarmers / farmerPrice;
                 if(nbOfFarmersToSpawn > 0)
                 {
