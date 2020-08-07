@@ -26,6 +26,6 @@ public class DistanceFieldSwitcher : SystemBase
                 }
                 distanceField.Value = (DistanceFieldModel)newModel;
             }
-        }).Run();
+        }).Schedule();
     }
 }
