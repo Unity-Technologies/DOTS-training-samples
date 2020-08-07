@@ -15,14 +15,15 @@ public class CollisionSystem : SystemBase
     private const float AccelerationFactor = 1.0f / BrakingFactor;
     
     private EntityQuery m_CarQuery;
+    private EntityQuery m_SplineQuery;
     
     private struct SegmentCar
     {
         public int segmentIndex;
         public Entity carEntity;
+        //public float carSpeed;
         public float3 carNextPosition;
         public float carExtent;
-        public float3 carDirection;
     }
 
     private struct CarRange
@@ -50,6 +51,14 @@ public class CollisionSystem : SystemBase
             All = new[]
             {
                 ComponentType.ReadOnly<BelongToSpline>()
+            }
+        });
+
+        m_SplineQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<Spline>()
             }
         });
     }
@@ -94,7 +103,7 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
         if (numberOfCars == 0) return; // This may be the case in the beginning
         
         var segmentCollection = GetSingleton<SegmentCollection>();
-        
+
         int numberOfSegments = segmentCollection.Value.Value.Segments.Length;
         if (numberOfSegments == 0) return;
 
@@ -126,8 +135,7 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
                     carEntity = entity,
                     segmentIndex = currentSegment.Value,
                     carNextPosition = nextPosition,
-                    carExtent = extent,
-                    carDirection = direction
+                    carExtent = extent
                 };    
             }).ScheduleParallel();
 
@@ -165,22 +173,30 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
             }
         }).Schedule();
 
+        var splineDataArray = m_SplineQuery.ToComponentDataArray<Spline>(Allocator.TempJob);
+
         // 3. For each car find the collisions with the cars in the same segment
         Entities
             .WithName("DetectAndAvoidCollisions")
             .WithDisposeOnCompletion(carsRangePerSegment)
             .WithDisposeOnCompletion(carList)
+            .WithDisposeOnCompletion(splineDataArray)
             .ForEach((
-                int entityInQueryIndex,
                 ref Speed speed,
                 in OriginalSpeed originalSpeed,
                 in Entity thisCarEntity,
-                in CurrentSegment currentSegment) =>
+                in Size size,
+                in Offset offset,
+                in CurrentSegment currentSegment,
+                in Progress progress) =>
             {
-                var extent = carList[entityInQueryIndex].carExtent;
-                var nextPosition = carList[entityInQueryIndex].carNextPosition;
-                var direction = carList[entityInQueryIndex].carDirection;
-                
+                var position = CalculateCarPosition(segmentCollection, currentSegment, progress, offset);
+                var direction = CalculateCarDirection(segmentCollection, currentSegment, progress, offset);
+                var extent = math.length(size.Value);
+
+                var step = speed.Value * deltaTime;
+                var nextPosition = position + step * direction;
+
                 bool willCollide = false;
                 float minDistance = 1e6f; // Big number
                 
@@ -224,7 +240,7 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
 
                 // Get the next segment too
                 var spline = GetComponent<BelongToSpline>(thisCarEntity);
-                var splineData = GetComponent<Spline>(spline.Value);
+                var splineData = splineDataArray[spline.Value];
                 var segmentCounter = GetComponent<SegmentCounter>(thisCarEntity);
                 if (segmentCounter.Value < splineData.Value.Value.Segments.Length - 1)
                 {

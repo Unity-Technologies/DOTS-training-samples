@@ -3,5 +3,5 @@
 [GenerateAuthoringComponent]
 public struct BelongToSpline : IComponentData
 {
-    public Entity Value;
+    public int Value;
 }

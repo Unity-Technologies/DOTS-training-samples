@@ -14,76 +14,85 @@ public class CarInitializeSplineSystem : SystemBase
     private EntityQuery splineQuery;
     BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
 
+    Random _random;
+
     protected override void OnCreate()
     {
         splineQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new[]
             {
-                ComponentType.ReadOnly<Spline>()
+                ComponentType.ReadOnly<Spline>(),
+                ComponentType.ReadOnly<SplineCategory>()
             }
         });
         m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+
+        _random = new Random(898934);
     }
 
     protected override void OnUpdate()
     {
-        var random = new Random((uint) (56418f * Time.DeltaTime));
+        var random = new Random((uint)(56418f * Time.DeltaTime));
 
-        var splineEntities = splineQuery.ToEntityArrayAsync(Allocator.TempJob, out var splineEntitiesHandle);
-        Dependency = JobHandle.CombineDependencies(Dependency, splineEntitiesHandle);
+        var splineData = splineQuery.ToComponentDataArray<Spline>(Allocator.TempJob);
+        var splineCategories = splineQuery.ToComponentDataArray<SplineCategory>(Allocator.TempJob);
 
         Entities.
             WithAll<Disabled>().
             WithNone<Restart>().
-            WithName("CanInitializeSpline_Start_Disabled").
+            WithName("CanInitializeSpline").
             ForEach((
-            ref BelongToSpline belongToSpline,
-            ref CurrentSegment currentSegment,
-            ref SegmentCounter segmentCounter,
-            ref URPMaterialPropertyBaseColor color) =>
+                int entityInQueryIndex,
+                ref BelongToSpline belongToSpline,
+                ref CurrentSegment currentSegment,
+                ref SegmentCounter segmentCounter,
+                ref URPMaterialPropertyBaseColor color) =>
             {
                 //Spline and segment
-                var randomSplineId = random.NextInt(0, splineEntities.Length);
+                var randomSplineId = random.NextInt(0, splineData.Length);
+                var spline = splineData[randomSplineId];
 
-                belongToSpline.Value = splineEntities[randomSplineId];
-                var splineData = GetComponent<Spline>(splineEntities[randomSplineId]);
+                var segmentIndex = random.NextInt(0, spline.Value.Value.Segments.Length);
 
-                var segmentIndex = random.NextInt(0, splineData.Value.Value.Segments.Length);
-                currentSegment.Value = splineData.Value.Value.Segments[segmentIndex];
+                belongToSpline.Value = randomSplineId;
+                currentSegment.Value = spline.Value.Value.Segments[segmentIndex];
                 segmentCounter.Value = segmentIndex;
-                color.Value = GetComponent<SplineCategory>(splineEntities[randomSplineId]).GetColor();
+
+                color.Value = splineCategories[randomSplineId].GetColor();
+
             }).ScheduleParallel();
 
         var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         Entities.
-        WithAll<Disabled>().
-        WithAll<Restart>().
-        WithName("CanInitializeSpline_Restart_Disabled").
-        WithDisposeOnCompletion(splineEntities).
-        ForEach((
-        Entity entity,
-        int entityInQueryIndex,
-        ref BelongToSpline belongToSpline,
-        ref CurrentSegment currentSegment,
-        ref SegmentCounter segmentCounter,
-        ref URPMaterialPropertyBaseColor color) =>
-        {
-            //Spline and segment
-            var randomSplineId = random.NextInt(0, splineEntities.Length);
+            WithAll<Disabled>().
+            WithAll<Restart>().
+            WithName("CanInitializeSpline_Restart_Disabled").
+            WithDisposeOnCompletion(splineData).
+            WithDisposeOnCompletion(splineCategories).
+            ForEach((
+                Entity entity,
+                int entityInQueryIndex,
+                ref BelongToSpline belongToSpline,
+                ref CurrentSegment currentSegment,
+                ref SegmentCounter segmentCounter,
+                ref URPMaterialPropertyBaseColor color) =>
+            {
+                //Spline and segment
+                var randomSplineId = random.NextInt(0, splineData.Length);
+                belongToSpline.Value = randomSplineId;
 
-            belongToSpline.Value = splineEntities[randomSplineId];
-            var splineData = GetComponent<Spline>(splineEntities[randomSplineId]);
+                var spline = splineData[randomSplineId];
 
-            var segmentIndex = 0;
-            currentSegment.Value = splineData.Value.Value.Segments[segmentIndex];
-            segmentCounter.Value = segmentIndex;
-            color.Value = GetComponent<SplineCategory>(splineEntities[randomSplineId]).GetColor();
+                var segmentIndex = 0;
+                currentSegment.Value = spline.Value.Value.Segments[segmentIndex];
+                segmentCounter.Value = segmentIndex;
 
-            commandBuffer.RemoveComponent<Restart>(entityInQueryIndex, entity);
+                color.Value = splineCategories[randomSplineId].GetColor();
 
-        }).ScheduleParallel();
+                commandBuffer.RemoveComponent<Restart>(entityInQueryIndex, entity);
+            }).ScheduleParallel();
 
         m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
