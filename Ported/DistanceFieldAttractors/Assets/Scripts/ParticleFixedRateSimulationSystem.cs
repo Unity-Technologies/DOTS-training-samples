@@ -120,6 +120,22 @@ public class ParticleFixedRateSimulationSystem : SystemBase
         var distanceField = GetSingleton<DistanceField>();
         var deltaTime = Time.DeltaTime;
 
+        if (distanceField.Preview != 0)
+        {
+            float3 normal;
+            for (int i = 0; i < 3000; i++)
+            {
+                float x = UnityEngine.Random.Range(-10f, 10f);
+                float y = UnityEngine.Random.Range(-10f, 10f);
+                float z = UnityEngine.Random.Range(-10f, 10f);
+                float dist = GetDistance(x, y, z, distanceField.Value, deltaTime, out normal);
+                if (dist < 0f)
+                {
+                    UnityEngine.Debug.DrawRay(new UnityEngine.Vector3(x, y, z), UnityEngine.Vector3.up * .1f, UnityEngine.Color.red, 1f);
+                }
+            }
+        }
+
         Entities
             .WithName("ParticleFixedRateSimulation")
             .ForEach((ref Translation translation, ref Velocity velocity, ref Color color) =>
