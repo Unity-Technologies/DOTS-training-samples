@@ -18,15 +18,6 @@ public class RockSystem : SystemBase
 
     protected override void OnCreate()
     {
-        /*
-        m_RocksQuery = GetEntityQuery(new EntityQueryDesc
-        {
-            All = new[]
-            {
-                ComponentType.ReadOnly<Rock>()
-            }
-        });
-        */
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
@@ -40,10 +31,6 @@ public class RockSystem : SystemBase
             EntityManager.RemoveComponent<RockDataSpawner>(entity);
 
         }).Run();
-
-        
-        //var rocksRock = m_RocksQuery.ToComponentDataArrayAsync<Rock>(Allocator.TempJob, out var rocksRockHandle);
-        //Dependency = JobHandle.CombineDependencies(Dependency, rocksRockHandle);
 
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
@@ -65,14 +52,9 @@ public class RockSystem : SystemBase
             }).ScheduleParallel();
         */
 
-        // Destroy rock if health is <= 0
-        //var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
-
         Entities
-            //.WithDisposeOnCompletion(rocksRock)
             .ForEach((int entityInQueryIndex, Entity rockEntity, ref Health health) =>
             {
-                //var rock = rocksRock;
                 var currentHealth = health.Value;
                 if(currentHealth <= 0)
                 {
