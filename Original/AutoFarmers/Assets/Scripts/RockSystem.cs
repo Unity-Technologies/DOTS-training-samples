@@ -24,6 +24,7 @@ public class RockSystem : SystemBase
     protected override void OnUpdate()
     {
         Entities
+        .WithName("rock_spawning_test")
         .WithStructuralChanges()
         .ForEach((Entity entity, in RockDataSpawner rockDataSpawner) =>
         {
@@ -53,6 +54,7 @@ public class RockSystem : SystemBase
         */
 
         Entities
+            .WithName("rock_health_check_test")
             .ForEach((int entityInQueryIndex, Entity rockEntity, ref Health health) =>
             {
                 var currentHealth = health.Value;
