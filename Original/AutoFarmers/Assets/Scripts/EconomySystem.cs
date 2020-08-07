@@ -67,6 +67,7 @@ public class EconomySystem:SystemBase
         {
             Entities
             .WithStructuralChanges()
+        .WithName("economy_debug")
             .ForEach((Entity entity,ref EconomyData economies) =>
             {
                 economies.moneyForFarmers += 1;
@@ -78,6 +79,7 @@ public class EconomySystem:SystemBase
 
         Entities
         .WithStructuralChanges()
+        .WithName("economy_spawn_farmers_drones")
         .ForEach((Entity entity,ref Store store, in SoldToStore sold, in Position2D storePosition) =>
         {
             worldEconomy.moneyForDrones += 1;
@@ -102,6 +104,7 @@ public class EconomySystem:SystemBase
 
         Entities
         .WithStructuralChanges()
+        .WithName("economy_initial_spawning")
         .ForEach((Entity entity,ref EconomyData economy) =>
         {
             int nbOfFarmersToSpawn = economy.moneyForFarmers / farmerPrice;

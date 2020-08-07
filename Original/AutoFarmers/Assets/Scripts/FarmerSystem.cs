@@ -85,6 +85,7 @@ public class FarmerSystem : SystemBase
 
         // handle all idle farmers
         Entities.WithAll<FarmerIdle>()
+        .WithName("fs_handle_idle_farmers")
             .WithReadOnly(tileMap)
             .WithReadOnly(plantsMap)
             .WithDisposeOnCompletion(plantsPosition)
@@ -149,6 +150,7 @@ public class FarmerSystem : SystemBase
         var deltaT = Time.DeltaTime;
         Entities
         .WithNone<WorkerTeleport>()
+        .WithName("fs_move_2d_entities")
         .ForEach((int entityInQueryIndex,Entity e,ref Position2D pos,in FarmerTarget target) =>
         {
             float2 dir = target.target - pos.position;
@@ -171,6 +173,7 @@ public class FarmerSystem : SystemBase
 
         Entities
         .WithNone<WorkerTeleport>()
+        .WithName("fs_move_3d_entities")
         .ForEach((int entityInQueryIndex,Entity e,ref Translation pos,in FarmerTarget target) =>
         {
             float2 dir = target.target - pos.Value.xz;
@@ -194,7 +197,8 @@ public class FarmerSystem : SystemBase
 
 
         // arrived at location, should smash now
-        Entities.WithAll<FarmerSmash>().WithNone<FarmerTarget>().ForEach((int entityInQueryIndex, Entity e) =>
+        Entities
+        .WithName("fs_smash_rock").WithAll<FarmerSmash>().WithNone<FarmerTarget>().ForEach((int entityInQueryIndex, Entity e) =>
         {
             ecb.RemoveComponent<FarmerSmash>(entityInQueryIndex, e);
             ecb.AddComponent<FarmerIdle>(entityInQueryIndex, e);
@@ -206,7 +210,8 @@ public class FarmerSystem : SystemBase
         int tillFarmerCount = GetEntityQuery(typeof(FarmerTill)).CalculateEntityCount();
 
         // arrived at location, should till now
-        Entities.WithAll<FarmerTill>().WithReadOnly(tileMap).WithNone<FarmerTarget>().ForEach((int entityInQueryIndex, Entity e, in Position2D position) =>
+        Entities
+        .WithName("fs_tilling").WithAll<FarmerTill>().WithReadOnly(tileMap).WithNone<FarmerTarget>().ForEach((int entityInQueryIndex, Entity e, in Position2D position) =>
         {
             ecb.RemoveComponent<FarmerTill>(entityInQueryIndex, e);
             ecb.AddComponent<FarmerIdle>(entityInQueryIndex, e);
@@ -224,7 +229,8 @@ public class FarmerSystem : SystemBase
 
         var q = GetEntityQuery(typeof(GroundTilledState), typeof(Position2D));
         // arrived at location, should plant now
-        Entities.WithAll<FarmerPlant>().WithNone<FarmerTarget>()
+        Entities
+        .WithName("fs_planting").WithAll<FarmerPlant>().WithNone<FarmerTarget>()
             .WithReadOnly(tileMap)
             .ForEach((int entityInQueryIndex, Entity e, in Position2D farmerPosition) =>
         {
@@ -246,6 +252,7 @@ public class FarmerSystem : SystemBase
         var storePosition = m_storesQuery.ToComponentDataArrayAsync<Position2D>(Allocator.TempJob,out var storePositionHandle);
         Dependency = JobHandle.CombineDependencies(Dependency,storePositionHandle);
         Entities
+        .WithName("fs_collect_plant")
             .WithAll<WorkerCollect>()
             .WithNone<FarmerTarget>()
             .WithDisposeOnCompletion(storePosition)
@@ -268,9 +275,10 @@ public class FarmerSystem : SystemBase
 
         m_CmdBufSystem.AddJobHandleForProducer(Dependency);
 
-        
+
         // arrived at location, should sell now
-        Entities.WithAll<WorkerSell>().WithNone<FarmerTarget>().ForEach((int entityInQueryIndex,Entity e,ref WorkerDataCommon data) =>
+        Entities
+        .WithName("fs_sell_plant").WithAll<WorkerSell>().WithNone<FarmerTarget>().ForEach((int entityInQueryIndex,Entity e,ref WorkerDataCommon data) =>
         {
             ecb.RemoveComponent<WorkerSell>(entityInQueryIndex,e);
 
