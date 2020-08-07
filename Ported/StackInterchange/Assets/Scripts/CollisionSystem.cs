@@ -17,25 +17,13 @@ public class CollisionSystem : SystemBase
     private EntityQuery m_CarQuery;
     private EntityQuery m_SplineQuery;
     
-    private struct SegmentCar : IComparable<SegmentCar>
+    private struct SegmentCar
     {
         public int segmentIndex;
         public Entity carEntity;
         //public float carSpeed;
         public float3 carNextPosition;
         public float carExtent;
-
-        public int CompareTo(SegmentCar other)
-        {
-            var x = this;
-            var y = other;
-
-            if (x.segmentIndex < y.segmentIndex) return -1;
-            if (y.segmentIndex < x.segmentIndex) return 1;
-            if (x.carEntity.Index < y.carEntity.Index) return -1;
-            if (y.carEntity.Index < x.carEntity.Index) return 1;
-            return 0;
-        }
     }
 
     private struct CarRange
@@ -124,7 +112,7 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
         // 1. Sort cars by segment in one big array
         NativeArray<SegmentCar> carList = new NativeArray<SegmentCar>(numberOfCars, Allocator.TempJob);
         
-        Dependency = Entities
+        Entities
             .WithName("ListAllCarsAndCalculateNextPosition")
             .ForEach((
                 int entityInQueryIndex,
@@ -149,16 +137,22 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
                     carNextPosition = nextPosition,
                     carExtent = extent
                 };    
-            }).ScheduleParallel(Dependency);
+            }).ScheduleParallel();
 
         // Using Jobs to utilize implicit dependencies
-        Dependency = carList.SortJob(Dependency);
+        Job
+            .WithName("SortCarsBySegment")
+            .WithCode(() =>
+        {
+            var sortBySegment = new SortBySegment();
+            carList.Sort(sortBySegment);
+        }).Schedule();
         
         // 2. Find the start offset and number of cars for each segment in the array
         NativeArray<CarRange> carsRangePerSegment = new NativeArray<CarRange>(numberOfSegments, Allocator.TempJob);
 
         // Using Jobs to utilize implicit dependencies
-        Dependency = Job
+        Job
             .WithName("FindSegmentCarsInArray")
             .WithCode(() =>
         {
@@ -177,12 +171,12 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
                 //if (count > 0)
                     //Debug.Log("Segment " + i + " has " + count + " cars");
             }
-        }).Schedule(Dependency);
+        }).Schedule();
 
         var splineDataArray = m_SplineQuery.ToComponentDataArray<Spline>(Allocator.TempJob);
 
         // 3. For each car find the collisions with the cars in the same segment
-        Dependency = Entities
+        Entities
             .WithName("DetectAndAvoidCollisions")
             .WithDisposeOnCompletion(carsRangePerSegment)
             .WithDisposeOnCompletion(carList)
@@ -308,6 +302,9 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
                         }
                     }
                 }
-            }).ScheduleParallel(Dependency);
+            }).ScheduleParallel();
+
+        //carsRangePerSegment.Dispose();
+        //carList.Dispose();
     }
 }
