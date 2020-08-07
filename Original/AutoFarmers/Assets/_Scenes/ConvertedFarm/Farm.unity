@@ -209,12 +209,12 @@ MonoBehaviour:
     type: 3}
   storePrefab: {fileID: 1186172543812439480, guid: 430b5dacd48e0494d93ba1cff3aea142,
     type: 3}
-  initialMoneyForFarmers: 15
+  initialMoneyForFarmers: 20000
   initialMoneyForDrones: 0
-  rockCount: 100
-  numberOfStores: 20
-  debugOptions: 3
-  mapSize: {x: 60, y: 60}
+  rockCount: 50
+  numberOfStores: 50
+  debugOptions: 1
+  mapSize: {x: 100, y: 100}
 --- !u!4 &1401502930
 Transform:
   m_ObjectHideFlags: 0
