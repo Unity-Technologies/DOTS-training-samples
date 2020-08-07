@@ -134,6 +134,7 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         }
 
         //Building the segment collection
+        //https://github.com/Unity-Technologies/dots/blob/master/Samples/Packages/com.unity.entities/Unity.Entities.Tests/BlobificationTests.cs
         var segmentCollectionData = new SegmentCollection();
         using (var builder = new BlobBuilder(Allocator.Temp))
         {
@@ -143,14 +144,34 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
                 End = waypointListCache[o.Item2]
             }).ToArray();
 
-            ref var root = ref builder.ConstructRoot<SegmentHandle>();
-            var segmentArray = builder.Allocate(ref root.Segments, arrayOfSegment.Length);
+            var arrayOfForward = arrayOfSegment.Select(o =>
+            {
+                return o.End - o.Start;
+            }).ToArray();
 
-            for (int i = 0; i < segmentArray.Length; ++i)
-                segmentArray[i] = arrayOfSegment[i];
+            var arrayOfDistance = arrayOfSegment.Select(o =>
+            {
+                return math.distance(o.End, o.Start);
+            }).ToArray();
+
+            var arrayOfLeft = arrayOfSegment.Select(o =>
+            {
+                var forward = o.End - o.Start;
+                var up = new float3(0.0f, 1.0f, 0.0f);
+                var left = math.normalize(math.cross(up, forward));
+                return left;
+            }).ToArray();
+
+            ref var root = ref builder.ConstructRoot<SegmentHandle>();
+
+            builder.Construct(ref root.Segments, arrayOfSegment);
+            builder.Construct(ref root.SegmentsForward, arrayOfForward);
+            builder.Construct(ref root.SegmentsLeft, arrayOfLeft);
+            builder.Construct(ref root.SegmentsLength, arrayOfDistance);
 
             segmentCollectionData.Value = builder.CreateBlobAssetReference<SegmentHandle>(Allocator.Persistent);
         }
+
         var segmentCollectionEntity = conversionSystem.CreateAdditionalEntity(this);
         dstManager.AddComponentData(segmentCollectionEntity, segmentCollectionData);
 

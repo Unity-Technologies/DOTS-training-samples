@@ -37,6 +37,10 @@ public struct SegmentCollection : IComponentData //Singleton
 public struct SegmentHandle
 {
     public BlobArray<SegmentData> Segments;
+    //Computed additional data
+    public BlobArray<float3> SegmentsForward;   //not normalized End - Start
+    public BlobArray<float3> SegmentsLeft;      //cross product result with y-up vector
+    public BlobArray<float> SegmentsLength;     //length of End - Start
 }
 
 public struct SegmentData
