@@ -38,15 +38,11 @@ public class CarInitializeSystem : SystemBase
             ) =>
             {
                 //Initializing car data
-                offset.Value = random.NextFloat(-1.0F, 1.0F);
-                var newSize = new float3(1f, 1f, 1f);
-                newSize.x = random.NextFloat(0.1f, 0.15f) * 4.0f;
-                newSize.z = random.NextFloat(0.2f, 0.25f) * 4.0f;
-                newSize.y = random.NextFloat(0.05f, 0.1f) * 4.0f;
-                size.Value = newSize;
+                offset.Value = (half)random.NextFloat(-1.0F, 1.0F);
+                size.SetSize(random.NextInt());
 
-                originalSpeed.Value = random.NextFloat(1.0F, 2.0F);
-                speed.Value = originalSpeed.Value;
+                originalSpeed.SetSpeed(random.NextFloat(0.0f, 1.0f));
+                speed.Value = originalSpeed.GetSpeed();
                 progress.Value = random.NextFloat(0.0F, 1.0F);
             }).ScheduleParallel();
         

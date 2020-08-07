@@ -116,7 +116,7 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
             {
                 var position = CalculateCarPosition(segmentCollection, currentSegment, progress, offset);
                 var direction = CalculateCarDirection(segmentCollection, currentSegment, progress, offset);
-                var extent = math.length(size.Value);
+                var extent = math.length(size.GetSize());
 
                 var step = speed.Value * deltaTime;
                 var nextPosition = position + step * direction;
@@ -269,7 +269,7 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
                     //Debug.Log("Car " + thisCarEntity + " will collide soon.");
                     
                     // Avoid collision by slowing down
-                    float newSpeed = math.max(0.0f, speed.Value - originalSpeed.Value * 0.1f);
+                    float newSpeed = math.max(0.0f, speed.Value - originalSpeed.GetSpeed() * 0.1f);
                     speed.Value = newSpeed;
                 }
                 else
@@ -277,11 +277,11 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
                     // Heuristics to detect the situation, when the road is clear and we could accelerate to the original speed.
                     if (minDistance > extent * 3)
                     {
-                        if (speed.Value < originalSpeed.Value)
+                        if (speed.Value < originalSpeed.GetSpeed())
                         {
                             //Debug.Log("Car " + thisCarEntity + " accelerating back to original speed");
                             
-                            float newSpeed = math.min(originalSpeed.Value, speed.Value + originalSpeed.Value * 0.1f);
+                            float newSpeed = math.min(originalSpeed.GetSpeed(), speed.Value + originalSpeed.GetSpeed() * 0.1f);
                             speed.Value = newSpeed;
                         }
                     }
