@@ -71,6 +71,7 @@ public class FarmerSystem : SystemBase
         m_Random.NextFloat2Direction();
         var tileMap = GameInitSystem.groundTiles;
         var plantsMap = GameInitSystem.plantTiles;
+        var plantsMapRW = GameInitSystem.plantTiles.AsParallelWriter();
         uint2 mapSize = GameInitSystem.mapSize;
 
         // gather ground tiles
@@ -134,6 +135,7 @@ public class FarmerSystem : SystemBase
                 ecb.SetComponent(entityInQueryIndex,e,new Color { Value = new float4(0.0f,1.0f,1.0f,1) });
                 ecb.RemoveComponent<FarmerIdle>(entityInQueryIndex,e);
                 ecb.AddComponent<WorkerCollect>(entityInQueryIndex,e);
+
                 ecb.SetComponent<WorkerDataCommon>(entityInQueryIndex, e,commonData);
                 ecb.AddComponent<FarmerTarget>(entityInQueryIndex,e,target);
 
@@ -247,16 +249,18 @@ public class FarmerSystem : SystemBase
             .WithAll<WorkerCollect>()
             .WithNone<FarmerTarget>()
             .WithDisposeOnCompletion(storePosition)
-            .ForEach((int entityInQueryIndex,Entity e, in WorkerDataCommon data) =>
+            .ForEach((int entityInQueryIndex,Entity e, in WorkerDataCommon data, in Position2D pos) =>
         {
             ecb.RemoveComponent<WorkerCollect>(entityInQueryIndex,e);
+
+            ecb.RemoveComponent<ReadyForHarvest>(entityInQueryIndex,data.plantAttached);
+            plantsMapRW.TryAdd((uint2)pos.position,Entity.Null);
+
             ecb.SetComponent(entityInQueryIndex,e,new Color { Value = new float4(1,1,0,1) });
             int randomIndex = random.NextInt(0,storePosition.Length);
             var storePos = new FarmerTarget { target = storePosition[randomIndex].position };
-            ecb.AddComponent<FarmerTarget>(entityInQueryIndex ,e, storePos);
-
+            ecb.AddComponent<FarmerTarget>(entityInQueryIndex,e,storePos);
             ecb.AddComponent<FarmerTarget>(entityInQueryIndex,data.plantAttached,new FarmerTarget { target = storePos.target });
-            ecb.RemoveComponent<ReadyForHarvest>(entityInQueryIndex,data.plantAttached);
 
             ecb.AddComponent<WorkerSell>(entityInQueryIndex,e);
 
