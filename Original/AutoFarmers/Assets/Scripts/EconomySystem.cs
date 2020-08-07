@@ -21,11 +21,13 @@ public class EconomySystem:SystemBase
     static Entity dronePrefab;
     EntityQuery economyQuery;
     EntityQuery storesQuery;
+    EntityQuery storesPositionQuery;
 
     protected override void OnCreate()
     {
         economyQuery = GetEntityQuery(ComponentType.ReadWrite<EconomyData>());
-        storesQuery = GetEntityQuery(ComponentType.ReadOnly<Store>());
+        storesQuery = GetEntityQuery(ComponentType.ReadOnly<Store>(), typeof(SoldToStore));
+        storesPositionQuery = GetEntityQuery(ComponentType.ReadOnly<Store>(),typeof(Position2D));
     }
 
     protected override void OnUpdate()
@@ -76,29 +78,27 @@ public class EconomySystem:SystemBase
 
         Entities
         .WithStructuralChanges()
-        .ForEach((Entity entity,ref Store store) =>
+        .ForEach((Entity entity,ref Store store, in SoldToStore sold, in Position2D storePosition) =>
         {
-            if(store.nbPlantsSold > 0)
+            worldEconomy.moneyForDrones += 1;
+            worldEconomy.moneyForFarmers += 1;
+
+            int nbOfFarmersToSpawn = worldEconomy.moneyForFarmers / farmerPrice;
+            if(nbOfFarmersToSpawn > 0)
             {
-                worldEconomy.moneyForDrones += store.nbPlantsSold;
-                worldEconomy.moneyForFarmers += store.nbPlantsSold;
-
-                int nbOfFarmersToSpawn = worldEconomy.moneyForFarmers / farmerPrice;
-                if(nbOfFarmersToSpawn > 0)
-                {
-                    SpawnFarmers(nbOfFarmersToSpawn,store.position);
-                    worldEconomy.moneyForFarmers -= nbOfFarmersToSpawn * farmerPrice;
-                }
-
-                int nbofDronesToSpawn = worldEconomy.moneyForDrones / dronePrice;
-                if(nbofDronesToSpawn > 0)
-                {
-                    SpawnDrones(nbofDronesToSpawn,store.position);
-                    worldEconomy.moneyForDrones -= nbofDronesToSpawn * dronePrice;
-                }
+                SpawnFarmers(nbOfFarmersToSpawn,storePosition.position);
+                worldEconomy.moneyForFarmers -= nbOfFarmersToSpawn * farmerPrice;
             }
-            store.nbPlantsSold = 0;
+
+            int nbofDronesToSpawn = worldEconomy.moneyForDrones / dronePrice;
+            if(nbofDronesToSpawn > 0)
+            {
+                SpawnDrones(nbofDronesToSpawn,storePosition.position);
+                worldEconomy.moneyForDrones -= nbofDronesToSpawn * dronePrice;
+            }
         }).Run();
+
+        EntityManager.RemoveComponent<SoldToStore>(storesQuery);
 
         Entities
         .WithStructuralChanges()
@@ -123,7 +123,7 @@ public class EconomySystem:SystemBase
     float2 GetRandomStorePosition()
     {
         float2 position = new Unity.Mathematics.float2(0,0);
-        var storesArray = storesQuery.ToComponentDataArray<Store>(Allocator.TempJob);
+        var storesArray = storesPositionQuery.ToComponentDataArray<Position2D>(Allocator.TempJob);
         if(storesArray.Length > 0)
         {
             position = storesArray[UnityEngine.Random.Range(0,storesArray.Length)].position;

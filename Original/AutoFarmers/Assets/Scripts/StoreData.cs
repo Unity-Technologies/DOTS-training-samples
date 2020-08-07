@@ -14,6 +14,8 @@ public struct StoreData_Spawner:IComponentData
 
 public struct Store:IComponentData
 {
-    public int nbPlantsSold; //per frame / gets reset every frame and added to global economy data
-    public float2 position;
+}
+
+public struct SoldToStore:IComponentData
+{
 }

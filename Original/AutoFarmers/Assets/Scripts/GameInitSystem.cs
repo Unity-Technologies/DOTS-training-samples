@@ -79,11 +79,7 @@ public class GameInitSystem:SystemBase
                 EntityManager.RemoveComponent<Scale>(store);
                 EntityManager.RemoveComponent<NonUniformScale>(store);
                 EntityManager.AddComponentData<Position2D>(store,new Position2D { position = pos });
-                EntityManager.AddComponentData<Store>(store, new Store 
-                { 
-                    nbPlantsSold = 0,
-                    position = pos 
-                });
+                EntityManager.AddComponent<Store>(store);
             }
 
             EntityManager.RemoveComponent<StoreData_Spawner>(entity);

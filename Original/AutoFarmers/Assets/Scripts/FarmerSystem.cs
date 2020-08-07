@@ -272,10 +272,11 @@ public class FarmerSystem : SystemBase
         {
             ecb.RemoveComponent<WorkerSell>(entityInQueryIndex,e);
 
-            //EntityManager.GetComponentData<Store>(data.storeToSellTo).nbPlantsSold += 1;
+            ecb.AddComponent<SoldToStore>(entityInQueryIndex,data.storeToSellTo);
             ecb.DestroyEntity(entityInQueryIndex,data.plantAttached);
+
             ecb.AddComponent<FarmerIdle>(entityInQueryIndex,e);
-            ecb.SetComponent(entityInQueryIndex,e,new Color { Value = new float4(1,1,0,1) });
+            ecb.SetComponent(entityInQueryIndex,e,new Color { Value = new float4(0,1,0,1) });
 
         }).ScheduleParallel();
 
