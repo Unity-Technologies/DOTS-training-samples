@@ -141,7 +141,7 @@ public class ParticleFixedRateSimulationSystem : SystemBase
             }
             else
             {
-                targetColor = math.lerp(emitterSettings.SurfaceColor, emitterSettings.InteriorColor, distance / emitterSettings.InteriorColorDistance);
+                targetColor = math.lerp(emitterSettings.SurfaceColor, emitterSettings.InteriorColor, -distance / emitterSettings.InteriorColorDistance);
             }
             color.Value = math.lerp(color.Value, targetColor, deltaTime * emitterSettings.ColorStiffness);
         }).ScheduleParallel();
