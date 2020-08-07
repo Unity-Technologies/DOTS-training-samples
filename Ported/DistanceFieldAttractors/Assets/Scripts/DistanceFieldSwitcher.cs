@@ -18,7 +18,7 @@ public class DistanceFieldSwitcher : SystemBase
             if(distanceField.SwitchCooldown > 1f)
             {
                 distanceField.SwitchCooldown -= 1f;
-                int newModel = distanceField.rng.NextInt(0, modelCount);
+                int newModel = distanceField.rng.NextInt(0, modelCount - 1);
 
                 if (newModel >= (int)distanceField.Value)
                 {
