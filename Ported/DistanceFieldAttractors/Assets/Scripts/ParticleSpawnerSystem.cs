@@ -12,11 +12,13 @@ public class ParticleSpawnerSystem : SystemBase
         .ForEach((Entity spawnerEntity, in ParticleSpawner spawnerData, in Translation translation) =>
         {
             var blankParticles = EntityManager.Instantiate(spawnerData.Prefab, spawnerData.SpawnCount, Allocator.Temp);
-            var random = new Random((uint)spawnerEntity.Index);
+            var random = new Random(1);
+            random.InitState();
 
             for(int i = 0; i < spawnerData.SpawnCount; i++)
             {
-                EntityManager.SetComponentData(blankParticles[i], new Translation { Value = random.NextFloat3Direction() * 50f });
+                var randomPointInUnitSphere = (random.NextFloat3Direction()) * math.pow(random.NextFloat(), 1f / 3f);
+                EntityManager.SetComponentData(blankParticles[i], new Translation { Value = randomPointInUnitSphere * 50f });
             }
 
             blankParticles.Dispose();
