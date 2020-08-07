@@ -27,8 +27,6 @@ public struct FarmerTarget : IComponentData
     public float2 target;
 }
 
-public struct ReplaceTileTilled : IComponentData { }
-
 [UpdateAfter(typeof(GameInitSystem))]
 public class FarmerSystem : SystemBase
 {
@@ -216,7 +214,6 @@ public class FarmerSystem : SystemBase
             {
                 if (HasComponent<Position2D>(tile.empty))
                     ecb.AddComponent<Disabled>(entityInQueryIndex, tile.empty);
-                    ecb.AddComponent<ReplaceTileTilled>(entityInQueryIndex, tile.empty);
                 ecb.RemoveComponent<Disabled>(entityInQueryIndex, tile.tilled);
                 ecb.SetComponent<Position2D>(entityInQueryIndex, tile.tilled, new Position2D{ position = (uint2)position.position });
             }
