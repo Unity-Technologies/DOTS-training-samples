@@ -38,7 +38,7 @@ public class CarInitializeSystem : SystemBase
             ) =>
             {
                 //Initializing car data
-                offset.Value = (half)random.NextFloat(-1.0F, 1.0F);
+                offset.SetOffset(random.NextFloat(-1.0F, 1.0F));
                 size.SetSize(random.NextInt());
 
                 originalSpeed.SetSpeed(random.NextFloat(0.0f, 1.0f));

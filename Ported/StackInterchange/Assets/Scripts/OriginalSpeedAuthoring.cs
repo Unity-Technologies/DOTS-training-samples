@@ -3,12 +3,12 @@
 [GenerateAuthoringComponent]
 public struct OriginalSpeed : IComponentData
 {
-    public char Value;
+    public byte Value;
     private static readonly int kMaxValue = 255;
 
     public void SetSpeed(float value)
     {
-        Value = (char)(value * (float)kMaxValue);
+        Value = (byte)(value * (float)kMaxValue);
     }
 
     public float GetSpeed()

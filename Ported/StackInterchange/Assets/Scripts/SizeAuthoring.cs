@@ -4,7 +4,7 @@ using Unity.Mathematics;
 [GenerateAuthoringComponent]
 public struct Size : IComponentData
 {
-    public char Value;
+    private byte Value;
 
     private const int kMaxValue = 8;
     private static readonly float3[] kSize = new float3[kMaxValue]
@@ -21,7 +21,7 @@ public struct Size : IComponentData
 
     public void SetSize(int size)
     {
-        Value = (char)((uint)size % kMaxValue);
+        Value = (byte)((uint)size % kMaxValue);
     }
 
     public float3 GetSize()

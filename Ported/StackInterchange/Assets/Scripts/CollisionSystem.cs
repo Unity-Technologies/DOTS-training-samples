@@ -69,7 +69,7 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
     //2. Slower or equivalent
     //var left = segmentCollection.Value.Value.SegmentsLeft[currentSegment.Value];
 
-    position += offset.Value * left;
+    position += offset * left;
     return position;
 }
     // TODO: This should be a generic helper in one place

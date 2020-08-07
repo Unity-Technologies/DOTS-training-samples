@@ -97,7 +97,7 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
                 };
 
                 var max = float.MinValue;
-                var direction = -1;
+                byte direction = 0;
 
                 for (int i = 0; i < directionArray.Length; ++i)
                 {
@@ -105,7 +105,7 @@ public class BuildSplineAuthoring : MonoBehaviour, IConvertGameObjectToEntity
                     if (dot > max)
                     {
                         max = dot;
-                        direction = i;
+                        direction = (byte)i;
                     }
                 }
 
