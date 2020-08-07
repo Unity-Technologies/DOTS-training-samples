@@ -27,6 +27,12 @@ public struct FarmerTarget : IComponentData
     public float2 target;
 }
 
+public struct FarmerPickup : IComponentData
+{
+    public Entity farmer;
+    public int    plantIndex;
+}
+
 [UpdateAfter(typeof(GameInitSystem))]
 public class FarmerSystem : SystemBase
 {
@@ -71,7 +77,6 @@ public class FarmerSystem : SystemBase
         m_Random.NextFloat2Direction();
         var tileMap = GameInitSystem.groundTiles;
         var plantsMap = GameInitSystem.plantTiles;
-        var plantsMapRW = GameInitSystem.plantTiles.AsParallelWriter();
         uint2 mapSize = GameInitSystem.mapSize;
 
         // gather ground tiles
@@ -83,17 +88,20 @@ public class FarmerSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency,plantsHandle);
         Dependency = JobHandle.CombineDependencies(Dependency,plantsPositionHandle);
 
+        var farmerPickupAccessor = GetComponentDataFromEntity<FarmerPickup>();
+
+
         // handle all idle farmers
         Entities.WithAll<FarmerIdle>()
         .WithName("fs_handle_idle_farmers")
             .WithReadOnly(tileMap)
             .WithReadOnly(plantsMap)
-            .WithDisposeOnCompletion(plantsPosition)
             .WithDisposeOnCompletion(plantsEntities)
+            .WithNativeDisableParallelForRestriction(farmerPickupAccessor)
             .ForEach((int entityInQueryIndex, Entity e, in Position2D farmerPosition) =>
         {
             const int states = 4;
-            int state = (int)math.round((random.NextDouble() * states));
+            int state = (int)math.round((random.NextDouble() * states)) % states;
 
             var targetPosition = new float2( random.NextFloat() * mapSize.x, random.NextFloat() * mapSize.y );
 
@@ -127,24 +135,37 @@ public class FarmerSystem : SystemBase
                     }
                 }
             }
-            else if(state == 3 && plantsEntities.Length > 0) // collect plant
+            else if(state == 3 && plantsEntities.Length > 0) // request collecting a plant
             {
                 int index = random.NextInt(0,plantsEntities.Length);
-                var target = new FarmerTarget { target = plantsPosition[index].Value.xz };
-                var commonData = new WorkerDataCommon { plantAttached = plantsEntities[index] };
-
-                ecb.SetComponent(entityInQueryIndex,e,new Color { Value = new float4(0.0f,1.0f,1.0f,1) });
-                ecb.RemoveComponent<FarmerIdle>(entityInQueryIndex,e);
-                ecb.AddComponent<WorkerCollect>(entityInQueryIndex,e);
-
-                ecb.SetComponent<WorkerDataCommon>(entityInQueryIndex, e,commonData);
-                ecb.AddComponent<FarmerTarget>(entityInQueryIndex,e,target);
-
+                farmerPickupAccessor[plantsEntities[index]] = new FarmerPickup { farmer = e, plantIndex = index }; // race condition, expecting writing FarmerPickup is atomic?!?
             }
         }).ScheduleParallel();
 
         m_CmdBufSystem.AddJobHandleForProducer(Dependency);
 
+        // handle all collection requests
+        Entities
+            .WithDisposeOnCompletion(plantsPosition)
+            .ForEach((int entityInQueryIndex, Entity e, in FarmerPickup farmer) =>
+        {
+            if( farmer.farmer == Entity.Null )
+                return;
+
+            var commonData = new WorkerDataCommon { plantAttached = e };
+            var target = new FarmerTarget { target = plantsPosition[farmer.plantIndex].Value.xz };
+
+            // transition the farmer to the collect state
+            ecb.RemoveComponent<FarmerIdle>( entityInQueryIndex, farmer.farmer );
+            ecb.AddComponent<WorkerCollect>( entityInQueryIndex, farmer.farmer );
+            ecb.SetComponent<WorkerDataCommon>(entityInQueryIndex, farmer.farmer, commonData);
+            ecb.AddComponent<FarmerTarget>(entityInQueryIndex, farmer.farmer, target);
+            ecb.SetComponent(entityInQueryIndex, farmer.farmer, new Color { Value = new float4(0,1,1,1) });
+            ecb.RemoveComponent<FarmerPickup>(entityInQueryIndex, e);
+            ecb.RemoveComponent<ReadyForHarvest>(entityInQueryIndex, e);
+        }).ScheduleParallel();
+
+        m_CmdBufSystem.AddJobHandleForProducer(Dependency);
 
         // move all entities
         var deltaT = Time.DeltaTime;
@@ -155,7 +176,7 @@ public class FarmerSystem : SystemBase
         {
             float2 dir = target.target - pos.position;
             float sqlen = math.lengthsq(dir);
-            float vel = deltaT * 10;
+            float vel = deltaT * 20;
             float sqvel = vel * vel;
 
             if(sqlen < sqvel)
@@ -178,7 +199,7 @@ public class FarmerSystem : SystemBase
         {
             float2 dir = target.target - pos.Value.xz;
             float sqlen = math.lengthsq(dir);
-            float vel = deltaT * 10;
+            float vel = deltaT * 20;
             float sqvel = vel * vel;
 
             if(sqlen < sqvel)
@@ -236,6 +257,7 @@ public class FarmerSystem : SystemBase
         {
             ecb.RemoveComponent<FarmerPlant>(entityInQueryIndex, e);
             ecb.AddComponent<FarmerIdle>(entityInQueryIndex, e);
+            ecb.SetComponent(entityInQueryIndex, e, new Color {  Value = new float4(1,1,0,1) });
 
             if (tileMap.TryGetValue((uint2)farmerPosition.position, out var tile))
             {
@@ -243,29 +265,28 @@ public class FarmerSystem : SystemBase
                     ecb.AddComponent<PlantedSeedTag>(entityInQueryIndex, tile.tilled);
             }
 
-            ecb.SetComponent(entityInQueryIndex, e, new Color {  Value = new float4(0,1,0,1) });
         }).ScheduleParallel();
 
         m_CmdBufSystem.AddJobHandleForProducer(Dependency);
-        
+
         // arrived at location, should collect now
+        var storeEntities = m_storesQuery.ToEntityArrayAsync(Allocator.TempJob, out var storeHandle);
         var storePosition = m_storesQuery.ToComponentDataArrayAsync<Position2D>(Allocator.TempJob,out var storePositionHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency,storeHandle);
         Dependency = JobHandle.CombineDependencies(Dependency,storePositionHandle);
         Entities
         .WithName("fs_collect_plant")
             .WithAll<WorkerCollect>()
             .WithNone<FarmerTarget>()
+            .WithDisposeOnCompletion(storeEntities)
             .WithDisposeOnCompletion(storePosition)
-            .ForEach((int entityInQueryIndex,Entity e, in WorkerDataCommon data, in Position2D pos) =>
+            .ForEach((int entityInQueryIndex,Entity e, ref WorkerDataCommon data, in Position2D pos) =>
         {
             ecb.RemoveComponent<WorkerCollect>(entityInQueryIndex,e);
 
-            ecb.RemoveComponent<ReadyForHarvest>(entityInQueryIndex,data.plantAttached);
-            plantsMapRW.TryAdd((uint2)pos.position,Entity.Null);
-
-            ecb.SetComponent(entityInQueryIndex,e,new Color { Value = new float4(1,1,0,1) });
             int randomIndex = random.NextInt(0,storePosition.Length);
             var storePos = new FarmerTarget { target = storePosition[randomIndex].position };
+            data.storeToSellTo = storeEntities[randomIndex];
             ecb.AddComponent<FarmerTarget>(entityInQueryIndex,e,storePos);
             ecb.AddComponent<FarmerTarget>(entityInQueryIndex,data.plantAttached,new FarmerTarget { target = storePos.target });
 
@@ -277,19 +298,16 @@ public class FarmerSystem : SystemBase
 
 
         // arrived at location, should sell now
-        Entities
-        .WithName("fs_sell_plant").WithAll<WorkerSell>().WithNone<FarmerTarget>().ForEach((int entityInQueryIndex,Entity e,ref WorkerDataCommon data) =>
+        Entities..WithName("fs_sell_plant").WithAll<WorkerSell>().WithNone<FarmerTarget>().ForEach((int entityInQueryIndex,Entity e, in WorkerDataCommon data) =>
         {
             ecb.RemoveComponent<WorkerSell>(entityInQueryIndex,e);
-
-            // TODO: This is causing some issues
-            // ecb.AddComponent<SoldToStore>(entityInQueryIndex, data.storeToSellTo);
-            // ecb.DestroyEntity(entityInQueryIndex, data.plantAttached);
-
             ecb.AddComponent<FarmerIdle>(entityInQueryIndex,e);
-            ecb.SetComponent(entityInQueryIndex,e,new Color { Value = new float4(0,1,0,1) });
+            ecb.SetComponent(entityInQueryIndex,e,new Color { Value = new float4(1,1,0,1) });
 
-        }).ScheduleParallel();
+            ecb.AddComponent<SoldToStore>(entityInQueryIndex, data.storeToSellTo);
+            ecb.DestroyEntity(entityInQueryIndex, data.plantAttached);
+
+        }).Schedule();
 
         m_CmdBufSystem.AddJobHandleForProducer(Dependency);
         

@@ -74,6 +74,7 @@ public class PlantSystem : SystemBase
             if (size.value >= 1.0f)
             {
                 EntityManager.AddComponent<ReadyForHarvest>(entity);
+                EntityManager.AddComponentData<FarmerPickup>(entity, new FarmerPickup { farmer = Entity.Null, plantIndex = -1 });
                 EntityManager.RemoveComponent<PlantGrowingTag>(entity);
             }
         }).Run();
