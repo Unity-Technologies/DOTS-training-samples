@@ -21,9 +21,9 @@ public class CollisionSystem : SystemBase
     {
         public int segmentIndex;
         public Entity carEntity;
-        //public float carSpeed;
         public float3 carNextPosition;
         public float carExtent;
+        public float3 carDirection;
     }
 
     private struct CarRange
@@ -127,7 +127,8 @@ public class CollisionSystem : SystemBase
                     carEntity = entity,
                     segmentIndex = currentSegment.Value,
                     carNextPosition = nextPosition,
-                    carExtent = extent
+                    carExtent = extent,
+                    carDirection = direction
                 };    
             }).ScheduleParallel();
 
@@ -174,21 +175,16 @@ public class CollisionSystem : SystemBase
             .WithDisposeOnCompletion(carList)
             .WithDisposeOnCompletion(splineDataArray)
             .ForEach((
+                int entityInQueryIndex,
                 ref Speed speed,
                 in OriginalSpeed originalSpeed,
                 in Entity thisCarEntity,
-                in Size size,
-                in Offset offset,
-                in CurrentSegment currentSegment,
-                in Progress progress) =>
+                in CurrentSegment currentSegment) =>
             {
-                var position = CalculateCarPosition(segmentCollection, currentSegment, progress, offset);
-                var direction = CalculateCarDirection(segmentCollection, currentSegment, progress, offset);
-                var extent = math.length(size.Value);
-
-                var step = speed.Value * deltaTime;
-                var nextPosition = position + step * direction;
-
+                var extent = carList[entityInQueryIndex].carExtent;
+                var nextPosition = carList[entityInQueryIndex].carNextPosition;
+                var direction = carList[entityInQueryIndex].carDirection;
+                
                 bool willCollide = false;
                 float minDistance = 1e6f; // Big number
                 
