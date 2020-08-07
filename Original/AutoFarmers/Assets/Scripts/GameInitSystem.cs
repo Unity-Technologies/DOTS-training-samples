@@ -24,7 +24,9 @@ public class GameInitSystem:SystemBase
 
     protected override void OnUpdate()
     {
-        Entities.WithStructuralChanges().ForEach((Entity entity, in GroundData groundData) =>
+        Entities.WithStructuralChanges()
+            .WithName("tile_spawning_test")
+            .ForEach((Entity entity, in GroundData groundData) =>
         {
             groundTiles = new NativeHashMap<uint2, Tile>(groundData.fieldSizeX * groundData.fieldSizeY, Allocator.Persistent);
             plantTiles = new NativeHashMap<uint2, Entity>(groundData.fieldSizeX * groundData.fieldSizeY, Allocator.Persistent);
@@ -65,7 +67,9 @@ public class GameInitSystem:SystemBase
         }).Run();
 
         // Spawn stores
-        Entities.WithStructuralChanges().ForEach((Entity entity,in StoreData_Spawner storeData) =>
+        Entities
+            .WithName("store_spawning_test")
+            .WithStructuralChanges().ForEach((Entity entity,in StoreData_Spawner storeData) =>
         {
             for(int i = 0;i < storeData.count;i++)
             {

@@ -9,6 +9,7 @@ public class Transform2DSystem : SystemBase
     {
         // produce LocalToWorld matrix from Position2D and 
         Entities
+            .WithName("transform2d_test")
             .WithChangeFilter<Position2D>()
             .ForEach((ref LocalToWorld localToWorld, in Position2D translation2D) =>
         {

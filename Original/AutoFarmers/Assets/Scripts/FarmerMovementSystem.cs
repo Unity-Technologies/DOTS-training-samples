@@ -7,6 +7,7 @@ public class FarmerMovementSystem:SystemBase
     protected override void OnUpdate()
     {
         Entities
+        .WithName("farmer_movement_test")
         .WithStructuralChanges()
         .ForEach((Entity entity, ref Position2D position, in WorkerTeleport teleportData) =>
         {
