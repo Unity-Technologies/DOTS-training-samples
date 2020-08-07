@@ -192,7 +192,7 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
             {
                 var position = CalculateCarPosition(segmentCollection, currentSegment, progress, offset);
                 var direction = CalculateCarDirection(segmentCollection, currentSegment, progress, offset);
-                var extent = math.length(size.Value);
+                var extent = math.length(size.GetSize());
 
                 var step = speed.Value * deltaTime;
                 var nextPosition = position + step * direction;
