@@ -8,7 +8,7 @@ public struct Spline : IComponentData
 
 public struct SplineCategory : IComponentData
 {
-    public int category;
+    public byte category;
 
     public float4 GetColor()
     {

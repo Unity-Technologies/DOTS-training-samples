@@ -30,7 +30,7 @@ public class CarRenderingSystem : SystemBase
                 //TRS
                 translation.Value = CollisionSystem.CalculateCarPosition(segmentCollection,currentSegment,progress,offset);
                 rotation.Value = quaternion.LookRotationSafe(forward, new float3(0,1,0));
-                scale.Value = size.Value;
+                scale.Value = size.GetSize();
 
             }).ScheduleParallel();
     }
