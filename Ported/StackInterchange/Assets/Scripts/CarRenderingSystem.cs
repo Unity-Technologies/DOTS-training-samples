@@ -14,6 +14,7 @@ public class CarRenderingSystem : SystemBase
 
         Entities
             .WithName("CarRenderingSystem")
+            .WithNone<Finished>()
             .ForEach((
                 ref Translation translation,
                 ref Rotation rotation,

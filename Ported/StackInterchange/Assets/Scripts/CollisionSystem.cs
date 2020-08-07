@@ -21,9 +21,9 @@ public class CollisionSystem : SystemBase
     {
         public int segmentIndex;
         public Entity carEntity;
+        //public float carSpeed;
         public float3 carNextPosition;
         public float carExtent;
-        public float3 carDirection;
     }
 
     private struct CarRange
@@ -64,28 +64,36 @@ public class CollisionSystem : SystemBase
     }
 
     // TODO: This should be a generic helper in one place
-    public static float3 CalculateCarPosition(in SegmentCollection segmentCollection, 
-        in CurrentSegment currentSegment, in Progress progress, in Offset offset)
-    {
-        var segment = segmentCollection.Value.Value.Segments[currentSegment.Value];
-        var position = math.lerp(segment.Start, segment.End, progress.Value);
+public static float3 CalculateCarPosition(in SegmentCollection segmentCollection, 
+    in CurrentSegment currentSegment, in Progress progress, in Offset offset)
+{
+    var segment = segmentCollection.Value.Value.Segments[currentSegment.Value];
+    var position = math.lerp(segment.Start, segment.End, progress.Value);
 
-        var forward = segment.End - segment.Start;
-        var up = new float3(0.0f, 1.0f, 0.0f);
-        var left = math.normalize(math.cross(up, forward)); //TODO: cache this value
+    //1. Compute from source segment data
+    var forward = segment.End - segment.Start;
+    var up = new float3(0.0f, 1.0f, 0.0f);
+    var left = math.normalize(math.cross(up, forward));
 
-        position += offset.Value * left;
+    //2. Slower or equivalent
+    //var left = segmentCollection.Value.Value.SegmentsLeft[currentSegment.Value];
 
-        return position;
-    }
-
+    position += offset.Value * left;
+    return position;
+}
     // TODO: This should be a generic helper in one place
     // TODO: Offset should be taken into account
     public static float3 CalculateCarDirection(in SegmentCollection segmentCollection,
         in CurrentSegment currentSegment, in Progress progress, in Offset offset)
     {
+
+        //1. Compute from source segment data
         var segment = segmentCollection.Value.Value.Segments[currentSegment.Value];
         var forward = segment.End - segment.Start;
+
+        //2. Useless in this context
+        //var forward = segmentCollection.Value.Value.SegmentsForward[currentSegment.Value];
+
         return forward;
     }
 
@@ -127,8 +135,7 @@ public class CollisionSystem : SystemBase
                     carEntity = entity,
                     segmentIndex = currentSegment.Value,
                     carNextPosition = nextPosition,
-                    carExtent = extent,
-                    carDirection = direction
+                    carExtent = extent
                 };    
             }).ScheduleParallel();
 
@@ -175,16 +182,21 @@ public class CollisionSystem : SystemBase
             .WithDisposeOnCompletion(carList)
             .WithDisposeOnCompletion(splineDataArray)
             .ForEach((
-                int entityInQueryIndex,
                 ref Speed speed,
                 in OriginalSpeed originalSpeed,
                 in Entity thisCarEntity,
-                in CurrentSegment currentSegment) =>
+                in Size size,
+                in Offset offset,
+                in CurrentSegment currentSegment,
+                in Progress progress) =>
             {
-                var extent = carList[entityInQueryIndex].carExtent;
-                var nextPosition = carList[entityInQueryIndex].carNextPosition;
-                var direction = carList[entityInQueryIndex].carDirection;
-                
+                var position = CalculateCarPosition(segmentCollection, currentSegment, progress, offset);
+                var direction = CalculateCarDirection(segmentCollection, currentSegment, progress, offset);
+                var extent = math.length(size.Value);
+
+                var step = speed.Value * deltaTime;
+                var nextPosition = position + step * direction;
+
                 bool willCollide = false;
                 float minDistance = 1e6f; // Big number
                 
