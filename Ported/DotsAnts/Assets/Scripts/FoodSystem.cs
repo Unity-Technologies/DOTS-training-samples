@@ -29,14 +29,17 @@ public class FoodSystem : SystemBase
         Entities.WithAll<Ant>().ForEach((
 	        ref CarryingFood carryingFood,
 	        ref DirectionAngle angle,
+	        ref AntColor color,
 	        in Position position) =>
         {
 	        float2 targetPos = new float2(0,0);
 	        if (carryingFood.value) {
 		        targetPos = colonyPos;
+		        color.value = new float4(0.808f, 0.831f, 0.569f, 1);
 	        }
 	        else {
 		        targetPos = foodPos;
+		        color.value = new float4(0.314f, 0.345f, 0.459f, 1);
 	        }
 	        
 	        if ( sqrMagnitude(position.value - targetPos) < 4f * 4f) {
