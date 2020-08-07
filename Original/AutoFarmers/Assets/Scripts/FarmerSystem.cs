@@ -71,24 +71,24 @@ public class FarmerSystem : SystemBase
         m_Random.NextFloat2Direction();
         var tileMap = GameInitSystem.groundTiles;
         var plantsMap = GameInitSystem.plantTiles;
-        var plantsMapRW = GameInitSystem.plantTiles.AsParallelWriter();
+      //  var plantsMapRW = GameInitSystem.plantTiles.AsParallelWriter();
         uint2 mapSize = GameInitSystem.mapSize;
 
         // gather ground tiles
         //var groundData = m_GroundQuery.ToComponentDataArrayAsync<GroundData>(Allocator.TempJob, out var ballTranslationsHandle);
 
-        var plantsEntities = m_plantsReadyForHarvestQuery.ToEntityArrayAsync(Allocator.TempJob, out var plantsHandle);
+      /*  var plantsEntities = m_plantsReadyForHarvestQuery.ToEntityArrayAsync(Allocator.TempJob, out var plantsHandle);
         var plantsPosition = m_plantsReadyForHarvestQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob,out var plantsPositionHandle);
 
         Dependency = JobHandle.CombineDependencies(Dependency,plantsHandle);
-        Dependency = JobHandle.CombineDependencies(Dependency,plantsPositionHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency,plantsPositionHandle);*/
 
         // handle all idle farmers
         Entities.WithAll<FarmerIdle>()
             .WithReadOnly(tileMap)
             .WithReadOnly(plantsMap)
-            .WithDisposeOnCompletion(plantsPosition)
-            .WithDisposeOnCompletion(plantsEntities)
+        //    .WithDisposeOnCompletion(plantsPosition)
+        //    .WithDisposeOnCompletion(plantsEntities)
             .ForEach((int entityInQueryIndex, Entity e, in Position2D farmerPosition) =>
         {
             const int states = 4;
@@ -126,7 +126,7 @@ public class FarmerSystem : SystemBase
                     }
                 }
             }
-            else if(state == 3 && plantsEntities.Length > 0) // collect plant
+         /*   else if(state == 3 && plantsEntities.Length > 0) // collect plant
             {
                 int index = random.NextInt(0,plantsEntities.Length);
                 var target = new FarmerTarget { target = plantsPosition[index].Value.xz };
@@ -139,7 +139,7 @@ public class FarmerSystem : SystemBase
                 ecb.SetComponent<WorkerDataCommon>(entityInQueryIndex, e,commonData);
                 ecb.AddComponent<FarmerTarget>(entityInQueryIndex,e,target);
 
-            }
+            }*/
         }).ScheduleParallel();
 
         m_CmdBufSystem.AddJobHandleForProducer(Dependency);
@@ -241,7 +241,7 @@ public class FarmerSystem : SystemBase
         }).ScheduleParallel();
 
         m_CmdBufSystem.AddJobHandleForProducer(Dependency);
-
+        /*
         // arrived at location, should collect now
         var storePosition = m_storesQuery.ToComponentDataArrayAsync<Position2D>(Allocator.TempJob,out var storePositionHandle);
         Dependency = JobHandle.CombineDependencies(Dependency,storePositionHandle);
@@ -281,6 +281,6 @@ public class FarmerSystem : SystemBase
 
         }).ScheduleParallel();
 
-        m_CmdBufSystem.AddJobHandleForProducer(Dependency);
+        m_CmdBufSystem.AddJobHandleForProducer(Dependency);*/
     }
 }
