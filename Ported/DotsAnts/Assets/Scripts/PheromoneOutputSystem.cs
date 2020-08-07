@@ -33,6 +33,7 @@ public class PheromoneOutputSystem : SystemBase
 
 	    float deltaTime = Time.fixedDeltaTime;
 	    
+	    Dependency.Complete();
 	    NativeArray<float> pheromoneArray = defaults.GetCurrentPheromoneMapBuffer();
 
 		Entities.WithAll<Ant>()
@@ -65,5 +66,6 @@ public class PheromoneOutputSystem : SystemBase
 				}
 
 			}).ScheduleParallel();
+		Dependency.Complete();
     }
 }

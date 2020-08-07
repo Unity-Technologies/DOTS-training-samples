@@ -38,10 +38,9 @@ public class DecayPheromoneSystem : SystemBase
         ParallelDecay jobData = new ParallelDecay();
         jobData.inOutArray = defaults.GetCurrentPheromoneMapBuffer();
         jobData.decaySpeed = defaults.trailDecay;
-
-        JobHandle handle = jobData.Schedule(sizeOfBuffer, 64);
-        handle.Complete();
         
+        Dependency = jobData.Schedule(sizeOfBuffer, 64, Dependency);
+        Dependency.Complete();
         defaults.SwapPheromoneBuffer();
     }
 
