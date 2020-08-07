@@ -21,6 +21,7 @@ public class AntGenerationSystem : SystemBase
         float antSpeed = antDefaults.antSpeed;
         float2 colonyLocation = new float2();
         bool successfullySpawned = false;
+        float4 antInitialColor = new float4(1, 0, 0, 0);
        
         var ecb = m_CommandBufferSystem.CreateCommandBuffer();
         Entities.ForEach((Entity spawnerEntity, in AntGeneration spawner, in Position spawnerPosition) =>
@@ -36,6 +37,7 @@ public class AntGenerationSystem : SystemBase
                 ecb.SetComponent(instance, new DirectionAngle { value = 2.0f * math.PI * rng.NextFloat() });
                 ecb.SetComponent(instance, new CarryingFood { value = false });
                 ecb.SetComponent(instance, new Speed { value = antSpeed });
+                //ecb.SetComponent(instance, new AntColor { value = antInitialColor });
             }
             ecb.DestroyEntity(spawnerEntity);
             successfullySpawned = true;

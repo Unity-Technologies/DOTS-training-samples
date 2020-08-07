@@ -18,7 +18,7 @@ public class ObjectiveSteeringSystem : SystemBase
     static bool ArePointsVisible(float2 p0, float2 p1, int mapSize, ref NativeArray<float> bakedCollisionMap)
     {  
         int numSteps = (int)math.length(p1 - p0);
-        if (numSteps == 0) { return true; }
+        if (numSteps <= 1) { return true; }
 
         for (int i = 0; i < numSteps; i++)
         {
