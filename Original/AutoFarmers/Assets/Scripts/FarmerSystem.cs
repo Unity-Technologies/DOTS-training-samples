@@ -298,7 +298,7 @@ public class FarmerSystem : SystemBase
 
 
         // arrived at location, should sell now
-        Entities..WithName("fs_sell_plant").WithAll<WorkerSell>().WithNone<FarmerTarget>().ForEach((int entityInQueryIndex,Entity e, in WorkerDataCommon data) =>
+        Entities.WithName("fs_sell_plant").WithAll<WorkerSell>().WithNone<FarmerTarget>().ForEach((int entityInQueryIndex,Entity e, in WorkerDataCommon data) =>
         {
             ecb.RemoveComponent<WorkerSell>(entityInQueryIndex,e);
             ecb.AddComponent<FarmerIdle>(entityInQueryIndex,e);
