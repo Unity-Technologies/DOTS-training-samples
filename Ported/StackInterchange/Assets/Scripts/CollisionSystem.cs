@@ -20,9 +20,9 @@ public class CollisionSystem : SystemBase
     {
         public int segmentIndex;
         public Entity carEntity;
+        //public float carSpeed;
         public float3 carNextPosition;
         public float carExtent;
-        public float3 carDirection;
     }
 
     private struct CarRange
@@ -126,8 +126,7 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
                     carEntity = entity,
                     segmentIndex = currentSegment.Value,
                     carNextPosition = nextPosition,
-                    carExtent = extent,
-                    carDirection = direction
+                    carExtent = extent
                 };    
             }).ScheduleParallel();
 
@@ -171,16 +170,21 @@ public static float3 CalculateCarPosition(in SegmentCollection segmentCollection
             .WithDisposeOnCompletion(carsRangePerSegment)
             .WithDisposeOnCompletion(carList)
             .ForEach((
-                int entityInQueryIndex,
                 ref Speed speed,
                 in OriginalSpeed originalSpeed,
                 in Entity thisCarEntity,
-                in CurrentSegment currentSegment) =>
+                in Size size,
+                in Offset offset,
+                in CurrentSegment currentSegment,
+                in Progress progress) =>
             {
-                var extent = carList[entityInQueryIndex].carExtent;
-                var nextPosition = carList[entityInQueryIndex].carNextPosition;
-                var direction = carList[entityInQueryIndex].carDirection;
-                
+                var position = CalculateCarPosition(segmentCollection, currentSegment, progress, offset);
+                var direction = CalculateCarDirection(segmentCollection, currentSegment, progress, offset);
+                var extent = math.length(size.Value);
+
+                var step = speed.Value * deltaTime;
+                var nextPosition = position + step * direction;
+
                 bool willCollide = false;
                 float minDistance = 1e6f; // Big number
                 
