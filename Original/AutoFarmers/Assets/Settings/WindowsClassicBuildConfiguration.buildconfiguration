@@ -3,7 +3,7 @@
     "Components": [
         {
             "$type": "Unity.Build.Common.GeneralSettings, Unity.Build",
-            "ProductName": "Product Name",
+            "ProductName": "dots-farmers",
             "CompanyName": "Company Name"
         },
         {
@@ -18,6 +18,16 @@
             "Platform": "Windows",
             "Configuration": 2,
             "Incremental": false
+        },
+        {
+            "$type": "Unity.Build.Classic.ClassicScriptingSettings, Unity.Build.Classic",
+            "ScriptingBackend": 1,
+            "Il2CppCompilerConfiguration": 1,
+            "UseIncrementalGC": true
+        },
+        {
+            "$type": "Unity.Build.Common.OutputBuildDirectory, Unity.Build",
+            "OutputDirectory": "builds"
         }
     ]
 }
