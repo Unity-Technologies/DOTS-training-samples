@@ -33,15 +33,14 @@ public class CarMovementSystem : SystemBase
             in CurrentSegment currentSegment,
             in Speed speed) =>
         {
-            var segment = segmentCollection.Value.Value.Segments[currentSegment.Value];
+            //1. compute them from source start/end
+            //var segment = segmentCollection.Value.Value.Segments[currentSegment.Value];
+            //var start = segment.Start;
+            //var end = segment.End;
+            //var segmentLength = math.distance(start, end);
 
-            var start = segment.Start;
-            var end = segment.End;
-
-            // We use the square distance here to avoid calculating the square root.
-            // Could also calculate this once and keep it at the SegmentData struct?
-            // Could also avoid this is if we assume that all segments have the same length and the segments are always linear
-            var segmentLength = math.distance(start, end);
+            //2. Better 1ms to 0.5ms
+            var segmentLength = segmentCollection.Value.Value.SegmentsLength[currentSegment.Value];
 
             var dx = deltaTime * speed.Value;
 
