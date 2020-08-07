@@ -37,7 +37,7 @@ public class PheromoneOutputSystem : SystemBase
 	    NativeArray<float> pheromoneArray = defaults.GetCurrentPheromoneMapBuffer();
 
 		Entities.WithAll<Ant>()
-			.WithoutBurst()
+			//.WithoutBurst()
 			.ForEach((
 			in CarryingFood carryingFood,
 			in Speed speed,
@@ -58,10 +58,12 @@ public class PheromoneOutputSystem : SystemBase
 				else
 				{
 					int index = PheromoneIndex(x, y, mapSizeTemp);
-					float value = (trailAddSpeed * excitement * deltaTime) * (1f - pheromoneArray[index]);
-					pheromoneArray[index] = value + pheromoneArray[index];
-					if (pheromoneArray[index] > 1f)
-						pheromoneArray[index] = 1f;
+					float currentValue = pheromoneArray[index];
+					float value = (trailAddSpeed * excitement * deltaTime) * (1f - currentValue);
+					currentValue = value + currentValue;
+					if (currentValue > 1f)
+						currentValue = 1f;
+					pheromoneArray[index] = currentValue;
 					
 				}
 
