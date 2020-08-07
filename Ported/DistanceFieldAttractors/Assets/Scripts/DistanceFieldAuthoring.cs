@@ -23,6 +23,8 @@ public class DistanceFieldAuthoring : UnityEngine.MonoBehaviour, IConvertGameObj
     public DistanceFieldModel model = DistanceFieldModel.FigureEight;
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new DistanceField { Value = model, SwitchCooldown = 0f, rng = new Random(11906237) });
+        var distanceField = new DistanceField { Value = model, SwitchCooldown = 0f, rng = new Random(1)};
+        distanceField.rng.InitState(0x3731275Bu);
+        dstManager.AddComponentData(entity, distanceField);
     }
 }

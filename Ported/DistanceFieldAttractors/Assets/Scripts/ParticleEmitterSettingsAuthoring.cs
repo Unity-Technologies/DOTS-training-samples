@@ -29,6 +29,8 @@ public class ParticleEmitterSettingsAuthoring : UnityEngine.MonoBehaviour, IConv
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
+        var coolRng = new Random();
+        coolRng.InitState();
         dstManager.AddComponentData(entity, new ParticleEmitterSettings 
         {
             Attraction = Attraction,
@@ -40,7 +42,7 @@ public class ParticleEmitterSettingsAuthoring : UnityEngine.MonoBehaviour, IConv
             ExteriorColorDistance = ExteriorColorDistance,
             InteriorColorDistance = InteriorColorDistance,
             ColorStiffness = ColorStiffness,
-            rng = new Random(780816141)
+            rng = coolRng
         });
     }
 }
