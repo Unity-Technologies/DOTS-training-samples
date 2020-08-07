@@ -27,6 +27,7 @@ public class WallSteeringSystem : SystemBase
                 if (bakedCollisionMap[testY * mapSize + testX] > 0.5f)
                 {
                     output -= i;
+                    break;
                 }
             }
         }
