@@ -119,6 +119,7 @@ public class ParticleFixedRateSimulationSystem : SystemBase
         var emitterSettings = GetSingleton<ParticleEmitterSettings>();
         var distanceField = GetSingleton<DistanceField>();
         var deltaTime = Time.DeltaTime;
+        var time = (float)Time.ElapsedTime * 0.1f;
 
         if (distanceField.Preview != 0)
         {
@@ -128,7 +129,7 @@ public class ParticleFixedRateSimulationSystem : SystemBase
                 float x = UnityEngine.Random.Range(-10f, 10f);
                 float y = UnityEngine.Random.Range(-10f, 10f);
                 float z = UnityEngine.Random.Range(-10f, 10f);
-                float dist = GetDistance(x, y, z, distanceField.Value, deltaTime, out normal);
+                float dist = GetDistance(x, y, z, distanceField.Value, time, out normal);
                 if (dist < 0f)
                 {
                     UnityEngine.Debug.DrawRay(new UnityEngine.Vector3(x, y, z), UnityEngine.Vector3.up * .1f, UnityEngine.Color.red, 1f);
@@ -141,7 +142,7 @@ public class ParticleFixedRateSimulationSystem : SystemBase
             .ForEach((ref Translation translation, ref Velocity velocity, ref Color color) =>
         {
             float3 normal;
-            float distance = GetDistance(translation.Value.x, translation.Value.y, translation.Value.z, distanceField.Value, deltaTime, out normal);
+            float distance = GetDistance(translation.Value.x, translation.Value.y, translation.Value.z, distanceField.Value, time, out normal);
 
             velocity.Value -= math.normalize(normal) * emitterSettings.Attraction * math.clamp(distance, -1f, 1f);
             velocity.Value += emitterSettings.rng.NextFloat3Direction() * emitterSettings.Jitter;
