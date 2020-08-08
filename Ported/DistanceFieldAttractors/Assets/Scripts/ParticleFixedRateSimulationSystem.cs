@@ -139,13 +139,13 @@ public class ParticleFixedRateSimulationSystem : SystemBase
 
         Entities
             .WithName("ParticleFixedRateSimulation")
-            .ForEach((ref Translation translation, ref Velocity velocity, ref Color color) =>
+            .ForEach((ref Translation translation, ref Velocity velocity, ref RandomNumberGenerator random, ref Color color) =>
         {
             float3 normal;
             float distance = GetDistance(translation.Value.x, translation.Value.y, translation.Value.z, distanceField.Value, time, out normal);
 
             velocity.Value -= math.normalize(normal) * emitterSettings.Attraction * math.clamp(distance, -1f, 1f);
-            velocity.Value += (emitterSettings.rng.NextFloat3Direction()) * math.pow(emitterSettings.rng.NextFloat(), 1f / 3f) * emitterSettings.Jitter;
+            velocity.Value += (random.rng.NextFloat3Direction()) * math.pow(random.rng.NextFloat(), 1f / 3f) * emitterSettings.Jitter;
             velocity.Value *= .99f;
 
             translation.Value += velocity.Value;

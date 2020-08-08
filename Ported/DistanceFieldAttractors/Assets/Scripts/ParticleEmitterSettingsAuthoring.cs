@@ -12,7 +12,6 @@ public struct ParticleEmitterSettings : IComponentData
     public float ExteriorColorDistance;
     public float InteriorColorDistance;
     public float ColorStiffness;
-    public Random rng;
 }
 
 public class ParticleEmitterSettingsAuthoring : UnityEngine.MonoBehaviour, IConvertGameObjectToEntity
@@ -29,8 +28,6 @@ public class ParticleEmitterSettingsAuthoring : UnityEngine.MonoBehaviour, IConv
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        var coolRng = new Random();
-        coolRng.InitState();
         dstManager.AddComponentData(entity, new ParticleEmitterSettings 
         {
             Attraction = Attraction,
@@ -41,8 +38,7 @@ public class ParticleEmitterSettingsAuthoring : UnityEngine.MonoBehaviour, IConv
             ExteriorColor = new float4(ExteriorColor.r, ExteriorColor.g, ExteriorColor.b, ExteriorColor.a),
             ExteriorColorDistance = ExteriorColorDistance,
             InteriorColorDistance = InteriorColorDistance,
-            ColorStiffness = ColorStiffness,
-            rng = coolRng
+            ColorStiffness = ColorStiffness
         });
     }
 }
