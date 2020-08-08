@@ -11,7 +11,7 @@ public struct Color : IComponentData
 
 public class ColorAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
-    public UnityEngine.Color color;
+    public UnityEngine.Color color = UnityEngine.Color.black;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {

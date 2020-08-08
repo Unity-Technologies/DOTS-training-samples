@@ -145,7 +145,7 @@ public class ParticleFixedRateSimulationSystem : SystemBase
             float distance = GetDistance(translation.Value.x, translation.Value.y, translation.Value.z, distanceField.Value, time, out normal);
 
             velocity.Value -= math.normalize(normal) * emitterSettings.Attraction * math.clamp(distance, -1f, 1f);
-            velocity.Value += emitterSettings.rng.NextFloat3Direction() * emitterSettings.Jitter;
+            velocity.Value += (emitterSettings.rng.NextFloat3Direction()) * math.pow(emitterSettings.rng.NextFloat(), 1f / 3f) * emitterSettings.Jitter;
             velocity.Value *= .99f;
 
             translation.Value += velocity.Value;
