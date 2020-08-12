@@ -17,7 +17,6 @@ public class BrigadeUpdateSystem : SystemBase
 
     protected override void OnUpdate()
     {
-
         // move the bots towards their targets
         var deltaTime = Time.DeltaTime;
         Entities
