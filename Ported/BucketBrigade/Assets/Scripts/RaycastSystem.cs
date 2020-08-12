@@ -15,11 +15,11 @@ public class RaycastSystem : SystemBase
 
             var deltaTime = Time.DeltaTime;
             var mouseDown = UnityEngine.Input.GetMouseButton(0);
-            Entities.ForEach((ref Color color, in LocalToWorld ltw) =>
-            {
-                var dist = mouseDown ? math.distancesq(ltw.Position, hit) / 40 : 1;
-                var clamped = math.clamp(1 - dist, 0, 1);
-                color.Value.x = math.max(clamped, color.Value.x - deltaTime / 30);
-            }).ScheduleParallel();
+            // Entities.ForEach((ref Color color, in LocalToWorld ltw) =>
+            // {
+            //     var dist = mouseDown ? math.distancesq(ltw.Position, hit) / 40 : 1;
+            //     var clamped = math.clamp(1 - dist, 0, 1);
+            //     color.Value.x = math.max(clamped, color.Value.x - deltaTime / 30);
+            // }).ScheduleParallel();
         }
     }
