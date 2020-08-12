@@ -9,6 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1833183132210101088}
+  - component: {fileID: 6862950914717226331}
+  - component: {fileID: 6195460763335867198}
   m_Layer: 0
   m_Name: BrigadeInitialization
   m_TagString: Untagged
@@ -30,3 +32,31 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6862950914717226331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1833183132210101089}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2c94cbec0908a746b2ad45fdb7b3631, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bot: {fileID: 6552276974441056966, guid: d85cd9db3461f4a1083519cb9477ae3e, type: 3}
+  emptyPassers: 15
+  fullPassers: 15
+  brigadeCount: 1
+--- !u!114 &6195460763335867198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1833183132210101089}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 290f7e9fd90c4d7ba93bed025a32561d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
