@@ -68,6 +68,7 @@ public class BrigadeRetargetSystem : SystemBase
                 float distSq = diff.x * diff.x + diff.z * diff.z;
                 if (!foundFire || distSq < closestDistSq)
                 {
+                    foundFire = true;
                     closestDistSq = distSq;
                     closestFirePosition = translation.Value;
                     closestFirePosition.y = 0;

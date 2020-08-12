@@ -58,6 +58,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 430df73e01bf65049bd2c2f6dd190929, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Origin: {x: 0, y: -0.8, z: 0}
   CellSize: 0.3
   GridWidth: 50
   GridHeight: 50
