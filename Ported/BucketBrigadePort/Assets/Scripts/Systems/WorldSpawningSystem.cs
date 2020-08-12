@@ -1,5 +1,5 @@
-﻿using Unity.Entities;
-using Unity.Collections;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
@@ -13,20 +13,29 @@ public class WorldSpawningSystem : SystemBase
     {
         Entities
             .WithStructuralChanges()
-            .ForEach((Entity spawnerEntity, in TileSpawner tileSpawner, in Translation translation) =>
+            .ForEach((Entity spawnerEntity, in TileSpawner tileSpawner) =>
             {
                 var blankTiles = EntityManager.Instantiate(tileSpawner.Prefab, tileSpawner.XSize * tileSpawner.YSize, Allocator.Temp);
+                // TODO: Scale prefab itself by tileSpawner.Scale. Currently prefab hardcoded to 0.3 and tileSpawner.Scale set in UI to match
+
+                var random = new Random(1);
                 int tileCount = 0;
                 for (int x = 0; x < tileSpawner.XSize; x++)
                 {
                     for (int y = 0; y < tileSpawner.YSize; y++)
                     {
-                        var position = new Translation() { Value = new float3(x, 0, y) };
+                        var yPosition = random.NextFloat(0, 0.05f) -0.5f; // Height vs. pivot of prefab. TODO: Read prefab data
+                        var position = new Translation() { Value = new float3(x * tileSpawner.Scale, yPosition, y * tileSpawner.Scale) };
                         EntityManager.SetComponentData(blankTiles[tileCount], position);
 
+                        EntityManager.AddComponentData<Color>(blankTiles[tileCount], new Color());
+                        // TODO: Add scaling
+                        // var scale = new Scale() { Value = tileSpawner.Scale };
+                        // EntityManager.SetComponentData(blankTiles[tileCount], scale);
+
                         var tileAuthor = new Tile();
-                        tileAuthor.Id = new int2() { x = x, y = y};
-                        EntityManager.SetComponentData(blankTiles[tileCount], tileAuthor);
+                        tileAuthor.Id = y * tileSpawner.XSize + x;
+                        EntityManager.SetComponentData(blankTiles[tileAuthor.Id], tileAuthor);
 
                         tileCount++;
                     }
@@ -34,5 +43,7 @@ public class WorldSpawningSystem : SystemBase
                 blankTiles.Dispose();
                 EntityManager.DestroyEntity(spawnerEntity);
             }).Run();
+
+        // TODO: Store 2d array of entities
     }
 }

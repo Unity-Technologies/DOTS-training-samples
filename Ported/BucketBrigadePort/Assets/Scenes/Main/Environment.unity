@@ -327,6 +327,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1173472311505827573, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
+      propertyPath: Scale
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1173472311505827573, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
+      propertyPath: XSize
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1173472311505827573, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
+      propertyPath: YSize
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 1173472311505827578, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
       propertyPath: m_Name
       value: WorldSpawner
