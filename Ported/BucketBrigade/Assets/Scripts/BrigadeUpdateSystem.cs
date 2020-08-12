@@ -17,11 +17,6 @@ public class BrigadeUpdateSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        // build the brigade lookup
-        // this should really be done once
-        var BrigadeDataLookup = new NativeHashMap<Entity, Brigade>(16, Allocator.Temp);
-        Entities.WithAll<Brigade>().ForEach((Entity e, in Brigade brigade) => { BrigadeDataLookup.Add(e, brigade); })
-            .Schedule();
 
         // move the bots towards their targets
         var deltaTime = Time.DeltaTime;
@@ -40,8 +35,17 @@ public class BrigadeUpdateSystem : SystemBase
             return;
         }
         nextUpdate = updateSpeed;
+
+        // build the brigade lookup
+        // this should really be done once
+        var BrigadeDataLookup = new NativeHashMap<Entity, Brigade>(16, Allocator.TempJob);
+        Entities
+            .WithAll<Brigade>()
+            .ForEach((Entity e, in Brigade brigade) => { BrigadeDataLookup.Add(e, brigade); })
+            .Schedule();
         
-        // just randomly updating the targets - this is not good.
+        // just randomly updating the targets
+        // will need to be replaced by the search
         Entities.WithAll<Brigade>().ForEach((ref Brigade brigade) =>
         {
             brigade.fireTarget = brigade.random.NextFloat3() * 10.0f;
@@ -52,14 +56,16 @@ public class BrigadeUpdateSystem : SystemBase
         
         Entities
             .WithAll<TargetPosition>()
-            .ForEach((Entity e,  ref TargetPosition target, in BrigadeGroup group, in EmptyPasserInfo passerInfo) =>
+            .ForEach((Entity e, ref TargetPosition target, in BrigadeGroup group, in EmptyPasserInfo passerInfo) =>
             {
                 var brigadeData = BrigadeDataLookup[@group.Value];
                 target.Value = BrigadeInitializationSystem.GetChainPosition(passerInfo.ChainPosition, passerInfo.ChainLength, brigadeData.waterTarget, brigadeData.fireTarget);
             }).Schedule();
+        
         Entities
             .WithAll<TargetPosition>()
-            .ForEach((Entity e,  ref TargetPosition target, in BrigadeGroup group, in FullPasserInfo passerInfo) =>
+            .WithDisposeOnCompletion(BrigadeDataLookup)
+            .ForEach((Entity e, ref TargetPosition target, in BrigadeGroup group, in FullPasserInfo passerInfo) =>
             {
                 var brigadeData = BrigadeDataLookup[@group.Value];
                 target.Value = BrigadeInitializationSystem.GetChainPosition(passerInfo.ChainPosition, passerInfo.ChainLength, brigadeData.fireTarget, brigadeData.waterTarget);
