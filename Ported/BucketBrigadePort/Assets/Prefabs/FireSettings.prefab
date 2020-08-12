@@ -45,4 +45,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fireSimUpdateRate: 0.1
   heatTransferRate: 0.0003
+  flashpoint: 0.1
   heatRadius: 1
+  splashRadius: 2

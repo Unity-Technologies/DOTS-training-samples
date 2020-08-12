@@ -6,6 +6,7 @@ public struct FireSpreadSettings : IComponentData
 {
     public float fireSimUpdateRate;
     public float heatTransferRate;
-    // public float flashpoint;
+    public float flashpoint;
     public int heatRadius;
+    public int splashRadius;
 }
