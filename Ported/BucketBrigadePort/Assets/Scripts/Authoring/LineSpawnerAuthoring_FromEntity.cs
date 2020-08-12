@@ -10,6 +10,8 @@ public class LineSpawnerAuthoring_FromEntity : MonoBehaviour, IDeclareReferenced
 {
     public GameObject Prefab;
     public int Count;
+    public int CountOfFullPassBots;
+    public int CountOfEmptyPassBots;
 
     // Referenced prefabs have to be declared so that the conversion system knows about them ahead of time
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -24,8 +26,11 @@ public class LineSpawnerAuthoring_FromEntity : MonoBehaviour, IDeclareReferenced
         {
             // The referenced prefab will be converted due to DeclareReferencedPrefabs.
             // So here we simply map the game object to an entity reference to that prefab.
-            Prefab = conversionSystem.GetPrimaryEntity(Prefab),
-            Count = Count
+            LinePrefab = conversionSystem.GetPrimaryEntity(Prefab),
+            BotPrefab = conversionSystem.GetPrimaryEntity(Prefab),
+            Count = Count,
+            CountOfFullPassBots = CountOfFullPassBots,
+            CountOfEmptyPassBots = CountOfEmptyPassBots
         };
         dstManager.AddComponentData(entity, spawnerData);
     }

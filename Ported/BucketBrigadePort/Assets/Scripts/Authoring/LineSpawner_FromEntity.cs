@@ -4,5 +4,8 @@ using Unity.Entities;
 public struct LineSpawner_FromEntity : IComponentData
 {
     public int Count;
-    public Entity Prefab;
+    public int CountOfFullPassBots;
+    public int CountOfEmptyPassBots;
+    public Entity LinePrefab;
+    public Entity BotPrefab;
 }

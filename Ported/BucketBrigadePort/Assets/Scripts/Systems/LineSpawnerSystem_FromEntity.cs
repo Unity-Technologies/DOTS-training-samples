@@ -4,6 +4,8 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
+using UnityEngine.Rendering;
 
 // Systems can schedule work to run on worker threads.
 // However, creating and removing Entities can only be done on the main thread to prevent race conditions.
@@ -44,11 +46,25 @@ public class LineSpawnerSystem_FromEntity : SystemBase
         {
             for (var x = 0; x < lineSpawnerFromEntity.Count; x++)
                 {
-                    var instance = commandBuffer.Instantiate(entityInQueryIndex, lineSpawnerFromEntity.Prefab);
-
+                    var instance = commandBuffer.Instantiate(entityInQueryIndex, lineSpawnerFromEntity.LinePrefab);
+                    
+                    var line = new Line();
                     // Place the instantiated in a grid with some noise
                     var position = math.transform(location.Value,
                         new float3(x * 1.3F, noise.cnoise(new float2(x, x) * 0.21F) * 2, x * 1.3F));
+                    
+                    for (var a = 0; a < lineSpawnerFromEntity.CountOfEmptyPassBots; a++)
+                    {
+                        var bot = commandBuffer.Instantiate(entityInQueryIndex, lineSpawnerFromEntity.BotPrefab);
+                        commandBuffer.SetComponent(entityInQueryIndex, bot, new Translation{Value = position});
+                        //line.bots = new Bot(bot);
+                    }
+
+                    for (var a = 0; a < lineSpawnerFromEntity.CountOfEmptyPassBots; a++)
+                    {
+                        
+                    }
+
                     commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation {Value = position});
                 }
 
