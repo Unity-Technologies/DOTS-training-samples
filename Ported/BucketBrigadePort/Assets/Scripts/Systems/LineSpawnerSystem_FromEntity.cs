@@ -38,7 +38,7 @@ public class LineSpawnerSystem_FromEntity : SystemBase
         // Since this job only runs on the first frame, we want to ensure Burst compiles it before running to get the best performance (3rd parameter of WithBurst)
         // The actual job will be cached once it is compiled (it will only get Burst compiled once).
         Entities
-            .WithName("SpawnerSystem_FromEntity")
+            .WithName("LineSpawnerSystem_FromEntity")
             .WithBurst(FloatMode.Default, FloatPrecision.Standard, true)
             .ForEach((Entity entity, int entityInQueryIndex, in LineSpawner_FromEntity lineSpawnerFromEntity, in LocalToWorld location) =>
         {
