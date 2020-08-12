@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8307267205372533006
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8307267205372532995}
+  - component: {fileID: 8307267205372532992}
+  - component: {fileID: 8307267205372532993}
+  m_Layer: 0
+  m_Name: WaterInitialization
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8307267205372532995
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8307267205372533006}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8307267205372532992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8307267205372533006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 072429c8c9e1a4ce48e786653957446c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SplashRadius: 3
+  CoolingStrength: 1
+  CoolingStrength_falloff: 0.75
+  RefillRate: 0.0001
+  TotalBuckets: 3
+  BucketCapacity: 3
+  BucketFillRate: 0.01
+  BucketSize_EMPTY: 0.2
+  BucketSize_FULL: 0.4
+--- !u!114 &8307267205372532993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8307267205372533006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 294f5354f49224db3878d435f5d32bea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volume: 0
+  capacity: 0
+  fullScale:
+    x: 8
+    y: 0
+    z: -3
+  prefab: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314, type: 3}
