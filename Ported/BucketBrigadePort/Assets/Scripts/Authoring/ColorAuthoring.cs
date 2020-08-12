@@ -2,7 +2,7 @@
 using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
-public struct Tile : IComponentData
+public struct Color : IComponentData
 {
-    public int2 Id;
+    public float4 Value;
 }
