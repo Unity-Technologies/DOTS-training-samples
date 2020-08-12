@@ -244,6 +244,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 383529987590606460, guid: c5c18a9f12073db45be1208a090a3585, type: 3}
+      propertyPath: Prefab
+      value: 
+      objectReference: {fileID: 1306931638197496, guid: d2414dc4033474771b65161755b347cb, type: 3}
     - target: {fileID: 8898136283032916288, guid: c5c18a9f12073db45be1208a090a3585, type: 3}
       propertyPath: m_Name
       value: FireInitialization
@@ -292,5 +296,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6221105471750989319, guid: c5c18a9f12073db45be1208a090a3585, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: c5c18a9f12073db45be1208a090a3585, type: 3}
