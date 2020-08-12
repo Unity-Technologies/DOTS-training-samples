@@ -1,8 +1,10 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public struct FireConfiguration : IComponentData
 {
+    public float3 Origin;
     public float CellSize;
     public int GridWidth;
     public int GridHeight;
@@ -19,6 +21,7 @@ public struct FireConfiguration : IComponentData
 
 public class FireConfigurationAuthoring : UnityEngine.MonoBehaviour, IConvertGameObjectToEntity
 {
+    public Vector3 Origin = Vector3.zero;
     public float CellSize = 0.3f;
     public int GridWidth = 50;
     public int GridHeight = 50;
@@ -40,6 +43,7 @@ public class FireConfigurationAuthoring : UnityEngine.MonoBehaviour, IConvertGam
     {
         dstManager.AddComponentData(entity, new FireConfiguration
         {
+            Origin = Origin,
             CellSize = CellSize,
             GridWidth = GridWidth,
             GridHeight = GridHeight,
