@@ -47,7 +47,7 @@ MonoBehaviour:
   bot: {fileID: 6552276974441056966, guid: d85cd9db3461f4a1083519cb9477ae3e, type: 3}
   emptyPassers: 15
   fullPassers: 15
-  brigadeCount: 1
+  brigadeCount: 3
 --- !u!114 &6195460763335867198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60,3 +60,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 290f7e9fd90c4d7ba93bed025a32561d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tossColor: {r: 1, g: 0.4745098, b: 0.9372549, a: 1}
+  scoopColor: {r: 0, g: 1, b: 0.053681135, a: 1}
+  emptyColor: {r: 0.93333334, g: 0.7529412, b: 0.9254902, a: 1}
+  fullColor: {r: 0.77254903, g: 0.9254902, b: 0.7372549, a: 1}

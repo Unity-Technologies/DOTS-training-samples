@@ -1,10 +1,35 @@
-﻿using Unity.Entities;
+﻿using System.Net;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
-public struct BrigadeId : ISharedComponentData
+public struct Brigade : IComponentData
 {
-    public int Value;
+    public float3 fireTarget;
+    public float3 waterTarget;
+    public int length;
+    public Random random;
+}
+
+public struct BrigadeGroup : IComponentData
+{
+    public Entity Value;
+}
+public struct TargetPosition : IComponentData
+{
+    public float3 Value;
+}
+public struct EmptyPasserInfo : IComponentData
+{
+    public int ChainLength;
+    public int ChainPosition;
+}
+public struct FullPasserInfo : IComponentData
+{
+    public int ChainLength;
+    public int ChainPosition;
 }
 public class BrigadeInitializationSystem : SystemBase
 {
@@ -14,38 +39,51 @@ public class BrigadeInitializationSystem : SystemBase
             .WithStructuralChanges()
             .ForEach((in Entity e, in BrigadeInitialization init, in BrigadeColor colors) =>
             {
+                // create brigades 
+                var random = new Random(1);
                 for (int i = 0; i < init.brigadeCount; i++)
                 {
-                    for (int j = 0; j < init.emptyPassers; j++)
+                    var endPoint = new float3(10, 0, 0);
+                    var brigade = EntityManager.CreateEntity();
+                    EntityManager.AddComponentData(brigade, new Brigade()
+                    {
+                        fireTarget = endPoint,
+                        waterTarget = float3.zero,
+                        random = new Random(random.NextUInt())
+                    });
+                    // add a tosser bot
                     {
                         var instance = EntityManager.Instantiate(init.bot);
-                        SetComponent(instance, new Translation()
-                        {
-                            Value = GetChainPosition(j, init.emptyPassers, float3.zero, new float3(10, 0, 0))    
-                        });
-                        EntityManager.AddComponentData(instance, new BotColor()
-                        {
-                            Value = colors.emptyColor
-                        });
-                        EntityManager.AddSharedComponentData(instance, new BrigadeId()
-                        {
-                            Value = i
-                        });
+                        var position = float3.zero;
+                        SetupBot(instance, position, colors.tossColor, brigade);
                     }
-                    for (int j = 0; j < init.fullPassers; j++)
+                    // add a scoop bot
                     {
                         var instance = EntityManager.Instantiate(init.bot);
-                        SetComponent(instance, new Translation()
+                        var position = endPoint;
+                        SetupBot(instance, position, colors.scoopColor, brigade);
+                    }
+                    for (var j = 0; j < init.emptyPassers; j++)
+                    {
+                        var instance = EntityManager.Instantiate(init.bot);
+                        var position = GetChainPosition(j, init.emptyPassers, float3.zero, endPoint);
+                        SetupBot(instance, position, colors.emptyColor, brigade);
+                        EntityManager.AddComponentData(instance, new EmptyPasserInfo()
                         {
-                            Value = GetChainPosition(j, init.fullPassers,new float3(10, 0, 0), float3.zero)    
+                            ChainLength = init.emptyPassers,
+                            ChainPosition = j
                         });
-                        EntityManager.AddComponentData(instance, new BotColor()
+
+                    }
+                    for (var j = 0; j < init.fullPassers; j++)
+                    {
+                        var instance = EntityManager.Instantiate(init.bot);
+                        float3 position = GetChainPosition(j, init.fullPassers, endPoint, float3.zero);
+                        SetupBot(instance, position, colors.fullColor, brigade);
+                        EntityManager.AddComponentData(instance, new FullPasserInfo()
                         {
-                            Value = colors.fullColor
-                        });
-                        EntityManager.AddSharedComponentData(instance, new BrigadeId()
-                        {
-                            Value = i
+                            ChainLength = init.fullPassers,
+                            ChainPosition = j
                         });
                     }
                 }
@@ -53,7 +91,25 @@ public class BrigadeInitializationSystem : SystemBase
                 EntityManager.DestroyEntity(e);
             }).Run();
     }
-    static float3 GetChainPosition(int _index, int _chainLength, float3 _startPos, float3 _endPos){
+
+    private void SetupBot(Entity instance, float3 position, float4 color, Entity brigadeEntity)
+    {
+        SetComponent(instance, new Translation()
+        {
+            Value = position    
+        });
+        EntityManager.AddComponentData(instance, new BotColor()
+        {
+            Value = color
+        });
+        // this is maybe bad duplicated data? But otherwise we need to store this elsewhere
+        EntityManager.AddComponentData(instance, new BrigadeGroup()
+        {
+            Value = brigadeEntity
+        });
+        EntityManager.AddComponent<TargetPosition>(instance);
+    }
+    public static float3 GetChainPosition(int _index, int _chainLength, float3 _startPos, float3 _endPos){
         // adds two to pad between the SCOOPER AND THROWER
         float progress = (float) _index / _chainLength;
         float curveOffset = math.sin(progress * math.PI) * 1f;
@@ -64,7 +120,6 @@ public class BrigadeInitializationSystem : SystemBase
         float2 direction = heading / distance;
         float2 perpendicular = new float2(direction.y, -direction.x);
 
-        //Debug.Log("chain progress: " + progress + ",  curveOffset: " + curveOffset);
         return math.lerp(_startPos, _endPos, (float)_index / (float)_chainLength) + (new float3(perpendicular.x, 0f, perpendicular.y) * curveOffset);
     }
 }
