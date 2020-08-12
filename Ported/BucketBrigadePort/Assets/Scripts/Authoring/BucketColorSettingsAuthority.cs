@@ -2,7 +2,7 @@
 using Unity.Mathematics;
 using UnityEngine;
 
-// [GenerateAuthoringComponent]
+[GenerateAuthoringComponent]
 
 public struct BucketColorSettings : IComponentData
 {

@@ -343,7 +343,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: WorldSpawner
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5368296356240479821, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
 --- !u!1001 &1972764979895336721
 PrefabInstance:

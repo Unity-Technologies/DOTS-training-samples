@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5571402708752865194}
   - component: {fileID: 5571402708752865205}
   - component: {fileID: 5571402708752865204}
+  - component: {fileID: 7712599147180100647}
   m_Layer: 0
   m_Name: Bucket
   m_TagString: Untagged
@@ -95,3 +96,20 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7712599147180100647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5571402708752865207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d9de8ccc23c7944f872a8b1fa784fd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
