@@ -26,3 +26,4 @@ public class SpawnerSystem : SystemBase
         }).Run();
     }
 }
+
