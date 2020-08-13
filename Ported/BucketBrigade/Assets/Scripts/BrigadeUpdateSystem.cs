@@ -41,8 +41,6 @@ public class BrigadeUpdateSystem : SystemBase
         Entities
             .ForEach((ref Translation translation, in TargetPosition target) =>
             {
-                Debug.DrawLine(target.Value, translation.Value);
-                Debug.Log(target.Value.ToString());
                 if (target.Value.Equals(translation.Value))
                 {
                     return;
