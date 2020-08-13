@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine.Rendering;
 
 public struct Owner : IComponentData
@@ -25,5 +26,26 @@ public class BucketSystem : SystemBase
                 c.Value = math.lerp(b.emptyColor, b.fullColor, w.volume / w.capacity);
             }).Schedule();
         
+        var translations = GetComponentDataFromEntity<Translation>(true);
+        var carried = GetComponentDataFromEntity<CarriedBucket>(true);
+        
+        Entities
+            .WithReadOnly(translations)
+            .WithReadOnly(carried)
+            .WithNativeDisableContainerSafetyRestriction(translations)
+            .WithAll<Bucket>()
+            .ForEach((Entity e, ref Translation translation, in Owner owner) =>
+            {
+                if (carried.HasComponent(owner.Value))
+                    translation.Value = translations[owner.Value].Value + new float3(0, .4f, 0);
+            }).Schedule();
+   
+        Entities
+            .WithAll<Bucket>()
+            .WithNone<Owner>()
+            .ForEach((Entity e, ref Translation translation) =>
+            {
+                translation.Value.y = .1f;
+            }).Schedule();
     }
 }

@@ -94,9 +94,9 @@ public class ScoopBotSystem : SystemBase
             .ForEach((Entity e, ref Translation translation, in TargetBucket targetBucket) =>
             {
                 var bucketTranslation = EntityManager.GetComponentData<Translation>(targetBucket.Value);
-                translation.Value = translation.Value +
-                                    math.normalize(bucketTranslation.Value - translation.Value) * 1 * deltaTime;
-                if (math.length(translation.Value - bucketTranslation.Value) < 0.1f)
+                translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value +
+                                    math.normalize(bucketTranslation.Value - translation.Value) * 1 * deltaTime);
+                if (UtilityFunctions.FlatOverlapCheck(translation.Value, bucketTranslation.Value))
                 {
                     EntityManager.AddComponentData(e, new CarriedBucket()
                     {
@@ -124,7 +124,7 @@ public class ScoopBotSystem : SystemBase
                 float3 toTarget = brigadeTarget - translation.Value;
                 
                 float distanceToTarget = math.length(toTarget);
-                if (distanceToTarget < float.Epsilon)
+                if (UtilityFunctions.FlatOverlapCheck(brigadeTarget, translation.Value))
                 {
                     // we got to the target, mark the bucket as full, and pass to the next owner
                     // eventually this will transition to a fill state first
@@ -145,10 +145,8 @@ public class ScoopBotSystem : SystemBase
                 }
                 else
                 {
-                    translation.Value = translation.Value +
-                                        math.normalize(toTarget) * math.min(1 * deltaTime, distanceToTarget);
-                    var bucketTranslation = translation.Value + new float3(0, 0.5f, 0);
-                    ecb.SetComponent(carriedBucket.Value, new Translation() {Value = bucketTranslation});
+                    translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value +
+                                        math.normalize(toTarget) * math.min(1 * deltaTime, distanceToTarget));
                 }
             }).WithoutBurst().Run();
     }
