@@ -87,6 +87,7 @@ public struct UtilityFunctions
         return math.lerp(_startPos, _endPos, (float)_index / (float)_chainLength) + (new float3(perpendicular.x, 0f, perpendicular.y) * curveOffset);
     }
 }
+
 public class BrigadeInitializationSystem : SystemBase
 {
     private EntityQuery m_riverEntityQuery;
@@ -117,6 +118,8 @@ public class BrigadeInitializationSystem : SystemBase
         var riverEntities = m_riverEntityQuery.ToEntityArray(Allocator.TempJob);
         
         var job1 = Entities
+            .WithReadOnly(riverEntities)
+            .WithReadOnly(riverPositions)
             .ForEach((in Entity e, in BrigadeInitialization init, in BrigadeColor colors) =>
             {
                 // create brigades 
@@ -132,13 +135,12 @@ public class BrigadeInitializationSystem : SystemBase
                     {
                         if (waterTarget == Entity.Null)
                         {
-                            waterTarget = riverEntities[i];
-                            waterPosition = riverPositions[i].Value;
+                            waterTarget = riverEntities[j];
+                            waterPosition = riverPositions[j].Value;
                             break;
                         }
                     }
-
-
+                    
                     var brigade = cb.CreateEntity();
                     cb.AddComponent<Brigade>(brigade);
                     cb.SetComponent(brigade, new Brigade()

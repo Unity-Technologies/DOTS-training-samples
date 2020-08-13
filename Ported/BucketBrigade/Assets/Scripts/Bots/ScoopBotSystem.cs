@@ -2,9 +2,9 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 
- 
 [UpdateAfter(typeof(BrigadeRetargetSystem))]
 public class ScoopBotSystem : SystemBase
 {
@@ -112,8 +112,10 @@ public class ScoopBotSystem : SystemBase
             .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigade,
                 in NextBot nextBot) =>
             {
-                var brigadeTarget = riverTranslation[EntityManager.GetComponentData<Brigade>(brigade.Value).waterEntity].Value;
+                var waterEntity = EntityManager.GetComponentData<Brigade>(brigade.Value).waterEntity;
+                var brigadeTarget = math.mul(GetComponent<LocalToWorld>(waterEntity).Value,new float4(riverTranslation[waterEntity].Value, 1)).xyz;
                 float3 toTarget = brigadeTarget - translation.Value;
+                
                 float distanceToTarget = math.length(toTarget);
                 if (distanceToTarget < float.Epsilon)
                 {

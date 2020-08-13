@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8307267205372532995}
   - component: {fileID: 8307267205372532992}
-  - component: {fileID: 8307267205372532993}
   m_Layer: 0
   m_Name: WaterInitialization
   m_TagString: Untagged
@@ -53,22 +52,3 @@ MonoBehaviour:
   BucketFillRate: 0.01
   BucketSize_EMPTY: 0.2
   BucketSize_FULL: 0.4
---- !u!114 &8307267205372532993
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8307267205372533006}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 294f5354f49224db3878d435f5d32bea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  volume: 0
-  capacity: 0
-  fullScale:
-    x: 8
-    y: 0
-    z: -3
-  prefab: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314, type: 3}
