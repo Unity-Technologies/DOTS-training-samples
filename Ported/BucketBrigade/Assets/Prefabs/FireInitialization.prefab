@@ -63,11 +63,16 @@ MonoBehaviour:
   GridWidth: 50
   GridHeight: 50
   NumInitialFires: 5
+  InitialFireTemperature: 1
   FlashPoint: 0.2
   MaxTemperature: 1
-  HeatRadius: 1
-  HeatTransferRate: 0.0004
+  HeatRadius: 2
+  HeatTransferRate: 0.0003
   FireSimUpdateRate: 0.01
+  DefaultColor: {r: 0.25841102, g: 0.8679245, b: 0.020469915, a: 0}
+  LowFireColor: {r: 1, g: 0.7684399, b: 0.18396229, a: 0}
+  HigHFireColor: {r: 1, g: 0.0141509175, b: 0.022744153, a: 0}
+  MaxFireHeight: 0.59
 --- !u!114 &6434532874569569231
 MonoBehaviour:
   m_ObjectHideFlags: 0

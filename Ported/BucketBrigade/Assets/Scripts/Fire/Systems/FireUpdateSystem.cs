@@ -54,16 +54,30 @@ public class FireUpdateSystem : SystemBase
         
         // 2nd pass: add each cell's accumulated neighbor temperature
         Entities
-            .ForEach((Entity entity, ref Translation t, ref Temperature temp, ref AddedTemperature addedTemp) =>
+            .ForEach((Entity entity, ref Translation t, ref Temperature temp, ref AddedTemperature addedTemp, ref FireColor fireColor) =>
             {
                 temp.Value = math.min(addedTemp.Value + temp.Value, config.MaxTemperature);
                 addedTemp.Value = 0;
 
+                // Affect look & feel
                 if (temp.Value > 0)
                 {
+                    // Position
                     var newTrans = t;
-                    newTrans.Value.y = temp.Value * 1;
+                    newTrans.Value.y = temp.Value * config.MaxFireHeight + config.Origin.y;
                     t = newTrans;
+                    
+                    // Color
+                    if (temp.Value < config.FlashPoint)
+                    {
+                        fireColor.Value = math.lerp(config.DefaultColor, config.LowFireColor,
+                            math.max(0f, temp.Value / config.FlashPoint));
+                    }
+                    else
+                    {
+                        fireColor.Value = math.lerp(config.LowFireColor, config.HigHFireColor,
+                            math.min(1f, (temp.Value - config.FlashPoint) / (1f - config.FlashPoint) ));
+                    }
                 }
                 
             }).ScheduleParallel();

@@ -43,7 +43,7 @@ public class FireIntializationSystem : SystemBase
                 for (int i = 0; i < config.NumInitialFires; ++i)
                 {
                     int randomIndex = Random.NextInt(0, Size);
-                    RandomTemperatures[randomIndex] = 0.2f;
+                    RandomTemperatures[randomIndex] = config.InitialFireTemperature;
                 }
 
                 // Set up entities
@@ -55,15 +55,19 @@ public class FireIntializationSystem : SystemBase
                     {
                         var instance = GridEntries[index]; // ecb.Instantiate(spawning.Prefab);
                         var translation = new float3(x - (config.GridWidth - 1) / 2f, 0, z);
-                        translation *= cellSize * 1.1f;
+                        translation *= cellSize;
                         translation += config.Origin;
 
                         // Position
                         ecb.SetComponent(instance, new Translation { Value = translation });
-
+                        ecb.AddComponent(instance, new NonUniformScale { Value = new float3(cellSize, 1f, cellSize) });
+                        
                         // Temperatures
                         ecb.AddComponent(instance, new Temperature { Value = RandomTemperatures[index] } );
                         ecb.AddComponent(instance, new AddedTemperature { Value = 0 } );
+                        
+                        // Rendering
+                        ecb.AddComponent(instance, new FireColor { Value = config.DefaultColor } );
  
                         // Set my Neighbors in a dynamic buffer; with e.g. maximum 8 neighbors if radius is 1
                         var neighbors = ecb.AddBuffer<FireGridNeighbor>(instance);
