@@ -28,7 +28,7 @@ public class BucketTossSystem : SystemBase
             All = new[]
             {
                 ComponentType.ReadOnly<Translation>(),
-                ComponentType.ReadOnly<BucketTosser>(),
+                ComponentType.ReadOnly<BotRoleTosser>(),
             }
         });        
     }

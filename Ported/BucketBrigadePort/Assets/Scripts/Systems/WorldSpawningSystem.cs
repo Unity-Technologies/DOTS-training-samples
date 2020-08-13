@@ -68,14 +68,12 @@ public class WorldSpawningSystem : SystemBase
 
                         // Add Fire
                         // TODO: random.NextFloat(flashpoint, 1f) // Add flashpoint randomization
-                        if (fireTiles[tileCount] == true)
-                        {
-                            var temperature = new Temperature();
-                            temperature.Value = 1;
-                            EntityManager.SetComponentData(blankTiles[tileCount], temperature);
-                        }
-                        // Add Bucket
-                        if (bucketTiles[tileCount] == true)
+                        var temperature = new Temperature();
+                        temperature.Value = fireTiles[tileCount] == true ? 1 : 0;
+                        EntityManager.SetComponentData(blankTiles[tileCount], temperature);
+
+                            // Add Bucket
+                            if (bucketTiles[tileCount] == true)
                         {
                             var positionBucket = new Translation() { Value = 
                                 new float3(

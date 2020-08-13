@@ -43,29 +43,52 @@ public class LineSpawnerSystem_FromEntity : SystemBase
             //.ForEach((Entity entity, int entityInQueryIndex, in LineSpawner_FromEntity lineSpawnerFromEntity, in LocalToWorld location) =>
             .ForEach((Entity spawnerEntity, in LineSpawner_FromEntity lineSpawnerFromEntity, in Translation translation) =>
         {
+            var tileSpawner = GetSingleton<TileSpawner>();
+            var worldSizeX = tileSpawner.XSize * tileSpawner.Scale;
+            var worldSizeY = tileSpawner.YSize * tileSpawner.Scale;
+
             var random = new Random(1);
             for (var x = 0; x < lineSpawnerFromEntity.Count; x++)
                 {
                     var instance = EntityManager.Instantiate(lineSpawnerFromEntity.LinePrefab);
                     
-                    var line = new Line();
-                    var position = new Translation{Value = new float3(random.NextFloat(0, 10f),0, random.NextFloat(0, 10f))};
+                    // var line = new Line();
+                    var position = new Translation{Value = new float3(random.NextFloat(0, worldSizeX),0, random.NextFloat(0, worldSizeY))};
                     
                     for (var a = 0; a < lineSpawnerFromEntity.CountOfFullPassBots; a++)
                     {
                         var bot = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
-                        var botPosition = new Translation{Value = new float3(random.NextFloat(0, 10f), 0, random.NextFloat(0, 10f))};
+                        var botPosition = new Translation{Value = new float3(random.NextFloat(0, worldSizeX), 0, random.NextFloat(0, worldSizeY))};
                         EntityManager.AddComponentData(bot, botPosition);
+                        EntityManager.AddComponentData(bot, new BotRolePasserFull());
                     }
 
                     for (var a = 0; a < lineSpawnerFromEntity.CountOfEmptyPassBots; a++)
                     {
                         var bot = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
-                        var botPosition = new Translation{Value = new float3(random.NextFloat(0, 10f), 0, random.NextFloat(0, 10f))};
+                        var botPosition = new Translation{Value = new float3(random.NextFloat(0, worldSizeX), 0, random.NextFloat(0, worldSizeY))};
                         EntityManager.AddComponentData(bot, botPosition);
+                        EntityManager.AddComponentData(bot, new BotRolePasserEmpty());
                     }
 
-                    EntityManager.AddComponentData(instance, position);
+                    var botFiller = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
+                    var botFillerPosition = new Translation { Value = new float3(random.NextFloat(0, worldSizeX), 0, random.NextFloat(0, worldSizeY)) };
+                    EntityManager.AddComponentData(botFiller, botFillerPosition);
+                    EntityManager.AddComponentData(botFiller, new BotRoleFiller());
+
+                    var botTosser = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
+                    var botTosserPosition = new Translation { Value = new float3(random.NextFloat(0, worldSizeX), 0, random.NextFloat(0, worldSizeY)) };
+                    EntityManager.AddComponentData(botTosser, botTosserPosition);
+                    EntityManager.AddComponentData(botTosser, new BotRoleTosser());
+
+                    var botFinder = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
+                    var botFinderPosition = new Translation { Value = new float3(random.NextFloat(0, worldSizeX), 0, random.NextFloat(0, worldSizeY)) };
+                    EntityManager.AddComponentData(botFinder, botFinderPosition);
+                    EntityManager.AddComponentData(botFinder, new BotRoleFinder());
+
+                    // TODO: Add colours to bots @ spawn
+
+                EntityManager.AddComponentData(instance, position);
                 }
 
             EntityManager.DestroyEntity(spawnerEntity);
