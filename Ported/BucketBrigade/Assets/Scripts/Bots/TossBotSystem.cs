@@ -14,12 +14,14 @@ public class TossBotSystem : SystemBase
             .WithAll<BotTypeToss>()
             .WithNone<CarriedBucket>()
             .WithNone<TargetBucket>()
-            .ForEach((Entity e, ref Translation translation, in TargetPosition target) =>
+            .ForEach((Entity e, ref Translation translation, in BrigadeGroup group) =>
                 {
-                    if (math.length(translation.Value - target.Value) >= 0.1f)
+                    Brigade brigade = GetComponent<Brigade>(group.Value);
+                    
+                    if (math.length(brigade.fireTarget - translation.Value) >= 0.1f)
                     {
                         translation.Value = translation.Value + 
-                                            math.normalize(target.Value - translation.Value) * 1 * deltaTime;
+                                            math.normalize(brigade.fireTarget - translation.Value) * 1 * deltaTime;
                     }
                 }
             ).Schedule();
