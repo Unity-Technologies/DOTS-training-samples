@@ -10,8 +10,12 @@ public class ScoopBotSystem : SystemBase
 {
     private EntityQuery m_bucketQuery;
     private EntityQuery m_scoopBucketSearchQuery;
+    private EndSimulationEntityCommandBufferSystem m_CommandBufferSystem;
+
     protected override void OnCreate()
     {
+        m_CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+
         m_bucketQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new[]
@@ -43,6 +47,10 @@ public class ScoopBotSystem : SystemBase
         var deltaTime = Time.DeltaTime;
         if (m_scoopBucketSearchQuery.CalculateEntityCount() > 0 && m_bucketQuery.CalculateEntityCount() > 0)
         {
+            // TODO: OMG THIS IS BAD
+            var bucketTranslations = m_bucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+            var bucketEntities = m_bucketQuery.ToEntityArray(Allocator.TempJob);
+
             Entities
                 .WithName("Scoop_BucketSearch")
                 .WithAll<BotTypeScoop>()
@@ -51,10 +59,6 @@ public class ScoopBotSystem : SystemBase
                 .WithStructuralChanges()
                 .ForEach((Entity e, ref Translation translation) =>
                 {
-                    // TODO: OMG THIS IS BAD
-                    var bucketTranslations = m_bucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-                    var bucketEntities = m_bucketQuery.ToEntityArray(Allocator.TempJob);
-
                     float minDistance = math.lengthsq(bucketTranslations[0].Value - translation.Value);
                     Entity bucket = bucketEntities[0];
                     // find a target bucket
@@ -77,9 +81,10 @@ public class ScoopBotSystem : SystemBase
                         Value = bucket
                     });
                     
-                    bucketTranslations.Dispose();
-                    bucketEntities.Dispose();
                 }).Run();
+
+            bucketTranslations.Dispose();
+            bucketEntities.Dispose();
         }
 
         Entities
@@ -102,8 +107,12 @@ public class ScoopBotSystem : SystemBase
                     EntityManager.RemoveComponent<TargetBucket>(e);
                 }
             }).WithoutBurst().Run();
-        var riverTranslation = GetComponentDataFromEntity<Translation>(true);
 
+        var riverTranslation = GetComponentDataFromEntity<Translation>(true);
+        var localToWorldComponents = GetComponentDataFromEntity<LocalToWorld>(true);
+
+        var ecb = m_CommandBufferSystem.CreateCommandBuffer();
+            
         Entities
             .WithName("Scoop_BucketCarry")
             .WithAll<BotTypeScoop>()
@@ -113,7 +122,7 @@ public class ScoopBotSystem : SystemBase
                 in NextBot nextBot) =>
             {
                 var waterEntity = EntityManager.GetComponentData<Brigade>(brigade.Value).waterEntity;
-                var brigadeTarget = math.mul(GetComponent<LocalToWorld>(waterEntity).Value,new float4(riverTranslation[waterEntity].Value, 1)).xyz;
+                var brigadeTarget = math.mul(localToWorldComponents[waterEntity].Value,new float4(riverTranslation[waterEntity].Value, 1)).xyz;
                 float3 toTarget = brigadeTarget - translation.Value;
                 
                 float distanceToTarget = math.length(toTarget);
@@ -121,27 +130,27 @@ public class ScoopBotSystem : SystemBase
                 {
                     // we got to the target, mark the bucket as full, and pass to the next owner
                     // eventually this will transition to a fill state first
-                    EntityManager.SetComponentData(carriedBucket.Value, new Water()
+                    ecb.SetComponent(carriedBucket.Value, new Water()
                     {
                         capacity = 1,
                         volume = 1
                     });
-                    EntityManager.AddComponentData(nextBot.Value, new TargetBucket()
+                    ecb.AddComponent(nextBot.Value, new TargetBucket()
                     {
                         Value = carriedBucket.Value
                     });
-                    EntityManager.SetComponentData(carriedBucket.Value, new Owner()
+                    ecb.SetComponent(carriedBucket.Value, new Owner()
                     {
                         Value = nextBot.Value
                     });
-                    EntityManager.RemoveComponent<CarriedBucket>(e);
+                    ecb.RemoveComponent<CarriedBucket>(e);
                 }
                 else
                 {
                     translation.Value = translation.Value +
                                         math.normalize(toTarget) * math.min(1 * deltaTime, distanceToTarget);
                     var bucketTranslation = translation.Value + new float3(0, 0.5f, 0);
-                    EntityManager.SetComponentData(carriedBucket.Value, new Translation() {Value = bucketTranslation});
+                    ecb.SetComponent(carriedBucket.Value, new Translation() {Value = bucketTranslation});
                 }
             }).WithoutBurst().Run();
     }

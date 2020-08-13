@@ -131,14 +131,12 @@ public class BrigadeInitializationSystem : SystemBase
                     // find a water target
                     var waterTarget = Entity.Null;
                     var waterPosition = float3.zero;
-                    for (int j = 0; j < riverEntities.Length; j++)
+
+                    int randomWaterindex = random.NextInt(0, riverEntities.Length);
+                    if (waterTarget == Entity.Null)
                     {
-                        if (waterTarget == Entity.Null)
-                        {
-                            waterTarget = riverEntities[j];
-                            waterPosition = math.mul(GetComponent<LocalToWorld>(waterTarget).Value, new float4(riverPositions[j].Value, 1)).xyz;
-                            break;
-                        }
+                        waterTarget = riverEntities[randomWaterindex];
+                        waterPosition = math.mul(GetComponent<LocalToWorld>(waterTarget).Value, new float4(riverPositions[randomWaterindex].Value, 1)).xyz;
                     }
                     
                     var brigade = cb.CreateEntity();
