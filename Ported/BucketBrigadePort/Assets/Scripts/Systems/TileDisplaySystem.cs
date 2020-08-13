@@ -1,18 +1,18 @@
-﻿using Unity.Entities;
+﻿using System.Transactions;
+using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class ColorUpdaterSystem : SystemBase
+public class TileDisplaySystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Debug.Log("ColorUpdater");
         var fireSpreadSettings = GetSingleton<FireSpreadSettings>();
         var tileDisplaySettings = GetSingleton<TileDisplaySettings>();
         float baseHeight = 0.001f;
         Entities
-            .WithName("ColorUpdater")
+            .WithName("TileDisplay")
             .ForEach((Entity entity, 
                 ref Color color, ref Translation translation, 
                 in Temperature temperature) =>
