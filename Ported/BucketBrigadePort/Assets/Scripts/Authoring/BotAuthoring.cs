@@ -9,3 +9,5 @@ public struct Bot : IComponentData
 }
 
 public struct BucketTosser : IComponentData { }
+
+public struct BucketFiller : IComponentData { }
