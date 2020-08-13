@@ -42,6 +42,8 @@ public class ScoopBotSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        
+        var botSpeed = EntityManager.GetComponentData<BotConfig>(GetSingletonEntity<BotConfig>()).botSpeed;
         var deltaTime = Time.DeltaTime;
         if (m_scoopBucketSearchQuery.CalculateEntityCount() > 0 && m_bucketQuery.CalculateEntityCount() > 0)
         {
@@ -95,7 +97,7 @@ public class ScoopBotSystem : SystemBase
             {
                 var bucketTranslation = EntityManager.GetComponentData<Translation>(targetBucket.Value);
                 translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value +
-                                    math.normalize(bucketTranslation.Value - translation.Value) * 1 * deltaTime);
+                                    math.normalize(bucketTranslation.Value - translation.Value) * botSpeed * deltaTime);
                 if (UtilityFunctions.FlatOverlapCheck(translation.Value, bucketTranslation.Value))
                 {
                     EntityManager.AddComponentData(e, new CarriedBucket()
@@ -146,7 +148,7 @@ public class ScoopBotSystem : SystemBase
                 else
                 {
                     translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value +
-                                        math.normalize(toTarget) * math.min(1 * deltaTime, distanceToTarget));
+                                        math.normalize(toTarget) * math.min(botSpeed * deltaTime, distanceToTarget));
                 }
             }).WithoutBurst().Run();
     }

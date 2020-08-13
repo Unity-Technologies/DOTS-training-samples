@@ -9,6 +9,7 @@ public class PasserBotSystem : SystemBase
     {
         var deltaTime = Time.DeltaTime;
         
+        var botSpeed = EntityManager.GetComponentData<BotConfig>(GetSingletonEntity<BotConfig>()).botSpeed;
         // Go to default position if no pickup/carrying happening
         Entities
             .WithName("Passer_GoToTarget")
@@ -20,7 +21,7 @@ public class PasserBotSystem : SystemBase
                     if (!UtilityFunctions.FlatOverlapCheck(translation.Value, target.Value))
                     {
                         translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value + 
-                                                                              math.normalize(target.Value - translation.Value) * 1 * deltaTime);
+                                                                              math.normalize(target.Value - translation.Value) * botSpeed * deltaTime);
                     }
                 }
             ).Run();
@@ -36,7 +37,7 @@ public class PasserBotSystem : SystemBase
                 {
                     var bucketTranslation = EntityManager.GetComponentData<Translation>(targetBucket.Value);
                     translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value +
-                                                                          math.normalize(bucketTranslation.Value - translation.Value) * 1 * deltaTime);
+                                                                          math.normalize(bucketTranslation.Value - translation.Value) * botSpeed * deltaTime);
                     if (UtilityFunctions.FlatOverlapCheck(translation.Value, bucketTranslation.Value))
                     {
                         // Start carrying bucket
@@ -57,7 +58,7 @@ public class PasserBotSystem : SystemBase
             .WithStructuralChanges()
             .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigade, in TargetPosition targetPos, in NextBot nextBot) =>
                 {
-                    translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value + math.normalize(targetPos.Value - translation.Value) * 1 * deltaTime);
+                    translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value + math.normalize(targetPos.Value - translation.Value) * botSpeed * deltaTime);
                     if (UtilityFunctions.FlatOverlapCheck(translation.Value, targetPos.Value))
                     {
                         // Next bot targets bucket
@@ -91,7 +92,7 @@ public class PasserBotSystem : SystemBase
                     Brigade brigade = GetComponent<Brigade>(brigadeGroup.Value);
                     var waterPosition = GetComponent<LocalToWorld>(brigade.waterEntity).Value.c3.xyz;
 
-                    translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value + math.normalize(waterPosition - translation.Value) * 1 * deltaTime);
+                    translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value + math.normalize(waterPosition - translation.Value) * botSpeed * deltaTime);
 
                     if (UtilityFunctions.FlatOverlapCheck(translation.Value, waterPosition))
                     {

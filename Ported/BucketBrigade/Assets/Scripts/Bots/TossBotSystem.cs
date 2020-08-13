@@ -7,7 +7,7 @@ public class TossBotSystem : SystemBase
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
-        
+        var botSpeed = EntityManager.GetComponentData<BotConfig>(GetSingletonEntity<BotConfig>()).botSpeed;
         // Go to default position if no pickup/carrying happening
         Entities
             .WithName("Toss_GoToTarget")
@@ -20,7 +20,7 @@ public class TossBotSystem : SystemBase
                     if (!UtilityFunctions.FlatOverlapCheck(brigade.fireTarget, translation.Value))
                     {
                         translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value + 
-                                                                              math.normalize(brigade.fireTarget - translation.Value) * 1 * deltaTime);
+                                                                              math.normalize(brigade.fireTarget - translation.Value) * botSpeed * deltaTime);
                     }
                 }
             ).Schedule();
@@ -36,7 +36,7 @@ public class TossBotSystem : SystemBase
                 {
                     var bucketTranslation = EntityManager.GetComponentData<Translation>(targetBucket.Value);
                     translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value +
-                                                                          math.normalize(bucketTranslation.Value - translation.Value) * 1 * deltaTime);
+                                                                          math.normalize(bucketTranslation.Value - translation.Value) * botSpeed * deltaTime);
                     if (UtilityFunctions.FlatOverlapCheck(translation.Value, bucketTranslation.Value))
                     {
                         EntityManager.AddComponentData(e, new CarriedBucket()
@@ -58,7 +58,7 @@ public class TossBotSystem : SystemBase
                 {
                     Brigade brigade = EntityManager.GetComponentData<Brigade>(brigadeGroup.Value);
                     var fireTarget = brigade.fireTarget;
-                    translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value + math.normalize(fireTarget - translation.Value) * 1 * deltaTime);
+                    translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value + math.normalize(fireTarget - translation.Value) * botSpeed * deltaTime);
                     if (UtilityFunctions.FlatOverlapCheck(translation.Value, fireTarget))
                     {
                         // Next bot targets bucket

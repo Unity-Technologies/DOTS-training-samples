@@ -9,6 +9,7 @@ using UnityEngine;
 public struct BrigadeInitialization : IComponentData
 {
     public Entity bot;
+    public float botSpeed;
     public int emptyPassers;
     public int fullPassers;
     public int brigadeCount;

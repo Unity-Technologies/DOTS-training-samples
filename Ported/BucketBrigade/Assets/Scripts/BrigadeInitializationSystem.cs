@@ -14,6 +14,10 @@ public struct Brigade : IComponentData
     public Random random;
 }
 
+public struct BotConfig : IComponentData
+{
+    public float botSpeed;
+}
 public struct BrigadeGroup : IComponentData
 {
     public Entity Value;
@@ -103,6 +107,7 @@ public class BrigadeInitializationSystem : SystemBase
 {
     private EntityQuery m_riverEntityQuery;
     private EntityCommandBufferSystem ecbs;
+    static public float botSpeed; 
     protected override void OnCreate()
     {
         ecbs = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
@@ -117,6 +122,11 @@ public class BrigadeInitializationSystem : SystemBase
             {
                 ComponentType.ReadOnly<Bucket>(),
             }
+        });
+        var botConfig = EntityManager.CreateEntity();
+        EntityManager.AddComponentData(botConfig, new BotConfig()
+        {
+            botSpeed = 3 // this should be pulled from the authoring data, not sure why it isn't
         });
 
     }
