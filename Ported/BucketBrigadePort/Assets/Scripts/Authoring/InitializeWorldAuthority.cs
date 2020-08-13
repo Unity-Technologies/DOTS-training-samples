@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public struct InitializeWorldAuthority : IComponentData
+public struct InitializeWorld : IComponentData
 {
 }
 

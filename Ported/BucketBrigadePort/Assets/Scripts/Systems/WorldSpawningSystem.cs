@@ -13,8 +13,9 @@ public class WorldSpawningSystem : SystemBase
     {
         var tileSpawner = GetSingleton<TileSpawner>(); 
         Entities
+            .WithName("TileSpawner")
             .WithStructuralChanges()
-            .ForEach((Entity spawnerEntity, in InitializeWorldAuthority initializeWorld) => // , in TileSpawner tileSpawner
+            .ForEach((Entity spawnerEntity, in InitializeWorld initializeWorld) =>
             {
                 var blankTiles = EntityManager.Instantiate(tileSpawner.Prefab, tileSpawner.XSize * tileSpawner.YSize, Allocator.Temp);
                 // TODO: Scale prefab itself by tileSpawner.Scale. Currently prefab hardcoded to 0.3 and tileSpawner.Scale set in UI to match
@@ -44,7 +45,5 @@ public class WorldSpawningSystem : SystemBase
                 blankTiles.Dispose();
                 EntityManager.DestroyEntity(spawnerEntity);
             }).Run();
-
-        // TODO: Store 2d array of entities
     }
 }
