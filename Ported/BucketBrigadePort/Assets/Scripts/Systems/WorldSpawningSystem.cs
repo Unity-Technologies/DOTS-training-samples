@@ -18,10 +18,13 @@ public class WorldSpawningSystem : SystemBase
             {
                 var random = new Random(1);
 
+                var tileDisplaySettings = GetSingleton<TileDisplaySettings>();
                 var tileSpawner = GetSingleton<TileSpawner>();
+                var bucketSpawner = GetSingleton<BucketSpawner>();
+
                 var numTiles = tileSpawner.XSize * tileSpawner.YSize;
+
                 var numFires = tileSpawner.StartingFireCount > numTiles ? numTiles : tileSpawner.StartingFireCount;
-                // Initial Starting Fires
                 var fireTiles = new bool[numTiles];
                 var fire = random.NextInt(0, numFires);
                 for (int i = 0; i < numFires;)
@@ -33,10 +36,7 @@ public class WorldSpawningSystem : SystemBase
                         i++;
                     }
                 }
-                // Initial Starting Buckets
-                // with water amount, without water refill
-                var bucketSpawner = GetSingleton<BucketSpawner>();
-                // Initial Starting Fires
+
                 var bucketTiles = new bool[numTiles];
                 var bucket = random.NextInt(0, numFires);
                 for (int i = 0; i < bucketSpawner.TotalBuckets;)

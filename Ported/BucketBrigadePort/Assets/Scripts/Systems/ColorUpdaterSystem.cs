@@ -1,5 +1,4 @@
-﻿using System.Transactions;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using UnityEngine;
@@ -11,7 +10,7 @@ public class ColorUpdaterSystem : SystemBase
         Debug.Log("ColorUpdater");
         var fireSpreadSettings = GetSingleton<FireSpreadSettings>();
         var tileDisplaySettings = GetSingleton<TileDisplaySettings>();
-        float baseHeight = 0.05f;
+        float baseHeight = 0.001f;
         Entities
             .WithName("ColorUpdater")
             .ForEach((Entity entity, 
@@ -33,7 +32,6 @@ public class ColorUpdaterSystem : SystemBase
                     color.Value = tileDisplaySettings.ColorFireNeutral;
                     position.y = baseHeight + maxHeight * (-0.5f);
                 }
-
                 translation.Value = position;
             }).ScheduleParallel();
     }
