@@ -8,8 +8,10 @@ public class ColorUpdaterSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        Debug.Log("ColorUpdater");
         var fireSpreadSettings = GetSingleton<FireSpreadSettings>();
         var tileDisplaySettings = GetSingleton<TileDisplaySettings>();
+        float baseHeight = 0.05f;
         Entities
             .WithName("ColorUpdater")
             .ForEach((Entity entity, 
@@ -24,12 +26,12 @@ public class ColorUpdaterSystem : SystemBase
                 {
                     color.Value = math.lerp(tileDisplaySettings.ColorFireCool, tileDisplaySettings.ColorFireHot,
                         temperature.Value);
-                    position.y = maxHeight * (-0.5f + temperature.Value);
+                    position.y = baseHeight + maxHeight * (-0.5f + temperature.Value);
                 }
                 else
                 {
                     color.Value = tileDisplaySettings.ColorFireNeutral;
-                    position.y = maxHeight * (-0.5f);
+                    position.y = baseHeight + maxHeight * (-0.5f);
                 }
 
                 translation.Value = position;
