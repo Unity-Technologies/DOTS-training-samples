@@ -11,14 +11,30 @@ public class WorldSpawningSystem : SystemBase
     }
     protected override void OnUpdate()
     {
-        var tileSpawner = GetSingleton<TileSpawner>(); 
+        var tileSpawner = GetSingleton<TileSpawner>();
+        var numTiles = tileSpawner.XSize * tileSpawner.YSize;
+        var numFires = tileSpawner.StartingFireCount > numTiles ? numTiles : tileSpawner.StartingFireCount;
+        // Initial Starting Fires
+        var fireTiles = new bool[numTiles];
+        var randomFire = new Random(1);
+        var fire = randomFire.NextInt(0, numFires);
+        for (int i = 0; i < numFires; )
+        {
+            var rndValue = randomFire.NextInt(0, numTiles);
+            if(fireTiles[rndValue] == false)
+            {
+                fireTiles[rndValue] = true;
+                i++;
+            }
+        }
+        UnityEngine.Debug.LogWarning("numFires: " + numFires);
+
         Entities
             .WithName("TileSpawner")
             .WithStructuralChanges()
             .ForEach((Entity spawnerEntity, in InitializeWorld initializeWorld) =>
             {
-                var blankTiles = EntityManager.Instantiate(tileSpawner.Prefab, tileSpawner.XSize * tileSpawner.YSize, Allocator.Temp);
-                // TODO: Scale prefab itself by tileSpawner.Scale. Currently prefab hardcoded to 0.3 and tileSpawner.Scale set in UI to match
+                var blankTiles = EntityManager.Instantiate(tileSpawner.Prefab, numTiles, Allocator.Temp);
 
                 var random = new Random(1);
                 int tileCount = 0;
@@ -30,7 +46,8 @@ public class WorldSpawningSystem : SystemBase
                         var position = new Translation() { Value = new float3(x * tileSpawner.Scale, yPosition, y * tileSpawner.Scale) };
                         EntityManager.SetComponentData(blankTiles[tileCount], position);
 
-                        EntityManager.AddComponentData<Color>(blankTiles[tileCount], new Color());
+                        // TODO: Scale prefab itself by tileSpawner.Scale. Currently prefab hardcoded to 0.3 and tileSpawner.Scale set in UI to match
+                        // EntityManager.AddComponentData<Color>(blankTiles[tileCount], new Color());
                         // TODO: Add scaling
                         // var scale = new Scale() { Value = tileSpawner.Scale };
                         // EntityManager.SetComponentData(blankTiles[tileCount], scale);
@@ -38,11 +55,23 @@ public class WorldSpawningSystem : SystemBase
                         var tileAuthor = new Tile();
                         tileAuthor.Id = y * tileSpawner.XSize + x;
                         EntityManager.SetComponentData(blankTiles[tileAuthor.Id], tileAuthor);
+                        // random.NextFloat(flashpoint, 1f)
+                        if (fireTiles[tileCount] == true)
+                        {
+                            var temperature = new Temperature();
+                            temperature.Value = 1;
+                            EntityManager.SetComponentData(blankTiles[tileCount], temperature);
+                        }
 
                         tileCount++;
                     }
                 }
                 blankTiles.Dispose();
+
+                // Bucket Spawning. TODO: Move this to its own job?
+                // tileSpawner.TotalBuckets
+
+
                 EntityManager.DestroyEntity(spawnerEntity);
             }).Run();
     }

@@ -65,6 +65,8 @@ MonoBehaviour:
   XSize: 2
   YSize: 2
   Scale: 0.3
+  StartingFireCount: 1
+  TotalBuckets: 2
   Prefab: {fileID: 8135744633761666916, guid: ea3ec593ba0a10c4aa6eeb1873f61b41, type: 3}
 --- !u!114 &5223798053815962365
 MonoBehaviour:
