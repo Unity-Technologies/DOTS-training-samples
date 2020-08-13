@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public class FireUpdateSystem : SystemBase
 {
@@ -27,6 +28,7 @@ public class FireUpdateSystem : SystemBase
         var ecb = m_CommandBufferSystem.CreateCommandBuffer();
         var temperatures = GetComponentDataFromEntity<Temperature>(true);
         var config = m_config;
+        var time = UnityEngine.Time.time;
 
         // 1st pass: 
         Entities
@@ -54,7 +56,7 @@ public class FireUpdateSystem : SystemBase
         
         // 2nd pass: add each cell's accumulated neighbor temperature
         Entities
-            .ForEach((Entity entity, ref Translation t, ref Temperature temp, ref AddedTemperature addedTemp, ref FireColor fireColor) =>
+            .ForEach((Entity entity, ref Translation translation, ref Temperature temp, ref AddedTemperature addedTemp, ref FireColor fireColor) =>
             {
                 temp.Value = math.min(addedTemp.Value + temp.Value, config.MaxTemperature);
                 addedTemp.Value = 0;
@@ -63,9 +65,14 @@ public class FireUpdateSystem : SystemBase
                 if (temp.Value > 0)
                 {
                     // Position
-                    var newTrans = t;
+                    var newTrans = translation;
+                    
                     newTrans.Value.y = temp.Value * config.MaxFireHeight + config.Origin.y;
-                    t = newTrans;
+                   
+                    if (temp.Value >= config.FlashPoint)
+                        newTrans.Value.y += Mathf.PerlinNoise((time - temp.FireGridIndex) * config.FlickerRate - temp.Value, temp.Value) * config.FlickerRange;
+
+                    translation = newTrans;
                     
                     // Color
                     if (temp.Value < config.FlashPoint)

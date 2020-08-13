@@ -5,6 +5,7 @@
 public struct Temperature : IComponentData
 {
     public float Value;
+    public int FireGridIndex;
 }
 
 // Added temperature each frame on a single cell  

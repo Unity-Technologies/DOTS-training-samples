@@ -63,7 +63,7 @@ public class FireIntializationSystem : SystemBase
                         ecb.AddComponent(instance, new NonUniformScale { Value = new float3(cellSize, 1f, cellSize) });
                         
                         // Temperatures
-                        ecb.AddComponent(instance, new Temperature { Value = RandomTemperatures[index] } );
+                        ecb.AddComponent(instance, new Temperature { Value = RandomTemperatures[index], FireGridIndex = index } );
                         ecb.AddComponent(instance, new AddedTemperature { Value = 0 } );
                         
                         // Rendering

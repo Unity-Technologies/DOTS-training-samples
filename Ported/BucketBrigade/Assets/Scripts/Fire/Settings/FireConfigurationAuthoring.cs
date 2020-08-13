@@ -25,6 +25,9 @@ public struct FireConfiguration : IComponentData
     public float4 LowFireColor;
     public float4 HigHFireColor;
     public float MaxFireHeight;
+
+    public float FlickerRange;
+    public float FlickerRate;
 }
 
 public class FireConfigurationAuthoring : UnityEngine.MonoBehaviour, IConvertGameObjectToEntity
@@ -60,6 +63,9 @@ public class FireConfigurationAuthoring : UnityEngine.MonoBehaviour, IConvertGam
     [Range(0.01f,1f)]
     public float MaxFireHeight = 0.2f;
 
+    public float FlickerRange = 0.4f;
+    public float FlickerRate = 0.5f;
+
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity, new FireConfiguration
@@ -78,7 +84,9 @@ public class FireConfigurationAuthoring : UnityEngine.MonoBehaviour, IConvertGam
             DefaultColor = ColorToFloat4(DefaultColor),
             LowFireColor = ColorToFloat4(LowFireColor),
             HigHFireColor = ColorToFloat4(HigHFireColor),
-            MaxFireHeight = MaxFireHeight
+            MaxFireHeight = MaxFireHeight,
+            FlickerRange = FlickerRange,
+            FlickerRate = FlickerRate
         });
     }
 
