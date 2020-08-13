@@ -18,8 +18,9 @@ public class BucketTossSystem : SystemBase
         {
             All = new[]
             {
+                ComponentType.ReadOnly<Translation>(),
                 ComponentType.ReadOnly<Tile>(),
-                typeof(Temperature)
+                ComponentType.ReadOnly<Temperature>()
             }
         });
 
@@ -93,6 +94,8 @@ public class BucketTossSystem : SystemBase
         .WithAll<Temperature>()
         .WithDisposeOnCompletion(bucketTranslations)
         .WithDisposeOnCompletion(bucketWaterAmounts)
+        .WithReadOnly(bucketTranslations)
+        .WithReadOnly(bucketWaterAmounts)
         .ForEach((ref Temperature fireCellTemperature, in Translation position, in Tile tile) =>
         {
             // fireCell is flashed
@@ -139,6 +142,9 @@ public class BucketTossSystem : SystemBase
         .WithDisposeOnCompletion(fireCellTranslations)
         .WithDisposeOnCompletion(fireCellTemperatures)
         .WithDisposeOnCompletion(tosserTranslations)
+        .WithReadOnly(fireCellTranslations)
+        .WithReadOnly(fireCellTemperatures)
+        .WithReadOnly(tosserTranslations)
         .ForEach((ref WaterAmount bucketWaterAmount, ref Color bucketColor, in Translation position) =>
         {
             for (int i = 0; i < tosserTranslations.Length; i++)
