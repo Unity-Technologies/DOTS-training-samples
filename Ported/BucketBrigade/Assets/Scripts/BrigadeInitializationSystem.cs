@@ -123,11 +123,6 @@ public class BrigadeInitializationSystem : SystemBase
                 ComponentType.ReadOnly<Bucket>(),
             }
         });
-        var botConfig = EntityManager.CreateEntity();
-        EntityManager.AddComponentData(botConfig, new BotConfig()
-        {
-            botSpeed = 3 // this should be pulled from the authoring data, not sure why it isn't
-        });
         RequireForUpdate(GetEntityQuery(new EntityQueryDesc
         {
             All = new[]
@@ -139,10 +134,19 @@ public class BrigadeInitializationSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var initComponent =
+            EntityManager.GetComponentData<BrigadeInitialization>(GetSingletonEntity<BrigadeInitialization>());
+        var botConfig = EntityManager.CreateEntity();
+        EntityManager.AddComponentData(botConfig, new BotConfig()
+        {
+            botSpeed = initComponent.botSpeed // this should be pulled from the authoring data, not sure why it isn't
+        });
+
         var cb = ecbs.CreateCommandBuffer();
         // build a list of water entities
         var riverPositions = m_riverEntityQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         var riverEntities = m_riverEntityQuery.ToEntityArray(Allocator.TempJob);
+
         
         var job1 = Entities
             .ForEach((in Entity e, in BrigadeInitialization init, in BrigadeColor colors) =>
@@ -151,12 +155,14 @@ public class BrigadeInitializationSystem : SystemBase
                 var random = new Random(1);
                 for (int i = 0; i < init.brigadeCount; i++)
                 {
-                    var fireTarget = random.NextFloat3()*10.0f;
+                    var fireTarget = random.NextFloat3()*30.0f-new float3(15,15,15);
                     fireTarget.y = 0;
                     // find a water target
                     var waterTarget = Entity.Null;
                     var waterPosition = float3.zero;
-
+                    
+                    // this should really be a shuffle so we guarentee uniqueness
+                    random.NextInt();
                     int randomWaterindex = random.NextInt(0, riverEntities.Length);
 
                     waterTarget = riverEntities[randomWaterindex];

@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using UnityEngine.Rendering;
 
 public struct Owner : IComponentData
@@ -24,7 +25,7 @@ public class BucketSystem : SystemBase
             .ForEach((Entity e, ref Color c, in Water w, in Bucket b) =>
             {
                 c.Value = math.lerp(b.emptyColor, b.fullColor, w.volume / w.capacity);
-            }).Schedule();
+            }).ScheduleParallel();
         
         var translations = GetComponentDataFromEntity<Translation>(true);
         var carried = GetComponentDataFromEntity<CarriedBucket>(true);
@@ -38,7 +39,9 @@ public class BucketSystem : SystemBase
             {
                 if (carried.HasComponent(owner.Value))
                     translation.Value = translations[owner.Value].Value + new float3(0, .4f, 0);
-            }).Schedule();
+                else
+                    translation.Value.y = .1f;
+            }).ScheduleParallel();
    
         Entities
             .WithAll<Bucket>()
@@ -46,6 +49,6 @@ public class BucketSystem : SystemBase
             .ForEach((Entity e, ref Translation translation) =>
             {
                 translation.Value.y = .1f;
-            }).Schedule();
+            }).ScheduleParallel();
     }
 }

@@ -10,7 +10,7 @@ using Random = Unity.Mathematics.Random;
 [UpdateAfter(typeof(BrigadeInitializationSystem))]
 public class BrigadeRetargetSystem : SystemBase
 {
-    private float updateSpeed = 10.0f;
+    private float updateSpeed = 1.0f;
     private float nextUpdate = 0.1f;
     private Random random;
 
