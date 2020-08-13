@@ -9,6 +9,7 @@ public struct FireConfiguration : IComponentData
     public float CellSize;
     public int GridWidth;
     public int GridHeight;
+    public float2 GridExtents;
 
     public int NumInitialFires;
     public float InitialFireTemperature;
@@ -74,6 +75,7 @@ public class FireConfigurationAuthoring : UnityEngine.MonoBehaviour, IConvertGam
             CellSize = CellSize,
             GridWidth = GridWidth,
             GridHeight = GridHeight,
+            GridExtents = new float2(GridWidth * CellSize, GridHeight * CellSize),
             NumInitialFires = NumInitialFires,
             InitialFireTemperature = InitialFireTemperature, 
             FlashPoint = FlashPoint,
