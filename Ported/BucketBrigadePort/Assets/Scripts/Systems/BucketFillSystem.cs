@@ -72,6 +72,7 @@ public class BucketFillSystem : SystemBase
         // input:   lake - position RO, waterAmount RW
         //          bucketFiller - position RO
         //          bucket - position RO, waterAmount RW
+        //
         // output:  lake -  waterAmount, decrease by one bucket waterAmount if there is a bucketFiller in the lake and
         //                  the bucketFiller has an emtpy bucket.
         Entities
@@ -131,7 +132,12 @@ public class BucketFillSystem : SystemBase
             }
         }).ScheduleParallel();
 
-        // output: waterAmount of the bucket
+        // input:   lake - position RO, waterAmount RO
+        //          bucketFiller - position RO
+        //          bucket - position RO, waterAmount RW
+        //
+        // output:  bucket -waterAmount, increase by one bucket waterAmount if the bucket is empty, there is a bucketFiller
+        //          in the lake and the emtpy bucket is with the bucketFiller
         Entities
         .WithName("bucket_fill_buckets")
         .WithAll<WaterAmount>()
@@ -156,7 +162,6 @@ public class BucketFillSystem : SystemBase
                     break;
                 }
 
-                // The bucketFiller has an empty bucket
                 for (int j = 0; j < bucketFillerTranslations.Length; j++)
                 {
                     var fillerDist = Vector3.Distance(lakeTranslations[i].Value, bucketFillerTranslations[j].Value);
@@ -182,6 +187,8 @@ public class BucketFillSystem : SystemBase
                     {
                         bucketWaterAmount.Value = bucketWater;
                     }
+
+                    // this bucket is filled, go to next bucket
                     break;
                 }
             }
