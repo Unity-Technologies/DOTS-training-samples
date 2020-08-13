@@ -47,7 +47,7 @@ public class LineSpawnerSystem_FromEntity : SystemBase
             var worldSizeY = tileSpawner.YSize * tileSpawner.Scale;
             var botDisplaySettings = GetSingleton<BotDisplaySettings>();
             
-            var targetPosition = new TargetPosition() { Value = new float3(0, 0, 0) }; // TEMP MOVEMENT
+            // var targetPosition = new TargetPosition() { Value = new float3(0, 0, 0) }; // TEMP MOVEMENT
 
             var random = new Random(1);
             for (var x = 0; x < lineSpawnerFromEntity.Count; x++)
@@ -66,7 +66,7 @@ public class LineSpawnerSystem_FromEntity : SystemBase
                     EntityManager.AddComponentData(bot, new BotRolePasserFull());
                     EntityManager.AddComponentData(bot, botColourPasserFull);
                     
-                    EntityManager.AddComponentData(bot, targetPosition); //TEMP
+                    // EntityManager.AddComponentData(bot, targetPosition); //TEMP
                 }
 
                 for (var a = 0; a < lineSpawnerFromEntity.CountOfEmptyPassBots; a++)
@@ -78,7 +78,7 @@ public class LineSpawnerSystem_FromEntity : SystemBase
                     EntityManager.AddComponentData(bot, new BotRolePasserEmpty());
                     EntityManager.AddComponentData(bot, botColourPasserEmpty);
 
-                    EntityManager.AddComponentData(bot, targetPosition); //TEMP
+                    // EntityManager.AddComponentData(bot, targetPosition); //TEMP
                 }
 
                 var botFiller = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
