@@ -305,7 +305,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1754616478513034612, guid: f5a193ce5f4524df89c53aceb10517ee, type: 3}
       propertyPath: FlameHeight
-      value: 10
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6626157377090336217, guid: f5a193ce5f4524df89c53aceb10517ee, type: 3}
       propertyPath: m_LocalPosition.x

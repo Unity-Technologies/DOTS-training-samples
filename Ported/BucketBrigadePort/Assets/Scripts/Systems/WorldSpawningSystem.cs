@@ -76,7 +76,12 @@ public class WorldSpawningSystem : SystemBase
                         // Add Bucket
                         if (bucketTiles[tileCount] == true)
                         {
-                            var positionBucket = new Translation() { Value = new float3(x * tileSpawner.Scale, bucketScale.Value.y/2, y * tileSpawner.Scale) };
+                            var positionBucket = new Translation() { Value = 
+                                new float3(
+                                    x * tileSpawner.Scale + random.NextFloat(-tileSpawner.Scale/2, tileSpawner.Scale / 2), 
+                                    bucketScale.Value.y/2, 
+                                    y * tileSpawner.Scale + random.NextFloat(-tileSpawner.Scale / 2, tileSpawner.Scale / 2)
+                                ) };
                             EntityManager.SetComponentData(blankBuckets[bucketCount], positionBucket);
                             bucketCount++;
                         }
