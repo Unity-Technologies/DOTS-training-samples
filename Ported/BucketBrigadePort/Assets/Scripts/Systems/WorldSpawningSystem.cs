@@ -18,15 +18,15 @@ public class WorldSpawningSystem : SystemBase
             {
                 var random = new Random(1);
 
-                var tileDisplaySettings = GetSingleton<TileDisplaySettings>();
                 var tileSpawner = GetSingleton<TileSpawner>();
+                var tileDisplaySettings = GetSingleton<TileDisplaySettings>();
                 var bucketSpawner = GetSingleton<BucketSpawner>();
+                var bucketScale = EntityManager.GetComponentData<NonUniformScale>(bucketSpawner.Prefab);
 
                 var numTiles = tileSpawner.XSize * tileSpawner.YSize;
 
                 var numFires = tileSpawner.StartingFireCount > numTiles ? numTiles : tileSpawner.StartingFireCount;
                 var fireTiles = new bool[numTiles];
-                var fire = random.NextInt(0, numFires);
                 for (int i = 0; i < numFires;)
                 {
                     var rndValue = random.NextInt(0, numTiles);
@@ -38,10 +38,9 @@ public class WorldSpawningSystem : SystemBase
                 }
 
                 var bucketTiles = new bool[numTiles];
-                var bucket = random.NextInt(0, numFires);
                 for (int i = 0; i < bucketSpawner.TotalBuckets;)
                 {
-                    var rndValue = random.NextInt(0, bucketSpawner.TotalBuckets);
+                    var rndValue = random.NextInt(0, numTiles);
                     if (bucketTiles[rndValue] == false)
                     {
                         bucketTiles[rndValue] = true;
@@ -59,12 +58,8 @@ public class WorldSpawningSystem : SystemBase
                         var yPosition = random.NextFloat(0, 0.05f) -0.5f; // Height vs. pivot of prefab. TODO: Read prefab data
                         var position = new Translation() { Value = new float3(x * tileSpawner.Scale, yPosition, y * tileSpawner.Scale) };
                         EntityManager.SetComponentData(blankTiles[tileCount], position);
-
-                        // TODO: Scale prefab itself by tileSpawner.Scale. Currently prefab hardcoded to 0.3 and tileSpawner.Scale set in UI to match
-                        // EntityManager.AddComponentData<Color>(blankTiles[tileCount], new Color());
-                        // TODO: Add scaling
-                        // var scale = new Scale() { Value = tileSpawner.Scale };
-                        // EntityManager.SetComponentData(blankTiles[tileCount], scale);
+                        var scale = new NonUniformScale() { Value = new float3(tileSpawner.Scale, tileDisplaySettings.FlameHeight, tileSpawner.Scale) };
+                        EntityManager.SetComponentData(blankTiles[tileCount], scale);
 
                         var tileAuthor = new Tile();
                         tileAuthor.Id = y * tileSpawner.XSize + x;
@@ -81,7 +76,7 @@ public class WorldSpawningSystem : SystemBase
                         // Add Bucket
                         if (bucketTiles[tileCount] == true)
                         {
-                            var positionBucket = new Translation() { Value = new float3(x * tileSpawner.Scale, 0, y * tileSpawner.Scale) };
+                            var positionBucket = new Translation() { Value = new float3(x * tileSpawner.Scale, bucketScale.Value.y/2, y * tileSpawner.Scale) };
                             EntityManager.SetComponentData(blankBuckets[bucketCount], positionBucket);
                             bucketCount++;
                         }

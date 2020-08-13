@@ -242,6 +242,10 @@ PrefabInstance:
       propertyPath: YSize
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 3516836346958189788, guid: 653e1c7f72d294d3996ca6db81e639b0, type: 3}
+      propertyPath: TotalBuckets
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 4668822788083384432, guid: 653e1c7f72d294d3996ca6db81e639b0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 5.5795116
@@ -301,7 +305,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1754616478513034612, guid: f5a193ce5f4524df89c53aceb10517ee, type: 3}
       propertyPath: FlameHeight
-      value: 1
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6626157377090336217, guid: f5a193ce5f4524df89c53aceb10517ee, type: 3}
       propertyPath: m_LocalPosition.x
