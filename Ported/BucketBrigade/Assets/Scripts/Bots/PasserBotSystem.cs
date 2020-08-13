@@ -92,9 +92,8 @@ public class PasserBotSystem : SystemBase
             .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigadeGroup, in TargetPosition targetPos) =>
                 {
                     Brigade brigade = GetComponent<Brigade>(brigadeGroup.Value);
-                    Translation waterTranslation = translations[brigade.waterEntity];
                     
-                    var waterPosition = math.mul(GetComponent<LocalToWorld>(brigade.waterEntity).Value, new float4(translations[brigade.waterEntity].Value, 1)).xyz;
+                    var waterPosition = GetComponent<LocalToWorld>(brigade.waterEntity).Value.c3.xyz;
 
                     translation.Value = translation.Value + math.normalize(waterPosition - translation.Value) * 1 * deltaTime;
                     var bucketTranslation = translation.Value + new float3(0, 0.5f, 0);

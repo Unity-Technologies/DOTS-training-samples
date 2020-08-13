@@ -118,8 +118,6 @@ public class BrigadeInitializationSystem : SystemBase
         var riverEntities = m_riverEntityQuery.ToEntityArray(Allocator.TempJob);
         
         var job1 = Entities
-            .WithReadOnly(riverEntities)
-            .WithReadOnly(riverPositions)
             .ForEach((in Entity e, in BrigadeInitialization init, in BrigadeColor colors) =>
             {
                 // create brigades 
@@ -133,11 +131,9 @@ public class BrigadeInitializationSystem : SystemBase
                     var waterPosition = float3.zero;
 
                     int randomWaterindex = random.NextInt(0, riverEntities.Length);
-                    if (waterTarget == Entity.Null)
-                    {
-                        waterTarget = riverEntities[randomWaterindex];
-                        waterPosition = math.mul(GetComponent<LocalToWorld>(waterTarget).Value, new float4(riverPositions[randomWaterindex].Value, 1)).xyz;
-                    }
+
+                    waterTarget = riverEntities[randomWaterindex];
+                    waterPosition = GetComponent<LocalToWorld>(waterTarget).Value.c3.xyz; 
                     
                     var brigade = cb.CreateEntity();
                     cb.AddComponent<Brigade>(brigade);

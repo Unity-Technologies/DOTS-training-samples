@@ -120,7 +120,7 @@ public class ScoopBotSystem : SystemBase
                 in NextBot nextBot) =>
             {
                 var waterEntity = EntityManager.GetComponentData<Brigade>(brigade.Value).waterEntity;
-                var brigadeTarget = math.mul(localToWorldComponents[waterEntity].Value,new float4(riverTranslation[waterEntity].Value, 1)).xyz;
+                var brigadeTarget = localToWorldComponents[waterEntity].Value.c3.xyz;
                 float3 toTarget = brigadeTarget - translation.Value;
                 
                 float distanceToTarget = math.length(toTarget);
