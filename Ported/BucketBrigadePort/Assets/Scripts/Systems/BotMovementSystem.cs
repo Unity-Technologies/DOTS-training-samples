@@ -13,12 +13,12 @@ public class BotMovementSystem : SystemBase
         
         Entities
             .WithName("TranslationSpeedSystem_ForEach")
-            .ForEach((ref Translation translation, in Bot bot, in BotMovementSpeed_ForEach translationSpeed) =>
+            .ForEach((ref Translation translation, ref TargetPosition targetPosition, in Bot bot, in BotMovementSpeed_ForEach translationSpeed) =>
             {
                 var maxMovement = translationSpeed.Value * deltaTime;
-                var vector = translation.Value - bot.targetTranslation;
-                var magnitude = Math.Sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
-                var actualMovement = (float)(math.min(maxMovement, magnitude));
+                var vector = targetPosition.Value - translation.Value;
+                var magnitude = math.distance(targetPosition.Value, translation.Value);
+                var actualMovement = math.min(maxMovement, magnitude);
                 translation.Value += vector*actualMovement;
             })
             .ScheduleParallel();

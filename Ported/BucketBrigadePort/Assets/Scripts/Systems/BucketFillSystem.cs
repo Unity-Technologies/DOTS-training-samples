@@ -44,7 +44,7 @@ public class BucketFillSystem : SystemBase
             {
                 ComponentType.ReadOnly<Translation>(),
                 ComponentType.ReadOnly<Bot>(),
-                ComponentType.ReadOnly<BucketFiller>()
+                ComponentType.ReadOnly<BotRoleFiller>()
             }
         });
     }

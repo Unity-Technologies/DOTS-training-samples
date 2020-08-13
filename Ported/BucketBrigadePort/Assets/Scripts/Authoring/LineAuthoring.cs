@@ -8,5 +8,4 @@ public struct Line : IComponentData
 {
     public Translation fillTranslation;
     public Translation tossTranslation;
-    public Bot[] bots;
 }

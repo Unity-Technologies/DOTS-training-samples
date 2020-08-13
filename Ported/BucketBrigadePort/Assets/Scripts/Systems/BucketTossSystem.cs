@@ -29,7 +29,7 @@ public class BucketTossSystem : SystemBase
             {
                 ComponentType.ReadOnly<Translation>(),
                 ComponentType.ReadOnly<Bot>(),
-                ComponentType.ReadOnly<BucketTosser>()
+                ComponentType.ReadOnly<BotRoleTosser>()
             }
         });
 
@@ -50,6 +50,7 @@ public class BucketTossSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        /*
         // hardcode settings
         var bucketWater = 1.0f;
         var fireRange = 1.0f;
@@ -131,9 +132,9 @@ public class BucketTossSystem : SystemBase
                         bucketColor.Value = bucketEmptyColor;
                     }
                 }
-            }
-
+            }        
         }).ScheduleParallel();
+    */
 
         // Handle the bucket being tossed
         Entities

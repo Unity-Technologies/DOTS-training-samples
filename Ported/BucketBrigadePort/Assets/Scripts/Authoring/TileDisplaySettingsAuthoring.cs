@@ -10,7 +10,6 @@ public struct TileDisplaySettings : IComponentData
     public float FlameHeight;
     public float FlickerRate;
     public float FlickerRange;
-
 }
 
 public class TileDisplaySettingsAuthoring : UnityEngine.MonoBehaviour, IConvertGameObjectToEntity

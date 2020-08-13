@@ -2,7 +2,6 @@
 using Unity.Mathematics;
 using UnityEngine;
 
-[GenerateAuthoringComponent]
 public struct BucketColorSettings : IComponentData
 {
     public float4 Empty;
@@ -10,7 +9,7 @@ public struct BucketColorSettings : IComponentData
 }
 
 
-// TODO: This is not showing the colorpicker in the editor. To fix.
+// public class TileDisplaySettingsAuthoring : UnityEngine.MonoBehaviour, IConvertGameObjectToEntity
 public class BucketColorSettingsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     public UnityEngine.Color Empty; // = new UnityEngine.Color(255, 105, 117, 1);
