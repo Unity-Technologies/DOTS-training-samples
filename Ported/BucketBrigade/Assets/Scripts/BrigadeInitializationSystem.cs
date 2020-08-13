@@ -14,6 +14,10 @@ public struct Brigade : IComponentData
     public Random random;
 }
 
+public struct BotConfig : IComponentData
+{
+    public float botSpeed;
+}
 public struct BrigadeGroup : IComponentData
 {
     public Entity Value;
@@ -103,6 +107,7 @@ public class BrigadeInitializationSystem : SystemBase
 {
     private EntityQuery m_riverEntityQuery;
     private EntityCommandBufferSystem ecbs;
+    static public float botSpeed; 
     protected override void OnCreate()
     {
         ecbs = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
@@ -118,6 +123,11 @@ public class BrigadeInitializationSystem : SystemBase
                 ComponentType.ReadOnly<Bucket>(),
             }
         });
+        var botConfig = EntityManager.CreateEntity();
+        EntityManager.AddComponentData(botConfig, new BotConfig()
+        {
+            botSpeed = 3 // this should be pulled from the authoring data, not sure why it isn't
+        });
 
     }
 
@@ -129,8 +139,6 @@ public class BrigadeInitializationSystem : SystemBase
         var riverEntities = m_riverEntityQuery.ToEntityArray(Allocator.TempJob);
         
         var job1 = Entities
-            .WithReadOnly(riverEntities)
-            .WithReadOnly(riverPositions)
             .ForEach((in Entity e, in BrigadeInitialization init, in BrigadeColor colors) =>
             {
                 // create brigades 
@@ -144,11 +152,9 @@ public class BrigadeInitializationSystem : SystemBase
                     var waterPosition = float3.zero;
 
                     int randomWaterindex = random.NextInt(0, riverEntities.Length);
-                    if (waterTarget == Entity.Null)
-                    {
-                        waterTarget = riverEntities[randomWaterindex];
-                        waterPosition = math.mul(GetComponent<LocalToWorld>(waterTarget).Value, new float4(riverPositions[randomWaterindex].Value, 1)).xyz;
-                    }
+
+                    waterTarget = riverEntities[randomWaterindex];
+                    waterPosition = GetComponent<LocalToWorld>(waterTarget).Value.c3.xyz; 
                     
                     var brigade = cb.CreateEntity();
                     cb.AddComponent<Brigade>(brigade);
