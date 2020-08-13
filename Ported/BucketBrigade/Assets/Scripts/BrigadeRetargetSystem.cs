@@ -98,7 +98,7 @@ public class BrigadeRetargetSystem : SystemBase
         var handle2 = Entities
             .WithReadOnly(riverTranslation)
             .WithAll<TargetPosition>()
-            .ForEach((Entity e, ref TargetPosition target, in BrigadeGroup group, in EmptyPasserInfo passerInfo) =>
+            .ForEach((Entity e, ref TargetPosition target, in BrigadeGroup group, in FullPasserInfo passerInfo) =>
             {
                 var brigadeData = BrigadeDataLookup[@group.Value];
                 target.Value = UtilityFunctions.GetChainPosition(passerInfo.ChainPosition, passerInfo.ChainLength, riverTranslation[brigadeData.waterEntity].Value, brigadeData.fireTarget);
@@ -107,7 +107,7 @@ public class BrigadeRetargetSystem : SystemBase
         var lastHandle = Entities
             .WithReadOnly(riverTranslation)
             .WithAll<TargetPosition>()
-            .ForEach((Entity e, ref TargetPosition target, in BrigadeGroup group, in FullPasserInfo passerInfo) =>
+            .ForEach((Entity e, ref TargetPosition target, in BrigadeGroup group, in EmptyPasserInfo passerInfo) =>
             {
                 var brigadeData = BrigadeDataLookup[@group.Value];
                 target.Value = UtilityFunctions.GetChainPosition(passerInfo.ChainPosition, passerInfo.ChainLength, brigadeData.fireTarget, riverTranslation[brigadeData.waterEntity].Value);
