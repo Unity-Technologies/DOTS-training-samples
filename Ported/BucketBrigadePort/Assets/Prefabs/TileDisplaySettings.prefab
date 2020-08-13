@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6626157377090336217}
   - component: {fileID: 1754616478513034612}
+  - component: {fileID: -5299060654477022142}
+  - component: {fileID: 2000751713503263848}
   m_Layer: 0
   m_Name: TileDisplaySettings
   m_TagString: Untagged
@@ -46,6 +48,38 @@ MonoBehaviour:
   ColorFireNeutral: {r: 0.4567378, g: 0.7169812, b: 0.44980422, a: 0}
   ColorFireCool: {r: 0.7830189, g: 0.7135929, b: 0.025854412, a: 0}
   ColorFireHot: {r: 1, g: 0, b: 0, a: 0}
-  FlameHeight: 10
+  FlameHeight: 2
   FlickerRate: 0.1
   FlickerRange: 0.1
+--- !u!114 &-5299060654477022142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8812904304779558724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8026524ca36cc004dae2be10da0f2d82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Empty: {r: 1, g: 0.4117647, b: 0.45882353, a: 0}
+  Full: {r: 0, g: 0.98039216, b: 1, a: 0}
+--- !u!114 &2000751713503263848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8812904304779558724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cc68b839e2b886439fa5e6e9d7a49df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ColorBotRoleFinder: {r: 0.12001601, g: 0.8207547, b: 0.22718784, a: 0}
+  ColorBotRoleTosser: {r: 1, g: 0.4745098, b: 0.9372549, a: 0}
+  ColorBotRoleFiller: {r: 0.8773585, g: 0.5090335, b: 0.5090335, a: 0}
+  ColorBotRolePasserFull: {r: 0.07694017, g: 0.8431663, b: 0.8584906, a: 0}
+  ColorBotRolePasserEmpty: {r: 1, g: 0.4117647, b: 0.45882353, a: 0}
+  ColorBotRoleOmni: {r: 0, g: 0, b: 0, a: 0}

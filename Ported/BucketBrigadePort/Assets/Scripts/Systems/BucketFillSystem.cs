@@ -10,6 +10,7 @@ public class BucketFillSystem : SystemBase
 {
     private EntityQuery m_lakeQuery;
     private EntityQuery m_bucketQuery;
+    private EntityQuery m_bucketFillerQuery;
 
     protected override void OnCreate()
     {
@@ -36,75 +37,159 @@ public class BucketFillSystem : SystemBase
                 ComponentType.ReadOnly<WaterRefill>()
             }
         });
+
+        m_bucketFillerQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<Translation>(),
+                ComponentType.ReadOnly<Bot>(),
+                ComponentType.ReadOnly<BotRoleFiller>()
+            }
+        });
     }
 
     protected override void OnUpdate()
     {
-        // hardcoded value for lake capacity 1000
-        // hardcoded water amount for a bucketWater 1
-        // hardcoded range of a lake 5
-        var capacity    = 1000.0f;
-        var bucketWater = 1.0f;
-        var lakeRange   = 5.0f;
+        // hardcode settings
+        var bucketWater     = 1.0f;
+        var lakeDistRange   = 5.0f;
+        var bucketDistRange = 1.0f;
 
         var bucketFullColor = GetSingleton<BucketColorSettings>().Full;
 
         var lakeTranslations =
             m_lakeQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+        var lakeWaterAmounts =
+            m_lakeQuery.ToComponentDataArray<WaterAmount>(Allocator.TempJob);
         var bucketTranslations =
             m_bucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         var bucketWaterAmounts =
             m_bucketQuery.ToComponentDataArray<WaterAmount>(Allocator.TempJob);
+        var bucketFillerTranslations =
+            m_bucketFillerQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
 
-        // input: position of the lake, RO, location where the lake should be
-        //        WaterAmount of the lake, RW, decrease by the water amount of a bucket (hardcoded WATERAMOUNT)
-        //        postion of the bucket, RO, used to calculate the distance to the lake, need to be within a hardcoded DISTANCE.
-        //        WaterAmount of the bucket, 
-        // output: waterAmount of the lake, 
+        // input:   lake - position RO, waterAmount RW
+        //          bucketFiller - position RO
+        //          bucket - position RO, waterAmount RW
+        //
+        // output:  lake -  waterAmount, decrease by one bucket waterAmount if there is a bucketFiller in the lake and
+        //                  the bucketFiller has an emtpy bucket.
         Entities
         .WithName("bucket_fill_lakes")
         .WithAll<WaterRefill>()
         .WithDisposeOnCompletion(bucketTranslations)
+        .WithDisposeOnCompletion(bucketWaterAmounts)
         .ForEach((ref WaterAmount lakeWaterAmount, in Translation position) =>
         {
-            if(lakeWaterAmount.Value < capacity)
+            // There is a bucketFiller in the lake
+            for (int i = 0; i < bucketFillerTranslations.Length; i++)
             {
-                for(int i = 0; i < bucketTranslations.Length; i++)
+                // Lake has at lease one bucket of water
+                if (lakeWaterAmount.Value < bucketWater)
                 {
-                    if (bucketWaterAmounts[i].Value <= 0)
+                    break;
+                }
+
+                var fillerDist = Vector3.Distance(position.Value, bucketFillerTranslations[i].Value);
+                
+                // bucketFiller is not in the lake
+                if (fillerDist > lakeDistRange)
+                {
+                    continue;
+                }
+
+                // The bucketFiller has an empty bucket
+                for (int j = 0; j < bucketTranslations.Length; j++)
+                {
+                    // Lake has at lease one bucket of water
+                    if (lakeWaterAmount.Value < bucketWater)
                     {
-                        var dist = Vector3.Distance(position.Value, bucketTranslations[i].Value);
-                        if (dist <= lakeRange)
-                        {
-                            lakeWaterAmount.Value -= bucketWater;
-                            if(lakeWaterAmount.Value < 0)
-                            {
-                                lakeWaterAmount.Value = 0;
-                            }                            
-                        }
+                        break;
+                    }
+
+                    // The bucket is not empty
+                    if (bucketWaterAmounts[j].Value > 0)
+                    {
+                        continue;
+                    }
+                        
+                    var bucketDist = Vector3.Distance(bucketFillerTranslations[i].Value, bucketTranslations[j].Value);
+
+                    // The empty bucket is not with the bucketFiller
+                    if (bucketDist > bucketDistRange)
+                    {
+                        continue;
+                    }
+                        
+                    // Decrease lakeWaterAmount by one bucket
+                    lakeWaterAmount.Value -= bucketWater;
+                    if (lakeWaterAmount.Value < 0)
+                    {
+                        lakeWaterAmount.Value = 0;
                     }
                 }
             }
         }).ScheduleParallel();
 
-        // output: waterAmount of the bucket
+        // input:   lake - position RO, waterAmount RO
+        //          bucketFiller - position RO
+        //          bucket - position RO, waterAmount RW
+        //
+        // output:  bucket -waterAmount, increase by one bucket waterAmount if the bucket is empty, there is a bucketFiller
+        //          in the lake and the emtpy bucket is with the bucketFiller
         Entities
         .WithName("bucket_fill_buckets")
         .WithAll<WaterAmount>()
         .WithNone<WaterRefill>()
         .WithDisposeOnCompletion(lakeTranslations)
+        .WithDisposeOnCompletion(lakeWaterAmounts)
+        .WithDisposeOnCompletion(bucketFillerTranslations)
         .ForEach((ref WaterAmount bucketWaterAmount, ref Color bucketColor, in Translation position) =>
         {
-            if (bucketWaterAmount.Value <= 0)
+            // There is a bucketFiller in the lake
+            for (int i = 0; i < lakeTranslations.Length; i++)
             {
-                for (int i = 0; i < lakeTranslations.Length; i++)
+                // Bucket is not empty
+                if (bucketWaterAmount.Value >= bucketWater)
                 {
-                    var dist = Vector3.Distance(position.Value, lakeTranslations[i].Value);
-                    if (dist <= lakeRange)
+                    break;
+                }
+
+                // Lake has at lease one bucket of water
+                if (lakeWaterAmounts[i].Value < bucketWater)
+                {
+                    break;
+                }
+
+                for (int j = 0; j < bucketFillerTranslations.Length; j++)
+                {
+                    var fillerDist = Vector3.Distance(lakeTranslations[i].Value, bucketFillerTranslations[j].Value);
+
+                    // bucketFiller is not in the lake
+                    if (fillerDist > lakeDistRange)
                     {
-                        bucketWaterAmount.Value += bucketWater;
-                        bucketColor.Value = bucketFullColor;
+                        continue;
                     }
+
+                    var bucketDist = Vector3.Distance(position.Value, bucketFillerTranslations[j].Value);
+
+                    // The empty bucket is not with the bucketFiller
+                    if (bucketDist > bucketDistRange)
+                    {
+                        continue;
+                    }
+
+                    // fill the bucket
+                    bucketWaterAmount.Value += bucketWater;
+                    bucketColor.Value = bucketFullColor;
+                    if (bucketWaterAmount.Value > bucketWater)
+                    {
+                        bucketWaterAmount.Value = bucketWater;
+                    }
+
+                    // this bucket is filled, go to next bucket
+                    break;
                 }
             }
 

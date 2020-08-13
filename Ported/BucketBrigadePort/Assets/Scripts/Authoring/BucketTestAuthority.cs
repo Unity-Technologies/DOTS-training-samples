@@ -2,7 +2,7 @@
 using Unity.Mathematics;
 using UnityEngine;
 
-public struct TileDisplaySettings : IComponentData
+public struct BucketTestSettings : IComponentData
 {
     public float4 ColorFireNeutral;
     public float4 ColorFireCool;
@@ -10,9 +10,10 @@ public struct TileDisplaySettings : IComponentData
     public float FlameHeight;
     public float FlickerRate;
     public float FlickerRange;
+
 }
 
-public class TileDisplaySettingsAuthoring : UnityEngine.MonoBehaviour, IConvertGameObjectToEntity
+public class BucketTestSettingsAuthoring : UnityEngine.MonoBehaviour, IConvertGameObjectToEntity
 {
     public UnityEngine.Color ColorFireNeutral;
     public UnityEngine.Color ColorFireCool;
@@ -22,7 +23,7 @@ public class TileDisplaySettingsAuthoring : UnityEngine.MonoBehaviour, IConvertG
     public float FlickerRange = 0.1f;
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new TileDisplaySettings
+        dstManager.AddComponentData(entity, new BucketTestSettings
         {
             ColorFireNeutral = new float4(ColorFireNeutral.r, ColorFireNeutral.g, ColorFireNeutral.b, ColorFireNeutral.a),
             ColorFireCool = new float4(ColorFireCool.r, ColorFireCool.g, ColorFireCool.b, ColorFireCool.a),

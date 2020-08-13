@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-public class BucketRefillUpdateSystem : SystemBase
+public class LakeRefillSystem : SystemBase
 {
     
     protected override void OnUpdate()
@@ -15,10 +15,10 @@ public class BucketRefillUpdateSystem : SystemBase
         {
             // hardcoded value for capacity 1000
             // hardcoded refillRate 1
-            var capacity = 1000.0f;
+            
             var refillRate = 1.0f;
 
-            if(lakeWaterAmount.Value < capacity)
+            if(lakeWaterAmount.Value < lakeWaterAmount.MaxAmount)
             {
                 lakeWaterAmount.Value += refillRate;
             }
