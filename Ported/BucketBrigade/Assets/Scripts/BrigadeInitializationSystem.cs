@@ -128,7 +128,13 @@ public class BrigadeInitializationSystem : SystemBase
         {
             botSpeed = 3 // this should be pulled from the authoring data, not sure why it isn't
         });
-
+        RequireForUpdate(GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<BrigadeInitialization>()
+            }
+        }));
     }
 
     protected override void OnUpdate()
