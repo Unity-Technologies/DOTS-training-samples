@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Random = Unity.Mathematics.Random;
 
 // Systems can schedule work to run on worker threads.
 // However, creating and removing Entities can only be done on the main thread to prevent race conditions.
@@ -32,44 +33,44 @@ public class LineSpawnerSystem_FromEntity : SystemBase
 
     protected override void OnUpdate()
     {
-        //Instead of performing structural changes directly, a Job can add a command to an EntityCommandBuffer to perform such changes on the main thread after the Job has finished.
-        //Command buffers allow you to perform any, potentially costly, calculations on a worker thread, while queuing up the actual insertions and deletions for later.
-        var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-
         // Schedule the Entities.ForEach lambda job that will add Instantiate commands to the EntityCommandBuffer.
         // Since this job only runs on the first frame, we want to ensure Burst compiles it before running to get the best performance (3rd parameter of WithBurst)
         // The actual job will be cached once it is compiled (it will only get Burst compiled once).
         Entities
             .WithName("LineSpawnerSystem_FromEntity")
             .WithBurst(FloatMode.Default, FloatPrecision.Standard, true)
-            .ForEach((Entity entity, int entityInQueryIndex, in LineSpawner_FromEntity lineSpawnerFromEntity, in LocalToWorld location) =>
+            .WithStructuralChanges()
+            //.ForEach((Entity entity, int entityInQueryIndex, in LineSpawner_FromEntity lineSpawnerFromEntity, in LocalToWorld location) =>
+            .ForEach((Entity spawnerEntity, in LineSpawner_FromEntity lineSpawnerFromEntity, in Translation translation) =>
         {
+            var random = new Random(1);
             for (var x = 0; x < lineSpawnerFromEntity.Count; x++)
                 {
-                    var instance = commandBuffer.Instantiate(entityInQueryIndex, lineSpawnerFromEntity.LinePrefab);
+                    var instance = EntityManager.Instantiate(lineSpawnerFromEntity.LinePrefab);
                     
                     var line = new Line();
-                    // Place the instantiated in a grid with some noise
-                    var position = math.transform(location.Value,
-                        new float3(x * 1.3F, noise.cnoise(new float2(x, x) * 0.21F) * 2, x * 1.3F));
+                    var position = new Translation{Value = new float3(random.NextFloat(0, 10f),0, random.NextFloat(0, 10f))};
                     
-                    for (var a = 0; a < lineSpawnerFromEntity.CountOfEmptyPassBots; a++)
+                    for (var a = 0; a < lineSpawnerFromEntity.CountOfFullPassBots; a++)
                     {
-                        var bot = commandBuffer.Instantiate(entityInQueryIndex, lineSpawnerFromEntity.BotPrefab);
-                        commandBuffer.SetComponent(entityInQueryIndex, bot, new Translation{Value = position});
+                        var bot = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
+                        var botPosition = new Translation{Value = new float3(random.NextFloat(0, 10f), 0, random.NextFloat(0, 10f))};
+                        EntityManager.AddComponentData(bot, botPosition);
                         //line.bots = new Bot(bot);
                     }
 
                     for (var a = 0; a < lineSpawnerFromEntity.CountOfEmptyPassBots; a++)
                     {
-                        
+                        var bot = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
+                        var botPosition = new Translation{Value = new float3(random.NextFloat(0, 10f), 0, random.NextFloat(0, 10f))};
+                        EntityManager.AddComponentData(bot, botPosition);
                     }
 
-                    commandBuffer.SetComponent(entityInQueryIndex, instance, new Translation {Value = position});
+                    EntityManager.AddComponentData(instance, position);
                 }
 
-            commandBuffer.DestroyEntity(entityInQueryIndex, entity);
-        }).ScheduleParallel();
+            EntityManager.DestroyEntity(spawnerEntity);
+        }).Run();
 
         // SpawnJob runs in parallel with no sync point until the barrier system executes.
         // When the barrier system executes we want to complete the SpawnJob and then play back the commands (Creating the entities and placing them).
