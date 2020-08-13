@@ -101,11 +101,7 @@ public class PasserBotSystem : SystemBase
                     if (math.length(translation.Value - waterPosition) < 0.1f)
                     {
                         // Next bot owns bucket 
-                        EntityManager.AddComponentData(carriedBucket.Value, new Owner
-                        {
-                            Value = Entity.Null
-                        });
-                        
+                        EntityManager.RemoveComponent<Owner>(carriedBucket.Value);
                         EntityManager.RemoveComponent<CarriedBucket>(e);
                     }
                 }
