@@ -102,6 +102,7 @@ public class ScoopBotSystem : SystemBase
                     EntityManager.RemoveComponent<TargetBucket>(e);
                 }
             }).WithoutBurst().Run();
+        var riverTranslation = GetComponentDataFromEntity<Translation>(true);
 
         Entities
             .WithName("Scoop_BucketCarry")
@@ -111,7 +112,7 @@ public class ScoopBotSystem : SystemBase
             .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigade,
                 in NextBot nextBot) =>
             {
-                var brigadeTarget = EntityManager.GetComponentData<Brigade>(brigade.Value).waterTarget;
+                var brigadeTarget = riverTranslation[EntityManager.GetComponentData<Brigade>(brigade.Value).waterEntity].Value;
                 float3 toTarget = brigadeTarget - translation.Value;
                 float distanceToTarget = math.length(toTarget);
                 if (distanceToTarget < float.Epsilon)

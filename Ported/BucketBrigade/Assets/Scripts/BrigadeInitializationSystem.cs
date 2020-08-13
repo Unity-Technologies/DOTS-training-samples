@@ -9,8 +9,7 @@ using Random = Unity.Mathematics.Random;
 public struct Brigade : IComponentData
 {
     public float3 fireTarget;
-    public float3 waterTarget;
-    public int length;
+    public Entity waterEntity;
     public Random random;
 }
 
@@ -52,118 +51,23 @@ public struct NextBot : IComponentData
 {
     public Entity Value;
 }
-public class BrigadeInitializationSystem : SystemBase
+
+public struct UtilityFunctions
 {
-    protected override void OnUpdate()
+    public static void SetupBot(EntityCommandBuffer cb, Entity instance, float3 position, float4 color, Entity brigadeEntity)
     {
-        Entities
-            .WithStructuralChanges()
-            .ForEach((in Entity e, in BrigadeInitialization init, in BrigadeColor colors) =>
-            {
-                
-                // create brigades 
-                var random = new Random(1);
-                for (int i = 0; i < init.brigadeCount; i++)
-                {
-                    var fireTarget = random.NextFloat3()*10.0f;
-                    fireTarget.y = 0;
-                    var waterTarget = random.NextFloat3()*10.0f;
-                    waterTarget.y = 0;
-                    var brigade = EntityManager.CreateEntity();
-                    EntityManager.AddComponentData(brigade, new Brigade()
-                    {
-                        fireTarget = fireTarget,
-                        waterTarget = waterTarget,
-                        random = new Random(random.NextUInt())
-                    });
-                    
-                    // add a tosser bot
-                    var tosserBot = EntityManager.Instantiate(init.bot);
-                    EntityManager.AddComponent<BotTypeToss>(tosserBot);
-                    SetupBot(tosserBot, waterTarget, colors.tossColor, brigade);
-                    
-                    // add a scoop bot
-                    var scooperBot = EntityManager.Instantiate(init.bot);
-                    EntityManager.AddComponent<BotTypeScoop>(scooperBot);
-                    SetupBot(scooperBot, fireTarget, colors.scoopColor, brigade);
-                    Entity lastBot = Entity.Null;
-                    for (var j = 0; j < init.emptyPassers; j++)
-                    {
-                        var instance = EntityManager.Instantiate(init.bot);
-                        var position = GetChainPosition(j, init.emptyPassers, waterTarget, fireTarget);
-                        SetupBot(instance, position, colors.emptyColor, brigade);
-                        EntityManager.AddComponentData(instance, new EmptyPasserInfo()
-                        {
-                            ChainLength = init.emptyPassers,
-                            ChainPosition = j
-                        });
-                        EntityManager.AddComponentData(instance, new TargetPosition()
-                        {
-                            Value = float3.zero
-                        });
-                        
-                        // the first empty passer receives from the tosser
-                        if (j == 0)
-                        {
-                            EntityManager.AddComponentData(tosserBot, new NextBot() {Value = instance});
-                        }
-                        if (lastBot != Entity.Null)
-                        {
-                            EntityManager.AddComponentData(lastBot, new NextBot() {Value = instance});
-                        }
-                        lastBot = instance;
-                    }
-                    lastBot = Entity.Null;
-
-                    for (var j = 0; j < init.fullPassers; j++)
-                    {
-                        var instance = EntityManager.Instantiate(init.bot);
-                        float3 position = GetChainPosition(j, init.fullPassers, fireTarget, waterTarget);
-                        SetupBot(instance, position, colors.fullColor, brigade);
-                        EntityManager.AddComponentData(instance, new FullPasserInfo()
-                        {
-                            ChainLength = init.fullPassers,
-                            ChainPosition = j
-                        });
-                        EntityManager.AddComponentData(instance, new TargetPosition()
-                        {
-                            Value = float3.zero
-                        });
-                        
-                        // the first full passer receives from the scooper
-                        if (j == 0)
-                        {
-                            EntityManager.AddComponentData(scooperBot, new NextBot() {Value = instance});
-                        }
-                        else if (lastBot != Entity.Null)
-                        {
-                            EntityManager.AddComponentData(lastBot, new NextBot() {Value = instance});
-                        }
-                        // the last full passer passes to the tosser
-                        if (j == init.fullPassers - 1)
-                        {
-                            EntityManager.AddComponentData(instance, new NextBot() {Value = tosserBot});
-                        }
-                        lastBot = instance;
-                    }
-                }
-                // remove the setup data
-                EntityManager.DestroyEntity(e);
-            }).Run();
-    }
-
-    private void SetupBot(Entity instance, float3 position, float4 color, Entity brigadeEntity)
-    {
-        SetComponent(instance, new Translation()
+        cb.SetComponent(instance, new Translation()
         {
             Value = position    
         });
-        EntityManager.AddComponentData(instance, new BotColor()
+        cb.AddComponent<BotColor>(instance);
+        cb.SetComponent(instance, new BotColor()
         {
             Value = color
         });
         // this is maybe bad duplicated data? But otherwise we need to store this elsewhere
-        EntityManager.AddComponentData(instance, new BrigadeGroup()
+        cb.AddComponent<BrigadeGroup>(instance);
+        cb.SetComponent(instance, new BrigadeGroup()
         {
             Value = brigadeEntity
         });
@@ -180,5 +84,154 @@ public class BrigadeInitializationSystem : SystemBase
         float2 perpendicular = new float2(direction.y, -direction.x);
 
         return math.lerp(_startPos, _endPos, (float)_index / (float)_chainLength) + (new float3(perpendicular.x, 0f, perpendicular.y) * curveOffset);
+    }
+}
+public class BrigadeInitializationSystem : SystemBase
+{
+    private EntityQuery m_riverEntityQuery;
+    private EntityCommandBufferSystem ecbs;
+    protected override void OnCreate()
+    {
+        ecbs = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+        m_riverEntityQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<Translation>(),
+                ComponentType.ReadOnly<Water>(),
+            },
+            None = new []
+            {
+                ComponentType.ReadOnly<Bucket>(),
+            }
+        });
+
+    }
+
+    protected override void OnUpdate()
+    {
+        var cb = ecbs.CreateCommandBuffer();
+        // build a list of water entities
+        var riverPositions = m_riverEntityQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+        var riverEntities = m_riverEntityQuery.ToEntityArray(Allocator.TempJob);
+        
+        var job1 = Entities
+            .ForEach((in Entity e, in BrigadeInitialization init, in BrigadeColor colors) =>
+            {
+                // create brigades 
+                var random = new Random(1);
+                for (int i = 0; i < init.brigadeCount; i++)
+                {
+                    var fireTarget = random.NextFloat3()*10.0f;
+                    fireTarget.y = 0;
+                    // find a water target
+                    var waterTarget = Entity.Null;
+                    var waterPosition = float3.zero;
+                    for (int j = 0; j < riverEntities.Length; j++)
+                    {
+                        if (waterTarget == Entity.Null)
+                        {
+                            waterTarget = riverEntities[i];
+                            waterPosition = riverPositions[i].Value;
+                            break;
+                        }
+                    }
+
+
+                    var brigade = cb.CreateEntity();
+                    cb.AddComponent<Brigade>(brigade);
+                    cb.SetComponent(brigade, new Brigade()
+                    {
+                        fireTarget = fireTarget,
+                        waterEntity = waterTarget,
+                        random = new Random(random.NextUInt())
+                    });
+                    
+                    // add a tosser bot
+                    var tosserBot = cb.Instantiate(init.bot);
+                    cb.AddComponent<BotTypeToss>(tosserBot);
+                    UtilityFunctions.SetupBot(cb, tosserBot, waterPosition, colors.tossColor, brigade);
+                    
+                    // add a scoop bot
+                    var scooperBot = cb.Instantiate(init.bot);
+                    cb.AddComponent<BotTypeScoop>(tosserBot);
+                    UtilityFunctions.SetupBot(cb, scooperBot, fireTarget, colors.scoopColor, brigade);
+                    Entity lastBot = Entity.Null;
+                    for (var j = 0; j < init.emptyPassers; j++)
+                    {
+                        var instance = cb.Instantiate(init.bot);
+                        var position = UtilityFunctions.GetChainPosition(j, init.emptyPassers, waterPosition, fireTarget);
+                        UtilityFunctions.SetupBot(cb, instance, position, colors.emptyColor, brigade);
+                        cb.AddComponent<EmptyPasserInfo>(instance);
+                        cb.SetComponent(instance, new EmptyPasserInfo()
+                        {
+                            ChainLength = init.emptyPassers,
+                            ChainPosition = j
+                        });
+                        cb.AddComponent<TargetPosition>(instance);
+                        cb.SetComponent(instance, new TargetPosition()
+                        {
+                            Value = float3.zero
+                        });
+                        
+                        // the first empty passer receives from the tosser
+                        if (j == 0)
+                        {
+                            cb.AddComponent<NextBot>(tosserBot);
+                            cb.SetComponent(tosserBot, new NextBot() {Value = instance});
+                        }
+                        if (lastBot != Entity.Null)
+                        {
+                            cb.AddComponent<NextBot>(lastBot);
+                            cb.SetComponent(lastBot, new NextBot() {Value = instance});
+                        }
+                        lastBot = instance;
+                    }
+                    lastBot = Entity.Null;
+
+                    for (var j = 0; j < init.fullPassers; j++)
+                    {
+                        var instance = cb.Instantiate(init.bot);
+                        float3 position = UtilityFunctions.GetChainPosition(j, init.fullPassers, fireTarget, waterPosition);
+                        UtilityFunctions.SetupBot(cb, instance, position, colors.fullColor, brigade);
+                        cb.AddComponent<FullPasserInfo>(instance);
+                        cb.SetComponent(instance, new FullPasserInfo()
+                        {
+                            ChainLength = init.fullPassers,
+                            ChainPosition = j
+                        });
+                        cb.AddComponent<TargetPosition>(instance);
+                        cb.SetComponent(instance, new TargetPosition()
+                        {
+                            Value = float3.zero
+                        });
+                        
+                        // the first full passer receives from the scooper
+                        if (j == 0)
+                        {
+                            cb.AddComponent<NextBot>(scooperBot);
+                            cb.SetComponent(scooperBot, new NextBot() {Value = instance});
+                        }
+                        else if (lastBot != Entity.Null)
+                        {
+                            cb.AddComponent<NextBot>(lastBot);
+                            cb.SetComponent(lastBot, new NextBot() {Value = instance});
+                        }
+                        // the last full passer passes to the tosser
+                        if (j == init.fullPassers - 1)
+                        {
+                            cb.AddComponent<NextBot>(instance);
+                            cb.SetComponent(instance, new NextBot() {Value = tosserBot});
+                        }
+                        lastBot = instance;
+                    }
+                }
+                // remove the setup data
+                cb.DestroyEntity(e);
+            }).Schedule(Dependency);
+        riverPositions.Dispose(job1);
+        riverEntities.Dispose(job1);
+        ecbs.AddJobHandleForProducer(job1);
+        Dependency = job1;
     }
 }
