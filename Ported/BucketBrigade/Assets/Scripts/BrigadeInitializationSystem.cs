@@ -61,8 +61,8 @@ public struct UtilityFunctions
         {
             Value = position    
         });
-        cb.AddComponent<BotColor>(instance);
-        cb.SetComponent(instance, new BotColor()
+        cb.AddComponent<Color>(instance);
+        cb.SetComponent(instance, new Color()
         {
             Value = color
         });
@@ -167,6 +167,7 @@ public class BrigadeInitializationSystem : SystemBase
                         var instance = cb.Instantiate(init.bot);
                         var position = UtilityFunctions.GetChainPosition(j, init.emptyPassers, waterPosition, fireTarget);
                         UtilityFunctions.SetupBot(cb, instance, position, colors.emptyColor, brigade);
+                        
                         cb.AddComponent<EmptyPasserInfo>(instance);
                         cb.SetComponent(instance, new EmptyPasserInfo()
                         {

@@ -12,7 +12,7 @@ public struct BrigadeColor : IComponentData
 }
 
 [MaterialProperty("_BaseColor", MaterialPropertyFormat.Float4)]
-public struct BotColor : IComponentData
+public struct Color : IComponentData
 {
     public float4 Value;
 }

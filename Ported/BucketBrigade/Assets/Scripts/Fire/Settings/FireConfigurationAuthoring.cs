@@ -57,9 +57,9 @@ public class FireConfigurationAuthoring : UnityEngine.MonoBehaviour, IConvertGam
     public float FireSimUpdateRate = 0.5f;
     
     // Fire rendering
-    public Color DefaultColor;
-    public Color LowFireColor;
-    public Color HigHFireColor;
+    public UnityEngine.Color DefaultColor;
+    public UnityEngine.Color LowFireColor;
+    public UnityEngine.Color HigHFireColor;
 
     [Range(0.01f,1f)]
     public float MaxFireHeight = 0.2f;
