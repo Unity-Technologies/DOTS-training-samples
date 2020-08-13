@@ -8,7 +8,8 @@ using UnityEngine;
 [ConverterVersion("joe", 1)]
 public class LineSpawnerAuthoring_FromEntity : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
 {
-    public GameObject Prefab;
+    public GameObject LinePrefab;
+    public GameObject BotPrefab;
     public int Count;
     public int CountOfFullPassBots;
     public int CountOfEmptyPassBots;
@@ -16,7 +17,8 @@ public class LineSpawnerAuthoring_FromEntity : MonoBehaviour, IDeclareReferenced
     // Referenced prefabs have to be declared so that the conversion system knows about them ahead of time
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
-        referencedPrefabs.Add(Prefab);
+        referencedPrefabs.Add(LinePrefab);
+        referencedPrefabs.Add(BotPrefab);
     }
 
     // Lets you convert the editor data representation to the entity optimal runtime representation
@@ -26,8 +28,8 @@ public class LineSpawnerAuthoring_FromEntity : MonoBehaviour, IDeclareReferenced
         {
             // The referenced prefab will be converted due to DeclareReferencedPrefabs.
             // So here we simply map the game object to an entity reference to that prefab.
-            LinePrefab = conversionSystem.GetPrimaryEntity(Prefab),
-            BotPrefab = conversionSystem.GetPrimaryEntity(Prefab),
+            LinePrefab = conversionSystem.GetPrimaryEntity(LinePrefab),
+            BotPrefab = conversionSystem.GetPrimaryEntity(BotPrefab),
             Count = Count,
             CountOfFullPassBots = CountOfFullPassBots,
             CountOfEmptyPassBots = CountOfEmptyPassBots
