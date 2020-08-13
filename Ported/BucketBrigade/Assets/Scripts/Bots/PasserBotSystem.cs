@@ -52,7 +52,6 @@ public class PasserBotSystem : SystemBase
         // Carry & Deliver bucket
         Entities
             .WithName("Passer_BucketCarryToTarget")
-            // .WithAny<EmptyPasserInfo, FullPasserInfo>()
             .WithAny<EmptyPasserInfo, FullPasserInfo>()
             .WithAll<CarriedBucket>()
             .WithStructuralChanges()
@@ -74,6 +73,39 @@ public class PasserBotSystem : SystemBase
                         EntityManager.AddComponentData(carriedBucket.Value, new Owner
                         {
                             Value = nextBot.Value
+                        });
+                        
+                        EntityManager.RemoveComponent<CarriedBucket>(e);
+                    }
+                }
+            ).Run();
+        
+        var translations = GetComponentDataFromEntity<Translation>(true);
+        
+        // Carry & return empty bucket to water (special case for last empty passer, no next bot, just drop off at water)
+        Entities
+            .WithName("Passer_BucketCarryToWater")
+            .WithAll<EmptyPasserInfo>()
+            .WithAll<CarriedBucket>()
+            .WithNone<NextBot>()  // No next but, unlike job above going "ToTarget"
+            .WithStructuralChanges()
+            .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigadeGroup, in TargetPosition targetPos) =>
+                {
+                    Brigade brigade = GetComponent<Brigade>(brigadeGroup.Value);
+                    Translation waterTranslation = translations[brigade.waterEntity];
+                    
+                    var waterPosition = math.mul(GetComponent<LocalToWorld>(brigade.waterEntity).Value, new float4(translations[brigade.waterEntity].Value, 1)).xyz;
+
+                    translation.Value = translation.Value + math.normalize(waterPosition - translation.Value) * 1 * deltaTime;
+                    var bucketTranslation = translation.Value + new float3(0, 0.5f, 0);
+                    EntityManager.SetComponentData(carriedBucket.Value, new Translation(){Value = bucketTranslation});
+
+                    if (math.length(translation.Value - waterPosition) < 0.1f)
+                    {
+                        // Next bot owns bucket 
+                        EntityManager.AddComponentData(carriedBucket.Value, new Owner
+                        {
+                            Value = Entity.Null
                         });
                         
                         EntityManager.RemoveComponent<CarriedBucket>(e);
