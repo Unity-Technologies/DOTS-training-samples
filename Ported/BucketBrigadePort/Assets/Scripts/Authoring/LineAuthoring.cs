@@ -6,6 +6,8 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct Line : IComponentData
 {
-    public Translation fillTranslation;
-    public Translation tossTranslation;
+    public int lineId;
+    public float3 fillTranslation;
+    public float3 tossTranslation;
+    // public Entity[] bots;
 }

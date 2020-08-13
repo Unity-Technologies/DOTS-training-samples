@@ -6,3 +6,5 @@ public struct Tile : IComponentData
 {
     public int Id;
 }
+
+public struct OnFire : IComponentData { }

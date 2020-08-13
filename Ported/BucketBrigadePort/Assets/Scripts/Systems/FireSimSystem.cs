@@ -16,7 +16,7 @@ public class FireSimSystem : SystemBase
         int rows = tileSpawner.YSize;
        
         m_TimeUntilFireUpdate -= deltaTime;
-        if (m_TimeUntilFireUpdate <= fireSpreadSettings.fireSimUpdateRate)
+        if (m_TimeUntilFireUpdate <= 0)
         {
             m_TimeUntilFireUpdate = fireSpreadSettings.fireSimUpdateRate;
             int tileCount = rows * columns;
@@ -28,7 +28,7 @@ public class FireSimSystem : SystemBase
                 .ForEach((in Temperature temperature, in Tile tile) =>
                 {
                     temperatures[tile.Id] = temperature.Value;
-                }).Schedule();
+                }).ScheduleParallel();
             
             // Spread temperatures.
             Entities
@@ -65,11 +65,16 @@ public class FireSimSystem : SystemBase
             // Apply the temporary array
             Entities
                 .WithName("FireSimApply")
+                // .WithStructuralChanges()
                 .WithDisposeOnCompletion(temperatures)
-                .ForEach((ref Temperature temperature, in Tile tile) =>
+                .ForEach((Entity tileEntity, ref Temperature temperature, in Tile tile) =>
                 {
                     temperature.Value = temperatures[tile.Id];
-                }).Schedule();
+                    // if (temperature.Value > fireSpreadSettings.flashpoint)
+                    // {
+                    //     EntityManager.AddComponent<OnFire>(tileEntity);
+                    // }
+                }).ScheduleParallel();
         }
     }
 }
