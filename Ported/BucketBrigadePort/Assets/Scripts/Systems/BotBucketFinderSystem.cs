@@ -63,6 +63,9 @@ public class BotBucketFinderSystem : SystemBase
                 }
                 // Deal with the buckets
 
+                // BucketReferenceComponent
+                // LineId
+
             }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
