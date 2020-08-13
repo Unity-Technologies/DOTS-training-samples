@@ -42,17 +42,18 @@ public class BrigadeRetargetSystem : SystemBase
         var temperatures = GetComponentDataFromEntity<Temperature>(true);
         var translations = GetComponentDataFromEntity<Translation>(true);
         var temperatureArray = temperatureGroup.ToEntityArray(Allocator.TempJob);
-            
+        var riverTranslation = GetComponentDataFromEntity<Translation>(true);
         // just randomly updating the targets
         // will need to be replaced by the search
         var handle1 = Entities.WithAll<Brigade>()
             .WithReadOnly(temperatures)
+            .WithReadOnly(riverTranslation)
             .WithoutBurst()
             .WithReadOnly(translations)
             .ForEach((ref Brigade brigade) =>
-        {
-            brigade.waterTarget = brigade.random.NextFloat3() * 10.0f;
-            brigade.waterTarget.y = 0;
+            {
+
+                float3 waterTarget = riverTranslation[brigade.waterEntity].Value;
             
             // Find closest fire
             float closestDistSq = 0;
@@ -64,7 +65,7 @@ public class BrigadeRetargetSystem : SystemBase
                 Temperature theirTemp = temperatures[e];
                 Translation translation = translations[e];
 
-                float3 diff = brigade.waterTarget - translation.Value;
+                float3 diff = waterTarget - translation.Value;
                 float distSq = diff.x * diff.x + diff.z * diff.z;
                 if (!foundFire || distSq < closestDistSq)
                 {
@@ -88,24 +89,25 @@ public class BrigadeRetargetSystem : SystemBase
         }).Schedule(Dependency);
         
         var handle2 = Entities
+            .WithReadOnly(riverTranslation)
             .WithAll<TargetPosition>()
             .ForEach((Entity e, ref TargetPosition target, in BrigadeGroup group, in EmptyPasserInfo passerInfo) =>
             {
                 var brigadeData = BrigadeDataLookup[@group.Value];
-                target.Value = BrigadeInitializationSystem.GetChainPosition(passerInfo.ChainPosition, passerInfo.ChainLength, brigadeData.waterTarget, brigadeData.fireTarget);
+                target.Value = UtilityFunctions.GetChainPosition(passerInfo.ChainPosition, passerInfo.ChainLength, riverTranslation[brigadeData.waterEntity].Value, brigadeData.fireTarget);
             }).Schedule(handle1);
         
         var lastHandle = Entities
+            .WithReadOnly(riverTranslation)
             .WithAll<TargetPosition>()
             .ForEach((Entity e, ref TargetPosition target, in BrigadeGroup group, in FullPasserInfo passerInfo) =>
             {
                 var brigadeData = BrigadeDataLookup[@group.Value];
-                target.Value = BrigadeInitializationSystem.GetChainPosition(passerInfo.ChainPosition, passerInfo.ChainLength, brigadeData.fireTarget, brigadeData.waterTarget);
+                target.Value = UtilityFunctions.GetChainPosition(passerInfo.ChainPosition, passerInfo.ChainLength, brigadeData.fireTarget, riverTranslation[brigadeData.waterEntity].Value);
             }).Schedule(handle2);
 
         temperatureArray.Dispose(lastHandle);
         BrigadeDataLookup.Dispose(lastHandle);
-
         Dependency = lastHandle;
     }
 }
