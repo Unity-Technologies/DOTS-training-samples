@@ -47,6 +47,10 @@ public struct FullPasserInfo : IComponentData
     public int ChainPosition;
 }
 
+public struct NextBot : IComponentData
+{
+    public Entity Value;
+}
 public class BrigadeInitializationSystem : SystemBase
 {
     protected override void OnUpdate()
@@ -71,20 +75,17 @@ public class BrigadeInitializationSystem : SystemBase
                         waterTarget = waterTarget,
                         random = new Random(random.NextUInt())
                     });
+                    
                     // add a tosser bot
-                    {
-                        var instance = EntityManager.Instantiate(init.bot);
-                        EntityManager.AddComponent<BotTypeToss>(instance);
-                        var position = waterTarget;
-                        SetupBot(instance, position, colors.tossColor, brigade);
-                    }
+                    var tosserBot = EntityManager.Instantiate(init.bot);
+                    EntityManager.AddComponent<BotTypeToss>(tosserBot);
+                    SetupBot(tosserBot, waterTarget, colors.tossColor, brigade);
+                    
                     // add a scoop bot
-                    {
-                        var instance = EntityManager.Instantiate(init.bot);
-                        EntityManager.AddComponent<BotTypeScoop>(instance);
-                        var position = fireTarget;
-                        SetupBot(instance, position, colors.scoopColor, brigade);
-                    }
+                    var scooperBot = EntityManager.Instantiate(init.bot);
+                    EntityManager.AddComponent<BotTypeScoop>(scooperBot);
+                    SetupBot(scooperBot, fireTarget, colors.scoopColor, brigade);
+                    
                     for (var j = 0; j < init.emptyPassers; j++)
                     {
                         var instance = EntityManager.Instantiate(init.bot);
@@ -99,7 +100,14 @@ public class BrigadeInitializationSystem : SystemBase
                         {
                             Value = float3.zero
                         });
+                        
+                        // the first empty passer receives from the tosser
+                        if (j == 0)
+                        {
+                            EntityManager.AddComponentData(tosserBot, new NextBot() {Value = instance});
+                        }
                     }
+
                     for (var j = 0; j < init.fullPassers; j++)
                     {
                         var instance = EntityManager.Instantiate(init.bot);
@@ -114,6 +122,18 @@ public class BrigadeInitializationSystem : SystemBase
                         {
                             Value = float3.zero
                         });
+                        
+                        // the first full passer receives from the scooper
+                        if (j == 0)
+                        {
+                            EntityManager.AddComponentData(scooperBot, new NextBot() {Value = instance});
+                        }
+
+                        // the last full passer passes to the tosser
+                        if (j == init.fullPassers - 1)
+                        {
+                            EntityManager.AddComponentData(instance, new NextBot() {Value = tosserBot});
+                        }
                     }
                 }
                 // remove the setup data

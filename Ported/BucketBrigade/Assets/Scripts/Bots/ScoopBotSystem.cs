@@ -79,7 +79,6 @@ public class ScoopBotSystem : SystemBase
             {
                 var bucketTranslation = EntityManager.GetComponentData<Translation>(targetBucket.Value);
                 translation.Value = translation.Value + math.normalize(bucketTranslation.Value - translation.Value) * 1 * deltaTime;
-                float3 steer = math.normalize(bucketTranslation.Value - translation.Value);
                 if (math.length(translation.Value - bucketTranslation.Value) < 0.1f)
                 {
                     EntityManager.AddComponentData(e, new CarriedBucket()
