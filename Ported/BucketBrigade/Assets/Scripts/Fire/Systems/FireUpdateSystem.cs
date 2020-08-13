@@ -65,19 +65,17 @@ public class FireUpdateSystem : SystemBase
                 temp.Value = math.max(0,  math.min(addedTemp.Value + temp.Value, config.MaxTemperature));
                 addedTemp.Value = 0;
 
+                var newTrans = translation;
+
                 // Affect look & feel
                 if (temp.Value > 0)
                 {
                     // Position
-                    var newTrans = translation;
-                    
                     newTrans.Value.y = temp.Value * config.MaxFireHeight + config.Origin.y;
                    
                     if (temp.Value >= config.FlashPoint)
                         newTrans.Value.y += Mathf.PerlinNoise((time - temp.FireGridIndex) * config.FlickerRate - temp.Value, temp.Value) * config.FlickerRange;
 
-                    translation = newTrans;
-                    
                     // Color
                     if (temp.Value < config.FlashPoint)
                     {
@@ -90,7 +88,14 @@ public class FireUpdateSystem : SystemBase
                             math.min(1f, (temp.Value - config.FlashPoint) / (1f - config.FlashPoint) ));
                     }
                 }
-                
+                else
+                {
+                    fireColor.Value = config.DefaultColor;
+                    newTrans.Value.y = config.Origin.y;
+                }
+
+                translation = newTrans;
+
             }).ScheduleParallel();
         
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
