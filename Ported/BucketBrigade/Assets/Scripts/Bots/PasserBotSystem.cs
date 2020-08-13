@@ -1,8 +1,9 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
-public class TossBotSystem : SystemBase
+public class PasserBotSystem : SystemBase
 {
     protected override void OnUpdate()
     {
@@ -10,8 +11,8 @@ public class TossBotSystem : SystemBase
         
         // Go to default position if no pickup/carrying happening
         Entities
-            .WithName("Toss_GoToTarget")
-            .WithAll<BotTypeToss>()
+            .WithName("Passer_GoToTarget")
+            .WithAny<EmptyPasserInfo, FullPasserInfo>()
             .WithNone<CarriedBucket>()
             .WithNone<TargetBucket>()
             .ForEach((Entity e, ref Translation translation, in TargetPosition target) =>
@@ -22,12 +23,12 @@ public class TossBotSystem : SystemBase
                                             math.normalize(target.Value - translation.Value) * 1 * deltaTime;
                     }
                 }
-            ).Schedule();
+            ).Run();
         
         // Go to target bucket
         Entities
-            .WithName("Toss_BucketPickup")
-            .WithAll<BotTypeToss>()
+            .WithName("Passer_BucketPickup")
+            .WithAny<EmptyPasserInfo, FullPasserInfo>()
             .WithAll<TargetBucket>()
             .WithNone<CarriedBucket>()
             .WithStructuralChanges()
@@ -38,6 +39,7 @@ public class TossBotSystem : SystemBase
                                         math.normalize(bucketTranslation.Value - translation.Value) * 1 * deltaTime;
                     if (math.length(translation.Value - bucketTranslation.Value) < 0.1f)
                     {
+                        // Start carrying bucket
                         EntityManager.AddComponentData(e, new CarriedBucket()
                         {
                             Value = targetBucket.Value
@@ -49,18 +51,18 @@ public class TossBotSystem : SystemBase
 
         // Carry & Deliver bucket
         Entities
-            .WithName("Toss_BucketCarryAndToss")
-            .WithAll<BotTypeToss>()
+            .WithName("Passer_BucketCarryToTarget")
+            // .WithAny<EmptyPasserInfo, FullPasserInfo>()
+            .WithAll<FullPasserInfo>()
             .WithAll<CarriedBucket>()
             .WithStructuralChanges()
-            .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigade, in NextBot nextBot) =>
+            .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigade, in TargetPosition targetPos, in NextBot nextBot) =>
                 {
-                    var fireTarget = EntityManager.GetComponentData<Brigade>(brigade.Value).fireTarget;
-                    translation.Value = translation.Value + math.normalize(fireTarget - translation.Value) * 1 * deltaTime;
+                    translation.Value = translation.Value + math.normalize(targetPos.Value - translation.Value) * 1 * deltaTime;
                     var bucketTranslation = translation.Value + new float3(0, 0.5f, 0);
                     EntityManager.SetComponentData(carriedBucket.Value, new Translation(){Value = bucketTranslation});
 
-                    if (math.length(translation.Value - fireTarget) < 0.1f)
+                    if (math.length(translation.Value - targetPos.Value) < 0.1f)
                     {
                         // Next bot targets bucket
                         EntityManager.AddComponentData(nextBot.Value, new TargetBucket
@@ -72,13 +74,6 @@ public class TossBotSystem : SystemBase
                         EntityManager.AddComponentData(carriedBucket.Value, new Owner
                         {
                             Value = nextBot.Value
-                        });
-                        
-                        // Empty bucket
-                        EntityManager.SetComponentData(carriedBucket.Value, new Water()
-                        {
-                            capacity = 1,
-                            volume = 0
                         });
                         
                         EntityManager.RemoveComponent<CarriedBucket>(e);

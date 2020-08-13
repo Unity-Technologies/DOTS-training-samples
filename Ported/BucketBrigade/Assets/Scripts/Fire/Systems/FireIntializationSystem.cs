@@ -58,7 +58,7 @@ public class FireIntializationSystem : SystemBase
                     for (int x = 0; x < config.GridWidth; ++x)
                     {
                         var instance = GridEntries[index]; // ecb.Instantiate(spawning.Prefab);
-                        var translation = new float3(x - (config.GridWidth - 1) / 2f, 0, z);
+                        var translation = new float3(x - (config.GridWidth - 1) / 2f, 0, z - (config.GridHeight - 1) / 2f);
                         translation *= cellSize;
                         translation += config.Origin;
 
