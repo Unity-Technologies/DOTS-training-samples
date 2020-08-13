@@ -17,8 +17,8 @@ public class BotMovementSystem : SystemBase
             {
                 var maxMovement = translationSpeed.Value * deltaTime;
                 var vector = targetPosition.Value - translation.Value;
-                var magnitude = Math.Sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
-                var actualMovement = (float)(math.min(maxMovement, magnitude));
+                var magnitude = math.distance(targetPosition.Value, translation.Value);
+                var actualMovement = math.min(maxMovement, magnitude);
                 translation.Value += vector*actualMovement;
             })
             .ScheduleParallel();
