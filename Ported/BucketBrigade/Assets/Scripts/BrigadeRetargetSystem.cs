@@ -6,9 +6,10 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
+[UpdateAfter(typeof(BrigadeInitializationSystem))]
 public class BrigadeRetargetSystem : SystemBase
 {
-    private float updateSpeed = 2.0f;
+    private float updateSpeed = 10.0f;
     private float nextUpdate = 0;
     private Random random;
 
@@ -17,7 +18,6 @@ public class BrigadeRetargetSystem : SystemBase
     protected override void OnCreate()
     {
         random = new Random(1);
-        
         temperatureGroup = GetEntityQuery(typeof(Temperature));
     }
 
