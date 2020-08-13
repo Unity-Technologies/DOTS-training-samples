@@ -154,8 +154,9 @@ public class BrigadeInitializationSystem : SystemBase
                     
                     // add a scoop bot
                     var scooperBot = cb.Instantiate(init.bot);
-                    cb.AddComponent<BotTypeScoop>(tosserBot);
+                    cb.AddComponent<BotTypeScoop>(scooperBot);
                     UtilityFunctions.SetupBot(cb, scooperBot, fireTarget, colors.scoopColor, brigade);
+                    
                     Entity lastBot = Entity.Null;
                     for (var j = 0; j < init.emptyPassers; j++)
                     {
