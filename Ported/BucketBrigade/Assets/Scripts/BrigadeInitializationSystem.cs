@@ -136,7 +136,7 @@ public class BrigadeInitializationSystem : SystemBase
                         if (waterTarget == Entity.Null)
                         {
                             waterTarget = riverEntities[j];
-                            waterPosition = riverPositions[j].Value;
+                            waterPosition = math.mul(GetComponent<LocalToWorld>(waterTarget).Value, new float4(riverPositions[j].Value, 1)).xyz;
                             break;
                         }
                     }
@@ -153,12 +153,13 @@ public class BrigadeInitializationSystem : SystemBase
                     // add a tosser bot
                     var tosserBot = cb.Instantiate(init.bot);
                     cb.AddComponent<BotTypeToss>(tosserBot);
-                    UtilityFunctions.SetupBot(cb, tosserBot, waterPosition, colors.tossColor, brigade);
+                    UtilityFunctions.SetupBot(cb, tosserBot, fireTarget, colors.tossColor, brigade);
                     
                     // add a scoop bot
                     var scooperBot = cb.Instantiate(init.bot);
+                    
                     cb.AddComponent<BotTypeScoop>(scooperBot);
-                    UtilityFunctions.SetupBot(cb, scooperBot, fireTarget, colors.scoopColor, brigade);
+                    UtilityFunctions.SetupBot(cb, scooperBot, waterPosition, colors.scoopColor, brigade);
                     
                     Entity lastBot = Entity.Null;
                     for (var j = 0; j < init.emptyPassers; j++)

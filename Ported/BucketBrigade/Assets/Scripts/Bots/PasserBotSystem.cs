@@ -1,4 +1,4 @@
-﻿using Unity.Entities;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -53,7 +53,7 @@ public class PasserBotSystem : SystemBase
         Entities
             .WithName("Passer_BucketCarryToTarget")
             // .WithAny<EmptyPasserInfo, FullPasserInfo>()
-            .WithAll<FullPasserInfo>()
+            .WithAny<EmptyPasserInfo, FullPasserInfo>()
             .WithAll<CarriedBucket>()
             .WithStructuralChanges()
             .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigade, in TargetPosition targetPos, in NextBot nextBot) =>
