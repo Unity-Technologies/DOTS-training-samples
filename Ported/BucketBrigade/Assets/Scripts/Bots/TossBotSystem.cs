@@ -60,8 +60,6 @@ public class TossBotSystem : SystemBase
                     Brigade brigade = EntityManager.GetComponentData<Brigade>(brigadeGroup.Value);
                     var fireTarget = brigade.fireTarget;
                     translation.Value = translation.Value + math.normalize(fireTarget - translation.Value) * 1 * deltaTime;
-                    var bucketTranslation = translation.Value + new float3(0, 0.5f, 0);
-                    EntityManager.SetComponentData(carriedBucket.Value, new Translation(){Value = bucketTranslation});
 
                     if (math.length(translation.Value - fireTarget) < 0.1f)
                     {

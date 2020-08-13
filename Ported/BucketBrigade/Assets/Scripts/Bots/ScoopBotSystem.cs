@@ -140,8 +140,6 @@ public class ScoopBotSystem : SystemBase
                 {
                     translation.Value = translation.Value +
                                         math.normalize(toTarget) * math.min(1 * deltaTime, distanceToTarget);
-                    var bucketTranslation = translation.Value + new float3(0, 0.5f, 0);
-                    EntityManager.SetComponentData(carriedBucket.Value, new Translation() {Value = bucketTranslation});
                 }
             }).WithoutBurst().Run();
     }

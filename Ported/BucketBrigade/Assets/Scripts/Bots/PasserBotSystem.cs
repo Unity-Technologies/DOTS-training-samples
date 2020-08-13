@@ -58,8 +58,6 @@ public class PasserBotSystem : SystemBase
             .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigade, in TargetPosition targetPos, in NextBot nextBot) =>
                 {
                     translation.Value = translation.Value + math.normalize(targetPos.Value - translation.Value) * 1 * deltaTime;
-                    var bucketTranslation = translation.Value + new float3(0, 0.5f, 0);
-                    EntityManager.SetComponentData(carriedBucket.Value, new Translation(){Value = bucketTranslation});
 
                     if (math.length(translation.Value - targetPos.Value) < 0.1f)
                     {
