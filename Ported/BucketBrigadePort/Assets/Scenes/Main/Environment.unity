@@ -228,7 +228,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -623260167092355611, guid: 653e1c7f72d294d3996ca6db81e639b0, type: 3}
       propertyPath: StartingFireCount
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -623260167092355611, guid: 653e1c7f72d294d3996ca6db81e639b0, type: 3}
       propertyPath: TotalBuckets
@@ -236,11 +236,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -623260167092355611, guid: 653e1c7f72d294d3996ca6db81e639b0, type: 3}
       propertyPath: XSize
-      value: 100
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -623260167092355611, guid: 653e1c7f72d294d3996ca6db81e639b0, type: 3}
       propertyPath: YSize
-      value: 100
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 4668822788083384432, guid: 653e1c7f72d294d3996ca6db81e639b0, type: 3}
       propertyPath: m_LocalPosition.x
