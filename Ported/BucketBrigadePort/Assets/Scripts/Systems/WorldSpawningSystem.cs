@@ -72,8 +72,8 @@ public class WorldSpawningSystem : SystemBase
                         temperature.Value = fireTiles[tileCount] == true ? 1 : 0;
                         EntityManager.SetComponentData(blankTiles[tileCount], temperature);
 
-                            // Add Bucket
-                            if (bucketTiles[tileCount] == true)
+                        // Add Bucket
+                        if (bucketTiles[tileCount] == true)
                         {
                             var positionBucket = new Translation() { Value = 
                                 new float3(
