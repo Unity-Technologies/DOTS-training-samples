@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6626157377090336217}
   - component: {fileID: 1754616478513034612}
+  - component: {fileID: -5299060654477022142}
   m_Layer: 0
   m_Name: TileDisplaySettings
   m_TagString: Untagged
@@ -49,3 +50,25 @@ MonoBehaviour:
   FlameHeight: 10
   FlickerRate: 0.1
   FlickerRange: 0.1
+--- !u!114 &-5299060654477022142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8812904304779558724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8026524ca36cc004dae2be10da0f2d82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Empty:
+    x: 255
+    y: 105
+    z: 117
+    w: 1
+  Full:
+    x: 0
+    y: 250
+    z: 255
+    w: 1

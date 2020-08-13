@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 4668822788083384432}
   - component: {fileID: 3014689087084118299}
   - component: {fileID: -623260167092355611}
-  - component: {fileID: 5223798053815962365}
   - component: {fileID: 3516836346958189788}
   m_Layer: 0
   m_Name: Settings
@@ -63,33 +62,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f96a276eee462ca478632724b672655f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  XSize: 2
-  YSize: 2
+  XSize: 20
+  YSize: 20
   Scale: 0.3
-  StartingFireCount: 1
+  StartingFireCount: 3
   Prefab: {fileID: 8135744633761666916, guid: ea3ec593ba0a10c4aa6eeb1873f61b41, type: 3}
---- !u!114 &5223798053815962365
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5663180833411209827}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8026524ca36cc004dae2be10da0f2d82, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Empty:
-    x: 255
-    y: 105
-    z: 117
-    w: 1
-  Full:
-    x: 0
-    y: 250
-    z: 255
-    w: 1
 --- !u!114 &3516836346958189788
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -102,5 +79,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc69cb6a168d3ce43940397980ff424c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TotalBuckets: 2
+  TotalBuckets: 5
   Prefab: {fileID: 5571402708752865207, guid: 5378ceb8eaf98d04cbbc56e2501cc437, type: 3}

@@ -21,6 +21,7 @@ public class WorldSpawningSystem : SystemBase
                 var tileSpawner = GetSingleton<TileSpawner>();
                 var tileDisplaySettings = GetSingleton<TileDisplaySettings>();
                 var bucketSpawner = GetSingleton<BucketSpawner>();
+                var bucketColorSettings = GetSingleton<BucketColorSettings>();
                 var bucketScale = EntityManager.GetComponentData<NonUniformScale>(bucketSpawner.Prefab);
 
                 var numTiles = tileSpawner.XSize * tileSpawner.YSize;
@@ -82,7 +83,10 @@ public class WorldSpawningSystem : SystemBase
                                     bucketScale.Value.y/2, 
                                     y * tileSpawner.Scale + random.NextFloat(-tileSpawner.Scale / 2, tileSpawner.Scale / 2)
                                 ) };
+                            var bucketColor = new Color() { Value = bucketColorSettings.Empty};
                             EntityManager.SetComponentData(blankBuckets[bucketCount], positionBucket);
+                            EntityManager.SetComponentData(blankBuckets[bucketCount], bucketColor);
+                            
                             bucketCount++;
                         }
 
