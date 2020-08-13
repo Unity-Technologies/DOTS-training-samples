@@ -1,51 +1,85 @@
-﻿using Unity.Collections;
+﻿using System.Diagnostics.Tracing;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
+using UnityEngine;
+using Unity.Transforms;
 
 public class BucketTossSystem : SystemBase
 {
+    private EntityQuery m_fireCellQuery;
+    private EntityQuery m_tosserQuery;
+    private EntityQuery m_bucketQuery;
+
+    protected override void OnCreate()
+    {
+        m_fireCellQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<Translation>(),
+                typeof(Temperature)
+            }
+        });
+
+        m_tosserQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<Translation>(),
+                ComponentType.ReadOnly<BucketTosser>(),
+            }
+        });        
+    }
+
     protected override void OnUpdate()
     {
-        /*
-        Entities
-        .WithName("bucket_fill_lakes")
-        .WithAll<WaterAmount>()
-        .WithAll<WaterRefill>()
-        .ForEach((int entityInQueryIndex, Entity ballEntity) =>
-        {
-            UnityEngine.Debug.LogWarning("dead");
-            ecb.DestroyEntity(entityInQueryIndex, ballEntity);
-        }).Schedule();
+        // hardcoded water amount for a bucketWater 1
+        // hardcoded range of a lake 5
+        var bucketWater = 1.0f;
+        var fireRange = 1.0f;
 
+        var bucketEmptyColor = GetSingleton<BucketColorSettings>().Empty;
+
+        var fireCellTranslations =
+            m_fireCellQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+        var tosserTranslations =
+            m_tosserQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+        
         Entities
-            .WithName("ball_movement")
-            .ForEach((int entityInQueryIndex, Entity ballEntity, ref Translation2D translation, ref Velocity2D velocity, in Scale2D scale2D) =>
+        .WithName("bucket_toss_buckets")
+        .WithAll<WaterAmount>()
+        .WithNone<WaterRefill>()
+        .WithDisposeOnCompletion(fireCellTranslations)
+        .WithDisposeOnCompletion(tosserTranslations)
+        .ForEach((ref WaterAmount bucketWaterAmount, ref Color bucketColor, in Translation position) =>
+        {
+            if (bucketWaterAmount.Value > 0)
             {
-                var aabb = screenBounds;
-                aabb.Extents -= scale2D.Value / 2;
-                translation.Value += velocity.Value * deltaTime;
-                if (velocity.Value.x > 0 && translation.Value.x > aabb.Max.x)
+                for (int i = 0; i < fireCellTranslations.Length; i++)
                 {
-                    velocity.Value.x *= -1;
-                }
-                if (velocity.Value.x < 0 && translation.Value.x < aabb.Min.x)
-                {
-                    velocity.Value.x *= -1;
-                }
-                if (velocity.Value.y > 0 && translation.Value.y > aabb.Max.y)
-                {
-                    velocity.Value.y *= -1;
-                }
-                if (velocity.Value.y < 0 && translation.Value.y < aabb.Min.y)
-                {
-                    //velocity.Value.y *= -1;
-                    //UnityEngine.Debug.Log("dead");
-                    ecb.AddComponent<DeadBall>(entityInQueryIndex, ballEntity);
+                    for (int j = 0; j < tosserTranslations.Length; j++)
+                    {
+                        var tosserFireDist = Vector3.Distance(fireCellTranslations[i].Value, tosserTranslations[j].Value);
+                        if (tosserFireDist <= fireRange)
+                        {
+                            var tosserBucketDist = Vector3.Distance(position.Value, tosserTranslations[j].Value);
+
+                            if (tosserFireDist <= fireRange)
+                            {
+                                bucketWaterAmount.Value -= bucketWater;
+                                if(bucketWaterAmount.Value < 0)
+                                {
+                                    bucketWaterAmount.Value = 0;
+                                }
+                                bucketColor.Value = bucketEmptyColor;
+                            }
+                        }
+                    }
                 }
             }
-        ).ScheduleParallel();
-        
-        m_ECBSystem.AddJobHandleForProducer(Dependency);
-        */
+
+        }).ScheduleParallel();
     }
 }

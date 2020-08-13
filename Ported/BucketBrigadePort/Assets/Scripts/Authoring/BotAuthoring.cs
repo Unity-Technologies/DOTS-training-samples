@@ -7,3 +7,5 @@ public struct Bot : IComponentData
 {
     public Translation targetTranslation;
 }
+
+public struct BucketTosser : IComponentData { }

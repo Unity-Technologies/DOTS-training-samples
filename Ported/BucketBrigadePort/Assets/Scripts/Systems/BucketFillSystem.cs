@@ -47,10 +47,14 @@ public class BucketFillSystem : SystemBase
         var bucketWater = 1.0f;
         var lakeRange   = 5.0f;
 
-        var lakesTranslations =
+        var bucketFullColor = GetSingleton<BucketColorSettings>().Full;
+
+        var lakeTranslations =
             m_lakeQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-        var bucketsTranslations =
+        var bucketTranslations =
             m_bucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+        var bucketWaterAmounts =
+            m_bucketQuery.ToComponentDataArray<WaterAmount>(Allocator.TempJob);
 
         // input: position of the lake, RO, location where the lake should be
         //        WaterAmount of the lake, RW, decrease by the water amount of a bucket (hardcoded WATERAMOUNT)
@@ -60,17 +64,24 @@ public class BucketFillSystem : SystemBase
         Entities
         .WithName("bucket_fill_lakes")
         .WithAll<WaterRefill>()
-        .WithDisposeOnCompletion(bucketsTranslations)
+        .WithDisposeOnCompletion(bucketTranslations)
         .ForEach((ref WaterAmount lakeWaterAmount, in Translation position) =>
         {
             if(lakeWaterAmount.Value < capacity)
             {
-                for(int i = 0; i < bucketsTranslations.Length; i++)
+                for(int i = 0; i < bucketTranslations.Length; i++)
                 {
-                    var dist = Vector3.Distance(position.Value, bucketsTranslations[i].Value);
-                    if(dist <= lakeRange)
+                    if (bucketWaterAmounts[i].Value <= 0)
                     {
-                        lakeWaterAmount.Value -= bucketWater;
+                        var dist = Vector3.Distance(position.Value, bucketTranslations[i].Value);
+                        if (dist <= lakeRange)
+                        {
+                            lakeWaterAmount.Value -= bucketWater;
+                            if(lakeWaterAmount.Value < 0)
+                            {
+                                lakeWaterAmount.Value = 0;
+                            }                            
+                        }
                     }
                 }
             }
@@ -79,16 +90,21 @@ public class BucketFillSystem : SystemBase
         // output: waterAmount of the bucket
         Entities
         .WithName("bucket_fill_buckets")
+        .WithAll<WaterAmount>()
         .WithNone<WaterRefill>()
-        .WithDisposeOnCompletion(lakesTranslations)
-        .ForEach((ref WaterAmount bucketWaterAmount, in Translation position) =>
+        .WithDisposeOnCompletion(lakeTranslations)
+        .ForEach((ref WaterAmount bucketWaterAmount, ref Color bucketColor, in Translation position) =>
         {
-            for (int i = 0; i < lakesTranslations.Length; i++)
+            if (bucketWaterAmount.Value <= 0)
             {
-                var dist = Vector3.Distance(position.Value, lakesTranslations[i].Value);
-                if (dist <= lakeRange)
+                for (int i = 0; i < lakeTranslations.Length; i++)
                 {
-                    bucketWaterAmount.Value += bucketWater;
+                    var dist = Vector3.Distance(position.Value, lakeTranslations[i].Value);
+                    if (dist <= lakeRange)
+                    {
+                        bucketWaterAmount.Value += bucketWater;
+                        bucketColor.Value = bucketFullColor;
+                    }
                 }
             }
 
