@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -85,7 +86,7 @@ public class BrigadeInitializationSystem : SystemBase
                     var scooperBot = EntityManager.Instantiate(init.bot);
                     EntityManager.AddComponent<BotTypeScoop>(scooperBot);
                     SetupBot(scooperBot, fireTarget, colors.scoopColor, brigade);
-                    
+                    Entity lastBot = Entity.Null;
                     for (var j = 0; j < init.emptyPassers; j++)
                     {
                         var instance = EntityManager.Instantiate(init.bot);
@@ -106,7 +107,13 @@ public class BrigadeInitializationSystem : SystemBase
                         {
                             EntityManager.AddComponentData(tosserBot, new NextBot() {Value = instance});
                         }
+                        if (lastBot != Entity.Null)
+                        {
+                            EntityManager.AddComponentData(lastBot, new NextBot() {Value = instance});
+                        }
+                        lastBot = instance;
                     }
+                    lastBot = Entity.Null;
 
                     for (var j = 0; j < init.fullPassers; j++)
                     {
@@ -128,12 +135,16 @@ public class BrigadeInitializationSystem : SystemBase
                         {
                             EntityManager.AddComponentData(scooperBot, new NextBot() {Value = instance});
                         }
-
+                        else if (lastBot != Entity.Null)
+                        {
+                            EntityManager.AddComponentData(lastBot, new NextBot() {Value = instance});
+                        }
                         // the last full passer passes to the tosser
                         if (j == init.fullPassers - 1)
                         {
                             EntityManager.AddComponentData(instance, new NextBot() {Value = tosserBot});
                         }
+                        lastBot = instance;
                     }
                 }
                 // remove the setup data
