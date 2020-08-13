@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-public class BucketRefillUpdateSystem : SystemBase
+public class LakeRefillSystem : SystemBase
 {
     
     protected override void OnUpdate()
