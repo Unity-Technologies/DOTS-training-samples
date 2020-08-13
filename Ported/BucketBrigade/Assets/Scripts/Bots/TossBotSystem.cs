@@ -17,11 +17,10 @@ public class TossBotSystem : SystemBase
             .ForEach((Entity e, ref Translation translation, in BrigadeGroup group) =>
                 {
                     Brigade brigade = GetComponent<Brigade>(group.Value);
-                    
-                    if (math.length(brigade.fireTarget - translation.Value) >= 0.1f)
+                    if (!UtilityFunctions.FlatOverlapCheck(brigade.fireTarget, translation.Value))
                     {
-                        translation.Value = translation.Value + 
-                                            math.normalize(brigade.fireTarget - translation.Value) * 1 * deltaTime;
+                        translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value + 
+                                                                              math.normalize(brigade.fireTarget - translation.Value) * 1 * deltaTime);
                     }
                 }
             ).Schedule();
@@ -36,9 +35,9 @@ public class TossBotSystem : SystemBase
             .ForEach((Entity e, ref Translation translation, in TargetBucket targetBucket) =>
                 {
                     var bucketTranslation = EntityManager.GetComponentData<Translation>(targetBucket.Value);
-                    translation.Value = translation.Value +
-                                        math.normalize(bucketTranslation.Value - translation.Value) * 1 * deltaTime;
-                    if (math.length(translation.Value - bucketTranslation.Value) < 0.1f)
+                    translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value +
+                                                                          math.normalize(bucketTranslation.Value - translation.Value) * 1 * deltaTime);
+                    if (UtilityFunctions.FlatOverlapCheck(translation.Value, bucketTranslation.Value))
                     {
                         EntityManager.AddComponentData(e, new CarriedBucket()
                         {
@@ -59,11 +58,8 @@ public class TossBotSystem : SystemBase
                 {
                     Brigade brigade = EntityManager.GetComponentData<Brigade>(brigadeGroup.Value);
                     var fireTarget = brigade.fireTarget;
-                    translation.Value = translation.Value + math.normalize(fireTarget - translation.Value) * 1 * deltaTime;
-                    var bucketTranslation = translation.Value + new float3(0, 0.5f, 0);
-                    EntityManager.SetComponentData(carriedBucket.Value, new Translation(){Value = bucketTranslation});
-
-                    if (math.length(translation.Value - fireTarget) < 0.1f)
+                    translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value + math.normalize(fireTarget - translation.Value) * 1 * deltaTime);
+                    if (UtilityFunctions.FlatOverlapCheck(translation.Value, fireTarget))
                     {
                         // Next bot targets bucket
                         EntityManager.AddComponentData(nextBot.Value, new TargetBucket

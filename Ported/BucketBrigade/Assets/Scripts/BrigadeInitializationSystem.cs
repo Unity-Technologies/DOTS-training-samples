@@ -55,6 +55,17 @@ public struct NextBot : IComponentData
 
 public struct UtilityFunctions
 {
+    // check on just x/z
+    public static bool FlatOverlapCheck(float3 a, float3 b)
+    {
+        return math.length((a - b).xz) < 0.1f;
+    }
+
+    public static float3 BotHeightCorrect(float3 position)
+    {
+        position.y = 0.25f;
+        return position;
+    }
     public static void SetupBot(EntityCommandBuffer cb, Entity instance, float3 position, float4 color, Entity brigadeEntity)
     {
         cb.SetComponent(instance, new Translation()

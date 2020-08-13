@@ -17,10 +17,10 @@ public class PasserBotSystem : SystemBase
             .WithNone<TargetBucket>()
             .ForEach((Entity e, ref Translation translation, in TargetPosition target) =>
                 {
-                    if (math.length(translation.Value - target.Value) >= 0.1f)
+                    if (!UtilityFunctions.FlatOverlapCheck(translation.Value, target.Value))
                     {
-                        translation.Value = translation.Value + 
-                                            math.normalize(target.Value - translation.Value) * 1 * deltaTime;
+                        translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value + 
+                                                                              math.normalize(target.Value - translation.Value) * 1 * deltaTime);
                     }
                 }
             ).Run();
@@ -35,9 +35,9 @@ public class PasserBotSystem : SystemBase
             .ForEach((Entity e, ref Translation translation, in TargetBucket targetBucket) =>
                 {
                     var bucketTranslation = EntityManager.GetComponentData<Translation>(targetBucket.Value);
-                    translation.Value = translation.Value +
-                                        math.normalize(bucketTranslation.Value - translation.Value) * 1 * deltaTime;
-                    if (math.length(translation.Value - bucketTranslation.Value) < 0.1f)
+                    translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value +
+                                                                          math.normalize(bucketTranslation.Value - translation.Value) * 1 * deltaTime);
+                    if (UtilityFunctions.FlatOverlapCheck(translation.Value, bucketTranslation.Value))
                     {
                         // Start carrying bucket
                         EntityManager.AddComponentData(e, new CarriedBucket()
@@ -57,11 +57,8 @@ public class PasserBotSystem : SystemBase
             .WithStructuralChanges()
             .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigade, in TargetPosition targetPos, in NextBot nextBot) =>
                 {
-                    translation.Value = translation.Value + math.normalize(targetPos.Value - translation.Value) * 1 * deltaTime;
-                    var bucketTranslation = translation.Value + new float3(0, 0.5f, 0);
-                    EntityManager.SetComponentData(carriedBucket.Value, new Translation(){Value = bucketTranslation});
-
-                    if (math.length(translation.Value - targetPos.Value) < 0.1f)
+                    translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value + math.normalize(targetPos.Value - translation.Value) * 1 * deltaTime);
+                    if (UtilityFunctions.FlatOverlapCheck(translation.Value, targetPos.Value))
                     {
                         // Next bot targets bucket
                         EntityManager.AddComponentData(nextBot.Value, new TargetBucket
@@ -92,15 +89,11 @@ public class PasserBotSystem : SystemBase
             .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigadeGroup, in TargetPosition targetPos) =>
                 {
                     Brigade brigade = GetComponent<Brigade>(brigadeGroup.Value);
-                    Translation waterTranslation = translations[brigade.waterEntity];
-                    
                     var waterPosition = math.mul(GetComponent<LocalToWorld>(brigade.waterEntity).Value, new float4(translations[brigade.waterEntity].Value, 1)).xyz;
 
-                    translation.Value = translation.Value + math.normalize(waterPosition - translation.Value) * 1 * deltaTime;
-                    var bucketTranslation = translation.Value + new float3(0, 0.5f, 0);
-                    EntityManager.SetComponentData(carriedBucket.Value, new Translation(){Value = bucketTranslation});
+                    translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value + math.normalize(waterPosition - translation.Value) * 1 * deltaTime);
 
-                    if (math.length(translation.Value - waterPosition) < 0.1f)
+                    if (UtilityFunctions.FlatOverlapCheck(translation.Value, waterPosition))
                     {
                         // Next bot owns bucket 
                         EntityManager.RemoveComponent<Owner>(carriedBucket.Value);
