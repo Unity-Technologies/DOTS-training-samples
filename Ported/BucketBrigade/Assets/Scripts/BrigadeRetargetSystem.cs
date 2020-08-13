@@ -100,7 +100,7 @@ public class BrigadeRetargetSystem : SystemBase
         var handle2 = Entities
             .WithReadOnly(riverTranslation)
             .WithAll<TargetPosition>()
-            .ForEach((Entity e, ref TargetPosition target, in BrigadeGroup group, in EmptyPasserInfo passerInfo) =>
+            .ForEach((Entity e, ref TargetPosition target, in BrigadeGroup group, in FullPasserInfo passerInfo) =>
             {
                 var brigadeData = BrigadeDataLookup[@group.Value];
                 var waterPosition = math.mul(GetComponent<LocalToWorld>(brigadeData.waterEntity).Value,
@@ -111,7 +111,7 @@ public class BrigadeRetargetSystem : SystemBase
         var lastHandle = Entities
             .WithReadOnly(riverTranslation)
             .WithAll<TargetPosition>()
-            .ForEach((Entity e, ref TargetPosition target, in BrigadeGroup group, in FullPasserInfo passerInfo) =>
+            .ForEach((Entity e, ref TargetPosition target, in BrigadeGroup group, in EmptyPasserInfo passerInfo) =>
             {
                 var brigadeData = BrigadeDataLookup[@group.Value];
                 var waterPosition = math.mul(GetComponent<LocalToWorld>(brigadeData.waterEntity).Value,
