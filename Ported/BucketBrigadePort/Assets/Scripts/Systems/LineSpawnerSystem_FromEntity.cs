@@ -93,14 +93,14 @@ public class LineSpawnerSystem_FromEntity : SystemBase
                 var botColourTosser = new Color() { Value = botDisplaySettings.BotRoleTosser };
                 EntityManager.AddComponentData(botTosser, botTosserPosition);
                 EntityManager.AddComponentData(botTosser, new BotRoleTosser());
-                EntityManager.AddComponentData(botFiller, botColourTosser);
+                EntityManager.AddComponentData(botTosser, botColourTosser);
 
                 var botFinder = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
                 var botFinderPosition = new Translation { Value = new float3(random.NextFloat(0, worldSizeX), 0, random.NextFloat(0, worldSizeY)) };
                 var botColourFinder = new Color() { Value = botDisplaySettings.BotRoleFinder };
                 EntityManager.AddComponentData(botFinder, botFinderPosition);
                 EntityManager.AddComponentData(botFinder, new BotRoleFinder());
-                EntityManager.AddComponentData(botFiller, botColourFinder);
+                EntityManager.AddComponentData(botFinder, botColourFinder);
 
                 EntityManager.AddComponentData(instance, position);
             }

@@ -12,9 +12,7 @@ GameObject:
   - component: {fileID: 3443377780798459661}
   - component: {fileID: 3443377780798459662}
   - component: {fileID: 3443377780798459663}
-  - component: {fileID: 7126438909640821014}
   - component: {fileID: 2495182421976019778}
-  - component: {fileID: 5474916788248775875}
   m_Layer: 0
   m_Name: Bot
   m_TagString: Untagged
@@ -98,18 +96,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7126438909640821014
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3443377780798459664}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39a1be7641edbe94fbb92dbfaa0bceb5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &2495182421976019778
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,20 +109,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value: 0.1
---- !u!114 &5474916788248775875
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3443377780798459664}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d9de8ccc23c7944f872a8b1fa784fd2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Value:
-    x: 0
-    y: 0
-    z: 0
-    w: 0
