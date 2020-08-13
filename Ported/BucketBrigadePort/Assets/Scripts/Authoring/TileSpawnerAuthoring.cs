@@ -7,5 +7,6 @@ public struct TileSpawner : IComponentData
     public int XSize;
     public int YSize;
     public float Scale;
+    public int StartingFireCount;
     public Entity Prefab;
 }

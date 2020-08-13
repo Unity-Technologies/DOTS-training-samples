@@ -43,5 +43,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c784fad2c2e43a049ab3e4b84aa109be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Prefab: {fileID: 3621856675795699280, guid: 174c8d8e4ab80bb43870c895c68c3505, type: 3}
+  LinePrefab: {fileID: 3621856675795699280, guid: 174c8d8e4ab80bb43870c895c68c3505, type: 3}
+  BotPrefab: {fileID: 3443377780798459664, guid: 15bda04bb15e3fc4c98ca29559585f00, type: 3}
   Count: 4
+  CountOfFullPassBots: 15
+  CountOfEmptyPassBots: 15
