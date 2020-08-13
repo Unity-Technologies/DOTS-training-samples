@@ -3,6 +3,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+
+ 
 [UpdateAfter(typeof(BrigadeRetargetSystem))]
 public class ScoopBotSystem : SystemBase
 {
@@ -16,6 +18,10 @@ public class ScoopBotSystem : SystemBase
             {
                 ComponentType.ReadOnly<Bucket>(),
                 ComponentType.ReadOnly<Translation>(),
+            },
+            None = new []
+            {
+                ComponentType.ReadOnly<Owner>()
             }
         });
         m_scoopBucketSearchQuery = GetEntityQuery(new EntityQueryDesc
@@ -35,7 +41,7 @@ public class ScoopBotSystem : SystemBase
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
-        if (m_scoopBucketSearchQuery.CalculateEntityCount() > 0)
+        if (m_scoopBucketSearchQuery.CalculateEntityCount() > 0 && m_bucketQuery.CalculateEntityCount() > 0)
         {
             Entities
                 .WithName("Scoop_BucketSearch")
@@ -61,14 +67,21 @@ public class ScoopBotSystem : SystemBase
                             bucket = bucketEntities[i];
                         }
                     }
+
+                    EntityManager.AddComponentData(bucket, new Owner()
+                    {
+                        Value = e
+                    });
                     EntityManager.AddComponentData(e, new TargetBucket()
                     {
                         Value = bucket
                     });
+                    
                     bucketTranslations.Dispose();
                     bucketEntities.Dispose();
                 }).Run();
         }
+
         Entities
             .WithName("Scoop_BucketPickup")
             .WithAll<BotTypeScoop>()
@@ -78,7 +91,8 @@ public class ScoopBotSystem : SystemBase
             .ForEach((Entity e, ref Translation translation, in TargetBucket targetBucket) =>
             {
                 var bucketTranslation = EntityManager.GetComponentData<Translation>(targetBucket.Value);
-                translation.Value = translation.Value + math.normalize(bucketTranslation.Value - translation.Value) * 1 * deltaTime;
+                translation.Value = translation.Value +
+                                    math.normalize(bucketTranslation.Value - translation.Value) * 1 * deltaTime;
                 if (math.length(translation.Value - bucketTranslation.Value) < 0.1f)
                 {
                     EntityManager.AddComponentData(e, new CarriedBucket()
@@ -88,29 +102,45 @@ public class ScoopBotSystem : SystemBase
                     EntityManager.RemoveComponent<TargetBucket>(e);
                 }
             }).WithoutBurst().Run();
-        
+
         Entities
             .WithName("Scoop_BucketCarry")
             .WithAll<BotTypeScoop>()
             .WithAll<CarriedBucket>()
             .WithStructuralChanges()
-            .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigade) =>
+            .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigade,
+                in NextBot nextBot) =>
             {
                 var brigadeTarget = EntityManager.GetComponentData<Brigade>(brigade.Value).waterTarget;
-                translation.Value = translation.Value + math.normalize(brigadeTarget - translation.Value) * 1 * deltaTime;
-                var bucketTranslation = translation.Value + new float3(0, 0.5f, 0);
-                EntityManager.SetComponentData(carriedBucket.Value, new Translation(){Value = bucketTranslation});
-            }).WithoutBurst().Run();
-
-        Entities
-            .WithName("Scoop_BucketDeliver")
-            .WithAll<BotTypeScoop>()
-            .WithAll<TargetBucket>()
-            .WithNone<CarriedBucket>()
-            .ForEach((Entity e, ref Translation translation, in TargetBucket targetBucket) =>
-            {
-                var bucketTranslation = EntityManager.GetComponentData<Translation>(targetBucket.Value);
-                translation.Value = translation.Value + math.normalize(bucketTranslation.Value - translation.Value) * 1 * deltaTime;
+                float3 toTarget = brigadeTarget - translation.Value;
+                float distanceToTarget = math.length(toTarget);
+                if (distanceToTarget < float.Epsilon)
+                {
+                    // we got to the target, mark the bucket as full, and pass to the next owner
+                    // eventually this will transition to a fill state first
+                    EntityManager.SetComponentData(carriedBucket.Value, new Water()
+                    {
+                        capacity = 1,
+                        volume = 1
+                    });
+                    EntityManager.AddComponentData(nextBot.Value, new TargetBucket()
+                    {
+                        Value = carriedBucket.Value
+                    });
+                    EntityManager.SetComponentData(carriedBucket.Value, new Owner()
+                    {
+                        Value = nextBot.Value
+                    });
+                    EntityManager.RemoveComponent<CarriedBucket>(e);
+                }
+                else
+                {
+                    translation.Value = translation.Value +
+                                        math.normalize(toTarget) * math.min(1 * deltaTime, distanceToTarget);
+                    var bucketTranslation = translation.Value + new float3(0, 0.5f, 0);
+                    EntityManager.SetComponentData(carriedBucket.Value, new Translation() {Value = bucketTranslation});
+                }
             }).WithoutBurst().Run();
     }
 }
+
