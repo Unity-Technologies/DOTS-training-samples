@@ -5,18 +5,22 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEditor;
+using UnityEngine.Assertions;
 using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class FireIntializationSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
+    static private FireIntializationSystem _instance;
     
     protected override void OnCreate()
     {
         m_CommandBufferSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
         
         RequireSingletonForUpdate<FireSpawning>();
+
+        _instance = this;
     }
     
     protected override void OnUpdate()
@@ -98,5 +102,15 @@ public class FireIntializationSystem : SystemBase
             }).Run();
       
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
+    }
+
+    static public float2 GetGridExtents()
+    {
+        Assert.IsNotNull(_instance);
+        
+        var fireConfigEntity = _instance.GetSingletonEntity<FireConfiguration>();
+        var config = _instance.EntityManager.GetComponentData<FireConfiguration>(fireConfigEntity);
+
+        return config.GridExtents;
     }
 }
