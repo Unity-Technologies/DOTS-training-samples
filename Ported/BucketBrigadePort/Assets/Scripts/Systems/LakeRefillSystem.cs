@@ -16,10 +16,9 @@ public class LakeRefillSystem : SystemBase
             // hardcoded value for capacity 1000
             // hardcoded refillRate 1
             
-            var capacity = lakeWaterAmount.MaxAmount;
             var refillRate = 1.0f;
 
-            if(lakeWaterAmount.Value < capacity)
+            if(lakeWaterAmount.Value < lakeWaterAmount.MaxAmount)
             {
                 lakeWaterAmount.Value += refillRate;
             }

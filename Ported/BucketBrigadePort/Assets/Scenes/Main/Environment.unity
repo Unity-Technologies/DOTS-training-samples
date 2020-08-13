@@ -274,6 +274,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Water
       objectReference: {fileID: 0}
+    - target: {fileID: 3087359971252360070, guid: 3b5c3f7ef0ac79d4db5c43d27f1da52c, type: 3}
+      propertyPath: Value.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3087359971252360070, guid: 3b5c3f7ef0ac79d4db5c43d27f1da52c, type: 3}
+      propertyPath: Value.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3087359971252360070, guid: 3b5c3f7ef0ac79d4db5c43d27f1da52c, type: 3}
+      propertyPath: Value.z
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3b5c3f7ef0ac79d4db5c43d27f1da52c, type: 3}
 --- !u!1001 &1793192540
@@ -330,6 +342,10 @@ PrefabInstance:
     - target: {fileID: 2714123777330602207, guid: 3b5c3f7ef0ac79d4db5c43d27f1da52c, type: 3}
       propertyPath: m_Name
       value: Water (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3087359971252360070, guid: 3b5c3f7ef0ac79d4db5c43d27f1da52c, type: 3}
+      propertyPath: Value.z
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3b5c3f7ef0ac79d4db5c43d27f1da52c, type: 3}
@@ -397,10 +413,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1754616478513034612, guid: f5a193ce5f4524df89c53aceb10517ee, type: 3}
-      propertyPath: FlameHeight
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6626157377090336217, guid: f5a193ce5f4524df89c53aceb10517ee, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
