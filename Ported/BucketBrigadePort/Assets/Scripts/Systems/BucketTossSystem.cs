@@ -20,7 +20,7 @@ public class BucketTossSystem : SystemBase
             {
                 ComponentType.ReadOnly<Tile>(),
                 typeof(Temperature)
-    }
+            }
         });
 
         m_tosserQuery = GetEntityQuery(new EntityQueryDesc
@@ -28,7 +28,6 @@ public class BucketTossSystem : SystemBase
             All = new[]
             {
                 ComponentType.ReadOnly<Translation>(),
-                ComponentType.ReadOnly<Bot>(),
                 ComponentType.ReadOnly<BotRoleTosser>()
             }
         });
@@ -50,21 +49,17 @@ public class BucketTossSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        /*
         // hardcode settings
         var bucketWater = 1.0f;
         var fireRange = 1.0f;
         var bucketDistRange = 1.0f;
-
+        
         var bucketEmptyColor = GetSingleton<BucketColorSettings>().Empty;
-        var flashPoint = GetSingleton<flashpoint>().flashpoint;
+        var fireFlashPoint = GetSingleton<FireSpreadSettings>().flashpoint;
+        var coolStrength = GetSingleton<FireSpreadSettings>().coolStrength;
 
-        var tileSpawner = GetSingleton<TileSpawner>();
-        int columns = tileSpawner.XSize;
-        int rows = tileSpawner.YSize;
-
-        var fireCellTiles =
-            m_fireCellQuery.ToComponentDataArray<Tile>(Allocator.TempJob);
+        var fireCellTranslations =
+            m_fireCellQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         var fireCellTemperatures =
             m_fireCellQuery.ToComponentDataArray<Temperature>(Allocator.TempJob);
         var tosserTranslations =
@@ -74,20 +69,38 @@ public class BucketTossSystem : SystemBase
         var bucketWaterAmounts =
             m_bucketQuery.ToComponentDataArray<WaterAmount>(Allocator.TempJob);
 
+        /*
+        var tileSpawner = GetSingleton<TileSpawner>();
+        int columns = tileSpawner.XSize;
+        int rows = tileSpawner.YSize;
+        int tileCount = rows * columns;
+        NativeArray<float> temperatureArray = new NativeArray<float>(tileCount, Allocator.TempJob);
+        */
+
+        /*
+        // Get all of the temperatures in the expected spatial order.
+        Entities
+        .WithName("bucket_toss_fireCell_read")
+        .ForEach((in Temperature temperature, in Tile tile) =>
+        {
+            temperatureArray[tile.Id] = temperature.Value;
+        }).ScheduleParallel();
+        */
+
         // Handle fileCell being tossed at
         Entities
         .WithName("bucket_toss_fileCell")
-        .WithNone<Temperature>()
+        .WithAll<Temperature>()
         .WithDisposeOnCompletion(bucketTranslations)
         .WithDisposeOnCompletion(bucketWaterAmounts)
-        .ForEach((ref Temperature fireCellTemperature, in Translation position) =>
+        .ForEach((ref Temperature fireCellTemperature, in Translation position, in Tile tile) =>
         {
             // fireCell is flashed
-            if (fireCellTemperatures[j].Value >= flashPoint)
+            if (fireCellTemperature.Value >= fireFlashPoint)
             {
                 for (int i = 0; i < tosserTranslations.Length; i++)
                 {
-                    var tosserFireDist = Vector3.Distance(tosserTranslations[i].Value, fireCellTiles[j].Value);
+                    var tosserFireDist = Vector3.Distance(position.Value, tosserTranslations[i].Value);
 
                     // tosser is not close to the firecell
                     if (tosserFireDist > fireRange)
@@ -103,7 +116,7 @@ public class BucketTossSystem : SystemBase
                             continue;
                         }
 
-                        var tosserBucketDist = Vector3.Distance(position.Value, tosserTranslations[i].Value);
+                        var tosserBucketDist = Vector3.Distance(bucketTranslations[j].Value, tosserTranslations[i].Value);
 
                         // full bucket is not with the tosser
                         if (tosserBucketDist > bucketDistRange)
@@ -111,37 +124,20 @@ public class BucketTossSystem : SystemBase
                             continue;
                         }
 
-                        //fireCellTemperature
+                        fireCellTemperature.Value -= coolStrength * bucketWaterAmounts[j].Value;
 
-                    for (int j = 0; j < fireCellTiles.Length; j++)
-                    {
-                        var tosserFireDist = Vector3.Distance(tosserTranslations[i].Value, fireCellTiles[j].Value);
-
-                        // tosser is not close to a firecell
-                        if (tosserFireDist > fireRange)
-                        {
-                            continue;
-                        }
-
-                        // Toss the bucket
-                        bucketWaterAmount.Value -= bucketWater;
-                        if (bucketWaterAmount.Value < 0)
-                        {
-                            bucketWaterAmount.Value = 0;
-                        }
-                        bucketColor.Value = bucketEmptyColor;
                     }
                 }
             }        
         }).ScheduleParallel();
-    */
-
+    
         // Handle the bucket being tossed
         Entities
         .WithName("bucket_toss_buckets")
         .WithAll<WaterAmount>()
         .WithNone<WaterRefill>()
-        .WithDisposeOnCompletion(fireCellTiles)
+        .WithDisposeOnCompletion(fireCellTranslations)
+        .WithDisposeOnCompletion(fireCellTemperatures)
         .WithDisposeOnCompletion(tosserTranslations)
         .ForEach((ref WaterAmount bucketWaterAmount, ref Color bucketColor, in Translation position) =>
         {
@@ -164,7 +160,7 @@ public class BucketTossSystem : SystemBase
                 for (int j = 0; j < fireCellTranslations.Length; j++)
                 {
                     // fireCell not flashed
-                    if (fireCellTemperatures.Value < flashPoint)
+                    if (fireCellTemperatures[j].Value < fireFlashPoint)
                     {
                         continue;
                     }

@@ -43,7 +43,6 @@ public class BucketFillSystem : SystemBase
             All = new[]
             {
                 ComponentType.ReadOnly<Translation>(),
-                ComponentType.ReadOnly<Bot>(),
                 ComponentType.ReadOnly<BotRoleFiller>()
             }
         });

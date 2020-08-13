@@ -9,4 +9,6 @@ public struct FireSpreadSettings : IComponentData
     public float flashpoint;
     public int heatRadius;
     public int splashRadius;
+    public float coolStrength;
+    public int coolRadious;
 }
