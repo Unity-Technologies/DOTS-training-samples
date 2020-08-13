@@ -56,7 +56,6 @@ public class LineSpawnerSystem_FromEntity : SystemBase
                         var bot = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
                         var botPosition = new Translation{Value = new float3(random.NextFloat(0, 10f), 0, random.NextFloat(0, 10f))};
                         EntityManager.AddComponentData(bot, botPosition);
-                        //line.bots = new Bot(bot);
                     }
 
                     for (var a = 0; a < lineSpawnerFromEntity.CountOfEmptyPassBots; a++)

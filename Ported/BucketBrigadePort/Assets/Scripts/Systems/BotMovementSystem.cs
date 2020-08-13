@@ -16,7 +16,7 @@ public class BotMovementSystem : SystemBase
             .ForEach((ref Translation translation, in Bot bot, in BotMovementSpeed_ForEach translationSpeed) =>
             {
                 var maxMovement = translationSpeed.Value * deltaTime;
-                var vector = translation.Value - bot.targetTranslation;
+                var vector = bot.targetTranslation - translation.Value;
                 var magnitude = Math.Sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
                 var actualMovement = (float)(math.min(maxMovement, magnitude));
                 translation.Value += vector*actualMovement;
