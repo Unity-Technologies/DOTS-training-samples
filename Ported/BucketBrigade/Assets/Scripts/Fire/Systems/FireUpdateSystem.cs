@@ -3,6 +3,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(FireSplashSystem))]
 public class FireUpdateSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
@@ -35,6 +36,9 @@ public class FireUpdateSystem : SystemBase
             .WithReadOnly(temperatures)
             .ForEach((Entity entity, ref AddedTemperature addedTemp, in DynamicBuffer<FireGridNeighbor> neighborBuffer) =>
             {
+                if (addedTemp.Value < 0f)
+                    return;
+                
                 float tempChange = 0;
                 for (int i = 0; i < neighborBuffer.Length; ++i)
                 {
@@ -58,7 +62,7 @@ public class FireUpdateSystem : SystemBase
         Entities
             .ForEach((Entity entity, ref Translation translation, ref Temperature temp, ref AddedTemperature addedTemp, ref FireColor fireColor) =>
             {
-                temp.Value = math.min(addedTemp.Value + temp.Value, config.MaxTemperature);
+                temp.Value = math.max(0,  math.min(addedTemp.Value + temp.Value, config.MaxTemperature));
                 addedTemp.Value = 0;
 
                 // Affect look & feel

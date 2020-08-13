@@ -58,6 +58,7 @@ public class BrigadeRetargetSystem : SystemBase
             // Find closest fire
             float closestDistSq = 0;
             float3 closestFirePosition = float3.zero;
+            Entity closestFire = Entity.Null;
             bool foundFire = false;
             for (int i = 0; i < temperatureArray.Length; ++i)
             {
@@ -73,16 +74,19 @@ public class BrigadeRetargetSystem : SystemBase
                     closestDistSq = distSq;
                     closestFirePosition = translation.Value;
                     closestFirePosition.y = 0;
+                    closestFire = e;
                 }
             }
 
             if (foundFire)
             {
                 brigade.fireTarget = closestFirePosition;
+                brigade.fireEntity = closestFire;
             }   
             else
             {
                 brigade.fireTarget = brigade.random.NextFloat3() * 10.0f;
+                brigade.fireEntity = Entity.Null;
             }
 
             brigade.fireTarget.y = 0;

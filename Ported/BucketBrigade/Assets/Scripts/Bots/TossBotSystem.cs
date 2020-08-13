@@ -46,16 +46,17 @@ public class TossBotSystem : SystemBase
                     }
                 }
             ).Run();
-
+        
         // Carry & Deliver bucket
         Entities
             .WithName("Toss_BucketCarryAndToss")
             .WithAll<BotTypeToss>()
             .WithAll<CarriedBucket>()
             .WithStructuralChanges()
-            .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigade, in NextBot nextBot) =>
+            .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigadeGroup, in NextBot nextBot) =>
                 {
-                    var fireTarget = EntityManager.GetComponentData<Brigade>(brigade.Value).fireTarget;
+                    Brigade brigade = EntityManager.GetComponentData<Brigade>(brigadeGroup.Value);
+                    var fireTarget = brigade.fireTarget;
                     translation.Value = translation.Value + math.normalize(fireTarget - translation.Value) * 1 * deltaTime;
                     var bucketTranslation = translation.Value + new float3(0, 0.5f, 0);
                     EntityManager.SetComponentData(carriedBucket.Value, new Translation(){Value = bucketTranslation});
@@ -82,6 +83,12 @@ public class TossBotSystem : SystemBase
                         });
                         
                         EntityManager.RemoveComponent<CarriedBucket>(e);
+                        
+                        // Splash for the FireSplashSystem; only if we had an actual valid target
+                        if (brigade.fireEntity != Entity.Null)
+                        {
+                            EntityManager.AddComponentData(brigade.fireEntity, new Splash());
+                        }
                     }
                 }
             ).Run();

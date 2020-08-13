@@ -9,6 +9,7 @@ using Random = Unity.Mathematics.Random;
 public struct Brigade : IComponentData
 {
     public float3 fireTarget;
+    public Entity fireEntity;
     public Entity waterEntity;
     public Random random;
 }

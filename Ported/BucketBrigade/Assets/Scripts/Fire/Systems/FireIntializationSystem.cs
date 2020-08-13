@@ -27,6 +27,9 @@ public class FireIntializationSystem : SystemBase
     {
         var Random = new Random(1);
 
+        var waterConfigEntity = GetSingletonEntity<WaterInitialization>();
+        var waterConfig = EntityManager.GetComponentData<WaterInitialization>(waterConfigEntity);
+
         var ecb = m_CommandBufferSystem.CreateCommandBuffer();
         Entities.WithoutBurst()
             .WithStructuralChanges()
@@ -73,7 +76,7 @@ public class FireIntializationSystem : SystemBase
                         // Rendering
                         ecb.AddComponent(instance, new FireColor { Value = config.DefaultColor } );
  
-                        // Set my Neighbors in a dynamic buffer; with e.g. maximum 8 neighbors if radius is 1
+                        // Set my Neighbors related to Fire in a dynamic buffer; with e.g. maximum 8 neighbors if radius is 1
                         var neighbors = ecb.AddBuffer<FireGridNeighbor>(instance);
 
                         for (int xx = math.max(x - config.HeatRadius, 0); xx < config.GridWidth && xx <= x + config.HeatRadius; ++xx)
@@ -85,6 +88,21 @@ public class FireIntializationSystem : SystemBase
 
                                 Entity someNeighbor = GridEntries[zz * config.GridHeight + xx];
                                 neighbors.Add( new FireGridNeighbor { Entity = someNeighbor } );
+                            }
+                        }
+                        
+                        // Set my Neighbors related to water Splash in a dynamic buffer; with e.g. maximum 8 neighbors if radius is 1
+                        var splashNeighbors = ecb.AddBuffer<SplashGridNeighbor>(instance);
+
+                        for (int xx = math.max(x - waterConfig.splashRadius, 0); xx < config.GridWidth && xx <= x + waterConfig.splashRadius; ++xx)
+                        {
+                            for (int zz = math.max(z - waterConfig.splashRadius, 0); zz < config.GridHeight && zz <= z + waterConfig.splashRadius; ++zz)
+                            {
+                                if (xx == x && zz == z)
+                                    continue;
+
+                                Entity someNeighbor = GridEntries[zz * config.GridHeight + xx];
+                                splashNeighbors.Add( new SplashGridNeighbor { Entity = someNeighbor, RowIndex = xx-x, ColumnIndex = zz-z } );
                             }
                         }
                         
