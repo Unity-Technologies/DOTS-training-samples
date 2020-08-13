@@ -14,7 +14,7 @@ public class FireSimSystem : SystemBase
         var tileSpawner = GetSingleton<TileSpawner>();
         int columns = tileSpawner.XSize;
         int rows = tileSpawner.YSize;
-
+       
         m_TimeUntilFireUpdate -= deltaTime;
         if (m_TimeUntilFireUpdate <= fireSpreadSettings.fireSimUpdateRate)
         {
@@ -71,6 +71,5 @@ public class FireSimSystem : SystemBase
                     temperature.Value = temperatures[tile.Id];
                 }).Schedule();
         }
-
     }
 }

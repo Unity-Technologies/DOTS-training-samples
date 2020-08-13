@@ -10,8 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4668822788083384432}
   - component: {fileID: 3014689087084118299}
+  - component: {fileID: -623260167092355611}
   m_Layer: 0
-  m_Name: FireSettings
+  m_Name: Settings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48,3 +49,19 @@ MonoBehaviour:
   flashpoint: 0.1
   heatRadius: 1
   splashRadius: 2
+--- !u!114 &-623260167092355611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5663180833411209827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f96a276eee462ca478632724b672655f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  XSize: 2
+  YSize: 2
+  Scale: 0.3
+  Prefab: {fileID: 8135744633761666916, guid: ea3ec593ba0a10c4aa6eeb1873f61b41, type: 3}

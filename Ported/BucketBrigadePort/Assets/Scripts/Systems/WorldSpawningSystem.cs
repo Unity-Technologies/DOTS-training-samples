@@ -11,9 +11,10 @@ public class WorldSpawningSystem : SystemBase
     }
     protected override void OnUpdate()
     {
+        var tileSpawner = GetSingleton<TileSpawner>(); 
         Entities
             .WithStructuralChanges()
-            .ForEach((Entity spawnerEntity, in TileSpawner tileSpawner) =>
+            .ForEach((Entity spawnerEntity, in InitializeWorldAuthority initializeWorld) => // , in TileSpawner tileSpawner
             {
                 var blankTiles = EntityManager.Instantiate(tileSpawner.Prefab, tileSpawner.XSize * tileSpawner.YSize, Allocator.Temp);
                 // TODO: Scale prefab itself by tileSpawner.Scale. Currently prefab hardcoded to 0.3 and tileSpawner.Scale set in UI to match

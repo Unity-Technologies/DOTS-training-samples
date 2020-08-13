@@ -272,11 +272,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5663180833411209827, guid: 653e1c7f72d294d3996ca6db81e639b0, type: 3}
       propertyPath: m_Name
-      value: FireSettings
+      value: Settings
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 653e1c7f72d294d3996ca6db81e639b0, type: 3}
---- !u!1001 &1173472312216679453
+--- !u!1001 &2007037283
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -313,7 +313,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1173472311505827572, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1173472311505827572, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -327,24 +327,12 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1173472311505827573, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
-      propertyPath: Scale
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 1173472311505827573, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
-      propertyPath: XSize
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1173472311505827573, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
-      propertyPath: YSize
-      value: 5
-      objectReference: {fileID: 0}
     - target: {fileID: 1173472311505827578, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
       propertyPath: m_Name
       value: WorldSpawner
       objectReference: {fileID: 0}
     m_RemovedComponents:
-    - {fileID: 5368296356240479821, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
+    - {fileID: 4241688619064934797, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 2d0d970dbb212044eb26124bfb690c3f, type: 3}
 --- !u!1001 &1972764979895336721
 PrefabInstance:
@@ -387,7 +375,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4191069360783910962, guid: 5cd977b6648cc2c4b86268826be4898b, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4191069360783910962, guid: 5cd977b6648cc2c4b86268826be4898b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

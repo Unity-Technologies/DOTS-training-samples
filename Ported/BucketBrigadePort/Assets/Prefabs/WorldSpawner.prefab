@@ -9,8 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1173472311505827572}
-  - component: {fileID: 1173472311505827573}
-  - component: {fileID: 4241688619064934797}
+  - component: {fileID: 1424706588829006843}
   m_Layer: 0
   m_Name: WorldSpawner
   m_TagString: Untagged
@@ -32,7 +31,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1173472311505827573
+--- !u!114 &1424706588829006843
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,32 +40,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1173472311505827578}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f96a276eee462ca478632724b672655f, type: 3}
+  m_Script: {fileID: 11500000, guid: 52330572a0aff4146ad27c3f8fdb3fb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  XSize: 2
-  YSize: 2
-  Scale: 0.3
-  Prefab: {fileID: 8135744633761666916, guid: ea3ec593ba0a10c4aa6eeb1873f61b41, type: 3}
---- !u!114 &4241688619064934797
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1173472311505827578}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8026524ca36cc004dae2be10da0f2d82, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Empty:
-    x: 255
-    y: 105
-    z: 117
-    w: 1
-  Full:
-    x: 0
-    y: 250
-    z: 255
-    w: 1
