@@ -5,7 +5,7 @@ using Unity.Transforms;
 [GenerateAuthoringComponent]
 public struct Bot : IComponentData
 {
-    public Translation targetTranslation;
+    public float3 targetTranslation;
 }
 
 public struct BucketTosser : IComponentData { }
