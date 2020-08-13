@@ -2,8 +2,9 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
-[UpdateAfter(typeof(BrigadeInitializationSystem))]
+[UpdateAfter(typeof(BrigadeRetargetSystem))]
 public class BrigadeUpdateSystem : SystemBase
 {
     private EntityQuery m_bucketQuery;
@@ -38,9 +39,14 @@ public class BrigadeUpdateSystem : SystemBase
         // move the bots towards their targets
         var deltaTime = Time.DeltaTime;
         Entities
-            .WithAll<TargetPosition>()
             .ForEach((ref Translation translation, in TargetPosition target) =>
             {
+                Debug.DrawLine(target.Value, translation.Value);
+                Debug.Log(target.Value.ToString());
+                if (target.Value.Equals(translation.Value))
+                {
+                    return;
+                }
                 translation.Value = translation.Value + math.normalize(target.Value - translation.Value) * 1 * deltaTime;
             }).Schedule();
         
