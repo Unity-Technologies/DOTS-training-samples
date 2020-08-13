@@ -21,6 +21,21 @@ public struct TargetPosition : IComponentData
 {
     public float3 Value;
 }
+
+public struct BotTypeScoop : IComponentData {}
+public struct BotTypeToss : IComponentData {}
+
+public struct TargetBucket : IComponentData
+{
+    public Entity Value;
+}
+
+public struct CarriedBucket : IComponentData
+{
+    public Entity Value;
+}
+
+// gross - should replace with tags
 public struct EmptyPasserInfo : IComponentData
 {
     public int ChainLength;
@@ -31,6 +46,7 @@ public struct FullPasserInfo : IComponentData
     public int ChainLength;
     public int ChainPosition;
 }
+
 public class BrigadeInitializationSystem : SystemBase
 {
     protected override void OnUpdate()
@@ -39,51 +55,64 @@ public class BrigadeInitializationSystem : SystemBase
             .WithStructuralChanges()
             .ForEach((in Entity e, in BrigadeInitialization init, in BrigadeColor colors) =>
             {
+                
                 // create brigades 
                 var random = new Random(1);
                 for (int i = 0; i < init.brigadeCount; i++)
                 {
-                    var endPoint = new float3(10, 0, 0);
+                    var fireTarget = random.NextFloat3()*10.0f;
+                    fireTarget.y = 0;
+                    var waterTarget = random.NextFloat3()*10.0f;
+                    waterTarget.y = 0;
                     var brigade = EntityManager.CreateEntity();
                     EntityManager.AddComponentData(brigade, new Brigade()
                     {
-                        fireTarget = endPoint,
-                        waterTarget = float3.zero,
+                        fireTarget = fireTarget,
+                        waterTarget = waterTarget,
                         random = new Random(random.NextUInt())
                     });
                     // add a tosser bot
                     {
                         var instance = EntityManager.Instantiate(init.bot);
-                        var position = float3.zero;
+                        EntityManager.AddComponent<BotTypeToss>(instance);
+                        var position = waterTarget;
                         SetupBot(instance, position, colors.tossColor, brigade);
                     }
                     // add a scoop bot
                     {
                         var instance = EntityManager.Instantiate(init.bot);
-                        var position = endPoint;
+                        EntityManager.AddComponent<BotTypeScoop>(instance);
+                        var position = fireTarget;
                         SetupBot(instance, position, colors.scoopColor, brigade);
                     }
                     for (var j = 0; j < init.emptyPassers; j++)
                     {
                         var instance = EntityManager.Instantiate(init.bot);
-                        var position = GetChainPosition(j, init.emptyPassers, float3.zero, endPoint);
+                        var position = GetChainPosition(j, init.emptyPassers, waterTarget, fireTarget);
                         SetupBot(instance, position, colors.emptyColor, brigade);
                         EntityManager.AddComponentData(instance, new EmptyPasserInfo()
                         {
                             ChainLength = init.emptyPassers,
                             ChainPosition = j
                         });
-
+                        EntityManager.AddComponentData(instance, new TargetPosition()
+                        {
+                            Value = float3.zero
+                        });
                     }
                     for (var j = 0; j < init.fullPassers; j++)
                     {
                         var instance = EntityManager.Instantiate(init.bot);
-                        float3 position = GetChainPosition(j, init.fullPassers, endPoint, float3.zero);
+                        float3 position = GetChainPosition(j, init.fullPassers, fireTarget, waterTarget);
                         SetupBot(instance, position, colors.fullColor, brigade);
                         EntityManager.AddComponentData(instance, new FullPasserInfo()
                         {
                             ChainLength = init.fullPassers,
                             ChainPosition = j
+                        });
+                        EntityManager.AddComponentData(instance, new TargetPosition()
+                        {
+                            Value = float3.zero
                         });
                     }
                 }
@@ -107,7 +136,6 @@ public class BrigadeInitializationSystem : SystemBase
         {
             Value = brigadeEntity
         });
-        EntityManager.AddComponent<TargetPosition>(instance);
     }
     public static float3 GetChainPosition(int _index, int _chainLength, float3 _startPos, float3 _endPos){
         // adds two to pad between the SCOOPER AND THROWER
