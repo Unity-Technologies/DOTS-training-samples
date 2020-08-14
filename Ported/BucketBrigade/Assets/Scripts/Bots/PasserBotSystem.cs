@@ -5,10 +5,17 @@ using UnityEngine;
 
 public class PasserBotSystem : SystemBase
 {
+    private EntityCommandBufferSystem _commandBufferSystem;
+    protected override void OnCreate()
+    {
+        _commandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+
+    }
+
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
-        
+        var cb = _commandBufferSystem.CreateCommandBuffer();
         var botSpeed = EntityManager.GetComponentData<BotConfig>(GetSingletonEntity<BotConfig>()).botSpeed;
         // Go to default position if no pickup/carrying happening
         Entities
@@ -98,10 +105,12 @@ public class PasserBotSystem : SystemBase
                     if (UtilityFunctions.FlatOverlapCheck(translation.Value, waterPosition))
                     {
                         // Next bot owns bucket 
-                        EntityManager.RemoveComponent<Owner>(carriedBucket.Value);
-                        EntityManager.RemoveComponent<CarriedBucket>(e);
+                        cb.RemoveComponent<Owner>(carriedBucket.Value);
+                        cb.RemoveComponent<CarriedBucket>(e);
                     }
                 }
             ).Run();
+        _commandBufferSystem.AddJobHandleForProducer(Dependency);
+
     }
 }
