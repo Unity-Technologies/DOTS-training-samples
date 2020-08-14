@@ -13,9 +13,7 @@ public class LakeRefillSystem : SystemBase
         .WithAll<WaterRefill>()
         .ForEach((ref WaterAmount lakeWaterAmount) =>
         {
-            // hardcoded value for capacity 1000
-            // hardcoded refillRate 1
-            
+            // hardcode setting
             var refillRate = 1.0f;
 
             if(lakeWaterAmount.Value < lakeWaterAmount.MaxAmount)
