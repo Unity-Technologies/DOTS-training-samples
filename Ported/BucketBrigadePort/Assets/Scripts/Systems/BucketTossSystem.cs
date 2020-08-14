@@ -34,6 +34,7 @@ public class BucketTossSystem : SystemBase
         }).ScheduleParallel();
 
         var waterAmountComponents = GetComponentDataFromEntity<WaterAmount>(false);
+        var colorComponents = GetComponentDataFromEntity<Color>(false);
 
         // Handle fileCell being tossed at
         // Input: tosser -  entities that have BotRoleTosser tag, BucketRef (Entity reference), do not have TargetPosition, 
@@ -45,6 +46,7 @@ public class BucketTossSystem : SystemBase
         .WithDisposeOnCompletion(fireCellTranslations)
         .WithReadOnly(fireCellTranslations)
         .WithNativeDisableContainerSafetyRestriction(waterAmountComponents)
+        .WithNativeDisableContainerSafetyRestriction(colorComponents)
         .ForEach((ref BucketRef bucketRef, in Translation position) =>
         {
             for (int i = 0; i < tileCount; i++)
@@ -60,8 +62,8 @@ public class BucketTossSystem : SystemBase
                 fireCellTemperatures[i] -= coolStrength;
             }
 
-            //var waterAmountComponents = GetComponentDataFromEntity<WaterAmount>(false);
             waterAmountComponents[bucketRef.Value] = new WaterAmount { Value = 0 };
+            colorComponents[bucketRef.Value] = new Color { Value = bucketEmptyColor };
 
         }).ScheduleParallel();
 
