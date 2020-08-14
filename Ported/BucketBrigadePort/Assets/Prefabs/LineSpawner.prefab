@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4191069360783910962}
-  - component: {fileID: 155152392016965351}
+  - component: {fileID: 156753722727518279}
   m_Layer: 0
   m_Name: LineSpawner
   m_TagString: Untagged
@@ -31,7 +31,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &155152392016965351
+--- !u!114 &156753722727518279
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40,11 +40,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 3124822124657834059}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c784fad2c2e43a049ab3e4b84aa109be, type: 3}
+  m_Script: {fileID: 11500000, guid: 87f4e93701ec7ea4dad97216a3f373f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LinePrefab: {fileID: 3621856675795699280, guid: 174c8d8e4ab80bb43870c895c68c3505, type: 3}
-  BotPrefab: {fileID: 3443377780798459664, guid: 15bda04bb15e3fc4c98ca29559585f00, type: 3}
-  Count: 4
-  CountOfFullPassBots: 15
-  CountOfEmptyPassBots: 15

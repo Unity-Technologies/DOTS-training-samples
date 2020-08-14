@@ -30,7 +30,7 @@ public class BotBucketFinderSystem : SystemBase
     {
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
         var bucketEntities = m_bucketQuery.ToEntityArray(Allocator.TempJob);
-
+        
         Entities
             .WithName("BotFinderSeekBucketSystem")
             .WithDisposeOnCompletion(bucketEntities)
@@ -70,9 +70,11 @@ public class BotBucketFinderSystem : SystemBase
 
         var ecbPickup = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
+
+
         Entities
             .WithName("BotFinderPickupBucketSystem")
-            .ForEach((int entityInQueryIndex, Entity entity, ref TargetPosition targetPosition, in BotRoleFinder botRoleFinder, in BucketRef bucketRef, in Translation translation) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref TargetPosition targetPosition, in BotRoleFinder botRoleFinder, in BucketRef bucketRef, in Translation translation, in DependentEntity dependentEntity) =>
             {
                 var bucketTranslation = GetComponent<Translation>(bucketRef.Value);
                 var bucketIsAvailable = HasComponent<BucketAvailable>(bucketRef.Value);
@@ -84,7 +86,10 @@ public class BotBucketFinderSystem : SystemBase
                     {
                         // Claim the bucket
                         ecbPickup.RemoveComponent<BucketAvailable>(entityInQueryIndex, bucketRef.Value);
+                        ecbPickup.AddComponent(entityInQueryIndex, entity, new BucketCarry());
                         // Target the line home
+                        var botRootPosition = GetComponent<BotRootPosition>(dependentEntity.Value);
+                        targetPosition.Value = botRootPosition.Value;
                     }
                     else
                     {
