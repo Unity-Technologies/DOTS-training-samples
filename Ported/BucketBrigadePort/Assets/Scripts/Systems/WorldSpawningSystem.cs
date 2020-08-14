@@ -51,29 +51,29 @@ public class WorldSpawningSystem : SystemBase
                 var blankBuckets = EntityManager.Instantiate(bucketSpawner.Prefab, bucketSpawner.TotalBuckets, Allocator.Temp);
                 var blankTiles = EntityManager.Instantiate(tileSpawner.Prefab, numTiles, Allocator.Temp);
                 int bucketCount = 0;
-                int tileCount = 0;
-                for (int x = 0; x < tileSpawner.XSize; x++)
+                for (int y = 0; y < tileSpawner.YSize; y++)
                 {
-                    for (int y = 0; y < tileSpawner.YSize; y++)
+                    for (int x = 0; x < tileSpawner.XSize; x++)
                     {
+                        int tileId = y * tileSpawner.XSize + x;
                         var yPosition = random.NextFloat(0, 0.05f) -0.5f; // Height vs. pivot of prefab. TODO: Read prefab data
                         var position = new Translation() { Value = new float3(x * tileSpawner.Scale, yPosition, y * tileSpawner.Scale) };
-                        EntityManager.SetComponentData(blankTiles[tileCount], position);
+                        EntityManager.SetComponentData(blankTiles[tileId], position);
                         var scale = new NonUniformScale() { Value = new float3(tileSpawner.Scale, tileDisplaySettings.FlameHeight, tileSpawner.Scale) };
-                        EntityManager.SetComponentData(blankTiles[tileCount], scale);
+                        EntityManager.SetComponentData(blankTiles[tileId], scale);
 
-                        var tileAuthor = new Tile();
-                        tileAuthor.Id = y * tileSpawner.XSize + x;
-                        EntityManager.SetComponentData(blankTiles[tileAuthor.Id], tileAuthor);
+                        var tile = new Tile();
+                        tile.Id = tileId;
+                        EntityManager.SetComponentData(blankTiles[tileId], tile);
 
                         // Add Fire
                         // TODO: random.NextFloat(flashpoint, 1f) // Add flashpoint randomization
                         var temperature = new Temperature();
-                        temperature.Value = fireTiles[tileCount] == true ? 1 : 0;
-                        EntityManager.SetComponentData(blankTiles[tileCount], temperature);
+                        temperature.Value = fireTiles[tileId] == true ? 1 : 0;
+                        EntityManager.SetComponentData(blankTiles[tileId], temperature);
 
                         // Add Bucket
-                        if (bucketTiles[tileCount] == true)
+                        if (bucketTiles[tileId] == true)
                         {
                             var positionBucket = new Translation() { Value = 
                                 new float3(
@@ -87,8 +87,6 @@ public class WorldSpawningSystem : SystemBase
                             EntityManager.AddComponent<BucketAvailable>(blankBuckets[bucketCount]);
                             bucketCount++;
                         }
-
-                        tileCount++;
                     }
                 }
                 blankTiles.Dispose();

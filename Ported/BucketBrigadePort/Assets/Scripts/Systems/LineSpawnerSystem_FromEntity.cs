@@ -116,7 +116,11 @@ public class LineSpawnerSystem_FromEntity : SystemBase
                         // Set as tosser
                         // botRolePasserFull.Dependent = botTosser;
                         // EntityManager.AddComponentData(bot, botRolePasserFull);
-                        EntityManager.AddComponentData(botTosser, new BotRoleTosser { Dependent = bot });
+                        EntityManager.AddComponentData(botTosser, new BotRoleTosser
+                        {
+                            Dependent = bot,
+                            BotFiller = botFiller
+                        });
 
 
                     }
@@ -150,7 +154,11 @@ public class LineSpawnerSystem_FromEntity : SystemBase
                     {
                         // Last in chain
                         // Set filler
-                        EntityManager.AddComponentData(botTosser, new BotRoleTosser { Dependent = bot });
+                        EntityManager.AddComponentData(botTosser, new BotRoleTosser
+                        {
+                            Dependent = bot,
+                            BotFiller = botFiller
+                        });
                     }
                     EntityManager.AddComponentData(bot, botRolePasserEmpty);
                     botRef = bot;

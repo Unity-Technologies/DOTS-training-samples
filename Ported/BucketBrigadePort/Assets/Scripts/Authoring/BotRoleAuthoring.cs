@@ -8,6 +8,7 @@ public struct BotRoleFinder : IComponentData
 public struct BotRoleTosser : IComponentData
 {
     public Entity Dependent;
+    public Entity BotFiller;
 }
 public struct BotRoleFiller : IComponentData
 {

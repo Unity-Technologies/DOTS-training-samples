@@ -46,10 +46,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fireSimUpdateRate: 0.1
-  heatTransferRate: 0.0003
+  heatTransferRate: 0.0005
   flashpoint: 0.1
   heatRadius: 1
   splashRadius: 2
+  coolStrength: 0
+  coolRadious: 0
 --- !u!114 &-623260167092355611
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -62,10 +64,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f96a276eee462ca478632724b672655f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  XSize: 20
-  YSize: 20
+  XSize: 30
+  YSize: 30
   Scale: 0.3
-  StartingFireCount: 3
+  StartingFireCount: 5
   Prefab: {fileID: 8135744633761666916, guid: ea3ec593ba0a10c4aa6eeb1873f61b41, type: 3}
 --- !u!114 &3516836346958189788
 MonoBehaviour:

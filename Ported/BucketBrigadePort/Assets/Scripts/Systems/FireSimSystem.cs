@@ -6,6 +6,12 @@ using UnityEngine;
 public class FireSimSystem : SystemBase
 {
     float m_TimeUntilFireUpdate = 0;
+    private EntityCommandBufferSystem m_ECBSystem;
+    
+    protected override void OnCreate()
+    {
+        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
 
     protected override void OnUpdate()
     {
@@ -22,6 +28,8 @@ public class FireSimSystem : SystemBase
             int tileCount = rows * columns;
             NativeArray<float> temperatures = new NativeArray<float>(tileCount, Allocator.TempJob); 
             
+            var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
+
             // Get all of the temperatures in the expected spatial order.
             Entities
                 .WithName("FireSimRead")
@@ -36,8 +44,8 @@ public class FireSimSystem : SystemBase
                 .ForEach((in Tile tile) =>
                 {
                     float temperature = temperatures[tile.Id];
-                    int cellRowIndex = tile.Id % columns;
-                    int cellColumnIndex = tile.Id / columns;
+                    int cellRowIndex = tile.Id / columns;
+                    int cellColumnIndex = tile.Id % columns;
 
                     for (int rowIndex = -fireSpreadSettings.heatRadius; rowIndex <= fireSpreadSettings.heatRadius; rowIndex++)
                     {
@@ -65,16 +73,23 @@ public class FireSimSystem : SystemBase
             // Apply the temporary array
             Entities
                 .WithName("FireSimApply")
-                // .WithStructuralChanges()
                 .WithDisposeOnCompletion(temperatures)
-                .ForEach((Entity tileEntity, ref Temperature temperature, in Tile tile) =>
+                .ForEach((
+                    int entityInQueryIndex, 
+                    Entity tileEntity, 
+                    ref Temperature temperature, 
+                    in Tile tile) =>
                 {
                     temperature.Value = temperatures[tile.Id];
                     // if (temperature.Value > fireSpreadSettings.flashpoint)
                     // {
-                    //     EntityManager.AddComponent<OnFire>(tileEntity);
+                    //     // TODO: We need a system that Removes the OnFire component.
+                    //     ecb.AddComponent<OnFire>(entityInQueryIndex, tileEntity);
                     // }
                 }).ScheduleParallel();
+            
+            // Register a dependency for the EntityCommandBufferSystem.
+            m_ECBSystem.AddJobHandleForProducer(Dependency);
         }
     }
 }

@@ -48,7 +48,7 @@ MonoBehaviour:
   ColorFireNeutral: {r: 0.4567378, g: 0.7169812, b: 0.44980422, a: 0}
   ColorFireCool: {r: 0.7830189, g: 0.7135929, b: 0.025854412, a: 0}
   ColorFireHot: {r: 1, g: 0, b: 0, a: 0}
-  FlameHeight: 2
+  FlameHeight: 0.5
   FlickerRate: 0.1
   FlickerRange: 0.1
 --- !u!114 &-5299060654477022142
