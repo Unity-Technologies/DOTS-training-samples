@@ -26,6 +26,8 @@ public class BotMovementSystem : SystemBase
                 {
                     // TODO: Remove TargetPosition here
                 }
+
+                // TODO: Add in movement for bucket if a bot has one in ref and is within the threshold distance
             })
             .ScheduleParallel();
     }

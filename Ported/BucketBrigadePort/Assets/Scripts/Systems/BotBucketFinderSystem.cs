@@ -32,16 +32,19 @@ public class BotBucketFinderSystem : SystemBase
         var bucketEntities = m_bucketQuery.ToEntityArray(Allocator.TempJob);
 
         Entities
-            .WithName("BotBucketFinderSystem")
+            .WithName("BotFinderSeekBucketSystem")
             .WithDisposeOnCompletion(bucketEntities)
             .WithNone<TargetPosition>()
+            .WithNone<BucketRef>()
             .ForEach((int entityInQueryIndex, Entity entity, in BotRoleFinder botRoleFinder, in Translation translation) =>
             {
                 int closestBucket = -1;
+                var bucketRef = new BucketRef(); // NB: Need to validate this isn't used unless set
                 float3 closestBucketLocation = translation.Value;
                 float closestBucketMag = float.MaxValue;
                 for (int i = 0; i < bucketEntities.Length; i++)
                 {
+                    //GetComponentDataFromEntity
                     var bucketTranslation = GetComponent<Translation>(bucketEntities[i]);
                     var mag = math.distance(bucketTranslation.Value, translation.Value);
                     if (mag < closestBucketMag)
@@ -49,6 +52,7 @@ public class BotBucketFinderSystem : SystemBase
                         closestBucketMag = mag;
                         closestBucketLocation = bucketTranslation.Value;
                         closestBucket = i;
+                        bucketRef.Value = bucketEntities[i];
                     }
                     // Abort loop when one is found to clear race condition if two bots find the same bucket!
 
@@ -59,15 +63,39 @@ public class BotBucketFinderSystem : SystemBase
                     var targetPosition = new TargetPosition() { Value = closestBucketLocation };
                     ecb.AddComponent<TargetPosition>(entityInQueryIndex, entity);
                     ecb.SetComponent(entityInQueryIndex, entity, targetPosition);
-                    ecb.RemoveComponent<BucketAvailable>(entityInQueryIndex, bucketEntities[closestBucket]);
+                    ecb.AddComponent<BucketRef>(entityInQueryIndex, entity);
+                    ecb.SetComponent(entityInQueryIndex, entity, bucketRef);
                 }
-                // Deal with the buckets
+            }).ScheduleParallel();
 
-                // BucketReferenceComponent
-                // LineId
+        var ecbPickup = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
+        Entities
+            .WithName("BotFinderPickupBucketSystem")
+            .ForEach((int entityInQueryIndex, Entity entity, ref TargetPosition targetPosition, in BotRoleFinder botRoleFinder, in BucketRef bucketRef, in Translation translation) =>
+            {
+                var bucketTranslation = GetComponent<Translation>(bucketRef.Value);
+                var bucketIsAvailable = HasComponent<BucketAvailable>(bucketRef.Value);
+
+                var magnitude = math.distance(bucketTranslation.Value, translation.Value);
+                if (magnitude < 1)
+                {
+                    if (bucketIsAvailable == true)
+                    {
+                        // Claim the bucket
+                        ecbPickup.RemoveComponent<BucketAvailable>(entityInQueryIndex, bucketRef.Value);
+                        // Target the line home
+                    }
+                    else
+                    {
+                        // Someone beat me to the bucket
+                        ecbPickup.RemoveComponent<BucketRef>(entityInQueryIndex, entity);
+                        ecbPickup.RemoveComponent<TargetPosition>(entityInQueryIndex, entity);
+                    }
+                }
             }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
+
     }
 }
