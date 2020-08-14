@@ -51,7 +51,9 @@ public class BucketTossSystem : SystemBase
         {
             for (int i = 0; i < tileCount; i++)
             {
-                var tosserFireDist = math.distance(position.Value, fireCellTranslations[i]);
+
+                // calculate distance from tosser to fireCell, ignore y axis
+                var tosserFireDist = math.length(position.Value.xz - fireCellTranslations[i].xz);
 
                 // tosser is not close to the firecell
                 if (tosserFireDist > coolRadious)
