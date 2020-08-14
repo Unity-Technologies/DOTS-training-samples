@@ -75,7 +75,7 @@ public class LineSpawnerSystem_FromEntity : SystemBase
                 EntityManager.AddComponentData(botTosser, new LineId { Value = x });
                 EntityManager.AddComponentData(botTosser, new BotLineLocationId { Value = 1 });
                 EntityManager.AddComponentData(botTosser, new BotRootPosition());
-                EntityManager.AddComponentData(botTosser, new BotRoleTosser());
+                EntityManager.AddComponentData(botTosser, new BotRoleTosser{ BotFiller = botFiller});
 
                 var botFinder = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
                 var botFinderPosition = new Translation { Value = new float3(random.NextFloat(0, worldSizeX), yPosition, random.NextFloat(0, worldSizeY)) };
