@@ -3,6 +3,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+public struct ScoopBotFilling : IComponentData {}
+
 [UpdateAfter(typeof(BrigadeRetargetSystem))]
 public class ScoopBotSystem : SystemBase
 {
@@ -116,6 +118,7 @@ public class ScoopBotSystem : SystemBase
             .WithName("Scoop_BucketCarry")
             .WithAll<BotTypeScoop>()
             .WithAll<CarriedBucket>()
+            .WithNone<ScoopBotFilling>()
             .WithStructuralChanges()
             .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigade,
                 in NextBot nextBot) =>
@@ -127,13 +130,42 @@ public class ScoopBotSystem : SystemBase
                 float distanceToTarget = math.length(toTarget);
                 if (UtilityFunctions.FlatOverlapCheck(brigadeTarget, translation.Value))
                 {
+                    ecb.AddComponent<ScoopBotFilling>(e);
+                }
+                else
+                {
+                    translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value +
+                                        math.normalize(toTarget) * math.min(botSpeed * deltaTime, distanceToTarget));
+                }
+            }).WithoutBurst().Run();
+        
+        Entities
+            .WithName("Scoop_BucketFill")
+            .WithAll<BotTypeScoop>()
+            .WithAll<CarriedBucket>()
+            .WithAll<ScoopBotFilling>()
+            .WithStructuralChanges()
+            .ForEach((Entity e, ref Translation translation, in CarriedBucket carriedBucket, in BrigadeGroup brigade,
+                in NextBot nextBot) =>
+            {
+                var waterEntity = EntityManager.GetComponentData<Brigade>(brigade.Value).waterEntity;
+                var brigadeTarget = localToWorldComponents[waterEntity].Value.c3.xyz;
+                float3 toTarget = brigadeTarget - translation.Value;
+
+                float distanceToTarget = math.length(toTarget);
+                var water = GetComponent<Water>(carriedBucket.Value);
+                var newVolume = math.min(water.volume+deltaTime, 1);
+                ecb.SetComponent(carriedBucket.Value, new Water()
+                {
+                    capacity = water.capacity,
+                    volume = newVolume
+                });
+                
+                if(newVolume == water.capacity)
+                {
+                    ecb.RemoveComponent<ScoopBotFilling>(e);
                     // we got to the target, mark the bucket as full, and pass to the next owner
                     // eventually this will transition to a fill state first
-                    ecb.SetComponent(carriedBucket.Value, new Water()
-                    {
-                        capacity = 1,
-                        volume = 1
-                    });
                     ecb.AddComponent(nextBot.Value, new TargetBucket()
                     {
                         Value = carriedBucket.Value
@@ -143,11 +175,6 @@ public class ScoopBotSystem : SystemBase
                         Value = nextBot.Value
                     });
                     ecb.RemoveComponent<CarriedBucket>(e);
-                }
-                else
-                {
-                    translation.Value = UtilityFunctions.BotHeightCorrect(translation.Value +
-                                        math.normalize(toTarget) * math.min(botSpeed * deltaTime, distanceToTarget));
                 }
             }).WithoutBurst().Run();
     }
