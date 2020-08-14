@@ -9,12 +9,13 @@ public class TosserSeekFireSystem : SystemBase
 {
     private float m_AssesLineTimer = 0f;
     private const float m_AssesLineRate = 2f;
-    private EntityQuery m_FireTranslationsQuery;
+    private EntityQuery m_FireQuery;
+    private EntityQuery m_LakeQuery;
     private EntityCommandBufferSystem m_ECBSystem;
 
     protected override void OnCreate()
     {
-        m_FireTranslationsQuery = GetEntityQuery(new EntityQueryDesc
+        m_FireQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new[]
             {
@@ -22,6 +23,16 @@ public class TosserSeekFireSystem : SystemBase
                 ComponentType.ReadOnly<OnFire>(),
             }
         });
+        m_LakeQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<Translation>(),
+                ComponentType.ReadOnly<WaterAmount>(),
+                ComponentType.ReadOnly<WaterRefill>()
+            }
+        });
+
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
@@ -35,10 +46,13 @@ public class TosserSeekFireSystem : SystemBase
             
             // Get the positions of all of the fire.
             var fireTranslations =
-                m_FireTranslationsQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob,
-                    out var fireTranslationsHandle);
-            
+                m_FireQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob,
+                out var fireTranslationsHandle);
+            var lakeTranslations = 
+                m_LakeQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob,
+                out var lakeTranslationsHandle);
             Dependency = JobHandle.CombineDependencies(Dependency, fireTranslationsHandle);
+            Dependency = JobHandle.CombineDependencies(Dependency, lakeTranslationsHandle);
             var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
             
             // System updates End Point every 2s, sets to closest fire to the Line Beginning Point
@@ -49,6 +63,7 @@ public class TosserSeekFireSystem : SystemBase
             Entities
                 .WithName("TosserSeekFire")
                 .WithDisposeOnCompletion(fireTranslations)
+                .WithDisposeOnCompletion(lakeTranslations)
                 .ForEach((
                     int entityInQueryIndex,
                     Entity tosserEntity, 
@@ -57,7 +72,7 @@ public class TosserSeekFireSystem : SystemBase
                     in LineId lineId) =>
                 {
                     // Find the closest fire point.
-                    float3 minPosition = float3.zero;
+                    float3 closestFirePosition = float3.zero;
                     float minDistance = 999999999f;
                     bool fireFound = false;
                     for (int fireIndex = 0; fireIndex < fireTranslations.Length; fireIndex++)
@@ -66,24 +81,43 @@ public class TosserSeekFireSystem : SystemBase
                         if (distance < minDistance)
                         {
                             minDistance = distance;
-                            minPosition = fireTranslations[fireIndex].Value;
+                            closestFirePosition = fireTranslations[fireIndex].Value;
                             fireFound = true;
                         }
                     }
+                    
+                    float3 closestLakePosition = float3.zero;
+                    minDistance = 999999999f;
+                    bool lakeFound = false;
+                    // Debug.Log($"lakeTranslations.Length: {lakeTranslations.Length}");
+
+                    for (int lakeIndex = 0; lakeIndex < lakeTranslations.Length; lakeIndex++)
+                    {
+                        float distance = math.length(translation.Value.xz - lakeTranslations[lakeIndex].Value.xz);
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            closestLakePosition = lakeTranslations[lakeIndex].Value;
+                            lakeFound = true;
+                        }
+                    }
+
+                    // Debug.Log($"closestLakePosition: {closestLakePosition}");
 
                     // If the closest fire point is different than the current fire point, then set a new 
                     // targetPosition.
                     // TODO: This is an optimization for later.
                     
-                    if (fireFound && tosser.BotFiller != Entity.Null)
+                    if (fireFound && tosser.BotFiller != Entity.Null
+                        && lakeFound)
                     {
-                        var fillerTranslation = GetComponent<Translation>(tosser.BotFiller);
+                        // var fillerTranslation = GetComponent<Translation>(tosser.BotFiller);
                         var eventEntity = ecb.CreateEntity(entityInQueryIndex);
                         ecb.AddComponent(entityInQueryIndex, eventEntity, component: new LineModify
                         {
                             lineId = lineId.Value,
-                            tossTranslation = minPosition,
-                            fillTranslation = fillerTranslation.Value
+                            tossTranslation = closestFirePosition,
+                            fillTranslation = closestLakePosition
                         });
                     }
 

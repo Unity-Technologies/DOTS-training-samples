@@ -66,8 +66,7 @@ public class LineMoveSystem : SystemBase
                         float3 linePosition = GetLinePosition(lineLocation.Value,
                             lineModifiers[i].fillTranslation, lineModifiers[i].tossTranslation);
                         rootPosition.Value = linePosition;
-                        // Now make the bot walk to the linePosition
-                        // TODO: Check that AddComponent will overwrite an existing component.
+                        // Now make the bot walk to the linePosition.
                         ecb.AddComponent<TargetPosition>(botEntity, new TargetPosition
                         {
                             Value = linePosition
