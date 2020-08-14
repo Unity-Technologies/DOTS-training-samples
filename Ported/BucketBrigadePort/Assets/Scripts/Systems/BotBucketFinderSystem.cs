@@ -78,7 +78,7 @@ public class BotBucketFinderSystem : SystemBase
                 var bucketIsAvailable = HasComponent<BucketAvailable>(bucketRef.Value);
 
                 var magnitude = math.distance(bucketTranslation.Value, translation.Value);
-                if (magnitude < 1)
+                if (magnitude < 0.25f) // TODO: Base this on bucket dimension
                 {
                     if (bucketIsAvailable == true)
                     {
