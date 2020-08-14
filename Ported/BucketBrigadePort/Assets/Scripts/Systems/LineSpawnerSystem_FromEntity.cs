@@ -88,6 +88,7 @@ public class LineSpawnerSystem_FromEntity : SystemBase
                 // Finder has no LineLocation
                 // Finder has no RootPosition
                 EntityManager.AddComponentData(botFinder, new BotRoleFinder());
+                EntityManager.AddComponentData(botFinder, new DependentEntity { Value = botFiller });
 
                 Entity botRef = botTosser;
                 for (var a = lineSpawner.CountOfFullPassBots -1; a > -1; a--)

@@ -79,7 +79,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ColorBotRoleFinder: {r: 0.12001601, g: 0.8207547, b: 0.22718784, a: 0}
   ColorBotRoleTosser: {r: 1, g: 0.4745098, b: 0.9372549, a: 0}
-  ColorBotRoleFiller: {r: 0.8773585, g: 0.5090335, b: 0.5090335, a: 0}
+  ColorBotRoleFiller: {r: 0.3876175, g: 0.16558382, b: 0.5754717, a: 0}
   ColorBotRolePasserFull: {r: 0.07694017, g: 0.8431663, b: 0.8584906, a: 0}
   ColorBotRolePasserEmpty: {r: 1, g: 0.4117647, b: 0.45882353, a: 0}
   ColorBotRoleOmni: {r: 0, g: 0, b: 0, a: 0}

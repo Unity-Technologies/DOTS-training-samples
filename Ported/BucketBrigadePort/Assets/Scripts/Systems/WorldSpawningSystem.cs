@@ -84,7 +84,6 @@ public class WorldSpawningSystem : SystemBase
                             var bucketColor = new Color() { Value = bucketColorSettings.Empty};
                             EntityManager.SetComponentData(blankBuckets[bucketCount], positionBucket);
                             EntityManager.SetComponentData(blankBuckets[bucketCount], bucketColor);
-                            EntityManager.AddComponent<BucketAvailable>(blankBuckets[bucketCount]);
                             bucketCount++;
                         }
                     }

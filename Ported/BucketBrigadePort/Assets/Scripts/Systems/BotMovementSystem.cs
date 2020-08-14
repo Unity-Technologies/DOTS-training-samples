@@ -27,6 +27,7 @@ public class BotMovementSystem : SystemBase
         });
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
+    
     protected override void OnUpdate()
     {
         var bucketSpawner = GetSingleton<BucketSpawner>();
@@ -34,12 +35,12 @@ public class BotMovementSystem : SystemBase
         float deltaTime = Time.DeltaTime;
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
-        // Move buckets
-
         Entities
             .WithName("TranslationSpeedSystem")
+            .WithNone<BucketCarry>()
             .ForEach((int entityInQueryIndex, Entity entity, ref Translation translation, ref TargetPosition targetPosition) =>
             {
+                // TODO: Move to function
                 var maxMovement = lineSpawner.BotSpeed * deltaTime;
                 var vector = targetPosition.Value - translation.Value;
                 var magnitude = math.distance(targetPosition.Value, translation.Value);
@@ -52,7 +53,43 @@ public class BotMovementSystem : SystemBase
                 }
             })
             .ScheduleParallel();
-        
+
+        Entities
+            .WithName("TranslationWithBucketSpeedSystem")
+            .ForEach((int entityInQueryIndex, Entity entity, ref Translation translation, ref TargetPosition targetPosition, ref BucketRef bucketRef, in BucketCarry bucketCarry ) =>
+            {
+                // TODO: Move to function
+                var maxMovement = lineSpawner.BotSpeed * deltaTime;
+                var vector = targetPosition.Value - translation.Value;
+                var magnitude = math.distance(targetPosition.Value, translation.Value);
+                var actualMovement = math.min(maxMovement, magnitude);
+                translation.Value += vector * actualMovement;
+
+                var bucketMovement = new BucketMovement() { Value = targetPosition.Value };
+                ecb.AddComponent<BucketMovement>(entityInQueryIndex, bucketRef.Value, bucketMovement);
+
+                if (magnitude < 0.00001f) // epsilon?
+                {
+                    ecb.RemoveComponent<TargetPosition>(entityInQueryIndex, entity);
+                }
+            })
+            .ScheduleParallel();
+
+        Entities
+            .WithName("TranslationBucketSystem")
+            .ForEach((int entityInQueryIndex, Entity entity, ref Translation translation, ref BucketMovement bucketMovement) =>
+            {
+                // TODO: Move to function
+                var maxMovement = lineSpawner.BotSpeed * deltaTime;
+                var vector = bucketMovement.Value - translation.Value;
+                var magnitude = math.distance(bucketMovement.Value, translation.Value);
+                var actualMovement = math.min(maxMovement, magnitude);
+                translation.Value += vector * actualMovement;
+                ecb.RemoveComponent<BucketMovement>(entityInQueryIndex, entity);
+
+            })
+            .ScheduleParallel();
+
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }

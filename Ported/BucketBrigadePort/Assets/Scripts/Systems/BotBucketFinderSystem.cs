@@ -33,7 +33,6 @@ public class BotBucketFinderSystem : SystemBase
         
         Entities
             .WithName("BotFinderSeekBucketSystem")
-            .WithDisposeOnCompletion(bucketEntities)
             .WithNone<TargetPosition>()
             .WithNone<BucketRef>()
             .ForEach((int entityInQueryIndex, Entity entity, in BotRoleFinder botRoleFinder, in Translation translation) =>
@@ -74,31 +73,51 @@ public class BotBucketFinderSystem : SystemBase
 
         Entities
             .WithName("BotFinderPickupBucketSystem")
+            .WithDisposeOnCompletion(bucketEntities)
             .ForEach((int entityInQueryIndex, Entity entity, ref TargetPosition targetPosition, in BotRoleFinder botRoleFinder, in BucketRef bucketRef, in Translation translation, in DependentEntity dependentEntity) =>
             {
                 var bucketTranslation = GetComponent<Translation>(bucketRef.Value);
-                var bucketIsAvailable = HasComponent<BucketAvailable>(bucketRef.Value);
-
                 var magnitude = math.distance(bucketTranslation.Value, translation.Value);
                 if (magnitude < 0.25f) // TODO: Base this on bucket dimension
                 {
-                    if (bucketIsAvailable == true)
+                    for (int i = 0; i < bucketEntities.Length; i++)
                     {
-                        // Claim the bucket
-                        ecbPickup.RemoveComponent<BucketAvailable>(entityInQueryIndex, bucketRef.Value);
-                        ecbPickup.AddComponent(entityInQueryIndex, entity, new BucketCarry());
-                        // Target the line home
-                        var botRootPosition = GetComponent<BotRootPosition>(dependentEntity.Value);
-                        targetPosition.Value = botRootPosition.Value;
-                    }
-                    else
-                    {
-                        // Someone beat me to the bucket
-                        ecbPickup.RemoveComponent<BucketRef>(entityInQueryIndex, entity);
-                        ecbPickup.RemoveComponent<TargetPosition>(entityInQueryIndex, entity);
+                        if(bucketEntities[i] == bucketRef.Value)
+                        {
+                            
+                                // Claim the bucket
+                                ecbPickup.RemoveComponent<BucketAvailable>(entityInQueryIndex, bucketEntities[i]);
+                                ecbPickup.AddComponent(entityInQueryIndex, entity, new BucketCarry());
+                                // Target the line home
+                                var botRootPosition = GetComponent<BotRootPosition>(dependentEntity.Value);
+                                var updatedTargetPosition = new TargetPosition() { Value = botRootPosition.Value };
+                                ecbPickup.SetComponent(entityInQueryIndex, entity, updatedTargetPosition);
+                            
+                            // else
+                            // {
+                            //     // Someone beat me to the bucket
+                            //     ecbPickup.RemoveComponent<BucketRef>(entityInQueryIndex, entity);
+                            //     ecbPickup.RemoveComponent<TargetPosition>(entityInQueryIndex, entity);
+                            // }
+                        }
                     }
                 }
             }).ScheduleParallel();
+
+        Entities
+             .WithName("BotFinderDropBucketSystem")
+             .ForEach((int entityInQueryIndex, Entity entity, ref BucketCarry bucketCarry, ref BucketRef bucketRef, ref TargetPosition targetPosition, ref DependentEntity dependentEntity, in BotRoleFinder botRoleFinder, in Translation translation) =>
+             {
+                 var magnitude = math.distance(targetPosition.Value, translation.Value);
+                 if (magnitude < 0.25f) // TODO: Base this on bucket dimension
+                 {
+                     ecbPickup.RemoveComponent<BucketCarry>(entityInQueryIndex, entity);
+                     ecbPickup.RemoveComponent<BucketRef>(entityInQueryIndex, entity);
+                     ecbPickup.RemoveComponent<TargetPosition>(entityInQueryIndex, entity);
+                     // TODO: set bucket dependency on dependencyRef
+                 }
+             }).ScheduleParallel();
+
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
 
