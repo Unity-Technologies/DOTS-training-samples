@@ -8,6 +8,13 @@ using Unity.Transforms;
 
 public class BucketTossSystem : SystemBase
 {
+    private EntityCommandBufferSystem m_ECBSystem;
+
+    protected override void OnCreate()
+    {
+        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
         var bucketEmptyColor = GetSingleton<BucketColorSettings>().Empty;
@@ -23,6 +30,8 @@ public class BucketTossSystem : SystemBase
         int tileCount = rows * columns;
         NativeArray<float> fireCellTemperatures = new NativeArray<float>(tileCount, Allocator.TempJob);
         NativeArray<float3> fireCellTranslations = new NativeArray<float3>(tileCount, Allocator.TempJob);
+
+        var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
         // Get all of the temperatures in the expected spatial order.
         Entities
@@ -74,9 +83,18 @@ public class BucketTossSystem : SystemBase
         .WithName("bucket_toss_copyback_firecell")
         .WithDisposeOnCompletion(fireCellTemperatures)
         .WithReadOnly(fireCellTemperatures)
-        .ForEach((ref Temperature temperature, in Tile tile) =>
+        .ForEach((
+            int entityInQueryIndex, 
+            Entity fireCellEntity, 
+            ref Temperature temperature, 
+            in Tile tile) =>
         {
             temperature.Value = fireCellTemperatures[tile.Id];
+
+            if(temperature.Value < fireFlashPoint)
+            {
+                ecb.RemoveComponent<OnFire>(entityInQueryIndex, fireCellEntity);
+            }
         }).ScheduleParallel();        
     }
 }
