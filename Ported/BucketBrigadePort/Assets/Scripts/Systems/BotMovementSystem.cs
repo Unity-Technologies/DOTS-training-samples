@@ -46,10 +46,7 @@ public class BotMovementSystem : SystemBase
                 vector = math.normalize(vector);
                 var magnitude = math.distance(targetPosition.Value, translation.Value) * 2f;
                 var actualMovement = math.min(maxMovement, magnitude);
-                Debug.Log($"Bot: {entityInQueryIndex} Magnitude: {magnitude} Vector: {vector} Actual Movement: {actualMovement}");
                 translation.Value += vector*actualMovement;
-                //translation.Value = Vector3.MoveTowards(translation.Value, targetPosition.Value, maxMovement);
-                
                 
                 if(magnitude < 0.001f) // epsilon?
                 {
