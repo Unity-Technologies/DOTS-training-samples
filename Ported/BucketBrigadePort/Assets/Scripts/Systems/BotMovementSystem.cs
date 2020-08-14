@@ -43,11 +43,15 @@ public class BotMovementSystem : SystemBase
                 // TODO: Move to function
                 var maxMovement = lineSpawner.BotSpeed * deltaTime;
                 var vector = targetPosition.Value - translation.Value;
-                var magnitude = math.distance(targetPosition.Value, translation.Value);
+                vector = math.normalize(vector);
+                var magnitude = math.distance(targetPosition.Value, translation.Value) * 2f;
                 var actualMovement = math.min(maxMovement, magnitude);
+                Debug.Log($"Bot: {entityInQueryIndex} Magnitude: {magnitude} Vector: {vector} Actual Movement: {actualMovement}");
                 translation.Value += vector*actualMovement;
+                //translation.Value = Vector3.MoveTowards(translation.Value, targetPosition.Value, maxMovement);
                 
-                if(magnitude < 0.00001f) // epsilon?
+                
+                if(magnitude < 0.001f) // epsilon?
                 {
                     ecb.RemoveComponent<TargetPosition>(entityInQueryIndex, entity);
                 }
@@ -61,6 +65,7 @@ public class BotMovementSystem : SystemBase
                 // TODO: Move to function
                 var maxMovement = lineSpawner.BotSpeed * deltaTime;
                 var vector = targetPosition.Value - translation.Value;
+                vector = math.normalize(vector);
                 var magnitude = math.distance(targetPosition.Value, translation.Value);
                 var actualMovement = math.min(maxMovement, magnitude);
                 translation.Value += vector * actualMovement;
@@ -68,7 +73,7 @@ public class BotMovementSystem : SystemBase
                 var bucketMovement = new BucketMovement() { Value = targetPosition.Value };
                 ecb.AddComponent<BucketMovement>(entityInQueryIndex, bucketRef.Value, bucketMovement);
 
-                if (magnitude < 0.00001f) // epsilon?
+                if (magnitude < 0.001f) // epsilon?
                 {
                     ecb.RemoveComponent<TargetPosition>(entityInQueryIndex, entity);
                 }
@@ -82,6 +87,7 @@ public class BotMovementSystem : SystemBase
                 // TODO: Move to function
                 var maxMovement = lineSpawner.BotSpeed * deltaTime;
                 var vector = bucketMovement.Value - translation.Value;
+                vector = math.normalize(vector);
                 var magnitude = math.distance(bucketMovement.Value, translation.Value);
                 var actualMovement = math.min(maxMovement, magnitude);
                 translation.Value += vector * actualMovement;
