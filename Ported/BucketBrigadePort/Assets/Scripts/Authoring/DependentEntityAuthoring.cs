@@ -2,5 +2,5 @@
 
 public struct DependentEntity : IComponentData
 {
-    public Entity Dependent;
+    public Entity Value;
 }

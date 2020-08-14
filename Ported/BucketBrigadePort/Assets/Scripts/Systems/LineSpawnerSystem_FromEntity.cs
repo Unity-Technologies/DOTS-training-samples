@@ -58,31 +58,33 @@ public class LineSpawnerSystem_FromEntity : SystemBase
 
                 var botFiller = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
                 var botFillerPosition = new Translation { Value = new float3(random.NextFloat(0, worldSizeX), 0, random.NextFloat(0, worldSizeY)) };
-                var botColourFiller = new Color() { Value = botDisplaySettings.BotRoleFiller };
                 EntityManager.AddComponentData(botFiller, botFillerPosition);
+                var botColourFiller = new Color() { Value = botDisplaySettings.BotRoleFiller };
                 EntityManager.AddComponentData(botFiller, botColourFiller);
                 EntityManager.AddComponentData(botFiller, new LineId { Value = x});
                 EntityManager.AddComponentData(botFiller, new BotLineLocationId { Value = 0 });
                 EntityManager.AddComponentData(botFiller, new BotRootPosition());
+                EntityManager.AddComponentData(botFiller, new BotRoleFiller());
 
                 var botTosser = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
                 var botTosserPosition = new Translation { Value = new float3(random.NextFloat(0, worldSizeX), 0, random.NextFloat(0, worldSizeY)) };
-                var botColourTosser = new Color() { Value = botDisplaySettings.BotRoleTosser };
                 EntityManager.AddComponentData(botTosser, botTosserPosition);
+                var botColourTosser = new Color() { Value = botDisplaySettings.BotRoleTosser };
                 EntityManager.AddComponentData(botTosser, botColourTosser);
                 EntityManager.AddComponentData(botTosser, new LineId { Value = x });
                 EntityManager.AddComponentData(botTosser, new BotLineLocationId { Value = 1 });
                 EntityManager.AddComponentData(botTosser, new BotRootPosition());
-
+                EntityManager.AddComponentData(botTosser, new BotRoleTosser());
 
                 var botFinder = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
                 var botFinderPosition = new Translation { Value = new float3(random.NextFloat(0, worldSizeX), 0, random.NextFloat(0, worldSizeY)) };
-                var botColourFinder = new Color() { Value = botDisplaySettings.BotRoleFinder };
-                var botRoleFinder = new BotRoleFinder() { Dependent = botFiller };
                 EntityManager.AddComponentData(botFinder, botFinderPosition);
-                EntityManager.AddComponentData(botFinder, botRoleFinder);
+                var botColourFinder = new Color() { Value = botDisplaySettings.BotRoleFinder };
                 EntityManager.AddComponentData(botFinder, botColourFinder);
                 EntityManager.AddComponentData(botFinder, new LineId { Value = x });
+                // Finder has no LineLocation
+                // Finder has no RootPosition
+                EntityManager.AddComponentData(botFinder, new BotRoleFinder());
 
                 Entity botRef = botTosser;
                 for (var a = lineSpawnerFromEntity.CountOfFullPassBots -1; a > -1; a--)
@@ -91,7 +93,7 @@ public class LineSpawnerSystem_FromEntity : SystemBase
                     var bot = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
                     var botPosition = new Translation { Value = new float3(random.NextFloat(0, worldSizeX), 0, random.NextFloat(0, worldSizeY)) };
                     var botColourPasserFull = new Color() { Value = botDisplaySettings.BotRolePasserFull };
-                    var botRolePasserFull = new BotRolePasserFull();
+                    EntityManager.AddComponentData(bot, new BotRolePasserFull());
                     EntityManager.AddComponentData(bot, new BotLineLocationId { Value = a * (1 / (lineSpawnerFromEntity.CountOfFullPassBots - 1)) });
 
                     EntityManager.AddComponentData(bot, botPosition);
@@ -102,12 +104,13 @@ public class LineSpawnerSystem_FromEntity : SystemBase
                     EntityManager.AddComponentData(bot, new BotLineLocationId { Value = botLineLocationId });
                     EntityManager.AddComponentData(bot, new BotRootPosition());
 
+                    var dependentEntity = new DependentEntity();
 
                     if (a == 0)
                     {
                         // First in chain
                         // Set as filler
-                        EntityManager.AddComponentData(botFiller, new BotRoleFiller { Dependent = bot});
+                        EntityManager.AddComponentData(botFiller, new DependentEntity { Value = bot});
 
                     }
                     else if (a == lineSpawnerFromEntity.CountOfFullPassBots-1)
@@ -116,15 +119,15 @@ public class LineSpawnerSystem_FromEntity : SystemBase
                         // Set as tosser
                         // botRolePasserFull.Dependent = botTosser;
                         // EntityManager.AddComponentData(bot, botRolePasserFull);
-                        EntityManager.AddComponentData(botTosser, new BotRoleTosser { Dependent = bot });
+                        
 
 
                     }
                     else
                     {
-                        botRolePasserFull.Dependent = botRef;
+                        dependentEntity.Value = botRef;
                     }
-                    EntityManager.AddComponentData(bot, botRolePasserFull);
+                    EntityManager.AddComponentData(bot, dependentEntity);
                     botRef = bot;
                 }
 
@@ -133,7 +136,7 @@ public class LineSpawnerSystem_FromEntity : SystemBase
                     var bot = EntityManager.Instantiate(lineSpawnerFromEntity.BotPrefab);
                     var botPosition = new Translation { Value = new float3(random.NextFloat(0, worldSizeX), 0, random.NextFloat(0, worldSizeY)) };
                     var botColourPasserEmpty = new Color() { Value = botDisplaySettings.BotRolePasserEmpty };
-                    var botRolePasserEmpty = new BotRolePasserEmpty();
+                    EntityManager.AddComponentData(bot, new BotRolePasserEmpty());
                     EntityManager.AddComponentData(bot, botPosition);
                     EntityManager.AddComponentData(bot, botColourPasserEmpty);
                     EntityManager.AddComponentData(bot, new LineId() { Value = x });
@@ -141,7 +144,7 @@ public class LineSpawnerSystem_FromEntity : SystemBase
                     float botLineLocationId = (((float)a + 1) * (1f / ((float)lineSpawnerFromEntity.CountOfEmptyPassBots + 1f)));
                     EntityManager.AddComponentData(bot, new BotLineLocationId { Value = botLineLocationId });
                     EntityManager.AddComponentData(bot, new BotRootPosition());
-
+                    var dependentEntity = new DependentEntity();
                     if (a == 0)
                     {
                         // First in chain
@@ -150,9 +153,9 @@ public class LineSpawnerSystem_FromEntity : SystemBase
                     {
                         // Last in chain
                         // Set filler
-                        EntityManager.AddComponentData(botTosser, new BotRoleTosser { Dependent = bot });
+                        EntityManager.AddComponentData(botTosser, new DependentEntity { Value = bot });
                     }
-                    EntityManager.AddComponentData(bot, botRolePasserEmpty);
+                    EntityManager.AddComponentData(bot, dependentEntity);
                     botRef = bot;
 
                 }
