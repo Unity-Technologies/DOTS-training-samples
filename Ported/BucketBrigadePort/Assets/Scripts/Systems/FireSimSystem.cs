@@ -81,11 +81,11 @@ public class FireSimSystem : SystemBase
                     in Tile tile) =>
                 {
                     temperature.Value = temperatures[tile.Id];
-                    // if (temperature.Value > fireSpreadSettings.flashpoint)
-                    // {
-                    //     // TODO: We need a system that Removes the OnFire component.
-                    //     ecb.AddComponent<OnFire>(entityInQueryIndex, tileEntity);
-                    // }
+                    if (temperature.Value > fireSpreadSettings.flashpoint)
+                    {
+                        // TODO: We need a system that Removes the OnFire component.
+                        ecb.AddComponent<OnFire>(entityInQueryIndex, tileEntity);
+                    }
                 }).ScheduleParallel();
             
             // Register a dependency for the EntityCommandBufferSystem.
