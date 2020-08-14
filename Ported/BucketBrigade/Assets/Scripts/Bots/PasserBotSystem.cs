@@ -78,6 +78,7 @@ public class PasserBotSystem : SystemBase
                 }
             ).Run();
         
+        
         var translations = GetComponentDataFromEntity<Translation>(true);
         
         // Carry & return empty bucket to water (special case for last empty passer, no next bot, just drop off at water)

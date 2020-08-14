@@ -30,7 +30,6 @@ public class BucketInitializationSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        Debug.Log("*** OnUpdate BucketInitializationSystem");
 
         var random = new Random(1);
 
@@ -45,12 +44,8 @@ public class BucketInitializationSystem : SystemBase
             .WithoutBurst()
             .WithStructuralChanges()
             .ForEach((Entity configEntity, 
-                //in FireConfiguration config, 
-                //in FireInitialization config, 
-                //in WaterInitialization waterConfig, 
                 in BucketSpawning bucketSpawning) =>
             { 
-                Debug.Log("*** - on for each");
                 var size = fireConfig.GridHeight * fireConfig.GridHeight;
                 var numBuckets = waterConfig.totalBuckets;
  

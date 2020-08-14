@@ -6,7 +6,7 @@ using Unity.Transforms;
 [UpdateAfter(typeof(BrigadeRetargetSystem))]
 public class ScoopBotSystem : SystemBase
 {
-    private EntityQuery m_bucketQuery;
+    private EntityQuery m_unownedBucketQuery;
     private EntityQuery m_scoopBucketSearchQuery;
     private EndSimulationEntityCommandBufferSystem m_CommandBufferSystem;
 
@@ -14,7 +14,7 @@ public class ScoopBotSystem : SystemBase
     {
         m_CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
-        m_bucketQuery = GetEntityQuery(new EntityQueryDesc
+        m_unownedBucketQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new[]
             {
@@ -45,11 +45,11 @@ public class ScoopBotSystem : SystemBase
         
         var botSpeed = EntityManager.GetComponentData<BotConfig>(GetSingletonEntity<BotConfig>()).botSpeed;
         var deltaTime = Time.DeltaTime;
-        if (m_scoopBucketSearchQuery.CalculateEntityCount() > 0 && m_bucketQuery.CalculateEntityCount() > 0)
+        if (m_scoopBucketSearchQuery.CalculateEntityCount() > 0 && m_unownedBucketQuery.CalculateEntityCount() > 0)
         {
             // TODO: OMG THIS IS BAD
-            var bucketTranslations = m_bucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-            var bucketEntities = m_bucketQuery.ToEntityArray(Allocator.TempJob);
+            var bucketTranslations = m_unownedBucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+            var bucketEntities = m_unownedBucketQuery.ToEntityArray(Allocator.TempJob);
 
             Entities
                 .WithName("Scoop_BucketSearch")
@@ -86,7 +86,6 @@ public class ScoopBotSystem : SystemBase
             bucketTranslations.Dispose();
             bucketEntities.Dispose();
         }
-
         Entities
             .WithName("Scoop_BucketPickup")
             .WithAll<BotTypeScoop>()

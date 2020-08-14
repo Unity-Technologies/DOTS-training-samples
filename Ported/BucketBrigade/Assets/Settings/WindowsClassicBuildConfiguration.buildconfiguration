@@ -3,8 +3,8 @@
     "Components": [
         {
             "$type": "Unity.Build.Common.GeneralSettings, Unity.Build",
-            "ProductName": "DotsTutorial",
-            "CompanyName": "Jonathan Brodsky"
+            "ProductName": "Bucket Brigade",
+            "CompanyName": "pdt-aug20-group4"
         },
         {
             "$type": "Unity.Build.Common.SceneList, Unity.Build",
