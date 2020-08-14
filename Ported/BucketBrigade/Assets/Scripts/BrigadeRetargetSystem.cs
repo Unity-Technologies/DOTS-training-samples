@@ -53,13 +53,10 @@ public class BrigadeRetargetSystem : SystemBase
         var handle1 = Entities.WithAll<Brigade>()
             .WithReadOnly(temperatures)
             .WithReadOnly(translations)
-            .WithoutBurst()
             .WithReadOnly(translations)
             .ForEach((ref Brigade brigade) =>
             {
-                
                 float3 waterTarget = GetComponent<LocalToWorld>(brigade.waterEntity).Value.c3.xyz;
-                Debug.Log(waterTarget);
                 // Find closest fire
                 float closestDistSq = 0;
                 float3 closestFirePosition = float3.zero;
@@ -95,7 +92,7 @@ public class BrigadeRetargetSystem : SystemBase
                 }
 
                 brigade.fireTarget.y = 0;
-            }).Schedule(Dependency);
+            }).ScheduleParallel(Dependency);
         
         var handle2 = Entities
             // .WithReadOnly(translations)
