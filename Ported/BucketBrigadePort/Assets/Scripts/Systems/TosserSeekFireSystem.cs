@@ -67,7 +67,7 @@ public class TosserSeekFireSystem : SystemBase
                 .ForEach((
                     int entityInQueryIndex,
                     Entity tosserEntity, 
-                    ref BotRoleTosser tosser, 
+                    in BotRoleTosser tosser, 
                     in Translation translation,
                     in LineId lineId) =>
                 {
