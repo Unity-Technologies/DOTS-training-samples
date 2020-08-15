@@ -41,9 +41,13 @@ public class FireSimSystem : SystemBase
             // Spread temperatures.
             Entities
                 .WithName("FireSimSpread")
-                .ForEach((in Tile tile) =>
+                .ForEach((
+                    int entityInQueryIndex, 
+                    Entity tileEntity, 
+                    ref Temperature temperature, 
+                    in Tile tile) =>
                 {
-                    float temperature = temperatures[tile.Id];
+                    float sumTemperature = temperatures[tile.Id];
                     int cellRowIndex = tile.Id / columns;
                     int cellColumnIndex = tile.Id % columns;
 
@@ -60,34 +64,22 @@ public class FireSimSystem : SystemBase
                                     float neighborTemperature = temperatures[(currentRow * columns) + currentColumn];
                                     if (neighborTemperature > fireSpreadSettings.flashpoint)
                                     {
-                                        temperature += neighborTemperature * fireSpreadSettings.heatTransferRate;
+                                        sumTemperature += neighborTemperature * fireSpreadSettings.heatTransferRate;
                                     }
                                 }
                             }
                         }
                     }
-                    temperatures[tile.Id] = math.clamp(temperature, -1f, 1f);
-
-                }).ScheduleParallel();
-            
-            // Apply the temporary array
-            Entities
-                .WithName("FireSimApply")
-                .WithDisposeOnCompletion(temperatures)
-                .ForEach((
-                    int entityInQueryIndex, 
-                    Entity tileEntity, 
-                    ref Temperature temperature, 
-                    in Tile tile) =>
-                {
-                    temperature.Value = temperatures[tile.Id];
+                    temperatures[tile.Id] = math.clamp(sumTemperature, -1f, 1f);
+                    temperature.Value = math.clamp(sumTemperature, -1f, 1f);
                     if (temperature.Value > fireSpreadSettings.flashpoint)
                     {
                         // TODO: We need a system that Removes the OnFire component.
                         ecb.AddComponent<OnFire>(entityInQueryIndex, tileEntity);
                     }
+
                 }).ScheduleParallel();
-            
+
             // Register a dependency for the EntityCommandBufferSystem.
             m_ECBSystem.AddJobHandleForProducer(Dependency);
         }
