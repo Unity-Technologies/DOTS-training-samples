@@ -59,6 +59,9 @@ namespace JumpTheGun {
 		// Update is called once per frame
 		void Update () {
 
+			if (Game.instance.isPaused)
+				return;
+
 			// getting local world position of mouse.  Is where camera ray intersects xz plane with y = 
 			float y = (Game.instance.minTerrainHeight + Game.instance.maxTerrainHeight) / 2;
 

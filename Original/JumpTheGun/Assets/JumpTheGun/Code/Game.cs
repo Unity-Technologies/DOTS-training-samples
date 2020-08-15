@@ -36,6 +36,9 @@ namespace JumpTheGun {
 		[Header("Scene")]
 		public Text timeText;
 
+		[HideInInspector]
+		public bool isPaused = false;
+
 		public static Game instance { get; private set; }
 
 		public void StartGame(){
@@ -67,6 +70,9 @@ namespace JumpTheGun {
 		
 		// Update is called once per frame
 		void Update () {
+
+			if (Game.instance.isPaused)
+				return;
 
 			time += Time.deltaTime;
 
