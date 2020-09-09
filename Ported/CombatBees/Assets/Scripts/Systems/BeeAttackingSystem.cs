@@ -34,24 +34,34 @@ public class BeeAttackingSystem : SystemBase
 
                 translation.Value += directionNormalized * speed.Value * deltaTime;
 
-
-                //If the bee is close enough, change its state to Carrying
-                float d = math.length(direction);
-                if(d < 1)
+                if (HasComponent<Dying>(targetEntity.Value))
                 {
-                    // TODO: remember to override systems to use bees without dying for their actions
-                    ecb.AddComponent<Dying>( targetEntity.Value );
-
-                    //Remove the target entity
-                    ecb.RemoveComponent<TargetEntity>(bee);
-
-                    //Remove attacking component
                     ecb.RemoveComponent<Attack>(bee);
-
-                    //Switch to Idle
+                    ecb.RemoveComponent<TargetEntity>(bee);
                     ecb.AddComponent<Idle>(bee);
+                }
+                else
+                {
 
+                    //If the bee is close enough, change its state to Carrying
+                    float d = math.length(direction);
+                    if (d < 1)
+                    {
+                        // TODO: remember to override systems to use bees without dying for their actions
+                        ecb.AddComponent<Dying>(targetEntity.Value);
 
+                        ecb.AddComponent<Velocity>(targetEntity.Value, new Velocity { Value = new float3(0, 0, 0) } );
+
+                        //Remove the target entity
+                        ecb.RemoveComponent<TargetEntity>(bee);
+
+                        //Remove attacking component
+                        ecb.RemoveComponent<Attack>(bee);
+
+                        //Switch to Idle
+                        ecb.AddComponent<Idle>(bee);
+
+                    }
                 }
                 
             } ).Run();
