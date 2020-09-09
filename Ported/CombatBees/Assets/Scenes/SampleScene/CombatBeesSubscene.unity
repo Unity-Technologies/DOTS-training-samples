@@ -199,9 +199,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Bounds:
-    x: 0
-    y: 0
-    z: 0
+    x: 10
+    y: 10
+    z: 20
   HiveDistance: 10
 --- !u!4 &254280926
 Transform:
