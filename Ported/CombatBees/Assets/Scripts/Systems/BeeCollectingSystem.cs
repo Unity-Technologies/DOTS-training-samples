@@ -32,40 +32,54 @@ public class BeeCollectingSystem : SystemBase
                 float3 directionNormalized = math.normalize(direction);
 
                 translation.Value += directionNormalized * speed.Value * deltaTime;
-                
-                //If the bee is close enough, change its state to Carrying
-                float d = math.length(direction);
-                if(d < 1)
+
+                // If resource has been taken in meanwhile
+                if (HasComponent<Taken>(targetEntity.Value))
                 {
-                    ecb.AddComponent<Parent>( targetEntity.Value, new Parent { Value = bee });
-
-                    ecb.AddComponent<LocalToParent>( targetEntity.Value );
-                    ecb.SetComponent<Translation>( targetEntity.Value, new Translation{ Value = new float3(0,-1,0)} );
-
-                    //Remove the target entity
-                    ecb.RemoveComponent<TargetEntity>( bee );
-
-
-                    float3 hivePosition;
-                    float hiveDistance = battlefield.HiveDistance;
-
-                    //TODO : take into acount the position of the battlefield (if it's not in 0,0,0)
-                    if(HasComponent<TeamA>( bee ))
+                    ecb.RemoveComponent<Collecting>(bee);
+                    ecb.AddComponent<Idle>(bee);
+                    ecb.RemoveComponent<TargetEntity>(bee);
+                }
+                else
+                {
+                    //If the bee is close enough, change its state to Carrying
+                    float d = math.length(direction);
+                    if (d < 1)
                     {
-                        hivePosition = new float3(0, 0, -hiveDistance);
-                    }else{
-                        hivePosition = new float3(0, 0, hiveDistance);
+                        ecb.AddComponent<Parent>(targetEntity.Value, new Parent { Value = bee });
+
+                        ecb.AddComponent<Taken>(targetEntity.Value);
+
+                        ecb.AddComponent<LocalToParent>(targetEntity.Value);
+                        ecb.SetComponent<Translation>(targetEntity.Value, new Translation { Value = new float3(0, -1, 0) });
+
+                        //Remove the target entity
+                        ecb.RemoveComponent<TargetEntity>(bee);
+
+
+                        float3 hivePosition;
+                        float hiveDistance = battlefield.HiveDistance;
+
+                        //TODO : take into acount the position of the battlefield (if it's not in 0,0,0)
+                        if (HasComponent<TeamA>(bee))
+                        {
+                            hivePosition = new float3(0, 0, -hiveDistance);
+                        }
+                        else
+                        {
+                            hivePosition = new float3(0, 0, hiveDistance);
+                        }
+
+
+                        //Add
+                        ecb.AddComponent<TargetPosition>(bee, new TargetPosition { Value = hivePosition });
+
+                        //Remove the collecting tag from the bee
+                        ecb.RemoveComponent<Collecting>(bee);
+
+                        //Add the carrying tag to the bee
+                        ecb.AddComponent<Carrying>(bee, new Carrying { Value = targetEntity.Value });
                     }
-
-                 
-                    //Add
-                    ecb.AddComponent<TargetPosition>( bee, new TargetPosition{ Value = hivePosition });
-
-                    //Remove the collecting tag from the bee
-                    ecb.RemoveComponent<Collecting>( bee );
-
-                    //Add the carrying tag to the bee
-                    ecb.AddComponent<Carrying>( bee, new Carrying { Value = targetEntity.Value } );
                 }
                 
             } ).Run();

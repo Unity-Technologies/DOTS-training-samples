@@ -91,7 +91,10 @@ public class IdleBeeSystem : SystemBase
                 ecb.AddComponent<Attack>( bee );
 
                 int targetIndex = random.NextInt( 0, teamBBeesEntitiesLength );
-                ecb.AddComponent( bee, new TargetEntity { Value = beeEntities_TeamB[targetIndex] } );
+
+                if (targetIndex < teamBBeesEntitiesLength)
+                    ecb.AddComponent( bee, new TargetEntity { Value = beeEntities_TeamB[targetIndex] } );
+
             } ).Schedule();
             
             Entities.WithAll<TeamB>()
@@ -103,7 +106,10 @@ public class IdleBeeSystem : SystemBase
                     ecb.AddComponent<Attack>( bee );
 
                     int targetIndex = random.NextInt( 0, teamABeesEntitiesLength );
-                    ecb.AddComponent( bee, new TargetEntity { Value = beeEntities_TeamA[targetIndex] } );
+
+                    if (targetIndex < teamABeesEntitiesLength)
+                        ecb.AddComponent( bee, new TargetEntity { Value = beeEntities_TeamA[targetIndex] } );
+
                 } ).Schedule();
         }
         else

@@ -30,3 +30,8 @@ public struct Spawning : IComponentData
 {
 
 }
+
+public struct Taken : IComponentData
+{
+
+}

@@ -45,7 +45,6 @@ public class BeeCarrying : SystemBase
                     //Remove the collecting tag from the bee
                     ecb.AddComponent<Idle>( bee );
 
-
                 }
                 
             } ).Run();
