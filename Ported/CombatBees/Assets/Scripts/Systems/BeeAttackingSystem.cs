@@ -23,6 +23,7 @@ public class BeeAttackingSystem : SystemBase
         var deltaTime = Time.DeltaTime;
 
         Entities.WithAll<Attack>()
+                .WithNone<Velocity>()
                 .WithoutBurst()
                 .ForEach( ( Entity bee, ref Translation translation, in TargetEntity targetEntity, in Speed speed) =>
             {

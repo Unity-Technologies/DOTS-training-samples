@@ -20,6 +20,7 @@ public class BeeCarrying : SystemBase
         var deltaTime = Time.DeltaTime;
 
         Entities.WithoutBurst()
+                .WithNone<Velocity>()
                 .ForEach( ( Entity bee, ref Translation translation, in Carrying carrying, in TargetPosition targetPosition, in Speed speed) =>
             {
                 
@@ -44,6 +45,7 @@ public class BeeCarrying : SystemBase
 
                     //Remove the collecting tag from the bee
                     ecb.AddComponent<Idle>( bee );
+
 
                 }
                 

@@ -23,6 +23,7 @@ public class BeeCollectingSystem : SystemBase
 
         Entities.WithAll<Collecting>()
                 .WithoutBurst()
+                .WithNone<Velocity>()
                 .ForEach( ( Entity bee, ref Translation translation, in TargetEntity targetEntity, in Speed speed) =>
             {
                 
