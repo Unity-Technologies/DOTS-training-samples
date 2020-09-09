@@ -28,7 +28,7 @@ public class TransformSystem : SystemBase
 
 
         Entities.WithName("L2WFromPositionXZ")
-          //  .WithStructuralChanges()
+          //  .WithStructuralChanges() TODO(ddebaets) is this needed ??
             .WithChangeFilter<PositionXZ>()
             .WithNone<Size>()
             .ForEach((ref LocalToWorld l2w, in PositionXZ pos) =>
