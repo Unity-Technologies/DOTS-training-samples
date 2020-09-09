@@ -63,14 +63,6 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 				//NOTE: assumes that the mesh has only one group/submesh (0)
 				meshData[0].GetVertices(bufferPosition.Reinterpret<Vector3>());
 			}
-
-			var localToWorld = this.transform.localToWorldMatrix;
-
-			//TODO: jobify
-			for (int i = 0; i != meshInstance.vertexCount; i++)
-			{
-				bufferPosition[i] = localToWorld.MultiplyPoint(bufferPosition[i]);
-			}
 		}
 
 		// initialize mass
@@ -79,7 +71,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 			using (var meshData = Mesh.AcquireReadOnlyMeshData(meshInstance))
 			using (var tempNormals = new NativeArray<float3>(meshInstance.vertexCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory))
 			{
-				meshData[0].GetVertices(tempNormals.Reinterpret<Vector3>());
+				meshData[0].GetNormals(tempNormals.Reinterpret<Vector3>());
 
 				//TODO: jobify
 				for (int i = 0; i != meshInstance.vertexCount; i++)
@@ -90,6 +82,15 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 						bufferMass[i] = 1.0f;
 				}
 			}
+		}
+
+		// transform positions to world space
+		var localToWorld = this.transform.localToWorldMatrix;
+
+		//TODO: jobify
+		for (int i = 0; i != meshInstance.vertexCount; i++)
+		{
+			bufferPosition[i] = localToWorld.MultiplyPoint(bufferPosition[i]);
 		}
 
 		// create the shared data
