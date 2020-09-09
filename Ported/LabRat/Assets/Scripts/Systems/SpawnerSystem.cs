@@ -27,8 +27,8 @@ public class SpawnerSystem : SystemBase
             
             spawner.Counter -= spawner.Frequency;
             var instance = ecb.Instantiate(entityInQueryIndex, spawner.Prefab);
-            var translation = positionXz.Value +  new float2(spawner.TotalSpawned * 2, 0);
-            ecb.SetComponent(entityInQueryIndex, instance, new PositionXZ() {Value = translation});
+            ecb.SetComponent(entityInQueryIndex, instance, new PositionXZ() {Value = positionXz.Value});
+            ecb.AddComponent(entityInQueryIndex, instance, new Speed(){Value = 2});
 
             spawner.TotalSpawned++;
         }).ScheduleParallel();
