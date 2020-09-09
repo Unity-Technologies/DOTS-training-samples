@@ -26,28 +26,28 @@ public class BoardCreationSystem : SystemBase
                     // Create the outer walls & spawn points
                     if (y == 0)
                     {
-                        t.Value = Tile.Attributes.Up;
+                        t.Value = Tile.Attributes.WallUp;
                     }
                     else if (y == boardCreationAuthor.SizeY - 1)
                     {
-                        t.Value = Tile.Attributes.Down;
+                        t.Value = Tile.Attributes.WallDown;
                     }
 
                     if (x == 0)
                     {
-                        t.Value = Tile.Attributes.Left;
+                        t.Value = Tile.Attributes.WallLeft;
                         if (y == 0)
-                            t.Value = Tile.Attributes.Up | Tile.Attributes.Left | Tile.Attributes.Spawn;
+                            t.Value = Tile.Attributes.WallUp | Tile.Attributes.WallLeft | Tile.Attributes.Spawn;
                         else if (y == boardCreationAuthor.SizeY - 1)
-                            t.Value = Tile.Attributes.Down | Tile.Attributes.Left | Tile.Attributes.Spawn;
+                            t.Value = Tile.Attributes.WallDown | Tile.Attributes.WallLeft | Tile.Attributes.Spawn;
                     }
                     else if (x == boardCreationAuthor.SizeX - 1)
                     {
-                        t.Value = Tile.Attributes.Right;
+                        t.Value = Tile.Attributes.WallRight;
                         if (y == 0)
-                            t.Value = Tile.Attributes.Up | Tile.Attributes.Right | Tile.Attributes.Spawn;
+                            t.Value = Tile.Attributes.WallUp | Tile.Attributes.WallRight | Tile.Attributes.Spawn;
                         else if (x == boardCreationAuthor.SizeX - 1 && y == boardCreationAuthor.SizeY - 1)
-                            t.Value = Tile.Attributes.Down | Tile.Attributes.Right | Tile.Attributes.Spawn;
+                            t.Value = Tile.Attributes.WallDown | Tile.Attributes.WallRight | Tile.Attributes.Spawn;
                     }
 
                     // Place Random Walls and Holes
