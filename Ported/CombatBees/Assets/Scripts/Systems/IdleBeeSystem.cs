@@ -59,32 +59,40 @@ public class IdleBeeSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        var resourceEntities =
-            m_ResourceQuery.ToEntityArrayAsync(Allocator.TempJob, out var resourcesEntitiesHandle);
-        var beeEntities_TeamA =
-            m_TeamABees.ToEntityArrayAsync(Allocator.TempJob, out var beeAEntitiesHandle);
-        var beeEntities_TeamB =
-            m_TeamBBees.ToEntityArrayAsync(Allocator.TempJob, out var beeBEntitiesHandle);
         
-        Dependency = JobHandle.CombineDependencies(Dependency, resourcesEntitiesHandle);
-        Dependency = JobHandle.CombineDependencies(Dependency, beeAEntitiesHandle);
-        Dependency = JobHandle.CombineDependencies(Dependency, beeBEntitiesHandle);
         
         var random = new Random( (uint)m_Random.NextInt() );
         
+        int resourceEntitiesLength = m_ResourceQuery.CalculateEntityCount();
+
         var ecb = m_ECBSystem.CreateCommandBuffer();
-        if( resourceEntities.Length == 0 )
+        if( resourceEntitiesLength == 0 )
         {
+
+            int teamABeesEntitiesLength = m_TeamABees.CalculateEntityCount();
+            int teamBBeesEntitiesLength = m_TeamBBees.CalculateEntityCount();
+
+            //if(teamABeesEntitiesLength > 0){}
+
+            var beeEntities_TeamA =
+                m_TeamABees.ToEntityArrayAsync(Allocator.TempJob, out var beeAEntitiesHandle);
+            var beeEntities_TeamB =
+                m_TeamBBees.ToEntityArrayAsync(Allocator.TempJob, out var beeBEntitiesHandle);
+
+            Dependency = JobHandle.CombineDependencies(Dependency, beeAEntitiesHandle);
+            Dependency = JobHandle.CombineDependencies(Dependency, beeBEntitiesHandle);
+
             // go attacking here
             Entities.WithAll<TeamA>()
                 .WithDisposeOnCompletion( beeEntities_TeamB )
                 .WithAll<Idle>()
                 .ForEach( ( Entity bee ) =>
             {
+                
                 ecb.RemoveComponent<Idle>( bee );
                 ecb.AddComponent<Attack>( bee );
 
-                int targetIndex = random.NextInt( 0, beeEntities_TeamB.Length );
+                int targetIndex = random.NextInt( 0, teamBBeesEntitiesLength );
                 ecb.AddComponent( bee, new TargetEntity { Value = beeEntities_TeamB[targetIndex] } );
             } ).Schedule();
             
@@ -96,13 +104,19 @@ public class IdleBeeSystem : SystemBase
                     ecb.RemoveComponent<Idle>( bee );
                     ecb.AddComponent<Attack>( bee );
 
-                    int targetIndex = random.NextInt( 0, beeEntities_TeamA.Length );
+                    int targetIndex = random.NextInt( 0, teamABeesEntitiesLength );
                     ecb.AddComponent( bee, new TargetEntity { Value = beeEntities_TeamA[targetIndex] } );
                 } ).Schedule();
         }
         else
         {
             
+            var resourceEntities =
+            m_ResourceQuery.ToEntityArrayAsync(Allocator.TempJob, out var resourcesEntitiesHandle);
+       
+            
+            Dependency = JobHandle.CombineDependencies(Dependency, resourcesEntitiesHandle);
+
             Entities.WithAll<Idle>()
                 .WithDisposeOnCompletion( resourceEntities )
                 .ForEach( ( Entity bee ) =>
@@ -110,7 +124,7 @@ public class IdleBeeSystem : SystemBase
                 ecb.RemoveComponent<Idle>( bee );
                 ecb.AddComponent<Collecting>( bee );
 
-                int targetIndex = random.NextInt( 0, resourceEntities.Length );
+                int targetIndex = random.NextInt( 0, resourceEntitiesLength );
                 ecb.AddComponent( bee, new TargetEntity {Value = resourceEntities[targetIndex]} );
             } ).Schedule();
         }
