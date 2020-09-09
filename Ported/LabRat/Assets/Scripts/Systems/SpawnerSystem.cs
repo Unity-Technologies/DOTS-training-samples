@@ -2,6 +2,7 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 public class SpawnerSystem : SystemBase
 {
@@ -16,6 +17,7 @@ public class SpawnerSystem : SystemBase
     {
         var ecb = m_CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         var dt = UnityEngine.Time.deltaTime;
+        var rnd = new Random(((uint)UnityEngine.Random.Range(1, 100000)));
         
         Entities.ForEach((int entityInQueryIndex, Entity spawnerEntity, ref Spawner spawner, in PositionXZ positionXz) =>
         {
@@ -28,6 +30,8 @@ public class SpawnerSystem : SystemBase
             
             var instance = ecb.Instantiate(entityInQueryIndex, spawner.Prefab);
             ecb.SetComponent(entityInQueryIndex, instance, new PositionXZ() {Value = positionXz.Value});
+            ecb.SetComponent(entityInQueryIndex, instance, new RotationY(){Value =  rnd.NextFloat(0, 6.28f)});
+            
             
             spawner.TotalSpawned++;
         }).ScheduleParallel();
