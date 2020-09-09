@@ -42,7 +42,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		if (mf == null)
 			return;
 
-		var meshInstance = GetComponent<MeshFilter>().mesh;
+		var meshInstance = mf.sharedMesh;
 		if (meshInstance == null)
 			return;
 
@@ -51,6 +51,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		{
 			using (var meshData = Mesh.AcquireReadOnlyMeshData(meshInstance))
 			{
+				//NOTE: assumes that the mesh has only one group/submesh (0)
 				meshData[0].GetVertices(bufferPosition.Reinterpret<Vector3>());
 			}
 		}
@@ -61,7 +62,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 			for (int i = 0; i != meshInstance.vertexCount; i++)
 			{
 				bufferMass[i] = 1.0f;
-				// TODO pinned vertices
+				//TODO: add pinned vertices
 			}
 		}
 
@@ -73,5 +74,8 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		});
 
 		meshInstance.MarkDynamic();
+
+		//TODO: add entities for Length
+		//TODO: add entities for IndexPair
 	}
 }
