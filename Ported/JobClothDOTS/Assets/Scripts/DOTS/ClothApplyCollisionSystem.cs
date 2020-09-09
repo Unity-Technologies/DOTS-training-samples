@@ -5,17 +5,22 @@ using Unity.Jobs;
 using Unity.Mathematics;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-public class ClothApplyGravitySystem : SystemBase
+[UpdateAfter(typeof(ClothApplyGravitySystem))]
+public class ClothApplyCollisionSystem : SystemBase
 {
 	[BurstCompile]
-	struct ApplyGravityJob : IJobParallelFor
+	struct ApplyCollisionJob : IJobParallelFor
 	{
 		public NativeArray<float3> vertexPosition;
-		public float deltaTime;
+		public float groundHeight;
 
 		public void Execute(int i)
 		{
-			vertexPosition[i] += ClothConstants.gravity * deltaTime * deltaTime;
+			var position = vertexPosition[i];
+			if (position.y < groundHeight)
+				position.y = groundHeight;
+
+			vertexPosition[i] = position;
 		}
 	}
 
@@ -23,10 +28,10 @@ public class ClothApplyGravitySystem : SystemBase
     {
 		Entities.ForEach((ref ClothMeshToken clothMeshToken, in ClothMesh clothMesh) =>
 		{
-			var job = new ApplyGravityJob
+			var job = new ApplyCollisionJob
 			{
-				deltaTime = Time.DeltaTime,
 				vertexPosition = clothMesh.vertexPosition,
+				groundHeight = ClothConstants.groundHeight,
 			};
 
 			clothMeshToken.jobHandle = job.Schedule(job.vertexPosition.Length, 64, clothMeshToken.jobHandle);

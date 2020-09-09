@@ -1687,7 +1687,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1951757068}
   m_Layer: 0
-  m_Name: Cloth Text (One Mesh Per Island - Faster) (1)
+  m_Name: DOTS Cloth Text (One Mesh Per Island - Faster)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
