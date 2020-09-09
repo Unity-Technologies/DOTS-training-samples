@@ -10,14 +10,14 @@ public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
 {
 	public Mesh mesh;
 	public NativeArray<float3> vertexPosition;
-	public NativeArray<float> vertexMass;
+	public NativeArray<float> vertexInvMass;
 
 	public bool Equals(ClothMesh other)
 	{
 		return (
 			mesh == other.mesh &&
 			vertexPosition == other.vertexPosition &&
-			vertexMass == other.vertexMass
+			vertexInvMass == other.vertexInvMass
 		);
 	}
 
@@ -26,7 +26,7 @@ public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
 		int hash = 0;
 		{
 			hash ^= ReferenceEquals(mesh, null) ? 0 : mesh.GetHashCode();
-			hash ^= vertexMass.GetHashCode();
+			hash ^= vertexInvMass.GetHashCode();
 			hash ^= vertexPosition.GetHashCode();
 		}
 		return hash;
@@ -34,14 +34,13 @@ public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
 
 	//TODO: tear-down
 	// vertexPosition.Dispose()
-	// vertexMass.Dispose()
+	// vertexInvMass.Dispose()
 }
 
 [DisallowMultipleComponent]
 [RequiresEntityConversion]
 public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
-	NativeArray<Vector3> vertices;
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
 		var mf = GetComponent<MeshFilter>();
@@ -66,7 +65,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		}
 
 		// initialize mass
-		var bufferMass = new NativeArray<float>(meshInstance.vertexCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+		var bufferInvMass = new NativeArray<float>(meshInstance.vertexCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
 		{
 			using (var meshData = Mesh.AcquireReadOnlyMeshData(meshInstance))
 			using (var tempNormals = new NativeArray<float3>(meshInstance.vertexCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory))
@@ -77,9 +76,9 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 				for (int i = 0; i != meshInstance.vertexCount; i++)
 				{
 					if (tempNormals[i].y > .9f && bufferPosition[i].y > .3f)
-						bufferMass[i] = 0f;
+						bufferInvMass[i] = 0f;
 					else
-						bufferMass[i] = 1.0f;
+						bufferInvMass[i] = 1.0f;
 				}
 			}
 		}
@@ -98,7 +97,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		{
 			mesh = meshInstance,
 			vertexPosition = bufferPosition,
-			vertexMass = bufferMass,
+			vertexInvMass = bufferInvMass,
 		};
 
 		// add shared data to entity
@@ -108,7 +107,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		// spawn entities for the edges
 		using (var meshData = Mesh.AcquireReadOnlyMeshData(meshInstance))
 		{
-			// finding edges in mesh:
+			// finding unique edges in mesh:
 			//
 			// 1. pull the triangle indices
 			// 2. loop over triangles
@@ -156,7 +155,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 					}
 
 					// skip edge if both vertices have zero mass (pinned)
-					if (bufferMass[v0] + bufferMass[v1] == 0.0f)
+					if (bufferInvMass[v0] + bufferInvMass[v1] == 0.0f)
 						continue;
 
 					// make 64 bit key based on sorted vertex indices

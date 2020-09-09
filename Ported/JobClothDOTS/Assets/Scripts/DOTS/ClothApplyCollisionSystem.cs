@@ -5,7 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateAfter(typeof(ClothApplyGravitySystem))]
+[UpdateAfter(typeof(ClothApplyConstraintsSystem))]
 public class ClothApplyCollisionSystem : SystemBase
 {
 	[BurstCompile]

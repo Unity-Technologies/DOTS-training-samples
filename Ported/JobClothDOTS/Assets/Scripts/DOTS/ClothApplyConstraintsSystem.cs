@@ -3,49 +3,43 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateBefore(typeof(ClothApplyGravitySystem))]
 public class ClothApplyConstraintsSystem : SystemBase
 {
-    private List<ClothMesh> data;
+	protected override void OnUpdate()
+	{
+		//var entityQuery = GetEntityQuery(typeof(ClothMeshToken), typeof(ClothMesh));
+		//var entityQueryIter = entityQuery.GetArchetypeChunkIterator();
 
-    protected override void OnCreate()
-    {
-        data = new List<ClothMesh>();
-    }
+		Entities.ForEach((ref ClothMeshToken clothMeshToken, in ClothMesh clothMesh) =>
+		{
+			var vertexPosition = clothMesh.vertexPosition;
+			var vertexInvMass = clothMesh.vertexInvMass;
 
-    protected override void OnUpdate()
-    {
-        EntityManager.GetAllUniqueSharedComponentData(data);
+			clothMeshToken.jobHandle =
+			Entities.WithSharedComponentFilter(clothMesh).ForEach((Entity entity, in ClothEdge edge) =>
+			{
+				int index0 = edge.IndexPair.x;
+				int index1 = edge.IndexPair.y;
 
-        foreach (var clothMesh in data)
-        {
-            NativeArray<float3> vertiesData = clothMesh.vertexPosition;
-            NativeArray<float> massData = clothMesh.vertexMass;
+				var p0 = vertexPosition[index0];
+				var p1 = vertexPosition[index1];
+				var w0 = vertexInvMass[index0];
+				var w1 = vertexInvMass[index1];
 
-            Entities.WithSharedComponentFilter(clothMesh).ForEach((Entity entity, in ClothEdge edge) =>
-            {
-                float3 p1 = vertiesData[edge.IndexPair.x];
-                float3 p2 = vertiesData[edge.IndexPair.y];
-                float mass1 = massData[edge.IndexPair.x];
-                float mass2 = massData[edge.IndexPair.y];
+				float3 r = p1 - p0;
+				float rd = math.length(r);
 
-                float length = math.distance(p2, p1);
-                float extra = (length - edge.Length) * .5f;
-                float3 dir = math.normalize(p2 - p1);
-                
-                if (mass1 == 0 && mass2 == 0)
-                {
-                    vertiesData[edge.IndexPair.x] += extra * dir;
-                    vertiesData[edge.IndexPair.y] -= extra * dir;
-                }
-                else if (mass1 == 0 && mass2 == 1)
-                {
-                    vertiesData[edge.IndexPair.x] += extra * dir * 2f;
-                }
-                else if (mass1 == 1 && mass2 == 0)
-                {
-                    vertiesData[edge.IndexPair.y] -= extra * dir * 2f;
-                }
-            }).Schedule();
-        }
-    }
+				float delta = 1.0f - edge.Length / rd;
+				float W_inv = delta / (w0 + w1);
+
+				vertexPosition[index0] += r * (w0 * W_inv);
+				vertexPosition[index1] -= r * (w1 * W_inv);
+			}
+			).Schedule(clothMeshToken.jobHandle);
+			//TODO ScheduleParallel
+		}
+		).WithoutBurst().Run();
+	}
 }
