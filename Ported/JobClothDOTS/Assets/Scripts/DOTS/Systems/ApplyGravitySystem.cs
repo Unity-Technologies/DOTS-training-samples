@@ -22,7 +22,7 @@ public class ApplyGravitySystem : SystemBase
         {
             if (massData[i] == 0f) {
                 float3 vert = vertiesData[i];
-                vert -= ClothConstants.GRATITY;
+                vert -= ClothConstants.gravity.y;
                 vertiesData[i] = vert;
             }
         }
