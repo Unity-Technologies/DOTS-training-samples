@@ -136,6 +136,10 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 						v1 = tmp;
 					}
 
+					// skip edge if both vertices have zero mass (pinned)
+					if (bufferMass[v0] + bufferMass[v1] == 0.0f)
+						continue;
+
 					// make 64 bit key based on sorted vertex indices
 					var key = (ulong)((uint)v1) << 32 | (ulong)((uint)v0);
 
