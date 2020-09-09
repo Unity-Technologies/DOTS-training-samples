@@ -10,24 +10,8 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-public class ApplyGravitySystem : SystemBase
+public class ApplyConstraintsSystem : SystemBase
 {
-    [BurstCompile]
-    struct AppyGravityJob : IJobParallelFor
-    {
-        public NativeArray<float3> vertiesData;
-        public NativeArray<float> massData;
-        
-        public void Execute(int i)
-        {
-            if (massData[i] == 0f) {
-                float3 vert = vertiesData[i];
-                vert -= ClothConstants.gravity.y;
-                vertiesData[i] = vert;
-            }
-        }
-    }
-    
     protected override void OnUpdate()
     {
         //ugly code
@@ -46,28 +30,25 @@ public class ApplyGravitySystem : SystemBase
                 float mass1 = massData[edge.IndexPair.x];
                 float mass2 = massData[edge.IndexPair.y];
 
-                float length = math.distance(p2,p1);
+                float length = math.distance(p2, p1);
                 float extra = (length - edge.Length) * .5f;
                 float3 dir = math.normalize(p2 - p1);
 
                 // ecb.AddDynamicBuffer(new ForceData(extra, dir));
-                if (mass1 == 0 && mass2 == 0) {
+                if (mass1 == 0 && mass2 == 0)
+                {
                     vertiesData[edge.IndexPair.x] += extra * dir;
                     vertiesData[edge.IndexPair.y] -= extra * dir;
-                } else if (mass1 == 0 && mass2 == 1) {
+                }
+                else if (mass1 == 0 && mass2 == 1)
+                {
                     vertiesData[edge.IndexPair.x] += extra * dir * 2f;
-                } else if (mass1 == 1 && mass2 == 0) {
+                }
+                else if (mass1 == 1 && mass2 == 0)
+                {
                     vertiesData[edge.IndexPair.y] -= extra * dir * 2f;
                 }
             }).Schedule();
-
-            new AppyGravityJob
-            {
-                vertiesData = vertiesData,
-                massData = massData
-            }.Schedule(vertiesData.Length, 64);
-            
-            JobHandle.ScheduleBatchedJobs();
         }
     }
 }
