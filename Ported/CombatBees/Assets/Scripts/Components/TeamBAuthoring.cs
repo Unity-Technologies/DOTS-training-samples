@@ -1,10 +1,6 @@
 ﻿using Unity.Entities;
 
-public struct TeamA : IComponentData
-{
-
-}
-
+[GenerateAuthoringComponent]
 public struct TeamB : IComponentData
 {
 
