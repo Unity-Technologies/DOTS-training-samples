@@ -30,6 +30,7 @@ public class BeeSpawningSystem : SystemBase
                 {
                     var instance = ecb.Instantiate(spawner.BeePrefab_TeamA);
                     ecb.SetComponent(instance, new Translation {Value = spawnerTranslation.Value});
+                    ecb.AddComponent<Idle>( instance );
                 }
             }
             else
@@ -39,6 +40,7 @@ public class BeeSpawningSystem : SystemBase
                 {
                     var instance = ecb.Instantiate(spawner.BeePrefab_TeamB);
                     ecb.SetComponent(instance, new Translation {Value = spawnerTranslation.Value});
+                    ecb.AddComponent<Idle>( instance );
                 }
             }
             
