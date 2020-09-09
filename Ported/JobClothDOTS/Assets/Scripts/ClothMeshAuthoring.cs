@@ -30,6 +30,10 @@ public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
 		}
 		return hash;
 	}
+
+	//TODO: tear-down
+	// vertexPosition.Dispose()
+	// vertexMass.Dispose()
 }
 
 [DisallowMultipleComponent]
