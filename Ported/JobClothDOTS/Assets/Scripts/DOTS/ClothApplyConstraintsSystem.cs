@@ -3,6 +3,8 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateAfter(typeof(ClothApplyCollisionSystem))]
 public class ClothApplyConstraintsSystem : SystemBase
 {
     private List<ClothMesh> data;
@@ -14,6 +16,7 @@ public class ClothApplyConstraintsSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        data.Clear();
         EntityManager.GetAllUniqueSharedComponentData(data);
 
         foreach (var clothMesh in data)
@@ -31,7 +34,7 @@ public class ClothApplyConstraintsSystem : SystemBase
                 float length = math.distance(p2, p1);
                 float extra = (length - edge.Length) * .5f;
                 float3 dir = math.normalize(p2 - p1);
-                
+
                 if (mass1 == 0 && mass2 == 0)
                 {
                     vertiesData[edge.IndexPair.x] += extra * dir;
@@ -45,7 +48,7 @@ public class ClothApplyConstraintsSystem : SystemBase
                 {
                     vertiesData[edge.IndexPair.y] -= extra * dir * 2f;
                 }
-            }).Schedule();
+            }).WithBurst().Schedule(); //TODO should be ScheduleParallel()
         }
     }
 }
