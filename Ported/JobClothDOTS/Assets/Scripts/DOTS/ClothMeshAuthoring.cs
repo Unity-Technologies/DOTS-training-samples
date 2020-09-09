@@ -41,6 +41,7 @@ public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
 [RequiresEntityConversion]
 public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
+	NativeArray<Vector3> vertices;
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
 		var mf = GetComponent<MeshFilter>();
@@ -75,9 +76,14 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		// initialize mass
 		var bufferMass = new NativeArray<float>(meshInstance.vertexCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
 		{
+			vertices = new NativeArray<Vector3>(meshInstance.vertices,Allocator.Persistent);
+			Vector3[] normals = meshInstance.normals;
 			for (int i = 0; i != meshInstance.vertexCount; i++)
 			{
-				bufferMass[i] = 1.0f;
+				if (normals[i].y>.9f && vertices[i].y>.3f) 
+					bufferMass[i] = 0f;
+				else
+					bufferMass[i] = 1.0f;
 				//TODO: add pinned vertices
 			}
 		}

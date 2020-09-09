@@ -11,11 +11,13 @@ public class ClothApplyGravitySystem : SystemBase
 	struct ApplyGravityJob : IJobParallelFor
 	{
 		public NativeArray<float3> vertexPosition;
+		public NativeArray<float> vertexMass;
 		public float deltaTime;
 
 		public void Execute(int i)
 		{
-			vertexPosition[i] += ClothConstants.gravity * deltaTime * deltaTime;
+			if(vertexMass[i] > 0f)
+				vertexPosition[i] += ClothConstants.gravity * deltaTime * deltaTime;
 		}
 	}
 
@@ -27,6 +29,7 @@ public class ClothApplyGravitySystem : SystemBase
 			{
 				deltaTime = Time.DeltaTime,
 				vertexPosition = clothMesh.vertexPosition,
+				vertexMass = clothMesh.vertexMass,
 			};
 
 			clothMeshToken.jobHandle = job.Schedule(job.vertexPosition.Length, 64, clothMeshToken.jobHandle);
