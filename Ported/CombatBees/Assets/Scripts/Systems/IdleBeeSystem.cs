@@ -103,7 +103,9 @@ public class IdleBeeSystem : SystemBase
         else
         {
             
-            Entities.WithAll<Idle>().ForEach( ( Entity bee ) =>
+            Entities.WithAll<Idle>()
+                .WithDisposeOnCompletion( resourceEntities )
+                .ForEach( ( Entity bee ) =>
             {
                 ecb.RemoveComponent<Idle>( bee );
                 ecb.AddComponent<Collecting>( bee );
