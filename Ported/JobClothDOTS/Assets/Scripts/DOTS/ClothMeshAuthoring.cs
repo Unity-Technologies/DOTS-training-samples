@@ -62,6 +62,14 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 				//NOTE: assumes that the mesh has only one group/submesh (0)
 				meshData[0].GetVertices(bufferPosition.Reinterpret<Vector3>());
 			}
+
+			var localToWorld = this.transform.localToWorldMatrix;
+
+			//TODO: jobify
+			for (int i = 0; i != meshInstance.vertexCount; i++)
+			{
+				bufferPosition[i] = localToWorld.MultiplyPoint(bufferPosition[i]);
+			}
 		}
 
 		// initialize mass
