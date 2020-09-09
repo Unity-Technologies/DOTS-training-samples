@@ -70,6 +70,8 @@ public class IdleBeeSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, beeAEntitiesHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, beeBEntitiesHandle);
         
+        var random = new Random( (uint)m_Random.NextInt() );
+        
         var ecb = m_ECBSystem.CreateCommandBuffer();
         if( resourceEntities.Length == 0 )
         {
@@ -82,7 +84,7 @@ public class IdleBeeSystem : SystemBase
                 ecb.RemoveComponent<Idle>( bee );
                 ecb.AddComponent<Attack>( bee );
 
-                int targetIndex = m_Random.NextInt( 0, beeEntities_TeamB.Length );
+                int targetIndex = random.NextInt( 0, beeEntities_TeamB.Length );
                 ecb.AddComponent( bee, new TargetEntity { Value = beeEntities_TeamB[targetIndex] } );
             } ).Schedule();
             
@@ -94,7 +96,7 @@ public class IdleBeeSystem : SystemBase
                     ecb.RemoveComponent<Idle>( bee );
                     ecb.AddComponent<Attack>( bee );
 
-                    int targetIndex = m_Random.NextInt( 0, beeEntities_TeamA.Length );
+                    int targetIndex = random.NextInt( 0, beeEntities_TeamA.Length );
                     ecb.AddComponent( bee, new TargetEntity { Value = beeEntities_TeamA[targetIndex] } );
                 } ).Schedule();
         }
@@ -106,7 +108,7 @@ public class IdleBeeSystem : SystemBase
                 ecb.RemoveComponent<Idle>( bee );
                 ecb.AddComponent<Collecting>( bee );
 
-                int targetIndex = m_Random.NextInt( 0, resourceEntities.Length );
+                int targetIndex = random.NextInt( 0, resourceEntities.Length );
                 ecb.AddComponent( bee, new TargetEntity {Value = resourceEntities[targetIndex]} );
             } ).Schedule();
         }
