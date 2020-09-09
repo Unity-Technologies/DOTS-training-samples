@@ -1,7 +1,13 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
-struct Falling : IComponentData
+[GenerateAuthoringComponent]
+[WriteGroup(typeof(LocalToWorld))]
+public struct Falling : IComponentData
 {
     public float Value;
 }
+
