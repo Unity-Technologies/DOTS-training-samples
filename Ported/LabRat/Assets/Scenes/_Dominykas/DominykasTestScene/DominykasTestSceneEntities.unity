@@ -123,7 +123,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &2077806280
+--- !u!1 &870478061
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -131,39 +131,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2077806282}
-  - component: {fileID: 2077806281}
+  - component: {fileID: 870478063}
+  - component: {fileID: 870478062}
   m_Layer: 0
-  m_Name: BoardAuthor
+  m_Name: PlayerSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2077806281
+--- !u!114 &870478062
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2077806280}
+  m_GameObject: {fileID: 870478061}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d6bd8b91ea44145ca848ee98af37c079, type: 3}
+  m_Script: {fileID: 11500000, guid: 6d4cc0da44d5bda48b568e2c14b3cbca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TilePrefab: {fileID: 5986813661509308332, guid: 10b2ec5ff9cc64fc496a1fb3b3759dc5, type: 3}
-  WallPrefab: {fileID: 4284041113318586048, guid: 3d34ab4d17c014457aea246ebba3761a, type: 3}
-  GoalPrefab: {fileID: 8880445121438370549, guid: 31f3c9145a7e044f3b6c04e85609fec4, type: 3}
-  SizeY: 10
-  SizeX: 10
---- !u!4 &2077806282
+  PlayerPrefab: {fileID: 6351116625237042563, guid: 5f910692bb316c6499e9ecc93d82100f, type: 3}
+  HumanPlayerArrowPreview: {fileID: 1695157876856304, guid: 9f778f3f7a77e1d4d8bcf47c8aabcfed, type: 3}
+  PlayerCount: 4
+--- !u!4 &870478063
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2077806280}
+  m_GameObject: {fileID: 870478061}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}

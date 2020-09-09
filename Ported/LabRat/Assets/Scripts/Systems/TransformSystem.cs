@@ -64,7 +64,7 @@ public class TransformSystem : SystemBase
                 var translationVec = new float3(chunkPositionXY[i].Value.x, 0f, chunkPositionXY[i].Value.y);
                 if (hasFalling)
                 {
-                    translationVec.y = chunkFalling[i].y;
+                    translationVec.y = chunkFalling[i].Value;
                 }
 
                 var translation = float4x4.Translate(translationVec);

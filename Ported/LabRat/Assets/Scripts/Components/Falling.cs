@@ -8,6 +8,6 @@ using Unity.Transforms;
 [WriteGroup(typeof(LocalToWorld))]
 public struct Falling : IComponentData
 {
-    public float y;
+    public float Value;
 }
 

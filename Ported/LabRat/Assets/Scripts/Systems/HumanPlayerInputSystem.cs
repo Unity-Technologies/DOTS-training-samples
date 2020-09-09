@@ -47,11 +47,11 @@ public class HumanPlayerInputSystem : SystemBase
         var inputDirection = (byte)0;
         if (math.abs(tileOffset.x) > (math.abs(tileOffset.y)))
         {
-            inputDirection = (byte)(tileOffset.x > 0 ? Tile.Attributes.Right : Tile.Attributes.Left);
+            inputDirection = (byte)(tileOffset.x > 0 ? Tile.Attributes.WallRight : Tile.Attributes.WallLeft);
         }
         else
         {
-            inputDirection = (byte)(tileOffset.y > 0 ? Tile.Attributes.Up : Tile.Attributes.Down);
+            inputDirection = (byte)(tileOffset.y > 0 ? Tile.Attributes.WallUp : Tile.Attributes.WallDown);
         }
 
         Entities

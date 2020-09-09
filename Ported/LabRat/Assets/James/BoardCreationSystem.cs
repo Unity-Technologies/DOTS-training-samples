@@ -14,47 +14,65 @@ public class BoardCreationSystem : SystemBase
         .WithNone<CreationComplete>()
         .ForEach((Entity e, ref BoardCreationAuthor boardCreationAuthor) =>
         {
+            Random rand = new Random(1);
             for (int x = 0; x < boardCreationAuthor.SizeX; x++)
             {
                 for (int y = 0; y < boardCreationAuthor.SizeY; y++)
                 {
                     Entity tile = EntityManager.Instantiate(boardCreationAuthor.TilePrefab);
-                    Tile t = new Tile();
-                    PositionXZ p = new PositionXZ();
-                    Random rand = new Random();
+                    Tile newTile = new Tile();
+                    PositionXZ tilePos = new PositionXZ();
 
                     // Create the outer walls & spawn points
                     if (y == 0)
                     {
-                        t.Value = Tile.Attributes.Up;
+                        newTile.Value = Tile.Attributes.WallUp;
                     }
                     else if (y == boardCreationAuthor.SizeY - 1)
                     {
-                        t.Value = Tile.Attributes.Down;
+                        newTile.Value = Tile.Attributes.WallDown;
                     }
 
                     if (x == 0)
                     {
-                        t.Value = Tile.Attributes.Left;
+                        newTile.Value = Tile.Attributes.WallLeft;
                         if (y == 0)
-                            t.Value = Tile.Attributes.Up | Tile.Attributes.Left | Tile.Attributes.Spawn;
+                            newTile.Value = Tile.Attributes.WallUp | Tile.Attributes.WallLeft | Tile.Attributes.Spawn;
                         else if (y == boardCreationAuthor.SizeY - 1)
-                            t.Value = Tile.Attributes.Down | Tile.Attributes.Left | Tile.Attributes.Spawn;
+                            newTile.Value = Tile.Attributes.WallDown | Tile.Attributes.WallLeft | Tile.Attributes.Spawn;
                     }
                     else if (x == boardCreationAuthor.SizeX - 1)
                     {
-                        t.Value = Tile.Attributes.Right;
+                        newTile.Value = Tile.Attributes.WallRight;
                         if (y == 0)
-                            t.Value = Tile.Attributes.Up | Tile.Attributes.Right | Tile.Attributes.Spawn;
+                            newTile.Value = Tile.Attributes.WallUp | Tile.Attributes.WallRight | Tile.Attributes.Spawn;
                         else if (x == boardCreationAuthor.SizeX - 1 && y == boardCreationAuthor.SizeY - 1)
-                            t.Value = Tile.Attributes.Down | Tile.Attributes.Right | Tile.Attributes.Spawn;
+                            newTile.Value = Tile.Attributes.WallDown | Tile.Attributes.WallRight | Tile.Attributes.Spawn;
                     }
 
                     // Place Random Walls and Holes
                     if (y != 0 || x != 0 || x != boardCreationAuthor.SizeX - 1 || y != boardCreationAuthor.SizeY - 1)
-                        if (rand.NextInt(0, 100) < 30)
+                        if (rand.NextInt(0, 100) < 20)
                         {
                             var result = rand.NextInt(0, 4);
+                            switch(result)
+                            {
+                                case 0:
+                                    newTile.Value = Tile.Attributes.Hole;
+                                    break;
+                                case 1:
+                                    newTile.Value = Tile.Attributes.WallDown;
+                                    break;
+                                case 2:
+                                    newTile.Value = Tile.Attributes.WallLeft;
+                                    break;
+                                case 3:
+                                    newTile.Value = Tile.Attributes.WallRight;
+                                    break;
+                                case 4:
+                                    newTile.Value = Tile.Attributes.WallUp;
+                                    break;
+                            }
                         }
 
                     // Place Goals
@@ -62,20 +80,30 @@ public class BoardCreationSystem : SystemBase
                     if (x == 2)
                     {
                         if(y == 2 || y == boardCreationAuthor.SizeY - 3)
-                            t.Value = Tile.Attributes.Goal;
+                        {
+                            newTile.Value = Tile.Attributes.Goal;
+                            tilePos.Value = new float2(x, y+0.5f);
+                            Entity goal = EntityManager.Instantiate(boardCreationAuthor.GoalPrefab);
+                            EntityManager.AddComponentData(goal, tilePos);
+                        }
                     }
                     if (y == 2)
                     {
                         if (x == 2 || x == boardCreationAuthor.SizeX - 3)
-                            t.Value = Tile.Attributes.Goal;
+                        {
+                            newTile.Value = Tile.Attributes.Goal;
+                            tilePos.Value = new float2(x, y+0.5f);
+                            Entity goal = EntityManager.Instantiate(boardCreationAuthor.GoalPrefab);
+                            EntityManager.AddComponentData(goal, tilePos);
+                        }
                     }
 
 
                     // Set Tile values
 
-                    p.Value = new float2(x, y);
-                    EntityManager.AddComponentData(tile, t);
-                    EntityManager.AddComponentData(tile, p);
+                    tilePos.Value = new float2(x, y);
+                    EntityManager.AddComponentData(tile, newTile);
+                    EntityManager.AddComponentData(tile, tilePos);
 
 
                 }
