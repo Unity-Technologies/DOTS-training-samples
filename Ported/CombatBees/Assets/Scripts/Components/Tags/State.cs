@@ -15,11 +15,6 @@ public struct Collecting : IComponentData
 
 }
 
-public struct Carrying : IComponentData
-{
-
-}
-
 public struct Dying : IComponentData
 {
 

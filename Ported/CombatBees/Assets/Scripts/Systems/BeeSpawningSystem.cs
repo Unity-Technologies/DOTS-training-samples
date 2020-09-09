@@ -19,6 +19,8 @@ public class BeeSpawningSystem : SystemBase
 
         Entities.ForEach((Entity spawnerEntity, in BeeSpawner spawner, in Translation spawnerTranslation) =>
         {
+
+            //TODO : spawn the food equally on both side of the axis
             bool isTeamA = HasComponent<TeamA>( spawnerEntity );
             if( isTeamA )
             {
