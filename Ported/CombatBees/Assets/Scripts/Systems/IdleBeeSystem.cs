@@ -67,7 +67,7 @@ public class IdleBeeSystem : SystemBase
         if( resourceEntitiesLength == 0 )
         {
 
-           /* int teamABeesEntitiesLength = m_TeamABees.CalculateEntityCount();
+            int teamABeesEntitiesLength = m_TeamABees.CalculateEntityCount();
             int teamBBeesEntitiesLength = m_TeamBBees.CalculateEntityCount();
 
             //if(teamABeesEntitiesLength > 0){}
@@ -104,7 +104,7 @@ public class IdleBeeSystem : SystemBase
 
                     int targetIndex = random.NextInt( 0, teamABeesEntitiesLength );
                     ecb.AddComponent( bee, new TargetEntity { Value = beeEntities_TeamA[targetIndex] } );
-                } ).Schedule();*/
+                } ).Schedule();
         }
         else
         {
