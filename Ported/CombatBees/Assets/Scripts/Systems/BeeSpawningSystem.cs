@@ -16,10 +16,7 @@ public class BeeSpawningSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = m_CommandBufferSystem.CreateCommandBuffer();
-        
-        // assumption made here that it is in the scene
-        var field = GetSingleton<BattleField>();
-        
+
         Entities.ForEach((Entity spawnerEntity, in BeeSpawner spawner, in Translation spawnerTranslation) =>
         {
             bool isTeamA = HasComponent<TeamA>( spawnerEntity );
