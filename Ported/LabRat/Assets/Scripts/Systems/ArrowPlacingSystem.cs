@@ -64,7 +64,7 @@ public class ArrowPlacingSystem : SystemBase
 
                     tileAccessor[tileEntities[i]] = new Tile
                     {
-                        Value = (Tile.Attributes)(((byte)tiles[i].Value & ~(byte)Tile.Attributes.ArrowAny) | direction.Value << 4)
+                        Value = (Tile.Attributes)(((int)tiles[i].Value & ~(int)Tile.Attributes.ArrowAny) | (int)direction.Value << (int)Tile.Attributes.ArrowShiftCount)
                     };
 
 

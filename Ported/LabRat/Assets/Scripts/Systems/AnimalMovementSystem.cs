@@ -47,7 +47,7 @@ public class AnimalMovementSystem : SystemBase
 
     protected override void OnCreate()
     {
-        m_EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        m_EntityCommandBufferSystem = World.GetExistingSystem<BeginInitializationEntityCommandBufferSystem>();
     }
 
     protected override void OnDestroy()
