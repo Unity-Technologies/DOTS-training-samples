@@ -7,5 +7,8 @@ using UnityEngine;
 public struct Spawner : IComponentData
 {
     public Entity Prefab;
-    public int Count;
+    public float Max;
+    [HideInInspector] public float Counter;
+    public float Frequency;
+    [HideInInspector] public int TotalSpawned;
 }
