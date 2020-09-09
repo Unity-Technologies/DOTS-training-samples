@@ -51,7 +51,8 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		if (meshInstance == null)
 			return;
 
-		meshInstance.MarkDynamic();
+		meshInstance = Mesh.Instantiate(meshInstance);
+		meshInstance.name += " (instance)";
 
 		// initialize position
 		var bufferPosition = new NativeArray<float3>(meshInstance.vertexCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
