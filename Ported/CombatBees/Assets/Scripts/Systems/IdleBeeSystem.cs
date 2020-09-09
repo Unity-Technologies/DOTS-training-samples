@@ -62,9 +62,9 @@ public class IdleBeeSystem : SystemBase
         var resourceEntities =
             m_ResourceQuery.ToEntityArrayAsync(Allocator.TempJob, out var resourcesEntitiesHandle);
         var beeEntities_TeamA =
-            m_ResourceQuery.ToEntityArrayAsync(Allocator.TempJob, out var beeAEntitiesHandle);
+            m_TeamABees.ToEntityArrayAsync(Allocator.TempJob, out var beeAEntitiesHandle);
         var beeEntities_TeamB =
-            m_ResourceQuery.ToEntityArrayAsync(Allocator.TempJob, out var beeBEntitiesHandle);
+            m_TeamBBees.ToEntityArrayAsync(Allocator.TempJob, out var beeBEntitiesHandle);
         
         Dependency = JobHandle.CombineDependencies(Dependency, resourcesEntitiesHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, beeAEntitiesHandle);
