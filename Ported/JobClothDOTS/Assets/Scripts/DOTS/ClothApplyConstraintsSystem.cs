@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Unity.Collections;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
@@ -17,8 +15,7 @@ public class ClothApplyConstraintsSystem : SystemBase
 			var vertexPosition = clothMesh.vertexPosition;
 			var vertexInvMass = clothMesh.vertexInvMass;
 
-			clothMeshToken.jobHandle =
-			Entities.WithSharedComponentFilter(clothMesh).ForEach((Entity entity, in ClothEdge edge) =>
+			clothMeshToken.jobHandle = Entities.WithSharedComponentFilter(clothMesh).ForEach((Entity entity, in ClothEdge edge) =>
 			{
 				int index0 = edge.IndexPair.x;
 				int index1 = edge.IndexPair.y;
