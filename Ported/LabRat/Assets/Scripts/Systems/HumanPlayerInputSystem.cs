@@ -1,5 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
+using Unity.Transforms;
 using UnityEngine;
 
 public class HumanPlayerInputSystem : SystemBase
@@ -33,8 +35,8 @@ public class HumanPlayerInputSystem : SystemBase
         if (!plane.Raycast(mouseRay, out var distance))
             return;
 
-        var worldPosition = (float3)mouseRay.GetPoint(distance);
-        worldPosition.y += playAreaHeight * 2;
+        var mouseWorldPosition = mouseRay.GetPoint(distance);
+        var worldPosition = ((float3)mouseWorldPosition).xz;
         var worldTile = math.round(worldPosition);
 
         var cubePosition = worldTile;
@@ -42,7 +44,24 @@ public class HumanPlayerInputSystem : SystemBase
         //cube.transform.position = cubePosition;
 
         var tileOffset = worldPosition - worldTile;
-        var direction = (byte)tileOffset.x; // TODO: figure out direction from tileoffset
+        var inputDirection = (byte)0;
+        if (math.abs(tileOffset.x) > (math.abs(tileOffset.y)))
+        {
+            inputDirection = (byte)(tileOffset.x > 0 ? Tile.Attributes.Right : Tile.Attributes.Left);
+        }
+        else
+        {
+            inputDirection = (byte)(tileOffset.y > 0 ? Tile.Attributes.Up : Tile.Attributes.Down);
+        }
+
+        Entities
+            .WithAll<HumanPlayerTag>()
+            .WithAll<Child>()
+            .ForEach((ref PositionXZ position, ref Direction direction) =>
+            {
+                position.Value = worldTile;
+                direction.Value = inputDirection;
+            }).ScheduleParallel();
 
         if (!clicked)
             return;
@@ -57,8 +76,8 @@ public class HumanPlayerInputSystem : SystemBase
         {
             var clickEvent = ecb.CreateEntity(entityInQueryIndex, eventArchetype);
             ecb.SetComponent(entityInQueryIndex, clickEvent, new PlaceArrowEvent { Player = humanPlayerEntity });
-            ecb.SetComponent(entityInQueryIndex, clickEvent, new Direction { Value = direction });
-            ecb.SetComponent(entityInQueryIndex, clickEvent, new PositionXZ { Value = worldTile.xz });
+            ecb.SetComponent(entityInQueryIndex, clickEvent, new Direction { Value = inputDirection });
+            ecb.SetComponent(entityInQueryIndex, clickEvent, new PositionXZ { Value = worldTile });
         }).ScheduleParallel();
 
         ECBSystem.AddJobHandleForProducer(Dependency);

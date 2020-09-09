@@ -5,5 +5,6 @@ using Unity.Mathematics;
 public struct PlayerInitialization : IComponentData
 {
     public Entity PlayerPrefab;
+    public Entity HumanPlayerArrowPreview;
     public int PlayerCount;
 }
