@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Jobs;
 using UnityEngine;
 
 [Serializable]
@@ -84,6 +85,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
 		// add shared data to entity
 		dstManager.AddSharedComponentData(entity, clothMesh);
+		dstManager.AddComponentData(entity, new ClothMeshToken { jobHandle = new JobHandle() });
 
 		// spawn entities for the edges
 		using (var meshData = Mesh.AcquireReadOnlyMeshData(meshInstance))

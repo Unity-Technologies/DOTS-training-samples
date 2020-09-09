@@ -1,16 +1,13 @@
-﻿using Unity.Burst;
-using Unity.Collections;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Transforms;
 using Unity.Rendering;
 
+[UpdateInGroup(typeof(PresentationSystemGroup))]
 public class ClothRenderingSystem : SystemBase
 {
 	protected override void OnUpdate()
 	{
-		Entities.WithStructuralChanges().ForEach((in Entity entity, in ClothMesh clothMesh, in RenderMesh renderMesh) =>
+		Entities.WithStructuralChanges().ForEach((in Entity entity, in ClothMesh clothMesh, in ClothMeshToken clothMeshToken, in RenderMesh renderMesh) =>
 		{
 			if (renderMesh.mesh != clothMesh.mesh)
 			{
@@ -21,6 +18,7 @@ public class ClothRenderingSystem : SystemBase
 				}
 			}
 
+			clothMeshToken.jobHandle.Complete();
 			clothMesh.mesh.SetVertices(clothMesh.vertexPosition);
 		}
 		).WithoutBurst().Run();
