@@ -2,15 +2,13 @@
 using Unity.Mathematics;
 using UnityEngine;
 
-public class PlayerInputSystem : SystemBase
+public class HumanPlayerInputSystem : SystemBase
 {
     Camera camera;
 
     //GameObject cube;
 
     EntityCommandBufferSystem ECBSystem;
-
-    Entity CurrentPlayer;
 
     EntityArchetype clickEventArchetype;
 
@@ -43,17 +41,25 @@ public class PlayerInputSystem : SystemBase
         cubePosition.y = 0.6f;
         //cube.transform.position = cubePosition;
 
-        if (!clicked)
-            return;
-
         var tileOffset = worldPosition - worldTile;
         var direction = (byte)tileOffset.x; // TODO: figure out direction from tileoffset
 
-        var ecb = ECBSystem.CreateCommandBuffer();
-        var clickEvent = ecb.CreateEntity(clickEventArchetype);
-        ecb.SetComponent(clickEvent, new PlaceArrowEvent { Player = CurrentPlayer });
-        ecb.SetComponent(clickEvent, new Direction { Value = direction });
-        ecb.SetComponent(clickEvent, new PositionXZ { Value = worldTile.xz });
+        if (!clicked)
+            return;
+        
+        var ecb = ECBSystem.CreateCommandBuffer().AsParallelWriter();
+
+        var eventArchetype = clickEventArchetype;
+
+        Entities
+            .WithAll<HumanPlayerTag>()
+            .ForEach((int entityInQueryIndex, in Entity humanPlayerEntity, in Player player) =>
+        {
+            var clickEvent = ecb.CreateEntity(entityInQueryIndex, eventArchetype);
+            ecb.SetComponent(entityInQueryIndex, clickEvent, new PlaceArrowEvent { Player = humanPlayerEntity });
+            ecb.SetComponent(entityInQueryIndex, clickEvent, new Direction { Value = direction });
+            ecb.SetComponent(entityInQueryIndex, clickEvent, new PositionXZ { Value = worldTile.xz });
+        }).ScheduleParallel();
 
         ECBSystem.AddJobHandleForProducer(Dependency);
     }

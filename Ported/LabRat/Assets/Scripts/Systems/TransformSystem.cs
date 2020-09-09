@@ -6,6 +6,13 @@ using UnityEngine;
 [UpdateInGroup(typeof(TransformSystemGroup))]
 public class TransformSystem : SystemBase
 {
+    private EntityCommandBufferSystem ecbSystem;
+
+    protected override void OnCreate()
+    {
+        this.ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
         Entities.WithName("L2WFromPositionXZWithSize")
@@ -18,8 +25,10 @@ public class TransformSystem : SystemBase
                 l2w.Value = math.mul(trans, scale);
             })
             .ScheduleParallel();
-        
+
+
         Entities.WithName("L2WFromPositionXZ")
+          //  .WithStructuralChanges()
             .WithChangeFilter<PositionXZ>()
             .WithNone<Size>()
             .ForEach((ref LocalToWorld l2w, in PositionXZ pos) =>
