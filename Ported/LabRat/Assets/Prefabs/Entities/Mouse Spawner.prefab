@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4867576012999258}
   - component: {fileID: 114249192375568382}
+  - component: {fileID: 7088409589508721283}
   m_Layer: 0
   m_Name: Mouse Spawner
   m_TagString: Untagged
@@ -44,4 +45,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 1565721843962348, guid: fd9947d7db73f441cb1a4d06a4fc087d, type: 3}
-  Count: 0
+  Max: 0
+  Counter: 0
+  Frequency: 0
+  TotalSpawned: 0
+--- !u!114 &7088409589508721283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298946766065678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e05f01edeefd27e498fa3ba07b59f1f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public class SpawnerSystem : SystemBase
 {
@@ -13,11 +14,10 @@ public class SpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = m_CommandBufferSystem.CreateCommandBuffer();
-
+        var ecb = m_CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         var dt = UnityEngine.Time.deltaTime;
         
-        Entities.ForEach((Entity spawnerEntity, ref Spawner spawner) =>
+        Entities.ForEach((int entityInQueryIndex, Entity spawnerEntity, ref Spawner spawner, ref PositionXZ positionXz) =>
         {
             if (spawner.TotalSpawned >= spawner.Max)
                 return;
@@ -26,14 +26,12 @@ public class SpawnerSystem : SystemBase
             if (!(spawner.Counter > spawner.Frequency)) return;
             
             spawner.Counter -= spawner.Frequency;
-            var instance = ecb.Instantiate(spawner.Prefab);
-            var translation = new float3(spawner.TotalSpawned * 2, 0, 0);
-            ecb.SetComponent(instance, new Translation {Value = translation});
+            var instance = ecb.Instantiate(entityInQueryIndex, spawner.Prefab);
+            var translation = positionXz.Value +  new float2(spawner.TotalSpawned * 2, 0);
+            ecb.SetComponent(entityInQueryIndex, instance, new PositionXZ() {Value = translation});
 
             spawner.TotalSpawned++;
-
-
-        }).Schedule();
+        }).ScheduleParallel();
 
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }

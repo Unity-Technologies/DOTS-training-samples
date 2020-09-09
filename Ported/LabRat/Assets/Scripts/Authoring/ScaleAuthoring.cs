@@ -5,8 +5,8 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-[MaterialProperty("_UniformScale", MaterialPropertyFormat.Float)]
-public struct Scale : IComponentData
+[WriteGroup(typeof(LocalToWorld))]
+public struct Size : IComponentData
 {
     public float Value;
 }
@@ -27,11 +27,13 @@ public class ScaleAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         var rnd = new Random(((uint)UnityEngine.Random.Range(1, 100000)));
         var value = Enable ? rnd.NextFloat(MinScale, MaxScale) : Scale;
-        var f3 = new float3(value, value, value);
-        dstManager.RemoveComponent<NonUniformScale>(entity);
-        dstManager.AddComponentData(entity, new NonUniformScale()
+        Debug.LogWarning("converting scale " + value);
+        dstManager.AddComponentData(entity, new Size()
         {
-            Value = f3
+            Value = value
         });
+        
+        dstManager.RemoveComponent<Scale>(entity);
+        dstManager.RemoveComponent<NonUniformScale>(entity);
     }
 }
