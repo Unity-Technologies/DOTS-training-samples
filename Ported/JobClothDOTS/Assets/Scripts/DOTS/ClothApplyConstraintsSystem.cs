@@ -1,21 +1,19 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Burst;
+﻿using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
-using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
-using Unity.Rendering;
-using Unity.Transforms;
-using UnityEngine;
 
-public class ApplyConstraintsSystem : SystemBase
+public class ClothApplyConstraintsSystem : SystemBase
 {
+    private List<ClothMesh> data;
+
+    protected override void OnCreate()
+    {
+        data = new List<ClothMesh>();
+    }
+
     protected override void OnUpdate()
     {
-        //ugly code
-        List<ClothMesh> data = new List<ClothMesh>();
         EntityManager.GetAllUniqueSharedComponentData(data);
 
         foreach (var clothMesh in data)
@@ -33,8 +31,7 @@ public class ApplyConstraintsSystem : SystemBase
                 float length = math.distance(p2, p1);
                 float extra = (length - edge.Length) * .5f;
                 float3 dir = math.normalize(p2 - p1);
-
-                // ecb.AddDynamicBuffer(new ForceData(extra, dir));
+                
                 if (mass1 == 0 && mass2 == 0)
                 {
                     vertiesData[edge.IndexPair.x] += extra * dir;
