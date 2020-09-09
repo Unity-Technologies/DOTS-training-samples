@@ -44,14 +44,14 @@ public class HumanPlayerInputSystem : SystemBase
         //cube.transform.position = cubePosition;
 
         var tileOffset = worldPosition - worldTile;
-        var inputDirection = (byte)0;
+        var inputDirection = Direction.Attributes.None;
         if (math.abs(tileOffset.x) > (math.abs(tileOffset.y)))
         {
-            inputDirection = (byte)(tileOffset.x > 0 ? Tile.Attributes.WallRight : Tile.Attributes.WallLeft);
+            inputDirection = tileOffset.x > 0 ? Direction.Attributes.Right : Direction.Attributes.Left;
         }
         else
         {
-            inputDirection = (byte)(tileOffset.y > 0 ? Tile.Attributes.WallUp : Tile.Attributes.WallDown);
+            inputDirection = tileOffset.y > 0 ? Direction.Attributes.Up : Direction.Attributes.Down;
         }
 
         Entities
