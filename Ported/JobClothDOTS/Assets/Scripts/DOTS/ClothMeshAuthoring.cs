@@ -68,16 +68,29 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		// initialize mass
 		var bufferMass = new NativeArray<float>(meshInstance.vertexCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
 		{
-			vertices = new NativeArray<Vector3>(meshInstance.vertices,Allocator.Persistent);
-			Vector3[] normals = meshInstance.normals;
-			for (int i = 0; i != meshInstance.vertexCount; i++)
+			using (var meshData = Mesh.AcquireReadOnlyMeshData(meshInstance))
+			using (var tempNormals = new NativeArray<float3>(meshInstance.vertexCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory))
 			{
-				if (normals[i].y>.9f && vertices[i].y>.3f) 
-					bufferMass[i] = 0f;
-				else
-					bufferMass[i] = 1.0f;
-				//TODO: add pinned vertices
+				meshData[0].GetNormals(tempNormals.Reinterpret<Vector3>());
+
+				//TODO: jobify
+				for (int i = 0; i != meshInstance.vertexCount; i++)
+				{
+					if (tempNormals[i].y > .9f && bufferPosition[i].y > .3f)
+						bufferMass[i] = 0f;
+					else
+						bufferMass[i] = 1.0f;
+				}
 			}
+		}
+
+		// transform positions to world space
+		var localToWorld = this.transform.localToWorldMatrix;
+
+		//TODO: jobify
+		for (int i = 0; i != meshInstance.vertexCount; i++)
+		{
+			bufferPosition[i] = localToWorld.MultiplyPoint(bufferPosition[i]);
 		}
 
 		// create the shared data
