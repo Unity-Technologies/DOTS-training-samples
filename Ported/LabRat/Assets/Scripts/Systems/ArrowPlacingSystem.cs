@@ -56,12 +56,18 @@ public class ArrowPlacingSystem : SystemBase
                 var arrowPosition = (int2)position.Value;
                 for (int i = 0; i < tileEntities.Length; i++)
                 {
+
+
                     var tilePosition = (int2)tilePositions[i].Value;
-                    if (math.all(tilePosition == arrowPosition))
-                        tileAccessor[tileEntities[i]] = new Tile
-                        {
-                            Value = tiles[i].Value
-                        };
+                    if (math.all(tilePosition != arrowPosition))
+                        continue;
+
+                    tileAccessor[tileEntities[i]] = new Tile
+                    {
+                        Value = (Tile.Attributes)(((byte)tiles[i].Value & ~(byte)Tile.Attributes.ArrowAny) | direction.Value << 4)
+                    };
+
+
                 }
 
                 ecb.DestroyEntity(entityInQueryIndex, placeArrowEventEntity);
