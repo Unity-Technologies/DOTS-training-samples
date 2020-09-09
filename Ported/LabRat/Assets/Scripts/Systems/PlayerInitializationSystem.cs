@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerInitializationSystem : SystemBase
 {
     EntityCommandBufferSystem ECBSystem;
+    public static Entity HumanPlayerEntity;
 
     protected override void OnCreate()
     {
@@ -20,6 +21,8 @@ public class PlayerInitializationSystem : SystemBase
             for (int i = 0; i < playerInitialization.PlayerCount; i++)
             {
                 var playerEntity = ecb.Instantiate(entityInQueryIndex, playerInitialization.PlayerPrefab);
+                if (i == 0)
+                    HumanPlayerEntity = playerEntity;
             }
             ecb.AddComponent<Disabled>(entityInQueryIndex, playerInitializationEntity);    
         }).ScheduleParallel();

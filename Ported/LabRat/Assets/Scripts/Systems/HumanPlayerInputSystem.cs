@@ -2,15 +2,13 @@
 using Unity.Mathematics;
 using UnityEngine;
 
-public class PlayerInputSystem : SystemBase
+public class HumanPlayerInputSystem : SystemBase
 {
     Camera camera;
 
     //GameObject cube;
 
     EntityCommandBufferSystem ECBSystem;
-
-    Entity CurrentPlayer;
 
     EntityArchetype clickEventArchetype;
 
@@ -51,7 +49,7 @@ public class PlayerInputSystem : SystemBase
 
         var ecb = ECBSystem.CreateCommandBuffer();
         var clickEvent = ecb.CreateEntity(clickEventArchetype);
-        ecb.SetComponent(clickEvent, new PlaceArrowEvent { Player = CurrentPlayer });
+        ecb.SetComponent(clickEvent, new PlaceArrowEvent { Player = PlayerInitializationSystem.HumanPlayerEntity });
         ecb.SetComponent(clickEvent, new Direction { Value = direction });
         ecb.SetComponent(clickEvent, new PositionXZ { Value = worldTile.xz });
 
