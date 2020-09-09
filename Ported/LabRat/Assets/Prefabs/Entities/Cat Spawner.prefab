@@ -45,9 +45,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 1377909340170110, guid: 19268829cf75c415f8f14765efcab529, type: 3}
-  Max: 0
+  Max: 3
   Counter: 0
-  Frequency: 0
+  Frequency: 7
   TotalSpawned: 0
 --- !u!114 &7483764304771696021
 MonoBehaviour:

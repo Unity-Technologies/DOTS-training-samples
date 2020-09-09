@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4947532303769016}
   - component: {fileID: 7582170057711031224}
   - component: {fileID: 6924953852671698699}
+  - component: {fileID: 918780957387395860}
   m_Layer: 0
   m_Name: Cat
   m_TagString: Cat
@@ -59,6 +60,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MinSpeed: 1.5
   MaxSpeed: 1.9
+--- !u!114 &918780957387395860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1377909340170110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 635fc7761d6cd0e46ab31f91035677f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1780733835329128
 GameObject:
   m_ObjectHideFlags: 0

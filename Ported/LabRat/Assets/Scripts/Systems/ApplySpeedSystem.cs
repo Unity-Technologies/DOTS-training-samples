@@ -21,7 +21,7 @@ public class ApplySpeedSystem : SystemBase
         Entities.ForEach((int entityInQueryIndex, Entity entity, in SpeedAuthoring auth) =>
         {
             var value = rnd.NextFloat( auth.MinSpeed,  auth.MaxSpeed);
-            ecb.SetComponent(entityInQueryIndex, entity, new Speed(){Value = value});
+            ecb.AddComponent(entityInQueryIndex, entity, new Speed(){Value = value});
             ecb.RemoveComponent<SpeedAuthoring>(entityInQueryIndex, entity);
         }).ScheduleParallel();
 

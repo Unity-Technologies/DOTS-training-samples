@@ -182,14 +182,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114189840033995858, guid: 03de37e26e165482c8b6501249f3b186, type: 3}
-      propertyPath: Max
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 114189840033995858, guid: 03de37e26e165482c8b6501249f3b186, type: 3}
-      propertyPath: Frequency
-      value: 2
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 03de37e26e165482c8b6501249f3b186, type: 3}
 --- !u!1001 &1079837020
@@ -250,14 +242,6 @@ PrefabInstance:
     - target: {fileID: 4867576012999258, guid: 2c08b8c1095e74ed08e4ced0db304913, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114249192375568382, guid: 2c08b8c1095e74ed08e4ced0db304913, type: 3}
-      propertyPath: Max
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 114249192375568382, guid: 2c08b8c1095e74ed08e4ced0db304913, type: 3}
-      propertyPath: Frequency
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2c08b8c1095e74ed08e4ced0db304913, type: 3}
