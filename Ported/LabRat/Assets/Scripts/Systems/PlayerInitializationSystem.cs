@@ -21,7 +21,14 @@ public class PlayerInitializationSystem : SystemBase
             {
                 var playerEntity = ecb.Instantiate(entityInQueryIndex, playerInitialization.PlayerPrefab);
                 if (i == 0)
+                {
                     ecb.AddComponent<HumanPlayerTag>(entityInQueryIndex, playerEntity);
+
+                    var playerArrowPreviewEntity = ecb.Instantiate(entityInQueryIndex, playerInitialization.HumanPlayerArrowPreview);
+                    ecb.AddComponent<HumanPlayerTag>(entityInQueryIndex, playerArrowPreviewEntity);
+                    ecb.AddComponent<PositionXZ>(entityInQueryIndex, playerArrowPreviewEntity);
+                    ecb.AddComponent<Direction>(entityInQueryIndex, playerArrowPreviewEntity);
+                }
             }
             ecb.AddComponent<Disabled>(entityInQueryIndex, playerInitializationEntity);    
         }).ScheduleParallel();

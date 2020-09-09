@@ -15,6 +15,7 @@ struct Tile : IComponentData
         Hole = 16,
         Goal = 32,
         Arrow = 64,
+        Spawn = 128
     }
 
     public Attributes Value;
