@@ -20,7 +20,6 @@ public class IdleBeeSystem : SystemBase
             All = new[]
             {
                 ComponentType.ReadOnly<Resource>(),
-                ComponentType.ReadOnly<Translation>(),
             },
             None = new []
             {
@@ -64,12 +63,11 @@ public class IdleBeeSystem : SystemBase
         var random = new Random( (uint)m_Random.NextInt() );
         
         int resourceEntitiesLength = m_ResourceQuery.CalculateEntityCount();
-
         var ecb = m_ECBSystem.CreateCommandBuffer();
         if( resourceEntitiesLength == 0 )
         {
 
-            int teamABeesEntitiesLength = m_TeamABees.CalculateEntityCount();
+           /* int teamABeesEntitiesLength = m_TeamABees.CalculateEntityCount();
             int teamBBeesEntitiesLength = m_TeamBBees.CalculateEntityCount();
 
             //if(teamABeesEntitiesLength > 0){}
@@ -106,7 +104,7 @@ public class IdleBeeSystem : SystemBase
 
                     int targetIndex = random.NextInt( 0, teamABeesEntitiesLength );
                     ecb.AddComponent( bee, new TargetEntity { Value = beeEntities_TeamA[targetIndex] } );
-                } ).Schedule();
+                } ).Schedule();*/
         }
         else
         {
