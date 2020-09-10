@@ -1,5 +1,5 @@
 ﻿//#define AVOID_NESTED_FOREACH
-#define RUN_ON_MAIN
+//#define RUN_ON_MAIN
 
 using Unity.Entities;
 using Unity.Jobs;
@@ -97,10 +97,12 @@ public class ClothApplyConstraintsSystem : SystemBase
 #if RUN_ON_MAIN
 			).Run();
 #else
-			).Schedule(JobHandle.CombineDependencies(clothMeshToken.jobHandle, Dependency));
+			).Schedule(clothMeshToken.jobHandle);
 #endif
 
 			//TODO: ScheduleParallel
+
+			Dependency = JobHandle.CombineDependencies(Dependency, clothMeshToken.jobHandle);
 		}
 		).WithoutBurst().Run();
 
