@@ -80,7 +80,9 @@ public class AnimalMovementSystem : SystemBase
     {
         m_EntityCommandBufferSystem = World.GetExistingSystem<BeginInitializationEntityCommandBufferSystem>();
         m_GameStateEntity = EntityManager.CreateEntity(typeof(WantsGameStateTransitions));
+#if UNITY_EDITOR
         EntityManager.SetName(m_GameStateEntity, "MovementGameState");
+#endif
         
         m_TileEntityGrid = new NativeArray<Entity>(0, Allocator.Persistent);
     }
