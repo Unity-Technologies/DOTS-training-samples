@@ -20,6 +20,7 @@ public class BeeAttackingSystem : SystemBase
     {
         var ecb = m_CommandBufferSystem.CreateCommandBuffer();
 
+        var b = GetSingleton<BattleField>();
         var deltaTime = Time.DeltaTime;
 
         Entities.WithAll<Attack>()
@@ -56,6 +57,9 @@ public class BeeAttackingSystem : SystemBase
 
                             ecb.SetComponent<Translation>(carryingComponentFromEnemy.Value, translation);
                         }
+
+                        var bloodSpawner = ecb.Instantiate(b.BloodSpawner);
+                        ecb.SetComponent<Translation>(bloodSpawner, translation);
                         
                         ecb.AddComponent<Dying>(targetEntity.Value);
                         
