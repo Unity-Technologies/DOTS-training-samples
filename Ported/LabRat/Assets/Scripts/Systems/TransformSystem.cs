@@ -10,7 +10,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-
+[ExecuteAlways]
 [UpdateInGroup(typeof(TransformSystemGroup))]
 public class TransformSystem : SystemBase
 {

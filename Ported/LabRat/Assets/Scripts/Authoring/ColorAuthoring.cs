@@ -9,16 +9,8 @@ public struct Color : IComponentData
     public float4 Value;
 }
 
-public class ColorAuthoring : MonoBehaviour, IConvertGameObjectToEntity
+[GenerateAuthoringComponent]
+public struct ColorAuthoring : IComponentData
 {
     public UnityEngine.Color Color;
-
-    public void Convert(Entity entity, EntityManager dstManager,
-        GameObjectConversionSystem conversionSystem)
-    {
-        dstManager.AddComponentData(entity, new Color
-        {
-            Value = new float4(Color.r, Color.g, Color.b, 1)
-        });
-    }
 }

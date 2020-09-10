@@ -24,12 +24,22 @@ public class AnimalMovementSystem : SystemBase
         return components.xy + components.zw;
     }
 
+    // 2D direction vector from direction byte
+    internal static float RadiansFromDirection(Direction.Attributes direction)
+    {
+        var vector = VectorFromDirection(direction);
+        return math.atan2(vector.y, -vector.x) + math.PI;
+    }
+
     // Collect tile entities into a flat array. This should probably come from the board generator in some shape or
     // form, but for now we'll just grab it at startup.
     void EnsureTileEntityGrid()
     {
-        if(m_TileEntityGrid.IsCreated)
+        if(!EntityManager.HasComponent<GameStateInitialize>(m_GameStateEntity))
             return;
+
+        // Dispose previous grid
+        m_TileEntityGrid.Dispose();
 
         // Capture board dimensions
         var boardAuthoring = GetSingleton<BoardCreationAuthor>();
@@ -57,18 +67,22 @@ public class AnimalMovementSystem : SystemBase
     public BoardDimensions Dimensions => m_BoardDimensions;
     
     EntityCommandBufferSystem m_EntityCommandBufferSystem;
+    Entity m_GameStateEntity;
+    
     BoardDimensions m_BoardDimensions;
     NativeArray<Entity> m_TileEntityGrid;
 
     protected override void OnCreate()
     {
         m_EntityCommandBufferSystem = World.GetExistingSystem<BeginInitializationEntityCommandBufferSystem>();
+        m_GameStateEntity = EntityManager.CreateEntity(typeof(WantsGameStateTransitions));
+        
+        m_TileEntityGrid = new NativeArray<Entity>(0, Allocator.Persistent);
     }
 
     protected override void OnDestroy()
     {
-        if(m_TileEntityGrid.IsCreated)
-            m_TileEntityGrid.Dispose();
+        m_TileEntityGrid.Dispose();
     }
 
     protected override void OnUpdate()
