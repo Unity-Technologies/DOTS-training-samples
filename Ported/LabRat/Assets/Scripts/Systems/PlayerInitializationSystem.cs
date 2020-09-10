@@ -16,7 +16,7 @@ public class PlayerInitializationSystem : SystemBase
     {
         var ecb = ECBSystem.CreateCommandBuffer().AsParallelWriter();
         Entities.ForEach((int entityInQueryIndex, in Entity playerInitializationEntity, in PlayerInitialization playerInitialization) => {
-
+            var playerCount = playerInitialization.PlayerCount;
             for (int i = 0; i < playerInitialization.PlayerCount; i++)
             {
                 var playerEntity = ecb.Instantiate(entityInQueryIndex, playerInitialization.PlayerPrefab);
@@ -26,7 +26,15 @@ public class PlayerInitializationSystem : SystemBase
 
                     var playerArrowPreviewEntity = ecb.Instantiate(entityInQueryIndex, playerInitialization.HumanPlayerArrowPreview);
                     ecb.AddComponent<HumanPlayerTag>(entityInQueryIndex, playerArrowPreviewEntity);
+
+                    ecb.SetComponent(entityInQueryIndex, playerEntity, new Name { Value = "You" });
                 }
+                else
+                {
+                    ecb.SetComponent(entityInQueryIndex, playerEntity, new Name { Value = $"Computer {i}" });
+                    ecb.SetComponent(entityInQueryIndex, playerEntity, new Color { Value = (Vector4)UnityEngine.Color.HSVToRGB(i / (float)playerCount, 1, 1) });
+                }
+
             }
             ecb.AddComponent<Disabled>(entityInQueryIndex, playerInitializationEntity);    
         }).ScheduleParallel();
