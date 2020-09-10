@@ -4,6 +4,8 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateAfter(typeof(PlayerInitializationSystem))]
 public class BoardCreationSystem : SystemBase
 {
     protected override void OnUpdate()

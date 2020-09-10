@@ -6,6 +6,7 @@ struct GameStateStart : IComponentData {}
 struct GameStateRunning : IComponentData {}
 struct GameStateEnd : IComponentData {}
 
+[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public class GameController : SystemBase
 {
     const float GameDuration = 10;
