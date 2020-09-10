@@ -1,9 +1,11 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 
 struct GameStateInitialize : IComponentData {}
 struct GameStateStart : IComponentData {}
 struct GameStateRunning : IComponentData {}
+struct GameStateEnd : IComponentData {}
 struct GameStateCleanup : IComponentData {}
 
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
@@ -99,7 +101,7 @@ public class GameController : SystemBase
                     .ForEach((Entity entity) => ecb.AddComponent<GameStateRunning> (entity)).Schedule();
                 m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
                 
-                m_GameState = GameState.GameStarted;
+                m_GameState = GameState.GameRunning;
                 goto case GameState.GameRunning;
             }
 
@@ -110,8 +112,27 @@ public class GameController : SystemBase
         
                 m_UIBridge.SetTimer(gameTimeRemaining);
                 
-                for (int i = 0; i < 4; i++)
-                    m_UIBridge.SetScore(i, UnityEngine.Random.Range(1, 100));
+                // Temporarily just pick up stray score components and assign them sequentially to players.
+                var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
+                var pendingScores = new NativeList<ScoreEvent>(8, Allocator.TempJob);
+                Entities.ForEach((Entity entity, in ScoreEvent scoreEvent) =>
+                {
+                    pendingScores.Add(scoreEvent);
+                    ecb.DestroyEntity(entity);
+                }).Schedule();
+                Entities.WithAll<Player>().ForEach((Entity playerEntity, ref Score score) =>
+                {
+                    if (pendingScores.IsEmpty) return;
+                    score.Value += pendingScores[pendingScores.Length - 1].Addition;
+                    score.Value = (int)(score.Value * pendingScores[pendingScores.Length - 1].Scale);
+                    pendingScores.RemoveAt(pendingScores.Length - 1);
+                }).WithDisposeOnCompletion(pendingScores).Schedule();
+                m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+
+                Entities.WithAll<Player>().ForEach((int entityInQueryIndex, in Score score) =>
+                {
+                    m_UIBridge.SetScore(entityInQueryIndex, score.Value);
+                }).WithoutBurst().Run();
 
                 if (gameTimeRemaining == 0f)
                     m_GameState = GameState.GameEnding;
@@ -121,6 +142,11 @@ public class GameController : SystemBase
 
             case GameState.GameEnding:
             {
+                var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
+                Entities.WithName("Enter_GameEnd").WithAll<WantsGameStateTransitions>()
+                    .ForEach((Entity entity) => ecb.AddComponent<GameStateEnd>(entity)).Schedule();
+                m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+
                 m_UIBridge.ShowGameOver("some winner", new Color { Value = new float4(1f, 1f, 0f, 1f)});
                 m_TimeAccumulator = 0f;
                 
@@ -130,6 +156,11 @@ public class GameController : SystemBase
             
             case GameState.GameRestarting:
             {
+                var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
+                Entities.WithName("Leave_GameEnd").WithAll<WantsGameStateTransitions, GameStateEnd>()
+                    .ForEach((Entity entity) => ecb.RemoveComponent<GameStateEnd>(entity)).Schedule();
+                m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+
                 m_TimeAccumulator += Time.DeltaTime;
 
                 if (m_TimeAccumulator >= GameRestartDelay)

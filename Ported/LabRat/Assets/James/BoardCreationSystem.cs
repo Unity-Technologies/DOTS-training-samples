@@ -168,38 +168,36 @@ public class BoardCreationSystem : SystemBase
 
             // HACK - needs removing
             UnityEngine.Camera.main.transform.position = new UnityEngine.Vector3(boardCreationAuthor.SizeX /2, 4, boardCreationAuthor.SizeY /2);
-
-            EntityManager.RemoveComponent<GameStateInitialize>(e);
         }).WithStructuralChanges().Run();
 
         Entities
             .WithAll<GameStateStart>()
             .ForEach((Entity e, BoardCreationAuthor boardCreationAuthor) =>
         {
-            // Place rat and cat spawners in diagonally opposite corners (if any are present)
-            if (boardCreationAuthor.RatSpawner != Entity.Null)
-            {
-                var ratSpawners = EntityManager.Instantiate(boardCreationAuthor.RatSpawner, 2, Allocator.Temp);
-                EntityManager.AddComponent<PositionXZ>(ratSpawners[0]);
-                EntityManager.AddComponentData(ratSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, boardCreationAuthor.SizeY - 1f) });
-                ratSpawners.Dispose();
-            }
-            if (boardCreationAuthor.CatSpawner != Entity.Null)
-            {
-                var catSpawners = EntityManager.Instantiate(boardCreationAuthor.CatSpawner, 2, Allocator.Temp);
-                EntityManager.AddComponentData(catSpawners[0], new PositionXZ { Value = new float2(0f, boardCreationAuthor.SizeY - 1f) });
-                EntityManager.AddComponentData(catSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, 0f) });
-                catSpawners.Dispose();
-            }
-            EntityManager.RemoveComponent<GameStateStart>(e);
+            // Place rat and cat spawners in diagonally opposite corners
+            var ratSpawners = EntityManager.Instantiate(boardCreationAuthor.RatSpawner, 2, Allocator.Temp);
+            EntityManager.AddComponent<PositionXZ>(ratSpawners[0]);
+            EntityManager.AddComponentData(ratSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, boardCreationAuthor.SizeY - 1f) });
+            ratSpawners.Dispose();
+            var catSpawners = EntityManager.Instantiate(boardCreationAuthor.CatSpawner, 2, Allocator.Temp);
+            EntityManager.AddComponentData(catSpawners[0], new PositionXZ { Value = new float2(0f, boardCreationAuthor.SizeY - 1f) });
+            EntityManager.AddComponentData(catSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, 0f) });
+            catSpawners.Dispose();
         }).WithStructuralChanges().Run();
      
-        // Quick'n'dirty cleanup
+        // Quick'n'dirty cleanup stuff
+        if (EntityManager.HasComponent<GameStateEnd>(GetSingletonEntity<BoardCreationAuthor>()))
+        {
+            Entities.WithAll<Spawner>().ForEach((Entity entity) => EntityManager.DestroyEntity(entity)).WithStructuralChanges().WithoutBurst().Run();
+            Entities.WithAll<Direction>().ForEach((Entity entity) => EntityManager.RemoveComponent<Direction>(entity)).WithStructuralChanges().WithoutBurst().Run();
+            Entities.WithAll<Falling>().ForEach((Entity entity) => EntityManager.RemoveComponent<Falling>(entity)).WithStructuralChanges().WithoutBurst().Run();
+        }
         if (EntityManager.HasComponent<GameStateCleanup>(GetSingletonEntity<BoardCreationAuthor>()))
         {
             Entities.WithAll<Tile>().ForEach((Entity entity) => EntityManager.DestroyEntity(entity)).WithStructuralChanges().WithoutBurst().Run();
             Entities.WithAll<BoardVisualElement>().ForEach((Entity entity) => EntityManager.DestroyEntity(entity)).WithStructuralChanges().WithoutBurst().Run();
-            //EntityManager.DestroyEntity(m_AnyTileOrWallQuery);
+            Entities.WithAll<CatTag>().ForEach((Entity entity) => EntityManager.DestroyEntity(entity)).WithStructuralChanges().WithoutBurst().Run();
+            Entities.WithAll<RatTag>().ForEach((Entity entity) => EntityManager.DestroyEntity(entity)).WithStructuralChanges().WithoutBurst().Run();
         }
     }
 
