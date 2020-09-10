@@ -127,7 +127,7 @@ public class ArrowPlacingSystem : SystemBase
                         ecb.SetComponent(entityInQueryIndex, newArrow, new Arrow { Owner = placeArrowEvent.Player });
                         ecb.SetComponent(entityInQueryIndex, newArrow, new Translation { Value = new float3(position.Value.x, 0, position.Value.y) });
                         ecb.SetComponent(entityInQueryIndex, newArrow, new Rotation { Value = quaternion.Euler(0, AnimalMovementSystem.RadiansFromDirection(direction.Value), 0) });
-                        ecb.SetComponent(entityInQueryIndex, newArrow, playerColor);
+                        ecb.AddComponent(entityInQueryIndex, newArrow, playerColor);
                     }
                 }
 
