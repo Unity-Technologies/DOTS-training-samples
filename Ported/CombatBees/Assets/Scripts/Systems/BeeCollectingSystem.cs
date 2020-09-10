@@ -26,13 +26,19 @@ public class BeeCollectingSystem : SystemBase
                 .WithNone<Velocity>()
                 .ForEach( ( Entity bee, ref Translation translation, in TargetEntity targetEntity, in Speed speed) =>
             {
-                
-                //Make the bee move towards the target entity
-                Translation targetEntityTranslationComponent = EntityManager.GetComponentData<Translation>(targetEntity.Value);
-                float3 direction = targetEntityTranslationComponent.Value - translation.Value;
-                float3 directionNormalized = math.normalize(direction);
+                if (!EntityManager.Exists(targetEntity.Value))
+                {
+                    //Remove the collecting tag from the bee
+                    ecb.RemoveComponent<Collecting>(bee);
 
-                translation.Value += directionNormalized * speed.Value * deltaTime;
+                    //Remove the collecting tag from the bee
+                    ecb.RemoveComponent<TargetEntity>(bee);
+
+                    //Add the carrying tag to the bee
+                    ecb.AddComponent<Idle>(bee);
+
+                    return;
+                }
 
                 // If resource has been taken in meanwhile
                 if (HasComponent<Taken>(targetEntity.Value))
@@ -40,9 +46,16 @@ public class BeeCollectingSystem : SystemBase
                     ecb.RemoveComponent<Collecting>(bee);
                     ecb.AddComponent<Idle>(bee);
                     ecb.RemoveComponent<TargetEntity>(bee);
+                    
                 }
                 else
                 {
+                    //Make the bee move towards the target entity
+                    Translation targetEntityTranslationComponent = EntityManager.GetComponentData<Translation>(targetEntity.Value);
+                    float3 direction = targetEntityTranslationComponent.Value - translation.Value;
+                    float3 directionNormalized = math.normalize(direction);
+
+                    translation.Value += directionNormalized * speed.Value * deltaTime;
                     //If the bee is close enough, change its state to Carrying
                     float d = math.length(direction);
                     if (d < 1)
