@@ -12,7 +12,7 @@ public class GameController : SystemBase
     const float GameDuration = 30;
     const float GameRestartDelay = 5;
 
-    enum GameState { None, ApplicationStarting, GameInitializing, GameStarting, GameStarted, GameRunning, GameEnding, GameRestarting, GameCleanup }
+    enum GameState { None, ApplicationStarting, GameInitializing, GameInitialized, GameStarting, GameStarted, GameRunning, GameEnding, GameRestarting, GameCleanup }
 
     EntityCommandBufferSystem m_EntityCommandBufferSystem;
     
@@ -39,13 +39,6 @@ public class GameController : SystemBase
         {
             case GameState.ApplicationStarting:
             {
-                // var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
-                // Entities.WithName("EnterState_GameInit")
-                //     .WithAll<WantsGameStateTransitions>()
-                //     .ForEach((Entity entity) => ecb.AddComponent<GameStateInitialize>(entity))
-                //     .Schedule();
-                // m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
-                //
                 m_GameState = GameState.GameInitializing;
                 break;
             }
@@ -59,6 +52,12 @@ public class GameController : SystemBase
                     .ForEach((Entity entity) => ecb.AddComponent<GameStateInitialize>(entity)).Schedule();
                 m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
 
+                m_GameState = GameState.GameInitialized;
+                break;
+            }
+            
+            case GameState.GameInitialized:
+            {
                 m_TimeAccumulator = 0f;
                 
                 m_UIBridge.ShowReady(() =>
@@ -70,7 +69,12 @@ public class GameController : SystemBase
                         m_GameState = GameState.GameStarting;
                     });
                 });
-                
+
+                var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
+                Entities.WithName("Leave_GameInit").WithAll<WantsGameStateTransitions, GameStateInitialize>()
+                    .ForEach((Entity entity) => ecb.RemoveComponent<GameStateInitialize>(entity)).Schedule();
+                m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+
                 m_GameState = GameState.None;
                 break;
             }
@@ -78,8 +82,6 @@ public class GameController : SystemBase
             case GameState.GameStarting:
             {
                 var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
-                Entities.WithName("Leave_GameInit").WithAll<WantsGameStateTransitions, GameStateInitialize>()
-                    .ForEach((Entity entity) => ecb.RemoveComponent<GameStateInitialize>(entity)).Schedule();
                 Entities.WithName("Enter_GameStart").WithAll<WantsGameStateTransitions>()
                     .ForEach((Entity entity) => ecb.AddComponent<GameStateStart>(entity)).Schedule();
                 m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
