@@ -10,6 +10,7 @@ public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
 {
 	public Mesh mesh;
 	public NativeArray<float3> vertexPosition;
+	public NativeArray<float3> oldVertexPosition;
 	public NativeArray<float> vertexInvMass;
 
 	public bool Equals(ClothMesh other)
@@ -17,6 +18,7 @@ public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
 		return (
 			mesh == other.mesh &&
 			vertexPosition == other.vertexPosition &&
+			oldVertexPosition == other.oldVertexPosition &&
 			vertexInvMass == other.vertexInvMass
 		);
 	}
@@ -28,6 +30,7 @@ public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
 			hash ^= ReferenceEquals(mesh, null) ? 0 : mesh.GetHashCode();
 			hash ^= vertexInvMass.GetHashCode();
 			hash ^= vertexPosition.GetHashCode();
+			hash ^= oldVertexPosition.GetHashCode();
 		}
 		return hash;
 	}
@@ -97,6 +100,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		{
 			mesh = meshInstance,
 			vertexPosition = bufferPosition,
+			oldVertexPosition = new NativeArray<float3>(bufferPosition, Allocator.Persistent),
 			vertexInvMass = bufferInvMass,
 		};
 

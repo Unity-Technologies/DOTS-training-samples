@@ -1,5 +1,5 @@
 ﻿//#define AVOID_NESTED_FOREACH
-//#define RUN_ON_MAIN
+#define RUN_ON_MAIN
 
 using Unity.Entities;
 using Unity.Mathematics;
