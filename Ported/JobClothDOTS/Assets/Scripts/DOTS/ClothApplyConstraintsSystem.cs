@@ -1,4 +1,5 @@
-﻿#define AVOID_NESTED_FOREACH
+﻿//#define AVOID_NESTED_FOREACH
+//#define RUN_ON_MAIN
 
 using Unity.Entities;
 using Unity.Mathematics;
@@ -68,7 +69,12 @@ public class ClothApplyConstraintsSystem : SystemBase
 			var vertexPosition = clothMesh.vertexPosition;
 			var vertexInvMass = clothMesh.vertexInvMass;
 
+#if RUN_ON_MAIN
+			clothMeshToken.jobHandle.Complete();
+			Entities.WithSharedComponentFilter(clothMesh).ForEach((in ClothEdge edge) =>
+#else
 			clothMeshToken.jobHandle = Entities.WithSharedComponentFilter(clothMesh).ForEach((in ClothEdge edge) =>
+#endif
 			{
 				int index0 = edge.IndexPair.x;
 				int index1 = edge.IndexPair.y;
@@ -87,7 +93,11 @@ public class ClothApplyConstraintsSystem : SystemBase
 				vertexPosition[index0] += r * (w0 * W_inv);
 				vertexPosition[index1] -= r * (w1 * W_inv);
 			}
+#if RUN_ON_MAIN
+			).Run();
+#else
 			).Schedule(clothMeshToken.jobHandle);
+#endif
 
 			//TODO: ScheduleParallel
 		}
