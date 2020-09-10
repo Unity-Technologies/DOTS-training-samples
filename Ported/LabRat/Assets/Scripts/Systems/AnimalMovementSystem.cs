@@ -7,18 +7,12 @@ using UnityEngine;
 
 public class AnimalMovementSystem : SystemBase
 {
-    // Placeholder inputs for test-scene
-    const int TileCount = 8;
-    const int TileCountSqr = TileCount * TileCount;
-    const float TileSize = 1f;
-    const float TileOffset = TileSize / 2f;
-
     // Sequential tile index from grid position
-    public static int TileKeyFromPosition(float2 position)
+    public static int TileKeyFromPosition(float2 position, BoardDimensions dimensions)
     {
-        var iPos = new int2((position + TileOffset) / TileSize);
-        var key = iPos.x + iPos.y * TileCount;
-        Debug.Assert(key >= 0 && key < TileCountSqr);
+        var iPos = new int2((position + BoardDimensions.TileOffset) / BoardDimensions.TileSize);
+        var key = iPos.x + iPos.y * dimensions.TileCountX;
+        Debug.Assert(key >= 0 && key < dimensions.TileCountTotal);
         return key;
     }
 
@@ -37,15 +31,33 @@ public class AnimalMovementSystem : SystemBase
         if(m_TileEntityGrid.IsCreated)
             return;
 
+        // Capture board dimensions
+        var boardAuthoring = GetSingleton<BoardCreationAuthor>();
+        m_BoardDimensions.TileCountX = boardAuthoring.SizeX;
+        m_BoardDimensions.TileCountTotal = boardAuthoring.SizeX * boardAuthoring.SizeY;
+
         // Build a direct lookup structure for tile entities
-        var tileEntityGrid = m_TileEntityGrid = new NativeArray<Entity>(TileCountSqr, Allocator.Persistent);
+        var tileEntityGrid = m_TileEntityGrid = new NativeArray<Entity>(m_BoardDimensions.TileCountTotal, Allocator.Persistent);
+        var boardDimensions = m_BoardDimensions;
         Entities.WithName("CollectTiles")
             .WithAll<Tile>()
-            .ForEach((Entity entity, in PositionXZ pos) => { tileEntityGrid[TileKeyFromPosition(pos.Value)] = entity; })
+            .ForEach((Entity entity, in PositionXZ pos) => { tileEntityGrid[TileKeyFromPosition(pos.Value, boardDimensions)] = entity; })
             .ScheduleParallel();
     }
 
+    public struct BoardDimensions
+    {
+        public const float TileSize = 1f;
+        public const float TileOffset = TileSize / 2f;
+        
+        public int TileCountX;
+        public int TileCountTotal;
+    }
+
+    public BoardDimensions Dimensions => m_BoardDimensions;
+    
     EntityCommandBufferSystem m_EntityCommandBufferSystem;
+    BoardDimensions m_BoardDimensions;
     NativeArray<Entity> m_TileEntityGrid;
 
     protected override void OnCreate()
@@ -71,6 +83,7 @@ public class AnimalMovementSystem : SystemBase
         var tileComponentData = GetComponentDataFromEntity<Tile>(true);
         var posComponentData = GetComponentDataFromEntity<PositionXZ>(/*true*/);
         var tileEntityGrid = m_TileEntityGrid;
+        var boardDimensions = m_BoardDimensions;
         
         var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer()
 #if !DEBUGGABLE
@@ -94,7 +107,8 @@ public class AnimalMovementSystem : SystemBase
             var pos = posComponentData[entity];
             
             // Grab tile data underneath animal
-            var tileEntity = tileEntityGrid[TileKeyFromPosition(pos.Value)];
+            var tileKey = TileKeyFromPosition(pos.Value, boardDimensions);
+            var tileEntity = tileEntityGrid[tileKey];
             var tileData = tileComponentData[tileEntity];
 
             // Calculate move data 
