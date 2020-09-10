@@ -153,8 +153,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ResourcePrefab: {fileID: 6796786519604154143, guid: 9dd20c3ba322e4a0daf71240bf805f76, type: 3}
-  SizeX: 4
-  SizeZ: 4
+  SizeX: 5
+  SizeZ: 5
 --- !u!4 &244323937
 Transform:
   m_ObjectHideFlags: 0
@@ -204,8 +204,8 @@ MonoBehaviour:
     z: 120
   HiveDistance: 30
   BeeSpawner: {fileID: 507254545094959267, guid: df324d873732f304787b09c69f9485fd, type: 3}
-  BloodSpawner: {fileID: 507254545094959267, guid: 4ffdd24bfca19944b8f1611a08d94a06, type: 3}
-  SmokeSpawner: {fileID: 0}
+  BloodSpawner: {fileID: 507254545094959267, guid: f3f1c802305106147bd8ae81fcbadeeb, type: 3}
+  SmokeSpawner: {fileID: 507254545094959267, guid: 4ffdd24bfca19944b8f1611a08d94a06, type: 3}
 --- !u!4 &254280926
 Transform:
   m_ObjectHideFlags: 0

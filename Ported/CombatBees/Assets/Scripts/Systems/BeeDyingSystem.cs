@@ -40,12 +40,14 @@ public class BeeDyingSystem : SystemBase
 
                     ecb.AddComponent<Agony>( bee );
 
-                    //Adding scale because it's not there by default for some reason
-                    ecb.AddComponent<Scale>( bee );
+                    //Adding NonUniformScale because it's not there by default for some reason
+                    ecb.AddComponent<NonUniformScale>( bee );
+                    ecb.SetComponent<NonUniformScale>(bee, new NonUniformScale{Value = new float3(1f, 1f, 1f)});
                 }
 
                 
                 
             } ).Run();
+        m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }

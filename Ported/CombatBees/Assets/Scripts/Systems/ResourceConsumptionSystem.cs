@@ -28,6 +28,9 @@ public class ResourceConsumptionSystem : SystemBase
                     // destroy
                     ecb.DestroyEntity(entity);
 
+                    var smokeSpawner = ecb.Instantiate(b.SmokeSpawner);
+                    ecb.SetComponent<Translation>(smokeSpawner, translation);
+                    
                     var beeSpawner = ecb.Instantiate(b.BeeSpawner);
                     ecb.SetComponent<Translation>(beeSpawner, translation);
 
