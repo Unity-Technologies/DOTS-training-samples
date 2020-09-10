@@ -112,27 +112,11 @@ public class GameController : SystemBase
         
                 m_UIBridge.SetTimer(gameTimeRemaining);
                 
-                // Temporarily just pick up stray score components and assign them sequentially to players.
-                var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
-                var pendingScores = new NativeList<ScoreEvent>(8, Allocator.TempJob);
-                Entities.ForEach((Entity entity, in ScoreEvent scoreEvent) =>
-                {
-                    pendingScores.Add(scoreEvent);
-                    ecb.DestroyEntity(entity);
-                }).Schedule();
-                Entities.WithAll<Player>().ForEach((Entity playerEntity, ref Score score) =>
-                {
-                    if (pendingScores.IsEmpty) return;
-                    score.Value += pendingScores[pendingScores.Length - 1].Addition;
-                    score.Value = (int)(score.Value * pendingScores[pendingScores.Length - 1].Scale);
-                    pendingScores.RemoveAt(pendingScores.Length - 1);
-                }).WithDisposeOnCompletion(pendingScores).Schedule();
-                m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
-
-                Entities.WithAll<Player>().ForEach((int entityInQueryIndex, in Score score) =>
-                {
-                    m_UIBridge.SetScore(entityInQueryIndex, score.Value);
-                }).WithoutBurst().Run();
+                var scores = new int[4];
+                Entities.WithName("Score2UI").WithAll<Score>()
+                    .ForEach((int entityInQueryIndex, in Score s) => scores[entityInQueryIndex] = s.Value).WithoutBurst().Run();
+                for (int i = 0; i < 4; i++)
+                    m_UIBridge.SetScore(i, scores[i]);
 
                 if (gameTimeRemaining == 0f)
                     m_GameState = GameState.GameEnding;

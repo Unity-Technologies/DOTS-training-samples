@@ -13,7 +13,7 @@ public class AnimalMovementSystem : SystemBase
         var iPos = new int2((position + BoardDimensions.TileOffset) / BoardDimensions.TileSize);
         var key = iPos.x + iPos.y * dimensions.TileCountX;
         
-        // Safety clam until we know the board is consistent
+        // Safety clamp until we know the board is consistent
         key = math.clamp(key, 0, dimensions.TileCountTotal - 1);
         
         Debug.Assert(key >= 0 && key < dimensions.TileCountTotal);
@@ -199,24 +199,18 @@ public class AnimalMovementSystem : SystemBase
                         }
                         else if (obstacleMask == (int)Tile.Attributes.Goal)
                         {
-                            // Temporarily create some score even we can consume. It has no owner, so
-                            // it'll just be randomly attributed to a player.
+                            var player = tileData.Owner;
+                            var currentScore = GetComponent<Score>(player).Value;
 
                             var isRat = HasComponent<RatTag>(entity);
-                            var score = new ScoreEvent { Addition = isRat ? 1 : 0, Scale = isRat ? 1f : 0.7f };
-
+                            var newScore = isRat ? currentScore + 1 : currentScore * 0.7;
+                            
 #if DEBUGGABLE
                             Debug.Log($"Hit goal. Record player score!");
-
-                            var scoreEntity = ecb.CreateEntity();
-                            ecb.AddComponent(scoreEntity, score);
-
+                            ecb.SetComponent(player, new Score(){Value = (int)newScore});
                             ecb.DestroyEntity(entity);
 #else
-
-                            var scoreEntity = ecb.CreateEntity(entityInQueryIndex);
-                            ecb.AddComponent(entityInQueryIndex, scoreEntity, score);
-                            
+                            ecb.SetComponent(entityInQueryIndex, player, new Score(){Value = (int)newScore});
                             ecb.DestroyEntity(entityInQueryIndex, entity);
 #endif
                         }

@@ -10,6 +10,7 @@ using Random = Unity.Mathematics.Random;
 [UpdateAfter(typeof(PlayerInitializationSystem))]
 public class BoardCreationSystem : SystemBase
 {
+    private PlayerInitializationSystem playerInitSystem;
     struct BoardVisualElement : ISystemStateComponentData {}
 
     EntityQuery m_AnyTileOrWallQuery;
@@ -17,6 +18,8 @@ public class BoardCreationSystem : SystemBase
     protected override void OnCreate()
     {
         m_AnyTileOrWallQuery = GetEntityQuery(new EntityQueryDesc {Any = new[] {ComponentType.ReadOnly<Tile>(), ComponentType.ReadOnly<BoardVisualElement>()}});
+            
+        playerInitSystem = World.GetExistingSystem<PlayerInitializationSystem>();
     }
 
     protected override void OnUpdate()
@@ -25,6 +28,7 @@ public class BoardCreationSystem : SystemBase
         .WithAll<GameStateInitialize>()
         .ForEach((Entity e, in BoardCreationAuthor boardCreationAuthor) =>
         {
+            int spawnedGoals = 0;
             System.Random random = new System.Random();
             Random rand = new Random((uint)random.Next());
             for (int x = 0; x < boardCreationAuthor.SizeX; x++)
@@ -126,13 +130,17 @@ public class BoardCreationSystem : SystemBase
                             var goal = EntityManager.Instantiate(boardCreationAuthor.GoalPrefab);
                             EntityManager.SetComponentData(goal, new PositionXZ(){Value = new float2(x, y)});
 
+                            var player = playerInitSystem.Players[spawnedGoals++];
+                            newTile.Owner = player;
+                            
+                            var cc = EntityManager.GetComponentData<ColorAuthoring>(player);
                             var linkedEntities = EntityManager.GetBuffer<LinkedEntityGroup>(goal);
                             for (var l = 0; l < linkedEntities.Length; ++l)
                             {
                                 var linkedEntity = linkedEntities[l].Value;
                                 if (EntityManager.HasComponent<ColorAuthoring>(linkedEntity))
                                 {
-                                    EntityManager.SetComponentData(linkedEntity, new ColorAuthoring(){Color = UnityEngine.Color.blue});
+                                    EntityManager.SetComponentData(linkedEntity, cc);
                                 }
                             }
                         }

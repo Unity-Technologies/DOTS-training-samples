@@ -13,6 +13,15 @@ public class PlayerInitializationSystem : SystemBase
         m_AnyPlayer = GetEntityQuery(ComponentType.ReadOnly<Player>());
     }
 
+    public NativeArray<Entity> Players;
+
+    protected override void OnDestroy()
+    {
+        if (Players.IsCreated)
+            Players.Dispose();
+    }
+
+
     protected override void OnUpdate()
     {
         var ticks = System.DateTime.Now.Ticks;
@@ -47,9 +56,34 @@ public class PlayerInitializationSystem : SystemBase
         
         ecb.Playback(EntityManager);
         ecb.Dispose();
+      
+        if (Players.IsCreated == false)
+        {
+            var q = GetEntityQuery(new EntityQueryDesc
+            {
+                All = new[] {ComponentType.ReadOnly<Player>()}
+            });
+            var cc = q.CalculateEntityCount();
+            if (cc > 0)
+            {
+                var localP = Players = new NativeArray<Entity>(cc, Allocator.Persistent);
+                ecb = new EntityCommandBuffer(Allocator.Temp);
+                Entities.WithName("InitPlayerArray")
+                    .WithNone<PlayerInitializedTag>()
+                    .ForEach((int entityInQueryIndex, Entity e, in Player p) =>
+                    {
+                        localP[entityInQueryIndex] = e;
+                        ecb.AddComponent<PlayerInitializedTag>(e);
+                    }).Run();
+                ecb.Playback(EntityManager);
+                ecb.Dispose();
+
+                // Quick'n'dirty cleanup
+                if (EntityManager.HasComponent<GameStateCleanup>(GetSingletonEntity<PlayerInitialization>()))
+                    EntityManager.DestroyEntity(m_AnyPlayer);
+            }
+        }
     
-        // Quick'n'dirty cleanup
-        if (EntityManager.HasComponent<GameStateCleanup>(GetSingletonEntity<PlayerInitialization>()))
-            EntityManager.DestroyEntity(m_AnyPlayer);
+  
     }
 }
