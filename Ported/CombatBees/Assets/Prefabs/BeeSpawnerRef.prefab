@@ -45,4 +45,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab_TeamA: {fileID: 5247711925181765031, guid: 37e540243fb444a569131373a7d1f63f, type: 3}
   BeePrefab_TeamB: {fileID: 5247711925181765031, guid: 873e4cff187af45719eaea6e9ce6fd1b, type: 3}
-  Count: 10
+  Count: 5

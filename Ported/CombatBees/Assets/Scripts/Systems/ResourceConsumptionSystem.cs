@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(MovementSystem))]
 public class ResourceConsumptionSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
@@ -19,7 +20,10 @@ public class ResourceConsumptionSystem : SystemBase
 
         var b = GetSingleton<BattleField>();
 
-        Entities.WithAll<Resource>().WithNone<Parent>().ForEach((int entityInQueryIndex,Entity entity, in Translation translation) =>
+        Entities
+            .WithAll<Resource>()
+            .WithNone<Parent>().WithNone<Taken>()
+            .ForEach((int entityInQueryIndex,Entity entity, in Translation translation) =>
         {
             if (math.abs(translation.Value.z) > math.abs(b.HiveDistance))
             {
@@ -32,7 +36,9 @@ public class ResourceConsumptionSystem : SystemBase
                     ecb.SetComponent<Translation>(smokeSpawner, translation);
                     
                     var beeSpawner = ecb.Instantiate(b.BeeSpawner);
-                    ecb.SetComponent<Translation>(beeSpawner, translation);
+                    float3 pos = translation.Value;
+                    pos.y += 1;
+                    ecb.SetComponent<Translation>(beeSpawner, new Translation{ Value = pos });
 
                     // spawn
                     if (translation.Value.z > 0f)
@@ -42,15 +48,10 @@ public class ResourceConsumptionSystem : SystemBase
                     else
                     {
                         ecb.AddComponent<TeamA>(beeSpawner);
-
                     }
                 }
             }
-
-
         }).Run();
-        // TODO: ask about this
-
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }

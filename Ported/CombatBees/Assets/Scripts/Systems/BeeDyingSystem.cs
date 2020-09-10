@@ -2,8 +2,6 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 
-
-[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class BeeDyingSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
@@ -27,7 +25,7 @@ public class BeeDyingSystem : SystemBase
             {
                 
                 //If the bee has reached the floor
-                //UnityEngine.Debug.Log(translation.Value.y+" "+(-b.Bounds.y));
+                //UnityEngine.Debug.Log(translation.TopSpeed.y+" "+(-b.Bounds.y));
                 if(translation.Value.y <= -b.Bounds.y/2)
                 {
                     //UnityEngine.Debug.Log("BEE IS AGONYZING");

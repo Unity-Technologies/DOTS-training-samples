@@ -3,6 +3,8 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 
+[UpdateBefore(typeof(MovementSystem))]
+[UpdateBefore(typeof(BeeAttackingSystem))]
 public class BeeCollectingSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
@@ -24,67 +26,35 @@ public class BeeCollectingSystem : SystemBase
                 .WithoutBurst()
                 .ForEach( ( Entity bee, ref Velocity velocity, in Translation translation, in TargetEntity targetEntity, in Speed speed) =>
             {
-                if (!HasComponent<Rotation>(targetEntity.Value))
+                // check if the resource has been destroyed // If resource has been taken by another bee
+                if (!HasComponent<Rotation>(targetEntity.Value) || HasComponent<Taken>(targetEntity.Value))
                 {
-                    //Remove the collecting tag from the bee
                     ecb.RemoveComponent<Collecting>(bee);
-
-                    //Remove the collecting tag from the bee
                     ecb.RemoveComponent<TargetEntity>(bee);
-
-                    //Add the carrying tag to the bee
                     ecb.AddComponent<Idle>(bee);
-
                     return;
                 }
 
-                // If resource has been taken in meanwhile
-                if (HasComponent<Taken>(targetEntity.Value))
+                //If the bee is close enough, change its state to Carrying
+                Translation targetEntityTranslationComponent = GetComponent<Translation>( targetEntity.Value );
+                float distanceToResource = math.length(targetEntityTranslationComponent.Value - translation.Value);
+                if (distanceToResource < 1)
                 {
+                    ecb.AddComponent<Parent>(targetEntity.Value, new Parent { Value = bee });
+                    ecb.AddComponent<Taken>(targetEntity.Value);
+                    ecb.AddComponent<LocalToParent>(targetEntity.Value);
+                    ecb.SetComponent<Translation>(targetEntity.Value, new Translation { Value = new float3(0, -1, 0) });
+
+                    
+                    float hiveDistance = battlefield.HiveDistance + 10f;
+                    float3 hivePosition = new float3(0, 0, hiveDistance);
+                    if (HasComponent<TeamA>(bee))
+                        hivePosition.z *= -1;
+
                     ecb.RemoveComponent<Collecting>(bee);
-                    ecb.AddComponent<Idle>(bee);
                     ecb.RemoveComponent<TargetEntity>(bee);
-                }
-                else
-                {
-                    //Make the bee move towards the target entity
-                    // TODO figure out how to replace EntityManager
-                    Translation targetEntityTranslationComponent = EntityManager.GetComponentData<Translation>(targetEntity.Value);
-                    float3 direction = targetEntityTranslationComponent.Value - translation.Value;
-
-                    float maxSpeed = speed.Value;
-                    float acceleration = 2.5f;
-                    velocity.Value.y *= 0.1f;
-                    velocity.Value += math.normalize( direction ) * deltaTime * acceleration;
-                    float currentSpeed = math.length( velocity.Value );
-                    if( currentSpeed > maxSpeed )
-                        velocity.Value = math.normalize( velocity.Value ) * maxSpeed;
-
-                    //If the bee is close enough, change its state to Carrying
-                    float d = math.length(direction);
-                    if (d < 1)
-                    {
-                        ecb.AddComponent<Parent>(targetEntity.Value, new Parent { Value = bee });
-                        ecb.AddComponent<Taken>(targetEntity.Value);
-                        ecb.AddComponent<LocalToParent>(targetEntity.Value);
-                        ecb.SetComponent<Translation>(targetEntity.Value, new Translation { Value = new float3(0, -1, 0) });
-
-                        //Remove the target entity
-                        ecb.RemoveComponent<TargetEntity>(bee);
-
-                        float3 hivePosition;
-                        float hiveDistance = battlefield.HiveDistance + 10f;
-
-                        //TODO : take into acount the position of the battlefield (if it's not in 0,0,0)
-                        if (HasComponent<TeamA>(bee))
-                            hivePosition = new float3(0, 0, -hiveDistance);
-                        else
-                            hivePosition = new float3(0, 0, hiveDistance);
-                        
-                        ecb.AddComponent<TargetPosition>(bee, new TargetPosition { Value = hivePosition });
-                        ecb.RemoveComponent<Collecting>(bee);
-                        ecb.AddComponent<Carrying>(bee, new Carrying { Value = targetEntity.Value });
-                    }
+                    ecb.SetComponent<TargetPosition>(bee, new TargetPosition { Value = hivePosition });
+                    ecb.AddComponent<Carrying>(bee, new Carrying { Value = targetEntity.Value });
                 }
                 
             } ).Run();

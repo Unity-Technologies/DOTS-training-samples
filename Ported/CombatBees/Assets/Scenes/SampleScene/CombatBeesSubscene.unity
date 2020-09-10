@@ -153,8 +153,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ResourcePrefab: {fileID: 6796786519604154143, guid: 9dd20c3ba322e4a0daf71240bf805f76, type: 3}
-  SizeX: 5
-  SizeZ: 5
+  SizeX: 10
+  SizeZ: 10
 --- !u!4 &244323937
 Transform:
   m_ObjectHideFlags: 0
@@ -163,7 +163,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 244323935}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 14.5}
+  m_LocalPosition: {x: 0, y: -10, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -252,7 +252,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab_TeamA: {fileID: 5247711925181765031, guid: 37e540243fb444a569131373a7d1f63f, type: 3}
   BeePrefab_TeamB: {fileID: 5247711925181765031, guid: 873e4cff187af45719eaea6e9ce6fd1b, type: 3}
-  Count: 20
+  Count: 50
 --- !u!114 &1078437658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -311,7 +311,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab_TeamA: {fileID: 5247711925181765031, guid: 37e540243fb444a569131373a7d1f63f, type: 3}
   BeePrefab_TeamB: {fileID: 5247711925181765031, guid: 873e4cff187af45719eaea6e9ce6fd1b, type: 3}
-  Count: 20
+  Count: 50
 --- !u!114 &1360276479
 MonoBehaviour:
   m_ObjectHideFlags: 0

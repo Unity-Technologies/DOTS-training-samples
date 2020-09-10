@@ -2,14 +2,10 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 
-
-[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateBefore(typeof(MovementSystem))]
 public class BeeAttackingSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
-
-    private Random m_Random;
-    private EntityCommandBufferSystem m_ECBSystem;
 
     protected override void OnCreate()
     {
@@ -29,7 +25,6 @@ public class BeeAttackingSystem : SystemBase
                 .WithoutBurst()
                 .ForEach( ( Entity bee, ref Velocity velocity, in Translation translation, in TargetEntity targetEntity, in Speed speed) =>
             {
-
                 //If the target bee is dying, agonizing or Destroyed (does not have translation component), back to idle
                 if (HasComponent<Dying>(targetEntity.Value) || HasComponent<Agony>(targetEntity.Value) || !HasComponent<Rotation>(targetEntity.Value))
                 {
@@ -42,9 +37,8 @@ public class BeeAttackingSystem : SystemBase
                     //Make the bee move towards the target entity
                     Translation targetEntityTranslationComponent = EntityManager.GetComponentData<Translation>(targetEntity.Value);
                     float3 direction = targetEntityTranslationComponent.Value - translation.Value;
-                    velocity.Value = math.normalize( direction ) * speed.Value;
 
-                    //If the bee is close enough, change its state to Carrying
+                    //If the bee is close enough, kill the other bee
                     float d = math.length(direction);
                     if (d < 1)
                     {
@@ -70,11 +64,10 @@ public class BeeAttackingSystem : SystemBase
                             ecb.RemoveComponent<TargetEntity>(bee);
                             ecb.RemoveComponent<Attack>(bee);
                             ecb.AddComponent<Carrying>(bee, new Carrying { Value = carryingComponentFromEnemy.Value });
-                            ecb.AddComponent<TargetPosition>(bee, new TargetPosition { Value = hivePosition });
+                            ecb.SetComponent<TargetPosition>(bee, new TargetPosition { Value = hivePosition });
                         }
                         else
                         {
-
                             //Switch to Idle
                             ecb.RemoveComponent<TargetEntity>(bee);
                             ecb.RemoveComponent<Attack>(bee);
@@ -95,10 +88,11 @@ public class BeeAttackingSystem : SystemBase
                             ecb.RemoveComponent<Carrying>(targetEntity.Value);
                         if(HasComponent<Collecting>(targetEntity.Value))
                             ecb.RemoveComponent<Collecting>(targetEntity.Value);
-                            
-
-                        ecb.AddComponent<Velocity>(targetEntity.Value, new Velocity { Value = new float3(0, 0, 0) } );
-
+                    }
+                    else if( d < 10 )
+                    {
+                        // sprint towards the 
+                        velocity.Value += direction * deltaTime * 20;
                     }
                 }
                 

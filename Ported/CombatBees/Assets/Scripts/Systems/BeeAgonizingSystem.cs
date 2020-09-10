@@ -4,7 +4,6 @@ using Unity.Transforms;
 using Unity.Collections;
 using UnityEngine;
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
 [UpdateBefore(typeof(BeeAttackingSystem))]
 public class BeeAgonizingSystem : SystemBase
 {

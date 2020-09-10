@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
@@ -6,45 +7,37 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class BeeSpawningSystem : SystemBase
 {
-    private EntityCommandBufferSystem m_CommandBufferSystem;
+    private Random m_Random;
     
     protected override void OnCreate()
     {
-        m_CommandBufferSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+        m_Random = new Random( 7 );
     }
-
+    
     protected override void OnUpdate()
     {
-        var ecb = m_CommandBufferSystem.CreateCommandBuffer();
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var random = new Random( (uint)m_Random.NextUInt() );
 
+        // Spawn synchronously
         Entities.ForEach((Entity spawnerEntity, in BeeSpawner spawner, in Translation spawnerTranslation) =>
         {
-
-            //TODO : spawn the food equally on both side of the axis
             bool isTeamA = HasComponent<TeamA>( spawnerEntity );
-            if( isTeamA )
+            Entity beePrefab = isTeamA ? spawner.BeePrefab_TeamA : spawner.BeePrefab_TeamB;
+            for( int i = 0; i < spawner.Count; ++i )
             {
-                // make it as teamA
-                for( int i = 0; i < spawner.Count; ++i )
-                {
-                    var instance = ecb.Instantiate(spawner.BeePrefab_TeamA);
-                    ecb.SetComponent(instance, new Translation {Value = spawnerTranslation.Value});
-                    ecb.AddComponent<Idle>( instance );
-                }
+                var instance = ecb.Instantiate(beePrefab);
+                ecb.SetComponent(instance, new Translation {Value = spawnerTranslation.Value});
+                ecb.AddComponent<Idle>( instance );
+                ecb.AddComponent<TargetPosition>( instance, new TargetPosition { Value = float3.zero } );
+                
+                // apply initial direction and speed
+                ecb.SetComponent<Velocity>( instance, new Velocity{ Value = random.NextFloat3Direction() * 30 });
             }
-            else
-            {
-                // make it as teamB
-                for( int i = 0; i < spawner.Count; ++i )
-                {
-                    var instance = ecb.Instantiate(spawner.BeePrefab_TeamB);
-                    ecb.SetComponent(instance, new Translation {Value = spawnerTranslation.Value});
-                    ecb.AddComponent<Idle>( instance );
-                }
-            }
-            
             ecb.DestroyEntity(spawnerEntity);
-        }).Schedule();
-        m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
+        }).Run();
+        
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }

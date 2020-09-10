@@ -3,5 +3,6 @@
 [GenerateAuthoringComponent]
 public struct Speed : IComponentData
 {
-	public float Value;
+	public float TopSpeed;
+	public float Acceleration;
 }
