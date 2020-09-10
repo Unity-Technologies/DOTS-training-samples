@@ -14,7 +14,7 @@ public class AnimalMovementSystem : SystemBase
     const float TileOffset = TileSize / 2f;
 
     // Sequential tile index from grid position
-    static int TileKeyFromPosition(float2 position)
+    public static int TileKeyFromPosition(float2 position)
     {
         var iPos = new int2((position + TileOffset) / TileSize);
         var key = iPos.x + iPos.y * TileCount;
