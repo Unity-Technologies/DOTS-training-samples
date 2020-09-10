@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Rendering;
 
 public class BoardCreationSystem : SystemBase
 {
@@ -11,11 +12,12 @@ public class BoardCreationSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        System.Random random = new System.Random();
         Entities
         .WithNone<CreationComplete>()
         .ForEach((Entity e, in BoardCreationAuthor boardCreationAuthor) =>
         {
-            Random rand = new Random(1);
+            Random rand = new Random((uint)random.Next());
             for (int x = 0; x < boardCreationAuthor.SizeX; x++)
             {
                 for (int y = 0; y < boardCreationAuthor.SizeY; y++)
@@ -43,9 +45,9 @@ public class BoardCreationSystem : SystemBase
                         newTile.Value = Tile.Attributes.WallLeft;
                         PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallLeft);
                         if (y == 0)
-                            newTile.Value = Tile.Attributes.WallUp | Tile.Attributes.WallLeft | Tile.Attributes.Spawn;
+                            newTile.Value = Tile.Attributes.WallUp | Tile.Attributes.WallLeft;
                         else if (y == boardCreationAuthor.SizeY - 1)
-                            newTile.Value = Tile.Attributes.WallDown | Tile.Attributes.WallLeft | Tile.Attributes.Spawn;
+                            newTile.Value = Tile.Attributes.WallDown | Tile.Attributes.WallLeft;
                     }
                     else if (x == boardCreationAuthor.SizeX - 1)
                     {
@@ -53,40 +55,53 @@ public class BoardCreationSystem : SystemBase
                         PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallRight);
                         if (y == 0)
                         {
-                            newTile.Value = Tile.Attributes.WallUp | Tile.Attributes.WallRight | Tile.Attributes.Spawn;
+                            newTile.Value = Tile.Attributes.WallUp | Tile.Attributes.WallRight;
                         }
                             
                         else if (x == boardCreationAuthor.SizeX - 1 && y == boardCreationAuthor.SizeY - 1)
                         {
-                            newTile.Value = Tile.Attributes.WallDown | Tile.Attributes.WallRight | Tile.Attributes.Spawn;
+                            newTile.Value = Tile.Attributes.WallDown | Tile.Attributes.WallRight;
                         }
                             
                     }
 
                     // Place Random Walls and Holes
-                    if (rand.NextInt(0, 100) < 20)
+                    if (rand.NextInt(0, 100) < boardCreationAuthor.randomAmount)
                     {
                         var result = rand.NextInt(0, 4);
                         switch (result)
                         {
                             case 0:
-                                newTile.Value |= Tile.Attributes.Hole;
+                                if(x != 0 || x != boardCreationAuthor.SizeX -1 || y != 0 || y != boardCreationAuthor.SizeY -1)
+                                    newTile.Value |= Tile.Attributes.Hole;
                                 break;
                             case 1:
-                                newTile.Value |= Tile.Attributes.WallDown;
-                                PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallDown);
+                                if(y != boardCreationAuthor.SizeY -1)
+                                {
+                                    newTile.Value |= Tile.Attributes.WallDown;
+                                    PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallDown);
+                                }
                                 break;
                             case 2:
-                                newTile.Value |= Tile.Attributes.WallLeft;
-                                PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallLeft);
+                                if(x!=0)
+                                {
+                                    newTile.Value |= Tile.Attributes.WallLeft;
+                                    PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallLeft);
+                                }
                                 break;
                             case 3:
-                                newTile.Value |= Tile.Attributes.WallRight;
-                                PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallRight);
+                                if(x!= boardCreationAuthor.SizeX-1)
+                                {
+                                    newTile.Value |= Tile.Attributes.WallRight;
+                                    PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallRight);
+                                }
                                 break;
                             case 4:
-                                newTile.Value |= Tile.Attributes.WallUp;
-                                PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallUp);
+                                if(y!=0)
+                                {
+                                    newTile.Value |= Tile.Attributes.WallUp;
+                                    PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallUp);
+                                }
                                 break;
                         }
                     }
@@ -107,7 +122,8 @@ public class BoardCreationSystem : SystemBase
                     tilePos.Value = new float2(x, y);
                     EntityManager.AddComponentData(tile, newTile);
                     EntityManager.AddComponentData(tile, tilePos);
-
+                    if(newTile.Value == Tile.Attributes.Hole)
+                        EntityManager.RemoveComponent<RenderMesh>(tile);
 
                 }
             }

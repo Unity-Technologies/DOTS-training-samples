@@ -155,8 +155,11 @@ MonoBehaviour:
   TilePrefab: {fileID: 5986813661509308332, guid: 10b2ec5ff9cc64fc496a1fb3b3759dc5, type: 3}
   WallPrefab: {fileID: 4284041113318586048, guid: 3d34ab4d17c014457aea246ebba3761a, type: 3}
   GoalPrefab: {fileID: 8880445121438370549, guid: 31f3c9145a7e044f3b6c04e85609fec4, type: 3}
-  SizeY: 30
-  SizeX: 30
+  SizeY: 20
+  SizeX: 20
+  randomAmount: 30
+  RatSpawner: {fileID: 0}
+  CatSpawner: {fileID: 0}
 --- !u!4 &2077806282
 Transform:
   m_ObjectHideFlags: 0
