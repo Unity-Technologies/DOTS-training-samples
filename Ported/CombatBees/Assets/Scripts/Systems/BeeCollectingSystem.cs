@@ -59,7 +59,7 @@ public class BeeCollectingSystem : SystemBase
 
 
                         float3 hivePosition;
-                        float hiveDistance = battlefield.HiveDistance;
+                        float hiveDistance = battlefield.HiveDistance + 1f;
 
                         //TODO : take into acount the position of the battlefield (if it's not in 0,0,0)
                         if (HasComponent<TeamA>(bee))
