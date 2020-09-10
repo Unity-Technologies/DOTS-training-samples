@@ -62,22 +62,48 @@ public class BeeAttackingSystem : SystemBase
                             ecb.SetComponent<Translation>(carryingComponentFromEnemy.Value, translation);
                         }
 
-                        ecb.AddComponent<Dying>(targetEntity.Value);
+                         if(HasComponent<Rotation>(targetEntity.Value))
+                        {
+                            ecb.AddComponent<Dying>(targetEntity.Value);
+                        }
+                        
+                        //Figure out a better way of doing this
+                        if(HasComponent<Idle>(targetEntity.Value))
+                            ecb.RemoveComponent<Idle>(targetEntity.Value);
+                        
+                        if(HasComponent<Attack>(targetEntity.Value))
+                            ecb.RemoveComponent<Attack>(targetEntity.Value);
 
-                        ecb.AddComponent<Velocity>(targetEntity.Value, new Velocity { Value = new float3(0, 0, 0) } );
+                        if(HasComponent<Carrying>(targetEntity.Value))
+                            ecb.RemoveComponent<Carrying>(targetEntity.Value);
 
-                        //Remove the target entity
-                        ecb.RemoveComponent<TargetEntity>(bee);
+                        if(HasComponent<Collecting>(targetEntity.Value))
+                            ecb.RemoveComponent<Collecting>(targetEntity.Value);
+                            
 
-                        //Remove attacking component
-                        ecb.RemoveComponent<Attack>(bee);
+                        if(HasComponent<Rotation>(targetEntity.Value))
+                        {
+                            ecb.AddComponent<Velocity>(targetEntity.Value, new Velocity { Value = new float3(0, 0, 0) } );
 
-                        //Switch to Idle
-                        ecb.AddComponent<Idle>(bee);
+                        }
+
+
+                        if(HasComponent<Rotation>(bee)){
+                            //Remove the target entity
+                            ecb.RemoveComponent<TargetEntity>(bee);
+
+                            //Remove attacking component
+                            ecb.RemoveComponent<Attack>(bee);
+
+                            //Switch to Idle
+                            ecb.AddComponent<Idle>(bee);
+                        }
 
                     }
                 }
                 
             } ).Run();
+
+            m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }

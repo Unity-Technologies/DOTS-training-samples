@@ -1,9 +1,10 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-
+using Unity.Collections;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateBefore(typeof(BeeAttackingSystem))]
 public class BeeAgonizingSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
@@ -15,14 +16,14 @@ public class BeeAgonizingSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = m_CommandBufferSystem.CreateCommandBuffer();
+
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
         var deltaTime = Time.DeltaTime;
 
         var b = GetSingleton<BattleField>();
 
         Entities.WithAll<Agony>()
-                .WithoutBurst()
                 .ForEach( ( Entity bee, ref Scale scale) =>
             {
                 
@@ -32,10 +33,14 @@ public class BeeAgonizingSystem : SystemBase
 
                 if(scale.Value <= 0)
                 {
-                    //ecb.DestroyEntity( bee );
+                    ecb.DestroyEntity( bee );
                 }
 
 
             } ).Run();
+
+            //Play the ECB directly after
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
     }
 }

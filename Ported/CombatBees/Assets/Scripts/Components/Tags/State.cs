@@ -25,17 +25,6 @@ public struct Agony : IComponentData
 
 }
 
-public struct Wounded : IComponentData
-{
-
-}
-
-
-public struct Spawning : IComponentData
-{
-
-}
-
 public struct Taken : IComponentData
 {
 

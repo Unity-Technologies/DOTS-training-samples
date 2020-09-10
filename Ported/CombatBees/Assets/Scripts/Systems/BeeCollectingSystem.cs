@@ -26,7 +26,7 @@ public class BeeCollectingSystem : SystemBase
                 .WithNone<Velocity>()
                 .ForEach( ( Entity bee, ref Translation translation, in TargetEntity targetEntity, in Speed speed) =>
             {
-                if (!EntityManager.Exists(targetEntity.Value))
+                if (!HasComponent<Rotation>(targetEntity.Value))
                 {
                     //Remove the collecting tag from the bee
                     ecb.RemoveComponent<Collecting>(bee);
