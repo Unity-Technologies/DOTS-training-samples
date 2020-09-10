@@ -60,8 +60,6 @@ public class IdleBeeSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        
-        
         var random = new Random( (uint)m_Random.NextInt() );
         
         int resourceEntitiesLength = m_ResourceQuery.CalculateEntityCount();
@@ -97,8 +95,6 @@ public class IdleBeeSystem : SystemBase
                     ecb.AddComponent<Attack>( bee );
                     ecb.AddComponent( bee, new TargetEntity { Value = beeEntities_TeamB[targetIndex] } );
                 }
-                    
-
             } ).Schedule();
             
             Entities.WithAll<TeamB>()

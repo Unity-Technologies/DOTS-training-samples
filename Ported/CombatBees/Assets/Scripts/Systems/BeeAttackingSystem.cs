@@ -23,9 +23,8 @@ public class BeeAttackingSystem : SystemBase
         var deltaTime = Time.DeltaTime;
 
         Entities.WithAll<Attack>()
-                .WithNone<Velocity>()
                 .WithoutBurst()
-                .ForEach( ( Entity bee, ref Translation translation, in TargetEntity targetEntity, in Speed speed) =>
+                .ForEach( ( Entity bee, ref Velocity velocity, in Translation translation, in TargetEntity targetEntity, in Speed speed) =>
             {
 
                 //If the target bee is dying, agonizing or Destroyed (does not have translation component), back to idle
@@ -37,19 +36,15 @@ public class BeeAttackingSystem : SystemBase
                 }
                 else
                 {
-
                     //Make the bee move towards the target entity
                     Translation targetEntityTranslationComponent = EntityManager.GetComponentData<Translation>(targetEntity.Value);
                     float3 direction = targetEntityTranslationComponent.Value - translation.Value;
-                    float3 directionNormalized = math.normalize(direction);
-
-                    translation.Value += directionNormalized * speed.Value * deltaTime;
+                    velocity.Value = math.normalize( direction ) * speed.Value;
 
                     //If the bee is close enough, change its state to Carrying
                     float d = math.length(direction);
                     if (d < 1)
                     {
-
                         //If the enemy is carrying something, we need to un-parent that "something"
                         if(HasComponent<Carrying>(targetEntity.Value))
                         {
@@ -61,44 +56,26 @@ public class BeeAttackingSystem : SystemBase
 
                             ecb.SetComponent<Translation>(carryingComponentFromEnemy.Value, translation);
                         }
-
-                         if(HasComponent<Rotation>(targetEntity.Value))
-                        {
-                            ecb.AddComponent<Dying>(targetEntity.Value);
-                        }
                         
-                        //Figure out a better way of doing this
+                        ecb.AddComponent<Dying>(targetEntity.Value);
+                        
+                        // TODO Figure out a better way of doing this
                         if(HasComponent<Idle>(targetEntity.Value))
                             ecb.RemoveComponent<Idle>(targetEntity.Value);
-                        
                         if(HasComponent<Attack>(targetEntity.Value))
                             ecb.RemoveComponent<Attack>(targetEntity.Value);
-
                         if(HasComponent<Carrying>(targetEntity.Value))
                             ecb.RemoveComponent<Carrying>(targetEntity.Value);
-
                         if(HasComponent<Collecting>(targetEntity.Value))
                             ecb.RemoveComponent<Collecting>(targetEntity.Value);
                             
 
-                        if(HasComponent<Rotation>(targetEntity.Value))
-                        {
-                            ecb.AddComponent<Velocity>(targetEntity.Value, new Velocity { Value = new float3(0, 0, 0) } );
+                        ecb.AddComponent<Velocity>(targetEntity.Value, new Velocity { Value = new float3(0, 0, 0) } );
 
-                        }
-
-
-                        if(HasComponent<Rotation>(bee)){
-                            //Remove the target entity
-                            ecb.RemoveComponent<TargetEntity>(bee);
-
-                            //Remove attacking component
-                            ecb.RemoveComponent<Attack>(bee);
-
-                            //Switch to Idle
-                            ecb.AddComponent<Idle>(bee);
-                        }
-
+                        //Switch to Idle
+                        ecb.RemoveComponent<TargetEntity>(bee);
+                        ecb.RemoveComponent<Attack>(bee);
+                        ecb.AddComponent<Idle>(bee);
                     }
                 }
                 

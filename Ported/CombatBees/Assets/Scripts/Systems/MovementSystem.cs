@@ -22,7 +22,7 @@ public class GravitySystem : SystemBase
                     if (translation.Value.y < -b.Bounds.y / 2)
                     {
                         velocity.Value.y *= -1;
-                        velocity.Value.y *= 0.3f;
+                        velocity.Value *= 0.3f;
                     }
                     translation.Value.y = math.clamp(translation.Value.y, -b.Bounds.y / 2, b.Bounds.y / 2);
 
