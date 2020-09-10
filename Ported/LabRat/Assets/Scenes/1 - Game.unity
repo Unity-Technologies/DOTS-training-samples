@@ -42403,14 +42403,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 602864402, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_Text
-      value: Set...
-      objectReference: {fileID: 0}
-    - target: {fileID: 1103233796, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_Text
-      value: Go!
-      objectReference: {fileID: 0}
     - target: {fileID: 1329692887113484, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
       propertyPath: m_Name
       value: UI
