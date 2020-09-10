@@ -11,7 +11,7 @@ public class ClothApplyGravitySystem : SystemBase
 	struct ApplyGravityJob : IJobParallelFor
 	{
 		[NoAlias] public NativeArray<float3> vertexPosition;
-		[NoAlias] public NativeArray<float3> oldVertexPosition;
+		[NoAlias] public NativeArray<float3> vertexPositionOld;
 		[NoAlias, ReadOnly] public NativeArray<float> vertexInvMass;
 		public float deltaTime;
 
@@ -19,15 +19,15 @@ public class ClothApplyGravitySystem : SystemBase
 		{
 			if (vertexInvMass[i] > 0.0f)
 			{
-				float3 oldVert = oldVertexPosition[i];
+				float3 oldVert = vertexPositionOld[i];
 				float3 vert = vertexPosition[i];
 
 				float3 startPos = vert;
-				oldVert -= ClothConfig.gravity * deltaTime * deltaTime;
+				oldVert -= ClothConfig.worldGravity * deltaTime * deltaTime;
 				vert += (vert - oldVert);
 
 				vertexPosition[i] = vert;
-				oldVertexPosition[i] = startPos;
+				vertexPositionOld[i] = startPos;
 			}
 		}
 	}
@@ -39,7 +39,7 @@ public class ClothApplyGravitySystem : SystemBase
 			var job = new ApplyGravityJob
 			{
 				vertexPosition = clothMesh.vertexPosition,
-				oldVertexPosition = clothMesh.vertexPositionOld,
+				vertexPositionOld = clothMesh.vertexPositionOld,
 				vertexInvMass = clothMesh.vertexInvMass,
 				deltaTime = Time.DeltaTime,
 			};

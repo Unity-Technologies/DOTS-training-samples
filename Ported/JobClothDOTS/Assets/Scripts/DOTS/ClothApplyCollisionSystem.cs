@@ -31,7 +31,7 @@ public class ClothApplyCollisionSystem : SystemBase
 			var job = new ApplyCollisionJob
 			{
 				vertexPosition = clothMesh.vertexPosition,
-				groundHeight = ClothConfig.groundHeight,
+				groundHeight = ClothConfig.worldGroundHeight,
 			};
 
 			clothMeshToken.jobHandle = job.Schedule(job.vertexPosition.Length, 64, clothMeshToken.jobHandle);
