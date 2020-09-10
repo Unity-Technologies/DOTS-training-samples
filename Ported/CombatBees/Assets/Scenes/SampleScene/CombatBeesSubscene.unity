@@ -202,7 +202,7 @@ MonoBehaviour:
     x: 30
     y: 30
     z: 120
-  HiveDistance: 45
+  HiveDistance: 30
   BeeSpawner: {fileID: 507254545094959267, guid: df324d873732f304787b09c69f9485fd, type: 3}
 --- !u!4 &254280926
 Transform:

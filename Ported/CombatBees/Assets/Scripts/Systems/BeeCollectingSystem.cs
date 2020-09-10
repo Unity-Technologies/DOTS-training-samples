@@ -68,7 +68,7 @@ public class BeeCollectingSystem : SystemBase
                         ecb.RemoveComponent<TargetEntity>(bee);
 
                         float3 hivePosition;
-                        float hiveDistance = battlefield.HiveDistance + 1f;
+                        float hiveDistance = battlefield.HiveDistance + 10f;
 
                         //TODO : take into acount the position of the battlefield (if it's not in 0,0,0)
                         if (HasComponent<TeamA>(bee))
