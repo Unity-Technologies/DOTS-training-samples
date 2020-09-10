@@ -24,7 +24,7 @@ public class ResourceSpawningSystem : SystemBase
                 for (int x = 0; x < spawner.SizeX; ++x)
                 {
                     var instance = ecb.Instantiate(spawner.ResourcePrefab);
-                    var translation = spawnerTranslation.Value + new float3(x - (spawner.SizeX - 1) / 2f, 0, z);
+                    var translation = spawnerTranslation.Value + new float3(x - (spawner.SizeX - 1) / 2f, 0, z - (spawner.SizeZ - 1) / 2f);
                     //translation *= brickSize * 1.1f;
                     ecb.SetComponent(instance, new Translation {Value = translation});
                 }
