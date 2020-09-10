@@ -184,68 +184,70 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 			meshData[0].GetIndices(indexBuffer, 0);
 			//Debug.Assert(indexCount % 3 == 0, "indexCount is not a multiple of 3");
 
-			var edgeHashMap = new NativeHashMap<ulong, int2>(indexCount, Allocator.Temp);
-
-			// loop over triangles
-			for (int i = 0; i != indexCount; i += 3)
+			using (var edgeHashMap = new NativeHashMap<ulong, int2>(indexCount, Allocator.Temp))
 			{
-				// triangle edges are
-				// i,j
-				// j,k
-				// k,i
 
-				int j = i + 1;
-				int k = i + 2;
-
-				// loop over edges in each triangle
-				for (int e = 0; e != 3; e++)
+				// loop over triangles
+				for (int i = 0; i != indexCount; i += 3)
 				{
-					int v0 = indexBuffer[e == 2 ? k : i + e];
-					int v1 = indexBuffer[e == 2 ? i : j + e];
+					// triangle edges are
+					// i,j
+					// j,k
+					// k,i
 
-					// sort the vertex indices
-					if (v0 > v1)
+					int j = i + 1;
+					int k = i + 2;
+
+					// loop over edges in each triangle
+					for (int e = 0; e != 3; e++)
 					{
-						var tmp = v0;
-						v0 = v1;
-						v1 = tmp;
+						int v0 = indexBuffer[e == 2 ? k : i + e];
+						int v1 = indexBuffer[e == 2 ? i : j + e];
+
+						// sort the vertex indices
+						if (v0 > v1)
+						{
+							var tmp = v0;
+							v0 = v1;
+							v1 = tmp;
+						}
+
+						// skip edge if both vertices have zero mass (pinned)
+						if (bufferInvMass[v0] + bufferInvMass[v1] == 0.0f)
+							continue;
+
+						// make 64 bit key based on sorted vertex indices
+						var key = (ulong)((uint)v1) << 32 | (ulong)((uint)v0);
+
+						// use 64 bit key to update NativeHashMap
+						var indexPair = new int2
+						{
+							x = v0,
+							y = v1,
+						};
+
+						edgeHashMap.TryAdd(key, indexPair);
 					}
-
-					// skip edge if both vertices have zero mass (pinned)
-					if (bufferInvMass[v0] + bufferInvMass[v1] == 0.0f)
-						continue;
-
-					// make 64 bit key based on sorted vertex indices
-					var key = (ulong)((uint)v1) << 32 | (ulong)((uint)v0);
-
-					// use 64 bit key to update NativeHashMap
-					var indexPair = new int2
-					{
-						x = v0,
-						y = v1,
-					};
-
-					edgeHashMap.TryAdd(key, indexPair);
 				}
-			}
 
-			// loop over index pairs
-			foreach (var edgeKeyValue in edgeHashMap)
-			{
-				// find the length
-				var indexPair = edgeKeyValue.Value;
-				var length = math.distance(bufferPosition[indexPair.x], bufferPosition[indexPair.y]);
-
-				//TODO: speed up
-				// create an entity with the ClothMesh and ClothEdge components
-				var edgeEntity = conversionSystem.CreateAdditionalEntity(this);
+				// loop over index pairs
+				foreach (var edgeKeyValue in edgeHashMap)
 				{
-					dstManager.AddSharedComponentData(edgeEntity, clothMesh);
-					dstManager.AddComponentData(edgeEntity, new ClothEdge
+					// find the length
+					var indexPair = edgeKeyValue.Value;
+					var length = math.distance(bufferPosition[indexPair.x], bufferPosition[indexPair.y]);
+
+					//TODO: speed up
+					// create an entity with the ClothMesh and ClothEdge components
+					var edgeEntity = conversionSystem.CreateAdditionalEntity(this);
 					{
-						IndexPair = indexPair,
-						Length = length,
-					});
+						dstManager.AddSharedComponentData(edgeEntity, clothMesh);
+						dstManager.AddComponentData(edgeEntity, new ClothEdge
+						{
+							IndexPair = indexPair,
+							Length = length,
+						});
+					}
 				}
 			}
 		}
