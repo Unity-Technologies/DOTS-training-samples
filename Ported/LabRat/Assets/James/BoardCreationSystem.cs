@@ -22,6 +22,7 @@ public class BoardCreationSystem : SystemBase
                     Entity tile = EntityManager.Instantiate(boardCreationAuthor.TilePrefab);
                     Tile newTile = new Tile();
                     PositionXZ tilePos = new PositionXZ();
+                    Translation translation = new Translation();
 
                     // Create the outer walls & spawn points
                     if (y == 0)
@@ -77,28 +78,16 @@ public class BoardCreationSystem : SystemBase
 
                     // Place Goals
 
-                    if (x == 2)
+                    if (x == 2 || x == boardCreationAuthor.SizeX - 3)
                     {
                         if(y == 2 || y == boardCreationAuthor.SizeY - 3)
                         {
                             newTile.Value = Tile.Attributes.Goal;
-                            tilePos.Value = new float2(x, y+0.5f);
+                            translation.Value = new float3(x, 0.75f, y);
                             Entity goal = EntityManager.Instantiate(boardCreationAuthor.GoalPrefab);
-                            EntityManager.AddComponentData(goal, tilePos);
+                            EntityManager.AddComponentData(goal, translation);
                         }
                     }
-                    if (y == 2)
-                    {
-                        if (x == 2 || x == boardCreationAuthor.SizeX - 3)
-                        {
-                            newTile.Value = Tile.Attributes.Goal;
-                            tilePos.Value = new float2(x, y+0.5f);
-                            Entity goal = EntityManager.Instantiate(boardCreationAuthor.GoalPrefab);
-                            EntityManager.AddComponentData(goal, tilePos);
-                        }
-                    }
-
-
                     // Set Tile values
 
                     tilePos.Value = new float2(x, y);
