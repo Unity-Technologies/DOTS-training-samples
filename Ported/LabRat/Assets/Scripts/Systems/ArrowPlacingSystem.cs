@@ -97,7 +97,7 @@ public class ArrowPlacingSystem : SystemBase
                     {
                         for (int j = 0; j < arrowEntities.Length; j++)
                         {
-                            var arrowPosition = (int2)arrowPositions[i].Value.xz;
+                            var arrowPosition = (int2)arrowPositions[j].Value.xz;
                             if (math.any(tilePosition != arrowPosition))
                                 continue;
 
