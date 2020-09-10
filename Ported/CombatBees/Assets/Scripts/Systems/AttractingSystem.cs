@@ -4,9 +4,8 @@ using Unity.Jobs;
 using Unity.Transforms;
 using Unity.Mathematics;
 
-public class IdleBeeSystem : SystemBase
+public class AttractingSystem : SystemBase
 {
-    private EntityQuery m_ResourceQuery;
     private EntityQuery m_TeamABees;
     private EntityQuery m_TeamBBees;
     
@@ -15,17 +14,6 @@ public class IdleBeeSystem : SystemBase
     
     protected override void OnCreate()
     {
-        m_ResourceQuery = GetEntityQuery(new EntityQueryDesc
-        {
-            All = new[]
-            {
-                ComponentType.ReadOnly<Resource>(),
-            },
-            None = new []
-            {
-                ComponentType.ReadOnly<Taken>(), 
-            }
-        });
         
         m_TeamABees = GetEntityQuery(new EntityQueryDesc
         {
@@ -60,12 +48,11 @@ public class IdleBeeSystem : SystemBase
     
     protected override void OnUpdate()
     {
+        /*
         var random = new Random( (uint)m_Random.NextInt() );
         
-        int resourceEntitiesLength = m_ResourceQuery.CalculateEntityCount();
         var ecb = m_ECBSystem.CreateCommandBuffer();
-        if( resourceEntitiesLength == 0 )
-        {
+
 
             int teamABeesEntitiesLength = m_TeamABees.CalculateEntityCount();
             int teamBBeesEntitiesLength = m_TeamBBees.CalculateEntityCount();
@@ -114,28 +101,8 @@ public class IdleBeeSystem : SystemBase
                        
 
                 } ).Schedule();
-        }
-        else
-        {
-            
-            var resourceEntities =
-            m_ResourceQuery.ToEntityArrayAsync(Allocator.TempJob, out var resourcesEntitiesHandle);
-       
-            
-            Dependency = JobHandle.CombineDependencies(Dependency, resourcesEntitiesHandle);
-
-            Entities.WithAll<Idle>()
-                .WithDisposeOnCompletion( resourceEntities )
-                .ForEach( ( Entity bee ) =>
-            {
-                ecb.RemoveComponent<Idle>( bee );
-                ecb.AddComponent<Collecting>( bee );
-
-                int targetIndex = random.NextInt( 0, resourceEntitiesLength );
-                ecb.AddComponent( bee, new TargetEntity {Value = resourceEntities[targetIndex]} );
-            } ).Schedule();
-        }
         
         m_ECBSystem.AddJobHandleForProducer(Dependency);
+        */
     }
 }
