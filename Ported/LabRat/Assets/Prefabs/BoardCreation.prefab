@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1282879319953667177}
   - component: {fileID: 1282879319953667178}
+  - component: {fileID: 108318998069800121}
   m_Layer: 0
   m_Name: BoardCreation
   m_TagString: Untagged
@@ -45,9 +46,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TilePrefab: {fileID: 1695157876856304, guid: c2ef2e9ce5dad494d916f59769e7d27f, type: 3}
   WallPrefab: {fileID: 1948033712935058, guid: eea26364a72844748944744db673f3f1, type: 3}
-  GoalPrefab: {fileID: 1633874070064508, guid: 9394fae3aa493460f81bfa9743f81448, type: 3}
+  GoalPrefab: {fileID: 8880445121438370549, guid: 31f3c9145a7e044f3b6c04e85609fec4, type: 3}
   SizeY: 13
   SizeX: 13
-  randomAmount: 0
+  randomAmount: 75
   RatSpawner: {fileID: 1298946766065678, guid: 2c08b8c1095e74ed08e4ced0db304913, type: 3}
   CatSpawner: {fileID: 1594238416730554, guid: 03de37e26e165482c8b6501249f3b186, type: 3}
+--- !u!114 &108318998069800121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282879319953667179}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6a5d6d8f41f00842b8c1d61abde3efb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
