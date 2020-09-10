@@ -87,6 +87,7 @@ public class AnimalMovementSystem : SystemBase
             /*.WithReadOnly(posComponentData)*/
             .WithNativeDisableParallelForRestriction(posComponentData)
             .WithAll<PositionXZ>()
+            .WithNone<Falling>()
             .ForEach((Entity entity, int entityInQueryIndex, /*ref PositionXZ pos,*/ ref Direction direction, in Speed speed) =>
         {
             // TEMP Grab pos from component array
@@ -159,10 +160,8 @@ public class AnimalMovementSystem : SystemBase
                         {
 #if DEBUGGABLE
                             Debug.Log($"Fell into hole. I am falling!");
-                            ecb.RemoveComponent<PositionXZ>(entity);
                             ecb.AddComponent<Falling>(entity);
 #else
-                            ecb.RemoveComponent<PositionXZ>(entityInQueryIndex, entity);
                             ecb.AddComponent<Falling>(entityInQueryIndex, entity);
 #endif
                         }
