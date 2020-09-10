@@ -66,7 +66,7 @@ public class BoardCreationSystem : SystemBase
                         switch (result)
                         {
                             case 0:
-                                if (x != 0 || x != boardCreationAuthor.SizeX - 1 || y != 0 || y != boardCreationAuthor.SizeY - 1)
+                                if (x != 0 && x != boardCreationAuthor.SizeX - 1 && y != 0 && y != boardCreationAuthor.SizeY - 1)
                                     newTile.Value |= Tile.Attributes.Hole;
                                 break;
 
@@ -143,6 +143,9 @@ public class BoardCreationSystem : SystemBase
                         EntityManager.AddComponent<DisableRendering>(tile);
                 }
             }
+
+            // HACK - needs removing
+            UnityEngine.Camera.main.transform.position = new UnityEngine.Vector3(boardCreationAuthor.SizeX /2, 4, boardCreationAuthor.SizeY /2);
 
             EntityManager.RemoveComponent<GameStateInitialize>(e);
         }).WithStructuralChanges().Run();
