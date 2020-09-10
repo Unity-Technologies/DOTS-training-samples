@@ -1,8 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
-struct WantsGameStateTransitions : IComponentData {}
-
 struct GameStateInitialize : IComponentData {}
 struct GameStateStart : IComponentData {}
 struct GameStateRunning : IComponentData {}
