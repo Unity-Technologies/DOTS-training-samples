@@ -129,19 +129,19 @@ public class BoardCreationSystem : SystemBase
                     }
 
                     var even = ((boardCreationAuthor.SizeY * y + x) % 2 == 0);
-                    Color color;
+                    ColorAuthoring color;
                     if (even)
                     {
-                        color = new Color
+                        color = new ColorAuthoring()
                         {
-                            Value = new float4(0.95f, 0.95f, 0.95f, 1.0f)
+                            Color = new  UnityEngine.Color(0.95f, 0.95f, 0.95f, 1.0f)
                         };
                     }
                     else
                     {
-                        color = new Color
+                        color = new ColorAuthoring
                         {
-                            Value = new float4(0.68f, 0.68f, 0.68f, 1.0f)
+                            Color = new UnityEngine.Color(0.68f, 0.68f, 0.68f, 1.0f)
                         };
                     }
 
