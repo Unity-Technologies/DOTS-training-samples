@@ -20,6 +20,11 @@ public struct Dying : IComponentData
 
 }
 
+public struct Agony : IComponentData
+{
+
+}
+
 public struct Wounded : IComponentData
 {
 
