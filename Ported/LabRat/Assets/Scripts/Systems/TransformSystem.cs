@@ -22,7 +22,7 @@ public class TransformSystem : SystemBase
         [ReadOnly] public ComponentTypeHandle<RotationY> RotationYTypeHandle;
         [ReadOnly] public ComponentTypeHandle<Size> SizeTypeHandle;
         [ReadOnly] public ComponentTypeHandle<Falling> FallingTypeHandle;
-        [ReadOnly] public ComponentTypeHandle<PositionXZ> PositionXYTypeHandle;
+        [ReadOnly] public ComponentTypeHandle<PositionXZ> PositionXZTypeHandle;
         public ComponentTypeHandle<LocalToWorld> LocalToWorldTypeHandle;
 
         public uint LastSystemVersion;
@@ -34,7 +34,7 @@ public class TransformSystem : SystemBase
                 chunk.DidChange(RotationYTypeHandle, LastSystemVersion) ||
                 chunk.DidChange(SizeTypeHandle, LastSystemVersion) ||
                 chunk.DidChange(FallingTypeHandle, LastSystemVersion) ||
-                chunk.DidChange(PositionXYTypeHandle, LastSystemVersion);
+                chunk.DidChange(PositionXZTypeHandle, LastSystemVersion);
             if (!changed)
             {
                 return;
@@ -49,19 +49,23 @@ public class TransformSystem : SystemBase
             var chunkFalling = chunk.GetNativeArray(FallingTypeHandle);
             var hasFalling = chunk.Has(FallingTypeHandle);
 
-            var chunkPositionXY = chunk.GetNativeArray(PositionXYTypeHandle);
-            if (!chunk.Has(PositionXYTypeHandle))
+            var chunkPositionXZ = chunk.GetNativeArray(PositionXZTypeHandle);
+            if (!chunk.Has(PositionXZTypeHandle))
             {
                 throw new Exception("Dieter: this is not right");
             }
 
             var chunkLocalToWorld = chunk.GetNativeArray(LocalToWorldTypeHandle);
-
+            if (!chunk.Has(LocalToWorldTypeHandle))
+            {
+                throw new Exception("Dieter: this is not right");
+            }
+            
             var count = chunk.Count;
 
             for (int i = 0; i < count; i++)
             {
-                var translationVec = new float3(chunkPositionXY[i].Value.x, 0f, chunkPositionXY[i].Value.y);
+                var translationVec = new float3(chunkPositionXZ[i].Value.x, 0f, chunkPositionXZ[i].Value.y);
                 if (hasFalling)
                 {
                     translationVec.y = chunkFalling[i].Value;
@@ -94,11 +98,11 @@ public class TransformSystem : SystemBase
     {
         m_Group = GetEntityQuery(new EntityQueryDesc()
         {
-            All = new ComponentType[]
+            All = new[]
             {
-                typeof(PositionXZ)
-            },
-            Options = EntityQueryOptions.FilterWriteGroup
+                ComponentType.ReadOnly<PositionXZ>(),
+                ComponentType.ReadWrite<LocalToWorld>(), 
+            }
         });
     }
 
@@ -107,14 +111,14 @@ public class TransformSystem : SystemBase
         var rotationYType = GetComponentTypeHandle<RotationY>(true);
         var sizeType = GetComponentTypeHandle<Size>(true);
         var fallingType = GetComponentTypeHandle<Falling>(true);
-        var positionXYType = GetComponentTypeHandle<PositionXZ>(true);
+        var positionXZType = GetComponentTypeHandle<PositionXZ>(true);
         var localToWorldType = GetComponentTypeHandle<LocalToWorld>(false);
         var job = new MatrixCompositionJob()
         {
             RotationYTypeHandle = rotationYType,
             SizeTypeHandle = sizeType,
             FallingTypeHandle = fallingType,
-            PositionXYTypeHandle = positionXYType,
+            PositionXZTypeHandle = positionXZType,
             LocalToWorldTypeHandle = localToWorldType,
             LastSystemVersion = LastSystemVersion
         };
