@@ -296,13 +296,14 @@ GameObject:
   - component: {fileID: 234349969}
   - component: {fileID: 234349971}
   - component: {fileID: 234349970}
+  - component: {fileID: 234349972}
   m_Layer: 0
   m_Name: Text_003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &234349969
 Transform:
   m_ObjectHideFlags: 0
@@ -366,6 +367,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 234349968}
   m_Mesh: {fileID: 4300028, guid: 6e28ef01609bb5b4b95f8f3f30adb18b, type: 3}
+--- !u!114 &234349972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 234349968}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3442c45408943514582233b560a1b1b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &266989490
 GameObject:
   m_ObjectHideFlags: 0
@@ -1364,13 +1377,14 @@ GameObject:
   - component: {fileID: 1201548035}
   - component: {fileID: 1201548037}
   - component: {fileID: 1201548036}
+  - component: {fileID: 1201548038}
   m_Layer: 0
   m_Name: Text_005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1201548035
 Transform:
   m_ObjectHideFlags: 0
@@ -1434,6 +1448,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1201548034}
   m_Mesh: {fileID: 4300024, guid: 6e28ef01609bb5b4b95f8f3f30adb18b, type: 3}
+--- !u!114 &1201548038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1201548034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3442c45408943514582233b560a1b1b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1264351631
 GameObject:
   m_ObjectHideFlags: 0
@@ -1445,13 +1471,14 @@ GameObject:
   - component: {fileID: 1264351632}
   - component: {fileID: 1264351634}
   - component: {fileID: 1264351633}
+  - component: {fileID: 1264351635}
   m_Layer: 0
   m_Name: Text_004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1264351632
 Transform:
   m_ObjectHideFlags: 0
@@ -1515,6 +1542,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1264351631}
   m_Mesh: {fileID: 4300026, guid: 6e28ef01609bb5b4b95f8f3f30adb18b, type: 3}
+--- !u!114 &1264351635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1264351631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3442c45408943514582233b560a1b1b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1302211095
 GameObject:
   m_ObjectHideFlags: 0
