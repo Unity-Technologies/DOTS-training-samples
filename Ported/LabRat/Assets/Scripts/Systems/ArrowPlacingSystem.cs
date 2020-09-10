@@ -2,11 +2,14 @@
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 public class ArrowPlacingSystem : SystemBase
 {
     EntityQuery tilesQuery;
+    EntityQuery arrowsQuery;
+    EntityQuery arrowPrefabQuery;
     EntityCommandBufferSystem ECBSystem;
 
     protected override void OnCreate()
@@ -21,30 +24,58 @@ public class ArrowPlacingSystem : SystemBase
             }
         });
 
+        arrowsQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<Arrow>(),
+                ComponentType.ReadOnly<Translation>(),
+            }
+        });
+
+        arrowPrefabQuery = GetEntityQuery(new EntityQueryDesc
+        {
+            All = new[]
+            {
+                ComponentType.ReadOnly<Arrow>(),
+                ComponentType.ReadOnly<Translation>(),
+                ComponentType.ReadOnly<Prefab>()
+            }
+        });
+
         ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
-        var tilePositions =
-            tilesQuery.ToComponentDataArrayAsync<PositionXZ>(Allocator.TempJob, out var tilePositionsHandle);
+        var tilePositions = tilesQuery.ToComponentDataArrayAsync<PositionXZ>(Allocator.TempJob, out var tilePositionsHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, tilePositionsHandle);
-
-        var tiles =
-            tilesQuery.ToComponentDataArrayAsync<Tile>(Allocator.TempJob, out var tilesHandle);
+        var tiles = tilesQuery.ToComponentDataArrayAsync<Tile>(Allocator.TempJob, out var tilesHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, tilesHandle);
-
-        var tileEntities =
-            tilesQuery.ToEntityArrayAsync(Allocator.TempJob, out var tileEntitiesHandle);
+        var tileEntities = tilesQuery.ToEntityArrayAsync(Allocator.TempJob, out var tileEntitiesHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, tileEntitiesHandle);
+        var tileAccessor = GetComponentDataFromEntity<Tile>();
+
+        var arrowPositions = arrowsQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var arrowPositionHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency, arrowPositionHandle);
+        var arrows = arrowsQuery.ToComponentDataArrayAsync<Arrow>(Allocator.TempJob, out var arrowsHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency, arrowsHandle);
+        var arrowEntities = arrowsQuery.ToEntityArrayAsync(Allocator.TempJob, out var arrowEntitiesHandle);
+        Dependency = JobHandle.CombineDependencies(Dependency, arrowEntitiesHandle);
+        //var arrowAccessor = GetComponentDataFromEntity<Arrow>();
 
         var ecb = ECBSystem.CreateCommandBuffer().AsParallelWriter();
-        var tileAccessor = GetComponentDataFromEntity<Tile>();
+
+        var arrowPrefab = arrowPrefabQuery.GetSingletonEntity();
 
         Entities
             .WithDisposeOnCompletion(tilePositions)
             .WithDisposeOnCompletion(tiles)
             .WithDisposeOnCompletion(tileEntities)
+            .WithDisposeOnCompletion(arrowPositions)
+            .WithDisposeOnCompletion(arrows)
+            .WithDisposeOnCompletion(arrowEntities)
+            .WithChangeFilter<PlaceArrowEvent>()
             .WithNativeDisableParallelForRestriction(tileAccessor)
             .ForEach((
                 int entityInQueryIndex,
@@ -53,21 +84,47 @@ public class ArrowPlacingSystem : SystemBase
                 in PlaceArrowEvent placeArrowEvent,
                 in Direction direction) =>
             {
-                var arrowPosition = (int2)position.Value;
+                var newArrowPosition = (int2)position.Value;
                 for (int i = 0; i < tileEntities.Length; i++)
                 {
-
-
                     var tilePosition = (int2)tilePositions[i].Value;
-                    if (math.any(tilePosition != arrowPosition))
+                    if (math.any(tilePosition != newArrowPosition))
                         continue;
 
-                    tileAccessor[tileEntities[i]] = new Tile
+                    var tileAlreadyIsArrow = (tiles[i].Value & Tile.Attributes.ArrowAny) != 0;
+
+                    if (tileAlreadyIsArrow)
                     {
-                        Value = (Tile.Attributes)(((int)tiles[i].Value & ~(int)Tile.Attributes.ArrowAny) | (int)direction.Value << (int)Tile.Attributes.ArrowShiftCount)
-                    };
+                        for (int j = 0; j < arrowEntities.Length; j++)
+                        {
+                            var arrowPosition = (int2)arrowPositions[i].Value.xz;
+                            if (math.any(tilePosition != arrowPosition))
+                                continue;
 
+                            if (arrows[j].Owner == placeArrowEvent.Player) // Placer owns the arrow, remove
+                            {
+                                ecb.DestroyEntity(entityInQueryIndex, arrowEntities[j]);
+                                tileAccessor[tileEntities[i]] = new Tile
+                                {
+                                    Value = (Tile.Attributes)((int)tiles[i].Value & ~(int)Tile.Attributes.ArrowAny)
+                                };
+                            }
+                        }
+                    }
+                    else // New Arrow
+                    {
+                        tileAccessor[tileEntities[i]] = new Tile
+                        {
+                            Value = (Tile.Attributes)(((int)tiles[i].Value & ~(int)Tile.Attributes.ArrowAny) | (int)direction.Value << (int)Tile.Attributes.ArrowShiftCount)
+                        };
+                        var newArrow = ecb.Instantiate(entityInQueryIndex, arrowPrefab);
 
+                        var playerColor = GetComponent<Color>(placeArrowEvent.Player);
+                        ecb.SetComponent(entityInQueryIndex, newArrow, new Arrow { Owner = placeArrowEvent.Player });
+                        ecb.SetComponent(entityInQueryIndex, newArrow, new Translation { Value = new float3(position.Value.x, 0, position.Value.y) });
+                        ecb.SetComponent(entityInQueryIndex, newArrow, new Rotation { Value = quaternion.Euler(0, AnimalMovementSystem.RadiansFromDirection(direction.Value), 0) });
+                        ecb.SetComponent(entityInQueryIndex, newArrow, playerColor);
+                    }
                 }
 
                 ecb.DestroyEntity(entityInQueryIndex, placeArrowEventEntity);
