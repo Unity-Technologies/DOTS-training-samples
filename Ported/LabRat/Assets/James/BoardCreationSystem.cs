@@ -123,8 +123,7 @@ public class BoardCreationSystem : SystemBase
                     EntityManager.AddComponentData(tile, newTile);
                     EntityManager.AddComponentData(tile, tilePos);
                     if(newTile.Value == Tile.Attributes.Hole)
-                        EntityManager.RemoveComponent<RenderMesh>(tile);
-
+                        EntityManager.AddComponent<DisableRendering>(tile);
                 }
             }
             
