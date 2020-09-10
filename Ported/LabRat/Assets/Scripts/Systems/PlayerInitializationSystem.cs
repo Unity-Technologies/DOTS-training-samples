@@ -21,6 +21,7 @@ public class PlayerInitializationSystem : SystemBase
             {
                 var playerEntity = ecb.Instantiate(entityInQueryIndex, playerInitialization.PlayerPrefab);
                 if (i == 0)
+                if (i == 0 && !playerInitialization.AIOnly)
                 {
                     ecb.AddComponent<HumanPlayerTag>(entityInQueryIndex, playerEntity);
 
