@@ -6,7 +6,8 @@ using Unity.Rendering;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-//[ExecuteAlways]
+[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateAfter(typeof(PlayerInitializationSystem))]
 public class BoardCreationSystem : SystemBase
 {
     protected override void OnUpdate()
