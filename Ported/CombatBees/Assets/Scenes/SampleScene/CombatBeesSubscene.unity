@@ -204,6 +204,8 @@ MonoBehaviour:
     z: 120
   HiveDistance: 30
   BeeSpawner: {fileID: 507254545094959267, guid: df324d873732f304787b09c69f9485fd, type: 3}
+  BloodSpawner: {fileID: 507254545094959267, guid: 4ffdd24bfca19944b8f1611a08d94a06, type: 3}
+  SmokeSpawner: {fileID: 0}
 --- !u!4 &254280926
 Transform:
   m_ObjectHideFlags: 0
@@ -250,7 +252,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab_TeamA: {fileID: 5247711925181765031, guid: 37e540243fb444a569131373a7d1f63f, type: 3}
   BeePrefab_TeamB: {fileID: 5247711925181765031, guid: 873e4cff187af45719eaea6e9ce6fd1b, type: 3}
-  Count: 5
+  Count: 50
 --- !u!114 &1078437658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -309,7 +311,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab_TeamA: {fileID: 5247711925181765031, guid: 37e540243fb444a569131373a7d1f63f, type: 3}
   BeePrefab_TeamB: {fileID: 5247711925181765031, guid: 873e4cff187af45719eaea6e9ce6fd1b, type: 3}
-  Count: 5
+  Count: 50
 --- !u!114 &1360276479
 MonoBehaviour:
   m_ObjectHideFlags: 0
