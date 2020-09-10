@@ -3,6 +3,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 [UpdateAfter(typeof(PlayerInitializationSystem))]
@@ -77,7 +79,7 @@ public class BoardCreationSystem : SystemBase
                         switch (result)
                         {
                             case 0:
-                                if (x != 0 || x != boardCreationAuthor.SizeX - 1 || y != 0 || y != boardCreationAuthor.SizeY - 1)
+                                if (x != 0 && x != boardCreationAuthor.SizeX - 1 && y != 0 && y != boardCreationAuthor.SizeY - 1)
                                     newTile.Value |= Tile.Attributes.Hole;
                                 break;
 
@@ -121,26 +123,35 @@ public class BoardCreationSystem : SystemBase
                         if (y == 2 || y == boardCreationAuthor.SizeY - 3)
                         {
                             newTile.Value = Tile.Attributes.Goal;
-                            translation.Value = new float3(x, 0.75f, y);
-                            Entity goal = EntityManager.Instantiate(boardCreationAuthor.GoalPrefab);
-                            EntityManager.AddComponentData(goal, translation);
+                            var goal = EntityManager.Instantiate(boardCreationAuthor.GoalPrefab);
+                            EntityManager.SetComponentData(goal, new PositionXZ(){Value = new float2(x, y)});
+
+                            var linkedEntities = EntityManager.GetBuffer<LinkedEntityGroup>(goal);
+                            for (var l = 0; l < linkedEntities.Length; ++l)
+                            {
+                                var linkedEntity = linkedEntities[l].Value;
+                                if (EntityManager.HasComponent<ColorAuthoring>(linkedEntity))
+                                {
+                                    EntityManager.SetComponentData(linkedEntity, new ColorAuthoring(){Color = UnityEngine.Color.blue});
+                                }
+                            }
                         }
                     }
 
                     var even = ((boardCreationAuthor.SizeY * y + x) % 2 == 0);
-                    Color color;
+                    ColorAuthoring color;
                     if (even)
                     {
-                        color = new Color
+                        color = new ColorAuthoring()
                         {
-                            Value = new float4(0.95f, 0.95f, 0.95f, 1.0f)
+                            Color = new  UnityEngine.Color(0.95f, 0.95f, 0.95f, 1.0f)
                         };
                     }
                     else
                     {
-                        color = new Color
+                        color = new ColorAuthoring
                         {
-                            Value = new float4(0.68f, 0.68f, 0.68f, 1.0f)
+                            Color = new UnityEngine.Color(0.68f, 0.68f, 0.68f, 1.0f)
                         };
                     }
 
@@ -154,6 +165,9 @@ public class BoardCreationSystem : SystemBase
                         EntityManager.AddComponent<DisableRendering>(tile);
                 }
             }
+
+            // HACK - needs removing
+            UnityEngine.Camera.main.transform.position = new UnityEngine.Vector3(boardCreationAuthor.SizeX /2, 4, boardCreationAuthor.SizeY /2);
 
             EntityManager.RemoveComponent<GameStateInitialize>(e);
         }).WithStructuralChanges().Run();

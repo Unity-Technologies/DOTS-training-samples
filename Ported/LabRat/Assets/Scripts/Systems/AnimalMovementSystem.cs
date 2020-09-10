@@ -24,6 +24,13 @@ public class AnimalMovementSystem : SystemBase
         return components.xy + components.zw;
     }
 
+    // 2D direction vector from direction byte
+    internal static float RadiansFromDirection(Direction.Attributes direction)
+    {
+        var vector = VectorFromDirection(direction);
+        return math.atan2(vector.y, -vector.x) + math.PI;
+    }
+
     // Collect tile entities into a flat array. This should probably come from the board generator in some shape or
     // form, but for now we'll just grab it at startup.
     void EnsureTileEntityGrid()

@@ -39,8 +39,8 @@ public class PlayerInitializationSystem : SystemBase
                 {
                     ecb.AddComponent(playerEntity, new AIPlayerLastDecision { Value = ticks });
                     ecb.SetComponent(playerEntity, new Name { Value = $"Computer {i}" });
-                    ecb.SetComponent(playerEntity, new Color { Value = (Vector4)UnityEngine.Color.HSVToRGB(i / (float)playerCount, 1, 1) });
                 }
+                ecb.SetComponent(playerEntity, new ColorAuthoring() { Color = UnityEngine.Color.HSVToRGB(i / (float)playerCount, 1, 1) });
             }
         }).Run();
         
