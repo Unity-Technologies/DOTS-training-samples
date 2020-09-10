@@ -27,28 +27,28 @@ public class BoardCreationSystem : SystemBase
                     // Create the outer walls & spawn points
                     if (y == 0)
                     {
-                        newTile.Value = Tile.Attributes.Up;
+                        newTile.Value = Tile.Attributes.WallUp;
                     }
                     else if (y == boardCreationAuthor.SizeY - 1)
                     {
-                        newTile.Value = Tile.Attributes.Down;
+                        newTile.Value = Tile.Attributes.WallDown;
                     }
 
                     if (x == 0)
                     {
-                        newTile.Value = Tile.Attributes.Left;
+                        newTile.Value = Tile.Attributes.WallLeft;
                         if (y == 0)
-                            newTile.Value = Tile.Attributes.Up | Tile.Attributes.Left | Tile.Attributes.Spawn;
+                            newTile.Value = Tile.Attributes.WallUp | Tile.Attributes.WallLeft | Tile.Attributes.Spawn;
                         else if (y == boardCreationAuthor.SizeY - 1)
-                            newTile.Value = Tile.Attributes.Down | Tile.Attributes.Left | Tile.Attributes.Spawn;
+                            newTile.Value = Tile.Attributes.WallDown | Tile.Attributes.WallLeft | Tile.Attributes.Spawn;
                     }
                     else if (x == boardCreationAuthor.SizeX - 1)
                     {
-                        newTile.Value = Tile.Attributes.Right;
+                        newTile.Value = Tile.Attributes.WallRight;
                         if (y == 0)
-                            newTile.Value = Tile.Attributes.Up | Tile.Attributes.Right | Tile.Attributes.Spawn;
+                            newTile.Value = Tile.Attributes.WallUp | Tile.Attributes.WallRight | Tile.Attributes.Spawn;
                         else if (x == boardCreationAuthor.SizeX - 1 && y == boardCreationAuthor.SizeY - 1)
-                            newTile.Value = Tile.Attributes.Down | Tile.Attributes.Right | Tile.Attributes.Spawn;
+                            newTile.Value = Tile.Attributes.WallDown | Tile.Attributes.WallRight | Tile.Attributes.Spawn;
                     }
 
                     // Place Random Walls and Holes
@@ -62,16 +62,16 @@ public class BoardCreationSystem : SystemBase
                                     newTile.Value = Tile.Attributes.Hole;
                                     break;
                                 case 1:
-                                    newTile.Value = Tile.Attributes.Down;
+                                    newTile.Value = Tile.Attributes.WallDown;
                                     break;
                                 case 2:
-                                    newTile.Value = Tile.Attributes.Left;
+                                    newTile.Value = Tile.Attributes.WallLeft;
                                     break;
                                 case 3:
-                                    newTile.Value = Tile.Attributes.Right;
+                                    newTile.Value = Tile.Attributes.WallRight;
                                     break;
                                 case 4:
-                                    newTile.Value = Tile.Attributes.Up;
+                                    newTile.Value = Tile.Attributes.WallUp;
                                     break;
                             }
                         }

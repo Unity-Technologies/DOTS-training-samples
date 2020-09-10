@@ -218,8 +218,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4346689442520454}
-  - component: {fileID: 422144116211754996}
   - component: {fileID: 3047155717202630245}
+  - component: {fileID: 148787501836825682}
+  - component: {fileID: 7327184551691892329}
+  - component: {fileID: 3564336998367890780}
+  - component: {fileID: 8110918365259260541}
   m_Layer: 9
   m_Name: Mouse
   m_TagString: Mouse
@@ -242,7 +245,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &422144116211754996
+--- !u!114 &3047155717202630245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1565721843962348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e05f01edeefd27e498fa3ba07b59f1f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &148787501836825682
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -258,7 +273,7 @@ MonoBehaviour:
   Enable: 1
   MinScale: 0.9
   MaxScale: 1.27
---- !u!114 &3047155717202630245
+--- !u!114 &7327184551691892329
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -267,9 +282,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 1565721843962348}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e05f01edeefd27e498fa3ba07b59f1f9, type: 3}
+  m_Script: {fileID: 11500000, guid: edf23805cc015774d9bf529620ac8106, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MinSpeed: 3
+  MaxSpeed: 5
+--- !u!114 &3564336998367890780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1565721843962348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44572b7b4fa1d0d4597d5af3f780dda8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8110918365259260541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1565721843962348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c026cc464900ff46bbac38644cf1e19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ValueDegree: 0
 --- !u!1 &1693600454594072
 GameObject:
   m_ObjectHideFlags: 0
