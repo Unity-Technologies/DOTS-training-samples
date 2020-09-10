@@ -7,11 +7,13 @@ using Unity.Transforms;
 
 public class EatSystem : SystemBase
 {
+    private AnimalMovementSystem m_AnimalMovementSystem;
     private EntityCommandBufferSystem m_CommandBufferSystem;
     private EntityQuery m_CatsQuery;
     
     protected override void OnCreate()
     {
+        m_AnimalMovementSystem = World.GetExistingSystem<AnimalMovementSystem>();
         m_CommandBufferSystem = World.GetExistingSystem<BeginInitializationEntityCommandBufferSystem>();
         
         m_CatsQuery = GetEntityQuery(new EntityQueryDesc
@@ -26,7 +28,8 @@ public class EatSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = m_CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-
+        var boardDimensions = m_AnimalMovementSystem.Dimensions;
+        
         // find the tile for each cat
         var numCats = m_CatsQuery.CalculateEntityCount();
         var catTiles = new NativeArray<int>(numCats, Allocator.TempJob);
@@ -34,7 +37,7 @@ public class EatSystem : SystemBase
             .WithAll<CatTag>()
             .ForEach((int entityInQueryIndex, Entity entity, in PositionXZ position) =>
             {
-                var tile = AnimalMovementSystem.TileKeyFromPosition(position.Value);
+                var tile = AnimalMovementSystem.TileKeyFromPosition(position.Value, boardDimensions);
                 catTiles[entityInQueryIndex] = tile;
             })
             .ScheduleParallel();
@@ -45,7 +48,7 @@ public class EatSystem : SystemBase
             .WithDisposeOnCompletion(catTiles)
             .ForEach((int entityInQueryIndex, Entity entity, in PositionXZ position) =>
             {
-                var ratTile = AnimalMovementSystem.TileKeyFromPosition(position.Value);
+                var ratTile = AnimalMovementSystem.TileKeyFromPosition(position.Value, boardDimensions);
 
                 for (var i = 0; i < catTiles.Length; ++i)
                 {
