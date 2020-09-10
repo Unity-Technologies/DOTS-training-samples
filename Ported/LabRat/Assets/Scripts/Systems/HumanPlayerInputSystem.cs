@@ -35,8 +35,8 @@ public class HumanPlayerInputSystem : SystemBase
         if (!plane.Raycast(mouseRay, out var distance))
             return;
 
-        var mouseWorldPosition = mouseRay.GetPoint(distance);
-        var worldPosition = ((float3)mouseWorldPosition).xz;
+        var mouseWorldPosition = (float3)mouseRay.GetPoint(distance);
+        var worldPosition = mouseWorldPosition.xz;
         var worldTile = math.round(worldPosition);
 
         var cubePosition = worldTile;
@@ -45,22 +45,25 @@ public class HumanPlayerInputSystem : SystemBase
 
         var tileOffset = worldPosition - worldTile;
         var inputDirection = Direction.Attributes.None;
+        var directionBitShift = 0;
         if (math.abs(tileOffset.x) > (math.abs(tileOffset.y)))
         {
-            inputDirection = tileOffset.x > 0 ? Direction.Attributes.Right : Direction.Attributes.Left;
+            directionBitShift = tileOffset.x > 0 ? 2 : 0; // Should be direct enum values, but we want to get angle for arrow preview as well
         }
         else
         {
-            inputDirection = tileOffset.y > 0 ? Direction.Attributes.Up : Direction.Attributes.Down;
+            directionBitShift = tileOffset.y > 0 ? 1 : 3;
         }
+        inputDirection = (Direction.Attributes)(1 << directionBitShift); // God help us if bit value meanings change
+        var directionQuaternion = quaternion.Euler(0, directionBitShift * math.PI / 2 + math.PI, 0);
 
         Entities
             .WithAll<HumanPlayerTag>()
-            .WithAll<Child>()
-            .ForEach((ref PositionXZ position, ref Direction direction) =>
+            .WithAll<Child>() // Only Arrow Preview has a Child
+            .ForEach((ref Translation position, ref Rotation rotation) =>
             {
-                position.Value = worldTile;
-                direction.Value = inputDirection;
+                position.Value = new float3(worldTile.x, 0, worldTile.y);
+                rotation.Value = directionQuaternion;
             }).ScheduleParallel();
 
         if (!clicked)

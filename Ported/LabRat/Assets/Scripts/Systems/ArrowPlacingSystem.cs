@@ -59,7 +59,7 @@ public class ArrowPlacingSystem : SystemBase
 
 
                     var tilePosition = (int2)tilePositions[i].Value;
-                    if (math.all(tilePosition != arrowPosition))
+                    if (math.any(tilePosition != arrowPosition))
                         continue;
 
                     tileAccessor[tileEntities[i]] = new Tile

@@ -20,14 +20,12 @@ public class PlayerInitializationSystem : SystemBase
             for (int i = 0; i < playerInitialization.PlayerCount; i++)
             {
                 var playerEntity = ecb.Instantiate(entityInQueryIndex, playerInitialization.PlayerPrefab);
-                if (i == 0)
+                if (i == 0 && !playerInitialization.AIOnly)
                 {
                     ecb.AddComponent<HumanPlayerTag>(entityInQueryIndex, playerEntity);
 
                     var playerArrowPreviewEntity = ecb.Instantiate(entityInQueryIndex, playerInitialization.HumanPlayerArrowPreview);
                     ecb.AddComponent<HumanPlayerTag>(entityInQueryIndex, playerArrowPreviewEntity);
-                    ecb.AddComponent<PositionXZ>(entityInQueryIndex, playerArrowPreviewEntity);
-                    ecb.AddComponent<Direction>(entityInQueryIndex, playerArrowPreviewEntity);
                 }
             }
             ecb.AddComponent<Disabled>(entityInQueryIndex, playerInitializationEntity);    
