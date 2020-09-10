@@ -12,7 +12,7 @@ public class RaycastSystem : SystemBase
 
         var ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
         new UnityEngine.Plane(UnityEngine.Vector3.up, 0).Raycast(ray, out var enter);
-        UnityEngine.Physics.Raycast(ray, out var hit);
+        var casted = UnityEngine.Physics.Raycast(ray, out var hit);
         // var hit = (float3)ray.GetPoint(enter);
 
         var deltaTime = Time.DeltaTime;
@@ -20,7 +20,7 @@ public class RaycastSystem : SystemBase
 
         var userInput = GetSingleton<UserInput>();
         var mouseHit = new Translation {Value = hit.point};
-        if (mouseDown)
+        if (mouseDown && casted)
         {
             var instance = EntityManager.Instantiate(userInput.ResourcePrefab);    
             EntityManager.SetComponentData(instance, mouseHit);
