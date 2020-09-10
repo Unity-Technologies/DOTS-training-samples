@@ -10,16 +10,25 @@ public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
 {
 	public Mesh mesh;
 	public NativeArray<float3> vertexPosition;
-	public NativeArray<float3> oldVertexPosition;
+	public NativeArray<float3> vertexPositionOld;
 	public NativeArray<float> vertexInvMass;
+	public NativeArray<int> vertexPositionDeltaX;
+	public NativeArray<int> vertexPositionDeltaY;
+	public NativeArray<int> vertexPositionDeltaZ;
+	public NativeArray<int> vertexPositionDeltaW;
 
 	public bool Equals(ClothMesh other)
 	{
 		return (
 			mesh == other.mesh &&
 			vertexPosition == other.vertexPosition &&
-			oldVertexPosition == other.oldVertexPosition &&
-			vertexInvMass == other.vertexInvMass
+			vertexPositionOld == other.vertexPositionOld &&
+			vertexInvMass == other.vertexInvMass &&
+			vertexPositionDeltaX == other.vertexPositionDeltaX &&
+			vertexPositionDeltaY == other.vertexPositionDeltaY &&
+			vertexPositionDeltaZ == other.vertexPositionDeltaZ &&
+			vertexPositionDeltaW == other.vertexPositionDeltaW &&
+			true// end
 		);
 	}
 
@@ -28,9 +37,13 @@ public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
 		int hash = 0;
 		{
 			hash ^= ReferenceEquals(mesh, null) ? 0 : mesh.GetHashCode();
-			hash ^= vertexInvMass.GetHashCode();
 			hash ^= vertexPosition.GetHashCode();
-			hash ^= oldVertexPosition.GetHashCode();
+			hash ^= vertexPositionOld.GetHashCode();
+			hash ^= vertexInvMass.GetHashCode();
+			hash ^= vertexPositionDeltaX.GetHashCode();
+			hash ^= vertexPositionDeltaY.GetHashCode();
+			hash ^= vertexPositionDeltaZ.GetHashCode();
+			hash ^= vertexPositionDeltaW.GetHashCode();
 		}
 		return hash;
 	}
@@ -75,7 +88,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 			{
 				meshData[0].GetNormals(tempNormals.Reinterpret<Vector3>());
 
-				//TODO: jobify
+				//TODO: jobify/speed up
 				for (int i = 0; i != meshInstance.vertexCount; i++)
 				{
 					if (tempNormals[i].y > .9f && bufferPosition[i].y > .3f)
@@ -89,7 +102,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		// transform positions to world space
 		var localToWorld = this.transform.localToWorldMatrix;
 
-		//TODO: jobify
+		//TODO: jobify/speed up
 		for (int i = 0; i != meshInstance.vertexCount; i++)
 		{
 			bufferPosition[i] = localToWorld.MultiplyPoint(bufferPosition[i]);
@@ -100,8 +113,12 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		{
 			mesh = meshInstance,
 			vertexPosition = bufferPosition,
-			oldVertexPosition = new NativeArray<float3>(bufferPosition, Allocator.Persistent),
+			vertexPositionOld = new NativeArray<float3>(bufferPosition, Allocator.Persistent),
 			vertexInvMass = bufferInvMass,
+			vertexPositionDeltaX = new NativeArray<int>(meshInstance.vertexCount, Allocator.Persistent),
+			vertexPositionDeltaY = new NativeArray<int>(meshInstance.vertexCount, Allocator.Persistent),
+			vertexPositionDeltaZ = new NativeArray<int>(meshInstance.vertexCount, Allocator.Persistent),
+			vertexPositionDeltaW = new NativeArray<int>(meshInstance.vertexCount, Allocator.Persistent),
 		};
 
 		// add shared data to entity
@@ -184,6 +201,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 				var indexPair = edgeKeyValue.Value;
 				var length = math.distance(bufferPosition[indexPair.x], bufferPosition[indexPair.y]);
 
+				//TODO: speed up
 				// create an entity with the ClothMesh and ClothEdge components
 				var edgeEntity = conversionSystem.CreateAdditionalEntity(this);
 				{

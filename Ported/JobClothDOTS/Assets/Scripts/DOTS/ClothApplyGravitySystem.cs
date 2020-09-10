@@ -39,7 +39,7 @@ public class ClothApplyGravitySystem : SystemBase
 			var job = new ApplyGravityJob
 			{
 				vertexPosition = clothMesh.vertexPosition,
-				oldVertexPosition = clothMesh.oldVertexPosition,
+				oldVertexPosition = clothMesh.vertexPositionOld,
 				vertexInvMass = clothMesh.vertexInvMass,
 				deltaTime = Time.DeltaTime,
 			};
