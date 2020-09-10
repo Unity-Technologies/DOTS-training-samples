@@ -27,15 +27,16 @@ public class ResourceConsumptionSystem : SystemBase
                     ecb.DestroyEntity(entityInQueryIndex, entity);
 
                     var beeSpawner = ecb.Instantiate(entityInQueryIndex, b.BeeSpawner);
+                    ecb.SetComponent<Translation>(entityInQueryIndex, beeSpawner, translation);
 
                     // spawn
                     if (translation.Value.z > 0f)
                     {
-                        ecb.AddComponent<TeamA>(entityInQueryIndex, beeSpawner);
+                        ecb.AddComponent<TeamB>(entityInQueryIndex, beeSpawner);
                     }
                     else
                     {
-                        ecb.AddComponent<TeamB>(entityInQueryIndex, beeSpawner);
+                        ecb.AddComponent<TeamA>(entityInQueryIndex, beeSpawner);
 
                     }
                 }
