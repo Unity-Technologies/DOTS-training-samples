@@ -8,3 +8,5 @@ public struct Player : IComponentData
     public Entity Arrow2; // Maybe all these could be some sort of fixed buffer?
     public int CurrentArrow;
 }
+
+struct PlayerInitializedTag : IComponentData {}

@@ -14,6 +14,15 @@ public class PlayerInitializationSystem : SystemBase
         ECBSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
     }
 
+    public NativeArray<Entity> Players;
+
+    protected override void OnDestroy()
+    {
+        if (Players.IsCreated)
+            Players.Dispose();
+    }
+
+
     protected override void OnUpdate()
     {
         var ticks = System.DateTime.Now.Ticks;
@@ -42,10 +51,34 @@ public class PlayerInitializationSystem : SystemBase
                     ecb.SetComponent(playerEntity, new Name { Value = $"Computer {i}" });
                 }
                 ecb.SetComponent(playerEntity, new ColorAuthoring() { Color = UnityEngine.Color.HSVToRGB(i / (float)playerCount, 1, 1) });
+
+               
             }
         }).Run();
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
+        
+        
+        
+        if (Players.IsCreated == false)
+        {
+            var q = GetEntityQuery(new EntityQueryDesc
+            {
+                All = new[] {ComponentType.ReadOnly<Player>()}
+            });
+            var cc = q.CalculateEntityCount();
+            var localP = Players = new NativeArray<Entity>(cc, Allocator.Persistent);
+            ecb = new EntityCommandBuffer(Allocator.Temp);
+            Entities.WithName("InitPlayerArray")
+                .WithNone<PlayerInitializedTag>()
+                .ForEach((int entityInQueryIndex, Entity e, in Player p) =>
+                {
+                    localP[entityInQueryIndex] = e;
+                    ecb.AddComponent<PlayerInitializedTag>(e);
+                }).Run();
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
+        }
     }
 }
