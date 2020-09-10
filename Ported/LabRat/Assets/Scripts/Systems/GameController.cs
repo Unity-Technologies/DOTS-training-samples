@@ -9,7 +9,7 @@ struct GameStateCleanup : IComponentData {}
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public class GameController : SystemBase
 {
-    const float GameDuration = 10;
+    const float GameDuration = 30;
     const float GameRestartDelay = 5;
 
     enum GameState { None, ApplicationStarting, GameInitializing, GameStarting, GameStarted, GameRunning, GameEnding, GameRestarting, GameCleanup }
