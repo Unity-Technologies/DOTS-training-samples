@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
+using System.Diagnostics;
 
 [Serializable]
 public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
@@ -40,12 +41,40 @@ public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
 	// vertexInvMass.Dispose()
 }
 
+public struct MassCalculationJob : IJobParallelFor
+{
+	public NativeArray<float> bufferInvMass;
+	public NativeArray<float3> tempNormals;
+	public NativeArray<float3> bufferPosition;
+
+	public void Execute(int i)
+    {
+		if (tempNormals[i].y > .9f && bufferPosition[i].y > .3f)
+			bufferInvMass[i] = 0.0f;
+		else
+			bufferInvMass[i] = 1.0f;
+	}
+}
+
+public struct BufferPositionJob : IJobParallelFor
+{
+	public Matrix4x4 localToWorld;
+	public NativeArray<float3> bufferPositions;
+
+	public void Execute(int i) 
+	{
+		bufferPositions[i] = localToWorld.MultiplyPoint(bufferPositions[i]);
+	}
+}
+
 [DisallowMultipleComponent]
 [RequiresEntityConversion]
 public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
+		JobHandle jobHandle;
+
 		var mf = GetComponent<MeshFilter>();
 		if (mf == null)
 			return;
@@ -71,29 +100,35 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		var bufferInvMass = new NativeArray<float>(meshInstance.vertexCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
 		{
 			using (var meshData = Mesh.AcquireReadOnlyMeshData(meshInstance))
-			using (var tempNormals = new NativeArray<float3>(meshInstance.vertexCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory))
+			using (var tempNormals = new NativeArray<float3>(meshInstance.vertexCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory))
 			{
 				meshData[0].GetNormals(tempNormals.Reinterpret<Vector3>());
 
-				//TODO: jobify
-				for (int i = 0; i != meshInstance.vertexCount; i++)
+				var massJob = new MassCalculationJob
 				{
-					if (tempNormals[i].y > .9f && bufferPosition[i].y > .3f)
-						bufferInvMass[i] = 0.0f;
-					else
-						bufferInvMass[i] = 1.0f;
-				}
+					bufferInvMass = bufferInvMass,
+					tempNormals = tempNormals,
+					bufferPosition = bufferPosition
+				};
+
+				jobHandle = massJob.Schedule(meshInstance.vertexCount, 64);
+
+				jobHandle.Complete();
 			}
 		}
 
 		// transform positions to world space
 		var localToWorld = this.transform.localToWorldMatrix;
 
-		//TODO: jobify
-		for (int i = 0; i != meshInstance.vertexCount; i++)
+		var bufferPosJob = new BufferPositionJob
 		{
-			bufferPosition[i] = localToWorld.MultiplyPoint(bufferPosition[i]);
-		}
+			localToWorld = localToWorld,
+			bufferPositions = bufferPosition
+		};
+
+		jobHandle = bufferPosJob.Schedule(meshInstance.vertexCount, 64);
+
+		jobHandle.Complete();
 
 		// create the shared data
 		var clothMesh = new ClothMesh
@@ -130,7 +165,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
 			// pull the triangle indices
 			meshData[0].GetIndices(indexBuffer, 0);
-			Debug.Assert(indexCount % 3 == 0, "indexCount is not a multiple of 3");
+			//Debug.Assert(indexCount % 3 == 0, "indexCount is not a multiple of 3");
 
 			var edgeHashMap = new NativeHashMap<ulong, int2>(indexCount, Allocator.Temp);
 
