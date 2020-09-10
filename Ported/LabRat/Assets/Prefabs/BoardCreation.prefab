@@ -49,7 +49,7 @@ MonoBehaviour:
   GoalPrefab: {fileID: 8880445121438370549, guid: 31f3c9145a7e044f3b6c04e85609fec4, type: 3}
   SizeY: 13
   SizeX: 13
-  randomAmount: 0
+  randomAmount: 75
   RatSpawner: {fileID: 1298946766065678, guid: 2c08b8c1095e74ed08e4ced0db304913, type: 3}
   CatSpawner: {fileID: 1594238416730554, guid: 03de37e26e165482c8b6501249f3b186, type: 3}
 --- !u!114 &108318998069800121

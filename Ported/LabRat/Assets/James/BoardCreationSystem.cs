@@ -178,20 +178,20 @@ public class BoardCreationSystem : SystemBase
         {
             case Tile.Attributes.WallUp:
                 rot.Value = quaternion.EulerXYZ(0, math.radians(90), 0);
-                translation.Value = new float3(pos.x, 1f, pos.y - 0.5f);
+                translation.Value = new float3(pos.x, 0.75f, pos.y - 0.5f);
                 break;
 
             case Tile.Attributes.WallDown:
                 rot.Value = quaternion.EulerXYZ(0, math.radians(90), 0);
-                translation.Value = new float3(pos.x, 1f, pos.y + 0.5f);
+                translation.Value = new float3(pos.x, 0.75f, pos.y + 0.5f);
                 break;
 
             case Tile.Attributes.WallLeft:
-                translation.Value = new float3(pos.x - 0.5f, 1f, pos.y);
+                translation.Value = new float3(pos.x - 0.5f, 0.75f, pos.y);
                 break;
 
             case Tile.Attributes.WallRight:
-                translation.Value = new float3(pos.x + 0.5f, 1f, pos.y);
+                translation.Value = new float3(pos.x + 0.5f, 0.75f, pos.y);
                 break;
         }
 
