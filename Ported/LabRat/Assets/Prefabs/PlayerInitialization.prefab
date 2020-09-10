@@ -46,6 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerPrefab: {fileID: 6351116625237042563, guid: 5f910692bb316c6499e9ecc93d82100f, type: 3}
   HumanPlayerArrowPreview: {fileID: 1695157876856304, guid: 9f778f3f7a77e1d4d8bcf47c8aabcfed, type: 3}
+  ArrowPrefab: {fileID: 1695157876856304, guid: 0e5463a30f1199a469d96117764ba0ab, type: 3}
   AIOnly: 0
   PlayerCount: 4
 --- !u!114 &6671411232520583421
