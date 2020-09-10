@@ -23,7 +23,7 @@ public class FallingSystem : SystemBase
             .ForEach((int entityInQueryIndex, Entity entity,ref Falling falling, in Speed speed) =>
         {
             falling.Value -= speed.Value * dt;
-            if (falling.Value <= -15.0)
+            if (falling.Value <= -1.0)
             {
                 ecb.DestroyEntity(entityInQueryIndex, entity);
             }
