@@ -22,14 +22,15 @@ public class ClothRenderingSystem : SystemBase
 
 			clothMeshToken.jobHandle.Complete();
 			clothMesh.mesh.SetVertices(clothMesh.vertexPosition);
+			clothMesh.mesh.RecalculateBounds();
 
 			var bounds = clothMesh.mesh.bounds;
 
 			localToWorld.Value = float4x4.identity;
 			localRenderBounds.Value = new AABB
 			{
-				Center = new float3(0f,0f,0f),
-				Extents = new float3(1f, 1f, 1f),
+				Center = bounds.center,
+				Extents = bounds.extents,
 			};
 		}
 		).WithoutBurst().Run();
