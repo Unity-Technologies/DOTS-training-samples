@@ -3,7 +3,10 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
+//[ExecuteAlways]
 public class BoardCreationSystem : SystemBase
 {
     public struct CreationComplete : IComponentData
@@ -112,9 +115,18 @@ public class BoardCreationSystem : SystemBase
                         if(y == 2 || y == boardCreationAuthor.SizeY - 3)
                         {
                             newTile.Value = Tile.Attributes.Goal;
-                            translation.Value = new float3(x, 0.75f, y);
-                            Entity goal = EntityManager.Instantiate(boardCreationAuthor.GoalPrefab);
-                            EntityManager.AddComponentData(goal, translation);
+                            var goal = EntityManager.Instantiate(boardCreationAuthor.GoalPrefab);
+                            EntityManager.SetComponentData(goal, new PositionXZ(){Value = new float2(x, y)});
+
+                            var linkedEntities = EntityManager.GetBuffer<LinkedEntityGroup>(goal);
+                            for (var l = 0; l < linkedEntities.Length; ++l)
+                            {
+                                var linkedEntity = linkedEntities[l].Value;
+                                if (EntityManager.HasComponent<ColorAuthoring>(linkedEntity))
+                                {
+                                    EntityManager.SetComponentData(linkedEntity, new ColorAuthoring(){Color = UnityEngine.Color.blue});
+                                }
+                            }
                         }
                     }
                     // Set Tile values
@@ -128,7 +140,7 @@ public class BoardCreationSystem : SystemBase
             }
             
             // Place rat and cat spawners in diagonally opposite corners (if any are present)
-            if (boardCreationAuthor.RatSpawner != Entity.Null)
+       /*     if (boardCreationAuthor.RatSpawner != Entity.Null)
             {
                 var ratSpawners = EntityManager.Instantiate(boardCreationAuthor.RatSpawner, 2, Allocator.Temp);
                 EntityManager.AddComponent<PositionXZ>(ratSpawners[0]);
@@ -141,7 +153,7 @@ public class BoardCreationSystem : SystemBase
                 EntityManager.AddComponentData(catSpawners[0], new PositionXZ { Value = new float2(0f, boardCreationAuthor.SizeY - 1f)});
                 EntityManager.AddComponentData(catSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, 0f)});
                 catSpawners.Dispose();
-            }
+            }*/
 
             EntityManager.AddComponent<CreationComplete>(e);
         }).WithStructuralChanges().Run();
