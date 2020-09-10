@@ -1,5 +1,4 @@
 ﻿using Unity.Entities;
-using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
 public struct BoardCreationAuthor : IComponentData
@@ -9,4 +8,7 @@ public struct BoardCreationAuthor : IComponentData
     public Entity GoalPrefab;
     public int SizeY;
     public int SizeX;
+    
+    public Entity RatSpawner;
+    public Entity CatSpawner;
 }
