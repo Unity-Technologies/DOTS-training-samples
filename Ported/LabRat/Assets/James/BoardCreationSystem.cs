@@ -34,11 +34,13 @@ public class BoardCreationSystem : SystemBase
                     else if (y == boardCreationAuthor.SizeY - 1)
                     {
                         newTile.Value = Tile.Attributes.WallDown;
+                        PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallDown);
                     }
 
                     if (x == 0)
                     {
                         newTile.Value = Tile.Attributes.WallLeft;
+                        PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallLeft);
                         if (y == 0)
                             newTile.Value = Tile.Attributes.WallUp | Tile.Attributes.WallLeft | Tile.Attributes.Spawn;
                         else if (y == boardCreationAuthor.SizeY - 1)
@@ -47,10 +49,17 @@ public class BoardCreationSystem : SystemBase
                     else if (x == boardCreationAuthor.SizeX - 1)
                     {
                         newTile.Value = Tile.Attributes.WallRight;
+                        PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallRight);
                         if (y == 0)
+                        {
                             newTile.Value = Tile.Attributes.WallUp | Tile.Attributes.WallRight | Tile.Attributes.Spawn;
+                        }
+                            
                         else if (x == boardCreationAuthor.SizeX - 1 && y == boardCreationAuthor.SizeY - 1)
+                        {
                             newTile.Value = Tile.Attributes.WallDown | Tile.Attributes.WallRight | Tile.Attributes.Spawn;
+                        }
+                            
                     }
 
                     // Place Random Walls and Holes
@@ -64,15 +73,19 @@ public class BoardCreationSystem : SystemBase
                                 break;
                             case 1:
                                 newTile.Value |= Tile.Attributes.WallDown;
+                                PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallDown);
                                 break;
                             case 2:
                                 newTile.Value |= Tile.Attributes.WallLeft;
+                                PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallLeft);
                                 break;
                             case 3:
                                 newTile.Value |= Tile.Attributes.WallRight;
+                                PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallRight);
                                 break;
                             case 4:
                                 newTile.Value |= Tile.Attributes.WallUp;
+                                PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallUp);
                                 break;
                         }
                     }
@@ -103,26 +116,29 @@ public class BoardCreationSystem : SystemBase
 
     void PlaceWall(Entity prefab, float2 pos, Tile.Attributes attributes)
     {
+        Translation translation = new Translation();
         Rotation rot = new Rotation();
         switch (attributes)
         {
             case Tile.Attributes.WallUp:
-                
+                rot.Value = quaternion.EulerXYZ(0, math.radians(90), 0);
+                translation.Value = new float3(pos.x, 1f, pos.y -0.5f);
                 break;
 
             case Tile.Attributes.WallDown:
+                rot.Value = quaternion.EulerXYZ(0, math.radians(90), 0);
+                translation.Value = new float3(pos.x, 1f, pos.y + 0.5f);
                 break;
 
             case Tile.Attributes.WallLeft:
-                rot.Value = quaternion.EulerXYZ(90, 0, 0);
+                translation.Value = new float3(pos.x -0.5f, 1f, pos.y);
                 break;
 
             case Tile.Attributes.WallRight:
-                rot.Value = quaternion.EulerXYZ(90, 0, 0);
+                translation.Value = new float3(pos.x + 0.5f, 1f, pos.y);
                 break;
         }
-        Translation translation = new Translation();
-        translation.Value = new float3(pos.x, 1f, pos.y);
+        
         Entity wall = EntityManager.Instantiate(prefab);
         EntityManager.AddComponentData(wall, translation);
         EntityManager.AddComponentData(wall, rot);
