@@ -3,7 +3,6 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class BeeCollectingSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
@@ -53,7 +52,13 @@ public class BeeCollectingSystem : SystemBase
                     Translation targetEntityTranslationComponent = EntityManager.GetComponentData<Translation>(targetEntity.Value);
                     float3 direction = targetEntityTranslationComponent.Value - translation.Value;
 
-                    velocity.Value = math.normalize( direction ) * speed.Value;
+                    float maxSpeed = speed.Value;
+                    float acceleration = 2.5f;
+                    velocity.Value.y *= 0.1f;
+                    velocity.Value += math.normalize( direction ) * deltaTime * acceleration;
+                    float currentSpeed = math.length( velocity.Value );
+                    if( currentSpeed > maxSpeed )
+                        velocity.Value = math.normalize( velocity.Value ) * maxSpeed;
 
                     //If the bee is close enough, change its state to Carrying
                     float d = math.length(direction);
