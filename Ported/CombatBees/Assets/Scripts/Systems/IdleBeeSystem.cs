@@ -37,6 +37,7 @@ public class IdleBeeSystem : SystemBase
             None = new []
             {
                 ComponentType.ReadOnly<Dying>(), 
+                ComponentType.ReadOnly<Agony>(), 
             }
         });
         
@@ -49,6 +50,7 @@ public class IdleBeeSystem : SystemBase
             }, None = new []
             {
                 ComponentType.ReadOnly<Dying>(), 
+                ComponentType.ReadOnly<Agony>(), 
             }
         });
         

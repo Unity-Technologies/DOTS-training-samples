@@ -48,6 +48,19 @@ public class BeeAttackingSystem : SystemBase
                     float d = math.length(direction);
                     if (d < 1)
                     {
+
+                        //If the enemy is carrying something, we need to un-parent that "something"
+                        if(HasComponent<Carrying>(targetEntity.Value))
+                        {
+                            ecb.RemoveComponent<Carrying>(targetEntity.Value);
+
+                            var carryingComponentFromEnemy = EntityManager.GetComponentData<Carrying>(targetEntity.Value);
+                            ecb.RemoveComponent<Parent>(carryingComponentFromEnemy.Value);
+                            ecb.RemoveComponent<LocalToParent>(carryingComponentFromEnemy.Value);
+
+                            ecb.SetComponent<Translation>(carryingComponentFromEnemy.Value, translation);
+                        }
+
                         // TODO: remember to override systems to use bees without dying for their actions
                         ecb.AddComponent<Dying>(targetEntity.Value);
 
