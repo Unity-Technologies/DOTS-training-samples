@@ -45,7 +45,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TilePrefab: {fileID: 1695157876856304, guid: c2ef2e9ce5dad494d916f59769e7d27f, type: 3}
   WallPrefab: {fileID: 1948033712935058, guid: eea26364a72844748944744db673f3f1, type: 3}
-  GoalPrefab: {fileID: 8880445121438370549, guid: 26e25b0e5da7e134ebf23aa93cf41fca, type: 3}
+  GoalPrefab: {fileID: 8880445121438370549, guid: 31f3c9145a7e044f3b6c04e85609fec4, type: 3}
   SizeY: 13
   SizeX: 13
   RatSpawner: {fileID: 1298946766065678, guid: 2c08b8c1095e74ed08e4ced0db304913, type: 3}

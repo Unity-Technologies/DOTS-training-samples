@@ -99,15 +99,21 @@ public class BoardCreationSystem : SystemBase
                 }
             }
             
-            // Place rat and cat spawners in diagonally opposite corners
-            var ratSpawners = EntityManager.Instantiate(boardCreationAuthor.RatSpawner, 2, Allocator.Temp);
-            var catSpawners = EntityManager.Instantiate(boardCreationAuthor.CatSpawner, 2, Allocator.Temp);
-            EntityManager.AddComponent<PositionXZ>(ratSpawners[0]);
-            EntityManager.AddComponentData(ratSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, boardCreationAuthor.SizeY - 1f)});
-            EntityManager.AddComponentData(catSpawners[0], new PositionXZ { Value = new float2(0f, boardCreationAuthor.SizeY - 1f)});
-            EntityManager.AddComponentData(catSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, 0f)});
-            ratSpawners.Dispose();
-            catSpawners.Dispose();
+            // Place rat and cat spawners in diagonally opposite corners (if any are present)
+            if (boardCreationAuthor.RatSpawner != Entity.Null)
+            {
+                var ratSpawners = EntityManager.Instantiate(boardCreationAuthor.RatSpawner, 2, Allocator.Temp);
+                EntityManager.AddComponent<PositionXZ>(ratSpawners[0]);
+                EntityManager.AddComponentData(ratSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, boardCreationAuthor.SizeY - 1f)});
+                ratSpawners.Dispose();
+            }
+            if (boardCreationAuthor.CatSpawner != Entity.Null)
+            {
+                var catSpawners = EntityManager.Instantiate(boardCreationAuthor.CatSpawner, 2, Allocator.Temp);
+                EntityManager.AddComponentData(catSpawners[0], new PositionXZ { Value = new float2(0f, boardCreationAuthor.SizeY - 1f)});
+                EntityManager.AddComponentData(catSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, 0f)});
+                catSpawners.Dispose();
+            }
 
             EntityManager.AddComponent<CreationComplete>(e);
         }).WithStructuralChanges().Run();
