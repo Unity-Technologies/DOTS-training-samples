@@ -91,6 +91,7 @@ public class ArrowPlacingSystem : SystemBase
                     if (math.any(tilePosition != newArrowPosition))
                         continue;
 
+                    var tileEntity = tileEntities[i];
                     var tileValue = tiles[i].Value;
 
                     if ((tileValue & Tile.Attributes.ArrowAny) != 0) // Target tile is an Arrow
@@ -103,11 +104,21 @@ public class ArrowPlacingSystem : SystemBase
 
                             if (arrows[j].Owner == placeArrowEvent.Player) // Placer owns the arrow, remove
                             {
-                                ecb.DestroyEntity(entityInQueryIndex, arrowEntities[j]);
-                                tileAccessor[tileEntities[i]] = new Tile
+                                var arrowEntity = arrowEntities[j];
+                                ecb.DestroyEntity(entityInQueryIndex, arrowEntity);
+                                tileAccessor[tileEntity] = new Tile
                                 {
                                     Value = (Tile.Attributes)((int)tiles[i].Value & ~(int)Tile.Attributes.ArrowAny)
                                 };
+                                var arrowsBuffer = GetBuffer<PlayerArrow>(placeArrowEvent.Player);
+                                for (int k = 0; k < arrowsBuffer.Length; k++)
+                                {
+                                    if (arrowsBuffer[k].Arrow == arrowEntity)
+                                    {
+                                        arrowsBuffer.RemoveAt(k);
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
@@ -117,22 +128,52 @@ public class ArrowPlacingSystem : SystemBase
                     }
                     else // Tile is free to place New Arrow
                     {
-                        tileAccessor[tileEntities[i]] = new Tile
+                        var arrowsBuffer = GetBuffer<PlayerArrow>(placeArrowEvent.Player);
+                        if (arrowsBuffer.Length >= PlayerArrow.MaxArrowsPerPlayer)
+                        {
+                            var arrowToDestroyEntity = arrowsBuffer[0].Arrow;
+                            var arrowToDestroy = GetComponent<Arrow>(arrowToDestroyEntity);
+
+                            tileAccessor[arrowToDestroy.Tile] = new Tile
+                            {
+                                Value = (Tile.Attributes)((int)tiles[i].Value & ~(int)Tile.Attributes.ArrowAny)
+                            };
+                            ecb.DestroyEntity(entityInQueryIndex, arrowToDestroyEntity);
+                            arrowsBuffer.RemoveAt(0);
+                        }
+
+                        tileAccessor[tileEntity] = new Tile
                         {
                             Value = (Tile.Attributes)(((int)tiles[i].Value & ~(int)Tile.Attributes.ArrowAny) | (int)direction.Value << (int)Tile.Attributes.ArrowShiftCount)
                         };
                         var newArrow = ecb.Instantiate(entityInQueryIndex, arrowPrefab);
 
                         var playerColor = GetComponent<Color>(placeArrowEvent.Player);
-                        ecb.SetComponent(entityInQueryIndex, newArrow, new Arrow { Owner = placeArrowEvent.Player });
+                        ecb.SetComponent(entityInQueryIndex, newArrow, new Arrow { Owner = placeArrowEvent.Player, Tile = tileEntity });
                         ecb.SetComponent(entityInQueryIndex, newArrow, new Translation { Value = new float3(position.Value.x, 0, position.Value.y) });
                         ecb.SetComponent(entityInQueryIndex, newArrow, new Rotation { Value = quaternion.Euler(0, AnimalMovementSystem.RadiansFromDirection(direction.Value), 0) });
+                        ecb.AddComponent(entityInQueryIndex, newArrow, new FreshArrowTag());
                         ecb.AddComponent(entityInQueryIndex, newArrow, playerColor);
                     }
                 }
 
                 ecb.DestroyEntity(entityInQueryIndex, placeArrowEventEntity);
-            }).ScheduleParallel();
+            }).Schedule();
+        ECBSystem.AddJobHandleForProducer(Dependency);
+        
+        // We need to run this with "Fresh Arrows" as they now have valid Entity index and can be added to a buffer
+        ecb = ECBSystem.CreateCommandBuffer().AsParallelWriter();
+        Entities
+            .WithAll<FreshArrowTag>()
+            .ForEach((
+            int entityInQueryIndex,
+            in Entity arrowEntity,
+            in Arrow arrow) =>
+        {
+            var arrowsBuffer = GetBuffer<PlayerArrow>(arrow.Owner);
+            arrowsBuffer.Add(new PlayerArrow { Arrow = arrowEntity });
+            ecb.RemoveComponent<FreshArrowTag>(entityInQueryIndex, arrowEntity);
+        }).Schedule();
         ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }

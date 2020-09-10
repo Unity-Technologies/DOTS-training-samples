@@ -41,6 +41,7 @@ public class PlayerInitializationSystem : SystemBase
                     ecb.SetComponent(playerEntity, new Name { Value = $"Computer {i}" });
                 }
                 ecb.SetComponent(playerEntity, new ColorAuthoring() { Color = UnityEngine.Color.HSVToRGB(i / (float)playerCount, 1, 1) });
+                ecb.AddBuffer<PlayerArrow>(playerEntity);
             }
         }).Run();
         
