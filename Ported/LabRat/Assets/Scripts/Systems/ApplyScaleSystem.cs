@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -24,6 +25,22 @@ public class ApplyScaleSystem : SystemBase
             var value = auth.Enable ? rnd.NextFloat( auth.MinScale,  auth.MaxScale) :  auth.Scale;
             ecb.AddComponent(entityInQueryIndex, entity, new Size(){Value = value});
             ecb.RemoveComponent<ScaleAuthoring>(entityInQueryIndex, entity);
+        }).ScheduleParallel();
+        
+        
+        Entities
+            .WithAll<CatTag>()
+            .ForEach((int entityInQueryIndex, Entity entity, ref Size size) =>
+        {
+            if (size.Grow > 0)
+            {
+                size.Grow -= 0.2f * dt;
+            }
+            else
+            {
+                size.Grow = 0;
+            }
+            
         }).ScheduleParallel();
 
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);

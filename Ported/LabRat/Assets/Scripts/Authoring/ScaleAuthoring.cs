@@ -9,6 +9,7 @@ using Random = Unity.Mathematics.Random;
 public struct Size : IComponentData
 {
     public float Value;
+    public float Grow;
 }
 
 [GenerateAuthoringComponent]

@@ -82,7 +82,7 @@ public class TransformSystem : SystemBase
                 var scale = float4x4.identity;
                 if (hasSize)
                 {
-                    scale = float4x4.Scale(chunkSize[i].Value);
+                    scale = float4x4.Scale(chunkSize[i].Value + chunkSize[i].Grow);
                 }
 
                 var m = math.mul(math.mul(translation, rotation), scale);

@@ -25,6 +25,7 @@ public class EatSystem : SystemBase
         });
     }
 
+
     protected override void OnUpdate()
     {
         var ecb = m_CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
@@ -33,12 +34,14 @@ public class EatSystem : SystemBase
         // find the tile for each cat
         var numCats = m_CatsQuery.CalculateEntityCount();
         var catTiles = new NativeArray<int>(numCats, Allocator.TempJob);
+        var catData = new NativeArray<bool>(numCats, Allocator.TempJob);
         Entities
             .WithAll<CatTag>()
             .ForEach((int entityInQueryIndex, Entity entity, in PositionXZ position) =>
             {
                 var tile = AnimalMovementSystem.TileKeyFromPosition(position.Value, boardDimensions);
                 catTiles[entityInQueryIndex] = tile;
+                catData[entityInQueryIndex] =  false;
             })
             .ScheduleParallel();
         
@@ -46,6 +49,7 @@ public class EatSystem : SystemBase
         Entities
             .WithAll<RatTag>()
             .WithDisposeOnCompletion(catTiles)
+            .WithNativeDisableParallelForRestriction(catData)
             .ForEach((int entityInQueryIndex, Entity entity, in PositionXZ position) =>
             {
                 var ratTile = AnimalMovementSystem.TileKeyFromPosition(position.Value, boardDimensions);
@@ -55,8 +59,23 @@ public class EatSystem : SystemBase
                     if (ratTile == catTiles[i])
                     {
                         ecb.DestroyEntity(entityInQueryIndex, entity);
+                        catData[i] = true;
                         break;
                     }
+                }
+            })
+            .ScheduleParallel();
+
+        
+        Entities
+            .WithAll<CatTag>()
+            .WithNativeDisableParallelForRestriction(catData)
+            .WithDisposeOnCompletion(catData)
+            .ForEach((int entityInQueryIndex, Entity entity, ref Size size) =>
+            {
+                if (catData[entityInQueryIndex])
+                {
+                    size.Grow = 0.5f;
                 }
             })
             .ScheduleParallel();
