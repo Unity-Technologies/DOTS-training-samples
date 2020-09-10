@@ -39,7 +39,10 @@ public class AnimalMovementSystem : SystemBase
 
         // Build a direct lookup structure for tile entities
         var tileEntityGrid = m_TileEntityGrid = new NativeArray<Entity>(TileCountSqr, Allocator.Persistent);
-        Entities.WithAll<Tile>().ForEach((Entity entity, in PositionXZ pos) => { tileEntityGrid[TileKeyFromPosition(pos.Value)] = entity; }).Run();
+        Entities.WithName("CollectTiles")
+            .WithAll<Tile>()
+            .ForEach((Entity entity, in PositionXZ pos) => { tileEntityGrid[TileKeyFromPosition(pos.Value)] = entity; })
+            .ScheduleParallel();
     }
 
     EntityCommandBufferSystem m_EntityCommandBufferSystem;
@@ -52,7 +55,8 @@ public class AnimalMovementSystem : SystemBase
 
     protected override void OnDestroy()
     {
-        m_TileEntityGrid.Dispose();
+        if(m_TileEntityGrid.IsCreated)
+            m_TileEntityGrid.Dispose();
     }
 
     protected override void OnUpdate()
@@ -61,22 +65,33 @@ public class AnimalMovementSystem : SystemBase
 
         EnsureTileEntityGrid();
         
-        var deltaTime = Time.DeltaTime;
+        // TODO: Investigate: Is there an official way to limit max delta time step in DOTS time?
+        var deltaTime = math.clamp(Time.DeltaTime, 0f, 1f / 10f);
+        
         var tileComponentData = GetComponentDataFromEntity<Tile>(true);
-        var posComponentData = GetComponentDataFromEntity<PositionXZ>(true);
+        var posComponentData = GetComponentDataFromEntity<PositionXZ>(/*true*/);
         var tileEntityGrid = m_TileEntityGrid;
         
         var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer()
 #if !DEBUGGABLE
-            .AsParallelWriter();
+            .AsParallelWriter()
 #endif
             ;
 
-        Entities
+        // TODO: Bit of a messy workaround here to avoid complaints about aliasing. Since we need to read position from the tiles,
+        //       and at the same time mutate positions of the animals, we'd like to accept position in our lambdas since we know
+        //       these belong to different archetypes and won't alias.
+        
+        Entities.WithName("MovementAndCollision")
             .WithReadOnly(tileComponentData)
-            .WithReadOnly(posComponentData)
-            .ForEach((Entity entity, int entityInQueryIndex, ref PositionXZ pos, ref Direction direction, in Speed speed) =>
+            /*.WithReadOnly(posComponentData)*/
+            .WithNativeDisableParallelForRestriction(posComponentData)
+            .WithAll<PositionXZ>()
+            .ForEach((Entity entity, int entityInQueryIndex, /*ref PositionXZ pos,*/ ref Direction direction, in Speed speed) =>
         {
+            // TEMP Grab pos from component array
+            var pos = posComponentData[entity];
+            
             // Grab tile data underneath animal
             var tileEntity = tileEntityGrid[TileKeyFromPosition(pos.Value)];
             var tileData = tileComponentData[tileEntity];
@@ -163,6 +178,9 @@ public class AnimalMovementSystem : SystemBase
                     }
                 }
             }
+            
+            // TEMP Write back pos to component array
+            posComponentData[entity] = pos;
         })
 #if DEBUGGABLE
         .WithoutBurst()
