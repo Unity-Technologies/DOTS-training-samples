@@ -1,48 +1,55 @@
-﻿using System;
-
+﻿using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 
 using UnityEngine;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class PlayerInitializationSystem : SystemBase
 {
-    private EntityCommandBufferSystem ECBSystem;
+    EntityQuery m_AnyPlayer;
 
     protected override void OnCreate()
     {
-        base.OnCreate();
-        ECBSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+        m_AnyPlayer = GetEntityQuery(ComponentType.ReadOnly<Player>());
     }
 
     protected override void OnUpdate()
     {
-        var ticks = DateTime.Now.Ticks;
-        var ecb = ECBSystem.CreateCommandBuffer().AsParallelWriter();
-        Entities.ForEach((int entityInQueryIndex, in Entity playerInitializationEntity, in PlayerInitialization playerInitialization) =>
+        var ticks = System.DateTime.Now.Ticks;
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        
+        Entities.WithName("InitPlayers")
+            .WithAll<GameStateInitialize>()
+            .ForEach((in PlayerInitialization playerInitialization) =>
         {
             var playerCount = playerInitialization.PlayerCount;
             for (int i = 0; i < playerInitialization.PlayerCount; i++)
             {
-                var playerEntity = ecb.Instantiate(entityInQueryIndex, playerInitialization.PlayerPrefab);
+                var playerEntity = ecb.Instantiate(playerInitialization.PlayerPrefab);
                 if (i == 0 && !playerInitialization.AIOnly)
                 {
-                    ecb.AddComponent<HumanPlayerTag>(entityInQueryIndex, playerEntity);
+                    ecb.AddComponent<HumanPlayerTag>(playerEntity);
 
-                    var playerArrowPreviewEntity = ecb.Instantiate(entityInQueryIndex, playerInitialization.HumanPlayerArrowPreview);
-                    ecb.AddComponent<HumanPlayerTag>(entityInQueryIndex, playerArrowPreviewEntity);
+                    var playerArrowPreviewEntity = ecb.Instantiate(playerInitialization.HumanPlayerArrowPreview);
+                    ecb.AddComponent<HumanPlayerTag>(playerArrowPreviewEntity);
 
-                    ecb.SetComponent(entityInQueryIndex, playerEntity, new Name { Value = "You" });
+                    ecb.SetComponent(playerEntity, new Name { Value = "You" });
                 }
                 else
                 {
-                    ecb.AddComponent(entityInQueryIndex, playerEntity, new AIPlayerLastDecision { Value = ticks });
-                    ecb.SetComponent(entityInQueryIndex, playerEntity, new Name { Value = $"Computer {i}" });
-                    ecb.SetComponent(entityInQueryIndex, playerEntity, new Color { Value = (Vector4)UnityEngine.Color.HSVToRGB(i / (float)playerCount, 1, 1) });
+                    ecb.AddComponent(playerEntity, new AIPlayerLastDecision { Value = ticks });
+                    ecb.SetComponent(playerEntity, new Name { Value = $"Computer {i}" });
                 }
+                ecb.SetComponent(playerEntity, new ColorAuthoring() { Color = UnityEngine.Color.HSVToRGB(i / (float)playerCount, 1, 1) });
+                ecb.AddBuffer<PlayerArrow>(playerEntity);
             }
-            ecb.AddComponent<Disabled>(entityInQueryIndex, playerInitializationEntity);
-        }).ScheduleParallel();
-        ECBSystem.AddJobHandleForProducer(Dependency);
+        }).Run();
+        
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+    
+        // Quick'n'dirty cleanup
+        if (EntityManager.HasComponent<GameStateCleanup>(GetSingletonEntity<PlayerInitialization>()))
+            EntityManager.DestroyEntity(m_AnyPlayer);
     }
 }
