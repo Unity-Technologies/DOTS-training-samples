@@ -91,9 +91,9 @@ public class ArrowPlacingSystem : SystemBase
                     if (math.any(tilePosition != newArrowPosition))
                         continue;
 
-                    var tileAlreadyIsArrow = (tiles[i].Value & Tile.Attributes.ArrowAny) != 0;
+                    var tileValue = tiles[i].Value;
 
-                    if (tileAlreadyIsArrow)
+                    if ((tileValue & Tile.Attributes.ArrowAny) != 0) // Target tile is an Arrow
                     {
                         for (int j = 0; j < arrowEntities.Length; j++)
                         {
@@ -111,7 +111,11 @@ public class ArrowPlacingSystem : SystemBase
                             }
                         }
                     }
-                    else // New Arrow
+                    else if ((tileValue & Tile.Attributes.ObstacleAny) != 0) // Tile is either a Hole or a Goal
+                    {
+
+                    }
+                    else // Tile is free to place New Arrow
                     {
                         tileAccessor[tileEntities[i]] = new Tile
                         {
