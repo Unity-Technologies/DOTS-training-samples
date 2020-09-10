@@ -4,9 +4,8 @@ using Unity.Jobs;
 using Unity.Transforms;
 using Unity.Mathematics;
 
-public class IdleBeeSystem : SystemBase
+public class AttractingSystem : SystemBase
 {
-    private EntityQuery m_ResourceQuery;
     private EntityQuery m_TeamABees;
     private EntityQuery m_TeamBBees;
     
@@ -15,17 +14,6 @@ public class IdleBeeSystem : SystemBase
     
     protected override void OnCreate()
     {
-        m_ResourceQuery = GetEntityQuery(new EntityQueryDesc
-        {
-            All = new[]
-            {
-                ComponentType.ReadOnly<Resource>(),
-            },
-            None = new []
-            {
-                ComponentType.ReadOnly<Taken>(), 
-            }
-        });
         
         m_TeamABees = GetEntityQuery(new EntityQueryDesc
         {
@@ -62,7 +50,6 @@ public class IdleBeeSystem : SystemBase
     {
         var random = new Random( (uint)m_Random.NextInt() );
         
-        int resourceEntitiesLength = m_ResourceQuery.CalculateEntityCount();
         var ecb = m_ECBSystem.CreateCommandBuffer();
         if( resourceEntitiesLength == 0 )
         {

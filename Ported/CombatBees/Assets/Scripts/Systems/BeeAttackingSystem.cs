@@ -23,6 +23,8 @@ public class BeeAttackingSystem : SystemBase
         var b = GetSingleton<BattleField>();
         var deltaTime = Time.DeltaTime;
 
+        BattleField battlefield = GetSingleton<BattleField>();
+
         Entities.WithAll<Attack>()
                 .WithoutBurst()
                 .ForEach( ( Entity bee, ref Velocity velocity, in Translation translation, in TargetEntity targetEntity, in Speed speed) =>
@@ -52,10 +54,31 @@ public class BeeAttackingSystem : SystemBase
                             ecb.RemoveComponent<Carrying>(targetEntity.Value);
 
                             var carryingComponentFromEnemy = EntityManager.GetComponentData<Carrying>(targetEntity.Value);
-                            ecb.RemoveComponent<Parent>(carryingComponentFromEnemy.Value);
-                            ecb.RemoveComponent<LocalToParent>(carryingComponentFromEnemy.Value);
+                            ecb.SetComponent<Parent>(carryingComponentFromEnemy.Value, new Parent { Value = bee });
 
-                            ecb.SetComponent<Translation>(carryingComponentFromEnemy.Value, translation);
+                            //Take over the resource
+
+                            float3 hivePosition;
+                            float hiveDistance = battlefield.HiveDistance + 1f;
+
+                            //TODO : take into acount the position of the battlefield (if it's not in 0,0,0)
+                            if (HasComponent<TeamA>(bee))
+                                hivePosition = new float3(0, 0, -hiveDistance);
+                            else
+                                hivePosition = new float3(0, 0, hiveDistance);
+
+                            ecb.RemoveComponent<TargetEntity>(bee);
+                            ecb.RemoveComponent<Attack>(bee);
+                            ecb.AddComponent<Carrying>(bee, new Carrying { Value = carryingComponentFromEnemy.Value });
+                            ecb.AddComponent<TargetPosition>(bee, new TargetPosition { Value = hivePosition });
+                        }
+                        else
+                        {
+
+                            //Switch to Idle
+                            ecb.RemoveComponent<TargetEntity>(bee);
+                            ecb.RemoveComponent<Attack>(bee);
+                            ecb.AddComponent<Idle>(bee);
                         }
 
                         var bloodSpawner = ecb.Instantiate(b.BloodSpawner);
@@ -76,10 +99,6 @@ public class BeeAttackingSystem : SystemBase
 
                         ecb.AddComponent<Velocity>(targetEntity.Value, new Velocity { Value = new float3(0, 0, 0) } );
 
-                        //Switch to Idle
-                        ecb.RemoveComponent<TargetEntity>(bee);
-                        ecb.RemoveComponent<Attack>(bee);
-                        ecb.AddComponent<Idle>(bee);
                     }
                 }
                 
