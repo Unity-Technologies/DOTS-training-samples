@@ -108,8 +108,11 @@ public class GameController : SystemBase
         
                 m_UIBridge.SetTimer(gameTimeRemaining);
                 
+                var scores = new int[4];
+                Entities.WithName("Score2UI").WithAll<Score>()
+                    .ForEach((int entityInQueryIndex, in Score s) => scores[entityInQueryIndex] = s.Value).WithoutBurst().Run();
                 for (int i = 0; i < 4; i++)
-                    m_UIBridge.SetScore(i, UnityEngine.Random.Range(1, 100));
+                    m_UIBridge.SetScore(i, scores[i]);
 
                 if (gameTimeRemaining == 0f)
                     m_GameState = GameState.GameEnding;

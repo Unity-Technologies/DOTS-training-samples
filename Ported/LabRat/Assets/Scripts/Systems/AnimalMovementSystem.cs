@@ -195,10 +195,18 @@ public class AnimalMovementSystem : SystemBase
                         }
                         else if (obstacleMask == (int)Tile.Attributes.Goal)
                         {
+                            var player = tileData.Owner;
+                            var currentScore = GetComponent<Score>(player).Value;
+
+                            var isRat = HasComponent<RatTag>(entity);
+                            var newScore = isRat ? currentScore + 1 : currentScore * 0.7;
+                            
 #if DEBUGGABLE
                             Debug.Log($"Hit goal. Record player score!");
+                            ecb.SetComponent(player, new Score(){Value = (int)newScore});
                             ecb.DestroyEntity(entity);
 #else
+                            ecb.SetComponent(entityInQueryIndex, player, new Score(){Value = (int)newScore});
                             ecb.DestroyEntity(entityInQueryIndex, entity);
 #endif
                         }

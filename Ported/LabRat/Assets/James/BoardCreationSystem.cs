@@ -131,6 +131,8 @@ public class BoardCreationSystem : SystemBase
                             EntityManager.SetComponentData(goal, new PositionXZ(){Value = new float2(x, y)});
 
                             var player = playerInitSystem.Players[spawnedGoals++];
+                            newTile.Owner = player;
+                            
                             var cc = EntityManager.GetComponentData<ColorAuthoring>(player);
                             var linkedEntities = EntityManager.GetBuffer<LinkedEntityGroup>(goal);
                             for (var l = 0; l < linkedEntities.Length; ++l)
