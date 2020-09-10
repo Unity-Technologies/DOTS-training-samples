@@ -8,9 +8,18 @@ using Unity.Rendering;
 [UpdateAfter(typeof(PlayerInitializationSystem))]
 public class BoardCreationSystem : SystemBase
 {
+    struct BoardVisualElement : ISystemStateComponentData {}
+
+    EntityQuery m_AnyTileOrWallQuery;
+    
+    protected override void OnCreate()
+    {
+        m_AnyTileOrWallQuery = GetEntityQuery(new EntityQueryDesc {Any = new[] {ComponentType.ReadOnly<Tile>(), ComponentType.ReadOnly<BoardVisualElement>()}});
+    }
+
     protected override void OnUpdate()
     {
-        Entities
+        Entities.WithName("BoardCreation_Initialize")
         .WithAll<GameStateInitialize>()
         .ForEach((Entity e, in BoardCreationAuthor boardCreationAuthor) =>
         {
@@ -170,6 +179,14 @@ public class BoardCreationSystem : SystemBase
             }
             EntityManager.RemoveComponent<GameStateStart>(e);
         }).WithStructuralChanges().Run();
+     
+        // Quick'n'dirty cleanup
+        if (EntityManager.HasComponent<GameStateCleanup>(GetSingletonEntity<BoardCreationAuthor>()))
+        {
+            Entities.WithAll<Tile>().ForEach((Entity entity) => EntityManager.DestroyEntity(entity)).WithStructuralChanges().WithoutBurst().Run();
+            Entities.WithAll<BoardVisualElement>().ForEach((Entity entity) => EntityManager.DestroyEntity(entity)).WithStructuralChanges().WithoutBurst().Run();
+            //EntityManager.DestroyEntity(m_AnyTileOrWallQuery);
+        }
     }
 
     private void PlaceWall(Entity prefab, float2 pos, Tile.Attributes attributes)
@@ -200,5 +217,6 @@ public class BoardCreationSystem : SystemBase
         Entity wall = EntityManager.Instantiate(prefab);
         EntityManager.AddComponentData(wall, translation);
         EntityManager.AddComponentData(wall, rot);
+        EntityManager.AddComponent<BoardVisualElement>(wall);
     }
 }

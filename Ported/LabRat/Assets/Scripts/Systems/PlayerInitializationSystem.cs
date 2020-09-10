@@ -6,12 +6,11 @@ using UnityEngine;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class PlayerInitializationSystem : SystemBase
 {
-    private EntityCommandBufferSystem ECBSystem;
+    EntityQuery m_AnyPlayer;
 
     protected override void OnCreate()
     {
-        base.OnCreate();
-        ECBSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+        m_AnyPlayer = GetEntityQuery(ComponentType.ReadOnly<Player>());
     }
 
     protected override void OnUpdate()
@@ -44,8 +43,12 @@ public class PlayerInitializationSystem : SystemBase
                 }
             }
         }).Run();
-
+        
         ecb.Playback(EntityManager);
         ecb.Dispose();
+    
+        // Quick'n'dirty cleanup
+        if (EntityManager.HasComponent<GameStateCleanup>(GetSingletonEntity<PlayerInitialization>()))
+            EntityManager.DestroyEntity(m_AnyPlayer);
     }
 }
