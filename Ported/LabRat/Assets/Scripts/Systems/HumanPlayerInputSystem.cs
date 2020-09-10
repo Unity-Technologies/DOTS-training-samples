@@ -56,7 +56,6 @@ public class HumanPlayerInputSystem : SystemBase
         }
         inputDirection = (Direction.Attributes)(1 << directionBitShift); // God help us if bit value meanings change
         var directionQuaternion = quaternion.Euler(0, directionBitShift * math.PI / 2 + math.PI, 0);
-        Debug.Log($"{inputDirection} {math.degrees(math.atan2(tileOffset.y, -tileOffset.x))}");
 
         Entities
             .WithAll<HumanPlayerTag>()
