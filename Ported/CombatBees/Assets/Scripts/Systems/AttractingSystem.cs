@@ -48,11 +48,11 @@ public class AttractingSystem : SystemBase
     
     protected override void OnUpdate()
     {
+        /*
         var random = new Random( (uint)m_Random.NextInt() );
         
         var ecb = m_ECBSystem.CreateCommandBuffer();
-        if( resourceEntitiesLength == 0 )
-        {
+
 
             int teamABeesEntitiesLength = m_TeamABees.CalculateEntityCount();
             int teamBBeesEntitiesLength = m_TeamBBees.CalculateEntityCount();
@@ -101,28 +101,8 @@ public class AttractingSystem : SystemBase
                        
 
                 } ).Schedule();
-        }
-        else
-        {
-            
-            var resourceEntities =
-            m_ResourceQuery.ToEntityArrayAsync(Allocator.TempJob, out var resourcesEntitiesHandle);
-       
-            
-            Dependency = JobHandle.CombineDependencies(Dependency, resourcesEntitiesHandle);
-
-            Entities.WithAll<Idle>()
-                .WithDisposeOnCompletion( resourceEntities )
-                .ForEach( ( Entity bee ) =>
-            {
-                ecb.RemoveComponent<Idle>( bee );
-                ecb.AddComponent<Collecting>( bee );
-
-                int targetIndex = random.NextInt( 0, resourceEntitiesLength );
-                ecb.AddComponent( bee, new TargetEntity {Value = resourceEntities[targetIndex]} );
-            } ).Schedule();
-        }
         
         m_ECBSystem.AddJobHandleForProducer(Dependency);
+        */
     }
 }
