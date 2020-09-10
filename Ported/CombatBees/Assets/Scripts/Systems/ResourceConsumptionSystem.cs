@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -14,7 +15,8 @@ public class ResourceConsumptionSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = m_CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+
         var b = GetSingleton<BattleField>();
 
         Entities.WithAll<Resource>().WithNone<Parent>().ForEach((int entityInQueryIndex,Entity entity, in Translation translation) =>
@@ -24,28 +26,30 @@ public class ResourceConsumptionSystem : SystemBase
                 if (translation.Value.y < (-b.Bounds.y / 2) + 0.1)
                 {
                     // destroy
-                    ecb.DestroyEntity(entityInQueryIndex, entity);
+                    ecb.DestroyEntity(entity);
 
-                    var beeSpawner = ecb.Instantiate(entityInQueryIndex, b.BeeSpawner);
-                    ecb.SetComponent<Translation>(entityInQueryIndex, beeSpawner, translation);
+                    var beeSpawner = ecb.Instantiate(b.BeeSpawner);
+                    ecb.SetComponent<Translation>(beeSpawner, translation);
 
                     // spawn
                     if (translation.Value.z > 0f)
                     {
-                        ecb.AddComponent<TeamB>(entityInQueryIndex, beeSpawner);
+                        ecb.AddComponent<TeamB>(beeSpawner);
                     }
                     else
                     {
-                        ecb.AddComponent<TeamA>(entityInQueryIndex, beeSpawner);
+                        ecb.AddComponent<TeamA>(beeSpawner);
 
                     }
                 }
             }
 
 
-        }).ScheduleParallel();
+        }).Run();
         // TODO: ask about this
-        m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
+
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }
 
