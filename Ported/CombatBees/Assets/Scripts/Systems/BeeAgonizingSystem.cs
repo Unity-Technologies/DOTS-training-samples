@@ -32,7 +32,7 @@ public class BeeAgonizingSystem : SystemBase
 
                 if(scale.Value <= 0)
                 {
-                    ecb.DestroyEntity( bee );
+                    //ecb.DestroyEntity( bee );
                 }
 
 

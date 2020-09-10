@@ -89,13 +89,15 @@ public class IdleBeeSystem : SystemBase
                 .ForEach( ( Entity bee ) =>
             {
                 
-                ecb.RemoveComponent<Idle>( bee );
-                ecb.AddComponent<Attack>( bee );
-
                 int targetIndex = random.NextInt( 0, teamBBeesEntitiesLength );
 
                 if (targetIndex < teamBBeesEntitiesLength)
+                {
+                    ecb.RemoveComponent<Idle>( bee );
+                    ecb.AddComponent<Attack>( bee );
                     ecb.AddComponent( bee, new TargetEntity { Value = beeEntities_TeamB[targetIndex] } );
+                }
+                    
 
             } ).Schedule();
             
@@ -103,14 +105,17 @@ public class IdleBeeSystem : SystemBase
                 .WithDisposeOnCompletion( beeEntities_TeamA )
                 .WithAll<Idle>()
                 .ForEach( ( Entity bee ) =>
-                {
-                    ecb.RemoveComponent<Idle>( bee );
-                    ecb.AddComponent<Attack>( bee );
+                {   
 
                     int targetIndex = random.NextInt( 0, teamABeesEntitiesLength );
 
                     if (targetIndex < teamABeesEntitiesLength)
+                    {
+                        ecb.RemoveComponent<Idle>( bee );
+                        ecb.AddComponent<Attack>( bee );
                         ecb.AddComponent( bee, new TargetEntity { Value = beeEntities_TeamA[targetIndex] } );
+                    }
+                       
 
                 } ).Schedule();
         }
