@@ -43,6 +43,8 @@ public class UIBridge : MonoBehaviour
     }
 
     public void SetScore(int playerIndex, int score) => playerScoreText[playerIndex].text = score.ToString();
+    
+    public void SetPlayerData(int playerIndex, string name, UnityEngine.Color color) => playerScoreText[playerIndex].color = color;
 
     public void ShowGameOver(string winnerTeam, UnityEngine.Color winnerColor)
     {
@@ -52,11 +54,12 @@ public class UIBridge : MonoBehaviour
         gameOverText.color = winnerColor;
     }
 
-    public void ResetGUI()
+    public void ResetGUI(float duration)
     {
         gameOverOverlay.SetActive(false);
         gameOverText.gameObject.SetActive(false);
         for(var i = 0; i < playerScoreText.Length; ++i)
             SetScore(i, 0);
+        SetTimer(duration);
     }
 }

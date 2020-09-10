@@ -11,7 +11,7 @@ public class ApplyScaleSystem : SystemBase
     
     protected override void OnCreate()
     {
-        m_CommandBufferSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+        m_CommandBufferSystem = World.GetExistingSystem<BeginInitializationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
