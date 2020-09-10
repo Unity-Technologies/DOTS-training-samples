@@ -2,6 +2,7 @@
 #define RUN_ON_MAIN
 
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
@@ -96,7 +97,7 @@ public class ClothApplyConstraintsSystem : SystemBase
 #if RUN_ON_MAIN
 			).Run();
 #else
-			).Schedule(clothMeshToken.jobHandle);
+			).Schedule(JobHandle.CombineDependencies(clothMeshToken.jobHandle, Dependency));
 #endif
 
 			//TODO: ScheduleParallel
