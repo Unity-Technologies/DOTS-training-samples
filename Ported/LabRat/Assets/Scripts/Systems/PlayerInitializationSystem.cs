@@ -6,12 +6,11 @@ using UnityEngine;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class PlayerInitializationSystem : SystemBase
 {
-    private EntityCommandBufferSystem ECBSystem;
+    EntityQuery m_AnyPlayer;
 
     protected override void OnCreate()
     {
-        base.OnCreate();
-        ECBSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+        m_AnyPlayer = GetEntityQuery(ComponentType.ReadOnly<Player>());
     }
 
     public NativeArray<Entity> Players;
@@ -51,16 +50,13 @@ public class PlayerInitializationSystem : SystemBase
                     ecb.SetComponent(playerEntity, new Name { Value = $"Computer {i}" });
                 }
                 ecb.SetComponent(playerEntity, new ColorAuthoring() { Color = UnityEngine.Color.HSVToRGB(i / (float)playerCount, 1, 1) });
-
-               
+                ecb.AddBuffer<PlayerArrow>(playerEntity);
             }
         }).Run();
-
+        
         ecb.Playback(EntityManager);
         ecb.Dispose();
-        
-        
-        
+      
         if (Players.IsCreated == false)
         {
             var q = GetEntityQuery(new EntityQueryDesc
@@ -80,5 +76,9 @@ public class PlayerInitializationSystem : SystemBase
             ecb.Playback(EntityManager);
             ecb.Dispose();
         }
+    
+        // Quick'n'dirty cleanup
+        if (EntityManager.HasComponent<GameStateCleanup>(GetSingletonEntity<PlayerInitialization>()))
+            EntityManager.DestroyEntity(m_AnyPlayer);
     }
 }

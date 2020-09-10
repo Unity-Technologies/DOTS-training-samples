@@ -11,14 +11,20 @@ using Random = Unity.Mathematics.Random;
 public class BoardCreationSystem : SystemBase
 {
     private PlayerInitializationSystem playerInitSystem;
+    struct BoardVisualElement : ISystemStateComponentData {}
+
+    EntityQuery m_AnyTileOrWallQuery;
+    
     protected override void OnCreate()
     {
+        m_AnyTileOrWallQuery = GetEntityQuery(new EntityQueryDesc {Any = new[] {ComponentType.ReadOnly<Tile>(), ComponentType.ReadOnly<BoardVisualElement>()}});
+            
         playerInitSystem = World.GetExistingSystem<PlayerInitializationSystem>();
     }
 
     protected override void OnUpdate()
     {
-        Entities
+        Entities.WithName("BoardCreation_Initialize")
         .WithAll<GameStateInitialize>()
         .ForEach((Entity e, in BoardCreationAuthor boardCreationAuthor) =>
         {
@@ -77,7 +83,7 @@ public class BoardCreationSystem : SystemBase
                         switch (result)
                         {
                             case 0:
-                                if (x != 0 || x != boardCreationAuthor.SizeX - 1 || y != 0 || y != boardCreationAuthor.SizeY - 1)
+                                if (x != 0 && x != boardCreationAuthor.SizeX - 1 && y != 0 && y != boardCreationAuthor.SizeY - 1)
                                     newTile.Value |= Tile.Attributes.Hole;
                                 break;
 
@@ -166,6 +172,9 @@ public class BoardCreationSystem : SystemBase
                 }
             }
 
+            // HACK - needs removing
+            UnityEngine.Camera.main.transform.position = new UnityEngine.Vector3(boardCreationAuthor.SizeX /2, 4, boardCreationAuthor.SizeY /2);
+
             EntityManager.RemoveComponent<GameStateInitialize>(e);
         }).WithStructuralChanges().Run();
 
@@ -190,6 +199,14 @@ public class BoardCreationSystem : SystemBase
             }
             EntityManager.RemoveComponent<GameStateStart>(e);
         }).WithStructuralChanges().Run();
+     
+        // Quick'n'dirty cleanup
+        if (EntityManager.HasComponent<GameStateCleanup>(GetSingletonEntity<BoardCreationAuthor>()))
+        {
+            Entities.WithAll<Tile>().ForEach((Entity entity) => EntityManager.DestroyEntity(entity)).WithStructuralChanges().WithoutBurst().Run();
+            Entities.WithAll<BoardVisualElement>().ForEach((Entity entity) => EntityManager.DestroyEntity(entity)).WithStructuralChanges().WithoutBurst().Run();
+            //EntityManager.DestroyEntity(m_AnyTileOrWallQuery);
+        }
     }
 
     private void PlaceWall(Entity prefab, float2 pos, Tile.Attributes attributes)
@@ -220,5 +237,6 @@ public class BoardCreationSystem : SystemBase
         Entity wall = EntityManager.Instantiate(prefab);
         EntityManager.AddComponentData(wall, translation);
         EntityManager.AddComponentData(wall, rot);
+        EntityManager.AddComponent<BoardVisualElement>(wall);
     }
 }
