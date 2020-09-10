@@ -1,9 +1,11 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 
 struct GameStateInitialize : IComponentData {}
 struct GameStateStart : IComponentData {}
 struct GameStateRunning : IComponentData {}
+struct GameStateEnd : IComponentData {}
 struct GameStateCleanup : IComponentData {}
 
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
@@ -99,7 +101,7 @@ public class GameController : SystemBase
                     .ForEach((Entity entity) => ecb.AddComponent<GameStateRunning> (entity)).Schedule();
                 m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
                 
-                m_GameState = GameState.GameStarted;
+                m_GameState = GameState.GameRunning;
                 goto case GameState.GameRunning;
             }
 
@@ -145,14 +147,25 @@ public class GameController : SystemBase
                     col = new UnityEngine.Color( colComp.x, colComp.y, colComp.z, 1 );
                 }
                 m_UIBridge.ShowGameOver(msg, col);
-                m_TimeAccumulator = 0f;
                 
+
+                var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
+                Entities.WithName("Enter_GameEnd").WithAll<WantsGameStateTransitions>()
+                    .ForEach((Entity entity) => ecb.AddComponent<GameStateEnd>(entity)).Schedule();
+                m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+
+                m_TimeAccumulator = 0f;
                 m_GameState = GameState.GameRestarting;
                 break;
             }
             
             case GameState.GameRestarting:
             {
+                var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
+                Entities.WithName("Leave_GameEnd").WithAll<WantsGameStateTransitions, GameStateEnd>()
+                    .ForEach((Entity entity) => ecb.RemoveComponent<GameStateEnd>(entity)).Schedule();
+                m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+
                 m_TimeAccumulator += Time.DeltaTime;
 
                 if (m_TimeAccumulator >= GameRestartDelay)
