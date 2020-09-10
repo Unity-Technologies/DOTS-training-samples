@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 
+[GenerateAuthoringComponent]
 struct Direction : IComponentData
 {
     [System.Flags]
