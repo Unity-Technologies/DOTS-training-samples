@@ -76,7 +76,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 				for (int i = 0; i != meshInstance.vertexCount; i++)
 				{
 					if (tempNormals[i].y > .9f && bufferPosition[i].y > .3f)
-						bufferInvMass[i] = 0f;
+						bufferInvMass[i] = 0.0f;
 					else
 						bufferInvMass[i] = 1.0f;
 				}
@@ -103,6 +103,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		// add shared data to entity
 		dstManager.AddSharedComponentData(entity, clothMesh);
 		dstManager.AddComponentData(entity, new ClothMeshToken { jobHandle = new JobHandle() });
+		//dstManager.AddChunkComponentData<ClothMeshToken>(entity);
 
 		// spawn entities for the edges
 		using (var meshData = Mesh.AcquireReadOnlyMeshData(meshInstance))
