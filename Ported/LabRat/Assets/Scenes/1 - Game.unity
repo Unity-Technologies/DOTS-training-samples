@@ -42404,8 +42404,8 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1329692887113484, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_IsActive
-      value: 0
+      propertyPath: m_Name
+      value: UI
       objectReference: {fileID: 0}
     - target: {fileID: 4351852991113534, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
       propertyPath: m_LocalPosition.x
@@ -42439,80 +42439,16 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 4
       objectReference: {fileID: 0}
-    - target: {fileID: 114236566022227500, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_FontData.m_FontSize
-      value: 60
-      objectReference: {fileID: 0}
-    - target: {fileID: 114236566022227500, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_FontData.m_MinSize
+    - target: {fileID: 4351852991113534, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114236566022227500, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_FontData.m_FontStyle
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114236566022227500, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_RaycastTarget
+    - target: {fileID: 4351852991113534, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114653819763276410, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_FontData.m_FontSize
-      value: 60
-      objectReference: {fileID: 0}
-    - target: {fileID: 114653819763276410, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_FontData.m_MinSize
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114653819763276410, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_FontData.m_FontStyle
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114653819763276410, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_RaycastTarget
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114660206882693344, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_FontData.m_FontSize
-      value: 60
-      objectReference: {fileID: 0}
-    - target: {fileID: 114660206882693344, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_FontData.m_MinSize
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114660206882693344, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_FontData.m_FontStyle
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114660206882693344, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_RaycastTarget
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114695792907845712, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_IgnoreReversedGraphics
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114695792907845712, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114831353343631228, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_FontData.m_FontSize
-      value: 60
-      objectReference: {fileID: 0}
-    - target: {fileID: 114831353343631228, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_FontData.m_MinSize
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114831353343631228, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_FontData.m_FontStyle
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114831353343631228, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_RaycastTarget
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224574879488695550, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
-      propertyPath: m_AnchoredPosition.x
+    - target: {fileID: 4351852991113534, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

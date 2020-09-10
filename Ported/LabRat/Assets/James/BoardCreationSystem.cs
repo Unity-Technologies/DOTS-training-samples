@@ -6,15 +6,22 @@ using Unity.Rendering;
 
 public class BoardCreationSystem : SystemBase
 {
-    public struct CreationComplete : IComponentData
+    /*
+    protected override void OnCreate()
     {
+        Entities
+        .ForEach((Entity e, in BoardCreationAuthor boardCreationAuthor) =>
+        {
+            EntityManager.AddComponent<GameStateInitialize>(e);
+        }).WithStructuralChanges().Run();
     }
+    */
 
     protected override void OnUpdate()
     {
         System.Random random = new System.Random();
         Entities
-        .WithNone<CreationComplete>()
+        .WithAll<GameStateInitialize>()
         .ForEach((Entity e, in BoardCreationAuthor boardCreationAuthor) =>
         {
             Random rand = new Random((uint)random.Next());
@@ -148,6 +155,13 @@ public class BoardCreationSystem : SystemBase
                 }
             }
 
+            EntityManager.RemoveComponent<GameStateInitialize>(e);
+        }).WithStructuralChanges().Run();
+
+        Entities
+            .WithAll<GameStateStart>()
+            .ForEach((Entity e, BoardCreationAuthor boardCreationAuthor) =>
+        {
             // Place rat and cat spawners in diagonally opposite corners (if any are present)
             if (boardCreationAuthor.RatSpawner != Entity.Null)
             {
@@ -163,8 +177,7 @@ public class BoardCreationSystem : SystemBase
                 EntityManager.AddComponentData(catSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, 0f) });
                 catSpawners.Dispose();
             }
-
-            EntityManager.AddComponent<CreationComplete>(e);
+            EntityManager.RemoveComponent<GameStateStart>(e);
         }).WithStructuralChanges().Run();
     }
 
