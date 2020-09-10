@@ -50,93 +50,98 @@ public class ClothApplyConstraintsSystem : SystemBase
 		{
 			var vertexPosition = clothMesh.vertexPosition;
 			var vertexInvMass = clothMesh.vertexInvMass;
+			var vertexCount = vertexPosition.Length;
 
 #if USE_ATOMICS
 			unsafe
 #endif
 			{
 #if USE_ATOMICS
-				var deltaCount = clothMesh.vertexPosition.Length;
 				var deltaX = (int*)clothMesh.vertexPositionDeltaX.GetUnsafePtr();
 				var deltaY = (int*)clothMesh.vertexPositionDeltaY.GetUnsafePtr();
 				var deltaZ = (int*)clothMesh.vertexPositionDeltaZ.GetUnsafePtr();
 				var deltaW = (int*)clothMesh.vertexPositionDeltaW.GetUnsafePtr();
-
-				clothMeshToken.jobHandle = Job
-					.WithNativeDisableUnsafePtrRestriction(deltaX)
-					.WithNativeDisableUnsafePtrRestriction(deltaY)
-					.WithNativeDisableUnsafePtrRestriction(deltaZ)
-					.WithNativeDisableUnsafePtrRestriction(deltaW)
-					.WithCode(() =>
-				{
-					UnsafeUtility.MemClear(deltaX, deltaCount * sizeof(int));
-					UnsafeUtility.MemClear(deltaY, deltaCount * sizeof(int));
-					UnsafeUtility.MemClear(deltaZ, deltaCount * sizeof(int));
-					UnsafeUtility.MemClear(deltaW, deltaCount * sizeof(int));
-				}
-				).Schedule(clothMeshToken.jobHandle);
 #endif
 
-				clothMeshToken.jobHandle = Entities
-#if USE_ATOMICS
-					.WithNativeDisableUnsafePtrRestriction(deltaX)
-					.WithNativeDisableUnsafePtrRestriction(deltaY)
-					.WithNativeDisableUnsafePtrRestriction(deltaZ)
-					.WithNativeDisableUnsafePtrRestriction(deltaW)
-#endif
-					.WithSharedComponentFilter(clothMesh).ForEach((in ClothEdge edge) =>
+				for (int i = 0; i != ClothConfig.solverIterations; i++)
 				{
-					int index0 = edge.IndexPair.x;
-					int index1 = edge.IndexPair.y;
+#if USE_ATOMICS
+					clothMeshToken.jobHandle = Job
+						.WithNativeDisableUnsafePtrRestriction(deltaX)
+						.WithNativeDisableUnsafePtrRestriction(deltaY)
+						.WithNativeDisableUnsafePtrRestriction(deltaZ)
+						.WithNativeDisableUnsafePtrRestriction(deltaW)
+						.WithCode(() =>
+						{
+							UnsafeUtility.MemClear(deltaX, vertexCount * sizeof(int));
+							UnsafeUtility.MemClear(deltaY, vertexCount * sizeof(int));
+							UnsafeUtility.MemClear(deltaZ, vertexCount * sizeof(int));
+							UnsafeUtility.MemClear(deltaW, vertexCount * sizeof(int));
+						}
+					).Schedule(clothMeshToken.jobHandle);
+#endif
 
-					var p0 = vertexPosition[index0];
-					var p1 = vertexPosition[index1];
-					var w0 = vertexInvMass[index0];
-					var w1 = vertexInvMass[index1];
+					clothMeshToken.jobHandle = Entities.WithSharedComponentFilter(clothMesh)
+#if USE_ATOMICS
+						.WithNativeDisableUnsafePtrRestriction(deltaX)
+						.WithNativeDisableUnsafePtrRestriction(deltaY)
+						.WithNativeDisableUnsafePtrRestriction(deltaZ)
+						.WithNativeDisableUnsafePtrRestriction(deltaW)
+#endif
+						.ForEach((in ClothEdge edge) =>
+						{
+							int index0 = edge.IndexPair.x;
+							int index1 = edge.IndexPair.y;
 
-					float3 r = p1 - p0;
-					float rd = math.length(r);
+							var p0 = vertexPosition[index0];
+							var p1 = vertexPosition[index1];
+							var w0 = vertexInvMass[index0];
+							var w1 = vertexInvMass[index1];
 
-					float delta = 1.0f - edge.Length / rd;
-					float W_inv = delta / (w0 + w1);
+							float3 r = p1 - p0;
+							float rd = math.length(r);
+
+							float delta = ClothConfig.solverSORFactor * (1.0f - edge.Length / rd);
+							float W_inv = delta / (w0 + w1);
 
 #if USE_ATOMICS
-					float3 delta0 = r * (w0 * W_inv);
-					float3 delta1 = r * (w1 * W_inv);
+							int3 delta0 = (int3)math.round(r * (ScaleFloatToFixed32 * w0 * W_inv));
+							int3 delta1 = (int3)math.round(r * (-ScaleFloatToFixed32 * w1 * W_inv));
 
-					Interlocked.Add(ref deltaX[index0], (int)math.round(ScaleFloatToFixed32 * delta0.x));
-					Interlocked.Add(ref deltaY[index0], (int)math.round(ScaleFloatToFixed32 * delta0.y));
-					Interlocked.Add(ref deltaZ[index0], (int)math.round(ScaleFloatToFixed32 * delta0.z));
+							Interlocked.Add(ref deltaX[index0], delta0.x);
+							Interlocked.Add(ref deltaY[index0], delta0.y);
+							Interlocked.Add(ref deltaZ[index0], delta0.z);
 
-					Interlocked.Add(ref deltaX[index1], (int)math.round(-ScaleFloatToFixed32 * delta1.x));
-					Interlocked.Add(ref deltaY[index1], (int)math.round(-ScaleFloatToFixed32 * delta1.y));
-					Interlocked.Add(ref deltaZ[index1], (int)math.round(-ScaleFloatToFixed32 * delta1.z));
+							Interlocked.Add(ref deltaX[index1], delta1.x);
+							Interlocked.Add(ref deltaY[index1], delta1.y);
+							Interlocked.Add(ref deltaZ[index1], delta1.z);
 
-					Interlocked.Increment(ref deltaW[index0]);
-					Interlocked.Increment(ref deltaW[index1]);
+							Interlocked.Increment(ref deltaW[index0]);
+							Interlocked.Increment(ref deltaW[index1]);
 #else
-					vertexPosition[index0] += r * (w0 * W_inv);
-					vertexPosition[index1] -= r * (w1 * W_inv);
+							vertexPosition[index0] += r * (w0 * W_inv);
+							vertexPosition[index1] -= r * (w1 * W_inv);
+#endif
+						}
+#if USE_ATOMICS
+					).ScheduleParallel(clothMeshToken.jobHandle);
+#else
+					).Schedule(clothMeshToken.jobHandle);
+#endif
+
+#if USE_ATOMICS
+					var applyDeltaJob = new ApplyDeltaJob
+					{
+						vertexPosition = vertexPosition,
+						vertexPositionDeltaX = clothMesh.vertexPositionDeltaX,
+						vertexPositionDeltaY = clothMesh.vertexPositionDeltaY,
+						vertexPositionDeltaZ = clothMesh.vertexPositionDeltaZ,
+						vertexPositionDeltaW = clothMesh.vertexPositionDeltaW,
+					};
+
+					clothMeshToken.jobHandle = applyDeltaJob.Schedule(vertexCount, 64, clothMeshToken.jobHandle);
 #endif
 				}
-#if USE_ATOMICS
-				).ScheduleParallel(clothMeshToken.jobHandle);
-#else
-				).Schedule(clothMeshToken.jobHandle);
-#endif
-
-#if USE_ATOMICS
-				var deltaJob = new ApplyDeltaJob
-				{
-					vertexPosition = vertexPosition,
-					vertexPositionDeltaX = clothMesh.vertexPositionDeltaX,
-					vertexPositionDeltaY = clothMesh.vertexPositionDeltaY,
-					vertexPositionDeltaZ = clothMesh.vertexPositionDeltaZ,
-					vertexPositionDeltaW = clothMesh.vertexPositionDeltaW,
-				};
-
-				clothMeshToken.jobHandle = deltaJob.Schedule(vertexPosition.Length, 64, clothMeshToken.jobHandle);
-#endif
 			}
 
 			Dependency = JobHandle.CombineDependencies(Dependency, clothMeshToken.jobHandle);

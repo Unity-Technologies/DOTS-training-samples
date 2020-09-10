@@ -11,7 +11,7 @@ public class ClothApplyCollisionSystem : SystemBase
 	[BurstCompile]
 	struct ApplyCollisionJob : IJobParallelFor
 	{
-		public NativeArray<float3> vertexPosition;
+		[NoAlias] public NativeArray<float3> vertexPosition;
 		public float groundHeight;
 
 		public void Execute(int i)
@@ -31,7 +31,7 @@ public class ClothApplyCollisionSystem : SystemBase
 			var job = new ApplyCollisionJob
 			{
 				vertexPosition = clothMesh.vertexPosition,
-				groundHeight = ClothConstants.groundHeight,
+				groundHeight = ClothConfig.groundHeight,
 			};
 
 			clothMeshToken.jobHandle = job.Schedule(job.vertexPosition.Length, 64, clothMeshToken.jobHandle);

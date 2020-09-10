@@ -10,9 +10,9 @@ public class ClothApplyGravitySystem : SystemBase
 	[BurstCompile]
 	struct ApplyGravityJob : IJobParallelFor
 	{
-		public NativeArray<float3> vertexPosition;
-		public NativeArray<float3> oldVertexPosition;
-		public NativeArray<float> vertexInvMass;
+		[NoAlias] public NativeArray<float3> vertexPosition;
+		[NoAlias] public NativeArray<float3> oldVertexPosition;
+		[NoAlias, ReadOnly] public NativeArray<float> vertexInvMass;
 		public float deltaTime;
 
 		public void Execute(int i)
@@ -23,7 +23,7 @@ public class ClothApplyGravitySystem : SystemBase
 				float3 vert = vertexPosition[i];
 
 				float3 startPos = vert;
-				oldVert -= ClothConstants.gravity * deltaTime * deltaTime;
+				oldVert -= ClothConfig.gravity * deltaTime * deltaTime;
 				vert += (vert - oldVert);
 
 				vertexPosition[i] = vert;
