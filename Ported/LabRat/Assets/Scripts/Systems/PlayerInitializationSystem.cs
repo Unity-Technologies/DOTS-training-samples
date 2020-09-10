@@ -77,11 +77,14 @@ public class PlayerInitializationSystem : SystemBase
                     }).Run();
                 ecb.Playback(EntityManager);
                 ecb.Dispose();
-
-                // Quick'n'dirty cleanup
-                if (EntityManager.HasComponent<GameStateCleanup>(GetSingletonEntity<PlayerInitialization>()))
-                    EntityManager.DestroyEntity(m_AnyPlayer);
             }
+        }
+        
+        // Quick'n'dirty cleanup
+        if (EntityManager.HasComponent<GameStateCleanup>(GetSingletonEntity<PlayerInitialization>()))
+        {
+            EntityManager.DestroyEntity(m_AnyPlayer);
+            if (Players.IsCreated) Players.Dispose();
         }
     
   

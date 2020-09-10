@@ -124,7 +124,27 @@ public class GameController : SystemBase
 
             case GameState.GameEnding:
             {
-                m_UIBridge.ShowGameOver("some winner", new Color { Value = new float4(1f, 1f, 0f, 1f)});
+                var maxScore = -1;
+                Entity winner = Entity.Null;
+                Entities.WithName("FindHighScore").WithAll<Score>()
+                    .ForEach((int entityInQueryIndex, Entity e, in Score s) =>
+                    {
+                        if (s.Value > maxScore)
+                        {
+                            maxScore = s.Value;
+                            winner = e;
+                        }
+                    }).WithoutBurst().Run();
+                var msg = "(no-clue)";
+                UnityEngine.Color col = UnityEngine.Color.black;
+                if (winner != Entity.Null)
+                {
+                    msg = EntityManager.GetComponentData<Name>(winner).Value.ToString();
+
+                    var colComp = EntityManager.GetComponentData<Color>(winner).Value;
+                    col = new UnityEngine.Color( colComp.x, colComp.y, colComp.z, 1 );
+                }
+                m_UIBridge.ShowGameOver(msg, col);
                 m_TimeAccumulator = 0f;
                 
                 m_GameState = GameState.GameRestarting;

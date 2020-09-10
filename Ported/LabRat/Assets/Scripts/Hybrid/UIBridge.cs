@@ -44,12 +44,12 @@ public class UIBridge : MonoBehaviour
 
     public void SetScore(int playerIndex, int score) => playerScoreText[playerIndex].text = score.ToString();
 
-    public void ShowGameOver(string winnerTeam, Color winnerColor)
+    public void ShowGameOver(string winnerTeam, UnityEngine.Color winnerColor)
     {
         gameOverOverlay.SetActive(true);
         gameOverText.gameObject.SetActive(true);
         gameOverText.text = $"{winnerTeam} Wins!";
-        gameOverText.color = new UnityEngine.Color(winnerColor.Value.x, winnerColor.Value.y, winnerColor.Value.z, winnerColor.Value.w);
+        gameOverText.color = winnerColor;
     }
 
     public void ResetGUI()
