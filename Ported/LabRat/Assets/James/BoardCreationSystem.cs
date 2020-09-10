@@ -6,24 +6,13 @@ using Unity.Rendering;
 
 public class BoardCreationSystem : SystemBase
 {
-    /*
-    protected override void OnCreate()
-    {
-        Entities
-        .ForEach((Entity e, in BoardCreationAuthor boardCreationAuthor) =>
-        {
-            EntityManager.AddComponent<GameStateInitialize>(e);
-        }).WithStructuralChanges().Run();
-    }
-    */
-
     protected override void OnUpdate()
     {
-        System.Random random = new System.Random();
         Entities
         .WithAll<GameStateInitialize>()
         .ForEach((Entity e, in BoardCreationAuthor boardCreationAuthor) =>
         {
+            System.Random random = new System.Random();
             Random rand = new Random((uint)random.Next());
             for (int x = 0; x < boardCreationAuthor.SizeX; x++)
             {
