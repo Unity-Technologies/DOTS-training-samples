@@ -272,7 +272,7 @@ public class BoardCreationSystem : SystemBase
         EntityManager.AddComponentData(wall, rot);
         EntityManager.AddComponent<Static>(wall);
     }
-    
+
 #if UNITY_EDITOR
     [System.Flags]
     public enum DebugAttributes : ushort
@@ -283,9 +283,14 @@ public class BoardCreationSystem : SystemBase
         Up = Tile.Attributes.WallUp,
         Right = Tile.Attributes.WallRight,
         Down = Tile.Attributes.WallDown,
-        
+
         Hole = Tile.Attributes.Hole,
         Goal = Tile.Attributes.Goal,
+
+        ArrowLeft = Tile.Attributes.ArrowLeft,
+        ArrowUp = Tile.Attributes.ArrowUp,
+        ArrowRight = Tile.Attributes.ArrowRight,
+        ArrowDown = Tile.Attributes.ArrowDown,
     }
 
     public void DrawDebugHandles()
