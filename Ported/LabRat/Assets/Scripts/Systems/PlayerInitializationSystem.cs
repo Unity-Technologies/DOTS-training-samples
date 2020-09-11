@@ -42,6 +42,7 @@ public class PlayerInitializationSystem : SystemBase
                 {
                     ecb.AddComponent(playerEntity, new AIPlayerLastDecision { Value = ticks });
                     ecb.SetComponent(playerEntity, new Name { Value = $"Computer {i}" });
+                    ecb.AddComponent<AIMousePositionTarget>(playerEntity);
                 }
 
                 var color = UnityEngine.Color.HSVToRGB(i / (float)playerCount, 1, 1);

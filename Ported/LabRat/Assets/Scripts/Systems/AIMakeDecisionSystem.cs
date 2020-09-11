@@ -3,6 +3,8 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
+using UnityEngine;
+
 public class AIMakeDecisionSystem : SystemBase
 {
     private Unity.Mathematics.Random random;
@@ -25,6 +27,7 @@ public class AIMakeDecisionSystem : SystemBase
         var boardSpawner = GetSingleton<BoardCreationAuthor>();
 
         Entities
+            .WithNone<AIPlayerMovingCursorTag>()
             .WithStructuralChanges()
             .ForEach((Entity playerEntity, ref AIPlayerLastDecision player) =>
         {
@@ -67,23 +70,20 @@ public class AIMakeDecisionSystem : SystemBase
                         break;
                 }
 
-                var newArrow = ecb.CreateEntity();
-                ecb.AddComponent(newArrow, new PlaceArrowEvent
-                {
-                    Player = playerEntity
-                });
-
-                ecb.AddComponent(newArrow, new Direction
-                {
-                    Value = dir
-                });
-
-                ecb.AddComponent(newArrow, new PositionXZ
-                {
-                    Value = new float2(x, y)
-                });
+                ecb.AddComponent(playerEntity, new AIPlayerMovingCursorTag());
 
                 player.Value = DateTime.Now.Ticks;
+
+                var screenPos = Camera.main.WorldToScreenPoint(new Vector3(x, 0, y));
+
+                UnityEngine.Debug.Log(screenPos);
+
+                ecb.SetComponent(playerEntity, new AIMousePositionTarget
+                {
+                    Value = new float2(screenPos.x, screenPos.y),
+                    Tile = new int2(x, y),
+                    Direction = dir
+                });
             }
         }).Run();
     }

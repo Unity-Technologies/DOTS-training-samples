@@ -3,16 +3,18 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+
 using UnityEngine;
+
 //using Color = UnityEngine.Color;
 
 public class ArrowPlacingSystem : SystemBase
 {
-    Entity gameStateEntity;
+    private Entity gameStateEntity;
 
-    EntityQuery arrowsQuery;
-    EntityQuery arrowPrefabQuery;
-    EntityCommandBufferSystem ECBSystem;
+    private EntityQuery arrowsQuery;
+    private EntityQuery arrowPrefabQuery;
+    private EntityCommandBufferSystem ECBSystem;
 
     protected override void OnCreate()
     {
@@ -45,7 +47,7 @@ public class ArrowPlacingSystem : SystemBase
     // Stolen from AnimalMovementSystem begin:
     // Collect tile entities into a flat array. This should probably come from the board generator in some shape or
     // form, but for now we'll just grab it at startup.
-    void EnsureTileEntityGrid()
+    private void EnsureTileEntityGrid()
     {
         if (!EntityManager.HasComponent<GameStateInitialize>(gameStateEntity))
             return;
@@ -68,13 +70,14 @@ public class ArrowPlacingSystem : SystemBase
             .ScheduleParallel();
     }
 
-    AnimalMovementSystem.BoardDimensions m_BoardDimensions;
-    NativeArray<Entity> m_TileEntityGrid;
+    private AnimalMovementSystem.BoardDimensions m_BoardDimensions;
+    private NativeArray<Entity> m_TileEntityGrid;
 
     protected override void OnDestroy()
     {
         m_TileEntityGrid.Dispose();
     }
+
     //Stolen from AnimalMovementSystem end:
 
     protected override void OnUpdate()
@@ -139,7 +142,6 @@ public class ArrowPlacingSystem : SystemBase
                 }
                 else if ((tile.Value & Tile.Attributes.ObstacleAny) != 0) // Tile is either a Hole or a Goal
                 {
-
                 }
                 else // Tile is free to place New Arrow
                 {
@@ -157,7 +159,6 @@ public class ArrowPlacingSystem : SystemBase
                         arrowsBuffer.RemoveAt(0);
                     }
 
-
                     ecb.SetComponent(entityInQueryIndex, tileEntity, new Tile { Value = (Tile.Attributes)(((int)tile.Value & ~(int)Tile.Attributes.ArrowAny) | (int)direction.Value << (int)Tile.Attributes.ArrowShiftCount) });
                     var newArrow = ecb.Instantiate(entityInQueryIndex, arrowPrefab);
 
@@ -172,7 +173,7 @@ public class ArrowPlacingSystem : SystemBase
                 ecb.DestroyEntity(entityInQueryIndex, placeArrowEventEntity);
             }).Schedule();
         ECBSystem.AddJobHandleForProducer(Dependency);
-        
+
         // We need to run this with "Fresh Arrows" as they now have valid Entity index and can be added to a buffer
         ecb = ECBSystem.CreateCommandBuffer().AsParallelWriter();
         Entities
