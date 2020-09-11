@@ -13,17 +13,7 @@ public class MovementSystem : SystemBase
         var deltaTime = Time.DeltaTime;
         var elapsedMiliseconds = (float)(Time.ElapsedTime - math.trunc( Time.ElapsedTime ));
         var b = GetSingleton<BattleField>();
-        
-        Dependency = Entities.ForEach((ref TargetPosition position, in TargetEntity target) =>
-        {
-            // TODO : put this here for now. But can messup
-            bool messedup = !HasComponent<Translation>( target.Value );
-            if( messedup )
-                return;
-            Translation entityTranslationComponent = GetComponent<Translation>( target.Value );
-            position.Value = entityTranslationComponent.Value;
-        }).ScheduleParallel( Dependency );
-        
+
         Dependency = Entities.ForEach((ref Velocity velocity, in Translation translation, in TargetPosition target, in Speed speed ) =>
         {
             float3 direction = target.Value - translation.Value;

@@ -22,7 +22,7 @@ public class BeeAttackingSystem : SystemBase
         BattleField battlefield = GetSingleton<BattleField>();
 
         Entities.WithAll<Attack>()
-                .ForEach( ( int entityInQueryIndex, Entity bee, ref Velocity velocity, in Translation translation, in TargetEntity targetEntity) =>
+                .ForEach( ( int entityInQueryIndex, Entity bee, ref Velocity velocity, ref TargetPosition targetPosition, in Translation translation, in TargetEntity targetEntity) =>
             {
                 //If the target bee is dying, agonizing or Destroyed (does not have translation component), back to idle
                 if (HasComponent<Dying>(targetEntity.Value) || HasComponent<Agony>(targetEntity.Value) || !HasComponent<Rotation>(targetEntity.Value))
@@ -36,7 +36,7 @@ public class BeeAttackingSystem : SystemBase
                     //Make the bee move towards the target entity
                     Translation targetEntityTranslationComponent = GetComponent<Translation>(targetEntity.Value);
                     float3 direction = targetEntityTranslationComponent.Value - translation.Value;
-                    //targetPosition.Value = targetEntityTranslationComponent.Value;
+                    targetPosition.Value = targetEntityTranslationComponent.Value;
 
                     //If the bee is close enough, kill the other bee
                     float d = math.length(direction);

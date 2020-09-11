@@ -21,7 +21,7 @@ public class BeeCollectingSystem : SystemBase
         BattleField battlefield = GetSingleton<BattleField>();
 
         Entities.WithAll<Collecting>()
-                .ForEach( ( int entityInQueryIndex, Entity bee, in Translation translation, in TargetEntity targetEntity ) =>
+                .ForEach( ( int entityInQueryIndex, Entity bee, ref TargetPosition targetPosition, in Translation translation, in TargetEntity targetEntity ) =>
             {
                 // check if the resource has been destroyed // If resource has been taken by another bee
                 if (!HasComponent<Rotation>(targetEntity.Value) || HasComponent<Taken>(targetEntity.Value))
@@ -34,6 +34,7 @@ public class BeeCollectingSystem : SystemBase
 
                 //If the bee is close enough, change its state to Carrying
                 Translation targetEntityTranslationComponent = GetComponent<Translation>( targetEntity.Value );
+                targetPosition.Value = targetEntityTranslationComponent.Value;
                 float distanceToResource = math.length(targetEntityTranslationComponent.Value - translation.Value);
                 if (distanceToResource < 1)
                 {
