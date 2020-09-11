@@ -16,22 +16,19 @@ public class BeeCollectingSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = m_CommandBufferSystem.CreateCommandBuffer();
-
-        var deltaTime = Time.DeltaTime;
+        var ecb = m_CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         BattleField battlefield = GetSingleton<BattleField>();
 
         Entities.WithAll<Collecting>()
-                .WithoutBurst()
-                .ForEach( ( Entity bee, ref Velocity velocity, in Translation translation, in TargetEntity targetEntity, in Speed speed) =>
+                .ForEach( ( int entityInQueryIndex, Entity bee, in Translation translation, in TargetEntity targetEntity ) =>
             {
                 // check if the resource has been destroyed // If resource has been taken by another bee
                 if (!HasComponent<Rotation>(targetEntity.Value) || HasComponent<Taken>(targetEntity.Value))
                 {
-                    ecb.RemoveComponent<Collecting>(bee);
-                    ecb.RemoveComponent<TargetEntity>(bee);
-                    ecb.AddComponent<Idle>(bee);
+                    ecb.RemoveComponent<Collecting>(entityInQueryIndex, bee);
+                    ecb.RemoveComponent<TargetEntity>(entityInQueryIndex, bee);
+                    ecb.AddComponent<Idle>(entityInQueryIndex, bee);
                     return;
                 }
 
@@ -40,23 +37,22 @@ public class BeeCollectingSystem : SystemBase
                 float distanceToResource = math.length(targetEntityTranslationComponent.Value - translation.Value);
                 if (distanceToResource < 1)
                 {
-                    ecb.AddComponent<Parent>(targetEntity.Value, new Parent { Value = bee });
-                    ecb.AddComponent<Taken>(targetEntity.Value);
-                    ecb.AddComponent<LocalToParent>(targetEntity.Value);
-                    ecb.SetComponent<Translation>(targetEntity.Value, new Translation { Value = new float3(0, -1, 0) });
+                    ecb.AddComponent<Parent>(entityInQueryIndex, targetEntity.Value, new Parent { Value = bee });
+                    ecb.AddComponent<Taken>(entityInQueryIndex, targetEntity.Value);
+                    ecb.AddComponent<LocalToParent>(entityInQueryIndex, targetEntity.Value);
+                    ecb.SetComponent<Translation>(entityInQueryIndex, targetEntity.Value, new Translation { Value = new float3(0, -1, 0) });
 
-                    
                     float hiveDistance = battlefield.HiveDistance + 10f;
                     float3 hivePosition = new float3(0, 0, hiveDistance);
                     if (HasComponent<TeamA>(bee))
                         hivePosition.z *= -1;
 
-                    ecb.RemoveComponent<Collecting>(bee);
-                    ecb.RemoveComponent<TargetEntity>(bee);
-                    ecb.SetComponent<TargetPosition>(bee, new TargetPosition { Value = hivePosition });
-                    ecb.AddComponent<Carrying>(bee, new Carrying { Value = targetEntity.Value });
+                    ecb.RemoveComponent<Collecting>(entityInQueryIndex, bee);
+                    ecb.RemoveComponent<TargetEntity>(entityInQueryIndex, bee);
+                    ecb.SetComponent<TargetPosition>(entityInQueryIndex, bee, new TargetPosition { Value = hivePosition });
+                    ecb.AddComponent<Carrying>(entityInQueryIndex, bee, new Carrying { Value = targetEntity.Value });
                 }
                 
-            } ).Run();
+            } ).ScheduleParallel();
     }
 }

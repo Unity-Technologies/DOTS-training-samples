@@ -7,12 +7,19 @@ using Unity.Transforms;
 [UpdateBefore(typeof(BeeAttackingSystem))]
 public class BeeCarrying : SystemBase
 {
+    private EntityCommandBufferSystem m_CommandBufferSystem;
+
+    protected override void OnCreate()
+    {
+        m_CommandBufferSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var ecb = m_CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
-        Entities.WithoutBurst()
-                .ForEach( ( Entity bee, ref Velocity velocity, in Translation translation, in Carrying carrying, in TargetPosition targetPosition, in Speed speed) =>
+        Entities
+                .ForEach( ( int entityInQueryIndex, Entity bee, in Translation translation, in Carrying carrying, in TargetPosition targetPosition ) =>
             {
                 //Make the bee move towards the target position
                 float3 direction = targetPosition.Value - translation.Value;
@@ -22,18 +29,17 @@ public class BeeCarrying : SystemBase
                 if(d < 1)
                 {
                     // drop the recource
-                    ecb.RemoveComponent<Parent>( carrying.Value );
+                    ecb.RemoveComponent<Parent>( entityInQueryIndex, carrying.Value );
                     //ecb.RemoveComponent<Taken>( carrying.Value );
-                    ecb.RemoveComponent<LocalToParent>( carrying.Value );
-                    ecb.SetComponent<Translation>( carrying.Value, translation );
+                    ecb.RemoveComponent<LocalToParent>( entityInQueryIndex, carrying.Value );
+                    ecb.SetComponent<Translation>( entityInQueryIndex, carrying.Value, translation );
                     
                     // revert to idle
-                    ecb.RemoveComponent<Carrying>( bee );
-                    ecb.AddComponent<Idle>( bee );
+                    ecb.RemoveComponent<Carrying>( entityInQueryIndex, bee );
+                    ecb.AddComponent<Idle>( entityInQueryIndex, bee );
                 }
-            } ).Run();
+            } ).ScheduleParallel();
         
-        ecb.Playback( EntityManager );
-        ecb.Dispose();
+        m_CommandBufferSystem.AddJobHandleForProducer( Dependency );
     }
 }
