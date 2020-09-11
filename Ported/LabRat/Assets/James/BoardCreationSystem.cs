@@ -167,7 +167,8 @@ public class BoardCreationSystem : SystemBase
             }
 
             // HACK - needs removing
-            UnityEngine.Camera.main.transform.position = new UnityEngine.Vector3(boardCreationAuthor.SizeX /2, 4, boardCreationAuthor.SizeY /2);
+          //  UnityEngine.Camera.main.transform.position = new UnityEngine.Vector3(boardCreationAuthor.SizeX /2, 4, boardCreationAuthor.SizeY /2);
+          //  UnityEngine.Camera.main.orthographicSize = 0.55f*math.max(boardCreationAuthor.SizeX, boardCreationAuthor.SizeY);
         }).WithStructuralChanges().Run();
 
         Entities
