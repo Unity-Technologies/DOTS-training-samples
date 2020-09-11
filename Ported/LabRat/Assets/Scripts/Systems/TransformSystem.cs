@@ -6,6 +6,7 @@ using UnityEngine;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
+using Unity.Rendering;
 
 
 [BurstCompile]
@@ -207,17 +208,15 @@ public class LabRats_TransformSystemStatic : JobComponentSystem
         var dep = job.Schedule(m_Group, inputDeps);
         
         var ecb = m_CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-        var job2 = Entities
+        var dep2 = Entities
             .WithAll<Static>()
             .WithNone<StaticDone>()
             .ForEach((int entityInQueryIndex, Entity entity) =>
             {
                ecb.AddComponent<StaticDone>(entityInQueryIndex, entity);
-            });
+            }).Schedule(dep);
             
-        var dep2 = job2.Schedule(dep);
         m_CommandBufferSystem.AddJobHandleForProducer(dep2);
         return dep2;
-
     }
 }
