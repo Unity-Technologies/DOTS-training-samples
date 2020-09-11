@@ -10,7 +10,6 @@ public class ArrowPlacingSystem : SystemBase
 {
     Entity gameStateEntity;
 
-    EntityQuery tilesQuery;
     EntityQuery arrowsQuery;
     EntityQuery arrowPrefabQuery;
     EntityCommandBufferSystem ECBSystem;
@@ -18,15 +17,6 @@ public class ArrowPlacingSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-        tilesQuery = GetEntityQuery(new EntityQueryDesc
-        {
-            All = new[]
-            {
-                ComponentType.ReadOnly<PositionXZ>(),
-                ComponentType.ReadOnly<Tile>(),
-            }
-        });
-
         arrowsQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new[]
@@ -81,6 +71,10 @@ public class ArrowPlacingSystem : SystemBase
     AnimalMovementSystem.BoardDimensions m_BoardDimensions;
     NativeArray<Entity> m_TileEntityGrid;
 
+    protected override void OnDestroy()
+    {
+        m_TileEntityGrid.Dispose();
+    }
     //Stolen from AnimalMovementSystem end:
 
     protected override void OnUpdate()
