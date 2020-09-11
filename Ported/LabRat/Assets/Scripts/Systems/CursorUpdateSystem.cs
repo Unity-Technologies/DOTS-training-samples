@@ -4,25 +4,22 @@ using System;
 
 using Unity.Entities;
 
-namespace Assets.Scripts.Systems
+public class CursorUpdateSystem : SystemBase
 {
-    public class CursorUpdateSystem : SystemBase
+    private CursorController cursorController;
+
+    protected override void OnCreate()
     {
-        private CursorController cursorController;
+        this.cursorController = UnityEngine.Object.FindObjectOfType<CursorController>();
+    }
 
-        protected override void OnCreate()
+    protected override void OnUpdate()
+    {
+        Entities
+            .WithoutBurst()
+            .ForEach((in MousePosition position, in PlayerIndex index, in LabRat_Color color) =>
         {
-            this.cursorController = UnityEngine.Object.FindObjectOfType<CursorController>();
-        }
-
-        protected override void OnUpdate()
-        {
-            Entities
-                .WithoutBurst()
-                .ForEach((in MousePosition position, in PlayerIndex index, in Color color) =>
-            {
-                cursorController.SetPosition(index.Value, position.Value, color.Value);
-            }).Run();
-        }
+            cursorController.SetPosition(index.Value, position.Value, color.Value);
+        }).Run();
     }
 }
