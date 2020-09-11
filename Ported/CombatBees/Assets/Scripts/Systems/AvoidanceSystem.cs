@@ -63,11 +63,10 @@ public class AvoidanceSystem : SystemBase
 				{
 					float3 otherToSelf = translation.Value - beeLocations_TeamA[i].Value;
 					float dist = math.length( otherToSelf );
-					if( dist > 0 && dist < 3 )
+					if( dist > 0 && dist < 3  )
 					{
-						float accel = (1f-(dist / 3f)) * 10f;
-						float3 repelVelocity = math.normalize( otherToSelf ) * accel * deltaTime;
-						velocity.Value += repelVelocity;
+						float val = (1 - (dist / 3f)) * deltaTime * 10f;
+						velocity.Value += math.normalize( otherToSelf ) * val;
 					}
 				}
 			} ).ScheduleParallel();
@@ -75,18 +74,17 @@ public class AvoidanceSystem : SystemBase
 		Entities.WithAll<TeamB>()
 			.WithDisposeOnCompletion( beeLocations_TeamB )
 			.WithNone<Dying>().WithNone<Agony>().WithNone<Attack>()
-			.ForEach( ( Entity bee, ref Velocity velocity, in Translation translation ) =>
+			.ForEach( ( ref Velocity velocity, in Translation translation ) =>
 			{
 				// push away from other bees in the team
 				for( int i=0; i<beeLocations_TeamB.Length; ++i )
 				{
 					float3 otherToSelf = translation.Value - beeLocations_TeamB[i].Value;
 					float dist = math.length( otherToSelf );
-					if( dist > 0 && dist < 3 )
+					if( dist > 0 && dist < 3  )
 					{
-						float accel = (1f-(dist / 3f)) * 10f;
-						float3 repelVelocity = math.normalize( otherToSelf ) * accel * deltaTime;
-						velocity.Value += repelVelocity;
+						float val = (1 - (dist / 3f)) * deltaTime * 10f;
+						velocity.Value += math.normalize( otherToSelf ) * val;
 					}
 				}
 			} ).ScheduleParallel();
