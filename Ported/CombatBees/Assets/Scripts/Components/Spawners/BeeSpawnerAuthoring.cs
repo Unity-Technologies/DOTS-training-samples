@@ -6,5 +6,5 @@ public struct BeeSpawner : IComponentData
 {
 	public Entity BeePrefab_TeamA;
 	public Entity BeePrefab_TeamB;
-	public byte Count;
+	public int Count;
 }
