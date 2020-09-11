@@ -27,7 +27,7 @@ public class BeeSpawningSystem : SystemBase
             for( int i = 0; i < spawner.Count; ++i )
             {
                 var instance = ecb.Instantiate(beePrefab);
-                ecb.SetComponent(instance, new Translation {Value = spawnerTranslation.Value});
+                ecb.SetComponent(instance, new Translation {Value = spawnerTranslation.Value + random.NextFloat3Direction()});
                 ecb.AddComponent<Idle>( instance );
                 ecb.AddComponent<TargetPosition>( instance, new TargetPosition { Value = float3.zero } );
                 
