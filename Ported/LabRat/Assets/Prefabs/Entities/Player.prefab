@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6351116625237042561}
   - component: {fileID: 6351116625237042560}
   - component: {fileID: -6913929569830126279}
-  - component: {fileID: -863557143303014160}
   - component: {fileID: -5628127645693988919}
   m_Layer: 0
   m_Name: Player
@@ -46,9 +45,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bacb44d4c51de304eb603980268835ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Arrow0: {fileID: 0}
-  Arrow1: {fileID: 0}
-  Arrow2: {fileID: 0}
   CurrentArrow: 0
 --- !u!114 &-6913929569830126279
 MonoBehaviour:
@@ -63,19 +59,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value: 0
---- !u!114 &-863557143303014160
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6351116625237042563}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4870b52dc871e9a40883361a014416e8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Color: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &-5628127645693988919
 MonoBehaviour:
   m_ObjectHideFlags: 0
