@@ -43,5 +43,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c93b98eeb0ca47d4f91cb74108a7a250, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MinMiliseconds: 500
-  MaxMilisecond: 1500
+  MinMiliseconds: 2000
+  MaxMiliseconds: 2500

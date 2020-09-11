@@ -1,15 +1,18 @@
 ﻿using System;
 
 using Unity.Entities;
+using Unity.Mathematics;
 
 public class AIMakeDecisionSystem : SystemBase
 {
     private Unity.Mathematics.Random random;
+    private EntityCommandBufferSystem ecbSystem;
 
     protected override void OnCreate()
     {
-        var sysRandom = new Random();
+        var sysRandom = new System.Random();
         this.random = new Unity.Mathematics.Random((uint)sysRandom.Next(0, int.MaxValue));
+        this.ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -17,24 +20,24 @@ public class AIMakeDecisionSystem : SystemBase
         if (!HasSingleton<AIDecisionTimeInterval>())
             return;
 
+        var ecb = this.ecbSystem.CreateCommandBuffer();
         var interval = GetSingleton<AIDecisionTimeInterval>();
         var boardSpawner = GetSingleton<BoardCreationAuthor>();
 
         Entities
-            .WithoutBurst()
-            .ForEach((ref AIPlayerLastDecision player) =>
+            .WithStructuralChanges()
+            .ForEach((Entity playerEntity, ref AIPlayerLastDecision player) =>
         {
             var timeElapsedSinceLast = new TimeSpan(DateTime.Now.Ticks - player.Value);
 
             var diff = interval.MaxMiliseconds - timeElapsedSinceLast.TotalMilliseconds;
 
-            var r = this.random.NextInt((int)interval.MinMiliseconds, (int)interval.MaxMiliseconds);
+            var r = this.random.NextInt(interval.MinMiliseconds, interval.MaxMiliseconds);
 
             var elapsedMinimumTime = timeElapsedSinceLast.TotalMilliseconds > interval.MinMiliseconds;
             var elapsedMaximumTime = diff <= 0;
             var randomGTCurrent = r < timeElapsedSinceLast.TotalMilliseconds;
 
-            //
             if (elapsedMinimumTime && (elapsedMaximumTime || randomGTCurrent))
             {
                 var x = this.random.NextInt(0, boardSpawner.SizeX - 1);
@@ -64,7 +67,22 @@ public class AIMakeDecisionSystem : SystemBase
                         break;
                 }
 
-                UnityEngine.Debug.Log($"Think {timeElapsedSinceLast.TotalMilliseconds} {r} ({x}, {y}) {dir}");
+                var newArrow = ecb.CreateEntity();
+                ecb.AddComponent(newArrow, new PlaceArrowEvent
+                {
+                    Player = playerEntity
+                });
+
+                ecb.AddComponent(newArrow, new Direction
+                {
+                    Value = dir
+                });
+
+                ecb.AddComponent(newArrow, new PositionXZ
+                {
+                    Value = new float2(x, y)
+                });
+
                 player.Value = DateTime.Now.Ticks;
             }
         }).Run();
