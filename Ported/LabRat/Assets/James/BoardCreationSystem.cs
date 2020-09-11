@@ -37,7 +37,6 @@ public class BoardCreationSystem : SystemBase
                     Entity tile = EntityManager.Instantiate(boardCreationAuthor.TilePrefab);
                     Tile newTile = new Tile();
                     PositionXZ tilePos = new PositionXZ();
-                    Translation translation = new Translation();
                     float2 wallPos = new float2(x, y);
 
                     // Create the outer walls & spawn points
@@ -230,10 +229,10 @@ public class BoardCreationSystem : SystemBase
     {
         None,
 
-        WallLeft = Tile.Attributes.WallLeft,
-        WallUp = Tile.Attributes.WallUp,
-        WallRight = Tile.Attributes.WallRight,
-        WallDown = Tile.Attributes.WallDown,
+        Left = Tile.Attributes.WallLeft,
+        Up = Tile.Attributes.WallUp,
+        Right = Tile.Attributes.WallRight,
+        Down = Tile.Attributes.WallDown,
         
         Hole = Tile.Attributes.Hole,
         Goal = Tile.Attributes.Goal,
