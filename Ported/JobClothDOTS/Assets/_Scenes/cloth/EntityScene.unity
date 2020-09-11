@@ -716,13 +716,26 @@ GameObject:
   - component: {fileID: 846244206}
   - component: {fileID: 846244205}
   - component: {fileID: 846244204}
+  - component: {fileID: 846244203}
   m_Layer: 0
   m_Name: DOTS Cloth Text (One Combined Mesh - Slower)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
+--- !u!114 &846244203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 846244202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3442c45408943514582233b560a1b1b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!23 &846244204
 MeshRenderer:
   m_ObjectHideFlags: 0

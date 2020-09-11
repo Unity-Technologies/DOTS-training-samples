@@ -160,6 +160,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 			meshData[0].GetIndices(indexBuffer, 0);
 			Debug.Assert(indexCount % 3 == 0, "indexCount is not a multiple of 3");
 
+			//TODO: parallelize
 			using (var edgeHashMap = new NativeHashMap<ulong, int2>(indexCount, Allocator.Temp))
 			{
 				// loop over triangles
