@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+﻿#if false && UNITY_EDITOR
 
 using Unity.Entities;
 using UnityEngine;

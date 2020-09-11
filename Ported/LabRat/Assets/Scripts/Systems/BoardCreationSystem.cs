@@ -16,7 +16,7 @@ public class BoardCreationSystem : SystemBase
     {
         playerInitSystem = World.GetExistingSystem<PlayerInitializationSystem>();
 
-#if UNITY_EDITOR
+#if false && UNITY_EDITOR
         new GameObject("BoardDebugger", typeof(BoardCreationDebug));
 #endif
     }
@@ -139,7 +139,7 @@ public class BoardCreationSystem : SystemBase
                         }
                     }
 
-                    var even = ((boardCreationAuthor.SizeY * y + x) % 2 == 0);
+                    var even = ((y + x) % 2 == 0);
                     LabRat_Color color;
                     if (even)
                     {
@@ -152,7 +152,7 @@ public class BoardCreationSystem : SystemBase
                     {
                         color = new LabRat_Color
                         {
-                            Value = new float4(0.68f, 0.68f, 0.68f, 1.0f)
+                            Value = new float4(0.85f, 0.85f, 0.85f, 1.0f)
                         };
                     }
 
@@ -273,7 +273,7 @@ public class BoardCreationSystem : SystemBase
         EntityManager.AddComponent<Static>(wall);
     }
 
-#if UNITY_EDITOR
+#if false &&  UNITY_EDITOR
     [System.Flags]
     public enum DebugAttributes : ushort
     {
