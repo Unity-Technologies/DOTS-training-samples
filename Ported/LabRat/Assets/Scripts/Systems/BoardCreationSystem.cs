@@ -139,7 +139,7 @@ public class BoardCreationSystem : SystemBase
                         }
                     }
 
-                    var even = ((boardCreationAuthor.SizeY * y + x) % 2 == 0);
+                    var even = ((y + x) % 2 == 0);
                     LabRat_Color color;
                     if (even)
                     {
