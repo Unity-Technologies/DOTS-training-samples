@@ -169,7 +169,7 @@ public class ArrowPlacingSystem : SystemBase
                     ecb.SetComponent(entityInQueryIndex, newArrow, new Translation { Value = new float3(position.Value.x, 0, position.Value.y) });
                     ecb.SetComponent(entityInQueryIndex, newArrow, new Rotation { Value = quaternion.Euler(0, AnimalMovementSystem.RadiansFromDirection(direction.Value), 0) });
                     ecb.AddComponent(entityInQueryIndex, newArrow, new FreshArrowTag());
-                    ecb.AddComponent(entityInQueryIndex, newArrow, new ColorAuthoring() { Color = new UnityEngine.Color(playerColor.Value.x, playerColor.Value.y, playerColor.Value.z, 1) });
+                    ecb.AddComponent(entityInQueryIndex, newArrow, new Color() { Value = playerColor.Value });
 
                 }
 

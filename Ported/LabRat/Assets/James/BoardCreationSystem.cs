@@ -131,33 +131,25 @@ public class BoardCreationSystem : SystemBase
                             var player = playerInitSystem.Players[spawnedGoals++];
                             EntityManager.AddComponentData(tile, new TileOwner {Value = player});
                             
-                            var cc = EntityManager.GetComponentData<ColorAuthoring>(player);
-                            var linkedEntities = EntityManager.GetBuffer<LinkedEntityGroup>(goal);
-                            for (var l = 0; l < linkedEntities.Length; ++l)
-                            {
-                                var linkedEntity = linkedEntities[l].Value;
-                                if (EntityManager.HasComponent<ColorAuthoring>(linkedEntity))
-                                {
-                                    EntityManager.SetComponentData(linkedEntity, cc);
-                                }
-                            }
+                            var cc = EntityManager.GetComponentData<Color>(player);
+                            EntityManager.AddComponentData(goal, cc);
                         }
                     }
 
                     var even = ((boardCreationAuthor.SizeY * y + x) % 2 == 0);
-                    ColorAuthoring color;
+                    Color color;
                     if (even)
                     {
-                        color = new ColorAuthoring()
+                        color = new Color()
                         {
-                            Color = new  UnityEngine.Color(0.95f, 0.95f, 0.95f, 1.0f)
+                            Value = new  float4(0.95f, 0.95f, 0.95f, 1.0f)
                         };
                     }
                     else
                     {
-                        color = new ColorAuthoring
+                        color = new Color
                         {
-                            Color = new UnityEngine.Color(0.68f, 0.68f, 0.68f, 1.0f)
+                            Value = new float4(0.68f, 0.68f, 0.68f, 1.0f)
                         };
                     }
 

@@ -1,5 +1,6 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class PlayerInitializationSystem : SystemBase
@@ -41,7 +42,10 @@ public class PlayerInitializationSystem : SystemBase
                     ecb.AddComponent(playerEntity, new AIPlayerLastDecision { Value = ticks });
                     ecb.SetComponent(playerEntity, new Name { Value = $"Computer {i}" });
                 }
-                ecb.SetComponent(playerEntity, new ColorAuthoring() { Color = UnityEngine.Color.HSVToRGB(i / (float)playerCount, 1, 1) });
+
+                var color = UnityEngine.Color.HSVToRGB(i / (float) playerCount, 1, 1);
+                var colorAsFloat4 = new float4(color.r, color.g, color.b, color.a);
+                ecb.SetComponent(playerEntity, new Color() { Value = colorAsFloat4 });
                 ecb.AddBuffer<PlayerArrow>(playerEntity);
             }
         }).Run();
