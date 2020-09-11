@@ -76,7 +76,7 @@ public class AIMakeDecisionSystem : SystemBase
 
                 var screenPos = Camera.main.WorldToScreenPoint(new Vector3(x, 0, y));
 
-                UnityEngine.Debug.Log(screenPos);
+                //UnityEngine.Debug.Log(screenPos);
 
                 ecb.SetComponent(playerEntity, new AIMousePositionTarget
                 {
