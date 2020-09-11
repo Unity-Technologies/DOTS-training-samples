@@ -1,6 +1,8 @@
 ﻿#define BATCH_CREATE_EDGE_ENTITIES
+#define SORT_EDGES_BY_FIRST_VERTEX// for sequential (somewhat) access in the initial configuration
 
 using System;
+using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
@@ -217,71 +219,76 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 					}
 				}
 
-#if BATCH_CREATE_EDGE_ENTITIES
 				// generate edge entities for all index pairs
 				using (var indexPairs = edgeHashMap.GetValueArray(Allocator.TempJob))
-				using (var clothEdgeData = new NativeArray<ClothEdge>(indexPairs.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
-				using (var edgeEntities = new NativeArray<Entity>(indexPairs.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory))
 				{
-					// create the entities
-					conversionSystem.CreateAdditionalEntity(this, edgeEntities);
-
-					// build the component data
-					var clothEdgeDataJob = new CreateClothEdgeDataJob
-					{
-						vertexPosition = bufferPosition,
-						indexPairs = indexPairs,
-						clothEdgeData = clothEdgeData,
-					};
-
-					jobHandle = clothEdgeDataJob.Schedule(clothEdgeData.Length, 64);
-					jobHandle.Complete();
-
-					// add the component data to the entities
-					dstManager.AddComponent<ClothEdge>(edgeEntities);
-					{
-						//NOTE: this query will hit only the entities that we just created
-						var clothEdgeQueryDesc = new EntityQueryDesc()
-						{
-							All = new ComponentType[] { typeof(ClothEdge) },
-							None = new ComponentType[] { typeof(ClothMesh) },
-						};
-						var clothEdgeQuery = dstManager.CreateEntityQuery(clothEdgeQueryDesc);
-
-						//NOTE: this assumes that the query "hits" the underlying data in the same order as the added entities
-						dstManager.AddComponentData(clothEdgeQuery, clothEdgeData);
-						dstManager.AddSharedComponentData(clothEdgeQuery, clothMesh);
-
-						// this might have been nicer?
-						//dstManager.AddComponentData(edgeEntities, clothEdgeData);
-						//dstManager.AddSharedComponentData(edgeEntities, clothMesh);
-					}
-
-					// and this might have been even nicer?
-					//dstManager.AddComponentWithData<ClothEdge>(edgeEntities, clothEdgeData);
-					//dstManager.AddSharedComponentWithData<ClothMesh>(edgeEntities, clothMesh);
-				}
-#else
-				// loop over index pairs
-				foreach (var edgeKeyValue in edgeHashMap)
-				{
-					// find the length
-					var indexPair = edgeKeyValue.Value;
-					var length = math.distance(bufferPosition[indexPair.x], bufferPosition[indexPair.y]);
-
-					//TODO: speed up
-					// create an entity with the ClothMesh and ClothEdge components
-					var edgeEntity = conversionSystem.CreateAdditionalEntity(this);
-					{
-						dstManager.AddSharedComponentData(edgeEntity, clothMesh);
-						dstManager.AddComponentData(edgeEntity, new ClothEdge
-						{
-							IndexPair = indexPair,
-							Length = length,
-						});
-					}
-				}
+#if SORT_EDGES_BY_FIRST_VERTEX
+					// sort the pairs
+					indexPairs.Sort(new IndexPairComparer());
 #endif
+
+#if BATCH_CREATE_EDGE_ENTITIES
+					using (var clothEdgeData = new NativeArray<ClothEdge>(indexPairs.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
+					using (var edgeEntities = new NativeArray<Entity>(indexPairs.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory))
+					{
+						// create the entities
+						conversionSystem.CreateAdditionalEntity(this, edgeEntities);
+
+						// build the component data
+						var clothEdgeDataJob = new CreateClothEdgeDataJob
+						{
+							vertexPosition = bufferPosition,
+							indexPairs = indexPairs,
+							clothEdgeData = clothEdgeData,
+						};
+
+						jobHandle = clothEdgeDataJob.Schedule(clothEdgeData.Length, 64);
+						jobHandle.Complete();
+
+						// add the component data to the entities
+						dstManager.AddComponent<ClothEdge>(edgeEntities);
+						{
+							//NOTE: this query will hit only the entities that we just created
+							var clothEdgeQueryDesc = new EntityQueryDesc()
+							{
+								All = new ComponentType[] { typeof(ClothEdge) },
+								None = new ComponentType[] { typeof(ClothMesh) },
+							};
+							var clothEdgeQuery = dstManager.CreateEntityQuery(clothEdgeQueryDesc);
+
+							//NOTE: this assumes that the query "hits" the underlying data in the same order as the added entities
+							dstManager.AddComponentData(clothEdgeQuery, clothEdgeData);
+							dstManager.AddSharedComponentData(clothEdgeQuery, clothMesh);
+
+							// this might have been nicer?
+							//dstManager.AddComponentData(edgeEntities, clothEdgeData);
+							//dstManager.AddSharedComponentData(edgeEntities, clothMesh);
+						}
+
+						// and this might have been even nicer?
+						//dstManager.AddComponentWithData<ClothEdge>(edgeEntities, clothEdgeData);
+						//dstManager.AddSharedComponentWithData<ClothMesh>(edgeEntities, clothMesh);
+					}
+#else
+					// loop over index pairs
+					foreach (var indexPair in indexPairs)
+					{
+						// find the length
+						var length = math.distance(bufferPosition[indexPair.x], bufferPosition[indexPair.y]);
+
+						// create an entity with the ClothMesh and ClothEdge components
+						var edgeEntity = conversionSystem.CreateAdditionalEntity(this);
+						{
+							dstManager.AddSharedComponentData(edgeEntity, clothMesh);
+							dstManager.AddComponentData(edgeEntity, new ClothEdge
+							{
+								IndexPair = indexPair,
+								Length = length,
+							});
+						}
+					}
+#endif
+				}
 			}
 		}
 	}
@@ -332,5 +339,10 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 				Length = length,
 			};
 		}
+	}
+
+	struct IndexPairComparer : IComparer<int2>
+	{
+		public int Compare(int2 a, int2 b) => a.x.CompareTo(b.x);
 	}
 }
