@@ -3,7 +3,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
@@ -11,14 +10,9 @@ using Random = Unity.Mathematics.Random;
 public class BoardCreationSystem : SystemBase
 {
     private PlayerInitializationSystem playerInitSystem;
-    struct BoardVisualElement : ISystemStateComponentData {}
-
-    EntityQuery m_AnyTileOrWallQuery;
     
     protected override void OnCreate()
     {
-        m_AnyTileOrWallQuery = GetEntityQuery(new EntityQueryDesc {Any = new[] {ComponentType.ReadOnly<Tile>(), ComponentType.ReadOnly<BoardVisualElement>()}});
-            
         playerInitSystem = World.GetExistingSystem<PlayerInitializationSystem>();
     }
 
@@ -131,7 +125,7 @@ public class BoardCreationSystem : SystemBase
                             EntityManager.SetComponentData(goal, new PositionXZ(){Value = new float2(x, y)});
 
                             var player = playerInitSystem.Players[spawnedGoals++];
-                            newTile.Owner = player;
+                            EntityManager.AddComponentData(tile, new TileOwner {Value = player});
                             
                             var cc = EntityManager.GetComponentData<ColorAuthoring>(player);
                             var linkedEntities = EntityManager.GetBuffer<LinkedEntityGroup>(goal);
@@ -180,7 +174,7 @@ public class BoardCreationSystem : SystemBase
 
         Entities
             .WithAll<GameStateStart>()
-            .ForEach((Entity e, BoardCreationAuthor boardCreationAuthor) =>
+            .ForEach((in BoardCreationAuthor boardCreationAuthor) =>
         {
             // Place rat and cat spawners in diagonally opposite corners
             var ratSpawners = EntityManager.Instantiate(boardCreationAuthor.RatSpawner, 2, Allocator.Temp);
@@ -192,21 +186,6 @@ public class BoardCreationSystem : SystemBase
             EntityManager.AddComponentData(catSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, 0f) });
             catSpawners.Dispose();
         }).WithStructuralChanges().Run();
-     
-        // Quick'n'dirty cleanup stuff
-        if (EntityManager.HasComponent<GameStateEnd>(GetSingletonEntity<BoardCreationAuthor>()))
-        {
-            Entities.WithAll<Spawner>().ForEach((Entity entity) => EntityManager.DestroyEntity(entity)).WithStructuralChanges().WithoutBurst().Run();
-            Entities.WithAll<Direction>().ForEach((Entity entity) => EntityManager.RemoveComponent<Direction>(entity)).WithStructuralChanges().WithoutBurst().Run();
-            Entities.WithAll<Falling>().ForEach((Entity entity) => EntityManager.RemoveComponent<Falling>(entity)).WithStructuralChanges().WithoutBurst().Run();
-        }
-        if (EntityManager.HasComponent<GameStateCleanup>(GetSingletonEntity<BoardCreationAuthor>()))
-        {
-            Entities.WithAll<Tile>().ForEach((Entity entity) => EntityManager.DestroyEntity(entity)).WithStructuralChanges().WithoutBurst().Run();
-            Entities.WithAll<BoardVisualElement>().ForEach((Entity entity) => EntityManager.DestroyEntity(entity)).WithStructuralChanges().WithoutBurst().Run();
-            Entities.WithAll<CatTag>().ForEach((Entity entity) => EntityManager.DestroyEntity(entity)).WithStructuralChanges().WithoutBurst().Run();
-            Entities.WithAll<RatTag>().ForEach((Entity entity) => EntityManager.DestroyEntity(entity)).WithStructuralChanges().WithoutBurst().Run();
-        }
     }
 
     private void PlaceWall(Entity prefab, float2 pos, Tile.Attributes attributes)
@@ -237,6 +216,6 @@ public class BoardCreationSystem : SystemBase
         Entity wall = EntityManager.Instantiate(prefab);
         EntityManager.AddComponentData(wall, translation);
         EntityManager.AddComponentData(wall, rot);
-        EntityManager.AddComponent<BoardVisualElement>(wall);
+        EntityManager.AddComponent<Static>(wall);
     }
 }

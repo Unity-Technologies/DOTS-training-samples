@@ -80,6 +80,9 @@ public class AnimalMovementSystem : SystemBase
     {
         m_EntityCommandBufferSystem = World.GetExistingSystem<BeginInitializationEntityCommandBufferSystem>();
         m_GameStateEntity = EntityManager.CreateEntity(typeof(WantsGameStateTransitions));
+#if UNITY_EDITOR
+        EntityManager.SetName(m_GameStateEntity, "MovementGameState");
+#endif
         
         m_TileEntityGrid = new NativeArray<Entity>(0, Allocator.Persistent);
     }
@@ -199,7 +202,7 @@ public class AnimalMovementSystem : SystemBase
                         }
                         else if (obstacleMask == (int)Tile.Attributes.Goal)
                         {
-                            var player = tileData.Owner;
+                            var player = GetComponent<TileOwner>(tileEntity).Value;
                             var currentScore = GetComponent<Score>(player).Value;
 
                             var isRat = HasComponent<RatTag>(entity);

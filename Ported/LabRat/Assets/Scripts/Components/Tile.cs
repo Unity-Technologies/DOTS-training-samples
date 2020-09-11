@@ -28,5 +28,9 @@ struct Tile : IComponentData
     }
 
     public Attributes Value;
-    public Entity Owner;
+}
+
+struct TileOwner : IComponentData
+{
+    public Entity Value;
 }

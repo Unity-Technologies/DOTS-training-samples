@@ -6,7 +6,9 @@ public class UIBridge : MonoBehaviour
 #pragma warning disable 0649
     [SerializeField] float tweenTime = 1f;
     [SerializeField] float tweenScale = 1.25f;
-    
+
+    [SerializeField] GameObject canvasRoot;
+
     [SerializeField] RectTransform readyTextTransform;
     [SerializeField] RectTransform setTextTransform;
     [SerializeField] RectTransform goTextTransform;
@@ -17,6 +19,23 @@ public class UIBridge : MonoBehaviour
     [SerializeField] Text timerText;
     [SerializeField] Text[] playerScoreText;
 #pragma warning restore
+
+    void OnEnable() => canvasRoot.SetActive(false);
+    
+    public void ShowGUI(float duration)
+    {
+        canvasRoot.SetActive(true);
+        ResetGUI(duration);
+    }
+    
+    public void ResetGUI(float duration)
+    {
+        gameOverOverlay.SetActive(false);
+        gameOverText.gameObject.SetActive(false);
+        for(var i = 0; i < playerScoreText.Length; ++i)
+            SetScore(i, 0);
+        SetTimer(duration);
+    }
 
     System.Collections.IEnumerator TweenElement(RectTransform transform, System.Action onCompleted)
     {
@@ -43,6 +62,8 @@ public class UIBridge : MonoBehaviour
     }
 
     public void SetScore(int playerIndex, int score) => playerScoreText[playerIndex].text = score.ToString();
+    
+    public void SetPlayerData(int playerIndex, string name, UnityEngine.Color color) => playerScoreText[playerIndex].color = color;
 
     public void ShowGameOver(string winnerTeam, UnityEngine.Color winnerColor)
     {
@@ -50,13 +71,5 @@ public class UIBridge : MonoBehaviour
         gameOverText.gameObject.SetActive(true);
         gameOverText.text = $"{winnerTeam} Wins!";
         gameOverText.color = winnerColor;
-    }
-
-    public void ResetGUI()
-    {
-        gameOverOverlay.SetActive(false);
-        gameOverText.gameObject.SetActive(false);
-        for(var i = 0; i < playerScoreText.Length; ++i)
-            SetScore(i, 0);
     }
 }

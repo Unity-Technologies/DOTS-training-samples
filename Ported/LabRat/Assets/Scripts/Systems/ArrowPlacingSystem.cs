@@ -8,6 +8,8 @@ using UnityEngine;
 
 public class ArrowPlacingSystem : SystemBase
 {
+    Entity gameStateEntity;
+
     EntityQuery tilesQuery;
     EntityQuery arrowsQuery;
     EntityQuery arrowPrefabQuery;
@@ -45,17 +47,47 @@ public class ArrowPlacingSystem : SystemBase
         });
 
         ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+
+        gameStateEntity = EntityManager.CreateEntity(typeof(WantsGameStateTransitions));
+        m_TileEntityGrid = new NativeArray<Entity>(0, Allocator.Persistent);
     }
+
+    // Stolen from AnimalMovementSystem begin:
+    // Collect tile entities into a flat array. This should probably come from the board generator in some shape or
+    // form, but for now we'll just grab it at startup.
+    void EnsureTileEntityGrid()
+    {
+        if (!EntityManager.HasComponent<GameStateInitialize>(gameStateEntity))
+            return;
+
+        // Dispose previous grid
+        m_TileEntityGrid.Dispose();
+
+        // Capture board dimensions
+        var boardAuthoring = GetSingleton<BoardCreationAuthor>();
+        m_BoardDimensions.TileCountX = boardAuthoring.SizeX;
+        m_BoardDimensions.TileCountTotal = boardAuthoring.SizeX * boardAuthoring.SizeY;
+
+        // Build a direct lookup structure for tile entities
+        var tileEntityGrid = m_TileEntityGrid = new NativeArray<Entity>(m_BoardDimensions.TileCountTotal, Allocator.Persistent);
+        var boardDimensions = m_BoardDimensions;
+        Entities.WithName("CollectTiles")
+            .WithAll<Tile>()
+            .WithChangeFilter<Tile>()
+            .ForEach((Entity entity, in PositionXZ pos) => { tileEntityGrid[AnimalMovementSystem.TileKeyFromPosition(pos.Value, boardDimensions)] = entity; })
+            .ScheduleParallel();
+    }
+
+    AnimalMovementSystem.BoardDimensions m_BoardDimensions;
+    NativeArray<Entity> m_TileEntityGrid;
+
+    //Stolen from AnimalMovementSystem end:
 
     protected override void OnUpdate()
     {
-        var tilePositions = tilesQuery.ToComponentDataArrayAsync<PositionXZ>(Allocator.TempJob, out var tilePositionsHandle);
-        Dependency = JobHandle.CombineDependencies(Dependency, tilePositionsHandle);
-        var tiles = tilesQuery.ToComponentDataArrayAsync<Tile>(Allocator.TempJob, out var tilesHandle);
-        Dependency = JobHandle.CombineDependencies(Dependency, tilesHandle);
-        var tileEntities = tilesQuery.ToEntityArrayAsync(Allocator.TempJob, out var tileEntitiesHandle);
-        Dependency = JobHandle.CombineDependencies(Dependency, tileEntitiesHandle);
-        var tileAccessor = GetComponentDataFromEntity<Tile>();
+        EnsureTileEntityGrid();
+        var boardDimensions = m_BoardDimensions;
+        var tileEntityGrid = m_TileEntityGrid;
 
         var arrowPositions = arrowsQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var arrowPositionHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, arrowPositionHandle);
@@ -70,14 +102,10 @@ public class ArrowPlacingSystem : SystemBase
         var arrowPrefab = arrowPrefabQuery.GetSingletonEntity();
 
         Entities
-            .WithDisposeOnCompletion(tilePositions)
-            .WithDisposeOnCompletion(tiles)
-            .WithDisposeOnCompletion(tileEntities)
             .WithDisposeOnCompletion(arrowPositions)
             .WithDisposeOnCompletion(arrows)
             .WithDisposeOnCompletion(arrowEntities)
             .WithChangeFilter<PlaceArrowEvent>()
-            .WithNativeDisableParallelForRestriction(tileAccessor)
             .ForEach((
                 int entityInQueryIndex,
                 in Entity placeArrowEventEntity,
@@ -85,77 +113,64 @@ public class ArrowPlacingSystem : SystemBase
                 in PlaceArrowEvent placeArrowEvent,
                 in Direction direction) =>
             {
-                var newArrowPosition = (int2)position.Value;
-                for (int i = 0; i < tileEntities.Length; i++)
+                var tileEntity = tileEntityGrid[AnimalMovementSystem.TileKeyFromPosition(position.Value, boardDimensions)];
+                var tile = GetComponent<Tile>(tileEntity);
+
+                if ((tile.Value & Tile.Attributes.ArrowAny) != 0) // Target tile is an Arrow
                 {
-                    var tilePosition = (int2)tilePositions[i].Value;
-                    if (math.any(tilePosition != newArrowPosition))
-                        continue;
-
-                    var tileEntity = tileEntities[i];
-                    var tileValue = tiles[i].Value;
-
-                    if ((tileValue & Tile.Attributes.ArrowAny) != 0) // Target tile is an Arrow
+                    for (int j = 0; j < arrowEntities.Length; j++)
                     {
-                        for (int j = 0; j < arrowEntities.Length; j++)
-                        {
-                            var arrowPosition = (int2)arrowPositions[j].Value.xz;
-                            if (math.any(tilePosition != arrowPosition))
-                                continue;
+                        var arrowPosition = (int2)arrowPositions[j].Value.xz;
+                        if (math.any(position.Value != arrowPosition))
+                            continue;
 
-                            if (arrows[j].Owner == placeArrowEvent.Player) // Placer owns the arrow, remove
+                        if (arrows[j].Owner == placeArrowEvent.Player) // Placer owns the arrow, remove
+                        {
+                            var arrowEntity = arrowEntities[j];
+
+                            ecb.DestroyEntity(entityInQueryIndex, arrowEntity);
+                            ecb.SetComponent(entityInQueryIndex, tileEntity, new Tile { Value = (Tile.Attributes)((int)tile.Value & ~(int)Tile.Attributes.ArrowAny) });
+
+                            var arrowsBuffer = GetBuffer<PlayerArrow>(placeArrowEvent.Player);
+                            for (int k = 0; k < arrowsBuffer.Length; k++)
                             {
-                                var arrowEntity = arrowEntities[j];
-                                ecb.DestroyEntity(entityInQueryIndex, arrowEntity);
-                                tileAccessor[tileEntity] = new Tile
+                                if (arrowsBuffer[k].Arrow == arrowEntity)
                                 {
-                                    Value = (Tile.Attributes)((int)tiles[i].Value & ~(int)Tile.Attributes.ArrowAny)
-                                };
-                                var arrowsBuffer = GetBuffer<PlayerArrow>(placeArrowEvent.Player);
-                                for (int k = 0; k < arrowsBuffer.Length; k++)
-                                {
-                                    if (arrowsBuffer[k].Arrow == arrowEntity)
-                                    {
-                                        arrowsBuffer.RemoveAt(k);
-                                        break;
-                                    }
+                                    arrowsBuffer.RemoveAt(k);
+                                    break;
                                 }
                             }
                         }
                     }
-                    else if ((tileValue & Tile.Attributes.ObstacleAny) != 0) // Tile is either a Hole or a Goal
+                }
+                else if ((tile.Value & Tile.Attributes.ObstacleAny) != 0) // Tile is either a Hole or a Goal
+                {
+
+                }
+                else // Tile is free to place New Arrow
+                {
+                    var arrowsBuffer = GetBuffer<PlayerArrow>(placeArrowEvent.Player);
+                    if (arrowsBuffer.Length >= PlayerArrow.MaxArrowsPerPlayer)
                     {
+                        var arrowToDestroyEntity = arrowsBuffer[0].Arrow;
+                        var arrowToDestroy = GetComponent<Arrow>(arrowToDestroyEntity);
 
+                        ecb.SetComponent(entityInQueryIndex, tileEntity, new Tile { Value = (Tile.Attributes)((int)tile.Value & ~(int)Tile.Attributes.ArrowAny) });
+                        ecb.DestroyEntity(entityInQueryIndex, arrowToDestroyEntity);
+                        arrowsBuffer.RemoveAt(0);
                     }
-                    else // Tile is free to place New Arrow
-                    {
-                        var arrowsBuffer = GetBuffer<PlayerArrow>(placeArrowEvent.Player);
-                        if (arrowsBuffer.Length >= PlayerArrow.MaxArrowsPerPlayer)
-                        {
-                            var arrowToDestroyEntity = arrowsBuffer[0].Arrow;
-                            var arrowToDestroy = GetComponent<Arrow>(arrowToDestroyEntity);
 
-                            tileAccessor[arrowToDestroy.Tile] = new Tile
-                            {
-                                Value = (Tile.Attributes)((int)tiles[i].Value & ~(int)Tile.Attributes.ArrowAny)
-                            };
-                            ecb.DestroyEntity(entityInQueryIndex, arrowToDestroyEntity);
-                            arrowsBuffer.RemoveAt(0);
-                        }
 
-                        tileAccessor[tileEntity] = new Tile
-                        {
-                            Value = (Tile.Attributes)(((int)tiles[i].Value & ~(int)Tile.Attributes.ArrowAny) | (int)direction.Value << (int)Tile.Attributes.ArrowShiftCount)
-                        };
-                        var newArrow = ecb.Instantiate(entityInQueryIndex, arrowPrefab);
+                    ecb.SetComponent(entityInQueryIndex, tileEntity, new Tile { Value = (Tile.Attributes)(((int)tile.Value & ~(int)Tile.Attributes.ArrowAny) | (int)direction.Value << (int)Tile.Attributes.ArrowShiftCount) });
+                    var newArrow = ecb.Instantiate(entityInQueryIndex, arrowPrefab);
 
-                        var playerColor = GetComponent<Color>(placeArrowEvent.Player);
-                        ecb.SetComponent(entityInQueryIndex, newArrow, new Arrow { Owner = placeArrowEvent.Player, Tile = tileEntity });
-                        ecb.SetComponent(entityInQueryIndex, newArrow, new Translation { Value = new float3(position.Value.x, 0, position.Value.y) });
-                        ecb.SetComponent(entityInQueryIndex, newArrow, new Rotation { Value = quaternion.Euler(0, AnimalMovementSystem.RadiansFromDirection(direction.Value), 0) });
-                        ecb.AddComponent(entityInQueryIndex, newArrow, new FreshArrowTag());
-                        ecb.AddComponent(entityInQueryIndex, newArrow, new ColorAuthoring(){Color = new UnityEngine.Color(playerColor.Value.x, playerColor.Value.y, playerColor.Value.z, 1)});
-                    }
+                    var playerColor = GetComponent<Color>(placeArrowEvent.Player);
+                    ecb.SetComponent(entityInQueryIndex, newArrow, new Arrow { Owner = placeArrowEvent.Player, Tile = tileEntity });
+                    ecb.SetComponent(entityInQueryIndex, newArrow, new Translation { Value = new float3(position.Value.x, 0, position.Value.y) });
+                    ecb.SetComponent(entityInQueryIndex, newArrow, new Rotation { Value = quaternion.Euler(0, AnimalMovementSystem.RadiansFromDirection(direction.Value), 0) });
+                    ecb.AddComponent(entityInQueryIndex, newArrow, new FreshArrowTag());
+                    ecb.AddComponent(entityInQueryIndex, newArrow, new ColorAuthoring() { Color = new UnityEngine.Color(playerColor.Value.x, playerColor.Value.y, playerColor.Value.z, 1) });
+
                 }
 
                 ecb.DestroyEntity(entityInQueryIndex, placeArrowEventEntity);

@@ -1,18 +1,9 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 
-using UnityEngine;
-
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class PlayerInitializationSystem : SystemBase
 {
-    EntityQuery m_AnyPlayer;
-
-    protected override void OnCreate()
-    {
-        m_AnyPlayer = GetEntityQuery(ComponentType.ReadOnly<Player>());
-    }
-
     public NativeArray<Entity> Players;
 
     protected override void OnDestroy()
@@ -20,7 +11,6 @@ public class PlayerInitializationSystem : SystemBase
         if (Players.IsCreated)
             Players.Dispose();
     }
-
 
     protected override void OnUpdate()
     {
@@ -35,6 +25,8 @@ public class PlayerInitializationSystem : SystemBase
             for (int i = 0; i < playerInitialization.PlayerCount; i++)
             {
                 var playerEntity = ecb.Instantiate(playerInitialization.PlayerPrefab);
+                ecb.AddComponent(playerEntity, new PlayerIndex {Value = i});
+                
                 if (i == 0 && !playerInitialization.AIOnly)
                 {
                     ecb.AddComponent<HumanPlayerTag>(playerEntity);
@@ -42,7 +34,7 @@ public class PlayerInitializationSystem : SystemBase
                     var playerArrowPreviewEntity = ecb.Instantiate(playerInitialization.HumanPlayerArrowPreview);
                     ecb.AddComponent<HumanPlayerTag>(playerArrowPreviewEntity);
 
-                    ecb.SetComponent(playerEntity, new Name { Value = "You" });
+                    ecb.SetComponent(playerEntity, new Name { Value = "Player" });
                 }
                 else
                 {
@@ -83,10 +75,7 @@ public class PlayerInitializationSystem : SystemBase
         // Quick'n'dirty cleanup
         if (EntityManager.HasComponent<GameStateCleanup>(GetSingletonEntity<PlayerInitialization>()))
         {
-            EntityManager.DestroyEntity(m_AnyPlayer);
             if (Players.IsCreated) Players.Dispose();
         }
-    
-  
     }
 }

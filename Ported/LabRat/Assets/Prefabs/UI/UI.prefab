@@ -470,6 +470,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tweenTime: 1
   tweenScale: 1.25
+  canvasRoot: {fileID: 1936228248587634}
   readyTextTransform: {fileID: 224574879488695550}
   setTextTransform: {fileID: 602864400}
   goTextTransform: {fileID: 1103233794}

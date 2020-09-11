@@ -12,3 +12,8 @@ public struct PlayerArrow : IBufferElementData
     public const int MaxArrowsPerPlayer = 3;
     public Entity Arrow;
 }
+
+public struct PlayerIndex : IComponentData
+{
+    public int Value;
+}
