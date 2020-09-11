@@ -31,7 +31,7 @@ public class BloodSpawningSystem : SystemBase
                 var instance = ecb.Instantiate(spawner.blood);
                 ecb.SetComponent(instance, new Translation {Value = spawnerTranslation.Value});
                 ecb.SetComponent(instance, new Velocity {Value = new float3(randomVelocityX, randomVelocityY, randomVelocityZ)});
-                ecb.SetComponent( instance, new NonUniformScale{ Value = new float3( random.NextFloat( 0.5f, 2f ), random.NextFloat( 0.5f, 2f ), random.NextFloat( 0.5f, 2f ) )} );
+                ecb.SetComponent( instance, new NonUniformScale{ Value = new float3( random.NextFloat( 0.25f, .75f ), random.NextFloat( 0.25f, .75f ), random.NextFloat( 0.25f, .75f ) )} );
             }
             
             ecb.DestroyEntity(spawnerEntity);
