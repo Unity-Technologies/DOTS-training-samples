@@ -65,7 +65,7 @@ public class GameController : SystemBase
             {
                 Entities.WithName("Leave_GameInit").WithAll<WantsGameStateTransitions, GameStateInitialize>().ForEach((Entity entity) => ecb.RemoveComponent<GameStateInitialize>(entity)).Schedule();
                 
-                Entities.ForEach((in PlayerIndex idx, in Name name, in Color color) => {
+                Entities.ForEach((in PlayerIndex idx, in Name name, in LabRat_Color color) => {
                     m_UIBridge.SetPlayerData(idx.Value, name.Value.ToString(), (UnityEngine.Vector4)color.Value);
                 }).WithoutBurst().Run();
                 
@@ -138,7 +138,7 @@ public class GameController : SystemBase
                 {
                     msg = EntityManager.GetComponentData<Name>(winner).Value.ToString();
 
-                    var colComp = EntityManager.GetComponentData<Color>(winner).Value;
+                    var colComp = EntityManager.GetComponentData<LabRat_Color>(winner).Value;
                     col = new UnityEngine.Color( colComp.x, colComp.y, colComp.z, 1 );
                 }
                 m_UIBridge.ShowGameOver(msg, col);

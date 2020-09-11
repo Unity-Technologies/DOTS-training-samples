@@ -134,23 +134,23 @@ public class BoardCreationSystem : SystemBase
                             var player = playerInitSystem.Players[spawnedGoals++];
                             EntityManager.AddComponentData(tile, new TileOwner {Value = player});
                             
-                            var cc = EntityManager.GetComponentData<Color>(player);
+                            var cc = EntityManager.GetComponentData<LabRat_Color>(player);
                             EntityManager.AddComponentData(goal, cc);
                         }
                     }
 
                     var even = ((boardCreationAuthor.SizeY * y + x) % 2 == 0);
-                    Color color;
+                    LabRat_Color color;
                     if (even)
                     {
-                        color = new Color()
+                        color = new LabRat_Color()
                         {
                             Value = new  float4(0.95f, 0.95f, 0.95f, 1.0f)
                         };
                     }
                     else
                     {
-                        color = new Color
+                        color = new LabRat_Color
                         {
                             Value = new float4(0.68f, 0.68f, 0.68f, 1.0f)
                         };
@@ -221,6 +221,7 @@ public class BoardCreationSystem : SystemBase
         }).WithStructuralChanges().Run();
 
         Entities
+            .WithName("BoardCreation_spawners")
             .WithAll<GameStateStart>()
             .ForEach((in BoardCreationAuthor boardCreationAuthor) =>
         {
