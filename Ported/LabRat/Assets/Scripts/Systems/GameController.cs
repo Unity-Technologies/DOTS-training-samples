@@ -65,8 +65,8 @@ public class GameController : SystemBase
             {
                 Entities.WithName("Leave_GameInit").WithAll<WantsGameStateTransitions, GameStateInitialize>().ForEach((Entity entity) => ecb.RemoveComponent<GameStateInitialize>(entity)).Schedule();
                 
-                Entities.ForEach((in PlayerIndex idx, in Name name, in ColorAuthoring color) => {
-                    m_UIBridge.SetPlayerData(idx.Value, name.Value.ToString(), color.Color);
+                Entities.ForEach((in PlayerIndex idx, in Name name, in Color color) => {
+                    m_UIBridge.SetPlayerData(idx.Value, name.Value.ToString(), (UnityEngine.Vector4)color.Value);
                 }).WithoutBurst().Run();
                 
                 m_TimeAccumulator = 0f;
