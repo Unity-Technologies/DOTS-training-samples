@@ -76,6 +76,8 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 	public float pinningPositionThreshold = 0.3f;
 	public float pinningNormalThreshold = 0.9f;
 
+	public bool stitchOpposingVertices = false;
+
 	public void OnDrawGizmosSelected()
 	{
 		var p0 = Vector3.up * pinningPositionThreshold - Vector3.right;
@@ -189,7 +191,7 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 			Debug.Assert(indexCount % 3 == 0, "indexCount is not a multiple of 3");
 
 			//TODO: parallelize
-			using (var edgeHashMap = new NativeHashMap<ulong, int2>(indexCount, Allocator.Temp))
+			using (var edgeVerticesMap = new NativeHashMap<ulong, int2>(indexCount, Allocator.Temp))
 			{
 				// loop over triangles
 				for (int i = 0; i != indexCount; i += 3)
@@ -224,18 +226,76 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 						var key = (ulong)((uint)v1) << 32 | (ulong)((uint)v0);
 
 						// use 64 bit key to update NativeHashMap
-						var indexPair = new int2
+						edgeVerticesMap.TryAdd(key, new int2
 						{
 							x = v0,
 							y = v1,
-						};
+						});
+					}
+				}
 
-						edgeHashMap.TryAdd(key, indexPair);
+				//TODO: parallelize
+				if (stitchOpposingVertices)
+				{
+					// insert stiffening edges between opposing vertices
+					using (var edgeOpposingIndexMap = new NativeHashMap<ulong, int>(indexCount, Allocator.Temp))
+					{
+						for (int i = 0; i != indexCount; i += 3)
+						{
+							// triangle edges are
+							// i,j
+							// j,k
+							// k,i
+
+							int j = i + 1;
+							int k = i + 2;
+
+							// loop over edges in each triangle
+							for (int e = 0; e != 3; e++)
+							{
+								int v0 = indexBuffer[e == 2 ? k : i + e];		// i, j, k
+								int v1 = indexBuffer[e == 2 ? i : j + e];		// j, k, i
+								int v2 = indexBuffer[e == 0 ? k : i + e - 1];	// k, i, j
+
+								// sort the vertex indices
+								if (v0 > v1)
+								{
+									var tmp = v0;
+									v0 = v1;
+									v1 = tmp;
+								}
+
+								// make 64 bit key based on sorted vertex indices
+								var key = (ulong)((uint)v1) << 32 | (ulong)((uint)v0);
+
+								// check if we already added the opposing vertex
+								if (edgeOpposingIndexMap.TryGetValue(key, out int vA))
+								{
+									int opposing_v0 = math.min(v2, vA);
+									int opposing_v1 = math.max(v2, vA);
+									var opposing_key = (ulong)((uint)opposing_v1) << 32 | (ulong)((uint)opposing_v0);
+
+									// skip edge if both vertices have zero mass (pinned)
+									if (bufferInvMass[opposing_v0] + bufferInvMass[opposing_v1] == 0.0f)
+										continue;
+
+									edgeVerticesMap.TryAdd(opposing_key, new int2
+									{
+										x = opposing_v0,
+										y = opposing_v1,
+									});
+								}
+								else
+								{
+									edgeOpposingIndexMap.Add(key, v2);
+								}
+							}
+						}
 					}
 				}
 
 				// generate edge entities for all index pairs
-				using (var indexPairs = edgeHashMap.GetValueArray(Allocator.TempJob))
+				using (var indexPairs = edgeVerticesMap.GetValueArray(Allocator.TempJob))
 				{
 #if SORT_EDGES_BY_FIRST_VERTEX
 					// sort the pairs
