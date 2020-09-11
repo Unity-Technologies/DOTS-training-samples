@@ -32,22 +32,43 @@ public class ClothApplyConstraintsSystem : SystemBase
 		{
 			float3 delta = new float3
 			{
-				x = (ScaleFixed32ToFloat * vertexPositionDeltaX[i]) / vertexPositionDeltaW[i],
-				y = (ScaleFixed32ToFloat * vertexPositionDeltaY[i]) / vertexPositionDeltaW[i],
-				z = (ScaleFixed32ToFloat * vertexPositionDeltaZ[i]) / vertexPositionDeltaW[i],
+				x = (ScaleFixed32ToFloat * vertexPositionDeltaX[i]),
+				y = (ScaleFixed32ToFloat * vertexPositionDeltaY[i]),
+				z = (ScaleFixed32ToFloat * vertexPositionDeltaZ[i]),
 			};
 
-			vertexPosition[i] += delta;
+			vertexPosition[i] += delta / vertexPositionDeltaW[i];
 		}
 	}
 #endif
 
 	protected override void OnUpdate()
 	{
-#if !USE_CHUNK_ITERATION
+#if USE_CHUNK_ITERATION
+		var entityQuery = GetEntityQuery(
+			ComponentType.ReadWrite<ClothMeshToken>(),
+			ComponentType.ReadOnly<ClothMesh>()
+		);
 
+		var chunkArray = entityQuery.CreateArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
+
+		var typeHandleEntity = GetEntityTypeHandle();
+		var typeHandleClothMesh = GetSharedComponentTypeHandle<ClothMesh>();
+		var typeHandleClothMeshToken = GetComponentTypeHandle<ClothMeshToken>();
+
+		for (int chunkIndex = 0; chunkIndex != chunkArray.Length; chunkIndex++)
+		{
+			var chunk = chunkArray[chunkIndex];
+			var chunkEntities = chunk.GetNativeArray(typeHandleEntity);
+
+			var clothMesh = chunk.GetSharedComponentData(typeHandleClothMesh, EntityManager);
+
+			var clothMeshTokenEntity = chunkEntities[0];
+			var clothMeshToken = EntityManager.GetComponentData<ClothMeshToken>(clothMeshTokenEntity);
+#else
 		Entities.ForEach((ref ClothMeshToken clothMeshToken, in ClothMesh clothMesh) =>
 		{
+#endif
 			var vertexPosition = clothMesh.vertexPosition;
 			var vertexInvMass = clothMesh.vertexInvMass;
 			var vertexCount = vertexPosition.Length;
@@ -124,9 +145,9 @@ public class ClothApplyConstraintsSystem : SystemBase
 #endif
 						}
 #if USE_ATOMICS
-					).ScheduleParallel(clothMeshToken.jobHandle);
+					).WithBurst().ScheduleParallel(clothMeshToken.jobHandle);
 #else
-					).Schedule(clothMeshToken.jobHandle);
+					).WithBurst().Schedule(clothMeshToken.jobHandle);
 #endif
 
 #if USE_ATOMICS
@@ -144,62 +165,14 @@ public class ClothApplyConstraintsSystem : SystemBase
 				}
 			}
 
-			Dependency = JobHandle.CombineDependencies(Dependency, clothMeshToken.jobHandle);
-		}
-		).WithoutBurst().Run();
-
-#else// if USE_CHUNK_ITERATION
-
-		var entityQuery = GetEntityQuery(
-			ComponentType.ReadWrite<ClothMeshToken>(),
-			ComponentType.ReadOnly<ClothMesh>()
-		);
-
-		var chunkArray = entityQuery.CreateArchetypeChunkArray(Unity.Collections.Allocator.TempJob);
-
-		var typeHandleEntity = GetEntityTypeHandle();
-		var typeHandleClothMesh = GetSharedComponentTypeHandle<ClothMesh>();
-		var typeHandleClothMeshToken = GetComponentTypeHandle<ClothMeshToken>();
-
-		for (int i = 0; i != chunkArray.Length; i++)
-		{
-			var chunk = chunkArray[i];
-			var chunkEntities = chunk.GetNativeArray(typeHandleEntity);
-
-			var clothMesh = chunk.GetSharedComponentData(typeHandleClothMesh, EntityManager);
-
-			var clothMeshTokenEntity = chunkEntities[0];
-			var clothMeshToken = EntityManager.GetComponentData<ClothMeshToken>(clothMeshTokenEntity);
-
-			var vertexPosition = clothMesh.vertexPosition;
-			var vertexInvMass = clothMesh.vertexInvMass;
-
-			clothMeshToken.jobHandle = Entities.WithSharedComponentFilter(clothMesh).ForEach((in ClothEdge edge) =>
-			{
-				int index0 = edge.IndexPair.x;
-				int index1 = edge.IndexPair.y;
-
-				var p0 = vertexPosition[index0];
-				var p1 = vertexPosition[index1];
-				var w0 = vertexInvMass[index0];
-				var w1 = vertexInvMass[index1];
-
-				float3 r = p1 - p0;
-				float rd = math.length(r);
-
-				float delta = 1.0f - edge.Length / rd;
-				float W_inv = delta / (w0 + w1);
-
-				vertexPosition[index0] += r * (w0 * W_inv);
-				vertexPosition[index1] -= r * (w1 * W_inv);
-			}
-			).Schedule(clothMeshToken.jobHandle);
-
+#if USE_CHUNK_ITERATION
 			EntityManager.SetComponentData(clothMeshTokenEntity, clothMeshToken);
+#endif
 
 			Dependency = JobHandle.CombineDependencies(Dependency, clothMeshToken.jobHandle);
 		}
-
+#if !USE_CHUNK_ITERATION
+		).WithoutBurst().Run();
 #endif
 	}
 }

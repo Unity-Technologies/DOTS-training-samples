@@ -9,7 +9,7 @@ using Unity.Burst;
 using UnityEngine;
 
 [Serializable]
-public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
+public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>, IDisposable
 {
 	public Mesh mesh;
 	public NativeArray<float3> vertexPosition;
@@ -19,6 +19,17 @@ public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
 	public NativeArray<int> vertexPositionDeltaY;
 	public NativeArray<int> vertexPositionDeltaZ;
 	public NativeArray<int> vertexPositionDeltaW;
+
+	public void Dispose()
+	{
+		vertexPosition.Dispose();
+		vertexPositionOld.Dispose();
+		vertexInvMass.Dispose();
+		vertexPositionDeltaX.Dispose();
+		vertexPositionDeltaY.Dispose();
+		vertexPositionDeltaZ.Dispose();
+		vertexPositionDeltaW.Dispose();
+	}
 
 	public bool Equals(ClothMesh other)
 	{
