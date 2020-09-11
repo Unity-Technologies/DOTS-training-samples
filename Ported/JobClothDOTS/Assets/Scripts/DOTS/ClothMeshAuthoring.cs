@@ -1,10 +1,12 @@
-﻿using System;
+﻿#define BATCH_CREATE_EDGE_ENTITIES
+
+using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Jobs;
+using Unity.Burst;
 using UnityEngine;
-using System.Diagnostics;
 
 [Serializable]
 public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
@@ -54,32 +56,6 @@ public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>
 	// vertexInvMass.Dispose()
 }
 
-public struct MassCalculationJob : IJobParallelFor
-{
-	public NativeArray<float> bufferInvMass;
-	public NativeArray<float3> tempNormals;
-	public NativeArray<float3> bufferPosition;
-
-	public void Execute(int i)
-    {
-		if (tempNormals[i].y > .9f && bufferPosition[i].y > .3f)
-			bufferInvMass[i] = 0.0f;
-		else
-			bufferInvMass[i] = 1.0f;
-	}
-}
-
-public struct BufferPositionJob : IJobParallelFor
-{
-	public Matrix4x4 localToWorld;
-	public NativeArray<float3> bufferPositions;
-
-	public void Execute(int i) 
-	{
-		bufferPositions[i] = localToWorld.MultiplyPoint(bufferPositions[i]);
-	}
-}
-
 [DisallowMultipleComponent]
 [RequiresEntityConversion]
 public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
@@ -125,7 +101,6 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 				};
 
 				jobHandle = massJob.Schedule(meshInstance.vertexCount, 64);
-
 				jobHandle.Complete();
 			}
 		}
@@ -140,7 +115,6 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		};
 
 		jobHandle = bufferPosJob.Schedule(meshInstance.vertexCount, 64);
-
 		jobHandle.Complete();
 
 		// create the shared data
@@ -159,6 +133,8 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		// add shared data to entity
 		dstManager.AddSharedComponentData(entity, clothMesh);
 		dstManager.AddComponentData(entity, new ClothMeshToken { jobHandle = new JobHandle() });
+
+		//TODO: maybe move ClothMeshToken to chunk component data?
 		//dstManager.AddChunkComponentData<ClothMeshToken>(entity);
 
 		// spawn entities for the edges
@@ -182,11 +158,10 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
 			// pull the triangle indices
 			meshData[0].GetIndices(indexBuffer, 0);
-			//Debug.Assert(indexCount % 3 == 0, "indexCount is not a multiple of 3");
+			Debug.Assert(indexCount % 3 == 0, "indexCount is not a multiple of 3");
 
 			using (var edgeHashMap = new NativeHashMap<ulong, int2>(indexCount, Allocator.Temp))
 			{
-
 				// loop over triangles
 				for (int i = 0; i != indexCount; i += 3)
 				{
@@ -230,6 +205,51 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 					}
 				}
 
+#if BATCH_CREATE_EDGE_ENTITIES
+				// generate edge entities for all index pairs
+				using (var indexPairs = edgeHashMap.GetValueArray(Allocator.TempJob))
+				using (var clothEdgeData = new NativeArray<ClothEdge>(indexPairs.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory))
+				using (var edgeEntities = new NativeArray<Entity>(indexPairs.Length, Allocator.Temp, NativeArrayOptions.UninitializedMemory))
+				{
+					// create the entities
+					conversionSystem.CreateAdditionalEntity(this, edgeEntities);
+
+					// build the component data
+					var clothEdgeDataJob = new CreateClothEdgeDataJob
+					{
+						vertexPosition = bufferPosition,
+						indexPairs = indexPairs,
+						clothEdgeData = clothEdgeData,
+					};
+
+					jobHandle = clothEdgeDataJob.Schedule(clothEdgeData.Length, 64);
+					jobHandle.Complete();
+
+					// add the component data to the entities
+					dstManager.AddComponent<ClothEdge>(edgeEntities);
+					{
+						//NOTE: this query will hit only the entities that we just created
+						var clothEdgeQueryDesc = new EntityQueryDesc()
+						{
+							All = new ComponentType[] { typeof(ClothEdge) },
+							None = new ComponentType[] { typeof(ClothMesh) },
+						};
+						var clothEdgeQuery = dstManager.CreateEntityQuery(clothEdgeQueryDesc);
+
+						//NOTE: this assumes that the query "hits" the underlying data in the same order as the added entities
+						dstManager.AddComponentData(clothEdgeQuery, clothEdgeData);
+						dstManager.AddSharedComponentData(clothEdgeQuery, clothMesh);
+
+						// this might have been nicer?
+						//dstManager.AddComponentData(edgeEntities, clothEdgeData);
+						//dstManager.AddSharedComponentData(edgeEntities, clothMesh);
+					}
+
+					// and this might have been even nicer?
+					//dstManager.AddComponentWithData<ClothEdge>(edgeEntities, clothEdgeData);
+					//dstManager.AddSharedComponentWithData<ClothMesh>(edgeEntities, clothMesh);
+				}
+#else
 				// loop over index pairs
 				foreach (var edgeKeyValue in edgeHashMap)
 				{
@@ -249,7 +269,56 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 						});
 					}
 				}
+#endif
 			}
+		}
+	}
+
+	[BurstCompile]
+	public struct MassCalculationJob : IJobParallelFor
+	{
+		[NoAlias] public NativeArray<float> bufferInvMass;
+		[NoAlias, ReadOnly] public NativeArray<float3> tempNormals;
+		[NoAlias, ReadOnly] public NativeArray<float3> bufferPosition;
+
+		public void Execute(int i)
+		{
+			if (tempNormals[i].y > .9f && bufferPosition[i].y > .3f)
+				bufferInvMass[i] = 0.0f;
+			else
+				bufferInvMass[i] = 1.0f;
+		}
+	}
+
+	[BurstCompile]
+	public struct BufferPositionJob : IJobParallelFor
+	{
+		[NoAlias] public NativeArray<float3> bufferPositions;
+		public Matrix4x4 localToWorld;
+
+		public void Execute(int i)
+		{
+			bufferPositions[i] = localToWorld.MultiplyPoint(bufferPositions[i]);
+		}
+	}
+
+	[BurstCompile]
+	struct CreateClothEdgeDataJob : IJobParallelFor
+	{
+		[NoAlias, ReadOnly] public NativeArray<float3> vertexPosition;
+		[NoAlias, ReadOnly] public NativeArray<int2> indexPairs;
+		[NoAlias] public NativeArray<ClothEdge> clothEdgeData;
+
+		public void Execute(int i)
+		{
+			var indexPair = indexPairs[i];
+			var length = math.distance(vertexPosition[indexPair.x], vertexPosition[indexPair.y]);
+
+			clothEdgeData[i] = new ClothEdge
+			{
+				IndexPair = indexPair,
+				Length = length,
+			};
 		}
 	}
 }
