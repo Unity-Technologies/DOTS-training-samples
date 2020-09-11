@@ -14,7 +14,7 @@ public class AnimalMovementSystem : SystemBase
         var key = iPos.x + iPos.y * dimensions.TileCountX;
         
         // Safety clamp until we know the board is consistent
-        key = math.clamp(key, 0, dimensions.TileCountTotal - 1);
+        //key = math.clamp(key, 0, dimensions.TileCountTotal - 1);
         
         Debug.Assert(key >= 0 && key < dimensions.TileCountTotal);
         return key;
