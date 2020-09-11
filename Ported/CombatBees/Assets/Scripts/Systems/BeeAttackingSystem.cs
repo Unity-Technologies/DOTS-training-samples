@@ -14,7 +14,7 @@ public class BeeAttackingSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = m_CommandBufferSystem.CreateCommandBuffer();
+        var ecb = m_CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         var b = GetSingleton<BattleField>();
         var deltaTime = Time.DeltaTime;
@@ -22,20 +22,19 @@ public class BeeAttackingSystem : SystemBase
         BattleField battlefield = GetSingleton<BattleField>();
 
         Entities.WithAll<Attack>()
-                .WithoutBurst()
-                .ForEach( ( Entity bee, ref Velocity velocity, ref TargetPosition targetPosition, in Translation translation, in TargetEntity targetEntity, in Speed speed) =>
+                .ForEach( ( int entityInQueryIndex, Entity bee, ref Velocity velocity, in Translation translation, in TargetEntity targetEntity) =>
             {
                 //If the target bee is dying, agonizing or Destroyed (does not have translation component), back to idle
                 if (HasComponent<Dying>(targetEntity.Value) || HasComponent<Agony>(targetEntity.Value) || !HasComponent<Rotation>(targetEntity.Value))
                 {
-                    ecb.RemoveComponent<Attack>(bee);
+                    ecb.RemoveComponent<Attack>(entityInQueryIndex, bee);
                     //ecb.RemoveComponent<TargetEntity>(bee);
-                    ecb.AddComponent<Idle>(bee);
+                    ecb.AddComponent<Idle>(entityInQueryIndex, bee);
                 }
                 else
                 {
                     //Make the bee move towards the target entity
-                    Translation targetEntityTranslationComponent = EntityManager.GetComponentData<Translation>(targetEntity.Value);
+                    Translation targetEntityTranslationComponent = GetComponent<Translation>(targetEntity.Value);
                     float3 direction = targetEntityTranslationComponent.Value - translation.Value;
                     //targetPosition.Value = targetEntityTranslationComponent.Value;
 
@@ -46,10 +45,10 @@ public class BeeAttackingSystem : SystemBase
                         //If the enemy is carrying something, we need to un-parent that "something"
                         if(HasComponent<Carrying>(targetEntity.Value))
                         {
-                            ecb.RemoveComponent<Carrying>(targetEntity.Value);
+                            ecb.RemoveComponent<Carrying>(entityInQueryIndex, targetEntity.Value);
 
-                            var carryingComponentFromEnemy = EntityManager.GetComponentData<Carrying>(targetEntity.Value);
-                            ecb.SetComponent<Parent>(carryingComponentFromEnemy.Value, new Parent { Value = bee });
+                            var carryingComponentFromEnemy = GetComponent<Carrying>(targetEntity.Value);
+                            ecb.SetComponent<Parent>(entityInQueryIndex, carryingComponentFromEnemy.Value, new Parent { Value = bee });
 
                             //Take over the resource
 
@@ -62,33 +61,33 @@ public class BeeAttackingSystem : SystemBase
                             else
                                 hivePosition = new float3(0, 0, hiveDistance);
 
-                            ecb.RemoveComponent<TargetEntity>(bee);
-                            ecb.RemoveComponent<Attack>(bee);
-                            ecb.AddComponent<Carrying>(bee, new Carrying { Value = carryingComponentFromEnemy.Value });
-                            ecb.SetComponent<TargetPosition>(bee, new TargetPosition { Value = hivePosition });
+                            ecb.RemoveComponent<TargetEntity>(entityInQueryIndex, bee);
+                            ecb.RemoveComponent<Attack>(entityInQueryIndex, bee);
+                            ecb.AddComponent<Carrying>(entityInQueryIndex, bee, new Carrying { Value = carryingComponentFromEnemy.Value });
+                            ecb.SetComponent<TargetPosition>(entityInQueryIndex, bee, new TargetPosition { Value = hivePosition });
                         }
                         else
                         {
                             //Switch to Idle
-                            ecb.RemoveComponent<TargetEntity>(bee);
-                            ecb.RemoveComponent<Attack>(bee);
-                            ecb.AddComponent<Idle>(bee);
+                            ecb.RemoveComponent<TargetEntity>(entityInQueryIndex, bee);
+                            ecb.RemoveComponent<Attack>(entityInQueryIndex, bee);
+                            ecb.AddComponent<Idle>(entityInQueryIndex, bee);
                         }
 
-                        var bloodSpawner = ecb.Instantiate(b.BloodSpawner);
-                        ecb.SetComponent<Translation>(bloodSpawner, translation);
+                        var bloodSpawner = ecb.Instantiate(entityInQueryIndex, b.BloodSpawner);
+                        ecb.SetComponent<Translation>(entityInQueryIndex, bloodSpawner, translation);
                         
-                        ecb.AddComponent<Dying>(targetEntity.Value);
+                        ecb.AddComponent<Dying>(entityInQueryIndex, targetEntity.Value);
                         
                         // TODO Figure out a better way of doing this
                         if(HasComponent<Idle>(targetEntity.Value))
-                            ecb.RemoveComponent<Idle>(targetEntity.Value);
+                            ecb.RemoveComponent<Idle>(entityInQueryIndex, targetEntity.Value);
                         if(HasComponent<Attack>(targetEntity.Value))
-                            ecb.RemoveComponent<Attack>(targetEntity.Value);
+                            ecb.RemoveComponent<Attack>(entityInQueryIndex, targetEntity.Value);
                         if(HasComponent<Carrying>(targetEntity.Value))
-                            ecb.RemoveComponent<Carrying>(targetEntity.Value);
+                            ecb.RemoveComponent<Carrying>(entityInQueryIndex, targetEntity.Value);
                         if(HasComponent<Collecting>(targetEntity.Value))
-                            ecb.RemoveComponent<Collecting>(targetEntity.Value);
+                            ecb.RemoveComponent<Collecting>(entityInQueryIndex, targetEntity.Value);
                     }
                     else if( d < 10 )
                     {
@@ -97,7 +96,7 @@ public class BeeAttackingSystem : SystemBase
                     }
                 }
                 
-            } ).Run();
+            } ).ScheduleParallel();
 
             m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
