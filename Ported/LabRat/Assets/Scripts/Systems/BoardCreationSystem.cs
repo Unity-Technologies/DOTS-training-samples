@@ -152,7 +152,7 @@ public class BoardCreationSystem : SystemBase
                     {
                         color = new LabRat_Color
                         {
-                            Value = new float4(0.68f, 0.68f, 0.68f, 1.0f)
+                            Value = new float4(0.85f, 0.85f, 0.85f, 1.0f)
                         };
                     }
 
