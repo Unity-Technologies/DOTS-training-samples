@@ -73,6 +73,19 @@ public struct ClothMesh : ISharedComponentData, IEquatable<ClothMesh>, IDisposab
 [RequiresEntityConversion]
 public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
+	public float pinningPositionThreshold = 0.3f;
+	public float pinningNormalThreshold = 0.9f;
+
+	public void OnDrawGizmosSelected()
+	{
+		var p0 = Vector3.up * pinningPositionThreshold - Vector3.right;
+		var p1 = Vector3.up * pinningPositionThreshold + Vector3.right;
+
+		Gizmos.matrix = this.transform.localToWorldMatrix;
+		Gizmos.DrawLine(p0, p1);
+		Gizmos.DrawSphere(p0, 20.0f);
+	}
+
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
 		JobHandle jobHandle;
@@ -110,7 +123,9 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 				{
 					bufferInvMass = bufferInvMass,
 					tempNormals = tempNormals,
-					bufferPosition = bufferPosition
+					bufferPosition = bufferPosition,
+					pinningPositionThreshold = pinningPositionThreshold,
+					pinningNormalThreshold = pinningNormalThreshold,
 				};
 
 				jobHandle = massJob.Schedule(meshInstance.vertexCount, 64);
@@ -300,9 +315,12 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		[NoAlias, ReadOnly] public NativeArray<float3> tempNormals;
 		[NoAlias, ReadOnly] public NativeArray<float3> bufferPosition;
 
+		public float pinningPositionThreshold;
+		public float pinningNormalThreshold;
+
 		public void Execute(int i)
 		{
-			if (tempNormals[i].y > .9f && bufferPosition[i].y > .3f)
+			if (tempNormals[i].y > pinningNormalThreshold && bufferPosition[i].y > pinningPositionThreshold)
 				bufferInvMass[i] = 0.0f;
 			else
 				bufferInvMass[i] = 1.0f;
