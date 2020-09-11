@@ -83,7 +83,7 @@ public class BoardCreationSystem : SystemBase
                         switch (result)
                         {
                             case 0:
-                                if (x != 0 && x != boardCreationAuthor.SizeX - 1 && y != 0 && y != boardCreationAuthor.SizeY - 1)
+                                if (x != 0 && x != boardCreationAuthor.SizeX - 1 && y != 0 && y != boardCreationAuthor.SizeY - 1 && rand.NextInt(0,4) >= 3)
                                     newTile.Value = Tile.Attributes.Hole;
                                 break;
 
