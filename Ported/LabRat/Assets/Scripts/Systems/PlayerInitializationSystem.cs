@@ -46,7 +46,7 @@ public class PlayerInitializationSystem : SystemBase
 
                 var color = UnityEngine.Color.HSVToRGB(i / (float)playerCount, 1, 1);
                 var colorAsFloat4 = new float4(color.r, color.g, color.b, color.a);
-                ecb.AddComponent(playerEntity, new Color() { Value = colorAsFloat4 });
+                ecb.AddComponent(playerEntity, new LabRat_Color() { Value = colorAsFloat4 });
                 ecb.AddBuffer<PlayerArrow>(playerEntity);
                 ecb.AddComponent(playerEntity, new MousePosition());
             }

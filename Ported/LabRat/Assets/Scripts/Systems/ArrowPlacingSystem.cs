@@ -161,12 +161,12 @@ public class ArrowPlacingSystem : SystemBase
                     ecb.SetComponent(entityInQueryIndex, tileEntity, new Tile { Value = (Tile.Attributes)(((int)tile.Value & ~(int)Tile.Attributes.ArrowAny) | (int)direction.Value << (int)Tile.Attributes.ArrowShiftCount) });
                     var newArrow = ecb.Instantiate(entityInQueryIndex, arrowPrefab);
 
-                    var playerColor = GetComponent<Color>(placeArrowEvent.Player);
+                    var playerColor = GetComponent<LabRat_Color>(placeArrowEvent.Player);
                     ecb.SetComponent(entityInQueryIndex, newArrow, new Arrow { Owner = placeArrowEvent.Player, Tile = tileEntity });
                     ecb.SetComponent(entityInQueryIndex, newArrow, new Translation { Value = new float3(position.Value.x, 0, position.Value.y) });
                     ecb.SetComponent(entityInQueryIndex, newArrow, new Rotation { Value = quaternion.Euler(0, AnimalMovementSystem.RadiansFromDirection(direction.Value), 0) });
                     ecb.AddComponent(entityInQueryIndex, newArrow, new FreshArrowTag());
-                    ecb.AddComponent(entityInQueryIndex, newArrow, new Color() { Value = playerColor.Value });
+                    ecb.AddComponent(entityInQueryIndex, newArrow, new LabRat_Color() { Value = playerColor.Value });
                 }
 
                 ecb.DestroyEntity(entityInQueryIndex, placeArrowEventEntity);
