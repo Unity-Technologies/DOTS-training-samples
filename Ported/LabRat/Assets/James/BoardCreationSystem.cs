@@ -36,6 +36,7 @@ public class BoardCreationSystem : SystemBase
                 for (int y = 0; y < boardCreationAuthor.SizeY; y++)
                 {
                     Entity tile = EntityManager.Instantiate(boardCreationAuthor.TilePrefab);
+                    EntityManager.AddComponent<Static>(tile);
                     Tile newTile = new Tile();
                     PositionXZ tilePos = new PositionXZ();
                     float2 wallPos = new float2(x, y);
@@ -127,6 +128,7 @@ public class BoardCreationSystem : SystemBase
                         {
                             newTile.Value = Tile.Attributes.Goal;
                             var goal = EntityManager.Instantiate(boardCreationAuthor.GoalPrefab);
+                            EntityManager.AddComponent<Static>(goal);
                             EntityManager.SetComponentData(goal, new PositionXZ(){Value = new float2(x, y)});
 
                             var player = playerInitSystem.Players[spawnedGoals++];
@@ -214,7 +216,8 @@ public class BoardCreationSystem : SystemBase
             }
 
             // HACK - needs removing
-            UnityEngine.Camera.main.transform.position = new UnityEngine.Vector3(boardCreationAuthor.SizeX /2, 4, boardCreationAuthor.SizeY /2);
+          //  UnityEngine.Camera.main.transform.position = new UnityEngine.Vector3(boardCreationAuthor.SizeX /2, 4, boardCreationAuthor.SizeY /2);
+          //  UnityEngine.Camera.main.orthographicSize = 0.55f*math.max(boardCreationAuthor.SizeX, boardCreationAuthor.SizeY);
         }).WithStructuralChanges().Run();
 
         Entities
@@ -225,8 +228,13 @@ public class BoardCreationSystem : SystemBase
             var ratSpawners = EntityManager.Instantiate(boardCreationAuthor.RatSpawner, 2, Allocator.Temp);
             EntityManager.AddComponent<PositionXZ>(ratSpawners[0]);
             EntityManager.AddComponentData(ratSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, boardCreationAuthor.SizeY - 1f) });
+            EntityManager.AddComponent<Static>(ratSpawners[0]);
+            EntityManager.AddComponent<Static>(ratSpawners[1]);
             ratSpawners.Dispose();
+            
             var catSpawners = EntityManager.Instantiate(boardCreationAuthor.CatSpawner, 2, Allocator.Temp);
+            EntityManager.AddComponent<Static>(catSpawners[0]);
+            EntityManager.AddComponent<Static>(catSpawners[1]);
             EntityManager.AddComponentData(catSpawners[0], new PositionXZ { Value = new float2(0f, boardCreationAuthor.SizeY - 1f) });
             EntityManager.AddComponentData(catSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, 0f) });
             catSpawners.Dispose();
