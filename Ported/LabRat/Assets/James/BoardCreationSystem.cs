@@ -27,6 +27,7 @@ public class BoardCreationSystem : SystemBase
         .WithAll<GameStateInitialize>()
         .ForEach((Entity e, in BoardCreationAuthor boardCreationAuthor) =>
         {
+            Entity[,] board = new Entity[boardCreationAuthor.SizeX, boardCreationAuthor.SizeY];
             int spawnedGoals = 0;
             System.Random random = new System.Random();
             Random rand = new Random((uint)random.Next());
@@ -163,6 +164,54 @@ public class BoardCreationSystem : SystemBase
                     EntityManager.AddComponentData(tile, tilePos);
                     if (newTile.Value == Tile.Attributes.Hole)
                         EntityManager.AddComponent<DisableRendering>(tile);
+
+                    board[x, y] = tile;
+                }
+            }
+
+            // Place neighbor walls
+            for (int x = 0; x < boardCreationAuthor.SizeX; x++)
+            {
+                for (int y = 0; y < boardCreationAuthor.SizeY; y++)
+                {
+
+                    Tile t;
+
+                    t = EntityManager.GetComponentData<Tile>(board[x, y]);
+
+                    if (t.Value.HasFlag(Tile.Attributes.WallUp) && y < boardCreationAuthor.SizeY -1)
+                    {
+                        Tile r = EntityManager.GetComponentData<Tile>(board[x, y + 1]);
+                        r.Value |= Tile.Attributes.WallDown;
+                        EntityManager.SetComponentData(board[x, y + 1], r);
+                    }
+                    
+                    t = EntityManager.GetComponentData<Tile>(board[x, y]);
+
+                    if (t.Value.HasFlag(Tile.Attributes.WallDown) && y > 0)
+                    {
+                        Tile r = EntityManager.GetComponentData<Tile>(board[x, y - 1]);
+                        r.Value |= Tile.Attributes.WallUp;
+                        EntityManager.SetComponentData(board[x, y - 1], r);
+                    }
+
+                    t = EntityManager.GetComponentData<Tile>(board[x, y]);
+
+                    if (t.Value.HasFlag(Tile.Attributes.WallLeft) && x > 0)
+                    {
+                        Tile r = EntityManager.GetComponentData<Tile>(board[x - 1, y]);
+                        r.Value |= Tile.Attributes.WallRight;
+                        EntityManager.SetComponentData(board[x - 1, y], r);
+                    }
+
+                    t = EntityManager.GetComponentData<Tile>(board[x, y]);
+
+                    if (t.Value.HasFlag(Tile.Attributes.WallRight) && x < boardCreationAuthor.SizeX - 1)
+                    {
+                        Tile r = EntityManager.GetComponentData<Tile>(board[x + 1, y]);
+                        r.Value |= Tile.Attributes.WallLeft;
+                        EntityManager.SetComponentData(board[x + 1, y], r);
+                    }
                 }
             }
 
