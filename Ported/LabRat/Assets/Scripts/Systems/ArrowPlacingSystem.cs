@@ -170,7 +170,6 @@ public class ArrowPlacingSystem : SystemBase
                     ecb.SetComponent(entityInQueryIndex, newArrow, new Rotation { Value = quaternion.Euler(0, AnimalMovementSystem.RadiansFromDirection(direction.Value), 0) });
                     ecb.AddComponent(entityInQueryIndex, newArrow, new FreshArrowTag());
                     ecb.AddComponent(entityInQueryIndex, newArrow, new Color() { Value = playerColor.Value });
-
                 }
 
                 ecb.DestroyEntity(entityInQueryIndex, placeArrowEventEntity);

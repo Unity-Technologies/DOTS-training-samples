@@ -232,6 +232,9 @@ public class BoardCreationSystem : SystemBase
 
     public void DrawDebugHandles()
     {
+        if (!HasSingleton<BoardCreationAuthor>() || !GetSingleton<BoardCreationAuthor>().ShowDebugData)
+            return;
+        
         Entities.ForEach((in PositionXZ pos, in Tile tile) =>
         {
             UnityEditor.Handles.Label(new float3(pos.Value.x, .1f, pos.Value.y), $"({pos.Value.x},{pos.Value.y})\n{(DebugAttributes)tile.Value}");
