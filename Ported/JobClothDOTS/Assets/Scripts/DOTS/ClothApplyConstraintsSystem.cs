@@ -1,5 +1,6 @@
-﻿//#define USE_CHUNK_ITERATION
-#define USE_ATOMICS
+﻿#define USE_ATOMICS
+//#define USE_CHUNK_ITERATION
+//#define USE_UNSAFE_EVERYWHERE
 
 using System.Threading;
 using Unity.Entities;
@@ -20,13 +21,17 @@ public class ClothApplyConstraintsSystem : SystemBase
 	const float ScaleFixed32ToFloat = (1.0f / (1 << Fixed32FractionalBits));
 
 	[BurstCompile(FloatMode = FloatMode.Fast)]
-	struct ApplyDeltaJob : IJobParallelFor
+	unsafe struct ApplyDeltaJob : IJobParallelFor
 	{
+#if USE_UNSAFE_EVERYWHERE
+		[NoAlias, NativeDisableUnsafePtrRestriction] public float3* vertexPosition;
+#else
 		[NoAlias] public NativeArray<float3> vertexPosition;
-		[NoAlias, ReadOnly] public NativeArray<int> vertexPositionDeltaX;
-		[NoAlias, ReadOnly] public NativeArray<int> vertexPositionDeltaY;
-		[NoAlias, ReadOnly] public NativeArray<int> vertexPositionDeltaZ;
-		[NoAlias, ReadOnly] public NativeArray<int> vertexPositionDeltaW;
+#endif
+		[NoAlias, NativeDisableUnsafePtrRestriction, ReadOnly] public int* vertexPositionDeltaX;
+		[NoAlias, NativeDisableUnsafePtrRestriction, ReadOnly] public int* vertexPositionDeltaY;
+		[NoAlias, NativeDisableUnsafePtrRestriction, ReadOnly] public int* vertexPositionDeltaZ;
+		[NoAlias, NativeDisableUnsafePtrRestriction, ReadOnly] public int* vertexPositionDeltaW;
 
 		public void Execute(int i)
 		{
@@ -69,14 +74,17 @@ public class ClothApplyConstraintsSystem : SystemBase
 		Entities.ForEach((ref ClothMeshToken clothMeshToken, in ClothMesh clothMesh) =>
 		{
 #endif
-			var vertexPosition = clothMesh.vertexPosition;
-			var vertexInvMass = clothMesh.vertexInvMass;
-			var vertexCount = vertexPosition.Length;
-
-#if USE_ATOMICS
 			unsafe
-#endif
 			{
+				var vertexCount = clothMesh.vertexPosition.Length;
+
+#if USE_UNSAFE_EVERYWHERE
+				var vertexPosition = (float3*)NativeArrayUnsafeUtility.GetUnsafeBufferPointerWithoutChecks(clothMesh.vertexPosition);
+				var vertexInvMass = (float*)NativeArrayUnsafeUtility.GetUnsafeBufferPointerWithoutChecks(clothMesh.vertexInvMass);
+#else
+				var vertexPosition = clothMesh.vertexPosition;
+				var vertexInvMass = clothMesh.vertexInvMass;
+#endif
 #if USE_ATOMICS
 				var deltaX = (int*)clothMesh.vertexPositionDeltaX.GetUnsafePtr();
 				var deltaY = (int*)clothMesh.vertexPositionDeltaY.GetUnsafePtr();
@@ -103,6 +111,10 @@ public class ClothApplyConstraintsSystem : SystemBase
 #endif
 
 					clothMeshToken.jobHandle = Entities.WithSharedComponentFilter(clothMesh)
+#if USE_UNSAFE_EVERYWHERE
+						.WithNativeDisableUnsafePtrRestriction(vertexPosition)
+						.WithNativeDisableUnsafePtrRestriction(vertexInvMass)
+#endif
 #if USE_ATOMICS
 						.WithNativeDisableUnsafePtrRestriction(deltaX)
 						.WithNativeDisableUnsafePtrRestriction(deltaY)
@@ -114,10 +126,17 @@ public class ClothApplyConstraintsSystem : SystemBase
 							int index0 = edge.IndexPair.x;
 							int index1 = edge.IndexPair.y;
 
+#if USE_UNSAFE_EVERYWHERE
+							ref var p0 = ref vertexPosition[index0];
+							ref var p1 = ref vertexPosition[index1];
+							ref var w0 = ref vertexInvMass[index0];
+							ref var w1 = ref vertexInvMass[index1];
+#else
 							var p0 = vertexPosition[index0];
 							var p1 = vertexPosition[index1];
 							var w0 = vertexInvMass[index0];
 							var w1 = vertexInvMass[index1];
+#endif
 
 							float3 r = p1 - p0;
 							float rd = math.length(r);
@@ -154,10 +173,10 @@ public class ClothApplyConstraintsSystem : SystemBase
 					var applyDeltaJob = new ApplyDeltaJob
 					{
 						vertexPosition = vertexPosition,
-						vertexPositionDeltaX = clothMesh.vertexPositionDeltaX,
-						vertexPositionDeltaY = clothMesh.vertexPositionDeltaY,
-						vertexPositionDeltaZ = clothMesh.vertexPositionDeltaZ,
-						vertexPositionDeltaW = clothMesh.vertexPositionDeltaW,
+						vertexPositionDeltaX = deltaX,
+						vertexPositionDeltaY = deltaY,
+						vertexPositionDeltaZ = deltaZ,
+						vertexPositionDeltaW = deltaW,
 					};
 
 					clothMeshToken.jobHandle = applyDeltaJob.Schedule(vertexCount, 64, clothMeshToken.jobHandle);
