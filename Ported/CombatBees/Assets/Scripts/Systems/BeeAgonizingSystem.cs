@@ -16,12 +16,8 @@ public class BeeAgonizingSystem : SystemBase
 
     protected override void OnUpdate()
     {
-
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
-
         var deltaTime = Time.DeltaTime;
-
-        var b = GetSingleton<BattleField>();
 
         //for resources
         Entities.WithAll<Agony>()
@@ -41,8 +37,7 @@ public class BeeAgonizingSystem : SystemBase
             .WithAll<Bee>()
             .ForEach( ( Entity bee, ref NonUniformScale nuScale) =>
             {
-                nuScale.Value -= new float3(deltaTime, deltaTime, deltaTime); 
-                
+                nuScale.Value -= new float3(deltaTime, deltaTime, deltaTime);
                 if(nuScale.Value.x <= 0)
                 {
                     ecb.DestroyEntity( bee );

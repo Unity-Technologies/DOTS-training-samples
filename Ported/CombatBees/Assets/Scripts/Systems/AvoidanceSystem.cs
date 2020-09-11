@@ -58,6 +58,7 @@ public class AvoidanceSystem : SystemBase
 			.WithNone<Dying>().WithNone<Agony>().WithNone<Attack>()
 			.ForEach( ( Entity bee, ref Velocity velocity, in Translation translation ) =>
 			{
+				// TODO clamp its speed?
 				// push away from other bees in the team
 				for( int i=0; i<beeLocations_TeamA.Length; ++i )
 				{

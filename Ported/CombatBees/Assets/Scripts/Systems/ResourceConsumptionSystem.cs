@@ -16,44 +16,42 @@ public class ResourceConsumptionSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.TempJob);
-
+        var ecb = m_CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         var b = GetSingleton<BattleField>();
-
+        float floor = (-b.Bounds.y / 2f) + 0.1f;
         Entities
             .WithAll<Resource>()
             .WithNone<Parent>()
-            .ForEach((int entityInQueryIndex,Entity entity, in Translation translation) =>
+            .ForEach((int entityInQueryIndex, Entity entity, in Translation translation) =>
         {
             if (math.abs(translation.Value.z) > math.abs(b.HiveDistance))
             {
-                if (translation.Value.y < (-b.Bounds.y / 2) + 0.1)
+                if (translation.Value.y < floor)
                 {
                     // destroy
-                    ecb.DestroyEntity(entity);
+                    ecb.DestroyEntity(entityInQueryIndex, entity);
 
-                    var smokeSpawner = ecb.Instantiate(b.SmokeSpawner);
-                    ecb.SetComponent<Translation>(smokeSpawner, translation);
+                    // TODO why not do the smoke spawning here?
+                    var smokeSpawnerInstance = ecb.Instantiate(entityInQueryIndex, b.SmokeSpawner);
+                    ecb.SetComponent<Translation>(entityInQueryIndex, smokeSpawnerInstance, translation);
                     
-                    var beeSpawner = ecb.Instantiate(b.BeeSpawner);
-                    float3 pos = translation.Value;
-                    pos.y += 1;
-                    ecb.SetComponent<Translation>(beeSpawner, new Translation{ Value = pos });
+                    var beeSpawnerInstance = ecb.Instantiate(entityInQueryIndex, b.BeeSpawner);
+                    ecb.SetComponent<Translation>(entityInQueryIndex, beeSpawnerInstance, 
+                        new Translation{ Value = new float3( translation.Value.x, translation.Value.y + 1, translation.Value.z ) });
 
                     // spawn
                     if (translation.Value.z > 0f)
                     {
-                        ecb.AddComponent<TeamB>(beeSpawner);
+                        ecb.AddComponent<TeamB>(entityInQueryIndex, beeSpawnerInstance);
                     }
                     else
                     {
-                        ecb.AddComponent<TeamA>(beeSpawner);
+                        ecb.AddComponent<TeamA>(entityInQueryIndex, beeSpawnerInstance);
                     }
                 }
             }
-        }).Run();
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        }).ScheduleParallel();
+        m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
 

@@ -13,38 +13,26 @@ public class BeeDyingSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = m_CommandBufferSystem.CreateCommandBuffer();
-
-        var deltaTime = Time.DeltaTime;
-
+        var ecb = m_CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         var b = GetSingleton<BattleField>();
+        float floor = -b.Bounds.y / 2f;
 
         Entities.WithAll<Dying>()
-                .ForEach( ( Entity bee, in Translation translation) =>
+                .ForEach( ( int entityInQueryIndex, Entity bee, in Translation translation) =>
             {
-                
                 //If the bee has reached the floor
-                //UnityEngine.Debug.Log(translation.TopSpeed.y+" "+(-b.Bounds.y));
-                if(translation.Value.y <= -b.Bounds.y/2)
+                if(translation.Value.y <= floor)
                 {
                     //UnityEngine.Debug.Log("BEE IS AGONYZING");
-                    //Not dying anymore
-                    ecb.RemoveComponent<Dying>( bee );
-
-                    //Not to be affected by gravity system
-                    ecb.RemoveComponent<Velocity>( bee );
-
-
-                    ecb.AddComponent<Agony>( bee );
+                    ecb.RemoveComponent<Dying>( entityInQueryIndex, bee );
+                    ecb.RemoveComponent<Velocity>( entityInQueryIndex,bee );
+                    ecb.AddComponent<Agony>( entityInQueryIndex, bee );
 
                     //Adding NonUniformScale because it's not there by default for some reason
-                    ecb.AddComponent<NonUniformScale>( bee );
-                    ecb.SetComponent<NonUniformScale>(bee, new NonUniformScale{Value = new float3(1f, 1f, 1f)});
+                    //ecb.AddComponent<NonUniformScale>( bee );
+                    ecb.SetComponent<NonUniformScale>( entityInQueryIndex, bee, new NonUniformScale{Value = new float3(1f, 1f, 1f)});
                 }
-
-                
-                
-            } ).Schedule();
+            } ).ScheduleParallel();
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
