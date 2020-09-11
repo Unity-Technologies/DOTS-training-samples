@@ -3,8 +3,8 @@
     "Components": [
         {
             "$type": "Unity.Build.Common.GeneralSettings, Unity.Build",
-            "ProductName": "Product Name",
-            "CompanyName": "Company Name",
+            "ProductName": "Lab Rat",
+            "CompanyName": "Grp3",
             "Version": "1.0.0"
         },
         {

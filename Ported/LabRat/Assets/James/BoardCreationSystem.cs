@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
+using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
@@ -14,8 +15,12 @@ public class BoardCreationSystem : SystemBase
     protected override void OnCreate()
     {
         playerInitSystem = World.GetExistingSystem<PlayerInitializationSystem>();
-    }
 
+#if UNITY_EDITOR
+        new GameObject("BoardDebugger", typeof(BoardCreationDebug));
+#endif
+    }
+    
     protected override void OnUpdate()
     {
         Entities.WithName("BoardCreation_Initialize")
@@ -32,7 +37,6 @@ public class BoardCreationSystem : SystemBase
                     Entity tile = EntityManager.Instantiate(boardCreationAuthor.TilePrefab);
                     Tile newTile = new Tile();
                     PositionXZ tilePos = new PositionXZ();
-                    Translation translation = new Translation();
                     float2 wallPos = new float2(x, y);
 
                     // Create the outer walls & spawn points
@@ -218,4 +222,28 @@ public class BoardCreationSystem : SystemBase
         EntityManager.AddComponentData(wall, rot);
         EntityManager.AddComponent<Static>(wall);
     }
+    
+#if UNITY_EDITOR
+    [System.Flags]
+    public enum DebugAttributes : ushort
+    {
+        None,
+
+        Left = Tile.Attributes.WallLeft,
+        Up = Tile.Attributes.WallUp,
+        Right = Tile.Attributes.WallRight,
+        Down = Tile.Attributes.WallDown,
+        
+        Hole = Tile.Attributes.Hole,
+        Goal = Tile.Attributes.Goal,
+    }
+
+    public void DrawDebugHandles()
+    {
+        Entities.ForEach((in PositionXZ pos, in Tile tile) =>
+        {
+            UnityEditor.Handles.Label(new float3(pos.Value.x, .1f, pos.Value.y), $"({pos.Value.x},{pos.Value.y})\n{(DebugAttributes)tile.Value}");
+        }).WithoutBurst().Run();
+    }
+#endif
 }
