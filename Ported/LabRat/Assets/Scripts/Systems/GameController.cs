@@ -35,11 +35,6 @@ public class GameController : SystemBase
 
     protected override void OnUpdate()
     {
-        UnityEngine.Debug.Log($"{UnityEngine.Time.frameCount}: {m_GameState}");
-        UnityEngine.Debug.Log($" WantsGameStateTransitions: {GetEntityQuery(ComponentType.ReadOnly<WantsGameStateTransitions>()).CalculateEntityCount()})");
-        UnityEngine.Debug.Log($" BoardCreationAuthor: {GetEntityQuery(ComponentType.ReadOnly<BoardCreationAuthor>()).CalculateEntityCount()})");
-        UnityEngine.Debug.Log($" Tile: {GetEntityQuery(ComponentType.ReadOnly<Tile>()).CalculateEntityCount()})");
-
         var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
 
         switch (m_GameState)
