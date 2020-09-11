@@ -1,5 +1,6 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class PlayerInitializationSystem : SystemBase
@@ -17,11 +18,12 @@ public class PlayerInitializationSystem : SystemBase
         var ticks = System.DateTime.Now.Ticks;
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
+        var playerCount = 0;
         Entities.WithName("InitPlayers")
             .WithAll<GameStateInitialize>()
             .ForEach((in PlayerInitialization playerInitialization) =>
         {
-            var playerCount = playerInitialization.PlayerCount;
+            playerCount = playerInitialization.PlayerCount;
             for (int i = 0; i < playerInitialization.PlayerCount; i++)
             {
                 var playerEntity = ecb.Instantiate(playerInitialization.PlayerPrefab);
@@ -41,7 +43,10 @@ public class PlayerInitializationSystem : SystemBase
                     ecb.AddComponent(playerEntity, new AIPlayerLastDecision { Value = ticks });
                     ecb.SetComponent(playerEntity, new Name { Value = $"Computer {i}" });
                 }
-                ecb.SetComponent(playerEntity, new ColorAuthoring() { Color = UnityEngine.Color.HSVToRGB(i / (float)playerCount, 1, 1) });
+
+                var color = UnityEngine.Color.HSVToRGB(i / (float)playerCount, 1, 1);
+                var colorAsFloat4 = new float4(color.r, color.g, color.b, color.a);
+                ecb.AddComponent(playerEntity, new Color() { Value = colorAsFloat4 });
                 ecb.AddBuffer<PlayerArrow>(playerEntity);
                 ecb.AddComponent(playerEntity, new MousePosition());
             }
@@ -50,33 +55,22 @@ public class PlayerInitializationSystem : SystemBase
         ecb.Playback(EntityManager);
         ecb.Dispose();
 
-        if (Players.IsCreated == false)
+        if (playerCount > 0)
         {
-            var q = GetEntityQuery(new EntityQueryDesc
-            {
-                All = new[] { ComponentType.ReadOnly<Player>() }
-            });
-            var cc = q.CalculateEntityCount();
-            if (cc > 0)
-            {
-                var localP = Players = new NativeArray<Entity>(cc, Allocator.Persistent);
-                ecb = new EntityCommandBuffer(Allocator.Temp);
-                Entities.WithName("InitPlayerArray")
-                    .WithNone<PlayerInitializedTag>()
-                    .ForEach((int entityInQueryIndex, Entity e, in Player p) =>
-                    {
-                        localP[entityInQueryIndex] = e;
-                        ecb.AddComponent<PlayerInitializedTag>(e);
-                    }).Run();
-                ecb.Playback(EntityManager);
-                ecb.Dispose();
-            }
-        }
+            if (Players.IsCreated)
+                Players.Dispose();
 
-        // Quick'n'dirty cleanup
-        if (EntityManager.HasComponent<GameStateCleanup>(GetSingletonEntity<PlayerInitialization>()))
-        {
-            if (Players.IsCreated) Players.Dispose();
+            var localP = Players = new NativeArray<Entity>(playerCount, Allocator.Persistent);
+            ecb = new EntityCommandBuffer(Allocator.Temp);
+            Entities.WithName("InitPlayerArray")
+                .WithNone<PlayerInitializedTag>()
+                .ForEach((int entityInQueryIndex, Entity e, in Player p) =>
+                {
+                    localP[entityInQueryIndex] = e;
+                    ecb.AddComponent<PlayerInitializedTag>(e);
+                }).Run();
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
         }
     }
 }

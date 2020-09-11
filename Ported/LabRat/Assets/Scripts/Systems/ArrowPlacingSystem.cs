@@ -10,7 +10,6 @@ public class ArrowPlacingSystem : SystemBase
 {
     Entity gameStateEntity;
 
-    EntityQuery tilesQuery;
     EntityQuery arrowsQuery;
     EntityQuery arrowPrefabQuery;
     EntityCommandBufferSystem ECBSystem;
@@ -18,15 +17,6 @@ public class ArrowPlacingSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-        tilesQuery = GetEntityQuery(new EntityQueryDesc
-        {
-            All = new[]
-            {
-                ComponentType.ReadOnly<PositionXZ>(),
-                ComponentType.ReadOnly<Tile>(),
-            }
-        });
-
         arrowsQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new[]
@@ -81,6 +71,10 @@ public class ArrowPlacingSystem : SystemBase
     AnimalMovementSystem.BoardDimensions m_BoardDimensions;
     NativeArray<Entity> m_TileEntityGrid;
 
+    protected override void OnDestroy()
+    {
+        m_TileEntityGrid.Dispose();
+    }
     //Stolen from AnimalMovementSystem end:
 
     protected override void OnUpdate()
@@ -155,7 +149,10 @@ public class ArrowPlacingSystem : SystemBase
                         var arrowToDestroyEntity = arrowsBuffer[0].Arrow;
                         var arrowToDestroy = GetComponent<Arrow>(arrowToDestroyEntity);
 
-                        ecb.SetComponent(entityInQueryIndex, tileEntity, new Tile { Value = (Tile.Attributes)((int)tile.Value & ~(int)Tile.Attributes.ArrowAny) });
+                        var arrowPosition = (int2)GetComponent<Translation>(arrowToDestroyEntity).Value.xz;
+                        var otherTileEntity = tileEntityGrid[AnimalMovementSystem.TileKeyFromPosition(arrowPosition, boardDimensions)];
+
+                        ecb.SetComponent(entityInQueryIndex, otherTileEntity, new Tile { Value = (Tile.Attributes)((int)tile.Value & ~(int)Tile.Attributes.ArrowAny) });
                         ecb.DestroyEntity(entityInQueryIndex, arrowToDestroyEntity);
                         arrowsBuffer.RemoveAt(0);
                     }
@@ -169,8 +166,7 @@ public class ArrowPlacingSystem : SystemBase
                     ecb.SetComponent(entityInQueryIndex, newArrow, new Translation { Value = new float3(position.Value.x, 0, position.Value.y) });
                     ecb.SetComponent(entityInQueryIndex, newArrow, new Rotation { Value = quaternion.Euler(0, AnimalMovementSystem.RadiansFromDirection(direction.Value), 0) });
                     ecb.AddComponent(entityInQueryIndex, newArrow, new FreshArrowTag());
-                    ecb.AddComponent(entityInQueryIndex, newArrow, new ColorAuthoring() { Color = new UnityEngine.Color(playerColor.Value.x, playerColor.Value.y, playerColor.Value.z, 1) });
-
+                    ecb.AddComponent(entityInQueryIndex, newArrow, new Color() { Value = playerColor.Value });
                 }
 
                 ecb.DestroyEntity(entityInQueryIndex, placeArrowEventEntity);

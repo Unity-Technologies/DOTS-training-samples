@@ -14,7 +14,7 @@ public class AnimalMovementSystem : SystemBase
         var key = iPos.x + iPos.y * dimensions.TileCountX;
         
         // Safety clamp until we know the board is consistent
-        key = math.clamp(key, 0, dimensions.TileCountTotal - 1);
+        //key = math.clamp(key, 0, dimensions.TileCountTotal - 1);
         
         Debug.Assert(key >= 0 && key < dimensions.TileCountTotal);
         return key;
@@ -166,8 +166,6 @@ public class AnimalMovementSystem : SystemBase
                 else
                 {
                     // About to pass through the tile center; this is when we currently handle all logic
-                    // (basic snap to turn point for now, we should correctly preserve travel distance when turning)
-                    pos.Value = tileCenter;
 
                     if (arrowDirectionMask != 0)
                     {
@@ -188,6 +186,9 @@ public class AnimalMovementSystem : SystemBase
 #if DEBUGGABLE
                     Debug.Log($"..to {direction.Value}");
 #endif
+
+                    // (basic snap to turn point for now - plus tiny nudge in new direction - we should correctly preserve travel distance when turning)
+                    pos.Value = tileCenter + VectorFromDirection(direction.Value) * 1e-5f;
 
                     if (obstacleMask != 0)
                     {

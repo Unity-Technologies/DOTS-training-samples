@@ -35,7 +35,7 @@ public class GameController : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
+        var ecb = m_GameState != GameState.GameRunning ? m_EntityCommandBufferSystem.CreateCommandBuffer() : default;
 
         switch (m_GameState)
         {
@@ -65,8 +65,8 @@ public class GameController : SystemBase
             {
                 Entities.WithName("Leave_GameInit").WithAll<WantsGameStateTransitions, GameStateInitialize>().ForEach((Entity entity) => ecb.RemoveComponent<GameStateInitialize>(entity)).Schedule();
                 
-                Entities.ForEach((in PlayerIndex idx, in Name name, in ColorAuthoring color) => {
-                    m_UIBridge.SetPlayerData(idx.Value, name.Value.ToString(), color.Color);
+                Entities.ForEach((in PlayerIndex idx, in Name name, in Color color) => {
+                    m_UIBridge.SetPlayerData(idx.Value, name.Value.ToString(), (UnityEngine.Vector4)color.Value);
                 }).WithoutBurst().Run();
                 
                 m_TimeAccumulator = 0f;
@@ -99,16 +99,17 @@ public class GameController : SystemBase
 
             case GameState.GameRunning:
             {
+                var prevTimeSeconds = (int)m_TimeAccumulator;
+                
                 m_TimeAccumulator += Time.DeltaTime;
                 var gameTimeRemaining = math.max(0f, m_GameConfig.Duration - m_TimeAccumulator);
         
-                m_UIBridge.SetTimer(gameTimeRemaining);
+                if(prevTimeSeconds != (int)m_TimeAccumulator)
+                    m_UIBridge.SetTimer(gameTimeRemaining);
                 
-                var scores = new int[4];
                 Entities.WithName("Score2UI").WithAll<Score>()
-                    .ForEach((int entityInQueryIndex, in Score s) => scores[entityInQueryIndex] = s.Value).WithoutBurst().Run();
-                for (int i = 0; i < 4; i++)
-                    m_UIBridge.SetScore(i, scores[i]);
+                    .WithChangeFilter<Score>()
+                    .ForEach((in PlayerIndex idx, in Score score) => m_UIBridge.SetScore(idx.Value, score.Value)).WithoutBurst().Run();
 
                 if (gameTimeRemaining == 0f)
                     m_GameState = GameState.GameEnding;

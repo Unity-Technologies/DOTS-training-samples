@@ -353,6 +353,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1282879319953667178, guid: 59dedd8bf5bb90049aa3062fb5b7872b, type: 3}
+      propertyPath: SizeY
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 1282879319953667178, guid: 59dedd8bf5bb90049aa3062fb5b7872b, type: 3}
+      propertyPath: SizeX
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 1282879319953667178, guid: 59dedd8bf5bb90049aa3062fb5b7872b, type: 3}
+      propertyPath: RatSpawner
+      value: 
+      objectReference: {fileID: 1298946766065678, guid: 0d2692e5c17392c4fb4642670a78ad13, type: 3}
+    - target: {fileID: 1282879319953667178, guid: 59dedd8bf5bb90049aa3062fb5b7872b, type: 3}
+      propertyPath: randomAmount
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 1282879319953667179, guid: 59dedd8bf5bb90049aa3062fb5b7872b, type: 3}
       propertyPath: m_Name
       value: BoardCreation

@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
+using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
@@ -14,14 +15,19 @@ public class BoardCreationSystem : SystemBase
     protected override void OnCreate()
     {
         playerInitSystem = World.GetExistingSystem<PlayerInitializationSystem>();
-    }
 
+#if UNITY_EDITOR
+        new GameObject("BoardDebugger", typeof(BoardCreationDebug));
+#endif
+    }
+    
     protected override void OnUpdate()
     {
         Entities.WithName("BoardCreation_Initialize")
         .WithAll<GameStateInitialize>()
         .ForEach((Entity e, in BoardCreationAuthor boardCreationAuthor) =>
         {
+            Entity[,] board = new Entity[boardCreationAuthor.SizeX, boardCreationAuthor.SizeY];
             int spawnedGoals = 0;
             System.Random random = new System.Random();
             Random rand = new Random((uint)random.Next());
@@ -30,31 +36,31 @@ public class BoardCreationSystem : SystemBase
                 for (int y = 0; y < boardCreationAuthor.SizeY; y++)
                 {
                     Entity tile = EntityManager.Instantiate(boardCreationAuthor.TilePrefab);
+                    EntityManager.AddComponent<Static>(tile);
                     Tile newTile = new Tile();
                     PositionXZ tilePos = new PositionXZ();
-                    Translation translation = new Translation();
                     float2 wallPos = new float2(x, y);
 
                     // Create the outer walls & spawn points
                     if (y == 0)
                     {
-                        newTile.Value = Tile.Attributes.WallDown;
-                        PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallUp);
+                        newTile.Value |= Tile.Attributes.WallDown;
+                        PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallDown);
                     }
                     else if (y == boardCreationAuthor.SizeY - 1)
                     {
-                        newTile.Value = Tile.Attributes.WallUp;
-                        PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallDown);
+                        newTile.Value |= Tile.Attributes.WallUp;
+                        PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallUp);
                     }
 
                     if (x == 0)
                     {
-                        newTile.Value = Tile.Attributes.WallLeft;
+                        newTile.Value |= Tile.Attributes.WallLeft;
                         PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallLeft);
                         if (y == 0)
-                            newTile.Value = Tile.Attributes.WallDown | Tile.Attributes.WallLeft;
+                            newTile.Value |= (Tile.Attributes.WallDown | Tile.Attributes.WallLeft);
                         else if (y == boardCreationAuthor.SizeY - 1)
-                            newTile.Value = Tile.Attributes.WallUp | Tile.Attributes.WallLeft;
+                            newTile.Value |= (Tile.Attributes.WallUp | Tile.Attributes.WallLeft);
                     }
                     else if (x == boardCreationAuthor.SizeX - 1)
                     {
@@ -62,11 +68,11 @@ public class BoardCreationSystem : SystemBase
                         PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallRight);
                         if (y == 0)
                         {
-                            newTile.Value = Tile.Attributes.WallDown | Tile.Attributes.WallRight;
+                            newTile.Value |= (Tile.Attributes.WallDown | Tile.Attributes.WallRight);
                         }
                         else if (x == boardCreationAuthor.SizeX - 1 && y == boardCreationAuthor.SizeY - 1)
                         {
-                            newTile.Value = Tile.Attributes.WallUp | Tile.Attributes.WallRight;
+                            newTile.Value |= (Tile.Attributes.WallUp | Tile.Attributes.WallRight);
                         }
                     }
 
@@ -78,7 +84,7 @@ public class BoardCreationSystem : SystemBase
                         {
                             case 0:
                                 if (x != 0 && x != boardCreationAuthor.SizeX - 1 && y != 0 && y != boardCreationAuthor.SizeY - 1)
-                                    newTile.Value |= Tile.Attributes.Hole;
+                                    newTile.Value = Tile.Attributes.Hole;
                                 break;
 
                             case 1:
@@ -122,38 +128,31 @@ public class BoardCreationSystem : SystemBase
                         {
                             newTile.Value = Tile.Attributes.Goal;
                             var goal = EntityManager.Instantiate(boardCreationAuthor.GoalPrefab);
+                            EntityManager.AddComponent<Static>(goal);
                             EntityManager.SetComponentData(goal, new PositionXZ(){Value = new float2(x, y)});
 
                             var player = playerInitSystem.Players[spawnedGoals++];
                             EntityManager.AddComponentData(tile, new TileOwner {Value = player});
                             
-                            var cc = EntityManager.GetComponentData<ColorAuthoring>(player);
-                            var linkedEntities = EntityManager.GetBuffer<LinkedEntityGroup>(goal);
-                            for (var l = 0; l < linkedEntities.Length; ++l)
-                            {
-                                var linkedEntity = linkedEntities[l].Value;
-                                if (EntityManager.HasComponent<ColorAuthoring>(linkedEntity))
-                                {
-                                    EntityManager.SetComponentData(linkedEntity, cc);
-                                }
-                            }
+                            var cc = EntityManager.GetComponentData<Color>(player);
+                            EntityManager.AddComponentData(goal, cc);
                         }
                     }
 
                     var even = ((boardCreationAuthor.SizeY * y + x) % 2 == 0);
-                    ColorAuthoring color;
+                    Color color;
                     if (even)
                     {
-                        color = new ColorAuthoring()
+                        color = new Color()
                         {
-                            Color = new  UnityEngine.Color(0.95f, 0.95f, 0.95f, 1.0f)
+                            Value = new  float4(0.95f, 0.95f, 0.95f, 1.0f)
                         };
                     }
                     else
                     {
-                        color = new ColorAuthoring
+                        color = new Color
                         {
-                            Color = new UnityEngine.Color(0.68f, 0.68f, 0.68f, 1.0f)
+                            Value = new float4(0.68f, 0.68f, 0.68f, 1.0f)
                         };
                     }
 
@@ -165,11 +164,60 @@ public class BoardCreationSystem : SystemBase
                     EntityManager.AddComponentData(tile, tilePos);
                     if (newTile.Value == Tile.Attributes.Hole)
                         EntityManager.AddComponent<DisableRendering>(tile);
+
+                    board[x, y] = tile;
+                }
+            }
+
+            // Place neighbor walls
+            for (int x = 0; x < boardCreationAuthor.SizeX; x++)
+            {
+                for (int y = 0; y < boardCreationAuthor.SizeY; y++)
+                {
+
+                    Tile t;
+
+                    t = EntityManager.GetComponentData<Tile>(board[x, y]);
+
+                    if (t.Value.HasFlag(Tile.Attributes.WallUp) && y < boardCreationAuthor.SizeY -1)
+                    {
+                        Tile r = EntityManager.GetComponentData<Tile>(board[x, y + 1]);
+                        r.Value |= Tile.Attributes.WallDown;
+                        EntityManager.SetComponentData(board[x, y + 1], r);
+                    }
+                    
+                    t = EntityManager.GetComponentData<Tile>(board[x, y]);
+
+                    if (t.Value.HasFlag(Tile.Attributes.WallDown) && y > 0)
+                    {
+                        Tile r = EntityManager.GetComponentData<Tile>(board[x, y - 1]);
+                        r.Value |= Tile.Attributes.WallUp;
+                        EntityManager.SetComponentData(board[x, y - 1], r);
+                    }
+
+                    t = EntityManager.GetComponentData<Tile>(board[x, y]);
+
+                    if (t.Value.HasFlag(Tile.Attributes.WallLeft) && x > 0)
+                    {
+                        Tile r = EntityManager.GetComponentData<Tile>(board[x - 1, y]);
+                        r.Value |= Tile.Attributes.WallRight;
+                        EntityManager.SetComponentData(board[x - 1, y], r);
+                    }
+
+                    t = EntityManager.GetComponentData<Tile>(board[x, y]);
+
+                    if (t.Value.HasFlag(Tile.Attributes.WallRight) && x < boardCreationAuthor.SizeX - 1)
+                    {
+                        Tile r = EntityManager.GetComponentData<Tile>(board[x + 1, y]);
+                        r.Value |= Tile.Attributes.WallLeft;
+                        EntityManager.SetComponentData(board[x + 1, y], r);
+                    }
                 }
             }
 
             // HACK - needs removing
-            UnityEngine.Camera.main.transform.position = new UnityEngine.Vector3(boardCreationAuthor.SizeX /2, 4, boardCreationAuthor.SizeY /2);
+          //  UnityEngine.Camera.main.transform.position = new UnityEngine.Vector3(boardCreationAuthor.SizeX /2, 4, boardCreationAuthor.SizeY /2);
+          //  UnityEngine.Camera.main.orthographicSize = 0.55f*math.max(boardCreationAuthor.SizeX, boardCreationAuthor.SizeY);
         }).WithStructuralChanges().Run();
 
         Entities
@@ -180,8 +228,13 @@ public class BoardCreationSystem : SystemBase
             var ratSpawners = EntityManager.Instantiate(boardCreationAuthor.RatSpawner, 2, Allocator.Temp);
             EntityManager.AddComponent<PositionXZ>(ratSpawners[0]);
             EntityManager.AddComponentData(ratSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, boardCreationAuthor.SizeY - 1f) });
+            EntityManager.AddComponent<Static>(ratSpawners[0]);
+            EntityManager.AddComponent<Static>(ratSpawners[1]);
             ratSpawners.Dispose();
+            
             var catSpawners = EntityManager.Instantiate(boardCreationAuthor.CatSpawner, 2, Allocator.Temp);
+            EntityManager.AddComponent<Static>(catSpawners[0]);
+            EntityManager.AddComponent<Static>(catSpawners[1]);
             EntityManager.AddComponentData(catSpawners[0], new PositionXZ { Value = new float2(0f, boardCreationAuthor.SizeY - 1f) });
             EntityManager.AddComponentData(catSpawners[1], new PositionXZ { Value = new float2(boardCreationAuthor.SizeX - 1f, 0f) });
             catSpawners.Dispose();
@@ -196,12 +249,12 @@ public class BoardCreationSystem : SystemBase
         {
             case Tile.Attributes.WallUp:
                 rot.Value = quaternion.EulerXYZ(0, math.radians(90), 0);
-                translation.Value = new float3(pos.x, 0.75f, pos.y - 0.5f);
+                translation.Value = new float3(pos.x, 0.75f, pos.y + 0.5f);
                 break;
 
             case Tile.Attributes.WallDown:
                 rot.Value = quaternion.EulerXYZ(0, math.radians(90), 0);
-                translation.Value = new float3(pos.x, 0.75f, pos.y + 0.5f);
+                translation.Value = new float3(pos.x, 0.75f, pos.y - 0.5f);
                 break;
 
             case Tile.Attributes.WallLeft:
@@ -218,4 +271,31 @@ public class BoardCreationSystem : SystemBase
         EntityManager.AddComponentData(wall, rot);
         EntityManager.AddComponent<Static>(wall);
     }
+    
+#if UNITY_EDITOR
+    [System.Flags]
+    public enum DebugAttributes : ushort
+    {
+        None,
+
+        Left = Tile.Attributes.WallLeft,
+        Up = Tile.Attributes.WallUp,
+        Right = Tile.Attributes.WallRight,
+        Down = Tile.Attributes.WallDown,
+        
+        Hole = Tile.Attributes.Hole,
+        Goal = Tile.Attributes.Goal,
+    }
+
+    public void DrawDebugHandles()
+    {
+        if (!HasSingleton<BoardCreationAuthor>() || !GetSingleton<BoardCreationAuthor>().ShowDebugData)
+            return;
+        
+        Entities.ForEach((in PositionXZ pos, in Tile tile) =>
+        {
+            UnityEditor.Handles.Label(new float3(pos.Value.x, .1f, pos.Value.y), $"({pos.Value.x},{pos.Value.y})\n{(DebugAttributes)tile.Value}");
+        }).WithoutBurst().Run();
+    }
+#endif
 }
