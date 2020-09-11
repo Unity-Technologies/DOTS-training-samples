@@ -23,15 +23,16 @@ public class BeeCarrying : SystemBase
             {
                 //Make the bee move towards the target position
                 float3 direction = targetPosition.Value - translation.Value;
-
+                ecb.SetComponent<Translation>( entityInQueryIndex, carrying.Value, new Translation { Value = new float3( translation.Value.x, translation.Value.y-1, translation.Value.z )} );
+                ecb.SetComponent<Velocity>( entityInQueryIndex, carrying.Value, new Velocity{ Value = float3.zero} );
+                
                 //If the bee is close enough, change its state to Carrying
                 float d = math.length(direction);
                 if(d < 1)
                 {
                     // drop the recource
-                    ecb.RemoveComponent<Parent>( entityInQueryIndex, carrying.Value );
-                    //ecb.RemoveComponent<Taken>( carrying.Value );
-                    ecb.RemoveComponent<LocalToParent>( entityInQueryIndex, carrying.Value );
+                    //ecb.RemoveComponent<Parent>( entityInQueryIndex, carrying.Value );
+                    ecb.AddComponent<Delivered>( entityInQueryIndex, carrying.Value );
                     ecb.SetComponent<Translation>( entityInQueryIndex, carrying.Value, translation );
                     
                     // revert to idle

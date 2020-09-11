@@ -25,9 +25,12 @@ public class RaycastSystem : SystemBase
         {
             var instance = EntityManager.Instantiate(userInput.ResourcePrefab);    
             EntityManager.SetComponentData(instance, mouseHitTranslation);
-            
-            if( math.abs(mouseHitTranslation.Value.z) >= batlefield.HiveDistance )
+
+            if( math.abs( mouseHitTranslation.Value.z ) >= batlefield.HiveDistance )
+            {
                 EntityManager.AddComponent<Taken>( instance );
+                EntityManager.AddComponent<Delivered>( instance );
+            }
         }
 
         var cursor = GetSingletonEntity<UserInput>();

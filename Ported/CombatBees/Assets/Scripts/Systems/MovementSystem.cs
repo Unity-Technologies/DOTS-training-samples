@@ -59,7 +59,7 @@ public class MovementSystem : SystemBase
         }).ScheduleParallel( Dependency );
 
         // Apply movement for objects that do not stretch
-        Dependency = Entities.WithNone<Parent>().ForEach((ref Translation translation, ref Velocity velocity) =>
+        Dependency = Entities.ForEach((ref Translation translation, ref Velocity velocity) =>
         {
             velocity.Value.y -= deltaTime * 9.8f;
             translation.Value += velocity.Value * deltaTime;
@@ -93,7 +93,7 @@ public class MovementSystem : SystemBase
         }).ScheduleParallel( Dependency );
         
         // apply look at direction and scale for Entities with NonUniformScale
-        Dependency = Entities.WithNone<Parent>().ForEach((ref Translation translation, ref Velocity velocity, ref NonUniformScale nonUniformScale, ref Rotation rotation) =>
+        Dependency = Entities.WithNone<Resource>().ForEach((ref Translation translation, ref Velocity velocity, ref NonUniformScale nonUniformScale, ref Rotation rotation) =>
         {
             rotation.Value = quaternion.LookRotationSafe(velocity.Value, new float3(0, 1, 0));
             nonUniformScale.Value.z = math.length(velocity.Value) * 0.1f;

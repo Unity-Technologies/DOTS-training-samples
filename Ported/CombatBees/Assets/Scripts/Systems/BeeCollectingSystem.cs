@@ -38,9 +38,8 @@ public class BeeCollectingSystem : SystemBase
                 float distanceToResource = math.length(targetEntityTranslationComponent.Value - translation.Value);
                 if (distanceToResource < 1)
                 {
-                    ecb.AddComponent<Parent>(entityInQueryIndex, targetEntity.Value, new Parent { Value = bee });
+                    //ecb.AddComponent<Parent>(entityInQueryIndex, targetEntity.Value, new Parent { Value = bee });
                     ecb.AddComponent<Taken>(entityInQueryIndex, targetEntity.Value);
-                    ecb.AddComponent<LocalToParent>(entityInQueryIndex, targetEntity.Value);
                     ecb.SetComponent<Translation>(entityInQueryIndex, targetEntity.Value, new Translation { Value = new float3(0, -1, 0) });
 
                     float hiveDistance = battlefield.HiveDistance + 10f;

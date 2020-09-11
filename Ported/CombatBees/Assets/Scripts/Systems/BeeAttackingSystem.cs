@@ -46,9 +46,7 @@ public class BeeAttackingSystem : SystemBase
                         if(HasComponent<Carrying>(targetEntity.Value))
                         {
                             ecb.RemoveComponent<Carrying>(entityInQueryIndex, targetEntity.Value);
-
                             var carryingComponentFromEnemy = GetComponent<Carrying>(targetEntity.Value);
-                            ecb.SetComponent<Parent>(entityInQueryIndex, carryingComponentFromEnemy.Value, new Parent { Value = bee });
 
                             //Take over the resource
 

@@ -20,8 +20,7 @@ public class ResourceConsumptionSystem : SystemBase
         var b = GetSingleton<BattleField>();
         float floor = (-b.Bounds.y / 2f) + 0.1f;
         Entities
-            .WithAll<Resource>()
-            .WithNone<Parent>()
+            .WithAll<Resource>().WithAll<Delivered>()
             .ForEach((int entityInQueryIndex, Entity entity, in Translation translation) =>
         {
             if (math.abs(translation.Value.z) > math.abs(b.HiveDistance))

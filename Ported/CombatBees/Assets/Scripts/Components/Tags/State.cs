@@ -15,7 +15,10 @@ public struct Collecting : IComponentData
 
 }
 
+public struct Delivered : IComponentData
+{
 
+}
 
 public struct ScaleOutAndDestroy : IComponentData
 {
