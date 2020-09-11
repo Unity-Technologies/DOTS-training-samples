@@ -16,7 +16,7 @@ public class BoardCreationSystem : SystemBase
     {
         playerInitSystem = World.GetExistingSystem<PlayerInitializationSystem>();
 
-#if UNITY_EDITOR
+#if false && UNITY_EDITOR
         new GameObject("BoardDebugger", typeof(BoardCreationDebug));
 #endif
     }
@@ -273,7 +273,7 @@ public class BoardCreationSystem : SystemBase
         EntityManager.AddComponent<Static>(wall);
     }
 
-#if UNITY_EDITOR
+#if false &&  UNITY_EDITOR
     [System.Flags]
     public enum DebugAttributes : ushort
     {
