@@ -23,7 +23,7 @@ public class BeeCarrying : SystemBase
                 {
                     // drop the recource
                     ecb.RemoveComponent<Parent>( carrying.Value );
-                    ecb.RemoveComponent<Taken>( carrying.Value );
+                    //ecb.RemoveComponent<Taken>( carrying.Value );
                     ecb.RemoveComponent<LocalToParent>( carrying.Value );
                     ecb.SetComponent<Translation>( carrying.Value, translation );
                     

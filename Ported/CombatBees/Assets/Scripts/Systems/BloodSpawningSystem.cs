@@ -22,11 +22,8 @@ public class BloodSpawningSystem : SystemBase
 
         Entities.ForEach((Entity spawnerEntity, in BloodSpawner spawner, in Translation spawnerTranslation) =>
         {
-
             for( int i = 0; i < spawner.Count; ++i )
             {
-
-                float randomScale = random.NextFloat( 0.5f, 2f );
                 float randomVelocityX = random.NextFloat( -5f, 5f );
                 float randomVelocityY = random.NextFloat( -5f, 5f );
                 float randomVelocityZ = random.NextFloat( -5f, 5f );
@@ -34,9 +31,7 @@ public class BloodSpawningSystem : SystemBase
                 var instance = ecb.Instantiate(spawner.blood);
                 ecb.SetComponent(instance, new Translation {Value = spawnerTranslation.Value});
                 ecb.SetComponent(instance, new Velocity {Value = new float3(randomVelocityX, randomVelocityY, randomVelocityZ)});
-                ecb.AddComponent<Scale>( instance, new Scale {Value = randomScale} );
-                //Use the same state as the bee
-                ecb.AddComponent<Dying>( instance );
+                ecb.SetComponent( instance, new NonUniformScale{ Value = new float3( random.NextFloat( 0.5f, 2f ), random.NextFloat( 0.5f, 2f ), random.NextFloat( 0.5f, 2f ) )} );
             }
             
             ecb.DestroyEntity(spawnerEntity);

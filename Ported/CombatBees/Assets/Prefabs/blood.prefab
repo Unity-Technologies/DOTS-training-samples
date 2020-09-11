@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3364040680352991763}
   - component: {fileID: 3364040680352991760}
   - component: {fileID: -1175582214923886358}
+  - component: {fileID: 2988621754022709271}
   m_Layer: 0
   m_Name: blood
   m_TagString: Untagged
@@ -28,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 3364040680352991766}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.33, y: 0.33, z: 0.33}
+  m_LocalScale: {x: 0.6, y: 0.2, z: 0.5}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -98,3 +99,15 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+--- !u!114 &2988621754022709271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3364040680352991766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56aa30739ac1a4581a3163a316dfddc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

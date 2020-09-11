@@ -26,14 +26,13 @@ public class BeeAgonizingSystem : SystemBase
         //for resources
         Entities.WithAll<Agony>()
                 .WithNone<Bee>()
-                .ForEach( ( Entity bee, ref NonUniformScale nuScale) =>
+                .ForEach( ( Entity sfx, ref NonUniformScale nuScale) =>
             {
-                
                 float delta = 5f * deltaTime;
                 nuScale.Value -= new float3(delta, delta, delta);
                 if(nuScale.Value.x <= 0)
                 {
-                    ecb.DestroyEntity( bee );
+                    ecb.DestroyEntity( sfx );
                 }
             } ).Run();
         

@@ -15,10 +15,7 @@ public struct Collecting : IComponentData
 
 }
 
-public struct Dying : IComponentData
-{
 
-}
 
 public struct Agony : IComponentData
 {

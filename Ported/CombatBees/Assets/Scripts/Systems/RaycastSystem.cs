@@ -18,15 +18,19 @@ public class RaycastSystem : SystemBase
         var deltaTime = Time.DeltaTime;
         var mouseDown = UnityEngine.Input.GetMouseButton(0);
 
+        var batlefield = GetSingleton<BattleField>();
         var userInput = GetSingleton<UserInput>();
-        var mouseHit = new Translation {Value = hit.point};
+        var mouseHitTranslation = new Translation {Value = hit.point};
         if (mouseDown && casted)
         {
             var instance = EntityManager.Instantiate(userInput.ResourcePrefab);    
-            EntityManager.SetComponentData(instance, mouseHit);
+            EntityManager.SetComponentData(instance, mouseHitTranslation);
+            
+            if( math.abs(mouseHitTranslation.Value.z) >= batlefield.HiveDistance )
+                EntityManager.AddComponent<Taken>( instance );
         }
 
         var cursor = GetSingletonEntity<UserInput>();
-        EntityManager.SetComponentData(cursor, mouseHit);
+        EntityManager.SetComponentData(cursor, mouseHitTranslation);
     }
 }

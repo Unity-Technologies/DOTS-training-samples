@@ -22,7 +22,7 @@ public class ResourceConsumptionSystem : SystemBase
 
         Entities
             .WithAll<Resource>()
-            .WithNone<Parent>().WithNone<Taken>()
+            .WithNone<Parent>()
             .ForEach((int entityInQueryIndex,Entity entity, in Translation translation) =>
         {
             if (math.abs(translation.Value.z) > math.abs(b.HiveDistance))
