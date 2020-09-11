@@ -14,7 +14,7 @@ public class MovementSystem : SystemBase
         var elapsedMiliseconds = (float)(Time.ElapsedTime - math.trunc( Time.ElapsedTime ));
         var b = GetSingleton<BattleField>();
 
-        Dependency = Entities.ForEach((ref Velocity velocity, in Translation translation, in TargetPosition target, in Speed speed ) =>
+        Dependency = Entities.WithNone<Dying>().ForEach((ref Velocity velocity, in Translation translation, in TargetPosition target, in Speed speed ) =>
         {
             float3 direction = target.Value - translation.Value;
             

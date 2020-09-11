@@ -72,13 +72,19 @@ public class BeeAttackingSystem : SystemBase
                             ecb.RemoveComponent<TargetEntity>(entityInQueryIndex, bee);
                             ecb.RemoveComponent<Attack>(entityInQueryIndex, bee);
                             ecb.AddComponent<Idle>(entityInQueryIndex, bee);
+                            ecb.RemoveComponent<TargetEntity>(entityInQueryIndex, bee);
+                            
+                            float hiveDistance = battlefield.HiveDistance + 1f;
+                            if (HasComponent<TeamA>(bee))
+                                ecb.SetComponent<TargetPosition>( entityInQueryIndex, bee, new TargetPosition{ Value = new float3(0, 0, -hiveDistance)} );
+                            else
+                                ecb.SetComponent<TargetPosition>( entityInQueryIndex, bee, new TargetPosition{ Value = new float3(0, 0, hiveDistance)} );
                         }
 
                         var bloodSpawner = ecb.Instantiate(entityInQueryIndex, b.BloodSpawner);
                         ecb.SetComponent<Translation>(entityInQueryIndex, bloodSpawner, translation);
                         
                         ecb.AddComponent<Dying>(entityInQueryIndex, targetEntity.Value);
-                        
                         // TODO Figure out a better way of doing this
                         if(HasComponent<Idle>(targetEntity.Value))
                             ecb.RemoveComponent<Idle>(entityInQueryIndex, targetEntity.Value);
