@@ -20,7 +20,6 @@ public class BeeDyingSystem : SystemBase
         var b = GetSingleton<BattleField>();
 
         Entities.WithAll<Dying>()
-                .WithoutBurst()
                 .ForEach( ( Entity bee, in Translation translation) =>
             {
                 
@@ -45,7 +44,7 @@ public class BeeDyingSystem : SystemBase
 
                 
                 
-            } ).Run();
+            } ).Schedule();
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
