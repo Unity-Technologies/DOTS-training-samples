@@ -71,11 +71,15 @@ public class EatSystem : SystemBase
             .WithAll<CatTag>()
             .WithNativeDisableParallelForRestriction(catData)
             .WithDisposeOnCompletion(catData)
-            .ForEach((int entityInQueryIndex, Entity entity, ref Size size) =>
+            .ForEach((int entityInQueryIndex, Entity entity) =>
             {
                 if (catData[entityInQueryIndex])
                 {
-                    size.Grow = 0.5f;
+                    var c = new SizeGrown() {Grow = 0.5f};
+                    if (HasComponent<SizeGrown>(entity))
+                        ecb.SetComponent(entityInQueryIndex, entity, c );
+                    else
+                        ecb.AddComponent(entityInQueryIndex, entity, c);
                 }
             })
             .ScheduleParallel();

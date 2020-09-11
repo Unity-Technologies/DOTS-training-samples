@@ -12,11 +12,8 @@ GameObject:
   - component: {fileID: 3902524958651264689}
   - component: {fileID: 582903575230690594}
   - component: {fileID: 7582170057711031224}
-  - component: {fileID: 6924953852671698699}
   - component: {fileID: 918780957387395860}
-  - component: {fileID: 2346098421575677450}
   - component: {fileID: 4422610797089684327}
-  - component: {fileID: 3976259854088639692}
   m_Layer: 0
   m_Name: Cat
   m_TagString: Cat
@@ -99,20 +96,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e05f01edeefd27e498fa3ba07b59f1f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &6924953852671698699
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1377909340170110}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: edf23805cc015774d9bf529620ac8106, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MinSpeed: 1.5
-  MaxSpeed: 1.9
 --- !u!114 &918780957387395860
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125,19 +108,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 635fc7761d6cd0e46ab31f91035677f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &2346098421575677450
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1377909340170110}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c026cc464900ff46bbac38644cf1e19, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ValueDegree: 0
 --- !u!114 &4422610797089684327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,19 +121,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value: 2
---- !u!114 &3976259854088639692
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1377909340170110}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: baa16919917b0c245b8b90384396109f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Scale: 1
-  Enable: 0
-  MinScale: 0
-  MaxScale: 0

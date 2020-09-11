@@ -11,4 +11,14 @@ public struct Spawner : IComponentData
     [HideInInspector] public float Counter;
     public float Frequency;
     [HideInInspector] public int TotalSpawned;
+    
+    [Header("Speed")]
+    public float MinSpeed;
+    public float MaxSpeed;
+
+    [Header("Scale")]
+    public float Scale;
+    public bool Enable;
+    public float MinScale;
+    public float MaxScale;
 }

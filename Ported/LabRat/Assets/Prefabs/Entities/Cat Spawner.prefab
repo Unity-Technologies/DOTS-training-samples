@@ -48,3 +48,9 @@ MonoBehaviour:
   Counter: 0
   Frequency: 7
   TotalSpawned: 0
+  MinSpeed: 1.5
+  MaxSpeed: 1.9
+  Scale: 1
+  Enable: 0
+  MinScale: 0
+  MaxScale: 0
