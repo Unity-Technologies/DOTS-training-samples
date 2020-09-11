@@ -38,6 +38,7 @@ public class HumanPlayerInputSystem : SystemBase
 
         Entities
             .WithAll<HumanPlayerTag>()
+            .WithoutBurst()
             .ForEach((in MousePosition pos) =>
             {
                 var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
