@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class HumanPlayerInputSystem : SystemBase
 {
-    Camera camera;
-
     //GameObject cube;
 
     EntityCommandBufferSystem ECBSystem;
@@ -19,7 +17,6 @@ public class HumanPlayerInputSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-        camera = Camera.main;
         //cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 
         ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -29,7 +26,11 @@ public class HumanPlayerInputSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var mouseRay = camera.ScreenPointToRay(Input.mousePosition);
+        var camera = Camera.main;
+        if (camera == null)
+            return;
+
+        var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
         var clicked = Input.GetMouseButtonDown(0);
         var plane = new Plane(Vector3.up, playAreaHeight);
         if (!plane.Raycast(mouseRay, out var distance))

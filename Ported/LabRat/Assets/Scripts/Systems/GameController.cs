@@ -11,15 +11,13 @@ struct GameStateCleanup : IComponentData {}
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public class GameController : SystemBase
 {
-    const float GameDuration = 30;
-    const float GameRestartDelay = 5;
-
     enum GameState { None, ApplicationStarting, GameInitializing, GameInitialized, GameStarting, GameStarted, GameRunning, GameEnding, GameRestarting, GameCleanup }
 
     EntityCommandBufferSystem m_EntityCommandBufferSystem;
     
     UIBridge m_UIBridge;
-    
+
+    GameConfig m_GameConfig;
     GameState m_GameState;
     float m_TimeAccumulator;
 
@@ -37,13 +35,25 @@ public class GameController : SystemBase
 
     protected override void OnUpdate()
     {
+        UnityEngine.Debug.Log($"{UnityEngine.Time.frameCount}: {m_GameState}");
+        UnityEngine.Debug.Log($" WantsGameStateTransitions: {GetEntityQuery(ComponentType.ReadOnly<WantsGameStateTransitions>()).CalculateEntityCount()})");
+        UnityEngine.Debug.Log($" BoardCreationAuthor: {GetEntityQuery(ComponentType.ReadOnly<BoardCreationAuthor>()).CalculateEntityCount()})");
+        UnityEngine.Debug.Log($" Tile: {GetEntityQuery(ComponentType.ReadOnly<Tile>()).CalculateEntityCount()})");
+
         var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
 
         switch (m_GameState)
         {
             case GameState.ApplicationStarting:
             {
-                m_GameState = GameState.GameInitializing;
+                // Wait for entities to stream in before initializing the first game
+                if (HasSingleton<GameConfig>())
+                {
+                    m_GameConfig = GetSingleton<GameConfig>();
+                    m_UIBridge.ShowGUI(m_GameConfig.Duration);
+                    m_GameState = GameState.GameInitializing;
+                }
+                
                 break;
             }
 
@@ -95,7 +105,7 @@ public class GameController : SystemBase
             case GameState.GameRunning:
             {
                 m_TimeAccumulator += Time.DeltaTime;
-                var gameTimeRemaining = math.max(0f, GameDuration - m_TimeAccumulator);
+                var gameTimeRemaining = math.max(0f, m_GameConfig.Duration - m_TimeAccumulator);
         
                 m_UIBridge.SetTimer(gameTimeRemaining);
                 
@@ -152,9 +162,9 @@ public class GameController : SystemBase
 
                 m_TimeAccumulator += Time.DeltaTime;
 
-                if (m_TimeAccumulator >= GameRestartDelay)
+                if (m_TimeAccumulator >= m_GameConfig.RestartDelay)
                 {
-                    m_UIBridge.ResetGUI(GameDuration);
+                    m_UIBridge.ResetGUI(m_GameConfig.Duration);
                     m_GameState = GameState.GameCleanup;
                 }
                 
