@@ -7,7 +7,7 @@ using Unity.Mathematics;
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class ClothApplyGravitySystem : SystemBase
 {
-	[BurstCompile]
+	[BurstCompile(FloatMode = FloatMode.Fast)]
 	struct ApplyGravityJob : IJobParallelFor
 	{
 		[NoAlias] public NativeArray<float3> vertexPosition;

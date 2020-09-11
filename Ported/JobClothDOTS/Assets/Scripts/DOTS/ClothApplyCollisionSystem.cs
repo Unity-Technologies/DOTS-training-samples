@@ -8,7 +8,7 @@ using Unity.Mathematics;
 [UpdateAfter(typeof(ClothApplyConstraintsSystem))]
 public class ClothApplyCollisionSystem : SystemBase
 {
-	[BurstCompile]
+	[BurstCompile(FloatMode = FloatMode.Fast)]
 	struct ApplyCollisionJob : IJobParallelFor
 	{
 		[NoAlias] public NativeArray<float3> vertexPosition;

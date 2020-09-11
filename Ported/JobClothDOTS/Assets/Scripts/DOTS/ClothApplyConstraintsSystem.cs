@@ -19,7 +19,7 @@ public class ClothApplyConstraintsSystem : SystemBase
 	const float ScaleFloatToFixed32 = (1 << Fixed32FractionalBits);
 	const float ScaleFixed32ToFloat = (1.0f / (1 << Fixed32FractionalBits));
 
-	[BurstCompile]
+	[BurstCompile(FloatMode = FloatMode.Fast)]
 	struct ApplyDeltaJob : IJobParallelFor
 	{
 		[NoAlias] public NativeArray<float3> vertexPosition;
@@ -145,9 +145,9 @@ public class ClothApplyConstraintsSystem : SystemBase
 #endif
 						}
 #if USE_ATOMICS
-					).WithBurst().ScheduleParallel(clothMeshToken.jobHandle);
+					).WithBurst(floatMode: FloatMode.Fast).ScheduleParallel(clothMeshToken.jobHandle);
 #else
-					).WithBurst().Schedule(clothMeshToken.jobHandle);
+					).WithBurst(floatMode: FloatMode.Fast).Schedule(clothMeshToken.jobHandle);
 #endif
 
 #if USE_ATOMICS
