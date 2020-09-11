@@ -149,7 +149,10 @@ public class ArrowPlacingSystem : SystemBase
                         var arrowToDestroyEntity = arrowsBuffer[0].Arrow;
                         var arrowToDestroy = GetComponent<Arrow>(arrowToDestroyEntity);
 
-                        ecb.SetComponent(entityInQueryIndex, tileEntity, new Tile { Value = (Tile.Attributes)((int)tile.Value & ~(int)Tile.Attributes.ArrowAny) });
+                        var arrowPosition = (int2)GetComponent<Translation>(arrowToDestroyEntity).Value.xz;
+                        var otherTileEntity = tileEntityGrid[AnimalMovementSystem.TileKeyFromPosition(arrowPosition, boardDimensions)];
+
+                        ecb.SetComponent(entityInQueryIndex, otherTileEntity, new Tile { Value = (Tile.Attributes)((int)tile.Value & ~(int)Tile.Attributes.ArrowAny) });
                         ecb.DestroyEntity(entityInQueryIndex, arrowToDestroyEntity);
                         arrowsBuffer.RemoveAt(0);
                     }
