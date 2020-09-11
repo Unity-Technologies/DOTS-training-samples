@@ -5,7 +5,18 @@ using UnityEditor;
 static class Utils
 {
     [MenuItem("Tools/MergeMeshHierarchy")]
-    static void MergeMeshHierarchy()
+    static void MergeMeshHierarchySingleMesh()
+    {
+        MergeMeshHierarchy(true);
+    }
+
+    [MenuItem("Tools/MergeMeshHierarchyWithSubmeshes")]
+    static void MergeMeshHierarchyWithSubmeshes()
+    {
+        MergeMeshHierarchy(false);
+    }
+
+    static void MergeMeshHierarchy(bool mergeSubMeshes)
     {
         foreach(var gameObject in Selection.GetFiltered<GameObject>(SelectionMode.TopLevel))
         {
@@ -20,7 +31,7 @@ static class Utils
             
             var mesh = new Mesh();
             mesh.name = gameObject.name;
-            mesh.CombineMeshes(combineInstances.ToArray(), true, true, false);
+            mesh.CombineMeshes(combineInstances.ToArray(), mergeSubMeshes, true, false);
             mesh.Optimize();
 
             var path = AssetDatabase.GenerateUniqueAssetPath($"Assets/{gameObject.name}.asset");

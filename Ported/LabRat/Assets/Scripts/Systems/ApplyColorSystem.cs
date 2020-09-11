@@ -4,7 +4,7 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-[ExecuteAlways]
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class ApplyColorSystem : SystemBase
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;

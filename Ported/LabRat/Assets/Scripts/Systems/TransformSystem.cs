@@ -15,8 +15,9 @@ public class TransformSystem : SystemBase
     [BurstCompile] 
     struct MatrixCompositionJob : IJobChunk
     {
-        [ReadOnly] public ComponentTypeHandle<RotationY> RotationYTypeHandle;
+        [ReadOnly] public ComponentTypeHandle<Direction> RotationYTypeHandle;
         [ReadOnly] public ComponentTypeHandle<Size> SizeTypeHandle;
+        [ReadOnly] public ComponentTypeHandle<SizeGrown> SizeGrownTypeHandle;
         [ReadOnly] public ComponentTypeHandle<Falling> FallingTypeHandle;
         [ReadOnly] public ComponentTypeHandle<PositionXZ> PositionXZTypeHandle;
         public ComponentTypeHandle<LocalToWorld> LocalToWorldTypeHandle;
@@ -29,6 +30,7 @@ public class TransformSystem : SystemBase
                 chunk.DidOrderChange(LastSystemVersion) ||
                 chunk.DidChange(RotationYTypeHandle, LastSystemVersion) ||
                 chunk.DidChange(SizeTypeHandle, LastSystemVersion) ||
+                chunk.DidChange(SizeGrownTypeHandle, LastSystemVersion) ||
                 chunk.DidChange(FallingTypeHandle, LastSystemVersion) ||
                 chunk.DidChange(PositionXZTypeHandle, LastSystemVersion);
             if (!changed)
@@ -41,6 +43,9 @@ public class TransformSystem : SystemBase
 
             var chunkSize = chunk.GetNativeArray(SizeTypeHandle);
             var hasSize = chunk.Has(SizeTypeHandle);
+            
+            var chunkSizeGrown = chunk.GetNativeArray(SizeGrownTypeHandle);
+            var hasSizeGrown = chunk.Has(SizeGrownTypeHandle);
 
             var chunkFalling = chunk.GetNativeArray(FallingTypeHandle);
             var hasFalling = chunk.Has(FallingTypeHandle);
@@ -72,13 +77,34 @@ public class TransformSystem : SystemBase
                 var rotation = float4x4.identity;
                 if (hasRotationY)
                 {
-                    rotation = float4x4.RotateY(chunkRotationY[i].Value);
+                    var rv = 0.0f;
+                    switch (chunkRotationY[i].Value)
+                    {
+                        case Direction.Attributes.Up:
+                            rv = 0;
+                            break;
+                        case Direction.Attributes.Down:
+                            rv = 3.14f;
+                            break;
+                        case Direction.Attributes.Right:
+                            rv = 1.57f;
+                            break;
+                        case Direction.Attributes.Left:
+                            rv = 4.71f;
+                            break;
+                    }
+                    rotation = float4x4.RotateY(rv);
                 }
 
                 var scale = float4x4.identity;
                 if (hasSize)
                 {
-                    scale = float4x4.Scale(chunkSize[i].Value + chunkSize[i].Grow);
+                    var s = chunkSize[i].Value;
+                    if (hasSizeGrown)
+                    {
+                        s += chunkSizeGrown[i].Grow;
+                    }
+                    scale = float4x4.Scale(s);
                 }
 
                 var m = math.mul(math.mul(translation, rotation), scale);
@@ -104,8 +130,9 @@ public class TransformSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var rotationYType = GetComponentTypeHandle<RotationY>(true);
+        var rotationYType = GetComponentTypeHandle<Direction>(true);
         var sizeType = GetComponentTypeHandle<Size>(true);
+        var sizeGrownType = GetComponentTypeHandle<SizeGrown>(true);
         var fallingType = GetComponentTypeHandle<Falling>(true);
         var positionXZType = GetComponentTypeHandle<PositionXZ>(true);
         var localToWorldType = GetComponentTypeHandle<LocalToWorld>(false);
@@ -113,6 +140,7 @@ public class TransformSystem : SystemBase
         {
             RotationYTypeHandle = rotationYType,
             SizeTypeHandle = sizeType,
+            SizeGrownTypeHandle = sizeGrownType,
             FallingTypeHandle = fallingType,
             PositionXZTypeHandle = positionXZType,
             LocalToWorldTypeHandle = localToWorldType,
