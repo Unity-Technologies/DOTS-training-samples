@@ -43,23 +43,23 @@ public class BoardCreationSystem : SystemBase
                     // Create the outer walls & spawn points
                     if (y == 0)
                     {
-                        newTile.Value = Tile.Attributes.WallDown;
-                        PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallUp);
+                        newTile.Value |= Tile.Attributes.WallDown;
+                        PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallDown);
                     }
                     else if (y == boardCreationAuthor.SizeY - 1)
                     {
-                        newTile.Value = Tile.Attributes.WallUp;
-                        PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallDown);
+                        newTile.Value |= Tile.Attributes.WallUp;
+                        PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallUp);
                     }
 
                     if (x == 0)
                     {
-                        newTile.Value = Tile.Attributes.WallLeft;
+                        newTile.Value |= Tile.Attributes.WallLeft;
                         PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallLeft);
                         if (y == 0)
-                            newTile.Value = Tile.Attributes.WallDown | Tile.Attributes.WallLeft;
+                            newTile.Value |= (Tile.Attributes.WallDown | Tile.Attributes.WallLeft);
                         else if (y == boardCreationAuthor.SizeY - 1)
-                            newTile.Value = Tile.Attributes.WallUp | Tile.Attributes.WallLeft;
+                            newTile.Value |= (Tile.Attributes.WallUp | Tile.Attributes.WallLeft);
                     }
                     else if (x == boardCreationAuthor.SizeX - 1)
                     {
@@ -67,11 +67,11 @@ public class BoardCreationSystem : SystemBase
                         PlaceWall(boardCreationAuthor.WallPrefab, wallPos, Tile.Attributes.WallRight);
                         if (y == 0)
                         {
-                            newTile.Value = Tile.Attributes.WallDown | Tile.Attributes.WallRight;
+                            newTile.Value |= (Tile.Attributes.WallDown | Tile.Attributes.WallRight);
                         }
                         else if (x == boardCreationAuthor.SizeX - 1 && y == boardCreationAuthor.SizeY - 1)
                         {
-                            newTile.Value = Tile.Attributes.WallUp | Tile.Attributes.WallRight;
+                            newTile.Value |= (Tile.Attributes.WallUp | Tile.Attributes.WallRight);
                         }
                     }
 
@@ -83,7 +83,7 @@ public class BoardCreationSystem : SystemBase
                         {
                             case 0:
                                 if (x != 0 && x != boardCreationAuthor.SizeX - 1 && y != 0 && y != boardCreationAuthor.SizeY - 1)
-                                    newTile.Value |= Tile.Attributes.Hole;
+                                    newTile.Value = Tile.Attributes.Hole;
                                 break;
 
                             case 1:
@@ -199,12 +199,12 @@ public class BoardCreationSystem : SystemBase
         {
             case Tile.Attributes.WallUp:
                 rot.Value = quaternion.EulerXYZ(0, math.radians(90), 0);
-                translation.Value = new float3(pos.x, 0.75f, pos.y - 0.5f);
+                translation.Value = new float3(pos.x, 0.75f, pos.y + 0.5f);
                 break;
 
             case Tile.Attributes.WallDown:
                 rot.Value = quaternion.EulerXYZ(0, math.radians(90), 0);
-                translation.Value = new float3(pos.x, 0.75f, pos.y + 0.5f);
+                translation.Value = new float3(pos.x, 0.75f, pos.y - 0.5f);
                 break;
 
             case Tile.Attributes.WallLeft:
