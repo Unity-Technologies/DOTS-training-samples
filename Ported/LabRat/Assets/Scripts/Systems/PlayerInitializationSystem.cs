@@ -16,7 +16,7 @@ public class PlayerInitializationSystem : SystemBase
     {
         var ticks = System.DateTime.Now.Ticks;
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        
+
         Entities.WithName("InitPlayers")
             .WithAll<GameStateInitialize>()
             .ForEach((in PlayerInitialization playerInitialization) =>
@@ -25,8 +25,8 @@ public class PlayerInitializationSystem : SystemBase
             for (int i = 0; i < playerInitialization.PlayerCount; i++)
             {
                 var playerEntity = ecb.Instantiate(playerInitialization.PlayerPrefab);
-                ecb.AddComponent(playerEntity, new PlayerIndex {Value = i});
-                
+                ecb.AddComponent(playerEntity, new PlayerIndex { Value = i });
+
                 if (i == 0 && !playerInitialization.AIOnly)
                 {
                     ecb.AddComponent<HumanPlayerTag>(playerEntity);
@@ -43,17 +43,18 @@ public class PlayerInitializationSystem : SystemBase
                 }
                 ecb.SetComponent(playerEntity, new ColorAuthoring() { Color = UnityEngine.Color.HSVToRGB(i / (float)playerCount, 1, 1) });
                 ecb.AddBuffer<PlayerArrow>(playerEntity);
+                ecb.AddComponent(playerEntity, new MousePosition());
             }
         }).Run();
-        
+
         ecb.Playback(EntityManager);
         ecb.Dispose();
-      
+
         if (Players.IsCreated == false)
         {
             var q = GetEntityQuery(new EntityQueryDesc
             {
-                All = new[] {ComponentType.ReadOnly<Player>()}
+                All = new[] { ComponentType.ReadOnly<Player>() }
             });
             var cc = q.CalculateEntityCount();
             if (cc > 0)
@@ -71,7 +72,7 @@ public class PlayerInitializationSystem : SystemBase
                 ecb.Dispose();
             }
         }
-        
+
         // Quick'n'dirty cleanup
         if (EntityManager.HasComponent<GameStateCleanup>(GetSingletonEntity<PlayerInitialization>()))
         {

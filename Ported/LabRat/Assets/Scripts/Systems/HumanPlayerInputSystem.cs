@@ -2,17 +2,18 @@
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+
 using UnityEngine;
 
 public class HumanPlayerInputSystem : SystemBase
 {
     //GameObject cube;
 
-    EntityCommandBufferSystem ECBSystem;
+    private EntityCommandBufferSystem ECBSystem;
 
-    EntityArchetype clickEventArchetype;
+    private EntityArchetype clickEventArchetype;
 
-    const float playAreaHeight = -0.5f;
+    private const float playAreaHeight = -0.5f;
 
     protected override void OnCreate()
     {
@@ -30,34 +31,45 @@ public class HumanPlayerInputSystem : SystemBase
         if (camera == null)
             return;
 
-        var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-        var clicked = Input.GetMouseButtonDown(0);
-        var plane = new Plane(Vector3.up, playAreaHeight);
-        if (!plane.Raycast(mouseRay, out var distance))
-            return;
-
-        var mouseWorldPosition = (float3)mouseRay.GetPoint(distance);
-        var worldPosition = mouseWorldPosition.xz;
-        var worldTile = math.round(worldPosition);
-
-        var cubePosition = worldTile;
-        cubePosition.y = 0.6f;
-        //cube.transform.position = cubePosition;
-
-        var tileOffset = worldPosition - worldTile;
+        bool clicked = false;
+        float2 worldTile = new float2();
         var inputDirection = Direction.Attributes.None;
-        var directionBitShift = 0;
-        if (math.abs(tileOffset.x) > (math.abs(tileOffset.y)))
-        {
-            directionBitShift = tileOffset.x > 0 ? 2 : 0; // Should be direct enum values, but we want to get angle for arrow preview as well
-        }
-        else
-        {
-            directionBitShift = tileOffset.y > 0 ? 1 : 3;
-        }
-        inputDirection = (Direction.Attributes)(1 << directionBitShift); // God help us if bit value meanings change
-        var directionQuaternion = quaternion.Euler(0, directionBitShift * math.PI / 2 + math.PI, 0);
+        quaternion directionQuaternion = new quaternion();
 
+        Entities
+            .WithAll<HumanPlayerTag>()
+            .ForEach((in MousePosition pos) =>
+            {
+                var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                clicked = Input.GetMouseButtonDown(0);
+                var plane = new Plane(Vector3.up, playAreaHeight);
+                if (!plane.Raycast(mouseRay, out var distance))
+                    return;
+
+                var mouseWorldPosition = (float3)mouseRay.GetPoint(distance);
+                var worldPosition = mouseWorldPosition.xz;
+                worldTile = math.round(worldPosition);
+
+                var cubePosition = worldTile;
+                cubePosition.y = 0.6f;
+                //cube.transform.position = cubePosition;
+
+                var tileOffset = worldPosition - worldTile;
+
+                inputDirection = Direction.Attributes.None;
+
+                var directionBitShift = 0;
+                if (math.abs(tileOffset.x) > (math.abs(tileOffset.y)))
+                {
+                    directionBitShift = tileOffset.x > 0 ? 2 : 0; // Should be direct enum values, but we want to get angle for arrow preview as well
+                }
+                else
+                {
+                    directionBitShift = tileOffset.y > 0 ? 1 : 3;
+                }
+                inputDirection = (Direction.Attributes)(1 << directionBitShift); // God help us if bit value meanings change
+                directionQuaternion = quaternion.Euler(0, directionBitShift * math.PI / 2 + math.PI, 0);
+            }).Run();
         Entities
             .WithAll<HumanPlayerTag>()
             .WithAll<Child>() // Only Arrow Preview has a Child
@@ -69,7 +81,7 @@ public class HumanPlayerInputSystem : SystemBase
 
         if (!clicked)
             return;
-        
+
         var ecb = ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
         var eventArchetype = clickEventArchetype;
@@ -77,12 +89,12 @@ public class HumanPlayerInputSystem : SystemBase
         Entities
             .WithAll<HumanPlayerTag>()
             .ForEach((int entityInQueryIndex, in Entity humanPlayerEntity, in Player player) =>
-        {
-            var clickEvent = ecb.CreateEntity(entityInQueryIndex, eventArchetype);
-            ecb.SetComponent(entityInQueryIndex, clickEvent, new PlaceArrowEvent { Player = humanPlayerEntity });
-            ecb.SetComponent(entityInQueryIndex, clickEvent, new Direction { Value = inputDirection });
-            ecb.SetComponent(entityInQueryIndex, clickEvent, new PositionXZ { Value = worldTile });
-        }).ScheduleParallel();
+            {
+                var clickEvent = ecb.CreateEntity(entityInQueryIndex, eventArchetype);
+                ecb.SetComponent(entityInQueryIndex, clickEvent, new PlaceArrowEvent { Player = humanPlayerEntity });
+                ecb.SetComponent(entityInQueryIndex, clickEvent, new Direction { Value = inputDirection });
+                ecb.SetComponent(entityInQueryIndex, clickEvent, new PositionXZ { Value = worldTile });
+            }).ScheduleParallel();
 
         ECBSystem.AddJobHandleForProducer(Dependency);
     }
