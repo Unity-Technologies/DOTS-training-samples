@@ -116,7 +116,7 @@ struct MatrixCompositionJob : IJobChunk
     
 
 [UpdateInGroup(typeof(TransformSystemGroup))]
-public class TransformSystem : JobComponentSystem
+public class LabRats_TransformSystem : JobComponentSystem
 {
     protected override void OnCreate()
     {
@@ -161,7 +161,7 @@ public class TransformSystem : JobComponentSystem
 public struct StaticDone : IComponentData {}
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
-public class TransformSystemStatic : JobComponentSystem
+public class LabRats_TransformSystemStatic : JobComponentSystem
 {
     private EntityCommandBufferSystem m_CommandBufferSystem;
     
