@@ -18,19 +18,17 @@ public class BeeDyingSystem : SystemBase
         float floor = -b.Bounds.y / 2f;
 
         Entities.WithAll<Dying>()
-                .ForEach( ( int entityInQueryIndex, Entity bee, in Translation translation) =>
+                .ForEach( ( int entityInQueryIndex, Entity entity, in Translation translation) =>
             {
                 //If the bee has reached the floor
                 if(translation.Value.y <= floor)
                 {
                     //UnityEngine.Debug.Log("BEE IS AGONYZING");
-                    ecb.RemoveComponent<Dying>( entityInQueryIndex, bee );
-                    ecb.RemoveComponent<Velocity>( entityInQueryIndex,bee );
-                    ecb.AddComponent<Agony>( entityInQueryIndex, bee );
-
-                    //Adding NonUniformScale because it's not there by default for some reason
-                    //ecb.AddComponent<NonUniformScale>( bee );
-                    ecb.SetComponent<NonUniformScale>( entityInQueryIndex, bee, new NonUniformScale{Value = new float3(1f, 1f, 1f)});
+                    ecb.RemoveComponent<Dying>( entityInQueryIndex, entity );
+                    ecb.AddComponent<ScaleOutAndDestroy>( entityInQueryIndex, entity );
+                    ecb.RemoveComponent<Velocity>( entityInQueryIndex,entity );
+                    ecb.RemoveComponent<Rotation>( entityInQueryIndex,entity );
+                    ecb.SetComponent<NonUniformScale>( entityInQueryIndex, entity, new NonUniformScale{Value = new float3(1f, 0.1f, 1f)});
                 }
             } ).ScheduleParallel();
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);

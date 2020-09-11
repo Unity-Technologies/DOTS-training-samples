@@ -36,7 +36,7 @@ public class SmokeSpawningSystem : SystemBase
                 ecb.SetComponent(instance, new Velocity {Value = new float3(randomVelocityX, randomVelocityY, randomVelocityZ)});
                 ecb.AddComponent<NonUniformScale>( instance, new NonUniformScale{Value = new float3(randomScale, randomScale, randomScale)} );
                 //Use the same state as the bee
-                ecb.AddComponent<Agony>( instance );
+                ecb.AddComponent<ScaleOutAndDestroy>( instance );
             }
             
             ecb.DestroyEntity(spawnerEntity);

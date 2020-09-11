@@ -25,7 +25,7 @@ public class AvoidanceSystem : SystemBase
 			None = new[]
 			{
 				ComponentType.ReadOnly<Dying>(),
-				ComponentType.ReadOnly<Agony>(),
+				ComponentType.ReadOnly<ScaleOutAndDestroy>(),
 			}
 		} );
 
@@ -40,7 +40,7 @@ public class AvoidanceSystem : SystemBase
 			None = new[]
 			{
 				ComponentType.ReadOnly<Dying>(),
-				ComponentType.ReadOnly<Agony>(),
+				ComponentType.ReadOnly<ScaleOutAndDestroy>(),
 			}
 		} );
 	}
@@ -55,7 +55,7 @@ public class AvoidanceSystem : SystemBase
 		
 		Entities.WithAll<TeamA>()
 			.WithDisposeOnCompletion( beeLocations_TeamA )
-			.WithNone<Dying>().WithNone<Agony>().WithNone<Attack>()
+			.WithNone<Dying>().WithNone<ScaleOutAndDestroy>().WithNone<Attack>()
 			.ForEach( ( Entity bee, ref Velocity velocity, in Translation translation ) =>
 			{
 				// TODO clamp its speed?
@@ -74,7 +74,7 @@ public class AvoidanceSystem : SystemBase
 		
 		Entities.WithAll<TeamB>()
 			.WithDisposeOnCompletion( beeLocations_TeamB )
-			.WithNone<Dying>().WithNone<Agony>().WithNone<Attack>()
+			.WithNone<Dying>().WithNone<ScaleOutAndDestroy>().WithNone<Attack>()
 			.ForEach( ( ref Velocity velocity, in Translation translation ) =>
 			{
 				// push away from other bees in the team

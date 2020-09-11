@@ -17,7 +17,7 @@ public struct Collecting : IComponentData
 
 
 
-public struct Agony : IComponentData
+public struct ScaleOutAndDestroy : IComponentData
 {
 
 }

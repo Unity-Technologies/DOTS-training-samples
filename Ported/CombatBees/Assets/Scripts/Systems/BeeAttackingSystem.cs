@@ -25,7 +25,7 @@ public class BeeAttackingSystem : SystemBase
                 .ForEach( ( int entityInQueryIndex, Entity bee, ref Velocity velocity, ref TargetPosition targetPosition, in Translation translation, in TargetEntity targetEntity) =>
             {
                 //If the target bee is dying, agonizing or Destroyed (does not have translation component), back to idle
-                if (HasComponent<Dying>(targetEntity.Value) || HasComponent<Agony>(targetEntity.Value) || !HasComponent<Rotation>(targetEntity.Value))
+                if (HasComponent<Dying>(targetEntity.Value) || HasComponent<ScaleOutAndDestroy>(targetEntity.Value) || !HasComponent<Rotation>(targetEntity.Value))
                 {
                     ecb.RemoveComponent<Attack>(entityInQueryIndex, bee);
                     //ecb.RemoveComponent<TargetEntity>(bee);
