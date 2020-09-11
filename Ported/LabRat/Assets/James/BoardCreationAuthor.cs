@@ -12,4 +12,6 @@ public struct BoardCreationAuthor : IComponentData
     
     public Entity RatSpawner;
     public Entity CatSpawner;
+
+    public bool ShowDebugData;
 }
