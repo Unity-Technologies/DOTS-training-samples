@@ -343,6 +343,13 @@ public class ClothMeshAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
 	struct IndexPairComparer : IComparer<int2>
 	{
-		public int Compare(int2 a, int2 b) => a.x.CompareTo(b.x);
+		public int Compare(int2 a, int2 b)
+		{
+			int cx = a.x.CompareTo(b.x);
+			if (cx == 0)
+				return a.y.CompareTo(b.y);
+			else
+				return cx;
+		}
 	}
 }
