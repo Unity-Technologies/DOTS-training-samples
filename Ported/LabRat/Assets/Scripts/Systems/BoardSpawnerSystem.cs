@@ -79,18 +79,22 @@ public class BoardSpawnerSystem : SystemBase
         EntityManager.AddComponent<BaseTag>(redEntity);
         EntityManager.AddComponentData<Position>(redEntity, redPosition);
         EntityManager.AddComponentData<Color>(redEntity, redColor);
+        EntityManager.AddComponentData<Score>(redEntity, new Score());
         Entity greenEntity = EntityManager.Instantiate(boardPrefabs.basePrefab);
         EntityManager.AddComponent<BaseTag>(greenEntity);
         EntityManager.AddComponentData<Position>(greenEntity, greenPosition);
         EntityManager.AddComponentData<Color>(greenEntity, greenColor);
+        EntityManager.AddComponentData<Score>(greenEntity, new Score());
         Entity blueEntity = EntityManager.Instantiate(boardPrefabs.basePrefab);
         EntityManager.AddComponent<BaseTag>(blueEntity);
         EntityManager.AddComponentData<Position>(blueEntity, bluePosition);
         EntityManager.AddComponentData<Color>(blueEntity, blueColor);
+        EntityManager.AddComponentData<Score>(blueEntity, new Score());
         Entity blackEntity = EntityManager.Instantiate(boardPrefabs.basePrefab);
         EntityManager.AddComponent<BaseTag>(blackEntity);
         EntityManager.AddComponentData<Position>(blackEntity, blackPosition);
         EntityManager.AddComponentData<Color>(blackEntity, blackColor);
+        EntityManager.AddComponentData<Score>(blackEntity, new Score());
 
         EntityManager.RemoveComponent<BoardSize>(GetSingletonEntity<BoardSize>());
     }
