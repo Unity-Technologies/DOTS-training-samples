@@ -24,9 +24,10 @@ public class SteeringSystem : SystemBase
         Unity.Mathematics.Random rand = new Random((uint)(globalTime.GetHashCode()));
 
         // Had some weird results on the first random so I mutate the random a little first
-        rand.NextFloat();
-        rand.NextFloat();
-        rand.NextFloat();
+        rand.NextInt();
+        rand.NextInt();
+        rand.NextInt();
+
 
         Entities.WithAll<AntTag>().ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData) =>
         {
@@ -56,12 +57,12 @@ public class SteeringSystem : SystemBase
         float ret = angleRadians;
         while(ret > math.PI)
         {
-            ret -= math.PI;
+            ret -= 2.0f*math.PI;
         }
 
         while(ret < -math.PI)
         {
-            ret += math.PI;
+            ret += 2.0f*math.PI;
         }
 
         return ret;

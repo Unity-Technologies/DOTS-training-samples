@@ -10,12 +10,17 @@ public class SpawnerSystem : SystemBase
         Entities.WithStructuralChanges().ForEach((Entity entity, in Spawner spawner, in LocalToWorld ltw) =>
         {
             Random random = new Random(1337);
+            random.NextInt();
+            random.NextInt();
+            random.NextInt();
 
             for (int i = 0; i < spawner.NumberOfAnts; i++)
             {
                 var instance = EntityManager.Instantiate(spawner.Ant);
+                float initYaw = random.NextFloat(-math.PI, math.PI);
                 SetComponent(instance, new Translation{ Value = ltw.Position });
-                SetComponent(instance, new Yaw { CurrentYaw = random.NextFloat(0.0f, math.PI * 2.0f) });
+                SetComponent(instance, new Yaw { CurrentYaw =  initYaw });
+                SetComponent(instance, new SteeringComponent { DesiredYaw = initYaw });
             }
 
             EntityManager.RemoveComponent<Spawner>(entity);
