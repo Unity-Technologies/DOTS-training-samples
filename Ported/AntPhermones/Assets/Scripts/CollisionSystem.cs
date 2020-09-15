@@ -7,6 +7,8 @@ using Unity.Mathematics;
 
 using static Unity.Collections.Allocator;
 
+[UpdateAfter(typeof(MovementSystem))]
+
 public class CollisionSystem : SystemBase
 {
     protected override void OnUpdate()
@@ -41,7 +43,7 @@ public class CollisionSystem : SystemBase
                         yaw.Value += (float)Math.PI;
 
                         //Push the Ant outside of the circle
-                        translation.Value = math.normalize(translation.Value) * (arc.Radius - arcHalfWidth);
+                        translation.Value = math.normalize(translation.Value) * (arc.Radius - arcHalfWidth - 0.1f);
                     }
                 }
             }
