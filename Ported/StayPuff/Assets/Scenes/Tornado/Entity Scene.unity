@@ -155,11 +155,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a644307f4fa55a44eaff88ddb291cba2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tornadoForce: 1
+  tornadoForce: 0
   tornadoMaxForceDist: 30
-  tornadoHeight: 50
-  tornadoUpForce: 1.4
-  tornadoInwardForce: 9
+  tornadoHeight: 20
+  tornadoUpForce: 20
+  tornadoInwardForce: 15
+  tornadoFader: 0
 --- !u!33 &14159501
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -234,7 +235,7 @@ Transform:
   m_GameObject: {fileID: 14159499}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 20, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
@@ -350,11 +351,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a644307f4fa55a44eaff88ddb291cba2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tornadoForce: 1
-  tornadoMaxForceDist: 30
-  tornadoHeight: 50
-  tornadoUpForce: 1.4
-  tornadoInwardForce: 9
+  tornadoForce: 4
+  tornadoMaxForceDist: 15
+  tornadoHeight: 20
+  tornadoUpForce: 8.5
+  tornadoInwardForce: 15
+  tornadoFader: 0
 --- !u!1 &1536977432
 GameObject:
   m_ObjectHideFlags: 0
@@ -364,13 +366,31 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1536977434}
+  - component: {fileID: 1536977433}
   m_Layer: 0
   m_Name: TornadoVisualizers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
+--- !u!114 &1536977433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1536977432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52e89c4c64ca3245900a947aca3d2ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 6473778707907927791, guid: 3dd91870dd113694c94549dde3262222, type: 3}
+  CountX: 50
+  CountZ: 50
+  BoundsMax: {x: 45, y: 45, z: 45}
+  BoundsMin: {x: -45, y: 0.5, z: -45}
 --- !u!4 &1536977434
 Transform:
   m_ObjectHideFlags: 0

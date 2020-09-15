@@ -8,4 +8,5 @@ public struct TornadoForceData : IComponentData
 	public float tornadoHeight;
 	public float tornadoUpForce;
 	public float tornadoInwardForce;
+	public float tornadoFader;
 }
