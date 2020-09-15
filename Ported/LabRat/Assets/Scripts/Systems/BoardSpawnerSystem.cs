@@ -1,6 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 public class WallData : IComponentData
@@ -60,6 +61,8 @@ public class BoardSpawnerSystem : SystemBase
         Entity cellEntity = EntityManager.CreateEntity(typeof(CellData));
         EntityManager.SetComponentData(cellEntity, new CellData { cells = cells });
 
+        Random random = new Random(1564);
+
         // Where do walls go?  How do we start enumerating grid cells so they come out in a sane way?
         for (int i = 0; i < boardSize.Value.x; i++)
         {
@@ -73,8 +76,17 @@ public class BoardSpawnerSystem : SystemBase
                 if (j == boardSize.Value.y - 1) currentWall |= 0x4;
                 int arrayPos = boardSize.Value.y * j + i;
                 walls[arrayPos] = currentWall;
+
                 EntityManager.SetComponentData(cells[arrayPos], new Translation { Value = new float3(i, 0, j) });
-                EntityManager.SetComponentData(cells[arrayPos], new Color { Value = (arrayPos + ((boardSize.Value.y + 1) % 2) * (j % 2)) % 2 == 0 ? evenColor : oddColor });
+
+                if (random.NextFloat() < 0.01f)
+                {
+                    EntityManager.AddComponent<DisableRendering>(cells[arrayPos]);
+                }
+                else
+                {
+                    EntityManager.SetComponentData(cells[arrayPos], new Color { Value = (arrayPos + ((boardSize.Value.y + 1) % 2) * (j % 2)) % 2 == 0 ? evenColor : oddColor });
+                }
             }
         }
 
