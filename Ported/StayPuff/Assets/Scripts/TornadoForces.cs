@@ -7,6 +7,7 @@ using Unity.Physics;
 using Unity.Transforms;
 using UnityEditor.UIElements;
 
+[UpdateInGroup(typeof(SimulationSystemGroup))]
 public class TornadoForces : SystemBase
 {
     protected override void OnUpdate()
@@ -30,8 +31,12 @@ public class TornadoForces : SystemBase
             .ForEach((ref PhysicsVelocity velocity, in PhysicsMass mass, in Translation translation) => {
             for (int i = 0; i < TornadoForces.Length; i++)
             {
-                float3 inward_dir = math.normalize(TornadoPosition[i] - translation.Value);
-                velocity.Linear += inward_dir * TornadoForces[i].tornadoInwardForce * mass.InverseMass * deltatime;
+                float3 separation = TornadoPosition[i] - translation.Value;
+                float3 inward_dir = math.normalize(separation);
+                float distance = math.length(separation);
+                float forcestrength = math.saturate((TornadoForces[i].tornadoMaxForceDist - distance) /TornadoForces[i].tornadoMaxForceDist);
+                velocity.Linear += inward_dir * TornadoForces[i].tornadoInwardForce * mass.InverseMass * deltatime * forcestrength;
+
             }
 
 
