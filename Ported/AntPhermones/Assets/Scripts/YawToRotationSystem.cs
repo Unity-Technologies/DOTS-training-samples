@@ -9,7 +9,7 @@ public class YawToRotationSystem : SystemBase
     {
         Entities.ForEach((ref Rotation rotation, in Translation translation, in Yaw yaw) =>
             {
-                rotation.Value = quaternion.RotateY(yaw.Value);
+                rotation.Value = quaternion.RotateY(yaw.CurrentYaw);
             }
         ).Run();
     }

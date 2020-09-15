@@ -4,5 +4,6 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct Yaw : IComponentData
 {
-    public float Value;
+    public float CurrentYaw;
+    public float CurrentYawVel;
 }
