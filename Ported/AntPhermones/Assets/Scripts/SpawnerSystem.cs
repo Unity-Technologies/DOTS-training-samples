@@ -9,7 +9,7 @@ public class SpawnerSystem : SystemBase
 
         Entities.WithStructuralChanges().ForEach((Entity entity, in Spawner spawner, in LocalToWorld ltw) =>
         {
-            Random random = new Unity.Mathematics.Random(1337);
+            Random random = new Random(1337);
 
             for (int i = 0; i < spawner.NumberOfAnts; i++)
             {
