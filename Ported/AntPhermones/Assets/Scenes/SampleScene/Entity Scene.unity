@@ -123,6 +123,66 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &67787998
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 67788000}
+  - component: {fileID: 67787999}
+  - component: {fileID: 67788001}
+  m_Layer: 0
+  m_Name: PheromoneMap
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &67787999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 67787998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffa4cbb9da900284cabf65b8d2850b9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Resolution: 1
+  WorldSpaceSize: 50
+  AntPheremoneStrength: 0.5
+  PheremoneDecay: 0.1
+--- !u!4 &67788000
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 67787998}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &67788001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 67787998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67a400a8c62f7674b8332c03e0f70c95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &628855488
 GameObject:
   m_ObjectHideFlags: 0
@@ -135,8 +195,10 @@ GameObject:
   - component: {fileID: 628855491}
   - component: {fileID: 628855490}
   - component: {fileID: 628855489}
+  - component: {fileID: 628855494}
+  - component: {fileID: 628855493}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Ant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -216,8 +278,33 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &628855493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 628855488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 932416c4d066d44e89bbc624bbd02911, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &628855494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 628855488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6ff288b074594057867da419b372f06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: 0
 --- !u!1 &1743256509
 GameObject:
   m_ObjectHideFlags: 0
@@ -232,7 +319,7 @@ GameObject:
   - component: {fileID: 1743256511}
   - component: {fileID: 1743256510}
   m_Layer: 0
-  m_Name: Sphere
+  m_Name: Home
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -250,7 +337,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de17f443664b442f2bf3cdf5f3445cd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Ant: {fileID: 4015837552346746096, guid: 1ce1f6a2fb144453c8ea252b5f8b2b99, type: 3}
+  Ant: {fileID: 628855488}
   NumberOfAnts: 10
 --- !u!135 &1743256511
 SphereCollider:
