@@ -40,7 +40,7 @@ public class CollisionSystem : SystemBase
                     if (IsBetween(degrees, arc.StartAngle, arc.EndAngle))
                     {
                         //Rotate the Ant 180 degrees.
-                        yaw.Value += (float)Math.PI;
+                        yaw.CurrentYaw += (float)Math.PI;
 
                         //Push the Ant outside of the circle
                         translation.Value = math.normalize(translation.Value) * (arc.Radius - arcHalfWidth - 0.1f);

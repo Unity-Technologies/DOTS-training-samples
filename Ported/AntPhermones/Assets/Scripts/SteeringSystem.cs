@@ -18,7 +18,6 @@ public class SteeringSystem : SystemBase
 
         // Variables for choosing random angle targets
         // To be replaced by pheromone brain
-        float frequency = 10.0f;
         float steerDeviation = math.radians(180.0f);
 
         float smootherFreq = 10.0f;
