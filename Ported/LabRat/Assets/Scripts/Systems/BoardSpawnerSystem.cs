@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
@@ -61,7 +62,7 @@ public class BoardSpawnerSystem : SystemBase
         Entity cellEntity = EntityManager.CreateEntity(typeof(CellData));
         EntityManager.SetComponentData(cellEntity, new CellData { cells = cells });
 
-        Random random = new Random(1564);
+        Unity.Mathematics.Random random = new Unity.Mathematics.Random((uint)DateTime.UtcNow.Millisecond);
 
         // Where do walls go?  How do we start enumerating grid cells so they come out in a sane way?
         for (int i = 0; i < boardSize.Value.x; i++)
