@@ -4,4 +4,5 @@
 public struct BoardPrefabs : IComponentData
 {
     public Entity basePrefab;
+    public Entity cellPrefab;
 }
