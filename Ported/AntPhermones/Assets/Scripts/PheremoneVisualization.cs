@@ -12,7 +12,6 @@ public class PheremoneVisualization : MonoBehaviour
             m_VisTexture = new Texture2D(map.Resolution, map.Resolution, TextureFormat.RFloat, mipChain: false, linear: true);
         }
         transform.localScale = new Vector3(map.WorldSpaceSize, map.WorldSpaceSize, map.WorldSpaceSize);
-        transform.localPosition = new Vector3(map.WorldSpaceSize / 2f, 0, map.WorldSpaceSize / 2f);
 
         m_VisTexture.SetPixelData(pheromones.AsNativeArray(), mipLevel: 0);
         m_VisTexture.Apply();
