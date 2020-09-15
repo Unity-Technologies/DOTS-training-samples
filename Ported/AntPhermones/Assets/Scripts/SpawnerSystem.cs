@@ -6,9 +6,11 @@ public class SpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Random random = new Random(1337);
+
         Entities.WithStructuralChanges().ForEach((Entity entity, in Spawner spawner, in LocalToWorld ltw) =>
         {
+            Random random = new Unity.Mathematics.Random(1337);
+
             for (int i = 0; i < spawner.NumberOfAnts; i++)
             {
                 var instance = EntityManager.Instantiate(spawner.Ant);
