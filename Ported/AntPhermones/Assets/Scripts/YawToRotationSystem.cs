@@ -1,15 +1,15 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
+[UpdateBefore(typeof(TRSToLocalToWorldSystem))]
 public class YawToRotationSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Entities.ForEach((ref Rotation rotation, in Yaw yaw) =>
+        Entities.ForEach((ref Rotation rotation, in Translation translation, in Yaw yaw) =>
             {
-                rotation.Value = quaternion.RotateY(yaw.Value);
+                rotation.Value = quaternion.RotateY(yaw.Value + math.sin(translation.Value.z) + math.cos(translation.Value.x));
             }
         ).Run();
     }

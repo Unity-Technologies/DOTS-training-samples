@@ -17,6 +17,7 @@ public class SpawnerSystem : SystemBase
                 SetComponent(instance, new Translation{ Value = ltw.Position });
                 SetComponent(instance, new Yaw { Value = random.NextFloat(0.0f, math.PI * 2.0f) });
             }
+
             EntityManager.RemoveComponent<Spawner>(entity);
         }).Run();
     }

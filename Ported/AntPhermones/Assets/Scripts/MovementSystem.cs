@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -6,6 +6,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateAfter(typeof(YawToRotationSystem))]
+[UpdateBefore(typeof(TRSToLocalToWorldSystem))]
 public class MovementSystem : SystemBase
 {
     protected override void OnUpdate()
