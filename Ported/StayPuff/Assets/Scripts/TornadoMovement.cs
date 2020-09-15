@@ -27,8 +27,8 @@ public class TornadoMovement : SystemBase
         Entities.ForEach((ref Translation translation, in Rotation rotation, in TornadoMovementData movementData) => {
 
             //translation = new Translation {Value= new float3(0,0,0)};
-            translation.Value.x = math.cos(time / movementData.loopsize) * 30f;
-            translation.Value.z = math.sin(time / movementData.loopsize * 1.618f) * 30f;
+            translation.Value.x = math.cos((time + movementData.loopseed) / movementData.looprate) * movementData.loopsize + movementData.loopposition.x;
+            translation.Value.z = math.sin((time + movementData.loopseed) / movementData.looprate) * movementData.loopsize + movementData.loopposition.z;
             // cam.position = new Vector3(tornadoX, 10f, tornadoZ) - cam.forward * 60f;
             // Implement the work to perform for each entity here.
             // You should only access data that is local or that is a

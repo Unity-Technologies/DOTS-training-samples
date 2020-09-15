@@ -133,16 +133,16 @@ GameObject:
   m_Component:
   - component: {fileID: 14159504}
   - component: {fileID: 14159503}
-  - component: {fileID: 14159502}
-  - component: {fileID: 14159501}
   - component: {fileID: 14159500}
+  - component: {fileID: 14159501}
+  - component: {fileID: 14159502}
   m_Layer: 0
   m_Name: TornadoB
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &14159500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -155,7 +155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a644307f4fa55a44eaff88ddb291cba2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tornadoInwardForce: 9
+  tornadoInwardForce: 10
 --- !u!33 &14159501
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -217,7 +217,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9359d74f711f03345abfaacfae2714eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  loopsize: 6
+  loopsize: 30
+  looprate: 6
+  loopseed: -10
+  loopposition: {x: -10, y: 0, z: 0}
 --- !u!4 &14159504
 Transform:
   m_ObjectHideFlags: 0
@@ -226,7 +229,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 14159499}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 13.12, y: 0, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -242,9 +245,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1345016587}
   - component: {fileID: 1345016590}
+  - component: {fileID: 1345016591}
   - component: {fileID: 1345016589}
   - component: {fileID: 1345016588}
-  - component: {fileID: 1345016591}
   m_Layer: 0
   m_Name: TornadoA
   m_TagString: Untagged
@@ -260,7 +263,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1345016586}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: 0, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -327,7 +330,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9359d74f711f03345abfaacfae2714eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  loopsize: 6
+  loopsize: 30
+  looprate: 6
+  loopseed: 0
+  loopposition: {x: 10, y: 0, z: 0}
 --- !u!114 &1345016591
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -340,7 +346,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a644307f4fa55a44eaff88ddb291cba2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tornadoInwardForce: 9
+  tornadoInwardForce: 10
 --- !u!1 &1536977432
 GameObject:
   m_ObjectHideFlags: 0
@@ -351,7 +357,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1536977434}
   m_Layer: 0
-  m_Name: TornadoCubeVisualizers
+  m_Name: TornadoVisualizers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -365,7 +371,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1536977432}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: 0, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -411,7 +417,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1817335383}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: 0, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

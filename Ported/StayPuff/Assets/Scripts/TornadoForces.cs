@@ -15,21 +15,27 @@ public class TornadoForces : SystemBase
         NativeList<float3> TornadoPosition = new NativeList<float3>(Allocator.TempJob);
         float deltatime = UnityEngine.Time.deltaTime;
 
-        Dependency = Entities.ForEach((ref TornadoForceData forcedata, in Translation tornadopos ) => {
+        Entities.ForEach((ref TornadoForceData forcedata, in Translation tornadopos ) => {
             TornadoForces.Add(forcedata);
             TornadoPosition.Add(tornadopos.Value);
 
-        }).Schedule(Dependency);
+        }).Schedule();
 
-        Dependency = Entities.WithReadOnly(TornadoForces).WithReadOnly(TornadoPosition).WithNone<TornadoForceData>().WithDisposeOnCompletion(TornadoForces).WithDisposeOnCompletion(TornadoPosition).ForEach((ref PhysicsVelocity velocity, in PhysicsMass mass, in Translation translation) => {
-            for (int i = 0; i > TornadoForces.Length; i++)
+        Entities
+            .WithReadOnly(TornadoForces)
+            .WithReadOnly(TornadoPosition)
+            .WithNone<TornadoForceData>()
+            .WithDisposeOnCompletion(TornadoForces)
+            .WithDisposeOnCompletion(TornadoPosition)
+            .ForEach((ref PhysicsVelocity velocity, in PhysicsMass mass, in Translation translation) => {
+            for (int i = 0; i < TornadoForces.Length; i++)
             {
                 float3 inward_dir = math.normalize(TornadoPosition[i] - translation.Value);
                 velocity.Linear += inward_dir * TornadoForces[i].tornadoInwardForce * mass.InverseMass * deltatime;
             }
 
 
-        }).Schedule(Dependency);
+        }).Schedule();
 
     }
 }
