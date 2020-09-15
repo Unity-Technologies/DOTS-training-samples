@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public struct Spawner : IComponentData
+public struct BeamData : IComponentData
 {
     public Entity Prefab;
     public int CountX;
