@@ -11,7 +11,7 @@ public class BoardInitSystem : SystemBase
    {
       //There should be at least 3 entities
       Entities.WithStructuralChanges().ForEach((Entity entity, 
-          Arc arc, in WallAuthoring wall) =>
+          ref Arc arc, in WallAuthoring wall) =>
       {
          float deg2rad = (math.PI * 2) / 360;
          float radius = arc.Radius;
@@ -34,7 +34,7 @@ public class BoardInitSystem : SystemBase
           }
             
          //Only run this once
-         EntityManager.DestroyEntity(entity);
+         EntityManager.RemoveComponent<WallAuthoring>(entity);
          
       }).WithoutBurst().Run();
       

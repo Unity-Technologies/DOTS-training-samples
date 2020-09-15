@@ -24,7 +24,7 @@ public class CollisionSystem : SystemBase
         Entities.WithAll<AntTag>().WithDisposeOnCompletion(arcArray).ForEach((ref Yaw yaw, ref Translation translation) =>
         {
             double angleInRadians = math.atan2(translation.Value.z, translation.Value.x); 
-            double degrees = math.degrees(angleInRadians) + 90.0f;
+            double degrees = math.degrees(angleInRadians) - 135.0f;
 
             //For each arc
             for(int i = 0; i < arcArray.Length; i++)
