@@ -27,7 +27,7 @@ public class CollisionSystem : SystemBase
         Entities.WithAll<AntTag>().WithDisposeOnCompletion(arcArray).ForEach((ref Yaw yaw, ref Translation translation, in LocalToWorld localToWorld) =>
         {
             double angleInRadians = math.atan2(translation.Value.z, translation.Value.x); 
-            double degrees = math.degrees(angleInRadians) - 135.0f;
+            double degrees = -math.degrees(angleInRadians) + 90;
 
             float arcHalfWidth = Arc.Size / 2.0f;
             float antHalfWidth = AntTag.Size / 2.0f;
