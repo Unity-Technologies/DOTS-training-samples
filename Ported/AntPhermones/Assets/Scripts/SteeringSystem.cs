@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using Debug = UnityEngine.Debug;
 
 [UpdateBefore(typeof(YawToRotationSystem))]
@@ -81,32 +82,24 @@ public class SteeringSystem : SystemBase {
     {
         float globalTime = (float)Time.ElapsedTime;
 
-        // hack to test smoothing, only step up global time every second
-        // Choose random angle targets
-        // To be replaced by pheromone brain
-        float updateTime = 1.0f;
-        globalTime -= (globalTime % updateTime);
         float deltaTime = (float)Time.DeltaTime;
 
-        float smootherFreq = 10.0f;
-        float smootherDampingRatio = 1.0f; // < 1.0f underdamped, 1.0f == critically damped, > 1.0f overdamped
+        var settingsEntity = GetSingletonEntity<SteeringSettings>();
+        var settingsData = EntityManager.GetComponentData<SteeringSettings>(settingsEntity);
 
-        Unity.Mathematics.Random rand = new Random((uint)(globalTime.GetHashCode()));
+        float maxAngleDeviation = math.radians(settingsData.PheromoneDeviationDegrees);
 
-        // Had some weird results on the first random so I mutate the random a little first
-        rand.NextInt();
-        rand.NextInt();
-        rand.NextInt();
+        var mapEntity = GetSingletonEntity<PheromoneMap>();
+        var map = EntityManager.GetComponentData<PheromoneMap>(mapEntity);
+        var pheromones = EntityManager.GetBuffer<PheromoneStrength>(mapEntity);
 
-
-        Entities.WithAll<AntTag>().ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData) =>
+        Entities.WithAll<AntTag>().ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData, in LocalToWorld ltw) =>
         {
+            // Calculate a desired yaw based on current position
+            float strongestPheromoneAngle = StrongestDirection(map, pheromones, ltw.Position, ltw.Forward);
+            float gaussianSample = NextGaussian(strongestPheromoneAngle, maxAngleDeviation);
 
-            if (globalTime - steeringData.LastSteerTime > updateTime)
-            {
-                steeringData.LastSteerTime = globalTime;
-                steeringData.DesiredYaw = rand.NextFloat(-math.PI, math.PI);
-            }
+            steeringData.DesiredYaw = gaussianSample;
 
             // Interp towards desired
 
@@ -116,7 +109,7 @@ public class SteeringSystem : SystemBase {
             currentToDesired = ClampToPiMinusPi(currentToDesired);
             float deltaYaw = 0.0f;
 
-            SpringDamp(ref deltaYaw, ref yaw.CurrentYawVel, currentToDesired, smootherDampingRatio, smootherFreq, deltaTime);
+            SpringDamp(ref deltaYaw, ref yaw.CurrentYawVel, currentToDesired, settingsData.SteeringDampingRatio, settingsData.SteeringSmoothingFrequency, deltaTime);
             yaw.CurrentYaw += deltaYaw;
             yaw.CurrentYaw = ClampToPiMinusPi(yaw.CurrentYaw);
         }).Run();

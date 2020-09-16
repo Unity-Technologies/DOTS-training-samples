@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffa4cbb9da900284cabf65b8d2850b9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Resolution: 256
+  Resolution: 512
   WorldSpaceSize: 50
   AntPheremoneStrength: 1
   PheremoneDecay: 0.001
@@ -254,8 +254,9 @@ GameObject:
   - component: {fileID: 350048167}
   - component: {fileID: 350048166}
   - component: {fileID: 350048165}
-  - component: {fileID: 350048164}
   - component: {fileID: 350048162}
+  - component: {fileID: 350048163}
+  - component: {fileID: 350048164}
   m_Layer: 0
   m_Name: Food
   m_TagString: Untagged
@@ -275,19 +276,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c310061ad10b4731927fcb65a8cc8cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!135 &350048164
-SphereCollider:
+--- !u!114 &350048163
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 350048161}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aa0ae2f245cc45559d43c134f015ee8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Radius: 20
+  StartAngle: 0
+  EndAngle: 0
+--- !u!114 &350048164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 350048161}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb468873374dd416cad1c00c911ef77d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!23 &350048165
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -504,6 +519,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wallPrefab: {fileID: 1267022011664864647, guid: bab177c9de354432daccf66e106df095, type: 3}
+--- !u!1 &1624703578
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1624703579}
+  - component: {fileID: 1624703580}
+  m_Layer: 0
+  m_Name: SettingsEntity
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1624703579
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1624703578}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 11.094793, y: 0.0000038146973, z: 6.2526426}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1624703580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1624703578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e0c8c035af3f9d4aaf5304d75a4d475, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PheromoneDeviationDegrees: 120
+  SteeringSmoothingFrequency: 10
+  SteeringDampingRatio: 1
 --- !u!1 &1743256509
 GameObject:
   m_ObjectHideFlags: 0
@@ -515,7 +576,6 @@ GameObject:
   - component: {fileID: 1743256514}
   - component: {fileID: 1743256513}
   - component: {fileID: 1743256512}
-  - component: {fileID: 1743256511}
   - component: {fileID: 1743256510}
   - component: {fileID: 1743256515}
   m_Layer: 0
@@ -539,19 +599,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Ant: {fileID: 4015837552346746096, guid: 1ce1f6a2fb144453c8ea252b5f8b2b99, type: 3}
   NumberOfAnts: 100
---- !u!135 &1743256511
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1743256509}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1743256512
 MeshRenderer:
   m_ObjectHideFlags: 0
