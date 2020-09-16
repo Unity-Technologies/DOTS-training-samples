@@ -9,66 +9,69 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public class TornadoForces : SystemBase
 {
-    Random random;
+    EntityQuery TornadoListQuery;
+    Random SystemRandom;
+
     protected override void OnCreate()
     {
-        random = new Random(999);
+        TornadoListQuery = GetEntityQuery(typeof(TornadoForceData), ComponentType.ReadOnly<Translation>());
+        SystemRandom = new Random(999);
     }
+
     protected override void OnUpdate()
     {
-        NativeList<TornadoForceData> TornadoForces = new NativeList<TornadoForceData>(Allocator.TempJob);
-        NativeList<float3> TornadoPosition = new NativeList<float3>(Allocator.TempJob);
+        int numTornados = TornadoListQuery.CalculateEntityCount();
+        NativeList<TornadoForceData> tornadoForces = new NativeList<TornadoForceData>(numTornados, Allocator.TempJob);
+        NativeList<float3> tornadoPosition = new NativeList<float3>(numTornados, Allocator.TempJob);
+        NativeList<TornadoForceData>.ParallelWriter tornadoForcesWriter = tornadoForces.AsParallelWriter();
+        NativeList<float3>.ParallelWriter tornadoPositionWriter = tornadoPosition.AsParallelWriter();
+
         float deltatime = UnityEngine.Time.fixedDeltaTime;
         float time = UnityEngine.Time.time;
-        Random old_random = random;
-
-        Entities.ForEach((ref TornadoForceData forcedata, in Translation tornadopos) => {
-            forcedata.tornadoFader = math.saturate(forcedata.tornadoFader + deltatime / 10f);
-            TornadoForces.Add(forcedata);
-            TornadoPosition.Add(tornadopos.Value);
-
-        }).Schedule();
-
-
+        Random jobRandom = SystemRandom;
 
         Entities
-            .WithReadOnly(TornadoForces)
-            .WithReadOnly(TornadoPosition)
+            .ForEach((ref TornadoForceData forcedata, in Translation tornadopos) => {
+                forcedata.tornadoFader = math.saturate(forcedata.tornadoFader + deltatime / 10f);
+                tornadoForcesWriter.AddNoResize(forcedata);
+                tornadoPositionWriter.AddNoResize(tornadopos.Value);
+            }).ScheduleParallel();
+
+        Entities
+            .WithReadOnly(tornadoForces)
+            .WithReadOnly(tornadoPosition)
             .WithNone<TornadoForceData>()
-            .WithDisposeOnCompletion(TornadoForces)
-            .WithDisposeOnCompletion(TornadoPosition)
+            .WithDisposeOnCompletion(tornadoForces)
+            .WithDisposeOnCompletion(tornadoPosition)
             .ForEach((ref PhysicsVelocity velocity, in PhysicsMass mass, in Translation translation) => {
-                for (int i = 0; i < TornadoForces.Length; i++)
+                for (int i = 0; i < tornadoForces.Length; i++)
                 {
                     float3 finalForce = new float3();
-                    float inwardForce = TornadoForces[i].tornadoInwardForce;
-                    float upForce = TornadoForces[i].tornadoUpForce;
-                    float tornadoHeight = TornadoForces[i].tornadoHeight;
+                    float inwardForce = tornadoForces[i].tornadoInwardForce;
+                    float upForce = tornadoForces[i].tornadoUpForce;
+                    float tornadoHeight = tornadoForces[i].tornadoHeight;
                     float height = translation.Value.y;
 
                     float sway = math.sin(height / 5f + time / 4f) * 3f;
 
-                    float tdx = TornadoPosition[i].x + sway - translation.Value.x;
-                    float tdz = TornadoPosition[i].z - translation.Value.z;
+                    float tdx = tornadoPosition[i].x + sway - translation.Value.x;
+                    float tdz = tornadoPosition[i].z - translation.Value.z;
 
                     float tornadoDist = math.sqrt(tdx * tdx + tdz * tdz);
                     tdx /= tornadoDist;
                     tdz /= tornadoDist;
 
-                    float force = math.saturate(1f - tornadoDist / TornadoForces[i].tornadoMaxForceDist);
-                    force *= TornadoForces[i].tornadoFader * TornadoForces[i].tornadoForce * old_random.NextFloat(TornadoForces[i].tornadoForceRand.x, TornadoForces[i].tornadoForceRand.y);//-.3f, 1.3f);
+                    float force = math.saturate(1f - tornadoDist / tornadoForces[i].tornadoMaxForceDist);
+                    force *= tornadoForces[i].tornadoFader * tornadoForces[i].tornadoForce * jobRandom.NextFloat(tornadoForces[i].tornadoForceRand.x, tornadoForces[i].tornadoForceRand.y);//-.3f, 1.3f);
                     float yFader = math.saturate(1.0f - height / tornadoHeight);
 
-                    
                     finalForce.y = upForce;
 
                     finalForce.x = -tdz + tdx * inwardForce * yFader;
                     finalForce.z = tdx + tdz * inwardForce * yFader;
 
                     velocity.Linear += force * finalForce * mass.InverseMass * deltatime;
-
                 }
-
-            }).Schedule();
+            }).ScheduleParallel();
     }
 }
