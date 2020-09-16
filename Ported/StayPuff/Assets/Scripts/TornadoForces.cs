@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Transforms;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class TornadoForces : SystemBase
 {
     EntityQuery TornadoListQuery;
@@ -26,8 +26,8 @@ public class TornadoForces : SystemBase
         NativeList<TornadoForceData>.ParallelWriter tornadoForcesWriter = tornadoForces.AsParallelWriter();
         NativeList<float3>.ParallelWriter tornadoPositionWriter = tornadoPosition.AsParallelWriter();
 
-        float deltatime = UnityEngine.Time.fixedDeltaTime;
-        float time = UnityEngine.Time.time;
+        float deltatime = Time.DeltaTime;
+        float time = (float)Time.ElapsedTime;
         Random jobRandom = SystemRandom;
 
         Entities
