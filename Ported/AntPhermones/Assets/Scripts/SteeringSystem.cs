@@ -44,6 +44,7 @@ public class SteeringSystem : SystemBase {
         int radius = 2;
         int2 pixelCenter = PheromoneMap.WorldToGridPos(map, neighborhoodCenterWorldPos);
         float avgDeltaAngle = 0;
+        float denom = 0;
         for (int x = -radius; x < radius + 1; x++) {
             for (int y = -radius; y < radius + 1; y++) {
                 int2 centerOffset = new int2(x, y);
@@ -54,11 +55,18 @@ public class SteeringSystem : SystemBase {
 
                 var index = PheromoneMap.GridPosToIndex(map, pixelCenter + centerOffset);
                 avgDeltaAngle += fwDeltaAngle * pheromones[index];
+                denom += pheromones[index];
             }
         }
 
+        if (denom < kEpsilonNormalSqrt) {
+            // No signal, could return a random value here, but it's probably best handled externally.
+            return 0;
+        }
+
         // Returns a signed delta from the current forward angle, in degrees.
-        return avgDeltaAngle;
+        // Normalize by the total signal strength.
+        return avgDeltaAngle / denom;
     }
 
     // Update is called once per frame
