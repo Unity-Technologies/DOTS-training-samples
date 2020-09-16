@@ -14,7 +14,7 @@ public class TornadoMovement : SystemBase
 
         Entities.ForEach((ref Translation translation, in Rotation rotation, in TornadoMovementData movementData) => {
             float trackSin = math.sin((time + movementData.loopseed) / movementData.looprate);
-            float trackCos = math.sqrt(1.0f - trackSin * trackSin);
+            float trackCos = math.cos((time + movementData.loopseed) / movementData.looprate);
 
             translation.Value.x = trackCos * movementData.loopsize + movementData.loopposition.x;
             translation.Value.z = trackSin * movementData.loopsize + movementData.loopposition.z;

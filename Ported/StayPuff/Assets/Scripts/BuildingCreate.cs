@@ -1,20 +1,54 @@
-﻿using Unity.Burst;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Rendering;
+using Unity.Physics.Authoring;
+using Unity.Physics;
 
 public class BuildingCreate : SystemBase
 {
     protected override void OnUpdate()
     {
-      
-        
-        
-        Entities.ForEach((ref Translation translation, in Rotation rotation) => {
+        BuildingCreationData buildingData = GetSingleton<BuildingCreationData>();
 
-        }).Schedule();
+        Entities.WithStructuralChanges().ForEach((Entity entity, in SpawnData spawnData) => {
+
+            Entity previousEntity = Entity.Null;
+
+            for(int i = 0; i < spawnData.height; i++)
+            {
+                float3 position = spawnData.position;
+
+                RenderBounds bounds = EntityManager.GetComponentData<RenderBounds>(buildingData.prefab);
+                float prefabHeight = bounds.Value.Size.y;
+
+                position.y += 0.5f + i * prefabHeight;
+
+                var instance = EntityManager.Instantiate(buildingData.prefab);
+                EntityManager.SetComponentData(instance, new Translation
+                {
+                    Value = position
+                });
+                
+                if(i > 0)
+                {
+                    PhysicsJoint joint = PhysicsJoint.CreateBallAndSocket(new float3(0.0f, 0.5f, 0.0f), new float3(0.0f, -0.5f, 0.0f));
+
+                    Entity jointEntity = EntityManager.CreateEntity(new ComponentType[] { typeof(PhysicsConstrainedBodyPair), typeof(PhysicsJoint) });
+
+                    EntityManager.SetComponentData(jointEntity, new PhysicsConstrainedBodyPair(previousEntity, instance, true));
+                    EntityManager.SetComponentData(jointEntity, joint);
+                }
+
+                previousEntity = instance;
+
+            }
+            EntityManager.DestroyEntity(entity);
+        }).Run();
+        
     }
 }
 //for (int i = 0; i < 35; i++)

@@ -9,11 +9,23 @@ public class CityCreate : SystemBase
 {
     protected override void OnUpdate()
     {
-        
-        
-        Entities.ForEach((ref Translation translation, in Rotation rotation) => {
 
-        }).Schedule();
+        Entities.WithStructuralChanges()
+            .ForEach((Entity entity, in CityData city) =>
+            {
+          
+                for (int x = 0; x < city.CountX; ++x)
+                    for (int z = 0; z < city.CountZ; ++z)
+                    {
+                        var posX = 10 * (x - (city.CountX - 1) / 2);
+                        var posY = 0f;
+                        var posZ = 10 * (z - (city.CountZ - 1) / 2);
+                        Entity newentity = EntityManager.CreateEntity();
+                        EntityManager.AddComponentData(newentity, new SpawnData { position = new float3(posX, posY, posZ), height = 20 });
+                    }
+
+                EntityManager.DestroyEntity(entity);
+            }).Run();
     }
 }
 
