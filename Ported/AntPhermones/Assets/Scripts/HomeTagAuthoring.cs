@@ -2,7 +2,7 @@
 using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public struct HomeTagAuthoring : IComponentData
+public struct HomeTag : IComponentData
 {
    
 }
