@@ -28,7 +28,7 @@ public class SteeringSystem : SystemBase {
 
     static Random m_Rng = new Random(1337);
 
-    float NextGaussian(float mean, float stdDev) {
+    static float NextGaussian(float mean, float stdDev) {
         float u1 = 1.0f - m_Rng.NextFloat();
         float u2 = 1.0f - m_Rng.NextFloat();
         float randStdNormal = math.sqrt(-2.0f * math.log(u1))
