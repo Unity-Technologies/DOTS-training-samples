@@ -11,7 +11,7 @@ public class BoardInitSystem : SystemBase
    {
       //There should be at least 3 entities
       Entities.WithStructuralChanges().ForEach((Entity entity, 
-          ref Arc arc, in WallAuthoring wall) =>
+          ref Arc arc, in WallAuthoring wall, in LocalToWorld ltw) =>
       {
          float deg2rad = (math.PI * 2) / 360;
          float radius = arc.Radius;
@@ -25,7 +25,8 @@ public class BoardInitSystem : SystemBase
           for (int i = (int)arc.StartAngle; i < (arc.EndAngle + 1); i++) 
           {
                float rad = deg2rad * i;
-               float3 position = new float3(math.sin(rad) * radius, 0, math.cos(rad) * radius);
+               float3 position = new float3(ltw.Position.x + (math.sin(rad) * radius), 0, 
+                  ltw.Position.z + (math.cos(rad) * radius));
             
                //instantiate prefabs with mesh render
                var instance = EntityManager.Instantiate(wall.wallPrefab);
@@ -37,12 +38,7 @@ public class BoardInitSystem : SystemBase
          EntityManager.RemoveComponent<WallAuthoring>(entity);
          
       }).WithoutBurst().Run();
-      
-      //Create Home Base, this will be on 0,0,0
-      
-      
-      //Create Food
-      
+
    }
    
    
