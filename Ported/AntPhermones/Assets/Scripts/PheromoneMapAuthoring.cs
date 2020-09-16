@@ -29,9 +29,12 @@ public struct PheromoneMap : IComponentData
         float offset = map.WorldSpaceSize / 2f;
         float x = ((gridPos.x) / (float)(map.Resolution));
         float z = ((gridPos.y) / (float)(map.Resolution));
-        x -= offset;
-        z -= offset;
-        return new float3(x * map.WorldSpaceSize, 0, z * map.WorldSpaceSize);
+        
+        float3 worldSpacePos = new float3(x * map.WorldSpaceSize, 0, z * map.WorldSpaceSize);
+        worldSpacePos.x -= offset;
+        worldSpacePos.z -= offset;
+
+        return worldSpacePos;
     }
 
     public static int GridPosToIndex(PheromoneMap map, int2 gridPos) {
