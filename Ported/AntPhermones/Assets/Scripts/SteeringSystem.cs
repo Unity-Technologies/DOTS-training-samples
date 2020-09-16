@@ -52,7 +52,7 @@ public class SteeringSystem : SystemBase {
                 var fw = math.normalize(new float2(forward.x, forward.z));
                 var fwDeltaAngle = _SignedAngle(math.normalize(new float2(centerOffset)), fw);
 
-                if (fwDeltaAngle > 90) { continue; }
+                if (math.abs(fwDeltaAngle) > 90) { continue; }
 
                 var index = PheromoneMap.GridPosToIndex(map, pixelCenter + centerOffset);
                 avgDeltaAngle += fwDeltaAngle * pheromones[index];
