@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4355111449126890}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Ears
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 33775072569149194}
   - component: {fileID: 135816013357902554}
   - component: {fileID: 23802453303808792}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -139,7 +139,7 @@ GameObject:
   - component: {fileID: 4004405848329102}
   - component: {fileID: 33692568700443904}
   - component: {fileID: 23072280594045222}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -218,7 +218,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4346689442520454}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Mouse
   m_TagString: Mouse
   m_Icon: {fileID: 0}
@@ -251,7 +251,7 @@ GameObject:
   - component: {fileID: 4820926559654238}
   - component: {fileID: 33139999378818152}
   - component: {fileID: 23984843266493202}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Sphere (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

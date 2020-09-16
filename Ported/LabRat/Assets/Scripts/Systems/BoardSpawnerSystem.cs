@@ -19,6 +19,11 @@ public struct BaseTag : IComponentData
 
 }
 
+public struct MouseAndCatSpawnerTag : IComponentData
+{
+
+}
+
 public class BoardSpawnerSystem : SystemBase
 {
 
@@ -148,6 +153,16 @@ public class BoardSpawnerSystem : SystemBase
         EntityManager.AddComponentData<Position>(blackEntity, blackPosition);
         EntityManager.AddComponentData<Color>(blackEntity, blackColor);
         EntityManager.AddComponentData<Score>(blackEntity, new Score());
+
+        // Need spawners for mice & cats
+        Position spawnerPositionA = new Position() { Value = new int2(0, 0) };
+        Position spawnerPositionB = new Position() { Value = new int2(12, 12) };
+        Entity spawnerEntityA = EntityManager.CreateEntity();
+        EntityManager.AddComponent<MouseAndCatSpawnerTag>(spawnerEntityA);
+        EntityManager.AddComponentData<Position>(spawnerEntityA, spawnerPositionA);
+        Entity spawnerEntityB = EntityManager.CreateEntity();
+        EntityManager.AddComponent<MouseAndCatSpawnerTag>(spawnerEntityB);
+        EntityManager.AddComponentData<Position>(spawnerEntityB, spawnerPositionB);
 
         EntityManager.RemoveComponent<BoardSize>(GetSingletonEntity<BoardSize>());
     }
