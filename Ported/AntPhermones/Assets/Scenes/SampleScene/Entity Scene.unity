@@ -230,6 +230,7 @@ MonoBehaviour:
   Radius: 15
   StartAngle: 0
   EndAngle: 0
+  split: 0
 --- !u!114 &278205731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -291,6 +292,7 @@ MonoBehaviour:
   Radius: 20
   StartAngle: 0
   EndAngle: 0
+  split: 0
 --- !u!114 &350048164
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -413,6 +415,7 @@ MonoBehaviour:
   Radius: 5
   StartAngle: 0
   EndAngle: 0
+  split: 0
 --- !u!114 &372857753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -506,6 +509,7 @@ MonoBehaviour:
   Radius: 10
   StartAngle: 0
   EndAngle: 0
+  split: 0
 --- !u!114 &694014827
 MonoBehaviour:
   m_ObjectHideFlags: 0
