@@ -13,25 +13,31 @@ public class CollisionSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        JobHandle arcJobHandle;
         
         //Get a list of all arcs.
-        var arcArray = GetEntityQuery(typeof(Arc)).ToComponentDataArrayAsync<Arc>(TempJob, out arcJobHandle);
-
-        //Dynamic Buffer for searching for Arcs. 
+        var arcArray = GetEntityQuery(typeof(Arc)).ToComponentDataArrayAsync<Arc>(TempJob, out var arcJobHandle);
         
+        //Get pheromone map
+        var pheromoneMapArr = GetEntityQuery(typeof(PheromoneMap)).ToComponentDataArrayAsync<PheromoneMap>(TempJob, out var pheromoneMapJobHandle);
+
+        //Wait to grab pheromone map, & dispose
+        pheromoneMapJobHandle.Complete();
+        float mapWorldSpaceSize = pheromoneMapArr[0].WorldSpaceSize / 2.0f;
+        pheromoneMapArr.Dispose();
         
         Dependency = JobHandle.CombineDependencies(Dependency, arcJobHandle);
-        
+
         //For each Ant
-        Entities.WithAll<AntTag>().WithDisposeOnCompletion(arcArray).ForEach((ref Yaw yaw, ref Translation translation, in LocalToWorld localToWorld) =>
+        Entities.WithAll<AntTag>().WithDisposeOnCompletion(arcArray).ForEach((ref Translation translation, ref Yaw yaw, in LocalToWorld localToWorld) =>
         {
-            double angleInRadians = math.atan2(translation.Value.z, translation.Value.x); 
+            double angleInRadians = math.atan2(translation.Value.z, translation.Value.x);
             double degrees = -math.degrees(angleInRadians) + 90;
 
             float arcHalfWidth = Arc.Size / 2.0f;
             float antHalfWidth = AntTag.Size / 2.0f;
             float collisionWidth = arcHalfWidth + antHalfWidth;
+
+            CheckOutOfBounds(ref translation, ref yaw, mapWorldSpaceSize);
             
             //For each arc
             for(int i = 0; i < arcArray.Length; i++)
@@ -64,6 +70,34 @@ public class CollisionSystem : SystemBase
                 }
             }
         }).Schedule();
+    }
+
+    static void CheckOutOfBounds(ref Translation translation, ref Yaw yaw, float mapSize)
+    {
+        //Rotate the Ant 180 degrees.
+        if (translation.Value.x < -mapSize)
+        {
+            translation.Value.x = -mapSize;
+            yaw.CurrentYaw += (float)Math.PI;
+        }
+        
+        if (translation.Value.x > mapSize)
+        {
+            translation.Value.x = mapSize;
+            yaw.CurrentYaw += (float)Math.PI;
+        }
+                
+        if (translation.Value.z < -mapSize)
+        {
+            translation.Value.z = -mapSize;
+            yaw.CurrentYaw += (float)Math.PI;
+        }
+                
+        if (translation.Value.z > mapSize)
+        {
+            translation.Value.z = mapSize;
+            yaw.CurrentYaw += (float)Math.PI;
+        }
     }
     
     static bool IsBetween(double mid, float start, float end) {     
