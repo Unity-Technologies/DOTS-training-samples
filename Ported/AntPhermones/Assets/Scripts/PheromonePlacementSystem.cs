@@ -13,11 +13,15 @@ public class PheromonePlacementSystem : SystemBase {
         Entities.WithAll<AntTag>().ForEach((in Translation translation) => {
             int2 gridPos = PheromoneMap.WorldToGridPos(map, translation.Value);
             int index = PheromoneMap.GridPosToIndex(map, gridPos);
-            if (index < 0 || index > pheromones.Length) {
-                UnityEngine.Debug.LogWarning($"Index '{index}' out of bounds '{pheromones.Length}'");
-                return;
+            if (index < 0 || index >= pheromones.Length) {
+                //UnityEngine.Debug.LogWarning($"Index '{index}' out of bounds '{pheromones.Length}'");
+//                return;
             }
-            pheromones[index] += map.AntPheremoneStrength * dt;
+            else
+            {
+                pheromones[index] += map.AntPheremoneStrength * dt;
+                pheromones[index] = math.min(pheromones[index], 1.0f);
+            }
         }).Run();
     }
 }

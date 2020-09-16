@@ -36,6 +36,7 @@ public struct PheromoneMap : IComponentData
 
     public static int GridPosToIndex(PheromoneMap map, int2 gridPos) {
         var index = gridPos.x + map.Resolution * gridPos.y;
+        index = math.clamp(index, 0, (map.Resolution * map.Resolution) - 1);
         return index;
     }
 }
