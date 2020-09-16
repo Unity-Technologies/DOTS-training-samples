@@ -77,6 +77,54 @@ public class SteeringSystem : SystemBase {
         return math.radians(avgDeltaAngle / totalStrength);
     }
 
+    static float AlternativePheromoneFollow
+        (PheromoneMap map,
+            DynamicBuffer<PheromoneStrength> pheromones,
+            float3 neighborhoodCenterWorldPos,
+            float3 forward
+        )
+    {
+        int radius = 2;
+        int2 pixelCenter = PheromoneMap.WorldToGridPos(map, neighborhoodCenterWorldPos);
+
+        float3 pheromoneDir = float3.zero;
+
+        for (int x = -radius; x < radius + 1; x++)
+        {
+            for (int y = -radius; y < radius + 1; y++)
+            {
+                if (x == 0 && y == 0) { continue; }
+
+                var centerOffset = new int2(x, y);
+
+                int2 gridPos = pixelCenter + centerOffset;
+                int index = PheromoneMap.GridPosToIndex(map, gridPos);
+                float strength = math.max(0, pheromones[index]);
+
+                float3 cellWorldPos = PheromoneMap.GridToWorldPos(map, gridPos);
+
+                float3 toCell = cellWorldPos - neighborhoodCenterWorldPos;
+                if(math.dot(toCell, forward) < -0.01f)
+                {
+                    continue;
+                }
+                toCell = math.normalize(toCell);
+
+                pheromoneDir += strength * toCell;
+            }
+        }
+
+        if(math.lengthsq(pheromoneDir) < 0.01f)
+        {
+            return m_Rng.NextFloat(-math.PI, math.PI);
+        }
+
+        float angle = math.atan2(pheromoneDir.z, pheromoneDir.x);
+        
+        return angle;
+    }
+
+
     // Update is called once per frame
     protected override void OnUpdate()
     {
@@ -96,10 +144,16 @@ public class SteeringSystem : SystemBase {
         Entities.WithAll<AntTag>().ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData, in LocalToWorld ltw) =>
         {
             // Calculate a desired yaw based on current position
-            float strongestPheromoneAngle = StrongestDirection(map, pheromones, ltw.Position, ltw.Forward);
+            float strongestPheromoneAngle = yaw.CurrentYaw + StrongestDirection(map, pheromones, ltw.Position, ltw.Forward);
             float gaussianSample = NextGaussian(strongestPheromoneAngle, maxAngleDeviation);
+            gaussianSample = ClampToPiMinusPi(gaussianSample);
 
             steeringData.DesiredYaw = gaussianSample;
+
+            //steeringData.DesiredYaw = AlternativePheromoneFollow(map, pheromones, ltw.Position, ltw.Forward); 
+
+
+            //steeringData.DesiredYaw = strongestPheromoneAngle;
 
             // Interp towards desired
 
