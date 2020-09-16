@@ -1,9 +1,30 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using Debug = UnityEngine.Debug;
 
 [UpdateBefore(typeof(YawToRotationSystem))]
 public class SteeringSystem : SystemBase {
+
+    // ----------------------------------------------------------------------------------- //
+    // XXX(jcowles): Seems like there is no Mathematics equivalent of Vector2.SignedAngle.
+    //               This was ported from Mathf.
+    // ----------------------------------------------------------------------------------- //
+    private const float kEpsilonNormalSqrt = 1e-15f;
+    private static float _SqrMagnitude(float2 v) {
+        return v.x * v.x + v.y * v.y;
+    }
+    private static float _Angle(float2 from, float2 to) {
+        float denominator = math.sqrt(_SqrMagnitude(from) * _SqrMagnitude(to));
+        if (denominator < kEpsilonNormalSqrt) return 0F;
+        float dot = math.clamp(math.dot(from, to) / denominator, -1F, 1F);
+        return math.degrees(math.acos(dot));
+    }
+    private static float _SignedAngle(float2 from, float2 to) {
+        float unsigned_angle = _Angle(from, to);
+        float sign = math.sign(from.x * to.y - from.y * to.x);
+        return unsigned_angle * sign;
+    }
+    // ----------------------------------------------------------------------------------- //
 
     static Random m_Rng = new Random(1337);
 
@@ -15,64 +36,29 @@ public class SteeringSystem : SystemBase {
         return mean + stdDev * randStdNormal;
     }
 
-    public static void Gather(PheromoneMap map, DynamicBuffer<PheromoneStrength> pheromones, float3 worldPos, ref float[,] values) {
-        var gridPos = PheromoneMap.WorldToGridPos(map, worldPos);
-
-        if (gridPos.x > map.Resolution - 2 || gridPos.y > map.Resolution - 2) {
-            Debug.LogWarning($"AddScent: gridPos={gridPos.x},{gridPos.y}, worldPos={worldPos.x},{worldPos.z}");
-        }
-        if (gridPos.x < 2 || gridPos.y < 2) {
-            Debug.LogWarning($"AddScent: gridPos={gridPos.x},{gridPos.y}, worldPos={worldPos.x},{worldPos.z}");
-        }
-
-        for (int x = -2; x < 3; x++) {
-            for (int y = -2; y < 3; y++) {
-                if (x == 0 && y == 0) { continue; }
-
-                var sampleGridPos = gridPos + new int2(x, y);
-                var index = PheromoneMap.GridPosToIndex(map, sampleGridPos);
-
-                if (index > pheromones.Length || index < 0) {
-                    Debug.LogWarning($"AddScent: {index} > {pheromones.Length}, gridPos={gridPos.x},{gridPos.y}, worldPos={worldPos.x},{worldPos.z}");
-                    continue;
-                }
-
-                values[x + 2, y + 2] = pheromones[index];
-            }
-        }
-    }
-
-    // ----------------------------------------------------------------------------------- //
-    // XXX(jcowles): Seems like there is no Mathematics equivalent of Vector2.SignedAngle.
-    //               This was ported from Mathf.
-    // ----------------------------------------------------------------------------------- //
-    public const float kEpsilonNormalSqrt = 1e-15f;
-    public static float SqrMagnitude(float2 v) {
-        return v.x * v.x + v.y * v.y;
-    }
-    public static float Angle(float2 from, float2 to) {
-        float denominator = math.sqrt(SqrMagnitude(from) * SqrMagnitude(to));
-        if (denominator < kEpsilonNormalSqrt) return 0F;
-        float dot = math.clamp(math.dot(from, to) / denominator, -1F, 1F);
-        return math.degrees(math.acos(dot));
-    }
-    public static float SignedAngle(float2 from, float2 to) {
-        float unsigned_angle = Angle(from, to);
-        float sign = math.sign(from.x * to.y - from.y * to.x);
-        return unsigned_angle * sign;
-    }
-    // ----------------------------------------------------------------------------------- //
-
-    float StrongestDirection(PheromoneMap map, DynamicBuffer<PheromoneStrength> pheromones, float3 forward) {
-        float avgAngle = 0;
-        for (int x = 0; x < 5; x++) {
-            for (int y = 0; y < 5; y++) {
+    float StrongestDirection(PheromoneMap map,
+                             DynamicBuffer<PheromoneStrength> pheromones,
+                             float3 neighborhoodCenterWorldPos,
+                             float3 forward) {
+        // A radius of 2 implies a 5x5 neighborhood.
+        int radius = 2;
+        int2 pixelCenter = PheromoneMap.WorldToGridPos(map, neighborhoodCenterWorldPos);
+        float avgDeltaAngle = 0;
+        for (int x = -radius; x < radius + 1; x++) {
+            for (int y = -radius; y < radius + 1; y++) {
+                int2 centerOffset = new int2(x, y);
                 var fw = math.normalize(new float2(forward.x, forward.z));
-                var ang = SignedAngle(math.normalize(new float2(x - 1, y - 1)), fw);
-                avgAngle += ang * pheromones[PheromoneMap.GridPosToIndex(map, new int2(x, y))];
+                var fwDeltaAngle = _SignedAngle(math.normalize(new float2(centerOffset)), fw);
+
+                if (fwDeltaAngle > 90) { continue; }
+
+                var index = PheromoneMap.GridPosToIndex(map, pixelCenter + centerOffset);
+                avgDeltaAngle += fwDeltaAngle * pheromones[index];
             }
         }
-        return avgAngle;
+
+        // Returns a signed delta from the current forward angle, in degrees.
+        return avgDeltaAngle;
     }
 
     // Update is called once per frame
