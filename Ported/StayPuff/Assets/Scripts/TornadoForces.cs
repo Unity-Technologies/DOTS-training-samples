@@ -44,7 +44,7 @@ public class TornadoForces : SystemBase
             .WithDisposeOnCompletion(tornadoForces)
             .WithDisposeOnCompletion(tornadoPosition)
             .ForEach((ref PhysicsVelocity velocity, in PhysicsMass mass, in Translation translation) => {
-                for (int i = 0; i < tornadoForces.Length; i++)
+                for (int i = 0; i < numTornados; i++)
                 {
                     float3 finalForce = new float3();
                     float inwardForce = tornadoForces[i].tornadoInwardForce;
