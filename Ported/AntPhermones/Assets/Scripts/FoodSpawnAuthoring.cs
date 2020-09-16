@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public struct FoodTag : IComponentData
+public struct FoodSpawnAuthoring : IComponentData
 {
    
 }
