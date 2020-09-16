@@ -37,10 +37,11 @@ public class BuildingCreate : SystemBase
                 {
                     PhysicsJoint joint = PhysicsJoint.CreateBallAndSocket(new float3(0.0f, 0.5f, 0.0f), new float3(0.0f, -0.5f, 0.0f));
 
-                    Entity jointEntity = EntityManager.CreateEntity(new ComponentType[] { typeof(PhysicsConstrainedBodyPair), typeof(PhysicsJoint) });
+                    Entity jointEntity = EntityManager.CreateEntity(new ComponentType[] { typeof(PhysicsConstrainedBodyPair), typeof(PhysicsJoint), typeof(JointBreakDistance) });
 
                     EntityManager.SetComponentData(jointEntity, new PhysicsConstrainedBodyPair(previousEntity, instance, true));
                     EntityManager.SetComponentData(jointEntity, joint);
+                    EntityManager.SetComponentData(jointEntity, new JointBreakDistance { Value = buildingData.jointBreakDistance });
                 }
 
                 previousEntity = instance;

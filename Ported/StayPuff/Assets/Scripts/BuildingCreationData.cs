@@ -6,4 +6,5 @@ public struct BuildingCreationData : IComponentData
 {
     public int height;
     public Entity prefab;
+    public float jointBreakDistance;
 }

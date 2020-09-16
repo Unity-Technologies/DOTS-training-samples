@@ -321,6 +321,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   height: 5
   prefab: {fileID: 6473778707907927791, guid: d8895e4d5ee928042ad894bc2eb5d59b, type: 3}
+  jointBreakDistance: 1.03
 --- !u!4 &1255458292
 Transform:
   m_ObjectHideFlags: 0
