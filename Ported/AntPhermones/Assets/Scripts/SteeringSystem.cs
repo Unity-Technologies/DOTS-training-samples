@@ -6,8 +6,8 @@ using Debug = UnityEngine.Debug;
 public class SteeringSystem : SystemBase {
 
     // ----------------------------------------------------------------------------------- //
-    // XXX(jcowles): Seems like there is no Mathematics equivalent of Vector2.SignedAngle.
-    //               This was ported from Mathf.
+    // XXX(jcowles): Seems like there is no Mathematics equivalent of Vector2.SignedAngle;
+    //               this was ported from Mathf.
     // ----------------------------------------------------------------------------------- //
     private const float kEpsilonNormalSqrt = 1e-15f;
     private static float _SqrMagnitude(float2 v) {
@@ -45,6 +45,7 @@ public class SteeringSystem : SystemBase {
         int2 pixelCenter = PheromoneMap.WorldToGridPos(map, neighborhoodCenterWorldPos);
         float avgDeltaAngle = 0;
         float denom = 0;
+
         for (int x = -radius; x < radius + 1; x++) {
             for (int y = -radius; y < radius + 1; y++) {
                 int2 centerOffset = new int2(x, y);
