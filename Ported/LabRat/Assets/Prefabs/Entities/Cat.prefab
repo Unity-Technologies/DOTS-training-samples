@@ -56,6 +56,7 @@ GameObject:
   - component: {fileID: 33845497183522504}
   - component: {fileID: 65423542457529928}
   - component: {fileID: 23706683454862814}
+  - component: {fileID: 7998587581897058516}
   m_Layer: 0
   m_Name: EarL
   m_TagString: Untagged
@@ -139,6 +140,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &7998587581897058516
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1780733835329128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa35b08627c15754d89ef5a48298e484, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Color: {r: 0.9056604, g: 0.8387353, b: 0.16660735, a: 1}
 --- !u!1 &1860067280529358
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,6 +165,7 @@ GameObject:
   - component: {fileID: 33287682254422682}
   - component: {fileID: 65323138299228602}
   - component: {fileID: 23529203214699200}
+  - component: {fileID: 8907922733377423442}
   m_Layer: 0
   m_Name: EarR
   m_TagString: Untagged
@@ -234,6 +249,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8907922733377423442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1860067280529358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa35b08627c15754d89ef5a48298e484, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Color: {r: 0.9056604, g: 0.8387353, b: 0.16660735, a: 1}
 --- !u!1 &1991230468250066
 GameObject:
   m_ObjectHideFlags: 0
@@ -247,6 +275,7 @@ GameObject:
   - component: {fileID: 65528252140383342}
   - component: {fileID: 23644074922838098}
   - component: {fileID: 54888757612839202}
+  - component: {fileID: 5100491485261827587}
   m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
@@ -348,3 +377,16 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &5100491485261827587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1991230468250066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa35b08627c15754d89ef5a48298e484, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Color: {r: 0.7735849, g: 0.42528605, b: 0.09122462, a: 1}
