@@ -19,9 +19,11 @@ public struct BaseTag : IComponentData
 
 }
 
-public struct MouseAndCatSpawnerTag : IComponentData
+public struct MouseAndCatSpawnerData : IComponentData
 {
-
+    public Entity prefabEntity;
+    public float ticks;
+    public float frequency;
 }
 
 public class BoardSpawnerSystem : SystemBase
@@ -35,6 +37,8 @@ public class BoardSpawnerSystem : SystemBase
         base.OnCreate();
         RequireSingletonForUpdate<BoardPrefabs>();
         RequireSingletonForUpdate<BoardSize>();
+        RequireSingletonForUpdate<MousePrefabs>();
+        RequireSingletonForUpdate<CatPrefabs>();
     }
 
     protected override void OnDestroy()
@@ -155,14 +159,41 @@ public class BoardSpawnerSystem : SystemBase
         EntityManager.AddComponentData<Score>(blackEntity, new Score());
 
         // Need spawners for mice & cats
+        MousePrefabs mousePrefabs = GetSingleton<MousePrefabs>();
+        CatPrefabs catPrefabs = GetSingleton<CatPrefabs>();
+        MouseAndCatSpawnerData spawnerDataMouse = new MouseAndCatSpawnerData() { prefabEntity = mousePrefabs.mousePrefab, ticks = 0.0f, frequency = 0.2f };
+        MouseAndCatSpawnerData spawnerDataCat = new MouseAndCatSpawnerData() { prefabEntity = catPrefabs.catPrefab, ticks = 0.0f, frequency = 7.0f };
         Position spawnerPositionA = new Position() { Value = new int2(0, 0) };
-        Position spawnerPositionB = new Position() { Value = new int2(12, 12) };
+        Position spawnerPositionB = new Position() { Value = new int2(boardSize.Value.x - 1, boardSize.Value.y - 1) };
+        Position spawnerPositionC = new Position() { Value = new int2(0, boardSize.Value.y - 1) };
+        Position spawnerPositionD = new Position() { Value = new int2(boardSize.Value.x - 1, 0) };
+        Direction spawnerDirectionA = new Direction() { Value = DirectionEnum.East };
+        Direction spawnerDirectionB = new Direction() { Value = DirectionEnum.West };
+        Direction spawnerDirectionC = new Direction() { Value = DirectionEnum.South };
+        Direction spawnerDirectionD = new Direction() { Value = DirectionEnum.North };
+        Speed spawnerSpeedMouse = new Speed() { Value = 4.0f };
+        Speed spawnerSpeedCat = new Speed() { Value = 1.0f };
+
         Entity spawnerEntityA = EntityManager.CreateEntity();
-        EntityManager.AddComponent<MouseAndCatSpawnerTag>(spawnerEntityA);
+        EntityManager.AddComponentData<MouseAndCatSpawnerData>(spawnerEntityA, spawnerDataMouse);
         EntityManager.AddComponentData<Position>(spawnerEntityA, spawnerPositionA);
+        EntityManager.AddComponentData<Direction>(spawnerEntityA, spawnerDirectionA);
+        EntityManager.AddComponentData<Speed>(spawnerEntityA, spawnerSpeedMouse);
         Entity spawnerEntityB = EntityManager.CreateEntity();
-        EntityManager.AddComponent<MouseAndCatSpawnerTag>(spawnerEntityB);
+        EntityManager.AddComponentData<MouseAndCatSpawnerData>(spawnerEntityB, spawnerDataMouse);
         EntityManager.AddComponentData<Position>(spawnerEntityB, spawnerPositionB);
+        EntityManager.AddComponentData<Direction>(spawnerEntityB, spawnerDirectionB);
+        EntityManager.AddComponentData<Speed>(spawnerEntityB, spawnerSpeedMouse);
+        Entity spawnerEntityC = EntityManager.CreateEntity();
+        EntityManager.AddComponentData<MouseAndCatSpawnerData>(spawnerEntityC, spawnerDataCat);
+        EntityManager.AddComponentData<Position>(spawnerEntityC, spawnerPositionC);
+        EntityManager.AddComponentData<Direction>(spawnerEntityC, spawnerDirectionC);
+        EntityManager.AddComponentData<Speed>(spawnerEntityC, spawnerSpeedCat);
+        Entity spawnerEntityD = EntityManager.CreateEntity();
+        EntityManager.AddComponentData<MouseAndCatSpawnerData>(spawnerEntityD, spawnerDataCat);
+        EntityManager.AddComponentData<Position>(spawnerEntityD, spawnerPositionD);
+        EntityManager.AddComponentData<Direction>(spawnerEntityD, spawnerDirectionD);
+        EntityManager.AddComponentData<Speed>(spawnerEntityD, spawnerSpeedCat);
 
         EntityManager.RemoveComponent<BoardSize>(GetSingletonEntity<BoardSize>());
     }
