@@ -11,8 +11,9 @@ public struct AntColor : IComponentData
 
 public class AntColorAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
-    public static readonly float4 kHungryColor = new float4(.9f, 0, .2f, 1);
-    public static readonly float4 kFoodColor = new float4(0f, 0, .6f, 1);
+
+    public static readonly float4 kHungryColor = new float4(0.1894464f, 0.2108698f, 0.3529412f, 1);
+    public static readonly float4 kFoodColor = new float4(0.7205882f, 0.7116722f, 0.3973832f, 1);
 
     public UnityEngine.Color Color;
 

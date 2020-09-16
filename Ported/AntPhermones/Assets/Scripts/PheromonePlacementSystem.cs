@@ -14,13 +14,9 @@ public class PheromonePlacementSystem : SystemBase {
             int2 gridPos = PheromoneMap.WorldToGridPos(map, translation.Value);
             int index = PheromoneMap.GridPosToIndex(map, gridPos);
             if (index < 0 || index >= pheromones.Length) {
-                //UnityEngine.Debug.LogWarning($"Index '{index}' out of bounds '{pheromones.Length}'");
-//                return;
+                return;
             }
-            else
-            {
-                pheromones[index] = math.saturate(pheromones[index] + map.AntPheremoneStrength * dt * (ant.HasFood ? 2 : .1f));
-            }
+            pheromones[index] = math.saturate(pheromones[index] + map.AntPheremoneStrength * dt * (ant.HasFood ? 2 : .5f));
         }).Run();
     }
 }
