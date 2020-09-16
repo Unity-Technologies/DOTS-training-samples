@@ -6,7 +6,7 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct Arc : IComponentData
 {
-    public const float Width = 1.0f;
+    public const float Size = 1.0f;
     
     public float Radius;
     public float StartAngle;
