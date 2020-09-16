@@ -1,4 +1,4 @@
-﻿using Unity.Entities;
+using Unity.Entities;
 using Unity.Mathematics;
 using Debug = UnityEngine.Debug;
 
@@ -36,10 +36,10 @@ public class SteeringSystem : SystemBase {
         return mean + stdDev * randStdNormal;
     }
 
-    float StrongestDirection(PheromoneMap map,
-                             DynamicBuffer<PheromoneStrength> pheromones,
-                             float3 neighborhoodCenterWorldPos,
-                             float3 forward) {
+    static float StrongestDirection(PheromoneMap map,
+                                    DynamicBuffer<PheromoneStrength> pheromones,
+                                    float3 neighborhoodCenterWorldPos,
+                                    float3 forward) {
         // A radius of 2 implies a 5x5 neighborhood.
         int radius = 2;
         int2 pixelCenter = PheromoneMap.WorldToGridPos(map, neighborhoodCenterWorldPos);
@@ -48,6 +48,8 @@ public class SteeringSystem : SystemBase {
 
         for (int x = -radius; x < radius + 1; x++) {
             for (int y = -radius; y < radius + 1; y++) {
+                if (x == 0 && y == 0) { continue; }
+
                 var centerOffset = new int2(x, y);
 
                 int index = PheromoneMap.GridPosToIndex(map, pixelCenter + centerOffset);
@@ -58,7 +60,6 @@ public class SteeringSystem : SystemBase {
                 float2 fwNorm = math.normalize(new float2(forward.x, forward.z));
                 float2 pxNorm = math.normalize((float2)centerOffset);
                 float fwDeltaAngle = _SignedAngle(pxNorm, fwNorm);
-
                 if (math.abs(fwDeltaAngle) > 90) { continue; }
 
                 avgDeltaAngle += fwDeltaAngle * strength;
@@ -71,9 +72,8 @@ public class SteeringSystem : SystemBase {
             return 0;
         }
 
-        // Returns a signed delta from the current forward angle, in degrees.
         // Normalize by the total signal strength.
-        return avgDeltaAngle / totalStrength;
+        return math.radians(avgDeltaAngle / totalStrength);
     }
 
     // Update is called once per frame
