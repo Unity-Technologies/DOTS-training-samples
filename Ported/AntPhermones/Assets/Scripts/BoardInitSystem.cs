@@ -1,8 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Transforms;
 using  Unity.Mathematics;
-using UnityEditor;
-using UnityEditor.IMGUI.Controls;
+using Random = Unity.Mathematics.Random;
 
 
 public class BoardInitSystem : SystemBase
@@ -14,19 +13,20 @@ public class BoardInitSystem : SystemBase
           ref Arc arc, in WallAuthoring wall, in LocalToWorld ltw) =>
       {
          float deg2rad = (math.PI * 2) / 360;
-         float radius = arc.Radius;
-         float minRingWidth = 45; //temp
+         float minRingWidth = 120; //temp
 
-         Random random = new Random(502); 
+         //have a random seed
+         Random random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 10000));
 
-          arc.StartAngle = random.NextFloat(0, 180);
-          arc.EndAngle = random.NextFloat(arc.StartAngle + minRingWidth, 360);
+          arc.StartAngle = random.NextFloat(0, 90);
+          arc.EndAngle = random.NextFloat(arc.StartAngle + minRingWidth, 359);
+         // UnityEngine.Debug.Log($"StartAngle '{arc.StartAngle}', End Angle '{arc.EndAngle}'");
          
           for (int i = (int)arc.StartAngle; i < (arc.EndAngle + 1); i++) 
           {
                float rad = deg2rad * i;
-               float3 position = new float3(ltw.Position.x + (math.sin(rad) * radius), 0, 
-                  ltw.Position.z + (math.cos(rad) * radius));
+               float3 position = new float3(ltw.Position.x + (math.sin(rad) * arc.Radius), 0, 
+                  ltw.Position.z + (math.cos(rad) * arc.Radius));
             
                //instantiate prefabs with mesh render
                var instance = EntityManager.Instantiate(wall.wallPrefab);
