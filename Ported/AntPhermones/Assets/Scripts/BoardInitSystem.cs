@@ -46,7 +46,6 @@ public class BoardInitSystem : SystemBase
       //Place Food
       Entities.WithStructuralChanges().WithAll<FoodTag>().ForEach((Entity entity, ref Arc arc, in LocalToWorld ltw, in FoodSpawnAuthoring foodSpawn) =>
       {
-          return;
          Random random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 10000));
          float deg2rad = (math.PI * 2) / 360;
          arc.StartAngle = random.NextFloat(0, 359);
