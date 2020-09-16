@@ -10,7 +10,7 @@ public class PheromonePlacementSystem : SystemBase {
         var pheromones = EntityManager.GetBuffer<PheromoneStrength>(mapEntity);
         var dt = Time.DeltaTime;
 
-        Entities.WithAll<AntTag>().ForEach((in Translation translation) => {
+        Entities.ForEach((in AntTag ant, in Translation translation) => {
             int2 gridPos = PheromoneMap.WorldToGridPos(map, translation.Value);
             int index = PheromoneMap.GridPosToIndex(map, gridPos);
             if (index < 0 || index >= pheromones.Length) {
@@ -19,8 +19,7 @@ public class PheromonePlacementSystem : SystemBase {
             }
             else
             {
-                pheromones[index] += map.AntPheremoneStrength * dt;
-                pheromones[index] = math.min(pheromones[index], 1.0f);
+                pheromones[index] = math.saturate(pheromones[index] + map.AntPheremoneStrength * dt * (ant.HasFood ? 2 : .1f));
             }
         }).Run();
     }
