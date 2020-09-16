@@ -69,14 +69,9 @@ public class BoardSpawnerSystem : SystemBase
         {
             for (int j = 0; j < boardSize.Value.y; j++)
             {
-                // 0x00, 0x01, 0x02, 0x04, 0x0
-                byte currentWall = 0x0;
-                if (i == 0) currentWall |= 0x1;
-                if (j == 0) currentWall |= 0x8;
-                if (i == boardSize.Value.x - 1) currentWall |= 0x2;
-                if (j == boardSize.Value.y - 1) currentWall |= 0x4;
                 int arrayPos = boardSize.Value.y * j + i;
-                walls[arrayPos] = currentWall;
+
+                byte currentWall = 0x0;
 
                 EntityManager.SetComponentData(cells[arrayPos], new Translation { Value = new float3(i, 0, j) });
 
@@ -86,8 +81,41 @@ public class BoardSpawnerSystem : SystemBase
                 }
                 else
                 {
+                    // 0x00, 0x01, 0x02, 0x04, 0x0
+                    if (i == 0 || random.NextFloat() < 0.05f)
+                    {
+                        currentWall |= 0x1;
+                        var wall = EntityManager.Instantiate(boardPrefabs.wallPrefab);
+                        EntityManager.SetComponentData(wall, new Translation { Value = new float3(i - 0.47f, 0.7f, j) });
+                        EntityManager.SetComponentData(wall, new Rotation { Value = quaternion.RotateY(math.PI) });
+                    }
+                    if (j == 0 || random.NextFloat() < 0.05f)
+                    {
+                        currentWall |= 0x8;
+
+                        var wall = EntityManager.Instantiate(boardPrefabs.wallPrefab);
+                        EntityManager.SetComponentData(wall, new Translation { Value = new float3(i, 0.7f, j - 0.47f) });
+                    }
+                    if (i == boardSize.Value.x - 1 || random.NextFloat() < 0.05f)
+                    {
+                        currentWall |= 0x2;
+
+                        var wall = EntityManager.Instantiate(boardPrefabs.wallPrefab);
+                        EntityManager.SetComponentData(wall, new Translation { Value = new float3(i + 0.47f, 0.7f, j) });
+                        EntityManager.SetComponentData(wall, new Rotation { Value = quaternion.RotateY(math.PI) });
+                    }
+                    if (j == boardSize.Value.y - 1 || random.NextFloat() < 0.05f) 
+                    { 
+                        currentWall |= 0x4;
+
+                        var wall = EntityManager.Instantiate(boardPrefabs.wallPrefab);
+                        EntityManager.SetComponentData(wall, new Translation { Value = new float3(i, 0.7f, j + 0.47f) });
+                    }
+                
                     EntityManager.SetComponentData(cells[arrayPos], new Color { Value = (arrayPos + ((boardSize.Value.y + 1) % 2) * (j % 2)) % 2 == 0 ? evenColor : oddColor });
                 }
+
+                walls[arrayPos] = currentWall;
             }
         }
 

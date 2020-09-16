@@ -204,6 +204,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   basePrefab: {fileID: 1633874070064508, guid: 55bad095c0b7a9f4c81dbcfa9477adfc, type: 3}
   cellPrefab: {fileID: 1695157876856304, guid: adb17f2e95931e54ca1e3d2d6031b5bb, type: 3}
+  wallPrefab: {fileID: 1948033712935058, guid: 689e3fd2cad8fb84496b2e775375816a, type: 3}
 --- !u!114 &853635757
 MonoBehaviour:
   m_ObjectHideFlags: 0
