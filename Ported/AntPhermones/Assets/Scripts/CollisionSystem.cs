@@ -13,17 +13,12 @@ public class CollisionSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        
         //Get a list of all arcs.
         var arcArray = GetEntityQuery(typeof(Arc)).ToComponentDataArrayAsync<Arc>(TempJob, out var arcJobHandle);
         
         //Get pheromone map
-        var pheromoneMapArr = GetEntityQuery(typeof(PheromoneMap)).ToComponentDataArrayAsync<PheromoneMap>(TempJob, out var pheromoneMapJobHandle);
-
-        //Wait to grab pheromone map, & dispose
-        pheromoneMapJobHandle.Complete();
-        float mapWorldSpaceSize = pheromoneMapArr[0].WorldSpaceSize / 2.0f;
-        pheromoneMapArr.Dispose();
+        var pheromoneMap = GetSingleton<PheromoneMap>();
+        float mapWorldSpaceSize = pheromoneMap.WorldSpaceSize / 2.0f;
         
         Dependency = JobHandle.CombineDependencies(Dependency, arcJobHandle);
 
@@ -37,15 +32,17 @@ public class CollisionSystem : SystemBase
             float antHalfWidth = AntTag.Size / 2.0f;
             float collisionWidth = arcHalfWidth + antHalfWidth;
 
+            //Is the ant out of bounds?
             CheckOutOfBounds(ref translation, ref yaw, mapWorldSpaceSize);
             
-            //For each arc
             for(int i = 0; i < arcArray.Length; i++)
             {
                 var arc = arcArray[i];
+                
+
                 float antDistanceFromOrigin = math.distance(float3.zero, translation.Value);
                 
-                //If the ant is within the bounds of the arcs circle
+                //If the ant is within the bounds of an arcs circle
                 if (antDistanceFromOrigin > arc.Radius - collisionWidth && antDistanceFromOrigin < arc.Radius + collisionWidth)
                 {
                     //If the ant is within the arc itself.
@@ -53,23 +50,25 @@ public class CollisionSystem : SystemBase
                     {
                         //Rotate the Ant 180 degrees.
                         yaw.CurrentYaw += (float)Math.PI;
+                        
+                        //TODO - Make angles radians by default
+                        float startAngleRadians = math.radians(90 - arc.StartAngle);
+                        float endAngleRadians = math.radians(90 - arc.EndAngle);
 
-                        //Are ants facing the middle?
-                        float dot = math.dot(localToWorld.Forward, math.normalize(float3.zero - translation.Value));
-                        if (dot < 0)
-                        {
-                            //Push the Ant towards the centre
-                            translation.Value = math.normalize(translation.Value) * (arc.Radius - collisionWidth - 0.1f);
-                        }
-                        else
-                        {
-                            //Push the Ant towards the outer edge
-                            translation.Value = math.normalize(translation.Value) * (arc.Radius + collisionWidth + 0.1f);
-                        }
+                        //TODO - We don't need to perform all of these calculations
+                        //If the ant were to back out vertically, where would it go?
+                        float3 backOutVertically = math.dot(localToWorld.Forward, math.normalize(float3.zero - translation.Value)) < 0 ? math.normalize(translation.Value) * (arc.Radius - collisionWidth - 0.1f) : math.normalize(translation.Value) * (arc.Radius - collisionWidth - 0.1f);
+                        //If the ant were to back out horizontally, where would it go?
+                        float3 backOutToHorizontalStart = new float3(math.cos(startAngleRadians) * antDistanceFromOrigin, 0.0f, math.sin(startAngleRadians) * antDistanceFromOrigin);
+                        float3 backOutToHorizontalEnd = new float3(math.cos(endAngleRadians) * antDistanceFromOrigin, 0.0f, math.sin(endAngleRadians) * antDistanceFromOrigin);
+                        float3 backOutHorizontally = math.distance(translation.Value, backOutToHorizontalStart) < math.distance(translation.Value, backOutToHorizontalEnd) ? backOutToHorizontalStart : backOutToHorizontalEnd;
+
+                        translation.Value = math.distance(translation.Value, backOutHorizontally) < math.distance(translation.Value, backOutVertically) ? backOutHorizontally : backOutVertically;
+                        return;
                     }
                 }
             }
-        }).Schedule();
+        }).ScheduleParallel();
     }
 
     static void CheckOutOfBounds(ref Translation translation, ref Yaw yaw, float mapSize)
@@ -98,6 +97,11 @@ public class CollisionSystem : SystemBase
             translation.Value.z = mapSize;
             yaw.CurrentYaw += (float)Math.PI;
         }
+    }
+    
+    static bool IsOnTheEdge()
+    {
+        return true;
     }
     
     static bool IsBetween(double mid, float start, float end) {     
