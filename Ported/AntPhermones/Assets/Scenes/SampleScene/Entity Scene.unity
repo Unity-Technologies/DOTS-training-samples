@@ -548,7 +548,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1624703580
 MonoBehaviour:
@@ -563,7 +563,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PheromoneDeviationDegrees: 120
-  SteeringSmoothingFrequency: 10
+  SteeringSmoothingFrequency: 8
   SteeringDampingRatio: 1
 --- !u!1 &1743256509
 GameObject:
@@ -598,7 +598,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Ant: {fileID: 4015837552346746096, guid: 1ce1f6a2fb144453c8ea252b5f8b2b99, type: 3}
-  NumberOfAnts: 100
+  NumberOfAnts: 500
 --- !u!23 &1743256512
 MeshRenderer:
   m_ObjectHideFlags: 0
