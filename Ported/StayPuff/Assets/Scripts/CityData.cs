@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
@@ -6,6 +7,6 @@ public struct CityData : IComponentData
 {
     public int CountX;
     public int CountZ;
-    //public Vector3 BoundsMax;
-    //public Vector3 BoundsMin;
+    public int2 height;
+
 }

@@ -273,6 +273,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CountX: 30
   CountZ: 30
+  height:
+    x: 10
+    y: 20
 --- !u!4 &1197936549
 Transform:
   m_ObjectHideFlags: 0

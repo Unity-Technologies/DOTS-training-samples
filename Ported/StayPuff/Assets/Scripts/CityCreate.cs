@@ -4,12 +4,20 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+//using UnityEngine;
 
 public class CityCreate : SystemBase
 {
+    Random SystemRandom;
+
+    protected override void OnCreate()
+    {
+        SystemRandom = new Random(999);
+    }
+
     protected override void OnUpdate()
     {
-
+        Random jobRandom = SystemRandom;
         Entities.WithStructuralChanges()
             .ForEach((Entity entity, in CityData city) =>
             {
@@ -17,11 +25,15 @@ public class CityCreate : SystemBase
                 for (int x = 0; x < city.CountX; ++x)
                     for (int z = 0; z < city.CountZ; ++z)
                     {
+                        //Random jobRandom = new Random(x);
                         var posX = 10 * (x - (city.CountX - 1) / 2);
                         var posY = 0f;
                         var posZ = 10 * (z - (city.CountZ - 1) / 2);
                         Entity newentity = EntityManager.CreateEntity();
-                        EntityManager.AddComponentData(newentity, new SpawnData { position = new float3(posX, posY, posZ), height = 20 });
+                        EntityManager.AddComponentData(newentity, 
+                            new SpawnData { 
+                                position = new float3(posX, posY, posZ), 
+                                height = jobRandom.NextInt(city.height.x, city.height.y) });
                     }
 
                 EntityManager.DestroyEntity(entity);
