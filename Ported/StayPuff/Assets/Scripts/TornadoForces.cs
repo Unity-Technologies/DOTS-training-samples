@@ -56,7 +56,7 @@ public class TornadoForces : SystemBase
                     tdz /= tornadoDist;
 
                     float force = math.saturate(1f - tornadoDist / TornadoForces[i].tornadoMaxForceDist);
-                    force *= TornadoForces[i].tornadoFader * TornadoForces[i].tornadoForce * old_random.NextFloat(-.3f, 1.3f);
+                    force *= TornadoForces[i].tornadoFader * TornadoForces[i].tornadoForce * old_random.NextFloat(TornadoForces[i].tornadoForceRand.x, TornadoForces[i].tornadoForceRand.y);//-.3f, 1.3f);
                     float yFader = math.saturate(1.0f - height / tornadoHeight);
 
                     

@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using UnityEngine;
 
 [GenerateAuthoringComponent]
 public struct TornadoForceData : IComponentData
@@ -9,4 +10,5 @@ public struct TornadoForceData : IComponentData
 	public float tornadoUpForce;
 	public float tornadoInwardForce;
 	public float tornadoFader;
+	public Vector2 tornadoForceRand;
 }

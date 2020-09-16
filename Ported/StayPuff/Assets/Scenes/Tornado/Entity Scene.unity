@@ -142,7 +142,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &14159500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -155,12 +155,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a644307f4fa55a44eaff88ddb291cba2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tornadoForce: 0
-  tornadoMaxForceDist: 30
+  tornadoForce: 2
+  tornadoMaxForceDist: 15
   tornadoHeight: 20
-  tornadoUpForce: 20
-  tornadoInwardForce: 15
+  tornadoUpForce: 8.5
+  tornadoInwardForce: 12
   tornadoFader: 0
+  tornadoForceRand: {x: -0.3, y: 1.3}
 --- !u!33 &14159501
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -222,9 +223,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9359d74f711f03345abfaacfae2714eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  loopsize: 30
-  looprate: 6
-  loopseed: -10
+  loopsize: 40
+  looprate: 8
+  loopseed: -20
   loopposition: {x: -10, y: 0, z: 0}
 --- !u!4 &14159504
 Transform:
@@ -235,7 +236,7 @@ Transform:
   m_GameObject: {fileID: 14159499}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 20, z: 1}
+  m_LocalScale: {x: 1, y: 30, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
@@ -269,7 +270,7 @@ Transform:
   m_GameObject: {fileID: 1345016586}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 20, z: 1}
+  m_LocalScale: {x: 1, y: 30, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -351,12 +352,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a644307f4fa55a44eaff88ddb291cba2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tornadoForce: 4
+  tornadoForce: 2
   tornadoMaxForceDist: 15
   tornadoHeight: 20
   tornadoUpForce: 8.5
-  tornadoInwardForce: 15
+  tornadoInwardForce: 12
   tornadoFader: 0
+  tornadoForceRand: {x: -0.3, y: 1.3}
 --- !u!1 &1536977432
 GameObject:
   m_ObjectHideFlags: 0
