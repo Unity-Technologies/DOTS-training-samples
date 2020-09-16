@@ -48,15 +48,16 @@ public class SteeringSystem : SystemBase {
 
         for (int x = -radius; x < radius + 1; x++) {
             for (int y = -radius; y < radius + 1; y++) {
-                int2 centerOffset = new int2(x, y);
+                var centerOffset = new int2(x, y);
 
-                var index = PheromoneMap.GridPosToIndex(map, pixelCenter + centerOffset);
-                var strength = math.max(0, pheromones[index]);
+                int index = PheromoneMap.GridPosToIndex(map, pixelCenter + centerOffset);
+                float strength = math.max(0, pheromones[index]);
 
                 if (strength < kEpsilonNormalSqrt) { continue; }
 
-                var fw = math.normalize(new float2(forward.x, forward.z));
-                var fwDeltaAngle = _SignedAngle(math.normalize(new float2(centerOffset)), fw);
+                float2 fwNorm = math.normalize(new float2(forward.x, forward.z));
+                float2 pxNorm = math.normalize((float2)centerOffset);
+                float fwDeltaAngle = _SignedAngle(pxNorm, fwNorm);
 
                 if (math.abs(fwDeltaAngle) > 90) { continue; }
 
