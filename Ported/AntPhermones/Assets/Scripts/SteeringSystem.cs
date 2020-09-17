@@ -15,6 +15,7 @@ public class SteeringSystem : SystemBase {
     //               this was ported from Mathf.
     // ----------------------------------------------------------------------------------- //
     private const float kEpsilonNormalSqrt = 1e-15f;
+    private NativeReference<Random> nativeRandom;
     private static float _SqrMagnitude(float2 v) {
         return v.x * v.x + v.y * v.y;
     }
@@ -31,11 +32,11 @@ public class SteeringSystem : SystemBase {
     }
     // ----------------------------------------------------------------------------------- //
 
-    static readonly Random m_Rng = new Random(1337);
+   // static readonly Random m_Rng = new Random(1337);
 
-    static float NextGaussian(float mean, float stdDev) {
-        float u1 = 1.0f - m_Rng.NextFloat();
-        float u2 = 1.0f - m_Rng.NextFloat();
+    static float NextGaussian(float mean, float stdDev, ref Random rand) {
+        float u1 = 1.0f - rand.NextFloat();
+        float u2 = 1.0f - rand.NextFloat();
         float randStdNormal = math.sqrt(-2.0f * math.log(u1))
                             * math.sin(2.0f * math.PI * u2);
         return mean + stdDev * randStdNormal;
@@ -81,7 +82,7 @@ public class SteeringSystem : SystemBase {
         return math.radians(avgDeltaAngle / totalStrength);
     }
 
-    static float AlternativePheromoneFollow
+    /*static float AlternativePheromoneFollow
         (PheromoneMap map,
             DynamicBuffer<PheromoneStrength> pheromones,
             float3 neighborhoodCenterWorldPos,
@@ -127,7 +128,7 @@ public class SteeringSystem : SystemBase {
         
         return angle;
     }
-
+*/
 
     // Update is called once per frame
     protected override void OnUpdate()
@@ -154,12 +155,16 @@ public class SteeringSystem : SystemBase {
         var homeEntity = GetSingletonEntity<HomeTag>();
         float3 homePos = EntityManager.GetComponentData<Translation>(homeEntity).Value;
 
+        var nativeRandRef = this.nativeRandom;
+        
         Entities.WithAll<AntTag>().ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData, ref AntTag antData, in LocalToWorld ltw) =>
         {
             // Start with gaussian noise
             if (maxAngleDeviation > 0.0f)
             {
-                steeringData.DesiredYaw = NextGaussian(yaw.CurrentYaw, maxAngleDeviation);
+                var random = nativeRandRef.Value;
+                steeringData.DesiredYaw = NextGaussian(yaw.CurrentYaw, maxAngleDeviation, ref random);
+                nativeRandRef.Value = random;
             }
 
             // Pheromone steering
@@ -328,5 +333,13 @@ public class SteeringSystem : SystemBase {
         // We must wait for the pheromone map to be initialized
         EntityQuery query = GetEntityQuery(typeof(PheromoneMap), typeof(PheromoneStrength));
         RequireForUpdate(query);
+        nativeRandom = new NativeReference<Random>(Allocator.Persistent);
+        nativeRandom.Value = new Random(1337);
+    }
+
+    protected override void OnDestroy()
+    {
+        nativeRandom.Dispose();
+        base.OnDestroy();
     }
 }
