@@ -64,9 +64,14 @@ public class PlayerInputSystem : SystemBase
                 {
                     if (Input.GetMouseButtonDown(0))
                     {
-                        cellData.directions[arrayPos] = 0;
-                        EntityManager.SetComponentData(cellLinks.arrow, new Color { Value = float4.zero });
-                        EntityManager.SetComponentData(cellLinks.arrowOutline, new Color { Value = float4.zero });
+                        var request = new ArrowPlacementRequest
+                        {
+                            position = pos,
+                            remove = true,
+                            player = Player.Black
+                        };
+
+                        EntityManager.AddComponentData(cellEntity, request);
                     }
                 }
                 else
@@ -79,38 +84,44 @@ public class PlayerInputSystem : SystemBase
 
                     if (Input.GetMouseButtonDown(0))
                     {
-                        cellData.directions[arrayPos] = (byte)(1 << (int)arrowDirection);
-                        EntityManager.SetComponentData(cellLinks.arrow, new Color { Value = new float4(1, 1, 1, 1) });
-                        EntityManager.SetComponentData(cellLinks.arrowOutline, new Color { Value = new float4(0, 0, 0, 1) });
+                        var request = new ArrowPlacementRequest
+                        {
+                            position = pos,
+                            remove = false,
+                            direction = arrowDirection,
+                            player = Player.Black
+                        };
+
+                        EntityManager.AddComponentData(cellEntity, request);
                     }
                     else
                     {
                         EntityManager.SetComponentData(cellLinks.arrow, new Color { Value = new float4(0.5f, 0.5f, 0.5f, 1) });
                         EntityManager.SetComponentData(cellLinks.arrowOutline, new Color { Value = new float4(0, 0, 0, 0) });
+
+                        quaternion rot;
+
+                        switch (arrowDirection)
+                        {
+                            case DirectionEnum.North:
+                                rot = quaternion.EulerXYZ(math.PI / 2f, 0, 0);
+                                break;
+                            case DirectionEnum.South:
+                                rot = quaternion.EulerXYZ(math.PI / 2f, math.PI, 0);
+                                break;
+                            case DirectionEnum.East:
+                                rot = quaternion.EulerXYZ(math.PI / 2f, math.PI / 2f, 0);
+                                break;
+                            case DirectionEnum.West:
+                                rot = quaternion.EulerXYZ(math.PI / 2f, -math.PI / 2f, 0);
+                                break;
+                            default:
+                                rot = quaternion.EulerXYZ(math.PI / 2f, 0, 0);
+                                break;
+                        }
+
+                        EntityManager.SetComponentData(cellLinks.arrow, new Rotation { Value = rot });
                     }
-
-                    Quaternion rot;
-
-                    switch (arrowDirection)
-                    {
-                        case DirectionEnum.North:
-                            rot = quaternion.EulerXYZ(math.PI / 2f, 0, 0);
-                            break;
-                        case DirectionEnum.South:
-                            rot = quaternion.EulerXYZ(math.PI / 2f, math.PI, 0);
-                            break;
-                        case DirectionEnum.East:
-                            rot = quaternion.EulerXYZ(math.PI / 2f, math.PI / 2f, 0);
-                            break;
-                        case DirectionEnum.West:
-                            rot = quaternion.EulerXYZ(math.PI / 2f, -math.PI / 2f, 0);
-                            break;
-                        default:
-                            rot = quaternion.EulerXYZ(math.PI / 2f, 0, 0);
-                            break;
-                    }
-
-                    EntityManager.SetComponentData(cellLinks.arrow, new Rotation { Value = rot });
                 }
             }
 
