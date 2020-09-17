@@ -3,7 +3,10 @@
 [GenerateAuthoringComponent]
 public struct SteeringSettings : IComponentData
 {
-    public float PheromoneDeviationDegrees;
+    public float RandomDeviationDegrees;
     public float SteeringSmoothingFrequency;
     public float SteeringDampingRatio;
+
+    public float GoalSteeringStrength;
+    public float PheromoneSteeringStrength;
 }
