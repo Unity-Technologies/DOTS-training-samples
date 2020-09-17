@@ -47,7 +47,7 @@ public class CollisionSystem : SystemBase
                 if (antDistanceFromOrigin > arc.Radius - collisionWidth && antDistanceFromOrigin < arc.Radius + collisionWidth)
                 {
                     //If the ant is within the arc itself.
-                    if (IsBetween(degrees, arc.StartAngle, arc.EndAngle))
+                    if (IsBetween((float)degrees, arc.StartAngle, arc.EndAngle))
                     {
                         //TODO - Re-add this in to fix teleporter
                         //Rotate the Ant 180 degrees.
@@ -136,9 +136,12 @@ public class CollisionSystem : SystemBase
         return true;
     }
     
-    static public bool IsBetween(double mid, float startDegrees, float endDegrees) {     
+    
+    static public bool IsBetween(float midDegrees, float startDegrees, float endDegrees)
+    {
         endDegrees = (endDegrees - startDegrees) < 0.0f ? endDegrees - startDegrees + 360.0f : endDegrees - startDegrees;    
-        mid = (mid - startDegrees) < 0.0f ? mid - startDegrees + 360.0f : mid - startDegrees; 
-        return (mid < endDegrees); 
+        midDegrees = (midDegrees - startDegrees) < 0.0f ? midDegrees - startDegrees + 360.0f : midDegrees - startDegrees; 
+        
+        return (midDegrees < endDegrees); 
     }
 }

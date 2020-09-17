@@ -115,8 +115,6 @@ public class BoardInitSystem : SystemBase
                 if (diff <= boardInit.DualRingThreshold)
                 {
                     float opening = (360 - (diff * 2)) / 2;
-                    float start = arc.EndAngle + opening;
-                    float end = start + diff;
                     CreateArcEntity(boardInit, random, startAngle, endAngle, i * boardInit.SpaceBetweenTheRings);
                 }
             }
@@ -157,7 +155,7 @@ public class BoardInitSystem : SystemBase
         {
             Radius = radius,
             StartAngle = startAngle,
-            EndAngle = random.NextFloat(startAngle + boardInit.MinRingWidth, startAngle + boardInit.MaxRingWidth),
+            EndAngle = endAngle
         });
         
         //create arcs
