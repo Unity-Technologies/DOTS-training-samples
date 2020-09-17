@@ -3,9 +3,25 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+public enum Player
+{
+    Black,
+    Red,
+    Green,
+    Blue
+}
+
 [UpdateAfter(typeof(PlayerInputSystem))]
+[UpdateAfter(typeof(NpcInputSystem))]
 public class ArrowPlacementSystem : SystemBase
 {
+    static readonly float4[] playerColors = new float4[] { 
+        new float4 (0,0,0,1),
+        new float4 (1,0,0,1),
+        new float4 (0,1,0,1),
+        new float4 (0,0,1,1)
+    };
+
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<CellData>();
@@ -38,7 +54,7 @@ public class ArrowPlacementSystem : SystemBase
             {
                 cellDirections[arrayPos] = (byte)(1 << (int)arrowRequest.direction);
                 ecb.SetComponent(cellLink.arrow, new Color { Value = new float4(1, 1, 1, 1) });
-                ecb.SetComponent(cellLink.arrowOutline, new Color { Value = new float4(0, 0, 0, 1) });
+                ecb.SetComponent(cellLink.arrowOutline, new Color { Value = playerColors[(int)arrowRequest.player] });
 
                 quaternion rot;
 

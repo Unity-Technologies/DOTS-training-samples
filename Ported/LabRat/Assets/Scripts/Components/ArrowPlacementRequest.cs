@@ -1,14 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
-public enum Player
-{
-    Black,
-    Red,
-    Green,
-    Blue
-}
-
 public struct ArrowPlacementRequest : IComponentData
 {
     public DirectionEnum direction;

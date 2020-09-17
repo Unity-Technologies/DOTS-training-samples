@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
+[UpdateAfter(typeof(MovementSystem))]
 public class CollisionSystem : SystemBase
 {
 

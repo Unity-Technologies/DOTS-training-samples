@@ -73,9 +73,10 @@ public class BoardSpawnerSystem : SystemBase
         NativeArray<byte> directions = new NativeArray<byte>(arraySize, Allocator.Persistent);
         Entity cellEntity = EntityManager.CreateEntity(typeof(CellData));
         EntityManager.SetComponentData(cellEntity, new CellData { cells = cells, directions = directions });
-        
 
-        Unity.Mathematics.Random random = new Unity.Mathematics.Random((uint)DateTime.UtcNow.Millisecond + 1);
+        uint randomSeed = (uint)DateTime.UtcNow.Millisecond + 1;
+
+        Unity.Mathematics.Random random = new Unity.Mathematics.Random(randomSeed);
 
         // Where do walls go?  How do we start enumerating grid cells so they come out in a sane way?
         for (int i = 0; i < boardSize.Value.x; i++)
@@ -176,8 +177,9 @@ public class BoardSpawnerSystem : SystemBase
 
         Entity redEntity = EntityManager.Instantiate(boardPrefabs.basePrefab);
         EntityManager.AddComponent<BaseTag>(redEntity);
-        EntityManager.AddComponentData<Position>(redEntity, redPosition);
-        EntityManager.AddComponentData<Score>(redEntity, new Score());
+        EntityManager.AddComponentData(redEntity, redPosition);
+        EntityManager.AddComponentData(redEntity, new Score());
+        EntityManager.AddComponentData(redEntity, new NpcInput { player = Player.Red, random = new Unity.Mathematics.Random(random.NextUInt()) });
 
         var redLink = EntityManager.GetComponentData<BaseComponentLink>(redEntity);
         EntityManager.SetComponentData(redLink.baseTop, redColor);
@@ -187,6 +189,7 @@ public class BoardSpawnerSystem : SystemBase
         EntityManager.AddComponent<BaseTag>(greenEntity);
         EntityManager.AddComponentData<Position>(greenEntity, greenPosition);
         EntityManager.AddComponentData<Score>(greenEntity, new Score());
+        EntityManager.AddComponentData(greenEntity, new NpcInput { player = Player.Green, random = new Unity.Mathematics.Random(random.NextUInt()) });
 
         var greenLink = EntityManager.GetComponentData<BaseComponentLink>(greenEntity);
         EntityManager.SetComponentData(greenLink.baseTop, greenColor);
@@ -196,6 +199,7 @@ public class BoardSpawnerSystem : SystemBase
         EntityManager.AddComponent<BaseTag>(blueEntity);
         EntityManager.AddComponentData<Position>(blueEntity, bluePosition);
         EntityManager.AddComponentData<Score>(blueEntity, new Score());
+        EntityManager.AddComponentData(blueEntity, new NpcInput { player = Player.Blue, random = new Unity.Mathematics.Random(random.NextUInt()) });
 
         var blueLink = EntityManager.GetComponentData<BaseComponentLink>(blueEntity);
         EntityManager.SetComponentData(blueLink.baseTop, blueColor);

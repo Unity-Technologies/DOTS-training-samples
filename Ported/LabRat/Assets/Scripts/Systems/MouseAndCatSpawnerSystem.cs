@@ -3,6 +3,8 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Collections;
 
+[UpdateAfter(typeof(BoardSpawnerSystem))]
+[UpdateBefore(typeof(MovementSystem))]
 public class MouseAndCatSpawnerSystem : SystemBase
 {
     NativeReference<Random> randomRef;
