@@ -87,10 +87,12 @@ public class BoardSpawnerSystem : SystemBase
                 byte currentWall = walls[arrayPos];
 
                 EntityManager.SetComponentData(cells[arrayPos], new Translation { Value = new float3(i, 0, j) });
+                EntityManager.SetComponentData(cells[arrayPos], new Position { Value = new int2(i, j) });
 
                 if (random.NextFloat() < 0.01f)
                 {
                     EntityManager.AddComponent<DisableRendering>(cells[arrayPos]);
+                    EntityManager.AddComponent<Hole>(cells[arrayPos]);
                 }
                 else
                 {

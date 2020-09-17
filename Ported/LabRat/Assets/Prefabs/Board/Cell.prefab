@@ -204,6 +204,7 @@ GameObject:
   - component: {fileID: -2969895409697428307}
   - component: {fileID: -3217369368854474909}
   - component: {fileID: 6386704831019503006}
+  - component: {fileID: 9179022306514609385}
   m_Layer: 0
   m_Name: Cell
   m_TagString: Untagged
@@ -316,3 +317,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   arrow: {fileID: 1329696378627138}
   arrowOutline: {fileID: 1341459164199764}
+--- !u!114 &9179022306514609385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1695157876856304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c7af0112d419b44caa90f2a505b4249, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
