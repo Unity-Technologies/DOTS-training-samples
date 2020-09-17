@@ -155,8 +155,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Resolution: 512
   WorldSpaceSize: 50
-  AntPheremoneStrength: 1
+  AntPheremoneStrength: 0.75
   PheremoneDecay: 0.01
+  GoalSeekExcitementFactor: 10
+  HasFoodExcitementFactor: 2
 --- !u!4 &67788000
 Transform:
   m_ObjectHideFlags: 0
@@ -243,7 +245,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10f2aff62e8aa432db5105ea424b0bf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallPrefab: {fileID: 1267022011664864647, guid: bab177c9de354432daccf66e106df095, type: 3}
 --- !u!1 &350048161
 GameObject:
   m_ObjectHideFlags: 0
@@ -411,7 +412,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10f2aff62e8aa432db5105ea424b0bf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallPrefab: {fileID: 1267022011664864647, guid: bab177c9de354432daccf66e106df095, type: 3}
 --- !u!1 &439424293
 GameObject:
   m_ObjectHideFlags: 0
@@ -505,7 +505,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10f2aff62e8aa432db5105ea424b0bf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallPrefab: {fileID: 1267022011664864647, guid: bab177c9de354432daccf66e106df095, type: 3}
 --- !u!1 &1624703578
 GameObject:
   m_ObjectHideFlags: 0
@@ -516,8 +515,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1624703579}
   - component: {fileID: 1624703580}
+  - component: {fileID: 1624703581}
   m_Layer: 0
-  m_Name: SteeringSettings
+  m_Name: GlobalSettings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -549,13 +549,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e0c8c035af3f9d4aaf5304d75a4d475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomDeviationDegrees: 30
+  RandomDeviationDegrees: 20
   SteeringSmoothingFrequency: 10
   SteeringDampingRatio: 1
   GoalSteeringStrength: 0.5
-  PheromoneSteeringStrength: 0.8
+  PheromoneSteeringStrength: 0.95
   GoalSteeringDistanceStart: 25
   GoalSteeringDistanceEnd: 1
+--- !u!114 &1624703581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1624703578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a192adbf2c95394aac51ba2ccd2a85b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallPrefab: {fileID: 1267022011664864647, guid: bab177c9de354432daccf66e106df095, type: 3}
 --- !u!1 &1743256509
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,13 +4,66 @@ using  Unity.Mathematics;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
-
+using System.Linq;
 
 public class BoardInitSystem : SystemBase
 {
-   protected override void OnUpdate()
-   {  
+    private KeyboardInput m_KeyboardInput;
+
+    protected override void OnCreate()
+    {
+        m_KeyboardInput = Object.FindObjectsOfType<KeyboardInput>().FirstOrDefault(); ;
+    }
+
+    protected override void OnUpdate()
+    {
     
+      if(m_KeyboardInput.ResetScenePending)
+        {
+            Entities.WithStructuralChanges().WithAll<WallTag>().ForEach((Entity entity) =>
+            {
+                EntityManager.DestroyEntity(entity);
+            }).Run();
+
+            Entities.WithStructuralChanges().WithAll<DynamicArcTag>().ForEach((Entity entity) =>
+            {
+                EntityManager.DestroyEntity(entity);
+            }).Run();
+
+            Entities.WithStructuralChanges().WithAll<Arc>().ForEach((Entity entity) =>
+            {
+                EntityManager.AddComponent<WallAuthoring>(entity);
+            }).Run();
+
+            Entities.ForEach((ref AntTag ant, ref Translation translation, ref Yaw yaw) =>
+            {
+                translation.Value = float3.zero;
+                ant.HasFood = false;
+                ant.GoalSeekAmount = 0.0f;
+
+                Random random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 10000));
+                yaw.CurrentYaw = random.NextFloat(-math.PI, math.PI);
+            }).Run();
+
+            Entities.WithStructuralChanges().WithAll<FoodTag>().ForEach((Entity entity) =>
+            {
+                EntityManager.AddComponent<FoodSpawnAuthoring>(entity);
+            }).Run();
+
+            // Reset pheromones
+            var mapEntity = GetSingletonEntity<PheromoneMap>();
+            var map = EntityManager.GetComponentData<PheromoneMap>(mapEntity);
+            var pheromones = EntityManager.GetBuffer<PheromoneStrength>(mapEntity);
+            for(int i = 0; i < pheromones.Length; i++)
+            {
+                pheromones[i] = 0.0f;
+            }
+
+            m_KeyboardInput.ResetScenePending = false;
+        }
+
+        
+
       //There should be at least 3 entities
       Entities.WithStructuralChanges().ForEach((Entity entity, 
           ref Arc arc, in WallAuthoring wall, in LocalToWorld ltw) =>
@@ -19,6 +72,8 @@ public class BoardInitSystem : SystemBase
          float minRingWidth = 120; //temp
          float maxRingWidth = 300; //temp
 
+         var wallSettingsEntity = GetSingletonEntity<WallSettings>();
+         var wallSettings = EntityManager.GetComponentData<WallSettings>(wallSettingsEntity);
 
           //have a random seed
           Random random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 10000));
@@ -41,11 +96,13 @@ public class BoardInitSystem : SystemBase
             EntityArchetype archetype = EntityManager.CreateArchetype(
                typeof(Arc),
                typeof(WallAuthoring),
-               typeof(LocalToWorld));
+               typeof(LocalToWorld),
+               typeof(DynamicArcTag)
+               );
             
             //add new arc entity
             Entity splitArc = EntityManager.CreateEntity(archetype);
-            EntityManager.AddComponentData(splitArc, new WallAuthoring{wallPrefab = wall.wallPrefab});
+            EntityManager.AddComponentData(splitArc, new WallAuthoring());
             EntityManager.AddComponentData(splitArc, new Arc
             {
                Radius = arc.Radius,
@@ -53,10 +110,10 @@ public class BoardInitSystem : SystemBase
                EndAngle =  end,
                split = 1
             });
+            EntityManager.AddComponentData(splitArc, new DynamicArcTag());
+          }
 
-         }
-         
-         //create arcs
+          //create arcs
           for (int i = (int)arc.StartAngle; i < (arc.EndAngle + 1); i++) 
           {
                float rad = deg2rad * i;
@@ -64,9 +121,8 @@ public class BoardInitSystem : SystemBase
                   ltw.Position.z + (math.cos(rad) * arc.Radius));
             
                //instantiate prefabs with mesh render
-               var instance = EntityManager.Instantiate(wall.wallPrefab);
+               var instance = EntityManager.Instantiate(wallSettings.wallPrefab);
                SetComponent(instance, new Translation{ Value = position });
-            
           }
             
          //Only run this once
@@ -104,5 +160,7 @@ public class BoardInitSystem : SystemBase
       return result;
 
    }
-   
+
+
+
 }

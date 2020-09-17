@@ -283,6 +283,22 @@ public class SteeringSystem : SystemBase {
         return ret;
     }
 
+    static float ClampToZeroMinus2Pi(float angleRadians)
+    {
+        float ret = angleRadians;
+        while (ret > 2.0f*math.PI)
+        {
+            ret -= 2.0f * math.PI;
+        }
+
+        while (ret < 0.0f)
+        {
+            ret += 2.0f * math.PI;
+        }
+
+        return ret;
+    }
+
     // Credit to reddit: https://www.reddit.com/r/gamedev/comments/31vwyg/game_math_precise_control_over_numeric_springing/
     static void SpringDamp
     (
