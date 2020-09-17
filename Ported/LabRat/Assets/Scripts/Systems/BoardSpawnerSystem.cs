@@ -165,11 +165,14 @@ public class BoardSpawnerSystem : SystemBase
             }
         }
 
-        // Where do the bases go?
-        Position redPosition = new Position() { Value = new int2(4, 4) };
-        Position greenPosition = new Position() { Value = new int2(4, 8) };
-        Position bluePosition = new Position() { Value = new int2(8, 4) };
-        Position blackPosition = new Position() { Value = new int2(8, 8) };
+        // Where do the bases go? 1/3 & 2/3 of the board size.
+        float offset = 1f / 3f;
+        float sizeX = boardSize.Value.x;
+        float sizeY = boardSize.Value.y;
+        Position redPosition = new Position() { Value = new int2((int)(sizeX * offset), (int)(sizeY * offset)) };
+        Position greenPosition = new Position() { Value = new int2((int)(sizeX * offset), (int)(sizeY * 2f * offset)) };
+        Position bluePosition = new Position() { Value = new int2((int)(sizeX * 2f * offset), (int)(sizeY * offset)) };
+        Position blackPosition = new Position() { Value = new int2((int)(sizeX * 2f * offset), (int)(sizeY * 2f * offset)) };
         Color redColor = new Color() { Value = new float4(1.0f, 0.0f, 0.0f, 1.0f) };
         Color greenColor = new Color() { Value = new float4(0.0f, 1.0f, 0.0f, 1.0f) };
         Color blueColor = new Color() { Value = new float4(0.0f, 0.0f, 1.0f, 1.0f) };
