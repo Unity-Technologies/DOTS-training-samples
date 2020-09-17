@@ -137,26 +137,43 @@ public class BoardSpawnerSystem : SystemBase
         Color greenColor = new Color() { Value = new float4(0.0f, 1.0f, 0.0f, 1.0f) };
         Color blueColor = new Color() { Value = new float4(0.0f, 0.0f, 1.0f, 1.0f) };
         Color blackColor = new Color() { Value = new float4(0.0f, 0.0f, 0.0f, 1.0f) };
+
         Entity redEntity = EntityManager.Instantiate(boardPrefabs.basePrefab);
         EntityManager.AddComponent<BaseTag>(redEntity);
         EntityManager.AddComponentData<Position>(redEntity, redPosition);
-        EntityManager.AddComponentData<Color>(redEntity, redColor);
         EntityManager.AddComponentData<Score>(redEntity, new Score());
+
+        var redLink = EntityManager.GetComponentData<BaseComponentLink>(redEntity);
+        EntityManager.SetComponentData(redLink.baseTop, redColor);
+        EntityManager.SetComponentData(redLink.baseBottom, redColor);
+
         Entity greenEntity = EntityManager.Instantiate(boardPrefabs.basePrefab);
         EntityManager.AddComponent<BaseTag>(greenEntity);
         EntityManager.AddComponentData<Position>(greenEntity, greenPosition);
-        EntityManager.AddComponentData<Color>(greenEntity, greenColor);
         EntityManager.AddComponentData<Score>(greenEntity, new Score());
+
+        var greenLink = EntityManager.GetComponentData<BaseComponentLink>(greenEntity);
+        EntityManager.SetComponentData(greenLink.baseTop, greenColor);
+        EntityManager.SetComponentData(greenLink.baseBottom, greenColor);
+
         Entity blueEntity = EntityManager.Instantiate(boardPrefabs.basePrefab);
         EntityManager.AddComponent<BaseTag>(blueEntity);
         EntityManager.AddComponentData<Position>(blueEntity, bluePosition);
-        EntityManager.AddComponentData<Color>(blueEntity, blueColor);
         EntityManager.AddComponentData<Score>(blueEntity, new Score());
+
+        var blueLink = EntityManager.GetComponentData<BaseComponentLink>(blueEntity);
+        EntityManager.SetComponentData(blueLink.baseTop, blueColor);
+        EntityManager.SetComponentData(blueLink.baseBottom, blueColor);
+
         Entity blackEntity = EntityManager.Instantiate(boardPrefabs.basePrefab);
         EntityManager.AddComponent<BaseTag>(blackEntity);
         EntityManager.AddComponentData<Position>(blackEntity, blackPosition);
-        EntityManager.AddComponentData<Color>(blackEntity, blackColor);
         EntityManager.AddComponentData<Score>(blackEntity, new Score());
+
+        var blackLink = EntityManager.GetComponentData<BaseComponentLink>(blackEntity);
+        EntityManager.SetComponentData(blackLink.baseTop, blackColor);
+        EntityManager.SetComponentData(blackLink.baseBottom, blackColor);
+
 
         // Need spawners for mice & cats
         MousePrefabs mousePrefabs = GetSingleton<MousePrefabs>();
