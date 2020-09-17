@@ -155,8 +155,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Resolution: 512
   WorldSpaceSize: 50
-  AntPheremoneStrength: 1
+  AntPheremoneStrength: 0.75
   PheremoneDecay: 0.01
+  GoalSeekExcitementFactor: 10
+  HasFoodExcitementFactor: 2
 --- !u!4 &67788000
 Transform:
   m_ObjectHideFlags: 0
@@ -549,11 +551,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e0c8c035af3f9d4aaf5304d75a4d475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomDeviationDegrees: 30
+  RandomDeviationDegrees: 20
   SteeringSmoothingFrequency: 10
   SteeringDampingRatio: 1
   GoalSteeringStrength: 0.5
-  PheromoneSteeringStrength: 0.8
+  PheromoneSteeringStrength: 0.95
   GoalSteeringDistanceStart: 25
   GoalSteeringDistanceEnd: 1
 --- !u!1 &1743256509

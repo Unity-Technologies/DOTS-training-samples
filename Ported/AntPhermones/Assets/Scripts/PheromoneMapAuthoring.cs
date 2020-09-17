@@ -17,6 +17,8 @@ public struct PheromoneMap : IComponentData
     public float WorldSpaceSize;
     public float AntPheremoneStrength;
     public float PheremoneDecay;
+    public float GoalSeekExcitementFactor;
+    public float HasFoodExcitementFactor;
 
     public static int2 WorldToGridPos(PheromoneMap map, float3 worldPos) {
         float offset = map.WorldSpaceSize / 2f;

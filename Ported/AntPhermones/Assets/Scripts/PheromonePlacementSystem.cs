@@ -16,7 +16,11 @@ public class PheromonePlacementSystem : SystemBase {
             if (index < 0 || index >= pheromones.Length) {
                 return;
             }
-            pheromones[index] = math.saturate(pheromones[index] + map.AntPheremoneStrength * dt * (ant.HasFood ? 2 : .5f));
+
+            float excitementFactor = (ant.HasFood ? map.HasFoodExcitementFactor : 1.0f);
+            excitementFactor += ant.GoalSeekAmount * map.GoalSeekExcitementFactor;
+
+            pheromones[index] = math.saturate(pheromones[index] + map.AntPheremoneStrength * dt * excitementFactor);
         }).Run();
     }
 }
