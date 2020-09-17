@@ -52,7 +52,8 @@ public class PlayerInputSystem : SystemBase
                 }
             }
 
-            var cellEntity = cellData.cells[pos.y * boardSize.Value.x + pos.x];
+            var arrayPos = pos.y * boardSize.Value.x + pos.x;
+            var cellEntity = cellData.cells[arrayPos];
 
             if (!EntityManager.HasComponent<DisableRendering>(cellEntity))
             {
@@ -62,6 +63,7 @@ public class PlayerInputSystem : SystemBase
                 {
                     if (Input.GetMouseButtonDown(0))
                     {
+                        cellData.directions[arrayPos] = 0;
                         EntityManager.RemoveComponent<ArrowTag>(cellEntity);
                         EntityManager.SetComponentData(cellLinks.arrow, new Color { Value = float4.zero });
                         EntityManager.SetComponentData(cellLinks.arrowOutline, new Color { Value = float4.zero });
@@ -77,6 +79,7 @@ public class PlayerInputSystem : SystemBase
 
                     if (Input.GetMouseButtonDown(0))
                     {
+                        cellData.directions[arrayPos] = (byte)(1 << (int)arrowDirection);
                         EntityManager.AddComponent<ArrowTag>(cellEntity);
                         EntityManager.SetComponentData(cellEntity, new Direction { Value = arrowDirection });
                         EntityManager.SetComponentData(cellLinks.arrow, new Color { Value = new float4(1, 1, 1, 1) });

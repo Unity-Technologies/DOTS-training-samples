@@ -12,6 +12,7 @@ public class WallData : IComponentData
 public class CellData : IComponentData
 {
     public NativeArray<Entity> cells;
+    public NativeArray<byte> directions; // 0 means no arrow
 }
 
 public struct BaseTag : IComponentData
@@ -52,6 +53,7 @@ public class BoardSpawnerSystem : SystemBase
         Entity cellEntity = GetSingletonEntity<CellData>();
         CellData cellData = EntityManager.GetComponentObject<CellData>(cellEntity);
         cellData.cells.Dispose();
+        cellData.directions.Dispose();
     }
 
     protected override void OnUpdate()
@@ -68,8 +70,10 @@ public class BoardSpawnerSystem : SystemBase
         NativeArray<Entity> cells = new NativeArray<Entity>(arraySize, Allocator.Persistent);
         EntityManager.Instantiate(boardPrefabs.cellPrefab, cells);
 
+        NativeArray<byte> directions = new NativeArray<byte>(arraySize, Allocator.Persistent);
         Entity cellEntity = EntityManager.CreateEntity(typeof(CellData));
-        EntityManager.SetComponentData(cellEntity, new CellData { cells = cells });
+        EntityManager.SetComponentData(cellEntity, new CellData { cells = cells, directions = directions });
+        
 
         Unity.Mathematics.Random random = new Unity.Mathematics.Random((uint)DateTime.UtcNow.Millisecond + 1);
 

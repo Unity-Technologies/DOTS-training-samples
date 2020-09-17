@@ -12,6 +12,7 @@ public class MovementSystem : SystemBase
         base.OnCreate();
         RequireSingletonForUpdate<BoardSize>();
         RequireSingletonForUpdate<WallData>();
+        RequireSingletonForUpdate<CellData>();
     }
     protected override void OnUpdate()
     {
@@ -21,6 +22,9 @@ public class MovementSystem : SystemBase
         Entity wallEntity = GetSingletonEntity<WallData>();
         WallData wallData = EntityManager.GetComponentObject<WallData>(wallEntity);
         NativeArray<byte> wallArray = wallData.walls;
+        var cellEntity = GetSingletonEntity<CellData>();
+        var cellData = EntityManager.GetComponentObject<CellData>(cellEntity);
+        NativeArray<byte> cellDirections = cellData.directions;
 
         Entities.ForEach((ref Position position, ref PositionOffset positionOffset, ref Direction direction, in Speed speed) => {
             positionOffset.Value += speed.Value * deltaTime;
@@ -53,6 +57,25 @@ public class MovementSystem : SystemBase
             if (newCell)
             {
                 int arrayPos = boardSize.Value.x * position.Value.y + position.Value.x;
+                // Did an arrow change our direction?
+                var curCellDirection = cellDirections[arrayPos];
+                switch (curCellDirection)
+                {
+                    case 0x1:
+                        direction.Value = DirectionEnum.North;
+                        break;
+                    case 0x2:
+                        direction.Value = DirectionEnum.East;
+                        break;
+                    case 0x4:
+                        direction.Value = DirectionEnum.South;
+                        break;
+                    case 0x8:
+                        direction.Value = DirectionEnum.West;
+                        break;
+                    default:
+                        break;
+                }
                 byte curWalls = wallArray[arrayPos];
                 if (!(curWalls == 0xf))
                 {
