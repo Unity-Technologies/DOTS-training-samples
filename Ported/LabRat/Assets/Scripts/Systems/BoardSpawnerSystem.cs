@@ -80,7 +80,7 @@ public class BoardSpawnerSystem : SystemBase
             {
                 int arrayPos = boardSize.Value.x * j + i;
 
-                byte currentWall = 0x0;
+                byte currentWall = walls[arrayPos];
 
                 EntityManager.SetComponentData(cells[arrayPos], new Translation { Value = new float3(i, 0, j) });
 
@@ -91,31 +91,61 @@ public class BoardSpawnerSystem : SystemBase
                 else
                 {
                     // 0x00, 0x01, 0x02, 0x04, 0x0
-                    if (i == 0 || random.NextFloat() < 0.05f)
+                    if (i == 0 || random.NextFloat() < 0.05f) // West
                     {
-                        currentWall |= 0x1;
+                        currentWall |= 1 << (byte)DirectionEnum.West;
+
+                        // If this cell has an interior wall that is "shared" with an adjacent cell, we add the "converse" wall
+                        // to the neighboring cell.
+                        if (i != 0)
+                        {
+                            int neighborPos = boardSize.Value.x * j + i - 1;
+                            walls[neighborPos] |= 1 << (byte)DirectionEnum.East;
+                        }
                         var wall = EntityManager.Instantiate(boardPrefabs.wallPrefab);
                         EntityManager.SetComponentData(wall, new Translation { Value = new float3(i - 0.47f, 0.7f, j) });
                         EntityManager.SetComponentData(wall, new Rotation { Value = quaternion.RotateY(math.PI) });
                     }
-                    if (j == 0 || random.NextFloat() < 0.05f)
+                    if (j == 0 || random.NextFloat() < 0.05f) // South
                     {
-                        currentWall |= 0x8;
+                        currentWall |= 1 << (byte)DirectionEnum.South;
 
+                        // If this cell has an interior wall that is "shared" with an adjacent cell, we add the "converse" wall
+                        // to the neighboring cell.
+                        if (j != 0)
+                        {
+                            int neighborPos = boardSize.Value.x * (j - 1) + i;
+                            walls[neighborPos] |= 1 << (byte)DirectionEnum.North;
+                        }
                         var wall = EntityManager.Instantiate(boardPrefabs.wallPrefab);
                         EntityManager.SetComponentData(wall, new Translation { Value = new float3(i, 0.7f, j - 0.47f) });
                     }
-                    if (i == boardSize.Value.x - 1 || random.NextFloat() < 0.05f)
+                    if (i == boardSize.Value.x - 1 || random.NextFloat() < 0.05f) // East
                     {
-                        currentWall |= 0x2;
+                        currentWall |= 1 << (byte)DirectionEnum.East;
 
+                        // If this cell has an interior wall that is "shared" with an adjacent cell, we add the "converse" wall
+                        // to the neighboring cell.
+                        if (i != boardSize.Value.x - 1)
+                        {
+                            int neighborPos = boardSize.Value.x * j + i + 1;
+                            walls[neighborPos] |= 1 << (byte)DirectionEnum.West;
+                        }
                         var wall = EntityManager.Instantiate(boardPrefabs.wallPrefab);
                         EntityManager.SetComponentData(wall, new Translation { Value = new float3(i + 0.47f, 0.7f, j) });
                         EntityManager.SetComponentData(wall, new Rotation { Value = quaternion.RotateY(math.PI) });
                     }
-                    if (j == boardSize.Value.y - 1 || random.NextFloat() < 0.05f) 
+                    if (j == boardSize.Value.y - 1 || random.NextFloat() < 0.05f) // North
                     { 
-                        currentWall |= 0x4;
+                        currentWall |= 1 << (byte)DirectionEnum.North;
+
+                        // If this cell has an interior wall that is "shared" with an adjacent cell, we add the "converse" wall
+                        // to the neighboring cell.
+                        if (j != boardSize.Value.y - 1)
+                        {
+                            int neighborPos = boardSize.Value.x * (j + 1) + i;
+                            walls[neighborPos] |= 1 << (byte)DirectionEnum.South;
+                        }
 
                         var wall = EntityManager.Instantiate(boardPrefabs.wallPrefab);
                         EntityManager.SetComponentData(wall, new Translation { Value = new float3(i, 0.7f, j + 0.47f) });
