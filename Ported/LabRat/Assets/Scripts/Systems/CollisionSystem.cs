@@ -30,9 +30,7 @@ public class CollisionSystem : SystemBase
         NativeArray<Position> mousePositions = m_MouseQuery.ToComponentDataArray<Position>(Allocator.TempJob);
         NativeArray<Entity> mouseEntities = m_MouseQuery.ToEntityArray(Allocator.TempJob);
         NativeArray<Position> holePositions = m_HoleQuery.ToComponentDataArray<Position>(Allocator.TempJob);
-        // m_PlayerPositions = m_PlayerQuery.ToComponentDataArray<Position>(Allocator.TempJob);
-        // m_PlayerScores = m_PlayerQuery.ToComponentDataArray<Score>(Allocator.TempJob);
-
+      
         var system = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = system.CreateCommandBuffer();
         const float threshold = 0.25f;
@@ -58,8 +56,7 @@ public class CollisionSystem : SystemBase
         Entities.WithDisposeOnCompletion(catPositions).WithAll<MouseTag>().ForEach((Entity entity, ref Direction dir, in Position pos) =>
         {
 
-            // mouse x hole 
-            // foreach (var hole in holePositions)
+            // mouse x hole           
             for (int i = 0; i < holePositions.Length; i++)
             {
                 float2 diff = pos.Value - holePositions[i].Value;
@@ -72,7 +69,6 @@ public class CollisionSystem : SystemBase
             }
 
             // mouse x cat
-            //foreach (var cat in catPositions)
             for (int i = 0; i < catPositions.Length; i++)
             {
                 float2 diff = catPositions[i].Value - pos.Value;
