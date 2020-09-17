@@ -31,7 +31,7 @@ public class SteeringSystem : SystemBase {
     }
     // ----------------------------------------------------------------------------------- //
 
-    static Random m_Rng = new Random(1337);
+    static readonly Random m_Rng = new Random(1337);
 
     static float NextGaussian(float mean, float stdDev) {
         float u1 = 1.0f - m_Rng.NextFloat();
@@ -154,7 +154,7 @@ public class SteeringSystem : SystemBase {
         var homeEntity = GetSingletonEntity<HomeTag>();
         float3 homePos = EntityManager.GetComponentData<Translation>(homeEntity).Value;
 
-        Entities.WithAll<AntTag>().WithDisposeOnCompletion(arcArray).ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData, ref AntTag antData, in LocalToWorld ltw) =>
+        Entities.WithAll<AntTag>().ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData, ref AntTag antData, in LocalToWorld ltw) =>
         {
             // Start with gaussian noise
             if (maxAngleDeviation > 0.0f)
@@ -210,6 +210,8 @@ public class SteeringSystem : SystemBase {
             yaw.CurrentYaw += deltaYaw;
             yaw.CurrentYaw = ClampToPiMinusPi(yaw.CurrentYaw);
         }).Run();
+
+        arcArray.Dispose();
     }
 
     static bool SteerTowardsGoal(in NativeArray<Arc> arcs, in Yaw yaw, in LocalToWorld ltw, in SteeringSettings settings, in float3 goalPos, out float yawToGoalWorld)
@@ -319,5 +321,12 @@ public class SteeringSystem : SystemBase {
         float detV = valueVel + hoo * (targetValue - value);
         value = detX * detInv;
         valueVel = detV * detInv;
+    }
+
+    protected override void OnCreate()
+    {
+        // We must wait for the pheromone map to be initialized
+        EntityQuery query = GetEntityQuery(typeof(PheromoneMap), typeof(PheromoneStrength));
+        RequireForUpdate(query);
     }
 }
