@@ -1,10 +1,9 @@
-﻿using Unity.Burst;
-using Unity.Collections;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(MovementSystem))]
 public class WorldTransformationSystem : SystemBase
 {
     protected override void OnUpdate()
@@ -37,6 +36,6 @@ public class WorldTransformationSystem : SystemBase
             }
 
             translation.Value = new float3(position.Value.x, 0f, position.Value.y) + posOffset;
-        }).Schedule();
+        }).ScheduleParallel();
     }
 }

@@ -62,9 +62,9 @@ public class ArrowPlacementSystem : SystemBase
                 }
 
                 ecb.SetComponent(cellLink.arrow, new Rotation { Value = rot });
-
-                ecb.RemoveComponent<ArrowPlacementRequest>(entity);
             }
+
+            ecb.RemoveComponent<ArrowPlacementRequest>(entity);
         }).Schedule();
     }
 }
