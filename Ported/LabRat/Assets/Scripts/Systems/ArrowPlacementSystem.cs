@@ -3,14 +3,6 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public enum Player
-{
-    Black,
-    Red,
-    Green,
-    Blue
-}
-
 [UpdateAfter(typeof(PlayerInputSystem))]
 [UpdateAfter(typeof(NpcInputSystem))]
 public class ArrowPlacementSystem : SystemBase

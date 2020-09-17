@@ -10,7 +10,7 @@ public class NpcInputSystem : SystemBase
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<CellData>();
-        RequireForUpdate(GetEntityQuery(ComponentType.ReadOnly<NpcInput>()));
+        RequireForUpdate(GetEntityQuery(ComponentType.ReadWrite<NpcInput>(), ComponentType.ReadOnly<PlayerId>()));
     }
 
     protected override void OnUpdate()
@@ -28,7 +28,7 @@ public class NpcInputSystem : SystemBase
         var cells = cellData.cells;
         var arrows = cellData.directions;
 
-        Entities.ForEach((ref NpcInput npc) => {
+        Entities.ForEach((ref NpcInput npc, in PlayerId player) => {
             npc.timeSinceLastMove += deltaTime;
 
             if (npc.timeSinceLastMove > npc.nextMoveDelay)
@@ -43,7 +43,7 @@ public class NpcInputSystem : SystemBase
 
                     var direction = (DirectionEnum)npc.random.NextInt(4);
 
-                    ArrowPlacementRequest request = new ArrowPlacementRequest { player = npc.player, position = pos, direction = direction, remove = false };
+                    ArrowPlacementRequest request = new ArrowPlacementRequest { player = player.Value, position = pos, direction = direction, remove = false };
                     ecb.AddComponent(cells[arrayPos], request);
                 }
             }

@@ -56,7 +56,7 @@ public class PlayerInputSystem : SystemBase
             var arrayPos = pos.y * boardSize.Value.x + pos.x;
             var cellEntity = cellData.cells[arrayPos];
 
-            if (!EntityManager.HasComponent<DisableRendering>(cellEntity))
+            if (!EntityManager.HasComponent<Hole>(cellEntity))
             {
                 var cellLinks = EntityManager.GetComponentData<CellComponentLink>(cellEntity);
 

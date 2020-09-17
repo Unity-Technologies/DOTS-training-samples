@@ -179,7 +179,8 @@ public class BoardSpawnerSystem : SystemBase
         EntityManager.AddComponent<BaseTag>(redEntity);
         EntityManager.AddComponentData(redEntity, redPosition);
         EntityManager.AddComponentData(redEntity, new Score());
-        EntityManager.AddComponentData(redEntity, new NpcInput { player = Player.Red, random = new Unity.Mathematics.Random(random.NextUInt()) });
+        EntityManager.AddComponentData(redEntity, new PlayerId { Value = Player.Red });
+        EntityManager.AddComponentData(redEntity, new NpcInput { random = new Unity.Mathematics.Random(random.NextUInt()) });
 
         var redLink = EntityManager.GetComponentData<BaseComponentLink>(redEntity);
         EntityManager.SetComponentData(redLink.baseTop, redColor);
@@ -187,9 +188,10 @@ public class BoardSpawnerSystem : SystemBase
 
         Entity greenEntity = EntityManager.Instantiate(boardPrefabs.basePrefab);
         EntityManager.AddComponent<BaseTag>(greenEntity);
-        EntityManager.AddComponentData<Position>(greenEntity, greenPosition);
-        EntityManager.AddComponentData<Score>(greenEntity, new Score());
-        EntityManager.AddComponentData(greenEntity, new NpcInput { player = Player.Green, random = new Unity.Mathematics.Random(random.NextUInt()) });
+        EntityManager.AddComponentData(greenEntity, greenPosition);
+        EntityManager.AddComponentData(greenEntity, new Score());
+        EntityManager.AddComponentData(greenEntity, new PlayerId { Value = Player.Green });
+        EntityManager.AddComponentData(greenEntity, new NpcInput { random = new Unity.Mathematics.Random(random.NextUInt()) });
 
         var greenLink = EntityManager.GetComponentData<BaseComponentLink>(greenEntity);
         EntityManager.SetComponentData(greenLink.baseTop, greenColor);
@@ -197,9 +199,10 @@ public class BoardSpawnerSystem : SystemBase
 
         Entity blueEntity = EntityManager.Instantiate(boardPrefabs.basePrefab);
         EntityManager.AddComponent<BaseTag>(blueEntity);
-        EntityManager.AddComponentData<Position>(blueEntity, bluePosition);
-        EntityManager.AddComponentData<Score>(blueEntity, new Score());
-        EntityManager.AddComponentData(blueEntity, new NpcInput { player = Player.Blue, random = new Unity.Mathematics.Random(random.NextUInt()) });
+        EntityManager.AddComponentData(blueEntity, bluePosition);
+        EntityManager.AddComponentData(blueEntity, new Score());
+        EntityManager.AddComponentData(blueEntity, new PlayerId { Value = Player.Blue });
+        EntityManager.AddComponentData(blueEntity, new NpcInput { random = new Unity.Mathematics.Random(random.NextUInt()) });
 
         var blueLink = EntityManager.GetComponentData<BaseComponentLink>(blueEntity);
         EntityManager.SetComponentData(blueLink.baseTop, blueColor);
@@ -207,8 +210,9 @@ public class BoardSpawnerSystem : SystemBase
 
         Entity blackEntity = EntityManager.Instantiate(boardPrefabs.basePrefab);
         EntityManager.AddComponent<BaseTag>(blackEntity);
-        EntityManager.AddComponentData<Position>(blackEntity, blackPosition);
-        EntityManager.AddComponentData<Score>(blackEntity, new Score());
+        EntityManager.AddComponentData(blackEntity, blackPosition);
+        EntityManager.AddComponentData(blackEntity, new Score());
+        EntityManager.AddComponentData(blackEntity, new PlayerId { Value = Player.Black });
 
         var blackLink = EntityManager.GetComponentData<BaseComponentLink>(blackEntity);
         EntityManager.SetComponentData(blackLink.baseTop, blackColor);
