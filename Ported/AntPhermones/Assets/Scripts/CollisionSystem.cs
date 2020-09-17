@@ -26,14 +26,16 @@ public class CollisionSystem : SystemBase
         Entities.WithAll<AntTag>().WithDisposeOnCompletion(arcArray).ForEach((ref Translation translation, ref Yaw yaw, in LocalToWorld localToWorld) =>
         {
             double angleInRadians = math.atan2(translation.Value.z, translation.Value.x);
-            double degrees = -math.degrees(angleInRadians) + 90;
+            double degrees = -math.degrees(angleInRadians) + 90;    // why + 90?, why double?
 
             float arcHalfWidth = Arc.Size / 2.0f;
             float antHalfWidth = AntTag.Size / 2.0f;
             float collisionWidth = arcHalfWidth + antHalfWidth;
 
+            float3 fwd = localToWorld.Forward;
+
             //Is the ant out of bounds?
-            CheckOutOfBounds(ref translation, ref yaw, mapWorldSpaceSize);
+            CheckOutOfBounds(ref translation, ref yaw, fwd, mapWorldSpaceSize);
             
             for(int i = 0; i < arcArray.Length; i++)
             {
@@ -49,7 +51,10 @@ public class CollisionSystem : SystemBase
                     if (IsBetween(degrees, arc.StartAngle, arc.EndAngle))
                     {
                         //Rotate the Ant 180 degrees.
+                        /*
+
                         yaw.CurrentYaw += (float)Math.PI;
+
                         
                         //TODO - Make angles radians by default
                         float startAngleRadians = math.radians(90 - arc.StartAngle);
@@ -64,6 +69,32 @@ public class CollisionSystem : SystemBase
                         float3 backOutHorizontally = math.distance(translation.Value, backOutToHorizontalStart) < math.distance(translation.Value, backOutToHorizontalEnd) ? backOutToHorizontalStart : backOutToHorizontalEnd;
 
                         translation.Value = math.distance(translation.Value, backOutHorizontally) < math.distance(translation.Value, backOutVertically) ? backOutHorizontally : backOutVertically;
+                        */
+
+                        float3 translationDir = translation.Value / antDistanceFromOrigin;
+
+                        if (antDistanceFromOrigin < arc.Radius)
+                        {
+                            // Confine inside
+                            translation.Value = translationDir * (arc.Radius - collisionWidth);
+
+                        }
+                        else
+                        {
+                            // Confine outside
+                            translation.Value = translationDir * (arc.Radius + collisionWidth);
+                        }
+
+                        // Now adjust yaw to stop moving into arc
+                        float reflectionFactor = 0.1f;  // 0 = no reflection, 1.0 = full reflection
+                        fwd -= (1.0f + reflectionFactor) * translationDir * math.dot(fwd, translationDir);
+
+                        // Set yaw based on adjusted fwd
+                        if (math.lengthsq(fwd) > 0.0001f)
+                        {
+                            yaw.CurrentYaw = math.atan2(fwd.x, fwd.z);
+                        }
+
                         return;
                     }
                 }
@@ -71,31 +102,34 @@ public class CollisionSystem : SystemBase
         }).ScheduleParallel();
     }
 
-    static void CheckOutOfBounds(ref Translation translation, ref Yaw yaw, float mapSize)
+    static void CheckOutOfBounds(ref Translation translation, ref Yaw yaw, float3 fwd, float mapSize)
     {
+        float reflectionFactor = 1.0f;  // 0 = no reflection, 1.0 = full reflection
+
         //Rotate the Ant 180 degrees.
         if (translation.Value.x < -mapSize)
         {
             translation.Value.x = -mapSize;
-            yaw.CurrentYaw += (float)Math.PI;
+            fwd.x = -(1.0f + reflectionFactor) * fwd.x;
+            yaw.CurrentYaw = math.atan2(fwd.x, fwd.z);
         }
-        
-        if (translation.Value.x > mapSize)
+        else if (translation.Value.x > mapSize)
         {
             translation.Value.x = mapSize;
-            yaw.CurrentYaw += (float)Math.PI;
+            fwd.x = -(1.0f + reflectionFactor) * fwd.x;
+            yaw.CurrentYaw = math.atan2(fwd.x, fwd.z);
         }
-                
-        if (translation.Value.z < -mapSize)
+        else if (translation.Value.z < -mapSize)
         {
             translation.Value.z = -mapSize;
-            yaw.CurrentYaw += (float)Math.PI;
+            fwd.z = -(1.0f + reflectionFactor) * fwd.z;
+            yaw.CurrentYaw = math.atan2(fwd.x, fwd.z);
         }
-                
-        if (translation.Value.z > mapSize)
+        else if (translation.Value.z > mapSize)
         {
             translation.Value.z = mapSize;
-            yaw.CurrentYaw += (float)Math.PI;
+            fwd.z = -(1.0f + reflectionFactor) * fwd.z;
+            yaw.CurrentYaw = math.atan2(fwd.x, fwd.z);
         }
     }
     
@@ -104,9 +138,9 @@ public class CollisionSystem : SystemBase
         return true;
     }
     
-    static bool IsBetween(double mid, float start, float end) {     
-        end = (end - start) < 0.0f ? end - start + 360.0f : end - start;    
-        mid = (mid - start) < 0.0f ? mid - start + 360.0f : mid - start; 
-        return (mid < end); 
+    static public bool IsBetween(double mid, float startDegrees, float endDegrees) {     
+        endDegrees = (endDegrees - startDegrees) < 0.0f ? endDegrees - startDegrees + 360.0f : endDegrees - startDegrees;    
+        mid = (mid - startDegrees) < 0.0f ? mid - startDegrees + 360.0f : mid - startDegrees; 
+        return (mid < endDegrees); 
     }
 }

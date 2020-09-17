@@ -8,7 +8,7 @@ public class MathHelper
     {
         float2 intersection1;
         float2 intersection2;
-        int intersections = FindLineCircleIntersections(circlePos, radius, lineStart, lineEnd, out intersection1, out intersection2);
+        int intersections = FindLineCircleIntersections(circlePos, radius, lineStart, lineEnd, out intersection1, out intersection2, out float t1, out float t2);
 
         if (intersections == 1)
             return intersection1; // one intersection
@@ -34,10 +34,11 @@ public class MathHelper
 
     // Find the points of intersection.
     public static int FindLineCircleIntersections(float2 circlePos, float radius,
-                                            float2 point1, float2 point2, out
-                                            float2 intersection1, out float2 intersection2)
+                                            float2 point1, float2 point2, 
+                                            out float2 intersection1, out float2 intersection2,
+                                            out float t1, out float t2)
     {
-        float dx, dy, A, B, C, det, t;
+        float dx, dy, A, B, C, det;
 
         dx = point2.x - point1.x;
         dy = point2.y - point1.y;
@@ -52,23 +53,26 @@ public class MathHelper
             // No real solutions.
             intersection1 = new float2(float.NaN, float.NaN);
             intersection2 = new float2(float.NaN, float.NaN);
+            t1 = float.NaN;
+            t2 = float.NaN;
             return 0;
         }
         else if (det == 0)
         {
             // One solution.
-            t = -B / (2 * A);
-            intersection1 = new float2(point1.x + t * dx, point1.y + t * dy);
+            t1 = -B / (2 * A);
+            t2 = float.NaN;
+            intersection1 = new float2(point1.x + t1 * dx, point1.y + t1* dy);
             intersection2 = new float2(float.NaN, float.NaN);
             return 1;
         }
         else
         {
             // Two solutions.
-            t = (float)((-B + math.sqrt(det)) / (2 * A));
-            intersection1 = new float2(point1.x + t * dx, point1.y + t * dy);
-            t = (float)((-B - math.sqrt(det)) / (2 * A));
-            intersection2 = new float2(point1.x + t * dx, point1.y + t * dy);
+            t1 = (float)((-B + math.sqrt(det)) / (2 * A));
+            intersection1 = new float2(point1.x + t1 * dx, point1.y + t1 * dy);
+            t2 = (float)((-B - math.sqrt(det)) / (2 * A));
+            intersection2 = new float2(point1.x + t2 * dx, point1.y + t2 * dy);
             return 2;
         }
     }

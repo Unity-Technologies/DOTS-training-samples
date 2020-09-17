@@ -156,7 +156,7 @@ MonoBehaviour:
   Resolution: 512
   WorldSpaceSize: 50
   AntPheremoneStrength: 1
-  PheremoneDecay: 0.001
+  PheremoneDecay: 0.005
 --- !u!4 &67788000
 Transform:
   m_ObjectHideFlags: 0
@@ -256,7 +256,6 @@ GameObject:
   - component: {fileID: 350048166}
   - component: {fileID: 350048165}
   - component: {fileID: 350048162}
-  - component: {fileID: 350048163}
   - component: {fileID: 350048164}
   m_Layer: 0
   m_Name: Food
@@ -277,22 +276,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c310061ad10b4731927fcb65a8cc8cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &350048163
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 350048161}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1aa0ae2f245cc45559d43c134f015ee8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Radius: 20
-  StartAngle: 0
-  EndAngle: 0
-  split: 0
 --- !u!114 &350048164
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -534,7 +517,7 @@ GameObject:
   - component: {fileID: 1624703579}
   - component: {fileID: 1624703580}
   m_Layer: 0
-  m_Name: SettingsEntity
+  m_Name: SteeringSettings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -566,9 +549,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e0c8c035af3f9d4aaf5304d75a4d475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PheromoneDeviationDegrees: 10
-  SteeringSmoothingFrequency: 8
-  SteeringDampingRatio: 1
+  RandomDeviationDegrees: 20
+  SteeringSmoothingFrequency: 10
+  SteeringDampingRatio: 1.5
+  GoalSteeringStrength: 0.5
+  PheromoneSteeringStrength: 1
+  GoalSteeringDistanceStart: 25
+  GoalSteeringDistanceEnd: 1
 --- !u!1 &1743256509
 GameObject:
   m_ObjectHideFlags: 0
@@ -602,7 +589,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Ant: {fileID: 4015837552346746096, guid: 1ce1f6a2fb144453c8ea252b5f8b2b99, type: 3}
-  NumberOfAnts: 10
+  NumberOfAnts: 1000
 --- !u!23 &1743256512
 MeshRenderer:
   m_ObjectHideFlags: 0

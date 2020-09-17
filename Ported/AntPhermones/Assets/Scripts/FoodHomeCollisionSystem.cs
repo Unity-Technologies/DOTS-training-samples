@@ -16,15 +16,16 @@ public class FoodHomeCollisionSystem : SystemBase
         Entities.ForEach((ref AntTag ant, ref AntColor color, ref Yaw yaw, ref Translation antPos) => {
             if (!ant.HasFood && math.length(antPos.Value - foodPos.Value) < (1 / 2f + AntTag.Size / 2f)) {
                 ant.HasFood = true;
-                yaw.CurrentYaw *= -1;
+                yaw.CurrentYaw += math.PI;
             }
 
             if (ant.HasFood && math.length(antPos.Value - homePos.Value) < (1 / 2f + AntTag.Size / 2f)) {
                 ant.HasFood = false;
-                yaw.CurrentYaw *= -1;
+                yaw.CurrentYaw += math.PI;
             }
 
             color.Value = ant.HasFood ? AntColorAuthoring.kFoodColor : AntColorAuthoring.kHungryColor;
+            color.Value = math.lerp(color.Value, (ant.HasFood ? AntColorAuthoring.kSeeBaseColor : AntColorAuthoring.kSeeFoodColor), ant.GoalSeekAmount);
         }).Run();
     }
 }

@@ -148,38 +148,57 @@ public class SteeringSystem : SystemBase {
         var arcArray = GetEntityQuery(typeof(Arc)).ToComponentDataArrayAsync<Arc>(TempJob, out var arcJobHandle);
         Dependency = JobHandle.CombineDependencies(Dependency, arcJobHandle);
 
-        var foodEntity = GetSingletonEntity<FoodSpawnAuthoring>();
+        var foodEntity = GetSingletonEntity<FoodTag>();
         float3 foodPos = EntityManager.GetComponentData<Translation>(foodEntity).Value;
 
         var homeEntity = GetSingletonEntity<HomeTag>();
         float3 homePos = EntityManager.GetComponentData<Translation>(homeEntity).Value;
 
-        Entities.WithAll<AntTag>().WithDisposeOnCompletion(arcArray).ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData, in LocalToWorld ltw, in AntTag antData) =>
+        Entities.WithAll<AntTag>().WithDisposeOnCompletion(arcArray).ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData, ref AntTag antData, in LocalToWorld ltw) =>
         {
+            // Start with gaussian noise
+            if (maxAngleDeviation > 0.0f)
+            {
+                steeringData.DesiredYaw = NextGaussian(yaw.CurrentYaw, maxAngleDeviation);
+            }
+
             // Pheromone steering
             float strongestPheromoneAngleDiff = StrongestDirection(map, pheromones, ltw.Position, ltw.Forward);
-            steeringData.DesiredYaw = yaw.CurrentYaw + (strongestPheromoneAngleDiff * settingsData.PheromoneSteeringStrength);
+            steeringData.DesiredYaw += strongestPheromoneAngleDiff * settingsData.PheromoneSteeringStrength;
             
             // goal steering
             float3 goal = antData.HasFood ? homePos : foodPos;
             float goalYaw = 0.0f;
-            if(SteerTowardsGoal(arcArray, yaw, ltw, settingsData, goal, out goalYaw))
-            {
-                float diff = goalYaw - steeringData.DesiredYaw;
-                diff = ClampToPiMinusPi(diff);
-                steeringData.DesiredYaw += (diff) * settingsData.GoalSteeringStrength;
-            }
+            float3 toGoal = goal - ltw.Position;
+            float toGoalDistSq = math.lengthsq(toGoal);
+            antData.GoalSeekAmount = 0.0f;
 
-            // Add some gaussian noise
-            if(maxAngleDeviation > 0.0f)
+            if (toGoalDistSq < settingsData.GoalSteeringDistanceStart * settingsData.GoalSteeringDistanceStart)
             {
-                steeringData.DesiredYaw = NextGaussian(steeringData.DesiredYaw, maxAngleDeviation);
-                steeringData.DesiredYaw = ClampToPiMinusPi(steeringData.DesiredYaw);
+                if (SteerTowardsGoal(arcArray, yaw, ltw, settingsData, goal, out goalYaw))
+                {
+                    float diff = goalYaw - yaw.CurrentYaw;
+                    diff = ClampToPiMinusPi(diff);
+
+                    // Calculate strength
+                    float toGoalDist = math.sqrt(toGoalDistSq);
+                    float strengthMult = 0.0f;
+                    if(settingsData.GoalSteeringDistanceEnd != settingsData.GoalSteeringDistanceStart)
+                    {
+                        strengthMult = (toGoalDist - settingsData.GoalSteeringDistanceStart) / (settingsData.GoalSteeringDistanceEnd - settingsData.GoalSteeringDistanceStart);
+                        strengthMult = math.clamp(strengthMult, 0.0f, 1.0f);
+                    }
+
+                    antData.GoalSeekAmount = strengthMult;
+
+                    steeringData.DesiredYaw += (diff) * settingsData.GoalSteeringStrength * strengthMult;
+                }
             }
 
             //steeringData.DesiredYaw = strongestPheromoneAngle;
 
             // Interp towards desired
+            steeringData.DesiredYaw = ClampToPiMinusPi(steeringData.DesiredYaw);
 
             float currentToDesired = steeringData.DesiredYaw - yaw.CurrentYaw;
 
@@ -206,22 +225,34 @@ public class SteeringSystem : SystemBase {
         for (int iArc = 0; iArc < arcs.Length; iArc++)
         {
             float2 intersection1, intersection2;
-            int numHits = MathHelper.FindLineCircleIntersections(circlePos, arcs[iArc].Radius, currentPos2, goalPos2, out intersection1, out intersection2);
+            int numHits = MathHelper.FindLineCircleIntersections(circlePos, arcs[iArc].Radius, currentPos2, goalPos2, out intersection1, out intersection2, out float t1, out float t2);
 
-            if(numHits == 0)
+            if (numHits == 0)
             {
                 continue;
             }
-            else if(numHits == 2)
-            {
-                // Process hit 2
 
-                // TODO: deal with arcs
-                
+            if (t1 >= 0.0f && t1 <= 1.0f)
+            {
+                // Check hit 1
+                float intersectionAngle = math.atan2(intersection1.x, intersection1.y); // I know this looks backwards but its not in our coordinates
+
+                if (CollisionSystem.IsBetween(math.degrees(intersectionAngle), arcs[iArc].StartAngle, arcs[iArc].EndAngle))
+                {
+                    return false;
+                }
             }
 
-            // Todo: deal with arcs
-            return false;
+            if(t2 >= 0.0f && t2 <= 1.0f)
+            {
+                // Check hit 2
+                float intersectionAngle = math.atan2(intersection2.x, intersection2.y); // I know this looks backwards but its not in our coordinates
+
+                if (CollisionSystem.IsBetween(math.degrees(intersectionAngle), arcs[iArc].StartAngle, arcs[iArc].EndAngle))
+                {
+                    return false;
+                }
+            }
         }
 
         // Calc yaw to target

@@ -17,18 +17,19 @@ public class BoardInitSystem : SystemBase
       {
          float deg2rad = (math.PI * 2) / 360; 
          float minRingWidth = 120; //temp
+         float maxRingWidth = 300; //temp
 
-         //have a random seed
-         Random random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 10000));
+
+          //have a random seed
+          Random random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 10000));
 
          //the split arcs' angles will be set upon creatin
          if (arc.split == 0)
          {
             arc.StartAngle = random.NextFloat(0, 359);                                                
-            arc.EndAngle = random.NextFloat(arc.StartAngle + minRingWidth, arc.StartAngle + 340);     
+            arc.EndAngle = random.NextFloat(arc.StartAngle + minRingWidth, arc.StartAngle + maxRingWidth);     
          }
         
-         
          float diff = math.abs(arc.EndAngle - arc.StartAngle);
          if (arc.split == 0 && diff <= 165)
          {
@@ -75,16 +76,15 @@ public class BoardInitSystem : SystemBase
 
 
       //Place Food
-      Entities.WithStructuralChanges().WithAll<FoodTag>().ForEach((Entity entity, ref Arc arc, in LocalToWorld ltw, in FoodSpawnAuthoring foodSpawn) =>
+      Entities.WithStructuralChanges().WithAll<FoodTag>().ForEach((Entity entity, in LocalToWorld ltw, in FoodSpawnAuthoring foodSpawn) =>
       {
          // return;
 
          Random random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 10000));
-         float deg2rad = (math.PI * 2) / 360;
-         arc.StartAngle = random.NextFloat(0, 359);
-         arc.EndAngle = arc.StartAngle + Arc.Size;
+         float foodAngleRad = random.NextFloat(0, math.radians(360.0f));
+         float foodRadius = 20.0f;
          
-         float3 position = new float3(math.sin(deg2rad * arc.StartAngle)*arc.Radius,0, math.cos(deg2rad*arc.StartAngle)*arc.Radius);
+         float3 position = new float3(math.sin(foodAngleRad) *foodRadius,0, math.cos(foodAngleRad)* foodRadius);
          
          SetComponent(entity, new Translation{Value = position});
 
