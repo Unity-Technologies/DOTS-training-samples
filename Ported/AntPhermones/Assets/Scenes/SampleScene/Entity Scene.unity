@@ -156,7 +156,7 @@ MonoBehaviour:
   Resolution: 512
   WorldSpaceSize: 50
   AntPheremoneStrength: 1
-  PheremoneDecay: 0.005
+  PheremoneDecay: 0.01
 --- !u!4 &67788000
 Transform:
   m_ObjectHideFlags: 0
@@ -549,11 +549,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e0c8c035af3f9d4aaf5304d75a4d475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomDeviationDegrees: 20
+  RandomDeviationDegrees: 30
   SteeringSmoothingFrequency: 10
-  SteeringDampingRatio: 1.5
+  SteeringDampingRatio: 1
   GoalSteeringStrength: 0.5
-  PheromoneSteeringStrength: 1
+  PheromoneSteeringStrength: 0.8
   GoalSteeringDistanceStart: 25
   GoalSteeringDistanceEnd: 1
 --- !u!1 &1743256509
@@ -589,7 +589,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Ant: {fileID: 4015837552346746096, guid: 1ce1f6a2fb144453c8ea252b5f8b2b99, type: 3}
-  NumberOfAnts: 1000
+  NumberOfAnts: 500
 --- !u!23 &1743256512
 MeshRenderer:
   m_ObjectHideFlags: 0
