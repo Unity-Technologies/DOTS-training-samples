@@ -18,7 +18,7 @@ public class ColorAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         dstManager.AddComponentData(entity, new Color
         {
-            Value = new float4(Color.r, Color.g, Color.b, 1)
+            Value = new float4(Color.r, Color.g, Color.b, Color.a)
         });
     }
 }
