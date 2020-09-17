@@ -32,6 +32,7 @@ public class MovementSystem : SystemBase
                         pos.x -= 1;
                         break;
                 }
+                position.Value = pos;
             }
         }).ScheduleParallel();
     }
