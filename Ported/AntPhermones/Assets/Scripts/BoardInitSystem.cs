@@ -21,10 +21,41 @@ public class BoardInitSystem : SystemBase
          //have a random seed
          Random random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 10000));
 
-          arc.StartAngle = random.NextFloat(0, 90);
-          arc.EndAngle = random.NextFloat(arc.StartAngle + minRingWidth, 350);
-         // UnityEngine.Debug.Log($"StartAngle '{arc.StartAngle}', End Angle '{arc.EndAngle}'");
+         //the split arcs' angles will be set upon creatin
+         if (arc.split == 0)
+         {
+            arc.StartAngle = random.NextFloat(0, 359);                                                
+            arc.EndAngle = random.NextFloat(arc.StartAngle + minRingWidth, arc.StartAngle + 340);     
+         }
+        
          
+         float diff = math.abs(arc.EndAngle - arc.StartAngle);
+         if (arc.split == 0 && diff <= 165)
+         {
+            float opening = (360 - (diff*2))/2;
+            float start = arc.EndAngle + opening;
+            float end = start + diff;
+            
+            //add and split
+            EntityArchetype archetype = EntityManager.CreateArchetype(
+               typeof(Arc),
+               typeof(WallAuthoring),
+               typeof(LocalToWorld));
+            
+            //add new arc entity
+            Entity splitArc = EntityManager.CreateEntity(archetype);
+            EntityManager.AddComponentData(splitArc, new WallAuthoring{wallPrefab = wall.wallPrefab});
+            EntityManager.AddComponentData(splitArc, new Arc
+            {
+               Radius = arc.Radius,
+               StartAngle = start,
+               EndAngle =  end,
+               split = 1
+            });
+
+         }
+         
+         //create arcs
           for (int i = (int)arc.StartAngle; i < (arc.EndAngle + 1); i++) 
           {
                float rad = deg2rad * i;
@@ -46,7 +77,8 @@ public class BoardInitSystem : SystemBase
       //Place Food
       Entities.WithStructuralChanges().WithAll<FoodTag>().ForEach((Entity entity, ref Arc arc, in LocalToWorld ltw, in FoodSpawnAuthoring foodSpawn) =>
       {
-          return;
+         // return;
+
          Random random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 10000));
          float deg2rad = (math.PI * 2) / 360;
          arc.StartAngle = random.NextFloat(0, 359);
@@ -61,7 +93,16 @@ public class BoardInitSystem : SystemBase
       }).Run();
 
    }
-   
-   
+
+   static float ClampAngle(float angle)
+   {
+      float result = angle - math.ceil((angle / 360f) * 360f);
+      if (result < 0)
+      {
+         result += 360f;
+      }
+      return result;
+
+   }
    
 }

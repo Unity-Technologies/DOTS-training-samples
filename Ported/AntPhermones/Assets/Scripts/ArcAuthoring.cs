@@ -11,4 +11,6 @@ public struct Arc : IComponentData
     public float Radius;
     public float StartAngle;
     public float EndAngle;
+
+    public int split;
 }
