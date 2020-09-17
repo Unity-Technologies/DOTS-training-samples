@@ -7,6 +7,8 @@ public class KeyboardInput : MonoBehaviour {
 
     static bool showText = true;
 
+    public bool ResetScenePending = false;
+
     void Start() {
         text = GetComponent<Text>();
         text.enabled = showText;
@@ -19,7 +21,8 @@ public class KeyboardInput : MonoBehaviour {
         }
         if (Input.GetKeyDown(KeyCode.R)) {
             Time.timeScale = 1f;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            ResetScenePending = true;
         }
         if (Input.GetKeyDown(KeyCode.Alpha1)) {
             Time.timeScale = 1f;
