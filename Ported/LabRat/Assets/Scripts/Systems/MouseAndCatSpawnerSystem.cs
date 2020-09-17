@@ -56,6 +56,6 @@ public class MouseAndCatSpawnerSystem : SystemBase
             ecb.AddComponent<Direction>(curEntity, direction);
             ecb.AddComponent<Speed>(curEntity, speed);
         }).Schedule();
-        
+        sys.AddJobHandleForProducer(Dependency);
     }
 }

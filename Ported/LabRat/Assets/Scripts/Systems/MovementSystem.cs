@@ -7,12 +7,39 @@ using Unity.Transforms;
 
 public class MovementSystem : SystemBase
 {
+    NativeArray<byte> directionLookup;
     protected override void OnCreate()
     {
         base.OnCreate();
         RequireSingletonForUpdate<BoardSize>();
         RequireSingletonForUpdate<WallData>();
         RequireSingletonForUpdate<CellData>();
+        int arraySize = 4 * 16; // 4 directions, 16 possible wall states
+        directionLookup = new NativeArray<byte>(arraySize, Allocator.Persistent);
+        // north == 0                 east == 1                south == 2               west == 3
+        directionLookup[0]  = 0; directionLookup[16] = 1; directionLookup[32] = 2; directionLookup[48] = 3; // No walls
+        directionLookup[1]  = 1; directionLookup[17] = 1; directionLookup[33] = 2; directionLookup[49] = 3; // North wall only
+        directionLookup[2]  = 0; directionLookup[18] = 2; directionLookup[34] = 2; directionLookup[50] = 3; // East wall only
+        directionLookup[3]  = 3; directionLookup[19] = 2; directionLookup[35] = 2; directionLookup[51] = 3; // North and East walls
+        directionLookup[4]  = 0; directionLookup[20] = 1; directionLookup[36] = 3; directionLookup[52] = 3; // South wall only
+        directionLookup[5]  = 1; directionLookup[21] = 1; directionLookup[37] = 3; directionLookup[53] = 3; // North and South walls
+        directionLookup[6]  = 0; directionLookup[22] = 0; directionLookup[38] = 3; directionLookup[54] = 3; // East and South walls
+        directionLookup[7]  = 3; directionLookup[23] = 3; directionLookup[39] = 3; directionLookup[55] = 3; // North, East, and South walls
+        directionLookup[8]  = 0; directionLookup[24] = 1; directionLookup[40] = 2; directionLookup[56] = 0; // West wall only
+        directionLookup[9]  = 1; directionLookup[25] = 1; directionLookup[41] = 2; directionLookup[57] = 2; // North and West walls
+        directionLookup[10] = 0; directionLookup[26] = 2; directionLookup[42] = 2; directionLookup[58] = 0; // East and West walls
+        directionLookup[11] = 2; directionLookup[27] = 2; directionLookup[43] = 2; directionLookup[59] = 2; // North, East, and West walls
+        directionLookup[12] = 0; directionLookup[28] = 1; directionLookup[44] = 1; directionLookup[60] = 0; // South and West walls
+        directionLookup[13] = 1; directionLookup[29] = 1; directionLookup[45] = 1; directionLookup[61] = 1; // North, South, and West walls
+        directionLookup[14] = 0; directionLookup[30] = 0; directionLookup[46] = 0; directionLookup[62] = 0; // East, South, and West walls
+        directionLookup[15] = 0; directionLookup[31] = 1; directionLookup[47] = 2; directionLookup[63] = 3; // All walls
+
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        directionLookup.Dispose();
     }
     protected override void OnUpdate()
     {
@@ -25,6 +52,7 @@ public class MovementSystem : SystemBase
         var cellEntity = GetSingletonEntity<CellData>();
         var cellData = EntityManager.GetComponentObject<CellData>(cellEntity);
         NativeArray<byte> cellDirections = cellData.directions;
+        var directionLUT = directionLookup;
 
         Entities.ForEach((ref Position position, ref PositionOffset positionOffset, ref Direction direction, in Speed speed) => {
             positionOffset.Value += speed.Value * deltaTime;
@@ -77,35 +105,9 @@ public class MovementSystem : SystemBase
                         break;
                 }
                 byte curWalls = wallArray[arrayPos];
-                if (!(curWalls == 0xf))
-                {
-                    byte newDir = (byte)direction.Value;
-                    bool inFront = (curWalls & (1 << newDir)) != 0;
-
-                    if (inFront)
-                    {
-                        byte rightTurn = (byte)((newDir + 1) % 4);
-                        inFront = (curWalls & (1 << rightTurn)) != 0;
-                        if (inFront)
-                        {
-                            byte leftTurn = (byte)((newDir == 0) ? 3 : newDir - 1);
-                            inFront = (curWalls & (1 << leftTurn)) != 0;
-                            if (inFront)
-                            {
-                                newDir = (byte)((newDir + 2) % 4);
-                            }
-                            else
-                            {
-                                newDir = leftTurn;
-                            }
-                        }
-                        else
-                        {
-                            newDir = rightTurn;
-                        }
-                    }
-                    direction.Value = (DirectionEnum)newDir;
-                }
+                byte curDir = (byte)direction.Value;
+                byte newDir = directionLUT[curDir * 16 + curWalls];
+                direction.Value = (DirectionEnum)newDir;
             }
 
         }).ScheduleParallel();
