@@ -232,7 +232,6 @@ MonoBehaviour:
   Radius: 15
   StartAngle: 0
   EndAngle: 0
-  split: 0
 --- !u!114 &278205731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -400,7 +399,6 @@ MonoBehaviour:
   Radius: 5
   StartAngle: 0
   EndAngle: 0
-  split: 0
 --- !u!114 &372857753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -423,6 +421,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 439424296}
+  - component: {fileID: 439424294}
+  - component: {fileID: 439424295}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -430,6 +430,37 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &439424294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 439424293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae860045dedfc46369867116b71b9944, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NumberOfRings: 10
+  SpaceBetweenTheRings: 3
+  FoodRadius: 33
+  MinRingWidth: 120
+  MaxRingWidth: 300
+  DualRingThreshold: 165
+  wallPrefab: {fileID: 1267022011664864647, guid: bab177c9de354432daccf66e106df095, type: 3}
+--- !u!114 &439424295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 439424293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4eef0ae26377642a497e823fcdbad15d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &439424296
 Transform:
   m_ObjectHideFlags: 0
@@ -494,7 +525,6 @@ MonoBehaviour:
   Radius: 10
   StartAngle: 0
   EndAngle: 0
-  split: 0
 --- !u!114 &694014827
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -552,7 +582,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e0c8c035af3f9d4aaf5304d75a4d475, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomDeviationDegrees: 20
+  RandomDeviationDegrees: 30
   SteeringSmoothingFrequency: 10
   SteeringDampingRatio: 1
   GoalSteeringStrength: 0.5

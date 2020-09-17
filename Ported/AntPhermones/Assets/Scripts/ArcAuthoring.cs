@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Entities;
+﻿using Unity.Entities;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
@@ -11,6 +9,4 @@ public struct Arc : IComponentData
     public float Radius;
     public float StartAngle;
     public float EndAngle;
-
-    public int split;
 }

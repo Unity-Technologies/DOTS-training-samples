@@ -36,7 +36,7 @@ public class BoardInitSystem : SystemBase
                     ecb.DestroyEntity(entity);
                 }).Schedule();
 
-                Entities.WithAll<DynamicArcTag>().WithName("DestroyDynamicArcs").ForEach((Entity entity) =>
+                Entities.WithAll<Arc>().WithName("DestroyArcs").ForEach((Entity entity) =>
                 {
                     ecb.DestroyEntity(entity);
                 }).Schedule();
@@ -56,12 +56,6 @@ public class BoardInitSystem : SystemBase
 
                 yaw.CurrentYaw = random.NextFloat(-math.PI, math.PI);
             }).ScheduleParallel();
-
-            var ecb1 = new EntityCommandBuffer(Allocator.TempJob);
-            var jobHandle1 = Entities.WithAll<Arc>().WithName("AddWallAuthoring").ForEach((Entity entity) =>
-            {
-                ecb1.AddComponent<WallAuthoring>(entity);
-            }).Schedule(Dependency);
 
             var ecb2 = new EntityCommandBuffer(Allocator.TempJob);
             var jobHandle2 = Entities.WithAll<FoodTag>().WithName("AddFoodSpawn").ForEach((Entity entity) =>
@@ -97,80 +91,38 @@ public class BoardInitSystem : SystemBase
 
             m_KeyboardInput.ResetScenePending = false;
 
-            var combined = JobHandle.CombineDependencies(jobHandle1, jobHandle2, Dependency);
+            var combined = JobHandle.CombineDependencies(jobHandle2, Dependency);
             combined.Complete();
-            ecb1.Playback(EntityManager);
             ecb2.Playback(EntityManager);
 
-            ecb1.Dispose();
             ecb2.Dispose();
         }
 
-        //There should be at least 3 entities
-        Entities.WithStructuralChanges().ForEach((Entity entity,
-            ref Arc arc, in WallAuthoring wall, in LocalToWorld ltw) =>
+        Entities.WithStructuralChanges().ForEach((Entity entity, in BoardInitTag boardInitTag) =>
         {
-            float deg2rad = (math.PI * 2) / 360;
-            float minRingWidth = 120; //temp
-          float maxRingWidth = 300; //temp
-
-          var wallSettingsEntity = GetSingletonEntity<WallSettings>();
-            var wallSettings = EntityManager.GetComponentData<WallSettings>(wallSettingsEntity);
-
-          //have a random seed
-          Random random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 10000));
-
-          //the split arcs' angles will be set upon creatin
-          if (arc.split == 0)
+            var boardInit = GetSingleton<BoardInitAuthoring>();
+            for (int i = 1; i <= boardInit.NumberOfRings; i++)
             {
-                arc.StartAngle = random.NextFloat(0, 359);
-                arc.EndAngle = random.NextFloat(arc.StartAngle + minRingWidth, arc.StartAngle + maxRingWidth);
-            }
+                //have a random seed
+                Random random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 10000));
+                float startAngle = random.NextFloat(0, 359);
+                float endAngle = random.NextFloat(startAngle + boardInit.MinRingWidth, startAngle + boardInit.MaxRingWidth);
 
-            float diff = math.abs(arc.EndAngle - arc.StartAngle);
-            if (arc.split == 0 && diff <= 165)
-            {
-                float opening = (360 - (diff * 2)) / 2;
-                float start = arc.EndAngle + opening;
-                float end = start + diff;
+                Entity arcEntity = CreateArcEntity(boardInit, random, startAngle, endAngle, i * boardInit.SpaceBetweenTheRings);
+                Arc arc = EntityManager.GetComponentData<Arc>(arcEntity);
 
-              //add and split
-              EntityArchetype archetype = EntityManager.CreateArchetype(
-                 typeof(Arc),
-                 typeof(WallAuthoring),
-                 typeof(LocalToWorld),
-                 typeof(DynamicArcTag)
-                 );
-
-              //add new arc entity
-              Entity splitArc = EntityManager.CreateEntity(archetype);
-                EntityManager.AddComponentData(splitArc, new WallAuthoring());
-                EntityManager.AddComponentData(splitArc, new Arc
+                float diff = math.abs(arc.EndAngle - arc.StartAngle);
+                if (diff <= boardInit.DualRingThreshold)
                 {
-                    Radius = arc.Radius,
-                    StartAngle = start,
-                    EndAngle = end,
-                    split = 1
-                });
-                EntityManager.AddComponentData(splitArc, new DynamicArcTag());
+                    float opening = (360 - (diff * 2)) / 2;
+                    float start = arc.EndAngle + opening;
+                    float end = start + diff;
+                    CreateArcEntity(boardInit, random, startAngle, endAngle, i * boardInit.SpaceBetweenTheRings);
+                }
             }
 
-          //create arcs
-          for (int i = (int)arc.StartAngle; i < (arc.EndAngle + 1); i++)
-            {
-                float rad = deg2rad * i;
-                float3 position = new float3(ltw.Position.x + (math.sin(rad) * arc.Radius), 0,
-                 ltw.Position.z + (math.cos(rad) * arc.Radius));
-
-              //instantiate prefabs with mesh render
-              var instance = EntityManager.Instantiate(wallSettings.wallPrefab);
-                SetComponent(instance, new Translation { Value = position });
-            }
-
-          //Only run this once
-          EntityManager.RemoveComponent<WallAuthoring>(entity);
-
-        }).WithoutBurst().Run();
+            EntityManager.RemoveComponent<BoardInitTag>(entity);
+        }).Run();
 
 
         //Place Food
@@ -192,6 +144,36 @@ public class BoardInitSystem : SystemBase
 
     }
 
+    Entity CreateArcEntity(BoardInitAuthoring boardInit, Random random, float startAngle, float endAngle, float radius)
+    {
+        //add and split
+        EntityArchetype archetype = EntityManager.CreateArchetype(
+            typeof(Arc)
+        );
+
+        //add new arc entity
+        Entity arc = EntityManager.CreateEntity(archetype);
+        EntityManager.AddComponentData(arc, new Arc
+        {
+            Radius = radius,
+            StartAngle = startAngle,
+            EndAngle = random.NextFloat(startAngle + boardInit.MinRingWidth, startAngle + boardInit.MaxRingWidth),
+        });
+        
+        //create arcs
+        for (int i = (int)startAngle; i < (endAngle + 1); i++)
+        {
+            float rad = math.radians(i);
+            float3 position = new float3(math.sin(rad) * radius, 0, (math.cos(rad) * radius));
+
+            //instantiate prefabs with mesh render
+            var instance = EntityManager.Instantiate(boardInit.wallPrefab);
+            SetComponent(instance, new Translation { Value = position });
+        }
+
+        return arc;
+    }
+    
     static float ClampAngle(float angle)
     {
         float result = angle - math.ceil((angle / 360f) * 360f);
