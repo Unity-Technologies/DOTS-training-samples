@@ -78,7 +78,7 @@ public class BoardSpawnerSystem : SystemBase
         {
             for (int j = 0; j < boardSize.Value.y; j++)
             {
-                int arrayPos = boardSize.Value.y * j + i;
+                int arrayPos = boardSize.Value.x * j + i;
 
                 byte currentWall = 0x0;
 
@@ -212,6 +212,6 @@ public class BoardSpawnerSystem : SystemBase
         EntityManager.AddComponentData<Direction>(spawnerEntityD, spawnerDirectionD);
         EntityManager.AddComponentData<Speed>(spawnerEntityD, spawnerSpeedCat);
 
-        EntityManager.RemoveComponent<BoardSize>(GetSingletonEntity<BoardSize>());
+        EntityManager.RemoveComponent<BoardPrefabs>(GetSingletonEntity<BoardPrefabs>());
     }
 }

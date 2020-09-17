@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 public class PlayerInputSystem : SystemBase
@@ -9,6 +10,7 @@ public class PlayerInputSystem : SystemBase
 
     protected override void OnCreate()
     {
+        RequireSingletonForUpdate<BoardSize>();
         RequireSingletonForUpdate<CellData>();
         plane = new Plane(Vector3.up, new Vector3(0, 0.5f, 0));
     }
@@ -31,20 +33,31 @@ public class PlayerInputSystem : SystemBase
 
             int2 pos = new int2(Mathf.RoundToInt(worldPos.x), Mathf.RoundToInt(worldPos.z));
 
-            float2 cellOffset = new float2(worldPos.x - pos.x, worldPos.z - pos.y);
+            var boardSize = GetSingleton<BoardSize>();
 
-            DirectionEnum arrowDirection = math.abs(cellOffset.y) > math.abs(cellOffset.x) 
-                ? (cellOffset.y > 0 ? DirectionEnum.North : DirectionEnum.South) 
-                : (cellOffset.x > 0 ? DirectionEnum.East : DirectionEnum.West);
+            if (pos.x > 0 && pos.x < boardSize.Value.x && pos.y > 0 && pos.y < boardSize.Value.y)
+            {
+                var cellDataEntity = GetSingletonEntity<CellData>();
+                var cellData = EntityManager.GetComponentObject<CellData>(cellDataEntity);
 
-            Debug.Log(arrowDirection);
+                var cellEntity = cellData.cells[pos.y * boardSize.Value.x + pos.x];
 
-            var cellDataEntity = GetSingletonEntity<CellData>();
-            var cellData = EntityManager.GetComponentObject<CellData>(cellDataEntity);
+                if (EntityManager.HasComponent<ArrowTag>(cellEntity))
+                {
+                    EntityManager.RemoveComponent<ArrowTag>(cellEntity);
+                }
+                else
+                {
+                    float2 cellOffset = new float2(worldPos.x - pos.x, worldPos.z - pos.y);
 
-            var cellEntity = cellData.cells[pos.y * 13 + pos.x];
+                    DirectionEnum arrowDirection = math.abs(cellOffset.y) > math.abs(cellOffset.x)
+                        ? (cellOffset.y > 0 ? DirectionEnum.North : DirectionEnum.South)
+                        : (cellOffset.x > 0 ? DirectionEnum.East : DirectionEnum.West);
 
-            EntityManager.SetComponentData(cellEntity, new Color { Value = new float4(1, 0, 0, 1) });
+                    EntityManager.AddComponent<ArrowTag>(cellEntity);
+                    EntityManager.SetComponentData(cellEntity, new Direction { Value = arrowDirection });
+                }
+            }
         }
     }
 }
