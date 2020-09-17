@@ -42,9 +42,10 @@ public class PlayerInputSystem : SystemBase
         {
             if (pos.x != lastPos.x || pos.y != lastPos.y)
             {
-                var lastCellEntity = cellData.cells[lastPos.y * boardSize.Value.x + lastPos.x];
+                var lastCellArrayPos = lastPos.y * boardSize.Value.x + lastPos.x;
+                var lastCellEntity = cellData.cells[lastCellArrayPos];
 
-                if (!EntityManager.HasComponent<ArrowTag>(lastCellEntity))
+                if (cellData.directions[lastCellArrayPos] == 0)
                 {
                     var lastCellLinks = EntityManager.GetComponentData<CellComponentLink>(lastCellEntity);
                     EntityManager.SetComponentData(lastCellLinks.arrow, new Color { Value = float4.zero });
@@ -59,12 +60,11 @@ public class PlayerInputSystem : SystemBase
             {
                 var cellLinks = EntityManager.GetComponentData<CellComponentLink>(cellEntity);
 
-                if (EntityManager.HasComponent<ArrowTag>(cellEntity))
+                if (cellData.directions[arrayPos] != 0)
                 {
                     if (Input.GetMouseButtonDown(0))
                     {
                         cellData.directions[arrayPos] = 0;
-                        EntityManager.RemoveComponent<ArrowTag>(cellEntity);
                         EntityManager.SetComponentData(cellLinks.arrow, new Color { Value = float4.zero });
                         EntityManager.SetComponentData(cellLinks.arrowOutline, new Color { Value = float4.zero });
                     }
@@ -80,8 +80,6 @@ public class PlayerInputSystem : SystemBase
                     if (Input.GetMouseButtonDown(0))
                     {
                         cellData.directions[arrayPos] = (byte)(1 << (int)arrowDirection);
-                        EntityManager.AddComponent<ArrowTag>(cellEntity);
-                        EntityManager.SetComponentData(cellEntity, new Direction { Value = arrowDirection });
                         EntityManager.SetComponentData(cellLinks.arrow, new Color { Value = new float4(1, 1, 1, 1) });
                         EntityManager.SetComponentData(cellLinks.arrowOutline, new Color { Value = new float4(0, 0, 0, 1) });
                     }
@@ -120,9 +118,10 @@ public class PlayerInputSystem : SystemBase
         }
         else if (lastPos.x >= 0 && lastPos.x < boardSize.Value.x && lastPos.y >= 0 && lastPos.y < boardSize.Value.y)
         {
-            var lastCellEntity = cellData.cells[lastPos.y * boardSize.Value.x + lastPos.x];
+            var lastCellArrayPos = lastPos.y * boardSize.Value.x + lastPos.x;
+            var lastCellEntity = cellData.cells[lastCellArrayPos];
 
-            if (!EntityManager.HasComponent<ArrowTag>(lastCellEntity))
+            if (cellData.directions[lastCellArrayPos] == 0)
             {
                 var lastCellLinks = EntityManager.GetComponentData<CellComponentLink>(lastCellEntity);
                 EntityManager.SetComponentData(lastCellLinks.arrow, new Color { Value = float4.zero });
