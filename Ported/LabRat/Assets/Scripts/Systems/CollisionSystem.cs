@@ -13,7 +13,6 @@ public class CollisionSystem : SystemBase
     private NativeArray<Score> m_PlayerScores;
 
     private EntityQuery m_HoleQuery;
-    private NativeArray<Position> m_HolePositions;
 
     protected override void OnCreate()
     {
@@ -22,17 +21,17 @@ public class CollisionSystem : SystemBase
         m_PlayerScores = m_PlayerQuery.ToComponentDataArray<Score>(Allocator.Persistent);
 
         m_HoleQuery = GetEntityQuery(typeof(Position), ComponentType.ReadOnly<Hole>());
-        m_HolePositions= m_HoleQuery.ToComponentDataArray<Position>(Allocator.Persistent);
     }
 
     protected override void OnUpdate()
     {
-        
+
         m_CatQuery = GetEntityQuery(typeof(Position), ComponentType.ReadOnly<CatTag>());
         m_MouseQuery = GetEntityQuery(typeof(Position), ComponentType.ReadOnly<MouseTag>());
         NativeArray<Position> catPositions = m_CatQuery.ToComponentDataArray<Position>(Allocator.TempJob);
         NativeArray<Position> mousePositions = m_MouseQuery.ToComponentDataArray<Position>(Allocator.TempJob);
         NativeArray<Entity> mouseEntities = m_MouseQuery.ToEntityArray(Allocator.TempJob);
+        NativeArray<Position> holePositions = m_HoleQuery.ToComponentDataArray<Position>(Allocator.TempJob);
 
         var system = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = system.CreateCommandBuffer();
@@ -42,7 +41,7 @@ public class CollisionSystem : SystemBase
         Entities.WithDisposeOnCompletion(mousePositions).WithAll<BaseTag>().ForEach((ref Score score, in Position pos) =>
         {
             // mouse x player
-            for(int i=0;i<mousePositions.Length;i++)
+            for (int i = 0; i < mousePositions.Length; i++)
             {
                 float2 diff = mousePositions[i].Value - pos.Value;
                 float distance = (diff.x * diff.x) + (diff.y * diff.y);
@@ -56,30 +55,32 @@ public class CollisionSystem : SystemBase
         }).Run();
 
         // Loop each mouse entity 
-        Entities.WithDisposeOnCompletion(catPositions).WithAll<Mouse>().ForEach((Entity entity, ref Direction dir, in Position pos) =>
+        Entities.WithDisposeOnCompletion(catPositions).WithAll<MouseTag>().ForEach((Entity entity, ref Direction dir, in Position pos) =>
         {
-           
+
             // mouse x hole 
-            foreach (var hole in m_HolePositions)
+            // foreach (var hole in holePositions)
+            for (int i = 0; i < holePositions.Length; i++)
             {
-                float2 diff = pos.Value - hole.Value;
-                float distance = (diff.x * diff.x) + (diff.y * diff.y);
-                if (distance < threshold)
-                {                  
-                    ecb.DestroyEntity(entity);
-                    return;
-                }
-            }
-       
-            // mouse x cat
-            foreach (var cat in catPositions)
-            {
-                float2 diff = cat.Value - pos.Value;
+                float2 diff = pos.Value - holePositions[i].Value;
                 float distance = (diff.x * diff.x) + (diff.y * diff.y);
                 if (distance < threshold)
                 {
                     ecb.DestroyEntity(entity);
-                    return; 
+                    return;
+                }
+            }
+
+            // mouse x cat
+            //foreach (var cat in catPositions)
+            for (int i = 0; i < catPositions.Length; i++)
+            {
+                float2 diff = catPositions[i].Value - pos.Value;
+                float distance = (diff.x * diff.x) + (diff.y * diff.y);
+                if (distance < threshold)
+                {
+                    ecb.DestroyEntity(entity);
+                    return;
                 }
             }
 
@@ -89,12 +90,12 @@ public class CollisionSystem : SystemBase
 
 
         // Loop each cat entity 
-        Entities.WithAll<Cat>().ForEach((Entity entity, ref Direction dir, in Position pos) =>
+        Entities.WithAll<CatTag>().ForEach((Entity entity, ref Direction dir, in Position pos) =>
         {
             // cat x hole 
-            foreach (var hole in m_HolePositions)
+            for (int i = 0; i < holePositions.Length; i++)
             {
-                float2 diff = pos.Value - hole.Value;
+                float2 diff = pos.Value - holePositions[i].Value;
                 float distance = (diff.x * diff.x) + (diff.y * diff.y);
                 if (distance < threshold)
                 {
