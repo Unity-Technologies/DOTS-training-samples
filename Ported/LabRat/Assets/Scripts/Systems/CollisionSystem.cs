@@ -17,9 +17,7 @@ public class CollisionSystem : SystemBase
     protected override void OnCreate()
     {
         m_PlayerQuery = GetEntityQuery(typeof(Score), ComponentType.ReadOnly<BaseTag>());
-        m_PlayerPositions = m_PlayerQuery.ToComponentDataArray<Position>(Allocator.Persistent);
-        m_PlayerScores = m_PlayerQuery.ToComponentDataArray<Score>(Allocator.Persistent);
-
+      
         m_HoleQuery = GetEntityQuery(typeof(Position), ComponentType.ReadOnly<Hole>());
     }
 
@@ -32,13 +30,15 @@ public class CollisionSystem : SystemBase
         NativeArray<Position> mousePositions = m_MouseQuery.ToComponentDataArray<Position>(Allocator.TempJob);
         NativeArray<Entity> mouseEntities = m_MouseQuery.ToEntityArray(Allocator.TempJob);
         NativeArray<Position> holePositions = m_HoleQuery.ToComponentDataArray<Position>(Allocator.TempJob);
+        // m_PlayerPositions = m_PlayerQuery.ToComponentDataArray<Position>(Allocator.TempJob);
+        // m_PlayerScores = m_PlayerQuery.ToComponentDataArray<Score>(Allocator.TempJob);
 
         var system = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = system.CreateCommandBuffer();
         const float threshold = 0.25f;
 
         // Loop each player entity 
-        Entities.WithDisposeOnCompletion(mousePositions).WithAll<BaseTag>().ForEach((ref Score score, in Position pos) =>
+        Entities.WithDisposeOnCompletion(mouseEntities).WithDisposeOnCompletion(mousePositions).WithAll<BaseTag>().ForEach((ref Score score, in Position pos) =>
         {
             // mouse x player
             for (int i = 0; i < mousePositions.Length; i++)
@@ -90,7 +90,7 @@ public class CollisionSystem : SystemBase
 
 
         // Loop each cat entity 
-        Entities.WithAll<CatTag>().ForEach((Entity entity, ref Direction dir, in Position pos) =>
+        Entities.WithDisposeOnCompletion(holePositions).WithAll<CatTag>().ForEach((Entity entity, ref Direction dir, in Position pos) =>
         {
             // cat x hole 
             for (int i = 0; i < holePositions.Length; i++)
@@ -107,6 +107,11 @@ public class CollisionSystem : SystemBase
             // To do: cat x arrow, direction of cat will be changed after cat hit arrow 
 
         }).Run();
+
+        catPositions.Dispose();
+        mousePositions.Dispose();
+        mouseEntities.Dispose();
+        holePositions.Dispose();
     }
 
 }
