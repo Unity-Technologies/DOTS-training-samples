@@ -40,7 +40,6 @@ public class CollisionSystem : SystemBase
             for(int i = 0; i < arcArray.Length; i++)
             {
                 var arc = arcArray[i];
-                
 
                 float antDistanceFromOrigin = math.distance(float3.zero, translation.Value);
                 
@@ -50,6 +49,7 @@ public class CollisionSystem : SystemBase
                     //If the ant is within the arc itself.
                     if (IsBetween(degrees, arc.StartAngle, arc.EndAngle))
                     {
+                        //TODO - Re-add this in to fix teleporter
                         //Rotate the Ant 180 degrees.
                         /*
 
@@ -94,8 +94,6 @@ public class CollisionSystem : SystemBase
                         {
                             yaw.CurrentYaw = math.atan2(fwd.x, fwd.z);
                         }
-
-                        return;
                     }
                 }
             }
