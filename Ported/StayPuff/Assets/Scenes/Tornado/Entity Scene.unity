@@ -178,7 +178,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 14159499}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -271,11 +271,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f192e5d16946d4441bc8f2420d2d77a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CountX: 30
-  CountZ: 30
+  CountX: 20
+  CountZ: 20
   height:
-    x: 10
-    y: 20
+    x: 1
+    y: 6
 --- !u!4 &1197936549
 Transform:
   m_ObjectHideFlags: 0
@@ -321,7 +321,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   height: 5
   prefab: {fileID: 6473778707907927791, guid: d8895e4d5ee928042ad894bc2eb5d59b, type: 3}
-  jointBreakDistance: 1.03
+  horizontal: {fileID: 6473778707907927791, guid: 8f91a620b264dc24e8f4cbed4f36ccd1, type: 3}
+  horizontalthin: {fileID: 6473778707907927791, guid: bcc5b9bfb5c1b8640bf7370c60279534, type: 3}
+  vertical: {fileID: 6473778707907927791, guid: 58210a6ef2c94ba4093e4502b828bdcd, type: 3}
+  jointBreakDistance: 5.1
 --- !u!4 &1255458292
 Transform:
   m_ObjectHideFlags: 0
@@ -385,7 +388,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1345016586}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1

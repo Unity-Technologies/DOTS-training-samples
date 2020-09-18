@@ -26,9 +26,9 @@ public class CityCreate : SystemBase
                     for (int z = 0; z < city.CountZ; ++z)
                     {
                         //Random jobRandom = new Random(x);
-                        var posX = 10 * (x - (city.CountX - 1) / 2);
+                        var posX = 12 * (x - (city.CountX - 1) / 2);
                         var posY = 0f;
-                        var posZ = 10 * (z - (city.CountZ - 1) / 2);
+                        var posZ = 12 * (z - (city.CountZ - 1) / 2);
                         Entity newentity = EntityManager.CreateEntity();
                         EntityManager.AddComponentData(newentity, 
                             new SpawnData { 
