@@ -222,7 +222,7 @@ public class BoardSpawnerSystem : SystemBase
         EntityManager.SetComponentData(blackLink.baseBottom, blackColor);
 
 
-        // Need spawners for mice & cats
+        // Need spawners for mice & cats - Add them to all corners first
         MousePrefabs mousePrefabs = GetSingleton<MousePrefabs>();
         CatPrefabs catPrefabs = GetSingleton<CatPrefabs>();
         MouseAndCatSpawnerData spawnerDataMouse = new MouseAndCatSpawnerData() { prefabEntity = mousePrefabs.mousePrefab, ticks = 0.0f, frequency = 0.2f };
@@ -259,6 +259,33 @@ public class BoardSpawnerSystem : SystemBase
         EntityManager.AddComponentData<Direction>(spawnerEntityD, spawnerDirectionD);
         EntityManager.AddComponentData<Speed>(spawnerEntityD, spawnerSpeedCat);
 
+        // How many spawners?
+        int numMouseSpawners = boardSize.Value.x * boardSize.Value.y / 80; // one spawner per 80 grid cells or so
+        int numCatSpawners = numMouseSpawners / 2;
+        if (numMouseSpawners > 4)
+        {
+            numMouseSpawners -= 4;
+            DirectionEnum dirEnum = DirectionEnum.North;
+            for (int s = 0; s < numMouseSpawners; s++)
+            {
+                int2 curValue = new int2((int)(boardSize.Value.x * random.NextFloat()), (int)(boardSize.Value.y * random.NextFloat()));
+                if (curValue.x == 0) dirEnum = DirectionEnum.North;
+                if (curValue.x == boardSize.Value.x - 1) dirEnum = DirectionEnum.South;
+                if (curValue.y == 0) dirEnum = DirectionEnum.East;
+                if (curValue.y == boardSize.Value.y - 1) dirEnum = DirectionEnum.West;
+
+                Position curSpawnerPosition = new Position() { Value = curValue };
+                Direction curSpawnerDirection = new Direction() { Value = dirEnum };
+                Entity curSpawnerEntity = EntityManager.CreateEntity();
+                EntityManager.AddComponentData<MouseAndCatSpawnerData>(curSpawnerEntity, spawnerDataMouse);
+                EntityManager.AddComponentData<Position>(curSpawnerEntity, curSpawnerPosition);
+                EntityManager.AddComponentData<Direction>(curSpawnerEntity, curSpawnerDirection);
+                EntityManager.AddComponentData<Speed>(curSpawnerEntity, spawnerSpeedMouse);
+                // Change direction for next spawner
+                dirEnum = (DirectionEnum)(s % 4);
+            }
+        }
+ 
         EntityManager.RemoveComponent<BoardPrefabs>(GetSingletonEntity<BoardPrefabs>());
     }
 }
