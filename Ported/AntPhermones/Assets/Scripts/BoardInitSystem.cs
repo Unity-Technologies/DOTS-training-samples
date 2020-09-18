@@ -132,10 +132,10 @@ public class BoardInitSystem : SystemBase
         Entities.WithStructuralChanges().WithAll<FoodTag>().ForEach((Entity entity, in LocalToWorld ltw, in FoodSpawnAuthoring foodSpawn) =>
         {
           // return;
-
+          var boardInit = GetSingleton<BoardInitAuthoring>();
           Random random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 10000));
             float foodAngleRad = random.NextFloat(0, math.radians(360.0f));
-            float foodRadius = 20.0f;
+            float foodRadius = boardInit.FoodRadius;
 
             float3 position = new float3(math.sin(foodAngleRad) * foodRadius, 0, math.cos(foodAngleRad) * foodRadius);
 
