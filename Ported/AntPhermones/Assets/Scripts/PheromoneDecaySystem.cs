@@ -23,10 +23,10 @@ public class PheromoneDecaySystem : SystemBase {
         var map = EntityManager.GetComponentData<PheromoneMap>(mapEntity);
         var pheromones = EntityManager.GetBuffer<PheromoneStrength>(mapEntity);
 
-        var j = new DecayJob { pheromones = pheromones.AsNativeArray(), decay = map.PheremoneDecay * dt };
-        this.Dependency = j.Schedule(pheromones.Length, 64);
+        RequireSingletonForUpdate<PheromoneMap>();
+        RequireSingletonForUpdate<PheromoneStrength>();
 
-        Dependency = Entities.ForEach((ref DynamicBuffer<PheromoneStrength> p, in PheromoneMap m) => {
-        }).Schedule(Dependency);
+        var j = new DecayJob { pheromones = pheromones.AsNativeArray(), decay = map.PheremoneDecay * dt };
+        this.Dependency = j.Schedule(pheromones.Length, 64, Dependency);
     }
-}   
+}

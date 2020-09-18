@@ -10,6 +10,9 @@ public class PheromonePlacementSystem : SystemBase {
         var pheromones = EntityManager.GetBuffer<PheromoneStrength>(mapEntity).AsNativeArray();
         var dt = Time.DeltaTime;
 
+        RequireSingletonForUpdate<PheromoneMap>();
+        RequireSingletonForUpdate<PheromoneStrength>();
+
         Dependency = Entities.ForEach((in AntTag ant, in Translation translation) => {
             int2 gridPos = PheromoneMap.WorldToGridPos(map, translation.Value);
             int index = PheromoneMap.GridPosToIndex(map, gridPos);
@@ -22,8 +25,5 @@ public class PheromonePlacementSystem : SystemBase {
 
             pheromones[index] = math.saturate(pheromones[index] + map.AntPheremoneStrength * dt * excitementFactor);
         }).ScheduleParallel(Dependency);
-
-        Dependency = Entities.ForEach((ref DynamicBuffer<PheromoneStrength> p, in PheromoneMap m) => {
-        }).Schedule(Dependency);
     }
 }
