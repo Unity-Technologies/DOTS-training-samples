@@ -7,6 +7,7 @@ using Unity.Jobs;
 using static Unity.Collections.Allocator;
 using Unity.Collections;
 
+[UpdateAfter(typeof(BoardInitSystem))]
 [UpdateBefore(typeof(YawToRotationSystem))]
 public class SteeringSystem : SystemBase {
 
@@ -51,8 +52,8 @@ public class SteeringSystem : SystemBase {
         float avgDeltaAngle = 0;
         float totalStrength = 0;
 
-        for (int x = -radius; x < radius + 1; x++) {
-            for (int y = -radius; y < radius + 1; y++) {
+        for (int y = -radius; y < radius + 1; y++) {
+            for (int x = -radius; x < radius + 1; x++) {
                 if (x == 0 && y == 0) { continue; }
 
                 var centerOffset = new int2(x, y);

@@ -2,7 +2,9 @@
 using Unity.Jobs;
 using Unity.Collections;
 using Unity.Burst;
+using Unity.Transforms;
 
+[UpdateAfter(typeof(TransformSystemGroup))]
 public class PheromoneDecaySystem : SystemBase {
 
     protected override void OnCreate() {

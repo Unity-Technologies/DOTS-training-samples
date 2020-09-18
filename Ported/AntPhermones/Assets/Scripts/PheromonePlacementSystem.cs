@@ -2,6 +2,7 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateBefore(typeof(SteeringSystem))]
 public class PheromonePlacementSystem : SystemBase {
 
     protected override void OnCreate() {
@@ -12,9 +13,9 @@ public class PheromonePlacementSystem : SystemBase {
     protected override void OnUpdate() {
         var mapEntity = GetSingletonEntity<PheromoneMap>();
         var map = EntityManager.GetComponentData<PheromoneMap>(mapEntity);
-        var pheromones = EntityManager.GetBuffer<PheromoneStrength>(mapEntity).AsNativeArray();
+        var pheromones = GetBuffer<PheromoneStrength>(mapEntity).AsNativeArray();
         var dt = Time.DeltaTime;
-
+        
         Dependency = Entities.WithName("PheromonePlacement").ForEach((in AntTag ant, in Translation translation) => {
             int2 gridPos = PheromoneMap.WorldToGridPos(map, translation.Value);
             int index = PheromoneMap.GridPosToIndex(map, gridPos);

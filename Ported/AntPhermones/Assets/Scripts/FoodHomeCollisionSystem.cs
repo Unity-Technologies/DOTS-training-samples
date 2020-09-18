@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering.Authoring;
 
+[UpdateAfter(typeof(BoardInitSystem))]
 public class FoodHomeCollisionSystem : SystemBase
 {
 
