@@ -49,7 +49,7 @@ public class MouseAndCatSpawnerSystem : SystemBase
             lRandomRef.Value = lRandom;
             spawnerData.ticks -= spawnerData.frequency * rand;
 
-            PositionOffset offset = new PositionOffset() { Value = 0.5f };
+            PositionOffset offset = new PositionOffset() { Value = 0.0f };
             Entity curEntity = ecb.Instantiate(spawnerData.prefabEntity);
             ecb.AddComponent<Position>(curEntity, position);
             ecb.AddComponent<PositionOffset>(curEntity, offset);
