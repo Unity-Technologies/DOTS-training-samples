@@ -114,6 +114,7 @@ public class CollisionSystem : SystemBase
 
         }).ScheduleParallel();
 
+        system.AddJobHandleForProducer(Dependency);
         //catPositions.Dispose();
         //mousePositions.Dispose();
         //mouseEntities.Dispose();
