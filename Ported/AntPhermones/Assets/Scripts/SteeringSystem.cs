@@ -82,17 +82,46 @@ public class SteeringSystem : SystemBase {
         return math.radians(avgDeltaAngle / totalStrength);
     }
 
-    /*static float AlternativePheromoneFollow
+//     static readonly float[,] invCellDist2D = new float[,]
+//      {
+//             {0.353553391f,  0.447213595f, 0.5f, 0.447213595f,   0.353553391f    },
+//             {0.447213595f,  0.707106781f, 1.0f, 0.707106781f,   0.447213595f    },
+//             {0.5f,          1.0f,         0.0f, 1.0f,           0.5f            },
+//             {0.353553391f,  0.447213595f, 0.5f, 0.447213595f,   0.353553391f    },
+//             {0.447213595f,  0.707106781f, 1.0f, 0.707106781f,   0.447213595f    },
+//     };
+
+     static readonly float[] invCellDist1D = new float[]
+     {
+            0.353553391f,  0.447213595f, 0.5f, 0.447213595f,   0.353553391f    ,
+            0.447213595f,  0.707106781f, 1.0f, 0.707106781f,   0.447213595f    ,
+            0.5f,          1.0f,         0.0f, 1.0f,           0.5f            ,
+            0.353553391f,  0.447213595f, 0.5f, 0.447213595f,   0.353553391f    ,
+            0.447213595f,  0.707106781f, 1.0f, 0.707106781f,   0.447213595f    ,
+    };
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+    static float LookupCellDistance(int x, int y)
+    {
+        return invCellDist1D[(y * 5) + x];
+        //return invCellDist2D[x,y];
+    }
+
+    static float AlternativePheromoneFollow
         (PheromoneMap map,
             float currentYaw,
-            DynamicBuffer<PheromoneStrength> pheromones,
-            float3 neighborhoodCenterWorldPos,
+            NativeArray<PheromoneStrength> pheromones,
+            float3 antPos,
             float3 forward,
             ref Random rand
         )
     {
         int radius = 2;
-        int2 pixelCenter = PheromoneMap.WorldToGridPos(map, neighborhoodCenterWorldPos);
+        int2 pixelCenter = PheromoneMap.WorldToGridPos(map, antPos);
+        float3 neighborhoodCenterWorldPos = PheromoneMap.GridToWorldPos(map, pixelCenter);
+
+        // Our grid is 5x5 patch so we can pre calculate all the distances from the center
+
 
         float3 pheromoneDir = float3.zero;
 
@@ -110,40 +139,27 @@ public class SteeringSystem : SystemBase {
 
                 float3 cellWorldPos = PheromoneMap.GridToWorldPos(map, gridPos);
 
-                float3 toCell = cellWorldPos - neighborhoodCenterWorldPos;
-                if(math.dot(toCell, forward) < -0.01f)
+                float3 antToCell = cellWorldPos - antPos;
+                if(math.dot(antToCell, forward) < -0.01f)
                 {
                     continue;
                 }
-                toCell = math.normalize(toCell);
 
-                pheromoneDir += strength * toCell;
+                float3 centerToCell = cellWorldPos - neighborhoodCenterWorldPos;
+                centerToCell *= LookupCellDistance(x + radius,y + radius);    // optimized normalization is doing this: centerToCell = math.normalize(centerToCell);
+
+                pheromoneDir += strength * centerToCell;
             }
         }
 
         if(math.lengthsq(pheromoneDir) < 0.01f)
         {
-            return rand.NextFloat(-math.PI, math.PI);
+            return 0.0f;
         }
 
         float angle = math.atan2(pheromoneDir.x, pheromoneDir.z);
-        
         return angle - currentYaw;
     }
-
-    private int m_FrameCount;
-
-    private static int CombineHashCode(int code1, int code2)
-    {
-        unchecked
-        {
-            int hash = 17;
-            hash = hash * 31 + code1;
-            hash = hash * 31 + code2;
-            return hash;
-        }
-    }
-    */
 
     // Update is called once per frame
     protected override void OnUpdate()
@@ -158,7 +174,7 @@ public class SteeringSystem : SystemBase {
 
         var mapEntity = GetSingletonEntity<PheromoneMap>();
         var map = EntityManager.GetComponentData<PheromoneMap>(mapEntity);
-        DynamicBuffer<PheromoneStrength> pheromones = EntityManager.GetBuffer<PheromoneStrength>(mapEntity);
+        DynamicBuffer<PheromoneStrength> pheromones = GetBuffer<PheromoneStrength>(mapEntity);
         NativeArray<PheromoneStrength> pheromoneArray = pheromones.AsNativeArray();
 
         var arcQuery = GetEntityQuery(typeof(Arc));
@@ -188,8 +204,8 @@ public class SteeringSystem : SystemBase {
             }
 
             // Pheromone steering
-            float strongestPheromoneAngleDiff = StrongestDirection(map, pheromoneArray, ltw.Position, ltw.Forward);
-            //float strongestPheromoneAngleDiff = AlternativePheromoneFollow(map, yaw.CurrentYaw, pheromones, ltw.Position, ltw.Forward, ref random);
+            //float strongestPheromoneAngleDiff = StrongestDirection(map, pheromoneArray, ltw.Position, ltw.Forward);
+            float strongestPheromoneAngleDiff = AlternativePheromoneFollow(map, yaw.CurrentYaw, pheromoneArray, ltw.Position, ltw.Forward, ref random);
             steeringData.DesiredYaw += strongestPheromoneAngleDiff * settingsData.PheromoneSteeringStrength;
             
             // goal steering
@@ -289,7 +305,7 @@ public class SteeringSystem : SystemBase {
             yawToGoalWorld = math.atan2(antToGoal.x, antToGoal.z);
         }
 
-        Debug.Assert(!math.isnan(yawToGoalWorld));
+        //Debug.Assert(!math.isnan(yawToGoalWorld));
 
         return true;
     }
@@ -352,7 +368,6 @@ public class SteeringSystem : SystemBase {
     {
         // We must wait for the pheromone map to be initialized
         RequireForUpdate(GetEntityQuery(typeof(PheromoneMap), typeof(PheromoneStrength)));
-        RequireForUpdate(GetEntityQuery(typeof(Arc)));
     }
 
     protected override void OnDestroy()
