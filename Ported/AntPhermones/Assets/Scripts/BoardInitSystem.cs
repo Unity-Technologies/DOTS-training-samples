@@ -61,7 +61,8 @@ public class BoardInitSystem : SystemBase
             var jobHandle2 = Entities.WithAll<FoodTag>().WithName("AddFoodSpawn").ForEach((Entity entity) =>
             {
                 ecb2.AddComponent<FoodSpawnAuthoring>(entity);
-            }).Schedule(Dependency);
+            }).Schedule(Dependency);            
+            
 
             // Flag jobs so they can start to be run
             JobHandle.ScheduleBatchedJobs();
@@ -96,6 +97,10 @@ public class BoardInitSystem : SystemBase
             ecb2.Playback(EntityManager);
 
             ecb2.Dispose();
+
+            // Retrigger board setup
+            var boardInitEntity = GetSingletonEntity<BoardInitAuthoring>();
+            EntityManager.AddComponentData<BoardInitTag>(boardInitEntity, new BoardInitTag());
         }
 
         Entities.WithStructuralChanges().ForEach((Entity entity, in BoardInitTag boardInitTag) =>
