@@ -21,16 +21,19 @@ public class FoodHomeCollisionSystem : SystemBase
         var homeEntity = GetSingletonEntity<HomeTag>();
         var homePos = EntityManager.GetComponentData<Translation>(homeEntity);
 
+        float collisionThresholdSquare = ((0.5f * AntTag.Size) + 0.5f);
+        collisionThresholdSquare *= collisionThresholdSquare;
+
         Entities
             .WithName("HomeFoodCollision")
             .ForEach((ref AntTag ant, ref AntColor color, ref Yaw yaw, ref Translation antPos) =>
         {
-            if (!ant.HasFood && math.length(antPos.Value - foodPos.Value) < (1 / 2f + AntTag.Size / 2f)) {
+            
+            if (!ant.HasFood && math.lengthsq(antPos.Value - foodPos.Value) < collisionThresholdSquare) {
                 ant.HasFood = true;
                 yaw.CurrentYaw += math.PI;
             }
-
-            if (ant.HasFood && math.length(antPos.Value - homePos.Value) < (1 / 2f + AntTag.Size / 2f)) {
+            else if (ant.HasFood && math.lengthsq(antPos.Value - homePos.Value) < collisionThresholdSquare) {
                 ant.HasFood = false;
                 yaw.CurrentYaw += math.PI;
             }
