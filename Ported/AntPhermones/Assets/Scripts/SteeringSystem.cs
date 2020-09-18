@@ -43,7 +43,7 @@ public class SteeringSystem : SystemBase {
     }
 
     static float StrongestDirection(PheromoneMap map,
-                                    DynamicBuffer<PheromoneStrength> pheromones,
+                                    NativeArray<PheromoneStrength> pheromones,
                                     float3 neighborhoodCenterWorldPos,
                                     float3 forward) {
         // A radius of 2 implies a 5x5 neighborhood.
@@ -84,9 +84,11 @@ public class SteeringSystem : SystemBase {
 
     /*static float AlternativePheromoneFollow
         (PheromoneMap map,
+            float currentYaw,
             DynamicBuffer<PheromoneStrength> pheromones,
             float3 neighborhoodCenterWorldPos,
-            float3 forward
+            float3 forward,
+            ref Random rand
         )
     {
         int radius = 2;
@@ -121,14 +123,27 @@ public class SteeringSystem : SystemBase {
 
         if(math.lengthsq(pheromoneDir) < 0.01f)
         {
-            return m_Rng.NextFloat(-math.PI, math.PI);
+            return rand.NextFloat(-math.PI, math.PI);
         }
 
-        float angle = math.atan2(pheromoneDir.z, pheromoneDir.x);
+        float angle = math.atan2(pheromoneDir.x, pheromoneDir.z);
         
-        return angle;
+        return angle - currentYaw;
     }
-*/
+
+    private int m_FrameCount;
+
+    private static int CombineHashCode(int code1, int code2)
+    {
+        unchecked
+        {
+            int hash = 17;
+            hash = hash * 31 + code1;
+            hash = hash * 31 + code2;
+            return hash;
+        }
+    }
+    */
 
     // Update is called once per frame
     protected override void OnUpdate()
@@ -144,10 +159,10 @@ public class SteeringSystem : SystemBase {
 
         var mapEntity = GetSingletonEntity<PheromoneMap>();
         var map = EntityManager.GetComponentData<PheromoneMap>(mapEntity);
-        var pheromones = EntityManager.GetBuffer<PheromoneStrength>(mapEntity);
+        DynamicBuffer<PheromoneStrength> pheromones = EntityManager.GetBuffer<PheromoneStrength>(mapEntity);
+        NativeArray<PheromoneStrength> pheromoneArray = pheromones.AsNativeArray();
 
         var arcArray = GetEntityQuery(typeof(Arc)).ToComponentDataArrayAsync<Arc>(TempJob, out var arcJobHandle);
-        Dependency = JobHandle.CombineDependencies(Dependency, arcJobHandle);
 
         var foodEntity = GetSingletonEntity<FoodTag>();
         float3 foodPos = EntityManager.GetComponentData<Translation>(foodEntity).Value;
@@ -156,19 +171,20 @@ public class SteeringSystem : SystemBase {
         float3 homePos = EntityManager.GetComponentData<Translation>(homeEntity).Value;
 
         var nativeRandRef = this.nativeRandom;
-        
-        Entities.WithAll<AntTag>().ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData, ref AntTag antData, in LocalToWorld ltw) =>
+
+        Dependency = Entities.WithAll<AntTag>().ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData, ref AntTag antData, in LocalToWorld ltw) =>
         {
+            var random = nativeRandRef.Value;
+
             // Start with gaussian noise
             if (maxAngleDeviation > 0.0f)
             {
-                var random = nativeRandRef.Value;
                 steeringData.DesiredYaw = NextGaussian(yaw.CurrentYaw, maxAngleDeviation, ref random);
-                nativeRandRef.Value = random;
             }
 
             // Pheromone steering
-            float strongestPheromoneAngleDiff = StrongestDirection(map, pheromones, ltw.Position, ltw.Forward);
+            float strongestPheromoneAngleDiff = StrongestDirection(map, pheromoneArray, ltw.Position, ltw.Forward);
+            //float strongestPheromoneAngleDiff = AlternativePheromoneFollow(map, yaw.CurrentYaw, pheromones, ltw.Position, ltw.Forward, ref random);
             steeringData.DesiredYaw += strongestPheromoneAngleDiff * settingsData.PheromoneSteeringStrength;
             
             // goal steering
@@ -214,7 +230,12 @@ public class SteeringSystem : SystemBase {
             SpringDamp(ref deltaYaw, ref yaw.CurrentYawVel, currentToDesired, settingsData.SteeringDampingRatio, settingsData.SteeringSmoothingFrequency, deltaTime);
             yaw.CurrentYaw += deltaYaw;
             yaw.CurrentYaw = ClampToPiMinusPi(yaw.CurrentYaw);
-        }).Run();
+            nativeRandRef.Value = random;
+
+        }).Schedule(Dependency);
+        Dependency = Entities.ForEach((ref DynamicBuffer<PheromoneStrength> p, in PheromoneMap m) => { }).Schedule(Dependency);
+
+        Dependency = JobHandle.CombineDependencies(Dependency, arcJobHandle);
 
         arcArray.Dispose();
     }
