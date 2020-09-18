@@ -13,17 +13,20 @@ public class CreateWorldHashMap : SystemBase
 {
     NativeHashMap<uint, SharedWorldBounds> worldBoundsHashMap;
     static float cellSize;
-
+    
     static uint GetHashCode(float2 position, float hashCellSize)
     {
         return math.hash(new int2(math.floor(position / hashCellSize)));
     }
-
+    
     protected override void OnStartRunning()
-    { 
-        WorldHashData hashProperties = GetSingleton<WorldHashData>();
+    {
+        if(worldBoundsHashMap.IsCreated)
+            return;
 
+        WorldHashData hashProperties = GetSingleton<WorldHashData>();
         cellSize = hashProperties.cellSize;
+        
         int width = hashProperties.gridSteps.x;
         int height = hashProperties.gridSteps.y;
         int halfWidth = width / 2;
@@ -48,7 +51,7 @@ public class CreateWorldHashMap : SystemBase
 
     }
 
-    protected override void OnStopRunning()
+    protected override void OnDestroy()
     {
         if(worldBoundsHashMap.IsCreated)
         {
@@ -59,13 +62,7 @@ public class CreateWorldHashMap : SystemBase
     protected override void OnUpdate()
     {
         //Gather all entities (not tornados)
-        EntityQueryDesc desc = new EntityQueryDesc
-        {
-            All = new ComponentType[] { typeof(Translation), typeof(IncludeInSharedWorldBounds) },
-            None = new ComponentType[] { typeof(TornadoForceData) }
-        };
-
-        EntityQuery translationQuery = GetEntityQuery(desc);
+        EntityQuery translationQuery = GetEntityQuery(typeof(Translation), typeof(IncludeInSharedWorldBounds));
         NativeArray<Entity> entityArray = translationQuery.ToEntityArray(Allocator.TempJob);
         NativeArray<Translation> translationArray = translationQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
 
@@ -80,22 +77,12 @@ public class CreateWorldHashMap : SystemBase
             if (worldBoundsHashMap.TryGetValue(hash, out worldBounds))
             {
                 EntityManager.AddSharedComponentData<SharedWorldBounds>(entity, worldBounds);
-                EntityManager.AddComponent(entity, typeof(PhysicsExclude));
             }
         }
+        EntityManager.AddComponent<PhysicsExclude>(translationQuery);
         EntityManager.RemoveComponent<IncludeInSharedWorldBounds>(translationQuery);
-
-        //Remove the world hash datas
-        Entities
-            .WithStructuralChanges()
-            .ForEach((Entity entity, in WorldHashData hashData) =>
-            {
-                EntityManager.DestroyEntity(entity);
-            }).Run();
         
         entityArray.Dispose();
         translationArray.Dispose();
-
-
     }
 }
