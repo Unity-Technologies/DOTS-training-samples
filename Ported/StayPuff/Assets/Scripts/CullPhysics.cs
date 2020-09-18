@@ -37,7 +37,7 @@ public class CullPhysics : SystemBase
     protected override void OnUpdate()
     {
         //Gather tornado data
-        EntityQuery tornadoQuery = EntityManager.CreateEntityQuery(typeof(TornadoForceData));
+        EntityQuery tornadoQuery = GetEntityQuery(typeof(TornadoForceData));
         NativeArray<Entity> tornadoEntities = tornadoQuery.ToEntityArray(Allocator.TempJob);
         NativeArray<float3> tornadoPositions = new NativeArray<float3>(tornadoEntities.Length, Allocator.TempJob);
         NativeArray<float> tornadoBreakDistances = new NativeArray<float>(tornadoEntities.Length, Allocator.TempJob);
@@ -67,15 +67,9 @@ public class CullPhysics : SystemBase
         //Activate entities
         for (int i = 0; i < removalArray.Length; i++)
         {
-            EntityQuery query = EntityManager.CreateEntityQuery(typeof(SharedWorldBounds));
+            EntityQuery query = GetEntityQuery(typeof(SharedWorldBounds));
             query.SetSharedComponentFilter<SharedWorldBounds>(removalArray[i]);
-            EntityManager.RemoveComponent(query, typeof(PhysicsExclude));
-            query.Dispose();
-
-            query = EntityManager.CreateEntityQuery(typeof(SharedWorldBounds));
-            query.SetSharedComponentFilter<SharedWorldBounds>(removalArray[i]);
-            EntityManager.RemoveComponent(query, typeof(SharedWorldBounds));
-            query.Dispose();
+            EntityManager.RemoveComponent(query, new ComponentTypes(typeof(PhysicsExclude), typeof(SharedWorldBounds)));
         }
 
         boundsArray.Dispose();
@@ -83,7 +77,5 @@ public class CullPhysics : SystemBase
         tornadoEntities.Dispose();
         tornadoPositions.Dispose();
         tornadoBreakDistances.Dispose();
-
-        tornadoQuery.Dispose();
     }
 }

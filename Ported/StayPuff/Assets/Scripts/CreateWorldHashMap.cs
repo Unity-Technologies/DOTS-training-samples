@@ -65,7 +65,7 @@ public class CreateWorldHashMap : SystemBase
             None = new ComponentType[] { typeof(TornadoForceData) }
         };
 
-        EntityQuery translationQuery = EntityManager.CreateEntityQuery(desc);
+        EntityQuery translationQuery = GetEntityQuery(desc);
         NativeArray<Entity> entityArray = translationQuery.ToEntityArray(Allocator.TempJob);
         NativeArray<Translation> translationArray = translationQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
 
@@ -92,9 +92,7 @@ public class CreateWorldHashMap : SystemBase
             {
                 EntityManager.DestroyEntity(entity);
             }).Run();
-
-        translationQuery.Dispose();
-
+        
         entityArray.Dispose();
         translationArray.Dispose();
 
