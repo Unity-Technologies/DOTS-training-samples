@@ -158,7 +158,7 @@ MonoBehaviour:
   AntPheremoneStrength: 0.75
   PheremoneDecay: 0.01
   GoalSeekExcitementFactor: 10
-  HasFoodExcitementFactor: 2
+  HasFoodExcitementFactor: 1
 --- !u!4 &67788000
 Transform:
   m_ObjectHideFlags: 0
