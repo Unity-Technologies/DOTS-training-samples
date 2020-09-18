@@ -23,7 +23,7 @@ public class CollisionSystem : SystemBase
         Dependency = JobHandle.CombineDependencies(Dependency, arcJobHandle);
 
         //For each Ant
-        Entities.WithAll<AntTag>().WithDisposeOnCompletion(arcArray).ForEach((ref Translation translation, ref Yaw yaw, in LocalToWorld localToWorld) =>
+        Entities.WithAll<AntTag>().WithDisposeOnCompletion(arcArray).ForEach((ref Translation translation, ref Yaw yaw, ref SteeringComponent steering, in LocalToWorld localToWorld) =>
         {
             double angleInRadians = math.atan2(translation.Value.z, translation.Value.x);
             double degrees = -math.degrees(angleInRadians) + 90;    // why + 90?, why double?
@@ -93,6 +93,7 @@ public class CollisionSystem : SystemBase
                         if (math.lengthsq(fwd) > 0.0001f)
                         {
                             yaw.CurrentYaw = math.atan2(fwd.x, fwd.z);
+                            steering.DesiredYaw = yaw.CurrentYaw;
                         }
                     }
                 }
