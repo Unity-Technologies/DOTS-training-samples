@@ -15,7 +15,6 @@ public class SteeringSystem : SystemBase {
     //               this was ported from Mathf.
     // ----------------------------------------------------------------------------------- //
     private const float kEpsilonNormalSqrt = 1e-15f;
-    private NativeReference<Random> nativeRandom;
     private static float _SqrMagnitude(float2 v) {
         return v.x * v.x + v.y * v.y;
     }
@@ -149,7 +148,6 @@ public class SteeringSystem : SystemBase {
     protected override void OnUpdate()
     {
         float globalTime = (float)Time.ElapsedTime;
-
         float deltaTime = (float)Time.DeltaTime;
 
         var settingsEntity = GetSingletonEntity<SteeringSettings>();
@@ -165,30 +163,22 @@ public class SteeringSystem : SystemBase {
         var arcQuery = GetEntityQuery(typeof(Arc));
         var arcArray = arcQuery.ToComponentDataArrayAsync<Arc>(TempJob, out var arcJobHandle);
 
+        // XXX(jcowles): Seems like this isn't necessary.
+        Dependency = JobHandle.CombineDependencies(Dependency, arcJobHandle);
+
         var foodEntity = GetSingletonEntity<FoodTag>();
         float3 foodPos = EntityManager.GetComponentData<Translation>(foodEntity).Value;
 
         var homeEntity = GetSingletonEntity<HomeTag>();
         float3 homePos = EntityManager.GetComponentData<Translation>(homeEntity).Value;
-
-        //
-        // XXX: This cannot be used in Jobs.
-        //
-        //var nativeRandRef = this.nativeRandom;
-
-        RequireSingletonForUpdate<PheromoneMap>();
-        RequireSingletonForUpdate<PheromoneStrength>();
-        RequireForUpdate(arcQuery);
         
         Dependency = Entities
+            .WithName("SteeringSystem")
             .WithDisposeOnCompletion(arcArray)
             .WithAll<AntTag>()
             .ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData, ref AntTag antData, in LocalToWorld ltw) =>
         {
-            //
-            // TODO: Need better seed here -- maybe use ltw.Position & Rotation?
-            //
-            var random = new Random((uint)(globalTime * 1337) + 1); //nativeRandRef.Value;
+            var random = new Random((uint)(Hashing.Combine((uint)(ltw.Position.x * 1000), (uint)(ltw.Position.z * 1000))) + 1);
 
             // Start with gaussian noise
             if (maxAngleDeviation > 0.0f)
@@ -244,7 +234,6 @@ public class SteeringSystem : SystemBase {
             SpringDamp(ref deltaYaw, ref yaw.CurrentYawVel, currentToDesired, settingsData.SteeringDampingRatio, settingsData.SteeringSmoothingFrequency, deltaTime);
             yaw.CurrentYaw += deltaYaw;
             yaw.CurrentYaw = ClampToPiMinusPi(yaw.CurrentYaw);
-            //nativeRandRef.Value = random;
 
         }).ScheduleParallel(Dependency);
     }
@@ -361,15 +350,12 @@ public class SteeringSystem : SystemBase {
     protected override void OnCreate()
     {
         // We must wait for the pheromone map to be initialized
-        EntityQuery query = GetEntityQuery(typeof(PheromoneMap), typeof(PheromoneStrength));
-        RequireForUpdate(query);
-        nativeRandom = new NativeReference<Random>(Allocator.Persistent);
-        nativeRandom.Value = new Random(1337);
+        RequireForUpdate(GetEntityQuery(typeof(PheromoneMap), typeof(PheromoneStrength)));
+        RequireForUpdate(GetEntityQuery(typeof(Arc)));
     }
 
     protected override void OnDestroy()
     {
-        nativeRandom.Dispose();
         base.OnDestroy();
     }
 }
