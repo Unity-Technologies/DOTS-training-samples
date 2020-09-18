@@ -34,10 +34,15 @@ public class CollisionSystem : SystemBase
       
         var system = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = system.CreateCommandBuffer();
+        var ecbParallel = system.CreateCommandBuffer().AsParallelWriter();
+        var ecbParallel2 = system.CreateCommandBuffer().AsParallelWriter();
         const float threshold = 0.25f;
 
         // Loop each player entity 
-        Entities.WithDisposeOnCompletion(mouseEntities).WithDisposeOnCompletion(mousePositions).WithAll<BaseTag>().ForEach((ref Score score, in Position pos) =>
+        Entities.WithDisposeOnCompletion(mouseEntities)
+            .WithDisposeOnCompletion(mousePositions)
+            .WithAll<BaseTag>()
+            .ForEach((ref Score score, in Position pos) =>
         {
             // mouse x player
             for (int i = 0; i < mousePositions.Length; i++)
@@ -51,10 +56,12 @@ public class CollisionSystem : SystemBase
                 }
             }
 
-        }).Run();
+        }).Schedule();
 
         // Loop each mouse entity 
-        Entities.WithDisposeOnCompletion(catPositions).WithAll<MouseTag>().ForEach((Entity entity, ref Direction dir, in Position pos) =>
+        Entities.WithDisposeOnCompletion(catPositions)
+            .WithAll<MouseTag>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref Direction dir, in Position pos) =>
         {
 
             // mouse x hole           
@@ -64,7 +71,7 @@ public class CollisionSystem : SystemBase
                 float distance = (diff.x * diff.x) + (diff.y * diff.y);
                 if (distance < threshold)
                 {
-                    ecb.DestroyEntity(entity);
+                    ecbParallel.DestroyEntity(entityInQueryIndex,entity);
                     return;
                 }
             }
@@ -76,18 +83,20 @@ public class CollisionSystem : SystemBase
                 float distance = (diff.x * diff.x) + (diff.y * diff.y);
                 if (distance < threshold)
                 {
-                    ecb.DestroyEntity(entity);
+                    ecbParallel.DestroyEntity(entityInQueryIndex,entity);
                     return;
                 }
             }
 
             // To do: mouse x arrow, direction of mouse will be changed after mouse hit arrow 
 
-        }).Run();
+        }).ScheduleParallel();
 
 
         // Loop each cat entity 
-        Entities.WithDisposeOnCompletion(holePositions).WithAll<CatTag>().ForEach((Entity entity, ref Direction dir, in Position pos) =>
+        Entities.WithDisposeOnCompletion(holePositions)
+            .WithAll<CatTag>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref Direction dir, in Position pos) =>
         {
             // cat x hole 
             for (int i = 0; i < holePositions.Length; i++)
@@ -96,19 +105,19 @@ public class CollisionSystem : SystemBase
                 float distance = (diff.x * diff.x) + (diff.y * diff.y);
                 if (distance < threshold)
                 {
-                    ecb.DestroyEntity(entity);
+                    ecbParallel2.DestroyEntity(entityInQueryIndex,entity);
                     return;
                 }
             }
 
             // To do: cat x arrow, direction of cat will be changed after cat hit arrow 
 
-        }).Run();
+        }).ScheduleParallel();
 
-        catPositions.Dispose();
-        mousePositions.Dispose();
-        mouseEntities.Dispose();
-        holePositions.Dispose();
+        //catPositions.Dispose();
+        //mousePositions.Dispose();
+        //mouseEntities.Dispose();
+        //holePositions.Dispose();
     }
 
 }
