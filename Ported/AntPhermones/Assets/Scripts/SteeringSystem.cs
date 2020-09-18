@@ -162,7 +162,8 @@ public class SteeringSystem : SystemBase {
         DynamicBuffer<PheromoneStrength> pheromones = EntityManager.GetBuffer<PheromoneStrength>(mapEntity);
         NativeArray<PheromoneStrength> pheromoneArray = pheromones.AsNativeArray();
 
-        var arcArray = GetEntityQuery(typeof(Arc)).ToComponentDataArrayAsync<Arc>(TempJob, out var arcJobHandle);
+        var arcQuery = GetEntityQuery(typeof(Arc));
+        var arcArray = arcQuery.ToComponentDataArrayAsync<Arc>(TempJob, out var arcJobHandle);
 
         var foodEntity = GetSingletonEntity<FoodTag>();
         float3 foodPos = EntityManager.GetComponentData<Translation>(foodEntity).Value;
@@ -170,11 +171,24 @@ public class SteeringSystem : SystemBase {
         var homeEntity = GetSingletonEntity<HomeTag>();
         float3 homePos = EntityManager.GetComponentData<Translation>(homeEntity).Value;
 
-        var nativeRandRef = this.nativeRandom;
+        //
+        // XXX: This cannot be used in Jobs.
+        //
+        //var nativeRandRef = this.nativeRandom;
 
-        Dependency = Entities.WithAll<AntTag>().ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData, ref AntTag antData, in LocalToWorld ltw) =>
+        RequireSingletonForUpdate<PheromoneMap>();
+        RequireSingletonForUpdate<PheromoneStrength>();
+        RequireForUpdate(arcQuery);
+        
+        Dependency = Entities
+            .WithDisposeOnCompletion(arcArray)
+            .WithAll<AntTag>()
+            .ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData, ref AntTag antData, in LocalToWorld ltw) =>
         {
-            var random = nativeRandRef.Value;
+            //
+            // TODO: Need better seed here -- maybe use ltw.Position & Rotation?
+            //
+            var random = new Random((uint)(globalTime * 1337) + 1); //nativeRandRef.Value;
 
             // Start with gaussian noise
             if (maxAngleDeviation > 0.0f)
@@ -230,14 +244,9 @@ public class SteeringSystem : SystemBase {
             SpringDamp(ref deltaYaw, ref yaw.CurrentYawVel, currentToDesired, settingsData.SteeringDampingRatio, settingsData.SteeringSmoothingFrequency, deltaTime);
             yaw.CurrentYaw += deltaYaw;
             yaw.CurrentYaw = ClampToPiMinusPi(yaw.CurrentYaw);
-            nativeRandRef.Value = random;
+            //nativeRandRef.Value = random;
 
-        }).Schedule(Dependency);
-        Dependency = Entities.ForEach((ref DynamicBuffer<PheromoneStrength> p, in PheromoneMap m) => { }).Schedule(Dependency);
-
-        Dependency = JobHandle.CombineDependencies(Dependency, arcJobHandle);
-
-        arcArray.Dispose();
+        }).ScheduleParallel(Dependency);
     }
 
     static bool SteerTowardsGoal(in NativeArray<Arc> arcs, in Yaw yaw, in LocalToWorld ltw, in SteeringSettings settings, in float3 goalPos, out float yawToGoalWorld)
