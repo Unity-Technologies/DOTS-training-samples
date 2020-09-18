@@ -7,10 +7,8 @@ public class YawToRotationSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Entities.ForEach((ref Rotation rotation, in Translation translation, in Yaw yaw) =>
-            {
-                rotation.Value = quaternion.RotateY(yaw.CurrentYaw);
-            }
-        ).Run();
+        Entities.ForEach((ref Rotation rotation, in Translation translation, in Yaw yaw) =>{
+            rotation.Value = quaternion.RotateY(yaw.CurrentYaw);
+        }).ScheduleParallel();
     }
 }

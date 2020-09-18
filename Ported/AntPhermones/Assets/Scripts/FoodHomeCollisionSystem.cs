@@ -6,6 +6,13 @@ using Unity.Rendering.Authoring;
 
 public class FoodHomeCollisionSystem : SystemBase
 {
+
+    protected override void OnCreate() {
+        base.OnCreate();
+        RequireSingletonForUpdate<FoodTag>();
+        RequireSingletonForUpdate<HomeTag>();
+    }
+
     protected override void OnUpdate() {
         var foodEntity = GetSingletonEntity<FoodTag>();
         var foodPos = EntityManager.GetComponentData<Translation>(foodEntity);
@@ -13,7 +20,10 @@ public class FoodHomeCollisionSystem : SystemBase
         var homeEntity = GetSingletonEntity<HomeTag>();
         var homePos = EntityManager.GetComponentData<Translation>(homeEntity);
 
-        Entities.ForEach((ref AntTag ant, ref AntColor color, ref Yaw yaw, ref Translation antPos) => {
+        Entities
+            .WithName("HomeFoodCollision")
+            .ForEach((ref AntTag ant, ref AntColor color, ref Yaw yaw, ref Translation antPos) =>
+        {
             if (!ant.HasFood && math.length(antPos.Value - foodPos.Value) < (1 / 2f + AntTag.Size / 2f)) {
                 ant.HasFood = true;
                 yaw.CurrentYaw += math.PI;
@@ -26,6 +36,6 @@ public class FoodHomeCollisionSystem : SystemBase
 
             color.Value = ant.HasFood ? AntColorAuthoring.kFoodColor : AntColorAuthoring.kHungryColor;
             color.Value = math.lerp(color.Value, (ant.HasFood ? AntColorAuthoring.kSeeBaseColor : AntColorAuthoring.kSeeFoodColor), ant.GoalSeekAmount);
-        }).Run();
+        }).ScheduleParallel();
     }
 }

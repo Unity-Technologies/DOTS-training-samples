@@ -4,16 +4,18 @@ using Unity.Transforms;
 
 public class PheromonePlacementSystem : SystemBase {
 
+    protected override void OnCreate() {
+        base.OnCreate();
+        RequireForUpdate(GetEntityQuery(typeof(PheromoneMap), typeof(PheromoneStrength)));
+    }
+
     protected override void OnUpdate() {
         var mapEntity = GetSingletonEntity<PheromoneMap>();
         var map = EntityManager.GetComponentData<PheromoneMap>(mapEntity);
         var pheromones = EntityManager.GetBuffer<PheromoneStrength>(mapEntity).AsNativeArray();
         var dt = Time.DeltaTime;
 
-        RequireSingletonForUpdate<PheromoneMap>();
-        RequireSingletonForUpdate<PheromoneStrength>();
-
-        Dependency = Entities.ForEach((in AntTag ant, in Translation translation) => {
+        Dependency = Entities.WithName("PheromonePlacement").ForEach((in AntTag ant, in Translation translation) => {
             int2 gridPos = PheromoneMap.WorldToGridPos(map, translation.Value);
             int index = PheromoneMap.GridPosToIndex(map, gridPos);
             if (index < 0 || index >= pheromones.Length) {

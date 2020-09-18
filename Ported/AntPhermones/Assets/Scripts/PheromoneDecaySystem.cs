@@ -5,6 +5,12 @@ using Unity.Burst;
 
 public class PheromoneDecaySystem : SystemBase {
 
+    protected override void OnCreate() {
+        base.OnCreate();
+        RequireForUpdate(GetEntityQuery(typeof(PheromoneMap), typeof(PheromoneStrength)));
+
+    }
+
     [BurstCompile(CompileSynchronously = true)]
     struct DecayJob : IJobParallelFor
     {
@@ -22,9 +28,6 @@ public class PheromoneDecaySystem : SystemBase {
         var mapEntity = GetSingletonEntity<PheromoneMap>();
         var map = EntityManager.GetComponentData<PheromoneMap>(mapEntity);
         var pheromones = EntityManager.GetBuffer<PheromoneStrength>(mapEntity);
-
-        RequireSingletonForUpdate<PheromoneMap>();
-        RequireSingletonForUpdate<PheromoneStrength>();
 
         var j = new DecayJob { pheromones = pheromones.AsNativeArray(), decay = map.PheremoneDecay * dt };
         this.Dependency = j.Schedule(pheromones.Length, 64, Dependency);
