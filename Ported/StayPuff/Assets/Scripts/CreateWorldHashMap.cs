@@ -33,7 +33,7 @@ public class CreateWorldHashMap : SystemBase
         int halfHeight = width / 2;
         float halfCellSize = cellSize * 0.5f;
 
-        worldBoundsHashMap = new NativeHashMap<uint, SharedWorldBounds>(width * height, Allocator.TempJob);
+        worldBoundsHashMap = new NativeHashMap<uint, SharedWorldBounds>(width * height, Allocator.Persistent);
 
         for(int x = -halfWidth; x < width; x++)
         {
