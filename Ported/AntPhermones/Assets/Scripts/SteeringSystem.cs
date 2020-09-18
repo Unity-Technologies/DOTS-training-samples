@@ -15,7 +15,6 @@ public class SteeringSystem : SystemBase {
     //               this was ported from Mathf.
     // ----------------------------------------------------------------------------------- //
     private const float kEpsilonNormalSqrt = 1e-15f;
-    private NativeReference<Random> nativeRandom;
     private static float _SqrMagnitude(float2 v) {
         return v.x * v.x + v.y * v.y;
     }
@@ -43,7 +42,7 @@ public class SteeringSystem : SystemBase {
     }
 
     static float StrongestDirection(PheromoneMap map,
-                                    DynamicBuffer<PheromoneStrength> pheromones,
+                                    NativeArray<PheromoneStrength> pheromones,
                                     float3 neighborhoodCenterWorldPos,
                                     float3 forward) {
         // A radius of 2 implies a 5x5 neighborhood.
@@ -84,9 +83,11 @@ public class SteeringSystem : SystemBase {
 
     /*static float AlternativePheromoneFollow
         (PheromoneMap map,
+            float currentYaw,
             DynamicBuffer<PheromoneStrength> pheromones,
             float3 neighborhoodCenterWorldPos,
-            float3 forward
+            float3 forward,
+            ref Random rand
         )
     {
         int radius = 2;
@@ -121,20 +122,32 @@ public class SteeringSystem : SystemBase {
 
         if(math.lengthsq(pheromoneDir) < 0.01f)
         {
-            return m_Rng.NextFloat(-math.PI, math.PI);
+            return rand.NextFloat(-math.PI, math.PI);
         }
 
-        float angle = math.atan2(pheromoneDir.z, pheromoneDir.x);
+        float angle = math.atan2(pheromoneDir.x, pheromoneDir.z);
         
-        return angle;
+        return angle - currentYaw;
     }
-*/
+
+    private int m_FrameCount;
+
+    private static int CombineHashCode(int code1, int code2)
+    {
+        unchecked
+        {
+            int hash = 17;
+            hash = hash * 31 + code1;
+            hash = hash * 31 + code2;
+            return hash;
+        }
+    }
+    */
 
     // Update is called once per frame
     protected override void OnUpdate()
     {
         float globalTime = (float)Time.ElapsedTime;
-
         float deltaTime = (float)Time.DeltaTime;
 
         var settingsEntity = GetSingletonEntity<SteeringSettings>();
@@ -144,9 +157,13 @@ public class SteeringSystem : SystemBase {
 
         var mapEntity = GetSingletonEntity<PheromoneMap>();
         var map = EntityManager.GetComponentData<PheromoneMap>(mapEntity);
-        var pheromones = EntityManager.GetBuffer<PheromoneStrength>(mapEntity);
+        DynamicBuffer<PheromoneStrength> pheromones = EntityManager.GetBuffer<PheromoneStrength>(mapEntity);
+        NativeArray<PheromoneStrength> pheromoneArray = pheromones.AsNativeArray();
 
-        var arcArray = GetEntityQuery(typeof(Arc)).ToComponentDataArrayAsync<Arc>(TempJob, out var arcJobHandle);
+        var arcQuery = GetEntityQuery(typeof(Arc));
+        var arcArray = arcQuery.ToComponentDataArrayAsync<Arc>(TempJob, out var arcJobHandle);
+
+        // XXX(jcowles): Seems like this isn't necessary.
         Dependency = JobHandle.CombineDependencies(Dependency, arcJobHandle);
 
         var foodEntity = GetSingletonEntity<FoodTag>();
@@ -154,21 +171,24 @@ public class SteeringSystem : SystemBase {
 
         var homeEntity = GetSingletonEntity<HomeTag>();
         float3 homePos = EntityManager.GetComponentData<Translation>(homeEntity).Value;
-
-        var nativeRandRef = this.nativeRandom;
         
-        Entities.WithAll<AntTag>().ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData, ref AntTag antData, in LocalToWorld ltw) =>
+        Dependency = Entities
+            .WithName("SteeringSystem")
+            .WithDisposeOnCompletion(arcArray)
+            .WithAll<AntTag>()
+            .ForEach((Entity entity, ref Yaw yaw, ref SteeringComponent steeringData, ref AntTag antData, in LocalToWorld ltw) =>
         {
+            var random = new Random((uint)(Hashing.Combine((uint)(ltw.Position.x * 1000), (uint)(ltw.Position.z * 1000))) + 1);
+
             // Start with gaussian noise
             if (maxAngleDeviation > 0.0f)
             {
-                var random = nativeRandRef.Value;
                 steeringData.DesiredYaw = NextGaussian(yaw.CurrentYaw, maxAngleDeviation, ref random);
-                nativeRandRef.Value = random;
             }
 
             // Pheromone steering
-            float strongestPheromoneAngleDiff = StrongestDirection(map, pheromones, ltw.Position, ltw.Forward);
+            float strongestPheromoneAngleDiff = StrongestDirection(map, pheromoneArray, ltw.Position, ltw.Forward);
+            //float strongestPheromoneAngleDiff = AlternativePheromoneFollow(map, yaw.CurrentYaw, pheromones, ltw.Position, ltw.Forward, ref random);
             steeringData.DesiredYaw += strongestPheromoneAngleDiff * settingsData.PheromoneSteeringStrength;
             
             // goal steering
@@ -214,9 +234,8 @@ public class SteeringSystem : SystemBase {
             SpringDamp(ref deltaYaw, ref yaw.CurrentYawVel, currentToDesired, settingsData.SteeringDampingRatio, settingsData.SteeringSmoothingFrequency, deltaTime);
             yaw.CurrentYaw += deltaYaw;
             yaw.CurrentYaw = ClampToPiMinusPi(yaw.CurrentYaw);
-        }).Run();
 
-        arcArray.Dispose();
+        }).ScheduleParallel(Dependency);
     }
 
     static bool SteerTowardsGoal(in NativeArray<Arc> arcs, in Yaw yaw, in LocalToWorld ltw, in SteeringSettings settings, in float3 goalPos, out float yawToGoalWorld)
@@ -331,15 +350,12 @@ public class SteeringSystem : SystemBase {
     protected override void OnCreate()
     {
         // We must wait for the pheromone map to be initialized
-        EntityQuery query = GetEntityQuery(typeof(PheromoneMap), typeof(PheromoneStrength));
-        RequireForUpdate(query);
-        nativeRandom = new NativeReference<Random>(Allocator.Persistent);
-        nativeRandom.Value = new Random(1337);
+        RequireForUpdate(GetEntityQuery(typeof(PheromoneMap), typeof(PheromoneStrength)));
+        RequireForUpdate(GetEntityQuery(typeof(Arc)));
     }
 
     protected override void OnDestroy()
     {
-        nativeRandom.Dispose();
         base.OnDestroy();
     }
 }
