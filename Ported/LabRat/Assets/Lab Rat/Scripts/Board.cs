@@ -23,6 +23,7 @@ public class Board : MonoBehaviour {
 			this.size = size;
 			this.cellSize = cellSize;
 			this.yNoise = 0f;
+			this.yOffset = 0.03f;
 			this.colors = new Color[] { Color.white, Color.white };
 			this.BorderWalls = true;
 		}
@@ -31,6 +32,7 @@ public class Board : MonoBehaviour {
 
         [HideInInspector] public Vector2 cellSize;
 		public float yNoise;
+		public float yOffset;
 		public Color[] colors;
 		public bool BorderWalls;
 
@@ -50,6 +52,7 @@ public class Board : MonoBehaviour {
 			return size == other.size &&
 				cellSize == other.cellSize &&
 				Mathf.Approximately(yNoise, other.yNoise) &&
+				Mathf.Approximately(yOffset, other.yOffset) &&
 				colors.SequenceEqual(other.colors);
 		}
 
@@ -97,7 +100,8 @@ public class Board : MonoBehaviour {
 			// Position the block
 			obj.transform.localPosition = new Vector3(
 				coord.x * boardDesc.cellSize.x,
-				Random.value * boardDesc.yNoise,
+				Random.value * boardDesc.yNoise + 
+					(coord.x + coord.y) % 2 == 0 ? 0f : boardDesc.yOffset,
 				coord.y * boardDesc.cellSize.y);
 			
 			var index = (coord.x + coord.y) % 2 == 0 ? 1 : 0;

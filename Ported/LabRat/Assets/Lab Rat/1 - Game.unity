@@ -11342,7 +11342,8 @@ MonoBehaviour:
   boardDesc:
     size: {x: 13, y: 13}
     cellSize: {x: 1, y: 1}
-    yNoise: 0.05
+    yNoise: 0.0
+    yOffset: 0.03
     colors:
     - {r: 0.85294116, g: 0.73378026, b: 0.73378026, a: 1}
     - {r: 1, g: 0.8455882, b: 0.8455882, a: 1}
