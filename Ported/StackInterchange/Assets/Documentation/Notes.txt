@@ -1,8 +1,0 @@
-Launch Notes:
-- References:
-	- Stack interchange
-	- https://www.youtube.com/watch?v=bNvRR0TvFN0
-
-- Cars have to be on layer 8
-- Car Camera should be the last in the list
-- Recommended 4:3 1920 * 1440
