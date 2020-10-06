@@ -18,7 +18,6 @@ public class CarSpawnerSystem : SystemBase
             .ForEach((Entity entity, in CarSpawner spawner, in Translation trans, in Rotation rotation, in SpawnerFrequency frequency) =>
             {
                 float r = random.NextFloat(0, 1);
-                
                 if (r > frequency.Value)
                 {
                     return;
@@ -77,19 +76,24 @@ public class CarSpawnerSystem : SystemBase
                         col = new float4(0,0,0,1);
                         break;
                 }
-                
+
                 EntityManager.SetComponentData(instance, new Color
                 {
-                    // Value = new float4(1,0,0,1)
                     Value = col
                 });
-                // EntityManager.SetComponentData(instance, new 
-                // {
-                //     Value = 
-                // });
 
+                // Add CarMovement component to spawned entity
+                EntityManager.AddComponentData(instance, new CarMovement
+                {
+                    NextNode = new Translation{Value = new float3(0,0,20)},
+                    Velocity = 0.01f,
+                    Acceleration = 0.1f,
+                    Deceleration = 0.1f,
+                    MaxSpeed = 1 
+                });
 
-                EntityManager.DestroyEntity(entity); // temp
+                // EntityManager.DestroyEntity(entity);
+
             }).Run();
     }
 }
