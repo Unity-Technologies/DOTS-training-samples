@@ -18,16 +18,18 @@ public class CarMovementSystem : SystemBase
         Entities.ForEach((Entity carEntity, int entityInQueryIndex, ref Translation trans, ref Rotation rotation, ref CarMovement movement) =>
         {
             var pos = trans.Value;
-
             trans.Value = math.lerp(trans.Value, movement.NextNode.Value, movement.Velocity);
 
             var dist = math.distance(trans.Value, movement.NextNode.Value);
 
-            if (dist < 0.1f)
+            if (dist < 1f)
             {
                 // TODO: set node's next node
+                movement.NextNode = new Translation{Value = new float3(10,0,10)};
+                rotation.Value = quaternion.LookRotation(movement.NextNode.Value, new float3(0,0,1));
+
                 // Destroy if no next node
-                ecb.DestroyEntity(entityInQueryIndex, carEntity);
+                // ecb.DestroyEntity(entityInQueryIndex, carEntity);
             }
 
         }).ScheduleParallel();
