@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
@@ -10,10 +11,18 @@ public class MovementSystem : SystemBase
     private const byte West = 0b0000_1000;
 
     private EntityCommandBufferSystem m_ECBSystem;
+    private EntityQuery m_HolePositionQuery;
 
     protected override void OnCreate()
     {
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+
+        EntityQueryDesc desc = new EntityQueryDesc
+        {
+            // Query only matches chunks with both Red and Green components.
+            All = new ComponentType[] {typeof(Hole), typeof(Translation)}
+        };
+        m_HolePositionQuery = EntityManager.CreateEntityQuery(desc);
     }
 
     protected override void OnUpdate()
@@ -21,8 +30,10 @@ public class MovementSystem : SystemBase
         var deltaTime = Time.DeltaTime;
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
+        var holeTranslations = m_HolePositionQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+
         //TODO: Replace SomeTempTag with the TileCheckTag
-        Entities.WithNone<SomeTempTag>().ForEach(
+        Entities.WithNone<SomeTempTag>().WithNone<Falling>().ForEach(
             (Entity entity, int entityInQueryIndex, ref Position position, ref Translation translation, in Speed speed,
                 in Direction direction) =>
             {
@@ -53,7 +64,19 @@ public class MovementSystem : SystemBase
                 var deltaY = math.mul(math.mul(forward.y, speed.Value), deltaTime);
                 position.Value += new float2(deltaX, deltaY);
 
-                if ((int) position.Value.x != prevTileX || (int) position.Value.y != prevTileY)
+                bool fellIntoHole = false;
+                foreach (var holeTranslation in holeTranslations)
+                {
+                    if ((int) holeTranslation.Value.x == (int) position.Value.x &&
+                        (int) holeTranslation.Value.z == (int) position.Value.y)
+                    {
+                        //Add Falling Tag
+                        ecb.AddComponent<Falling>(entityInQueryIndex, entity);
+                        fellIntoHole = true;
+                    }
+                }
+
+                if (!fellIntoHole && ((int) position.Value.x != prevTileX || (int) position.Value.y != prevTileY))
                 {
                     //Add Tile Check Tag
                     ecb.AddComponent<SomeTempTag>(entityInQueryIndex, entity);
@@ -64,5 +87,11 @@ public class MovementSystem : SystemBase
             }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
+        holeTranslations.Dispose(Dependency);
+    }
+
+    protected override void OnDestroy()
+    {
+        m_HolePositionQuery.Dispose();
     }
 }
