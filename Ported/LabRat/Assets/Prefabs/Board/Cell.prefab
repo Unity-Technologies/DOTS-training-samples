@@ -204,7 +204,7 @@ GameObject:
   - component: {fileID: 33070225485303068}
   - component: {fileID: 65022997060021078}
   - component: {fileID: 23663924987368572}
-  - component: {fileID: 4214135481876395557}
+  - component: {fileID: 3165122656526028804}
   m_Layer: 0
   m_Name: Cell
   m_TagString: Untagged
@@ -290,7 +290,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &4214135481876395557
+--- !u!114 &3165122656526028804
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -299,7 +299,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1695157876856304}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8af41910981b0b40a78ad3f0dfcf40d, type: 3}
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Color: {r: 0.5566038, g: 0.5539783, b: 0.5539783, a: 1}
+  Value:
+    x: 0
+    y: 0
+    z: 0
+    w: 0

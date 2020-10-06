@@ -154,8 +154,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 1695157876856304, guid: c2ef2e9ce5dad494d916f59769e7d27f, type: 3}
   wallPrefab: {fileID: 1948033712935058, guid: eea26364a72844748944744db673f3f1, type: 3}
-  size: 10
-  yNoise: 0.2
+  size: 13
+  yNoise: 0.1
   wallCount: 15
   holeCount: 2
 --- !u!4 &17635208
