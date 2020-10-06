@@ -18,11 +18,14 @@ public class CarSpawnerSystem : SystemBase
             .ForEach((Entity entity, in CarSpawner spawner, in Translation trans, in Rotation rotation, in SpawnerFrequency frequency) =>
             {
                 float r = random.NextFloat(0, 1);
+                
+                /*
                 if (r > frequency.Value)
                 {
-                    continue; 
+                    return; 
                 }
-
+                */
+                
                 var instance = EntityManager.Instantiate(spawner.CarPrefab);
                 EntityManager.SetComponentData(instance, new Translation
                 {
@@ -49,7 +52,7 @@ public class CarSpawnerSystem : SystemBase
                 */
                 EntityManager.SetComponentData(instance, new NonUniformScale
                 {
-                    Value = scale.Value
+                    Value = spawner.carScaleV1
                 });
 
                 EntityManager.SetComponentData(instance, new Rotation
