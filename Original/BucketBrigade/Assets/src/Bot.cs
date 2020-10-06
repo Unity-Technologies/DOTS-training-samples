@@ -165,6 +165,10 @@ public class Bot : MonoBehaviour
             case BotAction.GET_BUCKET:
                 if(botType == BotType.SCOOP || botType == BotType.OMNIBOT){
                     targetBucket = FindNearestBucket(false);
+                    if (targetBucket == null)
+                    {
+                        FindNearestBucket(true);
+                    }
                 }else{
                     if(bucketProvider!=null && bucketProvider.carrying !=null){
                         targetBucket = bucketProvider.carrying;    

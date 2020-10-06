@@ -156,6 +156,8 @@ MonoBehaviour:
   SizeX: 20
   SizeZ: 20
   RandomYOffset: 0.1
+  InitialIntensity: 11.4
+  InitialOnFireCellCount: 50
 --- !u!4 &1665004158
 Transform:
   m_ObjectHideFlags: 0
