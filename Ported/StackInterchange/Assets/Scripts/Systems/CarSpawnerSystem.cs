@@ -15,7 +15,7 @@ public class CarSpawnerSystem : SystemBase
     protected override void OnUpdate()
     {
         Entities.WithStructuralChanges()
-            .ForEach((Entity entity, in CarSpawner spawner, in Translation trans, in Rotation rotation, in SpawnerFrequency frequency) =>
+            .ForEach((Entity entity, in CarSpawner spawner, in LocalToWorld ltw, in Rotation rotation, in SpawnerFrequency frequency) =>
             {
                 float r = random.NextFloat(0, 1);
                 if (r > frequency.Value)
@@ -26,7 +26,7 @@ public class CarSpawnerSystem : SystemBase
                 var instance = EntityManager.Instantiate(spawner.CarPrefab);
                 EntityManager.SetComponentData(instance, new Translation
                 {
-                    Value = trans.Value
+                    Value = ltw.Position
                 });
 
                 float3 scale;
