@@ -19,12 +19,10 @@ public class CarSpawnerSystem : SystemBase
             {
                 float r = random.NextFloat(0, 1);
                 
-                /*
                 if (r > frequency.Value)
                 {
-                    return; 
+                    return;
                 }
-                */
                 
                 var instance = EntityManager.Instantiate(spawner.CarPrefab);
                 EntityManager.SetComponentData(instance, new Translation
@@ -32,7 +30,6 @@ public class CarSpawnerSystem : SystemBase
                     Value = trans.Value
                 });
 
-                /*
                 float3 scale;
                 int randInt = random.NextInt(0,3);
                 switch (randInt){
@@ -45,14 +42,14 @@ public class CarSpawnerSystem : SystemBase
                     case 2:
                         scale = spawner.carScaleV3;
                         break;
-                    default;
+                    default:
+                        scale = spawner.carScaleV1;
                         break;
                 }
 
-                */
                 EntityManager.SetComponentData(instance, new NonUniformScale
                 {
-                    Value = spawner.carScaleV1
+                    Value = scale
                 });
 
                 EntityManager.SetComponentData(instance, new Rotation
@@ -60,22 +57,36 @@ public class CarSpawnerSystem : SystemBase
                     Value = rotation.Value
                 });
 
-                /*
+                // Amanda temp
                 float4 col;
-                randInt = random.NextInt(0, ???);
-                col = 
-                */
-
+                randInt = random.NextInt(0, 4);
+                switch (randInt) {
+                    case 0: // red
+                        col = new float4(1,0,0,1);
+                        break;
+                    case 1: // green
+                        col = new float4(0,1,0,1);
+                        break;
+                    case 2: // blue
+                        col = new float4(0,0,1,1);
+                        break;
+                    case 3: // white
+                        col = new float4(1,1,1,1);
+                        break;
+                    default:
+                        col = new float4(0,0,0,1);
+                        break;
+                }
+                
                 EntityManager.SetComponentData(instance, new Color
                 {
-                    Value = new float4(1,0,0,1)
-                    // Value = col;
+                    // Value = new float4(1,0,0,1)
+                    Value = col
                 });
                 // EntityManager.SetComponentData(instance, new 
                 // {
                 //     Value = 
                 // });
-
 
 
                 EntityManager.DestroyEntity(entity); // temp
