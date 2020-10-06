@@ -363,7 +363,6 @@ public class Cell : MonoBehaviour {
 		}
 	}
 
-
 }
 
 }
