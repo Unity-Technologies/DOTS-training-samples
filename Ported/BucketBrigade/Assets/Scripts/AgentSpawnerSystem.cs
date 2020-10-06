@@ -30,7 +30,7 @@ public class AgentSpawnerSystem : SystemBase
             boardDimensions = new Vector2Int(boardSettings.SizeX, boardSettings.SizeZ);
         }).Run();
 
-        Debug.Log( "Dimensions: " + boardDimensions.x.ToString() + ", " + boardDimensions.y.ToString());
+        //Debug.Log( "Dimensions: " + boardDimensions.x.ToString() + ", " + boardDimensions.y.ToString());
         
         Entities
             .WithStructuralChanges() // we will destroy ourselves at the end of the loop
