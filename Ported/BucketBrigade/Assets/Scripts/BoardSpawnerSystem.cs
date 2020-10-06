@@ -40,6 +40,7 @@ public class BoardSpawnerSystem : SystemBase
 						var instance = EntityManager.Instantiate(spawner.Prefab);
 						SetComponent(instance, new Translation
 						{
+							// use entity translation instead
 							Value = world.Position + new float3(x, offsetY, z)
 						});
 
