@@ -153,6 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 1695157876856304, guid: c2ef2e9ce5dad494d916f59769e7d27f, type: 3}
+  invisibleTilePrefab: {fileID: 1695157876856304, guid: ddddd9f0546a26546b64c2ed7acab445, type: 3}
   wallPrefab: {fileID: 1948033712935058, guid: eea26364a72844748944744db673f3f1, type: 3}
   homeBasePrefab: {fileID: 1633874070064508, guid: 4646c46297b1d264b9d030df701c5aca, type: 3}
   size: 13

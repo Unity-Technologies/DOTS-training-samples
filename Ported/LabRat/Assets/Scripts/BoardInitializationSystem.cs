@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 public class BoardInitializationSystem : SystemBase
 {
@@ -73,6 +74,10 @@ public class BoardInitializationSystem : SystemBase
                         if (holeCount > 0 && rand.NextFloat(1f) < holeProbability)
                         {
                             EntityManager.DestroyEntity(instance);
+
+                            instance = EntityManager.Instantiate(board.invisibleTilePrefab);
+                            SetComponent(instance, new Translation { Value = new float3(posX, posY, posZ) });
+                            EntityManager.AddComponent<Hole>(instance);
                             holeCount--;
                         }
                     }

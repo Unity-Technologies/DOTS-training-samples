@@ -5,6 +5,7 @@ using UnityEngine;
 public struct Board : IComponentData
 {
     public Entity tilePrefab;
+    public Entity invisibleTilePrefab;
     public Entity wallPrefab;
     public Entity homeBasePrefab;
 
