@@ -14,7 +14,6 @@ public class MovementSystem : SystemBase
 
         EntityQueryDesc desc = new EntityQueryDesc
         {
-            // Query only matches chunks with both Red and Green components.
             All = new ComponentType[] {typeof(Hole), typeof(Translation)}
         };
         m_HolePositionQuery = EntityManager.CreateEntityQuery(desc);
@@ -27,7 +26,6 @@ public class MovementSystem : SystemBase
 
         var holeTranslations = m_HolePositionQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
 
-        //TODO: Replace SomeTempTag with the TileCheckTag
         Entities.WithNone<TileCheckTag>().WithNone<Falling>().ForEach(
             (Entity entity, int entityInQueryIndex, ref Position position, ref Translation translation, in Speed speed,
                 in Direction direction) =>
@@ -77,7 +75,6 @@ public class MovementSystem : SystemBase
                     ecb.AddComponent<TileCheckTag>(entityInQueryIndex, entity);
                 }
 
-                //Set position in ltw
                 translation.Value = new float3(position.Value.x, 0, position.Value.y);
             }).ScheduleParallel();
 
