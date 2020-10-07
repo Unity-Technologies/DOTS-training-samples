@@ -162,13 +162,13 @@ MonoBehaviour:
     type: 3}
   DepotPrefab: {fileID: 7384222014892938916, guid: c49fc1e5651af8243b3dd4569b4a76c2,
     type: 3}
-  PlantPrefab: {fileID: 919132149155446097, guid: 798f065d404c2064b92d9bf0d3f005c1,
+  PlantPrefab: {fileID: 2699181508882807569, guid: cf672eb8c66025744ac63e3be9cd57e4,
     type: 3}
   FarmerPrefab: {fileID: 1094813894564174593, guid: 641204fd425dc8348a801a1adafef730,
     type: 3}
   WaterProbability: 0.05
   DepotProbability: 0.01
-  SimulationSpeed: 0
+  SimulationSpeed: 1
 --- !u!4 &1227781564
 Transform:
   m_ObjectHideFlags: 0
