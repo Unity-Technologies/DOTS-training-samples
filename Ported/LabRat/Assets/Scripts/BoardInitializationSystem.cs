@@ -30,9 +30,9 @@ public class BoardInitializationSystem : SystemBase
                     var posY = rand.NextFloat(0.0f, board.yNoise);
                     var posZ = z;
                     
-                    var instance = EntityManager.Instantiate(board.tilePrefab);
-                    SetComponent(instance, new Translation { Value = new float3(posX, posY, posZ) });
-                    SetComponent(instance,
+                    var tileInstance = EntityManager.Instantiate(board.tilePrefab);
+                    SetComponent(tileInstance, new Translation { Value = new float3(posX, posY, posZ) });
+                    SetComponent(tileInstance,
                         (x + z) % 2 == 0
                             ? new URPMaterialPropertyBaseColor {Value = new float4(0.8f, 0.8f, 0.8f, 1.0f)}
                             : new URPMaterialPropertyBaseColor {Value = new float4(0.6f, 0.6f, 0.6f, 1.0f)});
@@ -40,44 +40,44 @@ public class BoardInitializationSystem : SystemBase
                     // Place border walls
                     if (x == 0) // East
                     {
-                        PlaceWall(posX, posZ, 2, board.wallPrefab, posY);
+                        PlaceWall(posX, posZ, 2, board.wallPrefab, posY, tileInstance);
                         localWall |= 4;
                     }
                     else if (x == (board.size - 1)) // West
                     {
-                        PlaceWall(posX, posZ, 3, board.wallPrefab, posY);
+                        PlaceWall(posX, posZ, 3, board.wallPrefab, posY, tileInstance);
                         localWall |= 8;
                     }
 
                     if (z == 0) // South
                     {
-                        PlaceWall(posX, posZ, 1, board.wallPrefab, posY);
+                        PlaceWall(posX, posZ, 1, board.wallPrefab, posY, tileInstance);
                         localWall |= 2;
                     }
                     else if (z == (board.size - 1)) // North
                     {
-                        PlaceWall(posX, posZ, 0, board.wallPrefab, posY);
+                        PlaceWall(posX, posZ, 0, board.wallPrefab, posY, tileInstance);
                         localWall |= 1;
                     }
 
                     // Place home base
                     if (x == boardQuarter && z == boardQuarter)
-                        PlaceHomeBase(posX, posZ, 0, board.homeBasePrefab, posY);
+                        PlaceHomeBase(posX, posZ, 0, board.homeBasePrefab, posY, tileInstance);
                     else if (x == boardQuarter && z == board.size - boardQuarter - 1)
-                        PlaceHomeBase(posX, posZ, 1, board.homeBasePrefab, posY);
+                        PlaceHomeBase(posX, posZ, 1, board.homeBasePrefab, posY, tileInstance);
                     else if (x == board.size - boardQuarter - 1 && z == board.size - boardQuarter - 1)
-                        PlaceHomeBase(posX, posZ, 2, board.homeBasePrefab, posY);
+                        PlaceHomeBase(posX, posZ, 2, board.homeBasePrefab, posY, tileInstance);
                     else if (x == board.size - boardQuarter - 1 && z == boardQuarter)
-                        PlaceHomeBase(posX, posZ, 3, board.homeBasePrefab, posY);
+                        PlaceHomeBase(posX, posZ, 3, board.homeBasePrefab, posY, tileInstance);
                     else  // Not a base: can be a hole
                     {
                         if (holeCount > 0 && rand.NextFloat(1f) < holeProbability)
                         {
-                            EntityManager.DestroyEntity(instance);
+                            EntityManager.DestroyEntity(tileInstance);
 
-                            instance = EntityManager.Instantiate(board.invisibleTilePrefab);
-                            SetComponent(instance, new Translation { Value = new float3(posX, posY, posZ) });
-                            EntityManager.AddComponent<Hole>(instance);
+                            tileInstance = EntityManager.Instantiate(board.invisibleTilePrefab);
+                            SetComponent(tileInstance, new Translation { Value = new float3(posX, posY, posZ) });
+                            EntityManager.AddComponent<Hole>(tileInstance);
                             holeCount--;
                         }
                     }
@@ -88,7 +88,7 @@ public class BoardInitializationSystem : SystemBase
                         var coordinate = 2 ^ rand.NextUInt(0, 3);
                         if ((localWall & coordinate) == 0)
                         {
-                            PlaceWall(posX, posZ, coordinate, board.wallPrefab, posY);
+                            PlaceWall(posX, posZ, coordinate, board.wallPrefab, posY, tileInstance);
                             wallCount--;
                         }
                     }
@@ -121,21 +121,31 @@ public class BoardInitializationSystem : SystemBase
     /// <param name="coordinate">North (0), South (1), East (2) or West (3)</param>
     /// <param name="board"></param>
     /// <param name="yOffset"></param>
-    void PlaceWall(float posX, float posZ, uint coordinate, Entity wallPrefab, float yOffset)
+    void PlaceWall(
+        float posX, 
+        float posZ, 
+        uint coordinate, 
+        Entity wallPrefab, 
+        float yOffset,
+        Entity tileInstance)
     {
         switch (coordinate)
         {
             case 0: // North
                 posZ += 0.5f;
+                AddWallToTile(tileInstance, DirectionDefines.North);
                 break;
             case 1: // South
                 posZ -= 0.5f;
+                AddWallToTile(tileInstance, DirectionDefines.South);
                 break;
-            case 2: // East
+            case 2: // West 
                 posX -= 0.5f;
+                AddWallToTile(tileInstance, DirectionDefines.West);
                 break;
-            case 3: // West
+            case 3: // East
                 posX += 0.5f;
+                AddWallToTile(tileInstance, DirectionDefines.East);
                 break;
             default:
                 break;
@@ -146,12 +156,34 @@ public class BoardInitializationSystem : SystemBase
 
         if (coordinate <= 1)  // Turn the wall if it's placed on North or South
             SetComponent(instance, new Rotation { Value = quaternion.RotateY(math.radians(90f)) });
+
     }
 
-    void PlaceHomeBase(int posX, int posZ, int playerIndex, Entity homeBasePrefab, float yOffset)
+    void AddWallToTile(Entity tileEntity, byte wallDirection)
     {
-        var instance = EntityManager.Instantiate(homeBasePrefab);
-        SetComponent(instance, new Translation { Value = new float3(posX, yOffset, posZ) });
+        if (HasComponent<Wall>(tileEntity))
+        {
+            var wallComponent = GetComponent<Wall>(tileEntity);
+            wallComponent.Value |= wallDirection;
+            SetComponent<Wall>(tileEntity, wallComponent);
+        }
+        else
+        {
+            EntityManager.AddComponent<Wall>(tileEntity);
+            SetComponent<Wall>(tileEntity, new Wall { Value = wallDirection });
+        }
+    }
+
+    void PlaceHomeBase(
+        int posX, 
+        int posZ, 
+        int playerIndex, 
+        Entity homeBasePrefab, 
+        float yOffset,
+        Entity tileInstance)
+    {
+        var homebaseInstance = EntityManager.Instantiate(homeBasePrefab);
+        SetComponent(homebaseInstance, new Translation { Value = new float3(posX, yOffset, posZ) });
 
         URPMaterialPropertyBaseColor color;
         switch (playerIndex)
@@ -169,9 +201,14 @@ public class BoardInitializationSystem : SystemBase
                 color = new URPMaterialPropertyBaseColor {Value = new float4(1.0f, 1.0f, 1.0f, 1.0f)};
                 break;
         }
+        SetComponent(homebaseInstance, color);
 
-        SetComponent(instance, color);
-        // Add a base tag?
+        EntityManager.AddComponent<HomeBase>(tileInstance);
+        SetComponent<HomeBase>(tileInstance, new HomeBase
+        {
+            playerIndex = (byte)playerIndex,
+            playerScore = 0
+        });
     }
 }
 
