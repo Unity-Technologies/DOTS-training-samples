@@ -30,7 +30,8 @@ public class FireSimulationInitSystem : SystemBase
             {
                 for (int x = 0; x < simulation.columns; ++x)
                 {
-                    var entity = entities[y * simulation.rows + x];
+                    int cellIndex = y * simulation.rows + x;
+                    var entity = entities[cellIndex];
                     float posX = x * cellSize;
                     float posY = -(simulation.maxFlameHeight * 0.5f) + m_Random.NextFloat(0.01f, 0.02f);
                     float posZ = y * cellSize;
@@ -42,6 +43,8 @@ public class FireSimulationInitSystem : SystemBase
                     EntityManager.SetComponentData(entity, new BaseColor { Value = neutralColor });
 
                     EntityManager.AddComponent<Temperature>(entity);
+                    EntityManager.AddComponent<CellIndex>(entity);
+                    EntityManager.SetComponentData(entity, new CellIndex { Value = cellIndex });
                 }
             }
 

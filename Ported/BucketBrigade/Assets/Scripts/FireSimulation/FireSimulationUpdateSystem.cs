@@ -20,15 +20,14 @@ public class FireSimulationUpdateSystem : SystemBase
         float flickerRange = 0.5f;
 
     Entities.
-            ForEach((Entity fireCellEntity, ref Temperature temperature, ref Translation translation, ref BaseColor baseColor) =>
+            ForEach((Entity fireCellEntity, ref Temperature temperature, ref Translation translation, ref BaseColor baseColor, in CellIndex cellIndex) =>
             {
                 // TODO: Run only on cells on fire
                 if (temperature.Value >= fireSimulation.flashpoint)
                 {
-                    int index = 0;
                     float3 currentPos = translation.Value;
                     currentPos.y = (-flameHeight * 0.5f + (temperature.Value * flameHeight)) - flickerRange;
-                    currentPos.y += (flickerRange * 0.5f) + UnityEngine.Mathf.PerlinNoise((time - index) * flickerRate - temperature.Value, temperature.Value) * flickerRange;
+                    currentPos.y += (flickerRange * 0.5f) + UnityEngine.Mathf.PerlinNoise((time - cellIndex.Value) * flickerRate - temperature.Value, temperature.Value) * flickerRange;
                     translation.Value = currentPos;
 
                     UnityEngine.Color color = UnityEngine.Color.Lerp(fireSimulation.fireCellColorCool, fireSimulation.fireCellColorHot, temperature.Value);
