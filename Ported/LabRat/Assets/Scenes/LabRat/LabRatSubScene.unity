@@ -158,7 +158,7 @@ MonoBehaviour:
   homeBasePrefab: {fileID: 1633874070064508, guid: 4646c46297b1d264b9d030df701c5aca, type: 3}
   size: 13
   yNoise: 0.1
-  wallCount: 100
+  wallCount: 30
   holeCount: 3
 --- !u!4 &17635208
 Transform:
