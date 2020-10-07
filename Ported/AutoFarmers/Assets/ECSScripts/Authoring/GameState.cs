@@ -8,4 +8,6 @@ public struct GameState : IComponentData
     public Entity PlainsPrefab;
     public Entity WaterPrefab;
     public float WaterProbability;
+    
+    public Entity FarmerPrefab;
 }
