@@ -32,6 +32,7 @@ public class SapplingSpawnSystem : SystemBase
                 
                 var sapplingEntity = ecb.Instantiate(entityInQueryIndex, prefab);
                 ecb.AddComponent<Sappling>(entityInQueryIndex, sapplingEntity);
+                ecb.AddComponent<MaterialOverride>(entityInQueryIndex, sapplingEntity);
                 ecb.SetComponent(entityInQueryIndex, sapplingEntity, new Translation {Value = translation.Value});
                 ecb.AddComponent<NonUniformScale>(entityInQueryIndex, sapplingEntity);
                 
