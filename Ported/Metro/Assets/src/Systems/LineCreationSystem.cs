@@ -33,7 +33,7 @@ public class LineCreationSystem : SystemBase
             }).Run();
     }
 
-    Entity Create_RailPath(DynamicBuffer<RailMarkerPosition> positions, DynamicBuffer<RailMarkerPlatformIndex> indices, Entity railPrefab,
+    void Create_RailPath(DynamicBuffer<RailMarkerPosition> positions, DynamicBuffer<RailMarkerPlatformIndex> indices, Entity railPrefab,
                            TrainCount trainCount)
     {
         var bezierPath = new BezierPath();
@@ -156,8 +156,6 @@ public class LineCreationSystem : SystemBase
             EntityManager.SetComponentData(rail, new Translation { Value = _RAIL_POS });
             _DIST += Metro.RAIL_SPACING;
         }
-
-        return railEntity;
     }
 
     float Get_distanceAsRailProportion(BezierPath bezierPath, float _realDistance)
