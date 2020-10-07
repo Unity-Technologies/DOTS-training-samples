@@ -20,27 +20,31 @@ public class AgentSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        // read board information (used to limit entity bounds to the grid)
         Vector2Int boardDimensions = Vector2Int.zero;
-        float yOffset = 0;
+        float boardYOffset = 0.0f;
+       
         // read Board properties (on main thread at the moment though - needs dependencies to run before board, as that gets destroyed.)
+        // also, this is pointless as a loop - the code doesn't support multiple boards.
         Entities.ForEach((Entity e, in BoardSpawner boardSettings) =>
         {
-            yOffset = 1.0f + boardSettings.RandomYOffset; // ensure agents aren't z-fighting with the board. (might need some terrain-following stuff instead if we want more fidelity)
+            boardYOffset = boardSettings.RandomYOffset; // ensure agents aren't z-fighting with the board. (might need some terrain-following stuff instead if we want more fidelity)
             boardDimensions = new Vector2Int(boardSettings.SizeX, boardSettings.SizeZ);
         }).Run();
-
-        //Debug.Log( "Dimensions: " + boardDimensions.x.ToString() + ", " + boardDimensions.y.ToString());
         
         Entities
             .WithStructuralChanges() // we will destroy ourselves at the end of the loop
             .ForEach((Entity agentSpawnerSettings, in AgentSpawner spawner, in Translation t) =>
         {
+            // uniform scale
+            //Scale prefabScale = EntityManager.GetComponentData<Scale>(spawner.AgentPrefab);
+            NonUniformScale prefabScale = EntityManager.GetComponentData<NonUniformScale>(spawner.AgentPrefab);
+            float yOffset = 0.5f + prefabScale.Value.y * 0.5f + boardYOffset;
+                    
             int agentsPerTeam = (spawner.AgentLineLength * 2) + spawner.TeamScoopers + spawner.TeamThrowers;
             int len = spawner.TeamCount * agentsPerTeam;
             
             // reserve a list of entities to clone prefab data into.
-            // NB - no need to use persistent storage, a) because this is not the backing store of the entities, and b) because this is a temp/local object (oops)
+            // NB - no need to use persistent storage, a) because this is not the backing store of the entities, and b) because this is a local object (oops)
             NativeArray<Entity> clonedAgents = new NativeArray<Entity>(len, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
 
             // clone agents
@@ -65,9 +69,13 @@ public class AgentSpawnerSystem : SystemBase
                     
                     EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team});
                     EntityManager.AddComponent<AgentTags.ScooperTag>(agent);
+
+                    float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
+                    //EntityManager.AddComponentData<SeekPosition>(agent, new TargetPosition{ MaxVelocity = 0.2f, TargetPos = new float3(spawnPos.x, spawnPos.y, spawnPos.z) });
+                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ MaxVelocity = 0.075f, TargetPos = new float3(0,0,0) });
                     
                     // place at random location within board
-                    EntityManager.SetComponentData<Translation>(agent, new Translation(){Value = new float3(Random.Range(0,boardDimensions.x),yOffset,Random.Range(0, boardDimensions.y))});
+                    EntityManager.SetComponentData<Translation>(agent, new Translation(){ Value = spawnPos });
                     
                     ++index;
                 }
@@ -79,8 +87,12 @@ public class AgentSpawnerSystem : SystemBase
                     EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team});
                     EntityManager.AddComponent<AgentTags.ThrowerTag>(agent);
                     
+                    float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
+                    //EntityManager.AddComponentData<SeekPosition>(agent, new TargetPosition{ MaxVelocity = 0.075f, TargetPos = new float3(spawnPos.x, spawnPos.y, spawnPos.z) });
+                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ MaxVelocity = 0.075f, TargetPos = new float3(20,0,20) });
+                    
                     // place at random location within board
-                    EntityManager.SetComponentData<Translation>(agent, new Translation(){Value = new float3(Random.Range(0,boardDimensions.x),yOffset,Random.Range(0, boardDimensions.y))});
+                    EntityManager.SetComponentData<Translation>(agent, new Translation(){ Value = spawnPos });
                     ++index;
                 }
                 
@@ -91,8 +103,11 @@ public class AgentSpawnerSystem : SystemBase
                     EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team});
                     EntityManager.AddComponent<AgentTags.FullBucketPasserTag>(agent);
 
+                    float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
+                    //EntityManager.AddComponentData<SeekPosition>(agent, new TargetPosition{ MaxVelocity = 0.075f, TargetPos = new float3(spawnPos.x, spawnPos.y, spawnPos.z) });
+                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ MaxVelocity = 0.075f, TargetPos = new float3(0,0,20) });
                     // place at random location within board
-                    EntityManager.SetComponentData<Translation>(agent, new Translation(){Value = new float3(Random.Range(0,boardDimensions.x),yOffset,Random.Range(0, boardDimensions.y))});
+                    EntityManager.SetComponentData<Translation>(agent, new Translation(){ Value = spawnPos });
                     ++index;
                 }
                 
@@ -102,8 +117,11 @@ public class AgentSpawnerSystem : SystemBase
                     EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team});
                     EntityManager.AddComponent<AgentTags.EmptyBucketPasserTag>(agent);
                     
+                    float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
+                    //EntityManager.AddComponentData<SeekPosition>(agent, new TargetPosition{ MaxVelocity = 0.075f, TargetPos = new float3(spawnPos.x, spawnPos.y, spawnPos.z) });
+                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ MaxVelocity = 0.075f, TargetPos = new float3(20,0,0) });
                     // place at random location within board
-                    EntityManager.SetComponentData<Translation>(agent, new Translation(){Value = new float3(Random.Range(0,boardDimensions.x),yOffset,Random.Range(0, boardDimensions.y))});
+                    EntityManager.SetComponentData<Translation>(agent, new Translation(){ Value = spawnPos });
                     ++index;    
                 }
             }
