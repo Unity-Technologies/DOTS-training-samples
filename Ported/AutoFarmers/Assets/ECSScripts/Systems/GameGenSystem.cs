@@ -116,10 +116,13 @@ public class GameGenSystem : SystemBase
             const int FERTILITY_THRESHOLD = 3;
             if (plains.Fertility > FERTILITY_THRESHOLD && random < gameState.ForestProbability)
             {
-                Entity forestEntity = ecb.Instantiate(entityInQueryIndex, gameState.ForestPrefab);
-                ecb.AddComponent<Position>(entityInQueryIndex, forestEntity);
-                ecb.SetComponent(entityInQueryIndex, forestEntity, position);
-                ecb.AddComponent(entityInQueryIndex, entity, new Forest { ForestPrefab = forestEntity });
+                // Create the display entity that holds the forest mesh
+                Entity displayEntity = ecb.Instantiate(entityInQueryIndex, gameState.ForestPrefab);
+                ecb.AddComponent<Position>(entityInQueryIndex, displayEntity);
+                ecb.SetComponent(entityInQueryIndex, displayEntity, position);
+                // Add the display entity and the forest entity to the tile
+                ecb.AddComponent(entityInQueryIndex, entity, new ForestDisplay { Value = displayEntity });
+                ecb.AddComponent(entityInQueryIndex, entity, new Forest { Health = gameState.InitalForestHealth });
             }
 
         }).ScheduleParallel();

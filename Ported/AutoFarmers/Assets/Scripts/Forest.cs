@@ -2,5 +2,5 @@
 
 public struct Forest : IComponentData
 {
-    public Entity ForestPrefab;
+    public int Health;
 }
