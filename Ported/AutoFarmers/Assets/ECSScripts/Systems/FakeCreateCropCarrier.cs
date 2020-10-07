@@ -33,8 +33,8 @@ public class FakeCreateCropCarrier : SystemBase
             float3 scale = new float3(s, s, s);
 
             var cropEntity = EntityManager.Instantiate(prefab);
-            EntityManager.AddComponent<MaterialOverride>(cropEntity);
-            EntityManager.SetComponentData(cropEntity, new MaterialOverride { Value = color });
+            EntityManager.AddComponent<ECSMaterialOverride>(cropEntity);
+            EntityManager.SetComponentData(cropEntity, new ECSMaterialOverride { Value = color });
             EntityManager.SetComponentData(cropEntity,
                 new Translation { Value = new float3(farmerPos.Value.x, 0.5f, farmerPos.Value.y) });
             EntityManager.AddComponent<NonUniformScale>(cropEntity);

@@ -37,7 +37,7 @@ public class SapplingSpawnSystem : SystemBase
                     age = 0.0f,
                     tileEntity = entity
                 });
-                ecb.AddComponent<MaterialOverride>(entityInQueryIndex, sapplingEntity);
+                ecb.AddComponent<ECSMaterialOverride>(entityInQueryIndex, sapplingEntity);
                 ecb.SetComponent(entityInQueryIndex, sapplingEntity, new Translation {Value = translation.Value});
                 ecb.AddComponent<NonUniformScale>(entityInQueryIndex, sapplingEntity);
                 

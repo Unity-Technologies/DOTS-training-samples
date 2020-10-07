@@ -41,7 +41,7 @@ public class SapplingGrowthSystem : SystemBase
                 ecb.AddComponent<Crop>(entityInQueryIndex, entity);
                 ecb.RemoveComponent<Sappling>(entityInQueryIndex, entity);
                 color = new float4(1.0f, 0.75f, 0.0f, 1.0f);
-                ecb.SetComponent(entityInQueryIndex, entity, new MaterialOverride {Value = color});
+                ecb.SetComponent(entityInQueryIndex, entity, new ECSMaterialOverride {Value = color});
                 
                 ecb.RemoveComponent<CropReference>(entityInQueryIndex, sappling.tileEntity);
                 ecb.DestroyEntity(entityInQueryIndex, entity);
@@ -49,7 +49,7 @@ public class SapplingGrowthSystem : SystemBase
             else
             {
                 color = new float4(0.3207547f, 0.2701775f, 0.1165005f, 1.0f);
-                ecb.SetComponent(entityInQueryIndex, entity, new MaterialOverride {Value = color});
+                ecb.SetComponent(entityInQueryIndex, entity, new ECSMaterialOverride {Value = color});
             }
         }).ScheduleParallel();
         
