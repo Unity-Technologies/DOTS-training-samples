@@ -94,8 +94,8 @@ public class BoardInitializationSystem : SystemBase
                     }
                 }
 
-                var playerArchetypes = EntityManager.CreateArchetype(typeof(PlayerTransform), typeof(Position));
-                var mainPlayerArchetypes = EntityManager.CreateArchetype(typeof(Player), typeof(PlayerTransform), typeof(Position));
+                var playerArchetypes = EntityManager.CreateArchetype(typeof(AICursor), typeof(PlayerTransform), typeof(Position));
+                var mainPlayerArchetypes = EntityManager.CreateArchetype(typeof(PlayerCursor), typeof(PlayerTransform), typeof(Position));
                 for (int i = 0; i < 4; ++i)
                 {
                     var player =  EntityManager.CreateEntity(i == 0 ? mainPlayerArchetypes : playerArchetypes);
@@ -103,11 +103,34 @@ public class BoardInitializationSystem : SystemBase
                     {
                         Index = i
                     });
-                    SetComponent(player, new Position
+                    var position = new Position();
+                    switch (i)
                     {
-                        Value = new float2(rand.NextInt(0, board.size), rand.NextInt(0, board.size))
-                    });
+                        case 0:
+                            position.Value = new int2(boardQuarter, boardQuarter);
+                            break;
+                        case 1:
+                            position.Value = new int2(boardQuarter, board.size - boardQuarter - 1);
+                            break;
+                        case 2:
+                            position.Value = new int2(board.size - boardQuarter - 1, boardQuarter);
+                            break;
+                        case 3:
+                            position.Value = new int2(board.size - boardQuarter - 1, board.size - boardQuarter - 1);
+                            break;
+                    }
+                    SetComponent(player, position);
+                    if (i > 0)
+                    {
+                        SetComponent(player, new AICursor
+                        {
+                            Destination = position.Value
+                        });
+                    }
                 }
+
+                var gameInfo = EntityManager.CreateEntity(typeof(GameInfo));
+                SetComponent(gameInfo, new GameInfo(){boardSize = new int2(board.size, board.size)});
                 
                 EntityManager.DestroyEntity(entity);
         }).Run();
