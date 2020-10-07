@@ -33,8 +33,8 @@ public class SapplingGrowthSystem : SystemBase
         {
             sappling.age += (dt * simulationSpeed);
             const float MAX_AGE = 5.0f;
-            float s = (sappling.age / MAX_AGE);
-            scale.Value = new float3(s,1,s);
+            float s = (sappling.age / MAX_AGE) / 1.5f;
+            scale.Value = new float3(s, s, s);
             float4 color;
             if (sappling.age >= MAX_AGE)
             {
