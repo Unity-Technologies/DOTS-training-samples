@@ -1,5 +1,8 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 public class SpawningSystem : SystemBase
 {
@@ -17,16 +20,19 @@ public class SpawningSystem : SystemBase
     {
         var deltaTime = Time.DeltaTime;
         //var boardInfo = GetSingleton<BoardInfo>();
-        Entities.WithStructuralChanges().ForEach((ref SpawnerInfo spawnerInfo) =>
+        Entities.WithStructuralChanges().ForEach((ref SpawnerInfo spawnerInfo, in Translation translation) =>
         {
             spawnerInfo.catTimer += deltaTime;
-            if (spawnerInfo.catTimer >= spawnerInfo.catFrequency && catQuery.CalculateEntityCount() < spawnerInfo.catMax)
+            if (spawnerInfo.catTimer >= spawnerInfo.catFrequency && spawnerInfo.catCount < spawnerInfo.catMax)
             {
                 spawnerInfo.catTimer -= spawnerInfo.catFrequency;
                 var cat = EntityManager.Instantiate(spawnerInfo.catPrefab);
-                EntityManager.SetComponentData(cat, new Position()
+                spawnerInfo.catCount++;
+                Debug.Log("Setting to position: " + translation.Value);
+
+                EntityManager.SetComponentData(cat, new Translation()
                 {
-                    position = new float2(0,0)
+                    Value = new float3(translation.Value.x,0, translation.Value.z)
                 });
                 EntityManager.AddComponentData(cat, new Cat()
                 {
@@ -39,13 +45,14 @@ public class SpawningSystem : SystemBase
             }
 
             spawnerInfo.mouseTimer += deltaTime;
-            if (spawnerInfo.mouseTimer >= spawnerInfo.mouseFrequency && mouseQuery.CalculateEntityCount() < spawnerInfo.maxMiceCount)
+            if (spawnerInfo.mouseTimer >= spawnerInfo.mouseFrequency && spawnerInfo.mouseCount < spawnerInfo.maxMiceCount)
             {
                 spawnerInfo.mouseTimer -= spawnerInfo.mouseFrequency;
                 var mouse = EntityManager.Instantiate(spawnerInfo.mousePrefab);
-                EntityManager.SetComponentData(mouse, new Position()
+                spawnerInfo.mouseCount++;
+                EntityManager.SetComponentData(mouse, new Translation()
                 {
-                    position = new float2(0,0)
+                    Value = new float3(translation.Value.x,0, translation.Value.z)
                 });
                 EntityManager.AddComponentData(mouse, new Mouse()
                 {

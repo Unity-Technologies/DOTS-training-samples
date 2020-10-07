@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-public class GameState : IComponentData
+[GenerateAuthoringComponent]
+public struct GameState : IComponentData
 {
     public int timer;
-    
+    public float collisionRadius;
 }
