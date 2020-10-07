@@ -192,6 +192,7 @@ GameObject:
   m_Component:
   - component: {fileID: 955407792}
   - component: {fileID: 955407793}
+  - component: {fileID: 955407794}
   m_Layer: 0
   m_Name: BoardSpawner
   m_TagString: Untagged
@@ -227,3 +228,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   height: 13
   width: 13
+  minNumberOfHoles: 1
+  maxNumberOfHoles: 4
+  numberOfWalls: 20
+--- !u!114 &955407794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 955407791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe561ee31b990b747a01b0882d4886ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cellPrefab: {fileID: 1695157876856304, guid: c2ef2e9ce5dad494d916f59769e7d27f, type: 3}
+  wallPrefab: {fileID: 1948033712935058, guid: eea26364a72844748944744db673f3f1, type: 3}
+  checkValue: 0.777
