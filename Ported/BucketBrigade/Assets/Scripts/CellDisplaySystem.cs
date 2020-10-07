@@ -24,7 +24,7 @@ public class CellDisplaySystem : SystemBase
 		Entities
 			.ForEach((Entity entity, ref Translation translation, ref NonUniformScale scale, ref Color color, in Intensity intensity, in RootTranslation rootTranslation) =>
 			{
-				float t = math.clamp((intensity.TestValue - cellDisplay.CoolValue) / cellDisplayRange, 0.0f, 1.0f);
+				float t = math.clamp((intensity.Value - cellDisplay.CoolValue) / cellDisplayRange, 0.0f, 1.0f);
 				float top = math.lerp(cellDisplay.CoolHeight, cellDisplay.FireHeight, t) + rootTranslation.Value.y;
 				float bottom = -1.0f;
 				translation.Value = new float3(rootTranslation.Value.x, (top + bottom) / 2.0f, rootTranslation.Value.z);
