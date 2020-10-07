@@ -11,9 +11,6 @@ GameObject:
   - component: {fileID: 2347204080261882402}
   - component: {fileID: 9016577968160939477}
   - component: {fileID: 6228495684743085389}
-  - component: {fileID: 6082015447378866165}
-  - component: {fileID: 6149238914258444150}
-  - component: {fileID: 768429956976287582}
   m_Layer: 0
   m_Name: Depot
   m_TagString: Untagged
@@ -84,42 +81,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &6082015447378866165
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7384222014892938916}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74a26b8a2907cc645b9581b5eff5492f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Value:
-    x: 0
-    y: 0
---- !u!114 &6149238914258444150
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7384222014892938916}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae314218499940e68ae3860d5cb8bbb6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &768429956976287582
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7384222014892938916}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35e16df1d58941d2959f579c8aaa1559, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

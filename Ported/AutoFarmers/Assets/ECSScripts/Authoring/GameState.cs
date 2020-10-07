@@ -7,8 +7,10 @@ public struct GameState : IComponentData
     public int2 GridSize;
     public Entity PlainsPrefab;
     public Entity WaterPrefab;
+    public Entity DepotPrefab;
     public Entity PlantPrefab;
-    public float WaterProbability;
-    public float SimulationSpeed;
     public Entity FarmerPrefab;
+    public float WaterProbability;
+    public float DepotProbability;
+    public float SimulationSpeed;
 }

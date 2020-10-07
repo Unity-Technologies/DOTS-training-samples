@@ -25,23 +25,36 @@ public class GameGenSystem : SystemBase
         {
             for (int x = 0; x < gameState.GridSize.x; x++)
             {
+                // Calculate tile position
                 const float TILE_SIZE = 1f;
-                Entity tilePrefab;
+                var position = new Position { Value = new float2(x, y) * TILE_SIZE };
+                // Randomly decide if this is a water tile or a plains tile
                 bool isWater = (random.NextFloat() < gameState.WaterProbability);
-                tilePrefab = isWater ? gameState.WaterPrefab : gameState.PlainsPrefab;
-
-                var newTile = EntityManager.Instantiate(tilePrefab);
-                EntityManager.SetComponentData(newTile, new Translation { Value = new float3(x, 0f, y) * TILE_SIZE });
-                EntityManager.AddComponentData(newTile, new Position { Value = new float2(x, y) * TILE_SIZE });
-
-                if (isWater)
+                // Instantiate the tile
                 {
-                    EntityManager.AddComponent<Water>(newTile);
+
+                    Entity tilePrefab;
+                    tilePrefab = isWater ? gameState.WaterPrefab : gameState.PlainsPrefab;
+                    var newEntity = EntityManager.Instantiate(tilePrefab);
+                    EntityManager.SetComponentData(newEntity, new Translation { Value = new float3(x, 0f, y) * TILE_SIZE });
+                    EntityManager.AddComponentData(newEntity, position);
+                    if (isWater)
+                    {
+                        EntityManager.AddComponent<Water>(newEntity);
+                    }
+                    else
+                    {
+                        EntityManager.AddComponent<Plains>(newEntity);
+                        EntityManager.AddComponent<MaterialOverride>(newEntity);
+                    }
                 }
-                else
+                // Randomly decide if this tile has a depot on it
+                if (!isWater && random.NextFloat() < gameState.DepotProbability)
                 {
-                    EntityManager.AddComponent<Plains>(newTile);
-                    EntityManager.AddComponent<MaterialOverride>(newTile);
+                    // Instantiate the depot
+                    var newEntity = EntityManager.Instantiate(gameState.DepotPrefab);
+                    EntityManager.AddComponentData(newEntity, position);
+                    EntityManager.AddComponent<Depot>(newEntity);
                 }
             }
         }
@@ -79,5 +92,6 @@ public class GameGenSystem : SystemBase
             plains.Fertility = (int)math.ceil(fertilityCoeff * MAX_FERTILITY);
 
         }).ScheduleParallel();
+
     }
 }
