@@ -74,6 +74,8 @@ public class FireSimulationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             bucketColorEmpty = bucketColorEmpty,
             bucketColorFull = bucketColorFull,
         });
+
+        dstManager.AddBuffer<SimulationTemperature>(entity);
     }
 }
 
@@ -103,3 +105,19 @@ public struct FireSimulation : IComponentData
     public Color bucketColorEmpty;
     public Color bucketColorFull;
 }
+
+public struct SimulationTemperature : IBufferElementData
+{
+    float Value;
+
+    public static implicit operator float(SimulationTemperature e)
+    {
+        return e.Value;
+    }
+
+    public static implicit operator SimulationTemperature(float e)
+    {
+        return new SimulationTemperature { Value = e };
+    }
+}
+

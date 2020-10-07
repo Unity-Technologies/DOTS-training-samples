@@ -14,6 +14,8 @@ public class FireSimulationInitSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        bool needSimulationInit = false;
+
         Entities.
             WithStructuralChanges().
             WithNone<FireSimulationStarted>().
@@ -51,13 +53,34 @@ public class FireSimulationInitSystem : SystemBase
             // Set on fire a few cells.
             for (int i = 0; i < simulation.startingFireCount; i++)
             {
-                var entity = entities[m_Random.NextInt(0, cellCount)];
-                EntityManager.SetComponentData(entity, new Temperature { Value = m_Random.NextFloat(simulation.flashpoint, 1.0f) });
+                int index = m_Random.NextInt(0, cellCount);
+                var entity = entities[index];
+                float newTemperature = m_Random.NextFloat(simulation.flashpoint, 1.0f);
+                EntityManager.SetComponentData(entity, new Temperature { Value = newTemperature });
             }
 
             EntityManager.AddComponent<FireSimulationStarted>(fireSimulationEntity);
 
             entities.Dispose();
+
+            needSimulationInit = true;
         }).Run();
+
+        if (needSimulationInit)
+        {
+            // Fill initial simulation temperatures.
+            var simulationEntity = GetSingletonEntity<FireSimulation>();
+            var fireSimulation = GetComponent<FireSimulation>(simulationEntity);
+            var temperatureBuffer = GetBuffer<SimulationTemperature>(simulationEntity);
+
+            temperatureBuffer.ResizeUninitialized(fireSimulation.columns * fireSimulation.rows);
+            var temperatureBufferNative = temperatureBuffer.AsNativeArray();
+
+            Entities.
+                ForEach((in Temperature temperature, in CellIndex cellIndex) =>
+                {
+                    temperatureBufferNative[cellIndex.Value] = temperature.Value;
+                }).ScheduleParallel();
+        }
     }
 }

@@ -13,7 +13,9 @@ public class FireSimulationUpdateSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        FireSimulation fireSimulation = GetSingleton<FireSimulation>();
+        Entity fireSimEntity = GetSingletonEntity<FireSimulation>();
+        FireSimulation fireSimulation = GetComponent<FireSimulation>(fireSimEntity);
+        var simulationTemperatures = GetBuffer<SimulationTemperature>(fireSimEntity).AsNativeArray();
         float flameHeight = fireSimulation.maxFlameHeight;
         float time = (float)Time.ElapsedTime;
         float flickerRate = 0.4f;
@@ -32,6 +34,9 @@ public class FireSimulationUpdateSystem : SystemBase
 
                     UnityEngine.Color color = UnityEngine.Color.Lerp(fireSimulation.fireCellColorCool, fireSimulation.fireCellColorHot, temperature.Value);
                     baseColor.Value = new float4(color.r, color.g, color.b, color.a);
+
+                    // Update simulation with latest values (potentially updated last frame from propagation).
+                    simulationTemperatures[cellIndex.Value] = temperature.Value;
                 }
             }).ScheduleParallel();
     }
