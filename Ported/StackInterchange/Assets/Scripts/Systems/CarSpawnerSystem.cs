@@ -14,15 +14,22 @@ public class CarSpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var deltaTime = Time.DeltaTime;
+        
         Entities.WithStructuralChanges()
-            .ForEach((Entity entity, in CarSpawner spawner, in RoadNode node, in LocalToWorld ltw, in Rotation rotation, in SpawnerFrequency frequency) =>
+            .ForEach((Entity entity, ref SpawnerFrequency frequency, in CarSpawner spawner, in RoadNode node, in LocalToWorld ltw, in Rotation rotation) =>
             {
-                float r = random.NextFloat(0, 1);
-                if (r > frequency.Value)
+                frequency.counter += deltaTime;
+                if (frequency.counter < frequency.Value)
                 {
                     return;
                 }
-                
+                else
+                {
+                    frequency.Value = random.NextFloat(frequency.minWait, frequency.maxWait);
+                    frequency.counter -= frequency.Value;
+                }
+
                 var instance = EntityManager.Instantiate(spawner.CarPrefab);
                 EntityManager.SetComponentData(instance, new Translation
                 {
@@ -83,10 +90,11 @@ public class CarSpawnerSystem : SystemBase
                 });
 
                 // Add CarMovement component to spawned entity
+                float velocity = 0.05f + random.NextFloat(0.0f, 0.05f);
                 EntityManager.AddComponentData(instance, new CarMovement
                 {
                     NextNode = node.nextNode,
-                    Velocity = 0.1f,
+                    Velocity = velocity,
                     Acceleration = 0.1f,
                     Deceleration = 0.1f,
                     MaxSpeed = 1 

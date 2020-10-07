@@ -7,4 +7,7 @@ using UnityEngine;
 public struct SpawnerFrequency : IComponentData
 {
     public float Value;
+    public float minWait;
+    public float maxWait;
+    public float counter;
 }
