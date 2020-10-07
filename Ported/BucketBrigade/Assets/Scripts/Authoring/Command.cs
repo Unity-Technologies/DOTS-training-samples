@@ -7,5 +7,6 @@ public struct CommandBufferElement : IBufferElementData
 
 public enum Command
 {
+    None,
     Move
 }

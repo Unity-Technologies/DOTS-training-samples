@@ -33,6 +33,7 @@ public class BotSpawnSystem : SystemBase
                     float2 pos = rand.NextFloat2() * spawner.spawnRadius - new float2(spawner.spawnRadius * 0.5f);
                     ecb.AddComponent(i, e, new Pos { Value = pos });
                     ecb.AddComponent(i, e, new BotRole { Value = Role.None });    // Later we will read this from the Bot Spawner and make the right amount of Scooper, Thrower, passFull, passEmpty
+                    ecb.AddBuffer<CommandBufferElement>(i, e); // prepare command buffer for bots
                     
                     // This bot is being created with a Pos and it never rotates. Could we do this in the Prefab though?
                     ecb.RemoveComponent<Translation>(i, e);

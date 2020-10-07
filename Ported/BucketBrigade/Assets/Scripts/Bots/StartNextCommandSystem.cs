@@ -9,16 +9,15 @@ public class StartNextCommandSystem : SystemBase
         
         Entities
             .WithName("StartNextCommand")
-            .ForEach((ref ExecutingCommand executingCommand, ref CurrentBotCommand currentCommand, ref Target target, in DynamicBuffer<CommandBufferElement> commandQueue) =>
+            .ForEach((ref CurrentBotCommand currentCommand, ref Target target, ref DynamicBuffer<CommandBufferElement> commandQueue) =>
             {
-                if (executingCommand.Value)
+                if (currentCommand.Command != Command.None)
+                    return;
+                if (commandQueue.Length == 0)
                     return;
 
-                executingCommand.Value = true;
-                currentCommand.Index++;
-                if (currentCommand.Index >= commandQueue.Length)
-                    currentCommand.Index = 0;
-                currentCommand.Command = commandQueue[currentCommand.Index].Value; 
+                currentCommand.Command = commandQueue[0].Value;
+                commandQueue.RemoveAt(0);
 
                 switch (currentCommand.Command)
                 {
@@ -46,12 +45,9 @@ public class MoveTowardsTargetSystem : SystemBase
         
         Entities
             .WithName("MoveTowardsTarget")
-            .ForEach((ref ExecutingCommand executingCommand, ref Pos pos,
-                in Target target, in Speed speed, in CurrentBotCommand currentCommand) =>
+            .ForEach((ref CurrentBotCommand currentCommand, ref Pos pos,
+                in Target target, in Speed speed) =>
             {
-                if (executingCommand.Value == false)
-                    return;
-
                 switch (currentCommand.Command)
                 {
                     case Command.Move:
@@ -60,7 +56,7 @@ public class MoveTowardsTargetSystem : SystemBase
                         if (math.lengthsq(offset) < speedThisFrame * speedThisFrame)
                         {
                             pos.Value = target.Value;
-                            executingCommand.Value = false;
+                            currentCommand.Command = Command.None;
                         }
                         else
                         {

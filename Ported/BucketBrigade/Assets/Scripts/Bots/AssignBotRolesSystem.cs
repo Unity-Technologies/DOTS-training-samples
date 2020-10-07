@@ -10,6 +10,7 @@ public class AssignBotRolesSystem : SystemBase
     }
     protected override void OnUpdate()
     {
+        /* Commenting this for now, Move commands are added from Chain creation system
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
         
         Entities
@@ -30,6 +31,6 @@ public class AssignBotRolesSystem : SystemBase
                 }
             }).ScheduleParallel();
         
-        m_ECBSystem.AddJobHandleForProducer(Dependency);
+        m_ECBSystem.AddJobHandleForProducer(Dependency);*/
     }
 }
