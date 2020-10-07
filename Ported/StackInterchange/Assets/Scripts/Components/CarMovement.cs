@@ -4,7 +4,7 @@ using Unity.Transforms;
 
 public struct CarMovement : IComponentData
 {
-    public Translation NextNode; // TODO: replace with Nodes
+    public Entity NextNode;
     public float Velocity;
     public float Acceleration;
     public float Deceleration;

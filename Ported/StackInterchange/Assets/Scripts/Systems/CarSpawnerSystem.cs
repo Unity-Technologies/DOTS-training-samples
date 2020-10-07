@@ -15,7 +15,7 @@ public class CarSpawnerSystem : SystemBase
     protected override void OnUpdate()
     {
         Entities.WithStructuralChanges()
-            .ForEach((Entity entity, in CarSpawner spawner, in LocalToWorld ltw, in Rotation rotation, in SpawnerFrequency frequency) =>
+            .ForEach((Entity entity, in CarSpawner spawner, in RoadNode node, in LocalToWorld ltw, in Rotation rotation, in SpawnerFrequency frequency) =>
             {
                 float r = random.NextFloat(0, 1);
                 if (r > frequency.Value)
@@ -85,8 +85,8 @@ public class CarSpawnerSystem : SystemBase
                 // Add CarMovement component to spawned entity
                 EntityManager.AddComponentData(instance, new CarMovement
                 {
-                    NextNode = new Translation{Value = new float3(0,0,20)},
-                    Velocity = 0.01f,
+                    NextNode = node.nextNode,
+                    Velocity = 0.02f,
                     Acceleration = 0.1f,
                     Deceleration = 0.1f,
                     MaxSpeed = 1 
