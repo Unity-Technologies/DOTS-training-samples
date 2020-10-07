@@ -40,7 +40,16 @@ public class FireSimulationInitSystem : SystemBase
                     EntityManager.AddComponent<NonUniformScale>(entity);
                     EntityManager.SetComponentData(entity, new NonUniformScale { Value = new float3(cellSize, simulation.maxFlameHeight, cellSize) });
                     EntityManager.SetComponentData(entity, new BaseColor { Value = neutralColor });
+
+                    EntityManager.AddComponent<Temperature>(entity);
                 }
+            }
+
+            // Set on fire a few cells.
+            for (int i = 0; i < simulation.startingFireCount; i++)
+            {
+                var entity = entities[m_Random.NextInt(0, cellCount)];
+                EntityManager.SetComponentData(entity, new Temperature { Value = m_Random.NextFloat(simulation.flashpoint, 1.0f) });
             }
 
             EntityManager.AddComponent<FireSimulationStarted>(fireSimulationEntity);
