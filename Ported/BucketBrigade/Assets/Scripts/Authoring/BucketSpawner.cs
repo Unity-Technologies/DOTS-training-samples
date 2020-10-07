@@ -2,10 +2,10 @@
 using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
-public struct BotSpawner : IComponentData
+public struct BucketSpawner : IComponentData
 {
-    public Entity botPrefab;
-    public int numberBots;
+    public Entity bucketPrefab;
+    public int numberBuckets;
     public float spawnRadius;
     public float2 spawnCenter;
 }

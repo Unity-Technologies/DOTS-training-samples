@@ -52,7 +52,7 @@ public class UpdateObjectsInChainSystem : SystemBase
                         {
                             var targetPosition =
                                 GetChainPosition(position.Value, chainLength, startPosition, endPosition);
-                            ecb.AddComponent(entityInQueryIndex, entity, new Target() {Value = targetPosition});
+                            ecb.AddComponent(entityInQueryIndex, entity, new Target() {Position = targetPosition});
                         })
                     .ScheduleParallel();
 
@@ -67,7 +67,7 @@ public class UpdateObjectsInChainSystem : SystemBase
                         {
                             var targetPosition =
                                 GetChainPosition(position.Value, chainLength, startPosition, endPosition);
-                            target.Value = targetPosition;
+                            target.Position = targetPosition;
                             if (currentCommand.Command != Command.Move)
                             {
                                 pos.Value = targetPosition;

@@ -12,4 +12,5 @@ public enum Role
     PassFull,
     Thrower,
     PassEmpty,
+    BriansSpecialTestRole
 }

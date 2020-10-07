@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
-public class BotSpawnSystem : SystemBase
+public class BucketSpawnSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;
 
@@ -19,30 +16,29 @@ public class BotSpawnSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
-
+        
         Entities
-            .WithName("SpawnBots")
+            .WithName("SpawnBuckets")
             .ForEach((Entity spawnerEntity, int entityInQueryIndex,
-                in BotSpawner spawner) =>
+                in BucketSpawner spawner) =>
             {
                 Random rand = new Random((uint)System.DateTime.UtcNow.Millisecond);
-                for (int i = 0; i < spawner.numberBots; i++)
+                for (int i = 0; i < spawner.numberBuckets; i++)
                 {
-                    Entity e = ecb.Instantiate(i, spawner.botPrefab);
+                    Entity e = ecb.Instantiate(i, spawner.bucketPrefab);
 
                     float2 pos = rand.NextFloat2() * spawner.spawnRadius - new float2(spawner.spawnRadius * 0.5f) + spawner.spawnCenter;
                     ecb.AddComponent(i, e, new Pos { Value = pos });
-                    ecb.AddComponent(i, e, new BotRole { Value = Role.None });    // Later we will read this from the Bot Spawner and make the right amount of Scooper, Thrower, passFull, passEmpty
-                    ecb.AddBuffer<CommandBufferElement>(i, e); // prepare command buffer for bots
-
+                    
                     // This bot is being created with a Pos and it never rotates. Could we do this in the Prefab though?
                     ecb.RemoveComponent<Translation>(i, e);
                     ecb.RemoveComponent<Rotation>(i, e);
+                    ecb.RemoveComponent<NonUniformScale>(i, e);
                 }
-
-                ecb.DestroyEntity(spawner.numberBots, spawnerEntity);
+                
+                ecb.DestroyEntity(spawner.numberBuckets, spawnerEntity);
             }).ScheduleParallel();
-
+        
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }

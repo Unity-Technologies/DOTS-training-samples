@@ -8,5 +8,8 @@ public struct CommandBufferElement : IBufferElementData
 public enum Command
 {
     None,
-    Move
+    Move,
+    FindOrKeepBucket,
+    FillBucket,
+    EmptyBucket,
 }

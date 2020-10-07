@@ -28,6 +28,12 @@ public class AssignBotRolesSystem : SystemBase
                     case Role.None:
                         commandBuffer.Add(Command.Move);
                         break;
+                    case Role.BriansSpecialTestRole:
+                        commandBuffer.Add(Command.FindOrKeepBucket);
+                        commandBuffer.Add(Command.FillBucket);
+                        commandBuffer.Add(Command.Move);
+                        commandBuffer.Add(Command.EmptyBucket);
+                        break;
                 }
             }).ScheduleParallel();
         

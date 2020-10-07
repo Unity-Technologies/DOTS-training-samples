@@ -196,8 +196,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1793836685}
   - component: {fileID: 1793836684}
+  - component: {fileID: 1793836686}
   m_Layer: 0
-  m_Name: BotSpawner
+  m_Name: Spawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -218,6 +219,9 @@ MonoBehaviour:
   botPrefab: {fileID: 5540245421705527508, guid: 7873bdbbab313d248b53d75b0b84de88, type: 3}
   numberBots: 10
   spawnRadius: 5
+  spawnCenter:
+    x: 10
+    y: 10
 --- !u!4 &1793836685
 Transform:
   m_ObjectHideFlags: 0
@@ -232,3 +236,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1793836686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1793836683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca90967dc6014af8b164535a6b6e54c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bucketPrefab: {fileID: 2813836602540487055, guid: d5be04a267230c046b0926ac36c2e6e6, type: 3}
+  numberBuckets: 10
+  spawnRadius: 10
+  spawnCenter:
+    x: 10
+    y: 10
