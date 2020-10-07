@@ -48,7 +48,7 @@ public class GameGenSystem : SystemBase
                             EntityManager.AddComponentData<Fertility>(newTile, new Fertility { Value = rndFertility });
                             //float4 col = math.lerp(new float4(1, 1, 1, 1), new float4(0.3f, 1, 0.3f, 1), (float)rndFertility / (float)MAX_FERTILITY);
                             float4 col = new float4(0.3f, 1, 0.3f, 1);
-                            EntityManager.AddComponentData<FertilityMaterialOverride>(newTile, new FertilityMaterialOverride { Value = col });
+                            EntityManager.AddComponentData<MaterialOverride>(newTile, new MaterialOverride { Value = col });
 #endif
                         }
                     }
