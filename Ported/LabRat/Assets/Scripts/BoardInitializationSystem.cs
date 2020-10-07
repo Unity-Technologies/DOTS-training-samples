@@ -25,9 +25,9 @@ public class BoardInitializationSystem : SystemBase
                 {
                     uint localWall = 0;
                     
-                    var posX = (x - (board.size - 1) / 2);
+                    var posX = x;
                     var posY = rand.NextFloat(0.0f, board.yNoise);
-                    var posZ = (z - (board.size - 1) / 2);
+                    var posZ = z;
                     
                     var instance = EntityManager.Instantiate(board.tilePrefab);
                     SetComponent(instance, new Translation { Value = new float3(posX, posY, posZ) });
@@ -87,6 +87,21 @@ public class BoardInitializationSystem : SystemBase
                             wallCount--;
                         }
                     }
+                }
+
+                var playerArchetypes = EntityManager.CreateArchetype(typeof(PlayerTransform), typeof(Position));
+                var mainPlayerArchetypes = EntityManager.CreateArchetype(typeof(Player), typeof(PlayerTransform), typeof(Position));
+                for (int i = 0; i < 4; ++i)
+                {
+                    var player =  EntityManager.CreateEntity(i == 0 ? mainPlayerArchetypes : playerArchetypes);
+                    SetComponent(player, new PlayerTransform
+                    {
+                        Index = i
+                    });
+                    SetComponent(player, new Position
+                    {
+                        Value = new float2(rand.NextInt(0, board.size), rand.NextInt(0, board.size))
+                    });
                 }
                 
                 EntityManager.DestroyEntity(entity);
