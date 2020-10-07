@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BucketPrefab: {fileID: 429697506247921751, guid: b06e5c4e84f1340418151b0aaac6c38f, type: 3}
-  MaxBuckets: 20
+  MaxBuckets: 50
 --- !u!4 &490609102
 Transform:
   m_ObjectHideFlags: 0
