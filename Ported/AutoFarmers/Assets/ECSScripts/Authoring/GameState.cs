@@ -6,6 +6,7 @@ public struct GameState : IComponentData
 {
     public int2 GridSize;
     public Entity PlainsPrefab;
+    public Entity TilledPrefab;
     public Entity WaterPrefab;
     public Entity DepotPrefab;
     public Entity ForestPrefab;

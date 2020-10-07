@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using MaterialOverride_1 = MaterialOverride;
 
 public class GameGenSystem : SystemBase
 {
@@ -40,7 +41,9 @@ public class GameGenSystem : SystemBase
                     Entity tilePrefab;
                     tilePrefab = isWater ? gameState.WaterPrefab : gameState.PlainsPrefab;
                     tileEntity = EntityManager.Instantiate(tilePrefab);
-                    EntityManager.SetComponentData(tileEntity, new Translation { Value = new float3(x, 0f, y) * TILE_SIZE });
+                    
+                    float3 tilePos = new float3(x, 0f, y) * TILE_SIZE;
+                    EntityManager.SetComponentData(tileEntity, new Translation { Value = tilePos});
                     EntityManager.AddComponentData(tileEntity, position);
                     if (isWater)
                     {
@@ -49,7 +52,13 @@ public class GameGenSystem : SystemBase
                     else
                     {
                         EntityManager.AddComponent<Plains>(tileEntity);
-                        EntityManager.AddComponent<Tilled>(tileEntity); //NOTE(atheisen): farmers should add this, here to spawn crops while testing
+                        
+                        Entity tilledE = EntityManager.Instantiate(gameState.TilledPrefab); //NOTE(atheisen): farmers should add this, here to spawn crops while testing
+                        EntityManager.AddComponentData(tileEntity, new Tilled {FertilityLeft = 0, TilledDisplayPrefab = tilledE}); //NOTE(atheisen): farmers should add this, here to spawn crops while testing
+                        float3 offset = new float3(0.0f, 0.01f, 0.0f);
+                        EntityManager.SetComponentData(tilledE, new Translation {Value = tilePos + offset}); //NOTE(atheisen): farmers should add this, here to spawn crops while testing
+                        EntityManager.AddComponent<MaterialOverride>(tilledE); //NOTE(atheisen): farmers should add this, here to spawn crops while testing
+                        
                         EntityManager.AddComponent<MaterialOverride>(tileEntity);
                     }
                 }
