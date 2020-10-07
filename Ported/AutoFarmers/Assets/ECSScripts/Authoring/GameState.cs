@@ -5,6 +5,7 @@ using Unity.Mathematics;
 public struct GameState : IComponentData
 {
     public int2 GridSize;
+    public int FarmersCount;
     public Entity PlainsPrefab;
     public Entity TilledPrefab;
     public Entity WaterPrefab;
@@ -16,4 +17,5 @@ public struct GameState : IComponentData
     public float DepotProbability;
     public float ForestProbability;
     public float SimulationSpeed;
+    public int InitalForestHealth;
 }

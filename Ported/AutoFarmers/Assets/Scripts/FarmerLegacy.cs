@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class Farmer {
+public class FarmerLegacy {
 	public Vector2 position;
 	public Vector2 smoothPosition;
 	public Intention intention;
@@ -29,7 +29,7 @@ public class Farmer {
 		}
 	}
 
-	public Farmer (Vector2 pos) {
+	public FarmerLegacy (Vector2 pos) {
 		position = pos;
 		smoothPosition = pos;
 		intention = Intention.None;

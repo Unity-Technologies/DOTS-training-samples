@@ -16,7 +16,7 @@ public class FakeTargetAttributionSystem : SystemBase
     {
         Entities
             .WithStructuralChanges()
-            .WithAll<FarmerTag>()
+            .WithAll<Farmer>()
             .WithNone<TargetEntity>()
             .ForEach((Entity entity) =>
             {

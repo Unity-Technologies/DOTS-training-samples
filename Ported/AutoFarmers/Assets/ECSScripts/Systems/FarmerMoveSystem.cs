@@ -9,7 +9,7 @@ public class FarmerMoveSystem : SystemBase
         var deltaTime = Time.DeltaTime;
         
         Entities
-            .WithAll<FarmerTag>()
+            .WithAll<Farmer>()
             .ForEach((ref Position position, in TargetEntity targetEntity, in Speed speed) =>
             {
                 float2 targetPos = targetEntity.targetPosition;
