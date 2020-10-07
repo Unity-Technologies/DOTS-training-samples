@@ -4,6 +4,8 @@ using Unity.Entities;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
-public struct Cat : IComponentData
+public class CatsSpeedRange : IComponentData
 {
+    public int minSpeed;
+    public int maxSpeed;
 }
