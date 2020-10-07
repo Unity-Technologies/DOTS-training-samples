@@ -49,6 +49,7 @@ public class GameGenSystem : SystemBase
                     else
                     {
                         EntityManager.AddComponent<Plains>(tileEntity);
+                        EntityManager.AddComponent<Tilled>(tileEntity); //NOTE(atheisen): farmers should add this, here to spawn crops while testing
                         EntityManager.AddComponent<MaterialOverride>(tileEntity);
                     }
                 }
@@ -78,7 +79,7 @@ public class GameGenSystem : SystemBase
             .WithName("calculate_fertility")
             .WithReadOnly(waterTilePositions)
             .WithDisposeOnCompletion(waterTilePositions)
-            .ForEach((int entityInQueryIndex, ref Plains plains, ref MaterialOverride materialOverride, in Position position) =>
+            .ForEach((int entityInQueryIndex, ref Plains plains, ref MaterialOverride materialOverride, ref Tilled tilled, in Position position) =>
         {
             // Calculate the distance from the nearest water tile
             float minDistSq = float.MaxValue;
@@ -94,7 +95,9 @@ public class GameGenSystem : SystemBase
             materialOverride.Value = math.lerp(new float4(1, 1, 1, 1), new float4(0.3f, 1, 0.3f, 1), fertilityCoeff);
             // Assign the fertility
             const int MAX_FERTILITY = 10;
-            plains.Fertility = (int)math.ceil(fertilityCoeff * MAX_FERTILITY);
+            int fertility = (int)math.ceil(fertilityCoeff * MAX_FERTILITY);
+            plains.Fertility = fertility;
+            tilled.FertilityLeft = fertility; //NOTE(atheisen): farmers should add this, here to spawn crops while testing
         }).ScheduleParallel();
 
         // If very fertile and not on a depot, spawn forests

@@ -3,5 +3,5 @@
 public struct Sappling : IComponentData
 {
     public float age;
-    public Entity plantPrefab;
+    public Entity tileEntity;
 }
