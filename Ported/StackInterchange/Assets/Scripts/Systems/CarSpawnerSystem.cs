@@ -86,10 +86,15 @@ public class CarSpawnerSystem : SystemBase
                 EntityManager.AddComponentData(instance, new CarMovement
                 {
                     NextNode = node.nextNode,
-                    Velocity = 0.02f,
+                    Velocity = 0.1f,
                     Acceleration = 0.1f,
                     Deceleration = 0.1f,
                     MaxSpeed = 1 
+                });
+                
+                 EntityManager.AddSharedComponentData(instance, new RoadId
+                {
+                    Value = spawner.spawnerId
                 });
 
                 // EntityManager.DestroyEntity(entity);
