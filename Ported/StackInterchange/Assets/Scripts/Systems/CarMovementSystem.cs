@@ -20,6 +20,14 @@ public class CarMovementSystem : SystemBase
             // temp
             var goalPos = GetComponent<LocalToWorld>(movement.NextNode).Position;
 
+            if (movement.distanceTraveled < .1f)
+            {
+                movement.distanceToNext = math.distance(trans.Value, goalPos);
+                movement.distanceTraveled = 0;
+                movement.travelVec = goalPos - trans.Value;
+                movement.travelVec = math.normalize(movement.travelVec);
+            }
+            
             // Check distance
             var dist = math.distance(trans.Value, goalPos);
 
@@ -31,6 +39,7 @@ public class CarMovementSystem : SystemBase
                 if (testComp.Exists(tmpNode)) { 
                     movement.NextNode = GetComponent<RoadNode>(movement.NextNode).nextNode;
                     rotation.Value = quaternion.LookRotation(goalPos, new float3(0,0,1));
+                    movement.distanceTraveled = 0;
                 }
                 else {
                     ecb.DestroyEntity(entityInQueryIndex, carEntity);   
@@ -38,7 +47,8 @@ public class CarMovementSystem : SystemBase
             }
 
             // Move towards next node
-            trans.Value = math.lerp(trans.Value, goalPos, movement.Velocity);
+            movement.distanceTraveled += movement.Velocity;
+            trans.Value += movement.travelVec * movement.Velocity;
 
         }).Schedule();
 
