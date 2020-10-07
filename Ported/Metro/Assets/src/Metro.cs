@@ -482,7 +482,7 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
         {
             RailPrefab = conversionSystem.GetPrimaryEntity(prefab_rail)
         });
-        dstManager.AddBuffer<LineBuilder>(entity);
+        dstManager.AddBuffer<LineBuilderElement>(entity);
 
         totalLines = LineNames.Length;
         metroLines = new MetroLine[totalLines];
@@ -498,6 +498,7 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
                 var lineBuilderEntity = conversionSystem.CreateAdditionalEntity(this);
                 dstManager.SetName(lineBuilderEntity, _relevantMarkers[0].transform.parent.name);
                 dstManager.AddComponentData(lineBuilderEntity, new Parent { Value = entity });
+                dstManager.AddComponentData(lineBuilderEntity, new TrainCount { Value = maxTrains[i] });
                 dstManager.AddBuffer<RailMarkerPosition>(lineBuilderEntity);
                 dstManager.AddBuffer<RailMarkerPlatformIndex>(lineBuilderEntity);
 
@@ -512,8 +513,8 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
                         platformMarkerIndices.Add(new RailMarkerPlatformIndex { Value = j });
                 }
 
-                var lineBuilders = dstManager.GetBuffer<LineBuilder>(entity);
-                lineBuilders.Add(new LineBuilder {Value = lineBuilderEntity});
+                var lineBuilders = dstManager.GetBuffer<LineBuilderElement>(entity);
+                lineBuilders.Add(new LineBuilderElement {Value = lineBuilderEntity});
             }
         }
     }
