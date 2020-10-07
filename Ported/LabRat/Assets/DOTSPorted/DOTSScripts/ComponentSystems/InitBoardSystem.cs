@@ -12,7 +12,7 @@ using Unity.Transforms;
 // 4 bit indicates a hole
 public class TileMap : IComponentData
 {
-    public NativeArray<byte> tiles;
+    public byte [] tiles;
 }
 
 public class InitBoardSystem : SystemBase
@@ -33,10 +33,6 @@ public class InitBoardSystem : SystemBase
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        // TODO: determine why this results in a GetSingletonEntity() error
-        //Entity tileMapEntity = GetSingletonEntity<TileMap>();
-        //TileMap tileMap = EntityManager.GetComponentObject<TileMap>(tileMapEntity);
-        //tileMap.tiles.Dispose();
 
         // TODO: cleanup
         // destroy tiles
@@ -54,7 +50,7 @@ public class InitBoardSystem : SystemBase
         int wallCount = boardInfo.numberOfWalls;
 
         int boardSize = width * height;
-        NativeArray<byte> tiles = new NativeArray<byte>(boardSize, Allocator.Persistent);
+        byte [] tiles = new byte[boardSize];
 
         Entity tileEntity = EntityManager.CreateEntity(typeof(TileMap));
         EntityManager.SetComponentData(tileEntity, new TileMap { tiles = tiles });
