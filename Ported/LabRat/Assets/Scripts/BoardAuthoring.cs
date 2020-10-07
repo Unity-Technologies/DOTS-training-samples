@@ -8,8 +8,10 @@ public struct Board : IComponentData
     public Entity invisibleTilePrefab;
     public Entity wallPrefab;
     public Entity homeBasePrefab;
+    public Entity ratPrefab;
+    public Entity catPrefab;
 
-    [Min(2)] public int size;
+    [Min(4)] public int size;
     public float yNoise;
 
     public int wallCount;

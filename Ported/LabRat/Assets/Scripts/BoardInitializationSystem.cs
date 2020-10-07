@@ -3,13 +3,13 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
 
 public class BoardInitializationSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Entities.WithStructuralChanges()
+        Entities
+            .WithStructuralChanges()
             .ForEach((Entity entity, in Board board) =>
             {
                 var rand = new Unity.Mathematics.Random((uint) DateTime.Now.Millisecond);
@@ -60,6 +60,32 @@ public class BoardInitializationSystem : SystemBase
                         localWall |= 1;
                     }
 
+                    // Place Spawn Points
+                    if ((x == 0 && z == 0) || (x == (board.size - 1) && z == (board.size - 1)))
+                    {
+                        var mouseSpawnPoint = new SpawnPoint
+                        {
+                            spawnPrefab = board.ratPrefab,
+                            direction = (x == 0 && z == 0) ? DirectionDefines.North : DirectionDefines.South,
+                            spawnCount = 10,
+                            spawnFrequency = 1f
+                        };
+                        EntityManager.AddComponent<SpawnPoint>(tileInstance);
+                        SetComponent(tileInstance, mouseSpawnPoint);
+                    }
+                    else if ((x == 0 && z == (board.size - 1)) || (x == (board.size - 1) && z == 0))
+                    {
+                        var catSpawnPoint = new SpawnPoint
+                        {
+                            spawnPrefab = board.catPrefab,
+                            direction = (x == 0 && z == (board.size - 1)) ? DirectionDefines.East : DirectionDefines.West,
+                            spawnCount = 2,
+                            spawnFrequency = 3f
+                        };
+                        EntityManager.AddComponent<SpawnPoint>(tileInstance);
+                        SetComponent(tileInstance, catSpawnPoint);
+                    }
+                    
                     // Place home base
                     if (x == boardQuarter && z == boardQuarter)
                         PlaceHomeBase(posX, posZ, 0, board.homeBasePrefab, posY, tileInstance);
@@ -69,7 +95,9 @@ public class BoardInitializationSystem : SystemBase
                         PlaceHomeBase(posX, posZ, 2, board.homeBasePrefab, posY, tileInstance);
                     else if (x == board.size - boardQuarter - 1 && z == boardQuarter)
                         PlaceHomeBase(posX, posZ, 3, board.homeBasePrefab, posY, tileInstance);
-                    else  // Not a base: can be a hole
+
+                    // Not a base: can be a hole
+                    else
                     {
                         if (holeCount > 0 && rand.NextFloat(1f) < holeProbability)
                         {

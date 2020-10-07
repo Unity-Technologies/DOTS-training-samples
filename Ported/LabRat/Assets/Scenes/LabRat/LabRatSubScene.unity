@@ -156,9 +156,11 @@ MonoBehaviour:
   invisibleTilePrefab: {fileID: 1695157876856304, guid: ddddd9f0546a26546b64c2ed7acab445, type: 3}
   wallPrefab: {fileID: 1948033712935058, guid: eea26364a72844748944744db673f3f1, type: 3}
   homeBasePrefab: {fileID: 1633874070064508, guid: 4646c46297b1d264b9d030df701c5aca, type: 3}
-  size: 13
+  ratPrefab: {fileID: 1565721843962348, guid: dd039b4b660a8134dadb76c6f58af5f5, type: 3}
+  catPrefab: {fileID: 1377909340170110, guid: 37ee530416460754cb7528bcccc1b1eb, type: 3}
+  size: 10
   yNoise: 0.1
-  wallCount: 30
+  wallCount: 50
   holeCount: 3
 --- !u!4 &17635208
 Transform:
