@@ -6,10 +6,13 @@ using Unity.Transforms;
 
 public class GameGenSystem : SystemBase
 {
-    Random random;
+    Random Random;
+    private EntityCommandBufferSystem ECBSystem;
+
     protected override void OnCreate()
     {
-        random = new Random(42);
+        Random = new Random(42);
+        ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         RequireSingletonForUpdate<GameSpawn>();
     }
 
@@ -29,33 +32,35 @@ public class GameGenSystem : SystemBase
                 const float TILE_SIZE = 1f;
                 var position = new Position { Value = new float2(x, y) * TILE_SIZE };
                 // Randomly decide if this is a water tile or a plains tile
-                bool isWater = (random.NextFloat() < gameState.WaterProbability);
+                bool isWater = (Random.NextFloat() < gameState.WaterProbability);
                 // Instantiate the tile
+                Entity tileEntity;
                 {
 
                     Entity tilePrefab;
                     tilePrefab = isWater ? gameState.WaterPrefab : gameState.PlainsPrefab;
-                    var newEntity = EntityManager.Instantiate(tilePrefab);
-                    EntityManager.SetComponentData(newEntity, new Translation { Value = new float3(x, 0f, y) * TILE_SIZE });
-                    EntityManager.AddComponentData(newEntity, position);
+                    tileEntity = EntityManager.Instantiate(tilePrefab);
+                    EntityManager.SetComponentData(tileEntity, new Translation { Value = new float3(x, 0f, y) * TILE_SIZE });
+                    EntityManager.AddComponentData(tileEntity, position);
                     if (isWater)
                     {
-                        EntityManager.AddComponent<Water>(newEntity);
+                        EntityManager.AddComponent<Water>(tileEntity);
                     }
                     else
                     {
-                        EntityManager.AddComponent<Plains>(newEntity);
-                        EntityManager.AddComponent<Tilled>(newEntity); //NOTE(atheisen): farmers should add this, here to spawn crops while testing
-                        EntityManager.AddComponent<MaterialOverride>(newEntity);
+                        EntityManager.AddComponent<Plains>(tileEntity);
+                        EntityManager.AddComponent<Tilled>(tileEntity); //NOTE(atheisen): farmers should add this, here to spawn crops while testing
+                        EntityManager.AddComponent<MaterialOverride>(tileEntity);
                     }
                 }
                 // Randomly decide if this tile has a depot on it
-                if (!isWater && random.NextFloat() < gameState.DepotProbability)
+                if (!isWater && Random.NextFloat() < gameState.DepotProbability)
                 {
                     // Instantiate the depot
-                    var newEntity = EntityManager.Instantiate(gameState.DepotPrefab);
-                    EntityManager.AddComponentData(newEntity, position);
-                    EntityManager.AddComponent<Depot>(newEntity);
+                    var depotEntity = EntityManager.Instantiate(gameState.DepotPrefab);
+                    EntityManager.AddComponentData(depotEntity, position);
+                    // Add the depot tag on the tile
+                    EntityManager.AddComponent<Depot>(tileEntity);
                 }
             }
         }
@@ -74,7 +79,7 @@ public class GameGenSystem : SystemBase
             .WithName("calculate_fertility")
             .WithReadOnly(waterTilePositions)
             .WithDisposeOnCompletion(waterTilePositions)
-            .ForEach((Entity entity, ref Tilled tilled, ref Plains plains, ref MaterialOverride materialOverride, in Position position) =>
+            .ForEach((int entityInQueryIndex, ref Plains plains, ref MaterialOverride materialOverride, ref Tilled tilled, in Position position) =>
         {
             // Calculate the distance from the nearest water tile
             float minDistSq = float.MaxValue;
@@ -93,8 +98,35 @@ public class GameGenSystem : SystemBase
             int fertility = (int)math.ceil(fertilityCoeff * MAX_FERTILITY);
             plains.Fertility = fertility;
             tilled.FertilityLeft = fertility; //NOTE(atheisen): farmers should add this, here to spawn crops while testing
+        }).ScheduleParallel();
+
+        // If very fertile and not on a depot, spawn forests
+        var ecb = ECBSystem.CreateCommandBuffer().AsParallelWriter();
+        Entities
+            .WithName("spawn_forests")
+            .WithNone<Depot>()
+            .ForEach((Entity entity, int entityInQueryIndex, in Plains plains, in Position position) =>
+        {
+            // Generate parallelizable uniform pseudo-randomness
+            float random;
+            {
+                float2 p = position.Value;
+                float3 p3 = math.frac(p.xyx * 0.1031f);
+                p3 += math.dot(p3, p3.yzx + 33.33f);
+                random = math.frac((p3.x + p3.y) * p3.z);
+            }
+            // Spawn forests if the fertility is greater than a threshold, and a certain probability condition is met
+            const int FERTILITY_THRESHOLD = 3;
+            if (plains.Fertility > FERTILITY_THRESHOLD && random < gameState.ForestProbability)
+            {
+                Entity forestEntity = ecb.Instantiate(entityInQueryIndex, gameState.ForestPrefab);
+                ecb.AddComponent<Position>(entityInQueryIndex, forestEntity);
+                ecb.SetComponent(entityInQueryIndex, forestEntity, position);
+                ecb.AddComponent(entityInQueryIndex, entity, new Forest { ForestPrefab = forestEntity });
+            }
 
         }).ScheduleParallel();
 
+        ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }
