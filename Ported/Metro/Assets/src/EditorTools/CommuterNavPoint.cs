@@ -15,7 +15,7 @@ public class CommuterNavPoint : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.magenta;
+        Gizmos.color = UnityEngine.Color.magenta;
         Gizmos.DrawWireCube(t.position, Vector3.one * 0.1f);
     }
 }

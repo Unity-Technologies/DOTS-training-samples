@@ -52,7 +52,7 @@ public class TrainCarriage : MonoBehaviour
         return _DOOR.DoorsClosed();
     }
 
-    public void SetColour(Color _lineColour)
+    public void SetColour(UnityEngine.Color _lineColour)
     {
         foreach (GameObject _GO in RecolouredObjects)
         {

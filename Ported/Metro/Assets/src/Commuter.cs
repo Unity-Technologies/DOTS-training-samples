@@ -73,7 +73,7 @@ public class Commuter : MonoBehaviour
 
         // random Colour
         body.GetComponent<Renderer>().material.color =
-            new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
+            new UnityEngine.Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
     }
 
     public void Init(Platform _platform_START, Platform _platform_DESTINATION)

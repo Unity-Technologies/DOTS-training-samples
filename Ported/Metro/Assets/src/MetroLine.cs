@@ -11,7 +11,7 @@ public class MetroLine
 {
     public string lineName;
     public int metroLine_index;
-    public Color lineColour;
+    public UnityEngine.Color lineColour;
     public BezierPath bezierPath;
     public List<Train> trains;
     public List<Platform> platforms;

@@ -82,7 +82,7 @@ public class Platform : MonoBehaviour
 
     public void SetColour()
     {
-        Color _LINE_COLOUR = parentMetroLine.lineColour;
+        UnityEngine.Color _LINE_COLOUR = parentMetroLine.lineColour;
         Colour.RecolourChildren(walkway_FRONT_CROSS.transform, _LINE_COLOUR);
         Colour.RecolourChildren(walkway_BACK_CROSS.transform, _LINE_COLOUR);
     }
@@ -117,7 +117,7 @@ public class Platform : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Handles.color = Color.black;
+        Handles.color = UnityEngine.Color.black;
         Handles.Label(transform.position, ""+GetFullName());
     }
 }

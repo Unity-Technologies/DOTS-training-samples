@@ -51,7 +51,7 @@ public class Metro : MonoBehaviour
     public int[] carriagesPerTrain;
     public float[] maxTrainSpeed;
     private int totalLines = 0;
-    public Color[] LineColours;
+    public UnityEngine.Color[] LineColours;
 
     [HideInInspector] public MetroLine[] metroLines;
 
@@ -73,9 +73,9 @@ public class Metro : MonoBehaviour
         return result;
     }
 
-    public static Color GetLine_COLOUR_FromIndex(int _index)
+    public static UnityEngine.Color GetLine_COLOUR_FromIndex(int _index)
     {
-        Color result = Color.black;
+        UnityEngine.Color result = UnityEngine.Color.black;
         INSTANCE = FindObjectOfType<Metro>();
         if (INSTANCE != null)
         {
