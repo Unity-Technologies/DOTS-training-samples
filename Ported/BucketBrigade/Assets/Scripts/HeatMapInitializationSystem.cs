@@ -7,6 +7,17 @@ using Random = UnityEngine.Random;
 [UpdateBefore(typeof(BoardSpawnerSystem))]
 public class HeatInitializationSystem : SystemBase
 {
+	protected override void OnStartRunning()
+	{
+		Entities.WithAll<FireSimulationSettings>()
+			.WithoutBurst()
+			.ForEach((ref FireSimulationSettings settings) =>
+			{
+				SetSingleton(settings);
+			})
+			.Run();
+	}
+	
 	protected override void OnUpdate()
 	{
 		Entities.WithStructuralChanges().ForEach((Entity entity, ref HeatMap heatMap, in BoardSpawner spawner) =>

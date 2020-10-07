@@ -29,7 +29,7 @@ public class CellDisplaySystem : SystemBase
 			.ForEach((Entity entity, ref Translation translation, ref NonUniformScale scale, ref Color color, in CellInfo cell, in RootTranslation rootTranslation) =>
 			{
 				BoardHelper.TryGet2DArrayIndex(cell.X, cell.Z, heatMap.SizeX, heatMap.SizeZ, out var index);
-				float heatValue = heatMapBuffer[index].Value / 100f;
+				float heatValue = heatMapBuffer[index].Value;
 				
 				float t = math.clamp((heatValue - cellDisplay.CoolValue) / cellDisplayRange, 0.0f, 1.0f);
 				float top = math.lerp(cellDisplay.CoolHeight, cellDisplay.FireHeight, t) + rootTranslation.Value.y;
