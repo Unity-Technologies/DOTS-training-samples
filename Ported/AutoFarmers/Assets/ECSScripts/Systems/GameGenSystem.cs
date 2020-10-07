@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -9,52 +10,88 @@ public class GameGenSystem : SystemBase
     protected override void OnCreate()
     {
         random = new Random(42);
+        RequireSingletonForUpdate<GameSpawn>();
     }
 
     protected override void OnUpdate()
     {
+        var gameStateEntity = GetSingletonEntity<GameState>();
+        var gameState = GetSingleton<GameState>();
+        // Remove the game spawn component so that this system doesn't run again next frame
+        EntityManager.RemoveComponent<GameSpawn>(gameStateEntity);
 
-        Entities
-            .WithStructuralChanges()
-            .ForEach(
-            (
-                Entity entity,
-                in GameSpawn gameSpawn,
-                in GameState gameState
-            ) =>
+        // Init random plains and water tiles
+        for (int y = 0; y < gameState.GridSize.y; y++)
+        {
+            for (int x = 0; x < gameState.GridSize.x; x++)
             {
-                for (int y = 0; y < gameState.GridSize.y; y++)
+                // Calculate tile position
+                const float TILE_SIZE = 1f;
+                var position = new Position { Value = new float2(x, y) * TILE_SIZE };
+                // Randomly decide if this is a water tile or a plains tile
+                bool isWater = (random.NextFloat() < gameState.WaterProbability);
+                // Instantiate the tile
                 {
-                    for (int x = 0; x < gameState.GridSize.x; x++)
+
+                    Entity tilePrefab;
+                    tilePrefab = isWater ? gameState.WaterPrefab : gameState.PlainsPrefab;
+                    var newEntity = EntityManager.Instantiate(tilePrefab);
+                    EntityManager.SetComponentData(newEntity, new Translation { Value = new float3(x, 0f, y) * TILE_SIZE });
+                    EntityManager.AddComponentData(newEntity, position);
+                    if (isWater)
                     {
-                        const float TILE_SIZE = 1f;
-                        Entity tilePrefab;
-                        bool isWater = (random.NextFloat() < gameState.WaterProbability);
-                        tilePrefab = isWater ? gameState.WaterPrefab : gameState.PlainsPrefab;
-
-                        var newTile = EntityManager.Instantiate(tilePrefab);
-                        var pos = new float3(x * TILE_SIZE, 0f, y * TILE_SIZE);
-                        EntityManager.SetComponentData(newTile, new Translation { Value = pos });
-
-                        if (!isWater)
-                        {
-                            // TODO: Remove this and enable above
-#if false
-                            //EntityManager.AddComponent<Fertility>(newTile);
-                            //EntityManager.AddComponent<FertilityMaterialOverride>(newTile);
-#else
-                            const int MAX_FERTILITY = 10;
-                            int rndFertility = MAX_FERTILITY;// random.NextInt(0, MAX_FERTILITY + 1);
-                            EntityManager.AddComponentData<Fertility>(newTile, new Fertility { Value = rndFertility });
-                            //float4 col = math.lerp(new float4(1, 1, 1, 1), new float4(0.3f, 1, 0.3f, 1), (float)rndFertility / (float)MAX_FERTILITY);
-                            float4 col = new float4(0.3f, 1, 0.3f, 1);
-                            EntityManager.AddComponentData<MaterialOverride>(newTile, new MaterialOverride { Value = col });
-#endif
-                        }
+                        EntityManager.AddComponent<Water>(newEntity);
+                    }
+                    else
+                    {
+                        EntityManager.AddComponent<Plains>(newEntity);
+                        EntityManager.AddComponent<MaterialOverride>(newEntity);
                     }
                 }
-                EntityManager.RemoveComponent<GameSpawn>(entity);
-            }).Run();
+                // Randomly decide if this tile has a depot on it
+                if (!isWater && random.NextFloat() < gameState.DepotProbability)
+                {
+                    // Instantiate the depot
+                    var newEntity = EntityManager.Instantiate(gameState.DepotPrefab);
+                    EntityManager.AddComponentData(newEntity, position);
+                    EntityManager.AddComponent<Depot>(newEntity);
+                }
+            }
+        }
+
+        // Build a list of water tile positions
+        var waterTilePositions = new NativeList<float2>(Allocator.TempJob);
+        Entities
+            .WithName("build_water_list")
+            .ForEach((in Water water, in Position position) =>
+        {
+            waterTilePositions.Add(position.Value);
+        }).Run();
+
+        // Compute the fertility of all the plain tiles in parallel
+        Entities
+            .WithName("calculate_fertility")
+            .WithReadOnly(waterTilePositions)
+            .WithDisposeOnCompletion(waterTilePositions)
+            .ForEach((ref Plains plains, ref MaterialOverride materialOverride, in Position position) =>
+        {
+            // Calculate the distance from the nearest water tile
+            float minDistSq = float.MaxValue;
+            for (int i = 0; i < waterTilePositions.Length; i++)
+            {
+                minDistSq = math.min(minDistSq, math.distancesq(position.Value, waterTilePositions[i]));
+            }
+            float minDist = math.sqrt(minDistSq);
+            // Calculate the fertility based on this distance
+            const float MAX_FERTILE_DISTANCE = 4f;
+            float fertilityCoeff = math.max(0f, (MAX_FERTILE_DISTANCE - minDist) / MAX_FERTILE_DISTANCE); // In the range [0, 1]
+            // Assign the color
+            materialOverride.Value = math.lerp(new float4(1, 1, 1, 1), new float4(0.3f, 1, 0.3f, 1), fertilityCoeff);
+            // Assign the fertility
+            const int MAX_FERTILITY = 10;
+            plains.Fertility = (int)math.ceil(fertilityCoeff * MAX_FERTILITY);
+
+        }).ScheduleParallel();
 
     }
 }
