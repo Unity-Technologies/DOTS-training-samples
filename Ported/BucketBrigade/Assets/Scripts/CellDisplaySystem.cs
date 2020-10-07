@@ -1,10 +1,14 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
 public class CellDisplaySystem : SystemBase
 {
+	const float k_FlickerRange = 0.4f;
+	const float k_FlickerRate = 2f;
+	
 	protected override void OnStartRunning()
 	{
 		Entities.WithAll<CellDisplay>()
@@ -18,6 +22,8 @@ public class CellDisplaySystem : SystemBase
 
 	protected override void OnUpdate()
 	{
+		var elapsedTime = (float)Time.ElapsedTime;
+		
 		CellDisplay cellDisplay = GetSingleton<CellDisplay>();
 		float cellDisplayRange = cellDisplay.FireValue - cellDisplay.CoolValue;
 
@@ -33,6 +39,10 @@ public class CellDisplaySystem : SystemBase
 				
 				float t = math.clamp((heatValue - cellDisplay.CoolValue) / cellDisplayRange, 0.0f, 1.0f);
 				float top = math.lerp(cellDisplay.CoolHeight, cellDisplay.FireHeight, t) + rootTranslation.Value.y;
+				
+				if (heatValue > 0)
+					top += (k_FlickerRange * 0.5f) + Mathf.PerlinNoise((elapsedTime - index) * k_FlickerRate - heatValue / 100f, heatValue / 100f) * k_FlickerRange;
+				
 				float bottom = -1.0f;
 				translation.Value = new float3(rootTranslation.Value.x, (top + bottom) / 2.0f, rootTranslation.Value.z);
 				scale.Value = new float3(scale.Value.x, top - bottom, scale.Value.z);
