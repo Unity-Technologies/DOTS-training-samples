@@ -252,8 +252,8 @@ MonoBehaviour:
   RandomYOffset: 0.1
   InitialIntensity: 11.4
   InitialOnFireCellCount: 50
-  InitialOnFireIntensityMin: 0
-  InitialOnFireIntensityMax: 0
+  InitialOnFireIntensityMin: 25
+  InitialOnFireIntensityMax: 75
 --- !u!4 &1665004158
 Transform:
   m_ObjectHideFlags: 0
