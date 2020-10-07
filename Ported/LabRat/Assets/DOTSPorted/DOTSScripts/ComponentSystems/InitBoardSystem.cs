@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
+using Unity.Transforms;
 
 
 // move to Tile component
@@ -120,15 +121,11 @@ public class InitBoardSystem : SystemBase
         for (int x = 0; x < width; ++x)
             for (int y = 0; y < height; ++y)
             {
-                /*
-                var instance = EntityManager.Instantiate(boardInfo.tilePrefab);
-                UnityEngine.Debug.Log("Created Tile: " + x + " " + y);
-                SetComponent(instance, new Tile
-                {
-                    Position = new int2(x, z)
-                });
-                /**/
+                var cellPrefab = (x + y) % 2 == 0 ? boardSetup.cell0Prefab : boardSetup.cell1Prefab;
+                var cell = EntityManager.Instantiate(cellPrefab);
+                EntityManager.SetComponentData(cell, new Translation { Value = new float3(x, 0f, y) });
             }
+
         // create mice and cat spawners
 
         // Remove BoardSetup Singleton to only run once

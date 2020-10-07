@@ -168,6 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   catMax: 5
   catCount: 0
+  mouseCount: 0
   catFrequency: 1
   mouseFrequency: 1
   catTimer: 0
@@ -192,6 +193,7 @@ GameObject:
   m_Component:
   - component: {fileID: 270034137}
   - component: {fileID: 270034136}
+  - component: {fileID: 270034138}
   m_Layer: 0
   m_Name: GameState
   m_TagString: Untagged
@@ -227,6 +229,23 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &270034138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270034135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe561ee31b990b747a01b0882d4886ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cell0Prefab: {fileID: 1695157876856304, guid: 3e362a6756a8e3b43bee8e54b6099f5e,
+    type: 3}
+  cell1Prefab: {fileID: 1695157876856304, guid: 61fb6e4fe371a8a4e8ea9b1796c83707,
+    type: 3}
+  wallPrefab: {fileID: 1948033712935058, guid: 61a8da2adf6eed4468e9d4673b657993, type: 3}
 --- !u!1 &955407791
 GameObject:
   m_ObjectHideFlags: 0
@@ -306,6 +325,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   catMax: 5
   catCount: 0
+  mouseCount: 0
   catFrequency: 1
   mouseFrequency: 1
   catTimer: 0
@@ -365,6 +385,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   catMax: 5
   catCount: 0
+  mouseCount: 0
   catFrequency: 1
   mouseFrequency: 1
   catTimer: 0
@@ -424,6 +445,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   catMax: 5
   catCount: 0
+  mouseCount: 0
   catFrequency: 1
   mouseFrequency: 1
   catTimer: 0

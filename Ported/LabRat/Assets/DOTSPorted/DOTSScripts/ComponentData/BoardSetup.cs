@@ -9,7 +9,7 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct BoardSetup : IComponentData
 {
-    public Entity cellPrefab;
+    public Entity cell0Prefab;
+    public Entity cell1Prefab;
     public Entity wallPrefab;
-    public float checkValue;
 }
