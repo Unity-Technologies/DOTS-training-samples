@@ -11,7 +11,7 @@ public class FakeCreateCropCarrier : SystemBase
     
     protected override void OnCreate()
     {
-        m_FarmerQuery = GetEntityQuery(typeof(FarmerTag), ComponentType.Exclude<DropOffCropTask>());
+        m_FarmerQuery = GetEntityQuery(typeof(Farmer), ComponentType.Exclude<DropOffCropTask>());
     }
     
     protected override void OnUpdate()

@@ -9,9 +9,9 @@ public class FarmerManager : MonoBehaviour {
 	public int maxFarmerCount;
 	[Range(0f,1f)]
 	public float movementSmooth;
-	public Farmer firstFarmer;
+	public FarmerLegacy firstFarmer;
 
-	List<Farmer> farmers;
+	List<FarmerLegacy> farmers;
 	List<Matrix4x4> farmerMatrices;
 	
 	public static FarmerManager instance;
@@ -30,7 +30,7 @@ public class FarmerManager : MonoBehaviour {
 
 	public static void SpawnFarmer(int x, int y) {
 		Vector2 pos = new Vector2(x + .5f,y + .5f);
-		Farmer farmer = new Farmer(pos);
+		FarmerLegacy farmer = new FarmerLegacy(pos);
 		instance.farmers.Add(farmer);
 		instance.farmerMatrices.Add(farmer.matrix);
 		farmerCount++;
@@ -40,7 +40,7 @@ public class FarmerManager : MonoBehaviour {
 		instance = this;
 	}
 	void Start () {
-		farmers = new List<Farmer>();
+		farmers = new List<FarmerLegacy>();
 		farmerMatrices = new List<Matrix4x4>();
 		farmerCount = 0;
 
