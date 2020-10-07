@@ -25,7 +25,7 @@ public class AIMovement : SystemBase
                 ecb.RemoveComponent<Timer>(entityInQueryIndex, e);
         }).ScheduleParallel();
         
-        Entities.WithNone<Timer>().ForEach((Entity e, int entityInQueryIndex, ref AICursor cursor, ref Position position) =>
+        Entities.WithNone<Timer>().ForEach((Entity e, int entityInQueryIndex, ref AICursor cursor, ref Position position, ref DynamicBuffer<PlayerArrow> arrows) =>
         {
             var direction = cursor.Destination - position.Value;
             var distance = math.lengthsq(direction);
@@ -37,8 +37,9 @@ public class AIMovement : SystemBase
                 position.Value = cursor.Destination;
                 var random = new Random((uint)(randomSeed + entityInQueryIndex));
                 cursor.Destination = new int2(random.NextInt(0, boardSize.x), random.NextInt(0, boardSize.y));
-                // TODO: click and wait before moving again maybe?
                 ecb.AddComponent(entityInQueryIndex, e, new Timer(){Value = random.NextFloat(1f,2f)});
+                //TODO : get the cell and add a Direction and player to it?
+                PlaceArrow(arrows);
             }
             else
             {
@@ -48,5 +49,15 @@ public class AIMovement : SystemBase
         }).ScheduleParallel();
         
         m_ECBSystem.AddJobHandleForProducer(Dependency);
+    }
+
+    static void PlaceArrow(DynamicBuffer<PlayerArrow> arrows)
+    {
+        if (arrows.Length == 3)
+        {
+            arrows.RemoveAt(0);
+        }
+
+        arrows.Add(new PlayerArrow() { TileIndex = 0 });
     }
 }

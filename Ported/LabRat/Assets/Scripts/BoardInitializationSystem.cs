@@ -159,6 +159,7 @@ public class BoardInitializationSystem : SystemBase
                 for (int i = 0; i < 4; ++i)
                 {
                     var player =  EntityManager.CreateEntity(i == 0 ? mainPlayerArchetypes : playerArchetypes);
+                    EntityManager.AddBuffer<PlayerArrow>(player);
                     SetComponent(player, new PlayerTransform
                     {
                         Index = i
