@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-[GenerateAuthoringComponent]
-public struct Mouse
+public class GameState : IComponentData
 {
+    public int timer;
+    
 }

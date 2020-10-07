@@ -133,7 +133,6 @@ GameObject:
   m_Component:
   - component: {fileID: 213146610}
   - component: {fileID: 213146611}
-  - component: {fileID: 213146612}
   m_Layer: 0
   m_Name: Spawner
   m_TagString: Untagged
@@ -167,26 +166,64 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 822f227d7c31840868f9cebe6b822edd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  catMax: 3
+  catMax: 5
   catCount: 0
   catFrequency: 1
   mouseFrequency: 1
   catTimer: 0
   mouseTimer: 0
+  catSpeed: 2
+  mouseSpeed: 5
+  maxMiceCount: 100
+  minCatSpeed: 2
+  maxCatSpeed: 3
+  minMouseSpeed: 3
+  maxMouseSpeed: 5
   mousePrefab: {fileID: 1565721843962348, guid: 10026e638782f4518b39d37dd4bd5d2a,
     type: 3}
   catPrefab: {fileID: 1377909340170110, guid: a3f6e35302f734f3cad373306d5f3b7c, type: 3}
---- !u!114 &213146612
+--- !u!1 &955407791
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 955407792}
+  - component: {fileID: 955407793}
+  m_Layer: 0
+  m_Name: BoardSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &955407792
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 955407791}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.5250177, y: -5.732785, z: 3.5255947}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &955407793
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 213146609}
+  m_GameObject: {fileID: 955407791}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f5c27ac1bff1a4dada42f85718d923dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  height: 100
-  width: 100
+  height: 13
+  width: 13

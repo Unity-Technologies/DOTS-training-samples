@@ -72,17 +72,17 @@ public class BoardDesign : MonoBehaviour {
         CellAt(boardSize.x * offset, boardSize.y * 2f * offset).SetHomebase(2);
         CellAt(boardSize.x * 2f * offset, boardSize.y * offset).SetHomebase(3);
 
-        SpawnerAt(MouseSpawner, 0, 0, Quaternion.identity);
-        SpawnerAt(MouseSpawner, boardSize.x - 1, boardSize.y - 1, Quaternion.Euler(180, 0, 0));
-        SpawnerAt(CatSpawner, 0, boardSize.y - 1, Quaternion.Euler(0, 0, 0));
-        SpawnerAt(CatSpawner, boardSize.x - 1, 0, Quaternion.Euler(0, 0, 0));
-
-        int numHoles = Random.Range(0, 4);
-        for (int i = 0; i < numHoles; ++i) {
-            var coord = new Vector2Int(Random.Range(0, boardSize.x), Random.Range(0, boardSize.y));
-            if (coord.x > 0 && coord.y > 0 && coord.x < boardSize.x - 1 && coord.y < boardSize.y - 1 && board.CellAtCoord(coord).IsEmpty())
-                board.RemoveCell(coord);
-        }
+//        SpawnerAt(MouseSpawner, 0, 0, Quaternion.identity);
+//        SpawnerAt(MouseSpawner, boardSize.x - 1, boardSize.y - 1, Quaternion.Euler(180, 0, 0));
+//        SpawnerAt(CatSpawner, 0, boardSize.y - 1, Quaternion.Euler(0, 0, 0));
+//        SpawnerAt(CatSpawner, boardSize.x - 1, 0, Quaternion.Euler(0, 0, 0));
+//
+//        int numHoles = Random.Range(0, 4);
+//        for (int i = 0; i < numHoles; ++i) {
+//            var coord = new Vector2Int(Random.Range(0, boardSize.x), Random.Range(0, boardSize.y));
+//            if (coord.x > 0 && coord.y > 0 && coord.x < boardSize.x - 1 && coord.y < boardSize.y - 1 && board.CellAtCoord(coord).IsEmpty())
+//                board.RemoveCell(coord);
+//        }
 
 		Random.state = oldState;
 	}
