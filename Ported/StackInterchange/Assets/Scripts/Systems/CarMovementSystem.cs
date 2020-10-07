@@ -17,22 +17,30 @@ public class CarMovementSystem : SystemBase
 
         Entities.ForEach((Entity carEntity, int entityInQueryIndex, ref Translation trans, ref Rotation rotation, ref CarMovement movement) =>
         {
-            var pos = trans.Value;
-            trans.Value = math.lerp(trans.Value, movement.NextNode.Value, movement.Velocity);
+            // temp
+            var goalPos = GetComponent<LocalToWorld>(movement.NextNode).Position;
 
-            var dist = math.distance(trans.Value, movement.NextNode.Value);
+            // Check distance
+            var dist = math.distance(trans.Value, goalPos);
 
             if (dist < 1f)
             {
-                // TODO: set node's next node
-                movement.NextNode = new Translation{Value = new float3(10,0,10)};
-                rotation.Value = quaternion.LookRotation(movement.NextNode.Value, new float3(0,0,1));
-
                 // Destroy if no next node
-                // ecb.DestroyEntity(entityInQueryIndex, carEntity);
+                var testComp = GetComponentDataFromEntity<RoadNode>(true);
+                var tmpNode = GetComponent<RoadNode>(movement.NextNode).nextNode;
+                if (testComp.Exists(tmpNode)) { 
+                    movement.NextNode = GetComponent<RoadNode>(movement.NextNode).nextNode;
+                    rotation.Value = quaternion.LookRotation(goalPos, new float3(0,0,1));
+                }
+                else {
+                    ecb.DestroyEntity(entityInQueryIndex, carEntity);   
+                }
             }
 
-        }).ScheduleParallel();
+            // Move towards next node
+            trans.Value = math.lerp(trans.Value, goalPos, movement.Velocity);
+
+        }).Schedule();
 
         ecbSystem.AddJobHandleForProducer(Dependency);
     }

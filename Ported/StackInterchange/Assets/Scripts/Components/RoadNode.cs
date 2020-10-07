@@ -4,6 +4,8 @@ using Unity.Transforms;
 [GenerateAuthoringComponent]
 public struct RoadNode : IComponentData
 {
-     public Entity nodePosition;
      public int colorBits;
+
+     public Entity nextNode;
+     public Entity exitNode;
 }
