@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Entities;
+using Unity.Transforms;
 using UnityEditor;
 using UnityEngine;
 
-public class Metro : MonoBehaviour
+public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
     public static float CUSTOMER_SATISFACTION = 1f;
     public static float BEZIER_HANDLE_REACH = 0.1f;
@@ -473,4 +475,51 @@ public class Metro : MonoBehaviour
     }
 
     #endregion ------------------------ GIZMOS >
+
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+        dstManager.AddComponentData(entity, new MetroBuilder
+        {
+            RailPrefab = conversionSystem.GetPrimaryEntity(prefab_rail)
+        });
+        dstManager.AddBuffer<LineBuilder>(entity);
+
+        totalLines = LineNames.Length;
+        metroLines = new MetroLine[totalLines];
+        for (int i = 0; i < totalLines; i++)
+        {
+            // Find all of the relevant RailMarkers in the scene for this line
+            List<RailMarker> _relevantMarkers = FindObjectsOfType<RailMarker>().Where(m => m.metroLineID == i)
+                .OrderBy(m => m.pointIndex).ToList();
+
+            // Only continue if we have something to work with
+            if (_relevantMarkers.Count > 1)
+            {
+                var lineBuilderEntity = conversionSystem.CreateAdditionalEntity(this);
+                dstManager.SetName(lineBuilderEntity, _relevantMarkers[0].transform.parent.name);
+                dstManager.AddComponentData(lineBuilderEntity, new Parent { Value = entity });
+                dstManager.AddBuffer<RailMarkerPosition>(lineBuilderEntity);
+                dstManager.AddBuffer<RailMarkerPlatformIndex>(lineBuilderEntity);
+
+                var positions = dstManager.GetBuffer<RailMarkerPosition>(lineBuilderEntity);
+                var platformMarkerIndices = dstManager.GetBuffer<RailMarkerPlatformIndex>(lineBuilderEntity);
+                
+                for (int j = 0; j < _relevantMarkers.Count; j++)
+                {
+                    var marker = _relevantMarkers[j];
+                    positions.Add(new RailMarkerPosition { Value = marker.transform.position });
+                    if (marker.railMarkerType == RailMarkerType.PLATFORM_END)
+                        platformMarkerIndices.Add(new RailMarkerPlatformIndex { Value = j });
+                }
+
+                var lineBuilders = dstManager.GetBuffer<LineBuilder>(entity);
+                lineBuilders.Add(new LineBuilder {Value = lineBuilderEntity});
+            }
+        }
+    }
+
+    public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
+    {
+        referencedPrefabs.Add(prefab_rail);
+    }
 }
