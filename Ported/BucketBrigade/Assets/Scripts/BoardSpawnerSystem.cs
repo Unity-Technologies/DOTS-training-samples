@@ -49,7 +49,7 @@ public class BoardSpawnerSystem : SystemBase
 							}
 						}
 
-						SetComponent(instance, new Intensity { TestValue = cellValue } );
+						SetComponent(instance, new Intensity { Value = cellValue } );
 					}
 				}
 

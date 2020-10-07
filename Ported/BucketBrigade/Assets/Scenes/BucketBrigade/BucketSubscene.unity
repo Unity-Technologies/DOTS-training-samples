@@ -123,7 +123,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &49613174
+--- !u!1 &490609100
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -131,36 +131,85 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 49613176}
-  - component: {fileID: 49613175}
+  - component: {fileID: 490609102}
+  - component: {fileID: 490609101}
   m_Layer: 0
-  m_Name: CellColoring
+  m_Name: BucketSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &49613175
+--- !u!114 &490609101
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 49613174}
+  m_GameObject: {fileID: 490609100}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b3e94521f8bb4c1a917a86024d7477e, type: 3}
+  m_Script: {fileID: 11500000, guid: 0b09e487cf6994a10be7cff9bdf7736c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CoolColor: {r: 0, g: 1, b: 0, a: 1}
-  FireColor: {r: 1, g: 0, b: 0, a: 1}
---- !u!4 &49613176
+  BucketPrefab: {fileID: 429697506247921751, guid: b06e5c4e84f1340418151b0aaac6c38f, type: 3}
+  MaxBuckets: 20
+--- !u!4 &490609102
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 49613174}
+  m_GameObject: {fileID: 490609100}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1481191102
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1481191104}
+  - component: {fileID: 1481191103}
+  m_Layer: 0
+  m_Name: GridSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1481191103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1481191102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b3e94521f8bb4c1a917a86024d7477e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CoolValue: 15
+  CoolColor: {r: 0, g: 1, b: 0, a: 1}
+  CoolHeight: 0
+  FireValue: 100
+  FireColor: {r: 1, g: 0, b: 0, a: 1}
+  FireHeight: 2
+--- !u!4 &1481191104
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1481191102}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -203,6 +252,8 @@ MonoBehaviour:
   RandomYOffset: 0.1
   InitialIntensity: 11.4
   InitialOnFireCellCount: 50
+  InitialOnFireIntensityMin: 0
+  InitialOnFireIntensityMax: 0
 --- !u!4 &1665004158
 Transform:
   m_ObjectHideFlags: 0
@@ -216,4 +267,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1860077371
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1860077373}
+  - component: {fileID: 1860077372}
+  m_Layer: 0
+  m_Name: AgentSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1860077372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1860077371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe801b28e77934d3b8c120d1190268b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AgentPrefab: {fileID: 429697506247921751, guid: 3d12b6b710bb8419dae0f63e07b2ebd8, type: 3}
+  TeamCount: 2
+  TeamScoopers: 1
+  TeamThrowers: 1
+  AgentLineLength: 15
+  MaxAgentVelocity: 0.075
+--- !u!4 &1860077373
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1860077371}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

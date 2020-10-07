@@ -4,7 +4,10 @@ using Unity.Entities;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
-public struct Intensity : IComponentData
+public struct BucketSpawner : IComponentData
 {
-    public float Value; // should things be called Value or not?
+    public Entity BucketPrefab;
+    
+    [Min(1)]
+    public int MaxBuckets;
 }
