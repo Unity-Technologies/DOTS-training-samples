@@ -140,6 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a35e0937c9e4364cab9fefcdba05665, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  index: 6
   nodePosition: {fileID: 7216095186760045479}
   colorBits: 0
 --- !u!1 &7216095186760045479
