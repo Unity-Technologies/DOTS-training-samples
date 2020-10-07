@@ -21,15 +21,14 @@ public class SapplingSpawnSystem : SystemBase
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
         Entities
-            .WithAll<Seed>()
+            .WithAll<Plains>()
+            .WithNone<CropReference>()
             .ForEach((
-                Entity entity,
-                int entityInQueryIndex,
-                in Translation translation
+                Entity entity
+                , int entityInQueryIndex
+                , in Translation translation
             ) =>
             {
-                ecb.RemoveComponent<Seed>(entityInQueryIndex, entity);
-                
                 var sapplingEntity = ecb.Instantiate(entityInQueryIndex, prefab);
                 ecb.AddComponent<Sappling>(entityInQueryIndex, sapplingEntity);
                 ecb.AddComponent<MaterialOverride>(entityInQueryIndex, sapplingEntity);
