@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1244397186333606214}
+  - component: {fileID: 3927774994156948566}
   m_Layer: 0
   m_Name: Road
   m_TagString: Untagged
@@ -37,6 +38,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3927774994156948566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1244397186333606209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc159d238795b4ae189102db46cef201, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &199700328237761860
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -240,7 +253,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2550485989356390608, guid: f7d5ca2a4430240d2bdb63abb7a16381, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -4
       objectReference: {fileID: 0}
     - target: {fileID: 2550485989356390608, guid: f7d5ca2a4430240d2bdb63abb7a16381, type: 3}
       propertyPath: m_LocalRotation.x
@@ -282,17 +295,9 @@ PrefabInstance:
       propertyPath: Value
       value: 0.1
       objectReference: {fileID: 0}
-    - target: {fileID: 8746170939938155090, guid: f7d5ca2a4430240d2bdb63abb7a16381, type: 3}
-      propertyPath: carScaleV1.x
-      value: 0.64
-      objectReference: {fileID: 0}
-    - target: {fileID: 8746170939938155090, guid: f7d5ca2a4430240d2bdb63abb7a16381, type: 3}
-      propertyPath: carScaleV1.y
-      value: 0.45
-      objectReference: {fileID: 0}
-    - target: {fileID: 8746170939938155090, guid: f7d5ca2a4430240d2bdb63abb7a16381, type: 3}
-      propertyPath: carScaleV1.z
-      value: 0.58
+    - target: {fileID: 9184027904339132468, guid: f7d5ca2a4430240d2bdb63abb7a16381, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f7d5ca2a4430240d2bdb63abb7a16381, type: 3}
@@ -417,6 +422,10 @@ PrefabInstance:
     - target: {fileID: 5031430632406386873, guid: 90a15ee47e44849daae2b7440d0330be, type: 3}
       propertyPath: m_Name
       value: RoadNodeSegment
+      objectReference: {fileID: 0}
+    - target: {fileID: 7216095186760045479, guid: 90a15ee47e44849daae2b7440d0330be, type: 3}
+      propertyPath: m_Name
+      value: RoadNodePosition
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 90a15ee47e44849daae2b7440d0330be, type: 3}
