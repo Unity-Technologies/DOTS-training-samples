@@ -36,7 +36,7 @@ public class CarMovementSystem : SystemBase
                 // Destroy if no next node
                 var testComp = GetComponentDataFromEntity<RoadNode>(true);
                 var tmpNode = GetComponent<RoadNode>(movement.NextNode).nextNode;
-                if (testComp.Exists(tmpNode)) { 
+                if (testComp.HasComponent(tmpNode)) { 
                     movement.NextNode = GetComponent<RoadNode>(movement.NextNode).nextNode;
                     rotation.Value = quaternion.LookRotation(goalPos, new float3(0,0,1));
                     movement.distanceTraveled = 0;
