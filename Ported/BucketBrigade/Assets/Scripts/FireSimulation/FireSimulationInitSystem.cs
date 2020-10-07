@@ -3,19 +3,27 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateAfter(typeof(Unity.Scenes.SceneSystemGroup))]
 public class FireSimulationInitSystem : SystemBase
 {
     Random m_Random;
 
     protected override void OnCreate()
     {
+        // We only want all this to be called once for the singleton simulation.
+        // (Overrides second query in the update that will be run every frame).
+        RequireForUpdate(GetEntityQuery(new EntityQueryDesc
+        {
+            None = new ComponentType[] { typeof(FireSimulationStarted) },
+            All = new ComponentType[] { typeof(FireSimulation) }
+        }));
+
         m_Random = new Random(0x98209104);
     }
 
     protected override void OnUpdate()
     {
-        bool needSimulationInit = false;
-
+        // Initialize fire cells
         Entities.
             WithStructuralChanges().
             WithNone<FireSimulationStarted>().
@@ -59,28 +67,26 @@ public class FireSimulationInitSystem : SystemBase
                 EntityManager.SetComponentData(entity, new Temperature { Value = newTemperature });
             }
 
+            // Add simulation timer.
+            EntityManager.AddComponent<Timer>(fireSimulationEntity);
+            EntityManager.SetComponentData(fireSimulationEntity, new Timer { elapsedTime = 0.0f, timerValue = simulation.fireSimUpdateRate });
+
             EntityManager.AddComponent<FireSimulationStarted>(fireSimulationEntity);
 
             entities.Dispose();
-
-            needSimulationInit = true;
         }).Run();
 
-        if (needSimulationInit)
-        {
-            // Fill initial simulation temperatures.
-            var simulationEntity = GetSingletonEntity<FireSimulation>();
-            var fireSimulation = GetComponent<FireSimulation>(simulationEntity);
-            var temperatureBuffer = GetBuffer<SimulationTemperature>(simulationEntity);
+        // Fill initial simulation temperatures.
+        var simulationEntity = GetSingletonEntity<FireSimulation>();
+        var fireSimulation = GetComponent<FireSimulation>(simulationEntity);
+        var temperatureBuffer = GetBuffer<SimulationTemperature>(simulationEntity);
+        temperatureBuffer.ResizeUninitialized(fireSimulation.columns * fireSimulation.rows);
+        var temperatureBufferNative = temperatureBuffer.AsNativeArray();
 
-            temperatureBuffer.ResizeUninitialized(fireSimulation.columns * fireSimulation.rows);
-            var temperatureBufferNative = temperatureBuffer.AsNativeArray();
-
-            Entities.
-                ForEach((in Temperature temperature, in CellIndex cellIndex) =>
-                {
-                    temperatureBufferNative[cellIndex.Value] = temperature.Value;
-                }).ScheduleParallel();
-        }
+        Entities.
+            ForEach((in Temperature temperature, in CellIndex cellIndex) =>
+            {
+                temperatureBufferNative[cellIndex.Value] = temperature.Value;
+            }).ScheduleParallel();
     }
 }

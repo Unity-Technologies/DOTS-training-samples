@@ -2,6 +2,8 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateAfter(typeof(TimerUpdateSystem))]
 public class FireSimulationUpdateSystem : SystemBase
 {
     Random m_Random;

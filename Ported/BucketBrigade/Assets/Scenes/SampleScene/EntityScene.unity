@@ -161,7 +161,7 @@ MonoBehaviour:
   flashpoint: 0.2
   heatRadius: 2
   heatTransferRate: 0.0003
-  fireSimUpdateRate: 0.01
+  fireSimUpdateRate: 1
   fireCellColorNeutral: {r: 0.4888, g: 0.7924, b: 0.4597, a: 1}
   fireCellColorCool: {r: 1, g: 0.8884, b: 0.5141, a: 1}
   fireCellColorHot: {r: 1, g: 0, b: 0, a: 1}
