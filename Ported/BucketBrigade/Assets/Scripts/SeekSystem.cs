@@ -65,7 +65,7 @@ public class SeekSystem : SystemBase
             {
                 // arrive
                 // otherwise, select new target
-                follower.Velocity *= 0.99f;
+                //follower.Velocity *= 0.99f;
                 follower.TargetPos = new float3(Random.Range(0.0f, 20.0f), follower.TargetPos.y, Random.Range(0.0f, 20.0f));
             }
 
