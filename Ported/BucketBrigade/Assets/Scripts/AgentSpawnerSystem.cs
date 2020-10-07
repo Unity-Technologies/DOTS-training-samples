@@ -63,7 +63,7 @@ public class AgentSpawnerSystem : SystemBase
                 {
                     Entity agent = clonedAgents[index];
                     
-                    EntityManager.AddComponentData<MyAgent>(agent, new MyAgent {TeamID = team});
+                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team});
                     EntityManager.AddComponent<AgentTags.ScooperTag>(agent);
                     
                     // place at random location within board
@@ -76,7 +76,7 @@ public class AgentSpawnerSystem : SystemBase
                 for (int thrower = 0; thrower < spawner.TeamThrowers; ++thrower)
                 {
                     Entity agent = clonedAgents[index];
-                    EntityManager.AddComponentData<MyAgent>(agent, new MyAgent {TeamID = team});
+                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team});
                     EntityManager.AddComponent<AgentTags.ThrowerTag>(agent);
                     
                     // place at random location within board
@@ -88,7 +88,7 @@ public class AgentSpawnerSystem : SystemBase
                 for (int fullPasser = 0; fullPasser < numFullBucketPassers; ++fullPasser)
                 {
                     Entity agent = clonedAgents[index];
-                    EntityManager.AddComponentData<MyAgent>(agent, new MyAgent {TeamID = team});
+                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team});
                     EntityManager.AddComponent<AgentTags.FullBucketPasserTag>(agent);
 
                     // place at random location within board
@@ -99,7 +99,7 @@ public class AgentSpawnerSystem : SystemBase
                 for (int emptyPasser = 0; emptyPasser < numEmptyBucketPassers; ++emptyPasser)
                 {
                     Entity agent = clonedAgents[index];
-                    EntityManager.AddComponentData<MyAgent>(agent, new MyAgent {TeamID = team});
+                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team});
                     EntityManager.AddComponent<AgentTags.EmptyBucketPasserTag>(agent);
                     
                     // place at random location within board

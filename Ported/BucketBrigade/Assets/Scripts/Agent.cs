@@ -5,7 +5,7 @@ using Unity.Entities;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
-public struct MyAgent : IComponentData
+public struct Agent : IComponentData
 {
     public int TeamID;
 }
