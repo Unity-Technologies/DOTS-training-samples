@@ -193,6 +193,7 @@ GameObject:
   - component: {fileID: 955407792}
   - component: {fileID: 955407793}
   - component: {fileID: 955407794}
+  - component: {fileID: 955407795}
   m_Layer: 0
   m_Name: BoardSpawner
   m_TagString: Untagged
@@ -246,3 +247,17 @@ MonoBehaviour:
   cellPrefab: {fileID: 1695157876856304, guid: c2ef2e9ce5dad494d916f59769e7d27f, type: 3}
   wallPrefab: {fileID: 1948033712935058, guid: eea26364a72844748944744db673f3f1, type: 3}
   checkValue: 0.777
+--- !u!114 &955407795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 955407791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 790f3eb877a754a1b9438dcde0e9fbd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timer: 0
+  collisionRadius: 0
