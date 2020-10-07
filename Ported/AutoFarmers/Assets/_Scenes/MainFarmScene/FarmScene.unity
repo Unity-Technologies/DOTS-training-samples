@@ -154,13 +154,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GridSize:
-    x: 1
-    y: 1
+    x: 50
+    y: 50
   PlainsPrefab: {fileID: 6227356122151387076, guid: 7f520695b990f464a909116d776c9b4f,
     type: 3}
   WaterPrefab: {fileID: 6227356122151387076, guid: bfccf68c94858074e80b547fe5ab3390,
     type: 3}
   DepotPrefab: {fileID: 7384222014892938916, guid: c49fc1e5651af8243b3dd4569b4a76c2,
+    type: 3}
+  ForestPrefab: {fileID: 5480010603021587134, guid: 95f3f251c70a6644abbc4d73b641ede2,
     type: 3}
   PlantPrefab: {fileID: 2699181508882807569, guid: cf672eb8c66025744ac63e3be9cd57e4,
     type: 3}
@@ -168,6 +170,7 @@ MonoBehaviour:
     type: 3}
   WaterProbability: 0.05
   DepotProbability: 0.01
+  ForestProbability: 0.7
   SimulationSpeed: 1
 --- !u!4 &1227781564
 Transform:
