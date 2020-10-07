@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 1227781564}
   - component: {fileID: 1227781563}
   - component: {fileID: 1227781565}
+  - component: {fileID: 1227781566}
   m_Layer: 0
   m_Name: GameState
   m_TagString: Untagged
@@ -154,8 +155,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GridSize:
-    x: 50
-    y: 50
+    x: 20
+    y: 20
+  FarmersCount: 5
   PlainsPrefab: {fileID: 6227356122151387076, guid: 7f520695b990f464a909116d776c9b4f,
     type: 3}
   WaterPrefab: {fileID: 6227356122151387076, guid: bfccf68c94858074e80b547fe5ab3390,
@@ -196,5 +198,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 10fd00e2a0f47a347a08e4637d551a2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1227781566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1227781562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42dc4fe42a4b49898c142b371d317311, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

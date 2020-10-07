@@ -19,6 +19,7 @@ public class FakeTargetReachedSystem : SystemBase
         float m_ReachDistance = 0.05f;
         Entities
             .WithAll<FarmerTag>()
+            .WithNone<DropOffCropTask>()
             .ForEach((
                 Entity entity, 
                 int entityInQueryIndex,

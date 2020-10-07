@@ -14,17 +14,17 @@ public class FakeTargetAttributionSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        Entities
-            .WithStructuralChanges()
-            .WithAll<FarmerTag>()
-            .WithNone<TargetEntity>()
-            .ForEach((Entity entity) =>
-            {
-                Debug.Log("Adding target");
-                Entity target = EntityManager.CreateEntity();
-                float2 targetPos = m_Rand.NextFloat2(10);
-                EntityManager.AddComponentData(target, new Position(){Value = targetPos});
-                EntityManager.AddComponentData(entity, new TargetEntity(){target = target, targetPosition = targetPos});
-            }).Run();
+        // Entities
+        //     .WithStructuralChanges()
+        //     .WithAll<FarmerTag>()
+        //     .WithNone<TargetEntity>()
+        //     .ForEach((Entity entity) =>
+        //     {
+        //         Debug.Log("Adding target");
+        //         Entity target = EntityManager.CreateEntity();
+        //         float2 targetPos = m_Rand.NextFloat2(10);
+        //         EntityManager.AddComponentData(target, new Position(){Value = targetPos});
+        //         EntityManager.AddComponentData(entity, new TargetEntity(){target = target, targetPosition = targetPos});
+        //     }).Run();
     }
 }
