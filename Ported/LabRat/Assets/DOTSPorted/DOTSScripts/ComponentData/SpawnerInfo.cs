@@ -8,6 +8,7 @@ public struct SpawnerInfo : IComponentData
 {
     public float catMax;
     public float catCount;
+    public float mouseCount;
     public float catFrequency;
     public float mouseFrequency;
     public float catTimer;

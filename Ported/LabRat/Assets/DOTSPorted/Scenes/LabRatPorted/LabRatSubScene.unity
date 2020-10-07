@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 213146610}
   - component: {fileID: 213146611}
   m_Layer: 0
-  m_Name: Spawner
+  m_Name: Spawner01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -182,6 +182,51 @@ MonoBehaviour:
   mousePrefab: {fileID: 1565721843962348, guid: 10026e638782f4518b39d37dd4bd5d2a,
     type: 3}
   catPrefab: {fileID: 1377909340170110, guid: a3f6e35302f734f3cad373306d5f3b7c, type: 3}
+--- !u!1 &270034135
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 270034137}
+  - component: {fileID: 270034136}
+  m_Layer: 0
+  m_Name: GameState
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &270034136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270034135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 790f3eb877a754a1b9438dcde0e9fbd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timer: 0
+  collisionRadius: 0
+--- !u!4 &270034137
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270034135}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.0659866, y: 0.34867096, z: 5.537549}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &955407791
 GameObject:
   m_ObjectHideFlags: 0
@@ -192,8 +237,6 @@ GameObject:
   m_Component:
   - component: {fileID: 955407792}
   - component: {fileID: 955407793}
-  - component: {fileID: 955407794}
-  - component: {fileID: 955407795}
   m_Layer: 0
   m_Name: BoardSpawner
   m_TagString: Untagged
@@ -213,7 +256,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &955407793
 MonoBehaviour:
@@ -229,35 +272,183 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   height: 13
   width: 13
-  minNumberOfHoles: 1
-  maxNumberOfHoles: 4
-  numberOfWalls: 20
---- !u!114 &955407794
+  minNumberOfHoles: 0
+  maxNumberOfHoles: 0
+  numberOfWalls: 0
+--- !u!1 &1229036437
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1229036439}
+  - component: {fileID: 1229036438}
+  m_Layer: 0
+  m_Name: Spawner03
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1229036438
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 955407791}
+  m_GameObject: {fileID: 1229036437}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe561ee31b990b747a01b0882d4886ab, type: 3}
+  m_Script: {fileID: 11500000, guid: 822f227d7c31840868f9cebe6b822edd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cellPrefab: {fileID: 1695157876856304, guid: c2ef2e9ce5dad494d916f59769e7d27f, type: 3}
-  wallPrefab: {fileID: 1948033712935058, guid: eea26364a72844748944744db673f3f1, type: 3}
-  checkValue: 0.777
---- !u!114 &955407795
+  catMax: 5
+  catCount: 0
+  catFrequency: 1
+  mouseFrequency: 1
+  catTimer: 0
+  mouseTimer: 0
+  catSpeed: 2
+  mouseSpeed: 5
+  maxMiceCount: 100
+  minCatSpeed: 2
+  maxCatSpeed: 3
+  minMouseSpeed: 3
+  maxMouseSpeed: 5
+  mousePrefab: {fileID: 1565721843962348, guid: 10026e638782f4518b39d37dd4bd5d2a,
+    type: 3}
+  catPrefab: {fileID: 1377909340170110, guid: a3f6e35302f734f3cad373306d5f3b7c, type: 3}
+--- !u!4 &1229036439
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1229036437}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 12, y: 0, z: 12}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1332930293
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1332930295}
+  - component: {fileID: 1332930294}
+  m_Layer: 0
+  m_Name: Spawner04
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1332930294
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 955407791}
+  m_GameObject: {fileID: 1332930293}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 790f3eb877a754a1b9438dcde0e9fbd4, type: 3}
+  m_Script: {fileID: 11500000, guid: 822f227d7c31840868f9cebe6b822edd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timer: 0
-  collisionRadius: 0
+  catMax: 5
+  catCount: 0
+  catFrequency: 1
+  mouseFrequency: 1
+  catTimer: 0
+  mouseTimer: 0
+  catSpeed: 2
+  mouseSpeed: 5
+  maxMiceCount: 100
+  minCatSpeed: 2
+  maxCatSpeed: 3
+  minMouseSpeed: 3
+  maxMouseSpeed: 5
+  mousePrefab: {fileID: 1565721843962348, guid: 10026e638782f4518b39d37dd4bd5d2a,
+    type: 3}
+  catPrefab: {fileID: 1377909340170110, guid: a3f6e35302f734f3cad373306d5f3b7c, type: 3}
+--- !u!4 &1332930295
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1332930293}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 12, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1763742005
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1763742007}
+  - component: {fileID: 1763742006}
+  m_Layer: 0
+  m_Name: Spawner02
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1763742006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1763742005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 822f227d7c31840868f9cebe6b822edd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  catMax: 5
+  catCount: 0
+  catFrequency: 1
+  mouseFrequency: 1
+  catTimer: 0
+  mouseTimer: 0
+  catSpeed: 2
+  mouseSpeed: 5
+  maxMiceCount: 100
+  minCatSpeed: 2
+  maxCatSpeed: 3
+  minMouseSpeed: 3
+  maxMouseSpeed: 5
+  mousePrefab: {fileID: 1565721843962348, guid: 10026e638782f4518b39d37dd4bd5d2a,
+    type: 3}
+  catPrefab: {fileID: 1377909340170110, guid: a3f6e35302f734f3cad373306d5f3b7c, type: 3}
+--- !u!4 &1763742007
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1763742005}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 12}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

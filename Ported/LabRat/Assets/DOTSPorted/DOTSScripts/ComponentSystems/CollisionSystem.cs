@@ -20,7 +20,7 @@ public class CollisionSystem : SystemBase
         var catPositionArray = m_Query.ToComponentDataArray<Position>(Allocator.TempJob);
         var sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = sys.CreateCommandBuffer();
-        var collisionRadius = GetSingleton<GameState>().collisionRadius;
+        var collisionRadius = GetSingleton<GameState>().collisionRadius; 
         Entities
             .WithAll<Mouse>()
             .WithDisposeOnCompletion(catPositionArray)
