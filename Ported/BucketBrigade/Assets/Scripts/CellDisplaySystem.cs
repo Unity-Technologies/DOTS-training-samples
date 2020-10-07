@@ -36,17 +36,25 @@ public class CellDisplaySystem : SystemBase
 			{
 				BoardHelper.TryGet2DArrayIndex(cell.X, cell.Z, heatMap.SizeX, heatMap.SizeZ, out var index);
 				float heatValue = heatMapBuffer[index].Value;
-				
-				float t = math.clamp((heatValue - cellDisplay.CoolValue) / cellDisplayRange, 0.0f, 1.0f);
-				float top = math.lerp(cellDisplay.CoolHeight, cellDisplay.FireHeight, t) + rootTranslation.Value.y;
-				
-				if (heatValue > 0)
+
+				if (heatValue > cellDisplay.OnFireThreshold)
+				{
+					float t = math.clamp((heatValue - cellDisplay.CoolValue) / cellDisplayRange, 0.0f, 1.0f);
+					float top = math.lerp(cellDisplay.CoolHeight, cellDisplay.FireHeight, t) + rootTranslation.Value.y;
+					// Animate cell
 					top += (k_FlickerRange * 0.5f) + Mathf.PerlinNoise((elapsedTime - index) * k_FlickerRate - heatValue / 100f, heatValue / 100f) * k_FlickerRange;
 				
-				float bottom = -1.0f;
-				translation.Value = new float3(rootTranslation.Value.x, (top + bottom) / 2.0f, rootTranslation.Value.z);
-				scale.Value = new float3(scale.Value.x, top - bottom, scale.Value.z);
-				color.Value = (cellDisplay.CoolColor * (1.0f - t)) + (cellDisplay.FireColor * t);
+					float bottom = -1.0f;
+					translation.Value = new float3(rootTranslation.Value.x, (top + bottom) / 2.0f, rootTranslation.Value.z);
+					scale.Value = new float3(scale.Value.x, top - bottom, scale.Value.z);
+					color.Value = (cellDisplay.CoolColor * (1.0f - t)) + (cellDisplay.FireColor * t);
+				}
+				else
+				{
+					translation.Value = new float3(rootTranslation.Value.x, rootTranslation.Value.y, rootTranslation.Value.z);
+					scale.Value = new float3(scale.Value.x, rootTranslation.Value.y + 1, scale.Value.z);
+					color.Value = cellDisplay.NeutralColor;
+				}
 			})
 			.ScheduleParallel();
 	}

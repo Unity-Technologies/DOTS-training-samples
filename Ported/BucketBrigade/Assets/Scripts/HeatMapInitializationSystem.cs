@@ -5,6 +5,7 @@ using Random = UnityEngine.Random;
 
 [UpdateBefore(typeof(CellDisplaySystem))]
 [UpdateBefore(typeof(BoardSpawnerSystem))]
+[UpdateBefore(typeof(HeatMapSpreadSystem))]
 public class HeatInitializationSystem : SystemBase
 {
 	protected override void OnStartRunning()
