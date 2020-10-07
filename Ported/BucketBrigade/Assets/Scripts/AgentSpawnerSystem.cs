@@ -35,6 +35,8 @@ public class AgentSpawnerSystem : SystemBase
             .WithStructuralChanges() // we will destroy ourselves at the end of the loop
             .ForEach((Entity agentSpawnerSettings, in AgentSpawner spawner, in Translation t) =>
         {
+            float maxAgentVelocity = spawner.MaxAgentVelocity;
+            
             // uniform scale
             //Scale prefabScale = EntityManager.GetComponentData<Scale>(spawner.AgentPrefab);
             NonUniformScale prefabScale = EntityManager.GetComponentData<NonUniformScale>(spawner.AgentPrefab);
@@ -67,12 +69,12 @@ public class AgentSpawnerSystem : SystemBase
                 {
                     Entity agent = clonedAgents[index];
                     
-                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team});
+                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team, MaxVelocity = maxAgentVelocity});
                     EntityManager.AddComponent<AgentTags.ScooperTag>(agent);
 
                     float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
                     //EntityManager.AddComponentData<SeekPosition>(agent, new TargetPosition{ MaxVelocity = 0.2f, TargetPos = new float3(spawnPos.x, spawnPos.y, spawnPos.z) });
-                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ MaxVelocity = 0.075f, TargetPos = new float3(0,0,0) });
+                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ Velocity = 0, TargetPos = new float3(0,0,0) });
                     
                     // place at random location within board
                     EntityManager.SetComponentData<Translation>(agent, new Translation(){ Value = spawnPos });
@@ -84,12 +86,12 @@ public class AgentSpawnerSystem : SystemBase
                 for (int thrower = 0; thrower < spawner.TeamThrowers; ++thrower)
                 {
                     Entity agent = clonedAgents[index];
-                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team});
+                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team, MaxVelocity = maxAgentVelocity});
                     EntityManager.AddComponent<AgentTags.ThrowerTag>(agent);
                     
                     float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
                     //EntityManager.AddComponentData<SeekPosition>(agent, new TargetPosition{ MaxVelocity = 0.075f, TargetPos = new float3(spawnPos.x, spawnPos.y, spawnPos.z) });
-                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ MaxVelocity = 0.075f, TargetPos = new float3(20,0,20) });
+                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ Velocity = 0, TargetPos = new float3(20,0,20) });
                     
                     // place at random location within board
                     EntityManager.SetComponentData<Translation>(agent, new Translation(){ Value = spawnPos });
@@ -100,12 +102,12 @@ public class AgentSpawnerSystem : SystemBase
                 for (int fullPasser = 0; fullPasser < numFullBucketPassers; ++fullPasser)
                 {
                     Entity agent = clonedAgents[index];
-                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team});
+                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team, MaxVelocity = maxAgentVelocity});
                     EntityManager.AddComponent<AgentTags.FullBucketPasserTag>(agent);
 
                     float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
                     //EntityManager.AddComponentData<SeekPosition>(agent, new TargetPosition{ MaxVelocity = 0.075f, TargetPos = new float3(spawnPos.x, spawnPos.y, spawnPos.z) });
-                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ MaxVelocity = 0.075f, TargetPos = new float3(0,0,20) });
+                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ Velocity = 0, TargetPos = new float3(0,0,20) });
                     // place at random location within board
                     EntityManager.SetComponentData<Translation>(agent, new Translation(){ Value = spawnPos });
                     ++index;
@@ -114,12 +116,12 @@ public class AgentSpawnerSystem : SystemBase
                 for (int emptyPasser = 0; emptyPasser < numEmptyBucketPassers; ++emptyPasser)
                 {
                     Entity agent = clonedAgents[index];
-                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team});
+                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team, MaxVelocity = maxAgentVelocity});
                     EntityManager.AddComponent<AgentTags.EmptyBucketPasserTag>(agent);
                     
                     float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
                     //EntityManager.AddComponentData<SeekPosition>(agent, new TargetPosition{ MaxVelocity = 0.075f, TargetPos = new float3(spawnPos.x, spawnPos.y, spawnPos.z) });
-                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ MaxVelocity = 0.075f, TargetPos = new float3(20,0,0) });
+                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ Velocity = 0f, TargetPos = new float3(20,0,0) });
                     // place at random location within board
                     EntityManager.SetComponentData<Translation>(agent, new Translation(){ Value = spawnPos });
                     ++index;    

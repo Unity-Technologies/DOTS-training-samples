@@ -19,4 +19,7 @@ public struct AgentSpawner : IComponentData
 
     [Min(1)]
     public int AgentLineLength; // the number of agents in the line. 2 extra agents will be added: one scooper, one thrower.
+    
+    [Range(0.0f, 1.0f)]
+    public float MaxAgentVelocity;
 }

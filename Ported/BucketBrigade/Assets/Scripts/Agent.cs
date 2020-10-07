@@ -8,13 +8,15 @@ using UnityEngine;
 public struct Agent : IComponentData
 {
     public int TeamID;
+    public Entity CarriedEntity;
+    public float MaxVelocity;
 }
 
 public struct AgentTags // for organization, mainly.
 {
     public struct ScooperTag : IComponentData
     {
-    
+
     }
 
     public struct ThrowerTag : IComponentData

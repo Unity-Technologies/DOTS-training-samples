@@ -17,29 +17,56 @@ public class SeekSystem : SystemBase
     protected override void OnUpdate()
     {
         float dt = (float)Time.DeltaTime;
-
-        Entities.ForEach((Entity e, ref Translation t, ref Rotation r, ref SeekPosition follower) =>
+        
+        // Due to use of EntityManager this has to run on the main thread.
+        // is there a better way? Collect all carrying / non-carrying entities in a separate list on main thread, then process in job?
+        Entities.WithoutBurst().ForEach((Entity e, ref Translation t, ref Rotation r, ref SeekPosition follower, in Agent agent) =>
         {
+            float agentMaxVelocity = agent.MaxVelocity;
             // move entity from current location
 
             float3 distance = follower.TargetPos - t.Value;
             distance.y = 0; // ignore heights.
 
-            if (math.dot(distance, distance) > 1.0f) // square distance (NB - there's a math.lengthsq too, didn't see that earlier)
+            if (math.dot(distance, distance) > 0.1f) // square distance (NB - there's a math.lengthsq too, didn't see that earlier)
             {
                 // look at direction
-                quaternion lookDir = quaternion.LookRotation(math.normalize(distance),
-                    new float3(Vector3.up.x, Vector3.up.y, Vector3.up.z));
+                r.Value = quaternion.LookRotation(math.normalize(distance),new float3(Vector3.up.x, Vector3.up.y, Vector3.up.z));
 
-                r.Value = lookDir;//math.normalize(math.mul(r.Value, lookDir));
-                //r.Value = new quaternion(0,elapsedTime, 0, 1);
-
-                // seek.
-                t.Value += math.normalize(distance) * follower.MaxVelocity * 5.0f * dt;
+                // reduce speed when carrying something
+                bool isCarrying = agent.CarriedEntity != Entity.Null;
+                if (isCarrying)
+                {
+                    // are we carrying a bucket?
+                    if (EntityManager.HasComponent<Bucket>(agent.CarriedEntity))
+                    {
+                        Intensity bucketWaterValume = EntityManager.GetComponentData<Intensity>(agent.CarriedEntity);
+                        agentMaxVelocity *= 0.5f * (bucketWaterValume.Value / 3.0f);
+                    }
+                    else
+                    {
+                        // todo! carrying other things?
+                        agentMaxVelocity *= 0.1f;
+                    }
+                }
+                
+                // seek
+                follower.Velocity = agentMaxVelocity;
+                t.Value += math.normalize(distance) * follower.Velocity;// * dt;
+                
+                // update carried entity
+                if (isCarrying)
+                {
+                    Translation carriedObjectPos = EntityManager.GetComponentData<Translation>(agent.CarriedEntity);
+                    carriedObjectPos.Value = t.Value + new float3(0.0f, 1.0f, 0.0f);
+                }
             }
             else
             {
-                //follower.TargetPos = new float3(Random.Range(0.0f, 20.0f), follower.TargetPos.y, Random.Range(0.0f, 20.0f));
+                // arrive
+                // otherwise, select new target
+                follower.Velocity *= 0.99f;
+                follower.TargetPos = new float3(Random.Range(0.0f, 20.0f), follower.TargetPos.y, Random.Range(0.0f, 20.0f));
             }
 
         }).Run();
