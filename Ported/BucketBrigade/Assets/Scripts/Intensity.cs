@@ -6,5 +6,5 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct Intensity : IComponentData
 {
-    public float Value; // should things be called Value or not?
+    public float Value;
 }

@@ -198,8 +198,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CoolValue: 15
-  CoolColor: {r: 0, g: 1, b: 0, a: 1}
-  CoolHeight: 0
+  CoolColor: {r: 0.5330188, g: 1, b: 0.5774342, a: 1}
+  CoolHeight: 0.1
   FireValue: 100
   FireColor: {r: 1, g: 0, b: 0, a: 1}
   FireHeight: 2
@@ -227,6 +227,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1665004158}
   - component: {fileID: 1665004157}
+  - component: {fileID: 1665004159}
   m_Layer: 0
   m_Name: GridSpawner
   m_TagString: Untagged
@@ -250,10 +251,10 @@ MonoBehaviour:
   SizeX: 20
   SizeZ: 20
   RandomYOffset: 0.1
-  InitialIntensity: 11.4
-  InitialOnFireCellCount: 50
-  InitialOnFireIntensityMin: 0
-  InitialOnFireIntensityMax: 0
+  InitialIntensity: 0
+  InitialOnFireCellCount: 5
+  InitialOnFireIntensityMin: 80
+  InitialOnFireIntensityMax: 100
 --- !u!4 &1665004158
 Transform:
   m_ObjectHideFlags: 0
@@ -268,6 +269,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1665004159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665004156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e279ae22694a37b1e26735ee51ca0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SizeX: 0
+  SizeZ: 0
 --- !u!1 &1860077371
 GameObject:
   m_ObjectHideFlags: 0
