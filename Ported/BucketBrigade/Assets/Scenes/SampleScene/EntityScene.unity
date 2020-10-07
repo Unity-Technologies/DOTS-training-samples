@@ -123,6 +123,69 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &850562455
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 850562457}
+  - component: {fileID: 850562456}
+  m_Layer: 0
+  m_Name: FireSimulation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &850562456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 850562455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aeb56da0678cb0441ab94cd547778f72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab_flameCell: {fileID: 1306931638197496, guid: e5962a8f313ef4c4ba51fe0d8df33cf9, type: 3}
+  startingFireCount: 10
+  maxFlameHeight: 1
+  cellSize: 0.3
+  rows: 50
+  columns: 50
+  flashpoint: 0.2
+  heatRadius: 2
+  heatTransferRate: 0.0003
+  fireSimUpdateRate: 0.01
+  fireCellColorNeutral: {r: 0.4888, g: 0.7924, b: 0.4597, a: 1}
+  fireCellColorCool: {r: 1, g: 0.8884, b: 0.5141, a: 1}
+  fireCellColorHot: {r: 1, g: 0, b: 0, a: 1}
+  botColorScoop: {r: 0, g: 1, b: 0.151, a: 1}
+  botColorPassFull: {r: 0.7729, g: 0.9245, b: 0.737, a: 1}
+  botColorPassEmpty: {r: 0.9339, g: 0.7533, b: 0.9255, a: 1}
+  botColorThrow: {r: 1, g: 0.4764, b: 0.9354, a: 1}
+  botColorOmnibot: {r: 0, g: 0, b: 0, a: 1}
+  bucketColorEmpty: {r: 1, g: 0.4103, b: 0.4589, a: 1}
+  bucketColorFull: {r: 0, g: 0.9797, b: 1, a: 1}
+--- !u!4 &850562457
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 850562455}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1793836683
 GameObject:
   m_ObjectHideFlags: 0
