@@ -32,9 +32,10 @@ public class InitBoardSystem : SystemBase
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        Entity tileMapEntity = GetSingletonEntity<TileMap>();
-        TileMap tileMap = EntityManager.GetComponentObject<TileMap>(tileMapEntity);
-        tileMap.tiles.Dispose();
+        // TODO: determine why this results in a GetSingletonEntity() error
+        //Entity tileMapEntity = GetSingletonEntity<TileMap>();
+        //TileMap tileMap = EntityManager.GetComponentObject<TileMap>(tileMapEntity);
+        //tileMap.tiles.Dispose();
 
         // TODO: cleanup
         // destroy tiles
