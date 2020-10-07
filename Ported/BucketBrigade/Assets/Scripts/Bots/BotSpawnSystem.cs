@@ -31,7 +31,11 @@ public class BotSpawnSystem : SystemBase
                     Entity e = ecb.Instantiate(i, spawner.botPrefab);
 
                     float2 pos = rand.NextFloat2() * spawner.spawnRadius - new float2(spawner.spawnRadius * 0.5f);
-                    ecb.SetComponent(i, e, new Translation { Value = new float3(pos.x, 0f, pos.y) });
+                    ecb.AddComponent(i, e, new Pos { Value = pos });
+                    
+                    // This bot is being created with a Pos and it never rotates. Could we do this in the Prefab though?
+                    ecb.RemoveComponent<Translation>(i, e);
+                    ecb.RemoveComponent<Rotation>(i, e);
                 }
                 
                 ecb.DestroyEntity(spawner.numberBots, spawnerEntity);
