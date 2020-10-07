@@ -28,7 +28,7 @@ public class SeekSystem : SystemBase
             float3 distance = follower.TargetPos - t.Value;
             distance.y = 0; // ignore heights.
 
-            if (math.dot(distance, distance) > 0.1f) // square distance (NB - there's a math.lengthsq too, didn't see that earlier)
+            if (math.lengthsq(distance) > 0.1f)
             {
                 // look at direction
                 r.Value = quaternion.LookRotation(math.normalize(distance),new float3(Vector3.up.x, Vector3.up.y, Vector3.up.z));
@@ -63,66 +63,42 @@ public class SeekSystem : SystemBase
             }
             else
             {
-                // arrive
-                // otherwise, select new target
-                //follower.Velocity *= 0.99f;
-                follower.TargetPos = new float3(Random.Range(0.0f, 20.0f), follower.TargetPos.y, Random.Range(0.0f, 20.0f));
+                // arrive (todo, not super important as the basic seek without arrival functionality seems to work ok)
+
+                //Entity nearestBucket = FindNearestEntity<Bucket>(t.Value);
+                //Translation bucketPos = EntityManager.GetComponentData<Translation>(nearestBucket);
+
+                //float3 nearestBucketPos = FindNearestEntity<Bucket>(t.Value);
+                float3 nearestBucketPos = FindNearestBucket(t.Value);
+                
+                // select new target. Todo - how to find a bucket for example.
+                //follower.TargetPos = new float3(Random.Range(0.0f, 20.0f), follower.TargetPos.y, Random.Range(0.0f, 20.0f));
+                follower.TargetPos = new float3(nearestBucketPos.x, follower.TargetPos.y, nearestBucketPos.z);
             }
 
         }).Run();
     }
-    /*
-    private bool MoveTowards(float3 _dest, float movementSpeed)
+
+    //float3 FindNearestEntity<T>(float3 position) where T : struct // ForEach not supported within generic methods
+    float3 FindNearestBucket(float3 position) //where T : struct
     {
-        float3 _POS = new float3(t.position.x, t.position.y, t.position.z);
-        bool arrivedX = false;
-        bool arrivedZ = false;
+        //Entity nearest = Entity.Null;
+        float nearestDistanceSquared = float.MaxValue;
+        float3 targetLocation = new float3();
 
-        /*
-        if (carrying != null)
+        Entities.ForEach((Entity e, in Translation t, in Bucket b) =>
         {
-            if (carrying.bucketFull)
+            float squareLen = math.lengthsq(position - t.Value);
+            if (squareLen < nearestDistanceSquared)
             {
-                movementSpeed *= fireSim.waterCarryAffect;
+                nearestDistanceSquared = squareLen;
+                targetLocation = t.Value;
             }
-        }
-        
-        // X POSITION
-        if (_POS.x < _dest.x - arriveThreshold)
-        {
-            _POS.x += movementSpeed;
-        }
-        else if (_POS.x > _dest.x + arriveThreshold)
-        {
-            _POS.x -= movementSpeed;
-        }
-        else
-        {
-            arrivedX = true;
-        }
 
-        // Z POSITION
-        if (_POS.z < _dest.z - arriveThreshold)
-        {
-            _POS.z += movementSpeed;
-        }
-        else if (_POS.z > _dest.z + arriveThreshold)
-        {
-            _POS.z -= movementSpeed;
-        }
-        else
-        {
-            arrivedZ = true;
-        }
+        //}).Schedule(); // can't run in parallel due to writing to nearestDistanceSquared. But should be able to run on a thread at least.
+        }).Run(); // can't run in parallel due to writing to nearestDistanceSquared. But should be able to run on a thread at least.
 
-        if (arrivedX && arrivedZ)
-        {
-            return true;
-        }
-        else
-        {
-            t.position = _POS;
-            return false;
-        }
-    }*/
+        return targetLocation;
+    }
+
 }
