@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public struct Bot : IComponentData
+public struct BotTag : IComponentData
 {
 }
