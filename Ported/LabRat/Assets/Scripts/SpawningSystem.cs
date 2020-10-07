@@ -21,20 +21,21 @@ public class SpawningSystem: SystemBase
             if(timer.Value <= 0f)
                 ecb.RemoveComponent<Timer>(entityInQueryIndex, entity);
         }).ScheduleParallel();
-        
+
+        var seed = (uint)DateTime.Now.Ticks;
         Entities
             .WithAll<SpawnPoint, Translation>()
             .WithNone<Timer>()
             .ForEach((Entity entity, int entityInQueryIndex, ref SpawnPoint spawnPoint, in Translation translation) =>
             {
-                var rand = new Unity.Mathematics.Random((uint) DateTime.Now.Millisecond);
+                var rand = new Unity.Mathematics.Random((uint)(seed + entityInQueryIndex));
 
                 if (spawnPoint.spawnCount > 0)
                 {
                     var instance = ecb.Instantiate(entityInQueryIndex, spawnPoint.spawnPrefab);
 
                     ecb.AddComponent(entityInQueryIndex, instance, new Position { Value = new float2(translation.Value.x, translation.Value.z)});
-                    ecb.AddComponent(entityInQueryIndex, instance, new Speed { Value = rand.NextFloat(0.4f, 20f) });
+                    ecb.AddComponent(entityInQueryIndex, instance, new Speed { Value = rand.NextFloat(spawnPoint.speedRange.x, spawnPoint.speedRange.y) });
                     ecb.AddComponent(entityInQueryIndex, instance, new Direction { Value = spawnPoint.direction});
                     
                     ecb.AddComponent(entityInQueryIndex, entity, new Timer() { Value = spawnPoint.spawnFrequency });
