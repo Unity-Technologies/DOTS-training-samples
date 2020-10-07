@@ -2,5 +2,4 @@
 
 public struct Crop : IComponentData
 {
-    public Entity farmer;
 }
