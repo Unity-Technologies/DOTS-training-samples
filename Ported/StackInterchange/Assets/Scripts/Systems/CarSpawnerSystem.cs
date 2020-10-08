@@ -15,6 +15,7 @@ public class CarSpawnerSystem : SystemBase
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
+        bool spawned = false;
         
         Entities.WithStructuralChanges()
             .ForEach((Entity entity, ref SpawnerFrequency frequency, in CarSpawner spawner, in RoadNode node, in LocalToWorld ltw, in Rotation rotation) =>
@@ -105,8 +106,19 @@ public class CarSpawnerSystem : SystemBase
                     Value = spawner.spawnerId
                 });
 
+                spawned = true;
+
                 // EntityManager.DestroyEntity(entity);
 
+            }).Run();
+
+        Entities
+            .ForEach((Entity entity, ref SpawnCount spawnCount) =>
+            {
+                if (spawned) {
+                    spawnCount.TotalCount += 1;
+                }
+                
             }).Run();
     }
 }

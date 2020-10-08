@@ -55,7 +55,12 @@ public class CarMovementSystem : SystemBase
                     
                     
                     movement.NextNode = tmpNode;
-                    rotation.Value = quaternion.LookRotation(goalPos, new float3(0,0,1));
+
+                    // ???
+                    float tmp = math.abs(math.mul(goalPos.x, goalPos.z)) % 360;
+                    if (tmp > 90 && tmp < 180){
+                        rotation.Value = math.mul(rotation.Value, quaternion.RotateY(math.mul(goalPos.x, goalPos.z)));                        
+                    }
                     movement.distanceTraveled = 0;
                 }
                 else{
@@ -67,7 +72,7 @@ public class CarMovementSystem : SystemBase
             movement.distanceTraveled += movement.Velocity;
             trans.Value += movement.travelVec * movement.Velocity;
 
-        }).Schedule();
+        }).ScheduleParallel();
 
         ecbSystem.AddJobHandleForProducer(Dependency);
     }

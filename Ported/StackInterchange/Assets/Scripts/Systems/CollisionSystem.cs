@@ -42,6 +42,8 @@ public class CollisionSystem : SystemBase
             #endif
 
             Entities.WithSharedComponentFilter(road)
+                .WithDeallocateOnJobCompletion(entityArray)
+                .WithDeallocateOnJobCompletion(translationArray)
                 .ForEach((Entity entity, ref Color color, ref CarMovement carMovement, in LocalToWorld localToWorld, in Translation translation, in Car car) =>
             {
                 float hitDist = 1000000;
@@ -87,6 +89,7 @@ public class CollisionSystem : SystemBase
                     color.Value = blue;
                 }
                 #endif
+
             }).ScheduleParallel();
         }
     }
