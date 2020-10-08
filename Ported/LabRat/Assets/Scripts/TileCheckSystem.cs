@@ -8,6 +8,7 @@ public class TileCheckSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;
     private EntityQuery m_tilesWithArrowQuery;
+    private EntityQuery m_tileWithHomebaseQuery;
 
     protected override void OnCreate()
     {
@@ -20,6 +21,12 @@ public class TileCheckSystem : SystemBase
             All = new ComponentType[] {typeof(Arrow), typeof(Direction)}
         };
         m_tilesWithArrowQuery = EntityManager.CreateEntityQuery(arrowQueryDesc);
+
+        EntityQueryDesc desc = new EntityQueryDesc
+        {
+            All = new ComponentType[] { typeof(HomeBase), typeof(Translation) }
+        };
+        m_tileWithHomebaseQuery = EntityManager.CreateEntityQuery(desc);
     }
 
     protected override void OnUpdate()
@@ -29,6 +36,10 @@ public class TileCheckSystem : SystemBase
         var arrows = m_tilesWithArrowQuery.ToComponentDataArray<Arrow>(Allocator.TempJob);
         var arrowDirections = m_tilesWithArrowQuery.ToComponentDataArray<Direction>(Allocator.TempJob);
         var boardSize = GetSingleton<GameInfo>().boardSize.x;
+
+        var homeBaseEntities = m_tileWithHomebaseQuery.ToEntityArray(Allocator.TempJob);
+        var homeBases = m_tileWithHomebaseQuery.ToComponentDataArray<HomeBase>(Allocator.TempJob);
+        var homeBaseTileTranslations = m_tileWithHomebaseQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
 
         var tileWallsEntity = GetSingletonEntity<TileWall>();
         var tileWalls = EntityManager.GetBuffer<TileWall>(tileWallsEntity);
@@ -50,29 +61,52 @@ public class TileCheckSystem : SystemBase
                 var tileY = tileCoord.Value.y;
                 int bufferIndex = tileY * boardSize + tileX;
 
-                byte newDirection = direction.Value;
-                for (int i = 0; i < arrows.Length; i++)
+                bool hitHomeBase = false;
+                for (int i = 0; i < homeBaseTileTranslations.Length; i++)
                 {
-                    if (arrows[i].Position == bufferIndex)
-                        newDirection = arrowDirections[i].Value;
+                    if (tileX == (int)homeBaseTileTranslations[i].Value.x &&
+                        tileY == (int)homeBaseTileTranslations[i].Value.z)
+                    {
+                        var homebase = homeBases[i];
+                        ecb.SetComponent<HomeBase>(entityInQueryIndex, homeBaseEntities[i],
+                            new HomeBase()
+                            {
+                                playerIndex = homebase.playerIndex,
+                                playerScore = homebase.playerScore + 1
+                            });
+                        hitHomeBase = true;
+
+                        ecb.DestroyEntity(entityInQueryIndex, entity);
+                    }
                 }
 
-                //Bug in here somewhere.  the mice can get to a certain point and then continuously spin on the tile.
-                newDirection = FindNewDirectionIfNeeded(bufferIndex, newDirection, tileWalls);
-                if (newDirection != direction.Value)
+                if (!hitHomeBase)
                 {
-                    direction.Value = newDirection;
-                    var temp = quaternion.RotateY(math.radians(90f));
-                    rotation.Value = math.normalize(math.mul(rotation.Value, temp));
-                }
+                    byte newDirection = direction.Value;
+                    for (int i = 0; i < arrows.Length; i++)
+                    {
+                        if (arrows[i].Position == bufferIndex)
+                            newDirection = arrowDirections[i].Value;
+                    }
 
-                //if we dont hit a wall, we still want to remove the tag regardless.
-                ecb.RemoveComponent<TileCheckTag>(entityInQueryIndex, entity);
+                    //Bug in here somewhere.  the mice can get to a certain point and then continuously spin on the tile.
+                    newDirection = FindNewDirectionIfNeeded(bufferIndex, newDirection, tileWalls);
+                    if (newDirection != direction.Value)
+                    {
+                        direction.Value = newDirection;
+                        var temp = quaternion.RotateY(math.radians(90f));
+                        rotation.Value = math.normalize(math.mul(rotation.Value, temp));
+                    }
+                    ecb.RemoveComponent<TileCheckTag>(entityInQueryIndex, entity);
+                }
             }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
         arrows.Dispose(Dependency);
         arrowDirections.Dispose(Dependency);
+        homeBaseEntities.Dispose(Dependency);
+        homeBases.Dispose(Dependency);
+        homeBaseTileTranslations.Dispose(Dependency);
     }
 
     static byte FindNewDirectionIfNeeded(

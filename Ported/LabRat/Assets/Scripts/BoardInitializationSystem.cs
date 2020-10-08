@@ -316,8 +316,8 @@ public class BoardInitializationSystem : SystemBase
 
         SetComponent(homebaseInstance, PlayerUtility.ColorFromPlayerIndex(playerIndex));
 
-        EntityManager.AddComponent<HomeBase>(tileInstance);
-        SetComponent<HomeBase>(tileInstance, new HomeBase
+        EntityManager.AddComponent<HomeBase>(homebaseInstance);
+        SetComponent<HomeBase>(homebaseInstance, new HomeBase
         {
             playerIndex = (byte) playerIndex,
             playerScore = 0
