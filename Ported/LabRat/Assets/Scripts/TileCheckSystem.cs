@@ -93,7 +93,7 @@ public class TileCheckSystem : SystemBase
         Direction direction,
         DynamicBuffer<TileWall> tileWalls)
     {
-        int bufferIndex = tileX * 10 + tileY;
+        int bufferIndex = tileY * 10 + tileX;
         TileWall wall = tileWalls[bufferIndex];
 
         byte directionOut = direction.Value;
@@ -151,7 +151,13 @@ public class TileCheckSystem : SystemBase
         tileX += (int)forwardDir.x;
         tileY += (int)forwardDir.y;
 
-        int bufferIndex = tileX * 10 + tileY;
+        if (tileX < 0 || tileY < 0)
+        {
+            //we cant go negative.
+            return direction.Value;
+        }
+
+        int bufferIndex = tileY * 10 + tileX;
         TileWall wall = tileWalls[bufferIndex];
 
         byte directionOut = direction.Value;

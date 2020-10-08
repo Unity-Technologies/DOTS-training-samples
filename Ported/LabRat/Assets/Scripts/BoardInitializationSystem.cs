@@ -16,6 +16,10 @@ public class BoardInitializationSystem : SystemBase
                 var wallEntity = EntityManager.CreateEntity();
                 var wallBuffer = EntityManager.AddBuffer<TileWall>(wallEntity);
                 wallBuffer.ResizeUninitialized(board.size * board.size);
+                for (int i = 0; i < board.size * board.size; i++)
+                {
+                    wallBuffer[i] = new TileWall() { Value = 0 };
+                }
 
                 var rand = new Unity.Mathematics.Random((uint) DateTime.Now.Millisecond);
                 var boardQuarter = board.size / 4;
@@ -199,7 +203,7 @@ public class BoardInitializationSystem : SystemBase
         int positionY,
         int boardWidth)
     {
-        int index = boardWidth * positionX + positionY;
+        int index = boardWidth * positionY + positionX;
         var wallBuffer = EntityManager.GetBuffer<TileWall>(wallBufferEntity);
         var value = wallBuffer[index];
         wallBuffer.ElementAt(index).Value = (byte)(value.Value | wallDirection);
