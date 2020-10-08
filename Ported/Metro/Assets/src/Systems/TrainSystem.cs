@@ -15,7 +15,27 @@ public class TrainSystem : SystemBase
         var deltaTime = Time.DeltaTime;
 
         var ecb = m_EcbSystem.CreateCommandBuffer().AsParallelWriter();
-        
+
+        Entities
+            .WithNone<NextPlatform>()
+            .ForEach((Entity train, int entityInQueryIndex, in Rail rail, in Position position) =>
+            {
+                var platforms = GetBuffer<BufferPlatform>(rail);
+
+                Entity chosenPlatform = platforms[0];
+                foreach(var platform in platforms)
+                {
+                    float platformPosition = GetComponent<Position>(platform);
+                    if (platformPosition > position)
+                    {
+                        chosenPlatform = platform;
+                        break;
+                    }
+                }
+
+                ecb.AddComponent(entityInQueryIndex, train, new NextPlatform() { Value = chosenPlatform });
+            }).Schedule();
+
         Entities
             .ForEach((ref NextPlatformPosition nextPlatformPosition, in Position position, in Rail rail, in NextPlatform nextPlatform) =>
             {
@@ -39,24 +59,78 @@ public class TrainSystem : SystemBase
             }).ScheduleParallel();
         
         Entities
-            .ForEach((Entity entity, int entityInQueryIndex, ref Position position, in Rail rail, in NextPlatformPosition nextPlatformPosition,
-                      in NextPlatform nextPlatform, in NextTrainPosition nextTrainPosition) =>
+            .WithAll<NextPlatform>()
+            .WithNone<TrainTask_OpenDoors>()
+            .WithNone<TrainTask_UnboardPassengers>()
+            .WithNone<TrainTask_BoardPassengers>()
+            .WithNone<TrainTask_CloseDoors>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref Position position, in Rail rail, in NextPlatformPosition nextPlatformPosition, in NextTrainPosition nextTrainPosition) =>
             {
                 var railLength = GetComponent<RailLength>(rail);
+                
                 var newPosition = position + 20f * deltaTime;
                 newPosition = math.min(newPosition, nextTrainPosition);
                 newPosition = math.min(newPosition, nextPlatformPosition);
+
                 if (newPosition > railLength)
                     newPosition = math.frac(newPosition / railLength) * railLength;
                 position = newPosition;
 
                 if (newPosition == nextPlatformPosition)
                 {
-                    ecb.AddComponent(entityInQueryIndex, nextPlatform, new PlatformBoardingTrain {Train = entity});
-                    ecb.RemoveComponent<NextPlatform>(entityInQueryIndex, entity);
+                    ecb.AddComponent(entityInQueryIndex, entity, new TrainTask_OpenDoors() { TimeRemaining = 2f });
                 }
             }).ScheduleParallel();
-        
+
+        Entities
+            .ForEach((Entity train, int entityInQueryIndex, ref TrainTask_OpenDoors timeTask, in NextPlatform nextPlatform) =>
+            {
+                timeTask.TimeRemaining -= deltaTime;
+
+                if (timeTask.TimeRemaining <= 0)
+                {
+                    ecb.AddComponent(entityInQueryIndex, nextPlatform, new PlatformBoardingTrain { Train = train });
+                    ecb.AddComponent(entityInQueryIndex, train, new TrainTask_UnboardPassengers() { TimeRemaining = 4f });
+                    ecb.RemoveComponent<TrainTask_OpenDoors>(entityInQueryIndex, train);
+                }
+            }).ScheduleParallel();
+
+        Entities
+            .ForEach((Entity train, int entityInQueryIndex, ref TrainTask_UnboardPassengers timeTask) =>
+            {
+                timeTask.TimeRemaining -= deltaTime;
+
+                if (timeTask.TimeRemaining <= 0)
+                {
+                    ecb.AddComponent(entityInQueryIndex, train, new TrainTask_BoardPassengers() { TimeRemaining = 4f });
+                    ecb.RemoveComponent<TrainTask_UnboardPassengers>(entityInQueryIndex, train);
+                }
+            }).ScheduleParallel();
+
+        Entities
+            .ForEach((Entity train, int entityInQueryIndex, ref TrainTask_BoardPassengers timeTask) =>
+            {
+                timeTask.TimeRemaining -= deltaTime;
+
+                if (timeTask.TimeRemaining <= 0)
+                {
+                    ecb.AddComponent(entityInQueryIndex, train, new TrainTask_CloseDoors() { TimeRemaining = 2f });
+                    ecb.RemoveComponent<TrainTask_BoardPassengers>(entityInQueryIndex, train);
+                }
+            }).ScheduleParallel();
+
+        Entities
+            .ForEach((Entity train, int entityInQueryIndex, ref TrainTask_CloseDoors timeTask) =>
+            {
+                timeTask.TimeRemaining -= deltaTime;
+
+                if (timeTask.TimeRemaining <= 0)
+                {
+                    ecb.RemoveComponent<TrainTask_CloseDoors>(entityInQueryIndex, train);
+                    ecb.RemoveComponent<NextPlatform>(entityInQueryIndex, train);
+                }
+            }).ScheduleParallel();
+
         m_EcbSystem.AddJobHandleForProducer(Dependency);
         
         Entities
