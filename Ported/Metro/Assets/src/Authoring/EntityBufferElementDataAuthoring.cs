@@ -2,7 +2,7 @@
 using Unity.Entities;
 using UnityEngine;
 
-public class EntityBufferElementDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
+public class EntityBufferElementDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     public List<GameObject> Items;
 
@@ -14,12 +14,6 @@ public class EntityBufferElementDataAuthoring : MonoBehaviour, IConvertGameObjec
         {
             buf.Add(new EntityBufferElementData { Value = conversionSystem.GetPrimaryEntity(item) });
         }
-    }
-
-
-    public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
-    {
-        //referencedPrefabs.AddRange(Items);
     }
 }
 

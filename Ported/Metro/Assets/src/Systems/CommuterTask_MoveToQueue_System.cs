@@ -4,8 +4,6 @@ using Unity.Transforms;
 
 public class CommuterTask_MoveToQueue_System : SystemBase
 {
-    private int nextQueueIndex = 0;
-
     protected override void OnCreate()
     {
         base.OnCreate();
