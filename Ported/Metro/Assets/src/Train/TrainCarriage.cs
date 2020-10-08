@@ -88,5 +88,11 @@ public class TrainCarriage : MonoBehaviour, IConvertGameObjectToEntity
     {
         dstManager.AddComponent<CarriagePosition>(entity);
         dstManager.AddComponent<Rail>(entity);
+
+        var commuterBuffer = dstManager.AddBuffer<CommuterInCarriageBufferElementData>(entity);
+        for (int i = 0; i < CARRIAGE_CAPACITY; ++i)
+        {
+            commuterBuffer.Add(new CommuterInCarriageBufferElementData { Value = Entity.Null });
+        }
     }
 }

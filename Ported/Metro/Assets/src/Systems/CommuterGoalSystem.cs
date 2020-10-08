@@ -1,4 +1,3 @@
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -23,15 +22,17 @@ public class CommuterGoalSystem : SystemBase
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
         Random random = new Random(12345);
+        uint timeOffset = (uint)System.DateTime.Now.Millisecond;
 
         Entities
             .WithName("commuter_goal_assignment")
             .WithNone<CommuterTask_MoveToPlatform, CommuterTask_MoveToQueue, CommuterTask_WaitOnQueue>()
+            .WithNone<CommuterTask_BoardTrain, CommuterTask_UnboardTrain>()
             .ForEach((Entity commuter, int entityInQueryIndex, ref CommuterOnPlatform platform, in Translation translation) =>
             {
                 Entity currentPlatform = platform.Value;
 
-                int targetPlatformIndex = new Random((uint)commuter.Index).NextInt() % 2;
+                int targetPlatformIndex = new Random((uint)commuter.Index + timeOffset).NextInt() % 2;
                 if (targetPlatformIndex == 0)
                 {
                     ecb.AddComponent<CommuterTask_MoveToQueue>(entityInQueryIndex, commuter);
@@ -135,6 +136,28 @@ public class CommuterGoalSystem : SystemBase
                     ecb.AddComponent<CommuterTask_WaitOnQueue>(entityInQueryIndex, entity);
                 } // todo: else error?
             }).Schedule();
+
+        Entities
+            .WithName("commuter_boarding_train")
+            .WithNone<TargetPoint>()
+            .ForEach((Entity entity, int entityInQueryIndex, in CommuterTask_BoardTrain task) =>
+            {
+                // Link to Parent
+                ecb.AddComponent(entityInQueryIndex, entity, new Parent { Value = task.Carriage });
+
+                ecb.RemoveComponent<CommuterTask_BoardTrain>(entityInQueryIndex, entity);
+                ecb.RemoveComponent<CommuterOnPlatform>(entityInQueryIndex, entity);
+            }).Schedule();
+
+        Entities
+            .WithName("commuter_unboarding_train")
+            .WithNone<TargetPoint>()
+            .ForEach((Entity entity, int entityInQueryIndex, in CommuterTask_UnboardTrain task) =>
+            {
+                ecb.AddComponent(entityInQueryIndex, entity, new CommuterOnPlatform { Value = task.Platform });
+                ecb.RemoveComponent<CommuterTask_UnboardTrain>(entityInQueryIndex, entity);
+            }).Schedule();
+
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
