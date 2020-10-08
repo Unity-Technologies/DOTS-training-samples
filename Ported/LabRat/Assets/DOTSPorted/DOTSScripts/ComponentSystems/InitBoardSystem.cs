@@ -10,6 +10,7 @@ using Unity.Transforms;
 // bitfield
 // 0-3 bits indicate a wall
 // 4 bit indicates a hole
+// 5-7 bits - 1-7 value indicating an end
 public class TileMap : IComponentData
 {
     public byte [] tiles;
@@ -17,10 +18,6 @@ public class TileMap : IComponentData
 
 public class InitBoardSystem : SystemBase
 {
-    // TODO: move to GameState/BoardInfo
-    private readonly float4 color1 = new float4(0.95f, 0.95f, 0.95f, 1f);
-    private readonly float4 color2 = new float4(0.80f, 0.78f, 0.88f, 1f);
-
     protected override void OnCreate()
     {
         UnityEngine.Debug.Log("InitBoardSystem OnCreate");
@@ -90,26 +87,40 @@ public class InitBoardSystem : SystemBase
             }
         }
 
+        // create home bases
+        float goaloffset = 1f / 3f;
+        for (int x = 0; x <= 1; x++)
+            for (int y = 0; y <= 1; y++)
+            {
+                int tilex = (int)(width * (goaloffset * (x + 1)));
+                int tiley = (int)(height * (goaloffset * (y + 1)));
+                int playerId = x*2 + y + 1;
+                tiles[tiley*width + tilex] |= (byte)(playerId << 5);
+            }
+
         // create holes/traps
         int holeCount = random.NextInt(
             boardInfo.minNumberOfHoles, boardInfo.maxNumberOfHoles);
-        UnityEngine.Debug.Log("InitBoardSystem hole count min max, count: "
-            + boardInfo.minNumberOfHoles + " " + boardInfo.maxNumberOfHoles + " "
-            + holeCount);
         int numHoles = 0;
         while (numHoles < holeCount) {
             int x = random.NextInt(0, width-1);
             int y = random.NextInt(0, height-1);
             int i = y*width + x;
 
-            if ((tiles[i] & (1 << 4)) == 0)
+            // check for existing hole or end
+            if ((tiles[i] & (1 << 4)) == 0 && (tiles[i] >> 5) == 0)
             {
                 tiles[i] |= (1 << 4);
                 numHoles++;
             }
         }
 
-        // create goal prefabs
+        // create tiles, walls, holes and base prefabs on board
+        Entity [] basePrefab = {
+            boardSetup.base0Prefab,
+            boardSetup.base1Prefab,
+            boardSetup.base2Prefab,
+            boardSetup.base3Prefab };
         float [] xoff = {0f, 0.5f, 0f, -0.5f};
         float [] yoff = {0.5f, 0f, -0.5f, 0f};
         for (int x = 0; x < width; ++x)
@@ -140,17 +151,14 @@ public class InitBoardSystem : SystemBase
                             new Translation { Value = new float3(x + xoff[w], 0.78f, y + yoff[w]) });
                     }
                 }
+
+                // create bases
+                if ((tiles[i] >> 5) != 0)
+                {
+                    var cell = EntityManager.Instantiate(basePrefab[(tiles[i] >> 5) - 1]);
+                    EntityManager.SetComponentData(cell, new Translation { Value = new float3(x, 0.0f, y) });
+                }
             }
-
-        // TODO: create goal prefabs
-
-        // TODO: move to GameState
-        // colors for end spawn
-        float4[] colors = {
-            new float4(1.0f, 0.0f, 0.0f, 1.0f),
-            new float4(0.0f, 1.0f, 0.0f, 1.0f),
-            new float4(0.0f, 0.0f, 1.0f, 1.0f),
-            new float4(0.0f, 0.0f, 0.0f, 1.0f) };
 
         // create mice and cat spawners
 
