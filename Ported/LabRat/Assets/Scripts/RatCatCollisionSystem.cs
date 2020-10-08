@@ -29,8 +29,9 @@ public class RatCatCollisionSystem : SystemBase
         Entities.WithAll<Rat>().ForEach(
             (Entity entity, int entityInQueryIndex, ref Position position, ref Translation translation) =>
             {
-                foreach (var catTranslation in catTranslations)
+                for (int i = 0; i < catTranslations.Length; ++i)
                 {
+                    var catTranslation = catTranslations[i];
                     if (math.distancesq(translation.Value, catTranslation.Value) < CollisionRadiusSq)
                     {
                         ecb.DestroyEntity(entityInQueryIndex, entity);
