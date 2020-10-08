@@ -5,8 +5,6 @@ using Unity.Transforms;
 
 public class CommuterGoalSystem : SystemBase
 {
-    private int nextQueueIndex = 0;
-
     private struct CommuterToQueue
     {
         public Entity Commuter;
@@ -32,27 +30,30 @@ public class CommuterGoalSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
+
+        Random random = new Random(12345);
+
         Entities
             .WithName("commuter_goal_assignment")
-            .WithStructuralChanges()
             .WithNone<CommuterTask_MoveToPlatform, CommuterTask_MoveToQueue, CommuterTask_WaitOnQueue>()
-            .ForEach((Entity commuter, ref CommuterOnPlatform platform, in Translation translation) =>
+            .ForEach((Entity commuter, int entityInQueryIndex, ref CommuterOnPlatform platform, in Translation translation) =>
             {
                 Entity currentPlatform = platform.Value;
 
                 int targetPlatformIndex = new Random((uint)commuter.Index).NextInt() % 2;
                 if (targetPlatformIndex == 0)
                 {
-                    EntityManager.AddComponent<CommuterTask_MoveToQueue>(commuter);
+                    ecb.AddComponent<CommuterTask_MoveToQueue>(entityInQueryIndex, commuter);
                 }
                 else
                 {
                     WalkwayPoints currentWalkways = GetComponent<WalkwayPoints>(currentPlatform);
 
                     var sameStationPlatforms = GetBufferFromEntity<SameStationPlatformBufferElementData>()[currentPlatform];
-                    Entity nextPlatform = sameStationPlatforms[nextQueueIndex % sameStationPlatforms.Length].Value;
+                    int nextQueueIndex = random.NextInt(sameStationPlatforms.Length);
+                    Entity nextPlatform = sameStationPlatforms[nextQueueIndex].Value;
                     WalkwayPoints nextWalkways = GetComponent<WalkwayPoints>(nextPlatform);
-                    System.Threading.Interlocked.Increment(ref nextQueueIndex);
 
                     Entity adjacentPlatform = GetComponent<AdjacentPlatform>(currentPlatform).Value;
                     if (nextPlatform == adjacentPlatform)
@@ -70,11 +71,11 @@ public class CommuterGoalSystem : SystemBase
                         //float3 nextPoint = GetComponent<LocalToWorld>(nextQueue).Position;
                         //EntityManager.AddComponentData(commuter, new TargetPoint() { CurrentTarget = nextPoint });
 
-                        EntityManager.AddComponent<CommuterTask_MoveToQueue>(commuter);
+                        ecb.AddComponent<CommuterTask_MoveToQueue>(entityInQueryIndex, commuter);
                     }
                     else
                     {
-                        var navPoints = EntityManager.AddBuffer<NavPointBufferElementData>(commuter);
+                        var navPoints = ecb.AddBuffer<NavPointBufferElementData>(entityInQueryIndex, commuter);
 
                         if (math.distancesq(translation.Value, currentWalkways.WalkwayFrontBottom) <= math.distancesq(translation.Value, currentWalkways.WalkwayBackBottom))
                         {
@@ -91,13 +92,11 @@ public class CommuterGoalSystem : SystemBase
                             navPoints.Add(new NavPointBufferElementData() { NavPoint = nextWalkways.WalkwayBackBottom });
                         }
 
-                        EntityManager.AddComponentData(commuter, new CommuterTask_MoveToPlatform() { TargetPlatform = nextPlatform });
+                        ecb.AddComponent(entityInQueryIndex, commuter, new CommuterTask_MoveToPlatform() { TargetPlatform = nextPlatform });
                     }
                 }
 
-            }).Run();
-
-        var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
+            }).Schedule();
 
         //BufferFromEntity<EntityBufferElementData> buffers = GetBufferFromEntity<EntityBufferElementData>(true);
 
