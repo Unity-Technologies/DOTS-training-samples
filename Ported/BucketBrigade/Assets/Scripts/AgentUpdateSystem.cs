@@ -111,11 +111,12 @@ public class AgentUpdateSystem : SystemBase
                         // target is a bucket, in theory.
                         // pick up bucket (Agent.CarriedEntity = Bucket)
                         FindNearestIndex(t.Value, bucketLocations, bucketIsEmptyAndOnGround, true, out bucketEntityIndex); // look for nearest empty bucket
-                        bucketEntity = bucketEntities[bucketEntityIndex];
 
                         // check that the bucket is still in the expected location (another bot may have stolen it)
                         if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
                         {
+                            bucketEntity = bucketEntities[bucketEntityIndex];
+                            
                             // the bucket is still here
                             // update carryable component to track carrying entity.
                             ecb1.SetComponent<CarryableObject>(entityInQueryIndex, bucketEntity, new CarryableObject { CarryingEntity = e} );
@@ -124,7 +125,7 @@ public class AgentUpdateSystem : SystemBase
                             seekComponent.TargetPos = new float3(0, 0, 0);
                         
                             agent.ActionState = (byte) AgentAction.FILL_BUCKET;
-                            agent.CarriedEntity = bucketEntities[bucketEntityIndex];
+                            agent.CarriedEntity = bucketEntity;
                         }
                         else
                         {
@@ -271,7 +272,7 @@ public class AgentUpdateSystem : SystemBase
             {
                 float squareLen = math.lengthsq(currentPos - objectLocation[i]);
 
-                if (squareLen < nearestDistanceSquared && squareLen > 5.0f)
+                if (squareLen < nearestDistanceSquared /*&& squareLen > 5.0f*/)
                 {
                     nearestDistanceSquared = squareLen;
                     nearestIndex = i;
@@ -292,7 +293,7 @@ public class AgentUpdateSystem : SystemBase
             {
                 float squareLen = math.lengthsq(currentPos - objectLocation[i]);
 
-                if (squareLen < nearestDistanceSquared && squareLen > 5.0f)
+                if (squareLen < nearestDistanceSquared /*&& squareLen > 5.0f*/)
                 {
                     nearestDistanceSquared = squareLen;
                     nearestIndex = i;

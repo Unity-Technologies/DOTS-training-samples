@@ -11,13 +11,13 @@ public struct AgentSpawner : IComponentData
     [Min(0)]
     public int TeamCount;
 
-    [Min(1)]
+    [Min(0)]
     public int TeamScoopers;
     
-    [Min(1)]
+    [Min(0)]
     public int TeamThrowers;
 
-    [Min(1)]
+    [Min(0)]
     public int AgentLineLength; // the number of agents in the line. 2 extra agents will be added: one scooper, one thrower.
     
     [Range(0.0f, 1.0f)]
