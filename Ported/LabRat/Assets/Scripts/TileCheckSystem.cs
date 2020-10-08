@@ -49,6 +49,7 @@ public class TileCheckSystem : SystemBase
                 Entity entity,
                 int entityInQueryIndex,
                 ref Direction direction,
+                ref Rotation rotation,
                 ref Position position) =>
             {
                 UnityEngine.Debug.Log("Running Tile Check");
@@ -69,8 +70,14 @@ public class TileCheckSystem : SystemBase
                     newDirection = FindNewDirectionIfNeededFromNextTile(tileX, tileY, direction, tileWalls);
                 }
 
+                if (newDirection != direction.Value)
+                {
+                    direction.Value = newDirection;
+                    var temp = quaternion.RotateY(math.radians(90f));
+                    rotation.Value = math.normalize(math.mul(rotation.Value, temp));
+                }
 
-                direction.Value = newDirection;
+
 
                 //if we dont hit a wall, we still want to remove the tag regardless.
                 ecb.RemoveComponent<TileCheckTag>(entityInQueryIndex, entity);
