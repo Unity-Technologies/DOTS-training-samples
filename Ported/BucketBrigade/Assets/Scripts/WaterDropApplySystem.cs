@@ -1,10 +1,11 @@
 ﻿using System;
 using Unity.Entities;
-
+[UpdateAfter(typeof(HeatMapSpreadSystem))]
 public class WaterDropApplySystem : SystemBase
 {
 	protected override void OnUpdate()
 	{
+		
 		var heatMapEntity = GetSingletonEntity<HeatMap>();
 		var heatMap = EntityManager.GetComponentData<HeatMap>(heatMapEntity);
 		var heatMapBuffer = EntityManager.GetBuffer<HeatMapElement>(heatMapEntity).AsNativeArray();
