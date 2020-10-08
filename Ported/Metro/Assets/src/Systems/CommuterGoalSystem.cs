@@ -164,8 +164,6 @@ public class CommuterGoalSystem : SystemBase
 
                     ecb.RemoveComponent<CommuterOnPlatform>(entityInQueryIndex, commuter);
                 }
-
-
             }).Schedule();
 
         Entities
@@ -179,10 +177,28 @@ public class CommuterGoalSystem : SystemBase
         Entities
             .WithName("commuter_unboarding_train")
             .WithNone<TargetPoint>()
-            .ForEach((Entity entity, int entityInQueryIndex, in CommuterTask_UnboardTrain task) =>
+            .ForEach((Entity commuter, int entityInQueryIndex, in CommuterTask_UnboardTrain task) =>
             {
-                ecb.AddComponent(entityInQueryIndex, entity, new CommuterOnPlatform { Value = task.Platform });
-                ecb.RemoveComponent<CommuterTask_UnboardTrain>(entityInQueryIndex, entity);
+                var navPointsForCommuter = GetBufferFromEntity<NavPointBufferElementData>();
+                if (navPointsForCommuter.HasComponent(commuter))
+                {
+                    var navPoints = navPointsForCommuter[commuter];
+
+                    float3 nextPoint = navPoints[0].NavPoint;
+
+                    navPoints.RemoveAt(0);
+                    if (navPoints.IsEmpty)
+                    {
+                        ecb.RemoveComponent<NavPointBufferElementData>(entityInQueryIndex, commuter);
+                    }
+
+                    ecb.AddComponent(entityInQueryIndex, commuter, new TargetPoint() { CurrentTarget = nextPoint });
+                }
+                else
+                {
+                    ecb.AddComponent(entityInQueryIndex, commuter, new CommuterOnPlatform { Value = task.Platform });
+                    ecb.RemoveComponent<CommuterTask_UnboardTrain>(entityInQueryIndex, commuter);
+                }
             }).Schedule();
 
 
