@@ -1,8 +1,5 @@
-﻿using Unity.Collections;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Transforms;
 
 public class TimerSystem : SystemBase
 {
@@ -29,7 +26,7 @@ public class TimerSystem : SystemBase
                     ecb.RemoveComponent<WaitTimer>(entityInQueryIndex, entity);
                 }
 
-            }).Schedule();
+            }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }

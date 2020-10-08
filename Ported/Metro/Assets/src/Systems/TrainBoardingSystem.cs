@@ -104,6 +104,7 @@ public class TrainBoardingSystem : SystemBase
                             // Detach from carriage
                             ecb.RemoveComponent<Parent>(commuter.Index, commuter);
                         }
+                        carriageCommuterBuffer[j] = new CommuterInCarriageBufferElementData { Value = Entity.Null };
                     }
                     queueCommuterBuffer.Clear();
                 }
