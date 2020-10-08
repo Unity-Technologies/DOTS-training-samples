@@ -25,55 +25,59 @@ public class CreateChainSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.TempJob);
-        var chainSystemQueue = GetSingletonEntity<CreateChainBufferElement>();
-        var chainQueueBuffer = EntityManager.GetBuffer<CreateChainBufferElement>(chainSystemQueue);
-        Entities
-            .WithName("CreateChain")
-            .WithAll<ChainCreateTag>()
-            .ForEach(
-                (Entity entity, int entityInQueryIndex,
-                    in ChainStart start, in ChainEnd end, in ChainLength length, in ChainID chainID) =>
-                {
-                    ecb.RemoveComponent<ChainCreateTag>(entity);
-                    for (int i = 0; i < length.Value; ++i)
-                    {
-                        chainQueueBuffer.Add(new CreateChainBufferElement() { chainID = chainID.Value, position = i });
-                    }
-                })
-            .Run();
-
-        var bufferLength = chainQueueBuffer.Length;
-        if (bufferLength > 0)
+        using (var ecb = new EntityCommandBuffer(Allocator.TempJob))
         {
-            var bufferPos = 0;
+            var chainSystemQueue = GetSingletonEntity<CreateChainBufferElement>();
+            var chainQueueBuffer = EntityManager.GetBuffer<CreateChainBufferElement>(chainSystemQueue);
             Entities
-                .WithName("AssignBotsToChain")
-                .WithAll<BotTag>()
-                .WithNone<SharedChainComponent>()
+                .WithName("CreateChain")
+                .WithAll<ChainCreateTag>()
                 .ForEach(
-                    (Entity entity, int entityInQueryIndex, ref DynamicBuffer<CommandBufferElement> commandQueue) =>
+                    (Entity entity, int entityInQueryIndex,
+                        in ChainStart start, in ChainEnd end, in ChainLength length, in ChainID chainID) =>
                     {
-                        if (bufferPos < bufferLength)
+                        ecb.RemoveComponent<ChainCreateTag>(entity);
+                        for (int i = 0; i < length.Value; ++i)
                         {
-                            ecb.AddComponent(entity, new CurrentBotCommand { Command = Command.None});
-                            DynamicBuffer<Command> commandBuffer = commandQueue.Reinterpret<Command>();
-                            commandBuffer.Add(Command.Move);
-                            ecb.AddComponent(entity,
-                                new ChainPosition() { Value = chainQueueBuffer[bufferPos].position });
-                            ecb.AddSharedComponent(entity,
-                                new SharedChainComponent() { chainID = chainQueueBuffer[bufferPos].chainID });
-                            ++bufferPos;
+                            chainQueueBuffer.Add(new CreateChainBufferElement()
+                                {chainID = chainID.Value, position = i});
                         }
                     })
                 .Run();
 
-            if (bufferPos > 0)
+            var bufferLength = chainQueueBuffer.Length;
+            if (bufferLength > 0)
             {
-                chainQueueBuffer.RemoveRange(0, bufferPos);
+                var bufferPos = 0;
+                Entities
+                    .WithName("AssignBotsToChain")
+                    .WithAll<BotTag>()
+                    .WithNone<SharedChainComponent>()
+                    .ForEach(
+                        (Entity entity, int entityInQueryIndex, ref DynamicBuffer<CommandBufferElement> commandQueue) =>
+                        {
+                            if (bufferPos < bufferLength)
+                            {
+                                ecb.AddComponent(entity, new CurrentBotCommand {Command = Command.None});
+                                DynamicBuffer<Command> commandBuffer = commandQueue.Reinterpret<Command>();
+                                commandBuffer.Add(Command.Move);
+                                ecb.AddComponent(entity,
+                                    new ChainPosition() {Value = chainQueueBuffer[bufferPos].position});
+                                ecb.AddSharedComponent(entity,
+                                    new SharedChainComponent() {chainID = chainQueueBuffer[bufferPos].chainID});
+                                ++bufferPos;
+                            }
+                        })
+                    .Run();
+
+                if (bufferPos > 0)
+                {
+                    chainQueueBuffer.RemoveRange(0, bufferPos);
+                }
             }
+
+            // TODO need update buffer in entity?
+            ecb.Playback(EntityManager);
         }
-        // TODO need update buffer in entity?
-        ecb.Playback(EntityManager);
     }
 }
