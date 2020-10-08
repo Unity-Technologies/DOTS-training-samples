@@ -218,19 +218,6 @@ public class AgentUpdateSystem : SystemBase
             //.WithReadOnly(bucketEntities)
             //.WithReadOnly(bucketLocations)
             //.WithReadOnly(bucketFillValue)
-<<<<<<< HEAD
-            //.WithReadOnly(bucketIsEmptyAndOnGround)
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.FullBucketPasserTag agentTag) =>
-        {
-            if (agent.PreviousAgent == Entity.Null)
-            {
-                agent.ActionState = (byte) AgentAction.GOTO_DROPOFF_LOCATION;
-                FindNearestFire((int)t.Value.x, (int)t.Value.z, heatMap.SizeX, heatMap.SizeZ, heatMapBuffer, ref seekComponent);
-            }
-            else
-            {
-                agent.ActionState = (byte) AgentAction.IDLE;
-=======
             .WithReadOnly(bucketIsFullAndOnGround)
             .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.FullBucketPasserTag agentTag) =>
         {
@@ -310,7 +297,6 @@ public class AgentUpdateSystem : SystemBase
             if (agent.CarriedEntity != Entity.Null)
             {
                 ecb1.SetComponent<Translation>(entityInQueryIndex, agent.CarriedEntity, new Translation { Value = new float3(t.Value.x, t.Value.y + 0.5f, t.Value.z)} );
->>>>>>> 6d8270f46c6ba902f009053bbaf34471d28ca843
             }
         }).ScheduleParallel();
 //        m_endSimECB.AddJobHandleForProducer(fullBucketECBJobHandle);
@@ -322,19 +308,40 @@ public class AgentUpdateSystem : SystemBase
             .WithDisposeOnCompletion(bucketEntities)
             .WithDisposeOnCompletion(bucketIsEmptyAndOnGround)
             .WithDisposeOnCompletion(bucketIsFullAndOnGround)
+            .WithoutBurst()
 //            .WithReadOnly(bucketEntities)
 //            .WithReadOnly(bucketLocations)
  //           .WithReadOnly(bucketFillValue)
  //           .WithReadOnly(bucketIsEmptyAndOnGround)
             .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.EmptyBucketPasserTag agentTag) =>
         {
-            if (agent.PreviousAgent == Entity.Null)
+            // If the agent carry something pass it to the next agent
+            if (agent.CarriedEntity != Entity.Null)
             {
+                // Goto next agent and pass the bucket when near it
+                agent.ActionState = (byte) AgentAction.PASS_BUCKET;
+                var targetAgentPosition = EntityManager.GetComponentData<Translation>(agent.NextAgent);
+                seekComponent.TargetPos = targetAgentPosition.Value;
+                    
+                if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
+                {
+                    var targetAgent = EntityManager.GetComponentData<Agent>(agent.PreviousAgent);
+
+                    targetAgent.CarriedEntity = agent.CarriedEntity;
+                    agent.CarriedEntity = Entity.Null;
+                        
+                    EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
+                }
+            }
+            else if (agent.PreviousAgent == Entity.Null) // first agent
+            {
+                // Move to the nearest fire
                 agent.ActionState = (byte) AgentAction.GOTO_DROPOFF_LOCATION;
                 FindNearestFire((int)t.Value.x, (int)t.Value.z, heatMap.SizeX, heatMap.SizeZ, heatMapBuffer, ref seekComponent);
             }
             else
             {
+                // Stay in the line
                 agent.ActionState = (byte) AgentAction.IDLE;
             }
             
@@ -346,7 +353,7 @@ public class AgentUpdateSystem : SystemBase
             bucketFillValue[0] = 0.0f;
             bucketIsFullAndOnGround[0] = false;
 
-        }).ScheduleParallel();
+        }).Run();
         
         m_endSimECB.AddJobHandleForProducer(Dependency);
         
