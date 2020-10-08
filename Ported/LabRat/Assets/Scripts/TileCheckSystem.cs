@@ -67,12 +67,19 @@ public class TileCheckSystem : SystemBase
                     if (tileX == (int)homeBaseTileTranslations[i].Value.x &&
                         tileY == (int)homeBaseTileTranslations[i].Value.z)
                     {
+
                         var homebase = homeBases[i];
+                        int scoreaddition = 1;
+                        if (HasComponent<Cat>(entity))
+                        {
+                            scoreaddition = (int) -(homebase.playerScore * 0.33333);
+                        }
+
                         ecb.SetComponent<HomeBase>(entityInQueryIndex, homeBaseEntities[i],
                             new HomeBase()
                             {
                                 playerIndex = homebase.playerIndex,
-                                playerScore = homebase.playerScore + 1
+                                playerScore = homebase.playerScore + scoreaddition
                             });
                         hitHomeBase = true;
 
