@@ -19,7 +19,7 @@ public class UpdateObjectsInChainSystem : SystemBase
     protected override void OnUpdate()
     {
         float deltaTime = Time.DeltaTime;
-
+        
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
         var bucketsArrayEntity = GetSingletonEntity<BucketInChain>();
         var bucketsArray = EntityManager.GetBuffer<BucketInChain>(bucketsArrayEntity);
@@ -63,7 +63,7 @@ public class UpdateObjectsInChainSystem : SystemBase
                                 // debug purposes only
                                 // when required we should add chain specific components to the bucket, so it would be processed with the chain
                                 // ChainPosition, ChainObjectType, FillTag, shared SharedChainComponent
-                                bucketsArray.Add(new BucketInChain() { chainID = id, bucketPos = 0, bucketShift = 0 });
+                                //bucketsArray.Add(new BucketInChain() { chainID = id, bucketPos = 0, bucketShift = 0 });
                             }
                             float shift = 0f;
                             for (int i = 0; i < bucketsArray.Length; ++i)

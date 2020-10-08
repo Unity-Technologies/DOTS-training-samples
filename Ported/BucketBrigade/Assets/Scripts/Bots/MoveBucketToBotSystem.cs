@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 public class MoveBucketToBotSystem : SystemBase
 {
@@ -15,10 +16,13 @@ public class MoveBucketToBotSystem : SystemBase
     
     protected override void OnUpdate()
     {
+        Profiler.BeginSample("Setup");
         NativeArray<Pos> botPositions = botQuery.ToComponentDataArrayAsync<Pos>(Allocator.TempJob, out JobHandle j1);
         NativeArray<Entity> botEntities = botQuery.ToEntityArrayAsync(Allocator.TempJob, out JobHandle j2);
         Dependency = JobHandle.CombineDependencies(Dependency, j1, j2);
+        Profiler.EndSample();
 
+        Profiler.BeginSample("Schedule");
         Entities
             .WithName("SyncBucketToBot")
             .WithDisposeOnCompletion(botPositions)
@@ -27,6 +31,7 @@ public class MoveBucketToBotSystem : SystemBase
             {
                 pos.Value = GetOwnerPos(owner.Entity, botPositions, botEntities);
             }).ScheduleParallel();
+        Profiler.EndSample();
     }
 
     static float2 GetOwnerPos(in Entity ownerEntity, in NativeArray<Pos> positions, in NativeArray<Entity> entities)

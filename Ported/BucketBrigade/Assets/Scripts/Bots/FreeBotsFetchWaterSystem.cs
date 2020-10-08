@@ -11,7 +11,7 @@ public class FreeBotsFetchWaterSystem : SystemBase
         EntityQueryDesc queryDesc = new EntityQueryDesc
         {
             All = new [] {ComponentType.ReadOnly<BucketTag>(), ComponentType.ReadOnly<Pos>()},
-            None = new [] {ComponentType.ReadOnly<BucketOwner>()}
+            None = new [] {ComponentType.ReadOnly<BucketOwner>(), ComponentType.ReadOnly<ChainPosition>()}
         };
         bucketQuery = GetEntityQuery(queryDesc);
     }

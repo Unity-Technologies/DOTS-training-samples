@@ -219,7 +219,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   botPrefab: {fileID: 5540245421705527508, guid: 7873bdbbab313d248b53d75b0b84de88, type: 3}
-  numberBots: 10
+  numberBots: 12
   spawnRadius: 5
   spawnCenter:
     x: 10
