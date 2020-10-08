@@ -40,6 +40,6 @@ public class FireSimulationUpdateSystem : SystemBase
                 // Update simulation with latest values (potentially updated last frame from propagation).
                 simulationTemperatures[cellIndex.Value] = temperature.Value;
                 }
-            }).Run(); //.ScheduleParallel();
+            }).ScheduleParallel();
     }
 }

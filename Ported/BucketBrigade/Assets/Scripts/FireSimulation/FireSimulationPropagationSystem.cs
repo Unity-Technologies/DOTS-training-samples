@@ -12,7 +12,7 @@ public class FireSimulationPropagationSystem : SystemBase
         if (timer.TimerIsUp())
         {
             FireSimulation simulation = GetComponent<FireSimulation>(simulationEntity);
-            var simulationTemperatures = GetBuffer<SimulationTemperature>(simulationEntity).AsNativeArray();
+            var simulationTemperatures = GetBufferFromEntity<SimulationTemperature>(true)[simulationEntity];
             int heatRadius = simulation.heatRadius;
             float heatTransferRate = simulation.heatTransferRate;
             float flashPoint = simulation.flashpoint;
@@ -20,12 +20,15 @@ public class FireSimulationPropagationSystem : SystemBase
             int columnCount = simulation.columns;
 
             Entities.
+                WithReadOnly(simulationTemperatures).
                 ForEach((Entity fireCellEntity, ref Temperature temperature, in CellIndex cellIndex) =>
                 {
                     FireUtils.ArrayToGridCoord(cellIndex.Value, simulation.rows, out int row, out int column);
 
                     float tempChange = 0.0f;
 
+                    // Test inverting loops as it should result in more linear access to simulationTemperatures.
+                    // Can also do Morton order for better spatiality overall.
                     for (int rowIndex = -heatRadius; rowIndex <= heatRadius; rowIndex++)
                     {
                         int currentRow = row - rowIndex;
@@ -47,7 +50,7 @@ public class FireSimulationPropagationSystem : SystemBase
                     }
 
                     temperature.Value = UnityEngine.Mathf.Clamp(temperature.Value + tempChange, -1f, 1f);
-                }).Run();//.ScheduleParallel();
+                }).ScheduleParallel();
         }
     }
 }
