@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Unity.Entities;
 using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class TrainCarriage : MonoBehaviour
+public class TrainCarriage : MonoBehaviour, IConvertGameObjectToEntity
 {
     public const float CARRIAGE_LENGTH = 5f;
     public const int CARRIAGE_CAPACITY = 10;
@@ -81,5 +82,11 @@ public class TrainCarriage : MonoBehaviour
     public void VacateSeat(CommuterNavPoint _seat)
     {
         seats_TAKEN.Remove(_seat);
+    }
+
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+        dstManager.AddComponent<CarriagePosition>(entity);
+        dstManager.AddComponent<Rail>(entity);
     }
 }

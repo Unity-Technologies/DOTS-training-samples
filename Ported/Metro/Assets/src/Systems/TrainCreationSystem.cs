@@ -5,19 +5,21 @@ using Unity.Entities;
 [UpdateAfter(typeof(LineCreationSystem))]
 public class TrainCreationSystem : SystemBase
 {
-    private EntityQuery linesToFill;
     private EntityArchetype trainArchetype;
     
     protected override void OnCreate()
     {
-        linesToFill = GetEntityQuery(ComponentType.ReadOnly<TrainCount>(), ComponentType.ReadOnly<RailLength>());
-        trainArchetype = EntityManager.CreateArchetype(typeof(Position), typeof(NextTrain), typeof(Rail), typeof(MaxPosition));
+        trainArchetype = EntityManager.CreateArchetype(typeof(Position), typeof(NextTrain), typeof(Rail),
+                                                       typeof(NextTrainPosition), typeof(CarriageCount), typeof(BufferCarriage));
     }
 
     protected override void OnUpdate()
     {
         Entities.WithStructuralChanges()
-            .ForEach((Entity entity, in TrainCount trainCount, in RailLength railLength) =>
+            .ForEach((Entity entity,
+                      in TrainCount trainCount,
+                      in CarriageCount carriageCount,
+                      in RailLength railLength) =>
         {
             NativeArray<Entity> trains = new NativeArray<Entity>(trainCount, Allocator.Temp);
             
@@ -27,6 +29,7 @@ public class TrainCreationSystem : SystemBase
                 var train = EntityManager.CreateEntity(trainArchetype);
                 EntityManager.SetComponentData<Position>(train, startingPosition);
                 EntityManager.SetComponentData<Rail>(train, entity);
+                EntityManager.SetComponentData(train, carriageCount);
 
                 trains[i] = train;
             }
@@ -40,8 +43,9 @@ public class TrainCreationSystem : SystemBase
             }
 
             trains.Dispose();
-        }).Run();
 
-        EntityManager.RemoveComponent<TrainCount>(linesToFill);
+            EntityManager.RemoveComponent<TrainCount>(entity);
+            EntityManager.RemoveComponent<CarriageCount>(entity);
+        }).Run();
     }
 }
