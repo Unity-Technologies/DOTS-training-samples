@@ -121,7 +121,7 @@ GameObject:
   - component: {fileID: 114133879905857612}
   - component: {fileID: 7864156253422629644}
   - component: {fileID: 790382918930085872}
-  - component: {fileID: 7476528208628479642}
+  - component: {fileID: 5080366080434254420}
   m_Layer: 0
   m_Name: Commuter
   m_TagString: Untagged
@@ -190,8 +190,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6a17c581df2bd34b8036635e8728115, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Value: 1
---- !u!114 &7476528208628479642
+  Value: 5
+--- !u!114 &5080366080434254420
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -200,10 +200,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1598512793004306}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24dd0e5577190154a9686142ee522cd5, type: 3}
+  m_Script: {fileID: 11500000, guid: 1e4af39890c8c3f4cbfab0f198d92da5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentTarget:
-    x: 0
-    y: 0
-    z: 0
+  Platform: {fileID: 0}

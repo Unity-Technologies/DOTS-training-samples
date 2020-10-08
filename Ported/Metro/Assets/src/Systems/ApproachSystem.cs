@@ -19,10 +19,11 @@ public class ApproachSystem : SystemBase
 
         Entities
             .WithName("commuter_movement")
-            .ForEach((ref Translation translation, in TargetPoint target, in Speed speed) =>
+            .WithStructuralChanges()
+            .ForEach((Entity commuter, ref Translation translation, in TargetPoint target, in Speed speed) =>
             {
                 float3 direction = target.CurrentTarget - translation.Value;
-                
+
                 float length = math.length(direction);
                 
                 if (length >= APPROACH_THRESHOLD)
@@ -32,9 +33,9 @@ public class ApproachSystem : SystemBase
                 }
                 else
                 {
-                    // TODO Remove TargetPoint component
+                    EntityManager.RemoveComponent<TargetPoint>(commuter);
                 }
 
-            }).ScheduleParallel();
+            }).Run();
     }
 }
