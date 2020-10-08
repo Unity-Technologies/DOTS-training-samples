@@ -24,6 +24,17 @@ public class AgentUpdateSystem : SystemBase
     {
         float elapsedTime = (float)Time.ElapsedTime;
 
+        var heatMapEntity = GetSingletonEntity<HeatMap>();
+        var heatMap = EntityManager.GetComponentData<HeatMap>(heatMapEntity);
+        var heatMapBuffer = EntityManager.GetBuffer<HeatMapElement>(heatMapEntity).AsNativeArray();
+        
+        
+        /*
+         * Search nearest fire example:
+         * Translation t;
+         * FindNearestFire((int)t.Value.x, (int)t.Value.z, heatMap.SizeX, heatMap.SizeZ, heatMapBuffer, ref seekComponent); 
+         */
+        
         // ensure this job runs before other jobs that need buckets.
         m_bucketQuery.CalculateEntityCount(); // this will be calculated by running the query (below - see WithStoreEntityQueryInField)
         int bucketsFoundLastUpdate = m_bucketQuery.CalculateEntityCount();
@@ -197,6 +208,25 @@ public class AgentUpdateSystem : SystemBase
 
         float3 loc = objectLocation[nearestIndex];
         seekComponent.TargetPos = new float3(loc.x, loc.y, loc.z);
+    }
+    
+    static void FindNearestFire(int x, int z, int sizeX, int sizeZ, NativeArray<HeatMapElement> heatMap, ref SeekPosition seekComponent)
+    {
+        for (int i = 0; i < heatMap.Length; i++)
+        {
+            float posX = x;
+            float posZ = z;
+            BoardHelper.ApplySpiralOffset(i, ref posX, ref posZ);
+
+            if (BoardHelper.TryGet2DArrayIndex((int)posX, (int)posZ, sizeX, sizeZ, out var index))
+            {
+                if (heatMap[index].Value > 75)
+                {
+                    seekComponent.TargetPos = new float3(posX, 5, posZ);
+                    return;
+                }
+            }
+        }
     }
 }
 
