@@ -28,7 +28,7 @@ public class SeekSystem : SystemBase
             float3 distance = follower.TargetPos - t.Value;
             distance.y = 0; // ignore heights.
 
-            //if (math.lengthsq(distance) > 0.1f)
+            if (math.lengthsq(distance) > 0.1f) // Without that position become NaN,NaN,Nan
             {
                 // look at direction
                 r.Value = quaternion.LookRotation(math.normalize(distance),new float3(Vector3.up.x, Vector3.up.y, Vector3.up.z));

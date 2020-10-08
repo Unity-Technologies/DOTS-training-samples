@@ -59,6 +59,10 @@ public class AgentSpawnerSystem : SystemBase
             // spawn teams
             for (int team = 0; team < spawner.TeamCount && index < len; ++team)
             {
+                var teamEntity = EntityManager.CreateEntity(typeof(Team));
+                EntityManager.SetName(teamEntity, $"Team {team}");
+                var teamComponent = new Team { Id = team, Length = spawner.AgentLineLength};
+            
                 // could perhaps create these components via EntityManager.AddComponent version that takes an EntityQuery.
                 
                 // is it more efficient to add all MyAgent components in a loop, and then add the tags as separate loops,
@@ -107,8 +111,7 @@ public class AgentSpawnerSystem : SystemBase
                     EntityManager.AddComponent<AgentTags.FullBucketPasserTag>(agent);
 
                     float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
-                    //EntityManager.AddComponentData<SeekPosition>(agent, new TargetPosition{ MaxVelocity = 0.075f, TargetPos = new float3(spawnPos.x, spawnPos.y, spawnPos.z) });
-                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ Velocity = 0, TargetPos = new float3(0,0,20) });
+                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ Velocity = 0, TargetPos = new float3(Random.Range(0,20),0,Random.Range(0,20))  });
                     // place at random location within board
                     EntityManager.SetComponentData<Translation>(agent, new Translation(){ Value = spawnPos });
 
@@ -118,10 +121,15 @@ public class AgentSpawnerSystem : SystemBase
                         previousAgent.NextAgent = agent;
                         EntityManager.SetComponentData(previous, previousAgent);
                     }
+                    else
+                    {
+                        teamComponent.LineFullHead = agent;
+                    }
                     previous = agent;
                     
                     ++index;
                 }
+                teamComponent.LineFullTail = previous;
                 
                 previous = Entity.Null;
                 for (int emptyPasser = 0; emptyPasser < numEmptyBucketPassers; ++emptyPasser)
@@ -131,8 +139,7 @@ public class AgentSpawnerSystem : SystemBase
                     EntityManager.AddComponent<AgentTags.EmptyBucketPasserTag>(agent);
                     
                     float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
-                    //EntityManager.AddComponentData<SeekPosition>(agent, new TargetPosition{ MaxVelocity = 0.075f, TargetPos = new float3(spawnPos.x, spawnPos.y, spawnPos.z) });
-                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ Velocity = 0f, TargetPos = new float3(20,0,0) });
+                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ Velocity = 0f, TargetPos = new float3(Random.Range(0,20),0,Random.Range(0,20)) });
                     // place at random location within board
                     EntityManager.SetComponentData<Translation>(agent, new Translation(){ Value = spawnPos });
 
@@ -142,10 +149,17 @@ public class AgentSpawnerSystem : SystemBase
                         previousAgent.NextAgent = agent;
                         EntityManager.SetComponentData(previous, previousAgent);
                     }
+                    else
+                    {
+                        teamComponent.LineEmptyHead = agent;
+                    }
                     previous = agent;
-                    
+                   
                     ++index;    
                 }
+                teamComponent.LineEmptyTail = previous;
+                
+                EntityManager.AddComponentData(teamEntity, teamComponent);
             }
             
             EntityManager.DestroyEntity(agentSpawnerSettings);

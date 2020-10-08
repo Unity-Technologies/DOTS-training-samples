@@ -213,16 +213,19 @@ public class AgentUpdateSystem : SystemBase
         // full bucket passer updates
         Entities
             //.WithReadOnly(bucketEntities)
-            .WithReadOnly(bucketLocations)
+            //.WithReadOnly(bucketLocations)
             //.WithReadOnly(bucketFillValue)
-            .WithReadOnly(bucketIsEmptyAndOnGround)
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, in AgentTags.FullBucketPasserTag agent) =>
+            //.WithReadOnly(bucketIsEmptyAndOnGround)
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.FullBucketPasserTag agentTag) =>
         {
-            // use ecb3
-            float dist = math.lengthsq(seekComponent.TargetPos - t.Value);
-            if (dist < arrivalThresholdSq)
+            if (agent.PreviousAgent == Entity.Null)
             {
-                FindNearestAndSetSeekTarget(t.Value, bucketLocations, bucketIsEmptyAndOnGround, true, ref seekComponent);
+                agent.ActionState = (byte) AgentAction.GOTO_DROPOFF_LOCATION;
+                FindNearestFire((int)t.Value.x, (int)t.Value.z, heatMap.SizeX, heatMap.SizeZ, heatMapBuffer, ref seekComponent);
+            }
+            else
+            {
+                agent.ActionState = (byte) AgentAction.IDLE;
             }
         }).ScheduleParallel();
 //        m_endSimECB.AddJobHandleForProducer(fullBucketECBJobHandle);
@@ -237,13 +240,16 @@ public class AgentUpdateSystem : SystemBase
 //            .WithReadOnly(bucketLocations)
  //           .WithReadOnly(bucketFillValue)
  //           .WithReadOnly(bucketIsEmptyAndOnGround)
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, in AgentTags.EmptyBucketPasserTag agent) =>
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.EmptyBucketPasserTag agentTag) =>
         {
-            // use ecb4
-            float dist = math.lengthsq(seekComponent.TargetPos - t.Value);
-            if (dist < arrivalThresholdSq)
+            if (agent.PreviousAgent == Entity.Null)
             {
-                FindNearestAndSetSeekTarget(t.Value, bucketLocations, bucketIsEmptyAndOnGround, true, ref seekComponent);
+                agent.ActionState = (byte) AgentAction.GOTO_DROPOFF_LOCATION;
+                FindNearestFire((int)t.Value.x, (int)t.Value.z, heatMap.SizeX, heatMap.SizeZ, heatMapBuffer, ref seekComponent);
+            }
+            else
+            {
+                agent.ActionState = (byte) AgentAction.IDLE;
             }
             
             bucketEntities[0] = Entity.Null;
