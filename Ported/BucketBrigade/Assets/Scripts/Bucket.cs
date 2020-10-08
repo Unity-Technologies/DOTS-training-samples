@@ -7,3 +7,8 @@ using UnityEngine;
 public struct Bucket : IComponentData
 {
 }
+
+public struct CarryableObject : IComponentData
+{
+    public Entity CarryingEntity;
+}

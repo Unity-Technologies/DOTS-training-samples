@@ -4,6 +4,8 @@ using Unity.Mathematics;
 
 public struct CellDisplay : IComponentData
 {
+	public float4 NeutralColor;
+	public float OnFireThreshold;
 	public float CoolValue;
 	public float4 CoolColor;
 	public float CoolHeight;
@@ -14,6 +16,8 @@ public struct CellDisplay : IComponentData
 
 public class CellDisplayAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
+	public UnityEngine.Color NeutralColor;
+	public float OnFireThreshold = 25.0f;
 	public float CoolValue = 15.0f;
 	public UnityEngine.Color CoolColor;
 	[Range(0.0f, 10.0f)]
@@ -27,6 +31,8 @@ public class CellDisplayAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 	{
 		dstManager.AddComponentData(entity, new CellDisplay
 		{
+			NeutralColor = new float4(NeutralColor.r, NeutralColor.g, NeutralColor.b, 1),
+			OnFireThreshold = OnFireThreshold,
 			CoolValue = CoolValue,
 			CoolColor = new float4(CoolColor.r, CoolColor.g, CoolColor.b, 1),
 			CoolHeight = CoolHeight,
