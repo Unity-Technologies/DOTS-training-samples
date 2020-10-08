@@ -41,6 +41,7 @@ public class SpawningSystem : SystemBase
                     ecb.AddComponent(entityInQueryIndex, instance, new Direction {Value = spawnPoint.direction});
                     ecb.AddComponent(entityInQueryIndex, instance,
                         new TileCoord() {Value = new int2((int) translation.Value.x, (int) translation.Value.z)});
+                    ecb.AddComponent(entityInQueryIndex, instance, new TileCheckTag());
                     ecb.AddComponent(entityInQueryIndex, entity, new Timer() {Value = spawnPoint.spawnFrequency});
 
                     spawnPoint.spawnCount -= 1;
