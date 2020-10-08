@@ -96,7 +96,7 @@ public class CarSpawnerSystem : SystemBase
                 {
                     NextNode = node.nextNode,
                     Velocity = maxSpeed,
-                    Acceleration = 0.05f,
+                    Acceleration = 0.1f,
                     Deceleration = 0.05f,
                     MaxSpeed = maxSpeed 
                 });

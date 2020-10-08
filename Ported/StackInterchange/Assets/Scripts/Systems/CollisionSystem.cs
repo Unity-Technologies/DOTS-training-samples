@@ -1,5 +1,4 @@
-﻿//#define COLLISION_DEBUG_DRAW
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -11,11 +10,31 @@ public class CollisionSystem : SystemBase
 
     protected override void OnCreate()
     {
-        mEntityQuery = GetEntityQuery(typeof(Car), typeof(Translation), typeof(RoadId));
+        mEntityQuery = GetEntityQuery(typeof(Car), typeof(Translation), typeof(RoadId), typeof(CarMovement));
     }
 
     protected override void OnUpdate()
     {
+        /*var origin = new float2(-5000, -5000);
+        var maxSize = new float2(5000, 5000);
+        var cellSize = 50f;
+        int numCols = (int)(maxSize.x / cellSize);
+        int numRows = (int)(maxSize.y / cellSize);
+
+        Entities
+            .WithStructuralChanges()
+            .ForEach((Entity entity, in RoadId roadId, in Translation translation) =>
+        {
+            int col = (int)((translation.Value.x - origin.x) / cellSize);
+            int row = (int) ((translation.Value.y - origin.y) / cellSize);
+            var cell = (row * numCols) + col;
+            
+            if (roadId.Value != cell)
+            {
+                EntityManager.SetSharedComponentData<RoadId>(entity, new RoadId {Value = cell});
+            }
+        }).Run();*/
+        
         List<RoadId> roadList = new List<RoadId>();
         EntityManager.GetAllUniqueSharedComponentData<RoadId>(roadList);
 
@@ -26,6 +45,7 @@ public class CollisionSystem : SystemBase
             mEntityQuery.SetSharedComponentFilter(road);
             var entityArray = mEntityQuery.ToEntityArray(Allocator.TempJob);
             var translationArray = mEntityQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+            var carMovementArray = mEntityQuery.ToComponentDataArray<CarMovement>(Allocator.TempJob);
 
             if (entityArray.Length != translationArray.Length)
             {
@@ -41,7 +61,11 @@ public class CollisionSystem : SystemBase
             var red = new float4(1, 0, 0, 1);
             #endif
 
-            Entities.WithSharedComponentFilter(road)
+            Entities
+                .WithSharedComponentFilter(road)
+                .WithReadOnly(entityArray)
+                .WithReadOnly(translationArray)
+                .WithReadOnly(carMovementArray)
                 .WithDeallocateOnJobCompletion(entityArray)
                 .WithDeallocateOnJobCompletion(translationArray)
                 .ForEach((Entity entity, ref Color color, ref CarMovement carMovement, in LocalToWorld localToWorld, in Translation translation, in Car car) =>
@@ -58,8 +82,11 @@ public class CollisionSystem : SystemBase
                     var dist = math.distancesq(hitDetectionPoint, translationArray[i].Value);
                     if (dist < maxCollisionDist)
                     {
-                        hitDist = dist;
-                        break;
+                        if (math.dot(carMovementArray[i].travelVec, carMovement.travelVec) > 0)
+                        {
+                            hitDist = dist;
+                            break;
+                        }
                     }
                 }
 
