@@ -506,7 +506,8 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
             {
                 var lineBuilderEntity = conversionSystem.CreateAdditionalEntity(this);
                 dstManager.SetName(lineBuilderEntity, LineNames[i]);
-                dstManager.AddComponentData(lineBuilderEntity, new TrainCount { Value = maxTrains[i] });
+                dstManager.AddComponentData<TrainCount>(lineBuilderEntity, maxTrains[i]);
+                dstManager.AddComponentData<CarriageCount>(lineBuilderEntity, carriagesPerTrain[i]);
                 dstManager.AddBuffer<RailMarkerPosition>(lineBuilderEntity);
                 dstManager.AddBuffer<RailMarkerPlatformIndex>(lineBuilderEntity);
 
