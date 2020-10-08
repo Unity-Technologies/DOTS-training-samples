@@ -22,6 +22,7 @@ public class GameGenSystem : SystemBase
         var gameState = GetSingleton<GameState>();
         // Remove the game spawn component so that this system doesn't run again next frame
         EntityManager.RemoveComponent<GameSpawn>(gameStateEntity);
+        EntityManager.AddComponentData(gameStateEntity, new Score {Value = 0});
         EntityManager.AddComponentData(gameStateEntity, new GameTime { ElapsedTime = 0.0, DeltaTime = 0.0f });
 
         // Init random plains and water tiles

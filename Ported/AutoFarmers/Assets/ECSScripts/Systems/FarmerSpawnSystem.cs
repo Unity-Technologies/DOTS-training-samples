@@ -18,6 +18,7 @@ public class FarmerSpawnSystem : SystemBase
         
         Entities
             .WithAll<Depot>()
+            .WithAll<DepotCanSpawn>()
             .ForEach((
                     Entity entity,
                     int entityInQueryIndex,

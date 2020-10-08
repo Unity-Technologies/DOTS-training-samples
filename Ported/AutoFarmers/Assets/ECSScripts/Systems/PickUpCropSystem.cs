@@ -23,7 +23,7 @@ public class PickUpCropSystem : SystemBase
         NativeArray<Entity> depotsEntity = depotsQuery.ToEntityArray(Allocator.TempJob);
         
         Entities
-            .WithName("pickup_system_farmerscheck")
+            .WithName("pickup_system_farmers")
             .WithReadOnly(depotsEntity)
             .WithDisposeOnCompletion(depotsEntity)
             .WithAll<Farmer>()
