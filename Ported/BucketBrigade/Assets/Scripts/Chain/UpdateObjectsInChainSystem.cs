@@ -58,13 +58,6 @@ public class UpdateObjectsInChainSystem : SystemBase
                     {
                         if (target.ReachedTarget)
                         {
-                            if (position.Value == 0 && bucketsArray.Length == 0)
-                            {
-                                // debug purposes only
-                                // when required we should add chain specific components to the bucket, so it would be processed with the chain
-                                // ChainPosition, ChainObjectType, FillTag, shared SharedChainComponent
-                                //bucketsArray.Add(new BucketInChain() { chainID = id, bucketPos = 0, bucketShift = 0 });
-                            }
                             float shift = 0f;
                             for (int i = 0; i < bucketsArray.Length; ++i)
                             {

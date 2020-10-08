@@ -30,8 +30,8 @@ public class DropOffFullBucket : SystemBase
                 Entity bucketEntity = hasBucket.Entity;
                 ecb.AddComponent(entityInQueryIndex, bucketEntity, new ChainPosition { Value = 0 });
                 ecb.AddComponent(entityInQueryIndex, bucketEntity, new ChainObjectType { Value = ObjectType.Bucket });
-                ecb.AddComponent(entityInQueryIndex, bucketEntity, new Speed { Value = 1f});
-                ecb.AddComponent(entityInQueryIndex, bucketEntity, new Target());
+                ecb.AddComponent(entityInQueryIndex, bucketEntity, new Speed { Value = 1f });
+                ecb.AddComponent(entityInQueryIndex, bucketEntity, new Target() { ReachedTarget = true });
                 ecb.AddSharedComponent(entityInQueryIndex, bucketEntity, droppingOffBucket.chain);
 
                 ecb.RemoveComponent<BucketOwner>(entityInQueryIndex, bucketEntity);
