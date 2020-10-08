@@ -291,9 +291,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   height: 13
   width: 13
-  minNumberOfHoles: 0
-  maxNumberOfHoles: 0
-  numberOfWalls: 0
+  minNumberOfHoles: 2
+  maxNumberOfHoles: 6
+  numberOfWalls: 20
 --- !u!1 &1229036437
 GameObject:
   m_ObjectHideFlags: 0
