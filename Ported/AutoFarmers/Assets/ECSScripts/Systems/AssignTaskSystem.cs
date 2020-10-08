@@ -9,22 +9,20 @@ using Random = Unity.Mathematics.Random;
 public class AssignTaskSystem : SystemBase
 {
     Random m_Random;
-    EntityCommandBufferSystem m_ECBSystem;
 
     EntityQuery cropsQuery;
 
     protected override void OnCreate()
     {
         m_Random = new Random(666);
-        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
         cropsQuery = GetEntityQuery(typeof(Crop), ComponentType.Exclude<Assigned>());
     }
 
     protected override void OnUpdate()
     {
-        var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
-
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var ecbWriter = ecb.AsParallelWriter();
         NativeArray<Entity> crops = cropsQuery.ToEntityArray(Allocator.TempJob);
 
         // Loop over all idle farmers, assigning a pickup crop task
@@ -57,17 +55,17 @@ public class AssignTaskSystem : SystemBase
 
                 if (nearestCropEntity != Entity.Null)
                 {
-                    ecb.AddComponent<PickUpCropTask>(entityInQueryIndex, farmerEntity);
-                    ecb.AddComponent<TargetEntity>(entityInQueryIndex, farmerEntity);
-                    ecb.SetComponent(entityInQueryIndex, farmerEntity, new TargetEntity { target = nearestCropEntity, targetPosition = nearestCropPos });
-                    ecb.AddComponent<NeedsDeduplication>(entityInQueryIndex, farmerEntity);
+                    ecbWriter.AddComponent<PickUpCropTask>(entityInQueryIndex, farmerEntity);
+                    ecbWriter.AddComponent<TargetEntity>(entityInQueryIndex, farmerEntity);
+                    ecbWriter.SetComponent(entityInQueryIndex, farmerEntity, new TargetEntity { target = nearestCropEntity, targetPosition = nearestCropPos });
+                    ecbWriter.AddComponent<NeedsDeduplication>(entityInQueryIndex, farmerEntity);
                 }
 
             }).ScheduleParallel();
 
-        m_ECBSystem.AddJobHandleForProducer(Dependency);
-
-
+        Dependency.Complete();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 
 }
