@@ -132,11 +132,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 259599294970211544, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: minWait
-      value: 0.5
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 259599294970211544, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: maxWait
-      value: 1.5
+      value: 1.25
       objectReference: {fileID: 0}
     - target: {fileID: 259599294970211544, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: Value
@@ -212,11 +212,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3151321126701998760, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: minWait
-      value: 0.5
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 3151321126701998760, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: maxWait
-      value: 1.5
+      value: 1.25
       objectReference: {fileID: 0}
     - target: {fileID: 3151321126701998760, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: Value
@@ -256,11 +256,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4064252979161917698, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: minWait
-      value: 0.5
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 4064252979161917698, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: maxWait
-      value: 1.5
+      value: 1.25
       objectReference: {fileID: 0}
     - target: {fileID: 4064252979161917698, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: Value
@@ -268,11 +268,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6130024212880596809, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: minWait
-      value: 0.5
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 6130024212880596809, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: maxWait
-      value: 1.5
+      value: 1.25
       objectReference: {fileID: 0}
     - target: {fileID: 6130024212880596809, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: Value
