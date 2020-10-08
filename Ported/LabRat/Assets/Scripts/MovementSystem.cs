@@ -8,6 +8,8 @@ public class MovementSystem : SystemBase
     private EntityCommandBufferSystem m_ECBSystem;
     private EntityQuery m_HolePositionQuery;
 
+    private const float RoundingThreshold = 0.99f;
+
     protected override void OnCreate()
     {
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -49,19 +51,22 @@ public class MovementSystem : SystemBase
                     forward = new float2(-1, 0);
                 }
 
-                var prevTileX = (int) position.Value.x;
-                var prevTileY = (int) position.Value.y;
+                var prevTileX = (int) math.round(position.Value.x - RoundingThreshold + 0.5);
+                var prevTileY = (int) math.round(position.Value.y - RoundingThreshold + 0.5);
 
                 //Add direction * speed * deltaTime to position
                 var deltaX = math.mul(math.mul(forward.x, speed.Value), deltaTime);
                 var deltaY = math.mul(math.mul(forward.y, speed.Value), deltaTime);
                 position.Value += new float2(deltaX, deltaY);
 
+                var newTileX = (int) math.round(position.Value.x - RoundingThreshold + 0.5);
+                var newTileY = (int) math.round(position.Value.y - RoundingThreshold + 0.5);
+
                 bool fellIntoHole = false;
                 for (int i = 0; i < holeTranslations.Length; i++)
                 {
-                    if ((int)holeTranslations[i].Value.x == (int)position.Value.x &&
-                        (int)holeTranslations[i].Value.z == (int)position.Value.y)
+                    if (math.distancesq(holeTranslations[i].Value.x, position.Value.x) < 0.02 &&
+                        math.distancesq(holeTranslations[i].Value.z, position.Value.y) < 0.02)
                     {
                         //Add Falling Tag
                         ecb.AddComponent<Falling>(entityInQueryIndex, entity);
@@ -69,7 +74,7 @@ public class MovementSystem : SystemBase
                     }
                 }
 
-                if (!fellIntoHole && ((int) position.Value.x != prevTileX || (int) position.Value.y != prevTileY))
+                if (!fellIntoHole && (prevTileX != newTileX || prevTileY != newTileY))
                 {
                     //Add Tile Check Tag
                     ecb.AddComponent<TileCheckTag>(entityInQueryIndex, entity);
