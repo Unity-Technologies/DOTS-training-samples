@@ -111,8 +111,11 @@ public class ClosestFireSystem : SystemBase
         {
             var request = GetComponent<ClosestFireRequest>(requests[i]);
 
-            float4 requestPositionSimSpace4 = math.mul(math.inverse(simMatrix.Value), new float4(request.requestPosition.x, request.requestPosition.y, 0.0f, 1.0f));
-            float2 requestPositionSimSpace = new float2(requestPositionSimSpace4.x, requestPositionSimSpace4.y);
+            // TODO: See why this does not work in world space. As it is now it will only work if the simulation is at (0,0)
+            //float4 requestPositionSimSpace4 = math.mul(math.inverse(simMatrix.Value), new float4(request.requestPosition.x, 0.0f, request.requestPosition.y, 1.0f));
+            //float2 requestPositionSimSpace = new float2(requestPositionSimSpace4.x, requestPositionSimSpace4.y);
+
+            float2 requestPositionSimSpace = new float2(request.requestPosition.x, request.requestPosition.y);
 
             // First compute all distances to the request point.
             Dependency = Entities.
@@ -135,7 +138,7 @@ public class ClosestFireSystem : SystemBase
                 }).ScheduleParallel(Dependency);
 
             // Do parallel reduction to get the closest.
-            int cellPerJobCount = 32;
+            int cellPerJobCount = 16;
             int jobCount = (cellCount + cellPerJobCount - 1) / cellPerJobCount;
 
             int currentStride = cellPerJobCount;
@@ -177,15 +180,15 @@ public class ClosestFireSystem : SystemBase
             var resultCellIndex = finalResults[request.requestResultIndex].index;
             FireUtils.ArrayToGridCoord(resultCellIndex, simulation.rows, out int row, out int column);
             float2 resultSimSpace = new float2(row * cellSize, column * cellSize);
-            var result = new float4(resultSimSpace.x, resultSimSpace.y, 0.0f, 1.0f);
-            result = math.mul(simMatrix.Value, result);
-            request.closestFirePosition = result.xy;
+            var result = new float4(resultSimSpace.x, 0.0f, resultSimSpace.y, 1.0f);
+            //result = math.mul(simMatrix.Value, result);
+            request.closestFirePosition = result.xz;
         }).Schedule(Dependency);
 
         requests.Dispose();
 
-        Dependency.Complete();
-        var requestResult = GetSingleton<ClosestFireRequest>();
-        UnityEngine.Debug.Log(requestResult.closestFirePosition);
+        //Dependency.Complete();
+        //var requestResult = GetSingleton<ClosestFireRequest>();
+        //UnityEngine.Debug.Log(requestResult.closestFirePosition);
     }
 }
