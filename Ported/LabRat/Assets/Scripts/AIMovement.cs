@@ -3,7 +3,7 @@ using Unity.Mathematics;
 
 public class AIMovement : SystemBase
 {
-    static readonly float AISpeed = 10f;
+    static readonly float AISpeed = 6f;
     EntityCommandBufferSystem m_ECBSystem;
 
     protected override void OnCreate()
@@ -36,7 +36,7 @@ public class AIMovement : SystemBase
             {
                 position.Value = cursor.Destination;
                 var random = new Random((uint)(randomSeed + entityInQueryIndex));
-                ecb.AddComponent(entityInQueryIndex, e, new Timer() { Value = random.NextFloat(1f, 2f) });
+                ecb.AddComponent(entityInQueryIndex, e, new Timer() { Value = random.NextFloat(2f, 5f) });
                 ecb.AddComponent(entityInQueryIndex, e, new PlacingArrow()
                 {
                     TileIndex = (int)math.round(position.Value.x) + (int)math.round(position.Value.y) * boardSize.y,
