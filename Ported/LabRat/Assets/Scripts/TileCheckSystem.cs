@@ -91,7 +91,8 @@ public class TileCheckSystem : SystemBase
             }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
-
+        arrows.Dispose(Dependency);
+        arrowDirections.Dispose(Dependency);
     }
 
     static byte FindNewDirectionIfNeeded(
