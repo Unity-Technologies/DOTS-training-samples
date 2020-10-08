@@ -17,13 +17,14 @@ public class FireSimulationUpdateSystem : SystemBase
     {
         Entity fireSimEntity = GetSingletonEntity<FireSimulation>();
         FireSimulation fireSimulation = GetComponent<FireSimulation>(fireSimEntity);
-        var simulationTemperatures = GetBuffer<SimulationTemperature>(fireSimEntity).AsNativeArray();
+        var simulationTemperatures = GetBufferFromEntity<SimulationTemperature>(false)[fireSimEntity];
         float flameHeight = fireSimulation.maxFlameHeight;
         float time = (float)Time.ElapsedTime;
         float flickerRate = 0.4f;
         float flickerRange = 0.5f;
 
         Entities.
+            WithNativeDisableContainerSafetyRestriction(simulationTemperatures).
             ForEach((Entity fireCellEntity, ref Temperature temperature, ref Translation translation, ref BaseColor baseColor, in CellIndex cellIndex) =>
             {
             // TODO: Run only on cells on fire

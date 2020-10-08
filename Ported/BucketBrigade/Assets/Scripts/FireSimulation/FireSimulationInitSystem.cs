@@ -73,6 +73,11 @@ public class FireSimulationInitSystem : SystemBase
 
             EntityManager.AddComponent<FireSimulationStarted>(fireSimulationEntity);
 
+            // TEST TEMP
+            //var request = EntityManager.CreateEntity();
+            //EntityManager.AddComponent<ClosestFireRequest>(request);
+            //EntityManager.SetComponentData(request, new ClosestFireRequest(new float2(5.5f, 24.4f)));
+
             entities.Dispose();
         }).Run();
 
