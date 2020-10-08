@@ -16,13 +16,13 @@ public class BucketSpawnSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
+        Random rand = new Random((uint)System.DateTime.UtcNow.Millisecond);
         
         Entities
             .WithName("SpawnBuckets")
             .ForEach((Entity spawnerEntity, int entityInQueryIndex,
                 in BucketSpawner spawner) =>
             {
-                Random rand = new Random((uint)System.DateTime.UtcNow.Millisecond);
                 for (int i = 0; i < spawner.numberBuckets; i++)
                 {
                     Entity e = ecb.Instantiate(i, spawner.bucketPrefab);
