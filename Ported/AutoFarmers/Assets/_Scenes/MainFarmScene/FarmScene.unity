@@ -160,6 +160,8 @@ MonoBehaviour:
   FarmersCount: 5
   PlainsPrefab: {fileID: 6227356122151387076, guid: 7f520695b990f464a909116d776c9b4f,
     type: 3}
+  TilledPrefab: {fileID: 6227356122151387076, guid: 49715e16be26c5a4ea0e317b8f916e07,
+    type: 3}
   WaterPrefab: {fileID: 6227356122151387076, guid: bfccf68c94858074e80b547fe5ab3390,
     type: 3}
   DepotPrefab: {fileID: 7384222014892938916, guid: c49fc1e5651af8243b3dd4569b4a76c2,
@@ -174,6 +176,7 @@ MonoBehaviour:
   DepotProbability: 0.01
   ForestProbability: 0.7
   SimulationSpeed: 1
+  InitalForestHealth: 0
 --- !u!4 &1227781564
 Transform:
   m_ObjectHideFlags: 0

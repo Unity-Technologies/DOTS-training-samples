@@ -42,9 +42,6 @@ public class SapplingGrowthSystem : SystemBase
                 ecb.RemoveComponent<Sappling>(entityInQueryIndex, entity);
                 color = new float4(1.0f, 0.75f, 0.0f, 1.0f);
                 ecb.SetComponent(entityInQueryIndex, entity, new ECSMaterialOverride {Value = color});
-                
-                ecb.RemoveComponent<CropReference>(entityInQueryIndex, sappling.tileEntity);
-                ecb.DestroyEntity(entityInQueryIndex, entity);
             }
             else
             {
@@ -57,3 +54,10 @@ public class SapplingGrowthSystem : SystemBase
 
     }
 }
+
+            //Entity tilledE = EntityManager.Instantiate(gameState.TilledPrefab); //NOTE(atheisen): farmers should add this, here to spawn crops while testing
+            //EntityManager.AddComponentData(tileEntity, new Tilled {FertilityLeft = 0, TilledDisplayPrefab = tilledE}); //NOTE(atheisen): farmers should add this, here to spawn crops while testing
+            //float3 offset = new float3(0.0f, 0.01f, 0.0f);
+            //EntityManager.SetComponentData(tilledE, new Translation {Value = tilePos + offset}); //NOTE(atheisen): farmers should add this, here to spawn crops while testing
+            //EntityManager.AddComponent<ECSMaterialOverride>(tilledE); //NOTE(atheisen): farmers should add this, here to spawn crops while testing
+            //tilled.FertilityLeft = fertility; //NOTE(atheisen): set fertility when tiling
