@@ -14,29 +14,29 @@ public class FakeTargetReachedSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
-        
-        float m_ReachDistance = 0.05f;
-        Entities
-            .WithAll<Farmer>()
-            .WithNone<DropOffCropTask>()
-            .ForEach((
-                Entity entity, 
-                int entityInQueryIndex,
-                ref TargetEntity targetEntity,
-                in Position position) =>
-            {
-                float2 targetPos = targetEntity.targetPosition;
-                
-                float distance = math.length(targetPos - position.Value);
-                if(distance < m_ReachDistance)
-                {
-                    ecb.RemoveComponent<TargetEntity>(entityInQueryIndex, entity);
-                    ecb.DestroyEntity(entityInQueryIndex, targetEntity.target);
-                }
-
-            }).ScheduleParallel();
-        
-        m_ECBSystem.AddJobHandleForProducer(Dependency);
+        // var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
+        //
+        // float m_ReachDistance = 0.05f;
+        // Entities
+        //     .WithAll<Farmer>()
+        //     .WithNone<DropOffCropTask>()
+        //     .ForEach((
+        //         Entity entity, 
+        //         int entityInQueryIndex,
+        //         ref TargetEntity targetEntity,
+        //         in Position position) =>
+        //     {
+        //         float2 targetPos = targetEntity.targetPosition;
+        //         
+        //         float distance = math.length(targetPos - position.Value);
+        //         if(distance < m_ReachDistance)
+        //         {
+        //             ecb.RemoveComponent<TargetEntity>(entityInQueryIndex, entity);
+        //             //ecb.DestroyEntity(entityInQueryIndex, targetEntity.target);
+        //         }
+        //
+        //     }).ScheduleParallel();
+        //
+        // m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }
