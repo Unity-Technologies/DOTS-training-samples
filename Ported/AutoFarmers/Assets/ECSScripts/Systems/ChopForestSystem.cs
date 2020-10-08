@@ -37,44 +37,46 @@ public class ChopForestSystem : SystemBase
                     ecb.RemoveComponent<ChopForestTask>(entityInQueryIndex, entity);
                     ecb.RemoveComponent<TargetEntity>(entityInQueryIndex, entity);
                     //Add Chopping Tag
-                    float3 forestModelScale = GetComponent<NonUniformScale>(GetComponent<ForestDisplay>(forestEntity).Value).Value;
-                    ecb.AddComponent(entityInQueryIndex, entity, new ChoppingTask(){ Target = forestEntity, Completion = 0, OriginalScale = forestModelScale});
+                    Entity forestDisplayEntity = GetComponent<ForestDisplay>(forestEntity).Value;
+                    float3 forestModelScale = GetComponent<NonUniformScale>(forestDisplayEntity).Value;
+                    ecb.AddComponent(entityInQueryIndex, forestDisplayEntity, new DestroyForest{Completion = 0, OriginalScale = forestModelScale, DisplayParentEntity = forestEntity});
+                    //ecb.AddComponent(entityInQueryIndex, entity, new ChoppingTask(){ Target = forestEntity, Completion = 0, OriginalScale = forestModelScale});
+                    ecb.AddComponent(entityInQueryIndex, entity, new ChoppingTask(){ Target = forestEntity });
                 }
             }).ScheduleParallel();
-
-        float choppingDelay = 2f;
         
-        var gameTime = GetSingleton<GameTime>();
-        float deltaTime = gameTime.DeltaTime;
+        Entities.
+            ForEach((Entity entity, 
+                int entityInQueryIndex,
+                ref DestroyForest destroyForest, 
+                ref NonUniformScale forestScale) =>
+            {
+                if(destroyForest.Completion > 1f)
+                {
+                    ecb.SetComponent(entityInQueryIndex, destroyForest.DisplayParentEntity, new ForestDisplay{Value = Entity.Null});
+                    ecb.DestroyEntity(entityInQueryIndex, entity);
+                }
+            }).ScheduleParallel();
+        
         Entities
             .WithName("chopping_system_farmers")
             .WithAll<Farmer>()
             .ForEach((
                 Entity entity, 
                 int entityInQueryIndex,
-                ref ChoppingTask task, 
-                in Position position) =>
+                ref ChoppingTask task) =>
             {
                 Entity plainTarget = task.Target;
                 Entity forestModel = GetComponent<ForestDisplay>(plainTarget).Value;
-                Forest forest = GetComponent<Forest>(plainTarget);
-
-                task.Completion = task.Completion + deltaTime / choppingDelay;
-                if(task.Completion > forest.Health)
+                if(forestModel.Equals(Entity.Null))
                 {
-                    ecb.DestroyEntity(entityInQueryIndex, forestModel);
+                    Forest forest = GetComponent<Forest>(plainTarget);
+                    
                     ecb.RemoveComponent<Forest>(entityInQueryIndex, plainTarget);
                     ecb.RemoveComponent<ForestDisplay>(entityInQueryIndex, plainTarget);
                     ecb.RemoveComponent<ChoppingTask>(entityInQueryIndex, entity);
                 }
-                else
-                {
-                    float3 scale = (1f - task.Completion) * task.OriginalScale;
-                    scale.x = math.floor(25f * scale.x) / 25f;
-                    scale.y = math.floor(25f * scale.y) / 25f;
-                    scale.z = math.floor(25f * scale.z) / 25f;
-                    ecb.SetComponent(entityInQueryIndex,forestModel, new NonUniformScale{Value = scale});
-                }
+                
             }).ScheduleParallel();
         
         m_ECBSystem.AddJobHandleForProducer(Dependency);
