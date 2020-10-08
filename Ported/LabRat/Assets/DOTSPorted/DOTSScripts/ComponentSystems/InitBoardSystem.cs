@@ -30,15 +30,6 @@ public class InitBoardSystem : SystemBase
         RequireSingletonForUpdate<BoardInfo>();
     }
 
-    protected override void OnDestroy()
-    {
-        base.OnDestroy();
-
-        // TODO: cleanup
-        // destroy tiles
-        // destroy walls
-    }
-
     protected override void OnUpdate()
     {
         UnityEngine.Debug.Log("InitBoardSystem OnUpdate");
