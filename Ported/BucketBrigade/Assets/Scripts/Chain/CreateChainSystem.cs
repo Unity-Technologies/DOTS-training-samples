@@ -50,6 +50,12 @@ public class CreateChainSystem : SystemBase
                             chainQueueBuffer.Add(new CreateChainBufferElement()
                                 { chainID = chainID.Value, position = i});
                         }
+                        
+                        // Adding two extra for the Scooper and Thrower
+                        chainQueueBuffer.Add(new CreateChainBufferElement()
+                            { chainID = chainID.Value, position = -1});
+                        chainQueueBuffer.Add(new CreateChainBufferElement()
+                            { chainID = chainID.Value, position = -1});
                     })
                 .Run();
 
@@ -70,7 +76,7 @@ public class CreateChainSystem : SystemBase
                                 ecb.AddSharedComponent(entity,
                                     new SharedChainComponent() {chainID = chainQueueBuffer[bufferPos].chainID});
                                 
-                                if (role.Value == Role.PassEmpty || role.Value == Role.PassFull)
+                                if (chainQueueBuffer[bufferPos].position >= 0)
                                 {
                                     ecb.AddComponent(entity,
                                         new ChainPosition() {Value = chainQueueBuffer[bufferPos].position});
