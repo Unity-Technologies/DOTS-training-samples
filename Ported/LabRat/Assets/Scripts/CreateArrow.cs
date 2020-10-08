@@ -49,6 +49,8 @@ public class CreateArrow : SystemBase
                             arrows.RemoveAt(i);
                         }
                     }
+                    
+                    ecb.RemoveComponent<PlacingArrow>(entityInQueryIndex, e);
                     return;
                 }
             }
@@ -74,17 +76,17 @@ public class CreateArrow : SystemBase
             Rotation rot;
             switch (placing.Direction)
             {
-                case DirectionDefines.East:
+                case DirectionDefines.North:
                     rot = new Rotation(){Value = quaternion.EulerXYZ(math.radians(90), 0, 0)};
                     break;
-                case DirectionDefines.North:
+                case DirectionDefines.East:
                     rot = new Rotation(){Value = quaternion.EulerXYZ(math.radians(90), math.radians(90), 0)};
                     break;
                 case DirectionDefines.West:
-                    rot = new Rotation(){Value = quaternion.EulerXYZ(math.radians(90), math.radians(180), 0)};
+                    rot = new Rotation(){Value = quaternion.EulerXYZ(math.radians(90), math.radians(-90), 0)};
                     break;
                 default: //DirectionDefines.South
-                    rot = new Rotation(){Value = quaternion.EulerXYZ(math.radians(90), math.radians(-90), 0)};
+                    rot = new Rotation(){Value = quaternion.EulerXYZ(math.radians(90), math.radians(180), 0)};
                     break;
             }
             ecb.SetComponent(entityInQueryIndex, entity, rot);
