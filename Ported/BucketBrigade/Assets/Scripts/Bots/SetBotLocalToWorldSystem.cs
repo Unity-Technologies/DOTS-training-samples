@@ -21,14 +21,14 @@ public class SetBotLocalToWorldSystem : SystemBase
         
         Entities
             .WithName("SetLtWJob")
-            .WithNone<Translation, Rotation, MyScale>()
-            .ForEach((ref LocalToWorld ltw, in Pos pos) =>
+            .WithNone<Translation, Rotation>()
+            .ForEach((ref LocalToWorld ltw, in Pos pos, in MyNonUniformScale scale) =>
             {
                 ltw.Value = new float4x4(
-                    1f, 0f, 0f, pos.Value.x,
-                    0f, 1f, 0f, 0f,
-                    0f, 0f, 1f, pos.Value.y,
-                    0f, 0f, 0f, 1f);
+                    scale.Value.x, 0f,            0f,            pos.Value.x,
+                    0f,            scale.Value.y, 0f,            0f,
+                    0f,            0f,            scale.Value.z, pos.Value.y,
+                    0f,            0f,            0f,            1f);
             }).ScheduleParallel();
         
         Entities

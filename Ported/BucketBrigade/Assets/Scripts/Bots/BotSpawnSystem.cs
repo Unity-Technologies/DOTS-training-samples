@@ -19,13 +19,13 @@ public class BotSpawnSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
+        Random rand = new Random((uint)System.DateTime.UtcNow.Millisecond);
 
         Entities
             .WithName("SpawnBots")
             .ForEach((Entity spawnerEntity, int entityInQueryIndex,
                 in BotSpawner spawner) =>
             {
-                Random rand = new Random((uint)System.DateTime.UtcNow.Millisecond);
                 for (int i = 0; i < spawner.numberBots; i++)
                 {
                     Entity e = ecb.Instantiate(i, spawner.botPrefab);
