@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PropagationRange: 2
-  PropagationTransfer: 0.02
+  PropagationTransfer: 0.01
   PropagationThreshold: 75
   HeatIncrease: 0.1
   HeatIncreaseThreshold: 10
@@ -245,12 +245,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b3e94521f8bb4c1a917a86024d7477e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  NeutralColor: {r: 0.5918476, g: 0.9433962, b: 0.5969059, a: 1}
+  OnFireThreshold: 25
   CoolValue: 15
-  CoolColor: {r: 0.5330188, g: 1, b: 0.5774342, a: 1}
-  CoolHeight: 0.1
+  CoolColor: {r: 0.9528302, g: 0.8207026, b: 0, a: 1}
+  CoolHeight: 0.5
   FireValue: 100
-  FireColor: {r: 1, g: 0, b: 0, a: 1}
-  FireHeight: 2
+  FireColor: {r: 0.9811321, g: 0.15784429, b: 0.0046279924, a: 1}
+  FireHeight: 3
 --- !u!4 &1481191104
 Transform:
   m_ObjectHideFlags: 0
