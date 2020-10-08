@@ -9,6 +9,8 @@ public class CreateArrow : SystemBase
 {
     EntityCommandBufferSystem m_ECBSystem;
     private EntityQuery m_ArrowPositionQuery;
+    private EntityQuery m_BasePositionQuery;
+    private EntityQuery m_HolePositionQuery;
 
     protected override void OnCreate()
     {
@@ -19,12 +21,27 @@ public class CreateArrow : SystemBase
             All = new ComponentType[] {typeof(Arrow)}
         };
         m_ArrowPositionQuery = EntityManager.CreateEntityQuery(desc);
+        
+        desc = new EntityQueryDesc
+        {
+            All = new ComponentType[] {typeof(HomeBase), typeof(Cell)}
+        };
+        m_BasePositionQuery = EntityManager.CreateEntityQuery(desc);
+        
+        desc = new EntityQueryDesc
+        {
+            All = new ComponentType[] {typeof(Hole), typeof(Cell)}
+        };
+        m_HolePositionQuery = EntityManager.CreateEntityQuery(desc);
     }
 
     protected override void OnUpdate()
     {
         var arrowsEntities = m_ArrowPositionQuery.ToEntityArray(Allocator.TempJob);
         var arrowsPositions = m_ArrowPositionQuery.ToComponentDataArray<Arrow>(Allocator.TempJob);
+        
+        var basePositions = m_BasePositionQuery.ToComponentDataArray<Cell>(Allocator.TempJob);
+        var holePositions = m_HolePositionQuery.ToComponentDataArray<Cell>(Allocator.TempJob);
         
         var boardSize = GetSingleton<GameInfo>().boardSize;
         var prefab = GetSingleton<GameInfo>().ArrowPrefab;
@@ -35,6 +52,18 @@ public class CreateArrow : SystemBase
         {
             float2 tilePosition = new float2(placing.TileIndex % boardSize.y, placing.TileIndex / boardSize.y );
             int tileIndex = placing.TileIndex;
+            //make sure we are not on a forbidden cell
+            for (int i = 0; i < basePositions.Length; i++)
+            {
+                if (basePositions[i].Index == tileIndex)
+                    return;
+            }
+            for (int i = 0; i < holePositions.Length; i++)
+            {
+                if (holePositions[i].Index == tileIndex)
+                    return;
+            }
+            
             for (int j = 0; j < arrowsEntities.Length; j++)
             {
                 // are we clicking on an existing arrow?
@@ -98,6 +127,10 @@ public class CreateArrow : SystemBase
         m_ECBSystem.AddJobHandleForProducer(Dependency);
         var a = arrowsEntities.Dispose(Dependency);
         var b = arrowsPositions.Dispose(Dependency);
+        var c = basePositions.Dispose(Dependency);
+        var d = holePositions.Dispose(Dependency);
+        a = JobHandle.CombineDependencies(a, b);
+        b = JobHandle.CombineDependencies(c, d);
         Dependency = JobHandle.CombineDependencies(a, b);
     }
 }
