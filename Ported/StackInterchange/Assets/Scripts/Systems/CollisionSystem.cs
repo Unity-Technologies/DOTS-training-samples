@@ -5,7 +5,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-
 public class CollisionSystem : SystemBase
 {
     EntityQuery mEntityQuery;
@@ -26,21 +25,21 @@ public class CollisionSystem : SystemBase
             var entityArray = mEntityQuery.ToEntityArray(Allocator.TempJob);
             var translationArray = mEntityQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
             
-            Entities.WithSharedComponentFilter(road).WithoutBurst()
-                .ForEach((Entity entity, ref Color color, in Car car, in LocalToWorld localToWorld) =>
+            Entities.WithSharedComponentFilter(road)
+                .ForEach((Entity entity, ref Color color, in Translation translation, in Car car, in LocalToWorld localToWorld) =>
             {
                 if (entityArray.Length != translationArray.Length)
                     return;
 
                 float hitDist = 0;
-                for (int i = 0; i < entityArray.Length; ++i)
+                
+                for (var i = 0; i < entityArray.Length; ++i)
                 {
                     if (entityArray[i] == entity)
                         continue;
 
-                    float3 otherPosition = translationArray[i].Value;
-                    float dist = math.distancesq(localToWorld.Position, translationArray[i].Value); 
-                    if (dist < 35)
+                    var dist = math.distancesq(translation.Value, translationArray[i].Value);
+                    if (dist < .1)
                     {
                         hitDist = dist;
                         break;
@@ -48,17 +47,9 @@ public class CollisionSystem : SystemBase
                 }
 
                 #if COLLISION_DEBUG_DRAW
-                float4 blue = new float4(0,0,1,1);
-                float4 yellow = new float4(1,1,0,1);
-
-                if (hitDist > .1)
-                {
-                    color.Value = yellow;
-                }
-                else
-                {
-                    color.Value = blue;
-                }
+                var blue = new float4(0,0,1,1);
+                var yellow = new float4(1,1,0,1);
+                color.Value = hitDist > .001f ? yellow : blue;
                 #endif
             }).ScheduleParallel();
         }
