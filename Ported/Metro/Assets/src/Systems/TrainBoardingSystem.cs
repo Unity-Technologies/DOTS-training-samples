@@ -31,38 +31,42 @@ public class TrainBoardingSystem : SystemBase
 
                     var carriage = carriageBuffer[i].Value;
                     var carriageCommuterBuffer = GetBuffer<CommuterInCarriageBufferElementData>(carriage);
-                    
-                    var carriageTransform = GetComponent<LocalToWorld>(carriage);
 
-                    // Count empty seats
-                    int boardingCount = 0;
-                    for (int j = 0; j < carriageCommuterBuffer.Length; ++j)
-                        if (carriageCommuterBuffer[j].Value == Entity.Null)
-                            boardingCount++;
+                    var carriageCenter = GetComponent<CarriageCenterSeat>(carriage);
+                    var carriageSeats = GetBuffer<CarriageSeat>(carriage);
 
+                    int numValidSeats = math.min(carriageCommuterBuffer.Length, carriageSeats.Length);
+
+                    // Get as many commuters as possible in
+                    int queueCommuterIndex = 0;
+                    for (int j = 0; j < numValidSeats && queueCommuterIndex < queueCommuterBuffer.Length; j++)
+                    {
+                        if(carriageCommuterBuffer[j].Value != Entity.Null)
+                            continue;
+
+                        var commuter = queueCommuterBuffer[queueCommuterIndex].Value;
+                        queueCommuterIndex++;
+
+                        carriageCommuterBuffer[j] = new CommuterInCarriageBufferElementData { Value = commuter };
+                        
+                        ecb.RemoveComponent<CommuterTask_WaitOnQueue>(commuter.Index, commuter);
+                        ecb.AddComponent(commuter.Index, commuter, new CommuterTask_BoardTrain { Carriage = carriage, SeatIndex = j });
+
+                        var navPoints = ecb.AddBuffer<NavPointBufferElementData>(commuter.Index, commuter);
+                        navPoints.Add(new NavPointBufferElementData() { NavPoint = GetComponent<LocalToWorld>(carriageCenter.Value).Position });
+                        navPoints.Add(new NavPointBufferElementData() { NavPoint = GetComponent<LocalToWorld>(carriageSeats[j].Value).Position });
+                    }
+
+                    // Return the rest to MoveToQueue so they queue again
                     // Move commuters into the train
-                    for (int j = 0; j < queueCommuterBuffer.Length; ++j)
+                    for (int j = queueCommuterIndex; j < queueCommuterBuffer.Length; ++j)
                     {
                         var commuter = queueCommuterBuffer[j].Value;
 
-                        if (j < boardingCount)
-                        {
-                            carriageCommuterBuffer[j] = new CommuterInCarriageBufferElementData { Value = commuter };
-
-                            ecb.AddComponent(commuter.Index, commuter, new TargetPoint
-                            {
-                                // todo: select an empty spot and choose that position
-                                CurrentTarget = carriageTransform.Position
-                            });
-                            ecb.AddComponent(commuter.Index, commuter, new CommuterTask_BoardTrain { Carriage = carriage });
-                        }
-                        else
-                        {
-                            ecb.RemoveComponent<TargetPoint>(commuter.Index, commuter);
-                            ecb.AddComponent<CommuterTask_MoveToQueue>(commuter.Index, commuter);
-                        }
-
                         ecb.RemoveComponent<CommuterTask_WaitOnQueue>(commuter.Index, commuter);
+                        ecb.AddComponent<CommuterTask_MoveToQueue>(commuter.Index, commuter);
+                        
+                        ecb.RemoveComponent<TargetPoint>(commuter.Index, commuter);
                     }
 
                     queueCommuterBuffer.Clear();

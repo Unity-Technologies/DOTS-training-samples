@@ -140,20 +140,41 @@ public class CommuterGoalSystem : SystemBase
         Entities
             .WithName("commuter_boarding_train")
             .WithNone<TargetPoint>()
-            .ForEach((Entity entity, int entityInQueryIndex, in CommuterTask_BoardTrain task) =>
+            .ForEach((Entity commuter, int entityInQueryIndex, in CommuterTask_BoardTrain task) =>
             {
-                ecb.RemoveComponent<CommuterTask_BoardTrain>(entityInQueryIndex, entity);
-                ecb.AddComponent(entityInQueryIndex, entity, new CommuterTask_WaitInCarriage { Carriage = task.Carriage });
+                var navPointsForCommuter = GetBufferFromEntity<NavPointBufferElementData>();
+                if (navPointsForCommuter.HasComponent(commuter))
+                {
+                    var navPoints = navPointsForCommuter[commuter];
 
-                ecb.RemoveComponent<CommuterOnPlatform>(entityInQueryIndex, entity);
+                    float3 nextPoint = navPoints[0].NavPoint;
+
+                    navPoints.RemoveAt(0);
+                    if (navPoints.IsEmpty)
+                    {
+                        ecb.RemoveComponent<NavPointBufferElementData>(entityInQueryIndex, commuter);
+                    }
+
+                    ecb.AddComponent(entityInQueryIndex, commuter, new TargetPoint() { CurrentTarget = nextPoint });
+                }
+                else
+                {
+                    ecb.RemoveComponent<CommuterTask_BoardTrain>(entityInQueryIndex, commuter);
+                    ecb.AddComponent(entityInQueryIndex, commuter, new CommuterTask_WaitInCarriage { Carriage = task.Carriage, SeatIndex = task.SeatIndex });
+
+                    ecb.RemoveComponent<CommuterOnPlatform>(entityInQueryIndex, commuter);
+                }
+
+
             }).Schedule();
 
         Entities
             .WithName("commuter_in_carriage")
             .ForEach((Entity entity, ref Translation translation, in CommuterTask_WaitInCarriage task) =>
             {
-                translation.Value = GetComponent<LocalToWorld>(task.Carriage).Position;
-            }).ScheduleParallel();
+                var seats = GetBuffer<CarriageSeat>(task.Carriage);
+                translation.Value = GetComponent<LocalToWorld>(seats[task.SeatIndex].Value).Position;
+            }).Schedule();
 
         Entities
             .WithName("commuter_unboarding_train")
