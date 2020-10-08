@@ -74,10 +74,10 @@ public class AgentUpdateSystem : SystemBase
             bucketIsEmptyAndOnGround[index++] = fillValue.Value - float.Epsilon <= 0.0f && c.CarryingEntity == Entity.Null;
         }).Run();
         //}).Schedule(Dependency); // nope. modifying index.
-
+        
         const float arrivalThresholdSq = 1.0f; // square length.
         const float bucketFillRate = 0.1f; // amount to add to bucket volume per frame
-
+        
         // scooper updates
         Entities
             //.WithReadOnly(bucketEntities)
@@ -86,6 +86,12 @@ public class AgentUpdateSystem : SystemBase
             .WithReadOnly(bucketIsEmptyAndOnGround)
             .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.ScooperTag agentTag) =>
         {
+            // update any carried buckets.
+            if (agent.CarriedEntity != Entity.Null)
+            {
+                ecb1.SetComponent<Translation>(entityInQueryIndex, agent.CarriedEntity, new Translation { Value = new float3(t.Value.x, t.Value.y + 0.5f, t.Value.z)} );
+            }
+            
             /*
              * Scooper Actions:
              * GET_BUCKET -> GOTO_PICKUP_LOCATION -> FILL_BUCKET -> GOTO_DROPOFF_LOCATION -> DROP_BUCKET
@@ -111,11 +117,12 @@ public class AgentUpdateSystem : SystemBase
                         // target is a bucket, in theory.
                         // pick up bucket (Agent.CarriedEntity = Bucket)
                         FindNearestIndex(t.Value, bucketLocations, bucketIsEmptyAndOnGround, true, out bucketEntityIndex); // look for nearest empty bucket
-                        bucketEntity = bucketEntities[bucketEntityIndex];
 
                         // check that the bucket is still in the expected location (another bot may have stolen it)
                         if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
                         {
+                            bucketEntity = bucketEntities[bucketEntityIndex];
+                            
                             // the bucket is still here
                             // update carryable component to track carrying entity.
                             ecb1.SetComponent<CarryableObject>(entityInQueryIndex, bucketEntity, new CarryableObject { CarryingEntity = e} );
@@ -124,7 +131,7 @@ public class AgentUpdateSystem : SystemBase
                             seekComponent.TargetPos = new float3(0, 0, 0);
                         
                             agent.ActionState = (byte) AgentAction.FILL_BUCKET;
-                            agent.CarriedEntity = bucketEntities[bucketEntityIndex];
+                            agent.CarriedEntity = bucketEntity;
                         }
                         else
                         {
@@ -173,10 +180,8 @@ public class AgentUpdateSystem : SystemBase
 
                 case (byte) AgentAction.DROP_BUCKET:
                     // drop bucket
+                    ecb1.SetComponent<CarryableObject>(entityInQueryIndex, agent.CarriedEntity, new CarryableObject { CarryingEntity = Entity.Null } );
                     agent.CarriedEntity = Entity.Null; // nb - this will be out of sync with bucket status for one frame (bucket will be updated after simulation end)
-                    
-                    // update carried bucket's carrying entity reference
-                    ecb1.SetComponent<CarryableObject>(entityInQueryIndex, bucketEntity, new CarryableObject { CarryingEntity = Entity.Null } );
 
                     // need to update bucket position to reflect being dropped.
                     agent.ActionState = (byte) AgentAction.GET_BUCKET;
@@ -271,7 +276,7 @@ public class AgentUpdateSystem : SystemBase
             {
                 float squareLen = math.lengthsq(currentPos - objectLocation[i]);
 
-                if (squareLen < nearestDistanceSquared && squareLen > 5.0f)
+                if (squareLen < nearestDistanceSquared /*&& squareLen > 5.0f*/)
                 {
                     nearestDistanceSquared = squareLen;
                     nearestIndex = i;
@@ -292,7 +297,7 @@ public class AgentUpdateSystem : SystemBase
             {
                 float squareLen = math.lengthsq(currentPos - objectLocation[i]);
 
-                if (squareLen < nearestDistanceSquared && squareLen > 5.0f)
+                if (squareLen < nearestDistanceSquared /*&& squareLen > 5.0f*/)
                 {
                     nearestDistanceSquared = squareLen;
                     nearestIndex = i;

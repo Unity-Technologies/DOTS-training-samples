@@ -41,7 +41,10 @@ public class SeekSystem : SystemBase
                     if (EntityManager.HasComponent<Bucket>(agent.CarriedEntity))
                     {
                         Intensity bucketWaterValume = EntityManager.GetComponentData<Intensity>(agent.CarriedEntity);
-                        agentMaxVelocity *= 0.5f * (bucketWaterValume.Value / 3.0f);
+                        if (bucketWaterValume.Value > 0.0f)
+                        {
+                            agentMaxVelocity *= 0.5f * (bucketWaterValume.Value / 3.0f);
+                        }
                     }
                     else
                     {
