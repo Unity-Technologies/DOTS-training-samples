@@ -62,6 +62,7 @@ public class FakeCreateCropCarrier : SystemBase
                 }).Run();
             
             EntityManager.AddComponentData(farmerEntity, new TargetEntity(){target = bestDepotEntity[0], targetPosition = GetComponent<Position>(bestDepotEntity[0]).Value});
+            EntityManager.AddComponentData(cropEntity, new TargetEntity(){target = bestDepotEntity[0], targetPosition = GetComponent<Position>(bestDepotEntity[0]).Value});
             
             bestDepotEntity.Dispose();
         }
