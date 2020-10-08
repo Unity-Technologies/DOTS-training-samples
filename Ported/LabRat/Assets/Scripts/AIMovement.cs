@@ -54,9 +54,10 @@ public class AIMovement : SystemBase
                 cursor.Destination = new int2(random.NextInt(0, boardSize.x), random.NextInt(0, boardSize.y));
                 ecb.AddComponent(entityInQueryIndex, e, new Timer(){Value = random.NextFloat(1f,2f)});
                 //TODO : get the cell and add a Direction and player to it?
-                PlaceArrow(arrows, 
-                    new int2((int)math.round(position.Value.x), (int)math.round(position.Value.y)), 
-                    boardSize.y, 
+                PlaceArrow(arrows,
+                    new int2((int)math.round(position.Value.x), (int)math.round(position.Value.y)),
+                    boardSize.y,
+                    (byte)(1 << random.NextInt(0, 3)),
                     playerIndex.Index, 
                     ecb, 
                     entityInQueryIndex, 
@@ -77,7 +78,7 @@ public class AIMovement : SystemBase
     }
 
     public static void PlaceArrow(DynamicBuffer<PlayerArrow> arrows, 
-        int2 tilePosition, int boardSize, int playerIndex, 
+        int2 tilePosition, int boardSize, byte direction,  int playerIndex, 
         EntityCommandBuffer.ParallelWriter ecb, int sortKey, Entity prefab,
         NativeArray<Entity> existingArrows, NativeArray<Arrow> existingArrowsPositions)
     {
@@ -109,12 +110,29 @@ public class AIMovement : SystemBase
             arrows.RemoveAt(0);
         }
 
-        
-        
         var entity = ecb.Instantiate(sortKey, prefab);
         ecb.SetComponent(sortKey, entity, new Translation() {Value = new float3(tilePosition.x, 0.61f, tilePosition.y)});
         ecb.SetComponent(sortKey, entity, PlayerUtility.ColorFromPlayerIndex(playerIndex));
         ecb.SetComponent(sortKey, entity, new Arrow() {Position = tileIndex});
+        ecb.SetComponent(sortKey, entity, new Direction() {Value = direction});
+        Rotation rot;
+        switch (direction)
+        {
+            case DirectionDefines.East:
+                rot = new Rotation(){Value = quaternion.EulerXYZ(math.radians(90), 0, 0)};
+                break;
+            case DirectionDefines.North:
+                rot = new Rotation(){Value = quaternion.EulerXYZ(math.radians(90), math.radians(90), 0)};
+                break;
+            case DirectionDefines.West:
+                rot = new Rotation(){Value = quaternion.EulerXYZ(math.radians(90), math.radians(180), 0)};
+                break;
+            default: //DirectionDefines.South
+                rot = new Rotation(){Value = quaternion.EulerXYZ(math.radians(90), math.radians(-90), 0)};
+                break;
+        }
+        ecb.SetComponent(sortKey, entity, rot);
+        
         arrows.Add(new PlayerArrow() { TileIndex = tileIndex });
     }
 }
