@@ -18,7 +18,7 @@ public class AssignTaskSystem : SystemBase
         m_Random = new Random(666);
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
-        cropsQuery = GetEntityQuery(typeof(Crop));
+        cropsQuery = GetEntityQuery(typeof(Crop), ComponentType.Exclude<Assigned>());
     }
 
     protected override void OnUpdate()
@@ -60,6 +60,7 @@ public class AssignTaskSystem : SystemBase
                     ecb.AddComponent<PickUpCropTask>(entityInQueryIndex, farmerEntity);
                     ecb.AddComponent<TargetEntity>(entityInQueryIndex, farmerEntity);
                     ecb.SetComponent(entityInQueryIndex, farmerEntity, new TargetEntity { target = nearestCropEntity, targetPosition = nearestCropPos });
+                    ecb.AddComponent<NeedsDeduplication>(entityInQueryIndex, farmerEntity);
                 }
 
             }).ScheduleParallel();
