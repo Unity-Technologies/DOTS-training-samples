@@ -69,7 +69,7 @@ public class AgentSpawnerSystem : SystemBase
                 {
                     Entity agent = clonedAgents[index];
                     
-                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team, MaxVelocity = maxAgentVelocity});
+                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team, MaxVelocity = maxAgentVelocity, CarriedEntity = Entity.Null, ActionState = 0});
                     EntityManager.AddComponent<AgentTags.ScooperTag>(agent);
 
                     float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
@@ -86,7 +86,7 @@ public class AgentSpawnerSystem : SystemBase
                 for (int thrower = 0; thrower < spawner.TeamThrowers; ++thrower)
                 {
                     Entity agent = clonedAgents[index];
-                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team, MaxVelocity = maxAgentVelocity});
+                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team, MaxVelocity = maxAgentVelocity, CarriedEntity = Entity.Null, ActionState = 0});
                     EntityManager.AddComponent<AgentTags.ThrowerTag>(agent);
                     
                     float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
@@ -102,7 +102,7 @@ public class AgentSpawnerSystem : SystemBase
                 for (int fullPasser = 0; fullPasser < numFullBucketPassers; ++fullPasser)
                 {
                     Entity agent = clonedAgents[index];
-                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team, MaxVelocity = maxAgentVelocity});
+                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team, MaxVelocity = maxAgentVelocity, CarriedEntity = Entity.Null, ActionState = 0});
                     EntityManager.AddComponent<AgentTags.FullBucketPasserTag>(agent);
 
                     float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
@@ -116,7 +116,7 @@ public class AgentSpawnerSystem : SystemBase
                 for (int emptyPasser = 0; emptyPasser < numEmptyBucketPassers; ++emptyPasser)
                 {
                     Entity agent = clonedAgents[index];
-                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team, MaxVelocity = maxAgentVelocity});
+                    EntityManager.AddComponentData<Agent>(agent, new Agent {TeamID = team, MaxVelocity = maxAgentVelocity, CarriedEntity = Entity.Null, ActionState = 0});
                     EntityManager.AddComponent<AgentTags.EmptyBucketPasserTag>(agent);
                     
                     float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
