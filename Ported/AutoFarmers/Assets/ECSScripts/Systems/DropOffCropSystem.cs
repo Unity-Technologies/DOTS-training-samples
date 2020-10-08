@@ -2,6 +2,7 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 
+//[UpdateAfter(typeof(FarmerMoveSystem))]
 public class DropOffCropSystem : SystemBase 
 {
     EntityCommandBufferSystem m_ECBSystem;
@@ -14,7 +15,7 @@ public class DropOffCropSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
-        const float reachDistance = 0.2f; 
+        const float reachDistance = 0.5f; 
         
         Entities
             .WithName("dropoff_system_farmerscheck")
@@ -58,8 +59,8 @@ public class DropOffCropSystem : SystemBase
                     ecb.RemoveComponent<TargetEntity>(entityInQueryIndex, entity);
                 }
             }).ScheduleParallel();
-
-        float dropDelay = 3f;
+        
+        float dropDelay = 2f;
         float deltaTime = Time.DeltaTime;
         Entities
             .WithName("dropoff_system_removecrop")
@@ -72,7 +73,7 @@ public class DropOffCropSystem : SystemBase
                 ref Translation translation) =>
             {
                 dropOff.Completion += deltaTime / dropDelay;
-
+        
                 if(dropOff.Completion > 1f)
                 {
                     ecb.DestroyEntity(entityInQueryIndex, entity);
@@ -82,7 +83,7 @@ public class DropOffCropSystem : SystemBase
                     scale.Value = (1f - dropOff.Completion) * scale.Value;
                     translation.Value = dropOff.FromPosition + dropOff.Completion * (dropOff.ToPosition - dropOff.FromPosition);
                 }
-
+        
             }).ScheduleParallel(); 
         
         m_ECBSystem.AddJobHandleForProducer(Dependency);
