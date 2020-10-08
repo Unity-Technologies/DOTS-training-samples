@@ -48,6 +48,7 @@ public class BucketSpawnerSystem : SystemBase
             {
                 Entity bucket = clonedBuckets[i];
                 EntityManager.AddComponent<Bucket>(bucket);
+                EntityManager.AddComponentData<CarryableObject>(bucket, new CarryableObject{ CarryingEntity = Entity.Null });
                 // bucket prefab should already have an Intensity component to store current volume
                 if (!EntityManager.HasComponent<Intensity>(bucket))
                 {
