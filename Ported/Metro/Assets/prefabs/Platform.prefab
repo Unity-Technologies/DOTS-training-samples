@@ -4337,6 +4337,7 @@ GameObject:
   - component: {fileID: 4078383177425641952}
   - component: {fileID: 4482297033662273560}
   - component: {fileID: 846363695404665723}
+  - component: {fileID: 4419155108451236024}
   m_Layer: 0
   m_Name: Platform
   m_TagString: Untagged
@@ -4450,7 +4451,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08d738d04ecd6c74faf48f48a6ccabbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NeighbourPlatform: {fileID: 0}
+  AdjacentPlatform: {fileID: 0}
 --- !u!114 &846363695404665723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4464,6 +4465,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Platforms: []
+--- !u!114 &4419155108451236024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891511846621564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3cb350ed16754242b1e42fe4e80448e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1598512793004306, guid: 1b7c16b60bc3a4b37b5a2f18f064dcb4, type: 3}
+  Count: 20
+  Rect:
+    serializedVersion: 2
+    x: -4.5
+    y: 1.5
+    width: 29
+    height: 3
+  Height: -0.08
 --- !u!1 &1917900291829536
 GameObject:
   m_ObjectHideFlags: 0

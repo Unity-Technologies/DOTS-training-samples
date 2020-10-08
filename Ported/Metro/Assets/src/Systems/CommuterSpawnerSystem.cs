@@ -24,7 +24,7 @@ public class CommuterSpawnerSystem : SystemBase
         Entities
             .WithName("commuter_spawner")
             .WithStructuralChanges()
-            .ForEach((Entity entity, in LocalToWorld localToWorld, in CommuterSpawner spawner, in Queues platform) =>
+            .ForEach((Entity entity, in LocalToWorld localToWorld, in CommuterSpawner spawner) =>
             {
                 var commuters = EntityManager.Instantiate(spawner.Prefab, spawner.Count, Unity.Collections.Allocator.Temp);
                 foreach (var commuter in commuters)

@@ -47,7 +47,6 @@ public class CommuterGoalSystem : SystemBase
                 }
                 else
                 {
-                    return;
                     WalkwayPoints currentWalkways = GetComponent<WalkwayPoints>(currentPlatform);
 
                     var sameStationPlatforms = GetBufferFromEntity<SameStationPlatformBufferElementData>()[currentPlatform];
@@ -120,12 +119,12 @@ public class CommuterGoalSystem : SystemBase
                 for (int i = 0; i < platform.CarriageCount; ++i)
                 {
                     var queue = queueBuffer[i];
-                    Translation queueTranslation = GetComponent<Translation>(queue.Value);
-                    float distSq = math.distancesq(translation.Value, queueTranslation.Value);
+                    float3 queueTranslation = GetComponent<LocalToWorld>(queue.Value).Position;
+                    float distSq = math.distancesq(translation.Value, queueTranslation);
                     if (distSq < minDistSq)
                     {
                         minDistSq = distSq;
-                        targetPosition = queueTranslation.Value;
+                        targetPosition = queueTranslation;
                         targetQueue = queue.Value;
                     }
                 }
