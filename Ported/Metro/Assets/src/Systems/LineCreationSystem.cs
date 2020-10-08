@@ -9,12 +9,15 @@ using UnityEngine;
 public class LineCreationSystem : SystemBase
 {
     EntityArchetype railArchetype;
+    private Unity.Mathematics.Random m_Random;
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        
-        railArchetype = EntityManager.CreateArchetype(typeof(RailPoint), typeof(RailPointDistance), typeof(RailLength),
+
+        m_Random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
+
+        railArchetype = EntityManager.CreateArchetype(typeof(RailPoint), typeof(RailPointDistance), typeof(RailLength), typeof(RailColor),
                                                       typeof(TrainCount), typeof(CarriageCount), typeof(BufferPlatform));
         
         RequireSingletonForUpdate<MetroBuilder>();
@@ -208,6 +211,8 @@ public class LineCreationSystem : SystemBase
         var platformTranslations = new NativeArray<float3>(platformCount, Allocator.Temp);
         allPlatforms.AddRange(platforms);
 
+        float4 railColor = new float4(m_Random.NextFloat(), m_Random.NextFloat(), m_Random.NextFloat(), 1);
+
         // now that the rails have been laid - let's put the platforms on
         int totalPoints = bezierPath.points.Count;
         for (int i = 0; i < platformIndices.Length; i++)
@@ -215,13 +220,13 @@ public class LineCreationSystem : SystemBase
             Entity outboundPlatform = platforms[i];
             int _plat_END = platformIndices[i];
             int _plat_START = _plat_END - 1;
-            platformTranslations[i] = InitializePlatform(outboundPlatform, bezierPath, _plat_START, _plat_END, -3f);
+            platformTranslations[i] = InitializePlatform(outboundPlatform, bezierPath, _plat_START, _plat_END, -3f, railColor);
 
             var inboundPlatformIndex = platforms.Length - 1 - i;
             Entity inboundPlatform = platforms[inboundPlatformIndex];
             int opposite_START = totalPoints - (_plat_END + 1);
             int opposite_END = totalPoints - _plat_END;
-            platformTranslations[inboundPlatformIndex] = InitializePlatform(inboundPlatform, bezierPath, opposite_START, opposite_END, -3f);
+            platformTranslations[inboundPlatformIndex] = InitializePlatform(inboundPlatform, bezierPath, opposite_START, opposite_END, -3f, railColor);
 
             // pair these platforms as opposites
             var outboundSameStationPlatforms = GetBuffer<SameStationPlatformBufferElementData>(outboundPlatform);
@@ -250,6 +255,7 @@ public class LineCreationSystem : SystemBase
         var railEntity = EntityManager.CreateEntity(railArchetype);
         EntityManager.SetComponentData(railEntity, trainCount);
         EntityManager.SetComponentData(railEntity, carriageCount);
+        EntityManager.SetComponentData(railEntity, new RailColor() { Value = railColor });
 
         var railPoints = new NativeList<RailPoint>(Allocator.Temp);
 
@@ -315,7 +321,7 @@ public class LineCreationSystem : SystemBase
         platformTranslations.Dispose();
     }
 
-    float3 InitializePlatform(Entity platform, BezierPath bezierPath, int _index_platform_START, int _index_platform_END, float lookAtOffset)
+    float3 InitializePlatform(Entity platform, BezierPath bezierPath, int _index_platform_START, int _index_platform_END, float lookAtOffset, float4 color)
     {
         BezierPoint _PT_START = bezierPath.points[_index_platform_START];
         BezierPoint _PT_END = bezierPath.points[_index_platform_END];
@@ -327,7 +333,16 @@ public class LineCreationSystem : SystemBase
         {
             Value = quaternion.LookRotation(math.normalize(lookAtPoint - _PT_END.location), new float3(0f, 1f, 0f))
         });
-        
+
+        var children = EntityManager.GetBuffer<LinkedEntityGroup>(platform);
+        foreach (var child in children)
+        {
+            if (HasComponent<Color>(child.Value))
+            {
+                SetComponent(child.Value, new Color() { Value = color });
+            }
+        }
+
         return _PT_END.location;
     }
 
