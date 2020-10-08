@@ -12,6 +12,9 @@ public class BoardInitializationSystem : SystemBase
             .WithStructuralChanges()
             .ForEach((Entity entity, in Board board) =>
             {
+                var gameInfo = EntityManager.CreateEntity(typeof(GameInfo));
+                SetComponent(gameInfo, new GameInfo(){boardSize = new int2(board.size, board.size), ArrowPrefab = board.arrowPrefab});
+
                 //UnityEngine.Debug.Log("Initializing Board");
                 var wallEntity = EntityManager.CreateEntity();
                 var wallBuffer = EntityManager.AddBuffer<TileWall>(wallEntity);
@@ -41,10 +44,11 @@ public class BoardInitializationSystem : SystemBase
                     
                     var tileInstance = EntityManager.Instantiate(board.tilePrefab);
                     SetComponent(tileInstance, new Translation { Value = new float3(posX, posY, posZ) });
-                    SetComponent(tileInstance,
-                        (x + z) % 2 == 0
-                            ? new URPMaterialPropertyBaseColor {Value = new float4(0.8f, 0.8f, 0.8f, 1.0f)}
-                            : new URPMaterialPropertyBaseColor {Value = new float4(0.6f, 0.6f, 0.6f, 1.0f)});
+                    URPMaterialPropertyBaseColor floorColor;
+                    floorColor = (x + z) % 2 == 0 
+                        ? new URPMaterialPropertyBaseColor { Value = new float4(0.8f, 0.8f, 0.8f, 1.0f) } 
+                        : new URPMaterialPropertyBaseColor { Value = new float4(0.6f, 0.6f, 0.6f, 1.0f) };
+                    SetComponent(tileInstance, floorColor);
 
                     // Place border walls
                     if (x == 0) // West
@@ -81,7 +85,9 @@ public class BoardInitializationSystem : SystemBase
                             spawnPrefab = board.ratPrefab,
                             direction = (x == 0 && z == 0) ? DirectionDefines.North : DirectionDefines.South,
                             spawnCount = 10,
-                            spawnFrequency = 1f
+                            spawnFrequency = 1f,
+                            speedRange = new float2(1f, 5f)
+
                         };
                         EntityManager.AddComponent<SpawnPoint>(tileInstance);
                         SetComponent(tileInstance, mouseSpawnPoint);
@@ -93,7 +99,8 @@ public class BoardInitializationSystem : SystemBase
                             spawnPrefab = board.catPrefab,
                             direction = (x == 0 && z == (board.size - 1)) ? DirectionDefines.East : DirectionDefines.West,
                             spawnCount = 2,
-                            spawnFrequency = 3f
+                            spawnFrequency = 3f,
+                            speedRange = new float2(0.5f, 1.5f)
                         };
                         EntityManager.AddComponent<SpawnPoint>(tileInstance);
                         SetComponent(tileInstance, catSpawnPoint);
@@ -159,6 +166,7 @@ public class BoardInitializationSystem : SystemBase
                 for (int i = 0; i < 4; ++i)
                 {
                     var player =  EntityManager.CreateEntity(i == 0 ? mainPlayerArchetypes : playerArchetypes);
+                    EntityManager.AddBuffer<PlayerArrow>(player);
                     SetComponent(player, new PlayerTransform
                     {
                         Index = i
@@ -173,10 +181,10 @@ public class BoardInitializationSystem : SystemBase
                             position.Value = new int2(boardQuarter, board.size - boardQuarter - 1);
                             break;
                         case 2:
-                            position.Value = new int2(board.size - boardQuarter - 1, boardQuarter);
+                            position.Value = new int2(board.size - boardQuarter - 1, board.size - boardQuarter - 1);
                             break;
                         case 3:
-                            position.Value = new int2(board.size - boardQuarter - 1, board.size - boardQuarter - 1);
+                            position.Value = new int2(board.size - boardQuarter - 1, boardQuarter);
                             break;
                     }
                     SetComponent(player, position);
@@ -189,9 +197,6 @@ public class BoardInitializationSystem : SystemBase
                     }
                 }
 
-                var gameInfo = EntityManager.CreateEntity(typeof(GameInfo));
-                SetComponent(gameInfo, new GameInfo(){boardSize = new int2(board.size, board.size)});
-                
                 EntityManager.DestroyEntity(entity);
         }).Run();
     }
@@ -275,25 +280,9 @@ public class BoardInitializationSystem : SystemBase
         Entity tileInstance)
     {
         var homebaseInstance = EntityManager.Instantiate(homeBasePrefab);
-        SetComponent(homebaseInstance, new Translation { Value = new float3(posX, yOffset, posZ) });
+        SetComponent(homebaseInstance, new Translation { Value = new float3(posX, yOffset + 0.5f, posZ) });
 
-        URPMaterialPropertyBaseColor color;
-        switch (playerIndex)
-        {
-            case 0: // Red
-                color = new URPMaterialPropertyBaseColor {Value = new float4(1.0f, 0.0f, 0.0f, 1.0f)};
-                break;
-            case 1: // Green
-                color = new URPMaterialPropertyBaseColor {Value = new float4(0.0f, 1.0f, 0.0f, 1.0f)};
-                break;
-            case 2: // Blue
-                color = new URPMaterialPropertyBaseColor {Value = new float4(0.0f, 0.0f, 1.0f, 1.0f)};
-                break;
-            default: // Black
-                color = new URPMaterialPropertyBaseColor {Value = new float4(1.0f, 1.0f, 1.0f, 1.0f)};
-                break;
-        }
-        SetComponent(homebaseInstance, color);
+        SetComponent(homebaseInstance, PlayerUtility.ColorFromPlayerIndex(playerIndex));
 
         EntityManager.AddComponent<HomeBase>(tileInstance);
         SetComponent<HomeBase>(tileInstance, new HomeBase

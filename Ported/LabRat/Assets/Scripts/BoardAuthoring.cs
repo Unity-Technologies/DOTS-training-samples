@@ -10,6 +10,7 @@ public struct Board : IComponentData
     public Entity homeBasePrefab;
     public Entity ratPrefab;
     public Entity catPrefab;
+    public Entity arrowPrefab;
 
     [Min(4)] public int size;
     public float yNoise;

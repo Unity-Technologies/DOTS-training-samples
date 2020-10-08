@@ -155,9 +155,10 @@ MonoBehaviour:
   tilePrefab: {fileID: 1695157876856304, guid: c2ef2e9ce5dad494d916f59769e7d27f, type: 3}
   invisibleTilePrefab: {fileID: 1695157876856304, guid: ddddd9f0546a26546b64c2ed7acab445, type: 3}
   wallPrefab: {fileID: 1948033712935058, guid: eea26364a72844748944744db673f3f1, type: 3}
-  homeBasePrefab: {fileID: 1633874070064508, guid: 4646c46297b1d264b9d030df701c5aca, type: 3}
+  homeBasePrefab: {fileID: 1719053103424519708, guid: 049d9d762365f964d897172d36551fd2, type: 3}
   ratPrefab: {fileID: 1565721843962348, guid: dd039b4b660a8134dadb76c6f58af5f5, type: 3}
   catPrefab: {fileID: 1377909340170110, guid: 37ee530416460754cb7528bcccc1b1eb, type: 3}
+  arrowPrefab: {fileID: 8321554569707779032, guid: 688937ac2369a984395e395404d933ab, type: 3}
   size: 10
   yNoise: 0.1
   wallCount: 50
