@@ -24,13 +24,15 @@ public class CollisionSystem : SystemBase
             mEntityQuery.SetSharedComponentFilter(road);
             var entityArray = mEntityQuery.ToEntityArray(Allocator.TempJob);
             var translationArray = mEntityQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-            
-            Entities.WithSharedComponentFilter(road)
-                .ForEach((Entity entity, ref Color color, in Translation translation, in Car car, in LocalToWorld localToWorld) =>
-            {
-                if (entityArray.Length != translationArray.Length)
-                    return;
 
+            if (entityArray.Length != translationArray.Length)
+            {
+                throw new System.InvalidOperationException("CollisionSystem expected entityArray.Length and translationArray.Length to be equal");
+            }
+
+            Entities.WithSharedComponentFilter(road)
+                .ForEach((Entity entity, ref Color color, in Translation translation, in Car car) =>
+            {
                 float hitDist = 0;
                 
                 for (var i = 0; i < entityArray.Length; ++i)
@@ -47,9 +49,9 @@ public class CollisionSystem : SystemBase
                 }
 
                 #if COLLISION_DEBUG_DRAW
-                var blue = new float4(0,0,1,1);
-                var yellow = new float4(1,1,0,1);
-                color.Value = hitDist > .001f ? yellow : blue;
+                    var blue = new float4(0,0,1,1);
+                    var yellow = new float4(1,1,0,1);
+                    color.Value = hitDist > .001f ? yellow : blue;
                 #endif
             }).ScheduleParallel();
         }
