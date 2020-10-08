@@ -4,7 +4,6 @@ using Unity.Jobs;
 using Unity.Mathematics;
 
 [UpdateAfter(typeof(MoveTowardsTargetSystem))]
-[UpdateBefore(typeof(StartNextCommandSystem))]
 public class FillCarriedBucketSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;

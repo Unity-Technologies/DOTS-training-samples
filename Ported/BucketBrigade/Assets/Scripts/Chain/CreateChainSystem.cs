@@ -63,14 +63,10 @@ public class CreateChainSystem : SystemBase
                     .WithNone<SharedChainComponent>()
                     .ForEach(
                         (Entity entity, int entityInQueryIndex,
-                            ref DynamicBuffer<CommandBufferElement> commandQueue,
                             ref BotRole role) =>
                         {
                             if (bufferPos < bufferLength)
                             {
-                                ecb.AddComponent(entity, new CurrentBotCommand {Command = Command.None});
-                                DynamicBuffer<Command> commandBuffer = commandQueue.Reinterpret<Command>();
-                                commandBuffer.Add(Command.Move);
                                 ecb.AddSharedComponent(entity,
                                     new SharedChainComponent() {chainID = chainQueueBuffer[bufferPos].chainID});
                                 

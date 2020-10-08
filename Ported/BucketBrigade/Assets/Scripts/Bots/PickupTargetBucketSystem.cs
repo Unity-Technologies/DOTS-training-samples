@@ -1,7 +1,6 @@
 ﻿using Unity.Entities;
 
 [UpdateAfter(typeof(MoveTowardsTargetSystem))]
-[UpdateBefore(typeof(StartNextCommandSystem))]
 public class PickupTargetBucketSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;

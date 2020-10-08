@@ -47,7 +47,6 @@ public class UpdateObjectsInChainSystem : SystemBase
                     .ForEach(
                         (Entity entity, int entityInQueryIndex,
                             ref Pos pos, ref Speed speed,
-                            in CurrentBotCommand currentCommand,
                             in ChainPosition position) =>
                         {
                             var targetPosition =
@@ -62,7 +61,6 @@ public class UpdateObjectsInChainSystem : SystemBase
                     .ForEach(
                         (Entity entity, int entityInQueryIndex,
                             ref Pos pos, ref Speed speed, ref Target target,
-                            in CurrentBotCommand currentCommand,
                             in ChainPosition position) =>
                         {
                             var targetPosition =
