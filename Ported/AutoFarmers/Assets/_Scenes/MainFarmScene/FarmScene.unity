@@ -135,7 +135,6 @@ GameObject:
   - component: {fileID: 1227781563}
   - component: {fileID: 1227781565}
   - component: {fileID: 1227781566}
-  - component: {fileID: 1227781567}
   m_Layer: 0
   m_Name: GameState
   m_TagString: Untagged
@@ -156,9 +155,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GridSize:
-    x: 10
-    y: 10
-  FarmersCount: 1
+    x: 50
+    y: 50
+  FarmersCount: 5
   PlainsPrefab: {fileID: 6227356122151387076, guid: 7f520695b990f464a909116d776c9b4f,
     type: 3}
   TilledPrefab: {fileID: 6227356122151387076, guid: 49715e16be26c5a4ea0e317b8f916e07,
@@ -174,10 +173,11 @@ MonoBehaviour:
   FarmerPrefab: {fileID: 1094813894564174593, guid: 641204fd425dc8348a801a1adafef730,
     type: 3}
   WaterProbability: 0.05
-  DepotProbability: 0.1
+  DepotProbability: 0.01
   ForestProbability: 0.7
   SimulationSpeed: 1
-  InitalForestHealth: 1
+  MaximumTaskDistance: 5
+  InitalForestHealth: 0
 --- !u!4 &1227781564
 Transform:
   m_ObjectHideFlags: 0
@@ -214,17 +214,5 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 42dc4fe42a4b49898c142b371d317311, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1227781567
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1227781562}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c75b41da9e34b3582acdd24fbe7478b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

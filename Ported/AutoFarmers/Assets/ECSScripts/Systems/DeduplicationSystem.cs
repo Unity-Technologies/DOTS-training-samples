@@ -24,6 +24,8 @@ public class DeduplicationSystem : SystemBase
                     // Unassign this entity because it is already taken by another farmer
                     EntityManager.RemoveComponent<TargetEntity>(farmerEntity);
                     EntityManager.RemoveComponent<PickUpCropTask>(farmerEntity);
+                    EntityManager.RemoveComponent<DropOffCropTask>(farmerEntity);
+                    EntityManager.RemoveComponent<TillTask>(farmerEntity);
                 }
                 else
                 {

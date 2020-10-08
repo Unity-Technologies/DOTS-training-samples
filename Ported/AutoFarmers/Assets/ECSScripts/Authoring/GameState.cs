@@ -17,5 +17,6 @@ public struct GameState : IComponentData
     public float DepotProbability;
     public float ForestProbability;
     public float SimulationSpeed;
+    public float MaximumTaskDistance;
     public int InitalForestHealth;
 }
