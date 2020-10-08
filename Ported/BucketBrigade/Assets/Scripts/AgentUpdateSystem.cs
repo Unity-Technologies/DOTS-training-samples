@@ -20,7 +20,7 @@ struct BucketInfo
 public class AgentUpdateSystem : SystemBase
 {
     private EntityQuery m_bucketQuery;
-	private EntityQuery m_waterQuery; 
+	private EntityQuery m_waterQuery;
     private EndSimulationEntityCommandBufferSystem m_endSimECB;
 
     protected override void OnCreate()
@@ -79,6 +79,7 @@ public class AgentUpdateSystem : SystemBase
         NativeArray<Entity> bucketEntities = new NativeArray<Entity>(bucketsFoundLastUpdate, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
         NativeArray<float3> bucketLocations = new NativeArray<float3>(bucketsFoundLastUpdate, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
         NativeArray<bool> bucketIsEmptyAndOnGround = new NativeArray<bool>(bucketsFoundLastUpdate, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+        NativeArray<bool> bucketIsFullAndOnGround = new NativeArray<bool>(bucketsFoundLastUpdate, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
         NativeArray<float> bucketFillValue = new NativeArray<float>(bucketsFoundLastUpdate, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
         Entities
@@ -89,12 +90,13 @@ public class AgentUpdateSystem : SystemBase
             bucketEntities[bucketIndex] = e;
             bucketLocations[bucketIndex] = new float3(t.Value.x, 0, t.Value.z);
             bucketFillValue[bucketIndex] = fillValue.Value;
+            bucketIsFullAndOnGround[bucketIndex] = fillValue.Value > 0.0f && c.CarryingEntity == Entity.Null;
             bucketIsEmptyAndOnGround[bucketIndex] = fillValue.Value - float.Epsilon <= 0.0f && c.CarryingEntity == Entity.Null;
 			bucketIndex++;
-        })
-		.Run();
+        }).Run();
+        //}).Schedule(Dependency); // nope. modifying index.
 
-        const float arrivalThresholdSq = 2.0f; // square length.
+        const float arrivalThresholdSq = 1.0f; // square length.
         const float bucketFillRate = 0.1f; // amount to add to bucket volume per frame
 
         // scooper updates
@@ -121,7 +123,6 @@ public class AgentUpdateSystem : SystemBase
                 case (byte) AgentAction.GET_BUCKET:
                     // find nearest empty bucket
                     FindNearestAndSetSeekTarget(t.Value, bucketLocations, bucketIsEmptyAndOnGround, true, ref seekComponent); // look for nearest empty bucket
-
                     agent.ActionState = (byte) AgentAction.GOTO_PICKUP_LOCATION; // go to that bucket
                     break;
 
@@ -131,12 +132,12 @@ public class AgentUpdateSystem : SystemBase
                         // target is a bucket, in theory.
                         // pick up bucket (Agent.CarriedEntity = Bucket)
                         FindNearestIndex(t.Value, bucketLocations, bucketIsEmptyAndOnGround, true, out bucketEntityIndex); // look for nearest empty bucket
-                        bucketEntity = bucketEntities[bucketEntityIndex];
-				Debug.Log("Bucket index = " + bucketEntityIndex);
 
                         // check that the bucket is still in the expected location (another bot may have stolen it)
                         if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
                         {
+                            bucketEntity = bucketEntities[bucketEntityIndex];
+
                             // the bucket is still here
                             // update carryable component to track carrying entity.
                             ecb1.SetComponent<CarryableObject>(entityInQueryIndex, bucketEntity, new CarryableObject { CarryingEntity = e} );
@@ -145,12 +146,12 @@ public class AgentUpdateSystem : SystemBase
 							FindNearestAndSetSeekTarget(t.Value, waterLocations, waterIsAvailable, true, ref seekComponent); // look for nearest available water
 
                             agent.ActionState = (byte) AgentAction.FILL_BUCKET;
-                            agent.CarriedEntity = bucketEntities[bucketEntityIndex];
+                            agent.CarriedEntity = bucketEntity;
                         }
                         else
                         {
                             // nearest bucket has moved location since we first looked - navigate to current nearest bucket instead
-                            seekComponent.TargetPos = bucketLocations[bucketEntityIndex];
+                            seekComponent.TargetPos = bucketLocations[bucketEntityIndex]; // FindNearestIndex + this = equivalent to FindNearestAndSetSeekTarget
                         }
                     }
                     break;
@@ -164,10 +165,10 @@ public class AgentUpdateSystem : SystemBase
                         {
                             if (bucketEntities[i] == agent.CarriedEntity)
                             {
-                                if (bucketFillValue[i] < 3.0f)
+                                if (bucketFillValue[i] < 3.0f) // todo - bucket capacity
                                 {
                                     // fill bucket with water
-                                    ecb1.SetComponent<Intensity>(entityInQueryIndex, agent.CarriedEntity, new Intensity {Value = bucketFillValue[i] + bucketFillRate});
+                                    ecb1.SetComponent<Intensity>(entityInQueryIndex, agent.CarriedEntity, new Intensity {Value = math.min( bucketFillValue[i] + bucketFillRate, 3.0f) });
                                 }
                                 else
                                 {
@@ -193,10 +194,8 @@ public class AgentUpdateSystem : SystemBase
 
                 case (byte) AgentAction.DROP_BUCKET:
                     // drop bucket
+                    ecb1.SetComponent<CarryableObject>(entityInQueryIndex, agent.CarriedEntity, new CarryableObject { CarryingEntity = Entity.Null } );
                     agent.CarriedEntity = Entity.Null; // nb - this will be out of sync with bucket status for one frame (bucket will be updated after simulation end)
-
-                    // update carried bucket's carrying entity reference
-                    ecb1.SetComponent<CarryableObject>(entityInQueryIndex, bucketEntity, new CarryableObject { CarryingEntity = Entity.Null } );
 
                     // need to update bucket position to reflect being dropped.
                     agent.ActionState = (byte) AgentAction.GET_BUCKET;
@@ -206,6 +205,13 @@ public class AgentUpdateSystem : SystemBase
                     Debug.Assert(false, "ScooperBot entered unsupported state");
                     break;
             }
+
+            // update any carried buckets.
+            if (agent.CarriedEntity != Entity.Null)
+            {
+                ecb1.SetComponent<Translation>(entityInQueryIndex, agent.CarriedEntity, new Translation { Value = new float3(t.Value.x, t.Value.y + 0.5f, t.Value.z)} );
+            }
+
         }).ScheduleParallel();
 //        m_endSimECB.AddJobHandleForProducer(scooperECBJobHandle);
 
@@ -228,16 +234,87 @@ public class AgentUpdateSystem : SystemBase
         // full bucket passer updates
         Entities
             //.WithReadOnly(bucketEntities)
-            .WithReadOnly(bucketLocations)
+            //.WithReadOnly(bucketLocations)
             //.WithReadOnly(bucketFillValue)
-            .WithReadOnly(bucketIsEmptyAndOnGround)
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, in AgentTags.FullBucketPasserTag agent) =>
+            .WithReadOnly(bucketIsFullAndOnGround)
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.FullBucketPasserTag agentTag) =>
         {
-            // use ecb3
-            float dist = math.lengthsq(seekComponent.TargetPos - t.Value);
-            if (dist < arrivalThresholdSq)
+            /*
+             * Full Passer Actions:
+             * GET_BUCKET -> PASS_BUCKET
+             */
+            int bucketEntityIndex = 0; // index of found bucket in temp storage arrays
+            Entity bucketEntity = Entity.Null;
+            switch (agent.ActionState)
             {
-                FindNearestAndSetSeekTarget(t.Value, bucketLocations, bucketIsEmptyAndOnGround, true, ref seekComponent);
+                case (byte) AgentAction.START:
+                    FindNearestAndSetSeekTarget(t.Value, bucketLocations, bucketIsFullAndOnGround, true, ref seekComponent); // look for nearest empty bucket
+                    agent.ActionState = (byte) AgentAction.GET_BUCKET;
+                    break; // would be nice if it could drop into the next state without changing the switch to an if
+
+                case (byte) AgentAction.GET_BUCKET:
+                    FindNearestAndSetSeekTarget(t.Value, bucketLocations, bucketIsFullAndOnGround, true, ref seekComponent); // look for nearest empty bucket
+                    agent.ActionState = (byte) AgentAction.GOTO_PICKUP_LOCATION;
+                    break;
+
+                case (byte)AgentAction.GOTO_PICKUP_LOCATION:
+                    if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
+                    {
+                        // check bucket is still there
+                        FindNearestIndex(t.Value, bucketLocations, bucketIsFullAndOnGround, true, out bucketEntityIndex);
+                        if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
+                        {
+                            bucketEntity = bucketEntities[bucketEntityIndex];
+
+                            // the bucket is still here
+                            // update carryable component to track carrying entity.
+                            ecb1.SetComponent<CarryableObject>(entityInQueryIndex, bucketEntity, new CarryableObject { CarryingEntity = e} );
+
+                            // set new target (go to water to fill the bucket - TODO get position in chain)
+                            seekComponent.TargetPos = new float3(0, 0, 0);
+
+                            agent.ActionState = (byte) AgentAction.PASS_BUCKET;
+                            agent.CarriedEntity = bucketEntity;
+                        }
+                        else
+                        {
+                            // nearest bucket has moved location since we first looked - navigate to current nearest bucket instead
+                            seekComponent.TargetPos = bucketLocations[bucketEntityIndex]; // FindNearestIndex + this = equivalent to FindNearestAndSetSeekTarget
+                        }
+                    }
+
+                    break;
+
+                case (byte) AgentAction.PASS_BUCKET:
+                    // find next agent in line
+                    // move to dropoff location
+                    if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
+                    {
+
+                    }
+                    // pass bucket to it
+
+                    break;
+
+                case (byte) AgentAction.DROP_BUCKET:
+                    // drop bucket
+                    ecb1.SetComponent<CarryableObject>(entityInQueryIndex, agent.CarriedEntity, new CarryableObject {CarryingEntity = Entity.Null});
+                    agent.CarriedEntity = Entity.Null; // nb - this will be out of sync with bucket status for one frame (bucket will be updated after simulation end)
+
+                    // look for nearest full bucket
+                    FindNearestAndSetSeekTarget(t.Value, bucketLocations, bucketIsFullAndOnGround, true, ref seekComponent);
+                    agent.ActionState = (byte) AgentAction.GET_BUCKET;
+                    break;
+
+                default:
+                    Debug.Assert(false, "Full Bucket Passer bot entered unsupported state");
+                    break;
+            }
+
+                // update any carried buckets.
+            if (agent.CarriedEntity != Entity.Null)
+            {
+                ecb1.SetComponent<Translation>(entityInQueryIndex, agent.CarriedEntity, new Translation { Value = new float3(t.Value.x, t.Value.y + 0.5f, t.Value.z)} );
             }
         }).ScheduleParallel();
 //        m_endSimECB.AddJobHandleForProducer(fullBucketECBJobHandle);
@@ -250,33 +327,38 @@ public class AgentUpdateSystem : SystemBase
             .WithDisposeOnCompletion(bucketFillValue)
             .WithDisposeOnCompletion(bucketEntities)
             .WithDisposeOnCompletion(bucketIsEmptyAndOnGround)
+            .WithDisposeOnCompletion(bucketIsFullAndOnGround)
 //            .WithReadOnly(bucketEntities)
 //            .WithReadOnly(bucketLocations)
  //           .WithReadOnly(bucketFillValue)
  //           .WithReadOnly(bucketIsEmptyAndOnGround)
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, in AgentTags.EmptyBucketPasserTag agent) =>
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.EmptyBucketPasserTag agentTag) =>
         {
-            // use ecb4
-            float dist = math.lengthsq(seekComponent.TargetPos - t.Value);
-            if (dist < arrivalThresholdSq)
+            if (agent.PreviousAgent == Entity.Null)
             {
-                FindNearestAndSetSeekTarget(t.Value, bucketLocations, bucketIsEmptyAndOnGround, true, ref seekComponent);
+                agent.ActionState = (byte) AgentAction.GOTO_DROPOFF_LOCATION;
+                FindNearestFire((int)t.Value.x, (int)t.Value.z, heatMap.SizeX, heatMap.SizeZ, heatMapBuffer, ref seekComponent);
+            }
+            else
+            {
+                agent.ActionState = (byte) AgentAction.IDLE;
             }
 
+            // force a usage in order to enable WithDisposeOnCompletion validation checks to succeed.
+            // generates a compile error without this.
 			if (waterLocations.Length > 0)
 			{
 				waterLocations[0] = float3.zero;
 				waterIsAvailable[0] = false;
 			}
-
 			if (bucketEntities.Length > 0)
 			{
 	            bucketEntities[0] = Entity.Null;
     	        bucketIsEmptyAndOnGround[0] = false;
         	    bucketLocations[0] = float3.zero;
             	bucketFillValue[0] = 0.0f;
+	            bucketIsFullAndOnGround[0] = false;
 			}
-
         }).ScheduleParallel();
 
         m_endSimECB.AddJobHandleForProducer(Dependency);
@@ -300,7 +382,7 @@ public class AgentUpdateSystem : SystemBase
             {
                 float squareLen = math.lengthsq(currentPos - objectLocation[i]);
 
-                if (squareLen < nearestDistanceSquared && squareLen > 5.0f)
+                if (squareLen < nearestDistanceSquared /*&& squareLen > 5.0f*/)
                 {
                     nearestDistanceSquared = squareLen;
                     nearestIndex = i;
@@ -321,7 +403,7 @@ public class AgentUpdateSystem : SystemBase
             {
                 float squareLen = math.lengthsq(currentPos - objectLocation[i]);
 
-                if (squareLen < nearestDistanceSquared && squareLen > 5.0f)
+                if (squareLen < nearestDistanceSquared /*&& squareLen > 5.0f*/)
                 {
                     nearestDistanceSquared = squareLen;
                     nearestIndex = i;

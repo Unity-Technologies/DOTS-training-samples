@@ -11,6 +11,9 @@ public struct Agent : IComponentData
     public Entity CarriedEntity;
     public float MaxVelocity;
     public byte ActionState;
+
+    public Entity NextAgent;
+    public Entity PreviousAgent;
 }
 
 public enum AgentAction
@@ -22,7 +25,8 @@ public enum AgentAction
     THROW_BUCKET,
     GOTO_PICKUP_LOCATION,
     GOTO_DROPOFF_LOCATION,
-    PASS_BUCKET
+    PASS_BUCKET,
+    IDLE
 }
 
 public struct AgentTags // for organization, mainly.
