@@ -122,7 +122,6 @@ GameObject:
   - component: {fileID: 7864156253422629644}
   - component: {fileID: 790382918930085872}
   - component: {fileID: 5080366080434254420}
-  - component: {fileID: -551538754801793255}
   m_Layer: 0
   m_Name: Commuter
   m_TagString: Untagged
@@ -205,15 +204,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Platform: {fileID: 0}
---- !u!114 &-551538754801793255
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1598512793004306}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f90e3758b67ac4d499941a88e84c90ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

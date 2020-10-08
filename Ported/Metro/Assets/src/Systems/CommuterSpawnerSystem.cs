@@ -24,8 +24,10 @@ public class CommuterSpawnerSystem : SystemBase
         Entities
             .WithName("commuter_spawner")
             .WithStructuralChanges()
-            .ForEach((Entity entity, in LocalToWorld localToWorld, in CommuterSpawner spawner) =>
+            .ForEach((Entity platform, in LocalToWorld localToWorld, in Translation translation, in CommuterSpawner spawner) =>
             {
+                if (math.distancesq(localToWorld.Position, translation.Value) > 0.001f) return; // Matrix hasn't updated yet, try again next frame
+
                 var commuters = EntityManager.Instantiate(spawner.Prefab, spawner.Count, Unity.Collections.Allocator.Temp);
                 foreach (var commuter in commuters)
                 {
@@ -43,11 +45,11 @@ public class CommuterSpawnerSystem : SystemBase
 
                     EntityManager.AddComponentData(commuter, new CommuterOnPlatform
                     {
-                        Value = entity
+                        Value = platform
                     });
-
-                    EntityManager.RemoveComponent<CommuterSpawner>(entity);
                 }
+
+                EntityManager.RemoveComponent<CommuterSpawner>(platform);
                 commuters.Dispose();
             }).Run(); // TODO: switch to parallel?
 

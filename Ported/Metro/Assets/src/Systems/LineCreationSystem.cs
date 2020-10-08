@@ -107,18 +107,22 @@ public class LineCreationSystem : SystemBase
         int totalPoints = bezierPath.points.Count;
         for (int i = 0; i < platformIndices.Length; i++)
         {
+            Entity outboundPlatform = platforms[i];
             int _plat_END = platformIndices[i];
             int _plat_START = _plat_END - 1;
-            InitializePlatform(platforms[i], bezierPath, _plat_START, _plat_END, -3f);
-            // now add an opposite platform!
+            InitializePlatform(outboundPlatform, bezierPath, _plat_START, _plat_END, -3f);
+
+            Entity inboundPlatform = platforms[platforms.Length - 1 - i];
             int opposite_START = totalPoints - (_plat_END + 1);
             int opposite_END = totalPoints - _plat_END;
-            InitializePlatform(platforms[platforms.Length - 1 - i], bezierPath, opposite_START, opposite_END, -3f);
+            InitializePlatform(inboundPlatform, bezierPath, opposite_START, opposite_END, -3f);
 
             // pair these platforms as opposites
-            // TODO:
-            // _ouboundPlatform.PairWithOppositePlatform(_oppositePlatform);
-            // _oppositePlatform.PairWithOppositePlatform(_ouboundPlatform);
+            var outboundSameStationPlatforms = GetBuffer<SameStationPlatformBufferElementData>(outboundPlatform);
+            outboundSameStationPlatforms.Add(new SameStationPlatformBufferElementData() { Value = inboundPlatform });
+
+            var inboundSameStationPlatforms = GetBuffer<SameStationPlatformBufferElementData>(inboundPlatform);
+            inboundSameStationPlatforms.Add(new SameStationPlatformBufferElementData() { Value = outboundPlatform });
         }
 
         /*
