@@ -43,7 +43,9 @@ public class ChopForestSystem : SystemBase
             }).ScheduleParallel();
 
         float choppingDelay = 2f;
-        float deltaTime = Time.DeltaTime;
+        
+        var gameTime = GetSingleton<GameTime>();
+        float deltaTime = gameTime.DeltaTime;
         Entities
             .WithName("chopping_system_farmers")
             .WithAll<Farmer>()
