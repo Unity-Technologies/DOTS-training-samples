@@ -26,8 +26,8 @@ public class CarSpawnerSystem : SystemBase
                 }
                 else
                 {
-                    frequency.Value = random.NextFloat(frequency.minWait, frequency.maxWait);
                     frequency.counter -= frequency.Value;
+                    frequency.Value = random.NextFloat(frequency.minWait, frequency.maxWait);
                 }
 
                 var instance = EntityManager.Instantiate(spawner.CarPrefab);
