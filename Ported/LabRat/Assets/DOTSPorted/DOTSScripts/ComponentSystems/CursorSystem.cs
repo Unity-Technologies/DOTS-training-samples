@@ -61,8 +61,9 @@ public class CursorSystem : SystemBase
 			        && (centerPosition.z > 0))
 		        {
 			        byte tile = TileUtils.GetTile(tiles, (int)(centerPosition.x - 0.5f), (int)(centerPosition.z - 0.5f), boardInfo.width);
-			        var notHole = (tile & (1 << 4)) == 0;
-			        if (notHole)
+			        var notHole = !TileUtils.IsHole(tile);
+			        var notBase = TileUtils.BaseId(tile) == -1;
+			        if (notHole && notBase)
 			        {
 				        validTile = true;
 				        translation.Value = centerPosition - (new float3(0.5f, 0.0f, 0.5f));
