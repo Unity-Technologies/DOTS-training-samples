@@ -15,49 +15,49 @@ public class SapplingSpawnSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        var gameState = GetSingletonEntity<GameState>();
-        var prefab = GetComponent<GameState>(gameState).PlantPrefab;
+        //var gameState = GetSingletonEntity<GameState>();
+        //var prefab = GetComponent<GameState>(gameState).PlantPrefab;
         
-        var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
+        //var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
-        Entities
-            .WithAll<Tilled>()
-            .WithAll<Plains>()
-            .WithNone<SaplingReference>()
-            .WithNone<CropReference>()
-            .ForEach((
-                Entity entity
-                , int entityInQueryIndex
-                , ref Tilled tilled
-                , in Translation translation
-            ) =>
-            {
-                var sapplingEntity = ecb.Instantiate(entityInQueryIndex, prefab);
-                ecb.AddComponent<Sappling>(entityInQueryIndex, sapplingEntity);
-                ecb.SetComponent(entityInQueryIndex, sapplingEntity, new Sappling {
-                    age = 0.0f,
-                    tileEntity = entity
-                });
-                ecb.AddComponent<ECSMaterialOverride>(entityInQueryIndex, sapplingEntity);
-                ecb.SetComponent(entityInQueryIndex, sapplingEntity, new Translation {Value = translation.Value});
-                ecb.AddComponent<NonUniformScale>(entityInQueryIndex, sapplingEntity);
+        //Entities
+        //    .WithAll<Tilled>()
+        //    .WithAll<Plains>()
+        //    .WithNone<SaplingReference>()
+        //    .WithNone<CropReference>()
+        //    .ForEach((
+        //        Entity entity
+        //        , int entityInQueryIndex
+        //        , ref Tilled tilled
+        //        , in Translation translation
+        //    ) =>
+        //    {
+        //        var sapplingEntity = ecb.Instantiate(entityInQueryIndex, prefab);
+        //        ecb.AddComponent<Sappling>(entityInQueryIndex, sapplingEntity);
+        //        ecb.SetComponent(entityInQueryIndex, sapplingEntity, new Sappling {
+        //            age = 0.0f,
+        //            tileEntity = entity
+        //        });
+        //        ecb.AddComponent<ECSMaterialOverride>(entityInQueryIndex, sapplingEntity);
+        //        ecb.SetComponent(entityInQueryIndex, sapplingEntity, new Translation {Value = translation.Value});
+        //        ecb.AddComponent<NonUniformScale>(entityInQueryIndex, sapplingEntity);
                 
-                ecb.AddComponent<SaplingReference>(entityInQueryIndex, entity);
-                ecb.SetComponent(entityInQueryIndex, entity, new SaplingReference {sapling = sapplingEntity});
+        //        ecb.AddComponent<SaplingReference>(entityInQueryIndex, entity);
+        //        ecb.SetComponent(entityInQueryIndex, entity, new SaplingReference {sapling = sapplingEntity});
                 
-                const int MAX_FERTILITY = 10;
-                float4 color = math.lerp(new float4(1, 1, 1, 1), new float4(0.3f, 1, 0.3f, 1), tilled.FertilityLeft / MAX_FERTILITY);
-                ecb.SetComponent(entityInQueryIndex, tilled.TilledDisplayPrefab, new ECSMaterialOverride {Value = color});
+        //        const int MAX_FERTILITY = 10;
+        //        float4 color = math.lerp(new float4(1, 1, 1, 1), new float4(0.3f, 1, 0.3f, 1), tilled.FertilityLeft / MAX_FERTILITY);
+        //        ecb.SetComponent(entityInQueryIndex, tilled.TilledDisplayPrefab, new ECSMaterialOverride {Value = color});
                 
-                tilled.FertilityLeft--;
-                if (tilled.FertilityLeft <= 0)
-                {
-                    ecb.RemoveComponent<Tilled>(entityInQueryIndex, entity);
-                }
+        //        tilled.FertilityLeft--;
+        //        if (tilled.FertilityLeft <= 0)
+        //        {
+        //            ecb.RemoveComponent<Tilled>(entityInQueryIndex, entity);
+        //        }
 
-            }).ScheduleParallel();
+        //    }).ScheduleParallel();
         
-        m_ECBSystem.AddJobHandleForProducer(Dependency);
+        //m_ECBSystem.AddJobHandleForProducer(Dependency);
 
     }
 }

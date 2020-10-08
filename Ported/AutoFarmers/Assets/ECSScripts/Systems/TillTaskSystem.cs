@@ -42,7 +42,7 @@ public class TillTaskSystem : SystemBase
                     float3 pos = new float3(target.targetPosition.x, 0.01f, target.targetPosition.y);
                     ecb.AddComponent<Translation>(entityInQueryIndex, tilledEntity);
                     ecb.SetComponent(entityInQueryIndex, tilledEntity, new Translation {Value = pos});
-                    ecb.AddComponent<ECSMaterialOverride>(entityInQueryIndex, tilledEntity);
+                    ecb.AddComponent(entityInQueryIndex, tilledEntity, new ECSMaterialOverride { Value = new float4(0.3f, 1, 0.3f, 1) });
                     ecb.RemoveComponent<TillTask>(entityInQueryIndex, entity);
                     ecb.RemoveComponent<TargetEntity>(entityInQueryIndex, entity);
                 }
