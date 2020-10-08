@@ -12,9 +12,9 @@ public class CreateChainSystem : SystemBase
         EntityManager.AddBuffer<CreateChainBufferElement>(chainSystemQueue);
 
         // TODO move this code to where we actually decide to create chain
-        var fire = new float2(0.0f, 10.0f);
-        var water = new float2(0.0f, 0.0f);
-        var length = 4;
+        var fire = new float2(0.0f, 5.0f);
+        var water = new float2(5.0f, 0.0f);
+        var length = 5;
 
         CreateChain(water, fire, length);
     }
@@ -42,20 +42,20 @@ public class CreateChainSystem : SystemBase
                 .WithAll<ChainCreateTag>()
                 .ForEach(
                     (Entity entity, int entityInQueryIndex,
-                        in ChainStart start, in ChainEnd end, in ChainLength length, in ChainID chainID) =>
+                        in ChainStart chainStart, in ChainEnd chainEnd, in ChainLength chainLength, in ChainID chainID) =>
                     {
                         ecb.RemoveComponent<ChainCreateTag>(entity);
-                        for (int i = 0; i < length.Value * 2; ++i)
+                        for (int i = 0; i < chainLength.Value * 2; ++i)
                         {
                             chainQueueBuffer.Add(new CreateChainBufferElement()
-                                { chainID = chainID.Value, position = i});
+                            {
+                                chainID = chainID.Value,
+                                position = i,
+                                start = chainStart.Value,
+                                end = chainEnd.Value,
+                                length = chainLength.Value,
+                            });
                         }
-                        
-                        // Adding two extra for the Scooper and Thrower
-                        chainQueueBuffer.Add(new CreateChainBufferElement()
-                            { chainID = chainID.Value, position = -1});
-                        chainQueueBuffer.Add(new CreateChainBufferElement()
-                            { chainID = chainID.Value, position = -1});
                     })
                 .Run();
 
@@ -65,22 +65,28 @@ public class CreateChainSystem : SystemBase
                 var bufferPos = 0;
                 Entities
                     .WithName("AssignBotsToChain")
+                    .WithoutBurst()
                     .WithAll<BotTag>()
                     .WithNone<SharedChainComponent>()
                     .ForEach(
-                        (Entity entity, int entityInQueryIndex,
-                            ref BotRole role) =>
+                        (Entity entity, int entityInQueryIndex) =>
                         {
                             if (bufferPos < bufferLength)
                             {
+                                ecb.AddComponent(entity,
+                                    new ChainPosition()
+                                    {
+                                        Value = chainQueueBuffer[bufferPos].position
+                                    });
+
                                 ecb.AddSharedComponent(entity,
-                                    new SharedChainComponent() {chainID = chainQueueBuffer[bufferPos].chainID});
-                                
-                                if (chainQueueBuffer[bufferPos].position >= 0)
-                                {
-                                    ecb.AddComponent(entity,
-                                        new ChainPosition() {Value = chainQueueBuffer[bufferPos].position});
-                                }
+                                    new SharedChainComponent()
+                                    {
+                                        chainID = chainQueueBuffer[bufferPos].chainID,
+                                        start = chainQueueBuffer[bufferPos].start,
+                                        end = chainQueueBuffer[bufferPos].end,
+                                        length = chainQueueBuffer[bufferPos].length
+                                    });
                                 ++bufferPos;
                             }
                         })
