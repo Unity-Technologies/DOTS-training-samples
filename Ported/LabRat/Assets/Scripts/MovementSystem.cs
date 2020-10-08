@@ -29,8 +29,8 @@ public class MovementSystem : SystemBase
         var holeTranslations = m_HolePositionQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
 
         Entities.WithNone<TileCheckTag>().WithNone<Falling>().ForEach(
-            (Entity entity, int entityInQueryIndex, ref Position position, ref Translation translation, in Speed speed,
-                in Direction direction) =>
+            (Entity entity, int entityInQueryIndex, ref Position position, ref Translation translation,
+                ref TileCoord tileCoord, in Speed speed, in Direction direction) =>
             {
                 var forward = float2.zero;
                 //Convert direction to forward
@@ -51,16 +51,15 @@ public class MovementSystem : SystemBase
                     forward = new float2(-1, 0);
                 }
 
-                var prevTileX = (int) math.round(position.Value.x - RoundingThreshold + 0.5);
-                var prevTileY = (int) math.round(position.Value.y - RoundingThreshold + 0.5);
+                var prevTileX = tileCoord.Value.x;
+                var prevTileY = tileCoord.Value.y;
 
                 //Add direction * speed * deltaTime to position
                 var deltaX = math.mul(math.mul(forward.x, speed.Value), deltaTime);
                 var deltaY = math.mul(math.mul(forward.y, speed.Value), deltaTime);
                 position.Value += new float2(deltaX, deltaY);
 
-                var newTileX = (int) math.round(position.Value.x - RoundingThreshold + 0.5);
-                var newTileY = (int) math.round(position.Value.y - RoundingThreshold + 0.5);
+                var tileCenterOffset = position.Value - tileCoord.Value;
 
                 bool fellIntoHole = false;
                 for (int i = 0; i < holeTranslations.Length; i++)
@@ -74,10 +73,12 @@ public class MovementSystem : SystemBase
                     }
                 }
 
-                if (!fellIntoHole && (prevTileX != newTileX || prevTileY != newTileY))
+                if (!fellIntoHole && (math.abs(tileCenterOffset.x) > 1) || math.abs(tileCenterOffset.y) > 1)
                 {
                     //Add Tile Check Tag
                     ecb.AddComponent<TileCheckTag>(entityInQueryIndex, entity);
+                    tileCoord.Value = new int2((int) (prevTileX + math.trunc(tileCenterOffset.x)),
+                        (int) (prevTileY + math.trunc(tileCenterOffset.y)));
                 }
 
                 translation.Value = new float3(position.Value.x, 0, position.Value.y);
