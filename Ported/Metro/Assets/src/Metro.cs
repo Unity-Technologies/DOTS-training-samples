@@ -52,10 +52,10 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
     public int[] maxTrains;
     public int[] carriagesPerTrain;
     public float[] maxTrainSpeed;
-    private int totalLines = 0;
+    private int m_TotalLines = 0;
     public UnityEngine.Color[] LineColours;
 
-    [HideInInspector] public MetroLine[] metroLines;
+    [HideInInspector] public MetroLine[] m_MetroLines;
 
     [HideInInspector] public List<Commuter> commuters;
     [HideInInspector] private Platform[] allPlatforms;
@@ -113,9 +113,9 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
 
     void SetupMetroLines()
     {
-        totalLines = LineNames.Length;
-        metroLines = new MetroLine[totalLines];
-        for (int i = 0; i < totalLines; i++)
+        m_TotalLines = LineNames.Length;
+        m_MetroLines = new MetroLine[m_TotalLines];
+        for (int i = 0; i < m_TotalLines; i++)
         {
             // Find all of the relevant RailMarkers in the scene for this line
             List<RailMarker> _relevantMarkers = FindObjectsOfType<RailMarker>().Where(m => m.metroLineID == i)
@@ -126,7 +126,7 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
             {
                 MetroLine _newLine = new MetroLine(i, maxTrains[i]);
                 _newLine.Create_RailPath(_relevantMarkers);
-                metroLines[i] = _newLine;
+                m_MetroLines[i] = _newLine;
             }
             else
             {
@@ -184,11 +184,11 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
 
     void Update_MetroLines()
     {
-        for (int i = 0; i < totalLines; i++)
+        for (int i = 0; i < m_TotalLines; i++)
         {
-            if (metroLines[i] != null)
+            if (m_MetroLines[i] != null)
             {
-                metroLines[i].UpdateTrains();
+                m_MetroLines[i].UpdateTrains();
             }
         }
     }
@@ -196,11 +196,11 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
     void SetupTrains()
     {
         // Add trains
-        for (int i = 0; i < totalLines; i++)
+        for (int i = 0; i < m_TotalLines; i++)
         {
-            if (metroLines[i] != null)
+            if (m_MetroLines[i] != null)
             {
-                MetroLine _ML = metroLines[i];
+                MetroLine _ML = m_MetroLines[i];
                 float trainSpacing = 1f / _ML.maxTrains;
                 for (int trainIndex = 0; trainIndex < _ML.maxTrains; trainIndex++)
                 {
@@ -210,11 +210,11 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
         }
 
         // now tell each train who is ahead of them
-        for (int i = 0; i < totalLines; i++)
+        for (int i = 0; i < m_TotalLines; i++)
         {
-            if (metroLines[i] != null)
+            if (m_MetroLines[i] != null)
             {
-                MetroLine _ML = metroLines[i];
+                MetroLine _ML = m_MetroLines[i];
                 for (int trainIndex = 0; trainIndex < _ML.maxTrains; trainIndex++)
                 {
                     Train _T = _ML.trains[trainIndex];
@@ -247,8 +247,8 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
 
     Platform GetRandomPlatform()
     {
-        int _LINE_INDEX = Random.Range(0, metroLines.Length - 1);
-        MetroLine _LINE = metroLines[_LINE_INDEX];
+        int _LINE_INDEX = Random.Range(0, m_MetroLines.Length - 1);
+        MetroLine _LINE = m_MetroLines[_LINE_INDEX];
         int _PLATFORM_INDEX = Mathf.FloorToInt(Random.Range(0f, (float) _LINE.platforms.Count));
         return _LINE.platforms[_PLATFORM_INDEX];
     }
@@ -452,9 +452,9 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
     {
         if (drawRailBeziers)
         {
-            for (int i = 0; i < totalLines; i++)
+            for (int i = 0; i < m_TotalLines; i++)
             {
-                MetroLine _tempLine = metroLines[i];
+                MetroLine _tempLine = m_MetroLines[i];
                 if (_tempLine != null)
                 {
                     BezierPath _path = _tempLine.bezierPath;
@@ -476,16 +476,25 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
 
     #endregion ------------------------ GIZMOS >
 
+    public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
+    {
+        referencedPrefabs.Add(prefab_trainCarriage);
+        referencedPrefabs.Add(prefab_platform);
+        referencedPrefabs.Add(prefab_commuter);
+        referencedPrefabs.Add(prefab_rail);
+    }
+    
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity, new MetroBuilder
         {
+            CarriagePrefab = conversionSystem.GetPrimaryEntity(prefab_trainCarriage),
+            PlatformPrefab = conversionSystem.GetPrimaryEntity(prefab_platform),
+            CommuterPrefab = conversionSystem.GetPrimaryEntity(prefab_commuter),
             RailPrefab = conversionSystem.GetPrimaryEntity(prefab_rail)
         });
-        dstManager.AddBuffer<LineBuilderElement>(entity);
 
-        totalLines = LineNames.Length;
-        metroLines = new MetroLine[totalLines];
+        var totalLines = LineNames.Length;
         for (int i = 0; i < totalLines; i++)
         {
             // Find all of the relevant RailMarkers in the scene for this line
@@ -496,8 +505,7 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
             if (_relevantMarkers.Count > 1)
             {
                 var lineBuilderEntity = conversionSystem.CreateAdditionalEntity(this);
-                dstManager.SetName(lineBuilderEntity, _relevantMarkers[0].transform.parent.name);
-                dstManager.AddComponentData(lineBuilderEntity, new Parent { Value = entity });
+                dstManager.SetName(lineBuilderEntity, LineNames[i]);
                 dstManager.AddComponentData(lineBuilderEntity, new TrainCount { Value = maxTrains[i] });
                 dstManager.AddBuffer<RailMarkerPosition>(lineBuilderEntity);
                 dstManager.AddBuffer<RailMarkerPlatformIndex>(lineBuilderEntity);
@@ -512,15 +520,7 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
                     if (marker.railMarkerType == RailMarkerType.PLATFORM_END)
                         platformMarkerIndices.Add(new RailMarkerPlatformIndex { Value = j });
                 }
-
-                var lineBuilders = dstManager.GetBuffer<LineBuilderElement>(entity);
-                lineBuilders.Add(new LineBuilderElement {Value = lineBuilderEntity});
             }
         }
-    }
-
-    public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
-    {
-        referencedPrefabs.Add(prefab_rail);
     }
 }

@@ -43,7 +43,7 @@ public class Train
     {
         trainIndex = _trainIndex;
         parentLineIndex = _parentLineIndex;
-        parentLine = Metro.INSTANCE.metroLines[parentLineIndex];
+        parentLine = Metro.INSTANCE.m_MetroLines[parentLineIndex];
         currentPosition = _startPosition;
         state = TrainState.EN_ROUTE;
         totalCarriages = _totalCarriages;
