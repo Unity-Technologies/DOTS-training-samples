@@ -53,8 +53,8 @@ public class UpdateObjectsInChainSystem : SystemBase
                 .WithName("UpdateObjectsInChain")
                 .ForEach(
                     (Entity entity, int entityInQueryIndex,
-                        ref Pos pos, ref Target target, in Speed speed,
-                        in ChainPosition position, in ChainObjectType type) =>
+                        ref Pos pos, ref Target target, ref ChainPosition position,
+                        in Speed speed, in ChainObjectType type) =>
                     {
                         if (target.ReachedTarget)
                         {
@@ -96,6 +96,7 @@ public class UpdateObjectsInChainSystem : SystemBase
                                             };
                                             if (type.Value == ObjectType.Bucket)
                                             {
+                                                position.Value = newPos;
                                                 if (newPos == chainLength)
                                                 {
                                                     ecb.AddComponent<ThrowTag>(entityInQueryIndex, entity);

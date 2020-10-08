@@ -72,3 +72,8 @@ public struct CreateChainBufferElement : IBufferElementData
     public float2 end;
     public int length;
 }
+
+public struct FindChainPosition : IComponentData
+{
+    public float2 Value;
+}

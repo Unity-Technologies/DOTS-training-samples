@@ -84,6 +84,7 @@ public class ClosestFireSystem : SystemBase
 
         m_ClosestFireRequestsQuery = GetEntityQuery(typeof(ClosestFireRequest));
         RequireForUpdate(m_ClosestFireRequestsQuery);
+        RequireSingletonForUpdate<FireSimulation>();
     }
 
     protected override void OnUpdate()
@@ -183,6 +184,7 @@ public class ClosestFireSystem : SystemBase
             var result = new float4(resultSimSpace.x, 0.0f, resultSimSpace.y, 1.0f);
             //result = math.mul(simMatrix.Value, result);
             request.closestFirePosition = result.xz;
+            request.requestResultIndex = 1;
         }).Schedule(Dependency);
 
         requests.Dispose();
