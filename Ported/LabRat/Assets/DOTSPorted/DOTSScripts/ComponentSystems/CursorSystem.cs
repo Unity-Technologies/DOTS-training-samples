@@ -7,12 +7,29 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+
+using System;
+using Unity.Collections;
+using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Rendering;
+using Unity.Transforms;
+
 [UpdateAfter(typeof(InitBoardSystem))]
 public class CursorSystem : SystemBase
 {
+	protected override void OnCreate()
+	{
+		RequireSingletonForUpdate<TileMap>();
+	}
+	
+
 	protected override void OnUpdate()
 	{
-		// var tiles = GetSingleton<TileMap>().tiles;
+		Entity tilemapEntity = GetSingletonEntity<TileMap>();
+		TileMap tileMap = EntityManager.GetComponentObject<TileMap>(tilemapEntity);
+		NativeArray<byte> tiles = tileMap.tiles;
+		
 	    var camera = UnityEngine.Camera.main;
 	    if (camera == null)
 	        return;
@@ -37,15 +54,22 @@ public class CursorSystem : SystemBase
 	        .WithAll<ArrowCellTag>()
 	        .ForEach((ref Rotation rotation, ref Translation translation) =>
 	        {
-	            if ((centerPosition.x < boardInfo.width) 
-	                && (centerPosition.z < boardInfo.height)
-	                && (centerPosition.x > 0)
-	                && (centerPosition.z > 0))
-	            {
-	                translation.Value = centerPosition - (new float3(0.5f, 0.0f, 0.5f));
-	                rotation.Value = arrowRotation;
-	            }
-	            else
+		        bool validTile = false;
+		        if ((centerPosition.x < boardInfo.width)
+			        && (centerPosition.z < boardInfo.height)
+			        && (centerPosition.x > 0)
+			        && (centerPosition.z > 0))
+		        {
+			        byte tile = TileUtils.GetTile(tiles, (int)(centerPosition.x - 0.5f), (int)(centerPosition.z - 0.5f), boardInfo.width);
+			        var notHole = (tile & (1 << 4)) == 0;
+			        if (notHole)
+			        {
+				        validTile = true;
+				        translation.Value = centerPosition - (new float3(0.5f, 0.0f, 0.5f));
+				        rotation.Value = arrowRotation;
+			        }
+		        }
+		        if (!validTile)
 	            {
 	                translation.Value = new float3(1f, -0.5f, 1f);
 	            }
