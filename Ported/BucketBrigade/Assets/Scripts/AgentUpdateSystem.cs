@@ -63,9 +63,9 @@ public class AgentUpdateSystem : SystemBase
 		Entities
 			.WithoutBurst()
 			.WithStoreEntityQueryInField(ref m_waterQuery)
-			.ForEach((in WaterTag water, in Intensity volume, in Translation t) =>
+			.ForEach((in WaterTag water, in Intensity volume, in LocalToWorld world) =>
 		{
-			waterLocations[waterIndex] = t.Value;
+			waterLocations[waterIndex] = world.Position;
 			waterIsAvailable[waterIndex] = (volume.Value > 0.0f);
 			waterIndex++;
 		})
@@ -157,7 +157,6 @@ public class AgentUpdateSystem : SystemBase
                     break;
 
                 case (byte) AgentAction.FILL_BUCKET:
-					Debug.Log("Fill Bucket");
                     if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq) // arrived at water target
                     {
                         // find bucket being carried by this entity.

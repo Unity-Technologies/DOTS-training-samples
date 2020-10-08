@@ -50,8 +50,6 @@ public class WaterSpawnerSystem : SystemBase
 			.WithStructuralChanges() // we will destroy ourselves at the end of the loop
 			.ForEach((Entity waterSpawnSystem, in WaterSpawner waterSpawner) =>
 		{
-			Debug.Log(waterSpawner.Side);
-
 			float3 sideOrigin = new float3();
 			switch (waterSpawner.Side)
 			{
