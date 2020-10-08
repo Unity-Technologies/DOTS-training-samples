@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class FarmerMoveSystem : SystemBase
 {
     protected override void OnUpdate()
