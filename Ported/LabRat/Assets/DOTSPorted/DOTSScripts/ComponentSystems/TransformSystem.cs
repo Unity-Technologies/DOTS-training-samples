@@ -1,5 +1,4 @@
-﻿using ECSExamples;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
