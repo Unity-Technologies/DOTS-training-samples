@@ -7,5 +7,5 @@ using UnityEngine;
 public struct GameState : IComponentData
 {
     public int timer;
-    public int collisionRadius;
+    public float collisionRadius;
 }

@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 822f227d7c31840868f9cebe6b822edd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  catMax: 5
+  catMax: 3
   catCount: 0
   mouseCount: 0
   catFrequency: 1
@@ -214,7 +214,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timer: 0
-  collisionRadius: 0
+  collisionRadius: 0.2
 --- !u!4 &270034137
 Transform:
   m_ObjectHideFlags: 0
@@ -323,7 +323,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 822f227d7c31840868f9cebe6b822edd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  catMax: 5
+  catMax: 3
   catCount: 0
   mouseCount: 0
   catFrequency: 1
@@ -383,7 +383,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 822f227d7c31840868f9cebe6b822edd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  catMax: 5
+  catMax: 0
   catCount: 0
   mouseCount: 0
   catFrequency: 1
@@ -443,7 +443,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 822f227d7c31840868f9cebe6b822edd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  catMax: 5
+  catMax: 0
   catCount: 0
   mouseCount: 0
   catFrequency: 1
