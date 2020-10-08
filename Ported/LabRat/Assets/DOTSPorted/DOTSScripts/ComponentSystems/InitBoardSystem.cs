@@ -139,8 +139,9 @@ public class InitBoardSystem : SystemBase
                 if ((tiles[i] & (1 << 4)) == 0)
                 {
                     var cellPrefab = (x + y) % 2 == 0 ? boardSetup.cell0Prefab : boardSetup.cell1Prefab;
+                    float yOffset = (x + y) % 2 == 0 ? 0f : 0.05f;
                     var cell = EntityManager.Instantiate(cellPrefab);
-                    EntityManager.SetComponentData(cell, new Translation { Value = new float3(x, 0f, y) });
+                    EntityManager.SetComponentData(cell, new Translation { Value = new float3(x, yOffset, y) });
                 }
 
                 // create walls

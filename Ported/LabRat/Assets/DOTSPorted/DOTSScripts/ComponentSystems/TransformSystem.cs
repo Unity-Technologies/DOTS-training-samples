@@ -23,8 +23,8 @@ public class TransformSystem : SystemBase
 
         Entities.ForEach((ref Rotation rotation, ref Translation translation, ref Direction direction, in Position position) =>
         {
-            int x = (int)(translation.Value.x);
-            int z = (int)(translation.Value.z);
+            int x = (int)(translation.Value.x + 0.5f);
+            int z = (int)(translation.Value.z + 0.5f);
             byte tile = TileUtils.GetTile(tiles, x, z, boardInfo.width);
 
             // test for wall collisions
@@ -40,12 +40,12 @@ public class TransformSystem : SystemBase
                     direction.Value = EntityDirection.Down;
                     translation.Value.x = (float)x;
                 }
-                else if (((tile & 0x4) != 0) && (translation.Value.z - z) <= 0.12f && direction.Value == EntityDirection.Down)
+                else if (((tile & 0x4) != 0) && (translation.Value.z - z) <= 0f && direction.Value == EntityDirection.Down)
                 {
                     direction.Value = EntityDirection.Left;
                     translation.Value.z = (float)z;
                 }
-                else if (((tile & 0x8) != 0) && (translation.Value.x - x) <= 0.12f && direction.Value == EntityDirection.Left)
+                else if (((tile & 0x8) != 0) && (translation.Value.x - x) <= 0f && direction.Value == EntityDirection.Left)
                 {
                     direction.Value = EntityDirection.Up;
                     translation.Value.x = (float)x;
