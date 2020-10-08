@@ -19,7 +19,7 @@ public class StartNextCommandSystem : SystemBase
         };
         bucketQuery = GetEntityQuery(queryDesc);
 
-        waterQuery = GetEntityQuery(ComponentType.ReadOnly<WaterTag>(), ComponentType.ReadOnly<Translation>());
+        waterQuery = GetEntityQuery(ComponentType.ReadOnly<WaterTag>(), ComponentType.ReadOnly<Pos>());
     }
 
     protected override void OnUpdate()
@@ -29,7 +29,7 @@ public class StartNextCommandSystem : SystemBase
         // Make both of these Pos instead of Translation
         NativeArray<Pos> bucketPositions = bucketQuery.ToComponentDataArrayAsync<Pos>(Allocator.TempJob, out JobHandle j1);
         NativeArray<Entity> bucketEntities = bucketQuery.ToEntityArrayAsync(Allocator.TempJob, out JobHandle j2);
-        NativeArray<Translation> waterPositions = waterQuery.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out JobHandle j3);
+        NativeArray<Pos> waterPositions = waterQuery.ToComponentDataArrayAsync<Pos>(Allocator.TempJob, out JobHandle j3);
         Dependency = JobHandle.CombineDependencies(Dependency, JobHandle.CombineDependencies(j1, j2, j3));
 
         Entities
@@ -68,7 +68,7 @@ public class StartNextCommandSystem : SystemBase
                         }
                         break;
                     case Command.FillBucket:
-                        target.Position = GetNearestTranslation(pos.Value, waterPositions);
+                        target.Position = GetNearestPos(pos.Value, waterPositions, out _);
                         break;
                     case Command.EmptyBucket:
                         target.Position = GetRandomPosition(ref rand);
@@ -99,26 +99,6 @@ public class StartNextCommandSystem : SystemBase
                 nearestIndex = i;
                 nearestDist = dist;
                 nearestPos = positions[i].Value;
-            }
-        }
-
-        return nearestPos;
-    }
-
-    static float2 GetNearestTranslation(in float2 pos, in NativeArray<Translation> positions)
-    {
-        float nearestDist = float.MaxValue;
-        float2 nearestPos = pos;
-
-        for (int i = 0; i < positions.Length; i++)
-        {
-            float3 p3 = positions[i].Value;
-            float2 p2 = new float2(p3.x, p3.z);
-            float dist = math.distance(pos, p2);
-            if (dist < nearestDist)
-            {
-                nearestDist = dist;
-                nearestPos = p2;
             }
         }
 
