@@ -11,86 +11,62 @@ public class AssignTaskSystem : SystemBase
     Random m_Random;
     EntityCommandBufferSystem m_ECBSystem;
 
-    EntityQuery pickUpFarmersQuery;
-    
+    EntityQuery cropsQuery;
+
     protected override void OnCreate()
     {
         m_Random = new Random(666);
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
-        pickUpFarmersQuery = GetEntityQuery(typeof(PickUpCropTask), ComponentType.Exclude(typeof(TargetEntity)));
+        cropsQuery = GetEntityQuery(typeof(Crop));
     }
 
     protected override void OnUpdate()
     {
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
-        
+
+        NativeArray<Entity> crops = cropsQuery.ToEntityArray(Allocator.TempJob);
+
+        // Loop over all idle farmers, assigning a pickup crop task
         Entities.
-            WithName("assign_task").
+            WithName("assign_pickup_crop_task").
             WithAll<Farmer>().
             WithNone<DropOffCropTask>().
             WithNone<PickUpCropTask>().
+            WithReadOnly(crops).
+            WithDisposeOnCompletion(crops).
             ForEach(
-            (Entity entity, int entityInQueryIndex) =>
+            (Entity farmerEntity, int entityInQueryIndex, in Position farmerPos) =>
             {
-                // float rand = m_Random.NextFloat(0, 2);
-                // int taskID = (int)math.floor(rand);
-                //
-                // switch(taskID)
-                // {
-                //     case 1: //PickUpCrop Task
-                //         ecb.AddComponent<PickUpCropTask>(entityInQueryIndex, entity);
-                //         break;
-                //     case 0: //Idle for one more frame Do Nothing
-                //     default:
-                //         break;
-                // }
+                // Find nearest crop
+                float minDistSq = float.MaxValue;
+                Entity nearestCropEntity = Entity.Null;
+                float2 nearestCropPos = float2.zero;
+                for (int i = 0; i < crops.Length; i++)
+                {
+                    Translation cropTranslation = GetComponent<Translation>(crops[i]);
+                    float2 cropPos = new float2(cropTranslation.Value.x, cropTranslation.Value.z);
+                    float distSq = math.distancesq(cropPos, farmerPos.Value);
+                    if (minDistSq > distSq)
+                    {
+                        minDistSq = distSq;
+                        nearestCropEntity = crops[i];
+                        nearestCropPos = cropPos;
+                    }
+                }
 
-                ecb.AddComponent<PickUpCropTask>(entityInQueryIndex, entity);
-                
+                if (nearestCropEntity != Entity.Null)
+                {
+                    ecb.AddComponent<PickUpCropTask>(entityInQueryIndex, farmerEntity);
+                    ecb.AddComponent<TargetEntity>(entityInQueryIndex, farmerEntity);
+                    ecb.SetComponent(entityInQueryIndex, farmerEntity, new TargetEntity { target = nearestCropEntity, targetPosition = nearestCropPos });
+                }
+
             }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
-        
-        NativeArray<Entity> pickUpFarmers = pickUpFarmersQuery.ToEntityArray(Allocator.TempJob);
-        NativeArray<TargetEntity> nearestTargetEntity = new NativeArray<TargetEntity>(1, Allocator.TempJob);
-        NativeArray<float> nearestCropDist = new NativeArray<float>(1, Allocator.TempJob);
-        
-        for(int i = 0; i < pickUpFarmers.Length; i++)
-        {
-            Entity farmerEntity = pickUpFarmers[i];
-            float2 farmerPosition = GetComponent<Position>(farmerEntity).Value;
-            
-            nearestCropDist[0] = float.MaxValue;
 
-            Entities.WithName("assign_pickup_task").WithAll<Crop>().
-                //WithNone<Locked>().
-                ForEach(
-                    (Entity entity, int entityInQueryIndex, in Translation translation) =>
-                    {
-                        float2 translation2D = new float2(translation.Value.x, translation.Value.z);
-                        float distsq = math.distancesq(farmerPosition, translation2D);
-                        if(distsq < nearestCropDist[0])
-                        {
-                            //Need to insert mutex
-                            nearestCropDist[0] = distsq;
-                            nearestTargetEntity[0] = new TargetEntity{target = entity, targetPosition = translation2D};
-                            Debug.Log("New best crop found = "+distsq);
-                        }
-                    }).Run();
 
-            Debug.Log("BEST CROP = "+nearestCropDist[0]);
-            if(nearestCropDist[0] < float.MaxValue)
-                EntityManager.AddComponentData(farmerEntity, nearestTargetEntity[0]);
-            else
-                EntityManager.RemoveComponent<PickUpCropTask>(farmerEntity);
-        }
-        
-        nearestCropDist.Dispose();
-        nearestTargetEntity.Dispose();
-        pickUpFarmers.Dispose();
-   
-        
     }
 
 }
