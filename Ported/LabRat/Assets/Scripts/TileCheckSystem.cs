@@ -11,10 +11,8 @@ using Unity.Transforms;
 
 public class TileCheckSystem : SystemBase
 {
-    private const float positionThreshold = 0.01f;
-
-    private EntityCommandBufferSystem m_ECBSystem;
-    private EntityQuery m_tilesWithWallsQuery;
+    EntityCommandBufferSystem m_ECBSystem;
+    EntityQuery m_tilesWithArrowQuery;
 
     protected override void OnCreate()
     {
@@ -22,28 +20,30 @@ public class TileCheckSystem : SystemBase
 
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
-        EntityQueryDesc desc = new EntityQueryDesc
+        EntityQueryDesc arrowQueryDesc = new EntityQueryDesc
         {
-            // Query only matches chunks with both Red and Green components.
-            All = new ComponentType[] { typeof(Wall), typeof(Translation) }
+            All = new ComponentType[] {typeof(Arrow), typeof(Direction)}
         };
-        m_tilesWithWallsQuery = EntityManager.CreateEntityQuery(desc);
-
+        m_tilesWithArrowQuery = EntityManager.CreateEntityQuery(arrowQueryDesc);
     }
 
     protected override void OnUpdate()
     {
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
-        //var walls = m_tilesWithWallsQuery.ToComponentDataArray<Wall>(Allocator.TempJob);
-        //var tileTranslations = m_tilesWithWallsQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+        var arrows = m_tilesWithArrowQuery.ToComponentDataArray<Arrow>(Allocator.TempJob);
+        var arrowDirections = m_tilesWithArrowQuery.ToComponentDataArray<Direction>(Allocator.TempJob);
+        var boardSize = GetSingleton<GameInfo>().boardSize.x;
 
         var tileWallsEntity = GetSingletonEntity<TileWall>();
         var tileWalls = EntityManager.GetBuffer<TileWall>(tileWallsEntity);
+        
         // can probably make position readonly.
         Entities
             .WithAll<TileCheckTag>()
             .WithoutBurst()//remove later when this works.
+            .WithReadOnly(arrows)
+            .WithReadOnly(arrowDirections)
             .WithReadOnly(tileWalls)
             .ForEach((
                 Entity entity,
@@ -60,10 +60,17 @@ public class TileCheckSystem : SystemBase
                 //                      " Y: " + tileY +
                 //                      " Y_orig: " + position.Value.y);
                 //UnityEngine.Debug.Log("BufferSize: " + tileWalls.Length);
+                int bufferIndex = tileY * boardSize + tileX;
 
+                byte newDirection = direction.Value;
+                for (int i = 0; i < arrows.Length; i++)
+                {
+                    if (arrows[i].Position == bufferIndex)
+                        newDirection = arrowDirections[i].Value;
+                }
 
                 //Bug in here somewhere.  the mice can get to a certain point and then continuously spin on the tile.
-                byte newDirection = FindNewDirectionIfNeeded(tileX, tileY, direction, tileWalls);
+                newDirection = FindNewDirectionIfNeeded(bufferIndex, newDirection, tileWalls);
                 if (direction.Value == newDirection)
                 {
                     //We did not collide with a wall on current tile, check next tile for a wall.
@@ -88,16 +95,14 @@ public class TileCheckSystem : SystemBase
     }
 
     static byte FindNewDirectionIfNeeded(
-        int tileX,
-        int tileY,
-        Direction direction,
+        int bufferIndex,
+        byte direction,
         DynamicBuffer<TileWall> tileWalls)
     {
-        int bufferIndex = tileY * 10 + tileX;
         TileWall wall = tileWalls[bufferIndex];
 
-        byte directionOut = direction.Value;
-        switch (direction.Value)
+        byte directionOut = direction;
+        switch (direction)
         {
             case DirectionDefines.North:
                 if ((wall.Value & DirectionDefines.North) != 0)
@@ -126,9 +131,6 @@ public class TileCheckSystem : SystemBase
             default:
                 break;
         }
-
-        UnityEngine.Debug.Log("X: " + tileX + " Y: " + tileY +
-            "\ncurrent Direction: " + direction.Value + " NewDir: " + directionOut);
 
         return directionOut;
     }
