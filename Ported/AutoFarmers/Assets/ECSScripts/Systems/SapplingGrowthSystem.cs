@@ -15,10 +15,11 @@ public class SapplingGrowthSystem : SystemBase
     
     protected override void OnUpdate()
     {
+        var gameTime = GetSingleton<GameTime>();
         var gameState = GetSingletonEntity<GameState>();
         float simulationSpeed = GetComponent<GameState>(gameState).SimulationSpeed;
         
-        float dt = Time.DeltaTime;
+        float dt = gameTime.DeltaTime;
         
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
         

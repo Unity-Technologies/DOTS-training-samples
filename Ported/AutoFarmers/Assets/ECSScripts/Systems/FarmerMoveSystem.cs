@@ -7,7 +7,8 @@ public class FarmerMoveSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var deltaTime = Time.DeltaTime;
+        var gameTime = GetSingleton<GameTime>();
+        var deltaTime = gameTime.DeltaTime;
         
         Entities
             .WithAll<Farmer>()

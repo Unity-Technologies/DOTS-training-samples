@@ -14,6 +14,7 @@ public class DropOffCropSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var gameTime = GetSingleton<GameTime>();
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
         const float reachDistance = 0.5f; 
         
@@ -61,7 +62,7 @@ public class DropOffCropSystem : SystemBase
             }).ScheduleParallel();
         
         float dropDelay = 2f;
-        float deltaTime = Time.DeltaTime;
+        float deltaTime = gameTime.DeltaTime;
         Entities
             .WithName("dropoff_system_removecrop")
             .WithAll<Crop>()
