@@ -24,6 +24,8 @@ public class LineCreationSystem : SystemBase
     {
         var metroBuilder = GetSingleton<MetroBuilder>();
 
+        NativeList<Entity> allPlatforms = new NativeList<Entity>(Allocator.Temp); // Used to collect all platforms that are spawned in all lines
+
         Entities.WithStructuralChanges()
             .ForEach((Entity entity,
                       in DynamicBuffer<RailMarkerPosition> railMarkerPositions,
@@ -32,14 +34,112 @@ public class LineCreationSystem : SystemBase
                       in CarriageCount carriageCount) =>
             {
                 var railIndices = railMarkerPlatformIndices.ToNativeArray(Allocator.Temp);
-                Create_RailPath(railMarkerPositions, railIndices, metroBuilder.PlatformPrefab, metroBuilder.RailPrefab, trainCount, carriageCount);
+                Create_RailPath(railMarkerPositions, railIndices, metroBuilder.PlatformPrefab, metroBuilder.RailPrefab, trainCount, carriageCount, allPlatforms);
                 railIndices.Dispose();
                 EntityManager.DestroyEntity(entity);
             }).Run();
+
+        Entities
+            .WithName("connect_adjacent_platforms")
+            .WithStructuralChanges()
+            .ForEach((Entity platform, ref AdjacentPlatform adjacency, in Translation translation, in Rotation rotation) =>
+            {
+                // 1. Find closest platform
+                float3 platformCenter = translation.Value + math.rotate(rotation.Value, new float3(10.5f, 0, 4));
+
+                float closestDistanceSquared = 0.0f;
+                Entity closestPlatform = Entity.Null;
+                for (int i = 0; i < allPlatforms.Length; i++)
+                {
+                    Entity otherPlatform = allPlatforms[i];
+                    if (platform == otherPlatform) continue;
+
+                    float3 otherPlatformCenter = GetComponent<Translation>(otherPlatform).Value + math.rotate(GetComponent<Rotation>(otherPlatform).Value, new float3(10.5f, 0, 4));
+
+                    float distanceSquared = math.distancesq(platformCenter, otherPlatformCenter);
+                    if (closestPlatform == Entity.Null || distanceSquared < closestDistanceSquared)
+                    {
+                        closestDistanceSquared = distanceSquared;
+                        closestPlatform = otherPlatform;
+                    }
+                }
+
+                // 2. Find opposite platform
+                var sameStationPlatforms = GetBuffer<SameStationPlatformBufferElementData>(platform);
+                Entity oppositePlatform = sameStationPlatforms[0].Value;
+
+                // 3. If the closest platform isn't the opposite platform, make closest adjacent to this
+                if (closestPlatform != Entity.Null && closestPlatform != oppositePlatform)
+                {
+                    adjacency.Value = closestPlatform;
+                }
+
+                // 4. Propagate known same station platforms
+                if (adjacency.Value != Entity.Null)
+                {
+                    // Acquire knowledge of the adjacent platform and every platform it already knew
+                    var knownByAdjacent = GetBuffer<SameStationPlatformBufferElementData>(adjacency.Value);
+
+                    NativeList<Entity> newlyKnownPlatforms = new NativeList<Entity>(1 + knownByAdjacent.Length, Allocator.Temp);
+
+                    newlyKnownPlatforms.Add(adjacency.Value);
+                    for (int i = 0; i < knownByAdjacent.Length; i++)
+                    {
+                        newlyKnownPlatforms.Add(knownByAdjacent[i].Value);
+                    }
+
+                    // Find to whom it needs to propagate the new info
+                    var knownByMe = GetBuffer<SameStationPlatformBufferElementData>(platform);
+
+                    NativeList<Entity> oldKnownPlatforms = new NativeList<Entity>(1 + knownByMe.Length, Allocator.Temp);
+
+                    oldKnownPlatforms.Add(platform);
+                    for (int i = 0; i < knownByMe.Length; i++)
+                    {
+                        oldKnownPlatforms.Add(knownByMe[i].Value);
+                    }
+
+                    // Propagate
+                    for (int i = 0; i < oldKnownPlatforms.Length; i++)
+                    {
+                        Entity target = oldKnownPlatforms[i];
+
+                        var knownBuffer = EntityManager.GetBuffer<SameStationPlatformBufferElementData>(target);
+                        for (int j = 0; j < newlyKnownPlatforms.Length; j++)
+                        {
+                            var source = newlyKnownPlatforms[j];
+
+                            if (source == target) continue;
+
+                            bool alreadyExists = false;
+                            for (int k = 0; k < knownBuffer.Length; k++)
+                            {
+                                var known = knownBuffer[k].Value;
+                                if (source == known)
+                                {
+                                    alreadyExists = true;
+                                    break;
+                                }
+                            }
+
+                            if (!alreadyExists)
+                            {
+                                knownBuffer.Add(new SameStationPlatformBufferElementData() { Value = source });
+                            }
+                        }
+                    }
+
+                    // Free lists
+                    newlyKnownPlatforms.Dispose();
+                    oldKnownPlatforms.Dispose();
+                }
+            }).Run();
+
+        allPlatforms.Dispose();
     }
 
     void Create_RailPath(DynamicBuffer<RailMarkerPosition> positions, NativeArray<RailMarkerPlatformIndex> platformIndices, Entity platformPrefab,
-                         Entity railPrefab, TrainCount trainCount, CarriageCount carriageCount)
+                         Entity railPrefab, TrainCount trainCount, CarriageCount carriageCount, NativeList<Entity> allPlatforms)
     {
         var bezierPath = new BezierPath();
         List<BezierPoint> _POINTS = bezierPath.points;
@@ -106,7 +206,8 @@ public class LineCreationSystem : SystemBase
         var platformCount = platformIndices.Length * 2;
         var platforms = EntityManager.Instantiate(platformPrefab, platformCount, Allocator.Temp);
         var platformTranslations = new NativeArray<float3>(platformCount, Allocator.Temp);
-        
+        allPlatforms.AddRange(platforms);
+
         // now that the rails have been laid - let's put the platforms on
         int totalPoints = bezierPath.points.Count;
         for (int i = 0; i < platformIndices.Length; i++)
@@ -220,15 +321,13 @@ public class LineCreationSystem : SystemBase
         BezierPoint _PT_END = bezierPath.points[_index_platform_END];
 
         EntityManager.SetComponentData(platform, new Translation { Value = _PT_END.location });
+        
         var lookAtPoint = bezierPath.GetPoint_PerpendicularOffset(_PT_END, lookAtOffset);
         EntityManager.SetComponentData(platform, new Rotation
         {
             Value = quaternion.LookRotation(math.normalize(lookAtPoint - _PT_END.location), new float3(0f, 1f, 0f))
         });
         
-        // TODO:
-        // platform.SetupPlatform(this, _PT_START, _PT_END);
-
         return _PT_END.location;
     }
 
