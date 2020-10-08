@@ -14,7 +14,8 @@ public class LineCreationSystem : SystemBase
     {
         base.OnCreate();
         
-        railArchetype = EntityManager.CreateArchetype(typeof(RailPoint), typeof(RailLength), typeof(TrainCount));
+        railArchetype = EntityManager.CreateArchetype(typeof(RailPoint), typeof(RailPointDistance), typeof(RailLength),
+                                                      typeof(TrainCount), typeof(CarriageCount), typeof(BufferPlatform));
         
         RequireSingletonForUpdate<MetroBuilder>();
     }
@@ -27,17 +28,18 @@ public class LineCreationSystem : SystemBase
             .ForEach((Entity entity,
                       in DynamicBuffer<RailMarkerPosition> railMarkerPositions,
                       in DynamicBuffer<RailMarkerPlatformIndex> railMarkerPlatformIndices,
-                      in TrainCount trainCount) =>
+                      in TrainCount trainCount,
+                      in CarriageCount carriageCount) =>
             {
                 var railIndices = railMarkerPlatformIndices.ToNativeArray(Allocator.Temp);
-                Create_RailPath(railMarkerPositions, railIndices, metroBuilder.PlatformPrefab, metroBuilder.RailPrefab, trainCount);
+                Create_RailPath(railMarkerPositions, railIndices, metroBuilder.PlatformPrefab, metroBuilder.RailPrefab, trainCount, carriageCount);
                 railIndices.Dispose();
                 EntityManager.DestroyEntity(entity);
             }).Run();
     }
 
     void Create_RailPath(DynamicBuffer<RailMarkerPosition> positions, NativeArray<RailMarkerPlatformIndex> platformIndices, Entity platformPrefab,
-                         Entity railPrefab, TrainCount trainCount)
+                         Entity railPrefab, TrainCount trainCount, CarriageCount carriageCount)
     {
         var bezierPath = new BezierPath();
         List<BezierPoint> _POINTS = bezierPath.points;
@@ -125,6 +127,7 @@ public class LineCreationSystem : SystemBase
             inboundSameStationPlatforms.Add(new SameStationPlatformBufferElementData() { Value = outboundPlatform });
         }
 
+        // Hopefully we don't need that, since we tried to maintain the order at initialization time above.
         /*
         var sortedPlatforms = from _PLATFORM in platforms
             orderby _PLATFORM.point_platform_START.index
@@ -141,8 +144,10 @@ public class LineCreationSystem : SystemBase
         // speedRatio = bezierPath.GetPathDistance() * maxTrainSpeed;
 
         var railEntity = EntityManager.CreateEntity(railArchetype);
-        EntityManager.SetComponentData(railEntity, new RailLength { Value = bezierPath.GetPathDistance() });
         EntityManager.SetComponentData(railEntity, trainCount);
+        EntityManager.SetComponentData(railEntity, carriageCount);
+
+        var railPoints = new NativeList<RailPoint>(Allocator.Temp);
 
         // Now, let's lay the rail meshes
         float _DIST = 0f;
@@ -152,13 +157,35 @@ public class LineCreationSystem : SystemBase
             Vector3 _RAIL_POS = bezierPath.Get_Position(_DIST_AS_RAIL_FACTOR);
             Vector3 _RAIL_ROT = bezierPath.Get_NormalAtPosition(_DIST_AS_RAIL_FACTOR);
 
-            EntityManager.GetBuffer<RailPoint>(railEntity).Add(new RailPoint { Position = _RAIL_POS });
-            
+            railPoints.Add((float3)_RAIL_POS);
+
             var rail = EntityManager.Instantiate(railPrefab);
             EntityManager.SetComponentData(rail, new Rotation { Value = quaternion.LookRotation(_RAIL_ROT, new float3(0f, 1f, 0f))});
             EntityManager.SetComponentData(rail, new Translation { Value = _RAIL_POS });
             _DIST += Metro.RAIL_SPACING;
         }
+
+        var railPointDistances = new NativeArray<RailPointDistance>(railPoints.Length, Allocator.Temp);
+
+        var distance = 0f;
+        for (int i = 0; i < railPoints.Length - 1; i++)
+        {
+            distance += math.length((float3) railPoints[i] - (float3) railPoints[i + 1]);
+            railPointDistances[i] = distance;
+        }
+        distance += math.length((float3) railPoints[0] - (float3) railPoints[railPoints.Length - 1]);
+        railPointDistances[railPointDistances.Length - 1] = distance;
+
+        EntityManager.GetBuffer<RailPoint>(railEntity).AddRange(railPoints);
+        EntityManager.GetBuffer<RailPointDistance>(railEntity).AddRange(railPointDistances);
+
+        railPoints.Dispose();
+        railPointDistances.Dispose();
+
+        EntityManager.SetComponentData<RailLength>(railEntity, distance);
+        
+        EntityManager.GetBuffer<BufferPlatform>(railEntity).AddRange(platforms.Reinterpret<BufferPlatform>());
+        platforms.Dispose();
     }
 
     void InitializePlatform(Entity platform, BezierPath bezierPath, int _index_platform_START, int _index_platform_END, float lookAtOffset)
