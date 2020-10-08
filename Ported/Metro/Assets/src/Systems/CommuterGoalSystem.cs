@@ -77,19 +77,35 @@ public class CommuterGoalSystem : SystemBase
                     {
                         var navPoints = ecb.AddBuffer<NavPointBufferElementData>(entityInQueryIndex, commuter);
 
-                        if (math.distancesq(translation.Value, currentWalkways.WalkwayFrontBottom) <= math.distancesq(translation.Value, currentWalkways.WalkwayBackBottom))
+                        float3 frontBottomPosition = GetComponent<LocalToWorld>(currentWalkways.WalkwayFrontBottom).Position;
+                        float3 backBottomPosition = GetComponent<LocalToWorld>(currentWalkways.WalkwayBackBottom).Position;
+                        float3 topPoint;
+
+                        if (math.distancesq(translation.Value, frontBottomPosition) <= math.distancesq(translation.Value, backBottomPosition))
                         {
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = currentWalkways.WalkwayFrontBottom });
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = currentWalkways.WalkwayFrontTop });
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = nextWalkways.WalkwayFrontTop });
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = nextWalkways.WalkwayFrontBottom });
+                            topPoint = GetComponent<LocalToWorld>(currentWalkways.WalkwayFrontTop).Position;
+                            navPoints.Add(new NavPointBufferElementData() { NavPoint = frontBottomPosition });
+                            navPoints.Add(new NavPointBufferElementData() { NavPoint = topPoint });
                         }
                         else
                         {
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = currentWalkways.WalkwayBackBottom });
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = currentWalkways.WalkwayBackTop });
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = nextWalkways.WalkwayBackTop });
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = nextWalkways.WalkwayBackBottom });
+                            topPoint = GetComponent<LocalToWorld>(currentWalkways.WalkwayBackTop).Position;
+                            navPoints.Add(new NavPointBufferElementData() { NavPoint = backBottomPosition });
+                            navPoints.Add(new NavPointBufferElementData() { NavPoint = topPoint });
+                        }
+
+                        float3 targetTopFrontPoistion = GetComponent<LocalToWorld>(nextWalkways.WalkwayFrontTop).Position;
+                        float3 targetTopBackPosition = GetComponent<LocalToWorld>(nextWalkways.WalkwayBackTop).Position;
+
+                        if (math.distancesq(topPoint, targetTopFrontPoistion) <= math.distancesq(topPoint, targetTopBackPosition))
+                        {
+                            navPoints.Add(new NavPointBufferElementData() { NavPoint = targetTopFrontPoistion });
+                            navPoints.Add(new NavPointBufferElementData() { NavPoint = GetComponent<LocalToWorld>(nextWalkways.WalkwayFrontBottom).Position });
+                        }
+                        else
+                        {
+                            navPoints.Add(new NavPointBufferElementData() { NavPoint = targetTopBackPosition });
+                            navPoints.Add(new NavPointBufferElementData() { NavPoint = GetComponent<LocalToWorld>(nextWalkways.WalkwayBackBottom).Position });
                         }
 
                         ecb.AddComponent(entityInQueryIndex, commuter, new CommuterTask_MoveToPlatform() { TargetPlatform = nextPlatform });
