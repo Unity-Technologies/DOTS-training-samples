@@ -5,26 +5,16 @@ using Unity.Transforms;
 
 public class CommuterGoalSystem : SystemBase
 {
-    private struct CommuterToQueue
-    {
-        public Entity Commuter;
-        public Entity Queue;
-    }
-    private NativeList<CommuterToQueue> m_CommuterToQueues;
-
     private EntityCommandBufferSystem m_ECBSystem;
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        m_CommuterToQueues = new NativeList<CommuterToQueue>(0, Allocator.Persistent);
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnDestroy()
     {
-        m_CommuterToQueues.Dispose();
-
         base.OnDestroy();
     }
 
@@ -59,17 +49,6 @@ public class CommuterGoalSystem : SystemBase
                     if (nextPlatform == adjacentPlatform)
                     {
                         platform.Value = nextPlatform;
-
-                        //EntityManager.RemoveComponent<CommuterTask_Idle>(commuter);
-
-                        //var numQueues = GetComponent<Queues>(platform.Value).CarriageCount;
-                        //var queues = GetBufferFromEntity<EntityBufferElementData>()[platform.Value];
-
-                        //var nextQueue = queues[nextQueueIndex % numQueues].Value;
-                        //System.Threading.Interlocked.Increment(ref nextQueueIndex);
-
-                        //float3 nextPoint = GetComponent<LocalToWorld>(nextQueue).Position;
-                        //EntityManager.AddComponentData(commuter, new TargetPoint() { CurrentTarget = nextPoint });
 
                         ecb.AddComponent<CommuterTask_MoveToQueue>(entityInQueryIndex, commuter);
                     }
@@ -114,49 +93,38 @@ public class CommuterGoalSystem : SystemBase
 
             }).Schedule();
 
-        //BufferFromEntity<EntityBufferElementData> buffers = GetBufferFromEntity<EntityBufferElementData>(true);
-
-        var comQueues = m_CommuterToQueues.AsParallelWriter();
-
         Entities
             .WithName("commuter_arriving_platform")
             .WithNone<TargetPoint>()
             .WithAll<CommuterTask_MoveToQueue>()
-            //.WithReadOnly(buffers)
             .ForEach((Entity entity, int entityInQueryIndex, in CommuterOnPlatform commuterOnPlatform, in Translation translation) =>
             {
                 float minDistSq = float.MaxValue;
-                float3 targetPosition = float3.zero;
                 Entity targetQueue = Entity.Null;
-                //var queueBuffer = buffers[commuterOnPlatform.Value];
-                var queueBuffer = GetBuffer<EntityBufferElementData>(commuterOnPlatform.Value);
+                var queueBuffer = GetBuffer<QueueBufferElementData>(commuterOnPlatform.Value);
                 Queues platform = GetComponent<Queues>(commuterOnPlatform.Value);
                 for (int i = 0; i < platform.CarriageCount; ++i)
                 {
                     var queue = queueBuffer[i];
-                    float3 queueTranslation = GetComponent<LocalToWorld>(queue.Value).Position;
-                    float distSq = math.distancesq(translation.Value, queueTranslation);
+                    float3 queueStart = GetComponent<LocalToWorld>(queue.Value).Position;
+                    float distSq = math.distancesq(translation.Value, queueStart);
                     if (distSq < minDistSq)
                     {
                         minDistSq = distSq;
-                        targetPosition = queueTranslation;
                         targetQueue = queue.Value;
                     }
                 }
                 if (targetQueue != Entity.Null)
                 {
-                    //comQueues.Add(new CommuterToQueue
-                    //{
-                    //    Commuter = entity,
-                    //    Queue = targetQueue
-                    //});
-
-                    var commutersBuffer = GetBuffer<EntityBufferElementData>(targetQueue);
-                    int n = commutersBuffer.Add(new EntityBufferElementData
+                    var commutersBuffer = GetBuffer<CommuterInQueueBufferElementData>(targetQueue);
+                    int n = commutersBuffer.Add(new CommuterInQueueBufferElementData
                     {
                         Value = entity
                     });
-                    targetPosition.z += (n - 1) * 0.5f;
+
+                    LocalToWorld queueMatrix = GetComponent<LocalToWorld>(targetQueue);
+                    float3 targetPosition = queueMatrix.Position;
+                    targetPosition += (n - 1) * 0.5f * queueMatrix.Forward;
 
                     ecb.AddComponent(entityInQueryIndex, entity, new TargetPoint
                     {
@@ -166,31 +134,7 @@ public class CommuterGoalSystem : SystemBase
                     ecb.RemoveComponent<CommuterTask_MoveToQueue>(entityInQueryIndex, entity);
                     ecb.AddComponent<CommuterTask_WaitOnQueue>(entityInQueryIndex, entity);
                 } // todo: else error?
-                  //}).ScheduleParallel();
             }).Schedule();
-
-        //Job.WithCode(() =>
-        //    {
-        //        while(!m_CommuterToQueues.IsEmpty())
-        //        {
-        //            comQueues.
-        //            Entity commuter = commuterToQueue.Commuter;
-        //            Entity queue = commuterToQueue.Queue;
-        //            Translation translation = GetComponent<Translation>(queue);
-        //            var commutersBuffer = GetBuffer<EntityBufferElementData>(queue);
-        //            int n = commutersBuffer.Add(new EntityBufferElementData
-        //            {
-        //                Value = commuter
-        //            });
-        //            float3 targetPosition = translation.Value;
-        //            targetPosition.z += (n - 1) * 0.2f;
-        //            ecb.AddComponent(commuter.Index, commuter, new TargetPoint
-        //            {
-        //                CurrentTarget = targetPosition
-        //            });
-        //        }
-        //    }).Schedule();
-
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }

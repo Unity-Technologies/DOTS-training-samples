@@ -4,20 +4,22 @@ using Unity.Transforms;
 
 public class CommuterTask_MoveToPlatform_System : SystemBase
 {
-    private int nextQueueIndex = 0;
+    private EntityCommandBufferSystem m_ECBSystem;
 
     protected override void OnCreate()
     {
         base.OnCreate();
+        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
+        var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
+
         Entities
             .WithName("commuter_task_movetoplatform")
-            .WithStructuralChanges()
             .WithNone<TargetPoint>()
-            .ForEach((Entity commuter, ref CommuterOnPlatform platform, in CommuterTask_MoveToPlatform task) =>
+            .ForEach((Entity commuter, int entityInQueryIndex, ref CommuterOnPlatform platform, in CommuterTask_MoveToPlatform task) =>
             {
                 var navPointsForCommuter = GetBufferFromEntity<NavPointBufferElementData>();
                 if (navPointsForCommuter.HasComponent(commuter))
@@ -29,28 +31,20 @@ public class CommuterTask_MoveToPlatform_System : SystemBase
                     navPoints.RemoveAt(0);
                     if (navPoints.IsEmpty)
                     {
-                        EntityManager.RemoveComponent<NavPointBufferElementData>(commuter);
+                        ecb.RemoveComponent<NavPointBufferElementData>(entityInQueryIndex, commuter);
                     }
 
-                    EntityManager.AddComponentData(commuter, new TargetPoint() { CurrentTarget = nextPoint });
+                    ecb.AddComponent(entityInQueryIndex, commuter, new TargetPoint() { CurrentTarget = nextPoint });
                 }
                 else
                 {
                     platform.Value = task.TargetPlatform;
 
-                    EntityManager.RemoveComponent<CommuterTask_MoveToPlatform>(commuter);
-
-                    //var numQueues = GetComponent<Queues>(platform.Value).CarriageCount;
-                    //var queues = GetBufferFromEntity<EntityBufferElementData>()[platform.Value];
-
-                    //var nextQueue = queues[nextQueueIndex % numQueues].Value;
-                    //System.Threading.Interlocked.Increment(ref nextQueueIndex);
-                    
-                    //float3 nextPoint = GetComponent<LocalToWorld>(nextQueue).Position;
-                    //EntityManager.AddComponentData(commuter, new TargetPoint() { CurrentTarget = nextPoint });
-
-                    EntityManager.AddComponent<CommuterTask_MoveToQueue>(commuter);
+                    ecb.RemoveComponent<CommuterTask_MoveToPlatform>(entityInQueryIndex, commuter);
+                    ecb.AddComponent<CommuterTask_MoveToQueue>(entityInQueryIndex, commuter);
                 }
-            }).Run();
+            }).Schedule();
+
+        m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 }

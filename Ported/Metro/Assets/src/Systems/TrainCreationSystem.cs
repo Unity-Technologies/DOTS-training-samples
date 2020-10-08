@@ -9,8 +9,9 @@ public class TrainCreationSystem : SystemBase
     
     protected override void OnCreate()
     {
-        trainArchetype = EntityManager.CreateArchetype(typeof(Position), typeof(NextTrain), typeof(Rail),
-                                                       typeof(NextTrainPosition), typeof(CarriageCount), typeof(BufferCarriage));
+        trainArchetype = EntityManager.CreateArchetype(typeof(Position), typeof(Rail), typeof(NextTrain), typeof(NextTrainPosition),
+                                                       typeof(CarriageCount), typeof(BufferCarriage),
+                                                       typeof(NextPlatform), typeof(NextPlatformPosition));
     }
 
     protected override void OnUpdate()
@@ -30,6 +31,7 @@ public class TrainCreationSystem : SystemBase
                 EntityManager.SetComponentData<Position>(train, startingPosition);
                 EntityManager.SetComponentData<Rail>(train, entity);
                 EntityManager.SetComponentData(train, carriageCount);
+                EntityManager.SetComponentData<NextPlatform>(train, (Entity)EntityManager.GetBuffer<BufferPlatform>(entity)[0]);
 
                 trains[i] = train;
             }
