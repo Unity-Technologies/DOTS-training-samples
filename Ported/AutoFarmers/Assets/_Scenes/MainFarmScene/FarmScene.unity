@@ -155,8 +155,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GridSize:
-    x: 20
-    y: 20
+    x: 50
+    y: 50
   FarmersCount: 5
   PlainsPrefab: {fileID: 6227356122151387076, guid: 7f520695b990f464a909116d776c9b4f,
     type: 3}
