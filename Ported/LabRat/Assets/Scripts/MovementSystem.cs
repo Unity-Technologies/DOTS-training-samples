@@ -58,10 +58,10 @@ public class MovementSystem : SystemBase
                 position.Value += new float2(deltaX, deltaY);
 
                 bool fellIntoHole = false;
-                foreach (var holeTranslation in holeTranslations)
+                for (int i = 0; i < holeTranslations.Length; i++)
                 {
-                    if ((int) holeTranslation.Value.x == (int) position.Value.x &&
-                        (int) holeTranslation.Value.z == (int) position.Value.y)
+                    if ((int)holeTranslations[i].Value.x == (int)position.Value.x &&
+                        (int)holeTranslations[i].Value.z == (int)position.Value.y)
                     {
                         //Add Falling Tag
                         ecb.AddComponent<Falling>(entityInQueryIndex, entity);

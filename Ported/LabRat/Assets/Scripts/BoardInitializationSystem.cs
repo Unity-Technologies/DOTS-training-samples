@@ -12,6 +12,11 @@ public class BoardInitializationSystem : SystemBase
             .WithStructuralChanges()
             .ForEach((Entity entity, in Board board) =>
             {
+                //UnityEngine.Debug.Log("Initializing Board");
+                var wallEntity = EntityManager.CreateEntity();
+                var wallBuffer = EntityManager.AddBuffer<TileWall>(wallEntity);
+                wallBuffer.ResizeUninitialized(board.size * board.size);
+
                 var rand = new Unity.Mathematics.Random((uint) DateTime.Now.Millisecond);
                 var boardQuarter = board.size / 4;
                 
@@ -38,29 +43,33 @@ public class BoardInitializationSystem : SystemBase
                             : new URPMaterialPropertyBaseColor {Value = new float4(0.6f, 0.6f, 0.6f, 1.0f)});
 
                     // Place border walls
-                    if (x == 0) // East
+                    if (x == 0) // West
                     {
-                        PlaceWall(posX, posZ, 2, board.wallPrefab, posY, tileInstance);
-                        localWall |= 4;
+                        PlaceWall(posX, posZ, DirectionDefines.West, board.wallPrefab, posY, tileInstance);
+                        AddWallToWallTileBuffer(wallEntity, DirectionDefines.West, posX, posZ, board.size);
+                        localWall |= DirectionDefines.West;
                     }
-                    else if (x == (board.size - 1)) // West
+                    else if (x == (board.size - 1)) // East
                     {
-                        PlaceWall(posX, posZ, 3, board.wallPrefab, posY, tileInstance);
-                        localWall |= 8;
+                        PlaceWall(posX, posZ, DirectionDefines.East, board.wallPrefab, posY, tileInstance);
+                        AddWallToWallTileBuffer(wallEntity, DirectionDefines.East, posX, posZ, board.size);
+                        localWall |= DirectionDefines.East;
                     }
 
                     if (z == 0) // South
                     {
-                        PlaceWall(posX, posZ, 1, board.wallPrefab, posY, tileInstance);
-                        localWall |= 2;
+                        PlaceWall(posX, posZ, DirectionDefines.South, board.wallPrefab, posY, tileInstance);
+                        AddWallToWallTileBuffer(wallEntity, DirectionDefines.South, posX, posZ, board.size);
+                        localWall |= DirectionDefines.South;
                     }
                     else if (z == (board.size - 1)) // North
                     {
-                        PlaceWall(posX, posZ, 0, board.wallPrefab, posY, tileInstance);
-                        localWall |= 1;
+                        PlaceWall(posX, posZ, DirectionDefines.North, board.wallPrefab, posY, tileInstance);
+                        AddWallToWallTileBuffer(wallEntity, DirectionDefines.North, posX, posZ, board.size);
+                        localWall |= DirectionDefines.North;
                     }
 
-                    // Place Spawn Points
+                        // Place Spawn Points
                     if ((x == 0 && z == 0) || (x == (board.size - 1) && z == (board.size - 1)))
                     {
                         var mouseSpawnPoint = new SpawnPoint
@@ -116,7 +125,26 @@ public class BoardInitializationSystem : SystemBase
                         var coordinate = 2 ^ rand.NextUInt(0, 3);
                         if ((localWall & coordinate) == 0)
                         {
-                            PlaceWall(posX, posZ, coordinate, board.wallPrefab, posY, tileInstance);
+                            byte direction = 0;
+                            switch (coordinate)
+                            {
+                                case 0: // North
+                                    direction = DirectionDefines.North;
+                                    break;
+                                case 1: // South
+                                    direction = DirectionDefines.South;
+                                    break;
+                                case 2: // West 
+                                    direction = DirectionDefines.West;
+                                    break;
+                                case 3: // East
+                                    direction = DirectionDefines.East;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            PlaceWall(posX, posZ, direction, board.wallPrefab, posY, tileInstance);
+                            AddWallToWallTileBuffer(wallEntity, direction, posX, posZ, board.size);
                             wallCount--;
                         }
                     }
@@ -164,6 +192,19 @@ public class BoardInitializationSystem : SystemBase
         }).Run();
     }
 
+    void AddWallToWallTileBuffer(
+        Entity wallBufferEntity,
+        byte wallDirection,
+        int positionX,
+        int positionY,
+        int boardWidth)
+    {
+        int index = boardWidth * positionX + positionY;
+        var wallBuffer = EntityManager.GetBuffer<TileWall>(wallBufferEntity);
+        var value = wallBuffer[index];
+        wallBuffer.ElementAt(index).Value = (byte)(value.Value | wallDirection);
+    }
+
     /// <summary>
     /// 
     /// </summary>
@@ -174,29 +215,25 @@ public class BoardInitializationSystem : SystemBase
     /// <param name="yOffset"></param>
     void PlaceWall(
         float posX, 
-        float posZ, 
-        uint coordinate, 
+        float posZ,
+        byte direction,
         Entity wallPrefab, 
         float yOffset,
         Entity tileInstance)
     {
-        switch (coordinate)
+        switch (direction)
         {
-            case 0: // North
+            case DirectionDefines.North: // North
                 posZ += 0.5f;
-                AddWallToTile(tileInstance, DirectionDefines.North);
                 break;
-            case 1: // South
+            case DirectionDefines.South: // South
                 posZ -= 0.5f;
-                AddWallToTile(tileInstance, DirectionDefines.South);
                 break;
-            case 2: // West 
+            case DirectionDefines.West: // West 
                 posX -= 0.5f;
-                AddWallToTile(tileInstance, DirectionDefines.West);
                 break;
-            case 3: // East
+            case DirectionDefines.East: // East
                 posX += 0.5f;
-                AddWallToTile(tileInstance, DirectionDefines.East);
                 break;
             default:
                 break;
@@ -205,7 +242,7 @@ public class BoardInitializationSystem : SystemBase
         var instance = EntityManager.Instantiate(wallPrefab);
         SetComponent(instance, new Translation { Value = new float3(posX, 0.725f + yOffset, posZ) });
 
-        if (coordinate <= 1)  // Turn the wall if it's placed on North or South
+        if ((direction & (DirectionDefines.North | DirectionDefines.South)) != 0)  // Turn the wall if it's placed on North or South
             SetComponent(instance, new Rotation { Value = quaternion.RotateY(math.radians(90f)) });
 
     }
