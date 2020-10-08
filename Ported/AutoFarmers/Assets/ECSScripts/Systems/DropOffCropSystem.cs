@@ -1,19 +1,24 @@
-﻿using Unity.Entities;
-using Unity.Mathematics;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Transforms;
+using Unity.Mathematics;
 
 //[UpdateAfter(typeof(FarmerMoveSystem))]
 public class DropOffCropSystem : SystemBase 
 {
+    EntityQuery m_AvailableDepotsQuery;
     EntityCommandBufferSystem m_ECBSystem;
     
     protected override void OnCreate()
     {
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();    
+        m_AvailableDepotsQuery = GetEntityQuery(typeof(Depot));
     }
 
     protected override void OnUpdate()
     {
+        var gameStateEntity = GetSingletonEntity<GameState>();
+        var score = GetComponent<Score>(gameStateEntity);
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
         const float reachDistance = 0.5f; 
         
@@ -55,6 +60,8 @@ public class DropOffCropSystem : SystemBase
                                     FromPosition = translation.Value, 
                                     ToPosition = new float3(target.targetPosition.x, 0, target.targetPosition.y)});
                     
+                    ecb.AddComponent<DestroyCrop>(entityInQueryIndex, entity);
+                    
                     ecb.RemoveComponent<CropCarried>(entityInQueryIndex, entity);
                     ecb.RemoveComponent<TargetEntity>(entityInQueryIndex, entity);
                 }
@@ -62,12 +69,17 @@ public class DropOffCropSystem : SystemBase
         
         float dropDelay = 2f;
         float deltaTime = Time.DeltaTime;
+        
+        int depotCount = m_AvailableDepotsQuery.CalculateEntityCount();
+        NativeArray<Entity> depotsEntities = m_AvailableDepotsQuery.ToEntityArray(Allocator.TempJob);
+        
         Entities
             .WithName("dropoff_system_removecrop")
+            .WithStructuralChanges()
             .WithAll<Crop>()
+            .WithAll<DestroyCrop>()
             .ForEach((
                 Entity entity, 
-                int entityInQueryIndex,
                 ref CropDropOff dropOff,
                 ref NonUniformScale scale,
                 ref Translation translation) =>
@@ -76,7 +88,24 @@ public class DropOffCropSystem : SystemBase
         
                 if(dropOff.Completion > 1f)
                 {
-                    ecb.DestroyEntity(entityInQueryIndex, entity);
+                    EntityManager.DestroyEntity(entity);
+                
+                    float random;
+                    {
+                        float2 p = translation.Value.xz;
+                        float3 p3 = math.frac(p.xyx * 0.1031f);
+                        p3 += math.dot(p3, p3.yzx + 33.33f);
+                        random = math.frac((p3.x + p3.y) * p3.z);
+                    }
+                    random *= depotCount;
+                    int randomInt = (int) random;
+                    
+                    int updatedScore = score.Value + 1;
+                    EntityManager.SetComponentData(gameStateEntity, new Score {Value = updatedScore});
+                    if (updatedScore % 5 == 0)
+                    {
+                        EntityManager.AddComponent<DepotCanSpawn>(depotsEntities[randomInt]);
+                    }
                 }
                 else
                 {
@@ -84,7 +113,9 @@ public class DropOffCropSystem : SystemBase
                     translation.Value = dropOff.FromPosition + dropOff.Completion * (dropOff.ToPosition - dropOff.FromPosition);
                 }
         
-            }).ScheduleParallel(); 
+            }).Run(); 
+        
+        depotsEntities.Dispose(Dependency);
         
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
