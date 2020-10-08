@@ -32,8 +32,8 @@ public class SapplingGrowthSystem : SystemBase
                 , ref NonUniformScale scale
                 ) =>
         {
-            sappling.age += (dt * simulationSpeed);
             const float MAX_AGE = 5.0f;
+            sappling.age = math.min(MAX_AGE, sappling.age + dt * simulationSpeed);
             float s = (sappling.age / MAX_AGE) / 1.5f;
             scale.Value = new float3(s, s, s);
             float4 color;
