@@ -22,7 +22,6 @@ public class CommuterGoalSystem : SystemBase
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
         Random random = new Random(12345);
-        uint timeOffset = (uint)System.DateTime.Now.Millisecond;
 
         Entities
             .WithName("commuter_goal_assignment")
@@ -31,67 +30,57 @@ public class CommuterGoalSystem : SystemBase
             .ForEach((Entity commuter, int entityInQueryIndex, ref CommuterOnPlatform platform, in Translation translation) =>
             {
                 Entity currentPlatform = platform.Value;
+                WalkwayPoints currentWalkways = GetComponent<WalkwayPoints>(currentPlatform);
 
-                int targetPlatformIndex = new Random((uint)commuter.Index + timeOffset).NextInt() % 2;
-                if (targetPlatformIndex == 0)
+                var sameStationPlatforms = GetBufferFromEntity<SameStationPlatformBufferElementData>()[currentPlatform];
+                int nextQueueIndex = random.NextInt(sameStationPlatforms.Length);
+                Entity nextPlatform = sameStationPlatforms[nextQueueIndex].Value;
+                WalkwayPoints nextWalkways = GetComponent<WalkwayPoints>(nextPlatform);
+
+                Entity adjacentPlatform = GetComponent<AdjacentPlatform>(currentPlatform).Value;
+                if (nextPlatform == adjacentPlatform)
                 {
+                    platform.Value = nextPlatform;
+
                     ecb.AddComponent<CommuterTask_MoveToQueue>(entityInQueryIndex, commuter);
                 }
                 else
                 {
-                    WalkwayPoints currentWalkways = GetComponent<WalkwayPoints>(currentPlatform);
+                    var navPoints = ecb.AddBuffer<NavPointBufferElementData>(entityInQueryIndex, commuter);
 
-                    var sameStationPlatforms = GetBufferFromEntity<SameStationPlatformBufferElementData>()[currentPlatform];
-                    int nextQueueIndex = random.NextInt(sameStationPlatforms.Length);
-                    Entity nextPlatform = sameStationPlatforms[nextQueueIndex].Value;
-                    WalkwayPoints nextWalkways = GetComponent<WalkwayPoints>(nextPlatform);
+                    float3 frontBottomPosition = GetComponent<LocalToWorld>(currentWalkways.WalkwayFrontBottom).Position;
+                    float3 backBottomPosition = GetComponent<LocalToWorld>(currentWalkways.WalkwayBackBottom).Position;
+                    float3 topPoint;
 
-                    Entity adjacentPlatform = GetComponent<AdjacentPlatform>(currentPlatform).Value;
-                    if (nextPlatform == adjacentPlatform)
+                    if (math.distancesq(translation.Value, frontBottomPosition) <= math.distancesq(translation.Value, backBottomPosition))
                     {
-                        platform.Value = nextPlatform;
-
-                        ecb.AddComponent<CommuterTask_MoveToQueue>(entityInQueryIndex, commuter);
+                        topPoint = GetComponent<LocalToWorld>(currentWalkways.WalkwayFrontTop).Position;
+                        navPoints.Add(new NavPointBufferElementData() { NavPoint = frontBottomPosition });
+                        navPoints.Add(new NavPointBufferElementData() { NavPoint = topPoint });
                     }
                     else
                     {
-                        var navPoints = ecb.AddBuffer<NavPointBufferElementData>(entityInQueryIndex, commuter);
-
-                        float3 frontBottomPosition = GetComponent<LocalToWorld>(currentWalkways.WalkwayFrontBottom).Position;
-                        float3 backBottomPosition = GetComponent<LocalToWorld>(currentWalkways.WalkwayBackBottom).Position;
-                        float3 topPoint;
-
-                        if (math.distancesq(translation.Value, frontBottomPosition) <= math.distancesq(translation.Value, backBottomPosition))
-                        {
-                            topPoint = GetComponent<LocalToWorld>(currentWalkways.WalkwayFrontTop).Position;
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = frontBottomPosition });
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = topPoint });
-                        }
-                        else
-                        {
-                            topPoint = GetComponent<LocalToWorld>(currentWalkways.WalkwayBackTop).Position;
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = backBottomPosition });
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = topPoint });
-                        }
-
-                        float3 targetTopFrontPoistion = GetComponent<LocalToWorld>(nextWalkways.WalkwayFrontTop).Position;
-                        float3 targetTopBackPosition = GetComponent<LocalToWorld>(nextWalkways.WalkwayBackTop).Position;
-
-                        if (math.distancesq(topPoint, targetTopFrontPoistion) <= math.distancesq(topPoint, targetTopBackPosition))
-                        {
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = targetTopFrontPoistion });
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = GetComponent<LocalToWorld>(nextWalkways.WalkwayFrontBottom).Position });
-                        }
-                        else
-                        {
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = targetTopBackPosition });
-                            navPoints.Add(new NavPointBufferElementData() { NavPoint = GetComponent<LocalToWorld>(nextWalkways.WalkwayBackBottom).Position });
-                        }
-
-                        ecb.AddComponent(entityInQueryIndex, commuter, new CommuterTask_MoveToPlatform() { TargetPlatform = nextPlatform });
+                        topPoint = GetComponent<LocalToWorld>(currentWalkways.WalkwayBackTop).Position;
+                        navPoints.Add(new NavPointBufferElementData() { NavPoint = backBottomPosition });
+                        navPoints.Add(new NavPointBufferElementData() { NavPoint = topPoint });
                     }
-                }
 
+                    float3 targetTopFrontPoistion = GetComponent<LocalToWorld>(nextWalkways.WalkwayFrontTop).Position;
+                    float3 targetTopBackPosition = GetComponent<LocalToWorld>(nextWalkways.WalkwayBackTop).Position;
+
+                    if (math.distancesq(topPoint, targetTopFrontPoistion) <= math.distancesq(topPoint, targetTopBackPosition))
+                    {
+                        navPoints.Add(new NavPointBufferElementData() { NavPoint = targetTopFrontPoistion });
+                        navPoints.Add(new NavPointBufferElementData() { NavPoint = GetComponent<LocalToWorld>(nextWalkways.WalkwayFrontBottom).Position });
+                    }
+                    else
+                    {
+                        navPoints.Add(new NavPointBufferElementData() { NavPoint = targetTopBackPosition });
+                        navPoints.Add(new NavPointBufferElementData() { NavPoint = GetComponent<LocalToWorld>(nextWalkways.WalkwayBackBottom).Position });
+                    }
+
+                    ecb.AddComponent(entityInQueryIndex, commuter, new CommuterTask_MoveToPlatform() { TargetPlatform = nextPlatform });
+                }
             }).Schedule();
 
         Entities

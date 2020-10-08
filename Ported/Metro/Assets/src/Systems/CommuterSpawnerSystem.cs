@@ -19,8 +19,6 @@ public class CommuterSpawnerSystem : SystemBase
     {
         var deltaTime = Time.DeltaTime;
 
-        //var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
-
         Entities
             .WithName("commuter_spawner")
             .WithStructuralChanges()
@@ -47,6 +45,11 @@ public class CommuterSpawnerSystem : SystemBase
                     {
                         Value = platform
                     });
+
+                    if(m_Random.NextBool())
+                    {
+                        EntityManager.AddComponent<CommuterTask_MoveToQueue>(commuter);
+                    }
                 }
 
                 EntityManager.RemoveComponent<CommuterSpawner>(platform);
