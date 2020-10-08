@@ -126,9 +126,8 @@ public class BoardInitializationSystem : SystemBase
 
                             tileInstance = EntityManager.Instantiate(board.invisibleTilePrefab);
                             SetComponent(tileInstance, new Translation { Value = new float3(posX, posY, posZ) });
-                            EntityManager.AddComponent<Hole>(tileInstance);
-                            EntityManager.AddComponent<Cell>(tileInstance);
                             SetComponent(tileInstance, new Cell(){Index = x + z * board.size});
+                            EntityManager.AddComponent<Hole>(tileInstance);
                             holeCount--;
                         }
                     }
