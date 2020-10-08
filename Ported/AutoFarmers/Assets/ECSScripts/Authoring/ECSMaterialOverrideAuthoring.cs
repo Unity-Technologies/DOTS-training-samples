@@ -8,17 +8,3 @@ public struct ECSMaterialOverride : IComponentData
 {
     public float4 Value;
 }
-
-public class ECSMaterialOverrideAuthoring : MonoBehaviour, IConvertGameObjectToEntity
-{
-    public UnityEngine.Color Color;
-
-    public void Convert(Entity entity, EntityManager dstManager,
-        GameObjectConversionSystem conversionSystem)
-    {
-        dstManager.AddComponentData(entity, new ECSMaterialOverride
-        {
-            Value = new float4(Color.r, Color.g, Color.b, 1)
-        });
-    }
-}

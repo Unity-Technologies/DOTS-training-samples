@@ -80,7 +80,7 @@ public class GameGenSystem : SystemBase
             .WithName("calculate_fertility")
             .WithReadOnly(waterTilePositions)
             .WithDisposeOnCompletion(waterTilePositions)
-            .ForEach((int entityInQueryIndex, ref Plains plains, ref ECSMaterialOverride materialOverride, ref Tilled tilled, in Position position) =>
+            .ForEach((int entityInQueryIndex, ref Plains plains, ref ECSMaterialOverride materialOverride, in Position position) =>
         {
             // Calculate the distance from the nearest water tile
             float minDistSq = float.MaxValue;
