@@ -7,7 +7,6 @@ public struct SpawnPoint : IComponentData
     public int spawnType;
     public byte direction;
     public int spawnCount;
-    public float spawnDelay;
 }
 
 public struct SpawnType : IBufferElementData
@@ -16,4 +15,5 @@ public struct SpawnType : IBufferElementData
     public int spawnMax;
     public float spawnFrequency;
     public float2 speedRange;
+    public float spawnDelay;
 }

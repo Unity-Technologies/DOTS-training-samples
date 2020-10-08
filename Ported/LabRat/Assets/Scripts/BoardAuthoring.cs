@@ -17,4 +17,9 @@ public struct Board : IComponentData
 
     public int wallCount;
     public int holeCount;
+
+    public int miceCount;
+    public int miceWait;
+    public int catCount;
+    public int catWait;
 }

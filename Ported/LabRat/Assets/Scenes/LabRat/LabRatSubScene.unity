@@ -159,10 +159,14 @@ MonoBehaviour:
   ratPrefab: {fileID: 1565721843962348, guid: dd039b4b660a8134dadb76c6f58af5f5, type: 3}
   catPrefab: {fileID: 1377909340170110, guid: 37ee530416460754cb7528bcccc1b1eb, type: 3}
   arrowPrefab: {fileID: 8321554569707779032, guid: 688937ac2369a984395e395404d933ab, type: 3}
-  size: 10
+  size: 20
   yNoise: 0.1
-  wallCount: 50
-  holeCount: 3
+  wallCount: 100
+  holeCount: 5
+  miceCount: 20
+  miceWait: 2
+  catCount: 1
+  catWait: 5
 --- !u!4 &17635208
 Transform:
   m_ObjectHideFlags: 0
