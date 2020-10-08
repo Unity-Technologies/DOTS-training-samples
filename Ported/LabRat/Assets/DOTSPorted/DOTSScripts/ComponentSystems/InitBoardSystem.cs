@@ -13,7 +13,7 @@ using Unity.Transforms;
 // 5-7 bits - 1-7 value indicating an end
 public class TileMap : IComponentData
 {
-    public byte [] tiles;
+    public NativeArray<byte> tiles;
 }
 
 public class InitBoardSystem : SystemBase
@@ -26,6 +26,14 @@ public class InitBoardSystem : SystemBase
         RequireSingletonForUpdate<BoardInfo>();
     }
 
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        Entity tileMapEntity = GetSingletonEntity<TileMap>();
+        TileMap tileMap = EntityManager.GetComponentObject<TileMap>(tileMapEntity);
+        tileMap.tiles.Dispose();
+    }
+
     protected override void OnUpdate()
     {
         UnityEngine.Debug.Log("InitBoardSystem OnUpdate");
@@ -36,7 +44,7 @@ public class InitBoardSystem : SystemBase
         int height = boardInfo.height;
 
         int boardSize = width * height;
-        byte [] tiles = new byte[boardSize];
+        NativeArray<byte> tiles = new NativeArray<byte>(boardSize, Allocator.Persistent);
 
         Entity tileEntity = EntityManager.CreateEntity(typeof(TileMap));
         EntityManager.SetComponentData(tileEntity, new TileMap { tiles = tiles });
