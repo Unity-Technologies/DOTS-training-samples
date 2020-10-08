@@ -1,6 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -9,65 +12,113 @@ using UnityEngine;
 [UpdateBefore(typeof(SeekSystem))]
 public class AgentUpdateSystem : SystemBase
 {
+    private EntityQuery m_bucketQuery;
     protected override void OnUpdate()
     {
         float elapsedTime = (float)Time.ElapsedTime;
-        
-        Entities.WithoutBurst().ForEach((Entity e, ref Translation t, ref SeekPosition seekTarget,  in Agent agent) =>
+
+        // ensure this job runs before other jobs that need buckets.
+        m_bucketQuery.CalculateEntityCount(); // this will be calculated by running the query (below - see WithStoreEntityQueryInField)
+        int bucketsFoundLastUpdate = m_bucketQuery.CalculateEntityCount();
+
+        int index = 0;
+        NativeArray<float3> bucketLocations = new NativeArray<float3>(bucketsFoundLastUpdate, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+
+        Entities.
+            WithoutBurst().
+            WithStoreEntityQueryInField(ref m_bucketQuery).
+            ForEach((Entity e, in Bucket b, in Translation t) =>
         {
-            // is entity near its target location?
-            float dist = math.lengthsq(seekTarget.TargetPos - t.Value);
-            //if (math.lengthsq(seekTarget.TargetPos - t.Value) < 0.2f)
+            bucketLocations[index++] = new float3(t.Value.x, 0, t.Value.z);
+        }).Run();
+        //}).Schedule(Dependency); // nope. modifying index.
+
+        // scooper updates
+        Entities.ForEach((Entity e, ref Translation t, ref SeekPosition seekComponent, in AgentTags.ScooperTag agent) =>
+        {
+            float dist = math.lengthsq(seekComponent.TargetPos - t.Value);
             if (dist < 1.0f)
             {
-                if (EntityManager.HasComponent<AgentTags.ScooperTag>(e))
+                //*
+                // error DC0002: Entities.ForEach Lambda expression invokes 'FindNearest' on a AgentUpdateSystem which is a reference type.
+                // This is only allowed with .WithoutBurst() and .Run().
+                // Answer: needs to be a static function
+                FindNearest(t.Value, bucketLocations, ref seekComponent);
+                /*/
+                float nearestDistanceSquared = float.MaxValue;
+                int nearestIndex = 0;
+                for (int i = 0; i < bucketLocations.Length; ++i)
                 {
-                    // pick new target position
-                    seekTarget.TargetPos = FindNearestBucket(t.Value, 5.0f);
-                    //t.Value.y += 1.0f;
-                }
-                else if (EntityManager.HasComponent<AgentTags.ThrowerTag>(e))
-                {
-                
-                }
-                else if (EntityManager.HasComponent<AgentTags.EmptyBucketPasserTag>(e))
-                {
-                
-                }
-                else if (EntityManager.HasComponent<AgentTags.FullBucketPasserTag>(e))
-                {
-                
-                }
-                else if (EntityManager.HasComponent<AgentTags.OmniBotTag>(e))
-                {
-                
-                }
-            }
+                    float squareLen = math.lengthsq(t.Value - bucketLocations[i]);
 
-        }).Run();
+                    if (squareLen < nearestDistanceSquared && squareLen > 5.0f)
+                    {
+                        nearestDistanceSquared = squareLen;
+                        nearestIndex = i;
+                    }
+                }
+
+                float3 loc = bucketLocations[nearestIndex];
+                seekComponent.TargetPos = new float3(loc.x, loc.y, loc.z);
+                /**/
+            }
+        }).ScheduleParallel();
         
+        // thrower updates
+        Entities.ForEach((Entity e, ref Translation t, ref SeekPosition seekComponent, in AgentTags.ThrowerTag agent) =>
+        {
+            float dist = math.lengthsq(seekComponent.TargetPos - t.Value);
+            if (dist < 1.0f)
+            {
+                FindNearest(t.Value, bucketLocations, ref seekComponent);
+            }
+        }).ScheduleParallel(); // should run in parallel with Scoopers.
+        
+        
+        // thrower updates
+        Entities.ForEach((Entity e, ref Translation t, ref SeekPosition seekComponent, in AgentTags.FullBucketPasserTag agent) =>
+        {
+            float dist = math.lengthsq(seekComponent.TargetPos - t.Value);
+            if (dist < 1.0f)
+            {
+                FindNearest(t.Value, bucketLocations, ref seekComponent);
+            }
+        }).ScheduleParallel();
+        
+        // thrower updates
+        Entities.ForEach((Entity e, ref Translation t, ref SeekPosition seekComponent, in AgentTags.EmptyBucketPasserTag agent) =>
+        {
+            float dist = math.lengthsq(seekComponent.TargetPos - t.Value);
+            if (dist < 1.0f)
+            {
+                FindNearest(t.Value, bucketLocations, ref seekComponent);
+            }
+        }).ScheduleParallel();
+
+
+        // wait for jobs to finish before disposing array data
+        Dependency.Complete();
+
+        bucketLocations.Dispose();
     }
     
-    // this may be better as a separate system.
-    //float3 FindNearestEntity<T>(float3 position) where T : struct // ForEach not supported within generic methods
-    float3 FindNearestBucket(float3 position, float threshold) //where T : struct
+    static void FindNearest(float3 currentPos, NativeArray<float3> objectLocation, ref SeekPosition seekComponent)
     {
-        //Entity nearest = Entity.Null;
         float nearestDistanceSquared = float.MaxValue;
-        float3 targetLocation = new float3();
-
-        Entities.ForEach((Entity e, in Translation t, in Bucket b) =>
+        int nearestIndex = 0;
+        for (int i = 0; i < objectLocation.Length; ++i)
         {
-            float squareLen = math.lengthsq(position - t.Value);
-            if (squareLen < nearestDistanceSquared) //&& squareLen > threshold)
+            float squareLen = math.lengthsq(currentPos - objectLocation[i]);
+
+            if (squareLen < nearestDistanceSquared && squareLen > 5.0f)
             {
                 nearestDistanceSquared = squareLen;
-                targetLocation = t.Value;
+                nearestIndex = i;
             }
+        }
 
-            //}).Schedule(); // can't run in parallel due to writing to nearestDistanceSquared. But should be able to run on a thread at least.
-        }).Run(); // can't run in parallel due to writing to nearestDistanceSquared. But should be able to run on a thread at least.
-
-        return targetLocation;
+        float3 loc = objectLocation[nearestIndex];
+        seekComponent.TargetPos = new float3(loc.x, loc.y, loc.z);
     }
 }
+
