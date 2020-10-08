@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -5,15 +6,18 @@ using Unity.Transforms;
 public class CarMovementSystem : SystemBase
 {
     private EntityCommandBufferSystem ecbSystem;
+    private Random random;
 
     protected override void OnCreate()
     {
         ecbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        random = new Random(0x1234567);
     }
 
     protected override void OnUpdate()
     {
         var ecb = ecbSystem.CreateCommandBuffer().AsParallelWriter();
+        var tryExit = random.NextBool();
 
         Entities.ForEach((Entity carEntity, int entityInQueryIndex, ref Translation trans, ref Rotation rotation, ref CarMovement movement) =>
         {
@@ -35,13 +39,26 @@ public class CarMovementSystem : SystemBase
             {
                 // Destroy if no next node
                 var testComp = GetComponentDataFromEntity<RoadNode>(true);
-                var tmpNode = GetComponent<RoadNode>(movement.NextNode).nextNode;
-                if (testComp.HasComponent(tmpNode)) { 
-                    movement.NextNode = GetComponent<RoadNode>(movement.NextNode).nextNode;
+                var tmpRoadNode = GetComponent<RoadNode>(movement.NextNode);
+
+                bool destroyEntity = tmpRoadNode.nextNode == Entity.Null && tmpRoadNode.exitNode == Entity.Null;
+                bool choiceAvailable = tmpRoadNode.nextNode != Entity.Null && tmpRoadNode.exitNode != Entity.Null;
+
+                if (!destroyEntity)
+                {
+                    var tmpNode = (tmpRoadNode.nextNode != Entity.Null) ? tmpRoadNode.nextNode : tmpRoadNode.exitNode;
+
+                    if (choiceAvailable && tryExit)
+                    {
+                        tmpNode = tmpRoadNode.exitNode;
+                    }
+                    
+                    
+                    movement.NextNode = tmpNode;
                     rotation.Value = quaternion.LookRotation(goalPos, new float3(0,0,1));
                     movement.distanceTraveled = 0;
                 }
-                else {
+                else{
                     ecb.DestroyEntity(entityInQueryIndex, carEntity);   
                 }
             }
