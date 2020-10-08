@@ -25,6 +25,8 @@ public class DeduplicationSystem : SystemBase
                     EntityManager.RemoveComponent<TargetEntity>(farmerEntity);
                     EntityManager.RemoveComponent<PickUpCropTask>(farmerEntity);
                     EntityManager.RemoveComponent<DropOffCropTask>(farmerEntity);
+                    EntityManager.RemoveComponent<ChoppingTask>(farmerEntity);
+                    EntityManager.RemoveComponent<ChopForestTask>(farmerEntity);
                     EntityManager.RemoveComponent<TillTask>(farmerEntity);
                 }
                 else

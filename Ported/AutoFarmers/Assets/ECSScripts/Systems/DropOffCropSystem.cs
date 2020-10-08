@@ -19,6 +19,7 @@ public class DropOffCropSystem : SystemBase
     {
         var gameStateEntity = GetSingletonEntity<GameState>();
         var score = GetComponent<Score>(gameStateEntity);
+        var gameTime = GetSingleton<GameTime>();
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
         const float reachDistance = 0.5f; 
         
@@ -68,7 +69,7 @@ public class DropOffCropSystem : SystemBase
             }).ScheduleParallel();
         
         float dropDelay = 2f;
-        float deltaTime = Time.DeltaTime;
+        float deltaTime = gameTime.DeltaTime;
         
         int depotCount = m_AvailableDepotsQuery.CalculateEntityCount();
         NativeArray<Entity> depotsEntities = m_AvailableDepotsQuery.ToEntityArray(Allocator.TempJob);
