@@ -1,9 +1,6 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
-using UnityEngine;
-using UnityEngine.Profiling;
 
 public class MoveBucketToBotSystem : SystemBase
 {
@@ -16,36 +13,23 @@ public class MoveBucketToBotSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        Profiler.BeginSample("Setup");
-        NativeArray<Pos> botPositions = botQuery.ToComponentDataArrayAsync<Pos>(Allocator.TempJob, out JobHandle j1);
-        NativeArray<Entity> botEntities = botQuery.ToEntityArrayAsync(Allocator.TempJob, out JobHandle j2);
-        Dependency = JobHandle.CombineDependencies(Dependency, j1, j2);
-        Profiler.EndSample();
-
-        Profiler.BeginSample("Schedule");
+        NativeHashMap<Entity, float2> posMap = new NativeHashMap<Entity, float2>(100, Allocator.TempJob);
+        
+        Entities
+            .WithName("ParseBotEntityPosition")
+            .WithAll<BotTag>()
+            .ForEach((Entity entity, in Pos pos) =>
+            {
+                posMap[entity] = pos.Value;
+            }).Schedule();
+        
         Entities
             .WithName("SyncBucketToBot")
-            .WithDisposeOnCompletion(botPositions)
-            .WithDisposeOnCompletion(botEntities)
+            .WithReadOnly(posMap)
+            .WithDisposeOnCompletion(posMap)
             .ForEach((ref Pos pos, in BucketOwner owner) =>
             {
-                pos.Value = GetOwnerPos(owner.Entity, botPositions, botEntities);
+                pos.Value = posMap[owner.Entity];
             }).ScheduleParallel();
-        Profiler.EndSample();
-    }
-
-    static float2 GetOwnerPos(in Entity ownerEntity, in NativeArray<Pos> positions, in NativeArray<Entity> entities)
-    {
-        // This is a lot of searching :/ Could I make this into a NativeDictionary?
-        for (int i = 0; i < entities.Length; i++)
-        {
-            if (ownerEntity == entities[i])
-            {
-                return positions[i].Value;
-            }
-        }
-        
-        Debug.LogWarning($"Bucket could not find owner to sync position to!");
-        return float2.zero;
     }
 }

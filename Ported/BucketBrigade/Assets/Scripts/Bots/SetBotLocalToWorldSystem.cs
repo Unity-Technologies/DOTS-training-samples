@@ -33,13 +33,13 @@ public class SetBotLocalToWorldSystem : SystemBase
         
         Entities
             .WithName("SetLtWJobScaleBucket")
-            .WithAll<BucketOwner>()
+            .WithAny<BucketOwner, ChainPosition>()
             .WithNone<Translation, Rotation>()
             .ForEach((ref LocalToWorld ltw, in Pos pos, in MyScale scale) =>
             {
                 ltw.Value = new float4x4(
                     scale.Value, 0f,          0f,          pos.Value.x,
-                    0f,          scale.Value, 0f,          1f,
+                    0f,          scale.Value, 0f,          0.5f,
                     0f,          0f,          scale.Value, pos.Value.y,
                     0f,          0f,          0f,          1f);
             }).ScheduleParallel();

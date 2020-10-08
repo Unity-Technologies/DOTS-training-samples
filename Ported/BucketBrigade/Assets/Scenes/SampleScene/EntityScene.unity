@@ -173,7 +173,7 @@ MonoBehaviour:
   bucketColorEmpty: {r: 1, g: 0.4103, b: 0.4589, a: 1}
   bucketColorFull: {r: 0, g: 0.9797, b: 1, a: 1}
   bucketSizeEmpty: 0.2
-  bucketSizeFull: 0.8
+  bucketSizeFull: 0.4
 --- !u!4 &850562457
 Transform:
   m_ObjectHideFlags: 0
@@ -220,10 +220,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   botPrefab: {fileID: 5540245421705527508, guid: 7873bdbbab313d248b53d75b0b84de88, type: 3}
   numberBots: 12
-  spawnRadius: 5
+  spawnRadius: 15
   spawnCenter:
-    x: 10
-    y: 10
+    x: 7.5
+    y: 7.5
 --- !u!4 &1793836685
 Transform:
   m_ObjectHideFlags: 0
@@ -252,7 +252,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bucketPrefab: {fileID: 2813836602540487055, guid: d5be04a267230c046b0926ac36c2e6e6, type: 3}
   numberBuckets: 10
-  spawnRadius: 10
+  spawnRadius: 15
   spawnCenter:
-    x: 10
-    y: 10
+    x: 7.5
+    y: 7.5
