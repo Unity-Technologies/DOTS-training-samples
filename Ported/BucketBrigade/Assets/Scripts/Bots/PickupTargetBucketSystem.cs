@@ -19,12 +19,12 @@ public class PickupTargetBucketSystem : SystemBase
             .WithName("PickupTargetBucket")
             .ForEach((Entity botEntity, int entityInQueryIndex,
                 ref HasBucket hasBucket,
-                in Target target, in CurrentBotCommand currentCommand) =>
+                in Target target) =>
             {
-                if (!hasBucket.Has &&
-                    target.ReachedTarget && currentCommand.Command == Command.FindOrKeepBucket)
+                if (hasBucket.PickingUpBucket && !hasBucket.PickedUp && target.ReachedTarget)
                 {
-                    hasBucket.Has = true;
+                    hasBucket.PickedUp = true;
+                    hasBucket.PickingUpBucket = false;
                     hasBucket.Entity = target.Entity;
                     
                     ecb.AddComponent(entityInQueryIndex, hasBucket.Entity, new BucketOwner {Entity = botEntity});

@@ -31,19 +31,19 @@ public class FillCarriedBucketSystem : SystemBase
             .WithDisposeOnCompletion(bucketVolumes)
             .WithDisposeOnCompletion(bucketEntities)
             .ForEach((int entityInQueryIndex,
-                ref HasBucket hasBucket, ref ExecutingCommand executingCommand,
-                in Target target, in CurrentBotCommand currentCommand) =>
+                ref HasBucket hasBucket, ref FillingBucket fillingBucket,
+                in Target target) =>
             {
-                if (hasBucket.Has &&
-                    target.ReachedTarget && currentCommand.Command == Command.FillBucket)
+                if (hasBucket.PickedUp && target.ReachedTarget && fillingBucket.Filling)
                 {
                     float oldVolume = GetVolume(hasBucket.Entity, bucketEntities, bucketVolumes);
                     float newVolume = math.min(oldVolume + FILL_RATE * deltaTime, MAX_FILL);
                     
                     ecb.SetComponent(entityInQueryIndex, hasBucket.Entity, new Volume { Value = newVolume });
                     
-                    if (newVolume >= MAX_FILL)
-                        executingCommand.Value = false;
+                    fillingBucket.Full = newVolume >= MAX_FILL;
+                    if (fillingBucket.Full)
+                        fillingBucket.Filling = false;
                 }
             }).ScheduleParallel();
         

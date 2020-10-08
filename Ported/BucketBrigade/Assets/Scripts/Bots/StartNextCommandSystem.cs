@@ -24,7 +24,7 @@ public class StartNextCommandSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        Random rand = new Random((uint)System.DateTime.UtcNow.Ticks);
+        /*Random rand = new Random((uint)System.DateTime.UtcNow.Ticks);
 
         // Make both of these Pos instead of Translation
         NativeArray<Pos> bucketPositions = bucketQuery.ToComponentDataArrayAsync<Pos>(Allocator.TempJob, out JobHandle j1);
@@ -56,7 +56,7 @@ public class StartNextCommandSystem : SystemBase
                         target.Position = GetRandomPosition(ref rand);
                         break;
                     case Command.FindOrKeepBucket:
-                        if (hasBucket.Has)
+                        if (hasBucket.PickedUp)
                         {
                             target.Position = pos.Value;
                             target.Entity = hasBucket.Entity;
@@ -74,7 +74,7 @@ public class StartNextCommandSystem : SystemBase
                         target.Position = GetRandomPosition(ref rand);
                         break;
                 }
-            }).ScheduleParallel();
+            }).ScheduleParallel();*/
     }
 
     // This is just a placeholder, will eventually become GetNearestFire, GetNearestBucket, GetChainPosition etc.

@@ -3,6 +3,7 @@
 [GenerateAuthoringComponent]
 public struct HasBucket : IComponentData
 {
-    public bool Has;
+    public bool PickingUpBucket;
+    public bool PickedUp;
     public Entity Entity;
 }

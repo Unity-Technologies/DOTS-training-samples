@@ -14,7 +14,7 @@ public class CreateChainSystem : SystemBase
         // TODO move this code to where we actually decide to create chain
         var fire = new float2(0.0f, 10.0f);
         var water = new float2(0.0f, 0.0f);
-        var length = 5;
+        var length = 4;
 
         CreateChain(water, fire, length);
     }
@@ -63,17 +63,22 @@ public class CreateChainSystem : SystemBase
                     .WithNone<SharedChainComponent>()
                     .ForEach(
                         (Entity entity, int entityInQueryIndex,
-                            ref DynamicBuffer<CommandBufferElement> commandQueue) =>
+                            ref DynamicBuffer<CommandBufferElement> commandQueue,
+                            ref BotRole role) =>
                         {
                             if (bufferPos < bufferLength)
                             {
                                 ecb.AddComponent(entity, new CurrentBotCommand {Command = Command.None});
                                 DynamicBuffer<Command> commandBuffer = commandQueue.Reinterpret<Command>();
                                 commandBuffer.Add(Command.Move);
-                                ecb.AddComponent(entity,
-                                    new ChainPosition() {Value = chainQueueBuffer[bufferPos].position});
                                 ecb.AddSharedComponent(entity,
                                     new SharedChainComponent() {chainID = chainQueueBuffer[bufferPos].chainID});
+                                
+                                if (role.Value == Role.PassEmpty || role.Value == Role.PassFull)
+                                {
+                                    ecb.AddComponent(entity,
+                                        new ChainPosition() {Value = chainQueueBuffer[bufferPos].position});
+                                }
                                 ++bufferPos;
                             }
                         })
