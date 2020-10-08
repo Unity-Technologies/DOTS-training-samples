@@ -29,6 +29,7 @@ public class AssignTaskSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var gameState = GetSingleton<GameState>();
         var ecb = new EntityCommandBuffer(Allocator.TempJob, PlaybackPolicy.MultiPlayback);
         var ecbWriter = ecb.AsParallelWriter();
         NativeArray<Entity> crops = cropsQuery.ToEntityArray(Allocator.TempJob);
@@ -54,7 +55,7 @@ public class AssignTaskSystem : SystemBase
                     Translation cropTranslation = GetComponent<Translation>(crops[i]);
                     float2 cropPos = new float2(cropTranslation.Value.x, cropTranslation.Value.z);
                     float distSq = math.distancesq(cropPos, farmerPos.Value);
-                    if (minDistSq > distSq)
+                    if (minDistSq > distSq && distSq < gameState.MaximumTaskDistance)
                     {
                         minDistSq = distSq;
                         nearestTarget = crops[i];
@@ -97,7 +98,7 @@ public class AssignTaskSystem : SystemBase
                 {
                     float2 targetPos = GetComponent<Position>(emptyPlains[i]).Value;
                     float distSq = math.distancesq(targetPos, farmerPos.Value);
-                    if (minDistSq > distSq)
+                    if (minDistSq > distSq && distSq < gameState.MaximumTaskDistance)
                     {
                         minDistSq = distSq;
                         nearestTarget = emptyPlains[i];

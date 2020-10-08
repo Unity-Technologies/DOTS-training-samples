@@ -176,6 +176,7 @@ MonoBehaviour:
   DepotProbability: 0.01
   ForestProbability: 0.7
   SimulationSpeed: 1
+  MaximumTaskDistance: 5
   InitalForestHealth: 0
 --- !u!4 &1227781564
 Transform:
