@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6509749543547496293}
   - component: {fileID: 7176769806495454451}
   m_Layer: 0
-  m_Name: Arrow
+  m_Name: ArrowBlack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -60,7 +60,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d6f3d58e14b9b3b4abb657b8df23a7f1, type: 2}
+  - {fileID: 2100000, guid: 3e6bdc5019441424e89daab834640f35, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

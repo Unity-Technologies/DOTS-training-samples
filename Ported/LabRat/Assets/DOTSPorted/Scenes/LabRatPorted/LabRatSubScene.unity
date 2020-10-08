@@ -377,7 +377,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36b70d89a8354d62874050509d816b2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ArrowPrefab: {fileID: 457585528065629105, guid: 8fa0414406b77422fb232ec30beca19c,
+  PlayerArrowPrefab0: {fileID: 457585528065629105, guid: 320d55a1dab244ca38ce594872cb1602,
+    type: 3}
+  PlayerArrowPrefab1: {fileID: 457585528065629105, guid: 8fa0414406b77422fb232ec30beca19c,
+    type: 3}
+  PlayerArrowPrefab2: {fileID: 457585528065629105, guid: cc3afc14376984f5ebcab57abf5ccc13,
+    type: 3}
+  PlayerArrowPrefab3: {fileID: 457585528065629105, guid: d392c1ec5a720454a9bbc5ab56e2d811,
     type: 3}
 --- !u!114 &270034140
 MonoBehaviour:

@@ -9,7 +9,6 @@ public struct PlayerManager : IComponentData
     public static Entity AddBoardArrow(
         EntityManager entityManager,
         Entity playerEntity,
-        PlayerSetup playerSetup,
         EntityDirection direction,
         int2 gridPosition
     )
@@ -27,7 +26,7 @@ public struct PlayerManager : IComponentData
             entityManager.DestroyEntity(currentArrowEntity);
         }
 
-        Entity newArrowEntity = entityManager.Instantiate(playerSetup.ArrowPrefab);
+        Entity newArrowEntity = entityManager.Instantiate(player.arrowPrefab);
 
         entityManager.SetName(newArrowEntity, $"BoardArrow {player.nextArrowIndex} (Player {player.index})");
         entityManager.AddComponentData(newArrowEntity, new BoardArrow()
