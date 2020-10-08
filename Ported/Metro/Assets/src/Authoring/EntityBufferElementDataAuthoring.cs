@@ -19,7 +19,7 @@ public class EntityBufferElementDataAuthoring : MonoBehaviour, IConvertGameObjec
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
-        referencedPrefabs.AddRange(Items);
+        //referencedPrefabs.AddRange(Items);
     }
 }
 

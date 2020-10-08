@@ -40,14 +40,14 @@ public class CommuterTask_MoveToPlatform_System : SystemBase
 
                     EntityManager.RemoveComponent<CommuterTask_MoveToPlatform>(commuter);
 
-                    var numQueues = GetComponent<Queues>(platform.Value).CarriageCount;
-                    var queues = GetBufferFromEntity<EntityBufferElementData>()[platform.Value];
+                    //var numQueues = GetComponent<Queues>(platform.Value).CarriageCount;
+                    //var queues = GetBufferFromEntity<EntityBufferElementData>()[platform.Value];
 
-                    var nextQueue = queues[nextQueueIndex % numQueues].Value;
-                    System.Threading.Interlocked.Increment(ref nextQueueIndex);
+                    //var nextQueue = queues[nextQueueIndex % numQueues].Value;
+                    //System.Threading.Interlocked.Increment(ref nextQueueIndex);
                     
-                    float3 nextPoint = GetComponent<LocalToWorld>(nextQueue).Position;
-                    EntityManager.AddComponentData(commuter, new TargetPoint() { CurrentTarget = nextPoint });
+                    //float3 nextPoint = GetComponent<LocalToWorld>(nextQueue).Position;
+                    //EntityManager.AddComponentData(commuter, new TargetPoint() { CurrentTarget = nextPoint });
 
                     EntityManager.AddComponent<CommuterTask_MoveToQueue>(commuter);
                 }
