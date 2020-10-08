@@ -45,6 +45,25 @@ public struct ChainPosition : IComponentData
     public int Value;
 }
 
+public struct ChainObjectType : IComponentData
+{
+    public ObjectType Value;
+}
+
+public enum ObjectType
+{
+    Bot,
+    Bucket
+}
+
+public struct ThrowTag : IComponentData
+{
+}
+
+public struct FillTag : IComponentData
+{
+}
+
 public struct CreateChainBufferElement : IBufferElementData
 {
     public int chainID;

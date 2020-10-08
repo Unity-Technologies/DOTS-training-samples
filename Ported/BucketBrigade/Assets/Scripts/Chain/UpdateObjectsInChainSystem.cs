@@ -18,10 +18,13 @@ public class UpdateObjectsInChainSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        float deltaTime = Time.DeltaTime;
+
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
         var bucketsArrayEntity = GetSingletonEntity<BucketInChain>();
         var bucketsArray = EntityManager.GetBuffer<BucketInChain>(bucketsArrayEntity);
 
+        m_Chains.Clear();
         EntityManager.GetAllUniqueSharedComponentData(m_Chains);
         for (int chainIndex = 0; chainIndex < m_Chains.Count; ++chainIndex)
         {
@@ -30,6 +33,7 @@ public class UpdateObjectsInChainSystem : SystemBase
             var startPosition = m_Chains[chainIndex].start;
             var endPosition = m_Chains[chainIndex].end;
             var chainLength = m_Chains[chainIndex].length;
+            var stepLength = math.length(endPosition - startPosition) / chainLength;
 
             Entities
                 .WithSharedComponentFilter(chain)
@@ -37,11 +41,9 @@ public class UpdateObjectsInChainSystem : SystemBase
                 .WithNone<Target>()
                 .ForEach(
                     (Entity entity, int entityInQueryIndex,
-                        ref Pos pos, ref Speed speed,
                         in ChainPosition position) =>
                     {
-                        var targetPosition =
-                            GetChainPosition(position.Value, 0f, chainLength, startPosition, endPosition);
+                        var targetPosition = GetChainPosition(position.Value, 0f, chainLength, startPosition, endPosition);
                         ecb.AddComponent(entityInQueryIndex, entity, new Target() {Position = targetPosition});
                     })
                 .ScheduleParallel();
@@ -51,14 +53,16 @@ public class UpdateObjectsInChainSystem : SystemBase
                 .WithName("UpdateObjectsInChain")
                 .ForEach(
                     (Entity entity, int entityInQueryIndex,
-                        ref Pos pos, ref Speed speed, ref Target target,
-                        in ChainPosition position) =>
+                        ref Pos pos, ref Target target, in Speed speed,
+                        in ChainPosition position, in ChainObjectType type) =>
                     {
                         if (target.ReachedTarget)
                         {
                             if (position.Value == 0 && bucketsArray.Length == 0)
                             {
-                                // here we should add chain specific components to the bucket, so it would be processed with the chain, and fill it
+                                // debug purposes only
+                                // when required we should add chain specific components to the bucket, so it would be processed with the chain
+                                // ChainPosition, ChainObjectType, FillTag, shared SharedChainComponent
                                 bucketsArray.Add(new BucketInChain() { chainID = id, bucketPos = 0, bucketShift = 0 });
                             }
                             float shift = 0f;
@@ -75,7 +79,7 @@ public class UpdateObjectsInChainSystem : SystemBase
                                             {
                                                 chainID = bucketsArray[i].chainID,
                                                 bucketPos = bucketsArray[i].bucketPos,
-                                                bucketShift = bucketsArray[i].bucketShift + 0.001f
+                                                bucketShift = bucketsArray[i].bucketShift + speed.Value * deltaTime / stepLength
                                             };
                                         }
                                     }
@@ -83,15 +87,23 @@ public class UpdateObjectsInChainSystem : SystemBase
                                     {
                                         if (bucketsArray[i].bucketShift >= 1f)
                                         {
+                                            var newPos = (bucketsArray[i].bucketPos + 1) % (chainLength * 2);
                                             bucketsArray[i] = new BucketInChain()
                                             {
                                                 chainID = bucketsArray[i].chainID,
-                                                bucketPos = (bucketsArray[i].bucketPos + 1) % (chainLength * 2),
+                                                bucketPos = newPos,
                                                 bucketShift = 0f
                                             };
-                                            if (bucketsArray[i].bucketPos + 1 == chainLength)
+                                            if (type.Value == ObjectType.Bucket)
                                             {
-                                                // here we're processing bucket we should throw bucket to the water and mark it empty
+                                                if (newPos == chainLength)
+                                                {
+                                                    ecb.AddComponent<ThrowTag>(entityInQueryIndex, entity);
+                                                }
+                                                else if (newPos == 0)
+                                                {
+                                                    ecb.AddComponent<FillTag>(entityInQueryIndex, entity);
+                                                }
                                             }
                                         }
                                     }

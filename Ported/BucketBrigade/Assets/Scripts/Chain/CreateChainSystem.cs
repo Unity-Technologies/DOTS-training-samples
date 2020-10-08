@@ -79,6 +79,12 @@ public class CreateChainSystem : SystemBase
                                         Value = chainQueueBuffer[bufferPos].position
                                     });
 
+                                ecb.AddComponent(entity,
+                                    new ChainObjectType()
+                                    {
+                                        Value = ObjectType.Bot
+                                    });
+
                                 ecb.AddSharedComponent(entity,
                                     new SharedChainComponent()
                                     {
