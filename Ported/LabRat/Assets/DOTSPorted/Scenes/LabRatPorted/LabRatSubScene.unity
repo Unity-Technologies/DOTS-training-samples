@@ -303,6 +303,8 @@ GameObject:
   - component: {fileID: 270034137}
   - component: {fileID: 270034136}
   - component: {fileID: 270034138}
+  - component: {fileID: 270034140}
+  - component: {fileID: 270034139}
   m_Layer: 0
   m_Name: GameState
   m_TagString: Untagged
@@ -363,6 +365,32 @@ MonoBehaviour:
     type: 3}
   base3Prefab: {fileID: 1633874070064508, guid: 6d41391cce07b4342ba929873ceeaab3,
     type: 3}
+--- !u!114 &270034139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270034135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36b70d89a8354d62874050509d816b2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ArrowPrefab: {fileID: 457585528065629105, guid: 8fa0414406b77422fb232ec30beca19c,
+    type: 3}
+--- !u!114 &270034140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270034135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95b7f5ad934647e09f7d68863ade46bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &955407791
 GameObject:
   m_ObjectHideFlags: 0
