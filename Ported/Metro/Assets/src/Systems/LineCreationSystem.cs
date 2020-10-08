@@ -103,7 +103,9 @@ public class LineCreationSystem : SystemBase
         /* carriageLength_onRail = Get_distanceAsRailProportion(bezierPath, TrainCarriage.CARRIAGE_LENGTH) +
                                     Get_distanceAsRailProportion(bezierPath, TrainCarriage.CARRIAGE_SPACING); */
 
-        var platforms = EntityManager.Instantiate(platformPrefab, platformIndices.Length * 2, Allocator.Temp);
+        var platformCount = platformIndices.Length * 2;
+        var platforms = EntityManager.Instantiate(platformPrefab, platformCount, Allocator.Temp);
+        var platformTranslations = new NativeArray<float3>(platformCount, Allocator.Temp);
         
         // now that the rails have been laid - let's put the platforms on
         int totalPoints = bezierPath.points.Count;
@@ -112,12 +114,13 @@ public class LineCreationSystem : SystemBase
             Entity outboundPlatform = platforms[i];
             int _plat_END = platformIndices[i];
             int _plat_START = _plat_END - 1;
-            InitializePlatform(outboundPlatform, bezierPath, _plat_START, _plat_END, -3f);
+            platformTranslations[i] = InitializePlatform(outboundPlatform, bezierPath, _plat_START, _plat_END, -3f);
 
-            Entity inboundPlatform = platforms[platforms.Length - 1 - i];
+            var inboundPlatformIndex = platforms.Length - 1 - i;
+            Entity inboundPlatform = platforms[inboundPlatformIndex];
             int opposite_START = totalPoints - (_plat_END + 1);
             int opposite_END = totalPoints - _plat_END;
-            InitializePlatform(inboundPlatform, bezierPath, opposite_START, opposite_END, -3f);
+            platformTranslations[inboundPlatformIndex] = InitializePlatform(inboundPlatform, bezierPath, opposite_START, opposite_END, -3f);
 
             // pair these platforms as opposites
             var outboundSameStationPlatforms = GetBuffer<SameStationPlatformBufferElementData>(outboundPlatform);
@@ -165,6 +168,7 @@ public class LineCreationSystem : SystemBase
             _DIST += Metro.RAIL_SPACING;
         }
 
+        // Calculate final world-space distances
         var railPointDistances = new NativeArray<RailPointDistance>(railPoints.Length, Allocator.Temp);
 
         var distance = 0f;
@@ -179,16 +183,38 @@ public class LineCreationSystem : SystemBase
         EntityManager.GetBuffer<RailPoint>(railEntity).AddRange(railPoints);
         EntityManager.GetBuffer<RailPointDistance>(railEntity).AddRange(railPointDistances);
 
-        railPoints.Dispose();
-        railPointDistances.Dispose();
-
         EntityManager.SetComponentData<RailLength>(railEntity, distance);
         
+        // Setup platforms positions
+        for (int i = 0; i < platformCount; i++)
+        {
+            var platformTranslation = platformTranslations[i];
+            var nearestIndex = 0;
+            var nearestSqrDistance = math.distancesq(railPoints[0], platformTranslation);
+            
+            for (int j = 1; j < railPoints.Length; j++)
+            {
+                var point = railPoints[j];
+                var sqrDistance = math.distancesq(point, platformTranslation);
+                if (sqrDistance < nearestSqrDistance)
+                {
+                    nearestSqrDistance = sqrDistance;
+                    nearestIndex = j;
+                }
+            }
+            
+            EntityManager.AddComponentData<Position>(platforms[i], (float)railPointDistances[nearestIndex]);
+        }
+
         EntityManager.GetBuffer<BufferPlatform>(railEntity).AddRange(platforms.Reinterpret<BufferPlatform>());
+
+        railPoints.Dispose();
+        railPointDistances.Dispose();
         platforms.Dispose();
+        platformTranslations.Dispose();
     }
 
-    void InitializePlatform(Entity platform, BezierPath bezierPath, int _index_platform_START, int _index_platform_END, float lookAtOffset)
+    float3 InitializePlatform(Entity platform, BezierPath bezierPath, int _index_platform_START, int _index_platform_END, float lookAtOffset)
     {
         BezierPoint _PT_START = bezierPath.points[_index_platform_START];
         BezierPoint _PT_END = bezierPath.points[_index_platform_END];
@@ -202,6 +228,8 @@ public class LineCreationSystem : SystemBase
         
         // TODO:
         // platform.SetupPlatform(this, _PT_START, _PT_END);
+
+        return _PT_END.location;
     }
 
     float Get_distanceAsRailProportion(BezierPath bezierPath, float _realDistance)
