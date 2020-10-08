@@ -10,14 +10,14 @@ public class AssignTaskSystem : SystemBase
 {
     Random m_Random;
 
-    EntityQuery cropsQuery;
+    EntityQuery cropPlainsQuery;
     EntityQuery emptyPlainsQuery;
 
     protected override void OnCreate()
     {
         m_Random = new Random(666);
 
-        cropsQuery = GetEntityQuery(typeof(Crop), ComponentType.Exclude<Assigned>());
+        cropPlainsQuery = GetEntityQuery(typeof(CropReference), ComponentType.Exclude<Assigned>());
         emptyPlainsQuery = GetEntityQuery(
             typeof(Plains),
             ComponentType.Exclude<Assigned>(),
@@ -32,7 +32,7 @@ public class AssignTaskSystem : SystemBase
         var gameState = GetSingleton<GameState>();
         var ecb = new EntityCommandBuffer(Allocator.TempJob, PlaybackPolicy.MultiPlayback);
         var ecbWriter = ecb.AsParallelWriter();
-        NativeArray<Entity> crops = cropsQuery.ToEntityArray(Allocator.TempJob);
+        NativeArray<Entity> cropPlains = cropPlainsQuery.ToEntityArray(Allocator.TempJob);
 
         // Loop over all idle farmers, assigning a pickup crop task
         Entities.
@@ -41,8 +41,8 @@ public class AssignTaskSystem : SystemBase
             WithNone<DropOffCropTask>().
             WithNone<PickUpCropTask>().
             WithNone<TillTask>().
-            WithReadOnly(crops).
-            WithDisposeOnCompletion(crops).
+            WithReadOnly(cropPlains).
+            WithDisposeOnCompletion(cropPlains).
             ForEach(
             (Entity farmerEntity, int entityInQueryIndex, in Position farmerPos) =>
             {
@@ -50,15 +50,15 @@ public class AssignTaskSystem : SystemBase
                 float minDistSq = float.MaxValue;
                 Entity nearestTarget = Entity.Null;
                 float2 nearestTargetPos = float2.zero;
-                for (int i = 0; i < crops.Length; i++)
+                for (int i = 0; i < cropPlains.Length; i++)
                 {
-                    Translation cropTranslation = GetComponent<Translation>(crops[i]);
+                    Translation cropTranslation = GetComponent<Translation>(cropPlains[i]);
                     float2 cropPos = new float2(cropTranslation.Value.x, cropTranslation.Value.z);
                     float distSq = math.distancesq(cropPos, farmerPos.Value);
                     if (minDistSq > distSq && distSq < gameState.MaximumTaskDistance)
                     {
                         minDistSq = distSq;
-                        nearestTarget = crops[i];
+                        nearestTarget = cropPlains[i];
                         nearestTargetPos = cropPos;
                     }
                 }

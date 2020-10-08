@@ -23,6 +23,7 @@ public class SapplingSpawnSystem : SystemBase
         Entities
             .WithAll<Tilled>()
             .WithAll<Plains>()
+            .WithNone<SaplingReference>()
             .WithNone<CropReference>()
             .ForEach((
                 Entity entity
@@ -41,8 +42,8 @@ public class SapplingSpawnSystem : SystemBase
                 ecb.SetComponent(entityInQueryIndex, sapplingEntity, new Translation {Value = translation.Value});
                 ecb.AddComponent<NonUniformScale>(entityInQueryIndex, sapplingEntity);
                 
-                ecb.AddComponent<CropReference>(entityInQueryIndex, entity);
-                ecb.SetComponent(entityInQueryIndex, entity, new CropReference {crop = sapplingEntity});
+                ecb.AddComponent<SaplingReference>(entityInQueryIndex, entity);
+                ecb.SetComponent(entityInQueryIndex, entity, new SaplingReference {sapling = sapplingEntity});
                 
                 const int MAX_FERTILITY = 10;
                 float4 color = math.lerp(new float4(1, 1, 1, 1), new float4(0.3f, 1, 0.3f, 1), tilled.FertilityLeft / MAX_FERTILITY);

@@ -37,9 +37,6 @@ public class PickUpCropSystem : SystemBase
                 float distanceToTarget = math.distance(position.Value, target.targetPosition);
                 if(distanceToTarget < reachDistance)
                 {
-                    //TODO: replace with Crop from Tilled (add crop removal and so)
-                    Entity cropEntity = target.target;
-                    
                     Entity bestDepot = depotsEntity[0];
                     float minDistToDepot = float.MaxValue;
                 
@@ -61,8 +58,13 @@ public class PickUpCropSystem : SystemBase
                     ecb.SetComponent(entityInQueryIndex, entity, new TargetEntity(){target = bestDepot, targetPosition = GetComponent<Position>(bestDepot).Value});
                     
                     //Updating carried crop
+                    Entity cropPlainsEntity = target.target;
+                    Entity cropEntity = GetComponent<CropReference>(cropPlainsEntity).crop;
                     ecb.AddComponent(entityInQueryIndex, cropEntity, new CropCarried{FarmerOwner = entity});
                     ecb.AddComponent(entityInQueryIndex, cropEntity, new TargetEntity(){target = bestDepot, targetPosition = GetComponent<Position>(bestDepot).Value});
+
+                    ecb.RemoveComponent<CropReference>(entityInQueryIndex, cropPlainsEntity);
+                    ecb.RemoveComponent<Assigned>(entityInQueryIndex, cropPlainsEntity);
                 }
                 
             }).ScheduleParallel();

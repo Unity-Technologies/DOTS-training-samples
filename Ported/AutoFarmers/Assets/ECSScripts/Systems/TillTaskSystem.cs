@@ -37,8 +37,9 @@ public class TillTaskSystem : SystemBase
                     ecb.AddComponent<Tilled>(entityInQueryIndex, target.target);
                     int fertility = GetComponent<Plains>(target.target).Fertility;
                     ecb.SetComponent(entityInQueryIndex, target.target, new Tilled {FertilityLeft = fertility, TilledDisplayPrefab = tilledEntity});
+                    ecb.RemoveComponent<Assigned>(entityInQueryIndex, target.target);
                     
-                    float3 pos = new float3(target.targetPosition.x, 0.0f, target.targetPosition.y);
+                    float3 pos = new float3(target.targetPosition.x, 0.01f, target.targetPosition.y);
                     ecb.AddComponent<Translation>(entityInQueryIndex, tilledEntity);
                     ecb.SetComponent(entityInQueryIndex, tilledEntity, new Translation {Value = pos});
                     ecb.AddComponent<ECSMaterialOverride>(entityInQueryIndex, tilledEntity);

@@ -41,6 +41,8 @@ public class SapplingGrowthSystem : SystemBase
             {
                 ecb.AddComponent<Crop>(entityInQueryIndex, entity);
                 ecb.RemoveComponent<Sappling>(entityInQueryIndex, entity);
+                ecb.AddComponent(entityInQueryIndex, sappling.tileEntity, new CropReference { crop = entity });
+                ecb.RemoveComponent<SaplingReference>(entityInQueryIndex, sappling.tileEntity);
                 color = new float4(1.0f, 0.75f, 0.0f, 1.0f);
                 ecb.SetComponent(entityInQueryIndex, entity, new ECSMaterialOverride {Value = color});
             }

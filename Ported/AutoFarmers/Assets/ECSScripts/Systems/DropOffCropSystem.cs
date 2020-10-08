@@ -57,6 +57,7 @@ public class DropOffCropSystem : SystemBase
                                     ToPosition = new float3(target.targetPosition.x, 0, target.targetPosition.y)});
                     
                     ecb.RemoveComponent<CropCarried>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<Assigned>(entityInQueryIndex, target.target);
                     ecb.RemoveComponent<TargetEntity>(entityInQueryIndex, entity);
                 }
             }).ScheduleParallel();
