@@ -44,6 +44,10 @@ public class SapplingSpawnSystem : SystemBase
                 ecb.AddComponent<CropReference>(entityInQueryIndex, entity);
                 ecb.SetComponent(entityInQueryIndex, entity, new CropReference {crop = sapplingEntity});
                 
+                const int MAX_FERTILITY = 10;
+                float4 color = math.lerp(new float4(1, 1, 1, 1), new float4(0.3f, 1, 0.3f, 1), tilled.FertilityLeft / MAX_FERTILITY);
+                ecb.SetComponent(entityInQueryIndex, tilled.TilledDisplayPrefab, new ECSMaterialOverride {Value = color});
+                
                 tilled.FertilityLeft--;
                 if (tilled.FertilityLeft <= 0)
                 {
