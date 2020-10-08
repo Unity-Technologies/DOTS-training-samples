@@ -90,14 +90,14 @@ public class CarSpawnerSystem : SystemBase
                 });
 
                 // Add CarMovement component to spawned entity
-                float velocity = 0.05f + random.NextFloat(0.0f, 0.05f);
+                float maxSpeed = 0.05f + random.NextFloat(0.0f, 0.05f);
                 EntityManager.AddComponentData(instance, new CarMovement
                 {
                     NextNode = node.nextNode,
-                    Velocity = velocity,
-                    Acceleration = 0.1f,
-                    Deceleration = 0.1f,
-                    MaxSpeed = 1 
+                    Velocity = maxSpeed,
+                    Acceleration = 0.05f,
+                    Deceleration = 0.05f,
+                    MaxSpeed = maxSpeed 
                 });
                 
                  EntityManager.AddSharedComponentData(instance, new RoadId

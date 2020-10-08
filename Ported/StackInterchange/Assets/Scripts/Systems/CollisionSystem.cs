@@ -18,6 +18,8 @@ public class CollisionSystem : SystemBase
     {
         List<RoadId> roadList = new List<RoadId>();
         EntityManager.GetAllUniqueSharedComponentData<RoadId>(roadList);
+
+        var deltaTime = Time.DeltaTime;
         
         foreach (var road in roadList)
         {
@@ -30,10 +32,19 @@ public class CollisionSystem : SystemBase
                 throw new System.InvalidOperationException("CollisionSystem expected entityArray.Length and translationArray.Length to be equal");
             }
 
+            const float maxCollisionDist = 6;
+            const float minCollisionDist = 2;
+            
+            #if COLLISION_DEBUG_DRAW
+            var blue = new float4(0, 0, 1, 1);
+            var yellow = new float4(1, 1, 0, 1);
+            var red = new float4(1, 0, 0, 1);
+            #endif
+
             Entities.WithSharedComponentFilter(road)
-                .ForEach((Entity entity, ref Color color, in Translation translation, in Car car) =>
+                .ForEach((Entity entity, ref Color color, ref CarMovement carMovement, in Translation translation, in Car car) =>
             {
-                float hitDist = 0;
+                float hitDist = 1000000;
                 
                 for (var i = 0; i < entityArray.Length; ++i)
                 {
@@ -41,17 +52,38 @@ public class CollisionSystem : SystemBase
                         continue;
 
                     var dist = math.distancesq(translation.Value, translationArray[i].Value);
-                    if (dist < .1)
+                    if (dist < maxCollisionDist)
                     {
                         hitDist = dist;
                         break;
                     }
                 }
 
+                if (hitDist < minCollisionDist)
+                {
+                    carMovement.Velocity = 0;
+                }
+                else if(hitDist < maxCollisionDist)
+
+                {
+                    carMovement.Velocity -= carMovement.Deceleration * deltaTime;
+                    carMovement.Velocity = math.max(carMovement.Velocity, 0);
+                }
+                else
+                {
+                    carMovement.Velocity += carMovement.Acceleration * deltaTime;
+                    carMovement.Velocity = math.min(carMovement.Velocity, carMovement.MaxSpeed);
+                }
+                
                 #if COLLISION_DEBUG_DRAW
-                    var blue = new float4(0,0,1,1);
-                    var yellow = new float4(1,1,0,1);
-                    color.Value = hitDist > .001f ? yellow : blue;
+                if (hitDist < maxCollisionDist)
+                {
+                    color.Value = math.lerp(red, yellow, (hitDist - minCollisionDist) / (maxCollisionDist - minCollisionDist));
+                }
+                else
+                {
+                    color.Value = blue;
+                }
                 #endif
             }).ScheduleParallel();
         }
