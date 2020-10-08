@@ -26,24 +26,30 @@ public class SpawningSystem : SystemBase
         Entities
             .WithAll<SpawnPoint, Translation>()
             .WithNone<Timer>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref SpawnPoint spawnPoint, in Translation translation) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref SpawnPoint spawnPoint, in DynamicBuffer<SpawnType> types, in Translation translation) =>
             {
                 var rand = new Unity.Mathematics.Random((uint) (seed + entityInQueryIndex));
 
-                if (spawnPoint.spawnCount > 0)
+                var instance = ecb.Instantiate(entityInQueryIndex, types[spawnPoint.spawnType].spawnPrefab);
+
+                ecb.AddComponent(entityInQueryIndex, instance,
+                    new Position {Value = new float2(translation.Value.x, translation.Value.z)});
+                ecb.AddComponent(entityInQueryIndex, instance,
+                    new Speed {Value = rand.NextFloat(types[spawnPoint.spawnType].speedRange.x, types[spawnPoint.spawnType].speedRange.y)});
+                ecb.AddComponent(entityInQueryIndex, instance, new Direction {Value = spawnPoint.direction});
+                ecb.AddComponent(entityInQueryIndex, instance,
+                    new TileCoord() {Value = new int2((int) translation.Value.x, (int) translation.Value.z)});
+                
+                spawnPoint.spawnCount -= 1;
+                if (spawnPoint.spawnCount == 0)
                 {
-                    var instance = ecb.Instantiate(entityInQueryIndex, spawnPoint.spawnPrefab);
-
-                    ecb.AddComponent(entityInQueryIndex, instance,
-                        new Position {Value = new float2(translation.Value.x, translation.Value.z)});
-                    ecb.AddComponent(entityInQueryIndex, instance,
-                        new Speed {Value = rand.NextFloat(spawnPoint.speedRange.x, spawnPoint.speedRange.y)});
-                    ecb.AddComponent(entityInQueryIndex, instance, new Direction {Value = spawnPoint.direction});
-                    ecb.AddComponent(entityInQueryIndex, instance,
-                        new TileCoord() {Value = new int2((int) translation.Value.x, (int) translation.Value.z)});
-                    ecb.AddComponent(entityInQueryIndex, entity, new Timer() {Value = spawnPoint.spawnFrequency});
-
-                    spawnPoint.spawnCount -= 1;
+                    spawnPoint.spawnType = (spawnPoint.spawnType + 1) % types.Length;
+                    spawnPoint.spawnCount = types[spawnPoint.spawnType].spawnMax;
+                    ecb.AddComponent(entityInQueryIndex, entity, new Timer() {Value = spawnPoint.spawnDelay});
+                }
+                else
+                {
+                    ecb.AddComponent(entityInQueryIndex, entity, new Timer() {Value = types[spawnPoint.spawnType].spawnFrequency});
                 }
             }).ScheduleParallel();
 
