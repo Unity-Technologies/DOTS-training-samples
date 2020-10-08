@@ -142,12 +142,18 @@ public class CommuterGoalSystem : SystemBase
             .WithNone<TargetPoint>()
             .ForEach((Entity entity, int entityInQueryIndex, in CommuterTask_BoardTrain task) =>
             {
-                // Link to Parent
-                ecb.AddComponent(entityInQueryIndex, entity, new Parent { Value = task.Carriage });
-
                 ecb.RemoveComponent<CommuterTask_BoardTrain>(entityInQueryIndex, entity);
+                ecb.AddComponent(entityInQueryIndex, entity, new CommuterTask_WaitInCarriage { Carriage = task.Carriage });
+
                 ecb.RemoveComponent<CommuterOnPlatform>(entityInQueryIndex, entity);
             }).Schedule();
+
+        Entities
+            .WithName("commuter_in_carriage")
+            .ForEach((Entity entity, ref Translation translation, in CommuterTask_WaitInCarriage task) =>
+            {
+                translation.Value = GetComponent<LocalToWorld>(task.Carriage).Position;
+            }).ScheduleParallel();
 
         Entities
             .WithName("commuter_unboarding_train")

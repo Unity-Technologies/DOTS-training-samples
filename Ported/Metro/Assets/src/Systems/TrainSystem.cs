@@ -23,8 +23,10 @@ public class TrainSystem : SystemBase
                 var platforms = GetBuffer<BufferPlatform>(rail);
 
                 Entity chosenPlatform = platforms[0];
-                foreach(var platform in platforms)
+                for (int i = 0; i < platforms.Length; i++)
                 {
+                    Entity platform = platforms[i].Value;
+
                     float platformPosition = GetComponent<Position>(platform);
                     if (platformPosition > position)
                     {
@@ -89,19 +91,22 @@ public class TrainSystem : SystemBase
 
                 if (timeTask.TimeRemaining <= 0)
                 {
-                    ecb.AddComponent(entityInQueryIndex, nextPlatform, new PlatformBoardingTrain { Train = train });
+                    ecb.AddComponent(entityInQueryIndex, nextPlatform, new PlatformUnboardingTrain { Train = train });
+
                     ecb.AddComponent(entityInQueryIndex, train, new TrainTask_UnboardPassengers() { TimeRemaining = 4f });
                     ecb.RemoveComponent<TrainTask_OpenDoors>(entityInQueryIndex, train);
                 }
             }).ScheduleParallel();
 
         Entities
-            .ForEach((Entity train, int entityInQueryIndex, ref TrainTask_UnboardPassengers timeTask) =>
+            .ForEach((Entity train, int entityInQueryIndex, ref TrainTask_UnboardPassengers timeTask, in NextPlatform nextPlatform) =>
             {
                 timeTask.TimeRemaining -= deltaTime;
 
                 if (timeTask.TimeRemaining <= 0)
                 {
+                    ecb.AddComponent(entityInQueryIndex, nextPlatform, new PlatformBoardingTrain { Train = train });
+
                     ecb.AddComponent(entityInQueryIndex, train, new TrainTask_BoardPassengers() { TimeRemaining = 4f });
                     ecb.RemoveComponent<TrainTask_UnboardPassengers>(entityInQueryIndex, train);
                 }
