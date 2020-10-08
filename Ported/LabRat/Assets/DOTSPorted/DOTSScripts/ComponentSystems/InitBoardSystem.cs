@@ -78,19 +78,19 @@ public class InitBoardSystem : SystemBase
         int numWalls = 0;
         int wallCount = boardInfo.numberOfWalls;
         while (numWalls < wallCount) {
-            int x = random.NextInt(0, width-1);
-            int y = random.NextInt(0, height-1);
-            int w = random.NextInt(0, 3);
+            int x = random.NextInt(0, width);
+            int y = random.NextInt(0, height);
+            int w = random.NextInt(0, 4);
             int i = y*width + x;
 
             if ((tiles[i] & (1 << w)) == 0)
             {
                 tiles[i] |= (byte)(1 << w);
                 // set opposite tile wall bit
-                if (w == 2) tiles[i - 1] |= (1 << 0);
-                if (w == 0) tiles[i + 1] |= (1 << 2);
-                if (w == 1) tiles[i + width] |= (1 << 3);
-                if (w == 3) tiles[i - width] |= (1 << 1);
+                if (w == 0) tiles[i + width] |= (byte)(1 << 2);
+                else if (w == 1) tiles[i + 1] |= (byte)(1 << 3);
+                else if (w == 2) tiles[i - width] |= (byte)(1 << 0);
+                else if (w == 3) tiles[i - 1] |= (byte)(1 << 1);
                 numWalls++;
             }
         }
