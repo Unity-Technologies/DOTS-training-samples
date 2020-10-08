@@ -84,29 +84,43 @@ public class BoardInitializationSystem : SystemBase
                     {
                         var mouseSpawnPoint = new SpawnPoint
                         {
-                            spawnPrefab = board.ratPrefab,
+                            spawnType = 0,
                             direction = (x == 0 && z == 0) ? DirectionDefines.North : DirectionDefines.South,
-                            spawnCount = 10,
-                            spawnFrequency = 1f,
-                            speedRange = new float2(1f, 5f)
+                            spawnCount = 20,
+                            spawnDelay = 6f,
                         };
                         EntityManager.AddComponent<SpawnPoint>(tileInstance);
                         SetComponent(tileInstance, mouseSpawnPoint);
+                        var buffer = EntityManager.AddBuffer<SpawnType>(tileInstance);
+                        buffer.Length = 2;
+                        buffer[0] = new SpawnType()
+                        {
+                            spawnPrefab = board.ratPrefab, spawnMax = 20, spawnFrequency = 0.2f, speedRange = new float2(1f, 5f)
+                        };
+                        buffer[1] = new SpawnType()
+                        {
+                            spawnPrefab = board.catPrefab, spawnMax = 1, spawnFrequency = 0f, speedRange = new float2(.5f, 1.5f)
+                        };
                     }
                     else if ((x == 0 && z == (board.size - 1)) || (x == (board.size - 1) && z == 0))
                     {
                         var catSpawnPoint = new SpawnPoint
                         {
-                            spawnPrefab = board.catPrefab,
+                            spawnType = 0,
                             direction = (x == 0 && z == (board.size - 1))
                                 ? DirectionDefines.East
                                 : DirectionDefines.West,
-                            spawnCount = 2,
-                            spawnFrequency = 3f,
-                            speedRange = new float2(0.5f, 1.5f)
+                            spawnCount = 1,
+                            spawnDelay = 10f,
                         };
                         EntityManager.AddComponent<SpawnPoint>(tileInstance);
                         SetComponent(tileInstance, catSpawnPoint);
+                        var buffer = EntityManager.AddBuffer<SpawnType>(tileInstance);
+                        buffer.Length = 1;
+                        buffer[0] = new SpawnType()
+                        {
+                            spawnPrefab = board.catPrefab, spawnMax = 1, spawnFrequency = 0f, speedRange = new float2(.5f, 1.5f)
+                        };
                     }
 
                     // Place home base
