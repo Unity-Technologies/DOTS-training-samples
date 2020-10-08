@@ -76,9 +76,9 @@ public class MovementSystem : SystemBase
                 if (!fellIntoHole && (math.abs(tileCenterOffset.x) > 1) || math.abs(tileCenterOffset.y) > 1)
                 {
                     //Add Tile Check Tag
-                    ecb.AddComponent<TileCheckTag>(entityInQueryIndex, entity);
                     tileCoord.Value = new int2((int) (prevTileX + math.trunc(tileCenterOffset.x)),
                         (int) (prevTileY + math.trunc(tileCenterOffset.y)));
+                    ecb.AddComponent<TileCheckTag>(entityInQueryIndex, entity);
                 }
 
                 translation.Value = new float3(position.Value.x, 0, position.Value.y);

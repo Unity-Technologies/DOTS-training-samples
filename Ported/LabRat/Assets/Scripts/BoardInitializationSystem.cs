@@ -13,7 +13,8 @@ public class BoardInitializationSystem : SystemBase
             .ForEach((Entity entity, in Board board) =>
             {
                 var gameInfo = EntityManager.CreateEntity(typeof(GameInfo));
-                SetComponent(gameInfo, new GameInfo(){boardSize = new int2(board.size, board.size), ArrowPrefab = board.arrowPrefab});
+                SetComponent(gameInfo,
+                    new GameInfo() {boardSize = new int2(board.size, board.size), ArrowPrefab = board.arrowPrefab});
 
                 //UnityEngine.Debug.Log("Initializing Board");
                 var wallEntity = EntityManager.CreateEntity();
@@ -21,15 +22,15 @@ public class BoardInitializationSystem : SystemBase
                 wallBuffer.ResizeUninitialized(board.size * board.size);
                 for (int i = 0; i < board.size * board.size; i++)
                 {
-                    wallBuffer[i] = new TileWall() { Value = 0 };
+                    wallBuffer[i] = new TileWall() {Value = 0};
                 }
 
                 var rand = new Unity.Mathematics.Random((uint) DateTime.Now.Millisecond);
                 var boardQuarter = board.size / 4;
-                
+
                 var holeProbability = board.holeCount / (float) (board.size * board.size);
                 var holeCount = board.holeCount;
-                
+
                 var wallProbability = board.wallCount / (float) (board.size * board.size);
                 var wallCount = board.wallCount;
 
@@ -37,17 +38,17 @@ public class BoardInitializationSystem : SystemBase
                 for (int z = 0; z < board.size; ++z)
                 {
                     uint localWall = 0;
-                    
+
                     var posX = x;
                     var posY = rand.NextFloat(0.0f, board.yNoise);
                     var posZ = z;
-                    
+
                     var tileInstance = EntityManager.Instantiate(board.tilePrefab);
-                    SetComponent(tileInstance, new Translation { Value = new float3(posX, posY, posZ) });
+                    SetComponent(tileInstance, new Translation {Value = new float3(posX, posY, posZ)});
                     URPMaterialPropertyBaseColor floorColor;
-                    floorColor = (x + z) % 2 == 0 
-                        ? new URPMaterialPropertyBaseColor { Value = new float4(0.8f, 0.8f, 0.8f, 1.0f) } 
-                        : new URPMaterialPropertyBaseColor { Value = new float4(0.6f, 0.6f, 0.6f, 1.0f) };
+                    floorColor = (x + z) % 2 == 0
+                        ? new URPMaterialPropertyBaseColor {Value = new float4(0.8f, 0.8f, 0.8f, 1.0f)}
+                        : new URPMaterialPropertyBaseColor {Value = new float4(0.6f, 0.6f, 0.6f, 1.0f)};
                     SetComponent(tileInstance, floorColor);
 
                     // Place border walls
@@ -77,7 +78,7 @@ public class BoardInitializationSystem : SystemBase
                         localWall |= DirectionDefines.North;
                     }
 
-                        // Place Spawn Points
+                    // Place Spawn Points
                     if ((x == 0 && z == 0) || (x == (board.size - 1) && z == (board.size - 1)))
                     {
                         var mouseSpawnPoint = new SpawnPoint
@@ -87,7 +88,6 @@ public class BoardInitializationSystem : SystemBase
                             spawnCount = 10,
                             spawnFrequency = 1f,
                             speedRange = new float2(1f, 5f)
-
                         };
                         EntityManager.AddComponent<SpawnPoint>(tileInstance);
                         SetComponent(tileInstance, mouseSpawnPoint);
@@ -97,7 +97,9 @@ public class BoardInitializationSystem : SystemBase
                         var catSpawnPoint = new SpawnPoint
                         {
                             spawnPrefab = board.catPrefab,
-                            direction = (x == 0 && z == (board.size - 1)) ? DirectionDefines.East : DirectionDefines.West,
+                            direction = (x == 0 && z == (board.size - 1))
+                                ? DirectionDefines.East
+                                : DirectionDefines.West,
                             spawnCount = 2,
                             spawnFrequency = 3f,
                             speedRange = new float2(0.5f, 1.5f)
@@ -105,7 +107,7 @@ public class BoardInitializationSystem : SystemBase
                         EntityManager.AddComponent<SpawnPoint>(tileInstance);
                         SetComponent(tileInstance, catSpawnPoint);
                     }
-                    
+
                     // Place home base
                     if (x == boardQuarter && z == boardQuarter)
                         PlaceHomeBase(posX, posZ, 0, board.homeBasePrefab, posY, tileInstance);
@@ -124,12 +126,12 @@ public class BoardInitializationSystem : SystemBase
                             EntityManager.DestroyEntity(tileInstance);
 
                             tileInstance = EntityManager.Instantiate(board.invisibleTilePrefab);
-                            SetComponent(tileInstance, new Translation { Value = new float3(posX, posY, posZ) });
+                            SetComponent(tileInstance, new Translation {Value = new float3(posX, posY, posZ)});
                             EntityManager.AddComponent<Hole>(tileInstance);
                             holeCount--;
                         }
                     }
-                    
+
                     // Place other wall
                     if (wallCount > 0 && localWall < 15 && rand.NextFloat(1f) < wallProbability)
                     {
@@ -141,19 +143,44 @@ public class BoardInitializationSystem : SystemBase
                             {
                                 case 0: // North
                                     direction = DirectionDefines.North;
+                                    if (posZ < board.size - 1)
+                                    {
+                                        AddWallToWallTileBuffer(wallEntity, DirectionDefines.South, posX, posZ + 1,
+                                            board.size);
+                                    }
+
                                     break;
                                 case 1: // South
                                     direction = DirectionDefines.South;
+                                    if (posZ > 0)
+                                    {
+                                        AddWallToWallTileBuffer(wallEntity, DirectionDefines.North, posX, posZ - 1,
+                                            board.size);
+                                    }
+
                                     break;
                                 case 2: // West 
                                     direction = DirectionDefines.West;
+                                    if (posX > 0)
+                                    {
+                                        AddWallToWallTileBuffer(wallEntity, DirectionDefines.East, posX - 1, posZ,
+                                            board.size);
+                                    }
+
                                     break;
                                 case 3: // East
                                     direction = DirectionDefines.East;
+                                    if (posX < board.size - 1)
+                                    {
+                                        AddWallToWallTileBuffer(wallEntity, DirectionDefines.West, posX + 1, posZ,
+                                            board.size);
+                                    }
+
                                     break;
                                 default:
                                     break;
                             }
+
                             PlaceWall(posX, posZ, direction, board.wallPrefab, posY, tileInstance);
                             AddWallToWallTileBuffer(wallEntity, direction, posX, posZ, board.size);
                             wallCount--;
@@ -161,11 +188,13 @@ public class BoardInitializationSystem : SystemBase
                     }
                 }
 
-                var playerArchetypes = EntityManager.CreateArchetype(typeof(AICursor), typeof(PlayerTransform), typeof(Position));
-                var mainPlayerArchetypes = EntityManager.CreateArchetype(typeof(PlayerCursor), typeof(PlayerTransform), typeof(Position));
+                var playerArchetypes =
+                    EntityManager.CreateArchetype(typeof(AICursor), typeof(PlayerTransform), typeof(Position));
+                var mainPlayerArchetypes =
+                    EntityManager.CreateArchetype(typeof(PlayerCursor), typeof(PlayerTransform), typeof(Position));
                 for (int i = 0; i < 4; ++i)
                 {
-                    var player =  EntityManager.CreateEntity(i == 0 ? mainPlayerArchetypes : playerArchetypes);
+                    var player = EntityManager.CreateEntity(i == 0 ? mainPlayerArchetypes : playerArchetypes);
                     EntityManager.AddBuffer<PlayerArrow>(player);
                     SetComponent(player, new PlayerTransform
                     {
@@ -187,6 +216,7 @@ public class BoardInitializationSystem : SystemBase
                             position.Value = new int2(board.size - boardQuarter - 1, boardQuarter);
                             break;
                     }
+
                     SetComponent(player, position);
                     if (i > 0)
                     {
@@ -198,7 +228,7 @@ public class BoardInitializationSystem : SystemBase
                 }
 
                 EntityManager.DestroyEntity(entity);
-        }).Run();
+            }).Run();
     }
 
     void AddWallToWallTileBuffer(
@@ -211,7 +241,7 @@ public class BoardInitializationSystem : SystemBase
         int index = boardWidth * positionY + positionX;
         var wallBuffer = EntityManager.GetBuffer<TileWall>(wallBufferEntity);
         var value = wallBuffer[index];
-        wallBuffer.ElementAt(index).Value = (byte)(value.Value | wallDirection);
+        wallBuffer.ElementAt(index).Value |= (byte) (value.Value | wallDirection);
     }
 
     /// <summary>
@@ -223,10 +253,10 @@ public class BoardInitializationSystem : SystemBase
     /// <param name="board"></param>
     /// <param name="yOffset"></param>
     void PlaceWall(
-        float posX, 
+        float posX,
         float posZ,
         byte direction,
-        Entity wallPrefab, 
+        Entity wallPrefab,
         float yOffset,
         Entity tileInstance)
     {
@@ -249,11 +279,11 @@ public class BoardInitializationSystem : SystemBase
         }
 
         var instance = EntityManager.Instantiate(wallPrefab);
-        SetComponent(instance, new Translation { Value = new float3(posX, 0.725f + yOffset, posZ) });
+        SetComponent(instance, new Translation {Value = new float3(posX, 0.725f + yOffset, posZ)});
 
-        if ((direction & (DirectionDefines.North | DirectionDefines.South)) != 0)  // Turn the wall if it's placed on North or South
-            SetComponent(instance, new Rotation { Value = quaternion.RotateY(math.radians(90f)) });
-
+        if ((direction & (DirectionDefines.North | DirectionDefines.South)) != 0
+        ) // Turn the wall if it's placed on North or South
+            SetComponent(instance, new Rotation {Value = quaternion.RotateY(math.radians(90f))});
     }
 
     void AddWallToTile(Entity tileEntity, byte wallDirection)
@@ -267,30 +297,28 @@ public class BoardInitializationSystem : SystemBase
         else
         {
             EntityManager.AddComponent<Wall>(tileEntity);
-            SetComponent<Wall>(tileEntity, new Wall { Value = wallDirection });
+            SetComponent<Wall>(tileEntity, new Wall {Value = wallDirection});
         }
     }
 
     void PlaceHomeBase(
-        int posX, 
-        int posZ, 
-        int playerIndex, 
-        Entity homeBasePrefab, 
+        int posX,
+        int posZ,
+        int playerIndex,
+        Entity homeBasePrefab,
         float yOffset,
         Entity tileInstance)
     {
         var homebaseInstance = EntityManager.Instantiate(homeBasePrefab);
-        SetComponent(homebaseInstance, new Translation { Value = new float3(posX, yOffset + 0.5f, posZ) });
+        SetComponent(homebaseInstance, new Translation {Value = new float3(posX, yOffset + 0.5f, posZ)});
 
         SetComponent(homebaseInstance, PlayerUtility.ColorFromPlayerIndex(playerIndex));
 
         EntityManager.AddComponent<HomeBase>(tileInstance);
         SetComponent<HomeBase>(tileInstance, new HomeBase
         {
-            playerIndex = (byte)playerIndex,
+            playerIndex = (byte) playerIndex,
             playerScore = 0
         });
     }
 }
-
-
