@@ -5,22 +5,30 @@ using Unity.Mathematics;
 //[UpdateBefore(typeof(BallBrickCollisionSystem))]
 public class CreateChainSystem : SystemBase
 {
+    private static int m_ChainID = 0;
     protected override void OnCreate()
     {
         var chainSystemQueue = EntityManager.CreateEntity();
         EntityManager.AddBuffer<CreateChainBufferElement>(chainSystemQueue);
 
         // TODO move this code to where we actually decide to create chain
+        var fire = new float2(0.0f, 10.0f);
+        var water = new float2(0.0f, 0.0f);
+        var length = 5;
+
+        CreateChain(water, fire, length);
+    }
+
+    // full chain length = 2 * length; "0" bot - fills bucket with water, "length" bot - throws water to fire
+    private void CreateChain(float2 start, float2 end, int length)
+    {
         var chain = EntityManager.CreateEntity();
-        var start = new ChainStart() { Value = new float2(0.0f, 0.0f) };
-        var end = new ChainEnd() { Value = new float2(8.0f, 8.0f) };
-        var length = new ChainLength() { Value = 10 };
-        var chainID = new ChainID() { Value = 5 }; // TODO
         EntityManager.AddComponent<ChainCreateTag>(chain);
-        EntityManager.AddComponentData(chain, start);
-        EntityManager.AddComponentData(chain, end);
-        EntityManager.AddComponentData(chain, length);
-        EntityManager.AddComponentData(chain, chainID);
+        EntityManager.AddComponentData(chain, new ChainStart() { Value = start });
+        EntityManager.AddComponentData(chain, new ChainEnd() { Value = end });
+        EntityManager.AddComponentData(chain, new ChainLength() { Value = length });
+        EntityManager.AddComponentData(chain, new ChainID() { Value = m_ChainID });
+        ++m_ChainID;
     }
 
     protected override void OnUpdate()
@@ -37,10 +45,10 @@ public class CreateChainSystem : SystemBase
                         in ChainStart start, in ChainEnd end, in ChainLength length, in ChainID chainID) =>
                     {
                         ecb.RemoveComponent<ChainCreateTag>(entity);
-                        for (int i = 0; i < length.Value; ++i)
+                        for (int i = 0; i < length.Value * 2; ++i)
                         {
                             chainQueueBuffer.Add(new CreateChainBufferElement()
-                                {chainID = chainID.Value, position = i});
+                                { chainID = chainID.Value, position = i});
                         }
                     })
                 .Run();
@@ -54,7 +62,8 @@ public class CreateChainSystem : SystemBase
                     .WithAll<BotTag>()
                     .WithNone<SharedChainComponent>()
                     .ForEach(
-                        (Entity entity, int entityInQueryIndex, ref DynamicBuffer<CommandBufferElement> commandQueue) =>
+                        (Entity entity, int entityInQueryIndex,
+                            ref DynamicBuffer<CommandBufferElement> commandQueue) =>
                         {
                             if (bufferPos < bufferLength)
                             {
@@ -74,10 +83,10 @@ public class CreateChainSystem : SystemBase
                 {
                     chainQueueBuffer.RemoveRange(0, bufferPos);
                 }
-            }
 
-            // TODO need update buffer in entity?
-            ecb.Playback(EntityManager);
+                // TODO need update buffer in entity?
+                ecb.Playback(EntityManager);
+            }
         }
     }
 }

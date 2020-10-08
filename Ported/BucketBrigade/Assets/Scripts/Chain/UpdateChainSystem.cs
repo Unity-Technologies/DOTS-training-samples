@@ -16,8 +16,8 @@ public class UpdateChainSystem : SystemBase
                 (Entity entity, int entityInQueryIndex,
                     ref ChainStart start, ref ChainEnd end, in ChainID chainID) =>
                 {
-                    start.Value += new float2(0.01f, 0.01f);
-                    end.Value += new float2(0.01f, 0.0f);
+                    start.Value += new float2(0.01f, 0f);
+                    end.Value += new float2(0f, 0.01f);
                 })
             .ScheduleParallel();
     }

@@ -36,11 +36,11 @@ public class FireSimulationInitSystem : SystemBase
 
             var neutralColor = new float4(simulation.fireCellColorNeutral.r, simulation.fireCellColorNeutral.g, simulation.fireCellColorNeutral.b, simulation.fireCellColorNeutral.a);
 
-            for (int y = 0; y < simulation.rows; ++y)
+            for (int y = 0; y < simulation.columns; ++y)
             {
-                for (int x = 0; x < simulation.columns; ++x)
+                for (int x = 0; x < simulation.rows; ++x)
                 {
-                    int cellIndex = y * simulation.rows + x;
+                    int cellIndex = FireUtils.GridToArrayCoord(x, y, simulation.rows);
                     var entity = entities[cellIndex];
                     float posX = x * cellSize;
                     float posY = -(simulation.maxFlameHeight * 0.5f) + m_Random.NextFloat(0.01f, 0.02f);

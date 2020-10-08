@@ -68,8 +68,9 @@ public class UpdateObjectsInChainSystem : SystemBase
                             var targetPosition =
                                 GetChainPosition(position.Value, chainLength, startPosition, endPosition);
                             target.Position = targetPosition;
-                            if (currentCommand.Command != Command.Move)
+                            if (target.ReachedTarget)
                             {
+                                target.Position = targetPosition;
                                 pos.Value = targetPosition;
                             }
                         })
@@ -82,13 +83,17 @@ public class UpdateObjectsInChainSystem : SystemBase
 
     static float2 GetChainPosition(int _index, int _chainLength, float2 _startPos, float2 _endPos)
     {
-        // TODO check validity of this comment
-        // adds two to pad between the SCOOPER AND THROWER
+        var dir = 1.0f;
+        if (_index > _chainLength)
+        {
+            dir = -1.0f;
+            _index = 2 * _chainLength - _index;
+        }
         float progress = (float)_index / _chainLength;
         float curveOffset = math.sin(progress * math.PI) * 1f;
 
         // get float2 data
-        float2 heading = new float2(_startPos.x, _startPos.y) - new float2(_endPos.x, _endPos.y);
+        float2 heading = (new float2(_startPos.x, _startPos.y) - new float2(_endPos.x, _endPos.y)) * dir;
         float distance = math.length(heading);
         float2 direction = heading / distance;
         float2 perpendicular = new float2(direction.y, -direction.x);
