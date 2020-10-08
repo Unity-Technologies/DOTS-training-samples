@@ -1,10 +1,13 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+
 
 public class TileCheckSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;
+    private EntityQuery m_tilesWithArrowQuery;
 
     protected override void OnCreate()
     {
@@ -12,36 +15,50 @@ public class TileCheckSystem : SystemBase
 
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
-        EntityQueryDesc desc = new EntityQueryDesc
+        EntityQueryDesc arrowQueryDesc = new EntityQueryDesc
         {
-            // Query only matches chunks with both Red and Green components.
-            All = new ComponentType[] {typeof(Wall), typeof(Translation)}
+            All = new ComponentType[] {typeof(Arrow), typeof(Direction)}
         };
-        EntityManager.CreateEntityQuery(desc);
+        m_tilesWithArrowQuery = EntityManager.CreateEntityQuery(arrowQueryDesc);
     }
 
     protected override void OnUpdate()
     {
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
+        var arrows = m_tilesWithArrowQuery.ToComponentDataArray<Arrow>(Allocator.TempJob);
+        var arrowDirections = m_tilesWithArrowQuery.ToComponentDataArray<Direction>(Allocator.TempJob);
+        var boardSize = GetSingleton<GameInfo>().boardSize.x;
+
         var tileWallsEntity = GetSingletonEntity<TileWall>();
         var tileWalls = EntityManager.GetBuffer<TileWall>(tileWallsEntity);
+
         // can probably make position readonly.
         Entities
             .WithAll<TileCheckTag>()
+            .WithReadOnly(arrows)
+            .WithReadOnly(arrowDirections)
             .WithReadOnly(tileWalls)
             .ForEach((
                 Entity entity,
                 int entityInQueryIndex,
                 ref Direction direction,
                 ref Rotation rotation,
-                in TileCoord tileCoord) =>
+                ref TileCoord tileCoord) =>
             {
                 var tileX = tileCoord.Value.x;
                 var tileY = tileCoord.Value.y;
+                int bufferIndex = tileY * boardSize + tileX;
 
-                byte newDirection = FindNewDirectionIfNeeded(tileX, tileY, direction.Value, tileWalls);
+                byte newDirection = direction.Value;
+                for (int i = 0; i < arrows.Length; i++)
+                {
+                    if (arrows[i].Position == bufferIndex)
+                        newDirection = arrowDirections[i].Value;
+                }
 
+                //Bug in here somewhere.  the mice can get to a certain point and then continuously spin on the tile.
+                newDirection = FindNewDirectionIfNeeded(bufferIndex, newDirection, tileWalls);
                 if (newDirection != direction.Value)
                 {
                     direction.Value = newDirection;
@@ -54,21 +71,20 @@ public class TileCheckSystem : SystemBase
             }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
+        arrows.Dispose(Dependency);
+        arrowDirections.Dispose(Dependency);
     }
 
     static byte FindNewDirectionIfNeeded(
-        int tileX,
-        int tileY,
+        int bufferIndex,
         byte direction,
         DynamicBuffer<TileWall> tileWalls)
     {
-        int bufferIndex = tileY * 10 + tileX;
         TileWall wall = tileWalls[bufferIndex];
 
+        byte directionOut = direction;
         bool directionFound = false;
         int c = 4;
-
-        byte directionOut = direction;
         while (!directionFound && c > 0)
         {
             switch (directionOut)

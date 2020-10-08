@@ -50,6 +50,7 @@ public class BoardInitializationSystem : SystemBase
                         ? new URPMaterialPropertyBaseColor {Value = new float4(0.8f, 0.8f, 0.8f, 1.0f)}
                         : new URPMaterialPropertyBaseColor {Value = new float4(0.6f, 0.6f, 0.6f, 1.0f)};
                     SetComponent(tileInstance, floorColor);
+                    SetComponent(tileInstance, new Cell() {Index = x + z * board.size});
 
                     // Place border walls
                     if (x == 0) // West
@@ -127,6 +128,7 @@ public class BoardInitializationSystem : SystemBase
 
                             tileInstance = EntityManager.Instantiate(board.invisibleTilePrefab);
                             SetComponent(tileInstance, new Translation {Value = new float3(posX, posY, posZ)});
+                            SetComponent(tileInstance, new Cell() {Index = x + z * board.size});
                             EntityManager.AddComponent<Hole>(tileInstance);
                             holeCount--;
                         }
