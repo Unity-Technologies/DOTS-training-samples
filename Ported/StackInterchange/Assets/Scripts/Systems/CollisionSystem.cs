@@ -42,16 +42,18 @@ public class CollisionSystem : SystemBase
             #endif
 
             Entities.WithSharedComponentFilter(road)
-                .ForEach((Entity entity, ref Color color, ref CarMovement carMovement, in Translation translation, in Car car) =>
+                .ForEach((Entity entity, ref Color color, ref CarMovement carMovement, in LocalToWorld localToWorld, in Translation translation, in Car car) =>
             {
                 float hitDist = 1000000;
+
+                var hitDetectionPoint = localToWorld.Position + (carMovement.travelVec * 1);
                 
                 for (var i = 0; i < entityArray.Length; ++i)
                 {
                     if (entityArray[i] == entity)
                         continue;
 
-                    var dist = math.distancesq(translation.Value, translationArray[i].Value);
+                    var dist = math.distancesq(hitDetectionPoint, translationArray[i].Value);
                     if (dist < maxCollisionDist)
                     {
                         hitDist = dist;
