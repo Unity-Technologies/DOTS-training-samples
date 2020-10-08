@@ -15,11 +15,13 @@ public struct Agent : IComponentData
 
 public enum AgentAction
 {
+    START = 0,
     GET_BUCKET,
     DROP_BUCKET,
     FILL_BUCKET,
     THROW_BUCKET,
-    GOTO_LOCATION,
+    GOTO_PICKUP_LOCATION,
+    GOTO_DROPOFF_LOCATION,
     PASS_BUCKET
 }
 
