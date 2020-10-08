@@ -11,6 +11,7 @@ public class AssignTaskSystem : SystemBase
     Random m_Random;
 
     EntityQuery cropsQuery;
+    EntityQuery forestsQuery;
     EntityQuery emptyPlainsQuery;
 
     protected override void OnCreate()
@@ -18,6 +19,7 @@ public class AssignTaskSystem : SystemBase
         m_Random = new Random(666);
 
         cropsQuery = GetEntityQuery(typeof(Crop), ComponentType.Exclude<Assigned>());
+        forestsQuery = GetEntityQuery(typeof(Forest), ComponentType.Exclude<Assigned>());
         emptyPlainsQuery = GetEntityQuery(
             typeof(Plains),
             ComponentType.Exclude<Assigned>(),
@@ -41,6 +43,8 @@ public class AssignTaskSystem : SystemBase
             WithNone<DropOffCropTask>().
             WithNone<PickUpCropTask>().
             WithNone<TillTask>().
+            WithNone<ChopForestTask>().
+            WithNone<ChoppingTask>().
             WithReadOnly(crops).
             WithDisposeOnCompletion(crops).
             ForEach(
@@ -66,8 +70,7 @@ public class AssignTaskSystem : SystemBase
                 if (nearestTarget != Entity.Null)
                 {
                     ecbWriter.AddComponent<PickUpCropTask>(entityInQueryIndex, farmerEntity);
-                    ecbWriter.AddComponent<TargetEntity>(entityInQueryIndex, farmerEntity);
-                    ecbWriter.SetComponent(entityInQueryIndex, farmerEntity, new TargetEntity { target = nearestTarget, targetPosition = nearestTargetPos });
+                    ecbWriter.AddComponent(entityInQueryIndex, farmerEntity, new TargetEntity { target = nearestTarget, targetPosition = nearestTargetPos });
                     ecbWriter.AddComponent<NeedsDeduplication>(entityInQueryIndex, farmerEntity);
                 }
 
@@ -85,6 +88,8 @@ public class AssignTaskSystem : SystemBase
             WithNone<DropOffCropTask>().
             WithNone<PickUpCropTask>().
             WithNone<TillTask>().
+            WithNone<ChopForestTask>().
+            WithNone<ChoppingTask>().
             WithReadOnly(emptyPlains).
             WithDisposeOnCompletion(emptyPlains).
             ForEach(
@@ -109,13 +114,58 @@ public class AssignTaskSystem : SystemBase
                 if (nearestTarget != Entity.Null)
                 {
                     ecbWriter.AddComponent<TillTask>(entityInQueryIndex, farmerEntity);
-                    ecbWriter.AddComponent<TargetEntity>(entityInQueryIndex, farmerEntity);
-                    ecbWriter.SetComponent(entityInQueryIndex, farmerEntity, new TargetEntity { target = nearestTarget, targetPosition = nearestTargetPos });
+                    ecbWriter.AddComponent(entityInQueryIndex, farmerEntity, new TargetEntity { target = nearestTarget, targetPosition = nearestTargetPos });
                     ecbWriter.AddComponent<NeedsDeduplication>(entityInQueryIndex, farmerEntity);
                 }
 
             }).ScheduleParallel();
 
+        // Complete task assignment and structural changes
+        Dependency.Complete();
+        ecb.Playback(EntityManager);
+        
+        NativeArray<Entity> forests = forestsQuery.ToEntityArray(Allocator.TempJob);
+        
+        // Loop over all idle farmers, assigning a chop forest task
+        Entities.
+            WithName("assign_chop_forest_task").
+            WithAll<Farmer>().
+            WithNone<DropOffCropTask>().
+            WithNone<PickUpCropTask>().
+            WithNone<TillTask>().
+            WithNone<ChopForestTask>().
+            WithNone<ChoppingTask>().
+            WithReadOnly(forests).
+            WithDisposeOnCompletion(forests).
+            ForEach(
+                (Entity farmerEntity, int entityInQueryIndex, in Position farmerPos) =>
+                {
+                    // Find nearest crop
+                    float minDistSq = float.MaxValue;
+                    Entity nearestForestEntity = Entity.Null;
+                    float2 nearestForestPos = float2.zero;
+                    for (int i = 0; i < forests.Length; i++)
+                    {
+                        Translation forestTranslation = GetComponent<Translation>(forests[i]);
+                        float2 forestPos = new float2(forestTranslation.Value.x, forestTranslation.Value.z);
+                        float distSq = math.distancesq(forestPos, farmerPos.Value);
+                        if (minDistSq > distSq)
+                        {
+                            minDistSq = distSq;
+                            nearestForestEntity = forests[i];
+                            nearestForestPos = forestPos;
+                        }
+                    }
+        
+                    if (nearestForestEntity != Entity.Null)
+                    {
+                        ecbWriter.AddComponent<ChopForestTask>(entityInQueryIndex, farmerEntity);
+                        ecbWriter.AddComponent(entityInQueryIndex, farmerEntity, new TargetEntity { target = nearestForestEntity, targetPosition = nearestForestPos });
+                        ecbWriter.AddComponent<NeedsDeduplication>(entityInQueryIndex, farmerEntity);
+                    }
+        
+                }).ScheduleParallel();
+        
         // Complete task assignment and structural changes
         Dependency.Complete();
         ecb.Playback(EntityManager);
