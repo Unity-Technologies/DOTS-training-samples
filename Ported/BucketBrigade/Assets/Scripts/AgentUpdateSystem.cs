@@ -273,9 +273,9 @@ public class AgentUpdateSystem : SystemBase
                     if (agent.NextAgent == Entity.Null) // last agent of the line
                     {
                         // drop it in on the ground for the thrower
-                        // new WaterDrop
+                        EntityManager.SetComponentData(agent.CarriedEntity, new CarryableObject { CarryingEntity = Entity.Null} );
+                        agent.CarriedEntity = Entity.Null;
                         agent.ActionState = (byte) AgentAction.IDLE;
-
                     }
                     else
                     {
@@ -288,12 +288,16 @@ public class AgentUpdateSystem : SystemBase
                         {
                             var targetAgent = EntityManager.GetComponentData<Agent>(agent.NextAgent);
 
+                            EntityManager.SetComponentData(agent.CarriedEntity, new CarryableObject { CarryingEntity = agent.NextAgent} );
+                            
                             targetAgent.CarriedEntity = agent.CarriedEntity;
+                            EntityManager.SetComponentData(agent.NextAgent, targetAgent);
+                            
                             agent.CarriedEntity = Entity.Null;
                             
-                            EntityManager.SetComponentData(targetAgent.CarriedEntity, new CarryableObject { CarryingEntity = e} );
                             
-                            EntityManager.SetComponentData(agent.NextAgent, targetAgent);
+                            // TMP 
+                            EntityManager.SetComponentData(targetAgent.CarriedEntity, new Translation() { Value = targetAgentPosition.Value} );
                         }              
                     }
                 }
