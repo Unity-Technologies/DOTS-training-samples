@@ -19,6 +19,7 @@ public class DropOffFullBucket : SystemBase
         Entities
             .WithName("DropOffFullBucket")
             .WithNone<ChainPosition>()
+            .WithoutBurst()
             .ForEach((Entity botEntity, int entityInQueryIndex, ref Target target,
                 ref DroppingOffBucket droppingOffBucket, ref HasBucket hasBucket, ref FillingBucket fillingBucket) =>
             {
