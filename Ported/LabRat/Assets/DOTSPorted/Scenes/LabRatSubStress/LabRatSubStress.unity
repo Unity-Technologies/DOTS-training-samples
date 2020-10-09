@@ -275,20 +275,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 822f227d7c31840868f9cebe6b822edd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  catMax: 30
+  catMax: 100
   catCount: 0
   mouseCount: 0
-  catFrequency: 1
-  mouseFrequency: 0.2
+  catFrequency: 0.1
+  mouseFrequency: 0
   catTimer: 0
   mouseTimer: 0
-  catSpeed: 2
-  mouseSpeed: 5
-  maxMiceCount: 1000
-  minCatSpeed: 2
-  maxCatSpeed: 3
-  minMouseSpeed: 6
-  maxMouseSpeed: 10
+  catSpeed: 4
+  mouseSpeed: 8
+  maxMiceCount: 0
+  minCatSpeed: 3
+  maxCatSpeed: 5
+  minMouseSpeed: 4
+  maxMouseSpeed: 8
   mousePrefab: {fileID: 1565721843962348, guid: 10026e638782f4518b39d37dd4bd5d2a,
     type: 3}
   catPrefab: {fileID: 1377909340170110, guid: a3f6e35302f734f3cad373306d5f3b7c, type: 3}
@@ -442,9 +442,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   height: 60
   width: 60
-  minNumberOfHoles: 40
-  maxNumberOfHoles: 120
-  numberOfWalls: 1000
+  minNumberOfHoles: 10
+  maxNumberOfHoles: 20
+  numberOfWalls: 1500
 --- !u!1 &1229036437
 GameObject:
   m_ObjectHideFlags: 0
@@ -474,20 +474,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 822f227d7c31840868f9cebe6b822edd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  catMax: 30
+  catMax: 100
   catCount: 0
   mouseCount: 0
-  catFrequency: 1
-  mouseFrequency: 0.2
+  catFrequency: 0.1
+  mouseFrequency: 0
   catTimer: 0
   mouseTimer: 0
-  catSpeed: 2
-  mouseSpeed: 5
-  maxMiceCount: 1000
-  minCatSpeed: 2
-  maxCatSpeed: 3
-  minMouseSpeed: 6
-  maxMouseSpeed: 10
+  catSpeed: 4
+  mouseSpeed: 8
+  maxMiceCount: 0
+  minCatSpeed: 3
+  maxCatSpeed: 5
+  minMouseSpeed: 4
+  maxMouseSpeed: 8
   mousePrefab: {fileID: 1565721843962348, guid: 10026e638782f4518b39d37dd4bd5d2a,
     type: 3}
   catPrefab: {fileID: 1377909340170110, guid: a3f6e35302f734f3cad373306d5f3b7c, type: 3}
@@ -537,17 +537,17 @@ MonoBehaviour:
   catMax: 0
   catCount: 0
   mouseCount: 0
-  catFrequency: 1
-  mouseFrequency: 0.2
+  catFrequency: 0
+  mouseFrequency: 0.02
   catTimer: 0
   mouseTimer: 0
-  catSpeed: 2
-  mouseSpeed: 5
-  maxMiceCount: 1000
-  minCatSpeed: 2
-  maxCatSpeed: 3
-  minMouseSpeed: 6
-  maxMouseSpeed: 10
+  catSpeed: 4
+  mouseSpeed: 8
+  maxMiceCount: 2000
+  minCatSpeed: 3
+  maxCatSpeed: 5
+  minMouseSpeed: 4
+  maxMouseSpeed: 8
   mousePrefab: {fileID: 1565721843962348, guid: 10026e638782f4518b39d37dd4bd5d2a,
     type: 3}
   catPrefab: {fileID: 1377909340170110, guid: a3f6e35302f734f3cad373306d5f3b7c, type: 3}
@@ -597,17 +597,17 @@ MonoBehaviour:
   catMax: 0
   catCount: 0
   mouseCount: 0
-  catFrequency: 1
-  mouseFrequency: 0.2
+  catFrequency: 0
+  mouseFrequency: 0.02
   catTimer: 0
   mouseTimer: 0
-  catSpeed: 2
-  mouseSpeed: 5
-  maxMiceCount: 1000
-  minCatSpeed: 2
-  maxCatSpeed: 3
-  minMouseSpeed: 6
-  maxMouseSpeed: 10
+  catSpeed: 4
+  mouseSpeed: 8
+  maxMiceCount: 2000
+  minCatSpeed: 3
+  maxCatSpeed: 5
+  minMouseSpeed: 4
+  maxMouseSpeed: 8
   mousePrefab: {fileID: 1565721843962348, guid: 10026e638782f4518b39d37dd4bd5d2a,
     type: 3}
   catPrefab: {fileID: 1377909340170110, guid: a3f6e35302f734f3cad373306d5f3b7c, type: 3}
