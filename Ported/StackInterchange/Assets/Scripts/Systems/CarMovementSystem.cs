@@ -33,9 +33,6 @@ public class CarMovementSystem : SystemBase
                 movement.initialized = true;
             }
             
-            // Check distance
-            var dist = math.distance(trans.Value, goalPos);
-
             if (movement.distanceTraveled > movement.distanceToNext)
             {
                 // Destroy if no next node
@@ -54,10 +51,9 @@ public class CarMovementSystem : SystemBase
                         tmpNode = tmpRoadNode.exitNode;
                     }
                     
-                    
                     movement.NextNode = tmpNode;
 
-                    // ???
+                    // Sketchy rotation
                     float tmp = math.abs(math.mul(goalPos.x, goalPos.z)) % 360;
                     if (tmp > 90 && tmp < 180){
                         rotation.Value = math.mul(rotation.Value, quaternion.RotateY(math.mul(goalPos.x, goalPos.z)));                        

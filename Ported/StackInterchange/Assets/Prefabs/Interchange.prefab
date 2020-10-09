@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6310664073873137160}
-  - component: {fileID: 2110500568264774150}
   - component: {fileID: 1639199120862466785}
   m_Layer: 0
   m_Name: Interchange
@@ -44,19 +43,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2110500568264774150
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8358414845351104634}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5066c7416f00642849ffbe444c969ade, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  TotalCount: 0
 --- !u!114 &1639199120862466785
 MonoBehaviour:
   m_ObjectHideFlags: 0

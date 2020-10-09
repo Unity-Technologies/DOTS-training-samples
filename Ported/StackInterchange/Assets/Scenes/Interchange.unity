@@ -477,7 +477,7 @@ PrefabInstance:
       objectReference: {fileID: 1746246947136401245}
     - target: {fileID: 4371925863776555945, guid: 622da553e26f74e888d608d1da67af53, type: 3}
       propertyPath: NumQuadsTotal
-      value: 8
+      value: 32
       objectReference: {fileID: 0}
     - target: {fileID: 4371925864082664316, guid: 622da553e26f74e888d608d1da67af53, type: 3}
       propertyPath: m_AnchorMin.y
