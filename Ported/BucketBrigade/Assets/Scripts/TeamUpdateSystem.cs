@@ -96,7 +96,7 @@ public class TeamUpdateSystem : SystemBase
 
 			if (BoardHelper.TryGet2DArrayIndex((int)posX, (int)posZ, sizeX, sizeZ, out var index))
 			{
-				if (heatMap[index].Value > 75)
+				if (heatMap[index].Value > 25) // 
 				{
 					target = new float3(posX, 0, posZ);
 					return true;

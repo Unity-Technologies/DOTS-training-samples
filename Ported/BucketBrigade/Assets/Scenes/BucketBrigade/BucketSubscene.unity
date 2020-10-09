@@ -153,9 +153,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PropagationRange: 2
-  PropagationTransfer: 0.01
+  PropagationTransfer: 0.02
   PropagationThreshold: 75
-  HeatIncrease: 0.1
+  HeatIncrease: 0.15
   HeatIncreaseThreshold: 10
 --- !u!4 &52907013
 Transform:
@@ -565,7 +565,7 @@ MonoBehaviour:
   AgentPrefab: {fileID: 429697506247921751, guid: 3d12b6b710bb8419dae0f63e07b2ebd8, type: 3}
   TeamCount: 2
   TeamScoopers: 1
-  TeamThrowers: 1
+  TeamThrowers: 0
   AgentLineLength: 20
   MaxAgentVelocity: 0.1
 --- !u!4 &1860077373

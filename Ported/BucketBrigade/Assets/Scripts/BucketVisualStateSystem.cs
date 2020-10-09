@@ -9,6 +9,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(AgentUpdateSystem))]
 public class BucketVisualStateSystem : SystemBase
 {
     private static readonly Color k_emptyColor = new Color { Value = new float4(1.0f, 0.0f, 0.0f, 1.0f) };
