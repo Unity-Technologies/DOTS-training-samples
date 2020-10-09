@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Assets.Scripts.BlobData;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -7,18 +8,15 @@ using Unity.Transforms;
 public class CarMovementSystem : SystemBase
 {
     private EntityCommandBufferSystem ecbSystem;
-    private Random random;
 
     protected override void OnCreate()
     {
         ecbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-        random = new Random(0x1234567);
     }
 
     protected override void OnUpdate()
     {
         var ecb = ecbSystem.CreateCommandBuffer().AsParallelWriter();
-        var tryExit = random.NextBool();
 
         Entities.ForEach((Entity carEntity, int entityInQueryIndex, ref Translation trans, ref Rotation rotation, ref CarMovement movement) =>
         {
@@ -44,13 +42,29 @@ public class CarMovementSystem : SystemBase
 
                 if (!destroyEntity)
                 {
-                    var tmpNode = (tmpRoadNode.nextNode != Entity.Null) ? tmpRoadNode.nextNode : tmpRoadNode.exitNode;
 
-                    if (choiceAvailable && tryExit)
-                    {
-                        tmpNode = tmpRoadNode.exitNode;
-                    }
+                    var tmpNode = Entity.Null;
                     
+                    if (choiceAvailable)
+                    {
+                        var exitRoadNode = GetComponent<RoadNode>(tmpRoadNode.exitNode);
+                        var exitMask = exitRoadNode.colorMask;
+
+                        if (exitMask == movement.colorMask)
+                        {
+                            tmpNode = tmpRoadNode.exitNode;
+                        }
+                        else
+                        {
+                            tmpNode = tmpRoadNode.nextNode;
+                        }
+
+                    }
+                    else
+                    {
+                        tmpNode = (tmpRoadNode.nextNode != Entity.Null) ? tmpRoadNode.nextNode : tmpRoadNode.exitNode;
+                    }
+
                     movement.NextNode = tmpNode;
 
                     // Sketchy rotation

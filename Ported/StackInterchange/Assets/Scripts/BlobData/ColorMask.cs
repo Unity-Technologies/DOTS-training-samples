@@ -8,19 +8,19 @@ namespace Assets.Scripts.BlobData
         [Flags]
         public enum Masks
         {
-            None = 0,
-            ColorA = 1,
-            ColorB = 2,
-            ColorC = 3,
-            ColorD = 4, 
-            ColorE = 5, 
-            ColorF = 6, 
-            ColorG = 7,
-            ColorH = 8,
-            ColorI = 9,
-            ColorJ = 10,
-            ColorK = 11,
-            ColorL = 12
+            None,
+            ColorA = (1 << 0),
+            ColorB = (1 << 1),
+            ColorC = (1 << 2),
+            ColorD = (1 << 3), 
+            ColorE = (1 << 4), 
+            ColorF = (1 << 5), 
+            ColorG = (1 << 6),
+            ColorH = (1 << 7),
+            ColorI = (1 << 8),
+            ColorJ = (1 << 9),
+            ColorK = (1 << 10),
+            ColorL = (1 << 11)
         }
         
         public static (float4, Masks) ColorA = (new float4(0, 0, 1, 1), Masks.ColorA);         //Blue
@@ -36,6 +36,8 @@ namespace Assets.Scripts.BlobData
         public static (float4, Masks) ColorK = (new float4(1, 1, 0, 1), Masks.ColorK);         //Yellow
         public static (float4, Masks) ColorL = (new float4(1, .5f, 0, 1), Masks.ColorL);       //Orange
 
+        public static float4 invalidColor = new float4(.5f, .5f, .5f, 1); //Gray
+        
         private static readonly (float4, Masks)[] _allMasks = { ColorA, ColorB, ColorC, ColorD, ColorE, ColorF, ColorG, ColorH, ColorI, ColorJ, ColorK, ColorL };
 
         public static Masks GetMask(float4 color)
@@ -56,7 +58,14 @@ namespace Assets.Scripts.BlobData
                     return color.Item1;
             }
             
-            return float4.zero;
+            return invalidColor;
+        }
+
+        //Takes somewhere from 0 - 11
+        public static Masks GetMaskFromInt(int value)
+        {
+            var mask = (Masks) (1 << value);
+            return mask;
         }
     }
 }

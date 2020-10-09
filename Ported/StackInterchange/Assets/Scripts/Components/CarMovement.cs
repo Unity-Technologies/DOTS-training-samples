@@ -1,3 +1,4 @@
+using Assets.Scripts.BlobData;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -15,4 +16,5 @@ public struct CarMovement : IComponentData
     public bool initialized;
     public int roadIndex;
     public int rootIndex;
+    public ColorMask.Masks colorMask;
 }

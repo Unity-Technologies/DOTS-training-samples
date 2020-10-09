@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Assets.Scripts.BlobData;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
@@ -65,31 +66,8 @@ public class CarSpawnerSystem : SystemBase
                     Value = rotation.Value
                 });
 
-                // Amanda temp
-                float4 col;
-                randInt = random.NextInt(0, 4);
-                switch (randInt) {
-                    case 0: // red
-                        col = new float4(1,0,0,1);
-                        break;
-                    case 1: // green
-                        col = new float4(0,1,0,1);
-                        break;
-                    case 2: // blue
-                        col = new float4(0,0,1,1);
-                        break;
-                    case 3: // white
-                        col = new float4(1,1,1,1);
-                        break;
-                    default:
-                        col = new float4(0,0,0,1);
-                        break;
-                }
-
-                EntityManager.SetComponentData(instance, new Color
-                {
-                    Value = col
-                });
+                randInt = random.NextInt(0, 11);
+                ColorMask.Masks mask = ColorMask.GetMaskFromInt(randInt);
 
                 // Add CarMovement component to spawned entity
                 float maxSpeed = 0.07f + random.NextFloat(0.0f, 0.04f);
@@ -100,8 +78,15 @@ public class CarSpawnerSystem : SystemBase
                     Acceleration = 0.1f,
                     Deceleration = 0.05f,
                     MaxSpeed = maxSpeed,
+                    colorMask = mask,
                     roadIndex = 0,
                     rootIndex = spawner.uniqueSpawnerID
+                });
+
+                float4 color = ColorMask.GetColor(mask);
+                EntityManager.SetComponentData(instance, new Color
+                {
+                    Value = color
                 });
                 
                  EntityManager.AddSharedComponentData(instance, new RoadId
