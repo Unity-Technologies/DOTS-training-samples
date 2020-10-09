@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Jobs;
 
+[UpdateBefore(typeof(MoveTowardsTargetSystem))]
 public class FreeBotsFetchWaterSystem : SystemBase
 {
     private EntityQuery bucketQuery;

@@ -27,6 +27,7 @@ public class FillCarriedBucketSystem : SystemBase
         
         Entities
             .WithName("FillBucket")
+            .WithNone<ChainPosition>()
             .WithDisposeOnCompletion(bucketVolumes)
             .WithDisposeOnCompletion(bucketEntities)
             .ForEach((int entityInQueryIndex,

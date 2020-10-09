@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Jobs;
 
+[UpdateBefore(typeof(MoveTowardsTargetSystem))]
 public class MoveToWaterSystem : SystemBase
 {
     private EntityQuery waterQuery;

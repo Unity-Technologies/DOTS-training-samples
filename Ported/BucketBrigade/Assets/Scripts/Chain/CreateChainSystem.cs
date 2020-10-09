@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class CreateChainSystem : SystemBase
 {
     protected override void OnCreate()
