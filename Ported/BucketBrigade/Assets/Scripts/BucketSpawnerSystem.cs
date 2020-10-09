@@ -36,7 +36,7 @@ public class BucketSpawnerSystem : SystemBase
             .ForEach((Entity bucketSpawnSettings, in BucketSpawner spawner, in Translation t) =>
         {
             NonUniformScale prefabScale = EntityManager.GetComponentData<NonUniformScale>(spawner.BucketPrefab);
-            float yOffset = 0.5f + (prefabScale.Value.y * 0.5f) + boardYOffset;
+            float yOffset = (prefabScale.Value.y * 0.5f) + boardYOffset;
 
             // reserve a list of entities to clone prefab data into.
             NativeArray<Entity> clonedBuckets = new NativeArray<Entity>(spawner.MaxBuckets, Allocator.Temp, NativeArrayOptions.UninitializedMemory);

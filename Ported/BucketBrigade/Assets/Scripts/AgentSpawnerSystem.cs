@@ -40,7 +40,7 @@ public class AgentSpawnerSystem : SystemBase
             // uniform scale
             //Scale prefabScale = EntityManager.GetComponentData<Scale>(spawner.AgentPrefab);
             NonUniformScale prefabScale = EntityManager.GetComponentData<NonUniformScale>(spawner.AgentPrefab);
-            float yOffset = 0.5f + prefabScale.Value.y * 0.5f + boardYOffset;
+            float yOffset = prefabScale.Value.y * 0.5f + boardYOffset;
                     
             int agentsPerTeam = (spawner.AgentLineLength * 2) + spawner.TeamScoopers + spawner.TeamThrowers;
             int len = spawner.TeamCount * agentsPerTeam;
