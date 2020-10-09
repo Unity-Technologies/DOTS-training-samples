@@ -60,35 +60,17 @@ public class AgentSpawnerSystem : SystemBase
             for (int team = 0; team < spawner.TeamCount && index < len; ++team)
             {
                 var teamEntity = EntityManager.CreateEntity(typeof(Team));
+#if UNITY_EDITOR
                 EntityManager.SetName(teamEntity, $"Team {team}");
+#endif
                 var teamComponent = new Team { Id = team, Length = spawner.AgentLineLength};
             
                 // could perhaps create these components via EntityManager.AddComponent version that takes an EntityQuery.
                 
                 // is it more efficient to add all MyAgent components in a loop, and then add the tags as separate loops,
                 // or to add the MyAgent components as part of the tag loops?
-
-                // create bucket collectors / fillers
-                for (int scooper = 0; scooper < spawner.TeamScoopers; ++scooper)
-                {
-                    Entity agent = clonedAgents[index];
-                    
-                    EntityManager.AddComponentData<Agent>(agent, new Agent {Team = teamEntity, MaxVelocity = maxAgentVelocity, CarriedEntity = Entity.Null, ActionState = 0});
-                    EntityManager.AddComponent<AgentTags.ScooperTag>(agent);
-
-                    float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
-                    //EntityManager.AddComponentData<SeekPosition>(agent, new TargetPosition{ MaxVelocity = 0.2f, TargetPos = new float3(spawnPos.x, spawnPos.y, spawnPos.z) });
-                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ Velocity = 0, TargetPos = new float3(0,0,0) });
-                    
-                    // place at random location within board
-                    EntityManager.SetComponentData<Translation>(agent, new Translation(){ Value = spawnPos });
-
-
-                    EntityManager.SetComponentData<Color>(agent, new Color {Value = new float4(0, 1, 0, 1)});
-                    ++index;
-                }
                 
-                // create throwers / extinguishers
+                // create throwers / extinguishers 
                 for (int thrower = 0; thrower < spawner.TeamThrowers; ++thrower)
                 {
                     Entity agent = clonedAgents[index];
@@ -166,6 +148,25 @@ public class AgentSpawnerSystem : SystemBase
                 // TMP random pickup / dropoff init
                 teamComponent.PickupLocation = new float3(Random.Range(0, boardDimensions.x),0,Random.Range(0, boardDimensions.y));
                 teamComponent.DropOffLocation = teamComponent.PickupLocation;
+                
+                // create bucket collectors / fillers
+                for (int scooper = 0; scooper < spawner.TeamScoopers; ++scooper)
+                {
+                    Entity agent = clonedAgents[index];
+                    
+                    EntityManager.AddComponentData<Agent>(agent, new Agent {Team = teamEntity, MaxVelocity = maxAgentVelocity, CarriedEntity = Entity.Null, ActionState = 0});
+                    EntityManager.AddComponent<AgentTags.ScooperTag>(agent);
+
+                    float3 spawnPos = new float3(Random.Range(0, boardDimensions.x), yOffset, Random.Range(0, boardDimensions.y));
+                    EntityManager.AddComponentData<SeekPosition>(agent, new SeekPosition{ Velocity = 0, TargetPos = teamComponent.PickupLocation });
+                    
+                    // place at random location within board
+                    EntityManager.SetComponentData<Translation>(agent, new Translation(){ Value = teamComponent.PickupLocation });
+
+
+                    EntityManager.SetComponentData<Color>(agent, new Color {Value = new float4(0, 1, 0, 1)});
+                    ++index;
+                }
                 
                 EntityManager.AddComponentData(teamEntity, teamComponent);
             }

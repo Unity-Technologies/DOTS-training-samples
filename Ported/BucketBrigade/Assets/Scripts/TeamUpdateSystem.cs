@@ -7,6 +7,8 @@ using UnityEngine;
 
 public class TeamUpdateSystem : SystemBase
 {
+	const int k_MinHeatConsideredFire = 25;
+	
 	EntityQuery m_WaterQuery;
 
 	protected override void OnUpdate()
@@ -37,17 +39,33 @@ public class TeamUpdateSystem : SystemBase
 			.ForEach((Entity entity, ref Team team) =>
 		{
 			// Update dropOff and pickup location
-			
-			float3 dropOff = team.DropOffLocation;
-			if (TryFindNearestFire((int)dropOff.x, (int)dropOff.z, heatMap.SizeX, heatMap.SizeZ, heatMapBuffer, out var targetDropOff))
-			{
-				team.DropOffLocation = targetDropOff;
-			}
-			
 			float3 pickup = team.PickupLocation;
 			if (TryFindNearestAndSetSeekTarget(pickup, waterLocations, waterIsAvailable, true, out var targetPickup))
 			{
 				team.PickupLocation = targetPickup;
+			}
+			
+			float3 dropOff = team.DropOffLocation;
+
+			bool stillValidFirePosition = false;
+			if (BoardHelper.TryGet2DArrayIndex((int)dropOff.x, (int)dropOff.z, heatMap.SizeX, heatMap.SizeZ, out var currentIndex))
+			{
+				if (heatMapBuffer[currentIndex].Value >= k_MinHeatConsideredFire)
+				{
+					stillValidFirePosition = true;
+				}
+			}
+
+			if (!stillValidFirePosition)
+			{
+				// Find nearest next fire between the dropOff and pickup locations
+				int posX = (int)(dropOff.x * 0.5f + team.PickupLocation.x * 0.5f);
+				int posZ = (int)(dropOff.z * 0.5f + team.PickupLocation.z * 0.5f);
+				
+				if (TryFindNearestFire(posX, posZ, heatMap.SizeX, heatMap.SizeZ, heatMapBuffer, out var targetDropOff))
+				{
+					team.DropOffLocation = targetDropOff;
+				}	
 			}
 			
 			Debug.DrawLine(team.DropOffLocation, team.PickupLocation, UnityEngine.Color.red);
@@ -98,7 +116,7 @@ public class TeamUpdateSystem : SystemBase
 
 			if (BoardHelper.TryGet2DArrayIndex((int)posX, (int)posZ, sizeX, sizeZ, out var index))
 			{
-				if (heatMap[index].Value > 75)
+				if (heatMap[index].Value > k_MinHeatConsideredFire)
 				{
 					target = new float3(posX, 0, posZ);
 					return true;

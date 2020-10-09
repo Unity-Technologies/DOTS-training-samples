@@ -6,7 +6,7 @@ using Unity.Transforms;
 
 public class CellDisplaySystem : SystemBase
 {
-	const float k_FlickerRange = 0.4f;
+	const float k_FlickerRange = 0.5f;
 	const float k_FlickerRate = 2f;
 	const float k_DefaultCellHeight = 1.0f;
 	

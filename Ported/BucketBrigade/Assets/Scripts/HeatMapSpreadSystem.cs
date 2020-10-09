@@ -1,8 +1,11 @@
 using System;
 using Unity.Entities;
+using Unity.Mathematics;
 
 public class HeatMapSpreadSystem : SystemBase
 {
+	const float k_FallOffStrength = 0.3f;
+	
 	protected override void OnUpdate()
 	{
 		FireSimulationSettings settings = GetSingleton<FireSimulationSettings>();
@@ -33,7 +36,12 @@ public class HeatMapSpreadSystem : SystemBase
 						if (BoardHelper.TryGet2DArrayIndex(x + offsetX, z + offsetZ, map.SizeX, map.SizeZ, out var otherIndex))
 						{
 							if (heatMapBuffer[otherIndex].Value > settings.PropagationThreshold)
-								newHeatMapValue += heatMapBuffer[otherIndex].Value * settings.PropagationTransfer * deltaTime;
+							{
+								float falloff = 1f / math.max(1, 1 + (math.abs(offsetX) + math.abs(offsetZ)) * k_FallOffStrength);
+								
+								newHeatMapValue += heatMapBuffer[otherIndex].Value * settings.PropagationTransfer * deltaTime * falloff;
+							}
+								
 						}
 					}
 				}

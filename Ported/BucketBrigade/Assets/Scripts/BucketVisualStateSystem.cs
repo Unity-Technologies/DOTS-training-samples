@@ -9,10 +9,11 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(AgentUpdateSystem))]
 public class BucketVisualStateSystem : SystemBase
 {
     private static readonly Color k_emptyColor = new Color { Value = new float4(1.0f, 0.0f, 0.0f, 1.0f) };
-    private static readonly Color k_fullColor = new Color { Value = new float4(1.0f, 0.0f, 0.0f, 1.0f) };
+    private static readonly Color k_fullColor = new Color { Value = new float4(0.5f, 0.9f, 1.0f, 1.0f) };
     
     protected override void OnUpdate()
     {
@@ -24,6 +25,6 @@ public class BucketVisualStateSystem : SystemBase
             {
                 t.Value = new float3(t.Value.x, bucketScale.Value.y / 2.0f, t.Value.z);
             }
-        }).ScheduleParallel();
+        }).ScheduleParallel(); // smoother with run visually
     }
 }
