@@ -1,3 +1,4 @@
+using Assets.Scripts.BlobData;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -5,8 +6,7 @@ using Unity.Transforms;
 [GenerateAuthoringComponent]
 public struct RoadNode : IComponentData
 {
-     public float4 color;
-
+     public ColorMask.Masks colorMask;
      public Entity nextNode;
      public Entity exitNode;
 }

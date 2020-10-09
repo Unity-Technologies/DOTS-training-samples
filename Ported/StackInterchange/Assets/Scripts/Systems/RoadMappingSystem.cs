@@ -80,7 +80,7 @@ namespace Assets.Scripts.Systems
             var entity = roadNodes[node];
             Node blobNode = new Node
             {
-                PathBitField = ColorMask.GetMask(entity.color),
+                PathBitField = entity.colorMask,
                 index = index++,
                 Childern = new int[0],
                 translation = translations[node]
