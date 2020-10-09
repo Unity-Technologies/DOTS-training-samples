@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 public class TrainSystem : SystemBase
 {
@@ -87,9 +88,17 @@ public class TrainSystem : SystemBase
             }).ScheduleParallel();
 
         Entities
-            .ForEach((Entity train, int entityInQueryIndex, ref TrainTask_OpenDoors timeTask, in NextPlatform nextPlatform) =>
+            .ForEach((Entity train, int entityInQueryIndex, ref TrainTask_OpenDoors timeTask, in NextPlatform nextPlatform, in DynamicBuffer<BufferCarriage> carriages) =>
             {
-                timeTask.TimeRemaining -= deltaTime;
+                timeTask.TimeRemaining = math.max(timeTask.TimeRemaining - deltaTime, 0);
+
+                for(int i = 0; i < carriages.Length; i++)
+                {
+                    var doors = GetComponent<CarriageDoors>(carriages[i]);
+
+                    SetComponent(doors.DoorL_Geo, new Translation { Value = math.lerp(GetComponent<Translation>(doors.DoorL_Open).Value, GetComponent<Translation>(doors.DoorL_Closed).Value, timeTask.TimeRemaining / 2f) });
+                    SetComponent(doors.DoorR_Geo, new Translation { Value = math.lerp(GetComponent<Translation>(doors.DoorR_Open).Value, GetComponent<Translation>(doors.DoorR_Closed).Value, timeTask.TimeRemaining / 2f) });
+                }
 
                 if (timeTask.TimeRemaining <= 0)
                 {
@@ -98,7 +107,7 @@ public class TrainSystem : SystemBase
                     ecb.AddComponent(entityInQueryIndex, train, new TrainTask_UnboardPassengers() { TimeRemaining = 4f });
                     ecb.RemoveComponent<TrainTask_OpenDoors>(entityInQueryIndex, train);
                 }
-            }).ScheduleParallel();
+            }).Schedule();
 
         Entities
             .ForEach((Entity train, int entityInQueryIndex, ref TrainTask_UnboardPassengers timeTask, in NextPlatform nextPlatform) =>
@@ -127,16 +136,24 @@ public class TrainSystem : SystemBase
             }).ScheduleParallel();
 
         Entities
-            .ForEach((Entity train, int entityInQueryIndex, ref TrainTask_CloseDoors timeTask) =>
+            .ForEach((Entity train, int entityInQueryIndex, ref TrainTask_CloseDoors timeTask, in DynamicBuffer<BufferCarriage> carriages) =>
             {
-                timeTask.TimeRemaining -= deltaTime;
+                timeTask.TimeRemaining = math.max(timeTask.TimeRemaining - deltaTime, 0);
+
+                for (int i = 0; i < carriages.Length; i++)
+                {
+                    var doors = GetComponent<CarriageDoors>(carriages[i]);
+
+                    SetComponent(doors.DoorL_Geo, new Translation { Value = math.lerp(GetComponent<Translation>(doors.DoorL_Closed).Value, GetComponent<Translation>(doors.DoorL_Open).Value, timeTask.TimeRemaining / 2f) });
+                    SetComponent(doors.DoorR_Geo, new Translation { Value = math.lerp(GetComponent<Translation>(doors.DoorR_Closed).Value, GetComponent<Translation>(doors.DoorR_Open).Value, timeTask.TimeRemaining / 2f) });
+                }
 
                 if (timeTask.TimeRemaining <= 0)
                 {
                     ecb.RemoveComponent<TrainTask_CloseDoors>(entityInQueryIndex, train);
                     ecb.RemoveComponent<NextPlatform>(entityInQueryIndex, train);
                 }
-            }).ScheduleParallel();
+            }).Schedule();
 
         m_EcbSystem.AddJobHandleForProducer(Dependency);
         
