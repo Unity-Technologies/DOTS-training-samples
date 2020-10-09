@@ -155,9 +155,9 @@ MonoBehaviour:
   prefab_flameCell: {fileID: 1306931638197496, guid: e5962a8f313ef4c4ba51fe0d8df33cf9, type: 3}
   startingFireCount: 10
   maxFlameHeight: 1
-  cellSize: 0.3
-  rows: 50
-  columns: 50
+  cellSize: 0.03
+  rows: 500
+  columns: 500
   flashpoint: 0.2
   heatRadius: 2
   heatTransferRate: 0.0003
@@ -176,7 +176,7 @@ MonoBehaviour:
   bucketColorFull: {r: 0, g: 0.9797, b: 1, a: 1}
   bucketSizeEmpty: 0.2
   bucketSizeFull: 0.4
-  chainLength: 15
+  chainLength: 200
 --- !u!4 &850562457
 Transform:
   m_ObjectHideFlags: 0
@@ -318,7 +318,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   botPrefab: {fileID: 5540245421705527508, guid: 7873bdbbab313d248b53d75b0b84de88, type: 3}
-  numberBots: 32
+  numberBots: 450
   spawnRadius: 15
   spawnCenter:
     x: 7.5
