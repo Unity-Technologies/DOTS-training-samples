@@ -10,14 +10,35 @@
         {
             "$type": "Unity.Build.Common.SceneList, Unity.Build",
             "$version": 1,
-            "BuildCurrentScene": true,
-            "SceneInfos": []
+            "BuildCurrentScene": false,
+            "SceneInfos": [
+                {
+                    "Scene": "GlobalObjectId_V1-1-9e0a34e0ff92b9a429af58f00e69dfa3-102900000-0",
+                    "AutoLoad": true
+                },
+                {
+                    "Scene": "GlobalObjectId_V1-1-2ee9d43171a747c428d592619a911fd9-102900000-0",
+                    "AutoLoad": false
+                },
+                {
+                    "Scene": "GlobalObjectId_V1-1-a53ad1471d6cb8140acc820fc1cf3754-102900000-0",
+                    "AutoLoad": false
+                },
+                {
+                    "Scene": "GlobalObjectId_V1-1-a1d893ab64c077742baa0c4da6e8c67e-102900000-0",
+                    "AutoLoad": false
+                },
+                {
+                    "Scene": "GlobalObjectId_V1-1-15833fea6c8512e49ac335c08d0adf8d-102900000-0",
+                    "AutoLoad": false
+                }
+            ]
         },
         {
             "$type": "Unity.Build.Classic.ClassicBuildProfile, Unity.Build.Classic",
             "$version": 1,
             "Platform": "Windows",
-            "Configuration": 3,
+            "Configuration": 2,
             "Incremental": false
         }
     ]
