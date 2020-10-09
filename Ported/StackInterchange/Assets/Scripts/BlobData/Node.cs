@@ -1,32 +1,33 @@
 ﻿using System.Collections.Generic;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace Assets.Scripts.BlobData
 {
-    class Node
+    public struct Node
     {
         public Translation translation;
         public float4 Color;
         public ColorMask.Masks PathBitField;
 
-        public List<Node> Childern = new List<Node>();
-        public long index;
+        public int[] Childern;
 
-        public Node GetNext(float4 carColor)
+        public int index;
+
+        public int spawnerId;
+
+        public int GetNext(float4 carColor, Dictionary<int, Node> road)
         {
             ColorMask.Masks mask = ColorMask.GetMask(carColor);
-
-            Node next = null;
-            foreach(var child in Childern)
+            int next = -1;
+            for(int i = 0; i < Childern.Length; i++)
             {
-                // Default stay on the same road.
-                if (next == null && child.Color.Equals(Color))
-                    next = child;
+                // TODO - Broken -> Default stay on the same road.
+                if (next == -1 && road[Childern[i]].Color.Equals(Color))
+                    next = Childern[i];
 
-                if ((child.PathBitField & mask) != ColorMask.Masks.None)
-                    next = child;
+                if ((road[Childern[i]].PathBitField & mask) != ColorMask.Masks.None)
+                    next = Childern[i];
             }
             return next;
         }

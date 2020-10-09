@@ -12,7 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fbb08c8c25078c4d9c40b96c5a4b570, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Value: 0.2
+  Value: 0.22
+  minWait: 1.14
+  maxWait: 2.52
+  counter: 0
 --- !u!114 &8746170939938155090
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31,13 +34,14 @@ MonoBehaviour:
     y: 0.45
     z: 0.58
   carScaleV2:
-    x: 0
-    y: 0
-    z: 0
+    x: 0.75
+    y: 0.75
+    z: 0.75
   carScaleV3:
-    x: 0
-    y: 0
-    z: 0
+    x: 1
+    y: 1
+    z: 1
+  spawnerId: 1
 --- !u!1001 &510938917038814410
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -91,7 +95,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5031430632406386873, guid: 90a15ee47e44849daae2b7440d0330be, type: 3}
       propertyPath: m_Name
-      value: SpawnNode Variant
+      value: SpawnNode
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 90a15ee47e44849daae2b7440d0330be, type: 3}

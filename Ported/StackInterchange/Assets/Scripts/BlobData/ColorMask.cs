@@ -3,7 +3,7 @@ using Unity.Mathematics;
 
 namespace Assets.Scripts.BlobData
 {
-    class ColorMask
+    public struct ColorMask
     {
         [Flags]
         public enum Masks
