@@ -291,8 +291,27 @@ public class AgentUpdateSystem : SystemBase
                 }
                 else
                 {
-                    // Stay in the line
-                    agent.ActionState = (byte) AgentAction.IDLE;
+                    if (agent.PreviousAgent == Entity.Null) // first agent of the line try to pick full buckets
+                    {
+                        Entity bucketEntity = Entity.Null;
+                        int bucketEntityIndex;
+                        FindNearestIndex(t.Value, bucketLocations, bucketIsFullAndOnGround, true, out bucketEntityIndex); // look for nearest empty bucket
+
+                        // check that the bucket is near
+                        if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
+                        {
+                            bucketEntity = bucketEntities[bucketEntityIndex];
+                            
+                            agent.CarriedEntity = bucketEntity;
+                            EntityManager.SetComponentData(bucketEntity, new CarryableObject { CarryingEntity = e} );
+                            agent.ActionState = (byte) AgentAction.PASS_BUCKET;
+                        }
+                        else
+                        {
+                            // Stay in the line
+                            agent.ActionState = (byte) AgentAction.IDLE;
+                        }
+                    }
                 }
             }).Run();
 
