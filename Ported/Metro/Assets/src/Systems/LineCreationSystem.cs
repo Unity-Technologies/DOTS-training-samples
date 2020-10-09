@@ -33,11 +33,10 @@ public class LineCreationSystem : SystemBase
             .ForEach((Entity entity,
                       in DynamicBuffer<RailMarkerPosition> railMarkerPositions,
                       in DynamicBuffer<RailMarkerPlatformIndex> railMarkerPlatformIndices,
-                      in TrainCount trainCount,
-                      in CarriageCount carriageCount) =>
+                      in LineCreationSettings lineCreationSettings) =>
             {
                 var railIndices = railMarkerPlatformIndices.ToNativeArray(Allocator.Temp);
-                Create_RailPath(railMarkerPositions, railIndices, metroBuilder.PlatformPrefab, metroBuilder.RailPrefab, trainCount, carriageCount, allPlatforms);
+                Create_RailPath(railMarkerPositions, railIndices, metroBuilder.PlatformPrefab, metroBuilder.RailPrefab, lineCreationSettings, allPlatforms);
                 railIndices.Dispose();
                 EntityManager.DestroyEntity(entity);
             }).Run();
@@ -142,7 +141,7 @@ public class LineCreationSystem : SystemBase
     }
 
     void Create_RailPath(DynamicBuffer<RailMarkerPosition> positions, NativeArray<RailMarkerPlatformIndex> platformIndices, Entity platformPrefab,
-                         Entity railPrefab, TrainCount trainCount, CarriageCount carriageCount, NativeList<Entity> allPlatforms)
+                         Entity railPrefab, LineCreationSettings lineCreationSettings, NativeList<Entity> allPlatforms)
     {
         var bezierPath = new BezierPath();
         List<BezierPoint> _POINTS = bezierPath.points;
@@ -211,8 +210,6 @@ public class LineCreationSystem : SystemBase
         var platformTranslations = new NativeArray<float3>(platformCount, Allocator.Temp);
         allPlatforms.AddRange(platforms);
 
-        float4 railColor = new float4(m_Random.NextFloat(), m_Random.NextFloat(), m_Random.NextFloat(), 1);
-
         // now that the rails have been laid - let's put the platforms on
         int totalPoints = bezierPath.points.Count;
         for (int i = 0; i < platformIndices.Length; i++)
@@ -220,13 +217,13 @@ public class LineCreationSystem : SystemBase
             Entity outboundPlatform = platforms[i];
             int _plat_END = platformIndices[i];
             int _plat_START = _plat_END - 1;
-            platformTranslations[i] = InitializePlatform(outboundPlatform, bezierPath, _plat_START, _plat_END, railColor);
+            platformTranslations[i] = InitializePlatform(outboundPlatform, bezierPath, _plat_START, _plat_END, lineCreationSettings.Color);
 
             var inboundPlatformIndex = platforms.Length - 1 - i;
             Entity inboundPlatform = platforms[inboundPlatformIndex];
             int opposite_START = totalPoints - (_plat_END + 1);
             int opposite_END = totalPoints - _plat_END;
-            platformTranslations[inboundPlatformIndex] = InitializePlatform(inboundPlatform, bezierPath, opposite_START, opposite_END, railColor);
+            platformTranslations[inboundPlatformIndex] = InitializePlatform(inboundPlatform, bezierPath, opposite_START, opposite_END, lineCreationSettings.Color);
 
             // pair these platforms as opposites
             var outboundSameStationPlatforms = GetBuffer<SameStationPlatformBufferElementData>(outboundPlatform);
@@ -253,9 +250,9 @@ public class LineCreationSystem : SystemBase
         // speedRatio = bezierPath.GetPathDistance() * maxTrainSpeed;
 
         var railEntity = EntityManager.CreateEntity(railArchetype);
-        EntityManager.SetComponentData(railEntity, trainCount);
-        EntityManager.SetComponentData(railEntity, carriageCount);
-        EntityManager.SetComponentData(railEntity, new RailColor() { Value = railColor });
+        EntityManager.SetComponentData<TrainCount>(railEntity, lineCreationSettings.TrainCount);
+        EntityManager.SetComponentData<CarriageCount>(railEntity, lineCreationSettings.CarriageCount);
+        EntityManager.SetComponentData(railEntity, new RailColor() { Value = lineCreationSettings.Color });
 
         var railPointTranslations = new NativeList<float3>(Allocator.Temp);
 
