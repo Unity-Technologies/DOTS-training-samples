@@ -145,7 +145,7 @@ MonoBehaviour:
   prefab_rail: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2,
     type: 3}
   drawRailBeziers: 0
-  maxCommuters: 1
+  maxCommuters: 1000
   Bezier_HandleReach: 0.15
   Bezier_PlatformOffset: 8
   Train_accelerationStrength: 0.000001

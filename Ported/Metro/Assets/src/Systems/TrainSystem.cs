@@ -50,14 +50,16 @@ public class TrainSystem : SystemBase
             }).ScheduleParallel();
         
         Entities
-            .ForEach((ref NextTrainPosition nextTrainPosition, in Position position, in Rail rail, in NextTrain nextTrain) =>
+            .ForEach((ref NextTrainPosition nextTrainPosition, in Position position, in DynamicBuffer<BufferCarriage> carriages, in Rail rail, in NextTrain nextTrain) =>
             {
+                var trainLength = (carriages.Length + 1) * (TrainCarriage.CARRIAGE_LENGTH + TrainCarriage.CARRIAGE_SPACING);
+                
                 var railLength = GetComponent<RailLength>(rail);
                 var newNextTrainPosition = (float)GetComponent<Position>(nextTrain);
                 if (newNextTrainPosition < position)
                     newNextTrainPosition += railLength;
 
-                nextTrainPosition = newNextTrainPosition - 10f;
+                nextTrainPosition = newNextTrainPosition - trainLength;
             }).ScheduleParallel();
         
         Entities
