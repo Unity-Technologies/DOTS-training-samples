@@ -45,6 +45,9 @@ public class FireSimulationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public float bucketSizeEmpty = 0.2f;
     public float bucketSizeFull = 0.8f;
 
+    [Header("Chain")]
+    public int chainLength = 15;
+
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(prefab_flameCell);
@@ -76,9 +79,11 @@ public class FireSimulationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             botColorOmnibot = botColorOmnibot,
             bucketColorEmpty = bucketColorEmpty,
             bucketColorFull = bucketColorFull,
-            
+
             bucketSizeEmpty = bucketSizeEmpty,
             bucketSizeFull = bucketSizeFull,
+
+            chainLength = chainLength
         });
 
         dstManager.AddBuffer<SimulationTemperature>(entity);
@@ -113,6 +118,8 @@ public struct FireSimulation : IComponentData
 
     public float bucketSizeEmpty;
     public float bucketSizeFull;
+
+    public int chainLength;
 }
 
 public struct SimulationTemperature : IBufferElementData

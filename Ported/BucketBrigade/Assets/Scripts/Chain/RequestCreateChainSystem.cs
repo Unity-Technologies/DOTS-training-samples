@@ -13,6 +13,8 @@ public class RequestCreateChainSystem : SystemBase
         Random rand = new Random((uint)System.DateTime.UtcNow.Millisecond);
         var createChainEntity = EntityManager.CreateEntity();
         EntityManager.AddComponentData(createChainEntity, new FindChainPosition() { Value = rand.NextFloat2() * 5 });
+
+        RequireSingletonForUpdate<FireSimulation>();
     }
 
     protected override void OnUpdate()
@@ -21,6 +23,8 @@ public class RequestCreateChainSystem : SystemBase
         {
             NativeArray<Pos> waterPositions = waterQuery.ToComponentDataArrayAsync<Pos>(Allocator.TempJob, out JobHandle j);
             Dependency = JobHandle.CombineDependencies(Dependency, j);
+
+            var fireSim = GetSingleton<FireSimulation>();
 
             Entities
                 //.WithDisposeOnCompletion(waterPositions)
@@ -36,7 +40,7 @@ public class RequestCreateChainSystem : SystemBase
                         ecb.AddComponent<ChainCreateTag>(chain);
                         ecb.AddComponent(chain, new ChainStart() { Value = waterPositions[nearestIndex].Value });
                         ecb.AddComponent(chain, new ChainEnd() { Value = fire.closestFirePosition });
-                        ecb.AddComponent(chain, new ChainLength() { Value = 4 });
+                        ecb.AddComponent(chain, new ChainLength() { Value = fireSim.chainLength });
                         ecb.AddComponent(chain, new ChainID() { Value = 0 }); //TODO fix this, need someway to increment chainID
                     }
                 })
