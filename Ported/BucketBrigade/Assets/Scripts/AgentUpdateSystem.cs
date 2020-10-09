@@ -379,24 +379,49 @@ public class AgentUpdateSystem : SystemBase
         }).ScheduleParallel();
 //        m_endSimECB.AddJobHandleForProducer(fullBucketECBJobHandle);
 
-        // empty bucket passer updates
+        // Empty bucket passer updates
         Entities
 //            .WithReadOnly(bucketEntities)
 //            .WithReadOnly(bucketLocations)
  //           .WithReadOnly(bucketFillValue)
  //           .WithReadOnly(bucketIsEmptyAndOnGround)
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.EmptyBucketPasserTag agentTag) =>
+ .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.EmptyBucketPasserTag agentTag) =>
         {
-            if (agent.PreviousAgent == Entity.Null)
+            // If the agent carry something pass it to the next agent
+            if (agent.CarriedEntity != Entity.Null)
             {
+                // Goto next agent and pass the bucket when near it
+                agent.ActionState = (byte) AgentAction.PASS_BUCKET;
+                var targetAgentPosition = EntityManager.GetComponentData<Translation>(agent.NextAgent);
+                seekComponent.TargetPos = targetAgentPosition.Value;
+                    
+                if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
+                {
+                    var targetAgent = EntityManager.GetComponentData<Agent>(agent.PreviousAgent);
+
+                    targetAgent.CarriedEntity = agent.CarriedEntity;
+                    agent.CarriedEntity = Entity.Null;
+                        
+                    EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
+                }
+            }
+            else if (agent.NextAgent == Entity.Null) // last agent of the line
+            {
+                agent.ActionState = (byte) AgentAction.GOTO_PICKUP_LOCATION;
+                //FindNearestAndSetSeekTarget(t.Value, waterLocations, waterIsAvailable, true, ref seekComponent); // look for nearest available water
+                seekComponent.TargetPos = new float3(0, 0, 0);
+            }
+            else if (agent.PreviousAgent == Entity.Null) // first agent of the line
+            {
+                // Move to the nearest fire
                 agent.ActionState = (byte) AgentAction.GOTO_DROPOFF_LOCATION;
                 FindNearestFire((int)t.Value.x, (int)t.Value.z, heatMap.SizeX, heatMap.SizeZ, heatMapBuffer, ref seekComponent);
             }
             else
             {
+                // Stay in the line
                 agent.ActionState = (byte) AgentAction.IDLE;
             }
-
         }).ScheduleParallel();
         
         /*
@@ -423,6 +448,15 @@ public class AgentUpdateSystem : SystemBase
 				waterLocations[0] = float3.zero;
 				waterIsAvailable[0] = false;
 			}
+			if (bucketEntities.Length > 0)
+			{
+	            bucketEntities[0] = Entity.Null;
+    	        bucketIsEmptyAndOnGround[0] = false;
+        	    bucketLocations[0] = float3.zero;
+            	bucketFillValue[0] = 0.0f;
+	            bucketIsFullAndOnGround[0] = false;
+			}
+        }).Run(); // FIXME - Put back on Schedule / access other agents
 
             //if (bucketEntities.Length > 0)
             {
