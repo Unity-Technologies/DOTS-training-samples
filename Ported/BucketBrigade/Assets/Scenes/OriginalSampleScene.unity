@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1801,9 +1801,9 @@ MonoBehaviour:
   prefab_flameCell: {fileID: 1306931638197496, guid: d2414dc4033474771b65161755b347cb, type: 3}
   startingFireCount: 10
   maxFlameHeight: 1
-  cellSize: 0.3
-  rows: 50
-  columns: 50
+  cellSize: 0.03
+  rows: 500
+  columns: 500
   flashpoint: 0.2
   heatRadius: 2
   heatTransferRate: 0.0003
@@ -1824,10 +1824,8 @@ MonoBehaviour:
   prefab_bucket: {fileID: 1773963921688032, guid: 9102bbc859e71427f87e47b09aa59220, type: 3}
   prefab_bot: {fileID: 1821148559735918, guid: d85cd9db3461f4a1083519cb9477ae3e, type: 3}
   bucketChain_Configs:
-  - passers_EMPTY: 15
-    passers_FULL: 15
-  - passers_EMPTY: 15
-    passers_FULL: 15
+  - passers_EMPTY: 200
+    passers_FULL: 200
   botSpeed: 0.075
   waterCarryAffect: 0.5
   total_OMNIBOTS: 0
