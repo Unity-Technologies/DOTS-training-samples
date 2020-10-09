@@ -18,7 +18,7 @@ public class FireSimulationInitSystem : SystemBase
             All = new ComponentType[] { typeof(FireSimulation) }
         }));
 
-        m_Random = new Random(0x98209104);
+        m_Random = new Random((uint)System.DateTime.UtcNow.Millisecond);
     }
 
     protected override void OnUpdate()
