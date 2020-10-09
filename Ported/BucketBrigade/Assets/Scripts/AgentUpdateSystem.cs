@@ -135,27 +135,33 @@ public class AgentUpdateSystem : SystemBase
                     {
                         // target is a bucket, in theory.
                         // pick up bucket (Agent.CarriedEntity = Bucket)
-                        FindNearestIndex(t.Value, bucketLocations, bucketIsEmptyAndOnGround, true, out bucketEntityIndex); // look for nearest empty bucket
-
-                        // check that the bucket is still in the expected location (another bot may have stolen it)
-                        if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
+                        if (FindNearestIndex(t.Value, bucketLocations, bucketIsEmptyAndOnGround, true,
+                            out bucketEntityIndex)) // look for nearest empty bucket
                         {
-                            bucketEntity = bucketEntities[bucketEntityIndex];
+                            // check that the bucket is still in the expected location (another bot may have stolen it)
+                            if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
+                            {
+                                bucketEntity = bucketEntities[bucketEntityIndex];
 
-                            // the bucket is still here
-                            // update carryable component to track carrying entity.
-                            ecb1.SetComponent<CarryableObject>(entityInQueryIndex, bucketEntity, new CarryableObject { CarryingEntity = e} );
+                                // the bucket is still here
+                                // update carryable component to track carrying entity.
+                                ecb1.SetComponent<CarryableObject>(entityInQueryIndex, bucketEntity,
+                                    new CarryableObject {CarryingEntity = e});
 
-                            // set new target (go to water to fill the bucket)
-							FindNearestAndSetSeekTarget(t.Value, waterLocations, waterIsAvailable, true, ref seekComponent); // look for nearest available water
+                                // set new target (go to water to fill the bucket)
+                                FindNearestAndSetSeekTarget(t.Value, waterLocations, waterIsAvailable, true,
+                                    ref seekComponent); // look for nearest available water
 
-                            agent.ActionState = (byte) AgentAction.FILL_BUCKET;
-                            agent.CarriedEntity = bucketEntity;
-                        }
-                        else
-                        {
-                            // nearest bucket has moved location since we first looked - navigate to current nearest bucket instead
-                            seekComponent.TargetPos = bucketLocations[bucketEntityIndex]; // FindNearestIndex + this = equivalent to FindNearestAndSetSeekTarget
+                                agent.ActionState = (byte) AgentAction.FILL_BUCKET;
+                                agent.CarriedEntity = bucketEntity;
+                            }
+                            else
+                            {
+                                // nearest bucket has moved location since we first looked - navigate to current nearest bucket instead
+                                seekComponent.TargetPos =
+                                    bucketLocations
+                                        [bucketEntityIndex]; // FindNearestIndex + this = equivalent to FindNearestAndSetSeekTarget
+                            }
                         }
                     }
                     break;
@@ -266,7 +272,7 @@ public class AgentUpdateSystem : SystemBase
                 {
                     if (agent.NextAgent == Entity.Null) // last agent of the line
                     {
-                        // drop it in the fire ?
+                        // drop it in on the ground for the thrower
                         // new WaterDrop
                         agent.ActionState = (byte) AgentAction.IDLE;
 
@@ -280,12 +286,14 @@ public class AgentUpdateSystem : SystemBase
                     
                         if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
                         {
-                            var targetAgent = EntityManager.GetComponentData<Agent>(agent.PreviousAgent);
+                            var targetAgent = EntityManager.GetComponentData<Agent>(agent.NextAgent);
 
                             targetAgent.CarriedEntity = agent.CarriedEntity;
                             agent.CarriedEntity = Entity.Null;
-                        
-                            EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
+                            
+                            EntityManager.SetComponentData(targetAgent.CarriedEntity, new CarryableObject { CarryingEntity = e} );
+                            
+                            EntityManager.SetComponentData(agent.NextAgent, targetAgent);
                         }              
                     }
                 }
@@ -311,6 +319,11 @@ public class AgentUpdateSystem : SystemBase
                             // Stay in the line
                             agent.ActionState = (byte) AgentAction.IDLE;
                         }
+                    }
+                    else
+                    {
+                        // Stay in the line
+                        agent.ActionState = (byte) AgentAction.IDLE;
                     }
                 }
             }).Run();
@@ -429,10 +442,11 @@ public class AgentUpdateSystem : SystemBase
         teamLineStartLocation.Dispose(Dependency);
     }
 
-    static void FindNearestIndex(float3 currentPos, NativeArray<float3> objectLocation, NativeArray<bool> objectFilter, bool filterMatch, out int objectIndex)
+    static bool FindNearestIndex(float3 currentPos, NativeArray<float3> objectLocation, NativeArray<bool> objectFilter, bool filterMatch, out int objectIndex)
     {
         float nearestDistanceSquared = float.MaxValue;
         int nearestIndex = 0;
+        bool foundIndex = false;
         for (int i = 0; i < objectLocation.Length; ++i)
         {
             if (objectFilter[i] == filterMatch)
@@ -443,11 +457,13 @@ public class AgentUpdateSystem : SystemBase
                 {
                     nearestDistanceSquared = squareLen;
                     nearestIndex = i;
+                    foundIndex = true;
                 }
             }
         }
 
         objectIndex = nearestIndex;
+        return foundIndex;
     }
 
     static void FindNearestAndSetSeekTarget(float3 currentPos, NativeArray<float3> objectLocation, NativeArray<bool> objectFilter, bool filterMatch, ref SeekPosition seekComponent)
