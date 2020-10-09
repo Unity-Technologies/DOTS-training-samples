@@ -60,7 +60,9 @@ public class AgentSpawnerSystem : SystemBase
             for (int team = 0; team < spawner.TeamCount && index < len; ++team)
             {
                 var teamEntity = EntityManager.CreateEntity(typeof(Team));
+#if UNITY_EDITOR
                 EntityManager.SetName(teamEntity, $"Team {team}");
+#endif
                 var teamComponent = new Team { Id = team, Length = spawner.AgentLineLength};
             
                 // could perhaps create these components via EntityManager.AddComponent version that takes an EntityQuery.
