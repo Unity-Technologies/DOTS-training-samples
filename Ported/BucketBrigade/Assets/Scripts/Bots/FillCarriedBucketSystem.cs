@@ -39,7 +39,8 @@ public class FillCarriedBucketSystem : SystemBase
                     float oldVolume = GetVolume(hasBucket.Entity, bucketEntities, bucketVolumes);
                     float newVolume = math.min(oldVolume + FILL_RATE * deltaTime, MAX_FILL);
                     
-                    ecb.SetComponent(entityInQueryIndex, hasBucket.Entity, new Volume { Value = newVolume });
+                    if (hasBucket.Entity != null)
+                        ecb.SetComponent(entityInQueryIndex, hasBucket.Entity, new Volume { Value = newVolume });
                     
                     fillingBucket.Full = newVolume >= MAX_FILL;
                     if (fillingBucket.Full)

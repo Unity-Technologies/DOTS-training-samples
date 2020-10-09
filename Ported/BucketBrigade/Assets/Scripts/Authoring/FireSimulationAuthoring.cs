@@ -23,6 +23,10 @@ public class FireSimulationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public int heatRadius = 1;
     [Tooltip("How fast will adjacent cells heat up?")]
     public float heatTransferRate = 0.7f;
+    [Tooltip("How much temperature is reduced by water")]
+    public float extinguishPerWaterVolume = 5f;
+    [Tooltip("How far can water splash")]
+    public float extinguishRadius = 1f;
     [Range(0.0001f, 2f)]
     [Tooltip("How often the fire cells update. 1 = once per second. Lower = faster")]
     public float fireSimUpdateRate = 0.5f;
@@ -67,6 +71,8 @@ public class FireSimulationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             flashpoint = flashpoint,
             heatRadius = heatRadius,
             heatTransferRate = heatTransferRate,
+            extinguishPerWaterVolume = extinguishPerWaterVolume,
+            extinguishRadius = extinguishRadius,
             fireSimUpdateRate = fireSimUpdateRate,
 
             fireCellColorNeutral = fireCellColorNeutral,
@@ -103,6 +109,8 @@ public struct FireSimulation : IComponentData
     public float flashpoint;
     public int heatRadius;
     public float heatTransferRate;
+    public float extinguishPerWaterVolume;
+    public float extinguishRadius;
     public float fireSimUpdateRate;
 
     public Color fireCellColorNeutral;
