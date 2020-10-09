@@ -18,7 +18,7 @@ public class FireSimulationInitSystem : SystemBase
             All = new ComponentType[] { typeof(FireSimulation) }
         }));
 
-        m_Random = new Random(0x98209104);
+        m_Random = new Random((uint)System.DateTime.UtcNow.Millisecond);
     }
 
     protected override void OnUpdate()
@@ -75,8 +75,7 @@ public class FireSimulationInitSystem : SystemBase
 
             // TEST TEMP
             //var request = EntityManager.CreateEntity();
-            //EntityManager.AddComponent<ClosestFireRequest>(request);
-            //EntityManager.SetComponentData(request, new ClosestFireRequest(new float2(5.5f, 24.4f)));
+            //EntityManager.AddComponentData(request, new ClosestFireRequest(new float2(5.5f, 9.4f)));
 
             entities.Dispose();
         }).Run();

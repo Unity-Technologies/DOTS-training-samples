@@ -106,11 +106,12 @@ public class ClosestFireSystem : SystemBase
         var simulationTemperatures = GetBufferFromEntity<SimulationTemperature>(true)[simulationEntity];
         var simMatrix = GetComponent<Unity.Transforms.LocalToWorld>(simulationEntity);
         int cellCount = simulation.rows * simulation.columns;
-        NativeArray<ReductionStructure> distances = new NativeArray<ReductionStructure>(cellCount, Allocator.TempJob);
 
         for (int i = 0; i < requests.Length; ++i)
         {
             var request = GetComponent<ClosestFireRequest>(requests[i]);
+            // Disposed by WriteFinalResultJob so needs to be allocated in the loop itself.
+            NativeArray<ReductionStructure> distances = new NativeArray<ReductionStructure>(cellCount, Allocator.TempJob);
 
             // TODO: See why this does not work in world space. As it is now it will only work if the simulation is at (0,0)
             //float4 requestPositionSimSpace4 = math.mul(math.inverse(simMatrix.Value), new float4(request.requestPosition.x, 0.0f, request.requestPosition.y, 1.0f));
