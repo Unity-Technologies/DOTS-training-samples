@@ -17,4 +17,5 @@ public struct Board : IComponentData
 
     public int wallCount;
     public int holeCount;
+    public int additionalSpawnerCount;
 }

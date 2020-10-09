@@ -34,6 +34,9 @@ public class BoardInitializationSystem : SystemBase
                 var wallProbability = board.wallCount / (float) (board.size * board.size);
                 var wallCount = board.wallCount;
 
+                var additionalSpawnerProbability = board.additionalSpawnerCount / (float) (board.size * board.size);
+                var additionalSpawnerCount = board.additionalSpawnerCount;
+
                 for (int x = 0; x < board.size; ++x)
                 for (int z = 0; z < board.size; ++z)
                 {
@@ -132,7 +135,6 @@ public class BoardInitializationSystem : SystemBase
                         PlaceHomeBase(posX, posZ, 2, board.homeBasePrefab, posY, tileInstance);
                     else if (x == board.size - boardQuarter - 1 && z == boardQuarter)
                         PlaceHomeBase(posX, posZ, 3, board.homeBasePrefab, posY, tileInstance);
-
                     // Not a base: can be a hole
                     else
                     {
@@ -145,6 +147,34 @@ public class BoardInitializationSystem : SystemBase
                             SetComponent(tileInstance, new Cell() {Index = x + z * board.size});
                             EntityManager.AddComponent<Hole>(tileInstance);
                             holeCount--;
+                        }
+                        else if( additionalSpawnerCount > 0 && rand.NextFloat(1f) < additionalSpawnerProbability)
+                        {
+                            var mouseSpawnPoint = new SpawnPoint
+                            {
+                                spawnType = 0,
+                                direction = DirectionDefines.North,
+                                spawnCount = 20,
+                                spawnDelay = 6f,
+                            };
+                            EntityManager.AddComponent<SpawnPoint>(tileInstance);
+                            SetComponent(tileInstance, mouseSpawnPoint);
+                            var buffer = EntityManager.AddBuffer<SpawnType>(tileInstance);
+                            buffer.Length = 2;
+                            buffer[0] = new SpawnType()
+                            {
+                                spawnPrefab = board.ratPrefab,
+                                spawnMax = 20,
+                                spawnFrequency = 0.2f,
+                                speedRange = new float2(1f, 5f)
+                            };
+                            buffer[1] = new SpawnType()
+                            {
+                                spawnPrefab = board.catPrefab,
+                                spawnMax = 1,
+                                spawnFrequency = 0f,
+                                speedRange = new float2(.5f, 1.5f)
+                            };
                         }
                     }
 
