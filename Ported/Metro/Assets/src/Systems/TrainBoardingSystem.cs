@@ -107,7 +107,15 @@ public class TrainBoardingSystem : SystemBase
                             {
                                 carriageCommuterBuffer[j] = new CommuterInCarriageBufferElementData() { Value = Entity.Null };
 
-                                ecb.RemoveComponent<CommuterTask_WaitInCarriage>(commuter.Index, commuter);
+                                ecb.RemoveComponent<Parent>(commuter.Index, commuter);
+                                ecb.RemoveComponent<LocalToParent>(commuter.Index, commuter);
+
+                                var commuterTransform = GetComponent<LocalToWorld>(commuter);
+                                ecb.SetComponent(commuter.Index, commuter, new Translation
+                                {
+                                    Value = commuterTransform.Position
+                                });
+
                                 ecb.AddComponent(commuter.Index, commuter, new CommuterTask_UnboardTrain { Platform = platform });
 
                                 var navPoints = ecb.AddBuffer<NavPointBufferElementData>(commuter.Index, commuter);
