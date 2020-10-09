@@ -381,6 +381,7 @@ public class AgentUpdateSystem : SystemBase
 
         // Empty bucket passer updates
         Entities
+            .WithoutBurst()
 //            .WithReadOnly(bucketEntities)
 //            .WithReadOnly(bucketLocations)
  //           .WithReadOnly(bucketFillValue)
@@ -422,7 +423,7 @@ public class AgentUpdateSystem : SystemBase
                 // Stay in the line
                 agent.ActionState = (byte) AgentAction.IDLE;
             }
-        }).ScheduleParallel();
+        }).Run();
         
         /*
         Entities
