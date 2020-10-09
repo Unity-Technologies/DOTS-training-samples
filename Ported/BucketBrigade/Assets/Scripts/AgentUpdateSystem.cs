@@ -299,7 +299,7 @@ public class AgentUpdateSystem : SystemBase
                         FindNearestIndex(t.Value, bucketLocations, bucketIsFullAndOnGround, true, out bucketEntityIndex); // look for nearest full bucket
 
                         // check that the bucket is near
-                        if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
+                        if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) <= arrivalThresholdSq)
                         {
                             bucketEntity = bucketEntities[bucketEntityIndex];
 
@@ -378,7 +378,7 @@ public class AgentUpdateSystem : SystemBase
                         FindNearestIndex(t.Value, bucketLocations, bucketIsEmptyAndOnGround, true, out bucketEntityIndex); // look for nearest empty bucket
 
                         // check that the bucket is near
-                        if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
+                        if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) <= arrivalThresholdSq)
                         {
                             bucketEntity = bucketEntities[bucketEntityIndex];
 
