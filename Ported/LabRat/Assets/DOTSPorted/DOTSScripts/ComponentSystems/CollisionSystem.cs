@@ -37,7 +37,7 @@ public class CollisionSystem : SystemBase
             int x = (int)(translation.Value.x + 0.5f);
             int z = (int)(translation.Value.z + 0.5f);
             var tile = TileUtils.GetTile(tiles, x, z, boardInfo.width);
-            if (TileUtils.IsHole(tile) || TileUtils.BaseId(tile) ==0)
+            if (TileUtils.IsHole(tile) || TileUtils.BaseId(tile) != -1)
             {
                 ecb.DestroyEntity(entity);
             }
@@ -57,7 +57,7 @@ public class CollisionSystem : SystemBase
             int x = (int)(translation.Value.x + 0.5f);
             int z = (int)(translation.Value.z + 0.5f);
             var tile = TileUtils.GetTile(tiles, x, z, boardInfo.width);
-            if (TileUtils.IsHole(tile))
+            if (TileUtils.IsHole(tile)|| TileUtils.BaseId(tile) != -1)
             {
                 ecb.DestroyEntity(entity);
             }

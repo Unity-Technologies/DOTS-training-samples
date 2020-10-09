@@ -11,7 +11,7 @@ public class MovementSystem : SystemBase
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
-        Entities.ForEach((ref Translation translation, ref Direction direction, in Position position, in EntitySpeed entitySpeed) =>
+        Entities.ForEach((ref Translation translation, in Direction direction, in Position position, in EntitySpeed entitySpeed) =>
         {
             switch (direction.Value)
             {
