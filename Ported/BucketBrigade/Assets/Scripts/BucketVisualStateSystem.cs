@@ -18,8 +18,8 @@ public class BucketVisualStateSystem : SystemBase
     {
         Entities.ForEach((ref NonUniformScale bucketScale, ref Translation t, ref Color col, in Intensity bucketCurrentVolume, in Bucket bucketTag, in CarryableObject carryInfo) =>
         {
-            col.Value = math.lerp(k_emptyColor.Value, k_fullColor.Value, bucketCurrentVolume.Value / 3.0f);
-            bucketScale.Value = new float3(bucketCurrentVolume.Value, bucketCurrentVolume.Value, bucketCurrentVolume.Value) / 3.0f * 0.25f + new float3(0.2f,0.2f,0.2f);
+            col.Value = math.lerp(k_emptyColor.Value, k_fullColor.Value, bucketCurrentVolume.Value / Bucket.MaxVolume);
+            bucketScale.Value = new float3(bucketCurrentVolume.Value, bucketCurrentVolume.Value, bucketCurrentVolume.Value) / Bucket.MaxVolume * 0.25f + new float3(0.2f,0.2f,0.2f);
             if (carryInfo.CarryingEntity == Entity.Null)
             {
                 t.Value = new float3(t.Value.x, bucketScale.Value.y / 2.0f, t.Value.z);
