@@ -50,7 +50,7 @@ public class CarMovementSystem : SystemBase
                         var exitRoadNode = GetComponent<RoadNode>(tmpRoadNode.exitNode);
                         var exitMask = exitRoadNode.colorMask;
 
-                        if (exitMask == movement.colorMask)
+                        if ((exitMask & movement.colorMask) == movement.colorMask)
                         {
                             tmpNode = tmpRoadNode.exitNode;
                         }
@@ -58,7 +58,6 @@ public class CarMovementSystem : SystemBase
                         {
                             tmpNode = tmpRoadNode.nextNode;
                         }
-
                     }
                     else
                     {
