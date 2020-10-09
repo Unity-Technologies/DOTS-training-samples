@@ -310,9 +310,13 @@ public class AgentUpdateSystem : SystemBase
                         {
                             bucketEntity = bucketEntities[bucketEntityIndex];
                             
-                            agent.CarriedEntity = bucketEntity;
-                            EntityManager.SetComponentData(bucketEntity, new CarryableObject { CarryingEntity = e} );
-                            agent.ActionState = (byte) AgentAction.PASS_BUCKET;
+                            var alreadyCarried = EntityManager.GetComponentData<CarryableObject>(bucketEntity).CarryingEntity != Entity.Null;
+                            if (!alreadyCarried)
+                            {
+                                agent.CarriedEntity = bucketEntity;
+                                EntityManager.SetComponentData(bucketEntity, new CarryableObject { CarryingEntity = e} );
+                                agent.ActionState = (byte) AgentAction.PASS_BUCKET;
+                            }
                         }
                         else
                         {
