@@ -23,7 +23,7 @@ public class SpawningSystem : SystemBase
         Entities.WithStructuralChanges().ForEach((ref SpawnerInfo spawnerInfo, in Translation translation) =>
         {
             spawnerInfo.catTimer += deltaTime;
-            if (spawnerInfo.catTimer >= spawnerInfo.catFrequency && spawnerInfo.catCount < spawnerInfo.catMax)
+            while (spawnerInfo.catTimer >= spawnerInfo.catFrequency && spawnerInfo.catCount < spawnerInfo.catMax)
             {
                 spawnerInfo.catTimer -= spawnerInfo.catFrequency;
                 var cat = EntityManager.Instantiate(spawnerInfo.catPrefab);
@@ -45,7 +45,7 @@ public class SpawningSystem : SystemBase
             }
 
             spawnerInfo.mouseTimer += deltaTime;
-            if (spawnerInfo.mouseTimer >= spawnerInfo.mouseFrequency && spawnerInfo.mouseCount < spawnerInfo.maxMiceCount)
+            while (spawnerInfo.mouseTimer >= spawnerInfo.mouseFrequency && spawnerInfo.mouseCount < spawnerInfo.maxMiceCount)
             {
                 spawnerInfo.mouseTimer -= spawnerInfo.mouseFrequency;
                 var mouse = EntityManager.Instantiate(spawnerInfo.mousePrefab);

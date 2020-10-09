@@ -538,12 +538,12 @@ MonoBehaviour:
   catCount: 0
   mouseCount: 0
   catFrequency: 0
-  mouseFrequency: 0.02
+  mouseFrequency: 0.001
   catTimer: 0
   mouseTimer: 0
   catSpeed: 4
   mouseSpeed: 8
-  maxMiceCount: 2000
+  maxMiceCount: 20000
   minCatSpeed: 3
   maxCatSpeed: 5
   minMouseSpeed: 4
@@ -598,12 +598,12 @@ MonoBehaviour:
   catCount: 0
   mouseCount: 0
   catFrequency: 0
-  mouseFrequency: 0.02
+  mouseFrequency: 0.001
   catTimer: 0
   mouseTimer: 0
   catSpeed: 4
   mouseSpeed: 8
-  maxMiceCount: 2000
+  maxMiceCount: 20000
   minCatSpeed: 3
   maxCatSpeed: 5
   minMouseSpeed: 4
