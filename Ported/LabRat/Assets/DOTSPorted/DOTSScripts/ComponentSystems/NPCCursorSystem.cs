@@ -8,7 +8,7 @@ using Unity.Collections;
 using UnityEditor.Build.Pipeline.Tasks;
 using UnityEngine.SocialPlatforms.GameCenter;
 
-[UpdateAfter(typeof(InitBoardSystem))]
+[UpdateAfter(typeof(InitPlayerSystem))]
 public class NPCCursorSystem : SystemBase
 {
 	private float m_Timer = 0.0f;

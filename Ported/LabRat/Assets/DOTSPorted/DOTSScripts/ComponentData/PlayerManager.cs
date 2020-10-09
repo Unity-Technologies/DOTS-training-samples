@@ -121,7 +121,7 @@ public struct PlayerManager : IComponentData
     public static bool HasArrow(EntityManager entityManager, int x, int y)
     {
         var query = entityManager.CreateEntityQuery(typeof(BoardArrow));
-        var arrows = query.ToEntityArray(Allocator.Persistent);
+        var arrows = query.ToEntityArray(Allocator.TempJob);
         for (int i = 0; i < arrows.Length; i++)
         {
             var arrow = entityManager.GetComponentData<BoardArrow>(arrows[i]);
@@ -130,6 +130,7 @@ public struct PlayerManager : IComponentData
                 return true;
             }
         }
+        arrows.Dispose();
 
         return false;
     }

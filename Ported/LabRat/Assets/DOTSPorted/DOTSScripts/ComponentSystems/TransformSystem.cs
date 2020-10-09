@@ -26,20 +26,13 @@ public class TransformSystem : SystemBase
 
         Entities
             .WithDisposeOnCompletion(arrows)
+            .WithAny<Mouse,Cat>()
             .ForEach((ref Rotation rotation, ref Translation translation, ref Direction direction, in Position position) =>
         {
-            int x = (int)(translation.Value.x);
-            int z = (int)(translation.Value.z);
+            int x = (int)(translation.Value.x + 0.5f);
+            int z = (int)(translation.Value.z + 0.5f);
             byte tile = TileUtils.GetTile(tiles, x, z, boardInfo.width);
 
-            for (int i = 0; i < arrows.Length; i++)
-            {
-                if (arrows[i].gridPosition.x == x && arrows[i].gridPosition.y == z)
-                {
-                    direction.Value = arrows[i].direction;
-                }
-            }
-            
             // test for wall collisions
             if((tile & 0xf) != 0)
             {
@@ -65,6 +58,20 @@ public class TransformSystem : SystemBase
                 }
             }
             
+            for (int i = 0; i < arrows.Length; i++)
+            {
+                if (arrows[i].gridPosition.x == x && arrows[i].gridPosition.y == z)
+                {
+                    direction.Value = arrows[i].direction;
+                    if (direction.Value == EntityDirection.Left || direction.Value == EntityDirection.Right)
+                        translation.Value.z = arrows[i].gridPosition.y;
+                    else
+                    {
+                        translation.Value.x = arrows[i].gridPosition.x;
+                    }
+                }
+            }
+
             rotation.Value = quaternion.RotateY(math.radians((float)direction.Value * 90));
         }).Schedule();
     }
