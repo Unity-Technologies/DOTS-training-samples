@@ -28,6 +28,7 @@ public class RequestCreateChainSystem : SystemBase
 
             Entities
                 //.WithDisposeOnCompletion(waterPositions)
+                .WithNone<ChainCreateTag>()
                 .ForEach(
                 (Entity entity, int entityInQueryIndex,
                             in ClosestFireRequest fire) =>
@@ -42,6 +43,7 @@ public class RequestCreateChainSystem : SystemBase
                         ecb.AddComponent(chain, new ChainEnd() { Value = fire.closestFirePosition });
                         ecb.AddComponent(chain, new ChainLength() { Value = fireSim.chainLength });
                         ecb.AddComponent(chain, new ChainID() { Value = 0 }); //TODO fix this, need someway to increment chainID
+                        ecb.AddComponent(chain, new ClosestFireRequest(fire.closestFirePosition));
                     }
                 })
                 .Run();
