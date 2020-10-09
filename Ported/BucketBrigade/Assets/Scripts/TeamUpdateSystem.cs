@@ -88,7 +88,7 @@ public class TeamUpdateSystem : SystemBase
 	
 	static bool TryFindNearestFire(int x, int z, int sizeX, int sizeZ, NativeArray<HeatMapElement> heatMap, out float3 target)
 	{
-		for (int i = 0; i < heatMap.Length; i++)
+		for (int i = 0; i < heatMap.Length * 2; i++)
 		{
 			float posX = x;
 			float posZ = z;

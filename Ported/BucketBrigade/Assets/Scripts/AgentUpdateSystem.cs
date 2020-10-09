@@ -315,7 +315,7 @@ public class AgentUpdateSystem : SystemBase
                     {
                         Entity bucketEntity = Entity.Null;
                         int bucketEntityIndex;
-                        FindNearestIndex(t.Value, bucketLocations, bucketIsFullAndOnGround, true, out bucketEntityIndex); // look for nearest empty bucket
+                        FindNearestIndex(t.Value, bucketLocations, bucketIsFullAndOnGround, true, out bucketEntityIndex); // look for nearest full bucket
 
                         // check that the bucket is near
                         if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
@@ -345,46 +345,81 @@ public class AgentUpdateSystem : SystemBase
             }).Run();
 
         // Empty bucket passer updates
-        Entities
+         Entities
             .WithoutBurst()
-//            .WithReadOnly(bucketEntities)
-//            .WithReadOnly(bucketLocations)
- //           .WithReadOnly(bucketFillValue)
- //           .WithReadOnly(bucketIsEmptyAndOnGround)
-        .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.EmptyBucketPasserTag agentTag) =>
-        {
-            // If the agent carry something pass it to the next agent
-            if (agent.CarriedEntity != Entity.Null)
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.EmptyBucketPasserTag agentTag) =>
             {
-                if (agent.NextAgent == Entity.Null) // last agent of the line
+                // If the agent carry something pass it to the previous agent
+                if (agent.CarriedEntity != Entity.Null)
                 {
-                    // Pass it to scooper ?                
-                    agent.ActionState = (byte) AgentAction.IDLE;
+                    if (agent.PreviousAgent == Entity.Null) // last agent of the line
+                    {
+                        var bucketEntity = agent.CarriedEntity;
+                        
+                        // drop it in on the ground for the thrower
+                        EntityManager.SetComponentData(bucketEntity, new CarryableObject { CarryingEntity = Entity.Null} );
+                        
+                        agent.CarriedEntity = Entity.Null;
+                        agent.ActionState = (byte) AgentAction.IDLE;
+                    }
+                    else
+                    {
+                        // Goto previous agent and pass the bucket when near it
+                        agent.ActionState = (byte) AgentAction.PASS_BUCKET;
+                        var targetAgentPosition = EntityManager.GetComponentData<Translation>(agent.PreviousAgent);
+                        seekComponent.TargetPos = targetAgentPosition.Value;
+                    
+                        if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
+                        {
+                            var targetAgent = EntityManager.GetComponentData<Agent>(agent.PreviousAgent);
+
+                            EntityManager.SetComponentData(agent.CarriedEntity, new CarryableObject { CarryingEntity = agent.PreviousAgent} );
+                            
+                            targetAgent.CarriedEntity = agent.CarriedEntity;
+                            EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
+                            
+                            agent.CarriedEntity = Entity.Null;
+                            
+                            
+                            // TMP 
+                            EntityManager.SetComponentData(targetAgent.CarriedEntity, new Translation() { Value = targetAgentPosition.Value} );
+                        }              
+                    }
                 }
                 else
                 {
-                    // Goto next agent and pass the bucket when near it
-                    agent.ActionState = (byte) AgentAction.PASS_BUCKET;
-                    var targetAgentPosition = EntityManager.GetComponentData<Translation>(agent.NextAgent);
-                    seekComponent.TargetPos = targetAgentPosition.Value;
-                    
-                    if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
+                    if (agent.NextAgent == Entity.Null) // first agent of the line try to pick empty buckets
                     {
-                        var targetAgent = EntityManager.GetComponentData<Agent>(agent.PreviousAgent);
+                        Entity bucketEntity = Entity.Null;
+                        int bucketEntityIndex;
+                        FindNearestIndex(t.Value, bucketLocations, bucketIsEmptyAndOnGround, true, out bucketEntityIndex); // look for nearest empty bucket
 
-                        targetAgent.CarriedEntity = agent.CarriedEntity;
-                        agent.CarriedEntity = Entity.Null;
-                        
-                        EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
-                    }              
+                        // check that the bucket is near
+                        if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
+                        {
+                            bucketEntity = bucketEntities[bucketEntityIndex];
+                            
+                            var alreadyCarried = EntityManager.GetComponentData<CarryableObject>(bucketEntity).CarryingEntity != Entity.Null;
+                            if (!alreadyCarried)
+                            {
+                                agent.CarriedEntity = bucketEntity;
+                                EntityManager.SetComponentData(bucketEntity, new CarryableObject { CarryingEntity = e} );
+                                agent.ActionState = (byte) AgentAction.PASS_BUCKET;
+                            }
+                        }
+                        else
+                        {
+                            // Stay in the line
+                            agent.ActionState = (byte) AgentAction.IDLE;
+                        }
+                    }
+                    else
+                    {
+                        // Stay in the line
+                        agent.ActionState = (byte) AgentAction.IDLE;
+                    }
                 }
-            }
-            else
-            {
-                // Stay in the line
-                agent.ActionState = (byte) AgentAction.IDLE;
-            }
-        }).Run();
+            }).Run();
 
         
         m_endSimECB.AddJobHandleForProducer(Dependency);

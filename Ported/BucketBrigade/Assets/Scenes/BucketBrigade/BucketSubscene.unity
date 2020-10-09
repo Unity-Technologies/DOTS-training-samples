@@ -566,8 +566,8 @@ MonoBehaviour:
   TeamCount: 2
   TeamScoopers: 1
   TeamThrowers: 1
-  AgentLineLength: 50
-  MaxAgentVelocity: 0.075
+  AgentLineLength: 20
+  MaxAgentVelocity: 0.1
 --- !u!4 &1860077373
 Transform:
   m_ObjectHideFlags: 0
