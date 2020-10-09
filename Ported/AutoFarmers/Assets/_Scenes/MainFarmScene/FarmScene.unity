@@ -155,9 +155,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GridSize:
-    x: 50
-    y: 50
-  FarmersCount: 5
+    x: 200
+    y: 200
+  FarmersCount: 1000
   PlainsPrefab: {fileID: 6227356122151387076, guid: 7f520695b990f464a909116d776c9b4f,
     type: 3}
   TilledPrefab: {fileID: 6227356122151387076, guid: 49715e16be26c5a4ea0e317b8f916e07,
@@ -177,7 +177,7 @@ MonoBehaviour:
   ForestProbability: 0.7
   SimulationSpeed: 1
   MaximumTaskDistance: 5
-  InitalForestHealth: 0
+  InitalForestHealth: 1
 --- !u!4 &1227781564
 Transform:
   m_ObjectHideFlags: 0

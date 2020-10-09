@@ -46,9 +46,9 @@ public class AssignTaskSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.TempJob, PlaybackPolicy.MultiPlayback);
         var ecbWriter = ecb.AsParallelWriter();
 
-        int nextTask = m_Random.NextInt(0, 4);
+        int nextTask = m_Random.NextInt(0, 5);
 
-        if(nextTask == 0)
+        if(nextTask <= 1)
         {
             NativeArray<Entity> cropPlains = cropPlainsQuery.ToEntityArray(Allocator.TempJob);
             
@@ -81,7 +81,7 @@ public class AssignTaskSystem : SystemBase
                                 nearestTargetPos = cropPos;
                             }
                         }
-
+        
                         if(nearestTarget != Entity.Null)
                         {
                             ecbWriter.AddComponent<PickUpCropTask>(entityInQueryIndex, farmerEntity);
@@ -89,15 +89,15 @@ public class AssignTaskSystem : SystemBase
                                 new TargetEntity { target = nearestTarget, targetPosition = nearestTargetPos });
                             ecbWriter.AddComponent<NeedsDeduplication>(entityInQueryIndex, farmerEntity);
                         }
-
+        
                     }).ScheduleParallel();
-
+        
             // Complete task assignment and structural changes
             Dependency.Complete();
             ecb.Playback(EntityManager);
         }
         
-        if(nextTask <= 1)
+        if(nextTask <= 2)
         {
             NativeArray<Entity> emptyPlains = emptyPlainsQuery.ToEntityArray(Allocator.TempJob);
             
@@ -130,7 +130,7 @@ public class AssignTaskSystem : SystemBase
                                 nearestTargetPos = targetPos;
                             }
                         }
-
+        
                         if(nearestTarget != Entity.Null)
                         {
                             ecbWriter.AddComponent<TillTask>(entityInQueryIndex, farmerEntity);
@@ -138,7 +138,7 @@ public class AssignTaskSystem : SystemBase
                                 new TargetEntity { target = nearestTarget, targetPosition = nearestTargetPos });
                             ecbWriter.AddComponent<NeedsDeduplication>(entityInQueryIndex, farmerEntity);
                         }
-
+        
                     }).ScheduleParallel();
             // Complete task assignment and structural changes
             Dependency.Complete();
@@ -146,10 +146,10 @@ public class AssignTaskSystem : SystemBase
             
         }
         
-        if(nextTask <= 2)
+        if(nextTask <= 3)
         {
             NativeArray<Entity> forests = forestsQuery.ToEntityArray(Allocator.TempJob);
-
+        
             // Loop over all idle farmers, assigning a chop forest task
             Entities.WithName("assign_chop_forest_task").
                 WithAll<Farmer>().
@@ -180,7 +180,7 @@ public class AssignTaskSystem : SystemBase
                                 nearestForestPos = forestPos;
                             }
                         }
-
+        
                         if(nearestForestEntity != Entity.Null)
                         {
                             ecbWriter.AddComponent<ChopForestTask>(entityInQueryIndex, farmerEntity);
@@ -188,18 +188,18 @@ public class AssignTaskSystem : SystemBase
                                 new TargetEntity { target = nearestForestEntity, targetPosition = nearestForestPos });
                             ecbWriter.AddComponent<NeedsDeduplication>(entityInQueryIndex, farmerEntity);
                         }
-
+        
                     }).ScheduleParallel();
-
+        
             // Complete task assignment and structural changes
             Dependency.Complete();
             ecb.Playback(EntityManager);
         }
-
-        if(nextTask <= 3)
+        
+        if(nextTask <= 4)
         {
             NativeArray<Entity> emptyFarms = emptyFarmsQuery.ToEntityArray(Allocator.TempJob);
-
+        
             // Loop over all idle farmers, assigning a chop forest task
             Entities.WithName("assign_plant_sapling_task").
                 WithAll<Farmer>().
@@ -214,6 +214,7 @@ public class AssignTaskSystem : SystemBase
                 ForEach(
                     (Entity farmerEntity, int entityInQueryIndex, in Position farmerPos) =>
                     {
+                        
                         // Find nearest crop
                         float minDistSq = float.MaxValue;
                         Entity nearestFarmEntity = Entity.Null;
@@ -230,7 +231,7 @@ public class AssignTaskSystem : SystemBase
                                 nearestFarmPos = farmPos;
                             }
                         }
-
+        
                         if(nearestFarmEntity != Entity.Null)
                         {
                             ecbWriter.AddComponent<PlantSaplingTask>(entityInQueryIndex, farmerEntity);
@@ -238,9 +239,9 @@ public class AssignTaskSystem : SystemBase
                                 new TargetEntity { target = nearestFarmEntity, targetPosition = nearestFarmPos });
                             ecbWriter.AddComponent<NeedsDeduplication>(entityInQueryIndex, farmerEntity);
                         }
-
+                        
                     }).ScheduleParallel();
-
+        
             // Complete task assignment and structural changes
             Dependency.Complete();
             ecb.Playback(EntityManager);
