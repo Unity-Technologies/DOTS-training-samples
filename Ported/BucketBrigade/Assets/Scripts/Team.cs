@@ -1,6 +1,7 @@
 
 
 using Unity.Entities;
+using Unity.Mathematics;
 
 public struct Team : IComponentData
 {
@@ -12,4 +13,7 @@ public struct Team : IComponentData
 	
 	public Entity LineEmptyHead;
 	public Entity LineEmptyTail;
+
+	public float3 DropOffLocation;
+	public float3 PickupLocation;
 }

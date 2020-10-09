@@ -14,11 +14,6 @@ public class MoveAgentInLineSystem : SystemBase
 			{
 				// Empty Line
 				var currentAgentEntity = team.LineEmptyHead;
-				var headPosition = EntityManager.GetComponentData<Translation>(currentAgentEntity).Value;
-				var tailAgentEntity = team.LineEmptyTail;
-				var tailPosition = EntityManager.GetComponentData<Translation>(tailAgentEntity).Value;
-				
-				Debug.DrawLine(headPosition, tailPosition);
 				
 				int i = 0;
 				while (currentAgentEntity != Entity.Null)
@@ -28,7 +23,7 @@ public class MoveAgentInLineSystem : SystemBase
 					// If the agent is idle send him back in the line at his position
 					if (currentAgent.ActionState == (byte)AgentAction.IDLE)
 					{
-						var newDestination = math.lerp(headPosition, tailPosition, i / (float)team.Length);
+						var newDestination = math.lerp(team.PickupLocation, team.DropOffLocation, i / (float)team.Length);
 						
 						EntityManager.SetComponentData(currentAgentEntity, new SeekPosition { TargetPos = newDestination, Velocity = 1f});
 					}
@@ -39,9 +34,6 @@ public class MoveAgentInLineSystem : SystemBase
 				
 				// Full Line
 				currentAgentEntity = team.LineFullHead;
-				headPosition = EntityManager.GetComponentData<Translation>(currentAgentEntity).Value;
-				tailAgentEntity = team.LineFullTail;
-				tailPosition = EntityManager.GetComponentData<Translation>(tailAgentEntity).Value;
 				
 				i = 0;
 				while (currentAgentEntity != Entity.Null)
@@ -50,7 +42,7 @@ public class MoveAgentInLineSystem : SystemBase
 
 					if (currentAgent.ActionState == (byte)AgentAction.IDLE)
 					{
-						var newDestination = math.lerp(headPosition, tailPosition, i / (float)team.Length);
+						var newDestination = math.lerp(team.PickupLocation, team.DropOffLocation, i / (float)team.Length);
 						
 						EntityManager.SetComponentData(currentAgentEntity, new SeekPosition { TargetPos = newDestination, Velocity = 1f});
 					}

@@ -163,6 +163,10 @@ public class AgentSpawnerSystem : SystemBase
                 }
                 teamComponent.LineEmptyTail = previous;
                 
+                // TMP random pickup / dropoff init
+                teamComponent.PickupLocation = new float3(Random.Range(0, boardDimensions.x),0,Random.Range(0, boardDimensions.y));
+                teamComponent.DropOffLocation = new float3(Random.Range(0, boardDimensions.x),0,Random.Range(0, boardDimensions.y));
+                
                 EntityManager.AddComponentData(teamEntity, teamComponent);
             }
             

@@ -35,20 +35,10 @@ public class AgentUpdateSystem : SystemBase
     {
         float elapsedTime = (float)Time.ElapsedTime;
 
-        var heatMapEntity = GetSingletonEntity<HeatMap>();
-        var heatMap = EntityManager.GetComponentData<HeatMap>(heatMapEntity);
-        var heatMapBuffer = EntityManager.GetBuffer<HeatMapElement>(heatMapEntity).AsNativeArray();
-        
         var ecb1 = m_endSimECB.CreateCommandBuffer().AsParallelWriter();
         var ecb2 = m_endSimECB.CreateCommandBuffer().AsParallelWriter();
         var ecb3 = m_endSimECB.CreateCommandBuffer().AsParallelWriter();
         var ecb4 = m_endSimECB.CreateCommandBuffer().AsParallelWriter();
-
-        /*
-         * Search nearest fire example:
-         * Translation t;
-         * FindNearestFire((int)t.Value.x, (int)t.Value.z, heatMap.SizeX, heatMap.SizeZ, heatMapBuffer, ref seekComponent);
-         */
 
 		int watersFoundLastUpdate = m_waterQuery.CalculateEntityCount();
 
@@ -270,114 +260,44 @@ public class AgentUpdateSystem : SystemBase
         }).ScheduleParallel(); // should run in parallel with Scoopers.
 
         // full bucket passer updates
+       
         Entities
-            .WithoutBurst() // main thread needed for EntityManager queries.
-            //.WithReadOnly(bucketEntities)
-            //.WithReadOnly(bucketLocations)
-            //.WithReadOnly(bucketFillValue)
-            .WithReadOnly(bucketIsFullAndOnGround)
+            .WithoutBurst()
             .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.FullBucketPasserTag agentTag) =>
-        {
-            /*
-             * Full Passer Actions:
-             * GET_BUCKET -> PASS_BUCKET
-             */
-            int bucketEntityIndex = 0; // index of found bucket in temp storage arrays
-            Entity bucketEntity = Entity.Null;
-            switch (agent.ActionState)
             {
-                case (byte) AgentAction.START:
-                    //FindNearestAndSetSeekTarget(t.Value, bucketLocations, bucketIsFullAndOnGround, true, ref seekComponent); // look for nearest empty bucket
-                    //agent.ActionState = (byte) AgentAction.GET_BUCKET;
-                    break; // would be nice if it could drop into the next state without changing the switch to an if
-
-                case (byte) AgentAction.GET_BUCKET:
-                    // cheat - rather than find the list of entities in the team and querying each in order, just find the closest bucket. if it's near us, it's been passed.
-                    FindNearestIndex(t.Value, bucketLocations, bucketIsFullAndOnGround, true, out bucketEntityIndex);
-                    if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
+                // If the agent carry something pass it to the next agent
+                if (agent.CarriedEntity != Entity.Null)
+                {
+                    if (agent.NextAgent == Entity.Null) // last agent of the line
                     {
-                        //FindNearestAndSetSeekTarget(t.Value, bucketLocations, bucketIsFullAndOnGround, true, ref seekComponent); // look for nearest empty bucket
-                        agent.ActionState = (byte) AgentAction.GOTO_PICKUP_LOCATION;    
+                        // drop it in the fire ?
+                        // new WaterDrop
+                        agent.ActionState = (byte) AgentAction.IDLE;
                     }
-                    break;
-
-                case (byte)AgentAction.GOTO_PICKUP_LOCATION:
-                    if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
+                    else
                     {
-                        // check bucket is still there
-                        FindNearestIndex(t.Value, bucketLocations, bucketIsFullAndOnGround, true, out bucketEntityIndex);
-                        if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
+                        // Goto next agent and pass the bucket when near it
+                        agent.ActionState = (byte) AgentAction.PASS_BUCKET;
+                        var targetAgentPosition = EntityManager.GetComponentData<Translation>(agent.NextAgent);
+                        seekComponent.TargetPos = targetAgentPosition.Value;
+                    
+                        if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
                         {
-                            bucketEntity = bucketEntities[bucketEntityIndex];
+                            var targetAgent = EntityManager.GetComponentData<Agent>(agent.PreviousAgent);
 
-                            // the bucket is still here
-                            // update carryable component to track carrying entity.
-                            ecb1.SetComponent<CarryableObject>(entityInQueryIndex, bucketEntity, new CarryableObject { CarryingEntity = e} );
-
-                            // set new target (go to water to fill the bucket - TODO get position in chain)
-                            seekComponent.TargetPos = new float3(0, 0, 0);
-
-                            agent.ActionState = (byte) AgentAction.PASS_BUCKET;
-                            agent.CarriedEntity = bucketEntity;
-                        }
-                        else
-                        {
-                            // nearest bucket has moved location since we first looked - navigate to current nearest bucket instead
-                            seekComponent.TargetPos = bucketLocations[bucketEntityIndex]; // FindNearestIndex + this = equivalent to FindNearestAndSetSeekTarget
-                        }
+                            targetAgent.CarriedEntity = agent.CarriedEntity;
+                            agent.CarriedEntity = Entity.Null;
+                        
+                            EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
+                        }              
                     }
-
-                    break;
-
-                case (byte) AgentAction.PASS_BUCKET:
-                    // find next agent in line
-                    // move to dropoff location
-                    if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
-                    {
-
-                    }
-                    // pass bucket to it
-
-                    break;
-
-                case (byte) AgentAction.DROP_BUCKET:
-                    // drop bucket
-                    ecb1.SetComponent<CarryableObject>(entityInQueryIndex, agent.CarriedEntity, new CarryableObject {CarryingEntity = Entity.Null});
-                    agent.CarriedEntity = Entity.Null; // nb - this will be out of sync with bucket status for one frame (bucket will be updated after simulation end)
-
-                    // look for nearest full bucket
-                    FindNearestAndSetSeekTarget(t.Value, bucketLocations, bucketIsFullAndOnGround, true, ref seekComponent);
-                    agent.ActionState = (byte) AgentAction.GET_BUCKET;
-                    break;
-                
-                case (byte)AgentAction.IDLE:
-                    break;
-
-                default:
-                    Debug.Assert(false, "Full Bucket Passer bot entered unsupported state " + ((AgentAction)agent.ActionState).ToString() );
-                    break;
-            }
-
-                // update any carried buckets.
-            if (agent.CarriedEntity != Entity.Null)
-            {
-                ecb1.SetComponent<Translation>(entityInQueryIndex, agent.CarriedEntity, new Translation { Value = new float3(t.Value.x, t.Value.y + 0.5f, t.Value.z)} );
-            }
-            
-            /*
-            if (agent.PreviousAgent == Entity.Null)
-            {
-                //agent.ActionState = (byte) AgentAction.GOTO_DROPOFF_LOCATION;
-                FindNearestFire((int)t.Value.x, (int)t.Value.z, heatMap.SizeX, heatMap.SizeZ, heatMapBuffer, ref seekComponent);
-            }
-            else
-            {
-                agent.ActionState = (byte) AgentAction.IDLE;
-            }
-            */
-            
-        }).ScheduleParallel();
-//        m_endSimECB.AddJobHandleForProducer(fullBucketECBJobHandle);
+                }
+                else
+                {
+                    // Stay in the line
+                    agent.ActionState = (byte) AgentAction.IDLE;
+                }
+            }).Run();
 
         // Empty bucket passer updates
         Entities
@@ -386,37 +306,33 @@ public class AgentUpdateSystem : SystemBase
 //            .WithReadOnly(bucketLocations)
  //           .WithReadOnly(bucketFillValue)
  //           .WithReadOnly(bucketIsEmptyAndOnGround)
- .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.EmptyBucketPasserTag agentTag) =>
+        .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.EmptyBucketPasserTag agentTag) =>
         {
             // If the agent carry something pass it to the next agent
             if (agent.CarriedEntity != Entity.Null)
             {
-                // Goto next agent and pass the bucket when near it
-                agent.ActionState = (byte) AgentAction.PASS_BUCKET;
-                var targetAgentPosition = EntityManager.GetComponentData<Translation>(agent.NextAgent);
-                seekComponent.TargetPos = targetAgentPosition.Value;
-                    
-                if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
+                if (agent.NextAgent == Entity.Null) // last agent of the line
                 {
-                    var targetAgent = EntityManager.GetComponentData<Agent>(agent.PreviousAgent);
-
-                    targetAgent.CarriedEntity = agent.CarriedEntity;
-                    agent.CarriedEntity = Entity.Null;
-                        
-                    EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
+                    // Pass it to scooper ?                
+                    agent.ActionState = (byte) AgentAction.IDLE;
                 }
-            }
-            else if (agent.NextAgent == Entity.Null) // last agent of the line
-            {
-                agent.ActionState = (byte) AgentAction.GOTO_PICKUP_LOCATION;
-                //FindNearestAndSetSeekTarget(t.Value, waterLocations, waterIsAvailable, true, ref seekComponent); // look for nearest available water
-                seekComponent.TargetPos = new float3(0, 0, 0);
-            }
-            else if (agent.PreviousAgent == Entity.Null) // first agent of the line
-            {
-                // Move to the nearest fire
-                agent.ActionState = (byte) AgentAction.GOTO_DROPOFF_LOCATION;
-                FindNearestFire((int)t.Value.x, (int)t.Value.z, heatMap.SizeX, heatMap.SizeZ, heatMapBuffer, ref seekComponent);
+                else
+                {
+                    // Goto next agent and pass the bucket when near it
+                    agent.ActionState = (byte) AgentAction.PASS_BUCKET;
+                    var targetAgentPosition = EntityManager.GetComponentData<Translation>(agent.NextAgent);
+                    seekComponent.TargetPos = targetAgentPosition.Value;
+                    
+                    if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
+                    {
+                        var targetAgent = EntityManager.GetComponentData<Agent>(agent.PreviousAgent);
+
+                        targetAgent.CarriedEntity = agent.CarriedEntity;
+                        agent.CarriedEntity = Entity.Null;
+                        
+                        EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
+                    }              
+                }
             }
             else
             {
@@ -538,24 +454,5 @@ public class AgentUpdateSystem : SystemBase
 
         float3 loc = objectLocation[nearestIndex];
         seekComponent.TargetPos = new float3(loc.x, loc.y, loc.z);
-    }
-
-    static void FindNearestFire(int x, int z, int sizeX, int sizeZ, NativeArray<HeatMapElement> heatMap, ref SeekPosition seekComponent)
-    {
-        for (int i = 0; i < heatMap.Length; i++)
-        {
-            float posX = x;
-            float posZ = z;
-            BoardHelper.ApplySpiralOffset(i, ref posX, ref posZ);
-
-            if (BoardHelper.TryGet2DArrayIndex((int)posX, (int)posZ, sizeX, sizeZ, out var index))
-            {
-                if (heatMap[index].Value > 75)
-                {
-                    seekComponent.TargetPos = new float3(posX, 5, posZ);
-                    return;
-                }
-            }
-        }
     }
 }

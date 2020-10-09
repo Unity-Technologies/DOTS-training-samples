@@ -563,10 +563,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AgentPrefab: {fileID: 429697506247921751, guid: 3d12b6b710bb8419dae0f63e07b2ebd8, type: 3}
-  TeamCount: 1
+  TeamCount: 2
   TeamScoopers: 1
   TeamThrowers: 1
-  AgentLineLength: 20
+  AgentLineLength: 5
   MaxAgentVelocity: 0.075
 --- !u!4 &1860077373
 Transform:

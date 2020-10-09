@@ -7,6 +7,7 @@ using Random = UnityEngine.Random;
 [UpdateBefore(typeof(BoardSpawnerSystem))]
 [UpdateBefore(typeof(HeatMapSpreadSystem))]
 [UpdateBefore(typeof(AgentUpdateSystem))]
+[UpdateBefore(typeof(TeamUpdateSystem))]
 public class HeatInitializationSystem : SystemBase
 {
     protected override void OnStartRunning()
