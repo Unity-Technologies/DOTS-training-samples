@@ -98,7 +98,7 @@ public class AgentUpdateSystem : SystemBase
             }
         ).Run();
 
-        const float arrivalThresholdSq = 1.0f; // square length.
+        const float arrivalThresholdSq = 0.5f; // square length.
         const float bucketFillRate = 0.1f; // amount to add to bucket volume per frame
 
         // scooper updates
@@ -264,7 +264,7 @@ public class AgentUpdateSystem : SystemBase
         // full bucket passer updates
        
         Entities
-            .WithoutBurst()
+            .WithStructuralChanges()
             .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.FullBucketPasserTag agentTag) =>
             {
                 // If the agent carry something pass it to the next agent
@@ -272,8 +272,16 @@ public class AgentUpdateSystem : SystemBase
                 {
                     if (agent.NextAgent == Entity.Null) // last agent of the line
                     {
+                        var bucketEntity = agent.CarriedEntity;
+                        
                         // drop it in on the ground for the thrower
-                        EntityManager.SetComponentData(agent.CarriedEntity, new CarryableObject { CarryingEntity = Entity.Null} );
+                        EntityManager.SetComponentData(bucketEntity, new CarryableObject { CarryingEntity = Entity.Null} );
+                        EntityManager.SetComponentData(bucketEntity, new Intensity() { Value = 0 } );
+
+                        // Create a water drop AOE
+                        var waterDrop = EntityManager.CreateEntity(typeof(WaterDrop));
+                        EntityManager.SetComponentData(waterDrop, new WaterDrop() { X = (int)t.Value.x, Z = (int)t.Value.z, Range = 2, Strength = 80} );
+                        
                         agent.CarriedEntity = Entity.Null;
                         agent.ActionState = (byte) AgentAction.IDLE;
                     }
