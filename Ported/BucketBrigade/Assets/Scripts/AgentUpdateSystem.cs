@@ -93,11 +93,8 @@ public class AgentUpdateSystem : SystemBase
         int entityIndex = 0;
         Entities.WithoutBurst().ForEach((Entity e, in Team team) =>
             {
-                Entity startEntity = team.LineEmptyTail;
-                Translation startPos = EntityManager.GetComponentData<Translation>(startEntity);
-
-                teamEntity[entityIndex] = startEntity;
-                teamLineStartLocation[entityIndex++] = startPos.Value;
+                teamEntity[entityIndex] = team.LineEmptyTail;
+                teamLineStartLocation[entityIndex++] = team.PickupLocation;
             }
         ).Run();
 
