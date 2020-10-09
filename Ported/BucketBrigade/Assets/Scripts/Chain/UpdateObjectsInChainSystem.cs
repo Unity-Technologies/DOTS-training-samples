@@ -93,7 +93,6 @@ public class UpdateObjectsInChainSystem : SystemBase
                             else if (type.Value == ObjectType.Bucket && bucketIndex >= 0 && position.Shift >= 0.99f)
                             {
                                 var newPos = NextPos(bucketsArray[bucketIndex].bucketPos, chainLength);
-                                var updateBucket = ecb.CreateEntity(entityInQueryIndex);
                                 if (type.Value == ObjectType.Bucket)
                                 {
                                     position.Position = newPos;
