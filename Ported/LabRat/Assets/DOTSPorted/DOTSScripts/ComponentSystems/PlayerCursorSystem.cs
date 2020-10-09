@@ -6,7 +6,7 @@ using UnityEngine;
 using Unity.Collections;
 
 [UpdateAfter(typeof(InitBoardSystem))]
-public class CursorSystem : SystemBase
+public class PlayerCursorSystem : SystemBase
 {
 	protected override void OnCreate()
 	{

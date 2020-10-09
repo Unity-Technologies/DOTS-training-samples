@@ -1,10 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 
-
-public class PortedCursorFollowMouse : MonoBehaviour {
+public class PlayerCursorMotion : MonoBehaviour {
     public Canvas canvas;
 
     void Update() {
@@ -12,7 +8,7 @@ public class PortedCursorFollowMouse : MonoBehaviour {
         SetScreenPosition(screenPos);
     }
     
-    public void SetScreenPosition(Vector2 screenPoint) {
+    private void SetScreenPosition(Vector2 screenPoint) {
         Vector2 pos;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             canvas.transform as RectTransform, screenPoint, canvas.worldCamera, out pos);
