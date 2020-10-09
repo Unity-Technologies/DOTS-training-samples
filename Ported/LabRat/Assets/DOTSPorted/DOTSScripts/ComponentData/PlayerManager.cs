@@ -38,7 +38,7 @@ public struct PlayerManager : IComponentData
         });
         entityManager.SetComponentData(newArrowEntity, new Translation()
         {
-            Value = new float3(gridPosition.x, 0.55f, gridPosition.y),
+            Value = new float3(gridPosition.x, 0.6f, gridPosition.y),
         });
         entityManager.SetComponentData(newArrowEntity, new Rotation()
         {
