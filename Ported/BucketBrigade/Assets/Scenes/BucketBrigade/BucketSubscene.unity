@@ -201,7 +201,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BucketPrefab: {fileID: 429697506247921751, guid: b06e5c4e84f1340418151b0aaac6c38f, type: 3}
-  MaxBuckets: 3
+  MaxBuckets: 50
 --- !u!4 &490609102
 Transform:
   m_ObjectHideFlags: 0
@@ -448,8 +448,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 429697506247921751, guid: 4a3a522675f2c49edb288a37cad9765a, type: 3}
-  SizeX: 20
-  SizeZ: 20
+  SizeX: 50
+  SizeZ: 50
   RandomYOffset: 0.1
   InitialIntensity: 0
   InitialOnFireCellCount: 5
@@ -563,10 +563,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AgentPrefab: {fileID: 429697506247921751, guid: 3d12b6b710bb8419dae0f63e07b2ebd8, type: 3}
-  TeamCount: 1
+  TeamCount: 2
   TeamScoopers: 1
   TeamThrowers: 1
-  AgentLineLength: 6
+  AgentLineLength: 50
   MaxAgentVelocity: 0.075
 --- !u!4 &1860077373
 Transform:
