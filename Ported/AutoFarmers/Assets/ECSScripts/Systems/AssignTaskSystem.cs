@@ -46,7 +46,7 @@ public class AssignTaskSystem : SystemBase
 
         int nextTask = m_Random.NextInt(0, 5);
 
-        if(nextTask <= 1)
+        if (nextTask == 0)
         {
             NativeArray<Entity> cropPlains = cropPlainsQuery.ToEntityArray(Allocator.TempJob);
             
@@ -93,9 +93,8 @@ public class AssignTaskSystem : SystemBase
             // Complete task assignment and structural changes
             Dependency.Complete();
             ecb.Playback(EntityManager);
-        }
-        
-        if(nextTask <= 2)
+        } 
+        else if(nextTask == 1)
         {
             NativeArray<Entity> emptyPlains = emptyPlainsQuery.ToEntityArray(Allocator.TempJob);
             
@@ -143,8 +142,7 @@ public class AssignTaskSystem : SystemBase
             ecb.Playback(EntityManager);
             
         }
-        
-        if(nextTask <= 3)
+        else if(nextTask == 2)
         {
             NativeArray<Entity> forests = forestsQuery.ToEntityArray(Allocator.TempJob);
         
@@ -193,8 +191,7 @@ public class AssignTaskSystem : SystemBase
             Dependency.Complete();
             ecb.Playback(EntityManager);
         }
-        
-        if(nextTask <= 4)
+        else if(nextTask == 3)
         {
             NativeArray<Entity> emptyFarms = emptyFarmsQuery.ToEntityArray(Allocator.TempJob);
         
