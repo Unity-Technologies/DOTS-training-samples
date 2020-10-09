@@ -446,8 +446,8 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
     #endregion ------------------------ PATH ALGORITHM >
 
 
-    #region ------------------------- < GIZMOS
-
+#region ------------------------- < GIZMOS
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         if (drawRailBeziers)
@@ -473,8 +473,9 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
             }
         }
     }
+#endif
 
-    #endregion ------------------------ GIZMOS >
+#endregion ------------------------ GIZMOS >
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
@@ -506,7 +507,7 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
             if (_relevantMarkers.Count > 1)
             {
                 var lineBuilderEntity = conversionSystem.CreateAdditionalEntity(this);
-                dstManager.SetName(lineBuilderEntity, LineNames[i]);
+               // dstManager.SetName(lineBuilderEntity, LineNames[i]);
                 dstManager.AddComponentData<LineCreationSettings>(lineBuilderEntity, new LineCreationSettings
                 {
                     TrainCount = maxTrains[i],

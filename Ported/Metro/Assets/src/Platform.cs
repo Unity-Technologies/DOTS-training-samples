@@ -115,9 +115,11 @@ public class Platform : MonoBehaviour
         return parentMetroLine.lineName + "_" + platformIndex;
     }
 
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         Handles.color = UnityEngine.Color.black;
         Handles.Label(transform.position, ""+GetFullName());
     }
+#endif
 }
