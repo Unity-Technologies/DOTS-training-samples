@@ -27,7 +27,7 @@ namespace Assets.Scripts.Systems
                 BuildRoadMap(roadNodes, translations, roadStart);
 
                 ecb.DestroyEntity(entityInQueryIndex, roadStart);   
-            }).WithReadOnly(roadNodes).WithReadOnly(translations).ScheduleParallel();
+            }).WithReadOnly(roadNodes).WithReadOnly(translations).WithoutBurst().ScheduleParallel();
 
             ecbSystem.AddJobHandleForProducer(Dependency);
         }
