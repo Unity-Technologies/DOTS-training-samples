@@ -32,6 +32,13 @@ public struct BucketInChain : IBufferElementData
     public float bucketShift;
 }
 
+public struct UpdateBucketInChain : IComponentData
+{
+    public int index;
+    public int bucketPos;
+    public float bucketShift;
+}
+
 public struct SharedChainComponent : ISharedComponentData
 {
     public int chainID;
@@ -42,7 +49,8 @@ public struct SharedChainComponent : ISharedComponentData
 
 public struct ChainPosition : IComponentData
 {
-    public int Value;
+    public int Position;
+    public float Shift;
 }
 
 public struct ChainObjectType : IComponentData

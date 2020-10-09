@@ -43,7 +43,7 @@ public class UpdateObjectsInChainSystem : SystemBase
                     (Entity entity, int entityInQueryIndex,
                         in ChainPosition position) =>
                     {
-                        var targetPosition = GetChainPosition(position.Value, 0f, chainLength, startPosition, endPosition);
+                        var targetPosition = GetChainPosition(position.Position, position.Shift, chainLength, startPosition, endPosition);
                         ecb.AddComponent(entityInQueryIndex, entity, new Target() {Position = targetPosition});
                     })
                 .ScheduleParallel();
@@ -51,6 +51,7 @@ public class UpdateObjectsInChainSystem : SystemBase
             Entities
                 .WithSharedComponentFilter(chain)
                 .WithName("UpdateObjectsInChain")
+                .WithReadOnly(bucketsArray)
                 .ForEach(
                     (Entity entity, int entityInQueryIndex,
                         ref Pos pos, ref Target target, ref ChainPosition position,
@@ -58,67 +59,90 @@ public class UpdateObjectsInChainSystem : SystemBase
                     {
                         if (target.ReachedTarget)
                         {
-                            float shift = 0f;
+                            int bucketIndex = -1;
+                            var bucketToGrabIndex = -1;
                             for (int i = 0; i < bucketsArray.Length; ++i)
                             {
                                 if (bucketsArray[i].chainID == id)
                                 {
-                                    if (position.Value == bucketsArray[i].bucketPos)
+                                    if (position.Position == bucketsArray[i].bucketPos)
                                     {
-                                        shift = bucketsArray[i].bucketShift;
-                                        if (shift < 1f)
-                                        {
-                                            bucketsArray[i] = new BucketInChain()
-                                            {
-                                                chainID = bucketsArray[i].chainID,
-                                                bucketPos = bucketsArray[i].bucketPos,
-                                                bucketShift = bucketsArray[i].bucketShift + speed.Value * deltaTime / stepLength
-                                            };
-                                        }
+                                        bucketIndex = i;
                                     }
-                                    else if (position.Value == (bucketsArray[i].bucketPos + 1) % (chainLength * 2))
+                                    if (bucketsArray[i].bucketShift >= 0.99f &&
+                                        NextPos(bucketsArray[i].bucketPos, chainLength) == position.Position &&
+                                        position.Shift <= 0.01f)
                                     {
-                                        if (bucketsArray[i].bucketShift >= 1f)
-                                        {
-                                            var newPos = (bucketsArray[i].bucketPos + 1) % (chainLength * 2);
-                                            bucketsArray[i] = new BucketInChain()
-                                            {
-                                                chainID = bucketsArray[i].chainID,
-                                                bucketPos = newPos,
-                                                bucketShift = 0f
-                                            };
-                                            if (type.Value == ObjectType.Bucket)
-                                            {
-                                                position.Value = newPos;
-                                                if (newPos == chainLength)
-                                                {
-                                                    ecb.AddComponent<ThrowTag>(entityInQueryIndex, entity);
-                                                }
-                                                else if (newPos == 0)
-                                                {
-                                                    ecb.AddComponent<FillTag>(entityInQueryIndex, entity);
-                                                }
-                                            }
-                                        }
+                                        bucketToGrabIndex = i;
                                     }
-                                    else if (position.Value == bucketsArray[i].bucketPos - 1)
-                                        shift = 1f - bucketsArray[i].bucketShift;
                                 }
                             }
-                            var targetPosition = GetChainPosition(position.Value, shift, chainLength, startPosition, endPosition);
+
+                            if (bucketIndex >= 0 && position.Shift < 1.0f)
+                            {
+                                var shift = speed.Value * deltaTime / stepLength;
+                                position.Shift += shift;
+                                var updateBucket = ecb.CreateEntity(entityInQueryIndex);
+                                ecb.AddComponent(entityInQueryIndex, updateBucket, new UpdateBucketInChain()
+                                {
+                                    index = bucketIndex,
+                                    bucketPos = bucketsArray[bucketIndex].bucketPos,
+                                    bucketShift = bucketsArray[bucketIndex].bucketShift + shift
+                                });
+                            }
+                            else if (type.Value == ObjectType.Bucket && bucketIndex >= 0 && position.Shift >= 0.99f)
+                            {
+                                var newPos = NextPos(bucketsArray[bucketIndex].bucketPos, chainLength);
+                                var updateBucket = ecb.CreateEntity(entityInQueryIndex);
+                                if (type.Value == ObjectType.Bucket)
+                                {
+                                    position.Position = newPos;
+                                    position.Shift = 0f;
+                                    if (newPos == chainLength)
+                                    {
+                                        ecb.AddComponent<ThrowTag>(entityInQueryIndex, entity);
+                                    }
+                                    else if (newPos == 0)
+                                    {
+                                        ecb.AddComponent<FillTag>(entityInQueryIndex, entity);
+                                    }
+                                }
+                            }
+                            else if (bucketIndex == -1 && position.Shift >= 0f)
+                            {
+                                var shift = speed.Value * deltaTime / stepLength;
+                                position.Shift -= shift;
+                            }
+                            if (bucketToGrabIndex >= 0)
+                            {
+                                var newPos = NextPos(bucketsArray[bucketToGrabIndex].bucketPos, chainLength);
+                                var updateBucket = ecb.CreateEntity(entityInQueryIndex);
+                                ecb.AddComponent(entityInQueryIndex, updateBucket, new UpdateBucketInChain()
+                                {
+                                    index = bucketToGrabIndex,
+                                    bucketPos = newPos,
+                                    bucketShift = 0f
+                                });
+                            }
+                            var targetPosition = GetChainPosition(position.Position, position.Shift, chainLength, startPosition, endPosition);
                             target.Position = targetPosition;
                             pos.Value = targetPosition;
                         }
                         else
                         {
-                            var targetPosition = GetChainPosition(position.Value, 0f, chainLength, startPosition, endPosition);
+                            var targetPosition = GetChainPosition(position.Position, position.Shift, chainLength, startPosition, endPosition);
                             target.Position = targetPosition;
                         }
                     })
-                .Schedule/*Parallel*/();
+                .ScheduleParallel();
         }
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
+    }
+
+    static int NextPos(int pos, int length)
+    {
+        return (pos + 1) % (length * 2);
     }
 
     static float2 GetChainPosition(int _index, float _shift, int _chainLength, float2 _startPos, float2 _endPos)

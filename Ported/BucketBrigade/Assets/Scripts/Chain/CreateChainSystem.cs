@@ -57,7 +57,8 @@ public class CreateChainSystem : SystemBase
                                 ecb.AddComponent(entity,
                                     new ChainPosition()
                                     {
-                                        Value = chainQueueBuffer[bufferPos].position
+                                        Position = chainQueueBuffer[bufferPos].position,
+                                        Shift = 0f
                                     });
 
                                 ecb.AddComponent(entity,
