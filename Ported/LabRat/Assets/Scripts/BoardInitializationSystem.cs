@@ -153,8 +153,7 @@ public class BoardInitializationSystem : SystemBase
                             {
                                 spawnType = 0,
                                 direction = DirectionDefines.North,
-                                spawnCount = 20,
-                                spawnDelay = 6f,
+                                spawnCount = board.miceCount
                             };
                             EntityManager.AddComponent<SpawnPoint>(tileInstance);
                             SetComponent(tileInstance, mouseSpawnPoint);
@@ -163,16 +162,18 @@ public class BoardInitializationSystem : SystemBase
                             buffer[0] = new SpawnType()
                             {
                                 spawnPrefab = board.ratPrefab,
-                                spawnMax = 20,
+                                spawnMax = board.miceCount,
                                 spawnFrequency = 0.2f,
-                                speedRange = new float2(1f, 5f)
+                                speedRange = new float2(1f, 5f),
+                                spawnDelay = board.miceWait
                             };
                             buffer[1] = new SpawnType()
                             {
                                 spawnPrefab = board.catPrefab,
-                                spawnMax = 1,
+                                spawnMax = board.catCount,
                                 spawnFrequency = 0f,
-                                speedRange = new float2(.5f, 1.5f)
+                                speedRange = new float2(.5f, 1.5f),
+                                spawnDelay = board.catWait
                             };
                         }
                     }
