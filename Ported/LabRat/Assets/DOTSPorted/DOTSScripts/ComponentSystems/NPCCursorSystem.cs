@@ -93,8 +93,8 @@ public class NPCCursorSystem : SystemBase
 
 			    var arrowDirection = CalculateDirection(m_NpcPosGoal[playerNumber], boardInfo);
 			    PlayerManager.AddBoardArrow(EntityManager, playerTag, arrowDirection, arrowPosition);
-			    
-			    
+
+			    var foo = random.NextInt(0, boardInfo.width - 1);
 			    var centerPosition = new float3(random.NextInt(0, boardInfo.width - 1) + 0.5f, 0, random.NextInt(0, boardInfo.height - 1) + 0.5f);
 			    bool validTile = false;
 			    if ((centerPosition.x < boardInfo.width)
