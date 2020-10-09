@@ -23,7 +23,7 @@ public class RequestCreateChainSystem : SystemBase
             Dependency = JobHandle.CombineDependencies(Dependency, j);
 
             Entities
-                .WithDisposeOnCompletion(waterPositions)
+                //.WithDisposeOnCompletion(waterPositions)
                 .ForEach(
                 (Entity entity, int entityInQueryIndex,
                             in ClosestFireRequest fire) =>
@@ -41,6 +41,8 @@ public class RequestCreateChainSystem : SystemBase
                     }
                 })
                 .Run();
+
+            waterPositions.Dispose();
 
             Entities.ForEach(
                 (Entity entity, int entityInQueryIndex,
