@@ -72,6 +72,7 @@ public class ChopForestSystem : SystemBase
                 {
                     Forest forest = GetComponent<Forest>(plainTarget);
                     
+                    ecb.RemoveComponent<Assigned>(entityInQueryIndex, plainTarget);
                     ecb.RemoveComponent<Forest>(entityInQueryIndex, plainTarget);
                     ecb.RemoveComponent<ForestDisplay>(entityInQueryIndex, plainTarget);
                     ecb.RemoveComponent<ChoppingTask>(entityInQueryIndex, entity);
