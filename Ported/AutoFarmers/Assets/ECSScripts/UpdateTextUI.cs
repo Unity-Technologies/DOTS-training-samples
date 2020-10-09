@@ -14,6 +14,5 @@ public class UpdateTextUI : MonoBehaviour
     void Update()
     {
         text.text = "Scale : " + slider.value;
-        Debug.Log(text.text);
     }
 }
