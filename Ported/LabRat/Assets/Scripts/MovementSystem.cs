@@ -162,7 +162,7 @@ public class MovementSystem : SystemBase
                         }
                     }
 
-                    translation.Value = new float3(position.Value.x, 0, position.Value.y);
+                    translation.Value = new float3(position.Value.x, translation.Value.y, position.Value.y);
                 }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);

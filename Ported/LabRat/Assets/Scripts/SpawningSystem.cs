@@ -34,18 +34,17 @@ public class SpawningSystem : SystemBase
 
                 var instance = ecb.Instantiate(entityInQueryIndex, types[spawnPoint.spawnType].spawnPrefab);
 
-                ecb.AddComponent(entityInQueryIndex, instance,
+                ecb.SetComponent(entityInQueryIndex, instance,
                     new Position {Value = new float2(translation.Value.x, translation.Value.z)});
-                ecb.AddComponent(entityInQueryIndex, instance,
+                ecb.SetComponent(entityInQueryIndex, instance,
                     new Speed
                     {
                         Value = rand.NextFloat(types[spawnPoint.spawnType].speedRange.x,
                             types[spawnPoint.spawnType].speedRange.y)
                     });
-                ecb.AddComponent(entityInQueryIndex, instance, new Direction {Value = spawnPoint.direction});
-                ecb.AddComponent(entityInQueryIndex, instance,
+                ecb.SetComponent(entityInQueryIndex, instance, new Direction {Value = spawnPoint.direction});
+                ecb.SetComponent(entityInQueryIndex, instance,
                     new TileCoord() {Value = new int2((int) translation.Value.x, (int) translation.Value.z)});
-                ecb.AddComponent(entityInQueryIndex, instance, new TileCheckTag());
 
                 spawnPoint.spawnCount -= 1;
                 if (spawnPoint.spawnCount == 0)
