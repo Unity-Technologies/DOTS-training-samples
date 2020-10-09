@@ -24,7 +24,8 @@ public class AssignTaskSystem : SystemBase
             ComponentType.Exclude<Assigned>(),
             ComponentType.Exclude<Forest>(),
             ComponentType.Exclude<Depot>(),
-            ComponentType.Exclude<Tilled>()
+            ComponentType.Exclude<Tilled>(),
+            ComponentType.Exclude<CropReference>()
         );
         emptyFarmsQuery = GetEntityQuery(
             typeof(Plains),
