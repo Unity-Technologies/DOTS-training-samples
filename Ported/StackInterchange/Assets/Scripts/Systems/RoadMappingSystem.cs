@@ -9,27 +9,17 @@ namespace Assets.Scripts.Systems
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     class RoadMappingSystem : SystemBase
     {
-        private EntityCommandBufferSystem ecbSystem;
-
-        protected override void OnCreate()
-        {
-            ecbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-        }
-
         protected override void OnUpdate()
         {
             var roadNodes = GetComponentDataFromEntity<RoadNode>(true);
             var translations = GetComponentDataFromEntity<Translation>(true);
-            var ecb = ecbSystem.CreateCommandBuffer().AsParallelWriter();
 
             Entities.WithAll<CarSpawner>().ForEach((Entity roadStart, int entityInQueryIndex) =>
             {
                 BuildRoadMap(roadNodes, translations, roadStart);
-
-                ecb.DestroyEntity(entityInQueryIndex, roadStart);   
             }).WithReadOnly(roadNodes).WithReadOnly(translations).WithoutBurst().ScheduleParallel();
 
-            ecbSystem.AddJobHandleForProducer(Dependency);
+            Enabled = false;
         }
 
         static BlobAssetReference<RoadAsset> BuildRoadMap(in ComponentDataFromEntity<RoadNode> roadNodes,
