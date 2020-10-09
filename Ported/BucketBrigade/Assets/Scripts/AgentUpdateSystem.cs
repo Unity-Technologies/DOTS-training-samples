@@ -43,18 +43,23 @@ public class AgentUpdateSystem : SystemBase
 		int watersFoundLastUpdate = m_waterQuery.CalculateEntityCount();
 
 		int waterIndex = 0;
+		NativeArray<Entity> waterEntities = new NativeArray<Entity>(watersFoundLastUpdate, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 		NativeArray<float3> waterLocations = new NativeArray<float3>(watersFoundLastUpdate, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-        NativeArray<bool> waterIsAvailable = new NativeArray<bool>(watersFoundLastUpdate, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+		NativeArray<float> waterVolumes = new NativeArray<float>(watersFoundLastUpdate, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+		NativeArray<bool> waterIsAvailable = new NativeArray<bool>(watersFoundLastUpdate, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
 		Entities
 			.WithoutBurst()
 			.WithStoreEntityQueryInField(ref m_waterQuery)
-			.ForEach((in WaterTag water, in Intensity volume, in LocalToWorld world) =>
-		{
-			waterLocations[waterIndex] = world.Position;
-			waterIsAvailable[waterIndex] = (volume.Value > 0.0f);
-			waterIndex++;
-		})
+            .WithAll<WaterTag>()
+			.ForEach((Entity entity, in Intensity volume, in LocalToWorld world) =>
+            {
+				waterEntities[waterIndex] = entity;
+				waterLocations[waterIndex] = world.Position;
+				waterVolumes[waterIndex] = volume.Value;
+				waterIsAvailable[waterIndex] = (volume.Value > 0.0f);
+				waterIndex++;
+		    })
 		.Run();
 
         // ensure this job runs before other jobs that need buckets.
@@ -103,8 +108,11 @@ public class AgentUpdateSystem : SystemBase
 
         // scooper updates
         Entities
+            .WithReadOnly(waterEntities)
 			.WithReadOnly(waterLocations)
-            //.WithReadOnly(bucketEntities)
+            .WithReadOnly(waterVolumes)
+            .WithReadOnly(waterIsAvailable)
+            .WithReadOnly(bucketEntities)
             .WithReadOnly(bucketLocations)
             //.WithReadOnly(bucketFillValue)
             .WithReadOnly(bucketIsEmptyAndOnGround)
@@ -174,10 +182,17 @@ public class AgentUpdateSystem : SystemBase
                         {
                             if (bucketEntities[i] == agent.CarriedEntity)
                             {
-                                if (bucketFillValue[i] < 3.0f) // todo - bucket capacity
+                                int waterEntityIndex;
+                                if ((bucketFillValue[i] < Bucket.MaxVolume) &&
+                                    FindNearestIndex(t.Value, waterLocations, waterIsAvailable, true, out waterEntityIndex))
                                 {
-                                    // fill bucket with water
-                                    ecb1.SetComponent<Intensity>(entityInQueryIndex, agent.CarriedEntity, new Intensity {Value = math.min( bucketFillValue[i] + bucketFillRate, 3.0f) });
+                                    // empty water source
+                                    ecb1.SetComponent<Intensity>(entityInQueryIndex, waterEntities[waterEntityIndex],
+                                        new Intensity {Value = math.max(waterVolumes[waterEntityIndex] - bucketFillRate, 0.0f)});
+
+                                    // fill bucket
+                                    ecb1.SetComponent<Intensity>(entityInQueryIndex, agent.CarriedEntity,
+                                        new Intensity {Value = math.min(bucketFillValue[i] + bucketFillRate, Bucket.MaxVolume)});
                                 }
                                 else
                                 {
@@ -262,7 +277,7 @@ public class AgentUpdateSystem : SystemBase
         }).ScheduleParallel(); // should run in parallel with Scoopers.
 
         // full bucket passer updates
-       
+
         Entities
             .WithStructuralChanges()
             .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.FullBucketPasserTag agentTag) =>
@@ -273,7 +288,7 @@ public class AgentUpdateSystem : SystemBase
                     if (agent.NextAgent == Entity.Null) // last agent of the line
                     {
                         var bucketEntity = agent.CarriedEntity;
-                        
+
                         // drop it in on the ground for the thrower
                         EntityManager.SetComponentData(bucketEntity, new CarryableObject { CarryingEntity = Entity.Null} );
                         EntityManager.SetComponentData(bucketEntity, new Intensity() { Value = 0 } );
@@ -281,7 +296,7 @@ public class AgentUpdateSystem : SystemBase
                         // Create a water drop AOE
                         var waterDrop = EntityManager.CreateEntity(typeof(WaterDrop));
                         EntityManager.SetComponentData(waterDrop, new WaterDrop() { X = (int)t.Value.x, Z = (int)t.Value.z, Range = 2, Strength = 80} );
-                        
+
                         agent.CarriedEntity = Entity.Null;
                         agent.ActionState = (byte) AgentAction.IDLE;
                     }
@@ -291,22 +306,22 @@ public class AgentUpdateSystem : SystemBase
                         agent.ActionState = (byte) AgentAction.PASS_BUCKET;
                         var targetAgentPosition = EntityManager.GetComponentData<Translation>(agent.NextAgent);
                         seekComponent.TargetPos = targetAgentPosition.Value;
-                    
+
                         if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
                         {
                             var targetAgent = EntityManager.GetComponentData<Agent>(agent.NextAgent);
 
                             EntityManager.SetComponentData(agent.CarriedEntity, new CarryableObject { CarryingEntity = agent.NextAgent} );
-                            
+
                             targetAgent.CarriedEntity = agent.CarriedEntity;
                             EntityManager.SetComponentData(agent.NextAgent, targetAgent);
-                            
+
                             agent.CarriedEntity = Entity.Null;
-                            
-                            
-                            // TMP 
+
+
+                            // TMP
                             EntityManager.SetComponentData(targetAgent.CarriedEntity, new Translation() { Value = targetAgentPosition.Value} );
-                        }              
+                        }
                     }
                 }
                 else
@@ -321,7 +336,7 @@ public class AgentUpdateSystem : SystemBase
                         if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
                         {
                             bucketEntity = bucketEntities[bucketEntityIndex];
-                            
+
                             var alreadyCarried = EntityManager.GetComponentData<CarryableObject>(bucketEntity).CarryingEntity != Entity.Null;
                             if (!alreadyCarried)
                             {
@@ -355,10 +370,10 @@ public class AgentUpdateSystem : SystemBase
                     if (agent.PreviousAgent == Entity.Null) // last agent of the line
                     {
                         var bucketEntity = agent.CarriedEntity;
-                        
+
                         // drop it in on the ground for the thrower
                         EntityManager.SetComponentData(bucketEntity, new CarryableObject { CarryingEntity = Entity.Null} );
-                        
+
                         agent.CarriedEntity = Entity.Null;
                         agent.ActionState = (byte) AgentAction.IDLE;
                     }
@@ -368,22 +383,22 @@ public class AgentUpdateSystem : SystemBase
                         agent.ActionState = (byte) AgentAction.PASS_BUCKET;
                         var targetAgentPosition = EntityManager.GetComponentData<Translation>(agent.PreviousAgent);
                         seekComponent.TargetPos = targetAgentPosition.Value;
-                    
+
                         if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
                         {
                             var targetAgent = EntityManager.GetComponentData<Agent>(agent.PreviousAgent);
 
                             EntityManager.SetComponentData(agent.CarriedEntity, new CarryableObject { CarryingEntity = agent.PreviousAgent} );
-                            
+
                             targetAgent.CarriedEntity = agent.CarriedEntity;
                             EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
-                            
+
                             agent.CarriedEntity = Entity.Null;
-                            
-                            
-                            // TMP 
+
+
+                            // TMP
                             EntityManager.SetComponentData(targetAgent.CarriedEntity, new Translation() { Value = targetAgentPosition.Value} );
-                        }              
+                        }
                     }
                 }
                 else
@@ -398,7 +413,7 @@ public class AgentUpdateSystem : SystemBase
                         if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
                         {
                             bucketEntity = bucketEntities[bucketEntityIndex];
-                            
+
                             var alreadyCarried = EntityManager.GetComponentData<CarryableObject>(bucketEntity).CarryingEntity != Entity.Null;
                             if (!alreadyCarried)
                             {
@@ -421,7 +436,7 @@ public class AgentUpdateSystem : SystemBase
                 }
             }).Run();
 
-        
+
         m_endSimECB.AddJobHandleForProducer(Dependency);
 
         //JobHandle.CombineDependencies(Dependency, scooperECBJobHandle);
@@ -432,7 +447,9 @@ public class AgentUpdateSystem : SystemBase
         // wait for jobs to finish before disposing array data
         //Dependency.Complete();
 
+        waterEntities.Dispose(Dependency);
         waterLocations.Dispose(Dependency);
+        waterVolumes.Dispose(Dependency);
         waterIsAvailable.Dispose(Dependency);
         bucketEntities.Dispose(Dependency);
         bucketIsEmptyAndOnGround.Dispose(Dependency);

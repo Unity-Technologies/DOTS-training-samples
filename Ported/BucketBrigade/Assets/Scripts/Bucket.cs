@@ -6,6 +6,7 @@ using UnityEngine;
 // tag component
 public struct Bucket : IComponentData
 {
+    public const float MaxVolume = 3.0f;
 }
 
 public struct CarryableObject : IComponentData
