@@ -7,7 +7,7 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct Agent : IComponentData
 {
-    public int TeamID;
+    public Entity Team;
     public Entity CarriedEntity;
     public float MaxVelocity;
     public byte ActionState;
