@@ -1,19 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Unity.Assertions;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-
-struct BucketInfo
-{
-    public float3 position;
-    public bool IsEmpty;
-}
 
 //[UpdateAfter(typeof(AgentSpawnerSystem))]
 [UpdateBefore(typeof(SeekSystem))]
@@ -33,12 +23,12 @@ public class AgentUpdateSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        float elapsedTime = (float)Time.ElapsedTime;
+        //float elapsedTime = (float)Time.ElapsedTime;
 
         var ecb1 = m_endSimECB.CreateCommandBuffer().AsParallelWriter();
-        var ecb2 = m_endSimECB.CreateCommandBuffer().AsParallelWriter();
+       /*var ecb2 = m_endSimECB.CreateCommandBuffer().AsParallelWriter();
         var ecb3 = m_endSimECB.CreateCommandBuffer().AsParallelWriter();
-        var ecb4 = m_endSimECB.CreateCommandBuffer().AsParallelWriter();
+        var ecb4 = m_endSimECB.CreateCommandBuffer().AsParallelWriter();*/
 
 		int watersFoundLastUpdate = m_waterQuery.CalculateEntityCount();
 
@@ -74,10 +64,6 @@ public class AgentUpdateSystem : SystemBase
 
         NativeArray<Entity> teamEntity = new NativeArray<Entity>(20 , Allocator.TempJob, NativeArrayOptions.UninitializedMemory);// hardcoded to 2 teams.
         NativeArray<float3> teamLineStartLocation = new NativeArray<float3>(20 , Allocator.TempJob, NativeArrayOptions.UninitializedMemory);// hardcoded to 2 teams.
-
-        //var carriables = m_bucketQuery.ToComponentDataArray<CarryableObject>(Allocator.TempJob);
-        //var bucketIntensity = m_bucketQuery.ToComponentDataArray<Intensity>(Allocator.TempJob);
-        //var bucketEntities = m_bucketQuery.ToEntityArray(Allocator.TempJob);
 
         Entities
             .WithoutBurst()
@@ -255,31 +241,11 @@ public class AgentUpdateSystem : SystemBase
         }).ScheduleParallel();
 //        m_endSimECB.AddJobHandleForProducer(scooperECBJobHandle);
 
-        // thrower updates
-        Entities
-            //.WithReadOnly(bucketEntities)
-            .WithReadOnly(bucketLocations)
-            //.WithReadOnly(bucketFillValue)
-            .WithReadOnly(bucketIsEmptyAndOnGround)
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, in AgentTags.ThrowerTag agent) =>
-        {
-            /*
-             * Thrower Actions:
-             * GET_BUCKET -> GOTO_DROPOFF_LOCATION -> THROW_BUCKET -> GOTO_PICKUP)LO
-             */
-
-            // use ecb2
-            float dist = math.lengthsq(seekComponent.TargetPos - t.Value);
-            if (dist < arrivalThresholdSq)
-            {
-                FindNearestAndSetSeekTarget(t.Value, bucketLocations, bucketIsEmptyAndOnGround, true, ref seekComponent);
-            }
-        }).ScheduleParallel(); // should run in parallel with Scoopers.
 
         // full bucket passer updates
-
         Entities
-            .WithStructuralChanges()
+            .WithReadOnly(bucketIsEmptyAndOnGround)
+            .WithStructuralChanges() // To create WaterDrop entity
             .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.FullBucketPasserTag agentTag) =>
             {
                 // If the agent carry something pass it to the next agent
@@ -289,7 +255,7 @@ public class AgentUpdateSystem : SystemBase
                     {
                         var bucketEntity = agent.CarriedEntity;
 
-                        // drop it in on the ground for the thrower
+                        // drop it into the fire
                         EntityManager.SetComponentData(bucketEntity, new CarryableObject { CarryingEntity = Entity.Null} );
                         EntityManager.SetComponentData(bucketEntity, new Intensity() { Value = 0 } );
 
@@ -359,8 +325,10 @@ public class AgentUpdateSystem : SystemBase
                 }
             }).Run();
 
-        // Empty bucket passer updates
+        
+         // Empty bucket passer updates
          Entities
+            .WithReadOnly(bucketIsEmptyAndOnGround)
             .WithoutBurst()
             .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.EmptyBucketPasserTag agentTag) =>
             {
