@@ -1,4 +1,4 @@
-﻿#define COLLISION_DEBUG_DRAW
+﻿//#define COLLISION_DEBUG_DRAW
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
