@@ -1,3 +1,4 @@
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -87,42 +88,30 @@ public class CommuterGoalSystem : SystemBase
             .WithName("commuter_arriving_platform")
             .WithNone<TargetPoint>()
             .WithAll<CommuterTask_MoveToQueue>()
-            .ForEach((Entity entity, int entityInQueryIndex, in CommuterOnPlatform commuterOnPlatform, in Translation translation) =>
+            .ForEach((Entity commuter, int entityInQueryIndex, in CommuterOnPlatform commuterOnPlatform, in Translation translation) =>
             {
-                float minDistSq = float.MaxValue;
-                Entity targetQueue = Entity.Null;
                 var queueBuffer = GetBuffer<QueueBufferElementData>(commuterOnPlatform.Value);
                 Queues platform = GetComponent<Queues>(commuterOnPlatform.Value);
-                for (int i = 0; i < platform.CarriageCount; ++i)
-                {
-                    var queue = queueBuffer[i];
-                    float3 queueStart = GetComponent<LocalToWorld>(queue.Value).Position;
-                    float distSq = math.distancesq(translation.Value, queueStart);
-                    if (distSq < minDistSq)
-                    {
-                        minDistSq = distSq;
-                        targetQueue = queue.Value;
-                    }
-                }
+                Entity targetQueue = queueBuffer[random.NextInt(platform.CarriageCount)].Value;
                 if (targetQueue != Entity.Null)
                 {
                     var commutersBuffer = GetBuffer<CommuterInQueueBufferElementData>(targetQueue);
                     int n = commutersBuffer.Add(new CommuterInQueueBufferElementData
                     {
-                        Value = entity
+                        Value = commuter
                     });
 
                     LocalToWorld queueMatrix = GetComponent<LocalToWorld>(targetQueue);
                     float3 targetPosition = queueMatrix.Position;
-                    targetPosition += (n - 1) * 0.5f * queueMatrix.Forward;
+                    targetPosition += n * 0.5f * queueMatrix.Forward;
 
-                    ecb.AddComponent(entityInQueryIndex, entity, new TargetPoint
+                    ecb.AddComponent(entityInQueryIndex, commuter, new TargetPoint
                     {
                         CurrentTarget = targetPosition
                     });
 
-                    ecb.RemoveComponent<CommuterTask_MoveToQueue>(entityInQueryIndex, entity);
-                    ecb.AddComponent<CommuterTask_WaitOnQueue>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<CommuterTask_MoveToQueue>(entityInQueryIndex, commuter);
+                    ecb.AddComponent<CommuterTask_WaitOnQueue>(entityInQueryIndex, commuter);
                 } // todo: else error?
             }).Schedule();
 
@@ -149,18 +138,20 @@ public class CommuterGoalSystem : SystemBase
                 else
                 {
                     ecb.RemoveComponent<CommuterTask_BoardTrain>(entityInQueryIndex, commuter);
-                    ecb.AddComponent(entityInQueryIndex, commuter, new CommuterTask_WaitInCarriage { Carriage = task.Carriage, SeatIndex = task.SeatIndex });
+                    ecb.AddComponent(entityInQueryIndex, commuter, new Parent { Value = task.Carriage });
+
+                    var carriageTransform = GetComponent<LocalToWorld>(task.Carriage);
+                    var commuterTransform = GetComponent<LocalToWorld>(commuter);
+
+                    var localToWorld = math.mul(math.inverse(carriageTransform.Value), commuterTransform.Value);
+                    ecb.AddComponent<LocalToParent>(entityInQueryIndex, commuter);
+                    ecb.SetComponent(entityInQueryIndex, commuter, new Translation
+                    {
+                        Value = math.transform(math.inverse(carriageTransform.Value), commuterTransform.Position)
+                    });
 
                     ecb.RemoveComponent<CommuterOnPlatform>(entityInQueryIndex, commuter);
                 }
-            }).Schedule();
-
-        Entities
-            .WithName("commuter_in_carriage")
-            .ForEach((Entity entity, ref Translation translation, in CommuterTask_WaitInCarriage task) =>
-            {
-                var seats = GetBuffer<CarriageSeat>(task.Carriage);
-                translation.Value = GetComponent<LocalToWorld>(seats[task.SeatIndex].Value).Position;
             }).Schedule();
 
         Entities

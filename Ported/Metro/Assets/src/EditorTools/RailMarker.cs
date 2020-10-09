@@ -24,6 +24,7 @@ public class RailMarker : MonoBehaviour
 		pointIndex = GetSiblingIndex(transform, transform.parent);
 		name = metroLineID + "_" + pointIndex;
 	}
+#if UNITY_EDITOR
 	public void OnDrawGizmos()
 	{
 		Gizmos.color = GUI.color = (railMarkerType != RailMarkerType.PLATFORM_START) ?  Metro.GetLine_COLOUR_FromIndex(metroLineID) : UnityEngine.Color.white;
@@ -41,7 +42,7 @@ public class RailMarker : MonoBehaviour
 		
 		Handles.Label(transform.position + new Vector3(0f,1f,0f), metroLineID+"_"+pointIndex + ((railMarkerType == RailMarkerType.PLATFORM_START) ? " **" : ""));
 	}
-	
+#endif
 	int GetSiblingIndex(Transform child, Transform parent)
 	{
 		int result = 0;
