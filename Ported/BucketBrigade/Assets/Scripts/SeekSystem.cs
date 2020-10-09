@@ -64,8 +64,6 @@ public class SeekSystem : SystemBase
                     carriedObjectPos.Value = t.Value + new float3(0.0f, 1.0f, 0.0f);
                 }
             }
-            
-
         }).Run();
     }
 }

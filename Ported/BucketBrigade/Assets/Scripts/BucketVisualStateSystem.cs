@@ -11,21 +11,18 @@ using UnityEngine;
 
 public class BucketVisualStateSystem : SystemBase
 {
+    private static readonly Color k_emptyColor = new Color { Value = new float4(1.0f, 0.0f, 0.0f, 1.0f) };
+    private static readonly Color k_fullColor = new Color { Value = new float4(1.0f, 0.0f, 0.0f, 1.0f) };
+    
     protected override void OnUpdate()
     {
-        Entities.ForEach( (Entity Entities, ref NonUniformScale bucketScale, ref Translation t, ref Color col,  in Intensity bucketCurrentVolume, in Bucket bucketTag, in CarryableObject carryInfo) =>
+        Entities.ForEach((ref NonUniformScale bucketScale, ref Translation t, ref Color col, in Intensity bucketCurrentVolume, in Bucket bucketTag, in CarryableObject carryInfo) =>
         {
-            bucketScale.Value = new float3( bucketCurrentVolume.Value, bucketCurrentVolume.Value, bucketCurrentVolume.Value) / 3.0f * 0.25f + new float3(0.2f,0.2f,0.2f);
-
-            Color emptyColor = new Color { Value = new float4(1.0f, 0.0f, 0.0f, 1.0f) };
-            //Color fullColor = new Color { Value = new float4(1.0f, 1.0f, 1.0f, 1.0f) };
-            Color fullColor = new Color { Value = new float4(0.0f, 0.62f, 1.0f, 1.0f) };
-
-            col.Value = math.lerp(emptyColor.Value, fullColor.Value, bucketCurrentVolume.Value / 3.0f);
-
+            col.Value = math.lerp(k_emptyColor.Value, k_fullColor.Value, bucketCurrentVolume.Value / 3.0f);
+            bucketScale.Value = new float3(bucketCurrentVolume.Value, bucketCurrentVolume.Value, bucketCurrentVolume.Value) / 3.0f * 0.25f + new float3(0.2f,0.2f,0.2f);
             if (carryInfo.CarryingEntity == Entity.Null)
             {
-                t.Value = new float3(t.Value.x, 0.75f, t.Value.z);
+                t.Value = new float3(t.Value.x, bucketScale.Value.y / 2.0f, t.Value.z);
             }
         }).ScheduleParallel();
     }
