@@ -13,4 +13,6 @@ public struct CarMovement : IComponentData
     public float distanceToNext;
     public float3 travelVec;
     public bool initialized;
+    public int roadIndex;
+    public int rootIndex;
 }

@@ -99,7 +99,9 @@ public class CarSpawnerSystem : SystemBase
                     Velocity = maxSpeed,
                     Acceleration = 0.1f,
                     Deceleration = 0.05f,
-                    MaxSpeed = maxSpeed 
+                    MaxSpeed = maxSpeed,
+                    roadIndex = 0,
+                    rootIndex = spawner.uniqueSpawnerID
                 });
                 
                  EntityManager.AddSharedComponentData(instance, new RoadId

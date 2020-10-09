@@ -12,4 +12,5 @@ public struct CarSpawner : IComponentData
     public float3 carScaleV2;
     public float3 carScaleV3;
     public int spawnerId;
+    public int uniqueSpawnerID;
 }
