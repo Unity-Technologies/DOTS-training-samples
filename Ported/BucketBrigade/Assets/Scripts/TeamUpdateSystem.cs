@@ -20,7 +20,8 @@ public class TeamUpdateSystem : SystemBase
 		Entities
 			.WithoutBurst()
 			.WithStoreEntityQueryInField(ref m_WaterQuery)
-			.ForEach((in WaterTag water, in Intensity volume, in LocalToWorld world) =>
+			.WithAll<Water>()
+			.ForEach((in Intensity volume, in LocalToWorld world) =>
 			{
 				waterLocations[waterIndex] = world.Position;
 				waterIsAvailable[waterIndex] = (volume.Value > 0.0f);
@@ -32,7 +33,8 @@ public class TeamUpdateSystem : SystemBase
 		var heatMap = EntityManager.GetComponentData<HeatMap>(heatMapEntity);
 		var heatMapBuffer = EntityManager.GetBuffer<HeatMapElement>(heatMapEntity).AsNativeArray();
 		
-		Entities.ForEach((Entity entity, ref Team team) =>
+		Entities
+			.ForEach((Entity entity, ref Team team) =>
 		{
 			// Update dropOff and pickup location
 			
@@ -67,7 +69,7 @@ public class TeamUpdateSystem : SystemBase
 			{
 				float squareLen = math.lengthsq(currentPos - objectLocation[i]);
 
-				if (squareLen < nearestDistanceSquared /*&& squareLen > 5.0f*/)
+				if (squareLen < nearestDistanceSquared)
 				{
 					nearestDistanceSquared = squareLen;
 					nearestIndex = i;

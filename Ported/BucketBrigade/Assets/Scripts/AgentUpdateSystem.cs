@@ -51,13 +51,12 @@ public class AgentUpdateSystem : SystemBase
 		Entities
 			.WithoutBurst()
 			.WithStoreEntityQueryInField(ref m_waterQuery)
-            .WithAll<WaterTag>()
-			.ForEach((Entity entity, in Intensity volume, in LocalToWorld world) =>
+			.ForEach((Entity entity, in Water water, in Intensity volume, in LocalToWorld world) =>
             {
 				waterEntities[waterIndex] = entity;
 				waterLocations[waterIndex] = world.Position;
 				waterVolumes[waterIndex] = volume.Value;
-				waterIsAvailable[waterIndex] = (volume.Value > 0.0f);
+				waterIsAvailable[waterIndex] = (volume.Value > (water.MaxVolume * 0.5f));
 				waterIndex++;
 		    })
 		.Run();

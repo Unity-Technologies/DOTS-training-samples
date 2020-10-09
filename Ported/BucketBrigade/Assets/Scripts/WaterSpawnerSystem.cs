@@ -47,7 +47,7 @@ public class WaterSpawnerSystem : SystemBase
 		.Run();
 
 		Entities
-			.WithStructuralChanges() // we will destroy ourselves at the end of the loop
+			.WithStructuralChanges() // allocate prefabs and destroy spawner at end
 			.ForEach((Entity waterSpawnSystem, in WaterSpawner waterSpawner) =>
 		{
 			float3 sideOrigin = new float3();
@@ -81,5 +81,5 @@ public class WaterSpawnerSystem : SystemBase
             EntityManager.DestroyEntity(waterSpawnSystem);
 		})
 		.Run();
-	}
+    }
 }
