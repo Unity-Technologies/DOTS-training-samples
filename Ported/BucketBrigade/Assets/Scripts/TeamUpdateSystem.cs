@@ -8,7 +8,7 @@ using UnityEngine;
 public class TeamUpdateSystem : SystemBase
 {
 	EntityQuery m_WaterQuery;
-	
+
 	protected override void OnUpdate()
 	{
 		int watersFoundLastUpdate = m_WaterQuery.CalculateEntityCount();
@@ -51,6 +51,10 @@ public class TeamUpdateSystem : SystemBase
 			Debug.DrawLine(team.DropOffLocation, team.PickupLocation, UnityEngine.Color.red);
 
 		}).Schedule();
+
+		waterLocations.Dispose(Dependency);
+		waterIsAvailable.Dispose(Dependency);
+
 	}
 	
 	static bool TryFindNearestAndSetSeekTarget(float3 currentPos, NativeArray<float3> objectLocation, NativeArray<bool> objectFilter, bool filterMatch, out float3 target)
