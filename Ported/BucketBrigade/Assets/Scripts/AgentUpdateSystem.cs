@@ -344,57 +344,7 @@ public class AgentUpdateSystem : SystemBase
             }
         }).Run();
 
-        /*
-        Entities
-			.WithDisposeOnCompletion(waterLocations)
-			.WithDisposeOnCompletion(waterIsAvailable)
-            .WithDisposeOnCompletion(bucketLocations)
-            .WithDisposeOnCompletion(bucketFillValue)
-            .WithDisposeOnCompletion(bucketEntities)
-            .WithDisposeOnCompletion(bucketIsEmptyAndOnGround)
-            .WithDisposeOnCompletion(bucketIsFullAndOnGround)
-            .WithDisposeOnCompletion(teamEntity)
-            .WithDisposeOnCompletion(teamLineStartLocation)
-//            .WithReadOnly(bucketEntities)
-//            .WithReadOnly(bucketLocations)
- //           .WithReadOnly(bucketFillValue)
- //           .WithReadOnly(bucketIsEmptyAndOnGround)
-            .ForEach((Entity e, in Agent agent) =>
-        {
-            // force a usage in order to enable WithDisposeOnCompletion validation checks to succeed.
-            // generates a compile error without this.
-			if (waterLocations.Length > 0)
-			{
-				waterLocations[0] = float3.zero;
-				waterIsAvailable[0] = false;
-			}
-			if (bucketEntities.Length > 0)
-			{
-	            bucketEntities[0] = Entity.Null;
-    	        bucketIsEmptyAndOnGround[0] = false;
-        	    bucketLocations[0] = float3.zero;
-            	bucketFillValue[0] = 0.0f;
-	            bucketIsFullAndOnGround[0] = false;
-			}
-        }).Run(); // FIXME - Put back on Schedule / access other agents
-
-            //if (bucketEntities.Length > 0)
-            {
-                bucketEntities[0] = Entity.Null;
-                bucketIsEmptyAndOnGround[0] = false;
-                bucketLocations[0] = float3.zero;
-                bucketFillValue[0] = 0.0f;
-                bucketIsFullAndOnGround[0] = false;
-            }
-
-            //if (teamEntity.Length > 0)
-            {
-                teamEntity[0] = Entity.Null;
-                teamLineStartLocation[0] = float3.zero;
-            }
-
-        }).ScheduleParallel();
-*/
+        
         m_endSimECB.AddJobHandleForProducer(Dependency);
 
         //JobHandle.CombineDependencies(Dependency, scooperECBJobHandle);
@@ -444,6 +394,7 @@ public class AgentUpdateSystem : SystemBase
     {
         float nearestDistanceSquared = float.MaxValue;
         int nearestIndex = 0;
+        bool foundIndex = false;
         for (int i = 0; i < objectLocation.Length; ++i)
         {
             if (objectFilter[i] == filterMatch)
@@ -454,11 +405,15 @@ public class AgentUpdateSystem : SystemBase
                 {
                     nearestDistanceSquared = squareLen;
                     nearestIndex = i;
+                    foundIndex = true;
                 }
             }
         }
 
-        float3 loc = objectLocation[nearestIndex];
-        seekComponent.TargetPos = new float3(loc.x, loc.y, loc.z);
+        if (foundIndex)
+        {
+            float3 loc = objectLocation[nearestIndex];
+            seekComponent.TargetPos = new float3(loc.x, loc.y, loc.z);
+        }
     }
 }
