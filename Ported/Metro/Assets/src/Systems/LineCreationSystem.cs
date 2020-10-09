@@ -220,13 +220,13 @@ public class LineCreationSystem : SystemBase
             Entity outboundPlatform = platforms[i];
             int _plat_END = platformIndices[i];
             int _plat_START = _plat_END - 1;
-            platformTranslations[i] = InitializePlatform(outboundPlatform, bezierPath, _plat_START, _plat_END, -3f, railColor);
+            platformTranslations[i] = InitializePlatform(outboundPlatform, bezierPath, _plat_START, _plat_END, railColor);
 
             var inboundPlatformIndex = platforms.Length - 1 - i;
             Entity inboundPlatform = platforms[inboundPlatformIndex];
             int opposite_START = totalPoints - (_plat_END + 1);
             int opposite_END = totalPoints - _plat_END;
-            platformTranslations[inboundPlatformIndex] = InitializePlatform(inboundPlatform, bezierPath, opposite_START, opposite_END, -3f, railColor);
+            platformTranslations[inboundPlatformIndex] = InitializePlatform(inboundPlatform, bezierPath, opposite_START, opposite_END, railColor);
 
             // pair these platforms as opposites
             var outboundSameStationPlatforms = GetBuffer<SameStationPlatformBufferElementData>(outboundPlatform);
@@ -257,38 +257,47 @@ public class LineCreationSystem : SystemBase
         EntityManager.SetComponentData(railEntity, carriageCount);
         EntityManager.SetComponentData(railEntity, new RailColor() { Value = railColor });
 
-        var railPoints = new NativeList<RailPoint>(Allocator.Temp);
+        var railPointTranslations = new NativeList<float3>(Allocator.Temp);
 
         // Now, let's lay the rail meshes
-        float _DIST = 0f;
+        var _DIST = 0f;
+        var isOdd = false;
         while (_DIST < bezierPath.GetPathDistance())
         {
             float _DIST_AS_RAIL_FACTOR = Get_distanceAsRailProportion(bezierPath, _DIST);
             Vector3 _RAIL_POS = bezierPath.Get_Position(_DIST_AS_RAIL_FACTOR);
             Vector3 _RAIL_ROT = bezierPath.Get_NormalAtPosition(_DIST_AS_RAIL_FACTOR);
 
-            railPoints.Add((float3)_RAIL_POS);
-
             var rail = EntityManager.Instantiate(railPrefab);
             EntityManager.SetComponentData(rail, new Rotation { Value = quaternion.LookRotation(_RAIL_ROT, new float3(0f, 1f, 0f))});
             EntityManager.SetComponentData(rail, new Translation { Value = _RAIL_POS });
             _DIST += Metro.RAIL_SPACING;
+
+            if (isOdd)
+            {
+                railPointTranslations.Add(_RAIL_POS);
+                isOdd = false;
+            }
+            else
+            {
+                isOdd = true;
+            }
         }
 
         // Calculate final world-space distances
-        var railPointDistances = new NativeArray<RailPointDistance>(railPoints.Length, Allocator.Temp);
+        var railPointPositions = new NativeArray<float>(railPointTranslations.Length, Allocator.Temp);
 
         var distance = 0f;
-        for (int i = 0; i < railPoints.Length - 1; i++)
+        for (int i = 0; i < railPointTranslations.Length - 1; i++)
         {
-            distance += math.length((float3) railPoints[i] - (float3) railPoints[i + 1]);
-            railPointDistances[i] = distance;
+            distance += math.length(railPointTranslations[i] - railPointTranslations[i + 1]);
+            railPointPositions[i] = distance;
         }
-        distance += math.length((float3) railPoints[0] - (float3) railPoints[railPoints.Length - 1]);
-        railPointDistances[railPointDistances.Length - 1] = distance;
+        distance += math.length(railPointTranslations[0] - railPointTranslations[railPointTranslations.Length - 1]);
+        railPointPositions[railPointPositions.Length - 1] = distance;
 
-        EntityManager.GetBuffer<RailPoint>(railEntity).AddRange(railPoints);
-        EntityManager.GetBuffer<RailPointDistance>(railEntity).AddRange(railPointDistances);
+        EntityManager.GetBuffer<RailPoint>(railEntity).AddRange(railPointTranslations.AsArray().Reinterpret<RailPoint>());
+        EntityManager.GetBuffer<RailPointDistance>(railEntity).AddRange(railPointPositions.Reinterpret<RailPointDistance>());
 
         EntityManager.SetComponentData<RailLength>(railEntity, distance);
         
@@ -296,39 +305,52 @@ public class LineCreationSystem : SystemBase
         for (int i = 0; i < platformCount; i++)
         {
             var platformTranslation = platformTranslations[i];
-            var nearestIndex = 0;
-            var nearestSqrDistance = math.distancesq(railPoints[0], platformTranslation);
+            var nearestIndex = -1;
+            var secondNearestIndex = nearestIndex;
+            var nearestSqrDistance = float.PositiveInfinity;
+            var secondNearestSqrDistance = nearestSqrDistance;
             
-            for (int j = 1; j < railPoints.Length; j++)
+            for (int j = 0; j < railPointTranslations.Length; j++)
             {
-                var point = railPoints[j];
-                var sqrDistance = math.distancesq(point, platformTranslation);
+                var sqrDistance = math.distancesq(railPointTranslations[j], platformTranslation);
                 if (sqrDistance < nearestSqrDistance)
                 {
+                    secondNearestIndex = nearestIndex;
+                    secondNearestSqrDistance = nearestSqrDistance;
+                    
+                    nearestIndex = j - 1;
+                    if (nearestIndex < -1)
+                        nearestIndex = railPointTranslations.Length - 1;
                     nearestSqrDistance = sqrDistance;
-                    nearestIndex = j;
                 }
             }
+
+            var nearestDistance = math.sqrt(nearestSqrDistance);
+            var secondNearestDistance = math.sqrt(secondNearestSqrDistance);
+            var sumDistance = nearestDistance + secondNearestDistance;
+            var nearestWeight = secondNearestDistance / sumDistance;
+            var secondNearestWeight = nearestDistance / sumDistance;
+            var platformPosition = railPointPositions[nearestIndex] * nearestWeight
+                                   + railPointPositions[secondNearestIndex] * secondNearestWeight;
             
-            EntityManager.AddComponentData<Position>(platforms[i], (float)railPointDistances[nearestIndex]);
+            EntityManager.AddComponentData<Position>(platforms[i], platformPosition);
         }
 
         EntityManager.GetBuffer<BufferPlatform>(railEntity).AddRange(platforms.Reinterpret<BufferPlatform>());
 
-        railPoints.Dispose();
-        railPointDistances.Dispose();
+        railPointTranslations.Dispose();
+        railPointPositions.Dispose();
         platforms.Dispose();
         platformTranslations.Dispose();
     }
 
-    float3 InitializePlatform(Entity platform, BezierPath bezierPath, int _index_platform_START, int _index_platform_END, float lookAtOffset, float4 color)
+    float3 InitializePlatform(Entity platform, BezierPath bezierPath, int _index_platform_START, int _index_platform_END, float4 color)
     {
-        BezierPoint _PT_START = bezierPath.points[_index_platform_START];
         BezierPoint _PT_END = bezierPath.points[_index_platform_END];
 
         EntityManager.SetComponentData(platform, new Translation { Value = _PT_END.location });
         
-        var lookAtPoint = bezierPath.GetPoint_PerpendicularOffset(_PT_END, lookAtOffset);
+        var lookAtPoint = bezierPath.GetPoint_PerpendicularOffset(_PT_END, -3f);
         EntityManager.SetComponentData(platform, new Rotation
         {
             Value = quaternion.LookRotation(math.normalize(lookAtPoint - _PT_END.location), new float3(0f, 1f, 0f))
