@@ -35,13 +35,6 @@ public class AgentUpdateSystem : SystemBase
     {
         float elapsedTime = (float)Time.ElapsedTime;
 
-<<<<<<< HEAD
-=======
-        var heatMapEntity = GetSingletonEntity<HeatMap>();
-        var heatMap = EntityManager.GetComponentData<HeatMap>(heatMapEntity);
-        var heatMapBuffer = EntityManager.GetBuffer<HeatMapElement>(heatMapEntity).AsNativeArray();
-
->>>>>>> 16f43163bfe9f371e54a0bb33518428bdaeda81e
         var ecb1 = m_endSimECB.CreateCommandBuffer().AsParallelWriter();
         var ecb2 = m_endSimECB.CreateCommandBuffer().AsParallelWriter();
         var ecb3 = m_endSimECB.CreateCommandBuffer().AsParallelWriter();
@@ -276,14 +269,10 @@ public class AgentUpdateSystem : SystemBase
                 {
                     if (agent.NextAgent == Entity.Null) // last agent of the line
                     {
-<<<<<<< HEAD
                         // drop it in the fire ?
                         // new WaterDrop
                         agent.ActionState = (byte) AgentAction.IDLE;
-=======
-                        //FindNearestAndSetSeekTarget(t.Value, bucketLocations, bucketIsFullAndOnGround, true, ref seekComponent); // look for nearest empty bucket
-                        agent.ActionState = (byte) AgentAction.GOTO_PICKUP_LOCATION;
->>>>>>> 16f43163bfe9f371e54a0bb33518428bdaeda81e
+
                     }
                     else
                     {
@@ -302,7 +291,6 @@ public class AgentUpdateSystem : SystemBase
                             EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
                         }              
                     }
-<<<<<<< HEAD
                 }
                 else
                 {
@@ -310,50 +298,6 @@ public class AgentUpdateSystem : SystemBase
                     agent.ActionState = (byte) AgentAction.IDLE;
                 }
             }).Run();
-=======
-                    // pass bucket to it
-
-                    break;
-
-                case (byte) AgentAction.DROP_BUCKET:
-                    // drop bucket
-                    ecb1.SetComponent<CarryableObject>(entityInQueryIndex, agent.CarriedEntity, new CarryableObject {CarryingEntity = Entity.Null});
-                    agent.CarriedEntity = Entity.Null; // nb - this will be out of sync with bucket status for one frame (bucket will be updated after simulation end)
-
-                    // look for nearest full bucket
-                    FindNearestAndSetSeekTarget(t.Value, bucketLocations, bucketIsFullAndOnGround, true, ref seekComponent);
-                    agent.ActionState = (byte) AgentAction.GET_BUCKET;
-                    break;
-
-                case (byte)AgentAction.IDLE:
-                    break;
-
-                default:
-                    Debug.Assert(false, "Full Bucket Passer bot entered unsupported state " + ((AgentAction)agent.ActionState).ToString() );
-                    break;
-            }
-
-                // update any carried buckets.
-            if (agent.CarriedEntity != Entity.Null)
-            {
-                ecb1.SetComponent<Translation>(entityInQueryIndex, agent.CarriedEntity, new Translation { Value = new float3(t.Value.x, t.Value.y + 0.5f, t.Value.z)} );
-            }
-
-            /*
-            if (agent.PreviousAgent == Entity.Null)
-            {
-                //agent.ActionState = (byte) AgentAction.GOTO_DROPOFF_LOCATION;
-                FindNearestFire((int)t.Value.x, (int)t.Value.z, heatMap.SizeX, heatMap.SizeZ, heatMapBuffer, ref seekComponent);
-            }
-            else
-            {
-                agent.ActionState = (byte) AgentAction.IDLE;
-            }
-            */
-
-        }).ScheduleParallel();
-//        m_endSimECB.AddJobHandleForProducer(fullBucketECBJobHandle);
->>>>>>> 16f43163bfe9f371e54a0bb33518428bdaeda81e
 
         // Empty bucket passer updates
         Entities
@@ -367,21 +311,12 @@ public class AgentUpdateSystem : SystemBase
             // If the agent carry something pass it to the next agent
             if (agent.CarriedEntity != Entity.Null)
             {
-<<<<<<< HEAD
                 if (agent.NextAgent == Entity.Null) // last agent of the line
                 {
                     // Pass it to scooper ?                
                     agent.ActionState = (byte) AgentAction.IDLE;
                 }
                 else
-=======
-                // Goto next agent and pass the bucket when near it
-                agent.ActionState = (byte) AgentAction.PASS_BUCKET;
-                var targetAgentPosition = EntityManager.GetComponentData<Translation>(agent.NextAgent);
-                seekComponent.TargetPos = targetAgentPosition.Value;
-
-                if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
->>>>>>> 16f43163bfe9f371e54a0bb33518428bdaeda81e
                 {
                     // Goto next agent and pass the bucket when near it
                     agent.ActionState = (byte) AgentAction.PASS_BUCKET;
@@ -392,18 +327,11 @@ public class AgentUpdateSystem : SystemBase
                     {
                         var targetAgent = EntityManager.GetComponentData<Agent>(agent.PreviousAgent);
 
-<<<<<<< HEAD
                         targetAgent.CarriedEntity = agent.CarriedEntity;
                         agent.CarriedEntity = Entity.Null;
                         
                         EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
                     }              
-=======
-                    targetAgent.CarriedEntity = agent.CarriedEntity;
-                    agent.CarriedEntity = Entity.Null;
-
-                    EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
->>>>>>> 16f43163bfe9f371e54a0bb33518428bdaeda81e
                 }
             }
             else
