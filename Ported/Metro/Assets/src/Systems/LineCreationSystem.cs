@@ -228,13 +228,13 @@ public class LineCreationSystem : SystemBase
             Entity outboundPlatform = platforms[i];
             int _plat_END = platformIndices[i];
             int _plat_START = _plat_END - 1;
-            platformTranslations[i] = InitializePlatform(outboundPlatform, bezierPath, _plat_START, _plat_END, lineCreationSettings.Color);
+            platformTranslations[i] = InitializePlatform(outboundPlatform, bezierPath, _plat_START, _plat_END, lineCreationSettings.Color, lineCreationSettings.CarriageCount);
 
             var inboundPlatformIndex = platforms.Length - 1 - i;
             Entity inboundPlatform = platforms[inboundPlatformIndex];
             int opposite_START = totalPoints - (_plat_END + 1);
             int opposite_END = totalPoints - _plat_END;
-            platformTranslations[inboundPlatformIndex] = InitializePlatform(inboundPlatform, bezierPath, opposite_START, opposite_END, lineCreationSettings.Color);
+            platformTranslations[inboundPlatformIndex] = InitializePlatform(inboundPlatform, bezierPath, opposite_START, opposite_END, lineCreationSettings.Color, lineCreationSettings.CarriageCount);
 
             // pair these platforms as opposites
             var outboundSameStationPlatforms = GetBuffer<SameStationPlatformBufferElementData>(outboundPlatform);
@@ -352,11 +352,13 @@ public class LineCreationSystem : SystemBase
         platformTranslations.Dispose();
     }
 
-    float3 InitializePlatform(Entity platform, BezierPath bezierPath, int _index_platform_START, int _index_platform_END, float4 color)
+    float3 InitializePlatform(Entity platform, BezierPath bezierPath, int _index_platform_START, int _index_platform_END, float4 color, int numCarriages)
     {
         BezierPoint _PT_END = bezierPath.points[_index_platform_END];
 
         EntityManager.SetComponentData(platform, new Translation { Value = _PT_END.location });
+
+        EntityManager.SetComponentData(platform, new Queues { CarriageCount = numCarriages });
         
         var lookAtPoint = bezierPath.GetPoint_PerpendicularOffset(_PT_END, -3f);
         EntityManager.SetComponentData(platform, new Rotation
