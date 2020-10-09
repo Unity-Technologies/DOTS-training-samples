@@ -12,4 +12,5 @@ public struct CarMovement : IComponentData
     public float distanceTraveled;
     public float distanceToNext;
     public float3 travelVec;
+    public bool initialized;
 }

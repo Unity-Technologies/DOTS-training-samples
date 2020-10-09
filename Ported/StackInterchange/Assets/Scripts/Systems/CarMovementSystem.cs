@@ -25,18 +25,18 @@ public class CarMovementSystem : SystemBase
             // temp
             var goalPos = GetComponent<LocalToWorld>(movement.NextNode).Position;
 
-            if (movement.distanceTraveled < .1f)
+            if (!movement.initialized)
             {
                 movement.distanceToNext = math.distance(trans.Value, goalPos);
-                movement.distanceTraveled = 0;
                 movement.travelVec = goalPos - trans.Value;
                 movement.travelVec = math.normalize(movement.travelVec);
+                movement.initialized = true;
             }
             
             // Check distance
             var dist = math.distance(trans.Value, goalPos);
 
-            if (dist < 1f)
+            if (movement.distanceTraveled > movement.distanceToNext)
             {
                 // Destroy if no next node
                 var testComp = GetComponentDataFromEntity<RoadNode>(true);
@@ -62,7 +62,8 @@ public class CarMovementSystem : SystemBase
                     if (tmp > 90 && tmp < 180){
                         rotation.Value = math.mul(rotation.Value, quaternion.RotateY(math.mul(goalPos.x, goalPos.z)));                        
                     }
-                    movement.distanceTraveled = 0;
+                    movement.distanceTraveled -= movement.distanceToNext;
+                    movement.initialized = false;
                 }
                 else{
                     ecb.DestroyEntity(entityInQueryIndex, carEntity);   
