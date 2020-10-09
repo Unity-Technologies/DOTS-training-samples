@@ -3,17 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
-using System.Collections.Generic;
-
-using System;
 using Unity.Collections;
-using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Rendering;
-using Unity.Transforms;
 
 [UpdateAfter(typeof(InitBoardSystem))]
 public class CursorSystem : SystemBase
@@ -50,30 +40,58 @@ public class CursorSystem : SystemBase
 	    }
 	    var arrowRotation = quaternion.RotateY(math.radians((float)(arrowDirection * 90.0f)));
 	
+	    bool validTile = false;
+	    if ((centerPosition.x < boardInfo.width)
+		    && (centerPosition.z < boardInfo.height)
+		    && (centerPosition.x > 0)
+		    && (centerPosition.z > 0))
+	    {
+		    byte tile = TileUtils.GetTile(tiles, (int)(centerPosition.x - 0.5f), (int)(centerPosition.z - 0.5f), boardInfo.width);
+		    var notHole = !TileUtils.IsHole(tile);
+		    var notBase = TileUtils.BaseId(tile) == -1;
+		    if (notHole && notBase)
+		    {
+			    validTile = true;
+		    }
+	    }
+	    
 	    Entities
 	        .WithAll<ArrowCellTag>()
 	        .ForEach((ref Rotation rotation, ref Translation translation) =>
 	        {
-		        bool validTile = false;
-		        if ((centerPosition.x < boardInfo.width)
-			        && (centerPosition.z < boardInfo.height)
-			        && (centerPosition.x > 0)
-			        && (centerPosition.z > 0))
+		        if (validTile)
 		        {
-			        byte tile = TileUtils.GetTile(tiles, (int)(centerPosition.x - 0.5f), (int)(centerPosition.z - 0.5f), boardInfo.width);
-			        var notHole = !TileUtils.IsHole(tile);
-			        var notBase = TileUtils.BaseId(tile) == -1;
-			        if (notHole && notBase)
-			        {
-				        validTile = true;
-				        translation.Value = centerPosition - (new float3(0.5f, 0.0f, 0.5f));
-				        rotation.Value = arrowRotation;
-			        }
+			        translation.Value = centerPosition - (new float3(0.5f, 0.0f, 0.5f));
+			        rotation.Value = arrowRotation;
 		        }
-		        if (!validTile)
-	            {
-	                translation.Value = new float3(1f, -0.5f, 1f);
+		        else
+		        {
+			        translation.Value = new float3(1f, -0.5f, 1f);
 	            }
 	        }).Schedule();
+
+	    Dependency.Complete();
+	    
+	    if (Input.GetMouseButton(0) && validTile)
+	    {
+		    var playerManager = GetSingleton<PlayerManager>();
+		    var arrowPosition = new int2((int)(centerPosition.x - 0.5f), (int)(centerPosition.z - 0.5f));
+		    switch (arrowDirection)
+		    {
+			    case 0:
+				    PlayerManager.AddBoardArrow(EntityManager, playerManager.Player0, EntityDirection.Down, arrowPosition);
+				    break;
+			    case 1:
+				    PlayerManager.AddBoardArrow(EntityManager, playerManager.Player0, EntityDirection.Left, arrowPosition);
+				    break;
+			    case 2:
+				    PlayerManager.AddBoardArrow(EntityManager, playerManager.Player0, EntityDirection.Up, arrowPosition);
+				    break;
+			    case 3:
+				    PlayerManager.AddBoardArrow(EntityManager, playerManager.Player0, EntityDirection.Right, arrowPosition);
+				    break;
+		    }
+		    
+	    }
 	}
 }
