@@ -52,7 +52,7 @@ public class AgentUpdateSystem : SystemBase
 			.WithoutBurst()
 			.WithStoreEntityQueryInField(ref m_waterQuery)
             .WithAll<WaterTag>()
-			.ForEach((Entity entity, in Intensity volume, in LocalToWorld world) => 
+			.ForEach((Entity entity, in Intensity volume, in LocalToWorld world) =>
             {
 				waterEntities[waterIndex] = entity;
 				waterLocations[waterIndex] = world.Position;
@@ -103,7 +103,7 @@ public class AgentUpdateSystem : SystemBase
             }
         ).Run();
 
-        const float arrivalThresholdSq = 1.0f; // square length.
+        const float arrivalThresholdSq = 0.5f; // square length.
         const float bucketFillRate = 0.1f; // amount to add to bucket volume per frame
 
         // scooper updates
@@ -277,9 +277,9 @@ public class AgentUpdateSystem : SystemBase
         }).ScheduleParallel(); // should run in parallel with Scoopers.
 
         // full bucket passer updates
-       
+
         Entities
-            .WithoutBurst()
+            .WithStructuralChanges()
             .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.FullBucketPasserTag agentTag) =>
             {
                 // If the agent carry something pass it to the next agent
@@ -287,8 +287,17 @@ public class AgentUpdateSystem : SystemBase
                 {
                     if (agent.NextAgent == Entity.Null) // last agent of the line
                     {
-                        // drop it in the fire ?
-                        // new WaterDrop
+                        var bucketEntity = agent.CarriedEntity;
+
+                        // drop it in on the ground for the thrower
+                        EntityManager.SetComponentData(bucketEntity, new CarryableObject { CarryingEntity = Entity.Null} );
+                        EntityManager.SetComponentData(bucketEntity, new Intensity() { Value = 0 } );
+
+                        // Create a water drop AOE
+                        var waterDrop = EntityManager.CreateEntity(typeof(WaterDrop));
+                        EntityManager.SetComponentData(waterDrop, new WaterDrop() { X = (int)t.Value.x, Z = (int)t.Value.z, Range = 2, Strength = 80} );
+
+                        agent.CarriedEntity = Entity.Null;
                         agent.ActionState = (byte) AgentAction.IDLE;
                     }
                     else
@@ -297,118 +306,137 @@ public class AgentUpdateSystem : SystemBase
                         agent.ActionState = (byte) AgentAction.PASS_BUCKET;
                         var targetAgentPosition = EntityManager.GetComponentData<Translation>(agent.NextAgent);
                         seekComponent.TargetPos = targetAgentPosition.Value;
-                    
+
                         if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
                         {
-                            var targetAgent = EntityManager.GetComponentData<Agent>(agent.PreviousAgent);
+                            var targetAgent = EntityManager.GetComponentData<Agent>(agent.NextAgent);
+
+                            EntityManager.SetComponentData(agent.CarriedEntity, new CarryableObject { CarryingEntity = agent.NextAgent} );
 
                             targetAgent.CarriedEntity = agent.CarriedEntity;
+                            EntityManager.SetComponentData(agent.NextAgent, targetAgent);
+
                             agent.CarriedEntity = Entity.Null;
-                        
-                            EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
-                        }              
+
+
+                            // TMP
+                            EntityManager.SetComponentData(targetAgent.CarriedEntity, new Translation() { Value = targetAgentPosition.Value} );
+                        }
                     }
                 }
                 else
                 {
-                    // Stay in the line
-                    agent.ActionState = (byte) AgentAction.IDLE;
+                    if (agent.PreviousAgent == Entity.Null) // first agent of the line try to pick full buckets
+                    {
+                        Entity bucketEntity = Entity.Null;
+                        int bucketEntityIndex;
+                        FindNearestIndex(t.Value, bucketLocations, bucketIsFullAndOnGround, true, out bucketEntityIndex); // look for nearest full bucket
+
+                        // check that the bucket is near
+                        if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
+                        {
+                            bucketEntity = bucketEntities[bucketEntityIndex];
+
+                            var alreadyCarried = EntityManager.GetComponentData<CarryableObject>(bucketEntity).CarryingEntity != Entity.Null;
+                            if (!alreadyCarried)
+                            {
+                                agent.CarriedEntity = bucketEntity;
+                                EntityManager.SetComponentData(bucketEntity, new CarryableObject { CarryingEntity = e} );
+                                agent.ActionState = (byte) AgentAction.PASS_BUCKET;
+                            }
+                        }
+                        else
+                        {
+                            // Stay in the line
+                            agent.ActionState = (byte) AgentAction.IDLE;
+                        }
+                    }
+                    else
+                    {
+                        // Stay in the line
+                        agent.ActionState = (byte) AgentAction.IDLE;
+                    }
                 }
             }).Run();
 
         // Empty bucket passer updates
-        Entities
+         Entities
             .WithoutBurst()
-//            .WithReadOnly(bucketEntities)
-//            .WithReadOnly(bucketLocations)
- //           .WithReadOnly(bucketFillValue)
- //           .WithReadOnly(bucketIsEmptyAndOnGround)
-        .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.EmptyBucketPasserTag agentTag) =>
-        {
-            // If the agent carry something pass it to the next agent
-            if (agent.CarriedEntity != Entity.Null)
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation t, ref SeekPosition seekComponent, ref Agent agent, in AgentTags.EmptyBucketPasserTag agentTag) =>
             {
-                if (agent.NextAgent == Entity.Null) // last agent of the line
+                // If the agent carry something pass it to the previous agent
+                if (agent.CarriedEntity != Entity.Null)
                 {
-                    // Pass it to scooper ?                
-                    agent.ActionState = (byte) AgentAction.IDLE;
+                    if (agent.PreviousAgent == Entity.Null) // last agent of the line
+                    {
+                        var bucketEntity = agent.CarriedEntity;
+
+                        // drop it in on the ground for the thrower
+                        EntityManager.SetComponentData(bucketEntity, new CarryableObject { CarryingEntity = Entity.Null} );
+
+                        agent.CarriedEntity = Entity.Null;
+                        agent.ActionState = (byte) AgentAction.IDLE;
+                    }
+                    else
+                    {
+                        // Goto previous agent and pass the bucket when near it
+                        agent.ActionState = (byte) AgentAction.PASS_BUCKET;
+                        var targetAgentPosition = EntityManager.GetComponentData<Translation>(agent.PreviousAgent);
+                        seekComponent.TargetPos = targetAgentPosition.Value;
+
+                        if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
+                        {
+                            var targetAgent = EntityManager.GetComponentData<Agent>(agent.PreviousAgent);
+
+                            EntityManager.SetComponentData(agent.CarriedEntity, new CarryableObject { CarryingEntity = agent.PreviousAgent} );
+
+                            targetAgent.CarriedEntity = agent.CarriedEntity;
+                            EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
+
+                            agent.CarriedEntity = Entity.Null;
+
+
+                            // TMP
+                            EntityManager.SetComponentData(targetAgent.CarriedEntity, new Translation() { Value = targetAgentPosition.Value} );
+                        }
+                    }
                 }
                 else
                 {
-                    // Goto next agent and pass the bucket when near it
-                    agent.ActionState = (byte) AgentAction.PASS_BUCKET;
-                    var targetAgentPosition = EntityManager.GetComponentData<Translation>(agent.NextAgent);
-                    seekComponent.TargetPos = targetAgentPosition.Value;
-                    
-                    if (math.lengthsq(seekComponent.TargetPos - t.Value) < arrivalThresholdSq)
+                    if (agent.NextAgent == Entity.Null) // first agent of the line try to pick empty buckets
                     {
-                        var targetAgent = EntityManager.GetComponentData<Agent>(agent.PreviousAgent);
+                        Entity bucketEntity = Entity.Null;
+                        int bucketEntityIndex;
+                        FindNearestIndex(t.Value, bucketLocations, bucketIsEmptyAndOnGround, true, out bucketEntityIndex); // look for nearest empty bucket
 
-                        targetAgent.CarriedEntity = agent.CarriedEntity;
-                        agent.CarriedEntity = Entity.Null;
-                        
-                        EntityManager.SetComponentData(agent.PreviousAgent, targetAgent);
-                    }              
+                        // check that the bucket is near
+                        if (math.lengthsq((bucketLocations[bucketEntityIndex] - t.Value)) < arrivalThresholdSq)
+                        {
+                            bucketEntity = bucketEntities[bucketEntityIndex];
+
+                            var alreadyCarried = EntityManager.GetComponentData<CarryableObject>(bucketEntity).CarryingEntity != Entity.Null;
+                            if (!alreadyCarried)
+                            {
+                                agent.CarriedEntity = bucketEntity;
+                                EntityManager.SetComponentData(bucketEntity, new CarryableObject { CarryingEntity = e} );
+                                agent.ActionState = (byte) AgentAction.PASS_BUCKET;
+                            }
+                        }
+                        else
+                        {
+                            // Stay in the line
+                            agent.ActionState = (byte) AgentAction.IDLE;
+                        }
+                    }
+                    else
+                    {
+                        // Stay in the line
+                        agent.ActionState = (byte) AgentAction.IDLE;
+                    }
                 }
-            }
-            else
-            {
-                // Stay in the line
-                agent.ActionState = (byte) AgentAction.IDLE;
-            }
-        }).Run();
+            }).Run();
 
-        /*
-        Entities
-			.WithDisposeOnCompletion(waterLocations)
-			.WithDisposeOnCompletion(waterIsAvailable)
-            .WithDisposeOnCompletion(bucketLocations)
-            .WithDisposeOnCompletion(bucketFillValue)
-            .WithDisposeOnCompletion(bucketEntities)
-            .WithDisposeOnCompletion(bucketIsEmptyAndOnGround)
-            .WithDisposeOnCompletion(bucketIsFullAndOnGround)
-            .WithDisposeOnCompletion(teamEntity)
-            .WithDisposeOnCompletion(teamLineStartLocation)
-//            .WithReadOnly(bucketEntities)
-//            .WithReadOnly(bucketLocations)
- //           .WithReadOnly(bucketFillValue)
- //           .WithReadOnly(bucketIsEmptyAndOnGround)
-            .ForEach((Entity e, in Agent agent) =>
-        {
-            // force a usage in order to enable WithDisposeOnCompletion validation checks to succeed.
-            // generates a compile error without this.
-			if (waterLocations.Length > 0)
-			{
-				waterLocations[0] = float3.zero;
-				waterIsAvailable[0] = false;
-			}
-			if (bucketEntities.Length > 0)
-			{
-	            bucketEntities[0] = Entity.Null;
-    	        bucketIsEmptyAndOnGround[0] = false;
-        	    bucketLocations[0] = float3.zero;
-            	bucketFillValue[0] = 0.0f;
-	            bucketIsFullAndOnGround[0] = false;
-			}
-        }).Run(); // FIXME - Put back on Schedule / access other agents
 
-            //if (bucketEntities.Length > 0)
-            {
-                bucketEntities[0] = Entity.Null;
-                bucketIsEmptyAndOnGround[0] = false;
-                bucketLocations[0] = float3.zero;
-                bucketFillValue[0] = 0.0f;
-                bucketIsFullAndOnGround[0] = false;
-            }
-
-            //if (teamEntity.Length > 0)
-            {
-                teamEntity[0] = Entity.Null;
-                teamLineStartLocation[0] = float3.zero;
-            }
-
-        }).ScheduleParallel();
-*/
         m_endSimECB.AddJobHandleForProducer(Dependency);
 
         //JobHandle.CombineDependencies(Dependency, scooperECBJobHandle);
@@ -460,6 +488,7 @@ public class AgentUpdateSystem : SystemBase
     {
         float nearestDistanceSquared = float.MaxValue;
         int nearestIndex = 0;
+        bool foundIndex = false;
         for (int i = 0; i < objectLocation.Length; ++i)
         {
             if (objectFilter[i] == filterMatch)
@@ -470,11 +499,15 @@ public class AgentUpdateSystem : SystemBase
                 {
                     nearestDistanceSquared = squareLen;
                     nearestIndex = i;
+                    foundIndex = true;
                 }
             }
         }
 
-        float3 loc = objectLocation[nearestIndex];
-        seekComponent.TargetPos = new float3(loc.x, loc.y, loc.z);
+        if (foundIndex)
+        {
+            float3 loc = objectLocation[nearestIndex];
+            seekComponent.TargetPos = new float3(loc.x, loc.y, loc.z);
+        }
     }
 }
