@@ -11,7 +11,7 @@ public class FillCarriedBucketSystem : SystemBase
 
     protected override void OnCreate()
     {
-        m_ECBSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         
         bucketQuery = GetEntityQuery(ComponentType.ReadOnly<Volume>());
     }

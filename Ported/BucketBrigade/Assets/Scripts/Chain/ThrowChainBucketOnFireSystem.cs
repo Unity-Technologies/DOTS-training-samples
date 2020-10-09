@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
+[UpdateAfter(typeof(FireSimulationPropagationSystem))]
 public class ThrowChainBucketOnFireSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;
@@ -65,8 +66,7 @@ public class ThrowChainBucketOnFireSystem : SystemBase
                         }
                 }
                 
-                // Get several cells and reduce temp
-
+                ecb.SetComponent(entityInQueryIndex, bucketEntity, new Volume {Value = 0f});
                 ecb.RemoveComponent<ThrowTag>(entityInQueryIndex, bucketEntity);
             }).ScheduleParallel();
 
