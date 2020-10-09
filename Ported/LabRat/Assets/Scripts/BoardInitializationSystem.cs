@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 public class BoardInitializationSystem : SystemBase
 {
@@ -89,8 +90,7 @@ public class BoardInitializationSystem : SystemBase
                         {
                             spawnType = 0,
                             direction = (x == 0 && z == 0) ? DirectionDefines.North : DirectionDefines.South,
-                            spawnCount = 20,
-                            spawnDelay = 6f,
+                            spawnCount = board.miceCount,
                         };
                         EntityManager.AddComponent<SpawnPoint>(tileInstance);
                         SetComponent(tileInstance, mouseSpawnPoint);
@@ -98,11 +98,11 @@ public class BoardInitializationSystem : SystemBase
                         buffer.Length = 2;
                         buffer[0] = new SpawnType()
                         {
-                            spawnPrefab = board.ratPrefab, spawnMax = 20, spawnFrequency = 0.2f, speedRange = new float2(1f, 5f)
+                            spawnPrefab = board.ratPrefab, spawnMax = board.miceCount, spawnFrequency = 0.2f, speedRange = new float2(1f, 5f), spawnDelay = board.miceWait
                         };
                         buffer[1] = new SpawnType()
                         {
-                            spawnPrefab = board.catPrefab, spawnMax = 1, spawnFrequency = 0f, speedRange = new float2(.5f, 1.5f)
+                            spawnPrefab = board.catPrefab, spawnMax = board.catCount, spawnFrequency = 0f, speedRange = new float2(.5f, 1.5f), spawnDelay = board.catWait
                         };
                     }
                     else if ((x == 0 && z == (board.size - 1)) || (x == (board.size - 1) && z == 0))
@@ -113,8 +113,7 @@ public class BoardInitializationSystem : SystemBase
                             direction = (x == 0 && z == (board.size - 1))
                                 ? DirectionDefines.East
                                 : DirectionDefines.West,
-                            spawnCount = 1,
-                            spawnDelay = 10f,
+                            spawnCount = board.catCount,
                         };
                         EntityManager.AddComponent<SpawnPoint>(tileInstance);
                         SetComponent(tileInstance, catSpawnPoint);
@@ -122,7 +121,7 @@ public class BoardInitializationSystem : SystemBase
                         buffer.Length = 1;
                         buffer[0] = new SpawnType()
                         {
-                            spawnPrefab = board.catPrefab, spawnMax = 1, spawnFrequency = 0f, speedRange = new float2(.5f, 1.5f)
+                            spawnPrefab = board.catPrefab, spawnMax = board.catCount, spawnFrequency = 0f, speedRange = new float2(.5f, 1.5f), spawnDelay = board.catWait
                         };
                     }
 
@@ -273,6 +272,10 @@ public class BoardInitializationSystem : SystemBase
                     }
                 }
 
+                var orthoSize = 2 * board.size / 3f;
+                Camera.main.orthographicSize = orthoSize;
+                Camera.main.transform.position = new Vector3(orthoSize / 2f, orthoSize, orthoSize / 2f);
+                
                 EntityManager.DestroyEntity(entity);
             }).Run();
     }

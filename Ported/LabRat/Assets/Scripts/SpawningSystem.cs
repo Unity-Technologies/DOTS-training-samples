@@ -52,7 +52,7 @@ public class SpawningSystem : SystemBase
                 {
                     spawnPoint.spawnType = (spawnPoint.spawnType + 1) % types.Length;
                     spawnPoint.spawnCount = types[spawnPoint.spawnType].spawnMax;
-                    ecb.AddComponent(entityInQueryIndex, entity, new Timer() {Value = spawnPoint.spawnDelay});
+                    ecb.AddComponent(entityInQueryIndex, entity, new Timer() {Value = types[spawnPoint.spawnType].spawnDelay});
                 }
                 else
                 {
