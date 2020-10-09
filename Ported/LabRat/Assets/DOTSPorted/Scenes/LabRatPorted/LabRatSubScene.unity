@@ -543,7 +543,7 @@ MonoBehaviour:
   mouseTimer: 0
   catSpeed: 2
   mouseSpeed: 5
-  maxMiceCount: 100
+  maxMiceCount: 1000
   minCatSpeed: 2
   maxCatSpeed: 3
   minMouseSpeed: 3

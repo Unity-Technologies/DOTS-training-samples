@@ -1,4 +1,6 @@
 
+using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -114,6 +116,22 @@ public struct PlayerManager : IComponentData
 
         // Set the player component back to the player entity to persist changes.
         entityManager.SetComponentData(playerEntity, player);
+    }
+
+    public static bool HasArrow(EntityManager entityManager, int x, int y)
+    {
+        var query = entityManager.CreateEntityQuery(typeof(BoardArrow));
+        var arrows = query.ToEntityArray(Allocator.Persistent);
+        for (int i = 0; i < arrows.Length; i++)
+        {
+            var arrow = entityManager.GetComponentData<BoardArrow>(arrows[i]);
+            if (arrow.gridPosition.x == x && arrow.gridPosition.y == y)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public Entity Player0;

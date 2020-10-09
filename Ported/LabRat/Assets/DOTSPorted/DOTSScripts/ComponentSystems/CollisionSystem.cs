@@ -21,12 +21,27 @@ public class CollisionSystem : SystemBase
         var catPositionArray = m_Query.ToComponentDataArray<Translation>(Allocator.TempJob);
         var sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = sys.CreateCommandBuffer();
-        var collisionRadius = GetSingleton<GameState>().collisionRadius; 
+        var collisionRadius = GetSingleton<GameState>().collisionRadius;
+
+        var tileEntity = GetSingletonEntity<TileMap>();
+        TileMap tileMap = EntityManager.GetComponentObject<TileMap>(tileEntity);
+        NativeArray<byte> tiles = tileMap.tiles;
+
+        var boardInfo = GetSingleton<BoardInfo>();
+        
         Entities
             .WithAll<Mouse>()
             .WithDisposeOnCompletion(catPositionArray)
             .ForEach((ref Entity entity, in Translation translation) =>
         {
+            int x = (int)(translation.Value.x + 0.5f);
+            int z = (int)(translation.Value.z + 0.5f);
+            var tile = TileUtils.GetTile(tiles, x, z, boardInfo.width);
+            if (TileUtils.IsHole(tile))
+            {
+                ecb.DestroyEntity(entity);
+            }
+            
             for (var i=0; i<catPositionArray.Length; i++)
             {
                 var dist = math.distance(translation.Value, catPositionArray[i].Value);
@@ -36,6 +51,18 @@ public class CollisionSystem : SystemBase
                 }
             }
         }).Schedule();
+
+        Entities.WithAll<Cat>().ForEach((ref Entity entity, in Translation translation) =>
+        {
+            int x = (int)(translation.Value.x + 0.5f);
+            int z = (int)(translation.Value.z + 0.5f);
+            var tile = TileUtils.GetTile(tiles, x, z, boardInfo.width);
+            if (TileUtils.IsHole(tile))
+            {
+                ecb.DestroyEntity(entity);
+            }
+        }).Schedule();
+        
         sys.AddJobHandleForProducer(Dependency);
     }
 }

@@ -21,12 +21,25 @@ public class TransformSystem : SystemBase
         TileMap tileMap = EntityManager.GetComponentObject<TileMap>(tilemapEntity);
         NativeArray<byte> tiles = tileMap.tiles;
 
-        Entities.ForEach((ref Rotation rotation, ref Translation translation, ref Direction direction, in Position position) =>
+        var query = EntityManager.CreateEntityQuery(typeof(BoardArrow));
+        var arrows = query.ToComponentDataArray<BoardArrow>(Allocator.TempJob);
+
+        Entities
+            .WithDisposeOnCompletion(arrows)
+            .ForEach((ref Rotation rotation, ref Translation translation, ref Direction direction, in Position position) =>
         {
-            int x = (int)(translation.Value.x + 0.5f);
-            int z = (int)(translation.Value.z + 0.5f);
+            int x = (int)(translation.Value.x);
+            int z = (int)(translation.Value.z);
             byte tile = TileUtils.GetTile(tiles, x, z, boardInfo.width);
 
+            for (int i = 0; i < arrows.Length; i++)
+            {
+                if (arrows[i].gridPosition.x == x && arrows[i].gridPosition.y == z)
+                {
+                    direction.Value = arrows[i].direction;
+                }
+            }
+            
             // test for wall collisions
             if((tile & 0xf) != 0)
             {
