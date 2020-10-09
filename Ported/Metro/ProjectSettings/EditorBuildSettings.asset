@@ -6,6 +6,18 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Scenes/Menu.unity
+    guid: 9e0a34e0ff92b9a429af58f00e69dfa3
+  - enabled: 1
+    path: Assets/Scenes/MetroLinear_GO.unity
+    guid: 15833fea6c8512e49ac335c08d0adf8d
+  - enabled: 1
+    path: Assets/Scenes/MetroLinear_DOTS.unity
+    guid: a1d893ab64c077742baa0c4da6e8c67e
+  - enabled: 1
+    path: Assets/Scenes/MetroBigCity_GO.unity
+    guid: a53ad1471d6cb8140acc820fc1cf3754
+  - enabled: 1
+    path: Assets/Scenes/MetroBigCity_DOTS.unity
+    guid: 2ee9d43171a747c428d592619a911fd9
   m_configObjects: {}
