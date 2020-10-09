@@ -6,4 +6,5 @@ public struct MetroBuilder : IComponentData
     public Entity PlatformPrefab;
     public Entity CommuterPrefab;
     public Entity RailPrefab;
+    public int MaxCommuters;
 }

@@ -11,7 +11,7 @@ using Random = UnityEngine.Random;
 public class TrainCarriage : MonoBehaviour, IConvertGameObjectToEntity
 {
     public const float CARRIAGE_LENGTH = 5f;
-    public const int CARRIAGE_CAPACITY = 10;
+    public const int CARRIAGE_CAPACITY = 27;
     public const float CARRIAGE_SPACING = 0.25f;
 
     public float positionOnRail;

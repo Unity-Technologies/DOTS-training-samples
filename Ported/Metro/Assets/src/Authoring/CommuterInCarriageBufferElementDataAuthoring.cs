@@ -2,7 +2,7 @@
 using UnityEngine;
 public class CommuterInCarriageBufferElementDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
-    public int Capacity = 10;
+    public int Capacity = 27;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
