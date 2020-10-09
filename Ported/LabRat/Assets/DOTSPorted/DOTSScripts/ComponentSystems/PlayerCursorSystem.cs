@@ -16,6 +16,8 @@ public class PlayerCursorSystem : SystemBase
 
 	protected override void OnUpdate()
 	{
+		var playerManager = GetSingleton<PlayerManager>();
+		
 		Entity tilemapEntity = GetSingletonEntity<TileMap>();
 		TileMap tileMap = EntityManager.GetComponentObject<TileMap>(tilemapEntity);
 		NativeArray<byte> tiles = tileMap.tiles;
@@ -49,7 +51,8 @@ public class PlayerCursorSystem : SystemBase
 		    byte tile = TileUtils.GetTile(tiles, (int)(centerPosition.x - 0.5f), (int)(centerPosition.z - 0.5f), boardInfo.width);
 		    var notHole = !TileUtils.IsHole(tile);
 		    var notBase = TileUtils.BaseId(tile) == -1;
-		    if (notHole && notBase)
+		    var hasArrow = PlayerManager.HasArrow(EntityManager, (int)(centerPosition.x - 0.5f), (int)(centerPosition.z - 0.5f));
+		    if (notHole && notBase && !hasArrow)
 		    {
 			    validTile = true;
 		    }
@@ -74,7 +77,6 @@ public class PlayerCursorSystem : SystemBase
 	    
 	    if (Input.GetButtonDown("Fire1") && validTile)
 	    {
-		    var playerManager = GetSingleton<PlayerManager>();
 		    var arrowPosition = new int2((int)(centerPosition.x - 0.5f), (int)(centerPosition.z - 0.5f));
 		    switch (arrowDirection)
 		    {

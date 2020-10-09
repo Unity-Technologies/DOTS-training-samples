@@ -105,7 +105,8 @@ public class NPCCursorSystem : SystemBase
 				    byte tile = TileUtils.GetTile(tiles, (int)(centerPosition.x - 0.5f), (int)(centerPosition.z - 0.5f), boardInfo.width);
 				    var notHole = !TileUtils.IsHole(tile);
 				    var notBase = TileUtils.BaseId(tile) == -1;
-				    if (notHole && notBase)
+				    var hasArrow = PlayerManager.HasArrow(EntityManager, (int)(centerPosition.x - 0.5f), (int)(centerPosition.z - 0.5f));
+				    if (notHole && notBase && !hasArrow)
 				    {
 					    validTile = true;
 				    }
