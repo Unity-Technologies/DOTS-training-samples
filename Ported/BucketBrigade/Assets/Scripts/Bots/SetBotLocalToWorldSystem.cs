@@ -9,7 +9,7 @@ public class SetBotLocalToWorldSystem : SystemBase
     {
         Entities
             .WithName("SetLtWJobScale")
-            .WithNone<Translation, Rotation>()
+            .WithNone<Translation, Rotation, BucketOwner>()
             .ForEach((ref LocalToWorld ltw, in Pos pos, in MyScale scale) =>
         {
             ltw.Value = new float4x4(

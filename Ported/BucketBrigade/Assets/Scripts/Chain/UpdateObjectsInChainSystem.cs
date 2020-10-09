@@ -142,7 +142,7 @@ public class UpdateObjectsInChainSystem : SystemBase
 
     static int NextPos(int pos, int length)
     {
-        return (pos + 1) % (length * 2);
+        return length > 0 ? (pos + 1) % (length * 2) : 0;
     }
 
     static float2 GetChainPosition(int _index, float _shift, int _chainLength, float2 _startPos, float2 _endPos)
