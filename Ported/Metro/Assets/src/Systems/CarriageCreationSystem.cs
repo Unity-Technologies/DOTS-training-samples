@@ -6,7 +6,9 @@ public class CarriageCreationSystem : SystemBase
     protected override void OnUpdate()
     {
         var carriagePrefab = GetSingleton<MetroBuilder>().CarriagePrefab;
-        
+
+        bool setColors = false;
+
         Entities.WithStructuralChanges()
             .WithAll<BufferCarriage>()
             .ForEach((Entity entity, in Rail rail, in CarriageCount carriageCount, in Position position) =>
@@ -24,23 +26,30 @@ public class CarriageCreationSystem : SystemBase
                 carriages.Dispose();
 
                 EntityManager.RemoveComponent<CarriageCount>(entity);
+
+                setColors = true;
             }).Run();
 
-        Entities
-            .WithStructuralChanges()
-            .WithAll<CarriageCenterSeat>()
-            .ForEach((Entity carriage, in Rail rail) =>
-            {
-                var color = EntityManager.GetComponentData<RailColor>(rail.Value).Value;
-
-                var children = EntityManager.GetBuffer<LinkedEntityGroup>(carriage);
-                foreach (var child in children)
+        if (setColors)
+        {
+            Entities
+                .WithStructuralChanges()
+                .WithAll<CarriageCenterSeat>()
+                .ForEach((Entity carriage, in Rail rail) =>
                 {
-                    if (HasComponent<Color>(child.Value))
+                    var color = EntityManager.GetComponentData<RailColor>(rail.Value).Value;
+
+                    var children = EntityManager.GetBuffer<LinkedEntityGroup>(carriage);
+                    foreach (var child in children)
                     {
-                        SetComponent(child.Value, new Color() { Value = color });
+                        if (HasComponent<Color>(child.Value))
+                        {
+                            SetComponent(child.Value, new Color() { Value = color });
+                        }
                     }
-                }
-            }).Run();
+                }).Run();
+            
+            setColors = false;
+        }
     }
 }
