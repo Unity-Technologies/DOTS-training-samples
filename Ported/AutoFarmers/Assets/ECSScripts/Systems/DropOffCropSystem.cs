@@ -4,6 +4,7 @@ using Unity.Transforms;
 using Unity.Mathematics;
 
 //[UpdateAfter(typeof(FarmerMoveSystem))]
+[UpdateAfter(typeof(DeduplicationSystem))]
 public class DropOffCropSystem : SystemBase 
 {
     EntityQuery m_AvailableDepotsQuery;

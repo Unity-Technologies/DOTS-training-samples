@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(DeduplicationSystem))]
 public class TillTaskSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;

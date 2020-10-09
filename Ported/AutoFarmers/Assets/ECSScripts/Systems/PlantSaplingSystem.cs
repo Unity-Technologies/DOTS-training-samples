@@ -3,6 +3,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(DeduplicationSystem))]
 public class PlantSaplingSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;

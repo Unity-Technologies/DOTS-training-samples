@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(AssignTaskSystem))]
 public class DeduplicationSystem : SystemBase
 {
     protected override void OnCreate()
