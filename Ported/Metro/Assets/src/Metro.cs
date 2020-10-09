@@ -491,7 +491,8 @@ public class Metro : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferenc
             CarriagePrefab = conversionSystem.GetPrimaryEntity(prefab_trainCarriage),
             PlatformPrefab = conversionSystem.GetPrimaryEntity(prefab_platform),
             CommuterPrefab = conversionSystem.GetPrimaryEntity(prefab_commuter),
-            RailPrefab = conversionSystem.GetPrimaryEntity(prefab_rail)
+            RailPrefab = conversionSystem.GetPrimaryEntity(prefab_rail),
+            MaxCommuters = maxCommuters
         });
 
         var totalLines = LineNames.Length;

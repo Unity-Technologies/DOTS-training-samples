@@ -41,101 +41,112 @@ public class LineCreationSystem : SystemBase
                 EntityManager.DestroyEntity(entity);
             }).Run();
 
-        Entities
-            .WithName("connect_adjacent_platforms")
-            .WithStructuralChanges()
-            .ForEach((Entity platform, ref AdjacentPlatform adjacency, in Translation translation, in Rotation rotation) =>
-            {
+        if (allPlatforms.Length > 0)
+        {
+            int numCommutersPerPlatform = metroBuilder.MaxCommuters / allPlatforms.Length;
+            Entities
+                .WithName("set_number_commuters")
+                .ForEach((ref CommuterSpawner spawner) =>
+                {
+                    spawner.Count = numCommutersPerPlatform;
+                }).Run();
+
+            Entities
+                .WithName("connect_adjacent_platforms")
+                .WithStructuralChanges()
+                .ForEach((Entity platform, ref AdjacentPlatform adjacency, in Translation translation, in Rotation rotation) =>
+                {
                 // 1. Find closest platform
                 float3 platformCenter = translation.Value + math.rotate(rotation.Value, new float3(10.5f, 0, 4));
 
-                float closestDistanceSquared = 0.0f;
-                Entity closestPlatform = Entity.Null;
-                for (int i = 0; i < allPlatforms.Length; i++)
-                {
-                    Entity otherPlatform = allPlatforms[i];
-                    if (platform == otherPlatform) continue;
-
-                    float3 otherPlatformCenter = GetComponent<Translation>(otherPlatform).Value + math.rotate(GetComponent<Rotation>(otherPlatform).Value, new float3(10.5f, 0, 4));
-
-                    float distanceSquared = math.distancesq(platformCenter, otherPlatformCenter);
-                    if (closestPlatform == Entity.Null || distanceSquared < closestDistanceSquared)
+                    float closestDistanceSquared = 0.0f;
+                    Entity closestPlatform = Entity.Null;
+                    for (int i = 0; i < allPlatforms.Length; i++)
                     {
-                        closestDistanceSquared = distanceSquared;
-                        closestPlatform = otherPlatform;
+                        Entity otherPlatform = allPlatforms[i];
+                        if (platform == otherPlatform) continue;
+
+                        float3 otherPlatformCenter = GetComponent<Translation>(otherPlatform).Value + math.rotate(GetComponent<Rotation>(otherPlatform).Value, new float3(10.5f, 0, 4));
+
+                        float distanceSquared = math.distancesq(platformCenter, otherPlatformCenter);
+                        if (closestPlatform == Entity.Null || distanceSquared < closestDistanceSquared)
+                        {
+                            closestDistanceSquared = distanceSquared;
+                            closestPlatform = otherPlatform;
+                        }
                     }
-                }
 
                 // 2. Find opposite platform
                 var sameStationPlatforms = GetBuffer<SameStationPlatformBufferElementData>(platform);
-                Entity oppositePlatform = sameStationPlatforms[0].Value;
+                    Entity oppositePlatform = sameStationPlatforms[0].Value;
 
                 // 3. If the closest platform isn't the opposite platform, make closest adjacent to this
                 if (closestPlatform != Entity.Null && closestPlatform != oppositePlatform)
-                {
-                    adjacency.Value = closestPlatform;
-                }
+                    {
+                        adjacency.Value = closestPlatform;
+                    }
 
                 // 4. Propagate known same station platforms
                 if (adjacency.Value != Entity.Null)
-                {
+                    {
                     // Acquire knowledge of the adjacent platform and every platform it already knew
                     var knownByAdjacent = GetBuffer<SameStationPlatformBufferElementData>(adjacency.Value);
 
-                    NativeList<Entity> newlyKnownPlatforms = new NativeList<Entity>(1 + knownByAdjacent.Length, Allocator.Temp);
+                        NativeList<Entity> newlyKnownPlatforms = new NativeList<Entity>(1 + knownByAdjacent.Length, Allocator.Temp);
 
-                    newlyKnownPlatforms.Add(adjacency.Value);
-                    for (int i = 0; i < knownByAdjacent.Length; i++)
-                    {
-                        newlyKnownPlatforms.Add(knownByAdjacent[i].Value);
-                    }
+                        newlyKnownPlatforms.Add(adjacency.Value);
+                        for (int i = 0; i < knownByAdjacent.Length; i++)
+                        {
+                            newlyKnownPlatforms.Add(knownByAdjacent[i].Value);
+                        }
 
                     // Find to whom it needs to propagate the new info
                     var knownByMe = GetBuffer<SameStationPlatformBufferElementData>(platform);
 
-                    NativeList<Entity> oldKnownPlatforms = new NativeList<Entity>(1 + knownByMe.Length, Allocator.Temp);
+                        NativeList<Entity> oldKnownPlatforms = new NativeList<Entity>(1 + knownByMe.Length, Allocator.Temp);
 
-                    oldKnownPlatforms.Add(platform);
-                    for (int i = 0; i < knownByMe.Length; i++)
-                    {
-                        oldKnownPlatforms.Add(knownByMe[i].Value);
-                    }
+                        oldKnownPlatforms.Add(platform);
+                        for (int i = 0; i < knownByMe.Length; i++)
+                        {
+                            oldKnownPlatforms.Add(knownByMe[i].Value);
+                        }
 
                     // Propagate
                     for (int i = 0; i < oldKnownPlatforms.Length; i++)
-                    {
-                        Entity target = oldKnownPlatforms[i];
-
-                        var knownBuffer = EntityManager.GetBuffer<SameStationPlatformBufferElementData>(target);
-                        for (int j = 0; j < newlyKnownPlatforms.Length; j++)
                         {
-                            var source = newlyKnownPlatforms[j];
+                            Entity target = oldKnownPlatforms[i];
 
-                            if (source == target) continue;
-
-                            bool alreadyExists = false;
-                            for (int k = 0; k < knownBuffer.Length; k++)
+                            var knownBuffer = EntityManager.GetBuffer<SameStationPlatformBufferElementData>(target);
+                            for (int j = 0; j < newlyKnownPlatforms.Length; j++)
                             {
-                                var known = knownBuffer[k].Value;
-                                if (source == known)
+                                var source = newlyKnownPlatforms[j];
+
+                                if (source == target) continue;
+
+                                bool alreadyExists = false;
+                                for (int k = 0; k < knownBuffer.Length; k++)
                                 {
-                                    alreadyExists = true;
-                                    break;
+                                    var known = knownBuffer[k].Value;
+                                    if (source == known)
+                                    {
+                                        alreadyExists = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!alreadyExists)
+                                {
+                                    knownBuffer.Add(new SameStationPlatformBufferElementData() { Value = source });
                                 }
                             }
-
-                            if (!alreadyExists)
-                            {
-                                knownBuffer.Add(new SameStationPlatformBufferElementData() { Value = source });
-                            }
                         }
-                    }
 
                     // Free lists
                     newlyKnownPlatforms.Dispose();
-                    oldKnownPlatforms.Dispose();
-                }
-            }).Run();
+                        oldKnownPlatforms.Dispose();
+                    }
+                }).Run();
+        }
 
         allPlatforms.Dispose();
     }

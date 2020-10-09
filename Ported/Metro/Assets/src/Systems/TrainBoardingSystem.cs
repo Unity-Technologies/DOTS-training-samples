@@ -115,7 +115,6 @@ public class TrainBoardingSystem : SystemBase
                                 navPoints.Add(new NavPointBufferElementData() { NavPoint = queueTransform.Position });
                             }
                         }
-                        carriageCommuterBuffer[j] = new CommuterInCarriageBufferElementData { Value = Entity.Null };
                     }
                 }
 
