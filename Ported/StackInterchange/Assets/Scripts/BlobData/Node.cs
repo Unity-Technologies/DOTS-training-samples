@@ -14,6 +14,8 @@ namespace Assets.Scripts.BlobData
 
         public int index;
 
+        public int spawnerId;
+
         public int GetNext(float4 carColor, Dictionary<int, Node> road)
         {
             ColorMask.Masks mask = ColorMask.GetMask(carColor);
