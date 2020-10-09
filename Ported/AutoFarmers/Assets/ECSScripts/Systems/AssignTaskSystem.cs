@@ -2,8 +2,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEditorInternal;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 public class AssignTaskSystem : SystemBase

@@ -175,7 +175,7 @@ MonoBehaviour:
   WaterProbability: 0.05
   DepotProbability: 0.01
   ForestProbability: 0.7
-  SimulationSpeed: 1
+  SimulationSpeed: 10
   MaximumTaskDistance: 5
   InitalForestHealth: 1
 --- !u!4 &1227781564
