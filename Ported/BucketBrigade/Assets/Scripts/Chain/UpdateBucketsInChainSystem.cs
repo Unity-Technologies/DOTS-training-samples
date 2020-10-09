@@ -26,7 +26,7 @@ public class UpdateBucketsInChainSystem : SystemBase
                         newBucket.bucketPos = bucket.bucketPos;
                         newBucket.bucketShift = bucket.bucketShift;
                         bucketsArray[bucket.index] = newBucket;
-                        ecb.RemoveComponent<UpdateBucketInChain>(entity);
+                        ecb.DestroyEntity(entity);
                     })
                 .Run();
             ecb.Playback(EntityManager);
