@@ -25,5 +25,22 @@ public class CarriageCreationSystem : SystemBase
 
                 EntityManager.RemoveComponent<CarriageCount>(entity);
             }).Run();
+
+        Entities
+            .WithStructuralChanges()
+            .WithAll<CarriageCenterSeat>()
+            .ForEach((Entity carriage, in Rail rail) =>
+            {
+                var color = EntityManager.GetComponentData<RailColor>(rail.Value).Value;
+
+                var children = EntityManager.GetBuffer<LinkedEntityGroup>(carriage);
+                foreach (var child in children)
+                {
+                    if (HasComponent<Color>(child.Value))
+                    {
+                        SetComponent(child.Value, new Color() { Value = color });
+                    }
+                }
+            }).Run();
     }
 }

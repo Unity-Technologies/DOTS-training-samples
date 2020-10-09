@@ -4,6 +4,8 @@ using Unity.Transforms;
 
 public class TrainBoardingSystem : SystemBase
 {
+    private const int UNBOARD_PERCENTAGE = 40;
+
     private EntityCommandBufferSystem m_ECBSystem;
 
     protected override void OnCreate()
@@ -18,7 +20,6 @@ public class TrainBoardingSystem : SystemBase
 
         Entities
             .WithName("train_start_boarding")
-            .WithNone<WaitTimer>()
             .ForEach((Entity platform, int entityInQueryIndex, in PlatformBoardingTrain platformTrain) =>
             {
                 var queueBuffer = GetBuffer<QueueBufferElementData>(platform);
@@ -32,48 +33,54 @@ public class TrainBoardingSystem : SystemBase
 
                     var carriage = carriageBuffer[i].Value;
                     var carriageCommuterBuffer = GetBuffer<CommuterInCarriageBufferElementData>(carriage);
-                    var carriageTransform = GetComponent<LocalToWorld>(carriage);
 
-                    //hack
-                    int boardingCount = 0;
-                    for (int j = 0; j < carriageCommuterBuffer.Length; ++j) if (carriageCommuterBuffer[j].Value == Entity.Null) boardingCount++;
+                    var carriageCenter = GetComponent<CarriageCenterSeat>(carriage);
+                    var carriageSeats = GetBuffer<CarriageSeat>(carriage);
 
-                    for (int j = 0; j < queueCommuterBuffer.Length; ++j)
+                    int numValidSeats = math.min(carriageCommuterBuffer.Length, carriageSeats.Length);
+
+                    // Get as many commuters as possible in
+                    int queueCommuterIndex = 0;
+                    for (int j = 0; j < numValidSeats && queueCommuterIndex < queueCommuterBuffer.Length; j++)
+                    {
+                        if(carriageCommuterBuffer[j].Value != Entity.Null)
+                            continue;
+
+                        var commuter = queueCommuterBuffer[queueCommuterIndex].Value;
+                        queueCommuterIndex++;
+
+                        carriageCommuterBuffer[j] = new CommuterInCarriageBufferElementData { Value = commuter };
+                        
+                        ecb.RemoveComponent<CommuterTask_WaitOnQueue>(commuter.Index, commuter);
+                        ecb.AddComponent(commuter.Index, commuter, new CommuterTask_BoardTrain { Carriage = carriage, SeatIndex = j });
+
+                        var navPoints = ecb.AddBuffer<NavPointBufferElementData>(commuter.Index, commuter);
+                        navPoints.Add(new NavPointBufferElementData() { NavPoint = GetComponent<LocalToWorld>(carriageCenter.Value).Position });
+                        navPoints.Add(new NavPointBufferElementData() { NavPoint = GetComponent<LocalToWorld>(carriageSeats[j].Value).Position });
+                    }
+
+                    // Return the rest to MoveToQueue so they queue again
+                    // Move commuters into the train
+                    for (int j = queueCommuterIndex; j < queueCommuterBuffer.Length; ++j)
                     {
                         var commuter = queueCommuterBuffer[j].Value;
-                        if (j < boardingCount)
-                        {
-                            carriageCommuterBuffer[j] = new CommuterInCarriageBufferElementData { Value = commuter };
 
-                            ecb.AddComponent(commuter.Index, commuter, new TargetPoint
-                            {
-                                // todo: select an empty spot and choose that position
-                                CurrentTarget = carriageTransform.Position
-                            });
-                            ecb.AddComponent(commuter.Index, commuter, new CommuterTask_BoardTrain { Carriage = carriage });
-                        }
-                        else
-                        {
-                            ecb.RemoveComponent<TargetPoint>(commuter.Index, commuter);
-                            ecb.AddComponent<CommuterTask_MoveToQueue>(commuter.Index, commuter);
-                        }
                         ecb.RemoveComponent<CommuterTask_WaitOnQueue>(commuter.Index, commuter);
+                        ecb.AddComponent<CommuterTask_MoveToQueue>(commuter.Index, commuter);
+                        
+                        ecb.RemoveComponent<TargetPoint>(commuter.Index, commuter);
                     }
+
                     queueCommuterBuffer.Clear();
                 }
-
-
-                //todo: remove!
-                ecb.AddComponent(entityInQueryIndex, platform, new WaitTimer { Value = 3.0f });
-                ecb.AddComponent(entityInQueryIndex, platform, new PlatformUnboardingTrain { Train = platformTrain.Train });
-                //-----
 
                 ecb.RemoveComponent<PlatformBoardingTrain>(entityInQueryIndex, platform);
             }).Schedule();
 
+        uint timeOffset = (uint)System.DateTime.Now.Millisecond;
+
         Entities
             .WithName("train_start_unboarding")
-            .WithNone<WaitTimer>()
             .ForEach((Entity platform, int entityInQueryIndex, in PlatformUnboardingTrain platformTrain) =>
             {
                 var queueBuffer = GetBuffer<QueueBufferElementData>(platform);
@@ -83,36 +90,34 @@ public class TrainBoardingSystem : SystemBase
                 for (int i = 0; i < carriageCount; ++i)
                 {
                     var queue = queueBuffer[i].Value;
-                    var queueCommuterBuffer = GetBuffer<CommuterInQueueBufferElementData>(queue);
                     var queueTransform = GetComponent<LocalToWorld>(queue);
 
                     var carriage = carriageBuffer[i].Value;
                     var carriageCommuterBuffer = GetBuffer<CommuterInCarriageBufferElementData>(carriage);
+                    var carriageCenter = GetComponent<CarriageCenterSeat>(carriage);
+
+                    var random = new Random((uint)carriage.Index + timeOffset);
 
                     for (int j = 0; j < carriageCommuterBuffer.Length; ++j)
                     {
-                        // todo: decide which ones unboard
                         var commuter = carriageCommuterBuffer[j].Value;
                         if (commuter != Entity.Null)
                         {
-                            ecb.AddComponent(commuter.Index, commuter, new TargetPoint
+                            if(random.NextInt(100) < UNBOARD_PERCENTAGE)
                             {
-                                CurrentTarget = queueTransform.Position
-                            });
-                            ecb.AddComponent(commuter.Index, commuter, new CommuterTask_UnboardTrain { Platform = platform });
+                                carriageCommuterBuffer[j] = new CommuterInCarriageBufferElementData() { Value = Entity.Null };
 
-                            // Detach from carriage
-                            ecb.RemoveComponent<Parent>(commuter.Index, commuter);
+                                ecb.RemoveComponent<CommuterTask_WaitInCarriage>(commuter.Index, commuter);
+                                ecb.AddComponent(commuter.Index, commuter, new CommuterTask_UnboardTrain { Platform = platform });
+
+                                var navPoints = ecb.AddBuffer<NavPointBufferElementData>(commuter.Index, commuter);
+                                navPoints.Add(new NavPointBufferElementData() { NavPoint = GetComponent<LocalToWorld>(carriageCenter.Value).Position });
+                                navPoints.Add(new NavPointBufferElementData() { NavPoint = queueTransform.Position });
+                            }
                         }
                         carriageCommuterBuffer[j] = new CommuterInCarriageBufferElementData { Value = Entity.Null };
                     }
-                    queueCommuterBuffer.Clear();
                 }
-
-                //todo: remove!
-                ecb.AddComponent(entityInQueryIndex, platform, new WaitTimer { Value = 3.0f });
-                ecb.AddComponent(entityInQueryIndex, platform, new PlatformBoardingTrain { Train = platformTrain.Train });
-                //-----
 
                 ecb.RemoveComponent<PlatformUnboardingTrain>(entityInQueryIndex, platform);
             }).Schedule();

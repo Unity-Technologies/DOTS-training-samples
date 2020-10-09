@@ -19,8 +19,6 @@ public class CommuterSpawnerSystem : SystemBase
     {
         var deltaTime = Time.DeltaTime;
 
-        //var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
-
         Entities
             .WithName("commuter_spawner")
             .WithStructuralChanges()
@@ -43,10 +41,24 @@ public class CommuterSpawnerSystem : SystemBase
                         Value = new float3(1, math.lerp(0.5f, 1.5f, m_Random.NextFloat()), 1)
                     });
 
+                    var children = EntityManager.GetBuffer<LinkedEntityGroup>(commuter);
+                    foreach(var child in children)
+                    {
+                        if (HasComponent<Color>(child.Value))
+                        {
+                            SetComponent(child.Value, new Color() { Value = new float4(m_Random.NextFloat(), m_Random.NextFloat(), m_Random.NextFloat(), 1) });
+                        }
+                    }
+
                     EntityManager.AddComponentData(commuter, new CommuterOnPlatform
                     {
                         Value = platform
                     });
+
+                    if(m_Random.NextBool())
+                    {
+                        EntityManager.AddComponent<CommuterTask_MoveToQueue>(commuter);
+                    }
                 }
 
                 EntityManager.RemoveComponent<CommuterSpawner>(platform);
