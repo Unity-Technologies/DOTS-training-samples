@@ -15,15 +15,16 @@ public class FreeBotsFetchWaterSystem : SystemBase
             None = new [] {ComponentType.ReadOnly<BucketOwner>(), ComponentType.ReadOnly<ChainPosition>()}
         };
         bucketQuery = GetEntityQuery(queryDesc);
+        RequireForUpdate(bucketQuery);
     }
-    
+
     protected override void OnUpdate()
     {
         // Make both of these Pos instead of Translation
         NativeArray<Pos> bucketPositions = bucketQuery.ToComponentDataArrayAsync<Pos>(Allocator.TempJob, out JobHandle j1);
         NativeArray<Entity> bucketEntities = bucketQuery.ToEntityArrayAsync(Allocator.TempJob, out JobHandle j2);
         Dependency = JobHandle.CombineDependencies(Dependency, j1, j2);
-        
+
         Entities
             .WithName("FreeBotsFetchWater")
             .WithNone<ChainPosition>()
