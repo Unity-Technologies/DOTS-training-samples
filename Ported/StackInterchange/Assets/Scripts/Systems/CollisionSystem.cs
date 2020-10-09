@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#define COLLISION_DEBUG_DRAW
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -12,29 +13,37 @@ public class CollisionSystem : SystemBase
     {
         mEntityQuery = GetEntityQuery(typeof(Car), typeof(Translation), typeof(RoadId), typeof(CarMovement));
     }
+    
+    static float DistanceFromLineSegmentToSphere(float3 linePointStart, float3 linePointEnd, float3 sphereCenter, float sphereRadius)
+    {
+        float3 lineDiffVect = linePointEnd - linePointStart;
+        float lineSegSqrLength = math.lengthsq(lineDiffVect);
+
+        float3 lineToPointVect = sphereCenter - linePointStart;
+        float dotProduct = math.dot(lineDiffVect, lineToPointVect);
+
+        float percAlongLine = dotProduct / lineSegSqrLength;
+
+        if ( percAlongLine < 0.0f )
+        {
+            percAlongLine = 0.0f;
+        }
+        else if ( percAlongLine > 1.0f )
+        {
+            percAlongLine = 1.0f;
+        }
+
+        float3 intersectionPt = linePointStart + (  percAlongLine  * ( linePointEnd - linePointStart ));
+
+        float3 spherePtToIntersect = intersectionPt - sphereCenter;
+        float sqrLengSphereToLine = math.lengthsq(spherePtToIntersect);
+
+        return sqrLengSphereToLine;
+    }
 
     protected override void OnUpdate()
     {
-        /*var origin = new float2(-5000, -5000);
-        var maxSize = new float2(5000, 5000);
-        var cellSize = 50f;
-        int numCols = (int)(maxSize.x / cellSize);
-        int numRows = (int)(maxSize.y / cellSize);
 
-        Entities
-            .WithStructuralChanges()
-            .ForEach((Entity entity, in RoadId roadId, in Translation translation) =>
-        {
-            int col = (int)((translation.Value.x - origin.x) / cellSize);
-            int row = (int) ((translation.Value.y - origin.y) / cellSize);
-            var cell = (row * numCols) + col;
-            
-            if (roadId.Value != cell)
-            {
-                EntityManager.SetSharedComponentData<RoadId>(entity, new RoadId {Value = cell});
-            }
-        }).Run();*/
-        
         List<RoadId> roadList = new List<RoadId>();
         EntityManager.GetAllUniqueSharedComponentData<RoadId>(roadList);
 
@@ -54,6 +63,7 @@ public class CollisionSystem : SystemBase
 
             const float maxCollisionDist = 6;
             const float minCollisionDist = 2;
+            const float maxCollisionDistRoot = 2.44f;
             
             #if COLLISION_DEBUG_DRAW
             var blue = new float4(0, 0, 1, 1);
@@ -72,17 +82,27 @@ public class CollisionSystem : SystemBase
             {
                 float hitDist = 1000000;
 
-                var hitDetectionPoint = localToWorld.Position + (carMovement.travelVec * 1);
+                var hitDetectionPoint = localToWorld.Position + (carMovement.travelVec * maxCollisionDistRoot);
                 
                 for (var i = 0; i < entityArray.Length; ++i)
                 {
+                    //Ignore self
                     if (entityArray[i] == entity)
                         continue;
 
-                    var dist = math.distancesq(hitDetectionPoint, translationArray[i].Value);
+                    //Ignore cars not travelling in the same general direction
+                    if (math.dot(carMovementArray[i].travelVec, carMovement.travelVec) < 0)
+                        continue;
+                    
+                    var dist = DistanceFromLineSegmentToSphere(translation.Value, hitDetectionPoint,
+                        translationArray[i].Value, 1.0f);
+                    
                     if (dist < maxCollisionDist)
                     {
-                        if (math.dot(carMovementArray[i].travelVec, carMovement.travelVec) > 0)
+                        //Detect cars in front of me
+                        float3 toTarget = translationArray[i].Value - translation.Value;
+                        toTarget = math.normalize(toTarget);
+                        if (math.dot(carMovement.travelVec, toTarget) > .7)
                         {
                             hitDist = dist;
                             break;

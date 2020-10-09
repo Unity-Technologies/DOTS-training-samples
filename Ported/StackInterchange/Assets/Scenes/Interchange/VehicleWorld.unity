@@ -144,7 +144,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 879378825245910997, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: spawnerId
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 879378825245910997, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: carScaleV2.x
@@ -176,7 +176,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2299284640118942847, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: spawnerId
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2299284640118942847, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: carScaleV2.x
@@ -228,7 +228,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4019821941596135951, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: spawnerId
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4019821941596135951, guid: fa47077d03fa84cbc96e1151e61adfa9, type: 3}
       propertyPath: carScaleV2.x
