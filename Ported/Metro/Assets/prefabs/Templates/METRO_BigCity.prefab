@@ -321,7 +321,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   metroLineID: 0
   pointIndex: 15
-  railMarkerType: 1
+  railMarkerType: 2
 --- !u!1 &1061811189137066
 GameObject:
   m_ObjectHideFlags: 0
@@ -1201,7 +1201,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   metroLineID: 0
   pointIndex: 16
-  railMarkerType: 1
+  railMarkerType: 2
 --- !u!1 &1235938879252436
 GameObject:
   m_ObjectHideFlags: 0
@@ -3751,7 +3751,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   metroLineID: 0
   pointIndex: 14
-  railMarkerType: 1
+  railMarkerType: 2
 --- !u!1 &1878495132065382
 GameObject:
   m_ObjectHideFlags: 0
