@@ -127,6 +127,7 @@ public struct PlayerManager : IComponentData
             var arrow = entityManager.GetComponentData<BoardArrow>(arrows[i]);
             if (arrow.gridPosition.x == x && arrow.gridPosition.y == y)
             {
+                arrows.Dispose();
                 return true;
             }
         }
