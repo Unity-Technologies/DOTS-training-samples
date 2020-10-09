@@ -3,6 +3,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class CarSpawnerSystem : SystemBase
 {
     private Random random;

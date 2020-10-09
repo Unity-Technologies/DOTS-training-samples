@@ -5,6 +5,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class CollisionSystem : SystemBase
 {
     EntityQuery mEntityQuery;
@@ -78,6 +79,7 @@ public class CollisionSystem : SystemBase
                 .WithReadOnly(carMovementArray)
                 .WithDeallocateOnJobCompletion(entityArray)
                 .WithDeallocateOnJobCompletion(translationArray)
+                .WithDeallocateOnJobCompletion(carMovementArray)
                 .ForEach((Entity entity, ref Color color, ref CarMovement carMovement, in LocalToWorld localToWorld, in Translation translation, in Car car) =>
             {
                 float hitDist = 1000000;

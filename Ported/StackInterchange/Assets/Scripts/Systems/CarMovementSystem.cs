@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class CarMovementSystem : SystemBase
 {
     private EntityCommandBufferSystem ecbSystem;
