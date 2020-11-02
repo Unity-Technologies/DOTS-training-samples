@@ -1,3 +1,6 @@
-public static class TrackManager
+namespace Magneto
 {
+    public static class TrackManager
+    {
+    }
 }
