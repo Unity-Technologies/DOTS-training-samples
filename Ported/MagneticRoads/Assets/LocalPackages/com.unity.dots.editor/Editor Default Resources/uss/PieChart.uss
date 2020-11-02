@@ -1,0 +1,38 @@
+.pie-chart__title {
+    padding: 5px;
+    -unity-font-style: bold;
+}
+
+.pie-chart__chart-container {
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+.pie-chart__chart-view {
+    flex-grow: 1;
+}
+
+.pie-chart__legend {
+    align-self: flex-start;
+    padding: 5px;
+    margin: 5px;
+}
+
+.pie-chart__chart-segment {
+    position: absolute;
+}
+
+.chart-segment__label {
+    position: absolute;
+}
+
+.legend__labels-raw {
+    flex-direction: row;
+}
+
+.labels-raw__color-box {
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+    align-self: center;
+}

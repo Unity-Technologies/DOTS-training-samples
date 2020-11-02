@@ -1,0 +1,5 @@
+.entity-inspector__components-root
+{
+    border-bottom-width:1px;
+    border-bottom-color:var(--component-header-border-color);
+}

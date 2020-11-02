@@ -1,0 +1,13 @@
+<UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+	<ui:VisualElement name="Left Side" class="system-schedule-detail__header-left">
+		<ui:VisualElement name="System Icon" class="system-schedule-detail__header-system-icon"/>
+		<ui:Label name="System Name" class="system-schedule-detail__header-system-name-label"/>
+	</ui:VisualElement>
+	
+	<ui:VisualElement name="Middle Section" class="system-schedule-detail__header-middle-section">
+	</ui:VisualElement>
+	
+	<ui:VisualElement name="Right Side" class="system-schedule-detail__header-right">
+		<ui:VisualElement name="Scripts Icon" class="system-schedule-detail__header-scripts-icon"/>
+	</ui:VisualElement>
+</UXML>

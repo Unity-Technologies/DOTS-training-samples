@@ -1,0 +1,65 @@
+.EntityConversionComponentArea {
+    background-color: #c1c1c1;
+}
+
+.EntityConversionComponentTag {
+    color: #000000;
+    background-color: #e4e4e4;
+    -unity-enable-hovering: --enable-style-hovering;
+}
+
+.EntityConversionComponentTag:checked {
+     color: #ffffff;
+     background-color: #3a72b0;
+}
+
+.EntityConversionComponentTag:checked:hover {
+    color: #ffffff;
+}
+
+.EntityConversionComponentTag:hover {
+    color: #000000;
+    background-color: #f4f4f4;
+}
+
+.AdditionalEntityIconTag {
+    color: #ffffff;
+    background-color: #dfdfdf;
+}
+
+.AdditionalEntityTag {
+    color: #000000;
+    background-color: transparent;
+}
+
+.SelectedAdditionalEntityTag {
+    color: #ffffff;
+    background-color: transparent;
+}
+
+.AdditionalEntityToggle {
+    color: #000000;
+    background-color: #e4e4e4;
+    -unity-enable-hovering: --enable-style-hovering;
+}
+
+.AdditionalEntityToggle:checked {
+    color: #ffffff;
+    background-color: #3a72b0;
+}
+
+.SelectedAdditionalEntityTag:hover {
+    color: #000000;
+}
+
+.AdditionalEntityToggle:hover {
+    color: #000000;
+    background-color: #f4f4f4;
+}
+
+/*
+.EntityConversionRuntimeDataArea {
+    color: #000000;
+    background-color: #E4E4E4;
+}
+*/

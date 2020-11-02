@@ -1,0 +1,14 @@
+.row
+{
+    flex-direction: row;
+}
+
+.tag-element
+{
+    margin-left: -14px;
+}
+
+.component-name
+{
+    padding-left: 2px;
+}

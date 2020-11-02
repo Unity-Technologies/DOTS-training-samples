@@ -1,0 +1,34 @@
+{
+    "name": "Unity.DOTS.Editor",
+    "references": [
+        "GUID:734d92eba21c94caba915361bd5ac177",
+        "GUID:c38fb62397af04c51b143415e1db6d90",
+        "GUID:8819f35a0fc84499b990e90a4ca1911f",
+        "GUID:5f3cf485eb0554709a8abbeace890c86",
+        "GUID:61431be5104c24137b41fcf2264ef434",
+        "GUID:40600413a4000ea4186b6ed87e6148df",
+        "GUID:0f14985c7cd188246a215cae5e2919a6",
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:807be9350277eff4182cd3600de41d3a",
+        "GUID:416d137b1126dbf408443d029c73482a",
+        "GUID:2765e68924a08a94ea0ea66b31c0168f",
+        "GUID:e6fd7f05e305677498be9a778f5ad209",
+        "GUID:e0cd26848372d4e5c891c569017e11f1",
+        "GUID:8a2eafa29b15f444eb6d74f94a930e1d",
+        "GUID:ce7eee763f6e12b47a5ca268e565edb8",
+        "GUID:e78ca1c4f9cf59b4c988dfe82dea3e7f",
+        "GUID:a5baed0c9693541a5bd947d336ec7659",
+        "GUID:388060bf34f9a6a40bafbac77240e259"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "noEngineReferences": false
+}

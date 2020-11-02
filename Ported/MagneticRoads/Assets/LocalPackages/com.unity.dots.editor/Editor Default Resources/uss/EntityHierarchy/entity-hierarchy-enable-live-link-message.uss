@@ -1,0 +1,36 @@
+.entity-hierarchy-enable-live-link-message__container
+{
+    flex-direction: row;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px;
+}
+
+.entity-hierarchy-enable-live-link-message__title
+{
+    -unity-font-style: bold;
+    margin-bottom: 3px;
+    -unity-text-align: upper-center;
+}
+
+.entity-hierarchy-enable-live-link-message__content Label
+{
+    white-space: normal;
+    -unity-text-align: upper-center;
+}
+
+.entity-hierarchy-enable-live-link-message__action
+{
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.entity-hierarchy-enable-live-link-message__action Button
+{
+    padding-top: 4px;
+    padding-bottom: 4px;
+    white-space: normal;
+}

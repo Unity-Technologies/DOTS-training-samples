@@ -1,0 +1,35 @@
+
+.system-schedule-detail__content-scheduling-toggle Label
+{
+    color: #000000;
+}
+
+.system-schedule-detail__content-scheduling-toggle
+{
+    background-color: #E4E4E4;
+}
+
+.system-schedule-detail__content-scheduling-toggle:hover Label
+{
+    color: #000000;
+}
+
+.system-schedule-detail__content-scheduling-toggle:hover
+{
+    background-color: #f4f4f4;
+}
+
+.system-schedule-detail__content-scheduling-toggle:checked Label
+{
+     color: #ffffff;
+}
+
+.system-schedule-detail__content-scheduling-toggle:checked
+{
+    background-color: var(--selected-background-color);
+}
+
+.system-schedule-detail__content-scheduling-toggle:checked:hover
+{
+    color: #ffffff;
+}

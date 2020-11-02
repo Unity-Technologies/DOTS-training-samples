@@ -1,0 +1,86 @@
+
+/**********************************************************************************************************************/
+/* System Details Header Icons                                                                                        */
+/**********************************************************************************************************************/
+
+.system-schedule-detail__header-system-icon
+{
+    width:16px;
+    height:16px;
+}
+
+.system-schedule-detail__header-scripts-icon
+{
+    width:16px;
+    height:16px;
+}
+
+.system-schedule-detail__header-close-icon
+{
+    width:16px;
+    height:16px;
+}
+
+.system-schedule-detail__icon--system
+{
+    background-image: var(--system-icon);
+}
+
+.system-schedule-detail__icon--unmanaged-system
+{
+    background-image: var(--unmanaged-system-icon);
+}
+
+.system-schedule-detail__icon--group
+{
+    background-image: var(--group-icon);
+}
+
+.system-schedule-detail__icon--command-buffer
+{
+    background-image: var(--buffer-icon);
+}
+
+.system-schedule-detail__icon--scripts
+{
+    background-image: var(--scripts-icon);
+}
+
+.system-schedule-detail__icon--close
+{
+    background-image: var(--close-icon);
+}
+
+
+/**********************************************************************************************************************/
+/* System Details Header Styles                                                                                       */
+/**********************************************************************************************************************/
+
+.system-schedule-detail__header-left {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+	padding-left: 4px;
+}
+
+.system-schedule-detail__header-middle-section {
+    flex-direction: row;
+    align-items: center;
+	padding: 0px 4px 0px 4px;
+	flex-grow: 1;
+}
+
+.system-schedule-detail__header-resize-bar {
+	flex-grow: 1;
+	border-bottom-width: 1px;
+	border-top-width: 1px;
+	border-bottom-color: #808080;
+	border-top-color: #808080;
+	height: 4px;
+}
+
+.system-schedule-detail__header-right {
+    flex-direction: row;
+    align-items: center;
+	padding-right: 4px;
+}

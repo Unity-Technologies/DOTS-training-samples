@@ -1,0 +1,5 @@
+.unity-autocomplete__container
+{
+    background-color: #C8C8C8;
+    border-color: #939393;
+}

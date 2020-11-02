@@ -1,0 +1,21 @@
+<UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="Entity Header Container" class="row entity-header__container common-resources">
+        <ui:VisualElement name="Entity Icon" class="entity-header__icon inspector__resources inspector-icon--medium"/>
+        <ui:VisualElement class="column">
+            <ui:VisualElement class="row wrap">
+                <ui:TextField name="Entity Name" label="" binding-path="Name" class="entity-name column"/>
+                <ui:VisualElement>
+                    <ui:VisualElement name="Index/Version" class="row">
+                        <uie:IntegerField label="Index" binding-path="Index" class="entity-header__index"/>
+                        <uie:IntegerField label="Version" binding-path="Version" class="entity-header__version"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <uie:ObjectField label="GameObject" binding-path="ConvertedFrom" class="originating-game-object" type="UnityEngine.GameObject, UnityEngine.CoreModule"/>
+            <ui:VisualElement class="row">
+                <uie:ToolbarSearchField class="expand entity-header__search-field"/>
+                <uie:ToolbarMenu class="entity-header__settings"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</UXML>

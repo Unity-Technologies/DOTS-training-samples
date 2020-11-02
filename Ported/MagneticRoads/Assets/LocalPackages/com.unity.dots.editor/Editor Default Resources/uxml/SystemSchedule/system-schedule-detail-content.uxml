@@ -1,0 +1,29 @@
+<UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+
+	<ui:VisualElement name="Content" class="system-schedule-detail__content">
+
+		<ui:VisualElement name="Query" class="system-schedule-detail__content-query">
+			<ui:VisualElement name="Row 1" class="system-schedule-detail_content-query-row-1">
+				<ui:VisualElement name="Query Title Container" class="system-schedule-detail_content-query-title-container">
+					<ui:Label name="Query Title" class="system-schedule-detail__content-query-title-label"/>
+				</ui:VisualElement>
+				<ui:VisualElement name="Match Title Container" class="system-schedule-detail_content-match-title-container">
+					<ui:Label name="Match Title" class="system-schedule-detail__content-match-title-label"/>
+				</ui:VisualElement>
+			</ui:VisualElement>
+			
+			<ui:VisualElement name="Row 2" class="system-schedule-detail__content-query-row-2">
+			</ui:VisualElement>
+		</ui:VisualElement>
+		
+		<ui:VisualElement name="Scheduling" class="system-schedule-detail__content-scheduling">
+			<ui:Label name="Scheduling Title" class="system-schedule-detail__content-scheduling-title"/>
+			<ui:VisualElement name="Scheduling Toggle Container" class="system-schedule-detail__content-scheduling-toggle-container">
+				<uie:ToolbarToggle name="Scheduling Toggle" class="system-schedule-detail__content-scheduling-toggle"/>
+			</ui:VisualElement> 
+		</ui:VisualElement> 
+		
+	</ui:VisualElement> 
+
+	
+</UXML>

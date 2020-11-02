@@ -1,0 +1,8 @@
+
+.system-schedule__tree-view__matches-label {
+    border-left-color: #202020;
+}
+
+.system-schedule__tree-view__time-label {
+    border-left-color: #202020;
+}

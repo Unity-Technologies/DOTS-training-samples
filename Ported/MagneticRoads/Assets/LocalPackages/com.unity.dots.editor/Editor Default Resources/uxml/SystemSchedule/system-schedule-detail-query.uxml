@@ -1,0 +1,16 @@
+<UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+
+	<ui:VisualElement name="Row Container" class="system-schedule-detail__content-query-row-container">
+		<ui:VisualElement name="Query Container" class="system-schedule-detail__content-query-container">
+			<ui:VisualElement name="Query Icon" class="system-schedule-detail__content-query-icon"/>
+			<ui:VisualElement name="All Component Container" class="system-schedule-detail__content-all-component-container">
+			
+			</ui:VisualElement>
+		
+		</ui:VisualElement>
+				
+		<ui:VisualElement name="Match Container" class="system-schedule-detail__content-match-container">
+		</ui:VisualElement>
+	</ui:VisualElement>
+		
+</UXML>

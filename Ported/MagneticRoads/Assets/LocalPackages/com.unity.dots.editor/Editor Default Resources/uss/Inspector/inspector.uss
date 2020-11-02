@@ -1,0 +1,33 @@
+.unity-properties__nullable-foldout
+{
+    margin-right: 0;
+}
+
+.unity-label
+{
+    min-width: 45px;
+}
+
+.inspector-icon--small
+{
+    width:16px;
+    height:16px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.inspector-icon--medium
+{
+    width:32px;
+    height:32px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.inspector-icon--big
+{
+    width:64px;
+    height:64px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}

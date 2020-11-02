@@ -1,0 +1,13 @@
+.unity-autocomplete__container
+{
+    border-radius: 3px;
+    border-width: 1px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+}
+
+.unity-autocomplete__container .unity-list-view__item
+{
+    padding-left: 3px;
+}

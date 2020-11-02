@@ -1,0 +1,16 @@
+.unity-entity-field__input
+{
+    background-color:#2A2A2A;
+    border-color:#212121;
+    border-bottom-color:#0D0D0D;
+}
+
+.unity-entity-field__input:hover
+{
+    border-color:#656565;
+}
+
+.unity-entity-field__input:focus
+{
+    border-color:#3A79BB;
+}

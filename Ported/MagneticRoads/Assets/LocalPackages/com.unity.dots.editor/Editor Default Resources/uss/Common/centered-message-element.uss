@@ -1,0 +1,28 @@
+.centered-message-element__container
+{
+    flex-direction: row;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px;
+}
+
+.centered-message-element__title
+{
+    display: none;
+    -unity-font-style: bold;
+    margin-bottom: 3px;
+    -unity-text-align: upper-center;
+}
+
+.centered-message-element__message
+{
+    display: none;
+}
+
+.centered-message-element__content Label
+{
+    white-space: normal;
+    -unity-text-align: upper-center;
+}

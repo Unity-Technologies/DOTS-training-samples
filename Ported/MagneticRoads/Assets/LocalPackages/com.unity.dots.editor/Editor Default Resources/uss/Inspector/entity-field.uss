@@ -1,0 +1,20 @@
+.unity-entity-field__input
+{
+    border-width:1px;
+    border-radius:3px;
+    flex-basis:0;
+    flex-grow:1;
+    flex-shrink:0;
+    margin-bottom: 0;
+    margin-right: 0;
+    margin-top: 0;
+    overflow: hidden;
+    flex-direction: row;
+}
+
+.unity-entity-field__icon
+{
+    background-image:var(--entity-icon);
+    width:16px;
+    height:16px;
+}

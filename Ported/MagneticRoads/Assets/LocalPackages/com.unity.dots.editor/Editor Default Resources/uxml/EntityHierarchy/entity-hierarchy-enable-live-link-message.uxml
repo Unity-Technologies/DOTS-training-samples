@@ -1,0 +1,11 @@
+<UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement class="entity-hierarchy-enable-live-link-message__container">
+        <ui:VisualElement class="entity-hierarchy-enable-live-link-message__content">
+            <ui:Label text="Live Conversion in Edit Mode is disabled." class="entity-hierarchy-enable-live-link-message__title"/>
+            <ui:Label text="Enable Live Conversion in Edit Mode or enter Play Mode to see your entities in the Entities window."/>
+            <ui:VisualElement class="entity-hierarchy-enable-live-link-message__action">
+                <ui:Button text="Enable Live Conversion in Edit Mode"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</UXML>

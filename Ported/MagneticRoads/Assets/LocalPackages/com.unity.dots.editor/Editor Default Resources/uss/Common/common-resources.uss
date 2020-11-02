@@ -1,0 +1,26 @@
+
+.system-schedule__resources
+{
+    /* Textures */
+    --buffer-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/Buffer/Buffer.png");
+    --exclude-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/Exclude/Exclude.png");
+    --filter-tag-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/Filter Tag/Filter Tag.png");
+    --group-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/Group/Group.png");
+    --job-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/Job/Job.png");
+    /*--profiler-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/Profiler/Profiler.png");*/
+    --query-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/Query/Query.png");
+    --readonly-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/Read Only/Read Only.png");
+    --readwrite-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/Read Write/Read Write.png");
+    --writeonly-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/Write Only/Write Only.png");
+    --scripts-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/Scripts/Scripts.png");
+    --system-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/System/System.png");
+    --unmanaged-system-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/UnmanagedSystem/UnmanagedSystem.png");
+}
+
+.entity-hierarchy__resources
+{
+    --entity-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Entity/Entity.png");
+    --scene-icon--selected: resource('d_SceneAsset Icon');
+    --go-to-systems-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Go To Systems/Go to Systems.png");
+    --gameobject--selected: resource("d_GameObject Icon");
+}

@@ -1,0 +1,8 @@
+<UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement class="centered-message-element__container">
+        <ui:VisualElement class="centered-message-element__content">
+            <ui:Label class="centered-message-element__title" />
+            <ui:Label class="centered-message-element__message" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</UXML>

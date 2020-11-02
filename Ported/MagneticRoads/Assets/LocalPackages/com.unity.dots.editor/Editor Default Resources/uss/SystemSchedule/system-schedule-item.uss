@@ -1,0 +1,139 @@
+.system-schedule-item__container
+{
+    flex-direction: row;
+    flex-grow:1;
+    flex-shrink: 1;
+    padding-top: 1px;
+}
+
+.system-schedule-item__enabled-toggle
+{
+
+}
+
+.system-schedule-item__icon
+{
+    width:16px;
+    height:16px;
+}
+
+
+.system-schedule-item__column-1
+{
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-direction: row;
+    white-space: nowrap;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.system-schedule-item__column-2
+{
+    width: 65px;
+    min-width: 65px;
+    max-width: 65px;
+    padding-right: 3px;
+}
+
+.system-schedule-item__column-3
+{
+    width: 75px;
+    min-width: 75px;
+    max-width: 75px;
+    padding-right: 8px;
+    white-space: nowrap;
+}
+
+
+/*** Normal State ***/
+
+.system-schedule-item__icon--system
+{
+    background-image: var(--system-icon);
+}
+
+.system-schedule-item__icon--unmanaged-system
+{
+    background-image: var(--unmanaged-system-icon);
+}
+
+.system-schedule-item__icon--system-group
+{
+    background-image: var(--group-icon);
+}
+
+.system-schedule-item__icon--command-buffer
+{
+    background-image: var(--buffer-icon);
+}
+
+.system-schedule-item__icon--player-loop
+{
+    background-image: var(--group-icon);
+}
+
+.system-schedule-item__name-label
+{
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.system-schedule-item__name-label-normal
+{
+    -unity-font-style: normal;
+}
+
+.system-schedule-item__name-label-bold
+{
+    -unity-font-style: bold;
+}
+
+.system-schedule-item__matches-label
+{
+    -unity-text-align: upper-right;
+}
+
+.system-schedule-item__time-label
+{
+    -unity-text-align: upper-right;
+    padding-right:8px;
+}
+
+/*** Selected State ***/
+
+.unity-tree-view__item:checked .system-schedule-item__icon--system
+{
+    background-image: var(--system-icon--selected);
+}
+
+.unity-tree-view__item:checked .system-schedule-item__icon--unmanaged-system
+{
+    background-image: var(--unmanaged-system-icon--selected);
+}
+
+.unity-tree-view__item:checked .system-schedule-item__icon--system-group
+{
+    background-image: var(--group-icon--selected);
+}
+
+.unity-tree-view__item:checked .system-schedule-item__icon--command-buffer
+{
+    background-image: var(--buffer-icon--selected);
+}
+
+.unity-tree-view__item:checked .system-schedule-item__name-label
+{
+    color: var(--theme-line-selection-text-color);
+}
+
+.unity-tree-view__item:checked .system-schedule-item__matches-label
+{
+    color: var(--theme-line-selection-text-color);
+}
+
+.unity-tree-view__item:checked .system-schedule-item__time-label
+{
+    color: var(--theme-line-selection-text-color);
+}

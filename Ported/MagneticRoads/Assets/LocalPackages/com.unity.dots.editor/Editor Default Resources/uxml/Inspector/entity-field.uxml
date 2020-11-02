@@ -1,0 +1,4 @@
+<UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement class="unity-entity-field__icon"/>
+    <ui:Label class="unity-entity-field__name"/>
+</UXML>

@@ -1,0 +1,81 @@
+
+/*** Icons ***/
+
+.common-resources
+{
+    --settings-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/Settings/Settings.png");
+    --search-icon--selected: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/selected/Search/Search.png");
+}
+
+.settings-icon
+{
+	width: 16px;
+	height: 16px;
+	background-image: var(--settings-icon); 
+}
+
+.search-icon-container
+{
+	padding-right: 4px;
+}
+
+.search-icon
+{
+	width: 16px;
+	height: 16px;
+	background-image: var(--search-icon); 
+}
+
+/*** Search Field ***/
+
+.search-field-container
+{
+	align-items: flex-start;
+	flex-direction: row;
+	padding: 3px;
+}
+
+.search-field
+{
+	flex: 1;
+	border-radius: 4px;
+}
+
+.search-field__cancel-button
+{
+	border-radius: 4px;
+}
+
+/*** Custom Toolbar Toggle ***/
+
+.toolbar-toggle__label-parent
+{
+	margin-bottom: -0.5px;
+}
+
+.toolbar-toggle__label-with-icon
+{
+ 	padding: 2px;
+ 	margin: 0;
+	border-radius: 0px 4px 4px 0px;
+}
+
+.toolbar-toggle__label-without-icon
+{
+ 	padding: 1px 4px 1px 4px; 
+	border-radius: 4px;
+}
+
+.toolbar-toggle
+{
+	align-items: center;
+	border-radius: 4px;
+	padding: 0px;
+}
+
+/*** Custom Label With Underline ***/
+
+.label-with-underline
+{
+	border-bottom-width: 1px;
+}

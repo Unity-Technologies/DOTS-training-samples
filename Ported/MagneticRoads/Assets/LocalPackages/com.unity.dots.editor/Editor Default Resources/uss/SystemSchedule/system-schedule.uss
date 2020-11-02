@@ -1,0 +1,89 @@
+/**********************************************************************************************************************/
+/* Toolbar                                                                                                            */
+/**********************************************************************************************************************/
+
+.system-schedule__toolbar-container {
+    justify-content: space-between;
+}
+
+.system-schedule__toolbar-right-side-container {
+    flex-direction: row;
+    justify-content: flex-end;
+	align-items: center;
+}
+
+
+/**********************************************************************************************************************/
+/* TreeView Header                                                                                                    */
+/**********************************************************************************************************************/
+
+.system-schedule__tree-view__header {
+    justify-content: flex-start;
+    align-items: center;
+    padding-right: 10px;
+}
+
+.system-schedule__tree-view__system-label {
+    padding-left: 25px;
+    flex-grow: 1;
+    width: 172px;
+}
+
+.system-schedule__tree-view__matches-label {
+    width: 65px;
+    border-left-width: 1px;
+    -unity-text-align: middle-center;
+}
+
+.system-schedule__tree-view__time-label {
+    width: 65px;
+    border-left-width: 1px;
+    -unity-text-align: middle-center;
+}
+
+/**********************************************************************************************************************/
+/* System Details                                                                                                     */
+/**********************************************************************************************************************/
+
+/*** system details header ***/
+.system-schedule__details-header-left-container {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.system-schedule__details-header-right-container {
+    flex-direction: row;
+}
+
+.system-schedule__details-content-container {
+    padding: 4px 4px 4px 4px;
+}
+
+/*** query header ***/
+.system-schedule__details-query-header-container {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.system-schedule__details-query-component-type-toggle-container {
+    border-radius: 4px;
+    padding: 2px 4px 2px 4px;
+}
+
+.system-schedule__details-each-query-results-container {
+    flex-direction: row;
+    padding: 2px 4px 2px 4px;
+}
+
+/*** schedule filter ***/
+.system-schedule__details-schedule-filter-button-container {
+    flex-direction: row;
+}
+
+.system-schedule__details-schedule-filter-button {
+    border-radius: 4px;
+    padding: 2px 4px 2px 4px;
+}
+
+

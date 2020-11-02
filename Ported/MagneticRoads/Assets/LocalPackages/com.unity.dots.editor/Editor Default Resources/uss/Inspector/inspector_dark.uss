@@ -1,0 +1,8 @@
+.inspector__resources
+{
+    --entity-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Entity/Entity.png");
+    --header-background-color: #3E3E3E;
+    --header-background-hover-color: #474747;
+    --component-header-border-color: #1E1E1E;
+    --component-header-bottom-border-color: #2E2E2E;
+}

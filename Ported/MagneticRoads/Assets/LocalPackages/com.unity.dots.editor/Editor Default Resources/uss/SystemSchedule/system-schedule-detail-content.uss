@@ -1,0 +1,136 @@
+
+/**********************************************************************************************************************/
+/* System Details Content Icons                                                                                       */
+/**********************************************************************************************************************/
+
+.system-schedule-detail__content-query-icon
+{
+    width:16px;
+    height:16px;
+}
+
+.system-schedule-detail__icon--query
+{
+    background-image: var(--query-icon);
+}
+
+.system-schedule-detail__icon--read-only
+{
+    background-image: var(--readonly-icon);
+}
+
+.system-schedule-detail__icon--read-write
+{
+    background-image: var(--readwrite-icon);
+}
+
+.system-schedule-detail__icon--write-only
+{
+    background-image: var(--writeonly-icon);
+}
+
+.system-schedule-detail__icon--exclude
+{
+    background-image: var(--exclude-icon);
+}
+
+
+/**********************************************************************************************************************/
+/* System Details Content Style                                                                                       */
+/**********************************************************************************************************************/
+
+.system-schedule-detail__content-container {
+    padding: 4px 4px 4px 4px;
+    flex-direction: column;
+}
+
+/**********************************************************************************************************************/
+/* System Details Content Query Style                                                                                 */
+/**********************************************************************************************************************/
+
+.system-schedule-detail__content-query
+{
+    padding: 8px 8px 0px 8px;
+}
+
+.system-schedule-detail_content-query-row-1
+{
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.system-schedule-detail__content-query-title-label
+{
+    -unity-font-style: bold;
+}
+
+.system-schedule-detail__content-query-row-2
+{
+    justify-content: space-between;
+    flex-direction: column;
+    padding: 2px 4px 2px 0px;
+}
+
+.system-schedule-detail__content-query-container
+{
+    padding: 0px 4px 0px 20px;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.system-schedule-detail__content-all-component-container
+{
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+}
+
+.system-schedule-detail__content-each-component-container
+{
+    flex-direction: row;
+    padding: 2px 2px 2px 2px;
+    align-items: center;
+}
+
+.system-schedule-detail__content-component-access-icon
+{
+    width: 20px;
+    height: 16px;
+    -unity-background-scale-mode: scale-to-fit;
+    border-radius: 4px 0px 0px 4px;
+}
+
+
+.system-schedule-detail__content-show-more-less-label
+{
+    padding: 4px 0px 0px 20px;
+    align-items: flex-start;
+}
+
+/**********************************************************************************************************************/
+/* System Details Content Schedulinge                                                                                 */
+/**********************************************************************************************************************/
+
+.system-schedule-detail__content-scheduling
+{
+    padding: 8px 8px 8px 8px;
+}
+
+.system-schedule-detail__content-scheduling-title
+{
+    -unity-font-style: bold;
+    padding-bottom: 4px;
+}
+
+.system-schedule-detail__content-scheduling-toggle-container
+{
+    flex-direction: row;
+    padding: 4px 4px 4px 20px;
+}
+
+.system-schedule-detail__content-scheduling-toggle
+{
+    border-radius: 4px;
+    padding: 2px 4px 2px 4px;
+}

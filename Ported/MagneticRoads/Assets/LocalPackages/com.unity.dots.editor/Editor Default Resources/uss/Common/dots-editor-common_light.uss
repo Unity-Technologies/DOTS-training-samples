@@ -1,0 +1,53 @@
+
+
+/*** Common Icon ***/
+
+.common-resources
+{
+    --settings-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/light/Settings/Settings.png");
+    --search-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/light/Search/Search.png");
+    --list-heading-color: #E0E0E0;
+    --selected-background-color: #3A72B0;
+}
+
+/*** Custom Toolbar Toggle ***/
+
+.toolbar-toggle__icon
+{
+    background-color: #F4F4F4;
+}
+
+.toolbar-toggle
+{
+    background-color: #F4F4F4;
+}
+
+.toolbar-toggle Label
+{
+    color: #000000;
+    background-color: #E4E4E4;
+}
+
+.toolbar-toggle:hover Label
+{
+    color: #000000;
+    background-color: #f4f4f4;
+}
+
+.toolbar-toggle:checked Label
+{
+    color: #ffffff;
+    background-color: var(--selected-background-color);
+}
+
+.toolbar-toggle:checked:hover Label
+{
+    color: #ffffff;
+}
+
+/*** Custom Label With Underline ***/
+
+.label-with-underline
+{
+    border-bottom-color: #000000;
+}

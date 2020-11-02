@@ -1,0 +1,38 @@
+
+.system-schedule__resources
+{
+    /* Textures */
+    --buffer-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Buffer/Buffer.png");
+    --exclude-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Exclude/Exclude.png");
+    --filter-tag-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Filter Tag/Filter Tag.png");
+    --group-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Group/Group.png");
+    --job-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Job/Job.png");
+    --profiler-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Profiler/Profiler.png");
+    --query-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Query/Query.png");
+    --readonly-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Read Only/Read Only.png");
+    --readwrite-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Read Write/Read Write.png");
+    --writeonly-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Write Only/Write Only.png");
+    --scripts-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Scripts/Scripts.png");
+    --close-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Close/Close.png");
+    --system-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/System/System.png");
+    --unmanaged-system-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/UnmanagedSystem/UnmanagedSystem.png");
+}
+
+.entity-hierarchy__resources
+{
+    --entity-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Entity/Entity.png");
+    --scene-icon: resource('d_SceneAsset Icon');
+    --go-to-systems-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Go To Systems/Go to Systems.png");
+    --gameobject: resource("d_GameObject Icon");
+}
+
+
+.component__icons
+{
+    --component-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Components/Component.png");
+    --tag-component-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Components/Tag Component.png");
+    --buffer-component-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Components/Buffer Component.png");
+    --shared-component-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Components/Shared Component.png");
+    --chunk-component-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Components/Chunk Component.png");
+    --managed-component-icon: resource("Packages/com.unity.dots.editor/Editor Default Resources/icons/dark/Components/Managed Component.png");
+}

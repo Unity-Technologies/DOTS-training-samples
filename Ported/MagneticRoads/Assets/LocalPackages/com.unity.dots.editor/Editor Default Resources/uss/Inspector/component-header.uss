@@ -1,0 +1,118 @@
+.component-header > .unity-foldout__toggle
+{
+    margin-right: 0;
+}
+
+.component-container
+{
+    margin-left: 0px;
+}
+
+.component-header
+{
+    padding-left: 15px;
+}
+
+.component-header > .unity-foldout__content
+{
+    padding-bottom: 2px;
+}
+
+.component-header > Toggle
+{
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    background-color: var(--header-background-color);
+    border-top-color: var(--component-header-border-color);
+    border-bottom-color: transparent;
+}
+
+.component-header > Toggle:checked
+{
+    margin-bottom: 2px;
+    border-bottom-color: var(--component-header-bottom-border-color);
+}
+
+.component-header > Toggle
+{
+    margin-bottom: 0;
+}
+
+.component-header > Toggle:checked
+{
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.component-header > Toggle:hover
+{
+    background-color: var(--header-background-hover-color);
+}
+
+.component-header > Toggle .unity-toggle__text
+{
+    padding-left: 5px;
+    -unity-font-style: bold;
+}
+
+.component-icon
+{
+}
+
+.component-data
+{
+    background-image: var(--component-icon);
+}
+
+.tag-component-data
+{
+    background-image: var(--tag-component-icon);
+}
+
+.buffer-component-data
+{
+    background-image: var(--buffer-component-icon);
+}
+
+.shared-component-data
+{
+    background-image: var(--shared-component-icon);
+}
+
+.chunk-component-data
+{
+    background-image: var(--chunk-component-icon);
+}
+
+.managed-component-data
+{
+    background-image: var(--managed-component-icon);
+}
+
+.component-menu
+{
+    background-image: var(--settings-icon);
+}
+
+.shrink
+{
+    flex-shrink: 1;
+}
+
+.component-category
+{
+    flex-grow: 1;
+    flex-shrink: 1;
+    -unity-text-align: upper-right;
+}
+
+.component-name
+{
+    padding-right: 2px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow:ellipsis;
+}
