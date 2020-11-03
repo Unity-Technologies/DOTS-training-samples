@@ -43,33 +43,7 @@ public class AntSpawnerSystem : SystemBase
 
         Entities.ForEach((ref Entity spawnerEntity, ref AntSpawner spawner) =>
         {
-            var rand = Unity.Mathematics.Random.CreateFromIndex(1);
-            for (uint i = 0; i < spawner.NbAnts; ++i)
-            {
-                var ant = cmd.Instantiate(spawner.AntPrefab);
-                var direction = Vector2.Angle(Vector2.right, UnityRand.insideUnitCircle);
-                float3 position = spawner.Origin + UnityRand.insideUnitSphere;
-
-                cmd.SetComponent(ant, new Translation { Value = position });
-
-                cmd.AddComponent<Direction>(ant);
-                cmd.SetComponent(ant, new Direction
-                {
-                    Value = (float)rand.NextFloat(0.0f, 1.0f) * 2.0f * Mathf.PI,
-                });
-
-                cmd.AddComponent<Speed>(ant);
-                cmd.SetComponent(ant, new Speed
-                {
-                    Value = 0.2f + (float)rand.NextFloat(-0.05f, 0.05f)
-                });
-
-                cmd.AddComponent<RandState>(ant);
-                cmd.SetComponent(ant, new RandState
-                {
-                    Random = Unity.Mathematics.Random.CreateFromIndex(i + 1),
-                });
-            }
+            CreateAnts(cmd, spawner);
             CreateColony(cmd, spawner.ColonyPrefab, spawner.ColonyPosition);
             CreateFood(cmd, spawner.FoodPrefab, spawner.FoodPosition);
             CreateObstacles(cmd, spawner.ObstaclePrefab, config);
@@ -79,24 +53,54 @@ public class AntSpawnerSystem : SystemBase
         .Run();
     }
 
-    static Entity CreateColony(EntityCommandBuffer cmd, Entity prefab, Vector3 position)
+    static void CreateAnts(EntityCommandBuffer cmd, in AntSpawner spawner)
+    {
+        var rand = Unity.Mathematics.Random.CreateFromIndex(1);
+        for (uint i = 0; i < spawner.NbAnts; ++i)
+        {
+            var ant = cmd.Instantiate(spawner.AntPrefab);
+            var direction = (float)rand.NextFloat(0.0f, 1.0f) * 2.0f * Mathf.PI;
+            var speed = 0.2f + (float)rand.NextFloat(-0.05f, 0.05f);
+
+            float3 position = spawner.Origin + UnityRand.insideUnitSphere * 0.5f;
+            position.y = 0;
+
+            cmd.SetComponent(ant, new Translation
+            {
+                Value = position
+            });
+
+            cmd.AddComponent(ant, new Direction
+            {
+                Value = direction
+            });
+
+            cmd.AddComponent(ant, new Speed
+            {
+                Value = speed
+            });
+
+            cmd.AddComponent(ant, new RandState
+            {
+                Random = Unity.Mathematics.Random.CreateFromIndex(i + 1),
+            });
+        }
+    }
+
+    static void CreateColony(EntityCommandBuffer cmd, Entity prefab, Vector3 position)
     {
         var entity = cmd.Instantiate(prefab);
 
         cmd.SetComponent(entity, new Translation { Value = position });
         cmd.AddComponent<ColonyTag>(entity);
-
-        return entity;
     }
 
-    static Entity CreateFood(EntityCommandBuffer cmd, Entity prefab, Vector3 position)
+    static void CreateFood(EntityCommandBuffer cmd, Entity prefab, Vector3 position)
     {
         var entity = cmd.Instantiate(prefab);
 
         cmd.SetComponent(entity, new Translation { Value = position });
         cmd.AddComponent<FoodTag>(entity);
-
-        return entity;
     }
 
 	static void CreateObstacles(EntityCommandBuffer cmd, in Entity prefab, in Config config)
@@ -107,7 +111,7 @@ public class AntSpawnerSystem : SystemBase
 		{
 			float ringRadius = (i / (config.ObstacleRingCount + 1f)) * (config.MapSize * .5f);
 			float circumference = ringRadius * 2f * math.PI;
-			int maxCount = Mathf.CeilToInt(circumference / (2f * config.ObstacleRadius) * 2f);
+			int maxCount = Mathf.CeilToInt(circumference / config.ObstacleRadius);
             int offset = rand.NextInt(0, maxCount);
 			int holeCount = rand.NextInt(1, 3);
 
