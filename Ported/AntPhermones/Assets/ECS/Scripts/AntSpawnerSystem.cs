@@ -22,7 +22,7 @@ public class AntSpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var cmd = new EntityCommandBuffer(Allocator.Temp);
+        var cmd = cmdBufferSystem.CreateCommandBuffer();
 
         Entities.ForEach((ref Entity spawnerEntity, ref AntSpawner spawner) =>
         {
@@ -35,10 +35,20 @@ public class AntSpawnerSystem : SystemBase
                 cmd.SetComponent(ant, new Translation { Value = position });
             }
 
+            CreateColony(cmd, spawner.ColonyPrefab, spawner.ColonyPosition);
+
             cmd.DestroyEntity(spawnerEntity);
         })
         .Run();
+    }
 
-        cmd.Playback(EntityManager);
+    static Entity CreateColony(EntityCommandBuffer cmd, Entity prefab, Vector3 position)
+    {
+        var entity = cmd.Instantiate(prefab);
+
+        cmd.SetComponent(entity, new Translation { Value = position });
+        cmd.AddComponent<ColonyTag>(entity);
+
+        return entity;
     }
 }

@@ -9,11 +9,14 @@ using UnityEngine;
 public class AntSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
 {
     [SerializeField] GameObject AntPrefab;
+    [SerializeField] GameObject ColonyPrefab;
+    [SerializeField] Transform ColonyTransform;
     [SerializeField] int NbAnts;
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(AntPrefab);
+        referencedPrefabs.Add(ColonyPrefab);
     }
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -21,7 +24,9 @@ public class AntSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, ICo
         var spawner = new AntSpawner
         {
             Origin = transform.position,
+            ColonyPosition = ColonyTransform.position,
             AntPrefab = conversionSystem.GetPrimaryEntity(AntPrefab),
+            ColonyPrefab = conversionSystem.GetPrimaryEntity(ColonyPrefab),
             NbAnts = NbAnts
         };
 
