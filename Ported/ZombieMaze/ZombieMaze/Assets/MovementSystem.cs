@@ -7,6 +7,9 @@ using Unity.Transforms;
 
 public class MovementSystem : SystemBase
 {
+    const int   kChanceToChangeDirection = 3;
+    const float kZombieSpeed = 1;
+
     public NativeArray<float2> directions;
     
     protected override void OnCreate()
@@ -17,11 +20,12 @@ public class MovementSystem : SystemBase
         directions[2] = math.up().xy;
         directions[3] = math.down().xy;
 
-        var e = EntityManager.CreateEntity(typeof(ZombieTag), typeof(Position), typeof(Random));
+        var e = EntityManager.CreateEntity(typeof(ZombieTag), typeof(Position), typeof(Direction), typeof(Random));
 #if UNITY_EDITOR
         EntityManager.SetName(e, "Zombie");
 #endif
         EntityManager.SetComponentData(e, new Position());
+        EntityManager.SetComponentData(e, new Direction());
         EntityManager.SetComponentData(e, new Random(1234));
     }
 
@@ -33,13 +37,15 @@ public class MovementSystem : SystemBase
     protected override void OnUpdate()
     {
         float deltaTime = Time.DeltaTime;
-        float speed     = 1;
         var   dirs      = directions;
 
-        Entities.ForEach((ref ZombieTag _, ref Position position, ref Random random) => 
+        Entities.ForEach((ref ZombieTag _, ref Position position, ref Direction direction, ref Random random) => 
         {
-            var direction = dirs[random.Value.NextInt(4)];
-            position.Value += direction * speed * deltaTime;
+            // some percentage of the time, pick a new direction.
+            if (random.Value.NextInt(0, 100) < kChanceToChangeDirection)
+                direction.Value = dirs[random.Value.NextInt(4)];
+
+            position.Value += direction.Value * kZombieSpeed * deltaTime;
         })
         .Schedule();
     }
