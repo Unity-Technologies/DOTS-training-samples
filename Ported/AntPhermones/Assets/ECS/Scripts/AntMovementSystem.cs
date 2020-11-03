@@ -11,7 +11,6 @@ public class AntMovementSystem : SystemBase
 
     protected override void OnUpdate()
     {
-
         Vector2 bounds = new Vector2(5, 5);
 
         Entities

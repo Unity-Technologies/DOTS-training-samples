@@ -6,6 +6,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
+public struct AntSpawnerUnused : IComponentData {}
+
 public class AntSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, IConvertGameObjectToEntity
 {
     [SerializeField] GameObject AntPrefab;
@@ -15,6 +17,10 @@ public class AntSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, ICo
     [SerializeField] Transform ColonyTransform;
     [SerializeField] Transform FoodTransform;
     [SerializeField] int NbAnts;
+    [SerializeField] float ObstacleRadius;
+    [SerializeField] float ObstaclesPerRing;
+    [SerializeField] int ObstacleRingCount;
+    [SerializeField] float MapSize;
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
@@ -35,10 +41,14 @@ public class AntSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, ICo
             ColonyPrefab = conversionSystem.GetPrimaryEntity(ColonyPrefab),
             FoodPrefab = conversionSystem.GetPrimaryEntity(FoodPrefab),
             ObstaclePrefab = conversionSystem.GetPrimaryEntity(ObstaclePrefab),
-            NbAnts = NbAnts
+            ObstacleRadius = ObstacleRadius,
+            ObstaclesPerRing = ObstaclesPerRing,
+            ObstacleRingCount = ObstacleRingCount,
+            MapSize = MapSize,
+            NbAnts = NbAnts,
         };
 
         dstManager.AddComponentData(entity, spawner);
-        dstManager.AddComponent<Direction>(entity);
+        dstManager.AddComponent<AntSpawnerUnused>(entity);
     }
 }
