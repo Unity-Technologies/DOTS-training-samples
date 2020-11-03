@@ -29,9 +29,11 @@ public class AntObstacleAvoidSystem : SystemBase
         //Update all ant entities and check that we are not going to collide with
         //a obstacle
         Entities
+            .WithNativeDisableParallelForRestriction(obstacleArray) //It's safe here because we are only reading from the array
             .WithAll<Direction>()
             .ForEach((ref Direction dir, in Translation antTranslation) =>
             {
+                //todo convert to job?
                 //Check this entity for collisions with all other entites
                 for(int i = 0; i < obstacleArray.Length; ++i)
                 {
