@@ -5,6 +5,16 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+public struct Speed : IComponentData
+{
+    public float Value;
+
+    public Speed(float speed)
+    {
+        Value = speed;
+    }
+}
+
 public struct Position : IComponentData
 {
     public float2 Value;
@@ -21,7 +31,7 @@ public struct Random : IComponentData
 
     public Random(uint seed)
     {
-        this.Value = new Unity.Mathematics.Random(seed);
+        Value = new Unity.Mathematics.Random(seed);
     }
 }
 
