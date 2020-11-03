@@ -33,7 +33,7 @@ public class AntSpawnerSystem : SystemBase
             CreateAnts(cmd, spawner);
             CreateColony(cmd, spawner.ColonyPrefab, spawner.ColonyPosition);
             CreateFood(cmd, spawner.FoodPrefab, spawner.FoodPosition);
-            CreateObstacles(cmd, spawner.ObstaclePrefab, spawner, ref obstaclePositions);
+            CreateObstacles(cmd, spawner.ObstaclePrefab, spawner, obstaclePositions);
 
             cmd.RemoveComponent<AntSpawnerUnused>(spawnerEntity);
         })
@@ -71,6 +71,9 @@ public class AntSpawnerSystem : SystemBase
             {
                 Random = Unity.Mathematics.Random.CreateFromIndex(i + 1),
             });
+
+
+            cmd.AddComponent(ant, new ObstacleAvoid());
         }
     }
 
@@ -90,7 +93,7 @@ public class AntSpawnerSystem : SystemBase
         cmd.AddComponent<FoodTag>(entity);
     }
 
-    static void CreateObstacles(EntityCommandBuffer cmd, in Entity prefab, in AntSpawner spawner, ref DynamicBuffer<ObstaclePosition> obstaclePositions)
+    static void CreateObstacles(EntityCommandBuffer cmd, in Entity prefab, in AntSpawner spawner, DynamicBuffer<ObstaclePosition> obstaclePositions)
     {
         var rand = new DOTSRand(7);
 
@@ -111,24 +114,21 @@ public class AntSpawnerSystem : SystemBase
                     float x = math.cos(angle) * ringRadius;
                     float z = math.sin(angle) * ringRadius;
 
-                    var position2D = new float2(x, z);
-                    var position3D = new float3(x, 0, z);
+                    var position = new float3(x, 0, z);
                     float radius = spawner.ObstacleRadius;
 
-                    var obstacle = new Obstacle
-                    {
-                        position = position2D,
-                        radius = radius
+                    var obstRadius = new Radius 
+                    { 
+                        Value = radius 
                     };
 
                     var entity = cmd.Instantiate(prefab);
-                    cmd.SetComponent(entity, new Translation { Value = position3D });
-                    cmd.AddComponent(entity, obstacle);
-                    cmd.AddComponent<ObstacleAvoid>(entity);
+                    cmd.SetComponent(entity, new Translation { Value = position });
+                    cmd.AddComponent(entity, obstRadius);
 
-                    obstaclePositions.Add(new ObstaclePosition { Value = position3D });
+                    obstaclePositions.Add(new ObstaclePosition { Value = position });
                 }
-            }
-        }
-    }
+			}
+		}
+	}
 }
