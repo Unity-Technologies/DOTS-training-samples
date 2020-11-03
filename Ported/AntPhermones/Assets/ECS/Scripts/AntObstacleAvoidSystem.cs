@@ -9,9 +9,6 @@ using Unity.Mathematics;
 public class AntObstacleAvoidSystem : SystemBase
 {
 
-
-
-
     protected override void OnUpdate()
     {
         //Get all of the obstacles
@@ -52,10 +49,8 @@ public class AntObstacleAvoidSystem : SystemBase
 
                 }
 
-            }).ScheduleParallel();
-
-        //Dispose the native array
-        obstacleArray.Dispose();
+            }).WithDisposeOnCompletion(obstacleArray)
+            .ScheduleParallel();
     }
 
 }
