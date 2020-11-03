@@ -71,6 +71,9 @@ public class AntSpawnerSystem : SystemBase
             {
                 Random = Unity.Mathematics.Random.CreateFromIndex(i + 1),
             });
+
+
+            cmd.AddComponent(ant, new ObstacleAvoid());
         }
     }
 
@@ -111,11 +114,10 @@ public class AntSpawnerSystem : SystemBase
                     float x = math.cos(angle) * ringRadius;
                     float z = math.sin(angle) * ringRadius;
 
-                    var position2D = new float2(x, z);
                     var position3D = new float3(x, 0, z);
                     float radius = config.ObstacleRadius;
 
-                    var obstacle = new Radius 
+                    var obstRadius = new Radius 
                     { 
                         //position = position2D, 
                         Value = radius 
@@ -123,8 +125,7 @@ public class AntSpawnerSystem : SystemBase
 
                     var entity = cmd.Instantiate(prefab);
                     cmd.SetComponent(entity, new Translation { Value = position3D });
-                    cmd.AddComponent(entity, obstacle);
-                    cmd.AddComponent<ObstacleAvoid>(entity);
+                    cmd.AddComponent(entity, obstRadius);
 				}
 			}
 		}

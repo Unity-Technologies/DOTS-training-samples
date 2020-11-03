@@ -39,6 +39,5 @@ public class AntSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, ICo
         };
 
         dstManager.AddComponentData(entity, spawner);
-        dstManager.AddComponent<Direction>(entity);
     }
 }

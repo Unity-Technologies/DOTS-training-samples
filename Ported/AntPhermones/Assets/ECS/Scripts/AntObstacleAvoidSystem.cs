@@ -31,7 +31,7 @@ public class AntObstacleAvoidSystem : SystemBase
         Entities
             .WithNativeDisableParallelForRestriction(obstRadiusArray) //It's safe here because we are only reading from the array
             .WithNativeDisableParallelForRestriction(obstTranslationArray) //It's safe here because we are only reading from the array
-            .WithAll<Direction>()
+            .WithAll<ObstacleAvoid>()
             .ForEach((ref Direction dir, ref Translation antTranslation) =>
             {
 
