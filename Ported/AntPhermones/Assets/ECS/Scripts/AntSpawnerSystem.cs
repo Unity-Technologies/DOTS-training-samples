@@ -9,14 +9,7 @@ using Unity.Transforms;
 using UnityEngine;
 using UnityRand = UnityEngine.Random;
 using DOTSRand = Unity.Mathematics.Random;
-
-public struct Config : IComponentData
-{
-	public float ObstacleRadius;
-	public float ObstaclesPerRing;
-	public int ObstacleRingCount;
-	public float MapSize;
-}
+using UnityEditor.Rendering;
 
 public class AntSpawnerSystem : SystemBase
 {
@@ -33,13 +26,7 @@ public class AntSpawnerSystem : SystemBase
     {
         var cmd = cmdBufferSystem.CreateCommandBuffer();
 
-        var config = new Config
-        {
-            ObstacleRadius = 0.1f,
-            ObstaclesPerRing = 0.8f,
-            ObstacleRingCount = 3,
-            MapSize = 8f,
-        };
+        var config = GetSingleton<Config>();
 
         Entities.ForEach((ref Entity spawnerEntity, ref AntSpawner spawner) =>
         {
