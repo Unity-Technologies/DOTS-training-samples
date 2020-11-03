@@ -44,11 +44,11 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
+    "com.unity.modules.xr": "1.0.0",
 	"com.unity.entities": "0.16.0-preview.21",
 	"com.unity.render-pipelines.universal": "9.0.0-preview.72",
 	"com.unity.rendering.hybrid": "0.10.0-preview.21",
 	"com.unity.dots.editor": "0.11.0-preview.3",
-	"com.unity.platforms.windows": "0.9.0-preview.9",
+	"com.unity.platforms.windows": "0.9.0-preview.9"
   }
 }
