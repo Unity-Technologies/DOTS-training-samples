@@ -396,7 +396,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
@@ -564,7 +564,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PheromoneMapRenderer: {fileID: 363156569}
-  pheromoneMap: {fileID: 2800000, guid: 1f429fa5e18c5ed4ebd2a544e964579a, type: 3}
 --- !u!114 &1748550228
 MonoBehaviour:
   m_ObjectHideFlags: 0

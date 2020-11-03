@@ -24,17 +24,36 @@ public class AntSpawnerSystem : SystemBase
     {
         var cmd = cmdBufferSystem.CreateCommandBuffer();
 
+        
         Entities.ForEach((ref Entity spawnerEntity, ref AntSpawner spawner) =>
         {
-            for (int i = 0; i < spawner.NbAnts; ++i)
+            var rand = Unity.Mathematics.Random.CreateFromIndex(1);
+            for (uint i = 0; i < spawner.NbAnts; ++i)
             {
                 var ant = cmd.Instantiate(spawner.AntPrefab);
                 var direction = Vector2.Angle(Vector2.right, UnityRand.insideUnitCircle);
                 float3 position = spawner.Origin + UnityRand.insideUnitSphere;
 
                 cmd.SetComponent(ant, new Translation { Value = position });
-            }
 
+                cmd.AddComponent<Direction>(ant);
+                cmd.SetComponent(ant, new Direction
+                {
+                    Value = (float)rand.NextFloat(0.0f, 1.0f) * 2.0f * Mathf.PI,
+                });
+
+                cmd.AddComponent<Speed>(ant);
+                cmd.SetComponent(ant, new Speed
+                {
+                    Value = 0.2f + (float)rand.NextFloat(-0.05f, 0.05f)
+                });
+
+                cmd.AddComponent<RandState>(ant);
+                cmd.SetComponent(ant, new RandState
+                {
+                    Random = Unity.Mathematics.Random.CreateFromIndex(i + 1),
+                });
+            }
             CreateColony(cmd, spawner.ColonyPrefab, spawner.ColonyPosition);
             CreateFood(cmd, spawner.FoodPrefab, spawner.FoodPosition);
 
