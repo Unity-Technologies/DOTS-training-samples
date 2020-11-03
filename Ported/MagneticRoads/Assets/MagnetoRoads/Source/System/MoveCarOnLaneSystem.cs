@@ -21,14 +21,11 @@ public class MoveCarOnLaneSystem : SystemBase
             {
                 if (lane.Car != Entity.Null)
                 {
-                    /*CarPosition carPosition = GetComponent<CarPosition>(lane.Car);
-                    CarSpeed carSpeed = GetComponent<CarSpeed>(lane.Car);*/
-                    
                     CarPosition carPosition = carPositionGetter[lane.Car];
                     CarSpeed carSpeed = carSpeedGetter[lane.Car];
                     float newPosition = carPosition.Value + carSpeed.Value * elapsedTime;
-                    while(newPosition > lane.Length)
-                        newPosition -= lane.Length;
+                    if(newPosition > lane.Length)
+                        newPosition = lane.Length;
                     ecb.SetComponent(lane.Car, new CarPosition{Value = newPosition});    
                 }
             }).Run();
