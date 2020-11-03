@@ -26,16 +26,14 @@ public class AntSpawnerSystem : SystemBase
     {
         var cmd = cmdBufferSystem.CreateCommandBuffer();
 
-        var config = GetSingleton<AntSpawner>();
-
         Entities
         .WithAll<AntSpawnerUnused>()
-        .ForEach((ref Entity spawnerEntity, ref AntSpawner spawner) =>
+        .ForEach((ref Entity spawnerEntity, ref AntSpawner spawner, ref DynamicBuffer<ObstaclePosition> obstaclePositions) =>
         {
             CreateAnts(cmd, spawner);
             CreateColony(cmd, spawner.ColonyPrefab, spawner.ColonyPosition);
             CreateFood(cmd, spawner.FoodPrefab, spawner.FoodPosition);
-            CreateObstacles(cmd, spawner.ObstaclePrefab, config);
+            CreateObstacles(cmd, spawner.ObstaclePrefab, spawner, ref obstaclePositions);
 
             cmd.RemoveComponent<AntSpawnerUnused>(spawnerEntity);
         })
@@ -92,7 +90,7 @@ public class AntSpawnerSystem : SystemBase
         cmd.AddComponent<FoodTag>(entity);
     }
 
-    static void CreateObstacles(EntityCommandBuffer cmd, in Entity prefab, in AntSpawner spawner)
+    static void CreateObstacles(EntityCommandBuffer cmd, in Entity prefab, in AntSpawner spawner, ref DynamicBuffer<ObstaclePosition> obstaclePositions)
     {
         var rand = new DOTSRand(7);
 
@@ -127,6 +125,8 @@ public class AntSpawnerSystem : SystemBase
                     cmd.SetComponent(entity, new Translation { Value = position3D });
                     cmd.AddComponent(entity, obstacle);
                     cmd.AddComponent<ObstacleAvoid>(entity);
+
+                    obstaclePositions.Add(new ObstaclePosition { Value = position3D });
                 }
             }
         }

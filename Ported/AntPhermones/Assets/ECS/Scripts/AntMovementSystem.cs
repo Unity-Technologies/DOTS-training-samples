@@ -13,6 +13,10 @@ public class AntMovementSystem : SystemBase
     {
         Vector2 bounds = new Vector2(5, 5);
 
+        var spawnerEntity = GetSingletonEntity<AntSpawner>();
+        var spawner = GetComponent<AntSpawner>(spawnerEntity);
+        var obstaclesPositions = GetBuffer<ObstaclePosition>(spawnerEntity);
+
         Entities
             .ForEach((ref Translation translation, ref Direction direction, ref RandState rand, in Speed speed) =>
             {

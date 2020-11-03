@@ -50,5 +50,6 @@ public class AntSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, ICo
 
         dstManager.AddComponentData(entity, spawner);
         dstManager.AddComponent<AntSpawnerUnused>(entity);
+        dstManager.AddBuffer<ObstaclePosition>(entity);
     }
 }
