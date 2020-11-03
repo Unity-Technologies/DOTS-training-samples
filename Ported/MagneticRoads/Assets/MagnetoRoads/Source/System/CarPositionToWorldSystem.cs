@@ -10,8 +10,6 @@ public class CarPositionToWorldSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
-
         Entities
             .ForEach((Entity entity, ref Spline spline, ref Lane lane) =>
             {
@@ -21,11 +19,8 @@ public class CarPositionToWorldSystem : SystemBase
                     float splineRatio = carPosition.Value / lane.Length;
                     float3 pos = math.lerp(spline.startPos, spline.endPos, splineRatio);
                     Translation translation = new Translation {Value = pos}; 
-                    ecb.SetComponent(lane.Car, translation);    
+                    SetComponent(lane.Car, translation);    
                 }
-                
             }).Run();
-
-        ecb.Playback(EntityManager);
     }
 }
