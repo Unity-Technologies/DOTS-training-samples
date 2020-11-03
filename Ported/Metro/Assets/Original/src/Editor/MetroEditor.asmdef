@@ -1,0 +1,17 @@
+{
+    "name": "MetroEditor",
+    "references": [
+        "GUID:037adbb5d87844578a50b56de70ce4af"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
