@@ -1,7 +1,0 @@
-<UXML xmlns:ui="UnityEngine.UIElements" xmlns:ent="Unity.Entities.Editor">
-	<ui:VisualElement class="Custom-Query__each-component-container">
-	
-		<ent:CustomToolbarToggle text="test" name="Custom Toolbar Toggle" class="Custom-Query__each-custom-toolbar-toggle"/>
-
-	</ui:VisualElement>
-</UXML>

@@ -1,3 +1,0 @@
-<UXML xmlns:ui="UnityEngine.UIElements">
-    <ui:Foldout class="component-header"/>
-</UXML>

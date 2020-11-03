@@ -1,6 +1,0 @@
-<UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <uie:Toolbar class="entity-hierarchy-toolbar__container">
-        <ui:VisualElement name="Left Side" class="entity-hierarchy-toolbar__left" />
-        <ui:VisualElement name="Right Side" class="entity-hierarchy-toolbar__right" />
-    </uie:Toolbar>
-</UXML>
