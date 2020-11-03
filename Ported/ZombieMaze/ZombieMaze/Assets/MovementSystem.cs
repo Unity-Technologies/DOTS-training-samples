@@ -7,34 +7,45 @@ using Unity.Transforms;
 
 public class MovementSystem : SystemBase
 {
+    const int kChanceToChangeDirection = 3;
+
     public NativeArray<float2> directions;
     
     protected override void OnCreate()
     {
         directions = new NativeArray<float2>(4, Allocator.Persistent);
-        directions[0] = new float2(-1,  0);
-        directions[1] = new float2( 1,  0);
-        directions[2] = new float2( 0,  1);
-        directions[3] = new float2( 0, -1);
+        directions[0] = math.left().xy;
+        directions[1] = math.right().xy;
+        directions[2] = math.up().xy;
+        directions[3] = math.down().xy;
 
-        var e = EntityManager.CreateEntity(typeof(ZombieTag), typeof(Position), typeof(Random));
+        var e = EntityManager.CreateEntity(typeof(ZombieTag), typeof(Position), typeof(Direction), typeof(Speed), typeof(Random));
 #if UNITY_EDITOR
         EntityManager.SetName(e, "Zombie");
 #endif
         EntityManager.SetComponentData(e, new Position());
+        EntityManager.SetComponentData(e, new Direction());
+        EntityManager.SetComponentData(e, new Speed(1));
         EntityManager.SetComponentData(e, new Random(1234));
+    }
+
+    protected override void OnDestroy()
+    {
+        directions.Dispose();
     }
 
     protected override void OnUpdate()
     {
-        float deltaTime = Time.DeltaTime;
-        float speed     = 1;
-        var   dirs      = directions;
+        var deltaTime = Time.DeltaTime;
+        var dirs      = directions;
 
-        Entities.ForEach((ref ZombieTag _, ref Position position, ref Random random) => 
+        Entities.ForEach((ref ZombieTag _, ref Position position, ref Direction direction, ref Speed speed, ref Random random) => 
         {
-            var direction = dirs[random.Value.NextInt(4)];
-            position.Value += direction * speed * deltaTime;
+            // some percentage of the time, pick a new direction.
+            if (random.Value.NextInt(0, 100) < kChanceToChangeDirection)
+                direction.Value = dirs[random.Value.NextInt(4)];
+
+            position.Value += direction.Value * speed.Value * deltaTime;
         })
         .Schedule();
     }
