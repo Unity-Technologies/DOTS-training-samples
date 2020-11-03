@@ -188,6 +188,8 @@ MonoBehaviour:
     type: 3}
   FoodPrefab: {fileID: 8357080306815164911, guid: 7d6287bf69370694ebb6dc25185f360a,
     type: 3}
+  ObstaclePrefab: {fileID: 8357080306815164911, guid: 696b5c4e14962124d9fc83eb683db100,
+    type: 3}
   ColonyTransform: {fileID: 1043673332}
   FoodTransform: {fileID: 894346219}
   NbAnts: 128

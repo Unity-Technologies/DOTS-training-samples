@@ -11,5 +11,6 @@ struct AntSpawner : IComponentData
     public Entity AntPrefab;
     public Entity ColonyPrefab;
     public Entity FoodPrefab;
+    public Entity ObstaclePrefab;
     public int NbAnts;
 }
