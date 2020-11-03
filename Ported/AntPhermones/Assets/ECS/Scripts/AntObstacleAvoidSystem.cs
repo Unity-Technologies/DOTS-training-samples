@@ -36,12 +36,13 @@ public class AntObstacleAvoidSystem : SystemBase
             {
 
                 //Check this entity for collisions with all other entites
+                float dx, dy, sqrDist, dist;
                 for(int i = 0; i < obstRadiusArray.Length; ++i)
                 {
                     //Get difference in x and y, calculate the sqrd distance to the 
-                    float dx = antTranslation.Value.x - obstTranslationArray[i].Value.x;
-                    float dy = antTranslation.Value.z - obstTranslationArray[i].Value.z;
-                    float sqrDist = (dx * dx) + (dy * dy);
+                    dx = antTranslation.Value.x - obstTranslationArray[i].Value.x;
+                    dy = antTranslation.Value.z - obstTranslationArray[i].Value.z;
+                    sqrDist = (dx * dx) + (dy * dy);
 
                     //If we are less than the sqrd distance away from the obstacle then reflect the ant
                     if(sqrDist < (obstRadiusArray[i].Value * obstRadiusArray[i].Value))
@@ -51,15 +52,12 @@ public class AntObstacleAvoidSystem : SystemBase
                         dir.Value = (dir.Value >= 2 * Mathf.PI) ? dir.Value - 2 * Mathf.PI : dir.Value;
 
 
-                        /*
-                        float dist = Mathf.Sqrt(sqrDist);
+                        //Move ant out of collision
+                        dist = Mathf.Sqrt(sqrDist);
                         dx /= dist;
                         dy /= dist;
-
-                        //Move ant out of collision
-                        antTranslation.Value.x = currentObst.position.x + dx * currentObst.radius;
-                        antTranslation.Value.y = currentObst.position.y + dy * currentObst.radius;
-                        */
+                        antTranslation.Value.x = obstTranslationArray[i].Value.x + dx * obstRadiusArray[i].Value;
+                        antTranslation.Value.z = obstTranslationArray[i].Value.z + dy * obstRadiusArray[i].Value;
                     }
 
                 }
