@@ -1,0 +1,123 @@
+using Magneto.Collections;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Jobs;
+using Unity.Mathematics;
+using Random = UnityEngine.Random;
+
+namespace Magneto.Track.Jobs
+{
+    [BurstCompile]
+    public struct BuildVoxelMapJob : IJob
+    {
+        public const int IterationCount = 50000;
+
+        public int VoxelCount;
+        
+        public NativeStrideGridArray<bool> TrackVoxels;
+        
+        public NativeArray<int3> CachedNeighbourIndexOffsets;
+        public NativeArray<int> LimitedCachedNeighbourIndexOffsets;
+
+
+
+        public NativeList<int3> ActiveVoxels;
+        
+        //
+        public NativeList<int> Intersections;
+
+        public void Execute()
+        {
+            
+            // Create our temp allocated
+            ActiveVoxels = new NativeList<int3>(Allocator.Temp);
+
+            for (int i = 0; i < IterationCount; i++)
+            {
+                if (ActiveVoxels.Length == 0) break;
+
+                int index = Random.Range(0, ActiveVoxels.Length);
+                
+                int3 currentPosition = ActiveVoxels[index];
+                int3 randomDirection = CachedNeighbourIndexOffsets[Random.Range(0, TrackManager.DIRECTIONS_LENGTH)];
+                
+                int3 newPosition = currentPosition + randomDirection;
+
+                // Evaluate our neighbour position for an active voxel
+                if (!GetVoxel(newPosition))
+                {
+                    if (CountNeighbors(newPosition, true) < 3)
+                    {
+                        ActiveVoxels.Add(newPosition);
+                        TrackVoxels[newPosition] = true;
+                    }
+                }
+
+                int neighbourCount = CountNeighbors(currentPosition);
+                if (neighbourCount >= 3)
+                {
+                    ActiveVoxels.RemoveAt(index);
+                    // no more than three cardinal neighbors for any voxel (no 4-way intersections allowed)
+                    // (really, this is to avoid nonplanar intersections)
+                    
+                    /*
+                     *Intersection intersection = new Intersection(pos,(Vector3)pos*voxelSize,Vector3Int.zero);
+				intersection.id = intersections.Count;
+				intersections.Add(intersection);
+				intersectionsGrid[pos.x,pos.y,pos.z] = intersection;
+				activeVoxels.RemoveAt(index);
+                     */
+
+                }
+            }
+        }
+
+        private bool GetVoxel(int x, int y, int z)
+        {
+            return GetVoxel(new int3(x, y, z));
+        }
+        
+        private bool GetVoxel(int3 position, bool outOfBoundsReturns = true)
+        {
+            if (position.x >= 0 && position.x < TrackManager.VOXEL_COUNT && 
+                position.y >= 0 && position.y < TrackManager.VOXEL_COUNT && 
+                position.z >= 0 && position.z < TrackManager.VOXEL_COUNT) {
+                return TrackVoxels[position.x,position.y, position.z];
+            }
+
+            return outOfBoundsReturns;
+        }
+        
+        int CountNeighbors(int3 position, bool includeDiagonal = false) 
+        {
+            int neighborCount = 0;
+            int x = position.x;
+            int y = position.y;
+            int z = position.z;
+
+            
+            if (includeDiagonal)
+            {
+                for (int k = 0; k < TrackManager.DIRECTIONS_LENGTH; k++) {
+                    int3 dir = CachedNeighbourIndexOffsets[k];
+                    
+                    if (GetVoxel(x + dir.x,y + dir.y,z + dir.z)) {
+                        neighborCount++;
+                    }
+                }
+            }
+            else
+            {
+                for (int k = 0; k < TrackManager.LIMITED_DIRECTIONS_LENGTH; k++) {
+                    int3 dir = LimitedCachedNeighbourIndexOffsets[k];
+                    if (GetVoxel(x + dir.x,y + dir.y,z + dir.z)) {
+                        neighborCount++;
+                    }
+                }
+            }
+
+            
+            return neighborCount;
+        }
+    }
+}
