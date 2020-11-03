@@ -8,7 +8,7 @@ public class TripleIntersectionSystem : SystemBase
     {
         //var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities.WithoutBurst()
+        Entities
             .ForEach((Entity entity, ref TripleIntersection tripleIntersection) =>
             {
                 NativeArray<int> directions = new NativeArray<int>(3, Allocator.Temp);
@@ -39,12 +39,18 @@ public class TripleIntersectionSystem : SystemBase
                         if (carPosition.Value == laneIns[i].Length)
                         {
                             // TODO: Make this random
-                            if(i != 0)
-                                directions[i] = 0;
-                            else
-                            {
-                                directions[i] = 1;
-                            }
+                            int value = 0;
+                            if (i == 0)
+                                value = 1;
+                            if (i == 1)
+                                value = 2;
+                            directions[i] = value;
+                            if(i == 0)
+                                tripleIntersection.lane0Direction = value;
+                            else if(i == 1)
+                                tripleIntersection.lane1Direction = value;
+                            if(i == 2)
+                                tripleIntersection.lane2Direction = value;
                         }
                     }
                     
@@ -58,17 +64,11 @@ public class TripleIntersectionSystem : SystemBase
                             Lane lane = laneIns[i];
                             lane.Car = Entity.Null;
                             if (i == 0)
-                            {
                                 SetComponent(tripleIntersection.laneIn0, lane);    
-                            }
                             else if (i == 1)
-                            {
                                 SetComponent(tripleIntersection.laneIn1, lane);    
-                            }
                             else
-                            {
                                 SetComponent(tripleIntersection.laneIn2, lane);    
-                            }
                             break;
                         }
                     }
@@ -76,8 +76,6 @@ public class TripleIntersectionSystem : SystemBase
                 else
                 {
                     int destination = directions[tripleIntersection.carIndex];
-                    if(destination == -1)
-                        Debug.Log("Something happening!");
                     Lane newLaneOut = laneOuts[destination];
                     newLaneOut.Car = tripleIntersection.car;
                     if (destination == 0)
@@ -98,17 +96,11 @@ public class TripleIntersectionSystem : SystemBase
                     
                     // Reset directions
                     if (tripleIntersection.carIndex == 0)
-                    {
                         tripleIntersection.lane0Direction = -1;
-                    }
                     else if (tripleIntersection.carIndex == 1)
-                    {
                         tripleIntersection.lane1Direction = -1;    
-                    }
                     else
-                    {
                         tripleIntersection.lane2Direction = -1;    
-                    }
                 }
 
                 directions.Dispose();

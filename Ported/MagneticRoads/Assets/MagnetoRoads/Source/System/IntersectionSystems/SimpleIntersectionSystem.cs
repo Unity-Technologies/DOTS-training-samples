@@ -8,7 +8,7 @@ public class SimpleIntersectionSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         float elapsedTime = Time.fixedDeltaTime;
 
-        Entities.WithoutBurst()
+        Entities
             .ForEach((Entity entity, ref SimpleIntersection simpleIntersection) =>
             {
                 if (simpleIntersection.car == Entity.Null)

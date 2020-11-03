@@ -27,17 +27,17 @@ public class TrafficSpawnerSystem : SystemBase
                 ecb.DestroyEntity(entity);
 
                 var carInstance = ecb.Instantiate(spawner.CarPrefab);
-                ecb.SetComponent(carInstance, new CarPosition {Value = 3.0f});
+                ecb.SetComponent(carInstance, new CarPosition {Value = 0.0f});
                 
                 /*var carInstance2 = ecb.Instantiate(spawner.CarPrefab);
                 ecb.SetComponent(carInstance2, new CarPosition {Value = 3.0f});
                 ecb.AddComponent<URPMaterialPropertyBaseColor>(carInstance2, new URPMaterialPropertyBaseColor(){Value = new float4(1, 0, 0, 1)});*/
 
                 float3 pos0 = new float3(-5, 0, 0);
-                float3 pos1 = new float3(5, 0, 0);
-                float3 pos2 = new float3(15, 0, 0);
-                float3 pos3 = new float3(25, 0, 0);
-                float3 pos4 = new float3(15, 0, 10);
+                float3 pos1 = new float3(0, 0, 0);
+                float3 pos2 = new float3(5, 0, 0);
+                float3 pos3 = new float3(10, 0, 0);
+                float3 pos4 = new float3(5, 0, 5);
                 
                 Spline splineA0 = new Spline {startPos = pos0, endPos = pos1};
                 Spline splineB0 = new Spline {startPos = pos1, endPos = pos0};
@@ -87,22 +87,25 @@ public class TrafficSpawnerSystem : SystemBase
                 var firstDeadEnd = ecb.Instantiate(spawner.SimpleIntersectionPrefab);
                 ecb.SetComponent(firstDeadEnd, new SimpleIntersection {laneIn0 = laneB0, laneOut0 = laneA0});
                 ecb.SetComponent(firstDeadEnd, new Translation{Value = pos0});
+                ecb.AddComponent<URPMaterialPropertyBaseColor>(firstDeadEnd, new URPMaterialPropertyBaseColor(){Value = new float4(1, 0, 0, 1)});
                 
                 var doubleIntersectionInstance0 = ecb.Instantiate(spawner.DoubleIntersectionPrefab);
                 ecb.SetComponent(doubleIntersectionInstance0, new DoubleIntersection {laneIn0 = laneA0, laneOut0 = laneB0, laneIn1 = laneB1, laneOut1 = laneA1});
                 ecb.SetComponent(doubleIntersectionInstance0, new Translation{Value = pos1});
                 
                 var tripleIntersectionInstance0 = ecb.Instantiate(spawner.TripleIntersectionPrefab);
-                ecb.SetComponent(tripleIntersectionInstance0, new TripleIntersection {laneIn0 = laneA1, laneOut0 = laneB1, laneIn1 = laneB2, laneOut1 = laneA2, laneIn2 = laneB3, laneOut2 = laneA3});
+                ecb.SetComponent(tripleIntersectionInstance0, new TripleIntersection {laneIn0 = laneA1, laneOut0 = laneB1, laneIn1 = laneB2, laneOut1 = laneA2, laneIn2 = laneB3, laneOut2 = laneA3, lane0Direction = -1, lane1Direction = -1, lane2Direction = -1});
                 ecb.SetComponent(tripleIntersectionInstance0, new Translation{Value = pos2});
                 
                 var secondDeadEnd = ecb.Instantiate(spawner.SimpleIntersectionPrefab);
                 ecb.SetComponent(secondDeadEnd, new SimpleIntersection {laneIn0 = laneA2, laneOut0 = laneB2});
                 ecb.SetComponent(secondDeadEnd, new Translation{Value = pos3});
+                ecb.AddComponent<URPMaterialPropertyBaseColor>(secondDeadEnd, new URPMaterialPropertyBaseColor(){Value = new float4(0, 1, 0, 1)});
                 
                 var thirdDeadEnd = ecb.Instantiate(spawner.SimpleIntersectionPrefab);
                 ecb.SetComponent(thirdDeadEnd, new SimpleIntersection {laneIn0 = laneA3, laneOut0 = laneB3});
                 ecb.SetComponent(thirdDeadEnd, new Translation{Value = pos4});
+                ecb.AddComponent<URPMaterialPropertyBaseColor>(thirdDeadEnd, new URPMaterialPropertyBaseColor(){Value = new float4(0, 0, 1, 1)});
             }).Run();
 
         ecb.Playback(EntityManager);
