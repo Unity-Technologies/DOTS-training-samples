@@ -9,10 +9,10 @@ public class AntMovementSystem : SystemBase
     const float dt = 1.0f / 60;
     const float randomSteering = 0.1f;
 
+    public static readonly Vector2 bounds = new Vector2(5, 5);
+
     protected override void OnUpdate()
     {
-        Vector2 bounds = new Vector2(5, 5);
-
         var spawnerEntity = GetSingletonEntity<AntSpawner>();
         var spawner = GetComponent<AntSpawner>(spawnerEntity);
         var obstaclesPositions = GetBuffer<ObstaclePosition>(spawnerEntity);
