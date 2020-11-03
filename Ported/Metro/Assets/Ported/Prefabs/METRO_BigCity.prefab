@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453583599354067518}
-  - component: {fileID: 4343989683818377940}
   - component: {fileID: 8151956893824779640}
   m_Layer: 0
   m_Name: 1_6
@@ -32,21 +31,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343989683818377940
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456325415853072034}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 6
-  railMarkerType: 0
 --- !u!114 &8151956893824779640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70,7 +54,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454197005744001574}
-  - component: {fileID: 4344179005016753938}
   - component: {fileID: 5451683177788598913}
   m_Layer: 0
   m_Name: 3_5
@@ -93,21 +76,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344179005016753938
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456329486539061478}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 5
-  railMarkerType: 2
 --- !u!114 &5451683177788598913
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -131,7 +99,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454503524538774216}
-  - component: {fileID: 4343396125059837536}
   - component: {fileID: 155307886382723781}
   m_Layer: 0
   m_Name: 2_10
@@ -154,21 +121,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343396125059837536
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456358633408685342}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 10
-  railMarkerType: 2
 --- !u!114 &155307886382723781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -248,7 +200,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453700514523898302}
-  - component: {fileID: 4343364317725746726}
   - component: {fileID: 7577588603242164011}
   m_Layer: 0
   m_Name: 0_11
@@ -271,21 +222,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343364317725746726
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456370949255006652}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 11
-  railMarkerType: 2
 --- !u!114 &7577588603242164011
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -364,7 +300,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453637997822007780}
-  - component: {fileID: 4343923806277117320}
   - component: {fileID: 4882855780182211763}
   m_Layer: 0
   m_Name: 1_8
@@ -387,21 +322,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343923806277117320
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456383661826213674}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 8
-  railMarkerType: 2
 --- !u!114 &4882855780182211763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -425,7 +345,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454459890211268322}
-  - component: {fileID: 4343400963554322570}
   - component: {fileID: 4524635999158600404}
   m_Layer: 0
   m_Name: 0_21
@@ -448,21 +367,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 21
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343400963554322570
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456405988021184000}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 21
-  railMarkerType: 2
 --- !u!114 &4524635999158600404
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -486,7 +390,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454462916570846824}
-  - component: {fileID: 4344234525358452706}
   - component: {fileID: 2628457643834365335}
   m_Layer: 0
   m_Name: 0_19
@@ -509,21 +412,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344234525358452706
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456409053386881526}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 19
-  railMarkerType: 2
 --- !u!114 &2628457643834365335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -547,7 +435,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453635460925002424}
-  - component: {fileID: 4344114265973246822}
   - component: {fileID: 754509611712856288}
   m_Layer: 0
   m_Name: 3_0
@@ -570,21 +457,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344114265973246822
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456419927579666092}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 0
-  railMarkerType: 2
 --- !u!114 &754509611712856288
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -608,7 +480,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454489942344432878}
-  - component: {fileID: 4344199660453078076}
   - component: {fileID: 3627103318758042233}
   m_Layer: 0
   m_Name: 0_0
@@ -631,21 +502,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344199660453078076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456427561750800374}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 0
-  railMarkerType: 2
 --- !u!114 &3627103318758042233
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -669,7 +525,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454602285163190672}
-  - component: {fileID: 4343972267582813096}
   - component: {fileID: 4776667127580552740}
   m_Layer: 0
   m_Name: 2_21
@@ -692,21 +547,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 21
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343972267582813096
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456427874832401632}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 21
-  railMarkerType: 2
 --- !u!114 &4776667127580552740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -730,7 +570,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454293750701101448}
-  - component: {fileID: 4343798723691060614}
   - component: {fileID: 1021419617153580124}
   m_Layer: 0
   m_Name: 0_14
@@ -753,21 +592,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343798723691060614
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456440140808000720}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 14
-  railMarkerType: 1
 --- !u!114 &1021419617153580124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -791,7 +615,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454611586973921948}
-  - component: {fileID: 4343309680830835292}
   - component: {fileID: 2620051346763021422}
   m_Layer: 0
   m_Name: 3_6
@@ -814,21 +637,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343309680830835292
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456466004711495752}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 6
-  railMarkerType: 2
 --- !u!114 &2620051346763021422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -852,7 +660,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453709971944061230}
-  - component: {fileID: 4344076015981330630}
   - component: {fileID: 1019634965789837944}
   m_Layer: 0
   m_Name: 2_8
@@ -875,21 +682,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344076015981330630
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456471910573573690}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 8
-  railMarkerType: 1
 --- !u!114 &1019634965789837944
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -913,7 +705,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453531761872352896}
-  - component: {fileID: 4344678623807193802}
   - component: {fileID: 5521738182020585116}
   m_Layer: 0
   m_Name: 1_15
@@ -936,21 +727,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344678623807193802
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456472888704591270}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 15
-  railMarkerType: 2
 --- !u!114 &5521738182020585116
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -974,7 +750,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453995729831274130}
-  - component: {fileID: 4344681311930415946}
   - component: {fileID: 9211234125570412232}
   m_Layer: 0
   m_Name: 2_18
@@ -997,21 +772,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344681311930415946
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456511956422356508}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 18
-  railMarkerType: 2
 --- !u!114 &9211234125570412232
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1035,7 +795,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454614625060602864}
-  - component: {fileID: 4344127563562723786}
   - component: {fileID: 1547854268928210801}
   m_Layer: 0
   m_Name: 1_9
@@ -1058,21 +817,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344127563562723786
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456514039583467282}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 9
-  railMarkerType: 2
 --- !u!114 &1547854268928210801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1096,7 +840,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454342135532706272}
-  - component: {fileID: 4343356033921170968}
   - component: {fileID: 8914193545562955977}
   m_Layer: 0
   m_Name: 0_9
@@ -1119,21 +862,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343356033921170968
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456514222703368298}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 9
-  railMarkerType: 2
 --- !u!114 &8914193545562955977
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1157,7 +885,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453546084148560244}
-  - component: {fileID: 4343419274384770062}
   - component: {fileID: 5971415767595082614}
   m_Layer: 0
   m_Name: 2_6
@@ -1180,21 +907,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343419274384770062
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456543164761136290}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 6
-  railMarkerType: 2
 --- !u!114 &5971415767595082614
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1218,7 +930,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453576854602742266}
-  - component: {fileID: 4344197459917590290}
   - component: {fileID: 7430439222528810105}
   m_Layer: 0
   m_Name: 2_4
@@ -1241,21 +952,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344197459917590290
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456544728755173142}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 4
-  railMarkerType: 2
 --- !u!114 &7430439222528810105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1279,7 +975,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453704665426907464}
-  - component: {fileID: 4344717688970319944}
   - component: {fileID: 4687955371330920273}
   m_Layer: 0
   m_Name: 3_14
@@ -1302,21 +997,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344717688970319944
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456558335131240822}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 14
-  railMarkerType: 2
 --- !u!114 &4687955371330920273
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1340,7 +1020,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454187743385225522}
-  - component: {fileID: 4343406275116805238}
   - component: {fileID: 8863547985692077529}
   m_Layer: 0
   m_Name: 2_13
@@ -1363,21 +1042,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343406275116805238
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456566866107161094}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 13
-  railMarkerType: 0
 --- !u!114 &8863547985692077529
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1401,7 +1065,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454036251036797444}
-  - component: {fileID: 4343759653584366606}
   - component: {fileID: 1475388620038967259}
   m_Layer: 0
   m_Name: 0_5
@@ -1424,21 +1087,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343759653584366606
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456588240796461864}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 5
-  railMarkerType: 2
 --- !u!114 &1475388620038967259
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1462,7 +1110,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453564690489651262}
-  - component: {fileID: 4344053838275095192}
   - component: {fileID: 1983767467212100865}
   m_Layer: 0
   m_Name: 3_10
@@ -1485,21 +1132,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344053838275095192
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456850683210156054}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 10
-  railMarkerType: 2
 --- !u!114 &1983767467212100865
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1523,7 +1155,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454048138616804316}
-  - component: {fileID: 4344248847802322112}
   - component: {fileID: 4673440412198148759}
   m_Layer: 0
   m_Name: 1_16
@@ -1546,21 +1177,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344248847802322112
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456853219741794822}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 16
-  railMarkerType: 2
 --- !u!114 &4673440412198148759
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1584,7 +1200,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454609512972804968}
-  - component: {fileID: 4343765762615139896}
   - component: {fileID: 2618195054983633750}
   m_Layer: 0
   m_Name: 2_3
@@ -1607,21 +1222,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343765762615139896
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456862013418867250}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 3
-  railMarkerType: 2
 --- !u!114 &2618195054983633750
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1645,7 +1245,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454534282152921702}
-  - component: {fileID: 4344241536709329388}
   - component: {fileID: 5341238832186584561}
   m_Layer: 0
   m_Name: 0_4
@@ -1668,21 +1267,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344241536709329388
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456867098790018808}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 4
-  railMarkerType: 2
 --- !u!114 &5341238832186584561
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1706,7 +1290,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453698349769158954}
-  - component: {fileID: 4343341978001826990}
   - component: {fileID: 9158225134064621985}
   m_Layer: 0
   m_Name: 0_24
@@ -1729,21 +1312,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 24
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343341978001826990
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456882555720989236}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 24
-  railMarkerType: 2
 --- !u!114 &9158225134064621985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1767,7 +1335,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453568139002046524}
-  - component: {fileID: 4344066274591745952}
   - component: {fileID: 4695145354833116476}
   m_Layer: 0
   m_Name: 1_3
@@ -1790,21 +1357,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344066274591745952
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456885244062898226}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 3
-  railMarkerType: 2
 --- !u!114 &4695145354833116476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1828,7 +1380,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454190203843360604}
-  - component: {fileID: 4343949069602630076}
   - component: {fileID: 3123328767880215963}
   m_Layer: 0
   m_Name: 0_22
@@ -1851,21 +1402,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 22
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343949069602630076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456892157196952536}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 22
-  railMarkerType: 0
 --- !u!114 &3123328767880215963
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1889,7 +1425,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453945847938427400}
-  - component: {fileID: 4344639974512056224}
   - component: {fileID: 3765087203103356045}
   m_Layer: 0
   m_Name: 1_20
@@ -1912,21 +1447,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344639974512056224
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456893359107921864}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 20
-  railMarkerType: 1
 --- !u!114 &3765087203103356045
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1950,7 +1470,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454176798754094752}
-  - component: {fileID: 4343829962734991546}
   - component: {fileID: 6942558539105178512}
   m_Layer: 0
   m_Name: 3_3
@@ -1973,21 +1492,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343829962734991546
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456896630689583820}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 3
-  railMarkerType: 2
 --- !u!114 &6942558539105178512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2011,7 +1515,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454136903770602082}
-  - component: {fileID: 4344838903337756822}
   - component: {fileID: 7455537935213241468}
   m_Layer: 0
   m_Name: 0_18
@@ -2034,21 +1537,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344838903337756822
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456903270581267030}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 18
-  railMarkerType: 2
 --- !u!114 &7455537935213241468
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2072,7 +1560,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453884475820730240}
-  - component: {fileID: 4344232178394427998}
   - component: {fileID: 3251174209133858650}
   m_Layer: 0
   m_Name: 0_10
@@ -2095,21 +1582,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344232178394427998
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456913245018561024}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 10
-  railMarkerType: 2
 --- !u!114 &3251174209133858650
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2133,7 +1605,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453873679479797404}
-  - component: {fileID: 4344095078206736928}
   - component: {fileID: 8075376652629911334}
   m_Layer: 0
   m_Name: 3_7
@@ -2156,21 +1627,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344095078206736928
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456915883465314254}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 7
-  railMarkerType: 2
 --- !u!114 &8075376652629911334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2194,7 +1650,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454081323306218504}
-  - component: {fileID: 4343843420715781036}
   - component: {fileID: 86122384763100958}
   m_Layer: 0
   m_Name: 3_8
@@ -2217,21 +1672,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343843420715781036
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456919198666372670}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 8
-  railMarkerType: 2
 --- !u!114 &86122384763100958
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2255,7 +1695,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454181402429778866}
-  - component: {fileID: 4344667632775300142}
   - component: {fileID: 5061428651625454704}
   m_Layer: 0
   m_Name: 2_5
@@ -2278,21 +1717,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344667632775300142
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456941867502085946}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 5
-  railMarkerType: 2
 --- !u!114 &5061428651625454704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2316,7 +1740,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454179359500269492}
-  - component: {fileID: 4343385296583234448}
   - component: {fileID: 5613952906983003366}
   m_Layer: 0
   m_Name: 1_0
@@ -2339,21 +1762,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343385296583234448
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456959381286893142}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 0
-  railMarkerType: 2
 --- !u!114 &5613952906983003366
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2377,7 +1785,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454360945319413684}
-  - component: {fileID: 4344738815026616402}
   - component: {fileID: 8782529509754066330}
   m_Layer: 0
   m_Name: 1_19
@@ -2400,21 +1807,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344738815026616402
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456969914260872298}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 19
-  railMarkerType: 0
 --- !u!114 &8782529509754066330
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2519,7 +1911,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453572478757747604}
-  - component: {fileID: 4344618281544150646}
   - component: {fileID: 5295020406276717333}
   m_Layer: 0
   m_Name: 1_4
@@ -2542,21 +1933,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344618281544150646
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4456981849079500756}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 4
-  railMarkerType: 2
 --- !u!114 &5295020406276717333
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2580,7 +1956,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454023167232220242}
-  - component: {fileID: 4344679192627281134}
   - component: {fileID: 4166785152637284451}
   m_Layer: 0
   m_Name: 0_13
@@ -2603,21 +1978,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344679192627281134
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457004036441318936}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 13
-  railMarkerType: 1
 --- !u!114 &4166785152637284451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2641,7 +2001,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453555117307714180}
-  - component: {fileID: 4344023392232689916}
   - component: {fileID: 8545880134597096046}
   m_Layer: 0
   m_Name: 3_13
@@ -2664,21 +2023,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344023392232689916
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457025378724804320}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 13
-  railMarkerType: 1
 --- !u!114 &8545880134597096046
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2702,7 +2046,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453633340870724144}
-  - component: {fileID: 4344715169475332336}
   - component: {fileID: 3078477464941298918}
   m_Layer: 0
   m_Name: 0_16
@@ -2725,21 +2068,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344715169475332336
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457031542406293470}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 16
-  railMarkerType: 1
 --- !u!114 &3078477464941298918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2763,7 +2091,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453861176947694686}
-  - component: {fileID: 4344793748661531880}
   - component: {fileID: 702488999639496745}
   m_Layer: 0
   m_Name: 0_2
@@ -2786,21 +2113,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344793748661531880
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457040325082082976}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 2
-  railMarkerType: 1
 --- !u!114 &702488999639496745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2824,7 +2136,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454149523170735552}
-  - component: {fileID: 4344025171503915220}
   - component: {fileID: 4623791818530821986}
   m_Layer: 0
   m_Name: 1_11
@@ -2847,21 +2158,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344025171503915220
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457044486304724454}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 11
-  railMarkerType: 2
 --- !u!114 &4623791818530821986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2885,7 +2181,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453660855414396970}
-  - component: {fileID: 4343340251116131998}
   - component: {fileID: 8373349523605431323}
   m_Layer: 0
   m_Name: 2_14
@@ -2908,21 +2203,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343340251116131998
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457044941390795276}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 14
-  railMarkerType: 1
 --- !u!114 &8373349523605431323
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2946,7 +2226,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453594433665794722}
-  - component: {fileID: 4344008988303528888}
   - component: {fileID: 6584654417621404954}
   m_Layer: 0
   m_Name: 0_20
@@ -2969,21 +2248,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344008988303528888
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457066249303062710}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 20
-  railMarkerType: 2
 --- !u!114 &6584654417621404954
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3090,7 +2354,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454168332703080794}
-  - component: {fileID: 4344812739786734670}
   - component: {fileID: 5981543530505775334}
   m_Layer: 0
   m_Name: 3_2
@@ -3113,21 +2376,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344812739786734670
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457079734014184704}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 2
-  railMarkerType: 1
 --- !u!114 &5981543530505775334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3151,7 +2399,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453776800922599354}
-  - component: {fileID: 4344829306233013084}
   - component: {fileID: 3855111105667822310}
   m_Layer: 0
   m_Name: 0_23
@@ -3174,21 +2421,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 23
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344829306233013084
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457082345959617228}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 23
-  railMarkerType: 1
 --- !u!114 &3855111105667822310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3212,7 +2444,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454458745804274408}
-  - component: {fileID: 4343278928865080434}
   - component: {fileID: 82227218101026974}
   m_Layer: 0
   m_Name: 3_1
@@ -3235,21 +2466,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343278928865080434
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457085880169367208}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 1
-  railMarkerType: 0
 --- !u!114 &82227218101026974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3273,7 +2489,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453769460277633870}
-  - component: {fileID: 4344622364433370174}
   - component: {fileID: 6859632653294290826}
   m_Layer: 0
   m_Name: 1_5
@@ -3296,21 +2511,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344622364433370174
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457095184878402852}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 5
-  railMarkerType: 2
 --- !u!114 &6859632653294290826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3334,7 +2534,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454165471921463940}
-  - component: {fileID: 4344073857723825154}
   - component: {fileID: 7559534925971035351}
   m_Layer: 0
   m_Name: 2_15
@@ -3357,21 +2556,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344073857723825154
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457099749474316412}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 15
-  railMarkerType: 2
 --- !u!114 &7559534925971035351
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3395,7 +2579,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454365198600544332}
-  - component: {fileID: 4343871655917100278}
   - component: {fileID: 3209913432650376993}
   m_Layer: 0
   m_Name: 0_8
@@ -3418,21 +2601,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343871655917100278
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457103877477879158}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 8
-  railMarkerType: 1
 --- !u!114 &3209913432650376993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3456,7 +2624,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454433848261938794}
-  - component: {fileID: 4343904944085005606}
   - component: {fileID: 8001113289112670163}
   m_Layer: 0
   m_Name: 1_10
@@ -3479,21 +2646,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343904944085005606
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457110469559761220}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 10
-  railMarkerType: 2
 --- !u!114 &8001113289112670163
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3517,7 +2669,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453692199983430968}
-  - component: {fileID: 4343723224302879924}
   - component: {fileID: 2693593679729863664}
   m_Layer: 0
   m_Name: 2_1
@@ -3540,21 +2691,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343723224302879924
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457119676984355450}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 1
-  railMarkerType: 0
 --- !u!114 &2693593679729863664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3578,7 +2714,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453769176248336972}
-  - component: {fileID: 4344252741669117848}
   - component: {fileID: 5033772823667351709}
   m_Layer: 0
   m_Name: 0_17
@@ -3601,21 +2736,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344252741669117848
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457152088522532406}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 17
-  railMarkerType: 2
 --- !u!114 &5033772823667351709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3639,7 +2759,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453927287465854104}
-  - component: {fileID: 4344739934829644190}
   - component: {fileID: 6094317414623834932}
   m_Layer: 0
   m_Name: 2_0
@@ -3662,21 +2781,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344739934829644190
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457156766566512560}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 0
-  railMarkerType: 2
 --- !u!114 &6094317414623834932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3745,7 +2849,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453583851069057718}
-  - component: {fileID: 4343975193843251190}
   - component: {fileID: 1134173164585144787}
   m_Layer: 0
   m_Name: 2_12
@@ -3768,21 +2871,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343975193843251190
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457180709547329662}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 12
-  railMarkerType: 2
 --- !u!114 &1134173164585144787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3806,7 +2894,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453740637321580008}
-  - component: {fileID: 4343798280543991140}
   - component: {fileID: 2219966789590713422}
   m_Layer: 0
   m_Name: 1_21
@@ -3829,21 +2916,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 21
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343798280543991140
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457205094301658606}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 21
-  railMarkerType: 2
 --- !u!114 &2219966789590713422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3867,7 +2939,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454377520221550262}
-  - component: {fileID: 4343852717273891780}
   - component: {fileID: 5125279654865687165}
   m_Layer: 0
   m_Name: 1_14
@@ -3890,21 +2961,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343852717273891780
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457207642307771770}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 14
-  railMarkerType: 1
 --- !u!114 &5125279654865687165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3928,7 +2984,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454176101438220108}
-  - component: {fileID: 4343983451343527266}
   - component: {fileID: 4474905045561180985}
   m_Layer: 0
   m_Name: 0_6
@@ -3951,21 +3006,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343983451343527266
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457229481635423802}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 6
-  railMarkerType: 2
 --- !u!114 &4474905045561180985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4081,7 +3121,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453548855236961182}
-  - component: {fileID: 4343728921655792160}
   - component: {fileID: 1810852647114416539}
   m_Layer: 0
   m_Name: 3_12
@@ -4104,21 +3143,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343728921655792160
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457254053486626870}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 12
-  railMarkerType: 0
 --- !u!114 &1810852647114416539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4142,7 +3166,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453919117461022974}
-  - component: {fileID: 4344023062214012534}
   - component: {fileID: 6710782084944628611}
   m_Layer: 0
   m_Name: 2_16
@@ -4165,21 +3188,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344023062214012534
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457260105241580252}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 16
-  railMarkerType: 2
 --- !u!114 &6710782084944628611
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4203,7 +3211,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454103619899753954}
-  - component: {fileID: 4343935095542581838}
   - component: {fileID: 5191506595656958964}
   m_Layer: 0
   m_Name: 2_11
@@ -4226,21 +3233,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343935095542581838
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457266882345090320}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 11
-  railMarkerType: 2
 --- !u!114 &5191506595656958964
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4264,7 +3256,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454511213092026758}
-  - component: {fileID: 4344760622707650590}
   - component: {fileID: 7963633335608619521}
   m_Layer: 0
   m_Name: 1_2
@@ -4287,21 +3278,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344760622707650590
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457267197139757548}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 2
-  railMarkerType: 1
 --- !u!114 &7963633335608619521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4325,7 +3301,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453757209241378242}
-  - component: {fileID: 4344778128431777736}
   - component: {fileID: 3775613497451076187}
   m_Layer: 0
   m_Name: 2_24
@@ -4348,21 +3323,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 24
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344778128431777736
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457273362420377482}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 24
-  railMarkerType: 1
 --- !u!114 &3775613497451076187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4386,7 +3346,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454059081441849930}
-  - component: {fileID: 4344141031701903092}
   - component: {fileID: 4281863321067874397}
   m_Layer: 0
   m_Name: 3_9
@@ -4409,21 +3368,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344141031701903092
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457278774847113608}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 9
-  railMarkerType: 2
 --- !u!114 &4281863321067874397
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4447,7 +3391,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453693983158935254}
-  - component: {fileID: 4344233994252231266}
   - component: {fileID: 3693428889221856012}
   m_Layer: 0
   m_Name: 1_13
@@ -4470,21 +3413,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344233994252231266
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457281262836344744}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 13
-  railMarkerType: 0
 --- !u!114 &3693428889221856012
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4508,7 +3436,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453500423912962190}
-  - component: {fileID: 4344773424097989372}
   - component: {fileID: 1941584909710860979}
   m_Layer: 0
   m_Name: 3_11
@@ -4531,21 +3458,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344773424097989372
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457289649915841216}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 11
-  railMarkerType: 2
 --- !u!114 &1941584909710860979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4569,7 +3481,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454388057057710258}
-  - component: {fileID: 4344576050896458046}
   - component: {fileID: 7906764884347684975}
   m_Layer: 0
   m_Name: 1_7
@@ -4592,21 +3503,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344576050896458046
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457296820679314714}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 7
-  railMarkerType: 1
 --- !u!114 &7906764884347684975
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4630,7 +3526,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454023871503309992}
-  - component: {fileID: 4344122533355716184}
   - component: {fileID: 418041224708371456}
   m_Layer: 0
   m_Name: 3_4
@@ -4653,21 +3548,6 @@ Transform:
   m_Father: {fileID: 4454465675771204642}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344122533355716184
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457317207619892810}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 4
-  railMarkerType: 2
 --- !u!114 &418041224708371456
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4691,7 +3571,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453730884957569500}
-  - component: {fileID: 4344263154147937858}
   - component: {fileID: 423005038550900294}
   m_Layer: 0
   m_Name: 1_17
@@ -4714,21 +3593,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344263154147937858
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457329845516732120}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 17
-  railMarkerType: 2
 --- !u!114 &423005038550900294
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4752,7 +3616,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454539736258673378}
-  - component: {fileID: 4344006604605857222}
   - component: {fileID: 8552718442286269607}
   m_Layer: 0
   m_Name: 2_23
@@ -4775,21 +3638,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 23
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344006604605857222
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457341093464174168}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 23
-  railMarkerType: 0
 --- !u!114 &8552718442286269607
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4813,7 +3661,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454162375031745222}
-  - component: {fileID: 4343722424270462442}
   - component: {fileID: 8614694485315875107}
   m_Layer: 0
   m_Name: 1_1
@@ -4836,21 +3683,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343722424270462442
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457376627675876126}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 1
-  railMarkerType: 0
 --- !u!114 &8614694485315875107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4908,7 +3740,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454581910365485164}
-  - component: {fileID: 4343797556726965676}
   - component: {fileID: 1736641890543191838}
   m_Layer: 0
   m_Name: 1_12
@@ -4931,21 +3762,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343797556726965676
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457427085102087046}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 12
-  railMarkerType: 2
 --- !u!114 &1736641890543191838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4969,7 +3785,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453727040441412078}
-  - component: {fileID: 4344227866877760930}
   - component: {fileID: 3499321457916558874}
   m_Layer: 0
   m_Name: 2_25
@@ -4992,21 +3807,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 25
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344227866877760930
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457725307311951894}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 25
-  railMarkerType: 2
 --- !u!114 &3499321457916558874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5030,7 +3830,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453512645165866480}
-  - component: {fileID: 4344619258800421746}
   - component: {fileID: 4130646804698249772}
   m_Layer: 0
   m_Name: 0_3
@@ -5053,21 +3852,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344619258800421746
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457726657559677266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 3
-  railMarkerType: 2
 --- !u!114 &4130646804698249772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5091,7 +3875,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454113211316971212}
-  - component: {fileID: 4344712728484536714}
   - component: {fileID: 6525164621840108463}
   m_Layer: 0
   m_Name: 2_19
@@ -5114,21 +3897,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344712728484536714
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457728947078821220}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 19
-  railMarkerType: 2
 --- !u!114 &6525164621840108463
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5152,7 +3920,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454038707907936408}
-  - component: {fileID: 4344057676279417038}
   - component: {fileID: 603767742463357657}
   m_Layer: 0
   m_Name: 0_12
@@ -5175,21 +3942,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344057676279417038
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457736675535999148}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 12
-  railMarkerType: 0
 --- !u!114 &603767742463357657
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5265,7 +4017,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453614837564652176}
-  - component: {fileID: 4344150140292569594}
   - component: {fileID: 4026649026263034618}
   m_Layer: 0
   m_Name: 2_2
@@ -5288,21 +4039,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344150140292569594
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457764655152590750}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 2
-  railMarkerType: 1
 --- !u!114 &4026649026263034618
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5326,7 +4062,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454470894560327928}
-  - component: {fileID: 4343982479312342492}
   - component: {fileID: 2561728575263841336}
   m_Layer: 0
   m_Name: 0_1
@@ -5349,21 +4084,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343982479312342492
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457780187088530136}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 1
-  railMarkerType: 0
 --- !u!114 &2561728575263841336
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5387,7 +4107,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454372907729965436}
-  - component: {fileID: 4343794863985410962}
   - component: {fileID: 121863043729317370}
   m_Layer: 0
   m_Name: 2_20
@@ -5410,21 +4129,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343794863985410962
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457787863800415342}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 20
-  railMarkerType: 2
 --- !u!114 &121863043729317370
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5448,7 +4152,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454106783585239684}
-  - component: {fileID: 4344076654515547024}
   - component: {fileID: 2911793463302854261}
   m_Layer: 0
   m_Name: 2_9
@@ -5471,21 +4174,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344076654515547024
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457800218388170194}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 9
-  railMarkerType: 2
 --- !u!114 &2911793463302854261
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5509,7 +4197,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454364032115288428}
-  - component: {fileID: 4344679671229424868}
   - component: {fileID: 9145718547279438328}
   m_Layer: 0
   m_Name: 1_18
@@ -5532,21 +4219,6 @@ Transform:
   m_Father: {fileID: 4454290168243928832}
   m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344679671229424868
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457820405902614366}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 18
-  railMarkerType: 2
 --- !u!114 &9145718547279438328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5570,7 +4242,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453603182764423360}
-  - component: {fileID: 4344053026459358490}
   - component: {fileID: 5031742295062459396}
   m_Layer: 0
   m_Name: 0_15
@@ -5593,21 +4264,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344053026459358490
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457821682670916532}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 15
-  railMarkerType: 1
 --- !u!114 &5031742295062459396
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5631,7 +4287,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453849002346799836}
-  - component: {fileID: 4344111672678531830}
   - component: {fileID: 1858335556137111554}
   m_Layer: 0
   m_Name: 2_7
@@ -5654,21 +4309,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344111672678531830
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457844437267756670}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 7
-  railMarkerType: 0
 --- !u!114 &1858335556137111554
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5692,7 +4332,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454525312927971772}
-  - component: {fileID: 4343822176667579700}
   - component: {fileID: 6194375974848362515}
   m_Layer: 0
   m_Name: 0_7
@@ -5715,21 +4354,6 @@ Transform:
   m_Father: {fileID: 4453986417013742342}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343822176667579700
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457848872996372758}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 7
-  railMarkerType: 0
 --- !u!114 &6194375974848362515
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5753,7 +4377,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454382456942593948}
-  - component: {fileID: 4344106343102866642}
   - component: {fileID: 5981321232210180207}
   m_Layer: 0
   m_Name: 2_22
@@ -5776,21 +4399,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 22
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4344106343102866642
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457856092531022022}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 22
-  railMarkerType: 2
 --- !u!114 &5981321232210180207
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5814,7 +4422,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4453587728752206468}
-  - component: {fileID: 4343785707931723368}
   - component: {fileID: 7786548231848414758}
   m_Layer: 0
   m_Name: 2_17
@@ -5837,21 +4444,6 @@ Transform:
   m_Father: {fileID: 4453720515393810434}
   m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4343785707931723368
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4457856781852970808}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 17
-  railMarkerType: 2
 --- !u!114 &7786548231848414758
 MonoBehaviour:
   m_ObjectHideFlags: 0
