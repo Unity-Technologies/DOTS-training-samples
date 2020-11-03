@@ -10,13 +10,16 @@ public class AntSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, ICo
 {
     [SerializeField] GameObject AntPrefab;
     [SerializeField] GameObject ColonyPrefab;
+    [SerializeField] GameObject FoodPrefab;
     [SerializeField] Transform ColonyTransform;
+    [SerializeField] Transform FoodTransform;
     [SerializeField] int NbAnts;
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(AntPrefab);
         referencedPrefabs.Add(ColonyPrefab);
+        referencedPrefabs.Add(FoodPrefab);
     }
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -25,8 +28,10 @@ public class AntSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, ICo
         {
             Origin = transform.position,
             ColonyPosition = ColonyTransform.position,
+            FoodPosition = FoodTransform.position,
             AntPrefab = conversionSystem.GetPrimaryEntity(AntPrefab),
             ColonyPrefab = conversionSystem.GetPrimaryEntity(ColonyPrefab),
+            FoodPrefab = conversionSystem.GetPrimaryEntity(FoodPrefab),
             NbAnts = NbAnts
         };
 

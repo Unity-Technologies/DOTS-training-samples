@@ -36,6 +36,7 @@ public class AntSpawnerSystem : SystemBase
             }
 
             CreateColony(cmd, spawner.ColonyPrefab, spawner.ColonyPosition);
+            CreateFood(cmd, spawner.FoodPrefab, spawner.FoodPosition);
 
             cmd.DestroyEntity(spawnerEntity);
         })
@@ -48,6 +49,16 @@ public class AntSpawnerSystem : SystemBase
 
         cmd.SetComponent(entity, new Translation { Value = position });
         cmd.AddComponent<ColonyTag>(entity);
+
+        return entity;
+    }
+
+    static Entity CreateFood(EntityCommandBuffer cmd, Entity prefab, Vector3 position)
+    {
+        var entity = cmd.Instantiate(prefab);
+
+        cmd.SetComponent(entity, new Translation { Value = position });
+        cmd.AddComponent<FoodTag>(entity);
 
         return entity;
     }
