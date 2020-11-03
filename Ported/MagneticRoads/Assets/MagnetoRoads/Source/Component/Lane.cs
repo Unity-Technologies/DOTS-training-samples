@@ -3,6 +3,7 @@
 [GenerateAuthoringComponent]
 public struct Lane : IComponentData
 {
-    public float length;
-    
+    public float Length;
+    public Entity Car;
+
 }

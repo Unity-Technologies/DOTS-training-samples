@@ -330,6 +330,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CarPrefab: {fileID: 9085422788999723757, guid: 3b587207561f97b42a9149f6a3603cb4,
     type: 3}
+  SimpleIntersectionPrefab: {fileID: 4523202010205671110, guid: 853dd26d2e548474daee8f145dab84c2,
+    type: 3}
 --- !u!4 &2063487644
 Transform:
   m_ObjectHideFlags: 0
