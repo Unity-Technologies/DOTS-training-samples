@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[DisableAutoCreation]
 public class CarPositionToWorldSystem : SystemBase
 {
     protected override void OnUpdate()
