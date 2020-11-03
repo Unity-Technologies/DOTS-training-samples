@@ -5,7 +5,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
-public struct Radius : IComponentData
+public struct Obstacle : IComponentData
 {
-    public float Value;
+    public float2 position;
+    public float radius;
 }

@@ -115,9 +115,10 @@ public class AntSpawnerSystem : SystemBase
                     var position3D = new float3(x, 0, z);
                     float radius = config.ObstacleRadius;
 
-                    var obstacle = new Radius 
+                    var obstacle = new Obstacle 
                     { 
-                        Value = radius 
+                        position = position2D, 
+                        radius = radius 
                     };
 
                     var entity = cmd.Instantiate(prefab);

@@ -15,7 +15,7 @@ public class AntObstacleAvoidSystem : SystemBase
         //Cache our obstacle query and require it to return something for OnUpdate to run
         var obstacleQueryDesc = new EntityQueryDesc
         {
-            All = new ComponentType[] { ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Radius>() }
+            All = new ComponentType[] { ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Obstacle>() }
         };
         obstacleQuery = GetEntityQuery(obstacleQueryDesc);
         RequireForUpdate(obstacleQuery);
@@ -23,27 +23,27 @@ public class AntObstacleAvoidSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var obstRadiusArray = obstacleQuery.ToComponentDataArray<Radius>(Allocator.TempJob);
-        var obstTranslateArray = obstacleQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+        var obstacleArray = obstacleQuery.ToComponentDataArray<Obstacle>(Allocator.TempJob);
        
         //Update all ant entities and check that we are not going to collide with
         //a obstacle
         Entities
-            .WithNativeDisableParallelForRestriction(obstRadiusArray) //It's safe here because we are only reading from the array
-            .WithAll<Speed, Direction>()
+            .WithNativeDisableParallelForRestriction(obstacleArray) //It's safe here because we are only reading from the array
+            .WithAll<Direction>()
             .ForEach((ref Direction dir, ref Translation antTranslation) =>
             {
 
                 //Check this entity for collisions with all other entites
-                for(int i = 0; i < obstRadiusArray.Length; ++i)
+                for(int i = 0; i < obstacleArray.Length; ++i)
                 {
                     //Get difference in x and y, calculate the sqrd distance to the 
-                    float dx = antTranslation.Value.x - obstTranslateArray[i].Value.x;
-                    float dy = antTranslation.Value.z - obstTranslateArray[i].Value.y;
+                    Obstacle currentObst = obstacleArray[i];
+                    float dx = antTranslation.Value.x - currentObst.position.x;
+                    float dy = antTranslation.Value.z - currentObst.position.y;
                     float sqrDist = (dx * dx) + (dy * dy);
 
                     //If we are less than the sqrd distance away from the obstacle then reflect the ant
-                    if(sqrDist < (obstRadiusArray[i].Value * obstRadiusArray[i].Value))
+                    if(sqrDist < (currentObst.radius * currentObst.radius))
                     {
                         //Reflect
                         dir.Value += Mathf.PI;
@@ -63,7 +63,7 @@ public class AntObstacleAvoidSystem : SystemBase
 
                 }
 
-            }).WithDisposeOnCompletion(obstRadiusArray)
+            }).WithDisposeOnCompletion(obstacleArray)
             .ScheduleParallel();
     }
 
