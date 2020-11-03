@@ -31,7 +31,7 @@ public class AntObstacleAvoidSystem : SystemBase
         Entities
             .WithNativeDisableParallelForRestriction(obstacleArray) //It's safe here because we are only reading from the array
             .WithAll<Direction>()
-            .ForEach((ref Direction dir, in Translation antTranslation) =>
+            .ForEach((ref Direction dir, ref Translation antTranslation) =>
             {
                 //todo convert to job?
                 //Check this entity for collisions with all other entites
@@ -46,7 +46,12 @@ public class AntObstacleAvoidSystem : SystemBase
                     //If we are less than the sqrd distance away from the obstacle then reflect the ant
                     if(sqrDist < (currentObst.radius * currentObst.radius))
                     {
+                        //Reflect
                         dir.Value = -dir.Value;
+
+                        //Move ant out of collision
+                        antTranslation.Value.x = currentObst.position.x + dx * currentObst.radius;
+                        antTranslation.Value.y = currentObst.position.y + dy * currentObst.radius;
                     }
 
                 }
