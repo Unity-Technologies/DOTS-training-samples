@@ -7,22 +7,22 @@ static public class BezierHelpers
     // float3 handleOffset = GetHandlesOffset(_current, _prevPointLocation):
     // float3 handleIn = _current - handleOffset;
     // float3 handleOut = _current + handleOffset;
-    static float3 GetHandlesOffset(float3 _position, float3 _prevPointLocation)
+    static public float3 GetHandlesOffset(float3 _position, float3 _prevPointLocation)
     {
         return math.normalize(_position - _prevPointLocation);
     }
 
-    static float3 GetHandleIn(float3 position, float3 offset)
+    static public float3 GetHandleIn(float3 position, float3 offset)
     {
         return position - offset * Globals.BEZIER_HANDLE_REACH;
     }
 
-    static float3 GetHandleOut(float3 position, float3 offset)
+    static public float3 GetHandleOut(float3 position, float3 offset)
     {
         return position + offset * Globals.BEZIER_HANDLE_REACH;
     }
 
-    static float3 BezierLerp(float3 positionA, float3 handleOutA, float3 positionB, float3 handleInB, float progress)
+    static public float3 BezierLerp(float3 positionA, float3 handleOutA, float3 positionB, float3 handleInB, float progress)
     {
         // Round 1 --> Origins to handles, handle to handle
         float3 l1_a_aOUT = math.lerp(positionA, handleOutA, progress);
@@ -35,7 +35,7 @@ static public class BezierHelpers
         return math.lerp(l1_to_l3, l3_to_l2, progress);
     }
 
-    static float GetAccurateDistanceBetweenPoints(float3 positionA, float3 handleOutA, float3 positionB, float3 handleInB)
+    static public float GetAccurateDistanceBetweenPoints(float3 positionA, float3 handleOutA, float3 positionB, float3 handleInB)
     {
         float measurementIncrement = 1f / Globals.BEZIER_MEASUREMENT_SUBDIVISIONS;
         float regionDistance = 0f;
@@ -50,7 +50,7 @@ static public class BezierHelpers
         return regionDistance;
     }
 
-    static float MeasurePath(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, out NativeArray<float> distances)
+    static public float MeasurePath(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, out NativeArray<float> distances)
     {
         float distance = 0f;
         distances = new NativeArray<float>(positions.Length, Allocator.Temp);
@@ -70,7 +70,7 @@ static public class BezierHelpers
         return distance;
     }
 
-    static int GetRegionIndex(NativeArray<float3> positions, NativeArray<float> distances, float _progressIsAbsoluteValue)
+    static public int GetRegionIndex(NativeArray<float3> positions, NativeArray<float> distances, float _progressIsAbsoluteValue)
     {
         int result = 0;
         int totalPoints = positions.Length;
@@ -100,7 +100,7 @@ static public class BezierHelpers
         return result;
     }
 
-    static float3 GetPosition(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _progress)
+    static public float3 GetPosition(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _progress)
     {
         float progressDistance = totalDist * _progress;
         int pointIndex_region_start = GetRegionIndex(positions, distances, progressDistance);
@@ -123,7 +123,7 @@ static public class BezierHelpers
         return BezierLerp(point_region_start_pos, point_region_start_hOut, point_region_end_pos, point_region_end_hInt, regionProgress);
     }
 
-    static float3 GetNormalAtPosition(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _position)
+    static public float3 GetNormalAtPosition(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _position)
     {
         float3 _current = GetPosition(positions, handlesIn, handlesOut, distances, totalDist, _position);
         float3 _ahead = GetPosition(positions, handlesIn, handlesOut, distances, totalDist, (_position + 0.0001f) % 1f);
@@ -131,13 +131,13 @@ static public class BezierHelpers
         return (_ahead - _current) / math.distance(_ahead, _current);
     }
 
-    static float3 GetTangentAtPosition(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _position)
+    static public float3 GetTangentAtPosition(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _position)
     {
         float3 normal = GetNormalAtPosition(positions, handlesIn, handlesOut, distances, totalDist, _position);
         return new float3(-normal.z, normal.y, normal.x);
     }
 
-    static float3 GetPointPerpendicularOffset(float3 pos, float distanceAlongPath, NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _position, float _offset)
+    static public float3 GetPointPerpendicularOffset(float3 pos, float distanceAlongPath, NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _position, float _offset)
     {
         return pos + GetTangentAtPosition(positions, handlesIn, handlesOut, distances, totalDist, distanceAlongPath / totalDist) * _offset;
     }
