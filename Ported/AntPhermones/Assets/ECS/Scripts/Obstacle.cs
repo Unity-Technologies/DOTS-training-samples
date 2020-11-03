@@ -4,7 +4,6 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 
-//Obstacle Tag
 [GenerateAuthoringComponent]
 public struct Obstacle : IComponentData
 {
