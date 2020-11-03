@@ -137,7 +137,7 @@ static public class BezierHelpers
         return new float3(-normal.z, normal.y, normal.x);
     }
 
-    static public float3 GetPointPerpendicularOffset(float3 pos, float distanceAlongPath, NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _position, float _offset)
+    static public float3 GetPointPerpendicularOffset(float3 pos, float distanceAlongPath, NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _offset)
     {
         return pos + GetTangentAtPosition(positions, handlesIn, handlesOut, distances, totalDist, distanceAlongPath / totalDist) * _offset;
     }
