@@ -23,8 +23,6 @@ public class AntObstacleAvoidSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        Debug.Log("update");
-
         var obstacleArray = obstacleQuery.ToComponentDataArray<Obstacle>(Allocator.TempJob);
        
         //Update all ant entities and check that we are not going to collide with
@@ -41,7 +39,7 @@ public class AntObstacleAvoidSystem : SystemBase
                     //Get difference in x and y, calculate the sqrd distance to the 
                     Obstacle currentObst = obstacleArray[i];
                     float dx = antTranslation.Value.x - currentObst.position.x;
-                    float dy = antTranslation.Value.y - currentObst.position.y;
+                    float dy = antTranslation.Value.z - currentObst.position.y;
                     float sqrDist = (dx * dx) + (dy * dy);
 
                     //If we are less than the sqrd distance away from the obstacle then reflect the ant
@@ -49,10 +47,18 @@ public class AntObstacleAvoidSystem : SystemBase
                     {
                         //Reflect
                         dir.Value += Mathf.PI;
+                        dir.Value = (dir.Value >= 2 * Mathf.PI) ? dir.Value - 2 * Mathf.PI : dir.Value;
+
+
+                        /*
+                        float dist = Mathf.Sqrt(sqrDist);
+                        dx /= dist;
+                        dy /= dist;
 
                         //Move ant out of collision
                         antTranslation.Value.x = currentObst.position.x + dx * currentObst.radius;
                         antTranslation.Value.y = currentObst.position.y + dy * currentObst.radius;
+                        */
                     }
 
                 }
