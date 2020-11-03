@@ -21,11 +21,8 @@ public class SpawnerAuthoring : MonoBehaviour
         {
             ScooperPrefab = conversionSystem.GetPrimaryEntity(ScooperPrefab),
             BucketPrefab = conversionSystem.GetPrimaryEntity(BucketPrefab),
-            BucketCount = BucketCount,
             FireCell = conversionSystem.GetPrimaryEntity(FireCell),
-            FireGridDimension = FireGridDimension,
             WaterCell = conversionSystem.GetPrimaryEntity(WaterCell),
-            WaterCellCount = WaterCellCount
         });
     }
 
