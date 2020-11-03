@@ -1,8 +1,8 @@
-﻿namespace Magneto.Component
+﻿using Unity.Entities;
+
+[GenerateAuthoringComponent]
+public struct Lane : IComponentData
 {
-    public struct Lane
-    {
-        public float length;
-        
-    }
+    public float length;
+    
 }

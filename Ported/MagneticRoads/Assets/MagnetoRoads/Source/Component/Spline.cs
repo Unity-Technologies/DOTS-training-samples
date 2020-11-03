@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
+[GenerateAuthoringComponent]
 public struct Spline : IComponentData
 {
     public float3 startPos;

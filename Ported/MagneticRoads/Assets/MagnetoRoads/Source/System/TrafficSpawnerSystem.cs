@@ -20,8 +20,8 @@ public class TrafficSpawnerSystem : SystemBase
                 ecb.DestroyEntity(entity);
 
                 var instance = ecb.Instantiate(spawner.CarPrefab);
-                var translation = new Translation {Value = new float3(0, 0, 0)};
-                ecb.SetComponent(instance, translation);
+                var carPosition = new CarPosition {Value = 3.0f};
+                ecb.SetComponent(instance, carPosition);
             }).Run();
 
         ecb.Playback(EntityManager);
