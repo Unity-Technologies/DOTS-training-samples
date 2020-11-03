@@ -13,4 +13,8 @@ struct AntSpawner : IComponentData
     public Entity FoodPrefab;
     public Entity ObstaclePrefab;
     public int NbAnts;
+    public int ObstacleRingCount;
+    public float ObstacleRadius;
+    public float ObstaclesPerRing;
+    public float MapSize;
 }

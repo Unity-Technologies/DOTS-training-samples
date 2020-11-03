@@ -193,6 +193,10 @@ MonoBehaviour:
   ColonyTransform: {fileID: 1043673332}
   FoodTransform: {fileID: 894346219}
   NbAnts: 128
+  ObstacleRadius: 0.1
+  ObstaclesPerRing: 0.8
+  ObstacleRingCount: 3
+  MapSize: 8
 --- !u!4 &943890408
 Transform:
   m_ObjectHideFlags: 0
