@@ -13,13 +13,24 @@ public class MoveCarOnLaneSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         float elapsedTime = Time.fixedDeltaTime;
 
+        ComponentDataFromEntity<CarPosition> carPositionGetter = GetComponentDataFromEntity<CarPosition>(false);
+        ComponentDataFromEntity<CarSpeed> carSpeedGetter = GetComponentDataFromEntity<CarSpeed>(false);
+        
         Entities
-            .ForEach((Entity entity, ref CarPosition carPosition, ref Lane lane, ref CarSpeed carSpeed) =>
+            .ForEach((Entity entity, ref Lane lane) =>
             {
-                float newPosition = carPosition.Value + carSpeed.Value * elapsedTime;
-                while(newPosition > lane.length)
-                    newPosition -= lane.length;
-                ecb.SetComponent(entity, new CarPosition{Value = newPosition});
+                if (lane.Car != Entity.Null)
+                {
+                    /*CarPosition carPosition = GetComponent<CarPosition>(lane.Car);
+                    CarSpeed carSpeed = GetComponent<CarSpeed>(lane.Car);*/
+                    
+                    CarPosition carPosition = carPositionGetter[lane.Car];
+                    CarSpeed carSpeed = carSpeedGetter[lane.Car];
+                    float newPosition = carPosition.Value + carSpeed.Value * elapsedTime;
+                    while(newPosition > lane.Length)
+                        newPosition -= lane.Length;
+                    ecb.SetComponent(lane.Car, new CarPosition{Value = newPosition});    
+                }
             }).Run();
 
         ecb.Playback(EntityManager);
