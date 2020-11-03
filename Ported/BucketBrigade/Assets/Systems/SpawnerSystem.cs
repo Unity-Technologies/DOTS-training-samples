@@ -2,7 +2,7 @@
 using Unity.Collections;
 using Unity.Transforms;
 using Unity.Mathematics;
-using Unity.Rendering;
+using UnityEngine;
 
 public class SpawnerSystem : SystemBase
 {
@@ -20,10 +20,18 @@ public class SpawnerSystem : SystemBase
                     for (int j = 0; j < spawner.FireGridDimension; ++j)
                     {
                         var instance = ecb.Instantiate(spawner.FireCell);
-                        var translation = new Translation { Value = new float3(0, j, i) };
+                        var translation = new Translation { Value = new float3(i, -0.5f, j) };
                         ecb.SetComponent(instance, translation);
                     }
                 }
+
+                for (int i = 0; i < spawner.BucketCount; ++i)
+                {
+                    var instance = ecb.Instantiate(spawner.BucketPrefab);
+                    var translation = new Translation { Value = new float3(UnityEngine.Random.Range(0.0f, spawner.FireGridDimension), 0.0f, UnityEngine.Random.Range(0.0f, spawner.FireGridDimension)) };
+                    ecb.SetComponent(instance, translation);
+                }
+
             }).Run();
 
         ecb.Playback(EntityManager);
