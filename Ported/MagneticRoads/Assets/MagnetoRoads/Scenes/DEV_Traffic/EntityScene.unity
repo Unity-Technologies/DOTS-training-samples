@@ -158,7 +158,8 @@ MonoBehaviour:
     type: 3}
   DoubleIntersectionPrefab: {fileID: 4523202010205671110, guid: dedec5f3f5dde374a8b6dd5d10ea6d1a,
     type: 3}
-  TripleIntersectionPrefab: {fileID: 0}
+  TripleIntersectionPrefab: {fileID: 4523202010205671110, guid: 1908a67dc5abcd9499e3b726905019a5,
+    type: 3}
 --- !u!4 &2063487644
 Transform:
   m_ObjectHideFlags: 0

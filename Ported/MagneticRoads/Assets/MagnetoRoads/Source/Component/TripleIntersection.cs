@@ -9,5 +9,9 @@ public struct TripleIntersection : IComponentData
     public Entity laneOut0;
     public Entity laneOut1;
     public Entity laneOut2;
+    public int carIndex;
+    public int lane0Direction;
+    public int lane1Direction;
+    public int lane2Direction;
     public Entity car;
 }

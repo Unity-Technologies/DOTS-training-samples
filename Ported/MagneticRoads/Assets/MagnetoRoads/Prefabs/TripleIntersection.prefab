@@ -92,7 +92,7 @@ GameObject:
   - component: {fileID: 3318862054105167514}
   - component: {fileID: 5945425831300678563}
   - component: {fileID: 4681248424115637953}
-  - component: {fileID: 4786046933048774620}
+  - component: {fileID: 146443952543501336}
   m_Layer: 0
   m_Name: TripleIntersection
   m_TagString: Untagged
@@ -165,7 +165,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &4786046933048774620
+--- !u!114 &146443952543501336
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -174,15 +174,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 4523202010205671110}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b0be4db85dd4cbb936e24a1424d4a72, type: 3}
+  m_Script: {fileID: 11500000, guid: b70ac88b46124e8085097281a65393ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   laneIn0: {fileID: 0}
   laneIn1: {fileID: 0}
+  laneIn2: {fileID: 0}
   laneOut0: {fileID: 0}
   laneOut1: {fileID: 0}
-  car0: {fileID: 0}
-  car1: {fileID: 0}
+  laneOut2: {fileID: 0}
+  carIndex: 0
+  lane0Direction: -1
+  lane1Direction: -1
+  lane2Direction: -1
+  car: {fileID: 0}
 --- !u!1 &6793367891704074303
 GameObject:
   m_ObjectHideFlags: 0

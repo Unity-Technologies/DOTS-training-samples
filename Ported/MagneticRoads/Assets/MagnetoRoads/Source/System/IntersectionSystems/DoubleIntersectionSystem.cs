@@ -10,8 +10,8 @@ public class DoubleIntersectionSystem : SystemBase
         Entities.WithoutBurst()
             .ForEach((Entity entity, ref DoubleIntersection doubleIntersection) =>
             {
-                doubleIntersection.car0 = UpdateCarLane(doubleIntersection.laneIn0, doubleIntersection.laneOut0, doubleIntersection.car0);
-                doubleIntersection.car1 = UpdateCarLane(doubleIntersection.laneIn1, doubleIntersection.laneOut1, doubleIntersection.car1);
+                doubleIntersection.car0 = UpdateCarLane(doubleIntersection.laneIn0, doubleIntersection.laneOut1, doubleIntersection.car0);
+                doubleIntersection.car1 = UpdateCarLane(doubleIntersection.laneIn1, doubleIntersection.laneOut0, doubleIntersection.car1);
             }).Run();
 
         ecb.Playback(EntityManager);
