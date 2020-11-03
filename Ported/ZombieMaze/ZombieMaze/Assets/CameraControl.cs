@@ -29,7 +29,8 @@ namespace ZombieMaze {
 
 		// Use this for initialization
 		void Start () {
-			
+			//move this out later?
+			InitialSetUp();
 		}
 		
 		// Update is called once per frame
@@ -45,13 +46,13 @@ namespace ZombieMaze {
 
 			// hover over ball
 			//TODO: Get player position from entity
-			/*
-			target.x = Ball.instance.transform.position.x;
-			target.z = Ball.instance.transform.position.z;
-			*/
+
+			target.x = 0;//Ball.instance.transform.position.x;
+			target.z = 0;//Ball.instance.transform.position.z;
+			
 
 			// offset for camera rotation
-			float zOff = 0;//(target.y - Ball.instance.transform.position.y) / Mathf.Tan(Camera.main.transform.rotation.eulerAngles.x * Mathf.Rad2Deg);
+			float zOff = (target.y - 0 /*Ball.instance.transform.position.y)*/) / Mathf.Tan(Camera.main.transform.rotation.eulerAngles.x * Mathf.Rad2Deg);
 			target.z += zOff;
 
 			// applying smooth damp
