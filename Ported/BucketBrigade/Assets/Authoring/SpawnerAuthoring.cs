@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Rendering;
 using UnityEngine;
 
 public class SpawnerAuthoring : MonoBehaviour
@@ -12,6 +13,7 @@ public class SpawnerAuthoring : MonoBehaviour
     public GameObject FireCell;
     public int FireGridDimension;
     public GameObject WaterCell;
+    public int WaterCellCount;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -22,7 +24,8 @@ public class SpawnerAuthoring : MonoBehaviour
             BucketCount = BucketCount,
             FireCell = conversionSystem.GetPrimaryEntity(FireCell),
             FireGridDimension = FireGridDimension,
-            WaterCell = conversionSystem.GetPrimaryEntity(WaterCell)
+            WaterCell = conversionSystem.GetPrimaryEntity(WaterCell),
+            WaterCellCount = WaterCellCount
         });
     }
 

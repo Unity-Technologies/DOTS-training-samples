@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public class FireCell : IComponentData
+public struct FireCell : IComponentData
 {
     public float Temperature;
 }

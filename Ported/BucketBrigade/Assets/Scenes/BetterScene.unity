@@ -160,6 +160,7 @@ MonoBehaviour:
   FireCell: {fileID: 1306931638197496, guid: d2414dc4033474771b65161755b347cb, type: 3}
   FireGridDimension: 10
   WaterCell: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314, type: 3}
+  WaterCellCount: 8
 --- !u!4 &973114860
 Transform:
   m_ObjectHideFlags: 0

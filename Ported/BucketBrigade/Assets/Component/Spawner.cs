@@ -8,6 +8,7 @@ public struct Spawner : IComponentData
     public Entity FireCell;
     public int FireGridDimension;
     public Entity WaterCell;
+    public int WaterCellCount;
 }
 
 
