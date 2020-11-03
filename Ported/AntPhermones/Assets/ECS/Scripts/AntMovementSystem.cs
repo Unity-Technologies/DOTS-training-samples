@@ -15,13 +15,13 @@ public class AntMovementSystem : SystemBase
         Vector2 bounds = new Vector2(5, 5);
 
         Entities
-            .ForEach((ref Translation translation, ref Direction antData, ref RandState rand, in Speed speed) =>
+            .ForEach((ref Translation translation, ref Direction direction, ref RandState rand, in Speed speed) =>
             {
-                float dx = Mathf.Cos(antData.Value) * speed.Value * dt;
-                float dy = Mathf.Sin(antData.Value) * speed.Value * dt;
+                float dx = Mathf.Cos(direction.Value) * speed.Value * dt;
+                float dy = Mathf.Sin(direction.Value) * speed.Value * dt;
 
                 // Pseudo-random steering
-                antData.Value += rand.Random.NextFloat(-randomSteering, randomSteering);
+                direction.Value += rand.Random.NextFloat(-randomSteering, randomSteering);
 
                 // TODO: pheromone steering
 
@@ -31,16 +31,16 @@ public class AntMovementSystem : SystemBase
                 if (Mathf.Abs(translation.Value.x + dx) > bounds.x)
                 {
                     dx = -dx;
-                    antData.Value += Mathf.PI;
+                    direction.Value += Mathf.PI;
                 }
 
                 if (Mathf.Abs(translation.Value.z + dy) > bounds.y)
                 {
                     dy = -dy;
-                    antData.Value += Mathf.PI;
+                    direction.Value += Mathf.PI;
                 }
 
-                antData.Value = (antData.Value >= 2 * Mathf.PI) ? antData.Value - 2 * Mathf.PI : antData.Value;
+                direction.Value = (direction.Value >= 2 * Mathf.PI) ? direction.Value - 2 * Mathf.PI : direction.Value;
 
                 translation.Value.x += (float)dx;
                 translation.Value.z += (float)dy;
