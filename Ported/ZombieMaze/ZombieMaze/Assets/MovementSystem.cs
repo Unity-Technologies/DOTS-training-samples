@@ -12,10 +12,10 @@ public class MovementSystem : SystemBase
     protected override void OnCreate()
     {
         directions = new NativeArray<float2>(4, Allocator.Persistent);
-        directions[0] = new float2(-1,  0);
-        directions[1] = new float2( 1,  0);
-        directions[2] = new float2( 0,  1);
-        directions[3] = new float2( 0, -1);
+        directions[0] = math.left().xy;
+        directions[1] = math.right().xy;
+        directions[2] = math.up().xy;
+        directions[3] = math.down().xy;
 
         var e = EntityManager.CreateEntity(typeof(ZombieTag), typeof(Position), typeof(Random));
 #if UNITY_EDITOR
@@ -23,6 +23,11 @@ public class MovementSystem : SystemBase
 #endif
         EntityManager.SetComponentData(e, new Position());
         EntityManager.SetComponentData(e, new Random(1234));
+    }
+
+    protected override void OnDestroy()
+    {
+        directions.Dispose();
     }
 
     protected override void OnUpdate()
