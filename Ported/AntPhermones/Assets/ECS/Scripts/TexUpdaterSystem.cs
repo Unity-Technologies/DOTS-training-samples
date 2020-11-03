@@ -37,7 +37,7 @@ public class TexUpdaterSystem : SystemBase
             .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, in Speed speed) =>
             {
                 Vector2 texelCoord = new Vector2(0.5f * (-translation.Value.x / bounds.x) + 0.5f, 0.5f * (-translation.Value.z / bounds.y) + 0.5f);
-                localPheromones[(int)(texelCoord.y * TexSize) * TexSize + (int)(texelCoord.x * TexSize)] = 0.5f;
+                localPheromones[(int)(texelCoord.y * TexSize) * TexSize + (int)(texelCoord.x * TexSize)] = 0.75f;
             })
             .ScheduleParallel();
 
