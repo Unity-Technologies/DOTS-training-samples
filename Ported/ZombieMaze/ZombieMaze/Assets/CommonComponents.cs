@@ -14,3 +14,15 @@ public struct Direction : IComponentData
 {
     public float2 Value;
 }
+
+public struct Random : IComponentData
+{
+    public Unity.Mathematics.Random Value;
+
+    public Random(uint seed)
+    {
+        this.Value = new Unity.Mathematics.Random(seed);
+    }
+}
+
+public struct ZombieTag : IComponentData {}
