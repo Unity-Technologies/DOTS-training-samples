@@ -11,6 +11,10 @@ public class SpawnerSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
+        var time = Time.ElapsedTime;
+
+        //byte flashPoint = 45;
+
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
             {
@@ -20,11 +24,13 @@ public class SpawnerSystem : SystemBase
                 {
                     for (int j = 0; j < spawner.FireGridDimension; ++j)
                     {
+                        var temp = UnityEngine.Random.Range(0, 50);
+
                         var instance = ecb.Instantiate(spawner.FireCell);
                         var translation = new Translation { Value = new float3(i, -0.4f, j) };
                         ecb.SetComponent(instance, translation);
 
-                        ecb.AddComponent(instance, new FireCell { Temperature = 0.0f });
+                        ecb.AddComponent(instance, new FireCell { Temperature = temp });
 
                         ecb.AddComponent(instance, new URPMaterialPropertyBaseColor
                         {
@@ -35,6 +41,7 @@ public class SpawnerSystem : SystemBase
 
 
                 for (int j = 0; j < 4; ++j)
+                {
                     for (int i = 0; i < spawner.WaterCellCount; ++i)
                     {
                         var instance = ecb.Instantiate(spawner.WaterCell);
@@ -58,6 +65,7 @@ public class SpawnerSystem : SystemBase
 
                         ecb.AddComponent(instance, new WaterCell { Volume = UnityEngine.Random.Range(0, 100) });
                     }
+                }
 
 
                 for (int i = 0; i < spawner.BucketCount; ++i)
