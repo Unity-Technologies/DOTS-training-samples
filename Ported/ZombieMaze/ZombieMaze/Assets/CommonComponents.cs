@@ -17,6 +17,10 @@ public struct Speed : IComponentData
     }
 }
 
+public struct CapsuleRotation : IComponentData
+{
+}
+
 public struct Position : IComponentData
 {
     public float2 Value;
