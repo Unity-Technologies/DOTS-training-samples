@@ -1290,6 +1290,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4454507225629640634}
+  - component: {fileID: 3510632222115798085}
   m_Layer: 0
   m_Name: METRO_BigCity
   m_TagString: Untagged
@@ -1314,6 +1315,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3510632222115798085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4456975644195467438}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b82285dfe72407b992661a30851b0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlatformPrefab: {fileID: 0}
+  RailPrefab: {fileID: 494735325195885990, guid: ead1b0566016c4841aedb15be2f61167,
+    type: 3}
+  CommuterPrefab: {fileID: 0}
 --- !u!1 &4456981849079500756
 GameObject:
   m_ObjectHideFlags: 0

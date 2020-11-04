@@ -1,11 +1,9 @@
-﻿using System;
-using Unity.Collections;
-using Unity.Entities;
+﻿using Unity.Entities;
 
 [GenerateAuthoringComponent]
 public struct MetroData : IComponentData
 {
     public Entity PlatformPrefab;
-    public Entity RailMarkerPrefab;
+    public Entity RailPrefab;
     public Entity CommuterPrefab;
 }

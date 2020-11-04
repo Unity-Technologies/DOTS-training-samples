@@ -92,6 +92,9 @@ public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         // Marker distances
         for (var d = 0; d < totalMarkerCount; d++)
             distances[d] = tempDistances[d];
+        
+        // Path colour
+        pathData.Colour = new float3(pathColour.r, pathColour.g, pathColour.b);
 
         dstManager.AddComponentData(entity, new PathRef
         {
@@ -101,6 +104,8 @@ public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
     private void OnDrawGizmos()
     {
+        Debug.Log("Gizmos");
+        
         Gizmos.color = pathColour;
         for (var c = 0; c < transform.childCount; c++)
         {

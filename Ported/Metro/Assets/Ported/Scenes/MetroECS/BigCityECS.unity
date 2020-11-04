@@ -130,6 +130,12 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3510632222115798085, guid: 586459236c8e448aab032905162ebec6,
+        type: 3}
+      propertyPath: RailMarkerPrefab
+      value: 
+      objectReference: {fileID: 494735325195885990, guid: ead1b0566016c4841aedb15be2f61167,
+        type: 3}
     - target: {fileID: 4454507225629640634, guid: 586459236c8e448aab032905162ebec6,
         type: 3}
       propertyPath: m_LocalPosition.x

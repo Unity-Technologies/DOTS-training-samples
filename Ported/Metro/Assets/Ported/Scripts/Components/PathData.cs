@@ -9,6 +9,7 @@ public struct PathData : IComponentData
     public BlobArray<float3> HandlesOut;
     public BlobArray<float> Distances;
     public float TotalDistance;
+    public float3 Colour;
 }
 
 public struct PathRef : IComponentData
