@@ -23,10 +23,10 @@ unsafe public class RailGeneration : SystemBase
             float absoluteDistance = 0.0f;
             float3 color = pathdata.Data.Value.Colour;
 
-            NativeArray<float3> nativePositions = UnsafeHelper.GetNativeArrayFromBlob<float3>(ref positionsB);
-            NativeArray<float3> nativeHandlesIn = UnsafeHelper.GetNativeArrayFromBlob<float3>(ref handlesInB);
-            NativeArray<float3> nativeHandlesOut = UnsafeHelper.GetNativeArrayFromBlob<float3>(ref handlesOutB);
-            NativeArray<float> nativeDistances = UnsafeHelper.GetNativeArrayFromBlob<float>(ref distancesB);
+            NativeArray<float3> nativePositions = positionsB.ToNativeArray();
+            NativeArray<float3> nativeHandlesIn = handlesInB.ToNativeArray();
+            NativeArray<float3> nativeHandlesOut = handlesOutB.ToNativeArray();
+            NativeArray<float> nativeDistances = distancesB.ToNativeArray();
 
             int count = nativePositions.Length;
 

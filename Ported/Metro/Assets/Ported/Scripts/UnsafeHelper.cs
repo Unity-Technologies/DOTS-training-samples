@@ -4,7 +4,7 @@ using Unity.Entities;
 
 static unsafe public class UnsafeHelper
 {
-    static public NativeArray<T> GetNativeArrayFromBlob<T>(ref BlobArray<T> blob) where T : struct
+    static public NativeArray<T> ToNativeArray<T>(this ref BlobArray<T> blob) where T : struct
     {
         void* pPtr = blob.GetUnsafePtr();
 
@@ -15,7 +15,7 @@ static unsafe public class UnsafeHelper
         return output;
     }
 
-    static public NativeArray<T> GetNativeArrayFromBlobBuilder<T>(ref BlobBuilderArray<T> blobBuilder) where T : struct
+    static public NativeArray<T> ToNativeArray<T>(this ref BlobBuilderArray<T> blobBuilder) where T : struct
     {
         void* pPtr = blobBuilder.GetUnsafePtr();
 

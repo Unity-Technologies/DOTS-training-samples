@@ -2,7 +2,8 @@ using Unity.Entities;
 
 namespace MetroECS.Comuting
 {
-    public struct TrackID : IComponentData
+    [GenerateAuthoringComponent]
+    public struct LineID : IComponentData
     {
         public int Value;
     }

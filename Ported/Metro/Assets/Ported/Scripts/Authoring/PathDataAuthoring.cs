@@ -28,10 +28,10 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         var distancesB = builder.Allocate(ref pathData.Distances, totalMarkerCount);
         var markerTypesB = builder.Allocate(ref pathData.MarkerTypes, totalMarkerCount);
 
-        NativeArray<float3> nativePositions  = UnsafeHelper.GetNativeArrayFromBlobBuilder<float3>(ref positionsB);
-        NativeArray<float3> nativeHandlesIn  = UnsafeHelper.GetNativeArrayFromBlobBuilder<float3>(ref handlesInB);
-        NativeArray<float3> nativeHandlesOut = UnsafeHelper.GetNativeArrayFromBlobBuilder<float3>(ref handlesOutB);
-        NativeArray<float>  nativeDistances  = UnsafeHelper.GetNativeArrayFromBlobBuilder<float>(ref distancesB);
+        NativeArray<float3> nativePositions  = positionsB.ToNativeArray();
+        NativeArray<float3> nativeHandlesIn  = handlesInB.ToNativeArray();
+        NativeArray<float3> nativeHandlesOut = handlesOutB.ToNativeArray();
+        NativeArray<float>  nativeDistances  = distancesB.ToNativeArray();
         //var nativeMarkerTypes = UnsafeHelper.GetNativeArrayFromBlobBuilder<int>(markerTypesB);
 
         // Outbound Positions

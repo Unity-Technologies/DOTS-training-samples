@@ -10,6 +10,8 @@ public struct PathData : IComponentData
     public BlobArray<int> MarkerTypes;
     public float TotalDistance;
     public float3 Colour;
+    public int NumberOfTrains;
+    public int MaxCarriages;
 }
 
 public struct PathRef : IComponentData

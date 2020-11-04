@@ -1332,6 +1332,8 @@ MonoBehaviour:
   RailPrefab: {fileID: 494735325195885990, guid: ead1b0566016c4841aedb15be2f61167,
     type: 3}
   CommuterPrefab: {fileID: 0}
+  CarriagePrefab: {fileID: 1659681002656067790, guid: 4d47e9fab45a44a5ab7916529104a20d,
+    type: 3}
 --- !u!1 &4456981849079500756
 GameObject:
   m_ObjectHideFlags: 0
