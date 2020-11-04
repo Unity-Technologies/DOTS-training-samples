@@ -23,7 +23,7 @@ public class AntObstacleAvoidSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var obstRadiusArray = obstacleQuery.ToComponentDataArray<Radius>(Allocator.TempJob);
+        /*var obstRadiusArray = obstacleQuery.ToComponentDataArray<Radius>(Allocator.TempJob);
         var obstTranslationArray = obstacleQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
        
         //Update all ant entities and check that we are not going to collide with
@@ -64,7 +64,7 @@ public class AntObstacleAvoidSystem : SystemBase
 
             }).WithDisposeOnCompletion(obstRadiusArray)
             .WithDisposeOnCompletion(obstTranslationArray)
-            .ScheduleParallel();
+            .ScheduleParallel();*/
     }
 
 }

@@ -130,6 +130,8 @@ public class AntMovementSystem : SystemBase
 
             direction.Value = (direction.Value >= 2 * Mathf.PI) ? direction.Value - 2 * Mathf.PI : direction.Value;
 
+            ObstacleAvoid(ref translation, ref direction, spawner.ObstacleRadius, obstaclesPositions);
+
             translation.Value.x += (float)dx;
             translation.Value.z += (float)dy;
 
@@ -272,34 +274,36 @@ public class AntMovementSystem : SystemBase
         return Mathf.Sign(output);
     }
 
-    /*
-     * for (int j=0;j<nearbyObstacles.Length;j++) {
-				Obstacle obstacle = nearbyObstacles[j];
-				dx = ant.position.x - obstacle.position.x;
-				dy = ant.position.y - obstacle.position.y;
-				float sqrDist = dx * dx + dy * dy;
-				if (sqrDist<obstacleRadius*obstacleRadius) {
-					dist = Mathf.Sqrt(sqrDist);
-					dx /= dist;
-					dy /= dist;
-					ant.position.x = obstacle.position.x + dx * obstacleRadius;
-					ant.position.y = obstacle.position.y + dy * obstacleRadius;
-
-					vx -= dx * (dx * vx + dy * vy) * 1.5f;
-					vy -= dy * (dx * vx + dy * vy) * 1.5f;
-				}
-			}
-     * */
-
-    /*static void ObstacleAvoid(ref Translation antTranslation, ref Direction dir, float obstacleRadius, in DynamicBuffer<ObstaclePosition> obstaclePositions)
+    static void ObstacleAvoid(ref Translation translation, ref Direction dir, float obstacleRadius, in DynamicBuffer<ObstaclePosition> obstaclePositions)
     {
+        // Original code
+        //for (int j=0;j<nearbyObstacles.Length;j++) 
+        //{
+		//    Obstacle obstacle = nearbyObstacles[j];
+		//    dx = ant.position.x - obstacle.position.x;
+		//    dy = ant.position.y - obstacle.position.y;
+		//    float sqrDist = dx * dx + dy * dy;
+        //
+		//    if (sqrDist<obstacleRadius*obstacleRadius) 
+        //    {
+		//	    dist = Mathf.Sqrt(sqrDist);
+		//	    dx /= dist;
+		//	    dy /= dist;
+		//	    ant.position.x = obstacle.position.x + dx * obstacleRadius;
+		//	    ant.position.y = obstacle.position.y + dy * obstacleRadius;
+        //
+		//	    vx -= dx * (dx * vx + dy * vy) * 1.5f;
+		//	    vy -= dy * (dx * vx + dy * vy) * 1.5f;
+		//    }
+	    //}
+
         //Check this entity for collisions with all other entites
         float dx, dy, sqrDist, dist;
         for (int i = 0; i < obstaclePositions.Length; ++i)
         {
             //Get difference in x and y, calculate the sqrd distance to the 
-            dx = antTranslation.Value.x - obstaclePositions[i].Value.x;
-            dy = antTranslation.Value.z - obstaclePositions[i].Value.z;
+            dx = translation.Value.x - obstaclePositions[i].Value.x;
+            dy = translation.Value.z - obstaclePositions[i].Value.z;
             sqrDist = (dx * dx) + (dy * dy);
 
             //If we are less than the sqrd distance away from the obstacle then reflect the ant
@@ -314,9 +318,9 @@ public class AntMovementSystem : SystemBase
                 dist = Mathf.Sqrt(sqrDist);
                 dx /= dist;
                 dy /= dist;
-                antTranslation.Value.x = obstaclePositions[i].Value.x + dx * obstacleRadius;
-                antTranslation.Value.z = obstaclePositions[i].Value.z + dy * obstacleRadius;
+                translation.Value.x = obstaclePositions[i].Value.x + dx * obstacleRadius;
+                translation.Value.z = obstaclePositions[i].Value.z + dy * obstacleRadius;
             }
         }
-    }*/
+    }
 }
