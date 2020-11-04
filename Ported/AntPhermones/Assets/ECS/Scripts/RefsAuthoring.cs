@@ -17,6 +17,7 @@ public class RefsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         var pheromoneMap = new Texture2D(TexSize, TexSize);
+        
 
         PheromoneMapRenderer.material.SetTexture("_BaseMap", pheromoneMap);
 

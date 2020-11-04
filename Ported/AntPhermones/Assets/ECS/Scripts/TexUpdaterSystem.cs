@@ -11,26 +11,23 @@ public class TexUpdaterSystem : SystemBase
     const float randomSteering = 0.1f;
     const float decay = 0.999f;
 
-    NativeArray<float> pheromones;
+    Entity textureSingleton; //Use a singleton entity for the buffer entity
+
 
     protected override void OnCreate()
     {
-        int TexSize = RefsAuthoring.TexSize;
-        pheromones = new NativeArray<float>(TexSize * TexSize, Allocator.TempJob);
-        for (int i = 0; i < TexSize; ++i)
-        {
-            for (int j = 0; j < TexSize; ++j)
-            {
-                pheromones[j * TexSize + i] = 0;
-            }
-        }
+        RequireSingletonForUpdate<TexSingleton>();
     }
 
+    
     protected override void OnUpdate()
     {
         Vector2 bounds = AntMovementSystem.bounds;
         int TexSize = RefsAuthoring.TexSize;
-        NativeArray<float> localPheromones = pheromones;
+
+        /*
+        //Get the pheremones data 
+        var localPheromones = EntityManager.GetBuffer<PheromonesBufferData>(GetSingletonEntity<TexSingleton>()).AsNativeArray();
 
         Entities
             .WithNativeDisableParallelForRestriction(localPheromones)
@@ -48,7 +45,8 @@ public class TexUpdaterSystem : SystemBase
                 {
                     for (int j = 0; j < TexSize; ++j)
                     {
-                        localPheromones[j * TexSize + i] *= decay;
+                        float preDecayValue = localPheromones[j * TexSize + i];
+                        localPheromones[j * TexSize + i] = preDecayValue;
                         map.PheromoneMap.SetPixel(i, j, new Color(localPheromones[j * TexSize + i], 0, 0));
                     }
                 }
@@ -56,10 +54,12 @@ public class TexUpdaterSystem : SystemBase
             })
             .WithoutBurst()
             .Run();
+        */
     }
 
     protected override void OnDestroy()
     {
-        pheromones.Dispose();
+        //pheromones.Dispose();
     }
+    
 }
