@@ -7,7 +7,6 @@ public class SimpleIntersectionSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
         float deltaTime = Time.DeltaTime;
 
         Entities
@@ -53,11 +52,10 @@ public class SimpleIntersectionSystem : SystemBase
                     
                     DynamicBuffer<CarBufferElement> laneOutCars = GetBuffer<CarBufferElement>(simpleIntersection.laneOut0);
                     laneOutCars.Add(simpleIntersection.car);
-                    ecb.SetComponent(simpleIntersection.car, new CarPosition{Value = 0});
+                    SetComponent(simpleIntersection.car, new CarPosition{Value = 0});
                     simpleIntersection.car = Entity.Null;
                 }
-            }).Run();
+            }).Schedule();
 
-        ecb.Playback(EntityManager);
     }
 }

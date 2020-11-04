@@ -147,7 +147,7 @@ public class TripleIntersectionSystem : SystemBase
                 directions.Dispose();
                 laneIns.Dispose();
                 laneOuts.Dispose();
-            }).Run();
+            }).Schedule();
 
         //ecb.Playback(EntityManager);
         //ecb.Dispose();

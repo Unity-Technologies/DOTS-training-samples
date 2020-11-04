@@ -61,7 +61,7 @@ public class MoveCarOnLaneSystem : SystemBase
 
                     previousCarPosition = newPosition;
                 }
-            }).Schedule();
+            }).ScheduleParallel();
     }
     
 //    Vector3 EvaluateBezier(float3 startPoint, float3 startTangent, float3 endTangent, float3 endPoint, float t)
