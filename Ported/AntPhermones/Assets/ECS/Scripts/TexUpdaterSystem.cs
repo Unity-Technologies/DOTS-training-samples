@@ -43,14 +43,14 @@ public class TexUpdaterSystem : SystemBase
             return;
         }
 
-
+        Vector2 bounds = AntMovementSystem.bounds;
         var localPheromones = EntityManager.GetBuffer<PheromonesBufferData>(GetSingletonEntity<TexSingleton>());
-
+        
         Entities
             .WithNativeDisableParallelForRestriction(localPheromones)
             .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, in Speed speed, in AntLookingForFood dummy) =>
             {
-                DropPheromones(translation.Value.x, translation.Value.z, bounds, localPheromones, speed.Value, dt, TexSize, excitementWhenLookingForFood);
+                DropPheromones(translation.Value.x, translation.Value.z, bounds, localPheromones.AsNativeArray(), speed.Value, dt, TexSize, excitementWhenLookingForFood);
                
             })
             .ScheduleParallel();
@@ -59,7 +59,7 @@ public class TexUpdaterSystem : SystemBase
             .WithNativeDisableParallelForRestriction(localPheromones)
             .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, in Speed speed, in AntLookingForNest dummy) =>
             {
-                DropPheromones(translation.Value.x, translation.Value.z, bounds, localPheromones, speed.Value, dt, TexSize, excitementWhenGoingBackToNest);
+                DropPheromones(translation.Value.x, translation.Value.z, bounds, localPheromones.AsNativeArray(), speed.Value, dt, TexSize, excitementWhenGoingBackToNest);
             })
             .ScheduleParallel();
 
