@@ -2,7 +2,9 @@
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 unsafe public class RailGeneration : SystemBase
 {
@@ -19,6 +21,7 @@ unsafe public class RailGeneration : SystemBase
             ref var distancesB = ref pathdata.Data.Value.Distances;
             float totalAbsoluteDistance = pathdata.Data.Value.TotalDistance;
             float absoluteDistance = 0.0f;
+            float3 color = pathdata.Data.Value.Colour;
 
             NativeArray<float3> nativePositions = UnsafeHelper.GetNativeArrayFromBlob<float3>(ref positionsB);
             NativeArray<float3> nativeHandlesIn = UnsafeHelper.GetNativeArrayFromBlob<float3>(ref handlesInB);
@@ -38,8 +41,11 @@ unsafe public class RailGeneration : SystemBase
                 var railTranslation = new Translation { Value = railPos };
                 var railRotation = new Rotation { Value = quaternion.LookRotation(railRot, new float3(0, 1, 0)) };
 
+                URPMaterialPropertyBaseColor col = new URPMaterialPropertyBaseColor { Value = new float4(color.x, color.y, color.z, 1f) };
+
                 ecb.SetComponent(railEntity, railTranslation);
                 ecb.SetComponent(railEntity, railRotation);
+                ecb.SetComponent(railPrefab, col);
 
                 absoluteDistance += Globals.RAIL_SPACING;
             }
