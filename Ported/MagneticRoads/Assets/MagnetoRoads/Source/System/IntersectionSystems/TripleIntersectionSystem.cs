@@ -1,13 +1,25 @@
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 public class TripleIntersectionSystem : SystemBase
 {
+    private Random m_Random;
+    
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        
+        m_Random = Random.CreateFromIndex((uint)UnityEngine.Random.Range(0, 10000));
+    }
+
     protected override void OnUpdate()
     {
         //var ecb = new EntityCommandBuffer(Allocator.Temp);
 
+        
+        
         Entities
             .ForEach((Entity entity, ref TripleIntersection tripleIntersection) =>
             {
@@ -44,12 +56,10 @@ public class TripleIntersectionSystem : SystemBase
                         CarPosition carPosition = GetComponent<CarPosition>(cars[0]);
                         if (carPosition.Value == laneIns[i].Length)
                         {
-                            // TODO: Make this random
-                            int value = 0;
-                            if (i == 0)
-                                value = 1;
-                            if (i == 1)
+                            int value = m_Random.NextInt(2);
+                            if ((i == 0 || i == 1) && value == i)
                                 value = 2;
+                            
                             directions[i] = value;
                             if(i == 0)
                                 tripleIntersection.lane0Direction = value;
