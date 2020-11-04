@@ -72,6 +72,7 @@ public class AntSpawnerSystem : SystemBase
                 Random = Unity.Mathematics.Random.CreateFromIndex(i + 1),
             });
 
+            cmd.AddComponent<AntLookingForFood>(ant);
 
             cmd.AddComponent(ant, new ObstacleAvoid());
         }
