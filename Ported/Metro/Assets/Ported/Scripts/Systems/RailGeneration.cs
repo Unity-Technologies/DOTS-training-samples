@@ -1,4 +1,5 @@
 ﻿using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -19,10 +20,14 @@ unsafe public class RailGeneration : SystemBase
             float totalAbsoluteDistance = pathdata.Data.Value.TotalDistance;
             float absoluteDistance = 0.0f;
 
-            var nativePositions = UnsafeHelper.GetNativeArrayFromBlob<float3>(positionsB);
-            var nativeHandlesIn = UnsafeHelper.GetNativeArrayFromBlob<float3>(handlesInB);
-            var nativeHandlesOut = UnsafeHelper.GetNativeArrayFromBlob<float3>(handlesOutB);
-            var nativeDistances = UnsafeHelper.GetNativeArrayFromBlob<float>(distancesB);
+            NativeArray<float3> nativePositions;
+            NativeArray<float3> nativeHandlesIn;
+            NativeArray<float3> nativeHandlesOut;
+            NativeArray<float> nativeDistances;
+            UnsafeHelper.GetNativeArrayFromBlob(positionsB, out nativePositions);
+            UnsafeHelper.GetNativeArrayFromBlob(handlesInB, out nativeHandlesIn);
+            UnsafeHelper.GetNativeArrayFromBlob(handlesOutB, out nativeHandlesOut);
+            UnsafeHelper.GetNativeArrayFromBlob(distancesB, out nativeDistances);
 
             int count = nativePositions.Length;
 

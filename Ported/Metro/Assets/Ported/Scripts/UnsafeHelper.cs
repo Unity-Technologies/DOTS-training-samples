@@ -1,27 +1,22 @@
 ﻿using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 
 static unsafe public class UnsafeHelper
 {
-    static unsafe public NativeArray<T> GetNativeArrayFromBlob<T>(BlobArray<T> blob)
+    static public void GetNativeArrayFromBlob<T>(BlobArray<T> blob, out NativeArray<T> output) where T : struct
     {
-        unsafe
-        {
-            T* pPtr = blob.GetUnsafePtr();
+        void* pPtr = blob.GetUnsafePtr();
 
-            return NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(pPtr, blob.Length, Allocator.None);
-        }
+        output = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(pPtr, blob.Length, Allocator.None);
     }
 
-    static unsafe public NativeArray<T> GetNativeArrayFromBlobBuilder<T>(BlobBuilderArray<T> blobBuilder)
+    static public void GetNativeArrayFromBlobBuilder<T>(BlobBuilderArray<T> blobBuilder, out NativeArray<T> output) where T : struct
     {
-        unsafe
-        {
-            T* pPtr = blobBuilder.GetUnsafePtr();
+        void* pPtr = blobBuilder.GetUnsafePtr();
 
-            return NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(pPtr, blob.Length, Allocator.None);
-        }
+        output = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(pPtr, blobBuilder.Length, Allocator.None);
     }
 }
