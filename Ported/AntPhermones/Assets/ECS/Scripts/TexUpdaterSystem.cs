@@ -11,6 +11,7 @@ public class TexUpdaterSystem : SystemBase
     const float dt = 1.0f / 60;
     const float randomSteering = 0.1f;
     const float decay = 0.999f;
+    const float trailAddSpeed = 0.3f;
 
     Entity textureSingleton; //Use a singleton entity for the buffer entity
 
@@ -25,6 +26,7 @@ public class TexUpdaterSystem : SystemBase
     {
         Vector2 bounds = AntMovementSystem.bounds;
         int TexSize = RefsAuthoring.TexSize;
+        float excitement = 4.0f; //TODO : increase the excitement level when holding resource (so it should be a component)
 
         //Get the pheremones data 
         EntityQuery doesTextInitExist = GetEntityQuery(typeof(TexInitialiser));
@@ -39,7 +41,9 @@ public class TexUpdaterSystem : SystemBase
             .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, in Speed speed) =>
             {
                 Vector2 texelCoord = new Vector2(0.5f * (-translation.Value.x / bounds.x) + 0.5f, 0.5f * (-translation.Value.z / bounds.y) + 0.5f);
-                localPheromones[(int)(texelCoord.y * TexSize) * TexSize + (int)(texelCoord.x * TexSize)] = 0.75f;
+                int index = (int)(texelCoord.y * TexSize) * TexSize + (int)(texelCoord.x * TexSize);
+                localPheromones[index] += (speed.Value * dt * excitement) * (1.0f - localPheromones[index]);
+                localPheromones[index] = (localPheromones[index] > 1.0f) ? 1.0f : localPheromones[index];
             })
             .ScheduleParallel();
 
