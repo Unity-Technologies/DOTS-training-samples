@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -21,35 +22,41 @@ public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         var totalMarkerCount = halfMarkerCount * 2;
 
         // Initialize Arrays
-        float3[] positions = new float3[totalMarkerCount];
+        var positionsB = builder.Allocate(ref pathData.Positions, totalMarkerCount);
+        var handlesInB = builder.Allocate(ref pathData.HandlesIn, totalMarkerCount);
+        var handlesOutB = builder.Allocate(ref pathData.HandlesOut, totalMarkerCount);
+        var distancesB = builder.Allocate(ref pathData.Distances, totalMarkerCount);
         var markerTypesB = builder.Allocate(ref pathData.MarkerTypes, totalMarkerCount);
-        float3[] handlesIn = new float3[totalMarkerCount];
-        float3[] handlesOut = new float3[totalMarkerCount];
-        float[] distances = new float[totalMarkerCount];
+
+        var nativePositions = UnsafeHelper.GetNativeArrayFromBlobBuilder<float3>(positionsB);
+        var nativeHandlesIn = UnsafeHelper.GetNativeArrayFromBlobBuilder<float3>(handlesInB);
+        var nativeHandlesOut = UnsafeHelper.GetNativeArrayFromBlobBuilder<float3>(handlesOutB);
+        var nativeDistances = UnsafeHelper.GetNativeArrayFromBlobBuilder<float>(distancesB);
+        //var nativeMarkerTypes = UnsafeHelper.GetNativeArrayFromBlobBuilder<int>(markerTypesB);
 
         // Outbound Positions
         for (var c = 0; c < transform.childCount; c++)
-            positions[c] = transform.GetChild(c).transform.position;
+            nativePositions[c] = transform.GetChild(c).transform.position;
 
-        RebuildHandle(positions, ref handlesIn, ref handlesOut, halfMarkerCount);
+        RebuildHandle(nativePositions, ref nativeHandlesIn, ref nativeHandlesOut, halfMarkerCount);
 
-        float halfDistance = BezierHelpers.MeasurePath(positions, handlesIn, handlesOut, halfMarkerCount, out var tempDistances);
+        float halfDistance = BezierHelpers.MeasurePath(nativePositions, nativeHandlesIn, nativeHandlesOut, halfMarkerCount, out var tempDistances);
         for (var p = 0; p < halfMarkerCount; p++)
         {
-            distances[p] = tempDistances[p];
+            nativeDistances[p] = tempDistances[p];
         }
 
         for (int p = halfMarkerCount - 1; p >= 0; p--)
         {
-            var position = positions[p];
-            var distance = distances[p];
-            var perpPosition = BezierHelpers.GetPointPerpendicularOffset(position, distance, positions, handlesIn,
-                handlesOut, distances, halfDistance, Globals.BEZIER_PLATFORM_OFFSET);
+            var position = nativePositions[p];
+            var distance = nativeDistances[p];
+            var perpPosition = BezierHelpers.GetPointPerpendicularOffset(position, distance, nativePositions, nativeHandlesIn,
+                nativeHandlesOut, nativeDistances, halfDistance, Globals.BEZIER_PLATFORM_OFFSET);
 
-            positions[halfMarkerCount + p - halfMarkerCount] = perpPosition;
+            nativePositions[halfMarkerCount + p - halfMarkerCount] = perpPosition;
         }
 
-        RebuildHandle(positions, ref handlesIn, ref handlesOut, totalMarkerCount);
+        RebuildHandle(nativePositions, ref nativeHandlesIn, ref nativeHandlesOut, totalMarkerCount);
 
         // Marker types
         for (var m = 0; m < halfMarkerCount; m++)
@@ -62,24 +69,11 @@ public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         }
 
         // Total path distance
-        pathData.TotalDistance = BezierHelpers.MeasurePath(positions, handlesIn, handlesOut, totalMarkerCount, out tempDistances);
+        pathData.TotalDistance = BezierHelpers.MeasurePath(nativePositions, nativeHandlesIn, nativeHandlesOut, totalMarkerCount, out tempDistances);
 
         // Marker distances
         for (var d = 0; d < totalMarkerCount; d++)
-            distances[d] = tempDistances[d];
-
-        var positionsB = builder.Allocate(ref pathData.Positions, totalMarkerCount);
-        var handlesInB = builder.Allocate(ref pathData.HandlesIn, totalMarkerCount);
-        var handlesOutB = builder.Allocate(ref pathData.HandlesOut, totalMarkerCount);
-        var distancesB = builder.Allocate(ref pathData.Distances, totalMarkerCount);
-
-        for (var p = 0; p < halfMarkerCount; p++)
-        {
-            positionsB[p] = positions[p];
-            handlesInB[p] = handlesIn[p];
-            handlesOutB[p] = handlesOut[p];
-            distancesB[p] = distances[p];
-        }
+            nativeDistances[d] = tempDistances[d];
 
         // Path colour
         pathData.Colour = new float3(pathColour.r, pathColour.g, pathColour.b);
@@ -90,7 +84,7 @@ public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         });
     }
 
-    private void RebuildHandle(float3[] positions, ref float3[] handlesIn, ref float3[] handlesOut, int size)
+    private void RebuildHandle(NativeArray<float3> positions, ref NativeArray<float3> handlesIn, ref NativeArray<float3> handlesOut, int size)
     {
         // Outbound Handles
         for (var p = 1; p < size - 1; p++)

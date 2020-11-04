@@ -3,47 +3,35 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public class RailGeneration : SystemBase
+unsafe public class RailGeneration : SystemBase
 {
-    protected override void OnUpdate()
+    unsafe protected override void OnUpdate()
     {
         var railPrefab = GetSingleton<MetroData>().RailPrefab;
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities.WithoutBurst().ForEach((in PathRef pathdata) =>
+        Entities.ForEach((in PathRef pathdata) =>
         { 
-            ref var positions = ref pathdata.Data.Value.Positions;
-            ref var handlesIn = ref pathdata.Data.Value.HandlesIn;
-            ref var handlesOut = ref pathdata.Data.Value.HandlesOut;
-            ref var distances = ref pathdata.Data.Value.Distances;
+            ref var positionsB = ref pathdata.Data.Value.Positions;
+            ref var handlesInB = ref pathdata.Data.Value.HandlesIn;
+            ref var handlesOutB = ref pathdata.Data.Value.HandlesOut;
+            ref var distancesB = ref pathdata.Data.Value.Distances;
             float totalAbsoluteDistance = pathdata.Data.Value.TotalDistance;
             float absoluteDistance = 0.0f;
 
-            int count = positions.Length;
+            var nativePositions = UnsafeHelper.GetNativeArrayFromBlob<float3>(positionsB);
+            var nativeHandlesIn = UnsafeHelper.GetNativeArrayFromBlob<float3>(handlesInB);
+            var nativeHandlesOut = UnsafeHelper.GetNativeArrayFromBlob<float3>(handlesOutB);
+            var nativeDistances = UnsafeHelper.GetNativeArrayFromBlob<float>(distancesB);
 
-            //float3[] pos = positions.ToArray();
-            //float3[] hIn = handlesIn.ToArray();
-            //float3[] hOut = handlesOut.ToArray();
-            //float[] dist = distances.ToArray();
-
-            float3[] pos = new float3[count];
-            float3[] hIn = new float3[count];
-            float3[] hOut = new float3[count];
-            float[] dist = new float[count];
-            for (int i = 0; i < count; ++i)
-            {
-                pos[i] = distances[i];
-                hIn[i] = handlesIn[i];
-                hOut[i] = handlesOut[i];
-                dist[i] = distances[i];
-            }
+            int count = nativePositions.Length;
 
             while (absoluteDistance < totalAbsoluteDistance)
             {
                 float coef = absoluteDistance / totalAbsoluteDistance;
 
-                float3 railPos = BezierHelpers.GetPosition(pos, hIn, hOut, dist, totalAbsoluteDistance, coef);
-                float3 railRot = BezierHelpers.GetNormalAtPosition(pos, hIn, hOut, dist, totalAbsoluteDistance, coef);
+                float3 railPos = BezierHelpers.GetPosition(nativePositions, nativeHandlesIn, nativeHandlesOut, nativeDistances, totalAbsoluteDistance, coef);
+                float3 railRot = BezierHelpers.GetNormalAtPosition(nativePositions, nativeHandlesIn, nativeHandlesOut, nativeDistances, totalAbsoluteDistance, coef);
 
                 var railEntity = ecb.Instantiate(railPrefab);
                 var railTranslation = new Translation { Value = railPos };
