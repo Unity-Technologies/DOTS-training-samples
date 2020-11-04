@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -6,8 +7,8 @@ using Unity.Transforms;
 
 public class FirePropagationSystem : SystemBase
 {
-    public NativeArray<byte> cells;
-    NativeArray<byte> tempCells;
+    public NativeArray<float> cells;
+    NativeArray<float> tempCells;
 
     protected override void OnStartRunning()
     {
@@ -15,20 +16,27 @@ public class FirePropagationSystem : SystemBase
         FireSim fireSim = GetSingleton<FireSim>();
         int numCells = fireSim.FireGridDimension * fireSim.FireGridDimension;
 
-        cells = new NativeArray<byte>(numCells, Allocator.Persistent);
-        tempCells = new NativeArray<byte>(numCells, Allocator.Persistent);
+        cells = new NativeArray<float>(numCells, Allocator.Persistent);
+        tempCells = new NativeArray<float>(numCells, Allocator.Persistent);
 
         var fireCells = cells;
-        var random = new Random(42);
+        var random = new Unity.Mathematics.Random(42);
 
         Entities
-            .ForEach((in FireCell fireCell, in Translation translation) =>
+            .ForEach((ref FireCell fireCell, in Translation translation) =>
             {
+                int2 index = new int2((int)translation.Value.x, (int)translation.Value.z);
                 if (random.NextFloat() < fireSim.IgnitionRate)
                 {
-                    int2 index = new int2((int)translation.Value.x, (int)translation.Value.z);
-                    fireCells[index.x * fireSim.FireGridDimension + index.y] = (byte)random.NextInt(fireSim.FlashPoint, 255);
+                    float randomTemperature = random.NextFloat(fireSim.FlashPoint, 1.0f);
+                    fireCells[index.x * fireSim.FireGridDimension + index.y] = randomTemperature;
+                    fireCell.Temperature = randomTemperature;
                 }
+                else
+                {
+                    fireCells[index.x * fireSim.FireGridDimension + index.y] = 0;
+                }
+
             }).ScheduleParallel();
     }
 

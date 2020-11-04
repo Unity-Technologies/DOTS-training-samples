@@ -1,4 +1,6 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Entities;
+using UnityEngine;
 
 [GenerateAuthoringComponent]
 public struct FireSim : IComponentData
@@ -8,7 +10,7 @@ public struct FireSim : IComponentData
 
     public int FireGridDimension;
     public int PropagationRadius;
-    public byte FlashPoint;
-    public float IgnitionRate;
-    public float HeatTransfer;
+    [Range(0.0f, 1.0f)] public float FlashPoint;
+    [Range(0.0f, 1.0f)] public float IgnitionRate;
+    [Range(0.0f, 1.0f)] public float HeatTransfer;
 }

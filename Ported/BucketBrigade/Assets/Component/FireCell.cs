@@ -3,5 +3,5 @@
 [GenerateAuthoringComponent]
 public struct FireCell : IComponentData
 {
-    public byte Temperature;
+    public float Temperature;
 }
