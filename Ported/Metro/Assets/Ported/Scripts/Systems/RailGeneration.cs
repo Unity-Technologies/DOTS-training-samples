@@ -20,14 +20,15 @@ unsafe public class RailGeneration : SystemBase
             float totalAbsoluteDistance = pathdata.Data.Value.TotalDistance;
             float absoluteDistance = 0.0f;
 
-            NativeArray<float3> nativePositions;
-            NativeArray<float3> nativeHandlesIn;
-            NativeArray<float3> nativeHandlesOut;
-            NativeArray<float> nativeDistances;
-            UnsafeHelper.GetNativeArrayFromBlob(positionsB, out nativePositions);
-            UnsafeHelper.GetNativeArrayFromBlob(handlesInB, out nativeHandlesIn);
-            UnsafeHelper.GetNativeArrayFromBlob(handlesOutB, out nativeHandlesOut);
-            UnsafeHelper.GetNativeArrayFromBlob(distancesB, out nativeDistances);
+            void* posPtr = positionsB.GetUnsafePtr();
+            void* handleInPtr = handlesInB.GetUnsafePtr();
+            void* handleOutPtr = handlesOutB.GetUnsafePtr();
+            void* distPtr = distancesB.GetUnsafePtr();
+
+            NativeArray<float3> nativePositions = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float3>(posPtr, positionsB.Length, Allocator.None);
+            NativeArray<float3> nativeHandlesIn = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float3>(handleInPtr, handlesInB.Length, Allocator.None);
+            NativeArray<float3> nativeHandlesOut = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float3>(handleOutPtr, handlesOutB.Length, Allocator.None);
+            NativeArray<float> nativeDistances = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float>(distPtr, distancesB.Length, Allocator.None);
 
             int count = nativePositions.Length;
 
