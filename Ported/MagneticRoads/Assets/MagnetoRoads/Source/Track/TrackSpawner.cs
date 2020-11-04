@@ -37,5 +37,6 @@ public class TrackSpawner : MonoBehaviour
     private void OnDestroy()
     {
         _generator?.Complete();
+        _generator = null;
     }
 }

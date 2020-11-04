@@ -105,6 +105,7 @@ namespace Magneto.Track
             public void Complete()
             {
                 FinalJobHandle.Complete();
+                
                 IsRunning = false;
                 
                 _cachedNeighbourIndexOffsets.Dispose();

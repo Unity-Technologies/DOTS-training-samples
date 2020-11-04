@@ -7,21 +7,20 @@ using Random = UnityEngine.Random;
 
 namespace Magneto.Track.Jobs
 {
+#if !DISABLE_BURST
     [BurstCompile]
+#endif
     public struct BuildVoxelMapJob : IJob
     {
-        public const int IterationCount = 50000;
-
-     //   public int VoxelCount;
+        private const int IterationCount = 50000;
 
         [ReadOnly] public NativeArray<int3> CachedNeighbourIndexOffsets;
         [ReadOnly] public NativeArray<int3> LimitedCachedNeighbourIndexOffsets;
         
         public NativeStrideGridArray<bool> TrackVoxels;
-
-        // TODO: RETURN ?
+        
         public NativeList<IntersectionData> Intersections;
-        public NativeStrideGridArray<int> IntersectionsGrid;
+        [WriteOnly] public NativeStrideGridArray<int> IntersectionsGrid;
         
 
         public void Execute()
@@ -48,23 +47,20 @@ namespace Magneto.Track.Jobs
                 int3 newPosition = currentPosition + randomDirection;
 
                 // Evaluate our neighbour position for an active voxel
-                if (!GetVoxel(newPosition))
+                if (!GetVoxel(newPosition) && CountNeighbors(newPosition, true) < 3)
                 {
-                    if (CountNeighbors(newPosition, true) < 3)
-                    {
-                        activeVoxels.Add(newPosition);
-                        TrackVoxels[newPosition] = true;
-                    }
+                    activeVoxels.Add(newPosition);
+                    TrackVoxels[newPosition] = true;
                 }
 
-                int neighbourCount = CountNeighbors(currentPosition);
-                
-                if (neighbourCount >= 3)
+                if (CountNeighbors(currentPosition) >= 3)
                 {
                     activeVoxels.RemoveAt(index);
-                    IntersectionData intersectionData = new IntersectionData();
-                    
-                    intersectionData.Index = Intersections.Length;
+                    var intersectionData = new IntersectionData
+                    {
+                        Index = Intersections.Length
+                    };
+
                     Intersections.Add(intersectionData);
                     IntersectionsGrid[currentPosition] = Intersections.Length - 1;
                     
