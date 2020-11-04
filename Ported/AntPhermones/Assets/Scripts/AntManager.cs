@@ -361,15 +361,12 @@ public class AntManager : MonoBehaviour {
 				ant.facingAngle = Mathf.Atan2(vy,vx);
 			}
 
-			//if (ant.holdingResource == false) {
-			//float excitement = 1f-Mathf.Clamp01((targetPos - ant.position).magnitude / (mapSize * 1.2f));
 			float excitement = .3f;
 			if (ant.holdingResource) {
 				excitement = 1f;
 			}
 			excitement *= ant.speed / antSpeed;
 			DropPheromones(ant.position,excitement);
-			//}
 
 			Matrix4x4 matrix = GetRotationMatrix(ant.facingAngle);
 			matrix.m03 = ant.position.x / mapSize;

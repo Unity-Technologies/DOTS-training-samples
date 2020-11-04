@@ -16,6 +16,10 @@ public class AntMovementSystem : SystemBase
     const float dt = 1.0f / 60;
     const float randomSteering = 0.1f;
     const float pheromoneSteering = 0.015f;
+    const float pheromoneSteerStrength = 0.015f;
+    const float wallSteerStrength = 0.12f;
+    const float antSpeed = 0.2f;
+    const float antAccel = 0.07f;
 
     public static readonly Vector2 bounds = new Vector2(5, 5);
 
@@ -52,7 +56,7 @@ public class AntMovementSystem : SystemBase
         Entities
         .WithReadOnly(obstaclesPositions)
         .WithReadOnly(pheromonesArray)
-        .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, in Entity antEntity, in Speed speed) =>
+        .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, ref Speed speed, in Entity antEntity) =>
         {
             float dx = Mathf.Cos(direction.Value) * speed.Value * dt;
             float dy = Mathf.Sin(direction.Value) * speed.Value * dt;
@@ -62,39 +66,54 @@ public class AntMovementSystem : SystemBase
 
             //pheromone steering
             
-            float value = PheremoneSteering(pheromonesArray, translation, direction, 0.3f) * pheromoneSteering;
-            direction.Value += value;
-            
+            float pheroSteering = PheremoneSteering(pheromonesArray, translation, direction, 0.3f) * pheromoneSteering;
+            var wallSteering = WallSteering(translation.Value, direction.Value, 0.15f, obstaclesPositions);
+            var targetSpeed = antSpeed;
+            targetSpeed *= 1f - (Mathf.Abs(pheroSteering) + Mathf.Abs(wallSteering)) / 3f;
+
+            direction.Value += pheroSteering * pheromoneSteerStrength;
+            direction.Value += wallSteering * wallSteerStrength;
+
+            speed.Value += (targetSpeed - speed.Value) * antAccel;
+
 
             // TODO: steer towards target
 
             var target3D = float3.zero;
             var targetRadius = 0f;
-            if (HasComponent<AntLookingForFood>(antEntity))
+            var isLookingForFood = HasComponent<AntLookingForFood>(antEntity);
+            var isLookingForNest = HasComponent<AntLookingForNest>(antEntity);
+
+            if (isLookingForFood)
             {
                 target3D = spawner.FoodPosition;
                 targetRadius = spawner.FoodRadius;
-
-                if (HasReachedTarget(translation.Value, target3D, targetRadius))
-                {
-                    cmd.RemoveComponent<AntLookingForFood>(entityInQueryIndex, antEntity);
-                    cmd.AddComponent<AntLookingForNest>(entityInQueryIndex, antEntity);
-                }
             }
-            else if (HasComponent<AntLookingForNest>(antEntity))
+            else if (isLookingForNest)
             {
                 target3D = spawner.ColonyPosition;
                 targetRadius = spawner.ColonyRadius;
-
-                if (HasReachedTarget(translation.Value, target3D, targetRadius))
-                {
-                    cmd.RemoveComponent<AntLookingForNest>(entityInQueryIndex, antEntity);
-                    cmd.AddComponent<AntLookingForFood>(entityInQueryIndex, antEntity);
-                }
             }
 
             var target2D = new float2(target3D.x, target3D.z);
             SteeringTowardTarget(ref translation, ref direction, target2D, spawner, obstaclesPositions);
+
+            if (HasReachedTarget(translation.Value, target3D, targetRadius))
+            {
+                if (isLookingForFood)
+                {
+                    cmd.RemoveComponent<AntLookingForFood>(entityInQueryIndex, antEntity);
+                    cmd.AddComponent<AntLookingForNest>(entityInQueryIndex, antEntity);
+                }
+                else
+                {
+                    cmd.RemoveComponent<AntLookingForNest>(entityInQueryIndex, antEntity);
+                    cmd.AddComponent<AntLookingForFood>(entityInQueryIndex, antEntity);
+                }
+
+                // Uturn
+                direction.Value += math.PI;
+            }
 
             // Bounce off the edges of the board (for now the ant bounces back, maybe improve later)
             if (Mathf.Abs(translation.Value.x + dx) > bounds.x)
@@ -119,6 +138,33 @@ public class AntMovementSystem : SystemBase
 
         // Our jobs must finish before the EndSimulationEntityCommandBufferSystem execute the changements we recorded
         cmdBufferSystem.AddJobHandleForProducer(this.Dependency);
+    }
+
+    static float WallSteering(float3 position3D, float direction, float distance, in DynamicBuffer<ObstaclePosition> obstaclePositions) 
+    {
+        var position = position3D.xz;
+
+        int nbClose = 0;
+        for (int k = -1; k <= 1; k += 2)
+        {
+            float angle = direction + k * Mathf.PI * .25f;
+            var test = float2.zero;
+            test.x = position.x + Mathf.Cos(angle) * distance;
+            test.y = position.y + Mathf.Sin(angle) * distance;
+
+            for (int i = 0; i < obstaclePositions.Length; ++i)
+            {
+                var obstaclePos = obstaclePositions[i].Value.xz;
+                if (math.distancesq(test, obstaclePos) < distance * distance)
+                {
+                    --nbClose;
+                    break;
+                }
+            }
+        }
+        
+
+        return (float)nbClose;
     }
 
     static void SteeringTowardTarget(ref Translation translation, ref Direction direction, float2 target, in AntSpawner spawner, in DynamicBuffer<ObstaclePosition> obstaclePositions)
@@ -225,4 +271,52 @@ public class AntMovementSystem : SystemBase
 
         return Mathf.Sign(output);
     }
+
+    /*
+     * for (int j=0;j<nearbyObstacles.Length;j++) {
+				Obstacle obstacle = nearbyObstacles[j];
+				dx = ant.position.x - obstacle.position.x;
+				dy = ant.position.y - obstacle.position.y;
+				float sqrDist = dx * dx + dy * dy;
+				if (sqrDist<obstacleRadius*obstacleRadius) {
+					dist = Mathf.Sqrt(sqrDist);
+					dx /= dist;
+					dy /= dist;
+					ant.position.x = obstacle.position.x + dx * obstacleRadius;
+					ant.position.y = obstacle.position.y + dy * obstacleRadius;
+
+					vx -= dx * (dx * vx + dy * vy) * 1.5f;
+					vy -= dy * (dx * vx + dy * vy) * 1.5f;
+				}
+			}
+     * */
+
+    /*static void ObstacleAvoid(ref Translation antTranslation, ref Direction dir, float obstacleRadius, in DynamicBuffer<ObstaclePosition> obstaclePositions)
+    {
+        //Check this entity for collisions with all other entites
+        float dx, dy, sqrDist, dist;
+        for (int i = 0; i < obstaclePositions.Length; ++i)
+        {
+            //Get difference in x and y, calculate the sqrd distance to the 
+            dx = antTranslation.Value.x - obstaclePositions[i].Value.x;
+            dy = antTranslation.Value.z - obstaclePositions[i].Value.z;
+            sqrDist = (dx * dx) + (dy * dy);
+
+            //If we are less than the sqrd distance away from the obstacle then reflect the ant
+            if (sqrDist < (obstacleRadius * obstacleRadius))
+            {
+                //Reflect
+                dir.Value += Mathf.PI;
+                dir.Value = (dir.Value >= 2 * Mathf.PI) ? dir.Value - 2 * Mathf.PI : dir.Value;
+
+
+                //Move ant out of collision
+                dist = Mathf.Sqrt(sqrDist);
+                dx /= dist;
+                dy /= dist;
+                antTranslation.Value.x = obstaclePositions[i].Value.x + dx * obstacleRadius;
+                antTranslation.Value.z = obstaclePositions[i].Value.z + dy * obstacleRadius;
+            }
+        }
+    }*/
 }
