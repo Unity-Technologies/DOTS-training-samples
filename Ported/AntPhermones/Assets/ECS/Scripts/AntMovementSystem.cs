@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -24,8 +24,6 @@ public class AntMovementSystem : SystemBase
     public static readonly Vector2 bounds = new Vector2(5, 5);
 
     EntityCommandBufferSystem cmdBufferSystem;
-
-    EntityQuery doesTextInitExist;
 
     protected override void OnCreate()
     {
@@ -65,7 +63,6 @@ public class AntMovementSystem : SystemBase
             direction.Value += rand.Random.NextFloat(-randomSteering, randomSteering);
 
             //pheromone steering
-            
             float pheroSteering = PheremoneSteering(pheromonesArray, translation, direction, 0.3f) * pheromoneSteering;
             var wallSteering = WallSteering(translation.Value, direction.Value, 0.15f, obstaclesPositions);
             var targetSpeed = antSpeed;
@@ -257,7 +254,7 @@ public class AntMovementSystem : SystemBase
         {
             float angle = antDirection.Value + i * Mathf.PI * 0.25f;
             float testX = antTranslation.Value.x + Mathf.Cos(angle) * distance;
-            float testY = antTranslation.Value.y + Mathf.Sin(angle) * distance;
+            float testY = antTranslation.Value.z + Mathf.Sin(angle) * distance;
 
             if(TextureHelper.PositionWithInMapBounds(new Vector2(testX, testY)))
             {
@@ -269,8 +266,6 @@ public class AntMovementSystem : SystemBase
                 output += value * i;
             }
         }
-
-
         return Mathf.Sign(output);
     }
 
