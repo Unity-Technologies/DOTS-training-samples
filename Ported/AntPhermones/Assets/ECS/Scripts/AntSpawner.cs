@@ -24,4 +24,7 @@ struct AntSpawner : IComponentData
     public float ObstacleRadius;
     public float ObstaclesPerRing;
     public float MapSize;
+    public float GoalSteerStrength;
+    public float FoodRadius;
+    public float ColonyRadius;
 }

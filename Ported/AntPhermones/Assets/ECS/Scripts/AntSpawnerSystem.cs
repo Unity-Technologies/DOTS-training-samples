@@ -95,7 +95,7 @@ public class AntSpawnerSystem : SystemBase
 
     static void CreateObstacles(EntityCommandBuffer cmd, in Entity prefab, in AntSpawner spawner, DynamicBuffer<ObstaclePosition> obstaclePositions)
     {
-        var rand = new DOTSRand(7);
+        var rand = new DOTSRand(25);
 
         for (int i = 1; i <= spawner.ObstacleRingCount; i++)
         {

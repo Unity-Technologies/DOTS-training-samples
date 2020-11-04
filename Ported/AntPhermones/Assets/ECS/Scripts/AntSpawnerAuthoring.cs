@@ -21,6 +21,9 @@ public class AntSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, ICo
     [SerializeField] float ObstaclesPerRing;
     [SerializeField] int ObstacleRingCount;
     [SerializeField] float MapSize;
+    [SerializeField] float GoalSteerStrength = 0.04f;
+    [SerializeField] float FoodRadius = 1f;
+    [SerializeField] float ColonyRadius = 1f;
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
@@ -46,6 +49,9 @@ public class AntSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, ICo
             ObstacleRingCount = ObstacleRingCount,
             MapSize = MapSize,
             NbAnts = NbAnts,
+            GoalSteerStrength = GoalSteerStrength,
+            FoodRadius = FoodRadius,
+            ColonyRadius = ColonyRadius,
         };
 
         dstManager.AddComponentData(entity, spawner);
