@@ -20,45 +20,34 @@ public class MoveCarOnLaneSystem : SystemBase
             .ForEach((Entity entity, ref Lane lane, ref DynamicBuffer<MyBufferElement> buffer) =>
             {
                 DynamicBuffer<Entity> carEntities = buffer.Reinterpret<Entity>();
-                if (carEntities.IsEmpty)
+                // A lane doesn't actually care about the first car, that's being handled by the Intersection
+                if (carEntities.Length <= 1)
                     return;
 
                 float previousCarPosition = 0.0f;
                 
-                for(int i = 0; i < carEntities.Length; i++)
+                for(int i = 1; i < carEntities.Length; i++)
                 {
 	                Entity car = carEntities[i];
 
 	                CarPosition carPosition = carPositionGetter[car];
 	                CarSpeed carSpeed = carSpeedGetter[car];
 
-	                // Speed adjustement are made by the intersection for the first car
-	                if (i != 0)
-	                {
-		                carSpeed.NormalizedValue += elapsedTime * CarSpeed.ACCELERATION;
-		                if (carSpeed.NormalizedValue > 1.0f)
-			                carSpeed.NormalizedValue = 1.0f;    
-	                }
-	                
-	                
 	                float newPosition = carPosition.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * elapsedTime;
 	                if(newPosition > lane.Length)
 		                newPosition = lane.Length;
 	                
 	                float approachMaxSpeed = 1f;
-	                // Cars that are not first need to adjust there speed based on the car in front
-	                if (i != 0)
-	                {
-		                float maxCarPosition = previousCarPosition - CarSpeed.CAR_SPACING;
-		                if (newPosition > maxCarPosition) {
-			                // Break for the car
-			                newPosition = maxCarPosition;
-			                carSpeed.NormalizedValue = 0f;
-			                approachMaxSpeed = 0;
-		                } else {
-			                // Slow down when approaching another car
-			                approachMaxSpeed = (maxCarPosition - newPosition)*5f;
-		                }
+	                
+	                float maxCarPosition = previousCarPosition - CarSpeed.CAR_SPACING;
+	                if (newPosition > maxCarPosition) {
+		                // Break for the car
+		                newPosition = maxCarPosition;
+		                carSpeed.NormalizedValue = 0f;
+		                approachMaxSpeed = 0;
+	                } else {
+		                // Slow down when approaching another car
+		                approachMaxSpeed = (maxCarPosition - newPosition)*5f;
 	                }
 
 	                if (carSpeed.NormalizedValue > approachMaxSpeed) {
