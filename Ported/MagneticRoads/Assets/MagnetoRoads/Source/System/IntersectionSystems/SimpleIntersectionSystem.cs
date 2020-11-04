@@ -1,6 +1,8 @@
 using Unity.Collections;
 using Unity.Entities;
 
+
+[UpdateAfter(typeof(TrafficSpawnerSystem))]
 public class SimpleIntersectionSystem : SystemBase
 {
     protected override void OnUpdate()

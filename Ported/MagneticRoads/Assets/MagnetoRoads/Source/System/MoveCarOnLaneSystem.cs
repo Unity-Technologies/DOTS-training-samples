@@ -6,12 +6,13 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(TripleIntersectionSystem))]
 public class MoveCarOnLaneSystem : SystemBase
 {
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        float elapsedTime = Time.DeltaTime;
+        float deltaTime = Time.DeltaTime;
 
         ComponentDataFromEntity<CarPosition> carPositionGetter = GetComponentDataFromEntity<CarPosition>(false);
         ComponentDataFromEntity<CarSpeed> carSpeedGetter = GetComponentDataFromEntity<CarSpeed>(false);
@@ -24,7 +25,7 @@ public class MoveCarOnLaneSystem : SystemBase
                 if (carEntities.Length <= 1)
                     return;
 
-                float previousCarPosition = 0.0f;
+                float previousCarPosition = carPositionGetter[carEntities[0]].Value;
                 
                 for(int i = 1; i < carEntities.Length; i++)
                 {
@@ -32,8 +33,13 @@ public class MoveCarOnLaneSystem : SystemBase
 
 	                CarPosition carPosition = carPositionGetter[car];
 	                CarSpeed carSpeed = carSpeedGetter[car];
+	                
+	                carSpeed.NormalizedValue += deltaTime * CarSpeed.ACCELERATION;
+	                if (carSpeed.NormalizedValue > 1.0f){
+		                carSpeed.NormalizedValue = 1.0f;    
+	                }
 
-	                float newPosition = carPosition.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * elapsedTime;
+	                float newPosition = carPosition.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * deltaTime;
 	                if(newPosition > lane.Length)
 		                newPosition = lane.Length;
 	                

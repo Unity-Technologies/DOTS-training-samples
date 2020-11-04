@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 
+[UpdateAfter(typeof(SimpleIntersectionSystem))]
 public class DoubleIntersectionSystem : SystemBase
 {
     protected override void OnUpdate()

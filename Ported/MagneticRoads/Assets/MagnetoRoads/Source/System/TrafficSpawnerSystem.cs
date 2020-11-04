@@ -74,7 +74,7 @@ public class TrafficSpawnerSystem : SystemBase
                 for (int i = 0; i < nbElements; i++)
                 {
                     carInstance = ecb.Instantiate(spawner.CarPrefab);
-                    ecb.SetComponent(carInstance, new CarPosition {Value = lane.Length - i * distance});
+                    ecb.SetComponent(carInstance, new CarPosition {Value = lane.Length - (i + 1) * distance});
                     ecb.SetComponent(carInstance, new CarSpeed {NormalizedValue = 0});
                     entityBuffer.Add(carInstance);    
                 }

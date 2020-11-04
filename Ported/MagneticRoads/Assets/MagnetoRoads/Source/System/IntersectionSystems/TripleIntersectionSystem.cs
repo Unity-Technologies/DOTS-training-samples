@@ -3,6 +3,7 @@ using Unity.Entities;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
+[UpdateAfter(typeof(DoubleIntersectionSystem))]
 public class TripleIntersectionSystem : SystemBase
 {
     private Random m_Random;
