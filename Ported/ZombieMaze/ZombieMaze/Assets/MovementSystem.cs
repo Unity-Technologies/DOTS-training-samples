@@ -18,15 +18,6 @@ public class MovementSystem : SystemBase
         directions[1] = math.right().xy;
         directions[2] = math.up().xy;
         directions[3] = math.down().xy;
-
-        var e = EntityManager.CreateEntity(typeof(ZombieTag), typeof(Position), typeof(Direction), typeof(Speed), typeof(Random));
-#if UNITY_EDITOR
-        EntityManager.SetName(e, "Zombie");
-#endif
-        EntityManager.SetComponentData(e, new Position());
-        EntityManager.SetComponentData(e, new Direction());
-        EntityManager.SetComponentData(e, new Speed(1));
-        EntityManager.SetComponentData(e, new Random(1234));
     }
 
     protected override void OnDestroy()
