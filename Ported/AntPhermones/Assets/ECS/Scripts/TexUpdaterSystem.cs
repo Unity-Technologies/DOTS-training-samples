@@ -80,9 +80,6 @@ public class TexUpdaterSystem : SystemBase
             })
             .WithoutBurst()
             .Run();
-
-        localPheromones[0] = 20f;
-        localPheromones[1] = 27f;
         
     }
 
