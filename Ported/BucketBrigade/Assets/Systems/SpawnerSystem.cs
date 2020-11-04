@@ -18,12 +18,15 @@ public class SpawnerSystem : SystemBase
             {
                 ecb.DestroyEntity(entity);
 
+                var instance;
+                Translation translation;
+
                 for (int i = 0; i < fireSim.FireGridDimension; ++i)
                 {
                     for (int j = 0; j < fireSim.FireGridDimension; ++j)
                     {
-                        var instance = ecb.Instantiate(spawner.FireCell);
-                        var translation = new Translation { Value = new float3(i, -0.4f, j) };
+                        instance = ecb.Instantiate(spawner.FireCell);
+                        translation = new Translation { Value = new float3(i, -1.6f, j) };
                         ecb.SetComponent(instance, translation);
 
                         ecb.AddComponent(instance, new FireCell { Temperature = 0 });
@@ -40,18 +43,17 @@ public class SpawnerSystem : SystemBase
                 {
                     for (int i = 0; i < fireSim.WaterCellCount; ++i)
                     {
-                        var instance = ecb.Instantiate(spawner.WaterCell);
-                        Translation translation;
+                        instance = ecb.Instantiate(spawner.WaterCell);
                         switch (j)
                         {
                             case 0:
-                                translation = new Translation { Value = new float3(i * 1.2f, 0, -2.0f) };
+                                translation = new Translation { Value = new float3(i * 1.2f, 0.0f, -2.0f) };
                                 break;
                             case 1:
-                                translation = new Translation { Value = new float3(-2.0f, 0, i * 1.2f) };
+                                translation = new Translation { Value = new float3(-2.0f, 0.0f, i * 1.2f) };
                                 break;
                             case 2:
-                                translation = new Translation { Value = new float3(i * 1.2f, 0, fireSim.FireGridDimension + 2.0f) };
+                                translation = new Translation { Value = new float3(i * 1.2f, 0.0f, fireSim.FireGridDimension + 2.0f) };
                                 break;
                             default:
                                 translation = new Translation { Value = new float3(fireSim.FireGridDimension + 2.0f, 0, i * 1.2f) };
@@ -66,10 +68,17 @@ public class SpawnerSystem : SystemBase
 
                 for (int i = 0; i < fireSim.BucketCount; ++i)
                 {
-                    var instance = ecb.Instantiate(spawner.BucketPrefab);
-                    var translation = new Translation { Value = new float3(UnityEngine.Random.Range(0.0f, fireSim.FireGridDimension), 0.5f, UnityEngine.Random.Range(0.0f, fireSim.FireGridDimension)) };
+                    instance = ecb.Instantiate(spawner.BucketPrefab);
+                    translation = new Translation { Value = new float3(UnityEngine.Random.Range(0.0f, fireSim.FireGridDimension), 0.4f, UnityEngine.Random.Range(0.0f, fireSim.FireGridDimension)) };
                     ecb.SetComponent(instance, translation);
                 }
+
+                instance = ecb.Instantiate(spawner.ScooperPrefab);
+                translation = new Translation { Value = new float3(0.0f, 0.0f, 0.0f) };
+                ecb.SetComponent(instance, translation);
+                ecb.SetComponent(instance, new MoveTowardBucket());
+
+                F
 
             }).Run();
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Entities;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
@@ -13,4 +14,14 @@ public struct FireSim : IComponentData
     [Range(0.0f, 1.0f)] public float FlashPoint;
     [Range(0.0f, 1.0f)] public float IgnitionRate;
     [Range(0.0f, 1.0f)] public float HeatTransfer;
+
+    protected override O
+
+    static public Entity GetClosestBucket()
+    {
+               
+        Entities.ForEach
+
+        return entity;
+    }
 }
