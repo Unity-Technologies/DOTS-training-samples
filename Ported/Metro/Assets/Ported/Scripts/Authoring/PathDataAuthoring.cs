@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using System.Linq;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -7,6 +8,7 @@ using UnityEngine;
 public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     [SerializeField] private Color pathColour;
+    [SerializeField] private RailMarkerType[] railMarkerTypes;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -70,18 +72,21 @@ public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             handlesOut[p] = handleOut;
         }
         
+        // Marker types
+        markers = new NativeArray<int>(railMarkerTypes.Select(t => (int)t).ToArray(), Allocator.Temp);
+        
         // Total path distance
         totalDistance = BezierHelpers.MeasurePath(positions, handlesIn, handlesOut, out distances);
 
-        dstManager.AddComponentData(entity, new PathData
-        {
-            Positions = positions,
-            MarkerType = markers,
-            HandlesIn = handlesIn,
-            HandlesOut = handlesOut,
-            Distances = distances,
-            TotalDistance = totalDistance
-        });
+        // dstManager.AddComponentData(entity, new PathData
+        // {
+        //     Positions = positions,
+        //     MarkerType = markers,
+        //     HandlesIn = handlesIn,
+        //     HandlesOut = handlesOut,
+        //     Distances = distances,
+        //     TotalDistance = totalDistance
+        // });
     }
 
     private void OnDrawGizmos()
