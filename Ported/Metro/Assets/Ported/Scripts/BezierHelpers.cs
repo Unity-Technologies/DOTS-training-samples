@@ -51,7 +51,7 @@ static public class BezierHelpers
         return regionDistance;
     }
 
-    static public float MeasurePath(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, int count, out NativeArray<float> distances)
+    static public float MeasurePath(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, int count, out float[] distances)
     {
         float distance = 0f;
         distances = new float[positions.Length];
