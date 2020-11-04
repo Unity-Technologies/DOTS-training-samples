@@ -7,6 +7,7 @@ public class TestRayCastSystem : SystemBase
 {
     protected override void OnCreate()
     {
+        RequireSingletonForUpdate<TestRayCastRequirement>();
         TestRayCast.EntityManager = EntityManager;
     }
 
