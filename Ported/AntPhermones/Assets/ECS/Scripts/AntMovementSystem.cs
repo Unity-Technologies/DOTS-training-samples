@@ -15,8 +15,7 @@ public class AntMovementSystem : SystemBase
 
     const float dt = 1.0f / 60;
     const float randomSteering = 0.1f;
-    const float pheromoneSteering = 0.015f;
-    const float pheromoneSteerStrength = 0.015f;
+    const float pheromoneSteerStrength = 0.001f;//Should be 0.015f;
     const float wallSteerStrength = 0.12f;
     const float antSpeed = 0.2f;
     const float antAccel = 0.07f;
@@ -63,7 +62,7 @@ public class AntMovementSystem : SystemBase
             direction.Value += rand.Random.NextFloat(-randomSteering, randomSteering);
 
             //pheromone steering
-            float pheroSteering = PheremoneSteering(pheromonesArray, translation, direction, 0.3f) * pheromoneSteering;
+            float pheroSteering = PheremoneSteering(pheromonesArray, translation, direction, 0.3f);
             var wallSteering = WallSteering(translation.Value, direction.Value, 0.15f, obstaclesPositions);
             var targetSpeed = antSpeed;
             targetSpeed *= 1f - (Mathf.Abs(pheroSteering) + Mathf.Abs(wallSteering)) / 3f;
