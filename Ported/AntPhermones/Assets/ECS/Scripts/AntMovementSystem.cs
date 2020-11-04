@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Collections;
 using UnityEngine;
 
 public class AntMovementSystem : SystemBase
@@ -14,26 +15,43 @@ public class AntMovementSystem : SystemBase
 
     const float dt = 1.0f / 60;
     const float randomSteering = 0.1f;
+    const float pheromoneSteering = 0.015f;
 
     public static readonly Vector2 bounds = new Vector2(5, 5);
 
     EntityCommandBufferSystem cmdBufferSystem;
 
+    EntityQuery doesTextInitExist;
+
     protected override void OnCreate()
     {
         cmdBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+
+        RequireSingletonForUpdate<TexSingleton>();
     }
 
     protected override void OnUpdate()
     {
         var cmd = cmdBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
+        //[TO DO] Improve this, its a crude way to "wait" for the texture initaliser to be done
+        EntityQuery doesTextInitExist = GetEntityQuery(typeof(TexInitialiser));
+        if (!doesTextInitExist.IsEmpty)
+        {
+            return;
+        }
+
+
         var spawnerEntity = GetSingletonEntity<AntSpawner>();
+        var pheromoneDataEntity = GetSingletonEntity<TexSingleton>();
         var spawner = GetComponent<AntSpawner>(spawnerEntity);
         var obstaclesPositions = GetBuffer<ObstaclePosition>(spawnerEntity);
+        var pheromonesArray = GetBuffer<PheromonesBufferData>(pheromoneDataEntity).AsNativeArray();
+
 
         Entities
         .WithReadOnly(obstaclesPositions)
+        .WithReadOnly(pheromonesArray)
         .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, in Entity antEntity, in Speed speed) =>
         {
             float dx = Mathf.Cos(direction.Value) * speed.Value * dt;
@@ -42,9 +60,11 @@ public class AntMovementSystem : SystemBase
             // Pseudo-random steering
             direction.Value += rand.Random.NextFloat(-randomSteering, randomSteering);
 
-            // TODO: pheromone steering
-
-
+            //pheromone steering
+            
+            float value = PheremoneSteering(pheromonesArray, translation, direction, 0.3f) * pheromoneSteering;
+            direction.Value += value;
+            
 
             // TODO: steer towards target
 
@@ -177,5 +197,32 @@ public class AntMovementSystem : SystemBase
     static bool HasReachedTarget(float3 position, float3 target, float targetRadius)
     {
         return math.distancesq(position, target) < (targetRadius * targetRadius);
+    }
+
+    
+    private static float PheremoneSteering(in NativeArray<PheromonesBufferData> pheromonesData,
+                                           in Translation antTranslation, in Direction antDirection, in float distance)
+    {
+        float output = 0f;
+
+        for (int i = -1; i <= 1; i += 2)
+        {
+            float angle = antDirection.Value + i * Mathf.PI * 0.25f;
+            float testX = antTranslation.Value.x + Mathf.Cos(angle) * distance;
+            float testY = antTranslation.Value.y + Mathf.Sin(angle) * distance;
+
+            if(TextureHelper.PositionWithInMapBounds(new Vector2(testX, testY)))
+            {
+                var testTranslation = new Translation() { Value = new float3(testX, 0, testY) };
+                int index = TextureHelper.GetTextureArrayIndexFromTranslation(testTranslation);
+
+                //Get value from the pheremones array array
+                float value = pheromonesData[index].Value;
+                output += value * i;
+            }
+        }
+
+
+        return Mathf.Sign(output);
     }
 }

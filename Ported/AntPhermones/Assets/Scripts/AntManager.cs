@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-/*public class AntManager : MonoBehaviour {
+/*
+public class AntManager : MonoBehaviour {
 	public Material basePheromoneMaterial;
 	public Renderer pheromoneRenderer;
 	public Material antMaterial;

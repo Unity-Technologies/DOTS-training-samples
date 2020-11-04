@@ -100,6 +100,7 @@ public class AntManager : MonoBehaviour {
 				output += value*i;
 			}
 		}
+		Debug.Log(output);
 		return Mathf.Sign(output);
 	}
 

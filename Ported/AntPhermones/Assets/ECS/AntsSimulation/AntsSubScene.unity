@@ -192,7 +192,7 @@ MonoBehaviour:
     type: 3}
   ColonyTransform: {fileID: 1043673332}
   FoodTransform: {fileID: 894346219}
-  NbAnts: 12800
+  NbAnts: 1280
   ObstacleRadius: 0.1
   ObstaclesPerRing: 0.8
   ObstacleRingCount: 3

@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Transforms;
@@ -24,7 +24,6 @@ public class TexUpdaterSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        Vector2 bounds = AntMovementSystem.bounds;
         int TexSize = RefsAuthoring.TexSize;
         float excitement = 4.0f; //TODO : increase the excitement level when holding resource (so it should be a component)
 
@@ -34,14 +33,15 @@ public class TexUpdaterSystem : SystemBase
         {
             return;
         }
-        var localPheromones = EntityManager.GetBuffer<PheromonesBufferData>(GetSingletonEntity<TexSingleton>()).AsNativeArray();
+
+
+        var localPheromones = EntityManager.GetBuffer<PheromonesBufferData>(GetSingletonEntity<TexSingleton>());
 
         Entities
             .WithNativeDisableParallelForRestriction(localPheromones)
             .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, in Speed speed) =>
             {
-                Vector2 texelCoord = new Vector2(0.5f * (-translation.Value.x / bounds.x) + 0.5f, 0.5f * (-translation.Value.z / bounds.y) + 0.5f);
-                int index = (int)(texelCoord.y * TexSize) * TexSize + (int)(texelCoord.x * TexSize);
+                int index = TextureHelper.GetTextureArrayIndexFromTranslation(translation);
                 localPheromones[index] += (speed.Value * dt * excitement) * (1.0f - localPheromones[index]);
                 localPheromones[index] = ((float)localPheromones[index] > 1.0f) ? 1.0f : (float)localPheromones[index];
                
@@ -63,12 +63,12 @@ public class TexUpdaterSystem : SystemBase
             })
             .WithoutBurst()
             .Run();
+
+        localPheromones[0] = 20f;
+        localPheromones[1] = 27f;
         
     }
 
-    protected override void OnDestroy()
-    {
-        //pheromones.Dispose();
-    }
+    
     
 }
