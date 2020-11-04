@@ -54,8 +54,11 @@ public class MazeAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
 
         spawner.Prefab = wallPrefabEntity;
         dstManager.AddComponentData(mazeSpawnerEntity, mazeSpawner);
-        dstManager.AddComponentData(mazeSpawnerEntity, spawner);   
-        
+        dstManager.AddComponentData(mazeSpawnerEntity, spawner);
+
+        var mazeSizeEntity = conversionSystem.CreateAdditionalEntity(gameObject);
+        dstManager.AddComponentData(mazeSizeEntity, new MazeSize{Value = (int2)tileMazeSize});
+
         //TODO: spawn capsules
     }
 

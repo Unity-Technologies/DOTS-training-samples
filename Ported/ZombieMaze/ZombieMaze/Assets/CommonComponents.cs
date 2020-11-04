@@ -66,6 +66,11 @@ public struct MazeSpawner : IComponentData
     public uint MazeStripsWidth;
 }
 
+public struct MazeSize : IComponentData
+{
+    public int2 Value;
+}
+
 [Flags]
 public enum WallBits : byte
 {
