@@ -19,6 +19,15 @@ public class TrafficSpawnerSystem : SystemBase
         
     }
 
+    private static Entity CreateCar(EntityCommandBuffer ecb, Entity prefab, float position, float3 color)
+    {
+        Entity carInstance = ecb.Instantiate(prefab);
+        ecb.SetComponent(carInstance, new CarPosition {Value = position});
+        ecb.SetComponent(carInstance, new CarSpeed {NormalizedValue = 0});
+        ecb.AddComponent<URPMaterialPropertyBaseColor>(carInstance, new URPMaterialPropertyBaseColor(){Value = new float4(color.x, color.y, color.z, 1)});
+        return carInstance;
+    }
+
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -76,10 +85,7 @@ public class TrafficSpawnerSystem : SystemBase
 
                 for (int i = 0; i < nbElements; i++)
                 {
-                    carInstance = ecb.Instantiate(spawner.CarPrefab);
-                    ecb.SetComponent(carInstance, new CarPosition {Value = lane.Length - (i + 1) * distance});
-                    ecb.SetComponent(carInstance, new CarSpeed {NormalizedValue = 0});
-                    entityBuffer.Add(carInstance);    
+                    entityBuffer.Add(CreateCar(ecb, spawner.CarPrefab, lane.Length - i * distance, random.NextFloat3(new float3(1,1.0f, 1.0f))));
                 }
                 
                 //var buffer = lookup[laneA0];
@@ -125,9 +131,7 @@ public class TrafficSpawnerSystem : SystemBase
                 
                 for (int i = 0; i < nbElements; i++)
                 {
-                    carInstance = ecb.Instantiate(spawner.CarPrefab);
-                    ecb.SetComponent(carInstance, new CarPosition {Value = lane.Length - i * distance});
-                    entityBuffer.Add(carInstance);    
+                    entityBuffer.Add(CreateCar(ecb, spawner.CarPrefab, lane.Length - i * distance, random.NextFloat3(new float3(1,1.0f, 1.0f))));
                 }
                 
                 var firstDeadEnd = ecb.Instantiate(spawner.SimpleIntersectionPrefab);
