@@ -22,8 +22,8 @@ public class AntSpawnerAuthoring : MonoBehaviour, IDeclareReferencedPrefabs, ICo
     [SerializeField] int ObstacleRingCount;
     [SerializeField] float MapSize;
     [SerializeField] float GoalSteerStrength = 0.04f;
-    [SerializeField] float FoodRadius = 1f;
-    [SerializeField] float ColonyRadius = 1f;
+    [SerializeField] float FoodRadius = 0.25f;
+    [SerializeField] float ColonyRadius = 0.25f;
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {

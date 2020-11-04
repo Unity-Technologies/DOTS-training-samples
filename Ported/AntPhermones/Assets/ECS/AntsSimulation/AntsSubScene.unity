@@ -198,8 +198,8 @@ MonoBehaviour:
   ObstacleRingCount: 3
   MapSize: 8
   GoalSteerStrength: 0.04
-  FoodRadius: 1
-  ColonyRadius: 1
+  FoodRadius: 0.25
+  ColonyRadius: 0.25
 --- !u!4 &943890408
 Transform:
   m_ObjectHideFlags: 0
