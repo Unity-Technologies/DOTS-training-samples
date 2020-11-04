@@ -1327,7 +1327,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54b82285dfe72407b992661a30851b0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlatformPrefab: {fileID: 0}
+  PlatformPrefab: {fileID: 1927223710094276602, guid: 7d78adce79f3b480eab5cb2cd55c9b9a,
+    type: 3}
   RailPrefab: {fileID: 494735325195885990, guid: ead1b0566016c4841aedb15be2f61167,
     type: 3}
   CommuterPrefab: {fileID: 0}
