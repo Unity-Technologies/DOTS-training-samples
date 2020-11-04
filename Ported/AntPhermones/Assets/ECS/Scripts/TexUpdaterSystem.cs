@@ -5,6 +5,7 @@ using Unity.Transforms;
 using Unity.Collections;
 using UnityEngine;
 
+[UpdateInGroup(typeof(PresentationSystemGroup))]
 public class TexUpdaterSystem : SystemBase
 {
     const float dt = 1.0f / 60;
@@ -25,8 +26,12 @@ public class TexUpdaterSystem : SystemBase
         Vector2 bounds = AntMovementSystem.bounds;
         int TexSize = RefsAuthoring.TexSize;
 
-        /*
         //Get the pheremones data 
+        EntityQuery doesTextInitExist = GetEntityQuery(typeof(TexInitialiser));
+        if(!doesTextInitExist.IsEmpty)
+        {
+            return;
+        }
         var localPheromones = EntityManager.GetBuffer<PheromonesBufferData>(GetSingletonEntity<TexSingleton>()).AsNativeArray();
 
         Entities
@@ -54,7 +59,7 @@ public class TexUpdaterSystem : SystemBase
             })
             .WithoutBurst()
             .Run();
-        */
+        
     }
 
     protected override void OnDestroy()
