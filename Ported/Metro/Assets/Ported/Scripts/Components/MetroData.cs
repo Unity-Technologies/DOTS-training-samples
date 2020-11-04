@@ -6,4 +6,5 @@ public struct MetroData : IComponentData
     public Entity PlatformPrefab;
     public Entity RailPrefab;
     public Entity CommuterPrefab;
+    public Entity CarriagePrefab;
 }
