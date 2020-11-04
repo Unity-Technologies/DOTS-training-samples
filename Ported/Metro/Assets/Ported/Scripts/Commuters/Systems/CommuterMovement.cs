@@ -10,7 +10,7 @@ namespace MetroECS.Comuting
         {
             var deltaTime = Time.DeltaTime;
 
-            Entities.ForEach((ref Translation translation, ref DynamicBuffer<MoveTarget> targets, in CommuterTag commute) =>
+            Entities.ForEach((ref Translation translation, ref DynamicBuffer<MoveTarget> targets, in Commuter commute) =>
             {
                 var currentTarget = targets[0];
                 if (math.distance(translation.Value, currentTarget.Position) < 0.1f)
