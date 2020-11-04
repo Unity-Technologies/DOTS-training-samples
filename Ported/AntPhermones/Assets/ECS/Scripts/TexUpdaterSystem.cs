@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Transforms;
@@ -55,8 +55,7 @@ public class TexUpdaterSystem : SystemBase
                 {
                     for (int j = 0; j < TexSize; ++j)
                     {
-                        float preDecayValue = localPheromones[j * TexSize + i];
-                        localPheromones[j * TexSize + i] = preDecayValue;
+                        localPheromones[j * TexSize + i] *= decay;
                         map.PheromoneMap.SetPixel(i, j, new Color(localPheromones[j * TexSize + i], 0, 0));
                     }
                 }
