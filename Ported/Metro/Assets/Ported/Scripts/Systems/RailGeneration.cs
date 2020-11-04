@@ -61,3 +61,7 @@ public class RailGeneration : SystemBase
         Enabled = false;
     }
 }
+
+namespace MetroECS
+{
+}
