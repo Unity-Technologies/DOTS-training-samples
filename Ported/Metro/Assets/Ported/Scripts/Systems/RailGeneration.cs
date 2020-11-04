@@ -1,41 +1,33 @@
 ﻿using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
 
-unsafe public class RailGeneration : SystemBase
+public class RailGeneration : SystemBase
 {
-    unsafe protected override void OnUpdate()
+    protected override void OnUpdate()
     {
         var railPrefab = GetSingleton<MetroData>().RailPrefab;
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities.ForEach((in PathRef pathdata) =>
-        { 
-            ref var positionsB = ref pathdata.Data.Value.Positions;
-            ref var handlesInB = ref pathdata.Data.Value.HandlesIn;
-            ref var handlesOutB = ref pathdata.Data.Value.HandlesOut;
-            ref var distancesB = ref pathdata.Data.Value.Distances;
-            float totalAbsoluteDistance = pathdata.Data.Value.TotalDistance;
+        Entities.ForEach((in PathRef pathRef) =>
+        {
+            var positions = pathRef.Data.Value.Positions.ToNativeArray();
+            var handlesIn = pathRef.Data.Value.HandlesIn.ToNativeArray();
+            var handlesOut = pathRef.Data.Value.HandlesOut.ToNativeArray();
+            var distances = pathRef.Data.Value.Distances.ToNativeArray();
+            
+            float totalAbsoluteDistance = pathRef.Data.Value.TotalDistance;
             float absoluteDistance = 0.0f;
-            float3 color = pathdata.Data.Value.Colour;
-
-            NativeArray<float3> nativePositions = positionsB.ToNativeArray();
-            NativeArray<float3> nativeHandlesIn = handlesInB.ToNativeArray();
-            NativeArray<float3> nativeHandlesOut = handlesOutB.ToNativeArray();
-            NativeArray<float> nativeDistances = distancesB.ToNativeArray();
-
-            int count = nativePositions.Length;
+            float3 color = pathRef.Data.Value.Colour;
 
             while (absoluteDistance < totalAbsoluteDistance)
             {
                 float coef = absoluteDistance / totalAbsoluteDistance;
 
-                float3 railPos = BezierHelpers.GetPosition(nativePositions, nativeHandlesIn, nativeHandlesOut, nativeDistances, totalAbsoluteDistance, coef);
-                float3 railRot = BezierHelpers.GetNormalAtPosition(nativePositions, nativeHandlesIn, nativeHandlesOut, nativeDistances, totalAbsoluteDistance, coef);
+                float3 railPos = BezierHelpers.GetPosition(positions, handlesIn, handlesOut, distances, totalAbsoluteDistance, coef);
+                float3 railRot = BezierHelpers.GetNormalAtPosition(positions, handlesIn, handlesOut, distances, totalAbsoluteDistance, coef);
 
                 var railEntity = ecb.Instantiate(railPrefab);
                 var railTranslation = new Translation { Value = railPos };

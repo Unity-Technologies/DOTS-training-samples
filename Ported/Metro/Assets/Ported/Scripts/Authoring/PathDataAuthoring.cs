@@ -28,11 +28,10 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         var distancesB = builder.Allocate(ref pathData.Distances, totalMarkerCount);
         var markerTypesB = builder.Allocate(ref pathData.MarkerTypes, totalMarkerCount);
 
-        NativeArray<float3> nativePositions  = positionsB.ToNativeArray();
-        NativeArray<float3> nativeHandlesIn  = handlesInB.ToNativeArray();
-        NativeArray<float3> nativeHandlesOut = handlesOutB.ToNativeArray();
-        NativeArray<float>  nativeDistances  = distancesB.ToNativeArray();
-        //var nativeMarkerTypes = UnsafeHelper.GetNativeArrayFromBlobBuilder<int>(markerTypesB);
+        var nativePositions  = positionsB.ToNativeArray();
+        var nativeHandlesIn  = handlesInB.ToNativeArray();
+        var nativeHandlesOut = handlesOutB.ToNativeArray();
+        var nativeDistances  = distancesB.ToNativeArray();
 
         // Outbound Positions
         for (var c = 0; c < transform.childCount; c++)
@@ -65,7 +64,9 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
             markerTypesB[m] = (int)railMarkerTypes[m];
 
             // Return
-            markerTypesB[halfMarkerCount + m] = (int)railMarkerTypes[halfMarkerCount - 1 - m];
+            var rmType = railMarkerTypes[halfMarkerCount - 1 - m];
+            markerTypesB[halfMarkerCount + m] = (int)(rmType == RailMarkerType.ROUTE ? RailMarkerType.ROUTE
+                : (rmType == RailMarkerType.PLATFORM_START ? RailMarkerType.PLATFORM_END : RailMarkerType.PLATFORM_START));
         }
 
         // Total path distance
