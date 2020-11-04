@@ -12,6 +12,6 @@ public class PositionToTranslation : SystemBase
         Entities.ForEach((ref Translation translation, in Position position) =>
         {
             translation.Value.xz = position.Value;
-        }).Schedule();
+        }).ScheduleParallel();
     }
 }
