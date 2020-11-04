@@ -55,7 +55,6 @@ public class TrackSpawner : MonoBehaviour
             {
                 if (_usedCellsRaw[i])
                 {
-                   // Debug.Log(GetVector3FromIndex(i));
                     locations.Add(GetVector3FromIndex(i));
                 }
             }
@@ -64,6 +63,7 @@ public class TrackSpawner : MonoBehaviour
 
             Debug.Log($"Active Cells: {locations.Count}");
             Debug.Log($"Intersections Cells: {_intersectionData.Length}");
+            Debug.Log($"Splines Data: {_splineData.Length}");
             
             _generator = null;
         }
@@ -98,13 +98,15 @@ public class TrackSpawner : MonoBehaviour
     
     public void OnDrawGizmos()
     {
+        Color transparent = new Color(1, 1, 1, 0.1f);
+        
         // Should used cells
         if (_usedCells != null && _usedCells.Length > 0)
         {
             foreach (var c in _usedCells)
             {
-                Gizmos.color = Color.white;
-                Gizmos.DrawWireCube(new Vector3(c.x, c.y, c.z), Vector3.one);
+                Gizmos.color = transparent;
+                Gizmos.DrawCube(new Vector3(c.x, c.y, c.z), Vector3.one);
             }
         }
 
