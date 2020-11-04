@@ -16,11 +16,10 @@ public struct PropagationJob : IJobParallelFor
 
     public void Execute(int index)
     {
-        Assert.IsTrue(index < FireGridDimension * FireGridDimension);
-        float Temperature = 0;
-        // Calculate the two dimensions indices for this cel
+        // Calculate the two dimensions indices for this cell
         int2 cell = new int2(index / FireGridDimension, index % FireGridDimension);
 
+        float Temperature = 0;
         var radius = PropagationRadius;
         for (int i = -radius; i <= radius; i++)
         {

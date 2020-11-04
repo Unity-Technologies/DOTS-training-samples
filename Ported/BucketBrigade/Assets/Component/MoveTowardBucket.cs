@@ -4,5 +4,5 @@ using Unity.Transforms;
 [GenerateAuthoringComponent]
 public struct MoveTowardBucket: IComponentData
 {
-    Translation position;
+    public Entity Target;
 }

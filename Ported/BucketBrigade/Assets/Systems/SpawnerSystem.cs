@@ -8,17 +8,18 @@ public class SpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        //World.GetExistingSystem<FirePropagationSystem>()
         FireSim fireSim = GetSingleton<FireSim>();
 
         var time = Time.ElapsedTime;
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var random = new Random(42);
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var em = EntityManager;
 
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
             {
-                ecb.DestroyEntity(entity);
-
-                var instance;
+                Entity instance;
                 Translation translation;
 
                 for (int i = 0; i < fireSim.FireGridDimension; ++i)
@@ -26,15 +27,9 @@ public class SpawnerSystem : SystemBase
                     for (int j = 0; j < fireSim.FireGridDimension; ++j)
                     {
                         instance = ecb.Instantiate(spawner.FireCell);
-                        translation = new Translation { Value = new float3(i, -1.6f, j) };
-                        ecb.SetComponent(instance, translation);
-
+                        ecb.SetComponent(instance, new Translation { Value = new float3(i, -1.6f, j) });
                         ecb.AddComponent(instance, new FireCell { Temperature = 0 });
-
-                        ecb.AddComponent(instance, new URPMaterialPropertyBaseColor
-                        {
-                            Value = new float4(0, 1, 0, 0)
-                        });
+                        ecb.AddComponent(instance, new URPMaterialPropertyBaseColor { Value = new float4(0, 1, 0, 0) });
                     }
                 }
 
@@ -61,27 +56,40 @@ public class SpawnerSystem : SystemBase
                         }
                         ecb.SetComponent(instance, translation);
 
-                        ecb.AddComponent(instance, new WaterCell { Volume = UnityEngine.Random.Range(0, 100) });
+                        ecb.AddComponent(instance, new WaterCell { Volume = random.NextInt(0, 100) });
                     }
                 }
-
 
                 for (int i = 0; i < fireSim.BucketCount; ++i)
                 {
                     instance = ecb.Instantiate(spawner.BucketPrefab);
-                    translation = new Translation { Value = new float3(UnityEngine.Random.Range(0.0f, fireSim.FireGridDimension), 0.4f, UnityEngine.Random.Range(0.0f, fireSim.FireGridDimension)) };
+                    translation = new Translation { Value = new float3(random.NextInt(0, fireSim.FireGridDimension), 0.4f, random.NextInt(0, fireSim.FireGridDimension)) };
                     ecb.SetComponent(instance, translation);
+                    ecb.AddComponent(instance, new EmptyBucket());
                 }
-
-                instance = ecb.Instantiate(spawner.ScooperPrefab);
-                translation = new Translation { Value = new float3(0.0f, 0.0f, 0.0f) };
-                ecb.SetComponent(instance, translation);
-                ecb.SetComponent(instance, new MoveTowardBucket());
-
-                F
 
             }).Run();
 
         ecb.Playback(EntityManager);
+        ecb.Dispose();
+        
+        ecb = new EntityCommandBuffer(Allocator.TempJob);
+
+        Entities
+            .ForEach((Entity entity, in Spawner spawner) =>
+            {
+                ecb.DestroyEntity(entity);
+
+                for (int i = 0; i < fireSim.ChainCount; i++)
+                {
+                    var instance = ecb.Instantiate(spawner.ScooperPrefab);
+                    var scooperPosition = new float3(random.NextInt(0, fireSim.FireGridDimension), 0.0f, random.NextInt(0, fireSim.FireGridDimension));
+                    ecb.SetComponent(instance, new Translation { Value = scooperPosition });
+                    ecb.AddComponent(instance, new MoveTowardBucket() { Target = FireSimSystem.GetClosestBucket(scooperPosition, em) });
+                }
+            }).Run();
+
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }

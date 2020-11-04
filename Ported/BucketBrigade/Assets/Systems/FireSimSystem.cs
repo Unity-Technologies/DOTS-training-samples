@@ -1,9 +1,11 @@
-﻿using Unity.Collections;
+﻿using System.Diagnostics;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine.UIElements;
+using UnityEngine;
 
 public struct GetClosestBucket : IJob
 {
@@ -27,6 +29,8 @@ public class FireSimSystem : SystemBase
     public static Entity GetClosestBucket(float3 position, EntityManager em)
     {
         var emptyBuckets = emptyBucketQuery.ToEntityArray(Allocator.Temp);
+        //var bucketPositions = emptyBucketQuery.ToComponentDataArray<Translation>(Allocator.Temp);
+
         float3 closestPosition = new float3();
         float distance = float.MaxValue;
         Entity closestBucket = Entity.Null;
