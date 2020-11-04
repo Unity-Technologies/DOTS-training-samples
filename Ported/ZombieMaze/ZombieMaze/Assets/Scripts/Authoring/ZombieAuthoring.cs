@@ -16,8 +16,6 @@ public class ZombieAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new Direction());
         dstManager.AddComponentData(entity, new Speed(1));
         dstManager.AddComponentData(entity, new Random((uint)UnityEngine.Random.Range(0,int.MaxValue)));
-
-        dstManager.AddComponentData(entity,
-            new URPMaterialPropertyBaseColor {Value = new float4(0, UnityEngine.Random.value, 0, 1)});
+        dstManager.AddComponent<URPMaterialPropertyBaseColor>(entity);
     }
 }

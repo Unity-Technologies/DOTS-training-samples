@@ -27,22 +27,22 @@ public class MazeGenerator : SystemBase
             for (var i = 0; i < spawner.MazeSize.x; i++)
             {
                 var spawnedTile = ecb.Instantiate(spawner.Prefab);
-                ecb.SetComponent(spawnedTile, new Translation {Value = new float3(i - halfWidth, 0,  -halfHeight-1)});
+                ecb.SetComponent(spawnedTile, new Translation {Value = new float3(i - halfWidth, 0,  -halfHeight - 0.5f)});
                 ecb.SetComponent(spawnedTile, new Rotation{Value = quaternion.Euler(0,math.PI, 0 )});
                 
                 spawnedTile = ecb.Instantiate(spawner.Prefab);
-                ecb.SetComponent(spawnedTile, new Translation {Value = new float3(i - halfWidth, 0,  halfHeight + 1)});
+                ecb.SetComponent(spawnedTile, new Translation {Value = new float3(i - halfWidth, 0,  halfHeight - 0.5f)});
             }
             
             // side walls
             for (var i = 0; i < spawner.MazeSize.y; i++)
             {
                 var spawnedTile = ecb.Instantiate(spawner.Prefab);
-                ecb.SetComponent(spawnedTile, new Translation {Value = new float3(-halfWidth -1, 0,  i-halfHeight)});
+                ecb.SetComponent(spawnedTile, new Translation {Value = new float3(-halfWidth - 0.5f, 0,  i-halfHeight)});
                 ecb.SetComponent(spawnedTile, new Rotation{Value = quaternion.Euler(0,-math.PI/2, 0 )});
                 
                 spawnedTile = ecb.Instantiate(spawner.Prefab);
-                ecb.SetComponent(spawnedTile, new Translation {Value = new float3(halfWidth + 1, 0,  i-halfHeight)});
+                ecb.SetComponent(spawnedTile, new Translation {Value = new float3(halfWidth - 0.5f, 0,  i-halfHeight)});
                 ecb.SetComponent(spawnedTile, new Rotation{Value = quaternion.Euler(0,math.PI/2 , 0)});
             }
 

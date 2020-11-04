@@ -36,11 +36,12 @@ public class MazeAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
             NumZombies = numZombies
         };
         var zombiePrefabEntity = conversionSystem.GetPrimaryEntity(zombiePrefab);
-        var zombieSpawnerEntity = conversionSystem.CreateAdditionalEntity(this.gameObject);
+        var zombieSpawnerEntity = conversionSystem.CreateAdditionalEntity(gameObject);
 
         spawner.Prefab = zombiePrefabEntity;
         dstManager.AddComponentData(zombieSpawnerEntity, zombieSpawner);
         dstManager.AddComponentData(zombieSpawnerEntity, spawner);
+        dstManager.AddComponentData(zombieSpawnerEntity, new Random {Value = new Unity.Mathematics.Random(3049)});
         
         //maze spawner
         var mazeSpawner = new MazeSpawner
@@ -49,7 +50,7 @@ public class MazeAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
             MazeStripsWidth = mazeStripWidth
         };
         var wallPrefabEntity = conversionSystem.GetPrimaryEntity(wallPrefab);
-        var mazeSpawnerEntity = conversionSystem.CreateAdditionalEntity(this.gameObject);
+        var mazeSpawnerEntity = conversionSystem.CreateAdditionalEntity(gameObject);
 
         spawner.Prefab = wallPrefabEntity;
         dstManager.AddComponentData(mazeSpawnerEntity, mazeSpawner);

@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 243676711}
   - component: {fileID: 243676710}
   m_Layer: 0
-  m_Name: New Sub Scene
+  m_Name: Zombie Scene
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -366,6 +366,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   yMin: 5
   ySpeed: 8
+  playerPosition:
+    x: 0
+    y: 0
+    z: 0
 --- !u!114 &963194230
 MonoBehaviour:
   m_ObjectHideFlags: 0
