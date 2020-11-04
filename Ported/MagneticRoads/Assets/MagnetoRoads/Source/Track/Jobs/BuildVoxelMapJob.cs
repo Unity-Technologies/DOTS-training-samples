@@ -15,34 +15,34 @@ namespace Magneto.Track.Jobs
 
         [ReadOnly] public NativeArray<int3> R_CachedNeighbourIndexOffsets;
         [ReadOnly] public NativeArray<int3> R_LimitedCachedNeighbourIndexOffsets;
-        
+
         public NativeList<IntersectionData> RW_Intersections;
         public NativeStrideGridArray<bool> RW_TrackVoxels;
-        
+
         [WriteOnly] public NativeStrideGridArray<int> W_IntersectionsGrid;
 
         public void Execute()
         {
-            int middle = TrackManager.VOXEL_COUNT / 2;
-            
+            var middle = TrackManager.VOXEL_COUNT / 2;
+
             // TODO Make random:)
-            var random = Unity.Mathematics.Random.CreateFromIndex(0);
-            
+            var random = Random.CreateFromIndex(0);
+
             // Create our temp allocated
             var activeVoxels = new NativeList<int3>(Allocator.Temp) {new int3(middle, middle, middle)};
 
             RW_TrackVoxels[middle, middle, middle] = true;
 
-            for (int i = 0; i < IterationCount; i++)
+            for (var i = 0; i < IterationCount; i++)
             {
                 if (activeVoxels.Length == 0) break;
-                
-                int index = random.NextInt(0, activeVoxels.Length);
-                
-                int3 currentPosition = activeVoxels[index];
-                int3 randomDirection = R_CachedNeighbourIndexOffsets[random.NextInt(0, TrackManager.DIRECTIONS_LENGTH)];
-                
-                int3 newPosition = currentPosition + randomDirection;
+
+                var index = random.NextInt(0, activeVoxels.Length);
+
+                var currentPosition = activeVoxels[index];
+                var randomDirection = R_CachedNeighbourIndexOffsets[random.NextInt(0, TrackManager.DIRECTIONS_LENGTH)];
+
+                var newPosition = currentPosition + randomDirection;
 
                 // Evaluate our neighbour position for an active voxel
                 if (!GetVoxel(newPosition) && CountNeighbors(newPosition, true) < 3)
@@ -62,7 +62,7 @@ namespace Magneto.Track.Jobs
 
                     RW_Intersections.Add(intersectionData);
                     W_IntersectionsGrid[currentPosition] = RW_Intersections.Length - 1;
-                    
+
                     activeVoxels.RemoveAt(index);
                 }
             }
@@ -74,48 +74,41 @@ namespace Magneto.Track.Jobs
         {
             return GetVoxel(new int3(x, y, z));
         }
-        
-        
+
+
         private bool GetVoxel(int3 position, bool outOfBoundsReturns = true)
         {
-            if (position.x >= 0 && position.x < TrackManager.VOXEL_COUNT && 
-                position.y >= 0 && position.y < TrackManager.VOXEL_COUNT && 
-                position.z >= 0 && position.z < TrackManager.VOXEL_COUNT) {
-                return RW_TrackVoxels[position.x,position.y, position.z];
-            }
+            if (position.x >= 0 && position.x < TrackManager.VOXEL_COUNT &&
+                position.y >= 0 && position.y < TrackManager.VOXEL_COUNT &&
+                position.z >= 0 && position.z < TrackManager.VOXEL_COUNT)
+                return RW_TrackVoxels[position.x, position.y, position.z];
 
             return outOfBoundsReturns;
         }
-        
-        private int CountNeighbors(int3 position, bool includeDiagonal = false) 
+
+        private int CountNeighbors(int3 position, bool includeDiagonal = false)
         {
-            int neighborCount = 0;
-            int x = position.x;
-            int y = position.y;
-            int z = position.z;
+            var neighborCount = 0;
+            var x = position.x;
+            var y = position.y;
+            var z = position.z;
 
-            
+
             if (includeDiagonal)
-            {
-                for (int k = 0; k < TrackManager.DIRECTIONS_LENGTH; k++) {
-                    int3 dir = R_CachedNeighbourIndexOffsets[k];
-                    
-                    if (GetVoxel(x + dir.x,y + dir.y,z + dir.z)) {
-                        neighborCount++;
-                    }
-                }
-            }
-            else
-            {
-                for (int k = 0; k < TrackManager.LIMITED_DIRECTIONS_LENGTH; k++) {
-                    int3 dir = R_LimitedCachedNeighbourIndexOffsets[k];
-                    if (GetVoxel(x + dir.x,y + dir.y,z + dir.z)) {
-                        neighborCount++;
-                    }
-                }
-            }
+                for (var k = 0; k < TrackManager.DIRECTIONS_LENGTH; k++)
+                {
+                    var dir = R_CachedNeighbourIndexOffsets[k];
 
-            
+                    if (GetVoxel(x + dir.x, y + dir.y, z + dir.z)) neighborCount++;
+                }
+            else
+                for (var k = 0; k < TrackManager.LIMITED_DIRECTIONS_LENGTH; k++)
+                {
+                    var dir = R_LimitedCachedNeighbourIndexOffsets[k];
+                    if (GetVoxel(x + dir.x, y + dir.y, z + dir.z)) neighborCount++;
+                }
+
+
             return neighborCount;
         }
     }

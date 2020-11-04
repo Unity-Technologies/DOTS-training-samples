@@ -6,28 +6,26 @@ using UnityEngine;
 
 namespace Magneto.Track.Jobs
 {
-    public struct BuildVoxelNetworkJob  : IJob
+    public struct BuildVoxelNetworkJob : IJob
     {
         [ReadOnly] public NativeList<IntersectionData> R_Intersections;
         [ReadOnly] public NativeStrideGridArray<int> R_IntersectionsGrid;
         [ReadOnly] public NativeArray<int3> R_LimitedCachedNeighbourIndexOffsets;
         [ReadOnly] public NativeStrideGridArray<bool> R_TrackVoxels;
-        
+
         [WriteOnly] public NativeList<SplineData> W_OutSplines;
-        
+
         public void Execute()
-        //public void Execute(int index)
+            //public void Execute(int index)
         {
-            int count = R_Intersections.Length;
-            for (int index = 0; index < count; index++)
+            var count = R_Intersections.Length;
+            for (var index = 0; index < count; index++)
             {
-
-
                 // Get specific data
-                IntersectionData intersectionData = R_Intersections[index];
-                int3 axesWithNeighbors = int3.zero;
+                var intersectionData = R_Intersections[index];
+                var axesWithNeighbors = int3.zero;
 
-                for (int j = 0; j < TrackManager.LIMITED_DIRECTIONS_LENGTH; j++)
+                for (var j = 0; j < TrackManager.LIMITED_DIRECTIONS_LENGTH; j++)
                 {
                     if (GetVoxel(intersectionData.Index + R_LimitedCachedNeighbourIndexOffsets[j], false))
                     {
@@ -37,14 +35,14 @@ namespace Magneto.Track.Jobs
 
                         var intersectionFirst = FindFirstIntersection(intersectionData.Index,
                             R_LimitedCachedNeighbourIndexOffsets[j], out var connectionDirection);
-                        
-                        if(intersectionFirst == -1) continue;
-                        
+
+                        if (intersectionFirst == -1) continue;
+
                         var neighbourData = R_Intersections[intersectionFirst];
 
                         if (neighbourData.ListIndex != -1 && neighbourData.ListIndex != intersectionData.ListIndex)
                         {
-                            W_OutSplines.Add(new SplineData()
+                            W_OutSplines.Add(new SplineData
                             {
                                 StartPosition = intersectionData.Position,
                                 StartNormal = intersectionData.Normal,
@@ -73,35 +71,42 @@ namespace Magneto.Track.Jobs
                 // }
             }
         }
-        
+
         private bool GetVoxel(int3 position, bool outOfBoundsReturns = true)
         {
-            if (position.x >= 0 && position.x < TrackManager.VOXEL_COUNT && 
-                position.y >= 0 && position.y < TrackManager.VOXEL_COUNT && 
-                position.z >= 0 && position.z < TrackManager.VOXEL_COUNT) {
-                return R_TrackVoxels[position.x,position.y, position.z];
+            if (position.x >= 0 && position.x < TrackManager.VOXEL_COUNT &&
+                position.y >= 0 && position.y < TrackManager.VOXEL_COUNT &&
+                position.z >= 0 && position.z < TrackManager.VOXEL_COUNT)
+            {
+                return R_TrackVoxels[position.x, position.y, position.z];
             }
 
             return outOfBoundsReturns;
         }
-        
+
         // TODO: this will need to return the index
-        int FindFirstIntersection(int3 pos, int3 dir, out int3 otherDirection) {
+        private int FindFirstIntersection(int3 pos, int3 dir, out int3 otherDirection)
+        {
             // step along our voxel paths (before splines have been spawned),
             // starting at one intersection, and stopping when we reach another intersection
-            while (true) {
+            while (true)
+            {
                 pos += dir;
-                if (R_IntersectionsGrid[pos.x,pos.y,pos.z]!=-1) {
-                    otherDirection = dir*-1;
-                    return R_IntersectionsGrid[pos.x,pos.y,pos.z];
+                if (R_IntersectionsGrid[pos.x, pos.y, pos.z] != -1)
+                {
+                    otherDirection = dir * -1;
+                    return R_IntersectionsGrid[pos.x, pos.y, pos.z];
                 }
-                if (GetVoxel(pos+dir,false)==false) {
-                    bool foundTurn = false;
-                    for (int i=0;i<TrackManager.LIMITED_DIRECTIONS_LENGTH;i++) 
+
+                if (GetVoxel(pos + dir, false) == false)
+                {
+                    var foundTurn = false;
+                    for (var i = 0; i < TrackManager.LIMITED_DIRECTIONS_LENGTH; i++)
                     {
-                        if (!R_LimitedCachedNeighbourIndexOffsets[i].Equals(dir) && (!R_LimitedCachedNeighbourIndexOffsets[i].Equals(dir*-1))) 
+                        if (!R_LimitedCachedNeighbourIndexOffsets[i].Equals(dir) &&
+                            !R_LimitedCachedNeighbourIndexOffsets[i].Equals(dir * -1))
                         {
-                            if (GetVoxel(pos+R_LimitedCachedNeighbourIndexOffsets[i],false)) 
+                            if (GetVoxel(pos + R_LimitedCachedNeighbourIndexOffsets[i], false))
                             {
                                 dir = R_LimitedCachedNeighbourIndexOffsets[i];
                                 foundTurn = true;
@@ -109,7 +114,9 @@ namespace Magneto.Track.Jobs
                             }
                         }
                     }
-                    if (foundTurn==false) {
+
+                    if (foundTurn == false)
+                    {
                         // dead end
                         otherDirection = int3.zero;
                         return -1;
@@ -117,7 +124,7 @@ namespace Magneto.Track.Jobs
                 }
             }
         }
-        
+
         // long HashIntersectionPair(IntersectionData a, IntersectionData b) {
         //     // pack two intersections' IDs into one int64
         //     int id1 = a.ListIndex;
@@ -125,7 +132,5 @@ namespace Magneto.Track.Jobs
         //
         //     return ((long)Mathf.Min(id1,id2) << 32) + Mathf.Max(id1,id2);
         // }
-
-        
     }
 }

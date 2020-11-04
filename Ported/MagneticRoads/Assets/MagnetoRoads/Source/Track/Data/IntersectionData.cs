@@ -1,5 +1,3 @@
-using System.Data;
-using Unity.Collections;
 using Unity.Mathematics;
 
 namespace Magneto.Track

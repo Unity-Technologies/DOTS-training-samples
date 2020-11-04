@@ -10,8 +10,5 @@ namespace Magneto.Track
         public int3 EndNormal;
         public int3 StartTangent;
         public int3 EndTangent;
-        
-        
-        
     }
 }
