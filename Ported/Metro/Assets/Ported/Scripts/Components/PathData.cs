@@ -4,7 +4,7 @@ using Unity.Mathematics;
 public struct PathData : IComponentData
 {
     public BlobArray<float3> Positions;
-    public BlobArray<int> MarkerType;
+    public BlobArray<int> MarkerTypes;
     public BlobArray<float3> HandlesIn;
     public BlobArray<float3> HandlesOut;
     public BlobArray<float> Distances;

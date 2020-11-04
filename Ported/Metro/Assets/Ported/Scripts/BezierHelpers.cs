@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 
 static public class BezierHelpers
@@ -50,10 +51,10 @@ static public class BezierHelpers
         return regionDistance;
     }
 
-    static public float MeasurePath(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, out NativeArray<float> distances)
+    static public float MeasurePath(BlobBuilderArray<float3> positions, BlobBuilderArray<float3> handlesIn, BlobBuilderArray<float3> handlesOut, out float[] distances)
     {
         float distance = 0f;
-        distances = new NativeArray<float>(positions.Length, Allocator.Temp);
+        distances = new float[positions.Length];
         distances[0] = 0.000001f;
         for (int i = 1; i < positions.Length; i++)
         {
@@ -70,7 +71,7 @@ static public class BezierHelpers
         return distance;
     }
 
-    static public int GetRegionIndex(NativeArray<float3> positions, NativeArray<float> distances, float _progressIsAbsoluteValue)
+    static public int GetRegionIndex(BlobBuilderArray<float3> positions, BlobBuilderArray<float> distances, float _progressIsAbsoluteValue)
     {
         int result = 0;
         int totalPoints = positions.Length;
@@ -100,7 +101,7 @@ static public class BezierHelpers
         return result;
     }
 
-    static public float3 GetPosition(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _progress)
+    static public float3 GetPosition(BlobBuilderArray<float3> positions, BlobBuilderArray<float3> handlesIn, BlobBuilderArray<float3> handlesOut, BlobBuilderArray<float> distances, float totalDist, float _progress)
     {
         float progressDistance = totalDist * _progress;
         int pointIndex_region_start = GetRegionIndex(positions, distances, progressDistance);
@@ -123,7 +124,7 @@ static public class BezierHelpers
         return BezierLerp(point_region_start_pos, point_region_start_hOut, point_region_end_pos, point_region_end_hInt, regionProgress);
     }
 
-    static public float3 GetNormalAtPosition(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _position)
+    static public float3 GetNormalAtPosition(BlobBuilderArray<float3> positions, BlobBuilderArray<float3> handlesIn, BlobBuilderArray<float3> handlesOut, BlobBuilderArray<float> distances, float totalDist, float _position)
     {
         float3 _current = GetPosition(positions, handlesIn, handlesOut, distances, totalDist, _position);
         float3 _ahead = GetPosition(positions, handlesIn, handlesOut, distances, totalDist, (_position + 0.0001f) % 1f);
@@ -131,13 +132,13 @@ static public class BezierHelpers
         return (_ahead - _current) / math.distance(_ahead, _current);
     }
 
-    static public float3 GetTangentAtPosition(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _position)
+    static public float3 GetTangentAtPosition(BlobBuilderArray<float3> positions, BlobBuilderArray<float3> handlesIn, BlobBuilderArray<float3> handlesOut, BlobBuilderArray<float> distances, float totalDist, float _position)
     {
         float3 normal = GetNormalAtPosition(positions, handlesIn, handlesOut, distances, totalDist, _position);
         return new float3(-normal.z, normal.y, normal.x);
     }
 
-    static public float3 GetPointPerpendicularOffset(float3 pos, float distanceAlongPath, NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _offset)
+    static public float3 GetPointPerpendicularOffset(float3 pos, float distanceAlongPath, BlobBuilderArray<float3> positions, BlobBuilderArray<float3> handlesIn, BlobBuilderArray<float3> handlesOut, BlobBuilderArray<float> distances, float totalDist, float _offset)
     {
         return pos + GetTangentAtPosition(positions, handlesIn, handlesOut, distances, totalDist, distanceAlongPath / totalDist) * _offset;
     }
