@@ -46,45 +46,45 @@ public class TripleIntersectionSystem : SystemBase
                 laneOuts[1] = GetComponent<Lane>(tripleIntersection.laneOut1);
                 laneOuts[2] = GetComponent<Lane>(tripleIntersection.laneOut2);
                 
+                for (int i = 0; i < laneIns.Length; i++)
+                {
+                    if (directions[i] != -1)
+                        continue;
+                    DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(laneInEntities[i]);
+                    if (cars.IsEmpty)
+                        continue;
+                    Entity laneFirstCar = cars[0];
+                    CarPosition carPosition = GetComponent<CarPosition>(laneFirstCar);
+                    CarSpeed carSpeed = GetComponent<CarSpeed>(laneFirstCar);
+                    
+                    carSpeed.NormalizedValue += deltaTime * CarSpeed.ACCELERATION;
+                    if (carSpeed.NormalizedValue > 1.0f){
+                        carSpeed.NormalizedValue = 1.0f;    
+                    }
+	            
+                    float newPosition = carPosition.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * deltaTime;
+                    
+                    if(newPosition > laneIns[i].Length)
+                    {
+                        newPosition = laneIns[i].Length;
+                        int value = random.NextInt(2);
+                        if ((i == 0 || i == 1) && value == i)
+                            value = 2;
+                        
+                        directions[i] = value;
+                        if(i == 0)
+                            tripleIntersection.lane0Direction = value;
+                        else if(i == 1)
+                            tripleIntersection.lane1Direction = value;
+                        if(i == 2)
+                            tripleIntersection.lane2Direction = value;
+                    }
+                    SetComponent(laneFirstCar, new CarPosition{Value = newPosition});
+                    SetComponent(laneFirstCar, carSpeed);
+                }
+                
                 if (tripleIntersection.car == Entity.Null)
                 {
-                    for (int i = 0; i < laneIns.Length; i++)
-                    {
-                        if (directions[i] != -1)
-                            continue;
-                        DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(laneInEntities[i]);
-                        if (cars.IsEmpty)
-                            continue;
-                        Entity laneFirstCar = cars[0];
-                        CarPosition carPosition = GetComponent<CarPosition>(laneFirstCar);
-                        CarSpeed carSpeed = GetComponent<CarSpeed>(laneFirstCar);
-                        
-                        carSpeed.NormalizedValue += deltaTime * CarSpeed.ACCELERATION;
-                        if (carSpeed.NormalizedValue > 1.0f){
-                            carSpeed.NormalizedValue = 1.0f;    
-                        }
-	                
-                        float newPosition = carPosition.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * deltaTime;
-                        
-                        if(newPosition > laneIns[i].Length)
-                        {
-                            newPosition = laneIns[i].Length;
-                            int value = random.NextInt(2);
-                            if ((i == 0 || i == 1) && value == i)
-                                value = 2;
-                            
-                            directions[i] = value;
-                            if(i == 0)
-                                tripleIntersection.lane0Direction = value;
-                            else if(i == 1)
-                                tripleIntersection.lane1Direction = value;
-                            if(i == 2)
-                                tripleIntersection.lane2Direction = value;
-                        }
-                        SetComponent(laneFirstCar, new CarPosition{Value = newPosition});
-                        SetComponent(laneFirstCar, carSpeed);
-                    }
-                    
                     // TODO: Give proper priority
                     for (int i = 0; i < laneIns.Length; i++)
                     {
