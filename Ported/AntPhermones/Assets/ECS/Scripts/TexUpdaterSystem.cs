@@ -43,7 +43,8 @@ public class TexUpdaterSystem : SystemBase
                 Vector2 texelCoord = new Vector2(0.5f * (-translation.Value.x / bounds.x) + 0.5f, 0.5f * (-translation.Value.z / bounds.y) + 0.5f);
                 int index = (int)(texelCoord.y * TexSize) * TexSize + (int)(texelCoord.x * TexSize);
                 localPheromones[index] += (speed.Value * dt * excitement) * (1.0f - localPheromones[index]);
-                localPheromones[index] = (localPheromones[index] > 1.0f) ? 1.0f : localPheromones[index];
+                localPheromones[index] = ((float)localPheromones[index] > 1.0f) ? 1.0f : (float)localPheromones[index];
+               
             })
             .ScheduleParallel();
 
