@@ -22,23 +22,23 @@ public class DoubleIntersectionSystem : SystemBase
         if (car == Entity.Null)
         {
             Lane lane = GetComponent<Lane>(laneIn);
-            if (lane.Car != Entity.Null)
+            DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(laneIn);
+            if(!cars.IsEmpty)
             {
-                CarPosition carPosition = GetComponent<CarPosition>(lane.Car);
+                Entity laneCar = cars[0];
+                CarPosition carPosition = GetComponent<CarPosition>(laneCar);
                 if (carPosition.Value == lane.Length)
                 {
-                    var prevCar = lane.Car;
-                    lane.Car = Entity.Null;
-                    SetComponent(laneIn, lane);
+                    var prevCar = laneCar;
+                    cars.RemoveAt(0);
                     return prevCar;
                 }
             }
         }
         else
         {
-            Lane newLaneOut = GetComponent<Lane>(laneOut);
-            newLaneOut.Car = car;
-            SetComponent(laneOut, newLaneOut);
+            DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(laneOut);
+            cars.Add(car);
             SetComponent(car, new CarPosition{Value = 0});
         }
         

@@ -13,6 +13,7 @@ public class TripleIntersectionSystem : SystemBase
             {
                 NativeArray<int> directions = new NativeArray<int>(3, Allocator.Temp);
                 NativeArray<Lane> laneIns = new NativeArray<Lane>(3, Allocator.Temp);
+                NativeArray<Entity> laneInEntities = new NativeArray<Entity>(3, Allocator.Temp);
                 NativeArray<Lane> laneOuts = new NativeArray<Lane>(3, Allocator.Temp);
 
                 directions[0] = tripleIntersection.lane0Direction;
@@ -22,6 +23,10 @@ public class TripleIntersectionSystem : SystemBase
                 laneIns[0] = GetComponent<Lane>(tripleIntersection.laneIn0);
                 laneIns[1] = GetComponent<Lane>(tripleIntersection.laneIn1);
                 laneIns[2] = GetComponent<Lane>(tripleIntersection.laneIn2);
+                
+                laneInEntities[0] = tripleIntersection.laneIn0;
+                laneInEntities[1] = tripleIntersection.laneIn1;
+                laneInEntities[2] = tripleIntersection.laneIn2;
                 
                 laneOuts[0] = GetComponent<Lane>(tripleIntersection.laneOut0);
                 laneOuts[1] = GetComponent<Lane>(tripleIntersection.laneOut1);
@@ -33,9 +38,10 @@ public class TripleIntersectionSystem : SystemBase
                     {
                         if (directions[i] != -1)
                             continue;
-                        if (laneIns[i].Car == Entity.Null)
+                        DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(laneInEntities[i]);
+                        if (cars.IsEmpty)
                             continue;
-                        CarPosition carPosition = GetComponent<CarPosition>(laneIns[i].Car);
+                        CarPosition carPosition = GetComponent<CarPosition>(cars[0]);
                         if (carPosition.Value == laneIns[i].Length)
                         {
                             // TODO: Make this random
@@ -59,10 +65,11 @@ public class TripleIntersectionSystem : SystemBase
                     {
                         if (directions[i] != -1)
                         {
-                            tripleIntersection.car = laneIns[i].Car;
+                            DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(laneInEntities[i]);
+                            tripleIntersection.car = cars[0];
                             tripleIntersection.carIndex = i;
                             Lane lane = laneIns[i];
-                            lane.Car = Entity.Null;
+                            cars.RemoveAt(0);
                             if (i == 0)
                                 SetComponent(tripleIntersection.laneIn0, lane);    
                             else if (i == 1)
@@ -77,18 +84,23 @@ public class TripleIntersectionSystem : SystemBase
                 {
                     int destination = directions[tripleIntersection.carIndex];
                     Lane newLaneOut = laneOuts[destination];
-                    newLaneOut.Car = tripleIntersection.car;
                     if (destination == 0)
                     {
-                        SetComponent(tripleIntersection.laneOut0, newLaneOut);    
+                        SetComponent(tripleIntersection.laneOut0, newLaneOut);
+                        DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(tripleIntersection.laneOut0);
+                        cars.Add(tripleIntersection.car);
                     }
                     else if (destination == 1)
                     {
-                        SetComponent(tripleIntersection.laneOut1, newLaneOut);    
+                        SetComponent(tripleIntersection.laneOut1, newLaneOut);
+                        DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(tripleIntersection.laneOut1);
+                        cars.Add(tripleIntersection.car);
                     }
                     else
                     {
-                        SetComponent(tripleIntersection.laneOut2, newLaneOut);    
+                        SetComponent(tripleIntersection.laneOut2, newLaneOut);
+                        DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(tripleIntersection.laneOut2);
+                        cars.Add(tripleIntersection.car);
                     }
                     
                     SetComponent(tripleIntersection.car, new CarPosition{Value = 0});

@@ -17,16 +17,16 @@ public class MoveCarOnLaneSystem : SystemBase
         ComponentDataFromEntity<CarSpeed> carSpeedGetter = GetComponentDataFromEntity<CarSpeed>(false);
         
         Entities
-            .ForEach((Entity entity, ref Lane lane) =>
+            .ForEach((Entity entity, ref Lane lane, ref DynamicBuffer<MyBufferElement> buffer) =>
             {
-                if (lane.Car != Entity.Null)
+                foreach (Entity car in buffer.Reinterpret<Entity>())
                 {
-                    CarPosition carPosition = carPositionGetter[lane.Car];
-                    CarSpeed carSpeed = carSpeedGetter[lane.Car];
+                    CarPosition carPosition = carPositionGetter[car];
+                    CarSpeed carSpeed = carSpeedGetter[car];
                     float newPosition = carPosition.Value + carSpeed.Value * elapsedTime;
                     if(newPosition > lane.Length)
                         newPosition = lane.Length;
-                    ecb.SetComponent(lane.Car, new CarPosition{Value = newPosition});    
+                    ecb.SetComponent(car, new CarPosition{Value = newPosition});
                 }
             }).Run();
 
