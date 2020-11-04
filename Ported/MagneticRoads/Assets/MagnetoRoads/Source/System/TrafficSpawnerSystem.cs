@@ -15,7 +15,6 @@ public class TrafficSpawnerSystem : SystemBase
     protected override void OnCreate()
     {
         m_LaneArchetype = EntityManager.CreateArchetype(typeof(Lane), typeof(Spline), typeof(CarBufferElement));
-        //CommandBufferSystem = World.DefaultGameObjectInjectionWorld.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         
     }
 
@@ -30,14 +29,10 @@ public class TrafficSpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
         var archetype = m_LaneArchetype;
         
-        //EntityCommandBuffer commandBuffer = CommandBufferSystem.CreateCommandBuffer();
-        Entity carInstance;
-        Entity laneA0;
-
         Random random = Random.CreateFromIndex(0);
         var left = math.left() * laneOffset;
         var right = math.right() * laneOffset;
@@ -50,10 +45,6 @@ public class TrafficSpawnerSystem : SystemBase
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
                 ecb.DestroyEntity(entity);
-
-                /*var carInstance2 = ecb.Instantiate(spawner.CarPrefab);
-                ecb.SetComponent(carInstance2, new CarPosition {Value = 3.0f});
-                ecb.AddComponent<URPMaterialPropertyBaseColor>(carInstance2, new URPMaterialPropertyBaseColor(){Value = new float4(1, 0, 0, 1)});*/
 
                 float3 pos0 = new float3(-5, 0, 0);
                 float3 pos1 = new float3(0, 0, 0);
@@ -73,7 +64,7 @@ public class TrafficSpawnerSystem : SystemBase
                 Spline splineA3 = new Spline {startPos = pos2 + right, endPos = pos4 + right};
                 Spline splineB3 = new Spline {startPos = pos4 + left, endPos = pos2 + left};
                 
-                laneA0 = ecb.CreateEntity(archetype);
+                Entity laneA0 = ecb.CreateEntity(archetype);
                 Lane lane = new Lane {Length = 10.0f};
                 ecb.SetComponent(laneA0, lane);
                 ecb.SetComponent(laneA0, splineA0);
@@ -88,43 +79,33 @@ public class TrafficSpawnerSystem : SystemBase
                     entityBuffer.Add(CreateCar(ecb, spawner.CarPrefab, lane.Length - i * distance, random.NextFloat3(new float3(1,1.0f, 1.0f))));
                 }
                 
-                //var buffer = lookup[laneA0];
-                //buffer.Add(carInstance);
-                
                 Entity laneB0 = ecb.CreateEntity(archetype);
                 ecb.SetComponent(laneB0, new Lane{Length = 10.0f});
                 ecb.SetComponent(laneB0, splineB0);
-                //ecb.AddBuffer<MyBufferElement>(laneB0);
                 
                 Entity laneA1 = ecb.CreateEntity(archetype);
                 ecb.SetComponent(laneA1, new Lane{Length = 10.0f});
                 ecb.SetComponent(laneA1, splineA1);
-                //ecb.AddBuffer<MyBufferElement>(laneA1);
                 
                 Entity laneB1 = ecb.CreateEntity(archetype);
                 ecb.SetComponent(laneB1, new Lane{Length = 10.0f});
                 ecb.SetComponent(laneB1, splineB1);
-                //ecb.AddBuffer<MyBufferElement>(laneB1);
                 
                 Entity laneA2 = ecb.CreateEntity(archetype);
                 ecb.SetComponent(laneA2, new Lane{Length = 10.0f});
                 ecb.SetComponent(laneA2, splineA2);
-                //ecb.AddBuffer<MyBufferElement>(laneA2);
                 
                 Entity laneB2 = ecb.CreateEntity(archetype);
                 ecb.SetComponent(laneB2, new Lane{Length = 10.0f});
                 ecb.SetComponent(laneB2, splineB2);
-                //ecb.AddBuffer<MyBufferElement>(laneB2);
                 
                 Entity laneA3 = ecb.CreateEntity(archetype);
                 ecb.SetComponent(laneA3, new Lane{Length = 10.0f});
                 ecb.SetComponent(laneA3, splineA3);
-                //ecb.AddBuffer<MyBufferElement>(laneA3);
                 
                 Entity laneB3 = ecb.CreateEntity(archetype);
                 ecb.SetComponent(laneB3, new Lane{Length = 10.0f});
                 ecb.SetComponent(laneB3, splineB3);
-                //ecb.AddBuffer<MyBufferElement>(laneB3);
                 
                 buffer = ecb.AddBuffer<CarBufferElement>(laneB3);
                 entityBuffer = buffer.Reinterpret<Entity>();
@@ -159,6 +140,6 @@ public class TrafficSpawnerSystem : SystemBase
             }).Run();
         
         ecb.Playback(EntityManager);
-        //CommandBufferSystem.AddJobHandleForProducer(this.Dependency);
+        ecb.Dispose();
     }
 }
