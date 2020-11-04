@@ -1,8 +1,11 @@
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Magneto.Collections;
 using Magneto.Track.Jobs;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace Magneto.Track
 {
@@ -45,22 +48,30 @@ namespace Magneto.Track
 
             private NativeArray<int3> _cachedNeighbourIndexOffsets;
             private NativeArray<int3> _cachedNeighbourIndexOffsetsLimited;
-            
             public NativeStrideGridArray<int> _intersectionIndicesByGrid;
             public NativeList<IntersectionData> _intersections;
-
-            public JobHandle FinalJobHandle;
+            private NativeStrideGridArray<bool> _trackVoxels;
+            //private NativeArray<int> _splineCount;
+            
+            
+            public NativeList<SplineData> _splines;
+            
+            public JobHandle Stage1JobHandle;
+            public JobHandle Stage2JobHandle;
 
             public void Init()
             {
                 // Initialize Native Arrays
                 _cachedNeighbourIndexOffsets = new NativeArray<int3>(DIRECTIONS_LENGTH, Allocator.Persistent);
                 _cachedNeighbourIndexOffsetsLimited = new NativeArray<int3>(LIMITED_DIRECTIONS_LENGTH, Allocator.Persistent);
-
                 _intersections = new NativeList<IntersectionData>(Allocator.Persistent);
                 _intersectionIndicesByGrid = new NativeStrideGridArray<int>(VOXEL_COUNT, Allocator.Persistent,
                     NativeArrayOptions.ClearMemory);
-               
+                _trackVoxels = new NativeStrideGridArray<bool>(VOXEL_COUNT, Allocator.Persistent, NativeArrayOptions.ClearMemory);
+
+                _splines = new NativeList<SplineData>(32, Allocator.Persistent);
+                //_splineCount = new NativeArray<int>(1, Allocator.Persistent);
+                
                 
                 // Prefill One Manually
                 _cachedNeighbourIndexOffsetsLimited[0] = new int3(1,0,0);
@@ -70,50 +81,95 @@ namespace Magneto.Track
                 _cachedNeighbourIndexOffsetsLimited[4] = new int3(0,0,1);
                 _cachedNeighbourIndexOffsetsLimited[5] = new int3(0,0,-1);
             }
-            
+
             public void Schedule()
             {
                 IsRunning = true;
-                
+
+                #region Stage 1 - Setup
+
                 // Create Cached Directional Offsets
                 var cacheNeighbourIndexOffsetsJobHandle = new CachedNeighbourIndexOffsetJob
                 {
-                    Buffer = _cachedNeighbourIndexOffsets
+                    W_Buffer = _cachedNeighbourIndexOffsets
                 }.Schedule();
 
-                
-                var trackVoxels = new NativeStrideGridArray<bool>(VOXEL_COUNT, Allocator.Persistent, NativeArrayOptions.ClearMemory);
-                
-                // Build Voxel Map
-                // TODO: Would love to break out to parallize more
-                //var buildVoxelMapJobHandle = new BuildVoxelMapJob
-                FinalJobHandle = new BuildVoxelMapJob
+                // We need to exploit having indices as -1 for not found values
+                var fillIntersectionsIndicesGridJobHandle = new JobBank.IntegerBufferFillJob
                 {
-                    CachedNeighbourIndexOffsets = _cachedNeighbourIndexOffsets,
-                    LimitedCachedNeighbourIndexOffsets = _cachedNeighbourIndexOffsetsLimited,
-                    TrackVoxels = trackVoxels,
-                    
-                    Intersections = _intersections,
-                    IntersectionsGrid = _intersectionIndicesByGrid
+                    Buffer = _intersectionIndicesByGrid.array,
+                    FillValue = -1
+                }.Schedule(VOXEL_COUNT * VOXEL_COUNT * VOXEL_COUNT, 128);
 
-                }.Schedule(cacheNeighbourIndexOffsetsJobHandle);
+                #endregion
+
+                // Create a combined dependency for the next stage to rely on
+                Stage1JobHandle = JobHandle.CombineDependencies(cacheNeighbourIndexOffsetsJobHandle,
+                    fillIntersectionsIndicesGridJobHandle);
+
+                #region Stage 2 - Full Layout
 
 
+                // Build Voxel Map
+                var buildVoxelMapJobHandle = new BuildVoxelMapJob
+                {
+                    R_CachedNeighbourIndexOffsets = _cachedNeighbourIndexOffsets,
+                    R_LimitedCachedNeighbourIndexOffsets = _cachedNeighbourIndexOffsetsLimited,
+                    RW_TrackVoxels = _trackVoxels,
+
+                    RW_Intersections = _intersections,
+                    W_IntersectionsGrid = _intersectionIndicesByGrid
+
+                }.Schedule(Stage1JobHandle);
+                //
+                // var determineSplineCountToCreate = new DetermineSplineCountJob
+                // {
+                //     R_Intersections = _intersections.AsDeferredJobArray(),
+                //     R_IntersectionsGrid = _intersectionIndicesByGrid,
+                //     R_LimitedCachedNeighbourIndexOffsets = _cachedNeighbourIndexOffsetsLimited,
+                //     R_TrackVoxels = _trackVoxels, 
+                //     RW_Count = _splineCount
+                // }.Schedule(_intersections, 1, buildVoxelMapJobHandle);
                 
+                // Build the connective tissues
+                Stage2JobHandle = new BuildVoxelNetworkJob
+                {
+                    R_Intersections = _intersections,
+                    R_IntersectionsGrid = _intersectionIndicesByGrid,
+                    R_LimitedCachedNeighbourIndexOffsets = _cachedNeighbourIndexOffsetsLimited,
+                    R_TrackVoxels = _trackVoxels,
+
+                    W_OutSplines = _splines
+
+                }.Schedule(buildVoxelMapJobHandle);
+                
+                #endregion
+                
+                // GO!
+                JobHandle.ScheduleBatchedJobs();
             }
 
-            public void Complete()
+            public void Complete(out IntersectionData[] intersectionData, out SplineData[] splineData, out bool[] activeVoxels)
             {
-                FinalJobHandle.Complete();
-                
+                Stage2JobHandle.Complete();
                 IsRunning = false;
+
+
+                // Write output
+                intersectionData = _intersections.ToArray();
+                splineData = _splines.ToArray();
+                activeVoxels = _trackVoxels.array.ToArray();
                 
                 _cachedNeighbourIndexOffsets.Dispose();
                 _cachedNeighbourIndexOffsetsLimited.Dispose();
                 _intersectionIndicesByGrid.Dispose();
                 _intersections.Dispose();
-
+                _trackVoxels.Dispose();
+                
+                _splines.Dispose();
+                //_splineCount.Dispose();
             }
+            
         }
     }
 }

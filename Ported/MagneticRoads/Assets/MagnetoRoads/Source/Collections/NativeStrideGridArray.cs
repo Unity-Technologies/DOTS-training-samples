@@ -23,7 +23,6 @@ namespace Magneto.Collections
             [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             get => array[(z * stride * stride) + (y * stride) + x];
 
-
             [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             set => array[(z * stride * stride) + (y * stride) + x] = value;
         }
