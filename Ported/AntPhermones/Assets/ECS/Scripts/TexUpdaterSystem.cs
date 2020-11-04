@@ -70,6 +70,7 @@ public class TexUpdaterSystem : SystemBase
                 {
                     for (int j = 0; j < TexSize; ++j)
                     {
+                        localPheromones[j * TexSize + i] *= decay;
                         colors[j * TexSize + i].r = localPheromones[j * TexSize + i]; ;
                         colors[j * TexSize + i].g = 0;
                         colors[j * TexSize + i].b = 0;
