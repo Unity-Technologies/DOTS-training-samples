@@ -440,7 +440,7 @@ MeshRenderer:
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -959,7 +959,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1921315156412873300}
-  - component: {fileID: 1958745091769854812}
   m_Layer: 0
   m_Name: walkway_CROSS_BACK
   m_TagString: Untagged
@@ -1003,22 +1002,6 @@ Transform:
   m_Father: {fileID: 1925151997217745324}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
---- !u!114 &1958745091769854812
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1926449870124054114}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ed592bb963414385898a9e969e5a991, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  connects_FROM: {fileID: 0}
-  connects_TO: {fileID: 0}
-  nav_START: {fileID: 1925267243333675494}
-  nav_END: {fileID: 1921158102864043732}
 --- !u!1 &1926475881197830974
 GameObject:
   m_ObjectHideFlags: 0
@@ -1166,7 +1149,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1920888264174024704}
-  - component: {fileID: 1958341473484572798}
   m_Layer: 0
   m_Name: queue_1
   m_TagString: Untagged
@@ -1188,18 +1170,6 @@ Transform:
   m_Father: {fileID: 1920977539985318042}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1958341473484572798
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1926489258412687118}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3dd4d6336040498499e5f844a480cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1926490466649861084
 GameObject:
   m_ObjectHideFlags: 0
@@ -1684,7 +1654,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1921133894021637436}
-  - component: {fileID: 1958378441639796668}
   m_Layer: 0
   m_Name: walkway_CROSS_FRONT
   m_TagString: Untagged
@@ -1728,22 +1697,6 @@ Transform:
   m_Father: {fileID: 1925151997217745324}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1958378441639796668
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1926633081638541476}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ed592bb963414385898a9e969e5a991, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  connects_FROM: {fileID: 0}
-  connects_TO: {fileID: 0}
-  nav_START: {fileID: 1920795306968229790}
-  nav_END: {fileID: 1925039136884739706}
 --- !u!1 &1926660484843137754
 GameObject:
   m_ObjectHideFlags: 0
@@ -1943,7 +1896,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1924726667003747066}
-  - component: {fileID: 1958466001183357482}
   m_Layer: 0
   m_Name: queue_3
   m_TagString: Untagged
@@ -1965,18 +1917,6 @@ Transform:
   m_Father: {fileID: 1920977539985318042}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1958466001183357482
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1926696767459692198}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3dd4d6336040498499e5f844a480cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1926712539606078592
 GameObject:
   m_ObjectHideFlags: 0
@@ -3670,7 +3610,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1920840645426104024}
-  - component: {fileID: 1958703294520185230}
   m_Layer: 0
   m_Name: queue_2
   m_TagString: Untagged
@@ -3692,18 +3631,6 @@ Transform:
   m_Father: {fileID: 1920977539985318042}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1958703294520185230
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1927003660394319654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3dd4d6336040498499e5f844a480cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1927018865862785256
 GameObject:
   m_ObjectHideFlags: 0
@@ -3808,7 +3735,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1924930436511641326}
-  - component: {fileID: 1958728796828382792}
   m_Layer: 0
   m_Name: queue_4
   m_TagString: Untagged
@@ -3830,18 +3756,6 @@ Transform:
   m_Father: {fileID: 1920977539985318042}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1958728796828382792
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1927023643558210948}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3dd4d6336040498499e5f844a480cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1927097443449110010
 GameObject:
   m_ObjectHideFlags: 0
@@ -4231,7 +4145,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1925151997217745324}
-  - component: {fileID: 1954657108707796534}
   m_Layer: 0
   m_Name: Platform
   m_TagString: Untagged
@@ -4257,35 +4170,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1954657108707796534
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1927223710094276602}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24305a99c50364660a76547a001f9bd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  carriageCount: 0
-  platformIndex: 0
-  walkways: []
-  walkway_FRONT_CROSS: {fileID: 1958378441639796668}
-  walkway_BACK_CROSS: {fileID: 1958745091769854812}
-  oppositePlatform: {fileID: 0}
-  nextPlatform: {fileID: 0}
-  adjacentPlatforms: []
-  queuePoints:
-  - {fileID: 1958430598775125372}
-  - {fileID: 1958341473484572798}
-  - {fileID: 1958703294520185230}
-  - {fileID: 1958466001183357482}
-  - {fileID: 1958728796828382792}
-  temporary_routeDistance: 0
-  temporary_accessedViaPlatform: {fileID: 0}
-  temporary_connectionType: 0
 --- !u!1 &1927236573244237748
 GameObject:
   m_ObjectHideFlags: 0
@@ -4485,7 +4369,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1921151019285309976}
-  - component: {fileID: 1958430598775125372}
   m_Layer: 0
   m_Name: queue_0
   m_TagString: Untagged
@@ -4507,15 +4390,3 @@ Transform:
   m_Father: {fileID: 1920977539985318042}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1958430598775125372
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1927369028250120862}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3dd4d6336040498499e5f844a480cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

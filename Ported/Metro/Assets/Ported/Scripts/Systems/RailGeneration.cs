@@ -41,11 +41,11 @@ unsafe public class RailGeneration : SystemBase
                 var railTranslation = new Translation { Value = railPos };
                 var railRotation = new Rotation { Value = quaternion.LookRotation(railRot, new float3(0, 1, 0)) };
 
-                URPMaterialPropertyBaseColor col = new URPMaterialPropertyBaseColor { Value = new float4(color.x, color.y, color.z, 1f) };
+                var col = new URPMaterialPropertyBaseColor { Value = new float4(color.x, color.y, color.z, 1f) };
 
                 ecb.SetComponent(railEntity, railTranslation);
                 ecb.SetComponent(railEntity, railRotation);
-                ecb.SetComponent(railPrefab, col);
+                ecb.AddComponent(railPrefab, col);
 
                 absoluteDistance += Globals.RAIL_SPACING;
             }
