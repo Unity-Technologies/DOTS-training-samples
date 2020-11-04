@@ -197,6 +197,9 @@ MonoBehaviour:
   ObstaclesPerRing: 0.8
   ObstacleRingCount: 3
   MapSize: 8
+  GoalSteerStrength: 0.04
+  FoodRadius: 0.25
+  ColonyRadius: 0.25
 --- !u!4 &943890408
 Transform:
   m_ObjectHideFlags: 0
@@ -275,10 +278,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2e1ca9014cc3514ba7bee4a6df6aea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  position:
-    x: 2
-    y: 2
-  radius: 1
+  Value: 0
 --- !u!135 &1052661677
 SphereCollider:
   m_ObjectHideFlags: 0

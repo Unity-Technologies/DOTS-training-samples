@@ -7,20 +7,34 @@ using UnityEngine;
 
 public class AntMovementSystem : SystemBase
 {
+    struct DataInputs
+    {
+
+    }
+
     const float dt = 1.0f / 60;
     const float randomSteering = 0.1f;
 
     public static readonly Vector2 bounds = new Vector2(5, 5);
 
+    EntityCommandBufferSystem cmdBufferSystem;
+
+    protected override void OnCreate()
+    {
+        cmdBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
+        var cmd = cmdBufferSystem.CreateCommandBuffer().AsParallelWriter();
+
         var spawnerEntity = GetSingletonEntity<AntSpawner>();
         var spawner = GetComponent<AntSpawner>(spawnerEntity);
         var obstaclesPositions = GetBuffer<ObstaclePosition>(spawnerEntity);
 
         Entities
         .WithReadOnly(obstaclesPositions)
-        .ForEach((ref Translation translation, ref Direction direction, ref RandState rand, in Speed speed) =>
+        .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, in Entity antEntity, in Speed speed) =>
         {
             float dx = Mathf.Cos(direction.Value) * speed.Value * dt;
             float dy = Mathf.Sin(direction.Value) * speed.Value * dt;
@@ -30,8 +44,37 @@ public class AntMovementSystem : SystemBase
 
             // TODO: pheromone steering
 
+
+
             // TODO: steer towards target
-            SteeringTowardTarget(ref translation, ref direction, spawner, obstaclesPositions);
+
+            var target3D = float3.zero;
+            var targetRadius = 0f;
+            if (HasComponent<AntLookingForFood>(antEntity))
+            {
+                target3D = spawner.FoodPosition;
+                targetRadius = spawner.FoodRadius;
+
+                if (HasReachedTarget(translation.Value, target3D, targetRadius))
+                {
+                    cmd.RemoveComponent<AntLookingForFood>(entityInQueryIndex, antEntity);
+                    cmd.AddComponent<AntLookingForNest>(entityInQueryIndex, antEntity);
+                }
+            }
+            else if (HasComponent<AntLookingForNest>(antEntity))
+            {
+                target3D = spawner.ColonyPosition;
+                targetRadius = spawner.ColonyRadius;
+
+                if (HasReachedTarget(translation.Value, target3D, targetRadius))
+                {
+                    cmd.RemoveComponent<AntLookingForNest>(entityInQueryIndex, antEntity);
+                    cmd.AddComponent<AntLookingForFood>(entityInQueryIndex, antEntity);
+                }
+            }
+
+            var target2D = new float2(target3D.x, target3D.z);
+            SteeringTowardTarget(ref translation, ref direction, target2D, spawner, obstaclesPositions);
 
             // Bounce off the edges of the board (for now the ant bounces back, maybe improve later)
             if (Mathf.Abs(translation.Value.x + dx) > bounds.x)
@@ -53,6 +96,41 @@ public class AntMovementSystem : SystemBase
 
         })
         .ScheduleParallel();
+
+        // Our jobs must finish before the EndSimulationEntityCommandBufferSystem execute the changements we recorded
+        cmdBufferSystem.AddJobHandleForProducer(this.Dependency);
+    }
+
+    static void SteeringTowardTarget(ref Translation translation, ref Direction direction, float2 target, in AntSpawner spawner, in DynamicBuffer<ObstaclePosition> obstaclePositions)
+    {
+        var targetRadius = spawner.FoodRadius;
+
+        var antPos = translation.Value.xz;
+        var antDirection = direction.Value;
+
+        if (!RayCast(antPos, target, targetRadius, spawner.ObstacleRadius, obstaclePositions))
+        {
+            float targetAngle = Mathf.Atan2(target.y - antPos.y, target.x - antPos.x);
+            if (targetAngle - antDirection > Mathf.PI)
+            {
+                antDirection += Mathf.PI * 2f;
+            }
+            else if (targetAngle - antDirection < -Mathf.PI)
+            {
+                antDirection -= Mathf.PI * 2f;
+            }
+            else
+            {
+                if (Mathf.Abs(targetAngle - antDirection) < Mathf.PI * .5f)
+                {
+                    antDirection += (targetAngle - antDirection) * spawner.GoalSteerStrength;
+                }
+            }
+        }
+
+        translation.Value.x = antPos.x;
+        translation.Value.z = antPos.y;
+        direction.Value = antDirection;
     }
 
     public static bool RayCast(float2 from, float2 to, float targetRadius, float obstacleRadius, in DynamicBuffer<ObstaclePosition> obstaclePositions)
@@ -96,37 +174,8 @@ public class AntMovementSystem : SystemBase
         return false;
     }
 
-    static void SteeringTowardTarget(ref Translation translation, ref Direction direction, in AntSpawner spawner, in DynamicBuffer<ObstaclePosition> obstaclePositions)
+    static bool HasReachedTarget(float3 position, float3 target, float targetRadius)
     {
-        // TODO : Use Food or Colony as target depending on the game state
-        var targetRadius = spawner.FoodRadius;
-        var targetPos = new float2(spawner.FoodPosition.x, spawner.FoodPosition.z);
-
-        var antPos = translation.Value.xz;
-        var antDirection = direction.Value;
-
-        if (!RayCast(antPos, targetPos, targetRadius, spawner.ObstacleRadius, obstaclePositions))
-        {
-            float targetAngle = Mathf.Atan2(targetPos.y - antPos.y, targetPos.x - antPos.x);
-            if (targetAngle - antDirection > Mathf.PI)
-            {
-                antDirection += Mathf.PI * 2f;
-            }
-            else if (targetAngle - antDirection < -Mathf.PI)
-            {
-                antDirection -= Mathf.PI * 2f;
-            }
-            else
-            {
-                if (Mathf.Abs(targetAngle - antDirection) < Mathf.PI * .5f)
-                {
-                    antDirection += (targetAngle - antDirection) * spawner.GoalSteerStrength;
-                }
-            }
-        }
-
-        translation.Value.x = antPos.x;
-        translation.Value.z = antPos.y;
-        direction.Value = antDirection;
+        return math.distancesq(position, target) < (targetRadius * targetRadius);
     }
 }
