@@ -14,7 +14,7 @@ public class SimpleIntersectionSystem : SystemBase
             .ForEach((Entity entity, ref SimpleIntersection simpleIntersection) =>
             {
                 Lane lane = GetComponent<Lane>(simpleIntersection.laneIn0);
-                DynamicBuffer<MyBufferElement> laneInCars = GetBuffer<MyBufferElement>(simpleIntersection.laneIn0);
+                DynamicBuffer<CarBufferElement> laneInCars = GetBuffer<CarBufferElement>(simpleIntersection.laneIn0);
                 Entity reachedEndOfLaneCar = Entity.Null;
                 if (!laneInCars.IsEmpty)
                 {
@@ -51,7 +51,7 @@ public class SimpleIntersectionSystem : SystemBase
                     // TODO: MBRIAU: Still make that car accelerate but cap the normalized speed to 0.7f while in an intersection (Look at Car.cs)
                     // TODO: MBRIAU: We also need to make the first car of each input lane slowdown since the intersection is busy
                     
-                    DynamicBuffer<MyBufferElement> laneOutCars = GetBuffer<MyBufferElement>(simpleIntersection.laneOut0);
+                    DynamicBuffer<CarBufferElement> laneOutCars = GetBuffer<CarBufferElement>(simpleIntersection.laneOut0);
                     laneOutCars.Add(simpleIntersection.car);
                     ecb.SetComponent(simpleIntersection.car, new CarPosition{Value = 0});
                     simpleIntersection.car = Entity.Null;

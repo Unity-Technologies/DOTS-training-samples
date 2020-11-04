@@ -1,33 +1,34 @@
-using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 
 [UpdateAfter(typeof(TripleIntersectionSystem))]
 public class MoveCarOnLaneSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
         float deltaTime = Time.DeltaTime;
-
-        ComponentDataFromEntity<CarPosition> carPositionGetter = GetComponentDataFromEntity<CarPosition>(false);
-        ComponentDataFromEntity<CarSpeed> carSpeedGetter = GetComponentDataFromEntity<CarSpeed>(false);
+        
+        ComponentDataFromEntity<CarPosition> positionAccessor = GetComponentDataFromEntity<CarPosition>();
+        ComponentDataFromEntity<CarSpeed> speedAccessor = GetComponentDataFromEntity<CarSpeed>();
         
         Entities
-            .ForEach((Entity entity, ref Lane lane, ref DynamicBuffer<MyBufferElement> buffer) =>
+	        .WithNativeDisableContainerSafetyRestriction(positionAccessor)
+	        .WithNativeDisableContainerSafetyRestriction(speedAccessor)
+            .ForEach((Entity entity, ref Lane lane, ref DynamicBuffer<CarBufferElement> buffer) =>
             {
                 DynamicBuffer<Entity> carEntities = buffer.Reinterpret<Entity>();
                 // A lane doesn't actually care about the first car, that's being handled by the Intersection
                 if (carEntities.Length <= 1)
                     return;
 
-                float previousCarPosition = carPositionGetter[carEntities[0]].Value;
+                var previousCarPosition = positionAccessor[carEntities[0]].Value;
                 
                 for(int i = 1; i < carEntities.Length; i++)
                 {
 	                Entity car = carEntities[i];
 
-	                CarPosition carPosition = carPositionGetter[car];
-	                CarSpeed carSpeed = carSpeedGetter[car];
+	                CarPosition carPosition = positionAccessor[car];
+	                CarSpeed carSpeed = speedAccessor[car];
 	                
 	                carSpeed.NormalizedValue += deltaTime * CarSpeed.ACCELERATION;
 	                if (carSpeed.NormalizedValue > 1.0f){
@@ -55,14 +56,12 @@ public class MoveCarOnLaneSystem : SystemBase
 		                carSpeed.NormalizedValue = approachMaxSpeed;
 	                }
 
-                    ecb.SetComponent(car, new CarPosition{Value = newPosition});
-                    ecb.SetComponent(car, carSpeed);
+	                positionAccessor[car] = new CarPosition {Value = newPosition};
+	                speedAccessor[car] = carSpeed;
 
                     previousCarPosition = newPosition;
                 }
-            }).Run();
-
-        ecb.Playback(EntityManager);
+            }).Schedule();
     }
     
 //    Vector3 EvaluateBezier(float3 startPoint, float3 startTangent, float3 endTangent, float3 endPoint, float t)

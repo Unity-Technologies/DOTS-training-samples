@@ -8,7 +8,7 @@ public class CarPositionToWorldSystem : SystemBase
     protected override void OnUpdate()
     {
         Entities
-            .ForEach((Entity entity, ref Spline spline, ref Lane lane, ref DynamicBuffer<MyBufferElement> buffer) =>
+            .ForEach((Entity entity, ref Spline spline, ref Lane lane, ref DynamicBuffer<CarBufferElement> buffer) =>
             {
                 foreach (Entity car in buffer.Reinterpret<Entity>())
                 {

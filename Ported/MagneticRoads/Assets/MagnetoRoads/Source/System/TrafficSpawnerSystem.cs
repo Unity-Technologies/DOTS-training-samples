@@ -14,7 +14,7 @@ public class TrafficSpawnerSystem : SystemBase
     
     protected override void OnCreate()
     {
-        m_LaneArchetype = EntityManager.CreateArchetype(typeof(Lane), typeof(Spline), typeof(MyBufferElement));
+        m_LaneArchetype = EntityManager.CreateArchetype(typeof(Lane), typeof(Spline), typeof(CarBufferElement));
         //CommandBufferSystem = World.DefaultGameObjectInjectionWorld.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         
     }
@@ -68,7 +68,7 @@ public class TrafficSpawnerSystem : SystemBase
                 Lane lane = new Lane {Length = 10.0f};
                 ecb.SetComponent(laneA0, lane);
                 ecb.SetComponent(laneA0, splineA0);
-                DynamicBuffer<MyBufferElement> buffer = ecb.AddBuffer<MyBufferElement>(laneA0);
+                DynamicBuffer<CarBufferElement> buffer = ecb.AddBuffer<CarBufferElement>(laneA0);
                 DynamicBuffer<Entity> entityBuffer = buffer.Reinterpret<Entity>();
 
                 int nbElements = 2;
@@ -120,7 +120,7 @@ public class TrafficSpawnerSystem : SystemBase
                 ecb.SetComponent(laneB3, splineB3);
                 //ecb.AddBuffer<MyBufferElement>(laneB3);
                 
-                buffer = ecb.AddBuffer<MyBufferElement>(laneB3);
+                buffer = ecb.AddBuffer<CarBufferElement>(laneB3);
                 entityBuffer = buffer.Reinterpret<Entity>();
                 
                 for (int i = 0; i < nbElements; i++)
