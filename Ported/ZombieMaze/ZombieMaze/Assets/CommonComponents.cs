@@ -37,6 +37,8 @@ public struct Random : IComponentData
 
 public struct ZombieTag : IComponentData {}
 
+public struct PlayerTag : IComponentData {}
+
 public struct TileSpawner : IComponentData
 {
     public float2 TileSize;
