@@ -21,22 +21,22 @@ public class RailGeneration : SystemBase
 
             int count = positions.Length;
 
-            float3[] pos = positions.ToArray();
-            float3[] hIn = handlesIn.ToArray();
-            float3[] hOut = handlesOut.ToArray();
-            float[] dist = distances.ToArray();
+            //float3[] pos = positions.ToArray();
+            //float3[] hIn = handlesIn.ToArray();
+            //float3[] hOut = handlesOut.ToArray();
+            //float[] dist = distances.ToArray();
 
-            //float3[] pos = new float3[count];
-            //float3[] hIn = new float3[count];
-            //float3[] hOut = new float3[count];
-            //float[] dist = new float[count];
-            //for (int i = 0; i < count; ++i)
-            //{
-            //    pos[i]  = distances[i];
-            //    hIn[i]  = handlesIn[i];
-            //    hOut[i] = handlesOut[i];
-            //    dist[i] = distances[i];
-            //}
+            float3[] pos = new float3[count];
+            float3[] hIn = new float3[count];
+            float3[] hOut = new float3[count];
+            float[] dist = new float[count];
+            for (int i = 0; i < count; ++i)
+            {
+                pos[i] = distances[i];
+                hIn[i] = handlesIn[i];
+                hOut[i] = handlesOut[i];
+                dist[i] = distances[i];
+            }
 
             while (absoluteDistance < totalAbsoluteDistance)
             {
