@@ -55,11 +55,9 @@ public class AntMovementSystem : SystemBase
         .ScheduleParallel();
     }
 
-    static bool RayCast(float2 antPos, float2 targetPos, float targetRadius, float obstacleRadius, in DynamicBuffer<ObstaclePosition> obstaclePositions)
+    public static bool RayCast(float2 from, float2 to, float targetRadius, float obstacleRadius, in DynamicBuffer<ObstaclePosition> obstaclePositions)
     {
         var targetRadiusSq = targetRadius * targetRadius;
-        var to = targetPos;
-        var from = antPos;
         var mainLine = to - from;
         var mainLengthSq = math.lengthsq(mainLine);
 
