@@ -25,10 +25,9 @@ public class PlayerInputSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var playerInputEntity = GetSingletonEntity<PlayerInput>();
         PlayerInput playerInput;
         playerInput.Direction = new float2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         playerInput.ZoomDelta = Input.mouseScrollDelta.y;
-        EntityManager.SetComponentData(playerInputEntity, playerInput);
+        SetSingleton(playerInput);
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace ZombieMaze {
@@ -46,19 +48,21 @@ namespace ZombieMaze {
 
 			// hover over ball
 			//TODO: Get player position from entity
-
-			target.x = 0;//Ball.instance.transform.position.x;
-			target.z = 0;//Ball.instance.transform.position.z;
+			
+			target.x = playerPosition.x;
+			target.z = playerPosition.z;
 			
 
 			// offset for camera rotation
-			float zOff = (target.y - 0 /*Ball.instance.transform.position.y)*/) / Mathf.Tan(Camera.main.transform.rotation.eulerAngles.x * Mathf.Rad2Deg);
+			float zOff = (target.y - playerPosition.y) / Mathf.Tan(Camera.main.transform.rotation.eulerAngles.x * Mathf.Rad2Deg);
 			target.z += zOff;
 
 			// applying smooth damp
 			transform.localPosition = Vector3.SmoothDamp(transform.localPosition, target, ref camVel, SMOOTH_DAMP_DURATION, float.MaxValue, Time.unscaledDeltaTime);
 
 		}
+
+		[HideInInspector] public float3 playerPosition;
 
 		private Vector3 target = new Vector3();
 		private Vector3 camVel = new Vector3();
