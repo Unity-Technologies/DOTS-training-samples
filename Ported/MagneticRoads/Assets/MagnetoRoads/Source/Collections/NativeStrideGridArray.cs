@@ -13,28 +13,29 @@ namespace Magneto.Collections
         public NativeStrideGridArray ( int stride, Allocator allocator, NativeArrayOptions clearMemory )
         {
             this.stride = stride;
-            this.length = stride * 3;
+            this.length = stride * stride * stride;
 
-            array = new NativeArray<T>(length, allocator, clearMemory);
+            array = new NativeArray<T>(this.length, allocator, clearMemory);
         }
 
         public T this[int x, int y, int z]
         {
             [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            get { return array[x+stride * (y + stride * z)]; }
-            
-            
+            get => array[(z * stride * stride) + (y * stride) + x];
+
+
             [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            set { array[x+stride * (y + stride * z)] = value; }
+            set => array[(z * stride * stride) + (y * stride) + x] = value;
         }
+       
 
         public T this[int3 index]
         {
             [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            get { return array[index.x+stride * (index.y + stride * index.z)]; }
-            
+            get => array[(index.z * stride * stride) + (index.y * stride) + index.x];
+
             [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            set { array[index.x+stride * (index.y + stride * index.z)] = value; }
+            set => array[(index.z * stride * stride) + (index.y * stride) + index.x] = value;
         }
         
         public void Dispose()

@@ -12,34 +12,38 @@ namespace Magneto.Track.Jobs
     {
         public const int IterationCount = 50000;
 
-        public int VoxelCount;
+     //   public int VoxelCount;
+
+        [ReadOnly] public NativeArray<int3> CachedNeighbourIndexOffsets;
+        [ReadOnly] public NativeArray<int3> LimitedCachedNeighbourIndexOffsets;
         
         public NativeStrideGridArray<bool> TrackVoxels;
+
+        // TODO: RETURN ?
+        public NativeList<IntersectionData> Intersections;
+        public NativeStrideGridArray<int> IntersectionsGrid;
         
-        public NativeArray<int3> CachedNeighbourIndexOffsets;
-        public NativeArray<int> LimitedCachedNeighbourIndexOffsets;
-
-
-
-        public NativeList<int3> ActiveVoxels;
-        
-        //
-        public NativeList<int> Intersections;
 
         public void Execute()
         {
+            int middle = TrackManager.VOXEL_COUNT / 2;
+            
+            // TODO Make random:)
+            var random = Unity.Mathematics.Random.CreateFromIndex(0);
             
             // Create our temp allocated
-            ActiveVoxels = new NativeList<int3>(Allocator.Temp);
+            var activeVoxels = new NativeList<int3>(Allocator.Temp) {new int3(middle, middle, middle)};
+
+            TrackVoxels[middle, middle, middle] = true;
 
             for (int i = 0; i < IterationCount; i++)
             {
-                if (ActiveVoxels.Length == 0) break;
-
-                int index = Random.Range(0, ActiveVoxels.Length);
+                if (activeVoxels.Length == 0) break;
                 
-                int3 currentPosition = ActiveVoxels[index];
-                int3 randomDirection = CachedNeighbourIndexOffsets[Random.Range(0, TrackManager.DIRECTIONS_LENGTH)];
+                int index = random.NextInt(0, activeVoxels.Length);
+                
+                int3 currentPosition = activeVoxels[index];
+                int3 randomDirection = CachedNeighbourIndexOffsets[random.NextInt(0, TrackManager.DIRECTIONS_LENGTH)];
                 
                 int3 newPosition = currentPosition + randomDirection;
 
@@ -48,28 +52,27 @@ namespace Magneto.Track.Jobs
                 {
                     if (CountNeighbors(newPosition, true) < 3)
                     {
-                        ActiveVoxels.Add(newPosition);
+                        activeVoxels.Add(newPosition);
                         TrackVoxels[newPosition] = true;
                     }
                 }
 
                 int neighbourCount = CountNeighbors(currentPosition);
+                
                 if (neighbourCount >= 3)
                 {
-                    ActiveVoxels.RemoveAt(index);
-                    // no more than three cardinal neighbors for any voxel (no 4-way intersections allowed)
-                    // (really, this is to avoid nonplanar intersections)
+                    activeVoxels.RemoveAt(index);
+                    IntersectionData intersectionData = new IntersectionData();
                     
-                    /*
-                     *Intersection intersection = new Intersection(pos,(Vector3)pos*voxelSize,Vector3Int.zero);
-				intersection.id = intersections.Count;
-				intersections.Add(intersection);
-				intersectionsGrid[pos.x,pos.y,pos.z] = intersection;
-				activeVoxels.RemoveAt(index);
-                     */
-
+                    intersectionData.Index = Intersections.Length;
+                    Intersections.Add(intersectionData);
+                    IntersectionsGrid[currentPosition] = Intersections.Length - 1;
+                    
+                    activeVoxels.RemoveAt(index);
                 }
             }
+
+            activeVoxels.Dispose();
         }
 
         private bool GetVoxel(int x, int y, int z)

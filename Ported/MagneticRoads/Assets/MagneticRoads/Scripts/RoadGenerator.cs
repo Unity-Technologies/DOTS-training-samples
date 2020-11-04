@@ -135,6 +135,7 @@ public class RoadGenerator:MonoBehaviour {
 	}
 
 	IEnumerator SpawnRoads() {
+		
 		// first generation pass: plan roads as basic voxel data only
 		trackVoxels = new bool[voxelCount,voxelCount,voxelCount];
 		List<Vector3Int> activeVoxels = new List<Vector3Int>();
