@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -15,13 +15,11 @@ public class AntMovementSystem : SystemBase
 
     const float dt = 1.0f / 60;
     const float randomSteering = 0.1f;
-    const float pheromoneSteering = 0.015f;
+    const float pheromoneSteeringWeight = 0.001f;
 
     public static readonly Vector2 bounds = new Vector2(5, 5);
 
     EntityCommandBufferSystem cmdBufferSystem;
-
-    EntityQuery doesTextInitExist;
 
     protected override void OnCreate()
     {
@@ -61,9 +59,8 @@ public class AntMovementSystem : SystemBase
             direction.Value += rand.Random.NextFloat(-randomSteering, randomSteering);
 
             //pheromone steering
-            
-            float value = PheremoneSteering(pheromonesArray, translation, direction, 0.3f) * pheromoneSteering;
-            direction.Value += value;
+            float pherSteer = PheremoneSteering(pheromonesArray, translation, direction, 0.3f) * pheromoneSteeringWeight;
+            direction.Value += pherSteer;
             
 
             // TODO: steer towards target
@@ -209,7 +206,7 @@ public class AntMovementSystem : SystemBase
         {
             float angle = antDirection.Value + i * Mathf.PI * 0.25f;
             float testX = antTranslation.Value.x + Mathf.Cos(angle) * distance;
-            float testY = antTranslation.Value.y + Mathf.Sin(angle) * distance;
+            float testY = antTranslation.Value.z + Mathf.Sin(angle) * distance;
 
             if(TextureHelper.PositionWithInMapBounds(new Vector2(testX, testY)))
             {
@@ -221,8 +218,6 @@ public class AntMovementSystem : SystemBase
                 output += value * i;
             }
         }
-
-
         return Mathf.Sign(output);
     }
 }
