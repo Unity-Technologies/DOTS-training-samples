@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -10,6 +8,8 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
 {
     [SerializeField] private Color pathColour;
     [SerializeField] private RailMarkerType[] railMarkerTypes;
+    [SerializeField] private int numberOfTrains = 5;
+    [SerializeField] private int maxCarriages = 4;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -75,9 +75,11 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         for (var d = 0; d < totalMarkerCount; d++)
             nativeDistances[d] = tempDistances[d];
 
-        // Path colour
+        // Misc
         pathData.Colour = new float3(pathColour.r, pathColour.g, pathColour.b);
-
+        pathData.NumberOfTrains = numberOfTrains;
+        pathData.MaxCarriages = maxCarriages;
+        
         dstManager.AddComponentData(entity, new PathRef
         {
             Data = builder.CreateBlobAssetReference<PathData>(Allocator.Persistent)

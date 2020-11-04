@@ -10,7 +10,7 @@ public class TrainSpawning : SystemBase
     protected override void OnUpdate()
     {
         var carriagePrefab = GetSingleton<MetroData>().CarriagePrefab;
-        var ecb = new EntityCommandBuffer();
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         Entities.ForEach((in PathRef pathRef) =>
         {
@@ -43,7 +43,9 @@ public class TrainSpawning : SystemBase
                  var rotation = new Rotation {Value = quaternion.Euler(normal)};
                  ecb.SetComponent(carriage, rotation);
             }
-        }).Schedule();
+        }).Run();
+        
+        ecb.Playback(EntityManager);
 
         Enabled = false;
     }

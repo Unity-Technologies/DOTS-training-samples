@@ -433,7 +433,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1658915104752982254}
-  - component: {fileID: 1629362432743944404}
   - component: {fileID: 5797146205254553897}
   m_Layer: 0
   m_Name: Carriage
@@ -460,27 +459,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1629362432743944404
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1659681002656067790}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 000f607d4bc524def8c1ef5a1df73255, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  positionOnRail: 0
-  passengers: []
-  seats_FREE: []
-  seats_TAKEN: []
-  passengerCount: 0
-  door_LEFT: {fileID: 1629582977699814546}
-  door_RIGHT: {fileID: 1629668106505106104}
-  RecolouredObjects:
-  - {fileID: 1659678117274479708}
 --- !u!114 &5797146205254553897
 MonoBehaviour:
   m_ObjectHideFlags: 0
