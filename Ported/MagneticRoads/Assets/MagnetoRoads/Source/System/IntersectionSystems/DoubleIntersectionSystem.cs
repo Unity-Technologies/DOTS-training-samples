@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 
+[UpdateAfter(typeof(SimpleIntersectionSystem))]
 public class DoubleIntersectionSystem : SystemBase
 {
     protected override void OnUpdate()
@@ -21,7 +22,7 @@ public class DoubleIntersectionSystem : SystemBase
     Entity UpdateCarLane(Entity laneIn, Entity laneOut, Entity car, float deltaTime)
     {
         Lane lane = GetComponent<Lane>(laneIn);
-        DynamicBuffer<MyBufferElement> laneInCars = GetBuffer<MyBufferElement>(laneIn);
+        DynamicBuffer<CarBufferElement> laneInCars = GetBuffer<CarBufferElement>(laneIn);
         Entity reachedEndOfLaneCar = Entity.Null;
         if(!laneInCars.IsEmpty){
             Entity laneCar = laneInCars[0];
@@ -52,7 +53,7 @@ public class DoubleIntersectionSystem : SystemBase
         else{
             // TODO: MBRIAU: Still make that car accelerate but cap the normalized speed to 0.7f while in an intersection (Look at Car.cs)
             // TODO: MBRIAU: We also need to make the first car of each input lane slowdown since the intersection is busy
-            DynamicBuffer<MyBufferElement> laneOutCars = GetBuffer<MyBufferElement>(laneOut);
+            DynamicBuffer<CarBufferElement> laneOutCars = GetBuffer<CarBufferElement>(laneOut);
             laneOutCars.Add(car);
             SetComponent(car, new CarPosition{Value = 0});
         }

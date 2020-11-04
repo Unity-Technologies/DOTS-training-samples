@@ -1,4 +1,3 @@
-using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -10,12 +9,23 @@ public class TrafficSpawnerSystem : SystemBase
 {
     EntityArchetype m_LaneArchetype;
     //public EntityCommandBufferSystem CommandBufferSystem;
+
+    const float laneOffset = 0.5f;
     
     protected override void OnCreate()
     {
-        m_LaneArchetype = EntityManager.CreateArchetype(typeof(Lane), typeof(Spline), typeof(MyBufferElement));
+        m_LaneArchetype = EntityManager.CreateArchetype(typeof(Lane), typeof(Spline), typeof(CarBufferElement));
         //CommandBufferSystem = World.DefaultGameObjectInjectionWorld.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         
+    }
+
+    private static Entity CreateCar(EntityCommandBuffer ecb, Entity prefab, float position, float3 color)
+    {
+        Entity carInstance = ecb.Instantiate(prefab);
+        ecb.SetComponent(carInstance, new CarPosition {Value = position});
+        ecb.SetComponent(carInstance, new CarSpeed {NormalizedValue = 0});
+        ecb.AddComponent<URPMaterialPropertyBaseColor>(carInstance, new URPMaterialPropertyBaseColor(){Value = new float4(color.x, color.y, color.z, 1)});
+        return carInstance;
     }
 
     protected override void OnUpdate()
@@ -29,7 +39,10 @@ public class TrafficSpawnerSystem : SystemBase
         Entity laneA0;
 
         Random random = Random.CreateFromIndex(0);
-        
+        var left = math.left() * laneOffset;
+        var right = math.right() * laneOffset;
+        var forward = math.forward() * laneOffset;
+        var back = math.back() * laneOffset;
         
         Entities
             .ForEach((Entity entity, in TrafficSpawner spawner) =>
@@ -48,24 +61,23 @@ public class TrafficSpawnerSystem : SystemBase
                 float3 pos3 = new float3(10, 0, 0);
                 float3 pos4 = new float3(5, 0, 5);
                 
-                Spline splineA0 = new Spline {startPos = pos0 + new float3(0, 0, 0.2f), endPos = pos1 + new float3(0, 0, 0.2f)};
-                Spline splineB0 = new Spline {startPos = pos1, endPos = pos0};
+                Spline splineA0 = new Spline {startPos = pos0 + back, endPos = pos1 + back};
+                Spline splineB0 = new Spline {startPos = pos1 + forward, endPos = pos0 + forward};
                 
-                Spline splineA1 = new Spline {startPos = pos1 + new float3(0, 0, 0.2f), endPos = pos2 + new float3(0, 0, 0.2f)};
-                Spline splineB1 = new Spline {startPos = pos2, endPos = pos1};
+                Spline splineA1 = new Spline {startPos = pos1 + back , endPos = pos2 + back};
+                Spline splineB1 = new Spline {startPos = pos2 + forward, endPos = pos1 + forward};
                 
-                Spline splineA2 = new Spline {startPos = pos2 + new float3(0, 0, 0.2f), endPos = pos3 + new float3(0, 0, 0.2f)};
-                Spline splineB2 = new Spline {startPos = pos3, endPos = pos2};
+                Spline splineA2 = new Spline {startPos = pos2 + back, endPos = pos3 + back};
+                Spline splineB2 = new Spline {startPos = pos3 + forward, endPos = pos2 + forward};
                 
-                Spline splineA3 = new Spline {startPos = pos2 + new float3(0, 0, 0.2f), endPos = pos4 + new float3(0, 0, 0.2f)};
-                Spline splineB3 = new Spline {startPos = pos4, endPos = pos2};
-                
+                Spline splineA3 = new Spline {startPos = pos2 + right, endPos = pos4 + right};
+                Spline splineB3 = new Spline {startPos = pos4 + left, endPos = pos2 + left};
                 
                 laneA0 = ecb.CreateEntity(archetype);
                 Lane lane = new Lane {Length = 10.0f};
                 ecb.SetComponent(laneA0, lane);
                 ecb.SetComponent(laneA0, splineA0);
-                DynamicBuffer<MyBufferElement> buffer = ecb.AddBuffer<MyBufferElement>(laneA0);
+                DynamicBuffer<CarBufferElement> buffer = ecb.AddBuffer<CarBufferElement>(laneA0);
                 DynamicBuffer<Entity> entityBuffer = buffer.Reinterpret<Entity>();
 
                 int nbElements = 2;
@@ -73,10 +85,7 @@ public class TrafficSpawnerSystem : SystemBase
 
                 for (int i = 0; i < nbElements; i++)
                 {
-                    carInstance = ecb.Instantiate(spawner.CarPrefab);
-                    ecb.SetComponent(carInstance, new CarPosition {Value = lane.Length - i * distance});
-                    ecb.SetComponent(carInstance, new CarSpeed {NormalizedValue = 0});
-                    entityBuffer.Add(carInstance);    
+                    entityBuffer.Add(CreateCar(ecb, spawner.CarPrefab, lane.Length - i * distance, random.NextFloat3(new float3(1,1.0f, 1.0f))));
                 }
                 
                 //var buffer = lookup[laneA0];
@@ -117,14 +126,12 @@ public class TrafficSpawnerSystem : SystemBase
                 ecb.SetComponent(laneB3, splineB3);
                 //ecb.AddBuffer<MyBufferElement>(laneB3);
                 
-                buffer = ecb.AddBuffer<MyBufferElement>(laneB3);
+                buffer = ecb.AddBuffer<CarBufferElement>(laneB3);
                 entityBuffer = buffer.Reinterpret<Entity>();
                 
                 for (int i = 0; i < nbElements; i++)
                 {
-                    carInstance = ecb.Instantiate(spawner.CarPrefab);
-                    ecb.SetComponent(carInstance, new CarPosition {Value = lane.Length - i * distance});
-                    entityBuffer.Add(carInstance);    
+                    entityBuffer.Add(CreateCar(ecb, spawner.CarPrefab, lane.Length - i * distance, random.NextFloat3(new float3(1,1.0f, 1.0f))));
                 }
                 
                 var firstDeadEnd = ecb.Instantiate(spawner.SimpleIntersectionPrefab);
@@ -150,10 +157,6 @@ public class TrafficSpawnerSystem : SystemBase
                 ecb.SetComponent(thirdDeadEnd, new Translation{Value = pos4});
                 ecb.AddComponent<URPMaterialPropertyBaseColor>(thirdDeadEnd, new URPMaterialPropertyBaseColor(){Value = new float4(0, 0, 1, 1)});
             }).Run();
-
-        
-
-
         
         ecb.Playback(EntityManager);
         //CommandBufferSystem.AddJobHandleForProducer(this.Dependency);

@@ -3,6 +3,7 @@ using Unity.Entities;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
+[UpdateAfter(typeof(DoubleIntersectionSystem))]
 public class TripleIntersectionSystem : SystemBase
 {
     private Random m_Random;
@@ -50,7 +51,7 @@ public class TripleIntersectionSystem : SystemBase
                 {
                     if (directions[i] != -1)
                         continue;
-                    DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(laneInEntities[i]);
+                    DynamicBuffer<CarBufferElement> cars = GetBuffer<CarBufferElement>(laneInEntities[i]);
                     if (cars.IsEmpty)
                         continue;
                     Entity laneFirstCar = cars[0];
@@ -90,7 +91,7 @@ public class TripleIntersectionSystem : SystemBase
                     {
                         if (directions[i] != -1)
                         {
-                            DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(laneInEntities[i]);
+                            DynamicBuffer<CarBufferElement> cars = GetBuffer<CarBufferElement>(laneInEntities[i]);
                             tripleIntersection.car = cars[0];
                             tripleIntersection.carIndex = i;
                             Lane lane = laneIns[i];
@@ -115,19 +116,19 @@ public class TripleIntersectionSystem : SystemBase
                     if (destination == 0)
                     {
                         SetComponent(tripleIntersection.laneOut0, newLaneOut);
-                        DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(tripleIntersection.laneOut0);
+                        DynamicBuffer<CarBufferElement> cars = GetBuffer<CarBufferElement>(tripleIntersection.laneOut0);
                         cars.Add(tripleIntersection.car);
                     }
                     else if (destination == 1)
                     {
                         SetComponent(tripleIntersection.laneOut1, newLaneOut);
-                        DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(tripleIntersection.laneOut1);
+                        DynamicBuffer<CarBufferElement> cars = GetBuffer<CarBufferElement>(tripleIntersection.laneOut1);
                         cars.Add(tripleIntersection.car);
                     }
                     else
                     {
                         SetComponent(tripleIntersection.laneOut2, newLaneOut);
-                        DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(tripleIntersection.laneOut2);
+                        DynamicBuffer<CarBufferElement> cars = GetBuffer<CarBufferElement>(tripleIntersection.laneOut2);
                         cars.Add(tripleIntersection.car);
                     }
                     

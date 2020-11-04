@@ -1,20 +1,20 @@
 ﻿using Unity.Entities;
 
 [InternalBufferCapacity(8)]
-public struct MyBufferElement : IBufferElementData
+public struct CarBufferElement : IBufferElementData
 {
     // Actual value each buffer element will store.
     public Entity Value;
 
     // The following implicit conversions are optional, but can be convenient.
-    public static implicit operator Entity(MyBufferElement e)
+    public static implicit operator Entity(CarBufferElement e)
     {
         return e.Value;
     }
 
-    public static implicit operator MyBufferElement(Entity e)
+    public static implicit operator CarBufferElement(Entity e)
     {
-        return new MyBufferElement { Value = e };
+        return new CarBufferElement { Value = e };
     }
 }
 
