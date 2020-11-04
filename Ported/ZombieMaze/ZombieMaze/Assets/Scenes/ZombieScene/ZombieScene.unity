@@ -212,7 +212,13 @@ MonoBehaviour:
   tileMazeSize:
     x: 70
     y: 70
+  mazeStripWidth: 6
+  openStripWidth: 4
+  numZombies: 5
   tilePrefab: {fileID: 1379298829275194, guid: 5ccb5558c59eb47b4b09a09c1816a9e3, type: 3}
+  zombiePrefab: {fileID: 1428683352245202, guid: ec64f9227f03f4b5babd08976956f89e,
+    type: 3}
+  wallPrefab: {fileID: 1812351511079818, guid: 22d5859ac894944eda49102813f47544, type: 3}
 --- !u!4 &949866734
 Transform:
   m_ObjectHideFlags: 0

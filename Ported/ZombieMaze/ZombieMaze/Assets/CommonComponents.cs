@@ -39,8 +39,23 @@ public struct ZombieTag : IComponentData {}
 
 public struct PlayerTag : IComponentData {}
 
+public struct Spawner : IComponentData
+{
+    public uint2 MazeSize;
+    public Entity Prefab;
+}
+
 public struct TileSpawner : IComponentData
 {
-    public float2 TileSize;
-    public Entity TilePrefab;
+}
+
+public struct ZombieSpawner : IComponentData
+{
+    public uint NumZombies;
+}
+
+public struct MazeSpawner : IComponentData
+{
+    public uint OpenStripsWidth;
+    public uint MazeStripsWidth;
 }

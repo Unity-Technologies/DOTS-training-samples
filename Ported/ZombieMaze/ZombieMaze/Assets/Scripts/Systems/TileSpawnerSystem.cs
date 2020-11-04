@@ -20,15 +20,15 @@ public class TileSpawnerSystem : SystemBase
     {
         var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
 
-        var jobHandle = Entities.ForEach((Entity entity, in TileSpawner spawner) =>
+        var jobHandle = Entities.ForEach((Entity entity, in TileSpawner _, in Spawner spawner) =>
         {
-            var halfWidth = spawner.TileSize.x / 2;
-            var halfHeight = spawner.TileSize.y / 2;
+            var halfWidth = spawner.MazeSize.x / 2;
+            var halfHeight = spawner.MazeSize.y / 2;
             
-            for (int i = 0; i < spawner.TileSize.x; i++)
-            for (int j = 0; j < spawner.TileSize.y; j++)
+            for (int i = 0; i < spawner.MazeSize.x; i++)
+            for (int j = 0; j < spawner.MazeSize.y; j++)
             {
-                var spawnedTile = ecb.Instantiate(spawner.TilePrefab);
+                var spawnedTile = ecb.Instantiate(spawner.Prefab);
                 ecb.SetComponent(spawnedTile, new Translation {Value = new float3(i - halfWidth, 0, j - halfHeight)});
             }
 
