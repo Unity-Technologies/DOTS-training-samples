@@ -12,6 +12,8 @@ public class TexUpdaterSystem : SystemBase
     const float randomSteering = 0.1f;
     const float decay = 0.999f;
     const float trailAddSpeed = 0.3f;
+    const float excitementWhenLookingForFood = 4.0f;
+    const float excitementWhenGoingBackToNest = 5.0f;
 
     Entity textureSingleton; //Use a singleton entity for the buffer entity
 
@@ -22,12 +24,18 @@ public class TexUpdaterSystem : SystemBase
         RequireSingletonForUpdate<TexSingleton>();
     }
 
+    static void DropPheromones(float x, float y, Vector2 bounds, NativeArray<PheromonesBufferData> localPheromones, float speed, float dt, int TexSize, float excitement)
+    {
+        Vector2 texelCoord = new Vector2(0.5f * (-x / bounds.x) + 0.5f, 0.5f * (-y / bounds.y) + 0.5f);
+        int index = (int)(texelCoord.y * TexSize) * TexSize + (int)(texelCoord.x * TexSize);
+        localPheromones[index] += (speed * dt * excitement) * (1.0f - localPheromones[index]);
+        localPheromones[index] = ((float)localPheromones[index] > 1.0f) ? 1.0f : (float)localPheromones[index];
+    }
     
     protected override void OnUpdate()
     {
         Vector2 bounds = AntMovementSystem.bounds;
         int TexSize = RefsAuthoring.TexSize;
-        float excitement = 4.0f; //TODO : increase the excitement level when holding resource (so it should be a component)
 
         //Get the pheremones data 
         EntityQuery doesTextInitExist = GetEntityQuery(typeof(TexInitialiser));
@@ -39,13 +47,18 @@ public class TexUpdaterSystem : SystemBase
 
         Entities
             .WithNativeDisableParallelForRestriction(localPheromones)
-            .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, in Speed speed) =>
+            .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, in Speed speed, in AntLookingForFood dummy) =>
             {
-                Vector2 texelCoord = new Vector2(0.5f * (-translation.Value.x / bounds.x) + 0.5f, 0.5f * (-translation.Value.z / bounds.y) + 0.5f);
-                int index = (int)(texelCoord.y * TexSize) * TexSize + (int)(texelCoord.x * TexSize);
-                localPheromones[index] += (speed.Value * dt * excitement) * (1.0f - localPheromones[index]);
-                localPheromones[index] = ((float)localPheromones[index] > 1.0f) ? 1.0f : (float)localPheromones[index];
+                DropPheromones(translation.Value.x, translation.Value.z, bounds, localPheromones, speed.Value, dt, TexSize, excitementWhenLookingForFood);
                
+            })
+            .ScheduleParallel();
+
+        Entities
+            .WithNativeDisableParallelForRestriction(localPheromones)
+            .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, in Speed speed, in AntLookingForNest dummy) =>
+            {
+                DropPheromones(translation.Value.x, translation.Value.z, bounds, localPheromones, speed.Value, dt, TexSize, excitementWhenGoingBackToNest);
             })
             .ScheduleParallel();
 
