@@ -15,6 +15,7 @@ public class TexUpdaterSystem : SystemBase
 
     Entity textureSingleton; //Use a singleton entity for the buffer entity
 
+    Color[] colors = new Color[RefsAuthoring.TexSize * RefsAuthoring.TexSize];
 
     protected override void OnCreate()
     {
@@ -55,10 +56,12 @@ public class TexUpdaterSystem : SystemBase
                 {
                     for (int j = 0; j < TexSize; ++j)
                     {
-                        localPheromones[j * TexSize + i] *= decay;
-                        map.PheromoneMap.SetPixel(i, j, new Color(localPheromones[j * TexSize + i], 0, 0));
+                        colors[j * TexSize + i].r = localPheromones[j * TexSize + i]; ;
+                        colors[j * TexSize + i].g = 0;
+                        colors[j * TexSize + i].b = 0;
                     }
                 }
+                map.PheromoneMap.SetPixels(0, 0, TexSize, TexSize, colors);
                 map.PheromoneMap.Apply();
             })
             .WithoutBurst()
