@@ -40,7 +40,7 @@ public class TrainSpawning : SystemBase
                  ecb.SetComponent(carriage, translation);
                  
                  // Rotation
-                 var rotation = new Rotation {Value = quaternion.Euler(normal)};
+                 var rotation = new Rotation {Value = quaternion.LookRotation(normal, new float3(0,1,0))};
                  ecb.SetComponent(carriage, rotation);
             }
         }).Run();
