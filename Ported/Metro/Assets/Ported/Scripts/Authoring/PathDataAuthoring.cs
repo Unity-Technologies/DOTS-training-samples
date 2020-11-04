@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using UnityEngine;
 
 [DisallowMultipleComponent]
-public unsafe class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
+unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     [SerializeField] private Color pathColour;
     [SerializeField] private RailMarkerType[] railMarkerTypes;
@@ -28,16 +28,10 @@ public unsafe class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         var distancesB = builder.Allocate(ref pathData.Distances, totalMarkerCount);
         var markerTypesB = builder.Allocate(ref pathData.MarkerTypes, totalMarkerCount);
 
-        void* posPtr = positionsB.GetUnsafePtr();
-        void* handleInPtr = handlesInB.GetUnsafePtr();
-        void* handleOutPtr = handlesOutB.GetUnsafePtr();
-        void* distPtr = distancesB.GetUnsafePtr();
-
-        NativeArray<float3> nativePositions = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float3>(posPtr, positionsB.Length, Allocator.None);
-        NativeArray<float3> nativeHandlesIn = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float3>(handleInPtr, handlesInB.Length, Allocator.None);
-        NativeArray<float3> nativeHandlesOut = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float3>(handleOutPtr, handlesOutB.Length, Allocator.None);
-        NativeArray<float> nativeDistances = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float>(distPtr, distancesB.Length, Allocator.None);
-
+        NativeArray<float3> nativePositions  = UnsafeHelper.GetNativeArrayFromBlobBuilder<float3>(ref positionsB);
+        NativeArray<float3> nativeHandlesIn  = UnsafeHelper.GetNativeArrayFromBlobBuilder<float3>(ref handlesInB);
+        NativeArray<float3> nativeHandlesOut = UnsafeHelper.GetNativeArrayFromBlobBuilder<float3>(ref handlesOutB);
+        NativeArray<float>  nativeDistances  = UnsafeHelper.GetNativeArrayFromBlobBuilder<float>(ref distancesB);
         //var nativeMarkerTypes = UnsafeHelper.GetNativeArrayFromBlobBuilder<int>(markerTypesB);
 
         // Outbound Positions
@@ -68,7 +62,7 @@ public unsafe class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         for (var m = 0; m < halfMarkerCount; m++)
         {
             // Outbound
-            markerTypesB[m] = (int) railMarkerTypes[m];
+            markerTypesB[m] = (int)railMarkerTypes[m];
 
             // Return
             markerTypesB[halfMarkerCount + m] = (int)railMarkerTypes[halfMarkerCount - 1 - m];

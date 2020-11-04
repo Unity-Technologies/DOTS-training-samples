@@ -4,17 +4,25 @@ using Unity.Entities;
 
 static unsafe public class UnsafeHelper
 {
-    static public void GetNativeArrayFromBlob<T>(BlobArray<T> blob, out NativeArray<T> output) where T : struct
+    static public NativeArray<T> GetNativeArrayFromBlob<T>(ref BlobArray<T> blob) where T : struct
     {
         void* pPtr = blob.GetUnsafePtr();
 
-        output = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(pPtr, blob.Length, Allocator.None);
+        var output = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(pPtr, blob.Length, Allocator.None);
+
+        NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref output, AtomicSafetyHandle.GetTempMemoryHandle());
+
+        return output;
     }
 
-    static public void GetNativeArrayFromBlobBuilder<T>(BlobBuilderArray<T> blobBuilder, out NativeArray<T> output) where T : struct
+    static public NativeArray<T> GetNativeArrayFromBlobBuilder<T>(ref BlobBuilderArray<T> blobBuilder) where T : struct
     {
         void* pPtr = blobBuilder.GetUnsafePtr();
 
-        output = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(pPtr, blobBuilder.Length, Allocator.None);
+        var output = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(pPtr, blobBuilder.Length, Allocator.None);
+
+        NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref output, AtomicSafetyHandle.GetTempMemoryHandle());
+
+        return output;
     }
 }

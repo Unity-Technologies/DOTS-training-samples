@@ -20,15 +20,10 @@ unsafe public class RailGeneration : SystemBase
             float totalAbsoluteDistance = pathdata.Data.Value.TotalDistance;
             float absoluteDistance = 0.0f;
 
-            void* posPtr = positionsB.GetUnsafePtr();
-            void* handleInPtr = handlesInB.GetUnsafePtr();
-            void* handleOutPtr = handlesOutB.GetUnsafePtr();
-            void* distPtr = distancesB.GetUnsafePtr();
-
-            NativeArray<float3> nativePositions = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float3>(posPtr, positionsB.Length, Allocator.None);
-            NativeArray<float3> nativeHandlesIn = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float3>(handleInPtr, handlesInB.Length, Allocator.None);
-            NativeArray<float3> nativeHandlesOut = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float3>(handleOutPtr, handlesOutB.Length, Allocator.None);
-            NativeArray<float> nativeDistances = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<float>(distPtr, distancesB.Length, Allocator.None);
+            NativeArray<float3> nativePositions = UnsafeHelper.GetNativeArrayFromBlob<float3>(ref positionsB);
+            NativeArray<float3> nativeHandlesIn = UnsafeHelper.GetNativeArrayFromBlob<float3>(ref handlesInB);
+            NativeArray<float3> nativeHandlesOut = UnsafeHelper.GetNativeArrayFromBlob<float3>(ref handlesOutB);
+            NativeArray<float> nativeDistances = UnsafeHelper.GetNativeArrayFromBlob<float>(ref distancesB);
 
             int count = nativePositions.Length;
 
@@ -41,7 +36,7 @@ unsafe public class RailGeneration : SystemBase
 
                 var railEntity = ecb.Instantiate(railPrefab);
                 var railTranslation = new Translation { Value = railPos };
-                var railRotation = new Rotation {Value = quaternion.LookRotation(railRot, new float3(0, 1, 0)) };
+                var railRotation = new Rotation { Value = quaternion.LookRotation(railRot, new float3(0, 1, 0)) };
 
                 ecb.SetComponent(railEntity, railTranslation);
                 ecb.SetComponent(railEntity, railRotation);
