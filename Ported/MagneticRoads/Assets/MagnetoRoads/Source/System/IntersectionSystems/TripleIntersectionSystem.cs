@@ -18,7 +18,9 @@ public class TripleIntersectionSystem : SystemBase
     {
         //var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        
+        Random random = Random.CreateFromIndex(m_Random.NextUInt());
+
+        float deltaTime = Time.DeltaTime;
         
         Entities
             .ForEach((Entity entity, ref TripleIntersection tripleIntersection) =>
@@ -53,10 +55,21 @@ public class TripleIntersectionSystem : SystemBase
                         DynamicBuffer<MyBufferElement> cars = GetBuffer<MyBufferElement>(laneInEntities[i]);
                         if (cars.IsEmpty)
                             continue;
-                        CarPosition carPosition = GetComponent<CarPosition>(cars[0]);
-                        if (carPosition.Value == laneIns[i].Length)
+                        Entity laneFirstCar = cars[0];
+                        CarPosition carPosition = GetComponent<CarPosition>(laneFirstCar);
+                        CarSpeed carSpeed = GetComponent<CarSpeed>(laneFirstCar);
+                        
+                        carSpeed.NormalizedValue += deltaTime * CarSpeed.ACCELERATION;
+                        if (carSpeed.NormalizedValue > 1.0f){
+                            carSpeed.NormalizedValue = 1.0f;    
+                        }
+	                
+                        float newPosition = carPosition.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * deltaTime;
+                        
+                        if(newPosition > laneIns[i].Length)
                         {
-                            int value = m_Random.NextInt(2);
+                            newPosition = laneIns[i].Length;
+                            int value = random.NextInt(2);
                             if ((i == 0 || i == 1) && value == i)
                                 value = 2;
                             
@@ -68,6 +81,8 @@ public class TripleIntersectionSystem : SystemBase
                             if(i == 2)
                                 tripleIntersection.lane2Direction = value;
                         }
+                        SetComponent(laneFirstCar, new CarPosition{Value = newPosition});
+                        SetComponent(laneFirstCar, carSpeed);
                     }
                     
                     // TODO: Give proper priority
@@ -92,6 +107,9 @@ public class TripleIntersectionSystem : SystemBase
                 }
                 else
                 {
+                    // TODO: MBRIAU: Still make that car accelerate but cap the normalized speed to 0.7f while in an intersection (Look at Car.cs)
+                    // TODO: MBRIAU: We also need to make the first car of each input lane slowdown since the intersection is busy
+                    
                     int destination = directions[tripleIntersection.carIndex];
                     Lane newLaneOut = laneOuts[destination];
                     if (destination == 0)

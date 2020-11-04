@@ -48,16 +48,16 @@ public class TrafficSpawnerSystem : SystemBase
                 float3 pos3 = new float3(10, 0, 0);
                 float3 pos4 = new float3(5, 0, 5);
                 
-                Spline splineA0 = new Spline {startPos = pos0, endPos = pos1};
+                Spline splineA0 = new Spline {startPos = pos0 + new float3(0, 0, 0.2f), endPos = pos1 + new float3(0, 0, 0.2f)};
                 Spline splineB0 = new Spline {startPos = pos1, endPos = pos0};
                 
-                Spline splineA1 = new Spline {startPos = pos1, endPos = pos2};
+                Spline splineA1 = new Spline {startPos = pos1 + new float3(0, 0, 0.2f), endPos = pos2 + new float3(0, 0, 0.2f)};
                 Spline splineB1 = new Spline {startPos = pos2, endPos = pos1};
                 
-                Spline splineA2 = new Spline {startPos = pos2, endPos = pos3};
+                Spline splineA2 = new Spline {startPos = pos2 + new float3(0, 0, 0.2f), endPos = pos3 + new float3(0, 0, 0.2f)};
                 Spline splineB2 = new Spline {startPos = pos3, endPos = pos2};
                 
-                Spline splineA3 = new Spline {startPos = pos2, endPos = pos4};
+                Spline splineA3 = new Spline {startPos = pos2 + new float3(0, 0, 0.2f), endPos = pos4 + new float3(0, 0, 0.2f)};
                 Spline splineB3 = new Spline {startPos = pos4, endPos = pos2};
                 
                 
@@ -75,10 +75,9 @@ public class TrafficSpawnerSystem : SystemBase
                 {
                     carInstance = ecb.Instantiate(spawner.CarPrefab);
                     ecb.SetComponent(carInstance, new CarPosition {Value = lane.Length - i * distance});
+                    ecb.SetComponent(carInstance, new CarSpeed {NormalizedValue = 0});
                     entityBuffer.Add(carInstance);    
                 }
-                
-                
                 
                 //var buffer = lookup[laneA0];
                 //buffer.Add(carInstance);

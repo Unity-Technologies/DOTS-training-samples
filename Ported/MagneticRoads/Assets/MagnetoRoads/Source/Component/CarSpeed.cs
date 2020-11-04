@@ -3,5 +3,8 @@
 [GenerateAuthoringComponent]    
 public struct CarSpeed : IComponentData
 {
-    public float Value;
+    public const float ACCELERATION = 2f;
+    public const float MAX_SPEED = 5.0f;
+    public const float CAR_SPACING = .13f;
+    public float NormalizedValue;
 }
