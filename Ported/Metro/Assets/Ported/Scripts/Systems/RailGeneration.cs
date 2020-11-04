@@ -1,27 +1,27 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Transforms;
 
 public class RailGeneration : SystemBase
 {
-    protected override void OnCreate()
+    protected override void OnUpdate()
     {
-        var metroData = GetSingleton<MetroData>();
-        var ecb = new EntityCommandBuffer();
-        
+        var railPrefab = GetSingleton<MetroData>().RailPrefab;
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
+
         Entities.ForEach((in PathRef pathdata) =>
         {
             ref var positions = ref pathdata.Data.Value.Positions;
             for (var i = 0; i < positions.Length; i++)
             {
-                var railEntity = ecb.Instantiate(metroData.RailPrefab);
-                var railTranslation = GetComponent<Translation>(railEntity);
-                railTranslation.Value = positions[i];
+                var railEntity = ecb.Instantiate(railPrefab);
+                var railTranslation = new Translation {Value = positions[i]};
+                ecb.SetComponent(railEntity, railTranslation);
             }
-        }).Schedule();
-    }
+        }).Run();
 
-    protected override void OnUpdate()
-    {
-        // Do nothing...
+        ecb.Playback(EntityManager);
+        
+        Enabled = false;
     }
 }
