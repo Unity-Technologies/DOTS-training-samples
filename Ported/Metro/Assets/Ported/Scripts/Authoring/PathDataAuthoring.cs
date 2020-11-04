@@ -26,11 +26,11 @@ public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         var handlesIn = builder.Allocate(ref pathData.HandlesIn, totalMarkerCount);
         var handlesOut = builder.Allocate(ref pathData.HandlesOut, totalMarkerCount);
         var distances = builder.Allocate(ref pathData.Distances, totalMarkerCount);
-        var totalDistance = 0f;
-        
+        float totalDistance = 0.0f;
+
         // Outbound Positions
         for (var c = 0; c < transform.childCount; c++)
-            positions[c] = transform.position;
+            positions[c] = transform.GetChild(c).transform.position;
 
         // Outbound Handles
         for (var p = 0; p < halfMarkerCount; p++)
@@ -38,17 +38,21 @@ public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             var previousPosition = positions[p == 0 ? halfMarkerCount - 1 : p - 1];
             var currentPosition = positions[p];
             var nextPosition = positions[(p + 1) % halfMarkerCount];
-            
+
             var offsetPosition = nextPosition - previousPosition;
             var handleIn = BezierHelpers.GetHandleIn(currentPosition, offsetPosition);
             var handleOut = BezierHelpers.GetHandleOut(currentPosition, offsetPosition);
-            
+
             handlesIn[p] = handleIn;
             handlesOut[p] = handleOut;
         }
 
-        var halfDistance = BezierHelpers.MeasurePath(positions, handlesIn, handlesOut, out var tempDistances);
-        
+        float halfDistance = BezierHelpers.MeasurePath(positions, handlesIn, handlesOut, out var tempDistances);
+        for (var p = 0; p < halfMarkerCount; p++)
+        {
+            distances[p] = tempDistances[p];
+        }
+
         // Return Positions
         for (int p = 0; p < halfMarkerCount; p++)
         {
@@ -56,7 +60,7 @@ public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             var distance = distances[p];
             var perpPosition = BezierHelpers.GetPointPerpendicularOffset(position, distance, positions, handlesIn,
                 handlesOut, distances, halfDistance, Globals.BEZIER_PLATFORM_OFFSET);
-            
+
             positions[halfMarkerCount + p] = perpPosition;
         }
         
@@ -88,11 +92,11 @@ public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         // Total path distance
         totalDistance = BezierHelpers.MeasurePath(positions, handlesIn, handlesOut, out tempDistances);
         pathData.TotalDistance = totalDistance;
-        
+
         // Marker distances
         for (var d = 0; d < totalMarkerCount; d++)
             distances[d] = tempDistances[d];
-        
+
         // Path colour
         pathData.Colour = new float3(pathColour.r, pathColour.g, pathColour.b);
 
