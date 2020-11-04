@@ -46,7 +46,7 @@ public class SimpleIntersectionSystem : SystemBase
                         laneInCars.RemoveAt(0);
                     }
                 }
-                else
+                else 
                 {
                     // TODO: MBRIAU: Still make that car accelerate but cap the normalized speed to 0.7f while in an intersection (Look at Car.cs)
                     // TODO: MBRIAU: We also need to make the first car of each input lane slowdown since the intersection is busy

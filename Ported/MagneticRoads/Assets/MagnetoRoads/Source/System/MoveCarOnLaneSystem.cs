@@ -1,10 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Transforms;
-using UnityEngine;
 
 [UpdateAfter(typeof(TripleIntersectionSystem))]
 public class MoveCarOnLaneSystem : SystemBase
@@ -69,4 +64,10 @@ public class MoveCarOnLaneSystem : SystemBase
 
         ecb.Playback(EntityManager);
     }
+    
+//    Vector3 EvaluateBezier(float3 startPoint, float3 startTangent, float3 endTangent, float3 endPoint, float t)
+//    {
+//        t = Mathf.Clamp01(t);
+//        return startPoint * (1f - t) * (1f - t) * (1f - t) + 3f * startTangent * (1f - t) * (1f - t) * t + 3f * endTangent * (1f - t) * t * t + endPoint * t * t * t;
+//    }
 }

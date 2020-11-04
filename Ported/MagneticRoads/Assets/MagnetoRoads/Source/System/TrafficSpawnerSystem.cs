@@ -1,4 +1,3 @@
-using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -10,6 +9,8 @@ public class TrafficSpawnerSystem : SystemBase
 {
     EntityArchetype m_LaneArchetype;
     //public EntityCommandBufferSystem CommandBufferSystem;
+
+    const float laneOffset = 0.5f;
     
     protected override void OnCreate()
     {
@@ -29,7 +30,10 @@ public class TrafficSpawnerSystem : SystemBase
         Entity laneA0;
 
         Random random = Random.CreateFromIndex(0);
-        
+        var left = math.left() * laneOffset;
+        var right = math.right() * laneOffset;
+        var forward = math.forward() * laneOffset;
+        var back = math.back() * laneOffset;
         
         Entities
             .ForEach((Entity entity, in TrafficSpawner spawner) =>
@@ -48,18 +52,17 @@ public class TrafficSpawnerSystem : SystemBase
                 float3 pos3 = new float3(10, 0, 0);
                 float3 pos4 = new float3(5, 0, 5);
                 
-                Spline splineA0 = new Spline {startPos = pos0 + new float3(0, 0, 0.2f), endPos = pos1 + new float3(0, 0, 0.2f)};
-                Spline splineB0 = new Spline {startPos = pos1, endPos = pos0};
+                Spline splineA0 = new Spline {startPos = pos0 + back, endPos = pos1 + back};
+                Spline splineB0 = new Spline {startPos = pos1 + forward, endPos = pos0 + forward};
                 
-                Spline splineA1 = new Spline {startPos = pos1 + new float3(0, 0, 0.2f), endPos = pos2 + new float3(0, 0, 0.2f)};
-                Spline splineB1 = new Spline {startPos = pos2, endPos = pos1};
+                Spline splineA1 = new Spline {startPos = pos1 + back , endPos = pos2 + back};
+                Spline splineB1 = new Spline {startPos = pos2 + forward, endPos = pos1 + forward};
                 
-                Spline splineA2 = new Spline {startPos = pos2 + new float3(0, 0, 0.2f), endPos = pos3 + new float3(0, 0, 0.2f)};
-                Spline splineB2 = new Spline {startPos = pos3, endPos = pos2};
+                Spline splineA2 = new Spline {startPos = pos2 + back, endPos = pos3 + back};
+                Spline splineB2 = new Spline {startPos = pos3 + forward, endPos = pos2 + forward};
                 
-                Spline splineA3 = new Spline {startPos = pos2 + new float3(0, 0, 0.2f), endPos = pos4 + new float3(0, 0, 0.2f)};
-                Spline splineB3 = new Spline {startPos = pos4, endPos = pos2};
-                
+                Spline splineA3 = new Spline {startPos = pos2 + right, endPos = pos4 + right};
+                Spline splineB3 = new Spline {startPos = pos4 + left, endPos = pos2 + left};
                 
                 laneA0 = ecb.CreateEntity(archetype);
                 Lane lane = new Lane {Length = 10.0f};
@@ -150,10 +153,6 @@ public class TrafficSpawnerSystem : SystemBase
                 ecb.SetComponent(thirdDeadEnd, new Translation{Value = pos4});
                 ecb.AddComponent<URPMaterialPropertyBaseColor>(thirdDeadEnd, new URPMaterialPropertyBaseColor(){Value = new float4(0, 0, 1, 1)});
             }).Run();
-
-        
-
-
         
         ecb.Playback(EntityManager);
         //CommandBufferSystem.AddJobHandleForProducer(this.Dependency);
