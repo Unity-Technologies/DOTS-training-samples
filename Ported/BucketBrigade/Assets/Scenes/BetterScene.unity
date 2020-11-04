@@ -149,13 +149,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 940157595}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c881b9a76b228b44487547546a8f49a8, type: 3}
+  m_Script: {fileID: 11500000, guid: 02dd3d66e712e794e849cc1a56d35a32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BucketCount: 10
-  FireGridDimension: 20
+  BucketCount: 8
   WaterCellCount: 10
+  FireGridDimension: 20
+  PropagationRadius: 0
   FlashPoint: 45
+  HeatTransfer: 0.7
 --- !u!4 &940157597
 Transform:
   m_ObjectHideFlags: 0
@@ -203,11 +205,8 @@ MonoBehaviour:
     type: 3}
   BucketPrefab: {fileID: 1773963921688032, guid: 9102bbc859e71427f87e47b09aa59220,
     type: 3}
-  BucketCount: 11
   FireCell: {fileID: 1306931638197496, guid: d2414dc4033474771b65161755b347cb, type: 3}
-  FireGridDimension: 10
   WaterCell: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314, type: 3}
-  WaterCellCount: 8
 --- !u!4 &973114860
 Transform:
   m_ObjectHideFlags: 0

@@ -9,11 +9,8 @@ public class SpawnerAuthoring : MonoBehaviour
 {
     public GameObject ScooperPrefab;
     public GameObject BucketPrefab;
-    [Range(0,100)] public int BucketCount;
     public GameObject FireCell;
-    public int FireGridDimension;
     public GameObject WaterCell;
-    public int WaterCellCount;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {

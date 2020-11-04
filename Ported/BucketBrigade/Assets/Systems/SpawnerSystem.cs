@@ -10,12 +10,8 @@ public class SpawnerSystem : SystemBase
     {
         FireSim fireSim = GetSingleton<FireSim>();
 
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
-
         var time = Time.ElapsedTime;
-
-        var rand = new Unity.Mathematics.Random(20);
-        //byte flashPoint = 45;
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
@@ -26,13 +22,11 @@ public class SpawnerSystem : SystemBase
                 {
                     for (int j = 0; j < fireSim.FireGridDimension; ++j)
                     {
-                        byte temp = (byte)rand.NextInt(0, 50);
-                        
                         var instance = ecb.Instantiate(spawner.FireCell);
                         var translation = new Translation { Value = new float3(i, -0.4f, j) };
                         ecb.SetComponent(instance, translation);
 
-                        ecb.AddComponent(instance, new FireCell { Temperature = temp });
+                        ecb.AddComponent(instance, new FireCell { Temperature = 0 });
 
                         ecb.AddComponent(instance, new URPMaterialPropertyBaseColor
                         {
