@@ -10,6 +10,7 @@ public class TrackSpawner : MonoBehaviour
     private IntersectionData[] _intersectionData;
     private SplineData[] _splineData;
     private Vector3[] _usedCells;
+    private int[] _indices;
 
     private bool[] _usedCellsRaw;
 
@@ -30,7 +31,7 @@ public class TrackSpawner : MonoBehaviour
         else if (_frameCounter >= TrackManager.JOB_EXECUTION_MAXIMUM_FRAMES)
         {
             // Completion Stuff
-            _generator.Complete(out _intersectionData, out _splineData, out _usedCellsRaw);
+            _generator.Complete(out _intersectionData, out _splineData, out _usedCellsRaw, out _indices);
             var locations = new List<Vector3>();
             
             var count = _usedCellsRaw.Length;
@@ -38,10 +39,22 @@ public class TrackSpawner : MonoBehaviour
                 if (_usedCellsRaw[i])
                     locations.Add(GetVector3FromIndex(i));
             _usedCells = locations.ToArray();
+
+            var indicesCount = _indices.Length;
+            var locationCount = 0;
+            foreach (int i in _indices)
+            {
+                if (i != -1)
+                {
+                    locationCount++;
+                }
+            }
+            
             
             Debug.Log($"Active Cells: {locations.Count}");
             Debug.Log($"Intersections Cells: {_intersectionData.Length}");
             Debug.Log($"Splines Data: {_splineData.Length}");
+            Debug.Log($"Grid Indices Non -1 Count: {locationCount}");
 
             _generator = null;
         }
@@ -53,7 +66,7 @@ public class TrackSpawner : MonoBehaviour
 
     private void OnDestroy()
     {
-        _generator?.Complete(out _intersectionData, out _splineData, out _usedCellsRaw);
+        _generator?.Complete(out _intersectionData, out _splineData, out _usedCellsRaw, out _indices);
         _generator = null;
     }
 

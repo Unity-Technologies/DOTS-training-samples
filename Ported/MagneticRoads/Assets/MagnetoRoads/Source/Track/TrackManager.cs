@@ -9,6 +9,7 @@ namespace Magneto.Track
 {
     public static class TrackManager
     {
+        public const int RANDOM_SEED = 42;
         public const int DIRECTIONS_LENGTH = 26;
         public const int LIMITED_DIRECTIONS_LENGTH = 6;
 
@@ -146,7 +147,7 @@ namespace Magneto.Track
             }
 
             public void Complete(out IntersectionData[] intersectionData, out SplineData[] splineData,
-                out bool[] activeVoxels)
+                out bool[] activeVoxels, out int[] gridIndices)
             {
                 Stage2JobHandle.Complete();
                 IsRunning = false;
@@ -156,6 +157,8 @@ namespace Magneto.Track
                 intersectionData = _intersections.ToArray();
                 splineData = _splines.ToArray();
                 activeVoxels = _trackVoxels.array.ToArray();
+
+                gridIndices = _intersectionIndicesByGrid.array.ToArray();
 
                 _cachedNeighbourIndexOffsets.Dispose();
                 _cachedNeighbourIndexOffsetsLimited.Dispose();

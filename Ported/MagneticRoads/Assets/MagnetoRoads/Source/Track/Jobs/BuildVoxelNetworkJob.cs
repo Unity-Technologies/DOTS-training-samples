@@ -3,7 +3,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
-using Random = Unity.Mathematics.Random;
+
 
 namespace Magneto.Track.Jobs
 {
@@ -24,7 +24,7 @@ namespace Magneto.Track.Jobs
         {
             
             float3 half3 = new float3(0.5f, 0.5f, 0.5f);
-            var random = Random.CreateFromIndex(0);
+            var random = Unity.Mathematics.Random.CreateFromIndex(TrackManager.RANDOM_SEED);
             
             var count = RW_Intersections.Length;
             for (var index = 0; index < count; index++)
@@ -37,9 +37,9 @@ namespace Magneto.Track.Jobs
                 {
                     if (GetVoxel(intersectionData.Index + R_LimitedCachedNeighbourIndexOffsets[j], false))
                     {
-                        axesWithNeighbors.x += Mathf.Abs(R_LimitedCachedNeighbourIndexOffsets[j].x);
-                        axesWithNeighbors.y += Mathf.Abs(R_LimitedCachedNeighbourIndexOffsets[j].y);
-                        axesWithNeighbors.z += Mathf.Abs(R_LimitedCachedNeighbourIndexOffsets[j].z);
+                        axesWithNeighbors.x += math.abs(R_LimitedCachedNeighbourIndexOffsets[j].x);
+                        axesWithNeighbors.y += math.abs(R_LimitedCachedNeighbourIndexOffsets[j].y);
+                        axesWithNeighbors.z += math.abs(R_LimitedCachedNeighbourIndexOffsets[j].z);
 
                         var intersectionFirst = FindFirstIntersection(intersectionData.Index,
                             R_LimitedCachedNeighbourIndexOffsets[j], out var connectionDirection);
