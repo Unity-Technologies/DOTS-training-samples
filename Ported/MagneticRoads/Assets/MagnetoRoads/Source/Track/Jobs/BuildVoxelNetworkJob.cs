@@ -1,4 +1,5 @@
 using Magneto.Collections;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -7,10 +8,10 @@ using UnityEngine;
 
 namespace Magneto.Track.Jobs
 {
+    
+    [BurstCompile]
     public struct BuildVoxelNetworkJob : IJob
     {
-        
-        
         [ReadOnly] public NativeStrideGridArray<int> R_IntersectionsGrid;
         [ReadOnly] public NativeArray<int3> R_LimitedCachedNeighbourIndexOffsets;
         [ReadOnly] public NativeStrideGridArray<bool> R_TrackVoxels;

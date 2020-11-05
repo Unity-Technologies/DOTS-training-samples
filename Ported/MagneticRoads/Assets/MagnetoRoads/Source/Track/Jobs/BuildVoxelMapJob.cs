@@ -6,10 +6,10 @@ using Unity.Mathematics;
 
 namespace Magneto.Track.Jobs
 {
- //   [BurstCompile]
+    [BurstCompile]
     public struct BuildVoxelMapJob : IJob
     {
-        private const int IterationCount = 500;
+        private const int IterationCount = 10000;
 
         [ReadOnly] public NativeArray<int3> R_CachedNeighbourIndexOffsets;
         [ReadOnly] public NativeArray<int3> R_LimitedCachedNeighbourIndexOffsets;
