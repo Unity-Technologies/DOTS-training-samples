@@ -35,8 +35,6 @@ namespace MetroECS
                     }
 
                     // Instantiate
-                    var entity = ecb.Instantiate(prefab);
-
                     AddPlatform(ecb, ecb.Instantiate(prefab), false, platEndIdx, color, positions, handlesIn, handlesOut, distances, totalDistance);
                     AddPlatform(ecb, ecb.Instantiate(prefab), true, positions.Length - platEndIdx, color, positions, handlesIn, handlesOut, distances, totalDistance);
                 }
@@ -50,7 +48,6 @@ namespace MetroECS
         static void AddPlatform(EntityCommandBuffer ecs, Entity ent, bool flip, int idx, float3 color, NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDistance)
         {
             float3 platPos = positions[idx];
-            var translation = new Translation { Value = platPos };
 
             // Make sure we use the exact same tangent for facing platforms
             bool facingPlatform = 2 * idx > positions.Length;
@@ -62,15 +59,10 @@ namespace MetroECS
             UnityEngine.Vector3 ea = q.eulerAngles;
             q.eulerAngles = new UnityEngine.Vector3(ea.x, ea.y + 90f, ea.z);
 
-            var rotation = new Rotation { Value = 
-                (
-                    new quaternion(q.x, q.y, q.z, q.w)
-                ) };
-            var col = new URPMaterialPropertyBaseColor { Value = new float4(color.x, color.y, color.z, 1f) };
-
-            ecs.SetComponent(ent, translation);
-            ecs.SetComponent(ent, rotation);
-            ecs.AddComponent(ent, col);
+            ecs.SetComponent(ent, new Translation { Value = platPos });
+            ecs.SetComponent(ent, new Rotation{ Value = ( new quaternion(q.x, q.y, q.z, q.w) ) });
+            ecs.AddComponent(ent, new URPMaterialPropertyBaseColor { Value = new float4(color.x, color.y, color.z, 1f) });
+            //ecs.AddComponent(ent, new PropagateColor());
         }
     }
 }
