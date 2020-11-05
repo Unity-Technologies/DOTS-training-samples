@@ -10,6 +10,7 @@ using Unity.Transforms;
 public class ZombieSpawnerSystem : SystemBase
 {
     private EndSimulationEntityCommandBufferSystem _endSimulationEntityCommandBufferSystem;
+    public JobHandle MazeDependency;
 
     protected override void OnCreate()
     {
@@ -32,7 +33,7 @@ public class ZombieSpawnerSystem : SystemBase
                     new URPMaterialPropertyBaseColor {Value = new float4(0, random.Value.NextFloat(), 0, 1)});
             }
             ecb.DestroyEntity(entity);
-        }).Schedule(Dependency);
+        }).Schedule(JobHandle.CombineDependencies(Dependency, MazeDependency));
         
         _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
     }
