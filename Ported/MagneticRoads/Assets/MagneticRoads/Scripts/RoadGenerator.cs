@@ -160,6 +160,8 @@ public class RoadGenerator:MonoBehaviour {
 		carMatProps.SetVectorArray("_Color",new Vector4[instancesPerBatch]);
 
 
+		// --------- START: BUILD_VOXEL_MAP_JOB --------------------
+		
 		// plan roads broadly: first, as a grid of true/false voxels
 		int ticker = 0;
 		while (activeVoxels.Count>0 && ticker<50000) {
@@ -195,6 +197,8 @@ public class RoadGenerator:MonoBehaviour {
 			}
 		}
 
+		// --------- END: BUILD_VOXEL_MAP_JOB --------------------
+		
 		Debug.Log(intersections.Count + " intersections");
 
 		// at this point, we've generated our full layout, but everything

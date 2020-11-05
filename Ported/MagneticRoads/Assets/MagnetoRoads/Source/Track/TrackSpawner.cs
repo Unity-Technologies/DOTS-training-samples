@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class TrackSpawner : MonoBehaviour
 {
+    public bool ShowCells = false;
+    public bool ShowSplines = true;
+    public bool ShowIntersections = true;
+    
     private int _frameCounter;
     private TrackManager.TrackGenerationSystem _generator;
 
@@ -32,21 +36,7 @@ public class TrackSpawner : MonoBehaviour
             // Completion Stuff
             _generator.Complete(out _intersectionData, out _splineData, out _usedCellsRaw);
             var locations = new List<Vector3>();
-
-            // Rebuild Quick Array Of Cells For Visuals
-            // for (int x = 0; x < TrackManager.VOXEL_SIZE; x++)
-            // {
-            //     for (int y = 0; y < TrackManager.VOXEL_SIZE; y++)
-            //     {
-            //         for (int z = 0; z < TrackManager.VOXEL_SIZE; z++)
-            //         {
-            //             if()
-            //         }
-            //     }
-            //     
-            // }
-
-
+            
             var count = _usedCellsRaw.Length;
             for (var i = 0; i < count; i++)
                 if (_usedCellsRaw[i])
@@ -77,23 +67,44 @@ public class TrackSpawner : MonoBehaviour
 
     public void OnDrawGizmos()
     {
-        var transparent = new Color(1, 1, 1, 0.1f);
+        var transparent = new Color(1, 1, 1, 0.5f);
 
         // Should used cells
-        if (_usedCells != null && _usedCells.Length > 0)
-            foreach (var c in _usedCells)
-            {
-                Gizmos.color = transparent;
-                Gizmos.DrawCube(new Vector3(c.x, c.y, c.z), Vector3.one);
-            }
+        if (ShowCells)
+        {
+            if (_usedCells != null && _usedCells.Length > 0)
+                foreach (var c in _usedCells)
+                {
+                    Gizmos.color = transparent;
+                    Gizmos.DrawCube(new Vector3(c.x, c.y, c.z), Vector3.one);
+                }
+        }
 
         // Show intersection cells
-        if (_intersectionData != null && _intersectionData.Length > 0)
-            foreach (var i in _intersectionData)
+        if (ShowIntersections)
+        {
+            if (_intersectionData != null && _intersectionData.Length > 0)
+                foreach (var i in _intersectionData)
+                {
+                    Gizmos.color = Color.yellow;
+                    Gizmos.DrawWireCube(new Vector3(i.Position.x, i.Position.y, i.Position.z), Vector3.one);
+                }
+        }
+
+        if (ShowSplines)
+        {
+            if (_splineData != null && _splineData.Length > 0)
             {
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawWireCube(new Vector3(i.Position.x, i.Position.y, i.Position.z), Vector3.one);
+                foreach (var s in _splineData)
+                {
+                    Gizmos.color = Color.blue;
+
+                    Gizmos.DrawLine(
+                        new Vector3(s.StartPosition.x, s.StartPosition.y, s.StartPosition.z),
+                        new Vector3(s.EndPosition.x, s.EndPosition.y, s.EndPosition.z));
+                }
             }
+        }
     }
 
 #endif
