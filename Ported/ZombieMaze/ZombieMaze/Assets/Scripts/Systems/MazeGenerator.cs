@@ -117,32 +117,6 @@ public class MazeGenerator : SystemBase
         ecb.SetComponent(sortKey, spawnedTile, new Rotation {Value = quaternion.Euler(0, math.PI / 2, 0)});
     }
 
-    struct SideSpawnJob : IJobParallelFor
-    {
-        public EntityCommandBuffer.ParallelWriter ecb;
-        
-        [ReadOnly]
-        public int2 MazeSize;
-        [ReadOnly]
-        public Entity Prefab;
-
-        public void Execute(int index)
-        {
-            int2 halfSize = MazeSize / 2;
-            // top and bottom walls
-            if (index < MazeSize.x)
-            {
-                spawnTopWall(Prefab, new int2(index, 0), halfSize, ecb, index);
-                spawnBottomWall(Prefab, new int2(index, MazeSize.y), halfSize, ecb, index);
-            }
-            else
-            {
-                spawnRightWall(Prefab, new int2(0, index - MazeSize.x), halfSize, ecb, index);
-                spawnLeftWall(Prefab, new int2(MazeSize.x, index - MazeSize.x), halfSize, ecb, index);
-            }
-        }
-    }
-
     struct MazeSpawnJob : IJobParallelFor
     {
         public EntityCommandBuffer.ParallelWriter ecb;
@@ -180,24 +154,7 @@ public class MazeGenerator : SystemBase
 
         var stack = new NativeList<int2>(Allocator.TempJob);
         var unvisitedNeighbors = new NativeList<int2>(Allocator.TempJob);
-
-        var spawnerEntityArray = _mazeSpawnerQuery.ToEntityArray(Allocator.TempJob);
-
-        //TODO: handle multiple spawners
-        var spawnerData = GetComponent<Spawner>(spawnerEntityArray[0]);
-
-        var edgeJob = new SideSpawnJob
-        {
-            MazeSize = spawnerData.MazeSize,
-            Prefab = spawnerData.Prefab,
-            ecb = parallelEcb,
-        };
-
-        var edgeJobHandle =
-            edgeJob.Schedule(spawnerData.MazeSize.x + spawnerData.MazeSize.y, 32, Dependency);
         
-        Dependency = JobHandle.CombineDependencies(edgeJobHandle, Dependency);
-
         var mazeJobHandle = Entities.WithDisposeOnCompletion(stack).WithDisposeOnCompletion(unvisitedNeighbors).ForEach(
             (ref DynamicBuffer<MapCell> tiles, ref Random random, in MazeSpawner mazeSpawner, in Spawner spawner) =>
             {
@@ -207,9 +164,7 @@ public class MazeGenerator : SystemBase
                 var numTiles = width * length;
                 int2 current = random.Value.NextInt2(new int2(0, width), new int2(0, length));
 
-                MapCell temp = MapUtil.GetTile(in tiles, current, width);
-                temp.Value |= (byte) WallBits.Visited;
-                tiles[current.x + current.y * width] = temp;
+                MapUtil.Visit(ref tiles, current, width);
                 int numVisited = 1;
 
                 while (numVisited < numTiles)
@@ -250,7 +205,7 @@ public class MazeGenerator : SystemBase
                             MapUtil.ClearWall(ref tiles, WallBits.Left, current, width);
                             MapUtil.ClearWall(ref tiles, WallBits.Right, next, width);
                         }
-                        else
+                        else if (next.y < current.y)
                         {
                             MapUtil.ClearWall(ref tiles, WallBits.Bottom, current, width);
                             MapUtil.ClearWall(ref tiles, WallBits.Top, next, width);
@@ -271,12 +226,39 @@ public class MazeGenerator : SystemBase
                         }
                     }
                 }
+
+                for (int i = 0; i < length; i++)
+                {
+                    for (int j = 0; j < width; j++)
+                    {
+                        if (j % (mazeSpawner.MazeStripsWidth + mazeSpawner.OpenStripsWidth) >=
+                            mazeSpawner.OpenStripsWidth)
+                            continue;
+                        
+                        WallBits bits = WallBits.Bottom | WallBits.Left | WallBits.Right | WallBits.Top;
+
+                        if (i == 0)
+                            bits &= ~WallBits.Bottom;
+                        else if (i == length - 1)
+                            bits &= ~WallBits.Top;
+                            
+                        if (j == 0)
+                            bits &= ~WallBits.Left;
+                        else if (j == width - 1)
+                            bits &= ~WallBits.Right;
+                            
+                        MapUtil.ClearWall(ref tiles, bits,new int2(j, i), width);
+                    }
+                }
             }).Schedule(Dependency);
 
         Dependency = JobHandle.CombineDependencies(mazeJobHandle, Dependency);
 
         //Complete maze job to read back cells
         mazeJobHandle.Complete();
+        
+        var spawnerEntityArray = _mazeSpawnerQuery.ToEntityArray(Allocator.TempJob);
+        var spawnerData = GetComponent<Spawner>(spawnerEntityArray[0]);
         
         //TODO: loop through all spawners to support multiple map spawning
         var tileData = GetBuffer<MapCell>(spawnerEntityArray[0]);
