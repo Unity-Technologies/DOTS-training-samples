@@ -48,11 +48,10 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         for (int p = halfMarkerCount - 1; p >= 0; p--)
         {
             var position = nativePositions[p];
-            var distance = nativeDistances[p];
-            var perpPosition = BezierHelpers.GetPointPerpendicularOffset(position, distance, nativePositions, nativeHandlesIn,
-                nativeHandlesOut, nativeDistances, halfDistance, Globals.BEZIER_PLATFORM_OFFSET);
+            var handleIn = nativeHandlesIn[p];
+            var handleOut = nativeHandlesOut[p];
 
-            nativePositions[totalMarkerCount - p - 1] = perpPosition;
+            nativePositions[totalMarkerCount - p - 1] = BezierHelpers.getOffsetPosition(position, handleIn, handleOut, 2 * Globals.BEZIER_PLATFORM_OFFSET);
         }
 
         RebuildHandle(nativePositions, ref nativeHandlesIn, ref nativeHandlesOut, totalMarkerCount);
