@@ -127,8 +127,6 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
 
     private void OnDrawGizmos()
     {
-        Debug.Log("Gizmos");
-
         Gizmos.color = pathColour;
         for (var c = 0; c < transform.childCount; c++)
         {
