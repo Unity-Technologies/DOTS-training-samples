@@ -24,8 +24,6 @@ public class TexUpdaterSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        int TexSize = RefsAuthoring.TexSize;
-
         var pheromoneDataEntity = GetSingletonEntity<TexSingleton>();
         var pheromonesBuffer = GetBuffer<PheromonesBufferData>(pheromoneDataEntity);
 
