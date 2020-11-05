@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
 using UnityEngine;
+using Unity.Jobs;
 
 public class AntMovementSystem : SystemBase
 {
@@ -25,6 +26,7 @@ public class AntMovementSystem : SystemBase
     const float inwardStrength = 0.001f; // Original code use 0.003f
 
     public static readonly float2 bounds = new float2(5, 5);
+    public static JobHandle LastJob;
 
     EntityCommandBufferSystem cmdBufferSystem;
 
@@ -54,7 +56,7 @@ public class AntMovementSystem : SystemBase
             return;
         }
 
-
+        
         var spawnerEntity = GetSingletonEntity<AntSpawner>();
         var pheromoneDataEntity = GetSingletonEntity<TexSingleton>();
         var spawner = GetComponent<AntSpawner>(spawnerEntity);
@@ -161,6 +163,8 @@ public class AntMovementSystem : SystemBase
 
         })
         .ScheduleParallel();
+
+        LastJob = this.Dependency;
 
         // Our jobs must finish before the EndSimulationEntityCommandBufferSystem execute the changements we recorded
         cmdBufferSystem.AddJobHandleForProducer(this.Dependency);
