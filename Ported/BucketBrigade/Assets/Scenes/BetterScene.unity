@@ -152,9 +152,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02dd3d66e712e794e849cc1a56d35a32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ChainCount: 3
+  ChainCount: 1
   NumBotsPerChain: 15
-  BucketCount: 50
+  BucketCount: 5
   WaterCellCount: 50
   FireGridDimension: 50
   PropagationRadius: 1

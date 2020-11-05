@@ -75,6 +75,7 @@ public class MoveTowardEntitySystem : SystemBase
             .WithNativeDisableParallelForRestriction(cdfe)
             .ForEach((Entity entity, int entityInQueryIndex, in MoveTowardFiller source, in HoldingBucket bucket) =>
             {
+                //for each here is responsible for moving filler to chain start
                 var bucketPosition = cdfe[source.Target].Value;
                 var scooperPosition = cdfe[entity].Value;
                 bucketPosition.y = scooperPosition.y;
@@ -82,22 +83,55 @@ public class MoveTowardEntitySystem : SystemBase
                 var distanceLeft = bucketPosition - scooperPosition;
                 var length = math.length(distanceLeft);
 
+
+                var direction = distanceLeft / length;
+                var newPosition = scooperPosition + speed * deltaTime * direction;
+                cdfe[entity] = new Translation() { Value = newPosition };
+                newPosition.y += 1.6f;
+                cdfe[bucket.Target] = new Translation() { Value = newPosition };
+                
+            }).ScheduleParallel();
+
+        Entities
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, in PasserBot bot, in HoldingBucket bucket) =>
+            {
+                var passerPosition = translation;
+                var pickupPosition = bot.DropoffPosition;
+
+                var distanceLeft = passerPosition.Value - pickupPosition;
+                var length = math.length(distanceLeft);
+
                 if (length <= threshold)
                 {
-                    ecb.RemoveComponent<MoveTowardFiller>(entityInQueryIndex, entity);
-                    ecb.AddComponent<FindBucket>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<HoldingBucket>(entityInQueryIndex, entity);
+                    //Next bot needs to get the bucket
                 }
                 else
                 {
                     var direction = distanceLeft / length;
-                    var newPosition = scooperPosition + speed * deltaTime * direction;
-                    cdfe[entity] = new Translation() { Value = newPosition };
-                    newPosition.y += 1.6f;
-                    cdfe[bucket.Target] = new Translation() { Value = newPosition };
+                    var newPosition = passerPosition.Value + speed * deltaTime * direction;
+                    
                 }
+
             }).ScheduleParallel();
 
+        Entities
+            //foreach here handles what happens once filler is at chain source
+            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation, in FillerBot fillerBot, in HoldingBucket bucket) =>
+            {
+                var fillerPosition = translation.Value;
+                var chainStartPosition = GetComponent<Translation>(fillerBot.ChainStart).Value;
+                var distance = math.length(fillerPosition - chainStartPosition);
 
+                if (distance < threshold + 1.0f)
+                {
+                    ecb.RemoveComponent<MoveTowardFiller>(entityInQueryIndex, entity);
+                    ecb.AddComponent<FindBucket>(entityInQueryIndex, entity);
+
+                    ecb.RemoveComponent<HoldingBucket>(entityInQueryIndex, entity);
+                    ecb.AddComponent(entityInQueryIndex, fillerBot.ChainStart, new HoldingBucket() { Target = bucket.Target });
+                }
+            }).ScheduleParallel();
 
         sys.AddJobHandleForProducer(Dependency);
     }
