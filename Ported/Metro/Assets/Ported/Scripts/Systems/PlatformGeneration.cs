@@ -52,10 +52,13 @@ namespace MetroECS
             float3 platPos = positions[idx];
             var translation = new Translation { Value = platPos };
 
-            var norm = handlesOut[idx] - handlesIn[idx];
+            // Make sure we use the exact same tangent for facing platforms
+            bool facingPlatform = 2 * idx > positions.Length;
+            int handleIdx = facingPlatform ? positions.Length - idx : idx;
+            var tangent = facingPlatform ? handlesIn[handleIdx] - handlesOut[handleIdx] : handlesOut[handleIdx] - handlesIn[handleIdx];
 
             UnityEngine.Quaternion q = new UnityEngine.Quaternion();
-            q.SetLookRotation(new UnityEngine.Vector3(norm.x, norm.y, norm.z), UnityEngine.Vector3.up);
+            q.SetLookRotation(new UnityEngine.Vector3(tangent.x, tangent.y, tangent.z), UnityEngine.Vector3.up);
             UnityEngine.Vector3 ea = q.eulerAngles;
             q.eulerAngles = new UnityEngine.Vector3(ea.x, ea.y + 90f, ea.z);
 
