@@ -21,7 +21,7 @@ namespace MetroECS.Trains
                     ecb.RemoveComponent<TrainWaitingTag>(trainEntity);
                     ecb.AddComponent(trainEntity, new TrainInMotionTag());
                     
-                    Debug.Log("Leaving platform");
+                    //Debug.Log("Leaving platform");
                 }
             }).Run();
             

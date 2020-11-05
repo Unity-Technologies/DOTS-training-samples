@@ -36,7 +36,7 @@ namespace MetroECS.Trains
                         var previousMarkerType = pathData.MarkerTypes[previousMarkerIndex];
                         if (previousMarkerType == (int) RailMarkerType.PLATFORM_START)
                         {
-                            Debug.Log("Stopping at platform");
+                            //Debug.Log("Stopping at platform");
                             
                             var random = new Random(1234);
                             ecb.RemoveComponent<TrainInMotionTag>(trainEntity);
