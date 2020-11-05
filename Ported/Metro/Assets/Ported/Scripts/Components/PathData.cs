@@ -7,7 +7,6 @@ public struct PathData : IComponentData
     public BlobArray<float3> HandlesIn;
     public BlobArray<float3> HandlesOut;
     public BlobArray<float> Distances;
-    public BlobArray<float> normalizedDistances;
     public BlobArray<int> MarkerTypes;
     public float TotalDistance;
     public float3 Colour;
