@@ -66,13 +66,14 @@ public class AntSpawnerSystem : SystemBase
             {
                 Value = speed
             });
-
+            
             cmd.AddComponent(ant, new RandState
             {
                 Random = Unity.Mathematics.Random.CreateFromIndex(i + 1),
             });
 
             cmd.AddComponent<AntLookingForFood>(ant);
+            cmd.AddComponent<HasTargetInSight>(ant);
 
             cmd.AddComponent(ant, new ObstacleAvoid());
         }
@@ -96,7 +97,7 @@ public class AntSpawnerSystem : SystemBase
 
     static void CreateObstacles(EntityCommandBuffer cmd, in Entity prefab, in AntSpawner spawner, DynamicBuffer<ObstaclePosition> obstaclePositions)
     {
-        var rand = new DOTSRand(25);
+        var rand = new DOTSRand(27);
 
         for (int i = 1; i <= spawner.ObstacleRingCount; i++)
         {

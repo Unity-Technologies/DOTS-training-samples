@@ -12,8 +12,8 @@ public class TexUpdaterSystem : SystemBase
     const float randomSteering = 0.14f;
     const float decay = 0.9995f; // Original code used 0.9985f;
     const float trailAddSpeed = 0.3f;
-    const float excitementWhenLookingForFood = 0.3f;
-    const float excitementWhenGoingBackToNest = 1.0f;
+    const float excitementWhenWandering = 0.3f;
+    const float excitementWithTargetInSight = 1.0f;
     const float antSpeed = 0.2f;
 
     Entity textureSingleton; //Use a singleton entity for the buffer entity
@@ -61,19 +61,12 @@ public class TexUpdaterSystem : SystemBase
         Entities
             .WithNativeDisableParallelForRestriction(localPheromones)
             .WithoutBurst()
-            .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, in Speed speed, in AntLookingForFood dummy) =>
+            .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, 
+                in HasTargetInSight hasTargetInSight, in Speed speed) =>
             {
-                DropPheromones(translation.Value.x, translation.Value.z, bounds, localPheromones.AsNativeArray(), speed.Value, dt, TexSize, excitementWhenLookingForFood);
+                var excitement = hasTargetInSight.Value ? excitementWithTargetInSight : excitementWhenWandering;
+                DropPheromones(translation.Value.x, translation.Value.z, bounds, localPheromones.AsNativeArray(), speed.Value, dt, TexSize, excitement);
                
-            })
-            .ScheduleParallel();
-
-        Entities
-            .WithNativeDisableParallelForRestriction(localPheromones)
-            .WithoutBurst()
-            .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, in Speed speed, in AntLookingForNest dummy) =>
-            {
-                DropPheromones(translation.Value.x, translation.Value.z, bounds, localPheromones.AsNativeArray(), speed.Value, dt, TexSize, excitementWhenGoingBackToNest);
             })
             .ScheduleParallel();
 

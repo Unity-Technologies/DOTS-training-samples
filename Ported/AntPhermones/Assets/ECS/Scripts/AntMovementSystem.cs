@@ -13,7 +13,7 @@ public class AntMovementSystem : SystemBase
 
     }
 
-    const float dt = 1.0f / 60;
+    const float dt = 3.0f / 60;
     const float randomSteering = 0.1f;
     const float pheromoneSteerStrength = 0.008f; // Original code used 0.015f;
     const float wallSteerStrength = 0.12f;
@@ -55,14 +55,15 @@ public class AntMovementSystem : SystemBase
         Entities
         .WithReadOnly(obstaclesPositions)
         .WithReadOnly(pheromonesArray)
-        .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, ref Speed speed, in Entity antEntity) =>
+        .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, 
+            ref Speed speed, ref HasTargetInSight hasTargetInSight, in Entity antEntity) =>
         {
             // Pseudo-random steering
             direction.Value += rand.Random.NextFloat(-randomSteering, randomSteering);
 
             //pheromone steering
             float pheroSteering = PheremoneSteering(pheromonesArray, translation, direction, 1.0f);
-            var wallSteering = WallSteering(translation.Value, direction.Value, 0.15f, obstaclesPositions);
+            var wallSteering = WallSteering(translation.Value, direction.Value, 0.2f, obstaclesPositions);
             var targetSpeed = antSpeed;
             targetSpeed *= 1f - (Mathf.Abs(pheroSteering) + Mathf.Abs(wallSteering)) / 3f;
 
@@ -91,7 +92,7 @@ public class AntMovementSystem : SystemBase
             }
 
             var target2D = new float2(target3D.x, target3D.z);
-            SteeringTowardTarget(ref direction, translation, target2D, spawner, obstaclesPositions);
+            SteeringTowardTarget(ref direction, ref hasTargetInSight, translation, target2D, spawner, obstaclesPositions);
 
             if (HasReachedTarget(translation.Value, target3D, targetRadius))
             {
@@ -170,14 +171,15 @@ public class AntMovementSystem : SystemBase
         return (float)nbClose;
     }
 
-    static void SteeringTowardTarget(ref Direction direction, in Translation translation, float2 target, in AntSpawner spawner, in DynamicBuffer<ObstaclePosition> obstaclePositions)
+    static void SteeringTowardTarget(ref Direction direction, ref HasTargetInSight hasTargetInSight,
+        in Translation translation, float2 target, in AntSpawner spawner, in DynamicBuffer<ObstaclePosition> obstaclePositions)
     {
         var targetRadius = spawner.FoodRadius;
 
         var antPos = translation.Value.xz;
         var antDirection = direction.Value;
 
-        if (!RayCast(antPos, target, targetRadius, spawner.ObstacleRadius + 0.2f, obstaclePositions))
+        if (!RayCast(antPos, target, targetRadius, spawner.ObstacleRadius + 0.1f, obstaclePositions))
         {
             float targetAngle = Mathf.Atan2(target.y - antPos.y, target.x - antPos.x);
             if (targetAngle - antDirection > Mathf.PI)
@@ -195,6 +197,12 @@ public class AntMovementSystem : SystemBase
                     antDirection += (targetAngle - antDirection) * spawner.GoalSteerStrength;
                 }
             }
+
+            hasTargetInSight.Value = true;
+        }
+        else
+        {
+            hasTargetInSight.Value = false;
         }
 
         direction.Value = antDirection;
@@ -275,7 +283,7 @@ public class AntMovementSystem : SystemBase
     {
         var position = position3D.xz;
 
-        mapSize = 128f;
+        mapSize = 10f;
         float inwardOrOutward = -outwardStrength;
         float pushRadius = mapSize * .4f;
         if (isLookingForNest)
