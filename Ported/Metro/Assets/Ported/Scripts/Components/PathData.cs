@@ -13,16 +13,3 @@ public struct PathData : IComponentData
     public int NumberOfTrains;
     public int MaxCarriages;
 }
-
-public struct PathRef : IComponentData
-{
-    public BlobAssetReference<PathData> Data;
-}
-
-public struct PathBufferEntity : IBufferElementData
-{
-    public Entity Value;
-
-    public static implicit operator PathBufferEntity(Entity value) => new PathBufferEntity {Value = value};
-    public static implicit operator Entity(PathBufferEntity element) => element.Value;
-}

@@ -13,7 +13,7 @@ namespace MetroECS
             var prefab = GetSingleton<MetroData>().PlatformPrefab;
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-            Entities.ForEach((in PathRef pathRef) =>
+            Entities.ForEach((in PathDataRef pathRef) =>
             {
                 var positions = pathRef.Data.Value.Positions.ToNativeArray();
                 var markerTypes = pathRef.Data.Value.MarkerTypes.ToNativeArray();

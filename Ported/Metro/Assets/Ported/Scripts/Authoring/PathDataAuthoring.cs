@@ -81,7 +81,7 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         pathData.NumberOfTrains = numberOfTrains;
         pathData.MaxCarriages = maxCarriages;
         
-        dstManager.AddComponentData(entity, new PathRef
+        dstManager.AddComponentData(entity, new PathDataRef
         {
             Data = builder.CreateBlobAssetReference<PathData>(Allocator.Persistent)
         });
