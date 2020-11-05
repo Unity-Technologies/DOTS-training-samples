@@ -11,7 +11,7 @@ public class RailGeneration : SystemBase
         var railPrefab = GetSingleton<MetroData>().RailPrefab;
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities.ForEach((in PathRef pathRef) =>
+        Entities.ForEach((in PathDataRef pathRef) =>
         {
             var positions = pathRef.Data.Value.Positions.ToNativeArray();
             var handlesIn = pathRef.Data.Value.HandlesIn.ToNativeArray();
