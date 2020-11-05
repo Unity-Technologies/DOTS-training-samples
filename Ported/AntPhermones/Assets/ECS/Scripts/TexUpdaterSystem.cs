@@ -26,14 +26,9 @@ public class TexUpdaterSystem : SystemBase
     {
         var pheromoneDataEntity = GetSingletonEntity<TexSingleton>();
         var pheromonesBuffer = GetBuffer<PheromonesBufferData>(pheromoneDataEntity);
-
-        for (int i = 0; i < pheromonesBuffer.Length; ++i)
-        {
-            colorCache[i].r = pheromonesBuffer[i];
-        }
         
         var map = this.GetSingleton<Refs>().PheromoneMap;
-        map.SetPixels(colorCache);
+        map.SetPixelData(pheromonesBuffer.AsNativeArray(), 0);
         map.Apply();
     }
 }
