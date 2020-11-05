@@ -58,4 +58,23 @@ public struct FireSim : IComponentData
         }
         return index;
     }
+
+    public static Entity GetClosestEntity2(float3 position, NativeArray<Entity> emptyEntities, NativeArray<Translation> translations)
+    {
+        float distance = float.MaxValue;
+        Entity closestEntity = Entity.Null;
+        for (int i = 0; i < emptyEntities.Length; i++)
+        {
+            var entity = emptyEntities[i];
+            var translation = translations[i].Value;
+            var currentDistance = math.distance(position, translation);
+
+            if (currentDistance < distance)
+            {
+                distance = currentDistance;
+                closestEntity = entity;
+            }
+        }
+        return closestEntity;
+    }
 }
