@@ -174,7 +174,7 @@ public class AntMovementSystem : SystemBase
         {
             for (int j = 0; j < numCells; j++)
             {
-                float2 cellPosition = new float2(x0 + i * cellSize, x0 + j * cellSize);
+                float2 cellPosition = new float2(x0 + (i + 0.5f) * cellSize, x0 + (j + 0.5f) * cellSize);
                 map[j * numCells + i] = RayCast(cellPosition, target, targetRadius, obstacleRadius + 0.2f, obstaclePositions);  // Note: the +0.2f was also in the runtime code
             }
         }
