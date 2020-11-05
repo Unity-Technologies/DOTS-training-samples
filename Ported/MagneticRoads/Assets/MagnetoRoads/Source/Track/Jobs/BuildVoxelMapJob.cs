@@ -6,9 +6,7 @@ using Unity.Mathematics;
 
 namespace Magneto.Track.Jobs
 {
-#if !DISABLE_BURST
     [BurstCompile]
-#endif
     public struct BuildVoxelMapJob : IJob
     {
         private const int IterationCount = 50000;

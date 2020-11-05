@@ -5,9 +5,7 @@ using Unity.Mathematics;
 
 namespace Magneto.Track.Jobs
 {
-#if !DISABLE_BURST
     [BurstCompile]
-#endif
     public struct CachedNeighbourIndexOffsetJob : IJob
     {
         [WriteOnly] public NativeArray<int3> W_Buffer;

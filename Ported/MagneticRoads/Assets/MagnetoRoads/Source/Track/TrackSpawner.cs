@@ -32,28 +32,13 @@ public class TrackSpawner : MonoBehaviour
             // Completion Stuff
             _generator.Complete(out _intersectionData, out _splineData, out _usedCellsRaw);
             var locations = new List<Vector3>();
-
-            // Rebuild Quick Array Of Cells For Visuals
-            // for (int x = 0; x < TrackManager.VOXEL_SIZE; x++)
-            // {
-            //     for (int y = 0; y < TrackManager.VOXEL_SIZE; y++)
-            //     {
-            //         for (int z = 0; z < TrackManager.VOXEL_SIZE; z++)
-            //         {
-            //             if()
-            //         }
-            //     }
-            //     
-            // }
-
-
+            
             var count = _usedCellsRaw.Length;
             for (var i = 0; i < count; i++)
                 if (_usedCellsRaw[i])
                     locations.Add(GetVector3FromIndex(i));
             _usedCells = locations.ToArray();
-
-
+            
             Debug.Log($"Active Cells: {locations.Count}");
             Debug.Log($"Intersections Cells: {_intersectionData.Length}");
             Debug.Log($"Splines Data: {_splineData.Length}");

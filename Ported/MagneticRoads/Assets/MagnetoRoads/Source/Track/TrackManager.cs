@@ -131,7 +131,7 @@ namespace Magneto.Track
                 // Build the connective tissues
                 Stage2JobHandle = new BuildVoxelNetworkJob
                 {
-                    R_Intersections = _intersections,
+                    RW_Intersections = _intersections,
                     R_IntersectionsGrid = _intersectionIndicesByGrid,
                     R_LimitedCachedNeighbourIndexOffsets = _cachedNeighbourIndexOffsetsLimited,
                     R_TrackVoxels = _trackVoxels,
