@@ -157,8 +157,8 @@ MonoBehaviour:
   WaterCellCount: 50
   FireGridDimension: 100
   PropagationRadius: 2
-  FlashPoint: 0.2
-  IgnitionRate: 0.021
+  FlashPoint: 0.292
+  IgnitionRate: 0
   HeatTransfer: 0.0001
 --- !u!4 &940157597
 Transform:

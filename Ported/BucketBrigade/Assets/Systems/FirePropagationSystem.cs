@@ -23,21 +23,19 @@ public class FirePropagationSystem : SystemBase
         var random = new Unity.Mathematics.Random(42);
 
         Entities
-            .ForEach((ref FireCell fireCell, in Translation translation) =>
+            .ForEach((int entityInQueryIndex, in FireCell fireCell) =>
             {
-                int2 index = new int2((int)translation.Value.x, (int)translation.Value.z);
                 if (random.NextFloat() < fireSim.IgnitionRate)
                 {
                     float randomTemperature = random.NextFloat(fireSim.FlashPoint, 1.0f);
-                    fireCells[index.x * fireSim.FireGridDimension + index.y] = randomTemperature;
-                    fireCell.Temperature = randomTemperature;
+                    fireCells[entityInQueryIndex] = randomTemperature;
                 }
                 else
                 {
-                    fireCells[index.x * fireSim.FireGridDimension + index.y] = 0;
+                    fireCells[entityInQueryIndex] = 0;
                 }
 
-            }).ScheduleParallel();
+            }).Schedule();
     }
 
     protected override void OnUpdate()

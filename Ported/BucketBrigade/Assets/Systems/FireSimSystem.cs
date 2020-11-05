@@ -19,37 +19,32 @@ public struct GetClosestBucket : IJob
 
 public class FireSimSystem : SystemBase
 {
-    static EntityQuery emptyBucketQuery;
+    public static EntityQuery emptyBucketQuery;
+
 
     protected override void OnCreate()
     {
         emptyBucketQuery = GetEntityQuery(ComponentType.ReadOnly<EmptyBucket>(), ComponentType.ReadOnly<Translation>());
     }
 
-    public static Entity GetClosestBucket(float3 position, EntityManager em)
+    public static Entity GetClosestEntity(float3 position, NativeArray<Entity> emptyEntities , NativeArray<Translation> translations)
     {
-        var emptyBuckets = emptyBucketQuery.ToEntityArray(Allocator.Temp);
-        //var bucketPositions = emptyBucketQuery.ToComponentDataArray<Translation>(Allocator.Temp);
-
-        float3 closestPosition = new float3();
         float distance = float.MaxValue;
-        Entity closestBucket = Entity.Null;
-        
-        foreach (var bucket in emptyBuckets)
+        Entity closestEntity = Entity.Null;
+        for(int i = 0; i < emptyEntities.Length; i++)
         {
-            var translation = em.GetComponentData<Translation>(bucket);
-            var bucketPosition = translation.Value;
-            var currentDistance = math.distance(closestPosition, bucketPosition);
+            var entity = emptyEntities[i];
+            var translation = translations[i].Value;
+            var currentDistance = math.distance(position, translation);
 
             if (currentDistance < distance)
             {
                 distance = currentDistance;
-                closestPosition = bucketPosition;
-                closestBucket = bucket;
+                closestEntity = entity;
             }
         }
-
-        return closestBucket;
+        
+        return closestEntity;
     }
 
     protected override void OnUpdate()
