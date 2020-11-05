@@ -100,11 +100,13 @@ public class AntMovementSystem : SystemBase
                 {
                     cmd.RemoveComponent<AntLookingForFood>(entityInQueryIndex, antEntity);
                     cmd.AddComponent<AntLookingForNest>(entityInQueryIndex, antEntity);
+                    cmd.AddComponent<RequireColourUpdate>(entityInQueryIndex, antEntity);
                 }
                 else
                 {
                     cmd.RemoveComponent<AntLookingForNest>(entityInQueryIndex, antEntity);
                     cmd.AddComponent<AntLookingForFood>(entityInQueryIndex, antEntity);
+                    cmd.AddComponent<RequireColourUpdate>(entityInQueryIndex, antEntity);
                 }
 
                 // Uturn

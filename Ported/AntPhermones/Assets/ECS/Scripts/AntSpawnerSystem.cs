@@ -9,7 +9,6 @@ using Unity.Transforms;
 using UnityEngine;
 using UnityRand = UnityEngine.Random;
 using DOTSRand = Unity.Mathematics.Random;
-using UnityEditor.Rendering;
 
 public class AntSpawnerSystem : SystemBase
 {
@@ -75,6 +74,10 @@ public class AntSpawnerSystem : SystemBase
             cmd.AddComponent<AntLookingForFood>(ant);
 
             cmd.AddComponent(ant, new ObstacleAvoid());
+
+            cmd.AddComponent<URPMaterialPropertyBaseColor>(ant);
+
+            cmd.AddComponent<RequireColourUpdate>(ant);
         }
     }
 
