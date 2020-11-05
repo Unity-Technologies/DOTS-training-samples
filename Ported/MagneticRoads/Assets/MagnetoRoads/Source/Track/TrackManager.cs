@@ -15,7 +15,7 @@ namespace Magneto.Track
 
 
         public const int JOB_EXECUTION_MAXIMUM_FRAMES = 3;
-        public const int VOXEL_COUNT = 60;
+        public const int VOXEL_COUNT = 100;
         public const float VOXEL_SIZE = 1f;
         public const int TRI_PER_MESH = 4000;
 
@@ -147,7 +147,7 @@ namespace Magneto.Track
             }
 
             public void Complete(out IntersectionData[] intersectionData, out SplineData[] splineData,
-                out bool[] activeVoxels, out int[] gridIndices)
+                out bool[] activeVoxels)
             {
                 Stage2JobHandle.Complete();
                 IsRunning = false;
@@ -157,8 +157,6 @@ namespace Magneto.Track
                 intersectionData = _intersections.ToArray();
                 splineData = _splines.ToArray();
                 activeVoxels = _trackVoxels.array.ToArray();
-
-                gridIndices = _intersectionIndicesByGrid.array.ToArray();
 
                 _cachedNeighbourIndexOffsets.Dispose();
                 _cachedNeighbourIndexOffsetsLimited.Dispose();

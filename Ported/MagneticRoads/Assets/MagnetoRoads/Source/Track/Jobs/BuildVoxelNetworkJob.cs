@@ -61,7 +61,7 @@ namespace Magneto.Track.Jobs
                             
                             
                             
-                            float cachedMagnitude = Mathf.Sqrt(
+                            float cachedMagnitude = math.sqrt(
                                         cachedMagnitudePosition.x * cachedMagnitudePosition.x + 
                                                                cachedMagnitudePosition.y * cachedMagnitudePosition.y + 
                                                                cachedMagnitudePosition.z * cachedMagnitudePosition.z);
@@ -131,10 +131,10 @@ namespace Magneto.Track.Jobs
             while (true)
             {
                 pos += dir;
-                if (R_IntersectionsGrid[pos.x, pos.y, pos.z] != -1)
+                if (R_IntersectionsGrid[pos] != -1)
                 {
                     otherDirection = dir * -1;
-                    return R_IntersectionsGrid[pos.x, pos.y, pos.z];
+                    return R_IntersectionsGrid[pos];
                 }
 
                 if (GetVoxel(pos + dir, false) == false)
