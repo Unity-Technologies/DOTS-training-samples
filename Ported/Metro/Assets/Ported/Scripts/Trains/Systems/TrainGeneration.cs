@@ -1,9 +1,8 @@
-﻿using System.Linq;
-using MetroECS.Trains;
+﻿using MetroECS.Trains;
 using MetroECS.Trains.States;
 using Unity.Collections;
 using Unity.Entities;
-using UnityEngine;
+using Unity.Mathematics;
 using Random = Unity.Mathematics.Random;
 
 public class TrainGeneration : SystemBase
@@ -22,12 +21,13 @@ public class TrainGeneration : SystemBase
 
             for (var trainID = 0; trainID < nativePathData.NumberOfTrains; trainID++)
             {
-                var carriageCount = random.NextInt(nativePathData.MaxCarriages / 2, nativePathData.MaxCarriages);
+                var carriageCount = random.NextInt((int)math.ceil(nativePathData.MaxCarriages / 2f), nativePathData.MaxCarriages);
                 var normalizedTrainPosition = trainID * splitDistance;
+                var regionIndex = BezierHelpers.GetRegionIndex(nativePathData.Positions, nativePathData.Distances, normalizedTrainPosition) + 1;
 
                 // Create train
                 var trainEntity = ecb.CreateEntity();
-                var trainData = new Train {ID = trainID, Position = normalizedTrainPosition, CarriageCount = carriageCount, Path = pathDataEntity};
+                var trainData = new Train {ID = trainID, Position = normalizedTrainPosition, TargetIndex = regionIndex, CarriageCount = carriageCount, Path = pathDataEntity};
                 ecb.AddComponent(trainEntity, trainData);
                 
                 var inMotionTag = new TrainInMotionTag();

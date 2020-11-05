@@ -86,15 +86,12 @@ static public class BezierHelpers
                     result = i;
                     break;
                 }
-                else if (distances[i + 1] >= _progressIsAbsoluteValue)
+
+                if (distances[i + 1] >= _progressIsAbsoluteValue)
                 {
                     // start < progress, end > progress <-- thats a match
                     result = i;
                     break;
-                }
-                else
-                {
-                    continue;
                 }
             }
         }

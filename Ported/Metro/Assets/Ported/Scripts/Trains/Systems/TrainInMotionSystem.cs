@@ -1,7 +1,8 @@
 ﻿using MetroECS.Trains.States;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 namespace MetroECS.Trains
 {
@@ -23,19 +24,23 @@ namespace MetroECS.Trains
                 var pathData = GetComponent<PathDataRef>(trainData.Path).ToNativePathData();
                 var regionIndex = BezierHelpers.GetRegionIndex(pathData.Positions, pathData.Distances,
                     trainData.Position * pathData.TotalDistance);
-                var markerType = pathData.MarkerTypes[regionIndex];
+                // var markerType = pathData.MarkerTypes[regionIndex];
 
-                if (markerType == (int) RailMarkerType.PLATFORM_END)
+                if (regionIndex != trainData.TargetIndex)
                 {
-                    var previousMarkerType = pathData.MarkerTypes[regionIndex - 1];
-                    if (previousMarkerType == (int) RailMarkerType.PLATFORM_START)
+                    trainData.TargetIndex++;
+                    
+                    var markerType = pathData.MarkerTypes[regionIndex];
+                    if (markerType == (int) RailMarkerType.PLATFORM_END)
                     {
-                        var markerPosition = pathData.Distances[regionIndex] / pathData.TotalDistance;
-                        if ((markerPosition - trainData.Position) < 0.1f)
+                        var previousMarkerType = pathData.MarkerTypes[regionIndex - 1];
+                        if (previousMarkerType == (int) RailMarkerType.PLATFORM_START)
                         {
+                            Debug.Log("Stopping at platform");
+                            
                             var random = new Random(1234);
                             ecb.RemoveComponent<TrainInMotionTag>(trainEntity);
-                            ecb.AddComponent(trainEntity, new TrainWaitingTag { TimeStartedWaiting = time, RandomWaitTime = random.NextFloat(5)});
+                            ecb.AddComponent(trainEntity, new TrainWaitingTag { TimeStartedWaiting = time, RandomWaitTime = random.NextFloat(5, 10)});       
                         }
                     }
                 }
@@ -60,6 +65,8 @@ namespace MetroECS.Trains
                 {
                     ecb.RemoveComponent<TrainWaitingTag>(trainEntity);
                     ecb.AddComponent(trainEntity, new TrainInMotionTag());
+                    
+                    Debug.Log("Leaving platform");
                 }
             }).Run();
             
