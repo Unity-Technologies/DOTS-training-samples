@@ -62,8 +62,7 @@ public class SpawnerSystem : SystemBase
                 for (int i = 0; i < fireSim.BucketCount; ++i)
                 {
                     instance = ecb.Instantiate(spawner.BucketPrefab);
-                    translation = new Translation { Value = new float3(random.NextInt(0, fireSim.FireGridDimension), 0.4f, random.NextInt(0, fireSim.FireGridDimension)) };
-                    ecb.SetComponent(instance, translation);
+                    ecb.SetComponent(instance, new Translation { Value = new float3(random.NextInt(0, fireSim.FireGridDimension), 0.4f, random.NextInt(0, fireSim.FireGridDimension)) });
                     ecb.AddComponent(instance, new EmptyBucket());
                 }
 
@@ -76,7 +75,6 @@ public class SpawnerSystem : SystemBase
 
         var emptyBuckets = FireSimSystem.emptyBucketQuery.ToEntityArray(Allocator.TempJob);
         var bucketPositions = FireSimSystem.emptyBucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-        //var waterCells;
 
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
@@ -86,12 +84,18 @@ public class SpawnerSystem : SystemBase
                 for (int i = 0; i < fireSim.ChainCount; i++)
                 {
                     var instance = ecb.Instantiate(spawner.BotPrefab);
-                    var scooperPosition = new float3(random.NextInt(0, fireSim.FireGridDimension), 0.0f, random.NextInt(0, fireSim.FireGridDimension));
+                    var scooperPosition = new float3(random.NextInt(0, fireSim.FireGridDimension), 1.6f, random.NextInt(0, fireSim.FireGridDimension));
                     ecb.SetComponent(instance, new Translation { Value = scooperPosition });
+                    ecb.AddComponent(instance, new URPMaterialPropertyBaseColor() { Value = spawner.ScooperColor });
                     ecb.AddComponent(instance, new MoveTowardBucket() { Target = FireSimSystem.GetClosestEntity(scooperPosition, emptyBuckets, bucketPositions) });
+
+                    for (int j = 0; j < fireSim.NumBotsPerChain; j++)
+                    {
+                        instance = ecb.Instantiate(spawner.BotPrefab);
+                        var botPosition = new float3(random.NextInt(0, fireSim.FireGridDimension), 1.6f, random.NextInt(0, fireSim.FireGridDimension));
+                        ecb.SetComponent(instance, new Translation { Value = botPosition });
+                    }
                 }
-
-
             }).Run();
 
         emptyBuckets.Dispose();

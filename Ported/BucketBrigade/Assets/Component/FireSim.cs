@@ -7,6 +7,7 @@ using UnityEngine;
 public struct FireSim : IComponentData
 {
     public int ChainCount;
+    public int NumBotsPerChain;
 
     public int BucketCount;
     public int WaterCellCount;

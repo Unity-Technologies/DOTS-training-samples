@@ -22,6 +22,7 @@ public class MoveTowardEntitySystem : SystemBase
         {
             var bucketPosition = cdfe[scooper.Target].Value;
             var scooperPosition = cdfe[entity].Value;
+            bucketPosition.y = scooperPosition.y;
 
             var distanceLeft = bucketPosition - scooperPosition;
             var length = math.length(distanceLeft);
@@ -46,7 +47,7 @@ public class MoveTowardEntitySystem : SystemBase
             {
                 var waterPosition = cdfe[scooper.Target].Value;
                 var scooperPosition = cdfe[entity].Value;
-                var bucketPosition = cdfe[bucket.Target];
+                waterPosition.y = scooperPosition.y;
 
                 var distanceLeft = waterPosition - scooperPosition;
                 var length = math.length(distanceLeft);
@@ -72,7 +73,7 @@ public class MoveTowardEntitySystem : SystemBase
             {
                 var firePosition = cdfe[bot.Target].Value;
                 var botPosition = cdfe[entity].Value;
-                var bucketPosition = cdfe[bucket.Target];
+                firePosition.y = botPosition.y;
 
                 var distanceLeft = firePosition - botPosition;
                 var length = math.length(distanceLeft);
