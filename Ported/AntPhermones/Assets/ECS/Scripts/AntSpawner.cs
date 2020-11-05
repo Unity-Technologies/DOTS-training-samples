@@ -12,9 +12,9 @@ public struct ObstaclePosition : IBufferElementData
 
 struct AntSpawner : IComponentData
 {
-    public Vector3 Origin;
-    public Vector3 ColonyPosition;
-    public Vector3 FoodPosition;
+    public float3 Origin;
+    public float3 ColonyPosition;
+    public float3 FoodPosition;
     public Entity AntPrefab;
     public Entity ColonyPrefab;
     public Entity FoodPrefab;

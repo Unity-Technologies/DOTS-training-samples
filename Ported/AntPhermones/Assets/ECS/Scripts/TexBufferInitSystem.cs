@@ -12,6 +12,7 @@ public class TexBufferInitSystem : SystemBase
 
     protected override void OnCreate()
     {
+        cmdBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         RequireSingletonForUpdate<TexInitialiser>();
         RequireSingletonForUpdate<TexSingleton>();
     }
@@ -19,7 +20,6 @@ public class TexBufferInitSystem : SystemBase
     protected override void OnUpdate()
     {
         //Update and fill out the array of stuff, destroy entity after we are done with that
-        cmdBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = cmdBufferSystem.CreateCommandBuffer();
 
         //Get the singleton entities of the Texture Initaliser and Texture Data Store Entity
