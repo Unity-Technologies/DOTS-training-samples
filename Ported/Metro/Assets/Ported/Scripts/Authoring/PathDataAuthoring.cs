@@ -52,7 +52,7 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
             var perpPosition = BezierHelpers.GetPointPerpendicularOffset(position, distance, nativePositions, nativeHandlesIn,
                 nativeHandlesOut, nativeDistances, halfDistance, Globals.BEZIER_PLATFORM_OFFSET);
 
-            nativePositions[halfMarkerCount + p - halfMarkerCount] = perpPosition;
+            nativePositions[totalMarkerCount - p - 1] = perpPosition;
         }
 
         RebuildHandle(nativePositions, ref nativeHandlesIn, ref nativeHandlesOut, totalMarkerCount);
