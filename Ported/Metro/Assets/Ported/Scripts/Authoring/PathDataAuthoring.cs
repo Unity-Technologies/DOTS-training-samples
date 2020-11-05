@@ -71,12 +71,7 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         }
 
         // Total path distance
-        float totalDistance = BezierHelpers.MeasurePath(nativePositions, nativeHandlesIn, nativeHandlesOut, totalMarkerCount, out tempDistances);
-        pathData.TotalDistance = totalDistance;
-        for (int i = 0; i < totalMarkerCount; ++i)
-        {
-            nativeNormalizedDistances[i] = distancesB[i] / totalDistance;
-        }
+        pathData.TotalDistance = BezierHelpers.MeasurePath(nativePositions, nativeHandlesIn, nativeHandlesOut, totalMarkerCount, out tempDistances);
 
         // Marker distances
         for (var d = 0; d < totalMarkerCount; d++)
