@@ -15,7 +15,6 @@ public class CapsuleRotatorSystem : SystemBase
 
         Entities.WithAll<CapsuleRotation>().ForEach((ref CapsuleRotation capsuleRotation, ref Rotation rotation) =>
         {
-
             rotation.Value = math.mul(rotation.Value, quaternion.RotateY(5 * (float)time));
 
         }).Schedule();

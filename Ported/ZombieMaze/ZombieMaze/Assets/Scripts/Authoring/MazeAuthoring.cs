@@ -13,11 +13,13 @@ public class MazeAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
     public uint mazeStripWidth = 6;
     public uint openStripWidth = 4;
     public uint numZombies = 5;
+    public uint numCapsules = 10;
 
     [Header("Prefabs")]
     public GameObject tilePrefab;
     public GameObject zombiePrefab;
     public GameObject wallPrefab;
+    public GameObject capsulePrefab;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -44,7 +46,21 @@ public class MazeAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
         dstManager.AddComponentData(zombieSpawnerEntity, zombieSpawner);
         dstManager.AddComponentData(zombieSpawnerEntity, spawner);
         dstManager.AddComponentData(zombieSpawnerEntity, new Random {Value = new Unity.Mathematics.Random(3049)});
-        
+
+        //capsule spawner
+        var capsuleSpawner = new CapsuleSpawner
+        {
+            NumCapsules = numCapsules
+        };
+
+        var capsulePrefabEntity = conversionSystem.GetPrimaryEntity(capsulePrefab);
+        var capsuleSpawnerEntity = conversionSystem.CreateAdditionalEntity(gameObject);
+
+        spawner.Prefab = capsulePrefabEntity;
+        dstManager.AddComponentData(capsuleSpawnerEntity, capsuleSpawner);
+        dstManager.AddComponentData(capsuleSpawnerEntity, spawner);
+        dstManager.AddComponentData(capsuleSpawnerEntity, new Random { Value = new Unity.Mathematics.Random(3049) });
+
         //maze spawner
         var mazeSpawner = new MazeSpawner
         {
@@ -77,7 +93,7 @@ public class MazeAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
         var mazeSizeEntity = conversionSystem.CreateAdditionalEntity(gameObject);
         dstManager.AddComponentData(mazeSizeEntity, new MazeSize{Value = (int2)tileMazeSize});
 
-        //TODO: spawn capsules
+        
     }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -85,5 +101,6 @@ public class MazeAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
         referencedPrefabs.Add(tilePrefab);
         referencedPrefabs.Add(zombiePrefab);
         referencedPrefabs.Add(wallPrefab);
+        referencedPrefabs.Add(capsulePrefab);
     }
 }
