@@ -10,7 +10,7 @@ public class TexUpdaterSystem : SystemBase
 {
     const float dt = 1.0f / 60;
     const float randomSteering = 0.14f;
-    const float decay = 0.9999f; // Original code used 0.9985f;
+    const float decay = 0.9995f; // Original code used 0.9985f;
     const float trailAddSpeed = 0.3f;
     const float excitementWhenLookingForFood = 0.3f;
     const float excitementWhenGoingBackToNest = 1.0f;
@@ -29,6 +29,8 @@ public class TexUpdaterSystem : SystemBase
     {
         Vector2 texelCoord = new Vector2(0.5f * (-x / bounds.x) + 0.5f, 0.5f * (-y / bounds.y) + 0.5f);
         int index = (int)(texelCoord.y * TexSize) * TexSize + (int)(texelCoord.x * TexSize);
+
+        if (index >= localPheromones.Length || index < 0) return;
 
         excitement *= speed / antSpeed;
 

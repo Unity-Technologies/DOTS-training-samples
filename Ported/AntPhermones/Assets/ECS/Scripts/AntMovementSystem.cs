@@ -15,10 +15,12 @@ public class AntMovementSystem : SystemBase
 
     const float dt = 1.0f / 60;
     const float randomSteering = 0.1f;
-    const float pheromoneSteerStrength = 0.001f; // Original code used 0.015f;
+    const float pheromoneSteerStrength = 0.008f; // Original code used 0.015f;
     const float wallSteerStrength = 0.12f;
     const float antSpeed = 0.2f;
     const float antAccel = 0.07f;
+    const float outwardStrength = 0.001f; // Original code use 0.003f
+    const float inwardStrength = 0.001f; // Original code use 0.003f
 
     public static readonly Vector2 bounds = new Vector2(5, 5);
 
@@ -55,14 +57,11 @@ public class AntMovementSystem : SystemBase
         .WithReadOnly(pheromonesArray)
         .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, ref Speed speed, in Entity antEntity) =>
         {
-            float dx = Mathf.Cos(direction.Value) * speed.Value * dt;
-            float dy = Mathf.Sin(direction.Value) * speed.Value * dt;
-
             // Pseudo-random steering
             direction.Value += rand.Random.NextFloat(-randomSteering, randomSteering);
 
             //pheromone steering
-            float pheroSteering = PheremoneSteering(pheromonesArray, translation, direction, 0.3f);
+            float pheroSteering = PheremoneSteering(pheromonesArray, translation, direction, 1.0f);
             var wallSteering = WallSteering(translation.Value, direction.Value, 0.15f, obstaclesPositions);
             var targetSpeed = antSpeed;
             targetSpeed *= 1f - (Mathf.Abs(pheroSteering) + Mathf.Abs(wallSteering)) / 3f;
@@ -92,7 +91,7 @@ public class AntMovementSystem : SystemBase
             }
 
             var target2D = new float2(target3D.x, target3D.z);
-            SteeringTowardTarget(ref translation, ref direction, target2D, spawner, obstaclesPositions);
+            SteeringTowardTarget(ref direction, translation, target2D, spawner, obstaclesPositions);
 
             if (HasReachedTarget(translation.Value, target3D, targetRadius))
             {
@@ -113,16 +112,20 @@ public class AntMovementSystem : SystemBase
                 direction.Value += math.PI;
             }
 
+            var d = float2.zero;
+            d.x = Mathf.Cos(direction.Value) * speed.Value * dt;
+            d.y = Mathf.Sin(direction.Value) * speed.Value * dt;
+
             // Bounce off the edges of the board (for now the ant bounces back, maybe improve later)
-            if (Mathf.Abs(translation.Value.x + dx) > bounds.x)
+            if (Mathf.Abs(translation.Value.x + d.x) > bounds.x)
             {
-                dx = -dx;
+                d.x = -d.x;
                 direction.Value += Mathf.PI;
             }
 
-            if (Mathf.Abs(translation.Value.z + dy) > bounds.y)
+            if (Mathf.Abs(translation.Value.z + d.y) > bounds.y)
             {
-                dy = -dy;
+                d.y = -d.y;
                 direction.Value += Mathf.PI;
             }
 
@@ -130,8 +133,10 @@ public class AntMovementSystem : SystemBase
 
             ObstacleAvoid(ref translation, ref direction, spawner.ObstacleRadius, obstaclesPositions);
 
-            translation.Value.x += (float)dx;
-            translation.Value.z += (float)dy;
+            SteerTowardColony(ref d, translation.Value, spawner.ColonyPosition, spawner.MapSize, isLookingForNest);
+
+            translation.Value.x += (float)d.x;
+            translation.Value.z += (float)d.y;
 
         })
         .ScheduleParallel();
@@ -167,14 +172,14 @@ public class AntMovementSystem : SystemBase
         return (float)nbClose;
     }
 
-    static void SteeringTowardTarget(ref Translation translation, ref Direction direction, float2 target, in AntSpawner spawner, in DynamicBuffer<ObstaclePosition> obstaclePositions)
+    static void SteeringTowardTarget(ref Direction direction, in Translation translation, float2 target, in AntSpawner spawner, in DynamicBuffer<ObstaclePosition> obstaclePositions)
     {
         var targetRadius = spawner.FoodRadius;
 
         var antPos = translation.Value.xz;
         var antDirection = direction.Value;
 
-        if (!RayCast(antPos, target, targetRadius, spawner.ObstacleRadius, obstaclePositions))
+        if (!RayCast(antPos, target, targetRadius, spawner.ObstacleRadius + 0.2f, obstaclePositions))
         {
             float targetAngle = Mathf.Atan2(target.y - antPos.y, target.x - antPos.x);
             if (targetAngle - antDirection > Mathf.PI)
@@ -194,8 +199,6 @@ public class AntMovementSystem : SystemBase
             }
         }
 
-        translation.Value.x = antPos.x;
-        translation.Value.z = antPos.y;
         direction.Value = antDirection;
     }
 
@@ -268,6 +271,26 @@ public class AntMovementSystem : SystemBase
             }
         }
         return Mathf.Sign(output);
+    }
+
+    public static void SteerTowardColony(ref float2 outSpeed, float3 position3D, float3 colonyPosition, float mapSize, bool isLookingForNest)
+    {
+        var position = position3D.xz;
+
+        mapSize = 128f;
+        float inwardOrOutward = -outwardStrength;
+        float pushRadius = mapSize * .4f;
+        if (isLookingForNest)
+        {
+            inwardOrOutward = inwardStrength;
+            pushRadius = mapSize;
+        }
+        var dx = colonyPosition.x - position.x;
+        var dy = colonyPosition.y - position.y;
+        var dist = Mathf.Sqrt(dx * dx + dy * dy);
+        inwardOrOutward *= 1f - Mathf.Clamp01(dist / pushRadius);
+        outSpeed.x += dx / dist * inwardOrOutward;
+        outSpeed.y += dy / dist * inwardOrOutward;
     }
 
     static void ObstacleAvoid(ref Translation translation, ref Direction dir, float obstacleRadius, in DynamicBuffer<ObstaclePosition> obstaclePositions)
