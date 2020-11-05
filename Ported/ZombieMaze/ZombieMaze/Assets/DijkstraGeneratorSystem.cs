@@ -12,13 +12,9 @@ public class DijkstraGeneratorSystem : SystemBase
     const int kWidth  = 1000;
     const int kHeight = 1000;
 
-    readonly static int2 kLeft  = new int2(-1, 0);
-    readonly static int2 kRight = new int2(+1, 0);
-    readonly static int2 kUp    = new int2(0,  1);
-    readonly static int2 kDown  = new int2(0, -1);
- 
     protected override void OnCreate()
     {
+        // Temp code to create a single map entity for testing.
         var e = EntityManager.CreateEntity(typeof(DijkstraMap));
 #if UNITY_EDITOR
         EntityManager.SetName(e, "DijkstraMap");
@@ -67,13 +63,13 @@ if (wallMap.Length != length)
                 var walls = (WallBits)wallMap[index].Value;
 
                 if ((walls & WallBits.Left) == 0)
-                    VisitNeighbor(current + kLeft,  dist, ref map, ref wallMap, pDistCell, ref positions);
+                    VisitNeighbor(current + Constants.kInt2Left,  dist, ref map, ref wallMap, pDistCell, ref positions);
                 if ((walls & WallBits.Bottom) == 0)
-                    VisitNeighbor(current + kDown,  dist, ref map, ref wallMap, pDistCell, ref positions);
+                    VisitNeighbor(current + Constants.kInt2Down,  dist, ref map, ref wallMap, pDistCell, ref positions);
                 if ((walls &  WallBits.Top) == 0)
-                    VisitNeighbor(current + kUp,    dist, ref map, ref wallMap, pDistCell, ref positions);
+                    VisitNeighbor(current + Constants.kInt2Up,    dist, ref map, ref wallMap, pDistCell, ref positions);
                 if ((walls & WallBits.Right) == 0)
-                    VisitNeighbor(current + kRight, dist, ref map, ref wallMap, pDistCell, ref positions);
+                    VisitNeighbor(current + Constants.kInt2Right, dist, ref map, ref wallMap, pDistCell, ref positions);
             }
 
             positions.Dispose();
