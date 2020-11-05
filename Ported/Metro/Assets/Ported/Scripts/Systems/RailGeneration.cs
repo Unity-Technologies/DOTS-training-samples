@@ -37,7 +37,7 @@ public class RailGeneration : SystemBase
 
                 ecb.SetComponent(railEntity, railTranslation);
                 ecb.SetComponent(railEntity, railRotation);
-                ecb.AddComponent(railPrefab, col);
+                ecb.AddComponent(railEntity, col);
 
                 absoluteDistance += Globals.RAIL_SPACING;
             }
