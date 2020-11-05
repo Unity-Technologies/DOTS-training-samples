@@ -97,10 +97,18 @@ public struct DijkstraMap : IComponentData
 {
     public int Width;
     public int Height;
+    public int2 Origin;
+
+    public void SetOrigin(int x, int y)
+    {
+        Origin.x = x;
+        Origin.y = y;
+    }
 
     public DijkstraMap(int width, int height)
     {
         Width  = width;
         Height = height;
+        Origin = int2.zero;
     }
 }
