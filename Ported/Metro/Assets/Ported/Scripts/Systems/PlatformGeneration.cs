@@ -52,11 +52,7 @@ namespace MetroECS
             float3 platPos = positions[idx];
             var translation = new Translation { Value = platPos };
 
-            // Rotation
-            var normalizedPosition = distances[idx] / totalDistance;
-            var perp = BezierHelpers.GetPointPerpendicularOffset(platPos, distances[idx], positions, handlesIn, handlesOut, distances, totalDistance, Globals.BEZIER_PLATFORM_OFFSET);
-            var up = BezierHelpers.GetTangentAtPosition(positions, handlesIn, handlesOut, distances, totalDistance, normalizedPosition);
-            var norm = BezierHelpers.GetNormalAtPosition(positions, handlesIn, handlesOut, distances, totalDistance, normalizedPosition);
+            var norm = handlesOut[idx] - handlesIn[idx];
 
             UnityEngine.Quaternion q = new UnityEngine.Quaternion();
             q.SetLookRotation(new UnityEngine.Vector3(norm.x, norm.y, norm.z), UnityEngine.Vector3.up);

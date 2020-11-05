@@ -138,8 +138,10 @@ static public class BezierHelpers
         return new float3(-normal.z, normal.y, normal.x);
     }
 
-    static public float3 GetPointPerpendicularOffset(float3 pos, float distanceAlongPath, NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDist, float _offset)
+    static public float3 getOffsetPosition(float3 position, float3 handleIn, float3 handleOut, float offset)
     {
-        return pos + GetTangentAtPosition(positions, handlesIn, handlesOut, distances, totalDist, distanceAlongPath / totalDist) * _offset;
+        // Handles are positions
+        float3 tangent = handleOut - handleIn;
+        return position - math.normalize(math.cross(UnityEngine.Vector3.up, tangent)) * offset;
     }
 }

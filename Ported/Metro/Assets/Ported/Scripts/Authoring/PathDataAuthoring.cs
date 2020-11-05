@@ -37,7 +37,7 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         for (var c = 0; c < transform.childCount; c++)
             nativePositions[c] = transform.GetChild(c).transform.position;
 
-        RebuildHandle(nativePositions, ref nativeHandlesIn, ref nativeHandlesOut, halfMarkerCount);
+        RebuildHandle(nativePositions, ref nativeHandlesIn, ref nativeHandlesOut, 0, halfMarkerCount);
 
         float halfDistance = BezierHelpers.MeasurePath(nativePositions, nativeHandlesIn, nativeHandlesOut, halfMarkerCount, out var tempDistances);
         for (var p = 0; p < halfMarkerCount; p++)
@@ -48,14 +48,13 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         for (int p = halfMarkerCount - 1; p >= 0; p--)
         {
             var position = nativePositions[p];
-            var distance = nativeDistances[p];
-            var perpPosition = BezierHelpers.GetPointPerpendicularOffset(position, distance, nativePositions, nativeHandlesIn,
-                nativeHandlesOut, nativeDistances, halfDistance, Globals.BEZIER_PLATFORM_OFFSET);
+            var handleIn = nativeHandlesIn[p];
+            var handleOut = nativeHandlesOut[p];
 
-            nativePositions[totalMarkerCount - p - 1] = perpPosition;
+            nativePositions[totalMarkerCount - p - 1] = BezierHelpers.getOffsetPosition(position, handleIn, handleOut, Globals.BEZIER_PLATFORM_OFFSET);
         }
 
-        RebuildHandle(nativePositions, ref nativeHandlesIn, ref nativeHandlesOut, totalMarkerCount);
+        RebuildHandle(nativePositions, ref nativeHandlesIn, ref nativeHandlesOut, halfMarkerCount, totalMarkerCount);
 
         // Marker types
         for (var m = 0; m < halfMarkerCount; m++)
@@ -87,46 +86,40 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         });
     }
 
-    private void RebuildHandle(NativeArray<float3> positions, ref NativeArray<float3> handlesIn, ref NativeArray<float3> handlesOut, int size)
+
+    private void RebuildHandle(NativeArray<float3> positions, ref NativeArray<float3> handlesIn, ref NativeArray<float3> handlesOut,
+                               int begin, int end)
     {
         // Outbound Handles
-        for (var p = 1; p < size - 1; p++)
+        for (var p = begin + 1; p < end - 1; p++)
         {
             var currentPosition = positions[p];
             var previousPosition = positions[p - 1];
             var nextPosition = positions[p + 1];
-
             var offsetPosition = nextPosition - previousPosition;
             var handleIn = BezierHelpers.GetHandleIn(currentPosition, offsetPosition);
             var handleOut = BezierHelpers.GetHandleOut(currentPosition, offsetPosition);
-
             handlesIn[p] = handleIn;
             handlesOut[p] = handleOut;
         }
         // Point 0
         {
-            var currentPosition = positions[0];
-            var ptA = positions[1];
-            var ptB = positions[0];
-
-            var offsetPosition = ptA - ptB;
+            var currentPosition = positions[begin];
+            var nextPosition = positions[begin + 1];
+            var offsetPosition = nextPosition - currentPosition;
             var handleIn = BezierHelpers.GetHandleIn(currentPosition, offsetPosition);
             var handleOut = BezierHelpers.GetHandleOut(currentPosition, offsetPosition);
-
-            handlesIn[0] = handleIn;
-            handlesOut[0] = handleOut;
+            handlesIn[begin] = handleIn;
+            handlesOut[begin] = handleOut;
         }
         // Last Point
         {
-            int last = size - 1;
+            int last = end - 1;
             var currentPosition = positions[last];
-            var ptA = positions[last];
-            var ptB = positions[last - 1];
-
-            var offsetPosition = ptA - ptB;
+            var previousPosition = positions[last - 1];
+            var offsetPosition = currentPosition - previousPosition;
             var handleIn = BezierHelpers.GetHandleIn(currentPosition, offsetPosition);
             var handleOut = BezierHelpers.GetHandleOut(currentPosition, offsetPosition);
-
             handlesIn[last] = handleIn;
             handlesOut[last] = handleOut;
         }
