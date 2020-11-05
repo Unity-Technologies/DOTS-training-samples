@@ -34,8 +34,8 @@ public class TileSpawnerSystem : SystemBase
 
             ecb.DestroyEntity(entity);
         }).Schedule(Dependency);
-        
-        _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
-        Dependency = jobHandle;
+
+        Dependency = JobHandle.CombineDependencies(Dependency, jobHandle);
+        _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
