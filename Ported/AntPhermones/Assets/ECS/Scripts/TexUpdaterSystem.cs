@@ -9,10 +9,17 @@ using UnityEngine;
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 public class TexUpdaterSystem : SystemBase
 {
+    Color[] colorCache = new Color[RefsAuthoring.TexSize * RefsAuthoring.TexSize];
+
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<TexSingleton>();
         GetEntityQuery(typeof(PheromonesBufferData));
+
+        for (int i = 0; i < colorCache.Length; ++i)
+        {
+            colorCache[i] = new Color(0, 0, 0, 0);
+        }
     }
     
     protected override void OnUpdate()
@@ -24,13 +31,11 @@ public class TexUpdaterSystem : SystemBase
 
         for (int i = 0; i < pheromonesBuffer.Length; ++i)
         {
-            UpdatePheromoneSystem.colors[i].r = pheromonesBuffer[i];
-            UpdatePheromoneSystem.colors[i].g = 0f;
-            UpdatePheromoneSystem.colors[i].b = 0f;
+            colorCache[i].r = pheromonesBuffer[i];
         }
         
         var map = this.GetSingleton<Refs>().PheromoneMap;
-        map.SetPixels(0, 0, TexSize, TexSize, UpdatePheromoneSystem.colors);
+        map.SetPixels(colorCache);
         map.Apply();
     }
 }
