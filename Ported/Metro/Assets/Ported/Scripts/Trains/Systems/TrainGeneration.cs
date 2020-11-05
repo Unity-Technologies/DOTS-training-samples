@@ -2,7 +2,6 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 
 public class TrainGeneration : SystemBase
 {
@@ -17,15 +16,11 @@ public class TrainGeneration : SystemBase
 
             var splitDistance = 1f / nativePathData.NumberOfTrains;
             var random = new Random(1234);
-            var carriageLengthOnRail = Carriage.LENGTH / nativePathData.TotalDistance;
-            var carriageSpacingOnRail = Carriage.SPACING / nativePathData.TotalDistance;
-            var carriageOffset = (carriageLengthOnRail + carriageSpacingOnRail) / 2;
 
             for (var trainID = 0; trainID < nativePathData.NumberOfTrains; trainID++)
             {
                 var carriageCount = random.NextInt(nativePathData.MaxCarriages / 2, nativePathData.MaxCarriages);
-                var trainLength = (carriageCount * carriageLengthOnRail) + ((carriageCount - 1) * carriageSpacingOnRail);
-                var normalizedTrainPosition = (trainID * splitDistance) + (trainLength / 2);
+                var normalizedTrainPosition = trainID * splitDistance;
 
                 // Create train
                 var trainEntity = ecb.CreateEntity();
@@ -35,30 +30,10 @@ public class TrainGeneration : SystemBase
                 
                 for (var carriageID = 0; carriageID < carriageCount; carriageID++)
                 {
-                    // Carriage position
-                    var normalizedCarriagePosition = normalizedTrainPosition - (carriageID * carriageOffset);
-                    
-                    // World position
-                    var position = BezierHelpers.GetPosition(nativePathData.Positions, nativePathData.HandlesIn, nativePathData.HandlesOut, nativePathData.Distances, nativePathData.TotalDistance,
-                        normalizedCarriagePosition);
-                    
-                    // Normal
-                    var normal = BezierHelpers.GetNormalAtPosition(nativePathData.Positions, nativePathData.HandlesIn, nativePathData.HandlesOut, nativePathData.Distances,
-                        nativePathData.TotalDistance,
-                        normalizedCarriagePosition);
-
                     // Generate carriage
                     var carriageEntity = ecb.Instantiate(carriagePrefab);
                     var carriageData = new Carriage {Index = carriageID, Train = trainEntity};
                     ecb.SetComponent(carriageEntity, carriageData);
-
-                    // World position
-                    var translation = new Translation {Value = position};
-                    ecb.SetComponent(carriageEntity, translation);
-
-                    // Rotation
-                    var rotation = new Rotation {Value = quaternion.LookRotation(normal, new float3(0, 1, 0))};
-                    ecb.SetComponent(carriageEntity, rotation);
                 }
             }
         }).Run();

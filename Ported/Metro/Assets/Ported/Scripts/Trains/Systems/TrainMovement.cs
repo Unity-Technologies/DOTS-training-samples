@@ -22,7 +22,7 @@ namespace MetroECS.Trains
                 var pathRef = GetComponent<PathDataRef>(train.Path);
                 var nativePathData = pathRef.ToNativePathData();
 
-                var carriageOffset = (Carriage.LENGTH / 2) + Carriage.SPACING;
+                var carriageOffset = (Carriage.LENGTH + Carriage.SPACING) / nativePathData.TotalDistance;
                 var carriageTrackPosition = train.Position - (carriage.Index * carriageOffset); 
                     
                 var carriageWorldPosition = BezierHelpers.GetPosition(nativePathData.Positions, nativePathData.HandlesIn, nativePathData.HandlesOut,
