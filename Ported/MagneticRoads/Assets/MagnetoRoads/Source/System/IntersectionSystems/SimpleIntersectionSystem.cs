@@ -1,7 +1,9 @@
 using Unity.Collections;
 using Unity.Entities;
 
-
+// For traffic that must do a U-turn at a dead end road
+// laneOut0 <--|
+// laneIn0  ---|
 [UpdateAfter(typeof(TrafficSpawnerSystem))]
 public class SimpleIntersectionSystem : SystemBase
 {
