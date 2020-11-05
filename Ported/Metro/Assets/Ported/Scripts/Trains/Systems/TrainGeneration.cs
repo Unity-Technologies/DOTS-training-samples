@@ -1,7 +1,10 @@
-﻿using MetroECS.Trains;
+﻿using System.Linq;
+using MetroECS.Trains;
+using MetroECS.Trains.States;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 public class TrainGeneration : SystemBase
 {
@@ -24,9 +27,11 @@ public class TrainGeneration : SystemBase
 
                 // Create train
                 var trainEntity = ecb.CreateEntity();
-                var trainData = new Train
-                    {ID = trainID, Position = normalizedTrainPosition, CarriageCount = carriageCount, Path = pathDataEntity};
+                var trainData = new Train {ID = trainID, Position = normalizedTrainPosition, CarriageCount = carriageCount, Path = pathDataEntity};
                 ecb.AddComponent(trainEntity, trainData);
+                
+                var inMotionTag = new TrainInMotionTag();
+                ecb.AddComponent(trainEntity, inMotionTag);
                 
                 for (var carriageID = 0; carriageID < carriageCount; carriageID++)
                 {
