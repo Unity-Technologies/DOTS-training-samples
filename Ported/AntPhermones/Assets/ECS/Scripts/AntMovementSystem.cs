@@ -97,7 +97,7 @@ public class AntMovementSystem : SystemBase
             float pheroSteering = PheremoneSteering(pheromonesArray, translation, direction, 1.0f);
             var wallSteering = WallSteering(translation.Value, direction.Value, 0.2f, obstaclesPositions);
             var targetSpeed = antSpeed;
-            targetSpeed *= 1f - (Mathf.Abs(pheroSteering) + Mathf.Abs(wallSteering)) / 3f;
+            targetSpeed *= 1f - (math.abs(pheroSteering) + math.abs(wallSteering)) / 3f;
             direction.Value += pheroSteering * pheromoneSteerStrength;
             direction.Value += wallSteering * wallSteerStrength;
 
@@ -148,26 +148,26 @@ public class AntMovementSystem : SystemBase
             }
 
             var d = float2.zero;
-            d.x = Mathf.Cos(direction.Value) * speed.Value * dt;
-            d.y = Mathf.Sin(direction.Value) * speed.Value * dt;
+            d.x = math.cos(direction.Value) * speed.Value * dt;
+            d.y = math.sin(direction.Value) * speed.Value * dt;
 
-            direction.Value = (direction.Value >= 2 * Mathf.PI) ? direction.Value - 2 * Mathf.PI : direction.Value;
+            direction.Value = (direction.Value >= 2 * math.PI) ? direction.Value - 2 * math.PI : direction.Value;
 
             ObstacleAvoid(ref translation, ref direction, spawner.ObstacleRadius, obstaclesPositions);
 
             SteerTowardColony(ref d, translation.Value, spawner.ColonyPosition, spawner.MapSize, isLookingForNest);
 
             // Bounce off the edges of the board (for now the ant bounces back, maybe improve later)
-            if (Mathf.Abs(translation.Value.x + d.x) > bounds.x)
+            if (math.abs(translation.Value.x + d.x) > bounds.x)
             {
                 d.x = -d.x;
-                direction.Value += Mathf.PI;
+                direction.Value += math.PI;
             }
 
-            if (Mathf.Abs(translation.Value.z + d.y) > bounds.y)
+            if (math.abs(translation.Value.z + d.y) > bounds.y)
             {
                 d.y = -d.y;
-                direction.Value += Mathf.PI;
+                direction.Value += math.PI;
             }
 
             translation.Value.x += (float)d.x;
@@ -223,10 +223,10 @@ public class AntMovementSystem : SystemBase
         int nbClose = 0;
         for (int k = -1; k <= 1; k += 2)
         {
-            float angle = direction + k * Mathf.PI * .25f;
+            float angle = direction + k * math.PI * .25f;
             var test = float2.zero;
-            test.x = position.x + Mathf.Cos(angle) * distance;
-            test.y = position.y + Mathf.Sin(angle) * distance;
+            test.x = position.x + math.cos(angle) * distance;
+            test.y = position.y + math.sin(angle) * distance;
 
             for (int i = 0; i < obstaclePositions.Length; ++i)
             {
@@ -259,17 +259,17 @@ public class AntMovementSystem : SystemBase
         if (!raycast)
         {
             float targetAngle = Mathf.Atan2(target.y - antPos.y, target.x - antPos.x);
-            if (targetAngle - antDirection > Mathf.PI)
+            if (targetAngle - antDirection > math.PI)
             {
-                antDirection += Mathf.PI * 2f;
+                antDirection += math.PI * 2f;
             }
-            else if (targetAngle - antDirection < -Mathf.PI)
+            else if (targetAngle - antDirection < -math.PI)
             {
-                antDirection -= Mathf.PI * 2f;
+                antDirection -= math.PI * 2f;
             }
             else
             {
-                if (Mathf.Abs(targetAngle - antDirection) < Mathf.PI * .5f)
+                if (math.abs(targetAngle - antDirection) < math.PI * .5f)
                 {
                     antDirection += (targetAngle - antDirection) * spawner.GoalSteerStrength;
                 }
@@ -339,9 +339,9 @@ public class AntMovementSystem : SystemBase
 
         for (int i = -1; i <= 1; i += 2)
         {
-            float angle = antDirection.Value + i * Mathf.PI * 0.25f;
-            float testX = antTranslation.Value.x + Mathf.Cos(angle) * distance;
-            float testY = antTranslation.Value.z + Mathf.Sin(angle) * distance;
+            float angle = antDirection.Value + i * math.PI * 0.25f;
+            float testX = antTranslation.Value.x + math.cos(angle) * distance;
+            float testY = antTranslation.Value.z + math.sin(angle) * distance;
 
             if (TextureHelper.PositionWithInMapBounds(new float2(testX, testY)))
             {
@@ -370,7 +370,7 @@ public class AntMovementSystem : SystemBase
         }
         var dx = colonyPosition.x - position.x;
         var dy = colonyPosition.y - position.y;
-        var dist = Mathf.Sqrt(dx * dx + dy * dy);
+        var dist = math.sqrt(dx * dx + dy * dy);
         inwardOrOutward *= 1f - Mathf.Clamp01(dist / pushRadius);
         outSpeed.x += dx / dist * inwardOrOutward;
         outSpeed.y += dy / dist * inwardOrOutward;
@@ -412,12 +412,12 @@ public class AntMovementSystem : SystemBase
             if (sqrDist < (obstacleRadius * obstacleRadius))
             {
                 //Reflect
-                dir.Value += Mathf.PI;
-                dir.Value = (dir.Value >= 2 * Mathf.PI) ? dir.Value - 2 * Mathf.PI : dir.Value;
+                dir.Value += math.PI;
+                dir.Value = (dir.Value >= 2 * math.PI) ? dir.Value - 2 * math.PI : dir.Value;
 
 
                 //Move ant out of collision
-                dist = Mathf.Sqrt(sqrDist);
+                dist = math.sqrt(sqrDist);
                 dx /= dist;
                 dy /= dist;
                 translation.Value.x = obstaclePositions[i].Value.x + dx * obstacleRadius;

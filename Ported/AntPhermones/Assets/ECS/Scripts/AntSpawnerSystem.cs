@@ -6,7 +6,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
 using UnityRand = UnityEngine.Random;
 using DOTSRand = Unity.Mathematics.Random;
 
@@ -45,7 +44,7 @@ public class AntSpawnerSystem : SystemBase
         for (uint i = 0; i < spawner.NbAnts; ++i)
         {
             var ant = cmd.Instantiate(spawner.AntPrefab);
-            var direction = (float)rand.NextFloat(0.0f, 1.0f) * 2.0f * Mathf.PI;
+            var direction = (float)rand.NextFloat(0.0f, 1.0f) * 2.0f * math.PI;
             var speed = 0.2f + (float)rand.NextFloat(-0.05f, 0.05f);
 
             float3 position = spawner.Origin + rand.NextFloat3Direction() * 0.5f;
@@ -106,7 +105,7 @@ public class AntSpawnerSystem : SystemBase
         {
             float ringRadius = (i / (spawner.ObstacleRingCount + 1f)) * (spawner.MapSize * .5f);
             float circumference = ringRadius * 2f * math.PI;
-            int maxCount = Mathf.CeilToInt(circumference / spawner.ObstacleRadius);
+            int maxCount = (int)math.ceil(circumference / spawner.ObstacleRadius);
             int offset = rand.NextInt(0, maxCount);
             int holeCount = rand.NextInt(1, 3);
 
@@ -115,7 +114,7 @@ public class AntSpawnerSystem : SystemBase
                 float t = j / (float)maxCount;
                 if ((t * holeCount) % 1f < spawner.ObstaclesPerRing)
                 {
-                    float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
+                    float angle = (j + offset) / (float)maxCount * (2f * math.PI);
                     float x = math.cos(angle) * ringRadius;
                     float z = math.sin(angle) * ringRadius;
 
