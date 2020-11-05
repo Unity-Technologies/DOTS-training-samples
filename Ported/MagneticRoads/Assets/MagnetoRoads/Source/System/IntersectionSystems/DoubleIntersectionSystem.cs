@@ -10,12 +10,13 @@ public class DoubleIntersectionSystem : SystemBase
         float deltaTime = Time.DeltaTime;
 
         Entities
-            .ForEach((Entity entity, ref DoubleIntersection doubleIntersection, in Spline spline0, in Spline spline1) =>
+            .WithNone<IntersectionNeedsInit>()
+            .ForEach((Entity entity, ref DoubleIntersection doubleIntersection) =>
             {
                 NativeArray<Entity> laneIns = new NativeArray<Entity>(2, Allocator.Temp);
                 NativeArray<Entity> laneOuts = new NativeArray<Entity>(2, Allocator.Temp);
                 NativeArray<Entity> cars = new NativeArray<Entity>(2, Allocator.Temp);
-                NativeArray<Spline> splines = new NativeArray<Spline>(2, Allocator.Temp);
+                NativeArray<Entity> splines = new NativeArray<Entity>(2, Allocator.Temp);
 
                 laneIns[0] = doubleIntersection.laneIn0;
                 laneIns[1] = doubleIntersection.laneIn1;
@@ -26,8 +27,8 @@ public class DoubleIntersectionSystem : SystemBase
                 cars[0] = doubleIntersection.car0;
                 cars[1] = doubleIntersection.car1;
 
-                splines[0] = spline0;
-                splines[1] = spline1;
+                splines[0] = doubleIntersection.spline0;
+                splines[1] = doubleIntersection.spline1;
 
                 for (int i = 0; i < laneIns.Length; i++)
                 {
@@ -82,8 +83,9 @@ public class DoubleIntersectionSystem : SystemBase
                                 var carSpeed = GetComponent<CarSpeed>(cars[i]);
                                 float newPosition = car0Pos.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * deltaTime;
                                 SetComponent(cars[i], new CarPosition {Value = newPosition});
-                                var eval = BezierUtility.EvaluateBezier(splines[i].startPos, splines[i].anchor1, splines[i].anchor2,
-                                    splines[i].endPos, newPosition);
+                                var splineData = GetComponent<Spline>(splines[i]);
+                                var eval = BezierUtility.EvaluateBezier(splineData.startPos, splineData.anchor1, splineData.anchor2,
+                                    splineData.endPos, newPosition);
                                 SetComponent(cars[i], new Translation {Value = eval});
                             }
                             else

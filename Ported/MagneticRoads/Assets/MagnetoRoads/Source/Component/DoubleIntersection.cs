@@ -9,4 +9,6 @@ public struct DoubleIntersection : IComponentData
     public Entity laneOut1;
     public Entity car0;
     public Entity car1;
+    public Entity spline0;
+    public Entity spline1;
 }
