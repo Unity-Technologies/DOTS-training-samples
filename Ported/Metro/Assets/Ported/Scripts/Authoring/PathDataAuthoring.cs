@@ -26,12 +26,14 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         var handlesInB = builder.Allocate(ref pathData.HandlesIn, totalMarkerCount);
         var handlesOutB = builder.Allocate(ref pathData.HandlesOut, totalMarkerCount);
         var distancesB = builder.Allocate(ref pathData.Distances, totalMarkerCount);
+        var normalizedDistancesB = builder.Allocate(ref pathData.normalizedDistances, totalMarkerCount);
         var markerTypesB = builder.Allocate(ref pathData.MarkerTypes, totalMarkerCount);
 
         var nativePositions  = positionsB.ToNativeArray();
         var nativeHandlesIn  = handlesInB.ToNativeArray();
         var nativeHandlesOut = handlesOutB.ToNativeArray();
         var nativeDistances  = distancesB.ToNativeArray();
+        var nativeNormalizedDistances = normalizedDistancesB.ToNativeArray();
 
         // Outbound Positions
         for (var c = 0; c < transform.childCount; c++)
@@ -69,7 +71,12 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         }
 
         // Total path distance
-        pathData.TotalDistance = BezierHelpers.MeasurePath(nativePositions, nativeHandlesIn, nativeHandlesOut, totalMarkerCount, out tempDistances);
+        float totalDistance = BezierHelpers.MeasurePath(nativePositions, nativeHandlesIn, nativeHandlesOut, totalMarkerCount, out tempDistances);
+        pathData.TotalDistance = totalDistance;
+        for (int i = 0; i < totalMarkerCount; ++i)
+        {
+            nativeNormalizedDistances[i] = distancesB[i] / totalDistance;
+        }
 
         // Marker distances
         for (var d = 0; d < totalMarkerCount; d++)
