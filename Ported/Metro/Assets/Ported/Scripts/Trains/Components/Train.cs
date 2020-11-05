@@ -6,6 +6,7 @@ namespace MetroECS.Trains
     {
         public const float MAX_SPEED = 0.002f;
         
+        public int ID;
         public float Position;
         public int CarriageCount;
         public Entity Path;

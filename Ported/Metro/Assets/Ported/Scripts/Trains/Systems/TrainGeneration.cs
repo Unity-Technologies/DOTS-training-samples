@@ -25,14 +25,14 @@ public class TrainGeneration : SystemBase
                 // Create train
                 var trainEntity = ecb.CreateEntity();
                 var trainData = new Train
-                    {Position = normalizedTrainPosition, CarriageCount = carriageCount, Path = pathDataEntity};
+                    {ID = trainID, Position = normalizedTrainPosition, CarriageCount = carriageCount, Path = pathDataEntity};
                 ecb.AddComponent(trainEntity, trainData);
                 
                 for (var carriageID = 0; carriageID < carriageCount; carriageID++)
                 {
                     // Generate carriage
                     var carriageEntity = ecb.Instantiate(carriagePrefab);
-                    var carriageData = new Carriage {Index = carriageID, Train = trainEntity};
+                    var carriageData = new Carriage {ID = carriageID, Train = trainEntity};
                     ecb.SetComponent(carriageEntity, carriageData);
                 }
             }

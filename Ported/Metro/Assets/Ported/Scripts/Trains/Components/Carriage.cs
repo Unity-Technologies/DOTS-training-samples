@@ -10,7 +10,7 @@ namespace MetroECS.Trains
         public const int CAPACITY = 10;
         public const float SPACING = 0.25f;
     
-        public int Index;
+        public int ID;
         public Entity Train;
     }
 }
