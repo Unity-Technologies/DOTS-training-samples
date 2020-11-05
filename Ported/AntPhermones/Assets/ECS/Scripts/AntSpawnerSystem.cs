@@ -47,7 +47,7 @@ public class AntSpawnerSystem : SystemBase
         {
             var ant = cmd.Instantiate(spawner.AntPrefab);
             var direction = (float)rand.NextFloat(0.0f, 1.0f) * 2.0f * Mathf.PI;
-            var speed = 0f;//0.2f + (float)rand.NextFloat(-0.05f, 0.05f);
+            var speed = 0.2f + (float)rand.NextFloat(-0.05f, 0.05f);
 
             float3 position = spawner.Origin + UnityRand.onUnitSphere * 0.5f;
             position.y = 0;

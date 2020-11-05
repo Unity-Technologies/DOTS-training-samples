@@ -15,7 +15,7 @@ public class AntMovementSystem : SystemBase
 
     const float dt = 1.0f / 60;
     const float randomSteering = 0.1f;
-    const float pheromoneSteerStrength = 0.001f;//Should be 0.015f;
+    const float pheromoneSteerStrength = 0.001f; // Original code used 0.015f;
     const float wallSteerStrength = 0.12f;
     const float antSpeed = 0.2f;
     const float antAccel = 0.07f;
