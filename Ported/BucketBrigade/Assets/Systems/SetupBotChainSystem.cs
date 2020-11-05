@@ -37,10 +37,10 @@ public class SetupBotChainSystem : SystemBase
                 .ForEach((Entity entity, in DynamicBuffer<PasserFullBufferElement> fullChain, in DynamicBuffer<PasserEmptyBufferElement> emptyChain) =>
                 {
                     var bot0Position = GetComponent<Translation>(fullChain[0]).Value;
-                    var closestWater = FireSimSystem.GetClosestEntity(bot0Position, waterCellsEntities, waterCellsTranslations);
+                    var closestWater = FireSim.GetClosestEntity(bot0Position, waterCellsEntities, waterCellsTranslations);
 
                     var waterPosition = GetComponent<Translation>(closestWater).Value;
-                    var closestFire = FireSimSystem.GetClosestEntity(waterPosition, onFireCellsEntities, onFireCellsTranslations);
+                    var closestFire = FireSim.GetClosestEntity(waterPosition, onFireCellsEntities, onFireCellsTranslations);
                     var firePosition = GetComponent<Translation>(closestFire).Value;
 
                     ecb.AddComponent(entity, new BotChain()

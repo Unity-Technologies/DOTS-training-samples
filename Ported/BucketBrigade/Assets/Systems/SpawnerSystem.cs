@@ -77,9 +77,6 @@ public class SpawnerSystem : SystemBase
 
         ecb = new EntityCommandBuffer(Allocator.TempJob);
 
-        var emptyBuckets = FireSimSystem.emptyBucketQuery.ToEntityArray(Allocator.TempJob);
-        var bucketPositions = FireSimSystem.emptyBucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
             {
@@ -117,12 +114,9 @@ public class SpawnerSystem : SystemBase
                     var scooperPosition = new float3(random.NextInt(0, fireSim.FireGridDimension), 1.6f, random.NextInt(0, fireSim.FireGridDimension));
                     ecb.SetComponent(instance, new Translation { Value = scooperPosition });
                     ecb.AddComponent(instance, new URPMaterialPropertyBaseColor() { Value = spawner.ScooperColor });
-                    ecb.AddComponent(instance, new MoveTowardBucket() { Target = FireSimSystem.GetClosestEntity(scooperPosition, emptyBuckets, bucketPositions) });
+                    ecb.AddComponent(instance, new FindBucket());
                 }
             }).Run();
-
-        emptyBuckets.Dispose();
-        bucketPositions.Dispose();
 
         ecb.Playback(EntityManager);
         ecb.Dispose();

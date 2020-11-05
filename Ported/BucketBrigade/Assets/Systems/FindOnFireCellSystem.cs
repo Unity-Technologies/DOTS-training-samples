@@ -23,8 +23,7 @@ public class FindOnFireCellSystem : SystemBase
         {
             ecb.RemoveComponent<FindOnFireCell>(entity);
 
-            Entity closestOnFireCell = FireSimSystem.GetClosestEntity(translation.Value, onFireCellsEntities, onFireCellsTranslations);
-
+            Entity closestOnFireCell = FireSim.GetClosestEntity(translation.Value, onFireCellsEntities, onFireCellsTranslations);
 
             ecb.AddComponent<MoveTowardFire>(entity, new MoveTowardFire { Target = closestOnFireCell });
         }).Run();

@@ -23,8 +23,7 @@ public class FindWaterCellSystem : SystemBase
         {
             ecb.RemoveComponent<FindWaterCell>(entity);
 
-            Entity closestWaterCell = FireSimSystem.GetClosestEntity(translation.Value, waterCellsEntities, waterCellsTranslations);
-
+            Entity closestWaterCell = FireSim.GetClosestEntity(translation.Value, waterCellsEntities, waterCellsTranslations);
 
             ecb.AddComponent<MoveTowardWater>(entity, new MoveTowardWater { Target = closestWaterCell });
         }).Run();

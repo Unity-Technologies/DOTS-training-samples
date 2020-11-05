@@ -29,8 +29,10 @@ public class MoveTowardEntitySystem : SystemBase
 
             if (length <= threshold)
             {
-                ecb.RemoveComponent<MoveTowardBucket>(entityInQueryIndex, entity);
+                ecb.RemoveComponent<EmptyBucket>(entityInQueryIndex, scooper.Target);
                 ecb.AddComponent(entityInQueryIndex, entity, new HoldingBucket() { Target = scooper.Target });
+
+                ecb.RemoveComponent<MoveTowardBucket>(entityInQueryIndex, entity);
                 ecb.AddComponent<FindWaterCell>(entityInQueryIndex, entity);
             }
             else
@@ -55,7 +57,7 @@ public class MoveTowardEntitySystem : SystemBase
                 if (length <= threshold)
                 {
                     ecb.RemoveComponent<MoveTowardWater>(entityInQueryIndex, entity);
-                    //ecb.AddComponent<MoveTowardBucket>(entityInQueryIndex, entity);
+                    ecb.AddComponent<FindBucket>(entityInQueryIndex, entity);
                 }
                 else
                 {

@@ -160,7 +160,7 @@ MonoBehaviour:
   PropagationRadius: 2
   FlashPoint: 0.292
   IgnitionRate: 0.0005
-  HeatTransfer: 0.0003
+  HeatTransfer: 0.0001
 --- !u!4 &940157597
 Transform:
   m_ObjectHideFlags: 0
