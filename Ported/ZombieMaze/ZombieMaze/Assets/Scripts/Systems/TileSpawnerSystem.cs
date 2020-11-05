@@ -36,6 +36,6 @@ public class TileSpawnerSystem : SystemBase
         }).Schedule(Dependency);
         
         _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
-        
+        Dependency = jobHandle;
     }
 }

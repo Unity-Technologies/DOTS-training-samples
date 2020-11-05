@@ -189,11 +189,6 @@ public class MazeGenerator : SystemBase
         }).Schedule(Dependency);
         
         _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
-        
-        var zombieSpawnerSystem = World.GetOrCreateSystem<ZombieSpawnerSystem>();
-        var  dijkstraGeneratorSystem = World.GetOrCreateSystem<DijkstraGeneratorSystem>();
-
-        zombieSpawnerSystem.MazeDependency = jobHandle;
-        dijkstraGeneratorSystem.MazeDependency = jobHandle;
+        Dependency = jobHandle;
     }
 }

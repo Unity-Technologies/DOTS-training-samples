@@ -12,7 +12,6 @@ public class DijkstraGeneratorSystem : SystemBase
 {   
     const int kWidth  = 1000;
     const int kHeight = 1000;
-    public JobHandle MazeDependency { get; set; }
 
     protected override void OnCreate()
     {
@@ -30,7 +29,7 @@ public class DijkstraGeneratorSystem : SystemBase
 
     unsafe protected override void OnUpdate()
     {
-        Dependency = Entities.ForEach((Entity e, ref DijkstraMap map, ref DynamicBuffer<MapCell> wallMap, ref DynamicBuffer<DistCell> distMap) => 
+        Entities.ForEach((Entity e, ref DijkstraMap map, ref DynamicBuffer<MapCell> wallMap, ref DynamicBuffer<DistCell> distMap) => 
         {
             var length = map.Width * map.Height;
             if (distMap.Length != length)
@@ -76,7 +75,7 @@ if (wallMap.Length != length)
 
             positions.Dispose();
         })
-        .Schedule(JobHandle.CombineDependencies(Dependency, MazeDependency));
+        .Schedule();
     }
 
     unsafe static void VisitNeighbor(int2 next, int distance, ref DijkstraMap map, ref DynamicBuffer<MapCell> wallMap, DistCell* pDistCell, ref NativeList<int2> positions)
