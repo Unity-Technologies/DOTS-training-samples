@@ -1,3 +1,5 @@
+#define USE_PRECOMPUTED_RAYCAST
+
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
@@ -26,6 +28,14 @@ public class AntMovementSystem : SystemBase
 
     EntityCommandBufferSystem cmdBufferSystem;
 
+    // RayCast precomputation
+    const int numCells = 16;
+    static NativeArray<bool> rayCastMapFood;
+    static NativeArray<bool> rayCastMapColony;
+    static bool isRayCastInitialized = false;
+    static readonly float cellSize = 2 * bounds.x / numCells;
+    static readonly float oneOverCellSize = 1.0f / cellSize;
+
     protected override void OnCreate()
     {
         cmdBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -51,10 +61,20 @@ public class AntMovementSystem : SystemBase
         var obstaclesPositions = GetBuffer<ObstaclePosition>(spawnerEntity);
         var pheromonesArray = GetBuffer<PheromonesBufferData>(pheromoneDataEntity).AsNativeArray();
 
+        if (isRayCastInitialized == false)
+        {
+            PrecomputeRayCast(obstaclesPositions, spawner.ColonyPosition, spawner.FoodPosition, spawner.ColonyRadius, spawner.FoodRadius, spawner.ObstacleRadius);
+            isRayCastInitialized = true;
+        }
+
+        var rayCastColonyArray = rayCastMapColony;
+        var rayCastFoodArray = rayCastMapFood;
 
         Entities
         .WithReadOnly(obstaclesPositions)
         .WithReadOnly(pheromonesArray)
+        .WithReadOnly(rayCastColonyArray)
+        .WithReadOnly(rayCastFoodArray)
         .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand, ref Speed speed, in Entity antEntity) =>
         {
             // Pseudo-random steering
@@ -83,14 +103,14 @@ public class AntMovementSystem : SystemBase
                 target3D = spawner.FoodPosition;
                 targetRadius = spawner.FoodRadius;
             }
-            else if (isLookingForNest)
+            else
             {
                 target3D = spawner.ColonyPosition;
                 targetRadius = spawner.ColonyRadius;
             }
 
             var target2D = new float2(target3D.x, target3D.z);
-            SteeringTowardTarget(ref direction, translation, target2D, spawner, obstaclesPositions);
+            SteeringTowardTarget(ref direction, translation, target2D, spawner, obstaclesPositions, isLookingForFood ? rayCastFoodArray : rayCastColonyArray);
 
             if (HasReachedTarget(translation.Value, target3D, targetRadius))
             {
@@ -144,6 +164,36 @@ public class AntMovementSystem : SystemBase
         cmdBufferSystem.AddJobHandleForProducer(this.Dependency);
     }
 
+    void PrecomputeRayCast(DynamicBuffer<ObstaclePosition> obstaclePositions, NativeArray<bool> map, float2 target, float targetRadius, float obstacleRadius)
+    {
+        float x0 = -bounds.x;
+
+        for (int i = 0; i < numCells; i++)
+        {
+            for (int j = 0; j < numCells; j++)
+            {
+                float2 cellPosition = new float2(x0 + i * cellSize, x0 + j * cellSize);
+                map[j * numCells + i] = RayCast(cellPosition, target, targetRadius, obstacleRadius + 0.2f, obstaclePositions);  // Note: the +0.2f was also in the runtime code
+            }
+        }
+    }
+
+    void PrecomputeRayCast(DynamicBuffer<ObstaclePosition> obstaclePositions, Vector3 colonyPosition, Vector3 foodPosition, float colonyRadius, float foodRadius, float obstacleRadius)
+    {
+        rayCastMapFood = new NativeArray<bool>(numCells * numCells, Allocator.Persistent);
+        rayCastMapColony = new NativeArray<bool>(numCells * numCells, Allocator.Persistent);
+        PrecomputeRayCast(obstaclePositions, rayCastMapFood, new float2(foodPosition.x, foodPosition.z), foodRadius, obstacleRadius);
+        PrecomputeRayCast(obstaclePositions, rayCastMapColony, new float2(colonyPosition.x, colonyPosition.z), colonyRadius, obstacleRadius);
+    }
+
+    // Precomputed ray-cast for run-time
+    public static bool RayCastPrecomputed(float2 from, NativeArray<bool> map)
+    {
+        int indexX = (int)((from.x + bounds.x) * oneOverCellSize);
+        int indexY = (int)((from.y + bounds.y) * oneOverCellSize);
+        return map[indexY * numCells + indexX];
+    }
+
     static float WallSteering(float3 position3D, float direction, float distance, in DynamicBuffer<ObstaclePosition> obstaclePositions) 
     {
         var position = position3D.xz;
@@ -171,14 +221,20 @@ public class AntMovementSystem : SystemBase
         return (float)nbClose;
     }
 
-    static void SteeringTowardTarget(ref Direction direction, in Translation translation, float2 target, in AntSpawner spawner, in DynamicBuffer<ObstaclePosition> obstaclePositions)
+    static void SteeringTowardTarget(ref Direction direction, in Translation translation, float2 target, in AntSpawner spawner, in DynamicBuffer<ObstaclePosition> obstaclePositions, in NativeArray<bool> map)
     {
         var targetRadius = spawner.FoodRadius;
 
         var antPos = translation.Value.xz;
         var antDirection = direction.Value;
 
-        if (!RayCast(antPos, target, targetRadius, spawner.ObstacleRadius + 0.2f, obstaclePositions))
+#if USE_PRECOMPUTED_RAYCAST
+        bool raycast = RayCastPrecomputed(antPos, map); // precomputed version
+#else
+        bool raycast = RayCast(antPos, target, targetRadius, spawner.ObstacleRadius + 0.2f, obstaclePositions)
+#endif
+
+        if (!raycast)
         {
             float targetAngle = Mathf.Atan2(target.y - antPos.y, target.x - antPos.x);
             if (targetAngle - antDirection > Mathf.PI)
@@ -340,5 +396,11 @@ public class AntMovementSystem : SystemBase
                 translation.Value.z = obstaclePositions[i].Value.z + dy * obstacleRadius;
             }
         }
+    }
+    protected override void OnDestroy()
+    {
+        rayCastMapFood.Dispose();
+        rayCastMapColony.Dispose();
+        isRayCastInitialized = false;
     }
 }
