@@ -6,7 +6,7 @@ using Unity.Mathematics;
 
 namespace Magneto.Track.Jobs
 {
-    [BurstCompile]
+ //   [BurstCompile]
     public struct BuildVoxelMapJob : IJob
     {
         private const int IterationCount = 50000;
@@ -24,7 +24,7 @@ namespace Magneto.Track.Jobs
             var middle = TrackManager.VOXEL_COUNT / 2;
 
             // TODO Make random:)
-            var random = Random.CreateFromIndex(0);
+            var random = Random.CreateFromIndex(TrackManager.RANDOM_SEED);
 
             // Create our temp allocated
             var activeVoxels = new NativeList<int3>(Allocator.Temp) {new int3(middle, middle, middle)};
@@ -35,11 +35,12 @@ namespace Magneto.Track.Jobs
             {
                 if (activeVoxels.Length == 0) break;
 
+                // Get an index of the voxel we want to evaluate adding something based off a future direction
                 var index = random.NextInt(0, activeVoxels.Length);
-
+                
+                // Get the voxels current position
                 var currentPosition = activeVoxels[index];
                 var randomDirection = R_CachedNeighbourIndexOffsets[random.NextInt(0, TrackManager.DIRECTIONS_LENGTH)];
-
                 var newPosition = currentPosition + randomDirection;
 
                 // Evaluate our neighbour position for an active voxel
@@ -51,15 +52,15 @@ namespace Magneto.Track.Jobs
 
                 if (CountNeighbors(currentPosition) >= 3)
                 {
-                    activeVoxels.RemoveAt(index);
                     var intersectionData = new IntersectionData
                     {
-                        Index = RW_Intersections.Length,
+                        ListIndex = RW_Intersections.Length, 
+                        Index = currentPosition,
                         Position = currentPosition
                     };
 
                     RW_Intersections.Add(intersectionData);
-                    W_IntersectionsGrid[currentPosition] = RW_Intersections.Length - 1;
+                    W_IntersectionsGrid[currentPosition] = intersectionData.ListIndex;
 
                     activeVoxels.RemoveAt(index);
                 }
@@ -97,7 +98,10 @@ namespace Magneto.Track.Jobs
                 {
                     var dir = R_CachedNeighbourIndexOffsets[k];
 
-                    if (GetVoxel(x + dir.x, y + dir.y, z + dir.z)) neighborCount++;
+                    if (GetVoxel(x + dir.x, y + dir.y, z + dir.z))
+                    {
+                        neighborCount++;
+                    }
                 }
             else
                 for (var k = 0; k < TrackManager.LIMITED_DIRECTIONS_LENGTH; k++)
