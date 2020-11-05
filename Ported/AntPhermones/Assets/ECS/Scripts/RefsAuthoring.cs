@@ -12,7 +12,7 @@ public class RefsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     [SerializeField] MeshRenderer PheromoneMapRenderer;
 
-    public static readonly int TexSize = 128;
+    public const int TexSize = 128;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {

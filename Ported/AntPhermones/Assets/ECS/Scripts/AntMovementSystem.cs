@@ -9,13 +9,21 @@ using Unity.Collections;
 using UnityEngine;
 using Unity.Jobs;
 
+public struct PheromoneDecayPassJob : IJobParallelFor
+{
+    public const float decay = 0.9995f; // Original code used 0.9985f;
+    public const float TexSize = RefsAuthoring.TexSize; // Original code used 0.9985f;
+
+    public NativeArray<PheromonesBufferData> localPheromones;
+
+    public void Execute(int index)
+    {
+        localPheromones[index] *= decay;
+    }
+}
+
 public class AntMovementSystem : SystemBase
 {
-    struct DataInputs
-    {
-
-    }
-
     const float dt = 3.0f / 60;
     const float randomSteering = 0.1f;
     const float pheromoneSteerStrength = 0.008f; // Original code used 0.015f;
@@ -29,7 +37,6 @@ public class AntMovementSystem : SystemBase
     const float excitementWithTargetInSight = 1.0f;
 
     public static readonly float2 bounds = new float2(5, 5);
-    public static JobHandle LastJob;
 
     EntityCommandBufferSystem cmdBufferSystem;
 
@@ -62,9 +69,9 @@ public class AntMovementSystem : SystemBase
         
         var spawnerEntity = GetSingletonEntity<AntSpawner>();
         var pheromoneDataEntity = GetSingletonEntity<TexSingleton>();
+        var pheromonesArray = GetBuffer<PheromonesBufferData>(pheromoneDataEntity).AsNativeArray();
         var spawner = GetComponent<AntSpawner>(spawnerEntity);
         var obstaclesPositions = GetBuffer<ObstaclePosition>(spawnerEntity);
-        var pheromonesArray = GetBuffer<PheromonesBufferData>(pheromoneDataEntity).AsNativeArray();
 
         if (isRayCastInitialized == false)
         {
@@ -169,10 +176,14 @@ public class AntMovementSystem : SystemBase
         })
         .ScheduleParallel();
 
-        LastJob = this.Dependency;
+        var decayJob = new PheromoneDecayPassJob
+        {
+            localPheromones = pheromonesArray
+        }
+        .Schedule(pheromonesArray.Length, 128, this.Dependency);
 
         // Our jobs must finish before the EndSimulationEntityCommandBufferSystem execute the changements we recorded
-        cmdBufferSystem.AddJobHandleForProducer(this.Dependency);
+        cmdBufferSystem.AddJobHandleForProducer(decayJob);
     }
 
     void PrecomputeRayCast(DynamicBuffer<ObstaclePosition> obstaclePositions, NativeArray<bool> map, float2 target, float targetRadius, float obstacleRadius)

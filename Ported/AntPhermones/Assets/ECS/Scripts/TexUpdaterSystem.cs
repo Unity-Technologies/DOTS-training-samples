@@ -6,32 +6,31 @@ using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 
-
-
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 public class TexUpdaterSystem : SystemBase
 {
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<TexSingleton>();
+        GetEntityQuery(typeof(PheromonesBufferData));
     }
     
     protected override void OnUpdate()
     {
         int TexSize = RefsAuthoring.TexSize;
 
-        UpdatePheromoneSystem.LastJob.Complete();
+        var pheromoneDataEntity = GetSingletonEntity<TexSingleton>();
+        var pheromonesBuffer = GetBuffer<PheromonesBufferData>(pheromoneDataEntity);
 
-        Entities
-        .ForEach((Refs map) =>
+        for (int i = 0; i < pheromonesBuffer.Length; ++i)
         {
-            map.PheromoneMap.SetPixels(0, 0, TexSize, TexSize, UpdatePheromoneSystem.colors);
-            map.PheromoneMap.Apply();
-        })
-        .WithoutBurst()
-        .Run();
+            UpdatePheromoneSystem.colors[i].r = pheromonesBuffer[i];
+            UpdatePheromoneSystem.colors[i].g = 0f;
+            UpdatePheromoneSystem.colors[i].b = 0f;
+        }
+        
+        var map = this.GetSingleton<Refs>().PheromoneMap;
+        map.SetPixels(0, 0, TexSize, TexSize, UpdatePheromoneSystem.colors);
+        map.Apply();
     }
-
-    
-    
 }
