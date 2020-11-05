@@ -48,7 +48,7 @@ public class AntSpawnerSystem : SystemBase
             var direction = (float)rand.NextFloat(0.0f, 1.0f) * 2.0f * Mathf.PI;
             var speed = 0.2f + (float)rand.NextFloat(-0.05f, 0.05f);
 
-            float3 position = spawner.Origin + UnityRand.onUnitSphere * 0.5f;
+            float3 position = spawner.Origin + rand.NextFloat3Direction() * 0.5f;
             position.y = 0;
 
             cmd.SetComponent(ant, new Translation
@@ -81,7 +81,7 @@ public class AntSpawnerSystem : SystemBase
         }
     }
 
-    static void CreateColony(EntityCommandBuffer cmd, Entity prefab, Vector3 position)
+    static void CreateColony(EntityCommandBuffer cmd, Entity prefab, float3 position)
     {
         var entity = cmd.Instantiate(prefab);
 
@@ -89,7 +89,7 @@ public class AntSpawnerSystem : SystemBase
         cmd.AddComponent<ColonyTag>(entity);
     }
 
-    static void CreateFood(EntityCommandBuffer cmd, Entity prefab, Vector3 position)
+    static void CreateFood(EntityCommandBuffer cmd, Entity prefab, float3 position)
     {
         var entity = cmd.Instantiate(prefab);
 

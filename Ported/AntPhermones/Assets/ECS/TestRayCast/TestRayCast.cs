@@ -13,8 +13,11 @@ public class TestRayCast : MonoBehaviour
     [SerializeField] Transform targetTransform;
     [SerializeField] Transform obstacleRoot;
 
+    //Replacement of Vector3.up
+    static readonly float3 v3Up = new float3(0, 1, 0);
+
     new Camera camera;
-    Vector3 origin;
+    float3 origin;
     DynamicBuffer<ObstaclePosition> obstaclePositions;
 
     private void Awake()
@@ -39,7 +42,8 @@ public class TestRayCast : MonoBehaviour
     {
         var ray = camera.ScreenPointToRay(Input.mousePosition);
 
-        var plane = new Plane(Vector3.up,0);
+
+        var plane = new Plane(v3Up, 0);
 
         float t;
         if (plane.Raycast(ray, out t))

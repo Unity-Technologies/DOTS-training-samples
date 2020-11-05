@@ -22,7 +22,7 @@ public class AntMovementSystem : SystemBase
     const float outwardStrength = 0.001f; // Original code use 0.003f
     const float inwardStrength = 0.001f; // Original code use 0.003f
 
-    public static readonly Vector2 bounds = new Vector2(5, 5);
+    public static readonly float2 bounds = new float2(5, 5);
 
     EntityCommandBufferSystem cmdBufferSystem;
 
@@ -65,7 +65,6 @@ public class AntMovementSystem : SystemBase
             var wallSteering = WallSteering(translation.Value, direction.Value, 0.15f, obstaclesPositions);
             var targetSpeed = antSpeed;
             targetSpeed *= 1f - (Mathf.Abs(pheroSteering) + Mathf.Abs(wallSteering)) / 3f;
-
             direction.Value += pheroSteering * pheromoneSteerStrength;
             direction.Value += wallSteering * wallSteerStrength;
 
@@ -260,7 +259,7 @@ public class AntMovementSystem : SystemBase
             float testX = antTranslation.Value.x + Mathf.Cos(angle) * distance;
             float testY = antTranslation.Value.z + Mathf.Sin(angle) * distance;
 
-            if(TextureHelper.PositionWithInMapBounds(new Vector2(testX, testY)))
+            if(TextureHelper.PositionWithInMapBounds(new float2(testX, testY)))
             {
                 var testTranslation = new Translation() { Value = new float3(testX, 0, testY) };
                 int index = TextureHelper.GetTextureArrayIndexFromTranslation(testTranslation);

@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Collections;
+using Unity.Mathematics;
 using UnityEngine;
+
+
 
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 public class TexUpdaterSystem : SystemBase
@@ -25,9 +28,9 @@ public class TexUpdaterSystem : SystemBase
         RequireSingletonForUpdate<TexSingleton>();
     }
 
-    static void DropPheromones(float x, float y, Vector2 bounds, NativeArray<PheromonesBufferData> localPheromones, float speed, float dt, int TexSize, float excitement)
+    static void DropPheromones(float x, float y, float2 bounds, NativeArray<PheromonesBufferData> localPheromones, float speed, float dt, int TexSize, float excitement)
     {
-        Vector2 texelCoord = new Vector2(0.5f * (-x / bounds.x) + 0.5f, 0.5f * (-y / bounds.y) + 0.5f);
+        float2 texelCoord = new float2(0.5f * (-x / bounds.x) + 0.5f, 0.5f * (-y / bounds.y) + 0.5f);
         int index = (int)(texelCoord.y * TexSize) * TexSize + (int)(texelCoord.x * TexSize);
 
         if (index >= localPheromones.Length || index < 0) return;
@@ -55,7 +58,7 @@ public class TexUpdaterSystem : SystemBase
             return;
         }
 
-        Vector2 bounds = AntMovementSystem.bounds;
+        float2 bounds = AntMovementSystem.bounds;
         var localPheromones = EntityManager.GetBuffer<PheromonesBufferData>(GetSingletonEntity<TexSingleton>());
         
         Entities
