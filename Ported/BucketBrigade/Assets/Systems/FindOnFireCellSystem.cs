@@ -16,8 +16,8 @@ public class FindOnFireCellSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
-        var onFireCellsEntities = onFireCells.ToEntityArray(Allocator.Temp);
-        var onFireCellsTranslations = onFireCells.ToComponentDataArray<Translation>(Allocator.Temp);
+        var onFireCellsEntities = onFireCells.ToEntityArray(Allocator.TempJob);
+        var onFireCellsTranslations = onFireCells.ToComponentDataArray<Translation>(Allocator.TempJob);
 
         Entities.ForEach((Entity entity, in FindOnFireCell bot, in Translation translation) =>
         {

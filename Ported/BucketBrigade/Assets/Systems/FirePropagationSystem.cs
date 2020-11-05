@@ -9,11 +9,16 @@ public class FirePropagationSystem : SystemBase
 {
     public NativeArray<float> cells;
     NativeArray<float> tempCells;
+    public double timeStep;
+    public double lastUpdateTime = 0;
 
     protected override void OnStartRunning()
     {
         base.OnStartRunning();
         FireSim fireSim = GetSingleton<FireSim>();
+
+        timeStep = fireSim.timeStep;
+
         int numCells = fireSim.FireGridDimension * fireSim.FireGridDimension;
 
         cells = new NativeArray<float>(numCells, Allocator.Persistent);
@@ -40,33 +45,39 @@ public class FirePropagationSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        FireSim fireSim = GetSingleton<FireSim>();
-        var fireCells = cells;
 
-        Entities
-            .WithReadOnly(fireCells)
-            .ForEach((ref FireCell fireCell, in Translation translation) =>
+        if (timeStep < Time.ElapsedTime - lastUpdateTime || lastUpdateTime == 0)
         {
-            int2 index = new int2((int)translation.Value.x, (int)translation.Value.z);
-            fireCell.Temperature = fireCells[index.x * fireSim.FireGridDimension + index.y];
-        }).ScheduleParallel();
+            FireSim fireSim = GetSingleton<FireSim>();
+            var fireCells = cells;
 
-        // Set up the job data
-        int numCells = fireSim.FireGridDimension * fireSim.FireGridDimension;
+            Entities
+                .WithReadOnly(fireCells)
+                .ForEach((ref FireCell fireCell, in Translation translation) =>
+            {
+                int2 index = new int2((int)translation.Value.x, (int)translation.Value.z);
+                fireCell.Temperature = fireCells[index.x * fireSim.FireGridDimension + index.y];
+            }).ScheduleParallel();
 
-        var propagationJob = new PropagationJob();
-        propagationJob.InputCells = fireCells;
-        propagationJob.OutputCells = tempCells;
-        propagationJob.PropagationRadius = fireSim.PropagationRadius;
-        propagationJob.FireGridDimension = fireSim.FireGridDimension;
-        propagationJob.HeatTransfer = fireSim.HeatTransfer;
+            // Set up the job data
+            int numCells = fireSim.FireGridDimension * fireSim.FireGridDimension;
 
-        // Schedule the job
-        Dependency = propagationJob.Schedule(numCells, fireSim.FireGridDimension, Dependency);
+            var propagationJob = new PropagationJob();
+            propagationJob.InputCells = fireCells;
+            propagationJob.OutputCells = tempCells;
+            propagationJob.PropagationRadius = fireSim.PropagationRadius;
+            propagationJob.FireGridDimension = fireSim.FireGridDimension;
+            propagationJob.HeatTransfer = fireSim.HeatTransfer;
 
-        // Swap the two buffers
-        cells = tempCells;
-        tempCells = fireCells;
+            // Schedule the job
+            Dependency = propagationJob.Schedule(numCells, fireSim.FireGridDimension, Dependency);
+
+            // Swap the two buffers
+            cells = tempCells;
+            tempCells = fireCells;
+            lastUpdateTime = Time.ElapsedTime;
+        }
+
     }
 
     protected override void OnStopRunning()

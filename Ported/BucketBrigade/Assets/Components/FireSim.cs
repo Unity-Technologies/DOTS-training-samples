@@ -18,6 +18,8 @@ public struct FireSim : IComponentData
     [Range(0.0f, 1.0f)] public float FlashPoint;
     [Range(0.0f, 1.0f)] public float IgnitionRate;
     [Range(0.0f, 1.0f)] public float HeatTransfer;
+    [Range(0.0005f,0.5f)] public float timeStep;
+
 
     public static Entity GetClosestEntity(float3 position, NativeArray<Entity> emptyEntities, NativeArray<Translation> translations)
     {
@@ -35,7 +37,25 @@ public struct FireSim : IComponentData
                 closestEntity = entity;
             }
         }
-
         return closestEntity;
+    }
+
+    public static int GetClosestIndex(float3 position, NativeArray<Entity> emptyEntities, NativeArray<Translation> translations)
+    {
+        float distance = float.MaxValue;
+        var index = -1;
+        for (int i = 0; i < emptyEntities.Length; i++)
+        {
+            var entity = emptyEntities[i];
+            var translation = translations[i].Value;
+            var currentDistance = math.distance(position, translation);
+
+            if (currentDistance < distance)
+            {
+                distance = currentDistance;
+                index = i;
+            }
+        }
+        return index;
     }
 }

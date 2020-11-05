@@ -115,6 +115,7 @@ public class SpawnerSystem : SystemBase
                     ecb.SetComponent(instance, new Translation { Value = scooperPosition });
                     ecb.AddComponent(instance, new URPMaterialPropertyBaseColor() { Value = spawner.ScooperColor });
                     ecb.AddComponent(instance, new FindBucket());
+                    ecb.AddComponent(instance, new FillerBot() { ChainStart = fullChain[0] });
                 }
             }).Run();
 

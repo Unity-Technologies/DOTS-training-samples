@@ -18,25 +18,40 @@ public class FindBucketSystem : SystemBase
 
     protected override void OnUpdate()
     {
+
+        var bucketsEntitiesOriginal = buckets.ToEntityArray(Allocator.Temp);
+        var bucketsEntitiesCopy = bucketsEntitiesOriginal;
+
+        var bucketsTranslationsOriginal = buckets.ToComponentDataArray<Translation>(Allocator.Temp);
+        var bucketsTranslationsCopy = bucketsTranslationsOriginal;
+
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
-        var bucketsEntities = buckets.ToEntityArray(Allocator.Temp);
-        var bucketsTranslations = buckets.ToComponentDataArray<Translation>(Allocator.Temp);
-
-        Entities.ForEach((Entity entity, in FindBucket bot, in Translation translation) =>
+        Entities
+            .ForEach((Entity entity, in FindBucket bot, in FillerBot chainstart, in Translation translation) =>
         {
             ecb.RemoveComponent<FindBucket>(entity);
 
-            Entity closestBucket = FireSim.GetClosestEntity(translation.Value, bucketsEntities, bucketsTranslations);
+            if (bucketsEntitiesCopy.Length > 0)
+            {
+                int closestBucketIndex = FireSim.GetClosestIndex(translation.Value, bucketsEntitiesCopy, bucketsTranslationsCopy);
 
-            UnityEngine.Debug.Log("hrllo");
-            ecb.AddComponent(entity, new MoveTowardBucket() { Target = closestBucket });
+                Entity closestBucket = bucketsEntitiesCopy[closestBucketIndex];
+                bucketsEntitiesCopy[closestBucketIndex] = bucketsEntitiesCopy[bucketsEntitiesCopy.Length - 1];
+                bucketsTranslationsCopy[closestBucketIndex] = bucketsTranslationsCopy[bucketsEntitiesCopy.Length - 1];
+
+                bucketsEntitiesCopy = bucketsEntitiesCopy.GetSubArray(0, bucketsEntitiesCopy.Length - 1);
+                bucketsTranslationsCopy = bucketsTranslationsCopy.GetSubArray(0, bucketsTranslationsCopy.Length - 1);
+
+                ecb.RemoveComponent<EmptyBucket>(closestBucket);
+                ecb.AddComponent(entity, new MoveTowardBucket() { Target = closestBucket });
+            }
         }).Run();
 
         ecb.Playback(World.EntityManager);
         ecb.Dispose();
 
-        bucketsEntities.Dispose();
-        bucketsTranslations.Dispose();
+        bucketsEntitiesOriginal.Dispose();
+        bucketsTranslationsOriginal.Dispose();
     }
 }

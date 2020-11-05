@@ -18,7 +18,7 @@ public class MoveTowardEntitySystem : SystemBase
 
         Entities
             .WithNativeDisableParallelForRestriction(cdfe)
-            .ForEach((Entity entity, int entityInQueryIndex, in MoveTowardBucket scooper) =>
+            .ForEach((Entity entity, int entityInQueryIndex, in MoveTowardBucket scooper, in FillerBot source) =>
         {
             var bucketPosition = cdfe[scooper.Target].Value;
             var scooperPosition = cdfe[entity].Value;
@@ -29,11 +29,14 @@ public class MoveTowardEntitySystem : SystemBase
 
             if (length <= threshold)
             {
-                ecb.RemoveComponent<EmptyBucket>(entityInQueryIndex, scooper.Target);
                 ecb.AddComponent(entityInQueryIndex, entity, new HoldingBucket() { Target = scooper.Target });
 
                 ecb.RemoveComponent<MoveTowardBucket>(entityInQueryIndex, entity);
-                ecb.AddComponent<FindWaterCell>(entityInQueryIndex, entity);
+                //ecb.AddComponent<FindWaterCell>(entityInQueryIndex, entity);
+                ecb.AddComponent(entityInQueryIndex, entity, new MoveTowardFiller()
+                {
+                    Target = source.ChainStart
+                }); 
             }
             else
             {
@@ -42,32 +45,6 @@ public class MoveTowardEntitySystem : SystemBase
                 cdfe[entity] = new Translation() { Value = newPosition };
             }
         }).ScheduleParallel();
-
-        Entities
-            .WithNativeDisableParallelForRestriction(cdfe)
-            .ForEach((Entity entity, int entityInQueryIndex, in MoveTowardWater scooper, in HoldingBucket bucket) =>
-            {
-                var waterPosition = cdfe[scooper.Target].Value;
-                var scooperPosition = cdfe[entity].Value;
-                waterPosition.y = scooperPosition.y;
-
-                var distanceLeft = waterPosition - scooperPosition;
-                var length = math.length(distanceLeft);
-
-                if (length <= threshold)
-                {
-                    ecb.RemoveComponent<MoveTowardWater>(entityInQueryIndex, entity);
-                    ecb.AddComponent<FindBucket>(entityInQueryIndex, entity);
-                }
-                else
-                {
-                    var direction = distanceLeft / length;
-                    var newPosition = scooperPosition + speed * deltaTime * direction;
-                    cdfe[entity] = new Translation() { Value = newPosition };
-                    newPosition.y += 1.6f;
-                    cdfe[bucket.Target] = new Translation() { Value = newPosition };
-                }
-            }).ScheduleParallel();
 
         Entities
             .WithNativeDisableParallelForRestriction(cdfe)
@@ -93,6 +70,34 @@ public class MoveTowardEntitySystem : SystemBase
                     cdfe[bucket.Target] = new Translation() { Value = newPosition };
                 }
             }).ScheduleParallel();
+
+        Entities
+            .WithNativeDisableParallelForRestriction(cdfe)
+            .ForEach((Entity entity, int entityInQueryIndex, in MoveTowardFiller source, in HoldingBucket bucket) =>
+            {
+                var bucketPosition = cdfe[source.Target].Value;
+                var scooperPosition = cdfe[entity].Value;
+                bucketPosition.y = scooperPosition.y;
+
+                var distanceLeft = bucketPosition - scooperPosition;
+                var length = math.length(distanceLeft);
+
+                if (length <= threshold)
+                {
+                    ecb.RemoveComponent<MoveTowardFiller>(entityInQueryIndex, entity);
+                    ecb.AddComponent<FindBucket>(entityInQueryIndex, entity);
+                }
+                else
+                {
+                    var direction = distanceLeft / length;
+                    var newPosition = scooperPosition + speed * deltaTime * direction;
+                    cdfe[entity] = new Translation() { Value = newPosition };
+                    newPosition.y += 1.6f;
+                    cdfe[bucket.Target] = new Translation() { Value = newPosition };
+                }
+            }).ScheduleParallel();
+
+
 
         sys.AddJobHandleForProducer(Dependency);
     }

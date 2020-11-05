@@ -22,4 +22,5 @@ public struct ThrowerBot : IComponentData
 [GenerateAuthoringComponent]
 public struct FillerBot : IComponentData
 {
+    public Entity ChainStart;
 }
