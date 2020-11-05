@@ -10,7 +10,6 @@ public class CapsuleAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         dstManager.AddComponent<CapsuleRotation>(entity);
         dstManager.AddComponentData(entity, new Position());
-        //dstManager.AddComponentData(entity, new Rotation());
         dstManager.AddComponentData(entity, new Random((uint)UnityEngine.Random.Range(0, int.MaxValue)));
     }
 }
