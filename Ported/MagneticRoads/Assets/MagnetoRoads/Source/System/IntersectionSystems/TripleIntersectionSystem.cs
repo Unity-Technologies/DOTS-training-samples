@@ -3,6 +3,14 @@ using Unity.Entities;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
+// For a 3-way intersection
+// car1: laneOut0 <--     <--  laneIn1
+// car0: laneIn0   -->     --> laneOut1
+//                    |  ^
+//                    V  |
+//                out2 | in2
+//            car2:  lane
+
 [UpdateAfter(typeof(DoubleIntersectionSystem))]
 public class TripleIntersectionSystem : SystemBase
 {
@@ -31,6 +39,7 @@ public class TripleIntersectionSystem : SystemBase
                 NativeArray<Entity> laneInEntities = new NativeArray<Entity>(3, Allocator.Temp);
                 NativeArray<Lane> laneOuts = new NativeArray<Lane>(3, Allocator.Temp);
 
+                //laneOut path the car will take:
                 directions[0] = tripleIntersection.lane0Direction;
                 directions[1] = tripleIntersection.lane1Direction;
                 directions[2] = tripleIntersection.lane2Direction;
@@ -47,6 +56,7 @@ public class TripleIntersectionSystem : SystemBase
                 laneOuts[1] = GetComponent<Lane>(tripleIntersection.laneOut1);
                 laneOuts[2] = GetComponent<Lane>(tripleIntersection.laneOut2);
                 
+                // Determine path of cars and their speed through intersection
                 for (int i = 0; i < laneIns.Length; i++)
                 {
                     if (directions[i] != -1)
@@ -54,7 +64,7 @@ public class TripleIntersectionSystem : SystemBase
                     DynamicBuffer<CarBufferElement> cars = GetBuffer<CarBufferElement>(laneInEntities[i]);
                     if (cars.IsEmpty)
                         continue;
-                    Entity laneFirstCar = cars[0];
+                    Entity laneFirstCar = cars[0];  //always get first car in lane at intersection
                     CarPosition carPosition = GetComponent<CarPosition>(laneFirstCar);
                     CarSpeed carSpeed = GetComponent<CarSpeed>(laneFirstCar);
                     
@@ -68,7 +78,7 @@ public class TripleIntersectionSystem : SystemBase
                     if(newPosition > laneIns[i].Length)
                     {
                         newPosition = laneIns[i].Length;
-                        int value = random.NextInt(2);
+                        int value = random.NextInt(2);  //intersection determines car direction
                         if ((i == 0 || i == 1) && value == i)
                             value = 2;
                         
@@ -84,6 +94,7 @@ public class TripleIntersectionSystem : SystemBase
                     SetComponent(laneFirstCar, carSpeed);
                 }
                 
+                // If there is no car in the intersection
                 if (tripleIntersection.car == Entity.Null)
                 {
                     // TODO: Give proper priority
@@ -106,7 +117,7 @@ public class TripleIntersectionSystem : SystemBase
                         }
                     }
                 }
-                else
+                else // car is in intersection
                 {
                     // TODO: MBRIAU: Still make that car accelerate but cap the normalized speed to 0.7f while in an intersection (Look at Car.cs)
                     // TODO: MBRIAU: We also need to make the first car of each input lane slowdown since the intersection is busy

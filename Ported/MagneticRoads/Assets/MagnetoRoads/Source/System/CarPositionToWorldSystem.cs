@@ -17,7 +17,7 @@ public class CarPositionToWorldSystem : SystemBase
                 {
                     CarPosition carPosition = GetComponent<CarPosition>(car);
                     float splineRatio = carPosition.Value / lane.Length;
-                    float3 pos = math.lerp(spline.startPos, spline.endPos, splineRatio);
+                    float3 pos = math.lerp(spline.startPos, spline.endPos, splineRatio); // todo: spline eval
                     Translation translation = new Translation {Value = pos};
                     translationAccessor[car] = translation;
                 }

@@ -5,9 +5,9 @@ using Unity.Mathematics;
 public struct Spline : IComponentData
 {
     public float3 startPos;
-    public float3 startTangent;
+    public float3 anchor1;
+    public float3 anchor2;
     public float3 endPos;
-    public float3 endTangent;
     public quaternion startRot;
     public quaternion endRot;
 }
