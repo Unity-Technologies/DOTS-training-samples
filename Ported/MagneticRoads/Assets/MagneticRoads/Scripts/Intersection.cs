@@ -8,7 +8,7 @@ public class Intersection {
 	public Vector3 position;
 	public Vector3Int index;
 	public Vector3Int normal;
-	public List<Entity> laneEntities = new List<Entity>();
+	public List<Entity> lanes = new List<Entity>();
 
 	public List<Intersection> neighbors;
 	public List<TrackSpline> neighborSplines;

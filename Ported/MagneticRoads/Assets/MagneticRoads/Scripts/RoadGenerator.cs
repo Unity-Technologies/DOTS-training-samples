@@ -210,6 +210,9 @@ public class RoadGenerator:MonoBehaviour {
 
 		TrafficSpawnerSystem trafficSpawnerSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<TrafficSpawnerSystem>();
 		trafficSpawnerSystem.m_SpawnFromGenerator = true;
+
+		EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+		EntityArchetype laneArchetype = entityManager.CreateArchetype(typeof(Lane), typeof(Spline), typeof(CarBufferElement));
 		
 		for (int i=0;i<intersections.Count;i++) {
 			Intersection intersection = intersections[i];
@@ -232,9 +235,28 @@ public class RoadGenerator:MonoBehaviour {
 							trackSplines.Add(spline);
 
 							intersection.neighbors.Add(neighbor);
+							int indexA = intersection.neighborSplines.Count;
 							intersection.neighborSplines.Add(spline);
 							neighbor.neighbors.Add(intersection);
+							int indexB = intersection.neighborSplines.Count;
 							neighbor.neighborSplines.Add(spline);
+
+							Entity laneOut = entityManager.CreateEntity(laneArchetype);
+							Entity laneIn = entityManager.CreateEntity(laneArchetype);
+
+							entityManager.SetComponentData(laneOut, new Spline {startPos = spline.startPoint, endPos = spline.endPoint});
+							entityManager.SetComponentData(laneIn, new Spline {startPos = spline.endPoint, endPos = spline.startPoint});
+							
+							float length = spline.measuredLength;
+							Lane lane = new Lane {Length = length};
+							
+							entityManager.SetComponentData(laneOut, lane);
+							entityManager.SetComponentData(laneIn, lane);
+							
+							intersection.lanes.Add(laneIn);
+							intersection.lanes.Add(laneOut);
+							neighbor.lanes.Add(laneOut);
+							neighbor.lanes.Add(laneIn);
 						}
 					}
 				}
