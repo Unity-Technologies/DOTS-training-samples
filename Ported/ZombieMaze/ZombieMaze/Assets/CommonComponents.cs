@@ -60,6 +60,11 @@ public struct ZombieSpawner : IComponentData
     public uint NumZombies;
 }
 
+public struct CapsuleSpawner : IComponentData
+{
+    public uint NumCapsules;
+}
+
 public struct MazeSpawner : IComponentData
 {
     public uint OpenStripsWidth;

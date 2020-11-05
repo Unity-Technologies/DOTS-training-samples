@@ -11,12 +11,11 @@ public class CapsuleRotatorSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var time = Time.ElapsedTime;
+        var time = Time.DeltaTime;
 
         Entities.WithAll<CapsuleRotation>().ForEach((ref CapsuleRotation capsuleRotation, ref Rotation rotation) =>
         {
-
-            rotation.Value = math.mul(rotation.Value, quaternion.RotateY(5 * (float)time));
+            rotation.Value = math.mul(rotation.Value, quaternion.RotateX(5 * (float)time));
 
         }).Schedule();
     }
