@@ -63,10 +63,4 @@ public class MoveCarOnLaneSystem : SystemBase
                 }
             }).ScheduleParallel();
     }
-    
-//    Vector3 EvaluateBezier(float3 startPoint, float3 startTangent, float3 endTangent, float3 endPoint, float t)
-//    {
-//        t = Mathf.Clamp01(t);
-//        return startPoint * (1f - t) * (1f - t) * (1f - t) + 3f * startTangent * (1f - t) * (1f - t) * t + 3f * endTangent * (1f - t) * t * t + endPoint * t * t * t;
-//    }
 }
