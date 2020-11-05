@@ -1,9 +1,12 @@
+using System.Collections.Generic;
 using Magneto.Collections;
 using Magneto.JobBank;
 using Magneto.Track.Jobs;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace Magneto.Track
 {
@@ -119,15 +122,6 @@ namespace Magneto.Track
                     RW_Intersections = _intersections,
                     W_IntersectionsGrid = _intersectionIndicesByGrid
                 }.Schedule(Stage1JobHandle);
-                //
-                // var determineSplineCountToCreate = new DetermineSplineCountJob
-                // {
-                //     R_Intersections = _intersections.AsDeferredJobArray(),
-                //     R_IntersectionsGrid = _intersectionIndicesByGrid,
-                //     R_LimitedCachedNeighbourIndexOffsets = _cachedNeighbourIndexOffsetsLimited,
-                //     R_TrackVoxels = _trackVoxels, 
-                //     RW_Count = _splineCount
-                // }.Schedule(_intersections, 1, buildVoxelMapJobHandle);
 
                 // Build the connective tissues
                 Stage2JobHandle = new BuildVoxelNetworkJob
@@ -158,14 +152,67 @@ namespace Magneto.Track
                 splineData = _splines.ToArray();
                 activeVoxels = _trackVoxels.array.ToArray();
 
+                
+                
+                TrafficSpawnerSystem trafficSpawnerSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<TrafficSpawnerSystem>();
+                trafficSpawnerSystem.m_SpawnFromGenerator = true;
+
+                EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+                EntityArchetype laneArchetype = entityManager.CreateArchetype(typeof(Lane), typeof(Spline), typeof(CarBufferElement));
+
+
+                // Fill wit this
+                Intersection[] intersections = new Intersection[_intersections.Length];
+                for (int i = 0; i < _intersections.Length; i++)
+                {
+                    var iData = _intersections[i];
+                    intersections[i] = new Intersection(
+                        new Vector3Int(iData.Index.x, iData.Index.y, iData.Index.z),
+                        iData.Position.GetVector3(),
+                        new Vector3Int(iData.Normal.x, iData.Normal.y, iData.Normal.z));
+                    
+                    
+                    trafficSpawnerSystem.m_Intersections.Add( intersections[i]);
+                }
+                
+                foreach (var spline in _splines)
+                {
+
+                    Entity laneOut = entityManager.CreateEntity(laneArchetype);
+                    Entity laneIn = entityManager.CreateEntity(laneArchetype);
+                    
+                    entityManager.SetComponentData(laneOut, 
+                        new Spline {startPos = spline.StartPosition, endPos = spline.EndPosition});
+                    
+                    entityManager.SetComponentData(laneIn, 
+                        new Spline {startPos = spline.EndPosition, endPos = spline.StartPosition});
+
+                    float length = (spline.EndPosition.GetVector3() - spline.StartPosition.GetVector3()).magnitude;
+                    Lane lane = new Lane {Length = length};
+							
+                    entityManager.SetComponentData(laneOut, lane);
+                    entityManager.SetComponentData(laneIn, lane);
+
+                    var lhs = intersections[_intersectionIndicesByGrid[spline.StartPosition]];
+                    var rhs = intersections[_intersectionIndicesByGrid[spline.EndPosition]];
+
+                    lhs.lanes.Add(laneIn);
+                    lhs.lanes.Add(laneOut);
+                    
+                    rhs.lanes.Add(laneOut);
+                    rhs.lanes.Add(laneIn);
+                }
+                
                 _cachedNeighbourIndexOffsets.Dispose();
                 _cachedNeighbourIndexOffsetsLimited.Dispose();
                 _intersectionIndicesByGrid.Dispose();
                 _intersections.Dispose();
                 _trackVoxels.Dispose();
 
+
+                trafficSpawnerSystem.isReady = true;
                 _splines.Dispose();
-                //_splineCount.Dispose();
+                
             }
         }
     }

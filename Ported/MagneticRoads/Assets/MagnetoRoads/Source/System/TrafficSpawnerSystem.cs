@@ -43,7 +43,7 @@ public class TrafficSpawnerSystem : SystemBase
 
         var archetype = m_LaneArchetype;
         
-        Random random = Random.CreateFromIndex(0);
+        Random random = Random.CreateFromIndex(1);
         var left = math.left() * laneOffset;
         var right = math.right() * laneOffset;
         var forward = math.forward() * laneOffset;
@@ -65,7 +65,7 @@ public class TrafficSpawnerSystem : SystemBase
                     {
                         Intersection intersection = intersections[i];
 
-                        if (intersection.neighborSplines.Count == 1)
+                        if (intersection.lanes.Count == 2)
                         {
                             TrackSpline trackSpline = intersection.neighborSplines[0];
                             
@@ -79,13 +79,13 @@ public class TrafficSpawnerSystem : SystemBase
                             entityBuffer.Add(CreateCar(ecb, spawner.CarPrefab, 0,
                                 random.NextFloat3(new float3(1, 1.0f, 1.0f))));
                         }
-                        else if (intersection.neighborSplines.Count == 2)
+                        else if (intersection.lanes.Count == 4)
                         {
                             var doubleIntersection = ecb.Instantiate(spawner.DoubleIntersectionPrefab);
                             ecb.SetComponent(doubleIntersection, new DoubleIntersection {laneIn0 = intersection.lanes[0], laneOut0 = intersection.lanes[1], laneIn1 = intersection.lanes[2], laneOut1 = intersection.lanes[3]});
                             ecb.SetComponent(doubleIntersection, new Translation {Value = intersection.position});
                         }
-                        else if (intersection.neighborSplines.Count == 3)
+                        else if (intersection.lanes.Count == 6)
                         {
                             var tripleIntersection = ecb.Instantiate(spawner.TripleIntersectionPrefab);
                             ecb.SetComponent(tripleIntersection, new TripleIntersection {laneIn0 = intersection.lanes[0], laneOut0 = intersection.lanes[1], laneIn1 = intersection.lanes[2], laneOut1 = intersection.lanes[3], laneIn2 = intersection.lanes[4], laneOut2 = intersection.lanes[5], lane0Direction = -1, lane1Direction = -1, lane2Direction = -1});
