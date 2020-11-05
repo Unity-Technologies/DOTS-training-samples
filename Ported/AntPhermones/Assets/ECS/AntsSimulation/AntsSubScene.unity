@@ -193,10 +193,10 @@ MonoBehaviour:
   ColonyTransform: {fileID: 1043673332}
   FoodTransform: {fileID: 894346219}
   NbAnts: 1000
-  ObstacleRadius: 0.1
+  ObstacleRadius: 0.2
   ObstaclesPerRing: 0.8
   ObstacleRingCount: 3
-  MapSize: 8
+  MapSize: 10
   GoalSteerStrength: 0.1
   FoodRadius: 0.25
   ColonyRadius: 0.25
