@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(MazeGenerator))]
 public class ZombieSpawnerSystem : SystemBase
 {
     private EndSimulationEntityCommandBufferSystem _endSimulationEntityCommandBufferSystem;

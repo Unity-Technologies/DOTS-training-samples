@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -7,7 +9,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class MazeAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
-    public uint2 tileMazeSize = new uint2(70,70);
+    public int2 tileMazeSize = new int2(70,70);
     public uint mazeStripWidth = 6;
     public uint openStripWidth = 4;
     public uint numZombies = 5;
@@ -55,6 +57,22 @@ public class MazeAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
         spawner.Prefab = wallPrefabEntity;
         dstManager.AddComponentData(mazeSpawnerEntity, mazeSpawner);
         dstManager.AddComponentData(mazeSpawnerEntity, spawner);
+        dstManager.AddComponentData(mazeSpawnerEntity, new Random {Value = new Unity.Mathematics.Random(2030)});
+        var bufferSize = spawner.MazeSize.x + spawner.MazeSize.y * spawner.MazeSize.x;
+        var buffer = dstManager.AddBuffer<MapCell>(mazeSpawnerEntity);
+        var bufferInitData = new NativeArray<MapCell>(bufferSize, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+
+        var memSetJob = new MemsetNativeArray<MapCell>
+        {
+            Source = bufferInitData,
+            Value = new MapCell
+            {
+                Value = (byte) (WallBits.Bottom | WallBits.Top | WallBits.Right | WallBits.Left)
+            }
+        };
+        memSetJob.Run(bufferSize);
+        buffer.AddRange(bufferInitData);
+        bufferInitData.Dispose();
 
         var mazeSizeEntity = conversionSystem.CreateAdditionalEntity(gameObject);
         dstManager.AddComponentData(mazeSizeEntity, new MazeSize{Value = (int2)tileMazeSize});

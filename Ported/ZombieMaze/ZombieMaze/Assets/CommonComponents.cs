@@ -47,7 +47,7 @@ public struct PlayerTag : IComponentData {}
 
 public struct Spawner : IComponentData
 {
-    public uint2 MazeSize;
+    public int2 MazeSize;
     public Entity Prefab;
 }
 
@@ -77,7 +77,8 @@ public enum WallBits : byte
     Left   = (1 << 0),
     Right  = (1 << 1),
     Top    = (1 << 2),
-    Bottom = (1 << 3)
+    Bottom = (1 << 3),
+    Visited = (1 << 4)
 }
 
 public struct TagDijkstraGenerateMap : IComponentData {};

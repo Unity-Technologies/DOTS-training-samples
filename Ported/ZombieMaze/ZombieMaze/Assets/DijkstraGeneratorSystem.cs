@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
+[UpdateAfter(typeof(MazeGenerator))]
 public class DijkstraGeneratorSystem : SystemBase
 {   
     const int kWidth  = 10;
