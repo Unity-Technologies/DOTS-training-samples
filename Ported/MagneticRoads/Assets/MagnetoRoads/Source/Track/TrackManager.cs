@@ -9,12 +9,13 @@ namespace Magneto.Track
 {
     public static class TrackManager
     {
+        public const int RANDOM_SEED = 42;
         public const int DIRECTIONS_LENGTH = 26;
         public const int LIMITED_DIRECTIONS_LENGTH = 6;
 
 
         public const int JOB_EXECUTION_MAXIMUM_FRAMES = 3;
-        public const int VOXEL_COUNT = 60;
+        public const int VOXEL_COUNT = 100;
         public const float VOXEL_SIZE = 1f;
         public const int TRI_PER_MESH = 4000;
 
@@ -131,7 +132,7 @@ namespace Magneto.Track
                 // Build the connective tissues
                 Stage2JobHandle = new BuildVoxelNetworkJob
                 {
-                    R_Intersections = _intersections,
+                    RW_Intersections = _intersections,
                     R_IntersectionsGrid = _intersectionIndicesByGrid,
                     R_LimitedCachedNeighbourIndexOffsets = _cachedNeighbourIndexOffsetsLimited,
                     R_TrackVoxels = _trackVoxels,

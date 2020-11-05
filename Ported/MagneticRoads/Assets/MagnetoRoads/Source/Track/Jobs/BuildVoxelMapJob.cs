@@ -6,12 +6,10 @@ using Unity.Mathematics;
 
 namespace Magneto.Track.Jobs
 {
-#if !DISABLE_BURST
     [BurstCompile]
-#endif
     public struct BuildVoxelMapJob : IJob
     {
-        private const int IterationCount = 50000;
+        private const int IterationCount = 10000;
 
         [ReadOnly] public NativeArray<int3> R_CachedNeighbourIndexOffsets;
         [ReadOnly] public NativeArray<int3> R_LimitedCachedNeighbourIndexOffsets;
@@ -26,22 +24,23 @@ namespace Magneto.Track.Jobs
             var middle = TrackManager.VOXEL_COUNT / 2;
 
             // TODO Make random:)
-            var random = Random.CreateFromIndex(0);
+            var random = Random.CreateFromIndex(TrackManager.RANDOM_SEED);
 
             // Create our temp allocated
             var activeVoxels = new NativeList<int3>(Allocator.Temp) {new int3(middle, middle, middle)};
 
             RW_TrackVoxels[middle, middle, middle] = true;
 
-            for (var i = 0; i < IterationCount; i++)
+            for (var i = 0; i < IterationCount * TrackManager.VOXEL_COUNT; i++)
             {
                 if (activeVoxels.Length == 0) break;
 
+                // Get an index of the voxel we want to evaluate adding something based off a future direction
                 var index = random.NextInt(0, activeVoxels.Length);
-
+                
+                // Get the voxels current position
                 var currentPosition = activeVoxels[index];
-                var randomDirection = R_CachedNeighbourIndexOffsets[random.NextInt(0, TrackManager.DIRECTIONS_LENGTH)];
-
+                var randomDirection = R_LimitedCachedNeighbourIndexOffsets[random.NextInt(0, TrackManager.LIMITED_DIRECTIONS_LENGTH)];
                 var newPosition = currentPosition + randomDirection;
 
                 // Evaluate our neighbour position for an active voxel
@@ -53,15 +52,15 @@ namespace Magneto.Track.Jobs
 
                 if (CountNeighbors(currentPosition) >= 3)
                 {
-                    activeVoxels.RemoveAt(index);
                     var intersectionData = new IntersectionData
                     {
-                        Index = RW_Intersections.Length,
+                        ListIndex = RW_Intersections.Length, 
+                        Index = currentPosition,
                         Position = currentPosition
                     };
 
                     RW_Intersections.Add(intersectionData);
-                    W_IntersectionsGrid[currentPosition] = RW_Intersections.Length - 1;
+                    W_IntersectionsGrid[currentPosition] = intersectionData.ListIndex;
 
                     activeVoxels.RemoveAt(index);
                 }
@@ -70,10 +69,10 @@ namespace Magneto.Track.Jobs
             activeVoxels.Dispose();
         }
 
-        private bool GetVoxel(int x, int y, int z)
-        {
-            return GetVoxel(new int3(x, y, z));
-        }
+        // private bool GetVoxel(int x, int y, int z)
+        // {
+        //     return GetVoxel(new int3(x, y, z));
+        // }
 
 
         private bool GetVoxel(int3 position, bool outOfBoundsReturns = true)
@@ -99,13 +98,19 @@ namespace Magneto.Track.Jobs
                 {
                     var dir = R_CachedNeighbourIndexOffsets[k];
 
-                    if (GetVoxel(x + dir.x, y + dir.y, z + dir.z)) neighborCount++;
+                    if (GetVoxel(position + dir))
+                    {
+                        neighborCount++;
+                    }
                 }
             else
                 for (var k = 0; k < TrackManager.LIMITED_DIRECTIONS_LENGTH; k++)
                 {
                     var dir = R_LimitedCachedNeighbourIndexOffsets[k];
-                    if (GetVoxel(x + dir.x, y + dir.y, z + dir.z)) neighborCount++;
+                    if (GetVoxel(position + dir))
+                    {
+                        neighborCount++;
+                    }
                 }
 
 

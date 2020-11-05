@@ -1,4 +1,5 @@
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace Magneto.Track
 {
@@ -10,5 +11,8 @@ namespace Magneto.Track
         public int3 EndNormal;
         public int3 StartTangent;
         public int3 EndTangent;
+        
+        public float3 Anchor1;
+        public float3 Anchor2;
     }
 }
