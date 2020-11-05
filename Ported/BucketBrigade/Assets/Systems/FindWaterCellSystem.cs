@@ -16,7 +16,7 @@ public class FindWaterCellSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
         var waterCellsEntities = waterCells.ToEntityArray(Allocator.Temp);
-        var waterCellsTranslations = waterCells.ToComponentDataArray<Translation>(Allocator.TempJob);
+        var waterCellsTranslations = waterCells.ToComponentDataArray<Translation>(Allocator.Temp);
 
         Entities.ForEach((Entity entity, in FindWaterCell scooperBot, in Translation translation) =>
         {

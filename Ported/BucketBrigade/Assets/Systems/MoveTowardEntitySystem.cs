@@ -4,7 +4,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public class MoveTowardBucketSystem : SystemBase
+public class MoveTowardEntitySystem : SystemBase
 {
     protected override void OnUpdate()
     {
@@ -29,6 +29,7 @@ public class MoveTowardBucketSystem : SystemBase
             if (length <= threshold)
             {
                 ecb.RemoveComponent<MoveTowardBucket>(entityInQueryIndex, entity);
+                ecb.AddComponent(entityInQueryIndex, entity, new HoldingBucket() { Target = scooper.Target });
                 ecb.AddComponent<FindWaterCell>(entityInQueryIndex, entity);
             }
             else
@@ -41,10 +42,11 @@ public class MoveTowardBucketSystem : SystemBase
 
         Entities
             .WithNativeDisableParallelForRestriction(cdfe)
-            .ForEach((Entity entity, int entityInQueryIndex, in MoveTowardWater scooper) =>
+            .ForEach((Entity entity, int entityInQueryIndex, in MoveTowardWater scooper, in HoldingBucket bucket) =>
             {
                 var waterPosition = cdfe[scooper.Target].Value;
                 var scooperPosition = cdfe[entity].Value;
+                var bucketPosition = cdfe[bucket.Target];
 
                 var distanceLeft = waterPosition - scooperPosition;
                 var length = math.length(distanceLeft);
@@ -52,16 +54,42 @@ public class MoveTowardBucketSystem : SystemBase
                 if (length <= threshold)
                 {
                     ecb.RemoveComponent<MoveTowardWater>(entityInQueryIndex, entity);
-                    ecb.AddComponent<MoveTowardBucket>(entityInQueryIndex, entity);
+                    //ecb.AddComponent<MoveTowardBucket>(entityInQueryIndex, entity);
                 }
                 else
                 {
                     var direction = distanceLeft / length;
                     var newPosition = scooperPosition + speed * deltaTime * direction;
                     cdfe[entity] = new Translation() { Value = newPosition };
+                    newPosition.y += 1.6f;
+                    cdfe[bucket.Target] = new Translation() { Value = newPosition };
                 }
-        }).ScheduleParallel();
+            }).ScheduleParallel();
 
+        Entities
+            .WithNativeDisableParallelForRestriction(cdfe)
+            .ForEach((Entity entity, int entityInQueryIndex, in MoveTowardFire bot, in HoldingBucket bucket) =>
+            {
+                var firePosition = cdfe[bot.Target].Value;
+                var botPosition = cdfe[entity].Value;
+                var bucketPosition = cdfe[bucket.Target];
+
+                var distanceLeft = firePosition - botPosition;
+                var length = math.length(distanceLeft);
+
+                if (length <= threshold)
+                {
+                    ecb.RemoveComponent<MoveTowardFire>(entityInQueryIndex, entity);
+                }
+                else
+                {
+                    var direction = distanceLeft / length;
+                    var newPosition = botPosition + speed * deltaTime * direction;
+                    cdfe[entity] = new Translation() { Value = newPosition };
+                    newPosition.y += 1.6f;
+                    cdfe[bucket.Target] = new Translation() { Value = newPosition };
+                }
+            }).ScheduleParallel();
 
         sys.AddJobHandleForProducer(Dependency);
     }

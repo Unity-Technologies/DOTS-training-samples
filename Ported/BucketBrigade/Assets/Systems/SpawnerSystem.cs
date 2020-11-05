@@ -33,7 +33,6 @@ public class SpawnerSystem : SystemBase
                     }
                 }
 
-
                 for (int j = 0; j < 4; ++j)
                 {
                     for (int i = 0; i < fireSim.WaterCellCount; ++i)
@@ -72,7 +71,7 @@ public class SpawnerSystem : SystemBase
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
-        
+
         ecb = new EntityCommandBuffer(Allocator.TempJob);
 
         var emptyBuckets = FireSimSystem.emptyBucketQuery.ToEntityArray(Allocator.TempJob);
@@ -86,11 +85,13 @@ public class SpawnerSystem : SystemBase
 
                 for (int i = 0; i < fireSim.ChainCount; i++)
                 {
-                    var instance = ecb.Instantiate(spawner.ScooperPrefab);
+                    var instance = ecb.Instantiate(spawner.BotPrefab);
                     var scooperPosition = new float3(random.NextInt(0, fireSim.FireGridDimension), 0.0f, random.NextInt(0, fireSim.FireGridDimension));
                     ecb.SetComponent(instance, new Translation { Value = scooperPosition });
                     ecb.AddComponent(instance, new MoveTowardBucket() { Target = FireSimSystem.GetClosestEntity(scooperPosition, emptyBuckets, bucketPositions) });
                 }
+
+
             }).Run();
 
         emptyBuckets.Dispose();

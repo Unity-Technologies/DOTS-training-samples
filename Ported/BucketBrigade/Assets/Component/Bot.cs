@@ -1,7 +1,17 @@
 ﻿using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public struct ScooperBot : IComponentData
+public struct Bot : IComponentData
 {
-    public float position;
+    Entity nextBot;
+}
+
+[GenerateAuthoringComponent]
+public struct ThrowerBot : IComponentData
+{
+}
+
+[GenerateAuthoringComponent]
+public struct FillerBot : IComponentData
+{
 }

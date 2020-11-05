@@ -3,16 +3,20 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Rendering;
+using Unity.Collections;
 
-public class FireSystem : SystemBase
+public class FireCellSystem : SystemBase
 {
     protected override void OnUpdate()
     {
         var time = Time.ElapsedTime;
         FireSim fireSim = GetSingleton<FireSim>();
 
+        EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        var ecb = sys.CreateCommandBuffer().AsParallelWriter();
+
         Entities
-            .ForEach((ref Translation translation, ref URPMaterialPropertyBaseColor color, in FireCell fireCell) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref URPMaterialPropertyBaseColor color, in FireCell fireCell) =>
             {
                 var temperature = fireCell.Temperature;
                 //temperature += (float)(Unity.Mathematics.math.sin(time)*0.1f);
@@ -26,8 +30,11 @@ public class FireSystem : SystemBase
                 {
                     color.Value = new float4(1.0f, 0.0f, 0.0f, 0.0f);
                     translation.Value.y = temperature * 3.3f - 1.6f;
+                    ecb.AddComponent(entityInQueryIndex, entity, new OnFire() { });
                 }
                 
             }).ScheduleParallel();
+
+        sys.AddJobHandleForProducer(Dependency);
     }
 }
