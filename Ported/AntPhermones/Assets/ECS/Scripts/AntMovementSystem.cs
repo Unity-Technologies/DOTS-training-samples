@@ -24,6 +24,9 @@ public class AntMovementSystem : SystemBase
     const float antAccel = 0.07f;
     const float outwardStrength = 0.001f; // Original code use 0.003f
     const float inwardStrength = 0.001f; // Original code use 0.003f
+    const float trailAddSpeed = 0.3f;
+    const float excitementWhenWandering = 0.3f;
+    const float excitementWithTargetInSight = 1.0f;
 
     public static readonly float2 bounds = new float2(5, 5);
     public static JobHandle LastJob;
@@ -73,8 +76,8 @@ public class AntMovementSystem : SystemBase
         var rayCastFoodArray = rayCastMapFood;
 
         Entities
+        .WithNativeDisableParallelForRestriction(pheromonesArray)
         .WithReadOnly(obstaclesPositions)
-        .WithReadOnly(pheromonesArray)
         .WithReadOnly(rayCastColonyArray)
         .WithReadOnly(rayCastFoodArray)
         .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand,
@@ -93,6 +96,8 @@ public class AntMovementSystem : SystemBase
 
             speed.Value += (targetSpeed - speed.Value) * antAccel;
 
+            var excitement = hasTargetInSight.Value ? excitementWithTargetInSight : excitementWhenWandering;
+            DropPheromones(translation.Value.x, translation.Value.z, bounds, pheromonesArray, speed.Value, dt, RefsAuthoring.TexSize, excitement);
 
             // TODO: steer towards target
 
@@ -409,6 +414,26 @@ public class AntMovementSystem : SystemBase
             }
         }
     }
+
+    public static void DropPheromones(float x, float y, float2 bounds, NativeArray<PheromonesBufferData> localPheromones, float speed, float dt, int TexSize, float excitement)
+    {
+        float2 texelCoord = new float2(0.5f * (-x / bounds.x) + 0.5f, 0.5f * (-y / bounds.y) + 0.5f);
+        int index = (int)(texelCoord.y * TexSize) * TexSize + (int)(texelCoord.x * TexSize);
+
+        if (index >= localPheromones.Length || index < 0) return;
+
+        excitement *= speed / antSpeed;
+
+        var pheromone = (float)localPheromones[index];
+        pheromone += (trailAddSpeed * excitement * dt) * (1f - pheromone);
+        if (pheromone > 1f)
+        {
+            pheromone = 1f;
+        }
+
+        localPheromones[index] = pheromone;
+    }
+
     protected override void OnDestroy()
     {
         rayCastMapFood.Dispose();

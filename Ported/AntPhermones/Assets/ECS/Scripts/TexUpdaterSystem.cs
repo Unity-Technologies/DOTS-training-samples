@@ -19,7 +19,9 @@ public class TexUpdaterSystem : SystemBase
     protected override void OnUpdate()
     {
         int TexSize = RefsAuthoring.TexSize;
-        
+
+        UpdatePheromoneSystem.LastJob.Complete();
+
         Entities
         .ForEach((Refs map) =>
         {

@@ -11,6 +11,7 @@ using UnityEngine;
 [UpdateAfter(typeof(AntMovementSystem))]
 public class UpdatePheromoneSystem : SystemBase
 {
+    public static JobHandle LastJob;
     public static Color[] colors = new Color[RefsAuthoring.TexSize * RefsAuthoring.TexSize];
 
     public const float dt = 3.0f / 60;
@@ -52,11 +53,11 @@ public class UpdatePheromoneSystem : SystemBase
 
         float2 bounds = AntMovementSystem.bounds;
 
-        //AntMovementSystem.Depend.Complete();
+        AntMovementSystem.LastJob.Complete();
 
         var texSingleton = GetSingletonEntity<TexSingleton>();
 
-        Entities
+        /*Entities
         .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand,
             in HasTargetInSight hasTargetInSight, in Speed speed) =>
         {
@@ -65,13 +66,15 @@ public class UpdatePheromoneSystem : SystemBase
             DropPheromones(translation.Value.x, translation.Value.z, bounds, localPheromones.AsNativeArray(), speed.Value, dt, TexSize, excitement);
 
         })
-        .ScheduleParallel(JobHandle.CombineDependencies(AntMovementSystem.LastJob, this.Dependency));
+        .ScheduleParallel(JobHandle.CombineDependencies(AntMovementSystem.LastJob, this.Dependency));*/
+
+        var localPheromones = GetBuffer<PheromonesBufferData>(texSingleton);
         
         Entities
         .WithoutBurst()
+        .WithNativeDisableParallelForRestriction(localPheromones)
         .ForEach((in AntSpawner dummy) =>
         {
-            var localPheromones = GetBuffer<PheromonesBufferData>(texSingleton);
             for (int i = 0; i < TexSize; ++i)
             {
                 for (int j = 0; j < TexSize; ++j)
@@ -84,5 +87,7 @@ public class UpdatePheromoneSystem : SystemBase
             }
         })
         .ScheduleParallel();
+
+        LastJob = this.Dependency;
     }
 }
