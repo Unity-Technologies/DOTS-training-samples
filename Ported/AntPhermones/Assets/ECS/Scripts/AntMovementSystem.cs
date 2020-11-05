@@ -114,6 +114,12 @@ public class AntMovementSystem : SystemBase
             d.x = Mathf.Cos(direction.Value) * speed.Value * dt;
             d.y = Mathf.Sin(direction.Value) * speed.Value * dt;
 
+            direction.Value = (direction.Value >= 2 * Mathf.PI) ? direction.Value - 2 * Mathf.PI : direction.Value;
+
+            ObstacleAvoid(ref translation, ref direction, spawner.ObstacleRadius, obstaclesPositions);
+
+            SteerTowardColony(ref d, translation.Value, spawner.ColonyPosition, spawner.MapSize, isLookingForNest);
+
             // Bounce off the edges of the board (for now the ant bounces back, maybe improve later)
             if (Mathf.Abs(translation.Value.x + d.x) > bounds.x)
             {
@@ -126,12 +132,6 @@ public class AntMovementSystem : SystemBase
                 d.y = -d.y;
                 direction.Value += Mathf.PI;
             }
-
-            direction.Value = (direction.Value >= 2 * Mathf.PI) ? direction.Value - 2 * Mathf.PI : direction.Value;
-
-            ObstacleAvoid(ref translation, ref direction, spawner.ObstacleRadius, obstaclesPositions);
-
-            SteerTowardColony(ref d, translation.Value, spawner.ColonyPosition, spawner.MapSize, isLookingForNest);
 
             translation.Value.x += (float)d.x;
             translation.Value.z += (float)d.y;
