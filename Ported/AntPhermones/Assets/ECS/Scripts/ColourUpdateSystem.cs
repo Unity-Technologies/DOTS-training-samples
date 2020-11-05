@@ -9,6 +9,9 @@ public class ColourUpdateSystem : SystemBase
 {
     EndSimulationEntityCommandBufferSystem cmdBufferSystem;
 
+    private readonly static float4 lookingForFoodColour = new float4(0.189f, 0.210f, 0.352f, 1f);
+    private readonly static float4 lookingForNestColour = new float4(0.720f, 0.711f, 0.397f, 1f);
+
     protected override void OnCreate()
     {
         cmdBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -24,7 +27,7 @@ public class ColourUpdateSystem : SystemBase
             .ForEach((Entity ant, int entityInQueryIndex, ref URPMaterialPropertyBaseColor colour) =>
             {
                 ecb.RemoveComponent<RequireColourUpdate>(entityInQueryIndex, ant);
-                colour.Value = new float4(0.189f, 0.210f, 0.352f, 1f);
+                colour.Value = lookingForFoodColour;
 
             }).ScheduleParallel();
 
@@ -34,7 +37,7 @@ public class ColourUpdateSystem : SystemBase
             .ForEach((Entity ant, int entityInQueryIndex, ref URPMaterialPropertyBaseColor colour) =>
             {
                 ecb.RemoveComponent<RequireColourUpdate>(entityInQueryIndex, ant);
-                colour.Value = new float4(0.720f, 0.711f, 0.397f, 1);
+                colour.Value = lookingForNestColour;
 
             }).ScheduleParallel();
 
