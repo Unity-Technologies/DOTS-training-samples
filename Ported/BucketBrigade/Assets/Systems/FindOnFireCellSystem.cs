@@ -5,6 +5,7 @@ using Unity.Transforms;
 public class FindOnFireCellSystem : SystemBase
 {
     public static EntityQuery onFireCells;
+
     protected override void OnCreate()
     {
         base.OnCreate();

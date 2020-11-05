@@ -5,6 +5,7 @@ using Unity.Transforms;
 public class FindWaterCellSystem : SystemBase
 {
     public static EntityQuery waterCells;
+
     protected override void OnCreate()
     {
         base.OnCreate();

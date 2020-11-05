@@ -1,9 +1,17 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
 public struct Bot : IComponentData
 {
-    Entity nextBot;
+    public int Index;
+}
+
+[GenerateAuthoringComponent]
+public struct PasserBot : IComponentData
+{
+    public float3 PickupPosition;
+    public float3 DropoffPosition;
 }
 
 [GenerateAuthoringComponent]
