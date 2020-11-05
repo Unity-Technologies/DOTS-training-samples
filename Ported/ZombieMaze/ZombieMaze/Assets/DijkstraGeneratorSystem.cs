@@ -11,6 +11,11 @@ public class DijkstraGeneratorSystem : SystemBase
 {   
     const int kWidth  = 1000;
     const int kHeight = 1000;
+
+    readonly static int2 kLeft  = new int2(-1, 0);
+    readonly static int2 kRight = new int2(+1, 0);
+    readonly static int2 kUp    = new int2(0,  1);
+    readonly static int2 kDown  = new int2(0, -1);
  
     protected override void OnCreate()
     {
@@ -40,7 +45,6 @@ if (wallMap.Length != length)
     for (var i = 0; i < length; ++i)
         wallMap[i] = new MapCell(){ Value = 0 };  
 }
-
             var positions = new NativeList<int2>(length, Allocator.Temp);
 
             // Init all distances to max distance. This can be parallelized.
@@ -59,40 +63,34 @@ if (wallMap.Length != length)
                 positions.RemoveAt(last);
 
                 var index = current.y * map.Width + current.x;
-                var dist = 1 + distMap[index].Value;
+                var dist  = 1 + distMap[index].Value;
+                var walls = (WallBits)wallMap[index].Value;
 
-         		VisitNeighbor(current, -1,  0, WallBits.Left,   dist, ref map, ref wallMap, ref distMap, ref positions);
-				VisitNeighbor(current,  0, -1, WallBits.Bottom, dist, ref map, ref wallMap, ref distMap, ref positions);
-				VisitNeighbor(current,  0, +1, WallBits.Top,    dist, ref map, ref wallMap, ref distMap, ref positions);
-				VisitNeighbor(current, +1,  0, WallBits.Right,  dist, ref map, ref wallMap, ref distMap, ref positions);
-		    }
+                if ((walls & WallBits.Left) == 0)
+                    VisitNeighbor(current + kLeft,  dist, ref map, ref wallMap, pDistCell, ref positions);
+                if ((walls & WallBits.Bottom) == 0)
+                    VisitNeighbor(current + kDown,  dist, ref map, ref wallMap, pDistCell, ref positions);
+                if ((walls &  WallBits.Top) == 0)
+                    VisitNeighbor(current + kUp,    dist, ref map, ref wallMap, pDistCell, ref positions);
+                if ((walls & WallBits.Right) == 0)
+                    VisitNeighbor(current + kRight, dist, ref map, ref wallMap, pDistCell, ref positions);
+            }
+
+            positions.Dispose();
         })
         .Schedule();
     }
 
-    unsafe static void VisitNeighbor(int2 current, int dx, int dy, WallBits wall, int distance, ref DijkstraMap map, ref DynamicBuffer<MapCell> wallMap, ref DynamicBuffer<DistCell> distMap, ref NativeList<int2> positions)
+    unsafe static void VisitNeighbor(int2 next, int distance, ref DijkstraMap map, ref DynamicBuffer<MapCell> wallMap, DistCell* pDistCell, ref NativeList<int2> positions)
     {
-        DistCell* pDistCell = (DistCell*)distMap.GetUnsafePtr();
-
-        var index = current.y * map.Width + current.x;
-
-        // If passable in the desired direction
-        var walls = (WallBits)wallMap[index].Value;
-        if ((walls & wall) == 0)
+        // If the next position is valid, and hasn't been visited yet.
+        if (next.x >= 0 && next.x < map.Width && next.y >= 0 && next.y < map.Height)
         {
-            int2 next;
-            next.x = current.x + dx;
-            next.y = current.y + dy;
-
-            // If the next position is valid, and hasn't been visited yet.
-            if (next.x >= 0 && next.x < map.Width && next.y >= 0 && next.y < map.Height)
+            var index = next.y * map.Width + next.x;
+            if (pDistCell[index].Value == int.MaxValue)
             {
-                index = next.y * map.Width + next.x;
-                if (pDistCell[index].Value == int.MaxValue)
-                {
-                    pDistCell[index].Value = distance;
-                    positions.AddNoResize(next);
-                }
+                pDistCell[index].Value = distance;
+                positions.AddNoResize(next);
             }
         }
     }
