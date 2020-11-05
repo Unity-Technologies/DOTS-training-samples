@@ -9,7 +9,7 @@ namespace Magneto.Track.Jobs
  //   [BurstCompile]
     public struct BuildVoxelMapJob : IJob
     {
-        private const int IterationCount = 50000;
+        private const int IterationCount = 500;
 
         [ReadOnly] public NativeArray<int3> R_CachedNeighbourIndexOffsets;
         [ReadOnly] public NativeArray<int3> R_LimitedCachedNeighbourIndexOffsets;
@@ -31,7 +31,7 @@ namespace Magneto.Track.Jobs
 
             RW_TrackVoxels[middle, middle, middle] = true;
 
-            for (var i = 0; i < IterationCount; i++)
+            for (var i = 0; i < IterationCount * TrackManager.VOXEL_COUNT; i++)
             {
                 if (activeVoxels.Length == 0) break;
 
@@ -40,7 +40,7 @@ namespace Magneto.Track.Jobs
                 
                 // Get the voxels current position
                 var currentPosition = activeVoxels[index];
-                var randomDirection = R_CachedNeighbourIndexOffsets[random.NextInt(0, TrackManager.DIRECTIONS_LENGTH)];
+                var randomDirection = R_LimitedCachedNeighbourIndexOffsets[random.NextInt(0, TrackManager.LIMITED_DIRECTIONS_LENGTH)];
                 var newPosition = currentPosition + randomDirection;
 
                 // Evaluate our neighbour position for an active voxel
@@ -69,10 +69,10 @@ namespace Magneto.Track.Jobs
             activeVoxels.Dispose();
         }
 
-        private bool GetVoxel(int x, int y, int z)
-        {
-            return GetVoxel(new int3(x, y, z));
-        }
+        // private bool GetVoxel(int x, int y, int z)
+        // {
+        //     return GetVoxel(new int3(x, y, z));
+        // }
 
 
         private bool GetVoxel(int3 position, bool outOfBoundsReturns = true)
@@ -98,7 +98,7 @@ namespace Magneto.Track.Jobs
                 {
                     var dir = R_CachedNeighbourIndexOffsets[k];
 
-                    if (GetVoxel(x + dir.x, y + dir.y, z + dir.z))
+                    if (GetVoxel(position + dir))
                     {
                         neighborCount++;
                     }
@@ -107,7 +107,10 @@ namespace Magneto.Track.Jobs
                 for (var k = 0; k < TrackManager.LIMITED_DIRECTIONS_LENGTH; k++)
                 {
                     var dir = R_LimitedCachedNeighbourIndexOffsets[k];
-                    if (GetVoxel(x + dir.x, y + dir.y, z + dir.z)) neighborCount++;
+                    if (GetVoxel(position + dir))
+                    {
+                        neighborCount++;
+                    }
                 }
 
 
