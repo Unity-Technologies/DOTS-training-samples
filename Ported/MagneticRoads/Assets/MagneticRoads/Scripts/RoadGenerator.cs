@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities;
 using UnityEngine;
 
 public class RoadGenerator:MonoBehaviour {
@@ -203,6 +204,9 @@ public class RoadGenerator:MonoBehaviour {
 		// (neighboring intersections are connected by a chain of voxels,
 		// which we'll replace with splines)
 
+		TrafficSpawnerSystem trafficSpawnerSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<TrafficSpawnerSystem>();
+		trafficSpawnerSystem.m_SpawnFromGenerator = true;
+		
 		for (int i=0;i<intersections.Count;i++) {
 			Intersection intersection = intersections[i];
 			Vector3Int axesWithNeighbors = Vector3Int.zero;
@@ -259,6 +263,8 @@ public class RoadGenerator:MonoBehaviour {
 			// to nothing. these "hanging chains" are not included as splines, so the
 			// dead-ends that we see are actually "T" shapes with the top two segments hidden.
 
+			trafficSpawnerSystem.m_Intersections.Add(intersection);
+			
 			if (i%20==0) {
 				yield return null;
 			}
@@ -318,7 +324,7 @@ public class RoadGenerator:MonoBehaviour {
 
 		// spawn cars
 
-		batch = 0;
+		/*batch = 0;
 		for (int i = 0; i < 4000; i++) {
 			Car car = new Car();
 			car.maxSpeed = carSpeed;
@@ -337,7 +343,9 @@ public class RoadGenerator:MonoBehaviour {
 				carColors.Add(new List<Vector4>());
 				batch++;
 			}
-		}
+		}*/
+
+		trafficSpawnerSystem.isReady = true;
 	}
 
 	private void Update() {

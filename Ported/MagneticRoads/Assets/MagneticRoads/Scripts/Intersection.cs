@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities;
 using UnityEngine;
 
 public class Intersection {
@@ -7,6 +8,7 @@ public class Intersection {
 	public Vector3 position;
 	public Vector3Int index;
 	public Vector3Int normal;
+	public List<Entity> laneEntities = new List<Entity>();
 
 	public List<Intersection> neighbors;
 	public List<TrackSpline> neighborSplines;
