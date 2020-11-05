@@ -11,7 +11,7 @@ using UnityEngine;
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 public class TexUpdaterSystem : SystemBase
 {
-    const float dt = 1.0f / 60;
+    const float dt = 3.0f / 60;
     const float randomSteering = 0.14f;
     const float decay = 0.9995f; // Original code used 0.9985f;
     const float trailAddSpeed = 0.3f;
