@@ -67,7 +67,7 @@ public class TrafficSpawnerSystem : SystemBase
 
                         if (intersection.lanes.Count == 2)
                         {
-                            TrackSpline trackSpline = intersection.neighborSplines[0];
+                            //TrackSpline trackSpline = intersection.neighborSplines[0];
                             
                             var deadEnd = ecb.Instantiate(spawner.SimpleIntersectionPrefab);
                             ecb.SetComponent(deadEnd, new SimpleIntersection {laneIn0 = intersection.lanes[0], laneOut0 = intersection.lanes[1]});

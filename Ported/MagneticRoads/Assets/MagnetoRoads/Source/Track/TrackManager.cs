@@ -153,15 +153,14 @@ namespace Magneto.Track
                 activeVoxels = _trackVoxels.array.ToArray();
 
                 
+                // Were going to push the data to the traffic system
                 
                 TrafficSpawnerSystem trafficSpawnerSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<TrafficSpawnerSystem>();
                 trafficSpawnerSystem.m_SpawnFromGenerator = true;
-
                 EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
                 EntityArchetype laneArchetype = entityManager.CreateArchetype(typeof(Lane), typeof(Spline), typeof(CarBufferElement));
 
-
-                // Fill wit this
+                
                 Intersection[] intersections = new Intersection[_intersections.Length];
                 for (int i = 0; i < _intersections.Length; i++)
                 {
@@ -171,13 +170,17 @@ namespace Magneto.Track
                         iData.Position.GetVector3(),
                         new Vector3Int(iData.Normal.x, iData.Normal.y, iData.Normal.z));
                     
-                    
                     trafficSpawnerSystem.m_Intersections.Add( intersections[i]);
                 }
                 
                 foreach (var spline in _splines)
                 {
-
+                    var startIntersection = intersections[_intersectionIndicesByGrid[spline.StartPosition]];
+                    var endIntersection = intersections[_intersectionIndicesByGrid[spline.EndPosition]];
+                    
+                    if(startIntersection.neighbors.Contains(endIntersection)) continue;
+                    
+                    
                     Entity laneOut = entityManager.CreateEntity(laneArchetype);
                     Entity laneIn = entityManager.CreateEntity(laneArchetype);
                     
@@ -192,15 +195,14 @@ namespace Magneto.Track
 							
                     entityManager.SetComponentData(laneOut, lane);
                     entityManager.SetComponentData(laneIn, lane);
-
-                    var lhs = intersections[_intersectionIndicesByGrid[spline.StartPosition]];
-                    var rhs = intersections[_intersectionIndicesByGrid[spline.EndPosition]];
-
-                    lhs.lanes.Add(laneIn);
-                    lhs.lanes.Add(laneOut);
                     
-                    rhs.lanes.Add(laneOut);
-                    rhs.lanes.Add(laneIn);
+                    startIntersection.lanes.Add(laneIn);
+                    startIntersection.lanes.Add(laneOut);
+                    endIntersection.lanes.Add(laneOut);
+                    endIntersection.lanes.Add(laneIn);
+
+                    startIntersection.neighbors.Add(endIntersection);
+                    endIntersection.neighbors.Add(startIntersection);
                 }
                 
                 _cachedNeighbourIndexOffsets.Dispose();
