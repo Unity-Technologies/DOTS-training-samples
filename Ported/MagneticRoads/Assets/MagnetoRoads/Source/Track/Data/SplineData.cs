@@ -1,5 +1,4 @@
 using Unity.Mathematics;
-using UnityEngine;
 
 namespace Magneto.Track
 {

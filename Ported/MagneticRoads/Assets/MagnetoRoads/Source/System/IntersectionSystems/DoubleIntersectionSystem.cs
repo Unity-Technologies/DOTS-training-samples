@@ -1,5 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Transforms;
 using UnityEngine;
 // For traffic that can only go straight through the intersection
 // car1: laneOut0 <-- laneIn1
