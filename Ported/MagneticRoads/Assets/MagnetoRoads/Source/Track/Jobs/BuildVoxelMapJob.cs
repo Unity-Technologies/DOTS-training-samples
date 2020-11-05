@@ -10,6 +10,7 @@ namespace Magneto.Track.Jobs
     public struct BuildVoxelMapJob : IJob
     {
         private const int IterationCount = 10000;
+        //private const int IterationCount = 10;
 
         [ReadOnly] public NativeArray<int3> R_CachedNeighbourIndexOffsets;
         [ReadOnly] public NativeArray<int3> R_LimitedCachedNeighbourIndexOffsets;

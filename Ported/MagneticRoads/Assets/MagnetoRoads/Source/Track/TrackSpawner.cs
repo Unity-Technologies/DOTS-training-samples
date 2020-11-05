@@ -6,6 +6,7 @@ public class TrackSpawner : MonoBehaviour
 {
     public bool ShowCells = false;
     public bool ShowSplines = true;
+    public bool ShowSplineNormals = false;
     public bool ShowIntersections = true;
     
     private int _frameCounter;
@@ -102,6 +103,24 @@ public class TrackSpawner : MonoBehaviour
                     Gizmos.DrawLine(
                         new Vector3(s.StartPosition.x, s.StartPosition.y, s.StartPosition.z),
                         new Vector3(s.EndPosition.x, s.EndPosition.y, s.EndPosition.z));
+                }
+            }
+        }
+        if (ShowSplineNormals)
+        {
+            if (_splineData != null && _splineData.Length > 0)
+            {
+                foreach (var s in _splineData)
+                {
+                    Gizmos.color = Color.red;
+
+                    var startPosition = s.StartPosition.GetVector3();
+                    var endPosition = s.EndPosition.GetVector3();
+                    var startNormal = s.StartNormal.GetVector3();
+                    var endNormal = s.EndNormal.GetVector3();
+                    
+                    Gizmos.DrawLine(startPosition, startPosition + (startNormal * 0.5f));
+                    Gizmos.DrawLine(endPosition, endPosition + (endNormal * 0.5f));
                 }
             }
         }

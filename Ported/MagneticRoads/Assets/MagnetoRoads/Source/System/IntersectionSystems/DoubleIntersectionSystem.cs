@@ -1,7 +1,10 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
-
+using UnityEngine;
+// For traffic that can only go straight through the intersection
+// car1: laneOut0 <-- laneIn1
+// car0: laneIn0   --> laneOut1
 [UpdateAfter(typeof(SimpleIntersectionSystem))]
 public class DoubleIntersectionSystem : SystemBase
 {
@@ -37,7 +40,7 @@ public class DoubleIntersectionSystem : SystemBase
                     Entity reachedEndOfLaneCar = Entity.Null;
                     if (!laneInCars.IsEmpty)
                     {
-                        Entity laneCar = laneInCars[0];
+                        Entity laneCar = laneInCars[0];  //always get first car in lane at intersection
                         CarPosition carPosition = GetComponent<CarPosition>(laneCar);
                         CarSpeed carSpeed = GetComponent<CarSpeed>(laneCar);
 
@@ -64,7 +67,7 @@ public class DoubleIntersectionSystem : SystemBase
                     {
                         if (reachedEndOfLaneCar != Entity.Null)
                         {
-                            laneInCars.RemoveAt(0);
+                            laneInCars.RemoveAt(0);  //car has passed through intersection. Remove from buffer
                             if (i == 0)
                                 doubleIntersection.car0 = reachedEndOfLaneCar;
                             else

@@ -43,7 +43,7 @@ public class TrafficSpawnerSystem : SystemBase
 
         var archetype = m_LaneArchetype;
         
-        Random random = Random.CreateFromIndex(0);
+        Random random = Random.CreateFromIndex(1);
         var left = math.left() * laneOffset;
         var right = math.right() * laneOffset;
         var forward = math.forward() * laneOffset;
@@ -61,162 +61,41 @@ public class TrafficSpawnerSystem : SystemBase
 
                 if (spawnFromGenerator)
                 {
-                    int nbSingleIntersections = 0;
-                    int nbDoubleIntersections = 0;
-                    int nbTripleIntersections = 0;
                     for (int i = 0; i < intersections.Count; i++)
                     {
                         Intersection intersection = intersections[i];
 
-                        if (intersection.neighborSplines.Count == 1)
+                        if (intersection.lanes.Count == 2)
                         {
-                            TrackSpline trackSpline = intersection.neighborSplines[0];
-                            
-                            Spline splineA0 = new Spline {startPos = trackSpline.startPoint, endPos = trackSpline.endPoint};
-                            Spline splineB0 = new Spline {startPos = trackSpline.endPoint, endPos = trackSpline.startPoint};
-                            
-                            float length = trackSpline.measuredLength;
-                            Entity laneA0 = ecb.CreateEntity(archetype);
-                            ecb.SetComponent(laneA0, new Lane {Length = length});
-                            ecb.SetComponent(laneA0, splineA0);
-                            
-                            Entity laneB0 = ecb.CreateEntity(archetype);
-                            ecb.SetComponent(laneB0, new Lane {Length = length});
-                            ecb.SetComponent(laneB0, splineB0);
-                            
+                            //TrackSpline trackSpline = intersection.neighborSplines[0];
                             
                             var deadEnd = ecb.Instantiate(spawner.SimpleIntersectionPrefab);
-                            ecb.SetComponent(deadEnd, new SimpleIntersection {laneIn0 = laneB0, laneOut0 = laneA0});
+                            ecb.SetComponent(deadEnd, new SimpleIntersection {laneIn0 = intersection.lanes[0], laneOut0 = intersection.lanes[1]});
                             ecb.SetComponent(deadEnd, new Translation {Value = intersection.position});
                             
-                            DynamicBuffer<CarBufferElement> buffer = ecb.AddBuffer<CarBufferElement>(laneA0);
+                            DynamicBuffer<CarBufferElement> buffer = ecb.AddBuffer<CarBufferElement>(intersection.lanes[0]);
                             DynamicBuffer<Entity> entityBuffer = buffer.Reinterpret<Entity>();
                             
                             entityBuffer.Add(CreateCar(ecb, spawner.CarPrefab, 0,
                                 random.NextFloat3(new float3(1, 1.0f, 1.0f))));
-                            
-                            intersection.laneEntities.Add(laneA0);
-                            intersection.laneEntities.Add(laneB0);
-
-                            nbSingleIntersections++;
                         }
-                        else if (intersection.neighborSplines.Count == 2)
+                        else if (intersection.lanes.Count == 4)
                         {
-                            TrackSpline trackSpline0 = intersection.neighborSplines[0];
-                            
-                            Spline splineA0 = new Spline {startPos = trackSpline0.startPoint, endPos = trackSpline0.endPoint};
-                            Spline splineB0 = new Spline {startPos = trackSpline0.endPoint, endPos = trackSpline0.startPoint};
-                            
-                            float length0 = trackSpline0.measuredLength;
-                            Entity laneA0 = ecb.CreateEntity(archetype);
-                            ecb.SetComponent(laneA0, new Lane {Length = length0});
-                            ecb.SetComponent(laneA0, splineA0);
-                            
-                            Entity laneB0 = ecb.CreateEntity(archetype);
-                            ecb.SetComponent(laneB0, new Lane {Length = length0});
-                            ecb.SetComponent(laneB0, splineB0);
-                            
-                            TrackSpline trackSpline1 = intersection.neighborSplines[1];
-                            
-                            Spline splineA1 = new Spline {startPos = trackSpline1.startPoint, endPos = trackSpline1.endPoint};
-                            Spline splineB1 = new Spline {startPos = trackSpline1.endPoint, endPos = trackSpline1.startPoint};
-                            
-                            float length1 = trackSpline0.measuredLength;
-                            Entity laneA1 = ecb.CreateEntity(archetype);
-                            ecb.SetComponent(laneA1, new Lane {Length = length1});
-                            ecb.SetComponent(laneA1, splineA1);
-                            
-                            Entity laneB1 = ecb.CreateEntity(archetype);
-                            ecb.SetComponent(laneB1, new Lane {Length = length1});
-                            ecb.SetComponent(laneB1, splineB1);
-                            
-                            
                             var doubleIntersection = ecb.Instantiate(spawner.DoubleIntersectionPrefab);
-                            ecb.SetComponent(doubleIntersection, new DoubleIntersection {laneIn0 = laneB0, laneOut0 = laneA0, laneIn1 = laneA1, laneOut1 = laneB1});
+                            ecb.SetComponent(doubleIntersection, new DoubleIntersection {laneIn0 = intersection.lanes[0], laneOut0 = intersection.lanes[1], laneIn1 = intersection.lanes[2], laneOut1 = intersection.lanes[3]});
                             ecb.SetComponent(doubleIntersection, new Translation {Value = intersection.position});
-                            
-                            intersection.laneEntities.Add(laneA0);
-                            intersection.laneEntities.Add(laneB0);
-                            
-                            intersection.laneEntities.Add(laneA1);
-                            intersection.laneEntities.Add(laneB1);
-                            
-                            nbDoubleIntersections++;
                         }
-                        else if (intersection.neighborSplines.Count == 3)
+                        else if (intersection.lanes.Count == 6)
                         {
-                            TrackSpline trackSpline0 = intersection.neighborSplines[0];
-
-                            Spline splineA0 = new Spline
-                                {startPos = trackSpline0.startPoint, endPos = trackSpline0.endPoint};
-                            Spline splineB0 = new Spline
-                                {startPos = trackSpline0.endPoint, endPos = trackSpline0.startPoint};
-
-                            float length0 = trackSpline0.measuredLength;
-                            Entity laneA0 = ecb.CreateEntity(archetype);
-                            ecb.SetComponent(laneA0, new Lane {Length = length0});
-                            ecb.SetComponent(laneA0, splineA0);
-
-                            Entity laneB0 = ecb.CreateEntity(archetype);
-                            ecb.SetComponent(laneB0, new Lane {Length = length0});
-                            ecb.SetComponent(laneB0, splineB0);
-                            
-                            TrackSpline trackSpline1 = intersection.neighborSplines[1];
-
-                            Spline splineA1 = new Spline
-                                {startPos = trackSpline1.startPoint, endPos = trackSpline1.endPoint};
-                            Spline splineB1 = new Spline
-                                {startPos = trackSpline1.endPoint, endPos = trackSpline1.startPoint};
-
-                            float length1 = trackSpline1.measuredLength;
-                            Entity laneA1 = ecb.CreateEntity(archetype);
-                            ecb.SetComponent(laneA1, new Lane {Length = length1});
-                            ecb.SetComponent(laneA1, splineA1);
-
-                            Entity laneB1 = ecb.CreateEntity(archetype);
-                            ecb.SetComponent(laneB1, new Lane {Length = length1});
-                            ecb.SetComponent(laneB1, splineB1); 
-                            
-                            TrackSpline trackSpline2 = intersection.neighborSplines[2];
-
-                            Spline splineA2 = new Spline
-                                {startPos = trackSpline2.startPoint, endPos = trackSpline2.endPoint};
-                            Spline splineB2 = new Spline
-                                {startPos = trackSpline2.endPoint, endPos = trackSpline2.startPoint};
-
-                            float length2 = trackSpline2.measuredLength;
-                            Entity laneA2 = ecb.CreateEntity(archetype);
-                            ecb.SetComponent(laneA2, new Lane {Length = length2});
-                            ecb.SetComponent(laneA2, splineA2);
-
-                            Entity laneB2 = ecb.CreateEntity(archetype);
-                            ecb.SetComponent(laneB2, new Lane {Length = length2});
-                            ecb.SetComponent(laneB2, splineB2);
-
                             var tripleIntersection = ecb.Instantiate(spawner.TripleIntersectionPrefab);
-                            ecb.SetComponent(tripleIntersection, new TripleIntersection {laneIn0 = laneB0, laneOut0 = laneA0, laneIn1 = laneA1, laneOut1 = laneB1, laneIn2 = laneA2, laneOut2 = laneB2, lane0Direction = -1, lane1Direction = -1, lane2Direction = -1});
+                            ecb.SetComponent(tripleIntersection, new TripleIntersection {laneIn0 = intersection.lanes[0], laneOut0 = intersection.lanes[1], laneIn1 = intersection.lanes[2], laneOut1 = intersection.lanes[3], laneIn2 = intersection.lanes[4], laneOut2 = intersection.lanes[5], lane0Direction = -1, lane1Direction = -1, lane2Direction = -1});
                             ecb.SetComponent(tripleIntersection, new Translation {Value = intersection.position});
-                            
-                            intersection.laneEntities.Add(laneA0);
-                            intersection.laneEntities.Add(laneB0);
-                            
-                            intersection.laneEntities.Add(laneA1);
-                            intersection.laneEntities.Add(laneB1);
-                            
-                            intersection.laneEntities.Add(laneA2);
-                            intersection.laneEntities.Add(laneB2);
-                            
-                            nbTripleIntersections++;
                         }
                         else
                         {
                             throw new Exception("Not supported");
                         }
-                        
-                        
-                        /**/    
                     }
-                    Debug.LogFormat("Single {0} Double {1} Triple {2}", nbSingleIntersections, nbDoubleIntersections, nbTripleIntersections);
                 }
                 else
                 {
