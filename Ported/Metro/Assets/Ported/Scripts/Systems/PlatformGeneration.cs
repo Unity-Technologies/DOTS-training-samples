@@ -35,10 +35,15 @@ namespace MetroECS
                     }
 
                     // Instantiate
-                    var entity = ecb.Instantiate(prefab);
+                    var platformAEntity = ecb.Instantiate(prefab);
+                    var platformBEntity = ecb.Instantiate(prefab);
+                    var platformAConnections = ecb.AddBuffer<PlatformConnection>(platformAEntity);
+                    platformAConnections.Add(new PlatformConnection {Value = platformBEntity});
+                    var platformBConnections = ecb.AddBuffer<PlatformConnection>(platformAEntity);
+                    platformBConnections.Add(new PlatformConnection {Value = platformAEntity});
 
-                    AddPlatform(ecb, ecb.Instantiate(prefab), false, platEndIdx, color, positions, handlesIn, handlesOut, distances, totalDistance);
-                    AddPlatform(ecb, ecb.Instantiate(prefab), true, positions.Length - platEndIdx, color, positions, handlesIn, handlesOut, distances, totalDistance);
+                    AddPlatform(ecb, platformAEntity, false, platEndIdx, color, positions, handlesIn, handlesOut, distances, totalDistance);
+                    AddPlatform(ecb, platformBEntity, true, positions.Length - platEndIdx, color, positions, handlesIn, handlesOut, distances, totalDistance);
                 }
             }).Run();
 
@@ -47,10 +52,9 @@ namespace MetroECS
             Enabled = false;
         }
 
-        static void AddPlatform(EntityCommandBuffer ecs, Entity ent, bool flip, int idx, float3 color, NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDistance)
+        static void AddPlatform(EntityCommandBuffer ecb, Entity ent, bool flip, int idx, float3 color, NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, float totalDistance)
         {
             float3 platPos = positions[idx];
-            var translation = new Translation { Value = platPos };
 
             // Make sure we use the exact same tangent for facing platforms
             bool facingPlatform = 2 * idx > positions.Length;
@@ -62,15 +66,10 @@ namespace MetroECS
             UnityEngine.Vector3 ea = q.eulerAngles;
             q.eulerAngles = new UnityEngine.Vector3(ea.x, ea.y + 90f, ea.z);
 
-            var rotation = new Rotation { Value = 
-                (
-                    new quaternion(q.x, q.y, q.z, q.w)
-                ) };
-            var col = new URPMaterialPropertyBaseColor { Value = new float4(color.x, color.y, color.z, 1f) };
-
-            ecs.SetComponent(ent, translation);
-            ecs.SetComponent(ent, rotation);
-            ecs.AddComponent(ent, col);
+            ecb.SetComponent(ent, new Translation { Value = platPos });
+            ecb.SetComponent(ent, new Rotation{ Value = ( new quaternion(q.x, q.y, q.z, q.w) ) });
+            ecb.AddComponent(ent, new URPMaterialPropertyBaseColor { Value = new float4(color.x, color.y, color.z, 1f) });
+            //ecs.AddComponent(ent, new PropagateColor());
         }
     }
 }
