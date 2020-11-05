@@ -26,12 +26,14 @@ unsafe public class PathDataAuthoring : MonoBehaviour, IConvertGameObjectToEntit
         var handlesInB = builder.Allocate(ref pathData.HandlesIn, totalMarkerCount);
         var handlesOutB = builder.Allocate(ref pathData.HandlesOut, totalMarkerCount);
         var distancesB = builder.Allocate(ref pathData.Distances, totalMarkerCount);
+        var normalizedDistancesB = builder.Allocate(ref pathData.normalizedDistances, totalMarkerCount);
         var markerTypesB = builder.Allocate(ref pathData.MarkerTypes, totalMarkerCount);
 
         var nativePositions  = positionsB.ToNativeArray();
         var nativeHandlesIn  = handlesInB.ToNativeArray();
         var nativeHandlesOut = handlesOutB.ToNativeArray();
         var nativeDistances  = distancesB.ToNativeArray();
+        var nativeNormalizedDistances = normalizedDistancesB.ToNativeArray();
 
         // Outbound Positions
         for (var c = 0; c < transform.childCount; c++)
