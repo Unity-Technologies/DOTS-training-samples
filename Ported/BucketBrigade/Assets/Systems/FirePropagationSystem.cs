@@ -5,12 +5,14 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class FirePropagationSystem : SystemBase
 {
     public NativeArray<float> cells;
     NativeArray<float> tempCells;
     public double timeStep;
     public double lastUpdateTime = 0;
+    JobHandle handle;
 
     protected override void OnStartRunning()
     {
@@ -40,14 +42,15 @@ public class FirePropagationSystem : SystemBase
                     fireCells[entityInQueryIndex] = 0;
                 }
 
-            }).Schedule();
+            }).Run();
     }
 
     protected override void OnUpdate()
     {
-
         if (timeStep < Time.ElapsedTime - lastUpdateTime || lastUpdateTime == 0)
         {
+            handle.Complete();
+
             FireSim fireSim = GetSingleton<FireSim>();
             var fireCells = cells;
 
@@ -70,7 +73,7 @@ public class FirePropagationSystem : SystemBase
             propagationJob.HeatTransfer = fireSim.HeatTransfer;
 
             // Schedule the job
-            Dependency = propagationJob.Schedule(numCells, fireSim.FireGridDimension, Dependency);
+            handle = propagationJob.Schedule(numCells, fireSim.FireGridDimension);
 
             // Swap the two buffers
             cells = tempCells;

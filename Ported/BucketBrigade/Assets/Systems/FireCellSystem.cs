@@ -13,7 +13,7 @@ public class FireCellSystem : SystemBase
         var time = Time.ElapsedTime;
         FireSim fireSim = GetSingleton<FireSim>();
 
-        EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        EntityCommandBufferSystem sys = World.GetExistingSystem<BeginSimulationEntityCommandBufferSystem>();
         var ecb = sys.CreateCommandBuffer().AsParallelWriter();
 
         Entities
