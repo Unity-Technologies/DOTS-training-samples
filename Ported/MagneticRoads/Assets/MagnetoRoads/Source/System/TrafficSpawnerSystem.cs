@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Magneto.Track;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -19,6 +20,9 @@ public class TrafficSpawnerSystem : SystemBase
     public bool isReady = false;
     public bool m_SpawnFromGenerator = false;
     public List<Intersection> m_Intersections = new List<Intersection>();
+    
+    public List<Mesh> SplineMeshes = new List<Mesh>();
+    public List<float3> SplineTranslations = new List<float3>();
 
     protected override void OnCreate()
     {
@@ -106,17 +110,21 @@ public class TrafficSpawnerSystem : SystemBase
         if (spawners.Length > 0)
         {
             TrafficSpawner trafficSpawner = EntityManager.GetComponentData<TrafficSpawner>(spawners[0]);
-            Entity meshEntity = EntityManager.Instantiate(trafficSpawner.RoadPrefab);
-            RenderMesh renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(meshEntity);
-            
-            
-            renderMesh.mesh = GenerateMesh();
 
-            // Setting rendering.
-            EntityManager.SetSharedComponentData(meshEntity, renderMesh);
+            int cachedCount = SplineMeshes.Count;
+            for(int i = 0; i < cachedCount; i++)
+            {
+                Entity meshEntity = EntityManager.Instantiate(trafficSpawner.RoadPrefab);
+                RenderMesh renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(meshEntity);
                 
-            // Setting position.
-            EntityManager.SetComponentData(meshEntity, new Translation { Value = new float3(-3,0,0)});
+                renderMesh.mesh = SplineMeshes[i];
+                
+                // Setting rendering.
+                EntityManager.SetSharedComponentData(meshEntity, renderMesh);
+
+                // Setting position.
+                EntityManager.SetComponentData(meshEntity, new Translation {Value = SplineTranslations[i]});
+            }
         }
 spawners.Dispose();
         

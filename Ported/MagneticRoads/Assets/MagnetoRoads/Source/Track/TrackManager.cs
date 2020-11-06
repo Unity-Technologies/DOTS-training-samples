@@ -202,7 +202,32 @@ namespace Magneto.Track
 
                     startIntersection.neighbors.Add(endIntersection);
                     endIntersection.neighbors.Add(startIntersection);
+                    
+                    var trackSpline = new TrackSplineObject(
+                        spline.StartPosition.GetVector3(),
+                        startIntersection.normal,
+                        spline.StartTangent.GetVector3(),
+                        spline.EndPosition.GetVector3(),
+                        endIntersection.normal,
+                        spline.EndTangent.GetVector3());
+
+                    List<Vector3> vertices = new List<Vector3>();
+                    List<Vector2> uvs = new List<Vector2>();
+                    List<int> triangles = new List<int>();
+
+                    trackSpline.GenerateMesh(vertices, uvs, triangles);
+
+                    var mesh = new Mesh();
+                    mesh.SetVertices(vertices);
+                    mesh.SetUVs(0,uvs);
+                    mesh.SetTriangles(triangles,0);
+                    mesh.RecalculateNormals();
+                    mesh.RecalculateBounds();
+
+                    trafficSpawnerSystem.SplineMeshes.Add(mesh);
+                    trafficSpawnerSystem.SplineTranslations.Add(float3.zero);
                 }
+                
                 
                 _cachedNeighbourIndexOffsets.Dispose();
                 _cachedNeighbourIndexOffsetsLimited.Dispose();
