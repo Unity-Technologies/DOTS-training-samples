@@ -63,45 +63,46 @@ namespace MagnetoRoads
             var movementSpeed = fastMode ? this.fastMovementSpeed : this.movementSpeed;
 
             var cachedDeltaTime = Time.deltaTime;
+            var cachedMovementSpeed = (movementSpeed * cachedDeltaTime);
 
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
             {
-                transform.position = transform.position + (-transform.right * movementSpeed * cachedDeltaTime);
+                transform.position = transform.position + (-transform.right * cachedMovementSpeed);
             }
 
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
             {
-                transform.position = transform.position + (transform.right * movementSpeed * cachedDeltaTime);
+                transform.position = transform.position + (transform.right * cachedMovementSpeed);
             }
 
             if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
             {
-                transform.position = transform.position + (transform.forward * movementSpeed * cachedDeltaTime);
+                transform.position = transform.position + (transform.forward * cachedMovementSpeed);
             }
 
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
             {
-                transform.position = transform.position + (-transform.forward * movementSpeed * cachedDeltaTime);
+                transform.position = transform.position + (-transform.forward * cachedMovementSpeed);
             }
 
             if (Input.GetKey(KeyCode.E))
             {
-                transform.position = transform.position + (transform.up * movementSpeed * cachedDeltaTime);
+                transform.position = transform.position + (transform.up * cachedMovementSpeed);
             }
 
             if (Input.GetKey(KeyCode.Q))
             {
-                transform.position = transform.position + (-transform.up * movementSpeed * cachedDeltaTime);
+                transform.position = transform.position + (-transform.up * cachedMovementSpeed);
             }
 
             if (Input.GetKey(KeyCode.R) || Input.GetKey(KeyCode.PageUp))
             {
-                transform.position = transform.position + (Vector3.up * movementSpeed * cachedDeltaTime);
+                transform.position = transform.position + (Vector3.up * cachedMovementSpeed);
             }
 
             if (Input.GetKey(KeyCode.F) || Input.GetKey(KeyCode.PageDown))
             {
-                transform.position = transform.position + (-Vector3.up * movementSpeed * cachedDeltaTime);
+                transform.position = transform.position + (-Vector3.up * cachedMovementSpeed);
             }
 
             if (looking)
