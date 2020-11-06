@@ -468,7 +468,6 @@ public class AntMovementSystem : SystemBase
     {
         var position = position3D.xz;
 
-        mapSize = 10f;
         float inwardOrOutward = -outwardStrength;
         float pushRadius = mapSize * .4f;
         if (isLookingForNest)
