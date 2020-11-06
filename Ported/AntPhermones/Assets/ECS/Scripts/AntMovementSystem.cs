@@ -84,13 +84,18 @@ public class AntMovementSystem : SystemBase
         var rayCastColonyArray = rayCastMapColony;
         var rayCastFoodArray = rayCastMapFood;
 
+        // First process the ants looking for food
+
+        var target3D = spawner.FoodPosition;
+        var targetRadius = spawner.FoodRadius;
+        var target2D = new float2(target3D.x, target3D.z);
+
         Entities
         .WithNativeDisableParallelForRestriction(pheromonesArray)
         .WithReadOnly(obstaclesPositions)
-        .WithReadOnly(rayCastColonyArray)
         .WithReadOnly(rayCastFoodArray)
         .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand,
-            ref HasTargetInSight hasTargetInSight, ref Speed speed, in Entity antEntity) =>
+            ref HasTargetInSight hasTargetInSight, ref Speed speed, in Entity antEntity, in AntLookingForFood dummy) =>
         {
             // Pseudo-random steering
             direction.Value += rand.Random.NextFloat(-randomSteering, randomSteering);
@@ -110,40 +115,14 @@ public class AntMovementSystem : SystemBase
 
             // TODO: steer towards target
 
-            var target3D = float3.zero;
-            var targetRadius = 0f;
-            var isLookingForFood = HasComponent<AntLookingForFood>(antEntity);
-            var isLookingForNest = HasComponent<AntLookingForNest>(antEntity);
-
-            if (isLookingForFood)
-            {
-                target3D = spawner.FoodPosition;
-                targetRadius = spawner.FoodRadius;
-            }
-            else
-            {
-                target3D = spawner.ColonyPosition;
-                targetRadius = spawner.ColonyRadius;
-            }
-
-            var target2D = new float2(target3D.x, target3D.z);
             SteeringTowardTarget(ref direction, ref hasTargetInSight, translation, target2D, 
-                spawner, obstaclesPositions, isLookingForFood ? rayCastFoodArray : rayCastColonyArray);
+                spawner, obstaclesPositions, rayCastFoodArray);
 
             if (HasReachedTarget(translation.Value, target3D, targetRadius))
             {
-                if (isLookingForFood)
-                {
-                    cmd.RemoveComponent<AntLookingForFood>(entityInQueryIndex, antEntity);
-                    cmd.AddComponent<AntLookingForNest>(entityInQueryIndex, antEntity);
-                    cmd.AddComponent<RequireColourUpdate>(entityInQueryIndex, antEntity);
-                }
-                else
-                {
-                    cmd.RemoveComponent<AntLookingForNest>(entityInQueryIndex, antEntity);
-                    cmd.AddComponent<AntLookingForFood>(entityInQueryIndex, antEntity);
-                    cmd.AddComponent<RequireColourUpdate>(entityInQueryIndex, antEntity);
-                }
+                cmd.RemoveComponent<AntLookingForFood>(entityInQueryIndex, antEntity);
+                cmd.AddComponent<AntLookingForNest>(entityInQueryIndex, antEntity);
+                cmd.AddComponent<RequireColourUpdate>(entityInQueryIndex, antEntity);
 
                 // Uturn
                 direction.Value += math.PI;
@@ -158,7 +137,7 @@ public class AntMovementSystem : SystemBase
 #if USE_OBSTACLE_AVOIDANCE
             ObstacleAvoid(ref translation, ref direction, spawner.ObstacleRadius, obstaclesPositions);
 #endif
-            SteerTowardColony(ref d, translation.Value, spawner.ColonyPosition, spawner.MapSize, isLookingForNest);
+            SteerTowardColony(ref d, translation.Value, spawner.ColonyPosition, spawner.MapSize, false);
 
             // Bounce off the edges of the board (for now the ant bounces back, maybe improve later)
             if (math.abs(translation.Value.x + d.x) > bounds.x)
@@ -178,6 +157,76 @@ public class AntMovementSystem : SystemBase
 
         })
         .ScheduleParallel();
+
+
+        target3D = spawner.ColonyPosition;
+        targetRadius = spawner.ColonyRadius;
+        target2D = new float2(target3D.x, target3D.z);
+
+        Entities
+       .WithNativeDisableParallelForRestriction(pheromonesArray)
+       .WithReadOnly(obstaclesPositions)
+       .WithReadOnly(rayCastColonyArray)
+       .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand,
+           ref HasTargetInSight hasTargetInSight, ref Speed speed, in Entity antEntity, in AntLookingForNest dummy) =>
+       {
+           // Pseudo-random steering
+           direction.Value += rand.Random.NextFloat(-randomSteering, randomSteering);
+
+           //pheromone steering
+           float pheroSteering = PheremoneSteering(pheromonesArray, translation, direction, 1.0f);
+           var wallSteering = WallSteering(translation.Value, direction.Value, 0.2f, obstaclesPositions);
+           var targetSpeed = antSpeed;
+           targetSpeed *= 1f - (math.abs(pheroSteering) + math.abs(wallSteering)) / 3f;
+           direction.Value += pheroSteering * pheromoneSteerStrength;
+           direction.Value += wallSteering * wallSteerStrength;
+
+           speed.Value += (targetSpeed - speed.Value) * antAccel;
+
+           var excitement = hasTargetInSight.Value ? excitementWithTargetInSight : excitementWhenWandering;
+           DropPheromones(translation.Value.x, translation.Value.z, bounds, pheromonesArray, speed.Value, dt, RefsAuthoring.TexSize, excitement);
+
+           SteeringTowardTarget(ref direction, ref hasTargetInSight, translation, target2D,
+               spawner, obstaclesPositions, rayCastColonyArray);
+
+           if (HasReachedTarget(translation.Value, target3D, targetRadius))
+           {
+               cmd.RemoveComponent<AntLookingForNest>(entityInQueryIndex, antEntity);
+               cmd.AddComponent<AntLookingForFood>(entityInQueryIndex, antEntity);
+               cmd.AddComponent<RequireColourUpdate>(entityInQueryIndex, antEntity);
+               // Uturn
+               direction.Value += math.PI;
+           }
+
+           var d = float2.zero;
+           d.x = math.cos(direction.Value) * speed.Value * dt;
+           d.y = math.sin(direction.Value) * speed.Value * dt;
+
+           direction.Value = (direction.Value >= 2 * math.PI) ? direction.Value - 2 * math.PI : direction.Value;
+
+#if USE_OBSTACLE_AVOIDANCE
+            ObstacleAvoid(ref translation, ref direction, spawner.ObstacleRadius, obstaclesPositions);
+#endif
+           SteerTowardColony(ref d, translation.Value, spawner.ColonyPosition, spawner.MapSize, true);
+
+           // Bounce off the edges of the board (for now the ant bounces back, maybe improve later)
+           if (math.abs(translation.Value.x + d.x) > bounds.x)
+           {
+               d.x = -d.x;
+               direction.Value += math.PI;
+           }
+
+           if (math.abs(translation.Value.z + d.y) > bounds.y)
+           {
+               d.y = -d.y;
+               direction.Value += math.PI;
+           }
+
+           translation.Value.x += (float)d.x;
+           translation.Value.z += (float)d.y;
+
+       })
+       .ScheduleParallel();
 
         var decayJob = new PheromoneDecayPassJob
         {
