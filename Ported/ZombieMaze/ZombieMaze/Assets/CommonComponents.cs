@@ -76,6 +76,10 @@ public struct MazeSize : IComponentData
     public int2 Value;
 }
 
+public struct MazeTag : IComponentData
+{
+};
+
 [Flags]
 public enum WallBits : byte
 {

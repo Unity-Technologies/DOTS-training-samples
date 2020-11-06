@@ -68,14 +68,6 @@ public class MazeGenerator : SystemBase
             ComponentType.ReadOnly<MazeSpawner>());
     }
 
-    private static void spawnLeftWall(Entity prefab, int2 position, int2 halfSize, EntityCommandBuffer ecb)
-    {
-        var spawnedTile = ecb.Instantiate(prefab);
-        ecb.SetComponent(spawnedTile,
-            new Translation {Value = new float3(position.x - halfSize.x - 0.5f, 0, position.y - halfSize.y)});
-        ecb.SetComponent(spawnedTile, new Rotation {Value = quaternion.Euler(0, math.PI / 2, 0)});
-    }
-
     private static void spawnLeftWall(Entity prefab, int2 position, int2 halfSize,
         EntityCommandBuffer.ParallelWriter ecb, int sortKey)
     {
@@ -83,13 +75,6 @@ public class MazeGenerator : SystemBase
         ecb.SetComponent(sortKey, spawnedTile,
             new Translation {Value = new float3(position.x - halfSize.x - 0.5f, 0, position.y - halfSize.y)});
         ecb.SetComponent(sortKey, spawnedTile, new Rotation {Value = quaternion.Euler(0, math.PI / 2, 0)});
-    }
-
-    private static void spawnBottomWall(Entity prefab, int2 position, int2 halfSize, EntityCommandBuffer ecb)
-    {
-        var spawnedTile = ecb.Instantiate(prefab);
-        ecb.SetComponent(spawnedTile,
-            new Translation {Value = new float3(position.x - halfSize.x, 0, position.y - halfSize.y - 0.5f)});
     }
 
     private static void spawnBottomWall(Entity prefab, int2 position, int2 halfSize,
@@ -281,6 +266,7 @@ public class MazeGenerator : SystemBase
         {
             ecb.RemoveComponent<MazeSpawner>(entity);
             ecb.RemoveComponent<Spawner>(entity);
+            ecb.AddComponent<MazeTag>(entity);
         }).Schedule(Dependency);
 
         spawnerEntityArray.Dispose();
