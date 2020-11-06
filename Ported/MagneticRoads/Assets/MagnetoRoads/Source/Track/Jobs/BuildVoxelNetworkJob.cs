@@ -13,6 +13,8 @@ namespace Magneto.Track.Jobs
     [BurstCompile]
     public struct BuildVoxelNetworkJob : IJob
     {
+        public uint RandomSeed;
+        
         [ReadOnly] public NativeStrideGridArray<int> R_IntersectionsGrid;
         [ReadOnly] public NativeArray<int3> R_LimitedCachedNeighbourIndexOffsets;
         [ReadOnly] public NativeStrideGridArray<bool> R_TrackVoxels;
@@ -25,7 +27,7 @@ namespace Magneto.Track.Jobs
         {
             
             float3 half3 = new float3(0.5f, 0.5f, 0.5f);
-            var random = Unity.Mathematics.Random.CreateFromIndex(TrackManager.RANDOM_SEED);
+            var random = Unity.Mathematics.Random.CreateFromIndex(RandomSeed);
             float3 intersectionOffset = float3.zero; //new float3(0.5f, 0.5f, 0.5f);
             
             var count = RW_Intersections.Length;

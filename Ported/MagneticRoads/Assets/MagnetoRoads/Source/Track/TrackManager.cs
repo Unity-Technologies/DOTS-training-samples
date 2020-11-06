@@ -12,7 +12,6 @@ namespace Magneto.Track
 {
     public static class TrackManager
     {
-        public const int RANDOM_SEED = 42;
         public const int DIRECTIONS_LENGTH = 26;
         public const int LIMITED_DIRECTIONS_LENGTH = 6;
 
@@ -87,6 +86,7 @@ namespace Magneto.Track
             public void Schedule()
             {
                 IsRunning = true;
+                uint random = (uint) UnityEngine.Random.Range(0, 10000000);
 
                 #region Stage 1 - Setup
 
@@ -114,6 +114,7 @@ namespace Magneto.Track
                 // Build Voxel Map
                 var buildVoxelMapJobHandle = new BuildVoxelMapJob
                 {
+                    RandomSeed = random,
                     R_CachedNeighbourIndexOffsets = _cachedNeighbourIndexOffsets,
                     R_LimitedCachedNeighbourIndexOffsets = _cachedNeighbourIndexOffsetsLimited,
                     RW_TrackVoxels = _trackVoxels,
@@ -125,6 +126,7 @@ namespace Magneto.Track
                 // Build the connective tissues
                 Stage2JobHandle = new BuildVoxelNetworkJob
                 {
+                    RandomSeed = random,
                     RW_Intersections = _intersections,
                     R_IntersectionsGrid = _intersectionIndicesByGrid,
                     R_LimitedCachedNeighbourIndexOffsets = _cachedNeighbourIndexOffsetsLimited,
