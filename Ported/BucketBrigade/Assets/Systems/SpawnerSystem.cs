@@ -3,24 +3,43 @@ using Unity.Collections;
 using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Rendering;
+using UnityEngine;
 
 public class SpawnerSystem : SystemBase
 {
+    public FireSim fireSimulation;
+    public EntityQuery spawnerDeleted;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+
+        RequireForUpdate(spawnerDeleted);
+    }
+
+    protected override void OnStartRunning()
+    {
+        base.OnStartRunning();
+
+        fireSimulation = GetSingleton<FireSim>();
+    }
+
     protected override void OnUpdate()
     {
+        var fireSim = fireSimulation;
+        
         //World.GetExistingSystem<FirePropagationSystem>()
-        FireSim fireSim = GetSingleton<FireSim>();
 
         //var seed = new System.Random();
         //var random = new Random((uint)seed.Next());
-        var random = new Random(42);
+        var random = new Unity.Mathematics.Random(42);
 
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
-        var em = EntityManager;
 
         var time = Time.ElapsedTime;
 
         Entities
+            .WithStoreEntityQueryInField(ref spawnerDeleted)
             .ForEach((Entity entity, in Spawner spawner) =>
             {
                 Entity instance;
