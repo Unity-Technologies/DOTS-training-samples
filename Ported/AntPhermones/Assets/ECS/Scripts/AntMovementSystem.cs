@@ -1,4 +1,5 @@
 #define USE_PRECOMPUTED_RAYCAST
+#define USE_PRECOMPUTED_DISTANCE_FIELD
 //#define USE_OBSTACLE_AVOIDANCE
 #define WALL_STEERING_EARLY_EXIT
 
@@ -50,6 +51,12 @@ public class AntMovementSystem : SystemBase
     static readonly float cellSize = 2 * bounds.x / numCells;
     static readonly float oneOverCellSize = 1.0f / cellSize;
 
+    // distance-field precomputation
+    static NativeArray<float> distanceField;
+    const int numCellsDF = 256;
+    static readonly float cellSizeDF = 2 * bounds.x / numCellsDF;
+    static readonly float oneOverCellSizeDF = 1.0f / cellSizeDF;
+
     protected override void OnCreate()
     {
         cmdBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -78,11 +85,13 @@ public class AntMovementSystem : SystemBase
         if (isRayCastInitialized == false)
         {
             PrecomputeRayCast(obstaclesPositions, spawner.ColonyPosition, spawner.FoodPosition, spawner.ColonyRadius, spawner.FoodRadius, spawner.ObstacleRadius);
+            PrecomputeDistanceField(obstaclesPositions, spawner.ObstacleRadius);
             isRayCastInitialized = true;
         }
 
         var rayCastColonyArray = rayCastMapColony;
         var rayCastFoodArray = rayCastMapFood;
+        var distanceFieldArray = distanceField;
 
         // First process the ants looking for food
 
@@ -94,6 +103,7 @@ public class AntMovementSystem : SystemBase
         .WithNativeDisableParallelForRestriction(pheromonesArray)
         .WithReadOnly(obstaclesPositions)
         .WithReadOnly(rayCastFoodArray)
+        .WithReadOnly(distanceFieldArray)
         .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand,
             ref HasTargetInSight hasTargetInSight, ref Speed speed, in Entity antEntity, in AntLookingForFood dummy) =>
         {
@@ -102,7 +112,7 @@ public class AntMovementSystem : SystemBase
 
             //pheromone steering
             float pheroSteering = PheremoneSteering(pheromonesArray, translation, direction, 1.0f);
-            var wallSteering = WallSteering(translation.Value, direction.Value, 0.2f, obstaclesPositions);
+            var wallSteering = WallSteering(translation.Value, direction.Value, 0.2f, obstaclesPositions, distanceFieldArray);
             var targetSpeed = antSpeed;
             targetSpeed *= 1f - (math.abs(pheroSteering) + math.abs(wallSteering)) / 3f;
             direction.Value += pheroSteering * pheromoneSteerStrength;
@@ -167,6 +177,7 @@ public class AntMovementSystem : SystemBase
        .WithNativeDisableParallelForRestriction(pheromonesArray)
        .WithReadOnly(obstaclesPositions)
        .WithReadOnly(rayCastColonyArray)
+       .WithReadOnly(distanceFieldArray)
        .ForEach((int entityInQueryIndex, ref Translation translation, ref Direction direction, ref RandState rand,
            ref HasTargetInSight hasTargetInSight, ref Speed speed, in Entity antEntity, in AntLookingForNest dummy) =>
        {
@@ -175,7 +186,7 @@ public class AntMovementSystem : SystemBase
 
            //pheromone steering
            float pheroSteering = PheremoneSteering(pheromonesArray, translation, direction, 1.0f);
-           var wallSteering = WallSteering(translation.Value, direction.Value, 0.2f, obstaclesPositions);
+           var wallSteering = WallSteering(translation.Value, direction.Value, 0.2f, obstaclesPositions, distanceFieldArray);
            var targetSpeed = antSpeed;
            targetSpeed *= 1f - (math.abs(pheroSteering) + math.abs(wallSteering)) / 3f;
            direction.Value += pheroSteering * pheromoneSteerStrength;
@@ -260,6 +271,35 @@ public class AntMovementSystem : SystemBase
         PrecomputeRayCast(obstaclePositions, rayCastMapColony, new float2(colonyPosition.x, colonyPosition.z), colonyRadius, obstacleRadius);
     }
 
+    void PrecomputeDistanceField(DynamicBuffer<ObstaclePosition> obstaclePositions, float obstacleRadius)
+    {
+        distanceField = new NativeArray<float>(numCellsDF * numCellsDF, Allocator.Persistent);
+        float x0 = -bounds.x;
+
+        for (int i = 0; i < numCellsDF; i++)
+        {
+            for (int j = 0; j < numCellsDF; j++)
+            {
+                float2 cellPosition = new float2(x0 + (i + 0.5f) * cellSizeDF, x0 + (j + 0.5f) * cellSizeDF);
+                float shortestDistance = 1000000000f;
+                for (int k = 0; k < obstaclePositions.Length; ++k)
+                {
+                    float2 obstaclePosition = obstaclePositions[k].Value.xz;
+                    float distance = math.distancesq(cellPosition, obstaclePosition);
+                    shortestDistance = distance < shortestDistance ? distance : shortestDistance;
+                }
+                distanceField[j * numCellsDF + i] = shortestDistance; 
+            }
+        }
+    }
+
+    public static float FetchDistance(float2 from, NativeArray<float> distanceField)
+    {
+        int indexX = (int)((from.x + bounds.x) * oneOverCellSizeDF);
+        int indexY = (int)((from.y + bounds.y) * oneOverCellSizeDF);
+        return distanceField[indexY * numCellsDF + indexX];
+    }
+
     // Precomputed ray-cast for run-time
     public static bool RayCastPrecomputed(float2 from, NativeArray<bool> map)
     {
@@ -268,7 +308,7 @@ public class AntMovementSystem : SystemBase
         return map[indexY * numCells + indexX];
     }
 
-    static float WallSteering(float3 position3D, float direction, float distance, in DynamicBuffer<ObstaclePosition> obstaclePositions)
+    static float WallSteering(float3 position3D, float direction, float distance, in DynamicBuffer<ObstaclePosition> obstaclePositions, in NativeArray<float> distancefield)
     {
         var position = position3D.xz;
 
@@ -291,17 +331,22 @@ public class AntMovementSystem : SystemBase
             test.x = position.x + math.cos(angle) * distance;
             test.y = position.y + math.sin(angle) * distance;
 
+#if USE_PRECOMPUTED_DISTANCE_FIELD
+            var distanceSq = FetchDistance(test, distancefield);
+            {
+                if (distanceSq < distance * distance)
+#else
             for (int i = 0; i < obstaclePositions.Length; ++i)
             {
                 var obstaclePos = obstaclePositions[i].Value.xz;
                 if (math.distancesq(test, obstaclePos) < distance * distance)
+#endif
                 {
                     --nbClose;
                     break;
                 }
             }
         }
-
 
         return (float)nbClose;
     }
@@ -513,5 +558,7 @@ public class AntMovementSystem : SystemBase
         rayCastMapFood.Dispose();
         rayCastMapColony.Dispose();
         isRayCastInitialized = false;
+
+        distanceField.Dispose();
     }
 }
