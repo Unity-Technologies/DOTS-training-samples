@@ -68,6 +68,11 @@ public struct ZombieSpawner : IComponentData
     public uint NumZombies;
 }
 
+public struct MovingWallSpawner : IComponentData
+{
+    public uint NumWalls;
+}
+
 public struct CapsuleSpawner : IComponentData
 {
     public uint NumCapsules;
@@ -128,4 +133,14 @@ public struct DijkstraMap : IComponentData
         Height = height;
         Origin = int2.zero;
     }
+}
+
+public struct MovingWall : IComponentData
+{
+    public int Width;
+    public int Range;
+    public float2 Direction;
+    public float2 Index;
+    public int Speed;
+    public int Tick;
 }

@@ -14,12 +14,14 @@ public class MazeAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
     public uint openStripWidth = 4;
     public uint numZombies = 5;
     public uint numCapsules = 10;
+    public uint numMovingWalls = 5;
 
     [Header("Prefabs")]
     public GameObject tilePrefab;
     public GameObject zombiePrefab;
     public GameObject wallPrefab;
     public GameObject capsulePrefab;
+    public GameObject movingWallPrefab;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -93,7 +95,22 @@ public class MazeAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
         var mazeSizeEntity = conversionSystem.CreateAdditionalEntity(gameObject);
         dstManager.AddComponentData(mazeSizeEntity, new MazeSize{Value = (int2)tileMazeSize});
 
-        
+        // Moving walls
+        #region moving walls
+
+        var movingWallSpawner = new MovingWallSpawner
+        {
+            NumWalls = numMovingWalls
+        };
+        var movingWallPrefabEntity = conversionSystem.GetPrimaryEntity(movingWallPrefab);
+        var movingWallSpawnerEntity = conversionSystem.CreateAdditionalEntity(gameObject);
+        spawner.Prefab = movingWallPrefabEntity;
+
+        dstManager.AddComponentData(movingWallSpawnerEntity, movingWallSpawner);
+        dstManager.AddComponentData(movingWallSpawnerEntity, spawner);
+        dstManager.AddComponentData(movingWallSpawnerEntity, new Random { Value = new Unity.Mathematics.Random(int.MaxValue) });
+
+        #endregion
     }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -102,5 +119,6 @@ public class MazeAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
         referencedPrefabs.Add(zombiePrefab);
         referencedPrefabs.Add(wallPrefab);
         referencedPrefabs.Add(capsulePrefab);
+        referencedPrefabs.Add(movingWallPrefab);
     }
 }
