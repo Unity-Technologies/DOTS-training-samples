@@ -1,5 +1,7 @@
 ﻿using Unity.Entities;
 
+[UpdateAfter(typeof(SimpleIntersectionActiveCarSystem))]
+[UpdateBefore(typeof(DoubleIntersectionSystem))]
 public class SimpleIntersectionOutSystem : SystemBase
 {
     EndFixedStepSimulationEntityCommandBufferSystem ecbSystem;
@@ -30,5 +32,7 @@ public class SimpleIntersectionOutSystem : SystemBase
                 positionAccessor[simpleIntersection.car] = new CarPosition {Value = 0};
                 simpleIntersection.car = Entity.Null;
             }).ScheduleParallel();
+        
+        ecbSystem.AddJobHandleForProducer(Dependency);
     }
 }
