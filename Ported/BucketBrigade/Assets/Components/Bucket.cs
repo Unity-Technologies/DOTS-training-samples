@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-public struct EmptyBucket: IComponentData
+public struct EmptyBucket : IComponentData
 {
 }
 
@@ -10,5 +10,8 @@ public struct BucketReadyFor : IComponentData
 }
 
 public struct FullBucket : IComponentData
+{
+}
+public struct BucketForScooper : IComponentData
 {
 }

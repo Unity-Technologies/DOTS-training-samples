@@ -13,6 +13,7 @@ public class MoveTowardEntitySystem : SystemBase
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
+        FireSim fireSim = GetSingleton<FireSim>();
 
         EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = sys.CreateCommandBuffer().AsParallelWriter();
@@ -130,8 +131,9 @@ public class MoveTowardEntitySystem : SystemBase
                     ecb.RemoveComponent<GotoDropoffLocation>(entityInQueryIndex, entity);
                     ecb.RemoveComponent<HoldingBucket>(entityInQueryIndex, entity);
 
+                    var next = (bot.Index == fireSim.NumBotsPerChain * 2 - 1) ? 0 : bot.Index + 1;
                     ecb.AddComponent<GotoPickupLocation>(entityInQueryIndex, entity);
-                    ecb.AddComponent(entityInQueryIndex, bucket.Target, new BucketReadyFor() { Index = bot.Index + 1 });
+                    ecb.AddComponent(entityInQueryIndex, bucket.Target, new BucketReadyFor() { Index = next });
                 }
                 else
                 {

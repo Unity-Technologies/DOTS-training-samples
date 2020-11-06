@@ -67,7 +67,9 @@ public class SpawnerSystem : SystemBase
                 {
                     instance = ecb.Instantiate(spawner.BucketPrefab);
                     ecb.SetComponent(instance, new Translation { Value = new float3(random.NextInt(0, fireSim.FireGridDimension), 0.4f, random.NextInt(0, fireSim.FireGridDimension)) });
-                    ecb.AddComponent(instance, new EmptyBucket());
+                    ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
+                    ecb.AddComponent<BucketForScooper>(instance);
+                    ecb.AddComponent<EmptyBucket>(instance);
                 }
 
             }).Run();
@@ -91,14 +93,13 @@ public class SpawnerSystem : SystemBase
                     // Full chain
                     for (int j = 0; j < fireSim.NumBotsPerChain; j++)
                     {
-                        var color = spawner.PasserColor;
-
                         instance = ecb.Instantiate(spawner.BotPrefab);
                         var botPosition = new float3(random.NextInt(0, fireSim.FireGridDimension), 1.6f, random.NextInt(0, fireSim.FireGridDimension));
                         ecb.SetComponent(instance, new Translation { Value = botPosition });
                         ecb.AddComponent(instance, new Bot { Index = j });
                         fullChain.Add(instance);
 
+                        var color = spawner.PasserFullColor;
                         if (j == 0)
                         {
                             color = spawner.FillerColor;
@@ -107,7 +108,6 @@ public class SpawnerSystem : SystemBase
                         ecb.AddComponent(instance, new URPMaterialPropertyBaseColor() { Value = color });
                     }
 
-                    /*
                     // Empty chain
                     for (int j = 0; j < fireSim.NumBotsPerChain; j++)
                     {
@@ -115,10 +115,16 @@ public class SpawnerSystem : SystemBase
                         var botPosition = new float3(random.NextInt(0, fireSim.FireGridDimension), 1.6f, random.NextInt(0, fireSim.FireGridDimension));
                         ecb.SetComponent(instance, new Translation { Value = botPosition });
                         ecb.AddComponent(instance, new Bot { Index = fireSim.NumBotsPerChain + j });
-                        ecb.AddComponent(instance, new URPMaterialPropertyBaseColor() { Value = new float4(0.3f, 0.5f, 0.2f, 1.0f) });
                         emptyChain.Add(instance);
+
+                        var color = spawner.PasserEmptyColor;
+                        if (j == 0)
+                        {
+                            color = spawner.ThrowerColor;
+                            ecb.AddComponent(instance, new ThrowerBot());
+                        }
+                        ecb.AddComponent(instance, new URPMaterialPropertyBaseColor() { Value = color });
                     }
-                    */
 
                     // Scooper
                     instance = ecb.Instantiate(spawner.BotPrefab);

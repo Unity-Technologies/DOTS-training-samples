@@ -153,8 +153,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ChainCount: 1
-  NumBotsPerChain: 5
-  BucketCount: 10
+  NumBotsPerChain: 4
+  BucketCount: 1
   WaterCellCount: 50
   FireGridDimension: 100
   PropagationRadius: 1
@@ -211,9 +211,11 @@ MonoBehaviour:
     type: 3}
   FireCell: {fileID: 1306931638197496, guid: d2414dc4033474771b65161755b347cb, type: 3}
   WaterCell: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314, type: 3}
-  ScooperColor: {r: 0.040628344, g: 0.7830189, b: 0.15047117, a: 0}
+  ScooperColor: {r: 0.8113208, g: 0.68513316, b: 0.41714135, a: 0}
   FillerColor: {r: 0.97911155, g: 1, b: 0, a: 0}
-  PasserColor: {r: 0.3679245, g: 0.1577107, b: 0, a: 0}
+  ThrowerColor: {r: 0.9056604, g: 0.3731116, b: 0.12388753, a: 0}
+  PasserFullColor: {r: 1, g: 0.6745283, b: 0.6745283, a: 0}
+  PasserEmptyColor: {r: 0.8165927, g: 1, b: 0.759434, a: 0}
 --- !u!4 &973114860
 Transform:
   m_ObjectHideFlags: 0

@@ -46,11 +46,20 @@ public class BotMovementSystem : SystemBase
                     GetComponent<BucketReadyFor>(entities[index]).Index == bot.Index)
                 {
                     ecb.RemoveComponent<BucketReadyFor>(entities[index]);
-                    ecb.AddComponent<FullBucket>(entities[index]);
-                    ecb.AddComponent(entities[index], new URPMaterialPropertyBaseColor() { Value = new float4(0.0f, 0.0f, 0.8f, 1.0f) });
 
                     ecb.AddComponent<GotoDropoffLocation>(entity);
                     ecb.AddComponent(entity, new HoldingBucket() { Target = entities[index] });
+
+                    if (HasComponent<FillerBot>(entity))
+                    {
+                        ecb.AddComponent<FullBucket>(entities[index]);
+                        ecb.RemoveComponent<EmptyBucket>(entities[index]);
+                    }
+                    else if (HasComponent<ThrowerBot>(entity))
+                    {
+                        ecb.AddComponent<EmptyBucket>(entities[index]);
+                        ecb.RemoveComponent<FullBucket>(entities[index]);
+                    }
                 }
             }).Run();
 

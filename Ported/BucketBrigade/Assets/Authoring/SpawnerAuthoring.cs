@@ -15,7 +15,9 @@ public class SpawnerAuthoring : MonoBehaviour
 
     public Color ScooperColor;
     public Color FillerColor;
-    public Color PasserColor;
+    public Color ThrowerColor;
+    public Color PasserFullColor;
+    public Color PasserEmptyColor;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -28,7 +30,9 @@ public class SpawnerAuthoring : MonoBehaviour
 
             ScooperColor = new float4(ScooperColor.r, ScooperColor.g, ScooperColor.b, ScooperColor.a),
             FillerColor = new float4(FillerColor.r, FillerColor.g, FillerColor.b, FillerColor.a),
-            PasserColor = new float4(PasserColor.r, PasserColor.g, PasserColor.b, PasserColor.a),
+            ThrowerColor = new float4(ThrowerColor.r, ThrowerColor.g, ThrowerColor.b, ThrowerColor.a),
+            PasserFullColor = new float4(PasserFullColor.r, PasserFullColor.g, PasserFullColor.b, PasserFullColor.a),
+            PasserEmptyColor = new float4(PasserEmptyColor.r, PasserEmptyColor.g, PasserEmptyColor.b, PasserEmptyColor.a),
         });
     }
 

@@ -10,5 +10,7 @@ public struct Spawner : IComponentData
 
     public float4 ScooperColor;
     public float4 FillerColor;
-    public float4 PasserColor;
+    public float4 ThrowerColor;
+    public float4 PasserFullColor;
+    public float4 PasserEmptyColor;
 }

@@ -14,7 +14,7 @@ public class FindBucketSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-        buckets = GetEntityQuery(ComponentType.ReadOnly<EmptyBucket>(), ComponentType.ReadOnly<Translation>());
+        buckets = GetEntityQuery(ComponentType.ReadOnly<BucketForScooper>(), ComponentType.ReadOnly<Translation>());
     }
 
     protected override void OnUpdate()
@@ -30,24 +30,24 @@ public class FindBucketSystem : SystemBase
 
         Entities
             .ForEach((Entity entity, in FindBucket bot, in FillerBot chainstart, in Translation translation) =>
-        {
-            ecb.RemoveComponent<FindBucket>(entity);
-
-            if (bucketsEntitiesCopy.Length > 0)
             {
-                int closestBucketIndex = FireSim.GetClosestIndex(translation.Value, bucketsEntitiesCopy, bucketsTranslationsCopy);
+                ecb.RemoveComponent<FindBucket>(entity);
 
-                Entity closestBucket = bucketsEntitiesCopy[closestBucketIndex];
-                bucketsEntitiesCopy[closestBucketIndex] = bucketsEntitiesCopy[bucketsEntitiesCopy.Length - 1];
-                bucketsTranslationsCopy[closestBucketIndex] = bucketsTranslationsCopy[bucketsEntitiesCopy.Length - 1];
+                if (bucketsEntitiesCopy.Length > 0)
+                {
+                    int closestBucketIndex = FireSim.GetClosestIndex(translation.Value, bucketsEntitiesCopy, bucketsTranslationsCopy);
 
-                bucketsEntitiesCopy = bucketsEntitiesCopy.GetSubArray(0, bucketsEntitiesCopy.Length - 1);
-                bucketsTranslationsCopy = bucketsTranslationsCopy.GetSubArray(0, bucketsTranslationsCopy.Length - 1);
+                    Entity closestBucket = bucketsEntitiesCopy[closestBucketIndex];
+                    bucketsEntitiesCopy[closestBucketIndex] = bucketsEntitiesCopy[bucketsEntitiesCopy.Length - 1];
+                    bucketsTranslationsCopy[closestBucketIndex] = bucketsTranslationsCopy[bucketsEntitiesCopy.Length - 1];
 
-                ecb.RemoveComponent<EmptyBucket>(closestBucket);
-                ecb.AddComponent(entity, new MoveTowardBucket() { Target = closestBucket });
-            }
-        }).Run();
+                    bucketsEntitiesCopy = bucketsEntitiesCopy.GetSubArray(0, bucketsEntitiesCopy.Length - 1);
+                    bucketsTranslationsCopy = bucketsTranslationsCopy.GetSubArray(0, bucketsTranslationsCopy.Length - 1);
+
+                    ecb.RemoveComponent<BucketForScooper>(closestBucket);
+                    ecb.AddComponent(entity, new MoveTowardBucket() { Target = closestBucket });
+                }
+            }).Run();
 
         ecb.Playback(World.EntityManager);
         ecb.Dispose();
