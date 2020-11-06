@@ -1,3 +1,4 @@
+#if ENABLE_COMMUTERS
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -38,3 +39,4 @@ namespace MetroECS.Comuting
     {
     }
 }
+#endif

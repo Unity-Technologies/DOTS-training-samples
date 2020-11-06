@@ -1,4 +1,5 @@
-﻿using MetroECS;
+﻿#if ENABLE_COMMUTERS
+using MetroECS;
 using MetroECS.Comuting;
 using Unity.Collections;
 using Unity.Entities;
@@ -58,3 +59,4 @@ public class CommuterSpawningSystem : SystemBase
         firstFrameComplete = true;
     }
 }
+#endif
