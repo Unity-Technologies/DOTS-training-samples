@@ -1,6 +1,5 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 
 public class DoubleIntersectionSplineSetupSystem : SystemBase
 {

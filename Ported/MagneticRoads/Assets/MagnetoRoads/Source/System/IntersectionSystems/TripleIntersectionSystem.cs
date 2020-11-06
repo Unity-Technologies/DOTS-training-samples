@@ -1,5 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
@@ -32,6 +33,7 @@ public class TripleIntersectionSystem : SystemBase
         float deltaTime = Time.DeltaTime;
         
         Entities
+            .WithNone<IntersectionNeedsInit>()
             .ForEach((Entity entity, ref TripleIntersection tripleIntersection) =>
             {
                 NativeArray<int> directions = new NativeArray<int>(3, Allocator.Temp);
@@ -113,46 +115,85 @@ public class TripleIntersectionSystem : SystemBase
                                 SetComponent(tripleIntersection.laneIn1, lane);    
                             else
                                 SetComponent(tripleIntersection.laneIn2, lane);    
+
+                            SetComponent(tripleIntersection.car, new CarPosition {Value = 0});
+                            
                             break;
                         }
                     }
                 }
                 else // car is in intersection
                 {
-                    // TODO: MBRIAU: Still make that car accelerate but cap the normalized speed to 0.7f while in an intersection (Look at Car.cs)
-                    // TODO: MBRIAU: We also need to make the first car of each input lane slowdown since the intersection is busy
-                    
-                    int destination = directions[tripleIntersection.carIndex];
-                    Lane newLaneOut = laneOuts[destination];
-                    if (destination == 0)
+                    var car = tripleIntersection.car;
+                    var carPos = GetComponent<CarPosition>(car);
+                    if (carPos.Value < 1)
                     {
-                        SetComponent(tripleIntersection.laneOut0, newLaneOut);
-                        DynamicBuffer<CarBufferElement> cars = GetBuffer<CarBufferElement>(tripleIntersection.laneOut0);
-                        cars.Add(tripleIntersection.car);
-                    }
-                    else if (destination == 1)
-                    {
-                        SetComponent(tripleIntersection.laneOut1, newLaneOut);
-                        DynamicBuffer<CarBufferElement> cars = GetBuffer<CarBufferElement>(tripleIntersection.laneOut1);
-                        cars.Add(tripleIntersection.car);
+                        var carSpeed = GetComponent<CarSpeed>(car);
+                        float newPosition = carPos.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * deltaTime;
+                        SetComponent(car, new CarPosition {Value = newPosition});
+
+                        var spline = tripleIntersection.aTurnToCSpline;
+                        if (tripleIntersection.carIndex == 0)
+                        {
+                            spline = tripleIntersection.lane0Direction == 0 
+                                ? tripleIntersection.aStraightToBSpline 
+                                : tripleIntersection.aTurnToCSpline;
+                        }
+                        else if (tripleIntersection.carIndex == 1)
+                        {
+                            spline = tripleIntersection.lane1Direction == 0 
+                                    ? tripleIntersection.bStraightToASpline 
+                                    : tripleIntersection.bTurnToCSpline;
+                        }
+                        else
+                        {
+                            spline = tripleIntersection.lane2Direction == 0
+                                ? tripleIntersection.cTurnToASpline
+                                : tripleIntersection.cTurnToBSpline;
+                        }
+                        
+                        var splineData = GetComponent<Spline>(spline);
+                        var eval = BezierUtility.EvaluateBezier(splineData.startPos, splineData.anchor1, splineData.anchor2,
+                            splineData.endPos, newPosition);
+                        SetComponent(car, new Translation {Value = eval});
                     }
                     else
                     {
-                        SetComponent(tripleIntersection.laneOut2, newLaneOut);
-                        DynamicBuffer<CarBufferElement> cars = GetBuffer<CarBufferElement>(tripleIntersection.laneOut2);
-                        cars.Add(tripleIntersection.car);
+                        // TODO: MBRIAU: Still make that car accelerate but cap the normalized speed to 0.7f while in an intersection (Look at Car.cs)
+                        // TODO: MBRIAU: We also need to make the first car of each input lane slowdown since the intersection is busy
+
+                        int destination = directions[tripleIntersection.carIndex];
+                        Lane newLaneOut = laneOuts[destination];
+                        if (destination == 0)
+                        {
+                            SetComponent(tripleIntersection.laneOut0, newLaneOut);
+                            DynamicBuffer<CarBufferElement> cars = GetBuffer<CarBufferElement>(tripleIntersection.laneOut0);
+                            cars.Add(tripleIntersection.car);
+                        }
+                        else if (destination == 1)
+                        {
+                            SetComponent(tripleIntersection.laneOut1, newLaneOut);
+                            DynamicBuffer<CarBufferElement> cars = GetBuffer<CarBufferElement>(tripleIntersection.laneOut1);
+                            cars.Add(tripleIntersection.car);
+                        }
+                        else
+                        {
+                            SetComponent(tripleIntersection.laneOut2, newLaneOut);
+                            DynamicBuffer<CarBufferElement> cars = GetBuffer<CarBufferElement>(tripleIntersection.laneOut2);
+                            cars.Add(tripleIntersection.car);
+                        }
+
+                        SetComponent(tripleIntersection.car, new CarPosition {Value = 0});
+                        tripleIntersection.car = Entity.Null;
+
+                        // Reset directions
+                        if (tripleIntersection.carIndex == 0)
+                            tripleIntersection.lane0Direction = -1;
+                        else if (tripleIntersection.carIndex == 1)
+                            tripleIntersection.lane1Direction = -1;
+                        else
+                            tripleIntersection.lane2Direction = -1;
                     }
-                    
-                    SetComponent(tripleIntersection.car, new CarPosition{Value = 0});
-                    tripleIntersection.car = Entity.Null;
-                    
-                    // Reset directions
-                    if (tripleIntersection.carIndex == 0)
-                        tripleIntersection.lane0Direction = -1;
-                    else if (tripleIntersection.carIndex == 1)
-                        tripleIntersection.lane1Direction = -1;    
-                    else
-                        tripleIntersection.lane2Direction = -1;    
                 }
 
                 directions.Dispose();
