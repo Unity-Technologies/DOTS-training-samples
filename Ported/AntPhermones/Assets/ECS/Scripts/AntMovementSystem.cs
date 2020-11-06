@@ -314,10 +314,10 @@ public class AntMovementSystem : SystemBase
 
 #if WALL_STEERING_EARLY_EXIT
         // There are no wall at the middle and at the outer region of the map
-        const float innerRadius = 1;
-        const float outerRadius = 16f;
-        float r = position.x * position.x + position.y * position.y;
-        if (r < innerRadius || r > outerRadius)
+        const float innerRadiusSq = 0.5f;
+        const float outerRadiusSq = 16f;
+        float lengthSq = math.lengthsq(position);
+        if (lengthSq < innerRadiusSq || lengthSq > outerRadiusSq)
         {
             return 0;
         }
