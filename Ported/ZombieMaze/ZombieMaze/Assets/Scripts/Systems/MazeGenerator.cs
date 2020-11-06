@@ -20,6 +20,11 @@ public static class MapUtil
     {
         return buffer[coordinates.x + coordinates.y * width];
     }
+    
+    public static MapCell GetTile(in NativeArray<MapCell> buffer, int2 coordinates, int width)
+    {
+        return buffer[coordinates.x + coordinates.y * width];
+    }
 
     public static bool IsVisited(MapCell mapCell)
     {
@@ -267,6 +272,14 @@ public class MazeGenerator : SystemBase
             ecb.RemoveComponent<MazeSpawner>(entity);
             ecb.RemoveComponent<Spawner>(entity);
             ecb.AddComponent<MazeTag>(entity);
+            ecb.AddBuffer<DistCell>(entity);
+            var map = new DijkstraMap
+            {
+                Width = spawner.MazeSize.x, 
+                Height = spawner.MazeSize.y, 
+                Origin = new int2()
+            };
+            ecb.AddComponent(entity, map);
         }).Schedule(Dependency);
 
         spawnerEntityArray.Dispose();

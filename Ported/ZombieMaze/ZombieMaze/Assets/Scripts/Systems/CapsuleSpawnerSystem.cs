@@ -24,7 +24,7 @@ public class CapsuleSpawnerSystem : SystemBase
         {
             for (int i = 0; i < capsuleSpawner.NumCapsules; i++)
             {
-                var position = random.Value.NextFloat2() * spawner.MazeSize - spawner.MazeSize / 2;
+                var position = math.round(random.Value.NextFloat2() * spawner.MazeSize) - spawner.MazeSize / 2;
                 var capsuleEntity = ecb.Instantiate(spawner.Prefab);
                 ecb.SetComponent(capsuleEntity, new Position { Value = position });
                 ecb.SetComponent(capsuleEntity, new Random { Value = new Unity.Mathematics.Random(((uint)i + 1) * 4391) });

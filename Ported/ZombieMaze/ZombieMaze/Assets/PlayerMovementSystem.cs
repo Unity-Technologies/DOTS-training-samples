@@ -35,7 +35,23 @@ public class PlayerMovementSystem : SystemBase
 
         Entities.ForEach((ref Position position, ref Direction direction, in Speed speed, in PlayerTag _) =>
         {
-            direction.Value = playerInput.Direction;
+            if (direction.MoveState == MoveState.IDLE)
+            {
+                if (math.abs(playerInput.Direction.x) > 0.5f)
+                {
+                    direction.Value.x = math.sign(playerInput.Direction.x);
+                    direction.Value.y = 0f;
+                }
+                else if(math.abs(playerInput.Direction.y) > 0.5f)
+                {
+                    direction.Value.y = math.sign(playerInput.Direction.y);
+                    direction.Value.x = 0f;
+                }
+                else
+                {
+                    direction.Value = new float2(0f);
+                }
+            }
         }).Schedule();
     }
 }

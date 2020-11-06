@@ -26,9 +26,17 @@ public struct Position : IComponentData
     public float2 Value;
 }
 
+public enum MoveState
+{
+    IDLE,
+    MOVING
+}
+
 public struct Direction : IComponentData
 {
     public float2 Value;
+    public MoveState MoveState;
+    public int2 TargetTile;
 }
 
 public struct Random : IComponentData

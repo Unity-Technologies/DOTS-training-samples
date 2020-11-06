@@ -15,6 +15,7 @@ public class DijkstraGeneratorSystem : SystemBase
 
     protected override void OnCreate()
     {
+        /*
         // Temp code to create a single map entity for testing.
         var e = EntityManager.CreateEntity(typeof(DijkstraMap));
 #if UNITY_EDITOR
@@ -25,23 +26,17 @@ public class DijkstraGeneratorSystem : SystemBase
         var map = new DijkstraMap(kWidth, kHeight);
         map.SetOrigin(0, 0);
         EntityManager.SetComponentData(e, map);
+        */
     }
 
     unsafe protected override void OnUpdate()
     {
-        Entities.ForEach((Entity e, ref DijkstraMap map, ref DynamicBuffer<MapCell> wallMap, ref DynamicBuffer<DistCell> distMap) => 
+        Entities.ForEach((Entity e, ref DijkstraMap map,ref DynamicBuffer<DistCell> distMap, in DynamicBuffer<MapCell> wallMap) => 
         {
             var length = map.Width * map.Height;
             if (distMap.Length != length)
                 distMap.ResizeUninitialized(length);
-
-// Temp code to init the wall data to no walls.
-if (wallMap.Length != length)
-{
-    wallMap.ResizeUninitialized(length);
-    for (var i = 0; i < length; ++i)
-        wallMap[i] = new MapCell(){ Value = 0 };  
-}
+            
             var positions = new NativeList<int2>(length, Allocator.Temp);
 
             // Init all distances to max distance. This can be parallelized.
@@ -64,13 +59,13 @@ if (wallMap.Length != length)
                 var walls = (WallBits)wallMap[index].Value;
 
                 if ((walls & WallBits.Left) == 0)
-                    VisitNeighbor(current + Constants.kInt2Left,  dist, ref map, ref wallMap, pDistCell, ref positions);
+                    VisitNeighbor(current + Constants.kInt2Left,  dist, ref map, in wallMap, pDistCell, ref positions);
                 if ((walls & WallBits.Bottom) == 0)
-                    VisitNeighbor(current + Constants.kInt2Down,  dist, ref map, ref wallMap, pDistCell, ref positions);
+                    VisitNeighbor(current + Constants.kInt2Down,  dist, ref map, in wallMap, pDistCell, ref positions);
                 if ((walls &  WallBits.Top) == 0)
-                    VisitNeighbor(current + Constants.kInt2Up,    dist, ref map, ref wallMap, pDistCell, ref positions);
+                    VisitNeighbor(current + Constants.kInt2Up,    dist, ref map, in wallMap, pDistCell, ref positions);
                 if ((walls & WallBits.Right) == 0)
-                    VisitNeighbor(current + Constants.kInt2Right, dist, ref map, ref wallMap, pDistCell, ref positions);
+                    VisitNeighbor(current + Constants.kInt2Right, dist, ref map, in wallMap, pDistCell, ref positions);
             }
 
             positions.Dispose();
@@ -78,7 +73,7 @@ if (wallMap.Length != length)
         .Schedule();
     }
 
-    unsafe static void VisitNeighbor(int2 next, int distance, ref DijkstraMap map, ref DynamicBuffer<MapCell> wallMap, DistCell* pDistCell, ref NativeList<int2> positions)
+    unsafe static void VisitNeighbor(int2 next, int distance, ref DijkstraMap map, in DynamicBuffer<MapCell> wallMap, DistCell* pDistCell, ref NativeList<int2> positions)
     {
         // If the next position is valid, and hasn't been visited yet.
         if (next.x >= 0 && next.x < map.Width && next.y >= 0 && next.y < map.Height)
