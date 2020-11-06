@@ -24,7 +24,7 @@ public class ZombieSpawnerSystem : SystemBase
         {
             for (int i = 0; i < zombieSpawner.NumZombies;i++)
             {
-                var position = random.Value.NextFloat2() * spawner.MazeSize - spawner.MazeSize/2;
+                var position = math.round(random.Value.NextFloat2() * spawner.MazeSize - spawner.MazeSize / 2);
                 var zombieEntity = ecb.Instantiate(spawner.Prefab);
                 ecb.SetComponent(zombieEntity, new Position{Value = position});
                 ecb.SetComponent(zombieEntity, new Random{Value = new Unity.Mathematics.Random(((uint)i+1)*4391)});

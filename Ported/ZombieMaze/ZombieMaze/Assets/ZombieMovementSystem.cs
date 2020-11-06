@@ -31,9 +31,12 @@ public class ZombieMovementSystem : SystemBase
 
         Entities.WithReadOnly(dirs).ForEach((ref ZombieTag _, ref Direction direction, ref Random random) => 
         {
-            // some percentage of the time, pick a new direction.
-            if (random.Value.NextInt(0, 100) < kChanceToChangeDirection)
-                direction.Value = dirs[random.Value.NextInt(4)];
+            if (direction.MoveState == MoveState.IDLE)
+            {
+                // some percentage of the time, pick a new direction.
+                if (random.Value.NextInt(0, 100) < kChanceToChangeDirection)
+                    direction.Value = dirs[random.Value.NextInt(4)];
+            }
         })
         .ScheduleParallel();
     }
