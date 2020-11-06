@@ -12,7 +12,7 @@ using Random = Unity.Mathematics.Random;
 //                out2 | in2
 //            car2:  lane
 
-[UpdateAfter(typeof(DoubleIntersectionSystem))]
+[UpdateAfter(typeof(DoubleIntersectionOutSystem))]
 public class TripleIntersectionSystem : SystemBase
 {
     private Random m_Random;
