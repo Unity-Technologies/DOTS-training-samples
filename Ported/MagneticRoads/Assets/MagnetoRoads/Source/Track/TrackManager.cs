@@ -184,10 +184,10 @@ namespace Magneto.Track
                     Entity laneIn = entityManager.CreateEntity(laneArchetype);
                     
                     entityManager.SetComponentData(laneOut, 
-                        new Spline {startPos = spline.StartIntersectionPosition, endPos = spline.EndIntersectionPosition});
+                        new Spline {startPos = spline.StartIntersectionPosition, endPos = spline.EndIntersectionPosition, anchor1 = spline.Anchor1, anchor2 = spline.Anchor2});
                     
                     entityManager.SetComponentData(laneIn, 
-                        new Spline {startPos = spline.EndIntersectionPosition, endPos = spline.StartIntersectionPosition});
+                        new Spline {startPos = spline.EndIntersectionPosition, endPos = spline.StartIntersectionPosition, anchor1 = spline.Anchor2, anchor2 = spline.Anchor1});
 
                     float length = (spline.EndIntersectionPosition.GetVector3() - spline.StartIntersectionPosition.GetVector3()).magnitude;
                     Lane lane = new Lane {Length = length};
