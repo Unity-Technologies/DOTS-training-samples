@@ -14,4 +14,11 @@ public struct TripleIntersection : IComponentData
     public int lane1Direction;
     public int lane2Direction;
     public Entity car;
+
+    public Entity aStraightToBSpline;
+    public Entity aTurnToCSpline;
+    public Entity bStraightToASpline;
+    public Entity bTurnToCSpline;
+    public Entity cTurnToASpline;
+    public Entity cTurnToBSpline;
 }
