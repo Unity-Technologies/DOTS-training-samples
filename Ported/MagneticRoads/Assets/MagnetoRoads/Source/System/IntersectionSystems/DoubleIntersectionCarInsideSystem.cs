@@ -8,57 +8,63 @@ using UnityEngine;
 [UpdateAfter(typeof(DoubleIntersectionSystem))]
 public class DoubleIntersectionCarInsideSystem : SystemBase
 {
-    private EndFixedStepSimulationEntityCommandBufferSystem ecbSystem;
+    //private EndFixedStepSimulationEntityCommandBufferSystem ecbSystem;
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        ecbSystem = World.GetExistingSystem<EndFixedStepSimulationEntityCommandBufferSystem>();
+        //ecbSystem = World.GetExistingSystem<EndFixedStepSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
         float deltaTime = Time.DeltaTime;
 
-        var ecb = ecbSystem.CreateCommandBuffer();
-        var ecbWriter = ecb.AsParallelWriter();
+        //var ecb = ecbSystem.CreateCommandBuffer();
+        //var ecbWriter = ecb.AsParallelWriter();
+
+        ComponentDataFromEntity<CarPosition> carPositionAccessor = GetComponentDataFromEntity<CarPosition>(false);
+        ComponentDataFromEntity<Translation> translationAccessor = GetComponentDataFromEntity<Translation>(false);
 
         Entities
+            .WithNativeDisableParallelForRestriction(carPositionAccessor)
+            .WithNativeDisableParallelForRestriction(translationAccessor)
             .WithNone<IntersectionNeedsInit>()
             .ForEach((Entity entity, int entityInQueryIndex, ref DoubleIntersection doubleIntersection) =>
             {
                 if (doubleIntersection.car0 != Entity.Null)
                 {
-                    var carPos = GetComponent<CarPosition>(doubleIntersection.car0);
+                    var carPos = carPositionAccessor[doubleIntersection.car0];
                     if (carPos.Value < 1)
                     {
                         var carSpeed = GetComponent<CarSpeed>(doubleIntersection.car0);
                         float newPosition = carPos.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * deltaTime;
-                        ecbWriter.SetComponent(entityInQueryIndex, doubleIntersection.car0, new CarPosition {Value = newPosition});
+                        //ecbWriter.SetComponent(entityInQueryIndex, doubleIntersection.car0, new CarPosition {Value = newPosition});
+                        carPositionAccessor[doubleIntersection.car0] = new CarPosition {Value = newPosition};
                         var splineData = GetComponent<Spline>(doubleIntersection.spline0);
                         var eval = BezierUtility.EvaluateBezier(splineData.startPos, splineData.anchor1, splineData.anchor2,
                             splineData.endPos, newPosition);
-                        ecbWriter.SetComponent(entityInQueryIndex, doubleIntersection.car0, new Translation {Value = eval});
+                        translationAccessor[doubleIntersection.car0] = new Translation {Value = eval};
                     }
                 }
 
                 if (doubleIntersection.car1 != Entity.Null)
                 {
-                    var carPos = GetComponent<CarPosition>(doubleIntersection.car1);
+                    var carPos = carPositionAccessor[doubleIntersection.car1];
                     if (carPos.Value < 1)
                     {
                         var carSpeed = GetComponent<CarSpeed>(doubleIntersection.car1);
                         float newPosition = carPos.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * deltaTime;
-                        ecbWriter.SetComponent(entityInQueryIndex, doubleIntersection.car1, new CarPosition {Value = newPosition});
+                        carPositionAccessor[doubleIntersection.car1] = new CarPosition {Value = newPosition};
                         var splineData = GetComponent<Spline>(doubleIntersection.spline1);
                         var eval = BezierUtility.EvaluateBezier(splineData.startPos, splineData.anchor1, splineData.anchor2,
                             splineData.endPos, newPosition);
-                        ecbWriter.SetComponent(entityInQueryIndex, doubleIntersection.car1, new Translation {Value = eval});
+                        translationAccessor[doubleIntersection.car1] = new Translation {Value = eval};
                     }
                 }
 
             }).ScheduleParallel();
         
-        ecbSystem.AddJobHandleForProducer(Dependency);
+        //ecbSystem.AddJobHandleForProducer(Dependency);
     }
 }
