@@ -30,7 +30,6 @@ public class DoubleIntersectionCarInsideSystem : SystemBase
                 if (doubleIntersection.car0 != Entity.Null)
                 {
                     var carPos = GetComponent<CarPosition>(doubleIntersection.car0);
-                    //Debug.Log("Car at Intersection 0 " + carPos.Value + " entity: " + doubleIntersection.car0);
                     if (carPos.Value < 1)
                     {
                         var carSpeed = GetComponent<CarSpeed>(doubleIntersection.car0);
@@ -58,7 +57,7 @@ public class DoubleIntersectionCarInsideSystem : SystemBase
                     }
                 }
 
-            }).Schedule();
+            }).ScheduleParallel();
         
         ecbSystem.AddJobHandleForProducer(Dependency);
     }
