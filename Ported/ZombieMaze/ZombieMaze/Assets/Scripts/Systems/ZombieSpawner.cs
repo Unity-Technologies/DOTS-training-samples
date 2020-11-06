@@ -33,8 +33,8 @@ public class ZombieSpawnerSystem : SystemBase
             }
             ecb.DestroyEntity(entity);
         }).Schedule(Dependency);
-        
-        _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
-        Dependency = jobHandle;
+
+        Dependency = JobHandle.CombineDependencies(jobHandle, Dependency);
+        _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
