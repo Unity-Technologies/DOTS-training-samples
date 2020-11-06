@@ -7,45 +7,30 @@ using Unity.Transforms;
 
 public class BotMovementSystem : SystemBase
 {
-   //public EntityQuery readyBuckets;
-    public EntityQuery buckets;
-    public NativeArray<Entity> entitiesArray;
+    public EntityQuery readyBuckets;
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        
-        //readyBuckets = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<BucketReadyFor>(), ComponentType.ReadOnly<Translation>());
-    
+        readyBuckets = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<BucketReadyFor>(), ComponentType.ReadOnly<Translation>());
     }
-
-    protected override void OnStartRunning()
-    {
-        base.OnStartRunning();
-
-        buckets = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<EmptyBucket>(), ComponentType.ReadOnly<Translation>());
-        entitiesArray = buckets.ToEntityArray(Allocator.Persistent);
-    }
-
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
-        var entities = entitiesArray;
-        var translations = buckets.ToComponentDataArray<Translation>(Allocator.TempJob);
-        
-        
+
+        var entities = readyBuckets.ToEntityArray(Allocator.TempJob);
+        var translations = readyBuckets.ToComponentDataArray<Translation>(Allocator.TempJob);
+
         Entities
             .WithNone<GotoDropoffLocation>()
             .WithNone<HoldingBucket>()
             .WithNone<GotoPickupLocation>()
-            .WithReadOnly(entities)
-            .WithReadOnly(translations)
             .ForEach((Entity entity, ref Translation translation, in Bot bot) =>
             {
                 var index = FireSim.GetClosestIndex(translation.Value, entities, translations);
-                if (index != -1 && math.distance(translation.Value, translations[index].Value) < 2.0f && HasComponent<BucketReadyFor>(entities[index]) &&
+                if (index != -1 && math.distance(translation.Value, translations[index].Value) < 2.0f &&
                     GetComponent<BucketReadyFor>(entities[index]).Index == bot.Index)
-                { 
+                {
                     ecb.RemoveComponent<BucketReadyFor>(entities[index]);
 
                     ecb.AddComponent<GotoDropoffLocation>(entity);
@@ -67,13 +52,7 @@ public class BotMovementSystem : SystemBase
         ecb.Playback(EntityManager);
         ecb.Dispose();
 
+        entities.Dispose();
         translations.Dispose();
-    }
-
-    protected override void OnStopRunning()
-    {
-        base.OnStopRunning();
-        buckets.Dispose();
-        entitiesArray.Dispose();
     }
 }

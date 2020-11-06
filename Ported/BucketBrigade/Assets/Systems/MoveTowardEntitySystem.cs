@@ -8,7 +8,6 @@ using Unity.Transforms;
 public class MoveTowardEntitySystem : SystemBase
 {
     public static readonly float Speed = 30.0f;
-    public static readonly float Threshold = 1.0f;
 
     protected override void OnUpdate()
     {
@@ -29,8 +28,9 @@ public class MoveTowardEntitySystem : SystemBase
 
             var distanceLeft = bucketPosition - scooperPosition;
             var length = math.length(distanceLeft);
+            float movementStep = Speed * deltaTime;
 
-            if (length <= Threshold)
+            if (length <= movementStep)
             {
                 cdfe[entity] = new Translation() { Value = bucketPosition };
 
@@ -45,7 +45,7 @@ public class MoveTowardEntitySystem : SystemBase
             else
             {
                 var direction = distanceLeft / length;
-                var newPosition = scooperPosition + Speed * deltaTime * direction;
+                var newPosition = scooperPosition + movementStep * direction;
                 cdfe[entity] = new Translation() { Value = newPosition };
             }
         }).ScheduleParallel();
@@ -61,8 +61,9 @@ public class MoveTowardEntitySystem : SystemBase
 
                 var distanceLeft = fillerPosition - scooperPosition;
                 var length = math.length(distanceLeft);
+                float movementStep = Speed * deltaTime;
 
-                if (length <= Threshold)
+                if (length <= movementStep)
                 {
                     cdfe[entity] = new Translation() { Value = fillerPosition };
                     fillerPosition.y += 1.6f;
@@ -77,7 +78,7 @@ public class MoveTowardEntitySystem : SystemBase
                 else
                 {
                     var direction = distanceLeft / length;
-                    var newPosition = scooperPosition + Speed * deltaTime * direction;
+                    var newPosition = scooperPosition + movementStep * direction;
                     cdfe[entity] = new Translation() { Value = newPosition };
                     newPosition.y += 1.6f;
                     cdfe[bucket.Target] = new Translation() { Value = newPosition };
@@ -95,8 +96,9 @@ public class MoveTowardEntitySystem : SystemBase
 
                 var distanceLeft = firePosition - botPosition;
                 var length = math.length(distanceLeft);
+                float movementStep = Speed * deltaTime;
 
-                if (length <= Threshold)
+                if (length <= movementStep)
                 {
                     cdfe[entity] = new Translation() { Value = firePosition };
                     firePosition.y += 1.6f;
@@ -107,7 +109,7 @@ public class MoveTowardEntitySystem : SystemBase
                 else
                 {
                     var direction = distanceLeft / length;
-                    var newPosition = botPosition + Speed * deltaTime * direction;
+                    var newPosition = botPosition + movementStep * direction;
                     cdfe[entity] = new Translation() { Value = newPosition };
                     newPosition.y += 1.6f;
                     cdfe[bucket.Target] = new Translation() { Value = newPosition };
@@ -120,8 +122,9 @@ public class MoveTowardEntitySystem : SystemBase
             {
                 var distanceLeft = chain.PickupPosition - cdfe[entity].Value;
                 var length = math.length(distanceLeft);
+                float movementStep = Speed * deltaTime;
 
-                if (length <= Threshold)
+                if (length <= movementStep)
                 {
                     cdfe[entity] = new Translation() { Value = chain.PickupPosition };
                     ecb.RemoveComponent<GotoPickupLocation>(entityInQueryIndex, entity);
@@ -129,7 +132,7 @@ public class MoveTowardEntitySystem : SystemBase
                 else
                 {
                     var direction = distanceLeft / length;
-                    var newPosition = cdfe[entity].Value + Speed * deltaTime * direction;
+                    var newPosition = cdfe[entity].Value + movementStep * direction;
                     cdfe[entity] = new Translation() { Value = newPosition };
                 }
             }).ScheduleParallel();
@@ -140,8 +143,9 @@ public class MoveTowardEntitySystem : SystemBase
             {
                 var distanceLeft = chain.DropoffPosition - cdfe[entity].Value;
                 var length = math.length(distanceLeft);
+                float movementStep = Speed * deltaTime;
 
-                if (length <= Threshold)
+                if (length <= movementStep)
                 {
                     var newPosition = chain.DropoffPosition;
                     cdfe[entity] = new Translation() { Value = newPosition };
@@ -158,7 +162,7 @@ public class MoveTowardEntitySystem : SystemBase
                 else
                 {
                     var direction = distanceLeft / length;
-                    var newPosition = cdfe[entity].Value + Speed * deltaTime * direction;
+                    var newPosition = cdfe[entity].Value + movementStep * direction;
                     cdfe[entity] = new Translation() { Value = newPosition };
                     newPosition.y += 1.6f;
                     cdfe[bucket.Target] = new Translation() { Value = newPosition };
