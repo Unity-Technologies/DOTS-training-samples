@@ -9,7 +9,7 @@ public class FindWaterCellSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-        waterCells = GetEntityQuery(ComponentType.ReadOnly<WaterCell>(), ComponentType.ReadOnly<Translation>());
+        waterCells = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<WaterCell>(), ComponentType.ReadOnly<Translation>());
 
     }
     protected override void OnUpdate()
@@ -19,7 +19,11 @@ public class FindWaterCellSystem : SystemBase
         var waterCellsEntities = waterCells.ToEntityArray(Allocator.Temp);
         var waterCellsTranslations = waterCells.ToComponentDataArray<Translation>(Allocator.Temp);
 
-        Entities.ForEach((Entity entity, in FindWaterCell scooperBot, in Translation translation) =>
+        
+        Entities
+            .WithReadOnly(waterCellsEntities)
+            .WithReadOnly(waterCellsTranslations)
+            .ForEach((Entity entity, in FindWaterCell scooperBot, in Translation translation) =>
         {
             ecb.RemoveComponent<FindWaterCell>(entity);
 

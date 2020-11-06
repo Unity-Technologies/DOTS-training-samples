@@ -25,6 +25,8 @@ public class BotMovementSystem : SystemBase
             .WithNone<GotoDropoffLocation>()
             .WithNone<HoldingBucket>()
             .WithNone<GotoPickupLocation>()
+            .WithReadOnly(entities)
+            .WithReadOnly(translations)
             .ForEach((Entity entity, ref Translation translation, in Bot bot) =>
             {
                 var index = FireSim.GetClosestIndex(translation.Value, entities, translations);
