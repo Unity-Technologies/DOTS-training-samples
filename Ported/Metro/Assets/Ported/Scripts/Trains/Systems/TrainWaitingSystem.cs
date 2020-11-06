@@ -17,12 +17,10 @@ namespace MetroECS.Trains
             {
                 train.deltaPos = 0.0f;
                 var timeWaiting = time - trainWaitingData.TimeStartedWaiting;
-                if (timeWaiting >= trainWaitingData.RandomWaitTime)
+                if (timeWaiting >= trainWaitingData.TimeToWait)
                 {
                     ecb.RemoveComponent<TrainWaitingTag>(trainEntity);
-                    ecb.AddComponent(trainEntity, new TrainInMotionTag());
-                    
-                    //Debug.Log("Leaving platform");
+                    ecb.AddComponent(trainEntity, new TrainDoorsClosingTag());
                 }
             }).Run();
             

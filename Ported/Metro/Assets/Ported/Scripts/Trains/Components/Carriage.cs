@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Entities;
+using UnityEngine;
 
 namespace MetroECS.Trains
 {
@@ -10,8 +11,14 @@ namespace MetroECS.Trains
         public const int CAPACITY = 10;
         public const float SPACING = 0.25f;
     
+        [HideInInspector]
         public int ID;
+        [HideInInspector]
         public float Position;
+        [HideInInspector]
         public Entity Train;
+        
+        public Entity TrainDoorsLeft;
+        public Entity TrainDoorsRight;
     }
 }

@@ -1,7 +1,6 @@
 ﻿using MetroECS.Trains.States;
 using Unity.Collections;
 using Unity.Entities;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 namespace MetroECS.Trains
@@ -13,7 +12,6 @@ namespace MetroECS.Trains
         {
             var deltaTime = Time.DeltaTime;
             var ecb = new EntityCommandBuffer(Allocator.Temp);
-            var time = Time.ElapsedTime;
 
             Entities
                 .WithAll<TrainInMotionTag>()
@@ -39,11 +37,9 @@ namespace MetroECS.Trains
                         var previousMarkerType = pathData.MarkerTypes[previousMarkerIndex];
                         if (previousMarkerType == (int) RailMarkerType.PLATFORM_START)
                         {
-                            //Debug.Log("Stopping at platform");
-                            
                             var random = new Random(1234);
                             ecb.RemoveComponent<TrainInMotionTag>(trainEntity);
-                            ecb.AddComponent(trainEntity, new TrainWaitingTag { TimeStartedWaiting = time, RandomWaitTime = random.NextFloat(5, 10)});       
+                            ecb.AddComponent(trainEntity, new TrainDoorsOpeningTag());
                         }
                     }
                 }

@@ -471,7 +471,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec194dadc5aea45d59067056f69b15b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Index: 0
+  ID: 0
+  Position: 0
+  Train: {fileID: 0}
+  TrainDoorsLeft: {fileID: 1660989387555361322}
+  TrainDoorsRight: {fileID: 1661773788116138188}
 --- !u!1 &1659700263538367312
 GameObject:
   m_ObjectHideFlags: 0
@@ -571,7 +575,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1665028830966474366}
-  - component: {fileID: 1629582977699814546}
+  - component: {fileID: 217150100468311511}
   m_Layer: 0
   m_Name: door_LEFT
   m_TagString: Untagged
@@ -595,7 +599,7 @@ Transform:
   m_Father: {fileID: 1658915104752982254}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1629582977699814546
+--- !u!114 &217150100468311511
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -604,12 +608,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1660989387555361322}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81c793bdb642a41919a940978bfe8ed6, type: 3}
+  m_Script: {fileID: 11500000, guid: 774ac0f7a43643a38d9d6134499e0790, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  door_LEFT: {fileID: 1664928874990861006}
-  door_RIGHT: {fileID: 1665140766983322330}
-  door_navPoint: {fileID: 0}
+  DoorLeft: {fileID: 1661802035833903460}
+  DoorRight: {fileID: 1661494169356490370}
 --- !u!1 &1660998375547015408
 GameObject:
   m_ObjectHideFlags: 0
@@ -2786,7 +2789,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1658692329225664968}
-  - component: {fileID: 1629668106505106104}
+  - component: {fileID: 8200143936312270825}
   m_Layer: 0
   m_Name: door_RIGHT
   m_TagString: Untagged
@@ -2810,7 +2813,7 @@ Transform:
   m_Father: {fileID: 1658915104752982254}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1629668106505106104
+--- !u!114 &8200143936312270825
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2819,12 +2822,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1661773788116138188}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81c793bdb642a41919a940978bfe8ed6, type: 3}
+  m_Script: {fileID: 11500000, guid: 774ac0f7a43643a38d9d6134499e0790, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  door_LEFT: {fileID: 1658559095754029146}
-  door_RIGHT: {fileID: 1664854623677371178}
-  door_navPoint: {fileID: 0}
+  DoorLeft: {fileID: 1661328003412129072}
+  DoorRight: {fileID: 1661034713048180500}
 --- !u!1 &1661785899342337584
 GameObject:
   m_ObjectHideFlags: 0
