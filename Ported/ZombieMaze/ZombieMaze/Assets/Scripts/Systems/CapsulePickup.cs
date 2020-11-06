@@ -22,13 +22,13 @@ public class CapsulePickup : SystemBase
     protected override void OnUpdate()
     {
         var player = GetSingletonEntity<PlayerTag>();
-        var playerPos = EntityManager.GetComponentData<Translation>(player);
+        var playerPos = EntityManager.GetComponentData<Position>(player);
 
         var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         Entities
             .WithAll<CapsuleRotation>()
-            .ForEach((Entity entity, int entityInQueryIndex, in Translation pos) =>
+            .ForEach((Entity entity, int entityInQueryIndex, in Position pos) =>
         {
             float dist = math.distance(playerPos.Value, pos.Value);
 
@@ -37,6 +37,20 @@ public class CapsulePickup : SystemBase
                 ecb.DestroyEntity(entityInQueryIndex, entity);
             }
         }).ScheduleParallel();
+
+
+        Entities
+            .WithAll<ZombieTag>()
+            .ForEach((Entity entity, int entityInQueryIndex, in Position pos) =>
+            {
+                float dist = math.distance(playerPos.Value, pos.Value);
+
+                if (dist <= 0.2f)
+                {
+                    ecb.DestroyEntity(entityInQueryIndex, entity);
+                }
+            }).ScheduleParallel();
+
         _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
