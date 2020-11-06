@@ -13,8 +13,9 @@ namespace MetroECS.Trains
             var ecb = new EntityCommandBuffer(Allocator.Temp);
             var time = Time.ElapsedTime;
             
-            Entities.ForEach((in Entity trainEntity, in TrainWaitingTag trainWaitingData) =>
+            Entities.ForEach((ref Train train, in Entity trainEntity, in TrainWaitingTag trainWaitingData) =>
             {
+                train.deltaPos = 0.0f;
                 var timeWaiting = time - trainWaitingData.TimeStartedWaiting;
                 if (timeWaiting >= trainWaitingData.RandomWaitTime)
                 {

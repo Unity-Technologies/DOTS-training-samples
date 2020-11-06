@@ -19,7 +19,10 @@ namespace MetroECS.Trains
                 .WithAll<TrainInMotionTag>()
                 .ForEach((ref Train trainData, in Entity trainEntity) =>
             {
-                trainData.Position = (trainData.Position + (deltaTime * Train.MAX_SPEED)) % 1;
+                trainData.deltaPos = deltaTime * Train.MAX_SPEED;
+                trainData.Position = (trainData.Position + trainData.deltaPos);
+                if (trainData.Position > 1.0f)
+                    trainData.Position -= 1.0f;
                 
                 var pathData = GetComponent<PathDataRef>(trainData.Path).ToNativePathData();
                 var regionIndex = BezierHelpers.GetRegionIndex(pathData.Positions, pathData.Distances,

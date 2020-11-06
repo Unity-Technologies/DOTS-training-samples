@@ -5,19 +5,34 @@ using Unity.Transforms;
 namespace MetroECS.Trains
 {
     [UpdateAfter(typeof(TrainInMotionSystem))]
+    [UpdateAfter(typeof(TrainWaitingSystem))]
     public class CarriageMovement : SystemBase
     {
         protected override void OnUpdate()
         {
-            Entities.ForEach((ref Translation translation, ref Rotation rotation, in Carriage carriage) =>
+            Entities.ForEach((ref Translation translation, ref Rotation rotation, ref Carriage carriage) =>
             {
                 var train = GetComponent<Train>(carriage.Train);
                 var pathRef = GetComponent<PathDataRef>(train.Path);
                 var nativePathData = pathRef.ToNativePathData();
 
-                var carriageOffset = (Carriage.LENGTH + Carriage.SPACING) / nativePathData.TotalDistance;
-                var carriageTrackPosition = train.Position - (carriage.ID * carriageOffset);
-                if (carriageTrackPosition < 0) carriageTrackPosition += 1;
+                // Are we exactly at the train position (only happens when spawning trains)?
+                var spawning = (train.Position == carriage.Position + train.deltaPos);
+
+                float carriageTrackPosition;
+                if (spawning)
+                {
+                    var carriageOffset = (Carriage.LENGTH + Carriage.SPACING) / nativePathData.TotalDistance;
+                    carriageTrackPosition = train.Position - (carriage.ID * carriageOffset);
+                    if (carriageTrackPosition < 0.0f)
+                        carriageTrackPosition += 1.0f;
+                }
+                else
+                {
+                    carriageTrackPosition = carriage.Position + train.deltaPos;
+                    if (carriageTrackPosition > 1.0f)
+                        carriageTrackPosition -= 1.0f;                    
+                }
 
                 var carriageWorldPosition = BezierHelpers.GetPosition(nativePathData.Positions,
                     nativePathData.HandlesIn, nativePathData.HandlesOut,
@@ -36,19 +51,30 @@ namespace MetroECS.Trains
                     var carriageTrackOffset = Carriage.SPACING / nativePathData.TotalDistance;
                     var damping = 1.0f;
 
-                    for (int i = 0, maxIter = 300; i < maxIter; i++, damping *= 0.99f)
+                    for (int i = 0, maxIter = 100; i < maxIter; i++, damping *= 0.95f)
                     {
                         carriageWorldPosition = BezierHelpers.GetPosition(nativePathData.Positions,
                             nativePathData.HandlesIn, nativePathData.HandlesOut,
                             nativePathData.Distances, nativePathData.TotalDistance, carriageTrackPosition);
 
-                        var trainToCarriage = trainWorldPosition - carriageWorldPosition;
-                        var carriageDistance = math.length(trainToCarriage);
-                        var carriageAlignment = math.abs(math.dot(trainWorldTangent, trainToCarriage / carriageDistance));
+                        var carriageToTrain = trainWorldPosition - carriageWorldPosition;
+                        var carriageDistance = math.length(carriageToTrain);
+                        var carriageAlignment = math.dot(trainWorldTangent, carriageToTrain / carriageDistance);
+
                         if (carriageDistance * carriageAlignment > expectedDistance)
+                        {
                             carriageTrackPosition += damping * carriageTrackOffset;
+                            if (carriageTrackPosition > 1.0f)
+                                carriageTrackPosition -= 1.0f;
+                        }
                         else if (carriageDistance < expectedDistance * carriageAlignment)
+                        {
                             carriageTrackPosition -= damping * carriageTrackOffset;
+                            if (!spawning)
+                                carriageTrackPosition = math.max(carriageTrackPosition, carriage.Position);
+                            if (carriageTrackPosition < 0.0f)
+                                carriageTrackPosition += 1.0f;
+                        }
                         else
                             break;
                     }
@@ -58,8 +84,10 @@ namespace MetroECS.Trains
                         nativePathData.Distances, nativePathData.TotalDistance, carriageTrackPosition);
                 }
 
+                carriage.Position = carriageTrackPosition;
+
                 translation.Value = carriageWorldPosition;
-                rotation.Value = quaternion.LookRotation(carriageWorldTangent, new float3(0, 1, 0));
+                rotation.Value = quaternion.LookRotation(carriageWorldTangent, UnityEngine.Vector3.up);
             }).ScheduleParallel();
         }
     }

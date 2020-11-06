@@ -40,7 +40,7 @@ namespace MetroECS.Trains
                     {
                         // Generate carriage
                         var carriageEntity = ecb.Instantiate(carriagePrefab);
-                        var carriageData = new Carriage {ID = carriageID, Train = trainEntity};
+                        var carriageData = new Carriage {ID = carriageID, Train = trainEntity, Position = normalizedTrainPosition};
                         ecb.SetComponent(carriageEntity, carriageData);
                     }
                 }

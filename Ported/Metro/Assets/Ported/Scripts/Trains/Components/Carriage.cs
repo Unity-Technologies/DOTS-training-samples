@@ -11,6 +11,7 @@ namespace MetroECS.Trains
         public const float SPACING = 0.25f;
     
         public int ID;
+        public float Position;
         public Entity Train;
     }
 }
