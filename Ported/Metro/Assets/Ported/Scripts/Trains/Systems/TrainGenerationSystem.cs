@@ -18,11 +18,9 @@ namespace MetroECS.Trains
                 var nativePathData = pathRef.ToNativePathData();
 
                 var splitDistance = 1f / nativePathData.NumberOfTrains;
-                var random = new Random(1234);
 
                 for (var trainID = 0; trainID < nativePathData.NumberOfTrains; trainID++)
                 {
-                    var carriageCount = random.NextInt((int)math.ceil(nativePathData.MaxCarriages / 2f), nativePathData.MaxCarriages);
                     var normalizedTrainPosition = trainID * splitDistance;
                     var regionIndex = BezierHelpers.GetRegionIndex(nativePathData.Positions, nativePathData.Distances,
                         normalizedTrainPosition * nativePathData.TotalDistance);
@@ -30,13 +28,13 @@ namespace MetroECS.Trains
 
                     // Create train
                     var trainEntity = ecb.CreateEntity();
-                    var trainData = new Train {ID = trainID, Position = normalizedTrainPosition, TargetIndex = regionIndex, CarriageCount = carriageCount, Path = pathDataEntity};
+                    var trainData = new Train {ID = trainID, Position = normalizedTrainPosition, TargetIndex = regionIndex, CarriageCount = nativePathData.CarriagesPerTrain, Path = pathDataEntity};
                     ecb.AddComponent(trainEntity, trainData);
                 
                     var inMotionTag = new TrainInMotionTag();
                     ecb.AddComponent(trainEntity, inMotionTag);
                 
-                    for (var carriageID = 0; carriageID < carriageCount; carriageID++)
+                    for (var carriageID = 0; carriageID < trainData.CarriageCount; carriageID++)
                     {
                         // Generate carriage
                         var carriageEntity = ecb.Instantiate(carriagePrefab);

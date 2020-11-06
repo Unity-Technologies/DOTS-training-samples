@@ -11,9 +11,9 @@ public struct PathDataNative
     public readonly float TotalDistance;
     public readonly float3 Colour;
     public readonly int NumberOfTrains;
-    public readonly int MaxCarriages;
+    public readonly int CarriagesPerTrain;
 
-    public PathDataNative(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, NativeArray<int> markerTypes, float totalDistance, float3 colour, int numberOfTrains, int maxCarriages)
+    public PathDataNative(NativeArray<float3> positions, NativeArray<float3> handlesIn, NativeArray<float3> handlesOut, NativeArray<float> distances, NativeArray<int> markerTypes, float totalDistance, float3 colour, int numberOfTrains, int carriagesPerTrain)
     {
         Positions = positions;
         HandlesIn = handlesIn;
@@ -23,6 +23,6 @@ public struct PathDataNative
         TotalDistance = totalDistance;
         Colour = colour;
         NumberOfTrains = numberOfTrains;
-        MaxCarriages = maxCarriages;
+        CarriagesPerTrain = carriagesPerTrain;
     }
 }
