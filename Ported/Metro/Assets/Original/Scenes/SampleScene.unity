@@ -183,6 +183,26 @@ PrefabInstance:
       propertyPath: maxCommuters
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114381115178916438, guid: 89462db938ddf44bca53efa71206c67c,
+        type: 3}
+      propertyPath: maxTrains.Array.data[0]
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 114381115178916438, guid: 89462db938ddf44bca53efa71206c67c,
+        type: 3}
+      propertyPath: maxTrains.Array.data[1]
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 114381115178916438, guid: 89462db938ddf44bca53efa71206c67c,
+        type: 3}
+      propertyPath: maxTrains.Array.data[2]
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 114381115178916438, guid: 89462db938ddf44bca53efa71206c67c,
+        type: 3}
+      propertyPath: maxTrains.Array.data[3]
+      value: 16
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 89462db938ddf44bca53efa71206c67c, type: 3}
 --- !u!850595691 &1690186437

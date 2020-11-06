@@ -1,18 +1,23 @@
 using MetroECS.Trains.States;
-using Unity.Collections;
 using Unity.Entities;
-using UnityEngine;
 
 namespace MetroECS.Trains
 {
     [UpdateAfter(typeof(TrainGenerationSystem))]
     public class TrainWaitingSystem : SystemBase
     {
+        private EntityCommandBufferSystem sys;
+        
+        protected override void OnCreate()
+        {
+            sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        }
+
         protected override void OnUpdate()
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = sys.CreateCommandBuffer();
             var time = Time.ElapsedTime;
-            
+
             Entities.ForEach((ref Train train, in Entity trainEntity, in TrainWaitingTag trainWaitingData) =>
             {
                 train.deltaPos = 0.0f;
@@ -22,9 +27,9 @@ namespace MetroECS.Trains
                     ecb.RemoveComponent<TrainWaitingTag>(trainEntity);
                     ecb.AddComponent(trainEntity, new TrainDoorsClosingTag());
                 }
-            }).Run();
+            }).Schedule();
             
-            ecb.Playback(EntityManager);
+            sys.AddJobHandleForProducer(Dependency);
         }
     }
 }
