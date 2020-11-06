@@ -5,7 +5,7 @@ using UnityEngine;
 // For traffic that can only go straight through the intersection
 // car1: laneOut0 <-- laneIn1
 // car0: laneIn0   --> laneOut1
-[UpdateAfter(typeof(SimpleIntersectionSystem))]
+[UpdateAfter(typeof(SimpleIntersectionActiveCarSystem))]
 public class DoubleIntersectionSystem : SystemBase
 {
     protected override void OnUpdate()
