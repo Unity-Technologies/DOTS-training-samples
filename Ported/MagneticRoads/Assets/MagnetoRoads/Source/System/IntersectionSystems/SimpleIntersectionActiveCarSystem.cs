@@ -21,14 +21,15 @@ public class SimpleIntersectionActiveCarSystem : SystemBase
                     return;
                 
                 var carPosition = positionAccessor[simpleIntersection.car];
-                if (carPosition.Value < 1)
-                {
-                    var carSpeed = GetComponent<CarSpeed>(simpleIntersection.car);
-                    float newPosition = carPosition.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * deltaTime;
-                    positionAccessor[simpleIntersection.car] = new CarPosition {Value = newPosition};
-                    var eval = BezierUtility.EvaluateBezier(spline.startPos, spline.anchor1, spline.anchor2, spline.endPos, newPosition);
-                    translationAccessor[simpleIntersection.car] = new Translation {Value = eval};
-                }
+                if (carPosition.Value >= 1) 
+                    return;
+                
+                var carSpeed = GetComponent<CarSpeed>(simpleIntersection.car);
+                float newPosition = carPosition.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * deltaTime;
+                positionAccessor[simpleIntersection.car] = new CarPosition {Value = newPosition};
+                var eval = BezierUtility.EvaluateBezier(spline.startPos, spline.anchor1, spline.anchor2, spline.endPos, newPosition);
+                translationAccessor[simpleIntersection.car] = new Translation {Value = eval};
             }).ScheduleParallel();
+        
     }
 }

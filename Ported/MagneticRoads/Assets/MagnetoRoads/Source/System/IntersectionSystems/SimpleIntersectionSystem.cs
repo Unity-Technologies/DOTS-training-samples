@@ -48,26 +48,8 @@ public class SimpleIntersectionSystem : SystemBase
                         SetComponent(reachedEndOfLaneCar, new CarPosition {Value = 0});
                     }
                 }
-                else
-                {
-                    var carPosition = GetComponent<CarPosition>(simpleIntersection.car);
-                    if (carPosition.Value < 1) 
-                    {
-                        // Handled by SimpleIntersectionActiveCarSystem
-                    }
-                    else
-                    {
-                        // TODO: JMF: Move to another (3rd) system
-                        // TODO: MBRIAU: Still make that car accelerate but cap the normalized speed to 0.7f while in an intersection (Look at Car.cs)
-                        // TODO: MBRIAU: We also need to make the first car of each input lane slowdown since the intersection is busy
-
-                        DynamicBuffer<CarBufferElement> laneOutCars =
-                            GetBuffer<CarBufferElement>(simpleIntersection.laneOut0);
-                        laneOutCars.Add(simpleIntersection.car);
-                        SetComponent(simpleIntersection.car, new CarPosition {Value = 0});
-                        simpleIntersection.car = Entity.Null;
-                    }
-                }
+                // Car in intersection handled by SimpleIntersectionActiveCarSystem
+                // Car finished in intersection and added to out lane handled by SimpleIntersectionOutSystem
             }).Schedule();
     }
 }
