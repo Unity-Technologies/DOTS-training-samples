@@ -53,12 +53,7 @@ public class SimpleIntersectionSystem : SystemBase
                     var carPosition = GetComponent<CarPosition>(simpleIntersection.car);
                     if (carPosition.Value < 1) 
                     {
-                        // to be mmoved to ActiveSystem
-                        var carSpeed = GetComponent<CarSpeed>(simpleIntersection.car);
-                        float newPosition = carPosition.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * deltaTime;
-                        SetComponent(simpleIntersection.car, new CarPosition {Value = newPosition});
-                        var eval = BezierUtility.EvaluateBezier(spline.startPos, spline.anchor1, spline.anchor2, spline.endPos, newPosition);
-                        SetComponent(simpleIntersection.car, new Translation {Value = eval});
+                        // Handled by SimpleIntersectionActiveCarSystem
                     }
                     else
                     {
