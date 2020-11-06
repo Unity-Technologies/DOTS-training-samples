@@ -17,16 +17,41 @@ public class TripleIntersectionSystem : SystemBase
 {
     private Random m_Random;
     
+    private NativeArray<int> m_Directions = new NativeArray<int>(3, Allocator.Temp);
+    private NativeArray<Lane> m_LaneIns = new NativeArray<Lane>(3, Allocator.Temp);
+    private NativeArray<Entity> m_LaneInEntities = new NativeArray<Entity>(3, Allocator.Temp);
+    private NativeArray<Lane> m_LaneOuts = new NativeArray<Lane>(3, Allocator.Temp);
+    
     protected override void OnCreate()
     {
         base.OnCreate();
         
         m_Random = Random.CreateFromIndex((uint)UnityEngine.Random.Range(0, 10000));
+        
+        m_Directions = new NativeArray<int>(3, Allocator.Persistent);
+        m_LaneIns = new NativeArray<Lane>(3, Allocator.Persistent);
+        m_LaneInEntities = new NativeArray<Entity>(3, Allocator.Persistent);
+        m_LaneOuts = new NativeArray<Lane>(3, Allocator.Persistent);
+    }
+
+    protected override void OnDestroy()
+    {
+        m_Directions.Dispose();
+        m_LaneIns.Dispose();
+        m_LaneInEntities.Dispose();
+        m_LaneOuts.Dispose();
+        
+        base.OnDestroy();
     }
 
     protected override void OnUpdate()
     {
         //var ecb = new EntityCommandBuffer(Allocator.Temp);
+        
+        NativeArray<int> directions = m_Directions;
+        NativeArray<Lane> laneIns = m_LaneIns;
+        NativeArray<Entity> laneInEntities = m_LaneInEntities;
+        NativeArray<Lane> laneOuts = m_LaneOuts;
 
         Random random = Random.CreateFromIndex(m_Random.NextUInt());
 
@@ -36,10 +61,7 @@ public class TripleIntersectionSystem : SystemBase
             .WithNone<IntersectionNeedsInit>()
             .ForEach((Entity entity, ref TripleIntersection tripleIntersection) =>
             {
-                NativeArray<int> directions = new NativeArray<int>(3, Allocator.Temp);
-                NativeArray<Lane> laneIns = new NativeArray<Lane>(3, Allocator.Temp);
-                NativeArray<Entity> laneInEntities = new NativeArray<Entity>(3, Allocator.Temp);
-                NativeArray<Lane> laneOuts = new NativeArray<Lane>(3, Allocator.Temp);
+                
 
                 //laneOut path the car will take:
                 directions[0] = tripleIntersection.lane0Direction;
@@ -195,10 +217,6 @@ public class TripleIntersectionSystem : SystemBase
                             tripleIntersection.lane2Direction = -1;
                     }
                 }
-
-                directions.Dispose();
-                laneIns.Dispose();
-                laneOuts.Dispose();
             }).Schedule();
 
         //ecb.Playback(EntityManager);
