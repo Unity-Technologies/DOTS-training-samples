@@ -11,6 +11,7 @@ using Random = Unity.Mathematics.Random;
 public class TrafficSpawnerSystem : SystemBase
 {
     EntityArchetype m_LaneArchetype;
+
     //public EntityCommandBufferSystem CommandBufferSystem;
 
     const float laneOffset = 0.5f;
@@ -18,11 +19,17 @@ public class TrafficSpawnerSystem : SystemBase
     public bool isReady = false;
     public bool m_SpawnFromGenerator = false;
     public List<Intersection> m_Intersections = new List<Intersection>();
-    
+
     protected override void OnCreate()
     {
         m_LaneArchetype = EntityManager.CreateArchetype(typeof(Lane), typeof(Spline), typeof(CarBufferElement));
-        
+
+        /*m_MeshArchetype = EntityManager.CreateArchetype(
+            typeof(RenderMesh), // Rendering mesh
+            typeof(LocalToWorld), // Needed for rendering
+            typeof(Translation), // Transform position
+            typeof(Rotation)
+        );*/
     }
 
     private static Entity CreateCar(EntityCommandBuffer ecb, Entity prefab, float position, float3 color)
@@ -30,8 +37,50 @@ public class TrafficSpawnerSystem : SystemBase
         Entity carInstance = ecb.Instantiate(prefab);
         ecb.SetComponent(carInstance, new CarPosition {Value = position});
         ecb.SetComponent(carInstance, new CarSpeed {NormalizedValue = 0});
-        ecb.AddComponent<URPMaterialPropertyBaseColor>(carInstance, new URPMaterialPropertyBaseColor(){Value = new float4(color.x, color.y, color.z, 1)});
+        ecb.AddComponent<URPMaterialPropertyBaseColor>(carInstance,
+            new URPMaterialPropertyBaseColor() {Value = new float4(color.x, color.y, color.z, 1)});
         return carInstance;
+    }
+
+    private TrackSpline GenerateTestTrackSpline()
+    {
+        Vector3Int posIntStart = new Vector3Int(2, 2, 2);
+        Vector3Int posIntEnd = new Vector3Int(0,2,2);
+                
+        Vector3 posStart = new Vector3(2.5f, 2.5f, 2.5f);
+        Vector3 posEnd = new Vector3(0, 2.5f, 2.5f);
+                
+        Vector3Int normalStart = new Vector3Int(0, 1, 0);
+        Vector3Int normalEnd = new Vector3Int(0, -1, 0);
+                
+        Vector3 tangentStart = new Vector3(-1, 0, 0);
+        Vector3 tangentEnd = new Vector3(1, 0, 0);
+                
+        Intersection startIntersection = new Intersection(posIntStart, posStart, normalStart);
+        Intersection endIntersection = new Intersection(posIntEnd, posEnd, normalEnd);
+            
+        return new TrackSpline(startIntersection, tangentStart, endIntersection, tangentEnd);
+    }
+
+    private Mesh GenerateMesh()
+    {
+        Mesh mesh = new Mesh();
+        
+        List<Vector3> vertices = new List<Vector3>();
+        List<Vector2> uvs = new List<Vector2>();
+        List<int> triangles = new List<int>();
+        
+        TrackSpline trackSpline = GenerateTestTrackSpline();
+        
+        trackSpline.GenerateMesh(vertices,uvs,triangles);
+        
+        mesh.SetVertices(vertices);
+        mesh.SetUVs(0,uvs);
+        mesh.SetTriangles(triangles,0);
+        mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
+
+        return mesh;
     }
 
     protected override void OnUpdate()
@@ -52,13 +101,33 @@ public class TrafficSpawnerSystem : SystemBase
         List<Intersection> intersections = m_Intersections;
         bool spawnFromGenerator = m_SpawnFromGenerator;
         
+        EntityQuery spawnerQuery = EntityManager.CreateEntityQuery(typeof(TrafficSpawner));
+        NativeArray<Entity> spawners = spawnerQuery.ToEntityArray(Allocator.Temp);
+        if (spawners.Length > 0)
+        {
+            TrafficSpawner trafficSpawner = EntityManager.GetComponentData<TrafficSpawner>(spawners[0]);
+            Entity meshEntity = EntityManager.Instantiate(trafficSpawner.RoadPrefab);
+            RenderMesh renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(meshEntity);
+            
+            
+            renderMesh.mesh = GenerateMesh();
+
+            // Setting rendering.
+            EntityManager.SetSharedComponentData(meshEntity, renderMesh);
+                
+            // Setting position.
+            EntityManager.SetComponentData(meshEntity, new Translation { Value = new float3(-3,0,0)});
+        }
+spawners.Dispose();
+        
+
         Entities.WithoutBurst()
             .ForEach((Entity entity, in TrafficSpawner spawner) =>
             {
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
                 ecb.DestroyEntity(entity);
-
+                
                 if (spawnFromGenerator)
                 {
                     for (int i = 0; i < intersections.Count; i++)

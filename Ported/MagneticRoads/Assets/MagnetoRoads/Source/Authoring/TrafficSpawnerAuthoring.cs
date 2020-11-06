@@ -9,6 +9,7 @@ public class TrafficSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public GameObject SimpleIntersectionPrefab;
     public GameObject DoubleIntersectionPrefab;
     public GameObject TripleIntersectionPrefab;
+    public GameObject RoadPrefab;
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
@@ -16,6 +17,7 @@ public class TrafficSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         referencedPrefabs.Add(SimpleIntersectionPrefab);
         referencedPrefabs.Add(DoubleIntersectionPrefab);
         referencedPrefabs.Add(TripleIntersectionPrefab);
+        referencedPrefabs.Add(RoadPrefab);
     }
 
     public void Convert(Entity entity, EntityManager dstManager
@@ -26,7 +28,8 @@ public class TrafficSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             CarPrefab = conversionSystem.GetPrimaryEntity(CarPrefab),
             SimpleIntersectionPrefab = conversionSystem.GetPrimaryEntity(SimpleIntersectionPrefab),
             DoubleIntersectionPrefab = conversionSystem.GetPrimaryEntity(DoubleIntersectionPrefab),
-            TripleIntersectionPrefab = conversionSystem.GetPrimaryEntity(TripleIntersectionPrefab)
+            TripleIntersectionPrefab = conversionSystem.GetPrimaryEntity(TripleIntersectionPrefab),
+            RoadPrefab = conversionSystem.GetPrimaryEntity(RoadPrefab)
         });
     }
 }

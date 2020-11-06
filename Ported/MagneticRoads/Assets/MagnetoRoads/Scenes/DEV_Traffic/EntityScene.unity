@@ -207,6 +207,8 @@ MonoBehaviour:
     type: 3}
   TripleIntersectionPrefab: {fileID: 4523202010205671110, guid: 1908a67dc5abcd9499e3b726905019a5,
     type: 3}
+  RoadPrefab: {fileID: 968906936682314680, guid: 90d4a12d36e3f114c8070ce5c1d66b7a,
+    type: 3}
 --- !u!4 &2063487644
 Transform:
   m_ObjectHideFlags: 0

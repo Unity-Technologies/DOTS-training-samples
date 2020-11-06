@@ -6,4 +6,5 @@ public struct TrafficSpawner : IComponentData
     public Entity SimpleIntersectionPrefab;
     public Entity DoubleIntersectionPrefab;
     public Entity TripleIntersectionPrefab;
+    public Entity RoadPrefab;
 }
