@@ -10,9 +10,9 @@ public class SetupBotChainSystem : SystemBase
     {
         // adds two to pad between the SCOOPER AND THROWER
         float progress = (float)_index / _chainLength;
-        float curveOffset = math.sin(progress * math.PI) * 20f;
+        float curveOffset = math.sin(progress * math.PI) * 5.0f;
         // get Vec2 data
-        float2 heading = new float2(_startPos.x, _startPos.z) - new float2(_endPos.x, _endPos.y);
+        float2 heading = new float2(_startPos.x, _startPos.z) - new float2(_endPos.x, _endPos.z);
         float distance = math.length(heading);
         float2 direction = heading / distance;
         float2 perpendicular = new float2(direction.y, -direction.x);

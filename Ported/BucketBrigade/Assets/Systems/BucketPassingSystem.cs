@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
-public class BotMovementSystem : SystemBase
+public class BucketPassingSystem : SystemBase
 {
     public EntityQuery readyBuckets;
 
@@ -25,6 +25,8 @@ public class BotMovementSystem : SystemBase
             .WithNone<GotoDropoffLocation>()
             .WithNone<HoldingBucket>()
             .WithNone<GotoPickupLocation>()
+            .WithReadOnly(entities)
+            .WithReadOnly(translations)
             .ForEach((Entity entity, ref Translation translation, in Bot bot) =>
             {
                 var index = FireSim.GetClosestIndex(translation.Value, entities, translations);
@@ -39,11 +41,13 @@ public class BotMovementSystem : SystemBase
                     if (HasComponent<FillerBot>(entity))
                     {
                         ecb.AddComponent<FullBucket>(entities[index]);
+                        ecb.SetComponent(entities[index], new URPMaterialPropertyBaseColor { Value = new float4(0.02f, 0.58f, 0.81f, 1.0f) });
                         ecb.RemoveComponent<EmptyBucket>(entities[index]);
                     }
                     else if (HasComponent<ThrowerBot>(entity))
                     {
                         ecb.AddComponent<EmptyBucket>(entities[index]);
+                        ecb.SetComponent(entities[index], new URPMaterialPropertyBaseColor { Value = new float4(0.28f, 0.28f, 0.28f, 1.0f) });
                         ecb.RemoveComponent<FullBucket>(entities[index]);
                     }
                 }
