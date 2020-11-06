@@ -21,7 +21,7 @@ public class MoveTowardEntitySystem : SystemBase
 
         Entities
             .WithNativeDisableParallelForRestriction(cdfe)
-            .ForEach((Entity entity, int entityInQueryIndex, in MoveTowardBucket scooper, in FillerBot source) =>
+            .ForEach((Entity entity, int entityInQueryIndex, in MoveTowardBucket scooper, in ScooperBot source) =>
         {
             var bucketPosition = cdfe[scooper.Target].Value;
             var scooperPosition = cdfe[entity].Value;

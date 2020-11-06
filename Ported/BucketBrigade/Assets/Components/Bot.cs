@@ -18,7 +18,6 @@ public struct ThrowerBot : IComponentData
 
 public struct FillerBot : IComponentData
 {
-    public Entity ChainStart;
 }
 
 public struct GotoPickupLocation : IComponentData
@@ -27,4 +26,9 @@ public struct GotoPickupLocation : IComponentData
 
 public struct GotoDropoffLocation : IComponentData
 {
+}
+
+public struct ScooperBot : IComponentData
+{
+    public Entity ChainStart;
 }

@@ -28,7 +28,7 @@ public class FindBucketSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
         Entities
-            .ForEach((Entity entity, in FindBucket bot, in FillerBot chainstart, in Translation translation) =>
+            .ForEach((Entity entity, in FindBucket bot, in ScooperBot scooper, in Translation translation) =>
             {
                 ecb.RemoveComponent<FindBucket>(entity);
 

@@ -22,6 +22,8 @@ public class BotMovementSystem : SystemBase
         var translations = readyBuckets.ToComponentDataArray<Translation>(Allocator.TempJob);
 
         Entities
+            .WithNone<GotoDropoffLocation>()
+            .WithNone<HoldingBucket>()
             .WithNone<GotoPickupLocation>()
             .ForEach((Entity entity, ref Translation translation, in Bot bot) =>
             {
