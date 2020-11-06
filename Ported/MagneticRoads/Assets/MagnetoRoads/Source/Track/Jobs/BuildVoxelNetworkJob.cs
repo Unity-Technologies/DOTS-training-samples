@@ -26,7 +26,7 @@ namespace Magneto.Track.Jobs
             
             float3 half3 = new float3(0.5f, 0.5f, 0.5f);
             var random = Unity.Mathematics.Random.CreateFromIndex(TrackManager.RANDOM_SEED);
-            float3 intersectionOffset = new float3(0.5f, 0.5f, 0.5f);
+            float3 intersectionOffset = float3.zero; //new float3(0.5f, 0.5f, 0.5f);
             
             var count = RW_Intersections.Length;
             for (var index = 0; index < count; index++)

@@ -225,7 +225,7 @@ namespace Magneto.Track
                     mesh.RecalculateBounds();
 
                     trafficSpawnerSystem.SplineMeshes.Add(mesh);
-                    trafficSpawnerSystem.SplineTranslations.Add(float3.zero);
+                    trafficSpawnerSystem.SplineTranslations.Add(spline.StartPosition);
                 }
                 
                 

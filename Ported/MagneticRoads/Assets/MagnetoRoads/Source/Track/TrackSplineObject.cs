@@ -35,8 +35,8 @@ namespace Magneto.Track
 		{
 			startNormal = startNewNormal;
 			endNormal = endNewNormal;
-			startPoint = start + tangent1 * RoadGenerator.intersectionSize * .5f;
-			endPoint = end + tangent2 * RoadGenerator.intersectionSize * .5f;
+			startPoint = tangent1 * RoadGenerator.intersectionSize * .5f;
+			endPoint = (end - start) + tangent2 * RoadGenerator.intersectionSize * .5f;
 
 			startTangent = Vector3Int.RoundToInt(tangent1);
 			endTangent = Vector3Int.RoundToInt(tangent2);

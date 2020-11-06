@@ -122,8 +122,9 @@ public class TrafficSpawnerSystem : SystemBase
                 // Setting rendering.
                 EntityManager.SetSharedComponentData(meshEntity, renderMesh);
 
-                // Setting position.
+               // Setting position.
                 EntityManager.SetComponentData(meshEntity, new Translation {Value = SplineTranslations[i]});
+                
             }
         }
 spawners.Dispose();
@@ -149,6 +150,7 @@ spawners.Dispose();
                             var deadEnd = ecb.Instantiate(spawner.SimpleIntersectionPrefab);
                             ecb.SetComponent(deadEnd, new SimpleIntersection {laneIn0 = intersection.lanes[0], laneOut0 = intersection.lanes[1]});
                             ecb.SetComponent(deadEnd, new Translation {Value = intersection.position});
+                            ecb.SetComponent(deadEnd, new Rotation {Value = Quaternion.Euler(intersection.normal)});
                             
                             DynamicBuffer<CarBufferElement> buffer = ecb.AddBuffer<CarBufferElement>(intersection.lanes[0]);
                             DynamicBuffer<Entity> entityBuffer = buffer.Reinterpret<Entity>();
