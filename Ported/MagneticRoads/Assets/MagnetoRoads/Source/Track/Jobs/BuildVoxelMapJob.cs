@@ -9,6 +9,7 @@ namespace Magneto.Track.Jobs
     [BurstCompile]
     public struct BuildVoxelMapJob : IJob
     {
+        public uint RandomSeed;
         private const int IterationCount = 10000;
         //private const int IterationCount = 10;
 
@@ -23,9 +24,8 @@ namespace Magneto.Track.Jobs
         public void Execute()
         {
             var middle = TrackManager.VOXEL_COUNT / 2;
-
-            // TODO Make random:)
-            var random = Random.CreateFromIndex(TrackManager.RANDOM_SEED);
+            
+            var random = Random.CreateFromIndex(RandomSeed);
 
             // Create our temp allocated
             var activeVoxels = new NativeList<int3>(Allocator.Temp) {new int3(middle, middle, middle)};
