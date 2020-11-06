@@ -5,7 +5,7 @@ using UnityEngine;
 // For traffic that can only go straight through the intersection
 // car1: laneOut0 <-- laneIn1
 // car0: laneIn0   --> laneOut1
-[UpdateAfter(typeof(DoubleIntersectionSystem))]
+[UpdateAfter(typeof(DoubleIntersectionCarInsideSystem))]
 public class DoubleIntersectionOutSystem : SystemBase
 {
     private EndFixedStepSimulationEntityCommandBufferSystem ecbSystem;
@@ -27,20 +27,10 @@ public class DoubleIntersectionOutSystem : SystemBase
             .WithNone<IntersectionNeedsInit>()
             .ForEach((Entity entity, int entityInQueryIndex, ref DoubleIntersection doubleIntersection) =>
             {
-                /*NativeArray<Entity> laneOuts = new NativeArray<Entity>(2, Allocator.Temp);
-                NativeArray<Entity> cars = new NativeArray<Entity>(2, Allocator.Temp);
-
-                laneOuts[0] = doubleIntersection.laneOut1;
-                laneOuts[1] = doubleIntersection.laneOut0;
-
-                cars[0] = doubleIntersection.car0;
-                cars[1] = doubleIntersection.car1;*/
-
-                
                 if (doubleIntersection.car0 != Entity.Null)
                 {
-                    var car0Pos = GetComponent<CarPosition>(doubleIntersection.car0);
-                    if (car0Pos.Value >= 1)
+                    var carPos = GetComponent<CarPosition>(doubleIntersection.car0);
+                    if (carPos.Value >= 1)
                     {
                         CarBufferElement carBufferElement = doubleIntersection.car0;
                         ecbWriter.AppendToBuffer(entityInQueryIndex, doubleIntersection.laneOut1, carBufferElement);
@@ -51,8 +41,8 @@ public class DoubleIntersectionOutSystem : SystemBase
 
                 if (doubleIntersection.car1 != Entity.Null)
                 {
-                    var car0Pos = GetComponent<CarPosition>(doubleIntersection.car1);
-                    if (car0Pos.Value >= 1)
+                    var carPos = GetComponent<CarPosition>(doubleIntersection.car1);
+                    if (carPos.Value >= 1)
                     {
                         CarBufferElement carBufferElement = doubleIntersection.car1;
                         ecbWriter.AppendToBuffer(entityInQueryIndex, doubleIntersection.laneOut0, carBufferElement);
@@ -60,9 +50,6 @@ public class DoubleIntersectionOutSystem : SystemBase
                         doubleIntersection.car1 = Entity.Null;
                     }
                 }
-
-                /*laneOuts.Dispose();
-                cars.Dispose();*/
 
             }).ScheduleParallel();
         

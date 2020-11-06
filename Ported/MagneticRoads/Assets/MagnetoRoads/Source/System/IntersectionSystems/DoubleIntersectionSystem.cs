@@ -8,6 +8,14 @@ using UnityEngine;
 [UpdateAfter(typeof(SimpleIntersectionActiveCarSystem))]
 public class DoubleIntersectionSystem : SystemBase
 {
+    //private EndFixedStepSimulationEntityCommandBufferSystem ecbSystem;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        //ecbSystem = World.GetExistingSystem<EndFixedStepSimulationEntityCommandBufferSystem>();
+    }
+    
     protected override void OnUpdate()
     {
         float deltaTime = Time.DeltaTime;
@@ -85,4 +93,113 @@ public class DoubleIntersectionSystem : SystemBase
 
             }).Schedule();
     }
+    
+    
+    /*protected override void OnUpdate2()
+    {
+        float deltaTime = Time.DeltaTime;
+        
+        //var ecb = ecbSystem.CreateCommandBuffer();
+        //var ecbWriter = ecb.AsParallelWriter();
+        
+        ComponentDataFromEntity<CarPosition> positionAccessor = GetComponentDataFromEntity<CarPosition>(false);
+        ComponentDataFromEntity<CarSpeed> speedAccessor = GetComponentDataFromEntity<CarSpeed>(false);
+
+        Entities
+            .WithoutBurst()
+            .WithNone<IntersectionNeedsInit>()
+            .WithNativeDisableContainerSafetyRestriction(positionAccessor)
+            .WithNativeDisableContainerSafetyRestriction(speedAccessor)
+            .ForEach((Entity entity, ref DoubleIntersection doubleIntersection) =>
+            {
+                {
+                    //DynamicBuffer<CarBufferElement> laneInCarsWrite = ecbWriter.SetBuffer<CarBufferElement>(entityInQueryIndex, doubleIntersection.laneIn0);
+                    Lane lane = GetComponent<Lane>(doubleIntersection.laneIn0);
+                    DynamicBuffer<CarBufferElement>
+                        laneInCars = GetBuffer<CarBufferElement>(doubleIntersection.laneIn0);
+                    Entity reachedEndOfLaneCar = Entity.Null;
+                    if (!laneInCars.IsEmpty)
+                    {
+                        Entity laneCar = laneInCars[0]; //always get first car in lane at intersection
+                        CarPosition carPosition = positionAccessor[laneCar];
+                        CarSpeed carSpeed = speedAccessor[laneCar];
+
+                        carSpeed.NormalizedValue += deltaTime * CarSpeed.ACCELERATION;
+                        if (carSpeed.NormalizedValue > 1.0f)
+                        {
+                            carSpeed.NormalizedValue = 1.0f;
+                        }
+
+                        float newPosition =
+                            carPosition.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * deltaTime;
+
+                        if (newPosition > lane.Length)
+                        {
+                            reachedEndOfLaneCar = laneCar;
+                            newPosition = lane.Length;
+                        }
+
+                        positionAccessor[laneCar] = new CarPosition {Value = newPosition};
+                        speedAccessor[laneCar] = carSpeed;
+                        Debug.Log("Lane car new position 0: " + newPosition + " id: " + laneCar);
+                    }
+
+                    if (doubleIntersection.car0 == Entity.Null)
+                    {
+                        if (reachedEndOfLaneCar != Entity.Null)
+                        {
+                            laneInCars.RemoveAt(0);
+                            doubleIntersection.car0 = reachedEndOfLaneCar;
+                            positionAccessor[reachedEndOfLaneCar] = new CarPosition {Value = 0};
+                        }
+                    }
+                }
+
+                {
+                    Lane lane = GetComponent<Lane>(doubleIntersection.laneIn1);
+                    //DynamicBuffer<CarBufferElement> laneInCarsWrite = ecbWriter.SetBuffer<CarBufferElement>(entityInQueryIndex, doubleIntersection.laneIn1);
+                    DynamicBuffer<CarBufferElement>
+                        laneInCars = GetBuffer<CarBufferElement>(doubleIntersection.laneIn1);
+                    Entity reachedEndOfLaneCar = Entity.Null;
+                    if (!laneInCars.IsEmpty)
+                    {
+                        Entity laneCar = laneInCars[0]; //always get first car in lane at intersection
+                        CarPosition carPosition = positionAccessor[laneCar];
+                        CarSpeed carSpeed = speedAccessor[laneCar];
+
+                        carSpeed.NormalizedValue += deltaTime * CarSpeed.ACCELERATION;
+                        if (carSpeed.NormalizedValue > 1.0f)
+                        {
+                            carSpeed.NormalizedValue = 1.0f;
+                        }
+
+                        float newPosition =
+                            carPosition.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * deltaTime;
+
+                        if (newPosition > lane.Length)
+                        {
+                            reachedEndOfLaneCar = laneCar;
+                            newPosition = lane.Length;
+                        }
+
+                        positionAccessor[laneCar] = new CarPosition {Value = newPosition};
+                        speedAccessor[laneCar] = carSpeed;
+                        Debug.Log("Lane car new position 1: " + newPosition + " id: " + laneCar);
+                    }
+
+                    if (doubleIntersection.car1 == Entity.Null)
+                    {
+                        if (reachedEndOfLaneCar != Entity.Null)
+                        {
+                            laneInCars.RemoveAt(0);
+                            doubleIntersection.car1 = reachedEndOfLaneCar;
+                            positionAccessor[reachedEndOfLaneCar] = new CarPosition {Value = 0};
+                        }
+                    }
+                }
+
+            }).Run();
+        
+        //ecbSystem.AddJobHandleForProducer(Dependency);
+    }*/
 }
