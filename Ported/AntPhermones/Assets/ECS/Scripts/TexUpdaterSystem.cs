@@ -9,17 +9,11 @@ using UnityEngine;
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 public class TexUpdaterSystem : SystemBase
 {
-    Color[] colorCache = new Color[RefsAuthoring.TexSize * RefsAuthoring.TexSize];
 
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<TexSingleton>();
         GetEntityQuery(typeof(PheromonesBufferData));
-
-        for (int i = 0; i < colorCache.Length; ++i)
-        {
-            colorCache[i] = new Color(0, 0, 0, 0);
-        }
     }
     
     protected override void OnUpdate()

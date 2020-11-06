@@ -1,4 +1,6 @@
 #define USE_PRECOMPUTED_RAYCAST
+//#define USE_OBSTACLE_AVOIDANCE
+#define WALL_STEERING_EARLY_EXIT
 
 using System.Collections;
 using System.Collections.Generic;
@@ -153,8 +155,9 @@ public class AntMovementSystem : SystemBase
 
             direction.Value = (direction.Value >= 2 * math.PI) ? direction.Value - 2 * math.PI : direction.Value;
 
+#if USE_OBSTACLE_AVOIDANCE
             ObstacleAvoid(ref translation, ref direction, spawner.ObstacleRadius, obstaclesPositions);
-
+#endif
             SteerTowardColony(ref d, translation.Value, spawner.ColonyPosition, spawner.MapSize, isLookingForNest);
 
             // Bounce off the edges of the board (for now the ant bounces back, maybe improve later)
@@ -219,6 +222,17 @@ public class AntMovementSystem : SystemBase
     static float WallSteering(float3 position3D, float direction, float distance, in DynamicBuffer<ObstaclePosition> obstaclePositions)
     {
         var position = position3D.xz;
+
+#if WALL_STEERING_EARLY_EXIT
+        // There are no wall at the middle and at the outer region of the map
+        const float innerRadius = 1;
+        const float outerRadius = 16f;
+        float r = position.x * position.x + position.y * position.y;
+        if (r < innerRadius || r > outerRadius)
+        {
+            return 0;
+        }
+#endif
 
         int nbClose = 0;
         for (int k = -1; k <= 1; k += 2)
