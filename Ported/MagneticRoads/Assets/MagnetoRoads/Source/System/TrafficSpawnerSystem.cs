@@ -143,6 +143,17 @@ spawners.Dispose();
                     {
                         Intersection intersection = intersections[i];
 
+
+                        var angle = Vector3.zero;
+                        if (intersection.normal.x != 0)
+                        {
+                            angle = new Vector3(90, 90, 0);
+                        }                        
+                        else if (intersection.normal.z != 0)
+                        {
+                            angle = new Vector3(90, 0, 0);
+                        }
+
                         if (intersection.lanes.Count == 2)
                         {
                             //TrackSpline trackSpline = intersection.neighborSplines[0];
@@ -150,7 +161,8 @@ spawners.Dispose();
                             var deadEnd = ecb.Instantiate(spawner.SimpleIntersectionPrefab);
                             ecb.SetComponent(deadEnd, new SimpleIntersection {laneIn0 = intersection.lanes[0], laneOut0 = intersection.lanes[1]});
                             ecb.SetComponent(deadEnd, new Translation {Value = intersection.position});
-                            ecb.SetComponent(deadEnd, new Rotation {Value = Quaternion.Euler(intersection.normal)});
+                            
+                            ecb.SetComponent(deadEnd, new Rotation {Value = Quaternion.Euler(angle)});
                             
                             DynamicBuffer<CarBufferElement> buffer = ecb.AddBuffer<CarBufferElement>(intersection.lanes[0]);
                             DynamicBuffer<Entity> entityBuffer = buffer.Reinterpret<Entity>();
@@ -163,12 +175,16 @@ spawners.Dispose();
                             var doubleIntersection = ecb.Instantiate(spawner.DoubleIntersectionPrefab);
                             ecb.SetComponent(doubleIntersection, new DoubleIntersection {laneIn0 = intersection.lanes[0], laneOut0 = intersection.lanes[1], laneIn1 = intersection.lanes[2], laneOut1 = intersection.lanes[3]});
                             ecb.SetComponent(doubleIntersection, new Translation {Value = intersection.position});
+                            
+                            ecb.SetComponent(doubleIntersection, new Rotation {Value = Quaternion.Euler(angle)});
                         }
                         else if (intersection.lanes.Count == 6)
                         {
                             var tripleIntersection = ecb.Instantiate(spawner.TripleIntersectionPrefab);
                             ecb.SetComponent(tripleIntersection, new TripleIntersection {laneIn0 = intersection.lanes[0], laneOut0 = intersection.lanes[1], laneIn1 = intersection.lanes[2], laneOut1 = intersection.lanes[3], laneIn2 = intersection.lanes[4], laneOut2 = intersection.lanes[5], lane0Direction = -1, lane1Direction = -1, lane2Direction = -1});
                             ecb.SetComponent(tripleIntersection, new Translation {Value = intersection.position});
+                            
+                            ecb.SetComponent(tripleIntersection, new Rotation {Value = Quaternion.Euler(angle)});
                         }
                         else
                         {
