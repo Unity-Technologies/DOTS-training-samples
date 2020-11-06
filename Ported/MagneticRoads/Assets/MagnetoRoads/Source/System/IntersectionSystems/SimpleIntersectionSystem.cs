@@ -51,8 +51,9 @@ public class SimpleIntersectionSystem : SystemBase
                 else
                 {
                     var carPosition = GetComponent<CarPosition>(simpleIntersection.car);
-                    if (carPosition.Value < 1)
+                    if (carPosition.Value < 1) 
                     {
+                        // to be mmoved to ActiveSystem
                         var carSpeed = GetComponent<CarSpeed>(simpleIntersection.car);
                         float newPosition = carPosition.Value + carSpeed.NormalizedValue * CarSpeed.MAX_SPEED * deltaTime;
                         SetComponent(simpleIntersection.car, new CarPosition {Value = newPosition});
@@ -61,6 +62,7 @@ public class SimpleIntersectionSystem : SystemBase
                     }
                     else
                     {
+                        // TODO: JMF: Move to another (3rd) system
                         // TODO: MBRIAU: Still make that car accelerate but cap the normalized speed to 0.7f while in an intersection (Look at Car.cs)
                         // TODO: MBRIAU: We also need to make the first car of each input lane slowdown since the intersection is busy
 

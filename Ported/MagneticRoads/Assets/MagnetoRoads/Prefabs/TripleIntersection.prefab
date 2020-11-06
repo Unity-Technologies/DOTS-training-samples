@@ -93,6 +93,7 @@ GameObject:
   - component: {fileID: 5945425831300678563}
   - component: {fileID: 4681248424115637953}
   - component: {fileID: 146443952543501336}
+  - component: {fileID: 336988419014033570}
   m_Layer: 0
   m_Name: TripleIntersection
   m_TagString: Untagged
@@ -188,6 +189,24 @@ MonoBehaviour:
   lane1Direction: -1
   lane2Direction: -1
   car: {fileID: 0}
+  aStraightToBSpline: {fileID: 0}
+  aTurnToCSpline: {fileID: 0}
+  bStraightToASpline: {fileID: 0}
+  bTurnToCSpline: {fileID: 0}
+  cTurnToASpline: {fileID: 0}
+  cTurnToBSpline: {fileID: 0}
+--- !u!114 &336988419014033570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4523202010205671110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdc7f5a914e6d1e479a3ace8e2be3fc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6793367891704074303
 GameObject:
   m_ObjectHideFlags: 0

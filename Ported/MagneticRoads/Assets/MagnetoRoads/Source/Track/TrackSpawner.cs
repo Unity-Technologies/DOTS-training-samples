@@ -101,8 +101,8 @@ public class TrackSpawner : MonoBehaviour
                     Gizmos.color = Color.blue;
 
                     Gizmos.DrawLine(
-                        new Vector3(s.StartPosition.x, s.StartPosition.y, s.StartPosition.z),
-                        new Vector3(s.EndPosition.x, s.EndPosition.y, s.EndPosition.z));
+                        new Vector3(s.StartIntersectionPosition.x, s.StartIntersectionPosition.y, s.StartIntersectionPosition.z),
+                        new Vector3(s.EndIntersectionPosition.x, s.EndIntersectionPosition.y, s.EndIntersectionPosition.z));
                 }
             }
         }
@@ -114,8 +114,8 @@ public class TrackSpawner : MonoBehaviour
                 {
                     Gizmos.color = Color.red;
 
-                    var startPosition = s.StartPosition.GetVector3();
-                    var endPosition = s.EndPosition.GetVector3();
+                    var startPosition = s.StartIntersectionPosition.GetVector3();
+                    var endPosition = s.EndIntersectionPosition.GetVector3();
                     var startNormal = s.StartNormal.GetVector3();
                     var endNormal = s.EndNormal.GetVector3();
                     
