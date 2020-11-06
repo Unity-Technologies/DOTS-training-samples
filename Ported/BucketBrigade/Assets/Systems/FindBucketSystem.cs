@@ -9,17 +9,16 @@ using Unity.Rendering;
 
 public class FindBucketSystem : SystemBase
 {
-    public static EntityQuery buckets;
+    public EntityQuery buckets;
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        buckets = GetEntityQuery(ComponentType.ReadOnly<BucketForScooper>(), ComponentType.ReadOnly<Translation>());
+        buckets = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<BucketForScooper>(), ComponentType.ReadOnly<Translation>());
     }
 
     protected override void OnUpdate()
     {
-
         var bucketsEntitiesOriginal = buckets.ToEntityArray(Allocator.Temp);
         var bucketsEntitiesCopy = bucketsEntitiesOriginal;
 

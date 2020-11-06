@@ -9,7 +9,7 @@ public class FindOnFireCellSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-        onFireCells = GetEntityQuery(ComponentType.ReadOnly<FireCell>(), ComponentType.ReadOnly<OnFire>(), ComponentType.ReadOnly<Translation>());
+        onFireCells = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<FireCell>(), ComponentType.ReadOnly<OnFire>(), ComponentType.ReadOnly<Translation>());
 
     }
     protected override void OnUpdate()

@@ -7,7 +7,7 @@ using Unity.Transforms;
 
 public class MoveTowardEntitySystem : SystemBase
 {
-    public static readonly float Speed = 10.0f;
+    public static readonly float Speed = 30.0f;
     public static readonly float Threshold = 1.0f;
 
     protected override void OnUpdate()
@@ -111,6 +111,26 @@ public class MoveTowardEntitySystem : SystemBase
                     cdfe[entity] = new Translation() { Value = newPosition };
                     newPosition.y += 1.6f;
                     cdfe[bucket.Target] = new Translation() { Value = newPosition };
+                }
+            }).ScheduleParallel();
+
+        Entities
+            .WithNativeDisableParallelForRestriction(cdfe)
+            .ForEach((Entity entity, int entityInQueryIndex, in GotoPickupLocation bot, in PasserBot chain) =>
+            {
+                var distanceLeft = chain.PickupPosition - cdfe[entity].Value;
+                var length = math.length(distanceLeft);
+
+                if (length <= Threshold)
+                {
+                    cdfe[entity] = new Translation() { Value = chain.PickupPosition };
+                    ecb.RemoveComponent<GotoPickupLocation>(entityInQueryIndex, entity);
+                }
+                else
+                {
+                    var direction = distanceLeft / length;
+                    var newPosition = cdfe[entity].Value + Speed * deltaTime * direction;
+                    cdfe[entity] = new Translation() { Value = newPosition };
                 }
             }).ScheduleParallel();
 
