@@ -3,6 +3,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEditor;
 using UnityEngine;
 
 
@@ -21,11 +22,11 @@ namespace Magneto.Track.Jobs
         [WriteOnly] public NativeList<SplineData> W_OutSplines;
 
         public void Execute()
-            //public void Execute(int index)
         {
             
             float3 half3 = new float3(0.5f, 0.5f, 0.5f);
             var random = Unity.Mathematics.Random.CreateFromIndex(TrackManager.RANDOM_SEED);
+            float3 intersectionOffset = new float3(0.5f, 0.5f, 0.5f);
             
             var count = RW_Intersections.Length;
             for (var index = 0; index < count; index++)
@@ -52,40 +53,24 @@ namespace Magneto.Track.Jobs
                         if (neighbourData.ListIndex != -1 && neighbourData.ListIndex != intersectionData.ListIndex)
                         {
 
-                            // TODO: Build anchors?
-                            
-                            
-                            // Because were using int3's instead of vectors, we have to manually do this (le sigh)
-                            // TODO : much like below these positions have to be the calculated positions
-                            
                             int3 cachedMagnitudePosition = (intersectionData.Position - neighbourData.Position);
-                            
-                            
-                            
                             float cachedMagnitude = math.sqrt(
                                         cachedMagnitudePosition.x * cachedMagnitudePosition.x + 
                                                                cachedMagnitudePosition.y * cachedMagnitudePosition.y + 
                                                                cachedMagnitudePosition.z * cachedMagnitudePosition.z);
                             float3 cachedMagnitude3 = new float3(cachedMagnitude,cachedMagnitude,cachedMagnitude);
-                            
-        /*
-    
 
-		float dist = (startPoint - endPoint).magnitude;
-		anchor1 = startPoint + tangent1 * dist * .5f;
-		anchor2 = endPoint + tangent2 * dist * .5f;
-		*/
-                                
                             W_OutSplines.Add(new SplineData
                             {
-                                StartPosition = intersectionData.Position, ///start.position + tangent1 * RoadGenerator.intersectionSize * .5f;
-                                StartNormal = intersectionData.Normal, // end.position + tangent2 * RoadGenerator.intersectionSize * .5f;
+                                StartIntersectionPosition = intersectionData.Position,
+                                StartNormal = intersectionData.Normal,
                                 StartTangent = R_LimitedCachedNeighbourIndexOffsets[j],
-                                EndPosition = neighbourData.Position,
+                                StartPosition =  intersectionData.Position + (R_LimitedCachedNeighbourIndexOffsets[j] * intersectionOffset),
+                                EndPosition =  neighbourData.Position + (connectionDirection * intersectionOffset),
+                                EndIntersectionPosition = neighbourData.Position,
                                 EndNormal = neighbourData.Normal,
                                 EndTangent = connectionDirection,
                                 
-                                // TODO: these use the calculated start/end above if we do that / when we do that
                                 Anchor1 = intersectionData.Position + R_LimitedCachedNeighbourIndexOffsets[j] * cachedMagnitude3 * half3,
                                 Anchor2 = neighbourData.Position + connectionDirection * cachedMagnitude3 * half3
                             });

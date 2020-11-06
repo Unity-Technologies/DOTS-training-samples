@@ -16,7 +16,6 @@ namespace Magneto.Track
         public const int DIRECTIONS_LENGTH = 26;
         public const int LIMITED_DIRECTIONS_LENGTH = 6;
 
-
         public const int JOB_EXECUTION_MAXIMUM_FRAMES = 3;
         public const int VOXEL_COUNT = 100;
         public const float VOXEL_SIZE = 1f;
@@ -175,8 +174,8 @@ namespace Magneto.Track
                 
                 foreach (var spline in _splines)
                 {
-                    var startIntersection = intersections[_intersectionIndicesByGrid[spline.StartPosition]];
-                    var endIntersection = intersections[_intersectionIndicesByGrid[spline.EndPosition]];
+                    var startIntersection = intersections[_intersectionIndicesByGrid[spline.StartIntersectionPosition]];
+                    var endIntersection = intersections[_intersectionIndicesByGrid[spline.EndIntersectionPosition]];
                     
                     if(startIntersection.neighbors.Contains(endIntersection)) continue;
                     
@@ -185,12 +184,12 @@ namespace Magneto.Track
                     Entity laneIn = entityManager.CreateEntity(laneArchetype);
                     
                     entityManager.SetComponentData(laneOut, 
-                        new Spline {startPos = spline.StartPosition, endPos = spline.EndPosition});
+                        new Spline {startPos = spline.StartIntersectionPosition, endPos = spline.EndIntersectionPosition});
                     
                     entityManager.SetComponentData(laneIn, 
-                        new Spline {startPos = spline.EndPosition, endPos = spline.StartPosition});
+                        new Spline {startPos = spline.EndIntersectionPosition, endPos = spline.StartIntersectionPosition});
 
-                    float length = (spline.EndPosition.GetVector3() - spline.StartPosition.GetVector3()).magnitude;
+                    float length = (spline.EndIntersectionPosition.GetVector3() - spline.StartIntersectionPosition.GetVector3()).magnitude;
                     Lane lane = new Lane {Length = length};
 							
                     entityManager.SetComponentData(laneOut, lane);
