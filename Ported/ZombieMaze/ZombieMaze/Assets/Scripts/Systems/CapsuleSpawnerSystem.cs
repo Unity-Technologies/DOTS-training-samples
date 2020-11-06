@@ -20,7 +20,7 @@ public class CapsuleSpawnerSystem : SystemBase
     {
         var ecb = _endSimulationEntityCommandBufferSystem.CreateCommandBuffer();
 
-        var jobHandle = Entities.ForEach((Entity entity, ref Random random, in CapsuleSpawner capsuleSpawner, in Spawner spawner) =>
+        Entities.ForEach((Entity entity, ref Random random, in CapsuleSpawner capsuleSpawner, in Spawner spawner) =>
         {
             for (int i = 0; i < capsuleSpawner.NumCapsules; i++)
             {
@@ -30,9 +30,8 @@ public class CapsuleSpawnerSystem : SystemBase
                 ecb.SetComponent(capsuleEntity, new Random { Value = new Unity.Mathematics.Random(((uint)i + 1) * 4391) });
             }
             ecb.DestroyEntity(entity);
-        }).Schedule(Dependency);
+        }).Schedule();
 
-        _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(jobHandle);
-        Dependency = jobHandle;
+        _endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
