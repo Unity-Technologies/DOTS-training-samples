@@ -91,25 +91,36 @@ public class SpawnerSystem : SystemBase
                     // Full chain
                     for (int j = 0; j < fireSim.NumBotsPerChain; j++)
                     {
+                        var color = spawner.PasserColor;
+
                         instance = ecb.Instantiate(spawner.BotPrefab);
                         var botPosition = new float3(random.NextInt(0, fireSim.FireGridDimension), 1.6f, random.NextInt(0, fireSim.FireGridDimension));
                         ecb.SetComponent(instance, new Translation { Value = botPosition });
                         ecb.AddComponent(instance, new Bot { Index = j });
-                        ecb.AddComponent(instance, new URPMaterialPropertyBaseColor() { Value = new float4(0.7f, 0.1f, 0.4f, 1.0f) });
                         fullChain.Add(instance);
+
+                        if (j == 0)
+                        {
+                            color = spawner.FillerColor;
+                            ecb.AddComponent(instance, new FillerBot());
+                        }
+                        ecb.AddComponent(instance, new URPMaterialPropertyBaseColor() { Value = color });
                     }
 
+                    /*
                     // Empty chain
                     for (int j = 0; j < fireSim.NumBotsPerChain; j++)
                     {
                         instance = ecb.Instantiate(spawner.BotPrefab);
                         var botPosition = new float3(random.NextInt(0, fireSim.FireGridDimension), 1.6f, random.NextInt(0, fireSim.FireGridDimension));
                         ecb.SetComponent(instance, new Translation { Value = botPosition });
-                        ecb.AddComponent(instance, new Bot { Index = j });
+                        ecb.AddComponent(instance, new Bot { Index = fireSim.NumBotsPerChain + j });
                         ecb.AddComponent(instance, new URPMaterialPropertyBaseColor() { Value = new float4(0.3f, 0.5f, 0.2f, 1.0f) });
                         emptyChain.Add(instance);
                     }
+                    */
 
+                    // Scooper
                     instance = ecb.Instantiate(spawner.BotPrefab);
                     var scooperPosition = new float3(random.NextInt(0, fireSim.FireGridDimension), 1.6f, random.NextInt(0, fireSim.FireGridDimension));
                     ecb.SetComponent(instance, new Translation { Value = scooperPosition });

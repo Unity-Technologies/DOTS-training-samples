@@ -14,6 +14,8 @@ public class SpawnerAuthoring : MonoBehaviour
     public GameObject WaterCell;
 
     public Color ScooperColor;
+    public Color FillerColor;
+    public Color PasserColor;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -24,7 +26,9 @@ public class SpawnerAuthoring : MonoBehaviour
             FireCell = conversionSystem.GetPrimaryEntity(FireCell),
             WaterCell = conversionSystem.GetPrimaryEntity(WaterCell),
 
-            ScooperColor = new float4(ScooperColor.r, ScooperColor.g, ScooperColor.g, ScooperColor.a),
+            ScooperColor = new float4(ScooperColor.r, ScooperColor.g, ScooperColor.b, ScooperColor.a),
+            FillerColor = new float4(FillerColor.r, FillerColor.g, FillerColor.b, FillerColor.a),
+            PasserColor = new float4(PasserColor.r, PasserColor.g, PasserColor.b, PasserColor.a),
         });
     }
 
@@ -36,5 +40,3 @@ public class SpawnerAuthoring : MonoBehaviour
         referencedPrefabs.Add(WaterCell);
     }
 }
-
-

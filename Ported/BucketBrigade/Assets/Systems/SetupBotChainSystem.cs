@@ -43,6 +43,9 @@ public class SetupBotChainSystem : SystemBase
                     var closestFire = FireSim.GetClosestEntity(waterPosition, onFireCellsEntities, onFireCellsTranslations);
                     var firePosition = GetComponent<Translation>(closestFire).Value;
 
+                    waterPosition.y = 1.6f;
+                    firePosition.y = 1.6f;
+
                     ecb.AddComponent(entity, new BotChain()
                     {
                         StartChain = waterPosition,
@@ -54,6 +57,7 @@ public class SetupBotChainSystem : SystemBase
                         var pickupPosition = GetChainPosition(i, fullChain.Length, waterPosition, firePosition);
                         var dropoffPosition = GetChainPosition(i + 1, fullChain.Length, waterPosition, firePosition);
                         ecb.AddComponent(fullChain[i], new PasserBot { PickupPosition = pickupPosition, DropoffPosition = dropoffPosition });
+                        ecb.AddComponent(fullChain[i], new GotoPickupLocation());
                     }
 
                     for (int i = 0; i < emptyChain.Length; i++)
@@ -61,6 +65,7 @@ public class SetupBotChainSystem : SystemBase
                         var pickupPosition = GetChainPosition(i, emptyChain.Length, firePosition, waterPosition);
                         var dropoffPosition = GetChainPosition(i + 1, emptyChain.Length, firePosition, waterPosition);
                         ecb.AddComponent(emptyChain[i], new PasserBot { PickupPosition = pickupPosition, DropoffPosition = dropoffPosition });
+                        ecb.AddComponent(emptyChain[i], new GotoPickupLocation());
                     }
                 }).Run();
 

@@ -9,6 +9,6 @@ public struct Spawner : IComponentData
     public Entity WaterCell;
 
     public float4 ScooperColor;
+    public float4 FillerColor;
+    public float4 PasserColor;
 }
-
-

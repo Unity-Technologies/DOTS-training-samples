@@ -25,7 +25,7 @@ public class FindOnFireCellSystem : SystemBase
 
             Entity closestOnFireCell = FireSim.GetClosestEntity(translation.Value, onFireCellsEntities, onFireCellsTranslations);
 
-            ecb.AddComponent(entity, new MoveTowardFire { Target = closestOnFireCell });
+            ecb.AddComponent<MoveTowardFire>(entity, new MoveTowardFire { Target = closestOnFireCell });
         }).Run();
 
         ecb.Playback(World.EntityManager);
