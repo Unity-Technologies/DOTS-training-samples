@@ -8,9 +8,16 @@ namespace MetroECS.Trains
 {
     public class TrainDoorsClosingSystem : SystemBase
     {
+        private EntityCommandBufferSystem sys;
+        
+        protected override void OnCreate()
+        {
+            sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        }
+        
         protected override void OnUpdate()
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = sys.CreateCommandBuffer();
             var deltaTime = Time.DeltaTime;
 
             Entities.ForEach((ref TrainDoorsClosingTag closingData, in Entity trainEntity, in Train trainData) =>
@@ -24,7 +31,7 @@ namespace MetroECS.Trains
                 closingData.Progress = math.clamp(closingData.Progress + deltaTime, 0f, 1f);
             }).Run();
 
-            ecb.Playback(EntityManager);
+            sys.AddJobHandleForProducer(Dependency);
         }
     }
 }

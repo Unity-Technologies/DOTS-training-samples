@@ -8,9 +8,16 @@ namespace MetroECS.Trains
 {
     public class TrainDoorsOpeningSystem : SystemBase
     {
+        private EntityCommandBufferSystem sys;
+        
+        protected override void OnCreate()
+        {
+            sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        }
+        
         protected override void OnUpdate()
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = sys.CreateCommandBuffer();
             var deltaTime = Time.DeltaTime;
             
             Entities.ForEach((ref TrainDoorsOpeningTag openingData, in Entity trainEntity, in Train trainData) =>
@@ -22,9 +29,9 @@ namespace MetroECS.Trains
                 }
 
                 openingData.Progress = math.clamp(openingData.Progress + deltaTime, 0f, 1f);
-            }).Run();
+            }).Schedule();
 
-            ecb.Playback(EntityManager);
+            sys.AddJobHandleForProducer(Dependency);
         }
     }
 }

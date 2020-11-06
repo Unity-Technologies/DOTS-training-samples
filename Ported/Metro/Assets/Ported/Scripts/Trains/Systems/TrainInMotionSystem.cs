@@ -8,10 +8,17 @@ namespace MetroECS.Trains
     [UpdateAfter(typeof(TrainGenerationSystem))]
     public class TrainInMotionSystem : SystemBase
     {
+        private EntityCommandBufferSystem sys;
+        
+        protected override void OnCreate()
+        {
+            sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        }
+        
         protected override void OnUpdate()
         {
             var deltaTime = Time.DeltaTime;
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = sys.CreateCommandBuffer();
 
             Entities
                 .WithAll<TrainInMotionTag>()
@@ -43,9 +50,9 @@ namespace MetroECS.Trains
                         }
                     }
                 }
-            }).Run();
+            }).Schedule();
 
-            ecb.Playback(EntityManager);
+            sys.AddJobHandleForProducer(Dependency);
         }
     }
 }
