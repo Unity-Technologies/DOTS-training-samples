@@ -48,7 +48,8 @@ public class CapsulePickup : SystemBase
                 if (dist <= 0.2f)
                 {
                    // ecb.DestroyEntity(entityInQueryIndex, entity);
-                                     
+                   ecb.SetComponent(entityInQueryIndex, player, new Position());
+                   ecb.SetComponent(entityInQueryIndex, player, new Direction());
                 }
             }).ScheduleParallel();
 
