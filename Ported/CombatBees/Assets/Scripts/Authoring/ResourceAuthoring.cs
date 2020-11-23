@@ -3,7 +3,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
+public class ResourceAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     // authoring fields go here
     public int team;
@@ -18,19 +18,17 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     }
 }
 
-public struct BeeTeam : IComponentData
+public struct StackIndex : IComponentData
 {
-    public int team;
+    public float index;
 }
 
-public struct DeathTimer : IComponentData
+public struct GridX : IComponentData
 {
-    public float dTimer;
+    public float gridX;
 }
 
-
-
-
-
-
-
+public struct GridY : IComponentData
+{
+    public float gridY;
+}

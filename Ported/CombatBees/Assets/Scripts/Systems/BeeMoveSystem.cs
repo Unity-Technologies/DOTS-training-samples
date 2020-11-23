@@ -14,17 +14,17 @@ public class BeeMoveSystem : SystemBase
 
         var beeParams = GetSingleton<BeeControlParamsAuthoring>();
         var field = GetSingleton<FieldAuthoring>();
+        var resParams = GetSingleton<ResourceParamsAuthoring>();
 
         NativeList<Entity> teamsOfBlueBee = new NativeList<Entity>(beeParams.maxBeeCount, Allocator.TempJob);
-        //var blueBeeWriter = teamsOfBlueBee.AsParallelWriter();
-        //var blueBeeReader = teamsOfBlueBee.AsParallelReader();
         NativeList<Entity> teamsOfYellowBee = new NativeList<Entity>(beeParams.maxBeeCount, Allocator.TempJob);
-        var yellowBeeWriter = teamsOfYellowBee.AsParallelWriter();
+        NativeList<Entity> notHoldResList = new NativeList<Entity>(resParams.maxResCount, Allocator.TempJob);
 
         float deltaTime = Time.fixedDeltaTime;
 
         var random = new Random(1234);
 
+        ///////////////////////////////////////////////////////
         Entities
             .WithName("Get_Bee_Team")
             .WithAll<BeeTeam>()
@@ -41,6 +41,7 @@ public class BeeMoveSystem : SystemBase
                 }
             }).Run();
 
+        ///////////////////////////////////////////////////////
         Entities
             .WithName("Bee_Move")
             .WithAll<BeeTeam>()
@@ -96,9 +97,21 @@ public class BeeMoveSystem : SystemBase
                 pos.Value += deltaTime * velocity.vel;
             }).Run();
 
-#if COMMENT
+        ///////////////////////////////////////////////////////
         Entities
-            .WithName("bee_get_target")
+            .WithName("Get_Not_Hold_Resource_List")
+            .WithAll<StackIndex>()
+            .WithNone<Dead>()
+            .WithNone<TargetBee>()
+            .ForEach((Entity resEntity) =>
+            {
+                notHoldResList.Add(resEntity);
+            }).Run();
+
+        ///////////////////////////////////////////////////////
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        Entities
+            .WithName("Bee_Get_Target")
             .WithAll<BeeTeam>()
             .WithNone<TargetBee>()
             .WithNone<TargetResource>()
@@ -106,11 +119,13 @@ public class BeeMoveSystem : SystemBase
             .WithDisposeOnCompletion(teamsOfBlueBee)
             .WithReadOnly(teamsOfYellowBee)
             .WithDisposeOnCompletion(teamsOfYellowBee)
+            .WithReadOnly(notHoldResList)
+            .WithDisposeOnCompletion(notHoldResList)
             .ForEach((Entity beeEntity, in BeeTeam beeTeam) =>
             {
                 int rndIndex;
                 TargetBee targetBee;
-                //TargetResource targetRes;
+                TargetResource targetRes;
                 if (random.NextFloat() < beeParams.aggression)
                 {
 
@@ -125,132 +140,19 @@ public class BeeMoveSystem : SystemBase
                         targetBee.beeRef = teamsOfBlueBee[rndIndex];
                     }
 
-                    manager.AddComponentData<TargetBee>(beeEntity, targetBee);
+                    ecb.AddComponent<TargetBee>(beeEntity, targetBee);
                 }
                 else
                 {
+                    rndIndex = random.NextInt(0, notHoldResList.Length);
+                    targetRes.resRef = notHoldResList[rndIndex];
+                    ecb.AddComponent<TargetResource>(beeEntity, targetRes);
 
-                }
-                /*
-                if (bee.enemyTarget == null && bee.resourceTarget == null) {
-                            if (Random.value < aggression) {
-                                List<Bee> enemyTeam = teamsOfBees[1 - bee.team];
-                                if (enemyTeam.Count > 0) {
-                                    bee.enemyTarget = enemyTeam[Random.Range(0,enemyTeam.Count)];
-                                }
-                            } else {
-                                bee.resourceTarget = ResourceManager.TryGetRandomResource();
-                            }
-                        }
-                */
-            }).ScheduleParallel();
-#endif
-    }
-}
-
-#if COMMENT
-
-    protected override void OnUpdate()
-    {
-        /*
-        var beeParams = GetSingleton<BeeControlParamsAuthoring>();
-        var time = Time.ElapsedTime;
-        float deltaTime = Time.fixedDeltaTime;
-
-        Entities
-        .WithName("bee_move")
-        .WithAll<BeeTeam>()
-        .WithNone<Dead>()
-        .ForEach((ref Velocity velocity, ref Translation pos, in BeeTeam beeTeam) =>
-        {
-            if (beeTeam.team == 0)
-            {
-                velocity.vel = float3(0.1f, 0f, 0f) * beeParams.flightJitter * deltaTime;
-                pos.Value += velocity.vel * (float)time;
-            }
-        }).ScheduleParallel();
-        */
-
-        var beeParams   = GetSingleton<BeeControlParamsAuthoring>();
-        var field       = GetSingleton<FieldAuthoring>();
-
-        NativeList<Translation> teamsOfBlueBee = new NativeList<Translation>(beeParams.maxBeeCount, Allocator.TempJob);
-        NativeList<Translation> teamsOfYellowBee = new NativeList<Translation>(beeParams.maxBeeCount, Allocator.TempJob);
-
-        float deltaTime = Time.fixedDeltaTime;
-
-        var random = new Random(1234);
-
-        Entities
-            .WithName("get_bee_team")
-            .WithAll<BeeTeam>()
-            .WithNone<Dead>()
-            .ForEach((in BeeTeam beeTeam, in Translation pos) =>
-            {
-                if(beeTeam.team == 0)
-                {
-                    teamsOfBlueBee.Add(pos);
-                }
-                else
-                {
-                    teamsOfYellowBee.Add(pos);
                 }
             }).Run();
 
-        Entities
-            .WithName("bee_move")
-            .WithAll<BeeTeam>()
-            .WithNone<Dead>()
-            .WithReadOnly(teamsOfBlueBee)
-            .WithDisposeOnCompletion(teamsOfBlueBee)
-            .WithReadOnly(teamsOfYellowBee)
-            .WithDisposeOnCompletion(teamsOfYellowBee)
-            .ForEach((ref Velocity velocity, ref Translation pos, in BeeTeam beeTeam) =>
-            {
-                // Random move
-                var rndVel = random.NextFloat3(new float3(0f, 0f, 0f), new float3(1f, 1f, 1f));
-                velocity.vel += rndVel * beeParams.flightJitter * deltaTime;
-                velocity.vel *= (1f - beeParams.damping);
-
-                // Get friend
-                int rndIndex;
-                Translation attractivePos;
-                Translation repellentPos;
-                if (beeTeam.team == 0)
-                {
-                    rndIndex = random.NextInt(0, teamsOfBlueBee.Length);
-                    attractivePos = teamsOfBlueBee[rndIndex];
-                    rndIndex = random.NextInt(0, teamsOfBlueBee.Length);
-                    repellentPos = teamsOfBlueBee[rndIndex];
-                }
-                else
-                {
-                    rndIndex = random.NextInt(0, teamsOfYellowBee.Length);
-                    attractivePos = teamsOfBlueBee[rndIndex];
-                    rndIndex = random.NextInt(0, teamsOfYellowBee.Length);
-                    repellentPos = teamsOfBlueBee[rndIndex];
-                }
-
-                // Move towards friend
-                float3 dir;
-                float dist;
-                dir = attractivePos.Value - pos.Value;
-                dist = sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
-                if(dist > 0f)
-                {
-                    velocity.vel += dir * (beeParams.teamAttraction * deltaTime / dist);
-                }
-
-                // Move away from repellent
-                dir = repellentPos.Value - pos.Value;
-                dist = sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
-                if (dist > 0f)
-                {
-                    velocity.vel -= dir * (beeParams.teamRepulsion * deltaTime / dist);
-                }
-
-                pos.Value += deltaTime * velocity.vel;
-            }).ScheduleParallel();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }
-#endif
+
