@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5060646259758727191}
   - component: {fileID: 2723985088818268476}
   m_Layer: 0
-  m_Name: BlueBeeSpawner
+  m_Name: YellowBeeSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -43,6 +43,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78bd2f4508018e94ebd1f08df0236f5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  beePrefab: {fileID: 6999041084705451249, guid: 7d996cabafeda4b47bc551f10d1db0fd, type: 3}
+  beePrefab: {fileID: 7005035464578648949, guid: 8b09cc478cf5c414389fa62819fe1d37, type: 3}
   initialBeeCount: 1
   maxSpawnSpeed: 75

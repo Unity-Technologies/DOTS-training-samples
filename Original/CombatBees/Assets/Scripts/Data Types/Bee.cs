@@ -16,7 +16,7 @@ public class Bee {
 	public float deathTimer = 1f;
 	public bool isAttacking;
 	public bool isHoldingResource;
-	public int index;
+	//public int index;
 
 	public void Init(Vector3 myPosition,int myTeam,float mySize) {
 		position = myPosition;
@@ -31,7 +31,7 @@ public class Bee {
 		deathTimer = 1f;
 		isAttacking = false;
 		isHoldingResource = false;
-		index = -1;
+		//index = -1;
 
 		enemyTarget = null;
 		resourceTarget = null;

@@ -1,18 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
+[Serializable]
 public class BeeSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
     public GameObject beePrefab;
     public int initialBeeCount;
+    public float maxSpawnSpeed;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         var spawner = new BeeSpawner
         {
             beePrefab = conversionSystem.GetPrimaryEntity(this.beePrefab),
-            initialBeeCount = this.initialBeeCount,
+            count = this.initialBeeCount,
+            maxSpawnSpeed = this.maxSpawnSpeed,
         };
 
         dstManager.AddComponentData<BeeSpawner>(entity, spawner);
@@ -27,5 +31,6 @@ public class BeeSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
 public struct BeeSpawner : IComponentData
 {
     public Entity beePrefab;
-    public int initialBeeCount;
+    public int count;
+    public float maxSpawnSpeed;
 }

@@ -6,21 +6,26 @@ using Unity.Transforms;
 public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     // authoring fields go here
-    public int team;
+    public BeeTeam.TeamColor team;
     public float deathTimer;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new BeeTeam { team = this.team });
+        dstManager.AddSharedComponentData(entity, new BeeTeam { team = this.team });
         dstManager.AddComponentData(entity, new DeathTimer { dTimer = this.deathTimer });
         dstManager.AddComponentData(entity, new Velocity { vel = float3.zero });
         dstManager.AddComponentData(entity, new Scale { Value = 1.0f });
     }
 }
 
-public struct BeeTeam : IComponentData
+public struct BeeTeam : ISharedComponentData
 {
-    public int team;
+    public TeamColor team;
+    public enum TeamColor
+    {
+        BLUE = 0,
+        YELLOW = 1
+    };
 }
 
 public struct DeathTimer : IComponentData

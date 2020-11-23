@@ -5,22 +5,17 @@ using Unity.Transforms;
 
 public class ResourceAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
-    // authoring fields go here
-    public int team;
-    public float deathTimer;
-
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new BeeTeam { team = this.team });
-        dstManager.AddComponentData(entity, new DeathTimer { dTimer = this.deathTimer });
         dstManager.AddComponentData(entity, new Velocity { vel = float3.zero });
         dstManager.AddComponentData(entity, new Scale { Value = 1.0f });
+        dstManager.AddComponentData(entity, new StackIndex { index = 0 });
     }
 }
 
 public struct StackIndex : IComponentData
 {
-    public float index;
+    public int index;
 }
 
 public struct GridX : IComponentData

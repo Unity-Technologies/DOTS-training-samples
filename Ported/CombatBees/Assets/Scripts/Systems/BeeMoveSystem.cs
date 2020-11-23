@@ -8,22 +8,47 @@ using Unity.Transforms;
 
 public class BeeMoveSystem : SystemBase
 {
+    private EntityQuery blueTeamQuery;
+    private EntityQuery yellowTeamQuery;
+    private EntityQuery unHeldResQuery;
+
+    protected override void OnCreate()
+    {
+        blueTeamQuery = GetEntityQuery(typeof(BeeTeam));
+        blueTeamQuery.SetSharedComponentFilter(new BeeTeam { team = BeeTeam.TeamColor.BLUE });
+
+        yellowTeamQuery = GetEntityQuery(typeof(BeeTeam));
+        yellowTeamQuery.SetSharedComponentFilter(new BeeTeam { team = BeeTeam.TeamColor.YELLOW });
+
+        unHeldResQuery = GetEntityQuery(new EntityQueryDesc {
+            All = new ComponentType[] {typeof(StackIndex)},
+            None = new ComponentType[] {typeof(Dead), typeof(TargetBee)},
+        });
+    }
+
+
     protected override void OnUpdate()
     {
         EntityManager manager = this.EntityManager;
 
-        var beeParams = GetSingleton<BeeControlParamsAuthoring>();
+        var beeParams = GetSingleton<BeeControlParams>();
         var field = GetSingleton<FieldAuthoring>();
-        var resParams = GetSingleton<ResourceParamsAuthoring>();
+        var resParams = GetSingleton<ResourceParams>();
 
+        /*
         NativeList<Entity> teamsOfBlueBee = new NativeList<Entity>(beeParams.maxBeeCount, Allocator.TempJob);
         NativeList<Entity> teamsOfYellowBee = new NativeList<Entity>(beeParams.maxBeeCount, Allocator.TempJob);
         NativeList<Entity> notHoldResList = new NativeList<Entity>(resParams.maxResCount, Allocator.TempJob);
+        */
+
+        NativeArray<Entity> teamsOfBlueBee = blueTeamQuery.ToEntityArrayAsync(Allocator.TempJob, out var blueTeamHandle);
+        NativeArray<Entity> teamsOfYellowBee = yellowTeamQuery.ToEntityArrayAsync(Allocator.TempJob, out var yellowTeamHandle);
 
         float deltaTime = Time.fixedDeltaTime;
 
         var random = new Random(1234);
 
+        /*
         ///////////////////////////////////////////////////////
         Entities
             .WithName("Get_Bee_Team")
@@ -39,7 +64,11 @@ public class BeeMoveSystem : SystemBase
                 {
                     teamsOfYellowBee.Add(beeEntity);
                 }
-            }).Run();
+            }).ScheduleParallel();
+        */
+
+        blueTeamHandle.Complete();
+        yellowTeamHandle.Complete();
 
         ///////////////////////////////////////////////////////
         Entities
@@ -47,9 +76,9 @@ public class BeeMoveSystem : SystemBase
             .WithAll<BeeTeam>()
             .WithNone<Dead>()
             .WithReadOnly(teamsOfBlueBee)
-            .WithDisposeOnCompletion(teamsOfBlueBee)
+            //.WithDisposeOnCompletion(teamsOfBlueBee)
             .WithReadOnly(teamsOfYellowBee)
-            .WithDisposeOnCompletion(teamsOfYellowBee)
+            //.WithDisposeOnCompletion(teamsOfYellowBee)
             .ForEach((ref Velocity velocity, ref Translation pos, in BeeTeam beeTeam) =>
             {
                 // Random move
@@ -71,9 +100,9 @@ public class BeeMoveSystem : SystemBase
                 else
                 {
                     rndIndex = random.NextInt(0, teamsOfYellowBee.Length);
-                    attractiveFriend = teamsOfBlueBee[rndIndex];
+                    attractiveFriend = teamsOfYellowBee[rndIndex];
                     rndIndex = random.NextInt(0, teamsOfYellowBee.Length);
-                    repellentFriend = teamsOfBlueBee[rndIndex];
+                    repellentFriend = teamsOfYellowBee[rndIndex];
                 }
 
                 // Move towards friend
@@ -97,6 +126,7 @@ public class BeeMoveSystem : SystemBase
                 pos.Value += deltaTime * velocity.vel;
             }).Run();
 
+        /*
         ///////////////////////////////////////////////////////
         Entities
             .WithName("Get_Not_Hold_Resource_List")
@@ -107,6 +137,10 @@ public class BeeMoveSystem : SystemBase
             {
                 notHoldResList.Add(resEntity);
             }).Run();
+        */
+
+        NativeArray<Entity> unHeldResArray = unHeldResQuery.ToEntityArrayAsync(Allocator.TempJob, out var unHeldResHandle);
+        unHeldResHandle.Complete();
 
         ///////////////////////////////////////////////////////
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
@@ -119,8 +153,8 @@ public class BeeMoveSystem : SystemBase
             .WithDisposeOnCompletion(teamsOfBlueBee)
             .WithReadOnly(teamsOfYellowBee)
             .WithDisposeOnCompletion(teamsOfYellowBee)
-            .WithReadOnly(notHoldResList)
-            .WithDisposeOnCompletion(notHoldResList)
+            .WithReadOnly(unHeldResArray)
+            .WithDisposeOnCompletion(unHeldResArray)
             .ForEach((Entity beeEntity, in BeeTeam beeTeam) =>
             {
                 int rndIndex;
@@ -144,10 +178,12 @@ public class BeeMoveSystem : SystemBase
                 }
                 else
                 {
-                    rndIndex = random.NextInt(0, notHoldResList.Length);
-                    targetRes.resRef = notHoldResList[rndIndex];
-                    ecb.AddComponent<TargetResource>(beeEntity, targetRes);
-
+                    if (unHeldResArray.Length > 1)
+                    {
+                        rndIndex = random.NextInt(0, unHeldResArray.Length);
+                        targetRes.resRef = unHeldResArray[rndIndex];
+                        ecb.AddComponent<TargetResource>(beeEntity, targetRes);
+                    }
                 }
             }).Run();
 

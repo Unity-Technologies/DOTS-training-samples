@@ -2,7 +2,9 @@
 using UnityEngine;
 using Unity.Mathematics;
 using Unity.Transforms;
+using System;
 
+/*
 [GenerateAuthoringComponent]
 public struct ResourceParamsAuthoring : IComponentData
 {
@@ -11,14 +13,16 @@ public struct ResourceParamsAuthoring : IComponentData
 	public float carryStiffness;
 	public int maxResCount;
 }
+*/
 
-/*
+[Serializable]
 public class ResourceParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
 	// authoring fields go here
 	public float resourceSize;
 	public float snapStiffness;
 	public float carryStiffness;
+	
 	
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -51,4 +55,3 @@ public struct ResourceGridParams : IComponentData
 	float2 minGridPos;
 	//int[,] stackHeights;
 }
-*/
