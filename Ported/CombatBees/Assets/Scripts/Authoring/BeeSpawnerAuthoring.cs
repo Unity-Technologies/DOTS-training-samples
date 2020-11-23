@@ -12,7 +12,7 @@ public class BeeSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
         var spawner = new BeeSpawner
         {
             beePrefab = conversionSystem.GetPrimaryEntity(this.beePrefab),
-            initialBeeCount = this.initialBeeCount
+            initialBeeCount = this.initialBeeCount,
         };
 
         dstManager.AddComponentData<BeeSpawner>(entity, spawner);

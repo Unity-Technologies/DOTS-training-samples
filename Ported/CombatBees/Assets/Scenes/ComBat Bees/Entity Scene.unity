@@ -140,7 +140,7 @@ PrefabInstance:
       objectReference: {fileID: 7005035464578648949, guid: 8b09cc478cf5c414389fa62819fe1d37, type: 3}
     - target: {fileID: 5060646259758727191, guid: 159382b2b9a234249aa1c90951022f5b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -50
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 5060646259758727191, guid: 159382b2b9a234249aa1c90951022f5b, type: 3}
       propertyPath: m_LocalPosition.y
@@ -295,6 +295,14 @@ PrefabInstance:
     - target: {fileID: 6706287706261233425, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
       propertyPath: m_Name
       value: BeeControlParams
+      objectReference: {fileID: 0}
+    - target: {fileID: 6706287706261233431, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
+      propertyPath: minBeeSize
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6706287706261233431, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
+      propertyPath: maxBeeSize
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
