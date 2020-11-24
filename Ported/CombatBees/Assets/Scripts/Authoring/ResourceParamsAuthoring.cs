@@ -35,7 +35,7 @@ public class ResourceParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 			carryStiffness = this.carryStiffness
 		};
 
-		dstManager.AddComponentData(entity, resParams);
+		dstManager.AddComponentData<ResourceParams>(entity, resParams);
 
 		/*
 		int gridCountsX = (int)field.GetComponent<FieldAuthoring>().size.x / (int)this.resourceSize;
@@ -47,9 +47,8 @@ public class ResourceParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		float2 gridSize = new float2(gridSizeX, gridSizeZ);
 		*/
 
-		/*
-		int gridCountsX = (int)100 / (int)this.resourceSize;
-		int gridCountsZ = (int)30 / (int)this.resourceSize;
+		int gridCountsX = (int)(100 / this.resourceSize);
+		int gridCountsZ = (int)(30 / this.resourceSize);
 		int2 gridCounts = new int2(gridCountsX, gridCountsZ);
 
 		float gridSizeX = 100 / gridCounts.x;
@@ -68,8 +67,7 @@ public class ResourceParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 			//stackHeights = new NativeArray<int>(gridCounts.x * gridCounts.y, Allocator.Persistent)
 		};
 
-		dstManager.AddComponentData(entity, resGridParams);
-		*/
+		dstManager.AddComponentData<ResourceGridParams>(entity, resGridParams);		
 	}
 }
 
