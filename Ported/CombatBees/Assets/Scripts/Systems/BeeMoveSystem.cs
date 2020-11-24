@@ -20,7 +20,8 @@ public class BeeMoveSystem : SystemBase
         yellowTeamQuery = GetEntityQuery(typeof(BeeTeam));
         yellowTeamQuery.SetSharedComponentFilter(new BeeTeam { team = BeeTeam.TeamColor.YELLOW });
 
-        unHeldResQuery = GetEntityQuery(new EntityQueryDesc {
+        unHeldResQuery = GetEntityQuery(new EntityQueryDesc 
+        {
             All = new ComponentType[] {typeof(StackIndex)},
             None = new ComponentType[] {typeof(Dead), typeof(TargetBee)},
         });
@@ -79,6 +80,7 @@ public class BeeMoveSystem : SystemBase
             //.WithDisposeOnCompletion(teamsOfBlueBee)
             .WithReadOnly(teamsOfYellowBee)
             //.WithDisposeOnCompletion(teamsOfYellowBee)
+            .WithoutBurst()
             .ForEach((ref Velocity velocity, ref Translation pos, in BeeTeam beeTeam) =>
             {
                 // Random move
@@ -155,6 +157,7 @@ public class BeeMoveSystem : SystemBase
             .WithDisposeOnCompletion(teamsOfYellowBee)
             .WithReadOnly(unHeldResArray)
             .WithDisposeOnCompletion(unHeldResArray)
+            .WithoutBurst()
             .ForEach((Entity beeEntity, in BeeTeam beeTeam) =>
             {
                 int rndIndex;

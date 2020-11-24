@@ -67,9 +67,6 @@ public class BeeControlParamsAuthoring : MonoBehaviour, IConvertGameObjectToEnti
 
 public struct BeeControlParams : IComponentData
 {
-    //public Mesh beeMesh;
-    //public Material beeMaterial;
-    //public Color[] teamColors;
     public float minBeeSize;
     public float maxBeeSize;
     public float speedStretch;
