@@ -67,7 +67,17 @@ public class ResourceParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 			//stackHeights = new NativeArray<int>(gridCounts.x * gridCounts.y, Allocator.Persistent)
 		};
 
-		dstManager.AddComponentData<ResourceGridParams>(entity, resGridParams);		
+		dstManager.AddComponentData<ResourceGridParams>(entity, resGridParams);
+
+		dstManager.AddBuffer<StackHeightParams>(entity);
+		var stackHeights = dstManager.GetBuffer<StackHeightParams>(entity);
+		for (int i = 0; i < gridCounts.x; i++)
+        {
+			for(int j = 0; j < gridCounts.y; j++)
+            {
+				stackHeights.Add(new StackHeightParams { Value = 0 });
+			}
+        }
 	}
 }
 
@@ -88,4 +98,9 @@ public struct ResourceGridParams : IComponentData
 	public float2 gridSize;
 	public float2 minGridPos;
 	//public NativeArray<int> stackHeights;
+}
+
+public struct StackHeightParams : IBufferElementData
+{
+	public int Value;
 }

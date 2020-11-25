@@ -10,6 +10,8 @@ public class ResourceAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new Velocity { vel = float3.zero });
         dstManager.AddComponentData(entity, new Scale { Value = 1.0f });
         dstManager.AddComponentData(entity, new StackIndex { index = 0 });
+        dstManager.AddComponentData(entity, new GridX { gridX = 0 });
+        dstManager.AddComponentData(entity, new GridY { gridY = 0 });
     }
 }
 
@@ -20,10 +22,10 @@ public struct StackIndex : IComponentData
 
 public struct GridX : IComponentData
 {
-    public float gridX;
+    public int gridX;
 }
 
 public struct GridY : IComponentData
 {
-    public float gridY;
+    public int gridY;
 }

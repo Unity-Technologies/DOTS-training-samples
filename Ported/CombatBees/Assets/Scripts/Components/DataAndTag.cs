@@ -72,3 +72,8 @@ public struct TargetResource : IComponentData
 {
     public Entity resRef;
 }
+
+public struct HolderBee : IComponentData
+{
+    public Entity beeHolder;
+}

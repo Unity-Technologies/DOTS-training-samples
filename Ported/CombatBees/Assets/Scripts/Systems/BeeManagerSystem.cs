@@ -6,35 +6,54 @@ using Unity.Mathematics;
 using static Unity.Mathematics.math;
 using Unity.Transforms;
 
-public class BeeMoveSystem : SystemBase
+public class BeeManagerSystem : SystemBase
 {
     private EntityQuery blueTeamQuery;
     private EntityQuery yellowTeamQuery;
     private EntityQuery unHeldResQuery;
 
+    ResourceParams resParams;
+    ResourceGridParams resGridParams;
+    DynamicBuffer<StackHeightParams> stackHeights;
+
     protected override void OnCreate()
     {
+        var notDead = GetEntityQuery(new EntityQueryDesc
+        {
+            None = new ComponentType[] { typeof(Dead) }
+        });
+
         blueTeamQuery = GetEntityQuery(typeof(BeeTeam));
         blueTeamQuery.SetSharedComponentFilter(new BeeTeam { team = BeeTeam.TeamColor.BLUE });
 
         yellowTeamQuery = GetEntityQuery(typeof(BeeTeam));
         yellowTeamQuery.SetSharedComponentFilter(new BeeTeam { team = BeeTeam.TeamColor.YELLOW });
 
-        unHeldResQuery = GetEntityQuery(new EntityQueryDesc 
+        unHeldResQuery = GetEntityQuery(new EntityQueryDesc
         {
-            All = new ComponentType[] {typeof(StackIndex)},
-            None = new ComponentType[] {typeof(Dead), typeof(TargetBee)},
+            All = new ComponentType[] { typeof(StackIndex) },
+            None = new ComponentType[] { typeof(Dead), typeof(TargetBee) }
         });
+
+        resParams = GetSingleton<ResourceParams>();
+        resGridParams = GetSingleton<ResourceGridParams>();
+        var bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
+        var bufferEntity = GetSingletonEntity<ResourceParams>();
+        stackHeights = bufferFromEntity[bufferEntity];
     }
 
 
     protected override void OnUpdate()
     {
-        EntityManager manager = this.EntityManager;
+        //EntityManager manager = this.EntityManager;
 
         var beeParams = GetSingleton<BeeControlParams>();
         var field = GetSingleton<FieldAuthoring>();
         var resParams = GetSingleton<ResourceParams>();
+        var resGridParams = GetSingleton<ResourceGridParams>();
+        var bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
+        var bufferEntity = GetSingletonEntity<ResourceParams>();
+        var stackHeights = bufferFromEntity[bufferEntity];
 
         /*
         NativeList<Entity> teamsOfBlueBee = new NativeList<Entity>(beeParams.maxBeeCount, Allocator.TempJob);
@@ -110,7 +129,7 @@ public class BeeMoveSystem : SystemBase
                 // Move towards friend
                 float3 dir;
                 float dist;
-                dir = manager.GetComponentData<Translation>(attractiveFriend).Value - pos.Value;
+                dir = GetComponent<Translation>(attractiveFriend).Value - pos.Value;
                 dist = sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
                 if (dist > 0f)
                 {
@@ -118,7 +137,7 @@ public class BeeMoveSystem : SystemBase
                 }
 
                 // Move away from repellent
-                dir = manager.GetComponentData<Translation>(repellentFriend).Value - pos.Value;
+                dir = GetComponent<Translation>(repellentFriend).Value - pos.Value;
                 dist = sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
                 if (dist > 0f)
                 {
@@ -192,6 +211,77 @@ public class BeeMoveSystem : SystemBase
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
+
+        var ecb1 = new EntityCommandBuffer(Allocator.TempJob);
+        Entities
+            .WithName("Bee_Grap_Target_Resource")
+            .WithAll<BeeTeam>()
+            .WithAll<TargetResource>()
+            .ForEach((Entity beeEntity, ref Velocity velocity, in TargetResource targetRes, in Translation pos) =>
+            {
+                // resource has no holder
+                if (HasComponent<TargetBee>(targetRes.resRef) == false)
+                {
+                    // resource dead or not top of the stack
+                    if (HasComponent<Dead>(targetRes.resRef) || !IsTopOfStack(targetRes.resRef))
+                    {
+                        ecb1.RemoveComponent<TargetResource>(beeEntity);
+                    }
+                    else
+                    { 
+                        var dir = GetComponent<Translation>(targetRes.resRef).Value - pos.Value;
+                        float sqrDist = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
+                        if (sqrDist > beeParams.grabDistance * beeParams.grabDistance)
+                        {
+                            velocity.vel += dir * (beeParams.chaseForce * deltaTime / sqrt(sqrDist));
+                        }
+                        else if (HasComponent<Stacked>(targetRes.resRef))
+                        {
+                            ecb1.AddComponent<TargetBee>(targetRes.resRef);
+                            ecb1.RemoveComponent<Stacked>(targetRes.resRef);
+                            IncreaseStackHeights(targetRes.resRef); 
+                        }
+
+                    }
+                    
+
+                }
+            }).Run();
+
+        ecb1.Playback(EntityManager);
+        ecb1.Dispose();
+
     }
+
+    protected bool IsTopOfStack(Entity resource)
+    {
+        if(HasComponent<Stacked>(resource))
+        {
+            int gridX = GetComponent<GridX>(resource).gridX;
+            int gridY = GetComponent<GridY>(resource).gridY;
+            int index = resGridParams.gridCounts.x * gridX + gridY;
+            if(GetComponent<StackIndex>(resource).index == stackHeights[index].Value - 1)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected bool IncreaseStackHeights(Entity resource)
+    {
+        if (HasComponent<Stacked>(resource))
+        {
+            int gridX = GetComponent<GridX>(resource).gridX;
+            int gridY = GetComponent<GridY>(resource).gridY;
+            int index = resGridParams.gridCounts.x * gridX + gridY;
+
+            var element = stackHeights[index];
+            element.Value++;
+            stackHeights[index] = element;
+        }
+        return false;
+    }
+
 }
 
