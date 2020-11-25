@@ -11,11 +11,7 @@ public class BeeManagerSystem : SystemBase
     private EntityQuery blueTeamQuery;
     private EntityQuery yellowTeamQuery;
     private EntityQuery unHeldResQuery;
-
-    ResourceParams resParams;
-    ResourceGridParams resGridParams;
-    DynamicBuffer<StackHeightParams> stackHeights;
-
+    
     protected override void OnCreate()
     {
         var notDead = GetEntityQuery(new EntityQueryDesc
@@ -33,13 +29,7 @@ public class BeeManagerSystem : SystemBase
         {
             All = new ComponentType[] { typeof(StackIndex) },
             None = new ComponentType[] { typeof(Dead), typeof(TargetBee) }
-        });
-
-        resParams = GetSingleton<ResourceParams>();
-        resGridParams = GetSingleton<ResourceGridParams>();
-        var bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
-        var bufferEntity = GetSingletonEntity<ResourceParams>();
-        stackHeights = bufferFromEntity[bufferEntity];
+        });    
     }
 
 
@@ -92,7 +82,7 @@ public class BeeManagerSystem : SystemBase
 
         ///////////////////////////////////////////////////////
         Entities
-            .WithName("Bee_Move")
+            .WithName("Bee_Calculate_Velocity")
             .WithAll<BeeTeam>()
             .WithNone<Dead>()
             .WithReadOnly(teamsOfBlueBee)
@@ -100,7 +90,7 @@ public class BeeManagerSystem : SystemBase
             .WithReadOnly(teamsOfYellowBee)
             //.WithDisposeOnCompletion(teamsOfYellowBee)
             .WithoutBurst()
-            .ForEach((ref Velocity velocity, ref Translation pos, in BeeTeam beeTeam) =>
+            .ForEach((ref Velocity velocity, in Translation pos, in BeeTeam beeTeam) =>
             {
                 // Random move
                 var rndVel = random.NextFloat3();
@@ -111,7 +101,7 @@ public class BeeManagerSystem : SystemBase
                 int rndIndex;
                 Entity attractiveFriend;
                 Entity repellentFriend;
-                if (beeTeam.team == 0)
+                if (beeTeam.team == BeeTeam.TeamColor.BLUE)
                 {
                     rndIndex = random.NextInt(0, teamsOfBlueBee.Length);
                     attractiveFriend = teamsOfBlueBee[rndIndex];
@@ -127,24 +117,24 @@ public class BeeManagerSystem : SystemBase
                 }
 
                 // Move towards friend
-                float3 dir;
+                float3 delta;
                 float dist;
-                dir = GetComponent<Translation>(attractiveFriend).Value - pos.Value;
-                dist = sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
+                delta = GetComponent<Translation>(attractiveFriend).Value - pos.Value;
+                dist = sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
                 if (dist > 0f)
                 {
-                    velocity.vel += dir * (beeParams.teamAttraction * deltaTime / dist);
+                    velocity.vel += delta * (beeParams.teamAttraction * deltaTime / dist);
                 }
 
                 // Move away from repellent
-                dir = GetComponent<Translation>(repellentFriend).Value - pos.Value;
-                dist = sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
+                delta = GetComponent<Translation>(repellentFriend).Value - pos.Value;
+                dist = sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
                 if (dist > 0f)
                 {
-                    velocity.vel -= dir * (beeParams.teamRepulsion * deltaTime / dist);
+                    velocity.vel -= delta * (beeParams.teamRepulsion * deltaTime / dist);
                 }
 
-                pos.Value += deltaTime * velocity.vel;
+                //pos.Value += deltaTime * velocity.vel;
             }).Run();
 
         /*
@@ -188,12 +178,12 @@ public class BeeManagerSystem : SystemBase
                     if (beeTeam.team == 0)
                     {
                         rndIndex = random.NextInt(0, teamsOfYellowBee.Length);
-                        targetBee.beeRef = teamsOfYellowBee[rndIndex];
+                        targetBee.bee = teamsOfYellowBee[rndIndex];
                     }
                     else
                     {
                         rndIndex = random.NextInt(0, teamsOfBlueBee.Length);
-                        targetBee.beeRef = teamsOfBlueBee[rndIndex];
+                        targetBee.bee = teamsOfBlueBee[rndIndex];
                     }
 
                     ecb.AddComponent<TargetBee>(beeEntity, targetBee);
@@ -203,7 +193,7 @@ public class BeeManagerSystem : SystemBase
                     if (unHeldResArray.Length > 1)
                     {
                         rndIndex = random.NextInt(0, unHeldResArray.Length);
-                        targetRes.resRef = unHeldResArray[rndIndex];
+                        targetRes.res = unHeldResArray[rndIndex];
                         ecb.AddComponent<TargetResource>(beeEntity, targetRes);
                     }
                 }
@@ -215,35 +205,58 @@ public class BeeManagerSystem : SystemBase
         var ecb1 = new EntityCommandBuffer(Allocator.TempJob);
         Entities
             .WithName("Bee_Grap_Target_Resource")
-            .WithAll<BeeTeam>()
-            .WithAll<TargetResource>()
-            .ForEach((Entity beeEntity, ref Velocity velocity, in TargetResource targetRes, in Translation pos) =>
+            //WithAll<BeeTeam>()
+            //.WithAll<TargetResource>()
+            .WithoutBurst()
+            .ForEach((Entity beeEntity, ref Velocity velocity, in BeeTeam beeTeam, in TargetResource targetRes, in Translation pos) =>
             {
                 // resource has no holder
-                if (HasComponent<TargetBee>(targetRes.resRef) == false)
+                if (HasComponent<HolderBee>(targetRes.res) == false)
                 {
+                    bool dead = HasComponent<Dead>(targetRes.res);
+                    bool stacked = HasComponent<Stacked>(targetRes.res);
+                    int gridX = GetComponent<GridX>(targetRes.res).gridX;
+                    int gridY = GetComponent<GridY>(targetRes.res).gridY;
+                    int stackIndex = GetComponent<StackIndex>(targetRes.res).index;
+
                     // resource dead or not top of the stack
-                    if (HasComponent<Dead>(targetRes.resRef) || !IsTopOfStack(targetRes.resRef))
+                    if (dead || !Utils.IsTopOfStack(resGridParams, stackHeights, gridX, gridY, stackIndex, stacked))
                     {
                         ecb1.RemoveComponent<TargetResource>(beeEntity);
                     }
                     else
-                    { 
-                        var dir = GetComponent<Translation>(targetRes.resRef).Value - pos.Value;
-                        float sqrDist = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
+                    {
+                        var delta = GetComponent<Translation>(targetRes.res).Value - pos.Value;
+                        float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                         if (sqrDist > beeParams.grabDistance * beeParams.grabDistance)
                         {
-                            velocity.vel += dir * (beeParams.chaseForce * deltaTime / sqrt(sqrDist));
+                            velocity.vel += delta * (beeParams.chaseForce * deltaTime / sqrt(sqrDist));
                         }
-                        else if (HasComponent<Stacked>(targetRes.resRef))
+                        else if (HasComponent<Stacked>(targetRes.res))
                         {
-                            ecb1.AddComponent<TargetBee>(targetRes.resRef);
-                            ecb1.RemoveComponent<Stacked>(targetRes.resRef);
-                            IncreaseStackHeights(targetRes.resRef); 
+                            ecb1.AddComponent<HolderBee>(targetRes.res, new HolderBee { holder = beeEntity });
+                            ecb1.RemoveComponent<Stacked>(targetRes.res);
+                            Utils.UpdateStackHeights(resGridParams, stackHeights, gridX, gridY, stacked, 1);
                         }
-
                     }
-                    
+                }
+                // resource holder is the bee
+                else if(GetComponent<HolderBee>(targetRes.res).holder == beeEntity)
+                {
+                    float team = (float)beeTeam.team;
+                    float3 targetPos = new float3(-field.size.x * .45f + field.size.x * .9f * team, 0f, pos.Value.z);
+                    float3 delta = targetPos - pos.Value;
+                    float dist = sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+                    velocity.vel += delta * (beeParams.carryForce * deltaTime / dist);
+                    if(dist < 1f)
+                    {
+                        ecb1.RemoveComponent<HolderBee>(targetRes.res);
+                        ecb1.RemoveComponent<TargetResource>(beeEntity);
+                    }
+                    else
+                    {
+                        ecb1.AddComponent<IsHoldingResource>(beeEntity);
+                    }
 
                 }
             }).Run();
@@ -251,37 +264,14 @@ public class BeeManagerSystem : SystemBase
         ecb1.Playback(EntityManager);
         ecb1.Dispose();
 
-    }
-
-    protected bool IsTopOfStack(Entity resource)
-    {
-        if(HasComponent<Stacked>(resource))
-        {
-            int gridX = GetComponent<GridX>(resource).gridX;
-            int gridY = GetComponent<GridY>(resource).gridY;
-            int index = resGridParams.gridCounts.x * gridX + gridY;
-            if(GetComponent<StackIndex>(resource).index == stackHeights[index].Value - 1)
+        Entities
+            .WithName("Bee_Move")
+            .WithAll<BeeTeam>()
+            .WithNone<Dead>()
+            .ForEach((ref Translation pos, in Velocity velocity) =>
             {
-                return true;
-            }
-        }
-        return false;
+                pos.Value += deltaTime * velocity.vel;
+            }).ScheduleParallel();
     }
-
-    protected bool IncreaseStackHeights(Entity resource)
-    {
-        if (HasComponent<Stacked>(resource))
-        {
-            int gridX = GetComponent<GridX>(resource).gridX;
-            int gridY = GetComponent<GridY>(resource).gridY;
-            int index = resGridParams.gridCounts.x * gridX + gridY;
-
-            var element = stackHeights[index];
-            element.Value++;
-            stackHeights[index] = element;
-        }
-        return false;
-    }
-
 }
 

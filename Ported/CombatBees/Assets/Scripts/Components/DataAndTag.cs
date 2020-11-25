@@ -57,6 +57,10 @@ public struct Stacked : IComponentData
 {
 }
 
+public struct IsHoldingResource : IComponentData
+{
+}
+
 
 ///////////////////////////////////////////////////////
 /// <summary>
@@ -65,15 +69,15 @@ public struct Stacked : IComponentData
 /// ///////////////////////////////////////////////////////
 public struct TargetBee : IComponentData
 {
-    public Entity beeRef;
+    public Entity bee;
 }
 
 public struct TargetResource : IComponentData
 {
-    public Entity resRef;
+    public Entity res;
 }
 
 public struct HolderBee : IComponentData
 {
-    public Entity beeHolder;
+    public Entity holder;
 }

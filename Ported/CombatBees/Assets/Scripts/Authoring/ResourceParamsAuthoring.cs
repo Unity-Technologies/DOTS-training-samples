@@ -69,8 +69,9 @@ public class ResourceParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
 		dstManager.AddComponentData<ResourceGridParams>(entity, resGridParams);
 
-		dstManager.AddBuffer<StackHeightParams>(entity);
-		var stackHeights = dstManager.GetBuffer<StackHeightParams>(entity);
+		var stackHeights = dstManager.AddBuffer<StackHeightParams>(entity);
+		//var stackHeights = dstManager.GetBuffer<StackHeightParams>(entity
+		stackHeights.EnsureCapacity(gridCounts.x * gridCounts.y);
 		for (int i = 0; i < gridCounts.x; i++)
         {
 			for(int j = 0; j < gridCounts.y; j++)
