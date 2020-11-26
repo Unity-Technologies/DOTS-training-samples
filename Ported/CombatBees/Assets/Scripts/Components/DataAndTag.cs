@@ -53,6 +53,10 @@ public struct Dead : IComponentData
 {
 }
 
+public struct IsAttacking : IComponentData
+{
+}
+
 public struct Stacked : IComponentData
 {
 }
