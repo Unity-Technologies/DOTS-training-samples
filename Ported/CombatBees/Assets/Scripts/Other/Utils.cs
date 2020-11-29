@@ -8,7 +8,7 @@ public static class Utils
         if (stacked)
         {
             int index = resGridParams.gridCounts.x * gridX + gridY;
-            if (index == stackHeights[index].Value - 1)
+            if (stackIndex == stackHeights[index].Value - 1)
             {
                 return true;
             }

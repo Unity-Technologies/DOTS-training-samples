@@ -43,6 +43,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78bd2f4508018e94ebd1f08df0236f5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  beePrefab: {fileID: 7005035464578648949, guid: 8b09cc478cf5c414389fa62819fe1d37, type: 3}
+  beePrefab: {fileID: 779568705621176074, guid: 8b09cc478cf5c414389fa62819fe1d37, type: 3}
   initialBeeCount: 1
   maxSpawnSpeed: 75
