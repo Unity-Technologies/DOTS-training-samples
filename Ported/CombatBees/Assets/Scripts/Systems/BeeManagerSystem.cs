@@ -5,7 +5,10 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
 using Unity.Transforms;
+using UnityEngine;
 
+[UpdateAfter(typeof(BeeSpawnerSystem))]
+[UpdateBefore(typeof(TransformSystemGroup))]
 public class BeeManagerSystem : SystemBase
 {
     private EntityQuery blueTeamQuery;
@@ -46,12 +49,18 @@ public class BeeManagerSystem : SystemBase
         var stackHeights = bufferFromEntity[bufferEntity];
 
         float deltaTime = Time.fixedDeltaTime;
-        var random = new Random(1234);
+        var random = new Unity.Mathematics.Random(1234);
 
+        /*
         NativeArray<Entity> teamsOfBlueBee = blueTeamQuery.ToEntityArrayAsync(Allocator.TempJob, out var blueTeamHandle);
         NativeArray<Entity> teamsOfYellowBee = yellowTeamQuery.ToEntityArrayAsync(Allocator.TempJob, out var yellowTeamHandle);
         blueTeamHandle.Complete();
         yellowTeamHandle.Complete();
+        */
+        NativeArray<Entity> teamsOfBlueBee = blueTeamQuery.ToEntityArray(Allocator.TempJob);
+        NativeArray<Entity> teamsOfYellowBee = yellowTeamQuery.ToEntityArray(Allocator.TempJob);
+
+        //Debug.Log("Get Entity Arrays for Blue and Yellow team");
 
         /* --------------------------------------------------------------------------------- */
 
@@ -317,7 +326,6 @@ public class BeeManagerSystem : SystemBase
 
         /* --------------------------------------------------------------------------------- */
 
-        /*
         var ecb3 = new EntityCommandBuffer(Allocator.TempJob);
         Entities
             .WithName("Bee_Is_Dead")
@@ -339,21 +347,29 @@ public class BeeManagerSystem : SystemBase
                     ecb3.DestroyEntity(beeEntity);
                 }
 
-            }).ScheduleParallel();
+            }).Run();
         ecb3.Playback(EntityManager);
         ecb3.Dispose();
-        */
 
         /* --------------------------------------------------------------------------------- */
 
-        /*
+        Entities
+            .WithName("Bee_Calculate_Position")
+            .WithAll<BeeTeam>()
+            .WithNone<Dead>()
+            .ForEach((ref Translation pos, in Velocity velocity) =>
+            {
+                pos.Value += deltaTime * velocity.vel;
+            }).ScheduleParallel();
+
+
+        /* --------------------------------------------------------------------------------- */
+
         Entities
             .WithName("Bee_Move")
             .WithAll<BeeTeam>()
             .ForEach((Entity beeEntity, ref Velocity velocity, ref Translation pos) =>
             {
-                pos.Value += deltaTime * velocity.vel;
-
                 if (abs(pos.Value.x) > field.size.x * .5f)
                 {
                     pos.Value.x = field.size.x * .5f * sign(pos.Value.x);
@@ -370,6 +386,7 @@ public class BeeManagerSystem : SystemBase
                     velocity.vel.y *= .8f;
                 }
 
+                /*
                 float resModifier = 0f;
                 if (HasComponent<IsHoldingResource>(beeEntity))
                 {
@@ -383,8 +400,8 @@ public class BeeManagerSystem : SystemBase
                     velocity.vel.x *= .8f;
                     velocity.vel.z *= .8f;
                 }
+                */
             }).ScheduleParallel();
-    */
 
         /* --------------------------------------------------------------------------------- */
 
@@ -393,7 +410,7 @@ public class BeeManagerSystem : SystemBase
             .WithName("Bee_Smooth_Direction")
             .WithAll<BeeTeam>()
             .ForEach((Entity beeEntity, ref SmoothPosition smoothPos, ref SmoothDirection smoothDir, 
-                        ref Scale scale, in Velocity velocity, in Translation pos) =>
+                        ref NonUniformScale scale, in Velocity velocity, in Translation pos) =>
             {
                 float3 oldSmPos = smoothPos.smPos;
                 if (!HasComponent<IsAttacking>(beeEntity))
@@ -410,12 +427,11 @@ public class BeeManagerSystem : SystemBase
 
                 if(!HasComponent<Dead>(beeEntity))
                 {
-                    /*
-                    float stretch = max(1f, bees[i].velocity.magnitude * speedStretch);
-                    scale.z *= stretch;
-                    scale.x /= (stretch - 1f) / 5f + 1f;
-                    scale.y /= (stretch - 1f) / 5f + 1f;
-                    */
+                    float stretch = max(1f, math.length(velocity.vel) * beeParams.speedStretch);
+                    scale.Value.z *= stretch;
+                    scale.Value.x /= (stretch - 1f) / 5f + 1f;
+                    scale.Value.y /= (stretch - 1f) / 5f + 1f;
+                    
                 }
 
                 /*
@@ -430,20 +446,13 @@ public class BeeManagerSystem : SystemBase
                     color *= .75f;
                     scale *= Mathf.Sqrt(bees[i].deathTimer);
                 }
+
                 beeMatrices[i / beesPerBatch][i % beesPerBatch] = Matrix4x4.TRS(bees[i].position, rotation, scale);
                 beeColors[i / beesPerBatch][i % beesPerBatch] = color;
                 */
 
             }).ScheduleParallel();
 #endif
-
-        Entities
-            .WithName("Bee_Test_Move")
-            .WithAll<BeeTeam>()
-            .WithNone<Dead>()
-            .ForEach((ref Translation pos, in Velocity velocity) =>
-            {
-                pos.Value += deltaTime * velocity.vel;
-            }).ScheduleParallel();
+        
     }
 }

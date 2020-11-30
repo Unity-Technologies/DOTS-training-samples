@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2810935610751223965}
   - component: {fileID: 1269162478}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Arena
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -68,7 +68,7 @@ GameObject:
   - component: {fileID: 7808198268917135960}
   - component: {fileID: 7808198268917135961}
   - component: {fileID: 7808198268917135959}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Center Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -167,7 +167,7 @@ GameObject:
   - component: {fileID: 7808198268999499561}
   - component: {fileID: 7808198268999499558}
   - component: {fileID: 7808198268999499556}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Team1 Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -267,7 +267,7 @@ GameObject:
   - component: {fileID: 7808198269335907002}
   - component: {fileID: 7808198269335907003}
   - component: {fileID: 7808198269335907000}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Center Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -379,7 +379,7 @@ GameObject:
   - component: {fileID: 7808198269505058855}
   - component: {fileID: 7808198269505058852}
   - component: {fileID: 7808198269505058850}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Team0 Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -478,7 +478,7 @@ GameObject:
   - component: {fileID: 7808198269596982560}
   - component: {fileID: 7808198269596982561}
   - component: {fileID: 7808198269596982495}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Team1 End
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -577,7 +577,7 @@ GameObject:
   - component: {fileID: 7808198269907784276}
   - component: {fileID: 7808198269907784277}
   - component: {fileID: 7808198269907784275}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Team0 End
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -676,7 +676,7 @@ GameObject:
   - component: {fileID: 7808198269948045120}
   - component: {fileID: 7808198269948045121}
   - component: {fileID: 7808198269948045183}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Team0 Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -775,7 +775,7 @@ GameObject:
   - component: {fileID: 7808198269990454966}
   - component: {fileID: 7808198269990454967}
   - component: {fileID: 7808198269990454965}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Team1 Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
