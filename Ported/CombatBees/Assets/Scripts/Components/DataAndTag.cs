@@ -12,6 +12,7 @@ public struct Velocity : IComponentData
     public float3 vel;
 }
 
+/*
 public struct SmoothPosition : IComponentData
 {
     public float3 smPos;
@@ -21,26 +22,12 @@ public struct SmoothDirection : IComponentData
 {
     public float3 smDir;
 }
+*/
 
+/*
 public struct Size : IComponentData
 {
     public float size;
-}
-
-/*
-public struct StackIndex : IComponentData
-{
-    public float stIndex;
-}
-
-public struct GridX : IComponentData
-{
-    public float gridX;
-}
-
-public struct GridY : IComponentData
-{
-    public float gridY;
 }
 */
 
