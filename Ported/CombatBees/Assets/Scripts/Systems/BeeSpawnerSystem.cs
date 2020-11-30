@@ -19,7 +19,10 @@ public class BeeSpawnerSystem : SystemBase
                 {
                     var bee = ecb.Instantiate(spawner.beePrefab);
                     ecb.SetComponent(bee, new Translation { Value = spawnerPos.Value });
-                    ecb.SetComponent(bee, new Scale { Value = random.NextFloat(beeParams.minBeeSize, beeParams.minBeeSize) });
+
+                    float size = random.NextFloat(beeParams.minBeeSize, beeParams.minBeeSize);
+                    //ecb.SetComponent(bee, new Scale { Value = random.NextFloat(beeParams.minBeeSize, beeParams.minBeeSize) });
+                    ecb.SetComponent(bee, new NonUniformScale { Value = new float3(size, size, size) });
                     ecb.SetComponent(bee, new Velocity { vel = random.NextFloat3() * spawner.maxSpawnSpeed });
                 }
 
