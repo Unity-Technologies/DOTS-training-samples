@@ -14,7 +14,7 @@ public class ResourceSpawnerSystem : SystemBase
         var random = new Random(1234);
 
         Entities
-            .WithName("Bee_Spawner")
+            .WithName("Resource_Spawner")
             .ForEach((Entity spawnerEntity, in resourceSpawner spawner, in Translation spawnerPos) =>
             {
                 for (int i = 0; i < spawner.count; i++)

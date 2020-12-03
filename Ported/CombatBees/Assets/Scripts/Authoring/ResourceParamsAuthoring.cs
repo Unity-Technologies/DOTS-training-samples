@@ -49,12 +49,12 @@ public class ResourceParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		float2 gridSize = new float2(gridSizeX, gridSizeZ);
 		*/
 
-		int gridCountsX = (int)(100 / this.resourceSize);
-		int gridCountsZ = (int)(30 / this.resourceSize);
+		int gridCountsX = (int)(100f / this.resourceSize);
+		int gridCountsZ = (int)(30f / this.resourceSize);
 		int2 gridCounts = new int2(gridCountsX, gridCountsZ);
 
-		float gridSizeX = 100 / gridCounts.x;
-		float gridSizeZ = 30 / gridCounts.y;
+		float gridSizeX = 100f / gridCounts.x;
+		float gridSizeZ = 30f / gridCounts.y;
 		float2 gridSize = new float2(gridSizeX, gridSizeZ);
 
 		float minGridPosX = (gridCounts.x - 1f) * -.5f * gridSize.x;
@@ -65,7 +65,7 @@ public class ResourceParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		{
 			gridCounts = gridCounts,
 			gridSize = gridSize,
-			minGridPos = minGridPos,
+			minGridPos = minGridPos
 			//stackHeights = new NativeArray<int>(gridCounts.x * gridCounts.y, Allocator.Persistent)
 		};
 

@@ -6,6 +6,9 @@ using Unity.Mathematics;
 using static Unity.Mathematics.math;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(BeeSpawnerSystem))]
+[UpdateAfter(typeof(ResourceSpawnerSystem))]
+[UpdateBefore(typeof(TransformSystemGroup))]
 public class ResourceManagerSystem : SystemBase
 {
     private EntityQuery resQuery;
@@ -30,6 +33,7 @@ public class ResourceManagerSystem : SystemBase
 
         float deltaTime = Time.fixedDeltaTime;
 
+#if COMMENT
         NativeArray<Entity> resArray = resQuery.ToEntityArrayAsync(Allocator.TempJob, out var resHandle);
         resHandle.Complete();
 
@@ -48,10 +52,10 @@ public class ResourceManagerSystem : SystemBase
         }
         */
         resArray.Dispose();
+#endif
 
         /* --------------------------------------------------------------------------------- */
 
-#if COMMENT
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         Entities
             .WithName("Resource_Has_Holder")
@@ -77,20 +81,23 @@ public class ResourceManagerSystem : SystemBase
         ecb.Playback(EntityManager);
         ecb.Dispose();
 
+
         /* --------------------------------------------------------------------------------- */
 
         var ecb1 = new EntityCommandBuffer(Allocator.TempJob);
         Entities
             .WithName("Resource_Not_Stacked")
+            .WithNone<Stacked>()
             .ForEach((Entity resEntity, ref Velocity velocity, ref Translation pos, ref GridX gX, ref GridY gY, ref StackIndex stackIndex) =>
             {
-                pos.Value = math.lerp(pos.Value, Utils.NearestSnappedPos(resGridParams, pos.Value), resParams.snapStiffness * deltaTime);
+                float3 targetPos = Utils.NearestSnappedPos(resGridParams, pos.Value);
+                pos.Value = math.lerp(pos.Value, targetPos, resParams.snapStiffness * deltaTime);
                 velocity.vel.y += field.gravity * deltaTime;
                 pos.Value += velocity.vel * deltaTime;
 
                 // get gridX and gridY
-                int x, y;
-                Utils.GetGridIndex(resGridParams, pos.Value, out x, out y);
+                //int x, y;
+                Utils.GetGridIndex(resGridParams, pos.Value, out int x, out int y);
                 gX.gridX = x;
                 gY.gridY = y;
                 
@@ -125,7 +132,7 @@ public class ResourceManagerSystem : SystemBase
                 if(pos.Value.y < floorY)
                 {
                     pos.Value.y = floorY;
-                    if(pos.Value.x > math.abs(field.size.x * .4f))
+                    if(math.abs(pos.Value.x) > field.size.x * .4f)
                     {
                         Entity beeSpawnerPrefab;
                         if(pos.Value.x < 0f)
@@ -145,18 +152,18 @@ public class ResourceManagerSystem : SystemBase
                             maxSpawnSpeed = beeParams.maxSpawnSpeed
                         };
 
-                        ecb.SetComponent<Translation>(spawner, pos);
-                        ecb.SetComponent(spawner, beeSpawner);
+                        ecb1.SetComponent<Translation>(spawner, pos);
+                        ecb1.SetComponent(spawner, beeSpawner);
 
                         //////////////////////////// ToDo, spawn Falash particle
                         //ParticleManager.SpawnParticle(resource.position, ParticleType.SpawnFlash, Vector3.zero, 6f, 5);
 
-                        ecb.DestroyEntity(resEntity);
+                        ecb1.DestroyEntity(resEntity);
                     }
                     else
                     {
-                        ecb.AddComponent<Stacked>(resEntity);
-                        int heightIndex = gX.gridX * resGridParams.gridCounts.x + gY.gridY;
+                        ecb1.AddComponent<Stacked>(resEntity);
+                        int heightIndex = gX.gridX * resGridParams.gridCounts.y + gY.gridY;
                         stackIndex.index = stackHeights[heightIndex].Value;
                         if((stackIndex.index + 1) * resParams.resourceSize < field.size.y)
                         {
@@ -164,13 +171,13 @@ public class ResourceManagerSystem : SystemBase
                         }
                         else
                         {
-                            ecb.DestroyEntity(resEntity);
+                            ecb1.DestroyEntity(resEntity);
                         }
                     }
                 }
             }).Run();
         ecb1.Playback(EntityManager);
         ecb1.Dispose();
-#endif
+
     }
 }

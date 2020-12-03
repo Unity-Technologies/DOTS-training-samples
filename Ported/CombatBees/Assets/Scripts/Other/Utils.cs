@@ -9,7 +9,7 @@ public static class Utils
     {
         if (stacked)
         {
-            int index = resGridParams.gridCounts.x * gridX + gridY;
+            int index = resGridParams.gridCounts.y * gridX + gridY;
             if (stackIndex == stackHeights[index].Value - 1)
             {
                 return true;
@@ -25,7 +25,7 @@ public static class Utils
     {
         if (stacked)
         {
-            int index = resGridParams.gridCounts.x * gridX + gridY;
+            int index = resGridParams.gridCounts.y * gridX + gridY;
 
             var element = stackHeights[index];
             element.Value += updateValue;
@@ -42,22 +42,18 @@ public static class Utils
         pos.z = resGridParams.minGridPos.y + randomValue * field.size.z;
 
         return pos;
-        //return new float3(pos);
     }
 
 
     public static float3 NearestSnappedPos(ResourceGridParams resGridParams, float3 pos)
     {
-        int gridX;
-        int gridY;
-        GetGridIndex(resGridParams, pos, out gridX, out gridY);
+        GetGridIndex(resGridParams, pos, out int gridX, out int gridY);
 
         float3 snapPos;
         snapPos.x = resGridParams.minGridPos.x + gridX * resGridParams.gridSize.x;
         snapPos.y = pos.y;
         snapPos.z = resGridParams.minGridPos.y + gridY * resGridParams.gridSize.y;
         return snapPos;
-        //return new float3(snapPos);
     }
 
 
@@ -74,7 +70,7 @@ public static class Utils
     public static float3 GetStackPos(ResourceParams resParams, ResourceGridParams resGridParams, FieldAuthoring field,
                                         DynamicBuffer<StackHeightParams> stackHeights, int gridX, int gridY)
     {
-        int index = resGridParams.gridCounts.x * gridX + gridY;
+        int index = resGridParams.gridCounts.y * gridX + gridY;
         var height = stackHeights[index];
 
         float3 pos;

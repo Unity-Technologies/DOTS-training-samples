@@ -10,6 +10,7 @@ using Unity.Rendering;
 
 
 [UpdateAfter(typeof(BeeSpawnerSystem))]
+[UpdateAfter(typeof(ResourceSpawnerSystem))]
 [UpdateBefore(typeof(TransformSystemGroup))]
 public class BeeManagerSystem : SystemBase
 {
@@ -61,9 +62,9 @@ public class BeeManagerSystem : SystemBase
             }).Run();
 
 
-    /* --------------------------------------------------------------------------------- */
+        /* --------------------------------------------------------------------------------- */
 
-    Entities
+        Entities
             .WithName("Bee_Calculate_Velocity")
             .WithAll<BeeTeam>()
             .WithNone<Dead>()
@@ -83,16 +84,16 @@ public class BeeManagerSystem : SystemBase
                 if (beeTeam.team == BeeTeam.TeamColor.BLUE)
                 {
                     rndIndex = random.NextInt(0, teamsOfBlueBee.Length);
-                    attractiveFriend = teamsOfBlueBee[rndIndex];
+                    attractiveFriend = teamsOfBlueBee.ElementAt(rndIndex);
                     rndIndex = random.NextInt(0, teamsOfBlueBee.Length);
-                    repellentFriend = teamsOfBlueBee[rndIndex];
+                    repellentFriend = teamsOfBlueBee.ElementAt(rndIndex);
                 }
                 else
                 {
                     rndIndex = random.NextInt(0, teamsOfYellowBee.Length);
-                    attractiveFriend = teamsOfYellowBee[rndIndex];
+                    attractiveFriend = teamsOfYellowBee.ElementAt(rndIndex);
                     rndIndex = random.NextInt(0, teamsOfYellowBee.Length);
-                    repellentFriend = teamsOfYellowBee[rndIndex];
+                    repellentFriend = teamsOfYellowBee.ElementAt(rndIndex);
                 }
 
                 // Move towards friend
@@ -124,7 +125,7 @@ public class BeeManagerSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         Entities
             .WithName("Bee_Has_No_TargetBee_And_TargetResource")
-            .WithAll<BeeTeam>()
+            //.WithAll<BeeTeam>()
             .WithNone<TargetBee>()
             .WithNone<TargetResource>()
             .WithReadOnly(teamsOfBlueBee)
@@ -143,26 +144,26 @@ public class BeeManagerSystem : SystemBase
 
                     if (beeTeam.team == BeeTeam.TeamColor.BLUE)
                     {
-                        if (teamsOfYellowBee.Length >= 1)
+                        if (teamsOfYellowBee.Length > 0)
                         {
                             rndIndex = random.NextInt(0, teamsOfYellowBee.Length);
-                            targetBee.bee = teamsOfYellowBee[rndIndex];
+                            targetBee.bee = teamsOfYellowBee.ElementAt(rndIndex);
                             ecb.AddComponent<TargetBee>(beeEntity, targetBee);
                         }
                     }
                     else
                     {
-                        if (teamsOfBlueBee.Length >= 1)
+                        if (teamsOfBlueBee.Length > 0)
                         {
                             rndIndex = random.NextInt(0, teamsOfBlueBee.Length);
-                            targetBee.bee = teamsOfBlueBee[rndIndex];
+                            targetBee.bee = teamsOfBlueBee.ElementAt(rndIndex);
                             ecb.AddComponent<TargetBee>(beeEntity, targetBee);
                         }
                     }
                 }
                 else
                 {
-                    if (unHeldResArray.Length >= 1)
+                    if (unHeldResArray.Length > 0)
                     {
                         rndIndex = random.NextInt(0, unHeldResArray.Length);
                         targetRes.res = unHeldResArray[rndIndex];
@@ -182,14 +183,13 @@ public class BeeManagerSystem : SystemBase
         ecb.Playback(EntityManager);
         ecb.Dispose();
 
-#if COMMENT
         /* --------------------------------------------------------------------------------- */
 
         var ecb1 = new EntityCommandBuffer(Allocator.TempJob);
         Entities
             .WithName("Bee_Has_Target_Bee")
-            .WithAll<BeeTeam>()
-            .WithAll<TargetBee>()
+            //.WithAll<BeeTeam>()
+            //.WithAll<TargetBee>()
             .ForEach((Entity beeEntity, in BeeTeam beeTeam, in TargetBee targetBee, in Translation pos) =>
             {
                 Velocity velocity = GetComponent<Velocity>(beeEntity);
@@ -205,13 +205,14 @@ public class BeeManagerSystem : SystemBase
                     float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
 
                     // make targetBee is not itself
-                    if (sqrDist != 0)
+                    if (sqrDist > beeParams.attackDistance * beeParams.attackDistance)
                     {
-                        if (sqrDist > beeParams.attackDistance * beeParams.attackDistance)
-                        {
-                            velocity.vel += delta * (beeParams.chaseForce * deltaTime / math.sqrt(sqrDist));
-                        }
-                        else
+                        velocity.vel += delta * (beeParams.chaseForce * deltaTime / math.sqrt(sqrDist));
+                        SetComponent<Velocity>(beeEntity, new Velocity { vel = velocity.vel });
+                    }
+                    else
+                    {
+                        if (sqrDist > 0)
                         {
                             ecb1.AddComponent<IsAttacking>(beeEntity);
                             velocity.vel += delta * (beeParams.attackForce * deltaTime / math.sqrt(sqrDist));
@@ -224,23 +225,19 @@ public class BeeManagerSystem : SystemBase
                                 Velocity targetVelocity = GetComponent<Velocity>(targetBee.bee);
                                 SetComponent<Velocity>(targetBee.bee, new Velocity { vel = targetVelocity.vel * .5f });
                                 ecb1.RemoveComponent<TargetBee>(beeEntity);
+                                //Debug.Log("targetBee " + (int)GetComponent<BeeTeam>(targetBee.bee).team + " dead");
                             }
                         }
-
+                    
                         SetComponent<Velocity>(beeEntity, new Velocity { vel = velocity.vel });
-                    }
-                    else
-                    {
-                        Debug.Log("Target Bee is itself!");
-                    }
+                    }                    
                 }
             }).Run();
         ecb1.Playback(EntityManager);
         ecb1.Dispose();
 
-
         /* --------------------------------------------------------------------------------- */
-
+#if COMMENT
         var ecb2 = new EntityCommandBuffer(Allocator.TempJob);
         Entities
             .WithName("Bee_Has_Target_Resource")
@@ -317,6 +314,7 @@ public class BeeManagerSystem : SystemBase
             }).Run();
         ecb2.Playback(EntityManager);
         ecb2.Dispose();
+
 
         /* --------------------------------------------------------------------------------- */
 
