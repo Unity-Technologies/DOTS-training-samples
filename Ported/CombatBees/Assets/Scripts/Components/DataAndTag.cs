@@ -24,12 +24,10 @@ public struct SmoothDirection : IComponentData
 }
 */
 
-/*
 public struct Size : IComponentData
 {
-    public float size;
+    public float value;
 }
-*/
 
 ///////////////////////////////////////////////////////
 /// <summary>

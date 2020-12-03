@@ -23,6 +23,7 @@ public class ResourceParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 	public float resourceSize;
 	public float snapStiffness;
 	public float carryStiffness;
+	public int beesPerResource;
 
 	//public GameObject field;
 
@@ -32,7 +33,8 @@ public class ResourceParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		{
 			resourceSize = this.resourceSize,
 			snapStiffness = this.snapStiffness,
-			carryStiffness = this.carryStiffness
+			carryStiffness = this.carryStiffness,
+			beesPerResource = this.beesPerResource
 		};
 
 		dstManager.AddComponentData<ResourceParams>(entity, resParams);
@@ -88,7 +90,7 @@ public struct ResourceParams : IComponentData
 	public float carryStiffness;
 	//public float spawnRate;
 	//float spawnTimer = 0f;
-	//public int beesPerResource;
+	public int beesPerResource;
 	//public int startResourceCount;
 }
 

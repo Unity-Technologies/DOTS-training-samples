@@ -2,6 +2,7 @@
 using UnityEngine;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Rendering;
 
 public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
@@ -11,11 +12,11 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddSharedComponentData(entity, new BeeTeam { team = this.team });
+        dstManager.AddComponentData(entity, new BeeTeam { team = this.team });
         dstManager.AddComponentData(entity, new DeathTimer { dTimer = this.deathTimer });
         dstManager.AddComponentData(entity, new Velocity { vel = float3.zero });
         dstManager.AddComponentData(entity, new NonUniformScale { Value = new float3(1.0f, 1.0f, 1.0f) });
-        //dstManager.AddComponentData(entity, new Scale { Value = 1.0f });
+        dstManager.AddComponentData(entity, new Size { value = 1.0f });
 
         float3 smPos;
         smPos.x = this.transform.position.x;
@@ -23,10 +24,14 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         smPos.z = this.transform.position.z;
         dstManager.AddComponentData(entity, new SmoothPosition { smPos = smPos + new float3(1, 0, 0) * .01f });
         dstManager.AddComponentData(entity, new SmoothDirection { smDir = new float3(0, 0, 0) });
+
+        //var baseColor = conversionSystem.GetPrimaryEntity(gameObject);
+        //dstManager.AddComponent<URPMaterialPropertyBaseColor>(baseColor);
     }
 }
 
-public struct BeeTeam : ISharedComponentData
+// struct BeeTeam : ISharedComponentData
+public struct BeeTeam : IComponentData
 {
     public TeamColor team;
     public enum TeamColor

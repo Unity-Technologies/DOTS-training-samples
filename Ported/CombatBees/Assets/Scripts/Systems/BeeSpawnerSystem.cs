@@ -1,6 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 public class BeeSpawnerSystem : SystemBase
@@ -21,7 +22,7 @@ public class BeeSpawnerSystem : SystemBase
                     ecb.SetComponent(bee, new Translation { Value = spawnerPos.Value });
 
                     float size = random.NextFloat(beeParams.minBeeSize, beeParams.minBeeSize);
-                    //ecb.SetComponent(bee, new Scale { Value = random.NextFloat(beeParams.minBeeSize, beeParams.minBeeSize) });
+                    ecb.SetComponent(bee, new Size { value = size });
                     ecb.SetComponent(bee, new NonUniformScale { Value = new float3(size, size, size) });
                     ecb.SetComponent(bee, new Velocity { vel = random.NextFloat3() * spawner.maxSpawnSpeed });
                 }
