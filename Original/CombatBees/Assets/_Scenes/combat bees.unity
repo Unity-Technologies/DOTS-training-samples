@@ -411,7 +411,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcdc92ee6601acc43991b3ced5712839, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 3}
+  particleMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   particleMaterial: {fileID: 2100000, guid: 59a317ccb1c95e44bbb3432c7b9e5b36, type: 2}
   speedStretch: 0.25
 --- !u!4 &563381094
