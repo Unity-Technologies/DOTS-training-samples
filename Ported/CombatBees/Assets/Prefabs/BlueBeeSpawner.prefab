@@ -44,5 +44,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   beePrefab: {fileID: 7070472590237826616, guid: 7d996cabafeda4b47bc551f10d1db0fd, type: 3}
-  initialBeeCount: 1
-  maxSpawnSpeed: 75
+  initialBeeCount: 2
+  maxSpawnSpeed: 100
+  team: 0

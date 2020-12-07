@@ -243,6 +243,10 @@ PrefabInstance:
       propertyPath: beesPerResource
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8937502316945631393, guid: 82d027605080b394eb49ecba270586dc, type: 3}
+      propertyPath: resourceSize
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 82d027605080b394eb49ecba270586dc, type: 3}
 --- !u!1001 &1309541389
@@ -420,11 +424,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6706287706261233431, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
       propertyPath: minBeeSize
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6706287706261233431, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
       propertyPath: maxBeeSize
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6706287706261233431, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
       propertyPath: chaseForce
@@ -433,6 +437,22 @@ PrefabInstance:
     - target: {fileID: 6706287706261233431, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
       propertyPath: carryForce
       value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 6706287706261233431, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
+      propertyPath: teamAttraction
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 6706287706261233431, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
+      propertyPath: teamRepulsion
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 6706287706261233431, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
+      propertyPath: flightJitter
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 6706287706261233431, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
+      propertyPath: damping
+      value: 0.6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}

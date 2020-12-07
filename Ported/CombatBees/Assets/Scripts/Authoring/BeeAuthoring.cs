@@ -14,9 +14,9 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         dstManager.AddComponentData(entity, new BeeTeam { team = this.team });
         dstManager.AddComponentData(entity, new DeathTimer { dTimer = this.deathTimer });
-        dstManager.AddComponentData(entity, new Velocity { vel = float3.zero });
-        dstManager.AddComponentData(entity, new NonUniformScale { Value = new float3(1.0f, 1.0f, 1.0f) });
-        dstManager.AddComponentData(entity, new Size { value = 1.0f });
+        //dstManager.AddComponentData(entity, new Velocity { vel = float3.zero });
+        //dstManager.AddComponentData(entity, new NonUniformScale { Value = new float3(1.0f, 1.0f, 1.0f) });
+        //dstManager.AddComponentData(entity, new Size { value = 1.0f });
 
         float3 smPos;
         smPos.x = this.transform.position.x;
