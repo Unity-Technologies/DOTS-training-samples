@@ -5,6 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
 using Unity.Transforms;
+using UnityEngine;
 
 [UpdateAfter(typeof(BeeSpawnerSystem))]
 [UpdateAfter(typeof(ResourceSpawnerSystem))]
@@ -31,7 +32,7 @@ public class ResourceManagerSystem : SystemBase
         var bufferEntity = GetSingletonEntity<ResourceParams>();
         var stackHeights = bufferFromEntity[bufferEntity];
 
-        float deltaTime = Time.fixedDeltaTime;
+        float deltaTime = Time.DeltaTime;
 
 #if COMMENT
         NativeArray<Entity> resArray = resQuery.ToEntityArrayAsync(Allocator.TempJob, out var resHandle);
@@ -87,13 +88,18 @@ public class ResourceManagerSystem : SystemBase
         var ecb1 = new EntityCommandBuffer(Allocator.TempJob);
         Entities
             .WithName("Resource_Not_Stacked")
+            .WithNone<HolderBee>()
             .WithNone<Stacked>()
             .ForEach((Entity resEntity, ref Velocity velocity, ref Translation pos, ref GridX gX, ref GridY gY, ref StackIndex stackIndex) =>
             {
+                Debug.Log("resource not stacked????????????");
+                Debug.Log("before pos = " + pos.Value);
+
                 float3 targetPos = Utils.NearestSnappedPos(resGridParams, pos.Value);
                 pos.Value = math.lerp(pos.Value, targetPos, resParams.snapStiffness * deltaTime);
                 velocity.vel.y += field.gravity * deltaTime;
                 pos.Value += velocity.vel * deltaTime;
+                Debug.Log("after pos = " + pos.Value);
 
                 // get gridX and gridY
                 //int x, y;
@@ -128,12 +134,20 @@ public class ResourceManagerSystem : SystemBase
                     velocity.vel.y *= .8f;
                 }
 
+                Debug.Log("pos = " + pos.Value);
+
+                // Get latest buffer
+                bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
+                stackHeights = bufferFromEntity[bufferEntity];
                 float floorY = Utils.GetStackPos(resParams, resGridParams, field, stackHeights, gX.gridX, gY.gridY).y;
                 if(pos.Value.y < floorY)
                 {
+                    Debug.Log("pos = " + pos.Value + ", floorY = " + floorY + ", !!!!!!!!!!!!!!!!!!");
                     pos.Value.y = floorY;
                     if(math.abs(pos.Value.x) > field.size.x * .4f)
                     {
+                        Debug.Log("reach the destiny");
+
                         Entity beeSpawnerPrefab;
                         if(pos.Value.x < 0f)
                         {
@@ -144,7 +158,7 @@ public class ResourceManagerSystem : SystemBase
                             beeSpawnerPrefab = beeParams.yellowSpawnerPrefab;
                         }
 
-                        var spawner = ecb.Instantiate(beeSpawnerPrefab);
+                        var spawner = ecb1.Instantiate(beeSpawnerPrefab);
                         var beeSpawner = new BeeSpawner
                         {
                             beePrefab = beeSpawnerPrefab,
@@ -155,15 +169,22 @@ public class ResourceManagerSystem : SystemBase
                         ecb1.SetComponent<Translation>(spawner, pos);
                         ecb1.SetComponent(spawner, beeSpawner);
 
+                        Debug.Log("spawner instantiated!!");
+
                         //////////////////////////// ToDo, spawn Falash particle
                         //ParticleManager.SpawnParticle(resource.position, ParticleType.SpawnFlash, Vector3.zero, 6f, 5);
 
+                        ecb1.AddComponent<Dead>(resEntity);
                         ecb1.DestroyEntity(resEntity);
                     }
                     else
                     {
                         ecb1.AddComponent<Stacked>(resEntity);
                         int heightIndex = gX.gridX * resGridParams.gridCounts.y + gY.gridY;
+
+                        // Get latest buffer
+                        bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
+                        stackHeights = bufferFromEntity[bufferEntity];
                         stackIndex.index = stackHeights[heightIndex].Value;
                         if((stackIndex.index + 1) * resParams.resourceSize < field.size.y)
                         {
@@ -171,6 +192,7 @@ public class ResourceManagerSystem : SystemBase
                         }
                         else
                         {
+                            ecb1.AddComponent<Dead>(resEntity);
                             ecb1.DestroyEntity(resEntity);
                         }
                     }

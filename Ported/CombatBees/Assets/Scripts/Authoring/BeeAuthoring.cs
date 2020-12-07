@@ -56,6 +56,11 @@ public struct SmoothDirection : IComponentData
     public float3 smDir;
 }
 
+public struct Size : IComponentData
+{
+    public float value;
+}
+
 
 
 

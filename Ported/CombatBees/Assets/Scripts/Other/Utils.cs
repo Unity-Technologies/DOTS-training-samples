@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -78,5 +79,17 @@ public static class Utils
         pos.y = -field.size.y * .5f + (height.Value + .5f) * resParams.resourceSize;
         pos.z = resGridParams.minGridPos.y + gridY * resGridParams.gridSize.y;
         return pos;
+    }
+
+    public static int SearchDeadBee(NativeList<Entity> deadBeelist, Entity beeEntity)
+    {
+        for(int i = 0; i < deadBeelist.Length; i++)
+        {
+            if(deadBeelist.ElementAt(i) == beeEntity)
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 }

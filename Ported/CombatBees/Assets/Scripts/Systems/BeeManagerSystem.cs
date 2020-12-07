@@ -45,12 +45,17 @@ public class BeeManagerSystem : SystemBase
         //Debug.Log("Get Entity Arrays for Blue and Yellow team");
 
         /* --------------------------------------------------------------------------------- */
-
+        var ecb0 = new EntityCommandBuffer(Allocator.TempJob);
         Entities
             .WithName("Bee_Get_Teams")
             .WithNone<Dead>()
             .ForEach((Entity beeEntity, in BeeTeam beeTeam) =>
             {
+                if(HasComponent<IsHoldingResource>(beeEntity))
+                {
+                    ecb0.RemoveComponent<IsHoldingResource>(beeEntity);
+                }
+
                 if (beeTeam.team == BeeTeam.TeamColor.BLUE)
                 {
                     teamsOfBlueBee.Add(beeEntity);
@@ -60,6 +65,8 @@ public class BeeManagerSystem : SystemBase
                     teamsOfYellowBee.Add(beeEntity);
                 }
             }).Run();
+        ecb0.Playback(EntityManager);
+        ecb0.Dispose();
 
 
         /* --------------------------------------------------------------------------------- */
@@ -113,7 +120,7 @@ public class BeeManagerSystem : SystemBase
                 {
                     velocity.vel -= delta * (beeParams.teamRepulsion * deltaTime / dist);
                 }
-
+                
                 //pos.Value += deltaTime * velocity.vel;
             }).Run();
 
@@ -126,6 +133,7 @@ public class BeeManagerSystem : SystemBase
         Entities
             .WithName("Bee_Has_No_TargetBee_And_TargetResource")
             //.WithAll<BeeTeam>()
+            .WithNone<Dead>()
             .WithNone<TargetBee>()
             .WithNone<TargetResource>()
             .WithReadOnly(teamsOfBlueBee)
@@ -141,7 +149,6 @@ public class BeeManagerSystem : SystemBase
                 TargetResource targetRes;
                 if (random.NextFloat() < beeParams.aggression)
                 {
-
                     if (beeTeam.team == BeeTeam.TeamColor.BLUE)
                     {
                         if (teamsOfYellowBee.Length > 0)
@@ -173,7 +180,13 @@ public class BeeManagerSystem : SystemBase
                         int gridY = GetComponent<GridY>(targetRes.res).gridY;
                         int stackIndex = GetComponent<StackIndex>(targetRes.res).index;
 
-                        if (Utils.IsTopOfStack(resGridParams, stackHeights, gridX, gridY, stackIndex, stacked))
+                        // Get latest buffer
+                        bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
+                        stackHeights = bufferFromEntity[bufferEntity];
+                        int index = resGridParams.gridCounts.y * gridX + gridY;
+                        
+                        if ((HasComponent<HolderBee>(targetRes.res) == false) ||
+                            (stackIndex == stackHeights[index].Value - 1))
                         {
                             ecb.AddComponent<TargetResource>(beeEntity, targetRes);
                         }
@@ -185,11 +198,15 @@ public class BeeManagerSystem : SystemBase
 
         /* --------------------------------------------------------------------------------- */
 
+        NativeList<Entity> deadBeeList = new NativeList<Entity>(beeParams.maxBeeCount, Allocator.TempJob);
         var ecb1 = new EntityCommandBuffer(Allocator.TempJob);
         Entities
             .WithName("Bee_Has_Target_Bee")
             //.WithAll<BeeTeam>()
             //.WithAll<TargetBee>()
+            .WithNone<Dead>()
+            .WithAll<Velocity>()
+            .WithDisposeOnCompletion(deadBeeList)
             .ForEach((Entity beeEntity, in BeeTeam beeTeam, in TargetBee targetBee, in Translation pos) =>
             {
                 Velocity velocity = GetComponent<Velocity>(beeEntity);
@@ -201,53 +218,66 @@ public class BeeManagerSystem : SystemBase
                 }
                 else
                 {
-                    float3 delta = GetComponent<Translation>(targetBee.bee).Value - pos.Value;
-                    float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-
-                    // make targetBee is not itself
-                    if (sqrDist > beeParams.attackDistance * beeParams.attackDistance)
+                    // Bee is attacked be previous bee
+                    int deadListIndex = Utils.SearchDeadBee(deadBeeList, beeEntity);
+                    if (deadListIndex != -1)
                     {
-                        velocity.vel += delta * (beeParams.chaseForce * deltaTime / math.sqrt(sqrDist));
-                        SetComponent<Velocity>(beeEntity, new Velocity { vel = velocity.vel });
+                        deadBeeList.RemoveAt(deadListIndex);
                     }
                     else
                     {
-                        if (sqrDist > 0)
-                        {
-                            ecb1.AddComponent<IsAttacking>(beeEntity);
-                            velocity.vel += delta * (beeParams.attackForce * deltaTime / math.sqrt(sqrDist));
+                        float3 delta = GetComponent<Translation>(targetBee.bee).Value - pos.Value;
+                        float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
 
-                            if (sqrDist < beeParams.hitDistance * beeParams.hitDistance)
+                        if (sqrDist > beeParams.attackDistance * beeParams.attackDistance)
+                        {
+                            velocity.vel += delta * (beeParams.chaseForce * deltaTime / math.sqrt(sqrDist));
+                            ecb1.SetComponent<Velocity>(beeEntity, new Velocity { vel = velocity.vel });
+                        }
+                        else
+                        {
+                            // make sure targetBee is not itself
+                            if (sqrDist > 0)
                             {
-                                //////////////////////////// ToDo, spawn blood particle
-                                //ParticleManager.SpawnParticle(bee.enemyTarget.position, ParticleType.Blood, bee.velocity * .35f, 2f, 6);
-                                ecb1.AddComponent<Dead>(targetBee.bee);
-                                Velocity targetVelocity = GetComponent<Velocity>(targetBee.bee);
-                                SetComponent<Velocity>(targetBee.bee, new Velocity { vel = targetVelocity.vel * .5f });
-                                ecb1.RemoveComponent<TargetBee>(beeEntity);
-                                //Debug.Log("targetBee " + (int)GetComponent<BeeTeam>(targetBee.bee).team + " dead");
+                                ecb1.AddComponent<IsAttacking>(beeEntity);
+
+                                velocity.vel += delta * (beeParams.attackForce * deltaTime / math.sqrt(sqrDist));
+                                ecb1.SetComponent<Velocity>(beeEntity, new Velocity { vel = velocity.vel });
+
+                                if (sqrDist < beeParams.hitDistance * beeParams.hitDistance)
+                                {
+                                    //////////////////////////// ToDo, spawn blood particle
+                                    //ParticleManager.SpawnParticle(bee.enemyTarget.position, ParticleType.Blood, bee.velocity * .35f, 2f, 6);
+                                    ecb1.AddComponent<Dead>(targetBee.bee);
+                                    Velocity targetVelocity = GetComponent<Velocity>(targetBee.bee);
+                                    ecb1.SetComponent<Velocity>(targetBee.bee, new Velocity { vel = targetVelocity.vel * .5f });
+                                    ecb1.RemoveComponent<TargetBee>(beeEntity);
+                                    deadBeeList.Add(targetBee.bee);
+                                }
                             }
                         }
-                    
-                        SetComponent<Velocity>(beeEntity, new Velocity { vel = velocity.vel });
-                    }                    
+                    }
                 }
             }).Run();
         ecb1.Playback(EntityManager);
         ecb1.Dispose();
 
         /* --------------------------------------------------------------------------------- */
-#if COMMENT
+
         var ecb2 = new EntityCommandBuffer(Allocator.TempJob);
         Entities
             .WithName("Bee_Has_Target_Resource")
-            .WithAll<BeeTeam>()
-            .WithAll<TargetResource>()
+            .WithNone<Dead>()
+            .WithNone<TargetBee>()
             .ForEach((Entity beeEntity, ref Velocity velocity, in BeeTeam beeTeam, in TargetResource targetRes, in Translation pos) =>
             {
                 // resource has no holder
                 if (HasComponent<HolderBee>(targetRes.res) == false)
                 {
+                    // Get latest buffer
+                    bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
+                    stackHeights = bufferFromEntity[bufferEntity];
+
                     bool dead = HasComponent<Dead>(targetRes.res);
                     bool stacked = HasComponent<Stacked>(targetRes.res);
                     int gridX = GetComponent<GridX>(targetRes.res).gridX;
@@ -255,54 +285,93 @@ public class BeeManagerSystem : SystemBase
                     int stackIndex = GetComponent<StackIndex>(targetRes.res).index;
 
                     // resource dead or not top of the stack
-                    if (dead || !Utils.IsTopOfStack(resGridParams, stackHeights, gridX, gridY, stackIndex, stacked))
+                    if (dead)
+                    {
+                        ecb2.RemoveComponent<TargetResource>(beeEntity);
+                    }
+                    else if(Utils.IsTopOfStack(resGridParams, stackHeights, gridX, gridY, stackIndex, stacked) == false)
                     {
                         ecb2.RemoveComponent<TargetResource>(beeEntity);
                     }
                     else
                     {
+                        //Debug.Log("else here");
+                        //var targetResPos = GetComponent<Translation>(targetRes.res).Value;
                         var delta = GetComponent<Translation>(targetRes.res).Value - pos.Value;
                         float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+                        //Debug.Log("targetResPos = " + targetResPos + ", pos = " + pos.Value + ", sqrDist = " + sqrDist);
+                        //Debug.Log("delta = " + delta + ", sqrDist = " + sqrDist);
+                        //Debug.Log("\n");
                         if (sqrDist > beeParams.grabDistance * beeParams.grabDistance)
                         {
+                            //Debug.Log("before velocity = " + velocity.vel);
                             velocity.vel += delta * (beeParams.chaseForce * deltaTime / math.sqrt(sqrDist));
+                            //Debug.Log("after velocity = " + velocity.vel);
+                            //ecb2.SetComponent<Velocity>(beeEntity, new Velocity { vel = velocity.vel });
                         }
                         // Grab source
                         else if (stacked)
                         {
+                            Debug.Log("add holder bee!!!!!!!!!!!!!!!!!!!!!!");
+                            var tempPos = GetComponent<Translation>(targetRes.res);
+                            Debug.Log("temp resource pos = " + tempPos.Value);
                             ecb2.AddComponent<HolderBee>(targetRes.res, new HolderBee { holder = beeEntity });
                             ecb2.RemoveComponent<Stacked>(targetRes.res);
+
+                            // Get latest buffer
+                            bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
+                            stackHeights = bufferFromEntity[bufferEntity];
                             Utils.UpdateStackHeights(resGridParams, stackHeights, gridX, gridY, stacked, -1);
                         }
+                        //Debug.Log("\n");
                     }
                 }
                 // resource has holder
                 else
                 {
+                    //Debug.Log("resource has holder");
                     Entity holder = GetComponent<HolderBee>(targetRes.res).holder;
                     if (holder == beeEntity)
                     {
-                        float team = (float)beeTeam.team;
+                        int team = (int)beeTeam.team;
                         float3 targetPos = new float3(-field.size.x * .45f + field.size.x * .9f * team, 0f, pos.Value.z);
                         float3 delta = targetPos - pos.Value;
                         float dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
-                        velocity.vel += delta * (beeParams.carryForce * deltaTime / dist);
-                        if (dist < 1f)
+
+                        //Debug.Log("targetPos = " + targetPos + ", pos = " + pos.Value + ", dist = " + dist);
+                        //Debug.Log("delta = " + delta + ", dist = " + dist);
+                        //Debug.Log("\n");
+
+                        // make sure dist is non zero
+                        if (dist > 0)
                         {
-                            ecb2.RemoveComponent<HolderBee>(targetRes.res);
-                            ecb2.RemoveComponent<TargetResource>(beeEntity);
+                            //Debug.Log("before velocity = " + velocity.vel);
+                            velocity.vel += delta * (beeParams.carryForce * deltaTime / dist);
+                            //Debug.Log("after velocity = " + velocity.vel);
+                            //ecb2.SetComponent<Velocity>(beeEntity, new Velocity { vel = velocity.vel });
+
+                            if (dist < 1f)
+                            {
+                                ecb2.RemoveComponent<HolderBee>(targetRes.res);
+                                ecb2.RemoveComponent<TargetResource>(beeEntity);
+                            }
+                            else
+                            {
+                                ecb2.AddComponent<IsHoldingResource>(beeEntity);
+                            }
                         }
-                        else
-                        {
-                            ecb2.AddComponent<IsHoldingResource>(beeEntity);
-                        }
+
+                        //Debug.Log("\n");
                     }
                     else
                     {
                         BeeTeam resHolderTeam = GetComponent<BeeTeam>(holder);
                         if(resHolderTeam.team != beeTeam.team)
                         {
-                            ecb2.AddComponent<TargetBee>(beeEntity, new TargetBee { bee = holder });
+                            if (HasComponent<TargetBee>(beeEntity) == false)
+                            {
+                                ecb2.AddComponent<TargetBee>(beeEntity, new TargetBee { bee = holder });
+                            }
                         }
                         else
                         {
@@ -310,7 +379,6 @@ public class BeeManagerSystem : SystemBase
                         }
                     }
                 }
-
             }).Run();
         ecb2.Playback(EntityManager);
         ecb2.Dispose();
@@ -342,7 +410,8 @@ public class BeeManagerSystem : SystemBase
             }).Run();
         ecb3.Playback(EntityManager);
         ecb3.Dispose();
-#endif
+
+
         /* --------------------------------------------------------------------------------- */
 
         Entities
@@ -354,7 +423,7 @@ public class BeeManagerSystem : SystemBase
                 pos.Value += deltaTime * velocity.vel;
             }).ScheduleParallel();
 
-#if COMMENT
+
         /* --------------------------------------------------------------------------------- */
 
         Entities
@@ -395,6 +464,8 @@ public class BeeManagerSystem : SystemBase
             }).ScheduleParallel();
 
         /* --------------------------------------------------------------------------------- */
+
+#if COMMENT
 
         Entities
             .WithName("Bee_Smooth_Direction")

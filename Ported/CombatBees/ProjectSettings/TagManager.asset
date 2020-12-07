@@ -41,3 +41,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Arena
+    uniqueID: 1192724813
+    locked: 0
+  - name: Bee
+    uniqueID: 3934212589
+    locked: 0
