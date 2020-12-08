@@ -24,6 +24,9 @@ public class CreateBuildingSystem : SystemBase
 
         float3 debugPoint1, debugPoint2, debugPoint3;
 
+        var buildingEntity = EntityManager.CreateEntity(typeof(Building));
+        var constraintBuffer = EntityManager.AddBuffer<Constraint>(buildingEntity);
+
         // buildings
         for (int i = 0; i < 35; i++)
         {
@@ -125,24 +128,56 @@ public class CreateBuildingSystem : SystemBase
             }
         }
 
+        List<Entity> finalNodes = new List<Entity>();
+        List<float3> finalPositions = new List<float3>();
+
         for (int i = 0; i < barsList.Count; i++)
         {
             var curBar = barsList[i];
             float3 pointA, pointB;
             pointA = new float3(curBar.point1.x, curBar.point1.y, barsList[i].point1.z);
             pointB = new float3(curBar.point2.x, curBar.point2.y, barsList[i].point2.z);
+
+            Debug.DrawLine(pointA, pointB, Color.cyan, 50);
+
             var barEntity = EntityManager.CreateEntity(typeof(Constraint));
-            
+
+            var pointAEntity = CreatePointEntity(pointA, curBar.point1.anchor);
+            var pointBEntity = CreatePointEntity(pointB, curBar.point2.anchor);
+
+            finalNodes.Add(pointAEntity);
+            finalNodes.Add(pointBEntity);
+            finalPositions.Add(pointA);
+            finalPositions.Add(pointB);
+
             var constraint = new Constraint()
             {
-                pointA = CreatePointEntity(pointA, curBar.point1.anchor),
-                pointB = CreatePointEntity(pointB, curBar.point2.anchor),
+                pointA = pointAEntity,
+                pointB = pointBEntity,
                 distance = Vector3.Distance(pointA, pointB)
             };
 
-            //EntityManager.SetComponentData<Constraint>(barEntity, constraint);
+            constraintBuffer = EntityManager.GetBuffer<Constraint>(buildingEntity);
+            constraintBuffer.Add(constraint);
         }
-        
+
+        constraintBuffer = EntityManager.GetBuffer<Constraint>(buildingEntity);
+        for (int i=0; i<finalNodes.Count; i++)
+        {
+            for (int j=i+1; j<finalNodes.Count; j++)
+            {
+                if (Vector3.Distance(finalPositions[j], finalPositions[i]) < 0.0001f)
+                {
+                    constraintBuffer.Add(new Constraint() {
+                        pointA = finalNodes[i],
+                        pointB = finalNodes[j],
+                        distance = 0
+                    });
+
+                    Debug.DrawRay(finalPositions[i], Vector3.left * 0.5f, Color.red, 50f);
+                }
+            }
+        }
 
         Debug.Log(pointCount + " points, room for " + points.Length + " (" + barsList.Count + " bars)");
         
