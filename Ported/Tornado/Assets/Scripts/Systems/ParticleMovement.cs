@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
+using UnityEngine;
 
 public class ParticleMovement : SystemBase
 {
@@ -11,25 +12,21 @@ public class ParticleMovement : SystemBase
     protected override void OnStartRunning()
     {
         RequireSingletonForUpdate<TornadoSettings>();
-
     }
 
     protected override void OnUpdate()
     {
-        float3 tornadoMovement = new float3(0.0f, 0.0f, 0.0f);
-        float counter = 0.0f;
-        counter = Time.DeltaTime;
-        if (counter > math.PI * 2)
-            counter = 0;
-        tornadoMovement.x = (float)math.sin(counter) * 50f;
-        tornadoMovement.z = (float)math.sin(counter) * 50f;
-
         var settings = this.GetSingleton<TornadoSettings>();
         var spinRate = settings.SpinRate;
         var speedUpward = settings.SpeedUpward;
 
         float tornadoElapsedTime = (float)Time.ElapsedTime;
         float tornadoDeltaTime = Time.DeltaTime;
+
+        float3 tornadoMovement = new float3(0.0f, 0.0f, 0.0f);
+
+        tornadoMovement.x = (float)math.sin(tornadoElapsedTime) * 5f;
+        tornadoMovement.z = (float)math.sin(tornadoElapsedTime) * 5f;
 
         Entities.ForEach((Entity entity, ref Translation transl, in Particle particle) =>
         {

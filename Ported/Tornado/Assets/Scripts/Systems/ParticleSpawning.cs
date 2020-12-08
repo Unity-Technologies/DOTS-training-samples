@@ -8,6 +8,12 @@ using Unity.Transforms;
 public class ParticleSpawning : SystemBase
 {
 
+    protected override void OnStartRunning()
+    {
+        base.OnStartRunning();
+        World.GetOrCreateSystem<CreateBuildingSystem>().Enabled = false;
+    }
+
     protected override void OnUpdate()
     {
         Random random = new Random(1234);
