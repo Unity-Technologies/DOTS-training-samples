@@ -135,6 +135,18 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7777586713922230084, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
+      propertyPath: teamColour.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7777586713922230084, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
+      propertyPath: teamColour.g
+      value: 0.13160706
+      objectReference: {fileID: 0}
+    - target: {fileID: 7777586713922230084, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
+      propertyPath: teamColour.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7777586713922230084, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
       propertyPath: numBeesToSpawn
       value: 12
       objectReference: {fileID: 0}
@@ -413,16 +425,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 7777586713922230084, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
-      propertyPath: team
-      value: 1
+      propertyPath: teamColour.b
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7777586713922230084, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
-      propertyPath: TeamOne
-      value: 1
+      propertyPath: teamColour.g
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7777586713922230084, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
-      propertyPath: numBeesToSpawn
-      value: 12
+      propertyPath: teamColour.r
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7777586713922230085, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
       propertyPath: m_RootOrder

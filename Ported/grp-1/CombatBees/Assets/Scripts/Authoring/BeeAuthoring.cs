@@ -11,5 +11,6 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
        , GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponent<Bee>(entity);
+        dstManager.AddComponent<URPMaterialPropertyBaseColor>(entity);
     }
 }

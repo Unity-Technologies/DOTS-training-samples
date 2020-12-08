@@ -5,5 +5,5 @@ using Unity.Entities;
 
 public struct Bee : IComponentData
 {
-
+    public float teamID;
 }

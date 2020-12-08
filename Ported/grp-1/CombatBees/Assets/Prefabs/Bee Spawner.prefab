@@ -44,4 +44,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   beePrefab: {fileID: 7876418457064364295, guid: aba44f3d2abbde04894dd67e6bf33e4e, type: 3}
-  numBeesToSpawn: 4
+  spawnPointPrefab: {fileID: 6666738581968815148, guid: 060b26de0bc20034db203d511e65a608, type: 3}
+  numBeesToSpawn: 12
+  team: 1
