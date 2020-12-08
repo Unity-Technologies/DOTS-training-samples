@@ -2,4 +2,5 @@
 
 public struct Node : IComponentData
 {
+    public bool anchor;
 }
