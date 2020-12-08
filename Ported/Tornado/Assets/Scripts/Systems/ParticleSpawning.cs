@@ -8,6 +8,12 @@ using Unity.Transforms;
 public class ParticleSpawning : SystemBase
 {
 
+    protected override void OnStartRunning()
+    {
+        base.OnStartRunning();
+        World.GetOrCreateSystem<CreateBuildingSystem>().Enabled = false;
+    }
+
     protected override void OnUpdate()
     {
         Random random = new Random(1234);
@@ -23,7 +29,7 @@ public class ParticleSpawning : SystemBase
                 var scale = new Scale { Value = (random.NextFloat(0.1f, 0.7f)) };
                 var particle = new Particle { radiusMult = random.NextFloat(0f, 1f)};
 
-                ecb.AddComponent(instance, typeof(Particle));
+                ecb.AddComponent<Particle>(instance);
                 ecb.SetComponent(instance, translation);
                 ecb.AddComponent(instance, scale);
             }
