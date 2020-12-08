@@ -6,5 +6,5 @@ using Unity.Mathematics;
 
 public struct Particle : IComponentData
 {
-
+    public float radiusMult;
 }

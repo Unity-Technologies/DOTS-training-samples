@@ -20,11 +20,18 @@ public class ParticleSpawning : SystemBase
             {
                 var instance = ecb.Instantiate(particleSpawner.ParticlePrefab);
                 var translation = new Translation { Value = new float3(random.NextFloat(-50f, 50f), random.NextFloat(0, 50f), random.NextFloat(-50f, 50f)) };
+                var scale = new Scale { Value = (random.NextFloat(0.1f, 0.7f)) };
+                var particle = new Particle { radiusMult = random.NextFloat(0f, 1f)};
+
                 ecb.AddComponent(instance, typeof(Particle));
                 ecb.SetComponent(instance, translation);
+                ecb.AddComponent(instance, scale);
             }
+            ecb.DestroyEntity(entity);
         }).Run();
 
         ecb.Playback(EntityManager);
+
+
     }
 }
