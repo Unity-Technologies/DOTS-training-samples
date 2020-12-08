@@ -263,8 +263,8 @@ MonoBehaviour:
   Sensitivity: 5000
   ZoomSensitivity: 0.2
   Stiffness: 12
-  ViewDist: 0
-  SmoothViewDist: 0
+  ViewDist: 80
+  SmoothViewDist: 10
   ViewAngles: {x: 0, y: 0}
   SmoothViewAngles: {x: 0, y: 0}
 --- !u!114 &932097865
