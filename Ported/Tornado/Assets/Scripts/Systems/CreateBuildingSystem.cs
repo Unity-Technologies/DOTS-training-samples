@@ -9,6 +9,11 @@ using Random = UnityEngine.Random;
 
 public class CreateBuildingSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<BarSpawner>();
+    }
+
     protected override void OnUpdate()
     {
         Generate();
@@ -24,7 +29,7 @@ public class CreateBuildingSystem : SystemBase
 
         float3 debugPoint1, debugPoint2, debugPoint3;
 
-        var buildingEntity = EntityManager.CreateEntity(typeof(Building));
+        var buildingEntity = EntityManager.CreateEntity(typeof(Building), typeof(BuildingNeedsBars));
         var constraintBuffer = EntityManager.AddBuffer<Constraint>(buildingEntity);
 
         // buildings
@@ -131,6 +136,8 @@ public class CreateBuildingSystem : SystemBase
         List<Entity> finalNodes = new List<Entity>();
         List<float3> finalPositions = new List<float3>();
 
+        var spawner = GetSingleton<BarSpawner>();
+
         for (int i = 0; i < barsList.Count; i++)
         {
             var curBar = barsList[i];
@@ -156,6 +163,21 @@ public class CreateBuildingSystem : SystemBase
                 pointB = pointBEntity,
                 distance = Vector3.Distance(pointA, pointB)
             };
+
+            /*
+            var instance = EntityManager.Instantiate(spawner.barPrefab);
+            var translation = new Translation();
+            var rotation = new Rotation();
+            var scale = new NonUniformScale();
+
+            translation.Value = (pointA + pointB) * 0.5f;
+            rotation.Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized);
+            scale.Value = new float3(0.2f, 0.2f, Vector3.Distance(pointA, pointB));
+
+            EntityManager.SetComponentData(instance, rotation);
+            EntityManager.SetComponentData(instance, translation);
+            EntityManager.AddComponentData(instance, scale);
+            */
 
             constraintBuffer = EntityManager.GetBuffer<Constraint>(buildingEntity);
             constraintBuffer.Add(constraint);

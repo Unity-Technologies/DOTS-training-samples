@@ -29,7 +29,7 @@ public class BarSpawningSystem : SystemBase
 
         var spawner = GetSingleton<BarSpawner>();
 
-        Entities.ForEach( ( Entity entity, in Building building )  =>
+        Entities.WithAll<BuildingNeedsBars>().ForEach( ( Entity entity)  =>
         {
             var bufferConstraint = GetBuffer<Constraint>(entity);
 
@@ -52,10 +52,9 @@ public class BarSpawningSystem : SystemBase
                 ecb.SetComponent(instance, translation);
                 ecb.AddComponent(instance, scale);
             }
+            ecb.RemoveComponent<BuildingNeedsBars>(entity);
         }).Run();
 
         ecb.Playback( EntityManager );
-
-        Enabled = false;
     }
 }
