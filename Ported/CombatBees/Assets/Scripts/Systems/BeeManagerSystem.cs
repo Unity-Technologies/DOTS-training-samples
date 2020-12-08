@@ -505,9 +505,10 @@ public class BeeManagerSystem : SystemBase
         Entities
             .WithName("Bee_Local_To_World_TRS")
             .WithAll<BeeTeam>()
-            .WithNone<Dead>()
-            .ForEach((Entity beeEntity, ref LocalToWorld localToWorld, in Velocity velocity, in Size size,
-                        in SmoothDirection smoothDir, in Translation translation, in DeathTimer deathTimer) =>
+            //.WithNone<Dead>()
+            .ForEach((Entity beeEntity, ref LocalToWorld localToWorld, ref URPMaterialPropertyBaseColor baseColor, 
+                        in Velocity velocity, in Size size, in SmoothDirection smoothDir, in Translation translation, 
+                        in DeathTimer deathTimer) =>
             {
                 float3 scale = new float3(size.value, size.value, size.value);
                 if (HasComponent<Dead>(beeEntity) == false)
@@ -520,8 +521,8 @@ public class BeeManagerSystem : SystemBase
                 }
 
                 if (HasComponent<Dead>(beeEntity))
-                {
-                    //baseColor.Value *= .75f;
+                {   
+                    baseColor.Value *= .75f;
                     scale *= math.sqrt(deathTimer.dTimer);
                 }
 

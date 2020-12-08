@@ -39,6 +39,18 @@ public class BeeSpawnerSystem : SystemBase
                     ecb.AddComponent(bee, new Size { value = size });
                     //ecb.AddComponent(bee, new NonUniformScale { Value = new float3(size, size, size) });
                     ecb.AddComponent(bee, new Velocity { vel = random.NextFloat3() * spawner.maxSpawnSpeed });
+
+                    URPMaterialPropertyBaseColor baseColor;
+                    if (spawner.team == BeeTeam.TeamColor.BLUE)
+                    {
+                        baseColor.Value = new float4(0.16471f, 0.61569f, 0.95686f, 1f);
+                    }
+                    else
+                    {
+                        baseColor.Value = new float4(0.8f, 0.8f, 0f, 1f);
+                    }
+                    //ecb.AddComponent<URPMaterialPropertyBaseColor>(bee, new URPMaterialPropertyBaseColor { Value = baseColor.Value });
+                    ecb.AddComponent<URPMaterialPropertyBaseColor>(bee, baseColor);
                 }
 
                 ecb.DestroyEntity(spawnerEntity);
