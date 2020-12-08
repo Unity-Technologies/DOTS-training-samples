@@ -19,54 +19,19 @@ public class CreateBuildingSystem : SystemBase
     {
         List<Point> pointsList = new List<Point>();
         List<Bar> barsList = new List<Bar>();
-        
+
+
+        float3 debugPoint1, debugPoint2, debugPoint3;
+
         // buildings
         for (int i = 0; i < 35; i++)
         {
-            
-            Entity buildingEntity = EntityManager.CreateEntity(typeof(Building));
-            var constraintBuffer = EntityManager.AddBuffer<Constraint>(buildingEntity);
-
-            int height = UnityEngine.Random.Range(4, 12);
+            int height = Random.Range(4, 12);
             Vector3 pos = new Vector3(Random.Range(-45f, 45f), 0f, Random.Range(-45f, 45f));
             float spacing = 2f;
             for (int j = 0; j < height; j++)
             {
-                float3 debugPoint1, debugPoint2, debugPoint3;
-
-                // Point 1
-                Entity pointEntity = EntityManager.CreateEntity(typeof(Translation), typeof(Node));
-
-                var translation = EntityManager.GetComponentData<Translation>(pointEntity);
-                translation.Value = new float3(pos.x + spacing, j * spacing, pos.z - spacing);
-                debugPoint1 = translation.Value;
-                EntityManager.SetComponentData<Translation>(pointEntity, translation);
-
-
-                // Point 2
-                pointEntity = EntityManager.CreateEntity(typeof(Translation), typeof(Node));
-
-                translation = EntityManager.GetComponentData<Translation>(pointEntity);
-                translation.Value = new float3(pos.x - spacing, j * spacing, pos.z - spacing);
-                debugPoint2 = translation.Value;
-                EntityManager.SetComponentData<Translation>(pointEntity, translation);
-
-                // Point 3
-                pointEntity = EntityManager.CreateEntity(typeof(Translation), typeof(Node));
-
-                translation = EntityManager.GetComponentData<Translation>(pointEntity);
-                translation.Value = new float3(pos.x, j * spacing, pos.z + spacing);
-                debugPoint3 = translation.Value;
-                EntityManager.SetComponentData<Translation>(pointEntity, translation);
-
-
-                Debug.DrawLine(debugPoint1, debugPoint2, Color.red, 50f);
-                Debug.DrawLine(debugPoint2, debugPoint3, Color.red, 50f);
-                Debug.DrawLine(debugPoint3, debugPoint1, Color.red, 50f);
-
                 Point point = new Point();
-                // TODO add anchor if  j == 0
-                /*
                 point.x = pos.x + spacing;
                 point.y = j * spacing;
                 point.z = pos.z - spacing;
@@ -77,7 +42,6 @@ public class CreateBuildingSystem : SystemBase
                 {
                     point.anchor = true;
                 }
-
                 pointsList.Add(point);
                 point = new Point();
                 point.x = pos.x - spacing;
@@ -90,7 +54,6 @@ public class CreateBuildingSystem : SystemBase
                 {
                     point.anchor = true;
                 }
-
                 pointsList.Add(point);
                 point = new Point();
                 point.x = pos.x + 0f;
@@ -103,9 +66,7 @@ public class CreateBuildingSystem : SystemBase
                 {
                     point.anchor = true;
                 }
-
                 pointsList.Add(point);
-                */
             }
         }
 
@@ -133,11 +94,8 @@ public class CreateBuildingSystem : SystemBase
             {
                 point.anchor = true;
             }
-
             pointsList.Add(point);
         }
-
-        int batch = 0;
 
         for (int i = 0; i < pointsList.Count; i++)
         {
@@ -162,6 +120,9 @@ public class CreateBuildingSystem : SystemBase
             if (pointsList[i].neighborCount > 0)
             {
                 points[pointCount] = pointsList[i];
+
+                CreatePointEntity(new float3(pointsList[i].x, pointsList[i].y, pointsList[i].z), pointsList[i].anchor);
+
                 pointCount++;
             }
         }
@@ -184,5 +145,18 @@ public class CreateBuildingSystem : SystemBase
         // }
 
         System.GC.Collect();
+    }
+
+    Entity CreatePointEntity( float3 position, bool anchor)
+    {
+        var pointEntity = EntityManager.CreateEntity(typeof(Translation), typeof(Node));
+
+        var translation = EntityManager.GetComponentData<Translation>(pointEntity);
+        translation.Value = new float3(position);
+        EntityManager.SetComponentData<Translation>(pointEntity, translation);
+
+        EntityManager.SetComponentData<Node>(pointEntity, new Node() { anchor = anchor });
+
+        return pointEntity;
     }
 }
