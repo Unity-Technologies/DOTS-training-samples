@@ -26,7 +26,7 @@ public class ParticleManager : MonoBehaviour {
 			colors[i] = Color.white * Random.Range(.3f,.7f);
 		}
 		matProps = new MaterialPropertyBlock();
-		matProps.SetVectorArray("_BaseColor", colors);
+		matProps.SetVectorArray("_Color",colors);
 	}
 
 	void Update() {
