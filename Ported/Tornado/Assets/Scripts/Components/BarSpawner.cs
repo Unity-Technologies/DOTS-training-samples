@@ -4,7 +4,7 @@ using Unity.Entities;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
-public class BarSpawner : IComponentData
+public struct BarSpawner : IComponentData
 {
     public Entity barPrefab;
 }
