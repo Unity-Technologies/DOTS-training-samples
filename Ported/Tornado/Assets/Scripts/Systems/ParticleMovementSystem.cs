@@ -10,7 +10,7 @@ public class ParticleMovementSystem : SystemBase
 {
 
 
-    protected override void OnStartRunning()
+    protected override void OnCreate()
     {
         RequireSingletonForUpdate<TornadoSettings>();
         RequireSingletonForUpdate<Tornado>();
