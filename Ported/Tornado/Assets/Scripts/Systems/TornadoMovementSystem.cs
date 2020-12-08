@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
+using UnityEngine;
 
 public class TornadoMovementSystem : SystemBase
 {
@@ -10,12 +11,16 @@ public class TornadoMovementSystem : SystemBase
     {
         var time = Time.ElapsedTime;
 
+        var camera = this.GetSingleton<GameObjRefs>().Camera;
+        float3 camTransl = 0f;
+
         Entities.WithAll<Tornado>().ForEach((Entity entity, ref Translation transl) => {
             transl.Value.x = math.cos((float)time / 6f) * 30f;
             transl.Value.z = math.sin((float)time / 6f*1.618f) * 30f;
-            //tornadoX = Mathf.Cos(Time.time / 6f) * 30f;
-            //tornadoZ = Mathf.Sin(Time.time / 6f * 1.618f) * 30f;
-            //cam.position = new Vector3(tornadoX, 10f, tornadoZ) - cam.forward * 60f;
+
+            camTransl = transl.Value;
         }).Run();
+
+        camera.transform.position = new Vector3(camTransl.x, 10f, camTransl.z) - camera.transform.forward * 60f;
     }
 }
