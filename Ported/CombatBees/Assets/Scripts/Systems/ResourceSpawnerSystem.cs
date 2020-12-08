@@ -35,6 +35,9 @@ public class ResourceSpawnerSystem : SystemBase
                         ecb.SetComponent(bee, new Translation { Value = spawnerPos.Value });
                     }
 
+                    float size = resParams.resourceSize;
+                    ecb.AddComponent(bee, new NonUniformScale { Value = new float3(size, size, size) });
+
                     /*
                     int gx;
                     int gy;

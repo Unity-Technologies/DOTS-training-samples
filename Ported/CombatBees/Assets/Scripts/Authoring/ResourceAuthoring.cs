@@ -5,6 +5,8 @@ using Unity.Transforms;
 
 public class ResourceAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
+    public float deathTimer;
+
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity, new Velocity { vel = float3.zero });
@@ -12,6 +14,7 @@ public class ResourceAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new StackIndex { index = 0 });
         dstManager.AddComponentData(entity, new GridX { gridX = 0 });
         dstManager.AddComponentData(entity, new GridY { gridY = 0 });
+        dstManager.AddComponentData(entity, new DeathTimer { dTimer = this.deathTimer });
     }
 }
 

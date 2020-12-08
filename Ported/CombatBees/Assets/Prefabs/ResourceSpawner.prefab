@@ -46,4 +46,4 @@ MonoBehaviour:
   resourcePrefab: {fileID: 6999041084705451249, guid: 6dda662662da321439f5c1a7189d8ccb, type: 3}
   spawnRate: 10
   beesPerResource: 8
-  startResourceCount: 1
+  startResourceCount: 2

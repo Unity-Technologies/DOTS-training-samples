@@ -19,7 +19,7 @@ public class BeeSpawnerSystem : SystemBase
             //.ForEach((Entity spawnerEntity, ref BeeSpawner spawner, in Translation spawnerPos) =>
             .ForEach((Entity spawnerEntity, ref BeeSpawner spawner) =>
             {
-                Debug.Log("beespawner working!!");
+                Debug.Log("beespawner working, cout = !!" + spawner.count);
                 for (int i = 0; i < spawner.count; i++)
                 {
                     var bee = ecb.Instantiate(spawner.beePrefab);
@@ -37,7 +37,7 @@ public class BeeSpawnerSystem : SystemBase
 
                     float size = random.NextFloat(beeParams.minBeeSize, beeParams.maxBeeSize);
                     ecb.AddComponent(bee, new Size { value = size });
-                    ecb.AddComponent(bee, new NonUniformScale { Value = new float3(size, size, size) });
+                    //ecb.AddComponent(bee, new NonUniformScale { Value = new float3(size, size, size) });
                     ecb.AddComponent(bee, new Velocity { vel = random.NextFloat3() * spawner.maxSpawnSpeed });
                 }
 

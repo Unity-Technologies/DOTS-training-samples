@@ -12,6 +12,11 @@ public struct Velocity : IComponentData
     public float3 vel;
 }
 
+public struct DeathTimer : IComponentData
+{
+    public float dTimer;
+}
+
 /*
 public struct SmoothPosition : IComponentData
 {

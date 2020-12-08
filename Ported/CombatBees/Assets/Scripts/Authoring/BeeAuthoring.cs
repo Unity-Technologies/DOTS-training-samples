@@ -41,10 +41,12 @@ public struct BeeTeam : IComponentData
     };
 }
 
+/*
 public struct DeathTimer : IComponentData
 {
     public float dTimer;
 }
+*/
 
 public struct SmoothPosition : IComponentData
 {

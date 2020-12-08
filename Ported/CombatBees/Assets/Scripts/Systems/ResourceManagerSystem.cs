@@ -3,7 +3,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
-using static Unity.Mathematics.math;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -32,7 +31,7 @@ public class ResourceManagerSystem : SystemBase
         var bufferEntity = GetSingletonEntity<ResourceParams>();
         var stackHeights = bufferFromEntity[bufferEntity];
 
-        float deltaTime = Time.DeltaTime;
+        float deltaTime = Time.fixedDeltaTime;
 
 #if COMMENT
         NativeArray<Entity> resArray = resQuery.ToEntityArrayAsync(Allocator.TempJob, out var resHandle);
@@ -54,6 +53,22 @@ public class ResourceManagerSystem : SystemBase
         */
         resArray.Dispose();
 #endif
+        var ecb0 = new EntityCommandBuffer(Allocator.TempJob);
+        Entities
+            .WithName("Resource_Is_Dead")
+            .WithAll<StackIndex>()
+            .WithAll<Dead>()
+            .ForEach((Entity resEntity, ref DeathTimer deathTimer) =>
+            {
+                deathTimer.dTimer -= 5 * deltaTime;
+                if (deathTimer.dTimer < 0f)
+                {
+                    ecb0.DestroyEntity(resEntity);
+                }
+
+            }).Run();
+        ecb0.Playback(EntityManager);
+        ecb0.Dispose();
 
         /* --------------------------------------------------------------------------------- */
 
@@ -90,6 +105,7 @@ public class ResourceManagerSystem : SystemBase
             .WithName("Resource_Not_Stacked")
             .WithNone<HolderBee>()
             .WithNone<Stacked>()
+            .WithNone<Dead>()
             .ForEach((Entity resEntity, ref Velocity velocity, ref Translation pos, ref GridX gX, ref GridY gY, ref StackIndex stackIndex) =>
             {
                 //Debug.Log("resource not stacked????????????");
@@ -175,7 +191,8 @@ public class ResourceManagerSystem : SystemBase
                         //ParticleManager.SpawnParticle(resource.position, ParticleType.SpawnFlash, Vector3.zero, 6f, 5);
 
                         ecb1.AddComponent<Dead>(resEntity);
-                        ecb1.DestroyEntity(resEntity);
+                        // destory later to avoid race condition in BeeManagerSystem
+                        //ecb1.DestroyEntity(resEntity);
                     }
                     else
                     {
@@ -200,6 +217,17 @@ public class ResourceManagerSystem : SystemBase
             }).Run();
         ecb1.Playback(EntityManager);
         ecb1.Dispose();
+
+        Entities
+            .WithName("Resource_Local_To_World_TRS")
+            .WithNone<Dead>()
+            .WithAll<StackIndex>()
+            .ForEach((Entity resEntity, ref LocalToWorld localToWorld, in Scale scale, in Translation translation) =>
+            {
+                localToWorld.Value = float4x4.TRS(translation.Value, quaternion.identity, scale.Value);
+
+            }).ScheduleParallel();
+
 
     }
 }

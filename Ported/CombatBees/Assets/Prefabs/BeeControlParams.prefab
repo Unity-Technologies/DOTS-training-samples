@@ -43,20 +43,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a50313ec862b93b40a555379d102af10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minBeeSize: 0.25
-  maxBeeSize: 0.5
+  minBeeSize: 0.75
+  maxBeeSize: 1.25
   speedStretch: 0.2
   rotationStiffness: 5
   aggression: 0.5
   flightJitter: 200
-  teamAttraction: 5
-  teamRepulsion: 4
-  damping: 0.5
-  chaseForce: 50
-  carryForce: 25
+  teamAttraction: 50
+  teamRepulsion: 40
+  damping: 0.28
+  chaseForce: 300
+  carryForce: 250
   grabDistance: 0.5
   attackDistance: 4
-  attackForce: 500
+  attackForce: 600
   hitDistance: 0.5
   maxSpawnSpeed: 75
   maxBeeCount: 100

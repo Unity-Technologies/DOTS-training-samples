@@ -43,6 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 730746cd80a75034db69daf72af6bd77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resourceSize: 0.75
+  resourceSize: 1
   snapStiffness: 2
   carryStiffness: 15
+  beesPerResource: 1
