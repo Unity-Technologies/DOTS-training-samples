@@ -140,7 +140,7 @@ public class CreateBuildingSystem : SystemBase
 
             Debug.DrawLine(pointA, pointB, Color.cyan, 50);
 
-            var barEntity = EntityManager.CreateEntity(typeof(Constraint));
+            //var barEntity = EntityManager.CreateEntity(typeof(Constraint));
 
             var pointAEntity = CreatePointEntity(pointA, curBar.point1.anchor);
             var pointBEntity = CreatePointEntity(pointB, curBar.point2.anchor);

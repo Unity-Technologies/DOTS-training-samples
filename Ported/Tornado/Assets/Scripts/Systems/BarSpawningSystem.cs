@@ -29,8 +29,12 @@ public class BarSpawningSystem : SystemBase
 
         var spawner = GetSingleton<BarSpawner>();
 
-        Entities.ForEach(( DynamicBuffer<Constraint> bufferConstraint)  =>
+        Entities.ForEach( ( Entity entity, in Building building )  =>
         {
+            var bufferConstraint = GetBuffer<Constraint>(entity);
+
+            Debug.Log($"Contraints : {bufferConstraint.Length}");
+
             for (int i = 0; i < bufferConstraint.Length; i++)
             {
                 var instance = ecb.Instantiate(spawner.barPrefab);
@@ -50,7 +54,7 @@ public class BarSpawningSystem : SystemBase
             }
         }).Run();
 
-        ecb.Playback(EntityManager);
+        ecb.Playback( EntityManager );
 
         Enabled = false;
     }
