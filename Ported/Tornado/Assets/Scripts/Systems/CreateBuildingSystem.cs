@@ -161,6 +161,7 @@ public class CreateBuildingSystem : SystemBase
             constraintBuffer.Add(constraint);
         }
 
+        /*
         constraintBuffer = EntityManager.GetBuffer<Constraint>(buildingEntity);
         for (int i=0; i<finalNodes.Count; i++)
         {
@@ -178,6 +179,7 @@ public class CreateBuildingSystem : SystemBase
                 }
             }
         }
+        */
 
         Debug.Log(pointCount + " points, room for " + points.Length + " (" + barsList.Count + " bars)");
         
