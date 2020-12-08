@@ -36,9 +36,10 @@ public class PositionSystem : SystemBase
     protected override void OnUpdate()
     {
         float deltaTime = Time.DeltaTime;
-        
+
         /////////////////////Setting the bee target witch is an Entity ( bee, resource, base) 
-        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        var ecb = sys.CreateCommandBuffer();
         Entities
            .WithAll<Bee>()
            .ForEach((Entity bee, ref Translation pos, ref Bee beeData) =>
@@ -64,12 +65,12 @@ public class PositionSystem : SystemBase
                }
                //direction
                float speed = 100;
-               float3 newPos = math.lerp(pos.Value, pos.Value + direction, deltaTime);
-               pos.Value = pos.Value + direction * deltaTime * speed;
+               float3 newPos = math.lerp(pos.Value, pos.Value + direction * speed, deltaTime);
+               pos.Value = newPos;//pos.Value + direction * deltaTime * speed;
                // check near target
 
            }).ScheduleParallel();
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+
+        sys.AddJobHandleForProducer(Dependency);
     }
 }

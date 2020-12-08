@@ -11,6 +11,9 @@ public class BeeSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        var ecb = sys.CreateCommandBuffer();
+
         NativeList<Translation> beeBaseTranslation = new NativeList<Translation>(3, Allocator.TempJob);
         NativeList<Entity> beeBaseEntity = new NativeList<Entity>(3, Allocator.TempJob);
         beeBaseTranslation.Add(new Translation());
@@ -19,7 +22,7 @@ public class BeeSpawnerSystem : SystemBase
         beeBaseEntity.Add(new Entity());
         beeBaseEntity.Add(new Entity());
         beeBaseEntity.Add(new Entity());
-        var ecb0 = new EntityCommandBuffer(Allocator.TempJob);
+        
         Entities
             .ForEach((Entity bbaseEntity, in BeeBase bee, in Translation translation ) =>
             {
@@ -39,11 +42,8 @@ public class BeeSpawnerSystem : SystemBase
                     beeBaseEntity[2] = bbaseEntity;
                 }
             }).Run();
-        ecb0.Playback(EntityManager);
-        ecb0.Dispose();
 
-        EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-        var ecb = sys.CreateCommandBuffer();
+       
         var random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         Entities
             .ForEach((Entity entity, ref BeeSpawnRequest req, in BeeSpawner spawner, in Translation pos) =>

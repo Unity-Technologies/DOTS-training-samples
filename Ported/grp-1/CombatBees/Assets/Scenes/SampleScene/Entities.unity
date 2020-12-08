@@ -164,11 +164,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7777586713922230085, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.1
+      value: 9.5
       objectReference: {fileID: 0}
     - target: {fileID: 7777586713922230085, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 8.7
       objectReference: {fileID: 0}
     - target: {fileID: 7777586713922230085, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1092,6 +1092,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 7777586713922230084, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
+      propertyPath: spawnRadius
+      value: 3.06
+      objectReference: {fileID: 0}
+    - target: {fileID: 7777586713922230084, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
       propertyPath: teamColour.b
       value: 0
       objectReference: {fileID: 0}
@@ -1113,11 +1117,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7777586713922230085, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.7
+      value: -4.8
       objectReference: {fileID: 0}
     - target: {fileID: 7777586713922230085, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 8.4
       objectReference: {fileID: 0}
     - target: {fileID: 7777586713922230085, guid: fbc9098ca1315394eb183c12f293f520, type: 3}
       propertyPath: m_LocalPosition.z
