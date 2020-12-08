@@ -8,6 +8,9 @@ public class BeeSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
 {
     public GameObject beePrefab;
 
+    public float3 spawnPosition;
+    [Range(0.1f, 10f)]public float spawnRadius;
+
     [Range( 1, 20)] public int numBeesToSpawn;
 
     public int team;
@@ -26,6 +29,8 @@ public class BeeSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
 
         dstManager.AddComponentData(entity, new BeeSpawner
         {
+            position = spawnPosition,
+            radius = spawnRadius,
             beePrefab = conversionSystem.GetPrimaryEntity(beePrefab),
             numBeesToSpawn = numBeesToSpawn,
             teamNumber = team,
