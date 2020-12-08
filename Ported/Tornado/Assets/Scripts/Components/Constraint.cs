@@ -2,7 +2,7 @@
 
 public struct Constraint : IBufferElementData
 {
-    public Node pointA;
-    public Node pointB;
+    public Entity pointA;
+    public Entity pointB;
     public float distance;
 }
