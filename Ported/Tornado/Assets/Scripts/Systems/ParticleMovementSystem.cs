@@ -5,6 +5,7 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using UnityEngine;
 
+[UpdateAfter (typeof(TornadoMovementSystem))]
 public class ParticleMovementSystem : SystemBase
 {
 
@@ -12,26 +13,25 @@ public class ParticleMovementSystem : SystemBase
     protected override void OnStartRunning()
     {
         RequireSingletonForUpdate<TornadoSettings>();
+        RequireSingletonForUpdate<Tornado>();
     }
 
     protected override void OnUpdate()
     {
         var settings = this.GetSingleton<TornadoSettings>();
+        var tornado = this.GetSingletonEntity<Tornado>();
+        var tornadoTranslation = GetComponent<Translation>(tornado);
+
         var spinRate = settings.SpinRate;
         var speedUpward = settings.SpeedUpward;
 
         float tornadoElapsedTime = (float)Time.ElapsedTime;
         float tornadoDeltaTime = Time.DeltaTime;
 
-        float3 tornadoMovement = new float3(0.0f, 0.0f, 0.0f);
-
-        tornadoMovement.x = (float)math.sin(tornadoElapsedTime) * 10f;
-        tornadoMovement.z = (float)math.sin(tornadoElapsedTime) * 10f;
-
         Entities.ForEach((Entity entity, ref Translation transl, in Particle particle) =>
         {
             float tornadoSway = (float)math.sin(transl.Value.y / 5f + tornadoElapsedTime / 4f) * 3f;
-            float3 tornadoPos = new float3(tornadoMovement.x+tornadoSway, transl.Value.y, tornadoMovement.z);
+            float3 tornadoPos = new float3(tornadoTranslation.Value.x+ tornadoSway, transl.Value.y, tornadoTranslation.Value.z);
             float3 delta = (tornadoPos - transl.Value);
             float dist = math.length(delta);
             delta /= dist;
