@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -120,30 +121,31 @@ public class CreateBuildingSystem : SystemBase
             if (pointsList[i].neighborCount > 0)
             {
                 points[pointCount] = pointsList[i];
-
-                CreatePointEntity(new float3(pointsList[i].x, pointsList[i].y, pointsList[i].z), pointsList[i].anchor);
-
                 pointCount++;
             }
         }
 
-        Debug.Log(pointCount + " points, room for " + points.Length + " (" + barsList.Count + " bars)");
+        for (int i = 0; i < barsList.Count; i++)
+        {
+            var curBar = barsList[i];
+            float3 pointA, pointB;
+            pointA = new float3(curBar.point1.x, curBar.point1.y, barsList[i].point1.z);
+            pointB = new float3(curBar.point2.x, curBar.point2.y, barsList[i].point2.z);
+            var barEntity = EntityManager.CreateEntity(typeof(Constraint));
+            
+            var constraint = new Constraint()
+            {
+                pointA = CreatePointEntity(pointA, curBar.point1.anchor),
+                pointB = CreatePointEntity(pointB, curBar.point2.anchor),
+                distance = Vector3.Distance(pointA, pointB)
+            };
 
-        var bars = barsList.ToArray();
+            //EntityManager.SetComponentData<Constraint>(barEntity, constraint);
+        }
         
-        // matProps = new MaterialPropertyBlock[barsList.Count];
-        // Vector4[] colors = new Vector4[instancesPerBatch];
-        // for (int i = 0; i < barsList.Count; i++)
-        // {
-        //     colors[i % instancesPerBatch] = barsList[i].color;
-        //     if ((i + 1) % instancesPerBatch == 0 || i == barsList.Count - 1)
-        //     {
-        //         MaterialPropertyBlock block = new MaterialPropertyBlock();
-        //         block.SetVectorArray("_Color", colors);
-        //         matProps[i / instancesPerBatch] = block;
-        //     }
-        // }
 
+        Debug.Log(pointCount + " points, room for " + points.Length + " (" + barsList.Count + " bars)");
+        
         System.GC.Collect();
     }
 
