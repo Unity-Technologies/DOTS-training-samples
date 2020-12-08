@@ -11,24 +11,22 @@ public class BeeSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        var ecb = sys.CreateCommandBuffer();
         var random = new Unity.Mathematics.Random(1234);
 
         Entities
-            .ForEach((Entity entity, in BeeSpawner spawner) =>
+            .ForEach((Entity entity, ref BeeSpawnRequest req, in BeeSpawner spawner) =>
             {
-                // Destroying the current entity is a classic ECS pattern,
-                // when something should only be processed once then forgotten.
-                ecb.DestroyEntity(entity);
 
                 // spawn bees
-                for (int i = 0; i < spawner.numBeesToSpawn; ++i)
+                for (int i = 0; i < req.numOfBeesToSpawn; ++i)
                 {
                     
                     var bee = ecb.Instantiate(spawner.beePrefab);
 
                     // give the bee a position near the spawn point
-                    float3 randomDistance = random.NextFloat3(spawner.radius);
+                    float3 randomDistance = random.NextFloat3(-spawner.radius, spawner.radius);
                     var translation = new Translation { Value = (spawner.position + randomDistance) };
                     ecb.SetComponent(bee, translation);
 
@@ -44,9 +42,13 @@ public class BeeSpawnerSystem : SystemBase
                         teamID = spawner.teamNumber
                     });
                 }
+
+                // remove the spawn request prefab once done
+                ecb.RemoveComponent<BeeSpawnRequest>(entity);
+                
             }).Run();
 
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        sys.AddJobHandleForProducer(Dependency);
+       
     }
 }

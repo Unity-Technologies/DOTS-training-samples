@@ -10,7 +10,6 @@ public struct BeeSpawner : IComponentData
     public float radius;
 
     public Entity beePrefab;
-    public int numBeesToSpawn;
     public int teamNumber;
     public float4 teamColour;
 }

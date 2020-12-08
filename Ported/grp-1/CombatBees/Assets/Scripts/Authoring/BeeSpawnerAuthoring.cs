@@ -11,7 +11,7 @@ public class BeeSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
     public float3 spawnPosition;
     [Range(0.1f, 10f)]public float spawnRadius;
 
-    [Range( 1, 20)] public int numBeesToSpawn;
+    [Range( 1, 20)] public int beesToSpawnOnStart;
 
     public int team;
     public Color teamColour;
@@ -32,9 +32,13 @@ public class BeeSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
             position = spawnPosition,
             radius = spawnRadius,
             beePrefab = conversionSystem.GetPrimaryEntity(beePrefab),
-            numBeesToSpawn = numBeesToSpawn,
             teamNumber = team,
             teamColour = colourNum
+        });
+
+        dstManager.AddComponentData(entity, new BeeSpawnRequest
+        {
+            numOfBeesToSpawn = beesToSpawnOnStart
         });
     }
 }
