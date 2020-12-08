@@ -12,6 +12,7 @@ public class BarSpawningSystem : SystemBase
 
     protected override void OnCreate()
     {
+        RequireSingletonForUpdate<BarSpawner>();
         // Get the command buffer system
         CommandBufferSystem
             = World.DefaultGameObjectInjectionWorld.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
