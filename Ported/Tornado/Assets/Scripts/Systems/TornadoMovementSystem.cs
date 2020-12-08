@@ -7,11 +7,17 @@ using UnityEngine;
 
 public class TornadoMovementSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameObjRefs>();
+    }
+
     protected override void OnUpdate()
     {
+        var camera = this.GetSingleton<GameObjRefs>().Camera;
+
         var time = Time.ElapsedTime;
 
-        var camera = this.GetSingleton<GameObjRefs>().Camera;
         float3 camTransl = 0f;
 
         Entities.WithAll<Tornado>().ForEach((Entity entity, ref Translation transl) => {
