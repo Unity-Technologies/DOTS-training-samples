@@ -33,8 +33,8 @@ public class BarSpawningSystem : SystemBase
             for (int i = 0; i < bufferConstraint.Length; i++)
             {
                 var instance = ecb.Instantiate(spawner.barPrefab);
-                var posA = EntityManager.GetComponentData<Translation>(bufferConstraint[i].pointA).Value;
-                var posB = EntityManager.GetComponentData<Translation>(bufferConstraint[i].pointB).Value;
+                var posA = GetComponent<Translation>(bufferConstraint[i].pointA).Value;
+                var posB = GetComponent<Translation>(bufferConstraint[i].pointB).Value;
                 var translation = new Translation();
                 var rotation = new Rotation();
                 var scale = new NonUniformScale();
