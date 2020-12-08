@@ -29,7 +29,7 @@ public class CreateBuildingSystem : SystemBase
 
         float3 debugPoint1, debugPoint2, debugPoint3;
 
-        var buildingEntity = EntityManager.CreateEntity(typeof(Building), typeof(BuildingNeedsBars));
+        var buildingEntity = EntityManager.CreateEntity(typeof(Building));
         var constraintBuffer = EntityManager.AddBuffer<Constraint>(buildingEntity);
 
         // buildings

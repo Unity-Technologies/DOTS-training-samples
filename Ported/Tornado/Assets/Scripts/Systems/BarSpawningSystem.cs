@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(CreateBuildingSystem))]
 public class BarSpawningSystem : SystemBase
 {
     // A command buffer system executes command buffers in its own OnUpdate
@@ -29,7 +30,7 @@ public class BarSpawningSystem : SystemBase
 
         var spawner = GetSingleton<BarSpawner>();
 
-        Entities.WithAll<BuildingNeedsBars>().ForEach( ( Entity entity)  =>
+        Entities.WithAll<Building>().ForEach( ( Entity entity)  =>
         {
             var bufferConstraint = GetBuffer<Constraint>(entity);
 
@@ -52,9 +53,10 @@ public class BarSpawningSystem : SystemBase
                 ecb.SetComponent(instance, translation);
                 ecb.AddComponent(instance, scale);
             }
-            ecb.RemoveComponent<BuildingNeedsBars>(entity);
         }).Run();
 
         ecb.Playback( EntityManager );
+
+        Enabled = false;
     }
 }
