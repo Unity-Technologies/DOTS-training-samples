@@ -5,7 +5,7 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class ParticleMovement : SystemBase
+public class ParticleMovementSystem : SystemBase
 {
 
 
@@ -25,8 +25,8 @@ public class ParticleMovement : SystemBase
 
         float3 tornadoMovement = new float3(0.0f, 0.0f, 0.0f);
 
-        tornadoMovement.x = (float)math.sin(tornadoElapsedTime) * 5f;
-        tornadoMovement.z = (float)math.sin(tornadoElapsedTime) * 5f;
+        tornadoMovement.x = (float)math.sin(tornadoElapsedTime) * 10f;
+        tornadoMovement.z = (float)math.sin(tornadoElapsedTime) * 10f;
 
         Entities.ForEach((Entity entity, ref Translation transl, in Particle particle) =>
         {

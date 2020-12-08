@@ -5,7 +5,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public class ParticleSpawning : SystemBase
+public class ParticleSpawningSystem : SystemBase
 {
 
     protected override void OnStartRunning()
@@ -29,7 +29,7 @@ public class ParticleSpawning : SystemBase
                 var scale = new Scale { Value = (random.NextFloat(0.1f, 0.7f)) };
                 var particle = new Particle { radiusMult = random.NextFloat(0f, 1f)};
 
-                ecb.AddComponent<Particle>(instance);
+                ecb.AddComponent<Particle>(instance, particle);
                 ecb.SetComponent(instance, translation);
                 ecb.AddComponent(instance, scale);
             }
