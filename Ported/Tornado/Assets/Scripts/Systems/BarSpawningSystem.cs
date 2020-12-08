@@ -28,25 +28,25 @@ public class BarSpawningSystem : SystemBase
 
         var spawner = GetSingleton<BarSpawner>();
 
-        Entities.ForEach( ( Entity entity, int entityInQueryIndex, in Constraint constraint )  =>
+        Entities.ForEach(( DynamicBuffer<Constraint> bufferConstraint)  =>
         {
-            var instance = ecb.Instantiate(spawner.barPrefab);
+            for (int i = 0; i < bufferConstraint.Length; i++)
+            {
+                var instance = ecb.Instantiate(spawner.barPrefab);
+                var posA = EntityManager.GetComponentData<Translation>(bufferConstraint[i].pointA).Value;
+                var posB = EntityManager.GetComponentData<Translation>(bufferConstraint[i].pointB).Value;
+                var translation = new Translation();
+                var rotation = new Rotation();
+                var scale = new NonUniformScale();
+                
+                translation.Value = (posA + posB) * 0.5f;
+                rotation.Value = Quaternion.LookRotation(((Vector3) (posA - posB)).normalized);
+                scale.Value = new float3(0.2f, 0.2f, Vector3.Distance(posA, posB));
 
-            var posA = EntityManager.GetComponentData<Translation>(constraint.pointA).Value;
-            var posB = EntityManager.GetComponentData<Translation>(constraint.pointB).Value;
-
-            var translation = new Translation();
-            translation.Value = (posA + posB) * 0.5f;
-
-            var rotation = new Rotation();
-            rotation.Value = Quaternion.LookRotation(((Vector3)(posA - posB)).normalized);
-
-            var scale = new NonUniformScale();
-            scale.Value = new float3(0.2f, 0.2f, Vector3.Distance(posA, posB) );
-
-            ecb.SetComponent(instance, rotation);
-            ecb.SetComponent(instance, translation);
-            ecb.AddComponent(instance, scale);
+                ecb.SetComponent(instance, rotation);
+                ecb.SetComponent(instance, translation);
+                ecb.AddComponent(instance, scale);
+            }
         }).Run();
 
         ecb.Playback(EntityManager);
