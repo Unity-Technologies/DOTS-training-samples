@@ -60,9 +60,9 @@ public class CreateBuildingSystem : SystemBase
                 EntityManager.SetComponentData<Translation>(pointEntity, translation);
 
 
-                Debug.DrawLine(debugPoint1, debugPoint2);
-                Debug.DrawLine(debugPoint2, debugPoint3);
-                Debug.DrawLine(debugPoint3, debugPoint1);
+                Debug.DrawLine(debugPoint1, debugPoint2, Color.red, 50f);
+                Debug.DrawLine(debugPoint2, debugPoint3, Color.red, 50f);
+                Debug.DrawLine(debugPoint3, debugPoint1, Color.red, 50f);
 
                 Point point = new Point();
                 // TODO add anchor if  j == 0
