@@ -37,23 +37,6 @@ public class PositionSystem : SystemBase
     {
         float deltaTime = Time.DeltaTime;
         
-        NativeList<Entity> beeArray = new NativeList<Entity>(100, Allocator.TempJob);
-        
-        
-        
-        
-        /* --------------------------------------------------------------------------------- */
-        var ecb0 = new EntityCommandBuffer(Allocator.TempJob);
-        Entities
-            .ForEach((Entity beeEntity, in Bee bee) =>
-            {
-                beeArray.Add(beeEntity);
-            }).Run();
-        ecb0.Playback(EntityManager);
-        ecb0.Dispose();
-        
-    
-        var random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         /////////////////////Setting the bee target witch is an Entity ( bee, resource, base) 
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         Entities
@@ -88,55 +71,5 @@ public class PositionSystem : SystemBase
            }).ScheduleParallel();
             ecb.Playback(EntityManager);
             ecb.Dispose();
-        ///////////////////////////////////////////////////////////////////////////////////////////
-        /////////////////////////////////////Compute Movement//////////////////////////////////////
-        
-
-
-        //////////////////////////////////////////////////////////////////////////////////////////
-
-        beeArray.Dispose();
-        //
-        //var random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
-        //var ecb = new EntityCommandBuffer(Allocator.TempJob);
-        //Entities
-        //   .WithAll<Bee>()
-        //   .WithNone<BeeMoveToTarget>()
-        //   .ForEach((Entity bee, ref Velocity velocity, in Translation pos, in Bee beeData) =>
-        //   {
-        //       //BeeMoveToTarget BeeTarget;
-        //       //ecb.AddComponent<BeeMoveToTarget>(bee, BeeTarget);
-        //     
-        //   }).ScheduleParallel();
-        //    ecb.Playback(EntityManager);
-        //    ecb.Dispose();
-
-        //Entities
-        //    .ForEach((ref Translation translation, in Bee bee, in Velocity newPos) =>
-        //    {
-        //        translation.Value.x += deltaTime;
-        //    }).ScheduleParallel();
-        // beeArray.Dispose();
-
-
-        //
-        //var ecb = CommandBufferSystem.CreateCommandBuffer();
-        //var cdfe = GetComponentDataFromEntity<Translation>();
-        //
-        //Entities
-        //    // Random access to components for writing can be a race condition.
-        //    // Here, we know for sure that prefabs don't share their entities.
-        //    // So explicitly request to disable the safety system on the CDFE.
-        //    .WithNativeDisableContainerSafetyRestriction(cdfe)
-        //    .WithStoreEntityQueryInField(ref RequirePropagation)
-        //    .WithAll<Bee>()
-        //    .ForEach((in DynamicBuffer<LinkedEntityGroup> group
-        //        , in Position newPos) =>
-        //    {
-        //        for (int i = 1; i < group.Length; ++i)
-        //        {
-        //            cdfe[group[i].Value].Value.x = (float)(newPos.position.x + time);
-        //        }
-        //    }).ScheduleParallel();
     }
 }

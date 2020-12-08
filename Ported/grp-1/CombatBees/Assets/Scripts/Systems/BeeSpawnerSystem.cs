@@ -42,24 +42,21 @@ public class BeeSpawnerSystem : SystemBase
         ecb0.Playback(EntityManager);
         ecb0.Dispose();
 
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
-
+        EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        var ecb = sys.CreateCommandBuffer();
+        var random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         Entities
-            .ForEach((Entity entity, in BeeSpawner spawner, in Translation pos) =>
+            .ForEach((Entity entity, ref BeeSpawnRequest req, in BeeSpawner spawner, in Translation pos) =>
             {
-                // Destroying the current entity is a classic ECS pattern,
-                // when something should only be processed once then forgotten.
-                ecb.DestroyEntity(entity);
-
-                float xPos = pos.Value.x;
-
-
                 // spawn bees
-                for (int i = 0; i < spawner.numBeesToSpawn; ++i)
+                for (int i = 0; i < req.numOfBeesToSpawn; ++i)
                 {
                     
                     var bee = ecb.Instantiate(spawner.beePrefab);
-                    var translation = new Translation { Value = new float3(xPos, i*2, 0) };
+
+                    // give the bee a position near the spawn point
+                    float3 randomDistance = random.NextFloat3(-spawner.radius, spawner.radius);
+                    var translation = new Translation { Value = (pos.Value + randomDistance) };
                     ecb.SetComponent(bee, translation);
 
                     //give the bee its team
@@ -92,10 +89,11 @@ public class BeeSpawnerSystem : SystemBase
 
         
                 }
+
+                ecb.RemoveComponent<BeeSpawnRequest>(entity);
             }).Run();
 
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        sys.AddJobHandleForProducer(Dependency);
         beeBaseTranslation.Dispose();
         beeBaseEntity.Dispose();
     }
