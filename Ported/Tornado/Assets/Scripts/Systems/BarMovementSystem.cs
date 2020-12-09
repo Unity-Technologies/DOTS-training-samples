@@ -34,30 +34,34 @@ public class BarMovementSytem : SystemBase
 
         Entities.WithoutBurst().ForEach((ref Node node, ref Translation translation) =>
         {
+
             if (!node.anchor)
             {
                 float3 start = translation.Value;
 
                 node.oldPosition.y += .01f;
 
-                float2 tornadoForce = new float2(tornadoTranslation.Value.x + (math.sin(translation.Value.y / 5f + deltaTime / 4f) * 3f) - translation.Value.x,
+                float tornadoSway = math.sin(translation.Value.y / 5f + deltaTime / 4f) * 3f;
+
+                float2 td = new float2(
+                    tornadoTranslation.Value.x + tornadoSway - translation.Value.x,
                     tornadoTranslation.Value.z - translation.Value.z);
 
-                float tornadoDist = math.length(tornadoForce);
+                float tornadoDist = math.length(td);
 
-                tornadoForce = math.normalize(tornadoForce);
+                td = math.normalize(td);
 
                 if (tornadoDist < settings.TornadoMaxForceDistance)
                 {
                     float force = (1f - tornadoDist / settings.TornadoMaxForceDistance);
-                    float yFader = math.clamp(1f - translation.Value.y / settings.TornadoHeight, 0f, 1f);
+                    float yFader = math.saturate(1f - translation.Value.y / settings.TornadoHeight);
                     force *= tornadoFader * settings.TornadoForce * random.NextFloat(-0.3f, 1.3f);
-                    float forceY = settings.TornadoUpForce;
-                    node.oldPosition.y -= forceY * force;
-                    float forceX = -tornadoForce.y + tornadoForce.x * settings.TornadoInwardForce * yFader;
-                    float forceZ = tornadoForce.x + tornadoForce.y * settings.TornadoInwardForce * yFader;
-                    node.oldPosition.x -= forceX * force;
-                    node.oldPosition.z -= forceZ * force;
+                    float3 force3 = new float3(0);
+                    force3.y = settings.TornadoUpForce;
+                    force3.x = -td.y + td.x * settings.TornadoInwardForce * yFader;
+                    force3.z =  td.x + td.y * settings.TornadoInwardForce * yFader;
+
+                    node.oldPosition -= force3 * force;
                 }
 
                 translation.Value += (translation.Value - node.oldPosition) * invDamping;
@@ -66,10 +70,13 @@ public class BarMovementSytem : SystemBase
                 if (translation.Value.y < 0f)
                 {
                     translation.Value.y = 0f;
-                    node.oldPosition.y = -translation.Value.y;
+                    node.oldPosition.y = -node.oldPosition.y;
                     node.oldPosition.xz += (translation.Value.xz - node.oldPosition.xz) * settings.Friction;
                 }
             }
+
+            Debug.DrawRay(translation.Value, Vector3.up, Color.red);
+
         }).Run();
 
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -138,7 +145,7 @@ public class BarMovementSytem : SystemBase
                 ecb.SetComponent(constraint.pointA, new Translation { Value = point1Pos });
                 ecb.SetComponent(constraint.pointB, new Translation { Value = point2Pos }); 
                 
-                Debug.DrawLine(point1Pos, point2Pos, Color.green, 5);
+                Debug.DrawLine(point1Pos, point2Pos, Color.green);
             }
         }).Run();
 
@@ -154,7 +161,7 @@ public class BarMovementSytem : SystemBase
             var pointBEntity = constraintsArray[entityInQueryIndex].pointB;
             var pointA = GetComponent<Translation>(pointAEntity).Value;
             var pointB = GetComponent<Translation>(pointBEntity).Value;
-
+        
             SetComponent(entity, new Translation { Value = (pointA + pointB) * 0.5f });
             SetComponent(entity, new Rotation { Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized) });
         }).Run();
