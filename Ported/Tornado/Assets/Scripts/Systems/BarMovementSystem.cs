@@ -1,30 +1,38 @@
-﻿using System.Xml;
+﻿using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEditor.Rendering;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(BarSpawningSystem))]
 public class BarMovementSytem : SystemBase
 {
+    EntityQuery buildingsQuery;
+    float tornadoFader;
+
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<TornadoSettings>();
         RequireSingletonForUpdate<Tornado>();
+
+        buildingsQuery = GetEntityQuery(ComponentType.ReadOnly<Building>());
     }
 
     protected override void OnUpdate()
     {
-        var settings = this.GetSingleton<TornadoSettings>();
+        var settings = GetSingleton<TornadoSettings>();
         var tornadoTranslation = EntityManager.GetComponentData<Translation>(GetSingletonEntity<Tornado>());
 
         Random random = new Random(1234);
 
-        //float tornadoFader = math.clamp(tornadoFader + Time.DeltaTime / 10f, 0f, 1f);
-        float tornadoFader = 0.5f;
+        tornadoFader = math.clamp(tornadoFader + Time.DeltaTime / 10f, 0f, 1f);
         float invDamping = 1f - settings.Damping;
         float deltaTime = Time.DeltaTime;
 
-        Entities.ForEach((Node node, ref Translation translation) =>
+        Entities.WithoutBurst().ForEach((Node node, ref Translation translation) =>
         {
             if (node.anchor)
             {
@@ -61,11 +69,10 @@ public class BarMovementSytem : SystemBase
                     node.oldPosition.y = -translation.Value.y;
                     node.oldPosition.xz += (translation.Value.xz - node.oldPosition.xz) * settings.Friction;
                 }
-
             }
         }).Run();
 
-        var ecb = new EntityCommandBuffer( Unity.Collections.Allocator.Temp );
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         Entities.ForEach((in DynamicBuffer<Constraint> constraints) =>
         {
@@ -93,7 +100,7 @@ public class BarMovementSytem : SystemBase
                 {
                     point2Pos -= push * 2f;
                 }
-                else if (point2.anchor)
+                else
                 {
                     point1Pos += push * 2f;
                 }
@@ -109,7 +116,7 @@ public class BarMovementSytem : SystemBase
 
                         Entity newPointEntity = ecb.CreateEntity();
                         ecb.AddComponent(newPointEntity, newPoint);
-                        ecb.AddComponent(newPointEntity, new Translation() { Value = point2Pos });
+                        ecb.AddComponent(newPointEntity, new Translation { Value = point2Pos });
 
                         constraint.pointB = newPointEntity;
                     }
@@ -122,14 +129,41 @@ public class BarMovementSytem : SystemBase
 
                         Entity newPointEntity = ecb.CreateEntity();
                         ecb.AddComponent(newPointEntity, newPoint);
-                        ecb.AddComponent(newPointEntity, new Translation() { Value = point1Pos });
+                        ecb.AddComponent(newPointEntity, new Translation { Value = point1Pos });
 
                         constraint.pointA = newPointEntity;
                     }
                 }
+
+                ecb.SetComponent(constraint.pointA, new Translation { Value = point1Pos });
+                ecb.SetComponent(constraint.pointB, new Translation { Value = point2Pos }); 
+                
+                Debug.DrawLine(point1Pos, point2Pos, Color.green, 50);
             }
         }).Run();
 
         ecb.Playback(EntityManager);
+
+        var buildingEntity = buildingsQuery.ToEntityArray(Allocator.TempJob);
+
+        var constraintsBuffer = GetBuffer<Constraint>(buildingEntity[0]);
+        var constraintsArray = constraintsBuffer.AsNativeArray();
+
+        // Entities.WithAll<NonUniformScale>().ForEach((int entityInQueryIndex, Entity entity) =>
+        // {
+        //     var pointAEntity = constraintsArray[entityInQueryIndex].pointA;
+        //     var pointBEntity = constraintsArray[entityInQueryIndex].pointB;
+        //     var pointA = GetComponent<Translation>(pointAEntity).Value;
+        //     var pointB = GetComponent<Translation>(pointBEntity).Value;
+        //     
+        //     Debug.Log($"{pointA}"); 
+        //     Debug.Log($"{pointB}"); 
+        //
+        //     SetComponent(entity, new Translation { Value = (pointA + pointB) * 0.5f });
+        //     SetComponent(entity, new Rotation { Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized) });
+        // }).Run();
+
+        buildingEntity.Dispose();
+        constraintsArray.Dispose();
     }
 }

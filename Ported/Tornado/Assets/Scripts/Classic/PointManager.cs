@@ -299,12 +299,12 @@ public class PointManager : MonoBehaviour {
 					}
 				}
 
-				bar.minX = Mathf.Min(point1.x,point2.x);
-				bar.maxX = Mathf.Max(point1.x,point2.x);
-				bar.minY = Mathf.Min(point1.y,point2.y);
-				bar.maxY = Mathf.Max(point1.y,point2.y);
-				bar.minZ = Mathf.Min(point1.z,point2.z);
-				bar.maxZ = Mathf.Max(point1.z,point2.z);
+				// bar.minX = Mathf.Min(point1.x,point2.x);
+				// bar.maxX = Mathf.Max(point1.x,point2.x);
+				// bar.minY = Mathf.Min(point1.y,point2.y);
+				// bar.maxY = Mathf.Max(point1.y,point2.y);
+				// bar.minZ = Mathf.Min(point1.z,point2.z);
+				// bar.maxZ = Mathf.Max(point1.z,point2.z);
 
 				matrices[i / instancesPerBatch][i % instancesPerBatch] = bar.matrix;
 			}
