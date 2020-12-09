@@ -25,10 +25,7 @@ public class CreateBuildingSystem : SystemBase
     {
         List<Point> pointsList = new List<Point>();
         List<Bar> barsList = new List<Bar>();
-
-
-        float3 debugPoint1, debugPoint2, debugPoint3;
-
+        
         var buildingEntity = EntityManager.CreateEntity(typeof(Building));
         var constraintBuffer = EntityManager.AddBuffer<Constraint>(buildingEntity);
 
@@ -140,8 +137,8 @@ public class CreateBuildingSystem : SystemBase
             pointA = new float3(curBar.point1.x, curBar.point1.y, barsList[i].point1.z);
             pointB = new float3(curBar.point2.x, curBar.point2.y, barsList[i].point2.z);
             
-            var pointAEntity = CreatePointEntity(pointA, curBar.point1.anchor);
-            var pointBEntity = CreatePointEntity(pointB, curBar.point2.anchor);
+            var pointAEntity = CreatePointEntity(pointA, curBar.point1.anchor, curBar.point1.neighborCount);
+            var pointBEntity = CreatePointEntity(pointB, curBar.point2.anchor, curBar.point2.neighborCount);
 
             var constraint = new Constraint()
             {
@@ -157,7 +154,7 @@ public class CreateBuildingSystem : SystemBase
         System.GC.Collect();
     }
 
-    Entity CreatePointEntity( float3 position, bool anchor)
+    Entity CreatePointEntity( float3 position, bool anchor, int neighborCount)
     {
         var pointEntity = EntityManager.CreateEntity(typeof(Translation), typeof(Node));
 
@@ -165,7 +162,7 @@ public class CreateBuildingSystem : SystemBase
         translation.Value = new float3(position);
         EntityManager.SetComponentData<Translation>(pointEntity, translation);
 
-        EntityManager.SetComponentData<Node>(pointEntity, new Node() { anchor = anchor });
+        EntityManager.SetComponentData<Node>(pointEntity, new Node() { anchor = anchor, neighborCount = neighborCount});
 
         return pointEntity;
     }
