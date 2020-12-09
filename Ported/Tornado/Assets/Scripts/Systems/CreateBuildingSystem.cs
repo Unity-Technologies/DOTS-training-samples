@@ -16,142 +16,196 @@ public class CreateBuildingSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        Generate();
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Enabled = false;
-    }
-
-    private void Generate()
-    {
-        List<Point> pointsList = new List<Point>();
-        List<Bar> barsList = new List<Bar>();
-        
         var buildingEntity = EntityManager.CreateEntity(typeof(Building));
         var constraintBuffer = EntityManager.AddBuffer<Constraint>(buildingEntity);
 
         // buildings
         for (int i = 0; i < 35; i++)
         {
-            int height = Random.Range(4, 12);
-            Vector3 pos = new Vector3(Random.Range(-45f, 45f), 0f, Random.Range(-45f, 45f));
-            float spacing = 2f;
-            for (int j = 0; j < height; j++)
-            {
-                Point point = new Point();
-                point.x = pos.x + spacing;
-                point.y = j * spacing;
-                point.z = pos.z - spacing;
-                point.oldX = point.x;
-                point.oldY = point.y;
-                point.oldZ = point.z;
-                if (j == 0)
-                {
-                    point.anchor = true;
-                }
-                pointsList.Add(point);
-                point = new Point();
-                point.x = pos.x - spacing;
-                point.y = j * spacing;
-                point.z = pos.z - spacing;
-                point.oldX = point.x;
-                point.oldY = point.y;
-                point.oldZ = point.z;
-                if (j == 0)
-                {
-                    point.anchor = true;
-                }
-                pointsList.Add(point);
-                point = new Point();
-                point.x = pos.x + 0f;
-                point.y = j * spacing;
-                point.z = pos.z + spacing;
-                point.oldX = point.x;
-                point.oldY = point.y;
-                point.oldZ = point.z;
-                if (j == 0)
-                {
-                    point.anchor = true;
-                }
-                pointsList.Add(point);
-            }
+            var newBuildingEntity = ecb.CreateEntity();
+            var newBuildingConstructionData = new BuildingConstructionData();
+            newBuildingConstructionData.height = Random.Range(4, 12);
+            newBuildingConstructionData.position = new float3(Random.Range(-45f, 45f), 0f, Random.Range(-45f, 45f));
+            newBuildingConstructionData.spacing = 2f;
+
+            ecb.AddComponent(newBuildingEntity, newBuildingConstructionData);
         }
 
-        // ground details
-        for (int i = 0; i < 600; i++)
-        {
-            Vector3 pos = new Vector3(Random.Range(-55f, 55f), 0f, Random.Range(-55f, 55f));
-            Point point = new Point();
-            point.x = pos.x + Random.Range(-.2f, -.1f);
-            point.y = pos.y + Random.Range(0f, 3f);
-            point.z = pos.z + Random.Range(.1f, .2f);
-            point.oldX = point.x;
-            point.oldY = point.y;
-            point.oldZ = point.z;
-            pointsList.Add(point);
+        ecb.Playback(EntityManager);
 
-            point = new Point();
-            point.x = pos.x + Random.Range(.2f, .1f);
-            point.y = pos.y + Random.Range(0f, .2f);
-            point.z = pos.z + Random.Range(-.1f, -.2f);
-            point.oldX = point.x;
-            point.oldY = point.y;
-            point.oldZ = point.z;
-            if (Random.value < .1f)
-            {
-                point.anchor = true;
-            }
-            pointsList.Add(point);
-        }
+        ecb.Dispose();
 
-        for (int i = 0; i < pointsList.Count; i++)
-        {
-            for (int j = i + 1; j < pointsList.Count; j++)
-            {
-                Bar bar = new Bar();
-                bar.AssignPoints(pointsList[i], pointsList[j]);
-                if (bar.length < 5f && bar.length > .2f)
-                {
-                    bar.point1.neighborCount++;
-                    bar.point2.neighborCount++;
+        ecb = new EntityCommandBuffer(Allocator.Temp);
 
-                    barsList.Add(bar);
-                }
-            }
-        }
+        Entities.ForEach(( Entity entity, BuildingConstructionData buildingConstructionData) =>
+       {
+           var height = buildingConstructionData.height;
+           var pos = buildingConstructionData.position;
+           var spacing = buildingConstructionData.spacing;
 
-        var points = new Point[barsList.Count * 2];
-        var pointCount = 0;
-        for (int i = 0; i < pointsList.Count; i++)
-        {
-            if (pointsList[i].neighborCount > 0)
-            {
-                points[pointCount] = pointsList[i];
-                pointCount++;
-            }
-        }
+           float3 pointPosition = new float3(0);
+
+           var nodesList = ecb.AddBuffer<NodeBuildingData>(entity);
+
+           for (int j = 0; j < height; j++)
+           {
+               var nodeData = new NodeBuildingData();
+
+               var point = new Node();
+               var trans = new Translation();
+               var nodeEntity = ecb.CreateEntity();
+
+               trans.Value.x = pos.x + spacing;
+               trans.Value.y = j * spacing;
+               trans.Value.z = pos.z - spacing;
+               point.oldPosition.x = trans.Value.x;
+               point.oldPosition.y = trans.Value.y;
+               point.oldPosition.z = trans.Value.z;
+               if (j == 0)
+               {
+                   point.anchor = true;
+               }
+               ecb.AddComponent(nodeEntity, point);
+               ecb.AddComponent(nodeEntity, trans);
+               nodeData.nodeEntity = nodeEntity;
+               nodeData.node= point;
+               nodeData.translation = trans;
+               nodesList.Add(nodeData);
+
+               nodeData = new NodeBuildingData();
+               nodeEntity = ecb.CreateEntity();
+               trans.Value.x = pos.x - spacing;
+               trans.Value.y = j * spacing;
+               trans.Value.z = pos.z - spacing;
+               point.oldPosition.x = trans.Value.x;
+               point.oldPosition.y = trans.Value.y;
+               point.oldPosition.z = trans.Value.z;
+               if (j == 0)
+               {
+                   point.anchor = true;
+               }
+               ecb.AddComponent(nodeEntity, point);
+               ecb.AddComponent(nodeEntity, trans);
+               nodeData.nodeEntity = nodeEntity;
+               nodeData.node = point;
+               nodeData.translation = trans;
+               nodesList.Add(nodeData);
+
+               nodeData = new NodeBuildingData();
+               nodeEntity = ecb.CreateEntity();
+               trans.Value.x = pos.x + spacing;
+               trans.Value.y = j * spacing;
+               trans.Value.z = pos.z + spacing;
+               point.oldPosition.x = trans.Value.x;
+               point.oldPosition.y = trans.Value.y;
+               point.oldPosition.z = trans.Value.z;
+               if (j == 0)
+               {
+                   point.anchor = true;
+               }
+               ecb.AddComponent(nodeEntity, point);
+               ecb.AddComponent(nodeEntity, trans);
+               nodeData.nodeEntity = nodeEntity;
+               nodeData.node = point;
+               nodeData.translation = trans;
+               nodesList.Add(nodeData);
+           }
+
+           // ground details
+           for (int i = 0; i < 50; i++)
+           {
+               float3 pos2 = new float3(Random.Range(-55f, 55f), 0f, Random.Range(-55f, 55f)) + pos;
+               
+               var nodeData = new NodeBuildingData();
+               var point = new Node();
+               var trans = new Translation();
+               var nodeEntity = ecb.CreateEntity();
+
+               trans.Value.x = pos2.x + Random.Range(-.2f, -.1f);
+               trans.Value.y = pos2.y + Random.Range(0f, 3f);
+               trans.Value.z = pos2.z + Random.Range(.1f, .2f);
+               point.oldPosition.x = trans.Value.x;
+               point.oldPosition.y = trans.Value.y;
+               point.oldPosition.z = trans.Value.z;
+
+               ecb.AddComponent(nodeEntity, point);
+               ecb.AddComponent(nodeEntity, trans);
+               nodeData.nodeEntity = nodeEntity;
+               nodeData.node = point;
+               nodeData.translation = trans;
+               nodesList.Add(nodeData);
+
+               nodeData = new NodeBuildingData();
+               nodeEntity = ecb.CreateEntity();
+
+               trans.Value.x = pos2.x + Random.Range(.2f, .1f);
+               trans.Value.y = pos2.y + Random.Range(0f, 3f);
+               trans.Value.z = pos2.z + Random.Range(-.1f, -.2f);
+               point.oldPosition.x = trans.Value.x;
+               point.oldPosition.y = trans.Value.y;
+               point.oldPosition.z = trans.Value.z;
+               if (Random.value < .1f)
+               {
+                   point.anchor = true;
+               }
+
+               ecb.AddComponent(nodeEntity, point);
+               ecb.AddComponent(nodeEntity, trans);
+               nodeData.nodeEntity = nodeEntity;
+               nodeData.node = point;
+               nodeData.translation = trans;
+               nodesList.Add(nodeData);
+           }
+
+           var constraintsList = ecb.AddBuffer<Constraint>(entity);
+
+           for (int i = 0; i < nodesList.Length; i++)
+           {
+               for (int j = i + 1; j < nodesList.Length; j++)
+               {
+                   var bar = new Constraint();
+
+                   var nodeA = nodesList[i].node;
+                   var nodeB = nodesList[j].node;
+                   var positionA = nodesList[i].translation.Value;
+                   var positionB = nodesList[j].translation.Value;
+
+                   bar.AssignPoints(nodesList[i].nodeEntity, nodesList[j].nodeEntity, positionA, positionB);
+                   if (bar.distance < 5f && bar.distance > .2f)
+                   {
+                       nodeA.neighborCount++;
+                       ecb.SetComponent(nodesList[i].nodeEntity, nodeA);
+
+                       nodeB.neighborCount++;
+                       ecb.SetComponent(nodesList[j].nodeEntity, nodeA);
+
+                       constraintsList.Add(bar);
+                   }
+               }
+           }
+
+           for (int i = 0; i < nodesList.Length; i++)
+           {
+               var node = GetComponent<Node>(nodesList[i].nodeEntity);
+
+               if (node.neighborCount <= 0)
+               {
+                   ecb.DestroyEntity(nodesList[i].nodeEntity);
+               }
+           }
+
+           ecb.RemoveComponent<BuildingConstructionData>(entity);
+       }).Run();
+
+        ecb.Playback(EntityManager);
+
         
-        for (int i = 0; i < barsList.Count; i++)
-        {
-            var curBar = barsList[i];
-            float3 pointA, pointB;
-            pointA = new float3(curBar.point1.x, curBar.point1.y, barsList[i].point1.z);
-            pointB = new float3(curBar.point2.x, curBar.point2.y, barsList[i].point2.z);
-            
-            var pointAEntity = CreatePointEntity(pointA, curBar.point1.anchor, curBar.point1.neighborCount);
-            var pointBEntity = CreatePointEntity(pointB, curBar.point2.anchor, curBar.point2.neighborCount);
-
-            var constraint = new Constraint()
-            {
-                pointA = pointAEntity,
-                pointB = pointBEntity,
-                distance = Vector3.Distance(pointA, pointB)
-            };
-
-            constraintBuffer = EntityManager.GetBuffer<Constraint>(buildingEntity);
-            constraintBuffer.Add(constraint);
-        }
 
         System.GC.Collect();
+
+        Enabled = false;
     }
 
     Entity CreatePointEntity( float3 position, bool anchor, int neighborCount)
