@@ -150,7 +150,8 @@ public class BarMovementSytem : SystemBase
         }).Run();
 
         ecb.Playback(EntityManager);
-
+        
+        /*
         var buildingEntities = buildingsQuery.ToEntityArray(Allocator.TempJob);
         var constraintsBuffer = GetBuffer<Constraint>(buildingEntities[0]);
         var constraintsArray = constraintsBuffer.AsNativeArray();
@@ -171,5 +172,6 @@ public class BarMovementSytem : SystemBase
         }).Run();
 
         buildingEntities.Dispose();
+        */
     }
 }

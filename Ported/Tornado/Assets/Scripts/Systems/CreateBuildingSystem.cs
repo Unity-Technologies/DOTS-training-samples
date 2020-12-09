@@ -19,11 +19,11 @@ public class CreateBuildingSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         // buildings
-        for (int i = 0; i < 35; i++)
+        for (int i = 0; i < 1; i++)
         {
             var newBuildingEntity = ecb.CreateEntity();
             var newBuildingConstructionData = new BuildingConstructionData();
-            newBuildingConstructionData.height = Random.Range(4, 12);
+            newBuildingConstructionData.height = 4;// Random.Range(4, 12);
             newBuildingConstructionData.position = new float3(Random.Range(-45f, 45f), 0f, Random.Range(-45f, 45f));
             newBuildingConstructionData.spacing = 2f;
 
@@ -89,7 +89,7 @@ public class CreateBuildingSystem : SystemBase
 
                nodeData = new NodeBuildingData();
                nodeEntity = ecb.CreateEntity();
-               trans.Value.x = pos.x + spacing;
+               trans.Value.x = pos.x;
                trans.Value.y = j * spacing;
                trans.Value.z = pos.z + spacing;
                point.oldPosition = trans.Value;
@@ -106,7 +106,7 @@ public class CreateBuildingSystem : SystemBase
            }
 
            // ground details
-           for (int i = 0; i < 50; i++)
+           for (int i = 0; i < 0; i++)
            {
                float3 pos2 = new float3(Random.Range(-55f, 55f), 0f, Random.Range(-55f, 55f)) + pos;
                
@@ -167,7 +167,7 @@ public class CreateBuildingSystem : SystemBase
                        ecb.SetComponent(nodesList[i].nodeEntity, nodeA);
 
                        nodeB.neighborCount++;
-                       ecb.SetComponent(nodesList[j].nodeEntity, nodeA);
+                       ecb.SetComponent(nodesList[j].nodeEntity, nodeB);
 
                        constraintsList.Add(bar);
                    }
