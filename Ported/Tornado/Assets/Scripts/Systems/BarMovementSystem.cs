@@ -154,10 +154,7 @@ public class BarMovementSytem : SystemBase
             var pointBEntity = constraintsArray[entityInQueryIndex].pointB;
             var pointA = GetComponent<Translation>(pointAEntity).Value;
             var pointB = GetComponent<Translation>(pointBEntity).Value;
-            
-            Debug.Log($"{pointA}"); 
-            Debug.Log($"{pointB}"); 
-        
+
             SetComponent(entity, new Translation { Value = (pointA + pointB) * 0.5f });
             SetComponent(entity, new Rotation { Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized) });
         }).Run();
