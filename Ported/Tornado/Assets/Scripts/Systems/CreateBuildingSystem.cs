@@ -37,7 +37,7 @@ public class CreateBuildingSystem : SystemBase
 
         ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities.ForEach(( Entity entity, BuildingConstructionData buildingConstructionData) =>
+        Entities.ForEach(( Entity entity, in BuildingConstructionData buildingConstructionData) =>
        {
            var height = buildingConstructionData.height;
            var pos = buildingConstructionData.position;
@@ -182,7 +182,7 @@ public class CreateBuildingSystem : SystemBase
 
         ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities.ForEach((Entity entity, Node node) =>
+        Entities.ForEach((Entity entity, in Node node) =>
         {
             if (node.neighborCount == 0)
                 ecb.DestroyEntity(entity);
