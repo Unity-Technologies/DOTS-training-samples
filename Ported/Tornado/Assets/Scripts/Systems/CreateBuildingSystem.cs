@@ -216,7 +216,7 @@ public class CreateBuildingSystem : SystemBase
         translation.Value = new float3(position);
         EntityManager.SetComponentData<Translation>(pointEntity, translation);
 
-        EntityManager.SetComponentData<Node>(pointEntity, new Node() { anchor = anchor, neighborCount = neighborCount});
+        EntityManager.SetComponentData<Node>(pointEntity, new Node() { anchor = anchor, neighborCount = neighborCount, oldPosition = position});
 
         return pointEntity;
     }
