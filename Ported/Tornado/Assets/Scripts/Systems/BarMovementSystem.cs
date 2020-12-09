@@ -3,40 +3,36 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(BarSpawningSystem))]
 public class BarMovementSytem : SystemBase
 {
-    private float tornadoFader;
-
     protected override void OnCreate()
     {
-        
+        RequireSingletonForUpdate<TornadoSettings>();
+        RequireSingletonForUpdate<Tornado>();
     }
 
     protected override void OnUpdate()
     {
-        throw new System.NotImplementedException();
-    }
-
-
-    void UpdatePoints()
-    {
         var settings = this.GetSingleton<TornadoSettings>();
         var tornadoTranslation = EntityManager.GetComponentData<Translation>(GetSingletonEntity<Tornado>());
-        
+
         Random random = new Random(1234);
-        
-        tornadoFader = math.clamp(tornadoFader + Time.DeltaTime / 10f, 0f, 1f);
+
+        //float tornadoFader = math.clamp(tornadoFader + Time.DeltaTime / 10f, 0f, 1f);
+        float tornadoFader = 0.5f;
         float invDamping = 1f - settings.Damping;
+        float deltaTime = Time.DeltaTime;
 
         Entities.ForEach((Node node, ref Translation translation) =>
         {
             if (node.anchor)
             {
                 float3 start = translation.Value;
-                
+
                 node.oldPosition.y += .01f;
-                
-                float2 tornadoForce = new float2(tornadoTranslation.Value.x + (math.sin(translation.Value.y / 5f + Time.DeltaTime/4f) * 3f) - translation.Value.x,
+
+                float2 tornadoForce = new float2(tornadoTranslation.Value.x + (math.sin(translation.Value.y / 5f + deltaTime / 4f) * 3f) - translation.Value.x,
                     tornadoTranslation.Value.z - translation.Value.z);
 
                 float tornadoDist = math.length(tornadoForce);
@@ -55,7 +51,7 @@ public class BarMovementSytem : SystemBase
                     node.oldPosition.x -= forceX * force;
                     node.oldPosition.z -= forceZ * force;
                 }
-                
+
                 translation.Value += (translation.Value - node.oldPosition) * invDamping;
                 node.oldPosition = start;
 
@@ -67,102 +63,73 @@ public class BarMovementSytem : SystemBase
                 }
 
             }
-        });
+        }).Run();
 
+        var ecb = new EntityCommandBuffer( Unity.Collections.Allocator.Temp );
 
-        for (int i = 0; i < bars.Length; i++)
+        Entities.ForEach((in DynamicBuffer<Constraint> constraints) =>
         {
-            Bar bar = bars[i];
-
-            Point point1 = bar.point1;
-            Point point2 = bar.point2;
-
-            float dx = point2.x - point1.x;
-            float dy = point2.y - point1.y;
-            float dz = point2.z - point1.z;
-
-            float dist = Mathf.Sqrt(dx * dx + dy * dy + dz * dz);
-            float extraDist = dist - bar.length;
-
-            float pushX = (dx / dist * extraDist) * .5f;
-            float pushY = (dy / dist * extraDist) * .5f;
-            float pushZ = (dz / dist * extraDist) * .5f;
-
-            if (point1.anchor == false && point2.anchor == false)
+            for (int i = 0; i < constraints.Length; i++)
             {
-                point1.x += pushX;
-                point1.y += pushY;
-                point1.z += pushZ;
-                point2.x -= pushX;
-                point2.y -= pushY;
-                point2.z -= pushZ;
-            }
-            else if (point1.anchor)
-            {
-                point2.x -= pushX * 2f;
-                point2.y -= pushY * 2f;
-                point2.z -= pushZ * 2f;
-            }
-            else if (point2.anchor)
-            {
-                point1.x += pushX * 2f;
-                point1.y += pushY * 2f;
-                point1.z += pushZ * 2f;
-            }
+                Constraint constraint = constraints[i];
 
-            if (dx / dist * bar.oldDX + dy / dist * bar.oldDY + dz / dist * bar.oldDZ < .99f)
-            {
-                // bar has rotated: expensive full-matrix computation
-                bar.matrix = Matrix4x4.TRS(
-                    new Vector3((point1.x + point2.x) * .5f, (point1.y + point2.y) * .5f, (point1.z + point2.z) * .5f),
-                    Quaternion.LookRotation(new Vector3(dx, dy, dz)),
-                    new Vector3(bar.thickness, bar.thickness, bar.length));
-                bar.oldDX = dx / dist;
-                bar.oldDY = dy / dist;
-                bar.oldDZ = dz / dist;
-            }
-            else
-            {
-                // bar hasn't rotated: only update the position elements
-                Matrix4x4 matrix = bar.matrix;
-                matrix.m03 = (point1.x + point2.x) * .5f;
-                matrix.m13 = (point1.y + point2.y) * .5f;
-                matrix.m23 = (point1.z + point2.z) * .5f;
-                bar.matrix = matrix;
-            }
+                Node point1 = GetComponent<Node>(constraint.pointA);
+                float3 point1Pos = GetComponent<Translation>(constraint.pointA).Value;
+                Node point2 = GetComponent<Node>(constraint.pointB);
+                float3 point2Pos = GetComponent<Translation>(constraint.pointB).Value;
 
-            if (Mathf.Abs(extraDist) > breakResistance)
-            {
-                if (point2.neighborCount > 1)
+                float3 d = point2Pos - point1Pos;
+                float dist = math.length(d);
+                float extraDist = dist - constraint.distance;
+
+                float3 push = (d / dist * extraDist) * .5f;
+
+                if (point1.anchor == false && point2.anchor == false)
                 {
-                    point2.neighborCount--;
-                    Point newPoint = new Point();
-                    newPoint.CopyFrom(point2);
-                    newPoint.neighborCount = 1;
-                    points[pointCount] = newPoint;
-                    bar.point2 = newPoint;
-                    pointCount++;
+                    point1Pos += push;
+                    point2Pos -= push;
                 }
-                else if (point1.neighborCount > 1)
+                else if (point1.anchor)
                 {
-                    point1.neighborCount--;
-                    Point newPoint = new Point();
-                    newPoint.CopyFrom(point1);
-                    newPoint.neighborCount = 1;
-                    points[pointCount] = newPoint;
-                    bar.point1 = newPoint;
-                    pointCount++;
+                    point2Pos -= push * 2f;
+                }
+                else if (point2.anchor)
+                {
+                    point1Pos += push * 2f;
+                }
+
+                if (math.abs(extraDist) > settings.BreakResistance)
+                {
+                    if (point2.neighborCount > 1)
+                    {
+                        point2.neighborCount--;
+
+                        var newPoint = point2;
+                        newPoint.neighborCount = 1;
+
+                        Entity newPointEntity = ecb.CreateEntity();
+                        ecb.AddComponent(newPointEntity, newPoint);
+                        ecb.AddComponent(newPointEntity, new Translation() { Value = point2Pos });
+
+                        constraint.pointB = newPointEntity;
+                    }
+                    else if (point1.neighborCount > 1)
+                    {
+                        point1.neighborCount--;
+
+                        var newPoint = point1;
+                        newPoint.neighborCount = 1;
+
+                        Entity newPointEntity = ecb.CreateEntity();
+                        ecb.AddComponent(newPointEntity, newPoint);
+                        ecb.AddComponent(newPointEntity, new Translation() { Value = point1Pos });
+
+                        constraint.pointA = newPointEntity;
+                    }
                 }
             }
+        }).Run();
 
-            bar.minX = Mathf.Min(point1.x, point2.x);
-            bar.maxX = Mathf.Max(point1.x, point2.x);
-            bar.minY = Mathf.Min(point1.y, point2.y);
-            bar.maxY = Mathf.Max(point1.y, point2.y);
-            bar.minZ = Mathf.Min(point1.z, point2.z);
-            bar.maxZ = Mathf.Max(point1.z, point2.z);
-
-            matrices[i / instancesPerBatch][i % instancesPerBatch] = bar.matrix;
-        }
+        ecb.Playback(EntityManager);
     }
 }

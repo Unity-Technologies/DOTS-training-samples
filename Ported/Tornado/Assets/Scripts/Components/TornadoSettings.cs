@@ -4,7 +4,7 @@ using UnityEngine;
 using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public class TornadoSettings : IComponentData
+public struct TornadoSettings : IComponentData
 {
     public float Damping;
     public float Friction;
