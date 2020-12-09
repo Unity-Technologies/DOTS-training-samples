@@ -100,7 +100,7 @@ public class BarMovementSytem : SystemBase
                 {
                     point2Pos -= push * 2f;
                 }
-                else if (point2.anchor)
+                else
                 {
                     point1Pos += push * 2f;
                 }
@@ -162,5 +162,8 @@ public class BarMovementSytem : SystemBase
         //     SetComponent(entity, new Translation { Value = (pointA + pointB) * 0.5f });
         //     SetComponent(entity, new Rotation { Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized) });
         // }).Run();
+
+        buildingEntity.Dispose();
+        constraintsArray.Dispose();
     }
 }
