@@ -18,9 +18,6 @@ public class CreateBuildingSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        var buildingEntity = EntityManager.CreateEntity(typeof(Building));
-        var constraintBuffer = EntityManager.AddBuffer<Constraint>(buildingEntity);
-
         // buildings
         for (int i = 0; i < 35; i++)
         {
@@ -31,6 +28,7 @@ public class CreateBuildingSystem : SystemBase
             newBuildingConstructionData.spacing = 2f;
 
             ecb.AddComponent(newBuildingEntity, newBuildingConstructionData);
+            ecb.AddComponent<Building>(newBuildingEntity);
         }
 
         ecb.Playback(EntityManager);
@@ -60,9 +58,7 @@ public class CreateBuildingSystem : SystemBase
                trans.Value.x = pos.x + spacing;
                trans.Value.y = j * spacing;
                trans.Value.z = pos.z - spacing;
-               point.oldPosition.x = trans.Value.x;
-               point.oldPosition.y = trans.Value.y;
-               point.oldPosition.z = trans.Value.z;
+               point.oldPosition = trans.Value;
                if (j == 0)
                {
                    point.anchor = true;
@@ -79,9 +75,7 @@ public class CreateBuildingSystem : SystemBase
                trans.Value.x = pos.x - spacing;
                trans.Value.y = j * spacing;
                trans.Value.z = pos.z - spacing;
-               point.oldPosition.x = trans.Value.x;
-               point.oldPosition.y = trans.Value.y;
-               point.oldPosition.z = trans.Value.z;
+               point.oldPosition = trans.Value;
                if (j == 0)
                {
                    point.anchor = true;
@@ -98,9 +92,7 @@ public class CreateBuildingSystem : SystemBase
                trans.Value.x = pos.x + spacing;
                trans.Value.y = j * spacing;
                trans.Value.z = pos.z + spacing;
-               point.oldPosition.x = trans.Value.x;
-               point.oldPosition.y = trans.Value.y;
-               point.oldPosition.z = trans.Value.z;
+               point.oldPosition = trans.Value;
                if (j == 0)
                {
                    point.anchor = true;
@@ -126,9 +118,7 @@ public class CreateBuildingSystem : SystemBase
                trans.Value.x = pos2.x + Random.Range(-.2f, -.1f);
                trans.Value.y = pos2.y + Random.Range(0f, 3f);
                trans.Value.z = pos2.z + Random.Range(.1f, .2f);
-               point.oldPosition.x = trans.Value.x;
-               point.oldPosition.y = trans.Value.y;
-               point.oldPosition.z = trans.Value.z;
+               point.oldPosition = trans.Value;
 
                ecb.AddComponent(nodeEntity, point);
                ecb.AddComponent(nodeEntity, trans);
@@ -143,9 +133,7 @@ public class CreateBuildingSystem : SystemBase
                trans.Value.x = pos2.x + Random.Range(.2f, .1f);
                trans.Value.y = pos2.y + Random.Range(0f, 3f);
                trans.Value.z = pos2.z + Random.Range(-.1f, -.2f);
-               point.oldPosition.x = trans.Value.x;
-               point.oldPosition.y = trans.Value.y;
-               point.oldPosition.z = trans.Value.z;
+               point.oldPosition = trans.Value;
                if (Random.value < .1f)
                {
                    point.anchor = true;
@@ -185,29 +173,29 @@ public class CreateBuildingSystem : SystemBase
                    }
                }
            }
-
-           for (int i = 0; i < nodesList.Length; i++)
-           {
-               var node = GetComponent<Node>(nodesList[i].nodeEntity);
-
-               if (node.neighborCount <= 0)
-               {
-                   ecb.DestroyEntity(nodesList[i].nodeEntity);
-               }
-           }
-
            ecb.RemoveComponent<BuildingConstructionData>(entity);
        }).Run();
 
         ecb.Playback(EntityManager);
 
-        
+        ecb.Dispose();
+
+        ecb = new EntityCommandBuffer(Allocator.Temp);
+
+        Entities.ForEach((Entity entity, Node node) =>
+        {
+            if (node.neighborCount == 0)
+                ecb.DestroyEntity(entity);
+        }).Run();
+
+        ecb.Playback( EntityManager );
 
         System.GC.Collect();
 
         Enabled = false;
     }
 
+    /*
     Entity CreatePointEntity( float3 position, bool anchor, int neighborCount)
     {
         var pointEntity = EntityManager.CreateEntity(typeof(Translation), typeof(Node));
@@ -220,4 +208,5 @@ public class CreateBuildingSystem : SystemBase
 
         return pointEntity;
     }
+    */
 }

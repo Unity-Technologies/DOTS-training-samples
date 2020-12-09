@@ -157,13 +157,17 @@ public class BarMovementSytem : SystemBase
 
         Entities.WithAll<NonUniformScale>().ForEach((int entityInQueryIndex, Entity entity) =>
         {
-            var pointAEntity = constraintsArray[entityInQueryIndex].pointA;
-            var pointBEntity = constraintsArray[entityInQueryIndex].pointB;
-            var pointA = GetComponent<Translation>(pointAEntity).Value;
-            var pointB = GetComponent<Translation>(pointBEntity).Value;
-        
-            SetComponent(entity, new Translation { Value = (pointA + pointB) * 0.5f });
-            SetComponent(entity, new Rotation { Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized) });
+            if (entityInQueryIndex < constraintsBuffer.Length)
+            {
+
+                var pointAEntity = constraintsArray[entityInQueryIndex].pointA;
+                var pointBEntity = constraintsArray[entityInQueryIndex].pointB;
+                var pointA = GetComponent<Translation>(pointAEntity).Value;
+                var pointB = GetComponent<Translation>(pointBEntity).Value;
+
+                SetComponent(entity, new Translation { Value = (pointA + pointB) * 0.5f });
+                SetComponent(entity, new Rotation { Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized) });
+            }
         }).Run();
 
         buildingEntities.Dispose();
