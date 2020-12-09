@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEditor.Rendering;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
@@ -10,6 +11,7 @@ using Random = Unity.Mathematics.Random;
 public class BarMovementSytem : SystemBase
 {
     EntityQuery buildingsQuery;
+    float tornadoFader;
 
     protected override void OnCreate()
     {
@@ -26,12 +28,11 @@ public class BarMovementSytem : SystemBase
 
         Random random = new Random(1234);
 
-        //float tornadoFader = math.clamp(tornadoFader + Time.DeltaTime / 10f, 0f, 1f);
-        float tornadoFader = 0.5f;
+        tornadoFader = math.clamp(tornadoFader + Time.DeltaTime / 10f, 0f, 1f);
         float invDamping = 1f - settings.Damping;
         float deltaTime = Time.DeltaTime;
 
-        Entities.ForEach((Node node, ref Translation translation) =>
+        Entities.WithoutBurst().ForEach((Node node, ref Translation translation) =>
         {
             if (node.anchor)
             {
@@ -133,6 +134,11 @@ public class BarMovementSytem : SystemBase
                         constraint.pointA = newPointEntity;
                     }
                 }
+
+                ecb.SetComponent(constraint.pointA, new Translation { Value = point1Pos });
+                ecb.SetComponent(constraint.pointB, new Translation { Value = point2Pos }); 
+                
+                Debug.DrawLine(point1Pos, point2Pos, Color.green, 50);
             }
         }).Run();
 
@@ -143,15 +149,18 @@ public class BarMovementSytem : SystemBase
         var constraintsBuffer = GetBuffer<Constraint>(buildingEntity[0]);
         var constraintsArray = constraintsBuffer.AsNativeArray();
 
-        Entities.WithAll<NonUniformScale>().ForEach((int entityInQueryIndex, Entity entity) =>
-        {
-            var pointAEntity = constraintsArray[entityInQueryIndex].pointA;
-            var pointBEntity = constraintsArray[entityInQueryIndex].pointB;
-            var pointA = GetComponent<Translation>(pointAEntity).Value;
-            var pointB = GetComponent<Translation>(pointBEntity).Value;
-
-            SetComponent(entity, new Translation { Value = (pointA + pointB) * 0.5f });
-            SetComponent(entity, new Rotation { Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized) });
-        }).Run();
+        // Entities.WithAll<NonUniformScale>().ForEach((int entityInQueryIndex, Entity entity) =>
+        // {
+        //     var pointAEntity = constraintsArray[entityInQueryIndex].pointA;
+        //     var pointBEntity = constraintsArray[entityInQueryIndex].pointB;
+        //     var pointA = GetComponent<Translation>(pointAEntity).Value;
+        //     var pointB = GetComponent<Translation>(pointBEntity).Value;
+        //     
+        //     Debug.Log($"{pointA}"); 
+        //     Debug.Log($"{pointB}"); 
+        //
+        //     SetComponent(entity, new Translation { Value = (pointA + pointB) * 0.5f });
+        //     SetComponent(entity, new Rotation { Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized) });
+        // }).Run();
     }
 }

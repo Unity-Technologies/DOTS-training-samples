@@ -30,7 +30,7 @@ public class CreateBuildingSystem : SystemBase
         var constraintBuffer = EntityManager.AddBuffer<Constraint>(buildingEntity);
 
         // buildings
-        for (int i = 0; i < 35; i++)
+        for (int i = 0; i < 1; i++)
         {
             int height = Random.Range(4, 12);
             Vector3 pos = new Vector3(Random.Range(-45f, 45f), 0f, Random.Range(-45f, 45f));
@@ -77,7 +77,7 @@ public class CreateBuildingSystem : SystemBase
         }
 
         // ground details
-        for (int i = 0; i < 600; i++)
+        for (int i = 0; i < 6; i++)
         {
             Vector3 pos = new Vector3(Random.Range(-55f, 55f), 0f, Random.Range(-55f, 55f));
             Point point = new Point();

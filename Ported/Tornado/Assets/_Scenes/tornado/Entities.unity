@@ -296,7 +296,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ParticlePrefab: {fileID: 6353756492411041238, guid: 21570f8b5ff174c4ba25c567b55f5064,
     type: 3}
-  ParticleCount: 1000
+  ParticleCount: 1
 --- !u!4 &1506842126
 Transform:
   m_ObjectHideFlags: 0
