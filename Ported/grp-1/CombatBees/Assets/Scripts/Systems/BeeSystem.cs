@@ -38,8 +38,8 @@ public class PositionSystem : SystemBase
         float deltaTime = Time.DeltaTime;
 
         /////////////////////Setting the bee target witch is an Entity ( bee, resource, base) 
-        EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-        var ecb = sys.CreateCommandBuffer();
+        CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        var ecb = CommandBufferSystem.CreateCommandBuffer();
         Entities
            .WithAll<Bee>()
            .ForEach((Entity bee, ref Translation pos, ref Bee beeData) =>
@@ -71,6 +71,6 @@ public class PositionSystem : SystemBase
 
            }).ScheduleParallel();
 
-        sys.AddJobHandleForProducer(Dependency);
+        CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
