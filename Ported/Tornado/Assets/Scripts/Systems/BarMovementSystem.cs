@@ -32,7 +32,7 @@ public class BarMovementSytem : SystemBase
         float invDamping = 1f - settings.Damping;
         float deltaTime = Time.DeltaTime;
 
-        Entities.WithoutBurst().ForEach((Node node, ref Translation translation) =>
+        Entities.WithoutBurst().ForEach((ref Node node, ref Translation translation) =>
         {
             if (node.anchor)
             {
