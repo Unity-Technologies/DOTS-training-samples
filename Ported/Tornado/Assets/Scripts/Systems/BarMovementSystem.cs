@@ -1,20 +1,27 @@
-﻿using System.Xml;
+﻿using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(BarSpawningSystem))]
 public class BarMovementSytem : SystemBase
 {
+    EntityQuery buildingsQuery;
+
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<TornadoSettings>();
         RequireSingletonForUpdate<Tornado>();
+
+        buildingsQuery = GetEntityQuery(ComponentType.ReadOnly<Building>());
     }
 
     protected override void OnUpdate()
     {
-        var settings = this.GetSingleton<TornadoSettings>();
+        var settings = GetSingleton<TornadoSettings>();
         var tornadoTranslation = EntityManager.GetComponentData<Translation>(GetSingletonEntity<Tornado>());
 
         Random random = new Random(1234);
@@ -61,11 +68,10 @@ public class BarMovementSytem : SystemBase
                     node.oldPosition.y = -translation.Value.y;
                     node.oldPosition.xz += (translation.Value.xz - node.oldPosition.xz) * settings.Friction;
                 }
-
             }
         }).Run();
 
-        var ecb = new EntityCommandBuffer( Unity.Collections.Allocator.Temp );
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         Entities.ForEach((in DynamicBuffer<Constraint> constraints) =>
         {
@@ -109,7 +115,7 @@ public class BarMovementSytem : SystemBase
 
                         Entity newPointEntity = ecb.CreateEntity();
                         ecb.AddComponent(newPointEntity, newPoint);
-                        ecb.AddComponent(newPointEntity, new Translation() { Value = point2Pos });
+                        ecb.AddComponent(newPointEntity, new Translation { Value = point2Pos });
 
                         constraint.pointB = newPointEntity;
                     }
@@ -122,7 +128,7 @@ public class BarMovementSytem : SystemBase
 
                         Entity newPointEntity = ecb.CreateEntity();
                         ecb.AddComponent(newPointEntity, newPoint);
-                        ecb.AddComponent(newPointEntity, new Translation() { Value = point1Pos });
+                        ecb.AddComponent(newPointEntity, new Translation { Value = point1Pos });
 
                         constraint.pointA = newPointEntity;
                     }
@@ -131,5 +137,21 @@ public class BarMovementSytem : SystemBase
         }).Run();
 
         ecb.Playback(EntityManager);
+
+        var buildingEntity = buildingsQuery.ToEntityArray(Allocator.TempJob);
+
+        var constraintsBuffer = GetBuffer<Constraint>(buildingEntity[0]);
+        var constraintsArray = constraintsBuffer.AsNativeArray();
+
+        Entities.WithAll<NonUniformScale>().ForEach((int entityInQueryIndex, Entity entity) =>
+        {
+            var pointAEntity = constraintsArray[entityInQueryIndex].pointA;
+            var pointBEntity = constraintsArray[entityInQueryIndex].pointB;
+            var pointA = GetComponent<Translation>(pointAEntity).Value;
+            var pointB = GetComponent<Translation>(pointBEntity).Value;
+
+            SetComponent(entity, new Translation { Value = (pointA + pointB) * 0.5f });
+            SetComponent(entity, new Rotation { Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized) });
+        }).Run();
     }
 }

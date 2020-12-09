@@ -152,15 +152,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03ede319d25e7934f87adb89772f6f49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damping: 0
-  Friction: 0
-  BreakResistance: 0
-  ExpForce: 0
-  TornadoForce: 0
-  TornadoMaxForceDistance: 0
-  TornadoHeight: 0
-  TornadoUpForce: 0
-  TornadoInwardForce: 0
+  Damping: 0.012
+  Friction: 0.4
+  BreakResistance: 0.55
+  ExpForce: 0.4
+  TornadoForce: 0.022
+  TornadoMaxForceDistance: 30
+  TornadoHeight: 50
+  TornadoUpForce: 1.4
+  TornadoInwardForce: 9
   SpinRate: 37
   SpeedUpward: 6
 --- !u!4 &54384628
