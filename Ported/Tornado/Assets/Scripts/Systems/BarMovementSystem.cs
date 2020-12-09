@@ -144,9 +144,8 @@ public class BarMovementSytem : SystemBase
 
         ecb.Playback(EntityManager);
 
-        var buildingEntity = buildingsQuery.ToEntityArray(Allocator.TempJob);
-
-        var constraintsBuffer = GetBuffer<Constraint>(buildingEntity[0]);
+        var buildingEntities = buildingsQuery.ToEntityArray(Allocator.TempJob);
+        var constraintsBuffer = GetBuffer<Constraint>(buildingEntities[0]);
         var constraintsArray = constraintsBuffer.AsNativeArray();
 
         // Entities.WithAll<NonUniformScale>().ForEach((int entityInQueryIndex, Entity entity) =>
@@ -163,7 +162,6 @@ public class BarMovementSytem : SystemBase
         //     SetComponent(entity, new Rotation { Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized) });
         // }).Run();
 
-        buildingEntity.Dispose();
-        constraintsArray.Dispose();
+        buildingEntities.Dispose();
     }
 }
