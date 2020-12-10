@@ -75,7 +75,7 @@ public class BarMovementSytem : SystemBase
                 }
             }
 
-            Debug.DrawRay(translation.Value, Vector3.up, Color.red);
+            // Debug.DrawRay(translation.Value, Vector3.up, Color.red);
 
         }).Run();
         
@@ -145,7 +145,7 @@ public class BarMovementSytem : SystemBase
                 ecb.SetComponent(constraint.pointA, new Translation { Value = point1Pos });
                 ecb.SetComponent(constraint.pointB, new Translation { Value = point2Pos }); 
                 
-                Debug.DrawLine(point1Pos, point2Pos, Color.green);
+                // Debug.DrawLine(point1Pos, point2Pos, Color.green);
             }
         }).Run();
 

@@ -1,10 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Entities;
+﻿using System;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 using Unity.Rendering;
+using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
 public class ParticleSpawningSystem : SystemBase
 {
@@ -17,7 +17,7 @@ public class ParticleSpawningSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        Random random = new Random(1234);
+        var random = new Random(1234);
 
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
@@ -31,7 +31,7 @@ public class ParticleSpawningSystem : SystemBase
                 var particle = new Particle { radiusMult = random.NextFloat(0f, 1f)};
 
                 ecb.AddComponent(instance, new HDRPMaterialPropertyBaseColor { Value = new float4(random.NextFloat(.3f, .7f)) });
-                ecb.AddComponent<Particle>(instance, particle);
+                ecb.AddComponent(instance, particle);
                 ecb.SetComponent(instance, translation);
                 ecb.AddComponent(instance, scale);
             }
