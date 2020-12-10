@@ -18,10 +18,11 @@ public class CreateBuildingSystem : SystemBase
     {
         var random = new Random(1234);
         var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var spawner = GetSingleton<BarSpawner>();
 
         // buildings
         
-        for (int i = 0; i < 35; i++)
+        for (int i = 0; i < spawner.buildingsCount; i++)
         {
             var newBuildingEntity = ecb.CreateEntity();
             var newBuildingConstructionData = new BuildingConstructionData();
@@ -108,7 +109,7 @@ public class CreateBuildingSystem : SystemBase
            }
 
            // ground details
-           for (int i = 0; i < 0; i++)
+           for (int i = 0; i < spawner.groundDetailsCount; i++)
            {
                float3 pos2 = new float3(random.NextFloat(-55f, 55f), 0f, random.NextFloat(-55f, 55f)) + pos;
                
