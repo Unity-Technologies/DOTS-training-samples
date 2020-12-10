@@ -78,7 +78,7 @@ public class BarMovementSytem : SystemBase
             Debug.DrawRay(translation.Value, Vector3.up, Color.red);
 
         }).Run();
-
+        
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         Entities.ForEach((in DynamicBuffer<Constraint> constraints) =>
@@ -150,22 +150,27 @@ public class BarMovementSytem : SystemBase
         }).Run();
 
         ecb.Playback(EntityManager);
-
-        var buildingEntities = buildingsQuery.ToEntityArray(Allocator.TempJob);
-        var constraintsBuffer = GetBuffer<Constraint>(buildingEntities[0]);
-        var constraintsArray = constraintsBuffer.AsNativeArray();
-
-        Entities.WithAll<NonUniformScale>().ForEach((int entityInQueryIndex, Entity entity) =>
-        {
-            var pointAEntity = constraintsArray[entityInQueryIndex].pointA;
-            var pointBEntity = constraintsArray[entityInQueryIndex].pointB;
-            var pointA = GetComponent<Translation>(pointAEntity).Value;
-            var pointB = GetComponent<Translation>(pointBEntity).Value;
+    
+        ecb.Dispose();
         
-            SetComponent(entity, new Translation { Value = (pointA + pointB) * 0.5f });
-            SetComponent(entity, new Rotation { Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized) });
-        }).Run();
+        ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        buildingEntities.Dispose();
+        Entities.WithAll<Building>().ForEach((in DynamicBuffer<Constraint> constraints) =>
+        {
+            for (int i = 0; i < constraints.Length; ++i)
+            {
+                var pointAEntity = constraints[i].pointA;
+                var pointBEntity = constraints[i].pointB;
+                var pointA = GetComponent<Translation>(pointAEntity).Value;
+                var pointB = GetComponent<Translation>(pointBEntity).Value;
+
+                ecb.SetComponent(constraints[i].barTransform, new Translation { Value = (pointA + pointB) * 0.5f });
+                ecb.SetComponent(constraints[i].barTransform, new Rotation { Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized) });
+            }
+        }).Run();
+        
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+
     }
 }

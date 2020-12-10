@@ -52,6 +52,8 @@ public class BarSpawningSystem : SystemBase
                 ecb.SetComponent(instance, rotation);
                 ecb.SetComponent(instance, translation);
                 ecb.AddComponent(instance, scale);
+                
+                bufferConstraint[i].AssignBarTransform(instance);
             }
         }).Run();
 
