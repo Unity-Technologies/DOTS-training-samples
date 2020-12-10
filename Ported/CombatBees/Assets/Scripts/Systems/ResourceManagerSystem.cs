@@ -53,6 +53,9 @@ public class ResourceManagerSystem : SystemBase
         */
         resArray.Dispose();
 #endif
+
+        /* --------------------------------------------------------------------------------- */
+
         var ecb0 = new EntityCommandBuffer(Allocator.TempJob);
         Entities
             .WithName("Resource_Is_Dead")
@@ -164,6 +167,7 @@ public class ResourceManagerSystem : SystemBase
                     {
                         Debug.Log("reach the destiny");
 
+                        /*
                         Entity beeSpawnerPrefab;
                         if(pos.Value.x < 0f)
                         {
@@ -184,6 +188,32 @@ public class ResourceManagerSystem : SystemBase
 
                         ecb1.SetComponent<Translation>(newSpawner, pos);
                         ecb1.SetComponent(newSpawner, beeSpawner);
+                        */
+
+                        Entity newSpawner = ecb1.CreateEntity();
+                        BeeSpawner beeSpawner;
+                        if(pos.Value.x < 0f)
+                        {
+                            beeSpawner = new BeeSpawner
+                            {
+                                count = resParams.beesPerResource,
+                                maxSpawnSpeed = beeParams.maxSpawnSpeed,
+                                team = BeeTeam.TeamColor.BLUE
+                            };
+                        }
+                        else
+                        {
+                            beeSpawner = new BeeSpawner
+                            {
+                                count = resParams.beesPerResource,
+                                maxSpawnSpeed = beeParams.maxSpawnSpeed,
+                                team = BeeTeam.TeamColor.YELLOW
+                            };
+                        }
+
+                        ecb1.AddComponent<Translation>(newSpawner, pos);
+                        ecb1.AddComponent(newSpawner, beeSpawner);
+
 
                         Debug.Log("spawner instantiated!!");
 
@@ -210,7 +240,7 @@ public class ResourceManagerSystem : SystemBase
                         else
                         {
                             ecb1.AddComponent<Dead>(resEntity);
-                            ecb1.DestroyEntity(resEntity);
+                            //ecb1.DestroyEntity(resEntity);
                         }
                     }
                 }

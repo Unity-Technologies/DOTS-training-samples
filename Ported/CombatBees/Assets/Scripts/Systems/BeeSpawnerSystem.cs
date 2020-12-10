@@ -22,7 +22,16 @@ public class BeeSpawnerSystem : SystemBase
                 Debug.Log("beespawner working, cout = !!" + spawner.count);
                 for (int i = 0; i < spawner.count; i++)
                 {
-                    var bee = ecb.Instantiate(spawner.beePrefab);
+                    //var bee = ecb.Instantiate(spawner.beePrefab);
+                    Entity bee;
+                    if(spawner.team == BeeTeam.TeamColor.BLUE)
+                    {
+                        bee = ecb.Instantiate(beeParams.blueBeePrefab);
+                    }
+                    else
+                    {
+                        bee = ecb.Instantiate(beeParams.yellowBeePrefab);
+                    }
 
                     int team = (int)spawner.team;
                     float3 pos = math.right() * (-field.size.x * .4f + field.size.x * .8f * team);

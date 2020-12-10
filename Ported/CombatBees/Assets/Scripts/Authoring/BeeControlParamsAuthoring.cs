@@ -27,15 +27,19 @@ public class BeeControlParamsAuthoring : MonoBehaviour, IConvertGameObjectToEnti
     [Space(10)]
     public int maxBeeCount;
 
-    public BeeSpawnerAuthoring blueSpawnerPrefab;
-    public BeeSpawnerAuthoring yellowSpawnerPrefab;
+    //public BeeSpawnerAuthoring blueSpawnerPrefab;
+    //public BeeSpawnerAuthoring yellowSpawnerPrefab;
+    public GameObject blueBeePrefab;
+    public GameObject yellowBeePrefab;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         var beeParams = new BeeControlParams
         {
-            blueSpawnerPrefab = conversionSystem.GetPrimaryEntity(this.blueSpawnerPrefab),
-            yellowSpawnerPrefab = conversionSystem.GetPrimaryEntity(this.yellowSpawnerPrefab),
+            //blueSpawnerPrefab = conversionSystem.GetPrimaryEntity(this.blueSpawnerPrefab),
+            //yellowSpawnerPrefab = conversionSystem.GetPrimaryEntity(this.yellowSpawnerPrefab),
+            blueBeePrefab = conversionSystem.GetPrimaryEntity(this.blueBeePrefab),
+            yellowBeePrefab = conversionSystem.GetPrimaryEntity(this.yellowBeePrefab),
             minBeeSize = this.minBeeSize,
             maxBeeSize = this.maxBeeSize,
             speedStretch = this.speedStretch,
@@ -60,8 +64,10 @@ public class BeeControlParamsAuthoring : MonoBehaviour, IConvertGameObjectToEnti
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
-        referencedPrefabs.Add(this.blueSpawnerPrefab.gameObject);
-        referencedPrefabs.Add(this.yellowSpawnerPrefab.gameObject);
+        //referencedPrefabs.Add(this.blueSpawnerPrefab.gameObject);
+        //referencedPrefabs.Add(this.yellowSpawnerPrefab.gameObject);
+        referencedPrefabs.Add(this.blueBeePrefab);
+        referencedPrefabs.Add(this.yellowBeePrefab);
     }
 }
 
@@ -85,6 +91,8 @@ public struct BeeControlParams : IComponentData
     public float maxSpawnSpeed;
     public int maxBeeCount;
 
-    public Entity blueSpawnerPrefab;
-    public Entity yellowSpawnerPrefab;
+    //public Entity blueSpawnerPrefab;
+    //public Entity yellowSpawnerPrefab;
+    public Entity blueBeePrefab;
+    public Entity yellowBeePrefab;
 }
