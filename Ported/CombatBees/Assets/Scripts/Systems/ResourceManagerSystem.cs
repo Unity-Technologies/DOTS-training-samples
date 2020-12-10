@@ -165,6 +165,7 @@ public class ResourceManagerSystem : SystemBase
                     {
                         Debug.Log("reach the destiny");
 
+                        /*
                         //Entity beeSpawnerPrefab;
                         if(pos.Value.x < 0f)
                         {
@@ -194,6 +195,34 @@ public class ResourceManagerSystem : SystemBase
                             ecb1.SetComponent(newSpawner, beeSpawner);
                             Debug.Log("spawner instantiated at beesPerResource = " + beeSpawner.count + "!");
                         }
+                        */
+
+                        var newSpawner = ecb1.CreateEntity();
+                        BeeSpawner beeSpawner;
+                        if (pos.Value.x < 0f)
+                        {
+                            beeSpawner = new BeeSpawner
+                            {
+                                beePrefab = beeParams.blueSpawnerPrefab,
+                                count = resParams.beesPerResource,
+                                maxSpawnSpeed = beeParams.maxSpawnSpeed,
+                                team = BeeTeam.TeamColor.BLUE
+                            };
+                        }
+                        else
+                        {
+                            beeSpawner = new BeeSpawner
+                            {
+                                beePrefab = beeParams.yellowSpawnerPrefab,
+                                count = resParams.beesPerResource,
+                                maxSpawnSpeed = beeParams.maxSpawnSpeed,
+                                team = BeeTeam.TeamColor.YELLOW
+                            };
+                        }
+
+                        ecb1.AddComponent<Translation>(newSpawner, pos);
+                        ecb1.AddComponent(newSpawner, beeSpawner);
+                        Debug.Log("spawner instantiated at beesPerResource = " + beeSpawner.count + "!");
 
                         //////////////////////////// ToDo, spawn Falash particle
                         //ParticleManager.SpawnParticle(resource.position, ParticleType.SpawnFlash, Vector3.zero, 6f, 5);
