@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -19,8 +20,12 @@ public class BarSpawningSystem : SystemBase
         // Get the command buffer system
         CommandBufferSystem
             = World.DefaultGameObjectInjectionWorld.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+
+        query = GetEntityQuery(typeof(Building));
     }
 
+    private EntityQuery query;
+    
     protected override void OnUpdate()
     {
         // The command buffer to record commands,
@@ -34,17 +39,26 @@ public class BarSpawningSystem : SystemBase
 
         Random random = new Random(1234);
 
+        var buildings = query.ToEntityArray(Allocator.Temp);
+
+        foreach (var buildingEntity in buildings)
+        {
+            var bufferConstraint = GetBuffer<Constraint>(buildingEntity);
+            var bars = EntityManager.Instantiate(spawner.barPrefab, bufferConstraint.Length, Allocator.Temp);
+
+            for (int i = 0; i < bars.Length; i++)
+            {
+                bufferConstraint[i].AssignBarTransform(bars[i]);
+            }
+        }
+
         Entities.WithAll<Building>().ForEach( ( Entity entity)  =>
         {
             var bufferConstraint = GetBuffer<Constraint>(entity);
-
-            Debug.Log($"Contraints : {bufferConstraint.Length}");
-
-
-
+            
             for (int i = 0; i < bufferConstraint.Length; i++)
             {
-                var instance = ecb.Instantiate(spawner.barPrefab);
+                var instance = bufferConstraint[i].barTransform;
                 var posA = GetComponent<Translation>(bufferConstraint[i].pointA).Value;
                 var posB = GetComponent<Translation>(bufferConstraint[i].pointB).Value;
                 float3 delta = posA - posB;
@@ -65,8 +79,6 @@ public class BarSpawningSystem : SystemBase
                 ecb.SetComponent(instance, translation);
                 ecb.AddComponent(instance, scale);
                 ecb.AddComponent(instance, new HDRPMaterialPropertyBaseColor { Value = spawner.color });
-
-                bufferConstraint[i].AssignBarTransform(instance);
             }
         }).Run();
 
