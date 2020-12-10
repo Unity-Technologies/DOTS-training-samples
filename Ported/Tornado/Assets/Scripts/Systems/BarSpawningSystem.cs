@@ -47,6 +47,9 @@ public class BarSpawningSystem : SystemBase
                 var instance = ecb.Instantiate(spawner.barPrefab);
                 var posA = GetComponent<Translation>(bufferConstraint[i].pointA).Value;
                 var posB = GetComponent<Translation>(bufferConstraint[i].pointB).Value;
+                float3 delta = posA - posB;
+                delta = math.abs(math.normalize(delta));
+                float thickness = (delta.y > 0.95) ? 0.2f : (delta.y < 0.05f) ? 0.15f : 0.1f;
 
                 var translation = new Translation();
                 var rotation = new Rotation();
@@ -54,11 +57,9 @@ public class BarSpawningSystem : SystemBase
                 
                 translation.Value = (posA + posB) * 0.5f;
                 rotation.Value = Quaternion.LookRotation(((Vector3) (posA - posB)).normalized);
-                scale.Value = new float3(0.2f, 0.2f, Vector3.Distance(posA, posB));
+                scale.Value = new float3(thickness, thickness, Vector3.Distance(posA, posB));
 
-                float3 delta = posA - posB;
-                float upDot = math.acos(math.abs(math.dot(new float3(0.0f, 1.0f, 0.0f), math.normalize(delta)))) / math.PI;
-                spawner.color = new float4(1.0f) * upDot * random.NextFloat(.7f, 1f);
+                spawner.color = new float4(1.0f) * 0.5f * (1f - delta.y) * random.NextFloat(.7f, 1f);
 
                 ecb.SetComponent(instance, rotation);
                 ecb.SetComponent(instance, translation);
