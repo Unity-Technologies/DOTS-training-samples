@@ -140,6 +140,7 @@ public class BarMovementSytem : SystemBase
                     }
                 }
 
+
                 SetComponent(constraint.pointA, new Translation { Value = point1Pos });
                 SetComponent(constraint.pointB, new Translation { Value = point2Pos }); 
                 
@@ -153,6 +154,7 @@ public class BarMovementSytem : SystemBase
 
         Entities.ForEach((Entity entity, in NewNodeSetup newNodeSetup) =>
         {
+            Debug.Log("Attach the point !");
             var constraints = GetBuffer<Constraint>(newNodeSetup.buildingEntity);
             var c = constraints[newNodeSetup.constraintIndex];
             if (newNodeSetup.isPointA)

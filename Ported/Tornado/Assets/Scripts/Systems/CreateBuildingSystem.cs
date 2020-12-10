@@ -40,7 +40,7 @@ public class CreateBuildingSystem : SystemBase
 
         ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities.ForEach(( Entity entity, in BuildingConstructionData buildingConstructionData) =>
+        Entities.ForEach((Entity entity, in BuildingConstructionData buildingConstructionData) =>
        {
            var height = buildingConstructionData.height;
            var pos = buildingConstructionData.position;
@@ -69,7 +69,7 @@ public class CreateBuildingSystem : SystemBase
                ecb.AddComponent(nodeEntity, point);
                ecb.AddComponent(nodeEntity, trans);
                nodeData.nodeEntity = nodeEntity;
-               nodeData.node= point;
+               nodeData.node = point;
                nodeData.translation = trans;
                nodesList.Add(nodeData);
 
@@ -112,7 +112,7 @@ public class CreateBuildingSystem : SystemBase
            for (int i = 0; i < spawner.groundDetailsCount; i++)
            {
                float3 pos2 = new float3(random.NextFloat(-15f, 15f), 0f, random.NextFloat(-15f, 15f)) + pos;
-               
+
                var nodeData = new NodeBuildingData();
                var point = new Node();
                var trans = new Translation();
@@ -137,7 +137,7 @@ public class CreateBuildingSystem : SystemBase
                trans.Value.y = pos2.y + random.NextFloat(0f, 3f);
                trans.Value.z = pos2.z + random.NextFloat(-.1f, -.2f);
                point.oldPosition = trans.Value;
-               
+
                if (random.NextFloat(0f, 1f) < 0.1f)
                {
                    point.anchor = true;
@@ -150,34 +150,39 @@ public class CreateBuildingSystem : SystemBase
                nodeData.translation = trans;
                nodesList.Add(nodeData);
            }
+       }).Run();
 
-           var constraintsList = ecb.AddBuffer<Constraint>(entity);
-           
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+        ecb = new EntityCommandBuffer(Allocator.Temp);
 
-           for (int i = 0; i < nodesList.Length; i++)
-           {
-               for (int j = i + 1; j < nodesList.Length; j++)
-               {
-                   var bar = new Constraint();
+        Entities.ForEach((Entity entity, ref DynamicBuffer<NodeBuildingData> nodesList, in BuildingConstructionData buildingConstructionData) =>
+        {
+            var constraintsList = ecb.AddBuffer<Constraint>(entity);
+            for (int i = 0; i < nodesList.Length; i++)
+            {
+                for (int j = i + 1; j < nodesList.Length; j++)
+                {
+                    var bar = new Constraint();
 
-                   var nodeA = nodesList[i].node;
-                   var nodeB = nodesList[j].node;
-                   var positionA = nodesList[i].translation.Value;
-                   var positionB = nodesList[j].translation.Value;
+                    var nodeA = GetComponent<Node>(nodesList[i].nodeEntity);
+                    var nodeB = GetComponent<Node>(nodesList[j].nodeEntity);
+                    var positionA = nodesList[i].translation.Value;
+                    var positionB = nodesList[j].translation.Value;
 
-                   bar.AssignPoints(nodesList[i].nodeEntity, nodesList[j].nodeEntity, positionA, positionB);
-                   if (bar.distance < 5f && bar.distance > .2f)
-                   {
-                       nodeA.neighborCount++;
-                       ecb.SetComponent(nodesList[i].nodeEntity, nodeA);
+                    bar.AssignPoints(nodesList[i].nodeEntity, nodesList[j].nodeEntity, positionA, positionB);
+                    if (bar.distance < 5f && bar.distance > .2f)
+                    {
+                        nodeA.neighborCount++;
+                        SetComponent(nodesList[i].nodeEntity, nodeA);
 
-                       nodeB.neighborCount++;
-                       ecb.SetComponent(nodesList[j].nodeEntity, nodeB);
+                        nodeB.neighborCount++;
+                        SetComponent(nodesList[j].nodeEntity, nodeB);
 
-                       constraintsList.Add(bar);
-                   }
-               }
-           }
+                        constraintsList.Add(bar);
+                    }
+                }
+            }
            ecb.RemoveComponent<BuildingConstructionData>(entity);
        }).Run();
 
