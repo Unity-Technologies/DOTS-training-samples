@@ -213,7 +213,7 @@ MonoBehaviour:
   barPrefab: {fileID: 6312693863883530160, guid: 60aa71f01d7a1574ca217019b41ec92b,
     type: 3}
   buildingsCount: 35
-  groundDetailsCount: 50
+  groundDetailsCount: 20
 --- !u!4 &677448339
 Transform:
   m_ObjectHideFlags: 0

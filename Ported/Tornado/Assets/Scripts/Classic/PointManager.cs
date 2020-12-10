@@ -18,6 +18,9 @@ public class PointManager : MonoBehaviour {
 	public float tornadoUpForce;
 	public float tornadoInwardForce;
 
+	public float buildingsCount = 32;
+	public float detailsPerBuildings = 20;
+
 	Point[] points;
 	Bar[] bars;
 	public int pointCount;
@@ -56,7 +59,7 @@ public class PointManager : MonoBehaviour {
 		matricesList.Add(new List<Matrix4x4>());
 
 		// buildings
-		for (int i = 0; i < 35; i++) {
+		for (int i = 0; i < buildingsCount; i++) {
 			int height = Random.Range(4,12);
 			Vector3 pos = new Vector3(Random.Range(-45f,45f),0f,Random.Range(-45f,45f));
 			float spacing = 2f;
@@ -98,7 +101,7 @@ public class PointManager : MonoBehaviour {
 		}
 
 		// ground details
-		for (int i=0;i<600;i++) {
+		for (int i=0;i<(detailsPerBuildings * buildingsCount);i++) {
 			Vector3 pos = new Vector3(Random.Range(-55f,55f),0f,Random.Range(-55f,55f));
 			Point point = new Point();
 			point.x = pos.x + Random.Range(-.2f,-.1f);

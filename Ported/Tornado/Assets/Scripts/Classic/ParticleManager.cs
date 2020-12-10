@@ -12,11 +12,13 @@ public class ParticleManager : MonoBehaviour {
 	MaterialPropertyBlock matProps;
 	float[] radiusMults;
 
+	public int particlesCount = 1000;
+
 	private void Start() {
-		points = new Vector3[1000];
-		matrices = new Matrix4x4[1000];
-		radiusMults = new float[1000];
-		Vector4[] colors = new Vector4[1000];
+		points = new Vector3[particlesCount];
+		matrices = new Matrix4x4[particlesCount];
+		radiusMults = new float[particlesCount];
+		Vector4[] colors = new Vector4[particlesCount];
 
 		for (int i=0;i<points.Length;i++) {
 			Vector3 pos = new Vector3(Random.Range(-50f,50f),Random.Range(0f,50f),Random.Range(-50f,50f));
