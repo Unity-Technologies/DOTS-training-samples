@@ -10,6 +10,7 @@
     "com.unity.ide.vscode": "1.2.3",
     "com.unity.performance.profile-analyzer": "1.0.3",
     "com.unity.platforms.windows": "0.9.0-preview.9",
+    "com.unity.render-pipelines.high-definition": "9.0.0-preview.71",
     "com.unity.render-pipelines.universal": "9.0.0-preview.72",
     "com.unity.rendering.hybrid": "0.10.0-preview.21",
     "com.unity.test-framework": "1.1.19",

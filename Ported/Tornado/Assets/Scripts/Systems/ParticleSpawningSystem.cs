@@ -30,7 +30,7 @@ public class ParticleSpawningSystem : SystemBase
                 var scale = new Scale { Value = (random.NextFloat(0.1f, 0.7f)) };
                 var particle = new Particle { radiusMult = random.NextFloat(0f, 1f)};
 
-                ecb.AddComponent(instance, new URPMaterialPropertyBaseColor { Value = new float4(random.NextFloat(.3f, .7f)) });
+                ecb.AddComponent(instance, new HDRPMaterialPropertyBaseColor { Value = new float4(random.NextFloat(.3f, .7f)) });
                 ecb.AddComponent<Particle>(instance, particle);
                 ecb.SetComponent(instance, translation);
                 ecb.AddComponent(instance, scale);
