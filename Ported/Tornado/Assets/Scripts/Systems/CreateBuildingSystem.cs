@@ -111,7 +111,7 @@ public class CreateBuildingSystem : SystemBase
            // ground details
            for (int i = 0; i < spawner.groundDetailsCount; i++)
            {
-               float3 pos2 = new float3(random.NextFloat(-55f, 55f), 0f, random.NextFloat(-55f, 55f)) + pos;
+               float3 pos2 = new float3(random.NextFloat(-15f, 15f), 0f, random.NextFloat(-15f, 15f)) + pos;
                
                var nodeData = new NodeBuildingData();
                var point = new Node();

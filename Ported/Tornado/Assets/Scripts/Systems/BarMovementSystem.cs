@@ -81,7 +81,7 @@ public class BarMovementSytem : SystemBase
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities.ForEach((in DynamicBuffer<Constraint> constraints) =>
+        Entities.ForEach((Entity entity, in DynamicBuffer<Constraint> constraints) =>
         {
             for (int i = 0; i < constraints.Length; i++)
             {
@@ -124,8 +124,7 @@ public class BarMovementSytem : SystemBase
                         Entity newPointEntity = ecb.CreateEntity();
                         ecb.AddComponent(newPointEntity, newPoint);
                         ecb.AddComponent(newPointEntity, new Translation { Value = point2Pos });
-
-                        constraint.pointB = newPointEntity;
+                        ecb.AddComponent(newPointEntity, new NewNodeSetup { buildingEntity = entity , constraintIndex = i, isPointA = false });
                     }
                     else if (point1.neighborCount > 1)
                     {
@@ -137,8 +136,7 @@ public class BarMovementSytem : SystemBase
                         Entity newPointEntity = ecb.CreateEntity();
                         ecb.AddComponent(newPointEntity, newPoint);
                         ecb.AddComponent(newPointEntity, new Translation { Value = point1Pos });
-
-                        constraint.pointA = newPointEntity;
+                        ecb.AddComponent(newPointEntity, new NewNodeSetup { buildingEntity = entity, constraintIndex = i, isPointA = true });
                     }
                 }
 
@@ -147,6 +145,23 @@ public class BarMovementSytem : SystemBase
                 
                 // Debug.DrawLine(point1Pos, point2Pos, Color.green);
             }
+        }).Run();
+
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+        ecb = new EntityCommandBuffer(Allocator.Temp);
+
+        Entities.ForEach((Entity entity, in NewNodeSetup newNodeSetup) =>
+        {
+            var constraints = GetBuffer<Constraint>(newNodeSetup.buildingEntity);
+            var c = constraints[newNodeSetup.constraintIndex];
+            if (newNodeSetup.isPointA)
+                c.pointA = entity;
+            else
+                c.pointB = entity;
+
+            constraints[newNodeSetup.constraintIndex] = c;
+            ecb.RemoveComponent<NewNodeSetup>(entity);
         }).Run();
 
         ecb.Playback(EntityManager);
