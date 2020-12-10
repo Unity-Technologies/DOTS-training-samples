@@ -163,6 +163,10 @@ MonoBehaviour:
   TornadoInwardForce: 9
   SpinRate: 37
   SpeedUpward: 6
+  CameraDistance: 25
+  CameraPositionOffset: 3
+  CameraLookAtOffset: 10
+  CameraPositionDamping: 0.05
 --- !u!4 &54384628
 Transform:
   m_ObjectHideFlags: 0
