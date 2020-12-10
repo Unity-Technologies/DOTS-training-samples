@@ -6,6 +6,7 @@ public struct Constraint : IBufferElementData
     public Entity pointA;
     public Entity pointB;
     public float distance;
+    public Entity barTransform;
 
 	public void AssignPoints(Entity a, Entity b, float3 positionA, float3 positionB)
 	{
@@ -16,5 +17,10 @@ public struct Constraint : IBufferElementData
 		distance = math.length(delta);
 
 		//thickness = Random.Range(.25f, .35f);
+	}
+
+	public void AssignBarTransform(Entity bar)
+	{
+		barTransform = bar;
 	}
 }

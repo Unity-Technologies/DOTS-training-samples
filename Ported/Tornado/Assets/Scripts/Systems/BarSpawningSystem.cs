@@ -64,7 +64,8 @@ public class BarSpawningSystem : SystemBase
                 ecb.SetComponent(instance, rotation);
                 ecb.SetComponent(instance, translation);
                 ecb.AddComponent(instance, scale);
-                ecb.AddComponent(instance, new URPMaterialPropertyBaseColor { Value = spawner.color });
+
+                bufferConstraint[i].AssignBarTransform(instance);
             }
         }).Run();
 

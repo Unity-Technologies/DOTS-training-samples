@@ -180,33 +180,26 @@ public class CreateBuildingSystem : SystemBase
 
         ecb.Dispose();
 
+        
         ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities.ForEach((Entity entity, in Node node) =>
+        Entities.WithAll<Building>().ForEach((in DynamicBuffer<NodeBuildingData> nodesList) =>
         {
-            if (node.neighborCount == 0)
-                ecb.DestroyEntity(entity);
-        }).Run();
+            for (int i = 0; i < nodesList.Length; i++)
+            {
+                var node = GetComponent<Node>(nodesList[i].nodeEntity);
 
-        ecb.Playback( EntityManager );
+                if (node.neighborCount <= 0)
+                {
+                    ecb.DestroyEntity(nodesList[i].nodeEntity);
+                }
+            }
+        }).Run();
+        
+        ecb.Dispose();
 
         System.GC.Collect();
 
         Enabled = false;
     }
-
-    /*
-    Entity CreatePointEntity( float3 position, bool anchor, int neighborCount)
-    {
-        var pointEntity = EntityManager.CreateEntity(typeof(Translation), typeof(Node));
-
-        var translation = EntityManager.GetComponentData<Translation>(pointEntity);
-        translation.Value = new float3(position);
-        EntityManager.SetComponentData<Translation>(pointEntity, translation);
-
-        EntityManager.SetComponentData<Node>(pointEntity, new Node() { anchor = anchor, neighborCount = neighborCount, oldPosition = position});
-
-        return pointEntity;
-    }
-    */
 }
