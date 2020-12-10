@@ -14,30 +14,24 @@ public class BeeSpawnerSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         var random = new Unity.Mathematics.Random(1234);
 
+        Debug.Log("BeeSpawnerSystem OnUpdate");
+
         Entities
             .WithName("Bee_Spawner")
-            //.ForEach((Entity spawnerEntity, ref BeeSpawner spawner, in Translation spawnerPos) =>
             .ForEach((Entity spawnerEntity, ref BeeSpawner spawner) =>
             {
-                Debug.Log("beespawner working, cout = !!" + spawner.count);
+                Debug.Log("beespawner working, cout = " + spawner.count + "!!!");
                 for (int i = 0; i < spawner.count; i++)
                 {
+                    Debug.Log("BeeSpawnerSystem, i = " + i);
                     var bee = ecb.Instantiate(spawner.beePrefab);
 
                     int team = (int)spawner.team;
                     float3 pos = math.right() * (-field.size.x * .4f + field.size.x * .8f * team);
                     ecb.SetComponent(bee, new Translation { Value = pos });
 
-                    /*
-                    float size = random.NextFloat(beeParams.minBeeSize, beeParams.minBeeSize);
-                    ecb.SetComponent(bee, new Size { value = size });
-                    ecb.SetComponent(bee, new NonUniformScale { Value = new float3(size, size, size) });
-                    ecb.SetComponent(bee, new Velocity { vel = random.NextFloat3() * spawner.maxSpawnSpeed });
-                    */
-
                     float size = random.NextFloat(beeParams.minBeeSize, beeParams.maxBeeSize);
                     ecb.AddComponent(bee, new Size { value = size });
-                    //ecb.AddComponent(bee, new NonUniformScale { Value = new float3(size, size, size) });
                     ecb.AddComponent(bee, new Velocity { vel = random.NextFloat3() * spawner.maxSpawnSpeed });
 
                     URPMaterialPropertyBaseColor baseColor;
@@ -49,10 +43,10 @@ public class BeeSpawnerSystem : SystemBase
                     {
                         baseColor.Value = new float4(0.8f, 0.8f, 0f, 1f);
                     }
-                    //ecb.AddComponent<URPMaterialPropertyBaseColor>(bee, new URPMaterialPropertyBaseColor { Value = baseColor.Value });
                     ecb.AddComponent<URPMaterialPropertyBaseColor>(bee, baseColor);
                 }
 
+                Debug.Log("Delete beespawner entity!");
                 ecb.DestroyEntity(spawnerEntity);
             }).Run();
 

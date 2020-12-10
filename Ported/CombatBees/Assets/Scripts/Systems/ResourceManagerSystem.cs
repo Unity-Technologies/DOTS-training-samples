@@ -32,6 +32,7 @@ public class ResourceManagerSystem : SystemBase
         var stackHeights = bufferFromEntity[bufferEntity];
 
         float deltaTime = Time.fixedDeltaTime;
+        //float deltaTime = Time.DeltaTime;
 
 #if COMMENT
         NativeArray<Entity> resArray = resQuery.ToEntityArrayAsync(Allocator.TempJob, out var resHandle);
@@ -164,28 +165,35 @@ public class ResourceManagerSystem : SystemBase
                     {
                         Debug.Log("reach the destiny");
 
-                        Entity beeSpawnerPrefab;
+                        //Entity beeSpawnerPrefab;
                         if(pos.Value.x < 0f)
                         {
-                            beeSpawnerPrefab = beeParams.blueSpawnerPrefab;
+                            var newSpawner = ecb1.Instantiate(beeParams.blueSpawnerPrefab);
+                            var beeSpawner = new BeeSpawner
+                            {
+                                beePrefab = beeParams.blueSpawnerPrefab,
+                                count = resParams.beesPerResource,
+                                maxSpawnSpeed = beeParams.maxSpawnSpeed,
+                                team = BeeTeam.TeamColor.BLUE
+                            };
+                            ecb1.SetComponent<Translation>(newSpawner, pos);
+                            ecb1.SetComponent(newSpawner, beeSpawner);
+                            Debug.Log("spawner instantiated at beesPerResource = " + beeSpawner.count + "!");
                         }
                         else
                         {
-                            beeSpawnerPrefab = beeParams.yellowSpawnerPrefab;
+                            var newSpawner = ecb1.Instantiate(beeParams.yellowSpawnerPrefab);
+                            var beeSpawner = new BeeSpawner
+                            {
+                                beePrefab = beeParams.yellowSpawnerPrefab,
+                                count = resParams.beesPerResource,
+                                maxSpawnSpeed = beeParams.maxSpawnSpeed,
+                                team = BeeTeam.TeamColor.YELLOW
+                            };
+                            ecb1.SetComponent<Translation>(newSpawner, pos);
+                            ecb1.SetComponent(newSpawner, beeSpawner);
+                            Debug.Log("spawner instantiated at beesPerResource = " + beeSpawner.count + "!");
                         }
-
-                        var newSpawner = ecb1.Instantiate(beeSpawnerPrefab);
-                        var beeSpawner = new BeeSpawner
-                        {
-                            beePrefab = beeSpawnerPrefab,
-                            count = resParams.beesPerResource,
-                            maxSpawnSpeed = beeParams.maxSpawnSpeed
-                        };
-
-                        ecb1.SetComponent<Translation>(newSpawner, pos);
-                        ecb1.SetComponent(newSpawner, beeSpawner);
-
-                        Debug.Log("spawner instantiated!!");
 
                         //////////////////////////// ToDo, spawn Falash particle
                         //ParticleManager.SpawnParticle(resource.position, ParticleType.SpawnFlash, Vector3.zero, 6f, 5);
@@ -210,7 +218,7 @@ public class ResourceManagerSystem : SystemBase
                         else
                         {
                             ecb1.AddComponent<Dead>(resEntity);
-                            ecb1.DestroyEntity(resEntity);
+                            //ecb1.DestroyEntity(resEntity);
                         }
                     }
                 }
