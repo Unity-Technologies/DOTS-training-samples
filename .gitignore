@@ -12,6 +12,8 @@ p?
 **/Assets/Plugins/
 **/Assets/Plugins.meta
 Assets/AssetStoreTools*
+**/SceneDependencyCache/
+**/SceneDependencyCache.meta
 
 # Visual Studio cache directory
 .vs/
