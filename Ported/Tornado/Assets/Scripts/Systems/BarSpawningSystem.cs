@@ -41,14 +41,17 @@ public class BarSpawningSystem : SystemBase
 
         var buildings = query.ToEntityArray(Allocator.Temp);
 
+        
         foreach (var buildingEntity in buildings)
         {
+            var bars = EntityManager.Instantiate(spawner.barPrefab, GetBuffer<Constraint>(buildingEntity).Length, Allocator.Temp);
             var bufferConstraint = GetBuffer<Constraint>(buildingEntity);
-            var bars = EntityManager.Instantiate(spawner.barPrefab, bufferConstraint.Length, Allocator.Temp);
-
+            
             for (int i = 0; i < bars.Length; i++)
             {
-                bufferConstraint[i].AssignBarTransform(bars[i]);
+                var constraint = bufferConstraint[i];
+                constraint.AssignBarTransform(bars[i]);
+                bufferConstraint[i] = constraint;
             }
         }
 
