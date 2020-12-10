@@ -1,28 +1,28 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using Unity.Entities;
-using Unity.Transforms;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 public class TornadoMovementSystem : SystemBase
 {
     protected override void OnCreate()
     {
-        RequireSingletonForUpdate<GameObjRefs>();
+        RequireSingletonForUpdate<CameraReference>();
     }
 
     protected override void OnUpdate()
     {
-        var camera = this.GetSingleton<GameObjRefs>().Camera;
+        var camera = this.GetSingleton<CameraReference>().Camera;
 
         var time = Time.ElapsedTime;
 
         float3 camTransl = 0f;
 
-        Entities.WithAll<Tornado>().ForEach((Entity entity, ref Translation transl) => {
+        Entities.WithAll<Tornado>().ForEach((Entity entity, ref Translation transl) =>
+        {
             transl.Value.x = math.cos((float)time / 6f) * 30f;
-            transl.Value.z = math.sin((float)time / 6f*1.618f) * 30f;
+            transl.Value.z = math.sin((float)time / 6f * 1.618f) * 30f;
 
             camTransl = transl.Value;
         }).Run();

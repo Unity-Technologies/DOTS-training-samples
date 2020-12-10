@@ -6,10 +6,12 @@ using Unity.Entities;
 [GenerateAuthoringComponent]
 public struct TornadoSettings : IComponentData
 {
+    [Range(0f, 1f)]
     public float Damping;
+    [Range(0f, 1f)]
     public float Friction;
     public float BreakResistance;
-    public float ExpForce;
+    [Range(0f, 1f)]
     public float TornadoForce;
     public float TornadoMaxForceDistance;
     public float TornadoHeight;

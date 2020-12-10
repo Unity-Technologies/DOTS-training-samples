@@ -422,7 +422,7 @@ GameObject:
   - component: {fileID: 1123176123}
   - component: {fileID: 1123176122}
   m_Layer: 0
-  m_Name: GameObjRefs
+  m_Name: CameraReference
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

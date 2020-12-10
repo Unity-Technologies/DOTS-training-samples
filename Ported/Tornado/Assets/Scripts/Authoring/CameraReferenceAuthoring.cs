@@ -4,7 +4,7 @@ using Unity.Entities;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
-public class GameObjRefs : IComponentData
+public class CameraReference : IComponentData
 {
     public Camera Camera;
 }

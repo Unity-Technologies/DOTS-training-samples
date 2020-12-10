@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public class Tornado : IComponentData
+public struct Tornado : IComponentData
 {
 
 }

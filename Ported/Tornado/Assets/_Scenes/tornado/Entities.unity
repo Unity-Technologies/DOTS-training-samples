@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 54384628}
   - component: {fileID: 54384627}
   m_Layer: 0
-  m_Name: TornadoManager
+  m_Name: TornadoSettings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -155,7 +155,6 @@ MonoBehaviour:
   Damping: 0.012
   Friction: 0.4
   BreakResistance: 0.55
-  ExpForce: 0.4
   TornadoForce: 0.022
   TornadoMaxForceDistance: 30
   TornadoHeight: 50
@@ -188,7 +187,7 @@ GameObject:
   - component: {fileID: 677448339}
   - component: {fileID: 677448338}
   m_Layer: 0
-  m_Name: Bar Spawner
+  m_Name: BarSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -276,7 +275,7 @@ GameObject:
   - component: {fileID: 1506842126}
   - component: {fileID: 1506842125}
   m_Layer: 0
-  m_Name: Particles
+  m_Name: ParticleSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
