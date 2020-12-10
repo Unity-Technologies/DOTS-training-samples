@@ -15,6 +15,11 @@ public class TornadoSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var settings = GetSingleton<TornadoSettings>();
+        var spinRate = settings.SpinRate;
+        var speedUpward = settings.SpeedUpward;
+        var tornadoDeltaTime = Time.DeltaTime;
+
         // Update tornado position
         var elapsedTime = (float)Time.ElapsedTime;
 
@@ -31,12 +36,10 @@ public class TornadoSystem : SystemBase
 
         // Update camera position
         var camera = this.GetSingleton<CameraReference>().Camera;
-        camera.transform.position = new Vector3(tornadoPosition.x, 10f, tornadoPosition.z) - camera.transform.forward * 60f;
-
-        var settings = GetSingleton<TornadoSettings>();
-        var spinRate = settings.SpinRate;
-        var speedUpward = settings.SpeedUpward;
-        var tornadoDeltaTime = Time.DeltaTime;
+        float3 targetPosition = new float3(tornadoPosition.x, settings.CameraPositionOffset, tornadoPosition.z) - new float3(0f, 0f, settings.CameraDistance);
+        targetPosition = math.lerp(camera.transform.position, targetPosition, settings.CameraPositionDamping);
+        camera.transform.position = targetPosition;
+        camera.transform.LookAt(new float3(tornadoPosition.x, settings.CameraLookAtOffset, tornadoPosition.z));
 
         // Update tornado particles
         Dependency = Entities.ForEach((Entity entity, ref Translation translation, in Particle particle) =>

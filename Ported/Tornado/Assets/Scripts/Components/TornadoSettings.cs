@@ -19,4 +19,9 @@ public struct TornadoSettings : IComponentData
     public float TornadoInwardForce;
     public float SpinRate;
     public float SpeedUpward;
+
+    public float CameraDistance;
+    public float CameraPositionOffset;
+    public float CameraLookAtOffset;
+    public float CameraPositionDamping;
 }
