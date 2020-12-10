@@ -167,7 +167,7 @@ public class PointManager : MonoBehaviour {
 			colors[i%instancesPerBatch] = barsList[i].color;
 			if ((i + 1) % instancesPerBatch == 0 || i == barsList.Count - 1) {
 				MaterialPropertyBlock block = new MaterialPropertyBlock();
-				block.SetVectorArray("_Color",colors);
+				block.SetVectorArray("_BaseColor",colors);
 				matProps[i / instancesPerBatch] = block;
 			}
 		}
