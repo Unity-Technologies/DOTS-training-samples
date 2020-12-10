@@ -4,6 +4,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Unity.Rendering;
+using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(CreateBuildingSystem))]
 public class BarSpawningSystem : SystemBase
@@ -30,17 +32,22 @@ public class BarSpawningSystem : SystemBase
 
         var spawner = GetSingleton<BarSpawner>();
 
+        Random random = new Random(1234);
+
         Entities.WithAll<Building>().ForEach( ( Entity entity)  =>
         {
             var bufferConstraint = GetBuffer<Constraint>(entity);
 
             Debug.Log($"Contraints : {bufferConstraint.Length}");
 
+
+
             for (int i = 0; i < bufferConstraint.Length; i++)
             {
                 var instance = ecb.Instantiate(spawner.barPrefab);
                 var posA = GetComponent<Translation>(bufferConstraint[i].pointA).Value;
                 var posB = GetComponent<Translation>(bufferConstraint[i].pointB).Value;
+
                 var translation = new Translation();
                 var rotation = new Rotation();
                 var scale = new NonUniformScale();
@@ -49,9 +56,14 @@ public class BarSpawningSystem : SystemBase
                 rotation.Value = Quaternion.LookRotation(((Vector3) (posA - posB)).normalized);
                 scale.Value = new float3(0.2f, 0.2f, Vector3.Distance(posA, posB));
 
+                float3 delta = posA - posB;
+                float upDot = math.acos(math.abs(math.dot(new float3(0.0f, 1.0f, 0.0f), math.normalize(delta)))) / math.PI;
+                spawner.color = new float4(1.0f) * upDot * random.NextFloat(.7f, 1f);
+
                 ecb.SetComponent(instance, rotation);
                 ecb.SetComponent(instance, translation);
                 ecb.AddComponent(instance, scale);
+                ecb.AddComponent(instance, new URPMaterialPropertyBaseColor { Value = spawner.color });
             }
         }).Run();
 
