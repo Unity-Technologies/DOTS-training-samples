@@ -7,7 +7,7 @@ using UnityEditor.Rendering;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-[UpdateAfter(typeof(BarSpawningSystem))]
+[UpdateAfter(typeof(TornadoSystem))]
 public class BarMovementSytem : SystemBase
 {
     EntityQuery buildingsQuery;
@@ -29,10 +29,11 @@ public class BarMovementSytem : SystemBase
         Random random = new Random(1234);
 
         tornadoFader = math.clamp(tornadoFader + Time.DeltaTime / 10f, 0f, 1f);
+        var tornadoFaderCopy = tornadoFader;
         float invDamping = 1f - settings.Damping;
         float deltaTime = Time.DeltaTime;
 
-        Entities.WithoutBurst().ForEach((ref Node node, ref Translation translation) =>
+        Entities.WithName("SimulatePoints").ForEach((ref Node node, ref Translation translation) =>
         {
 
             if (!node.anchor)
@@ -55,7 +56,7 @@ public class BarMovementSytem : SystemBase
                 {
                     float force = (1f - tornadoDist / settings.TornadoMaxForceDistance);
                     float yFader = math.saturate(1f - translation.Value.y / settings.TornadoHeight);
-                    force *= tornadoFader * settings.TornadoForce * random.NextFloat(-0.3f, 1.3f);
+                    force *= tornadoFaderCopy * settings.TornadoForce * random.NextFloat(-0.3f, 1.3f);
                     float3 force3 = new float3(0);
                     force3.y = settings.TornadoUpForce;
                     force3.x = -td.y + td.x * settings.TornadoInwardForce * yFader;
@@ -77,20 +78,25 @@ public class BarMovementSytem : SystemBase
 
             // Debug.DrawRay(translation.Value, Vector3.up, Color.red);
 
-        }).Run();
-        
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        }).ScheduleParallel();
 
-        Entities.ForEach((Entity entity, in DynamicBuffer<Constraint> constraints) =>
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var ecbParallel = ecb.AsParallelWriter();
+
+        var translationFromEntity = GetComponentDataFromEntity<Translation>();
+        
+        Entities.WithName("SolveConstraints").
+            WithNativeDisableParallelForRestriction(translationFromEntity).
+            ForEach((Entity entity, in DynamicBuffer<Constraint> constraints) =>
         {
             for (int i = 0; i < constraints.Length; i++)
             {
                 Constraint constraint = constraints[i];
 
                 Node point1 = GetComponent<Node>(constraint.pointA);
-                float3 point1Pos = GetComponent<Translation>(constraint.pointA).Value;
+                var point1Pos = translationFromEntity[constraint.pointA].Value;
                 Node point2 = GetComponent<Node>(constraint.pointB);
-                float3 point2Pos = GetComponent<Translation>(constraint.pointB).Value;
+                var point2Pos = translationFromEntity[constraint.pointB].Value;
 
                 float3 d = point2Pos - point1Pos;
                 float dist = math.length(d);
@@ -121,10 +127,10 @@ public class BarMovementSytem : SystemBase
                         var newPoint = point2;
                         newPoint.neighborCount = 1;
 
-                        Entity newPointEntity = ecb.CreateEntity();
-                        ecb.AddComponent(newPointEntity, newPoint);
-                        ecb.AddComponent(newPointEntity, new Translation { Value = point2Pos });
-                        ecb.AddComponent(newPointEntity, new NewNodeSetup { buildingEntity = entity , constraintIndex = i, isPointA = false });
+                        Entity newPointEntity = ecbParallel.CreateEntity(0);
+                        ecbParallel.AddComponent(0, newPointEntity, newPoint);
+                        ecbParallel.AddComponent(0, newPointEntity, new Translation { Value = point2Pos });
+                        ecbParallel.AddComponent(0, newPointEntity, new NewNodeSetup { buildingEntity = entity , constraintIndex = i, isPointA = false });
                     }
                     else if (point1.neighborCount > 1)
                     {
@@ -133,23 +139,25 @@ public class BarMovementSytem : SystemBase
                         var newPoint = point1;
                         newPoint.neighborCount = 1;
 
-                        Entity newPointEntity = ecb.CreateEntity();
-                        ecb.AddComponent(newPointEntity, newPoint);
-                        ecb.AddComponent(newPointEntity, new Translation { Value = point1Pos });
-                        ecb.AddComponent(newPointEntity, new NewNodeSetup { buildingEntity = entity, constraintIndex = i, isPointA = true });
+                        Entity newPointEntity = ecbParallel.CreateEntity(0);
+                        ecbParallel.AddComponent(0, newPointEntity, newPoint);
+                        ecbParallel.AddComponent(0, newPointEntity, new Translation { Value = point1Pos });
+                        ecbParallel.AddComponent(0, newPointEntity, new NewNodeSetup { buildingEntity = entity, constraintIndex = i, isPointA = true });
                     }
                 }
-
-
-                SetComponent(constraint.pointA, new Translation { Value = point1Pos });
-                SetComponent(constraint.pointB, new Translation { Value = point2Pos }); 
+                
+                translationFromEntity[constraint.pointA] = new Translation { Value = point1Pos };
+                translationFromEntity[constraint.pointB] = new Translation { Value = point2Pos };                
                 
                 // Debug.DrawLine(point1Pos, point2Pos, Color.green);
             }
-        }).Run();
+        }).ScheduleParallel();
+        
+        Dependency.Complete();
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
+        
         ecb = new EntityCommandBuffer(Allocator.Temp);
 
         Entities.ForEach((Entity entity, in NewNodeSetup newNodeSetup) =>

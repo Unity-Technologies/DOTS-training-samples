@@ -156,17 +156,13 @@ MonoBehaviour:
   Damping: 0.012
   Friction: 0.4
   BreakResistance: 0.55
-  TornadoForce: 0.05
+  TornadoForce: 0.022
   TornadoMaxForceDistance: 30
   TornadoHeight: 50
   TornadoUpForce: 1.4
   TornadoInwardForce: 9
   SpinRate: 37
   SpeedUpward: 6
-  CameraDistance: 25
-  CameraPositionOffset: 3
-  CameraLookAtOffset: 10
-  CameraPositionDamping: 0.05
 --- !u!4 &54384628
 Transform:
   m_ObjectHideFlags: 0
@@ -213,7 +209,7 @@ MonoBehaviour:
   barPrefab: {fileID: 6312693863883530160, guid: 60aa71f01d7a1574ca217019b41ec92b,
     type: 3}
   buildingsCount: 35
-  groundDetailsCount: 20
+  groundDetailsCount: 50
 --- !u!4 &677448339
 Transform:
   m_ObjectHideFlags: 0
@@ -302,7 +298,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ParticlePrefab: {fileID: 6353756492411041238, guid: 21570f8b5ff174c4ba25c567b55f5064,
     type: 3}
-  ParticleCount: 512
+  ParticleCount: 200
 --- !u!4 &1506842126
 Transform:
   m_ObjectHideFlags: 0

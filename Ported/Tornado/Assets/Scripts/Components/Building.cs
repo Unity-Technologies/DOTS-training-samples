@@ -1,5 +1,5 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Entities;
 
-public struct Building : IComponentData
-{
-}
+[MaximumChunkCapacity(1)]
+public struct Building : IComponentData { }

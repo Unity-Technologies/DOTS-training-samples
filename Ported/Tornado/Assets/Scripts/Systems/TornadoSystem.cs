@@ -4,8 +4,10 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(BarSpawningSystem))]
 public class TornadoSystem : SystemBase
 {
+
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<TornadoSettings>();
