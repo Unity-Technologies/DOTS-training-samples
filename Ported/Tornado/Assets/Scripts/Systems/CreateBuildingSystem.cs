@@ -151,6 +151,7 @@ public class CreateBuildingSystem : SystemBase
            }
 
            var constraintsList = ecb.AddBuffer<Constraint>(entity);
+           
 
            for (int i = 0; i < nodesList.Length; i++)
            {
