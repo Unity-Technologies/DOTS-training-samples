@@ -76,12 +76,10 @@ public class BarSpawningSystem : SystemBase
                 rotation.Value = Quaternion.LookRotation(((Vector3) (posA - posB)).normalized);
                 scale.Value = new float3(thickness, thickness, Vector3.Distance(posA, posB));
 
-                spawner.color = new float4(1.0f) * 0.5f * (1f - delta.y) * random.NextFloat(.7f, 1f);
-
                 ecb.SetComponent(instance, rotation);
                 ecb.SetComponent(instance, translation);
                 ecb.AddComponent(instance, scale);
-                ecb.AddComponent(instance, new HDRPMaterialPropertyBaseColor { Value = spawner.color });
+                ecb.AddComponent(instance, new HDRPMaterialPropertyBaseColor { Value = new float4(1.0f) * 0.5f * (1f - delta.y) * random.NextFloat(.7f, 1f) });
             }
         }).Run();
 
