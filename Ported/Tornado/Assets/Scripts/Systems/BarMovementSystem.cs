@@ -38,9 +38,7 @@ public class BarMovementSytem : SystemBase
             if (!node.anchor)
             {
                 float3 start = translation.Value;
-
-                node.oldPosition.y += .01f;
-
+                
                 float tornadoSway = math.sin(translation.Value.y / 5f + deltaTime / 4f) * 3f;
 
                 float2 td = new float2(
