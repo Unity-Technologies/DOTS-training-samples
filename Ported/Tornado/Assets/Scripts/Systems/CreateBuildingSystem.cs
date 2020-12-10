@@ -195,6 +195,8 @@ public class CreateBuildingSystem : SystemBase
                 }
             }
         }).Run();
+
+        ecb.Playback(EntityManager);
         
         ecb.Dispose();
 
