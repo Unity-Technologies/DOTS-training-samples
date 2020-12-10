@@ -5,7 +5,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using Random = UnityEngine.Random;
+using Random = Unity.Mathematics.Random;
 
 public class CreateBuildingSystem : SystemBase
 {
@@ -16,15 +16,17 @@ public class CreateBuildingSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var random = new Random(1234);
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         // buildings
-        for (int i = 0; i < 1; i++)
+        
+        for (int i = 0; i < 6; i++)
         {
             var newBuildingEntity = ecb.CreateEntity();
             var newBuildingConstructionData = new BuildingConstructionData();
             newBuildingConstructionData.height = 4;// Random.Range(4, 12);
-            newBuildingConstructionData.position = new float3(Random.Range(-45f, 45f), 0f, Random.Range(-45f, 45f));
+            newBuildingConstructionData.position = new float3(random.NextFloat(-45f, 45f), 0f, random.NextFloat(-45f, 45f));
             newBuildingConstructionData.spacing = 2f;
 
             ecb.AddComponent(newBuildingEntity, newBuildingConstructionData);
@@ -108,16 +110,16 @@ public class CreateBuildingSystem : SystemBase
            // ground details
            for (int i = 0; i < 0; i++)
            {
-               float3 pos2 = new float3(Random.Range(-55f, 55f), 0f, Random.Range(-55f, 55f)) + pos;
+               float3 pos2 = new float3(random.NextFloat(-55f, 55f), 0f, random.NextFloat(-55f, 55f)) + pos;
                
                var nodeData = new NodeBuildingData();
                var point = new Node();
                var trans = new Translation();
                var nodeEntity = ecb.CreateEntity();
 
-               trans.Value.x = pos2.x + Random.Range(-.2f, -.1f);
-               trans.Value.y = pos2.y + Random.Range(0f, 3f);
-               trans.Value.z = pos2.z + Random.Range(.1f, .2f);
+               trans.Value.x = pos2.x + random.NextFloat(-.2f, -.1f);
+               trans.Value.y = pos2.y + random.NextFloat(0f, 3f);
+               trans.Value.z = pos2.z + random.NextFloat(.1f, .2f);
                point.oldPosition = trans.Value;
 
                ecb.AddComponent(nodeEntity, point);
@@ -130,11 +132,12 @@ public class CreateBuildingSystem : SystemBase
                nodeData = new NodeBuildingData();
                nodeEntity = ecb.CreateEntity();
 
-               trans.Value.x = pos2.x + Random.Range(.2f, .1f);
-               trans.Value.y = pos2.y + Random.Range(0f, 3f);
-               trans.Value.z = pos2.z + Random.Range(-.1f, -.2f);
+               trans.Value.x = pos2.x + random.NextFloat(.2f, .1f);
+               trans.Value.y = pos2.y + random.NextFloat(0f, 3f);
+               trans.Value.z = pos2.z + random.NextFloat(-.1f, -.2f);
                point.oldPosition = trans.Value;
-               if (Random.value < .1f)
+               
+               if (random.NextFloat(0f, 1f) > 0.1f)
                {
                    point.anchor = true;
                }
