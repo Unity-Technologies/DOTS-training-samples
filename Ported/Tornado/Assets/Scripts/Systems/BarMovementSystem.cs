@@ -175,23 +175,27 @@ public class BarMovementSytem : SystemBase
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
-        ecb = new EntityCommandBuffer(Allocator.Temp);
-
-        Entities.WithAll<Building>().ForEach((in DynamicBuffer<Constraint> constraints) =>
+        
+        translationFromEntity = GetComponentDataFromEntity<Translation>();
+        var rotationFromEntity = GetComponentDataFromEntity<Rotation>();
+        
+        Entities
+            .WithName("UpdateBars")
+            .WithNativeDisableParallelForRestriction(translationFromEntity)
+            .WithNativeDisableParallelForRestriction(rotationFromEntity)
+            .WithAll<Building>().ForEach((in DynamicBuffer<Constraint> constraints) =>
         {
             for (int i = 0; i < constraints.Length; ++i)
             {
                 var pointAEntity = constraints[i].pointA;
                 var pointBEntity = constraints[i].pointB;
-                var pointA = GetComponent<Translation>(pointAEntity).Value;
-                var pointB = GetComponent<Translation>(pointBEntity).Value;
 
-                ecb.SetComponent(constraints[i].barTransform, new Translation { Value = (pointA + pointB) * 0.5f });
-                ecb.SetComponent(constraints[i].barTransform, new Rotation { Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized) });
+                var pointA = translationFromEntity[pointAEntity].Value;
+                var pointB = translationFromEntity[pointBEntity].Value;
+
+                translationFromEntity[constraints[i].barTransform] = new Translation { Value = (pointA + pointB) * 0.5f };
+                rotationFromEntity[constraints[i].barTransform] = new Rotation { Value = Quaternion.LookRotation(((Vector3)(pointA - pointB)).normalized) };
             }
-        }).Run();
-        
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        }).ScheduleParallel();
     }
 }
