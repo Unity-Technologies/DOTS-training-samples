@@ -21,6 +21,11 @@ public class PointManager : MonoBehaviour {
 	public float buildingsCount = 32;
 	public float detailsPerBuildings = 20;
 
+	public float cameraPositionOffset = 3f;
+	public float cameraDistance = 25f;
+	public float cameraPositionDamping = 0.05f;
+	public float cameraLookAtOffset = 15;
+
 	Point[] points;
 	Bar[] bars;
 	public int pointCount;
@@ -317,7 +322,12 @@ public class PointManager : MonoBehaviour {
 	private void Update() {
 		tornadoX = Mathf.Cos(Time.time/6f) * 30f;
 		tornadoZ = Mathf.Sin(Time.time/6f * 1.618f) * 30f;
-		cam.position = new Vector3(tornadoX,10f,tornadoZ) - cam.forward * 60f;
+
+		// Update camera position
+		Vector3 targetPosition = new Vector3(tornadoX, cameraPositionOffset, tornadoZ) - new Vector3(0f, 0f, cameraDistance);
+		targetPosition = Vector3.Lerp( cam.position, targetPosition, cameraPositionDamping);
+		cam.position = targetPosition;
+		cam.LookAt(new Vector3(tornadoX, cameraLookAtOffset, tornadoZ));
 
 		if (matrices != null) {
 			for (int i = 0; i < matrices.Length; i++) {
