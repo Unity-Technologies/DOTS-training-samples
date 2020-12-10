@@ -150,9 +150,7 @@ public class BarMovementSytem : SystemBase
         }).Run();
 
         ecb.Playback(EntityManager);
-    
         ecb.Dispose();
-        
         ecb = new EntityCommandBuffer(Allocator.Temp);
 
         Entities.WithAll<Building>().ForEach((in DynamicBuffer<Constraint> constraints) =>
