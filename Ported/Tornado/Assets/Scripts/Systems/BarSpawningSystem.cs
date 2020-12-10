@@ -1,11 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
-using Unity.Rendering;
 using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(CreateBuildingSystem))]
@@ -17,6 +16,7 @@ public class BarSpawningSystem : SystemBase
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<BarSpawner>();
+
         // Get the command buffer system
         CommandBufferSystem
             = World.DefaultGameObjectInjectionWorld.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -24,8 +24,8 @@ public class BarSpawningSystem : SystemBase
         query = GetEntityQuery(typeof(Building));
     }
 
-    private EntityQuery query;
-    
+    EntityQuery query;
+
     protected override void OnUpdate()
     {
         // The command buffer to record commands,
@@ -33,7 +33,7 @@ public class BarSpawningSystem : SystemBase
         EntityCommandBuffer.ParallelWriter commandBuffer
             = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
-        var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         var spawner = GetSingleton<BarSpawner>();
 
@@ -41,12 +41,11 @@ public class BarSpawningSystem : SystemBase
 
         var buildings = query.ToEntityArray(Allocator.Temp);
 
-        
         foreach (var buildingEntity in buildings)
         {
             var bars = EntityManager.Instantiate(spawner.barPrefab, GetBuffer<Constraint>(buildingEntity).Length, Allocator.Temp);
             var bufferConstraint = GetBuffer<Constraint>(buildingEntity);
-            
+
             for (int i = 0; i < bars.Length; i++)
             {
                 var constraint = bufferConstraint[i];
@@ -55,10 +54,10 @@ public class BarSpawningSystem : SystemBase
             }
         }
 
-        Entities.WithAll<Building>().ForEach( ( Entity entity)  =>
+        Entities.WithAll<Building>().ForEach((Entity entity) =>
         {
             var bufferConstraint = GetBuffer<Constraint>(entity);
-            
+
             for (int i = 0; i < bufferConstraint.Length; i++)
             {
                 var instance = bufferConstraint[i].barTransform;
@@ -71,9 +70,9 @@ public class BarSpawningSystem : SystemBase
                 var translation = new Translation();
                 var rotation = new Rotation();
                 var scale = new NonUniformScale();
-                
+
                 translation.Value = (posA + posB) * 0.5f;
-                rotation.Value = Quaternion.LookRotation(((Vector3) (posA - posB)).normalized);
+                rotation.Value = Quaternion.LookRotation(((Vector3)(posA - posB)).normalized);
                 scale.Value = new float3(thickness, thickness, Vector3.Distance(posA, posB));
 
                 ecb.SetComponent(instance, rotation);
@@ -83,7 +82,7 @@ public class BarSpawningSystem : SystemBase
             }
         }).Run();
 
-        ecb.Playback( EntityManager );
+        ecb.Playback(EntityManager);
 
         Enabled = false;
     }
