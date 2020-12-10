@@ -21,11 +21,11 @@ public class CreateBuildingSystem : SystemBase
 
         // buildings
         
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 35; i++)
         {
             var newBuildingEntity = ecb.CreateEntity();
             var newBuildingConstructionData = new BuildingConstructionData();
-            newBuildingConstructionData.height = 4;// Random.Range(4, 12);
+            newBuildingConstructionData.height = random.NextInt(4, 12);
             newBuildingConstructionData.position = new float3(random.NextFloat(-45f, 45f), 0f, random.NextFloat(-45f, 45f));
             newBuildingConstructionData.spacing = 2f;
 

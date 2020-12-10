@@ -142,8 +142,8 @@ public class BarMovementSytem : SystemBase
                     }
                 }
 
-                ecb.SetComponent(constraint.pointA, new Translation { Value = point1Pos });
-                ecb.SetComponent(constraint.pointB, new Translation { Value = point2Pos }); 
+                SetComponent(constraint.pointA, new Translation { Value = point1Pos });
+                SetComponent(constraint.pointB, new Translation { Value = point2Pos }); 
                 
                 // Debug.DrawLine(point1Pos, point2Pos, Color.green);
             }
