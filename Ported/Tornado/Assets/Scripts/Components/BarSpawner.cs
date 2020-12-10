@@ -8,6 +8,7 @@ using Unity.Mathematics;
 public struct BarSpawner : IComponentData
 {
     public Entity barPrefab;
+    [HideInInspector]
     public float4 color;
     [Range(0, 300)]
     public int buildingsCount;
