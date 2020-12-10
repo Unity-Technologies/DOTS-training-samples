@@ -137,7 +137,7 @@ public class CreateBuildingSystem : SystemBase
                trans.Value.z = pos2.z + random.NextFloat(-.1f, -.2f);
                point.oldPosition = trans.Value;
                
-               if (random.NextFloat(0f, 1f) > 0.1f)
+               if (random.NextFloat(0f, 1f) < 0.1f)
                {
                    point.anchor = true;
                }
