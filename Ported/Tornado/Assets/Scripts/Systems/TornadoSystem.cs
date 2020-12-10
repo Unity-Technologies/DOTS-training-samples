@@ -4,20 +4,36 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateAfter(typeof(TornadoMovementSystem))]
-public class ParticleMovementSystem : SystemBase
+public class TornadoSystem : SystemBase
 {
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<TornadoSettings>();
         RequireSingletonForUpdate<Tornado>();
+        RequireSingletonForUpdate<CameraReference>();
     }
 
     protected override void OnUpdate()
     {
+        var camera = this.GetSingleton<CameraReference>().Camera;
+
+        var time = Time.ElapsedTime;
+
+        float3 cameraPosition = 0f;
+
+        Entities.WithAll<Tornado>().ForEach((Entity entity, ref Translation transl) =>
+        {
+            transl.Value.x = math.cos((float)time / 6f) * 30f;
+            transl.Value.z = math.sin((float)time / 6f * 1.618f) * 30f;
+
+            cameraPosition = transl.Value;
+        }).Run();
+
+        camera.transform.position = new Vector3(cameraPosition.x, 10f, cameraPosition.z) - camera.transform.forward * 60f;
+
         var settings = GetSingleton<TornadoSettings>();
-        var tornado = GetSingletonEntity<Tornado>();
-        var tornadoTranslation = GetComponent<Translation>(tornado);
+        var tornadoEntity = GetSingletonEntity<Tornado>();
+        var tornadoTranslation = GetComponent<Translation>(tornadoEntity);
 
         var spinRate = settings.SpinRate;
         var speedUpward = settings.SpeedUpward;
